@@ -1,14 +1,13 @@
 ---
 title: range
 linktitle:
-description:
+description: Iterates over a map, array, or slice.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [iteration,fundamentals]
 categories: [functions]
-toc:
+tags: [iteration,fundamentals]
 signature:
 workson: []
 hugoversion:
@@ -18,7 +17,6 @@ draft: false
 aliases: []
 ---
 
-## Example
+Just like in the Go programming language, Go and Hugo templates make heavy use of `range` to iterate over a map, array or slice.
 
-## Advanced Example
-
+`range` is fundamental to templating in Hugo. (See the [Go Template Primer](/templates/go-templates/) for more examples.

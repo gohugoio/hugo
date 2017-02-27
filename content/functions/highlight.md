@@ -1,13 +1,13 @@
 ---
 title: highlight
-linktitle:
-description:
+linktitle: highlight
+description: Takes a string of code and language declaration and uses Pygments to return syntax-highlighted HTML with inline-styles.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
-tags: []
+tags: [highlighting,pygments,code blocks,syntax]
 signature:
 workson: []
 hugoversion:

@@ -12,7 +12,6 @@ authors: ["Rick Cogley"]
 aliases: [/tutorials/create-a-multilingual-site/]
 draft: false
 hugoversion: 16
-needsreview: true
 ---
 
 {{% note %}}

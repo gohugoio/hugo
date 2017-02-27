@@ -1,7 +1,7 @@
 ---
-title: ref and relref
-linktitle: ref and relref
-description: Looks up a content page by relative path or logical name to return the content page's permalink.
+title: ref
+linktitle: ref
+description: Looks up a content page by logical name.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -13,10 +13,10 @@ workson: []
 hugoversion:
 relatedfuncs: [relref]
 deprecated: false
-aliases: [/functions/ref/,/functions/relref/]
+aliases: []
 ---
 
-These two functions looks up a content page by relative path (`relref`) or logical name (`ref`) to return the permalink. Both functions require a `Page` object (usually satisfied with a "`.`"):
+`ref` and `relRef` look up a content page by relative path (`relref`) or logical name (`ref`) to return the permalink. Both functions require a `Page` object (usually satisfied with a "`.`"):
 
 ```golang
 {{ relref . "about.md" }}

@@ -12,7 +12,6 @@ aliases: []
 hugoversion: 18.1
 draft: false
 toc: true
-needsreview: true
 ---
 
 ## Introduction
@@ -105,7 +104,7 @@ Note that you can use this tutorial to create your set of non-content files unde
 
 ### Home
 
-The home page, or landing page, is the first page that many visitors to a website will see. Often this is `/index.html`, located at the root URL of the website. Since Hugo writes files into the `./public/` tree, your home page will reside in file `./public/index.html`.
+The homepage, or landing page, is the first page that many visitors to a website will see. Often this is `/index.html`, located at the root URL of the website. Since Hugo writes files into the `./public/` tree, your homepage will reside in file `./public/index.html`.
 
 ### Configure
 
@@ -155,7 +154,7 @@ A _Single_ template is used to render one piece of content. For example, an arti
 
 A _List_ template renders a group of related content items. This could be a summary of recent postings, or all of the articles in a category. List templates can contain multiple groups (or categories).
 
-The home page template is a special kind of List template. This is because Hugo assumes that your home page will act as a portal to all of the remaining content on your website.
+The homepage template is a special kind of List template. This is because Hugo assumes that your homepage will act as a portal to all of the remaining content on your website.
 
 #### Partial
 
@@ -203,7 +202,7 @@ Started building site
 WARN: {date} {source} Unable to locate layout for homepage: [index.html _default/list.html]
 WARN: {date} {source} "/" is rendered empty
 =============================================================
-Your rendered home page is blank: /index.html is zero-length
+Your rendered homepage is blank: /index.html is zero-length
  * Did you specify a theme on the command-line or in your
    "config.toml" file?  (Current theme: "")
 =============================================================
@@ -257,7 +256,7 @@ If you look back at the output from the `hugo server` command, you'll notice tha
 0 pages created
 ```
 
-That's because Hugo doesn't count the home page, the 404 error page, or the RSS feed files as pages.
+That's because Hugo doesn't count the homepage, the 404 error page, or the RSS feed files as pages.
 
 ### Serve
 
@@ -274,7 +273,7 @@ INFO: {date} {source} syncing static files to /
 WARN: {date} {source} Unable to locate layout for homepage: [index.html _default/list.html]
 WARN: {date} {source} "/" is rendered empty
 =============================================================
-Your rendered home page is blank: /index.html is zero-length
+Your rendered homepage is blank: /index.html is zero-length
  * Did you specify a theme on the command-line or in your
    "config.toml" file?  (Current theme: "")
 =============================================================
@@ -310,9 +309,9 @@ WARN: {date} {source} Unable to locate layout for homepage: [index.html _default
 
 The 404 warning is easy to explain &mdash; it's because we haven't created the template file `layouts/404.html`. Hugo uses this to render an HTML file which serves "page not found" errors. However, the 404 page is a topic for a separate tutorial.
 
-Regarding the home page warning: the first layout Hugo looked for was `layouts/index.html`. Note that Hugo uses this file for the home page only.
+Regarding the homepage warning: the first layout Hugo looked for was `layouts/index.html`. Note that Hugo uses this file for the homepage only.
 
-It's good that Hugo lists the files it seeks, when we give it the verbose flag. For the home page, these files are `layouts/index.html` and `layouts/_default/list.html`. Later, we'll cover some rules which explain these paths (including their basenames). For now, just remember that Hugo couldn't find a template to use for the home page, and it said so.
+It's good that Hugo lists the files it seeks, when we give it the verbose flag. For the homepage, these files are `layouts/index.html` and `layouts/_default/list.html`. Later, we'll cover some rules which explain these paths (including their basenames). For now, just remember that Hugo couldn't find a template to use for the homepage, and it said so.
 
 All right! So, now &mdash; after these few steps &mdash; you have a working installation, and a website foundation you can build upon. All that's left is to add some content, as well as a theme to display it.
 
@@ -394,7 +393,7 @@ INFO: {date} {source} syncing static files to /tmp/mySite/public/
 Started building site
 WARN: {date} {source} "/" is rendered empty
 =============================================================
-Your rendered home page is blank: /index.html is zero-length
+Your rendered homepage is blank: /index.html is zero-length
  * Did you specify a theme on the command-line or in your
    "config.toml" file?  (Current theme: "zafta")
 =============================================================
@@ -412,7 +411,7 @@ in 4 ms
 
 Did you notice the output is different?
 
-Two previous warning messages have disappeared, which contained the words "Unable to locate layout" for your home page and the 404 page. And, a new informational message tells us Hugo is accessing your theme's tree (`./themes/zafta/`).
+Two previous warning messages have disappeared, which contained the words "Unable to locate layout" for your homepage and the 404 page. And, a new informational message tells us Hugo is accessing your theme's tree (`./themes/zafta/`).
 
 Let's check the `./public/` directory to see what Hugo rendered:
 
@@ -438,20 +437,20 @@ drwxr-xr-x  2 {user} {group}  68 {date} js
 
 #### Home
 
-In a Hugo website, each kind of page is informed (primarily) by just one of the many different kinds of templates available; yet the home page is special, because it gets its own kind of template, and its own template file.
+In a Hugo website, each kind of page is informed (primarily) by just one of the many different kinds of templates available; yet the homepage is special, because it gets its own kind of template, and its own template file.
 
-Hugo uses template file `layouts/index.html` to render the home page's HTML. Although Hugo's documentation may state that this file is the home page's only required template, Hugo's earlier warning message showed it actually
+Hugo uses template file `layouts/index.html` to render the homepage's HTML. Although Hugo's documentation may state that this file is the homepage's only required template, Hugo's earlier warning message showed it actually
 looks for two different templates:
 ```bash
 WARN: {date} {source} Unable to locate layout for homepage: [index.html _default/list.html]
 ```
 #### Empty
 
-When Hugo generated your theme, it included an empty home page template.
+When Hugo generated your theme, it included an empty homepage template.
 Whenever Hugo renders your website, it seeks that same template and uses it
-to render the HTML for the home page. Currently, the template file is empty,
+to render the HTML for the homepage. Currently, the template file is empty,
 so the output HTML file is empty, too. Whenever we add rules to that template,
-Hugo will use them in rendering the home page:
+Hugo will use them in rendering the homepage:
 ```bash
 $ find * -name index.html | xargs ls -l
 -rw-r--r--  1 {user} {group}  0 {date} public/index.html
@@ -542,7 +541,7 @@ $ hugo server --verbose
 Press Ctrl+C to stop
 ```
 
-Below is some sample output showing Hugo detecting a change in the home page template. (Actually, the change is the edit we're about to do.) Once it's rendered again, the web browser automatically reloads the page.
+Below is some sample output showing Hugo detecting a change in the homepage template. (Actually, the change is the edit we're about to do.) Once it's rendered again, the web browser automatically reloads the page.
 
 As I said above &mdash; it's amazing:)
 
@@ -558,7 +557,7 @@ INFO: {date} {source} syncing static files to /
 Started building site
 WARN: {date} {source} "/" is rendered empty
 =============================================================
-Your rendered home page is blank: /index.html is zero-length
+Your rendered homepage is blank: /index.html is zero-length
  * Did you specify a theme on the command-line or in your
    "config.toml" file?  (Current theme: "")
 =============================================================
@@ -594,7 +593,7 @@ in 3 ms
 ```
 ## Home Template
 
-The home page is one of the few special pages Hugo renders automatically. As mentioned earlier, it looks in your theme's `layouts/` tree for one of two files:
+The homepage is one of the few special pages Hugo renders automatically. As mentioned earlier, it looks in your theme's `layouts/` tree for one of two files:
 
 1. `index.html`
 1. `_default/list.html`
@@ -603,7 +602,7 @@ We could edit the default template, but a good design principle is to edit the m
 
 ### Static
 
-Right now, your home page is empty because you've added no content, and because its template includes no logic. Let's change that by adding some text to your home page template (`layouts/index.html`):
+Right now, your homepage is empty because you've added no content, and because its template includes no logic. Let's change that by adding some text to your homepage template (`layouts/index.html`):
 
 ```html
 $ vi themes/zafta/layouts/index.html
@@ -653,13 +652,13 @@ $ cat public/index.html
 
 ### Dynamic
 
-A ***dynamic*** home page? Because Hugo is a _static website_ generator, the word _dynamic_ seems odd, doesn't it? But this means arranging for your home page to reflect the content in your website automatically, each time Hugo renders it.
+A ***dynamic*** homepage? Because Hugo is a _static website_ generator, the word _dynamic_ seems odd, doesn't it? But this means arranging for your homepage to reflect the content in your website automatically, each time Hugo renders it.
 
-To accomplish that, later we'll add an iterator to your home page template.
+To accomplish that, later we'll add an iterator to your homepage template.
 
 ## Article
 
-Now that Hugo is successfully rendering your home page with static content, let's add more pages to your website. We'll display some new articles as a list on your home page; and we'll display each article on its own page, too.
+Now that Hugo is successfully rendering your homepage with static content, let's add more pages to your website. We'll display some new articles as a list on your homepage; and we'll display each article on its own page, too.
 
 Hugo has a command to generate an entry skeleton for new content,
 just as it does for websites and themes:
@@ -773,7 +772,7 @@ $ find public -type f -name '*.html' | xargs ls -l
 ```
 
 The new pages are empty, because Hugo rendered their HTML from empty
-template files. The home page doesn't show us the new content, either:
+template files. The homepage doesn't show us the new content, either:
 
 ```html
 $ cat public/index.html
@@ -789,16 +788,16 @@ So, we have to edit the templates, in order to pick up the articles.
 
 ### Single & List
 
-Here again I'll discuss three kinds of Hugo templates. One kind is the home page template we edited previously; it's applicable only to the home page. Another kind is Single templates, which render output for just one content file. The third kind are List templates, which group multiple pieces of content before rendering output.
+Here again I'll discuss three kinds of Hugo templates. One kind is the homepage template we edited previously; it's applicable only to the homepage. Another kind is Single templates, which render output for just one content file. The third kind are List templates, which group multiple pieces of content before rendering output.
 
-It's important to note that, generally, List templates (except the home page template) are named `list.html`; and Single templates are named `single.html`.
+It's important to note that, generally, List templates (except the homepage template) are named `list.html`; and Single templates are named `single.html`.
 
 Hugo also has three other kinds of templates: Partials, _Content Views_, and _Terms_. We'll give examples of some Partial templates; but otherwise,
 we won't go into much detail about these.
 
 ### Home
 
-You'll want your home page to list the articles you just created. So, let's alter its template file (`layouts/index.html`) to show them. Hugo runs each template's logic whenever it renders that template's web page (of course):
+You'll want your homepage to list the articles you just created. So, let's alter its template file (`layouts/index.html`) to show them. Hugo runs each template's logic whenever it renders that template's web page (of course):
 
 ```html
 $ vi themes/zafta/layouts/index.html
@@ -892,9 +891,9 @@ $ cat public/index.html
 
 ### All Done
 
-Congratulations! Your home page shows the titles of your two articles, along with the links to them. The articles themselves are still empty. But, let's take a moment to appreciate what we've done, so far!
+Congratulations! Your homepage shows the titles of your two articles, along with the links to them. The articles themselves are still empty. But, let's take a moment to appreciate what we've done, so far!
 
-Your home page template (`layouts/index.html`) now renders output dynamically. Believe it or not, by inserting the range command inside those doubled curly braces, you've learned everything you need to know &mdash; essentially &mdash; about developing a theme.
+Your homepage template (`layouts/index.html`) now renders output dynamically. Believe it or not, by inserting the range command inside those doubled curly braces, you've learned everything you need to know &mdash; essentially &mdash; about developing a theme.
 
 All that's left is understanding which of your templates renders each content file, and becoming more familiar with the commands for the template engine.
 
@@ -1047,13 +1046,13 @@ lobortis risus id nisi rutrum, at iaculis.</p>
 </html>
 ```
 
-Again, notice that your rendered article files have content. You can run `hugo server` and use your browser to confirm this. You should see your home page, and it should contain the titles of both articles. Each title should be a link to its respective article.
+Again, notice that your rendered article files have content. You can run `hugo server` and use your browser to confirm this. You should see your homepage, and it should contain the titles of both articles. Each title should be a link to its respective article.
 
-Each article should be displayed fully on its own page. And at the bottom of each article, you should see a link which takes you back to your home page.
+Each article should be displayed fully on its own page. And at the bottom of each article, you should see a link which takes you back to your homepage.
 
 ### Article List
 
-Your home page still lists your most recent articles. However &mdash; remember, from above, that I mentioned an empty file,
+Your homepage still lists your most recent articles. However &mdash; remember, from above, that I mentioned an empty file,
 `./public/article/index.html`?
 
 Let's make that show a list of *all* of your articles rather than just the most recent ten.
@@ -1214,7 +1213,7 @@ Oh, well. &mdash; Did you notice that your page wasn't rendered at the top level
 
 ### Home
 
-One other thing &mdash; let's take a look at your home page:
+One other thing &mdash; let's take a look at your homepage:
 
 ```html
 $ cat public/index.html
@@ -1229,7 +1228,7 @@ $ cat public/index.html
 ```
 
 Did you notice that the About link is listed with your articles?
-That's not exactly where we want it; so, let's edit your home page template
+That's not exactly where we want it; so, let's edit your homepage template
 (`layouts/index.html`):
 
 ```html
@@ -1291,11 +1290,11 @@ $ cat public/index.html
 </html>
 ```
 
-Good! This time, your home page has two Sections: "article" and "page", and each Section contains the correct set of headings and links.
+Good! This time, your homepage has two Sections: "article" and "page", and each Section contains the correct set of headings and links.
 
 ## Template Sharing
 
-If you've been following along on your computer, you might've noticed that your home page doesn't show its title in your browser, although both of your article pages do. That's because we didn't add your home page's title to its template (`layouts/index.html`). That would be easy to do &mdash; but instead, let's look at a better option.
+If you've been following along on your computer, you might've noticed that your homepage doesn't show its title in your browser, although both of your article pages do. That's because we didn't add your homepage's title to its template (`layouts/index.html`). That would be easy to do &mdash; but instead, let's look at a better option.
 
 We can put the common information into a shared template. These reside in the `layouts/partials/` directory.
 
@@ -1330,7 +1329,7 @@ Any `partial` is called relative to its conventional location `layouts/partials/
 
 #### From Home
 
-Let's change your home page template (`layouts/index.html`) in order to use the new header Partial we just created:
+Let's change your homepage template (`layouts/index.html`) in order to use the new header Partial we just created:
 
 ```html
 $ vi themes/zafta/layouts/index.html
@@ -1352,7 +1351,7 @@ $ vi themes/zafta/layouts/index.html
 :wq
 ```
 
-Render your website and verify the results. Now, the title on your home page should be "My New Hugo Site". This comes from the "title" variable in the `./config.toml` file.
+Render your website and verify the results. Now, the title on your homepage should be "My New Hugo Site". This comes from the "title" variable in the `./config.toml` file.
 
 #### From Default
 

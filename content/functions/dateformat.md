@@ -1,7 +1,7 @@
 ---
 title: dateFormat
 linktitle:
-description:
+description: Converts the textual representation of the `datetime` into the specified format.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -11,7 +11,7 @@ tags: [dates,time,strings]
 signature:
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [now,Unix]
 deprecated: false
 ---
 
@@ -20,3 +20,4 @@ deprecated: false
 ```
 {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }} → "Wednesday, Jan 21, 2015"
 ```
+

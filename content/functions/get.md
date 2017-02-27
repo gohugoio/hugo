@@ -1,20 +1,30 @@
 ---
 title: get
 linktitle: Get
-description:
+description: Accesses positional and ordered parameters in shortcode declaration.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
 tags: [shortcodes]
-toc:
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
+needsexample: true
 ---
+
+
+`.Get` is specifically used when creating your own [shortcode template][sc].
+
+
+
+
+[sc]: /templates/shortcode-templates/
+
+
+
 

@@ -85,7 +85,7 @@ From the above base template, you can define a [default list template][hugolists
 {{% /code %}}
 
 {{% note "No Go Context \"Dot\" in Block Definitions" %}}
-When using the `define` keyword, you do *not* need to use Go templates context reference (i.e., 'The Dot"). (Read more on the [Go Context Dot](/functions/the-dot/).)
+When using the `define` keyword, you do *not* need to use Go templates context reference (i.e., 'The Dot"). (Read more on ["The Dot" in the Go Template Primer](/templates/go-templates/).)
 {{% /note %}}
 
 This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"`` block, so the contents from our base template remain unchanged in lists.

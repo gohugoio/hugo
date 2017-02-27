@@ -243,7 +243,7 @@ If there is more than one language defined, the`LanguagePrefix` variable will eq
 
 [abslangurl]: /functions/abslangurl
 [contenttemplate]: /templates/single-page-template/
-[homepage]: /templates/homepage-template/
+[homepage]: /templates/homepage/
 [hugoconfig]: /getting-started/configuration/
 [i18func]: /functions/i18n/
 [RFC 5646]: https://tools.ietf.org/html/rfc5646

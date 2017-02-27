@@ -1,7 +1,7 @@
 ---
 title: scratch
 linktitle: Scratch
-description:
+description: Acts as a "scratchpad" to allow for writable page-scoped variables.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -18,7 +18,7 @@ draft: false
 aliases: [/extras/scratch/,/doc/scratch/]
 ---
 
-**`Scratch`** is a "scratchpad" for your [page-scoped variables][pagevars]. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
+`Scratch` is a "scratchpad" for your [page-scoped variables][pagevars]. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
 
 `Scratch` is added to both `Page` and `Shortcode` -- with following methods:
 

@@ -17,7 +17,7 @@ notesforauthors:
 
 Hugo provides the ability to traverse your website's files on your server, including the local `Hugo server`. You can access file-system-related data for a piece of content via the `.File` variable.
 
-{{% note "Local File Templates" %}}
+{{% note "Rendering Local Files" %}}
 For information on creating shortcodes and templates that tap into Hugo's file-related feature set, see [Local File Templates](/templates/local-file-templates/).
 {{% /note %}}
 
@@ -39,7 +39,7 @@ The `.File` object contains the following fields:
 : The file extension of the content file (e.g., `md`). This can also be called using `.File.Extension`.
 
 `.File.Lang`
-: The language associated with the given file if Hugo's [Multilingual][] features are enabled (e.g., `en`)
+: The language associated with the given file if Hugo's [Multilingual features][multilingual] are enabled (e.g., `en`)
 
 `.File.Dir`
 : Given the path `content/posts/dir1/dir2/`, the relative directory path of the content file will be returned (e.g., `posts/dir1/dir2/`)

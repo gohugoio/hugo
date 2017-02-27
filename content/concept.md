@@ -183,7 +183,7 @@ The preceding analytics and metrics are separate from usage statics re: Hugo dow
     - [X] Abstracted typefaces (multiple open-source fonts available)
 
 
-## Content Changes
+## Annotated Content Changes
 
 The following is an *abbreviated* listing of *substantive* changes made to the current documentation's source content and organization. Sections here are ordered according to the current site navigation. The changes delimited here do not include copy edits for consistent or preferred usage, improvements in semantics, etc, all of which easily numbers in the thousands, likely more.
 
@@ -210,9 +210,15 @@ Site showcase has stayed more or less as is, including styling, etc. However...
 
 ### Content
 
-* This section has been renamed "Content Management" to facilitate elimination of the ["extras"](http://gohugo.io) section. **Note**: this section does *not* include any templating. The convention is `content-management/shortcodes.md` (for explanation and usage) and then `content-management/shortcode-templates.md`
+* This section has been renamed "Content Management" to facilitate elimination of the ["extras"](http://gohugo.io) section. **Note**: this section does *not* include any templating. The convention is `content-management/concept.md` (for explanation and usage) `templates/concept-templates.md` (for examples, functions, etc), and then `variables/concept-variables.md`.
+    * That said, I'm working on refactoring a series of shortcodes for variables so that it's only a matter of referencing them once and having them update everywhere.
 
 ### Themes
+
+Themes section organization has only changed slightly in that the 6 content pages have been consolidated to just 4.
+
+* "Installing a theme" and "Using a Theme" have been combined since one largely dovetails with the other. The current [using a theme page](http://gohugo.io/themes/usage/) is pretty skimpy. An alias for `themes/usage` has been set up accordingly.
+*
 
 ### Templates
 
@@ -221,6 +227,8 @@ Site showcase has stayed more or less as is, including styling, etc. However...
 * Shortcodes, menus, pagination
 
 ### Taxonomies
+
+*Taxonomies* is no longer an independent section. Similar to shortcodes and menus, taxonomies is broken into two equal pages: one under Content Management, and the other under Templates.
 
 
 ### Extras
@@ -236,23 +244,48 @@ Site showcase has stayed more or less as is, including styling, etc. However...
 
 ### Community
 
+The "Community" section has been removed as a site navigation item because `/contribute` is now it's own section.
+    * There are now more calls than ever for contributing to Hugo throughout the Hugo docs.
+    *
+
 ### Tutorials
 
 * Original page: <http://gohugo.io/tutorials>
-* All installation guides have been consolidated under [/getting-started/installing/]
-    * Installing Hugo shouldn't be considered a separate tutorial
-    * "Tutorials" is not an intuitive place for end-users to look for this kind of documentation
-* All content moved from `/tutorials` edited to reflect a less tutorial-ish style of language (e.g., remove of lines starting with "In this tutorial...")
+* All installation guides have been consolidated under [/getting-started/installing/](/getting-started/installing/)
+    * Why? Installing Hugo shouldn't be considered a separate tutorial
+    * "Tutorials" is not an intuitive place for end users to look for this kind of documentation
+* All content moved from `/tutorials` has been edited to reflect a less tutorial-ish style of language (e.g., removal of lines starting with "In this tutorial...")
 * Aliases added to new pages and in-page links updated throughout
-* Michael Henderson's "Creating a Theme" website ([current][],[concept][]) has been copy edited and content edited to include the new code block shortcodes.
+* Remaining Tutorials
+    * Are these worth keeping in their entirety if they reflect (sometimes much) older versions of Hugo?
+    * Michael Henderson's "Creating a Theme" website ([current][],[concept][]) has been copy edited and content edited to include the new code block shortcodes. Michael did an *amazing* job with this tutorial, and it must have taken him *forever*, but much of the information included in the tutorial is now spread throughout the documentation in more appropriate places. Also, because this is an older tutorial, some of the paradigms aren't quite as up to date.
+    * Rick Cogley's still needs to be copy edited a bit, but overall looks good. That said, this tutorial was put together before Hugo began implementing it's international features.
+* **Guidelines for New Tutorials**
+    * To keep the content in tutorials maintainable, it's important to set standards on what should be contained within said tutorials when published directly to the Hugo docs. (Of course, listing beginning-to-end tutorials in other areas of the website [i.e., press and articles] is a very good idea). The following pieces of information should be omitted from full-text tutorials in the Hugo docs because they are better delimited and kept current in other areas:
+        * Explanations directory structure or content organization
+        * Explanations of content formats (namely, `.md`) or front matter
+        * Explanations of how to set up hosting, deployments, or automated deployments (although these make excellent additions to the "Hosting and Deployments" section)
+        * "Using Hugo Shortcodes with Google Sheets or Data-Driven Content" is a better tutorial example than "Getting Up and Running with Hugo" or "Deploying Your Hugo Website with an Apache Server"
 
 ### Troubleshooting
 
+* This section still only contains the same two troubleshooting content pages from the current site.
+    * Both pages have been copy edited, and the markdown has been cleaned up for consistency.
+
 ### Tools
+
+* Rather than a single-page list, a full "developer tools" section is part of the main navigation and includes the following pages:
+    * Migrate to Hugo. List of project-descriptions of community-developed migration tools
+    * Syntax highlighting. This builds on the syntax highlighting shortcode used in [/shortcodes/#highlight](/shortcodes/#highlight).
+    * Starter Kits. Only two items for now, but this should remain a community-aggregated (and edited) list of kits developed to help new users get up and running.
+    * Frontends. Same frontends material previously under "tools." Copy edited for consistency.
+    * Editor Plug-ins. Same editor plug-ins material found in current documentation. Copy edited for consistency.
+    * Search. Same search material under "tools" in current documentation. Copy edited for consistency.
+    * Other projects. This might be worth restructuring since I'm not a fan of catch-all sections or pages.
 
 ### Hugo Cmd Reference
 
-This hasn't been touched. I'll make the necessary style changes once/if the site is integrated into the Hugo GH repo since these pages are pulled automatically using Viper.
+This hasn't been touched. I'll make the necessary style changes once/if the site is integrated into the Hugo GH repo. I believe these pages are pulled automatically using Viper.
 
 ### Issues & Help
 
@@ -329,7 +362,7 @@ Apache License - 60
 
 ### "functions" Ordering (`.OrderByTitle`)
 
-### "variables-and-Params" Ordering (`.OrderByWeight`)
+### "variables" Ordering (`.OrderByWeight`)
 
 * _index.md - 01
 * Site Variables - 10
@@ -355,12 +388,11 @@ Apache License - 60
 * Creating a Theme - 30
 * Theme Showcase - 40
 
-### "site-showcase" Ordering (`.OrderByPublishDate`)
+### "showcase" Ordering (`.OrderByPublishDate`)
 
 
-### "Troubleshooting" Ordering
+### "troubleshooting" Ordering (`.OrderByTitle`)
 
-**Ordered by title**
 
 ## Current Content (Source)
 
@@ -377,7 +409,7 @@ If the Hugo Team finds the improvements to the Hugo documentation acceptable, I'
 3. **2017-03-6** Pull request/add to Hugo Rep
 3. **2017-??-??** Add to Hugo repo for release with v19?
 
-[^1]: As this point, the URL structure has changed considerably. I've been fastidious about adding aliases wherever possible and trying to retain URLs for related content on the current site if applicable. That said, the [current list of aliases is quite large](/contribute/documentation/#be-mindful-of-aliases).
+[^1]: At this point, not too much of the URL structure has changed that considerably. I've been fastidious about adding aliases wherever possible and trying to retain URLs whenever still applicable. That said, the [current list of aliases is quite large](/contribute/documentation/#be-mindful-of-aliases).
 
 [admonitions]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
 [designresources]: https://github.com/rdwatters/hugo-docs-concept/tree/master/dev-and-design-resources
@@ -389,5 +421,5 @@ If the Hugo Team finds the improvements to the Hugo documentation acceptable, I'
 [patch1]: http://gohugo.io/taxonomies/templates/
 [patch2]: https://github.com/spf13/hugo/commit/eaabecf586fd0375585e27c752e05dd8cb4c72b4
 [Quick Start]: https://hugodocsconcept.netlify.com/getting-started/quick-start/
-[showcasefiles]:
+[showcasefiles]: https://github.com/rdwatters/hugo-docs-concept/tree/master/content/showcase
 [tagspage]: https://hugodocsconcept.netlify.com/tags/

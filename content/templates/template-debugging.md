@@ -14,7 +14,6 @@ aliases: [/templates/debugging/]
 toc: false
 ---
 
-
 Here are some snippets you can add to your template to answer some common questions.
 
 These snippets use the `printf` function available in all Go templates.  This function is an alias to the Go function, [fmt.Printf](http://golang.org/pkg/fmt/).
@@ -38,7 +37,7 @@ This will print out the value of `.Permalink`:
 {{% /code %}}
 
 This will print out a list of all the variables scoped to the current context
-(aka [The dot, "`.`"][thedot]).
+(aka [The dot, "`.`"][primer]).
 
 {{% code file="get-all-vars-current-context.sh" %}}
 ```golang
@@ -67,7 +66,7 @@ Check that you are passing variables in the `partial` function:
 {{ partial "header" }}
 ```
 
-This example will render the header partial, but the header partial will not have access to any contextual variables. You need to pass variables explicitly. For example note the addition of [the dot][thedot].
+This example will render the header partial, but the header partial will not have access to any contextual variables. You need to pass variables explicitly. For example note the addition of [the dot][primer].
 
 ```
 {{ partial "header" . }}
@@ -75,6 +74,5 @@ This example will render the header partial, but the header partial will not hav
 
 The dot (`.`) is considered fundamental to understand Hugo templating. For more information, see the [Go Template Primer][primer].
 
-[hometemplate]: /templates/homepage-template/
-[primer]: /templates/go-template-primer/
-[thedot]: /functions/the-dot/
+[hometemplate]: /templates/homepage/
+[primer]: /templates/go-templates/

@@ -10,7 +10,7 @@ categories: [templates]
 tags: [go,fundamentals]
 weight: 10
 draft: false
-aliases: [/templates/go-templates/,/layouts/go-templates/,/layout/go-templates/]
+aliases: [/templates/go-template-primer/,/layouts/go-templates/,/layout/go-templates/]
 toc: true
 needsreview: true
 ---
@@ -112,7 +112,7 @@ the /layout/ directory within Hugo.
 {{ template "partials/header.html" . }}
 ```
 
-And, starting with Hugo v0.12, you may also use the `partial` call
+Starting with Hugo v0.12, you may also use the `partial` call
 for [partial templates][partials]:
 
 ```golang
@@ -129,7 +129,7 @@ Just like in Go, the Go templates make heavy use of `range` to iterate over
 a map, array or slice. The following are different examples of how to use
 range.
 
-**Example 1: Using Context**
+#### Example 1: Using Context**
 
 ```golang
 {{ range array }}
@@ -137,7 +137,7 @@ range.
 {{ end }}
 ```
 
-**Example 2: Declaring value variable name**
+#### Example 2: Declaring Value=>Variable name
 
 ```golang
 {{range $element := array}}
@@ -145,7 +145,7 @@ range.
 {{ end }}
 ```
 
-**Example 2: Declaring key and value variable name**
+#### Example 3: Declaring Key-Value Variable Name
 
 ```golang
 {{range $index, $element := array}}
@@ -164,13 +164,13 @@ Go Templates treat the following values as false:
 * 0
 * any array, slice, map, or string of length zero
 
-**Example 1: `if`**
+#### Example 1: `if`
 
 ```golang
 {{ if isset .Params "title" }}<h4>{{ index .Params "title" }}</h4>{{ end }}
 ```
 
-**Example 2: `if` … `else`**
+#### Example 2: `if` … `else`
 
 ```golang
 {{ if isset .Params "alt" }}
@@ -180,13 +180,13 @@ Go Templates treat the following values as false:
 {{ end }}
 ```
 
-**Example 3: `and` & `or`**
+#### Example 3: `and` & `or`
 
 ```golang
 {{ if and (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr")}}
 ```
 
-**Example 4: `with`**
+#### Example 4: `with`
 
 An alternative way of writing "`if`" and then referencing the same value
 is to use "`with`" instead. `with` rebinds the context `.` within its scope,
@@ -196,7 +196,7 @@ The first example above could be simplified as:
 
     {{ with .Params.title }}<h4>{{ . }}</h4>{{ end }}
 
-**Example 5: `if` … `else if`**
+#### Example 5: `if` … `else if`
 
 ```golang
 {{ if isset .Params "alt" }}
@@ -455,8 +455,8 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
 
 Go allows you to do more than what's shown here. Using Hugo's [`where` function](/functions/where/) and Go built-ins, we can list only the items from `content/events/` whose date (set in a content file's [front matter][]) is in the future. The following is an example [partial template][partials]:
 
-{{% code file="layouts/partials/show-upcoming-dates.html" download="show-upcoming-dates.html" %}}
-```golang
+{{% code file="layouts/partials/upcoming-events.html" download="upcoming-events.html" %}}
+```html
 <h4>Upcoming Events</h4>
 <ul class="upcoming-events">
 {{ range where .Data.Pages.ByDate "Section" "events" }}
@@ -469,6 +469,7 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
     </li>
   {{ end }}
 {{ end }}
+</ul>
 ```
 {{% /code %}}
 

@@ -30,6 +30,15 @@ Taxonomy list page templates are lists and therefore have all the variables and 
 
 ### Taxonomy List Template Lookup Order
 
+A Taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g.&nbsp;http://spf13.com/topics/golang/) from:
+
+* /layouts/taxonomy/`SINGULAR`.html (e.g.&nbsp;`/layouts/taxonomy/topic.html`)
+* /layouts/\_default/taxonomy.html
+* /layouts/\_default/list.html
+* /themes/`THEME`/layouts/taxonomy/`SINGULAR`.html
+* /themes/`THEME`/layouts/\_default/taxonomy.html
+* /themes/`THEME`/layouts/\_default/list.html
+
 ## Taxonomy Terms Template
 
 ### Taxonomy Terms Templates Lookup Order

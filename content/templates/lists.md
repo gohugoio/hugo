@@ -29,29 +29,6 @@ The idea of a list page comes from the [hierarchical mental model of the web][me
 
 ![Image demonstrating a hierarchical website sitemap.](/images/site-hierarchy.svg)
 
-
-
-
-```yaml
----
-aliases:
-- /doc/using-index-md/
-lastmod: 2017-02-22
-date: 2017-02-22
-linktitle: Using _index.md
-menu:
-  main:
-    parent: content
-prev: /content/example
-next: /themes/overview
-notoc: true
-title: Using _index.md
-weight: 70
----
-```
-
-
-
 ## List Defaults
 
 ### Default Templates
@@ -65,21 +42,6 @@ Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][]) ar
 3. `layouts/_default/section.html`
 4. `layouts/_default/list.html`
 
-### Understanding `.Data.Pages`
-
-
-### Taxonomy Lists
-
-A Taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g.&nbsp;http://spf13.com/topics/golang/) from:
-
-* /layouts/taxonomy/`SINGULAR`.html (e.g.&nbsp;`/layouts/taxonomy/topic.html`)
-* /layouts/\_default/taxonomy.html
-* /layouts/\_default/list.html
-* /themes/`THEME`/layouts/taxonomy/`SINGULAR`.html
-* /themes/`THEME`/layouts/\_default/taxonomy.html
-* /themes/`THEME`/layouts/\_default/list.html
-
-Note that a taxonomy list page can also have a content file with front matter,  see [Source Organization](/overview/source-directory/).
 
 ### Taxonomy RSS
 
@@ -114,8 +76,8 @@ If `where` or `first` receives invalid input or a field name that doesn’t exis
 
 
 [directorystructure]: /getting-started/directory-structure/
-[homepage]: /templates/homepage-template/
-[homepage]: /templates/homepage-template/
+[homepage]: /templates/homepage/
+[homepage]: /templates/homepage/
 [limitkeyword]: https://www.techonthenet.com/sql/select_limit.php
 [mentalmodel]: http://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
 [partials]: /templates/partials/

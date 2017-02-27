@@ -46,7 +46,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped writable variables.
 : see [Hugo Variables](/variables/other/).
 
 `.IsHome`
-: `true` in the context of the [home page](/templates/homepage-template/).
+: `true` in the context of the [home page](/templates/homepage/).
 
 `.IsNode`
 : always `false` for regular content pages.

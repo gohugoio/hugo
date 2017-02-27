@@ -1,7 +1,7 @@
 ---
 title: emojify
 linktitle:
-description:
+description: Runs a string through the Emoji emoticons processor.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -15,7 +15,7 @@ relatedfuncs: []
 deprecated: false
 ---
 
-Runs the string through the Emoji emoticons processor. The result will be declared as "safe" to prevent Go templates from filtering it as unsafe HTML.
+`emoji` runs a passed string through the Emoji emoticons processor. The result will be declared as "safe" to prevent Go templates from filtering it as unsafe HTML.
 
 See the [Emoji cheat sheet][emojis] for available emoticons.
 

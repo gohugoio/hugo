@@ -1,7 +1,7 @@
 ---
 title: now
 linktitle: now
-description:
+description: Returns the current local time as a [`time.Time`]
 godocref: https://godoc.org/time#Time
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -11,7 +11,7 @@ tags: [dates,time]
 signature:
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [Unix,dateFormat]
 deprecated: false
 aliases: []
 needsexamples: true

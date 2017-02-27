@@ -1,7 +1,7 @@
 ---
 title: slice
 linktitle: slice
-description:
+description: Creates an array (`[]interface{}``) of all passed arguments.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -23,7 +23,7 @@ needsexamples: true
 
 One use case is the concatenation of elements in combination with the [`delimit` function][]:
 
-{{% code "slice.html" %}}
+{{% code file="slice.html" %}}
 ```html
 {{ delimit (slice "foo" "bar" "buzz") ", " }}
 <!-- returns the string "foo, bar, buzz" -->

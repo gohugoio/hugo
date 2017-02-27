@@ -1,7 +1,7 @@
 ---
 title: default
 linktitle: default
-description:
+description: Allows setting a default value that can be returned if a first value is not set.
 qref: "Returns a default value if a value is not set when checked."
 godocref:
 date: 2017-02-01
@@ -20,7 +20,7 @@ aliases: [/functions/default/]
 needsexamples: false
 ---
 
-Checks whether a given value is set and returns a default value if it is not. *Set* in this context means different things depending on date type:
+`default` checks whether a given value is set and returns a default value if it is not. *Set* in this context means different things depending on date type:
 
 * non-zero for numeric types and times
 * non-zero length for strings, arrays, slices, and maps

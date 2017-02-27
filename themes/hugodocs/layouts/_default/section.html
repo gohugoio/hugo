@@ -12,10 +12,13 @@
 		</header>
 		<div class="body-copy">
 		{{.Content}}
-		{{partial "contents-list.html" .}}
+		{{ if ne .Section "functions"}}
+			{{- partial "contents-list.html" . -}}
+		{{ else }}
+			{{- partial "functions-quick-reference.html" . -}}
+		{{ end }}
 		</div>
 	</div>
 	{{partial "content-footer.html" . }}
-	{{partial "table-of-contents.html" . }}
 </main>
 {{ end }}

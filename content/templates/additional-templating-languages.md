@@ -1,7 +1,7 @@
 ---
 title: Additional Templating Languages
 linktitle: Additional Templating
-description: In addition to Go templates and Amber templates, Hugo supports the powerful Ace templating from @yosssi and Amber templating from @eknkc.
+description: In addition to Go templates, Hugo supports the powerful Ace templating from @yosssi and Amber templating from @eknkc.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -70,5 +70,5 @@ For Amber template documentation, follow the links from the [Amber project][].
 [aceinheritance]: https://github.com/yosssi/ace/tree/master/examples/base_inner_template
 [Amber Project]: https://github.com/eknkc/amber
 [template functions]: /functions/
-[Go templates]: /templates/go-template-primer/
+[Go templates]: /templates/go-templates/
 [Go base templates]: /templates/base-templates-and-blocks/

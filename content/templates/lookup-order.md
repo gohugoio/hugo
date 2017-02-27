@@ -39,7 +39,7 @@ See examples of the lookup order for each of the Hugo template types:
 [base]: /templates/base-templates-and-blocks/#base-template-lookup-order
 [directory structure]: /getting-started/directory-structure/
 [DRY]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
-[home]: /templates/homepage-template/#homepage-template-lookup-order
+[home]: /templates/homepage/#homepage-template-lookup-order
 [rsslookup]: /templates/rss-templates/#rss-template-lookup-order
 [sectionlookup]: /templates/section-templates/#section-template-lookup-order
 [singlelookup]: templates/single-page-templates/#single-page-template-lookup-order

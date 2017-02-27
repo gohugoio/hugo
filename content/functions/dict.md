@@ -1,30 +1,28 @@
 ---
 title: dict
-linktitle:
-description:
+linktitle: dict
+description: Creates a dictionary `(map[string, interface{})` that expects parameters added in a value:object fashion.
 godocref:
 workson: []
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
-tags: []
+lastmod: 2017-02-26
 categories: [functions]
-toc:
+tags: [dictionary]
 signature:
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: false
 aliases: []
 needsexamples: true
 ---
 
-Creates a dictionary `(map[string, interface{})`, expects parameters added in value:object fasion.
-Invalid combinations like keys that are not strings or uneven number of parameters, will result in an exception thrown.
-Useful for passing maps to partials when adding to a template.
+`dict` creates a dictionary `(map[string, interface{})` that expects parameters added in a value:object fashion.
 
-e.g. Pass into "foo.html" a map with the keys "important, content"
+Invalid combinations---e.g., keys that are not strings or an uneven number of parameters---will result in an exception being thrown. `dict` is especially useful for passing maps to partials being added to a template.
+
+For example, the following snippet passes a map with the keys "important, content" into "foo.html"
 
 {{% code file="dict-example.html" %}}
 ```html
@@ -35,14 +33,14 @@ e.g. Pass into "foo.html" a map with the keys "important, content"
 ```
 {{% /code %}}
 
-And then in `foo.html`:
+These keys can then be called in `foo.html` as follows:
 
 ```golang
 Important {{.important}}
 {{.content}}
 ```
 
-`dict` also allows you to create a map on the fly to pass into
+`dict` also allows you to create a map on the fly to pass into your [partial templates][partials]
 
 {{% code file="dict-create-map.html" %}}
 ```golang
@@ -50,4 +48,4 @@ Important {{.important}}
 ```
 {{% /code %}}
 
-
+[partials]: /templates/partials/

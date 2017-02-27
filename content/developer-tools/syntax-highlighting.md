@@ -5,7 +5,7 @@ description: Hugo provides server-side syntax highlighting via Pygments and, lik
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [highlighting,pygments,code blocks]
+tags: [highlighting,pygments,code blocks,syntax]
 categories: [developer tools]
 weight: 20
 draft: false

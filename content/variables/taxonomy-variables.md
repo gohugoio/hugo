@@ -1,7 +1,7 @@
 ---
 title: Taxonomy Variables
 linktitle:
-description:
+description: Taxonomy pages are of type `Page` and have all page-, site-, and list-level variables available to them. However, taxonomy terms templates have additional variables available to their templates.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -12,7 +12,6 @@ weight: 30
 aliases: []
 toc: true
 needsreview: true
-notesforauthors:
 ---
 
 ### Taxonomy Terms Page Variables
@@ -44,7 +43,7 @@ Note that `.Data.Terms.Alphabetical` and `.Data.Terms.ByCount` can also be rever
 
 ### Using `.Site.Taxonomies` Outside of Taxonomy Templates
 
-The `.Site.Taxonomies` variable holds all the taxonomies that defined site-wide. It is a map of the taxonomy name to a list of its values (e.g., "tags" -> ["tag1", "tag2", "tag3"]). Each value, though, is not a string but rather a **Taxonomy variable**.
+The `.Site.Taxonomies` variable holds all the taxonomies defined site-wide. `.Site.Taxonomies` is a map of the taxonomy name to a list of its values (e.g., `"tags" -> ["tag1", "tag2", "tag3"]``). Each value, though, is not a string but rather a *Taxonomy variable*.
 
 ### The Taxonomy Variable
 

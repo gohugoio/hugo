@@ -1,5 +1,5 @@
 ---
-title: Shortcode, Git, and Hugo Variables
+title: Shortcode, Git, Menu, and Hugo Variables
 linktitle: Shortcode, Git, and Hugo Variables
 description:
 date: 2017-02-01

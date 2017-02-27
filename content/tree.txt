@@ -2,8 +2,8 @@
 ├── _index.md
 ├── about-hugo
 │   ├── _index.md
-│   ├── benefits-of-static.md
-│   ├── hugo-features.md
+│   ├── benefits.md
+│   ├── features.md
 │   ├── license.md
 │   ├── roadmap.md
 │   ├── what-is-hugo.md
@@ -15,27 +15,31 @@
 │   ├── _index.md
 │   ├── archetypes.md
 │   ├── comments.md
-│   ├── content-organization.md
 │   ├── content-summaries.md
 │   ├── content-types.md
 │   ├── cross-references.md
+│   ├── formats.md
 │   ├── front-matter.md
 │   ├── menus.md
-│   ├── multilingual-mode.md
+│   ├── multilingual.md
+│   ├── organization.md
 │   ├── sections.md
 │   ├── shortcodes.md
-│   ├── supported-content-formats.md
-│   ├── table-of-contents.md
 │   ├── taxonomies.md
-│   └── url-management.md
-├── contribute-to-hugo
+│   ├── toc.md
+│   └── urls.md
+├── contribute
 │   ├── _index.md
-│   ├── add-your-site-to-the-showcase.md
-│   ├── contribute-to-hugo-development.md
-│   └── contribute-to-the-hugo-docs.md
+│   ├── development.md
+│   └── documentation.md
 ├── developer-tools
 │   ├── _index.md
+│   ├── editor-plugins.md
+│   ├── frontends.md
 │   ├── migrate-to-hugo.md
+│   ├── other.md
+│   ├── search.md
+│   ├── starter-kits.md
 │   └── syntax-highlighting.md
 ├── functions
 │   ├── _index.md
@@ -43,10 +47,8 @@
 │   ├── absurl.md
 │   ├── after.md
 │   ├── apply.md
-│   ├── base64decode.md
-│   ├── base64encode.md
+│   ├── base64.md
 │   ├── chomp.md
-│   ├── count.md
 │   ├── countrunes.md
 │   ├── countwords.md
 │   ├── dateformat.md
@@ -55,6 +57,7 @@
 │   ├── dict.md
 │   ├── echoparam.md
 │   ├── emojify.md
+│   ├── eq.md
 │   ├── findre.md
 │   ├── first.md
 │   ├── get.md
@@ -81,6 +84,7 @@
 │   ├── markdownify.md
 │   ├── math.md
 │   ├── md5.md
+│   ├── now.md
 │   ├── param.md
 │   ├── partialcached.md
 │   ├── plainify.md
@@ -90,12 +94,13 @@
 │   ├── range.md
 │   ├── readdir.md
 │   ├── readfile.md
-│   ├── rel.md
-│   ├── rellangurl.md
+│   ├── ref.md
+│   ├── relLangURL.md
 │   ├── relref.md
 │   ├── relurl.md
 │   ├── render.md
 │   ├── replace.md
+│   ├── replacere.md
 │   ├── safecss.md
 │   ├── safehtml.md
 │   ├── safehtmlattr.md
@@ -103,8 +108,7 @@
 │   ├── safeurl.md
 │   ├── scratch.md
 │   ├── seq.md
-│   ├── sha1.md
-│   ├── sha256.md
+│   ├── sha.md
 │   ├── shuffle.md
 │   ├── singularize.md
 │   ├── slice.md
@@ -113,7 +117,6 @@
 │   ├── split.md
 │   ├── string.md
 │   ├── substr.md
-│   ├── the-dot.md
 │   ├── time.md
 │   ├── title.md
 │   ├── trim.md
@@ -121,15 +124,14 @@
 │   ├── unix.md
 │   ├── upper.md
 │   ├── urlize.md
-│   ├── where.md
-│   └── with.md
+│   └── where.md
 ├── getting-started
 │   ├── _index.md
-│   ├── basic-usage.md
 │   ├── configuration.md
 │   ├── directory-structure.md
-│   ├── install-hugo.md
+│   ├── installing.md
 │   ├── quick-start.md
+│   ├── usage.md
 │   └── using-the-hugo-docs.md
 ├── hosting-and-deployment
 │   ├── _index.md
@@ -137,7 +139,8 @@
 │   ├── deployment-with-wercker.md
 │   ├── hosting-on-bitbucket.md
 │   ├── hosting-on-github.md
-│   └── hosting-on-gitlab.md
+│   ├── hosting-on-gitlab.md
+│   └── hosting-on-netlify.md
 ├── mailing-list.md
 ├── news
 │   ├── _index.md
@@ -247,13 +250,16 @@
 │   ├── content-view-templates.md
 │   ├── custom-404-page.md
 │   ├── data-templates.md
-│   ├── go-template-primer.md
-│   ├── homepage-template.md
-│   ├── lists-in-hugo.md
+│   ├── go-templates.md
+│   ├── homepage.md
+│   ├── lists.md
 │   ├── local-file-templates.md
+│   ├── lookup-order.md
 │   ├── menu-templates.md
 │   ├── pagination.md
-│   ├── partial-templates.md
+│   ├── partials.md
+│   ├── rendering-lists.md
+│   ├── robots.md
 │   ├── rss-templates.md
 │   ├── section-templates.md
 │   ├── shortcode-templates.md
@@ -263,8 +269,8 @@
 │   └── template-debugging.md
 ├── themes
 │   ├── _index.md
-│   ├── creating-a-theme.md
-│   ├── customizing-a-theme.md
+│   ├── creating.md
+│   ├── customizing.md
 │   ├── installing-and-using-themes.md
 │   └── theme-showcase.md
 ├── tree.txt
@@ -277,7 +283,7 @@
 │   ├── creating-a-multilingual-site.md
 │   ├── creating-a-new-theme.md
 │   └── migrate-from-jekyll-to-hugo.md
-└── variables-and-params
+└── variables
     ├── _index.md
     ├── file-variables.md
     ├── other-variables.md
@@ -285,4 +291,4 @@
     ├── site-variables.md
     └── taxonomy-variables.md
 
-15 directories, 270 files
+15 directories, 276 files

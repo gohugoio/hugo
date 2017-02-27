@@ -259,7 +259,7 @@ An `_index.md` file has also been added in the top level 'content' directory.
 Hugo themes are designed to use the 'content' directory as the root of the website, so adding an \_index.md file here (like has been done in the example above) is how you would add front matter/content to the homepage.
 
 [front matter]: /content-management/front-matter/
-[homepage]: /templates/homepage-template/
+[homepage]: /templates/homepage/
 [section]: /content-management/section/
 [formats]: /content-management/formats/
 [singles]: /templates/single-page-templates/

@@ -1,7 +1,7 @@
 ---
 title: querify
 linktitle: querify
-description:
+description: Takes a set of key-value pairs and returns a query string to be appended to URLs.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

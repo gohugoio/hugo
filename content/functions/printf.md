@@ -1,13 +1,13 @@
 ---
 title: printf
 linktitle: printf
-description:
+description: Formats a string using the standard `fmt.Sprintf` function.
 godocref: https://golang.org/pkg/fmt/
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
-tags: []
+tags: [strings]
 signature:
 workson: []
 hugoversion:
@@ -16,8 +16,7 @@ deprecated: false
 needsexamples: true
 ---
 
-Format a string using the standard `fmt.Sprintf` function. See [the go
-doc](https://golang.org/pkg/fmt/) for additional information.
+`printf` formats a string using the standard `fmt.Sprintf` function. See [the go doc](https://golang.org/pkg/fmt/) for additional information.
 
 ```golang
 {{ i18n ( printf "combined_%s" $var ) }}

@@ -1,0 +1,6 @@
+<dl class="quick-reference">
+	{{ range .Data.Pages }}
+	<dt><code><a href="{{.Permalink}}">{{.LinkTitle}}</a></code></dt>
+	<dd>{{.Description}}</dd>
+	{{ end }}
+</dl>

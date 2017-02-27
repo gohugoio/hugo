@@ -65,7 +65,7 @@ See what's coming next in the [Hugo roadmap][].
 [functions]: /functions/
 [Golang]: http://golang.org/pkg/html/template/
 [Google Analytics]: https://google-analytics.com/
-[homepage]: /templates/homepage-template/
+[homepage]: /templates/homepage/
 [Host your site anywhere]: /hosting-and-deployment/
 [Hugo roadmap]: /about-hugo/roadmap
 [Linux]: /getting-started/install-on-mac/

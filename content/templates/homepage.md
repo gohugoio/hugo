@@ -1,6 +1,6 @@
 ---
-title: Homepage Template
-linktitle:
+title: The Homepage Template
+linktitle: Homepage Template
 description:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -9,7 +9,7 @@ categories: [templates]
 tags: [homepage]
 weight: 30
 draft: false
-aliases: [/layout/homepage/,/templates/homepage/]
+aliases: [/layout/homepage/,/templates/homepage-template/]
 toc: false
 ---
 

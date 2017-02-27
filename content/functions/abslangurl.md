@@ -1,13 +1,13 @@
 ---
-title: abslangurl and rellangurl
-linktitle: absLangURL and relLangURL
-description: Similar to absURL, but adds the absolute URL with correct language prefix according to site configuration for multilingual and baseURL.
+title: abslangurl
+linktitle: absLangURL
+description: Adds the absolute URL with correct language prefix according to site configuration for multilingual.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [multilingual,i18n,urls]
 categories: [functions]
+tags: [multilingual,i18n,urls]
 signature:
 workson: []
 hugoversion:
