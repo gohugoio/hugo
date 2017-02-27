@@ -18,6 +18,8 @@ aliases: [/overview/source-directory/]
 Hugo takes a single directory and uses it as the input for creating a complete
 website.
 
+## Directory Scaffolding in New Hugo Sites
+
 The top level of a source directory will typically have the following elements:
 
 ```bash

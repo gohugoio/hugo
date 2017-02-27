@@ -30,7 +30,7 @@ functions:
   order: 5
   title: "Functions"
   url: "functions"
-  haschildren: true
+  haschildren: false
   sortsubpagesby: "title"
   desc: "Comprehensive list of Hugo templating functions, including basic and advanced usage examples"
 variablesandparams:

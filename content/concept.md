@@ -13,12 +13,16 @@ aliases: []
 toc: true
 ---
 
-### Introduction
+## Introduction
 
 The claims made in this strategic document are largely *empirical* and pulled from two major sources:
 
 * My experience starting 18 months ago as a new Hugo user.
 * Conversations with fellow Hugo users and noted trends within the [Discussion Forum][forum].
+
+{{% note "What the hell is all of this, Ryan?" %}}
+At the bottom of this document is a section that starts with [most important questions for the Hugo team](#ideal-workflow) and continues with a very high-level description of an *ideal* content strategy process. This has only been included to provide insight for those unfamiliar with fundamental content strategy concepts.
+{{% /note %}}
 
 {{% warning "Disclaimer" %}}
 WIP. Before any of my fellow content strategists banish me to content strategy hell, know that I *know* this is a *schlocky* version of a true strategic document. It'll get better. I promise.
@@ -439,6 +443,49 @@ Apache License - 60
 {{< readfile file="content/tree.txt" >}}
 ```
 
+## Ideal Workflow
+
+The following demonstrates the *ideal* sequence for content strategy and is only included in this document for those who are unfamiliar with some of these concepts.
+
+### 1. Defining Goals and Audiences
+
+* What are the goals for this product?
+* Who are the targeted users/audiences?
+
+### 2. Content Stragegy Development
+
+* What is the editorial mission statement?
+    * What are we promising to end users to help them achiece *their* goals? (We [at least ostensibly] serve *their* needs first)
+    * What have we failed to deliver to end users with the current website in helping them accomplish their goals?
+* What is the content strategy statement? I.e., now that end users know what they're getting...
+    * How do we accomplish *our* goals?
+    * [Core model][]
+        * What content do we already have?
+        * How did users get to our site?
+        * What do we want them to do after they leave?
+        * How do their actions serve to execute on our primary strategy?
+
+### 3. Content Strategy Implementation (i.e. *tactics*)
+
+* Content typing
+    * Define content types and attributes (in this case, archetypes with fixed front matter)
+* [Content modeling][]
+    * What are the defined relationships between the content types?
+    * Basic IA
+* Build out all content as instances of content types. (The general rule is that *more structure = more freedom*)
+* Content grouping (this may or may not flip positions with the last step)
+* Site architecture and IA
+* Define opportunities for repurposing content across multiple areas, COPE, and scaling
+
+### 4. Website Development
+
+* Begin development of templating and UX considerations
+* Guidelines
+    * Style guide (editorial, not visual)
+    * Contribution guidelines (including descriptions of types to make it easier on authors/contributors)
+* Visual Design
+
+
 ## Proposed Schedule for Hugo Docs Release
 
 If the Hugo Team finds the improvements to the Hugo documentation acceptable, I've proposed the following schedule for releasing the new Hugo documentation.
@@ -451,6 +498,8 @@ If the Hugo Team finds the improvements to the Hugo documentation acceptable, I'
 [^1]: At this point, not too much of the URL structure has changed that considerably. I've been fastidious about adding aliases wherever possible and trying to retain URLs whenever still applicable. That said, the [current list of aliases is quite large](/contribute/documentation/#be-mindful-of-aliases).
 
 [admonitions]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
+[Content Modeling]: https://alistapart.com/article/content-modelling-a-master-skill
+[Core Model]: https://alistapart.com/article/the-core-model-designing-inside-out-for-better-results
 [designresources]: https://github.com/rdwatters/hugo-docs-concept/tree/master/dev-and-design-resources
 [ex1]: https://discuss.gohugo.io/t/frustrated-with-documentation/2810
 [ex2]: https://discuss.gohugo.io/t/documentation-restructure-and-design/1891
