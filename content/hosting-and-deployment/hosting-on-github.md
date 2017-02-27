@@ -12,7 +12,6 @@ weight: 40
 draft: false
 toc: true
 aliases: [/tutorials/github-pages-blog/]
-needsreview: true
 ---
 
 {{% note %}}

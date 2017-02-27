@@ -12,7 +12,6 @@ weight: 10
 draft: false
 aliases: [/tutorials/deployment-with-rsync/]
 toc: true
-needsreview: true
 notesforauthors:
 ---
 
