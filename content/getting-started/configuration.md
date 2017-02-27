@@ -90,8 +90,11 @@ enableRobotsTXT:            false
 disable404:                 false
 # Do not inject generator meta tag on homepage
 disableHugoGeneratorInject: false
-# The below example will disable all page types and will render nothing.
-disableKinds: ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+# Allows you to disable all page types and will render nothing related to 'kind'
+# See /content-management/organization/ for more information related to `Kind` and `_index.md`
+# The following would render nothing according to kind if written with all availabe values=>
+# ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+disableKinds: []
 # Do not make the url/path to lowercase
 disablePathToLower:         false
 # edit new content with this editor, if provided
@@ -231,8 +234,12 @@ enableRobotsTXT =             false
 disable404 =                  false
 # Do not inject generator meta tag on homepage
 disableHugoGeneratorInject =  false
-# The below example will disable all page types and will render nothing.
-disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+# Allows you to disable all page types and will render nothing related to 'kind'
+# See /content-management/organization/ for more information related to 'kind'
+# and `_index.md`
+# The following would render nothing according to kind if written with all availabe values=>
+# ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+disableKinds = []
 # Do not make the url/path to lowercase
 disablePathToLower =          false
 # edit new content with this editor, if provided

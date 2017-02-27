@@ -1,0 +1,7 @@
+<h1 class="page-title {{.Section}}" id="{{with .LinkTitle}}{{. | urlize}}{{else}}{{ .Title | urlize }}{{end}}">
+	{{- if eq .Section "functions" -}}
+		{{- replace (.LinkTitle) "and" "<em>and</em>" | safeHTML -}}
+	{{- else -}}
+		{{- .Title | markdownify -}}
+	{{- end -}}
+</h1>

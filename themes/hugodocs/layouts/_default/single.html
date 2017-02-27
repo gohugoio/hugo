@@ -5,23 +5,16 @@
 	<article class="content" id="{{.Title | urlize}}">
 		<header class="content-header">
 			{{- partial "breadcrumb.html" . -}}
-			<h1 class="page-title {{.Section}}" id="{{with .LinkTitle}}{{. | urlize}}{{else}}{{ .Title | urlize }}{{end}}">
-			{{- if eq .Section "functions" -}}
-				{{- replace (.LinkTitle) "and" "<em>and</em>" | safeHTML -}}
-			{{- else -}}
-				{{- .Title | markdownify -}}
-			{{- end -}}</h1>
+			{{- partial "page-title.html" . -}}
 			{{- partial "content-header-links.html" . -}}
 			{{- partial "tags.html" . -}}
+			<!-- temporary WIP badge; should be removed before site launch -->
 			{{- if .Params.needsreview -}}
 			<div id="beingreviewed">WIP</div>
 			{{- end -}}
-			{{- if .Params.outdated -}}
-			<div id="outdated">OUTDATED</div>
-			{{- end -}}
 			{{ $title := .Title }}
 		</header>
-		<div class="body-copy">
+		<div class="body-copy" data-section={{.Section | urlize}}>
 		{{.Content}}
 		</div>
 		{{- partial "content-footer.html" . -}}

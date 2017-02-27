@@ -34,6 +34,9 @@ h1.page-title {
     margin-left: -.15em;
     margin-right: .15em;
   }
+  &.commands,&.functions {
+    font-family:$code-font-family;
+  }
 }
 
 h2,
@@ -73,7 +76,7 @@ h5 {
 }
 
 //used throughout the "functions" section to render titles in the base code font family
-.functions {
+.functions, .commands {
   font-family: $code-font-family;
   font-weight: $base-font-weight;
   color: inherit;
@@ -81,7 +84,7 @@ h5 {
 
 //just for function section page titles that include the word "and":
 //in templates, a conditional statement checks for section=functions, and if so, replaces "and" in title/linktitle with <em>and</em>
-.functions {
+.functions, .commands {
   > em {
     font-style: normal;
     font-family: $base-font-family;

@@ -308,6 +308,7 @@ The "Community" section has been removed as a site navigation item because `/con
 ### Hugo Cmd Reference
 
 This hasn't been touched. I'll make the necessary style changes once/if the site is integrated into the Hugo GH repo. I believe these pages are pulled automatically using Viper.
+    * **2017-02-26 Update** Pulled latest version of generated command files after noticing [this commit from BEP](https://github.com/spf13/hugo/tree/a8a8249f67b3725b68316f5e22410554405d1e5e)
 
 ### Issues & Help
 
