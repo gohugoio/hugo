@@ -35,30 +35,23 @@ $output-example-color:$hugo-blue;
 $body-bg-color:$hugo-white;
 //Typography
 $base-font-size: 18px;
-$base-font-family: 'muli',
-$helvetica;
-$heading-font-family: $base-font-family;
 $base-font-color: #222222;
 $base-line-height-content: 1.6;
+$base-font-bold-color: $base-font-color;
+$systemfonts: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbols";
+// Font Families
+$base-font-family: 'muli',$helvetica;
+$heading-font-family: $base-font-family;
+$code-font-family:'robotomono',courier,monospace;
+
+// Font Weights
 $base-font-weight: 300;
 $base-font-bold-weight: 600;
-$base-font-bold-color: $base-font-color;
-$heading-font-weight: 800;
-$systemfonts: -apple-system,
-BlinkMacSystemFont,
-"Segoe UI",
-Roboto,
-Oxygen,
-Ubuntu,
-Cantarell,
-"Fira Sans",
-"Droid Sans",
-"Helvetica Neue",
-Arial,
-sans-serif,
-"Apple Color Emoji",
-"Segoe UI Emoji",
-"Segoe UI Symbols";
+$heading-font-weight: 600;
+$code-font-base-weight: $base-font-weight;
+$code-font-bold-weight: 500;
+
+
 //Anchors (in body copy)
 $default-anchor-color:$base-font-color;
 $default-anchor-underline-color:$hugo-pink;
@@ -69,9 +62,9 @@ $base-button-color: $hugo-blue;
 $base-button-text-color: $hugo-white;
 $button-border-radius: .25em;
 //Codeblocks
-$code-font-family:'courierprime',
-courier,
-monospace;
+// $code-font-family:'courierprime',courier,monospace;
+
+
 $code-tooltip-bg-color: $hugo-pink;
 $code-block-base-font-color: #ffffff;
 $code-block-background-color: $hugo-black;

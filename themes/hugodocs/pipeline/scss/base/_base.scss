@@ -23,10 +23,10 @@ body {
 }
 
 body {
-  font-size: 90%;
+  font-size: 93%;
    overflow-x:hidden;
   @include MQ(M) {
-    font-size: 95%;
+    font-size: 97%;
   }
   @include MQ(L) {
     font-size: 100%;

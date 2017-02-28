@@ -108,8 +108,6 @@ Bloggers often want to include GitHub gists when writing posts. Let's suppose we
 https://gist.github.com/spf13/7896402
 ```
 
-###
-
 We can embed the gist in our content via username and gist ID pulled from the URL:
 
 ```golang

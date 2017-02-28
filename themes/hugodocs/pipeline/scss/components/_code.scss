@@ -3,7 +3,8 @@ code,
 pre {
   font-family: $code-font-family;
   margin: 0px;
-  color: $inline-code-text-color;
+  font-weight:$code-font-base-weight;
+  color:inherit;
 }
 
 .body-copy > pre {
@@ -31,23 +32,27 @@ pre {
   td,
   li {
     code {
-      font-size: .9em;
+      font-size: .85em;
       display: inline-block;
-      color: $inline-code-text-color;
-      font-family: $code-font-family;
+      color: inherit;
+      font-family: "robotomono", courier, monospace;
       padding-left: .25em;
       padding-right: .25em;
       text-transform: none;
       line-height: 1.2;
       margin-bottom: .15em;
       margin-top: 0px;
-      padding-top: .1em;
-      vertical-align: bottom;
-      //darken code background color for non-retina displays
-      background-color: darken($inline-code-background-color, 5%);
+      padding-top: 3px;
+      vertical-align: middle;
+      background-color: #ededed;
       border: none;
       outline: none;
       z-index: -1;
+      padding-bottom: 3px;
+      border: none;
+      outline: none;
+      z-index: -1;
+      background-color: darken($inline-code-background-color, 5%);
       @include MQ(retina) {
         //lighten code background color for retina displays
         background-color: $inline-code-background-color;
@@ -91,6 +96,12 @@ div.code-copy {
   &.input {
     padding-bottom: 24px;
   }
+  .code-copy-content {
+    padding-top:.5em;
+    &.output-content {
+      padding-bottom:.5em;
+    }
+  }
 }
 
 p + .code-copy {
@@ -118,7 +129,7 @@ button.download-button {
   height: 1.5em;
   border-width: 0px;
   border-radius: 0px;
-  font-weight: bold;
+  font-weight: $code-font-bold-weight;
   color: $code-copy-button-text-color;
   font-size: 14px;
   width: 80px;
@@ -137,6 +148,13 @@ button.download-button {
     position: absolute;
   }
 }
+h1,h2,h3,h4,h5,h6 {
+  code {
+    font-weight: $code-font-bold-weight;
+    font-size:.95em;
+  }
+}
+
 //hide copy button on iPad and iPhone
 button.copy-button {
   @include MQ(retinaPortrait) {
@@ -202,8 +220,6 @@ button.copy-button {
     display: inline;
   }
 }
-
-
 
 div.code-copy {
   position: relative;

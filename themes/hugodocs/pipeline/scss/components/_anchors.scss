@@ -1,6 +1,6 @@
 a {
   color: $default-anchor-underline-color;
-  font-weight: $default-anchor-weight;
+  font-weight: inherit;
   @include on-event($self: true) {
     text-decoration: none;
     cursor: pointer;
