@@ -3,8 +3,8 @@ code,
 pre {
   font-family: $code-font-family;
   margin: 0px;
-  font-weight:$code-font-base-weight;
-  color:inherit;
+  font-weight: $code-font-base-weight;
+  color: inherit;
 }
 
 .body-copy > pre {
@@ -97,9 +97,9 @@ div.code-copy {
     padding-bottom: 24px;
   }
   .code-copy-content {
-    padding-top:.5em;
+    padding-top: .5em;
     &.output-content {
-      padding-bottom:.5em;
+      padding-bottom: .5em;
     }
   }
 }
@@ -114,14 +114,14 @@ button.download-button {
   box-shadow: none;
   padding: 0px;
   transition: all .2s ease-in-out;
-  opacity: 1;
   background-color: $code-copy-button-color;
   box-sizing: border-box;
   position: absolute;
   bottom: 0px;
   z-index: 4;
-  min-width: 90px;
-  width: auto;
+  // min-width: 90px;
+  // width: auto;
+  @include size(30px);
   padding: {
     left: 4px;
     right: 4px;
@@ -132,7 +132,6 @@ button.download-button {
   font-weight: $code-font-bold-weight;
   color: $code-copy-button-text-color;
   font-size: 14px;
-  width: 80px;
   line-height: 24px;
   height: 24px;
   vertical-align: middle;
@@ -148,10 +147,20 @@ button.download-button {
     position: absolute;
   }
 }
-h1,h2,h3,h4,h5,h6 {
+
+// .button.copy-button {
+//   opacity: 0;
+// }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   code {
     font-weight: $code-font-bold-weight;
-    font-size:.95em;
+    font-size: .95em;
   }
 }
 

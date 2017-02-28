@@ -71,7 +71,7 @@ In the case of Hugo, each list will render the content based on metadata provide
 Here are a variety of different ways you can order the content items in
 your list templates:
 
-### Default Ordering: `Weight > Date`
+### Default Ordering: Weight > Date
 
 {{% code file="layouts/_default/list.html" %}}
 ```html

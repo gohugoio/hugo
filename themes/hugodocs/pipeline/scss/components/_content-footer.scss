@@ -1,105 +1,79 @@
 .last-modified {
   color: $hugo-gray;
-  display: inline-block;
+  display: block;
+  clear: both;
   min-width: 200px;
   width: 100%;
+  max-width: 100%;
   text-align: center;
   font-size: .8em;
   position: relative;
-  bottom: -1.75em;
+  border-bottom: 2px solid $hugo-gray;
 }
 
 #content-footer {
-  min-height: 100px;
-  height: auto;
-  display: block;
-  border-top: 2px solid $hugo-gray-light;
-  width: 100%;
-  margin-bottom: 2em;
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  min-width: 100%;
+  min-height: 60px;
+  justify-content:space-between;
+  margin-bottom:2em;
 }
 
-.prev-and-next-link {
-  display: inline-block;
-  margin-top: 2em;
-  min-width: 45%;
-  max-width: 45%;
-  min-height: 70px;
-  position: relative;
-  @include MQ(M) {
-    transition: background-color .3s ease-in-out;
-    &:hover {
-      transition: background-color .3s ease-in-out;
-      background-color: $hugo-pink;
-      color: $hugo-white;
-      .page-info {
-        color:$hugo-white;
-        h5 {
-          color:$hugo-white;
-        }
-      }
-    }
-  }
-  &:after {
-    content: "";
-    display: table;
-    clear: both;
-    min-height: 100%;
-  }
-  .page-info {
-    display: inline-block;
-    position: relative;
+.cf-link {
+  display: flex;
+  align-items: center;
+  color:$base-font-color;
+  &:hover {
+    background-color: $hugo-pink;
+    color:$hugo-white;
     h5 {
-      font-size: 16px;
-      padding: 0px;
-      margin: 0px;
-      line-height: 1.2;
-      margin-top: .5em;
-      color:$hugo-pink;
-    }
-    span {
-      width: 100%;
-      padding: 0px;
-      margin: 0px;
-      display: block;
-      font-size: 14px;
-      line-height: 1;
-      margin-top: .5em;
+      color:$hugo-white;
     }
   }
-  i.fa.fa-chevron-right,
-  i.fa.fa-chevron-left {
+}
+
+.icon-wrapper {
+  display: inline-block;
+  margin-right: 6px;
+  position: relative;
+  min-height: 60px;
+  width: 24px;
+  i {
     font-size: 24px;
     position: absolute;
-    top: 23px;
-    @include MQ(M) {
-      font-size: 30px;
-      top: 20px;
-    }
+    top: calc(50% - 12px);
   }
-  i.fa.fa-chevron-left {
-    left: 0px;
-  }
-  i.fa.fa-chevron-right {
-    right: 0px;
-  }
-  &.prev-page {
-    text-align: left;
-    float: left;
-    .page-info {
-      padding-left: 1.75em;
-    }
-  }
-  &.next-page {
-    text-align: right;
-    position: relative;
-    right: 0px;
-    float: right;
-    .page-info {
-      padding-right: 1.75em;
-    }
-  }
-  &:hover {
-    text-decoration: none;
-    border: 0px solid transparent;
+}
+.next-page {
+  justify-content:flex-end;
+  text-align:right;
+}
+
+.page-info {
+  margin:0px .5em 0px .5em;
+}
+
+// .prev-page {
+//   float: left;
+//   > .page-info {
+//     padding-left: 20px;
+//   }
+// }
+
+// .next-page {
+//   float: right;
+//   text-align: right;
+//   > .page-info {
+//     padding-right: 20px;
+//   }
+// }
+
+.page-info {
+  display: inline-block;
+  width: auto;
+  span {
+    font-size: .8em;
   }
 }

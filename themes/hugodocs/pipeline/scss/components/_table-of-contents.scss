@@ -57,9 +57,13 @@ nav#TableOfContents {
   position: relative;
   margin-bottom: 20px;
   height: auto;
+  li code {
+    font-family:$base-font-family;
+  }
   li.active > a > code {
     color: inherit;
     font-weight: 700;
+    font-family:$base-font-family;
   }
   > ul:first-child {
     padding-left: 0px;

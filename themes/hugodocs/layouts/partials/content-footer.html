@@ -1,9 +1,9 @@
-<span class="last-modified">Last Updated: {{with .Lastmod}}{{.Format "2006-01-02"}}{{else}}{{.PublishDate.Format "2006-01-02"}}{{end}}</span>
+<div class="last-modified">Last Updated: {{with .Lastmod}}{{.Format "2006-01-02"}}{{else}}{{.PublishDate.Format "2006-01-02"}}{{end}}</div>
 <footer id="content-footer">
 {{$section := .Section}}
 {{ if .NextInSection }}
-<a href="{{.NextInSection.Permalink}}" class="prev-and-next-link prev-page">
-		<i class="fa fa-chevron-left"></i>
+<a href="{{.NextInSection.Permalink}}" class="cf-link prev-page">
+			<i class="fa fa-chevron-left"></i>
 		<div class="page-info">
 			<span>Previous</span>
 			<h5 class="{{$section}}">{{if eq .Section "functions"}}{{- replace (.NextInSection.LinkTitle) "and" "<em>and</em>" | safeHTML -}}{{else}}{{.NextInSection.Title | markdownify}}{{end}}</h5>
@@ -11,8 +11,10 @@
 </a>
 {{ else if eq .Kind "page" }}
 	{{ with .Site.GetPage "section" $section }}
-	<a href="{{.Permalink}}" class="prev-and-next-link prev-page">
-			<i class="fa fa-chevron-left"></i>
+	<a href="{{.Permalink}}" class="cf-link prev-page">
+
+				<i class="fa fa-chevron-left"></i>
+
 			<div class="page-info">
 				<span>Previous</span>
 				<h5 class="{{$section}}">{{if eq .Section "functions"}}{{- replace (.LinkTitle) "and" "<em>and</em>" | safeHTML -}}{{else}}{{.Title | markdownify}}{{end}}</h5>
@@ -21,7 +23,7 @@
 	{{ end }}
 {{ end }}
 {{ with .PrevInSection }}
-	<a href="{{.Permalink}}" class="prev-and-next-link next-page">
+	<a href="{{.Permalink}}" class="cf-link next-page">
 		<div class="page-info">
 			<span>Next</span>
 			<h5 class="{{$section}}">{{if eq .Section "functions"}}{{- replace (.LinkTitle) "and" "<em>and</em>" | safeHTML -}}{{else}}{{.Title | markdownify}}{{end}}</h5>
@@ -31,12 +33,14 @@
 {{ end }}
 {{if eq .Kind "section"}}
 	{{ range first 1 .Data.Pages }}
-	<a href="{{.Permalink}}" class="prev-and-next-link next-page">
+	<a href="{{.Permalink}}" class="cf-link next-page">
 	  <div class="page-info">
 	    <span>Next</span>
 	    <h5 class="{{.Section}}">{{.Title}}</h5>
 	  </div>
-	  <i class="fa fa-chevron-right"></i>
+
+	  	<i class="fa fa-chevron-right"></i>
+
 	</a>
 	{{end}}
 {{end}}
