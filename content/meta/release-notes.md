@@ -42,7 +42,7 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 
 * Add ability to sort pages by frontmatter parameters, enabling easy custom "top 10" page lists. {{<gh 3022 >}}
 * Add `truncate` template function {{<gh 2882 >}}
-* Add `now` function, which replaces the now deprecated `.Now` {{<gh 2882 >}}
+* Add `now` function, which replaces the now deprecated `.Now` {{<gh 2859 >}}
 * Make RSS item limit configurable {{<gh 3035 >}}
 
 ## Enhancements
