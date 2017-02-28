@@ -269,10 +269,10 @@
 			"revisionTime": "2017-02-21T15:10:31Z"
 		},
 		{
-			"checksumSHA1": "fUj88MYwrfU8xFWu+BPWpBXm8V4=",
+			"checksumSHA1": "AlQX4i6VrV8vIfnjpwabRzIVNLU=",
 			"path": "github.com/spf13/cobra",
-			"revision": "ee4055870c2d5f7ce112642377e32c9929c3bbaf",
-			"revisionTime": "2017-02-17T16:44:07Z"
+			"revision": "92ea23a837e66f46ac9e7d04fa826602b7b0a42d",
+			"revisionTime": "2017-02-23T13:12:51Z"
 		},
 		{
 			"checksumSHA1": "e98Bh9eCYfpey3PIVt/W5lRlsGo=",
