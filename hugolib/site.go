@@ -824,13 +824,13 @@ func (s *Site) process(config BuildCfg) (err error) {
 func (s *Site) setupSitePages() {
 	var siteLastChange time.Time
 
-	for i, page := range s.Pages {
-		if i < len(s.Pages)-1 {
-			page.Next = s.Pages[i+1]
+	for i, page := range s.RegularPages {
+		if i < len(s.RegularPages)-1 {
+			page.Next = s.RegularPages[i+1]
 		}
 
 		if i > 0 {
-			page.Prev = s.Pages[i-1]
+			page.Prev = s.RegularPages[i-1]
 		}
 
 		// Determine Site.Info.LastChange

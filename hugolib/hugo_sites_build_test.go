@@ -370,6 +370,19 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, "Home", enSite.Menus["main"].ByName()[0].Name)
 	require.Equal(t, "Heim", nnSite.Menus["main"].ByName()[0].Name)
 
+	// Issue #3108
+	next := enSite.RegularPages[0].Next
+	require.NotNil(t, next)
+	require.Equal(t, KindPage, next.Kind)
+
+	for {
+		if next == nil {
+			break
+		}
+		require.Equal(t, KindPage, next.Kind)
+		next = next.Next
+	}
+
 }
 
 func TestMultiSitesRebuild(t *testing.T) {
