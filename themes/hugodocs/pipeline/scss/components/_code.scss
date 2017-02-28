@@ -85,6 +85,18 @@ pre {
     font-family: $code-font-family;
     color: $code-block-base-font-color;
   }
+  li > code,
+  li > span > code {
+    white-space: pre-wrap;
+    /* css-3 */
+    white-space: -moz-pre-wrap;
+    /* Mozilla, since 1999 */
+    white-space: -pre-wrap;
+    /* Opera 4-6 */
+    white-space: -o-pre-wrap;
+    /* Opera 7 */
+    word-wrap: break-word;
+  }
 }
 
 //for clipboard.js tooltip and button
@@ -151,7 +163,6 @@ button.download-button {
 // .button.copy-button {
 //   opacity: 0;
 // }
-
 h1,
 h2,
 h3,

@@ -10,7 +10,7 @@ categories: [templates]
 tags: [blocks,base,fundamentals]
 weight: 20
 draft: false
-aliases: [/templates/blocks/]
+aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 toc: true
 wip: true
 ---

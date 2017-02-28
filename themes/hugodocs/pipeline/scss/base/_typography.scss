@@ -9,7 +9,7 @@ h6 {
   font-family: $heading-font-family;
   font-weight: $heading-font-weight;
   margin: 0px;
-  line-height: 1.2;
+  line-height: 1.15;
   position: relative;
   > code, > a {
     font-weight: $heading-font-weight;
@@ -17,7 +17,7 @@ h6 {
 }
 
 h1.page-title {
-  font-size: 2.2em;
+  @include MQALL('font-size',1.8em,2.3em);
   line-height: 1.2;
   letter-spacing: -.021em;
   padding-bottom: 0px;
@@ -46,11 +46,11 @@ h1.page-title {
 h2,
 h3 {
   padding-bottom: 24px;
-  padding-right: 1.5em;
+  // padding-right: 1.5em;
 }
 
 h2 {
-  font-size: 1.6em;
+  @include MQALL('font-size',1.4em,1.6em,1.8em);
   &.contents-list-heading {
     text-transform: uppercase;
     color: $hugo-gray;
@@ -61,7 +61,7 @@ h2 {
 }
 
 h3 {
-  font-size: 1.2em;
+  @include MQALL('font-size',1.2em,1.3em);
 }
 
 h4 {

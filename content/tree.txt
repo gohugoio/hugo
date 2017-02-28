@@ -246,7 +246,7 @@
 ├── templates
 │   ├── _index.md
 │   ├── additional-templating-languages.md
-│   ├── base-templates-and-blocks.md
+│   ├── base.md
 │   ├── content-view-templates.md
 │   ├── custom-404-page.md
 │   ├── data-templates.md

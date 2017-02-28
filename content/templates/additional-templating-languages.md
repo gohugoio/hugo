@@ -71,4 +71,4 @@ For Amber template documentation, follow the links from the [Amber project][].
 [Amber Project]: https://github.com/eknkc/amber
 [template functions]: /functions/
 [Go templates]: /templates/go-templates/
-[Go base templates]: /templates/base-templates-and-blocks/
+[Go base templates]: /templates/base/

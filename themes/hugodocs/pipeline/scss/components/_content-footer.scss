@@ -17,19 +17,22 @@
   max-width: 100%;
   min-width: 100%;
   min-height: 60px;
-  justify-content:space-between;
-  margin-bottom:2em;
+  justify-content: space-between;
+  margin-bottom: 2em;
 }
 
 .cf-link {
   display: flex;
   align-items: center;
-  color:$base-font-color;
+  color: $hugo-gray;
+  h5 {
+    color: $hugo-gray;
+  }
   &:hover {
     background-color: $hugo-pink;
-    color:$hugo-white;
+    color: $hugo-white;
     h5 {
-      color:$hugo-white;
+      color: $hugo-white;
     }
   }
 }
@@ -46,13 +49,15 @@
     top: calc(50% - 12px);
   }
 }
+
 .next-page {
-  justify-content:flex-end;
-  text-align:right;
+  justify-content: flex-end;
+  text-align: right;
+  align-self: flex-end;
 }
 
 .page-info {
-  margin:0px .5em 0px .5em;
+  margin: 0px .5em 0px .5em;
 }
 
 // .prev-page {
@@ -61,7 +66,6 @@
 //     padding-left: 20px;
 //   }
 // }
-
 // .next-page {
 //   float: right;
 //   text-align: right;
@@ -69,7 +73,6 @@
 //     padding-right: 20px;
 //   }
 // }
-
 .page-info {
   display: inline-block;
   width: auto;
