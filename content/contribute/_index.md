@@ -5,7 +5,7 @@ description: Contribute to Hugo development and documentation.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: [contribute to hugo]
+categories: [contribute]
 tags: []
 weight: 01
 draft: false

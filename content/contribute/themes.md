@@ -5,65 +5,79 @@ description: If you've built a Hugo theme and want to contribute back to the Hug
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-27
-categories: [contribute to hugo]
+categories: [contribute]
 tags: [contribute,themes,design]
 authors: [digitalcraftsman]
 weight: 10
 draft: false
 aliases: [/contribute/theme/]
 wip: true
-notesforauthors:
+toc: true
 ---
 
-# Hugo themes
+A collection of all themes created by the Hugo community, including screenshots and demos, can be found at <https://themes.gohugo.io>. Every theme in this list will automatically be added to the theme site. Theme updates aren't scheduled but usually happen at least once a week.
 
-A collection of all themes that were created by the Hugo community. See a complete listing of all of these themes along with screenshots and demos at [themes.gohugo.io](http://themes.gohugo.io/). Every theme in this list will automatically be added to the theme site. Theme updates aren't scheduled but usually happen at least once a week.
+## tl;dr
 
-## Build script
+1. Create your theme using `hugo new theme <THEMENAME>`;
+2. Test your theme against <https://github.com/spf13/HugoBasicExample> \*
+3. Add a `theme.toml` file to the root of the theme with all required metadata
+4. Add a descriptive `README.md` to the root of the theme source
+5. Add `/images/screenshot.png` and `/images/tn.png`
 
-For the curious,
-[here's how](https://github.com/spf13/hugoThemeSiteScript/blob/master/generateThemeSite.sh)
-this automatic adding is accomplished.
+\* If your theme doesn't fit into the `Hugo Basic Example` site, we encourage theme authors to supply a self-contained Hugo site in `/exampleSite`.
 
-# Installation
+{{% note %}}
+The folder name here---`exampleSite`---is important, as this folder will be picked up and used by the script that generates the Hugo Theme Site. It mirrors the root directory of a Hugo website and allows you to add custom content, assets, and a `config` file with preset values.
+{{% /note %}}
 
-## Installing all themes
+See the [Hugo Artist theme's exampleSite][artistexample] for a good example.
 
-If you would like to install all of the available Hugo themes, simply clone the entire repository from within your working directory with this command:
+{{% note %}}
+Please make your example site's content is as neutral as possible. We hope this goes without saying.
+{{% /note %}}
 
-    git clone --depth 1 --recursive https://github.com/spf13/hugoThemes.git themes
+## Theme Requirements
 
-## Installing a single theme
+In order to add your theme to the Hugo Themes Showcase, the following requirements need to be met:
 
-<pre><code>cd themes
-git clone <em>URL_TO_THEME</em>
-</code></pre>
+1. `theme.toml` with all required fields
+2. Images for thumbnail and screenshot
+3. A good README file instructions for users
+4. Added to the hugoThemes GitHub repository
 
-# Adding a theme to the list
+### Add Your Theme to the Repo
 
-* Create your theme using <code>hugo new theme <em>THEMENAME</em></code>;
-* Test your theme against https://github.com/spf13/HugoBasicExample;
-* Add a `theme.toml` file to the root of the theme and add some metadata about the theme;
-* Add a descriptive `README.md` to the root of the theme;
-* Add `/images/screenshot.png` and `/images/tn.png` (see below);
-* Open up a new Issue with a link to the theme's repository on GitHub.
+The easiest way to add your theme is to [open up a new issue in the theme repository][themeissuenew] with a link to the theme's repository on GitHub.
 
-If your theme doesn't fit into the `Hugo Basic Example` site, we encourage theme authors to supply a self-contained Hugo site in `/exampleSite`.
+### Create a `theme.toml` File
 
-**NOTE:** The folder name here is important, as this folder will be picked up and used by the script that generates the Hugo Theme Site. It mirrors the root directory of a Hugo website and allows you to add custom content, assets and a config file with preset values.
+`theme.toml` contains metadata about the theme and its creator and should be created automatically when running the `hugo new theme`. The auto-generated file is provided here as well for easy downloading:
 
-See [Artist theme's exampleSite](https://github.com/digitalcraftsman/hugo-artists-theme/tree/master/exampleSite) for a good example. And please make the site's content as neutral as possible.
+{{% code file="theme.toml" download="theme.toml" %}}
+```toml
+name = ""
+license = "MIT"
+licenselink = "https://github.com/<YOURNAME>/<YOURTHEME>/blob/master/LICENSE.md"
+description = ""
+homepage = "http://yoursite.com/"
+tags = []
+features = []
+min_version = 0.19
 
-Each theme needs:
+[author]
+  name = ""
+  homepage = ""
 
-1. To be added to the hugoThemes repo;
-1. To have the right fields in `theme.toml`;
-1. To have the right images; and
-1. A good README.
+# If porting an existing theme
+[original]
+  name = ""
+  homepage = ""
+  repo = ""
+```
+{{% /code %}}
 
-## theme.toml
-
-This file contains metadata about the theme and its creator. The following fields are required:
+The following fields are required:
 
 ```toml
 name = "Hyde"
@@ -72,7 +86,7 @@ licenselink = "https://github.com/spf13/hyde/blob/master/LICENSE.md"
 description = "An elegant open source and mobile first theme"
 homepage = "http://siteforthistheme.com/"
 tags = ["blog", "company"]
-features = ["blog", ]
+features = ["blog"]
 min_version = 0.13
 
 [author]
@@ -86,37 +100,50 @@ min_version = 0.13
     repo = "https://www.github.com/mdo/hyde"
 ```
 
-> **Notes:**
->
-> 1. This is different from the file created by `hugo new theme` in the old v0.12.
->    The current Hugo v0.13 does create the same template with the new fields
->    except `min_version` that was added in 0.14-DEV.
->
-> 2. Only `theme.toml` is accepted, not `theme.yaml` or not `theme.json`.
+{{% note %}}
+1. This is different from the `theme.toml` file created by `hugo new theme` in Hugo versions before v0.14.
+2. Only `theme.toml` is accepted; ie. not `theme.yaml` andnot `theme.json`.
+{{% /note %}}
 
+### Images
 
-## Media
-
-Screenshots are used as preview in the list. Make sure that they have the right dimensions:
+Screenshots are used for previews in the Hugo Theme Gallery. Make sure that they have the right dimensions:
 
 * Thumbnail should be 900×600 in pixels
 * Screenshot should be 1500×1000 in pixels
 * Media must be located in:
-    * <code><em>[ThemeDir]</em>/images/screenshot.png</code>
-    * <code><em>[ThemeDir]</em>/images/tn.png</code>
+    * <THEMEDIR>/images/screenshot.png</code>
+    * <THEMEDIR>/images/tn.png</code>
 
-Additional media may be provided in that same directory.
+Additional media may be provided in the same directory.
 
-## README.md
+### Create a README File
 
-Your theme's README file
-(which should be written in Markdown and called `README.md`)
-serves a double purpose.
-This is because its content will appear in two places&mdash;i.e., it will appear:
+Your theme's README file should be written in markdown and saved at the root of your theme's directory structure. Your `README.md` serves as
 
-1. On your theme's details page at [themes.gohugo.io](http://themes.gohugo.io/); and
-1. At GitHub (as usual), on your theme's regular main page.
+1. Content for your theme's details page at <https://themes.gohugo.io>
+2. General information about the theme in your GitHub repository (i.e., it's usual purpose)
 
-{{% note "Screenshots"%}}
+#### Example `README.md`
+
+You can download the following `README.md` as an outline:
+
+{{% code file="README.md" download="README.md" %}}
+```markdown
+
+# Theme Title
+
+**Need input from @digitalcraftsman on what could be added to this file.**
+
+
+
+
+```
+{{% /code %}}
+
+{{% note "Screenshots in your `README.md`"%}}
 If you add screenshots to the README, please make use of absolute file paths instead of relative ones like `/images/screenshot.png`. Relative paths work great on GitHub but they don't correspond to the directory structure of [themes.gohugo.io](http://themes.gohugo.io/). Therefore, browsers will not be able to display screenshots on the theme site under the given (relative) path.
 {{% /note %}}
+
+[artistexample]: https://github.com/digitalcraftsman/hugo-artists-theme/tree/master/exampleSite
+[themeissuenew]: https://github.com/spf13/hugoThemes/issues/new

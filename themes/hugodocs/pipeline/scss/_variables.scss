@@ -1,5 +1,7 @@
+
 //Config
 $usefontawesome: true;
+
 //Media Query Values
 $S:480px;
 $SM: 560px;
@@ -19,24 +21,22 @@ $hugo-blue-ultra-light:#D1F1FE;
 $hugo-yellow:#FCD804;
 $hugo-gold:#EBB951;
 $hugo-gray:#737373;
-$hugo-gray-dark:darken($hugo-gray,10%);
-$hugo-gray-light:lighten($hugo-gray,30%);
-$hugo-gray-ultra-light:lighten($hugo-gray-light,23%);
+$hugo-gray-dark:darken($hugo-gray, 10%);
+$hugo-gray-light:lighten($hugo-gray, 30%);
+$hugo-gray-ultra-light:lighten($hugo-gray-light, 23%);
 $hugo-green:#00A88A;
 $hugo-green-light:#33BA91;
-
 //Examples
 $examplesite-example-color:$hugo-pink;
 $examplesite-codeblock-shortcode-header-bg-color: $hugo-pink;
 $input-example-color:$hugo-gray-dark;
 $output-example-color:$hugo-blue;
-
 //Document Body
 $body-bg-color:$hugo-white;
-
 //Typography
 $base-font-size: 18px;
-$base-font-family: 'muli',$helvetica;
+$base-font-family: 'muli',
+$helvetica;
 $heading-font-family: $base-font-family;
 $base-font-color: #222222;
 $base-line-height-content: 1.6;
@@ -44,21 +44,34 @@ $base-font-weight: 300;
 $base-font-bold-weight: 600;
 $base-font-bold-color: $base-font-color;
 $heading-font-weight: 800;
-$systemfonts: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbols";
-
+$systemfonts: -apple-system,
+BlinkMacSystemFont,
+"Segoe UI",
+Roboto,
+Oxygen,
+Ubuntu,
+Cantarell,
+"Fira Sans",
+"Droid Sans",
+"Helvetica Neue",
+Arial,
+sans-serif,
+"Apple Color Emoji",
+"Segoe UI Emoji",
+"Segoe UI Symbols";
 //Anchors (in body copy)
 $default-anchor-color:$base-font-color;
 $default-anchor-underline-color:$hugo-pink;
 $default-anchor-weight: $base-font-weight;
 $active-color: $default-anchor-color;
-
 //Buttons
 $base-button-color: $hugo-blue;
 $base-button-text-color: $hugo-white;
 $button-border-radius: .25em;
-
 //Codeblocks
-$code-font-family:'courierprime',courier,monospace;
+$code-font-family:'courierprime',
+courier,
+monospace;
 $code-tooltip-bg-color: $hugo-pink;
 $code-block-base-font-color: #ffffff;
 $code-block-background-color: $hugo-black;
@@ -69,7 +82,6 @@ $code-copy-button-text-color:$base-font-color;
 $code-base-font-color:$hugo-pink-light;
 $inline-code-text-color:$base-font-color;
 $inline-code-background-color:$hugo-gray-ultra-light;
-
 //Sidebar & Breadcrumb
 $site-navigation-width: 280px;
 $content-max-width: 32em;
@@ -77,20 +89,15 @@ $site-navigation-bg-color:$hugo-gray-ultra-light;
 $breadcrumb-navigation-bg-color:$hugo-blue-ultra-light;
 $breadcrumb-navigation-bg-color-active:$hugo-blue;
 $breadcrumb-navigation-text-color-active:$hugo-white;
-
 //Headers
 $site-header-height:50px;
-
 //Toc
 $toc-bg-color:$body-bg-color;
-
 //Footers
 $site-footer-bg-color:$hugo-black;
 $site-footer-height: 100px;
-
 //Tags
 $tag-bg-color:$hugo-gray-ultra-light;
-
 //Brand Colors:
 $html: #E44D26;
 $css: #1758A7;

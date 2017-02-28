@@ -1,11 +1,15 @@
-# Hugo Docs
+## Hugo Docs POC
 
-<https://hugodocsconcept.netlify.com>
+See the concept live at <https://hugodocsconcept.netlify.com>.
 
-**CURRENTLY IN DEVELOPMENT.** This Hugo Docs concept is a complete reworking of the HUGO documentation. I originally broached the subject of a documentation overhaul here:
+**CURRENTLY IN DEVELOPMENT.**
+
+This is *not* a new theme or skin for the [current website](https://gohugo.io). It is a **complete reworking of the Hugo documentation**.
+
+I originally posed a source reorganization of the current website in this Discuss thread in November 2016 here:
 
 <https://discuss.gohugo.io/t/proposed-source-organization-for-hugo-docs-concept/4506>
 
-## Contributing to the Docs
+I reorganized the docs content and realized it did very little to make the documentation more intelligible or intuitive.
 
-(WIP) See the guide at <http://gohugo.io/contribute/contribute-to-the-hugo-docs> for instructions on how to contribute to the documentation.
+So, I'm running with it...

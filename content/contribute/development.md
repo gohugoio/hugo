@@ -5,7 +5,7 @@ description: Hugo relies heavily on contributions from the open source community
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: [contribute to hugo]
+categories: [contribute]
 tags: [dev,open source]
 authors: [digitalcraftsman]
 weight: 10
