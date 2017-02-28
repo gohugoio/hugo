@@ -681,7 +681,8 @@ func (p *Page) rssLayouts() []string {
 		singular := p.s.taxonomiesPluralSingular[p.sections[0]]
 		return []string{"taxonomy/" + singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 	case KindTaxonomyTerm:
-	// No RSS for taxonomy terms
+		singular := p.s.taxonomiesPluralSingular[p.sections[0]]
+		return []string{"taxonomy/" + singular + ".terms.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
 	case KindPage:
 		// No RSS for regular pages
 	}
@@ -1591,6 +1592,7 @@ func (p *Page) prepareData(s *Site) error {
 		p.Data[singular] = taxonomy
 		p.Data["Singular"] = singular
 		p.Data["Plural"] = plural
+		p.Data["Term"] = term
 		pages = taxonomy.Pages()
 	case KindTaxonomyTerm:
 		plural := p.sections[0]
@@ -1602,6 +1604,13 @@ func (p *Page) prepareData(s *Site) error {
 		// keep the following just for legacy reasons
 		p.Data["OrderedIndex"] = p.Data["Terms"]
 		p.Data["Index"] = p.Data["Terms"]
+
+		// A list of all KindTaxonomy pages with matching plural
+		for _, p := range s.findPagesByKind(KindTaxonomy) {
+			if p.sections[0] == plural {
+				pages = append(pages, p)
+			}
+		}
 	}
 
 	p.Data["Pages"] = pages
