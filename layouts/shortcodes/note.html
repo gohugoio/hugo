@@ -1,4 +1,7 @@
-<div class="note">
+<div class="admonition note">
+	<div class="note-icon">
+		{{partial "svg-icons/exclamation.svg" .}}
+	</div>
 	<h2 id="{{if .Get 0}}{{.Get 0 | urlize}}{{else}}note{{end}}">{{if .Get 0}}{{.Get 0 | markdownify}}{{else}}Note{{end}}</h2>
-	<div class="shortcode-content">{{- .Inner -}}</div>
+	<div class="admonition-content">{{- .Inner -}}</div>
 </div>

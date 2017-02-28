@@ -82,7 +82,7 @@ The following is a list of site-level variables (aka "global"). Many of these va
 : a string to override the default [permalink](/content-management/urls/) format as defined in the site configuration.
 
 `.Site.RegularPages`
-: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalents to `where .Site.Pages "Kind" "page"`.
+: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`.
 
 `.Site.RSSLink`
 : the URL for the site RSS.
