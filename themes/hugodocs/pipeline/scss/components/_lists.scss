@@ -84,6 +84,23 @@ aside {
       margin: 0px;
       font-weight: bolder;
       margin-right: 1em;
+      //basically allows you to style with ***word*** in markdown for words like "Required"
+      > strong > em > code{
+        // color: $hugo-pink;
+        font-style: normal;
+        position: relative;
+        &:after {
+          display: inline-block;
+          position: relative;
+          font-family: 'FontAwesome';
+          content: '\f06a';
+          font-size: .9em;
+          top: -.6em;
+          right: 0px;
+          margin-right: -.5em;
+          color: $hugo-pink;
+        }
+      }
     }
     dd {
       margin: .5em 0em 0em 0em;
@@ -95,22 +112,6 @@ aside {
         bottom: 0em;
         left: 1.5em;
         right: 0em;
-      }
-      //basically allows you to style with ***word*** in markdown for words like "Required"
-      > strong > em {
-        color: $hugo-pink;
-        font-style: normal;
-        position:relative;
-        &:after {
-          display:inline-block;
-          position:relative;
-          font-family: 'FontAwesome';
-          content: '\f06a';
-          font-size:.7em;
-          top:-.5em;
-          left:-.4em;
-          margin-right:-.5em;
-        }
       }
     }
   }

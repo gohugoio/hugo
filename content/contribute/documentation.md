@@ -60,14 +60,14 @@ The archetype for the `functions` content type is as follows:
 
 Let's review some of the fields automatically generated for you using `hugo new functions/*`:
 
-`title`
-: ***Required.*** This should be generated in all lowercase when you use `hugo new`.
+***`title`***
+: This should be generated in all lowercase when you use `hugo new`.
 
-`linktitle`
-: ***Required.*** Use the function's actual casing (e.g., `replaceRE` rather than `replacere`).
+***`linktitle`***
+: Use the function's actual casing (e.g., `replaceRE` rather than `replacere`).
 
-`description`
-: ***Required.*** Keep this really short. This is what's used to populate the [Functions Quick Reference](/functions/).
+***`description`***
+: Keep this really short. This is what's used to populate the [Functions Quick Reference](/functions/).
 
 `categories`
 : This is populated with 'functions` for future-proofing and portability reasons only. Skip this field.'
