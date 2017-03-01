@@ -1,6 +1,6 @@
 ## Hugo Docs POC
 
-See the concept live at <https://hugodocsconcept.netlify.com>.
+See the concept live at <https://hugodocs.info>.
 
 **CURRENTLY IN DEVELOPMENT.**
 
