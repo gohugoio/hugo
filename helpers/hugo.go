@@ -76,15 +76,15 @@ func CompareVersion(version interface{}) int {
 func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int {
 	switch d := in.(type) {
 	case float64:
-		return compareFloatVersions(inVersion, inPatchVersion, float32(d))
+		return compareFloatVersions(inVersion, float32(d))
 	case float32:
-		return compareFloatVersions(inVersion, inPatchVersion, d)
+		return compareFloatVersions(inVersion, d)
 	case int:
-		return compareFloatVersions(inVersion, inPatchVersion, float32(d))
+		return compareFloatVersions(inVersion, float32(d))
 	case int32:
-		return compareFloatVersions(inVersion, inPatchVersion, float32(d))
+		return compareFloatVersions(inVersion, float32(d))
 	case int64:
-		return compareFloatVersions(inVersion, inPatchVersion, float32(d))
+		return compareFloatVersions(inVersion, float32(d))
 	default:
 		s, err := cast.ToStringE(in)
 		if err != nil {
@@ -116,7 +116,7 @@ func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int 
 	}
 }
 
-func compareFloatVersions(version float32, patchVersion int, v float32) int {
+func compareFloatVersions(version float32, v float32) int {
 	if v == version {
 		return 0
 	}
