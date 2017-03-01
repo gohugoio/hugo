@@ -94,7 +94,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 
 	nodes := sites.findAllPagesByKindNotIn(KindPage)
 
-	require.Len(t, nodes, 7)
+	require.Len(t, nodes, 8)
 
 	home := nodes[6] // oldest
 
