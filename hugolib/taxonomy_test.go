@@ -73,6 +73,7 @@ defaultContentLanguage = "en"
 tag = "tags"
 category = "categories"
 other = "others"
+empty = "empties"
 `
 
 	pageTemplate := `---
@@ -140,5 +141,8 @@ others:
 		require.NotNil(t, helloWorld)
 		require.Equal(t, "Hello Hugo World", helloWorld.Title)
 	}
+
+	// Issue #2977
+	th.assertFileContent("public/empties/index.html", "Terms List", "Empties")
 
 }

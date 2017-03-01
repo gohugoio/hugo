@@ -351,14 +351,14 @@ func (h *HugoSites) createMissingPages() error {
 							newPages = append(newPages, n)
 						}
 					}
+				}
 
-					if s.isEnabled(KindTaxonomyTerm) {
-						if !foundTaxonomyTermsPage {
-							foundTaxonomyTermsPage = true
-							n := s.newTaxonomyTermsPage(plural)
-							s.Pages = append(s.Pages, n)
-							newPages = append(newPages, n)
-						}
+				if s.isEnabled(KindTaxonomyTerm) {
+					if !foundTaxonomyTermsPage {
+						foundTaxonomyTermsPage = true
+						n := s.newTaxonomyTermsPage(plural)
+						s.Pages = append(s.Pages, n)
+						newPages = append(newPages, n)
 					}
 				}
 			}
