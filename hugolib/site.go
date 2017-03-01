@@ -2087,7 +2087,9 @@ func (s *Site) newHomePage() *Page {
 func (s *Site) setPageURLs(p *Page, in string) {
 	p.URLPath.URL = s.PathSpec.URLizeAndPrep(in)
 	p.URLPath.Permalink = s.Info.permalink(p.URLPath.URL)
-	p.RSSLink = template.HTML(s.Info.permalink(in + ".xml"))
+	if p.Kind != KindPage && p.Kind != KindTaxonomyTerm {
+		p.RSSLink = template.URL(s.Info.permalink(in + ".xml"))
+	}
 }
 
 func (s *Site) newTaxonomyPage(plural, key string) *Page {

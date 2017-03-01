@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"html/template"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -124,6 +125,10 @@ others:
 	th.assertFileContent("public/others/index.html", "Terms List", "Others")
 
 	s := h.Sites[0]
+
+	// Issue #1302
+	term := s.getPage(KindTaxonomyTerm, "others")
+	require.Equal(t, template.URL(""), term.RSSLink)
 
 	// Issue #3070 preserveTaxonomyNames
 	if preserveTaxonomyNames {

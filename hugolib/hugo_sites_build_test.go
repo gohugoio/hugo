@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
+	"html/template"
 	"os"
 	"path/filepath"
-	"text/template"
 
 	//"github.com/fortytw2/leaktest"
 	"github.com/fsnotify/fsnotify"
@@ -369,6 +369,9 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	require.Equal(t, "Home", enSite.Menus["main"].ByName()[0].Name)
 	require.Equal(t, "Heim", nnSite.Menus["main"].ByName()[0].Name)
+
+	// Issue #1302
+	require.Equal(t, template.URL(""), enSite.RegularPages[0].RSSLink)
 
 	// Issue #3108
 	next := enSite.RegularPages[0].Next

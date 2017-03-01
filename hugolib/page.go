@@ -186,7 +186,7 @@ type Page struct {
 
 	Sitemap Sitemap
 
-	RSSLink template.HTML
+	RSSLink template.URL
 
 	URLPath
 	permalink    *url.URL
@@ -1670,7 +1670,7 @@ func (p *Page) Hugo() *HugoInfo {
 	return hugoInfo
 }
 
-func (p *Page) RSSlink() template.HTML {
+func (p *Page) RSSlink() template.URL {
 	// TODO(bep) we cannot have two of these
 	// Remove in Hugo 0.20
 	helpers.Deprecated(".Page", "Use RSSlink", "RSSLink", true)
