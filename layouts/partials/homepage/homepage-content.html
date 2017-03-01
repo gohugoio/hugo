@@ -1,11 +1,15 @@
 <main id="homepage" class="main">
-	<div class="home-row hero row">
-		<div class="homepage-icon">
-			{{ partial "svg-icons/hugo-home.svg" . }}
-			<span>UGO</span>
-		</div>
-	</div>
-	<div class="home-row">
-
-	</div>
+  <div class="home-row hero row">
+    <div class="homepage-icon animated">
+      {{ partial "svg-icons/hugo-home.svg" . }}
+      <span>UGO</span>
+    </div>
+    <div class="homepage-terminal">
+    	<span class="terminal-line">brew install && brew install hugo</span><br>
+    	<span class="terminal-line">hugo new site my-hugo-site && cd my-hugo-site</span><br>
+    	<span class="terminal-line">hugo server</span><br>
+    	<span class="terminal-line">mind</span><br>
+    	<span class="terminal-line">blown</span>
+    </div>
+  </div>
 </main>

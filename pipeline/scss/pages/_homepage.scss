@@ -27,6 +27,12 @@
     }
     li {
       display: flex;
+      a {
+      	color:$hugo-gray-light;
+      	&:hover {
+      		color:$hugo-pink;
+      	}
+      }
     }
   }
 }
@@ -48,9 +54,11 @@ main#homepage.main {
 .home-row {
   min-height: 100vh;
   display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
   &.hero {
-    height: calc(100vh - 64px);
+   margin-top:50px;
   }
 }
 
@@ -60,6 +68,7 @@ main#homepage.main {
   align-items: center;
   width: 90%;
   max-width: 300px;
+  margin-top:5em;
   margin: {
     right: auto;
     left: auto;
@@ -76,6 +85,8 @@ main#homepage.main {
     margin-left: -.25em;
   }
 }
+
+
 
 #site-footer.homepage {
   width: 100vw;

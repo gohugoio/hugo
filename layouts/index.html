@@ -3,8 +3,8 @@
 	{{- partial "site-search.html" . -}}
 {{ end }}
 {{ define "main" }}
-{{ partial "homepage/homepage-content.html" . }}
+	{{ partial "homepage/homepage-content.html" . }}
 {{ end }}
 {{ define "addscripts" }}
-<script src="{{ "js/homepage.js" | relURL }}" async defer></script>
+	<script src="{{ "js/homepage.js" | relURL }}" async defer></script>
 {{ end }}
