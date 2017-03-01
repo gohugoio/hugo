@@ -7,6 +7,7 @@
     font-weight: $code-font-base-weight;
     position: relative;
     overflow-y: visible;
+    z-index:1;
   }
   pre > code,
   .code {
@@ -49,8 +50,19 @@ code[class^="language-"] {
     top: 4px;
     right: 4px;
     color: lighten($base-font-color, 25%);
-    font-family:'fontello';
+    font-family: 'fontello';
     content: '\f121';
+  }
+}
+
+.copy-button + .code-copy-content {
+  code[class^="language-"] {
+    &:after {
+      display: none;
+      position: absolute;
+      top: -14px;
+      right: 4px;
+    }
   }
 }
 
@@ -101,7 +113,7 @@ code.language-scss:after {
   transition: opacity .3s ease-in-out;
   opacity: 1;
   position: absolute;
-  right: 30px;
+  right: 1px;
   top: 1px;
   background-color: white;
   color: $base-font-color;

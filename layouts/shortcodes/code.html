@@ -2,9 +2,6 @@
 <div class="code" id="{{.Get "file" | urlize}}">
 	{{- with .Get "file" -}}
 		<div class="filename">{{.}}</div>
-		<div class="code-icon">
-			<i class="icon-{{$icon}} input"></i>
-		</div>
 	{{- end -}}
 	{{with .Get "download"}}
 	<button class="download-button" title="Download &quot;{{.}}&quot;.">
