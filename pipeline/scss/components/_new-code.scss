@@ -5,6 +5,8 @@
     font-size: .9em;
     weight: inherit;
     font-weight: $code-font-base-weight;
+    position: relative;
+    overflow-y: visible;
   }
   pre > code,
   .code {
@@ -37,6 +39,44 @@
   position: relative;
   overflow: hidden;
   padding: .5em;
+  overflow-y: visible;
+}
+
+code[class^="language-"] {
+  &:after {
+    display: block;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    color: lighten($base-font-color, 25%);
+    font-family:'fontello';
+    content: '\f121';
+  }
+}
+
+code.language-html:after {
+  font-family: 'FontAwesome';
+  content: '\f13b';
+}
+
+code.language-js:after {
+  font-family: 'fontello';
+  content: '\e802';
+  font-size: 16px;
+  top: 2px;
+}
+
+code.language-hugo:after,
+code.language-go:after,
+code.language-golang:after {
+  font-family: 'fontello';
+  content: '\e81f';
+}
+
+code.language-sass:after,
+code.language-scss:after {
+  font-family: 'fontello';
+  content: '\e803';
 }
 
 .filename {
@@ -44,9 +84,11 @@
   color: lighten($base-font-color, 45%);
   padding-left: 1em;
   padding-top: .25em;
-  font-size: .8em;
+  font-size: .7em;
   background-color: $code-block-background-color;
   width: 100%;
+  font-style: italic;
+  margin-bottom: 0px;
 }
 
 .code-icon {
@@ -57,10 +99,10 @@
 
 .copy-button {
   transition: opacity .3s ease-in-out;
-  opacity: 0;
+  opacity: 1;
   position: absolute;
-  right: 10px;
-  top: 40px;
+  right: 30px;
+  top: 1px;
   background-color: white;
   color: $base-font-color;
   border-radius: 0px;
@@ -69,6 +111,7 @@
   width: auto;
   font-size: 12px;
   display: block;
+  z-index: 999;
   &:hover {
     @include card(3);
   }

@@ -33,8 +33,8 @@ The single parameter to `ref` is a string with a content `documentname` (e.g., `
 The `documentname` is the name of a document, including the format extension; this may be just the filename, or the relative path from the `content/` directory. With a document `content/blog/post.md`, either format will produce the same result:
 
 ```golang
-{{</* relref "blog/post.md" */>}} ⇒ `/blog/post/`
-{{</* relref "post.md" */>}} ⇒ `/blog/post/`
+{{</* relref "blog/post.md" */>}} &rarr; `/blog/post/`
+{{</* relref "post.md" */>}} &rarr; `/blog/post/`
 ```
 
 If you have the same filename used across multiple sections, you should only use the relative path format; otherwise, the behavior will be `undefined`. This is best illustrated with an example `content` directory:
@@ -56,17 +56,17 @@ The potential for conflicting `documentname` is more likely in larger sites. Usi
 
 {{% code file="content/meta/my-article.md" copy="false" %}}
 ```golang
-{{</* relref "my-birthday.md" */>}} ⇒ `/events/my-birthday/` (maybe)
-{{</* relref "my-birthday.md" */>}} ⇒ `/posts/my-birthday/` (maybe)
-{{</* relref "my-birthday.md" */>}} ⇒ `/galleries/my-birthday/` (maybe)
-{{</* relref "events/my-birthday.md" */>}} ⇒ `/events/my-birthday/`
-{{</* relref "galleries/my-birthday.md" */>}} ⇒ `/galleries/my-birthday/`
+{{</* relref "my-birthday.md" */>}} &rarr; `/events/my-birthday/` (maybe)
+{{</* relref "my-birthday.md" */>}} &rarr; `/posts/my-birthday/` (maybe)
+{{</* relref "my-birthday.md" */>}} &rarr; `/galleries/my-birthday/` (maybe)
+{{</* relref "events/my-birthday.md" */>}} &rarr; `/events/my-birthday/`
+{{</* relref "galleries/my-birthday.md" */>}} &rarr; `/galleries/my-birthday/`
 ```
 {{% /code %}}
 
 A relative document name must *not* begin with a slash (`/`).
 ```golang
-{{</* relref "/events/my-birthday.md" */>}} ⇒ `""`
+{{</* relref "/events/my-birthday.md" */>}} &rarr; `""`
 ```
 
 ### Anchors
@@ -74,27 +74,27 @@ A relative document name must *not* begin with a slash (`/`).
 When an `anchor` is provided by itself, the current page’s unique identifier will be appended; when an `anchor` is provided appended to `documentname`, the found page's unique identifier will be appended:
 
 ```golang
-{{</* relref "#anchors" */>}} ⇒ `#anchors:9decaf7`
-{{</* relref "about-hugo/hugo-features.md#content" */>}} ⇒ `/blog/post/#who:badcafe`
+{{</* relref "#anchors" */>}} &rarr; `#anchors:9decaf7`
+{{</* relref "about-hugo/hugo-features.md#content" */>}} &rarr; `/blog/post/#who:badcafe`
 ```
 
 The above examples render as follows for this very page as well as a reference to the "Content" heading in the Hugo docs features pageyoursite
 
 ```golang
-{{</* relref "#who" */>}} ⇒ `#who:9decaf7`
-{{</* relref "blog/post.md#who" */>}} ⇒ `/blog/post/#who:badcafe`
+{{</* relref "#who" */>}} &rarr; `#who:9decaf7`
+{{</* relref "blog/post.md#who" */>}} &rarr; `/blog/post/#who:badcafe`
 ```
 
 More information about document unique identifiers and headings can be found [below]({{< ref "#hugo-heading-anchors" >}}).
 
 ### Examples
 
-* `{{</* ref "blog/post.md" */>}}` ⇒ `http://yoursite.com/blog/post/`
-* `{{</* ref "post.md#tldr" */>}}` ⇒ `http://yoursite.com/blog/post/#tldr:caffebad`
-* `{{</* relref "post.md" */>}}` ⇒ `/blog/post/`
-* `{{</* relref "blog/post.md#tldr" */>}}` ⇒ `/blog/post/#tldr:caffebad`
-* `{{</* ref "#tldr" */>}}` ⇒ `#tldr:badcaffe`
-* `{{</* relref "#tldr" */>}}` ⇒ `#tldr:badcaffe`
+* `{{</* ref "blog/post.md" */>}}` &rarr; `http://yoursite.com/blog/post/`
+* `{{</* ref "post.md#tldr" */>}}` &rarr; `http://yoursite.com/blog/post/#tldr:caffebad`
+* `{{</* relref "post.md" */>}}` &rarr; `/blog/post/`
+* `{{</* relref "blog/post.md#tldr" */>}}` &rarr; `/blog/post/#tldr:caffebad`
+* `{{</* ref "#tldr" */>}}` &rarr; `#tldr:badcaffe`
+* `{{</* relref "#tldr" */>}}` &rarr; `#tldr:badcaffe`
 
 ## Hugo Heading Anchors
 
@@ -148,22 +148,22 @@ The technique outlined above works well enough, but some documents have headings
 
 It’s easy to forget to do that all the time, and Hugo is smart enough to do it for you. It just adds `-x` to the end of each heading it has already seen.
 
-* `### Example` ⇒ `example`
-* `### Example` ⇒ `example-1`
-* `### Example` ⇒ `example-2`
+* `### Example` &rarr; `example`
+* `### Example` &rarr; `example-1`
+* `### Example` &rarr; `example-2`
 
 Sometimes it's a little harder, but Hugo can recover from those, too, by adding more suffixes:
 
-* `# Heading` ⇒ `heading`
-* `# Heading 1` ⇒ `heading-1`
-* `# Heading` ⇒ `heading-1-1`
-* `# Heading` ⇒ `heading-1-2`
-* `# Heading 1` ⇒ `heading-2`
+* `# Heading` &rarr; `heading`
+* `# Heading 1` &rarr; `heading-1`
+* `# Heading` &rarr; `heading-1-1`
+* `# Heading` &rarr; `heading-1-2`
+* `# Heading 1` &rarr; `heading-2`
 
 This can even affect specified heading anchors that come after a generated heading anchor.
 
-* `# My Heading` ⇒ `my-heading`
-* `# My Heading {#my-heading}` ⇒ `my-heading-1`
+* `# My Heading` &rarr; `my-heading`
+* `# My Heading {#my-heading}` &rarr; `my-heading-1`
 
 {{% note %}}
 This particular collision and override both unfortunate and unavoidable because Hugo processes each heading for collision detection as it sees it during conversion.

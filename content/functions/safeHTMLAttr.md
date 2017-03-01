@@ -27,6 +27,6 @@ Example: Given a site-wide `config.toml` that contains this menu entry:
     url = "irc://irc.freenode.net/#golang"
 ```
 
-* `<a href="{{ .URL }}">` ⇒ `<a href="#ZgotmplZ">` (Bad!)
-* `<a {{ printf "href=%q" .URL | safeHTMLAttr }}>` ⇒ `<a href="irc://irc.freenode.net/#golang">` (Good!)
+* <span class="bad">`<a href="{{ .URL }}">` &rarr; `<a href="#ZgotmplZ">`</span>
+* <span class="good">`<a {{ printf "href=%q" .URL | safeHTMLAttr }}>` &rarr; `<a href="irc://irc.freenode.net/#golang">`</span>
 

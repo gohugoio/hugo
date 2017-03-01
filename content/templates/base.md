@@ -91,10 +91,10 @@ When using the `define` keyword, you do *not* need to use Go templates context r
 This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"`` block, so the contents from our base template remain unchanged in lists.
 
 {{% warning %}}
-Code that you put outside the block definitions *can* break your layout. This even include HTML comments. For example:
+Code that you put outside the block definitions *can* break your layout. This even includes HTML comments. For example:
 
 ```html
-<!-- Here is a harmless comment..that will break my layout at build -->
+<!-- Harmless comment..that will break your layout at build -->
 {{ define "main" }}
 ...your code here
 {{ end }}
