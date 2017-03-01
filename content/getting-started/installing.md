@@ -10,7 +10,7 @@ authors: ["Michael Henderson"]
 tags: [install,fundamentals,pc,windows,linux,mac,osx,binary,tarball]
 weight: 30
 draft: false
-aliases: [/tutorials/installing-on-windows/,/tutorials/installing-on-mac/,/overview/installing/,/getting-started/install,/install/]
+aliases: [/tutorials/installing-on-windows/,/tutorials/installing-on-mac/,/overview/installing/,/getting-started/install,/install/,/docs/]
 toc: true
 ---
 

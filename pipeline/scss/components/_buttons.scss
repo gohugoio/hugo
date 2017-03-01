@@ -6,6 +6,7 @@ a[role="button"] {
   outline: none;
   border-radius: $button-border-radius;
   padding: .25em .5em;
+  font-size: 1em;
   box-shadow: none;
   text-align: center;
   @include card(1, 3);

@@ -1,0 +1,1 @@
+$('#homepage-nav > ul.animated').addClass('fadeInDown');

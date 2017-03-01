@@ -7,6 +7,7 @@
   margin-right: 20px;
   font-size: 1.2em;
   z-index: 60;
+  color:$hugo-pink;
   @include MQ(L){
     top:.3em;
   }
@@ -33,7 +34,7 @@ form#site-search-form {
   #search-input {
     max-height: $site-header-height * .9;
     padding-left: 20px;
-    font-size: 24px;
+    font-size: 1em;
   }
 }
 

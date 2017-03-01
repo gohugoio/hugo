@@ -1,10 +1,7 @@
 <link rel="stylesheet" href="/css/style.min.css">
 <script src="https://use.typekit.net/bmc1jgv.js"></script>
 <script>try{Typekit.load({ async: true });}catch(e){}</script>
-{{if .Site.Params.usefontawesome}}
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-{{end}}
-
 {{ if .IsHome }}
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.3.2/css/bulma.min.css"> -->
 <link rel="stylesheet" href="{{ "css/homepage.min.css" | relURL }}">
 {{ end }}

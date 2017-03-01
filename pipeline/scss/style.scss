@@ -1,4 +1,5 @@
 @import 'bourbon/bourbon';
+@import '../npm_modules/flexboxgrid/dist/flexboxgrid.css';
 
 //variables and abstracts
 @import 'variables';
@@ -34,8 +35,11 @@
 @import 'components/blockquotes';
 @import 'components/breadcrumb';
 @import 'components/tables';
-@import 'vendor/featherlight.scss';
 @import 'components/shortcode-examples';
+
+//vendor
+@import 'vendor/featherlight';
+@import 'vendor/animate';
 
 //major layout parts/chrome
 @import 'layout/site-header';
@@ -45,8 +49,8 @@
 @import 'layout/site-footer';
 
 //styles for individual pages
+// @import 'pages/homepage';
 @import 'pages/homepage';
-// @import 'pages/homepage-new';
 @import 'pages/commands';
 
 @import 'temp';

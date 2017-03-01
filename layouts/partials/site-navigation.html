@@ -1,3 +1,4 @@
+{{ if not .IsHome }}
 <a class="navigation-toggle-wrapper" id="navigation-toggle" href="#">
 		<div class="top bar"></div>
 		<div class="middle bar"></div>
@@ -36,3 +37,4 @@
 		<!-- <a role="button" href="{{.Site.BaseURL}}mailing-list/"><i class="icon-mail"></i>Join the Mailing List</a> -->
 	</div>
 </nav>
+{{ end }}
