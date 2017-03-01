@@ -37,7 +37,7 @@ If you make use of the [multilingual feature](/content-management/multilingual/)
 
 A menu entry has the following properties (i.e., variables) available to it:
 
-{{< readfile file="readfiles/menuvars.md" markdown="true" >}}
+{{< readfile file="content/readfiles/menuvars.md" markdown="true" >}}
 
 ## Adding content to menus
 

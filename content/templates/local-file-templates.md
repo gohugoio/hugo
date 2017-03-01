@@ -82,24 +82,24 @@ Here is the templating for our new `readfile` shortcode:
 This shortcode is [also part of the Hugo docs][readfilesource]. The Hugo docs also includes this [`testing.txt`][testfile] file in a `readfiles` directory. We can call pass this file into our new `readfile` shortcode as follows:
 
 ```
-{{</* readfile file="readfiles/testing.txt" */>}}
+{{</* readfile file="content/readfiles/testing.txt" */>}}
 ```
 
 The output "string" for calling this file is as follows:
 
 ```markdown
-{{< readfile file="readfiles/testing.txt" >}}
+{{< readfile file="content/readfiles/testing.txt" >}}
 ```
 
 However, if we want Hugo to pass this string through Blackfriday, we should add the `markdown="true"` optional parameter:
 
 ```html
-{{</* readfile file="readfiles/testing.txt" markdown="true" */>}}
+{{</* readfile file="content/readfiles/testing.txt" markdown="true" */>}}
 ```
 
 And here is it is [called directly in the Hugo docs][] content file used to creat this page and rendered for display:
 
-{{< readfile file="readfiles/testing.txt" markdown="true">}}
+{{< readfile file="content/readfiles/testing.txt" markdown="true">}}
 
 [called directly in the Hugo docs]: https://github.com/spf13/hugo/blob/master/docs/content/templates/local-file-templates.md
 [dirindex]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html

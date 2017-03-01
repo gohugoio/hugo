@@ -1,0 +1,26 @@
+{{ define "main" }}
+<main id="homepage">
+	<div class="homepage-image">
+		<img src="{{"images/hugo-logo/hugo-h-only.png" | relURL}}" alt="Official full-size Hugo logo">
+	</div>
+	<ul class="homepage-cards">
+		{{range $key,$values := sort (.Site.Data.sitenavigation) "order" }}
+			<li class="homepage-card">
+			<a href="{{ $values.url }}">
+				<section>
+					<div class="homepage-card-image-wrapper">
+						<img class="hugo-icon" src="/images/hugo-icons/{{ $values.url }}.svg" alt="">
+					</div>
+					<div class="homepage-card-copy">
+					<header>
+						<h2>{{ $values.title }}</h2>
+					</header>
+					<p>{{ $values.desc | markdownify}}</p>
+					</div>
+				</section>
+			</a>
+			</li>
+		{{end}}
+	</ul>
+</main>
+{{ end }}

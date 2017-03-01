@@ -342,48 +342,7 @@ Hugo typically configures Blackfriday with sane default values. These defaults s
 
 However, if you have specific needs with respect to Markdown, Hugo exposes some of its Blackfriday behavior options for you to alter. The following table lists these Hugo options, paired with the corresponding flags from Blackfriday's source code ( [html.go](https://github.com/russross/blackfriday/blob/master/html.go) and [markdown.go](https://github.com/russross/blackfriday/blob/master/markdown.go)).
 
-**WIP: WORKING ON MOVING BF CONFIG FROM TABLE TO DL**
-
-`taskLists`
-: default: **`true`**<br>
-    Blackfriday flag: **``**<br>
-    Purpose: `false` turns off GitHub-style automatic task/TODO list generation
-
-`smartypants`
-: default: **`true`** <br>
-    Blackfriday flag: **`HTML_USE_SMARTYPANTS`** <br>
-    Purpose: `false` disables smart punctuation substitutions, including smart quotes, smart dashes, smart fractions, etc. If `true`, it may be fine-tuned with the `angledQuotes`, `fractions`, `smartDashes`, and `latexDashes` flags (see below).
-
-`angledQuotes`
-: default: **`false`**<br>
-    Blackfriday flag: **`HTML_SMARTYPANTS_ANGLED_QUOTES`**<br>
-    Purpose: `true` enables smart, angled double quotes. Example: "Hugo" renders to renders to «Hugo» instead of “Hugo”.
-
-`fractions`
-: default: **`true`**<br>
-    Blackfriday flag: **`HTML_SMARTYPANTS_FRACTIONS`** <br>
-    Purpose: <code>false</code> disables smart fractions.<br>
-    Example: `5/12` renders to <sup>5</sup>&frasl;<sub>12</sub>(<code>&lt;sup&gt;5&lt;/sup&gt;&amp;frasl;&lt;sub&gt;12&lt;/sub&gt;</code>).<br> <strong>Caveat:</strong> Even with <code>fractions = false</code>, Blackfriday still converts `1/2`, `1/4`, and `3/4` respectively to ½ (<code>&amp;frac12;</code>), ¼ (<code>&amp;frac14;</code>) and ¾ (<code>&amp;frac34;</code>), but only these three.</small>
-
-`smartDashes`
-: default: **`true`** <br>
-    Blackfriday flag: **`HTML_SMARTY_DASHES`** <br>
-    Purpose: `false` disables smart dashes; i.e., the conversion of multiple hyphens into an en dash or em dash. If `true`, its behavior can be modified with the `latexDashes` flag below.
-
-`latexDashes`
-: default: **`true`** <br>
-    Blackfriday flag: **`HTML_SMARTYPANTS_LATEX_DASHES`** <br>
-    Purpose: `false` disables LaTeX-style smart dashes and selects conventional smart dashes. Assuming `smartDashes`: <br>
-    If `true`, `--` is translated into &ndash; (`&ndash;`), whereas `---` is translated into &mdash; (`&mdash;`). <br>
-    However, *spaced* single hyphen between two words is translated into an en&nbsp;dash&mdash; e.g., "`12 June - 3 July`" becomes `12 June ndash; 3 July` upon rendering.
-
-`hrefTargetBlank`
-: default: **`false`** <br>
-    Blackfriday flag: **`HTML_HREF_TARGET_BLANK`** <br>
-    Purpose: `true` opens external links in a new window or tab.
-
-
-{{< bfconfig >}}
+{{< readfile file="content/readfiles/bfconfig.md" markdown="true" >}}
 
 {{% note %}}
 1. Blackfriday flags are *case sensitive* as of Hugo v0.15.

@@ -13,12 +13,19 @@
   > pre {
     overflow-x: scroll;
   }
-  li,
-  p {
+  ol,
+  ul,
+  div,
+  strong,
+  em,
+  span,
+  p,
+  dd,
+  {
     code {
-      background-color: #FAFAFA;
+      background-color: $inline-code-background-color;
       @include MQ(retina) {
-        background-color: #FAFAFA;
+        background-color: $inline-code-background-color;
       }
     }
   }
