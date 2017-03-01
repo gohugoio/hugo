@@ -40,14 +40,14 @@ $base-line-height-content: 1.6;
 $base-font-bold-color: $base-font-color;
 $systemfonts: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbols";
 // Font Families
-$base-font-family: 'muli',$helvetica;
+$base-font-family: 'Museo Sans','muli',$helvetica;
 $heading-font-family: $base-font-family;
 $code-font-family:'robotomono',courier,monospace;
 
 // Font Weights
-$base-font-weight: 400;
-$base-font-bold-weight: 600;
-$heading-font-weight: 600;
+$base-font-weight: 300;
+$base-font-bold-weight: 500;
+$heading-font-weight: 500;
 $code-font-base-weight: 400;
 $code-font-bold-weight: 500;
 

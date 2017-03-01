@@ -1,7 +1,6 @@
 {{$icon := index (split (.Get "file") ".") 1 }}
 <div class="code" id="{{.Get "file" | urlize}}">
 	{{- with .Get "file" -}}
-		<!-- <div title="{{.}}" class="filename">{{- . -}}</div> -->
 		<div class="code-icon">
 			<i class="icon-{{$icon}} input"></i>
 		</div>
