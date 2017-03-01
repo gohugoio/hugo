@@ -16,6 +16,7 @@ const pump = require('pump');
 const rename = require("gulp-rename");
 const sass = require('gulp-sass');
 const sassfiles = "./scss/**/*.scss";
+const sassfileshp = "./scss/**/homepage/*.scss";
 const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 
@@ -34,6 +35,15 @@ gulp.task('sass', function() {
     .pipe(prefix('last 2 versions', '> 1%', 'ie 10', 'Android 2', 'Firefox ESR'))
     .pipe(plumber())
     .pipe(rename('style.min.css'))
+    .pipe(gulp.dest('../static/css'));
+});
+
+gulp.task('homepage', function() {
+  gulp.src(sassfileshp)
+    .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+    .pipe(prefix('last 2 versions', '> 1%', 'ie 10', 'Android 2', 'Firefox ESR'))
+    .pipe(plumber())
+    .pipe(rename('homepage.min.css'))
     .pipe(gulp.dest('../static/css'));
 });
 
@@ -82,8 +92,9 @@ gulp.task('scripts', function(cb) {
  * - Watchs for file changes for images, scripts and sass/css
  *
  **/
-gulp.task('default', ['sass', 'scripts', 'image-resize'], function() {
+gulp.task('default', ['sass', 'scripts', 'image-resize', 'homepage'], function() {
   gulp.watch('scss/**/*.scss', ['sass']);
+  gulpt.watch('scss/**/homepage/*.{sass,scss}', ['homepage']);
   gulp.watch('js/**/*.js', ['scripts']);
   gulp.watch('../source-images/*', ['image-resize']);
 });
