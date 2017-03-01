@@ -11,6 +11,7 @@ weight: 50
 draft: false
 wip: true
 aliases: [/overview/source-directory/]
+toc: true
 ---
 
 <!-- copied from old overview/source-directory -->

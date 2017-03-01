@@ -25,6 +25,6 @@ Template authors are responsible for ensuring that typed expressions do not brea
 
 Example: Given `hash = "619c16f"` defined in the front matter of your `.md` file:
 
-* `<script>var form_{{ .Params.hash | safeJS }};…</script>` ⇒ `<script>var form_619c16f;…</script>` (Good!)
-* `<script>var form_{{ .Params.hash }};…</script>` ⇒ `<script>var form_"619c16f";…</script>` (Bad!)
+* <span class="good">`<script>var form_{{ .Params.hash | safeJS }};…</script>` &rarr; `<script>var form_619c16f;…</script>`</span>
+* <span class="bad">`<script>var form_{{ .Params.hash }};…</script>` &rarr; `<script>var form_"619c16f";…</script>`</span>
 

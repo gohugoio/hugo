@@ -14,11 +14,22 @@ svg.svg-icon {
 }
 
 //for template lookup yes/no/na (e.g., in single-page template [/templates/single-page-template/])
+span.yes {
+  code {
+    color: $hugo-white;
+    background-color: $hugo-green;
+  }
+}
+
 span.no {
   code {
     background-color: $hugo-pink;
     color: $hugo-white;
   }
+}
+
+span.no,
+span.bad {
   &:after {
     display: inline-block;
     @include size(1em);
@@ -27,6 +38,19 @@ span.no {
     margin-left: .5em;
     font-size: 1.2em;
     color: $hugo-pink;
+  }
+}
+
+span.yes,
+.good {
+  &:after {
+    display: inline-block;
+    @include size(1em);
+    font-family: 'FontAwesome';
+    content: '\f164';
+    color: $hugo-green;
+    margin-left: .5em;
+    font-size: 1.2em;
   }
 }
 
@@ -46,7 +70,7 @@ span.break {
     border-bottom: 1px solid black;
     border-top: 1px solid black;
     top: .666em;
-    width:140px;
+    width: 140px;
   }
   &:before {
     right: 100%;
@@ -55,22 +79,6 @@ span.break {
   &:after {
     left: 100%;
     margin-left: .5em;
-  }
-}
-
-span.yes {
-  code {
-    color: $hugo-white;
-    background-color: $hugo-green;
-  }
-  &:after {
-    display: inline-block;
-    @include size(1em);
-    font-family: 'FontAwesome';
-    content: '\f164';
-    color: $hugo-green;
-    margin-left: .5em;
-    font-size: 1.2em;
   }
 }
 

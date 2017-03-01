@@ -90,6 +90,18 @@ When using the `define` keyword, you do *not* need to use Go templates context r
 
 This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"`` block, so the contents from our base template remain unchanged in lists.
 
+{{% warning %}}
+Code that you put outside the block definitions *can* break your layout. This even include HTML comments. For example:
+
+```html
+<!-- Here is a harmless comment..that will break my layout at build -->
+{{ define "main" }}
+...your code here
+{{ end }}
+```
+[See this thread from the discussion forums](https://discuss.gohugo.io/t/baseof-html-block-templates-and-list-types-results-in-empty-pages/5612/6)
+{{% /warning %}}
+
 The following shows how you can override both the `"main"` and `"title"` block areas from the base template with code unique to your [default single page template][singletemplate]:
 
 {{% code file="layouts/_default/single.html" download="single.html" %}}

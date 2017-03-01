@@ -23,7 +23,7 @@ $hugo-gold:#EBB951;
 $hugo-gray:#737373;
 $hugo-gray-dark:darken($hugo-gray, 10%);
 $hugo-gray-light:lighten($hugo-gray, 30%);
-$hugo-gray-ultra-light:lighten($hugo-gray-light, 23%);
+$hugo-gray-ultra-light:lighten($hugo-gray-light, 22%);
 $hugo-green:#00A88A;
 $hugo-green-light:#33BA91;
 //Examples
@@ -67,7 +67,6 @@ $button-border-radius: .25em;
 
 $code-tooltip-bg-color: $hugo-blue;
 $code-block-base-font-color: $hugo-black;
-$code-block-background-color: darken($hugo-white,5%);
 $code-editor-header-base-bg-color: $input-example-color;
 $code-filename-color:#ffffff;
 $code-copy-button-color:#ffffff;
@@ -75,6 +74,7 @@ $code-copy-button-text-color:$base-font-color;
 $code-base-font-color:$hugo-pink-light;
 $inline-code-text-color:$base-font-color;
 $inline-code-background-color:$hugo-gray-ultra-light;
+$code-block-background-color: $inline-code-background-color;
 //Sidebar & Breadcrumb
 $site-navigation-width: 280px;
 $content-max-width: 32em;

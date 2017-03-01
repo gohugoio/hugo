@@ -24,32 +24,6 @@
   h2 {
     display:none;
   }
-  // h2 {
-  //   font-size: 1.1em;
-  //   color: lighten($base-font-color, 20%);
-  //   width: 100%;
-  //   display: block;
-  //   margin: 0px;
-  //   padding: 0px;
-  //   margin-left: 0px;
-  //   padding: 0px 12px;
-  //   border: none;
-  //   outline: none;
-  //   border-bottom-width: 2px;
-  //   border-bottom-style: solid;
-  //   display: inline-block;
-  //   width: auto;
-  //   z-index: 20;
-  //   code,
-  //   pre {
-  //     color: inherit;
-  //   }
-  //   em,strong {
-  //     color:inherit;
-  //     font-weight:inherit;
-  //   }
-  //   display:none;
-  // }
   .admonition-content {
     display: block;
     margin: 0px;
@@ -60,6 +34,14 @@
     p:last-child {
       margin-bottom: 0px;
     }
+    ul,ol {
+      &:last-child {
+        margin-bottom:0px;
+      }
+      &:last-child + p {
+        margin-top:1em;
+      }
+    }
   }
 }
 
@@ -69,24 +51,6 @@
   #exclamation-icon {
     fill: $hugo-blue;
   }
-  // &:before {
-  //   content: '\f06a';
-  //   color: inherit;
-  //   font-family:'FontAwesome';
-  //   padding:0px;
-  //   color:$hugo-blue;
-  //   background-color: desaturate(lighten($hugo-blue,61%),20%);
-  //   // &::after {
-  //   //   content:'';
-  //   //   width: 2px;
-  //   //   height: 4px;
-  //   //   border:2px solid $hugo-blue;
-  //   // }
-  // }
-  // // h2 {
-  // //   border-bottom-color: $hugo-blue;
-  // //   color: $hugo-blue;
-  // // }
 }
 
 .warning {
@@ -95,17 +59,4 @@
   #exclamation-icon {
     fill: $hugo-pink;
   }
-  // &:before {
-  //   content: '\e810';
-  //   color: $hugo-pink;
-  //   background-color: lighten($hugo-pink, 54%);
-  // }
-  // h2 {
-  //   border-bottom-color: $hugo-pink;
-  //   color: $hugo-pink;
-  //   pre,
-  //   code {
-  //     color: $hugo-pink;
-  //   }
-  // }
 }
