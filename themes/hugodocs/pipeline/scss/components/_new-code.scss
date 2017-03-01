@@ -1,0 +1,264 @@
+.body-copy {
+  code,
+  pre {
+    font-family: $code-font-family;
+    font-size: .9em;
+    weight: inherit;
+    font-weight: $code-font-base-weight;
+  }
+  pre > code,
+  .code {
+    background-color: $code-block-background-color;
+  }
+  > pre {
+    overflow-x: scroll;
+  }
+  li,
+  p {
+    code {
+      background-color: #FAFAFA;
+      @include MQ(retina) {
+        background-color: #FAFAFA;
+      }
+    }
+  }
+}
+
+.code {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  padding: .5em;
+}
+
+.filename {
+  font-family: $code-font-family;
+  color: lighten($base-font-color, 45%);
+  padding-left: 1em;
+  padding-top: .25em;
+  font-size: .8em;
+  background-color: $code-block-background-color;
+  width: 100%;
+}
+
+.code-icon {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+}
+
+.copy-button {
+  transition: opacity .3s ease-in-out;
+  opacity: 0;
+  position: absolute;
+  right: 10px;
+  top: 40px;
+  background-color: white;
+  color: $base-font-color;
+  border-radius: 0px;
+  @include card(1);
+  height: 30px;
+  width: auto;
+  font-size: 12px;
+  display: block;
+  &:hover {
+    @include card(3);
+  }
+  span.button-text {
+    text-transform: uppercase;
+    margin-left: 3px;
+  }
+}
+
+.download-button {
+  display: none!important;
+}
+
+.code:hover {
+  .copy-button,
+  .download-button {
+    transition: all .3s ease-in-out;
+    opacity: 1;
+  }
+}
+
+.tooltipped {
+  position: absolute;
+  // background-color: $code-tooltip-bg-color;
+  // padding-right: 2em;
+}
+
+.tooltipped:after {
+  position: absolute;
+  z-index: 1000000;
+  display: none;
+  padding: 2px 4px;
+  font-size: .8em;
+  font-weight: $base-font-bold-weight;
+  font-family: $heading-font-family;
+  color: $hugo-white;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-shadow: none;
+  letter-spacing: normal;
+  word-wrap: break-word;
+  white-space: pre;
+  pointer-events: none;
+  content: attr(aria-label);
+  background-color: $code-tooltip-bg-color;
+  border-color: $code-tooltip-bg-color;
+  border-radius: 0px;
+  -webkit-font-smoothing: subpixel-antialiased
+}
+
+.tooltipped:before {
+  position: absolute;
+  z-index: 1000001;
+  display: none;
+  width: 0;
+  height: 0;
+  color: $code-tooltip-bg-color;
+  pointer-events: none;
+  content: "";
+  border: 5px solid transparent;
+}
+
+.tooltipped:hover:before,
+.tooltipped:hover:after,
+.tooltipped:active:before,
+.tooltipped:active:after,
+.tooltipped:focus:before,
+.tooltipped:focus:after {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.tooltipped-multiline:hover:after,
+.tooltipped-multiline:active:after,
+.tooltipped-multiline:focus:after {
+  display: table-cell;
+}
+
+.tooltipped-s:after,
+.tooltipped-se:after,
+.tooltipped-sw:after {
+  top: 100%;
+  right: 50%;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.tooltipped-s:before,
+.tooltipped-se:before,
+.tooltipped-sw:before {
+  top: auto;
+  right: 50%;
+  bottom: -5px;
+  margin-right: -5px;
+  border-bottom-color: $code-tooltip-bg-color;
+  text-align: center;
+}
+
+.tooltipped-se:after {
+  right: auto;
+  left: 50%;
+  // margin-left: -15px;
+  text-align: center;
+}
+
+.tooltipped-sw:after {
+  // margin-right: -15px
+}
+
+.tooltipped-n:after,
+.tooltipped-ne:after,
+.tooltipped-nw:after {
+  right: 50%;
+  bottom: 100%;
+  margin-bottom: 5px
+}
+
+.tooltipped-n:before,
+.tooltipped-ne:before,
+.tooltipped-nw:before {
+  top: -5px;
+  right: 50%;
+  bottom: auto;
+  margin-right: -5px;
+  border-top-color: $code-tooltip-bg-color;
+}
+
+.tooltipped-ne:after {
+  right: auto;
+  left: 50%;
+  margin-left: -15px
+}
+
+.tooltipped-nw:after {
+  margin-right: -15px
+}
+
+.tooltipped-s:after,
+.tooltipped-n:after {
+  -webkit-transform: translateX(50%);
+  -ms-transform: translateX(50%);
+  transform: translateX(50%)
+}
+
+.tooltipped-w:after {
+  right: 100%;
+  bottom: 50%;
+  margin-right: 5px;
+  -webkit-transform: translateY(50%);
+  -ms-transform: translateY(50%);
+  transform: translateY(50%)
+}
+
+.tooltipped-w:before {
+  top: 50%;
+  bottom: 50%;
+  left: -5px;
+  margin-top: -5px;
+  border-left-color: $code-tooltip-bg-color;
+}
+
+.tooltipped-e:after {
+  bottom: 50%;
+  left: 100%;
+  margin-left: 5px;
+  -webkit-transform: translateY(50%);
+  -ms-transform: translateY(50%);
+  transform: translateY(50%)
+}
+
+.tooltipped-e:before {
+  top: 50%;
+  right: -5px;
+  bottom: 50%;
+  margin-top: -5px;
+  border-right-color: $code-tooltip-bg-color;
+}
+
+.tooltipped-multiline:after {
+  width: max-content;
+  max-width: 250px;
+  word-break: break-word;
+  word-wrap: normal;
+  white-space: pre-line;
+  border-collapse: separate
+}
+
+.tooltipped-multiline.tooltipped-s:after,
+.tooltipped-multiline.tooltipped-n:after {
+  right: auto;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%)
+}
+
+.tooltipped-multiline.tooltipped-w:after,
+.tooltipped-multiline.tooltipped-e:after {
+  right: 100%
+}

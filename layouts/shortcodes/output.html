@@ -1,7 +1,10 @@
 {{$file := .Get "file"}}
 {{$icon := index (split $file ".") 1 }}
-<div class="code-copy" id="{{$file | urlize}}">
-	<div class="code-copy-header output"><div class="action-buttons"></div><span class="filename" title="{{$file}}">{{$file}}</span><i class="icon-{{$icon}}"></i></div>
+<div class="code" id="{{$file | urlize}}">
+	<div class="filename" title="{{$file}}">{{$file}}</div>
+	<div class="code-icon">
+		<i class="icon-{{$icon}}"></i>
+	</div>
 	<div class="code-copy-content output-content">
 	{{- .Inner -}}
 	</div>

@@ -28,7 +28,7 @@ a {
 a.tooltip {
   position: relative;
   overflow: visible;
-  font-family:$base-font-family;
+  font-family: $base-font-family;
   &:hover::before {
     display: inline-block;
     position: absolute;
@@ -71,7 +71,7 @@ a.tooltip {
     }
     &::before {
       padding-right: 1.5em;
-      font-family:$base-font-family;
+      font-family: $base-font-family;
     }
   }
 }
@@ -80,21 +80,27 @@ a.tooltip {
   content: '\f09b';
 }
 
-a.heading-link {
-  color: lighten($base-font-color, 50%);
-  font-size: .7em;
-  position: absolute;
-  display: inline;
-  top: .4em;
-  right: 0px;
-  &:before,
-  &:after {
-    display: none;
+.body-copy {
+  a.heading-link {
+    opacity: 0;
+    color: $hugo-gray-light;
+    transition: opacity .3s ease-in-out;
+    font-size: .7em;
+    position: absolute;
+    display: inline;
+    top: .35em;
+    right: 0px;
+    @include MQ(M) {
+      left: -1.5em;
+    }
   }
-  @include MQ(M) {
-    left: -1.5em;
-  }
-  &:hover {
-    color: $default-anchor-underline-color;
+  h2,
+  h3 {
+    &:hover {
+      a.heading-link {
+        transition: opacity .3s ease-in-out;
+        opacity: 1;
+      }
+    }
   }
 }

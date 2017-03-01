@@ -116,6 +116,12 @@ aside {
         left: 1.5em;
         right: 0em;
       }
+      strong > code {
+        color: $hugo-pink;
+      }
+      strong:first-child > code {
+        color: $hugo-blue;
+      }
     }
   }
 }

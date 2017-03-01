@@ -1,0 +1,87 @@
+/*
+Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-license.org/
+*/
+/* SEE HUGO SPECIFIC CLASSES AT BOTTOM OF PAGE*/
+
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 0.5em;
+  background: $code-block-background-color;
+  font-size:.9em;
+}
+
+.hljs,
+.hljs-tag,
+.hljs-subst {
+  color: $hugo-black;
+}
+
+.hljs-strong,
+.hljs-emphasis {
+  color: $hugo-gray;
+}
+
+.hljs-bullet,
+.hljs-quote,
+.hljs-number,
+.hljs-regexp,
+.hljs-literal,
+.hljs-link {
+  color: saturate($hugo-blue,10%);
+}
+
+.hljs-code,
+.hljs-title,
+.hljs-section,
+.hljs-selector-class {
+  color: $hugo-green;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-name,
+.hljs-attr {
+  color: $hugo-pink;
+}
+
+.hljs-symbol,
+.hljs-attribute {
+  color: saturate($hugo-blue,10%);
+}
+
+.hljs-params,
+.hljs-class .hljs-title {
+  color: $hugo-black;
+}
+
+.hljs-string,
+.hljs-type,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-selector-id,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-addition,
+.hljs-variable,
+.hljs-template-variable {
+  color: saturate($hugo-blue,10%);
+}
+
+.hljs-comment,
+.hljs-deletion,
+.hljs-meta {
+  color: $hugo-gray;
+}
+
+.language-toml.hljs .hljs-section {
+  color:$hugo-pink;
+}

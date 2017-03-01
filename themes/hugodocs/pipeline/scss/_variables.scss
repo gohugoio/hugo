@@ -45,7 +45,7 @@ $heading-font-family: $base-font-family;
 $code-font-family:'robotomono',courier,monospace;
 
 // Font Weights
-$base-font-weight: 300;
+$base-font-weight: 400;
 $base-font-bold-weight: 600;
 $heading-font-weight: 600;
 $code-font-base-weight: 400;
@@ -65,9 +65,9 @@ $button-border-radius: .25em;
 // $code-font-family:'courierprime',courier,monospace;
 
 
-$code-tooltip-bg-color: $hugo-pink;
-$code-block-base-font-color: #ffffff;
-$code-block-background-color: $hugo-black;
+$code-tooltip-bg-color: $hugo-blue;
+$code-block-base-font-color: $hugo-black;
+$code-block-background-color: darken($hugo-white,5%);
 $code-editor-header-base-bg-color: $input-example-color;
 $code-filename-color:#ffffff;
 $code-copy-button-color:#ffffff;
