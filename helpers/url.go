@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/purell"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 type pathBridge struct {
@@ -297,17 +296,15 @@ func (p *PathSpec) URLizeAndPrep(in string) string {
 // URLPrep applies misc sanitation to the given URL.
 func (p *PathSpec) URLPrep(in string) string {
 	if p.uglyURLs {
-		x := Uglify(SanitizeURL(in))
-		return x
+		return Uglify(SanitizeURL(in))
 	}
-	x := PrettifyURL(SanitizeURL(in))
-	if path.Ext(x) == ".xml" {
-		return x
+	pretty := PrettifyURL(SanitizeURL(in))
+	if path.Ext(pretty) == ".xml" {
+		return pretty
 	}
-	url, err := purell.NormalizeURLString(x, purell.FlagAddTrailingSlash)
+	url, err := purell.NormalizeURLString(pretty, purell.FlagAddTrailingSlash)
 	if err != nil {
-		jww.ERROR.Printf("Failed to normalize URL string. Returning in = %q\n", in)
-		return in
+		return pretty
 	}
 	return url
 }
