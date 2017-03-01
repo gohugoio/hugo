@@ -1001,15 +1001,7 @@ func (c *commandeer) isThemeVsHugoVersionMismatch() (mismatch bool, requiredMinV
 	config := tomlMeta.(map[string]interface{})
 
 	if minVersion, ok := config["min_version"]; ok {
-		switch minVersion.(type) {
-		case float32:
-			return helpers.HugoVersionNumber < minVersion.(float32), fmt.Sprint(minVersion)
-		case float64:
-			return helpers.HugoVersionNumber < minVersion.(float64), fmt.Sprint(minVersion)
-		default:
-			return
-		}
-
+		return helpers.CompareVersion(minVersion) > 0, fmt.Sprint(minVersion)
 	}
 
 	return

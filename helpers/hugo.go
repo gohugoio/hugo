@@ -15,6 +15,9 @@ package helpers
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/spf13/cast"
 )
 
 // HugoVersionNumber represents the current build version.
@@ -60,4 +63,65 @@ func hugoVersionNoSuffix(version float32, patchVersion int) string {
 		return fmt.Sprintf("%.2f.%d", version, patchVersion)
 	}
 	return fmt.Sprintf("%.2f", version)
+}
+
+// CompareVersion compares the given version string or number against the
+// running Hugo version.
+// It returns -1 if the given version is less than, 0 if equal and 1 if greater than
+// the running version.
+func CompareVersion(version interface{}) int {
+	return compareVersions(HugoVersionNumber, HugoPatchVersion, version)
+}
+
+func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int {
+	switch d := in.(type) {
+	case float64:
+		return compareFloatVersions(inVersion, inPatchVersion, float32(d))
+	case float32:
+		return compareFloatVersions(inVersion, inPatchVersion, d)
+	case int:
+		return compareFloatVersions(inVersion, inPatchVersion, float32(d))
+	case int32:
+		return compareFloatVersions(inVersion, inPatchVersion, float32(d))
+	case int64:
+		return compareFloatVersions(inVersion, inPatchVersion, float32(d))
+	default:
+		s, err := cast.ToStringE(in)
+		if err != nil {
+			return -1
+		}
+
+		var (
+			v float32
+			p int
+		)
+
+		if strings.Count(s, ".") == 2 {
+			li := strings.LastIndex(s, ".")
+			p = cast.ToInt(s[li+1:])
+			s = s[:li]
+		}
+
+		v = float32(cast.ToFloat64(s))
+
+		if v == inVersion && p == inPatchVersion {
+			return 0
+		}
+
+		if v < inVersion || (v == inVersion && p < inPatchVersion) {
+			return -1
+		}
+
+		return 1
+	}
+}
+
+func compareFloatVersions(version float32, patchVersion int, v float32) int {
+	if v == version {
+		return 0
+	}
+	if v < version {
+		return -1
+	}
+	return 1
 }
