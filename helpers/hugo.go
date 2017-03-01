@@ -50,14 +50,14 @@ func NextHugoReleaseVersion() string {
 
 func hugoVersion(version float32, patchVersion int, suffix string) string {
 	if patchVersion > 0 {
-		return fmt.Sprintf("%.2g.%d%s", version, patchVersion, suffix)
+		return fmt.Sprintf("%.2f.%d%s", version, patchVersion, suffix)
 	}
-	return fmt.Sprintf("%.2g%s", version, suffix)
+	return fmt.Sprintf("%.2f%s", version, suffix)
 }
 
 func hugoVersionNoSuffix(version float32, patchVersion int) string {
 	if patchVersion > 0 {
-		return fmt.Sprintf("%.2g.%d", version, patchVersion)
+		return fmt.Sprintf("%.2f.%d", version, patchVersion)
 	}
-	return fmt.Sprintf("%.2g", version)
+	return fmt.Sprintf("%.2f", version)
 }
