@@ -38,6 +38,7 @@ import (
 
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/hugo/media"
 	"github.com/spf13/hugo/source"
 )
 
@@ -199,6 +200,10 @@ type Page struct {
 	language *helpers.Language
 
 	lang string
+
+	// The media types this page will be rendered to.
+	// TODO(bep) probably wrap this to add additional information like template evaluation?
+	mediaTypes media.Types
 }
 
 // pageInit lazy initializes different parts of the page. It is extracted
@@ -1878,6 +1883,12 @@ func kindFromFilename(filename string) string {
 	// We don't know enough yet to determine the type.
 	return kindUnknown
 }
+
+// TODO(bep) output
+var (
+	mediaTypesWithRSS = media.Types{media.HtmlType, media.RSSType}
+	mediaTypesHTML    = media.Types{media.HtmlType}
+)
 
 func (p *Page) setValuesForKind(s *Site) {
 	if p.Kind == kindUnknown {

@@ -548,6 +548,13 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 					p.Content = helpers.BytesToHTML(workContentCopy)
 				}
 
+				// TODO(bep) output this is temporary
+				if p.IsNode() && p.Kind != KindTaxonomyTerm {
+					p.mediaTypes = mediaTypesWithRSS
+				} else {
+					p.mediaTypes = mediaTypesHTML
+				}
+
 				//analyze for raw stats
 				p.analyzePage()
 
