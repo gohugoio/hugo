@@ -20,10 +20,10 @@
 @import 'components/anchors';
 @import 'components/images';
 @import 'components/admonitions';
-// @import 'vendor/highlightjs';
-@import 'vendor/highlightjs-new';
-// @import 'components/code';
-@import 'components/new-code';
+// @import 'vendor/highlightjs-OLD';
+@import 'vendor/highlightjs';
+// @import 'components/code-OLD';
+@import 'components/code';
 @import 'components/icons';
 @import 'components/tags';
 @import 'algolia/main';

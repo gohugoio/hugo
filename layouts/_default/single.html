@@ -9,9 +9,9 @@
 			{{- partial "content-header-links.html" . -}}
 			{{- partial "tags.html" . -}}
 			<!-- temporary WIP badge; should be removed before site launch -->
-			{{- if .Params.wip -}}
+			<!-- {{- if .Params.wip -}}
 			<div id="beingreviewed">WIP</div>
-			{{- end -}}
+			{{- end -}} -->
 			{{ $title := .Title }}
 		</header>
 		<div class="body-copy" data-section={{.Section | urlize}}>

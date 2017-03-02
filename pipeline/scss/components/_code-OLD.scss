@@ -1,0 +1,471 @@
+//General code styling for inline code (ie, within body copy and not in a separate code block)
+code,
+pre {
+  font-family: $code-font-family;
+  margin: 0px;
+  font-weight: $code-font-base-weight;
+  color: inherit;
+}
+
+.body-copy > pre {
+  @include card(3);
+  text-shadow: none;
+  padding: 0px;
+  margin: .5em 0px 32px 0px;
+  overflow: auto;
+  & > code {
+    color: $hugo-white;
+  }
+}
+
+.body-copy {
+  p {
+    code {
+      display: inline-block;
+      padding-top: .15em;
+    }
+  }
+}
+
+.body-copy {
+  p,
+  td,
+  li {
+    code {
+      font-size: .85em;
+      display: inline-block;
+      color: inherit;
+      font-family: "robotomono", courier, monospace;
+      padding-left: .25em;
+      padding-right: .25em;
+      text-transform: none;
+      line-height: 1.2;
+      margin-bottom: .15em;
+      margin-top: 0px;
+      padding-top: 3px;
+      vertical-align: middle;
+      background-color: #ededed;
+      border: none;
+      outline: none;
+      z-index: -1;
+      padding-bottom: 3px;
+      border: none;
+      outline: none;
+      z-index: -1;
+      background-color: darken($inline-code-background-color, 5%);
+      @include MQ(retina) {
+        //lighten code background color for retina displays
+        background-color: $inline-code-background-color;
+      }
+    }
+  }
+  //for definitions lists
+  dd,
+  dt {
+    code {
+      //darken code background color for non-retina displays
+      background-color: darken($inline-code-background-color, 5%);
+      color: $inline-code-text-color;
+      font-family: $code-font-family;
+      @include MQ(retina) {
+        //lighten code background color for retina displays
+        background-color: $inline-code-background-color;
+      }
+    }
+  }
+  p > a code,
+  li > a code,
+  td > a code {
+    color: $hugo-pink;
+  }
+  > pre {
+    padding-bottom: 20px;
+    padding-top: 20px;
+    background-color: $code-block-background-color;
+    font-family: $code-font-family;
+    color: $code-block-base-font-color;
+  }
+  li > code,
+  li > span > code {
+    white-space: pre-wrap;
+    /* css-3 */
+    white-space: -moz-pre-wrap;
+    /* Mozilla, since 1999 */
+    white-space: -pre-wrap;
+    /* Opera 4-6 */
+    white-space: -o-pre-wrap;
+    /* Opera 7 */
+    word-wrap: break-word;
+  }
+}
+
+//for clipboard.js tooltip and button
+div.code-copy {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 32px;
+  background-color: $code-block-background-color;
+  &.input {
+    padding-bottom: 24px;
+  }
+  .code-copy-content {
+    padding-top: .5em;
+    &.output-content {
+      padding-bottom: .5em;
+    }
+  }
+}
+
+p + .code-copy {
+  margin-top: 0em;
+}
+
+button.copy-button,
+button.download-button {
+  display: block;
+  box-shadow: none;
+  padding: 0px;
+  transition: all .2s ease-in-out;
+  background-color: $code-copy-button-color;
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 0px;
+  z-index: 4;
+  // min-width: 90px;
+  // width: auto;
+  @include size(30px);
+  padding: {
+    left: 4px;
+    right: 4px;
+  }
+  height: 1.5em;
+  border-width: 0px;
+  border-radius: 0px;
+  font-weight: $code-font-bold-weight;
+  color: $code-copy-button-text-color;
+  font-size: 14px;
+  line-height: 24px;
+  height: 24px;
+  vertical-align: middle;
+  text-align: center;
+  text-transform:uppercase;
+  &:hover {
+    background-color: $hugo-blue;
+    box-shadow: none;
+  }
+  &:active,
+  &:focus {
+    outline: none;
+    position: absolute;
+  }
+}
+
+// .button.copy-button {
+//   opacity: 0;
+// }
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  code {
+    font-weight: $code-font-bold-weight;
+    font-size: .95em;
+  }
+}
+
+//hide copy button on iPad and iPhone
+button.copy-button {
+  @include MQ(retinaPortrait) {
+    display: none;
+  }
+  @include MQ(retinaLandscape) {
+    display: none;
+  }
+}
+
+button.download-button {
+  display: none;
+  @include MQ(M) {
+    display: block;
+  }
+}
+
+a[role="button"].see-code-source {
+  position: absolute;
+  top: 1.75em;
+  right: 0px;
+  border-radius: 0px;
+  background: transparent;
+  text-transform: uppercase;
+  color: darken($hugo-white, 5%);
+  font-size: 14px;
+}
+
+a[href*="bitbucket"].see-code-source:after {
+  content: '\f171';
+  font-family: 'FontAwesome';
+  display: inline-block;
+  font-size: 1.3em;
+  color: inherit;
+  margin-left: .2em;
+}
+
+a[href*="github"].see-code-source:after {
+  content: '\f09b';
+  font-family: 'FontAwesome';
+  display: inline-block;
+  font-size: 1.3em;
+  color: inherit;
+  margin-left: .2em;
+}
+
+a[href*="gitlab"].see-code-source:after {
+  content: '\f296';
+  font-family: 'FontAwesome';
+  display: inline-block;
+  font-size: 1.3em;
+  color: inherit;
+  margin-left: .2em;
+}
+
+button.copy-button {
+  display: none;
+  @include MQ(M) {
+    display: block;
+    right: 0px;
+  }
+  i.icon-clipboard {
+    display: inline;
+  }
+}
+
+div.code-copy {
+  position: relative;
+  @include card(3);
+  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+  border-radius: 0px;
+}
+
+div.code-copy-header {
+  position: relative;
+  height: 1.5em;
+  line-height: 1.5em;
+  background-color: $code-editor-header-base-bg-color;
+  border-radius: 0px;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  &.output {
+    background-color: $output-example-color;
+  }
+  &.examplesite {
+    background-color: $examplesite-codeblock-shortcode-header-bg-color;
+  }
+  span.filename {
+    text-align: center;
+    color: $code-filename-color;
+    font-weight: 100;
+    font-size: 12px;
+    font-family: $systemfonts;
+    i.icon-website {
+      color: inherit;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  }
+  [class^="icon-"] {
+    color: $code-filename-color;
+  }
+  //corrects odd placement of terminal icon
+  i.icon-sh.input,
+  i.icon-bash.input {
+    padding-right: .5em;
+  }
+}
+
+
+.tooltipped {
+  position: relative;
+  background-color: $code-tooltip-bg-color;
+  padding-right: 2em;
+}
+
+.tooltipped:after {
+  position: absolute;
+  z-index: 1000000;
+  display: none;
+  padding: 2px 4px;
+  font-size: .8em;
+  font-weight: $base-font-bold-weight;
+  font-family: $heading-font-family;
+  color: $hugo-white;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-shadow: none;
+  letter-spacing: normal;
+  word-wrap: break-word;
+  white-space: pre;
+  pointer-events: none;
+  content: attr(aria-label);
+  background-color: $code-tooltip-bg-color;
+  border-color: $code-tooltip-bg-color;
+  border-radius: 0px;
+  -webkit-font-smoothing: subpixel-antialiased
+}
+
+.tooltipped:before {
+  position: absolute;
+  z-index: 1000001;
+  display: none;
+  width: 0;
+  height: 0;
+  color: $code-tooltip-bg-color;
+  pointer-events: none;
+  content: "";
+  border: 5px solid transparent;
+}
+
+.tooltipped:hover:before,
+.tooltipped:hover:after,
+.tooltipped:active:before,
+.tooltipped:active:after,
+.tooltipped:focus:before,
+.tooltipped:focus:after {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.tooltipped-multiline:hover:after,
+.tooltipped-multiline:active:after,
+.tooltipped-multiline:focus:after {
+  display: table-cell;
+}
+
+.tooltipped-s:after,
+.tooltipped-se:after,
+.tooltipped-sw:after {
+  top: 100%;
+  right: 50%;
+  margin-top: 5px;
+  text-align: center;
+}
+
+.tooltipped-s:before,
+.tooltipped-se:before,
+.tooltipped-sw:before {
+  top: auto;
+  right: 50%;
+  bottom: -5px;
+  margin-right: -5px;
+  border-bottom-color: $code-tooltip-bg-color;
+  text-align: center;
+}
+
+.tooltipped-se:after {
+  right: auto;
+  left: 50%;
+  margin-left: -15px;
+  text-align: center;
+}
+
+.tooltipped-sw:after {
+  margin-right: -15px
+}
+
+.tooltipped-n:after,
+.tooltipped-ne:after,
+.tooltipped-nw:after {
+  right: 50%;
+  bottom: 100%;
+  margin-bottom: 5px
+}
+
+.tooltipped-n:before,
+.tooltipped-ne:before,
+.tooltipped-nw:before {
+  top: -5px;
+  right: 50%;
+  bottom: auto;
+  margin-right: -5px;
+  border-top-color: $code-tooltip-bg-color;
+}
+
+.tooltipped-ne:after {
+  right: auto;
+  left: 50%;
+  margin-left: -15px
+}
+
+.tooltipped-nw:after {
+  margin-right: -15px
+}
+
+.tooltipped-s:after,
+.tooltipped-n:after {
+  -webkit-transform: translateX(50%);
+  -ms-transform: translateX(50%);
+  transform: translateX(50%)
+}
+
+.tooltipped-w:after {
+  right: 100%;
+  bottom: 50%;
+  margin-right: 5px;
+  -webkit-transform: translateY(50%);
+  -ms-transform: translateY(50%);
+  transform: translateY(50%)
+}
+
+.tooltipped-w:before {
+  top: 50%;
+  bottom: 50%;
+  left: -5px;
+  margin-top: -5px;
+  border-left-color: $code-tooltip-bg-color;
+}
+
+.tooltipped-e:after {
+  bottom: 50%;
+  left: 100%;
+  margin-left: 5px;
+  -webkit-transform: translateY(50%);
+  -ms-transform: translateY(50%);
+  transform: translateY(50%)
+}
+
+.tooltipped-e:before {
+  top: 50%;
+  right: -5px;
+  bottom: 50%;
+  margin-top: -5px;
+  border-right-color: $code-tooltip-bg-color;
+}
+
+.tooltipped-multiline:after {
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  max-width: 250px;
+  word-break: break-word;
+  word-wrap: normal;
+  white-space: pre-line;
+  border-collapse: separate
+}
+
+.tooltipped-multiline.tooltipped-s:after,
+.tooltipped-multiline.tooltipped-n:after {
+  right: auto;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%)
+}
+
+.tooltipped-multiline.tooltipped-w:after,
+.tooltipped-multiline.tooltipped-e:after {
+  right: 100%
+}

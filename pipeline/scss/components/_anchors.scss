@@ -101,6 +101,9 @@ a.tooltip {
         transition: opacity .3s ease-in-out;
         opacity: 1;
       }
+      .icon-link:hover {
+        color:$hugo-pink;
+      }
     }
   }
 }

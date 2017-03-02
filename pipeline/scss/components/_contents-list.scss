@@ -1,6 +1,7 @@
 .all-contents {
-  border-top: 1px solid $hugo-blue;
+  // border-top: 1px solid $hugo-blue;
   padding-top:1em;
+  font-size:.9em;
 }
 
 .contents-list {
@@ -26,6 +27,7 @@
     margin-top: 0px;
     padding-top: 0px;
     padding-bottom: 2px;
+    color: $hugo-pink;
   }
   p {
     margin-top: 8px;

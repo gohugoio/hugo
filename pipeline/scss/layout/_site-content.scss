@@ -43,12 +43,12 @@ main.main {
   margin-left: auto;
   margin-right: auto;
   @include MQ(M){
-    max-width: $content-max-width;
   }
   @include MQ(L) {
     float:left;
     margin-left:5%;
     margin-right:auto;
+    max-width: $content-max-width;
   }
   @include MQ(XL) {
     min-width: $content-max-width;

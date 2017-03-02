@@ -45,11 +45,12 @@ aside#toc {
     right: 0px;
     bottom: auto;
     opacity: 1;
-    min-height: calc(100vh - #{$site-header-height});
-    max-height: calc(100vh - #{$site-header-height});
+    min-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
+    max-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
     transform: scale(1);
-    border-left: 1px solid $hugo-gray-light;
+    // border-left: 1px solid $hugo-gray-light;
     border-radius: 0px;
+    margin-right:1.5em;
   }
 }
 
@@ -178,7 +179,6 @@ aside#toc + a#toc-toggle {
   text-align: center;
   border-radius: 5px;
   &:after {
-    // content:'ToC';
     content: '\2026';
     display: block;
     position: relative;

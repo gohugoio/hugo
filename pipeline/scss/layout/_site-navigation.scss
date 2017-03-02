@@ -41,10 +41,9 @@
     li {
       padding-left: 0px;
       line-height: 1.2;
-      margin-top: .66em;
-      margin-bottom: .66em;
+      padding-top: .75em;
       ul li {
-        padding-left: .5em;
+        padding-left: .3em;
       }
     }
     a.top-menu-item-link {
@@ -65,8 +64,9 @@
     }
     ul.submenu {
       display: none;
-      margin-left: .4em;
+      margin-left: .2em;
       padding-left: .5em;
+      padding-bottom: .66em;
       li {
         line-height:1.3;
       }
