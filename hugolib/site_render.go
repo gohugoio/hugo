@@ -21,6 +21,7 @@ import (
 	"time"
 
 	bp "github.com/spf13/hugo/bufferpool"
+	"github.com/spf13/hugo/media"
 )
 
 // renderPages renders pages each corresponding to a markdown file.
@@ -62,25 +63,34 @@ func (s *Site) renderPages() error {
 func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for p := range pages {
-		targetPath := p.TargetPath()
+		// TODO(bep) output
+		for _, mediaType := range p.mediaTypes {
+			switch mediaType {
 
-		layouts := p.layouts()
-		s.Log.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
+			case media.HtmlType:
+				targetPath := p.TargetPath()
 
-		if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
-			results <- err
-		}
+				layouts := p.layouts()
+				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
 
-		// Taxonomy terms have no page set to paginate, so skip that for now.
-		if p.IsNode() {
-			if err := s.renderPaginator(p); err != nil {
-				results <- err
+				if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
+					results <- err
+				}
+
+				// Taxonomy terms have no page set to paginate, so skip that for now.
+				if p.IsNode() && p.Kind != KindTaxonomyTerm {
+					if err := s.renderPaginator(p); err != nil {
+						results <- err
+					}
+				}
+
+			case media.RSSType:
+				if err := s.renderRSS(p); err != nil {
+					results <- err
+				}
 			}
 		}
 
-		if err := s.renderRSS(p); err != nil {
-			results <- err
-		}
 	}
 }
 
