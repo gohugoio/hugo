@@ -201,7 +201,7 @@
           /* Note: We use this slow splice-then-iterate method because every match needs to be converted into an HTML element node. A text node's text cannot have HTML elements inserted into it. */
           /* TODO: To improve performance, use documentFragments to delay node manipulation so that DOM queries and updates can be batched across elements. */
         }
-        /* Traverse the DOM tree until we find text nodes. Skip script and style elements. Skip select and textarea elements since they contain special text nodes that users would not want wrapped. 
+        /* Traverse the DOM tree until we find text nodes. Skip script and style elements. Skip select and textarea elements since they contain special text nodes that users would not want wrapped.
            Additionally, check for the existence of our plugin's class to ensure that we do not retraverse elements that have already been blasted. */
         /* Note: This basic DOM traversal technique is copyright Johann Burkard <http://johannburkard.de>. Licensed under the MIT License: http://en.wikipedia.org/wiki/MIT_License */
       } else if (node.nodeType === 1 && node.hasChildNodes() && !Reg.skippedElements.test(node.tagName) && !Reg.hasPluginClass.test(node.className)) {
@@ -272,7 +272,7 @@
           /* Matches phrases either ending in Latin alphabet punctuation or located at the end of the text. (Linebreaks are not considered punctuation.) */
           /* Note: If you don't want punctuation to demarcate a sentence match, replace the punctuation character with {{ASCII_CODE_FOR_DESIRED_PUNCTUATION}}. ASCII codes: .={{46}}, ?={{63}}, !={{33}} */
           delimiterRegex = /(?=\S)(([.]{2,})?[^!?]+?([.…!?]+|(?=\s+$)|$)(\s*[′’'”″“")»]+)*)/;
-          /* RegExp explanation (Tip: Use Regex101.com to play around with this expression and see which strings it matches): 
+          /* RegExp explanation (Tip: Use Regex101.com to play around with this expression and see which strings it matches):
              - Expanded view: /(?=\S) ( ([.]{2,})? [^!?]+? ([.…!?]+|(?=\s+$)|$) (\s*[′’'”″“")»]+)* )
              - (?=\S) --> Match must contain a non-space character.
              - ([.]{2,})? --> Match may begin with a group of periods.

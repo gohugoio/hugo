@@ -42,7 +42,7 @@ aside#toc {
     box-shadow: none;
     top: $site-header-height;
     // left: calc(#{$site-navigation-width} + #{$content-max-width} + 4em);
-    right:0px;
+    right: 0px;
     bottom: auto;
     opacity: 1;
     min-height: calc(100vh - #{$site-header-height});
@@ -58,12 +58,12 @@ nav#TableOfContents {
   margin-bottom: 20px;
   height: auto;
   li code {
-    font-family:$base-font-family;
+    font-family: $base-font-family;
   }
   li.active > a > code {
     color: inherit;
     font-weight: 700;
-    font-family:$base-font-family;
+    font-family: $base-font-family;
   }
   > ul:first-child {
     padding-left: 0px;
@@ -121,6 +121,7 @@ nav#TableOfContents {
       }
       > ul {
         display: block;
+        display: none;
         margin-top: 8px;
         margin-bottom: 0px;
         > li {

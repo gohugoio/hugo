@@ -26,16 +26,13 @@
   color: $hugo-white;
   display: flex;
   flex-direction: row;
-  flex-wrap:wrap;
+  flex-wrap: wrap;
+  max-width:$M;
   .footer-info {
-    width:100%;
-  }
-  span {
-    text-align: center;
     width: 100%;
-    display: block;
-    margin-top: 1em;
-    font-size: .9em;
+    @include MQ(M) {
+      width: 200px;
+    }
   }
   img {
     max-width: 140px;
@@ -47,10 +44,11 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: nowrap;
     div {
-      min-width: 50%;
-      width: 50%;
-      max-width: 50%;
+      min-width: 120px;
+      // width: 50%;
+      // max-width: 50%;
     }
   }
 }
@@ -70,8 +68,13 @@
   ul {
     list-style: none;
     li a {
-      color:$hugo-white;
-      font-size:.8em;
+      color: $hugo-white;
+      font-size: .8em;
     }
   }
+}
+
+#site-footer.homepage {
+  width: 100vw;
+  margin-left: 0px;
 }

@@ -8,6 +8,8 @@
   left: 0px;
   z-index: 50;
   min-height: 50px;
+  max-height: 50px;
+  // @include card(1);
   background-color: $hugo-white;
   ul.animated {
     margin-top: 0px;
@@ -55,24 +57,28 @@ main#homepage.main {
   min-height: 100vh;
   display: flex;
   flex-wrap: wrap;
-  flex-direction: column;
+  // flex-direction: column;
   align-items: center;
   &.hero {
     margin-top: 50px;
+    min-height: auto;
+    flex-direction: column;
   }
   &:nth-child(2) {
-    background-color: $hugo-blue-light;
+    background-color: $hugo-gray-ultra-light;
   }
 }
 
 .get-started {
   .button.xl {
-  	display:block;
-  	margin-top: 1.5em;
-    font-size: 1.5em;
+    display: block;
+    margin-top: 1.5em;
+    font-size: 1.3em;
     padding-right: 1em;
     padding-left: 1em;
+    // background-color: rgb(140,197,231);
   }
+  margin-bottom:5em;
 }
 
 .homepage-terminal {
@@ -88,18 +94,10 @@ main#homepage.main {
   margin-right: auto;
   margin-left: auto;
   font-size: 14px;
-  color:$hugo-white;
-  span.terminal-line {
-    float: left;
-    text-align: left;
-
-    color: white;
-    &:before {
-      content: '$';
-      display: inline;
-      margin-right: .5em;
-      color: $hugo-green;
-    }
+  // color:$hugo-white;
+  color: transparent;
+  .blast {
+    color: $hugo-white;
   }
 }
 
@@ -107,9 +105,13 @@ main#homepage.main {
   display: block;
   display: flex;
   align-items: center;
-  width: 90%;
+  width: 70%;
   max-width: 300px;
   margin-top: 5em;
+  svg#hugologo {
+    width: 700px;
+    max-width: 300px;
+  }
   margin: {
     right: auto;
     left: auto;
@@ -119,25 +121,49 @@ main#homepage.main {
     display: inline;
     // display: block;
     text-align: center;
-    font-size: 3.5em;
+    font-size: 2.3em;
+    @include MQ(M) {
+      font-size: 3.5em;
+    }
     color: $hugo-pink;
     font-weight: 900;
-    font-family: 'helvetica neue', helvetica, arial;
+    font-family: 'helvetica neue',
+    helvetica,
+    arial;
     margin-left: -.25em;
   }
 }
 
 .hero-tagline {
   color: $hugo-gray;
-  font-size: 1.5em;
+  font-size: 1.2em;
   text-align: center;
   line-height: 1.3;
   font-weight: 100;
   margin-top: 1.5em;
   font-style: normal;
+  max-width: 90%;
+  @include MQ(M) {
+    font-size: 1.5em;
+  }
 }
 
-#site-footer.homepage {
-  width: 100vw;
-  margin-left: 0px;
+.svgs-one {
+  display:flex;
+  justify-content:space-around;
+  max-width:320px;
+  margin-top:2em;
+  opacity:0;
+  svg {
+    max-width:45%;
+    max-width:140px;
+    // min-width: 150px;
+    &#markdown {
+      margin-top: 30px;
+    }
+  }
+}
+
+.after-terminal {
+  opacity: 0;
 }

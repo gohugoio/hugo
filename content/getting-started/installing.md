@@ -22,7 +22,7 @@ The latest release can be found at [Hugo Releases][releases].
 
 Hugo currently provides pre-built binaries for the following:
 
-* <i class="fa fa-apple"></i>&nbsp;OS&nbsp;X (Darwin) for x64, i386 and ARM architectures
+* <i class="fa fa-apple"></i>&nbsp;OS&nbsp;X (Darwin) for x64, i386, and ARM architectures
 * <i class="fa fa-windows"></i>&nbsp;Windows,
 * <i class="fa fa-linux"></i>&nbsp;Linux,
 * <i class="icon-freebsd"></i>&nbsp;FreeBSD
@@ -155,12 +155,12 @@ $ # show the location of the hugo executable
 which hugo
 /usr/local/bin/hugo
 
-$ # show the installed version
-$ ls -l $( which hugo )
+# show the installed version
+ls -l $( which hugo )
 lrwxr-xr-x  1 mdhender admin  30 Mar 28 22:19 /usr/local/bin/hugo -> ../Cellar/hugo/0.13_1/bin/hugo
 
-$ # verify that hugo runs correctly
-$ hugo version
+# verify that hugo runs correctly
+hugo version
 Hugo Static Site Generator v0.13 BuildDate: 2015-03-09T21:34:47-05:00
 ```
 
@@ -193,7 +193,7 @@ All three locations will work for you. In the interest of brevity, this guide fo
 Verify that the tarball wasn't corrupted during the download:
 
 ```bash
-$ tar tvf ~/Downloads/hugo_X.Y_osx-64bit.tgz
+tar tvf ~/Downloads/hugo_X.Y_osx-64bit.tgz
 -rwxrwxrwx  0 0      0           0 Feb 22 04:02 hugo_X.Y_osx-64bit/hugo_X.Y_osx-64bit.tgz
 -rwxrwxrwx  0 0      0           0 Feb 22 03:24 hugo_X.Y_osx-64bit/README.md
 -rwxrwxrwx  0 0      0           0 Jan 30 18:48 hugo_X.Y_osx-64bit/LICENSE.md
@@ -204,37 +204,37 @@ The `.md` files are documentation for Hugo. The other file is the executable.
 #### Step 4: Install Into Your `bin` Directory
 
 ```bash
-$ # create the directory if needed
-$ mkdir -p ~/bin
+# create the directory if needed
+mkdir -p ~/bin
 
-$ # make it the working directory
-$ cd ~/bin
+# make it the working directory
+cd ~/bin
 
-$ # extract the tarball
-$ tar -xvzf ~/Downloads/hugo_X.Y_osx-64bit.tgz
+# extract the tarball
+tar -xvzf ~/Downloads/hugo_X.Y_osx-64bit.tgz
 Archive:  hugo_X.Y_osx-64bit.tgz
   x ./
   x ./hugo
   x ./LICENSE.md
   x ./README.md
 
-$ # verify that it runs
-$ ./hugo version
+# verify that it runs
+./hugo version
 Hugo Static Site Generator v0.13 BuildDate: 2015-02-22T04:02:30-06:00
 ```
 
 You may need to add your bin directory to your `PATH` variable. The `which` command will check for us. If it can find `hugo`, it will print the full path to it. Otherwise, it will not print anything.
 
 ```bash
-$ # check if hugo is in the path
-$ which hugo
+# check if hugo is in the path
+which hugo
 /Users/USERNAME/bin/hugo
 ```
 
 If `hugo` is not in your `PATH`, add it by updating your `~/.bash_profile` file. First, start up an editor:
 
 ```bash
-$ nano ~/.bash_profile
+nano ~/.bash_profile
 ```
 
 Add a line to update your `PATH` variable:

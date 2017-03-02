@@ -2,17 +2,35 @@ $('#homepage-nav > ul.animated').addClass('fadeInDown');
 $('.homepage-icon.animated').addClass('fadeIn');
 
 
-$(".homepage-terminal")
-  // Blast the text apart by word.
-  .blast({ delimiter: "letter" })
-  // Fade the words into view using Velocity.js.
-  .velocity("transition.fadeIn", {
-    display: null,
-    duration: 0,
-    stagger: 90,
-    delay: 0
+$(document).ready(function() {
+  let heroHeight = $('.hero').height() * .2,
+    heroDouble = heroHeight * 2,
+    scrolled1 = false,
+    scrolled2 = false;
+  $(window).scroll(function() {
+    let scroll = $(this).scrollTop();
+    if (scroll > heroHeight && scrolled1 == false) {
+      $('.svgs-one.animated').addClass('fadeIn');
+      scrolled1 = true;
+    } else if (scroll > heroDouble && scrolled2 == false) {
+      $(".homepage-terminal")
+        // Blast the text apart by word.
+        .blast({ delimiter: "letter" })
+        // Fade the words into view using Velocity.js.
+        .velocity("transition.fadeIn", {
+          display: null,
+          customClass: "visible",
+          duration: 0,
+          stagger: 60,
+          delay: 0,
+          complete: function() {
+            $('.after-terminal').velocity('transition.fadeIn');
+          }
+        });
+      scrolled2 = true;
+    }
   });
-
+});
 // terminalElements = document.querySelectorAll('span.terminal-line');
 
 // function terminals_init() {

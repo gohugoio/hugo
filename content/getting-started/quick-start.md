@@ -496,7 +496,7 @@ Now, we can start the server *without* the `buildDrafts` option.
 hugo server --theme=hugo_theme_robust
 ```
 
-## Step 10. Integrate Disqus Comments
+<!-- ## Step 10. Integrate Disqus Comments
 
 {{% note "Adding Disqus to Your Website" %}}
 To implement Disqus comments as part of the Quick Start, you'll need to set up a Disqus account. Follow the [Disqus documentation for adding their service to websites](https://help.disqus.com/customer/portal/articles/1257441-adding-disqus-to-your-site).
@@ -513,8 +513,8 @@ To enable Disqus on our new site, we only need to update the `disqusShortname` i
 Now, commenting will be enabled in your blog.
 
 ![](/images/quickstart/bookshelf-disqus.png)
-
-## Step 11. Build Your Website with `hugo`
+ -->
+## Step 10. Build Your Website
 
 To generate a website that can be deployed to GitHub pages, we first need to change the `baseURL` in our configuration as follows:
 
@@ -539,7 +539,7 @@ in 17 ms
 
 After you run the `hugo` command, a `bookshelf/public` directory will be created containing the generated website source.
 
-## Step 9. What Next?
+## Step 11. What Next?
 
 **Congratulations!** Your new `bookshelf`/public directory is a fully generated, deployable Hugo website. Since all your files are *static*, you have innumerable options for hosting, and your new directory structure and simple content format are going to make scaling your website a breeze.
 

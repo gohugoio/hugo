@@ -1,3 +1,8 @@
+.all-contents {
+  border-top: 1px solid $hugo-blue;
+  padding-top:1em;
+}
+
 .contents-list {
   box-shadow: none;
   background-color: transparent;
@@ -5,7 +10,7 @@
   border-bottom: 1px solid $hugo-gray-light;
   margin-bottom: 1em;
   position: relative;
-  font-size:.95em;
+  font-size: .95em;
   a {
     width: 100%;
     color: $base-font-color;
@@ -18,12 +23,12 @@
     }
   }
   h3 {
-    margin-top:0px;
-    padding-top:0px;
+    margin-top: 0px;
+    padding-top: 0px;
     padding-bottom: 2px;
   }
   p {
-    margin-top:8px;
+    margin-top: 8px;
     margin-bottom: 16px;
   }
 }
@@ -36,8 +41,8 @@
 }
 
 .list-icon {
-  display:flex;
-  align-items:center;
+  display: flex;
+  align-items: center;
 }
 
 .list-icon-wrapper {
@@ -53,4 +58,3 @@
     display: block;
   }
 }
-
