@@ -141,6 +141,8 @@ func TestTemplateLookupOrder(t *testing.T) {
 			func(t *testing.T) {
 				cfg.Set("theme", "mytheme")
 
+				writeSource(t, fs, filepath.Join("layouts", "_default", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
+
 				// Both single and list template in /SECTION/
 				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "sect1", "list.html"), `sect list`)
 				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "list.html"), `default list`)
@@ -157,7 +159,40 @@ func TestTemplateLookupOrder(t *testing.T) {
 				th.assertFileContent(filepath.Join("public", "sect2", "index.html"), "sect2 list")
 			},
 		},
+		{
+			// Test section list and single template selection with base template.
+			// Issue #2995
+			func(t *testing.T) {
+
+				writeSource(t, fs, filepath.Join("layouts", "_default", "baseof.html"), `Base Default: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "sect1", "baseof.html"), `Base Sect1: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect2-baseof.html"), `Base Sect2: {{block "main" .}}block{{end}}`)
+
+				// Both single and list + base template in /SECTION/
+				writeSource(t, fs, filepath.Join("layouts", "sect1", "list.html"), `{{define "main"}}sect1 list{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"), `{{define "main"}}default list{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "sect1", "single.html"), `{{define "main"}}sect single{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{define "main"}}default single{{ end }}`)
+
+				// sect2 with list template in /section
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect2.html"), `{{define "main"}}sect2 list{{ end }}`)
+
+			},
+			func(t *testing.T) {
+				th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "Base Sect1", "sect1 list")
+				th.assertFileContent(filepath.Join("public", "sect1", "page1", "index.html"), "Base Sect1", "sect single")
+				th.assertFileContent(filepath.Join("public", "sect2", "index.html"), "Base Sect2", "sect2 list")
+
+				// Note that this will get the default base template and not the one in /sect2 -- because there are no
+				// single template defined in /sect2.
+				th.assertFileContent(filepath.Join("public", "sect2", "page2", "index.html"), "Base Default", "default single")
+			},
+		},
 	} {
+
+		if i != 9 {
+			continue
+		}
 
 		cfg, fs = newTestCfg()
 		th = testHelper{cfg, fs, t}
