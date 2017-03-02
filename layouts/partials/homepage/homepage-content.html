@@ -1,5 +1,5 @@
 <main id="homepage" class="main">
-  <div class="home-row hero row">
+  <div class="home-row hero">
     <div class="homepage-icon animated">
       {{ partial "svg-icons/newlogo.svg" . }}
     </div>
@@ -9,17 +9,25 @@
       <a role="button" class="button xl" href="{{.Site.BaseURL}}getting-started/quick-start">Get started</a>
     </div>
   </div>
-  <div class="home-row">
-    <div class="half">
-      <div class="svgs-one animated">
-        {{partial "svg-icons/gopher-small.svg" .}} {{partial "svg-icons/md.svg" .}}
+  <div class="home-row terminal">
+    <div class="home-row-content">
+      <div class="half">
+        <div class="svgs-one animated">
+          {{partial "svg-icons/gopher-small.svg" .}} {{partial "svg-icons/md.svg" .}}
+        </div>
+        <div class="homepage-terminal">
+          $ brew update
+          <br> $ brew install hugo
+        </div>
+        <div class="after-terminal">
+          Here is some more content to get to fire on scroll.
+        </div>
       </div>
-      <div class="homepage-terminal">
-        $ brew update
-        <br> $ brew install hugo
-      </div>
-      <div class="after-terminal">
-        Here is some more content to get to fire on scroll.
+      <div class="half">
+        <div>
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reprehenderit dolorum iure et, esse commodi velit, ad corrupti harum repellat ratione aliquam explicabo consequatur qui fugit libero quos nisi quam similique!
+        </div>
+        <div>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Placeat tempore incidunt, beatae nam quod repellat ullam culpa iure. Quidem neque corrupti a praesentium mollitia perferendis impedit quibusdam ipsum et officiis.</div>
       </div>
     </div>
   </div>

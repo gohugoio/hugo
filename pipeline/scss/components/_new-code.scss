@@ -7,7 +7,7 @@
     font-weight: $code-font-base-weight;
     position: relative;
     overflow-y: visible;
-    z-index:1;
+    z-index: 1;
   }
   pre > code,
   .code {
@@ -55,16 +55,16 @@ code[class^="language-"] {
   }
 }
 
-.copy-button + .code-copy-content {
-  code[class^="language-"] {
-    &:after {
-      display: none;
-      position: absolute;
-      top: -14px;
-      right: 4px;
-    }
-  }
-}
+// .copy-button + .code-copy-content {
+//   code[class^="language-"] {
+//     &:after {
+//       // display: none;
+//       position: absolute;
+//       top: -4px;
+//       right: 4px;
+//     }
+//   }
+// }
 
 code.language-html:after {
   font-family: 'FontAwesome';
@@ -89,6 +89,42 @@ code.language-sass:after,
 code.language-scss:after {
   font-family: 'fontello';
   content: '\e803';
+}
+
+code.language-bash:after,
+code.language-sh:after {
+  font-family: 'fontello';
+  content: '\e804';
+}
+
+code.language-toml:after {
+  content: 'TOML';
+  font-size: .8em;
+  padding-right: .3em;
+}
+
+code.language-yaml:after,
+code.language-yml:after {
+  content: 'TOML';
+  font-size: .8em;
+  padding-right: .3em;
+}
+
+code.language-md:after,
+code.language-markdown:after {
+  font-family: 'fontello';
+  content: '\e80e';
+}
+
+.copy-button + .code-copy-content {
+  code[class^="language-"] {
+    &:after {
+      display:none;
+      position: absolute;
+      top: -8px;
+      right: 4px;
+    }
+  }
 }
 
 .filename {

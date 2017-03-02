@@ -492,7 +492,7 @@ image = "good-to-great.jpg"
 
 Now, we can start the server *without* the `buildDrafts` option.
 
-```
+```bash
 hugo server --theme=hugo_theme_robust
 ```
 

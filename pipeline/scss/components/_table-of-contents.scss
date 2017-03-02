@@ -121,7 +121,7 @@ nav#TableOfContents {
       }
       > ul {
         display: block;
-        display: none;
+        // display: none;
         margin-top: 8px;
         margin-bottom: 0px;
         > li {
@@ -151,9 +151,9 @@ nav#TableOfContents {
               }
             }
           }
-          ul {
-            display: none;
-          }
+          // ul {
+          //   display: none;
+          // }
         }
       }
     }

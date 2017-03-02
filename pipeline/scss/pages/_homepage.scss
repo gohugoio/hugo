@@ -57,15 +57,36 @@ main#homepage.main {
   min-height: 100vh;
   display: flex;
   flex-wrap: wrap;
-  // flex-direction: column;
-  align-items: center;
   &.hero {
     margin-top: 50px;
     min-height: auto;
     flex-direction: column;
+    align-items: center;
   }
   &:nth-child(2) {
     background-color: $hugo-gray-ultra-light;
+  }
+}
+
+.home-row-content {
+  display:flex;
+  max-width:$L * 1.2;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+
+.half {
+  width: 100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-top:2em;
+  @include MQ(L) {
+    max-width: 45%;
+  }
+  @include MQ(XL) {
+    max-width:$L * .45;
   }
 }
 
@@ -76,6 +97,10 @@ main#homepage.main {
     font-size: 1.3em;
     padding-right: 1em;
     padding-left: 1em;
+    width: auto;
+    max-width: 12em;
+    margin-left: auto;
+    margin-right: auto;
     // background-color: rgb(140,197,231);
   }
   margin-bottom:5em;
@@ -149,14 +174,12 @@ main#homepage.main {
 }
 
 .svgs-one {
-  display:flex;
-  justify-content:space-around;
-  max-width:320px;
-  margin-top:2em;
-  opacity:0;
+  display: flex;
+  justify-content: space-around;
+  opacity: 0;
   svg {
-    max-width:45%;
-    max-width:140px;
+    max-width: 45%;
+    max-width: 140px;
     // min-width: 150px;
     &#markdown {
       margin-top: 30px;

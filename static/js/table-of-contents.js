@@ -1,5 +1,6 @@
 //IIFE to remove all third-level li's from TOC so as not to negatively affect scrollspy
 (function() {
+  // let levelFours = document.querySelectorAll('#TableOfContents > ul > li > ul > li ul');
   let levelFours = document.querySelectorAll('#TableOfContents > ul > li > ul > li > ul > li > ul');
   if (levelFours) {
     for (var i = 0; i < levelFours.length; i++) {
