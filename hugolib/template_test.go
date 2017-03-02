@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -23,7 +24,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func TestBaseGoTemplate(t *testing.T) {
+func TestTemplateLookupOrder(t *testing.T) {
 	t.Parallel()
 	var (
 		fs  *hugofs.Fs
@@ -31,24 +32,24 @@ func TestBaseGoTemplate(t *testing.T) {
 		th  testHelper
 	)
 
-	// Variants:
+	// Variants base templates:
 	//   1. <current-path>/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
 	//   2. <current-path>/baseof.<suffix>
 	//   3. _default/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
 	//   4. _default/baseof.<suffix>
-	for _, this := range []struct {
+	for i, this := range []struct {
 		setup  func(t *testing.T)
 		assert func(t *testing.T)
 	}{
 		{
 			// Variant 1
 			func(t *testing.T) {
-				writeSource(t, fs, filepath.Join("layouts", "section", "sect-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
-				writeSource(t, fs, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect1-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect1.html"), `{{define "main"}}sect{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(filepath.Join("public", "sect", "index.html"), "Base: sect")
+				th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "Base: sect")
 			},
 		},
 		{
@@ -70,7 +71,7 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(filepath.Join("public", "sect", "index.html"), "Base: list")
+				th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "Base: list")
 			},
 		},
 		{
@@ -81,32 +82,32 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(filepath.Join("public", "sect", "index.html"), "Base: list")
+				th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "Base: list")
 			},
 		},
 		{
 			// Variant 1, theme,  use project's base
 			func(t *testing.T) {
 				cfg.Set("theme", "mytheme")
-				writeSource(t, fs, filepath.Join("layouts", "section", "sect-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect1-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "section", "sect-baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
-				writeSource(t, fs, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect1.html"), `{{define "main"}}sect{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(filepath.Join("public", "sect", "index.html"), "Base: sect")
+				th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "Base: sect")
 			},
 		},
 		{
 			// Variant 1, theme,  use theme's base
 			func(t *testing.T) {
 				cfg.Set("theme", "mytheme")
-				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "section", "sect-baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
-				writeSource(t, fs, filepath.Join("layouts", "section", "sect.html"), `{{define "main"}}sect{{ end }}`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "section", "sect1-baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
+				writeSource(t, fs, filepath.Join("layouts", "section", "sect1.html"), `{{define "main"}}sect{{ end }}`)
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(filepath.Join("public", "sect", "index.html"), "Base Theme: sect")
+				th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "Base Theme: sect")
 			},
 		},
 		{
@@ -119,7 +120,7 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(filepath.Join("public", "sect", "index.html"), "Base: list")
+				th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "Base: list")
 			},
 		},
 		{
@@ -131,7 +132,29 @@ func TestBaseGoTemplate(t *testing.T) {
 
 			},
 			func(t *testing.T) {
-				th.assertFileContent(filepath.Join("public", "sect", "index.html"), "Base Theme: list")
+				th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "Base Theme: list")
+			},
+		},
+		{
+			// Test section list and single template selection.
+			// Issue #3116
+			func(t *testing.T) {
+				cfg.Set("theme", "mytheme")
+
+				// Both single and list template in /SECTION/
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "sect1", "list.html"), `sect list`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "list.html"), `default list`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "sect1", "single.html"), `sect single`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "single.html"), `default single`)
+
+				// sect2 with list template in /section
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "section", "sect2.html"), `sect2 list`)
+
+			},
+			func(t *testing.T) {
+				th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "sect list")
+				th.assertFileContent(filepath.Join("public", "sect1", "page1", "index.html"), "sect single")
+				th.assertFileContent(filepath.Join("public", "sect2", "index.html"), "sect2 list")
 			},
 		},
 	} {
@@ -139,15 +162,18 @@ func TestBaseGoTemplate(t *testing.T) {
 		cfg, fs = newTestCfg()
 		th = testHelper{cfg, fs, t}
 
-		writeSource(t, fs, filepath.Join("content", "sect", "page.md"), `---
+		for i := 1; i <= 3; i++ {
+			writeSource(t, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", i)), `---
 title: Template test
 ---
 Some content
 `)
+		}
+
 		this.setup(t)
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-
+		t.Log("Template Lookup test", i)
 		this.assert(t)
 
 	}

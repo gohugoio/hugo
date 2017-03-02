@@ -642,7 +642,7 @@ func (p *Page) layouts(l ...string) []string {
 		return p.s.appendThemeTemplates([]string{"index.html", "_default/list.html"})
 	case KindSection:
 		section := p.sections[0]
-		return p.s.appendThemeTemplates([]string{"section/" + section + ".html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"})
+		return p.s.appendThemeTemplates([]string{"section/" + section + ".html", section + "/list.html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"})
 	case KindTaxonomy:
 		singular := p.s.taxonomiesPluralSingular[p.sections[0]]
 		return p.s.appendThemeTemplates([]string{"taxonomy/" + singular + ".html", "indexes/" + singular + ".html", "_default/taxonomy.html", "_default/list.html"})
