@@ -81,7 +81,7 @@ Change into the newly created `bookshelf` directory. Listing the new directory's
 
 You'll see the `bookshelf` directory has 6 subdirectories and 1 file. Let's look at each of them quickly. (See [Directory Structure][hugodirectories].)
 
-* `archetypes`: [Archetypes][archetypes] allow you to preconfigure [front matter][frontmatter] for content files for easier scaffolding of content from the command line using `hugo new`.
+* `archetypes`: [Archetypes][archetypes] allow you to preconfigure [front matter][fm] for content files for easier scaffolding of content from the command line using `hugo new`.
 * `config.toml`: Hugo uses `.toml` as its default configuration format but also accepts `.yml` and `.json`. The configuration settings mentioned in the `config.toml` are applied to the full website an include important global variables such as the `baseURL` and `title` of your website. (See [Configuration][configuration].)
 * `content`: This single directory houses all of the content for your website. Each subdirectory in content is considered a [section][]. If your website has sections for posts, events, and tutorials, you would create `content/posts`, `content/events`, and `content/tutorials`.
 * `data`: This directory is used to store files of serialized data (YAML, TOML, or JSON) that can be used in [data templates][datatemplates] and your [website's menu][sitemenu].
@@ -131,7 +131,7 @@ draft = true
 +++
 ```
 
-The text bracketed by `+++` is the TOML [front matter][frontmatter] for the content. Front matter enables you to define embedded metadata that travels with the content file. Since we have not configured any [archetypes][archetypes] for our project, Hugo has used its built-in base archetype, which includes the following three values in the front matter:
+The text bracketed by `+++` is the TOML [front matter][fm] for the content. Front matter enables you to define embedded metadata that travels with the content file. Since we have not configured any [archetypes][archetypes] for our project, Hugo has used its built-in base archetype, which includes the following three values in the front matter:
 
 * `date` specifies the date and time at which post was created from the command line
 * `title` specifies the title for the post, which Hugo will infer from the file name
@@ -562,7 +562,7 @@ Here's what you should look into next:
 [createtheme]: /themes/creating-a-theme/
 [datatemplates]: /templates/data-templates/
 [forum]: https://discuss.gohugo.io
-[frontmatter]: /content-management/front-matter/
+[fm]: /content-management/front-matter/
 [hostinganddeploy]: /hosting-and-deployment/
 [hugodirectories]: /getting-started/directory-structure/
 [install]: /getting-started/installing/

@@ -706,7 +706,7 @@ This release represents over 110 code commits from 29 different contributors.
   * A bunch of [additional template functions](/layout/functions/)
   * Watching very large sites now works on Mac
   * RSS generation improved. Limited to 50 items by default, can limit further in [template](/layout/rss/)
-  * Boolean params now supported in [frontmatter](/content/front-matter/)
+  * Boolean params now supported in [fm](/content/front-matter/)
   * Launched website [showcase](/showcase/). Show off your own hugo site!
   * A bunch of [bug fixes](https://github.com/spf13/hugo/commits/master)
 

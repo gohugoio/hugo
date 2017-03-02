@@ -1,296 +1,154 @@
-//General code styling for inline code (ie, within body copy and not in a separate code block)
-code,
-pre {
-  font-family: $code-font-family;
-  margin: 0px;
-  font-weight: $code-font-base-weight;
-  color: inherit;
-}
-
-.body-copy > pre {
-  @include card(3);
-  text-shadow: none;
-  padding: 0px;
-  margin: .5em 0px 32px 0px;
-  overflow: auto;
-  & > code {
-    color: $hugo-white;
-  }
-}
-
 .body-copy {
-  p {
-    code {
-      display: inline-block;
-      padding-top: .15em;
-    }
+  code,
+  pre {
+    font-family: $code-font-family;
+    font-size: .9em;
+    weight: inherit;
+    font-weight: $code-font-base-weight;
+    position: relative;
+    overflow-y: visible;
+    z-index:1;
   }
-}
-
-.body-copy {
-  p,
-  td,
-  li {
-    code {
-      font-size: .85em;
-      display: inline-block;
-      color: inherit;
-      font-family: "robotomono", courier, monospace;
-      padding-left: .25em;
-      padding-right: .25em;
-      text-transform: none;
-      line-height: 1.2;
-      margin-bottom: .15em;
-      margin-top: 0px;
-      padding-top: 3px;
-      vertical-align: middle;
-      background-color: #ededed;
-      border: none;
-      outline: none;
-      z-index: -1;
-      padding-bottom: 3px;
-      border: none;
-      outline: none;
-      z-index: -1;
-      background-color: darken($inline-code-background-color, 5%);
-      @include MQ(retina) {
-        //lighten code background color for retina displays
-        background-color: $inline-code-background-color;
-      }
-    }
-  }
-  //for definitions lists
-  dd,
-  dt {
-    code {
-      //darken code background color for non-retina displays
-      background-color: darken($inline-code-background-color, 5%);
-      color: $inline-code-text-color;
-      font-family: $code-font-family;
-      @include MQ(retina) {
-        //lighten code background color for retina displays
-        background-color: $inline-code-background-color;
-      }
-    }
-  }
-  p > a code,
-  li > a code,
-  td > a code {
-    color: $hugo-pink;
+  pre > code,
+  .code {
+    background-color: $code-block-background-color;
   }
   > pre {
-    padding-bottom: 20px;
-    padding-top: 20px;
-    background-color: $code-block-background-color;
-    font-family: $code-font-family;
-    color: $code-block-base-font-color;
+    overflow-x: scroll;
   }
-  li > code,
-  li > span > code {
-    white-space: pre-wrap;
-    /* css-3 */
-    white-space: -moz-pre-wrap;
-    /* Mozilla, since 1999 */
-    white-space: -pre-wrap;
-    /* Opera 4-6 */
-    white-space: -o-pre-wrap;
-    /* Opera 7 */
-    word-wrap: break-word;
-  }
-}
-
-//for clipboard.js tooltip and button
-div.code-copy {
-  position: relative;
-  margin-top: 1em;
-  margin-bottom: 32px;
-  background-color: $code-block-background-color;
-  &.input {
-    padding-bottom: 24px;
-  }
-  .code-copy-content {
-    padding-top: .5em;
-    &.output-content {
-      padding-bottom: .5em;
+  ol,
+  ul,
+  div,
+  strong,
+  em,
+  span,
+  p,
+  dd,
+  dt,
+  {
+    code {
+      background-color: $inline-code-background-color;
+      @include MQ(retina) {
+        background-color: $inline-code-background-color;
+      }
     }
   }
 }
 
-p + .code-copy {
-  margin-top: 0em;
-}
-
-button.copy-button,
-button.download-button {
+.code {
   display: block;
-  box-shadow: none;
-  padding: 0px;
-  transition: all .2s ease-in-out;
-  background-color: $code-copy-button-color;
-  box-sizing: border-box;
-  position: absolute;
-  bottom: 0px;
-  z-index: 4;
-  // min-width: 90px;
-  // width: auto;
-  @include size(30px);
-  padding: {
-    left: 4px;
-    right: 4px;
-  }
-  height: 1.5em;
-  border-width: 0px;
-  border-radius: 0px;
-  font-weight: $code-font-bold-weight;
-  color: $code-copy-button-text-color;
-  font-size: 14px;
-  line-height: 24px;
-  height: 24px;
-  vertical-align: middle;
-  text-align: center;
-  text-transform:uppercase;
-  &:hover {
-    background-color: $hugo-blue;
-    box-shadow: none;
-  }
-  &:active,
-  &:focus {
-    outline: none;
+  position: relative;
+  overflow: hidden;
+  padding: .5em;
+  overflow-y: visible;
+}
+
+code[class^="language-"] {
+  &:after {
+    display: block;
     position: absolute;
+    top: 4px;
+    right: 4px;
+    color: lighten($base-font-color, 25%);
+    font-family: 'fontello';
+    content: '\f121';
   }
 }
 
-// .button.copy-button {
-//   opacity: 0;
-// }
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  code {
-    font-weight: $code-font-bold-weight;
-    font-size: .95em;
-  }
-}
-
-//hide copy button on iPad and iPhone
-button.copy-button {
-  @include MQ(retinaPortrait) {
-    display: none;
-  }
-  @include MQ(retinaLandscape) {
-    display: none;
-  }
-}
-
-button.download-button {
-  display: none;
-  @include MQ(M) {
-    display: block;
-  }
-}
-
-a[role="button"].see-code-source {
-  position: absolute;
-  top: 1.75em;
-  right: 0px;
-  border-radius: 0px;
-  background: transparent;
-  text-transform: uppercase;
-  color: darken($hugo-white, 5%);
-  font-size: 14px;
-}
-
-a[href*="bitbucket"].see-code-source:after {
-  content: '\f171';
-  font-family: 'FontAwesome';
-  display: inline-block;
-  font-size: 1.3em;
-  color: inherit;
-  margin-left: .2em;
-}
-
-a[href*="github"].see-code-source:after {
-  content: '\f09b';
-  font-family: 'FontAwesome';
-  display: inline-block;
-  font-size: 1.3em;
-  color: inherit;
-  margin-left: .2em;
-}
-
-a[href*="gitlab"].see-code-source:after {
-  content: '\f296';
-  font-family: 'FontAwesome';
-  display: inline-block;
-  font-size: 1.3em;
-  color: inherit;
-  margin-left: .2em;
-}
-
-button.copy-button {
-  display: none;
-  @include MQ(M) {
-    display: block;
-    right: 0px;
-  }
-  i.icon-clipboard {
-    display: inline;
-  }
-}
-
-div.code-copy {
-  position: relative;
-  @include card(3);
-  transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
-  border-radius: 0px;
-}
-
-div.code-copy-header {
-  position: relative;
-  height: 1.5em;
-  line-height: 1.5em;
-  background-color: $code-editor-header-base-bg-color;
-  border-radius: 0px;
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  &.output {
-    background-color: $output-example-color;
-  }
-  &.examplesite {
-    background-color: $examplesite-codeblock-shortcode-header-bg-color;
-  }
-  span.filename {
-    text-align: center;
-    color: $code-filename-color;
-    font-weight: 100;
-    font-size: 12px;
-    font-family: $systemfonts;
-    i.icon-website {
-      color: inherit;
-      font-weight: bold;
-      font-size: 18px;
+.copy-button + .code-copy-content {
+  code[class^="language-"] {
+    &:after {
+      display: none;
+      position: absolute;
+      top: -14px;
+      right: 4px;
     }
   }
-  [class^="icon-"] {
-    color: $code-filename-color;
+}
+
+code.language-html:after {
+  font-family: 'FontAwesome';
+  content: '\f13b';
+}
+
+code.language-js:after {
+  font-family: 'fontello';
+  content: '\e802';
+  font-size: 16px;
+  top: 2px;
+}
+
+code.language-hugo:after,
+code.language-go:after,
+code.language-golang:after {
+  font-family: 'fontello';
+  content: '\e81f';
+}
+
+code.language-sass:after,
+code.language-scss:after {
+  font-family: 'fontello';
+  content: '\e803';
+}
+
+.filename {
+  font-family: $code-font-family;
+  color: lighten($base-font-color, 45%);
+  padding-left: 1em;
+  padding-top: .25em;
+  font-size: .7em;
+  background-color: $code-block-background-color;
+  width: 100%;
+  font-style: italic;
+  margin-bottom: 0px;
+}
+
+.code-icon {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+}
+
+.copy-button {
+  transition: opacity .3s ease-in-out;
+  opacity: 1;
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  background-color: white;
+  color: $base-font-color;
+  border-radius: 0px;
+  @include card(1);
+  height: 30px;
+  width: auto;
+  font-size: 12px;
+  display: block;
+  z-index: 999;
+  &:hover {
+    @include card(3);
   }
-  //corrects odd placement of terminal icon
-  i.icon-sh.input,
-  i.icon-bash.input {
-    padding-right: .5em;
+  span.button-text {
+    text-transform: uppercase;
+    margin-left: 3px;
   }
 }
 
+.download-button {
+  display: none!important;
+}
+
+.code:hover {
+  .copy-button,
+  .download-button {
+    transition: all .3s ease-in-out;
+    opacity: 1;
+  }
+}
 
 .tooltipped {
-  position: relative;
-  background-color: $code-tooltip-bg-color;
-  padding-right: 2em;
+  position: absolute;
+  // background-color: $code-tooltip-bg-color;
+  // padding-right: 2em;
 }
 
 .tooltipped:after {
@@ -368,12 +226,12 @@ div.code-copy-header {
 .tooltipped-se:after {
   right: auto;
   left: 50%;
-  margin-left: -15px;
+  // margin-left: -15px;
   text-align: center;
 }
 
 .tooltipped-sw:after {
-  margin-right: -15px
+  // margin-right: -15px
 }
 
 .tooltipped-n:after,
@@ -446,8 +304,6 @@ div.code-copy-header {
 }
 
 .tooltipped-multiline:after {
-  width: -webkit-max-content;
-  width: -moz-max-content;
   width: max-content;
   max-width: 250px;
   word-break: break-word;

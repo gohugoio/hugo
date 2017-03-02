@@ -7,9 +7,8 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight: 20
 draft: false
-aliases: [/about-hugo/features]
+aliases: [/about/features]
 toc: true
-notesforauthors:
 ---
 
 ## General
@@ -67,7 +66,7 @@ See what's coming next in the [Hugo roadmap][].
 [Google Analytics]: https://google-analytics.com/
 [homepage]: /templates/homepage/
 [hostanywhere]: /hosting-and-deployment/
-[Hugo roadmap]: /about-hugo/roadmap
+[Hugo roadmap]: /about/roadmap
 [install]: /getting-started/installing/
 [LiveReload]: /getting-started/using-hugo/
 [organization for your projects]: /getting-started/directory-structure/

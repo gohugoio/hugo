@@ -1,7 +1,7 @@
 about:
   order: 1
   title: "About Hugo"
-  url: "about-hugo"
+  url: "about"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Hugo's features, roadmap, and license, as well as the motivation behind creating Hugo"

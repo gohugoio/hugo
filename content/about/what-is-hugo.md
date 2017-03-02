@@ -1,14 +1,14 @@
 ---
 title: What is Hugo
 linktitle: What is Hugo
-description: Hugo is the world's fastest static site generator, a powerful templating engine written in Golang, and an enthusiastic community of open-source developers. Most importantly, Hugo is here so that making websites can be fun again.
+description: Hugo is the world's fastest static site generator and written in Golang.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 layout: single
 weight: 10
 draft: false
-aliases: [/overview/introduction/,/about-hugo/why-i-built-hugo/]
+aliases: [/overview/introduction/,/about/why-i-built-hugo/]
 toc: true
 ---
 
@@ -68,5 +68,5 @@ I wanted to develop a fast and full-featured website framework without any depen
 [Nanoc]: http://nanoc.ws/
 [Nanoc]: https://nanoc.ws/
 [rackspace]: https://www.rackspace.com/cloud/files
-[static site generator]: /about-hugo/benefits/
+[static site generator]: /about/benefits/
 [Surge]: https://surge.sh

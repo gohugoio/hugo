@@ -110,7 +110,7 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 | [Hugo: Beyond the Defaults](http://npf.io/2014/08/hugo-beyond-the-defaults/) | Nate Finch | 2014-08-08 |
 | [First Impressions of Hugo](https://peteraba.com/blog/first-impressions-of-hugo/) | Peter Aba | 2014-06-06 |
 | [New Site Workflow](http://vurt.co.uk/post/new_website/) | Giles Paterson | 2014-08-05 |
-| [How I Learned to Stop Worrying and Love the (Static) Web](http://cognition.ca/post/about-hugo/) | Joshua McKenty | 2014-08-4 |
+| [How I Learned to Stop Worrying and Love the (Static) Web](http://cognition.ca/post/about/) | Joshua McKenty | 2014-08-4 |
 | [Hugo - Static Site Generator](http://kenwoo.io/blog/hugo---static-site-generator/) | Kenny Woo | 2014-08-03 |
 | [Hugo Is Friggin' Awesome](http://npf.io/2014/08/hugo-is-awesome/) | Nate Finch | 2014-08-01 |
 | [<span lang="zh-CN">再次搬家</span> <small>(Move from WordPress to Hugo)</small>](http://www.chingli.com/misc/move-from-wordpress-to-hugo/) | <span lang="zh-CN">青砾</span> (chingli) | 2014-07-12 |

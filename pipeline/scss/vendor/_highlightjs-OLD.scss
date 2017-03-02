@@ -14,12 +14,12 @@ Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-lic
 .hljs,
 .hljs-tag,
 .hljs-subst {
-  color: $hugo-black;
+  color: $hugo-white;
 }
 
 .hljs-strong,
 .hljs-emphasis {
-  color: $hugo-gray;
+  color: $hugo-gray-light;
 }
 
 .hljs-bullet,
@@ -28,14 +28,14 @@ Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-lic
 .hljs-regexp,
 .hljs-literal,
 .hljs-link {
-  color: saturate($hugo-blue,10%);
+  color: $hugo-blue;
 }
 
 .hljs-code,
 .hljs-title,
 .hljs-section,
 .hljs-selector-class {
-  color: $hugo-green;
+  color: $hugo-green-light;
 }
 
 .hljs-strong {
@@ -50,17 +50,17 @@ Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-lic
 .hljs-selector-tag,
 .hljs-name,
 .hljs-attr {
-  color: $hugo-pink;
+  color: $hugo-pink-light;
 }
 
 .hljs-symbol,
 .hljs-attribute {
-  color: saturate($hugo-blue,10%);
+  color: $hugo-blue-light;
 }
 
 .hljs-params,
 .hljs-class .hljs-title {
-  color: $hugo-black;
+  color: $hugo-white;
 }
 
 .hljs-string,
@@ -73,15 +73,15 @@ Monokai Sublime style. Derived from Monokai by noformnocontent http://nn.mit-lic
 .hljs-addition,
 .hljs-variable,
 .hljs-template-variable {
-  color: saturate($hugo-blue,10%);
+  color: $hugo-yellow;
 }
 
 .hljs-comment,
 .hljs-deletion,
 .hljs-meta {
-  color: $hugo-gray;
+  color: $hugo-gray-light;
 }
 
 .language-toml.hljs .hljs-section {
-  color:$hugo-pink;
+  color:$hugo-pink-light;
 }

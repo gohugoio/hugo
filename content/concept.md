@@ -212,7 +212,7 @@ Site showcase has stayed more or less as is, including styling, etc. However...
 
 ### About Hugo
 
-* Content is more or less the same, but I've cleaned up a lot of the language, and copy edited for consistency throughout. I've also added in some extra frills (e.g. resources that extoll and teach more about the benefits of SSGs on [/about-hugo/benefist](/about-hugo/benefits/)).
+* Content is more or less the same, but I've cleaned up a lot of the language, and copy edited for consistency throughout. I've also added in some extra frills (e.g. resources that extoll and teach more about the benefits of SSGs on [/about/benefist](/about/benefits/)).
 * Release notes are now in the "News" section, although I'm still iffy on this decision. I can gladly move this back into "About" to give it a higher degree of discoverability in the menu.
 
 ### Getting Started
