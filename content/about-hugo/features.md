@@ -15,10 +15,10 @@ notesforauthors:
 ## General
 
 * [Extremely fast][] build times (&lt; .7 ms per page)
-* Completely cross platform, with easy installation on [Mac OSX][], [Linux][], [Windows][], and more
+* Completely cross platform, with [easy installation][install] on Mac OSX, Linux, Windows, and more
 * Renders changes on the fly with [LiveReload][] as you develop
 * [Powerful theming][]
-* [Host your site anywhere][]
+* [Host your site anywhere][hostanywhere]
 
 ## Organization
 
@@ -66,11 +66,10 @@ See what's coming next in the [Hugo roadmap][].
 [Golang]: http://golang.org/pkg/html/template/
 [Google Analytics]: https://google-analytics.com/
 [homepage]: /templates/homepage/
-[Host your site anywhere]: /hosting-and-deployment/
+[hostanywhere]: /hosting-and-deployment/
 [Hugo roadmap]: /about-hugo/roadmap
-[Linux]: /getting-started/install-on-mac/
+[install]: /getting-started/installing/
 [LiveReload]: /getting-started/using-hugo/
-[Mac OSX]: /getting-started/install-of-pc/
 [organization for your projects]: /getting-started/directory-structure/
 [pagevars]: /variables/page-variables/
 [Permalink]: /content-management/urls/#permalinks
@@ -85,4 +84,3 @@ See what's coming next in the [Hugo roadmap][].
 [table of contents]: /content-management/toc/
 [taxonomies]: /content-management/taxonomies/
 [URLs]: /content-management/urls/
-[Windows]: /getting-started/install-on-linux/

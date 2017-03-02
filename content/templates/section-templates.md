@@ -25,9 +25,11 @@ To effectively leverage section page templates, you should first understand the 
 The [lookup order][lookup] for section pages is as follows:
 
 1. `/layouts/section/<SECTION>.html`
+2. `/layouts/<SECTION>/list.html`
 2. `/layouts/_default/section.html`
 3. `/layouts/_default/list.html`
 4. `/themes/<THEME>/layouts/section/<SECTION>.html`
+5. `/themes/<THEME>/layouts/<SECTION>/list.html`
 5. `/themes/<THEME>/layouts/_default/section.html`
 6. `/themes/<THEME>/layouts/_default/list.html`
 
