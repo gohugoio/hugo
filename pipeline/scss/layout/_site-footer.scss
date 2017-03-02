@@ -25,7 +25,11 @@
   margin-right: auto;
   color: $hugo-white;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap:wrap;
+  .footer-info {
+    width:100%;
+  }
   span {
     text-align: center;
     width: 100%;
@@ -51,14 +55,10 @@
   }
 }
 
-.footer-lists {
-  display: flex;
-  justify-content: space-around;
-  margin-right: 1em;
-  margin-top: 1em;
-}
-
 .footer-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   color: $hugo-white;
   list-style: none;
   margin-left: 0px;
@@ -67,27 +67,11 @@
   margin-right: 2em;
   margin: 0px;
   flex-wrap: wrap;
-  li a {
-    color: $hugo-white;
-    display: flex;
-    align-items: center;
-    &:not(i) {
-      font-size: 14px;
+  ul {
+    list-style: none;
+    li a {
+      color:$hugo-white;
+      font-size:.8em;
     }
-    i {
-      font-size: 16px;
-      margin-right: .25em;
-      &.icon-github:before {
-        font-size: 22px;
-        margin-left: 0px;
-        margin-right: 2px;
-      }
-    }
-    &:hover {
-      color: $hugo-pink;
-    }
-  }
-  @include MQ(L) {
-    min-width: 150px;
   }
 }

@@ -5,7 +5,7 @@
 		<header class="content-header">
 			{{partial "breadcrumb.html" . }}
 			<h1 class="page-title {{if eq .Kind "page"}}{{.Section}}{{end}}" id="{{ .Title | urlize }}">
-			{{- partial "list-icon.html" . -}}
+			<!-- {{- partial "list-icon.html" . -}} -->
 			{{- .Title | markdownify -}}</h1>
 			{{partial "content-header-links.html" . }}
 			{{partial "tags.html" . }}

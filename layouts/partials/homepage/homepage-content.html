@@ -4,12 +4,16 @@
       {{ partial "svg-icons/hugo-home.svg" . }}
       <span>UGO</span>
     </div>
-    <div class="homepage-terminal">
-    	<span class="terminal-line">brew install && brew install hugo</span><br>
-    	<span class="terminal-line">hugo new site my-hugo-site && cd my-hugo-site</span><br>
-    	<span class="terminal-line">hugo server</span><br>
-    	<span class="terminal-line">mind</span><br>
-    	<span class="terminal-line">blown</span>
+    <div class="hero-tagline">The world's fastest static website engine. <br>Written in Golang.</div>
+    <div class="get-started">
+    	<a role="button" class="button xl" href="{{ "getting-started/quick-start" | relURL }}">Get started</a>
+    </div>
+  </div>
+  <div class="home-row">
+  	<div class="homepage-terminal">
+    	$ brew install go<br>
+    	$ brew install hugo<br>
+    	$ have fun
     </div>
   </div>
 </main>

@@ -2,58 +2,69 @@ $('#homepage-nav > ul.animated').addClass('fadeInDown');
 $('.homepage-icon.animated').addClass('fadeIn');
 
 
-let terminalElements = document.querySelectorAll('span.terminal-line');
+$(".homepage-terminal")
+  // Blast the text apart by word.
+  .blast({ delimiter: "letter" })
+  // Fade the words into view using Velocity.js.
+  .velocity("transition.fadeIn", {
+    display: null,
+    duration: 0,
+    stagger: 90,
+    delay: 0
+  });
 
-function terminals_init() {
-  var elements = terminalElements;
-  for (var i = 0; i < elements.length; i++) {
-    var e = elements[i]
-    e.completeHTML = e.innerHTML
-    e.innerHTML = ""
-    e.i = 0
-  }
+// terminalElements = document.querySelectorAll('span.terminal-line');
 
-}
+// function terminals_init() {
+//   var elements = terminalElements;
+//   for (var i = 0; i < elements.length; i++) {
+//     var e = elements[i]
+//     e.completeHTML = e.innerHTML
+//     e.innerHTML = ""
+//     e.i = 0
+//   }
 
-function terminals_start() {
-  //terminalIntervalFunction = function(){ terminals_next() }
-  //setInterval(terminalIntervalFunction, 1000/60);
-  terminals_next()
-}
+// }
 
-function terminals_next() {
-  var done = true
-  var elements = terminalElements;
+// function terminals_start() {
+//   //terminalIntervalFunction = function(){ terminals_next() }
+//   // setInterval(terminalIntervalFunction, 1000/60);
+//   terminals_next()
+// }
 
-  for (var i = 0; i < elements.length && done == true; i++) {
-    var e = elements[i]
+// function terminals_next() {
+//   var done = true
+//   var elements = terminalElements;
 
-    e.i++
+//   for (var i = 0; i < elements.length && done == true; i++) {
+//     var e = elements[i]
 
-      if (e.innerHTML.length >= e.completeHTML.length) {
-        e.innerHTML = e.completeHTML
-      } else {
-        var s = e.completeHTML.substring(0, e.i)
+//     e.i++
 
-        if (s.slice(-1) == " ") {
-          if (e.innerHTML.length % 6 == 0) { s = s + "" } else { s = s + "|" }
-        } else {
-          s = s + "|"
-        }
+//       if (e.innerHTML.length >= e.completeHTML.length) {
+//         e.innerHTML = e.completeHTML
+//       } else {
+//         var s = e.completeHTML.substring(0, e.i)
 
-        e.innerHTML = s
-        e.parentNode.style.display = 'none'
-        e.parentNode.style.display = 'block'
-        done = false
-      }
-  }
+//         if (s.slice(-1) == " ") {
+//           if (e.innerHTML.length % 6 == 0) { s = s + "" } else { s = s + "|" }
+//         } else {
+//           s = s + "|"
+//         }
 
-  if (!done) {
-    //window.clearInterval(terminalIntervalFunction)
-    setTimeout(terminals_next, 800 / 20)
-  }
-}
+//         e.innerHTML = s
+//         e.parentNode.style.display = 'none'
+//         e.parentNode.style.display = 'block'
+//         done = false
+//       }
+//   }
 
-terminals_init()
+//   if (!done) {
+//     //window.clearInterval(terminalIntervalFunction)
+//     setTimeout(terminals_next, 1600 / 15)
+//   }
+// }
 
-window.onload = function() { terminals_start() };
+// terminals_init()
+
+// window.onload = function() { terminals_start() };

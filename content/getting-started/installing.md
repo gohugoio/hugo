@@ -122,7 +122,7 @@ Whenever installing with Homebrew, it's a good idea to update the formulae and H
 
 {{% code file="update-brew.sh" %}}
 ```bash
-$ brew update
+brew update
 ```
 {{% /code %}}
 
@@ -130,7 +130,7 @@ You can then install Hugo using `brew`:
 
 {{% code file="install-brew.sh" %}}
 ```bash
-$ brew install hugo
+brew install hugo
 ```
 {{% /code %}}
 
@@ -152,7 +152,7 @@ if you want the absolute latest version in development.
 
 ```bash
 $ # show the location of the hugo executable
-$ which hugo
+which hugo
 /usr/local/bin/hugo
 
 $ # show the installed version
