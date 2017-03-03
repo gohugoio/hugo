@@ -37,7 +37,7 @@ If you do not meet these assumptions, the [GitHub help section][githubhelp] has 
 ## Creating a Basic Hugo Site
 
 {{% note "This Guide Uses the Hugo CLI" %}}
-All the work for setting up a Hugo project and using this guide is done via the Hugo CLI's most basic commands. See the [command line reference page](/developer-tools/hugo-comman-line-reference/) for a more exhaustive account of the CLI's features.
+All the work for setting up a Hugo project and using this guide is done via the Hugo CLI's most basic commands. See the [command line reference page](/commands/) for a more exhaustive account of the CLI's features.
 {{% /note %}}
 
 First, create your new Hugo website using the [`hugo new site` command][basicusage] and change into the newly created directory for the project. In this guide, we are calling our new project `hugo-wercker-example`:

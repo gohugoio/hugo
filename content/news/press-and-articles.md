@@ -22,6 +22,7 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 
 | Title | Author | Date   |
 | ----- | ------ | -----: |
+| [Zero to HTTP/2 with AWS and Hugo](https://habd.as/zero-to-http-2-aws-hugo/)  | Josh Habdas | 2017-02-16 |
 | [How to Password Protect a Hugo Site](https://www.aerobatic.com/blog/password-protect-a-hugo-site/) | Aerobatic | 2017-02-19 |
 | [Switching from Wordpress to Hugo](http://schnuddelhuddel.de/switching-from-wordpress-to-hugo/) | http://schnuddelhuddel.de/ | 2017-02-19 | ]
 | [Deploy a Hugo site to Aerobatic with CircleCI ](https://www.aerobatic.com/blog/hugo-github-circleci/) | Aerobatic | 2017-02-14 |
