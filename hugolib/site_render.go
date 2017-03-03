@@ -257,7 +257,7 @@ func (s *Site) renderRobotsTXT() error {
 	err := s.renderForLayouts("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
 
 	if err == nil {
-		err = s.writeDestFile("robots.txt", outBuffer)
+		err = s.w.writeDestFile("robots.txt", outBuffer)
 	}
 
 	return err
@@ -284,13 +284,13 @@ func (s *Site) renderAliases() error {
 		if s.Info.defaultContentLanguageInSubdir {
 			mainLangURL := s.PathSpec.AbsURL(mainLang.Lang, false)
 			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL, nil); err != nil {
+			if err := s.publishDestAlias(true, "/", mainLangURL, nil); err != nil {
 				return err
 			}
 		} else {
 			mainLangURL := s.PathSpec.AbsURL("", false)
 			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang.Lang, mainLangURL, nil); err != nil {
+			if err := s.publishDestAlias(true, mainLang.Lang, mainLangURL, nil); err != nil {
 				return err
 			}
 		}
