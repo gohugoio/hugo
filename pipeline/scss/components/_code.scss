@@ -5,9 +5,11 @@
     font-size: .9em;
     weight: inherit;
     font-weight: $code-font-base-weight;
-    position: relative;
     overflow-y: visible;
     z-index: 1;
+  }
+  > pre {
+    position: relative;
   }
   pre > code,
   .code {
@@ -55,17 +57,31 @@ code[class^="language-"] {
   }
 }
 
-// .copy-button + .code-copy-content {
+// .filename + .code-copy-content {
 //   code[class^="language-"] {
 //     &:after {
 //       // display: none;
 //       position: absolute;
-//       top: -4px;
+//       top: -16px;
 //       right: 4px;
+//       z-index:99999999;
 //     }
 //   }
 // }
+.copy-button + .code-copy-content {
+  code[class^="language-"] {
+    &:after {
+      // display: none;
+      position: absolute;
+      top: -4px;
+      right: 4px;
+    }
+  }
+}
 
+// .copy-button {
+//   display: none!important;
+// }
 code.language-html:after {
   font-family: 'FontAwesome';
   content: '\f13b';
@@ -95,6 +111,7 @@ code.language-bash:after,
 code.language-sh:after {
   font-family: 'fontello';
   content: '\e804';
+  right: 6px;
 }
 
 code.language-toml:after {
@@ -119,7 +136,7 @@ code.language-markdown:after {
 .copy-button + .code-copy-content {
   code[class^="language-"] {
     &:after {
-      display:none;
+      display: none;
       position: absolute;
       top: -8px;
       right: 4px;
@@ -129,7 +146,7 @@ code.language-markdown:after {
 
 .filename {
   font-family: $code-font-family;
-  color: lighten($base-font-color, 45%);
+  color: lighten($base-font-color, 25%);
   padding-left: 1em;
   padding-top: .25em;
   font-size: .7em;
@@ -173,13 +190,6 @@ code.language-markdown:after {
   display: none!important;
 }
 
-.code:hover {
-  .copy-button,
-  .download-button {
-    transition: all .3s ease-in-out;
-    opacity: 1;
-  }
-}
 
 .tooltipped {
   position: absolute;

@@ -88,13 +88,9 @@ pre {
   li > code,
   li > span > code {
     white-space: pre-wrap;
-    /* css-3 */
     white-space: -moz-pre-wrap;
-    /* Mozilla, since 1999 */
     white-space: -pre-wrap;
-    /* Opera 4-6 */
     white-space: -o-pre-wrap;
-    /* Opera 7 */
     word-wrap: break-word;
   }
 }
@@ -131,8 +127,6 @@ button.download-button {
   position: absolute;
   bottom: 0px;
   z-index: 4;
-  // min-width: 90px;
-  // width: auto;
   @include size(30px);
   padding: {
     left: 4px;

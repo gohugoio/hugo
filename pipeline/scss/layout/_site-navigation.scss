@@ -1,3 +1,7 @@
+.site-navigation::-webkit-scrollbar {
+  display: none;
+}
+
 .site-navigation {
   transition: transform .3s ease-in-out;
   position: fixed;
@@ -10,9 +14,9 @@
   transform:translateX(-#{$site-navigation-width});
   padding: 0px;
   z-index: 9;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   &.navigation-open {
     transition: transform .3s ease-in-out;
     transform: translateX(0px);
@@ -26,16 +30,16 @@
   ul.top-menu {
     margin-top: $site-header-height + 30px;
     // display: inline-block;
-    width:85%;
+    width: 85%;
     @include MQ(L) {
       margin-top: $site-header-height + 10px;
     }
     a {
       color: $base-font-color;
       font-weight: $base-font-weight;
-      width:100%;
+      width: 100%;
       &:hover {
-        color:$hugo-pink;
+        color: $hugo-pink;
       }
     }
     li {
@@ -48,9 +52,9 @@
     }
     a.top-menu-item-link {
       font-size: 16px;
-      width:100%;
+      width: 100%;
       i.fa.fa-angle-double-right {
-        margin-left:.25em;
+        margin-left: .25em;
       }
       &.active-section {
         color: $hugo-pink;
@@ -68,7 +72,7 @@
       padding-left: .5em;
       padding-bottom: .66em;
       li {
-        line-height:1.3;
+        line-height: 1.3;
       }
       a.submenu-item-link {
         font-size: 14px;
@@ -81,8 +85,8 @@
           > code {
             color: $hugo-blue;
             > em {
-              font-style:normal;
-              family:$base-font-family;
+              font-style: normal;
+              family: $base-font-family;
             }
           }
         }
@@ -92,16 +96,16 @@
 }
 
 .nav-buttons {
-  display:block;
-  margin-left:auto;
-  margin-right:auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
   max-width: 200px;
   a {
     margin-bottom: .5em;
     display: inline-block;
     width: 200px;
     max-width: 200px;
-    position:relative;
+    position: relative;
     font-size: .9em;
   }
 }
@@ -165,6 +169,7 @@
     border: 2px solid $hugo-pink;
   }
 }
+
 .top {
   left: 15%;
   top: 20%;

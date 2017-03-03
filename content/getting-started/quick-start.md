@@ -36,8 +36,7 @@ Once `hugo` is installed, make sure to run the `help` command to verify `hugo` i
 
 ```bash
 hugo help
-```
-```
+
 hugo is the main command, used to build your Hugo site.
 
 Hugo is a Fast and Flexible Static Site Generator
@@ -52,7 +51,7 @@ You can check the version of Hugo you're currently using with the `hugo version`
 hugo version
 ```
 
-```
+```bash
 Hugo Static Site Generator v0.18.1 BuildDate: 2016-12-30T05:02:43-05:00
 ```
 
@@ -66,7 +65,7 @@ hugo new site bookshelf
 
 Change into the newly created `bookshelf` directory. Listing the new directory's content will show the following:
 
-```
+```bash
 .
 ├── archetypes
 ├── config.toml
@@ -161,7 +160,7 @@ hugo server
 
 You should see something similar to the following output:
 
-```
+```bash
 Built site for language en:
 0 of 1 draft rendered
 0 future content
@@ -192,7 +191,7 @@ hugo server --buildDrafts
 
 You should now see something similar to the following:
 
-```
+```bash
 Built site for language en:
 1 of 1 draft rendered
 0 future content
@@ -248,7 +247,7 @@ hugo server --theme=hugo_theme_robust --buildDrafts
 
 You should see an output to the console similar to the following:
 
-```
+```bash
 Built site for language en:
 1 of 1 draft rendered
 0 future content
@@ -269,7 +268,7 @@ Press Ctrl+C to stop
 If Hugo doesn't find the specified theme in the `themes` directory,
 it will throw an exception:
 
-```
+```bash
 FATAL: 2016/02/14 Unable to find theme Directory: /Users/yourusername/bookshelf/themes/robust
 ```
 
@@ -519,7 +518,7 @@ Now, commenting will be enabled in your blog.
 To generate a website that can be deployed to GitHub pages, we first need to change the `baseURL` in our configuration as follows:
 
 ```toml
-baseURL = "https://<your GitHub username>.github.io/bookshelf/"
+baseURL = "https://<yourgithubusername>.github.io/bookshelf/"
 ```
 
 Then type the following command while in the root directory of your Hugo project:

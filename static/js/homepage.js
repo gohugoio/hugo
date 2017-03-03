@@ -31,6 +31,15 @@ $(document).ready(function() {
     }
   });
 });
+
+// var mySequence = [
+//     { e: $element1, p: { translateX: 100 }, o: { duration: 1000 } },
+//     /* The call below will run at the same time as the first call. */
+//     { e: $element2, p: { translateX: 200 }, o: { duration: 1000, sequenceQueue: false },
+//     /* As normal, the call below will run once the second call is complete. */
+//     { e: $element3, p: { translateX: 300 }, o: { duration: 1000 }
+// ];
+// $.Velocity.RunSequence(mySequence);
 // terminalElements = document.querySelectorAll('span.terminal-line');
 
 // function terminals_init() {

@@ -134,6 +134,7 @@ header.content-header {
     margin-top: 1em;
   }
   em {
-    font-weight: bolder;
+    // font-weight: bolder;
+    font-weight: inherit;
   }
 }

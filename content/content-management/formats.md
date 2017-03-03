@@ -26,7 +26,7 @@ Before you begin writing your content in markdown, Blackfriday has a known issue
 
 You can configure multiple aspects of Blackfriday. For more information, see [how to configure your Hugo projects][config]:
 
-{{< readfile file="content/readfiles/bfconfig.md" markdown="true" >}}
+{{< bfconfig >}}
 
 ## Extending Markdown
 

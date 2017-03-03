@@ -39,18 +39,32 @@ aside#toc {
     opacity: 1;
   }
   @include MQ(XL) {
+    .toc-inner-wrapper {
+      position: relative;
+      min-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
+      max-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
+      overflow-y:scroll;
+    }
     box-shadow: none;
     top: $site-header-height;
-    // left: calc(#{$site-navigation-width} + #{$content-max-width} + 4em);
     right: 0px;
     bottom: auto;
     opacity: 1;
     min-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
     max-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
     transform: scale(1);
-    // border-left: 1px solid $hugo-gray-light;
     border-radius: 0px;
-    margin-right:1.5em;
+    margin-right: 1.5em;
+    .fade {
+      content: '';
+      display: inline-block;
+      position: absolute;
+      bottom: 0px;
+      left: 0px;
+      width: 100%;
+      height: 20px;
+      background-color: orange;
+    }
   }
 }
 
@@ -58,6 +72,7 @@ nav#TableOfContents {
   position: relative;
   margin-bottom: 20px;
   height: auto;
+  overflow-y:scroll;
   li code {
     font-family: $base-font-family;
   }
@@ -152,9 +167,6 @@ nav#TableOfContents {
               }
             }
           }
-          // ul {
-          //   display: none;
-          // }
         }
       }
     }
