@@ -139,7 +139,7 @@
 .half.half-content {
   align-items: flex-start;
   justify-content: space-between;
-  padding-top:30px;
+  padding-top: 30px;
   h2 {
     width: 100%;
     font-size: 22px;
@@ -147,19 +147,22 @@
     font-weight: 500;
   }
   p {
-    text-align:center;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
-hr,.hr {
+hr,
+.hr {
   border: 0;
   height: 1px;
-  opacity:1;
+  opacity: 1;
   background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
-  width:100%;
+  width: 100%;
   margin: {
-    bottom:2.5em;
-    top:2.5em;
+    bottom: 2.5em;
+    top: 2.5em;
   }
 }
 
@@ -215,6 +218,9 @@ hr,.hr {
     &#markdown {
       margin-top: 30px;
     }
+  }
+  @include MQ(L) {
+    margin-top: 3.5em;
   }
 }
 

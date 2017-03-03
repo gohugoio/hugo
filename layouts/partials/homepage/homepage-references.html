@@ -1,0 +1,12 @@
+{{ range last 8 (sort $.Site.Data.references.quotes "date" )  }}
+<div class="item">
+	<blockquote>
+		<p>
+     {{.quote | safeHTML}}
+		</p>
+		<cite>&#9472; {{ .name }} ({{ .twitter_handle }}) <a href="{{ .link }}">
+            {{ dateFormat "January 2, 2006" .date }}
+        </a></cite>
+	</blockquote>
+</div>
+{{ end }}

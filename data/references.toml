@@ -1,18 +1,4 @@
 [[quotes]]
-name = "Execute‏‏"
-twitter_handle = "@executerun"
-quote = "Hah, #gohugo. I was working with #gohugo on #linux but now I realised how easy is to set-up it on #windows. Just need to add binary to #path!"
-link = "https://twitter.com/executerun/status/809753145270272005"
-date = 2016-12-16T00:00:00Z
-
-[[quotes]]
-name = "Janez Čadež‏"
-twitter_handle = "@jamziSLO"
-quote = "Building @garazaFRI website in #hugo. This static site generator is soooo damn fast!"
-link = "https://twitter.com/jamziSLO/status/817720283977183234"
-date = 2017-01-07T00:00:00Z
-
-[[quotes]]
 name = "Hans Beck"
 twitter_handle = "@EnrichedGamesHB"
 quote = "Diving deeper into @GoHugoIO . A lot of docs there, top work! But I've the impressed that #gohugo is far easier than its feels from the docs!"
@@ -25,6 +11,20 @@ twitter_handle = "@eviltester"
 quote = "I migrated the <a href='https://twitter.com/BlackOpsTesting'> @BlackOpsTesting </a> .com website from docpad to Hugo last weekend. http://gohugo.io/  Super Fast HTML Generation <a href='https://twitter.com/spf13'> @spf13 </a>"
 link = "https://twitter.com/eviltester/status/553520335115808768"
 date = 2015-01-09T00:00:00Z
+
+[[quotes]]
+name = "Janez Čadež‏"
+twitter_handle = "@jamziSLO"
+quote = "Building @garazaFRI website in #hugo. This static site generator is soooo damn fast!"
+link = "https://twitter.com/jamziSLO/status/817720283977183234"
+date = 2017-01-07T00:00:00Z
+
+[[quotes]]
+name = "Execute‏‏"
+twitter_handle = "@executerun"
+quote = "Hah, #gohugo. I was working with #gohugo on #linux but now I realised how easy is to set-up it on #windows. Just need to add binary to #path!"
+link = "https://twitter.com/executerun/status/809753145270272005"
+date = 2016-12-16T00:00:00Z
 
 [[quotes]]
 name = "Baron Schwartz"

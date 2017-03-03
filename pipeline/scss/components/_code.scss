@@ -10,6 +10,7 @@
   }
   > pre {
     position: relative;
+    margin-bottom: 1.5em;
   }
   pre > code,
   .code {
@@ -43,6 +44,7 @@
   overflow: hidden;
   padding: .5em;
   overflow-y: visible;
+  margin-bottom: 1.5em;
 }
 
 code[class^="language-"] {
@@ -189,7 +191,6 @@ code.language-markdown:after {
 .download-button {
   display: none!important;
 }
-
 
 .tooltipped {
   position: absolute;
