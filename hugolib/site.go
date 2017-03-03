@@ -39,7 +39,6 @@ import (
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/hugo/transform"
 	"github.com/spf13/nitro"
@@ -92,18 +91,20 @@ type Site struct {
 	// is set.
 	taxonomiesOrigKey map[string]string
 
-	Source         source.Input
-	Sections       Taxonomy
-	Info           SiteInfo
-	Menus          Menus
-	timer          *nitro.B
-	targets        targetList
-	targetListInit sync.Once
-	draftCount     int
-	futureCount    int
-	expiredCount   int
-	Data           map[string]interface{}
-	Language       *helpers.Language
+	Source   source.Input
+	Sections Taxonomy
+	Info     SiteInfo
+	Menus    Menus
+	timer    *nitro.B
+
+	// This is not a pointer by design.
+	w siteWriter
+
+	draftCount   int
+	futureCount  int
+	expiredCount int
+	Data         map[string]interface{}
+	Language     *helpers.Language
 
 	disabledKinds map[string]bool
 
@@ -139,6 +140,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 	s := &Site{PageCollections: c, Language: cfg.Language, disabledKinds: disabledKinds}
 
 	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
+
 	return s, nil
 
 }
@@ -208,14 +210,6 @@ func NewSiteForCfg(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 	return s, nil
-}
-
-type targetList struct {
-	page          target.Output
-	pageUgly      target.Output
-	file          target.Output
-	alias         target.AliasPublisher
-	languageAlias target.AliasPublisher
 }
 
 type SiteInfo struct {
@@ -1180,6 +1174,8 @@ func (s *Site) convertSource() chan error {
 	numWorkers := getGoMaxProcs() * 4
 	wg := &sync.WaitGroup{}
 
+	s.initSiteWriter()
+
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(2)
 		go fileConverter(s, fileConvChan, results, wg)
@@ -1757,7 +1753,7 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 	transformer := transform.NewChain(transform.AbsURLInXML)
 	transformer.Apply(outBuffer, renderBuffer, path)
 
-	return s.writeDestFile(dest, outBuffer)
+	return s.w.writeDestFile(dest, outBuffer)
 
 }
 
@@ -1774,14 +1770,13 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
 
-	var pageTarget target.Output
+	// Note: this is not a pointer, as we may mutate the state below.
+	w := s.w
 
 	if p, ok := d.(*Page); ok && p.IsPage() && path.Ext(p.URLPath.URL) != "" {
 		// user has explicitly set a URL with extension for this page
 		// make sure it sticks even if "ugly URLs" are turned off.
-		pageTarget = s.pageUglyTarget()
-	} else {
-		pageTarget = s.pageTarget()
+		w.uglyURLs = true
 	}
 
 	transformLinks := transform.NewEmptyTransforms()
@@ -1804,7 +1799,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	var path []byte
 
 	if s.Info.relativeURLs {
-		translated, err := pageTarget.(target.OptionalTranslator).TranslateRelative(dest)
+		translated, err := w.baseTargetPathPage(dest)
 		if err != nil {
 			return err
 		}
@@ -1844,7 +1839,7 @@ Your rendered home page is blank: /index.html is zero-length
 
 	}
 
-	if err = s.writeDestPage(dest, pageTarget, outBuffer); err != nil {
+	if err = w.writeDestPage(dest, outBuffer); err != nil {
 		return err
 	}
 
@@ -1893,95 +1888,37 @@ func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 
 }
 
-func (s *Site) pageTarget() target.Output {
-	s.initTargetList()
-	return s.targets.page
+func (s *Site) langDir() string {
+	if s.Language.Lang != s.Info.multilingual.DefaultLang.Lang || s.Info.defaultContentLanguageInSubdir {
+		return s.Language.Lang
+	}
+	return ""
 }
 
-func (s *Site) pageUglyTarget() target.Output {
-	s.initTargetList()
-	return s.targets.pageUgly
-}
-
-func (s *Site) fileTarget() target.Output {
-	s.initTargetList()
-	return s.targets.file
-}
-
-func (s *Site) aliasTarget() target.AliasPublisher {
-	s.initTargetList()
-	return s.targets.alias
-}
-
-func (s *Site) languageAliasTarget() target.AliasPublisher {
-	s.initTargetList()
-	return s.targets.languageAlias
-}
-
-func (s *Site) initTargetList() {
+func (s *Site) initSiteWriter() {
 	if s.Fs == nil {
 		panic("Must have Fs")
 	}
-	s.targetListInit.Do(func() {
-		langDir := ""
-		if s.Language.Lang != s.Info.multilingual.DefaultLang.Lang || s.Info.defaultContentLanguageInSubdir {
-			langDir = s.Language.Lang
-		}
-		if s.targets.page == nil {
-			s.targets.page = &target.PagePub{
-				Fs:         s.Fs,
-				PublishDir: s.absPublishDir(),
-				UglyURLs:   s.Cfg.GetBool("uglyURLs"),
-				LangDir:    langDir,
-			}
-		}
-		if s.targets.pageUgly == nil {
-			s.targets.pageUgly = &target.PagePub{
-				Fs:         s.Fs,
-				PublishDir: s.absPublishDir(),
-				UglyURLs:   true,
-				LangDir:    langDir,
-			}
-		}
-		if s.targets.file == nil {
-			s.targets.file = &target.Filesystem{
-				Fs:         s.Fs,
-				PublishDir: s.absPublishDir(),
-			}
-		}
-		if s.targets.alias == nil {
-			s.targets.alias = &target.HTMLRedirectAlias{
-				Fs:         s.Fs,
-				PublishDir: s.absPublishDir(),
-				Templates:  s.Tmpl.Lookup("alias.html"),
-			}
-		}
-		if s.targets.languageAlias == nil {
-			s.targets.languageAlias = &target.HTMLRedirectAlias{
-				Fs:         s.Fs,
-				PublishDir: s.absPublishDir(),
-				AllowRoot:  true,
-			}
-		}
-	})
+	s.w = siteWriter{
+		langDir:      s.langDir(),
+		publishDir:   s.absPublishDir(),
+		uglyURLs:     s.Cfg.GetBool("uglyURLs"),
+		relativeURLs: s.Info.relativeURLs,
+		fs:           s.Fs,
+		log:          s.Log,
+	}
 }
 
-func (s *Site) writeDestFile(path string, reader io.Reader) (err error) {
-	s.Log.DEBUG.Println("creating file:", path)
-	return s.fileTarget().Publish(path, reader)
-}
-
-func (s *Site) writeDestPage(path string, publisher target.Publisher, reader io.Reader) (err error) {
-	s.Log.DEBUG.Println("creating page:", path)
-	return publisher.Publish(path, reader)
-}
-
-// AliasPublisher
 func (s *Site) writeDestAlias(path, permalink string, p *Page) (err error) {
-	return s.publishDestAlias(s.aliasTarget(), path, permalink, p)
+	return s.publishDestAlias(false, path, permalink, p)
 }
 
-func (s *Site) publishDestAlias(aliasPublisher target.AliasPublisher, path, permalink string, p *Page) (err error) {
+func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, p *Page) (err error) {
+	w := s.w
+	w.allowRoot = allowRoot
+
+	isXHTML := strings.HasSuffix(path, ".xhtml")
+
 	if s.Info.relativeURLs {
 		// convert `permalink` into URI relative to location of `path`
 		baseURL := helpers.SanitizeURLKeepTrailingSlash(s.Cfg.GetString("baseURL"))
@@ -1995,7 +1932,20 @@ func (s *Site) publishDestAlias(aliasPublisher target.AliasPublisher, path, perm
 		permalink = filepath.ToSlash(permalink)
 	}
 	s.Log.DEBUG.Println("creating alias:", path, "redirecting to", permalink)
-	return aliasPublisher.Publish(path, permalink, p)
+
+	targetPath, err := w.targetPathAlias(path)
+	if err != nil {
+		return err
+	}
+
+	handler := newAliasHandler(s.Tmpl.Lookup("alias.html"))
+	aliasContent, err := handler.renderAlias(isXHTML, permalink, p)
+	if err != nil {
+		return err
+	}
+
+	return w.publish(targetPath, aliasContent)
+
 }
 
 func (s *Site) draftStats() string {

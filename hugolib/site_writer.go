@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2017 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,12 +11,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package target
+package hugolib
 
 import (
-	"bytes"
 	"fmt"
-	"html/template"
+	"io"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -26,40 +25,69 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-const alias = "<!DOCTYPE html><html><head><title>{{ .Permalink }}</title><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0; url={{ .Permalink }}\" /></head></html>"
-const aliasXHtml = "<!DOCTYPE html><html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>{{ .Permalink }}</title><link rel=\"canonical\" href=\"{{ .Permalink }}\"/><meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" /><meta http-equiv=\"refresh\" content=\"0; url={{ .Permalink }}\" /></head></html>"
+// We may find some abstractions/interface(s) here once we star with
+// "Multiple Output Types".
+type siteWriter struct {
+	langDir      string
+	publishDir   string
+	relativeURLs bool
+	uglyURLs     bool
+	allowRoot    bool // For aliases
 
-var defaultAliasTemplates *template.Template
+	fs *hugofs.Fs
 
-func init() {
-	defaultAliasTemplates = template.New("")
-	template.Must(defaultAliasTemplates.New("alias").Parse(alias))
-	template.Must(defaultAliasTemplates.New("alias-xhtml").Parse(aliasXHtml))
+	log *jww.Notepad
 }
 
-type AliasPublisher interface {
-	Translator
-	Publish(path string, permalink string, page interface{}) error
+func (w siteWriter) targetPathPage(src string) (string, error) {
+	dir, err := w.baseTargetPathPage(src)
+	if err != nil {
+		return "", err
+	}
+	if w.publishDir != "" {
+		dir = filepath.Join(w.publishDir, dir)
+	}
+	return dir, nil
 }
 
-type HTMLRedirectAlias struct {
-	PublishDir string
-	Templates  *template.Template
-	AllowRoot  bool // for the language redirects
+func (w siteWriter) baseTargetPathPage(src string) (string, error) {
+	if src == helpers.FilePathSeparator {
+		return "index.html", nil
+	}
 
-	Fs *hugofs.Fs
+	dir, file := filepath.Split(src)
+	isRoot := dir == ""
+	ext := extension(filepath.Ext(file))
+	name := filename(file)
+
+	if w.langDir != "" && dir == helpers.FilePathSeparator && name == w.langDir {
+		return filepath.Join(dir, name, "index"+ext), nil
+	}
+
+	if w.uglyURLs || file == "index.html" || (isRoot && file == "404.html") {
+		return filepath.Join(dir, name+ext), nil
+	}
+
+	dir = filepath.Join(dir, name, "index"+ext)
+
+	return dir, nil
+
 }
 
-func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error) {
-	originalAlias := alias
-	if len(alias) <= 0 {
+func (w siteWriter) targetPathFile(src string) (string, error) {
+	return filepath.Join(w.publishDir, filepath.FromSlash(src)), nil
+}
+
+func (w siteWriter) targetPathAlias(src string) (string, error) {
+	originalAlias := src
+	if len(src) <= 0 {
 		return "", fmt.Errorf("Alias \"\" is an empty string")
 	}
 
-	alias = filepath.Clean(alias)
+	alias := filepath.Clean(src)
 	components := strings.Split(alias, helpers.FilePathSeparator)
 
-	if !h.AllowRoot && alias == helpers.FilePathSeparator {
+	if !w.allowRoot && alias == helpers.FilePathSeparator {
 		return "", fmt.Errorf("Alias \"%s\" resolves to website root directory", originalAlias)
 	}
 
@@ -96,12 +124,12 @@ func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error
 	if len(msgs) > 0 {
 		if runtime.GOOS == "windows" {
 			for _, m := range msgs {
-				jww.ERROR.Println(m)
+				w.log.ERROR.Println(m)
 			}
 			return "", fmt.Errorf("Cannot create \"%s\": Windows filename restriction", originalAlias)
 		}
 		for _, m := range msgs {
-			jww.WARN.Println(m)
+			w.log.WARN.Println(m)
 		}
 	}
 
@@ -113,39 +141,53 @@ func (h *HTMLRedirectAlias) Translate(alias string) (aliasPath string, err error
 		alias = alias + helpers.FilePathSeparator + "index.html"
 	}
 	if originalAlias != alias {
-		jww.INFO.Printf("Alias \"%s\" translated to \"%s\"\n", originalAlias, alias)
+		w.log.INFO.Printf("Alias \"%s\" translated to \"%s\"\n", originalAlias, alias)
 	}
 
-	return filepath.Join(h.PublishDir, alias), nil
+	return filepath.Join(w.publishDir, alias), nil
 }
 
-type AliasNode struct {
-	Permalink string
-	Page      interface{}
+func extension(ext string) string {
+	switch ext {
+	case ".md", ".rst":
+		return ".html"
+	}
+
+	if ext != "" {
+		return ext
+	}
+
+	return ".html"
 }
 
-func (h *HTMLRedirectAlias) Publish(path string, permalink string, page interface{}) (err error) {
-	if path, err = h.Translate(path); err != nil {
-		jww.ERROR.Printf("%s, skipping.", err)
-		return nil
+func filename(f string) string {
+	ext := filepath.Ext(f)
+	if ext == "" {
+		return f
 	}
 
-	t := "alias"
-	if strings.HasSuffix(path, ".xhtml") {
-		t = "alias-xhtml"
-	}
+	return f[:len(f)-len(ext)]
+}
 
-	template := defaultAliasTemplates
-	if h.Templates != nil {
-		template = h.Templates
-		t = "alias.html"
-	}
-
-	buffer := new(bytes.Buffer)
-	err = template.ExecuteTemplate(buffer, t, &AliasNode{permalink, page})
+func (w siteWriter) writeDestPage(path string, reader io.Reader) (err error) {
+	w.log.DEBUG.Println("creating page:", path)
+	targetPath, err := w.targetPathPage(path)
 	if err != nil {
-		return
+		return err
 	}
 
-	return helpers.WriteToDisk(path, buffer, h.Fs.Destination)
+	return w.publish(targetPath, reader)
+}
+
+func (w siteWriter) writeDestFile(path string, r io.Reader) (err error) {
+	w.log.DEBUG.Println("creating file:", path)
+	targetPath, err := w.targetPathFile(path)
+	if err != nil {
+		return err
+	}
+	return w.publish(targetPath, r)
+}
+
+func (w siteWriter) publish(path string, r io.Reader) (err error) {
+	return helpers.WriteToDisk(path, r, w.fs.Destination)
 }

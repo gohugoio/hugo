@@ -151,6 +151,9 @@ func newDebugLogger() *jww.Notepad {
 	return jww.NewNotepad(jww.LevelDebug, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 }
 
+func newErrorLogger() *jww.Notepad {
+	return jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+}
 func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.Template) error {
 
 	return func(templ tpl.Template) error {
