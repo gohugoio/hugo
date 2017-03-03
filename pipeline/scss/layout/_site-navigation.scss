@@ -17,6 +17,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  &::-webkit-scrollbar {
+    display:none;
+  }
   &.navigation-open {
     transition: transform .3s ease-in-out;
     transform: translateX(0px);
