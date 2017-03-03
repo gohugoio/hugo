@@ -56,13 +56,9 @@
   display: block;
   display: flex;
   align-items: center;
-  width: 70%;
-  max-width: 300px;
+  width: 90%;
+  max-width: 540px;
   margin-top: 5em;
-  svg#hugologo {
-    width: 700px;
-    max-width: 300px;
-  }
   margin: {
     right: auto;
     left: auto;
@@ -70,7 +66,6 @@
   span {
     width: 100%;
     display: inline;
-    // display: block;
     text-align: center;
     font-size: 2.3em;
     @include MQ(M) {
@@ -120,11 +115,14 @@
   max-width: $L;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 30px;
-  margin-bottom: 30px;
-  width:90%;
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+  width: 90%;
   @include MQ(XL) {
     justify-content: space-around;
+  }
+  &.first-fade {
+    opacity: 0;
   }
 }
 
@@ -136,6 +134,33 @@
   flex-direction: column;
   align-items: center;
   max-width: $L * .4;
+}
+
+.half.half-content {
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-top:30px;
+  h2 {
+    width: 100%;
+    font-size: 22px;
+    text-align: center;
+    font-weight: 500;
+  }
+  p {
+    text-align:center;
+  }
+}
+
+hr,.hr {
+  border: 0;
+  height: 1px;
+  opacity:1;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+  width:100%;
+  margin: {
+    bottom:2.5em;
+    top:2.5em;
+  }
 }
 
 .get-started {
@@ -168,23 +193,46 @@
   margin-right: auto;
   margin-left: auto;
   font-size: 14px;
-  // color:$hugo-white;
+  margin-bottom: 0px;
   color: transparent;
+  span {
+    color: transparent;
+  }
   .blast {
     color: $hugo-white;
   }
 }
 
-.svgs-one {
+.svgs {
   display: flex;
   justify-content: space-around;
-  opacity: 0;
-  svg {
+  // opacity: 0;
+  svg,
+  .img-wrapper {
     max-width: 45%;
     max-width: 140px;
     // min-width: 150px;
     &#markdown {
       margin-top: 30px;
     }
+  }
+}
+
+#hugopher-front {
+  .eye {
+    animation: squeeze 2.4s infinite;
+  }
+}
+
+@keyframes squeeze {
+  90% {
+    transform: none;
+    animation-timing-function: ease-in;
+  }
+  93% {
+    transform: translateY(70px) scaleY(.1);
+  }
+  100% {
+    animation-timing-function: ease-out;
   }
 }

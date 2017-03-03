@@ -17,8 +17,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: 2em;
   &::-webkit-scrollbar {
-    display:none;
+    display: none;
   }
   &.navigation-open {
     transition: transform .3s ease-in-out;

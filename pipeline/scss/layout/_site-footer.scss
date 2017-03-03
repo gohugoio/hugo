@@ -13,11 +13,6 @@
     margin-left: $site-navigation-width;
     height: $site-footer-height-l-plus;
   }
-  // @include MQ(XL) {
-  //   &.withtoc {
-  //     max-width:calc(100vw - #{$site-navigation-width * 2});
-  //   }
-  // }
 }
 
 .footer-content {
@@ -28,9 +23,14 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  max-width:$M;
+  max-width: $M;
   .footer-info {
     width: 100%;
+    span {
+      width: 100%;
+      display:block;
+      text-align: center;
+    }
     @include MQ(M) {
       width: 200px;
     }

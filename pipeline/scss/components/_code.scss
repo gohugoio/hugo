@@ -176,7 +176,7 @@ code.language-markdown:after {
   width: auto;
   font-size: 12px;
   display: block;
-  z-index: 999;
+  z-index: 15;
   &:hover {
     @include card(3);
   }

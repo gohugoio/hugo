@@ -3,32 +3,32 @@ $('.homepage-icon.animated').addClass('fadeIn');
 
 
 $(document).ready(function() {
-  let heroHeight = $('.hero').height() * .2,
-    heroDouble = heroHeight * 2,
+  let offset1 = $('.hero').height() * .2,
+    offset2 = offset1 * 2,
     scrolled1 = false,
-    scrolled2 = false;
+    scrolled2 = false,
+    terminal = $('.homepage-terminal'),
+    firstFade = $('.first-fade'),
+    gopher = $('#hugopher-front');
   $(window).scroll(function() {
     let scroll = $(this).scrollTop();
-    if (scroll > heroHeight && scrolled1 == false) {
-      $('.svgs-one.animated').addClass('fadeIn');
+    if (scroll > offset1 && scrolled1 == false) {
+      firstFade.addClass('fadeIn');
       scrolled1 = true;
-    } else if (scroll > heroDouble && scrolled2 == false) {
-      $(".homepage-terminal")
-        // Blast the text apart by word.
-        .blast({ delimiter: "letter" })
-        // Fade the words into view using Velocity.js.
-        .velocity("transition.fadeIn", {
-          display: null,
-          customClass: "visible",
-          duration: 0,
-          stagger: 60,
-          delay: 0,
-          complete: function() {
-            $('.after-terminal').velocity('transition.fadeIn');
-          }
-        });
+    } else if (scroll > offset2 && scrolled2 == false) {
+      terminal.blast({ delimiter: "letter" }).velocity("transition.fadeIn", {
+        display: null,
+        customClass: "visible",
+        duration: 0,
+        stagger: 60,
+        delay: 0,
+        complete: function() {
+          gopher.velocity('callout.tada', { duration: 800 });
+        }
+      });
       scrolled2 = true;
     }
+    // else if (scroll > offset3)
   });
 });
 
@@ -40,6 +40,9 @@ $(document).ready(function() {
 //     { e: $element3, p: { translateX: 300 }, o: { duration: 1000 }
 // ];
 // $.Velocity.RunSequence(mySequence);
+
+
+
 // terminalElements = document.querySelectorAll('span.terminal-line');
 
 // function terminals_init() {
