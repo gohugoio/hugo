@@ -33,7 +33,7 @@
   }
   ul.top-menu {
     margin-top: $site-header-height + 30px;
-    // display: inline-block;
+    margin-bottom: 30px;
     width: 85%;
     @include MQ(L) {
       margin-top: $site-header-height + 10px;

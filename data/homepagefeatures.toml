@@ -14,16 +14,16 @@
 	order = 3
 
 [[feature]]
-	name = "True Universality"
+	name = "Cross-platform by Default"
 	description = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis dolor maiores officia officiis nemo voluptate hic necessitatibus debitis, vel ad ipsa temporibus aperiam architecto, molestiae, nulla minus corrupti iusto magni."
 	order = 4
 
 [[feature]]
-	name = "Feature 5"
+	name = "Multilingual Mode"
 	description = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis dolor maiores officia officiis nemo voluptate hic necessitatibus debitis, vel ad ipsa temporibus aperiam architecto, molestiae, nulla minus corrupti iusto magni."
 	order = 5
 
 [[feature]]
-	name = "Feature 6"
+	name = "A Passionate Community"
 	description = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis dolor maiores officia officiis nemo voluptate hic necessitatibus debitis, vel ad ipsa temporibus aperiam architecto, molestiae, nulla minus corrupti iusto magni."
 	order = 6
