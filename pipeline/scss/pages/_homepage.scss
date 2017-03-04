@@ -355,11 +355,14 @@ svg {
 }
 
 .homepage-open-source {
-  .icon-github-wrapper {
-    width:100%;
-    text-align:center;
+  div {
+    width: 100%;
+    text-align: center;
   }
   i.icon-github {
     font-size: 62px;
+    @include MQ(M){
+      font-size: 80px;
+    }
   }
 }

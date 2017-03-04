@@ -81,9 +81,6 @@ code[class^="language-"] {
   }
 }
 
-// .copy-button {
-//   display: none!important;
-// }
 code.language-html:after {
   font-family: 'FontAwesome';
   content: '\f13b';
@@ -164,7 +161,7 @@ code.language-markdown:after {
   right: 4px;
 }
 
-.copy-button {
+.copy-button,.download-button {
   transition: opacity .3s ease-in-out;
   opacity: 1;
   position: absolute;
@@ -175,7 +172,7 @@ code.language-markdown:after {
   border-radius: 0px;
   @include card(1);
   height: 30px;
-  width: auto;
+  min-width: 70px;
   font-size: 12px;
   display: block;
   z-index: 15;
@@ -184,12 +181,15 @@ code.language-markdown:after {
   }
   span.button-text {
     text-transform: uppercase;
-    margin-left: 3px;
+    margin-left: 0px;
   }
 }
 
 .download-button {
-  display: none!important;
+  position:absolute;
+  min-width: 70px;
+  top:1px;
+  right:72px;
 }
 
 .tooltipped {
