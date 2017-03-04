@@ -22,6 +22,7 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 
 | Title | Author | Date   |
 | ----- | ------ | -----: |
+| [Adding Isso Comments to Hugo](https://stiobhart.net/2017-02-24-isso-comments/) | Stíobhart Matulevicz | 2017-02-24 |
 | [Zero to HTTP/2 with AWS and Hugo](https://habd.as/zero-to-http-2-aws-hugo/)  | Josh Habdas | 2017-02-16 |
 | [How to Password Protect a Hugo Site](https://www.aerobatic.com/blog/password-protect-a-hugo-site/) | Aerobatic | 2017-02-19 |
 | [Switching from Wordpress to Hugo](http://schnuddelhuddel.de/switching-from-wordpress-to-hugo/) | http://schnuddelhuddel.de/ | 2017-02-19 | ]
@@ -35,7 +36,7 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 | [Embedding Facebook In A Hugo Template](https://stoned.io/web-development/hugo/Embedding-Facebook-In-A-Hugo-Template/) | Hash Borgir | 2016-10-22 |
 | [通过 Gitlab-cl 将 Hugo blog 自动部署至 GitHub](https://zetaoyang.github.io/post/2016/10/17/gitlab-cl.html) <small>(Chinese, Continious integration)</small> | Zetao Yang | 2016-10-17 |
 | [A Step-by-Step Guide: Hugo on Netlify](https://www.netlify.com/blog/2016/09/21/a-step-by-step-guide-hugo-on-netlify/) | Eli Williamson | 2016-09-21 |
-| [Building our site: From Django & Wordpress to a static generator (Part I)](https://tryolabs.com/blog/2016/09/20/building-our-site-django-wordpress-to-static-part-i/) | Alan Descoins | 20 Sep 2016 |
+| [Building our site: From Django & Wordpress to a static generator (Part I)](https://tryolabs.com/blog/2016/09/20/building-our-site-django-wordpress-to-static-part-i/) | Alan Descoins | 2016-09-20 |
 | [Webseitenmaschine - Statische Websites mit Hugo erzeugen](http://www.heise.de/ct/ausgabe/2016-12-Statische-Websites-mit-Hugo-erzeugen-3211704.html) <small>(German, $)</small> | Christian Helmbold | 2016-05-27 |
 | [Cómo hacer sitios web estáticos con Hugo y Go - Platzi](https://www.youtube.com/watch?v=qaXXpdiCHXE) <small>(Video tutorial)</small> | Verónica López  | 2016-04-06 |
 | [CDNOverview: A CDN comparison site made with Hugo](https://www.cloakfusion.com/cdnoverview-cdn-comparison-site-made-hugo/) | Thijs de Zoete | 2016-02-23 |
@@ -43,7 +44,7 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 | [Minify Hugo Generated HTML](http://ratson.name/blog/minify-hugo-generated-html/) | Ratson | 2016-02-02 |
 | [Static site generators: el futuro de las webs estáticas<br>(Hugo, Jekyll, Flask y otros)](http://sitelabs.es/static-site-generators-futuro-las-webs-estaticas/) | Eneko Sarasola | 2016-01-09 |
 | [Writing a Lambda Function for Hugo](https://blog.jolexa.net/post/writing-a-lambda-function-for-hugo/) | Jeremy Olexa | 2016-01-01 |
-| [Ein Blog mit Hugo erstellen - Tutorial](http://privat.albicker.org/tags/hugo.html) <small>(Deutsch/German)</small> | Bernhard Albicker | 30 Dec 2015 |
+| [Ein Blog mit Hugo erstellen - Tutorial](http://privat.albicker.org/tags/hugo.html) <small>(Deutsch/German)</small> | Bernhard Albicker | 2015-12-30 |
 | [How to host Hugo static website generator on AWS Lambda](http://bezdelev.com/post/hugo-aws-lambda-static-website/) | Ilya Bezdelev | 2015-12-15 |
 | [Migrating from Pelican to Hugo](http://www.softinio.com/post/migrating-from-pelican-to-hugo/) | Salar Rahmanian | 2015-11-29 |
 | [Hugo + Uberspace + Git = Hubergit &mdash; eine Anleitung (German)](https://harms-ensink.name/post/hubergit/) | Christoph Harms-Ensink | 2015-11-24 |
@@ -102,8 +103,8 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 | [Hosting A Hugo Website Behind Nginx](http://www.bigbeeconsultants.co.uk/blog/hosting-hugo-website-behind-nginx) | Rick Beton | 2014-11-20 |
 | [<span lang="zh-CN">使用Hugo搭建免费个人Blog</span> <small>(How to use Hugo)</small>](http://ulricqin.com/post/how-to-use-hugo/) | Ulric Qin <span lang="zh-CN">秦晓辉</span>  | 2014-11-11 |
 | [Built in Speed and Built for Speed by Hugo](http://cheekycoder.com/2014/10/built-for-speed-by-hugo/) | Cheeky Coder | 2014-10-30 |
-| [hugo, syncthing](http://fredix.ovh/2014/10/hugo-syncthing/) | Frédéric Logier | 13 Oct 2014 |
-| [Hugo para crear sitios web estáticos](http://www.webbizarro.com/noticias/1076/hugo-para-crear-sitios-web-estaticos/) | Web Bizarro | 19 Aug 2014 |
+| [hugo, syncthing](http://fredix.ovh/2014/10/hugo-syncthing/) | Frédéric Logier | 2014-10-13 |
+| [Hugo para crear sitios web estáticos](http://www.webbizarro.com/noticias/1076/hugo-para-crear-sitios-web-estaticos/) | Web Bizarro | 2014-08-19 |
 | [Going with hugo](http://www.markuseliasson.se/article/going-with-hugo/) | Markus Eliasson  | 2014-08-18 |
 | [Benchmarking Jekyll, Hugo and Wintersmith](http://fredrikloch.me/post/2014-08-12-Jekyll-and-its-alternatives-from-a-site-generation-point-of-view/) | Fredrik Loch | 2014-08-12 |
 | [Goodbye Octopress, Hello Hugo!](http://andreimihu.com/blog/2014/08/11/goodbye-octopress-hello-hugo/) | Andrei Mihu | 2014-08-11 |
@@ -111,11 +112,11 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 | [Hugo: Beyond the Defaults](http://npf.io/2014/08/hugo-beyond-the-defaults/) | Nate Finch | 2014-08-08 |
 | [First Impressions of Hugo](https://peteraba.com/blog/first-impressions-of-hugo/) | Peter Aba | 2014-06-06 |
 | [New Site Workflow](http://vurt.co.uk/post/new_website/) | Giles Paterson | 2014-08-05 |
-| [How I Learned to Stop Worrying and Love the (Static) Web](http://cognition.ca/post/about/) | Joshua McKenty | 2014-08-4 |
+| [How I Learned to Stop Worrying and Love the (Static) Web](http://cognition.ca/post/about/) | Joshua McKenty | 2014-08-04 |
 | [Hugo - Static Site Generator](http://kenwoo.io/blog/hugo---static-site-generator/) | Kenny Woo | 2014-08-03 |
 | [Hugo Is Friggin' Awesome](http://npf.io/2014/08/hugo-is-awesome/) | Nate Finch | 2014-08-01 |
 | [<span lang="zh-CN">再次搬家</span> <small>(Move from WordPress to Hugo)</small>](http://www.chingli.com/misc/move-from-wordpress-to-hugo/) | <span lang="zh-CN">青砾</span> (chingli) | 2014-07-12 |
-| [Embedding Gists in Hugo](http://danmux.com/posts/embedded_gists/) | Dan Mull | 2014-07-5 |
+| [Embedding Gists in Hugo](http://danmux.com/posts/embedded_gists/) | Dan Mull | 2014-07-05 |
 | [An Introduction To Hugo](http://www.cirrushosting.com/web-hosting-blog/an-introduction-to-hugo/) | Dan Silber | 2014-07-01 |
 | [Moving to Hugo](http://danmux.com/posts/hugo_based_blog/) | Dan Mull | 2014-05-29 |
 | [<span lang="zh-CN">开源之静态站点生成器排行榜</span><br><small>(Leaderboard of open-source static website generators)</small>](http://code.csdn.net/news/2819909) | CSDN.net | 2014-05-23 |

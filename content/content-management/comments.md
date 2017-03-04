@@ -14,15 +14,15 @@ toc: true
 wip: true
 ---
 
-As Hugo is a static site generator, the content produced is static and doesn't allow for a high degree of interaction with the website's end users. The most common interaction people ask for in static websites is the ability to add comments.
+The most common interaction people ask for in static websites is the ability to add comments.
 
 Hugo ships with support for [Disqus](https://disqus.com/), a third-party service that provides comment and community capabilities to websites via JavaScript.
 
-Your theme may already support Disqus, but even it if doesn’t, it is easy to add.
+Your theme may already support Disqus. If not, it is easy to add.
 
-## Disqus
+## Adding Disqus
 
-Hugo comes with all the code you need to include load [Disqus][], a popular commenting service for both static and dynamic websites.
+Hugo comes with all the code you need to load Disqus into your templates. Before adding Disqus to your site, you'll need to [set up an account][disqussetup].
 
 ### Configuring Disqus
 
@@ -57,17 +57,21 @@ There are a few alternatives to commenting on static sites for those who do not 
 * [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
 * [isso](http://posativ.org/isso/) (Self-hosted, Python)
     * [Tutorial on Implementing Isso with Hugo][issotutorial]
-* [Kaiju](https://github.com/spf13/kaiju)
 
-## Kaiju
+
+<!-- I don't think this is worth including in the documentation since it seems that Steve is no longer supporting or developing this project. RW.-->
+<!-- * [Kaiju](https://github.com/spf13/kaiju) -->
+
+<!-- ## Kaiju
 
 [Kaiju](https://github.com/spf13/kaiju) is an open-source project started by [spf13](http://spf13.com/) (Hugo’s author) to bring easy and fast real time discussions to the web.
 
 Written using Go, Socket.io, and [MongoDB][], Kaiju is very fast and easy to deploy.
 
-It is in early development but shows promise. If you have interest, please help by contributing via pull request, [opening an issue in the Kaiju GitHub repository][kaijuissue], or [Tweeting about it][tweet]. Every bit helps.
+It is in early development but shows promise. If you have interest, please help by contributing via pull request, [opening an issue in the Kaiju GitHub repository][kaijuissue], or [Tweeting about it][tweet]. Every bit helps. -->
 
 [configuration]: /getting-started/configuration/
+[disqussetup]: https://disqus.com/profile/signup/
 [forum]: https://discuss.gohugo.io
 [front matter]: /content-management/front-matter/
 [kaijuissue]: https://github.com/spf13/kaiju/issues/new

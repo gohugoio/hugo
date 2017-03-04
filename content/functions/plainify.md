@@ -21,3 +21,5 @@ aliases: []
 ```
 {{ "<b>BatMan</b>" | plainify }} → "BatMan"
 ```
+
+

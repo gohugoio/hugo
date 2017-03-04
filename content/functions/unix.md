@@ -11,7 +11,7 @@ categories: [functions]
 signature:
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [Format,dateFormat,now,time]
 deprecated: false
 aliases: []
 ---
