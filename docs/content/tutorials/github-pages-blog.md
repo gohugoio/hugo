@@ -31,7 +31,7 @@ refer to the [GitHub Pages docs](https://help.github.com/articles/user-organizat
 [As described](https://help.github.com/articles/configuring-a-publishing-source-for-github-pages/#publishing-your-github-pages-site-from-a-docs-folder-on-your-master-branch) in the GitHub Pages docs, you can deploy from a folder called _docs_ on your master branch.
 This requires to change the Hugo publish directory in the site config (e.g. _config.toml_):
 
-    publishDir: "docs"
+    publishDir = "docs"
 
 After running `hugo`, push your master branch to the remote repo and choose the _docs_ folder as the website source of your repo
 (in your GitHub project, go to "Settings " -> "GitHub Pages" -> "Source" -> Select "master branch /docs folder").
