@@ -124,7 +124,7 @@ See [site configuration][] for more information on setting up global Blackfriday
 * [JSON Spec][]
 
 [aliases]: /content-management/urls/#aliases/
-[content type]: /content-management/content-types/
+[content type]: /content-management/types/
 [site configuration]: /project-organization/configuration/ "Hugo documentation for site configuration"
 [JSON Spec]: /documents/ecma-404-json-spec.pdf "Specification for JSON, JavaScript Object Notation"
 [TOML Spec]: https://github.com/toml-lang/toml "Specification for TOML, Tom's Obvious Minimal Language"

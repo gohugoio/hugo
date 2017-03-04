@@ -1,7 +1,7 @@
 ---
 title: What is Hugo
 linktitle: What is Hugo
-description: Hugo is the world's fastest static site generator and written in Golang.
+description: Hugo is a fast and modern static site generator written in Go and designed to make website creation fun again.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

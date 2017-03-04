@@ -1,6 +1,6 @@
 ---
 title: Content Summaries
-linktitle:
+linktitle: Summaries
 description: Hugo can generate summaries of your content to show snippets in summary views. You have the option to split these summaries yourself or let Hugo automatically generate them for you.
 date: 2017-01-10
 publishdate: 2017-01-10
@@ -9,7 +9,7 @@ categories: [content management]
 tags: [summaries,abstracts,read more]
 weight: 90
 draft: false
-aliases: [/content/summaries/,/content-management/summaries]
+aliases: [/content/summaries/,/content-management/content-summaries/]
 toc: true
 ---
 

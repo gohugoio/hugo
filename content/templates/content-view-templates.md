@@ -134,5 +134,5 @@ This `li.html` content view template is used for [spf13.com][spf]. ([See source 
 [spfsourceli]: https://github.com/spf13/spf13.com/blob/master/layouts/_default/li.html
 [spfsourcesection]: https://github.com/spf13/spf13.com/blob/master/layouts/_default/section.html
 [spfsourcesummary]: https://github.com/spf13/spf13.com/blob/master/layouts/_default/summary.html
-[summaries]: /content-management/content-summaries/
+[summaries]: /content-management/summaries/
 [taxonomylists]: /templates/taxonomy-templates/

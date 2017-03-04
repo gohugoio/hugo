@@ -13,4 +13,4 @@ aliases: [/about-hugo/]
 toc: false
 ---
 
-Hugo is not just a static site generator: it's a powerful templating engine written in Golang, an enthusiastic community of open-source developers, and, most importantly, it's a tool that allows website creation to be fun again.
+Hugo is not your average static site generator.

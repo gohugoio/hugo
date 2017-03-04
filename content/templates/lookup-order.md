@@ -10,7 +10,7 @@ categories: [templates]
 tags: [lookup,fundamentals]
 weight: 15
 draft: false
-aliases: []
+aliases: [/templates/lookup/]
 wip: true
 ---
 

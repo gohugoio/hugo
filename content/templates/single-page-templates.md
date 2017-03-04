@@ -274,7 +274,7 @@ To easily generate new instances of this content type (e.g., new `.md` files in 
 
 [archetypes]: /content-management/archetypes/
 [config]: /getting-started/configuration/
-[content type]: /content-management/content-types/
+[content type]: /content-management/types/
 [directory structure]: /getting-started/directory-structure/
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 [front matter]: /content-management/front-matter/

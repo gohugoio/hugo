@@ -124,7 +124,7 @@ http://remarkjs.com)
 : see [Site Variables](/variables/site-variables/).
 
 `.Summary`
-: a generated summary of the content for easily showing a snippet in a summary view. The breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page. See [Content Summaries](/content-management/content-summaries/) for more details.
+: a generated summary of the content for easily showing a snippet in a summary view. The breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page. See [Content Summaries](/content-management/summaries/) for more details.
 
 `.TableOfContents`
 : the rendered [table of contents](/content-management/toc/) for the page.
@@ -136,10 +136,10 @@ http://remarkjs.com)
 : a list of translated versions of the current page. See [Multilingual Mode](/content-management/multilingual/) for more information.
 
 `.Truncated`
-: a boolean, `true` if the `.Summary` is truncated. Useful for showing a "Read more..." link only when necessary.  See [Summaries](/content-management/content-summaries/) for more information.
+: a boolean, `true` if the `.Summary` is truncated. Useful for showing a "Read more..." link only when necessary.  See [Summaries](/content-management/summaries/) for more information.
 
 `.Type`
-: the [content type](/content-management/content-types/) of the content (e.g., `post`).
+: the [content type](/content-management/types/) of the content (e.g., `post`).
 
 `.URL`
 : the relative URL for the page. Note that the `URL` set directly in front

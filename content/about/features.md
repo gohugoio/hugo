@@ -1,7 +1,7 @@
 ---
 title: Hugo Features
 linktitle: Hugo Features
-description: In addition to blistering speed, Hugo also includes robust content management features and a powerful templating language that make it appropriate for websites of all sizes and types.
+description: Hugo boasts blistering speed, robust content management, and a powerful templating language that make it appropriate for all kinds of static websites.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -55,8 +55,8 @@ See what's coming next in the [Hugo roadmap][].
 [Ace]: /templates/ace-templating/
 [aliases]: /content-management/urls/#aliases
 [Amber]: https://github.com/eknkc/amber
-[content summaries]: /content-management/content-summaries/
-[content types]: /content-management/content-types/
+[content summaries]: /content-management/summaries/
+[content types]: /content-management/types/
 [Disqus]: https://disqus.com/
 [Dynamic menu]: /templates/menus/
 [Extremely fast]: https://github.com/bep/hugo-benchmark

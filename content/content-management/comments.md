@@ -11,14 +11,13 @@ weight: 140
 draft: false
 aliases: [/extras/comments/]
 toc: true
-wip: true
 ---
 
 The most common interaction people ask for in static websites is the ability to add comments.
 
 Hugo ships with support for [Disqus](https://disqus.com/), a third-party service that provides comment and community capabilities to websites via JavaScript.
 
-Your theme may already support Disqus. If not, it is easy to add.
+Your theme may already support Disqus, but if not, it is easy to add to your templates via [Hugo's built-in Disqus partial][disquspartial].
 
 ## Adding Disqus
 
@@ -26,7 +25,7 @@ Hugo comes with all the code you need to load Disqus into your templates. Before
 
 ### Configuring Disqus
 
-Disqus comments require you set a single value in your [site's configuration file][configuration]. The following show the configuration variable in TOML and YAML, respectively:
+Disqus comments require you set a single value in your [site's configuration file][configuration]. The following show the configuration variable in a `config.toml` and `config.yml`, respectively:
 
 ```toml
 disqusShortname = "yourdiscussshortname"
@@ -36,7 +35,7 @@ disqusShortname = "yourdiscussshortname"
 disqusShortname: "yourdiscussshortname"
 ```
 
-For many website, this is enough configuration. However, you also have the option to set the following in the [front matter][] of a single content file:
+For many websites, this is enough configuration. However, you also have the option to set the following in the [front matter][] of a single content file:
 
 * `disqus_identifier`
 * `disqus_title`
@@ -48,7 +47,7 @@ See [Partial Templates][partials] to learn how to add the Disqus partial to your
 
 ## Commenting Alternatives
 
-There are a few alternatives to commenting on static sites for those who do not want to use Hugo's built-in Disqus support:
+There are a few alternatives to commenting on static sites for those who do not want to use Disqus:
 
 * [Static Man](https://staticman.net/)
 * [IntenseDebate](http://intensedebate.com/)
@@ -59,7 +58,7 @@ There are a few alternatives to commenting on static sites for those who do not 
     * [Tutorial on Implementing Isso with Hugo][issotutorial]
 
 
-<!-- I don't think this is worth including in the documentation since it seems that Steve is no longer supporting or developing this project. RW.-->
+<!-- I don't think this is worth including in the documentation since it seems that Steve is no longer supporting or developing this project. rdwatters - 2017-02-29.-->
 <!-- * [Kaiju](https://github.com/spf13/kaiju) -->
 
 <!-- ## Kaiju
@@ -71,6 +70,7 @@ Written using Go, Socket.io, and [MongoDB][], Kaiju is very fast and easy to dep
 It is in early development but shows promise. If you have interest, please help by contributing via pull request, [opening an issue in the Kaiju GitHub repository][kaijuissue], or [Tweeting about it][tweet]. Every bit helps. -->
 
 [configuration]: /getting-started/configuration/
+[disquspartial]: /templates/partials/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
 [forum]: https://discuss.gohugo.io
 [front matter]: /content-management/front-matter/
