@@ -3,7 +3,31 @@
 	{{- partial "site-search.html" . -}}
 {{ end }}
 {{ define "main" }}
-	{{ partial "homepage/homepage-content.html" . }}
+	<main id="homepage" class="main">
+	  <div class="home-row hero">
+	    {{ partial "homepage/homepage-hero.html" . }}
+	  </div>
+	  <div class="home-row animated">
+	    <div class="home-row-content first-fade animated">
+	      {{ partial "homepage/homepage-focus.html" . }}
+	    </div>
+	  </div>
+	  <div class="home-row">
+	    <div class="home-row-content homepage-features">
+	      {{ partial "homepage/homepage-features" . }}
+	    </div>
+	  </div>
+	  <div class="home-row">
+	    <div class="home-row-content homepage-tweets">
+	      {{ partial "homepage/homepage-tweets.html" . }}
+	    </div>
+	  </div>
+	  <div class="home-row">
+	    <div class="home-row-content homepage-open-source">
+	      {{ partial "homepage/homepage-open-source.html" . }}
+	    </div>
+	  </div>
+	</main>
 {{ end }}
 {{ define "addscripts" }}
 	<script src="{{ "js/homepage.js" | relURL }}" async defer></script>
