@@ -1,0 +1,29 @@
+[[feature]]
+	name = "Unparalleled Speed"
+	description = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis dolor maiores officia officiis nemo voluptate hic necessitatibus debitis, vel ad ipsa temporibus aperiam architecto, molestiae, nulla minus corrupti iusto magni."
+	order = 1
+
+[[feature]]
+	name = "Markdown without Limits"
+	description = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis dolor maiores officia officiis nemo voluptate hic necessitatibus debitis, vel ad ipsa temporibus aperiam architecto, molestiae, nulla minus corrupti iusto magni."
+	order = 2
+
+[[feature]]
+	name = "Robust Content Management"
+	description = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis dolor maiores officia officiis nemo voluptate hic necessitatibus debitis, vel ad ipsa temporibus aperiam architecto, molestiae, nulla minus corrupti iusto magni."
+	order = 3
+
+[[feature]]
+	name = "True Universality"
+	description = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis dolor maiores officia officiis nemo voluptate hic necessitatibus debitis, vel ad ipsa temporibus aperiam architecto, molestiae, nulla minus corrupti iusto magni."
+	order = 4
+
+[[feature]]
+	name = "Feature 5"
+	description = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis dolor maiores officia officiis nemo voluptate hic necessitatibus debitis, vel ad ipsa temporibus aperiam architecto, molestiae, nulla minus corrupti iusto magni."
+	order = 5
+
+[[feature]]
+	name = "Feature 6"
+	description = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis dolor maiores officia officiis nemo voluptate hic necessitatibus debitis, vel ad ipsa temporibus aperiam architecto, molestiae, nulla minus corrupti iusto magni."
+	order = 6

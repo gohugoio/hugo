@@ -1,0 +1,8 @@
+{{ range sort $.Site.Data.homepagefeatures.feature "order" }}
+<div class="feature">
+		<h3>{{.name}}</h3>
+		<div class="feature-content">
+			{{.description}}
+		</div>
+</div>
+{{ end }}

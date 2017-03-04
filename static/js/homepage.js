@@ -7,6 +7,7 @@ $(document).ready(function() {
     offset2 = offset1 * 2,
     scrolled1 = false,
     scrolled2 = false,
+    atTop = true,
     terminal = $('.homepage-terminal'),
     firstFade = $('.first-fade'),
     gopher = $('#gopher'),
@@ -14,6 +15,13 @@ $(document).ready(function() {
     badge = $('.gopher-badge');
   $(window).scroll(function() {
     let scroll = $(this).scrollTop();
+    if (scroll > 20 && atTop == true) {
+      $('#homepage-nav').addClass('shadow');
+      atTop = false;
+    }else if (scroll < 20) {
+      $('#homepage-nav').removeClass('shadow');
+      atTop = true;
+    }
     if (scroll > offset1 && scrolled1 == false) {
       firstFade.addClass('fadeIn');
       scrolled1 = true;

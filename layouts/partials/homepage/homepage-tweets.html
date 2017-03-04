@@ -1,10 +1,11 @@
-{{ range last 8 (sort $.Site.Data.references.quotes "date" )  }}
-<div class="item">
+{{ range first 6 (sort $.Site.Data.homepagetweets.tweet "date" "desc" )  }}
+<div class="homepage-tweet">
+	<i class="icon-twitter"></i>
 	<blockquote>
 		<p>
      {{.quote | safeHTML}}
 		</p>
-		<cite>&#9472; {{ .name }} ({{ .twitter_handle }}) <a href="{{ .link }}">
+		<cite class="homepage-tweet-attribution">&#9472; {{ .name }} ({{ .twitter_handle }}) <a href="{{ .link }}" target="_blank">
             {{ dateFormat "January 2, 2006" .date }}
         </a></cite>
 	</blockquote>

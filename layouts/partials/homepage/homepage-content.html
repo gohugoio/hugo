@@ -26,15 +26,28 @@
         <hr class="hr">
         <p>Forget databases, security updates, and cofee breaks spent waiting for your site to rebuild.</p>
         <!-- <p>Focus on content. Focus on design.</p> -->
-        <p>Golang's speed combined with markdown's elegant simplicity mean Hugo's the first static site generator fast enough to keep up with your creativity.</p>
+        <p>Golang's speed combined with markdown's elegant simplicity mean Hugo is the first static site generator fast enough to keep up with your creativity.</p>
       </div>
     </div>
   </div>
-  <div class="home-row features">
-    <h2>What Makes Hugo Special</h2>
+  <div class="home-row">
+    <div class="home-row-content homepage-features">
+      <h2>What Makes Hugo Special?</h2>
+      {{ partial "homepage/homepage-features" . }}
+    </div>
   </div>
-  <div class="home-row references">
-    <h2>See what others are saying about Hugo</h2>
-    {{ partial "homepage/homepage-tweets.html" . }}
+  <div class="home-row">
+    <div class="home-row-content homepage-tweets">
+      <h2>See what others are saying about Hugo...</h2>
+      {{ partial "homepage/homepage-tweets.html" . }}
+    </div>
+  </div>
+  <div class="home-row">
+    <div class="home-row-content homepage-open-source">
+      <div class="icon-github-wrapper">
+        <i class="icon-github"></i>
+      </div>
+      <p>Hugo is <a href="https://github.com/spf13/hugo/">open source</a> and completely free.</p>
+    </div>
   </div>
 </main>

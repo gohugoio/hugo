@@ -20,9 +20,7 @@
 @import 'components/anchors';
 @import 'components/images';
 @import 'components/admonitions';
-// @import 'vendor/highlightjs-OLD';
 @import 'vendor/highlightjs';
-// @import 'components/code-OLD';
 @import 'components/code';
 @import 'components/icons';
 @import 'components/tags';
@@ -40,7 +38,7 @@
 
 //vendor
 @import 'vendor/featherlight';
-@import 'vendor/animate';
+@import 'vendor/animatecss-truncated';
 
 //major layout parts/chrome
 @import 'layout/site-header';

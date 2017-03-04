@@ -9,6 +9,6 @@ categories: []
 tags: []
 weight: 01
 draft: false
-aliases: []
+aliases: [/docs/]
 toc: false
 ---
