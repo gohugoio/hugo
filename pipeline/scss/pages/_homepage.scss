@@ -210,6 +210,7 @@ hr,
 .svgs {
   display: flex;
   justify-content: space-around;
+  position: relative;
   // opacity: 0;
   svg,
   .img-wrapper {
@@ -226,9 +227,37 @@ hr,
 }
 
 #hugopher-front {
+  width: 300px;
+  position: relative;
   .eye {
     animation: squeeze 2.4s infinite;
   }
+}
+
+.gopher-badge {
+  opacity: 0;
+  width: 50px;
+  position: absolute;
+  top: 24px;
+}
+
+.gopher-cape {
+  opacity: 0;
+}
+
+svg {
+  .cape {
+    // opacity: 0;
+  }
+}
+
+#hugo-home {
+  width: 60px;
+  position: absolute;
+  left: 40px;
+  top: 33px;
+  z-index: 50;
+  opacity: 0;
 }
 
 @keyframes squeeze {

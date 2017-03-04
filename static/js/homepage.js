@@ -9,7 +9,9 @@ $(document).ready(function() {
     scrolled2 = false,
     terminal = $('.homepage-terminal'),
     firstFade = $('.first-fade'),
-    gopher = $('#hugopher-front');
+    gopher = $('#gopher'),
+    cape = $('.gopher-cape'),
+    badge = $('.gopher-badge');
   $(window).scroll(function() {
     let scroll = $(this).scrollTop();
     if (scroll > offset1 && scrolled1 == false) {
@@ -23,7 +25,13 @@ $(document).ready(function() {
         stagger: 60,
         delay: 0,
         complete: function() {
-          gopher.velocity('callout.tada', { duration: 800 });
+          gopher.velocity('callout.tada', {
+            duration: 800,
+            complete: function() {
+              badge.addClass('bounceIn');
+              cape.addClass('fadeIn');
+            }
+          });
         }
       });
       scrolled2 = true;
