@@ -30,7 +30,7 @@ aliases: []
 
 To maintain a consistent output order, maps will be sorted by keys and only a slice of the values will be returned.
 
-Examples of `delimit` use the following front matter:
+The examples of `delimit` that follow all use the same front matter:
 
 {{% code file="delimit-example-front-matter.toml" nocopy="true" %}}
 ```toml
@@ -40,8 +40,6 @@ tags: [ "tag1", "tag2", "tag3" ]
 +++
 ```
 {{% /code %}}
-
-
 
 {{% code file="delimit-page-tags-input.html" %}}
 ```html

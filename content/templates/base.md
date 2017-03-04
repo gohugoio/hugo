@@ -99,7 +99,7 @@ Code that you put outside the block definitions *can* break your layout. This ev
 ...your code here
 {{ end }}
 ```
-[See this thread from the discussion forums](https://discuss.gohugo.io/t/baseof-html-block-templates-and-list-types-results-in-empty-pages/5612/6)
+[See this thread from the Hugo discussion forums.](https://discuss.gohugo.io/t/baseof-html-block-templates-and-list-types-results-in-empty-pages/5612/6)
 {{% /warning %}}
 
 The following shows how you can override both the `"main"` and `"title"` block areas from the base template with code unique to your [default single page template][singletemplate]:
