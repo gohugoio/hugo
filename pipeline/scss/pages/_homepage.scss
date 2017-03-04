@@ -64,6 +64,7 @@ ul.animated {
   width: 90%;
   max-width: 540px;
   margin-top: 5em;
+  opacity:0;
   margin: {
     right: auto;
     left: auto;
@@ -365,4 +366,8 @@ svg {
       font-size: 80px;
     }
   }
+}
+
+.no-js {
+  opacity:1!important;
 }
