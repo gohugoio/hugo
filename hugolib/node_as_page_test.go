@@ -96,14 +96,14 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 
 	require.Len(t, nodes, 8)
 
-	home := nodes[6] // oldest
+	home := nodes[7] // oldest
 
 	require.True(t, home.IsHome())
 	require.True(t, home.IsNode())
 	require.False(t, home.IsPage())
 	require.True(t, home.Path() != "")
 
-	section2 := nodes[4]
+	section2 := nodes[5]
 	require.Equal(t, "Section2", section2.Title)
 
 	pages := sites.findAllPagesByKind(KindPage)
@@ -719,6 +719,14 @@ lastMod : %q
 ---
 Taxonomy Term Categories **Content!**
 `, date.Add(13*24*time.Hour).Format(time.RFC822), date.Add(14*24*time.Hour).Format(time.RFC822)))
+
+	writeSource(t, fs, filepath.Join("content", "tags", filename), fmt.Sprintf(`---
+title: Taxonomy Term Tags
+date : %q
+lastMod : %q
+---
+Taxonomy Term Tags **Content!**
+`, date.Add(15*24*time.Hour).Format(time.RFC822), date.Add(16*24*time.Hour).Format(time.RFC822)))
 
 }
 

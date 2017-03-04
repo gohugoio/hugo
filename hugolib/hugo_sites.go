@@ -322,21 +322,8 @@ func (h *HugoSites) createMissingPages() error {
 			taxonomyPages := s.findPagesByKind(KindTaxonomy)
 			taxonomyTermsPages := s.findPagesByKind(KindTaxonomyTerm)
 			for _, plural := range taxonomies {
-				tax := s.Taxonomies[plural]
-				foundTaxonomyTermsPage := false
-				for key := range tax {
-					foundTaxonomyPage := false
-					origKey := key
-
-					if s.Info.preserveTaxonomyNames {
-						key = s.PathSpec.MakePathSanitized(key)
-					}
-					for _, p := range taxonomyPages {
-						if p.sections[0] == plural && p.sections[1] == key {
-							foundTaxonomyPage = true
-							break
-						}
-					}
+				if s.isEnabled(KindTaxonomyTerm) {
+					foundTaxonomyTermsPage := false
 					for _, p := range taxonomyTermsPages {
 						if p.sections[0] == plural {
 							foundTaxonomyTermsPage = true
@@ -344,21 +331,34 @@ func (h *HugoSites) createMissingPages() error {
 						}
 					}
 
-					if s.isEnabled(KindTaxonomy) {
-						if !foundTaxonomyPage {
-							n := s.newTaxonomyPage(plural, origKey)
-							s.Pages = append(s.Pages, n)
-							newPages = append(newPages, n)
-						}
-					}
-				}
-
-				if s.isEnabled(KindTaxonomyTerm) {
 					if !foundTaxonomyTermsPage {
 						foundTaxonomyTermsPage = true
 						n := s.newTaxonomyTermsPage(plural)
 						s.Pages = append(s.Pages, n)
 						newPages = append(newPages, n)
+					}
+				}
+
+				if s.isEnabled(KindTaxonomy) {
+					for key := range s.Taxonomies[plural] {
+						foundTaxonomyPage := false
+						origKey := key
+
+						if s.Info.preserveTaxonomyNames {
+							key = s.PathSpec.MakePathSanitized(key)
+						}
+						for _, p := range taxonomyPages {
+							if p.sections[0] == plural && p.sections[1] == key {
+								foundTaxonomyPage = true
+								break
+							}
+						}
+
+						if !foundTaxonomyPage {
+							n := s.newTaxonomyPage(plural, origKey)
+							s.Pages = append(s.Pages, n)
+							newPages = append(newPages, n)
+						}
 					}
 				}
 			}
