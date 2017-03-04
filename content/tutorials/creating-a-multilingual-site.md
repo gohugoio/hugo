@@ -135,7 +135,7 @@ This technique extracts the day, month and year by specifying ``.Date.Day``, ``.
 
 ## Create Multilingual Content
 
-Now you can create markdown content in your languages, in the `content/en` and `content/ja` folders. The frontmatter stays the same on the key side, but the values would be set in each of the languages.
+Now you can create markdown content in your languages, in the `content/en` and `content/ja` folders. The front matter stays the same on the key side, but the values would be set in each of the languages.
 
 ## Run Hugo Server or Deploy Commands
 

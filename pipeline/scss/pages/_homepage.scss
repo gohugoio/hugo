@@ -149,7 +149,7 @@ ul.animated {
   flex-wrap: wrap;
   justify-content: space-around;
   width: 85%;
-  .feature {
+  .homepage-feature {
     margin-bottom: 2em;
     max-width: $L * .31;
     h3 {
@@ -159,13 +159,19 @@ ul.animated {
       border-bottom: 1px solid white;
       font-size: 1.1em;
     }
-    .feature-content {
+    .homepage-feature-content {
       color: lighten($base-font-color, 30%);
       font-weight: 200;
       line-height: 1.3;
       font-size: .9em;
       p {
         color: lighten($base-font-color, 30%);
+      }
+      //corrects odd spacing in "Cross-platform" block in "What Makes Hugo Special" features row....
+      code {
+        &:first-child {
+          margin-right:.25em;
+        }
       }
     }
   }
@@ -363,8 +369,11 @@ svg {
   i.icon-github {
     font-size: 62px;
     @include MQ(M){
-      font-size: 80px;
+      font-size: 90px;
     }
+  }
+  i.icon-love {
+    color:red;
   }
 }
 

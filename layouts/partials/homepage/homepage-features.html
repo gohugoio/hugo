@@ -1,8 +1,8 @@
 {{ range sort $.Site.Data.homepagefeatures.feature "order" }}
-<div class="feature">
+<div class="homepage-feature" id="{{ .name | urlize }}">
 		<h3>{{.name}}</h3>
-		<div class="feature-content">
-			{{.description}}
+		<div class="homepage-feature-content">
+			{{ .description | markdownify }}
 		</div>
 </div>
 {{ end }}

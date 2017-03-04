@@ -30,6 +30,10 @@
       width: 100%;
       display:block;
       text-align: center;
+      margin-top:1em;
+      @include MQ(M){
+        margin-top:0px;
+      }
     }
     @include MQ(M) {
       width: 200px;
