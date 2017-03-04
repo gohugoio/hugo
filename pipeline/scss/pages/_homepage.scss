@@ -146,6 +146,10 @@
     text-align: center;
     font-weight: 500;
     line-height: 1.3;
+    margin-top: 24px;
+    @include MQ(M) {
+      margin-top: 0px;
+    }
   }
   p {
     text-align: center;
@@ -251,13 +255,8 @@ svg {
   }
 }
 
-#hugo-home {
-  width: 60px;
-  position: absolute;
-  left: 40px;
-  top: 33px;
-  z-index: 50;
-  opacity: 0;
+.eyes {
+  animation: squeeze 2.4s infinite;
 }
 
 @keyframes squeeze {
