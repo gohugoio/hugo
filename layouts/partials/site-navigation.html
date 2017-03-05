@@ -7,13 +7,12 @@
 </a>
 <nav class="site-navigation" id="site-navigation">
 	<ul class="top-menu">
-		{{$base := $.Site.BaseURL}}
 		{{$.Scratch.Set "currentsection" $.Section}}
 		{{$.Scratch.Set "currentpage" .Permalink }}
 		{{$.Scratch.Set "url" .URL }}
 		{{range $item, $params := sort ($.Site.Data.sitenavigation) "order"}}
 		{{$section := $params.url}}
-		<li class="top-menu-item"><a class="list-icon top-menu-item-link {{$params.haschildren}}{{if eq ($.Scratch.Get "currentsection") $section }} active-section{{end}}" href="{{if $params.haschildren}}#{{else}}{{$base}}{{$params.url}}{{end}}">{{$params.title}}</a>
+		<li class="top-menu-item"><a class="list-icon top-menu-item-link {{$params.haschildren}}{{if eq ($.Scratch.Get "currentsection") $section }} active-section{{end}}" href="{{if $params.haschildren}}#{{else}}/{{$params.url}}{{end}}">{{$params.title}}</a>
 		{{if $params.haschildren}}
 			<ul class="submenu">
 				{{- if eq $params.sortsubpagesby "title"}}
@@ -33,8 +32,7 @@
 	<div class="nav-buttons">
 		<a role="button" href="https://github.com/spf13/hugo/releases"><i class="icon-download"></i>Download Hugo</a>
 		<a role="button" href="{{.Site.Params.discuss}}" target="_blank"><i class="icon-forum"></i> Discuss Hugo</a><br>
-		<a role="button" href="https://github.com/spf13/hugo/issues/new" target="_blank"><i class="icon-github"></i> File an Issue</a><br>
-		<!-- <a role="button" href="{{.Site.BaseURL}}mailing-list/"><i class="icon-mail"></i>Join the Mailing List</a> -->
+		<a role="button" href="https://github.com/spf13/hugo/issues/new" target="_blank"><i class="icon-github"></i> File an Issue</a>
 	</div>
 </nav>
 {{ end }}

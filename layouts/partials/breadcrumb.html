@@ -2,8 +2,7 @@
 <nav class="breadcrumb">
 	<ul class="breadcrumbs">
 		<li>
-			<a class="crumb" href="{{.Site.BaseURL}}{{.Section | urlize}}">
-    		<!-- <img src="{{.Site.BaseURL}}images/hugo-icons/{{.Section | urlize}}.svg" alt=""> -->
+			<a class="crumb" href="/{{.Section | urlize}}">
     		<span>{{replace (replace .Section "-" " " | title) "And" "and"}}</span>
   		</a>
 		</li>

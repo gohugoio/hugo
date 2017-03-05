@@ -2,7 +2,7 @@
 <main class="main">
 	<div class="content">
 		<header class="content-header">
-			<h1 class="page-title"><a href="{{.Site.BaseURL}}{{.Data.Plural}}"><i class="icon-{{.Data.Plural}}"></i>{{.Data.Plural}}:</a>&nbsp;{{ replace .Title "-" " "}}</h1>
+			<h1 class="page-title"><a href="/{{.Data.Plural}}"><i class="icon-{{.Data.Plural}}"></i>{{.Data.Plural}}:</a>&nbsp;{{ replace .Title "-" " "}}</h1>
 		</header>
 		<div class="body-copy taxonomies">
 			{{partial "contents-list.html" . }}

@@ -6,13 +6,13 @@
 		{{.Content}}
 		</header>
 		<ul id="showcase">
-		{{$base := .Site.BaseURL}}
 		{{- range .Data.Pages.ByPublishDate.Reverse -}}
 		{{$title := .Title | markdownify}}
+		{{$img := .Params.image}}
 			<li class="showcase-site">
 			<div class="image-wrapper">
 				<a href="{{.Params.sitelink}}" target="_blank">
-				<img src="{{$base}}images/showcase/{{.Params.image}}" alt="Screenshot thumbnail for the website {{.Title}}, {{.Description}}">
+				<img src="/images/showcase/{{$img}}" alt="Screenshot thumbnail for the website {{.Title}}, {{.Description}}">
 				</a>
 			</div>
 			<div class="showcase-meta">
@@ -30,7 +30,7 @@
 				<ul class="tags showcase-tags">
 					<li class="tags-icon-li"><i class="icon-tags"></i></li>
 					{{- range . -}}
-					<li><a href="{{$base}}tags/{{. | urlize}}">{{.}}</a></li>
+					<li><a href="/tags/{{. | urlize}}">{{.}}</a></li>
 					{{- end -}}
 				</ul>
 				{{- end -}}

@@ -15,18 +15,18 @@ toc: true
 wip: true
 ---
 
-Go 1.6 includes a powerful new keyword, `block`. This construct allows you to define the outer shell of your pages one or more master template(s), filling in or overriding portions as necessary.
+Go 1.6 includes a powerful new keyword, `block`. This construct allows you to define the outer shell of your pages' one or more master template(s) and then fill in or override portions as necessary.
 
 ## Base Template Lookup Order
 
-This is the order Hugo searches for a base template:
+This is the order Hugo searches for your base template:
 
 1. `/layouts/<CURRENTPATH>/<TEMPLATENAME>-baseof.html`
 2. `/layouts/<CURRENTPATH>/baseof.html`
 3. `/layouts/_default/<TEMPLATENAME>-baseof.html`
 4. `/layouts/_default/baseof.html`
 
-As an example, with a site using the theme `exampletheme`, when rendering the section list for the section `post`. Hugo picks the `section/post.html` as the template and this template has a `define` section that indicates it needs a base template. This is then the lookup order:
+As an example, let's assume your site is using the theme when rendering the section list for the section `post`. Hugo picks the `section/post.html` as the template and this template has a `define` section that indicates it needs a base template. This is then the lookup order:
 
 1. `/layouts/section/post-baseof.html`
 2. `/themes/<THEME>/layouts/section/post-baseof.html`
@@ -59,8 +59,9 @@ The following defines a simple base template at `_default/baseof.html`). As a de
     {{ block "main" . }}
       <!-- The part of the page that begins to differ between templates -->
     {{ end }}
-
-    <!-- More shared code, perhaps a footer -->
+    {{ block "footer" . }}
+    <!-- More shared code, perhaps a footer but that can be overridden if need be in  -->
+    {{ end }}
   </body>
 </html>
 ```
