@@ -67,11 +67,8 @@ I wanted to develop a fast and full-featured website framework without any depen
 [Middleman]: https://middlemanapp.com/
 [Nanoc]: http://nanoc.ws/
 [Nanoc]: https://nanoc.ws/
-<<<<<<< HEAD:content/about/what-is-hugo.md
 [rackspace]: https://www.rackspace.com/cloud/files
 [static site generator]: /about/benefits/
-=======
 [Rackspace]: https://www.rackspace.com/cloud/files
-[static site generator]: /about-hugo/benefits/
->>>>>>> homepage:content/about-hugo/what-is-hugo.md
+[static site generator]: /about/benefits/
 [Surge]: https://surge.sh

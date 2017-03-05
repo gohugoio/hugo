@@ -9,11 +9,7 @@ categories: []
 tags: []
 weight: 01
 draft: false
-<<<<<<< HEAD:content/about/_index.md
-aliases: [/about-hugo/]
-=======
-aliases: [/docs/]
->>>>>>> homepage:content/about-hugo/_index.md
+aliases: [/about-hugo/,/docs/]
 toc: false
 ---
 
