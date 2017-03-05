@@ -1,7 +1,7 @@
 ---
 title: Basic Usage
 linktitle: Basic Usage
-description: Hugo's CLI is fully featured but simple. You do not need a high level of expertise on the command line to get up and running.
+description: Hugo's CLI is fully featured but simple to use, even for those who have very limited experience working from the command line.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
