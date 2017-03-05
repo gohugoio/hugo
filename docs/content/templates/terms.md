@@ -57,6 +57,7 @@ Taxonomy Terms pages will additionally have:
 
 * **.Data.Singular** The singular name of the taxonomy
 * **.Data.Plural** The plural name of the taxonomy
+* **.Data.Pages** (or as **.Pages**) The taxonomy Terms index pages
 * **.Data.Terms** The taxonomy itself
 * **.Data.Terms.Alphabetical** The Terms alphabetized
 * **.Data.Terms.ByCount** The Terms ordered by popularity
@@ -121,7 +122,7 @@ Another example listing the content for each term (ordered by Date):
 
 ## Ordering
 
-Hugo can order the meta data in two different ways. It can be ordered:
+Hugo can order the term meta data in two different ways. It can be ordered:
 
 * by the number of contents assigned to that key, or
 * alphabetically.
@@ -162,3 +163,14 @@ Hugo can order the meta data in two different ways. It can be ordered:
     </section>
 
     {{ partial "footer.html" . }}
+
+Hugo can also order and paginate the term index pages in all the normal ways.
+
+### Example terms.html snippet (paginated and ordered by date)
+
+    <h1 id="title">{{ .Title }}</h1>
+    <ul>
+      {{ range .Paginator.Pages.ByDate.Reverse }}
+        <li><a href="{{ .Permalink }}">{{ .Title }}</a> {{ $.Data.Terms.Count .Data.Term }}</li>
+      {{ end }}
+    </ul>

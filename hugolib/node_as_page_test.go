@@ -176,7 +176,10 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 		"Lastmod: 2009-01-15",
 	)
 
-	// There are no pages to paginate over in the taxonomy terms.
+	// Check taxonomy terms paginator
+	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "page", "2"),
+		"Taxonomy Terms Title: Taxonomy Term Categories",
+		"Pag: Taxonomy Web")
 
 	// RSS
 	th.assertFileContent(filepath.Join("public", "customrss.xml"), "Recent content in Home Sweet Home! on Hugo Rocks", "<rss")
@@ -184,6 +187,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	th.assertFileContent(filepath.Join("public", "sect2", "customrss.xml"), "Recent content in Section2 on Hugo Rocks", "<rss")
 	th.assertFileContent(filepath.Join("public", "categories", "hugo", "customrss.xml"), "Recent content in Taxonomy Hugo on Hugo Rocks", "<rss")
 	th.assertFileContent(filepath.Join("public", "categories", "web", "customrss.xml"), "Recent content in Taxonomy Web on Hugo Rocks", "<rss")
+	th.assertFileContent(filepath.Join("public", "categories", "customrss.xml"), "Recent content in Taxonomy Term Categories on Hugo Rocks", "<rss")
 
 }
 
@@ -792,6 +796,10 @@ Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 	writeSource(t, fs, filepath.Join("layouts", "_default", "terms.html"), `
 Taxonomy Terms Title: {{ .Title }}
 Taxonomy Terms Content: {{ .Content }}
+# Pages: {{ len .Data.Pages }}
+{{ range .Paginator.Pages }}
+	Pag: {{ .Title }}
+{{ end }}
 {{ range $key, $value := .Data.Terms }}
 	k/v: {{ $key | lower }} / {{ printf "%s" $value }}
 {{ end }}

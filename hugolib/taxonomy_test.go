@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"html/template"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -127,9 +126,24 @@ others:
 
 	s := h.Sites[0]
 
-	// Issue #1302
-	term := s.getPage(KindTaxonomyTerm, "others")
-	require.Equal(t, template.URL(""), term.RSSLink)
+	// Make sure that each KindTaxonomyTerm page has an appropriate number
+	// of KindTaxonomy pages in its Pages slice.
+	taxonomyTermPageCounts := map[string]int{
+		"tags":       2,
+		"categories": 2,
+		"others":     2,
+		"empties":    0,
+	}
+
+	for taxonomy, count := range taxonomyTermPageCounts {
+		term := s.getPage(KindTaxonomyTerm, taxonomy)
+		require.NotNil(t, term)
+		require.Len(t, term.Pages, count)
+
+		for _, page := range term.Pages {
+			require.Equal(t, KindTaxonomy, page.Kind)
+		}
+	}
 
 	// Issue #3070 preserveTaxonomyNames
 	if preserveTaxonomyNames {
