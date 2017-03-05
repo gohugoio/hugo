@@ -405,7 +405,6 @@ To learn more about creating your own shortcode templates, see the [shortcode te
 [pagevariables]: /variables/page-variables/
 [partials]: /templates/partials-templates/
 [Pygments]: http://pygments.org/
-[projectorganizationsection]: /project-organization/directory-structure/
 [quickstart]: /getting-started/quick-start/
 [shortcode template documentation]: /templates/shortcode-templates/
 [Speaker Deck]: https://speakerdeck.com/

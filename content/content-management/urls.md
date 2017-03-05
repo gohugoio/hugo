@@ -16,7 +16,9 @@ wip: true
 
 ## Permalinks
 
-By default, a Hugo-built site is laid out into the target `publishdir` specified in your [site configuration][configuration]. The directories created at build time for a section reflect the position of the content's directory within the `content` folder. namespace matching its layout within the `contentdir` hierarchy. The `permalinks` option in your [site configuration][] allows you to adjust the directory paths (i.e., the URLs) on a per-section basis. This will change where the files are written to and will change the page's internal "canonical" location, such that template references to `.RelPermalink` will honor the adjustments made as a result of the mappings in this option.
+By default, Hugo target directory for your built website is `public/`. However, you can change this value by specifying a different `publishdir` in your [site configuration][config]. The directories created at build time for a section reflect the position of the content's directory within the `content` folder and namespace matching its layout within the `contentdir` hierarchy.
+
+The `permalinks` option in your [site configuration][config] allows you to adjust the directory paths (i.e., the URLs) on a per-section basis. This will change where the files are written to and will change the page's internal "canonical" location, such that template references to `.RelPermalink` will honor the adjustments made as a result of the mappings in this option.
 
 {{% note "Default Publish and Content Folders" %}}
 These examples use the default values for `publishDir` and `contentDir`; i.e., `publish` and `content`, respectively. You can override the default values in your [site's `config` file](/getting-started/configuration/).
@@ -57,7 +59,7 @@ The following is a list of values that can be used in a `permalink` definition i
 * `:yearday` = the 1- to 3-digit day of the year
 * `:section` = the content's section
 * `:title` = the content's title
-* `:slug` = the content's slug (or title if no slug)
+* `:slug` = the content's slug (or title if no slug is provided in the front matter)
 * `:filename` = the content's filename (without extension)
 
 ## Example
@@ -167,9 +169,9 @@ content/posts/post-3.md
 
 ## Ugly URLs
 
-If you would like to have what we call "ugly URLs" (e.g.,&nbsp;http://example.com/extras/urls.html), set `uglyurls = true` or `uglyurls: true` to your site-wide `config.toml` or `config.yaml`, respectively. You can also use the `--uglyURLs=true` [flag from the command line][].
+If you would like to have what we call "ugly URLs" (e.g.,&nbsp;http://example.com/extras/urls.html), set `uglyurls = true` or `uglyurls: true` to your site-wide `config.toml` or `config.yaml`, respectively. You can also use the `--uglyURLs=true` [flag from the command line][usage].
 
-If you want a specific piece of content to have an exact URL, you can specify this in the [front matter][] under the `url` key. The following are examples of the same content directory and what the eventual URL structure will be run with the default See [Content Organization][] for more details.
+If you want a specific piece of content to have an exact URL, you can specify this in the [front matter][] under the `url` key. The following are examples of the same content directory and what the eventual URL structure will be run with the default. See [Content Organization][contentorg] for more details.
 
 ```bash
 .
@@ -230,22 +232,23 @@ Or, if you are on Windows and do not have `grep` installed:
 hugo config | FINDSTR /I canon
 ```
 
-## Overriding URLS in Front Matter
+## Overriding URLS with Front Matter
 
-**Need explanation of *slug* and *url* here**
+In addition to specifying permalink values in your site configuration for different sections of content, Hugo provides even more granular for individual pieces of content.
+
+Both `slug` and `url` can be defined in individual front matter. For more information on content destinations at build time, seee [Content Organization][contentorg].
 
 ## Relative URLs
 
 By default, all relative URLs are left unchanged by Hugo, which can be problematic when you want to make your site browsable from a local file system.
 
-Setting `relativeURLs` to `true` in your [site configuration][configuration] will cause Hugo to rewrite all relative URLs to be relative to the current content.
+Setting `relativeURLs` to `true` in your [site configuration][config] will cause Hugo to rewrite all relative URLs to be relative to the current content.
 
 For example, if the `/post/first/` page contained a link to `/about/`, Hugo would rewrite that URL to `../../about/`.
 
-[configuration]: /getting-started/configuration/
-[Content Organization]: /content-management/organization/
-[flag from the command line]: /getting-started/usage/
+[config]: /getting-started/configuration/
+[contentorg]: /content-management/organization/
 [front matter]: /content-management/front-matter/
 [multilingual]: /content-management/multilingual/
 [sections]: /content-management/sections/
-[site configuration]: /project-organization/configuration/
+[usage]: /getting-started/usage/

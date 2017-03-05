@@ -88,6 +88,12 @@ See [`.Scratch`](/functions/scratch/) for page-scoped writable variables.
 `.Permalink`
 : the Permanent link for this page; see [Permalinks](/content-management/urls/)
 
+`.Plain`
+: the Page content stripped of HTML tags and presented as a string.
+
+`.PlainWords`
+: the Page content stripped of HTML as a `[]string` using Go's [`strings.Fields`](https://golang.org/pkg/strings/#Fields) to split `.Plain` into a slice.
+
 `.Prev`
 : Pointer to the previous content (based on `publishdate` in front matter).
 

@@ -1,6 +1,6 @@
 ---
 title: Content Organization
-linktitle: Content Organization
+linktitle: Organization
 description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -14,21 +14,139 @@ toc: true
 wip: true
 ---
 
-## Introduction
+## Organization of Content Source
 
-Hugo uses files (see [Hugo's supported content formats][formats]) with headers called [front matter][]. By default, Hugo assumes the same structure that works to organize your content should be used to organize your rendered website. This is done in an effort to reduce configuration. However, this convention can be overridden through additional configuration in the front matter, as well as through Hugo's extensive features related to [URL management][urls].
+In Hugo, your content should be organized in a manner that reflects the rendered website.
 
-## Organizing Content Source
+While Hugo supports content nested at any level, the top levels (i.e. `content/<directories>*`) are special in Hugo and considered the content [sections][section]. Without any additional configuration, the following will just work:
 
-In Hugo, the content should be organized in a manner that reflects the rendered website. Without any additional configuration, the following will just work. Hugo supports content nested at any level, but the top level (i.e. `content/<directories>*``) is special in Hugo and is considered the content [section][].
+```
+.
+└── content
+    └── about
+    |   └── _index.md  // <- http://yoursite.com/about/
+    ├── post
+    |   ├── firstpost.md   // <- http://yoursite.com/post/firstpost/
+    |   ├── happy
+    |   |   └── ness.md  // <- http://yoursite.com/post/happy/ness/
+    |   └── secondpost.md  // <- http://yoursite.com/post/secondpost/
+    └── quote
+        ├── first.md       // <- http://yoursite.com/quote/first/
+        └── second.md      // <- http://yoursite.com/quote/second/
+```
 
-## Destinations
+## Path Breakdown in Hugo
+
+The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website at render. These examples assume you are using pretty URLs, which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://yoursite.com"` in your site's configuration file.
+
+### Section Index Page
+
+`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [section list template][sectionlists] as of v0.18.
+
+You can keep one `_index.md` in each of your content sections. The following shows typical placement of an `_index.md` that would contain content or front matter for a `posts` section list page on a Hugo website:
+
+
+```bash
+.            url
+.       ⊢------^------⊣
+.        path    slug
+.       ⊢--^-⊣⊢---^---⊣
+.           filepath
+.       ⊢------^------⊣
+content/posts/_index.md
+```
+
+At build, this will output to the following destination with the associated values:
+
+```bash
+
+                     url ("/posts/")
+                    ⊢-^-⊣
+       baseurl      section ("posts")
+⊢--------^---------⊣⊢-^-⊣
+        permalink
+⊢----------^-------------⊣
+http://yoursite.com/posts/index.html
+```
+
+### Section Single Page
+
+Single content files in each of your sections are going to be rendered as [single page templates][singles]. Here is an example of a single `post` within `posts`:
+
+
+```bash
+                   path ("posts/my-first-hugo-post.md")
+.       ⊢-----------^------------⊣
+.      section        slug
+.       ⊢-^-⊣⊢--------^----------⊣
+content/posts/my-first-hugo-post.md
+```
+
+At the time Hugo renders your site, the content will be output to the following destination:
+
+```bash
+
+                               url ("/posts/my-first-hugo-post/")
+                   ⊢------------^----------⊣
+       baseurl     section     slug
+⊢--------^--------⊣⊢-^--⊣⊢-------^---------⊣
+                 permalink
+⊢--------------------^---------------------⊣
+http://yoursite.com/posts/my-first-hugo-post/index.html
+```
+
+### Section with Nested Directories
+
+To continue the example, the following demonstrates destination paths for a file located at `content/events/chicago/lollapalooza.md` in the same site:
+
+
+```bash
+                    section
+                    ⊢--^--⊣
+                               url
+                    ⊢-------------^------------⊣
+
+      baseURL             path        slug
+⊢--------^--------⊣ ⊢------^-----⊣⊢----^------⊣
+                  permalink
+⊢----------------------^-----------------------⊣
+http://yoursite.com/events/chicago/lollapalooza/
+```
+
+##
+
+#### `section`
+
+Default content type is determined by a piece of content's section. `section` is determined by the location within the project's `content` directory. `section` *cannot* be specified or overridden in front matter.
+
+#### `slug`
+
+A content's `slug` is either `name.extension` or `name/`. The value for `slug` is determined by
+
+* the name of the content file (e.g., `content-name.md`)
+* front matter overrides
+
+#### `path`
+
+A content's `path` is determined by the section's path to the file. The file `path`
+
+* is based on the path to the content's location
+* does not include the slug
+
+#### `url`
+
+The `url` is the relative URL for the piece of content. The `url`
+
+* is defined in front matter
+* overrides all the above
+
+## Destinations for Content Source
 
 Hugo believes that you organize your content with a purpose. The same structure that works to organize your source content is used to organize the rendered site. As displayed above, the organization of the source content will be mirrored in the destination.
 
-Notice that the first level `about/` page URL was created using a directory named "about" with a single `_index.md` file inside. Find out more about `_index.md` specifically in [content for the homepage and other list pages](https://gohugo.io/overview/source-directory#content-for-home-page-and-other-list-pages).
+Notice that the first level `about/` page URL was created using a directory named "about" with a single `_index.md` file inside..
 
-There are times when one would need more control over their content. In these cases, there are a variety of things that can be specified in the front matter to determine the destination of a specific piece of content.
+There are times where you may need more control over your content. In these cases, there are a variety of things that can be specified in the front matter to determine the destination of a specific piece of content.
 
 The following items are defined in order; latter items in the list will override earlier settings.
 
@@ -59,95 +177,6 @@ The actual path to the file on disk. Destination will create the destination wit
 ### `url`
 
 A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a "/"). When a `url` is provided, it will be used exactly. Using `url` will ignore the `--uglyURLs` setting.
-
-
-## Path Breakdown in Hugo
-
-### Content
-
-```bash
-.             path           slug
-.       ⊢-------^----⊣ ⊢------^-------⊣
-content/extras/indexes/category-example/index.html
-```
-
-```bash
-.       section              slug
-.       ⊢--^--⊣        ⊢------^-------⊣
-content/extras/indexes/category-example/index.html
-```
-
-```bash
-.       section  slug
-.       ⊢--^--⊣⊢--^--⊣
-content/extras/indexes/index.html
-```
-
-### Destination
-
-```bash
-           permalink
-⊢--------------^-------------⊣
-http://spf13.com/projects/hugo
-```
-
-```bash
-   baseURL       section  slug
-⊢-----^--------⊣ ⊢--^---⊣ ⊢-^⊣
-http://spf13.com/projects/hugo
-```
-
-```bash
-   baseURL       section          slug
-⊢-----^--------⊣ ⊢--^--⊣        ⊢--^--⊣
-http://spf13.com/extras/indexes/example
-```
-
-```bash
-   baseURL            path       slug
-⊢-----^--------⊣ ⊢------^-----⊣ ⊢--^--⊣
-http://spf13.com/extras/indexes/example
-```
-
-```bash
-   baseURL            url
-⊢-----^--------⊣ ⊢-----^-----⊣
-http://spf13.com/projects/hugo
-```
-
-```bash
-   baseURL               url
-⊢-----^--------⊣ ⊢--------^-----------⊣
-http://spf13.com/extras/indexes/example
-```
-
-#### `section`
-
-A section is the content type the piece of content is assigned to by default. `section` is determined by the following:
-
-* content location within the project's directory structure
-* front matter overrides
-
-#### `slug`
-
-A content's `slug` is either `name.extension` or `name/`. `slug` is determined by the following:
-
-* the name of the content file (e.g., `content-name.md`)
-* front matter overrides
-
-#### `path`
-
-A content's `path` is determined by the section's path to the file. `path`
-
-* is based on the path to the content's location
-* excludes the slug
-
-#### `url`
-
-The `url` is the relative URL for the piece of content. The `url`
-
-* is defined in front matter
-* overrides all the above
 
 ## \_index.md and "Everything is a Page"
 
@@ -265,5 +294,6 @@ Hugo themes are designed to use the 'content' directory as the root of the websi
 [homepage]: /templates/homepage/
 [section]: /content-management/section/
 [formats]: /content-management/formats/
+[sectionlists]: /templates/section-templates/
 [singles]: /templates/single-page-templates/
 [urls]: /content-management/urls/

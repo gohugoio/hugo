@@ -405,9 +405,9 @@ We want the *default* behavior to be for pages to include a TOC unless otherwise
 
 ## Using Site Configuration Parameters
 
-In your [site's configuration file][hugoconfig] (e.g., `config.yaml`), you can define site-level parameters that are available to you as variables throughout your templates.
+You can arbitrarily define as many site-level parameters as you want in n your [site's configuration file][hugoconfig]. These parameters are globally available in your templates.
 
-For instance, you might declare:
+For instance, you might declare the following:
 
 {{% code file="config.yaml" %}}
 ```yaml
@@ -440,7 +440,7 @@ An alternative way of writing the "`if`" and then referencing the same value is 
 ```
 {{% /code %}}
 
-Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`](/functions/first/) and [`.RelPermalink`](/functions/relpermalink/) functions as well as the [`.Site.Pages` variable](/variables/site-variables/).
+Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`][first] and [`.RelPermalink`][relpermalink] functions, as well as the [`.Site.Pages`][sitevars] variable.
 
 ```html
 <nav class="recent">
@@ -476,6 +476,7 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 
 [`where` function]: /functions/where/
 [documented feature of Go text/template]: http://golang.org/pkg/text/template/#hdr-Variables
+[first]: /functions/first/
 [front matter]: /content-management/front-matter/
 [Go html/template]: http://golang.org/pkg/html/template/ "Godocs references for Golang's html templating"
 [gohtmltemplate]: http://golang.org/pkg/html/template/ "Godocs references for Golang's html templating"
@@ -483,5 +484,7 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 [hugofunctions]: /functions/ "Link to section for Hugo's templating functions"
 [math functions]: /functions/math/
 [partials]: /templates/partials-templates/ "Link to the partial templates page inside of the templating section of the Hugo docs"
+[relpermalink]: /functions/relpermalink/
+[sitevars]: /variables/site-variables/
 [variables]: /variables/ "See the full extent of page-, site-, and other variables that Hugo make available to you in your templates."
 [You can read more about `index` in the Godocs]: http://golang.org/pkg/text/template/ "Godocs page for index function"

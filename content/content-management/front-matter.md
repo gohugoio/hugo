@@ -107,7 +107,7 @@ If neither `slug` nor `url` is present, and [permalinks are not configured other
 
 It's possible to set some options for Markdown rendering in the page's front matter as an override to the site-wide configuration.
 
-See [site configuration][] for more information on setting up global Blackfriday options.
+See [site configuration][config] for more information on setting up global Blackfriday options.
 
 ## Parameters
 
@@ -124,8 +124,8 @@ See [site configuration][] for more information on setting up global Blackfriday
 * [JSON Spec][]
 
 [aliases]: /content-management/urls/#aliases/
+[config]: /getting-started/configuration/ "Hugo documentation for site configuration"
 [content type]: /content-management/types/
-[site configuration]: /project-organization/configuration/ "Hugo documentation for site configuration"
 [JSON Spec]: /documents/ecma-404-json-spec.pdf "Specification for JSON, JavaScript Object Notation"
 [TOML Spec]: https://github.com/toml-lang/toml "Specification for TOML, Tom's Obvious Minimal Language"
 [YAML Spec]: http://yaml.org/spec/ "Specification for YAML, YAML Ain't Markup Language"

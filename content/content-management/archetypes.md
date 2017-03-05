@@ -70,7 +70,7 @@ Similar to the lookup order for [templates in the `layouts` directory][lookup], 
 5. `_internal` (i.e., `title` and `date`)
 
 {{% note "Using a Theme Archetype" %}}
-If you wish to use archetypes that ship with a theme, the `theme` field must be specified in your [configuration file](/project-organization/configuration/).
+If you wish to use archetypes that ship with a theme, the `theme` field must be specified in your [configuration file](/getting-started/configuration/).
 {{% /note %}}
 
 ## Choosing Your Front Matter Format
@@ -185,7 +185,7 @@ The preceding archetype is kept up to date with every Hugo build by using Hugo's
 
 [archetypes directory]: /getting-started/directory-structure/
 [`now()`]: http://golang.org/pkg/time/#Now
-[configuration file]: /project-organization/configuration/
+[configuration file]: /getting-started/configuration/
 [sections]: /sections/
 [content types]: /content-management/types/
 [front matter]: /content-management/front-matter/

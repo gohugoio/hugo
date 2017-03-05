@@ -63,7 +63,7 @@ Always review the `README.md` file that is shipped with a theme. Often, these fi
 ## Theme Placement
 
 Please make certain you have installed the themes you want to use in the
-`/themes` directory. This is the default directory used by Hugo. Hugo comes with the ability to change the themes directory via the [`themesDir` variable in your site configuration][configuration], but this is not recommended.
+`/themes` directory. This is the default directory used by Hugo. Hugo comes with the ability to change the themes directory via the [`themesDir` variable in your site configuration][config], but this is not recommended.
 
 ## Using Themes
 
@@ -87,7 +87,7 @@ hugo server -t themename
 
 ### `config` File
 
-If you've already decided on the theme for your site and do not want to fiddle with the command line, you can add the theme directly to your [site configuration file][configuration]:
+If you've already decided on the theme for your site and do not want to fiddle with the command line, you can add the theme directly to your [site configuration file][config]:
 
 ```yaml
 theme: themename
@@ -99,5 +99,5 @@ The `themename` in the above examples must match the name of the specific theme 
 
 [customizethemes]: /themes/customizing-a-theme/
 [flag]: /getting-started/usage/ "See the full list of flags in Hugo's basic usage."
-[configuration]: /project-organization/configuration/  "Learn how to customize your Hugo website configuration file in yaml, toml, or json."
+[config]: /getting-started/configuration/  "Learn how to customize your Hugo website configuration file in yaml, toml, or json."
 [themesrepo]: https://github.com/spf13/hugoThemes

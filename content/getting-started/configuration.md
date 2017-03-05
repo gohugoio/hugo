@@ -5,7 +5,7 @@ description: Hugo is designed to make enough assumptions that often configuratio
 date: 2017-01-02
 publishdate: 2017-01-02
 lastmod: 2017-01-02
-categories: [project organization]
+categories: [getting started]
 tags: [configuration,fundamentals,toml,yaml,json]
 weight: 60
 draft: false
@@ -14,7 +14,7 @@ toc: true
 notesforauthors:
 ---
 
-The [directory structure][] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to statically generate a finished website.
+The [directory structure][dirs] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to statically generate a finished website.
 
 Because of Hugo's preference for sane defaults, many websites may not need a configuration file. Hugo is designed to recognize certain typical usage patterns (and even expects them by default).
 
@@ -377,7 +377,7 @@ blackfriday:
 * [JSON Spec][json]
 
 [`.Site.Params`]: /variables/
-[directory structure]: /project-organization/directory-structure
+[dirs]: /getting-started/directory-structure
 [json]: /documents/ecma-404-json-spec.pdf
 [templates]: /templates/
 [toml]: https://github.com/toml-lang/toml

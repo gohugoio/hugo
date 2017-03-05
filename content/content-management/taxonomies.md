@@ -25,9 +25,14 @@ Taxonomies were previously known as *indexes* in Hugo before v0.11.
 
 In order to effectively work with taxonomies in Hugo, it's important to first understand the language used to described the concept.
 
-* **Taxonomy:** A categorization that can be used to classify content
-* **Term:** A key within that taxonomy
-* **Value:** A piece of content assigned to that Term
+Taxonomy
+: a categorization that can be used to classify content
+
+Term
+: A key within the taxonomy
+
+Value
+: A piece of content assigned to a term
 
 ### Example Taxonomy: Movie Website
 
@@ -94,7 +99,7 @@ When taxonomies are used---and [taxonomy templates][] are provided---Hugo will a
 
 ## Configuring Taxonomies
 
-Taxonomies must be defined in your [website configuration][] before they can be
+Taxonomies must be defined in your [website configuration][config] before they can be
 used throughout the site. You need to provide both the plural and
 singular labels for each taxonomy.
 
@@ -123,7 +128,7 @@ taxonomies:
 
 ### Overriding Hugo's Default Taxonomies
 
-If you do not specify any taxonomies in your [site configuration][] file *and* your content already includes front matter with `tags:` or `categories`, Hugo will automatically create taxonomy pages. To override this behavior, set the key-value pairs for both of the default taxonomies to empty strings in your `config` file.
+If you do not specify any taxonomies in your site configuration file *and* your content already includes front matter with `tags:` or `categories`, Hugo will automatically create taxonomy pages. To override this behavior, set the key-value pairs for both of the default taxonomies to empty strings in your `config` file.
 
 {{% code file="remove-default-taxonomies-config.toml" %}}
 ```toml
@@ -145,7 +150,7 @@ taxonomies:
 
 By default, taxonomy names are hyphenated, lower-cased, normalized, and then fixed and title-ized within.
 
-Therefore, if you want to have a taxonomy value with special characters such as `Gérard Depardieu` instead of `Gerard Depardieu`, you need to set the value for `preserveTaxonomyNames` in your [site configuration][] to `true`. Hugo will then preserve special characters in taxonomy values but will still title-ize the values for titles and normalize them in URLs.
+Therefore, if you want to have a taxonomy value with special characters such as `Gérard Depardieu` instead of `Gerard Depardieu`, you need to set the value for `preserveTaxonomyNames` in your [site configuration][config] to `true`. Hugo will then preserve special characters in taxonomy values but will still title-ize the values for titles and normalize them in URLs.
 
 Note that if you use `preserveTaxonomyNames` and intend to manually construct URLs to the archive pages, you will need to pass the taxonomy values through the [`urlize` template function][].
 
@@ -249,9 +254,7 @@ Currently taxonomies only support the default ordering of content which is weigh
 [content type]: /content-type/
 [documentation on archetypes]: /content-management/archetypes/
 [front matter]: /content-management/front-matter/
-[project organization]: /project-organization/
-[site configuration]: /project-organization/configuration/
 [taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-page-templates
 [taxonomy templates]: /templates/taxonomy-templates/
 [taxonomy terms templates]: /templates/taxonomy-templates/#taxonomy-terms-templates "See how to order terms associated with a taxonomy"
-[website configuration]: /project-organization/configuration/
+[config]: /getting-started/configuration/

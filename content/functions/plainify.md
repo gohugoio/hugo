@@ -11,7 +11,7 @@ tags: [strings]
 signature:
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [jsonify]
 deprecated: false
 aliases: []
 ---
@@ -21,5 +21,10 @@ aliases: []
 ```
 {{ "<b>BatMan</b>" | plainify }} → "BatMan"
 ```
+
+See also the [`.PlainWords`, `.Plain`, and `.RawContent` page variables][pagevars].
+
+
+[pagevars]: /variables/page-variables/
 
 
