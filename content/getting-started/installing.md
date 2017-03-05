@@ -418,6 +418,20 @@ In any of the [Linux distributions that support snaps](http://snapcraft.io/docs/
 snap install hugo
 ```
 
+### Arch-based distributions
+
+Install Hugo from the [Arch user repository](https://aur.archlinux.org/) on Arch Linux or derivatives like Manjaro.
+
+{{% note %}}
+Be aware that Hugo is build from source. This means that additional tools like Git and Go (the programming language Hugo is written in) will be installed as well.
+{{% /note %}}
+
+
+```bash
+sudo pacman -S yaourt
+yaourt -S hugo
+```
+
 ## Upgrading Hugo
 
 Upgrading Hugo is as easy as downloading and replacing the executable you’ve
