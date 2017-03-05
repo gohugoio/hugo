@@ -1,7 +1,7 @@
 ---
 title: Section Page Templates
 linktitle: Section Page Templates
-description:
+description: Templates used for section pages are lists and therefore have all the variables and methods available to list pages.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

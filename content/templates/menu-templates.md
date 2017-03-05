@@ -1,7 +1,7 @@
 ---
 title: Menu Templates
 linktitle: Menu Templates
-description:
+description: Menus are a powerful but simple feature for content management but can be easily manipulated in your templates to meet your design needs.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

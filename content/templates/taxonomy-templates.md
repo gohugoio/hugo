@@ -1,7 +1,7 @@
 ---
 title: Taxonomy Templates
 linktitle:
-description:
+description: Taxonomy templating includes taxonomy list pages, taxonomy terms pages, and the ability to iterate through taxonomies in your single page templates as well.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

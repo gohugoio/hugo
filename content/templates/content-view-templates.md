@@ -1,7 +1,7 @@
 ---
 title: Content View Templates
-linktitle:
-description:
+linktitle: Content Views
+description: Hugo can render alternative views of your content, which is especially useful in list and summary views.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

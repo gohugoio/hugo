@@ -10,7 +10,7 @@
 
 [[feature]]
 	name = "Robust Content Management"
-	description = "You need more than front matter to make static scalable. Hugo offers support for taxonomies, unlimited content types, DRY templating, URL management, menus, archetypes, summaries, and so much more without the need for plugins."
+	description = "You need more than front matter to make static scalable. Hugo offers support for taxonomies, unlimited content types, DRY templating, URL management, menus, archetypes, summaries, and so much more, all without the need for plugins."
 	order = 3
 
 [[feature]]

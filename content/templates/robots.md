@@ -1,7 +1,7 @@
 ---
 title: Robots.txt File
 linktitle: Robots.txt
-description:
+description: Hugo can generate a customized robots.txt in the same way as any other template.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

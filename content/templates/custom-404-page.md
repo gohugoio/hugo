@@ -1,7 +1,7 @@
 ---
 title: Custom 404 Page
 linktitle: 404 Page
-description:
+description: If you know how to create a single page template, you have unlimited options for creating a custom 404.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

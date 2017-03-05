@@ -1,7 +1,7 @@
 ---
 title: Base Templates and Blocks
 linktitle:
-description: The base and block constructs allow you to define the outer shell of your master templates (i.e., the chrome of the page) in a syntax that allows for easy extending and overwriting.
+description: The base and block constructs allow you to define the outer shell of your master templates (i.e., the chrome of the page).
 godocref: https://golang.org/pkg/text/template/#example_Template_block
 date: 2017-02-01
 publishdate: 2017-02-01

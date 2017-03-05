@@ -1,7 +1,7 @@
 ---
 title: File Variables
 linktitle:
-description:
+description: Hugo provides the ability to traverse your website's files on your server, including the local Hugo server.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

@@ -1,7 +1,7 @@
 ---
 title: Shortcode, Git, Menu, and Hugo Variables
 linktitle: Shortcode, Git, and Hugo Variables
-description:
+description: Many of Hugo's additional features come with their own pre-packaged variables to keep your templating lightweight.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

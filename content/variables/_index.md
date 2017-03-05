@@ -13,6 +13,6 @@ aliases: [/templates/variables/]
 toc: false
 ---
 
-[Go templates][], the backbone of Hugo templating, are context based, and Hugo makes a large number of values available to you as you're creating views for your website. The following variables and params provide convenient means to displaying your content with Hugo's powerful templating engine.
+Hugo's templates are context aware and make a large number of values available to you as you're creating views for your website.
 
 [Go templates]: /templates/go-templates/ "Understand context in Go templates by learning the language's fundamental templating functions."

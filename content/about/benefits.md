@@ -1,7 +1,7 @@
 ---
 title: The Benefits of Static Site Generators
 linktitle: The Benefits of Static
-description: Learn the benefits of static site generators, including performance, security, ease of use, and exportability of content.
+description: Improved performance, security, ease of use, and exportability of content and just a few of the reasons static site generators have become so popular.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

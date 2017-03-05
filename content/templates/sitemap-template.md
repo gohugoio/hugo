@@ -1,7 +1,7 @@
 ---
 title: Sitemap Template
 linktitle: Sitemap
-description:
+description: Hugo ships with a built-in template file observing the v0.9 of the Sitemap Protocol, but you can override this template if needed.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

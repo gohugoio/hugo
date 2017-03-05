@@ -1,7 +1,7 @@
 ---
 title: Pagination
 linktitle: Pagination
-description:
+description: Hugo supports pagination for your homepage, section pages, and taxonomies and shines when combined with Hugo's SQL-like operators.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

@@ -1,7 +1,7 @@
 ---
 title: Partial Templates
 linktitle: Partial Templates
-description:
+description: Partials are smaller, context-aware components in your list and page templates that can be used economically to keep your templating DRY.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
