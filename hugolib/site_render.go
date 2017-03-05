@@ -67,7 +67,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 		for _, mediaType := range p.mediaTypes {
 			switch mediaType {
 
-			case media.HtmlType:
+			case media.HTMLType:
 				targetPath := p.TargetPath()
 
 				layouts := p.layouts()
