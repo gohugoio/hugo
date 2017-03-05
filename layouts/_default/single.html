@@ -1,5 +1,4 @@
 {{ define "main" }}
-{{$title := .Title}}
 <span id="page-top"></span>
 <main class="main">
 	<article class="content" id="{{.Title | urlize}}">
@@ -8,11 +7,6 @@
 			{{- partial "page-title.html" . -}}
 			{{- partial "content-header-links.html" . -}}
 			{{- partial "tags.html" . -}}
-			<!-- temporary WIP badge; should be removed before site launch -->
-			<!-- {{- if .Params.wip -}}
-			<div id="beingreviewed">WIP</div>
-			{{- end -}} -->
-			{{ $title := .Title }}
 		</header>
 		<div class="body-copy" data-section={{.Section | urlize}}>
 		{{.Content}}

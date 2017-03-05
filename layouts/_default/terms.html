@@ -6,7 +6,7 @@
 		</header>
 		<div class="body-copy taxonomies">
 			{{ $data := .Data }}
-			{{ $dataPlural := .Title | urlize}}
+			{{ $dataPlural := add (.Title | urlize) "/"}}
 			{{ $base := $.Site.BaseURL }}
 			<table class="terms-table">
 				<thead>
@@ -17,8 +17,10 @@
 				</thead>
 			<tbody>
 			{{ range $key, $value := .Data.Terms.Alphabetical }}
+			{{$val := $value.Name | urlize}}
+			{{$valurl := add $dataPlural $val}}
 			<tr>
-				<td><a href="{{ $base }}{{ $dataPlural }}/{{$value.Name | urlize}}">{{ $value.Name }}</a></td>
+				<td><a href="{{ $valurl | relURL}}">{{ $value.Name }}</a></td>
 				<td>{{ $value.Count }}</td>
 			</tr>
 	    {{ end }}
