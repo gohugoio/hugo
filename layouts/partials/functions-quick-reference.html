@@ -1,5 +1,5 @@
 <dl class="quick-reference">
-	{{ range .Data.Pages }}
+	{{ range .Data.Pages.ByTitle }}
 	<dt><code><a href="{{.Permalink}}">{{.LinkTitle}}</a></code></dt>
 	<dd>{{ .Description | markdownify }}</dd>
 	{{ end }}
