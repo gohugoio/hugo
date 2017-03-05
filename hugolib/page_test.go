@@ -22,6 +22,7 @@ import (
 	"reflect"
 	"sort"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -1532,6 +1533,25 @@ func TestShouldBuild(t *testing.T) {
 			t.Errorf("AssertShouldBuild unexpected output with params: %+v", ps)
 		}
 	}
+}
+
+// Issue #3129
+func TestPageCopy(t *testing.T) {
+	s := newTestSite(t)
+	original, _ := s.NewPage("original")
+
+	var wg sync.WaitGroup
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			original.copy()
+			original.getPermalink()
+
+		}()
+	}
+	wg.Wait()
 }
 
 func BenchmarkParsePage(b *testing.B) {
