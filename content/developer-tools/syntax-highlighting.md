@@ -153,7 +153,7 @@ In your `./layouts/partials/` (or `./layouts/chrome/`) folder, depending on your
 ### Prism example
 
 Prism is another popular highlighter library and is used on some major sites.
-The [download section of the prism.js website] is simple to use and affords you a high degree of customization to pick only the languages you'll be using on your site.
+The [download section of the prism.js website][prismdownload] is simple to use and affords you a high degree of customization to pick only the languages you'll be using on your site.
 
 Similar to Highlight.js, you simply load `prism.css` in your `<head>` via whatever Hugo partial template is creating that part of your pages:
 
@@ -230,6 +230,7 @@ body {
 Please see individual libraries' documentation for how to implement each of the JavaScript-based libraries.
 
 [Prism]: http://prismjs.com
+[prismdownload]: http://prismjs.com/download.html
 [Highlight.js]: http://highlightjs.org/
 [Rainbow]: http://craig.is/making/rainbows
 [Syntax Highlighter]: http://alexgorbatchev.com/SyntaxHighlighter/
