@@ -45,3 +45,7 @@ p {
   margin-bottom: 1.5em;
   line-height: $base-line-height-content;
 }
+
+::-webkit-scrollbar {
+  display:none;
+}

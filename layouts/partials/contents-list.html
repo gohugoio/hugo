@@ -1,16 +1,15 @@
 {{$kind := .Kind}}
-{{if eq $kind "section"}}
-{{$section := replace (humanize .Section | title) "And" "and"}}
-<h2 id="contents" class="contents-list-heading section-heading">Contents:</h2>
-{{end}}
+	<div class="all-contents">
 {{range .Data.Pages}}
 <!-- if statement checks for sitelink. sitelink: is a field in front matter of /content/showcase/*.md) -->
-<a {{with .Params.sitelink }}href="{{.}} "target="_blank"{{else}}href="{{.Permalink}}"{{end}}>
-	<section class="contents-list {{$kind}}">
-		<header>
-			<h3 class="list-icon {{.Section}}">{{- partial "list-icon.html" . -}}{{.Title | markdownify}}{{with .Params.sitelink }}&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i>{{end}}</h3>
-		</header>
-		<p>{{.Description | markdownify }}</p>
-	</section>
-</a>
+	<a {{with .Params.sitelink }}href="{{.}} "target="_blank"{{else}}href="{{.Permalink}}"{{end}}>
+		<section class="contents-list {{$kind}}">
+			<header>
+				<!-- <h3 class="list-icon {{.Section}}">{{- partial "list-icon.html" . -}}{{.Title | markdownify}}{{with .Params.sitelink }}&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i>{{end}}</h3> -->
+				<h3 class="list-icon {{.Section}}">{{.Title | markdownify}}{{with .Params.sitelink }}&nbsp;<i class="fa fa-external-link" aria-hidden="true"></i>{{end}}</h3>
+			</header>
+			<p>{{.Description | markdownify }}</p>
+		</section>
+	</a>
 {{end}}
+</div>

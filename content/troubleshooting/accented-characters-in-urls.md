@@ -26,13 +26,13 @@ toc: true
 
 ## Solution
 
-Mac OS X user? If so, you are likely a victim of HFS Plus file system's insistence to store the "é" (U+00E9) character in Normal Form Decomposed (NFD) mode, i.e. as "e" + "  ́" (U+0065 U+0301).
+Are you a Mac OS X user? If so, you are likely a victim of HFS Plus file system's insistence to store the "é" (U+00E9) character in Normal Form Decomposed (NFD) mode, i.e. as "e" + "  ́" (U+0065 U+0301).
 
 `le-carr%C3%A9` is actually correct, `%C3%A9` being the UTF-8 version of U+00E9 as expected by the web server. The problem is that OS X turns [U+00E9] into [U+0065 U+0301], and thus `le-carr%C3%A9` no longer works.  Instead, only `le-carre%CC%81` ending with `e%CC%81` would match that [U+0065 U+0301] at the end.
 
-This is unique to OS X.  The rest of the world does not do this, and most certainly not your web server which is most likely running Linux.  This is not a Hugo-specific problem either.  Other people have been bitten by this when they have accented characters in their HTML files.
+This is unique to OS X. The rest of the world does not do this, and most certainly not your web server which is most likely running Linux. This is not a Hugo-specific problem either. Other people have been bitten by this when they have accented characters in their HTML files.
 
-Note that this problem is not specific to Latin scripts. Japanese Mac users often run into the same issue; e.g., with `だ` decomposing into `た` and <code>&#x3099;</code> (read the [Japanese Perl users article][]).
+Note that this problem is not specific to Latin scripts. Japanese Mac users often run into the same issue; e.g., with `だ` decomposing into `た` and `&#x3099;`. (Read the [Japanese Perl users article][]).
 
 Rsync 3.x to the rescue! From [an answer posted on Server Fault][]:
 

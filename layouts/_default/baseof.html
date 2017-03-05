@@ -2,14 +2,18 @@
 <html lang="en">
 	{{- partial "site-head.html" . -}}
 <body>
-  {{- partial "site-header.html" . -}}
-  {{- partial "site-search.html" . -}}
+	{{ block "header" . }}
+  	{{- partial "site-header.html" . -}}
+  	{{- partial "site-search.html" . -}}
+  {{ end }}
   <div class="all-content-wrapper{{if .IsHome}} home{{end}}" id="all-content-wrapper">
-	{{ block "main" . }}
-	{{ end}}
+		{{ block "main" . }}
+		{{ end}}
 	</div>
 	{{- partial "site-footer.html" . -}}
 	{{- partial "site-navigation.html" . -}}
 	{{- partial "site-scripts.html" . -}}
+	{{ block "addscripts" . }}
+	{{ end }}
 </body>
 </html>

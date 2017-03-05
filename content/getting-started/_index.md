@@ -13,7 +13,7 @@ aliases: [/overview/introduction/]
 toc: false
 ---
 
-The Hugo docs were completely reworked from the ground up in anticipation of v0.19. There are extensive code block examples throughout the documentation. If this is your first time using Hugo and you've [already installed Hugo on your machine][installed], we recommend the [quick start][].
+The Hugo docs were completely reworked for the release of Hugo v0.19. If this is your first time using Hugo and you've [already installed Hugo on your machine][installed], we recommend the [quick start][].
 
 [installed]: /getting-started/installing/
 [quick start]: /getting-started/quick-start/

@@ -5,10 +5,20 @@
     font-size: .9em;
     weight: inherit;
     font-weight: $code-font-base-weight;
+<<<<<<< HEAD
     position: relative;
     overflow-y: visible;
     z-index:1;
   }
+=======
+    overflow-y: visible;
+    z-index: 1;
+  }
+  > pre {
+    position: relative;
+    margin-bottom: 1.5em;
+  }
+>>>>>>> homepage
   pre > code,
   .code {
     background-color: $code-block-background-color;
@@ -41,6 +51,10 @@
   overflow: hidden;
   padding: .5em;
   overflow-y: visible;
+<<<<<<< HEAD
+=======
+  margin-bottom: 1.5em;
+>>>>>>> homepage
 }
 
 code[class^="language-"] {
@@ -49,18 +63,42 @@ code[class^="language-"] {
     position: absolute;
     top: 4px;
     right: 4px;
+<<<<<<< HEAD
     color: lighten($base-font-color, 25%);
+=======
+    color: lighten($base-font-color, 35%);
+>>>>>>> homepage
     font-family: 'fontello';
     content: '\f121';
   }
 }
 
+<<<<<<< HEAD
 .copy-button + .code-copy-content {
   code[class^="language-"] {
     &:after {
       display: none;
       position: absolute;
       top: -14px;
+=======
+// .filename + .code-copy-content {
+//   code[class^="language-"] {
+//     &:after {
+//       // display: none;
+//       position: absolute;
+//       top: -16px;
+//       right: 4px;
+//       z-index:99999999;
+//     }
+//   }
+// }
+.copy-button + .code-copy-content {
+  code[class^="language-"] {
+    &:after {
+      // display: none;
+      position: absolute;
+      top: -4px;
+>>>>>>> homepage
       right: 4px;
     }
   }
@@ -91,6 +129,7 @@ code.language-scss:after {
   content: '\e803';
 }
 
+<<<<<<< HEAD
 .filename {
   font-family: $code-font-family;
   color: lighten($base-font-color, 45%);
@@ -145,6 +184,94 @@ code.language-scss:after {
   }
 }
 
+=======
+code.language-bash:after,
+code.language-sh:after {
+  font-family: 'fontello';
+  content: '\e804';
+  right: 6px;
+}
+
+code.language-toml:after {
+  content: 'TOML';
+  font-size: .8em;
+  padding-right: .3em;
+}
+
+code.language-yaml:after,
+code.language-yml:after {
+  content: 'TOML';
+  font-size: .8em;
+  padding-right: .3em;
+}
+
+code.language-md:after,
+code.language-markdown:after {
+  font-family: 'fontello';
+  content: '\e80e';
+}
+
+.copy-button + .code-copy-content {
+  code[class^="language-"] {
+    &:after {
+      display: none;
+      position: absolute;
+      top: -8px;
+      right: 4px;
+    }
+  }
+}
+
+.filename {
+  font-family: $code-font-family;
+  color: lighten($base-font-color, 25%);
+  padding-left: 1em;
+  padding-top: .25em;
+  font-size: .7em;
+  background-color: $code-block-background-color;
+  width: 100%;
+  font-style: italic;
+  margin-bottom: 0px;
+}
+
+.code-icon {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+}
+
+.copy-button,.download-button {
+  transition: opacity .3s ease-in-out;
+  opacity: 1;
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  background-color: white;
+  color: $base-font-color;
+  border-radius: 0px;
+  @include card(1);
+  height: 30px;
+  min-width: 70px;
+  font-size: 12px;
+  display: block;
+  z-index: 15;
+  &:hover {
+    @include card(3);
+  }
+  span.button-text {
+    text-transform: uppercase;
+    margin-left: 0px;
+  }
+}
+
+.download-button {
+  position:absolute;
+  min-width: 70px;
+  top:1px;
+  right:72px;
+}
+
+>>>>>>> homepage
 .tooltipped {
   position: absolute;
   // background-color: $code-tooltip-bg-color;

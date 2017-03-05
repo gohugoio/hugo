@@ -6,7 +6,7 @@ $('.top-menu-item-link.true').on('click', function(evt) {
     slideDir = isOpen ? 'slideUp' : 'slideDown',
     dur = isOpen ? 200 : 400;
   $ul.velocity(slideDir, {
-    easing: 'easeOutQuart',
+    easing: 'easeOut',
     duration: dur
   });
 });

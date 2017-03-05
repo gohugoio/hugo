@@ -45,7 +45,8 @@ In addition, this project was started with the assumptions that the Hugo documen
     * difficult to optimize for external search engines (SEO)
 * does not leverage Hugo's more powerful features (e.g., only *one* archetype); leveraging these features would help address the aforementioned shortcomings (i.e., scalability, consistency, and search)
 * assumes a higher level of Golang proficiency than is realistic for newcomers to static site generators or general web development; a prime example is the sparsity of basic and advanced code samples for templating functions, some of which may still be wholly undocumented
-* lacks well-defined contribution and editorial guidelines for those interested in submitting or editing documentation.
+* lacks well-defined contribution and editorial guidelines for those interested in submitting or editing documentation
+* needs reworking of its URL structure to represent a more intuitive mental model for end users ([Discuss][ds1])
 
 ### Goals
 
@@ -506,6 +507,7 @@ If the Hugo Team finds the improvements to the Hugo documentation acceptable, I'
 [Content Modeling]: https://alistapart.com/article/content-modelling-a-master-skill
 [Core Model]: https://alistapart.com/article/the-core-model-designing-inside-out-for-better-results
 [designresources]: https://github.com/rdwatters/hugo-docs-concept/tree/master/dev-and-design-resources
+[ds1]: https://discuss.gohugo.io/t/hugo-docs-domain/5657
 [ex1]: https://discuss.gohugo.io/t/frustrated-with-documentation/2810
 [ex2]: https://discuss.gohugo.io/t/documentation-restructure-and-design/1891
 [forum]: https://discuss.gohugo.io

@@ -1,12 +1,16 @@
 <!-- TOCs need to be declared explicitly in the front matter of content/*.md -->
 {{if .Params.toc }}
 <aside id="toc">
+	<div class="toc-inner-wrapper">
 	<header class="toc-header">
 		<a href="#{{.Title | urlize}}">
 		<h3 class="{{.Section}}">{{.Title}}</h3>
 		</a>
 	</header>
 	{{.TableOfContents}}
+
+	</div>
+	<div class="fade"></div>
 </aside>
 <a href="#" id="toc-toggle"></a>
 {{end}}

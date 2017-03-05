@@ -1,18 +1,12 @@
+{{if and (ne .Kind "section") (ne .Section "")}}
 <nav class="breadcrumb">
 	<ul class="breadcrumbs">
 		<li>
-			<a class="crumb" href="{{.Site.BaseURL}}">
-    		<img src="{{.Site.BaseURL}}images/hugo-icons/hugo-home.svg" alt="">
-    		<span>Home</span>
-  		</a>
-		</li>
-		{{if and (ne .Kind "section") (ne .Section "")}}
-		<li>
 			<a class="crumb" href="{{.Site.BaseURL}}{{.Section | urlize}}">
-    		<img src="{{.Site.BaseURL}}images/hugo-icons/{{.Section | urlize}}.svg" alt="">
+    		<!-- <img src="{{.Site.BaseURL}}images/hugo-icons/{{.Section | urlize}}.svg" alt=""> -->
     		<span>{{replace (replace .Section "-" " " | title) "And" "and"}}</span>
   		</a>
 		</li>
-		{{end}}
 	</ul>
 </nav>
+{{end}}

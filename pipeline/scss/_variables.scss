@@ -60,7 +60,7 @@ $active-color: $default-anchor-color;
 //Buttons
 $base-button-color: $hugo-blue;
 $base-button-text-color: $hugo-white;
-$button-border-radius: .25em;
+$button-border-radius: 3px;
 //Codeblocks
 // $code-font-family:'courierprime',courier,monospace;
 
@@ -73,8 +73,9 @@ $code-copy-button-color:#ffffff;
 $code-copy-button-text-color:$base-font-color;
 $code-base-font-color:$hugo-pink-light;
 $inline-code-text-color:$base-font-color;
-$inline-code-background-color:$hugo-gray-ultra-light;
+$inline-code-background-color:darken($hugo-gray-ultra-light,1%);
 $code-block-background-color: $inline-code-background-color;
+
 //Sidebar & Breadcrumb
 $site-navigation-width: 280px;
 $content-max-width: 32em;
@@ -82,18 +83,38 @@ $site-navigation-bg-color:$hugo-gray-ultra-light;
 $breadcrumb-navigation-bg-color:$hugo-blue-ultra-light;
 $breadcrumb-navigation-bg-color-active:$hugo-blue;
 $breadcrumb-navigation-text-color-active:$hugo-white;
+
 //Headers
 $site-header-height:50px;
+
 //Toc
 $toc-bg-color:$body-bg-color;
+
 //Footers
 $site-footer-bg-color:$hugo-black;
-$site-footer-height: 100px;
+$site-footer-height-l-plus: 140px;
+
 //Tags
 $tag-bg-color:$hugo-gray-ultra-light;
+
 //Brand Colors:
 $html: #E44D26;
 $css: #1758A7;
 $sass: #CF649A;
 $golang: #69D7E2;
 $javascript: #F0DB4F;
+
+//Homepage, using BULMA: http://bulma.io/
+// Override variables here
+// You can add new ones or update existing ones:
+
+$blue: $hugo-blue;
+$pink: $hugo-pink;
+$family-serif: "Georgia", serif;
+
+
+// Override generated variables here
+// For example, by default, the $danger color is $red and the font is sans-serif
+// You can change these values:
+
+$family-primary: $family-serif;

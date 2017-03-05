@@ -15,7 +15,7 @@ const prefix = require('gulp-autoprefixer');
 const pump = require('pump');
 const rename = require("gulp-rename");
 const sass = require('gulp-sass');
-const sassfiles = "./scss/**/*.scss";
+const sassfiles = ["./scss/**/*.scss"];
 const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 
@@ -28,7 +28,7 @@ const uglify = require('gulp-uglify');
  * - Autoprefixer
  *
  **/
-gulp.task('sass', function() {
+gulp.task('scss', function() {
   gulp.src(sassfiles)
     .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
     .pipe(prefix('last 2 versions', '> 1%', 'ie 10', 'Android 2', 'Firefox ESR'))
@@ -57,12 +57,11 @@ gulp.task("image-resize", () => {
     .pipe(gulp.dest("../static/images/thumb"));
 });
 
-
 /**Javascript **/
 
 gulp.task('scripts', function(cb) {
   pump([
-      gulp.src(['js/_clipboard.js','js/_filesaver.js', 'js/_velocity.min.js', 'js/_velocity.ui.min.js', 'js/scripts/*.js']),
+      gulp.src(['js/_clipboard.js','js/_filesaver.js', 'js/_velocity.min.js', 'js/_velocity.ui.min.js', 'js/_blast.js', 'js/scripts/*.js']),
       // sourcemaps.init(),
       babel({
         presets: ['es2015']
@@ -82,8 +81,8 @@ gulp.task('scripts', function(cb) {
  * - Watchs for file changes for images, scripts and sass/css
  *
  **/
-gulp.task('default', ['sass', 'scripts', 'image-resize'], function() {
-  gulp.watch('scss/**/*.scss', ['sass']);
+gulp.task('default', ['scss', 'scripts', 'image-resize'], function() {
+  gulp.watch('scss/**/*.scss', ['scss']);
   gulp.watch('js/**/*.js', ['scripts']);
   gulp.watch('../source-images/*', ['image-resize']);
 });

@@ -14,6 +14,7 @@ hugoversion:
 relatedfuncs: [now]
 deprecated: false
 aliases: []
+<<<<<<< HEAD
 needsexamples: true
 ---
 
@@ -53,3 +54,9 @@ Let's assume you want to grab Tweets from the last two years and present them in
 {{% /code %}}
 
 <!-- Look to example in docs site here: https://github.com/spf13/hugo/blob/master/docs/layouts/index.html--e.g., can be paired with now and where -->
+=======
+---
+
+<!-- Look to example in docs site here: https://github.com/spf13/hugo/blob/master/docs/layouts/index.html--e.g., can be paired with now and where -->
+
+>>>>>>> homepage

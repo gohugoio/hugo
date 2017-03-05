@@ -11,11 +11,7 @@
   @include MQ(L) {
     width:calc(100% - #{$site-navigation-width});
     margin-left: $site-navigation-width;
-  }
-  @include MQ(XL) {
-    &.withtoc {
-      max-width:calc(100vw - #{$site-navigation-width * 2});
-    }
+    height: $site-footer-height-l-plus;
   }
 }
 
@@ -25,13 +21,23 @@
   margin-right: auto;
   color: $hugo-white;
   display: flex;
-  flex-direction: column;
-  span {
-    text-align: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: $M;
+  .footer-info {
     width: 100%;
-    display: block;
-    margin-top: 1em;
-    font-size: .9em;
+    span {
+      width: 100%;
+      display:block;
+      text-align: center;
+      margin-top:1em;
+      @include MQ(M){
+        margin-top:0px;
+      }
+    }
+    @include MQ(M) {
+      width: 200px;
+    }
   }
   img {
     max-width: 140px;
@@ -43,22 +49,19 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: nowrap;
     div {
-      min-width: 50%;
-      width: 50%;
-      max-width: 50%;
+      min-width: 120px;
+      // width: 50%;
+      // max-width: 50%;
     }
   }
 }
 
-.footer-lists {
-  display: flex;
-  justify-content: space-around;
-  margin-right: 1em;
-  margin-top: 1em;
-}
-
 .footer-list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   color: $hugo-white;
   list-style: none;
   margin-left: 0px;
@@ -67,27 +70,16 @@
   margin-right: 2em;
   margin: 0px;
   flex-wrap: wrap;
-  li a {
-    color: $hugo-white;
-    display: flex;
-    align-items: center;
-    &:not(i) {
-      font-size: 14px;
-    }
-    i {
-      font-size: 16px;
-      margin-right: .25em;
-      &.icon-github:before {
-        font-size: 22px;
-        margin-left: 0px;
-        margin-right: 2px;
-      }
-    }
-    &:hover {
-      color: $hugo-pink;
+  ul {
+    list-style: none;
+    li a {
+      color: $hugo-white;
+      font-size: .8em;
     }
   }
-  @include MQ(L) {
-    min-width: 150px;
-  }
+}
+
+#site-footer.homepage {
+  width: 100vw;
+  margin-left: 0px;
 }
