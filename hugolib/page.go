@@ -1655,6 +1655,9 @@ func (p *Page) updatePageDates() {
 // copy creates a copy of this page with the lazy sync.Once vars reset
 // so they will be evaluated again, for word count calculations etc.
 func (p *Page) copy() *Page {
+	// This is a temporary workaround for the data race in #3129
+	p.getPermalink()
+
 	c := *p
 	c.pageInit = &pageInit{}
 	return &c
