@@ -35,18 +35,18 @@ type Type struct {
 // default media types. These can be overridden by the user in the configuration,
 // by defining a media type with the same Key.
 func (m Type) Key() string {
+	return fmt.Sprintf("%s/%s", m.Type, m.SubType)
+}
+
+func (m Type) String() string {
 	if m.Suffix != "" {
 		return fmt.Sprintf("%s/%s+%s", m.Type, m.SubType, m.Suffix)
 	}
 	return fmt.Sprintf("%s/%s", m.Type, m.SubType)
 }
 
-func (m Type) String() string {
-	return m.Key()
-}
-
 var (
-	HtmlType = Type{"text", "html", "html"}
+	HTMLType = Type{"text", "html", "html"}
 	RSSType  = Type{"application", "rss", "xml"}
 )
 
@@ -54,8 +54,9 @@ var (
 // These can be ovverriden, and more added if needed, in the Hugo configuration file.
 // The final media type set set will also be added as extensions to mime so
 // they will be recognised by the built-in server in Hugo.
+// TODO(bep) output remove
 var DefaultMediaTypes = Types{
-	HtmlType,
+	HTMLType,
 	RSSType,
 
 	// TODO(bep) output

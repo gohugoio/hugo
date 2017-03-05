@@ -1886,8 +1886,8 @@ func kindFromFilename(filename string) string {
 
 // TODO(bep) output
 var (
-	mediaTypesWithRSS = media.Types{media.HtmlType, media.RSSType}
-	mediaTypesHTML    = media.Types{media.HtmlType}
+	mediaTypesWithRSS = media.Types{media.HTMLType, media.RSSType}
+	mediaTypesHTML    = media.Types{media.HTMLType}
 )
 
 func (p *Page) setValuesForKind(s *Site) {
