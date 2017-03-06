@@ -1800,7 +1800,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	// Note: this is not a pointer, as we may mutate the state below.
 	w := s.w
 
-	if p, ok := d.(*Page); ok && p.IsPage() && path.Ext(p.URLPath.URL) != "" {
+	if p, ok := d.(*PageOutput); ok && p.IsPage() && path.Ext(p.URLPath.URL) != "" {
 		// user has explicitly set a URL with extension for this page
 		// make sure it sticks even if "ugly URLs" are turned off.
 		w.uglyURLs = true
@@ -1817,7 +1817,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	}
 
 	// For performance reasons we only inject the Hugo generator tag on the home page.
-	if n, ok := d.(*Page); ok && n.IsHome() {
+	if n, ok := d.(*PageOutput); ok && n.IsHome() {
 		if !s.Cfg.GetBool("disableHugoGeneratorInject") {
 			transformLinks = append(transformLinks, transform.HugoGeneratorInject)
 		}

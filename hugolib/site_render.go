@@ -29,7 +29,7 @@ import (
 func (s *Site) renderPages() error {
 
 	results := make(chan error)
-	pages := make(chan *Page)
+	pages := make(chan *PageOutput)
 	errs := make(chan error)
 
 	go errorCollator(results, errs)
@@ -44,7 +44,9 @@ func (s *Site) renderPages() error {
 	}
 
 	for _, page := range s.Pages {
-		pages <- page
+		for _, outputType := range page.outputTypes {
+			pages <- newPageOutput(page, outputType)
+		}
 	}
 
 	close(pages)
@@ -60,42 +62,40 @@ func (s *Site) renderPages() error {
 	return nil
 }
 
-func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
+func pageRenderer(s *Site, pages <-chan *PageOutput, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for p := range pages {
-		// TODO(bep) output
-		for _, outputType := range p.outputTypes {
-			var layouts []string
+		// TODO(bep) output check if some of the interface{} methods below checks for *Page
+		var layouts []string
 
-			if len(p.layoutsCalculated) > 0 {
-				// TODO(bep) output
-				layouts = p.layoutsCalculated
-			} else {
-				layouts = s.layoutHandler.For(p.layoutIdentifier, "", outputType)
+		if len(p.layoutsCalculated) > 0 {
+			// TODO(bep) output
+			layouts = p.layoutsCalculated
+		} else {
+			layouts = s.layoutHandler.For(p.layoutIdentifier, "", p.outputType)
+		}
+
+		switch p.outputType {
+
+		case output.HTMLType:
+			targetPath := p.TargetPath()
+
+			s.Log.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
+
+			if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
+				results <- err
 			}
 
-			switch outputType {
-
-			case output.HTMLType:
-				targetPath := p.TargetPath()
-
-				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
-
-				if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
+			// Taxonomy terms have no page set to paginate, so skip that for now.
+			if p.IsNode() && p.Kind != KindTaxonomyTerm {
+				if err := s.renderPaginator(p); err != nil {
 					results <- err
 				}
+			}
 
-				// Taxonomy terms have no page set to paginate, so skip that for now.
-				if p.IsNode() && p.Kind != KindTaxonomyTerm {
-					if err := s.renderPaginator(p); err != nil {
-						results <- err
-					}
-				}
-
-			case output.RSSType:
-				if err := s.renderRSS(p); err != nil {
-					results <- err
-				}
+		case output.RSSType:
+			if err := s.renderRSS(p); err != nil {
+				results <- err
 			}
 		}
 
@@ -103,7 +103,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 }
 
 // renderPaginator must be run after the owning Page has been rendered.
-func (s *Site) renderPaginator(p *Page) error {
+func (s *Site) renderPaginator(p *PageOutput) error {
 	if p.paginator != nil {
 		s.Log.DEBUG.Printf("Render paginator for page %q", p.Path())
 		paginatePath := s.Cfg.GetString("paginatePath")
@@ -146,7 +146,7 @@ func (s *Site) renderPaginator(p *Page) error {
 	return nil
 }
 
-func (s *Site) renderRSS(p *Page) error {
+func (s *Site) renderRSS(p *PageOutput) error {
 
 	if !s.isEnabled(kindRSS) {
 		return nil
@@ -163,7 +163,7 @@ func (s *Site) renderRSS(p *Page) error {
 		return nil
 	}
 
-	rssPage := p.copy()
+	rssPage := p // p.copy() TODO(bep) output
 	rssPage.Kind = kindRSS
 
 	// TODO(bep) we zero the date here to get the number of diffs down in
@@ -182,7 +182,7 @@ func (s *Site) renderRSS(p *Page) error {
 	rssURI := s.Language.GetString("rssURI")
 
 	rssPath := path.Join(append(rssPage.sections, rssURI)...)
-	s.setPageURLs(rssPage, rssPath)
+	s.setPageURLs(rssPage.Page, rssPath)
 
 	return s.renderAndWriteXML(rssPage.Title,
 		rssPage.addLangFilepathPrefix(rssPath), rssPage, s.appendThemeTemplates(layouts)...)
