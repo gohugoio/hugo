@@ -43,23 +43,25 @@ func (l testLayoutIdentifier) PageSection() string {
 }
 
 func TestLayout(t *testing.T) {
-	l := &Layout{}
+	l := &LayoutHandler{}
 
 	for _, this := range []struct {
-		li     testLayoutIdentifier
-		tp     Type
-		expect []string
+		li             testLayoutIdentifier
+		layoutOverride string
+		tp             Type
+		expect         []string
 	}{
-		{testLayoutIdentifier{"home", "", "", ""}, HTMLType, []string{"index.html", "_default/list.html", "theme/index.html", "theme/_default/list.html"}},
-		{testLayoutIdentifier{"section", "sect1", "", ""}, HTMLType, []string{"section/sect1.html", "sect1/list.html"}},
-		{testLayoutIdentifier{"taxonomy", "tag", "", ""}, HTMLType, []string{"taxonomy/tag.html", "indexes/tag.html"}},
-		{testLayoutIdentifier{"taxonomyTerm", "categories", "", ""}, HTMLType, []string{"taxonomy/categories.terms.html", "_default/terms.html"}},
-		{testLayoutIdentifier{"page", "", "", ""}, HTMLType, []string{"_default/single.html", "theme/_default/single.html"}},
-		{testLayoutIdentifier{"page", "", "mylayout", ""}, HTMLType, []string{"_default/mylayout.html"}},
-		{testLayoutIdentifier{"page", "", "mylayout", "myttype"}, HTMLType, []string{"myttype/mylayout.html", "_default/mylayout.html"}},
-		{testLayoutIdentifier{"page", "", "mylayout", "myttype/mysubtype"}, HTMLType, []string{"myttype/mysubtype/mylayout.html", "myttype/mylayout.html", "_default/mylayout.html"}},
+		{testLayoutIdentifier{"home", "", "", ""}, "", HTMLType, []string{"index.html", "_default/list.html", "theme/index.html", "theme/_default/list.html"}},
+		{testLayoutIdentifier{"section", "sect1", "", ""}, "", HTMLType, []string{"section/sect1.html", "sect1/list.html"}},
+		{testLayoutIdentifier{"taxonomy", "tag", "", ""}, "", HTMLType, []string{"taxonomy/tag.html", "indexes/tag.html"}},
+		{testLayoutIdentifier{"taxonomyTerm", "categories", "", ""}, "", HTMLType, []string{"taxonomy/categories.terms.html", "_default/terms.html"}},
+		{testLayoutIdentifier{"page", "", "", ""}, "", HTMLType, []string{"_default/single.html", "theme/_default/single.html"}},
+		{testLayoutIdentifier{"page", "", "mylayout", ""}, "", HTMLType, []string{"_default/mylayout.html"}},
+		{testLayoutIdentifier{"page", "", "mylayout", "myttype"}, "", HTMLType, []string{"myttype/mylayout.html", "_default/mylayout.html"}},
+		{testLayoutIdentifier{"page", "", "mylayout", "myttype/mysubtype"}, "", HTMLType, []string{"myttype/mysubtype/mylayout.html", "myttype/mylayout.html", "_default/mylayout.html"}},
+		{testLayoutIdentifier{"page", "", "mylayout", "myttype"}, "myotherlayout", HTMLType, []string{"myttype/myotherlayout.html", "_default/myotherlayout.html"}},
 	} {
-		layouts := l.For(this.li, this.tp)
+		layouts := l.For(this.li, this.layoutOverride, this.tp)
 		require.NotNil(t, layouts)
 		require.True(t, len(layouts) >= len(this.expect))
 		// Not checking the complete list for now ...

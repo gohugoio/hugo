@@ -1412,6 +1412,7 @@ func TestPageSimpleMethods(t *testing.T) {
 }
 
 func TestIndexPageSimpleMethods(t *testing.T) {
+	s := newTestSite(t)
 	t.Parallel()
 	for i, this := range []struct {
 		assertFunc func(n *Page) bool
@@ -1422,9 +1423,10 @@ func TestIndexPageSimpleMethods(t *testing.T) {
 		{func(n *Page) bool { return n.Scratch() != nil }},
 		{func(n *Page) bool { return n.Hugo() != nil }},
 		{func(n *Page) bool { return n.Now().Unix() == time.Now().Unix() }},
+		{func(n *Page) bool { return n.layoutIdentifier.Kind == KindHome }},
 	} {
 
-		n := &Page{pageInit: &pageInit{}, Kind: KindHome}
+		n := s.newHomePage()
 
 		n.RSSLink = "rssLink"
 

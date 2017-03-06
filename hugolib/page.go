@@ -36,6 +36,8 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/spf13/hugo/output"
+
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/media"
@@ -204,6 +206,43 @@ type Page struct {
 	// The media types this page will be rendered to.
 	// TODO(bep) probably wrap this to add additional information like template evaluation?
 	mediaTypes media.Types
+
+	// Used to pick the correct template(s)
+	layoutIdentifier pageLayoutIdentifier
+}
+
+// Implements layout.LayoutIdentifier
+type pageLayoutIdentifier struct {
+	*Page
+}
+
+// PageKind returns the page's kind.
+func (p pageLayoutIdentifier) PageKind() string {
+	return p.Kind
+}
+
+// PageLayout returns the page's layout, if set.
+func (p pageLayoutIdentifier) PageLayout() string {
+	return p.Layout
+}
+
+// PageType returns the page's type, if set.
+func (p pageLayoutIdentifier) PageType() string {
+	return p.Type()
+}
+
+// PageType returns the page's section in layout terms.
+// This will be empty for regular pages, the section for section pages,
+// and the singular term for taxonomy and taxonomy terms pages.
+func (p pageLayoutIdentifier) PageSection() string {
+	switch p.Kind {
+	case KindSection:
+		return p.sections[0]
+	case KindTaxonomy, KindTaxonomyTerm:
+		return p.s.taxonomiesPluralSingular[p.sections[0]]
+	default:
+		return ""
+	}
 }
 
 // pageInit lazy initializes different parts of the page. It is extracted
@@ -595,7 +634,7 @@ func (p *Page) getRenderingConfig() *helpers.Blackfriday {
 
 func (s *Site) newPage(filename string) *Page {
 	sp := source.NewSourceSpec(s.Cfg, s.Fs)
-	page := Page{
+	p := &Page{
 		pageInit:    &pageInit{},
 		Kind:        kindFromFilename(filename),
 		contentType: "",
@@ -607,9 +646,10 @@ func (s *Site) newPage(filename string) *Page {
 		Site:         &s.Info,
 		s:            s,
 	}
+	p.layoutIdentifier = pageLayoutIdentifier{p}
 
-	s.Log.DEBUG.Println("Reading from", page.File.Path())
-	return &page
+	s.Log.DEBUG.Println("Reading from", p.File.Path())
+	return p
 }
 
 func (p *Page) IsRenderable() bool {
@@ -635,44 +675,23 @@ func (p *Page) Section() string {
 	return p.Source.Section()
 }
 
-func (p *Page) layouts(l ...string) []string {
+func (p *Page) layouts(layouts ...string) []string {
 	if len(p.layoutsCalculated) > 0 {
 		return p.layoutsCalculated
 	}
 
-	switch p.Kind {
-	case KindHome:
-		return p.s.appendThemeTemplates([]string{"index.html", "_default/list.html"})
-	case KindSection:
-		section := p.sections[0]
-		return p.s.appendThemeTemplates([]string{"section/" + section + ".html", section + "/list.html", "_default/section.html", "_default/list.html", "indexes/" + section + ".html", "_default/indexes.html"})
-	case KindTaxonomy:
-		singular := p.s.taxonomiesPluralSingular[p.sections[0]]
-		return p.s.appendThemeTemplates([]string{"taxonomy/" + singular + ".html", "indexes/" + singular + ".html", "_default/taxonomy.html", "_default/list.html"})
-	case KindTaxonomyTerm:
-		singular := p.s.taxonomiesPluralSingular[p.sections[0]]
-		return p.s.appendThemeTemplates([]string{"taxonomy/" + singular + ".terms.html", "_default/terms.html", "indexes/indexes.html"})
+	layoutOverride := ""
+	if len(layouts) > 0 {
+		layoutOverride = layouts[0]
 	}
 
-	// Regular Page handled below
-
-	if p.Layout != "" {
-		return layouts(p.Type(), p.Layout)
-	}
-
-	layout := ""
-	if len(l) == 0 {
-		layout = "single"
-	} else {
-		layout = l[0]
-	}
-
-	return layouts(p.Type(), layout)
+	return p.s.layoutHandler.For(p.layoutIdentifier, layoutOverride, output.HTMLType)
 }
 
 // TODO(bep) consolidate and test these KindHome switches (see other layouts methods)s
 // rssLayouts returns RSS layouts to use for the RSS version of this page, nil
 // if no RSS should be rendered.
+// TODO(bep) output
 func (p *Page) rssLayouts() []string {
 	switch p.Kind {
 	case KindHome:
@@ -691,26 +710,6 @@ func (p *Page) rssLayouts() []string {
 	}
 
 	return nil
-}
-
-func layouts(types string, layout string) (layouts []string) {
-	t := strings.Split(types, "/")
-
-	// Add type/layout.html
-	for i := range t {
-		search := t[:len(t)-i]
-		layouts = append(layouts, fmt.Sprintf("%s/%s.html", strings.ToLower(path.Join(search...)), layout))
-	}
-
-	// Add _default/layout.html
-	layouts = append(layouts, fmt.Sprintf("_default/%s.html", layout))
-
-	// Add theme/type/layout.html & theme/_default/layout.html
-	for _, l := range layouts {
-		layouts = append(layouts, "theme/"+l)
-	}
-
-	return
 }
 
 func (s *Site) NewPageFrom(buf io.Reader, name string) (*Page, error) {
@@ -1360,14 +1359,8 @@ func (p *Page) Menus() PageMenus {
 	return p.pageMenus
 }
 
-func (p *Page) Render(layout ...string) template.HTML {
-	var l []string
-
-	if len(layout) > 0 {
-		l = layouts(p.Type(), layout[0])
-	} else {
-		l = p.layouts()
-	}
+func (p *Page) Render(layouts ...string) template.HTML {
+	l := p.layouts(layouts...)
 
 	return p.s.Tmpl.ExecuteTemplateToHTML(p, l...)
 }
