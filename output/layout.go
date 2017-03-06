@@ -30,6 +30,11 @@ type LayoutIdentifier interface {
 // Layout calculates the layout template to use to render a given output type.
 // TODO(bep) output improve names
 type LayoutHandler struct {
+	hasTheme bool
+}
+
+func NewLayoutHandler(hasTheme bool) *LayoutHandler {
+	return &LayoutHandler{hasTheme: hasTheme}
 }
 
 // TODO(bep) output theme layouts
@@ -63,8 +68,30 @@ func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, tp Type)
 		layouts = regularPageLayouts(id.PageType(), layout)
 	}
 
-	for _, l := range layouts {
-		layouts = append(layouts, "theme/"+l)
+	if l.hasTheme {
+		layoutsWithThemeLayouts := []string{}
+		// First place all non internal templates
+		for _, t := range layouts {
+			if !strings.HasPrefix(t, "_internal/") {
+				layoutsWithThemeLayouts = append(layoutsWithThemeLayouts, t)
+			}
+		}
+
+		// Then place theme templates with the same names
+		for _, t := range layouts {
+			if !strings.HasPrefix(t, "_internal/") {
+				layoutsWithThemeLayouts = append(layoutsWithThemeLayouts, "theme/"+t)
+			}
+		}
+
+		// Lastly place internal templates
+		for _, t := range layouts {
+			if strings.HasPrefix(t, "_internal/") {
+				layoutsWithThemeLayouts = append(layoutsWithThemeLayouts, t)
+			}
+		}
+
+		return layoutsWithThemeLayouts
 	}
 
 	return layouts

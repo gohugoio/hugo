@@ -82,7 +82,7 @@ func pageRenderer(s *Site, pages <-chan *PageOutput, results chan<- error, wg *s
 
 			s.Log.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
 
-			if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
+			if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, layouts...); err != nil {
 				results <- err
 			}
 

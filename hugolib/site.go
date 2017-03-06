@@ -124,7 +124,7 @@ func (s *Site) isEnabled(kind string) bool {
 
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{Deps: s.Deps, layoutHandler: &output.LayoutHandler{}, disabledKinds: s.disabledKinds, Language: s.Language, owner: s.owner, PageCollections: newPageCollections()}
+	return &Site{Deps: s.Deps, layoutHandler: output.NewLayoutHandler(s.PathSpec.ThemeSet()), disabledKinds: s.disabledKinds, Language: s.Language, owner: s.owner, PageCollections: newPageCollections()}
 }
 
 // newSite creates a new site with the given configuration.
@@ -140,7 +140,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		disabledKinds[disabled] = true
 	}
 
-	s := &Site{PageCollections: c, layoutHandler: &output.LayoutHandler{}, Language: cfg.Language, disabledKinds: disabledKinds}
+	s := &Site{PageCollections: c, layoutHandler: output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""), Language: cfg.Language, disabledKinds: disabledKinds}
 
 	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
 
@@ -193,7 +193,7 @@ func newSiteForLang(lang *helpers.Language, withTemplate ...func(templ tpl.Templ
 		return nil
 	}
 
-	cfg := deps.DepsCfg{WithTemplate: withTemplates, Language: lang}
+	cfg := deps.DepsCfg{WithTemplate: withTemplates, Language: lang, Cfg: lang}
 
 	return NewSiteForCfg(cfg)
 
@@ -1676,7 +1676,7 @@ func errorCollator(results <-chan error, errs chan<- error) {
 	close(errs)
 }
 
-// TODO(bep) output move
+// TODO(bep) output remove
 func (s *Site) appendThemeTemplates(in []string) []string {
 	if !s.PathSpec.ThemeSet() {
 		return in
