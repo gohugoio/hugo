@@ -9,7 +9,7 @@ categories: [templates]
 tags: [lists,sections]
 weight: 40
 draft: false
-aliases: []
+aliases: [/templates/sections/]
 toc: true
 wip: true
 ---

@@ -14,7 +14,6 @@ toc: true
 wip: true
 ---
 
-![Image demonstrating a hierarchical website sitemap.](/images/site-hierarchy.svg)
 
 ## Understanding `.Data.Pages`
 

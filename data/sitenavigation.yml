@@ -35,7 +35,7 @@ functions:
   desc: "Comprehensive list of Hugo templating functions, including basic and advanced usage examples"
 variablesandparams:
   order: 6
-  title: "Variables and Params"
+  title: "Variables"
   url: "variables"
   haschildren: true
   sortsubpagesby: "weight"

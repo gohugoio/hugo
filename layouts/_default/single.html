@@ -7,6 +7,9 @@
 			{{- partial "page-title.html" . -}}
 			{{- partial "content-header-links.html" . -}}
 			{{- partial "tags.html" . -}}
+			{{ with .Params.wip}}
+			<div class="wip">WIP</div>
+			{{ end }}
 		</header>
 		<div class="body-copy" data-section={{.Section | urlize}}>
 		{{.Content}}

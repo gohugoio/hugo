@@ -42,9 +42,7 @@ Note that a homepage can also have a content file with front matter. This conten
 
 ## Example Homepage Template
 
-The following is an example of a homepage template.
-
-It makes use of [partial templates][partials] and uses a similar approach as a [Hugo list template][lists].
+The following is an example of a homepage template makes use of [partial][partials] and [block][] templates.
 
 {{% code file="layouts/index.html" download="index.html" %}}
 ```html
@@ -63,6 +61,7 @@ It makes use of [partial templates][partials] and uses a similar approach as a [
 ```
 {{% /code %}}
 
+[block]: /templates/base/
 [contentorg]: /content-management/organization/
 [lists]: /templates/lists/
 [lookup]: /templates/lookup-order/

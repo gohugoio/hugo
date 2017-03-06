@@ -14,36 +14,94 @@ toc: true
 wip: true
 ---
 
-## Partials vs Templates
+In practice, splitting out reusable template portions into **partial templates** to be included anywhere help keep your templating DRY.
 
-In practice, it's very convenient to split out common template portions into a partial template that can be included anywhere. As you create the rest of your templates, you will include templates from the `/layouts/partials/` directory or from arbitrary partial subdirectories like `/layouts/partials/post/tag/`.
+## Partial Template Lookup Order
 
-Partials are especially important for [themes][] because they give theme users an opportunity to [overwrite just a small portion of a theme][customize] while maintaining compatibility with the theme's upstream.
+Partial templates---like [single page templates][singletemps] and [list page templates][listtemps]---have a specific lookup order. However, partials are simpler in that Hugo will only check in two places:
 
-Theme developers may want to include a few partials with empty HTML files in the theme just so end users have an easy place to inject their customized content.
+1. `layouts/partials/*<PARTIALNAME>.html`
+2. `themes/<THEME>/layouts/partials/*<PARTIALNAME>.html`
 
-I've found it helpful to include a header and footer template in partials so I can include those in all the full page layouts.  There is nothing special about header.html and footer.html other than they seem like good names to use for inclusion in your other templates.
+This allows a theme's end user to copy a partial's contents into a file of the same name for [further customization][customize].
 
-```bash
-▾ layouts/
-  ▾ partials/
-      header.html
-      footer.html
+## Using Partials in your Templates
+
+All partials for your Hugo project are located in a single `layouts/partials` directory. For better organization, you can create multiple subdirectories within `partials` as well:
+
+```
+.
+└── layouts
+    └── partials
+        ├── footer
+        │   ├── scripts.html
+        │   └── site-footer.html
+        ├── head
+        │   ├── favicons.html
+        │   ├── metadata.html
+        │   ├── prerender.html
+        │   └── twitter.html
+        └── header
+            ├── site-header.html
+            └── site-nav.html
 ```
 
-## Partial vs Template
+All partials are called within your templates using the following pattern:
 
-Version v0.12 of Hugo introduced the `partial` call inside the template system. This is a change to the way partials were handled previously inside the template system. In earlier versions, Hugo didn’t treat partials specially, and you could include a partial template with the `template` call in the standard template language.
+```
+{{ partial "<PATH>/<PARTIAL>.html" . }}
+```
 
-With the addition of the theme system in v0.11, it became apparent that a theme & override-aware partial was needed.
+{{% note %}}
+One of the most common mistakes with new Hugo users is failing to pass a context to the partial call. In the pattern above, note how "the dot" (`.`) is required as the second argument to give the partial context. You can read more about "the dot" in the [Go Template Primer](/templates/go-templates/).
+{{% /note %}}
 
-When using Hugo v0.12 and above, please use the `partial` call (and leave out the “partial/” path). The old approach would still work, but wouldn’t benefit from the ability to have users override the partial theme file with local layouts.
+As shown in the above example directory structure, you can nest your directories within `partials` for better source organization. You only need to call the nested partial's path relative to the `partials` directory:
 
-## Example `header.html`
+```golang
+{{ partial "header/site-header.html" . }}
+{{ partial "footer/scripts.html" . }}
+```
 
-This header template is used for [spf13.com](http://spf13.com/):
+{{% note %}}
+Before v0.12, Hugo used the `template` call to include partial templates. When using Hugo v0.12 and newer, be sure to use the `{{ partial "<PATH>/<PARTIAL>.html" . }}` syntax. The old approach will still work but has fewer benefits.
+{{% /note %}}
 
-{{% code file="layouts/partials/header.html" %}}
+### Variable Scoping
+
+The second argument in a partial call is the variable being passed down. The above examples are passing the `.`, which tells the template receiving the partial to apply the current [context][context].
+
+This means the partial will *only* be able to access those variables. The partial is isolated and *has no access to the outer scope*. From within the partial, `$.Var` is equivalent to `.Var`.
+
+### Cached Partials
+
+The [`partialCached` template function][partialcached] can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation. The simplest usage is as follows:
+
+```
+{{ partialCached "footer.html" . }}
+```
+
+You can also pass additional parameters to `partialCached` to create *variants* of the cached partial.
+
+For example, you can tell Hugo to only render the partial `footer.html` once per section:
+
+```
+{{ partialCached "footer.html" . .Section }}
+```
+
+If you need to pass additional parameters to create unique variants, you can pass as many variant parameters as you need:
+
+```
+{{ partialCached "footer.html" . .Params.country .Params.province }}
+```
+
+Note that the variant parameters are not made available to the underlying partial template. They are only use to create a unique cache key.
+
+### Example `header.html`
+
+The following `header.html` partial template is used for [spf13.com](http://spf13.com/):
+
+{{% code file="layouts/partials/header.html" download="header.html" %}}
 ```html
 <!DOCTYPE html>
 <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
@@ -63,11 +121,15 @@ This header template is used for [spf13.com](http://spf13.com/):
 ```
 {{% /code %}}
 
-## Example `footer.html`
+{{% note %}}
+The `header.html` example partial was built before the introduction of block templates to Hugo. Read more on [base templates and blocks](/templates/base/) for defining the outer chrome or shell of your master templates (i.e., your site's head, header, and footer). You can even combine blocks and partials for added flexibility.
+{{% /note %}}
 
-This footer template is used for [spf13.com](http://spf13.com/):
+### Example `footer.html`
 
-{{% code file="layouts/partials/footer.html" %}}
+The following `footer.html` partial template is used for [spf13.com](http://spf13.com/):
+
+{{% code file="layouts/partials/footer.html" download="footer.html" %}}
 ```html
 <footer>
   <div>
@@ -98,103 +160,53 @@ This footer template is used for [spf13.com](http://spf13.com/):
 ```
 {{% /code %}}
 
-To reference a partial template stored in a subfolder, e.g. `/layouts/partials/post/tag/list.html`, call it this way:
 
-```
-{{ partial "post/tag/list" . }}
-```
+## Using Hugo's Internal Partial Templates
 
-Note that the subdirectories you create under /layouts/partials can be named whatever you like.
-
-For more examples of referencing these templates, see [single content templates](/templates/content/), [list templates](/templates/list/) and [homepage templates](/templates/homepage/).
-
-## Variable Scoping
-
-As you might have noticed, `partial` calls receive two parameters.
-
-1. The first is the name of the partial and determines the file
-location to be read.
-2. The second is the variables to be passed down to the partial.
-
-This means that the partial will _only_ be able to access those variables. It is isolated and has no access to the outer scope. From within the partial, `$.Var` is equivalent to `.Var`.
-
-## Cached Partials
-
-The `partialCached` template function can offer significant performance gains for complex templates that don't need to be rerendered upon every invocation. The simplest usage is as follows:
-
-```
-{{ partialCached "footer.html" . }}
-```
-
-You can also pass additional parameters to `partialCached` to create *variants* of the cached partial. For example, say you have a complex partial that should be identical when rendered for pages within the same section. You could use a variant based upon section so that the partial is only rendered once per section:
-
-```
-{{ partialCached "footer.html" . .Section }}
-```
-
-If you need to pass additional parameters to create unique variants, you can pass as many variant parameters as you need:
-
-```
-{{ partialCached "footer.html" . .Params.country .Params.province }}
-```
-
-Note that the variant parameters are not made available to the underlying partial template. They are only use to create a unique cache key.
-
-## Using Hugo's Built-in Partials
+{{% warning %}}
+While the following internal templates are called similar to partials, they do *not* observe the partial template lookup order.
+{{% /warning %}}
 
 ### Google Analytics
 
-Hugo ships with prebuilt internal partial templates for Google Analytics tracking, including both synchronous and asynchronous tracking codes.
-
-<!-- pulled from extras/analytics -->
+Hugo ships with internal partial templates for Google Analytics tracking, including both synchronous and asynchronous tracking codes.
 
 #### Configuring Google Analytics
 
-Provide your tracking id in your configuration file, e.g. config.yaml.
+Provide your tracking id in your configuration file:
 
 ```toml
 googleAnalytics = "UA-123-45"
 ```
 
-#### Google Analytics Example
+```yml
+googleAnalytics: "UA-123-45"
+```
 
-Include the internal template in your templates like so:
+#### Adding the Google Analytics Template
 
-{{% code file="call-ga.html" %}}
+You can then include the Google Analytics internal partial in your templates:
+
 ```golang
 {{ template "_internal/google_analytics.html" . }}
 ```
-{{% /code %}}
 
 
-{{% code file="call-ga-async.html" %}}
 ```golang
 {{ template "_internal/google_analytics_async.html" . }}
 ```
-{{% /code %}}
 
-<!-- pulled from extras/comments -->
 ### Disqus
 
-Hugo also ships with a built-in partial for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites.
-
-#### Adding Disqus to a Template
-
-Hugo comes with all the code you would need to include load Disqus. Simply include the following line where you want your comments to appear:
-
-```golang
-{{ template "_internal/disqus.html" . }}
-```
+Hugo also ships with a built-in partial for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites. In order to effectively use Disqus, you will need to secure a Disqus "shortname" by [signing up for the free service][disqussignup].
 
 #### Configuring Disqus
 
-That template requires you to set a single value in your site `config`:
+To use Hugo's Disqus template, you first need to set a single value in your site's `config.toml` or `config.yml`:
 
 ```toml
 disqusShortname = "yourdiscussshortname"
 ```
-
-Or with a `config.yml`:
 
 ```yaml
 disqusShortname: "yourdiscussshortname"
@@ -206,11 +218,21 @@ You also have the option to set the following in the front matter for a given pi
 * `disqus_title`
 * `disqus_url`
 
+#### Adding the Disqus Template
+
+To add Disqus, include the following line in templates where you want your comments to appear:
+
+```golang
+{{ template "_internal/disqus.html" . }}
+```
+
 #### Conditional Loading of Disqus Comments
 
-Users have noticed that enabling Disqus comments when running the Hugo web server on `localhost` (i.e. via `hugo server`) causes the creation of unwanted discussions on the associated Disqus account. In order to prevent this, a slightly tweaked partial template is required. So, rather than using the built-in `"_internal/disqus.html"` template referenced above, create a template in `layouts/partials` that looks like the following:
+Users have noticed that enabling Disqus comments when running the Hugo web server on `localhost` (i.e. via `hugo server`) causes the creation of unwanted discussions on the associated Disqus account.
 
-{{% code file="layouts/partials/disqus.html" %}}
+You can create the following `layouts/partials/disqus.html`:
+
+{{% code file="layouts/partials/disqus.html" download="disqus.html" %}}
 ```html
 <div id="disqus_thread"></div>
 <script type="text/javascript">
@@ -234,14 +256,17 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
 
 The `if` statement skips the initialization of the Disqus comment injection when you are running on `localhost`.
 
-You can then reference the partial template:
+You can then reference then render your custom analytics partial template as follows:
 
-{{% code file="disqus-reference.html" %}}
 ```golang
 {{ partial "disqus.html" . }}
 ```
-{{% /code %}}
 
-[themes]: /themes/
+[context]: /templates/go-templates/ "The most easily overlooked concept to understand about Go templating is how the dot always refers to the current context."
 [customize]: /themes/customizing/
 [disqus]: https://disqus.com
+[disqussignup]: https://disqus.com/profile/signup/
+[listtemps]: /templates/lists/
+[partialcached]: /functions/partialcached/
+[singletemps]: /templates/single-page-templates/
+[themes]: /themes/

@@ -1,7 +1,8 @@
 $('.top-menu-item-link.true').on('click', function(evt) {
   evt.preventDefault();
   evt.stopPropagation();
-  var $ul = $(this).next('ul'),
+  var allTopLinks = $('.top-menu-item-link.true:not(.active-section)').next('ul'),
+    $ul = $(this).next('ul'),
     isOpen = $ul.is(':visible'),
     slideDir = isOpen ? 'slideUp' : 'slideDown',
     dur = isOpen ? 200 : 400;
@@ -9,6 +10,7 @@ $('.top-menu-item-link.true').on('click', function(evt) {
     easing: 'easeOut',
     duration: dur
   });
+  console.log(allTopLinks);
 });
 
 //toggle off-canvas navigation for M- screens

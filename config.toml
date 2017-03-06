@@ -26,7 +26,7 @@ layoutDir = "layouts"
 # Enable Logging
 log = true
 # Log Filepath (if set, logging enabled automatically)
-logFil = ""
+logFile = ""
 # This accepts yaml, toml, or json
 metaDataFormat = "yaml"
 # This intelligently adds an "s" to the titles of list pages

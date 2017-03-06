@@ -1,7 +1,7 @@
 ---
 title: Introduction to Lists in Hugo
 linktitle: Hugo Lists
-description: Lists have a specific meaning and usage in Hugo. If you want to know how to render your site homepage, section homepage, taxonomy list, or taxonomy terms list, start here.
+description: Lists have a specific meaning and usage in Hugo when it comes to rendering your site homepage, section page, taxonomy list, or taxonomy terms list.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
