@@ -19,6 +19,7 @@ import (
 	"strings"
 )
 
+// LayoutIdentifier is used to pick the correct layout for a piece of content.
 type LayoutIdentifier interface {
 	PageType() string
 	PageSection() string // TODO(bep) name
@@ -28,7 +29,7 @@ type LayoutIdentifier interface {
 
 // Layout calculates the layout template to use to render a given output type.
 // TODO(bep) output improve names
-type Layout struct {
+type LayoutHandler struct {
 }
 
 // TODO(bep) output theme layouts
@@ -39,8 +40,14 @@ var (
 	layoutTaxonomyTerm = "taxonomy/SECTION.terms.html _default/terms.html indexes/indexes.html"
 )
 
-func (l *Layout) For(id LayoutIdentifier, tp Type) []string {
+func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, tp Type) []string {
 	var layouts []string
+
+	layout := id.PageLayout()
+
+	if layoutOverride != "" {
+		layout = layoutOverride
+	}
 
 	switch id.PageKind() {
 	// TODO(bep) move the Kind constants some common place.
@@ -53,7 +60,7 @@ func (l *Layout) For(id LayoutIdentifier, tp Type) []string {
 	case "taxonomyTerm":
 		layouts = strings.Fields(strings.Replace(layoutTaxonomyTerm, "SECTION", id.PageSection(), -1))
 	case "page":
-		layouts = regularPageLayouts(id.PageType(), id.PageLayout())
+		layouts = regularPageLayouts(id.PageType(), layout)
 	}
 
 	for _, l := range layouts {

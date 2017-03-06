@@ -37,6 +37,7 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/output"
 	"github.com/spf13/hugo/parser"
 	"github.com/spf13/hugo/source"
 	"github.com/spf13/hugo/tpl"
@@ -100,6 +101,8 @@ type Site struct {
 	// This is not a pointer by design.
 	w siteWriter
 
+	layoutHandler *output.LayoutHandler
+
 	draftCount   int
 	futureCount  int
 	expiredCount int
@@ -121,7 +124,7 @@ func (s *Site) isEnabled(kind string) bool {
 
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{Deps: s.Deps, disabledKinds: s.disabledKinds, Language: s.Language, owner: s.owner, PageCollections: newPageCollections()}
+	return &Site{Deps: s.Deps, layoutHandler: &output.LayoutHandler{}, disabledKinds: s.disabledKinds, Language: s.Language, owner: s.owner, PageCollections: newPageCollections()}
 }
 
 // newSite creates a new site with the given configuration.
@@ -137,7 +140,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		disabledKinds[disabled] = true
 	}
 
-	s := &Site{PageCollections: c, Language: cfg.Language, disabledKinds: disabledKinds}
+	s := &Site{PageCollections: c, layoutHandler: &output.LayoutHandler{}, Language: cfg.Language, disabledKinds: disabledKinds}
 
 	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
 
@@ -2038,13 +2041,16 @@ func getGoMaxProcs() int {
 }
 
 func (s *Site) newNodePage(typ string) *Page {
-	return &Page{
+	p := &Page{
 		language: s.Language,
 		pageInit: &pageInit{},
 		Kind:     typ,
 		Data:     make(map[string]interface{}),
 		Site:     &s.Info,
 		s:        s}
+	p.layoutIdentifier = pageLayoutIdentifier{p}
+	return p
+
 }
 
 func (s *Site) newHomePage() *Page {
