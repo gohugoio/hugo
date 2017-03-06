@@ -1676,6 +1676,7 @@ func errorCollator(results <-chan error, errs chan<- error) {
 	close(errs)
 }
 
+// TODO(bep) output move
 func (s *Site) appendThemeTemplates(in []string) []string {
 	if !s.PathSpec.ThemeSet() {
 		return in
