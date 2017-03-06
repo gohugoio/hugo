@@ -423,7 +423,7 @@ snap install hugo
 Install Hugo from the [Arch user repository](https://aur.archlinux.org/) on Arch Linux or derivatives like Manjaro.
 
 {{% note %}}
-Be aware that Hugo is build from source. This means that additional tools like Git and Go (the programming language Hugo is written in) will be installed as well.
+Be aware that Hugo is built from source. This means that additional tools like Git and Go (the programming language Hugo is written in) will be installed as well.
 {{% /note %}}
 
 
