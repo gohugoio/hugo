@@ -1,17 +1,16 @@
 ---
-title: Configuration
-linktitle:
-description: Hugo is designed to make enough assumptions that often configuration is unnecessary. However, a site config file can include precise directions to Hugo on how you want to render your website.
-date: 2017-01-02
+title: Configuring Hugo
+linktitle: Configuration
+description: Hugo's defaults are often enough that no configuration is needed. However, a site config file can provide highly granular control over how your site is rendered.
+date: 2013-07-01
 publishdate: 2017-01-02
-lastmod: 2017-01-02
+lastmod: 2017-03-05
 categories: [getting started]
 tags: [configuration,fundamentals,toml,yaml,json]
 weight: 60
 draft: false
-aliases: [/overview/source-directory/]
+aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
-notesforauthors:
 ---
 
 The [directory structure][dirs] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to statically generate a finished website.
@@ -23,7 +22,7 @@ Because of Hugo's preference for sane defaults, many websites may not need a con
 
 Hugo searches for a configuration file in the root of your website's source directory as a default behavior. First, it looks for a `./config.toml` file. If that's not present, it will seek a `./config.yaml` file, followed by a `./config.json` file.
 
-In this `config` file, you can direct to Hugo as to how it should render your website, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
+In your `config` file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
 
 ## YAML Configuration
 
@@ -320,7 +319,7 @@ $ env HUGO_TITLE="Some Title" hugo
 ```
 
 {{% note "Setting Environment Variables" %}}
-Names must be prefixed with `HUGO_` when setting environment variables through operating system environment variables.
+Names must be prefixed with `HUGO_` when setting operating system environment variables.
 {{% /note %}}
 
 ## Ignoring Files When Rendering
@@ -331,14 +330,15 @@ ending with `.foo` and `.boo` when rendering:
 ```toml
 ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 ```
+
 The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
 
 ## Configuring Blackfriday Rendering
 
 [Blackfriday](https://github.com/russross/blackfriday) is Hugo's built-in
-[Markdown](http://daringfireball.net/projects/markdown/) rendering engine.
+Markdown rendering engine.
 
-Hugo typically configures Blackfriday with sane default values. These defaults should fit most use cases reasonably well.
+Hugo typically configures Blackfriday with sane default values that should fit most use cases reasonably well.
 
 However, if you have specific needs with respect to Markdown, Hugo exposes some of its Blackfriday behavior options for you to alter. The following table lists these Hugo options, paired with the corresponding flags from Blackfriday's source code ( [html.go](https://github.com/russross/blackfriday/blob/master/html.go) and [markdown.go](https://github.com/russross/blackfriday/blob/master/markdown.go)).
 
@@ -346,7 +346,7 @@ However, if you have specific needs with respect to Markdown, Hugo exposes some 
 
 {{% note %}}
 1. Blackfriday flags are *case sensitive* as of Hugo v0.15.
-2. Blackfriday flags must be grouped under the `blackfriday` key and can be set on both the site level *and* the page level. Any setting on a page will override the site setting there. See [site configuration for more information](/content-management/front-matter/#override-global-blackfriday-configuration).
+2. Blackfriday flags must be grouped under the `blackfriday` key and can be set on both the site level *and* the page level. Any setting on a page will override its respective site setting.
 {{% /note %}}
 
 {{% code file="bf-config.toml" %}}
