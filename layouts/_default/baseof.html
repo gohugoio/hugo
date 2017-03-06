@@ -10,7 +10,7 @@
 		{{ block "main" . }}
 		{{ end}}
 	</div>
-	{{- partialCached "site-footer.html" . -}}
+	{{- partial "site-footer.html" . -}}
 	{{- partial "site-navigation.html" . -}}
 	{{- partial "site-scripts.html" . -}}
 	{{ block "addscripts" . }}
