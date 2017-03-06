@@ -37,7 +37,7 @@ func pageFromString(in, filename string, withTemplate ...func(templ tpl.Template
 		var err error
 		cfg, fs := newTestCfg()
 
-		d := deps.DepsCfg{Language: helpers.NewLanguage("en", cfg), Fs: fs, WithTemplate: withTemplate[0]}
+		d := deps.DepsCfg{Language: helpers.NewLanguage("en", cfg), Cfg: cfg, Fs: fs, WithTemplate: withTemplate[0]}
 
 		s, err = NewSiteForCfg(d)
 		if err != nil {
