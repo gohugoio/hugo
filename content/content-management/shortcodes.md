@@ -140,7 +140,7 @@ To demonstrate the remarkably efficiency of Hugo's shortcode feature, we have em
 
 ### `highlight`
 
-This shortcode will convert the source code provided into syntax-highlighted HTML. Read more on [highlighting](/developer-tools/syntax-highlighting/). `highlight` takes exactly one required parameter of _language_ and requires a closing shortcode.
+This shortcode will convert the source code provided into syntax-highlighted HTML. Read more on [highlighting](/tools/syntax-highlighting/). `highlight` takes exactly one required parameter of _language_ and requires a closing shortcode.
 
 #### Example `highlight` Input
 
@@ -177,7 +177,7 @@ The `highlight` shortcode example above would produce the following HTML when th
 {{% /output %}}
 
 {{% note "More on Syntax Highlighting" %}}
-To see even more options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting](/developer-tools/syntax-highlighting/) in Developer Tools.
+To see even more options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting](/tools/syntax-highlighting/) in Developer Tools.
 {{% /note %}}
 
 ### `instagram`

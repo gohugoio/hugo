@@ -269,7 +269,7 @@ Themes section organization has only changed slightly in that the 6 content page
     * Scratch. Has it's own devoted function page at [/functions/scratch/](/functions/scratch/), and is therefore in the [Functions Quick Reference](/functions/). Also mentioned in an admonition in [/variables/page-variables/](/variables/page-variables/).
     * Shortcodes. Now split into two pages, one a [/content-management/shortcodes/](/content-management/shortcodes/) and the templating portion (i.e. "create your own shortcodes") at [/templates/shortcode-templates/]
     * URLS. Now combined with permalinks and others as a heading/subsection of [/content-management/urls/](/content-management/urls/)
-    * Syntax Highlighting. The shortcode is featured and explained with usage examples at [/content-management/shortcodes/](/content-management/shortcodes/), as well as expaned upon in it's own page under [/developer-tools/syntax-highlighting/](/developer-tools/syntax-highlighting/). I did this under the assumption that *developers* are most interested in adding code blocks to their content.
+    * Syntax Highlighting. The shortcode is featured and explained with usage examples at [/content-management/shortcodes/](/content-management/shortcodes/), as well as expaned upon in it's own page under [/tools/syntax-highlighting/](/tools/syntax-highlighting/). I did this under the assumption that *developers* are most interested in adding code blocks to their content.
     * Table of Contents. This is now it's own page under [/content-management/toc](/content-management/toc/) and referenced in [/variables/page-variables](/variables/page-variables/).
     * Traversing Local Files. This is now split into [/templates/local-file-templates/](/templates/local-file-templates/) and variables delimited at [/variables/other/](/variables/other/).
 
@@ -425,7 +425,7 @@ Apache License - 60
 * Hosting on Github - 40
 * Hosting on Gitlab - 50
 
-### "developer-tools" Ordering
+### "tools" Ordering
 
 * _index.md - 01
 * migrate to hugo - 10

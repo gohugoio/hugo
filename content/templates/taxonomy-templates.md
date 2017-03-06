@@ -22,7 +22,7 @@ Hugo provides multiple ways to use taxonomies throughout your project:
 
 * Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-template)
 * Order the way content associated with a taxonomy term are display in a [taxonomy list template](#taxonomy-list-template)
-* List a single content's taxonomy terms within a [single page template]()
+* List a single content's taxonomy terms within a [single page template][]
 
 ## Taxonomy List Templates
 
@@ -223,7 +223,7 @@ To list such taxonomies, use the following:
 
 Alternatively, you may use the [delimit template function][delimit] as a shortcut if the taxonomies should just be listed with a separator. See {{< gh 2143 >}} on GitHub for discussion.
 
-## 2. Listing content with the Same Taxonomy Term
+## Listing content with the Same Taxonomy Term
 
 First, you may be asking why you would use this. If you are using a taxonomy for something like a series of posts, this is exactly how you would do it. It’s also a quick and dirty way to show some related content.
 
@@ -237,7 +237,7 @@ First, you may be asking why you would use this. If you are using a taxonomy for
 </ul>
 ```
 
-## 3. Listing all content in a given taxonomy
+## Listing all content in a given taxonomy
 
 This would be very useful in a sidebar as “featured content”. You could even have different sections of “featured content” by assigning different terms to the content.
 
@@ -258,7 +258,7 @@ This would be very useful in a sidebar as “featured content”. You could even
 </section>
 ```
 
-## 4. Rendering a Site's Taxonomies
+## Rendering a Site's Taxonomies
 
 If you wish to display the list of all keys for your site's taxonomy, you can retrieve them from the [`.Site` variable][sitevars] available on every page.
 
@@ -312,4 +312,5 @@ This example will list all taxonomies, each of their keys, and all the content a
 
 [delimit]: /functions/delimit/
 [renderlists]: /templates/lists/
+[single page template]: /templates/single-page-templates/
 [sitevars]: /variables/site-variables/

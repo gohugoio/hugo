@@ -35,7 +35,7 @@ Feel free to [contribute to Hugo's development][devcontribute], [improve Hugo's 
 [devcontribute]: /contribute/development/
 [doccontribute]: /contribute/documentation/
 [hosting and deployment]: /hosting-and-deployment/
-[migrate]: /developer-tools/migrate-to-hugo/
+[migrate]: /tools/migrations/
 [newissue]: https://github.com/spf13/hugo/issues/
 [related Discuss thread]: https://discuss.gohugo.io/t/web-based-editor/155
 [themes]: /themes/

@@ -17,4 +17,4 @@ One of Hugo's greatest strengths is it's passionate---and always evolving---deve
 [See the popularity of Hugo compared with other static site generators.][staticgen]
 
 [staticgen]: https://staticgen.com
-[syntax]: /developer-tools/syntax-highlighting/
+[syntax]: /tools/syntax-highlighting/

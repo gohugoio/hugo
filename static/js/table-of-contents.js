@@ -1,10 +1,12 @@
-//IIFE to remove all third-level li's from TOC so as not to negatively affect scrollspy
+//IIFE to remove all third-level li's from TOC so as not to negatively affect scrollspy (these are currently hidden anyway)
 (function() {
-  // let levelFours = document.querySelectorAll('#TableOfContents > ul > li > ul > li ul');
-  let levelFours = document.querySelectorAll('#TableOfContents > ul > li > ul > li > ul > li > ul');
-  if (levelFours) {
-    for (var i = 0; i < levelFours.length; i++) {
-      levelFours[i].remove();
+  let toc = document.getElementById('toc') ? true : false;
+  if (toc) {
+    let levelFours = document.querySelectorAll('#TableOfContents > ul > li > ul > li > ul > li > ul');
+    if (levelFours) {
+      for (var i = 0; i < levelFours.length; i++) {
+        levelFours[i].remove();
+      }
     }
   }
 })();
@@ -24,13 +26,9 @@ $(document).ready(function() {
         return item;
       }
     });
-
   // Bind to scroll
   $(window).scroll(function(evt) {
     evt.preventDefault();
-    // checks for top of page
-    // var isTop = $(window).scrollTop() == 0;
-    // console.log("Top of page?: " + isTop);
     var isBottom = $(window).scrollTop() + $(window).height() == $(document).height();
     // Get container scroll position
     var fromTop = $(this).scrollTop() + headerHeight + 100;
@@ -42,9 +40,6 @@ $(document).ready(function() {
     // Get the id of the current element
     cur = cur[cur.length - 1];
     var id = cur && cur.length ? cur[0].id : "";
-
-
-
     if (lastId !== id) {
       lastId = id;
       // Set/remove active class

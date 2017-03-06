@@ -108,7 +108,7 @@ that specifies three taxonomies (the default two, plus `series`).
 
 Notice the format is `singular key = "plural value"` for TOML and `singular key: "plural value"` for YAML:
 
-### TOML Taxonomy Configuration
+### Example: TOML Taxonomy Configuration
 
 ```toml
 [taxonomies]
@@ -117,7 +117,7 @@ Notice the format is `singular key = "plural value"` for TOML and `singular key:
   series = "series"
 ```
 
-### YAML Taxonomy Configuration
+### Example: YAML Taxonomy Configuration
 
 ```yaml
 taxonomies:
@@ -128,29 +128,26 @@ taxonomies:
 
 ### Overriding Hugo's Default Taxonomies
 
-If you do not specify any taxonomies in your site configuration file *and* your content already includes front matter with `tags:` or `categories`, Hugo will automatically create taxonomy pages. To override this behavior, set the key-value pairs for both of the default taxonomies to empty strings in your `config` file.
+If you do not specify any taxonomies in your site configuration file *and* your content already includes front matter with `tags:` or `categories`, Hugo will automatically create taxonomy pages. To override this behavior, set the key-value pairs for both of the default taxonomies to empty strings in your `config` file:
 
-{{% code file="remove-default-taxonomies-config.toml" %}}
 ```toml
 [taxonomies]
   tag = ""
   category = ""
 ```
-{{% /code %}}
 
-{{% code file="remove-default-taxonomies-config.yml" %}}
 ```yaml
 taxonomies:
     tag: ""
     category: ""
 ```
-{{% /code %}}
+
 
 ### Preserving Taxonomy Values
 
 By default, taxonomy names are hyphenated, lower-cased, normalized, and then fixed and title-ized within.
 
-Therefore, if you want to have a taxonomy value with special characters such as `Gérard Depardieu` instead of `Gerard Depardieu`, you need to set the value for `preserveTaxonomyNames` in your [site configuration][config] to `true`. Hugo will then preserve special characters in taxonomy values but will still title-ize the values for titles and normalize them in URLs.
+Therefore, if you want to have a taxonomy value with special characters such as `Gérard Depardieu` instead of `Gerard Depardieu`, set the value for `preserveTaxonomyNames` to `true` in your [site configuration][config]. Hugo will then preserve special characters in taxonomy values but will still title-ize the values for titles and normalize them in URLs.
 
 Note that if you use `preserveTaxonomyNames` and intend to manually construct URLs to the archive pages, you will need to pass the taxonomy values through the [`urlize` template function][].
 
@@ -164,7 +161,7 @@ Assigning content to a taxonomy is done in the [front matter][]. Simply create a
 If you would like the ability to quickly generate content files with preconfigured taxonomies or terms, read the docs on [Hugo archetypes](/content-management/archetypes/).
 {{% /note %}}
 
-### TOML Front Matter with Taxonomies Example
+### Example: TOML Front Matter with Taxonomies
 
 ```toml
 +++
@@ -177,7 +174,7 @@ project_url = "https://github.com/spf13/hugo"
 +++
 ```
 
-### YAML Front Matter with Taxonomies Example
+### Example: YAML Front Matter with Taxonomies
 
 ```yaml
 ---
@@ -190,7 +187,7 @@ project_url: "https://github.com/spf13/hugo"
 ---
 ```
 
-### JSON Front Matter with Taxonomies Example
+### Example: JSON Front Matter with Taxonomies
 
 ```json
 {
@@ -218,7 +215,7 @@ A content file can assign weight for each of its associate taxonomies. Taxonomic
 
 The following TOML and YAML examples show a piece of content that has a weight of 22, which can be used for ordering purposes when rendering the pages assigned to the "a", "b" and "c" values of the `tags` taxonomy. It has also been assigned the weight of 44 when rendering the "d" category page.
 
-### TOML Taxonomic `weight` Example
+### Example: TOML Taxonomic `weight`
 
 ```toml
 +++
@@ -230,16 +227,16 @@ categories_weight = 44
 +++
 ```
 
-### YAML Taxonomic `weight` Example
+### Example: YAML Taxonomic `weight`
 
 ```yaml
-+++
+---
 title: foo
 tags: [ "a", "b", "c" ]
 tags_weight: 22
 categories: ["d"]
 categories_weight: 44
-+++
+---
 ```
 
 By using taxonomic weight, the same piece of content can appear in different positions in different taxonomies.

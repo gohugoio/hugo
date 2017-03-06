@@ -33,7 +33,7 @@ functions:
   haschildren: false
   sortsubpagesby: "title"
   desc: "Comprehensive list of Hugo templating functions, including basic and advanced usage examples"
-variablesandparams:
+variables:
   order: 6
   title: "Variables"
   url: "variables"
@@ -61,10 +61,10 @@ tutorials:
   haschildren: true
   sortsubpagesby: "title"
   desc: "Community-aggregated articles and code examples for approaching different projects with Hugo"
-developertools:
+tools:
   order: 10
   title: "Developer Tools"
-  url: "developer-tools"
+  url: "tools"
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Syntax highlighting, site search, text editor plug-ins, and migration tools"

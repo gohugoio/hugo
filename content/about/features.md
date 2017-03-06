@@ -79,7 +79,7 @@ See what's coming next in the [Hugo roadmap][].
 [Shortcodes]: /content-management/shortcodes/
 [sort content]: /templates/
 [supported formats]: /content-management/formats/
-[Syntax highlighting]: /developer-tools/syntax-highlighting/
+[Syntax highlighting]: /tools/syntax-highlighting/
 [table of contents]: /content-management/toc/
 [taxonomies]: /content-management/taxonomies/
 [URLs]: /content-management/urls/

@@ -22,7 +22,7 @@ The following starter kits are developed by active members of the Hugo community
 * [Blaupause][]. Blaupause is a developer-friendly Hugo starter kit based on Gulp tasks. It comes ES6-ready with several helpers for SVG and fonts and basic structure for HTML, SCSS, and JavaScript.
 * [hugulp][]. hugulp is a tool to optimize the assets of a Hugo website. The main idea is to recreate the famous Ruby on Rails Asset Pipeline, which minifies, concatenates and fingerprints the assets used in your website.
 
-[addkit]: https://github.com/spf13/hugo/edit/master/docs/content/developer-tools/starter-kits.md
+[addkit]: https://github.com/spf13/hugo/edit/master/docs/content/tools/starter-kits.md
 [Blaupause]: https://github.com/fspoettel/blaupause
 [hugulp]: https://github.com/jbrodriguez/hugulp
 [Victor Hugo]: https://github.com/netlify/victor-hugo

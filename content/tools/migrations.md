@@ -1,6 +1,6 @@
 ---
 title: Migrate to Hugo
-linktitle: Migrate to Hugo
+linktitle: Migrations
 description: A list of community-developed tools for migrating from your existing static site generator or content management system to Hugo.
 date: 2017-02-01
 publishdate: 2017-02-01

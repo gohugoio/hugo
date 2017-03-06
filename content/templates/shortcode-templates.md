@@ -247,7 +247,7 @@ The rendered output of the HTML example code block will be as follows:
 {{% /output %}}
 
 {{% note %}}
-The preceding shortcode makes use of a Hugo-specific template function called `highlight`, which uses [Pygments](http://pygments.org) to add syntax highlighting to the example HTML code block. See the [developer tools page on syntax highlighting](/developer-tools/syntax-highlighting/) for more information.
+The preceding shortcode makes use of a Hugo-specific template function called `highlight`, which uses [Pygments](http://pygments.org) to add syntax highlighting to the example HTML code block. See the [developer tools page on syntax highlighting](/tools/syntax-highlighting/) for more information.
 {{% /note %}}
 
 ## More Shortcode Examples

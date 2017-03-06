@@ -104,10 +104,10 @@ Because additional format are external commands---with the exception of org mode
 [bfconfig]: /getting-started/configuration/#configuring-blackfriday-rendering
 [blackfriday]: https://github.com/russross/blackfriday
 [config]: /getting-started/configuration/
-[developer tools]: /developer-tools/
+[developer tools]: /tools/
 [fireball]: https://daringfireball.net/projects/markdown/
 [helperssource]: https://github.com/spf13/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65
-[hl]: /developer-tools/syntax-highlighting/
+[hl]: /tools/syntax-highlighting/
 [hlsc]: /content-management/shortcodes/#highlight
 [hugocss]: /css/style.min.css
 [mdcheatsheet]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
