@@ -23,6 +23,7 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/output"
 	"github.com/spf13/hugo/parser"
 
 	"html/template"
@@ -36,11 +37,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/spf13/hugo/output"
-
 	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/media"
 	"github.com/spf13/hugo/source"
 )
 
@@ -203,9 +201,8 @@ type Page struct {
 
 	lang string
 
-	// The media types this page will be rendered to.
-	// TODO(bep) probably wrap this to add additional information like template evaluation?
-	mediaTypes media.Types
+	// The output types this page will be rendered to.
+	outputTypes output.Types
 
 	// Used to pick the correct template(s)
 	layoutIdentifier pageLayoutIdentifier
@@ -676,6 +673,7 @@ func (p *Page) Section() string {
 }
 
 func (p *Page) layouts(layouts ...string) []string {
+	// TODO(bep) output
 	if len(p.layoutsCalculated) > 0 {
 		return p.layoutsCalculated
 	}
@@ -1879,8 +1877,8 @@ func kindFromFilename(filename string) string {
 
 // TODO(bep) output
 var (
-	mediaTypesWithRSS = media.Types{media.HTMLType, media.RSSType}
-	mediaTypesHTML    = media.Types{media.HTMLType}
+	outputTypesWithRSS = output.Types{output.HTMLType, output.RSSType}
+	outputTypesHTML    = output.Types{output.HTMLType}
 )
 
 func (p *Page) setValuesForKind(s *Site) {

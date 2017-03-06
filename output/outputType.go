@@ -29,6 +29,8 @@ var (
 	}
 )
 
+type Types []Type
+
 // Type represents an output represenation, usually to a file on disk.
 type Type struct {
 	// The Name is used as an identifier. Internal output types (i.e. HTML and RSS)

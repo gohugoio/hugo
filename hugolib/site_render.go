@@ -21,7 +21,7 @@ import (
 	"time"
 
 	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/media"
+	"github.com/spf13/hugo/output"
 )
 
 // renderPages renders pages each corresponding to a markdown file.
@@ -64,13 +64,21 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 	defer wg.Done()
 	for p := range pages {
 		// TODO(bep) output
-		for _, mediaType := range p.mediaTypes {
-			switch mediaType {
+		for _, outputType := range p.outputTypes {
+			var layouts []string
 
-			case media.HTMLType:
+			if len(p.layoutsCalculated) > 0 {
+				// TODO(bep) output
+				layouts = p.layoutsCalculated
+			} else {
+				layouts = s.layoutHandler.For(p.layoutIdentifier, "", outputType)
+			}
+
+			switch outputType {
+
+			case output.HTMLType:
 				targetPath := p.TargetPath()
 
-				layouts := p.layouts()
 				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
 
 				if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
@@ -84,7 +92,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 					}
 				}
 
-			case media.RSSType:
+			case output.RSSType:
 				if err := s.renderRSS(p); err != nil {
 					results <- err
 				}

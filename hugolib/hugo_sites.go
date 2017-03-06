@@ -550,9 +550,9 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 
 				// TODO(bep) output this is temporary
 				if p.IsNode() && p.Kind != KindTaxonomyTerm {
-					p.mediaTypes = mediaTypesWithRSS
+					p.outputTypes = outputTypesWithRSS
 				} else {
-					p.mediaTypes = mediaTypesHTML
+					p.outputTypes = outputTypesHTML
 				}
 
 				//analyze for raw stats
