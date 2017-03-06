@@ -234,7 +234,7 @@ hugo config | FINDSTR /I canon
 
 ## Overriding URLS with Front Matter
 
-In addition to specifying permalink values in your site configuration for different sections of content, Hugo provides even more granular for individual pieces of content.
+In addition to specifying permalink values in your site configuration for different content sections, Hugo provides even more granular control for individual pieces of content.
 
 Both `slug` and `url` can be defined in individual front matter. For more information on content destinations at build time, seee [Content Organization][contentorg].
 
@@ -244,7 +244,7 @@ By default, all relative URLs are left unchanged by Hugo, which can be problemat
 
 Setting `relativeURLs` to `true` in your [site configuration][config] will cause Hugo to rewrite all relative URLs to be relative to the current content.
 
-For example, if the `/post/first/` page contained a link to `/about/`, Hugo would rewrite that URL to `../../about/`.
+For example, if your `/post/first/` page contains a link to `/about/`, Hugo will rewrite the URL to `../../about/`.
 
 [config]: /getting-started/configuration/
 [contentorg]: /content-management/organization/

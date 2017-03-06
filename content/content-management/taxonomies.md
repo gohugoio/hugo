@@ -180,14 +180,14 @@ project_url = "https://github.com/spf13/hugo"
 ### YAML Front Matter with Taxonomies Example
 
 ```yaml
-+++
+---
 title: "Hugo: A fast and flexible static site generator"
 tags: ["Development", "Go", "fast", "Blogging"]
 categories: ["Development"]
 categories: ["Go Web Dev"]
 slug: "hugo"
 project_url: "https://github.com/spf13/hugo"
-+++
+---
 ```
 
 ### JSON Front Matter with Taxonomies Example
