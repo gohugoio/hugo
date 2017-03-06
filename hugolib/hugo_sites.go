@@ -549,7 +549,7 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 				}
 
 				// TODO(bep) output this is temporary
-				if p.IsNode() && p.Kind != KindTaxonomyTerm {
+				if p.IsNode() {
 					p.outputTypes = outputTypesWithRSS
 				} else {
 					p.outputTypes = outputTypesHTML
