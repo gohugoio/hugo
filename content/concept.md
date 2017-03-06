@@ -392,6 +392,7 @@ Apache License - 60
 * RSS Templates - 150
 * Sitemap Template - 160
 * Robots.txt - 165
+* Internal Templates - 168
 * Additional Templating Languages - 170
 * Template Debugging - 180
 
