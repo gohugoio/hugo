@@ -17,7 +17,6 @@ $(document).ready(function() {
     $(window).scroll(function() {
       let scroll = $(this).scrollTop(),
         offset = installrow.offset().top - 120;
-      console.log(scrolled, atTop);
       if (scroll > 20 && atTop == true) {
         $('#homepage-nav').addClass('shadow');
         atTop = false;
