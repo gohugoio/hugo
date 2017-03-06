@@ -256,7 +256,7 @@ You can create the following `layouts/partials/disqus.html`:
 
 The `if` statement skips the initialization of the Disqus comment injection when you are running on `localhost`.
 
-You can then reference then render your custom analytics partial template as follows:
+You can then render your custom Disqus partial template as follows:
 
 ```golang
 {{ partial "disqus.html" . }}
