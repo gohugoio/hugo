@@ -35,7 +35,7 @@ Download the appropriate version for your platform from [Hugo Releases][releases
 
 Ideally, you should install it somewhere in your `PATH` for easy use. `/usr/local/bin` is the most probable location.
 
-### Quick Install: Homebrew (OS X)
+### Quick Install: OS X (Homebrew)
 
 If you are on OS X and using [Homebrew][brew], you can install Hugo with the following one-liner:
 
