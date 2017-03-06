@@ -21,7 +21,7 @@ Hugo includes support for user-defined groupings of content called **taxonomies*
 Hugo provides multiple ways to use taxonomies throughout your project:
 
 * Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-template)
-* Order the way content associated with a taxonomy term are display in a [taxonomy list template](#taxonomy-list-template)
+* Order the way content associated with a taxonomy term is displayed in a [taxonomy list template](#taxonomy-list-template)
 * List a single content's taxonomy terms within a [single page template][]
 
 ## Taxonomy List Templates
@@ -30,14 +30,14 @@ Taxonomy list page templates are lists and therefore have all the variables and 
 
 ### Taxonomy List Template Lookup Order
 
-A Taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g.&nbsp;http://spf13.com/topics/golang/) from:
+A Taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g., http://spf13.com/topics/golang/) from according to the following lookup order:
 
-* `/layouts/taxonomy/<SINGULAR>.html`
-* /layouts/_default/taxonomy.html
-* /layouts/_default/list.html
-* /themes/<THEME>/layouts/taxonomy/<SINGULAR>.html
-* /themes/<THEME>/layouts/_default/taxonomy.html
-* /themes/`THEME`/layouts/_default/list.html
+1. `/layouts/taxonomy/<SINGULAR>.html`
+2. `/layouts/_default/taxonomy.html`
+3. `/layouts/_default/list.html`
+4. `/themes/<THEME>/layouts/taxonomy/<SINGULAR>.html`
+5. `/themes/<THEME>/layouts/_default/taxonomy.html`
+6. `/themes/<THEME>/layouts/_default/list.html`
 
 ## Taxonomy Terms Template
 
@@ -113,7 +113,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 ### Order Alphabetically Example
 
-```
+```html
 <ul>
   {{ $data := .Data }}
   {{ range $key, $value := .Data.Taxonomy.Alphabetical }}
@@ -124,7 +124,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 ### Order by Popularity Example
 
-```
+```html
 <ul>
   {{ $data := .Data }}
   {{ range $key, $value := .Data.Taxonomy.ByCount }}
@@ -195,10 +195,9 @@ using the [list templates](/templates/list/):
 
 Within your content templates, you may wish to display the taxonomies that piece of content is assigned to.
 
-Because we are leveraging the front matter system to define taxonomies for content, the taxonomies assigned to each content piece are located in the usual place
-(.Params.`plural`).
+Because we are leveraging the front matter system to define taxonomies for content, the taxonomies assigned to each content piece are located in the usual place (i.e., `.Params.<TAXONOMYPLURAL>`).
 
-### Example
+### Example: List Tags in a Single Page Template
 
 ```html
 <ul id="tags">
@@ -208,11 +207,11 @@ Because we are leveraging the front matter system to define taxonomies for conte
 </ul>
 ```
 
-If you want to list taxonomies inline, you will have to take care of optional plural ending in the title (if multiple taxonomies), as well as commas. Let's say we have a taxonomy "directors" such as `directors: [ "Joel Coen", "Ethan Coen" ]` in the TOML-format front matter.
+If you want to list taxonomies inline, you will have to take care of optional plural endings in the title (if multiple taxonomies), as well as commas. Let's say we have a taxonomy "directors" such as `directors: [ "Joel Coen", "Ethan Coen" ]` in the TOML-format front matter.
 
 To list such taxonomies, use the following:
 
-### Example
+### Example: Comma-delimit Tags in a Single Page Template
 
 ```html
 {{ if .Params.directors }}
@@ -223,11 +222,11 @@ To list such taxonomies, use the following:
 
 Alternatively, you may use the [delimit template function][delimit] as a shortcut if the taxonomies should just be listed with a separator. See {{< gh 2143 >}} on GitHub for discussion.
 
-## Listing content with the Same Taxonomy Term
+## Listing Content with the Same Taxonomy Term
 
-First, you may be asking why you would use this. If you are using a taxonomy for something like a series of posts, this is exactly how you would do it. It’s also a quick and dirty way to show some related content.
+If you are using a taxonomy for something like a series of posts, you can list individual pages associated with the same taxonomy. This is also a quick and dirty method for showing related content:
 
-### Example
+### Example: Showing Content in Same Series
 
 ```html
 <ul>
@@ -237,11 +236,11 @@ First, you may be asking why you would use this. If you are using a taxonomy for
 </ul>
 ```
 
-## Listing all content in a given taxonomy
+## Listing All content in a Given taxonomy
 
 This would be very useful in a sidebar as “featured content”. You could even have different sections of “featured content” by assigning different terms to the content.
 
-### Example
+### Example: Grouping "Featured" Content
 
 ```html
 <section id="menu">
@@ -266,7 +265,7 @@ This may take the form of a tag cloud, a menu, or simply a list.
 
 The following example displays all terms in a site's tags taxonomy:
 
-### Example: List All Tags
+### Example: List All Site Tags
 
 ```html
 <ul id="all-tags">
@@ -276,9 +275,9 @@ The following example displays all terms in a site's tags taxonomy:
 </ul>
 ```
 
-### Example: List All Taxonomies, Keys, and Assigned Content
+### Example: List All Taxonomies, Terms, and Assigned Content
 
-This example will list all taxonomies, each of their keys, and all the content assigned to each key.
+This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
 {{% code file="layouts/partials/all-taxonomies.html" download="all-taxonomies.html" %}}
 ```html

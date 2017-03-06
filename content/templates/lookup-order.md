@@ -45,4 +45,4 @@ See examples of the lookup order for each of the Hugo template types:
 [singlelookup]: templates/single-page-templates/#single-page-template-lookup-order
 [switch]: https://en.wikipedia.org/wiki/Switch_statement#Fallthrough
 [taxonomylookup]: /templates/taxonomy-templates/#taxonomy-list-template-lookup-order
-[termslookup]: /templates/taxonomy-templtes/#taxonomy-terms-template-lookup-order
+[termslookup]: /templates/taxonomy-templates/#taxonomy-terms-template-lookup-order
