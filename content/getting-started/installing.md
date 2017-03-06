@@ -27,7 +27,7 @@ Hugo currently provides pre-built binaries for the following:
 * <i class="fa fa-linux"></i>&nbsp;Linux,
 * <i class="icon-freebsd"></i>&nbsp;FreeBSD
 
-Hugo may also be compiled from source wherever the Go compiler tool chain can run---e.g., for other operating systems, including DragonFly BSD, OpenBSD, Plan&nbsp;9 and Solaris. See <http://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
+Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., for other operating systems, including DragonFly BSD, OpenBSD, Plan&nbsp;9 and Solaris. See <http://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
 
 ### Quick Install: Binary (Cross-platform)
 
