@@ -1,6 +1,6 @@
 ---
-title: Additional Templating Languages
-linktitle: Additional Templating
+title: Alternative Templating Languages
+linktitle: Alternative Templating
 description: In addition to Go templates, Hugo supports the powerful Ace templating from @yosssi and Amber templating from @eknkc.
 godocref:
 date: 2017-02-01
