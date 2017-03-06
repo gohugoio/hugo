@@ -1,31 +1,28 @@
 $('#homepage-nav > ul.animated').addClass('fadeInDown');
-$('.homepage-icon.animated').addClass('fadeIn');
-
+$('.home-row.hero.animated').addClass('fadeIn');
 
 $(document).ready(function() {
-  let offset1 = $('.hero').height() * .2,
-    offset2 = offset1 * 2,
-    scrolled1 = false,
-    scrolled2 = false,
+  let
+    scrolled = false,
     atTop = true,
     terminal = $('.homepage-terminal'),
-    firstFade = $('.first-fade'),
     gopher = $('#gopher'),
     cape = $('.gopher-cape'),
-    badge = $('.gopher-badge');
+    badge = $('.gopher-badge'),
+    installrow = $('.home-row.install');
+
   $(window).scroll(function() {
-    let scroll = $(this).scrollTop();
+    let scroll = $(this).scrollTop(),
+      offset = installrow.offset().top - 120;
+    console.log(scrolled, atTop);
     if (scroll > 20 && atTop == true) {
       $('#homepage-nav').addClass('shadow');
       atTop = false;
-    }else if (scroll < 20) {
+    } else
+    if (scroll < 20) {
       $('#homepage-nav').removeClass('shadow');
       atTop = true;
-    }
-    if (scroll > offset1 && scrolled1 == false) {
-      firstFade.addClass('fadeIn');
-      scrolled1 = true;
-    } else if (scroll > offset2 && scrolled2 == false) {
+    } else if (scroll > offset && scrolled == false) {
       terminal.blast({ delimiter: "letter" }).velocity("transition.fadeIn", {
         display: null,
         customClass: "visible",
@@ -42,7 +39,7 @@ $(document).ready(function() {
           });
         }
       });
-      scrolled2 = true;
+      scrolled = true;
     }
     // else if (scroll > offset3)
   });

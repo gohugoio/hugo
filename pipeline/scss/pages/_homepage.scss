@@ -57,6 +57,30 @@ ul.animated {
   }
 }
 
+.home-row {
+  min-height: auto;
+  display: flex;
+  flex-wrap: wrap;
+  &.hero {
+    margin-top: 50px;
+    min-height: auto;
+    flex-direction: column;
+    align-items: center;
+    &.animated {
+      opacity: 0;
+    }
+  }
+  &:nth-child(2) {
+    background-color: darken($hugo-gray-ultra-light, 3%);
+  }
+  &:nth-child(3) {
+    background-color: $hugo-white;
+  }
+  &:nth-child(5) {
+    background-color: $hugo-blue;
+  }
+}
+
 .homepage-icon {
   display: block;
   display: flex;
@@ -64,26 +88,26 @@ ul.animated {
   width: 90%;
   max-width: 540px;
   margin-top: 5em;
-  opacity: 0;
   margin: {
     right: auto;
     left: auto;
   }
-  span {
-    width: 100%;
-    display: inline;
-    text-align: center;
-    font-size: 2.3em;
-    @include MQ(M) {
-      font-size: 3.5em;
-    }
-    color: $hugo-pink;
-    font-weight: 900;
-    font-family: 'helvetica neue',
-    helvetica,
-    arial;
-    margin-left: -.25em;
+}
+
+.get-started {
+  .button.xl {
+    display: block;
+    margin-top: 1.5em;
+    font-size: 1.3em;
+    padding-right: 1em;
+    padding-left: 1em;
+    width: auto;
+    max-width: 12em;
+    margin-left: auto;
+    margin-right: auto;
+    // background-color: rgb(140,197,231);
   }
+  margin-bottom:5em;
 }
 
 .hero-tagline {
@@ -97,27 +121,6 @@ ul.animated {
   max-width: 90%;
   @include MQ(M) {
     font-size: 1.5em;
-  }
-}
-
-.home-row {
-  min-height: auto;
-  display: flex;
-  flex-wrap: wrap;
-  &.hero {
-    margin-top: 50px;
-    min-height: auto;
-    flex-direction: column;
-    align-items: center;
-  }
-  &:nth-child(2) {
-    background-color: darken($hugo-gray-ultra-light, 3%);
-  }
-  &:nth-child(3) {
-    background-color: $hugo-white;
-  }
-  &:nth-child(4) {
-    background-color: $hugo-blue;
   }
 }
 
@@ -135,6 +138,11 @@ ul.animated {
     width: 100%;
     text-align: center;
     margin-bottom: 1em;
+    span {
+      font-size: .7em;
+      font-weight: 300;
+      color: lighten($base-font-color, 20%);
+    }
   }
   @include MQ(XL) {
     justify-content: space-around;
@@ -144,12 +152,29 @@ ul.animated {
   }
 }
 
-.homepage-features {
+.home-row-content-focus {
+  display: flex;
+  .focus-svgs {
+    display: flex;
+    justify-content: space-around;
+    @include MQ(M) {
+      max-width: 48%;
+    }
+    svg {
+      max-width: 48%;
+    }
+  }
+  #content-halo {
+    fill: $hugo-blue!important;
+  }
+}
+
+.home-row-content-features {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
   width: 85%;
-  .homepage-feature {
+  .home-row-content-feature {
     margin-bottom: 2em;
     max-width: $L * .31;
     h3 {
@@ -160,7 +185,7 @@ ul.animated {
       font-size: 1.1em;
     }
     .homepage-feature-content {
-      color: lighten($base-font-color, 30%);
+      color: lighten($base-font-color, 20%);
       font-weight: 200;
       line-height: 1.3;
       font-size: .9em;
@@ -219,22 +244,6 @@ ul.animated {
       top: 2.5em;
     }
   }
-}
-
-.get-started {
-  .button.xl {
-    display: block;
-    margin-top: 1.5em;
-    font-size: 1.3em;
-    padding-right: 1em;
-    padding-left: 1em;
-    width: auto;
-    max-width: 12em;
-    margin-left: auto;
-    margin-right: auto;
-    // background-color: rgb(140,197,231);
-  }
-  margin-bottom:5em;
 }
 
 .homepage-terminal {
@@ -322,8 +331,16 @@ svg {
   }
 }
 
-.homepage-tweets {
-  // color: $hugo-white;
+.platform-icons {
+  display:flex;
+  width:100%;
+  justify-content:space-between;
+  i {
+    font-size: 80px;
+  }
+}
+
+.home-row-content-tweets {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
@@ -350,17 +367,16 @@ svg {
     right: 10px;
     color: #1DA1F2;
   }
+  .homepage-tweet-attribution {
+    font-style: normal;
+    width: 100%;
+    display: block;
+    font-size: .8em;
+    text-align: right;
+  }
 }
 
-.homepage-tweet-attribution {
-  font-style: normal;
-  width: 100%;
-  display: block;
-  font-size: .8em;
-  text-align: right;
-}
-
-.homepage-open-source {
+.home-row-content-open-source {
   div {
     width: 100%;
     text-align: center;

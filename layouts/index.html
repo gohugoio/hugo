@@ -4,26 +4,31 @@
 {{ end }}
 {{ define "main" }}
 	<main id="homepage" class="main">
-	  <div class="home-row hero">
+	  <div class="home-row hero animated">
 	    {{ partial "homepage/homepage-hero.html" . }}
 	  </div>
-	  <div class="home-row animated">
-	    <div class="home-row-content first-fade animated">
-	      {{ partial "homepage/homepage-focus.html" . }}
-	    </div>
+	  <div class="home-row focus">
+	  	<div class="home-row-content home-row-content-focus">
+	  		{{partial "homepage/homepage-focus.html" . }}
+	  	</div>
 	  </div>
-	  <div class="home-row">
-	    <div class="home-row-content homepage-features">
+	  <div class="home-row features">
+	    <div class="home-row-content home-row-content-features">
 	      {{ partial "homepage/homepage-features" . }}
 	    </div>
 	  </div>
-	  <div class="home-row">
-	    <div class="home-row-content homepage-tweets">
+	  <div class="home-row install">
+	    <div class="home-row-content">
+	      {{ partial "homepage/homepage-install.html" . }}
+	    </div>
+	  </div>
+	  <div class="home-row tweets">
+	    <div class="home-row-content home-row-content-tweets">
 	      {{ partial "homepage/homepage-tweets.html" . }}
 	    </div>
 	  </div>
-	  <div class="home-row">
-	    <div class="home-row-content homepage-open-source">
+	  <div class="home-row open-source">
+	    <div class="home-row-content home-row-content-open-source">
 	      {{ partial "homepage/homepage-open-source.html" . }}
 	    </div>
 	  </div>
