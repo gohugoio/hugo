@@ -14,8 +14,9 @@
 package output
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/spf13/hugo/media"
 
 	"github.com/stretchr/testify/require"
 )
@@ -43,46 +44,56 @@ func (l testLayoutIdentifier) PageSection() string {
 	return l.pageSection
 }
 
+var ampType = Type{
+	Name:      "AMP",
+	MediaType: media.HTMLType,
+	BaseName:  "index",
+}
+
 func TestLayout(t *testing.T) {
 
-	for i, this := range []struct {
+	for _, this := range []struct {
+		name           string
 		li             testLayoutIdentifier
 		hasTheme       bool
 		layoutOverride string
 		tp             Type
 		expect         []string
 	}{
-		{testLayoutIdentifier{"home", "", "", ""}, true, "", HTMLType,
-			[]string{"index.html", "_default/list.html", "theme/index.html", "theme/_default/list.html"}},
-		{testLayoutIdentifier{"section", "sect1", "", ""}, false, "", HTMLType,
-			[]string{"section/sect1.html", "sect1/list.html"}},
-		{testLayoutIdentifier{"taxonomy", "tag", "", ""}, false, "", HTMLType,
-			[]string{"taxonomy/tag.html", "indexes/tag.html"}},
-		{testLayoutIdentifier{"taxonomyTerm", "categories", "", ""}, false, "", HTMLType,
-			[]string{"taxonomy/categories.terms.html", "_default/terms.html"}},
-		{testLayoutIdentifier{"page", "", "", ""}, true, "", HTMLType,
-			[]string{"_default/single.html", "theme/_default/single.html"}},
-		{testLayoutIdentifier{"page", "", "mylayout", ""}, false, "", HTMLType,
-			[]string{"_default/mylayout.html"}},
-		{testLayoutIdentifier{"page", "", "mylayout", "myttype"}, false, "", HTMLType,
-			[]string{"myttype/mylayout.html", "_default/mylayout.html"}},
-		{testLayoutIdentifier{"page", "", "mylayout", "myttype/mysubtype"}, false, "", HTMLType,
-			[]string{"myttype/mysubtype/mylayout.html", "myttype/mylayout.html", "_default/mylayout.html"}},
-		{testLayoutIdentifier{"page", "", "mylayout", "myttype"}, false, "myotherlayout", HTMLType,
-			[]string{"myttype/myotherlayout.html", "_default/myotherlayout.html"}},
+		{"Home", testLayoutIdentifier{"home", "", "", ""}, true, "", ampType,
+			[]string{"index.amp.html", "index.html", "_default/list.amp.html", "_default/list.html", "theme/index.amp.html", "theme/index.html"}},
+		{"Section", testLayoutIdentifier{"section", "sect1", "", ""}, false, "", ampType,
+			[]string{"section/sect1.amp.html", "section/sect1.html"}},
+		{"Taxonomy", testLayoutIdentifier{"taxonomy", "tag", "", ""}, false, "", ampType,
+			[]string{"taxonomy/tag.amp.html", "taxonomy/tag.html"}},
+		{"Taxonomy term", testLayoutIdentifier{"taxonomyTerm", "categories", "", ""}, false, "", ampType,
+			[]string{"taxonomy/categories.terms.amp.html", "taxonomy/categories.terms.html", "_default/terms.amp.html"}},
+		{"Page", testLayoutIdentifier{"page", "", "", ""}, true, "", ampType,
+			[]string{"_default/single.amp.html", "_default/single.html", "theme/_default/single.amp.html"}},
+		{"Page with layout", testLayoutIdentifier{"page", "", "mylayout", ""}, false, "", ampType,
+			[]string{"_default/mylayout.amp.html", "_default/mylayout.html"}},
+		{"Page with layout and type", testLayoutIdentifier{"page", "", "mylayout", "myttype"}, false, "", ampType,
+			[]string{"myttype/mylayout.amp.html", "myttype/mylayout.html", "_default/mylayout.amp.html"}},
+		{"Page with layout and type with subtype", testLayoutIdentifier{"page", "", "mylayout", "myttype/mysubtype"}, false, "", ampType,
+			[]string{"myttype/mysubtype/mylayout.amp.html", "myttype/mysubtype/mylayout.html", "myttype/mylayout.amp.html"}},
+		{"Page with overridden layout", testLayoutIdentifier{"page", "", "mylayout", "myttype"}, false, "myotherlayout", ampType,
+			[]string{"myttype/myotherlayout.amp.html", "myttype/myotherlayout.html"}},
 	} {
-		l := NewLayoutHandler(this.hasTheme)
-		logMsg := fmt.Sprintf("Test %d", i)
-		layouts := l.For(this.li, this.layoutOverride, this.tp)
-		require.NotNil(t, layouts, logMsg)
-		require.True(t, len(layouts) >= len(this.expect), logMsg)
-		// Not checking the complete list for now ...
-		require.Equal(t, this.expect, layouts[:len(this.expect)], logMsg)
+		t.Run(this.name, func(t *testing.T) {
+			l := NewLayoutHandler(this.hasTheme)
 
-		if !this.hasTheme {
-			for _, layout := range layouts {
-				require.NotContains(t, layout, "theme", logMsg)
+			layouts := l.For(this.li, this.layoutOverride, this.tp)
+
+			require.NotNil(t, layouts)
+			require.True(t, len(layouts) >= len(this.expect))
+			// Not checking the complete list for now ...
+			require.Equal(t, this.expect, layouts[:len(this.expect)])
+
+			if !this.hasTheme {
+				for _, layout := range layouts {
+					require.NotContains(t, layout, "theme")
+				}
 			}
-		}
+		})
 	}
 }
