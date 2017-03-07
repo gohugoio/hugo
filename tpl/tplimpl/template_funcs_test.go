@@ -148,6 +148,9 @@ md5: {{ md5 "Hello world, gophers!" }}
 mod: {{mod 15 3}}
 modBool: {{modBool 15 3}}
 mul: {{mul 2 3}}
+print: {{ print "works!" }}
+printf: {{ printf "%s!" "works" }}
+println: {{ println "works!" -}}
 plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
 pluralize: {{ "cat" | pluralize }}
 querify 1: {{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those") | safeHTML }}
@@ -221,6 +224,9 @@ md5: b3029f756f98f79e7f1b7f1d1f0dd53b
 mod: 0
 modBool: true
 mul: 6
+print: works!
+printf: works!
+println: works!
 plainify: Hello world, gophers!
 pluralize: cats
 querify 1: bar=2&baz=with+spaces&foo=1&qux=this%26that%3Dthose
