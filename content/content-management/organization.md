@@ -18,7 +18,7 @@ wip: true
 
 In Hugo, your content should be organized in a manner that reflects the rendered website.
 
-While Hugo supports content nested at any level, the top levels (i.e. `content/<directories>*`) are special in Hugo and considered the content [sections][section]. Without any additional configuration, the following will just work:
+While Hugo supports content nested at any level, the top levels (i.e. `content/<DIRECTORIES>`) are special in Hugo and are considered the content [sections][]. Without any additional configuration, the following will just work:
 
 ```
 .
@@ -37,13 +37,13 @@ While Hugo supports content nested at any level, the top levels (i.e. `content/<
 
 ## Path Breakdown in Hugo
 
-The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website at render. These examples assume you are using pretty URLs, which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://yoursite.com"` in your site's configuration file.
+The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website at render. These examples assume you are using pretty URLs, which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://yoursite.com"` in your [site's configuration file][config].
 
 ### Section Index Page
 
-`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [section list template][sectionlists] as of v0.18.
+`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists] as of v0.18. These templates include those for [section templates][], [taxonomy templates][], [taxonomy terms templates][], and your [homepage template][].
 
-You can keep one `_index.md` in each of your content sections. The following shows typical placement of an `_index.md` that would contain content or front matter for a `posts` section list page on a Hugo website:
+You can keep one `_index.md` in each of your content sections. The following shows typical placement of an `_index.md` that would contain content and front matter for a `posts` section list page on a Hugo website:
 
 
 ```bash
@@ -69,7 +69,7 @@ At build, this will output to the following destination with the associated valu
 http://yoursite.com/posts/index.html
 ```
 
-### Section Single Page
+### Section Single Pages
 
 Single content files in each of your sections are going to be rendered as [single page templates][singles]. Here is an example of a single `post` within `posts`:
 
@@ -112,71 +112,90 @@ To continue the example, the following demonstrates destination paths for a file
 ⊢----------------------^-----------------------⊣
 http://yoursite.com/events/chicago/lollapalooza/
 ```
-
-##
+## Path Properties Explained
 
 #### `section`
 
-Default content type is determined by a piece of content's section. `section` is determined by the location within the project's `content` directory. `section` *cannot* be specified or overridden in front matter.
+A default content type is determined by a piece of content's section. `section` is determined by the location within the project's `content` directory. `section` *cannot* be specified or overridden in front matter.
 
 #### `slug`
 
 A content's `slug` is either `name.extension` or `name/`. The value for `slug` is determined by
 
-* the name of the content file (e.g., `content-name.md`)
+* the name of the content file (e.g., `lollapalooza.md`) OR
 * front matter overrides
 
 #### `path`
 
 A content's `path` is determined by the section's path to the file. The file `path`
 
-* is based on the path to the content's location
+* is based on the path to the content's location AND
 * does not include the slug
 
 #### `url`
 
 The `url` is the relative URL for the piece of content. The `url`
 
-* is defined in front matter
-* overrides all the above
+* is based on the content's location within the directory structure OR
+* is defined in front matter and *overrides all the above*
 
-## Destinations for Content Source
+## Modifying Destinations for Content Source in Front Matter
 
 Hugo believes that you organize your content with a purpose. The same structure that works to organize your source content is used to organize the rendered site. As displayed above, the organization of the source content will be mirrored in the destination.
 
-Notice that the first level `about/` page URL was created using a directory named "about" with a single `_index.md` file inside..
+Notice that the first level `about/` page URL was created using a directory named "about" with a single `_index.md` file inside.
 
-There are times where you may need more control over your content. In these cases, there are a variety of things that can be specified in the front matter to determine the destination of a specific piece of content.
+There are times where you may need more control over your content. In these cases, there are fields that can be specified in the front matter to determine the destination of a specific piece of content.
 
-The following items are defined in order; latter items in the list will override earlier settings.
+The following items are defined in this order for a specific reason: latter items in the list will override earlier items, and not all of these items can be defined in front matter:
 
 ### `filename`
 
-This isn't in the front matter, but is the actual name of the file minus the extension. This will be the name of the file in the destination.
+This isn't in the front matter, but is the actual name of the file minus the extension. This will be the name of the file in the destination (e.g., `content/posts/my-post.md` becomes `yoursite.com/posts/my-post/`).
 
 ### `slug`
 
-Defined in the front matter, the `slug` can take the place of the filename for the destination.
+When defined in the front matter, the `slug` can take the place of the filename for the destination.
 
-### `filepath`
+{{% code file="content/posts/old-post.md" %}}
+```yaml
+---
+title: New Post
+slug: "new-post"
+---
+```
+{{% /code %}}
 
-The actual path to the file on disk. Destination will create the destination with the same path. Includes [section](/content/sections/).
+This will render to the following destination:
+
+```
+yoursite.com/posts/new-post/
+```
 
 ### `section`
 
-`section` is determined by its location on disk and *cannot* be specified in the front matter. See [section](/content/sections/).
+`section` is determined by a content's location on disk and *cannot* be specified in the front matter. See [sections][] for more information.
 
 ### `type`
 
-`type` is also determined by its location on disk but, unlike `section`, it *can* be specified in the front matter. See [type](/content/types/).
+A content's `type` is also determined by its location on disk but, unlike `section`, it *can* be specified in the front matter. See [types][].
+
+{{% code file="content/posts/my-post.md" %}}
+```yaml
+---
+title: My Post
+type: blog
+---
+```
+{{% /code %}}
 
 ### `path`
 
-`path` can be provided in the front matter. This will replace the actual path to the file on disk. Destination will create the destination with the same path. Includes [section](/content/sections/).
+`path` can be provided in the front matter. This will replace the actual path to the file on disk. Destination will create the destination with the same path, including the section.
 
 ### `url`
 
-A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a "/"). When a `url` is provided, it will be used exactly. Using `url` will ignore the `--uglyURLs` setting.
+A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a `/``). When `url` is provided in the front matter, it will be used exactly. Using `url` will ignore the `--uglyURLs` setting.
 
 ## \_index.md and "Everything is a Page"
 
@@ -290,10 +309,16 @@ An `_index.md` file has also been added in the top level 'content' directory.
 
 Hugo themes are designed to use the 'content' directory as the root of the website, so adding an `_index.md` file here (like has been done in the example above) is how you would add front matter and content to the homepage.
 
-[front matter]: /content-management/front-matter/
-[homepage]: /templates/homepage/
-[section]: /content-management/section/
+[config]: /getting-started/configuration/
 [formats]: /content-management/formats/
-[sectionlists]: /templates/section-templates/
+[front matter]: /content-management/front-matter/
+[homepage template]: /templates/homepage/
+[homepage]: /templates/homepage/
+[lists]: /templates/lists/
+[section templates]: /templates/section-templates/
+[sections]: /content-management/sections/
 [singles]: /templates/single-page-templates/
+[taxonomy templates]: /templates/taxonomy-templates/
+[taxonomy terms templates]: /templates/taxonomy-templates/
+[types]: /content-management/types/
 [urls]: /content-management/urls/

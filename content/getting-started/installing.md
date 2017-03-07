@@ -22,20 +22,20 @@ The latest release can be found at [Hugo Releases][releases].
 
 Hugo currently provides pre-built binaries for the following:
 
-* <i class="fa fa-apple"></i>&nbsp;OS&nbsp;X (Darwin) for x64, i386, and ARM architectures
-* <i class="fa fa-windows"></i>&nbsp;Windows,
-* <i class="fa fa-linux"></i>&nbsp;Linux,
-* <i class="icon-freebsd"></i>&nbsp;FreeBSD
+* <i class="fa fa-apple"></i> OS X (Darwin) for x64, i386, and ARM architectures
+* <i class="fa fa-windows"></i> Windows
+* <i class="fa fa-linux"></i> Linux
+* <i class="icon-freebsd"></i> FreeBSD
 
 Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., for other operating systems, including DragonFly BSD, OpenBSD, Plan&nbsp;9 and Solaris. See <http://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
 
-### Quick Install: Binary (Cross-platform)
+### Binary (Cross-platform)
 
 Download the appropriate version for your platform from [Hugo Releases][releases]. Once downloaded, the binary can be run from anywhere. You don't need to install it into a global location. This works well for shared hosts and other systems where you don't have a privileged account.
 
 Ideally, you should install it somewhere in your `PATH` for easy use. `/usr/local/bin` is the most probable location.
 
-### Quick Install: OS X (Homebrew)
+### OS X (Homebrew)
 
 If you are on OS X and using [Homebrew][brew], you can install Hugo with the following one-liner:
 
@@ -47,7 +47,7 @@ brew update && brew install hugo
 
 For more detailed explanations, read the installation guides that follow for [Windows](#installing-hugo-on-windows) and [Mac OS X](#installing-hugo-on-mac-osx).
 
-### Quick Install: Source
+### Source
 
 #### Prerequisite tools for downloading and building source code
 
@@ -72,7 +72,7 @@ You may run `go get` with the `-u` option to update Hugo's dependencies:
 go get -u -v github.com/spf13/hugo
 ```
 
-## <i class="fa fa-apple"></i> Installing Hugo on OS X
+## <i class="fa fa-apple"></i> OS X
 
 ### Assumptions
 
@@ -293,7 +293,7 @@ go build -o hugo main.go
 
 Then place the `hugo` executable somewhere in your `$PATH`. You're now ready to start using Hugo.
 
-## <i class="fa fa-windows"></i> Installing Hugo on Windows
+## <i class="fa fa-windows"></i> Windows
 
 The following aims to be a complete guide to installing Hugo on your Windows PC.
 
@@ -408,7 +408,7 @@ C:\Hugo\Sites\example.com&gt;dir
 
 {{< youtube c8fJIRNChmU >}}
 
-## <i class="fa fa-linux"></i> Installing Hugo on Linux
+## <i class="fa fa-linux"></i> Linux
 
 ### Installing From Snap
 

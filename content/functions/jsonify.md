@@ -22,6 +22,6 @@ aliases: []
 {{ dict "title" .Title "content" .Plain | jsonify }}
 ```
 
-See also the [`.PlainWords`, `.Plain`, and `.RawContent` page variables][pagevars].
+See also the `.PlainWords`, `.Plain`, and `.RawContent` [page variables][pagevars].
 
 [pagevars]: /variables/page-variables/

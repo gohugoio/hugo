@@ -40,7 +40,7 @@ h1.page-title {
   &.commands,
   &.functions {
     font-family: $code-font-family;
-    font-weight:300;
+    font-weight: 400;
   }
 }
 
@@ -84,7 +84,7 @@ h5 {
 .functions,
 .commands {
   font-family: $code-font-family;
-  font-weight: $base-font-weight;
+  font-weight: 500;
   color: inherit;
 }
 

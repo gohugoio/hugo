@@ -67,7 +67,7 @@ watch = true
   ## Date the Site is Published, use YYYY-MM-DD
   sitepublishdate = ""
   ## Twitter handle without the "@"
-  twitterhandle = ""
+  twitterhandle = "GoHugoIO"
   ## Facebook URL
   facebook = ""
   ## Default Image for Social Sharing. This image should live at static/images/

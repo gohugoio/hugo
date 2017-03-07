@@ -14,7 +14,7 @@ toc: true
 wip: true
 ---
 
-### Taxonomy Terms Page Variables
+## Taxonomy Terms Page Variables
 
 [Taxonomy terms pages][taxonomytemplates] are of the type `Page` and have the following additional variables. For example, the following fields would be available in `layouts/_defaults/terms.html`, depending on how you organize your [taxonomy templates][taxonomytemplates]:
 
@@ -41,13 +41,13 @@ Note that `.Data.Terms.Alphabetical` and `.Data.Terms.ByCount` can also be rever
 * `.Data.Terms.Alphabetical.Reverse`
 * `.Data.Terms.ByCount.Reverse`
 
-### Using `.Site.Taxonomies` Outside of Taxonomy Templates
+## Using `.Site.Taxonomies` Outside of Taxonomy Templates
 
 The `.Site.Taxonomies` variable holds all the taxonomies defined site-wide. `.Site.Taxonomies` is a map of the taxonomy name to a list of its values (e.g., `"tags" -> ["tag1", "tag2", "tag3"]``). Each value, though, is not a string but rather a *Taxonomy variable*.
 
-### The Taxonomy Variable
+## The `.Taxonomy` Variable
 
-The Taxonomy variable, available, for example, as `.Site.Taxonomies.tags`, contains the list of tags (values) and, for each of tag, their corresponding content pages.
+The `.Taxonomy` variable, available, for example, as `.Site.Taxonomies.tags`, contains the list of tags (values) and, for each tag, their corresponding content pages.
 
 ### Example Usage of `.Site.Taxonomies`
 

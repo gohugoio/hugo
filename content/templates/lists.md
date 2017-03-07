@@ -47,9 +47,11 @@ Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxte
 
 A Taxonomy’s RSS will be rendered at /`PLURAL`/`TERM`/index.xml (e.g.&nbsp;http://spf13.com/topics/golang/index.xml)
 
-*Hugo ships with its own [RSS 2.0][] template. In most cases this will
+{{% note %}}
+Hugo ships with its own [RSS 2.0][] template. In most cases this will
 be sufficient, and an RSS template will not need to be provided by the
-user.*
+user.
+{{% /note %}}
 
 Hugo provides the ability for you to define any RSS type you wish, and
 can have different RSS files for each section and taxonomy.
@@ -59,10 +61,10 @@ can have different RSS files for each section and taxonomy.
 * /themes/`THEME`/layouts/taxonomy/`SINGULAR`.rss.xml
 * /themes/`THEME`/layouts/\_default/rss.xml
 
-## Variables
+## List Page Variables
 
-A list page is a `Page` and have all the [page variables](/templates/variables/)
-and [site variables](/templates/variables/) available to use in the templates.
+A list page is a `Page` and has all the [page variables][pagevars]
+and [site variables][sitevars] available to use in the templates.
 
 Taxonomy pages will additionally have:
 
@@ -80,10 +82,12 @@ If `where` or `first` receives invalid input or a field name that doesn’t exis
 [homepage]: /templates/homepage/
 [limitkeyword]: https://www.techonthenet.com/sql/select_limit.php
 [mentalmodel]: http://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
+[pagevars]: /variables/pagevars/
 [partials]: /templates/partials/
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
 [rss]: /templates/rss-templates/
 [sections]: /content-management/sections/
 [sectiontemps]: /templates/section-templates
+[sitevars]: /variables/site-variables/
 [taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates/
 [taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates/

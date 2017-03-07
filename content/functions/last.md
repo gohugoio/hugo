@@ -18,7 +18,7 @@ draft: false
 aliases: []
 ---
 
-`last` slices an array to only the last *N*th elements.
+`last` slices an array to only the last <em>N</em>th elements.
 
 ```
 {{ range last 10 .Data.Pages }}

@@ -48,7 +48,7 @@ table {
       min-width: 100%;
       background-color: $body-bg-color;
       &:nth-child(even) {
-        background-color: lighten($hugo-gray-light, 10%);
+        background-color: $hugo-gray-ultra-light;
       }
       &:last-child {
         border-bottom: 2px solid $hugo-gray;

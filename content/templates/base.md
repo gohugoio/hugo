@@ -37,7 +37,6 @@ As an example, let's assume your site is using the theme when rendering the sect
 7. `/layouts/_default/baseof.html`
 8. `/themes/<THEME>/layouts/_default/baseof.html`
 
-
 ## Defining the Base Template
 
 The following defines a simple base template at `_default/baseof.html`). As a default template, it is the shell from which all our pages will start unless a more specific `*baseof.html` is defined.
@@ -89,7 +88,7 @@ From the above base template, you can define a [default list template][hugolists
 When using the `define` keyword, you do *not* need to use Go templates context reference (i.e., 'The Dot"). (Read more on ["The Dot" in the Go Template Primer](/templates/go-templates/).)
 {{% /note %}}
 
-This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"`` block, so the contents from our base template remain unchanged in lists.
+This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"` block, so the contents from our base template remain unchanged in lists.
 
 {{% warning %}}
 Code that you put outside the block definitions *can* break your layout. This even includes HTML comments. For example:
