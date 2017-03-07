@@ -10,5 +10,4 @@ draft: false
 slug:
 aliases: []
 toc: false
-notesforauthors:
 ---
