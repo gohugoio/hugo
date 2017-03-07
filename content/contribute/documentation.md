@@ -126,7 +126,7 @@ We also appreciate the addition of the remaining fields, specially `sourcelink` 
 We need to create the thumbnail of your website. Give your thumbnail a name like `my-hugo-site-name.png`. Save it under [`docs/static/images/showcase/`][].
 
 {{% warning "Showcase Image Size" %}}
-It's important that the image you use for your showcase submission has the required dimensions of 600px &times; 400px or the site will not render appropriately. Be sure to optimize your image as a matter of best practice. If you're looking for a quick online optimization tool, check out [Compressor](https://compressor.io/).
+It's important that the image you use for your showcase submission has the required dimensions of 600px &times; 400px or the site will not render appropriately. Be sure to optimize your image as a matter of best practice. [Compressor](https://compressor.io/) offers a simple drag-and-drop GUI for optimizing your images.
 {{% /warning %}}
 
 ### Adding a New Tutorial
@@ -183,8 +183,8 @@ A whole bunch of coding going on up in here! Boo-yah!
 
 These are the arguments passed into `code`
 
-`file`
-: the only ***required*** argument. `file` is needed for styling but also plays an important role in helping users create a mental model around Hugo's directory structure. Visually, this will be displayed as text in the top bar of the text-editor. Always end the value with an extension. For example, instead of `./public/section/`, use `public/section/index.html`. The file extension is used to display the icon.
+***`file`***
+: the only *required* argument. `file` is needed for styling but also plays an important role in helping users create a mental model around Hugo's directory structure. Visually, this will be displayed as text in the top bar of the text-editor. Always end the value with an extension. For example, instead of `./public/section/`, use `public/section/index.html`. The file extension is used to display the icon.
 
 `download`
 : if omitted, this will have no effect on the rendered shortcode. When a value is added to `download`, it's used as the filename for a downloadable version of the code block.
@@ -296,7 +296,7 @@ Which will render as follows on the Hugo docs:
 > Without the threat of punishment, there is no joy in flight. - [Kobo Abe][abe]
 
 {{% note "Blockquotes `!=` Admonitions" %}}
-Previous versions of Hugo documentation used blockquotes to draw attention to text. [This is *not* the intended semantic use of the `<blockquote>` element](http://html5doctor.com/cite-and-blockquote-reloaded/). Use blockquotes when quoting. To note or warn your user of specific information, use the admonition shortcodes that follow.
+Previous versions of Hugo documentation used blockquotes to draw attention to text. This is *not* the [intended semantic use of `<blockquote>`](http://html5doctor.com/cite-and-blockquote-reloaded/). Use blockquotes when quoting. To note or warn your user of specific information, use the admonition shortcodes that follow.
 {{% /note %}}
 
 ## Admonitions
@@ -376,7 +376,7 @@ It's more important to contribute *some* documentation than no documentation at 
 The Hugo docs are not especially prescriptive in terms of grammar and usage. We encourage everyone to contribute regardless of your writing style. That said, here are a few gotchas when writing your documentation that, if observed, will create a more consistent documentation experience for the Hugo community:
 
 1. *Front matter* and *file system* are two words; *Homepage* is one word.
-3. Add a `godocref` value to the front matter of content files whenever possible. We want to promote Hugo *and* Golang by demonstrating the inseparable wedding of the two. {{< emo ":star:" >}}
+3. Add a `godocref` value to the front matter of content files whenever possible. We want to promote Hugo *and* Golang by demonstrating the inseparable wedding of the two.
 
 ## Ask for Code Examples
 
@@ -386,21 +386,15 @@ Sometimes you want to contribute to the docs but don't have enough time to provi
 needsexamples: true
 ```
 
-## ~~Please Help! Examples Needed!~~ (WIP)
+## Places to Start
 
-The preceding `needsexamples` is used to generate the following list of pages flagged for needing example. The edit link will take you directly to the edit URL for the file in GitHub:
+The preceding `needsexamples` is used to generate the following list of pages flagged for needing example. Links will take you directly to the edit URL for the file within the GitHub GUI:
 
 {{< needsexamples >}}
 
 {{% note "Pull Requests and Branches" %}}
 Similar to [contributing to Hugo development](/contribute/contribute-to-hugo-development), the Hugo team expects you to create a separate branch/fork when you make your generous contributions to the Hugo docs.
 {{% /note %}}
-
-## Be Mindful of Aliases
-
-Use aliases sparingly. The following table shows a list of all the aliases currently being used in the Hugo Docs. Check here first for potential conflicts if you need to use an alias:
-
-{{< allaliases >}}
 
 [abe]: https://en.wikipedia.org/wiki/K%C5%8Db%C5%8D_Abe
 [archetypes]: /content-management/archetypes/
