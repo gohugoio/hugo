@@ -163,29 +163,28 @@ func (s *Site) renderRSS(p *PageOutput) error {
 		return nil
 	}
 
-	rssPage := p // p.copy() TODO(bep) output
-	rssPage.Kind = kindRSS
+	p.Kind = kindRSS
 
 	// TODO(bep) we zero the date here to get the number of diffs down in
 	// testing. But this should be set back later; the RSS feed should
 	// inherit the publish date from the node it represents.
 	if p.Kind == KindTaxonomy {
 		var zeroDate time.Time
-		rssPage.Date = zeroDate
+		p.Date = zeroDate
 	}
 
 	limit := s.Cfg.GetInt("rssLimit")
-	if limit >= 0 && len(rssPage.Pages) > limit {
-		rssPage.Pages = rssPage.Pages[:limit]
-		rssPage.Data["Pages"] = rssPage.Pages
+	if limit >= 0 && len(p.Pages) > limit {
+		p.Pages = p.Pages[:limit]
+		p.Data["Pages"] = p.Pages
 	}
 	rssURI := s.Language.GetString("rssURI")
 
-	rssPath := path.Join(append(rssPage.sections, rssURI)...)
-	s.setPageURLs(rssPage.Page, rssPath)
+	rssPath := path.Join(append(p.sections, rssURI)...)
+	s.setPageURLs(p.Page, rssPath)
 
-	return s.renderAndWriteXML(rssPage.Title,
-		rssPage.addLangFilepathPrefix(rssPath), rssPage, s.appendThemeTemplates(layouts)...)
+	return s.renderAndWriteXML(p.Title,
+		p.addLangFilepathPrefix(rssPath), p, s.appendThemeTemplates(layouts)...)
 }
 
 func (s *Site) render404() error {
