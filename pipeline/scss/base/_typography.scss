@@ -51,7 +51,7 @@ h3 {
 }
 
 h2 {
-  @include MQALL('font-size',1.4em,1.6em,1.8em);
+  @include MQALL('font-size',1.4em,1.6em);
   &.contents-list-heading {
     text-transform: uppercase;
     color: $hugo-gray;
@@ -62,7 +62,7 @@ h2 {
 }
 
 h3 {
-  @include MQALL('font-size',1.2em,1.3em);
+  @include MQALL('font-size',1.2em);
 }
 
 h4 {
