@@ -37,12 +37,27 @@ func NewLayoutHandler(hasTheme bool) *LayoutHandler {
 	return &LayoutHandler{hasTheme: hasTheme}
 }
 
-// TODO(bep) output theme layouts
-var (
-	layoutsHome        = "index.html _default/list.html"
-	layoutsSection     = "section/SECTION.html  SECTION/list.html _default/section.html _default/list.html indexes/SECTION.html _default/indexes.html"
-	layoutTaxonomy     = "taxonomy/SECTION.html indexes/SECTION.html _default/taxonomy.html _default/list.html"
-	layoutTaxonomyTerm = "taxonomy/SECTION.terms.html _default/terms.html indexes/indexes.html"
+const (
+	layoutsHome    = "index.NAME.SUFFIX index.SUFFIX _default/list.NAME.SUFFIX _default/list.SUFFIX"
+	layoutsSection = `
+section/SECTION.NAME.SUFFIX section/SECTION.SUFFIX
+SECTION/list.NAME.SUFFIX SECTION/list.SUFFIX
+_default/section.NAME.SUFFIX _default/section.SUFFIX
+_default/list.NAME.SUFFIX _default/list.SUFFIX
+indexes/SECTION.NAME.SUFFIX indexes/SECTION.SUFFIX
+_default/indexes.NAME.SUFFIX _default/indexes.SUFFIX
+`
+	layoutTaxonomy = `
+taxonomy/SECTION.NAME.SUFFIX taxonomy/SECTION.SUFFIX
+indexes/SECTION.NAME.SUFFIX indexes/SECTION.SUFFIX 
+_default/taxonomy.NAME.SUFFIX _default/taxonomy.SUFFIX
+_default/list.NAME.SUFFIX _default/list.SUFFIX
+`
+	layoutTaxonomyTerm = `
+taxonomy/SECTION.terms.NAME.SUFFIX taxonomy/SECTION.terms.SUFFIX
+_default/terms.NAME.SUFFIX _default/terms.SUFFIX
+indexes/indexes.NAME.SUFFIX indexes/indexes.SUFFIX
+`
 )
 
 func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, tp Type) []string {
@@ -57,15 +72,15 @@ func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, tp Type)
 	switch id.PageKind() {
 	// TODO(bep) move the Kind constants some common place.
 	case "home":
-		layouts = strings.Fields(layoutsHome)
+		layouts = resolveTemplate(layoutsHome, id, tp)
 	case "section":
-		layouts = strings.Fields(strings.Replace(layoutsSection, "SECTION", id.PageSection(), -1))
+		layouts = resolveTemplate(layoutsSection, id, tp)
 	case "taxonomy":
-		layouts = strings.Fields(strings.Replace(layoutTaxonomy, "SECTION", id.PageSection(), -1))
+		layouts = resolveTemplate(layoutTaxonomy, id, tp)
 	case "taxonomyTerm":
-		layouts = strings.Fields(strings.Replace(layoutTaxonomyTerm, "SECTION", id.PageSection(), -1))
+		layouts = resolveTemplate(layoutTaxonomyTerm, id, tp)
 	case "page":
-		layouts = regularPageLayouts(id.PageType(), layout)
+		layouts = regularPageLayouts(id.PageType(), layout, tp)
 	}
 
 	if l.hasTheme {
@@ -97,10 +112,25 @@ func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, tp Type)
 	return layouts
 }
 
-func regularPageLayouts(types string, layout string) (layouts []string) {
+func resolveTemplate(templ string, id LayoutIdentifier, tp Type) []string {
+	return strings.Fields(replaceKeyValues(templ,
+		"SUFFIX", tp.MediaType.Suffix,
+		"NAME", strings.ToLower(tp.Name),
+		"SECTION", id.PageSection()))
+}
+
+func replaceKeyValues(s string, oldNew ...string) string {
+	replacer := strings.NewReplacer(oldNew...)
+	return replacer.Replace(s)
+}
+
+func regularPageLayouts(types string, layout string, tp Type) (layouts []string) {
 	if layout == "" {
 		layout = "single"
 	}
+
+	suffix := tp.MediaType.Suffix
+	name := strings.ToLower(tp.Name)
 
 	if types != "" {
 		t := strings.Split(types, "/")
@@ -108,12 +138,15 @@ func regularPageLayouts(types string, layout string) (layouts []string) {
 		// Add type/layout.html
 		for i := range t {
 			search := t[:len(t)-i]
-			layouts = append(layouts, fmt.Sprintf("%s/%s.html", strings.ToLower(path.Join(search...)), layout))
+			layouts = append(layouts, fmt.Sprintf("%s/%s.%s.%s", strings.ToLower(path.Join(search...)), layout, name, suffix))
+			layouts = append(layouts, fmt.Sprintf("%s/%s.%s", strings.ToLower(path.Join(search...)), layout, suffix))
+
 		}
 	}
 
 	// Add _default/layout.html
-	layouts = append(layouts, fmt.Sprintf("_default/%s.html", layout))
+	layouts = append(layouts, fmt.Sprintf("_default/%s.%s.%s", layout, name, suffix))
+	layouts = append(layouts, fmt.Sprintf("_default/%s.%s", layout, suffix))
 
 	return
 }

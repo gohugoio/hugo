@@ -659,7 +659,11 @@ func TestCreateNewPage(t *testing.T) {
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
 		checkPageSummary(t, p, "Simple Page")
 		checkPageType(t, p, "page")
-		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
+		checkPageLayout(t, p,
+			"page/single.html.html", "page/single.html",
+			"_default/single.html.html", "_default/single.html",
+			"theme/page/single.html.html", "theme/page/single.html",
+			"theme/_default/single.html.html", "theme/_default/single.html")
 		checkTruncation(t, p, false, "simple short page")
 	}
 
@@ -729,7 +733,6 @@ func TestPageWithDelimiter(t *testing.T) {
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>\n\n<p>Some more text</p>\n"), ext)
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>"), ext)
 		checkPageType(t, p, "page")
-		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 		checkTruncation(t, p, true, "page with summary delimiter")
 	}
 
@@ -787,7 +790,6 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. \n<figure >\n    \n        <img src=\"/not/real\" />\n    \n    \n</figure>\n.\nMore text here.</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, "Summary Next Line.  . More text here. Some more text")
 		checkPageType(t, p, "page")
-		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithShortcodeInSummary)
@@ -846,7 +848,6 @@ func TestPageWithMoreTag(t *testing.T) {
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>"))
 		checkPageType(t, p, "page")
-		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 
 	}
 
@@ -1101,57 +1102,6 @@ func TestSectionEvaluation(t *testing.T) {
 
 func L(s ...string) []string {
 	return s
-}
-
-func TestLayoutOverride(t *testing.T) {
-	t.Parallel()
-	var (
-		pathContentTwoDir = filepath.Join("content", "dub", "sub", "file1.md")
-		pathContentOneDir = filepath.Join("content", "gub", "file1.md")
-		pathContentNoDir  = filepath.Join("content", "file1")
-		pathOneDirectory  = filepath.Join("fub", "file1.md")
-		pathNoDirectory   = filepath.Join("file1.md")
-	)
-	tests := []struct {
-		content        string
-		path           string
-		expectedLayout []string
-	}{
-		{simplePageNoLayout, pathContentTwoDir, L("dub/single.html", "_default/single.html")},
-		{simplePageNoLayout, pathContentOneDir, L("gub/single.html", "_default/single.html")},
-		{simplePageNoLayout, pathContentNoDir, L("page/single.html", "_default/single.html")},
-		{simplePageNoLayout, pathOneDirectory, L("fub/single.html", "_default/single.html")},
-		{simplePageNoLayout, pathNoDirectory, L("page/single.html", "_default/single.html")},
-		{simplePageLayoutFoobar, pathContentTwoDir, L("dub/foobar.html", "_default/foobar.html")},
-		{simplePageLayoutFoobar, pathContentOneDir, L("gub/foobar.html", "_default/foobar.html")},
-		{simplePageLayoutFoobar, pathOneDirectory, L("fub/foobar.html", "_default/foobar.html")},
-		{simplePageLayoutFoobar, pathNoDirectory, L("page/foobar.html", "_default/foobar.html")},
-		{simplePageTypeFoobar, pathContentTwoDir, L("foobar/single.html", "_default/single.html")},
-		{simplePageTypeFoobar, pathContentOneDir, L("foobar/single.html", "_default/single.html")},
-		{simplePageTypeFoobar, pathContentNoDir, L("foobar/single.html", "_default/single.html")},
-		{simplePageTypeFoobar, pathOneDirectory, L("foobar/single.html", "_default/single.html")},
-		{simplePageTypeFoobar, pathNoDirectory, L("foobar/single.html", "_default/single.html")},
-		{simplePageTypeLayout, pathContentTwoDir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{simplePageTypeLayout, pathContentOneDir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{simplePageTypeLayout, pathContentNoDir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{simplePageTypeLayout, pathOneDirectory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{simplePageTypeLayout, pathNoDirectory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-	}
-	for _, test := range tests {
-		s := newTestSite(t)
-		p, _ := s.NewPage(test.path)
-		_, err := p.ReadFrom(strings.NewReader(test.content))
-		if err != nil {
-			t.Fatalf("Unable to parse content:\n%s\n", test.content)
-		}
-
-		for _, y := range test.expectedLayout {
-			test.expectedLayout = append(test.expectedLayout, "theme/"+y)
-		}
-		if !listEqual(p.layouts(), test.expectedLayout) {
-			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.layouts())
-		}
-	}
 }
 
 func TestSliceToLower(t *testing.T) {

@@ -21,6 +21,7 @@ import (
 )
 
 func TestDefaultOutputDefinitions(t *testing.T) {
+	t.Parallel()
 	defs := defaultOutputDefinitions
 
 	tests := []struct {
