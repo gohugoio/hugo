@@ -19,7 +19,7 @@ aliases: []
 
 The `AddDate` function takes three arguments in logical order of `years`, `months`, and `days`.
 
-## Example `AddDate`: Randomized Tweets from the Last 2 Years
+## Example: Randomized Tweets from the Last 2 Years
 
 Let's assume you have a filed at `data/tweets.toml` that contains a long list of Tweets you've been collecting to display on your site's homepage. This file is filled with hundreds of `[[tweet]]` blocks; e.g.---
 
@@ -36,18 +36,18 @@ Let's assume you want to grab Tweets from the last two years and present them in
 
 {{% code file="partials/templates/random-tweets.html" download="tweets.html" %}}
 ```html
-    {{ range where $.Site.Data.tweets.tweet "date" "ge" (now.AddDate -2 0 0) | shuffle }}
-        <div class="item">
-            <blockquote>
-                <p>
-                {{ .quote | safeHTML }}
-                </p>
-                &mdash; {{ .name }} ({{ .twitter_handle }}) <a href="{{ .link }}">
-                    {{ dateFormat "January 2, 2006" .date }}
-                </a>
-            </blockquote>
-        </div>
-    {{ end }}
+{{ range where $.Site.Data.tweets.tweet "date" "ge" (now.AddDate -2 0 0) | shuffle }}
+    <div class="item">
+        <blockquote>
+            <p>
+            {{ .quote | safeHTML }}
+            </p>
+            &mdash; {{ .name }} ({{ .twitter_handle }}) <a href="{{ .link }}">
+                {{ dateFormat "January 2, 2006" .date }}
+            </a>
+        </blockquote>
+    </div>
+{{ end }}
 ```
 {{% /code %}}
 

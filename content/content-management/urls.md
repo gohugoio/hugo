@@ -134,7 +134,7 @@ The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in t
 
 ### Customizing
 
-You may customize this alias page by creating an alias.html template in the
+You may customize this alias page by creating an `alias.html` template in the
 layouts folder of your site (i.e., `layouts/alias.html`). In this case, the data passed to the template is
 
 `Permalink`

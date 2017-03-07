@@ -97,7 +97,7 @@ theme: themename
 The `themename` in the above examples must match the name of the specific theme directory inside `/themes`; i.e., the directory name (likely lowercase and urlized) rather than the name of the theme displayed in the [Themes Showcase site](http://themes.gohugo.io).
 {{% /note %}}
 
-[customizethemes]: /themes/customizing-a-theme/
+[customizethemes]: /themes/customizing/
 [flag]: /getting-started/usage/ "See the full list of flags in Hugo's basic usage."
 [config]: /getting-started/configuration/  "Learn how to customize your Hugo website configuration file in yaml, toml, or json."
 [themesrepo]: https://github.com/spf13/hugoThemes

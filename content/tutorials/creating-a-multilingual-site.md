@@ -11,6 +11,7 @@ tags: [internationalization,multilingual,i18n,tutorials]
 authors: ["Rick Cogley"]
 aliases: [/tutorials/create-a-multilingual-site/]
 draft: false
+toc: true
 hugoversion: 16
 ---
 

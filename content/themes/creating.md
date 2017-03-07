@@ -15,22 +15,18 @@ wip: true
 ---
 
 {{% warning "Use Relative Links" %}}
-If you're creating a them with plans to share it with the community, it is not always safe to assume that the end user of the theme is working from the root of their published website. This is especially important for assets such as stylesheets. See [relURL](/functions/relurl) and [absURL](/functions/absurl).
+If you're creating a theme with plans to share it with the community, use relative URLs since users of your theme may not publish from the root of their website. See [relURL](/functions/relurl) and [absURL](/functions/absurl).
 {{% /warning %}}
 
-Hugo has the ability to create a new theme in your themes directory for you
-using the `hugo new` command.
+Hugo can initialize a new blank theme directory within your existing `themes` using the `hugo new` command:
 
-`hugo new theme [name]`
-
-This command will initialize all of the files and directories a basic theme
-would need.
+```bash
+hugo new theme [name]
+```
 
 ## Theme Components
 
-A theme consists of templates and static assets such as javascript and css
-files. Themes can also optionally provide [archetypes](/content/archetypes/),
-which are archetypal content types used by the `hugo new` command to scaffold new conte files with preconfigured front matter.
+A theme consists of templates and static assets such as javascript and css files. Themes can also provide [archetypes][], which are archetypal content types used by the `hugo new` command to scaffold new conte files with preconfigured front matter.
 
 
 {{% note "Use the Hugo Generator Tag" %}}
