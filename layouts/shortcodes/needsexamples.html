@@ -1,5 +1,5 @@
 <ul class="utils-list">
-	{{range where .Site.Pages "Section" "functions"}}
+	{{range .Site.Pages }}
 		{{ if .Params.needsexamples }}
 		<li><a href="{{.Site.Params.ghdocsrepo}}content/{{.File.Path}}" target="_blank">{{.Title}} <i class="icon-pencil"></i></a></li>
 		{{ end }}

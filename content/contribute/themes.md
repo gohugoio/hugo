@@ -1,6 +1,6 @@
 ---
 title: Add Your Hugo Theme to the Showcase
-linktitle: Add Your Theme
+linktitle: Themes
 description: If you've built a Hugo theme and want to contribute back to the Hugo Community, add your theme to the Hugo Showcase.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -8,7 +8,7 @@ lastmod: 2017-02-27
 categories: [contribute]
 tags: [contribute,themes,design]
 authors: [digitalcraftsman]
-weight: 10
+weight: 30
 draft: false
 aliases: [/contribute/theme/]
 wip: true
