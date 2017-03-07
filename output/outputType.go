@@ -21,11 +21,13 @@ var (
 	HTMLType = Type{
 		Name:      "HTML",
 		MediaType: media.HTMLType,
+		BaseName:  "index",
 	}
 
 	RSSType = Type{
 		Name:      "RSS",
 		MediaType: media.RSSType,
+		BaseName:  "index",
 	}
 )
 
@@ -42,7 +44,16 @@ type Type struct {
 	// Must be set to a value when there are two or more conflicting mediatype for the same resource.
 	Path string
 
+	// The base output file name used when not using "ugly URLs", defaults to "index".
+	BaseName string
+
+	// The protocol to use, i.e. "webcal://". Defaults to the protocol of the baseURL.
+	Protocol string
+
 	// IsPlainText decides whether to use text/template or html/template
 	// as template parser.
 	IsPlainText bool
+
+	// Enable to ignore the global uglyURLs setting.
+	NoUgly bool
 }

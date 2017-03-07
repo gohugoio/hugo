@@ -548,12 +548,7 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 					p.Content = helpers.BytesToHTML(workContentCopy)
 				}
 
-				// TODO(bep) output this is temporary
-				if p.IsNode() {
-					p.outputTypes = outputTypesWithRSS
-				} else {
-					p.outputTypes = outputTypesHTML
-				}
+				p.outputTypes = defaultOutputDefinitions.ForKind(p.Kind)
 
 				//analyze for raw stats
 				p.analyzePage()

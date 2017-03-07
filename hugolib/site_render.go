@@ -73,7 +73,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 				// TODO(bep) output
 				layouts = pageOutput.layoutsCalculated
 			} else {
-				layouts = s.layoutHandler.For(pageOutput.layoutIdentifier, "", pageOutput.outputType)
+				layouts = s.layouts(pageOutput)
 			}
 
 			switch pageOutput.outputType {
@@ -87,7 +87,6 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 					results <- err
 				}
 
-				// Taxonomy terms have no page set to paginate, so skip that for now.
 				if pageOutput.IsNode() {
 					if err := s.renderPaginator(pageOutput); err != nil {
 						results <- err

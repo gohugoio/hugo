@@ -1642,6 +1642,10 @@ func (s *Site) kindFromSections(sections []string) string {
 	return KindSection
 }
 
+func (s *Site) layouts(p *PageOutput) []string {
+	return s.layoutHandler.For(p.layoutIdentifier, "", p.outputType)
+}
+
 func (s *Site) preparePages() error {
 	var errors []error
 
