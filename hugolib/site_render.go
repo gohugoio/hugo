@@ -20,8 +20,9 @@ import (
 	"sync"
 	"time"
 
-	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/output"
+
+	bp "github.com/spf13/hugo/bufferpool"
 )
 
 // renderPages renders pages each corresponding to a markdown file.
@@ -29,7 +30,7 @@ import (
 func (s *Site) renderPages() error {
 
 	results := make(chan error)
-	pages := make(chan *PageOutput)
+	pages := make(chan *Page)
 	errs := make(chan error)
 
 	go errorCollator(results, errs)
@@ -44,9 +45,7 @@ func (s *Site) renderPages() error {
 	}
 
 	for _, page := range s.Pages {
-		for _, outputType := range page.outputTypes {
-			pages <- newPageOutput(page, outputType)
-		}
+		pages <- page
 	}
 
 	close(pages)
@@ -62,43 +61,45 @@ func (s *Site) renderPages() error {
 	return nil
 }
 
-func pageRenderer(s *Site, pages <-chan *PageOutput, results chan<- error, wg *sync.WaitGroup) {
+func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for p := range pages {
-		// TODO(bep) output check if some of the interface{} methods below checks for *Page
-		var layouts []string
+	for page := range pages {
+		for i, outputType := range page.outputTypes {
+			pageOutput := newPageOutput(page, i > 0, outputType)
 
-		if len(p.layoutsCalculated) > 0 {
-			// TODO(bep) output
-			layouts = p.layoutsCalculated
-		} else {
-			layouts = s.layoutHandler.For(p.layoutIdentifier, "", p.outputType)
-		}
+			var layouts []string
 
-		switch p.outputType {
-
-		case output.HTMLType:
-			targetPath := p.TargetPath()
-
-			s.Log.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
-
-			if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, layouts...); err != nil {
-				results <- err
+			if len(pageOutput.layoutsCalculated) > 0 {
+				// TODO(bep) output
+				layouts = pageOutput.layoutsCalculated
+			} else {
+				layouts = s.layoutHandler.For(pageOutput.layoutIdentifier, "", pageOutput.outputType)
 			}
 
-			// Taxonomy terms have no page set to paginate, so skip that for now.
-			if p.IsNode() {
-				if err := s.renderPaginator(p); err != nil {
+			switch pageOutput.outputType {
+
+			case output.HTMLType:
+				targetPath := pageOutput.TargetPath()
+
+				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", pageOutput.Kind, targetPath, layouts)
+
+				if err := s.renderAndWritePage("page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
+					results <- err
+				}
+
+				// Taxonomy terms have no page set to paginate, so skip that for now.
+				if pageOutput.IsNode() {
+					if err := s.renderPaginator(pageOutput); err != nil {
+						results <- err
+					}
+				}
+
+			case output.RSSType:
+				if err := s.renderRSS(pageOutput); err != nil {
 					results <- err
 				}
 			}
-
-		case output.RSSType:
-			if err := s.renderRSS(p); err != nil {
-				results <- err
-			}
 		}
-
 	}
 }
 

@@ -25,9 +25,11 @@ type PageOutput struct {
 	outputType output.Type
 }
 
-func newPageOutput(p *Page, outputType output.Type) *PageOutput {
+func newPageOutput(p *Page, createCopy bool, outputType output.Type) *PageOutput {
 	// TODO(bep) output avoid copy of first?
-	p = p.copy()
+	if createCopy {
+		p = p.copy()
+	}
 	return &PageOutput{Page: p, outputType: outputType}
 }
 
