@@ -73,13 +73,9 @@ slug: "spf13-vim-3-0-release-and-new-website"
 
 ## Variables
 
-There are a few predefined variables that Hugo is aware of and utilizes. The user can also create any variable they want. These will be placed into the `.Params` variable available to the templates.
+There are a few predefined variables that Hugo is aware of and utilizes.
 
-{{% note %}}
-Field names are always normalized to lowercase (e.g., `camelCase: true` is available as `.Params.camelcase`) for both Hugo's built-in *and* user-defined variables.
-{{% /note %}}
-
-### Required variables
+### Required
 
 `title`
 : The title for the content
@@ -94,7 +90,7 @@ Field names are always normalized to lowercase (e.g., `camelCase: true` is avail
 : These will use the field name of the plural form of the index (see tags and
 categories above)
 
-### Optional variables
+### Optional
 
 `aliases`
 : An array of one or more aliases (e.g. old published path of a renamed content) that would be created to redirect to this content. See [Aliases][] for details.
@@ -124,18 +120,24 @@ categories above)
 : The full path to the content from the web root. It makes no assumptions about the path of the content file. It also ignores any language prefixes of
 the multilingual feature.
 
-weight
+`weight`
 : Used for sorting
 
-{{% note "Hugo's Default URLs" %}}
+{{% note "Hugo's Default URL Destinations" %}}
 If neither `slug` nor `url` is present, and [permalinks are not configured otherwise](/content-management/urls/#permalinks), the filename will be used to create the URL for a page. See [Content Organization][contentorg] and [URL Management][urls].
 {{% /note %}}
 
-## User-Defined Variables
+### User-Defined
 
-In addition to....
+The user can also create any variable they want. These will be placed into the `.Params` variable available to the templates.
 
-## Override Global Blackfriday Configuration
+{{% note %}}
+Field names are always normalized to lowercase (e.g., `camelCase: true` is available as `.Params.camelcase`) for both Hugo's built-in *and* user-defined variables.
+{{% /note %}}
+
+**Show example toml and yaml front matter**
+
+## Overriding Global Blackfriday Configuration
 
 It's possible to set some options for Markdown rendering in the page's front matter as an override to the site-wide configuration.
 
@@ -143,7 +145,7 @@ See [site configuration][config] for more information on setting up global Black
 
 User-Define Parameter (`.Params`)
 
-## Assigning `weight` for Ordering
+## Assigning `weight`
 
 
 ### Assigning `weight` for Ordering Content
