@@ -121,6 +121,7 @@ code.language-toml:after {
   content: 'TOML';
   font-size: .8em;
   padding-right: .3em;
+  font-family: $code-font-family;
 }
 
 code.language-yaml:after,
@@ -128,6 +129,7 @@ code.language-yml:after {
   content: 'YAML';
   font-size: .8em;
   padding-right: .3em;
+  font-family: $code-font-family;
 }
 
 code.language-md:after,

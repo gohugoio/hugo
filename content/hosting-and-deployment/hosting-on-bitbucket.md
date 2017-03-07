@@ -8,7 +8,7 @@ lastmod: 2017-02-04
 categories: [hosting and deployment]
 tags: [hosting,bitbucket,deployment,aerobatic]
 authors: [Jason Gowans]
-weight: 30
+weight: 40
 draft: false
 toc: true
 aliases: [/tutorials/hosting-on-bitbucket/]

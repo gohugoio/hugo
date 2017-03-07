@@ -420,11 +420,13 @@ Apache License - 60
 ### "hosting-and-deployment" Ordering (`.OrderByWeight`)
 
 * _index.md - 01
-* Deployment with Rsync - 10
-* Deployment with Wercker - 20
-* Hosting on Bitbucket - 30
-* Hosting on Github - 40
-* Hosting on Gitlab - 50
+* Hosting on Netlify - 10
+* Hosting on Github - 20
+* Hosting on Gitlab - 30
+* Hosting on Bitbucket - 40
+* Deployment with Wercker - 50
+* Deployment with Rsync - 60
+
 
 ### "tools" Ordering
 
