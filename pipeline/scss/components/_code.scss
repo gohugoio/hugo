@@ -197,12 +197,14 @@ code.language-markdown:after {
   min-width: 70px;
   top: 1px;
   right: 72px;
+  //removes download button from iphone portrait
+  @include MQ(retinaPortrait) {
+    display: none;
+  }
 }
 
 .tooltipped {
   position: absolute;
-  // background-color: $code-tooltip-bg-color;
-  // padding-right: 2em;
 }
 
 .tooltipped:after {

@@ -76,6 +76,9 @@ ul.animated {
   &:nth-child(3) {
     background-color: $hugo-white;
   }
+  &.install {
+    background-color: $base-font-color;
+  }
   &:nth-child(5) {
     background-color: $hugo-blue;
   }
@@ -252,8 +255,14 @@ ul.animated {
   padding: 1em 1.5em;
   text-align: left;
   // width: 90%;
-  width: 100%;
+  width: 110%;
+  position:relative;
+  left:-5%;
   max-width: 360px;
+  @include MQ(M){
+    width:100%;
+    left:auto;
+  }
   @include card(2);
   border-radius: 5px;
   margin-top: 1em;
@@ -331,12 +340,16 @@ svg {
   }
 }
 
-.platform-icons {
-  display:flex;
-  width:100%;
-  justify-content:space-between;
-  i {
-    font-size: 80px;
+.home-row-content-install {
+  color: $hugo-white;
+  .platform-icons {
+    display: flex;
+    width: 100%;
+    color: $hugo-white;
+    justify-content: space-between;
+    i {
+      font-size: 80px;
+    }
   }
 }
 
