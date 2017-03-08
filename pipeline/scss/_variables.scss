@@ -40,7 +40,8 @@ $base-line-height-content: 1.6;
 $base-font-bold-color: $base-font-color;
 $systemfonts: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbols";
 // Font Families
-$base-font-family: 'museo-sans','muli',$helvetica;
+// $base-font-family: 'museo-sans','muli',$helvetica;
+$base-font-family: 'montserrat','muli',$helvetica;
 $heading-font-family: $base-font-family;
 $code-font-family:'robotomono',courier,monospace;
 
@@ -51,10 +52,9 @@ $heading-font-weight: 500;
 $code-font-base-weight: 400;
 $code-font-bold-weight: 500;
 
-
 //Anchors (in body copy)
 $default-anchor-color:$base-font-color;
-$default-anchor-underline-color:$hugo-pink;
+$default-anchor-underline-color:$hugo-blue;
 $default-anchor-weight: $base-font-weight;
 $active-color: $default-anchor-color;
 //Buttons
@@ -63,7 +63,6 @@ $base-button-text-color: $hugo-white;
 $button-border-radius: 3px;
 //Codeblocks
 // $code-font-family:'courierprime',courier,monospace;
-
 
 $code-tooltip-bg-color: $hugo-blue;
 $code-block-base-font-color: $hugo-black;

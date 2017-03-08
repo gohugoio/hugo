@@ -1,5 +1,5 @@
-// @include fonts('muli', $weights: 100 300 400 600 700 800, $italic: true);
-@include fonts('robotomono', $weights: 200 300 400 500 700, $italic: false);
+@include fonts('montserrat', $weights: 300 500 700, $italic: true);
+@include fonts('robotomono', $weights: 400 500 , $italic: true);
 h1,
 h2,
 h3,

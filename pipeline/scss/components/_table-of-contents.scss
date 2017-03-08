@@ -189,7 +189,7 @@ aside#toc + a#toc-toggle {
   right: 20px;
   background-color: $toc-bg-color;
   color: $hugo-white;
-  background-color: $hugo-pink;
+  background-color: $default-anchor-underline-color;
   @include size(40px);
   z-index: 99;
   line-height: 50px;

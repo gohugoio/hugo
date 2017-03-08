@@ -17,7 +17,7 @@ $('.top-menu-item-link.has-children').on('click', function(evt) {
   } else {
     $(this).addClass('open');
   }
-  console.log(siblingLinks);
+  // console.log(siblingLinks);
 });
 
 //toggle off-canvas navigation for M- screens
