@@ -1694,10 +1694,13 @@ func (s *Site) Stats() {
 	s.Log.FEEDBACK.Printf("%d other pages created\n", (len(s.Pages) - len(s.RegularPages)))
 	s.Log.FEEDBACK.Printf("%d non-page files copied\n", len(s.Files))
 	s.Log.FEEDBACK.Printf("%d paginator pages created\n", s.Info.paginationPageCount)
-	taxonomies := s.Language.GetStringMapString("taxonomies")
 
-	for _, pl := range taxonomies {
-		s.Log.FEEDBACK.Printf("%d %s created\n", len(s.Taxonomies[pl]), pl)
+	if s.isEnabled(KindTaxonomy) {
+		taxonomies := s.Language.GetStringMapString("taxonomies")
+
+		for _, pl := range taxonomies {
+			s.Log.FEEDBACK.Printf("%d %s created\n", len(s.Taxonomies[pl]), pl)
+		}
 	}
 
 }
