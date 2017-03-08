@@ -46,21 +46,11 @@ func (m Type) String() string {
 }
 
 var (
+	CSSType  = Type{"text", "css", "css"}
 	HTMLType = Type{"text", "html", "html"}
+	JSONType = Type{"application", "json", "json"}
 	RSSType  = Type{"application", "rss", "xml"}
 )
-
-// DefaultMediaTypes holds a default set of media types by Hugo.
-// These can be ovverriden, and more added if needed, in the Hugo configuration file.
-// The final media type set set will also be added as extensions to mime so
-// they will be recognised by the built-in server in Hugo.
-// TODO(bep) output remove
-var DefaultMediaTypes = Types{
-	HTMLType,
-	RSSType,
-
-	// TODO(bep) output
-}
 
 // TODO(bep) output mime.AddExtensionType
 // TODO(bep) text/template vs html/template

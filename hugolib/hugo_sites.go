@@ -548,7 +548,10 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 					p.Content = helpers.BytesToHTML(workContentCopy)
 				}
 
-				p.outputTypes = defaultOutputDefinitions.ForKind(p.Kind)
+				// May have been set in front matter
+				if len(p.outputTypes) == 0 {
+					p.outputTypes = defaultOutputDefinitions.ForKind(p.Kind)
+				}
 
 				//analyze for raw stats
 				p.analyzePage()

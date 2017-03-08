@@ -78,12 +78,16 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 
 			switch pageOutput.outputType {
 
-			case output.HTMLType:
+			case output.RSSType:
+				if err := s.renderRSS(pageOutput); err != nil {
+					results <- err
+				}
+			default:
 				targetPath := pageOutput.TargetPath()
 
 				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", pageOutput.Kind, targetPath, layouts)
 
-				if err := s.renderAndWritePage("page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
+				if err := s.renderAndWritePage(outputType, "page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
 					results <- err
 				}
 
@@ -92,12 +96,8 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 						results <- err
 					}
 				}
-
-			case output.RSSType:
-				if err := s.renderRSS(pageOutput); err != nil {
-					results <- err
-				}
 			}
+
 		}
 	}
 }
@@ -136,7 +136,7 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 			htmlBase := path.Join(append(p.sections, fmt.Sprintf("/%s/%d", paginatePath, pageNumber))...)
 			htmlBase = p.addLangPathPrefix(htmlBase)
 
-			if err := s.renderAndWritePage(pagerNode.Title,
+			if err := s.renderAndWritePage(p.outputType, pagerNode.Title,
 				filepath.FromSlash(htmlBase), pagerNode, p.layouts()...); err != nil {
 				return err
 			}
@@ -204,7 +204,7 @@ func (s *Site) render404() error {
 
 	nfLayouts := []string{"404.html"}
 
-	return s.renderAndWritePage("404 page", "404.html", p, s.appendThemeTemplates(nfLayouts)...)
+	return s.renderAndWritePage(output.HTMLType, "404 page", "404.html", p, s.appendThemeTemplates(nfLayouts)...)
 
 }
 

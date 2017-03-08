@@ -22,6 +22,7 @@ import (
 
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/output"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -39,8 +40,9 @@ type siteWriter struct {
 	log *jww.Notepad
 }
 
-func (w siteWriter) targetPathPage(src string) (string, error) {
-	dir, err := w.baseTargetPathPage(src)
+func (w siteWriter) targetPathPage(tp output.Type, src string) (string, error) {
+	fmt.Println(tp, "=>", src)
+	dir, err := w.baseTargetPathPage(tp, src)
 	if err != nil {
 		return "", err
 	}
@@ -50,7 +52,7 @@ func (w siteWriter) targetPathPage(src string) (string, error) {
 	return dir, nil
 }
 
-func (w siteWriter) baseTargetPathPage(src string) (string, error) {
+func (w siteWriter) baseTargetPathPage(tp output.Type, src string) (string, error) {
 	if src == helpers.FilePathSeparator {
 		return "index.html", nil
 	}
@@ -169,9 +171,9 @@ func filename(f string) string {
 	return f[:len(f)-len(ext)]
 }
 
-func (w siteWriter) writeDestPage(path string, reader io.Reader) (err error) {
+func (w siteWriter) writeDestPage(tp output.Type, path string, reader io.Reader) (err error) {
 	w.log.DEBUG.Println("creating page:", path)
-	targetPath, err := w.targetPathPage(path)
+	targetPath, err := w.targetPathPage(tp, path)
 	if err != nil {
 		return err
 	}

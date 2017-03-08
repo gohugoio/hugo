@@ -17,6 +17,10 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
+	"fmt"
+
 	"github.com/spf13/hugo/output"
 )
 
@@ -40,4 +44,49 @@ func TestDefaultOutputDefinitions(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSiteWithJSONHomepage(t *testing.T) {
+	t.Parallel()
+
+	siteConfig := `
+baseURL = "http://example.com/blog"
+
+paginate = 1
+defaultContentLanguage = "en"
+
+disableKinds = ["page", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+
+[Taxonomies]
+tag = "tags"
+category = "categories"
+`
+
+	pageTemplate := `---
+title: "%s"
+outputs: ["json"]
+---
+# Doc
+`
+
+	th, h := newTestSitesFromConfigWithDefaultTemplates(t, siteConfig)
+	require.Len(t, h.Sites, 1)
+
+	fs := th.Fs
+
+	writeSource(t, fs, "content/_index.md", fmt.Sprintf(pageTemplate, "JSON Home"))
+
+	err := h.Build(BuildCfg{})
+
+	require.NoError(t, err)
+
+	s := h.Sites[0]
+	home := s.getPage(KindHome)
+
+	require.NotNil(t, home)
+
+	require.Len(t, home.outputTypes, 1)
+
+	th.assertFileContent("public/index.json", "TODO")
+
 }
