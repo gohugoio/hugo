@@ -53,9 +53,7 @@ func InterfaceToConfig(in interface{}, mark rune, w io.Writer) error {
 
 	case rune(TOMLLead[0]):
 		tree := toml.TreeFromMap(in.(map[string]interface{}))
-		b := []byte(tree.String())
-
-		_, err := w.Write(b)
+		_, err := tree.WriteTo(b)
 		return err
 
 	case rune(JSONLead[0]):
@@ -107,6 +105,7 @@ func InterfaceToFrontMatter(in interface{}, mark rune, w io.Writer) error {
 		}
 
 		err = InterfaceToConfig(in, mark, w)
+
 		if err != nil {
 			return err
 		}
