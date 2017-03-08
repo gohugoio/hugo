@@ -31,3 +31,12 @@ func TestDefaultTypes(t *testing.T) {
 	require.Empty(t, RSSType.Path)
 	require.False(t, RSSType.IsPlainText)
 }
+
+func TestGetType(t *testing.T) {
+	tp, _ := GetType("html")
+	require.Equal(t, HTMLType, tp)
+	tp, _ = GetType("HTML")
+	require.Equal(t, HTMLType, tp)
+	_, found := GetType("FOO")
+	require.False(t, found)
+}

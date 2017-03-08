@@ -851,8 +851,13 @@ func (p *Page) createPermalink() (*url.URL, error) {
 
 func (p *Page) Extension() string {
 	if p.extension != "" {
+		// TODO(bep) output remove/deprecate this
 		return p.extension
 	}
+	//
+	// TODO(bep) return p.outputType.MediaType.Suffix
+
+	// TODO(bep) remove this config option =>
 	return p.s.Cfg.GetString("defaultExtension")
 }
 
@@ -1025,6 +1030,20 @@ func (p *Page) update(f interface{}) error {
 			if err != nil {
 				p.s.Log.ERROR.Printf("Failed to parse lastmod '%v' in page %s", v, p.File.Path())
 			}
+		case "outputs":
+			outputs := cast.ToStringSlice(v)
+			if len(outputs) > 0 {
+				// Output types are exlicitly set in front matter, use those.
+				outTypes, err := output.GetTypes(outputs...)
+				if err != nil {
+					p.s.Log.ERROR.Printf("Failed to resolve output types: %s", err)
+				} else {
+					p.outputTypes = outTypes
+					p.Params[loki] = outTypes
+				}
+
+			}
+			//p.Params[loki] = p.Keywords
 		case "publishdate", "pubdate":
 			p.PublishDate, err = cast.ToTimeE(v)
 			if err != nil {
@@ -1545,7 +1564,8 @@ func (p *Page) prepareLayouts() error {
 	if p.Kind == KindPage {
 		var layouts []string
 		if !p.IsRenderable() {
-			self := "__" + p.TargetPath()
+			// TODO(bep) output
+			self := "__" + p.UniqueID()
 			_, err := p.s.Tmpl.GetClone().New(self).Parse(string(p.Content))
 			if err != nil {
 				return err

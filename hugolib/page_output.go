@@ -26,7 +26,6 @@ type PageOutput struct {
 }
 
 func newPageOutput(p *Page, createCopy bool, outputType output.Type) *PageOutput {
-	// TODO(bep) output avoid copy of first?
 	if createCopy {
 		p = p.copy()
 	}
@@ -36,7 +35,5 @@ func newPageOutput(p *Page, createCopy bool, outputType output.Type) *PageOutput
 // copy creates a copy of this PageOutput with the lazy sync.Once vars reset
 // so they will be evaluated again, for word count calculations etc.
 func (p *PageOutput) copy() *PageOutput {
-	c := *p
-	c.Page = p.Page.copy()
-	return &c
+	return newPageOutput(p.Page, true, p.outputType)
 }

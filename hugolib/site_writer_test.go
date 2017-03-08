@@ -17,6 +17,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/spf13/hugo/output"
 )
 
 func TestTargetPathHTMLRedirectAlias(t *testing.T) {
@@ -82,7 +84,7 @@ func TestTargetPathPage(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		dest, err := w.targetPathPage(filepath.FromSlash(test.content))
+		dest, err := w.targetPathPage(output.HTMLType, filepath.FromSlash(test.content))
 		expected := filepath.FromSlash(test.expected)
 		if err != nil {
 			t.Fatalf("Translate returned and unexpected err: %s", err)
@@ -108,7 +110,7 @@ func TestTargetPathPageBase(t *testing.T) {
 
 		for _, pd := range []string{"a/base", "a/base/"} {
 			w.publishDir = pd
-			dest, err := w.targetPathPage(test.content)
+			dest, err := w.targetPathPage(output.HTMLType, test.content)
 			if err != nil {
 				t.Fatalf("Translated returned and err: %s", err)
 			}
@@ -124,17 +126,19 @@ func TestTargetPathUglyURLs(t *testing.T) {
 	w := siteWriter{log: newErrorLogger(), uglyURLs: true}
 
 	tests := []struct {
-		content  string
-		expected string
+		outputType output.Type
+		content    string
+		expected   string
 	}{
-		{"foo.html", "foo.html"},
-		{"/", "index.html"},
-		{"section", "section.html"},
-		{"index.html", "index.html"},
+		{output.HTMLType, "foo.html", "foo.html"},
+		{output.HTMLType, "/", "index.html"},
+		{output.HTMLType, "section", "section.html"},
+		{output.HTMLType, "index.html", "index.html"},
+		{output.JSONType, "section", "section.json"},
 	}
 
 	for _, test := range tests {
-		dest, err := w.targetPathPage(filepath.FromSlash(test.content))
+		dest, err := w.targetPathPage(test.outputType, filepath.FromSlash(test.content))
 		if err != nil {
 			t.Fatalf("Translate returned an unexpected err: %s", err)
 		}

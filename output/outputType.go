@@ -14,14 +14,38 @@
 package output
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/spf13/hugo/media"
 )
 
 var (
+	// An ordered list of built-in output formats
+	// See https://www.ampproject.org/learn/overview/
+	AMPType = Type{
+		Name:      "AMP",
+		MediaType: media.HTMLType,
+		BaseName:  "index",
+	}
+
+	CSSType = Type{
+		Name:      "CSS",
+		MediaType: media.CSSType,
+		BaseName:  "styles",
+	}
+
 	HTMLType = Type{
 		Name:      "HTML",
 		MediaType: media.HTMLType,
 		BaseName:  "index",
+	}
+
+	JSONType = Type{
+		Name:        "JSON",
+		MediaType:   media.HTMLType,
+		BaseName:    "index",
+		IsPlainText: true,
 	}
 
 	RSSType = Type{
@@ -30,6 +54,14 @@ var (
 		BaseName:  "index",
 	}
 )
+
+var builtInTypes = map[string]Type{
+	strings.ToLower(AMPType.Name):  AMPType,
+	strings.ToLower(CSSType.Name):  CSSType,
+	strings.ToLower(HTMLType.Name): HTMLType,
+	strings.ToLower(JSONType.Name): JSONType,
+	strings.ToLower(RSSType.Name):  RSSType,
+}
 
 type Types []Type
 
@@ -56,4 +88,27 @@ type Type struct {
 
 	// Enable to ignore the global uglyURLs setting.
 	NoUgly bool
+}
+
+func GetType(key string) (Type, bool) {
+	found, ok := builtInTypes[key]
+	if !ok {
+		found, ok = builtInTypes[strings.ToLower(key)]
+	}
+	return found, ok
+}
+
+// TODO(bep) outputs rewamp on global config?
+func GetTypes(keys ...string) (Types, error) {
+	var types []Type
+
+	for _, key := range keys {
+		tpe, ok := GetType(key)
+		if !ok {
+			return types, fmt.Errorf("OutputType with key %q not found", key)
+		}
+		types = append(types, tpe)
+	}
+
+	return types, nil
 }

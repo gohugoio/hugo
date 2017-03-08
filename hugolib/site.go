@@ -1788,7 +1788,7 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 
 }
 
-func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layouts ...string) error {
+func (s *Site) renderAndWritePage(tp output.Type, name string, dest string, d interface{}, layouts ...string) error {
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1830,7 +1830,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	var path []byte
 
 	if s.Info.relativeURLs {
-		translated, err := w.baseTargetPathPage(dest)
+		translated, err := w.baseTargetPathPage(tp, dest)
 		if err != nil {
 			return err
 		}
@@ -1870,7 +1870,7 @@ Your rendered home page is blank: /index.html is zero-length
 
 	}
 
-	if err = w.writeDestPage(dest, outBuffer); err != nil {
+	if err = w.writeDestPage(tp, dest, outBuffer); err != nil {
 		return err
 	}
 
