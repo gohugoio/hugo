@@ -75,7 +75,7 @@ See what's coming next in the [Hugo roadmap][].
 [Powerful theming]: /themes/
 [Pretty URLs]: /content-management/urls/
 [Pygments]: http://pygments.org/
-[RSS]: /templates/rss-templates/
+[RSS]: /templates/rss/
 [Shortcodes]: /content-management/shortcodes/
 [sort content]: /templates/
 [supported formats]: /content-management/formats/

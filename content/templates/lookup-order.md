@@ -40,7 +40,7 @@ See examples of the lookup order for each of the Hugo template types:
 [directory structure]: /getting-started/directory-structure/
 [DRY]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 [home]: /templates/homepage/#homepage-template-lookup-order
-[rsslookup]: /templates/rss-templates/#rss-template-lookup-order
+[rsslookup]: /templates/rss/#rss-template-lookup-order
 [sectionlookup]: /templates/section-templates/#section-template-lookup-order
 [singlelookup]: templates/single-page-templates/#single-page-template-lookup-order
 [switch]: https://en.wikipedia.org/wiki/Switch_statement#Fallthrough

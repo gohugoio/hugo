@@ -35,7 +35,7 @@ googleAnalytics = "UA-123-45"
 googleAnalytics: "UA-123-45"
 ```
 
-### Adding the Google Analytics Template
+### Using the Google Analytics Template
 
 You can then include the Google Analytics internal template:
 
@@ -70,7 +70,7 @@ You also have the option to set the following in the front matter for a given pi
 * `disqus_title`
 * `disqus_url`
 
-### Adding the Disqus Template
+### Using the Disqus Template
 
 To add Disqus, include the following line in templates where you want your comments to appear:
 

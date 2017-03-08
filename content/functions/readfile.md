@@ -26,4 +26,4 @@ So, if you have a file with the name `README.txt` in the root of your project wi
 
 For more information on using `readDir` and `readFile` in your templates, see [Local File Templates][local].
 
-[local]: /templates/local-file-templates/
+[local]: /templates/files/

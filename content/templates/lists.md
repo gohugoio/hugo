@@ -33,7 +33,7 @@ The idea of a list page comes from the [hierarchical mental model of the web][me
 
 ### Default Templates
 
-Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxterms]) are both *lists* with regards to their templates, both have the same terminating default of `_default/list.html`---or `themes/<THEME>/layouts/_default/list.html` in the case of a themed project---in their *lookup orders*. In addition, both [section lists][sectiontemplates] and [taxonomy lists][taxonomies] have their own default list templates in `_default`:
+Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxterms]) are both *lists* with regards to their templates, both have the same terminating default of `_default/list.html`---or `themes/<THEME>/layouts/_default/list.html` in the case of a themed project---in their *lookup orders*. In addition, both [section lists][sectiontemps] and [taxonomy lists][taxlists] have their own default list templates in `_default`:
 
 #### Default Section Templates
 
@@ -56,26 +56,23 @@ user.
 Hugo provides the ability for you to define any RSS type you wish, and
 can have different RSS files for each section and taxonomy.
 
-* /layouts/taxonomy/`SINGULAR`.rss.xml
-* /layouts/\_default/rss.xml
-* /themes/`THEME`/layouts/taxonomy/`SINGULAR`.rss.xml
-* /themes/`THEME`/layouts/\_default/rss.xml
+1. `/layouts/taxonomy/<SINGULAR>.rss.xml`
+1. `/layouts/_default/rss.xml`
+1. `/themes/<THEME>/layouts/taxonomy/<SINGULAR>.rss.xml`
+1. `/themes/<THEME>/layouts/_default/rss.xml`
 
 ## List Page Variables
 
 A list page is a `Page` and has all the [page variables][pagevars]
-and [site variables][sitevars] available to use in the templates.
+and [site variables][sitevars] available for use in templates.
 
-Taxonomy pages will additionally have:
+Taxonomy list pages will additionally have:
 
-**.Data.`Singular`** The taxonomy itself.<br>
-
-
+**.Data.`Singular`** The taxonomy itself.<br> [See Taxonomy Variables][taxvars]
 
 {{% note %}}
 If `where` or `first` receives invalid input or a field name that doesn’t exist, it will return an error and stop site generation. `where` and `first` also work on taxonomy list templates *and* taxonomy terms templates. (See [Taxonomy Templates](/templates/taxonomy-templates/).)
 {{% /note %}}
-
 
 [directorystructure]: /getting-started/directory-structure/
 [homepage]: /templates/homepage/
@@ -85,9 +82,10 @@ If `where` or `first` receives invalid input or a field name that doesn’t exis
 [pagevars]: /variables/pagevars/
 [partials]: /templates/partials/
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
-[rss]: /templates/rss-templates/
+[rss]: /templates/rss/
 [sections]: /content-management/sections/
 [sectiontemps]: /templates/section-templates
 [sitevars]: /variables/site-variables/
 [taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates/
+[taxvars]: /templates/taxonomy-variables/
 [taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates/

@@ -271,7 +271,7 @@ Themes section organization has only changed slightly in that the 6 content page
     * URLS. Now combined with permalinks and others as a heading/subsection of [/content-management/urls/](/content-management/urls/)
     * Syntax Highlighting. The shortcode is featured and explained with usage examples at [/content-management/shortcodes/](/content-management/shortcodes/), as well as expaned upon in it's own page under [/tools/syntax-highlighting/](/tools/syntax-highlighting/). I did this under the assumption that *developers* are most interested in adding code blocks to their content.
     * Table of Contents. This is now it's own page under [/content-management/toc](/content-management/toc/) and referenced in [/variables/page-variables](/variables/page-variables/).
-    * Traversing Local Files. This is now split into [/templates/local-file-templates/](/templates/local-file-templates/) and variables delimited at [/variables/other/](/variables/other/).
+    * Traversing Local Files. This is now split into [/templates/files/](/templates/files/) and variables delimited at [/variables/other/](/variables/other/).
 
 ### Community
 

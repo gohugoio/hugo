@@ -11,12 +11,14 @@ draft: false
 weight: 30
 aliases: []
 toc: true
-wip: true
+wip: false
 ---
 
 ## Taxonomy Terms Page Variables
 
-[Taxonomy terms pages][taxonomytemplates] are of the type `Page` and have the following additional variables. For example, the following fields would be available in `layouts/_defaults/terms.html`, depending on how you organize your [taxonomy templates][taxonomytemplates]:
+[Taxonomy terms pages][taxonomytemplates] are of the type `Page` and have the following additional variables.
+
+For example, the following fields would be available in `layouts/_defaults/terms.html`, depending on how you organize your [taxonomy templates][taxonomytemplates]:
 
 `.Data.Singular`
 : The singular name of the taxonomy (e.g., `tags => `tag`)
@@ -51,6 +53,30 @@ The `.Taxonomy` variable, available, for example, as `.Site.Taxonomies.tags`, co
 
 ### Example Usage of `.Site.Taxonomies`
 
-**NEEDS EXAMPLE**
+The following [partial template][partials] will list all your site's taxonomies, each of their keys, and all the content assigned to each of the keys. For more examples of how to order and render your taxonomies, see  [Taxonomy Templates][taxonomytemplates].
 
+{{% code file="all-taxonomies-keys-and-pages.html" download="all-taxonomies-keys-and-pages.html" %}}
+```html
+<section>
+  <ul>
+    {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
+      <li><a href="{{ "/" | relLangURL}}{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
+        <ul>
+          {{ range $key, $value := $taxonomy }}
+          <li> {{ $key }} </li>
+                <ul>
+                {{ range $value.Pages }}
+                    <li><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
+                {{ end }}
+                </ul>
+          {{ end }}
+        </ul>
+      </li>
+    {{ end }}
+  </ul>
+</section>
+```
+{{% /code %}}
+
+[partials]: /templates/partials/
 [taxonomytemplates]: /templates/taxonomy-templates/

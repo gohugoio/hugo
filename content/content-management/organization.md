@@ -37,7 +37,7 @@ While Hugo supports content nested at any level, the top levels (i.e. `content/<
 
 ## Path Breakdown in Hugo
 
-The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website at render. These examples assume you are using pretty URLs, which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://yoursite.com"` in your [site's configuration file][config].
+The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website at render. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://yoursite.com"` in your [site's configuration file][config].
 
 ### Section Index Page
 
@@ -69,7 +69,7 @@ At build, this will output to the following destination with the associated valu
 http://yoursite.com/posts/index.html
 ```
 
-### Section Single Pages
+### Single Pages in Sections
 
 Single content files in each of your sections are going to be rendered as [single page templates][singles]. Here is an example of a single `post` within `posts`:
 
@@ -112,7 +112,12 @@ To continue the example, the following demonstrates destination paths for a file
 ⊢----------------------^-----------------------⊣
 http://yoursite.com/events/chicago/lollapalooza/
 ```
-## Path Properties Explained
+
+{{% note %}}
+
+{{% /note %}}
+
+## Paths Explained
 
 #### `section`
 
@@ -139,7 +144,7 @@ The `url` is the relative URL for the piece of content. The `url`
 * is based on the content's location within the directory structure OR
 * is defined in front matter and *overrides all the above*
 
-## Modifying Destinations for Content Source in Front Matter
+## Overriding Destinations via Front Matter
 
 Hugo believes that you organize your content with a purpose. The same structure that works to organize your source content is used to organize the rendered site. As displayed above, the organization of the source content will be mirrored in the destination.
 
@@ -178,13 +183,14 @@ yoursite.com/posts/new-post/
 
 ### `type`
 
-A content's `type` is also determined by its location on disk but, unlike `section`, it *can* be specified in the front matter. See [types][].
+A content's `type` is also determined by its location on disk but, unlike `section`, it *can* be specified in the front matter. See [types][]. This can come in especially handy when you want a piece of content to render using a different layout. In the following example, you can create a layout at `layouts/new/mylayout.html` that Hugo will use to render this piece of content, even in the midst of many other posts.
 
 {{% code file="content/posts/my-post.md" %}}
 ```yaml
 ---
 title: My Post
-type: blog
+type: new
+layout: mylayout
 ---
 ```
 {{% /code %}}
@@ -195,7 +201,7 @@ type: blog
 
 ### `url`
 
-A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a `/``). When `url` is provided in the front matter, it will be used exactly. Using `url` will ignore the `--uglyURLs` setting.
+A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a `/`). `url` will be used exactly as it provided in the front matter and will ignore the `--uglyURLs` setting in your site configuration.
 
 ## \_index.md and "Everything is a Page"
 
@@ -211,7 +217,7 @@ In order to take advantage of this behavior, you need to do a few things.
 
 ### How `_index.md` Works
 
-Before continuing, it's important to know that this page must reference certain templates to describe how the \_index.md page will be rendered. Hugo has a multitude of possible templates that can be used and placed in various places (think theme templates for instance). For simplicity/brevity the default/top level template location will be used to refer to the entire range of places the template can be placed.
+Before continuing, it's important to know that this page must reference certain templates to describe how the `_index.md` page will be rendered. Hugo has a multitude of possible templates that can be used and placed in various places (think theme templates for instance). For simplicity/brevity the default/top level template location will be used to refer to the entire range of places the template can be placed.
 
 If this is confusing or you are unfamiliar with Hugo's template hierarchy, visit the various template pages listed below. You may need to find the 'active' template responsible for any particular page on your own site by going through the template hierarchy and matching it to your particular setup/theme you are using.
 
@@ -315,6 +321,7 @@ Hugo themes are designed to use the 'content' directory as the root of the websi
 [homepage template]: /templates/homepage/
 [homepage]: /templates/homepage/
 [lists]: /templates/lists/
+[pretty]: /content-management/urls/#pretty-urls
 [section templates]: /templates/section-templates/
 [sections]: /content-management/sections/
 [singles]: /templates/single-page-templates/

@@ -26,5 +26,5 @@ If your current project working directory has a single file named `README.txt`:
 
 For more information on using `readDir` and `readFile` in your templates, see [Local File Templates][local].
 
-[local]: /templates/local-file-templates/
+[local]: /templates/files/
 

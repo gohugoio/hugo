@@ -63,17 +63,6 @@ code[class^="language-"] {
   }
 }
 
-// .filename + .code-copy-content {
-//   code[class^="language-"] {
-//     &:after {
-//       // display: none;
-//       position: absolute;
-//       top: -16px;
-//       right: 4px;
-//       z-index:99999999;
-//     }
-//   }
-// }
 .copy-button + .code-copy-content {
   code[class^="language-"] {
     &:after {
@@ -145,6 +134,16 @@ code.language-markdown:after {
       position: absolute;
       top: -8px;
       right: 4px;
+    }
+  }
+}
+
+//hides icons in the occasional code block in blockquotes and admonitions
+blockquote,
+.admonition {
+  code[class^="language-"] {
+    &:after {
+      content: '';
     }
   }
 }

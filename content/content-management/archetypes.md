@@ -180,7 +180,7 @@ As an example of archetypes in practice, the following is the `functions` archet
 {{% /code %}}
 
 {{% note %}}
-The preceding archetype is kept up to date with every Hugo build by using Hugo's [`readFile` function](/functions/readfile/). For similar examples, see [Local File Templates](/templates/local-file-templates/).
+The preceding archetype is kept up to date with every Hugo build by using Hugo's [`readFile` function](/functions/readfile/). For similar examples, see [Local File Templates](/templates/files/).
 {{% /note %}}
 
 [archetypes directory]: /getting-started/directory-structure/
