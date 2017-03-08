@@ -478,7 +478,7 @@ func (h *HugoSites) setupTranslations() {
 
 	if len(h.Sites) > 1 {
 		pages := h.Sites[0].AllPages
-		allTranslations := pagesToTranslationsMap(h.multilingual, pages)
+		allTranslations := pagesToTranslationsMap(pages)
 		assignTranslationsToPages(allTranslations, pages)
 	}
 }
@@ -524,7 +524,7 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 				}
 
 				var err error
-				if workContentCopy, err = handleShortcodes(p, s.Tmpl, workContentCopy); err != nil {
+				if workContentCopy, err = handleShortcodes(p, workContentCopy); err != nil {
 					s.Log.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
 				}
 
@@ -571,7 +571,7 @@ func (h *HugoSites) Pages() Pages {
 	return h.Sites[0].AllPages
 }
 
-func handleShortcodes(p *Page, t tpl.Template, rawContentCopy []byte) ([]byte, error) {
+func handleShortcodes(p *Page, rawContentCopy []byte) ([]byte, error) {
 	if len(p.contentShortCodes) > 0 {
 		p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.contentShortCodes), p.BaseFileName())
 		shortcodes, err := executeShortcodeFuncMap(p.contentShortCodes)
