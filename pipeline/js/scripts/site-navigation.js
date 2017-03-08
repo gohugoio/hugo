@@ -1,16 +1,23 @@
-$('.top-menu-item-link.true').on('click', function(evt) {
+$('.top-menu-item-link.has-children').on('click', function(evt) {
   evt.preventDefault();
   evt.stopPropagation();
-  var allTopLinks = $('.top-menu-item-link.true:not(.active-section)').next('ul'),
-    $ul = $(this).next('ul'),
-    isOpen = $ul.is(':visible'),
+  var $ul = $(this).next('ul'),
+    siblingLinks = $('.top-menu-item-link.has-children.open').next('ul');
+  siblingLinks.velocity('slideUp', { easing: 'easeOut', duration: 200 });
+  var isOpen = $(this).hasClass('open'),
     slideDir = isOpen ? 'slideUp' : 'slideDown',
     dur = isOpen ? 200 : 400;
   $ul.velocity(slideDir, {
     easing: 'easeOut',
     duration: dur
   });
-  console.log(allTopLinks);
+  siblingLinks.velocity('slideUp', { easing: 'easeOut', duration: 200 });
+  if (isOpen) {
+    $(this).removeClass('open');
+  } else {
+    $(this).addClass('open');
+  }
+  console.log(siblingLinks);
 });
 
 //toggle off-canvas navigation for M- screens
