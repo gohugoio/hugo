@@ -22,7 +22,7 @@ import (
 // filename.
 type Translations map[string]*Page
 
-func pagesToTranslationsMap(ml *Multilingual, pages []*Page) map[string]Translations {
+func pagesToTranslationsMap(pages []*Page) map[string]Translations {
 	out := make(map[string]Translations)
 
 	for _, page := range pages {

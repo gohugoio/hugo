@@ -666,7 +666,7 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 	}
 
 	go incrementalReadCollator(s, readResults, pageChan, fileConvChan, coordinator, errs)
-	go converterCollator(s, convertResults, errs)
+	go converterCollator(convertResults, errs)
 
 	for _, ev := range sourceReallyChanged {
 
@@ -1182,7 +1182,7 @@ func (s *Site) convertSource() chan error {
 		go pageConverter(pageChan, results, wg)
 	}
 
-	go converterCollator(s, results, errs)
+	go converterCollator(results, errs)
 
 	for _, p := range s.rawAllPages {
 		if p.shouldBuild() {
@@ -1266,7 +1266,7 @@ func fileConverter(s *Site, files <-chan *source.File, results HandleResults, wg
 	}
 }
 
-func converterCollator(s *Site, results <-chan HandledResult, errs chan<- error) {
+func converterCollator(results <-chan HandledResult, errs chan<- error) {
 	errMsgs := []string{}
 	for r := range results {
 		if r.err != nil {
