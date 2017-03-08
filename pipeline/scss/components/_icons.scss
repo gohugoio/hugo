@@ -11,11 +11,11 @@ svg.svg-icon {
   background-image: url(/images/hugo-icons/freebsd.svg);
   background-size: contain;
   background-repeat: no-repeat;
-  margin-bottom: .2em;
 }
 
 .icon-freebsd.white:before {
   background-image: url(/images/hugo-icons/freebsd-white.svg);
+  margin-bottom: .2em;
 }
 
 //for template lookup yes/no/na (e.g., in single-page template [/templates/single-page-template/])

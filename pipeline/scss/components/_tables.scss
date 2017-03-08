@@ -87,17 +87,27 @@ table {
   }
 }
 
-table.bf-configuration {
-  tbody {
-    tr {
-      td.purpose-description {
-        ul {
-          list-style: none;
-          margin-left:0px;
-          padding-left:0px;
-          li {
-            list-style: none;
-          }
+article#press-and-articles {
+  > .body-copy {
+    table {
+      max-width:100%;
+      tr {
+        td {
+          // max-width: 200px;
+          display:table-cell;
+          width:auto;
+        }
+        // td:first-child {
+        //   width:300px;
+        // }
+        // td:nth-child(2) {
+        //   width:200px;
+        // }
+        td:nth-child(3) {
+          width: 100px;
+          min-width: 100px;
+          max-width : 100px;
+          text-align:right;
         }
       }
     }

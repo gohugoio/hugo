@@ -20,8 +20,9 @@ Know of a post, article, or tutorial on Hugo? [Please add it to this list](https
 
 Hugo has been featured in the following Blog Posts, Press, and Media.
 
-| Title | Author | Date   |
-| ----- | ------ | -----: |
+| Title  | Author   | Date   |
+| :----- | -------  | -----  |
+| [Automagical image gallery in Hugo with PhotoSwipe and jQuery](https://www.liwen.id.au/photoswipe/)| Li-Wen Yip | 2017-03-04 |
 | [Adding Isso Comments to Hugo](https://stiobhart.net/2017-02-24-isso-comments/) | Stíobhart Matulevicz | 2017-02-24 |
 | [Zero to HTTP/2 with AWS and Hugo](https://habd.as/zero-to-http-2-aws-hugo/)  | Josh Habdas | 2017-02-16 |
 | [How to Password Protect a Hugo Site](https://www.aerobatic.com/blog/password-protect-a-hugo-site/) | Aerobatic | 2017-02-19 |
