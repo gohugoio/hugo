@@ -174,6 +174,12 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 	}
 
 	for _, s := range h.Sites {
+		for _, p := range s.Pages {
+			// May have been set in front matter
+			if len(p.outputTypes) == 0 {
+				p.outputTypes = s.defaultOutputDefinitions.ForKind(p.Kind)
+			}
+		}
 		s.assembleMenus()
 		s.refreshPageCaches()
 		s.setupSitePages()

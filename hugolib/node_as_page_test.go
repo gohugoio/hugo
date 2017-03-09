@@ -286,7 +286,9 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 func TestNodesAsPageMultilingual(t *testing.T) {
 	t.Parallel()
 	for _, ugly := range []bool{false, true} {
-		doTestNodesAsPageMultilingual(t, ugly)
+		t.Run(fmt.Sprintf("ugly=%t", ugly), func(t *testing.T) {
+			doTestNodesAsPageMultilingual(t, ugly)
+		})
 	}
 }
 
@@ -369,7 +371,8 @@ title = "Deutsche Hugo"
 	require.Len(t, deHome.Translations(), 2, deHome.Translations()[0].Language().Lang)
 	require.Equal(t, "en", deHome.Translations()[1].Language().Lang)
 	require.Equal(t, "nn", deHome.Translations()[0].Language().Lang)
-	require.Equal(t, expetedPermalink(ugly, "/de/"), deHome.Permalink())
+	// See issue #3179
+	require.Equal(t, expetedPermalink(false, "/de/"), deHome.Permalink())
 
 	enSect := sites.Sites[1].getPage("section", "sect1")
 	require.NotNil(t, enSect)

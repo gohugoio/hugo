@@ -28,7 +28,6 @@ import (
 
 	"html/template"
 	"io"
-	"net/url"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -188,10 +187,8 @@ type Page struct {
 	RSSLink template.URL
 
 	URLPath
-	permalink    *url.URL
+	permalink    string
 	relPermalink string
-
-	paginator *Pager
 
 	scratch *Scratch
 
@@ -203,6 +200,10 @@ type Page struct {
 
 	// The output types this page will be rendered to.
 	outputTypes output.Types
+
+	// This is the PageOutput that represents the first item in outputTypes.
+	// Use with care, as there are potential for inifinite loops.
+	mainPageOutput *PageOutput
 
 	// Used to pick the correct template(s)
 	layoutIdentifier pageLayoutIdentifier
@@ -248,12 +249,10 @@ type pageInit struct {
 	languageInit        sync.Once
 	pageMenusInit       sync.Once
 	pageMetaInit        sync.Once
-	paginatorInit       sync.Once
 	plainInit           sync.Once
 	plainWordsInit      sync.Once
 	renderingConfigInit sync.Once
 	pageURLInit         sync.Once
-	relPermalinkInit    sync.Once
 }
 
 // IsNode returns whether this is an item of one of the list types in Hugo,
@@ -787,68 +786,6 @@ func (p *Page) analyzePage() {
 	})
 }
 
-func (p *Page) getPermalink() *url.URL {
-	p.pageURLInit.Do(func() {
-		u, err := p.createPermalink()
-		if err != nil {
-			p.s.Log.ERROR.Printf("Failed to create permalink for page %q: %s", p.FullFilePath(), err)
-			p.permalink = new(url.URL)
-			return
-		}
-
-		p.permalink = u
-	})
-
-	// The link may be modified by the receiver, so create a copy.
-	l := *p.permalink
-
-	return &l
-}
-
-func (p *Page) createPermalink() (*url.URL, error) {
-	// TODO(bep) this should probably be set once during build. Maybe.
-	// And simplified.
-	baseURL := string(p.Site.BaseURL)
-
-	if p.IsNode() {
-		// No permalink config for nodes (currently)
-		pURL := strings.TrimSpace(p.s.PathSpec.URLize(p.URLPath.URL))
-		pURL = p.addLangPathPrefix(pURL)
-		pURL = p.s.PathSpec.URLPrep(pURL)
-		url := helpers.MakePermalink(baseURL, pURL)
-		return url, nil
-	}
-
-	dir := strings.TrimSpace(p.s.PathSpec.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
-	pSlug := strings.TrimSpace(p.s.PathSpec.URLize(p.Slug))
-	pURL := strings.TrimSpace(p.s.PathSpec.URLize(p.URLPath.URL))
-	var permalink string
-	var err error
-
-	if len(pURL) > 0 {
-		return helpers.MakePermalink(baseURL, pURL), nil
-	}
-
-	if override, ok := p.Site.Permalinks[p.Section()]; ok {
-		permalink, err = override.Expand(p)
-
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		if len(pSlug) > 0 {
-			permalink = p.s.PathSpec.URLPrep(path.Join(dir, p.Slug+"."+p.Extension()))
-		} else {
-			t := p.Source.TranslationBaseName()
-			permalink = p.s.PathSpec.URLPrep(path.Join(dir, (strings.TrimSpace(t) + "." + p.Extension())))
-		}
-	}
-
-	permalink = p.addLangPathPrefix(permalink)
-
-	return helpers.MakePermalink(baseURL, permalink), nil
-}
-
 func (p *Page) Extension() string {
 	if p.extension != "" {
 		// TODO(bep) output remove/deprecate this
@@ -927,10 +864,6 @@ func (p *Page) IsExpired() bool {
 	return p.ExpiryDate.Before(time.Now())
 }
 
-func (p *Page) Permalink() string {
-	return p.getPermalink().String()
-}
-
 func (p *Page) URL() string {
 
 	if p.IsPage() && p.URLPath.URL != "" {
@@ -942,39 +875,25 @@ func (p *Page) URL() string {
 	return u
 }
 
+// Permalink returns the absolute URL to this Page.
+func (p *Page) Permalink() string {
+	p.initURLs()
+	return p.permalink
+}
+
+// RelPermalink gets a URL to the resource relative to the host.
 func (p *Page) RelPermalink() string {
-	p.relPermalinkInit.Do(func() {
-		link := p.getPermalink()
-
-		if p.s.Info.canonifyURLs { // replacements for relpermalink with baseURL on the form http://myhost.com/sub/ will fail later on
-			// have to return the URL relative from baseURL
-			relpath, err := helpers.GetRelativePath(link.String(), string(p.Site.BaseURL))
-			if err != nil {
-				return
-			}
-
-			relpath = filepath.ToSlash(relpath)
-
-			if relpath[0] == '.' {
-				relpath = relpath[1:]
-			}
-
-			if !strings.HasPrefix(relpath, "/") {
-				relpath = "/" + relpath
-			}
-
-			p.relPermalink = relpath
-			return
-		}
-
-		link.Scheme = ""
-		link.Host = ""
-		link.User = nil
-		link.Opaque = ""
-		p.relPermalink = link.String()
-	})
-
+	p.initURLs()
 	return p.relPermalink
+}
+
+func (p *Page) initURLs() {
+	p.pageURLInit.Do(func() {
+		rel := p.createRelativePermalink()
+		p.permalink = p.s.permalink(rel)
+		rel = p.s.PathSpec.PrependBasePath(rel)
+		p.relPermalink = rel
+	})
 }
 
 var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
@@ -1507,56 +1426,6 @@ func (p *Page) FullFilePath() string {
 	return filepath.Join(p.Dir(), p.LogicalName())
 }
 
-func (p *Page) TargetPath() (outfile string) {
-
-	switch p.Kind {
-	case KindHome:
-		return p.addLangFilepathPrefix(helpers.FilePathSeparator)
-	case KindSection:
-		return p.addLangFilepathPrefix(p.sections[0])
-	case KindTaxonomy:
-		return p.addLangFilepathPrefix(filepath.Join(p.sections...))
-	case KindTaxonomyTerm:
-		return p.addLangFilepathPrefix(filepath.Join(p.sections...))
-	}
-
-	// Always use URL if it's specified
-	if len(strings.TrimSpace(p.URLPath.URL)) > 2 {
-		outfile = strings.TrimSpace(p.URLPath.URL)
-
-		if strings.HasSuffix(outfile, "/") {
-			outfile = outfile + "index.html"
-		}
-		outfile = filepath.FromSlash(outfile)
-		return
-	}
-
-	// If there's a Permalink specification, we use that
-	if override, ok := p.Site.Permalinks[p.Section()]; ok {
-		var err error
-		outfile, err = override.Expand(p)
-		if err == nil {
-			outfile, _ = url.QueryUnescape(outfile)
-			if strings.HasSuffix(outfile, "/") {
-				outfile += "index.html"
-			}
-			outfile = filepath.FromSlash(outfile)
-			outfile = p.addLangFilepathPrefix(outfile)
-			return
-		}
-	}
-
-	if len(strings.TrimSpace(p.Slug)) > 0 {
-		outfile = strings.TrimSpace(p.Slug) + "." + p.Extension()
-	} else {
-		// Fall back to filename
-		outfile = (p.Source.TranslationBaseName() + "." + p.Extension())
-	}
-
-	return p.addLangFilepathPrefix(filepath.Join(strings.ToLower(
-		p.s.PathSpec.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
-}
-
 // Pre render prepare steps
 
 func (p *Page) prepareLayouts() error {
@@ -1682,9 +1551,6 @@ func (p *Page) updatePageDates() {
 // copy creates a copy of this page with the lazy sync.Once vars reset
 // so they will be evaluated again, for word count calculations etc.
 func (p *Page) copy() *Page {
-	// This is a temporary workaround for the data race in #3129
-	p.getPermalink()
-
 	c := *p
 	c.pageInit = &pageInit{}
 	return &c
@@ -1894,12 +1760,6 @@ func kindFromFilename(filename string) string {
 	// We don't know enough yet to determine the type.
 	return kindUnknown
 }
-
-// TODO(bep) output
-var (
-	outputTypesWithRSS = output.Types{output.HTMLType, output.RSSType}
-	outputTypesHTML    = output.Types{output.HTMLType}
-)
 
 func (p *Page) setValuesForKind(s *Site) {
 	if p.Kind == kindUnknown {

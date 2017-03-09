@@ -17,10 +17,38 @@ import (
 	"fmt"
 	"net/url"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/PuerkitoBio/purell"
 )
+
+type BaseURL struct {
+	url    *url.URL
+	urlStr string
+}
+
+func (b BaseURL) String() string {
+	return b.urlStr
+}
+
+func (b BaseURL) URL() *url.URL {
+	// create a copy as it will be modified.
+	c := *b.url
+	return &c
+}
+
+func newBaseURLFromString(b string) (BaseURL, error) {
+	var result BaseURL
+
+	base, err := url.Parse(b)
+	if err != nil {
+		return result, err
+	}
+
+	// TODO(bep) output consider saving original URL?
+	return BaseURL{url: base, urlStr: base.String()}, nil
+}
 
 type pathBridge struct {
 }
@@ -101,10 +129,20 @@ func SanitizeURLKeepTrailingSlash(in string) string {
 //     uri: Vim (text editor)
 //     urlize: vim-text-editor
 func (p *PathSpec) URLize(uri string) string {
-	sanitized := p.MakePathSanitized(uri)
+	return p.URLEscape(p.MakePathSanitized(uri))
 
+}
+
+// URLizeFilename creates an URL from a filename by esacaping unicode letters
+// and turn any filepath separator into forward slashes.
+func (p *PathSpec) URLizeFilename(filename string) string {
+	return p.URLEscape(filepath.ToSlash(filename))
+}
+
+// URLEscape escapes unicode letters.
+func (p *PathSpec) URLEscape(uri string) string {
 	// escape unicode letters
-	parsedURI, err := url.Parse(sanitized)
+	parsedURI, err := url.Parse(uri)
 	if err != nil {
 		// if net/url can not parse URL it means Sanitize works incorrectly
 		panic(err)
@@ -118,6 +156,7 @@ func (p *PathSpec) URLize(uri string) string {
 //    base:   http://spf13.com/
 //    path:   post/how-i-blog
 //    result: http://spf13.com/post/how-i-blog
+// TODO(bep) output check why this is still in use.
 func MakePermalink(host, plink string) *url.URL {
 
 	base, err := url.Parse(host)
@@ -156,14 +195,13 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 		return in
 	}
 
-	baseURL := p.baseURL
+	var baseURL string
 	if strings.HasPrefix(in, "/") {
-		p, err := url.Parse(baseURL)
-		if err != nil {
-			panic(err)
-		}
-		p.Path = ""
-		baseURL = p.String()
+		u := p.BaseURL.URL()
+		u.Path = ""
+		baseURL = u.String()
+	} else {
+		baseURL = p.BaseURL.String()
 	}
 
 	if addLanguage {
@@ -218,7 +256,7 @@ func IsAbsURL(path string) bool {
 // RelURL creates a URL relative to the BaseURL root.
 // Note: The result URL will not include the context root if canonifyURLs is enabled.
 func (p *PathSpec) RelURL(in string, addLanguage bool) string {
-	baseURL := p.baseURL
+	baseURL := p.BaseURL.String()
 	canonifyURLs := p.canonifyURLs
 	if (!strings.HasPrefix(in, baseURL) && strings.HasPrefix(in, "http")) || strings.HasPrefix(in, "//") {
 		return in
@@ -287,8 +325,27 @@ func AddContextRoot(baseURL, relativePath string) string {
 	return newPath
 }
 
+// PrependBasePath prepends any baseURL sub-folder to the given resource
+// if canonifyURLs is disabled.
+// If canonifyURLs is set, we will globally prepend the absURL with any sub-folder,
+// so avoid doing anything here to avoid getting double paths.
+func (p *PathSpec) PrependBasePath(rel string) string {
+	basePath := p.BaseURL.url.Path
+	if !p.canonifyURLs && basePath != "" && basePath != "/" {
+		rel = filepath.ToSlash(rel)
+		// Need to prepend any path from the baseURL
+		hadSlash := strings.HasSuffix(rel, "/")
+		rel = path.Join(basePath, rel)
+		if hadSlash {
+			rel += "/"
+		}
+	}
+	return rel
+}
+
 // URLizeAndPrep applies misc sanitation to the given URL to get it in line
 // with the Hugo standard.
+// TODO(bep) output check usage
 func (p *PathSpec) URLizeAndPrep(in string) string {
 	return p.URLPrep(p.URLize(in))
 }

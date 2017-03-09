@@ -41,7 +41,6 @@ type siteWriter struct {
 }
 
 func (w siteWriter) targetPathPage(tp output.Type, src string) (string, error) {
-	fmt.Println(tp, "=>", src)
 	dir, err := w.baseTargetPathPage(tp, src)
 	if err != nil {
 		return "", err
@@ -56,6 +55,14 @@ func (w siteWriter) baseTargetPathPage(tp output.Type, src string) (string, erro
 	if src == helpers.FilePathSeparator {
 		return "index.html", nil
 	}
+
+	// The anatomy of a target path:
+	// langDir
+	// BaseName
+	// Suffix
+	// ROOT?
+	// dir
+	// name
 
 	dir, file := filepath.Split(src)
 	isRoot := dir == ""
@@ -171,14 +178,12 @@ func filename(f string) string {
 	return f[:len(f)-len(ext)]
 }
 
-func (w siteWriter) writeDestPage(tp output.Type, path string, reader io.Reader) (err error) {
+func (w siteWriter) writeDestPage(tp output.Type, path string, reader io.Reader) error {
 	w.log.DEBUG.Println("creating page:", path)
-	targetPath, err := w.targetPathPage(tp, path)
-	if err != nil {
-		return err
-	}
+	path, _ = w.targetPathFile(path)
+	// TODO(bep) output remove this file ... targetPath, err := w.targetPathPage(tp, path)
 
-	return w.publish(targetPath, reader)
+	return w.publish(path, reader)
 }
 
 func (w siteWriter) writeDestFile(path string, r io.Reader) (err error) {
@@ -191,5 +196,6 @@ func (w siteWriter) writeDestFile(path string, r io.Reader) (err error) {
 }
 
 func (w siteWriter) publish(path string, r io.Reader) (err error) {
+
 	return helpers.WriteToDisk(path, r, w.fs.Destination)
 }

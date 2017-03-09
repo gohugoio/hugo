@@ -30,6 +30,7 @@ func TestDefaultTypes(t *testing.T) {
 	require.Equal(t, media.RSSType, RSSType.MediaType)
 	require.Empty(t, RSSType.Path)
 	require.False(t, RSSType.IsPlainText)
+	require.True(t, RSSType.NoUgly)
 }
 
 func TestGetType(t *testing.T) {

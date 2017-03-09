@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	baseURL = "http://foo/bar"
+	testBaseURL = "http://foo/bar"
 )
 
 func TestShortcodeCrossrefs(t *testing.T) {
@@ -46,7 +46,7 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 		cfg, fs = newTestCfg()
 	)
 
-	cfg.Set("baseURL", baseURL)
+	cfg.Set("baseURL", testBaseURL)
 
 	var refShortcode string
 	var expectedBase string
@@ -56,7 +56,7 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 		expectedBase = "/bar"
 	} else {
 		refShortcode = "ref"
-		expectedBase = baseURL
+		expectedBase = testBaseURL
 	}
 
 	path := filepath.FromSlash("blog/post.md")

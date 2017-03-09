@@ -27,6 +27,7 @@ var (
 		Name:      "AMP",
 		MediaType: media.HTMLType,
 		BaseName:  "index",
+		Path:      "amp",
 	}
 
 	CSSType = Type{
@@ -43,7 +44,7 @@ var (
 
 	JSONType = Type{
 		Name:        "JSON",
-		MediaType:   media.HTMLType,
+		MediaType:   media.JSONType,
 		BaseName:    "index",
 		IsPlainText: true,
 	}
@@ -52,6 +53,7 @@ var (
 		Name:      "RSS",
 		MediaType: media.RSSType,
 		BaseName:  "index",
+		NoUgly:    true,
 	}
 )
 
@@ -111,4 +113,8 @@ func GetTypes(keys ...string) (Types, error) {
 	}
 
 	return types, nil
+}
+
+func (t Type) BaseFilename() string {
+	return t.BaseName + "." + t.MediaType.Suffix
 }

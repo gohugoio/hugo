@@ -16,7 +16,6 @@ package hugolib
 import (
 	"fmt"
 	"path"
-	"path/filepath"
 	"sync"
 	"time"
 
@@ -63,9 +62,19 @@ func (s *Site) renderPages() error {
 
 func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
+	var mainPageOutput *PageOutput
+
 	for page := range pages {
 		for i, outputType := range page.outputTypes {
-			pageOutput := newPageOutput(page, i > 0, outputType)
+			pageOutput, err := newPageOutput(page, i > 0, outputType)
+			if err != nil {
+				s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outputType.Name, page, err)
+				continue
+			}
+			if i == 0 {
+				mainPageOutput = pageOutput
+			}
+			page.mainPageOutput = mainPageOutput
 
 			var layouts []string
 
@@ -76,14 +85,18 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 				layouts = s.layouts(pageOutput)
 			}
 
-			switch pageOutput.outputType {
+			switch pageOutput.outputType.Name {
 
-			case output.RSSType:
+			case "RSS":
 				if err := s.renderRSS(pageOutput); err != nil {
 					results <- err
 				}
 			default:
-				targetPath := pageOutput.TargetPath()
+				targetPath, err := pageOutput.targetPath()
+				if err != nil {
+					s.Log.ERROR.Printf("Failed to create target path for output %q for page %q: %s", outputType.Name, page, err)
+					continue
+				}
 
 				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", pageOutput.Kind, targetPath, layouts)
 
@@ -133,11 +146,11 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 			}
 
 			pageNumber := i + 1
-			htmlBase := path.Join(append(p.sections, fmt.Sprintf("/%s/%d", paginatePath, pageNumber))...)
-			htmlBase = p.addLangPathPrefix(htmlBase)
+			addend := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
+			targetPath, _ := p.targetPath(addend)
 
 			if err := s.renderAndWritePage(p.outputType, pagerNode.Title,
-				filepath.FromSlash(htmlBase), pagerNode, p.layouts()...); err != nil {
+				targetPath, pagerNode, p.layouts()...); err != nil {
 				return err
 			}
 
@@ -178,13 +191,15 @@ func (s *Site) renderRSS(p *PageOutput) error {
 		p.Pages = p.Pages[:limit]
 		p.Data["Pages"] = p.Pages
 	}
-	rssURI := s.Language.GetString("rssURI")
 
-	rssPath := path.Join(append(p.sections, rssURI)...)
-	s.setPageURLs(p.Page, rssPath)
+	// TODO(bep) output deprecate/handle rssURI
+	targetPath, err := p.targetPath()
+	if err != nil {
+		return err
+	}
 
 	return s.renderAndWriteXML(p.Title,
-		p.addLangFilepathPrefix(rssPath), p, s.appendThemeTemplates(layouts)...)
+		targetPath, p, s.appendThemeTemplates(layouts)...)
 }
 
 func (s *Site) render404() error {

@@ -14,17 +14,12 @@
 package hugolib
 
 import (
+	"path"
 	"strings"
 
+	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/output"
 )
-
-var defaultOutputDefinitions = siteOutputDefinitions{
-	// All have HTML
-	siteOutputDefinition{ExcludedKinds: "", Outputs: []output.Type{output.HTMLType}},
-	// Some have RSS
-	siteOutputDefinition{ExcludedKinds: "page", Outputs: []output.Type{output.RSSType}},
-}
 
 type siteOutputDefinitions []siteOutputDefinition
 
@@ -47,4 +42,28 @@ func (defs siteOutputDefinitions) ForKind(kind string) []output.Type {
 	}
 
 	return result
+}
+
+func createSiteOutputDefinitions(cfg config.Provider) siteOutputDefinitions {
+
+	var defs siteOutputDefinitions
+
+	// All have HTML
+	defs = append(defs, siteOutputDefinition{ExcludedKinds: "", Outputs: []output.Type{output.HTMLType}})
+
+	// TODO(bep) output deprecate rssURI
+	rssBase := cfg.GetString("rssURI")
+	if rssBase == "" {
+		rssBase = "index"
+	}
+
+	// RSS has now a well defined media type, so strip any suffix provided
+	rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
+	rssType := output.RSSType
+	rssType.BaseName = rssBase
+
+	// Some have RSS
+	defs = append(defs, siteOutputDefinition{ExcludedKinds: "page", Outputs: []output.Type{rssType}})
+
+	return defs
 }

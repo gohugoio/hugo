@@ -22,6 +22,8 @@ import (
 
 // PathSpec holds methods that decides how paths in URLs and files in Hugo should look like.
 type PathSpec struct {
+	BaseURL
+
 	disablePathToLower bool
 	removePathAccents  bool
 	uglyURLs           bool
@@ -32,8 +34,7 @@ type PathSpec struct {
 	// pagination path handling
 	paginatePath string
 
-	baseURL string
-	theme   string
+	theme string
 
 	// Directories
 	themesDir  string
@@ -61,6 +62,9 @@ func (p PathSpec) String() string {
 // NewPathSpec creats a new PathSpec from the given filesystems and Language.
 func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) *PathSpec {
 
+	// TODO(bep) output error handling
+	baseURL, _ := newBaseURLFromString(cfg.GetString("baseURL"))
+
 	ps := &PathSpec{
 		fs:                             fs,
 		disablePathToLower:             cfg.GetBool("disablePathToLower"),
@@ -71,7 +75,7 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) *PathSpec {
 		defaultContentLanguageInSubdir: cfg.GetBool("defaultContentLanguageInSubdir"),
 		defaultContentLanguage:         cfg.GetString("defaultContentLanguage"),
 		paginatePath:                   cfg.GetString("paginatePath"),
-		baseURL:                        cfg.GetString("baseURL"),
+		BaseURL:                        baseURL,
 		themesDir:                      cfg.GetString("themesDir"),
 		layoutDir:                      cfg.GetString("layoutDir"),
 		workingDir:                     cfg.GetString("workingDir"),
