@@ -452,6 +452,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 		if err != nil {
 			return nil
 		}
+
 		t.Log.DEBUG.Println("Template path", path)
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 			link, err := filepath.EvalSymlinks(absPath)
@@ -459,11 +460,13 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 				t.Log.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
 				return nil
 			}
+
 			linkfi, err := t.Fs.Source.Stat(link)
 			if err != nil {
 				t.Log.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 				return nil
 			}
+
 			if !linkfi.Mode().IsRegular() {
 				t.Log.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
 			}

@@ -1361,7 +1361,7 @@ func TestPageParams(t *testing.T) {
 	for i, c := range pagesParamsTemplate {
 		p, err := s.NewPageFrom(strings.NewReader(c), "content/post/params.md")
 		require.NoError(t, err, "err during parse", "#%d", i)
-		for key, _ := range wantedMap {
+		for key := range wantedMap {
 			assert.Equal(t, wantedMap[key], p.Params[key], "#%d", key)
 		}
 	}

@@ -302,7 +302,6 @@ func (h *HugoSites) createMissingPages() error {
 	var newPages Pages
 
 	for _, s := range h.Sites {
-
 		if s.isEnabled(KindHome) {
 			// home pages
 			home := s.findPagesByKind(KindHome)

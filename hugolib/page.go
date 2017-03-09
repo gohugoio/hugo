@@ -254,8 +254,8 @@ type Position struct {
 
 type Pages []*Page
 
-func (p Pages) String() string {
-	return fmt.Sprintf("Pages(%d)", len(p))
+func (ps Pages) String() string {
+	return fmt.Sprintf("Pages(%d)", len(ps))
 }
 
 func (ps Pages) FindPagePosByFilePath(inPath string) int {

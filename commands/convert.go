@@ -123,14 +123,14 @@ func convertContents(mark rune) error {
 
 		// better handling of dates in formats that don't have support for them
 		if mark == parser.FormatToLeadRune("json") || mark == parser.FormatToLeadRune("yaml") || mark == parser.FormatToLeadRune("toml") {
-			newmetadata := cast.ToStringMap(metadata)
-			for k, v := range newmetadata {
+			newMetadata := cast.ToStringMap(metadata)
+			for k, v := range newMetadata {
 				switch vv := v.(type) {
 				case time.Time:
-					newmetadata[k] = vv.Format(time.RFC3339)
+					newMetadata[k] = vv.Format(time.RFC3339)
 				}
 			}
-			metadata = newmetadata
+			metadata = newMetadata
 		}
 
 		page.SetDir(filepath.Join(contentDir, file.Dir()))

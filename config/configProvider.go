@@ -11,10 +11,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package helpers implements general utility functions that work with
-// and on content.  The helper functions defined here lay down the
-// foundation of how Hugo works with files and filepaths, and perform
-// string operations on content.
 package config
 
 // Provider provides the configuration settings for Hugo.
