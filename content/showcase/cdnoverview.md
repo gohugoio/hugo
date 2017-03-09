@@ -8,7 +8,7 @@ tags:
 - bootstrap
 - portfolio
 - tech
-image: cdnoverview.png
+image: cdnoverview.jpg
 title: cdnoverview.com
 ---
 

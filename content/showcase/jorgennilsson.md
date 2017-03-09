@@ -7,6 +7,6 @@ sitelink: http://jorgennilsson.com/
 tags:
 - personal
 - blog
-image: jorgennilsson.png
+image: jorgennilsson.jpg
 title: jorgennilsson.com
 ---

@@ -9,6 +9,6 @@ sourcelink: https://github.com/igorkulman/coding-journal
 tags:
 - blog
 - portfolio
-image: codingjournal.png
+image: codingjournal.jpg
 title: Coding Journal
 ---

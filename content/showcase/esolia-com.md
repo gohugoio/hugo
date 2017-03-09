@@ -11,6 +11,6 @@ tags:
 - esolia
 - rickcogley
 - japan
-image: esolia_com.png
+image: esolia_com.jpg
 title: eSolia.com
 ---

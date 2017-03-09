@@ -8,7 +8,7 @@ sourcelink: https://gitlab.com/mayan-edms/website
 tags:
 - paperless
 - floss
-image: mayan-edms.png
+image: mayan-edms.jpg
 title: Mayan EDMS
 ---
 

@@ -8,6 +8,6 @@ sourcelink: https://github.com/moonytheloony/Blog-Web
 tags:
 - personal
 - blog
-image: rahulrai_in.png
+image: rahulrai_in.jpg
 title: My Take on Cloud
 ---

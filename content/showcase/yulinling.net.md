@@ -9,6 +9,6 @@ sourcelink: https://bitbucket.org/lynxiayel/yulinling_source_public
 tags:
 - blog
 - documentation
-image: yulinling.png
+image: yulinling.jpg
 title: <span lang="zh-CN">语林灵</span> (Yulinling)
 ---

@@ -7,6 +7,6 @@ sitelink: https://christianmendoza.me/
 tags:
 - personal
 - profile
-image: christianmendoza.png
+image: christianmendoza.jpg
 title: christianmendoza.me
 ---

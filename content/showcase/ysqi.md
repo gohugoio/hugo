@@ -8,6 +8,6 @@ sourcelink: https://github.com/ysqi/yushuangqi.com/
 tags:
 - personal
 - blog
-image: ysqi-blog.png
+image: ysqi-blog.jpg
 title: yushuangqi-blog
 ---

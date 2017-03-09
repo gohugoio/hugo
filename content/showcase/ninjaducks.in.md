@@ -9,6 +9,6 @@ sourcelink: https://github.com/shivanshuag/shivanshuag.github.io/tree/new
 tags:
 - personal
 - blog
-image: ninjaducks.png
+image: ninjaducks.jpg
 title: ninjaducks.in
 ---

@@ -9,7 +9,7 @@ tags:
 - personal
 - blog
 - programming
-image: klingt-net.png
+image: klingt-net.jpg
 title: klingt net
 ---
 

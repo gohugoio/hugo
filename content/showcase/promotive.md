@@ -10,6 +10,6 @@ tags:
 - spanish
 - event management
 - bootstrap
-image: promotive.png
+image: promotive.jpg
 title: Promotive
 ---

@@ -3,7 +3,7 @@ const gulp = require('gulp');
 const babel = require('gulp-babel');
 const concat = require('gulp-concat');
 const imagefull = 1200;
-const imagehalf = 600;
+const imagehalf = 450;
 const imagemin = require("gulp-imagemin");
 const imageresize = require('gulp-image-resize');
 const imagethumb = 80;
@@ -42,21 +42,21 @@ gulp.task('scss', function() {
 gulp.task("image-resize", () => {
   return gulp.src("../source-images/*.{jpg,png,jpeg,gif}")
     .pipe(imagemin())
+    // .pipe(parallel(
+    //   imageresize({ width: imagefull }),
+    //   os.cpus().length
+    // ))
+    // .pipe(gulp.dest("../static/images"))
     .pipe(parallel(
-      imageresize({ width: imagefull }),
+      imageresize({ width: imagehalf, format: 'jpg' }),
       os.cpus().length
     ))
-    .pipe(gulp.dest("../static/images"))
-    .pipe(parallel(
-      imageresize({ width: imagehalf }),
-      os.cpus().length
-    ))
-    .pipe(gulp.dest("../static/images/half"))
-    .pipe(parallel(
-      imageresize({ width: imagethumb }),
-      os.cpus().length
-    ))
-    .pipe(gulp.dest("../static/images/thumb"));
+    // .pipe(gulp.dest("../static/images/half"))
+    // .pipe(parallel(
+    //   imageresize({ width: imagethumb }),
+    //   os.cpus().length
+    // ))
+    .pipe(gulp.dest("../static/images/showcase-optimized/"));
 });
 
 /**Javascript **/

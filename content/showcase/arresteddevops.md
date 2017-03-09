@@ -9,7 +9,7 @@ sourcelink: https://github.com/arresteddevops/ado-hugo
 tags:
 - podcast
 - bootstrap
-image: arresteddevops.png
+image: arresteddevops.jpg
 title: arresteddevops
 ---
 
