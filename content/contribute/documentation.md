@@ -11,14 +11,13 @@ weight: 20
 draft: false
 aliases: [/contribute/docs/]
 toc: true
-wip: true
 ---
 
-Documentation is a critical component of any open-source project. The Hugo docs were completely reworked for the release of v0.19, but there is always room for improvement.
+Documentation is a critical component of any open-source project. The Hugo docs were completely reworked for the release of v0.20, but there is always room for improvement.
 
 ## Create Your Fork
 
-It's best to make changes to the Hugo docs on your local machine to check for consistent visual styling. Make sure you've created a fork of Hugo on GitHub and cloned the repository locally on your computer. For more information, you can use the [GitHub docs for "forking"][ghforking] or see [Hugo's extensive development contribution guide][hugodev].
+It's best to make changes to the Hugo docs on your local machine to check for consistent visual styling. Make sure you've created a fork of Hugo on GitHub and cloned the repository locally on your machine. For more information, you can use the [GitHub docs for "forking"][ghforking] or see [Hugo's extensive development contribution guide][hugodev].
 
 You can then create a separate branch for your additions. Note that you can choose a different descriptive branch name that best fits the type of content. The following is an example of a branch name you might use for adding a new website to the showcase:
 
@@ -28,16 +27,16 @@ git checkout -b jon-doe-showcase-addition
 
 ## Adding New Content
 
-The Hugo docs are built using Hugo and therefore make heavy use of Hugo's [archetypes][] feature to easily scaffold new instances of content types. All content sections in Hugo documentation have an assigned archetype ([see the Hugo docs archetype source][archsource]).
+The Hugo docs make heavy use of Hugo's [archetypes][] feature to easily scaffold new instances of content types. All content sections in Hugo documentation have an assigned archetype. You can [see the Hugo docs archetype source][archsource] for more clarity.
 
-Adding new content follows the same pattern, regardless of the content section:
+Adding new content to the Hugo docs follows the same pattern, regardless of the content section:
 
 ```
-hugo new <docssection>/<newcontent-all-lowercase.md>
+hugo new <DOCS-SECTION>/<new-content-lowercase>.md
 ```
 
 {{% note "`title:`, `date:`, and Field Order" %}}
-`title` and `date` fields are added automatically when using archetypes via `hugo new`. Do not be worried if the order of the new file's front matter fields on your local machine is different than that of the following examples. This is a [known issue (#452)](https://github.com/spf13/hugo/issues/452).
+`title` and `date` fields are added automatically when using archetypes via `hugo new`. Do not be worried if the order of the new file's front matter fields on your local machine is different than that of the examples provided in the Hugo docs. This is a known issue [(#452)](https://github.com/spf13/hugo/issues/452).
 {{% /note %}}
 
 ### Adding a New Function
@@ -56,36 +55,39 @@ The archetype for the `functions` content type is as follows:
 ```
 {{% /code %}}
 
-#### Function Required Fields
+#### New Function Required Fields
 
-Let's review some of the fields automatically generated for you using `hugo new functions/*`:
+Here is a review of the front matter fields automatically generated for you using `hugo new functions/*`:
 
 ***`title`***
-: This should be generated in all lowercase when you use `hugo new`.
+: this will be auto-populated in all lowercase when you use `hugo new` generator.
 
 ***`linktitle`***
-: Use the function's actual casing (e.g., `replaceRE` rather than `replacere`).
+: the function's actual casing (e.g., `replaceRE` rather than `replacere`).
 
 ***`description`***
-: Keep this really short. This is what's used to populate the [Functions Quick Reference](/functions/).
+: a brief description used to populate the [Functions Quick Reference](/functions/).
 
 `categories`
-: This is populated with 'functions` for future-proofing and portability reasons only. Skip this field.'
+: currently auto-populated with 'functions` for future-proofing and portability reasons only; ignore this field.
 
 `tags`
-: Only if you think it will help end users find other related functions
+: only if you think it will help end users find other related functions
 
 `signature`
-: This is a signature/syntax definition for calling the function (e.g., `apply SEQUENCE FUNCTION [PARAM...]`)
+: this is a signature/syntax definition for calling the function (e.g., `apply SEQUENCE FUNCTION [PARAM...]`).
 
 `workson`
-: Acceptable values include `lists`,`taxonomies`, `terms`, `groups`, and `files`
+: acceptable values include `lists`,`taxonomies`, `terms`, `groups`, and `files`.
 
 `hugoversion`
-: The version of Hugo that will ship with this new function
+: the version of Hugo that will ship with this new function.
 
 `relatedfuncs`
-: If you can, list some functions you think are related to your new function to help fellow Hugo users.
+: other [templating functions][] you feel are related to your new function to help fellow Hugo users.
+
+`{{.Content}}`
+: an extended description of the new function; examples are not only welcomed but encouraged.
 
 In the body of you function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [code shortcodes](#adding-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
 
@@ -108,16 +110,16 @@ The archetype for the `showcase` content type is as follows:
 #### Showcase Required Fields
 
 `sitelink`
-: the *full* URL to your website
+: the *full* URL to your website.
 
 `title`
-: the `<title>` of your website
+: the `<title>` of your website.
 
 `description`
 : a general description of your website, preferably < 180 characters.
 
 `image`
-: the image (filename only) you want to associate with your website on the Showcase page. The image should be 600px x 400px.
+: the image (filename only) you want to associate with your website on the Showcase page. The image should be 450px &times; 300px.
 
 We also appreciate the addition of the remaining fields, specially `sourcelink` and `license` if you are willing to share your hard work with the open-source community. `tags` is optional, but we recommend adding at least 2 to 3 tags to improve discoverability.
 
@@ -388,12 +390,12 @@ needsexamples: true
 
 ## Places to Start
 
-The preceding `needsexamples` is used to generate the following list of pages flagged for needing example. Links will take you directly to the edit URL for the file within the GitHub GUI:
+The preceding `needsexamples` field is used to generate the following list of flagged content. Links will take you directly to the edit URL for the file within the GitHub GUI in the event that you are not comfortable cloning and editing the repository locally.
 
 {{< needsexamples >}}
 
 {{% note "Pull Requests and Branches" %}}
-Similar to [contributing to Hugo development](/contribute/contribute-to-hugo-development), the Hugo team expects you to create a separate branch/fork when you make your generous contributions to the Hugo docs.
+Similar to [contributing to Hugo development](/contribute/development/), the Hugo team expects you to create a separate branch/fork when you make your generous contributions to the Hugo docs.
 {{% /note %}}
 
 [abe]: https://en.wikipedia.org/wiki/K%C5%8Db%C5%8D_Abe
@@ -405,3 +407,4 @@ Similar to [contributing to Hugo development](/contribute/contribute-to-hugo-dev
 [hugodev]: /contribute/development/
 [shortcodeparams]: content-management/shortcodes/#shortcodes-without-markdown
 [sourceforge]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
+[templating function]: /functions/

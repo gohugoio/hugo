@@ -19,27 +19,41 @@ Go 1.6 includes a powerful new keyword, `block`. This construct allows you to de
 
 ## Base Template Lookup Order
 
-This is the order Hugo searches for your base template:
+The [lookup order][lookup] for base templates is as follows:
 
-1. `/layouts/<CURRENTPATH>/<TEMPLATENAME>-baseof.html`
-2. `/layouts/<CURRENTPATH>/baseof.html`
-3. `/layouts/_default/<TEMPLATENAME>-baseof.html`
-4. `/layouts/_default/baseof.html`
+1. `/layouts/section/<TYPE>-baseof.html`
+2. `/themes/<THEME>/layouts/section/<TYPE>-baseof.html`
+3. `/layouts/<TYPE>/baseof.html`
+4. `/themes/<THEME>/layouts/<TYPE>/baseof.html`
+5. `/layouts/section/baseof.html`
+6. `/themes/<THEME>/layouts/section/baseof.html`
+7. `/layouts/_default/post-baseof.html`
+8. `/themes/<THEME>/layouts/_default/post-baseof.html`
+9. `/layouts/_default/baseof.html`
+10. `/themes/<THEME>/layouts/_default/baseof.html`
 
-As an example, let's assume your site is using the theme when rendering the section list for the section `post`. Hugo picks the `section/post.html` as the template and this template has a `define` section that indicates it needs a base template. This is then the lookup order:
+Variables are denoted by capitalized text set within `<>`. Note that Hugo's default behavior is for `type` to inherit from `section` unless otherwise specified.
+
+### Example Base Template Lookup Order
+
+As an example, let's assume your site is using a theme called "mytheme" when rendering the section list for a `post` section. Hugo picks `layout/section/post.html` as the template for [rendering the section][]. The `{{define}}` block in this template tells Hugo that the template is an extension of a base template.
+
+Here is the lookup order for the `post` base template:
 
 1. `/layouts/section/post-baseof.html`
-2. `/themes/<THEME>/layouts/section/post-baseof.html`
-3. `/layouts/section/baseof.html`
-4. `/themes/<THEME>/layouts/section/baseof.html`
-5. `/layouts/_default/post-baseof.html`
-6. `/themes/<THEME>/layouts/_default/post-baseof.html`
-7. `/layouts/_default/baseof.html`
-8. `/themes/<THEME>/layouts/_default/baseof.html`
+2. `/themes/mytheme/layouts/section/post-baseof.html`
+3. `/layouts/post/baseof.html`
+4. `/themes/mytheme/layouts/post/baseof.html`
+5. `/layouts/section/baseof.html`
+6. `/themes/mytheme/layouts/section/baseof.html`
+7. `/layouts/_default/post-baseof.html`
+8. `/themes/mytheme/layouts/_default/post-baseof.html`
+9. `/layouts/_default/baseof.html`
+10. `/themes/mytheme/layouts/_default/baseof.html`
 
 ## Defining the Base Template
 
-The following defines a simple base template at `_default/baseof.html`). As a default template, it is the shell from which all our pages will start unless a more specific `*baseof.html` is defined.
+The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will start unless you specify another `*baseof.html` closer to the beginning of the lookup order..
 
 {{% code file="layouts/_default/baseof.html" download="baseof.html" %}}
 ```html
@@ -118,4 +132,6 @@ The following shows how you can override both the `"main"` and `"title"` block a
 {{% /code %}}
 
 [hugolists]: /templates/lists
+[lookup]: /templates/lookup-order/
+[rendering the section]: /templates/section-templates/
 [singletemplate]: /templates/single-page-templates/

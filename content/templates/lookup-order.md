@@ -11,7 +11,7 @@ tags: [lookup,fundamentals]
 weight: 15
 draft: false
 aliases: [/templates/lookup/]
-wip: true
+toc: true
 ---
 
 Before creating your templates, it's important to know how Hugo looks for files within your project's [directory structure][].
@@ -20,7 +20,7 @@ Hugo uses a prioritized list called the **lookup order** as it traverses your `l
 
 The template lookup order is an inverted cascade: if template A isn’t present or specified, Hugo will look to template B. If template B isn't present or specified, Hugo will look for template C...and so on until it reaches the `_default/` directory for your project or theme. In many ways, the lookup order is similar to the control mechanism of a [switch statement (i.e. without fallthrough)][switch] seen in many programming languages.
 
-The power of the lookup order is that it enables you to craft specific layouts as needed without creating more templating than necessary, thereby keeping your templating [DRY][].
+The power of the lookup order is that it enables you to craft specific layouts and keep your templating [DRY][].
 
 {{% note %}}
 Most Hugo websites will only need the default template files at the end of the lookup order (i.e. `_default/*.html`).
@@ -63,11 +63,11 @@ The lookup order is best illustrated by example. The following shows you the pro
 
 Now we can look at the front matter for the three single-page content (i.e.`.md`) files.
 
-{{% note "Three Content Pages but *Four* Markdown Files?" %}}
-`_index.md` may seem like a single page of content but is actually a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are used to add content and front matter to list pages and therefore do not submit themselves to the *single* page template lookup. Instead, `events/_index.md` will render according to its [section template](/templates/section-templates/) and respective lookup order.
+{{% note  %}}
+You may notice there are four markdown files but we are only going to review three for the *single* page lookup order. `_index.md` may seem like a single page of content but is actually a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are used to add content and front matter to list pages. `events/_index.md` will render according to its [section template](/templates/section-templates/) and respective lookup order.
 {{% /note %}}
 
-### `my-first-post.md`
+### Example: `my-first-post.md`
 
 {{% code file="content/posts/my-first-post.md" copy="false" %}}
 ```yaml
@@ -81,9 +81,9 @@ description: This is my first post.
 
 When it comes time for Hugo to render the content to the page, it will go through the single page template lookup order until it finds what it needs for `my-first-post.md`:
 
-1. <span class="no">`/layouts/UNSPECIFIED/UNSPECIFIED.html`</span>
-2. <span class="no">`/layouts/posts/UNSPECIFIED.html`</span>
-3. <span class="no">`/layouts/UNSPECIFIED/single.html`</span>
+1. ~~`/layouts/UNSPECIFIED/UNSPECIFIED.html`~~
+2. ~~`/layouts/posts/UNSPECIFIED.html`~~
+3. ~~`/layouts/UNSPECIFIED/single.html`~~
 4. <span class="yes">`/layouts/posts/single.html`</span>
   <br><span class="break">BREAK</span>
 5. <span class="na">`/layouts/_default/single.html`</span>
@@ -97,7 +97,7 @@ Notice the term `UNSPECIFIED` rather than `UNDEFINED`. If you don't tell Hugo th
 
 `my-first-post.md` also does not specify a `layout` in its front matter. Therefore, Hugo assumes that `my-first-post.md`, which is of type `page` and a *single* piece of content, should default to the next occurrence of a `single.html` template in the lookup (#4).
 
-### `my-second-post.md`
+### Example: `my-second-post.md`
 
 {{% code file="content/posts/my-second-post.md" copy="false" %}}
 ```yaml
@@ -131,7 +131,7 @@ The front matter in `my-second-post.md` specifies the content `type` (i.e. `revi
 Notice that the directory for the template for `my-second-post.md` is `review` and not `reviews`. This is because *type is always singular when defined in front matter*.
 {{% /note%}}
 
-### `my-first-event.md`
+### Example: `my-first-event.md`
 
 {{% code file="content/events/my-first-event.md" copy="false" %}}
 ```yaml
@@ -145,10 +145,10 @@ description: This is an upcoming event..
 
 Here is the way Hugo traverses the single-page lookup order for `my-first-event.md`:
 
-1. <span class="no">`/layouts/UNSPECIFIED/UNSPECIFIED.html`</span>
-2. <span class="no">`/layouts/events/UNSPECIFIED.html`</span>
-3. <span class="no">`/layouts/UNSPECIFIED/single.html`</span>
-4. <span class="no">`/layouts/events/single.html`</span>
+1. ~~`/layouts/UNSPECIFIED/UNSPECIFIED.html`~~
+2. ~~`/layouts/events/UNSPECIFIED.html`~~
+3. ~~`/layouts/UNSPECIFIED/single.html`~~
+4. ~~`/layouts/events/single.html`~~
 5. <span class="yes">`/layouts/_default/single.html`</span>
 <br><span class="break">BREAK</span>
 6. <span class="na">`/themes/<THEME>/layouts/UNSPECIFIED/UNSPECIFIED.html`</span>

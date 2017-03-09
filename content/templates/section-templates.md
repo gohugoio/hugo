@@ -21,7 +21,7 @@ To effectively leverage section page templates, you should first understand Hugo
 
 ## Section Template Lookup Order
 
-The [lookup order][lookup] for section pages is as follows:
+The [lookup order][lookup] for section templates is as follows:
 
 1. `/layouts/section/<SECTION>.html`
 2. `/layouts/<SECTION>/list.html`
