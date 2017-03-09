@@ -6,7 +6,6 @@ licenseLink: ""
 sitelink: https://myearworms.com/
 sourceLink: https://github.com/jaydreyer/myearworms
 tags:
-- personal
 - blog
 - music
 thumbnail: /img/myearworms-tn.jpg
