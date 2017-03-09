@@ -45,17 +45,17 @@ Hugo will take this Markdown and create a table of contents from `## Introductio
 
 ## Template Example
 
-The following is an example of a [partial template][partials] used in a [single page template][]:
+The following is an example of very basic [single page template][]:
 
 {{% code file="layout/partials/toc.html" download="toc.html" %}}
 ```html
-{{ partial "header.html" . }}
+{{ define "main" }}
     <aside id="toc">
     {{ .TableOfContents }}
     </aside>
     <h1>{{ .Title }}</h1>
     {{ .Content }}
-{{ partial "footer.html" . }}
+{{ end }}
 ```
 {{% /code %}}
 
