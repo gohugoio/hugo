@@ -44,7 +44,7 @@ func NewDefault(cfg config.Provider) *Fs {
 	return newFs(fs, cfg)
 }
 
-// NewDefault creates a new Fs with the MemMapFs
+// NewMem creates a new Fs with the MemMapFs
 // as source and destination file systems.
 // Useful for testing.
 func NewMem(cfg config.Provider) *Fs {

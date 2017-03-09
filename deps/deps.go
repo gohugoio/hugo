@@ -45,7 +45,7 @@ type Deps struct {
 	translationProvider ResourceProvider
 }
 
-// Used to create and refresh, and clone resources needed.
+// ResourceProvider is used to create and refresh, and clone resources needed.
 type ResourceProvider interface {
 	Update(deps *Deps) error
 	Clone(deps *Deps) error

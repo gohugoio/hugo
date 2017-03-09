@@ -546,7 +546,6 @@ type whatChanged struct {
 // reBuild partially rebuilds a site given the filesystem events.
 // It returns whetever the content source was changed.
 func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
-
 	s.Log.DEBUG.Printf("Rebuild for events %q", events)
 
 	s.timerStep("initialize rebuild")
