@@ -2,22 +2,6 @@ svg.svg-icon {
   max-width: 60px;
 }
 
-.icon-freebsd:before {
-  @include size(1em);
-  content: '';
-  display: inline-block;
-  margin-left: -.15em;
-  margin-right: 0em;
-  background-image: url(/images/hugo-icons/freebsd.svg);
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-.icon-freebsd.white:before {
-  background-image: url(/images/hugo-icons/freebsd-white.svg);
-  margin-bottom: .2em;
-}
-
 //for template lookup yes/no/na (e.g., in single-page template [/templates/single-page-template/])
 span.yes {
   code {
