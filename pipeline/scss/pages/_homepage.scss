@@ -118,7 +118,7 @@ ul.animated {
   font-size: 1.2em;
   text-align: center;
   line-height: 1.3;
-  font-weight: 300;
+  font-weight: $base-font-weight;
   margin-top: 1.5em;
   font-style: normal;
   max-width: 90%;
@@ -157,11 +157,19 @@ ul.animated {
 
 .home-row-content-focus {
   display: flex;
+  .half.half-content {
+    order: 2;
+    @include MQ(M) {
+      order: 1;
+    }
+  }
   .focus-svgs {
+    order: 1;
     display: flex;
     justify-content: space-around;
     @include MQ(M) {
       max-width: 48%;
+      order: 2;
     }
     svg {
       max-width: 48%;
