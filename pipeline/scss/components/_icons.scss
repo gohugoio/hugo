@@ -38,8 +38,8 @@ span.bad {
   &:after {
     display: inline-block;
     @include size(1em);
-    font-family: 'FontAwesome';
-    content: '\f165';
+    font-family: 'fontello';
+    content: '\e810';
     margin-left: .5em;
     font-size: 1.2em;
     color: $hugo-pink;
@@ -51,8 +51,8 @@ span.yes,
   &:after {
     display: inline-block;
     @include size(1em);
-    font-family: 'FontAwesome';
-    content: '\f164';
+    font-family: 'fontello';
+    content: '\e80f';
     color: $hugo-green;
     margin-left: .5em;
     font-size: 1.2em;

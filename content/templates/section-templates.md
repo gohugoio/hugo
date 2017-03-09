@@ -26,12 +26,12 @@ The [lookup order][lookup] for section pages is as follows:
 
 1. `/layouts/section/<SECTION>.html`
 2. `/layouts/<SECTION>/list.html`
-2. `/layouts/_default/section.html`
-3. `/layouts/_default/list.html`
-4. `/themes/<THEME>/layouts/section/<SECTION>.html`
-5. `/themes/<THEME>/layouts/<SECTION>/list.html`
-5. `/themes/<THEME>/layouts/_default/section.html`
-6. `/themes/<THEME>/layouts/_default/list.html`
+3. `/layouts/_default/section.html`
+4. `/layouts/_default/list.html`
+5. `/themes/<THEME>/layouts/section/<SECTION>.html`
+6. `/themes/<THEME>/layouts/<SECTION>/list.html`
+7. `/themes/<THEME>/layouts/_default/section.html`
+8. `/themes/<THEME>/layouts/_default/list.html`
 
 ## `.Site.GetPage` with Sections
 
@@ -40,7 +40,7 @@ Every `Page` in Hugo has a `.Kind` attribute. `Kind` can easily be combined with
 The [`.GetPage` function][getpage] looks up an index page of a given `Kind` and `path`.
 
 {{% note %}}
-`.GetPage` is only supported in section page templates but *may* be supported in [single page templates](/templates/single-page-templates/) in the future.
+`.GetPage` is not currently supported to grab single content files but *may* be supported in the future.
 {{% /note %}}
 
 You can call `.Site.GetPage` with two arguments: `kind` and `kind value`.
@@ -87,15 +87,12 @@ If we try the same code with the `events` section, however, Hugo will default to
 <h1>{{ with .Site.GetPage "section" "events" }}{{ .Title }}{{ end }}</h1>
 ```
 
-Which then returns
+Which then returns the following:
 
 ```html
 <h1>Events</h1>
 ```
 
-## Nested Sections
-
-**Content forthcoming**
 
 [contentorg]: /content-management/organization/
 [getpage]: /functions/getpage/

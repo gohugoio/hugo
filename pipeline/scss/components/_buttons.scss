@@ -10,15 +10,4 @@ a[role="button"] {
   box-shadow: none;
   text-align: center;
   @include card(1, 3);
-  &[class^="icon-"]:before {
-    display: inline-block;
-    font-family: 'FontAwesome';
-    margin-right: .3em;
-  }
-  &.icon-forum:before {
-    content: '\f086';
-  }
-  &.icon-mailing-list:before {
-    content: '\f0e0';
-  }
 }

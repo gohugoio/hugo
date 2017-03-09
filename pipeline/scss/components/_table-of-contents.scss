@@ -83,7 +83,7 @@ nav#TableOfContents {
   }
   li.active > a > code {
     color: inherit;
-    font-weight: 700;
+    font-weight: inherit;
     font-family: $base-font-family;
   }
   > ul:first-child {

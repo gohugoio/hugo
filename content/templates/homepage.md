@@ -25,18 +25,18 @@ The homepage template is the *only* required template for building a site and th
 
 The [lookup order][lookup] for the homepage template is as follows:
 
-* `/layouts/index.html`
-* `/layouts/\_default/list.html`
-* `/layouts/\_default/single.html`
-* `/themes/<THEME>/layouts/index.html`
-* `/themes/<THEME>/layouts/_default/list.html`
-* `/themes/<THEME>/layouts/_default/single.html`
+1. `/layouts/index.html`
+2. `/layouts/\_default/list.html`
+3. `/layouts/\_default/single.html`
+4. `/themes/<THEME>/layouts/index.html`
+5. `/themes/<THEME>/layouts/_default/list.html`
+6. `/themes/<THEME>/layouts/_default/single.html`
 
 ## `.Data.Pages` on the Homepage
 
 In addition to the standard [page variables][pagevars], the homepage template has access to *all* site content via `.Data.Pages`.
 
-`.Data.Pages` usually refers to the list of pages available within a given section or taxonomy. However, since `index.html` is the homepage of your Hugo project (i.e., in essence, the top of the master section), `Data.Pages` for `layouts/index.html` is interchangeable with `.Site.Pages` when written on the homepage template.
+`.Data.Pages` usually refers to the list of pages available within a given section or taxonomy. However, since `index.html` is the homepage of your Hugo project (i.e., in essence, the top or master section), `Data.Pages` for `layouts/index.html` is interchangeable with `.Site.Pages` when written on the homepage template.
 
 Note that a homepage can also have a content file with front matter. This content file lives at `content/_index.md`. See [Content Organization][contentorg] for more information.
 
