@@ -22,11 +22,12 @@ import (
 	"fmt"
 
 	"github.com/spf13/hugo/output"
+	"github.com/spf13/viper"
 )
 
 func TestDefaultOutputDefinitions(t *testing.T) {
 	t.Parallel()
-	defs := defaultOutputDefinitions
+	defs := createSiteOutputDefinitions(viper.New())
 
 	tests := []struct {
 		name string
@@ -69,7 +70,9 @@ outputs: ["json"]
 # Doc
 `
 
-	th, h := newTestSitesFromConfigWithDefaultTemplates(t, siteConfig)
+	th, h := newTestSitesFromConfig(t, siteConfig,
+		"layouts/_default/list.json", "List JSON|{{ .Title }}|{{ .Content }}",
+	)
 	require.Len(t, h.Sites, 1)
 
 	fs := th.Fs
@@ -87,6 +90,8 @@ outputs: ["json"]
 
 	require.Len(t, home.outputTypes, 1)
 
-	th.assertFileContent("public/index.json", "TODO")
+	// TODO(bep) output assert template/text
+
+	th.assertFileContent("public/index.json", "List JSON")
 
 }

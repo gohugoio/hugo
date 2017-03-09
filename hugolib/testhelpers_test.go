@@ -77,6 +77,14 @@ func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *helpers.PathSpec {
 	return helpers.NewPathSpec(fs, l)
 }
 
+func newTestDefaultPathSpec() *helpers.PathSpec {
+	v := viper.New()
+	// Easier to reason about in tests.
+	v.Set("disablePathToLower", true)
+	fs := hugofs.NewDefault(v)
+	return helpers.NewPathSpec(fs, v)
+}
+
 func newTestCfg() (*viper.Viper, *hugofs.Fs) {
 
 	v := viper.New()

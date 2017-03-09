@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -49,21 +50,27 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 	}
 }
 
+//
 func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
-	for _, preserveTaxonomyNames := range []bool{false, true} {
-		t.Run(fmt.Sprintf("preserveTaxonomyNames %t", preserveTaxonomyNames), func(t *testing.T) {
-			doTestTaxonomiesWithAndWithoutContentFile(t, preserveTaxonomyNames)
+	for _, uglyURLs := range []bool{false, true} {
+		t.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(t *testing.T) {
+			for _, preserveTaxonomyNames := range []bool{false, true} {
+				t.Run(fmt.Sprintf("preserveTaxonomyNames=%t", preserveTaxonomyNames), func(t *testing.T) {
+					doTestTaxonomiesWithAndWithoutContentFile(t, preserveTaxonomyNames, uglyURLs)
+				})
+			}
 		})
 
 	}
 }
 
-func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, preserveTaxonomyNames bool) {
+func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, preserveTaxonomyNames, uglyURLs bool) {
 	t.Parallel()
 
 	siteConfig := `
 baseURL = "http://example.com/blog"
 preserveTaxonomyNames = %t
+uglyURLs = %t
 
 paginate = 1
 defaultContentLanguage = "en"
@@ -87,14 +94,20 @@ others:
 # Doc
 `
 
-	siteConfig = fmt.Sprintf(siteConfig, preserveTaxonomyNames)
+	siteConfig = fmt.Sprintf(siteConfig, preserveTaxonomyNames, uglyURLs)
 
 	th, h := newTestSitesFromConfigWithDefaultTemplates(t, siteConfig)
 	require.Len(t, h.Sites, 1)
 
 	fs := th.Fs
 
-	writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- tag1", "- cat1", "- o1"))
+	if preserveTaxonomyNames {
+		writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- tag1", "- cat1", "- o1"))
+	} else {
+		// Check lower-casing of tags
+		writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- Tag1", "- cAt1", "- o1"))
+
+	}
 	writeSource(t, fs, "content/p2.md", fmt.Sprintf(pageTemplate, "t2/c1", "- tag2", "- cat1", "- o1"))
 	writeSource(t, fs, "content/p3.md", fmt.Sprintf(pageTemplate, "t2/c12", "- tag2", "- cat2", "- o1"))
 	writeSource(t, fs, "content/p4.md", fmt.Sprintf(pageTemplate, "Hello World", "", "", "- \"Hello Hugo world\""))
@@ -111,18 +124,25 @@ others:
 	// 2. tags with no terms content page, but content page for one of 2 tags (tag1)
 	// 3. the "others" taxonomy with no content pages.
 
+	pathFunc := func(s string) string {
+		if uglyURLs {
+			return strings.Replace(s, "/index.html", ".html", 1)
+		}
+		return s
+	}
+
 	// 1.
-	th.assertFileContent("public/categories/cat1/index.html", "List", "Cat1")
-	th.assertFileContent("public/categories/index.html", "Terms List", "Category Terms")
+	th.assertFileContent(pathFunc("public/categories/cat1/index.html"), "List", "Cat1")
+	th.assertFileContent(pathFunc("public/categories/index.html"), "Terms List", "Category Terms")
 
 	// 2.
-	th.assertFileContent("public/tags/tag2/index.html", "List", "Tag2")
-	th.assertFileContent("public/tags/tag1/index.html", "List", "Tag1")
-	th.assertFileContent("public/tags/index.html", "Terms List", "Tags")
+	th.assertFileContent(pathFunc("public/tags/tag2/index.html"), "List", "Tag2")
+	th.assertFileContent(pathFunc("public/tags/tag1/index.html"), "List", "Tag1")
+	th.assertFileContent(pathFunc("public/tags/index.html"), "Terms List", "Tags")
 
 	// 3.
-	th.assertFileContent("public/others/o1/index.html", "List", "O1")
-	th.assertFileContent("public/others/index.html", "Terms List", "Others")
+	th.assertFileContent(pathFunc("public/others/o1/index.html"), "List", "O1")
+	th.assertFileContent(pathFunc("public/others/index.html"), "Terms List", "Others")
 
 	s := h.Sites[0]
 
@@ -145,6 +165,14 @@ others:
 		}
 	}
 
+	cat1 := s.getPage(KindTaxonomy, "categories", "cat1")
+	require.NotNil(t, cat1)
+	if uglyURLs {
+		require.Equal(t, "/blog/categories/cat1.html", cat1.RelPermalink())
+	} else {
+		require.Equal(t, "/blog/categories/cat1/", cat1.RelPermalink())
+	}
+
 	// Issue #3070 preserveTaxonomyNames
 	if preserveTaxonomyNames {
 		helloWorld := s.getPage(KindTaxonomy, "others", "Hello Hugo world")
@@ -157,6 +185,6 @@ others:
 	}
 
 	// Issue #2977
-	th.assertFileContent("public/empties/index.html", "Terms List", "Empties")
+	th.assertFileContent(pathFunc("public/empties/index.html"), "Terms List", "Empties")
 
 }

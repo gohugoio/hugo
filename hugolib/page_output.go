@@ -14,6 +14,8 @@
 package hugolib
 
 import (
+	"sync"
+
 	"github.com/spf13/hugo/output"
 )
 
@@ -22,18 +24,50 @@ import (
 type PageOutput struct {
 	*Page
 
+	// Pagination
+	paginator     *Pager
+	paginatorInit sync.Once
+
+	// Keep this to create URL/path variations, i.e. paginators.
+	targetPathDescriptor targetPathDescriptor
+
 	outputType output.Type
 }
 
-func newPageOutput(p *Page, createCopy bool, outputType output.Type) *PageOutput {
+func (p *PageOutput) targetPath(addends ...string) (string, error) {
+	tp, err := p.createTargetPath(p.outputType, addends...)
+	if err != nil {
+		return "", err
+	}
+	return tp, nil
+
+}
+
+func newPageOutput(p *Page, createCopy bool, outputType output.Type) (*PageOutput, error) {
 	if createCopy {
+		p.initURLs()
 		p = p.copy()
 	}
-	return &PageOutput{Page: p, outputType: outputType}
+
+	td, err := p.createTargetPathDescriptor(outputType)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &PageOutput{
+		Page:                 p,
+		outputType:           outputType,
+		targetPathDescriptor: td,
+	}, nil
 }
 
 // copy creates a copy of this PageOutput with the lazy sync.Once vars reset
 // so they will be evaluated again, for word count calculations etc.
 func (p *PageOutput) copy() *PageOutput {
-	return newPageOutput(p.Page, true, p.outputType)
+	c, err := newPageOutput(p.Page, true, p.outputType)
+	if err != nil {
+		panic(err)
+	}
+	return c
 }

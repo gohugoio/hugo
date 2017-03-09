@@ -111,6 +111,8 @@ type Site struct {
 
 	disabledKinds map[string]bool
 
+	defaultOutputDefinitions siteOutputDefinitions
+
 	// Logger etc.
 	*deps.Deps `json:"-"`
 }
@@ -124,7 +126,13 @@ func (s *Site) isEnabled(kind string) bool {
 
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
-	return &Site{Deps: s.Deps, layoutHandler: output.NewLayoutHandler(s.PathSpec.ThemeSet()), disabledKinds: s.disabledKinds, Language: s.Language, owner: s.owner, PageCollections: newPageCollections()}
+	return &Site{Deps: s.Deps,
+		layoutHandler:            output.NewLayoutHandler(s.PathSpec.ThemeSet()),
+		disabledKinds:            s.disabledKinds,
+		defaultOutputDefinitions: s.defaultOutputDefinitions,
+		Language:                 s.Language,
+		owner:                    s.owner,
+		PageCollections:          newPageCollections()}
 }
 
 // newSite creates a new site with the given configuration.
@@ -140,7 +148,15 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		disabledKinds[disabled] = true
 	}
 
-	s := &Site{PageCollections: c, layoutHandler: output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""), Language: cfg.Language, disabledKinds: disabledKinds}
+	outputDefs := createSiteOutputDefinitions(cfg.Cfg)
+
+	s := &Site{
+		PageCollections:          c,
+		layoutHandler:            output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""),
+		Language:                 cfg.Language,
+		disabledKinds:            disabledKinds,
+		defaultOutputDefinitions: outputDefs,
+	}
 
 	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
 
@@ -247,6 +263,7 @@ type SiteInfo struct {
 	BuildDrafts           bool
 	canonifyURLs          bool
 	relativeURLs          bool
+	uglyURLs              bool
 	preserveTaxonomyNames bool
 	Data                  *map[string]interface{}
 
@@ -996,6 +1013,7 @@ func (s *Site) initializeSiteInfo() {
 		BuildDrafts:                    s.Cfg.GetBool("buildDrafts"),
 		canonifyURLs:                   s.Cfg.GetBool("canonifyURLs"),
 		relativeURLs:                   s.Cfg.GetBool("relativeURLs"),
+		uglyURLs:                       s.Cfg.GetBool("uglyURLs"),
 		preserveTaxonomyNames:          lang.GetBool("preserveTaxonomyNames"),
 		PageCollections:                s.PageCollections,
 		Files:                          &s.Files,
@@ -1007,7 +1025,7 @@ func (s *Site) initializeSiteInfo() {
 		s:                              s,
 	}
 
-	s.Info.RSSLink = s.Info.permalinkStr(lang.GetString("rssURI"))
+	s.Info.RSSLink = s.permalink(lang.GetString("rssURI"))
 }
 
 func (s *Site) dataDir() string {
@@ -1746,14 +1764,14 @@ func (s *SiteInfo) GetPage(typ string, path ...string) *Page {
 	return s.getPage(typ, path...)
 }
 
-func (s *SiteInfo) permalink(plink string) string {
-	return s.permalinkStr(plink)
-}
+func (s *Site) permalink(link string) string {
+	baseURL := s.PathSpec.BaseURL.String()
 
-func (s *SiteInfo) permalinkStr(plink string) string {
-	return helpers.MakePermalink(
-		s.s.Cfg.GetString("baseURL"),
-		s.s.PathSpec.URLizeAndPrep(plink)).String()
+	link = strings.TrimPrefix(link, "/")
+	if !strings.HasSuffix(baseURL, "/") {
+		baseURL += "/"
+	}
+	return baseURL + link
 }
 
 func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layouts ...string) error {
@@ -1804,12 +1822,6 @@ func (s *Site) renderAndWritePage(tp output.Type, name string, dest string, d in
 	// Note: this is not a pointer, as we may mutate the state below.
 	w := s.w
 
-	if p, ok := d.(*PageOutput); ok && p.IsPage() && path.Ext(p.URLPath.URL) != "" {
-		// user has explicitly set a URL with extension for this page
-		// make sure it sticks even if "ugly URLs" are turned off.
-		w.uglyURLs = true
-	}
-
 	transformLinks := transform.NewEmptyTransforms()
 
 	if s.Info.relativeURLs || s.Info.canonifyURLs {
@@ -1830,11 +1842,7 @@ func (s *Site) renderAndWritePage(tp output.Type, name string, dest string, d in
 	var path []byte
 
 	if s.Info.relativeURLs {
-		translated, err := w.baseTargetPathPage(tp, dest)
-		if err != nil {
-			return err
-		}
-		path = []byte(helpers.GetDottedRelativePath(translated))
+		path = []byte(helpers.GetDottedRelativePath(dest))
 	} else if s.Info.canonifyURLs {
 		url := s.Cfg.GetString("baseURL")
 		if !strings.HasSuffix(url, "/") {
@@ -2053,6 +2061,7 @@ func (s *Site) newNodePage(typ string) *Page {
 		Data:     make(map[string]interface{}),
 		Site:     &s.Info,
 		s:        s}
+	p.outputTypes = p.s.defaultOutputDefinitions.ForKind(typ)
 	p.layoutIdentifier = pageLayoutIdentifier{p}
 	return p
 
@@ -2068,11 +2077,12 @@ func (s *Site) newHomePage() *Page {
 	return p
 }
 
+// TODO(bep) output
 func (s *Site) setPageURLs(p *Page, in string) {
 	p.URLPath.URL = s.PathSpec.URLizeAndPrep(in)
-	p.URLPath.Permalink = s.Info.permalink(p.URLPath.URL)
+	p.URLPath.Permalink = s.permalink(p.URLPath.URL)
 	if p.Kind != KindPage {
-		p.RSSLink = template.URL(s.Info.permalink(in + ".xml"))
+		p.RSSLink = template.URL(s.permalink(p.URLPath.URL + ".xml"))
 	}
 }
 

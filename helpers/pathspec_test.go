@@ -52,7 +52,7 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	require.Equal(t, "no", p.language.Lang)
 	require.Equal(t, "side", p.paginatePath)
 
-	require.Equal(t, "http://base.com", p.baseURL)
+	require.Equal(t, "http://base.com", p.BaseURL.String())
 	require.Equal(t, "thethemes", p.themesDir)
 	require.Equal(t, "thelayouts", p.layoutDir)
 	require.Equal(t, "thework", p.workingDir)
