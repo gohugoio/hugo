@@ -12,16 +12,20 @@ draft: false
 aliases: [/content/front-matter/]
 wip: true
 toc: true
-notesforauthors:
 ---
 
 **Front matter** allows you to keep metadata attached to an instance of a [content type][]---i.e., embedded inside a content file---and is one of the many features that gives Hugo its strength. Hugo supports a few different formats for front matter, each with their own identifying tokens.
 
 ## Supported Front Matter Formats
 
-* TOML. identified by opening and closing `+++`.
-* YAML. identified by opening and closing `---` *or* opening `---` and closing `...`
-* JSON. a single JSON object which is surrounded by '`{`' and '`}`', each on their own line.
+TOML
+: identified by opening and closing `+++`.
+
+YAML
+: identified by opening and closing `---` *or* opening `---` and closing `...`
+
+JSON
+: a single JSON object which is surrounded by '`{`' and '`}`', each on their own line.
 
 ### TOML Front Matter Example
 
@@ -71,11 +75,11 @@ slug: "spf13-vim-3-0-release-and-new-website"
 }
 ```
 
-## Variables
+## Front Matter Variables
 
 There are a few predefined variables that Hugo is aware of and utilizes.
 
-### Required
+### Required Front Matter Variables
 
 `title`
 : The title for the content
@@ -90,7 +94,7 @@ There are a few predefined variables that Hugo is aware of and utilizes.
 : These will use the field name of the plural form of the index (see tags and
 categories above)
 
-### Optional
+### Optional Front Matter Variables
 
 `aliases`
 : An array of one or more aliases (e.g. old published path of a renamed content) that would be created to redirect to this content. See [Aliases][] for details.

@@ -22,9 +22,9 @@ The latest release can be found at [Hugo Releases][releases].
 
 Hugo currently provides pre-built binaries for the following:
 
-* <i class="fa fa-apple"></i> OS X (Darwin) for x64, i386, and ARM architectures
-* <i class="fa fa-windows"></i> Windows
-* <i class="fa fa-linux"></i> Linux
+* <i class="icon-apple"></i> OS X (Darwin) for x64, i386, and ARM architectures
+* <i class="icon-windows"></i> Windows
+* <i class="icon-linux"></i> Linux
 * <i class="icon-freebsd"></i> FreeBSD
 
 Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., for other operating systems, including DragonFly BSD, OpenBSD, Plan&nbsp;9 and Solaris. See <http://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.

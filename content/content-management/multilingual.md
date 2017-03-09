@@ -11,10 +11,9 @@ weight: 150
 draft: false
 aliases: [/content/multilingual/,/content-management/multilingual/]
 toc: true
-wip: true
 ---
 
-Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). Define the available languages in a `Languages` section in your top-level `config.toml` (or equivalent).
+Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). You should Define the available languages in a `Languages` section in your site configuration.
 
 ## Configuring Multilingual Mode
 
@@ -62,6 +61,8 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 Taxonomies and [Blackfriday configuration][hugoconfig] can also be set per language:
 
+
+{{% code file="bf-config.toml" %}}
 ```toml
 [Taxonomies]
 tag = "tags"
@@ -83,6 +84,7 @@ title = "Français"
 [Languages.fr.Taxonomies]
 plaque = "plaques"
 ```
+{{% /code %}}
 
 ## Translating Your Content
 
@@ -93,21 +95,18 @@ Translated articles are identified by the name of the content file.
 1. `/content/about.en.md`
 2. `/content/about.fr.md`
 
-You can also have:
+You can also have the following, in which case the config variable `defaultContentLanguage` will be used to affect the default language `about.md`.  This way, you can slowly start to translate your current content without having to rename everything:
 
 1. `/content/about.md`
 2. `/content/about.fr.md`
 
-In which case the config variable `defaultContentLanguage` will be used to affect the default language `about.md`.  This way, you can
-slowly start to translate your current content without having to rename everything.
+If left unspecified, the default value for `defaultContentLanguage` is `en`.
 
-If left unspecified, the value for `defaultContentLanguage` defaults to `en`.
-
-By having the same _base file name_, the content pieces are linked together as translated pieces.
+By having the same *base filename*, the content pieces are linked together as translated pieces.
 
 ## Link to Translated Content
 
-To create a list of links to translated content, use a template similar to this:
+To create a list of links to translated content, use a template similar to the following:
 
 {{% code file="layouts/partials/i18nlist.html" %}}
 ```html
@@ -124,13 +123,13 @@ To create a list of links to translated content, use a template similar to this:
 ```
 {{% /code %}}
 
-The above can be put in a `partial` (`./layouts/partials/`) and included in any template, be it for a [content page][contenttemplate] or the [homepage][]]. It will not print anything if there are no translations for a given page, or if there is---in the case of the homepage, section listing, etc.---a site with only one language.
+The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template, be it for a [single content page][contenttemplate] or the [homepage][]. It will not print anything if there are no translations for a given page, or if there are translations---in the case of the homepage, section listing, etc.---a site with only render one language.
 
 The above also uses the [`i18n` function][i18func] described in the next section.
 
 ## Translation of Strings
 
-Hugo uses [go-i18n](https://github.com/nicksnyder/go-i18n) to support string translations. [See the project's source repository](https://github.com/nicksnyder/go-i18n) to find tools that will help you manage your translation workflows.
+Hugo uses [go-i18n][] to support string translations. [See the project's source repository][go-i18n-source] to find tools that will help you manage your translation workflows.
 
 Translations are collected from the `themes/<THEME>/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project. In the `i18n`, the translations will be merged and take precedence over what is in the theme folder. Language files should be named according to [RFC 5646][] with names such as `en-US.yaml`, `fr.yaml`, etc.
 
@@ -181,7 +180,7 @@ i18n|MISSING_TRANSLATION|en|wordCount
 
 ## Menus
 
-You can define your menus for each language independently. The [creation of a menu](/content-management/menus/) works analogous to earlier versions of Hugo, except that they have to be defined in their language-specific block in the configuration file:
+You can define your menus for each language independently. The [creation of a menu][menus] works analogous to earlier versions of Hugo, except that they have to be defined in their language-specific block in the configuration file:
 
 ```toml
 defaultContentLanguage = "en"
@@ -206,7 +205,7 @@ name   = "Startseite"
 weight = 0
 ```
 
-The rendering of the main navigation works as usual. `.Site.Menus` will just contain the menu of the current language. Pay attention to the generation of the menu links. `absLangURL` takes care that you link to the correct locale of your website. Otherwise, both menu entries would link to the English version because it's the default content language that resides in the root directory.
+The rendering of the main navigation works as usual. `.Site.Menus` will just contain the menu of the current language. Pay attention to the generation of the menu links. `absLangURL` takes care that you link to the correct locale of your website. Otherwise, both menu entries would link to the English version as the default content language that resides in the root directory.
 
 ```html
 <ul>
@@ -224,28 +223,31 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 
 If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
 
-While translating a Hugo website, it can be handy to have a visual indicator of missing translations. The [`EnableMissingTranslationPlaceholders` configuration option][hugoconfig] will flag all untranslated strings with the placeholder `[i18n] identifier`, where `identifier` is the id of the missing translation.
+While translating a Hugo website, it can be handy to have a visual indicator of missing translations. The [`EnableMissingTranslationPlaceholders` configuration option][config] will flag all untranslated strings with the placeholder `[i18n] identifier`, where `identifier` is the id of the missing translation.
 
 {{% note %}}
-Hugo will generate your website with these placeholders. It might not be suited for production environments.
+Hugo will generate your website with these missing translation placeholders. It might not be suited for production environments.
 {{% /note %}}
 
 ## Multilingual Themes support
 
-To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there is more than one language, URLs must
+To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there is more than one language, URLs must meet the following criteria:
 
 * Come from the built-in `.Permalink` or `.URL`
 * Be constructed with
-    * The [`relLangURL` template function][rellangurl] or the [`absLangURL` template function][abslangurl] template functions **OR**
-    * Prefixed with `{{.LanguagePrefix }}`
+    * The [`relLangURL` template function][rellangurl] or the [`absLangURL` template function][abslangurl] **OR**
+    * Prefixed with `{{ .LanguagePrefix }}`
 
-If there is more than one language defined, the`LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string and is therefore harmless for single-language Hugo websites.
+If there is more than one language defined, the `LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string and is therefore harmless for single-language Hugo websites.
 
 [abslangurl]: /functions/abslangurl
+[config]: /getting-started/configuration/
 [contenttemplate]: /templates/single-page-template/
+[go-i18n-source]: https://github.com/nicksnyder/go-i18n
+[go-i18n]: https://github.com/nicksnyder/go-i18n
 [homepage]: /templates/homepage/
-[hugoconfig]: /getting-started/configuration/
 [i18func]: /functions/i18n/
+[menus]: /content-management/menus/
+[rellangurl]: /functions/rellangurl
 [RFC 5646]: https://tools.ietf.org/html/rfc5646
 [singles]: /templates/single-page-templates/
-[rellangurl]: /functions/rellangurl

@@ -254,14 +254,13 @@ ul.animated {
   background-color: $hugo-gray;
   padding: 1em 1.5em;
   text-align: left;
-  // width: 90%;
   width: 110%;
-  position:relative;
-  left:-5%;
+  position: relative;
+  left: -5%;
   max-width: 360px;
-  @include MQ(M){
-    width:100%;
-    left:auto;
+  @include MQ(M) {
+    width: 100%;
+    left: auto;
   }
   @include card(2);
   border-radius: 5px;
@@ -348,7 +347,10 @@ svg {
     color: $hugo-white;
     justify-content: space-between;
     i {
-      font-size: 80px;
+      font-size: 40px;
+      @include MQ(M) {
+        font-size: 60px;
+      }
     }
   }
 }
@@ -363,7 +365,7 @@ svg {
   @include MQ(M) {
     max-width: 640px;
   }
-  @include MQ(L) {
+  @include MQ(M) {
     max-width: $L;
   }
 }

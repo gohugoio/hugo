@@ -11,7 +11,6 @@ weight: 40
 draft: false
 aliases: [/templates/sections/]
 toc: true
-wip: true
 ---
 
 Templates used for section pages are *lists* and therefore have all the variables and methods available to [list pages][lists].
@@ -51,6 +50,29 @@ These are the valid values for 'kind':
 2. `section`
 3. `taxonomy`
 4. `taxonomyTerm`
+
+
+## Example: Creating a Default Section Template
+
+{{% code file="layouts/_default/section.html" download="section.html" %}}
+```html
+{{ define "main" }}
+  <main>
+      {{ .Content }}
+          <ul class="contents">
+          {{ range .Paginator.Pages }}
+              <li>{{.Title}}
+                  <div>
+                    {{ partial "summary.html" . }}
+                  </div>
+              </li>
+          {{ end }}
+          </ul>
+      {{ partial "pagination.html" . }}
+  </main>
+{{ end }}
+```
+{{% /code %}}
 
 ### Example: Using `.Site.GetPage`
 
