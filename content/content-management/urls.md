@@ -4,7 +4,7 @@ linktitle: URL Management
 description: Hugo provides native support for permalinks, aliases, link canonicalization, and multiple options for handling relative vs absolute URLs.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2017-03-09
 tags: [aliases,redirects,permalinks,urls]
 categories: [content management]
 weight: 110
@@ -49,17 +49,38 @@ Only the content under `post/` will have the new URL structure. For example, the
 
 The following is a list of values that can be used in a `permalink` definition in your site `config` file. All references to time are dependent on the content's date.
 
-* `:year` = the 4-digit year
-* `:month` = the 2-digit month
-* `:monthname` = the name of the month
-* `:day` = the 2-digit day
-* `:weekday` = the 1-digit day of the week (Sunday = 0)
-* `:weekdayname` = the name of the day of the week
-* `:yearday` = the 1- to 3-digit day of the year
-* `:section` = the content's section
-* `:title` = the content's title
-* `:slug` = the content's slug (or title if no slug is provided in the front matter)
-* `:filename` = the content's filename (without extension)
+`:year`
+: the 4-digit year
+
+`:month`
+: the 2-digit month
+
+`:monthname`
+: the name of the month
+
+`:day`
+: the 2-digit day
+
+`:weekday`
+: the 1-digit day of the week (Sunday = 0)
+
+`:weekdayname`
+: the name of the day of the week
+
+`:yearday`
+: the 1- to 3-digit day of the year
+
+`:section`
+: the content's section
+
+`:title`
+: the content's title
+
+`:slug`
+: the content's slug (or title if no slug is provided in the front matter)
+
+`:filename`
+: the content's filename (without extension)
 
 ## Aliases
 
