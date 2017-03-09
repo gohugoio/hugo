@@ -55,7 +55,6 @@ func InterfaceToConfig(in interface{}, mark rune, w io.Writer) error {
 		tree := toml.TreeFromMap(in.(map[string]interface{}))
 		_, err := tree.WriteTo(b)
 		return err
-
 	case rune(JSONLead[0]):
 		b, err := json.MarshalIndent(in, "", "   ")
 		if err != nil {
