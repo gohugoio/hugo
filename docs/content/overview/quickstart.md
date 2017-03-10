@@ -78,12 +78,13 @@ $ tree -a
 |-- content
 |-- data
 |-- layouts
-`-- static
+|-- static
+`-- themes
 
-5 directories, 1 file
+6 directories, 1 file
 ```
 
-As mentioned in the command output, `bookshelf` directory has 5 sub-directories and 1 file. Let's look at each of them one by one.
+As mentioned in the command output, `bookshelf` directory has 6 sub-directories and 1 file. Let's look at each of them one by one.
 
 * **archetypes**: You can create new content files in Hugo using the `hugo new` command. When you run that command, it adds few configuration properties to the post like date and title. [Archetype]({{< relref "content/archetypes.md" >}}) allows you to define your own configuration properties that will be added to the post front matter whenever `hugo new` command is used.
 
@@ -98,6 +99,8 @@ You can write these files in YAML, JSON, or TOML format.
 * **layouts**: The content inside this directory is used to specify how your content will be converted into the static website.
 
 * **static**: This directory is used to store all the static content that your website will need like images, CSS, JavaScript or other static content.
+
+* **themes**: This is where you will create a theme for your site to use. Themes provide the layout and templates that renders content. There's a wide variety of Open-source themes available to download and use but you can also create your own if you prefer.
 
 ## Step 3. Add content
 
