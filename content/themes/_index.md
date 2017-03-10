@@ -19,5 +19,5 @@ The Hugo community has created a large number of diverse themes, all of which ar
 
 Hugo themes are powered by the excellent Go template library. If you are new to Go templates, see our [primer on Go templates][goprimer] and are structured in such a way to eliminate code duplication. They are easy to simultaneously customize while retaining upgradability with the upstream theme.
 
-[goprimer]: /templates/go-templates/
+[goprimer]: /templates/introduction/
 [hugothemes]: http://themes.gohugo.io/

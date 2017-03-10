@@ -16,15 +16,15 @@ wip: true
 
 ## RSS Template Lookup Order
 
-Like all other templates, you can use a single RSS template to generate all of your RSS feeds, or you can create a specific template for each individual feed.
+You can use a single RSS template to generate all of your RSS feeds or create a specific template for each individual feed.
 
 1. `/layouts/section/<section>.rss.xml`
-2. `/layouts/\_default/rss.xml`
+2. `/layouts/_default/rss.xml`
 3. `/themes/<theme>/layouts/section/<section>.rss.xml`
-4. `/themes/<theme>/layouts/\_default/rss.xml`
+4. `/themes/<theme>/layouts/_default/rss.xml`
 
 {{% note "Hugo Ships with an RSS Template" %}}
-Unlike other Hugo templates, Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml). The embedded template will be sufficient in most cases, and an RSS template will not need to be provided by the user. But you can provide an RSS template, as you can see in the next section.
+Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml). The embedded template will be sufficient for most use cases.
 {{% /note %}}
 
 RSS pages are of the type `Page` and have all the [page variables](/layout/variables/) available to use in the templates.
@@ -41,7 +41,7 @@ Hugo provides the ability for you to define any RSS type you wish and can have d
 
 1. `/layouts/rss.xml`
 2. `/layouts/\_default/rss.xml`
-3.  [Embedded rss.xml][embedded]
+3.  Embedded rss.xml
 
 ### Section RSS
 
@@ -49,7 +49,7 @@ Hugo provides the ability for you to define any RSS type you wish and can have d
 2. `/layouts/\_default/rss.xml`
 3. `/themes/<THEME>/layouts/section/<SECTION>.rss.xml`
 4. `/themes/<THEME>/layouts/\_default/rss.xml`
-5. [Embedded rss.xml][embedded]
+5. Embedded rss.xml
 
 ### Taxonomy RSS
 
@@ -57,11 +57,13 @@ Hugo provides the ability for you to define any RSS type you wish and can have d
 2. `/layouts/\_default/rss.xml`
 3. `/themes/<THEME>/layouts/taxonomy/<SINGULAR>.rss.xml`
 4. `/themes/<THEME>/layouts/\_default/rss.xml`
-5. [Embedded rss.xml][embedded]
+5. Embedded rss.xml
 
 ## Configuring RSS
 
-Hugo's default behavior is to create an unlimited number of RSS entries. You can customize this behavior vi`rssLimit:` in your [`config`][config] file. The following values will also be included in the RSS output if specified in your site’s configuration:
+By default, Hugo will create an unlimited number of RSS entries. You can limit this number via the `rssLimit:` field in your [`config` file](/getting-started/configuration).
+
+The following values will also be included in the RSS output if specified in your site’s configuration:
 
 ```toml
 languageCode = "en-us"

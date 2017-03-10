@@ -53,7 +53,7 @@ All partials are called within your templates using the following pattern:
 ```
 
 {{% note %}}
-One of the most common mistakes with new Hugo users is failing to pass a context to the partial call. In the pattern above, note how "the dot" (`.`) is required as the second argument to give the partial context. You can read more about "the dot" in the [Go Template Primer](/templates/go-templates/).
+One of the most common mistakes with new Hugo users is failing to pass a context to the partial call. In the pattern above, note how "the dot" (`.`) is required as the second argument to give the partial context. You can read more about "the dot" in the [templating introduction](/templates/introduction/).
 {{% /note %}}
 
 As shown in the above example directory structure, you can nest your directories within `partials` for better source organization. You only need to call the nested partial's path relative to the `partials` directory:
@@ -160,7 +160,7 @@ The following `footer.html` partial template is used for [spf13.com](http://spf1
 ```
 {{% /code %}}
 
-[context]: /templates/go-templates/ "The most easily overlooked concept to understand about Go templating is how the dot always refers to the current context."
+[context]: /templates/introduction/ "The most easily overlooked concept to understand about Go templating is how the dot always refers to the current context."
 [customize]: /themes/customizing/
 [disqus]: https://disqus.com
 [disqussignup]: https://disqus.com/profile/signup/

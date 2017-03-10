@@ -416,13 +416,15 @@ In any of the [Linux distributions that support snaps](http://snapcraft.io/docs/
 snap install hugo
 ```
 
+{{% note %}}
+Snap Hugo users may get a `Resource temporarily unavailable` runtime error. This is because non-root users may only write inside two specific directories for most snaps. You can find a workaround using the `home` plug at [snapcraft.io](https://snapcraft.io/docs/reference/interfaces). More information is also available [in this related GitHub issue](https://github.com/spf13/hugo/issues/3143).
+{{% /note %}}
+
 ### Arch-based distributions
 
 Install Hugo from the [Arch user repository](https://aur.archlinux.org/) on Arch Linux or derivatives like Manjaro.
 
-{{% note %}}
-Be aware that Hugo is built from source. This means that additional tools like Git and Go (the programming language Hugo is written in) will be installed as well.
-{{% /note %}}
+Be aware that Hugo is built from source. This means that additional tools like [Git](https://git-scm.com) and [Go](https://golang.org/doc/install) will be installed as well.
 
 ```bash
 sudo pacman -S yaourt

@@ -35,7 +35,7 @@ This will print out the value of `.Permalink`:
 
 
 This will print out a list of all the variables scoped to the current context
-(`.`, aka ["the dot"][primer]).
+(`.`, aka ["the dot"][tempintro]).
 
 
 ```html
@@ -64,13 +64,13 @@ Check that you are passing variables in the `partial` function:
 {{ partial "header" }}
 ```
 
-This example will render the header partial, but the header partial will not have access to any contextual variables. You need to pass variables explicitly. For example, note the addition of ["the dot"][primer].
+This example will render the header partial, but the header partial will not have access to any contextual variables. You need to pass variables explicitly. For example, note the addition of ["the dot"][tempintro].
 
 ```html
 {{ partial "header" . }}
 ```
 
-The dot (`.`) is considered fundamental to understanding Hugo templating. For more information, see the [Go Template Primer][primer].
+The dot (`.`) is considered fundamental to understanding Hugo templating. For more information, see [Introduction to Hugo Templating][tempintro].
 
 [homepage]: /templates/homepage/
-[primer]: /templates/go-templates/
+[tempintro]: /templates/introduction/

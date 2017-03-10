@@ -70,5 +70,5 @@ For Amber template documentation, follow the links from the [Amber project][].
 [aceinheritance]: https://github.com/yosssi/ace/tree/master/examples/base_inner_template
 [Amber Project]: https://github.com/eknkc/amber
 [template functions]: /functions/
-[Go templates]: /templates/go-templates/
+[Go templates]: /templates/introduction/
 [Go base templates]: /templates/base/

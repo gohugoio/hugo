@@ -815,7 +815,7 @@ $ vi themes/zafta/layouts/index.html
 #### Engine
 
 Hugo uses the [Go language's template
-engine](https://gohugo.io/templates/go-templates/).
+engine](https://gohugo.io/templates/introduction/).
 That engine scans your template files for commands enclosed between
 "{{" and "}}" (these are doubled, curly braces &mdash; affectionately
 known as "mustaches").

@@ -19,4 +19,4 @@ aliases: []
 
 Just like in the Go programming language, Go and Hugo templates make heavy use of `range` to iterate over a map, array or slice.
 
-`range` is fundamental to templating in Hugo. (See the [Go Template Primer](/templates/go-templates/) for more examples.
+`range` is fundamental to templating in Hugo. (See the [Introduction to Hugo Templates](/templates/introduction/) for more examples.

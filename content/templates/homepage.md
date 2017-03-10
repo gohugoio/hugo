@@ -13,7 +13,7 @@ aliases: [/layout/homepage/,/templates/homepage-template/]
 toc: false
 ---
 
-The homepage of a website is often formatted differently than the other pages. In Hugo you can define your own homepage template.
+The homepage of a website often has a unique design. In Hugo, you can define your own homepage template.
 
 Homepage is a `Page` and therefore has all the [page variables][pagevars] and [site variables][sitevars] available for use.
 
@@ -26,8 +26,8 @@ The homepage template is the *only* required template for building a site and th
 The [lookup order][lookup] for the homepage template is as follows:
 
 1. `/layouts/index.html`
-2. `/layouts/\_default/list.html`
-3. `/layouts/\_default/single.html`
+2. `/layouts/_default/list.html`
+3. `/layouts/_default/single.html`
 4. `/themes/<THEME>/layouts/index.html`
 5. `/themes/<THEME>/layouts/_default/list.html`
 6. `/themes/<THEME>/layouts/_default/single.html`
@@ -36,13 +36,14 @@ The [lookup order][lookup] for the homepage template is as follows:
 
 In addition to the standard [page variables][pagevars], the homepage template has access to *all* site content via `.Data.Pages`.
 
-`.Data.Pages` usually refers to the list of pages available within a given section or taxonomy. However, since `index.html` is the homepage of your Hugo project (i.e., in essence, the top or master section), `Data.Pages` for `layouts/index.html` is interchangeable with `.Site.Pages` when written on the homepage template.
 
-Note that a homepage can also have a content file with front matter. This content file lives at `content/_index.md`. See [Content Organization][contentorg] for more information.
+## Homepage Content and Front Matter
+
+A homepage can also have a content file with front matter: `content/_index.md`. See [Content Organization][contentorg] for more information.
 
 ## Example Homepage Template
 
-The following is an example of a homepage template makes use of [partial][partials] and [block][] templates.
+The following is an example of a homepage template that uses [partial][partials] and [block][] templates.
 
 {{% code file="layouts/index.html" download="index.html" %}}
 ```html

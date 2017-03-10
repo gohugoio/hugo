@@ -18,7 +18,7 @@ Before creating your templates, it's important to know how Hugo looks for files 
 
 Hugo uses a prioritized list called the **lookup order** as it traverses your `layouts` folder in your Hugo project *looking* for the appropriate template to render your content.
 
-The template lookup order is an inverted cascade: if template A isn’t present or specified, Hugo will look to template B. If template B isn't present or specified, Hugo will look for template C...and so on until it reaches the `_default/` directory for your project or theme. In many ways, the lookup order is similar to the control mechanism of a [switch statement (i.e. without fallthrough)][switch] seen in many programming languages.
+The template lookup order is an inverted cascade: if template A isn’t present or specified, Hugo will look to template B. If template B isn't present or specified, Hugo will look for template C...and so on until it reaches the `_default/` directory for your project or theme. In many ways, the lookup order is similar to the programming concept of a [switch statement without fallthrough][switch].
 
 The power of the lookup order is that it enables you to craft specific layouts and keep your templating [DRY][].
 
@@ -28,9 +28,9 @@ Most Hugo websites will only need the default template files at the end of the l
 
 ## Single Page Template Lookup Examples
 
-The lookup order is best illustrated by example. The following shows you the process Hugo uses for finding the appropriate template to render your [single content][], but the concept holds true for all templates in Hugo.
+The lookup order is best illustrated through examples. The following shows you the process Hugo uses for finding the appropriate template to render your [single content][], but the concept holds true for all templates in Hugo.
 
-1. The project is using the theme `mytheme`, which would be specified as `theme = "mytheme" or `theme: mytheme` in the project's [`config.toml` or `config.yaml`][config], respectively.
+1. The project is using the theme `mytheme` (specified in the project's [configuration][config]).
 2. The layouts and content directories for the project are as follows:
 
 ```bash
@@ -64,7 +64,7 @@ The lookup order is best illustrated by example. The following shows you the pro
 Now we can look at the front matter for the three content (i.e.`.md`) files.
 
 {{% note  %}}
-There are four markdown files but we are only going to review three for the *single* page lookup order. `_index.md` may seem like a single page of content but is actually a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are used to add content and front matter to list pages. In this example, `events/_index.md` will render according to its [section template](/templates/section-templates/) and respective lookup order.
+Only three of the four markdown files in the above project are subject to the *single* page lookup order. `_index.md` is a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are used to add content and front matter to [list pages](/templates/lists/). In this example, `events/_index.md` will render according to its [section template](/templates/section-templates/) and respective lookup order.
 {{% /note %}}
 
 ### Example: `my-first-post.md`
@@ -79,7 +79,7 @@ description: This is my first post.
 ```
 {{% /code %}}
 
-When it comes time for Hugo to render the content to the page, it will go through the single page template lookup order until it finds what it needs for `my-first-post.md`:
+When building your site, Hugo will go through the lookup order until it finds what it needs for `my-first-post.md`:
 
 1. ~~`/layouts/UNSPECIFIED/UNSPECIFIED.html`~~
 2. ~~`/layouts/posts/UNSPECIFIED.html`~~

@@ -1,6 +1,6 @@
 ---
-title: Go Template Primer
-linktitle: Go Template Primer
+title: Introduction to Hugo Templating
+linktitle: Introduction
 description: Hugo uses Go's html/template library, an extremely lightweight and performant engine, as the basis for all Hugo templating.
 godocref: https://golang.org/pkg/html/template/
 date: 2017-02-01
@@ -10,7 +10,7 @@ categories: [templates]
 tags: [go,fundamentals]
 weight: 10
 draft: false
-aliases: [/templates/go-template-primer/,/layouts/go-templates/,/layout/go-templates/]
+aliases: [/templates/introduction/,/layouts/introduction/,/layout/introduction/]
 toc: true
 ---
 
