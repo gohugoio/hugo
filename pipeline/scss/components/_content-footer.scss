@@ -19,6 +19,9 @@
   min-height: 60px;
   justify-content: space-between;
   margin-bottom: 2em;
+  &.overview {
+    justify-content: flex-end;
+  }
 }
 
 .cf-link {

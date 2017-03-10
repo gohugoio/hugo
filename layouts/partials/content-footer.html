@@ -1,5 +1,5 @@
 <div class="last-modified">Last Updated: {{with .Lastmod}}{{.Format "2006-01-02"}}{{else}}{{.PublishDate.Format "2006-01-02"}}{{end}}</div>
-<footer id="content-footer">
+<footer id="content-footer" {{if eq .Kind "section"}}class="overview"{{end}}>
 {{$section := .Section}}
 {{ if .NextInSection }}
 <a href="{{.NextInSection.Permalink}}" class="cf-link prev-page">
