@@ -42,10 +42,10 @@ type HandledResult struct {
 func (h HandledResult) Error() string {
 	if h.err != nil {
 		if h.page != nil {
-			return "Error:" + h.err.Error() + " for " + h.page.File.LogicalName()
+			return "Error: " + h.err.Error() + " for " + h.page.File.LogicalName()
 		}
 		if h.file != nil {
-			return "Error:" + h.err.Error() + " for " + h.file.LogicalName()
+			return "Error: " + h.err.Error() + " for " + h.file.LogicalName()
 		}
 	}
 	return h.err.Error()
