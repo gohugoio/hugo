@@ -30,7 +30,7 @@ Most Hugo websites will only need the default template files at the end of the l
 
 The lookup order is best illustrated by example. The following shows you the process Hugo uses for finding the appropriate template to render your [single content][], but the concept holds true for all templates in Hugo.
 
-1. The project is using the theme `mytheme`, which would be specified as `theme: mytheme` or `theme = "mytheme"` in the project's [`config.toml` or `config.yaml`][config], respectively.
+1. The project is using the theme `mytheme`, which would be specified as `theme = "mytheme" or `theme: mytheme` in the project's [`config.toml` or `config.yaml`][config], respectively.
 2. The layouts and content directories for the project are as follows:
 
 ```bash
