@@ -11,6 +11,7 @@
   }
 })();
 
+//quasi scroll spy to work with Hugo's native TOC
 $(document).ready(function() {
   // Cache selectors
   var lastId,

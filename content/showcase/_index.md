@@ -15,7 +15,7 @@ aliases: [/site-showcase/]
 toc: false
 ---
 
-The following sites have been built with {{< emo ":heart:" >}} and Hugo. If you're interested in adding your site to the showcase, [see how to contribute][addshowcase].
+The following sites have been built with Hugo. If you've recently built a site with Hugo that you'd like to share with the community, please [contribute][addshowcase].
 
 
 [addshowcase]: /contribute/documentation/#adding-to-the-showcase

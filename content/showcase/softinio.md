@@ -10,6 +10,6 @@ tags:
 - personal
 - technical
 - blog
-image: softinio.png
+image: softinio.jpg
 title: Salar Rahmanian
 ---

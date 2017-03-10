@@ -1,6 +1,6 @@
 ---
 title: Contribute to Hugo Development
-linktitle: Code
+linktitle: Development
 description: Hugo relies heavily on contributions from the open source community. You don't need to be a Golang guru to contribute to the project's development.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -12,8 +12,6 @@ weight: 10
 draft: false
 aliases: [/contribute/development/]
 toc: true
-wip: true
-notesforauthors:
 ---
 
 ## Introduction

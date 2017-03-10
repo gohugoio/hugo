@@ -9,9 +9,8 @@ categories: [content management]
 tags: [sections,content,organization,fundamentals]
 weight: 10
 draft: false
-aliases: [/content-management/sections,/content/sections/]
+aliases: [/content/sections/]
 toc: true
-wip: true
 ---
 
 ## Organization of Content Source
@@ -37,18 +36,18 @@ While Hugo supports content nested at any level, the top levels (i.e. `content/<
 
 ## Path Breakdown in Hugo
 
-The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website at render. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://yoursite.com"` in your [site's configuration file][config].
+The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://yoursite.com"` in your [site's configuration file][config].
 
-### Section Index Page
+### Index Pages: `_index.md`
 
-`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists] as of v0.18. These templates include those for [section templates][], [taxonomy templates][], [taxonomy terms templates][], and your [homepage template][].
+`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists] as of v0.18. These templates include those for [section templates][], [taxonomy templates][], [taxonomy terms templates][], and your [homepage template][]. In your templates, you can grab information from `_index.md` using the [`.Site.GetPage` function][getpage].
 
-You can keep one `_index.md` in each of your content sections. The following shows typical placement of an `_index.md` that would contain content and front matter for a `posts` section list page on a Hugo website:
+You can keep one `_index.md` for your homepage and one in each of your content sections, taxonomies, and taxonomy terms. The following shows typical placement of an `_index.md` that would contain content and front matter for a `posts` section list page on a Hugo website:
 
 
 ```bash
-.            url
-.       ⊢------^------⊣
+.         url
+.       ⊢--^-⊣
 .        path    slug
 .       ⊢--^-⊣⊢---^---⊣
 .           filepath
@@ -82,7 +81,7 @@ Single content files in each of your sections are going to be rendered as [singl
 content/posts/my-first-hugo-post.md
 ```
 
-At the time Hugo renders your site, the content will be output to the following destination:
+At the time Hugo builds your site, the content will be output to the following destination:
 
 ```bash
 
@@ -114,45 +113,45 @@ http://yoursite.com/events/chicago/lollapalooza/
 ```
 
 {{% note %}}
-
+As of v0.20, Hugo does not recognize nested sections. So while you can nest as many content *directories* as you'd like, any child directory of a section will still be considered the same section as that of its parents. Therefore, in the above example, `{{.Section}}` for `lollapalooza.md` is `events` and *not* `chicago`.
 {{% /note %}}
 
 ## Paths Explained
 
-#### `section`
+The following concepts will provide more insight into the relationship between your project's organization and the default behaviors of Hugo when building the output website.
+
+### `section`
 
 A default content type is determined by a piece of content's section. `section` is determined by the location within the project's `content` directory. `section` *cannot* be specified or overridden in front matter.
 
-#### `slug`
+### `slug`
 
 A content's `slug` is either `name.extension` or `name/`. The value for `slug` is determined by
 
 * the name of the content file (e.g., `lollapalooza.md`) OR
 * front matter overrides
 
-#### `path`
+### `path`
 
 A content's `path` is determined by the section's path to the file. The file `path`
 
 * is based on the path to the content's location AND
 * does not include the slug
 
-#### `url`
+### `url`
 
 The `url` is the relative URL for the piece of content. The `url`
 
 * is based on the content's location within the directory structure OR
 * is defined in front matter and *overrides all the above*
 
-## Overriding Destinations via Front Matter
+## Overriding Default Behaviors via Front Matter
 
 Hugo believes that you organize your content with a purpose. The same structure that works to organize your source content is used to organize the rendered site. As displayed above, the organization of the source content will be mirrored in the destination.
 
-Notice that the first level `about/` page URL was created using a directory named "about" with a single `_index.md` file inside.
-
 There are times where you may need more control over your content. In these cases, there are fields that can be specified in the front matter to determine the destination of a specific piece of content.
 
-The following items are defined in this order for a specific reason: latter items in the list will override earlier items, and not all of these items can be defined in front matter:
+The following items are defined in this order for a specific reason: items explained further down in the list will override earlier items, and not all of these items can be defined in front matter:
 
 ### `filename`
 
@@ -171,7 +170,7 @@ slug: "new-post"
 ```
 {{% /code %}}
 
-This will render to the following destination:
+This will render to the following destination according to Hugo's default behavior:
 
 ```
 yoursite.com/posts/new-post/
@@ -201,123 +200,29 @@ layout: mylayout
 
 ### `url`
 
-A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a `/`). `url` will be used exactly as it provided in the front matter and will ignore the `--uglyURLs` setting in your site configuration.
+A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a `/`). `url` will be used exactly as it provided in the front matter and will ignore the `--uglyURLs` setting in your site configuration:
 
-## \_index.md and "Everything is a Page"
-
-As of version v0.18, Hugo now treats "[everything as a page](http://bepsays.com/en/2016/12/19/hugo-018/)". This allows you to add content and front matter to any page, including list pages like [sections][sectiontemplates], [taxonomy list pages][taxonomytemplates], [taxonomy terms pages](/templates/terms/) and even to potential "special case" pages like the [homepage][].
-
-In order to take advantage of this behavior, you need to do a few things.
-
-1. Create an `_index.md` file that contains the front matter and content you would like to apply.
-
-2. Place the `_index.md` file in the correct place in the directory structure.
-
-3. Ensure that the respective template is configured to display `{{ .Content }}` if you wish for the content of the `_index.md` file to be rendered on the respective page.
-
-### How `_index.md` Works
-
-Before continuing, it's important to know that this page must reference certain templates to describe how the `_index.md` page will be rendered. Hugo has a multitude of possible templates that can be used and placed in various places (think theme templates for instance). For simplicity/brevity the default/top level template location will be used to refer to the entire range of places the template can be placed.
-
-If this is confusing or you are unfamiliar with Hugo's template hierarchy, visit the various template pages listed below. You may need to find the 'active' template responsible for any particular page on your own site by going through the template hierarchy and matching it to your particular setup/theme you are using.
-
-- [Homepage template](/templates/homepage/)
-- [Content List templates](/templates/list/)
-- [Single Content templates](/templates/content/)
-- [Taxonomy Terms templates](/templates/terms/)
-
-Now that you've got a handle on templates lets recap some Hugo basics to understand how to use an \_index.md file with a List page.
-
-1. Sections and Taxonomies are 'List' pages, NOT single pages.
-2. List pages are rendered using the template heirarchy found in the [Content - List Template](http://localhost:1313/templates/list/) docs.
-3. The homepage, though technically a list page, can have [it's own template](/templates/homepage/) at layouts/index.html rather than \_default/list.html. Many themes exploit this behavior so you are likely to encounter this specific use case.
-4. Taxonomy terms pages are "lists of metadata" and not lists of content and therefore [have their own templates](/templates/terms/).
-
-Let's put all this information together:
-
-* `_index.md` files are used in list pages, terms pages, or the homepage and are *not* rendered as single pages or with [single page templates][singles].
-
-{{% note %}}
-All pages, including List pages, can have front matter and front matter can have markdown content. Thus, `_index.md` files are the way to _provide_ front matter *and* content to the respective list, terms, and homepage templates.
-{{% /note %}}
-
-
-Here are a couple of examples to make it clearer...
-
-```
-| \_index.md location                 | Page affected             | Rendered by                   |
-| -------------------                 | ------------              | -----------                   |
-| /content/post/\_index.md            | site.com/post/            | /layouts/section/post.html    |
-| /content/categories/hugo/\_index.md | site.com/categories/hugo/ | /layouts/taxonomy/hugo.html   |
-```
-
-### Why `_index.md` Files are Used
-
-With a Single page such as a post it's possible to add the front matter and content directly into the .md page itself. With List/Terms/Homepages this is not possible so \_index.md files can be used to provide that front matter/content to them.
-
-### How to Display Content From `_index.md`
-
-From the information above it should follow that content within an \_index.md file won't be rendered in its own Single Page, instead it'll be made available to the respective list, terms, Homepage.
-
-To **_actually render that content_** you need to ensure that the relevant template responsible for rendering the List/Terms/Homepage contains (at least) `{{ .Content }}`.
-
-This is the way to actually display the content within the \_index.md file on the List/Terms/Homepage.
-
-A very simple example is shown in the following default section list page:
-
-{{% code file="layouts/_default/section.html" download="section.html" %}}
-```html
-{{ define "main" }}
-  <main>
-      {{ .Content }}
-          <ul class="contents">
-          {{ range .Paginator.Pages }}
-              <li>{{.Title}}
-                  <div>
-                    {{ partial "summary.html" . }}
-                  </div>
-              </li>
-          {{ end }}
-          </ul>
-      {{ partial "pagination.html" . }}
-  </main>
-{{ end }}
+{{% code file="content/posts/old-url.md" %}}
+```yaml
+---
+title: Old URL
+url: /blog/new-url/
+---
 ```
 {{% /code %}}
 
-You can see `{{ .Content }}` just after the `<main>` element. For this particular example, the content of the \_index.md file will show before the main list of summaries.
+Assuming your `baseURL` is [configured][config] to `https://yoursite.com`, the addition of `url` to the front matter will make `old-url.md` render to the following destination:
 
-### Where to Organize `_index.md` Files
-
-To add content and front matter to the homepage, a section, a taxonomy or a taxonomy terms listing, add a markdown file with the base name \_index on the relevant place on the file system.
-
-```bash
-└── content
-    ├── _index.md
-    ├── categories
-    │   ├── _index.md
-    │   └── photo
-    │       └── _index.md
-    ├── post
-    │   ├── _index.md
-    │   └── firstpost.md
-    └── tags
-        ├── _index.md
-        └── hugo
-            └── _index.md
+```
+https://yoursite.com/blog/new-url/
 ```
 
-In the above example, `_index.md` pages have been added to each section and taxonomy.
-
-An `_index.md` file has also been added in the top level 'content' directory.
-
-### Where to Place `_index.md` for the Homepage Template
-
-Hugo themes are designed to use the 'content' directory as the root of the website, so adding an `_index.md` file here (like has been done in the example above) is how you would add front matter and content to the homepage.
+You can see more information on how to control output paths in [URL Management][urls].
 
 [config]: /getting-started/configuration/
 [formats]: /content-management/formats/
 [front matter]: /content-management/front-matter/
+[getpage]: /functions/getpage/
 [homepage template]: /templates/homepage/
 [homepage]: /templates/homepage/
 [lists]: /templates/lists/

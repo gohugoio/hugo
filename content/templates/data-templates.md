@@ -1,7 +1,7 @@
 ---
 title: Data Templates
 linktitle:
-description: In addition to the Hugo's many built-in variables, you can specify your own custom data in templates or shortcodes that pull from both local and dynamic sources.
+description: In addition to Hugo's built-in variables, you can specify your own custom data in templates or shortcodes that pull from both local and dynamic sources.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

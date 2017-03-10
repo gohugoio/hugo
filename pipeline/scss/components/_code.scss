@@ -86,11 +86,18 @@ code.language-js:after {
   top: 2px;
 }
 
+code.language-git:after {
+  font-family: 'fontello';
+  content: '\f1d3';
+  font-size: 16px;
+  top: 2px;
+}
+
 code.language-hugo:after,
 code.language-go:after,
 code.language-golang:after {
   font-family: 'fontello';
-  content: '\e81f';
+  content: '\e801';
 }
 
 code.language-sass:after,
@@ -102,7 +109,7 @@ code.language-scss:after {
 code.language-bash:after,
 code.language-sh:after {
   font-family: 'fontello';
-  content: '\e804';
+  content: '\e808';
   right: 6px;
 }
 
@@ -121,10 +128,17 @@ code.language-yml:after {
   font-family: $code-font-family;
 }
 
+code.language-json:after {
+  content: 'JSON';
+  font-size: .8em;
+  padding-right: .3em;
+  font-family: $code-font-family;
+}
+
 code.language-md:after,
 code.language-markdown:after {
   font-family: 'fontello';
-  content: '\e80e';
+  content: '\e818';
 }
 
 .copy-button + .code-copy-content {

@@ -1,7 +1,7 @@
 .all-contents {
   // border-top: 1px solid $hugo-blue;
-  padding-top:1em;
-  font-size:.95em;
+  padding-top: 1em;
+  font-size: .95em;
 }
 
 .contents-list {
@@ -27,7 +27,7 @@
     margin-top: 0px;
     padding-top: 0px;
     padding-bottom: 2px;
-    color: $hugo-pink;
+    color: $default-anchor-underline-color;
   }
   p {
     margin-top: 8px;
@@ -45,6 +45,12 @@
 .list-icon {
   display: flex;
   align-items: center;
+  i.icon-link-external {
+    position:relative;
+    display:inline-block;
+    margin-top:.1em;
+    margin
+  }
 }
 
 .list-icon-wrapper {

@@ -7,9 +7,9 @@
   margin-right: 20px;
   font-size: 1.2em;
   z-index: 60;
-  color:$hugo-pink;
-  @include MQ(L){
-    top:.3em;
+  color: $hugo-pink;
+  @include MQ(L) {
+    top: .3em;
   }
 }
 
@@ -25,7 +25,6 @@ form#site-search-form {
   transform:translateY(-#{$site-header-height});
   background-color: $body-bg-color;
   z-index: 19;
-  box-shadow: 0 3px 6px rgba($hugo-pink, 0.15), 0 3px 6px rgba($hugo-pink, 0.3);
   &.search-open {
     transition: transform .3s ease-in-out;
     transform: translateY(0);
@@ -57,12 +56,12 @@ form#site-search-form {
       #search-input {
         transition: opacity .3 ease-in-out;
         opacity: 1;
-        border-bottom:3px solid $hugo-pink;
+        border-bottom: 3px solid $hugo-pink;
         &::after {
-          display:inline-block;
-          content:'';
-          width:1em;
-          border-bottom:3px solid $hugo-pink;
+          display: inline-block;
+          content: '';
+          width: 1em;
+          border-bottom: 3px solid $hugo-pink;
         }
       }
     }

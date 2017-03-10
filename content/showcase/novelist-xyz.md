@@ -8,6 +8,6 @@ sourcelink: https://github.com/peterychuang/peterychuang.github.io/tree/source
 tags:
 - personal
 - blog
-image: novelist-xyz.png
+image: novelist-xyz.jpg
 title: Peter Y. Chuang
 ---

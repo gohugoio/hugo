@@ -81,9 +81,10 @@ nav#TableOfContents {
   li code {
     font-family: $base-font-family;
   }
+
   li.active > a > code {
     color: inherit;
-    font-weight: 700;
+    font-weight: inherit;
     font-family: $base-font-family;
   }
   > ul:first-child {
@@ -189,7 +190,7 @@ aside#toc + a#toc-toggle {
   right: 20px;
   background-color: $toc-bg-color;
   color: $hugo-white;
-  background-color: $hugo-pink;
+  background-color: $default-anchor-underline-color;
   @include size(40px);
   z-index: 99;
   line-height: 50px;

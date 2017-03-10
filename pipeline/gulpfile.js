@@ -3,7 +3,7 @@ const gulp = require('gulp');
 const babel = require('gulp-babel');
 const concat = require('gulp-concat');
 const imagefull = 1200;
-const imagehalf = 600;
+const imagehalf = 450;
 const imagemin = require("gulp-imagemin");
 const imageresize = require('gulp-image-resize');
 const imagethumb = 80;
@@ -33,6 +33,8 @@ gulp.task('scss', function() {
     .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
     .pipe(prefix('last 2 versions', '> 1%', 'ie 10', 'Android 2', 'Firefox ESR'))
     .pipe(plumber())
+    .pipe(rename('style-embed.html'))
+    .pipe(gulp.dest('../layouts/partials'))
     .pipe(rename('style.min.css'))
     .pipe(gulp.dest('../static/css'));
 });
@@ -40,28 +42,28 @@ gulp.task('scss', function() {
 gulp.task("image-resize", () => {
   return gulp.src("../source-images/*.{jpg,png,jpeg,gif}")
     .pipe(imagemin())
+    // .pipe(parallel(
+    //   imageresize({ width: imagefull }),
+    //   os.cpus().length
+    // ))
+    // .pipe(gulp.dest("../static/images"))
     .pipe(parallel(
-      imageresize({ width: imagefull }),
+      imageresize({ width: imagehalf, format: 'jpg' }),
       os.cpus().length
     ))
-    .pipe(gulp.dest("../static/images"))
-    .pipe(parallel(
-      imageresize({ width: imagehalf }),
-      os.cpus().length
-    ))
-    .pipe(gulp.dest("../static/images/half"))
-    .pipe(parallel(
-      imageresize({ width: imagethumb }),
-      os.cpus().length
-    ))
-    .pipe(gulp.dest("../static/images/thumb"));
+    // .pipe(gulp.dest("../static/images/half"))
+    // .pipe(parallel(
+    //   imageresize({ width: imagethumb }),
+    //   os.cpus().length
+    // ))
+    .pipe(gulp.dest("../static/images/showcase-optimized/"));
 });
 
 /**Javascript **/
 
 gulp.task('scripts', function(cb) {
   pump([
-      gulp.src(['js/_clipboard.js','js/_filesaver.js', 'js/_velocity.min.js', 'js/_velocity.ui.min.js', 'js/_blast.js', 'js/scripts/*.js']),
+      gulp.src(['js/_jquery.min.js', 'js/_clipboard.js', 'js/_filesaver.js', 'js/_velocity.min.js', 'js/_velocity.ui.min.js', 'js/_blast.js', 'js/scripts/*.js']),
       // sourcemaps.init(),
       babel({
         presets: ['es2015']

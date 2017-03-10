@@ -4,7 +4,7 @@ linktitle: Comments
 description: Hugo ships with an internal Disqus template that requires negligible effort to implement, but Disqus isn't the only commenting system that will work with your new Hugo website.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2017-03-09
 tags: [sections,content,organization, fundamentals]
 categories: [project organization]
 weight: 140
@@ -52,6 +52,7 @@ There are a few alternatives to commenting on static sites for those who do not 
 * [Static Man](https://staticman.net/)
 * [IntenseDebate](http://intensedebate.com/)
 * [Livefyre](http://livefyre.com/)
+* [Graph Comment][]
 * [Muut](http://muut.com/)
 * [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
 * [isso](http://posativ.org/isso/) (Self-hosted, Python)
@@ -74,6 +75,7 @@ It is in early development but shows promise. If you have interest, please help 
 [disqussetup]: https://disqus.com/profile/signup/
 [forum]: https://discuss.gohugo.io
 [front matter]: /content-management/front-matter/
+[Graph Comment]: https://graphcomment.com/
 [kaijuissue]: https://github.com/spf13/kaiju/issues/new
 [issotutorial]: https://stiobhart.net/2017-02-24-isso-comments/
 [partials]: /templates/partials/

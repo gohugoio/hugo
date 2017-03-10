@@ -8,6 +8,6 @@ sitelink: http://www.goin5minutes.com/
 sourcelink: https://github.com/arschles/go-in-5-minutes/tree/master/www
 tags:
 - screencasts
-image: goin5minutes.png
+image: goin5minutes.jpg
 title: Go in 5 minutes
 ---

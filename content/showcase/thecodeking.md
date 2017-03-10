@@ -7,7 +7,7 @@ sitelink: http://thecodeking.co.uk
 tags:
 - personal
 - blog
-image: thecodeking.png
+image: thecodeking.jpg
 title: thecodeking
 ---
 

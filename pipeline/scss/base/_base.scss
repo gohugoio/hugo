@@ -19,12 +19,19 @@ body {
   color: $base-font-color;
   line-height: $base-line-height-content;
   font-weight: $base-font-weight;
-   overflow-x:hidden;
+  overflow-x: hidden;
+}
+
+//fixes scroll when fixed items (e.g. search input) are given focus on iOS safari
+html,
+body {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch!important;
 }
 
 body {
   font-size: 93%;
-   overflow-x:hidden;
+  overflow-x: hidden;
   @include MQ(M) {
     font-size: 97%;
   }
@@ -36,8 +43,8 @@ body {
 }
 
 strong {
-  font-weight:$base-font-bold-weight;
-  color:$base-font-bold-color;
+  font-weight: $base-font-bold-weight;
+  color: $base-font-bold-color;
 }
 
 p {
@@ -47,6 +54,5 @@ p {
 }
 
 ::-webkit-scrollbar {
-  display:none;
+  display: none;
 }
-

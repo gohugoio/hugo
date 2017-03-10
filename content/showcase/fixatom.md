@@ -7,7 +7,7 @@ sitelink: https://fixatom.com/
 tags:
 - personal
 - blog
-image: fixatom.png
+image: fixatom.jpg
 title: Atom
 ---
 

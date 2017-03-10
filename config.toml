@@ -16,6 +16,8 @@ disablePathToLower = false
 disableRSS = false
 # Set to false if you want a sitemap.xml created at the site root
 disableSitemap = false
+# Allows use of emoji shorthand directly in content
+enableEmoji = true
 # Set the unicode character used for the "return" link in page footnotes.
 footnotereturnlinkcontents = "↩"
 # Create an array of files you don't want hugo to build
@@ -61,11 +63,7 @@ watch = true
   # Add GA Tracking Code Here. This leverages a built-in (ie, "internal") partial from HUGO: https://gohugo.io/extras/analytics#configuring-google-analytics
   googleanalyticstrackingcode = ""
   ## Critical Render Path. If true, site style will be embedded in a <style> tag in each html <head> as part of Gulp Build. False puts a typical <link> to the stylesheet in <head>>
-  usecrp = false
-  ## Include jQuery 2.2.4 in your site head. (see /static/assets/js)
-  includejq = false
-  ## Date the Site is Published, use YYYY-MM-DD
-  sitepublishdate = ""
+  usecrp = true
   ## Twitter handle without the "@"
   twitterhandle = "GoHugoIO"
   ## Facebook URL
@@ -73,19 +71,15 @@ watch = true
   ## Default Image for Social Sharing. This image should live at static/images/
   defaultsocialimage = "hugodefaultsocial.png"
   ## Setting this to true will add a "noindex" to *every* page on the site
-  removefromexternalsearch = true
-  ## This is used when the BaseURL does not need to modified (eg, in share links)
-  siteaddress = "https://hugodocsconcept.netlify.com"
+  removefromexternalsearch = false
+  ## This is used when the BaseURL does not need to modified (eg, in share links or in prerender, prefetch, etc to control for relativeURLs setting)
+  siteaddress = "https://hugodocs.info"
   ## Gh repo for site footer (include trailing slash)
   ghrepo = "https://github.com/spf13/hugo/"
   ## GitHub Docs Repository Base URL (include trailing slash)
   ### https://github.com/spf13/hugo/tree/master/docs
+  ### Edit content repo (set to automatically enter "edit" mode => good for "improve this page" links)
   ghdocsrepo = "https://github.com/rdwatters/hugo-docs-concept/edit/master/"
-  ### Edit content repo
-  ## Github Wiki for Documentation
-  ghdocswiki = ""
-  ## Github Wiki for Development
-  ghdevwiki = ""
   ## Gitter URL
   gitter = "https://gitter.im/spf13/hugo"
   ## Discuss Forum URL
@@ -93,6 +87,7 @@ watch = true
   gtmid = ""
   # Set to true to include a CDN call to FontAwesome (not that Hugo docs currently hosts its own FA (see pipeline/scss/_variables.scss))
   usefontawesome = false
+
 # MARKDOWN
 ## Configuration for BlackFriday markdown parser: https://github.com/russross/blackfriday
 [blackfriday]
@@ -103,4 +98,4 @@ watch = true
 
 [taxonomies]
   tag = "tags"
-  category = "categories"
+  category = ""

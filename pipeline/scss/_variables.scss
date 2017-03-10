@@ -1,6 +1,6 @@
 
 //Config
-$usefontawesome: true;
+$usefontawesome: false;
 
 //Media Query Values
 $S:480px;
@@ -26,44 +26,48 @@ $hugo-gray-light:lighten($hugo-gray, 30%);
 $hugo-gray-ultra-light:lighten($hugo-gray-light, 22%);
 $hugo-green:#00A88A;
 $hugo-green-light:#33BA91;
+
 //Examples
 $examplesite-example-color:$hugo-pink;
 $examplesite-codeblock-shortcode-header-bg-color: $hugo-pink;
 $input-example-color:$hugo-gray-dark;
 $output-example-color:$hugo-blue;
+
 //Document Body
 $body-bg-color:$hugo-white;
+
 //Typography
 $base-font-size: 18px;
 $base-font-color: #222222;
 $base-line-height-content: 1.6;
 $base-font-bold-color: $base-font-color;
 $systemfonts: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbols";
+
 // Font Families
-$base-font-family: 'museo-sans','muli',$helvetica;
+// $base-font-family: 'museo-sans','muli',$helvetica;
+$base-font-family: 'lato','muli',$helvetica;
 $heading-font-family: $base-font-family;
 $code-font-family:'robotomono',courier,monospace;
 
 // Font Weights
-$base-font-weight: 300;
-$base-font-bold-weight: 500;
-$heading-font-weight: 500;
+$base-font-weight: 400;
+$base-font-bold-weight: 700;
+$heading-font-weight: 600;
 $code-font-base-weight: 400;
 $code-font-bold-weight: 500;
-
 
 //Anchors (in body copy)
 $default-anchor-color:$base-font-color;
 $default-anchor-underline-color:$hugo-pink;
 $default-anchor-weight: $base-font-weight;
 $active-color: $default-anchor-color;
+
 //Buttons
 $base-button-color: $hugo-blue;
 $base-button-text-color: $hugo-white;
 $button-border-radius: 3px;
-//Codeblocks
-// $code-font-family:'courierprime',courier,monospace;
 
+//Codeblocks
 
 $code-tooltip-bg-color: $hugo-blue;
 $code-block-base-font-color: $hugo-black;

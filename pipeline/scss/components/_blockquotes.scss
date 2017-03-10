@@ -3,7 +3,6 @@
     position: relative;
     display:block;
     margin:0px;
-    // border-left:2px solid $base-font-color;
     font-style: italic;
     background-color: $hugo-gray-ultra-light;
     padding: 16px;
@@ -20,12 +19,11 @@
       display: block;
       @include size(1em);
       position: absolute;
-      content: '\e809';
+      content: '\e819';
       color:$hugo-gray-light;
       top: -3px;
       left: 4px;
       font-size: 1.2em;
-      // background-color: $body-bg-color;
       font-style: normal;
     }
     code,pre {

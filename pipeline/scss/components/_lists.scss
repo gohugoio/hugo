@@ -128,20 +128,20 @@ aside {
   }
 }
 
-//For example, used in the "Pages Needing Code Examples" section of "Contribute to the Hugo docs"
-// .body-copy {
-//   .utils-list {
-//     list-style: none;
-//     margin-left: 0px;
-//     padding-left: 0px;
-//     li {
-//       list-style: none;
-//       display: inline;
-//       margin-left: 0px;
-//       padding-left: 0px;
-//     }
-//   }
-// }
+.body-copy {
+  ol > li > del {
+    color: $hugo-pink;
+    &:after {
+      display: inline-block;
+      @include size(1em);
+      font-family: 'fontello';
+      content: '\e810';
+      margin-left: .5em;
+      font-size: 1.2em;
+      color: $hugo-pink;
+    }
+  }
+}
 
 //for Hugo's native support of Github-flavored task list synax
 .body-copy {

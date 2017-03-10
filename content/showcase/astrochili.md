@@ -8,7 +8,7 @@ sourcelink: https://github.com/astrochili/astrochili.github.io
 tags:
 - personal
 - blog
-image: astrochili.png
+image: astrochili.jpg
 title: Roman Silin
 ---
 

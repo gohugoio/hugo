@@ -1,7 +1,7 @@
 //removes toc if not enough headings
 (function() {
-  let tocLinks = document.querySelectorAll('#TableOfContents > ul a');
-  let toc = document.getElementById('toc');
+  let tocLinks = document.querySelectorAll('#TableOfContents > ul a'),
+    toc = document.getElementById('toc');
   if (toc && (tocLinks.length < 2)) {
     toc.remove();
   } else if (tocLinks.length > 1) {
@@ -12,7 +12,6 @@
 function toggleToc(evt) {
   evt.preventDefault();
   evt.stopPropagation();
-  console.log("hello");
   document.getElementById('toc').classList.toggle('toc-open');
   document.getElementById('toc-toggle').classList.toggle('toc-open');
 }

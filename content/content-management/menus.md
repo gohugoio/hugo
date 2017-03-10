@@ -5,13 +5,12 @@ description: Hugo's simple yet powerful menu system allows you to add content to
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: [templating]
-tags: [lists,sections,menus]
+categories: [content management]
+tags: [menus]
 draft: false
 weight: 120
 aliases: [/extras/menus/]
 toc: true
-wip: true
 ---
 
 Hugo's simple yet powerful menu system allows you to add content to menus with a high degree of control and a very low amount of effort on the part of content authors.
@@ -78,11 +77,11 @@ menu:
 
 ## Adding Non-content Entries to a Menu
 
-You can also add entries to menus that aren’t attached to a piece of content. This takes place in the sitewide [config file](/overview/configuration/).
+You can also add entries to menus that aren’t attached to a piece of content. This takes place in your Hugo project's [`config` file][config].
 
 Here’s an example snippet pulled from a `config.toml`:
 
-{{% code file="menu-in-config.toml" %}}
+{{% code file="config.toml" %}}
 ```toml
 [[menu.main]]
     name = "about hugo"
@@ -98,9 +97,9 @@ Here’s an example snippet pulled from a `config.toml`:
 ```
 {{% /code %}}
 
-Here's the equivalent snippet pulled from a `config.yaml`:
+Here's the equivalent snippet in a `config.yaml`:
 
-{{% code file="menu-in-config.yml" %}}
+{{% code file="config.yml" %}}
 ```yaml
 ---
 menu:
@@ -119,18 +118,18 @@ menu:
 {{% /code %}}
 
 {{% note %}}
-The URLs must be relative to the context root. If the `baseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will overide the baseURL. If the `URL` is `http://subdomain.example.com/`, the output will be `http://subdomain.example.com`.
+The URLs must be relative to the context root. If the `baseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will overide the baseURL. If the value used for `URL` in the above example is `http://subdomain.example.com/`, the output will be `http://subdomain.example.com`.
 {{% /note %}}
 
 ## Nesting
 
 All nesting of content is done via the `parent` field.
 
-The parent of an entry should be the identifier of another entry. Identifier should be unique (within a menu).
+The parent of an entry should be the identifier of another entry. The identifier should be unique (within a menu).
 
 The following order is used to determine an Identifier:
 
-`.Name > .LinkTitle` > .Title`
+`.Name > .LinkTitle > .Title`
 
 This means that `.Title` will be used unless `.LinkTitle` is present, etc. In practice, `.Name` and `.Identifier` are only used to structure relationships and therefore never displayed.
 
@@ -138,7 +137,7 @@ In this example, the top level of the menu is defined in your [site `config` fil
 
 ## Rendering Menus
 
-See [Menu Templates](/templates/menu-templates/) for information on how to render your site menus.
+See [Menu Templates](/templates/menu-templates/) for information on how to render your site menus within your templates.
 
 [config]: /getting-started/configuration/
 [multilingual]: /content-management/multilingual/

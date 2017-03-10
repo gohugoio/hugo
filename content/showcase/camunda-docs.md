@@ -9,7 +9,7 @@ sourcelink: https://github.com/camunda/camunda-docs-theme
 tags:
 - company
 - documentation
-image: camunda-docs.png
+image: camunda-docs.jpg
 title: Camunda Docs
 ---
 

@@ -2,27 +2,10 @@ svg.svg-icon {
   max-width: 60px;
 }
 
-.icon-freebsd:before {
-  @include size(1em);
-  content: '';
-  display: inline-block;
-  margin-left: -.15em;
-  margin-right: 0em;
-  background-image: url(/images/hugo-icons/freebsd.svg);
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-.icon-freebsd.white:before {
-  background-image: url(/images/hugo-icons/freebsd-white.svg);
-  margin-bottom: .2em;
-}
-
 //for template lookup yes/no/na (e.g., in single-page template [/templates/single-page-template/])
 span.yes {
   code {
-    color: $hugo-white;
-    background-color: $hugo-green;
+    color: $hugo-green;
   }
 }
 
@@ -38,8 +21,8 @@ span.bad {
   &:after {
     display: inline-block;
     @include size(1em);
-    font-family: 'FontAwesome';
-    content: '\f165';
+    font-family: 'fontello';
+    content: '\e810';
     margin-left: .5em;
     font-size: 1.2em;
     color: $hugo-pink;
@@ -51,8 +34,8 @@ span.yes,
   &:after {
     display: inline-block;
     @include size(1em);
-    font-family: 'FontAwesome';
-    content: '\f164';
+    font-family: 'fontello';
+    content: '\e80f';
     color: $hugo-green;
     margin-left: .5em;
     font-size: 1.2em;

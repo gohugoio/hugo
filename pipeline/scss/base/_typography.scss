@@ -1,5 +1,5 @@
-// @include fonts('muli', $weights: 100 300 400 600 700 800, $italic: true);
-@include fonts('robotomono', $weights: 200 300 400 500 700, $italic: false);
+@include fonts('lato', $weights: 400 600 700, $italic: true);
+@include fonts('robotomono', $weights: 400 500 , $italic: true);
 h1,
 h2,
 h3,
@@ -47,7 +47,6 @@ h1.page-title {
 h2,
 h3 {
   padding-bottom: 24px;
-  // padding-right: 1.5em;
 }
 
 h2 {

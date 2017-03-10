@@ -10,7 +10,7 @@ categories: [templates]
 tags: [debugging,troubleshooting]
 weight: 180
 draft: false
-aliases: [/templates/debugging/]
+aliases: []
 toc: false
 ---
 
@@ -22,32 +22,30 @@ These snippets use the `printf` function available in all Go templates.  This fu
 
 You can use the template syntax, `$.`, to get the top-level template context from anywhere in your template. This will print out all the values under, `.Site`.
 
-{{% code file="get-top-level-syntax.sh" %}}
-```golang
+```html
 {{ printf "%#v" $.Site }}
 ```
-{{% /code %}}
 
 This will print out the value of `.Permalink`:
 
-{{% code file="get-permalink.sh" %}}
-```golang
+
+```html
 {{ printf "%#v" .Permalink }}
 ```
-{{% /code %}}
+
 
 This will print out a list of all the variables scoped to the current context
-(aka [The dot, "`.`"][primer]).
+(`.`, aka ["the dot"][primer]).
 
-{{% code file="get-all-vars-current-context.sh" %}}
-```golang
+
+```html
 {{ printf "%#v" . }}
 ```
-{{% /code %}}
 
-When writing a [Homepage][hometemplate], what does one of the pages you're looping through look like?
 
-```golang
+When developing a [homepage][], what does one of the pages you're looping through look like?
+
+```html
 {{ range .Data.Pages }}
     {{/* The context, ".", is now each one of the pages as it goes through the loop */}}
     {{ printf "%#v" . }}
@@ -55,24 +53,24 @@ When writing a [Homepage][hometemplate], what does one of the pages you're loopi
 ```
 
 {{% note "`.Date.Pages` on the Homepage" %}}
-Using `.Data.Pages` on the homepage is the equivalent of writing `.Site.Pages`.
+`.Data.Pages` on the homepage is equivalent to `.Site.Pages`.
 {{% /note %}}
 
 ## Why Am I Showing No Defined Variables?
 
 Check that you are passing variables in the `partial` function:
 
-```
+```html
 {{ partial "header" }}
 ```
 
-This example will render the header partial, but the header partial will not have access to any contextual variables. You need to pass variables explicitly. For example note the addition of [the dot][primer].
+This example will render the header partial, but the header partial will not have access to any contextual variables. You need to pass variables explicitly. For example, note the addition of ["the dot"][primer].
 
-```
+```html
 {{ partial "header" . }}
 ```
 
-The dot (`.`) is considered fundamental to understand Hugo templating. For more information, see the [Go Template Primer][primer].
+The dot (`.`) is considered fundamental to understanding Hugo templating. For more information, see the [Go Template Primer][primer].
 
-[hometemplate]: /templates/homepage/
+[homepage]: /templates/homepage/
 [primer]: /templates/go-templates/

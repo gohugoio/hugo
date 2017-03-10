@@ -9,7 +9,7 @@ sourcelink: "https://github.com/tomhelmer/website-source"
 tags:
 - personal
 - blog
-image: thehome.png
+image: thehome.jpg
 title: thehome.dk
 ---
 

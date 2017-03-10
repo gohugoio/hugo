@@ -9,7 +9,7 @@ categories: [content management]
 tags: [lists,sections,content types,organization]
 weight: 50
 draft: false
-aliases: [/content-management/sections/,/content/sections/]
+aliases: [/content/sections/]
 toc: true
 ---
 

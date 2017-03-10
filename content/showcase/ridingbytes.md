@@ -10,7 +10,7 @@ tags:
 - website
 - blog
 - tech
-image: ridingbytes.png
+image: ridingbytes.jpg
 title: RIDING BYTES
 ---
 

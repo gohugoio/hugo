@@ -4,19 +4,18 @@ linktitle: URL Management
 description: Hugo provides native support for permalinks, aliases, link canonicalization, and multiple options for handling relative vs absolute URLs.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2017-03-09
 tags: [aliases,redirects,permalinks,urls]
 categories: [content management]
 weight: 110
 draft: false
 aliases: [/extras/permalinks/,/extras/aliases/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
 toc: true
-wip: true
 ---
 
 ## Permalinks
 
-By default, Hugo target directory for your built website is `public/`. However, you can change this value by specifying a different `publishdir` in your [site configuration][config]. The directories created at build time for a section reflect the position of the content's directory within the `content` folder and namespace matching its layout within the `contentdir` hierarchy.
+The default Hugo target directory for your built website is `public/`. However, you can change this value by specifying a different `publishdir` in your [site configuration][config]. The directories created at build time for a section reflect the position of the content's directory within the `content` folder and namespace matching its layout within the `contentdir` hierarchy.
 
 The `permalinks` option in your [site configuration][config] allows you to adjust the directory paths (i.e., the URLs) on a per-section basis. This will change where the files are written to and will change the page's internal "canonical" location, such that template references to `.RelPermalink` will honor the adjustments made as a result of the mappings in this option.
 
@@ -24,7 +23,7 @@ The `permalinks` option in your [site configuration][config] allows you to adjus
 These examples use the default values for `publishDir` and `contentDir`; i.e., `publish` and `content`, respectively. You can override the default values in your [site's `config` file](/getting-started/configuration/).
 {{% /note %}}
 
-For example, if one of your [sections][] is called `post` and you want to adjust the canonical path to be hierarchical based on the year and month, you could set up the following configurations in YAML and TOML, respectively.
+For example, if one of your [sections][] is called `post` and you want to adjust the canonical path to be hierarchical based on the year, month, and post title, you could set up the following configurations in YAML and TOML, respectively.
 
 ### YAML Permalinks Configuration Example
 
@@ -44,29 +43,56 @@ permalinks:
 ```
 {{% /code %}}
 
-Only the content under `post/` will have the new URL structure. For example, the file `content/post/sample-entry` with `date: 2013-11-18T19:20:00-05:00` in its front matter will render to `public/2013/11/sample-entry/index.html` at build time and therefore be reachable at `http://yoursite.com/2013/11/sample-entry/`.
+Only the content under `post/` will have the new URL structure. For example, the file `content/post/sample-entry.md` with `date: 2017-02-27T19:20:00-05:00` in its front matter will render to `public/2017/02/sample-entry/index.html` at build time and therefore be reachable at `http://yoursite.com/2013/11/sample-entry/`.
 
 ### Permalink Configuration Values
 
 The following is a list of values that can be used in a `permalink` definition in your site `config` file. All references to time are dependent on the content's date.
 
-* `:year` = the 4-digit year
-* `:month` = the 2-digit month
-* `:monthname` = the name of the month
-* `:day` = the 2-digit day
-* `:weekday` = the 1-digit day of the week (Sunday = 0)
-* `:weekdayname` = the name of the day of the week
-* `:yearday` = the 1- to 3-digit day of the year
-* `:section` = the content's section
-* `:title` = the content's title
-* `:slug` = the content's slug (or title if no slug is provided in the front matter)
-* `:filename` = the content's filename (without extension)
+`:year`
+: the 4-digit year
 
-## Example
+`:month`
+: the 2-digit month
 
-Let's assume you create a new piece of content at `content/posts/my-awesome-blog-post.md`. The content is a revision of your previous post at `content/posts/my-original-url.md`. You can create an `aliases` field in the front matter of your new `my-awesome-blog-post.md` where you can add previous paths. The following show examples of creating this filed in TOML and YAML front matter, respectively.
+`:monthname`
+: the name of the month
 
-### TOML Front Matter
+`:day`
+: the 2-digit day
+
+`:weekday`
+: the 1-digit day of the week (Sunday = 0)
+
+`:weekdayname`
+: the name of the day of the week
+
+`:yearday`
+: the 1- to 3-digit day of the year
+
+`:section`
+: the content's section
+
+`:title`
+: the content's title
+
+`:slug`
+: the content's slug (or title if no slug is provided in the front matter)
+
+`:filename`
+: the content's filename (without extension)
+
+## Aliases
+
+For people migrating existing published content to Hugo, there's a good chance you need a mechanism to handle redirecting old URLs.
+
+Luckily, redirects can be handled easily with **aliases** in Hugo.
+
+### Example: Aliases
+
+Let's assume you create a new piece of content at `content/posts/my-awesome-blog-post.md`. The content is a revision of your previous post at `content/posts/my-original-url.md`. You can create an `aliases` field in the front matter of your new `my-awesome-blog-post.md` where you can add previous paths. The following examples show how to create this filed in TOML and YAML front matter, respectively.
+
+#### TOML Front Matter
 
 {{% code file="content/posts/my-awesome-post.md" copy="false" %}}
 ```toml
@@ -79,7 +105,7 @@ aliases = [
 ```
 {{% /code %}}
 
-### YAML Front Matter
+#### YAML Front Matter
 
 {{% code file="content/posts/my-awesome-post.md" copy="false" %}}
 ```yaml
@@ -91,9 +117,9 @@ aliases:
 ```
 {{% /code %}}
 
-Now when you visit any of the locations specified in aliases---i.e., *assuming the same site domain*---you'll be redirected to the page they are specified on. For example, a visitor to `yoursite.com/posts/my-original-url/` will be immediately redirected to `yoursite.com/posts/my-awesome-blog-post`.
+Now when you visit any of the locations specified in aliases---i.e., *assuming the same site domain*---you'll be redirected to the page they are specified on. For example, a visitor to `yoursite.com/posts/my-original-url/` will be immediately redirected to `yoursite.com/posts/my-awesome-blog-post/`.
 
-## Multilingual example
+### Example: Aliases in Multilingual
 
 On [multilingual sites][multilingual], each translation of a post can have unique aliases. To use the same alias across multiple languages, prefix it with the language code.
 
@@ -106,31 +132,34 @@ aliases:
 ---
 ```
 
-## Aliases
-
-For people migrating existing published content to Hugo, there's a good chance you need a mechanism to handle redirecting old URLs.
-
-Luckily, redirects can be handled easily with **aliases** in Hugo.
-
 ### How Hugo Aliases Work
 
 When aliases are specified, Hugo creates a directory to match the alias entry. Inside the directory, Hugo creates an `.html` file specifying the canonical URL for the page and the new redirect target.
 
-Assuming a baseURL of `yoursite.com`, the contents of the html file will look something like:
+For example, a content file at `posts/my-intended-url.md` with the following in the front matter:
+
+```yaml
+---
+title: My New post
+aliases: [/posts/my-old-url/]
+---
+```
+
+Assuming a `baseURL` of `yoursite.com`, the contents of the auto-generated alias `.html` found at `https://yoursite.com/posts/my-old-url/ will contain the following:`
 
 ```html
 <!DOCTYPE html>
 <html>
   <head>
-    <title>http://yoursite.com/posts/my-original-url</title>
-    <link rel="canonical" href="http://yoursite.com/posts/my-original-url"/>
+    <title>http://yoursite.com/posts/my-intended-url</title>
+    <link rel="canonical" href="http://yoursite.com/posts/my-intended-url"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="refresh" content="0; url=http://yoursite.com/posts/my-original-url"/>
+    <meta http-equiv="refresh" content="0; url=http://yoursite.com/posts/my-intended-url"/>
   </head>
 </html>
 ```
 
-The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case.
+The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://yoursite.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL.
 
 ### Customizing
 
@@ -148,9 +177,7 @@ layouts folder of your site (i.e., `layouts/alias.html`). In this case, the data
 1. Hugo makes no assumptions about aliases. They also do not change based
 on your UglyURLs setting. You need to provide absolute paths to your web root
 and the complete filename or directory.
-
-2. Aliases are rendered *before* to any content and will be overwritten by
-any content with the same location.
+2. Aliases are rendered *before* any content are rendered and therefore will be overwritten by any content with the same location.
 
 ## Pretty URLs
 
@@ -162,16 +189,16 @@ The following demonstrates the concept:
 content/posts/_index.md
 => yoursite.com/posts/index.html
 content/posts/post-1.md
-=> yoursite.com/
-content/posts/post-2.md
-content/posts/post-3.md
+=> yoursite.com/posts/post-1/
 ```
 
 ## Ugly URLs
 
-If you would like to have what we call "ugly URLs" (e.g.,&nbsp;http://example.com/extras/urls.html), set `uglyurls = true` or `uglyurls: true` to your site-wide `config.toml` or `config.yaml`, respectively. You can also use the `--uglyURLs=true` [flag from the command line][usage].
+If you would like to have are often referred to as "ugly URLs" (e.g.,&nbsp;http://example.com/extras/urls.html), set `uglyurls = true` or `uglyurls: true` to your site's `config.toml` or `config.yaml`, respectively. You can also use the `--uglyURLs=true` [flag from the command line][usage] with `hugo` or `hugo server`..
 
-If you want a specific piece of content to have an exact URL, you can specify this in the [front matter][] under the `url` key. The following are examples of the same content directory and what the eventual URL structure will be run with the default. See [Content Organization][contentorg] for more details.
+If you want a specific piece of content to have an exact URL, you can specify this in the [front matter][] under the `url` key. The following are examples of the same content directory and what the eventual URL structure will be when Hugo runs with its default behavior.
+
+See [Content Organization][contentorg] for more details on paths.
 
 ```bash
 .
@@ -194,7 +221,7 @@ Here's the same organization run with `hugo --uglyURLs`:
 .
 └── content
     └── about
-    |   └── _index.md  // <- http://yoursite.com/about/
+    |   └── _index.md  // <- http://yoursite.com/about/index.html
     ├── post
     |   ├── firstpost.md   // <- http://yoursite.com/post/firstpost.html
     |   ├── happy
@@ -208,11 +235,11 @@ Here's the same organization run with `hugo --uglyURLs`:
 
 ## Canonicalization
 
-By default, all relative URLs encountered in the input are left unmodified, e.g. `/css/foo.css` would stay as `/css/foo.css`, i.e. `canonifyURLs` defaults to `false`.
+By default, all relative URLs encountered in the input are left unmodified, e.g. `/css/foo.css` would stay as `/css/foo.css`. The `canonifyURLs` field in your site `config` has a default value of `false`.
 
-By setting `canonifyURLs` to `true`, all relative URLs would instead be *canonicalized* using `baseURL`.  For example, assuming you have `baseURL = http://yoursite.com/` defined in the site-wide `config.toml`, the relative URL `/css/foo.css` would be turned into the absolute URL `http://yoursite.com/css/foo.css`.
+By setting `canonifyURLs` to `true`, all relative URLs would instead be *canonicalized* using `baseURL`.  For example, assuming you have `baseURL = https://yoursite.com/`, the relative URL `/css/foo.css` would be turned into the absolute URL `http://yoursite.com/css/foo.css`.
 
-Benefits of canonicalization include fixing all URLs to be absolute, which may aid with some parsing tasks. Note, however, that all modern browsers handle this on the client without issues.
+Benefits of canonicalization include fixing all URLs to be absolute, which may aid with some parsing tasks. Note, however, that all modern browsers handle this on the client without issue.
 
 Benefits of non-canonicalization include being able to have scheme-relative resource inclusion; e.g., so that `http` vs `https` can be decided according to how the page was retrieved.
 

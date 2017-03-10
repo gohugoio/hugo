@@ -7,7 +7,7 @@ sitelink: http://engineering.mongodb.com/
 tags:
 - engineering
 - blog
-image: mongodb-eng.png
+image: mongodb-eng.jpg
 title: The Mongodb Engineering Journal
 ---
 

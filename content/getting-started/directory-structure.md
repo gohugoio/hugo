@@ -1,10 +1,10 @@
 ---
 title: Directory Structure
 linktitle: Directory Structure
-description: Hugo's CLI scaffolds a project's directory structure nearly instantly and then takes that single directory and uses it as the input for creating a complete website.
+description: Hugo's CLI scaffolds a project directory structure and then takes that single directory and uses it as the input for creating a complete website.
 date: 2017-01-02
-publishdate: 2017-01-02
-lastmod: 2017-01-02
+publishdate: 2017-02-01
+lastmod: 2017-03-09
 categories: [project organization]
 tags: [source, organization, directories,fundamentals]
 weight: 50
@@ -14,12 +14,10 @@ aliases: [/overview/source-directory/]
 toc: true
 ---
 
-<!-- copied from old overview/source-directory -->
-
 Hugo takes a single directory and uses it as the input for creating a complete
 website.
 
-## Directory Scaffolding in New Hugo Sites
+## Directory Scaffolding in `new hugo site`
 
 The top level of a source directory will typically have the following elements:
 
@@ -34,13 +32,13 @@ The top level of a source directory will typically have the following elements:
   config.toml
 ```
 
-Learn more about the different directories and what their purpose is:
+You can learn more about each component of a newly scaffolded site in its respective documentation:
 
 * [config](/getting-started/configuration/)
 * [data](/templates/data-templates/)
 * [i18n](/content-management/multilingual/)
 * [archetypes](/content-management/archetypes/)
-* [content](/content-managemt/organization/)
+* [content](/content-management/organization/)
 * [layouts](/templates/)
 * [static](/themes/creating-a-theme/)
 * [themes](/themes/)

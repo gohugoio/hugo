@@ -9,7 +9,7 @@ sourcelink: "https://github.com/stou/stou.github.io"
 tags:
 - personal
 - blog
-image: stou.png
+image: stou.jpg
 title: stou.dk
 ---
 
