@@ -13,11 +13,9 @@ aliases: [/themes/overview/]
 toc: false
 ---
 
-Hugo provides a robust theming system that is easy to implement but capable of producing even the most complicated websites. They are the perfect balance between simplicity and functionality.
+Hugo provides a robust theming system that is easy to implement but capable of producing even the most complicated websites. You can view the themes created by the Hugo community on the [Hugo themes website][hugothemes].
 
-The Hugo community has created a large number of diverse themes, all of which are featured in a separate [Hugo themes website][hugothemes].
-
-Hugo themes are powered by the excellent Go template library. If you are new to Go templates, see our [primer on Go templates][goprimer] and are structured in such a way to eliminate code duplication. They are easy to simultaneously customize while retaining upgradability with the upstream theme.
+Hugo themes are powered by the excellent Go template library and are designed to reduce code duplication. They are easy to simultaneously customize while retaining upgradability with the upstream theme.
 
 [goprimer]: /templates/introduction/
 [hugothemes]: http://themes.gohugo.io/

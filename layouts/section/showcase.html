@@ -12,7 +12,7 @@
 			<li class="showcase-site">
 			<div class="image-wrapper">
 				<a href="{{.Params.sitelink}}" target="_blank">
-				<img src="/images/showcase/{{$img}}" alt="Screenshot thumbnail for the website {{.Title}}, {{.Description}}">
+				<img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/images/showcase/{{$img}}" alt="Screenshot thumbnail for the website {{.Title}}, {{.Description}}" class="b-lazy">
 				</a>
 			</div>
 			<div class="showcase-meta">
@@ -40,3 +40,8 @@
 		</ul>
 </main>
 {{end}}
+
+{{ define "addscripts" }}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/blazy/1.8.2/blazy.min.js"></script>
+<script>var bLazy = new Blazy();</script>
+{{ end }}
