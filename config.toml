@@ -83,8 +83,9 @@ watch = true
   ## Gitter URL
   gitter = "https://gitter.im/spf13/hugo"
   ## Discuss Forum URL
-  forum = "https://discuss.hugo.io"
-  # Set to true to include a CDN call to FontAwesome (as of 2017-03-09, Hugo docs currently hosts its own customize fontell font [see _fontello.scss])
+  forum = "https://discuss.gohugo.io"
+  gtmid = ""
+  # Set to true to include a CDN call to FontAwesome (not that Hugo docs currently hosts its own FA (see pipeline/scss/_variables.scss))
   usefontawesome = false
 
 # MARKDOWN
