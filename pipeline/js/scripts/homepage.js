@@ -32,12 +32,10 @@ $(document).ready(function() {
           stagger: 60,
           delay: 0,
           complete: function() {
+            badge.addClass('bounceIn');
+            cape.addClass('fadeIn');
             gopher.velocity('callout.tada', {
               duration: 800,
-              complete: function() {
-                badge.addClass('bounceIn');
-                cape.addClass('fadeIn');
-              }
             });
           }
         });

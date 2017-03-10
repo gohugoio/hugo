@@ -52,17 +52,6 @@ aside#toc {
     &.toc-open {
       z-index: 1;
     }
-    // .fade {
-    //   content: '';
-    //   display: inline-block;
-    //   position: absolute;
-    //   bottom: -1px;
-    //   left: 0px;
-    //   width: 100%;
-    //   min-height: 1px;
-    //   // box-shadow: 0px 0px 72px 50px rgba(255, 255, 255, 1);
-    //   box-shadow: 58px 0px 72px 53px rgba(255,255,255,1);
-    // }
   }
 }
 
@@ -83,7 +72,7 @@ nav#TableOfContents {
     padding-left: 0px;
     margin-left: 0px;
     margin-top: .5em;
-    margin-bottom: 0px;
+    margin-bottom: 1em;
     > li {
       padding-left: 0px;
       margin-left: 0px;

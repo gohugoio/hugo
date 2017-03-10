@@ -42,9 +42,4 @@ $('#all-content-wrapper').on('click', function() {
   }
 });
 
-$('.body-copy').on('click', function() {
-  if ($('.toc-toggle.toc-open')) {
-    document.getElementById('toc').classList.remove('toc-open');
-    document.getElementById('toc-toggle').classList.remove('toc-open');
-  }
-});
+

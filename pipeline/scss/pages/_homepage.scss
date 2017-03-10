@@ -60,7 +60,7 @@ ul.animated {
 .home-row {
   min-height: auto;
   display: flex;
-  flex-wrap: wrap;
+  // flex-wrap: wrap;
   &.hero {
     margin-top: 50px;
     min-height: auto;
@@ -147,6 +147,9 @@ ul.animated {
       color: lighten($base-font-color, 20%);
     }
   }
+  @include MQ(M) {
+    flex-wrap: nowrap;
+  }
   @include MQ(XL) {
     justify-content: space-around;
   }
@@ -220,7 +223,10 @@ ul.animated {
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: $L * .4;
+  @include MQ(L) {
+    width: $L * .4;
+    max-width: $L * .4;
+  }
 }
 
 .half.half-content {
@@ -400,6 +406,7 @@ svg {
 }
 
 .home-row-content-open-source {
+  flex-wrap: wrap;
   div {
     width: 100%;
     text-align: center;
