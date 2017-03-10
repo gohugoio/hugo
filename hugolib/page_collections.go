@@ -120,6 +120,19 @@ func (c *PageCollections) removePage(page *Page) {
 	}
 }
 
+func (c *PageCollections) findPagesByShortcode(shortcode string) Pages {
+	var pages Pages
+
+	for _, p := range c.rawAllPages {
+		if p.shortcodeState != nil {
+			if _, ok := p.shortcodeState.nameSet[shortcode]; ok {
+				pages = append(pages, p)
+			}
+		}
+	}
+	return pages
+}
+
 func (c *PageCollections) replacePage(page *Page) {
 	// will find existing page that matches filepath and remove it
 	c.removePage(page)

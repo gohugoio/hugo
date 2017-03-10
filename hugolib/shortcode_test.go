@@ -352,7 +352,8 @@ func TestExtractShortcodes(t *testing.T) {
 			return nil
 		})
 
-		content, shortCodes, err := extractShortcodes(this.input, p)
+		s := newShortcodeHandler()
+		content, err := s.extractShortcodes(this.input, p)
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -370,6 +371,8 @@ func TestExtractShortcodes(t *testing.T) {
 				t.Fatalf("[%d] %s: failed: %q", i, this.name, err)
 			}
 		}
+
+		shortCodes := s.shortcodes
 
 		var expected string
 		av := reflect.ValueOf(this.expect)
