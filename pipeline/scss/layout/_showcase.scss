@@ -77,3 +77,19 @@ main.showcase-list {
     }
   }
 }
+
+.showcase-source {
+  > a:before {
+    font-family:'fontello';
+    content: '\f121';
+  }
+  > a[href*="github"]:before {
+    content: '\f056';
+  }
+  > a[href*="gitlab"]:before {
+    content: '\f296';
+  }
+  > a[href*="bitbucket"]:before {
+    content: '\e80a';
+  }
+}
