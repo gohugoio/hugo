@@ -1,5 +1,5 @@
 ---
-title: Contribute to Hugo
+title: Contributing to the Hugo Project
 linktitle: Overview
 description: Contribute to Hugo development and documentation.
 date: 2017-02-01
