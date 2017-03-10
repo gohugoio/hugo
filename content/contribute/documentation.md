@@ -165,7 +165,7 @@ Your options for languages are `xml`/`html`, `go`/`golang`, `md`/`markdown`/`mkd
 
 ### Code Block Shortcode
 
-The Hugo documentation comes with very robust shortcode to help you add interactive code snippets.
+The Hugo documentation comes with a very robust shortcode for adding interactive code blocks.
 
 {{% note %}}
 With the `code` shortcodes, *you must include triple back ticks and a language declaration*. This was done by design so that the shortcode wrappers were easily added to legacy documentation and will be that much easier to remove if needed in future versions of the Hugo docs.
@@ -173,12 +173,12 @@ With the `code` shortcodes, *you must include triple back ticks and a language d
 
 ### `code`
 
-`code` is the Hugo docs shortcode you'll use most often. `code` requires has only one required, named parameter: `file`. Here is the pattern:
+`code` is the Hugo docs shortcode you'll use most often. `code` requires has only one named parameter: `file`. Here is the pattern:
 
 ````markdown
 {{%/* code file="smart/file/name/with/path.html" download="download.html" copy="true" */%}}
 ```language
-A whole bunch of coding going on up in here! Boo-yah!
+A whole bunch of coding going on up in here!
 ```
 {{%/* /code */%}}
 ````
@@ -192,13 +192,13 @@ The following are the arguments passed into `code`:
 : if omitted, this will have no effect on the rendered shortcode. When a value is added to `download`, it's used as the filename for a downloadable version of the code block.
 
 `copy`
-: a copy button is added automatically to all `code` shortcodes. If you want to keep the filename and styling of `code` but don't want to encourage readers to copy the code (e.g., a "Do not do" snippet in a tutorial), pass the `copy` argument as `copy="false"`.
+: a copy button is added automatically to all `code` shortcodes. If you want to keep the filename and styling of `code` but don't want to encourage readers to copy the code (e.g., a "Do not do" snippet in a tutorial), use `copy="false"`.
 
 #### Example `code` Input
 
 This example HTML code block tells Hugo users the following:
 
-1. This file *could* live in `layouts/_default`, as demonstrated by `layouts/_default/single.html` as the value for `file`..
+1. This file *could* live in `layouts/_default`, as demonstrated by `layouts/_default/single.html` as the value for `file`.
 2. This snippet is complete enough to be downloaded and implemented in a Hugo project, as demonstrated by `download="single.html"`.
 
 ````md
@@ -285,7 +285,7 @@ The preceding blockquote will render as follows in the Hugo docs:
 
 > Without the threat of punishment, there is no joy in flight.
 
-However, you can add a quick and easy `<cite>` element (added on the client via JavaScript) by separating your main blockquote and the citation with ` - `:
+However, you can add a quick and easy `<cite>` element (added on the client via JavaScript) by separating your main blockquote and the citation with a hyphen with a single space on each side:
 
 ```markdown
 > Without the threat of punishment, there is no joy in flight. - [Kobo Abe](https://en.wikipedia.org/wiki/Kobo_Abe)
@@ -304,8 +304,6 @@ Previous versions of Hugo documentation used blockquotes to draw attention to te
 **Admonitions** are common in technical documentation. The most popular is that seen in [reStructuredText Directives][sourceforge]. From the SourceForge documentation:
 
 > Admonitions are specially marked "topics" that can appear anywhere an ordinary body element can. They contain arbitrary body elements. Typically, an admonition is rendered as an offset block in a document, sometimes outlined or shaded, with a title matching the admonition type. - [SourceForge][sourceforge]
-
-<!-- Both `note` and `warning` use a single, *optional* argument for the admonition title. You can use markdown syntax in this title if you would like. If the title, a [positional parameter in quotes][shortcodeparams] is missing, the default behavior of the `note` and `warning` shortcodes will be to display the text "Note" and "Warning", respectively. -->
 
 ### `note` Admonition
 
@@ -389,6 +387,7 @@ Similar to [contributing to Hugo development](/contribute/development/), the Hug
 [archetypes]: /content-management/archetypes/
 [bqsyntax]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#blockquotes
 [charcount]: http://www.lettercount.com/
+[`docs/static/images/showcase/`]: https://github.com/spf13/hugo/tree/master/docs/static/images/showcase/
 [ghforking]: https://help.github.com/articles/fork-a-repo/
 [hugodev]: /contribute/development/
 [shortcodeparams]: content-management/shortcodes/#shortcodes-without-markdown

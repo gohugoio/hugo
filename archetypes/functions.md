@@ -6,12 +6,12 @@ publishdate: ""
 lastmod: ""
 categories: [functions]
 tags: []
-signature:
+signature: ""
 workson: []
 hugoversion: ""
 aliases: []
 relatedfuncs: []
 toc: false
 deprecated: false
-z_notesforauthors: "Go to gohugo.io/contribute/documentation for more info on using this archetype."
+needsexamples: true
 ---
