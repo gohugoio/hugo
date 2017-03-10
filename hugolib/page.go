@@ -1394,9 +1394,7 @@ func (p *Page) parse(reader io.Reader) error {
 	meta, err := psr.Metadata()
 	if meta != nil {
 		if err != nil {
-			p.s.Log.ERROR.Printf("Error parsing page meta data for %s", p.File.Path())
-			p.s.Log.ERROR.Println(err)
-			return err
+			return fmt.Errorf("failed to parse page metadata for %s: %s", p.File.Path(), err)
 		}
 		if err = p.update(meta); err != nil {
 			return err
