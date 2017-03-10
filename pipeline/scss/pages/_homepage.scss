@@ -62,7 +62,7 @@ ul.animated {
   right: 1em;
   top: .25em;
   + #site-search-form {
-    @include MQ(XL) {
+    @include MQ(L) {
       right: .6em;
     }
   }

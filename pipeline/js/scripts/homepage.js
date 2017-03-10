@@ -29,7 +29,7 @@ $(document).ready(function() {
           display: null,
           customClass: "visible",
           duration: 0,
-          stagger: 60,
+          stagger: 30,
           delay: 0,
           complete: function() {
             badge.addClass('bounceIn');
