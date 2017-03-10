@@ -12,7 +12,6 @@ weight: 20
 draft: false
 aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 toc: true
-wip: true
 ---
 
 Go 1.6 includes a powerful new keyword, `block`. This construct allows you to define the outer shell of your pages' one or more master template(s) and then fill in or override portions as necessary.
@@ -53,7 +52,7 @@ Here is the lookup order for the `post` base template:
 
 ## Defining the Base Template
 
-The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will start unless you specify another `*baseof.html` closer to the beginning of the lookup order..
+The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will be rendered unless you specify another `*baseof.html` closer to the beginning of the lookup order..
 
 {{% code file="layouts/_default/baseof.html" download="baseof.html" %}}
 ```html
@@ -68,7 +67,6 @@ The following defines a simple base template at `_default/baseof.html`. As a def
   </head>
   <body>
     <!-- Code that all your templates share, like a header -->
-
     {{ block "main" . }}
       <!-- The part of the page that begins to differ between templates -->
     {{ end }}
@@ -98,8 +96,8 @@ From the above base template, you can define a [default list template][hugolists
 ```
 {{% /code %}}
 
-{{% note "No Go Context \"Dot\" in Block Definitions" %}}
-When using the `define` keyword, you do *not* need to use Go templates context reference (i.e., 'The Dot"). (Read more on ["The Dot" in the Go Template Primer](/templates/go-templates/).)
+{{% note "No Go Context \"the dot\" in Block Definitions" %}}
+When using the `define` keyword, you do *not* need to use Go templates context reference (i.e., "the dot"). (Read more on ["the dot" in the Go Template Primer](/templates/go-templates/).)
 {{% /note %}}
 
 This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"` block, so the contents from our base template remain unchanged in lists.
@@ -108,7 +106,7 @@ This replaces the contents of our (basically empty) "main" block with something 
 Code that you put outside the block definitions *can* break your layout. This even includes HTML comments. For example:
 
 ```html
-<!-- Harmless comment..that will break your layout at build -->
+<!-- Seemingly harmless HTML comment..that will break your layout at build -->
 {{ define "main" }}
 ...your code here
 {{ end }}

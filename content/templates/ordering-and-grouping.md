@@ -1,7 +1,7 @@
 ---
-title: Ordering and Grouping Lists
-linktitle: Rendering Hugo Lists
-description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site, but
+title: Ordering and Grouping Hugo Lists
+linktitle: List Ordering and Grouping
+description: You can group or order your content in both your templating and content front matter.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -13,7 +13,6 @@ aliases: [/templates/ordering/,/templates/grouping/]
 toc: true
 wip: true
 ---
-
 
 ## Understanding `.Data.Pages`
 
@@ -46,7 +45,7 @@ This content template is used for [spf13.com](http://spf13.com/). It makes use o
 
 ### Example Taxonomy Template
 
-This content template is used for [spf13.com](http://spf13.com/). It makes use of [partial templates](/templates/partials/). All examples use a [view](/templates/views/) called either "li" or "summary" which this example site defined.
+The following taxonomy template uses a [content view template][views] called either "li" or "summary" which this example site defined.
 
 {{% code file="layouts/_default/taxonomies.html" download="taxonomies.html" %}}
 ```html
@@ -379,3 +378,6 @@ Using `first` and `where` together can be very powerful:
 {{ end }}
 ```
 {{% /code %}}
+
+
+[views]: /templates/views/

@@ -86,6 +86,13 @@ code.language-js:after {
   top: 2px;
 }
 
+code.language-git:after {
+  font-family: 'fontello';
+  content: '\f1d3';
+  font-size: 16px;
+  top: 2px;
+}
+
 code.language-hugo:after,
 code.language-go:after,
 code.language-golang:after {
@@ -116,6 +123,13 @@ code.language-toml:after {
 code.language-yaml:after,
 code.language-yml:after {
   content: 'YAML';
+  font-size: .8em;
+  padding-right: .3em;
+  font-family: $code-font-family;
+}
+
+code.language-json:after {
+  content: 'JSON';
   font-size: .8em;
   padding-right: .3em;
   font-family: $code-font-family;

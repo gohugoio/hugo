@@ -209,7 +209,7 @@ project_url: "https://github.com/spf13/hugo"
 }
 ```
 
-## Adding Taxonomic `weight` to Content
+## Ordering Taxonomies with `weight`
 
 A content file can assign weight for each of its associate taxonomies. Taxonomic weight can be used for sorting or ordering content in [taxonomy list templates][] and is declared in a content file's [front matter][]. The convention for declaring taxonomic weight is `taxonomyname_weight`.
 

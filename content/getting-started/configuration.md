@@ -308,6 +308,15 @@ watch =                       true
 ```
 {{% /code %}}
 
+{{% note %}}
+If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
+```bash
+~/sites/yourhugosite
+hugo config | grep emoji
+enableemoji: true
+```
+{{% /note %}}
+
 ## Environmental Variables
 
 In addition to the 3 configuration file options already mentioned, website configuration can be accomplished through operating system environment variables.
@@ -333,7 +342,7 @@ ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 
 The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
 
-## Configuring Blackfriday Rendering
+## Configuring Blackfriday
 
 [Blackfriday](https://github.com/russross/blackfriday) is Hugo's built-in
 Markdown rendering engine.
@@ -370,7 +379,7 @@ blackfriday:
 ```
 {{% /code %}}
 
-## Specs for Configuration Formats
+## Configuration Format Specs
 
 * [TOML Spec][toml]
 * [YAML Spec][yaml]

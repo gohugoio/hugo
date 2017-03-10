@@ -1,11 +1,7 @@
 <link rel="dns-prefetch" href="{{ .Site.BaseURL }}">
 <!-- Preconnect API. For browser compatibility, check http://caniuse.com/#feat=link-rel-preconnect -->
-<link rel="preconnect" href="{{ .Site.BaseURL }}">
-<link rel="canonical" href="{{ .Permalink }}">
-{{ if .RSSLink }}
-  <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
-  <link href="{{ .RSSLink }}" rel="feed" type="application/rss+xml" title="{{ .Site.Title }}" />
-{{ end }}
+<link rel="preconnect" href="{{ .Site.Params.siteaddress }}">
+<link rel="canonical" href="{{ .Site.Params.siteaddress }}{{.URL}}">
 {{with .NextInSection }}
 <link rel="prefetch" href="{{.Permalink}}">
 <link rel="prerender" href="{{.Permalink}}">

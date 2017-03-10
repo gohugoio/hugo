@@ -1,6 +1,6 @@
 ---
-title: Introduction to Lists in Hugo
-linktitle: Hugo Lists
+title: Introduction to Hugo Lists
+linktitle: Hugo Lists Introduction
 description: Lists have a specific meaning and usage in Hugo when it comes to rendering your site homepage, section page, taxonomy list, or taxonomy terms list.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -45,16 +45,13 @@ Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxte
 
 ### Taxonomy RSS
 
-A Taxonomy’s RSS will be rendered at /`PLURAL`/`TERM`/index.xml (e.g.&nbsp;http://spf13.com/topics/golang/index.xml)
+A Taxonomy’s RSS will be rendered at `/<PLURAL>/<TERM>/index.xml` (e.g.&nbsp;http://spf13.com/topics/golang/index.xml).
 
 {{% note %}}
-Hugo ships with its own [RSS 2.0][] template. In most cases this will
-be sufficient, and an RSS template will not need to be provided by the
-user.
+Most use cases will find that the [RSS 2.0][] template that ships with Hugo is sufficient for their needs.
 {{% /note %}}
 
-Hugo provides the ability for you to define any RSS type you wish, and
-can have different RSS files for each section and taxonomy.
+Hugo provides the ability for you to define any RSS type you wish. You can can have different RSS files for each section and taxonomy:
 
 1. `/layouts/taxonomy/<SINGULAR>.rss.xml`
 1. `/layouts/_default/rss.xml`

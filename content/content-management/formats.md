@@ -18,12 +18,12 @@ toc: true
 Markdown is the native content format for Hugo and is rendered using the excellent [Blackfriday project][blackfriday], a blazingly fast parser written in Golang.
 
 {{% note "Deeply Nested Lists" %}}
-Before you begin writing your content in markdown, Blackfriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists. Luckily, there is an easy workaround. Use 4-spaces (i.e., <kbd>tab</kbd>) rather than 2-space indentations to delimit nesting of lists in your content.
+Before you begin writing your content in markdown, Blackfriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists. Luckily, there is an easy workaround. Use 4-spaces (i.e., <kbd>tab</kbd>) rather than 2-space indentations.
 {{% /note %}}
 
 ## Configuring Markdown Rendering
 
-You can configure multiple aspects of Blackfriday. For more information, see [how to configure your Hugo projects][config]:
+You can configure multiple aspects of Blackfriday as show in the following list. See the docs on [Configuration][config] for the full list of explicit directions you can give to Hugo when rendering your site.
 
 {{< readfile file="content/readfiles/bfconfig.md" markdown="true" >}}
 
@@ -33,7 +33,7 @@ Hugo provides some convenient methods for extending markdown.
 
 ### Task Lists
 
-Hugo supports GitHub-styled task lists (i.e., TODO lists) for the Blackfriday markdown renderer. If you do not want to use this feature, you can disable it in your configuration.
+Hugo supports [GitHub-styled task lists (i.e., TODO lists)][gfmtasks] for the Blackfriday markdown renderer. If you do not want to use this feature, you can disable it in your configuration.
 
 #### Example Task List Input
 
@@ -97,7 +97,7 @@ For example, for Asciidoc files, Hugo will try to call the `asciidoctor` or `asc
 To use these formats, just use the standard extension and the front matter exactly as you would do with natively supported `.md` files.
 
 {{% warning "Performance of External Helpers" %}}
-Because additional format are external commands---with the exception of org mode---generation performance will rely heavily on the performance of the external tool used. As this feature is still in its infancy, feedback is especially welcome.
+Because additional formats are external commands---with the exception of org mode---generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
 {{% /warning %}}
 
 [ascii]: http://asciidoc.org/
@@ -106,6 +106,7 @@ Because additional format are external commands---with the exception of org mode
 [config]: /getting-started/configuration/
 [developer tools]: /tools/
 [fireball]: https://daringfireball.net/projects/markdown/
+[gfmtasks]: https://guides.github.com/features/mastering-markdown/#syntax
 [helperssource]: https://github.com/spf13/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65
 [hl]: /tools/syntax-highlighting/
 [hlsc]: /content-management/shortcodes/#highlight

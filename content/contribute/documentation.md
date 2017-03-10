@@ -17,9 +17,9 @@ Documentation is a critical component of any open-source project. The Hugo docs 
 
 ## Create Your Fork
 
-It's best to make changes to the Hugo docs on your local machine to check for consistent visual styling. Make sure you've created a fork of Hugo on GitHub and cloned the repository locally on your machine. For more information, you can use the [GitHub docs for "forking"][ghforking] or see [Hugo's extensive development contribution guide][hugodev].
+It's best to make changes to the Hugo docs on your local machine to check for consistent visual styling. Make sure you've created a fork of Hugo on GitHub and cloned the repository locally on your machine. For more information, you can see[GitHub's documentation on "forking"][ghforking] or follow along with [Hugo's evelopment contribution guide][hugodev].
 
-You can then create a separate branch for your additions. Note that you can choose a different descriptive branch name that best fits the type of content. The following is an example of a branch name you might use for adding a new website to the showcase:
+You can then create a separate branch for your additions. Choose a different descriptive branch name that best fits the type of content. The following is an example of a branch name you might use for adding a new website to the showcase:
 
 ```git
 git checkout -b jon-doe-showcase-addition
@@ -168,7 +168,7 @@ Your options for languages are `xml`/`html`, `go`/`golang`, `md`/`markdown`/`mkd
 The Hugo documentation comes with very robust shortcodes to help you add interactive code snippets.
 
 {{% note %}}
-With both `code` and `output` shortcodes, *you must include triple back ticks and language declaration*. This was done by design so that the shortcode wrappers were easily added to legacy documentation and will be that much easier to remove if needed in future versions of the Hugo docs. We assume that the triple-back-tick syntax will live longer than our current, pretty shortcode. {{< emo ":smile:" >}}
+With the `code` shortcodes, *you must include triple back ticks and a language declaration*. This was done by design so that the shortcode wrappers were easily added to legacy documentation and will be that much easier to remove if needed in future versions of the Hugo docs. We assume that the triple-back-tick syntax will live longer than our current, pretty shortcode.
 {{% /note %}}
 
 #### `code`

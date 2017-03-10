@@ -14,7 +14,7 @@ toc: true
 wip: true
 ---
 
-## Testing Installation with `hugo help`
+## Testing Installation
 
 Once you have [installed Hugo][install], make sure it is in your `PATH`. You can test that Hugo has been installed correctly via the `help` command:
 
@@ -27,7 +27,8 @@ The output you see in your console should be similar to the following:
 ```bash
 hugo is the main command, used to build your Hugo site.
 
-Hugo is a Fast and Flexible Static Site Generator built with love by spf13 and friends in Go.
+Hugo is a Fast and Flexible Static Site Generator
+built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io/.
 
@@ -37,6 +38,7 @@ Usage:
 
 Available Commands:
   benchmark   Benchmark Hugo by building a site a number of times.
+  check       Contains some verification checks
   config      Print the site configuration
   convert     Convert your content to different formats
   env         Print Hugo version and environment info
@@ -49,51 +51,48 @@ Available Commands:
   version     Print the version number of Hugo
 
 Flags:
-  -b, --baseURL string          hostname (and path) to the root, e.g. http://spf13.com/
-  -D, --buildDrafts             include content marked as draft
-  -E, --buildExpired            include expired content
-  -F, --buildFuture             include content with publishdate in the future
-      --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-      --canonifyURLs            if true, all relative URLs will be canonicalized using baseURL
-      --cleanDestinationDir     Remove files from destination not found in static directories
-      --config string           config file (default is path/config.yaml|json|toml)
-  -c, --contentDir string       filesystem path to content directory
-  -d, --destination string      filesystem path to write files to
-      --disable404              Do not render 404 page
-      --disableRSS              Do not build RSS files
-      --disableSitemap          Do not build Sitemap file
-      --enableGitInfo           Add Git revision, date and author info to the pages
-      --forceSyncStatic         Copy all files when static is changed.
-      --i18n-warnings           Print missing translations
-      --ignoreCache             Ignores the cache directory
-  -l, --layoutDir string        filesystem path to layout directory
-      --log                     Enable Logging
-      --logFile string          Log File path (if set, logging enabled automatically)
-      --noChmod                 Don't sync permission mode of files
-      --noTimes                 Don't sync modification time of files
-      --pluralizeListTitles     Pluralize titles in lists using inflect (default true)
-      --preserveTaxonomyNames   Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
-      --quiet                   build in quiet mode
-      --renderToMemory          render to memory (only useful for benchmark testing)
-  -s, --source string           filesystem path to read files relative from
-      --stepAnalysis            display memory and timing of different steps of the program
-  -t, --theme string            theme to use (located in /themes/THEMENAME/)
-      --uglyURLs                if true, use /filename.html instead of /filename/
-  -v, --verbose                 verbose output
-      --verboseLog              verbose logging
-  -w, --watch                   watch filesystem for changes and recreate as needed
-
-Additional help topics:
-  hugo check     Contains some verification checks
-
-Use "hugo [command] --help" for more information about a command.
+  -b, --baseURL string             hostname (and path) to the root, e.g. http://spf13.com/
+  -D, --buildDrafts                include content marked as draft
+  -E, --buildExpired               include expired content
+  -F, --buildFuture                include content with publishdate in the future
+      --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --canonifyURLs               if true, all relative URLs will be canonicalized using baseURL
+      --cleanDestinationDir        Remove files from destination not found in static directories
+      --config string              config file (default is path/config.yaml|json|toml)
+  -c, --contentDir string          filesystem path to content directory
+  -d, --destination string         filesystem path to write files to
+      --disable404                 Do not render 404 page
+      --disableKinds stringSlice   Disable different kind of pages (home, RSS etc.)
+      --disableRSS                 Do not build RSS files
+      --disableSitemap             Do not build Sitemap file
+      --enableGitInfo              Add Git revision, date and author info to the pages
+      --forceSyncStatic            Copy all files when static is changed.
+      --i18n-warnings              Print missing translations
+      --ignoreCache                Ignores the cache directory
+  -l, --layoutDir string           filesystem path to layout directory
+      --log                        Enable Logging
+      --logFile string             Log File path (if set, logging enabled automatically)
+      --noChmod                    Don't sync permission mode of files
+      --noTimes                    Don't sync modification time of files
+      --pluralizeListTitles        Pluralize titles in lists using inflect (default true)
+      --preserveTaxonomyNames      Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
+      --quiet                      build in quiet mode
+      --renderToMemory             render to memory (only useful for benchmark testing)
+  -s, --source string              filesystem path to read files relative from
+      --stepAnalysis               display memory and timing of different steps of the program
+  -t, --theme string               theme to use (located in /themes/THEMENAME/)
+      --themesDir string           filesystem path to themes directory
+      --uglyURLs                   if true, use /filename.html instead of /filename/
+  -v, --verbose                    verbose output
+      --verboseLog                 verbose logging
+  -w, --watch                      watch filesystem for changes and recreate as needed
 ```
 
 ## Common Usage
 
 The most common usage is probably to run `hugo` with your current directory being the input directory.
 
-This generates your website to the `public/` directory by default---although [this can be configured to your needs via `publishDir`][configdir]---ready to be deployed to your web server.
+This generates your website to the `public/` directory by default, although you can customize the output directory in your [site configuration][config] by changing the `publishDir` field. The site Hugo renders into `public/` is ready to be deployed to your web server.
 
 ```bash
 hugo
@@ -103,7 +102,7 @@ hugo
 0 paginator pages created
 16 tags created
 0 groups created
-in 120 ms
+in 90 ms
 ```
 
 ## Instant Feedback During Development
@@ -123,7 +122,7 @@ Watching for changes in /Users/spf13/Code/hugo/docs/content
 Press Ctrl+C to stop
 ```
 
-Hugo can even run a server and create a site preview at the same time! Hugo implements [LiveReload](#LiveReload) technology to automatically reload any open pages in all JavaScript-enabled browsers, including mobile. This is the easiest and most common way to develop a Hugo web site:
+Hugo can even run a server and create a site preview at the same time! Hugo implements LiveReload technology to automatically reload any open pages in all JavaScript-enabled browsers, including mobile. This is the easiest and most common way to develop a Hugo web site:
 
 ```bash
 hugo server -ws ~/Code/hugo/docs
@@ -153,7 +152,7 @@ Hugo comes with [LiveReload](https://github.com/livereload/livereload-js) built 
 hugo server
 ```
 
-This will run a fully functioning web server while simultaneously watching your file system for additions, deletions, or changes within the following the following areas of your [project organization][directorystructure]
+This will run a fully functioning web server while simultaneously watching your file system for additions, deletions, or changes within the following the following areas of your [project organization][dirs]
 
 * `/static/*`
 * `/content/*`
@@ -254,8 +253,8 @@ Interested? Here are some great tutorials contributed by Hugo users:
 [Amazon S3]: http://aws.amazon.com/s3/
 [Apache]: http://httpd.apache.org/ "Apache HTTP Server"
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
-[configdir]: /getting-started/configuration/
-[directorystructure]: /getting-started/directory-structure/
+[config]: /getting-started/configuration/
+[dirs]: /getting-started/directory-structure/
 [DreamHost]: http://www.dreamhost.com/
 [Firebase Hosting]: https://firebase.google.com/docs/hosting/
 [GitHub Pages]: https://pages.github.com/

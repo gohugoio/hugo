@@ -16,7 +16,7 @@ wip: true
 
 Hugo can generate a customized [robots.txt][robots] in the same way as any other template.
 
-To enable creating your robots.txt as a template, set the `enableRobotsTXT` value to `true` in your [project's configuration file][config]. By default, this option generates a robots.txt with the following content, which tells search engines that they are allowed to crawl everything:
+To create your robots.txt as a template, first set the `enableRobotsTXT` value to `true` in your [configuration file][config]. By default, this option generates a robots.txt with the following content, which tells search engines that they are allowed to crawl everything:
 
 ```http
 User-agent: *
@@ -29,9 +29,13 @@ The [lookup order][lookup] for the `robots.txt` template is as follows:
 * `/layouts/robots.txt`
 * `/themes/<THEME>/layout/robots.txt`
 
-## Robots. txt Template Example
+{{% note %}}
+If you do not want Hugo to create a default `robots.txt` or leverage the `robots.txt` template, you can hand code your own and place the file in `static`. Remember that everything in the [static directory](/getting-started/directory-structure/) is copied over as-is when Hugo builds your site.
+{{% /note %}}
 
-The following is an example`robots.txt` layout:
+## Robots.txt Template Example
+
+The following is an example `robots.txt` layout:
 
 {{% code file="layouts/robots.txt" download="robots.txt" %}}
 ```http

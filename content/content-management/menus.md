@@ -5,8 +5,8 @@ description: Hugo's simple yet powerful menu system allows you to add content to
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: [templating]
-tags: [lists,sections,menus]
+categories: [content management]
+tags: [menus]
 draft: false
 weight: 120
 aliases: [/extras/menus/]

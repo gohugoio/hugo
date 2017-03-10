@@ -241,7 +241,7 @@ Themes section organization has only changed slightly in that the 6 content page
     * Base templates
     * Hugo Lists (introduces the lists concept [i.e. sections, taxonomies, etc]); this includes one of multiple forthcoming visualizations for Hugo architecture
     * Rendering Hugo Lists (i.e., ordering, grouping, etc)
-* Shortcodes and menus (templating), pagination, data, traversing local files, data-driven content, and data files have all moved out from "Extras" and into templating. *Note that there is only one stylesheet in the local example now* {{< emo ":wink:" >}}.
+* Shortcodes and menus (templating), pagination, data, traversing local files, data-driven content, and data files have all moved out from "Extras" and into templating. *Note that there is only one stylesheet in the local example now*..
 * **2017-02-26**. I am currently working on a new example for `readDir`.
 
 ### Taxonomies
@@ -376,7 +376,7 @@ Apache License - 60
 * Template Lookup Order -15
 * Base Templates And Blocks - 20
 * Lists in Hugo - 22
-* Rendering Lists in Hugo - 27
+* Ordering and Grouping Hugo Lists - 27
 * Homepage Template - 30
 * Section Templates - 40
 * Taxonomy Templates - 50
