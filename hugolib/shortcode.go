@@ -149,6 +149,26 @@ func (sc shortcode) String() string {
 	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
+type shortcodeHandler struct {
+	// Maps the shortcodeplaceholder with the shortcode rendering func.
+	contentShortCodes map[string]func() (string, error)
+
+	// Maps the shortcodeplaceholder with the actual shortcode.
+	shortcodes map[string]shortcode
+
+	// All the shortcode names in this set.
+	nameSet map[string]bool
+}
+
+func newShortcodeHandler() *shortcodeHandler {
+	return &shortcodeHandler{
+		contentShortCodes: make(map[string]func() (string, error)),
+		shortcodes:        make(map[string]shortcode),
+		nameSet:           make(map[string]bool),
+	}
+}
+
+// TODO(bep) make it non-global
 var isInnerShortcodeCache = struct {
 	sync.RWMutex
 	m map[string]bool
@@ -177,6 +197,12 @@ func isInnerShortcode(t *template.Template) (bool, error) {
 	return match, nil
 }
 
+func clearIsInnerShortcodeCache() {
+	isInnerShortcodeCache.Lock()
+	defer isInnerShortcodeCache.Unlock()
+	isInnerShortcodeCache.m = make(map[string]bool)
+}
+
 func createShortcodePlaceholder(id int) string {
 	return fmt.Sprintf("HAHA%s-%dHBHB", shortcodePlaceholderPrefix, id)
 }
@@ -189,7 +215,7 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 	tmpl := getShortcodeTemplate(sc.name, p.s.Tmpl)
 
 	if tmpl == nil {
-		p.s.Log.ERROR.Printf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
+		p.s.Log.ERROR.Printf("Unable to locate template for shortcode '%s' in page %q", sc.name, p.Path())
 		return ""
 	}
 
@@ -207,8 +233,8 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 			case shortcode:
 				inner += renderShortcode(innerData.(shortcode), data, p)
 			default:
-				p.s.Log.ERROR.Printf("Illegal state on shortcode rendering of '%s' in page %s. Illegal type in inner data: %s ",
-					sc.name, p.BaseFileName(), reflect.TypeOf(innerData))
+				p.s.Log.ERROR.Printf("Illegal state on shortcode rendering of %q in page %q. Illegal type in inner data: %s ",
+					sc.name, p.Path(), reflect.TypeOf(innerData))
 				return ""
 			}
 		}
@@ -255,22 +281,17 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 	return renderShortcodeWithPage(tmpl, data)
 }
 
-func extractAndRenderShortcodes(stringToParse string, p *Page) (string, map[string]func() (string, error), error) {
-
-	content, shortcodes, err := extractShortcodes(stringToParse, p)
+func (s *shortcodeHandler) extractAndRenderShortcodes(stringToParse string, p *Page) (string, error) {
+	content, err := s.extractShortcodes(stringToParse, p)
 
 	if err != nil {
 		//  try to render what we have whilst logging the error
 		p.s.Log.ERROR.Println(err.Error())
 	}
 
-	// Save for reuse
-	// TODO(bep) refactor this
-	p.shortcodes = shortcodes
+	s.contentShortCodes = renderShortcodes(s.shortcodes, p)
 
-	renderedShortcodes := renderShortcodes(shortcodes, p)
-
-	return content, renderedShortcodes, err
+	return content, err
 
 }
 
@@ -311,7 +332,7 @@ var errShortCodeIllegalState = errors.New("Illegal shortcode state")
 // pageTokens state:
 // - before: positioned just before the shortcode start
 // - after: shortcode(s) consumed (plural when they are nested)
-func extractShortcode(pt *pageTokens, p *Page) (shortcode, error) {
+func (s *shortcodeHandler) extractShortcode(pt *pageTokens, p *Page) (shortcode, error) {
 	sc := shortcode{}
 	var isInner = false
 
@@ -332,7 +353,10 @@ Loop:
 			if cnt > 0 {
 				// nested shortcode; append it to inner content
 				pt.backup3(currItem, next)
-				nested, err := extractShortcode(pt, p)
+				nested, err := s.extractShortcode(pt, p)
+				if nested.name != "" {
+					s.nameSet[nested.name] = true
+				}
 				if err == nil {
 					sc.inner = append(sc.inner, nested)
 				} else {
@@ -374,15 +398,16 @@ Loop:
 		case tScName:
 			sc.name = currItem.val
 			tmpl := getShortcodeTemplate(sc.name, p.s.Tmpl)
-
+			{
+			}
 			if tmpl == nil {
-				return sc, fmt.Errorf("Unable to locate template for shortcode '%s' in page %s", sc.name, p.BaseFileName())
+				return sc, fmt.Errorf("Unable to locate template for shortcode %q in page %q", sc.name, p.Path())
 			}
 
 			var err error
 			isInner, err = isInnerShortcode(tmpl)
 			if err != nil {
-				return sc, fmt.Errorf("Failed to handle template for shortcode '%s' for page '%s': %s", sc.name, p.BaseFileName(), err)
+				return sc, fmt.Errorf("Failed to handle template for shortcode %q for page %q: %s", sc.name, p.Path(), err)
 			}
 
 		case tScParam:
@@ -429,15 +454,13 @@ Loop:
 	return sc, nil
 }
 
-func extractShortcodes(stringToParse string, p *Page) (string, map[string]shortcode, error) {
-
-	shortCodes := make(map[string]shortcode)
+func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *Page) (string, error) {
 
 	startIdx := strings.Index(stringToParse, "{{")
 
 	// short cut for docs with no shortcodes
 	if startIdx < 0 {
-		return stringToParse, shortCodes, nil
+		return stringToParse, nil
 	}
 
 	// the parser takes a string;
@@ -455,7 +478,6 @@ func extractShortcodes(stringToParse string, p *Page) (string, map[string]shortc
 	// … it's safe to keep some "global" state
 	var currItem item
 	var currShortcode shortcode
-	var err error
 
 Loop:
 	for {
@@ -467,8 +489,15 @@ Loop:
 		case tLeftDelimScWithMarkup, tLeftDelimScNoMarkup:
 			// let extractShortcode handle left delim (will do so recursively)
 			pt.backup()
-			if currShortcode, err = extractShortcode(pt, p); err != nil {
-				return result.String(), shortCodes, err
+
+			currShortcode, err := s.extractShortcode(pt, p)
+
+			if currShortcode.name != "" {
+				s.nameSet[currShortcode.name] = true
+			}
+
+			if err != nil {
+				return result.String(), err
 			}
 
 			if currShortcode.params == nil {
@@ -477,7 +506,7 @@ Loop:
 
 			placeHolder := createShortcodePlaceholder(id)
 			result.WriteString(placeHolder)
-			shortCodes[placeHolder] = currShortcode
+			s.shortcodes[placeHolder] = currShortcode
 			id++
 		case tEOF:
 			break Loop
@@ -485,11 +514,11 @@ Loop:
 			err := fmt.Errorf("%s:%d: %s",
 				p.FullFilePath(), (p.lineNumRawContentStart() + pt.lexer.lineNum() - 1), currItem)
 			currShortcode.err = err
-			return result.String(), shortCodes, err
+			return result.String(), err
 		}
 	}
 
-	return result.String(), shortCodes, nil
+	return result.String(), nil
 
 }
 

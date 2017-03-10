@@ -138,9 +138,7 @@ type Page struct {
 	// whether the content is in a CJK language.
 	isCJKLanguage bool
 
-	// shortcode state
-	contentShortCodes map[string]func() (string, error)
-	shortcodes        map[string]shortcode
+	shortcodeState *shortcodeHandler
 
 	// the content stripped for HTML
 	plain      string // TODO should be []byte
@@ -1484,9 +1482,10 @@ func (p *Page) SaveSource() error {
 }
 
 func (p *Page) ProcessShortcodes() {
-	tmpContent, tmpContentShortCodes, _ := extractAndRenderShortcodes(string(p.workContent), p)
+	p.shortcodeState = newShortcodeHandler()
+	tmpContent, _ := p.shortcodeState.extractAndRenderShortcodes(string(p.workContent), p)
 	p.workContent = []byte(tmpContent)
-	p.contentShortCodes = tmpContentShortCodes
+
 }
 
 func (p *Page) FullFilePath() string {

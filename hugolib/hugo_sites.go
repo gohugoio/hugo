@@ -571,9 +571,9 @@ func (h *HugoSites) Pages() Pages {
 }
 
 func handleShortcodes(p *Page, rawContentCopy []byte) ([]byte, error) {
-	if len(p.contentShortCodes) > 0 {
-		p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.contentShortCodes), p.BaseFileName())
-		shortcodes, err := executeShortcodeFuncMap(p.contentShortCodes)
+	if p.shortcodeState != nil && len(p.shortcodeState.contentShortCodes) > 0 {
+		p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.shortcodeState.contentShortCodes), p.BaseFileName())
+		shortcodes, err := executeShortcodeFuncMap(p.shortcodeState.contentShortCodes)
 
 		if err != nil {
 			return rawContentCopy, err

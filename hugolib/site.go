@@ -557,7 +557,7 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 	tmplChanged := []fsnotify.Event{}
 	dataChanged := []fsnotify.Event{}
 	i18nChanged := []fsnotify.Event{}
-
+	shortcodesChanged := make(map[string]bool)
 	// prevent spamming the log on changes
 	logger := helpers.NewDistinctFeedbackLogger()
 
@@ -569,6 +569,13 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 		if s.isLayoutDirEvent(ev) {
 			logger.Println("Template changed", ev.Name)
 			tmplChanged = append(tmplChanged, ev)
+
+			if strings.Contains(ev.Name, "shortcodes") {
+				clearIsInnerShortcodeCache()
+				shortcode := filepath.Base(ev.Name)
+				shortcode = strings.TrimSuffix(shortcode, filepath.Ext(shortcode))
+				shortcodesChanged[shortcode] = true
+			}
 		}
 		if s.isDataDirEvent(ev) {
 			logger.Println("Data changed", ev.Name)
@@ -679,6 +686,20 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 			filechan <- file
 		}
 
+	}
+
+	for shortcode, _ := range shortcodesChanged {
+		// There are certain scenarios that, when a shortcode changes,
+		// it isn't sufficient to just rerender the already parsed shortcode.
+		// One example is if the user adds a new shortcode to the content file first,
+		// and then creates the shortcode on the file system.
+		// To handle these scenarios, we must do a full reprocessing of the
+		// pages that keeps a reference to the changed shortcode.
+		pagesWithShortcode := s.findPagesByShortcode(shortcode)
+		for _, p := range pagesWithShortcode {
+			p.rendered = false
+			pageChan <- p
+		}
 	}
 
 	// we close the filechan as we have sent everything we want to send to it.
