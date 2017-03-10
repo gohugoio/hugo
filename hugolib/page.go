@@ -819,7 +819,7 @@ func (p *Page) createPermalink() (*url.URL, error) {
 		return url, nil
 	}
 
-	dir := strings.TrimSpace(p.s.PathSpec.MakePath(filepath.ToSlash(strings.ToLower(p.Source.Dir()))))
+	dir := strings.TrimSpace(p.s.PathSpec.MakePathSanitized(filepath.ToSlash(p.Source.Dir())))
 	pSlug := strings.TrimSpace(p.s.PathSpec.URLize(p.Slug))
 	pURL := strings.TrimSpace(p.s.PathSpec.URLize(p.URLPath.URL))
 	var permalink string
@@ -1536,8 +1536,8 @@ func (p *Page) TargetPath() (outfile string) {
 		outfile = (p.Source.TranslationBaseName() + "." + p.Extension())
 	}
 
-	return p.addLangFilepathPrefix(filepath.Join(strings.ToLower(
-		p.s.PathSpec.MakePath(p.Source.Dir())), strings.TrimSpace(outfile)))
+	return p.addLangFilepathPrefix(filepath.Join(
+		p.s.PathSpec.MakePathSanitized(p.Source.Dir()), strings.TrimSpace(outfile)))
 }
 
 // Pre render prepare steps
