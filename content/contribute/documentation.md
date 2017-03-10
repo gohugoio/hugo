@@ -109,23 +109,23 @@ The archetype for the `showcase` content type is as follows:
 
 #### Showcase Required Fields
 
-`sitelink`
+***`sitelink`***
 : the *full* URL to your website.
 
-`title`
+***`title`***
 : the `<title>` of your website.
 
-`description`
+***`description`***
 : a general description of your website, preferably < 180 characters.
 
-`image`
+***`image`***
 : the image (filename only) you want to associate with your website on the Showcase page. The image should be 450px &times; 300px.
 
 We also appreciate the addition of the remaining fields, especially `sourcelink` and `license` if you are willing to share your hard work with the open-source community. `tags` is optional, but we recommend adding at least 2 to 3 tags to improve discoverability.
 
 #### Add an Image for the Showcase
 
-We need to create the thumbnail of your website. Give your thumbnail a name like `my-hugo-site-name.jpg`. Save it under [`docs/static/images/showcase/`][].
+Youl will need to create a thumbnail of your website. Give your thumbnail a name like `my-hugo-site-name.jpg`. Save it under [`docs/static/images/showcase/`][].
 
 {{% warning "Showcase Image Size" %}}
 It's important that the image you use for your showcase submission has the required dimensions of 450px &times; 300px or the site will not render appropriately. Be sure to optimize your image as a matter of best practice. [Compressor](https://compressor.io/) offers a simple drag-and-drop GUI for optimizing your images. JPEGs are typically smaller in size than are PNGs.
