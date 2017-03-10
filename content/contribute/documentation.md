@@ -89,7 +89,7 @@ Here is a review of the front matter fields automatically generated for you usin
 `{{.Content}}`
 : an extended description of the new function; examples are not only welcomed but encouraged.
 
-In the body of you function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [code shortcodes](#adding-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
+In the body of your function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [`code` shortcode](#adding-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
 
 ### Adding to the Showcase
 
@@ -121,14 +121,14 @@ The archetype for the `showcase` content type is as follows:
 `image`
 : the image (filename only) you want to associate with your website on the Showcase page. The image should be 450px &times; 300px.
 
-We also appreciate the addition of the remaining fields, specially `sourcelink` and `license` if you are willing to share your hard work with the open-source community. `tags` is optional, but we recommend adding at least 2 to 3 tags to improve discoverability.
+We also appreciate the addition of the remaining fields, especially `sourcelink` and `license` if you are willing to share your hard work with the open-source community. `tags` is optional, but we recommend adding at least 2 to 3 tags to improve discoverability.
 
 #### Add an Image for the Showcase
 
-We need to create the thumbnail of your website. Give your thumbnail a name like `my-hugo-site-name.png`. Save it under [`docs/static/images/showcase/`][].
+We need to create the thumbnail of your website. Give your thumbnail a name like `my-hugo-site-name.jpg`. Save it under [`docs/static/images/showcase/`][].
 
 {{% warning "Showcase Image Size" %}}
-It's important that the image you use for your showcase submission has the required dimensions of 600px &times; 400px or the site will not render appropriately. Be sure to optimize your image as a matter of best practice. [Compressor](https://compressor.io/) offers a simple drag-and-drop GUI for optimizing your images.
+It's important that the image you use for your showcase submission has the required dimensions of 450px &times; 300px or the site will not render appropriately. Be sure to optimize your image as a matter of best practice. [Compressor](https://compressor.io/) offers a simple drag-and-drop GUI for optimizing your images. JPEGs are typically smaller in size than are PNGs.
 {{% /warning %}}
 
 ### Adding a New Tutorial
@@ -163,17 +163,17 @@ Your options for languages are `xml`/`html`, `go`/`golang`, `md`/`markdown`/`mkd
 ```
 ````
 
-### Code Block Shortcodes
+### Code Block Shortcode
 
-The Hugo documentation comes with very robust shortcodes to help you add interactive code snippets.
+The Hugo documentation comes with very robust shortcode to help you add interactive code snippets.
 
 {{% note %}}
-With the `code` shortcodes, *you must include triple back ticks and a language declaration*. This was done by design so that the shortcode wrappers were easily added to legacy documentation and will be that much easier to remove if needed in future versions of the Hugo docs. We assume that the triple-back-tick syntax will live longer than our current, pretty shortcode.
+With the `code` shortcodes, *you must include triple back ticks and a language declaration*. This was done by design so that the shortcode wrappers were easily added to legacy documentation and will be that much easier to remove if needed in future versions of the Hugo docs.
 {{% /note %}}
 
 ### `code`
 
-`code` is the code block shortcode you'll use most often. `code` requires at least a single `file` named parameter. Here is the pattern:
+`code` is the Hugo docs shortcode you'll use most often. `code` requires has only one required, named parameter: `file`. Here is the pattern:
 
 ````markdown
 {{%/* code file="smart/file/name/with/path.html" download="download.html" copy="true" */%}}
@@ -183,23 +183,23 @@ A whole bunch of coding going on up in here! Boo-yah!
 {{%/* /code */%}}
 ````
 
-These are the arguments passed into `code`
+The following are the arguments passed into `code`:
 
 ***`file`***
-: the only *required* argument. `file` is needed for styling but also plays an important role in helping users create a mental model around Hugo's directory structure. Visually, this will be displayed as text in the top bar of the text-editor. Always end the value with an extension. For example, instead of `./public/section/`, use `public/section/index.html`. The file extension is used to display the icon.
+: the only *required* argument. `file` is needed for styling but also plays an important role in helping users create a mental model around Hugo's directory structure. Visually, this will be displayed as text in the top left of the code block.
 
 `download`
 : if omitted, this will have no effect on the rendered shortcode. When a value is added to `download`, it's used as the filename for a downloadable version of the code block.
 
 `copy`
-: a copy button is added automatically to all `code` (i.e., default value  = `true`). If you want to keep the filename and styling of `code` but don't want to encourage readers to copy the code (e.g., a "Do not do" snippet in a tutorial), pass the `copy` argument as `copy="false"`.
+: a copy button is added automatically to all `code` shortcodes. If you want to keep the filename and styling of `code` but don't want to encourage readers to copy the code (e.g., a "Do not do" snippet in a tutorial), pass the `copy` argument as `copy="false"`.
 
 #### Example `code` Input
 
-This HTML code block tells Hugo users the following:
+This example HTML code block tells Hugo users the following:
 
-1. This file *could* live in `layouts/_default`, as demonstrated by `layouts/_default/single.html`.
-2. This snippet is complete enough to be downloaded an implement in a Hugo project, as demonstrated by `download="single.html".`
+1. This file *could* live in `layouts/_default`, as demonstrated by `layouts/_default/single.html` as the value for `file`..
+2. This snippet is complete enough to be downloaded and implemented in a Hugo project, as demonstrated by `download="single.html"`.
 
 ````md
 {{%/* code file="layouts/_default/single.html" download="single.html" */%}}
@@ -251,8 +251,6 @@ The output of this example will render to the Hugo docs as follows:
 ```
 {{% /code %}}
 
-Cool, right?
-
 <!-- #### Output Code Block
 
 The `output` shortcode is almost identical to the `code` shortcode but only takes and requires `file`. The purpose of `output` is to show *rendered* HTML and therefore almost always follows another basic code block *or* and instance of the `code` shortcode:
@@ -293,7 +291,7 @@ However, you can add a quick and easy `<cite>` element (added on the client via 
 > Without the threat of punishment, there is no joy in flight. - [Kobo Abe](https://en.wikipedia.org/wiki/Kobo_Abe)
 ```
 
-Which will render as follows on the Hugo docs:
+Which will render as follows in the Hugo docs:
 
 > Without the threat of punishment, there is no joy in flight. - [Kobo Abe][abe]
 
@@ -303,11 +301,11 @@ Previous versions of Hugo documentation used blockquotes to draw attention to te
 
 ## Admonitions
 
-**Admonitions** are common in technical documentation. The most popular is that seen in [reStructuredTex Directives][sourceforge]. From the SourceForge documentation:
+**Admonitions** are common in technical documentation. The most popular is that seen in [reStructuredText Directives][sourceforge]. From the SourceForge documentation:
 
 > Admonitions are specially marked "topics" that can appear anywhere an ordinary body element can. They contain arbitrary body elements. Typically, an admonition is rendered as an offset block in a document, sometimes outlined or shaded, with a title matching the admonition type. - [SourceForge][sourceforge]
 
-Both `note` and `warning` use a single, *optional* argument for the admonition title. You can use markdown syntax in this title if you would like. If the title, a [positional parameter in quotes][shortcodeparams] is missing, the default behavior of the `note` and `warning` shortcodes will be to display the text "Note" and "Warning", respectively.
+<!-- Both `note` and `warning` use a single, *optional* argument for the admonition title. You can use markdown syntax in this title if you would like. If the title, a [positional parameter in quotes][shortcodeparams] is missing, the default behavior of the `note` and `warning` shortcodes will be to display the text "Note" and "Warning", respectively. -->
 
 ### `note` Admonition
 
@@ -317,7 +315,7 @@ Use the `note` shortcode when you want to draw attention to information subtly. 
 
 {{% code file="note-with-heading.md" %}}
 ```markdown
-{{%/* note "Example Note Admonition" */%}}
+{{%/* note */%}}
 Here is a piece of information I would like to draw your **attention** to.
 {{%/* /note */%}}
 ```
@@ -327,7 +325,7 @@ Here is a piece of information I would like to draw your **attention** to.
 
 {{% output file="note-with-heading.html" %}}
 ```html
-{{% note "Example Note Admonition" %}}
+{{% note %}}
 Here is a piece of information I would like to draw your **attention** to.
 {{% /note %}}
 ```
@@ -335,19 +333,19 @@ Here is a piece of information I would like to draw your **attention** to.
 
 #### Example `note` Display
 
-{{% note "Example Note Admonition" %}}
+{{% note %}}
 Here is a piece of information I would like to draw your **attention** to.
 {{% /note %}}
 
 ### `warning` Admonition
 
-Use the `warning` shortcode when you want to draw the user's attention to something important. A good usage example is for announcing breaking changes for Hugo versions, known bugs, or templating gotchas.
+Use the `warning` shortcode when you want to draw the user's attention to something important. A good usage example is for articulating breaking changes in Hugo versions, known bugs, or templating "gotchas."
 
 #### Example `warning` Input
 
 {{% code file="warning-admonition-input.md" %}}
 ```markdown
-{{%/* warning "Example Warning Admonition" */%}}
+{{%/* warning */%}}
 This is a warning, which should be reserved for *important* information like breaking changes.
 {{%/* /warning */%}}
 ```
@@ -357,7 +355,7 @@ This is a warning, which should be reserved for *important* information like bre
 
 {{% output file="warning-admonition-output.html" %}}
 ```html
-{{% warning "Example Warning Admonition" %}}
+{{% warning %}}
 This is a warning, which should be reserved for *important* information like breaking changes.
 {{% /warning %}}
 ```
@@ -365,7 +363,7 @@ This is a warning, which should be reserved for *important* information like bre
 
 #### Example `warning` Display
 
-{{% warning "Example Warning Admonition" %}}
+{{% warning %}}
 This is a warning, which should be reserved for *important* information like breaking changes.
 {{% /warning %}}
 
