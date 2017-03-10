@@ -57,6 +57,17 @@ ul.animated {
   }
 }
 
+//fixes search icon and sliding bar on homescreen only
+#homepage-nav + #toggle-search {
+  right: 1em;
+  top: .25em;
+  + #site-search-form {
+    @include MQ(XL) {
+      right: .6em;
+    }
+  }
+}
+
 .home-row {
   min-height: auto;
   display: flex;
