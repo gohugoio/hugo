@@ -2,14 +2,17 @@
   display: block;
   position: fixed;
   top: .5em;
-  right: .3em;
+  right: 3.5em;
   float: right;
-  margin-right: 20px;
   font-size: 1.2em;
   z-index: 60;
   color: $hugo-pink;
-  @include MQ(L) {
+  @include MQ(M){
+    right:2em;
+  }
+  @include MQ(XL) {
     top: .3em;
+    // right:1em;
   }
 }
 
@@ -42,13 +45,14 @@ form#site-search-form {
     display: block;
     position: fixed;
     top: 8px;
-    right: 0px;
+    right:2em;
     z-index: 50;
     width: 300px;
-    transform: translateX(290px);
+    transform: translateX(330px);
     transition: transform .3s ease-in-out;
     box-shadow: none;
     max-height: $site-header-height * .8;
+    background-color:transparent;
     &.search-open {
       transition: transform .3s ease-in-out;
       border-bottom-width: 0px;

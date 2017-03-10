@@ -137,32 +137,34 @@
 
 .navigation-toggle-wrapper.navigation-open .top {
   transform: rotate(45deg);
-  top: 40%;
+  top: 42%;
   border-radius: 5px;
-  background-color: $hugo-pink;
+  // background-color: $hugo-pink;
   border-color: $hugo-pink;
 }
 
 .navigation-toggle-wrapper.navigation-open .middle {
-  width: 40px;
-  height: 40px;
-  top: 4%;
+  width: 30px;
+  height: 30px;
+  top: 9%;
   border-radius: 50%;
-  background-color: $hugo-pink;
-  border-color: $hugo-pink;
+  // background-color: $hugo-pink;
+  // border-color: $hugo-pink;
+  background-color: $hugo-white;
+  border-color: $hugo-white;
   opacity: 0.3;
 }
 
 .navigation-toggle-wrapper.navigation-open .bottom {
   transform: rotate(-45deg);
-  top: 40%;
+  top: 41%;
   border-radius: 5px;
   background-color: $hugo-pink;
   border-color: $hugo-pink;
 }
 
 .bar {
-  width: 40px;
+  width: 30px;
   height: 2px;
   border: 2px solid $hugo-blue;
   background-color: $hugo-blue;
@@ -176,13 +178,13 @@
 
 .top {
   left: 15%;
-  top: 20%;
+  top: 30%;
   transition: all 0.5s;
 }
 
 .middle {
   left: 15%;
-  top: 40%;
+  top: 43%;
   transition: all 0.5s;
 }
 

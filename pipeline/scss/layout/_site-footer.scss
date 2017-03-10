@@ -6,6 +6,7 @@
   align-items: center;
   height: auto;
   padding-bottom: 1em;
+  z-index: 20;
   &.navigation-open {
     transition:transform .3s ease-in-out;
     transform: translateX($site-navigation-width);

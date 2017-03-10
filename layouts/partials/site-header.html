@@ -7,4 +7,13 @@
   <!-- From https://buttons.github.io/. -->
   <!-- <a class="github-button" href="https://github.com/spf13/hugo" data-icon="octicon-star" data-style="mega" data-count-href="/spf13/hugo/stargazers" data-count-api="/repos/spf13/hugo#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star spf13/hugo on GitHub">Star</a> -->
   </div>
+  {{ with .Params.toc }}
+  <!-- <a href="#" id="toc-toggle"></a> -->
+  <div id="toc-toggle" class="kebab">
+    <div class="figure"></div>
+    <div class="figure middle"></div>
+    <p class="cross">&#215;</p>
+    <div class="figure"></div>
+  </div>
+  {{ end }}
 </header>

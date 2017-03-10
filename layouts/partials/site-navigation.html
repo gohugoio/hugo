@@ -1,10 +1,19 @@
 {{ if not .IsHome }}
-<a class="navigation-toggle-wrapper" id="navigation-toggle" href="#">
+<div class="navbutton__wrapper">
+  <a class="trigger" href="#">
+    <ul class="nav__trigger">
+      <li class="nav__trigger-item nav__trigger-item--first"></li>
+      <li class="nav__trigger-item nav__trigger-item--second"></li>
+      <li class="nav__trigger-item nav__trigger-item--third"></li>
+    </ul>
+  </a>
+</div>
+<!-- <a class="navigation-toggle-wrapper" id="navigation-toggle" href="#">
 		<div class="top bar"></div>
 		<div class="middle bar"></div>
 		<div class="bottom bar"></div>
 		<h4 class="menu">Menu</h4>
-</a>
+</a> -->
 <nav class="site-navigation" id="site-navigation">
 	<ul class="top-menu">
 		{{$.Scratch.Set "currentsection" $.Section}}

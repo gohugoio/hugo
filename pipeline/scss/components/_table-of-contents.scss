@@ -1,23 +1,14 @@
 aside#toc {
+  transition: transform .3s ease-in-out;
   position: fixed;
-  max-width: $site-navigation-width;
-  min-width: $site-navigation-width;
-  overflow-y: scroll;
-  max-height: calc(100vh - #{$site-header-height} - 40px);
-  padding: {
-    left: .5em;
-    right: .5em;
-  }
-  bottom: 40px;
-  right: 20px;
-  height: auto;
+  top: $site-header-height;
+  transform: translateX(100%);
+  background-color: $body-bg-color;
+  right: 0px;
+  padding-left: 10px;
+  padding-right: 10px;
+  max-width: 280px;
   @include card(1);
-  z-index: 30;
-  background-color: $toc-bg-color;
-  transform: scale(0);
-  transform-origin: bottom right;
-  opacity: 0;
-  border-radius: 5px;
   header.toc-header {
     display: inline-block;
     width: 100%;
@@ -35,14 +26,15 @@ aside#toc {
     }
   }
   &.toc-open {
-    transform: scale(1);
-    opacity: 1;
+    transition: transform .3s ease-in-out;
+    transform: translateX(0%);
+    z-index: 99;
   }
   @include MQ(XL) {
     .toc-inner-wrapper {
       position: relative;
       min-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
-      max-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
+      max-height: calc(100vh - #{$site-header-height});
       overflow-y: scroll;
     }
     box-shadow: none;
@@ -52,36 +44,36 @@ aside#toc {
     opacity: 1;
     min-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
     max-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
-    transform: scale(1);
+    // transform: scale(1);
+    transform: translateX(0%);
     border-radius: 0px;
     margin-right: 1.5em;
-    // padding-bottom:20px;
-    .fade {
-      content: '';
-      display: inline-block;
-      position: absolute;
-      bottom: -1px;
-      left: 0px;
-      width: 100%;
-      min-height: 1px;
-      // background-image: linear-gradient(to bottom, transparent, #ffffff);
-      // box-shadow: 0 1px 20px rgba(255, 255, 255, 0.12), 0 1px 20px rgba(255, 255, 255, 0.24);
-      -webkit-box-shadow: 0px 0px 72px 50px rgba(255, 255, 255, 1);
-      -moz-box-shadow: 0px 0px 72px 50px rgba(255, 255, 255, 1);
-      box-shadow: 0px 0px 72px 50px rgba(255, 255, 255, 1);
+    z-index:1;
+    &.toc-open {
+      z-index: 1;
     }
+    // .fade {
+    //   content: '';
+    //   display: inline-block;
+    //   position: absolute;
+    //   bottom: -1px;
+    //   left: 0px;
+    //   width: 100%;
+    //   min-height: 1px;
+    //   // box-shadow: 0px 0px 72px 50px rgba(255, 255, 255, 1);
+    //   box-shadow: 58px 0px 72px 53px rgba(255,255,255,1);
+    // }
   }
 }
 
 nav#TableOfContents {
   position: relative;
-  margin-bottom: 20px;
+  // margin-bottom: 20px;
   height: auto;
   overflow-y: scroll;
   li code {
     font-family: $base-font-family;
   }
-
   li.active > a > code {
     color: inherit;
     font-weight: inherit;
@@ -91,7 +83,7 @@ nav#TableOfContents {
     padding-left: 0px;
     margin-left: 0px;
     margin-top: .5em;
-    margin-bottom: 2em;
+    margin-bottom: 0px;
     > li {
       padding-left: 0px;
       margin-left: 0px;
@@ -179,48 +171,59 @@ nav#TableOfContents {
   }
 }
 
-a#toc-toggle {
-  display: none;
-}
-
-aside#toc + a#toc-toggle {
-  display: block;
+// Kebab styling
+.kebab {
+  cursor: pointer;
   position: fixed;
-  bottom: 40px;
-  right: 20px;
-  background-color: $toc-bg-color;
-  color: $hugo-white;
-  background-color: $default-anchor-underline-color;
-  @include size(40px);
-  z-index: 99;
-  line-height: 50px;
-  text-align: center;
-  border-radius: 5px;
-  &:after {
-    content: '\2026';
-    display: block;
-    position: relative;
-    width: 40px;
-    height: 40px;
-    font-size: 2em;
-    line-height: 40px;
-    bottom: 10px;
-  }
-  &.toc-open {
-    box-shadow: none;
-    background-color: $toc-bg-color;
-    color: $base-font-color;
-    &::after {
-      content: "\00D7";
-      font-size: 2em;
-      bottom: 0px;
-    }
-    &:hover {
-      box-shadow: none;
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 0 16px;
+  top: 12px;
+  right: 4px;
+  .figure {
+    width: 6px;
+    height: 6px;
+    border-radius: 5px;
+    background: $hugo-blue;
+    margin: 3px 0;
+    &.middle {
+      transition: all 0.3s ease-in-out;
+      transform: scale(1);
+      position: relative;
+      font-weight: 400;
+      left: 0%;
+      &.active {
+        transform: scale(6.5);
+        transition: all 0.3s ease-in-out;
+        background: transparent;
+      }
     }
   }
-  @include card(2, 5);
   @include MQ(XL) {
     display: none;
   }
+}
+
+.cross {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  margin-top: -1px;
+  font-family: $base-font-family;
+  background-color: $hugo-pink;
+  color: white;
+  border-radius: 50%;
+  @include size(40px);
+  transition: all 0.3s ease-in-out;
+  font-size: 34px;
+  line-height: 40px;
+  vertical-align: middle;
+  user-select: none;
+  text-align: center;
+}
+
+.cross.active {
+  transform: translate(-50%, -50%) scale(1);
+  transition: all 0.15s ease-in-out;
 }
