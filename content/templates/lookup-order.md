@@ -111,7 +111,7 @@ layout: reviewarticle
 ```
 {{% /code %}}
 
-Here is the way Hugo's traverses the single-page lookup order for `my-second-post.md`:
+Here is the way Hugo traverses the single-page lookup order for `my-second-post.md`:
 
 1. <span class="yes">`/layouts/review/reviewarticle.html`</span>
   <br><span class="break">BREAK</span>

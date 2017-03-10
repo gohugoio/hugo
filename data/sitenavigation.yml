@@ -59,7 +59,7 @@ tutorials:
   title: "Tutorials"
   url: "tutorials"
   haschildren: true
-  sortsubpagesby: "title"
+  sortsubpagesby: "weight"
   desc: "Community-aggregated articles and code examples for approaching different projects with Hugo"
 tools:
   order: 10

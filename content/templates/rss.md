@@ -35,11 +35,7 @@ A [section’s][section] RSS will be rendered at `/<SECTION>/index.xml` (e.g., h
 
 Hugo provides the ability for you to define any RSS type you wish and can have different RSS files for each section and taxonomy.
 
-## Which Template will be Rendered?
-
-Hugo uses a set of rules to figure out which template to use when rendering a specific page.
-
-Hugo will use the following prioritized list. If a file isn’t present, then the next one in the list will be used. This enables you to craft specific layouts when you want to without creating more templates than necessary. For most sites only the `\_default` file at the end of the list will be needed.
+## Lookup Order for RSS Templates
 
 ### Main RSS
 
@@ -65,7 +61,7 @@ Hugo will use the following prioritized list. If a file isn’t present, then th
 
 ## Configuring RSS
 
-The following values will be included in the RSS output if specified in your site’s [`config` file][config]. Example values are provided.
+Hugo's default behavior is to create an unlimited number of RSS entries. You can customize this behavior vi`rssLimit:` in your [`config`][config] file. The following values will also be included in the RSS output if specified in your site’s configuration:
 
 ```toml
 languageCode = "en-us"
@@ -74,7 +70,6 @@ copyright = "This work is licensed under a Creative Commons Attribution-ShareAli
 [author]
     name = "My Name Here"
 ```
-
 
 ## The Embedded rss.xml
 
