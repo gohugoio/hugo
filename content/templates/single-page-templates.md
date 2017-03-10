@@ -26,8 +26,8 @@ Hugo assumes your content section and content type are the same unless you tell 
 3. `/layouts/<TYPE>/single.html`
 4. `/layouts/<SECTION>/single.html`
 5. `/layouts/_default/single.html`
-6. `/themes/<THEME>/layouts/<TYPE>/<LAYOUT.html`
-7. `/themes/<THEME>/layouts/<SECTION>/LAYOUT.html`
+6. `/themes/<THEME>/layouts/<TYPE>/<LAYOUT>.html`
+7. `/themes/<THEME>/layouts/<SECTION>/<LAYOUT>.html`
 8. `/themes/<THEME>/layouts/<TYPE>/single.html`
 9. `/themes/<THEME>/layouts/<SECTION>/single.html`
 10. `/themes/<THEME>/layouts/_default/single.html`

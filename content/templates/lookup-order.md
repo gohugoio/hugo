@@ -30,7 +30,7 @@ Most Hugo websites will only need the default template files at the end of the l
 
 The lookup order is best illustrated by example. The following shows you the process Hugo uses for finding the appropriate template to render your [single content][], but the concept holds true for all templates in Hugo.
 
-1. The project is using the theme `mytheme`, which would be specified as `theme: mytheme` or `theme = "mytheme` in the project's [`config.toml` or `config.yaml`][config], respectively.
+1. The project is using the theme `mytheme`, which would be specified as `theme: mytheme` or `theme = "mytheme"` in the project's [`config.toml` or `config.yaml`][config], respectively.
 2. The layouts and content directories for the project are as follows:
 
 ```bash
@@ -61,10 +61,10 @@ The lookup order is best illustrated by example. The following shows you the pro
 ```
 
 
-Now we can look at the front matter for the three single-page content (i.e.`.md`) files.
+Now we can look at the front matter for the three content (i.e.`.md`) files.
 
 {{% note  %}}
-You may notice there are four markdown files but we are only going to review three for the *single* page lookup order. `_index.md` may seem like a single page of content but is actually a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are used to add content and front matter to list pages. `events/_index.md` will render according to its [section template](/templates/section-templates/) and respective lookup order.
+There are four markdown files but we are only going to review three for the *single* page lookup order. `_index.md` may seem like a single page of content but is actually a specific `kind` in Hugo. Whereas `my-first-post.md`, `my-second-post.md`, and `my-first-event.md` are all of kind `page`, all `_index.md` files in a Hugo project are used to add content and front matter to list pages. In this example, `events/_index.md` will render according to its [section template](/templates/section-templates/) and respective lookup order.
 {{% /note %}}
 
 ### Example: `my-first-post.md`
