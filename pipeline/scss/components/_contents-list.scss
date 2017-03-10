@@ -1,7 +1,7 @@
 .all-contents {
   // border-top: 1px solid $hugo-blue;
-  padding-top:1em;
-  font-size:.95em;
+  padding-top: 1em;
+  font-size: .95em;
 }
 
 .contents-list {
@@ -45,6 +45,11 @@
 .list-icon {
   display: flex;
   align-items: center;
+  i.icon-link-external {
+    position:relative;
+    display:inline-block;
+    margin-top:.1em;
+  }
 }
 
 .list-icon-wrapper {
