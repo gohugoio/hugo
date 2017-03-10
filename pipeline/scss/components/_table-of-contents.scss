@@ -81,6 +81,7 @@ nav#TableOfContents {
   li code {
     font-family: $base-font-family;
   }
+
   li.active > a > code {
     color: inherit;
     font-weight: inherit;

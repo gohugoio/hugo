@@ -19,8 +19,6 @@ website.
 
 ## Directory Scaffolding in `new hugo site`
 
-
-
 The top level of a source directory will typically have the following elements:
 
 ```bash
@@ -34,7 +32,7 @@ The top level of a source directory will typically have the following elements:
   config.toml
 ```
 
-Learn more about the different directories and what their purpose is:
+You can learn more about each component of a newly scaffolded site in its respective documentation:
 
 * [config](/getting-started/configuration/)
 * [data](/templates/data-templates/)
