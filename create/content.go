@@ -16,6 +16,7 @@ package create
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path"
@@ -39,7 +40,7 @@ func NewContent(s *hugolib.Site, kind, name string) (err error) {
 	location := FindArchetype(s, kind)
 
 	if location == "" && kind != "" {
-		jww.ERROR.Println("Content Type", kind, "not found")
+		return fmt.Errorf("Content Type '%s' not found", kind)
 	}
 
 	var by []byte
