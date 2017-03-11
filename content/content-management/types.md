@@ -15,10 +15,6 @@ toc: true
 
 Hugo provides full support for sites with multiple content types. A **content type** can have a unique set of metadata (i.e., [front matter][]) or customized [template][] and can be created by the `hugo new` command via [archetypes][].
 
-{{% note "Hugo Content Type != MIME Type" %}}
-It's important to distinguish the difference between Hugo's content types and [MIME types](https://en.wikipedia.org/wiki/Media_type). In Hugo, a content type is a piece of information (i.e. a content item) that has multiple attributes---typically front matter followed by a content block---and is *not* necessarily related to a file format or file extension (e.g., `.json`, `.amp.html`).
-{{% /note %}}
-
 [Tumblr][] is a good example of a website containing multiple content types. A piece of "content" could be a photo, quote, or a post, each with different sets of metadata and different visual rendering.
 
 ## Assigning a Content Type
