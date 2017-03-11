@@ -1,29 +1,29 @@
 [[feature]]
 	name = "Blistering Speed"
-	description = "Golang's baked-in concurrency is the backbone of Hugo's templating. Jettison expensive runtime dependencies, and let Go's incomparable I/O primitives do the work for you. For the first time, your rendering speeds can be measured in micro- and milliseconds."
+	description = "Jettison expensive runtime dependencies, and let Go's incomparable I/O primitives do the work for you. For the first time, build your sites in micro- and milliseconds."
 	order = 1
 
 [[feature]]
 	name = "Markdown Without Limits"
-	description = "Hugo natively supports GFM, as well as Asciidoc, reStructuredText, and Org-mode through external helpers. Shortcodes, a minimalist intermediary to your templating and content, keeps your source clean, readable, and infinitely extensible."
+	description = "Hugo natively supports GFM, as well as Asciidoc, reStructuredText, and Org-mode through external helpers. Shortcodes keeps your content readable and infinitely extensible."
 	order = 2
 
 [[feature]]
 	name = "Robust Content Management"
-	description = "You need more than front matter to make static scalable. Hugo offers support for taxonomies, unlimited content types, DRY templating, URL management, menus, archetypes, summaries, and so much more, all without the need for plugins."
+	description = "Hugo offers support for taxonomies, unlimited content types, DRY templating, URL management, menus, archetypes, and summaries, all without the need for plugins."
 	order = 3
 
 [[feature]]
-	name = "Cross-Platform by Default"
-	description = "As a single binary, Hugo has equally simple installation on OS X, Linux BSD, Windows, Dragonfly BSD, OpenBSD, Plan 9, and any other platform where the Go compiler tool chain can run. Once you decide you want Hugo, simply `go``get` it."
+	name = "Cross-Platform"
+	description = "Hugo has equally simple installation on OS X, Linux BSD, Windows, Dragonfly BSD, OpenBSD, Plan 9, and anywhere else the Go compiler tool chain can run."
 	order = 4
 
 [[feature]]
 	name = "Multilingual and i18n"
-	description = "International and multilingual sites are often difficult in our new static world. Hugo provides full i18n support for multilinguage sites with the same straightforward and extraordinarily fast experience Hugo users love in their single-language sites."
+	description = "Hugo provides full i18n support for multilinguage sites with the same straightforward development experience Hugo users love in single-language sites."
 	order = 5
 
 [[feature]]
 	name = "A Passionate Community"
-	description = "The gratification of an ultra-fast feedback loop doesn't stop at the templating layer. Our community grows stronger and larger every day. Just one visit to our [forums](https://discuss.gohugo.io) and you'll quickly realize you never need to build a Hugo site alone."
+	description = "The gratification of an ultra-fast feedback loop doesn't stop at the templating layer. One visit to the forums shows you never have to build Hugo sites alone."
 	order = 6

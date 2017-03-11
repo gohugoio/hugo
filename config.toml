@@ -98,4 +98,3 @@ watch = true
 
 [taxonomies]
   tag = "tags"
-  category = ""

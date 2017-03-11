@@ -11,18 +11,15 @@ weight: 27
 draft: false
 aliases: [/templates/ordering/,/templates/grouping/]
 toc: true
-wip: true
 ---
 
-## Understanding `.Data.Pages`
+In Hugo, A list template is any template that will be used to render multiple pieces of content in a single HTML page.
 
-From this image, we can assume that the "homepage" for Section A---presumably, `/section-a/index.html`---is going to list the content pages 1,2,3. In this way, pages 1,2,3 are *data* made available to the template that renders to the .
+## Examples of List Templates
 
-## Example List Template Pages
+### Section Template: `post.html`
 
-### Example Section Template: `post.html`
-
-This content template is used for [spf13.com](http://spf13.com/). It makes use of [partial templates][partials]. All examples use a [view](/templates/views/) called either "li" or "summary" which this example site defined.
+This list template is used for [spf13.com](http://spf13.com/). It makes use of [partial templates][partials]. All examples use a [view](/templates/views/) called either "li" or "summary."
 
 {{% code file="layouts/section/post.html" %}}
 ```html
@@ -43,9 +40,7 @@ This content template is used for [spf13.com](http://spf13.com/). It makes use o
 ```
 {{% /code %}}
 
-### Example Taxonomy Template
-
-The following taxonomy template uses a [content view template][views] called either "li" or "summary" which this example site defined.
+### Taxonomy Template
 
 {{% code file="layouts/_default/taxonomies.html" download="taxonomies.html" %}}
 ```html
@@ -64,14 +59,14 @@ The following taxonomy template uses a [content view template][views] called eit
 
 ## Ordering Content
 
-In the case of Hugo, each list will render the content based on metadata provided in the [front matter](/content/front-matter/). See [ordering content](/content/ordering/) for more information.
+Hugo lists render the content based on metadata provided in the [front matter](/content-management/front-matter/)..
 
 Here are a variety of different ways you can order the content items in
 your list templates:
 
-### Default Ordering: Weight > Date
+### Default: Weight > Date
 
-{{% code file="layouts/_default/list.html" %}}
+{{% code file="layouts/partials/order-default.html" %}}
 ```html
 <ul class="pages">
     {{ range .Data.Pages }}
@@ -84,8 +79,9 @@ your list templates:
 ```
 {{% /code %}}
 
-### Ordering a list by Weight -> Date
+### By Weight
 
+{{% code file="layouts/partials/by-weight.html" %}}
 ```html
 {{ range .Data.Pages.ByWeight }}
     <li>
@@ -94,97 +90,129 @@ your list templates:
     </li>
 {{ end }}
 ```
+{{% /code %}}
 
-### Ordering a List by Date
+### By Date
 
-    {{ range .Data.Pages.ByDate }}
+{{% code file="layouts/partials/by-date.html" %}}
+```html
+{{ range .Data.Pages.ByDate }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
-    {{ end }}
+{{ end }}
+```
+{{% /code %}}
 
-### Ordering a List by PublishDate
+### By Publish Date
 
-    {{ range .Data.Pages.ByPublishDate }}
+{{% code file="layouts/partials/by-publish-date.html" %}}
+```html
+{{ range .Data.Pages.ByPublishDate }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
     </li>
-    {{ end }}
+{{ end }}
+```
+{{% /code %}}
 
-### Ordering a list by ExpiryDate
+### By Expiration Date
 
-    {{ range .Data.Pages.ByExpiryDate }}
+{{% code file="layouts/partials/by-expiry-date.html" %}}
+```html
+{{ range .Data.Pages.ByExpiryDate }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .ExpiryDate.Format "Mon, Jan 2, 2006" }}</div>
     </li>
-    {{ end }}
+{{ end }}
+```
+{{% /code %}}
 
-### Ordering a List by Lastmod
+### By Last Modified Date
 
-    {{ range .Data.Pages.ByLastmod }}
+{{% code file="layouts/partials/by-last-mod.html" %}}
+```html
+{{ range .Data.Pages.ByLastmod }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
-    {{ end }}
+{{ end }}
+```
+{{% /code %}}
 
-### Ordering a List by Length
+### By Length
 
-    {{ range .Data.Pages.ByLength }}
+{{% code file="layouts/partials/by-length.html" %}}
+```html
+{{ range .Data.Pages.ByLength }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
-    {{ end }}
+{{ end }}
+```
+{{% /code %}}
 
 
-### Ordering a List by Title
+### By Title
 
-    {{ range .Data.Pages.ByTitle }}
+{{% code file="layouts/partials/by-title.html" %}}
+```html
+{{ range .Data.Pages.ByTitle }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
-    {{ end }}
+{{ end }}
+```
+{{% /code %}}
 
-### Ordering a List by LinkTitle
+### By Link Title
 
-    {{ range .Data.Pages.ByLinkTitle }}
+{{% code file="layouts/partials/by-link-title.html" %}}
+{{ range .Data.Pages.ByLinkTitle }}
     <li>
     <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
-    {{ end }}
+{{ end }}
+{{% /code %}}
 
-### Order List by Parameter
+### By Parameter
 
-Order based on the specified front matter parameter. Pages without that
-parameter will use the site's `.Site.Params` default. If the parameter is not
-found at all in some entries, those entries will appear together at the end
-of the ordering.
+Order based on the specified front matter parameter. Content that does not have the specified front matter field  will use the site's `.Site.Params` default. If the parameter is not found at all in some entries, those entries will appear together at the end of the ordering.
 
 The below example sorts a list of posts by their rating.
 
-    {{ range (.Data.Pages.ByParam "rating") }}
-      <!-- ... -->
-    {{ end }}
+{{% code file="layouts/partials/by-rating.html" %}}
+```html
+{{ range (.Data.Pages.ByParam "rating") }}
+  <!-- ... -->
+{{ end }}
+```
+{{% /code %}}
 
 If the front matter field of interest is nested beneath another field, you can
 also get it:
 
-```
+{{% code file="layouts/partials/by-nested-param.html" %}}
+```html
 {{ range (.Date.Pages.ByParam "author.last_name") }}
   <!-- ... -->
 {{ end }}
 ```
+{{% /code %}}
 
 ### Reverse Order
-Can be applied to any of the above. Using Date for an example.
 
-```
+Reversing order can be applied to any of the above methods. The following uses `ByDate` as an example:
+
+{{% code file="layouts/partials/by-date-reverse.html" %}}
+```html
 {{ range .Data.Pages.ByDate.Reverse }}
 <li>
 <a href="{{ .Permalink }}">{{ .Title }}</a>
@@ -192,18 +220,16 @@ Can be applied to any of the above. Using Date for an example.
 </li>
 {{ end }}
 ```
+{{% /code %}}
 
 ## Grouping Content
 
-Hugo provides some grouping functions for list pages. You can use them to
-group pages by Section, Type, Date etc.
+Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
-Here are a variety of different ways you can group the content items in
-your list templates:
+### By Page Field
 
-### Grouping by Page field
-
-```
+{{% code file="layouts/partials/by-page-field.html" %}}
+```html
 {{ range .Data.Pages.GroupBy "Section" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -216,10 +242,12 @@ your list templates:
 </ul>
 {{ end }}
 ```
+{{% /code %}}
 
-### Grouping by Page date
+### By Page date
 
-```
+{{% code file="layouts/partials/by-page-date.html" %}}
+```html
 {{ range .Data.Pages.GroupByDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -232,10 +260,12 @@ your list templates:
 </ul>
 {{ end }}
 ```
+{{% /code %}}
 
-### Grouping by Page publish date
+### By Page publish date
 
-```
+{{% code file="layouts/partials/by-page-publish-date.html" %}}
+```html
 {{ range .Data.Pages.GroupByPublishDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -248,9 +278,11 @@ your list templates:
 </ul>
 {{ end }}
 ```
+{{% /code %}}
 
-### Grouping by Page param
+### By Page Param
 
+{{% code file="layouts/partials/by-page-param.html" %}}
 ```html
 {{ range .Data.Pages.GroupByParam "param_key" }}
 <h3>{{ .Key }}</h3>
@@ -264,9 +296,11 @@ your list templates:
 </ul>
 {{ end }}
 ```
+{{% /code %}}
 
-### Grouping by Page param in date format
+### By Page Param in Date Format
 
+{{% code file="layouts/partials/by-page-param-as-date.html" %}}
 ```html
 {{ range .Data.Pages.GroupByParamDate "param_key" "2006-01" }}
 <h3>{{ .Key }}</h3>
@@ -280,44 +314,43 @@ your list templates:
 </ul>
 {{ end }}
 ```
+{{% /code %}}
 
 ### Reversing Key Order
 
-The ordering of the groups is performed by keys in alphanumeric order (A–Z,
-1–100) and in reverse chronological order (newest first) for dates.
+The ordering of the groups is performed by keys in alphanumeric order (A–Z, 1–100) and in reverse chronological order (newest first) for dates.
 
-While these are logical defaults, they are not always the desired order. There
-are two different syntaxes to change the order; they both work the same way, so
-it’s really just a matter of preference.
+While these are logical defaults, they are not always the desired order. There are two different syntaxes to change the order, both of which work the same way. You can use your preferred syntax.
 
-#### Reverse method
+#### Reverse Method
 
-```golang
+```html
 {{ range (.Data.Pages.GroupBy "Section").Reverse }}
 ```
 
-```golang
+```html
 {{ range (.Data.Pages.GroupByDate "2006-01").Reverse }}
 ```
 
 
-#### Providing the (alternate) direction
+#### Providing the Alternate Direction
 
-```golang
+```html
 {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
 ```
 
-```golang
+```html
 {{ range .Data.Pages.GroupBy "Section" "desc" }}
 ```
 
-### Ordering Pages within Group
+### Ordering Within Groups
 
-Because Grouping returns a key and a slice of pages, all of the ordering methods listed above are available.
+Because Grouping returns a `{{.Key}}` and a slice of pages, all of the ordering methods listed above are available.
 
-In this example, I’ve ordered the groups in chronological ordering and the content
-within each group in alphabetical order by title.
+In the following example, groups are ordered chronologically and then content
+within each group is ordered alphabetically by title.
 
+{{% code file="layouts/partials/by-group-by-page.html" %}}
 ```html
 {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
 <h3>{{ .Key }}</h3>
@@ -331,17 +364,18 @@ within each group in alphabetical order by title.
 </ul>
 {{ end }}
 ```
+{{% /code %}}
 
-## Filtering and Limiting List Content
+## Filtering and Limiting Lists
 
-Sometimes you only want to list a subset of the available content. A common request is to only display “Posts” on the homepage. Using the `where` function, you can do just that.
+Sometimes you only want to list a subset of the available content. A common request is to only display “Posts” on the homepage. You can accomplish this with the `where` function.
 
 ### `where`
 
 `where` works in a similar manner to the `where` keyword in SQL. It selects all elements of the array or slice that match the provided field and value. `where` takes three arguments:
 
 1. `array` or a `slice of maps or structs`
-2. `key` or `field name'
+2. `key` or `field name`
 3. `match value`
 
 {{% code file="layouts/_default/.html" %}}
