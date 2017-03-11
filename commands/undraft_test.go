@@ -52,7 +52,7 @@ func TestUndraftContent(t *testing.T) {
 		res, err := undraftContent(p)
 		if test.expectedErr != "" {
 			if err == nil {
-				t.Error("[%d] Expected error, got none", i)
+				t.Errorf("[%d] Expected error, got none", i)
 				continue
 			}
 			if err.Error() != test.expectedErr {
