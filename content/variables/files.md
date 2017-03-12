@@ -9,7 +9,7 @@ categories: [variables and params]
 tags: [files]
 draft: false
 weight: 40
-aliases: []
+aliases: [/variables/file-variables/]
 toc: false
 ---
 

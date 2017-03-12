@@ -46,7 +46,7 @@ There are three settings on the Basic Settings tab. If you have multiple branche
 
 ![][4]
 
-Your site is now configured for continuous deployment, and you may view your site once the build is complete. 
+Your site is now configured for continuous deployment, and you may view your site once the build is complete.
 
 ![][5]
 
