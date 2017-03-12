@@ -214,6 +214,23 @@ e.g.
     </ul>
 
 
+### union
+Given two arrays (or slices) A and B, this function will return a new array that contains the elements or objects that belong to either A or to B or to both. The elements supported are strings, integers and floats (only float64).
+
+```
+{{ union (slice 1 2 3) (slice 3 4 5) }}
+<!-- returns [1 2 3 4 5] -->
+
+{{ union (slice 1 2 3) nil }}
+<!-- returns [1 2 3] -->
+
+{{ union nil (slice 1 2 3) }}
+<!-- returns [1 2 3] -->
+
+{{ union nil nil }}
+<!-- returns an error because both arrays/slices have to be of the same type -->
+```
+
 ### isset
 Returns true if the parameter is set.
 Takes either a slice, array or channel and an index or a map and a key as input.
