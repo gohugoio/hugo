@@ -399,6 +399,55 @@ func intersect(l1, l2 interface{}) (interface{}, error) {
 	}
 }
 
+// union returns the union of the given sets, l1 and l2. l1 and
+// l2 must be of the same type and may be either arrays or slices.
+// If l1 and l2 aren't of the same type then l1 will be returned.
+// If either l1 or l2 is nil then the non-nil list will be returned.
+func union(l1, l2 interface{}) (interface{}, error) {
+	if l1 == nil && l2 == nil {
+		return nil, errors.New("both arrays/slices have to be of the same type")
+	} else if l1 == nil && l2 != nil {
+		return l2, nil
+	} else if l1 != nil && l2 == nil {
+		return l1, nil
+	}
+
+	l1v := reflect.ValueOf(l1)
+	l2v := reflect.ValueOf(l2)
+
+	switch l1v.Kind() {
+	case reflect.Array, reflect.Slice:
+		switch l2v.Kind() {
+		case reflect.Array, reflect.Slice:
+			r := reflect.MakeSlice(l1v.Type(), 0, 0)
+
+			if l1v.Type() != l2v.Type() {
+				return r.Interface(), nil
+			}
+
+			for i := 0; i < l1v.Len(); i++ {
+				elem := l1v.Index(i)
+				if !in(r.Interface(), elem.Interface()) {
+					r = reflect.Append(r, elem)
+				}
+			}
+
+			for j := 0; j < l2v.Len(); j++ {
+				elem := l2v.Index(j)
+				if !in(r.Interface(), elem.Interface()) {
+					r = reflect.Append(r, elem)
+				}
+			}
+
+			return r.Interface(), nil
+		default:
+			return nil, errors.New("can't iterate over " + reflect.ValueOf(l2).Type().String())
+		}
+	default:
+		return nil, errors.New("can't iterate over " + reflect.ValueOf(l1).Type().String())
+	}
+}
+
 type imageHandler struct {
 	imageConfigCache map[string]image.Config
 	sync.RWMutex
@@ -2193,6 +2242,7 @@ func (t *templateFuncster) initFuncMap() {
 		"time":         asTime,
 		"trim":         trim,
 		"truncate":     truncate,
+		"union":        union,
 		"upper":        upper,
 		"urlize":       t.PathSpec.URLize,
 		"where":        where,

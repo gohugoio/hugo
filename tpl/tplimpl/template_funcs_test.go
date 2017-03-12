@@ -184,6 +184,7 @@ trim: {{ trim "++Batman--" "+-" }}
 truncate: {{ "this is a very long text" | truncate 10 " ..." }}
 truncate: {{ "With [Markdown](/markdown) inside." | markdownify | truncate 14 }}
 upper: {{upper "BatMan"}}
+union: {{ union (slice 1 2 3) (slice 3 4 5) }}
 urlize: {{ "Bat Man" | urlize }}
 `
 
@@ -260,6 +261,7 @@ trim: Batman
 truncate: this is a ...
 truncate: With <a href="/markdown">Markdown …</a>
 upper: BATMAN
+union: [1 2 3 4 5]
 urlize: bat-man
 `
 
@@ -988,8 +990,6 @@ func TestIntersect(t *testing.T) {
 		{[]string{"a", "b"}, []string{"a", "b", "c"}, []string{"a", "b"}},
 		{[]string{"a", "b", "c"}, []string{"d", "e"}, []string{}},
 		{[]string{}, []string{}, []string{}},
-		{[]string{"a", "b"}, nil, make([]interface{}, 0)},
-		{nil, []string{"a", "b"}, make([]interface{}, 0)},
 		{nil, nil, make([]interface{}, 0)},
 		{[]string{"1", "2"}, []int{1, 2}, []string{}},
 		{[]int{1, 2}, []string{"1", "2"}, []int{}},
@@ -1015,6 +1015,53 @@ func TestIntersect(t *testing.T) {
 	}
 
 	_, err2 := intersect([]string{"a"}, "not an array or slice")
+
+	if err2 == nil {
+		t.Error("Expected error for non array as second arg")
+	}
+}
+
+func TestUnion(t *testing.T) {
+	t.Parallel()
+	for i, this := range []struct {
+		sequence1 interface{}
+		sequence2 interface{}
+		expect    interface{}
+		isErr     bool
+	}{
+		{[]string{"a", "b", "c", "c"}, []string{"a", "b", "b"}, []string{"a", "b", "c"}, false},
+		{[]string{"a", "b"}, []string{"a", "b", "c"}, []string{"a", "b", "c"}, false},
+		{[]string{"a", "b", "c"}, []string{"d", "e"}, []string{"a", "b", "c", "d", "e"}, false},
+		{[]string{}, []string{}, []string{}, false},
+		{[]string{"a", "b"}, nil, []string{"a", "b"}, false},
+		{nil, []string{"a", "b"}, []string{"a", "b"}, false},
+		{nil, nil, make([]interface{}, 0), true},
+		{[]string{"1", "2"}, []int{1, 2}, make([]string, 0), false},
+		{[]int{1, 2}, []string{"1", "2"}, make([]int, 0), false},
+		{[]int{1, 2, 3}, []int{3, 4, 5}, []int{1, 2, 3, 4, 5}, false},
+		{[]int{1, 2, 3}, []int{1, 2, 3}, []int{1, 2, 3}, false},
+		{[]int{1, 2, 4}, []int{2, 4}, []int{1, 2, 4}, false},
+		{[]int{2, 4}, []int{1, 2, 4}, []int{2, 4, 1}, false},
+		{[]int{1, 2, 4}, []int{3, 6}, []int{1, 2, 4, 3, 6}, false},
+		{[]float64{2.2, 4.4}, []float64{1.1, 2.2, 4.4}, []float64{2.2, 4.4, 1.1}, false},
+	} {
+		results, err := union(this.sequence1, this.sequence2)
+		if err != nil && !this.isErr {
+			t.Errorf("[%d] failed: %s", i, err)
+			continue
+		}
+		if !reflect.DeepEqual(results, this.expect) && !this.isErr {
+			t.Errorf("[%d] got %v but expected %v", i, results, this.expect)
+		}
+	}
+
+	_, err1 := union("not an array or slice", []string{"a"})
+
+	if err1 == nil {
+		t.Error("Expected error for non array as first arg")
+	}
+
+	_, err2 := union([]string{"a"}, "not an array or slice")
 
 	if err2 == nil {
 		t.Error("Expected error for non array as second arg")
