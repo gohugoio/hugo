@@ -14,6 +14,7 @@ hugoversion:
 relatedfuncs: [dateFormat,now,Unix,time]
 deprecated: false
 aliases: []
+toc: true
 ---
 
 `Format` will format date values defined in your front matter. `.Format` and can be used as a property on the following [page variables][pagevars]:
