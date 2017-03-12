@@ -19,7 +19,7 @@ const sassfiles = ["./scss/**/*.scss"];
 const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 
-/**
+/*
  *
  * Styles
  * - Compile

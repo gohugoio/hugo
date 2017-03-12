@@ -74,18 +74,6 @@ code[class^="language-"] {
   }
 }
 
-code.language-html:after {
-  font-family: 'FontAwesome';
-  content: '\f13b';
-}
-
-code.language-js:after {
-  font-family: 'fontello';
-  content: '\e802';
-  font-size: 16px;
-  top: 2px;
-}
-
 code.language-git:after {
   font-family: 'fontello';
   content: '\f1d3';
@@ -98,6 +86,30 @@ code.language-go:after,
 code.language-golang:after {
   font-family: 'fontello';
   content: '\e801';
+}
+
+code.language-html:after {
+  font-family: 'fontello';
+  content: '\f13b';
+}
+
+code.language-javascript:after,
+code.language-js:after {
+  font-family: 'fontello';
+  content: '\e81d';
+}
+
+code.language-json:after {
+  content: 'JSON';
+  font-size: .8em;
+  padding-right: .3em;
+  font-family: $code-font-family;
+}
+
+code.language-md:after,
+code.language-markdown:after {
+  font-family: 'fontello';
+  content: '\e818';
 }
 
 code.language-sass:after,
@@ -126,19 +138,6 @@ code.language-yml:after {
   font-size: .8em;
   padding-right: .3em;
   font-family: $code-font-family;
-}
-
-code.language-json:after {
-  content: 'JSON';
-  font-size: .8em;
-  padding-right: .3em;
-  font-family: $code-font-family;
-}
-
-code.language-md:after,
-code.language-markdown:after {
-  font-family: 'fontello';
-  content: '\e818';
 }
 
 .copy-button + .code-copy-content {

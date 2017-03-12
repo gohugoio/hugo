@@ -458,6 +458,7 @@ you need to install the Python-based Pygments program. The procedure is outlined
 Now that you've installed Hugo, read the [Quick Start guide][quickstart] and explore the rest of the documentation. If you have questions, ask the Hugo community directly by visiting the [Hugo Discussion Forum][forum].
 
 [brew]: https://brew.sh/
+[Chocolatey]: https://chocolatey.org/
 [highlight shortcode]: /content-management/shortcodes/#highlight
 [forum]: https://discuss.gohugo.io
 [installgit]: (http://git-scm.com/)

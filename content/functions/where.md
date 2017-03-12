@@ -49,19 +49,36 @@ It can also be used with the logical operators `!=`, `>=`, `in`, etc. Without an
 
 The following logical operators are vailable with `where`:
 
-* `=`, `==`, `eq`: True if a given field value equals a matching value
-* `!=`, `<>`, `ne`: True if a given field value doesn't equal a matching value
-* `>=`, `ge`: True if a given field value is greater than or equal to a matching value
-* `>`, `gt`: True if a given field value is greater than a matching value
-* `<=`, `le`: True if a given field value is lesser than or equal to a matching value
-* `<`, `lt`: True if a given field value is lesser than a matching value
-* `in`: True if a given field value is included in a matching value. A matching value must be an array or a slice
-* `not in`: True if a given field value isn't included in a matching value. A matching value must be an array or a slice
-* `intersect`: True if a given field value that is a slice / array of strings or integers contains elements in common with the matching value. It follows the same rules as the intersect function.
+`=`, `==`, `eq`
+: `true` if a given field value equals a matching value
+
+`!=`, `<>`, `ne`
+: `true` if a given field value doesn't equal a matching value
+
+`>=`, `ge`
+: `true` if a given field value is greater than or equal to a matching value
+
+`>`, `gt`
+: `true` if a given field value is greater than a matching value
+
+`<=`, `le`
+: `true` if a given field value is lesser than or equal to a matching value
+
+`<`, `lt`
+: `true` if a given field value is lesser than a matching value
+
+`in`
+: `true` if a given field value is included in a matching value; a matching value must be an array or a slice
+
+`not in`
+: `true` if a given field value isn't included in a matching value; a matching value must be an array or a slice
+
+`intersect`
+: `true` if a given field value that is a slice/array of strings or integers contains elements in common with the matching value; it follows the same rules as the [`intersect` function][intersect].
 
 ## Using `where` with `intersect`
 
-```golang
+```html
 {{ range where .Site.Pages ".Params.tags" "intersect" .Params.tags }}
   {{ if ne .Permalink $.Permalink }}
     {{ .Render "summary" }}
@@ -69,17 +86,37 @@ The following logical operators are vailable with `where`:
 {{ end }}
 ```
 
+You can also put the returned value of the `where` clauses into a variable:
+
+{{% code file="where-intersect-variables.html" %}}
+```html
+{{ $v1 := where .Site.Pages "Params.a" "v1" }}
+{{ $v2 := where .Site.Pages "Params.b" "v2" }}
+{{ $filtered := $v1 | intersect $v2 }}
+{{ range $filtered }}
+{{ end }}
+```
+{{% /code %}}
+
 ## Using `where` with `first`
 
-```golang
+The following grabs the first five content files in `post` using the [default ordering](/templates/ordering-and-grouping/) for lists (i.e., `weight => date`):
+
+{{% code file="where-with-first.html" %}}
+```html
 {{ range first 5 (where .Data.Pages "Section" "post") }}
    {{ .Content }}
 {{ end }}
 ```
+{{% /code %}}
 
 ## Nesting `where` Clauses
 
-**Needs Example**
+You can also nest `where` clauses to drill down on lists of content by more than one parameter. The following first grabs all pages in the "blog" section and then ranges through the result of the first `where` clause and finds all pages that are *not* featured:
+
+```
+{{ range where (where .Data.Pages "Section" "blog" ) ".Params.featured" "!=" "true" }}
+```
 
 ## Unset Fields
 
@@ -92,9 +129,10 @@ Only the following operators are available for `nil`
 * `=`, `==`, `eq`: True if the given field is not set.
 * `!=`, `<>`, `ne`: True if the given field is set.
 
-```golang
+```html
 {{ range where .Data.Pages ".Params.specialpost" "!=" nil }}
    {{ .Content }}
 {{ end }}
 ```
 
+[intersect]: /functions/intersect/
