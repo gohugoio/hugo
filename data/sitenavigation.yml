@@ -54,13 +54,13 @@ hostinganddeployment:
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Site builds, automated deployments, and popular hosting solutions, as explained by the Hugo community"
-tutorials:
-  order: 9
-  title: "Tutorials"
-  url: "tutorials"
-  haschildren: true
-  sortsubpagesby: "weight"
-  desc: "Community-aggregated articles and code examples for approaching different projects with Hugo"
+# tutorials:
+#   order: 9
+#   title: "Tutorials"
+#   url: "tutorials"
+#   haschildren: true
+#   sortsubpagesby: "weight"
+#   desc: "Community-aggregated articles and code examples for approaching different projects with Hugo"
 tools:
   order: 10
   title: "Developer Tools"

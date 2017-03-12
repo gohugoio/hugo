@@ -59,7 +59,7 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 ## Taxonomies and Blackfriday
 
-Taxonomies and [Blackfriday configuration][hugoconfig] can also be set per language:
+Taxonomies and [Blackfriday configuration][config] can also be set per language:
 
 
 {{% code file="bf-config.toml" %}}
@@ -177,6 +177,35 @@ To track down missing translation strings, run Hugo with the `--i18n-warnings` f
  hugo --i18n-warnings | grep i18n
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
+
+## Customize Dates
+
+At the time of this writing, Golang does not yet have support for internationalized locales, but if you do some work, you can simulate it. For example, if you want to use French month names, you can add a data file like ``data/mois.yaml`` with this content:
+
+~~~toml
+1: "janvier"
+2: "février"
+3: "mars"
+4: "avril"
+5: "mai"
+6: "juin"
+7: "juillet"
+8: "août"
+9: "septembre"
+10: "octobre"
+11: "novembre"
+12: "décembre"
+~~~
+
+... then index the non-English date names in your templates like so:
+
+~~~html
+<time class="post-date" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" | safeHTML }}">
+  Article publié le {{ .Date.Day }} {{ index $.Site.Data.mois (printf "%d" .Date.Month) }} {{ .Date.Year }} (dernière modification le {{ .Lastmod.Day }} {{ index $.Site.Data.mois (printf "%d" .Lastmod.Month) }} {{ .Lastmod.Year }})
+</time>
+~~~
+
+This technique extracts the day, month and year by specifying ``.Date.Day``, ``.Date.Month``, and ``.Date.Year``, and uses the month number as a key, when indexing the month name data file.
 
 ## Menus
 
