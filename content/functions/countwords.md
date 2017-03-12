@@ -24,4 +24,4 @@ aliases: [/functions/countrunes/,/functions/countwords/]
 ```
 
 
-[pagevars]: /variables/page-variables/
+[pagevars]: /variables/page/

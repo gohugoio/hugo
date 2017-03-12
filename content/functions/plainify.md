@@ -25,6 +25,6 @@ aliases: []
 See also the [`.PlainWords`, `.Plain`, and `.RawContent` page variables][pagevars].
 
 
-[pagevars]: /variables/page-variables/
+[pagevars]: /variables/page/
 
 

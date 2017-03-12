@@ -70,7 +70,7 @@ See what's coming next in the [Hugo roadmap][].
 [install]: /getting-started/installing/
 [LiveReload]: /getting-started/using-hugo/
 [organization for your projects]: /getting-started/directory-structure/
-[pagevars]: /variables/page-variables/
+[pagevars]: /variables/page/
 [Permalink]: /content-management/urls/#permalinks
 [Powerful theming]: /themes/
 [Pretty URLs]: /content-management/urls/

@@ -101,7 +101,7 @@ And here is the result as [called directly in the Hugo docs][] and rendered for 
 
 {{< readfile file="content/readfiles/testing.txt" markdown="true">}}
 
-[called directly in the Hugo docs]: https://github.com/spf13/hugo/blob/master/docs/content/templates/local-file-templates.md
+[called directly in the Hugo docs]: https://github.com/spf13/hugo/blob/master/docs/content/templates/files.md
 [dirindex]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
 [osfileinfo]: https://golang.org/pkg/os/#FileInfo
 [reads]: /functions/readfile/

@@ -68,4 +68,4 @@ Defaults for `<changefreq>`, `<priority>` and `filename` values can be set in th
 
 The same fields can be specified in an individual content file's front matter in order to override the value assigned to that piece of content at render time.
 
-[pagevars]: /variables/page-variables/
+[pagevars]: /variables/page/

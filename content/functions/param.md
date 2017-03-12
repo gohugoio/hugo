@@ -30,5 +30,5 @@ $.Param "image"
 ```
 
 [configuration]: /getting-started/configuration/
-[pagevars]: /variables/page-variables/
-[sitevars]: /variables/site-variables/
+[pagevars]: /variables/page/
+[sitevars]: /variables/site/

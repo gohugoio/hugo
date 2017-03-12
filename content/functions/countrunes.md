@@ -23,4 +23,4 @@ In contrast with `countwords` function, which counts every word in a string, the
 <!-- outputs a content length of 8 runes. -->
 ```
 
-[pagevars]: /variables/page-variables/
+[pagevars]: /variables/page/

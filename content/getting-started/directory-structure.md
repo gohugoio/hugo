@@ -105,7 +105,7 @@ This directory structure tells us a lot about this website:
 
 ## Content for Homepage and Other List Pages
 
-Since Hugo 0.18, "everything" is a `Page` that can have content and metadata, like `.Params`, attached to it -- and share the same set of [page variables](/variables/page-variables/).
+Since Hugo 0.18, "everything" is a `Page` that can have content and metadata, like `.Params`, attached to it -- and share the same set of [page variables](/variables/page/).
 
 To add content and front matter to the home page, a section, a taxonomy or a taxonomy terms listing, add a markdown file with the base name `_index` on the relevant place on the file system.
 

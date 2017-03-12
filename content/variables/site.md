@@ -9,12 +9,11 @@ categories: [variables and params]
 tags: [global,site]
 draft: false
 weight: 10
-aliases: []
+aliases: [/variables/site-variables/]
 toc: true
-notesforauthors:
 ---
 
-The following is a list of site-level variables (aka "global"). Many of these variables are defined in your site's [configuration file](/getting-started/config/), whereas others are built into Hugo's core for convenient usage in your templates.
+The following is a list of site-level (aka "global") variables. Many of these variables are defined in your site's [configuration file][config], whereas others are built into Hugo's core for convenient usage in your templates.
 
 ## Site Variables List
 
@@ -100,7 +99,7 @@ The following is a list of site-level variables (aka "global"). Many of these va
 
 `.Site.Params` is a container holding the values from the `params` section of your site configuration.
 
-### `.Site.Params` Example
+### Example: `.Site.Params`
 
 The following `config.toml` defines a site-wide param for `description`:
 
@@ -119,3 +118,5 @@ You can use `.Site.Params` in a [partial template](/templates/partials/) to call
 <meta name="description" content="{{if .IsHome}}{{ $.Site.Params.description }}{{else}}{{.Description}}{{end}}" />
 ```
 {{% /code %}}
+
+[config]: /getting-started/configuration/

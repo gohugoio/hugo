@@ -16,7 +16,7 @@ toc: false
 Hugo can automatically parse Markdown content and create a Table of Contents you can leverage in your templates to guide readers to sections of longer pages.
 
 {{% note "TOC Heading Levels are Fixed" %}}
-Currently, the {{.TableOfContents}} [page variable](/variables/page-variables/) is fixed in its behavior; i.e., you do not have the option to set the heading level at which the TOC renders. This is a [known issue (#1778)](https://github.com/spf13/hugo/issues/1778).
+Currently, the {{.TableOfContents}} [page variable](/variables/page/) is fixed in its behavior; i.e., you do not have the option to set the heading level at which the TOC renders. This is a [known issue (#1778)](https://github.com/spf13/hugo/issues/1778).
 {{% /note %}}
 
 ## Usage
@@ -60,6 +60,6 @@ The following is an example of very basic [single page template][]:
 {{% /code %}}
 
 
-[pagevars]: /variables/page-variables/
+[pagevars]: /variables/page/
 [partials]: /templates/partials/
 [single page template]: /templates/single-page-template/

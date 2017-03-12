@@ -9,14 +9,14 @@ categories: [variables and params]
 tags: [pages]
 draft: false
 weight: 20
-aliases: []
+aliases: [/variables/page/]
 toc: true
 ---
 
 The following is a list of page-level variables that can be defined for a piece of content. Many of these will be defined in the front matter, derived from file location, or extracted from the content itself.
 
 {{% note "`.Scratch`" %}}
-See [`.Scratch`](/functions/scratch/) for page-scoped writable variables.
+See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 {{% /note %}}
 
 ## Page Variables List
@@ -127,7 +127,7 @@ http://remarkjs.com)
 : the [section](/content-management/sections/) this content belongs to.
 
 `.Site`
-: see [Site Variables](/variables/site-variables/).
+: see [Site Variables](/variables/site/).
 
 `.Summary`
 : a generated summary of the content for easily showing a snippet in a summary view. The breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page. See [Content Summaries](/content-management/summaries/) for more details.

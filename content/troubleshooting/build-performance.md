@@ -8,7 +8,7 @@ lastmod: 2017-03-12
 tags: [performance, build]
 categories: [troubleshooting]
 weight:
-draft: false
+draft: true
 slug:
 aliases: []
 toc: true

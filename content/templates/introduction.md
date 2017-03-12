@@ -477,9 +477,9 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 [index]: /functions/index/
 [math functions]: /functions/math/
 [partials]: /templates/partials-templates/ "Link to the partial templates page inside of the templating section of the Hugo docs"
-[relpermalink]: /variables/page-variables/
+[relpermalink]: /variables/page/
 [safehtml]: /functions/safehtml/
-[sitevars]: /variables/site-variables/
+[sitevars]: /variables/site/
 [variables]: /variables/ "See the full extent of page-, site-, and other variables that Hugo make available to you in your templates."
 [where]: /functions/where/
 [with]: /functions/with/

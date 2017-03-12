@@ -266,11 +266,11 @@ Themes section organization has only changed slightly in that the 6 content page
     * Menus. This is broken into [/content-management/menus/](/content-management/menus/) and [/templates/menu-templates/](/templates/menu-templates/)
     * Pagination. Now in [/templates/pagination/](/templates/pagination/)
     * Permalinks. Now a heading/subsection of [/content-management/urls/](/content-management/urls/
-    * Scratch. Has it's own devoted function page at [/functions/scratch/](/functions/scratch/), and is therefore in the [Functions Quick Reference](/functions/). Also mentioned in an admonition in [/variables/page-variables/](/variables/page-variables/).
+    * Scratch. Has it's own devoted function page at [/functions/scratch/](/functions/scratch/), and is therefore in the [Functions Quick Reference](/functions/). Also mentioned in an admonition in [/variables/page/](/variables/page/).
     * Shortcodes. Now split into two pages, one a [/content-management/shortcodes/](/content-management/shortcodes/) and the templating portion (i.e. "create your own shortcodes") at [/templates/shortcode-templates/]
     * URLS. Now combined with permalinks and others as a heading/subsection of [/content-management/urls/](/content-management/urls/)
     * Syntax Highlighting. The shortcode is featured and explained with usage examples at [/content-management/shortcodes/](/content-management/shortcodes/), as well as expaned upon in it's own page under [/tools/syntax-highlighting/](/tools/syntax-highlighting/). I did this under the assumption that *developers* are most interested in adding code blocks to their content.
-    * Table of Contents. This is now it's own page under [/content-management/toc](/content-management/toc/) and referenced in [/variables/page-variables](/variables/page-variables/).
+    * Table of Contents. This is now it's own page under [/content-management/toc](/content-management/toc/) and referenced in [/variables/page-variables](/variables/page/).
     * Traversing Local Files. This is now split into [/templates/files/](/templates/files/) and variables delimited at [/variables/other/](/variables/other/).
 
 ### Community
@@ -292,11 +292,12 @@ The "Community" section has been removed as a site navigation item because `/con
     * Michael Henderson's "Creating a Theme" website ([current][],[concept][]) has been copy edited and content edited to include the new code block shortcodes. Michael did an *amazing* job with this tutorial, and it must have taken him *forever*, but much of the information included in the tutorial is now spread throughout the documentation in more appropriate places. Also, because this is an older tutorial, some of the paradigms aren't quite as up to date.
     * Rick Cogley's still needs to be copy edited a bit, but overall looks good. That said, this tutorial was put together before Hugo began implementing it's international features.
 * **Guidelines for New Tutorials**
-    * To keep the content in tutorials maintainable, it's important to set standards on what should be contained within said tutorials when published directly to the Hugo docs. (Of course, listing beginning-to-end tutorials in other areas of the website [i.e., press and articles] is a very good idea). The following pieces of information should be omitted from full-text tutorials in the Hugo docs because they are better delimited and kept current in other areas:
-        * Explanations directory structure or content organization
-        * Explanations of content formats (namely, `.md`) or front matter
-        * Explanations of how to set up hosting, deployments, or automated deployments (although these make excellent additions to the "Hosting and Deployments" section)
-        * "Using Hugo Shortcodes with Google Sheets or Data-Driven Content" is a better tutorial example than "Getting Up and Running with Hugo" or "Deploying Your Hugo Website with an Apache Server"
+    * **[[Update 2017-03-12]]** "Tutorials" as a site section has been completely removed. The remaining three articles: 1. Creating a Multilingual Site, 2. Creating a New Theme, and 3. Migrate from Jekyll to Hugo were a) duplicative, b) outdated, or c) contradictory (specifically w/r/t Hugo-specific terms). Full-length tutorials can be a very difficult thing to maintain within documentation; it's my position that it's better to provide examples and explanations throughout the documentation and then allow the community to publish their own tutorials (i.e., with links to the tutorials on the Articles Page).
+    * ~~To keep the content in tutorials maintainable, it's important to set standards on what should be contained within said tutorials when published directly to the Hugo docs. (Of course, listing beginning-to-end tutorials in other areas of the website [i.e., press and articles] is a very good idea). The following pieces of information should be omitted from full-text tutorials in the Hugo docs because they are better delimited and kept current in other areas:~~
+        * ~~Explanations directory structure or content organization~~
+        * ~~Explanations of content formats (namely, `.md`) or front matter~~
+        * ~~Explanations of how to set up hosting, deployments, or automated deployments (although these make excellent additions to the "Hosting and Deployments" section)~~
+        * ~~"Using Hugo Shortcodes with Google Sheets or Data-Driven Content" is a better tutorial example than "Getting Up and Running with Hugo" or "Deploying Your Hugo Website with an Apache Server"~~
 
 ### Troubleshooting
 
@@ -358,6 +359,7 @@ Apache License - 60
 * Front Matter - 30
 * Shortcodes - 40
 * Sections - 50
+* Authors - 55 (in draft status)
 * Content Types - 60
 * Archetypes - 70
 * Taxonomies - 80

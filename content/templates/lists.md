@@ -82,7 +82,7 @@ If `where` or `first` receives invalid input or a field name that doesn’t exis
 [rss]: /templates/rss/
 [sections]: /content-management/sections/
 [sectiontemps]: /templates/section-templates
-[sitevars]: /variables/site-variables/
+[sitevars]: /variables/site/
 [taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates/
 [taxvars]: /templates/taxonomy-variables/
 [taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates/

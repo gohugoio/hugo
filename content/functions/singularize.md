@@ -20,5 +20,5 @@ aliases: []
 
 `{{ "cats" | singularize }}` → "cat"
 
-See also the `.Data.Singular` [taxonomy variable](/variables/taxonomy-variables/) for singularizing taxonomy names.
+See also the `.Data.Singular` [taxonomy variable](/variables/taxonomy/) for singularizing taxonomy names.
 

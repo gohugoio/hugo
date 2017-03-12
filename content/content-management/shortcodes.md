@@ -402,7 +402,7 @@ To learn more about creating your own shortcode templates, see the [shortcode te
 [figureelement]: http://html5doctor.com/the-figure-figcaption-elements/ "An article from HTML5 doctor discussing the fig and figcaption elements."
 [`figure` shortcode]: #figure
 [Instagram]: https://www.instagram.com/
-[pagevariables]: /variables/page-variables/
+[pagevariables]: /variables/page/
 [partials]: /templates/partials-templates/
 [Pygments]: http://pygments.org/
 [quickstart]: /getting-started/quick-start/

@@ -83,5 +83,5 @@ In conjunction with the [`dateFormat` function][dateFormat], you can also conver
 [CST]: https://en.wikipedia.org/wiki/Central_Time_Zone
 [dateFormat]: /functions/dateformat/
 [gdex]: https://golang.org/pkg/time/#example_Time_Format
-[pagevars]: /variables/page-variables/
+[pagevars]: /variables/page/
 [time]: https://golang.org/pkg/time/
