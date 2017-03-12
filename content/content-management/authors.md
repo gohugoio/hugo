@@ -94,8 +94,7 @@ The list is accessible via the `.Authors` template variable. Printing all author
 {{ range .Authors }}
     {{ .DisplayName }}
 {{ end }}
-
-# output: Alice Allison
+=> Alice Allison
 ```
 
 Even if there are co-authors you may only want to show the main author. For this case you can use the `.Author` template variable **(note the singular form)**. The template variable contains the profile of the author that is first listed with his identifier in the front matter.

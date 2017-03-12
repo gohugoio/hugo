@@ -45,6 +45,16 @@ brew update && brew install hugo
 
 For more detailed explanations, read the installation guides that follow for installing on Mac OS X and Windows.
 
+### Windows (Chocolatey)
+
+If you are on a Windows machine and use [Chocolatey][] for package management, you can install Hugo with the following one-liner:
+
+{{% code file="install-with-chocolatey.ps1" %}}
+```powershell
+choco install hugo -confirm
+```
+{{% /code %}}
+
 ### Source
 
 #### Prerequisite tools for downloading and building source code
