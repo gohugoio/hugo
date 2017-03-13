@@ -12,9 +12,7 @@
 {{ else if eq .Kind "page" }}
 	{{ with .Site.GetPage "section" $section }}
 	<a href="{{.Permalink}}" class="cf-link prev-page">
-
 				<i class="icon-prev"></i>
-
 			<div class="page-info">
 				<span>Previous</span>
 				<h5 class="{{$section}}">{{if eq .Section "functions"}}{{- replace (.LinkTitle) "and" "<em>and</em>" | safeHTML -}}{{else}}{{.Title | markdownify}}{{end}}</h5>
