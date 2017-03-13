@@ -516,7 +516,7 @@ If the Hugo Team finds the improvements to the Hugo documentation acceptable, I'
 3. **2017-03-20** Pull request/add to Hugo Rep
 3. **2017-??-??** Add to Hugo repo for release with v20, currently scheduled for 2017-03-27.
 
-[^1]: At this point, not too much of the URL structure has changed that considerably. I've been fastidious about adding aliases wherever possible and trying to retain URLs whenever still applicable. That said, the [current list of aliases is quite large](/contribute/documentation/#be-mindful-of-aliases).
+[^1]: At this point, not too much of the URL structure has changed that considerably. I've been fastidious about adding aliases wherever possible and trying to retain URLs whenever still applicable.
 
 [admonitions]: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
 [Content Modeling]: https://alistapart.com/article/content-modelling-a-master-skill
