@@ -126,7 +126,7 @@ git commit -a -m "Initial commit"
 
 ## Adding the Project to GitHub
 
-Now we need to create a new repository on GitHub. Once you are signed in to GitHub, you can add a new repository by clicking on the **&#43;&#9660;** dropdown at the top right or by going to <https://github.com/new>.
+Now we need to create a new repository on GitHub. Once you are signed in to GitHub, you can add a new repository by clicking on the **&#43;&#9660;** dropdown at the top right or by going to `https://github.com/new`.
 
 We then choose a name for the project (`hugo-wercker-example`). When clicking on create repository GitHub displays the commands for adding an existing project to the site. The commands shown below are the ones used for this site, if you're following along you will need to use the ones shown by GitHub. Once we've run those commands the project is in GitHub and we can move on to setting up the Wercker configuration. Be sure to replace `YourUserName` with your GitHub account/username:
 

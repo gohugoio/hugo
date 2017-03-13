@@ -17,9 +17,7 @@ toc: true
 
 > I'm running into an issue where I cannot get archetypes working, when running `hugo new showcase/test.md`, for example, I see an `EOF` error thrown by Hugo.
 >
-> I have set up this test repository to show exactly what I've done, but it is essentially a vanilla installation of Hugo. https://github.com/polds/hugo-archetypes-test
->
-> When in that repository, using Hugo v0.12 to run `hugo new -v showcase/test.md`, I see the following output:
+> When I run Hugo with v0.12 via `hugo new -v showcase/test.md`, I see the following output:
 >
 > ```bash
 > INFO: 2015/01/04 Using config file: /private/tmp/test/config.toml

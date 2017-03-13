@@ -5,6 +5,7 @@ description: "Tutorialonfly.com provide free tutorials in gitbook version online
 license: ""
 licenseLink: ""
 sitelink: https://tutorialonfly.com/
+draft: true
 tags:
 - tutorials
 - free
@@ -12,4 +13,5 @@ tags:
 - fast
 image: tutorialonfly.jpg
 title: Tutorialonfly
+notes: Set this to draft true on 2017-03-12 after it came up as a broken link in linkchecker. - rdwatters.
 ---

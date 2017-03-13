@@ -30,6 +30,12 @@ aside#toc {
     transform: translateX(0%);
     z-index: 99;
   }
+  .toc-inner-wrapper {
+    position: relative;
+    min-height: auto;
+    max-height: calc(100vh - #{$site-header-height});
+    overflow-y: scroll;
+  }
   @include MQ(XL) {
     .toc-inner-wrapper {
       position: relative;
@@ -48,7 +54,7 @@ aside#toc {
     transform: translateX(0%);
     border-radius: 0px;
     margin-right: 1.5em;
-    z-index:1;
+    z-index: 1;
     &.toc-open {
       z-index: 1;
     }

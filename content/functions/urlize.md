@@ -64,4 +64,4 @@ The preceding partial would then output to the rendered page as follows, assumin
 {{% /output %}}
 
 
-[singletemplate]: /templates/single-page-template/
+[singletemplate]: /templates/single-page-templates/

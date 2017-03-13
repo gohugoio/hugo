@@ -311,7 +311,7 @@ including...
 with nearly half of the contributions to 0.16 in addition to his considerable
 contributions as lead maintainer. {{< gh "@anthonyfok" >}}, {{< gh
 "@DigitalCraftsman" >}}, {{< gh "@MooreReason" >}} all made significant
-contributions. A special thanks to {{< gh "@abourget " >}} for his considerable
+contributions. A special thanks to {{< gh "@abourget" >}} for his considerable
 work on multilingual support. Due to its broad impact we wanted to spend more
 time testing it and it will be included in Hugo's next release.
 
@@ -760,7 +760,7 @@ This release represents over 110 code commits from 29 different contributors.
   * Streamlined [template organization](/templates/)
   * [Brand new docs site](http://gohugo.io/)
   * Support for publishDate which allows for posts to be dated in the future
-  * More [sort](/content-management/ordering/) options
+  * More [sort](/templates/ordering-and-grouping/) options
   * Logging support
   * Much better error handling
   * More informative verbose output

@@ -39,4 +39,4 @@ The following is an example of a "related posts" [partial template][partials] th
 {{% /code %}}
 
 [partials]: /templates/partials/
-[single]: /templates/single-page-template/
+[single]: /templates/single-page-templates/

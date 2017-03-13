@@ -271,7 +271,7 @@ If there is more than one language defined, the `LanguagePrefix` variable will e
 
 [abslangurl]: /functions/abslangurl
 [config]: /getting-started/configuration/
-[contenttemplate]: /templates/single-page-template/
+[contenttemplate]: /templates/single-page-templates/
 [go-i18n-source]: https://github.com/nicksnyder/go-i18n
 [go-i18n]: https://github.com/nicksnyder/go-i18n
 [homepage]: /templates/homepage/

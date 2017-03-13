@@ -25,7 +25,7 @@ The following starter kits are developed by active members of the Hugo community
 
 
 [addkit]: https://github.com/spf13/hugo/edit/master/docs/content/tools/starter-kits.md
-[amp]: https://www.ampproject.org/]
+[amp]: https://www.ampproject.org/
 [Blaupause]: https://github.com/fspoettel/blaupause
 [GOHUGO AMP]: https://github.com/wildhaber/gohugo-amp
 [gohugodocs]: https://gohugo-amp.gohugohq.com/

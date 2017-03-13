@@ -231,9 +231,6 @@ Note the `bind` option, which is the interface to which the server will bind (de
 
 By using Hugo's server in production, you are able to deploy just the source files. Hugo, running on your server, will generate the resulting website on the fly and serve them at the same time.
 
-Interested? Here are some great tutorials contributed by Hugo users:
-
-* [hugo, syncthing](http://fredix.xyz/2014/10/hugo-syncthing/) (French) by Frédéric Logier (@fredix)
 
 [commands]: /commands/
 [config]: /getting-started/configuration/
