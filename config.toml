@@ -1,5 +1,5 @@
 archetypedir = "archetypes"
-baseurl = "/"
+baseurl = "https://hugodocs.info"
 buildDrafts = false
 buildFuture = false
 canonifyurls = true
@@ -72,7 +72,7 @@ watch = true
   defaultsocialimage = "hugodefaultsocial.png"
   ## Setting this to true will add a "noindex" to *every* page on the site
   removefromexternalsearch = false
-  ## This is used when the BaseURL does not need to modified (eg, in share links or in prerender, prefetch, etc to control for relativeURLs setting)
+  ## This is used when the BaseURL does not need to modified (eg, in share links or in prerender, prefetch, etc to control for relativeURLs setting); do not include trailing slash
   siteaddress = "https://hugodocs.info"
   ## Gh repo for site footer (include trailing slash)
   ghrepo = "https://github.com/spf13/hugo/"

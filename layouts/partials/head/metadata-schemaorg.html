@@ -1,0 +1,22 @@
+<script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "TechArticle",
+    {{ with .Section }}
+    "articleSection": "{{ . | title}}",
+    {{ end }}
+    "headline": "{{.Title}}",
+    "name": "{{.Title}}",
+    "url": "{{ .Permalink }}",
+    "mainEntityOfPage": "{{.Permalink}}",
+    "datePublished": {{.PublishDate.Format "2006-01-02"}},
+    "dateModified": {{.Date.Format "2006-01-02"}},
+    "wordCount": {{.WordCount}},
+    "image": {
+        "@type": "ImageObject",
+        "url": "{{.Site.Params.siteaddress}}/images/{{.Site.Params.defaultsocialimage }}",
+        "height": 800,
+        "width": 1500
+    }
+}
+</script>
