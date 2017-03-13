@@ -418,7 +418,33 @@ C:\Hugo\Sites\example.com&gt;dir
 
 ## <i class="icon-linux"></i>Linux
 
-### Installing From Snap
+### Debian/Ubuntu and Arch
+
+Hugo has been included in Debian and Ubuntu since 2016 and can be installed as a traditional `.deb` package via `apt`:
+
+```sh
+sudo apt install hugo
+```
+
+#### Pros
+
+* Native Debian/Ubuntu package maintained by Debian Developers
+* Pre-installed bash completion script and `man` pages
+
+#### Cons
+
+* Might not be the latest version, especially if you are using an older, stable version (e.g., Ubuntu 16.04 LTS). Until backports and PPA are available, you may consider installing the Hugo snap package to get the latest version of Hugo, as described below.
+
+You can also install Hugo from the [Arch user repository](https://aur.archlinux.org/) on Arch Linux or derivatives such as Manjaro.
+
+Be aware that Hugo is built from source. This means that additional tools like [Git](https://git-scm.com) and [Go](https://golang.org/doc/install) will be installed as well.
+
+```bash
+sudo pacman -S yaourt
+yaourt -S hugo
+```
+
+### Installing Hugo as a Snap Package
 
 In any of the [Linux distributions that support snaps](http://snapcraft.io/docs/core/install):
 
@@ -427,19 +453,8 @@ snap install hugo
 ```
 
 {{% note %}}
-Snap Hugo users may get a `Resource temporarily unavailable` runtime error. This is because non-root users may only write inside two specific directories for most snaps. You can find a workaround using the `home` plug at [snapcraft.io](https://snapcraft.io/docs/reference/interfaces). More information is also available [in this related GitHub issue](https://github.com/spf13/hugo/issues/3143).
+Hugo-as-a-snap can write only inside the user’s `$HOME `directory---and gvfs-mounted directories owned by the user---because of Snaps’ confinement and security model. More information is also available [in this related GitHub issue](https://github.com/spf13/hugo/issues/3143).
 {{% /note %}}
-
-### Arch-based distributions
-
-Install Hugo from the [Arch user repository](https://aur.archlinux.org/) on Arch Linux or derivatives like Manjaro.
-
-Be aware that Hugo is built from source. This means that additional tools like [Git](https://git-scm.com) and [Go](https://golang.org/doc/install) will be installed as well.
-
-```bash
-sudo pacman -S yaourt
-yaourt -S hugo
-```
 
 ## Upgrading Hugo
 

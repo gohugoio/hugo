@@ -13,13 +13,15 @@ aliases: [/meta/roadmap]
 toc: false
 ---
 
-In no particular order, here is what is currently being worked on for the Hugo project:
+To track Hugo's progress, see our [GitHub Milestones][milestones].
+
+In no particular order, here are some other features currently being worked on for the Hugo project:
 
 * Intelligently related posts ({{< gh 98 >}})
 * Even easier deployment to S3, SSH, GitHub, rsync. Give the [hosting and deployment][] section a shot.
 * Import from other website systems. There are already [existing migration tools][migrate], but they don’t cover all major platforms.
-* An interactive web-based editor (See the [related Discuss thread][])
-* Additional [themes][], which are always ongoing and contributions are welcome!
+* An interactive web-based editor (See the [related forum thread][])
+* Additional [themes][], which are always ongoing and [contributions are welcome][themescontrib]!
 * Dynamic image resizing via shortcodes ({{< gh 1014 >}})
 * Native support for additional content formats (AsciiDoc {{< gh 1435>}}, reST {{< gh 1436 >}})
 * And, last but not least, [***your*** best ideas!][]
@@ -36,8 +38,10 @@ Feel free to [contribute to Hugo's development][devcontribute], [improve Hugo's 
 [doccontribute]: /contribute/documentation/
 [hosting and deployment]: /hosting-and-deployment/
 [migrate]: /tools/migrations/
+[milestones]: https://github.com/spf13/hugo/milestone/14
 [newissue]: https://github.com/spf13/hugo/issues/
-[related Discuss thread]: https://discuss.gohugo.io/t/web-based-editor/155
+[related forum thread]: https://discuss.gohugo.io/t/web-based-editor/155
 [themes]: /themes/
+[themescontrib]: /contribute/themes/
 [tutorials]: /tutorials
 [***your*** best ideas!]: /contribute/
