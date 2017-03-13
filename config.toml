@@ -33,7 +33,7 @@ logFile = ""
 metaDataFormat = "yaml"
 # This intelligently adds an "s" to the titles of list pages
 pluralizelisttitles = false
-preserveTaxonomyNames = true
+preserveTaxonomyNames = false
 # This sets the title of the directory where hugo builds and pushes the final site when running "Hugo" (ie, without "server")
 publishdir = "public"
 pygmentsUseClasses = true

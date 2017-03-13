@@ -19,7 +19,7 @@
 			{{$val := $value.Name | urlize}}
 			{{$valurl := add $dataPlural $val}}
 			<tr>
-				<td><a href="{{ $valurl | relURL}}">{{ $value.Name }}</a></td>
+				<td><a href="{{ $valurl | relURL}}">{{ replace $value.Name "-" " " }}</a></td>
 				<td>{{ $value.Count }}</td>
 			</tr>
 	    {{ end }}
