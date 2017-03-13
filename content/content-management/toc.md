@@ -62,4 +62,4 @@ The following is an example of very basic [single page template][]:
 
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
-[single page template]: /templates/single-page-template/
+[single page template]: /templates/single-page-templates/

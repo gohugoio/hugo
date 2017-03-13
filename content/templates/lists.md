@@ -76,13 +76,13 @@ If `where` or `first` receives invalid input or a field name that doesn’t exis
 [homepage]: /templates/homepage/
 [limitkeyword]: https://www.techonthenet.com/sql/select_limit.php
 [mentalmodel]: http://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
-[pagevars]: /variables/pagevars/
+[pagevars]: /variables/page/
 [partials]: /templates/partials/
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
 [rss]: /templates/rss/
 [sections]: /content-management/sections/
-[sectiontemps]: /templates/section-templates
+[sectiontemps]: /templates/section-templates/
 [sitevars]: /variables/site/
 [taxlists]: /templates/taxonomy-templates/#taxonomy-list-templates/
-[taxvars]: /templates/taxonomy-variables/
+[taxvars]: /variables/taxonomy/
 [taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates/

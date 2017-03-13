@@ -50,5 +50,5 @@ Disallow: {{.RelPermalink}}
 This template disallows all the pages of the site by creating one `Disallow` entry for each page.
 
 [config]: /getting-started/configuration/
-[lookup]: /layouts/lookup-order
+[lookup]: /templates/lookup-order/
 [robots]: http://www.robotstxt.org/

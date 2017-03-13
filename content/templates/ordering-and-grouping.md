@@ -15,9 +15,9 @@ toc: true
 
 In Hugo, A list template is any template that will be used to render multiple pieces of content in a single HTML page.
 
-## Examples of List Templates
+## Example List Templates
 
-### Section Template: `post.html`
+### Section Template
 
 This list template is used for [spf13.com](http://spf13.com/). It makes use of [partial templates][partials]. All examples use a [view](/templates/views/) called either "li" or "summary."
 

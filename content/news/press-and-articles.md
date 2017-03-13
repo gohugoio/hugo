@@ -61,7 +61,7 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 | [Good-Bye Wordpress, Hello Hugo!](http://blog.arminhanisch.de/2015/08/blog-migration-zu-hugo/) <small>(German)</small> | Armin Hanisch | 2015-08-18 |
 | [Static Site E-Commerce: Integrating Snipcart with Hugo](https://snipcart.com/blog/snipcart-hugo-integration) | Francis Tremblay | 2015-08-13 |
 | [Générer votre site web statique avec Hugo <small>(Generate your static site with Hugo)<small>](http://www.linux-pratique.com/?p=191) | Benoît Benedetti | 2015-06-26 |
-| [<span lang="ja">Hugo向けの新しいテーマを作った</span> <small>(I created a new theme for Hugo)<small>](http://yet.unresolved.xyz/blog/2015/06/20/making-new-theme-robust-for-hugo/) | Daisuke Tsuji | 2015-06-20 |
+| [<span lang="ja">Hugo向けの新しいテーマを作った</span> <small>(I created a new theme for Hugo)<small>](https://yet.unresolved.xyz/blog/2016/10/03/how-to-make-of-hugo-theme/) | Daisuke Tsuji | 2015-06-20 |
 | [Hugo - Gerando um site com conteúdo estático. (Portuguese Brazil)](http://blog.ffrizzo.com/posts/hugo/) | Fabiano Frizzo | 2015-06-02 |
 | [An Introduction to Static Site Generators](http://davidwalsh.name/introduction-static-site-generators) | Eduardo Bouças | 2015-05-20 |
 | [Hugo Still Rules](http://cheekycoder.com/2015/05/hugo-still-rules/) | Cheeky Coder | 2015-05-18 |
@@ -75,7 +75,6 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 | [Static Websites with Hugo on Google Cloud Storage](http://www.moxie.io/post/static-websites-with-hugo-on-google-cloud-storage/) | Moxie Input/Output | 2015-04-02 |
 | [De nuevo iniciando un blog](http://alvarolizama.net/blog/denuevo-iniciando-un-blog/) | Alvaro Lizama | 2015-03-29 |
 | [We moved our blog from Posthaven to Hugo after only three posts. Why?](http://blog.hypriot.com/post/moved-from-posthaven-to-hugo/) | Hypriot | 2015-03-27 |
-| [Hugo is cool](http://tnt.wicast.tk/2015/03/23/hugo-is-cool/) <small>(<span lang="zh-CN">中文</span> Chinese)</small> | wicast | 2015-03-23 |
 | [Top Static Site Generators in 2015](http://superdevresources.com/static-site-generators-2015/) | Kanishk Kunal | 2015-03-12 |
 | [Moving to Hugo](http://abiosoft.com/moving-to-hugo/) | Abiola Ibrahim | 2015-03-08 |
 | [<span lang="ja">Hugoで試行錯誤する</span> - log](http://deprode.net/log/logs/first/)  | Deprode | 2015-02-28 |
@@ -92,7 +91,6 @@ Hugo has been featured in the following Blog Posts, Press, and Media.
 | [<span lang="ja">Jekyllが許されるのは小学生までだよね</span>](http://t32k.me/mol/log/hugo/) | Ishimoto Koji | 2015-01-16 |
 | [Getting started with Hugo](http://anthonyfok.org/post/getting-started-with-hugo/) | Anthony Fok | 2015-01-12 |
 | [<span lang="zh-CN">把这个博客静态化了</span> <small>(Migrate to Hugo)</small>](http://lich-eng.com/2015/01/03/migrate-to-hugo/)| Li Cheng | 2015-01-03 |
-| [My Hugo Experiment](http://tilde.club/~jbaty/2014/12/2014-12-31-my-hugo-experiment/) | Jack Baty | 2014-12-31 |
 | [Porting my blog with Hugo](http://blog.srackham.com/posts/porting-my-blog-with-hugo/) | Stuart Rackham | 2014-12-30 |
 | [Hugoを使ってみたときのメモ](http://machortz.github.io/posts/usinghugo/) | Machortz | 2014-12-29 |
 | [OctopressからHugoへ移行した](http://deeeet.com/writing/2014/12/25/hugo/) | Taichi Nakashima | 2014-12-25 |

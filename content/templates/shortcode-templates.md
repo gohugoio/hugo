@@ -260,7 +260,7 @@ More shortcode examples can be found in the [shortcodes directory for spf13.com]
 [docsshortcodes]: https://github.com/spf13/hugo/tree/master/docs/layouts/shortcodes "See the shortcode source directory for the documentation site you're currently reading."
 [figure]: /content-management/shortcodes/#figure
 [pagevars]: /variables/page/ "See which variables you can leverage in your templating for page vs list templates."
-[shortcodesvars]: /variables/shortcode-variables/ "Certain variables are specific to shortcodes, although most .Page variables can be accessed within your shortcode template."
+[shortcodesvars]: /variables/shortcodes/ "Certain variables are specific to shortcodes, although most .Page variables can be accessed within your shortcode template."
 [spf13shortcodes]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes "See more examples of shortcodes by visiting the shortcode directory of the source for spf13.com, the blog of Hugo's creator, Steve Francia."
 [templates]: /templates/ "The templates section of the Hugo docs."
 [vimeoexample]: #single-flexible-example-vimeo

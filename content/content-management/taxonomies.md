@@ -248,8 +248,8 @@ Currently taxonomies only support the [default `weight => date` ordering of list
 {{% /note %}}
 
 [`urlize` template function]: /functions/urlize/
-[content section]: /content-section/
-[content type]: /content-type/
+[content section]: /content-management/sections/
+[content type]: /content-management/types/
 [documentation on archetypes]: /content-management/archetypes/
 [front matter]: /content-management/front-matter/
 [taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-page-templates

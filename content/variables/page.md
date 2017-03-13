@@ -213,7 +213,7 @@ This template would render as follows, assuming you've set [`uglyURLs`](/content
 {{% /output %}}
 
 {{% note %}}
-See [Archetypes](/content-management/archetyps) for consistency of `Params` across pieces of content.
+See [Archetypes](/content-management/archetypes/) for consistency of `Params` across pieces of content.
 {{% /note %}}
 
 ### The `.Param` Method

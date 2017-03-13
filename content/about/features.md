@@ -52,7 +52,7 @@ toc: true
 
 See what's coming next in the [Hugo roadmap][].
 
-[Ace]: /templates/ace-templating/
+[Ace]: /templates/alternatives/
 [aliases]: /content-management/urls/#aliases
 [Amber]: https://github.com/eknkc/amber
 [content summaries]: /content-management/summaries/
@@ -68,7 +68,7 @@ See what's coming next in the [Hugo roadmap][].
 [hostanywhere]: /hosting-and-deployment/
 [Hugo roadmap]: /about/roadmap
 [install]: /getting-started/installing/
-[LiveReload]: /getting-started/using-hugo/
+[LiveReload]: /getting-started/usage/
 [organization for your projects]: /getting-started/directory-structure/
 [pagevars]: /variables/page/
 [Permalink]: /content-management/urls/#permalinks

@@ -403,7 +403,7 @@ To learn more about creating your own shortcode templates, see the [shortcode te
 [`figure` shortcode]: #figure
 [Instagram]: https://www.instagram.com/
 [pagevariables]: /variables/page/
-[partials]: /templates/partials-templates/
+[partials]: /templates/partials/
 [Pygments]: http://pygments.org/
 [quickstart]: /getting-started/quick-start/
 [shortcode template documentation]: /templates/shortcode-templates/

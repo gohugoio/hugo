@@ -38,7 +38,7 @@ Also, a considerably amount of work have been put into cleaning up the Hugo sour
 
 Hugo `0.18` was bringing full-parallel page rendering, so workarounds depending on rendering order did not work anymore, and pages with duplicate target paths (common examples would be `/index.md` or `/about/index.md`) would now conflict with the home page or the section listing.
 
-With Hugo `0.19`, you can control this behaviour by turning off page types you do not want ({{<gh 2534 >}}). In its most extreme case, if you put the below setting in your `config.toml`, you will get **nothing!**:
+With Hugo `0.19`, you can control this behaviour by turning off page types you do not want ({{<gh 2534 >}}). In its most extreme case, if you put the below setting in your [`config.toml`](/getting-started/configuration/), you will get **nothing!**:
 
 ```
 disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
@@ -46,7 +46,7 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 
 ### Other New Features
 
-* Add ability to sort pages by frontmatter parameters, enabling easy custom "top 10" page lists. {{<gh 3022 >}}
+* Add ability to sort pages by front matter parameters, enabling easy custom "top 10" page lists. {{<gh 3022 >}}
 * Add `truncate` template function {{<gh 2882 >}}
 * Add `now` function, which replaces the now deprecated `.Now` {{<gh 2859 >}}
 * Make RSS item limit configurable {{<gh 3035 >}}
@@ -81,7 +81,7 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 * Fix infinite loop in template AST handling for recursive templates  {{<gh 2927 >}}
 * Fix issue with watching when config loading fails {{<gh 2603 >}}
 * Correctly flush the imageConfig on live-reload {{<gh 3016 >}}
-* Fix parsing of TOML arrays in frontmatter {{<gh 2752 >}}
+* Fix parsing of TOML arrays in front matter {{<gh 2752 >}}
 
 ### Docs
 
@@ -364,7 +364,7 @@ times decreased anywhere from 10% to 99%.
 * Add async version of Google Analytics internal template {{<gh 1711>}}
 * Add autostart option to YouTube shortcode {{<gh 1784>}}
 * Set Date and Lastmod for main home page {{<gh 1903>}}
-* Allow URL with extension in frontmatter {{<gh 1923>}}
+* Allow URL with extension in front matter {{<gh 1923>}}
 * Add list support in Scratch {{<gh
   0xeaba04e82bdfc5d4c29e970f11b4aab9cc0efeaa>}}
 * Add file option to gist shortcode {{<gh 1955>}}
@@ -639,24 +639,24 @@ A special shout out to {{< gh "@bep" >}} and
 maintainers and their tremendous contributions this release.
 
 ### New major features
-* Support for [data files](/extras/datafiles/) in [YAML](http://yaml.org/),
+* Support for [data files](/templates/data-templates/) in [YAML](http://yaml.org/),
   [JSON](http://www.json.org/), or [TOML](https://github.com/toml-lang/toml)
   located in the `data` directory ({{< gh 885 >}})
-* Support for [dynamic content](/extras/dynamiccontent/) by loading JSON & CSV
+* Support for [dynamic content](/templates/data-templates/) by loading JSON & CSV
   from remote sources via GetJson and GetCsv in short codes or other layout
   files ({{< gh 748 >}})
-* [Pagination support](/extras/pagination/) for home page, sections and
+* [Pagination support](/templates/pagination/) for home page, sections and
   taxonomies ({{< gh 750 >}})
 * Universal sequencing support
     * A new, generic Next/Prev functionality is added to all lists of pages
       (sections, taxonomies, etc.)
-    * Add in-section [Next/Prev](/templates/variables/) content pointers
-* `Scratch` -- [a "scratchpad"](/extras/scratch) for your node- and page-scoped
+    * Add in-section [Next/Prev](/variables/) content pointers
+* `Scratch` -- [a "scratchpad"](/functions/scratch/) for your node- and page-scoped
   variables
-* [Cross Reference](/extras/crossreferences/) support to easily link documents
+* [Cross Reference](/content-management/cross-references/) support to easily link documents
   together with the ref and relref shortcodes.
-* [Ace](http://ace.yoss.si/) template engine support ({{< gh 541 >}})
-* A new [shortcode](/extras/shortcodes/) token of `{{</* */>}}` (raw HTML)
+* [Ace](https://github.com/yosssi/ace) template engine support ({{< gh 541 >}})
+* A new [shortcode](/content-management/shortcodes/) token of `{{</* */>}}` (raw HTML)
   alongside the existing `{{%/* */%}}` (Markdown)
 * A top level `Hugo` variable (on Page & Node) is added with various build
   information
@@ -671,10 +671,10 @@ maintainers and their tremendous contributions this release.
 
 ### Notable enhancements to existing features
 
-* The [shortcode](/extras/shortcodes/) handling is rewritten for speed and
+* The [shortcode](/content-management/shortcodes/) handling is rewritten for speed and
   better error messages.
-* Several improvements to the [template functions](/templates/functions/):
-    * `where` is now even more powerful and accepts SQL-like syntax with the
+* Several improvements to the [template functions](/functions/):
+    * [`where`](/functions/where/) is now even more powerful and accepts SQL-like syntax with the
       operators `==`, `eq`; `!=`, `<>`, `ne`; `>=`, `ge`; `>`, `gt`; `<=`,
       `le`; `<`, `lt`; `in`, `not in`
     * `where` template function now also accepts dot chaining key argument
@@ -690,7 +690,7 @@ maintainers and their tremendous contributions this release.
     * `replace`
     * `dateFormat`
 * Several [configurable improvements related to Markdown
-  rendering](/overview/configuration/#configure-blackfriday-rendering:a66b35d20295cb764719ac8bd35837ec):
+  rendering](/getting-started/configuration/):
     * Configuration of footnote rendering
     * Optional support for smart angled quotes, e.g. `"Hugo"` → «Hugo»
     * Enable descriptive header IDs
@@ -702,13 +702,13 @@ maintainers and their tremendous contributions this release.
 * Internal change to use byte buffer pool significantly lowering memory usage
   and providing measurable performance improvements overall
 * Changes to docs:
-    * A new [Troubleshooting](/troubleshooting/overview/) section is added
+    * A new [Troubleshooting](/troubleshooting/) section is added
     * It's now searchable through Google Custom Search ({{< gh 753 >}})
     * Some new great tutorials:
         * [Automated deployments with
           Wercker](/tutorials/automated-deployments/)
         * [Creating a new theme](/tutorials/creating-a-new-theme/)
-* [`hugo new`](/content/archetypes/) now copies the content in addition to the front matter
+* [`hugo new`](/content-management/archetypes/) now copies the content in addition to the front matter
 * Improved unit test coverage
 * Fixed a lot of Windows-related path issues
 * Improved error messages for template and rendering errors
@@ -730,17 +730,17 @@ This release represents over 90 code commits from 28 different contributors.
   * 10 [new themes](https://github.com/spf13/hugoThemes) created by the community
   * Fully themable [Partials](/templates/partials/)
   * [404 template](/templates/404/) support in themes
-  * [Shortcode](/extras/shortcodes/) support in themes
+  * [Shortcode](/content-management/shortcodes/) support in themes
   * [Views](/templates/views/) support in themes
-  * Inner [shortcode](/extras/shortcodes/) content now treated as Markdown
+  * Inner [shortcode](/content-management/shortcodes/) content now treated as Markdown
   * Support for header ids in Markdown (# Header {#myid})
-  * [Where](/templates/list/) template function to filter lists of content, taxonomies, etc.
-  * [GroupBy](/templates/list/) & [GroupByDate](/templates/list/) methods to group pages
-  * Taxonomy [pages list](/taxonomies/methods/) now sortable, filterable, limitable & groupable
+  * [Where](/templates/lists/) template function to filter lists of content, taxonomies, etc.
+  * [GroupBy](/templates/lists/) & [GroupByDate](/templates/list/) methods to group pages
+  * Taxonomy [pages list](/templates/taxonomy-templates/) now sortable, filterable, limitable & groupable
   * General cleanup to taxonomies & documentation to make it more clear and consistent
   * [Showcase](/showcase/) returned and has been expanded
   * Pretty links now always have trailing slashes
-  * [BaseUrl](/overview/configuration/) can now include a subdirectory
+  * [BaseUrl](/getting-started/configuration/) can now include a subdirectory
   * Better feedback about draft & future post rendering
   * A variety of improvements to [the website](http://gohugo.io/)
 
@@ -751,20 +751,20 @@ This release represents over 90 code commits from 28 different contributors.
 This release represents over 110 code commits from 29 different contributors.
 
   * Considerably faster... about 3 - 4x faster on average
-  * [LiveReload](/extras/livereload/). Hugo will automatically reload the browser when the build is complete
+  * [LiveReload](/getting-started/usage/). Hugo will automatically reload the browser when the build is complete
   * Theme engine w/[Theme Repository](https://github.com/spf13/hugoThemes)
-  * [Menu system](/extras/menus/) with support for active page
-  * [Builders](/extras/builders/) to quickly create a new site, content or theme
-  * [XML sitemap](/templates/sitemap/) generation
-  * [Integrated Disqus](/extras/comments/) support
-  * Streamlined [template organization](/templates/overview/)
+  * [Menu system](/content-management/menus/) with support for active page
+  * [Builders](/getting-started/usage/) to quickly create a new site, content or theme
+  * [XML sitemap](/templates/sitemap-template/) generation
+  * [Integrated Disqus](/content-management/comments/) support
+  * Streamlined [template organization](/templates/)
   * [Brand new docs site](http://gohugo.io/)
   * Support for publishDate which allows for posts to be dated in the future
-  * More [sort](/content/ordering/) options
+  * More [sort](/content-management/ordering/) options
   * Logging support
   * Much better error handling
   * More informative verbose output
-  * Renamed Indexes > [Taxonomies](/taxonomies/overview/)
+  * Renamed Indexes > [Taxonomies](/content-management/taxonomies/)
   * Renamed Chrome > [Partials](/templates/partials/)
 
 ----
@@ -773,18 +773,18 @@ This release represents over 110 code commits from 29 different contributors.
 
 This release represents over 110 code commits from 29 different contributors.
 
-  * [Syntax highlighting](/extras/highlighting/) powered by pygments (**slow**)
-  * Ability to [sort content](/content/ordering/) many more ways
-  * Automatic [table of contents](/extras/toc/) generation
+  * [Syntax highlighting](/tools/syntax-highlighting/) powered by pygments (**slow**)
+  * Ability to [sort content](/templates/ordering-and-grouping/) many more ways
+  * Automatic [table of contents](/content-management/toc/) generation
   * Support for Unicode URLs, aliases and indexes
-  * Configurable per-section [permalink](/extras/permalinks/) pattern support
-  * Support for [paired shortcodes](/extras/shortcodes/)
-  * Shipping with some [shortcodes](/extras/shortcodes/) (highlight & figure)
-  * Adding [canonify](/extras/urls/) option to keep urls relative
-  * A bunch of [additional template functions](/layout/functions/)
+  * Configurable per-section [permalink](/content-management/urls/) pattern support
+  * Support for [paired shortcodes](/content-management/shortcodes/)
+  * Shipping with some [shortcodes](/content-management/shortcodes/) (highlight & figure)
+  * Adding [canonify](/content-management/urls/) option to keep urls relative
+  * A bunch of [additional template functions](/functions/)
   * Watching very large sites now works on Mac
-  * RSS generation improved. Limited to 50 items by default, can limit further in [template](/layout/rss/)
-  * Boolean params now supported in [fm](/content/front-matter/)
+  * RSS generation improved. Limited to 50 items by default, can limit further in [template](/templates/rss/)
+  * Boolean params now supported in [fm](/content-management/front-matter/)
   * Launched website [showcase](/showcase/). Show off your own hugo site!
   * A bunch of [bug fixes](https://github.com/spf13/hugo/commits/master)
 
@@ -794,19 +794,19 @@ This release represents over 110 code commits from 29 different contributors.
 
 This release represents over 220 code commits from 22 different contributors.
 
-  * New [command based interface](/overview/usage/) similar to git (`hugo server -s ./`)
+  * New [command based interface](/getting-started/usage/) similar to git (`hugo server -s ./`)
   * Amber template support
-  * [Aliases](/extras/aliases/) (redirects)
+  * [Aliases](/content-management/urls/) (redirects)
   * Support for top level pages (in addition to homepage)
   * Complete overhaul of the documentation site
   * Full Windows support
-  * Better index support including [ordering by content weight](/content/ordering/)
+  * Better index support including [ordering by content weight](/templates/ordering-and-grouping/)
   * Add params to site config, available in .Site.Params from templates
-  * Friendlier json support
-  * Support for html & xml content (with frontmatter support)
-  * Support for [summary](/content/summaries/) content divider (<code>&lt;!&#45;&#45;more&#45;&#45;&gt;</code>)
-  * HTML in [summary](/content/summaries/) (when using divider)
-  * Added ["Minutes to Read"](/layout/variables/) functionality
+  * Friendlier JSON support
+  * Support for html & xml content (with front matter support)
+  * Support for [summary](/content-management/summaries/) content divider (<code>&lt;!&#45;&#45;more&#45;&#45;&gt;</code>)
+  * HTML in [summary](/content-management/summaries/) (when using divider)
+  * Added ["Minutes to Read"](/variables/) functionality
   * Support for a custom 404 page
   * Cleanup of how content organization is handled
   * Loads of unit and performance tests
@@ -815,11 +815,11 @@ This release represents over 220 code commits from 22 different contributors.
   * Support for relative permalinks
   * Fixed watching being triggered multiple times for the same event
   * Watch now ignores temp files (as created by Vim)
-  * Configurable number of posts on [homepage](/layout/homepage/)
-  * [Front matter](/content/front-matter/) supports multiple types (int, string, date, float)
+  * Configurable number of posts on [homepage](/templates/homepage/)
+  * [Front matter](/content-management/front-matter/) supports multiple types (int, string, date, float)
   * Indexes can now use a default template
   * Addition of truncated bool to content to determine if should show 'more' link
-  * Support for [linkTitles](/layout/variables/)
+  * Support for [linkTitles](/variables/)
   * Better handling of most errors with directions on how to resolve
   * Support for more date / time formats
   * Support for go 1.2

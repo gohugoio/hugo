@@ -186,7 +186,7 @@ The preceding archetype is kept up to date with every Hugo build by using Hugo's
 [archetypes directory]: /getting-started/directory-structure/
 [`now()`]: http://golang.org/pkg/time/#Now
 [configuration file]: /getting-started/configuration/
-[sections]: /sections/
+[sections]: /content-management/sections/
 [content types]: /content-management/types/
 [front matter]: /content-management/front-matter/
 [RFC 3339 format]: https://www.ietf.org/rfc/rfc3339.txt

@@ -9,7 +9,7 @@ categories: [themes]
 tags: [themes, source, organization, directories]
 weight: 30
 draft: false
-aliases: [/themes/creation/]
+aliases: [/themes/creation/,/tutorials/creating-a-new-theme/]
 toc: true
 wip: true
 ---

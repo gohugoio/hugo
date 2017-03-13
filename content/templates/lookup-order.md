@@ -176,7 +176,7 @@ The respective lookup order for each of Hugo's templates has been defined throug
 [sections]: /content-management/sections/
 [sectionlookup]: /templates/section-templates/#section-template-lookup-order
 [single content]: /templates/single-page-templates/
-[singlelookup]: templates/single-page-templates/#single-page-template-lookup-order
+[singlelookup]: /templates/single-page-templates/#single-page-template-lookup-order
 [switch]: https://en.wikipedia.org/wiki/Switch_statement#Fallthrough
 [taxonomylookup]: /templates/taxonomy-templates/#taxonomy-list-template-lookup-order
 [termslookup]: /templates/taxonomy-templates/#taxonomy-terms-template-lookup-order
