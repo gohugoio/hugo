@@ -8,9 +8,10 @@
     "headline": "{{.Title}}",
     "name": "{{.Title}}",
     "url": "{{ .Permalink }}",
+    "description": "{{.Description}}",
     "mainEntityOfPage": "{{.Permalink}}",
-    "datePublished": {{.PublishDate.Format "2006-01-02"}},
-    "dateModified": {{.Date.Format "2006-01-02"}},
+    "datePublished": "{{.PublishDate.Format "2006-01-02"}}",
+    "dateModified": "{{.Date.Format "2006-01-02"}}",
     "wordCount": {{.WordCount}},
     "image": {
         "@type": "ImageObject",
