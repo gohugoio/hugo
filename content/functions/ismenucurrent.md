@@ -13,6 +13,8 @@ workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: true
+draft: false
 aliases: []
 ---
+
+Used in [menu templates](/templates/menu-templates/).

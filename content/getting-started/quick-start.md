@@ -559,7 +559,7 @@ Here's what you should look into next:
 [bookurl]: https://www.amazon.com/Good-Great-Some-Companies-Others/dp/0066620996/
 [bleaktheme]: http://themes.gohugo.io/bleak/
 [configuration]: /getting-started/configuration/
-[createtheme]: /themes/creating-a-theme/
+[createtheme]: /themes/creating/
 [datatemplates]: /templates/data-templates/
 [forum]: https://discuss.gohugo.io
 [fm]: /content-management/front-matter/

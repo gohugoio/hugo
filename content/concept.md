@@ -213,18 +213,18 @@ Site showcase has stayed more or less as is, including styling, etc. However...
 
 ### Press & Articles
 
-* The press and article pages have been moved under "News" along with "Release Notes". Also, this whole section is lower on the navigation because it's less frequently visited---I'm assuming---than just about everything on the site.
-* Like everything else, I've kept up with changes to the docs upstream on GitHub, but in this case, I also includes a [half dozen *new* articles as well](/news/press-and-articles/).
+* The press and article pages have been moved under "News" along with "Release Notes". This section is lower on the navigation because it's less frequently visited than other areas (my assumption).
+* Like everything else, I've kept up with changes to the docs upstream on GitHub, but in this case, I also included a [half dozen *new* articles as well](/news/press-and-articles/).
 
 ### About Hugo
 
 * Content is more or less the same, but I've cleaned up a lot of the language, and copy edited for consistency throughout. I've also added in some extra frills (e.g. resources that extoll and teach more about the benefits of SSGs on [/about/benefits](/about/benefits/)).
-* Release notes are now in the "News" section, although I'm still iffy on this decision. I can gladly move this back into "About" to give it a higher degree of discoverability in the menu.
+* Release notes are now in the "News" section, although I'm still unsure on this decision. I can gladly move this back into "About" to give it a higher degree of discoverability in the menu.
 
 ### Getting Started
 
 * **[[UPDATE 2017-03-12]]**
-    * The Quick Start need to be completely reworked; this could include a walkthrough of a new default theme (#)
+    * The Quick Start needs to be completely reworked; this could include a walkthrough of a new default theme (#)
 * ~~The [Quick Start][] has been completely updated for more consistent heading structure, etc. Also, **I may delete the "deployment" section of the Quick Start** since this a) adds unnecessary length, making the guide less "quick" and b) detracts from the new "hosting and deployment" section, which offers better advice, and c) is redundant with [Hosting on Github](https://hugodocsconcept.netlify.com/hosting-and-deployment/hosting-on-github/). For example, the Quick Start didn't mention that files already written to public are not necessarily erased at build time. This can cause problems with drafts. I think the other options&mdash;e.g. Arjen's Wercker tutorial&mdash;are more viable and represent better practices for newcomers to Hugo. If future versions of Hugo include baked-in deployment features, I think it's worth reconsidering adding the deployment step back to the Quick Start.~~
 
 ### Content
@@ -268,7 +268,7 @@ Themes section organization has only changed slightly in that the 6 content page
     * Cross-References. Added as its own page under Content Management (`/content-management/cross-references/`)
     * Custom robots.txt. Incorporated into [/templates/robots/](/templates/robots/)
     * Data Files and Data-Driven Content. Combined and incorporated into [/templates/data-templates/](/templates/data-templates/)
-    * GitInfo. Incorporated into [/variables/other/](/variables/other/)
+    * GitInfo. Incorporated into [/variables/git/](/variables/git/)
     * LiveReload. This doesn't really merits its own page. It's mentioned in features, usage, about, and elsewhere.
     * Menus. This is broken into [/content-management/menus/](/content-management/menus/) and [/templates/menu-templates/](/templates/menu-templates/)
     * Pagination. Now in [/templates/pagination/](/templates/pagination/)
@@ -278,7 +278,7 @@ Themes section organization has only changed slightly in that the 6 content page
     * URLS. Now combined with permalinks and others as a heading/subsection of [/content-management/urls/](/content-management/urls/)
     * Syntax Highlighting. The shortcode is featured and explained with usage examples at [/content-management/shortcodes/](/content-management/shortcodes/), as well as expaned upon in it's own page under [/tools/syntax-highlighting/](/tools/syntax-highlighting/). I did this under the assumption that *developers* are most interested in adding code blocks to their content.
     * Table of Contents. This is now it's own page under [/content-management/toc](/content-management/toc/) and referenced in [/variables/page-variables](/variables/page/).
-    * Traversing Local Files. This is now split into [/templates/files/](/templates/files/) and variables delimited at [/variables/other/](/variables/other/).
+    * Traversing Local Files. This is now split into [/templates/files/](/templates/files/) and variables delimited at [/variables/files/](/variables/files/).
 
 ### Community
 
@@ -416,7 +416,10 @@ Apache License - 60
 * Page Variables - 20
 * Taxonomy Variables - 30
 * File Variables - 40
-* Other (Shortcode, Git, Menu, and Hugo vars) - 50
+* Menu Variables - 50
+* Hugo Variables - 60
+* Git Variables - 70
+* Sitemap Variables - 80
 
 ### "themes" Ordering (`.OrderByWeight`)
 

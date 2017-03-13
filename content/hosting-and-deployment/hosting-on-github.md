@@ -149,7 +149,7 @@ The other steps are the same as with the worktree approach.
 
 As mentioned [in this GitHub Help article](https://help.github.com/articles/user-organization-and-project-pages/), you can host a user/organization page in addition to project pages. Here are the key differences in GitHub Pages websites for Users and Organizations:
 
-1. You must use the `username.github.io` naming scheme.
+1. You must use the `<username>.github.io` naming scheme.
 2. Content from the `master` branch will be used to build and publish your GitHub Pages site.
 
 It becomes much simpler in this case: we'll create two separate repos, one for Hugo's content, and a git submodule with the `public` folder's content in it.
@@ -192,7 +192,7 @@ cd ..
 ```
 7. `./deploy.sh "Your optional commit message"` to send changes to `<username>.github.io` (careful, you may also want to commit changes on the `<your-project>-hugo` repo).
 
-That's it! Your personal page is running at [http://username.github.io/](http://username.github.io/)(after up to 10 minutes delay).
+That's it! Your personal page is running (after up to 10 minutes delay).
 
 ## Using a Custom Domain
 

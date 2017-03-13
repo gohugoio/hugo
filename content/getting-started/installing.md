@@ -461,7 +461,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [Chocolatey]: https://chocolatey.org/
 [highlight shortcode]: /content-management/shortcodes/#highlight
 [forum]: https://discuss.gohugo.io
-[installgit]: (http://git-scm.com/)
+[installgit]: http://git-scm.com/
 [installgo]: https://golang.org/dl/
 [Path Editor]: https://patheditor2.codeplex.com/
 [pygments]: http://pygments.org

@@ -36,7 +36,45 @@ If you make use of the [multilingual feature](/content-management/multilingual/)
 
 A menu entry has the following properties (i.e., variables) available to it:
 
-{{< readfile file="content/readfiles/menuvars.md" markdown="true" >}}
+`.URL`
+: string
+
+`.Name`
+: string
+
+`.Menu`
+: string
+
+`.Identifier`
+: string
+
+`.Pre`
+: template.HTML
+
+`.Post`
+: template.HTML
+
+`.Weight`
+: int
+
+`.Parent`
+: string
+
+`.Children`
+: Menu
+
+Note that menus also have the following functions available as well:
+
+`.HasChildren`
+: boolean
+
+Additionally, there are some relevant functions available to menus on a page:
+
+`.IsMenuCurrent`
+: (menu string, menuEntry *MenuEntry ) boolean
+
+`.HasMenuCurrent`
+: (menu string, menuEntry *MenuEntry) boolean
 
 ## Adding content to menus
 

@@ -14,8 +14,9 @@ workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: true
+draft: false
 aliases: []
+needsexamples: true
 ---
 
-Use in [menu templates](/templates/menu-templates/).
+Used in [menu templates](/templates/menu-templates/).

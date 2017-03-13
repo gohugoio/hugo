@@ -30,7 +30,7 @@ A theme consists of templates and static assets such as javascript and css files
 
 
 {{% note "Use the Hugo Generator Tag" %}}
-The [`.Hugo.Generator`](/variables/other/) tag is included in all themes featured in the [Hugo Themes Showcase](http://themes.gohugo.io). We ask that you include the generator tag in all sites and themes you create with Hugo to help the core team track Hugo's usage and popularity.
+The [`.Hugo.Generator`](/variables/hugo/) tag is included in all themes featured in the [Hugo Themes Showcase](http://themes.gohugo.io). We ask that you include the generator tag in all sites and themes you create with Hugo to help the core team track Hugo's usage and popularity.
 {{% /note %}}
 
 ## Layouts

@@ -40,7 +40,7 @@ You can learn more about each component of a newly scaffolded site in its respec
 * [archetypes](/content-management/archetypes/)
 * [content](/content-management/organization/)
 * [layouts](/templates/)
-* [static](/themes/creating-a-theme/)
+* [static](/themes/creating/)
 * [themes](/themes/)
 
 
