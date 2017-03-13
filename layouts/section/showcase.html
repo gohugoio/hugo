@@ -42,6 +42,7 @@
 {{end}}
 
 {{ define "addscripts" }}
-<script type="text/javascript" src="https://cdn.jsdelivr.net/blazy/1.8.2/blazy.min.js"></script>
-<script>var bLazy = new Blazy();</script>
+<script src="{{ "js/vendor/blazy.min.js" | relURL}}" async defer></script>
+<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/blazy/1.8.2/blazy.min.js"></script>
+<script>var bLazy = new Blazy();</script> -->
 {{ end }}

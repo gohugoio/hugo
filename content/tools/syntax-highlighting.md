@@ -121,7 +121,7 @@ It is also possible to add syntax highlighting with GitHub flavored code fences.
 * The languages available for highlighting depend on your Pygments installation.
 {{% /note %}}
 
-## Client-side Syntax Highlighting
+## Client-side
 
 Alternatively, code highlighting can be applied to your code blocks in client-side JavaScript.
 
