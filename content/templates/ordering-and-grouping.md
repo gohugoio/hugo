@@ -174,12 +174,14 @@ your list templates:
 ### By Link Title
 
 {{% code file="layouts/partials/by-link-title.html" %}}
+```html
 {{ range .Data.Pages.ByLinkTitle }}
     <li>
     <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
 {{ end }}
+```
 {{% /code %}}
 
 ### By Parameter
@@ -394,7 +396,7 @@ Sometimes you only want to list a subset of the available content. A common requ
 2. `number of elements`
 
 {{% code file="layout/_default/section.html" %}}
-```golang
+```html
 {{ range first 10 .Data.Pages }}
   {{ .Render "summary" }}
 {{ end }}
@@ -406,7 +408,7 @@ Sometimes you only want to list a subset of the available content. A common requ
 Using `first` and `where` together can be very powerful:
 
 {{% code file="first-and-where-together.html" %}}
-```golang
+```html
 {{ range first 5 (where .Data.Pages "Section" "post") }}
    {{ .Content }}
 {{ end }}
