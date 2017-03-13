@@ -87,29 +87,43 @@ table {
   }
 }
 
-article#press-and-articles {
-  > .body-copy {
-    table {
-      max-width:100%;
-      tr {
-        td {
-          // max-width: 200px;
-          display:table-cell;
-          width:auto;
-        }
-        // td:first-child {
-        //   width:300px;
-        // }
-        // td:nth-child(2) {
-        //   width:200px;
-        // }
-        td:nth-child(3) {
-          width: 100px;
-          min-width: 100px;
-          max-width : 100px;
-          text-align:right;
-        }
-      }
-    }
+table tr {
+  td.col-date {
+    min-width:140px;
+    width:140px;
+
+  }
+  td.col-author {
+
+  }
+  td.col-title {
+
   }
 }
+
+// article#press-and-articles {
+//   > .body-copy {
+//     table {
+//       max-width:100%;
+//       tr {
+//         td {
+//           // max-width: 200px;
+//           display:table-cell;
+//           width:auto;
+//         }
+//         // td:first-child {
+//         //   width:300px;
+//         // }
+//         // td:nth-child(2) {
+//         //   width:200px;
+//         // }
+//         td:nth-child(3) {
+//           width: 100px;
+//           min-width: 100px;
+//           max-width : 100px;
+//           text-align:right;
+//         }
+//       }
+//     }
+//   }
+// }
