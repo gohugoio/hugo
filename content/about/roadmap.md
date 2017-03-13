@@ -15,7 +15,7 @@ toc: false
 
 To track Hugo's progress, see our [GitHub Milestones][milestones].
 
-In no particular order, here are some other features currently being worked on for the Hugo project:
+In no particular order, here are some other features currently being worked on:
 
 * Intelligently related posts ({{< gh 98 >}})
 * Even easier deployment to S3, SSH, GitHub, rsync. Give the [hosting and deployment][] section a shot.
