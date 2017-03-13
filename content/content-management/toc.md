@@ -16,7 +16,7 @@ toc: false
 Hugo can automatically parse Markdown content and create a Table of Contents you can leverage in your templates to guide readers to sections of longer pages.
 
 {{% note "TOC Heading Levels are Fixed" %}}
-Currently, the {{.TableOfContents}} [page variable](/variables/page/) is fixed in its behavior; i.e., you do not have the option to set the heading level at which the TOC renders. This is a [known issue (#1778)](https://github.com/spf13/hugo/issues/1778).
+Currently, the `{{.TableOfContents}}` [page variable](/variables/page/) does not allow you to specify which heading levels you want the TOC to render. [See the related GitHub discussion (#1778)](https://github.com/spf13/hugo/issues/1778). As such, the resulting `<nav id="TableOfContents"><ul></ul></nav>` is going to start at `<h1>` when pulling from `{{.Content}}`.
 {{% /note %}}
 
 ## Usage
@@ -43,23 +43,49 @@ A collection of textile samples lay spread out on the table - Samsa was a travel
 
 Hugo will take this Markdown and create a table of contents from `## Introduction`, `## My Heading`, and `### My Subheading` and then store it in the [page variable][pagevars]`.TableOfContents`.
 
-## Template Example
+## Template Example: Basic TOC
 
-The following is an example of very basic [single page template][]:
+The following is an example of a very basic [single page template][]:
 
-{{% code file="layout/partials/toc.html" download="toc.html" %}}
+{{% code file="layout/_default/single.html" download="single.html" %}}
 ```html
 {{ define "main" }}
+<main id="main">
+    <header>
+        <h1>{{ .Title }}</h1>
+    </header>
+        {{ .Content }}
     <aside id="toc">
-    {{ .TableOfContents }}
+        {{ .TableOfContents }}
     </aside>
-    <h1>{{ .Title }}</h1>
-    {{ .Content }}
+</main>
 {{ end }}
 ```
 {{% /code %}}
 
+## Template Example: TOC Partial
 
+The following is a [partial template][partials] that adds slightly more logic for page-level control over your table of contents. It assumes you are using a `toc` field in your content's [front matter][] that, unless specifically set to `false`, will add a TOC to any page with a [`.WordCount`][] greater than 400. This example also demonstrates how to use [conditionals][] in your templating:
+
+{{% code file="layouts/partials/toc.html" download="toc.html" %}}
+```html
+{{ if and (gt .WordCount 400 ) (ne .Params.toc "false") }}
+<aside id="toc">
+    <header>
+    <h2 class="toc-heading">{{.Title}}</h2>
+    </header>
+    {{.TableOfContents}}
+</aside>
+{{ end }}
+```
+{{% /code %}}
+
+{{% note %}}
+With the preceding example, even pages with > 400 words *and* `toc` not set to false will not render a table of contents if there are no headings in the page for the `{{.TableOfContents}}` variable to pull from.
+{{% /note %}}
+
+[conditionals]: /templates/introduction/#conditionals/
+[front matter]: /content-management/table-of-contents/
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
 [single page template]: /templates/single-page-templates/
