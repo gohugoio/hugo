@@ -20,7 +20,7 @@ Over time, dynamic site generators were programmed to cache their HTML files to 
 
 Hugo is in a family of generators that take caching a step further. All HTML files are rendered on your computer. You can review the files locally before copying them to the computer hosting the HTTP server. Since the HTML files aren't generated dynamically, we say that Hugo is a *static site generator*.
 
-Not running a website generator on your HTTP server has many benefits. The most noticeable is performance. HTTP servers are *very* good at sending files---so good, in fact, that you can effectively serve the same number of pages with a fraction of the memory and CPU needed for a ~~dynamic site~~.
+Not running a website generator on your HTTP server has many benefits. The most noticeable is performance. HTTP servers are *very* good at sending files---so good, in fact, that you can effectively serve the same number of pages with a fraction of the memory and CPU needed for a dynamic site.
 
 ## More on Static Site Generators
 

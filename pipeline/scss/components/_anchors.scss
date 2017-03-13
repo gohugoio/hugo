@@ -90,8 +90,25 @@ a.tooltip {
     display: inline;
     top: .35em;
     right: 0px;
+    @include size(1.2em);
     @include MQ(M) {
       left: -1.5em;
+    }
+    &:hover:after {
+      content: 'Copy Link';
+      display: inline-block;
+      width: 70px;
+      background-color: $hugo-black;
+      color: $hugo-white;
+      font-size: 12px;
+      position: absolute;
+      bottom: -1.5em;
+      border-radius: 3px;
+      left: -1em;
+      text-align: center;
+    }
+    &.copied:hover::after {
+      content: 'Copied!';
     }
   }
   h2,
@@ -102,7 +119,7 @@ a.tooltip {
         opacity: 1;
       }
       .icon-link:hover {
-        color:$hugo-pink;
+        color: $hugo-pink;
       }
     }
   }
