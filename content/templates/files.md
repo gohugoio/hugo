@@ -79,7 +79,7 @@ Here is the templating for our new `readfile` shortcode:
 ```
 {{% /code %}}
 
-This `readfile` shortcode is [also part of the Hugo docs][readfilesource]. So is[`testing.txt`][testfile], which we will call in this example by passing it into our new `readfile` shortcode as follows:
+This `readfile` shortcode is [also part of the Hugo docs][readfilesource]. So is [`testing.txt`][testfile], which we will call in this example by passing it into our new `readfile` shortcode as follows:
 
 ```
 {{</* readfile file="content/readfiles/testing.txt" */>}}

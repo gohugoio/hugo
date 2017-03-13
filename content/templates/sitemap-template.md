@@ -11,12 +11,11 @@ weight: 160
 draft: false
 aliases: [/layout/sitemap/,/templates/sitemap/]
 toc: false
-wip: true
 ---
 
 A single Sitemap template is used to generate the `sitemap.xml` file.
-Hugo automatically comes with this template file. **No work is needed on
-the users' part unless they want to customize `sitemap.xml`.**
+Hugo automatically comes with this template file. *No work is needed on
+the users' part unless they want to customize `sitemap.xml`.*
 
 A sitemap is a `Page` and therefore has all the [page variables][pagevars] available to use in this template along with Sitemap-specific ones:
 
@@ -29,7 +28,7 @@ A sitemap is a `Page` and therefore has all the [page variables][pagevars] avail
 `.Sitemap.Filename`
 : The sitemap filename
 
-If provided, Hugo will use `/layouts/sitemap.xml` instead of the internal `sitemap.xml` template that ships with Hugo..
+If provided, Hugo will use `/layouts/sitemap.xml` instead of the internal `sitemap.xml` template that ships with Hugo.
 
 ## Hugo’s sitemap.xml
 

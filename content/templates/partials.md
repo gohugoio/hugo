@@ -11,7 +11,6 @@ weight: 90
 draft: false
 aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 toc: true
-wip: true
 ---
 
 In practice, splitting out reusable template portions into **partial templates** to be included anywhere help keep your templating DRY.
@@ -53,7 +52,7 @@ All partials are called within your templates using the following pattern:
 ```
 
 {{% note %}}
-One of the most common mistakes with new Hugo users is failing to pass a context to the partial call. In the pattern above, note how "the dot" (`.`) is required as the second argument to give the partial context. You can read more about "the dot" in the [templating introduction](/templates/introduction/).
+One of the most common mistakes with new Hugo users is failing to pass a context to the partial call. In the pattern above, note how "the dot" (`.`) is required as the second argument to give the partial context. You can read more about "the dot" in the [Hugo templating introduction](/templates/introduction/).
 {{% /note %}}
 
 As shown in the above example directory structure, you can nest your directories within `partials` for better source organization. You only need to call the nested partial's path relative to the `partials` directory:

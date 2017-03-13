@@ -11,10 +11,9 @@ weight: 140
 draft: false
 aliases: [/extras/pagination,/doc/pagination/]
 toc: true
-wip: true
 ---
 
-Hugo supports pagination for your homepage, section pages, and taxonomies. Hugo's pagination features were designed with ease of use and flexibility in mind. The real power of Hugo pagination shines when combine with the [`where` function][where] and its SQL-like operators: [`first`][], [`last`][], and [`after`][]. You can even [order the content][lists] the way you've become used to with Hugo.
+Hugo supports pagination for your homepage, section pages, and taxonomies. Hugo's pagination features were designed with ease of use and flexibility in mind. The real power of Hugo pagination shines when combined with the [`where` function][where] and its SQL-like operators: [`first`][], [`last`][], and [`after`][]. You can even [order the content][lists] the way you've become used to with Hugo.
 
 ## Configuring Pagination
 
@@ -60,7 +59,7 @@ The `.Paginator` contains enough information to build a paginator interface.
 
 The easiest way to add this to your pages is to include the built-in template (with `Bootstrap`-compatible styles):
 
-```
+```html
 {{ template "_internal/pagination.html" . }}
 ```
 
@@ -70,7 +69,7 @@ If you use any filters or ordering functions to create your `.Paginator` *and* y
 
 The following example shows how to create `.Paginator` before its used:
 
-```golang
+```html
 {{ $paginator := .Paginate (where .Data.Pages "Type" "post") }}
 {{ template "_internal/pagination.html" . }}
 {{ range $paginator.Pages }}
@@ -80,7 +79,7 @@ The following example shows how to create `.Paginator` before its used:
 
 Without the `where` filter, the above example is even simpler:
 
-```golang
+```html
 {{ template "_internal/pagination.html" . }}
 {{ range .Paginator.Pages }}
    {{ .Title }}
