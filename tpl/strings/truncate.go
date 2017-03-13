@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tplimpl
+package strings
 
 import (
 	"errors"
@@ -39,7 +39,7 @@ type htmlTag struct {
 	openTag bool
 }
 
-func truncate(a interface{}, options ...interface{}) (template.HTML, error) {
+func (ns *Namespace) Truncate(a interface{}, options ...interface{}) (template.HTML, error) {
 	length, err := cast.ToIntE(a)
 	if err != nil {
 		return "", err
