@@ -244,7 +244,7 @@ categories_weight: 44
 By using taxonomic weight, the same piece of content can appear in different positions in different taxonomies.
 
 {{% note "Limits to Ordering Taxonomies" %}}
-Currently taxonomies only support the [default `weight => date` ordering of list content](/templates/ordering-and-grouping/#default-weight-date). For more information, see the documentation on [taxonomy templates](/templates/taxonomy-templates/).
+Currently taxonomies only support the [default `weight => date` ordering of list content](/templates/lists/#default-weight-date). For more information, see the documentation on [taxonomy templates](/templates/taxonomy-templates/).
 {{% /note %}}
 
 [`urlize` template function]: /functions/urlize/

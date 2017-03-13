@@ -8,9 +8,10 @@ lastmod: 2017-02-01
 categories: [templates]
 tags: []
 weight: 27
-draft: false
+draft: true
 aliases: [/templates/ordering/,/templates/grouping/]
 toc: true
+notes: This was originally going to be a separate page on the new docs site but it now makes more sense to keep everything within the templates/lists page. - rdwatters, 2017-03-12.
 ---
 
 In Hugo, A list template is any template that will be used to render multiple pieces of content in a single HTML page.

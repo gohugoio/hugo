@@ -168,7 +168,7 @@ See [site configuration][config] for more information on Blackfriday configurati
 [contentorg]: /content-management/organization/
 [content type]: /content-management/types/
 [JSON Spec]: /documents/ecma-404-json-spec.pdf "Specification for JSON, JavaScript Object Notation"
-[ordering]: /templates/ordering-and-grouping/ "Hugo provides multiple ways to sort and order your content in list templates"
+[ordering]: /templates/lists/ "Hugo provides multiple ways to sort and order your content in list templates"
 [taxweight]: /content-management/taxonomies/
 [TOML Spec]: https://github.com/toml-lang/toml "Specification for TOML, Tom's Obvious Minimal Language"
 [urls]: /content-management/urls/

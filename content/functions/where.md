@@ -100,7 +100,7 @@ You can also put the returned value of the `where` clauses into a variable:
 
 ## Using `where` with `first`
 
-The following grabs the first five content files in `post` using the [default ordering](/templates/ordering-and-grouping/) for lists (i.e., `weight => date`):
+The following grabs the first five content files in `post` using the [default ordering](/templates/lists/) for lists (i.e., `weight => date`):
 
 {{% code file="where-with-first.html" %}}
 ```html

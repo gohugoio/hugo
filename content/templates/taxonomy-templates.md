@@ -310,6 +310,7 @@ This example will list all taxonomies and their terms, as well as all the conten
 
 
 [delimit]: /functions/delimit/
+[lists]: /templates/lists/
 [renderlists]: /templates/lists/
 [single page template]: /templates/single-page-templates/
 [sitevars]: /variables/site/

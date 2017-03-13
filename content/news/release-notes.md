@@ -760,7 +760,7 @@ This release represents over 110 code commits from 29 different contributors.
   * Streamlined [template organization](/templates/)
   * [Brand new docs site](http://gohugo.io/)
   * Support for publishDate which allows for posts to be dated in the future
-  * More [sort](/templates/ordering-and-grouping/) options
+  * More [sort](/templates/lists/) options
   * Logging support
   * Much better error handling
   * More informative verbose output
@@ -774,7 +774,7 @@ This release represents over 110 code commits from 29 different contributors.
 This release represents over 110 code commits from 29 different contributors.
 
   * [Syntax highlighting](/tools/syntax-highlighting/) powered by pygments (**slow**)
-  * Ability to [sort content](/templates/ordering-and-grouping/) many more ways
+  * Ability to [sort content](/templates/lists/) many more ways
   * Automatic [table of contents](/content-management/toc/) generation
   * Support for Unicode URLs, aliases and indexes
   * Configurable per-section [permalink](/content-management/urls/) pattern support
@@ -800,7 +800,7 @@ This release represents over 220 code commits from 22 different contributors.
   * Support for top level pages (in addition to homepage)
   * Complete overhaul of the documentation site
   * Full Windows support
-  * Better index support including [ordering by content weight](/templates/ordering-and-grouping/)
+  * Better index support including [ordering by content weight](/templates/lists/)
   * Add params to site config, available in .Site.Params from templates
   * Friendlier JSON support
   * Support for html & xml content (with front matter support)
