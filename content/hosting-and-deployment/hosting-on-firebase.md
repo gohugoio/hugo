@@ -8,7 +8,7 @@ lastmod: 2017-03-12
 categories: [hosting and deployment]
 tags: [hosting,firebase]
 authors: []
-weight: 40
+weight: 20
 draft: true
 toc: true
 aliases: []

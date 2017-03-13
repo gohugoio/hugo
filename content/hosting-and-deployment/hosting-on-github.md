@@ -8,7 +8,7 @@ lastmod: 2017-02-01
 categories: [hosting and deployment]
 tags: [github,git,deployment,hosting]
 authors: [Spencer Lyon, Gunnar Morling]
-weight: 20
+weight: 30
 draft: false
 toc: true
 aliases: [/tutorials/github-pages-blog/]

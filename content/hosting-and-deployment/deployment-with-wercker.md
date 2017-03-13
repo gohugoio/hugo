@@ -1,14 +1,14 @@
 ---
 title: Deployment with Wercker
 linktitle: Deployment with Wercker
-description: This guide walks you through the steps needed to create a basic Hugo site, host the site's source and final website on GitHub and GitHub pages, and set up automated deployment using a free tool called Wercker.
+description: You can use a free tool called Wercker to automate deployments between your GitHub-hosted source and final website on GitHub pages.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [hosting and deployment]
 tags: [wercker,deployment,github,git]
 authors: [Arjen Schwarz, Samuel Debruyn]
-weight: 50
+weight: 60
 draft: false
 aliases: [/tutorials/automated-deployments/]
 toc: true

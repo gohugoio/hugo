@@ -433,11 +433,12 @@ Apache License - 60
 
 * _index.md - 01
 * Hosting on Netlify - 10
-* Hosting on Github - 20
-* Hosting on Gitlab - 30
-* Hosting on Bitbucket - 40
-* Deployment with Wercker - 50
-* Deployment with Rsync - 60
+* Hosting on Firebase (Draft) - 20
+* Hosting on Github - 30
+* Hosting on Gitlab - 40
+* Hosting on Bitbucket - 50
+* Deployment with Wercker - 60
+* Deployment with Rsync - 70
 
 
 ### "tools" Ordering
