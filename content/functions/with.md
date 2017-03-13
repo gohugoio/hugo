@@ -3,8 +3,8 @@ title: with
 linktitle: with
 description: Rebinds the context (`.`) within its scope and skips the block if the variable is absent.
 godocref:
-date: 2017-03-12
-publishdate: 2017-03-12
+date: 2017-02-01
+publishdate: 2017-02-01
 lastmod: 2017-03-12
 categories: [functions]
 tags: [conditionals,fundamentals]
