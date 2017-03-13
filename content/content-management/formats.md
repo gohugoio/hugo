@@ -80,14 +80,6 @@ See [Shortcodes][sc] for usage, particularly for the built-in shortcodes that sh
 
 Hugo supports GitHub-flavored markdown's use of triple back ticks, as well as provides a special [`highlight` nested shortcode][hlsc] to render syntax highlighting via [Pygments][]. For usage examples and a complete explanation, see the [syntax highlighting documentation][hl] in [developer tools][].
 
-## Markdown Learning Resources
-
-If you are unfamiliar with markdown syntax, it can easily be learned within a single sitting. The following are excellent resources to get you up and running:
-
-* [Daring Fireball: Markdown, John Gruber (Creator of Markdown)][fireball]
-* [Markdown Cheatsheet, Adam Pritchard][mdcheatsheet]
-* [Markdown Tutorial (Interactive), Garen Torikian][mdtutorial]
-
 ## Additional Content Formats
 
 Since 0.14, Hugo has defined a new concept called _external helpers_. This means you can write your content using [Asciidoc][ascii], [reStructuredText][rest], or [Org-mode][org]. If you have files with associated extensions, Hugo will call external commands to generate the content. ([See the Hugo source code for external helpers][helperssource]). The exception is Org-mode, which is parsed natively.
@@ -99,6 +91,14 @@ To use these formats, just use the standard extension and the front matter exact
 {{% warning "Performance of External Helpers" %}}
 Because additional formats are external commands---with the exception of org mode---generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
 {{% /warning %}}
+
+## Markdown Learning Resources
+
+If you are unfamiliar with markdown syntax, it can easily be learned within a single sitting. The following are excellent resources to get you up and running:
+
+* [Daring Fireball: Markdown, John Gruber (Creator of Markdown)][fireball]
+* [Markdown Cheatsheet, Adam Pritchard][mdcheatsheet]
+* [Markdown Tutorial (Interactive), Garen Torikian][mdtutorial]
 
 [ascii]: http://asciidoc.org/
 [bfconfig]: /getting-started/configuration/#configuring-blackfriday-rendering
