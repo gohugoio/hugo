@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tplimpl
+package data
 
 import (
 	"bytes"
@@ -25,6 +25,8 @@ import (
 	"time"
 
 	"github.com/spf13/afero"
+	"github.com/spf13/hugo/config"
+	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/viper"
@@ -259,7 +261,7 @@ func TestParseCSV(t *testing.T) {
 func TestGetJSONFailParse(t *testing.T) {
 	t.Parallel()
 
-	f := newTestFuncster()
+	ns := New(newDeps(viper.New()))
 
 	reqCount := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -276,7 +278,7 @@ func TestGetJSONFailParse(t *testing.T) {
 	url := ts.URL + "/test.json"
 
 	want := map[string]interface{}{"gomeetup": []interface{}{"Sydney", "San Francisco", "Stockholm"}}
-	have := f.getJSON(url)
+	have := ns.GetJSON(url)
 	assert.NotNil(t, have)
 	if have != nil {
 		assert.EqualValues(t, want, have)
@@ -285,7 +287,8 @@ func TestGetJSONFailParse(t *testing.T) {
 
 func TestGetCSVFailParseSep(t *testing.T) {
 	t.Parallel()
-	f := newTestFuncster()
+
+	ns := New(newDeps(viper.New()))
 
 	reqCount := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -305,7 +308,7 @@ func TestGetCSVFailParseSep(t *testing.T) {
 	url := ts.URL + "/test.csv"
 
 	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
-	have := f.getCSV(",", url)
+	have := ns.GetCSV(",", url)
 	assert.NotNil(t, have)
 	if have != nil {
 		assert.EqualValues(t, want, have)
@@ -315,7 +318,7 @@ func TestGetCSVFailParseSep(t *testing.T) {
 func TestGetCSVFailParse(t *testing.T) {
 	t.Parallel()
 
-	f := newTestFuncster()
+	ns := New(newDeps(viper.New()))
 
 	reqCount := 0
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -337,9 +340,19 @@ func TestGetCSVFailParse(t *testing.T) {
 	url := ts.URL + "/test.csv"
 
 	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
-	have := f.getCSV(",", url)
+	have := ns.GetCSV(",", url)
 	assert.NotNil(t, have)
 	if have != nil {
 		assert.EqualValues(t, want, have)
+	}
+}
+
+func newDeps(cfg config.Provider) *deps.Deps {
+	l := helpers.NewLanguage("en", cfg)
+	l.Set("i18nDir", "i18n")
+	return &deps.Deps{
+		Cfg:         cfg,
+		Fs:          hugofs.NewMem(l),
+		ContentSpec: helpers.NewContentSpec(l),
 	}
 }

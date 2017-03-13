@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tplimpl
+package strings
 
 import (
 	"html/template"
@@ -22,6 +22,7 @@ import (
 
 func TestTruncate(t *testing.T) {
 	t.Parallel()
+
 	var err error
 	cases := []struct {
 		v1    interface{}
@@ -52,11 +53,11 @@ func TestTruncate(t *testing.T) {
 	for i, c := range cases {
 		var result template.HTML
 		if c.v2 == nil {
-			result, err = truncate(c.v1)
+			result, err = ns.Truncate(c.v1)
 		} else if c.v3 == nil {
-			result, err = truncate(c.v1, c.v2)
+			result, err = ns.Truncate(c.v1, c.v2)
 		} else {
-			result, err = truncate(c.v1, c.v2, c.v3)
+			result, err = ns.Truncate(c.v1, c.v2, c.v3)
 		}
 
 		if c.isErr {
@@ -75,7 +76,7 @@ func TestTruncate(t *testing.T) {
 	}
 
 	// Too many arguments
-	_, err = truncate(10, " ...", "I am a test sentence", "wrong")
+	_, err = ns.Truncate(10, " ...", "I am a test sentence", "wrong")
 	if err == nil {
 		t.Errorf("Should have errored")
 	}

@@ -20,17 +20,43 @@ import (
 	texttemplate "text/template"
 
 	bp "github.com/spf13/hugo/bufferpool"
-
-	"image"
-
 	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/tpl/collections"
+	"github.com/spf13/hugo/tpl/crypto"
+	"github.com/spf13/hugo/tpl/data"
+	"github.com/spf13/hugo/tpl/encoding"
+	"github.com/spf13/hugo/tpl/images"
+	"github.com/spf13/hugo/tpl/inflect"
+	"github.com/spf13/hugo/tpl/lang"
+	"github.com/spf13/hugo/tpl/math"
+	"github.com/spf13/hugo/tpl/os"
+	"github.com/spf13/hugo/tpl/safe"
+	hstrings "github.com/spf13/hugo/tpl/strings"
+	"github.com/spf13/hugo/tpl/time"
+	"github.com/spf13/hugo/tpl/transform"
+	"github.com/spf13/hugo/tpl/urls"
 )
 
 // Some of the template funcs are'nt entirely stateless.
 type templateFuncster struct {
 	funcMap        template.FuncMap
 	cachedPartials partialCache
-	image          *imageHandler
+
+	// Namespaces
+	collections *collections.Namespace
+	crypto      *crypto.Namespace
+	data        *data.Namespace
+	encoding    *encoding.Namespace
+	images      *images.Namespace
+	inflect     *inflect.Namespace
+	lang        *lang.Namespace
+	math        *math.Namespace
+	os          *os.Namespace
+	safe        *safe.Namespace
+	strings     *hstrings.Namespace
+	time        *time.Namespace
+	transform   *transform.Namespace
+	urls        *urls.Namespace
 
 	*deps.Deps
 }
@@ -39,7 +65,22 @@ func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 	return &templateFuncster{
 		Deps:           deps,
 		cachedPartials: partialCache{p: make(map[string]interface{})},
-		image:          &imageHandler{fs: deps.Fs, imageConfigCache: map[string]image.Config{}},
+
+		// Namespaces
+		collections: collections.New(deps),
+		crypto:      crypto.New(),
+		data:        data.New(deps),
+		encoding:    encoding.New(),
+		images:      images.New(deps),
+		inflect:     inflect.New(),
+		lang:        lang.New(deps),
+		math:        math.New(),
+		os:          os.New(deps),
+		safe:        safe.New(),
+		strings:     hstrings.New(deps),
+		time:        time.New(),
+		transform:   transform.New(deps),
+		urls:        urls.New(deps),
 	}
 }
 
