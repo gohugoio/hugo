@@ -1,22 +1,46 @@
 .
 ├── _index.md
-├── about-hugo
+├── about
 │   ├── _index.md
 │   ├── benefits.md
 │   ├── features.md
 │   ├── license.md
 │   ├── roadmap.md
-│   ├── what-is-hugo.md
-│   └── why-i-built-hugo.md
+│   └── what-is-hugo.md
 ├── commands
-│   └── _index.md
+│   ├── _index.md
+│   ├── hugo.md
+│   ├── hugo_benchmark.md
+│   ├── hugo_check.md
+│   ├── hugo_check_ulimit.md
+│   ├── hugo_config.md
+│   ├── hugo_convert.md
+│   ├── hugo_convert_toJSON.md
+│   ├── hugo_convert_toTOML.md
+│   ├── hugo_convert_toYAML.md
+│   ├── hugo_env.md
+│   ├── hugo_gen.md
+│   ├── hugo_gen_autocomplete.md
+│   ├── hugo_gen_doc.md
+│   ├── hugo_gen_man.md
+│   ├── hugo_import.md
+│   ├── hugo_import_jekyll.md
+│   ├── hugo_list.md
+│   ├── hugo_list_drafts.md
+│   ├── hugo_list_expired.md
+│   ├── hugo_list_future.md
+│   ├── hugo_new.md
+│   ├── hugo_new_site.md
+│   ├── hugo_new_theme.md
+│   ├── hugo_server.md
+│   ├── hugo_undraft.md
+│   └── hugo_version.md
 ├── concept.md
 ├── content-management
 │   ├── _index.md
 │   ├── archetypes.md
+│   ├── authors.md
 │   ├── comments.md
-│   ├── content-summaries.md
-│   ├── content-types.md
 │   ├── cross-references.md
 │   ├── formats.md
 │   ├── front-matter.md
@@ -25,26 +49,21 @@
 │   ├── organization.md
 │   ├── sections.md
 │   ├── shortcodes.md
+│   ├── summaries.md
 │   ├── taxonomies.md
 │   ├── toc.md
+│   ├── types.md
 │   └── urls.md
 ├── contribute
 │   ├── _index.md
 │   ├── development.md
-│   └── documentation.md
-├── developer-tools
-│   ├── _index.md
-│   ├── editor-plugins.md
-│   ├── frontends.md
-│   ├── migrate-to-hugo.md
-│   ├── other.md
-│   ├── search.md
-│   ├── starter-kits.md
-│   └── syntax-highlighting.md
+│   ├── documentation.md
+│   └── themes.md
 ├── functions
 │   ├── _index.md
 │   ├── abslangurl.md
 │   ├── absurl.md
+│   ├── adddate.md
 │   ├── after.md
 │   ├── apply.md
 │   ├── base64.md
@@ -58,8 +77,9 @@
 │   ├── echoparam.md
 │   ├── emojify.md
 │   ├── eq.md
-│   ├── findre.md
+│   ├── findRe.md
 │   ├── first.md
+│   ├── format.md
 │   ├── get.md
 │   ├── getenv.md
 │   ├── getpage.md
@@ -95,17 +115,17 @@
 │   ├── readdir.md
 │   ├── readfile.md
 │   ├── ref.md
-│   ├── relLangURL.md
+│   ├── rellangurl.md
 │   ├── relref.md
 │   ├── relurl.md
 │   ├── render.md
 │   ├── replace.md
 │   ├── replacere.md
+│   ├── safeURL.md
 │   ├── safecss.md
 │   ├── safehtml.md
 │   ├── safehtmlattr.md
 │   ├── safejs.md
-│   ├── safeurl.md
 │   ├── scratch.md
 │   ├── seq.md
 │   ├── sha.md
@@ -121,10 +141,12 @@
 │   ├── title.md
 │   ├── trim.md
 │   ├── truncate.md
+│   ├── union.md
 │   ├── unix.md
 │   ├── upper.md
 │   ├── urlize.md
-│   └── where.md
+│   ├── where.md
+│   └── with.md
 ├── getting-started
 │   ├── _index.md
 │   ├── configuration.md
@@ -138,14 +160,20 @@
 │   ├── deployment-with-rsync.md
 │   ├── deployment-with-wercker.md
 │   ├── hosting-on-bitbucket.md
+│   ├── hosting-on-firebase.md
 │   ├── hosting-on-github.md
 │   ├── hosting-on-gitlab.md
 │   └── hosting-on-netlify.md
-├── mailing-list.md
 ├── news
 │   ├── _index.md
 │   ├── press-and-articles.md
 │   └── release-notes.md
+├── readfiles
+│   ├── README.md
+│   ├── bfconfig.md
+│   ├── dateformatting.md
+│   ├── menuvars.md
+│   └── testing.txt
 ├── showcase
 │   ├── 2626info.md
 │   ├── _index.md
@@ -179,6 +207,7 @@
 │   ├── devmonk.md
 │   ├── dmitriid.com.md
 │   ├── emilyhorsman.com.md
+│   ├── enjoyablerecipes.md
 │   ├── esolia-com.md
 │   ├── esolia-pro.md
 │   ├── eurie.md
@@ -192,6 +221,7 @@
 │   ├── hugo.md
 │   ├── jamescampbell.md
 │   ├── jorgennilsson.md
+│   ├── justinrobertsbook.md
 │   ├── kieranhealy.md
 │   ├── klingt-net.md
 │   ├── launchcode5.md
@@ -199,11 +229,13 @@
 │   ├── leowkahman.md
 │   ├── lk4d4.darth.io.md
 │   ├── losslesslife.md
+│   ├── lucumtinfo.md
 │   ├── mariosanchez.md
 │   ├── mayan-edms.md
 │   ├── michaelwhatcott.md
 │   ├── mongodb-eng-journal.md
 │   ├── mtbhomer.md
+│   ├── myearworms.md
 │   ├── nickoneill.md
 │   ├── ninjaducks.in.md
 │   ├── ninya.io.md
@@ -244,51 +276,60 @@
 │   ├── ysqi.md
 │   └── yulinling.net.md
 ├── templates
+│   ├── 404.md
 │   ├── _index.md
-│   ├── additional-templating-languages.md
+│   ├── alternatives.md
 │   ├── base.md
-│   ├── content-view-templates.md
-│   ├── custom-404-page.md
 │   ├── data-templates.md
-│   ├── go-templates.md
+│   ├── files.md
 │   ├── homepage.md
+│   ├── internal.md
+│   ├── introduction.md
 │   ├── lists.md
-│   ├── local-file-templates.md
 │   ├── lookup-order.md
 │   ├── menu-templates.md
+│   ├── ordering-and-grouping.md
 │   ├── pagination.md
 │   ├── partials.md
-│   ├── rendering-lists.md
 │   ├── robots.md
-│   ├── rss-templates.md
+│   ├── rss.md
 │   ├── section-templates.md
 │   ├── shortcode-templates.md
 │   ├── single-page-templates.md
 │   ├── sitemap-template.md
 │   ├── taxonomy-templates.md
-│   └── template-debugging.md
+│   ├── template-debugging.md
+│   └── views.md
 ├── themes
 │   ├── _index.md
 │   ├── creating.md
 │   ├── customizing.md
 │   ├── installing-and-using-themes.md
 │   └── theme-showcase.md
-├── tree.txt
+├── tools
+│   ├── _index.md
+│   ├── editors.md
+│   ├── frontends.md
+│   ├── migrations.md
+│   ├── other.md
+│   ├── search.md
+│   ├── starter-kits.md
+│   └── syntax-highlighting.md
 ├── troubleshooting
 │   ├── _index.md
 │   ├── accented-characters-in-urls.md
+│   ├── build-performance.md
 │   └── eof-error.md
-├── tutorials
-│   ├── _index.md
-│   ├── creating-a-multilingual-site.md
-│   ├── creating-a-new-theme.md
-│   └── migrate-from-jekyll-to-hugo.md
 └── variables
     ├── _index.md
-    ├── file-variables.md
-    ├── other-variables.md
-    ├── page-variables.md
-    ├── site-variables.md
-    └── taxonomy-variables.md
+    ├── files.md
+    ├── git.md
+    ├── hugo.md
+    ├── menus.md
+    ├── page.md
+    ├── shortcodes.md
+    ├── site.md
+    ├── sitemap.md
+    └── taxonomy.md
 
-15 directories, 276 files
+15 directories, 319 files
