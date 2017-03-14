@@ -22,14 +22,14 @@ website.
 The top level of a source directory will typically have the following elements:
 
 ```bash
-▸ archetypes/
-▸ content/
-▸ data/
-▸ i18n/
-▸ layouts/
-▸ static/
-▸ themes/
-  config.toml
+.
+├── archetypes
+├── config.toml
+├── content
+├── data
+├── layouts
+├── static
+└── themes
 ```
 
 You can learn more about each component of a newly scaffolded site in its respective documentation:
