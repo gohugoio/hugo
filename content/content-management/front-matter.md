@@ -95,10 +95,10 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 : If true, the content will not be rendered unless `hugo` is called with `--buildDrafts`
 
 `expirydate`
-: denotes when content should no longer be published by Hugo; expired will not be rendered unless `hugo` is called with `--buildExpired`
+: denotes when content should no longer be published by Hugo; expired content will not be rendered unless `hugo` is called with `--buildExpired`
 
 `isCJKLanguage`
-: if `true`, explicitly treat the content as CJKLanguage; both `.Summary` and `.WordCount` can work properly in CJK languages.
+: if `true`, Hugo will explicitly treat the content as a CJK language; both `.Summary` and `.WordCount` work properly in CJK languages.
 
 `keywords`
 : the meta keywords for the content.
@@ -118,14 +118,8 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 `publishdate`
 : If in the future, content will not be rendered unless `hugo` is called with `--buildFuture`
 
-<!-- `sitemap`
-: see https://github.com/spf13/hugo/blob/ede452d34ef82a2d6949bf0c5a4584caf3ae03bc/hugolib/page.go#L1062 -->
-
 `slug`
 : appears as the tail of the URL. When used, it will override the segment of the URL based on the filename.
-
-<!-- `status`
-: see https://github.com/spf13/hugo/blob/ede452d34ef82a2d6949bf0c5a4584caf3ae03bc/hugolib/page.go#L1059 -->
 
 `taxonomies`
 : these will use the field name of the plural form of the index (see `tags` and
