@@ -82,7 +82,7 @@ Hugo supports GitHub-flavored markdown's use of triple back ticks, as well as pr
 
 ## Additional Content Formats
 
-Since 0.14, Hugo has defined a new concept called _external helpers_. This means you can write your content using [Asciidoc][ascii], [reStructuredText][rest], or [Org-mode][org]. If you have files with associated extensions, Hugo will call external commands to generate the content. ([See the Hugo source code for external helpers][helperssource]). The exception is Org-mode, which is parsed natively.
+Since 0.14, Hugo has defined a new concept called _external helpers_. It means that you can write your content using [Asciidoc][ascii], [reStructuredText][rest], or Emacs org-mode. If you have files with associated extensions, Hugo will call external commands to generate the content. ([See the Hugo source code for external helpers][helperssource]).
 
 For example, for Asciidoc files, Hugo will try to call the `asciidoctor` or `asciidoc` command. This means that you will have to install the associated tool on your machine to be able to use these formats. ([See the Asciidoctor docs for installation instructions](http://asciidoctor.org/docs/install-toolchain/)).
 
