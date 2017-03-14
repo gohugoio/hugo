@@ -7,6 +7,6 @@ sitelink: http://balaramadurai.net
 tags:
 - personal
 - blog
-thumbnail: /img/balaramadurai-net-tn.png
+thumbnail: /img/balaramadurai-net-tn.jpg
 title: Dr. Bala Ramadurai | Professor & Consultant in Innovation, Design Thinking and Tech Forecasting
 ---

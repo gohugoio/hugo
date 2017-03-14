@@ -9,6 +9,6 @@ sourceLink: https://github.com/christianmendoza/christianmendoza.me
 tags:
 - personal
 - profile
-thumbnail: /img/christianmendoza-tn.png
+thumbnail: /img/christianmendoza-tn.jpg
 title: christianmendoza.me
 ---

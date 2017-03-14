@@ -8,7 +8,7 @@ sourceLink: https://github.com/Draga/go-web
 tags:
 - personal
 - blog
-thumbnail: /img/stefano.chiodino-tn.png
+thumbnail: /img/stefano.chiodino-tn.jpg
 title: stefano.chiodino.uk
 ---
 

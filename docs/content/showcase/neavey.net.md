@@ -9,6 +9,6 @@ tags:
 - personal
 - travel
 - blog
-thumbnail: /img/neavey-tn.png
+thumbnail: /img/neavey-tn.jpg
 title: neavey.net
 ---
