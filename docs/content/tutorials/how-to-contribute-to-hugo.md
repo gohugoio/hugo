@@ -14,7 +14,7 @@ weight: 10
 
 Hugo is an open source project and lives by the work of its [contributors](https://github.com/spf13/hugo/graphs/contributors). Help to make Hugo even more awesome. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub and we need your help.
 
-This tutorial is intended for people who are new to Git, GitHub or open source projects in general. It should help to overcome most of the barriers that newcomers encounter. It describes step by step what you need to do. 
+This tutorial is intended for people who are new to Git, GitHub or open source projects in general. It should help to overcome most of the barriers that newcomers encounter. It describes step by step what you need to do.
 
 For any kind of questions please take a look at our [forum](https://discuss.gohugo.io/).
 
@@ -24,7 +24,7 @@ The installation of Go should take only a few minutes. [Download](https://golang
 
 Let's confirm the correct installation of Go. Open a terminal (or command line under Windows). Execute `go version` and you should see the version number of your Go installation. Next, make sure that you setup the `GOPATH` as described in the installation guide.
 
-You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace. 
+You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace.
 
 ### GVM as alternative
 
@@ -42,7 +42,7 @@ If you're going to contribute code, you'll need to have an account on GitHub. Go
 
 You will need to install Git. This tutorial assumes basic knowledge about Git. Refer to this excellent [Git book](https://git-scm.com/) if you are not sure where to begin. The used terminology will be explained with annotations.
 
-Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel. 
+Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel.
 
 Go ships with a sub-command called `get` that will download these packages for us when we setup our working environment. The source code of the packages is tracked with Git. `get` will interact with the Git servers of the package hosters in order to fetch all dependencies.
 
@@ -82,7 +82,17 @@ hub version 2.2.2
 
 The working copy is set up locally on your computer. It's what you'll edit, compile, and end up pushing back to GitHub. The main steps are cloning the repository and creating your fork as a remote.
 
-### Clone the repository
+### Vendored Dependencies
+
+Hugo uses [govendor](https://github.com/kardianos/govendor) to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository.
+Therefore, a simple `go get` is not supported since `go get` is not vendor-aware.
+You **must use govendor** to fetch and manage Hugo's dependencies.
+
+```sh
+go get -v -u github.com/kardianos/govendor
+```
+
+### Fetch the Sources from GitHub
 
 We assume that you've set up your `GOPATH` (see the section above if you're unsure about this). You should now copy the Hugo repository down to your computer. You'll hear this called "clone the repo". GitHub's [help pages](https://help.github.com/articles/cloning-a-repository/) give us a short explanation:
 
@@ -90,10 +100,10 @@ We assume that you've set up your `GOPATH` (see the section above if you're unsu
 
 We're going to clone the [master Hugo repository](https://github.com/spf13/hugo). That seems counter-intuitive, since you won't have commit rights on it. But it's required for the Go workflow. You'll work on a copy of the master and push your changes to your own repository on GitHub.
 
-So, let's clone that master repository:
+So, let's clone that master repository with govendor:
 
 ```sh
-go get -v -u github.com/spf13/hugo
+govendor get -v github.com/spf13/hugo
 ```
 
 ### Fork the repository
@@ -116,7 +126,7 @@ Switch back to the terminal and move into the directory of the cloned master rep
 
 ```sh
 cd $GOPATH/src/github.com/spf13/hugo
-``` 
+```
 
 Now Git needs to know that our fork exists by adding the copied remote url:
 
@@ -128,11 +138,11 @@ git remote add <YOUR-GITHUB-USERNAME> <COPIED REMOTE-URL>
 
 Alternatively, you can use the Git wrapper Hub. Hub makes forking a repository easy:
 
-```sh 
+```sh
 git fork
 ```
 
-That command will log in to GitHub using your account, create a fork of the repository that you're currently working in, and add it as a remote to your working copy. 
+That command will log in to GitHub using your account, create a fork of the repository that you're currently working in, and add it as a remote to your working copy.
 
 #### Trust, but verify
 
@@ -175,7 +185,7 @@ You can check on which branch your are with `git branch`. You should see a list 
 
 ### Contributing to the documentation
 
-Perhaps you want to start contributing to the docs. Then you can ignore most of the following steps. You can find the documentation within the cloned repository in the subfolder `docs`. Change the directory with `cd docs`. Install the [latest release]({{< relref "overview/installing.md" >}}). Or read on and build Hugo from source. 
+Perhaps you want to start contributing to the docs. Then you can ignore most of the following steps. You can find the documentation within the cloned repository in the subfolder `docs`. Change the directory with `cd docs`. Install the [latest release]({{< relref "overview/installing.md" >}}). Or read on and build Hugo from source.
 
 You can start Hugo's built-in server via `hugo server`. Browse the documentation by entering [http://localhost:1313](http://localhost:1313) in the address bar of your browser. The server automatically updates the page if you change its content.
 
@@ -184,21 +194,23 @@ You can start Hugo's built-in server via `hugo server`. Browse the documentation
 While making changes in the codebase it's a good idea to build the binary to test them:
 
 ```sh
-go build -o hugo main.go
+make hugo
 ```
 
 ### Testing
 
 Sometimes changes on the codebase can cause unintended side effects. Or they don't work as expected. Most functions have their own test cases. You can find them in files ending with `_test.go`.
 
-Make sure the commands `go test ./...` passes, and `go build` completes.
+```sh
+make check
+```
 
 ### Formatting
 
-The Go code styleguide maybe is opiniated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our addtions:
+The Go code styleguide maybe is opiniated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our additions:
 
 ```sh
-go fmt ./...
+govendor fmt +local
 ```
 
 Once you made your additions commit your changes. Make sure that you follow our [code contribution guidelines](https://github.com/spf13/hugo/blob/master/CONTRIBUTING.md):
@@ -213,7 +225,7 @@ The commit message should describe what the commit does (e.g. add feature XYZ), 
 
 ### Modify commits
 
-You noticed some commit messages don't fulfill the code contribution guidelines or you just forget something to add some files? No problem. Git provides the necessary tools to fix such problems. The next two methods cover all common cases. 
+You noticed some commit messages don't fulfill the code contribution guidelines or you just forget something to add some files? No problem. Git provides the necessary tools to fix such problems. The next two methods cover all common cases.
 
 If you are unsure what a command does leave the commit as it is. We can fix your commits later in the pull request.
 
@@ -274,7 +286,7 @@ squash 3502f2e Refactoring and typo fixes
 
 We also want to rewrite the commits message of the third last commit. We forgot "docs:" as prefix according to the code contribution guidelines. The operation to rewrite a commit is called `reword` (or `r` as shortcut).
 
-You should end up with a similar setup: 
+You should end up with a similar setup:
 
 ```sh
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
@@ -303,7 +315,7 @@ To push our commits to the fork on GitHub we need to speficy a destination. A de
 git push --set-upstream <YOUR-GITHUB-USERNAME> <BRANCHNAME>
 ```
 
-Now Git knows the destination. Next time when you to push commits you just need to enter `git push`. 
+Now Git knows the destination. Next time when you to push commits you just need to enter `git push`.
 
 If you modified your commit history in the last step GitHub will reject your try to push. This is a safety-feature because the commit history isn't the same and new commits can't be appended as usual. You can enforce this push explicitly with `git push --force`.
 
