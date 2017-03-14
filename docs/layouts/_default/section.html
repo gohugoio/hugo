@@ -8,7 +8,7 @@
   <div>
    <h1 id="title">{{ .Title }}</h1>
             {{ range .Data.Pages }}
-            <h2>{{ .Key }}</h2>
+            <h2>{{ . }}</h2>
                 <ul id="list">
                     {{ range .Pages }}
                         {{ .Render "li"}}
