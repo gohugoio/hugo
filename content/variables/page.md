@@ -19,7 +19,7 @@ The following is a list of page-level variables that can be defined for a piece 
 See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 {{% /note %}}
 
-## Page Variables List
+## Page Variables
 
 `.Content`
 : the content itself, defined below the front matter.
@@ -148,8 +148,7 @@ http://remarkjs.com)
 : the [content type](/content-management/types/) of the content (e.g., `post`).
 
 `.URL`
-: the relative URL for the page. Note that the `URL` set directly in front
-matter overrides the default relative URL for the page.
+: the URL for the page relative to the web root. Note that a `url` set directly in front matter overrides the default relative URL for the rendered page.
 
 `.UniqueID`
 : the MD5-checksum of the content file's path.
