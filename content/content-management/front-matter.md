@@ -135,7 +135,7 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 the multilingual feature.
 
 `weight`
-: used for sorting; see [list templates][ordering].
+: used for [ordering your content in lists][ordering].
 
 {{% note "Hugo's Default URL Destinations" %}}
 If neither `slug` nor `url` is present and [permalinks are not configured otherwise](/content-management/urls/#permalinks), Hugo will use the filename of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
@@ -158,7 +158,7 @@ Field names are always normalized to lowercase; e.g., `camelCase: true` is avail
 
 ## Ordering Content Through Front Matter
 
-You can assign content-specific `weight` in the front matter of your content. These values are especially useful for list views. You can use `weight` for ordering content and the convention of [`<TAXONOMY>_weight`][taxweight] for ordering content within a taxonomy. See [Ordering and Grouping Hugo Lists][ordering] to see the role `weight` in ordering content.
+Assigning a specific `weight` in the front matter of individual content allows finer control over sorting of content in lists. The convention of [`<TAXONOMY>_weight`][taxweight] allows for ordering of content within a taxonomy. See [Hugo's multiple ordering methods][ordering] to find out how to use `weight` in your templates.
 
 ## Overriding Global Blackfriday Configuration
 
