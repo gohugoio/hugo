@@ -418,7 +418,7 @@ C:\Hugo\Sites\example.com&gt;dir
 
 ## <i class="icon-linux"></i>Linux
 
-### Debian/Ubuntu
+### Debian and Ubuntu
 
 Hugo has been included in Debian and Ubuntu since 2016 and can be installed as a traditional `.deb` package via `apt`:
 
@@ -446,9 +446,16 @@ sudo pacman -S yaourt
 yaourt -S hugo
 ```
 
-### Installing Hugo as a Snap Package
+### Fedora and Red Hat
 
-In any of the [Linux distributions that support snaps](http://snapcraft.io/docs/core/install):
+* <https://copr.fedorainfracloud.org/coprs/spf13/Hugo/> (updated to Hugo v0.16)
+* <https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/> (updated to Hugo v0.19)
+
+See the [related discussion in the Hugo forums][redhatforum].
+
+### Snap Package
+
+In any of the [Linux distributions that support snaps][snaps]:
 
 ```bash
 snap install hugo
@@ -476,12 +483,14 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 
 [brew]: https://brew.sh/
 [Chocolatey]: https://chocolatey.org/
-[highlight shortcode]: /content-management/shortcodes/#highlight
 [forum]: https://discuss.gohugo.io
+[highlight shortcode]: /content-management/shortcodes/#highlight
 [installgit]: http://git-scm.com/
 [installgo]: https://golang.org/dl/
 [Path Editor]: https://patheditor2.codeplex.com/
 [pygments]: http://pygments.org
 [quickstart]: /getting-started/quick-start/
+[redhatforum]: https://discuss.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
 [releases]: https://github.com/spf13/hugo/releases
+[snaps]: http://snapcraft.io/docs/core/install
 [Windows Environment Variables Editor]: http://eveditor.com/
