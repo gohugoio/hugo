@@ -26,7 +26,7 @@ YAML
 : identified by opening and closing `---` *or* opening `---` and closing `...`
 
 JSON
-: a single JSON object surrounded by '`{`' and '`}`', each on their own line.
+: a single JSON object surrounded by '`{`' and '`}`', followed by a new line.
 
 ### TOML Example
 
