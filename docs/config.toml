@@ -1,114 +1,52 @@
-title = "Hugo: A Fast and Flexible Website Generator"
-baseurl = "http://gohugo.io/"
-MetaDataFormat = "yaml"
-pluralizeListTitles = false
-enableGitInfo = true
+languageCode = "en-us"
+title = "Bharath M. Palavalli"
+baseURL = "http://www.bharathpalavalli.com/"
 
-[blackfriday]
-  plainIDAnchors = true
+disqusShortname = "bharathmp"
+
+[author]
+  name = "Bharath M. Palavalli"
+  email = "mail@bharathpalavalli.com"
 
 [params]
-  description = "Documentation of Hugo, a fast and flexible static site generator built with love by spf13, bep and friends in Go"
-  author = "Steve Francia (spf13) and friends"
-  release = "0.20-DEV"
+  name = "Bharath M. Palavalli"
+  description = "Personal Website"
 
-[taxonomies]
-  tag = "tags"
-  group = "groups"
+[params.header]
+  enable = true
+  title = "Bharath M. Palavalli"
+  quote = ""
 
-[[menu.main]]
-    name = "Download Hugo"
-    pre = "<i class='fa fa-download'></i>"
-    url = "https://github.com/spf13/hugo/releases"
-    weight = -200
-[[menu.main]]
-    name = "Site Showcase"
-    pre = "<i class='fa fa-cubes'></i>"
-    url = "/showcase/"
-    weight = -180
-[[menu.main]]
-    name = "Theme Showcase"
-    pre = "<i class='fa fa-puzzle-piece'></i>"
-    url = "http://themes.gohugo.io"
-    weight = -170
-[[menu.main]]
-    name = "Press & Articles"
-    pre = "<i class='fa fa-bullhorn'></i>"
-    url = "/community/press/"
-    weight = -160
-[[menu.main]]
-    name = "Discuss Hugo"
-    pre = "<i class='fa fa-comments'></i>"
-    url = "http://discuss.gohugo.io/"
-    weight = -150
-[[menu.main]]
-    name = "About Hugo"
-    identifier = "about"
-    pre = "<i class='fa fa-heart'></i>"
-    weight = -110
-[[menu.main]]
-    name = "Getting Started"
-    identifier = "getting started"
-    pre = "<i class='fa fa-road'></i>"
-    weight = -100
-[[menu.main]]
-    name = "Content"
-    identifier = "content"
-    pre = "<i class='fa fa-file-text'></i>"
-    weight = -90
-[[menu.main]]
-    name = "Themes"
-    identifier = "themes"
-    pre = "<i class='fa fa-desktop'></i>"
-    weight = -85
-[[menu.main]]
-    parent = "themes"
-    name = "Theme Showcase"
-    url = "http://themes.gohugo.io"
-    weight = -170
-[[menu.main]]
-    name = "Templates"
-    identifier = "layout"
-    pre = "<i class='fa fa-columns'></i>"
-    weight = -80
-[[menu.main]]
-    name = "Taxonomies"
-    identifier = "taxonomy"
-    pre = "<i class='fa fa-tags'></i>"
-    weight = -70
-[[menu.main]]
-    name = "Extras"
-    identifier = "extras"
-    pre = "<i class='fa fa-gift'></i>"
-    weight = -60
-[[menu.main]]
-    name = "Community"
-    identifier = "community"
-    pre = "<i class='fa fa-group'></i>"
-    weight = -50
-[[menu.main]]
-    parent = "community"
-    name = "Discussion Forum"
-    url = "http://discuss.gohugo.io"
-    weight = 150
-[[menu.main]]
-    name = "Tutorials"
-    identifier = "tutorials"
-    pre = "<i class='fa fa-book'></i>"
-    weight = -40
-[[menu.main]]
-    name = "Troubleshooting"
-    identifier = "troubleshooting"
-    pre = "<i class='fa fa-wrench'></i>"
-    weight = -30
-[[menu.main]]
-    name = "Tools"
-    url = "/tools/"
-    pre = "<i class='fa fa-cogs'></i>"
-    weight = -25
-[[menu.main]]
-    name = "Hugo Cmd Reference"
-    identifier = "commands"
-    pre = "<i class='fa fa-space-shuttle'></i>"
-    weight = -20
-    url = "/commands/"
+[params.bio]
+    enable = true
+    gen = "I design games and simulations to understand complex adaptive systems. I am currently working on identifying and understanding the conflict-prone relationship between the poor and the city; specifically, to improve policy planning and design."
+    research = "My research interests are in the areas of Game Design, Game Theory, Agent-based modelling, Complex Adaptive Systems, Policy Design, Poverty and Inequality, Graph Theory, Information Retrieval, Information Communication Technologies and their effects."
+    work = "I am the Co-Founder of <a href=\"http://www.fieldsofview.in\">Fields of View</a>, a non-profit research group in Bangalore. Previously, I have designed agent-based simulation frameworks, games for safety and learning, and have worked in the areas of infrastructure policy, disaster management and poverty."
+
+[params.social_icons]
+  enable = true
+
+[[params.social]]
+  title = "Twitter"
+  icon = "fa-twitter"
+  link = "https://twitter.com/bharathmp"
+
+[[params.social]]
+  title = "LinkedIn"
+  icon = "fa-linkedin"
+  link = "https://www.linkedin.com/in/bharathmp/"
+
+[[params.social]]
+  title = "E-Mail"
+  icon = "fa-envelope"
+  link = "mailto:mail@bharathpalavalli.com"
+
+[[params.social]]
+  title = "Keybase"
+  icon = "fa-key"
+  link = "https://www.keybase.io/bmp/"
+
+[[params.social]]
+  title = "Resume"
+  icon = "fa-file-text"
+  link = "http://www.bharathpalavalli.com/cv.pdf"

@@ -1,0 +1,4 @@
+User-agent: *
+
+Disallow: /cv.pdf
+Disallow: /cv-short.pdf

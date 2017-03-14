@@ -1,5 +1,25 @@
-{{ partial "header.html" . }}
-<div class="col-lg-8 col-md-12">
-Page Not Found.
-</div>
-{{ partial "footer.html" . }}
+<!DOCTYPE html>
+<html>
+  {{ "" | safeHTML }} {{ partial "head.html" . }}
+  <body>
+
+    {{ if .Site.Params.header.enable }}
+      {{ partial "header.html" . }}
+    {{ end }}
+    <div class="container">
+      <div class="row w">
+        <div class="col-lg-6 col-lg-offset-3">
+          Error 404: Page not found, please send me an <a href="mailto:mail@bharathpalavalli.com" target="_blank">e-mail</a> with this URL in the mail.
+        </div>
+      </div>
+    </div>
+
+    {{ if .Site.Params.social_icons.enable }}
+      {{ partial "social.html" . }}
+    {{ end }}
+
+    {{ partial "footer.html" . }}
+
+  </body>
+
+</html>

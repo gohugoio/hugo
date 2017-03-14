@@ -1,0 +1,49 @@
+  <!--HTML head tag-->
+  <head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <base href="{{ .Site.BaseURL }}">
+    <link rel="canonical" href="{{ .Permalink }}">
+    <link href="{{ .Site.RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}">
+    <meta name="Generator" content="Cocoa HTML Writer">
+    <meta name="CocoaVersion" content="1504.81">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1" >
+    <meta name="description" content="{{ with .Site.Params.description }}{{ . }}{{ end }}" >
+    <meta name="author" content="{{ with .Site.Params.name }}{{ . }}{{ end }}" >
+    <meta name="generator" content="Hugo 0.19">
+
+    <title>{{ .Site.Title }}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="{{ $.Site.BaseURL }}assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ $.Site.BaseURL }}assets/css/font-awesome.min.css">
+
+    <!-- Custom styles for this template -->
+    <link rel="stylesheet" href="{{ $.Site.BaseURL }}assets/css/main.css">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    {{ "<!--[if lt IE 9]><script src=\"//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js\"></script><script src=\"//oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js\"></script><![endif]-->" | safeHTML }}
+
+    {{ if not (in (printf "%#v" .Site.BaseURL) "localhost") }}
+      {{ template "_internal/google_analytics.html" . }}
+    {{ end }}
+
+    <!-- Icons: General favicon -->
+    <link rel="shortcut icon" href="{{ $.Site.BaseURL }}assets/img/favicon.ico">
+    <link rel="icon" type="image/png" href="{{ $.Site.BaseURL }}assets/img/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{ $.Site.BaseURL }}assets/img/favicon-16x16.png" sizes="16x16">
+
+    <!-- Icons: Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" type="image/png" href="{{ $.Site.BaseURL }}assets/img/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="{{ $.Site.BaseURL }}assets/img/android-chrome-512x512.png" sizes="512x512">
+
+    <link rel="apple-touch-icon" href="{{ $.Site.BaseURL }}assets/img/favicons/apple-touch-icon.png">
+
+    <style type="text/css">
+      span.s1 {font-kerning: none}
+    </style>
+
+  </head>
