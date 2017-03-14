@@ -56,7 +56,41 @@ you need to install the Python-based Pygments program. The procedure is outlined
 Upgrading Hugo is as easy as downloading and replacing the executable you’ve
 placed in your `PATH`.
 
-## Snap package for Hugo
+## Installing Hugo on Linux from native packages
+
+### Arch Linux
+
+You can install Hugo from the [Arch user repository](https://aur.archlinux.org/) on Arch Linux or derivatives such as Manjaro.
+
+    sudo pacman -S yaourt
+    yaourt -S hugo
+
+Be aware that Hugo is built from source. This means that additional tools like [Git](https://git-scm.com/) and [Go](https://golang.org/doc/install) will be installed as well.
+
+### Debian and Ubuntu
+
+Hugo has been included in Debian and Ubuntu since 2016, and thus installing Hugo is as simple as:
+
+    sudo apt install hugo
+
+Pros:
+
+* Native Debian/Ubuntu package maintained by Debian Developers
+* Pre-installed bash completion script and man pages for best interactive experience
+
+Cons:
+
+* Might not be the latest version, especially if you are using an older stable version (e.g., Ubuntu 16.04&nbsp;LTS).
+  Until backports and PPA are available, you may consider installing the Hugo snap package to get the latest version of Hugo, as described below.
+
+### Fedora and Red Hat
+
+* https://copr.fedorainfracloud.org/coprs/spf13/Hugo/ (updated to Hugo v0.16)
+* https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/ (updated to Hugo v0.19)
+
+See also [this discussion](https://discuss.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491).
+
+### Snap package for Hugo
 
 In any of the [Linux distributions that support snaps](http://snapcraft.io/docs/core/install):
 
