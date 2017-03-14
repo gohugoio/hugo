@@ -25,8 +25,8 @@ import (
 
 var undraftCmd = &cobra.Command{
 	Use:   "undraft path/to/content",
-	Short: "Undraft changes the content's draft status from 'True' to 'False'",
-	Long: `Undraft changes the content's draft status from 'True' to 'False'
+	Short: "Undraft resets the content's draft status",
+	Long: `Undraft resets the content's draft status
 and updates the date to the current date and time.
 If the content's draft status is 'False', nothing is done.`,
 	RunE: Undraft,
@@ -138,14 +138,12 @@ L:
 	for _, v := range fmLines {
 		pos := bytes.Index(v, []byte("draft"))
 		if pos != -1 {
-			v = bytes.Replace(v, []byte("true"), []byte("false"), 1)
-			goto write
+			continue
 		}
 		pos = bytes.Index(v, []byte("date"))
 		if pos != -1 { // if date field wasn't found, add it
 			v = bytes.Replace(v, []byte(date), []byte(time.Now().Format(time.RFC3339)), 1)
 		}
-	write:
 		buff.Write(v)
 		buff.Write(lineEnding)
 	}
