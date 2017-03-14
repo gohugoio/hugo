@@ -14,9 +14,11 @@ The Hugo community and maintainers are [very active](https://github.com/spf13/hu
 * [Submitting Patches](#submitting-patches)
   * [Code Contribution Guidelines](#code-contribution-guidelines)
   * [Git Commit Message Guidelines](#git-commit-message-guidelines)
+  * [Vendored Dependencies](#vendored-dependencies)
+  * [Fetching the Sources From GitHub](#fetching-the-sources-from-github)
   * [Using Git Remotes](#using-git-remotes)
   * [Build Hugo with Your Changes](#build-hugo-with-your-changes)
-  * [Add Compile Information to Hugo](#add-compile-information-to-hugo)
+  * [Updating the Hugo Sources](#updating-the-hugo-sources)
 
 ## Asking Support Questions
 
@@ -51,7 +53,7 @@ To make the contribution process as seamless as possible, we ask for the followi
     * Run `go fmt`.
     * Add documentation if you are adding new features or changing functionality.  The docs site lives in `/docs`.
     * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request with `git push -f`.
-    * Make sure `go test ./...` passes, and `go build` completes. [Travis CI](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will catch most things that are missing.
+    * Ensure that `make check` succeeds. [Travis CI](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will fail the build if `make check` fails.
     * Follow the **Git Commit Message Guidelines** below.
 
 ### Git Commit Message Guidelines
@@ -82,22 +84,31 @@ new default function more useful for Hugo users.
 Fixes #1949
 ```
 
+### Vendored Dependencies
+
+Hugo uses [govendor](https://github.com/kardianos/govendor) to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository.
+Therefore, a simple `go get` is not supported since `go get` is not vendor-aware.
+You **must use govendor** to fetch and manage Hugo's dependencies.
+
+### Fetch the Sources From GitHub
+
+    ```
+    go get github.com/kardianos/govendor
+    govendor get github.com/spf13/hugo
+    ```
+
 ### Using Git Remotes
 
 Due to the way Go handles package imports, the best approach for working on a
 Hugo fork is to use Git Remotes.  Here's a simple walk-through for getting
 started:
 
-1. Get the latest Hugo sources:
-
-    ```
-    go get -u -t github.com/spf13/hugo/...
-    ```
+1. Fetch the Hugo sources as described above.
 
 1. Change to the Hugo source directory:
 
     ```
-    cd $GOPATH/src/github.com/spf13/hugo
+    cd $HOME/go/src/github.com/spf13/hugo
     ```
 
 1. Create a new branch for your changes (the branch name is arbitrary):
@@ -131,20 +142,20 @@ started:
 ### Build Hugo with Your Changes
 
 ```bash
-cd $GOPATH/src/github.com/spf13/hugo
-go build
-mv hugo /usr/local/bin/
+cd $HOME/go/src/github.com/spf13/hugo
+make hugo
+# or to install in $HOME/go/bin:
+make install
 ```
 
-### Add Compile Information to Hugo
+### Updating the Hugo Sources
 
-To add compile information to Hugo, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
+If you want to stay in sync with the Hugo repository, you can easily pull down
+the source changes, but you'll need to keep the vendored packages up-to-date as
+well.
 
-    go build -ldflags "-X /path/to/hugo/hugolib.CommitHash=`git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/hugolib.BuildDate=`date +%FT%T%z`"
-
-This will result in `hugo version` output that looks similar to:
-
-    Hugo Static Site Generator v0.13-DEV-8042E77 buildDate: 2014-12-25T03:25:57-07:00
-
-Alternatively, just run `make` &mdash; all the “magic” above is already in the `Makefile`.  :wink:
+    ```
+    git pull
+    make vendor
+    ```
 

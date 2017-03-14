@@ -104,24 +104,31 @@ In any of the [Linux distributions that support snaps](http://snapcraft.io/docs/
 ### Prerequisite tools for downloading and building source code
 
 * [Git](http://git-scm.com/)
-* [Go][] 1.5+
+* [Go][] 1.8+
+* [govendor][]
 
-### Get directly from GitHub
+### Vendored Dependencies
 
-    $ export GOPATH=$HOME/go
-    $ go get -v github.com/spf13/hugo
+Hugo uses [govendor][] to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository.
+Therefore, a simple `go get` is not supported since `go get` is not vendor-aware.
+You **must use govendor** to fetch Hugo's dependencies.
 
-`go get` will then fetch Hugo and all its dependent libraries to your
-`$GOPATH/src` directory, and compile everything into the final `hugo`
-(or `hugo.exe`) executable, which you will find sitting in the
-`$GOPATH/bin/` directory, all ready to go!
+### Fetch from GitHub
 
-You may run `go get` with the `-u` option to update Hugo's dependencies:
+    go get github.com/kardianos/govendor
+    govendor get github.com/spf13/hugo
 
-    $ go get -u -v github.com/spf13/hugo
+`govendor get` will fetch Hugo and all its dependent libraries to
+`$HOME/go/src/github.com/spf13/hugo`, and compile everything into a final `hugo`
+(or `hugo.exe`) executable, which you will find sitting inside
+`$HOME/go/bin/`, all ready to go!
+
+*Windows users: where you see the `$HOME` environment variable above, replace it with `%USERPROFILE%`.*
 
 ## Contributing
 
-Please see the [contributing guide](/doc/contributing/).
+Please see the [contributing guide](/doc/contributing/) if you are interested in
+working with the Hugo source or contributing to the project in any way.
 
 [Go]: http://golang.org/
+[govendor]: https://github.com/kardianos/govendor
