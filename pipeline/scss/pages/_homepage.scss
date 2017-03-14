@@ -29,10 +29,6 @@ ul.animated {
   @include MQ(M) {
     min-width: 320px;
   }
-  margin: {
-    left: auto;
-    right: auto;
-  }
   li {
     display: flex;
     a {
@@ -233,6 +229,7 @@ ul.animated {
   margin-right: auto;
   display: flex;
   flex-direction: column;
+  max-width: 100%;
   align-items: center;
   @include MQ(L) {
     width: $L * .4;
