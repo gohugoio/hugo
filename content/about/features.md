@@ -14,7 +14,7 @@ toc: true
 ## General
 
 * [Extremely fast][] build times (&lt; .7 ms per page)
-* Completely cross platform, with [easy installation][install] on Mac OSX, Linux, Windows, and more
+* Completely cross platform, with [easy installation][install] on macOS, Linux, Windows, and more
 * Renders changes on the fly with [LiveReload][] as you develop
 * [Powerful theming][]
 * [Host your site anywhere][hostanywhere]

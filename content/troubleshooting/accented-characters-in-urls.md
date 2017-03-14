@@ -26,7 +26,7 @@ toc: true
 
 ## Solution
 
-Are you a Mac OS X user? If so, you are likely a victim of HFS Plus file system's insistence to store the "é" (U+00E9) character in Normal Form Decomposed (NFD) mode, i.e. as "e" + "  ́" (U+0065 U+0301).
+Are you a macOS user? If so, you are likely a victim of HFS Plus file system's insistence to store the "é" (U+00E9) character in Normal Form Decomposed (NFD) mode, i.e. as "e" + "  ́" (U+0065 U+0301).
 
 `le-carr%C3%A9` is actually correct, `%C3%A9` being the UTF-8 version of U+00E9 as expected by the web server. The problem is that OS X turns [U+00E9] into [U+0065 U+0301], and thus `le-carr%C3%A9` no longer works.  Instead, only `le-carre%CC%81` ending with `e%CC%81` would match that [U+0065 U+0301] at the end.
 

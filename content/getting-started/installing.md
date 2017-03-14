@@ -1,13 +1,13 @@
 ---
 title: Install Hugo
 linktitle: Install Hugo
-description: Install Hugo on Mac OSX, Windows, Linux, FreeBSD, and on any machine where the Go compiler tool chain can run.
+description: Install Hugo on macOS, Windows, Linux, FreeBSD, and on any machine where the Go compiler tool chain can run.
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2017-02-20
 categories: [getting started]
 authors: ["Michael Henderson"]
-tags: [install,fundamentals,pc,windows,linux,mac,osx,binary,tarball]
+tags: [install,fundamentals,pc,windows,linux,macos,binary,tarball]
 weight: 30
 draft: false
 aliases: [/tutorials/installing-on-windows/,/tutorials/installing-on-mac/,/overview/installing/,/getting-started/install,/install/]
@@ -18,7 +18,7 @@ Hugo is written in [Golang](https://golang.org/) with support for multiple platf
 
 Hugo currently provides pre-built binaries for the following:
 
-* <i class="icon-apple"></i> OS X (Darwin) for x64, i386, and ARM architectures
+* <i class="icon-apple"></i> macOS (Darwin) for x64, i386, and ARM architectures
 * <i class="icon-windows"></i> Windows
 * <i class="icon-linux"></i> Linux
 * <i class="icon-freebsd"></i> FreeBSD
@@ -33,9 +33,9 @@ Download the appropriate version for your platform from [Hugo Releases][releases
 
 Ideally, you should install it somewhere in your `PATH` for easy use. `/usr/local/bin` is the most probable location.
 
-### OS X (Homebrew)
+### macOS (Homebrew)
 
-If you are on OS X and using [Homebrew][brew], you can install Hugo with the following one-liner:
+If you are on macOS and using [Homebrew][brew], you can install Hugo with the following one-liner:
 
 {{% code file="install-with-homebrew.sh" %}}
 ```bash
@@ -43,7 +43,7 @@ brew update && brew install hugo
 ```
 {{% /code %}}
 
-For more detailed explanations, read the installation guides that follow for installing on Mac OS X and Windows.
+For more detailed explanations, read the installation guides that follow for installing on macOS and Windows.
 
 ### Windows (Chocolatey)
 
@@ -80,7 +80,7 @@ You may run `go get` with the `-u` option to update Hugo's dependencies:
 go get -u -v github.com/spf13/hugo
 ```
 
-## <i class="icon-apple"></i>OS X
+## <i class="icon-apple"></i>macOS
 
 ### Assumptions
 
