@@ -177,6 +177,8 @@ ul.animated {
     order: 1;
     display: flex;
     justify-content: space-around;
+    margin-left: auto;
+    margin-right: auto;
     @include MQ(M) {
       max-width: 48%;
       order: 2;
