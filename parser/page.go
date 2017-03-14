@@ -21,8 +21,6 @@ import (
 	"regexp"
 	"strings"
 	"unicode"
-
-	"github.com/chaseadamsio/goorgeous"
 )
 
 const (
@@ -145,8 +143,8 @@ func ReadFrom(r io.Reader) (p Page, err error) {
 			return nil, err
 		}
 		newp.frontmatter = fm
-	} else if newp.render && goorgeous.IsKeyword(firstLine) {
-		fm, err := goorgeous.ExtractOrgHeaders(reader)
+	} else if newp.render && isOrgKeyword(firstLine) {
+		fm, err := peekOrgHeaders(reader)
 		if err != nil {
 			return nil, err
 		}
@@ -282,6 +280,11 @@ func isFrontMatterDelim(data []byte) bool {
 	return delims.Match(data)
 }
 
+func isOrgKeyword(data []byte) bool {
+	return len(data) > 2 &&
+		data[0] == '#' && data[1] == '+' && data[2] != ' '
+}
+
 func determineDelims(firstLine []byte) (left, right []byte) {
 	switch firstLine[0] {
 	case YAMLLead[0]:
@@ -399,4 +402,28 @@ func extractContent(r io.Reader) (content []byte, err error) {
 		return
 	}
 	return wr.Bytes(), nil
+}
+
+func peekOrgHeaders(r *bufio.Reader) ([]byte, error) {
+	var out bytes.Buffer
+	peek := 1
+	b := r.Buffered()
+	for ; peek < b; peek++ {
+		p, err := r.Peek(peek)
+		if err != nil {
+			return nil, err
+		}
+		if p[peek-1] == '\n' {
+			check, err := r.Peek(peek + 2)
+			if err != nil {
+				return nil, err
+			}
+
+			if !(check[peek] == '#' && check[peek+1] == '+') {
+				out.Write(p)
+				break
+			}
+		}
+	}
+	return out.Bytes(), nil
 }

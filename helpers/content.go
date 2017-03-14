@@ -24,7 +24,6 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/chaseadamsio/goorgeous"
 	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
@@ -416,7 +415,7 @@ func (c ContentSpec) RenderBytes(ctx *RenderingContext) []byte {
 	case "rst":
 		return getRstContent(ctx)
 	case "org":
-		return orgRender(ctx, c)
+		return getOrgContent(ctx)
 	}
 }
 
@@ -666,9 +665,44 @@ func getRstContent(ctx *RenderingContext) []byte {
 	return result[bodyStart+7 : bodyEnd]
 }
 
-func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
+func getEmacsExecPath() string {
+	path, err := exec.LookPath("emacs")
+	if err != nil {
+		return ""
+	}
+	return path
+}
+
+// HasEmacs returns whether Emacs is installed on this computer.
+func HasEmacs() bool {
+	return getEmacsExecPath() != ""
+}
+
+// getOrgContent calls Emacs as an external helper
+// to convert Org content to HTML.
+func getOrgContent(ctx *RenderingContext) []byte {
 	content := ctx.Content
-	cleanContent := bytes.Replace(content, []byte("# more"), []byte(""), 1)
-	return goorgeous.Org(cleanContent,
-		c.getHTMLRenderer(blackfriday.HTML_TOC, ctx))
+	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
+
+	path := getEmacsExecPath()
+	if path == "" {
+		jww.ERROR.Println("Emacs not found in $PATH: Please install.\n",
+			"                 Leaving Org content unrendered.")
+		return content
+	}
+
+	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
+	cmd := exec.Command(path, "--no-site-file", "--batch", "--eval",
+		"(let ((org-document-content \"\") this-read) (while (setq this-read (ignore-errors (read-from-minibuffer \"\"))) (setq org-document-content (concat org-document-content \"\n\" this-read))) (with-temp-buffer (org-mode) (insert org-document-content) (org-html-export-as-html nil nil nil t nil) (princ (buffer-string))))")
+
+	cmd.Stdin = bytes.NewReader(cleanContent)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+
+	if err != nil {
+		jww.ERROR.Printf("%s rendering %s: %v", path, ctx.DocumentName, err)
+	}
+
+	return normalizeExternalHelperLineFeeds(out.Bytes())
 }

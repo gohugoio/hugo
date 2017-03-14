@@ -13,7 +13,7 @@ weight: 15
 toc: true
 ---
 
-  Since 0.14, Hugo has defined a new concept called _external helpers_. It means that you can write your content using Asciidoc[tor], reStructuredText or Org-Mode. If you have files with associated extensions ([details](https://github.com/spf13/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65)), then Hugo will call external commands to generate the content (the exception being Org-Mode content, which is parsed natively).
+  Since 0.14, Hugo has defined a new concept called _external helpers_. It means that you can write your content using Asciidoc[tor], reStructuredText or Emacs org-mode. If you have files with associated extensions ([details](https://github.com/spf13/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65)), then Hugo will call external commands to generate the content.
 
   This means that you will have to install the associated tool on your machine to be able to use those formats.
 
