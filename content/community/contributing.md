@@ -13,7 +13,7 @@ title: Contributing to Hugo
 weight: 30
 ---
 
-All contributions to Hugo are welcome. Whether you want to scratch an itch or simply contribute to the project, feel free to pick something from the [roadmap]({{< relref "meta/roadmap.md" >}}) or contact [spf13](http://spf13.com/) about what may make sense to do next.
+All contributions to Hugo are welcome. Whether you want to scratch an itch or simply contribute to the project, feel free to pick something from the [roadmap]({{< relref "meta/roadmap.md" >}}) or contact the dev team via the [Forums](https://discuss.gohugo.io/) or [Gitter](https://gitter.im/spf13/hugo) about what may make sense to do next.
 
 You should fork the project and make your changes.  *We encourage pull requests to discuss code changes.*
 
@@ -23,38 +23,37 @@ When you're ready to create a pull request, be sure to:
   * Have test cases for the new code.  If you have questions about how to do it, please ask in your pull request.
   * Run `go fmt`.
   * Squash your commits into a single commit.  `git rebase -i`.  It's okay to force update your pull request.
-  * Make sure `go test ./...` passes, and `go build` completes.  Our [Travis CI loop](https://travis-ci.org/spf13/hugo) will catch most things that are missing.  The exception: Windows.  We run on Windows from time to time, but if you have access, please check on a Windows machine too.
+  * Run `make check` and ensure it succeeds.  [Travis CI](https://travis-ci.org/spf13/hugo) and [Appveyor](https://ci.appveyor.com/project/spf13/hugo) will runs these checks and fail the build if `make check` fails.
 
 ## Contribution Overview
 
 We wrote a [detailed guide]({{< relref "tutorials/how-to-contribute-to-hugo.md" >}}) for newcomers that guides you step by step to your first contribution. If you are more experienced, follow the guide below.
 
+
 # Building from source
 
-## Clone locally (for contributors):
+## Vendored Dependencies
 
-    git clone https://github.com/spf13/hugo
-    cd hugo
-    go get
+Hugo uses [govendor][] to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository.
+Therefore, a simple `go get` is not supported since `go get` is not vendor-aware.
+You **must use govendor** to fetch Hugo's dependencies.
 
-Because Go expects all of your libraries to be found in either
-`$GOROOT` or `$GOPATH`, it's helpful to symlink the project to one
-of the following paths:
+## Fetch the Sources
 
- * `ln -s /path/to/your/hugo $GOPATH/src/github.com/spf13/hugo`
- * `ln -s /path/to/your/hugo $GOROOT/src/pkg/github.com/spf13/hugo`
+    go get github.com/kardianos/govendor
+    govendor get github.com/spf13/hugo
 
 ## Running Hugo
 
-    cd /path/to/hugo
-    go install github.com/spf13/hugo/hugo
+    cd $HOME/go/src/github.com/spf13/hugo
     go run main.go
 
 ## Building Hugo
 
-    cd /path/to/hugo
-    go build -o hugo main.go
-    mv hugo /usr/local/bin/
+    cd $HOME/go/src/github.com/spf13/hugo
+    make build
+    # or to install to $HOME/go/bin:
+    make install
 
 
 # Showcase additions
@@ -108,3 +107,5 @@ If everything looks fine, we are ready to commit your additions. For the sake of
 Last but not least, we're ready to create a [pull request](https://github.com/spf13/hugo/compare).
 
 Don't forget to accept the contributor license agreement. Click on the yellow badge in the automatically added comment in the pull request.
+
+[govendor]: https://github.com/kardianos/govendor
