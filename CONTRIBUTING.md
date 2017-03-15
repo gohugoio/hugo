@@ -92,10 +92,10 @@ You **must use govendor** to fetch and manage Hugo's dependencies.
 
 ### Fetch the Sources From GitHub
 
-    ```
-    go get github.com/kardianos/govendor
-    govendor get github.com/spf13/hugo
-    ```
+```
+go get github.com/kardianos/govendor
+govendor get github.com/spf13/hugo
+```
 
 ### Using Git Remotes
 
@@ -154,8 +154,8 @@ If you want to stay in sync with the Hugo repository, you can easily pull down
 the source changes, but you'll need to keep the vendored packages up-to-date as
 well.
 
-    ```
-    git pull
-    make vendor
-    ```
+```
+git pull
+make vendor
+```
 
