@@ -23,22 +23,22 @@ aliases: []
 
 Go to the [Firebase console][console] and create a new project (unless you already have a project). You will need to globally install `firebase-tools` (node.js):
 
+
 ```sh
 npm install -g firebase-tools
 ```
 
 Log in to Firebase (setup on your local machine) using `firebase login`, which opens a browser where you can select your account. Use `firebase logout` in case you are already logged in but to the wrong account.
 
+
 ```sh
 firebase login
 ```
-
 In the root of your Hugo project, initialize the Firebase project with the `firebase init` command:
 
 ```sh
 firebase init
 ```
-
 From here:
 
 1. Choose Hosting in the feature question
@@ -58,6 +58,7 @@ hugo && firebase deploy
 ## CI Setup
 
 You can generate a deploy token using
+
 
 ```sh
 firebase login:ci
