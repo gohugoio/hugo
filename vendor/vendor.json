@@ -214,10 +214,10 @@
 			"revisionTime": "2017-02-27T22:03:11Z"
 		},
 		{
-			"checksumSHA1": "RCidBYruNofEC/WFaBht8nmRk+Q=",
+			"checksumSHA1": "JzPq88RYNDhkMIiCkM0NDK+0HOI=",
 			"path": "github.com/pelletier/go-toml",
-			"revision": "7b2adf05ef40b4bc413ab35bd6da4a598b3f3261",
-			"revisionTime": "2017-03-09T17:56:49Z"
+			"revision": "fee7787d3f811af92276f5ff10107092e95b7a1d",
+			"revisionTime": "2017-03-14T20:16:40Z"
 		},
 		{
 			"checksumSHA1": "ynJSWoF6v+3zMnh9R0QmmG6iGV8=",
