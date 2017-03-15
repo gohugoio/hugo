@@ -1,11 +1,11 @@
 [[feature]]
 	name = "Blistering Speed"
-	description = "Jettison expensive runtime dependencies, and let Go's incomparable I/O primitives do the work for you. For the first time, build your sites in micro- and milliseconds."
+	description = "Jettison expensive runtime dependencies, and let Go's incomparable I/O primitives do the work for you. For the first time, measure build times in micro- and milliseconds."
 	order = 1
 
 [[feature]]
 	name = "Markdown Without Limits"
-	description = "Hugo natively supports GFM, as well as Asciidoc, reStructuredText, and Org-mode through external helpers. Shortcodes keeps your content readable and infinitely extensible."
+	description = "Hugo natively supports GFM, as well as Asciidoc, reStructuredText, and Org-mode through external helpers. Shortcodes keep your content readable and infinitely extensible."
 	order = 2
 
 [[feature]]
@@ -15,7 +15,7 @@
 
 [[feature]]
 	name = "Cross-Platform"
-	description = "Hugo has equally simple installation on OS X, Linux BSD, Windows, Dragonfly BSD, OpenBSD, Plan 9, and anywhere else the Go compiler tool chain can run."
+	description = "Hugo has equally simple installation on macOS, Linux BSD, Windows, Dragonfly BSD, OpenBSD, Plan 9, and anywhere else the Go compiler tool chain can run."
 	order = 4
 
 [[feature]]

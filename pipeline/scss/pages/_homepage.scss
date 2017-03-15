@@ -167,28 +167,23 @@ ul.animated {
 
 .home-row-content-focus {
   display: flex;
-  .half.half-content {
-    order: 2;
-    @include MQ(M) {
-      order: 1;
-    }
+  justify-content:space-around;
+  max-width:$M;
+  text-align:center;
+  h1 {
+    // text-align:center;
   }
-  .focus-svgs {
-    order: 1;
-    display: flex;
-    justify-content: space-around;
-    margin-left: auto;
-    margin-right: auto;
-    @include MQ(M) {
-      max-width: 48%;
-      order: 2;
-    }
+  hr {
+    border-top: 1px solid $base-font-color;
+    height:0px;
+  }
+  .svg-wrapper {
+    margin-left:auto;
+    margin-right:auto;
+    max-width:200px;
     svg {
-      max-width: 250px;
+      max-width: 200px;
     }
-  }
-  #content-halo {
-    fill: $hugo-blue!important;
   }
 }
 
