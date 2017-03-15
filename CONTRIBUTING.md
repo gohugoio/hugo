@@ -53,7 +53,7 @@ To make the contribution process as seamless as possible, we ask for the followi
     * Run `go fmt`.
     * Add documentation if you are adding new features or changing functionality.  The docs site lives in `/docs`.
     * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request with `git push -f`.
-    * Ensure that `make check` succeeds. [Travis CI](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will fail the build if `make check` fails.
+    * Ensure that `make check` succeeds. [Travis CI](https://travis-ci.org/spf13/hugo) (Linux and macOS) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will fail the build if `make check` fails.
     * Follow the **Git Commit Message Guidelines** below.
 
 ### Git Commit Message Guidelines
