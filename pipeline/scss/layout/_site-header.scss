@@ -34,6 +34,7 @@
     margin-left: -1em;
     img {
       height: $site-header-height * .7;
+      max-height: $site-header-height * .7;
       margin-right: .25em;
     }
     .hugo-v {
