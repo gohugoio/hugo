@@ -399,7 +399,7 @@ Using the preceding `youtube` example (without `autoplay="true"`), the following
 
 ## Creating Custom Shortcodes
 
-To learn more about creating your own shortcode templates, see the [shortcode template documentation][].
+To learn more about creating custom shortcodes, see the [shortcode template documentation][].
 
 [`figure` shortcode]: #figure
 [contentmanagementsection]: /content-management/formats/
