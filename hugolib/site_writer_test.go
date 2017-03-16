@@ -22,7 +22,7 @@ import (
 )
 
 func TestTargetPathHTMLRedirectAlias(t *testing.T) {
-	w := siteWriter{log: newErrorLogger()}
+	h := newAliasHandler(nil, newErrorLogger(), false, "")
 
 	errIsNilForThisOS := runtime.GOOS != "windows"
 
@@ -52,7 +52,7 @@ func TestTargetPathHTMLRedirectAlias(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		path, err := w.targetPathAlias(test.value)
+		path, err := h.targetPathAlias(test.value)
 		if (err == nil) != test.errIsNil {
 			t.Errorf("Expected err == nil => %t, got: %t. err: %s", test.errIsNil, err == nil, err)
 			continue

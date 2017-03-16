@@ -1927,6 +1927,10 @@ func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 
 }
 
+func (s *Site) publish(path string, r io.Reader) (err error) {
+	return helpers.WriteToDisk(path, r, s.Fs.Destination)
+}
+
 func (s *Site) langDir() string {
 	if s.Language.Lang != s.Info.multilingual.DefaultLang.Lang || s.Info.defaultContentLanguageInSubdir {
 		return s.Language.Lang
@@ -1946,45 +1950,6 @@ func (s *Site) initSiteWriter() {
 		fs:           s.Fs,
 		log:          s.Log,
 	}
-}
-
-func (s *Site) writeDestAlias(path, permalink string, p *Page) (err error) {
-	return s.publishDestAlias(false, path, permalink, p)
-}
-
-func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, p *Page) (err error) {
-	w := s.w
-	w.allowRoot = allowRoot
-
-	isXHTML := strings.HasSuffix(path, ".xhtml")
-
-	if s.Info.relativeURLs {
-		// convert `permalink` into URI relative to location of `path`
-		baseURL := helpers.SanitizeURLKeepTrailingSlash(s.Cfg.GetString("baseURL"))
-		if strings.HasPrefix(permalink, baseURL) {
-			permalink = "/" + strings.TrimPrefix(permalink, baseURL)
-		}
-		permalink, err = helpers.GetRelativePath(permalink, path)
-		if err != nil {
-			s.Log.ERROR.Println("Failed to make a RelativeURL alias:", path, "redirecting to", permalink)
-		}
-		permalink = filepath.ToSlash(permalink)
-	}
-	s.Log.DEBUG.Println("creating alias:", path, "redirecting to", permalink)
-
-	targetPath, err := w.targetPathAlias(path)
-	if err != nil {
-		return err
-	}
-
-	handler := newAliasHandler(s.Tmpl.Lookup("alias.html"))
-	aliasContent, err := handler.renderAlias(isXHTML, permalink, p)
-	if err != nil {
-		return err
-	}
-
-	return w.publish(targetPath, aliasContent)
-
 }
 
 func (s *Site) draftStats() string {
