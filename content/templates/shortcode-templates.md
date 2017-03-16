@@ -262,7 +262,7 @@ The following example is contrived but demonstrates the concept. Assume you have
 ```
 {{% /code %}}
 
-You also have an `image` shortcode with a single named `src` parameter that may or may not be called within `gallery`, as well as other shortcodes you've created for your site. When called inside a parent shortcode like `gallery`, you want the output HTML to inherit a CSS class from the value given to its parent:
+You also have an `image` shortcode with a single named `src` parameter that you want to call inside of `gallery` and other shortcodes so that the parent defines the context of each `image`:
 
 {{% code file="layouts/shortcodes/image.html" %}}
 ```html
