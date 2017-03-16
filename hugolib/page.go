@@ -204,42 +204,24 @@ type Page struct {
 	// This is the PageOutput that represents the first item in outputFormats.
 	// Use with care, as there are potential for inifinite loops.
 	mainPageOutput *PageOutput
-
-	// Used to pick the correct template(s)
-	layoutIdentifier pageLayoutIdentifier
 }
 
-// Implements layout.LayoutIdentifier
-type pageLayoutIdentifier struct {
-	*Page
-}
+func (p *Page) createLayoutDescriptor() output.LayoutDescriptor {
+	var section string
 
-// PageKind returns the page's kind.
-func (p pageLayoutIdentifier) PageKind() string {
-	return p.Kind
-}
-
-// PageLayout returns the page's layout, if set.
-func (p pageLayoutIdentifier) PageLayout() string {
-	return p.Layout
-}
-
-// PageType returns the page's type, if set.
-func (p pageLayoutIdentifier) PageType() string {
-	return p.Type()
-}
-
-// PageType returns the page's section in layout terms.
-// This will be empty for regular pages, the section for section pages,
-// and the singular term for taxonomy and taxonomy terms pages.
-func (p pageLayoutIdentifier) PageSection() string {
 	switch p.Kind {
 	case KindSection:
-		return p.sections[0]
+		section = p.sections[0]
 	case KindTaxonomy, KindTaxonomyTerm:
-		return p.s.taxonomiesPluralSingular[p.sections[0]]
+		section = p.s.taxonomiesPluralSingular[p.sections[0]]
 	default:
-		return ""
+	}
+
+	return output.LayoutDescriptor{
+		Kind:    p.Kind,
+		Type:    p.Type(),
+		Layout:  p.Layout,
+		Section: section,
 	}
 }
 
@@ -642,7 +624,6 @@ func (s *Site) newPage(filename string) *Page {
 		Site:         &s.Info,
 		s:            s,
 	}
-	p.layoutIdentifier = pageLayoutIdentifier{p}
 
 	s.Log.DEBUG.Println("Reading from", p.File.Path())
 	return p
@@ -682,7 +663,10 @@ func (p *Page) layouts(layouts ...string) []string {
 		layoutOverride = layouts[0]
 	}
 
-	return p.s.layoutHandler.For(p.layoutIdentifier, layoutOverride, output.HTMLType)
+	return p.s.layoutHandler.For(
+		p.createLayoutDescriptor(),
+		layoutOverride,
+		output.HTMLType)
 }
 
 // TODO(bep) consolidate and test these KindHome switches (see other layouts methods)s

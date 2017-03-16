@@ -1661,7 +1661,7 @@ func (s *Site) kindFromSections(sections []string) string {
 }
 
 func (s *Site) layouts(p *PageOutput) []string {
-	return s.layoutHandler.For(p.layoutIdentifier, "", p.outputFormat)
+	return s.layoutHandler.For(p.createLayoutDescriptor(), "", p.outputFormat)
 }
 
 func (s *Site) preparePages() error {
@@ -2062,7 +2062,6 @@ func (s *Site) newNodePage(typ string) *Page {
 		Site:     &s.Info,
 		s:        s}
 	p.outputFormats = p.s.defaultOutputDefinitions.ForKind(typ)
-	p.layoutIdentifier = pageLayoutIdentifier{p}
 	return p
 
 }

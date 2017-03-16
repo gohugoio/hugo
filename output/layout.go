@@ -19,12 +19,13 @@ import (
 	"strings"
 )
 
-// LayoutIdentifier is used to pick the correct layout for a piece of content.
-type LayoutIdentifier interface {
-	PageType() string
-	PageSection() string // TODO(bep) name
-	PageKind() string
-	PageLayout() string
+// LayoutDescriptor describes how a layout should be chosen. This is
+// typically built from a Page.
+type LayoutDescriptor struct {
+	Type    string
+	Section string
+	Kind    string
+	Layout  string
 }
 
 // Layout calculates the layout template to use to render a given output type.
@@ -60,27 +61,27 @@ indexes/indexes.NAME.SUFFIX indexes/indexes.SUFFIX
 `
 )
 
-func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, f Format) []string {
+func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format) []string {
 	var layouts []string
 
-	layout := id.PageLayout()
+	layout := d.Layout
 
 	if layoutOverride != "" {
 		layout = layoutOverride
 	}
 
-	switch id.PageKind() {
+	switch d.Kind {
 	// TODO(bep) move the Kind constants some common place.
 	case "home":
-		layouts = resolveTemplate(layoutsHome, id, f)
+		layouts = resolveTemplate(layoutsHome, d, f)
 	case "section":
-		layouts = resolveTemplate(layoutsSection, id, f)
+		layouts = resolveTemplate(layoutsSection, d, f)
 	case "taxonomy":
-		layouts = resolveTemplate(layoutTaxonomy, id, f)
+		layouts = resolveTemplate(layoutTaxonomy, d, f)
 	case "taxonomyTerm":
-		layouts = resolveTemplate(layoutTaxonomyTerm, id, f)
+		layouts = resolveTemplate(layoutTaxonomyTerm, d, f)
 	case "page":
-		layouts = regularPageLayouts(id.PageType(), layout, f)
+		layouts = regularPageLayouts(d.Type, layout, f)
 	}
 
 	if l.hasTheme {
@@ -112,11 +113,11 @@ func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, f Format
 	return layouts
 }
 
-func resolveTemplate(templ string, id LayoutIdentifier, f Format) []string {
+func resolveTemplate(templ string, d LayoutDescriptor, f Format) []string {
 	return strings.Fields(replaceKeyValues(templ,
 		"SUFFIX", f.MediaType.Suffix,
 		"NAME", strings.ToLower(f.Name),
-		"SECTION", id.PageSection()))
+		"SECTION", d.Section))
 }
 
 func replaceKeyValues(s string, oldNew ...string) string {
