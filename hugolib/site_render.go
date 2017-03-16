@@ -19,8 +19,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spf13/hugo/output"
-
 	bp "github.com/spf13/hugo/bufferpool"
 )
 
@@ -100,7 +98,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 
 				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", pageOutput.Kind, targetPath, layouts)
 
-				if err := s.renderAndWritePage(outFormat, "page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
+				if err := s.renderAndWritePage("page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
 					results <- err
 				}
 
@@ -149,7 +147,8 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 			addend := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
 			targetPath, _ := p.targetPath(addend)
 
-			if err := s.renderAndWritePage(p.outputFormat, pagerNode.Title,
+			if err := s.renderAndWritePage(
+				pagerNode.Title,
 				targetPath, pagerNode, p.layouts()...); err != nil {
 				return err
 			}
@@ -219,7 +218,7 @@ func (s *Site) render404() error {
 
 	nfLayouts := []string{"404.html"}
 
-	return s.renderAndWritePage(output.HTMLType, "404 page", "404.html", p, s.appendThemeTemplates(nfLayouts)...)
+	return s.renderAndWritePage("404 page", "404.html", p, s.appendThemeTemplates(nfLayouts)...)
 
 }
 
@@ -289,7 +288,7 @@ func (s *Site) renderRobotsTXT() error {
 	err := s.renderForLayouts("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
 
 	if err == nil {
-		err = s.w.writeDestFile("robots.txt", outBuffer)
+		err = s.publish("robots.txt", outBuffer)
 	}
 
 	return err
