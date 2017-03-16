@@ -46,7 +46,7 @@ The examples above use two different delimiters, the difference being the `%` ch
 
 ### Shortcodes with Markdown
 
-The `%` character indicates that the shortcode's inner content---called in the [shortcode template](/templates/shortcode-templates/) with the [`.Inner` variable](/variables/shortcodes/)---needs further processing by the page's rendering processor (i.e. Markdown via Blackfriday). In the following example, Blackfriday would convert `**World**` to `<strong>World</strong>`:
+The `%` character indicates that the shortcode's inner content---called in the [shortcode template][sctemps] with the [`.Inner` variable][scvars]---needs further processing by the page's rendering processor (i.e. Markdown via Blackfriday). In the following example, Blackfriday would convert `**World**` to `<strong>World</strong>`:
 
 ```golang
 {{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
@@ -59,6 +59,10 @@ The `<` character indicates that the shortcode's inner content does *not* need f
 ```golang
 {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
 ```
+
+### Nested Shortcodes
+
+You can call shortcodes within other shortcodes by creating your own templates that leverage the `.Parent` variable. `.Parent` allows you to check the context in which the shortcode is being called. See [Shortcode templates][sctemps].
 
 ## Using Hugo's Built-in Shortcodes
 
@@ -208,7 +212,7 @@ You also have the option to hide the caption:
 
 By adding the preceding `hidecaption` example, the following HTML will be added to your rendered website's markup:
 
-{{% output file="instagraph-hide-caption-output.html" %}}
+{{% output file="instagram-hide-caption-output.html" %}}
 ```html
 {{< instagram BMokmydjG-M hidecaption >}}
 ```
@@ -397,16 +401,17 @@ Using the preceding `youtube` example (without `autoplay="true"`), the following
 
 To learn more about creating your own shortcode templates, see the [shortcode template documentation][].
 
+[`figure` shortcode]: #figure
 [contentmanagementsection]: /content-management/formats/
 [examplegist]: https://gist.github.com/spf13/7896402
 [figureelement]: http://html5doctor.com/the-figure-figcaption-elements/ "An article from HTML5 doctor discussing the fig and figcaption elements."
-[`figure` shortcode]: #figure
 [Instagram]: https://www.instagram.com/
 [pagevariables]: /variables/page/
 [partials]: /templates/partials/
 [Pygments]: http://pygments.org/
 [quickstart]: /getting-started/quick-start/
-[shortcode template documentation]: /templates/shortcode-templates/
+[sctemps]: /templates/shortcode-templates/
+[scvars]: /variables/shortcodes/
 [Speaker Deck]: https://speakerdeck.com/
 [templatessection]: /templates/
 [Vimeo]: https://vimeo.com/

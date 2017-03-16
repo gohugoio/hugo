@@ -1,5 +1,5 @@
 ---
-title: Shortcode Templates
+title: Creating Your Own Shortcode Templates
 linktitle: Shortcode Templates
 description: You can extend Hugo's built-in shortcodes by creating your own using the same templating syntax as that for single and list pages.
 date: 2017-02-01
@@ -117,9 +117,7 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
 ```
 {{% /code %}}
 
-
-
-{{% output file="youtube-embed.html" %}}
+{{% code file="youtube-embed.html" copy="false" %}}
 ```html
 <div class="embed video-player">
     <iframe class="youtube-player" type="text/html"
@@ -129,7 +127,7 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
     </iframe>
 </div>
 ```
-{{% /output %}}
+{{% /code %}}
 
 ### Single Named Example: `image`
 
@@ -168,7 +166,7 @@ You have created the shortcode at `/layouts/shortcodes/img.html`, which loads th
 
 Would be rendered as:
 
-{{% output file="figure.html" %}}
+{{% code file="img-output.html" copy="false" %}}
 ```html
 <figure >
     <img src="/media/spf13.jpg"  />
@@ -177,7 +175,7 @@ Would be rendered as:
     </figcaption>
 </figure>
 ```
-{{% /output %}}
+{{% /code %}}
 
 ### Single Flexible Example: `vimeo`
 
@@ -204,7 +202,7 @@ Would load the template found at `/layouts/shortcodes/vimeo.html`:
 
 Would be rendered as:
 
-{{% output file="vimeo-iframes.html" %}}
+{{% code file="vimeo-iframes.html" copy="false" %}}
 ```html
 <div class="vimeo-container">
   <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
@@ -213,7 +211,7 @@ Would be rendered as:
   <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
 ```
-{{% /output %}}
+{{% /code %}}
 
 ### Paired Example: `highlight`
 
@@ -237,22 +235,69 @@ The template for the `highlight` shortcode uses the following code, which is alr
 
 The rendered output of the HTML example code block will be as follows:
 
-{{% output file="syntax-highlighted.html" %}}
+{{% code file="syntax-highlighted.html" copy="false" %}}
 ```html
 <div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span style="color: #f92672">&lt;html&gt;</span>
     <span style="color: #f92672">&lt;body&gt;</span> This HTML <span style="color: #f92672">&lt;/body&gt;</span>
 <span style="color: #f92672">&lt;/html&gt;</span>
 </pre></div>
 ```
-{{% /output %}}
+{{% /code %}}
 
 {{% note %}}
 The preceding shortcode makes use of a Hugo-specific template function called `highlight`, which uses [Pygments](http://pygments.org) to add syntax highlighting to the example HTML code block. See the [developer tools page on syntax highlighting](/tools/syntax-highlighting/) for more information.
 {{% /note %}}
 
+### Nested Shortcode: Image Gallery
+
+Hugo's [`.Parent` shortcode variable][parent] returns a boolean value depending on whether the shortcode in question is called within the context of a *parent* shortcode. This provides an inheritance model for common shortcode parameters.
+
+The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` parameter:
+
+{{% code file="layouts/shortcodes/gallery.html" %}}
+```html
+<div class="{{.Get "class"}}">
+  {{.Inner}}
+</div>
+```
+{{% /code %}}
+
+You also have an `image` shortcode with a single named `src` parameter that may or may not be called within `gallery`, as well as other shortcodes you've created for your site. When called inside a parent shortcode like `gallery`, you want the output HTML to inherit a CSS class from the value given to its parent:
+
+{{% code file="layouts/shortcodes/image.html" %}}
+```html
+{{- $src := .Get "src" -}}
+{{- with .Parent -}}
+  <img src="{{$src}}" class="{{.Get "class"}}-image">
+{{- else -}}
+  <img src="{{$src}}">
+{{- end }}
+```
+{{% /code %}}
+
+You can then call your shortcode in your content as follows:
+
+```markdown
+{{</* gallery class="content-gallery" */>}}
+  {{</* img src="/images/one.jpg" */>}}
+  {{</* img src="/images/two.jpg" */>}}
+{{</* /gallery */>}}
+{{</* img src="/images/three.jpg" */>}}
+```
+
+This will output the following HTML. Note how the first two `image` shortcodes inherit the `class` value of `content-gallery` set with the call to the parent `gallery`, whereas the third `image` only uses `src`:
+
+```html
+<div class="content-gallery">
+    <img src="/images/one.jpg" class="content-gallery-image">
+    <img src="/images/two.jpg" class="content-gallery-image">
+</div>
+<img src="/images/three.jpg">
+```
+
 ## More Shortcode Examples
 
-More shortcode examples can be found in the [shortcodes directory for spf13.com][spf13shortcodes] and the [shortcodes directory for the Hugo docs][docsshortcodes].
+More shortcode examples can be found in the [shortcodes directory for spf13.com][spfscs] and the [shortcodes directory for the Hugo docs][docsshortcodes].
 
 [basic content files]: /content-management/formats/ "See how Hugo leverages markdown--and other supported formats--to create content for your website."
 [built-in shortcode]: /content-management/shortcodes/
@@ -260,8 +305,9 @@ More shortcode examples can be found in the [shortcodes directory for spf13.com]
 [docsshortcodes]: https://github.com/spf13/hugo/tree/master/docs/layouts/shortcodes "See the shortcode source directory for the documentation site you're currently reading."
 [figure]: /content-management/shortcodes/#figure
 [pagevars]: /variables/page/ "See which variables you can leverage in your templating for page vs list templates."
+[parent]: /variables/shortcodes/
 [shortcodesvars]: /variables/shortcodes/ "Certain variables are specific to shortcodes, although most .Page variables can be accessed within your shortcode template."
-[spf13shortcodes]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes "See more examples of shortcodes by visiting the shortcode directory of the source for spf13.com, the blog of Hugo's creator, Steve Francia."
+[spfscs]: https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes "See more examples of shortcodes by visiting the shortcode directory of the source for spf13.com, the blog of Hugo's creator, Steve Francia."
 [templates]: /templates/ "The templates section of the Hugo docs."
 [vimeoexample]: #single-flexible-example-vimeo
 [youtubeshortcode]: /content-management/shortcodes/#youtube "See how to use Hugo's built-in YouTube shortcode."
