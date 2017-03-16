@@ -27,7 +27,7 @@ import (
 )
 
 // We may find some abstractions/interface(s) here once we star with
-// "Multiple Output Types".
+// "Multiple Output Formats".
 type siteWriter struct {
 	langDir      string
 	publishDir   string
@@ -40,8 +40,8 @@ type siteWriter struct {
 	log *jww.Notepad
 }
 
-func (w siteWriter) targetPathPage(tp output.Type, src string) (string, error) {
-	dir, err := w.baseTargetPathPage(tp, src)
+func (w siteWriter) targetPathPage(f output.Format, src string) (string, error) {
+	dir, err := w.baseTargetPathPage(f, src)
 	if err != nil {
 		return "", err
 	}
@@ -51,7 +51,7 @@ func (w siteWriter) targetPathPage(tp output.Type, src string) (string, error) {
 	return dir, nil
 }
 
-func (w siteWriter) baseTargetPathPage(tp output.Type, src string) (string, error) {
+func (w siteWriter) baseTargetPathPage(f output.Format, src string) (string, error) {
 	if src == helpers.FilePathSeparator {
 		return "index.html", nil
 	}
@@ -178,7 +178,7 @@ func filename(f string) string {
 	return f[:len(f)-len(ext)]
 }
 
-func (w siteWriter) writeDestPage(tp output.Type, path string, reader io.Reader) error {
+func (w siteWriter) writeDestPage(f output.Format, path string, reader io.Reader) error {
 	w.log.DEBUG.Println("creating page:", path)
 	path, _ = w.targetPathFile(path)
 	// TODO(bep) output remove this file ... targetPath, err := w.targetPathPage(tp, path)

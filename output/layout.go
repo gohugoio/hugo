@@ -60,7 +60,7 @@ indexes/indexes.NAME.SUFFIX indexes/indexes.SUFFIX
 `
 )
 
-func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, tp Type) []string {
+func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, f Format) []string {
 	var layouts []string
 
 	layout := id.PageLayout()
@@ -72,15 +72,15 @@ func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, tp Type)
 	switch id.PageKind() {
 	// TODO(bep) move the Kind constants some common place.
 	case "home":
-		layouts = resolveTemplate(layoutsHome, id, tp)
+		layouts = resolveTemplate(layoutsHome, id, f)
 	case "section":
-		layouts = resolveTemplate(layoutsSection, id, tp)
+		layouts = resolveTemplate(layoutsSection, id, f)
 	case "taxonomy":
-		layouts = resolveTemplate(layoutTaxonomy, id, tp)
+		layouts = resolveTemplate(layoutTaxonomy, id, f)
 	case "taxonomyTerm":
-		layouts = resolveTemplate(layoutTaxonomyTerm, id, tp)
+		layouts = resolveTemplate(layoutTaxonomyTerm, id, f)
 	case "page":
-		layouts = regularPageLayouts(id.PageType(), layout, tp)
+		layouts = regularPageLayouts(id.PageType(), layout, f)
 	}
 
 	if l.hasTheme {
@@ -112,10 +112,10 @@ func (l *LayoutHandler) For(id LayoutIdentifier, layoutOverride string, tp Type)
 	return layouts
 }
 
-func resolveTemplate(templ string, id LayoutIdentifier, tp Type) []string {
+func resolveTemplate(templ string, id LayoutIdentifier, f Format) []string {
 	return strings.Fields(replaceKeyValues(templ,
-		"SUFFIX", tp.MediaType.Suffix,
-		"NAME", strings.ToLower(tp.Name),
+		"SUFFIX", f.MediaType.Suffix,
+		"NAME", strings.ToLower(f.Name),
 		"SECTION", id.PageSection()))
 }
 
@@ -124,13 +124,13 @@ func replaceKeyValues(s string, oldNew ...string) string {
 	return replacer.Replace(s)
 }
 
-func regularPageLayouts(types string, layout string, tp Type) (layouts []string) {
+func regularPageLayouts(types string, layout string, f Format) (layouts []string) {
 	if layout == "" {
 		layout = "single"
 	}
 
-	suffix := tp.MediaType.Suffix
-	name := strings.ToLower(tp.Name)
+	suffix := f.MediaType.Suffix
+	name := strings.ToLower(f.Name)
 
 	if types != "" {
 		t := strings.Split(types, "/")

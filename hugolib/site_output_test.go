@@ -32,10 +32,10 @@ func TestDefaultOutputDefinitions(t *testing.T) {
 	tests := []struct {
 		name string
 		kind string
-		want []output.Type
+		want []output.Format
 	}{
-		{"RSS not for regular pages", KindPage, []output.Type{output.HTMLType}},
-		{"Home Sweet Home", KindHome, []output.Type{output.HTMLType, output.RSSType}},
+		{"RSS not for regular pages", KindPage, []output.Format{output.HTMLType}},
+		{"Home Sweet Home", KindHome, []output.Format{output.HTMLType, output.RSSType}},
 	}
 
 	for _, tt := range tests {
@@ -88,7 +88,7 @@ outputs: ["json"]
 
 	require.NotNil(t, home)
 
-	require.Len(t, home.outputTypes, 1)
+	require.Len(t, home.outputFormats, 1)
 
 	// TODO(bep) output assert template/text
 

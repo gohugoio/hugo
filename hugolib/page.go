@@ -198,10 +198,10 @@ type Page struct {
 
 	lang string
 
-	// The output types this page will be rendered to.
-	outputTypes output.Types
+	// The output formats this page will be rendered to.
+	outputFormats output.Formats
 
-	// This is the PageOutput that represents the first item in outputTypes.
+	// This is the PageOutput that represents the first item in outputFormats.
 	// Use with care, as there are potential for inifinite loops.
 	mainPageOutput *PageOutput
 
@@ -792,7 +792,7 @@ func (p *Page) Extension() string {
 		return p.extension
 	}
 	//
-	// TODO(bep) return p.outputType.MediaType.Suffix
+	// TODO(bep) return MediaType.Suffix
 
 	// TODO(bep) remove this config option =>
 	return p.s.Cfg.GetString("defaultExtension")
@@ -952,13 +952,13 @@ func (p *Page) update(f interface{}) error {
 		case "outputs":
 			outputs := cast.ToStringSlice(v)
 			if len(outputs) > 0 {
-				// Output types are exlicitly set in front matter, use those.
-				outTypes, err := output.GetTypes(outputs...)
+				// Output formats are exlicitly set in front matter, use those.
+				outFormats, err := output.GetTypes(outputs...)
 				if err != nil {
-					p.s.Log.ERROR.Printf("Failed to resolve output types: %s", err)
+					p.s.Log.ERROR.Printf("Failed to resolve output formats: %s", err)
 				} else {
-					p.outputTypes = outTypes
-					p.Params[loki] = outTypes
+					p.outputFormats = outFormats
+					p.Params[loki] = outFormats
 				}
 
 			}

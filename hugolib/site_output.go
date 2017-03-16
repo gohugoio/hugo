@@ -29,11 +29,11 @@ type siteOutputDefinition struct {
 	// Comma separated list (for now).
 	ExcludedKinds string
 
-	Outputs []output.Type
+	Outputs []output.Format
 }
 
-func (defs siteOutputDefinitions) ForKind(kind string) []output.Type {
-	var result []output.Type
+func (defs siteOutputDefinitions) ForKind(kind string) []output.Format {
+	var result []output.Format
 
 	for _, def := range defs {
 		if def.ExcludedKinds == "" || !strings.Contains(def.ExcludedKinds, kind) {
@@ -49,7 +49,7 @@ func createSiteOutputDefinitions(cfg config.Provider) siteOutputDefinitions {
 	var defs siteOutputDefinitions
 
 	// All have HTML
-	defs = append(defs, siteOutputDefinition{ExcludedKinds: "", Outputs: []output.Type{output.HTMLType}})
+	defs = append(defs, siteOutputDefinition{ExcludedKinds: "", Outputs: []output.Format{output.HTMLType}})
 
 	// TODO(bep) output deprecate rssURI
 	rssBase := cfg.GetString("rssURI")
@@ -63,7 +63,7 @@ func createSiteOutputDefinitions(cfg config.Provider) siteOutputDefinitions {
 	rssType.BaseName = rssBase
 
 	// Some have RSS
-	defs = append(defs, siteOutputDefinition{ExcludedKinds: "page", Outputs: []output.Type{rssType}})
+	defs = append(defs, siteOutputDefinition{ExcludedKinds: "page", Outputs: []output.Format{rssType}})
 
 	return defs
 }

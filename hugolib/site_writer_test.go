@@ -127,9 +127,9 @@ func _TestTargetPathUglyURLs(t *testing.T) {
 	w := siteWriter{log: newErrorLogger(), uglyURLs: true}
 
 	tests := []struct {
-		outputType output.Type
-		content    string
-		expected   string
+		outFormat output.Format
+		content   string
+		expected  string
 	}{
 		{output.HTMLType, "foo.html", "foo.html"},
 		{output.HTMLType, "/", "index.html"},
@@ -139,7 +139,7 @@ func _TestTargetPathUglyURLs(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		dest, err := w.targetPathPage(test.outputType, filepath.FromSlash(test.content))
+		dest, err := w.targetPathPage(test.outFormat, filepath.FromSlash(test.content))
 		if err != nil {
 			t.Fatalf(" [%d] targetPathPage returned an unexpected err: %s", i, err)
 		}

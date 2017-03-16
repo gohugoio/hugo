@@ -1661,7 +1661,7 @@ func (s *Site) kindFromSections(sections []string) string {
 }
 
 func (s *Site) layouts(p *PageOutput) []string {
-	return s.layoutHandler.For(p.layoutIdentifier, "", p.outputType)
+	return s.layoutHandler.For(p.layoutIdentifier, "", p.outputFormat)
 }
 
 func (s *Site) preparePages() error {
@@ -1806,7 +1806,7 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 
 }
 
-func (s *Site) renderAndWritePage(tp output.Type, name string, dest string, d interface{}, layouts ...string) error {
+func (s *Site) renderAndWritePage(f output.Format, name string, dest string, d interface{}, layouts ...string) error {
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1878,7 +1878,7 @@ Your rendered home page is blank: /index.html is zero-length
 
 	}
 
-	if err = w.writeDestPage(tp, dest, outBuffer); err != nil {
+	if err = w.writeDestPage(f, dest, outBuffer); err != nil {
 		return err
 	}
 
@@ -2061,7 +2061,7 @@ func (s *Site) newNodePage(typ string) *Page {
 		Data:     make(map[string]interface{}),
 		Site:     &s.Info,
 		s:        s}
-	p.outputTypes = p.s.defaultOutputDefinitions.ForKind(typ)
+	p.outputFormats = p.s.defaultOutputDefinitions.ForKind(typ)
 	p.layoutIdentifier = pageLayoutIdentifier{p}
 	return p
 
