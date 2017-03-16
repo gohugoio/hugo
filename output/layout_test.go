@@ -21,29 +21,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type testLayoutIdentifier struct {
-	pageKind    string
-	pageSection string
-	pageLayout  string
-	pageType    string
-}
-
-func (l testLayoutIdentifier) PageKind() string {
-	return l.pageKind
-}
-
-func (l testLayoutIdentifier) PageLayout() string {
-	return l.pageLayout
-}
-
-func (l testLayoutIdentifier) PageType() string {
-	return l.pageType
-}
-
-func (l testLayoutIdentifier) PageSection() string {
-	return l.pageSection
-}
-
 var ampType = Format{
 	Name:      "AMP",
 	MediaType: media.HTMLType,
@@ -54,35 +31,35 @@ func TestLayout(t *testing.T) {
 
 	for _, this := range []struct {
 		name           string
-		li             testLayoutIdentifier
+		d              LayoutDescriptor
 		hasTheme       bool
 		layoutOverride string
 		tp             Format
 		expect         []string
 	}{
-		{"Home", testLayoutIdentifier{"home", "", "", ""}, true, "", ampType,
+		{"Home", LayoutDescriptor{Kind: "home"}, true, "", ampType,
 			[]string{"index.amp.html", "index.html", "_default/list.amp.html", "_default/list.html", "theme/index.amp.html", "theme/index.html"}},
-		{"Section", testLayoutIdentifier{"section", "sect1", "", ""}, false, "", ampType,
+		{"Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, false, "", ampType,
 			[]string{"section/sect1.amp.html", "section/sect1.html"}},
-		{"Taxonomy", testLayoutIdentifier{"taxonomy", "tag", "", ""}, false, "", ampType,
+		{"Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, false, "", ampType,
 			[]string{"taxonomy/tag.amp.html", "taxonomy/tag.html"}},
-		{"Taxonomy term", testLayoutIdentifier{"taxonomyTerm", "categories", "", ""}, false, "", ampType,
+		{"Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "categories"}, false, "", ampType,
 			[]string{"taxonomy/categories.terms.amp.html", "taxonomy/categories.terms.html", "_default/terms.amp.html"}},
-		{"Page", testLayoutIdentifier{"page", "", "", ""}, true, "", ampType,
+		{"Page", LayoutDescriptor{Kind: "page"}, true, "", ampType,
 			[]string{"_default/single.amp.html", "_default/single.html", "theme/_default/single.amp.html"}},
-		{"Page with layout", testLayoutIdentifier{"page", "", "mylayout", ""}, false, "", ampType,
+		{"Page with layout", LayoutDescriptor{Kind: "page", Layout: "mylayout"}, false, "", ampType,
 			[]string{"_default/mylayout.amp.html", "_default/mylayout.html"}},
-		{"Page with layout and type", testLayoutIdentifier{"page", "", "mylayout", "myttype"}, false, "", ampType,
+		{"Page with layout and type", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype"}, false, "", ampType,
 			[]string{"myttype/mylayout.amp.html", "myttype/mylayout.html", "_default/mylayout.amp.html"}},
-		{"Page with layout and type with subtype", testLayoutIdentifier{"page", "", "mylayout", "myttype/mysubtype"}, false, "", ampType,
+		{"Page with layout and type with subtype", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype/mysubtype"}, false, "", ampType,
 			[]string{"myttype/mysubtype/mylayout.amp.html", "myttype/mysubtype/mylayout.html", "myttype/mylayout.amp.html"}},
-		{"Page with overridden layout", testLayoutIdentifier{"page", "", "mylayout", "myttype"}, false, "myotherlayout", ampType,
+		{"Page with overridden layout", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype"}, false, "myotherlayout", ampType,
 			[]string{"myttype/myotherlayout.amp.html", "myttype/myotherlayout.html"}},
 	} {
 		t.Run(this.name, func(t *testing.T) {
 			l := NewLayoutHandler(this.hasTheme)
 
-			layouts := l.For(this.li, this.layoutOverride, this.tp)
+			layouts := l.For(this.d, this.layoutOverride, this.tp)
 
 			require.NotNil(t, layouts)
 			require.True(t, len(layouts) >= len(this.expect))
