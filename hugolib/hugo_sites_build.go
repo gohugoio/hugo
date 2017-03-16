@@ -200,8 +200,6 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 func (h *HugoSites) render(config *BuildCfg) error {
 	if !config.SkipRender {
 		for _, s := range h.Sites {
-			s.initSiteWriter()
-
 			if err := s.render(); err != nil {
 				return err
 			}

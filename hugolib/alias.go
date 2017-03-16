@@ -41,14 +41,13 @@ func init() {
 }
 
 type aliasHandler struct {
-	Templates  *template.Template
-	log        *jww.Notepad
-	allowRoot  bool
-	publishDir string
+	Templates *template.Template
+	log       *jww.Notepad
+	allowRoot bool
 }
 
-func newAliasHandler(t *template.Template, l *jww.Notepad, allowRoot bool, publishDir string) aliasHandler {
-	return aliasHandler{t, l, allowRoot, publishDir}
+func newAliasHandler(t *template.Template, l *jww.Notepad, allowRoot bool) aliasHandler {
+	return aliasHandler{t, l, allowRoot}
 }
 
 func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (io.Reader, error) {
@@ -85,7 +84,7 @@ func (s *Site) writeDestAlias(path, permalink string, p *Page) (err error) {
 
 func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, p *Page) (err error) {
 
-	handler := newAliasHandler(s.Tmpl.Lookup("alias.html"), s.Log, allowRoot, s.absPublishDir())
+	handler := newAliasHandler(s.Tmpl.Lookup("alias.html"), s.Log, allowRoot)
 
 	isXHTML := strings.HasSuffix(path, ".xhtml")
 
@@ -183,5 +182,5 @@ func (a aliasHandler) targetPathAlias(src string) (string, error) {
 		a.log.INFO.Printf("Alias \"%s\" translated to \"%s\"\n", originalAlias, alias)
 	}
 
-	return filepath.Join(a.publishDir, alias), nil
+	return alias, nil
 }

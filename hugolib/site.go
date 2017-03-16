@@ -98,9 +98,6 @@ type Site struct {
 	Menus    Menus
 	timer    *nitro.B
 
-	// This is not a pointer by design.
-	w siteWriter
-
 	layoutHandler *output.LayoutHandler
 
 	draftCount   int
@@ -1215,8 +1212,6 @@ func (s *Site) convertSource() chan error {
 	numWorkers := getGoMaxProcs() * 4
 	wg := &sync.WaitGroup{}
 
-	s.initSiteWriter()
-
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(2)
 		go fileConverter(s, fileConvChan, results, wg)
@@ -1802,11 +1797,11 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 	transformer := transform.NewChain(transform.AbsURLInXML)
 	transformer.Apply(outBuffer, renderBuffer, path)
 
-	return s.w.writeDestFile(dest, outBuffer)
+	return s.publish(dest, outBuffer)
 
 }
 
-func (s *Site) renderAndWritePage(f output.Format, name string, dest string, d interface{}, layouts ...string) error {
+func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layouts ...string) error {
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1818,9 +1813,6 @@ func (s *Site) renderAndWritePage(f output.Format, name string, dest string, d i
 
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
-
-	// Note: this is not a pointer, as we may mutate the state below.
-	w := s.w
 
 	transformLinks := transform.NewEmptyTransforms()
 
@@ -1878,7 +1870,7 @@ Your rendered home page is blank: /index.html is zero-length
 
 	}
 
-	if err = w.writeDestPage(f, dest, outBuffer); err != nil {
+	if err = s.publish(dest, outBuffer); err != nil {
 		return err
 	}
 
@@ -1928,6 +1920,7 @@ func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 }
 
 func (s *Site) publish(path string, r io.Reader) (err error) {
+	path = filepath.Join(s.absPublishDir(), path)
 	return helpers.WriteToDisk(path, r, s.Fs.Destination)
 }
 
@@ -1936,20 +1929,6 @@ func (s *Site) langDir() string {
 		return s.Language.Lang
 	}
 	return ""
-}
-
-func (s *Site) initSiteWriter() {
-	if s.Fs == nil {
-		panic("Must have Fs")
-	}
-	s.w = siteWriter{
-		langDir:      s.langDir(),
-		publishDir:   s.absPublishDir(),
-		uglyURLs:     s.Cfg.GetBool("uglyURLs"),
-		relativeURLs: s.Info.relativeURLs,
-		fs:           s.Fs,
-		log:          s.Log,
-	}
 }
 
 func (s *Site) draftStats() string {
