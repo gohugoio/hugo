@@ -44,7 +44,7 @@ func (l testLayoutIdentifier) PageSection() string {
 	return l.pageSection
 }
 
-var ampType = Type{
+var ampType = Format{
 	Name:      "AMP",
 	MediaType: media.HTMLType,
 	BaseName:  "index",
@@ -57,7 +57,7 @@ func TestLayout(t *testing.T) {
 		li             testLayoutIdentifier
 		hasTheme       bool
 		layoutOverride string
-		tp             Type
+		tp             Format
 		expect         []string
 	}{
 		{"Home", testLayoutIdentifier{"home", "", "", ""}, true, "", ampType,

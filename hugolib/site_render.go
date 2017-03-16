@@ -65,10 +65,10 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 	var mainPageOutput *PageOutput
 
 	for page := range pages {
-		for i, outputType := range page.outputTypes {
-			pageOutput, err := newPageOutput(page, i > 0, outputType)
+		for i, outFormat := range page.outputFormats {
+			pageOutput, err := newPageOutput(page, i > 0, outFormat)
 			if err != nil {
-				s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outputType.Name, page, err)
+				s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outFormat.Name, page, err)
 				continue
 			}
 			if i == 0 {
@@ -85,7 +85,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 				layouts = s.layouts(pageOutput)
 			}
 
-			switch pageOutput.outputType.Name {
+			switch pageOutput.outputFormat.Name {
 
 			case "RSS":
 				if err := s.renderRSS(pageOutput); err != nil {
@@ -94,13 +94,13 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			default:
 				targetPath, err := pageOutput.targetPath()
 				if err != nil {
-					s.Log.ERROR.Printf("Failed to create target path for output %q for page %q: %s", outputType.Name, page, err)
+					s.Log.ERROR.Printf("Failed to create target path for output %q for page %q: %s", outFormat.Name, page, err)
 					continue
 				}
 
 				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", pageOutput.Kind, targetPath, layouts)
 
-				if err := s.renderAndWritePage(outputType, "page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
+				if err := s.renderAndWritePage(outFormat, "page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
 					results <- err
 				}
 
@@ -149,7 +149,7 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 			addend := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
 			targetPath, _ := p.targetPath(addend)
 
-			if err := s.renderAndWritePage(p.outputType, pagerNode.Title,
+			if err := s.renderAndWritePage(p.outputFormat, pagerNode.Title,
 				targetPath, pagerNode, p.layouts()...); err != nil {
 				return err
 			}

@@ -36,7 +36,7 @@ import (
 type targetPathDescriptor struct {
 	PathSpec *helpers.PathSpec
 
-	Type output.Type
+	Type output.Format
 	Kind string
 
 	Sections []string
@@ -66,10 +66,10 @@ type targetPathDescriptor struct {
 	UglyURLs bool
 }
 
-// createTargetPathDescriptor adapts a Page and the given output.Type into
+// createTargetPathDescriptor adapts a Page and the given output.Format into
 // a targetPathDescriptor. This descriptor can then be used to create paths
 // and URLs for this Page.
-func (p *Page) createTargetPathDescriptor(t output.Type) (targetPathDescriptor, error) {
+func (p *Page) createTargetPathDescriptor(t output.Format) (targetPathDescriptor, error) {
 	d := targetPathDescriptor{
 		PathSpec: p.s.PathSpec,
 		Type:     t,
@@ -107,9 +107,9 @@ func (p *Page) createTargetPathDescriptor(t output.Type) (targetPathDescriptor, 
 }
 
 // createTargetPath creates the target filename for this Page for the given
-// output.Type. Some additional URL parts can also be provided, the typical
+// output.Format. Some additional URL parts can also be provided, the typical
 // use case being pagination.
-func (p *Page) createTargetPath(t output.Type, addends ...string) (string, error) {
+func (p *Page) createTargetPath(t output.Format, addends ...string) (string, error) {
 	d, err := p.createTargetPathDescriptor(t)
 	if err != nil {
 		return "", nil
@@ -205,20 +205,20 @@ func createTargetPath(d targetPathDescriptor) string {
 
 func (p *Page) createRelativePermalink() string {
 
-	if len(p.outputTypes) == 0 {
+	if len(p.outputFormats) == 0 {
 		panic(fmt.Sprintf("Page %q missing output format(s)", p.Title))
 	}
 
 	// Choose the main output format. In most cases, this will be HTML.
-	outputType := p.outputTypes[0]
-	tp, err := p.createTargetPath(outputType)
+	outFormat := p.outputFormats[0]
+	tp, err := p.createTargetPath(outFormat)
 
 	if err != nil {
 		p.s.Log.ERROR.Printf("Failed to create permalink for page %q: %s", p.FullFilePath(), err)
 		return ""
 	}
 
-	tp = strings.TrimSuffix(tp, outputType.BaseFilename())
+	tp = strings.TrimSuffix(tp, outFormat.BaseFilename())
 
 	return p.s.PathSpec.URLizeFilename(tp)
 }

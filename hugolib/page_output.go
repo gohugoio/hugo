@@ -31,11 +31,11 @@ type PageOutput struct {
 	// Keep this to create URL/path variations, i.e. paginators.
 	targetPathDescriptor targetPathDescriptor
 
-	outputType output.Type
+	outputFormat output.Format
 }
 
 func (p *PageOutput) targetPath(addends ...string) (string, error) {
-	tp, err := p.createTargetPath(p.outputType, addends...)
+	tp, err := p.createTargetPath(p.outputFormat, addends...)
 	if err != nil {
 		return "", err
 	}
@@ -43,13 +43,13 @@ func (p *PageOutput) targetPath(addends ...string) (string, error) {
 
 }
 
-func newPageOutput(p *Page, createCopy bool, outputType output.Type) (*PageOutput, error) {
+func newPageOutput(p *Page, createCopy bool, f output.Format) (*PageOutput, error) {
 	if createCopy {
 		p.initURLs()
 		p = p.copy()
 	}
 
-	td, err := p.createTargetPathDescriptor(outputType)
+	td, err := p.createTargetPathDescriptor(f)
 
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func newPageOutput(p *Page, createCopy bool, outputType output.Type) (*PageOutpu
 
 	return &PageOutput{
 		Page:                 p,
-		outputType:           outputType,
+		outputFormat:         f,
 		targetPathDescriptor: td,
 	}, nil
 }
@@ -65,7 +65,7 @@ func newPageOutput(p *Page, createCopy bool, outputType output.Type) (*PageOutpu
 // copy creates a copy of this PageOutput with the lazy sync.Once vars reset
 // so they will be evaluated again, for word count calculations etc.
 func (p *PageOutput) copy() *PageOutput {
-	c, err := newPageOutput(p.Page, true, p.outputType)
+	c, err := newPageOutput(p.Page, true, p.outputFormat)
 	if err != nil {
 		panic(err)
 	}

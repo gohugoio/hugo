@@ -23,33 +23,33 @@ import (
 var (
 	// An ordered list of built-in output formats
 	// See https://www.ampproject.org/learn/overview/
-	AMPType = Type{
+	AMPType = Format{
 		Name:      "AMP",
 		MediaType: media.HTMLType,
 		BaseName:  "index",
 		Path:      "amp",
 	}
 
-	CSSType = Type{
+	CSSType = Format{
 		Name:      "CSS",
 		MediaType: media.CSSType,
 		BaseName:  "styles",
 	}
 
-	HTMLType = Type{
+	HTMLType = Format{
 		Name:      "HTML",
 		MediaType: media.HTMLType,
 		BaseName:  "index",
 	}
 
-	JSONType = Type{
+	JSONType = Format{
 		Name:        "JSON",
 		MediaType:   media.JSONType,
 		BaseName:    "index",
 		IsPlainText: true,
 	}
 
-	RSSType = Type{
+	RSSType = Format{
 		Name:      "RSS",
 		MediaType: media.RSSType,
 		BaseName:  "index",
@@ -57,7 +57,7 @@ var (
 	}
 )
 
-var builtInTypes = map[string]Type{
+var builtInTypes = map[string]Format{
 	strings.ToLower(AMPType.Name):  AMPType,
 	strings.ToLower(CSSType.Name):  CSSType,
 	strings.ToLower(HTMLType.Name): HTMLType,
@@ -65,11 +65,11 @@ var builtInTypes = map[string]Type{
 	strings.ToLower(RSSType.Name):  RSSType,
 }
 
-type Types []Type
+type Formats []Format
 
-// Type represents an output represenation, usually to a file on disk.
-type Type struct {
-	// The Name is used as an identifier. Internal output types (i.e. HTML and RSS)
+// Format represents an output represenation, usually to a file on disk.
+type Format struct {
+	// The Name is used as an identifier. Internal output formats (i.e. HTML and RSS)
 	// can be overridden by providing a new definition for those types.
 	Name string
 
@@ -92,7 +92,7 @@ type Type struct {
 	NoUgly bool
 }
 
-func GetType(key string) (Type, bool) {
+func GetType(key string) (Format, bool) {
 	found, ok := builtInTypes[key]
 	if !ok {
 		found, ok = builtInTypes[strings.ToLower(key)]
@@ -101,13 +101,13 @@ func GetType(key string) (Type, bool) {
 }
 
 // TODO(bep) outputs rewamp on global config?
-func GetTypes(keys ...string) (Types, error) {
-	var types []Type
+func GetTypes(keys ...string) (Formats, error) {
+	var types []Format
 
 	for _, key := range keys {
 		tpe, ok := GetType(key)
 		if !ok {
-			return types, fmt.Errorf("OutputType with key %q not found", key)
+			return types, fmt.Errorf("OutputFormat with key %q not found", key)
 		}
 		types = append(types, tpe)
 	}
@@ -115,6 +115,6 @@ func GetTypes(keys ...string) (Types, error) {
 	return types, nil
 }
 
-func (t Type) BaseFilename() string {
+func (t Format) BaseFilename() string {
 	return t.BaseName + "." + t.MediaType.Suffix
 }
