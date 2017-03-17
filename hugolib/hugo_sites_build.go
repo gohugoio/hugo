@@ -179,6 +179,12 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 			if len(p.outputFormats) == 0 {
 				p.outputFormats = s.defaultOutputDefinitions.ForKind(p.Kind)
 			}
+			if err := p.initTargetPathDescriptor(); err != nil {
+				return err
+			}
+			if err := p.initURLs(); err != nil {
+				return err
+			}
 		}
 		s.assembleMenus()
 		s.refreshPageCaches()

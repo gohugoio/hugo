@@ -204,6 +204,8 @@ type Page struct {
 	// This is the PageOutput that represents the first item in outputFormats.
 	// Use with care, as there are potential for inifinite loops.
 	mainPageOutput *PageOutput
+
+	targetPathDescriptorPrototype *targetPathDescriptor
 }
 
 func (p *Page) createLayoutDescriptor() output.LayoutDescriptor {
@@ -861,23 +863,24 @@ func (p *Page) URL() string {
 
 // Permalink returns the absolute URL to this Page.
 func (p *Page) Permalink() string {
-	p.initURLs()
 	return p.permalink
 }
 
 // RelPermalink gets a URL to the resource relative to the host.
 func (p *Page) RelPermalink() string {
-	p.initURLs()
 	return p.relPermalink
 }
 
-func (p *Page) initURLs() {
-	p.pageURLInit.Do(func() {
-		rel := p.createRelativePermalink()
-		p.permalink = p.s.permalink(rel)
-		rel = p.s.PathSpec.PrependBasePath(rel)
-		p.relPermalink = rel
-	})
+func (p *Page) initURLs() error {
+	// TODO(bep) output
+	if len(p.outputFormats) == 0 {
+		p.outputFormats = p.s.defaultOutputDefinitions.ForKind(p.Kind)
+	}
+	rel := p.createRelativePermalink()
+	p.permalink = p.s.permalink(rel)
+	rel = p.s.PathSpec.PrependBasePath(rel)
+	p.relPermalink = rel
+	return nil
 }
 
 var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
@@ -1536,7 +1539,9 @@ func (p *Page) updatePageDates() {
 // so they will be evaluated again, for word count calculations etc.
 func (p *Page) copy() *Page {
 	c := *p
-	c.pageInit = &pageInit{}
+	c.pageInit = &pageInit{
+	//pageMenusInit: p.pageMenusInit,
+	}
 	return &c
 }
 

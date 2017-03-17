@@ -70,9 +70,18 @@ type targetPathDescriptor struct {
 // a targetPathDescriptor. This descriptor can then be used to create paths
 // and URLs for this Page.
 func (p *Page) createTargetPathDescriptor(t output.Format) (targetPathDescriptor, error) {
-	d := targetPathDescriptor{
+	if p.targetPathDescriptorPrototype == nil {
+		panic("Must run initTargetPathDescriptor()")
+	}
+	d := *p.targetPathDescriptorPrototype
+	d.Type = t
+	return d, nil
+}
+
+func (p *Page) initTargetPathDescriptor() error {
+
+	d := &targetPathDescriptor{
 		PathSpec: p.s.PathSpec,
-		Type:     t,
 		Kind:     p.Kind,
 		Sections: p.sections,
 		UglyURLs: p.s.Info.uglyURLs,
@@ -93,16 +102,16 @@ func (p *Page) createTargetPathDescriptor(t output.Format) (targetPathDescriptor
 	if override, ok := p.Site.Permalinks[p.Section()]; ok {
 		opath, err := override.Expand(p)
 		if err != nil {
-			return d, err
+			return err
 		}
 
 		opath, _ = url.QueryUnescape(opath)
 		opath = filepath.FromSlash(opath)
 		d.ExpandedPermalink = opath
-
 	}
 
-	return d, nil
+	p.targetPathDescriptorPrototype = d
+	return nil
 
 }
 

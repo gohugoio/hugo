@@ -65,6 +65,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 	for page := range pages {
 		for i, outFormat := range page.outputFormats {
 			pageOutput, err := newPageOutput(page, i > 0, outFormat)
+
 			if err != nil {
 				s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outFormat.Name, page, err)
 				continue
