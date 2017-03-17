@@ -1997,15 +1997,18 @@ func getGoMaxProcs() int {
 	return 1
 }
 
-func (s *Site) newNodePage(typ string) *Page {
+func (s *Site) newNodePage(typ string, sections ...string) *Page {
 	p := &Page{
 		language: s.Language,
 		pageInit: &pageInit{},
 		Kind:     typ,
 		Data:     make(map[string]interface{}),
 		Site:     &s.Info,
+		sections: sections,
 		s:        s}
+
 	p.outputFormats = p.s.defaultOutputDefinitions.ForKind(typ)
+
 	return p
 
 }
@@ -2031,9 +2034,7 @@ func (s *Site) setPageURLs(p *Page, in string) {
 
 func (s *Site) newTaxonomyPage(plural, key string) *Page {
 
-	p := s.newNodePage(KindTaxonomy)
-
-	p.sections = []string{plural, key}
+	p := s.newNodePage(KindTaxonomy, plural, key)
 
 	if s.Info.preserveTaxonomyNames {
 		// Keep (mostly) as is in the title
@@ -2051,8 +2052,7 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 }
 
 func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
-	p := s.newNodePage(KindSection)
-	p.sections = []string{name}
+	p := s.newNodePage(KindSection, name)
 
 	sectionName := name
 	if !s.Info.preserveTaxonomyNames && len(section) > 0 {
@@ -2070,8 +2070,7 @@ func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
 }
 
 func (s *Site) newTaxonomyTermsPage(plural string) *Page {
-	p := s.newNodePage(KindTaxonomyTerm)
-	p.sections = []string{plural}
+	p := s.newNodePage(KindTaxonomyTerm, plural)
 	p.Title = strings.Title(plural)
 	s.setPageURLs(p, plural)
 	return p

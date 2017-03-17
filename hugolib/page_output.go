@@ -44,8 +44,18 @@ func (p *PageOutput) targetPath(addends ...string) (string, error) {
 }
 
 func newPageOutput(p *Page, createCopy bool, f output.Format) (*PageOutput, error) {
+	// For tests
+	// TODO(bep) output get rid of this
+	if p.targetPathDescriptorPrototype == nil {
+		if err := p.initTargetPathDescriptor(); err != nil {
+			return nil, err
+		}
+		if err := p.initURLs(); err != nil {
+			return nil, err
+		}
+	}
+
 	if createCopy {
-		p.initURLs()
 		p = p.copy()
 	}
 
