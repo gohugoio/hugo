@@ -134,8 +134,6 @@ along with their current, default values:
     disable404:                 false
     # Do not inject generator meta tag on homepage
     disableHugoGeneratorInject: false
-    # edit new content with this editor, if provided
-    editor:                     ""
     # Enable Emoji emoticons support for page content.
     # See www.emoji-cheat-sheet.com
     enableEmoji:				false
@@ -153,6 +151,7 @@ along with their current, default values:
     logFile:                    ""
     # "yaml", "toml", "json"
     metaDataFormat:             "toml"
+    # Edit new content with this editor, if provided
     newContentEditor:           ""
     # Don't sync permission mode of files
     noChmod:                    false
