@@ -9,6 +9,6 @@ tags:
 - personal
 - programming
 - blog
-thumbnail: tibobeijen-nl.jpg
+image: tibobeijennl.jpg
 title: tibobeijen.nl
 ---
