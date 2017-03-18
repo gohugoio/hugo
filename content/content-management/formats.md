@@ -74,7 +74,7 @@ The following shows how the example task list will look to the end users of your
 
 Hugo comes with built-in support for emojis in your content, as well as ships with the [`emojify` function][]. To add emojis directly to content, set `enableEmoji` to `true` in your [site configuration][config].
 
-For a full list of emojis, see <https://emoji-cheat-sheet.com>.
+For a full list of emojis, see the [Emoji cheat sheet][emojis].
 
 ### Shortcodes
 
@@ -111,6 +111,7 @@ If you are unfamiliar with markdown syntax, it can easily be learned within a si
 [blackfriday]: https://github.com/russross/blackfriday
 [config]: /getting-started/configuration/
 [developer tools]: /tools/
+[emojis]: https://www.webpagefx.com/tools/emoji-cheat-sheet/
 [`emojify` function]: /functions/emojify/function
 [fireball]: https://daringfireball.net/projects/markdown/
 [gfmtasks]: https://guides.github.com/features/mastering-markdown/#syntax
