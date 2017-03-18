@@ -94,9 +94,7 @@ disableHugoGeneratorInject: false
 # values = "page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"
 disableKinds: []
 # Do not make the url/path to lowercase
-disablePathToLower:         false
-# edit new content with this editor, if provided
-editor:                     ""
+disablePathToLower:         false                   ""
 # Enable Emoji emoticons support for page content; see emoji-cheat-sheet.com
 enableEmoji:                false
 # Show a placeholder instead of the default value or an empty string if a translation is missing
@@ -236,8 +234,6 @@ disableHugoGeneratorInject =  false
 disableKinds = []
 # Do not make the url/path to lowercase
 disablePathToLower =          false
-# edit new content with this editor, if provided
-editor =                      ""
 # Enable Emoji emoticons support for page content; see emoji-cheat-sheet.com
 enableEmoji =                 false
 # Show a placeholder instead of the default value or an empty string if a translation is missing
