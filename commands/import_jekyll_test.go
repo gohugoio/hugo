@@ -88,6 +88,8 @@ func TestConvertJekyllContent(t *testing.T) {
 	}{
 		{map[interface{}]interface{}{},
 			`Test content\n<!-- more -->\npart2 content`, `Test content\n<!--more-->\npart2 content`},
+		{map[interface{}]interface{}{},
+			`Test content\n<!-- More -->\npart2 content`, `Test content\n<!--more-->\npart2 content`},
 		{map[interface{}]interface{}{"excerpt_separator": "<!--sep-->"},
 			`Test content\n<!--sep-->\npart2 content`, `Test content\n<!--more-->\npart2 content`},
 		{map[interface{}]interface{}{}, "{% raw %}text{% endraw %}", "text"},

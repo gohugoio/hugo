@@ -518,7 +518,7 @@ func convertJekyllContent(m interface{}, content string) string {
 		re      *regexp.Regexp
 		replace string
 	}{
-		{regexp.MustCompile("<!-- more -->"), "<!--more-->"},
+		{regexp.MustCompile("(?i)<!-- more -->"), "<!--more-->"},
 		{regexp.MustCompile(`\{%\s*raw\s*%\}\s*(.*?)\s*\{%\s*endraw\s*%\}`), "$1"},
 		{regexp.MustCompile(`{%\s*highlight\s*(.*?)\s*%}`), "{{< highlight $1 >}}"},
 		{regexp.MustCompile(`{%\s*endhighlight\s*%}`), "{{< / highlight >}}"},
