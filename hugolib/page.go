@@ -190,6 +190,8 @@ type Page struct {
 	permalink    string
 	relPermalink string
 
+	layoutDescriptor output.LayoutDescriptor
+
 	scratch *Scratch
 
 	// It would be tempting to use the language set on the Site, but in they way we do
@@ -666,7 +668,7 @@ func (p *Page) layouts(layouts ...string) []string {
 	}
 
 	return p.s.layoutHandler.For(
-		p.createLayoutDescriptor(),
+		p.layoutDescriptor,
 		layoutOverride,
 		output.HTMLType)
 }
@@ -880,6 +882,7 @@ func (p *Page) initURLs() error {
 	p.permalink = p.s.permalink(rel)
 	rel = p.s.PathSpec.PrependBasePath(rel)
 	p.relPermalink = rel
+	p.layoutDescriptor = p.createLayoutDescriptor()
 	return nil
 }
 
@@ -1558,7 +1561,7 @@ func (p *Page) Hugo() *HugoInfo {
 func (p *Page) RSSlink() template.URL {
 	// TODO(bep) we cannot have two of these
 	// Remove in Hugo 0.20
-	helpers.Deprecated(".Page", "Use RSSlink", "RSSLink", true)
+	helpers.Deprecated(".Page", "RSSlink", "Use RSSLink", true)
 	return p.RSSLink
 }
 

@@ -73,4 +73,15 @@ func TestLayout(t *testing.T) {
 			}
 		})
 	}
+
+}
+
+func BenchmarkLayout(b *testing.B) {
+	descriptor := LayoutDescriptor{Kind: "taxonomyTerm", Section: "categories"}
+	l := NewLayoutHandler(false)
+
+	for i := 0; i < b.N; i++ {
+		layouts := l.For(descriptor, "", HTMLType)
+		require.NotEmpty(b, layouts)
+	}
 }
