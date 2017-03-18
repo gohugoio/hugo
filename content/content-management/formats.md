@@ -74,7 +74,7 @@ The following shows how the example task list will look to the end users of your
 
 Hugo comes with built-in support for emojis in your content, as well as ships with the [`emojify` function][]. To add emojis directly to content, set `enableEmoji` to `true` in your [site configuration][config].
 
-For a full list of emojis, see <http://emoji-cheat-sheet.com>.
+For a full list of emojis, see <https://emoji-cheat-sheet.com>.
 
 ### Shortcodes
 
