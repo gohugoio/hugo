@@ -54,7 +54,7 @@ Hugo themes developed before v0.18 often used an `index.md`(i.e., without the le
 
 ## Content *Section* vs Content *Type*
 
-By default, everything created within a section will use the [content type][] that matches the section name. For example, Hugo will assume that `posts/post-1.md` has a `posts` content type. If you are using an [archetype][] for your posts section, Hugo will generate front matter according to what is finds in `archetypes/posts.md`.
+By default, everything created within a section will use the [content type][] that matches the section name. For example, Hugo will assume that `posts/post-1.md` has a `posts` content type. If you are using an [archetype][] for your posts section, Hugo will generate front matter according to what it finds in `archetypes/posts.md`.
 
 [archetype]: /content-management/archetypes/
 [content type]: /content-management/types/
