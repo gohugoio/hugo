@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"path"
 	"strings"
+	"sync"
 )
 
 // LayoutDescriptor describes how a layout should be chosen. This is
@@ -32,10 +33,19 @@ type LayoutDescriptor struct {
 // TODO(bep) output improve names
 type LayoutHandler struct {
 	hasTheme bool
+
+	mu    sync.RWMutex
+	cache map[layoutCacheKey][]string
+}
+
+type layoutCacheKey struct {
+	d              LayoutDescriptor
+	layoutOverride string
+	f              Format
 }
 
 func NewLayoutHandler(hasTheme bool) *LayoutHandler {
-	return &LayoutHandler{hasTheme: hasTheme}
+	return &LayoutHandler{hasTheme: hasTheme, cache: make(map[layoutCacheKey][]string)}
 }
 
 const (
@@ -62,6 +72,16 @@ indexes/indexes.NAME.SUFFIX indexes/indexes.SUFFIX
 )
 
 func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format) []string {
+
+	// We will get lots of requests for the same layouts, so avoid recalculations.
+	key := layoutCacheKey{d, layoutOverride, f}
+	l.mu.RLock()
+	if cacheVal, found := l.cache[key]; found {
+		l.mu.RUnlock()
+		return cacheVal
+	}
+	l.mu.RUnlock()
+
 	var layouts []string
 
 	layout := d.Layout
@@ -109,6 +129,10 @@ func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format)
 
 		return layoutsWithThemeLayouts
 	}
+
+	l.mu.Lock()
+	l.cache[key] = layouts
+	l.mu.Unlock()
 
 	return layouts
 }
