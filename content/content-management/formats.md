@@ -70,6 +70,12 @@ The following shows how the example task list will look to the end users of your
 - [ ] incomplete
 - [x] completed
 
+### Emojis
+
+Hugo comes with built-in support for emojis in your content, as well as ships with the [`emojify` function][]. To add emojis directly to content, set `enableEmoji` to `true` in your [site configuration][config].
+
+For a full list of emojis, see <http://emoji-cheat-sheet.com>.
+
 ### Shortcodes
 
 If you write in markdown and find yourself frequently embedding your content with raw HTML, Hugo provides built-in shortcodes functionality to act as the intermediary between your content and templating. This is one of the most powerful features in Hugo and allows you to essentially create your own markdown extensions very quickly.
@@ -92,7 +98,7 @@ To use these formats, just use the standard extension and the front matter exact
 Because additional formats are external commands---with the exception of org mode---generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
 {{% /warning %}}
 
-## Markdown Learning Resources
+## Learn Markdown
 
 If you are unfamiliar with markdown syntax, it can easily be learned within a single sitting. The following are excellent resources to get you up and running:
 
@@ -105,6 +111,7 @@ If you are unfamiliar with markdown syntax, it can easily be learned within a si
 [blackfriday]: https://github.com/russross/blackfriday
 [config]: /getting-started/configuration/
 [developer tools]: /tools/
+[`emojify` function]: /functions/emojify/function
 [fireball]: https://daringfireball.net/projects/markdown/
 [gfmtasks]: https://guides.github.com/features/mastering-markdown/#syntax
 [helperssource]: https://github.com/spf13/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65
