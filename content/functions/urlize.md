@@ -8,6 +8,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [urls,strings]
 godocref:
+ns:
 signature:
 hugoversion:
 deprecated: false

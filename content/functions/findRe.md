@@ -8,6 +8,7 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
 tags: [regex]
+ns:
 signature:
 workson: []
 hugoversion:
@@ -15,6 +16,8 @@ relatedfuncs: []
 deprecated: false
 aliases: []
 ---
+
+<!-- see https://github.com/spf13/hugo/issues/3188 -->
 
 Returns a list of strings that match the regular expression. By default all matches will be included. The number of matches can be limitted with an optional third parameter.
 

@@ -11,6 +11,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [iteration]
 toc: false
+ns:
 signature: ""
 workson: [lists,taxonomies,terms]
 hugoversion:

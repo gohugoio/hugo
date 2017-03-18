@@ -9,6 +9,7 @@ lastmod: 2017-02-01
 tags: [iteration]
 categories: [functions]
 toc:
+ns:
 signature:
 workson: []
 hugoversion:

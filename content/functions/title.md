@@ -8,6 +8,7 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
 tags: [fundamentals,strings]
+ns:
 signature:
 workson: []
 hugoversion:

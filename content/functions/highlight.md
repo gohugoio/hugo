@@ -8,6 +8,7 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
 tags: [highlighting,pygments,code blocks,syntax]
+ns:
 signature:
 workson: []
 hugoversion:

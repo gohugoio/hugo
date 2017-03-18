@@ -9,6 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [strings]
 aliases: []
+ns:
 signature:
 workson: []
 hugoversion:
