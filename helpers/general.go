@@ -213,13 +213,6 @@ type DistinctLogger struct {
 	m      map[string]bool
 }
 
-// Debug prints all the log entries to standard output.
-func (l *DistinctLogger) Debug() {
-	for k, _ := range l.m {
-		fmt.Println(k)
-	}
-}
-
 // Println will log the string returned from fmt.Sprintln given the arguments,
 // but not if it has been logged before.
 func (l *DistinctLogger) Println(v ...interface{}) {
