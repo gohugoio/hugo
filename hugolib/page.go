@@ -923,10 +923,11 @@ func (p *Page) update(f interface{}) error {
 				p.s.Log.ERROR.Printf("Failed to parse lastmod '%v' in page %s", v, p.File.Path())
 			}
 		case "outputs":
-			outputs := cast.ToStringSlice(v)
-			if len(outputs) > 0 {
+			o := cast.ToStringSlice(v)
+			if len(o) > 0 {
 				// Output formats are exlicitly set in front matter, use those.
-				outFormats, err := output.GetTypes(outputs...)
+				outFormats, err := output.GetFormats(o...)
+
 				if err != nil {
 					p.s.Log.ERROR.Printf("Failed to resolve output formats: %s", err)
 				} else {

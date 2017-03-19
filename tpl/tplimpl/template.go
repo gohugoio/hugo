@@ -14,7 +14,6 @@
 package tplimpl
 
 import (
-	"fmt"
 	"html/template"
 	"io"
 	"os"
@@ -28,6 +27,7 @@ import (
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/output"
 	"github.com/yosssi/ace"
 )
 
@@ -478,80 +478,44 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 				return nil
 			}
 
-			tplName := t.GenerateTemplateNameFrom(absPath, path)
+			workingDir := t.PathSpec.WorkingDir()
+			themeDir := t.PathSpec.GetThemeDir()
 
-			if prefix != "" {
-				tplName = strings.Trim(prefix, "/") + "/" + tplName
+			if themeDir != "" && strings.HasPrefix(absPath, themeDir) {
+				workingDir = themeDir
 			}
 
-			var baseTemplatePath string
+			li := strings.LastIndex(path, t.PathSpec.LayoutDir()) + len(t.PathSpec.LayoutDir()) + 1
 
-			// Ace and Go templates may have both a base and inner template.
-			pathDir := filepath.Dir(path)
-			if filepath.Ext(path) != ".amber" && !strings.HasSuffix(pathDir, "partials") && !strings.HasSuffix(pathDir, "shortcodes") {
-
-				innerMarkers := goTemplateInnerMarkers
-				baseFileName := fmt.Sprintf("%s.html", baseFileBase)
-
-				if filepath.Ext(path) == ".ace" {
-					innerMarkers = aceTemplateInnerMarkers
-					baseFileName = fmt.Sprintf("%s.ace", baseFileBase)
-				}
-
-				// This may be a view that shouldn't have base template
-				// Have to look inside it to make sure
-				needsBase, err := helpers.FileContainsAny(path, innerMarkers, t.Fs.Source)
-				if err != nil {
-					return err
-				}
-				if needsBase {
-
-					layoutDir := t.PathSpec.GetLayoutDirPath()
-					currBaseFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseFileName)
-					templateDir := filepath.Dir(path)
-					themeDir := filepath.Join(t.PathSpec.GetThemeDir())
-					relativeThemeLayoutsDir := filepath.Join(t.PathSpec.GetRelativeThemeDir(), "layouts")
-
-					var baseTemplatedDir string
-
-					if strings.HasPrefix(templateDir, relativeThemeLayoutsDir) {
-						baseTemplatedDir = strings.TrimPrefix(templateDir, relativeThemeLayoutsDir)
-					} else {
-						baseTemplatedDir = strings.TrimPrefix(templateDir, layoutDir)
-					}
-
-					baseTemplatedDir = strings.TrimPrefix(baseTemplatedDir, helpers.FilePathSeparator)
-
-					// Look for base template in the follwing order:
-					//   1. <current-path>/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
-					//   2. <current-path>/baseof.<suffix>
-					//   3. _default/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
-					//   4. _default/baseof.<suffix>
-					// For each of the steps above, it will first look in the project, then, if theme is set,
-					// in the theme's layouts folder.
-
-					pairsToCheck := [][]string{
-						[]string{baseTemplatedDir, currBaseFilename},
-						[]string{baseTemplatedDir, baseFileName},
-						[]string{"_default", currBaseFilename},
-						[]string{"_default", baseFileName},
-					}
-
-				Loop:
-					for _, pair := range pairsToCheck {
-						pathsToCheck := basePathsToCheck(pair, layoutDir, themeDir)
-						for _, pathToCheck := range pathsToCheck {
-							if ok, err := helpers.Exists(pathToCheck, t.Fs.Source); err == nil && ok {
-								baseTemplatePath = pathToCheck
-								break Loop
-							}
-						}
-					}
-				}
+			if li < 0 {
+				// Possibly a theme
+				li = strings.LastIndex(path, "layouts") + 8
 			}
 
-			if err := t.AddTemplateFile(tplName, baseTemplatePath, path); err != nil {
-				t.Log.ERROR.Printf("Failed to add template %s in path %s: %s", tplName, path, err)
+			relPath := path[li:]
+
+			descriptor := output.TemplateLookupDescriptor{
+				WorkingDir: workingDir,
+				LayoutDir:  t.PathSpec.LayoutDir(),
+				RelPath:    relPath,
+				Prefix:     prefix,
+				Theme:      t.PathSpec.Theme(),
+				FileExists: func(filename string) (bool, error) {
+					return helpers.Exists(filename, t.Fs.Source)
+				},
+				ContainsAny: func(filename string, subslices [][]byte) (bool, error) {
+					return helpers.FileContainsAny(filename, subslices, t.Fs.Source)
+				},
+			}
+
+			tplID, err := output.CreateTemplateID(descriptor)
+			if err != nil {
+				t.Log.ERROR.Printf("Failed to resolve template in path %q: %s", path, err)
+				return nil
+			}
+
+			if err := t.AddTemplateFile(tplID.Name, tplID.MasterFilename, tplID.OverlayFilename); err != nil {
+				t.Log.ERROR.Printf("Failed to add template %q in path %q: %s", tplID.Name, path, err)
 			}
 
 		}
@@ -560,19 +524,6 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 	if err := helpers.SymbolicWalk(t.Fs.Source, absPath, walker); err != nil {
 		t.Log.ERROR.Printf("Failed to load templates: %s", err)
 	}
-}
-
-func basePathsToCheck(path []string, layoutDir, themeDir string) []string {
-	// Always look in the project.
-	pathsToCheck := []string{filepath.Join((append([]string{layoutDir}, path...))...)}
-
-	// May have a theme
-	if themeDir != "" {
-		pathsToCheck = append(pathsToCheck, filepath.Join((append([]string{themeDir, "layouts"}, path...))...))
-	}
-
-	return pathsToCheck
-
 }
 
 func (t *GoHTMLTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) {
