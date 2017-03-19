@@ -657,8 +657,8 @@ func (p *Page) Section() string {
 }
 
 func (p *Page) layouts(layouts ...string) []string {
-	// TODO(bep) output
-	if len(p.layoutsCalculated) > 0 {
+	// TODO(bep) output the logic here needs to be redone.
+	if len(layouts) == 0 && len(p.layoutsCalculated) > 0 {
 		return p.layoutsCalculated
 	}
 
@@ -1285,9 +1285,8 @@ func (p *Page) Menus() PageMenus {
 	return p.pageMenus
 }
 
-func (p *Page) Render(layouts ...string) template.HTML {
-	l := p.layouts(layouts...)
-
+func (p *Page) Render(layout ...string) template.HTML {
+	l := p.layouts(layout...)
 	return p.s.Tmpl.ExecuteTemplateToHTML(p, l...)
 }
 
