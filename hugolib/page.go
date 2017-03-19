@@ -656,23 +656,6 @@ func (p *Page) Section() string {
 	return p.Source.Section()
 }
 
-func (p *Page) layouts(layouts ...string) []string {
-	// TODO(bep) output the logic here needs to be redone.
-	if len(layouts) == 0 && len(p.layoutsCalculated) > 0 {
-		return p.layoutsCalculated
-	}
-
-	layoutOverride := ""
-	if len(layouts) > 0 {
-		layoutOverride = layouts[0]
-	}
-
-	return p.s.layoutHandler.For(
-		p.layoutDescriptor,
-		layoutOverride,
-		output.HTMLType)
-}
-
 // TODO(bep) consolidate and test these KindHome switches (see other layouts methods)s
 // rssLayouts returns RSS layouts to use for the RSS version of this page, nil
 // if no RSS should be rendered.
@@ -1285,11 +1268,6 @@ func (p *Page) Menus() PageMenus {
 	return p.pageMenus
 }
 
-func (p *Page) Render(layout ...string) template.HTML {
-	l := p.layouts(layout...)
-	return p.s.Tmpl.ExecuteTemplateToHTML(p, l...)
-}
-
 func (p *Page) determineMarkupType() string {
 	// Try markup explicitly set in the frontmatter
 	p.Markup = helpers.GuessType(p.Markup)
@@ -1420,7 +1398,6 @@ func (p *Page) FullFilePath() string {
 func (p *Page) prepareLayouts() error {
 	// TODO(bep): Check the IsRenderable logic.
 	if p.Kind == KindPage {
-		var layouts []string
 		if !p.IsRenderable() {
 			// TODO(bep) output
 			self := "__" + p.UniqueID()
@@ -1428,11 +1405,8 @@ func (p *Page) prepareLayouts() error {
 			if err != nil {
 				return err
 			}
-			layouts = append(layouts, self)
-		} else {
-			layouts = append(layouts, p.layouts()...)
+			p.layoutsCalculated = []string{self}
 		}
-		p.layoutsCalculated = layouts
 	}
 	return nil
 }

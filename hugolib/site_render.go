@@ -147,10 +147,11 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 			pageNumber := i + 1
 			addend := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
 			targetPath, _ := p.targetPath(addend)
+			layouts := p.layouts()
 
 			if err := s.renderAndWritePage(
 				pagerNode.Title,
-				targetPath, pagerNode, p.layouts()...); err != nil {
+				targetPath, pagerNode, layouts...); err != nil {
 				return err
 			}
 

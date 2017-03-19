@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"html/template"
 	"sync"
 
 	"github.com/spf13/hugo/output"
@@ -80,4 +81,31 @@ func (p *PageOutput) copy() *PageOutput {
 		panic(err)
 	}
 	return c
+}
+
+func (p *PageOutput) layouts(layouts ...string) []string {
+	// TODO(bep) output the logic here needs to be redone.
+	if len(layouts) == 0 && len(p.layoutsCalculated) > 0 {
+		return p.layoutsCalculated
+	}
+
+	layoutOverride := ""
+	if len(layouts) > 0 {
+		layoutOverride = layouts[0]
+	}
+
+	return p.s.layoutHandler.For(
+		p.layoutDescriptor,
+		layoutOverride,
+		p.outputFormat)
+}
+
+func (p *PageOutput) Render(layout ...string) template.HTML {
+	l := p.layouts(layout...)
+	return p.s.Tmpl.ExecuteTemplateToHTML(p, l...)
+}
+
+// TODO(bep) output
+func (p *Page) Render(layout ...string) template.HTML {
+	return p.mainPageOutput.Render(layout...)
 }
