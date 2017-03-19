@@ -184,8 +184,21 @@
 			"revisionTime": "2016-12-11T22:23:15Z"
 		},
 		{
-			"checksumSHA1": "uEc9/1HbYGeK7wPStF6FmUlfzGE=",
-			"path": "github.com/nicksnyder/go-i18n/i18n",
+			"checksumSHA1": "Yw9gEiPWV24K0SJIUHEbZyGDC80=",
+			"path": "github.com/nicksnyder/go-i18n/i18n/bundle",
+			"revision": "be79775dc0d732144a0948d056c678bc653293bb",
+			"revisionTime": "2017-03-19T19:51:18Z"
+		},
+		{
+			"checksumSHA1": "+XOg99I1zdmBRUb04ZswvzQ2WS0=",
+			"path": "github.com/nicksnyder/go-i18n/i18n/language",
+			"revision": "be79775dc0d732144a0948d056c678bc653293bb",
+			"revisionTime": "2017-03-19T19:51:18Z"
+		},
+		{
+			"checksumSHA1": "WZOU406In2hs8FJOHWqV8PWkJKs=",
+			"origin": "github.com/spf13/hugo/vendor/github.com/nicksnyder/go-i18n/i18n/translation",
+			"path": "github.com/nicksnyder/go-i18n/i18n/translation",
 			"revision": "be79775dc0d732144a0948d056c678bc653293bb",
 			"revisionTime": "2017-03-19T19:51:18Z"
 		},
