@@ -547,12 +547,6 @@ func checkPageType(t *testing.T, page *Page, pageType string) {
 	}
 }
 
-func checkPageLayout(t *testing.T, page *Page, layout ...string) {
-	if !listEqual(page.layouts(), layout) {
-		t.Fatalf("Page layout is:\n%s.  Expected:\n%s", page.layouts(), layout)
-	}
-}
-
 func checkPageDate(t *testing.T, page *Page, time time.Time) {
 	if page.Date != time {
 		t.Fatalf("Page date is: %s.  Expected: %s", page.Date, time)
@@ -659,11 +653,6 @@ func TestCreateNewPage(t *testing.T) {
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
 		checkPageSummary(t, p, "Simple Page")
 		checkPageType(t, p, "page")
-		checkPageLayout(t, p,
-			"page/single.html.html", "page/single.html",
-			"_default/single.html.html", "_default/single.html",
-			"theme/page/single.html.html", "theme/page/single.html",
-			"theme/_default/single.html.html", "theme/_default/single.html")
 		checkTruncation(t, p, false, "simple short page")
 	}
 
