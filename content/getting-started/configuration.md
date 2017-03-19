@@ -17,7 +17,6 @@ The [directory structure][dirs] of a Hugo website&mdash;or more precisely, the s
 
 Because of Hugo's preference for sane defaults, many websites may not need a configuration file. Hugo is designed to recognize certain typical usage patterns (and even expects them by default).
 
-
 ## Configuration Lookup Order
 
 Hugo searches for a configuration file in the root of your website's source directory as a default behavior. First, it looks for a `./config.toml` file. If that's not present, it will seek a `./config.yaml` file, followed by a `./config.json` file.
@@ -315,7 +314,7 @@ enableemoji: true
 
 ## Environmental Variables
 
-In addition to the 3 configuration file options already mentioned, website configuration can be accomplished through operating system environment variables.
+In addition to the 3 config options already mentioned, website configuration can be accomplished through operating system environment variables.
 
 For example, the following command will effectively set a website's title on Unix-like systems:
 
@@ -324,7 +323,7 @@ $ env HUGO_TITLE="Some Title" hugo
 ```
 
 {{% note "Setting Environment Variables" %}}
-Names must be prefixed with `HUGO_` when setting operating system environment variables.
+Names must be prefixed with `HUGO_` and the configuration key must be set in uppercase when setting operating system environment variables.
 {{% /note %}}
 
 ## Ignoring Files When Rendering
