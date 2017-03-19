@@ -69,6 +69,7 @@ Flags:
       --renderToMemory          render to memory (only useful for benchmark testing)
   -s, --source string           filesystem path to read files relative from
       --stepAnalysis            display memory and timing of different steps of the program
+      --templateAnalysis        display stats about template executions
   -t, --theme string            theme to use (located in /themes/THEMENAME/)
       --uglyURLs                if true, use /filename.html instead of /filename/
   -v, --verbose                 verbose output

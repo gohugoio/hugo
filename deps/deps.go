@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/helpers"
@@ -43,6 +45,9 @@ type Deps struct {
 	WithTemplate     func(templ tpl.Template) error `json:"-"`
 
 	translationProvider ResourceProvider
+
+	sync.Mutex
+	Timings map[string][]time.Duration // for template analysis
 }
 
 // ResourceProvider is used to create and refresh, and clone resources needed.
@@ -102,6 +107,7 @@ func New(cfg DepsCfg) *Deps {
 		ContentSpec:         helpers.NewContentSpec(cfg.Language),
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
+		Timings:             make(map[string][]time.Duration),
 	}
 
 	return d

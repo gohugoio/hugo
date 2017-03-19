@@ -22,6 +22,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -1703,9 +1704,42 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 
 }
 
+// PrintTemplateAnalysis prints stats about template executions.
+func (s *Site) PrintTemplateAnalysis() {
+	s.Log.FEEDBACK.Printf("%13s  %12s  %12s  %5s  %s\n", "cumulative", "average", "max", "count", "template")
+
+	// sort keys
+	var tkeys []string
+	for k := range s.Timings {
+		tkeys = append(tkeys, k)
+	}
+	sort.Strings(tkeys)
+
+	for _, k := range tkeys {
+		var sum time.Duration
+		var max time.Duration
+		for _, d := range s.Timings[k] {
+			sum += d
+			if d > max {
+				max = d
+			}
+		}
+		s.Log.FEEDBACK.Printf(
+			"%13s  %12s  %12s  %5d  %s\n",
+			sum, time.Duration(int(sum)/len(s.Timings[k])), max,
+			len(s.Timings[k]), k)
+	}
+}
+
 // Stats prints Hugo builds stats to the console.
 // This is what you see after a successful hugo build.
 func (s *Site) Stats() {
+	if s.Cfg.GetBool("templateAnalysis") {
+		s.Log.FEEDBACK.Println()
+		s.PrintTemplateAnalysis()
+		s.Log.FEEDBACK.Println()
+	}
+
 	s.Log.FEEDBACK.Printf("Built site for language %s:\n", s.Language.Lang)
 	s.Log.FEEDBACK.Println(s.draftStats())
 	s.Log.FEEDBACK.Println(s.futureStats())
@@ -1905,7 +1939,20 @@ func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 
 	// If the template doesn't exist, then return, but leave the Writer open
 	if templ := s.Tmpl.Lookup(layout); templ != nil {
-		return templ.Execute(w, d)
+		var start time.Time
+		if s.Cfg.GetBool("templateAnalysis") {
+			start = time.Now()
+		}
+
+		err := templ.Execute(w, d)
+
+		if s.Cfg.GetBool("templateAnalysis") {
+			dT := time.Now().Sub(start)
+			s.Lock()
+			s.Timings[layout] = append(s.Timings[layout], dT)
+			s.Unlock()
+		}
+		return err
 	}
 	return fmt.Errorf("Layout not found: %s", layout)
 
