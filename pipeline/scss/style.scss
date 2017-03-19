@@ -1,6 +1,5 @@
 @import 'bourbon/bourbon';
 // @import 'vendor/flexboxgrid';
-
 //variables and abstracts
 @import 'variables';
 @import 'abstracts/mixins';
@@ -35,21 +34,19 @@
 @import 'components/tables';
 @import 'components/shortcode-examples';
 @import 'components/gopher';
+@import 'components/video';
 
 //vendor
 @import 'vendor/featherlight';
 @import 'vendor/animatecss-truncated';
-
 //major layout parts/chrome
 @import 'layout/site-header';
 @import 'layout/site-navigation';
 @import 'layout/site-content';
 @import 'layout/showcase';
 @import 'layout/site-footer';
-
 //styles for individual pages
 // @import 'pages/homepage';
 @import 'pages/homepage';
 @import 'pages/commands';
-
 @import 'temp';

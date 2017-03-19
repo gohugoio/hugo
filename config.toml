@@ -95,6 +95,7 @@ watch = true
 	hrefTargetBlank = true
   angledQuotes = false
   latexDashes = true
+  extensions = ["hardLineBreak"]
 
 [taxonomies]
   tag = "tags"
