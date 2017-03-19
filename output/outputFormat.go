@@ -92,7 +92,7 @@ type Format struct {
 	NoUgly bool
 }
 
-func GetType(key string) (Format, bool) {
+func GetFormat(key string) (Format, bool) {
 	found, ok := builtInTypes[key]
 	if !ok {
 		found, ok = builtInTypes[strings.ToLower(key)]
@@ -101,11 +101,11 @@ func GetType(key string) (Format, bool) {
 }
 
 // TODO(bep) outputs rewamp on global config?
-func GetTypes(keys ...string) (Formats, error) {
+func GetFormats(keys ...string) (Formats, error) {
 	var types []Format
 
 	for _, key := range keys {
-		tpe, ok := GetType(key)
+		tpe, ok := GetFormat(key)
 		if !ok {
 			return types, fmt.Errorf("OutputFormat with key %q not found", key)
 		}

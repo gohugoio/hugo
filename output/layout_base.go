@@ -1,0 +1,175 @@
+// Copyright 2017-present The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package output
+
+import (
+	"fmt"
+	"path/filepath"
+	"strings"
+
+	"github.com/spf13/hugo/helpers"
+)
+
+const baseFileBase = "baseof"
+
+var (
+	aceTemplateInnerMarkers = [][]byte{[]byte("= content")}
+	goTemplateInnerMarkers  = [][]byte{[]byte("{{define"), []byte("{{ define")}
+)
+
+type TemplateNames struct {
+	Name            string
+	OverlayFilename string
+	MasterFilename  string
+}
+
+// TODO(bep) output this is refactoring in progress.
+type TemplateLookupDescriptor struct {
+	// The full path to the site or theme root.
+	WorkingDir string
+
+	// Main project layout dir, defaults to "layouts"
+	LayoutDir string
+
+	// The path to the template relative the the base.
+	//  I.e. shortcodes/youtube.html
+	RelPath string
+
+	// The template name prefix to look for, i.e. "theme".
+	Prefix string
+
+	// The theme name if active.
+	Theme string
+
+	FileExists  func(filename string) (bool, error)
+	ContainsAny func(filename string, subslices [][]byte) (bool, error)
+}
+
+func CreateTemplateID(d TemplateLookupDescriptor) (TemplateNames, error) {
+
+	var id TemplateNames
+
+	name := filepath.FromSlash(d.RelPath)
+
+	if d.Prefix != "" {
+		name = strings.Trim(d.Prefix, "/") + "/" + name
+	}
+
+	baseLayoutDir := filepath.Join(d.WorkingDir, d.LayoutDir)
+	fullPath := filepath.Join(baseLayoutDir, d.RelPath)
+
+	// The filename will have a suffix with an optional type indicator.
+	// Examples:
+	// index.html
+	// index.amp.html
+	// index.json
+	filename := filepath.Base(d.RelPath)
+
+	var ext, outFormat string
+
+	parts := strings.Split(filename, ".")
+	if len(parts) > 2 {
+		outFormat = parts[1]
+		ext = parts[2]
+	} else if len(parts) > 1 {
+		ext = parts[1]
+	}
+
+	filenameNoSuffix := parts[0]
+
+	id.OverlayFilename = fullPath
+	id.Name = name
+
+	// Ace and Go templates may have both a base and inner template.
+	pathDir := filepath.Dir(fullPath)
+
+	if ext == "amber" || strings.HasSuffix(pathDir, "partials") || strings.HasSuffix(pathDir, "shortcodes") {
+		// No base template support
+		return id, nil
+	}
+
+	innerMarkers := goTemplateInnerMarkers
+
+	var baseFilename string
+
+	if outFormat != "" {
+		baseFilename = fmt.Sprintf("%s.%s.%s", baseFileBase, outFormat, ext)
+	} else {
+		baseFilename = fmt.Sprintf("%s.%s", baseFileBase, ext)
+	}
+
+	if ext == "ace" {
+		innerMarkers = aceTemplateInnerMarkers
+	}
+
+	// This may be a view that shouldn't have base template
+	// Have to look inside it to make sure
+	needsBase, err := d.ContainsAny(fullPath, innerMarkers)
+	if err != nil {
+		return id, err
+	}
+
+	if needsBase {
+		currBaseFilename := fmt.Sprintf("%s-%s", filenameNoSuffix, baseFilename)
+
+		templateDir := filepath.Dir(fullPath)
+		themeDir := filepath.Join(d.WorkingDir, d.Theme)
+
+		baseTemplatedDir := strings.TrimPrefix(templateDir, baseLayoutDir)
+		baseTemplatedDir = strings.TrimPrefix(baseTemplatedDir, helpers.FilePathSeparator)
+
+		// Look for base template in the follwing order:
+		//   1. <current-path>/<template-name>-baseof.<outputFormat>(optional).<suffix>, e.g. list-baseof.<outputFormat>(optional).<suffix>.
+		//   2. <current-path>/baseof.<outputFormat>(optional).<suffix>
+		//   3. _default/<template-name>-baseof.<outputFormat>(optional).<suffix>, e.g. list-baseof.<outputFormat>(optional).<suffix>.
+		//   4. _default/baseof.<outputFormat>(optional).<suffix>
+		// For each of the steps above, it will first look in the project, then, if theme is set,
+		// in the theme's layouts folder.
+		// Also note that the <current-path> may be both the project's layout folder and the theme's.
+		pairsToCheck := [][]string{
+			[]string{baseTemplatedDir, currBaseFilename},
+			[]string{baseTemplatedDir, baseFilename},
+			[]string{"_default", currBaseFilename},
+			[]string{"_default", baseFilename},
+		}
+
+	Loop:
+		for _, pair := range pairsToCheck {
+			pathsToCheck := basePathsToCheck(pair, baseLayoutDir, themeDir)
+
+			for _, pathToCheck := range pathsToCheck {
+				if ok, err := d.FileExists(pathToCheck); err == nil && ok {
+					id.MasterFilename = pathToCheck
+					break Loop
+				}
+			}
+		}
+	}
+
+	return id, nil
+
+}
+
+func basePathsToCheck(path []string, layoutDir, themeDir string) []string {
+	// Always look in the project.
+	pathsToCheck := []string{filepath.Join((append([]string{layoutDir}, path...))...)}
+
+	// May have a theme
+	if themeDir != "" {
+		pathsToCheck = append(pathsToCheck, filepath.Join((append([]string{themeDir, "layouts"}, path...))...))
+	}
+
+	return pathsToCheck
+
+}

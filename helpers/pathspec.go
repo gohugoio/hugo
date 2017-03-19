@@ -94,3 +94,18 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) *PathSpec {
 func (p *PathSpec) PaginatePath() string {
 	return p.paginatePath
 }
+
+// WorkingDir returns the configured workingDir.
+func (p *PathSpec) WorkingDir() string {
+	return p.workingDir
+}
+
+// LayoutDir returns the relative layout dir in the currenct Hugo project.
+func (p *PathSpec) LayoutDir() string {
+	return p.layoutDir
+}
+
+// Theme returns the theme name if set.
+func (p *PathSpec) Theme() string {
+	return p.theme
+}

@@ -34,10 +34,10 @@ func TestDefaultTypes(t *testing.T) {
 }
 
 func TestGetType(t *testing.T) {
-	tp, _ := GetType("html")
+	tp, _ := GetFormat("html")
 	require.Equal(t, HTMLType, tp)
-	tp, _ = GetType("HTML")
+	tp, _ = GetFormat("HTML")
 	require.Equal(t, HTMLType, tp)
-	_, found := GetType("FOO")
+	_, found := GetFormat("FOO")
 	require.False(t, found)
 }

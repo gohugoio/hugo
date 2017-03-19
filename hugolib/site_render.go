@@ -63,7 +63,9 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 	var mainPageOutput *PageOutput
 
 	for page := range pages {
+
 		for i, outFormat := range page.outputFormats {
+
 			pageOutput, err := newPageOutput(page, i > 0, outFormat)
 
 			if err != nil {
