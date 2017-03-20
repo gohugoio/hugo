@@ -328,8 +328,7 @@ Names must be prefixed with `HUGO_` and the configuration key must be set in upp
 
 ## Ignoring Files When Rendering
 
-The following statement inside `./config.toml` will cause Hugo to ignore files
-ending with `.foo` and `.boo` when rendering:
+The following statement inside `./config.toml` will cause Hugo to ignore files ending with `.foo` and `.boo` when rendering:
 
 ```toml
 ignoreFiles = [ "\\.foo$", "\\.boo$" ]
@@ -339,8 +338,7 @@ The above is a list of regular expressions. Note that the backslash (`\`) charac
 
 ## Configuring Blackfriday
 
-[Blackfriday](https://github.com/russross/blackfriday) is Hugo's built-in
-Markdown rendering engine.
+[Blackfriday](https://github.com/russross/blackfriday) is Hugo's built-in Markdown rendering engine.
 
 Hugo typically configures Blackfriday with sane default values that should fit most use cases reasonably well.
 
