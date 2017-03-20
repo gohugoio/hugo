@@ -27,25 +27,6 @@
       justify-content: flex-start;
     }
   }
-  #home-link {
-    display: flex;
-    align-items: center;
-    font-size: .8em;
-    margin-left: -1em;
-    svg {
-      height: $site-header-height * .7;
-      max-height: $site-header-height * .7;
-      margin-right: .25em;
-      max-width:140px;
-    }
-    .hugo-v {
-      align-self: flex-end;
-      font-size: .9em;
-    }
-    @include MQ(L){
-      margin-left:1em;
-    }
-  }
   a.github-button {
     display: none;
     @include MQ(M) {
@@ -58,6 +39,26 @@
     @include MQ(M) {
       display: inline;
     }
+    margin-left: 1em;
+  }
+}
+
+#home-link {
+  display: flex;
+  align-items: center;
+  font-size: .8em;
+  margin-left: -1em;
+  img {
+    height: $site-header-height * .7;
+    max-height: $site-header-height * .7;
+    margin-right: .25em;
+    max-width: 140px;
+  }
+  .hugo-v {
+    align-self: flex-end;
+    font-size: .9em;
+  }
+  @include MQ(L) {
     margin-left: 1em;
   }
 }
