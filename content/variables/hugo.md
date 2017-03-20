@@ -17,7 +17,7 @@ wip: false
 The `.Hugo` variable provides easy access to Hugo-related data and contains the following fields:
 
 `.Hugo.Generator`
-: `<meta>`` tag for the version of Hugo that generated the site. `.Hugo.Generator` outputs a *complete* HTML tag; e.g. `<meta name="generator" content="Hugo 0.18" />`
+: `<meta>` tag for the version of Hugo that generated the site. `.Hugo.Generator` outputs a *complete* HTML tag; e.g. `<meta name="generator" content="Hugo 0.18" />`
 
 `.Hugo.Version`
 : the current version of the Hugo binary you are using e.g. `0.13-DEV`<br>
