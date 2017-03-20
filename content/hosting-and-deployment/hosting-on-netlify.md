@@ -85,7 +85,7 @@ Now every time you push changes to your hosted git repository, Netlify will rebu
 
 ## Using Hugo Themes with Netlify
 
-The [`git clone` method for installing themes][installthemes] is not supported by Netlify and would require you to recursively remove the `.git` subdirectory from the theme folder, which would prevent automated compatibility with future versions of the theme.
+The [`git clone` method for installing themes][installthemes] is not supported by Netlify. If you were to use `git clone`, it would require you to recursively remove the `.git` subdirectory from the theme folder and would therefore prevent compatibility with future versions of the theme.
 
 A *better* approach is to install a theme as a proper git submodule. You can [read the GitHub documentation for submodules][ghsm] or those found on [Git's website][gitsm] for more information, but the command is similar to that of `git clone`:
 

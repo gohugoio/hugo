@@ -45,7 +45,7 @@ gulp.task("image-resize", () => {
     // .pipe(parallel(
     //   imageresize({ width: imagefull }),
     //   os.cpus().length
-    // ))
+  // ))
     // .pipe(gulp.dest("../static/images"))
     .pipe(parallel(
       imageresize({ width: imagefull, format: 'jpg' }),
