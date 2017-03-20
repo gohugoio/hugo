@@ -1,7 +1,5 @@
 //From the awesome Chris Coyier here: https://css-tricks.com/NetMag/FluidWidthVideo/Article-FluidWidthVideo.php
-
-.video-wrapper,
-.iframe-wrapper {
+.video-wrapper {
   transition: all .3s ease-in-out;
   position: relative;
   padding-bottom: 56.25%;
@@ -11,11 +9,6 @@
   clear: both;
   cursor: pointer;
   margin-bottom: 1em;
-}
-
-.iframe-wrapper,
-iframe[src*="soundcloud.com"] {
-  @include card(2);
 }
 
 .video-wrapper {
@@ -50,7 +43,7 @@ iframe[src*="soundcloud.com"] {
   background-size: cover;
   cursor: pointer;
   position: relative;
-   filter: grayscale(100%);
+  filter: grayscale(100%);
   &:hover {
     filter: grayscale(0%);
   }
@@ -72,23 +65,6 @@ iframe[src*="soundcloud.com"] {
   display: block;
   width: 100%;
   margin-bottom: 1em;
-}
-
-.video-wrapper {
-  + h3,
-  + h4,
-  + p {
-    margin-top: 1em;
-  }
-}
-
-.video-wrapper + h3 {
-  margin-bottom: 0px;
-  margin-top: .5em;
-}
-
-h3 + .video-wrapper, h4 + .video-wrapper {
-  margin-top:1em;
 }
 
 .video-description {
