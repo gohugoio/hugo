@@ -180,7 +180,7 @@ Also available is `.Site` which has the following:
 **.Site.BaseURL** The base URL for the site as defined in the site configuration file.<br>
 **.Site.RSSLink** The URL for the site RSS.<br>
 **.Site.Taxonomies** The [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11. Also see section [Taxonomies elsewhere](#taxonomies-elsewhere).<br>
-**.Site.Pages** Array of all content ordered by Date, newest first.  Replaces the now-deprecated `.Site.Recent` starting v0.13. This array contains only the pages in the current language.<br>
+**.Site.Pages** Array of all content ordered by Date, newest first. `.Site.Pages` replaced `.Site.Recent`, which is no longer supported. This array contains only the pages in the current language.<br>
 **.Site.AllPages** Array of all pages regardless of their translation.<br>
 **.Site.Params** A container holding the values from the `params` section of your site configuration file. For example, a TOML config file might look like this:
 
