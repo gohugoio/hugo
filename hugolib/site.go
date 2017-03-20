@@ -1947,11 +1947,9 @@ func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 		err := templ.Execute(w, d)
 
 		if s.Cfg.GetBool("templateAnalysis") {
-			dT := time.Now().Sub(start)
-			s.Lock()
-			s.Timings[layout] = append(s.Timings[layout], dT)
-			s.Unlock()
+			s.AddTemplateTiming(layout, time.Now().Sub(start))
 		}
+
 		return err
 	}
 	return fmt.Errorf("Layout not found: %s", layout)

@@ -196,10 +196,7 @@ func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layou
 			}
 
 			if t.Cfg.GetBool("templateAnalysis") {
-				dT := time.Now().Sub(start)
-				t.Lock()
-				t.Timings[layout] = append(t.Timings[layout], dT)
-				t.Unlock()
+				t.AddTemplateTiming(layout, time.Now().Sub(start))
 			}
 
 			worked = true

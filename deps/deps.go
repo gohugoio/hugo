@@ -46,7 +46,7 @@ type Deps struct {
 
 	translationProvider ResourceProvider
 
-	sync.Mutex
+	mtx     *sync.Mutex
 	Timings map[string][]time.Duration // for template analysis
 }
 
@@ -107,6 +107,7 @@ func New(cfg DepsCfg) *Deps {
 		ContentSpec:         helpers.NewContentSpec(cfg.Language),
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
+		mtx:                 &sync.Mutex{},
 		Timings:             make(map[string][]time.Duration),
 	}
 
@@ -132,6 +133,12 @@ func (d Deps) ForLanguage(l *helpers.Language) (*Deps, error) {
 
 	return &d, nil
 
+}
+
+func (d *Deps) AddTemplateTiming(path string, dt time.Duration) {
+	d.mtx.Lock()
+	d.Timings[path] = append(d.Timings[path], dt)
+	d.mtx.Unlock()
 }
 
 // DepsCfg contains configuration options that can be used to configure Hugo
