@@ -75,7 +75,7 @@ The following is a list of site-level (aka "global") variables. Many of these va
 : all of the menus in the site.
 
 `.Site.Pages`
-: array of all content ordered by Date with the newest first. `.Site.Pages` replaced `.Site.Recent`, which is no longer supported. This array contains only the pages in the current language.
+: array of all content ordered by Date with the newest first. This array contains only the pages in the current language.
 
 `.Site.Permalinks`
 : a string to override the default [permalink](/content-management/urls/) format as defined in the site configuration.
