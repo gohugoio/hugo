@@ -176,8 +176,7 @@ func HandleTOMLMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
 	datum = removeTOMLIdentifier(datum)
 
-	tree, err := toml.Load(string(datum))
-
+	tree, err := toml.LoadReader(bytes.NewReader(datum))
 	if err != nil {
 		return m, err
 	}
