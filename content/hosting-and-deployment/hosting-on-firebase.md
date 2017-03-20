@@ -16,7 +16,7 @@ aliases: []
 
 ## Assumptions
 
-1. You have an account with [Firebase][signup]; you can sign up for free using your Google account.
+1. You have an account with [Firebase][signup]. (If you don't, you can sign up for free using your Google account.)
 2. You have completed the [Quick Start][] or have a completed Hugo website ready for deployment.
 
 ## Initial setup

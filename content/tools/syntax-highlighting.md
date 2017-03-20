@@ -168,7 +168,6 @@ Add `prism.js` near the bottom of your `<body>` tag in whatever Hugo partial tem
 ```html
 ...
 <script src="/js/prism.js"></script>
-...
 </body>
 ```
 
@@ -216,7 +215,6 @@ Passing the above examples through the highlighter script would yield the follow
 &lt;pre&gt;&lt;code class="language-css hljs"&gt;;&lt;span class="hljs-selector-tag"&gt;body&lt;/span&gt; {
   &lt;span class="hljs-attribute"&gt;font-family&lt;/span&gt;: &ltspan class="hljs-string"&gt;"Noto Sans"&lt;/span&gt;, sans-serif;
 }
-</code></pre>
 {{< /nohighlight >}}
 
 In the case of the coding color scheme used by the Hugo docs, the resulting output would then look like the following to the website's end users:

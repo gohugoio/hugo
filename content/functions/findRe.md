@@ -17,7 +17,6 @@ deprecated: false
 aliases: []
 ---
 
-<!-- see https://github.com/spf13/hugo/issues/3188 -->
 
 Returns a list of strings that match the regular expression. By default all matches will be included. The number of matches can be limitted with an optional third parameter.
 

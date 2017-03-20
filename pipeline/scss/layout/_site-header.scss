@@ -32,10 +32,11 @@
     align-items: center;
     font-size: .8em;
     margin-left: -1em;
-    img {
+    svg {
       height: $site-header-height * .7;
       max-height: $site-header-height * .7;
       margin-right: .25em;
+      max-width:140px;
     }
     .hugo-v {
       align-self: flex-end;
