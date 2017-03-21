@@ -7,12 +7,12 @@
   @include size(24px);
   z-index: 60;
   color: $hugo-pink;
-  @include MQ(M) {
+  @include MQ(XL) {
     right: 2em;
   }
 }
 
-#search-icon {
+svg#search-icon {
   @include size(24px);
   fill: $hugo-pink;
 }

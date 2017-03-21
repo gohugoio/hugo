@@ -1,6 +1,6 @@
 var kebab = document.querySelector('.kebab'),
   middle = document.querySelector('.middle'),
-  cross = document.querySelector('.cross'),
+  cross = document.querySelector('.cross-wrapper'),
   body = document.querySelector('.body-copy');
 
 if (kebab) {

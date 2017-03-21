@@ -61,11 +61,14 @@ ul.animated {
 //fixes search icon and sliding bar on homescreen only
 #homepage-nav + #toggle-search {
   right: 1em;
-  top: .25em;
+  top: 13px;
   + #site-search-form {
     @include MQ(L) {
       right: .6em;
     }
+  }
+  + #site-search-form {
+    background-color: $hugo-white;
   }
 }
 

@@ -198,7 +198,7 @@ nav#TableOfContents {
   }
 }
 
-.cross {
+.cross-wrapper {
   position: absolute;
   top: 14px;
   left: 50%;
@@ -217,7 +217,7 @@ nav#TableOfContents {
   text-align: center;
 }
 
-.cross.active {
+.cross-wrapper.active {
   transform: translate(-50%, -50%) scale(1);
   transition: all 0.15s ease-in-out;
 }
