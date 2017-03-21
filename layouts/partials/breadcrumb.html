@@ -1,9 +1,9 @@
-{{if and (ne .Kind "section") (ne .Section "")}}
+{{ if .IsPage }}
 <nav class="breadcrumb">
 	<ul class="breadcrumbs">
 		<li>
 			<a class="crumb" href="/{{.Section | urlize}}">
-    		<span>{{replace (replace .Section "-" " " | title) "And" "and"}}</span>
+    		<span>{{ with .Site.GetPage "section" .Section }}{{ .Title }}{{ else }}{{replace (replace .Section "-" " " | title) "And" "and"}}{{ end }}</span>
   		</a>
 		</li>
 	</ul>

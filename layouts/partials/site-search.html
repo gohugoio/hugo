@@ -1,5 +1,5 @@
 <a href="#" id="toggle-search">
-  <i class="icon-search"></i>
+  {{ partial "svg-icons/search.svg" . }}
 </a>
 <form id="site-search-form" action="">
   <input type="search" id="search-input" {{if .IsHome}} class="homepage-search"{{end}} placeholder="Search {{.Site.Title}}...">

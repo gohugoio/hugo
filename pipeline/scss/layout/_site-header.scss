@@ -57,6 +57,7 @@
   .hugo-v {
     align-self: flex-end;
     font-size: .9em;
+    font-weight:bolder;
   }
   @include MQ(L) {
     margin-left: 1em;

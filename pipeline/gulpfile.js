@@ -33,8 +33,8 @@ gulp.task('scss', function() {
     .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
     .pipe(prefix('last 2 versions', '> 1%', 'ie 10', 'Android 2', 'Firefox ESR'))
     .pipe(plumber())
-    .pipe(rename('style-embed.html'))
-    .pipe(gulp.dest('../layouts/partials'))
+    // .pipe(rename('style-embed.html'))
+    // .pipe(gulp.dest('../layouts/partials'))
     .pipe(rename('style.min.css'))
     .pipe(gulp.dest('../static/css'));
 });

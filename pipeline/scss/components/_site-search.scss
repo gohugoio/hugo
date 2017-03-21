@@ -1,20 +1,21 @@
 #toggle-search {
   display: block;
   position: fixed;
-  top: .5em;
+  top: 13px;
   right: 3.5em;
   float: right;
-  font-size: 1.2em;
+  @include size(24px);
   z-index: 60;
   color: $hugo-pink;
   @include MQ(M) {
     right: 2em;
   }
-  @include MQ(XL) {
-    top: .3em;
-  }
 }
 
+#search-icon {
+  @include size(24px);
+  fill: $hugo-pink;
+}
 
 form#site-search-form {
   transition: transform .3s ease-in-out;
@@ -28,6 +29,7 @@ form#site-search-form {
   transform:translateY(-#{$site-header-height});
   background-color: $body-bg-color;
   z-index: 19;
+  background-color: $site-header-bg-color;
   &.search-open {
     transition: transform .3s ease-in-out;
     transform: translateY(0);

@@ -8,7 +8,7 @@ aside#toc {
   padding-left: 10px;
   padding-right: 10px;
   max-width: 280px;
-  // @include card(1);
+  @include card(1);
   header.toc-header {
     display: inline-block;
     width: 100%;
