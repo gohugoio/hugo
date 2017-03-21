@@ -28,7 +28,6 @@ hugo benchmark
       --cacheDir string                     filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
       --canonifyURLs                        if true, all relative URLs will be canonicalized using baseURL
       --cleanDestinationDir                 Remove files from destination not found in static directories
-      --cleanDestinationDirKeepDotFolders   Remove files from destination not found in static directories. Ignore `dot` folders in the destination
   -c, --contentDir string                   filesystem path to content directory
   -n, --count int                           number of times to build the site (default 13)
       --cpuprofile string                   path/filename for the CPU profile file
