@@ -215,6 +215,10 @@ nav#TableOfContents {
   vertical-align: middle;
   user-select: none;
   text-align: center;
+  > span {
+    position:relative;
+    bottom:2px;
+  }
 }
 
 .cross-wrapper.active {
