@@ -579,8 +579,13 @@ func (c *commandeer) copyStatic() error {
 	// Now that we are using a unionFs for the static directories
 	// We can effectively clean the publishDir on initial sync
 	syncer.Delete = c.Cfg.GetBool("cleanDestinationDir")
+
 	if syncer.Delete {
 		c.Logger.INFO.Println("removing all files from destination that don't exist in static dirs")
+
+		syncer.DeleteFilter = func(f os.FileInfo) bool {
+			return f.IsDir() && strings.HasPrefix(f.Name(), ".")
+		}
 	}
 	c.Logger.INFO.Println("syncing static files to", publishDir)
 
