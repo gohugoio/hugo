@@ -16,7 +16,7 @@ toc: true
 
 ## Introduction to Shortcodes
 
-Hugo loves Markdown because of its simple content format, but there are times when markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframes>`) to markdown content. We think this contradicts the beautiful simplicity of markdown's syntax.
+Hugo loves markdown because of its simple content format, but there are times when markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframes>`) to markdown content. We think this contradicts the beautiful simplicity of markdown's syntax.
 
 Hugo created **shortcodes** to circumvent these limitations.
 
@@ -46,7 +46,7 @@ The examples above use two different delimiters, the difference being the `%` ch
 
 ### Shortcodes with Markdown
 
-The `%` character indicates that the shortcode's inner content---called in the [shortcode template][sctemps] with the [`.Inner` variable][scvars]---needs further processing by the page's rendering processor (i.e. Markdown via Blackfriday). In the following example, Blackfriday would convert `**World**` to `<strong>World</strong>`:
+The `%` character indicates that the shortcode's inner content---called in the [shortcode template][sctemps] with the [`.Inner` variable][scvars]---needs further processing by the page's rendering processor (i.e. markdown via Blackfriday). In the following example, Blackfriday would convert `**World**` to `<strong>World</strong>`:
 
 ```golang
 {{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
@@ -54,7 +54,7 @@ The `%` character indicates that the shortcode's inner content---called in the [
 
 ### Shortcodes Without Markdown
 
-The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without Markdown include internal HTML:
+The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without markdown include internal HTML:
 
 ```golang
 {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
@@ -70,7 +70,7 @@ Hugo ships with a set of predefined shortcodes that represent very common usage.
 
 ### `figure`
 
-`figure` is an extension of the image syntax in Markdown, which does not provide a shorthand for the more semantic [HTML5 `<figure>` element][figureelement].
+`figure` is an extension of the image syntax in markdown, which does not provide a shorthand for the more semantic [HTML5 `<figure>` element][figureelement].
 
 The `figure` shortcode can use the following named parameters:
 
