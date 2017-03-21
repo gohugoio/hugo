@@ -213,7 +213,7 @@ func initRootPersistentFlags() {
 // Called by initHugoBuilderFlags.
 func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("cleanDestinationDir", false, "Remove files from destination not found in static directories")
-	cmd.Flags().Bool("cleanDestinationDirKeepDot", false, "Remove files from destination not found in static directories, but keep dot folders")
+	cmd.Flags().Bool("cleanDestinationDirKeepDotFolders", false, "Remove files from destination not found in static directories. Ignore `dot` folders in the destination")
 	cmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
@@ -433,7 +433,7 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 	persFlagKeys := []string{"verbose", "logFile"}
 	flagKeys := []string{
 		"cleanDestinationDir",
-		"cleanDestinationDirKeepDot",
+		"cleanDestinationDirKeepDotFolders",
 		"buildDrafts",
 		"buildFuture",
 		"buildExpired",
@@ -580,12 +580,12 @@ func (c *commandeer) copyStatic() error {
 	syncer.DestFs = c.Fs.Destination
 	// Now that we are using a unionFs for the static directories
 	// We can effectively clean the publishDir on initial sync
-	syncer.Delete = c.Cfg.GetBool("cleanDestinationDir") || c.Cfg.GetBool("cleanDestinationDirKeepDot")
+	syncer.Delete = c.Cfg.GetBool("cleanDestinationDir") || c.Cfg.GetBool("cleanDestinationDirKeepDotFolders")
 
 	if syncer.Delete {
 		c.Logger.INFO.Println("removing all files from destination that don't exist in static dirs")
 
-		if c.Cfg.GetBool("cleanDestinationDirKeepDot") {
+		if c.Cfg.GetBool("cleanDestinationDirKeepDotFolders") {
 			syncer.DeleteFilter = func(f os.FileInfo) bool {
 				return f.IsDir() && len(f.Name()) > 0 && string(f.Name()[0]) == "."
 			}
