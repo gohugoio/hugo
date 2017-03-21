@@ -102,6 +102,9 @@ ul.animated {
     right: auto;
     left: auto;
   }
+  svg {
+    width:100%;
+  }
 }
 
 .get-started {
@@ -334,12 +337,6 @@ ul.animated {
 
 .gopher-cape {
   opacity: 0;
-}
-
-svg {
-  .cape {
-    // opacity: 0;
-  }
 }
 
 .eyes {
