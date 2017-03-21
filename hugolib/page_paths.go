@@ -219,15 +219,23 @@ func (p *Page) createRelativePermalink() string {
 	}
 
 	// Choose the main output format. In most cases, this will be HTML.
-	outFormat := p.outputFormats[0]
-	tp, err := p.createTargetPath(outFormat)
+	f := p.outputFormats[0]
+
+	return p.createRelativePermalinkForOutputFormat(f)
+
+}
+
+func (p *Page) createRelativePermalinkForOutputFormat(f output.Format) string {
+	tp, err := p.createTargetPath(f)
 
 	if err != nil {
 		p.s.Log.ERROR.Printf("Failed to create permalink for page %q: %s", p.FullFilePath(), err)
 		return ""
 	}
-
-	tp = strings.TrimSuffix(tp, outFormat.BaseFilename())
+	// For /index.json etc. we must  use the full path.
+	if strings.HasSuffix(f.BaseFilename(), "html") {
+		tp = strings.TrimSuffix(tp, f.BaseFilename())
+	}
 
 	return p.s.PathSpec.URLizeFilename(tp)
 }

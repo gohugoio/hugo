@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"html/template"
+	"strings"
 	"sync"
 
 	"github.com/spf13/hugo/output"
@@ -108,4 +109,47 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 // TODO(bep) output
 func (p *Page) Render(layout ...string) template.HTML {
 	return p.mainPageOutput.Render(layout...)
+}
+
+// OutputFormats holds a list of the relevant output formats for a given resource.
+type OutputFormats []*OutputFormat
+
+// And OutputFormat links to a representation of a resource.
+type OutputFormat struct {
+	f output.Format
+	p *Page
+}
+
+// TODO(bep) outputs consider just save this wrapper on Page.
+// OutputFormats gives the output formats for this Page.
+func (p *Page) OutputFormats() OutputFormats {
+	var o OutputFormats
+	for _, f := range p.outputFormats {
+		o = append(o, &OutputFormat{f: f, p: p})
+	}
+	return o
+}
+
+// Get gets a OutputFormat given its name, i.e. json, html etc.
+// It returns nil if not found.
+func (o OutputFormats) Get(name string) *OutputFormat {
+	name = strings.ToLower(name)
+	for _, f := range o {
+		if strings.ToLower(f.f.Name) == name {
+			return f
+		}
+	}
+	return nil
+}
+
+// Permalink returns the absolute permalink to this output format.
+func (o *OutputFormat) Permalink() string {
+	rel := o.p.createRelativePermalinkForOutputFormat(o.f)
+	return o.p.s.permalink(rel)
+}
+
+// Permalink returns the relative permalink to this output format.
+func (o *OutputFormat) RelPermalink() string {
+	rel := o.p.createRelativePermalinkForOutputFormat(o.f)
+	return o.p.s.PathSpec.PrependBasePath(rel)
 }
