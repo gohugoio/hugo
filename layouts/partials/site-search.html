@@ -2,5 +2,5 @@
   <i class="icon-search"></i>
 </a>
 <form id="site-search-form" action="">
-  <input type="search" id="search-input" placeholder="Search {{.Site.Title}}...">
+  <input type="search" id="search-input" {{if .IsHome}} class="homepage-search"{{end}} placeholder="Search {{.Site.Title}}...">
 </form>

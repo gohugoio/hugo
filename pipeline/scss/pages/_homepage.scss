@@ -17,6 +17,11 @@
   }
 }
 
+input#search-input.homepage-search {
+  background-color: $hugo-white!important;
+  color:$base-font-color;
+}
+
 ul.animated {
   margin-top: 0px;
   margin-bottom: 0px;
