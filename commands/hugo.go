@@ -576,10 +576,17 @@ func (c *commandeer) copyStatic() error {
 	syncer.NoChmod = c.Cfg.GetBool("noChmod")
 	syncer.SrcFs = staticSourceFs
 	syncer.DestFs = c.Fs.Destination
-	// Now that we are using a unionFs for the static directories
-	// We can effectively clean the publishDir on initial sync
+	// Now that we are using UnionFs for the static directories,
+	// we can effectively clean the publishDir on initial sync.
 	syncer.Delete = c.Cfg.GetBool("cleanDestinationDir")
 	if syncer.Delete {
+		// Ignore "." dirs.
+		syncer.DeleteFilter = func(f os.FileInfo) bool {
+			if strings.HasPrefix(f.Name(), ".") {
+				return true
+			}
+			return false
+		}
 		c.Logger.INFO.Println("removing all files from destination that don't exist in static dirs")
 	}
 	c.Logger.INFO.Println("syncing static files to", publishDir)
