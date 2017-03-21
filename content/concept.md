@@ -83,7 +83,7 @@ New Hugo documentation should...
 ### Persona
 
 {{% note %}}
-This is far from an inadequate persona exercise, but I think it helped my mental model as I worked through the existing docs.
+This is far from an adequate persona exercise, but I think it helped my mental model as I worked through the existing docs.
 {{% /note %}}
 
 #### End User: SSG Developer
