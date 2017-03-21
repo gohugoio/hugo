@@ -1,0 +1,98 @@
+-----BEGIN BIO BLOCK-----
+
+Bharath M. Palavalli designs games and simulations to understand
+complex adaptive systems. He is currently working on identifying
+and understanding the conflict-prone relationship between the poor
+and the city; specifically, to improve policy planning and design.
+
+His research interests are in the areas of Game Design, Game Theory,
+Agent-based modelling, Complex Adaptive Systems, Policy Design,
+Poverty and Inequality, Graph Theory, Information Retrieval,
+Information Communication Technologies and their effects.
+
+He is the Co-Founder of Fields of View, a non-profit research group
+in Bangalore. Previously, I have designed agent-based simulation
+frameworks, games for safety and learning, and have worked in the
+areas of infrastructure policy, disaster management and poverty.
+
+He can be reached by e-mail at mail@bharathpalavalli.com, he tweets at
+http://twitter.com/bharathmp and his LinkedIn profile is
+https://www.linkedin.com/in/bharathmp/. His resume is available at
+http://www.bharathpalavalli.com/cv.pdf.
+-----END OF BIO BLOCK-----
+
+-----BEGIN ACKNOWLEDGEMENT BLOCK-----
+
+This personal website (http://www.bharathpalavalli.com) was built
+using Hugo (http://gohugo.io/) and Bootstrap (http://getbootstrap.com).
+The fonts are 'EB Garamond' the theme is derived from Andrew Codispoti
+(http://www.andrewcodispoti.com/).
+
+The website is W3C Validated, please visit the W3C Validator at
+https://validator.w3.org/nu/?doc=http%3A%2F%2Fwww.bharathpalavalli.com%2F
+-----END OF ACKNOWLEDGEMENT BLOCK-----
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+=0QSk
+-----END PGP PUBLIC KEY BLOCK-----

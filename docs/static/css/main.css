@@ -1,0 +1,180 @@
+/* EB Garamond */
+@font-face {
+  font-family: "EB Garamond";
+  src: url('/assets/fonts/EBGaramond-Regular.eot?#iefix') format('embedded-opentype'), url('/assets/fonts/EBGaramond-Regular.woff') format('woff'), url('/assets/fonts/EBGaramond-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  font-style: italic;
+  src: url('/assets/fonts/EBGaramond-Italic.otf') format('opentype'), url('/assets/fonts/EBGaramond-Italic.ttf') format('truetype');
+}
+
+body {
+  background-color: #f2f2f2;
+    font-family: "EB Garamond";
+    font-size: 20px;
+    color: #555;
+
+    -webkit-font-smoothing: antialiased;
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* Titles */
+h1 {
+  font-family: "EB Garamond";
+  font-weight: bold;
+  color: #333;
+	font-size: 70px;
+}
+
+h2, h3 {
+    font-family: "EB Garamond";
+    font-weight: 300;
+    font-size: 48px;
+    color: #333;
+}
+
+h4, h5 {
+    font-family: "EB Garamond";
+    font-weight: 300;
+    font-size: 32px;
+    color: #333;
+}
+
+
+h6 {
+    font-family: "EB Garamond";
+    font-weight: 300;
+    font-size: 16px;
+    color: #333;
+}
+
+
+/* Paragraph & Typographic */
+p {
+    line-height: 28px;
+    margin-bottom: 25px;
+}
+
+.centered {
+    text-align: center;
+}
+
+/* Links */
+a {
+    color: #A70F0F;
+    word-wrap: break-word;
+
+    -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+    transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+a:hover,
+a:focus {
+    color: #A70F0F;
+    text-decoration: none;
+    border-bottom: 1px dotted;
+    outline: 0;
+}
+
+a:before,
+a:after {
+    -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+    transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+/* Header Links */
+a.header {
+    color: #333;
+    word-wrap: break-word;
+
+    -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+    transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+a.header:hover,
+a.header:focus {
+    color: #333;
+    text-decoration: none;
+    border-bottom: none;
+    outline: 0;
+}
+
+a.header:before,
+a.header:after {
+    -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+    transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+/* Social Links */
+a.social {
+    color: #A70F0F;
+    word-wrap: break-word;
+
+    -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+    transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+a.social:hover,
+a.social:focus {
+    color: #C3AEAE;
+    text-decoration: none;
+    border-bottom: none;
+    outline: 0;
+}
+
+a.social:before,
+a.social:after {
+    -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+    -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+    transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+.w {
+	margin-top: 30px;
+}
+
+
+.w i {
+	font-size: 26px;
+	padding: 12px;
+}
+
+.b {
+	margin-bottom: 30px;
+}
+
+ul {
+  list-style-type: none;
+  margin: 1em;
+}
+
+ul li {
+  margin: 0;
+  padding: 3px 10px 10px 0;
+}
+
+.specs {
+  font-size: 12px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}

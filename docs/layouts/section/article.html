@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+  {{ "" | safeHTML }} {{ partial "head.html" . }}
+
+  <body>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    {{ "<!--[if lt IE 9]><script src=\"//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js\"></script><script src=\"//oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js\"></script><![endif]-->" | safeHTML }}
+
+    {{ if not (in (printf "%#v" .Site.BaseURL) "localhost") }}
+      {{ template "_internal/google_analytics.html" . }}
+    {{ end }}
+
+    {{ partial "header.html" . }}
+
+    <div class="container">
+      <div class="row w">
+        <div class="col-lg-6 col-lg-offset-3">
+
+          <section id="main">
+            <div>
+              <h4 id="title">{{ .Title }}</h4>
+                <ul id="list">
+                  {{ range .Data.Pages }}
+                    {{ .Render "li" }}
+                  {{ end }}
+                </ul>
+              </div>
+          </section>
+
+          {{ partial "social.html" . }}
+
+        </div>
+      </div>
+    </div>
+
+    {{ partial "footer.html" . }}
+  </body>
+
+</html>

@@ -1,0 +1,10 @@
+<!--Landing page: Personal Bio/description-->
+    <div class="container">
+      <div class="row w">
+        <div class="col-lg-6 col-lg-offset-3">
+          <p><span class="s1">{{ .Site.Params.bio.gen | markdownify }}</span></p>
+          <p><span class="s1">{{ .Site.Params.bio.research | markdownify }}</span></p>
+          <p><span class="s1">{{ .Site.Params.bio.work | markdownify }}</span></p>
+        </div>
+      </div>
+    </div>
