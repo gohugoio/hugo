@@ -23,6 +23,9 @@ import (
 var (
 	// An ordered list of built-in output formats
 	// See https://www.ampproject.org/learn/overview/
+	// TODO
+	// <link rel="amphtml" href="{{ .Permalink }}">
+	// canonical
 	AMPType = Format{
 		Name:      "AMP",
 		MediaType: media.HTMLType,

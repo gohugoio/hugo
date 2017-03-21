@@ -65,7 +65,7 @@ category = "categories"
 
 	pageTemplate := `---
 title: "%s"
-outputs: ["json"]
+outputs: ["html", "json"]
 ---
 # Doc
 `
@@ -88,10 +88,19 @@ outputs: ["json"]
 
 	require.NotNil(t, home)
 
-	require.Len(t, home.outputFormats, 1)
+	require.Len(t, home.outputFormats, 2)
 
 	// TODO(bep) output assert template/text
 
 	th.assertFileContent("public/index.json", "List JSON")
+
+	of := home.OutputFormats()
+	require.Len(t, of, 2)
+	require.Nil(t, of.Get("Hugo"))
+	require.NotNil(t, of.Get("json"))
+	json := of.Get("JSON")
+	require.NotNil(t, json)
+	require.Equal(t, "/blog/index.json", json.RelPermalink())
+	require.Equal(t, "http://example.com/blog/index.json", json.Permalink())
 
 }
