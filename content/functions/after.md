@@ -12,14 +12,14 @@ ns:
 signature:
 workson: []
 hugoversion:
-relatedfuncs: [last]
+relatedfuncs: [last,seq]
 deprecated: false
 aliases: []
 ---
 
 `after` slices an array to only the items after the *N*th item. Combining `after` with `first` uses both use both halves of an array split at item *N*.
 
-Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
+Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), and [groups](/templates/list/).
 
 ## Example: All Pages Starting with 10
 
