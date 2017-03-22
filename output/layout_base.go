@@ -56,11 +56,11 @@ type TemplateLookupDescriptor struct {
 	ContainsAny func(filename string, subslices [][]byte) (bool, error)
 }
 
-func CreateTemplateID(d TemplateLookupDescriptor) (TemplateNames, error) {
+func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 
 	var id TemplateNames
 
-	name := filepath.FromSlash(d.RelPath)
+	name := filepath.ToSlash(d.RelPath)
 
 	if d.Prefix != "" {
 		name = strings.Trim(d.Prefix, "/") + "/" + name

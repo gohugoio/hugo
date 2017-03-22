@@ -177,7 +177,7 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 		for _, p := range s.Pages {
 			// May have been set in front matter
 			if len(p.outputFormats) == 0 {
-				p.outputFormats = s.defaultOutputDefinitions.ForKind(p.Kind)
+				p.outputFormats = s.outputFormats[p.Kind]
 			}
 			if err := p.initTargetPathDescriptor(); err != nil {
 				return err

@@ -27,23 +27,25 @@ import (
 	"github.com/spf13/viper"
 )
 
-func TestDefaultOutputDefinitions(t *testing.T) {
+func TestDefaultOutputFormats(t *testing.T) {
 	t.Parallel()
-	defs := createSiteOutputDefinitions(viper.New())
+	defs, err := createDefaultOutputFormats(viper.New())
+
+	require.NoError(t, err)
 
 	tests := []struct {
 		name string
 		kind string
-		want []output.Format
+		want output.Formats
 	}{
-		{"RSS not for regular pages", KindPage, []output.Format{output.HTMLType}},
-		{"Home Sweet Home", KindHome, []output.Format{output.HTMLType, output.RSSType}},
+		{"RSS not for regular pages", KindPage, output.Formats{output.HTMLType}},
+		{"Home Sweet Home", KindHome, output.Formats{output.HTMLType, output.RSSType}},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := defs.ForKind(tt.kind); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("siteOutputDefinitions.ForKind(%v) = %v, want %v", tt.kind, got, tt.want)
+			if got := defs[tt.kind]; !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("createDefaultOutputFormats(%v) = %v, want %v", tt.kind, got, tt.want)
 			}
 		})
 	}
@@ -57,6 +59,7 @@ func TestSiteWithPageOutputs(t *testing.T) {
 	}
 }
 
+// TODO(bep) output add test for site outputs config
 func doTestSiteWithPageOutputs(t *testing.T, outputs []string) {
 	t.Parallel()
 

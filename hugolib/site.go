@@ -108,7 +108,10 @@ type Site struct {
 
 	disabledKinds map[string]bool
 
-	defaultOutputDefinitions siteOutputDefinitions
+	// Output formats defined in site config per Page Kind, or some defaults
+	// if not set.
+	// Output formats defined in Page front matter will override these.
+	outputFormats map[string]output.Formats
 
 	// Logger etc.
 	*deps.Deps `json:"-"`
@@ -124,12 +127,12 @@ func (s *Site) isEnabled(kind string) bool {
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
 	return &Site{Deps: s.Deps,
-		layoutHandler:            output.NewLayoutHandler(s.PathSpec.ThemeSet()),
-		disabledKinds:            s.disabledKinds,
-		defaultOutputDefinitions: s.defaultOutputDefinitions,
-		Language:                 s.Language,
-		owner:                    s.owner,
-		PageCollections:          newPageCollections()}
+		layoutHandler:   output.NewLayoutHandler(s.PathSpec.ThemeSet()),
+		disabledKinds:   s.disabledKinds,
+		outputFormats:   s.outputFormats,
+		Language:        s.Language,
+		owner:           s.owner,
+		PageCollections: newPageCollections()}
 }
 
 // newSite creates a new site with the given configuration.
@@ -145,14 +148,18 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		disabledKinds[disabled] = true
 	}
 
-	outputDefs := createSiteOutputDefinitions(cfg.Cfg)
+	outputFormats, err := createSiteOutputFormats(cfg.Language)
+
+	if err != nil {
+		return nil, err
+	}
 
 	s := &Site{
-		PageCollections:          c,
-		layoutHandler:            output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""),
-		Language:                 cfg.Language,
-		disabledKinds:            disabledKinds,
-		defaultOutputDefinitions: outputDefs,
+		PageCollections: c,
+		layoutHandler:   output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""),
+		Language:        cfg.Language,
+		disabledKinds:   disabledKinds,
+		outputFormats:   outputFormats,
 	}
 
 	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
@@ -2007,7 +2014,7 @@ func (s *Site) newNodePage(typ string, sections ...string) *Page {
 		sections: sections,
 		s:        s}
 
-	p.outputFormats = p.s.defaultOutputDefinitions.ForKind(typ)
+	p.outputFormats = p.s.outputFormats[p.Kind]
 
 	return p
 

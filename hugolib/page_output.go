@@ -45,7 +45,6 @@ func (p *PageOutput) targetPath(addends ...string) (string, error) {
 		return "", err
 	}
 	return tp, nil
-
 }
 
 func newPageOutput(p *Page, createCopy bool, f output.Format) (*PageOutput, error) {
