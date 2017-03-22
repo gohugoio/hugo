@@ -100,7 +100,7 @@ Because additional formats are external commands---with the exception of org mod
 
 ## Learn Markdown
 
-If you are unfamiliar with markdown syntax, it can easily be learned within a single sitting. The following are excellent resources to get you up and running:
+Markdown syntax is simple enough to learn in a single sitting. The following are excellent resources to get you up and running:
 
 * [Daring Fireball: Markdown, John Gruber (Creator of Markdown)][fireball]
 * [Markdown Cheatsheet, Adam Pritchard][mdcheatsheet]

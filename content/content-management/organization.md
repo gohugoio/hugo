@@ -113,7 +113,7 @@ http://yoursite.com/events/chicago/lollapalooza/
 ```
 
 {{% note %}}
-As of v0.20, Hugo does not recognize nested sections. So while you can nest as many content *directories* as you'd like, any child directory of a section will still be considered the same section as that of its parents. Therefore, in the above example, `{{.Section}}` for `lollapalooza.md` is `events` and *not* `chicago`.
+As of v0.20, Hugo does not recognize nested sections. While you can nest as many content *directories* as you'd like, any child directory of a section will still be considered the same section as that of its parents. Therefore, in the above example, `{{.Section}}` for `lollapalooza.md` is `events` and *not* `chicago`. See the [related issue on GitHub](https://github.com/spf13/hugo/issues/465).
 {{% /note %}}
 
 ## Paths Explained
