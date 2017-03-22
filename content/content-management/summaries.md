@@ -31,6 +31,10 @@ By default, Hugo automatically takes the first 70 words of your content as its s
 * **Pros:** Automatic, no additional work on your part.
 * **Cons:** All HTML tags are stripped from the summary, and the first 70 words, whether they belong to a heading or to different paragraphs, are all lumped into one paragraph.
 
+{{% note %}}
+The Hugo-defined summaries are set to use word count by default. However, "word count" is relatively defined. If you are creating content in a CJK language and want to use Hugo's automatic summary splitting, set `hasCJKLanguage` to `true` in you [site configuration](/getting-started/configuration/).
+{{% /note %}}
+
 ### User-defined: Manual Summary Splitting
 
 Alternatively, you may add the <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider where you want to split the article. For [org content][org], use <code># more</code>) where you want to split the article. Content that comes before the summary divider will be used as that content's summary and stored in the `.Summary` page variable with all HTML formatting intact.

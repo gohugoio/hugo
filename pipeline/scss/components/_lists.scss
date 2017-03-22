@@ -84,11 +84,6 @@ aside {
       margin: 0px;
       font-weight: bolder;
       margin-right: 1em;
-      // background-color:$hugo-gray-ultra-light;
-      // code {
-      //   font-size: .9em;
-      //   // color:$hugo-pink;
-      // }
       //basically allows you to style with ***word*** in markdown for words like "Required"
       > strong > em > code {
         // color: $hugo-pink;
