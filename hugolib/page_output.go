@@ -19,6 +19,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/spf13/hugo/media"
+
 	"github.com/spf13/hugo/output"
 )
 
@@ -133,12 +135,18 @@ type OutputFormat struct {
 
 	// It may be tempting to export this, but let us hold on to that horse for a while.
 	f output.Format
+
 	p *Page
 }
 
 // Name returns this OutputFormat's name, i.e. HTML, AMP, JSON etc.
 func (o OutputFormat) Name() string {
 	return o.f.Name
+}
+
+// MediaType returns this OutputFormat's MediaType (MIME type).
+func (o OutputFormat) MediaType() media.Type {
+	return o.f.MediaType
 }
 
 // TODO(bep) outputs consider just save this wrapper on Page.

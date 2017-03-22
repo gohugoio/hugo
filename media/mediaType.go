@@ -26,23 +26,24 @@ type Types []Type
 // If suffix is not provided, the sub type will be used.
 // See // https://en.wikipedia.org/wiki/Media_type
 type Type struct {
-	Type    string // i.e. text
-	SubType string // i.e. html
-	Suffix  string // i.e html
+	MainType string // i.e. text
+	SubType  string // i.e. html
+	Suffix   string // i.e html
 }
 
-// Key return a key used to identify this media type. Hugo will register a set of
-// default media types. These can be overridden by the user in the configuration,
-// by defining a media type with the same Key.
-func (m Type) Key() string {
-	return fmt.Sprintf("%s/%s", m.Type, m.SubType)
+// Type returns a string representing the main- and sub-type of a media type, i.e. "text/css".
+// Hugo will register a set of default media types.
+// These can be overridden by the user in the configuration,
+// by defining a media type with the same Type.
+func (m Type) Type() string {
+	return fmt.Sprintf("%s/%s", m.MainType, m.SubType)
 }
 
 func (m Type) String() string {
 	if m.Suffix != "" {
-		return fmt.Sprintf("%s/%s+%s", m.Type, m.SubType, m.Suffix)
+		return fmt.Sprintf("%s/%s+%s", m.MainType, m.SubType, m.Suffix)
 	}
-	return fmt.Sprintf("%s/%s", m.Type, m.SubType)
+	return fmt.Sprintf("%s/%s", m.MainType, m.SubType)
 }
 
 var (
