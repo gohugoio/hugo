@@ -23,26 +23,26 @@ import (
 var (
 	// An ordered list of built-in output formats
 	// See https://www.ampproject.org/learn/overview/
-	// TODO
-	// <link rel="amphtml" href="{{ .Permalink }}">
-	// canonical
 	AMPType = Format{
 		Name:      "AMP",
 		MediaType: media.HTMLType,
 		BaseName:  "index",
 		Path:      "amp",
+		Rel:       "amphtml",
 	}
 
 	CSSType = Format{
 		Name:      "CSS",
 		MediaType: media.CSSType,
 		BaseName:  "styles",
+		Rel:       "stylesheet",
 	}
 
 	HTMLType = Format{
 		Name:      "HTML",
 		MediaType: media.HTMLType,
 		BaseName:  "index",
+		Rel:       "canonical",
 	}
 
 	JSONType = Format{
@@ -50,6 +50,7 @@ var (
 		MediaType:   media.JSONType,
 		BaseName:    "index",
 		IsPlainText: true,
+		Rel:         "alternate",
 	}
 
 	RSSType = Format{
@@ -57,6 +58,7 @@ var (
 		MediaType: media.RSSType,
 		BaseName:  "index",
 		NoUgly:    true,
+		Rel:       "alternate",
 	}
 )
 
@@ -83,6 +85,16 @@ type Format struct {
 
 	// The base output file name used when not using "ugly URLs", defaults to "index".
 	BaseName string
+
+	// The value to use for rel links
+	//
+	// See https://www.w3schools.com/tags/att_link_rel.asp
+	//
+	// AMP has a special requirement in this department, see:
+	// https://www.ampproject.org/docs/guides/deploy/discovery
+	// I.e.:
+	// <link rel="amphtml" href="https://www.example.com/url/to/amp/document.html">
+	Rel string
 
 	// The protocol to use, i.e. "webcal://". Defaults to the protocol of the baseURL.
 	Protocol string
