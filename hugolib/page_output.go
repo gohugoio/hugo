@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"html/template"
 	"strings"
 	"sync"
@@ -116,18 +117,62 @@ type OutputFormats []*OutputFormat
 
 // And OutputFormat links to a representation of a resource.
 type OutputFormat struct {
+	// Rel constains a value that can be used to construct a rel link.
+	// This is value is fetched from the output format definition.
+	// Note that for pages with only one output format,
+	// this method will always return "canonical".
+	// TODO(bep) output -- the above may not be correct for CSS etc. Figure out a way around that.
+	// TODO(bep) output -- re the above, maybe add a "alternate" filter to AlternativeOutputFormats.
+	// As an example, the AMP output format will, by default, return "amphtml".
+	//
+	// See:
+	// https://www.ampproject.org/docs/guides/deploy/discovery
+	//
+	// Most other output formats will have "alternate" as value for this.
+	Rel string
+
+	// It may be tempting to export this, but let us hold on to that horse for a while.
 	f output.Format
 	p *Page
+}
+
+// Name returns this OutputFormat's name, i.e. HTML, AMP, JSON etc.
+func (o OutputFormat) Name() string {
+	return o.f.Name
 }
 
 // TODO(bep) outputs consider just save this wrapper on Page.
 // OutputFormats gives the output formats for this Page.
 func (p *Page) OutputFormats() OutputFormats {
 	var o OutputFormats
+	isCanonical := len(p.outputFormats) == 1
 	for _, f := range p.outputFormats {
-		o = append(o, &OutputFormat{f: f, p: p})
+		rel := f.Rel
+		if isCanonical {
+			rel = "canonical"
+		}
+		o = append(o, &OutputFormat{Rel: rel, f: f, p: p})
 	}
 	return o
+}
+
+// OutputFormats gives the alternative output formats for this PageOutput.
+func (p *PageOutput) AlternativeOutputFormats() (OutputFormats, error) {
+	var o OutputFormats
+	for _, of := range p.OutputFormats() {
+		if of.f == p.outputFormat {
+			continue
+		}
+		o = append(o, of)
+	}
+	return o, nil
+}
+
+// AlternativeOutputFormats is only available on the top level rendering
+// entry point, and not inside range loops on the Page collections.
+// This method is just here to inform users of that restriction.
+func (p *Page) AlternativeOutputFormats() (OutputFormats, error) {
+	return nil, fmt.Errorf("AlternativeOutputFormats only available from the top level template context for page %q", p.Path())
 }
 
 // Get gets a OutputFormat given its name, i.e. json, html etc.

@@ -15,12 +15,14 @@ package hugolib
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"fmt"
 
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/output"
 	"github.com/spf13/viper"
 )
@@ -47,8 +49,18 @@ func TestDefaultOutputDefinitions(t *testing.T) {
 	}
 }
 
-func TestSiteWithJSONHomepage(t *testing.T) {
+func TestSiteWithPageOutputs(t *testing.T) {
+	for _, outputs := range [][]string{{"html", "json"}, {"json"}} {
+		t.Run(fmt.Sprintf("%v", outputs), func(t *testing.T) {
+			doTestSiteWithPageOutputs(t, outputs)
+		})
+	}
+}
+
+func doTestSiteWithPageOutputs(t *testing.T, outputs []string) {
 	t.Parallel()
+
+	outputsStr := strings.Replace(fmt.Sprintf("%q", outputs), " ", ", ", -1)
 
 	siteConfig := `
 baseURL = "http://example.com/blog"
@@ -65,19 +77,26 @@ category = "categories"
 
 	pageTemplate := `---
 title: "%s"
-outputs: ["html", "json"]
+outputs: %s
 ---
 # Doc
 `
 
 	th, h := newTestSitesFromConfig(t, siteConfig,
-		"layouts/_default/list.json", "List JSON|{{ .Title }}|{{ .Content }}",
+		"layouts/_default/list.json", `List JSON|{{ .Title }}|{{ .Content }}|Alt formats: {{ len .AlternativeOutputFormats -}}|
+{{- range .AlternativeOutputFormats -}}
+Alt Output: {{ .Name -}}|
+{{- end -}}|
+{{- range .OutputFormats -}}
+Output/Rel: {{ .Name -}}/{{ .Rel }}|
+{{- end -}}
+`,
 	)
 	require.Len(t, h.Sites, 1)
 
 	fs := th.Fs
 
-	writeSource(t, fs, "content/_index.md", fmt.Sprintf(pageTemplate, "JSON Home"))
+	writeSource(t, fs, "content/_index.md", fmt.Sprintf(pageTemplate, "JSON Home", outputsStr))
 
 	err := h.Build(BuildCfg{})
 
@@ -88,17 +107,38 @@ outputs: ["html", "json"]
 
 	require.NotNil(t, home)
 
-	require.Len(t, home.outputFormats, 2)
+	lenOut := len(outputs)
+
+	require.Len(t, home.outputFormats, lenOut)
 
 	// TODO(bep) output assert template/text
+	// There is currently always a JSON output to make it simpler ...
+	altFormats := lenOut - 1
+	hasHTML := helpers.InStringArray(outputs, "html")
+	th.assertFileContent("public/index.json",
+		"List JSON",
+		fmt.Sprintf("Alt formats: %d", altFormats),
+	)
 
-	th.assertFileContent("public/index.json", "List JSON")
+	if hasHTML {
+		th.assertFileContent("public/index.json",
+			"Alt Output: HTML",
+			"Output/Rel: JSON/alternate|",
+			"Output/Rel: HTML/canonical|",
+		)
+	} else {
+		th.assertFileContent("public/index.json",
+			"Output/Rel: JSON/canonical|",
+		)
+	}
 
 	of := home.OutputFormats()
-	require.Len(t, of, 2)
+	require.Len(t, of, lenOut)
 	require.Nil(t, of.Get("Hugo"))
 	require.NotNil(t, of.Get("json"))
 	json := of.Get("JSON")
+	_, err = home.AlternativeOutputFormats()
+	require.Error(t, err)
 	require.NotNil(t, json)
 	require.Equal(t, "/blog/index.json", json.RelPermalink())
 	require.Equal(t, "http://example.com/blog/index.json", json.Permalink())
