@@ -21,8 +21,12 @@ aliases: []
 
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
-e.g.
+## Example: All Pages Starting with 10
 
-    {{ range after 10 .Data.Pages }}
-        {{ .Render "title" }}
-    {{ end }}
+```html
+{{ range after 10 .Data.Pages }}
+  {{ .Render "title" }}
+{{ end }}
+```
+
+

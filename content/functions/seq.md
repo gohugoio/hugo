@@ -18,7 +18,7 @@ draft: false
 aliases: []
 ---
 
-`seq` creates a sequence of integers. It's named and used in the model of [GNU's seq][gnuseq].
+`seq` creates a sequence of integers. It's named and used in the model of [GNU's seq][].
 
 ```
 3 → 1, 2, 3
@@ -28,4 +28,22 @@ aliases: []
 1 -2 → 1, 0, -1, -2
 ```
 
-[gnuseq]: http://www.gnu.org/software/coreutils/manual/html_node/seq-invocation.html#seq-invocation
+## Example: `seq` with `range` and `after`
+
+You can use `seq` in combination with `range` and `after`. The following will return 19 elements:
+
+```golang
+{{ range after 1 (seq 20)}}
+{{ end }}
+```
+
+However, when ranging with an index, the following may be less confusing in that `$indexStartingAt1` and `$num` will return `1,2,3 ... 20`:
+
+```golang
+{{ range $index, $num := (seq 20) }}
+$indexStartingAt1 := (add $index 1)
+{{ end }}
+```
+
+
+[GNU's seq]: http://www.gnu.org/software/coreutils/manual/html_node/seq-invocation.html#seq-invocation

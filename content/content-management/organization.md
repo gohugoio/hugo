@@ -145,7 +145,7 @@ The `url` is the relative URL for the piece of content. The `url`
 * is based on the content's location within the directory structure OR
 * is defined in front matter and *overrides all the above*
 
-## Overriding Default Behaviors via Front Matter
+## Overriding Destination Paths via Front Matter
 
 Hugo believes that you organize your content with a purpose. The same structure that works to organize your source content is used to organize the rendered site. As displayed above, the organization of the source content will be mirrored in the destination.
 
