@@ -14,56 +14,81 @@
 package hugolib
 
 import (
+	"fmt"
 	"path"
 	"strings"
 
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/output"
 )
 
-type siteOutputDefinitions []siteOutputDefinition
+func createSiteOutputFormats(cfg config.Provider) (map[string]output.Formats, error) {
+	if !cfg.IsSet("outputs") {
+		return createDefaultOutputFormats(cfg)
+	}
 
-type siteOutputDefinition struct {
-	// What Kinds of pages are excluded in this definition.
-	// A blank strings means NONE.
-	// Comma separated list (for now).
-	ExcludedKinds string
+	outFormats := make(map[string]output.Formats)
 
-	Outputs []output.Format
-}
+	outputs := cfg.GetStringMap("outputs")
 
-func (defs siteOutputDefinitions) ForKind(kind string) []output.Format {
-	var result []output.Format
+	if outputs == nil || len(outputs) == 0 {
+		// TODO(bep) outputs log a warning?
+		return outFormats, nil
+	}
 
-	for _, def := range defs {
-		if def.ExcludedKinds == "" || !strings.Contains(def.ExcludedKinds, kind) {
-			result = append(result, def.Outputs...)
+	for k, v := range outputs {
+		var formats output.Formats
+		vals := cast.ToStringSlice(v)
+		for _, format := range vals {
+			f, found := output.GetFormat(format)
+			if !found {
+				return nil, fmt.Errorf("Failed to resolve output format %q from site config", format)
+			}
+			formats = append(formats, f)
+		}
+
+		if len(formats) > 0 {
+			outFormats[k] = formats
 		}
 	}
 
-	return result
-}
-
-func createSiteOutputDefinitions(cfg config.Provider) siteOutputDefinitions {
-
-	var defs siteOutputDefinitions
-
-	// All have HTML
-	defs = append(defs, siteOutputDefinition{ExcludedKinds: "", Outputs: []output.Format{output.HTMLType}})
-
-	// TODO(bep) output deprecate rssURI
-	rssBase := cfg.GetString("rssURI")
-	if rssBase == "" {
-		rssBase = "index"
+	// Make sure every kind has at least one output format
+	for _, kind := range allKinds {
+		if _, found := outFormats[kind]; !found {
+			outFormats[kind] = output.Formats{output.HTMLType}
+		}
 	}
 
-	// RSS has now a well defined media type, so strip any suffix provided
-	rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
-	rssType := output.RSSType
-	rssType.BaseName = rssBase
+	return outFormats, nil
 
-	// Some have RSS
-	defs = append(defs, siteOutputDefinition{ExcludedKinds: "page", Outputs: []output.Format{rssType}})
+}
 
-	return defs
+func createDefaultOutputFormats(cfg config.Provider) (map[string]output.Formats, error) {
+	outFormats := make(map[string]output.Formats)
+	for _, kind := range allKinds {
+		var formats output.Formats
+		// All have HTML
+		formats = append(formats, output.HTMLType)
+
+		// All but page have RSS
+		if kind != KindPage {
+			// TODO(bep) output deprecate rssURI
+			rssBase := cfg.GetString("rssURI")
+			if rssBase == "" {
+				rssBase = "index"
+			}
+
+			// RSS has now a well defined media type, so strip any suffix provided
+			rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
+			rssType := output.RSSType
+			rssType.BaseName = rssBase
+			formats = append(formats, rssType)
+
+		}
+
+		outFormats[kind] = formats
+	}
+
+	return outFormats, nil
 }

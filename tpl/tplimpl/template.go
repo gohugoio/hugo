@@ -508,7 +508,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 				},
 			}
 
-			tplID, err := output.CreateTemplateID(descriptor)
+			tplID, err := output.CreateTemplateNames(descriptor)
 			if err != nil {
 				t.Log.ERROR.Printf("Failed to resolve template in path %q: %s", path, err)
 				return nil

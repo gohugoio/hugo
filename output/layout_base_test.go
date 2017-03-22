@@ -124,6 +124,8 @@ func TestLayoutBase(t *testing.T) {
 	} {
 		t.Run(this.name, func(t *testing.T) {
 
+			this.basePathMatchStrings = filepath.FromSlash(this.basePathMatchStrings)
+
 			fileExists := func(filename string) (bool, error) {
 				stringsToMatch := strings.Split(this.basePathMatchStrings, "|")
 				for _, s := range stringsToMatch {
@@ -148,7 +150,7 @@ func TestLayoutBase(t *testing.T) {
 			this.expect.MasterFilename = filepath.FromSlash(this.expect.MasterFilename)
 			this.expect.OverlayFilename = filepath.FromSlash(this.expect.OverlayFilename)
 
-			id, err := CreateTemplateID(this.d)
+			id, err := CreateTemplateNames(this.d)
 
 			require.NoError(t, err)
 			require.Equal(t, this.expect, id, this.name)

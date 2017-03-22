@@ -24,14 +24,14 @@ func TestDefaultTypes(t *testing.T) {
 	require.Equal(t, "html", HTMLType.SubType)
 	require.Equal(t, "html", HTMLType.Suffix)
 
-	require.Equal(t, "text/html", HTMLType.MainType())
+	require.Equal(t, "text/html", HTMLType.Type())
 	require.Equal(t, "text/html+html", HTMLType.String())
 
 	require.Equal(t, "application", RSSType.MainType)
 	require.Equal(t, "rss", RSSType.SubType)
 	require.Equal(t, "xml", RSSType.Suffix)
 
-	require.Equal(t, "application/rss", RSSType.MainType())
+	require.Equal(t, "application/rss", RSSType.Type())
 	require.Equal(t, "application/rss+xml", RSSType.String())
 
 }

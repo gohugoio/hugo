@@ -859,7 +859,7 @@ func (p *Page) RelPermalink() string {
 func (p *Page) initURLs() error {
 	// TODO(bep) output
 	if len(p.outputFormats) == 0 {
-		p.outputFormats = p.s.defaultOutputDefinitions.ForKind(p.Kind)
+		p.outputFormats = p.s.outputFormats[p.Kind]
 	}
 	rel := p.createRelativePermalink()
 	p.permalink = p.s.permalink(rel)
