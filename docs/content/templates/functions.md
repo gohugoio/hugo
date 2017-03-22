@@ -553,7 +553,7 @@ Pluralize the given word with a set of common English pluralization rules.
 e.g. `{{ "cat" | pluralize }}` → "cats"
 
 ### findRE
-Returns a list of strings that match the regular expression. By default all matches will be included. The number of matches can be limitted with an optional third parameter.
+Returns a list of strings that match the regular expression. By default all matches will be included. The number of matches can be limited with an optional third parameter.
 
 The example below returns a list of all second level headers (`<h2>`) in the content:
 
