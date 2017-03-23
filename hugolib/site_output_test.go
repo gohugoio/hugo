@@ -52,7 +52,7 @@ func TestDefaultOutputFormats(t *testing.T) {
 }
 
 func TestSiteWithPageOutputs(t *testing.T) {
-	for _, outputs := range [][]string{{"html", "json"}, {"json"}} {
+	for _, outputs := range [][]string{{"html", "json", "calendar"}, {"json"}} {
 		t.Run(fmt.Sprintf("%v", outputs), func(t *testing.T) {
 			doTestSiteWithPageOutputs(t, outputs)
 		})
@@ -145,5 +145,13 @@ Output/Rel: {{ .Name -}}/{{ .Rel }}|
 	require.NotNil(t, json)
 	require.Equal(t, "/blog/index.json", json.RelPermalink())
 	require.Equal(t, "http://example.com/blog/index.json", json.Permalink())
+
+	if helpers.InStringArray(outputs, "cal") {
+		// TODO(bep) output have do some protocil handling for the default too if set.
+		cal := of.Get("calendar")
+		require.NotNil(t, cal)
+		require.Equal(t, "/blog/index.ics", cal.RelPermalink())
+		require.Equal(t, "webcal://example.com/blog/index.ics", cal.Permalink())
+	}
 
 }

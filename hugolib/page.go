@@ -862,7 +862,12 @@ func (p *Page) initURLs() error {
 		p.outputFormats = p.s.outputFormats[p.Kind]
 	}
 	rel := p.createRelativePermalink()
-	p.permalink = p.s.permalink(rel)
+
+	var err error
+	p.permalink, err = p.s.permalinkForOutputFormat(rel, p.outputFormats[0])
+	if err != nil {
+		return err
+	}
 	rel = p.s.PathSpec.PrependBasePath(rel)
 	p.relPermalink = rel
 	p.layoutDescriptor = p.createLayoutDescriptor()
