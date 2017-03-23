@@ -47,11 +47,11 @@ func (m Type) String() string {
 }
 
 var (
-	CSSType  = Type{"text", "css", "css"}
-	HTMLType = Type{"text", "html", "html"}
-	JSONType = Type{"application", "json", "json"}
-	RSSType  = Type{"application", "rss", "xml"}
+	CalendarType = Type{"text", "calendar", "ics"}
+	CSSType      = Type{"text", "css", "css"}
+	HTMLType     = Type{"text", "html", "html"}
+	JSONType     = Type{"application", "json", "json"}
+	RSSType      = Type{"application", "rss", "xml"}
 )
 
 // TODO(bep) output mime.AddExtensionType
-// TODO(bep) text/template vs html/template

@@ -21,6 +21,12 @@ import (
 )
 
 func TestDefaultTypes(t *testing.T) {
+	require.Equal(t, "Calendar", CalendarType.Name)
+	require.Equal(t, media.CalendarType, CalendarType.MediaType)
+	require.Equal(t, "webcal://", CalendarType.Protocol)
+	require.Empty(t, CalendarType.Path)
+	require.True(t, CalendarType.IsPlainText)
+
 	require.Equal(t, "HTML", HTMLType.Name)
 	require.Equal(t, media.HTMLType, HTMLType.MediaType)
 	require.Empty(t, HTMLType.Path)
