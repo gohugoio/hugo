@@ -30,6 +30,7 @@ func TestDefaultTypes(t *testing.T) {
 	require.Equal(t, "HTML", HTMLType.Name)
 	require.Equal(t, media.HTMLType, HTMLType.MediaType)
 	require.Empty(t, HTMLType.Path)
+	require.Empty(t, HTMLType.Protocol) // Will inherit the BaseURL protocol.
 	require.False(t, HTMLType.IsPlainText)
 
 	require.Equal(t, "RSS", RSSType.Name)

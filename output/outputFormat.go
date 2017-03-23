@@ -72,11 +72,12 @@ var (
 )
 
 var builtInTypes = map[string]Format{
-	strings.ToLower(AMPType.Name):  AMPType,
-	strings.ToLower(CSSType.Name):  CSSType,
-	strings.ToLower(HTMLType.Name): HTMLType,
-	strings.ToLower(JSONType.Name): JSONType,
-	strings.ToLower(RSSType.Name):  RSSType,
+	strings.ToLower(AMPType.Name):      AMPType,
+	strings.ToLower(CalendarType.Name): CalendarType,
+	strings.ToLower(CSSType.Name):      CSSType,
+	strings.ToLower(HTMLType.Name):     HTMLType,
+	strings.ToLower(JSONType.Name):     JSONType,
+	strings.ToLower(RSSType.Name):      RSSType,
 }
 
 type Formats []Format

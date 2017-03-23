@@ -197,7 +197,8 @@ func (o OutputFormats) Get(name string) *OutputFormat {
 // Permalink returns the absolute permalink to this output format.
 func (o *OutputFormat) Permalink() string {
 	rel := o.p.createRelativePermalinkForOutputFormat(o.f)
-	return o.p.s.permalink(rel)
+	perm, _ := o.p.s.permalinkForOutputFormat(rel, o.f)
+	return perm
 }
 
 // Permalink returns the relative permalink to this output format.

@@ -1766,9 +1766,29 @@ func (s *SiteInfo) GetPage(typ string, path ...string) *Page {
 	return s.getPage(typ, path...)
 }
 
-func (s *Site) permalink(link string) string {
-	baseURL := s.PathSpec.BaseURL.String()
+func (s *Site) permalinkForOutputFormat(link string, f output.Format) (string, error) {
+	var (
+		baseURL string
+		err     error
+	)
 
+	if f.Protocol != "" {
+		baseURL, err = s.PathSpec.BaseURL.WithProtocol(f.Protocol)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		baseURL = s.PathSpec.BaseURL.String()
+	}
+	return s.permalinkForBaseURL(link, baseURL), nil
+}
+
+func (s *Site) permalink(link string) string {
+	return s.permalinkForBaseURL(link, s.PathSpec.BaseURL.String())
+
+}
+
+func (s *Site) permalinkForBaseURL(link, baseURL string) string {
 	link = strings.TrimPrefix(link, "/")
 	if !strings.HasSuffix(baseURL, "/") {
 		baseURL += "/"

@@ -23,33 +23,6 @@ import (
 	"github.com/PuerkitoBio/purell"
 )
 
-type BaseURL struct {
-	url    *url.URL
-	urlStr string
-}
-
-func (b BaseURL) String() string {
-	return b.urlStr
-}
-
-func (b BaseURL) URL() *url.URL {
-	// create a copy as it will be modified.
-	c := *b.url
-	return &c
-}
-
-func newBaseURLFromString(b string) (BaseURL, error) {
-	var result BaseURL
-
-	base, err := url.Parse(b)
-	if err != nil {
-		return result, err
-	}
-
-	// TODO(bep) output consider saving original URL?
-	return BaseURL{url: base, urlStr: base.String()}, nil
-}
-
 type pathBridge struct {
 }
 
