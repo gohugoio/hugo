@@ -20,6 +20,13 @@ import (
 )
 
 func TestDefaultTypes(t *testing.T) {
+	require.Equal(t, "text", CalendarType.MainType)
+	require.Equal(t, "calendar", CalendarType.SubType)
+	require.Equal(t, "ics", CalendarType.Suffix)
+
+	require.Equal(t, "text/calendar+ics", CalendarType.String())
+	require.Equal(t, "text/calendar", CalendarType.Type())
+
 	require.Equal(t, "text", HTMLType.MainType)
 	require.Equal(t, "html", HTMLType.SubType)
 	require.Equal(t, "html", HTMLType.Suffix)

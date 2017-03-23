@@ -31,6 +31,15 @@ var (
 		Rel:       "amphtml",
 	}
 
+	CalendarType = Format{
+		Name:        "Calendar",
+		MediaType:   media.CalendarType,
+		IsPlainText: true,
+		Protocol:    "webcal://",
+		BaseName:    "index",
+		Rel:         "alternate",
+	}
+
 	CSSType = Format{
 		Name:      "CSS",
 		MediaType: media.CSSType,
