@@ -27,7 +27,7 @@ aliases: []
 → ["three", "four"]
 ```
 
-## Using `after` with `first`: 2nd&ndash;4th Most Recent Articles
+## Example of `after` with `first`: 2nd&ndash;4th Most Recent Articles
 
 You can use `after` in combination with the [`first` function][] and Hugo's [powerful sorting methods][lists]. Let's assume you have a list page at `yoursite.com/articles`. You have 10 articles, but you want your templating for the [list/section page][] to show only two rows:
 
