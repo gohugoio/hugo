@@ -259,8 +259,8 @@ func TestReusePageSCWithRelativeLinks(t *testing.T) {
 	pages["direction1/index/index.md"] = "---\ntitle: Other\n---\nOther Page\n" +
 		"[dynamicLink](../dynamic)\n![dynamicImage](../images/image.png)\n[rootLink](../../root)\n" +
 		"[relativeLink](../relative)\n![relativeImage](../images/image2.png)"
-	CheckShortCodeMatchWithTestDataAndError(t, `{{~ reuse ref="/direction1/simple.snippet.md" ~}}`+
-		`{{~ reuse "/direction1/index" ~}}`, "direction2/",
+	CheckShortCodeMatchWithTestDataAndError(t, `{{~ reuse ref="direction1/simple.snippet.md" ~}}`+
+		`{{~ reuse "direction1/index" ~}}`, "direction2/",
 		"<p>Simple Page\n<a href=\"/direction1/absolute/\">absoluteLink</a>\n"+
 			"<a href=\"/direction2/dynamic/\">dynamicLink1</a>\n<a href=\"/direction2/dynamic/\">dynamicLink2</a>\n"+
 			"<a href=\"/direction2/dynamic2/\">dynamicLink3</a>\n<a href=\"/direction2/dynamic/\">dynamicLink4</a>\n"+
