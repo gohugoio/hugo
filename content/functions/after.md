@@ -12,7 +12,7 @@ ns:
 signature:
 workson: []
 hugoversion:
-relatedfuncs: [last,seq]
+relatedfuncs: [last,first,seq]
 deprecated: false
 aliases: []
 ---
