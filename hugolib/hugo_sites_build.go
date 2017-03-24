@@ -174,11 +174,19 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 	}
 
 	for _, s := range h.Sites {
+		s.siteStats = &siteStats{}
 		for _, p := range s.Pages {
 			// May have been set in front matter
 			if len(p.outputFormats) == 0 {
 				p.outputFormats = s.outputFormats[p.Kind]
 			}
+
+			cnt := len(p.outputFormats)
+			if p.Kind == KindPage {
+				s.siteStats.pageCountRegular += cnt
+			}
+			s.siteStats.pageCount += cnt
+
 			if err := p.initTargetPathDescriptor(); err != nil {
 				return err
 			}
