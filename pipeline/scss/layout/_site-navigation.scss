@@ -39,7 +39,7 @@
       margin-top: $site-header-height + 10px;
     }
     a {
-      color: $hugo-white;
+      color: $site-navigation-link-base-color;
       font-weight: $base-font-weight;
       width: 100%;
       &:hover {
