@@ -305,11 +305,23 @@ func (s *Site) renderAliases() error {
 			continue
 		}
 
-		plink := p.Permalink()
+		for _, f := range p.outputFormats {
+			if !f.IsHTML {
+				continue
+			}
 
-		for _, a := range p.Aliases {
-			if err := s.writeDestAlias(a, plink, p); err != nil {
-				return err
+			o := newOutputFormat(p, f)
+			plink := o.Permalink()
+
+			for _, a := range p.Aliases {
+				if f.Path != "" {
+					// Make sure AMP and similar doesn't clash with regular aliases.
+					a = path.Join(a, f.Path)
+				}
+
+				if err := s.writeDestAlias(a, plink, p); err != nil {
+					return err
+				}
 			}
 		}
 	}

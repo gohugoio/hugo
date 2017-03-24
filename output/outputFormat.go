@@ -29,6 +29,7 @@ var (
 		BaseName:  "index",
 		Path:      "amp",
 		Rel:       "amphtml",
+		IsHTML:    true,
 	}
 
 	CalendarType = Format{
@@ -52,6 +53,7 @@ var (
 		MediaType: media.HTMLType,
 		BaseName:  "index",
 		Rel:       "canonical",
+		IsHTML:    true,
 	}
 
 	JSONType = Format{
@@ -112,6 +114,10 @@ type Format struct {
 	// IsPlainText decides whether to use text/template or html/template
 	// as template parser.
 	IsPlainText bool
+
+	// IsHTML returns whether this format is int the HTML family. This includes
+	// HTML, AMP etc. This is used to decide when to create alias redirects etc.
+	IsHTML bool
 
 	// Enable to ignore the global uglyURLs setting.
 	NoUgly bool

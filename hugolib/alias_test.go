@@ -29,6 +29,14 @@ aliases: ["foo/bar/"]
 For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
 `
 
+const pageWithAliasMultipleOutputs = `---
+title: Has Alias for HTML and AMP
+aliases: ["foo/bar/"]
+outputs: ["HTML", "AMP", "JSON"]
+---
+For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
+`
+
 const basicTemplate = "<html><body>{{.Content}}</body></html>"
 const aliasTemplate = "<html><body>ALIASTEMPLATE</body></html>"
 
@@ -49,6 +57,32 @@ func TestAlias(t *testing.T) {
 	th.assertFileContent(filepath.Join("public", "page", "index.html"), "For some moments the old man")
 	// the alias redirector
 	th.assertFileContent(filepath.Join("public", "foo", "bar", "index.html"), "<meta http-equiv=\"refresh\" content=\"0; ")
+}
+
+func TestAliasMultipleOutputFormats(t *testing.T) {
+	t.Parallel()
+
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg, fs, t}
+	)
+
+	writeSource(t, fs, filepath.Join("content", "page.md"), pageWithAliasMultipleOutputs)
+	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
+	writeSource(t, fs, filepath.Join("layouts", "_default", "single.amp.html"), basicTemplate)
+	writeSource(t, fs, filepath.Join("layouts", "_default", "single.json"), basicTemplate)
+
+	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+	// the real pages
+	th.assertFileContent(filepath.Join("public", "page", "index.html"), "For some moments the old man")
+	th.assertFileContent(filepath.Join("public", "amp", "page", "index.html"), "For some moments the old man")
+	th.assertFileContent(filepath.Join("public", "page", "index.json"), "For some moments the old man")
+
+	// the alias redirectors
+	th.assertFileContent(filepath.Join("public", "foo", "bar", "index.html"), "<meta http-equiv=\"refresh\" content=\"0; ")
+	th.assertFileContent(filepath.Join("public", "foo", "bar", "amp", "index.html"), "<meta http-equiv=\"refresh\" content=\"0; ")
+	require.False(t, destinationExists(th.Fs, filepath.Join("public", "foo", "bar", "index.json")))
 }
 
 func TestAliasTemplate(t *testing.T) {

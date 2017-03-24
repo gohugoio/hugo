@@ -152,15 +152,19 @@ func (o OutputFormat) MediaType() media.Type {
 // OutputFormats gives the output formats for this Page.
 func (p *Page) OutputFormats() OutputFormats {
 	var o OutputFormats
-	isCanonical := len(p.outputFormats) == 1
 	for _, f := range p.outputFormats {
-		rel := f.Rel
-		if isCanonical {
-			rel = "canonical"
-		}
-		o = append(o, &OutputFormat{Rel: rel, f: f, p: p})
+		o = append(o, newOutputFormat(p, f))
 	}
 	return o
+}
+
+func newOutputFormat(p *Page, f output.Format) *OutputFormat {
+	rel := f.Rel
+	isCanonical := len(p.outputFormats) == 1
+	if isCanonical {
+		rel = "canonical"
+	}
+	return &OutputFormat{Rel: rel, f: f, p: p}
 }
 
 // OutputFormats gives the alternative output formats for this PageOutput.
