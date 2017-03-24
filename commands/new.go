@@ -107,11 +107,11 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		return newUserError("path needs to be provided")
 	}
 
-	createpath := args[0]
+	createPath := args[0]
 
 	var kind string
 
-	createpath, kind = newContentPathSection(createpath)
+	createPath, kind = newContentPathSection(createPath)
 
 	if contentType != "" {
 		kind = contentType
@@ -123,7 +123,7 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		return newSystemError(err)
 	}
 
-	return create.NewContent(s, kind, createpath)
+	return create.NewContent(s, kind, createPath)
 }
 
 func doNewSite(fs *hugofs.Fs, basepath string, force bool) error {
