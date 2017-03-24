@@ -184,8 +184,6 @@ type Page struct {
 
 	Sitemap Sitemap
 
-	RSSLink template.URL
-
 	URLPath
 	permalink    string
 	relPermalink string
@@ -208,6 +206,14 @@ type Page struct {
 	mainPageOutput *PageOutput
 
 	targetPathDescriptorPrototype *targetPathDescriptor
+}
+
+func (p *Page) RSSLink() template.URL {
+	f, found := p.outputFormats.GetByName(output.RSSType.Name)
+	if !found {
+		return ""
+	}
+	return template.URL(newOutputFormat(p, f).Permalink())
 }
 
 func (p *Page) createLayoutDescriptor() output.LayoutDescriptor {
@@ -1541,7 +1547,7 @@ func (p *Page) RSSlink() template.URL {
 	// TODO(bep) we cannot have two of these
 	// Remove in Hugo 0.20
 	helpers.Deprecated(".Page", "RSSlink", "Use RSSLink", true)
-	return p.RSSLink
+	return p.RSSLink()
 }
 
 func (p *Page) Ref(ref string) (string, error) {

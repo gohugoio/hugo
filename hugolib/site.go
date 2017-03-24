@@ -20,7 +20,6 @@ import (
 	"io"
 	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -2054,17 +2053,7 @@ func (s *Site) newHomePage() *Page {
 	pages := Pages{}
 	p.Data["Pages"] = pages
 	p.Pages = pages
-	s.setPageURLs(p, "/")
 	return p
-}
-
-// TODO(bep) output
-func (s *Site) setPageURLs(p *Page, in string) {
-	p.URLPath.URL = s.PathSpec.URLizeAndPrep(in)
-	p.URLPath.Permalink = s.permalink(p.URLPath.URL)
-	if p.Kind != KindPage {
-		p.RSSLink = template.URL(s.permalink(p.URLPath.URL + ".xml"))
-	}
 }
 
 func (s *Site) newTaxonomyPage(plural, key string) *Page {
@@ -2080,8 +2069,6 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 	} else {
 		p.Title = strings.Replace(strings.Title(key), "-", " ", -1)
 	}
-
-	s.setPageURLs(p, path.Join(plural, key))
 
 	return p
 }
@@ -2100,13 +2087,11 @@ func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
 	} else {
 		p.Title = sectionName
 	}
-	s.setPageURLs(p, name)
 	return p
 }
 
 func (s *Site) newTaxonomyTermsPage(plural string) *Page {
 	p := s.newNodePage(KindTaxonomyTerm, plural)
 	p.Title = strings.Title(plural)
-	s.setPageURLs(p, plural)
 	return p
 }
