@@ -24,18 +24,20 @@ type shortCodeLexerTest struct {
 }
 
 var (
-	tstEOF       = item{tEOF, 0, ""}
-	tstLeftNoMD  = item{tLeftDelimScNoMarkup, 0, "{{<"}
-	tstRightNoMD = item{tRightDelimScNoMarkup, 0, ">}}"}
-	tstLeftMD    = item{tLeftDelimScWithMarkup, 0, "{{%"}
-	tstRightMD   = item{tRightDelimScWithMarkup, 0, "%}}"}
-	tstSCClose   = item{tScClose, 0, "/"}
-	tstSC1       = item{tScName, 0, "sc1"}
-	tstSC2       = item{tScName, 0, "sc2"}
-	tstSC3       = item{tScName, 0, "sc3"}
-	tstParam1    = item{tScParam, 0, "param1"}
-	tstParam2    = item{tScParam, 0, "param2"}
-	tstVal       = item{tScParamVal, 0, "Hello World"}
+	tstEOF        = item{tEOF, 0, ""}
+	tstLeftNoMD   = item{tLeftDelimScNoMarkup, 0, "{{<"}
+	tstRightNoMD  = item{tRightDelimScNoMarkup, 0, ">}}"}
+	tstLeftMD     = item{tLeftDelimScWithMarkup, 0, "{{%"}
+	tstRightMD    = item{tRightDelimScWithMarkup, 0, "%}}"}
+	tstLeftReuse  = item{tLeftDelimScReuse, 0, "{{~"}
+	tstRightReuse = item{tRightDelimScReuse, 0, "~}}"}
+	tstSCClose    = item{tScClose, 0, "/"}
+	tstSC1        = item{tScName, 0, "sc1"}
+	tstSC2        = item{tScName, 0, "sc2"}
+	tstSC3        = item{tScName, 0, "sc3"}
+	tstParam1     = item{tScParam, 0, "param1"}
+	tstParam2     = item{tScParam, 0, "param2"}
+	tstVal        = item{tScParamVal, 0, "Hello World"}
 )
 
 var shortCodeLexerTests = []shortCodeLexerTest{
@@ -43,6 +45,9 @@ var shortCodeLexerTests = []shortCodeLexerTest{
 	{"spaces", " \t\n", []item{{tText, 0, " \t\n"}, tstEOF}},
 	{"text", `to be or not`, []item{{tText, 0, "to be or not"}, tstEOF}},
 	{"no markup", `{{< sc1 >}}`, []item{tstLeftNoMD, tstSC1, tstRightNoMD, tstEOF}},
+	{"reuse shortcode", `{{~ sc1 ~}}`, []item{tstLeftReuse, tstSC1, tstRightReuse, tstEOF}},
+	{"closed reuse shortcode", `{{~ sc1 ~}}text{{~ /sc1 ~}}`, []item{tstLeftReuse, tstSC1, tstRightReuse, {tText, 0, "text"},
+		tstLeftReuse, tstSCClose, tstSC1, tstRightReuse, tstEOF}},
 	{"with EOL", "{{< sc1 \n >}}", []item{tstLeftNoMD, tstSC1, tstRightNoMD, tstEOF}},
 
 	{"simple with markup", `{{% sc1 %}}`, []item{tstLeftMD, tstSC1, tstRightMD, tstEOF}},

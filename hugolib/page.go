@@ -213,6 +213,7 @@ type pageInit struct {
 	renderingConfigInit sync.Once
 	pageURLInit         sync.Once
 	relPermalinkInit    sync.Once
+	markupTypeInit      sync.Once
 }
 
 // IsNode returns whether this is an item of one of the list types in Hugo,
@@ -552,22 +553,50 @@ func (p *Page) setAutoSummary() error {
 }
 
 func (p *Page) renderContent(content []byte) []byte {
+	return p.renderContentWithResolvers(content, nil)
+}
+
+func (p *Page) renderReusedPage(content []byte, reusedPage *Page) []byte {
+	return p.renderContentWithResolvers(content, reusedPage)
+}
+
+func (p *Page) renderContentWithResolvers(content []byte, reusedPage *Page) []byte {
+	pageReuse := reusedPage != nil
+	resolveRelative := pageReuse || p.getRenderingConfig().SourceRelativeLinksEval
+	renderTOC := !pageReuse
 	var fn helpers.LinkResolverFunc
 	var fileFn helpers.FileResolverFunc
-	if p.getRenderingConfig().SourceRelativeLinksEval {
+	if resolveRelative {
 		fn = func(ref string) (string, error) {
-			return p.Site.SourceRelativeLink(ref, p)
+			// Trying to dynamically handle relative links (in case of page reuse).
+			// If not page reuse, just default handling
+			link, err := p.Site.SourceRelativeLink(ref, p, reusedPage)
+			if pageReuse && (err != nil || link == "") {
+				// If dynamic handling failed trying to handle relatively to reused page
+				return reusedPage.Site.SourceRelativeLink(ref, reusedPage, reusedPage)
+			}
+			return link, err
 		}
 		fileFn = func(ref string) (string, error) {
-			return p.Site.SourceRelativeLinkFile(ref, p)
+			// Trying to dynamically handle relative links (in case of page reuse).
+			// If not page reuse, just default handling
+			link, err := p.Site.SourceRelativeLinkFile(ref, p, reusedPage)
+			if pageReuse && (err != nil || link == "") {
+				// If dynamic handling failed trying to handle relatively to reused page
+				return reusedPage.Site.SourceRelativeLinkFile(ref, reusedPage, reusedPage)
+			}
+			return link, err
 		}
 	}
-
+	pageToRender := p
+	if pageReuse {
+		pageToRender = reusedPage
+	}
 	return p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
-		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
-		Cfg:        p.Language(),
-		DocumentID: p.UniqueID(), DocumentName: p.Path(),
-		Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
+		Content: content, RenderTOC: renderTOC, PageFmt: pageToRender.determineMarkupType(),
+		Cfg:        pageToRender.Language(),
+		DocumentID: pageToRender.UniqueID(), DocumentName: pageToRender.Path(),
+		Config: pageToRender.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {
@@ -1368,13 +1397,14 @@ func (p *Page) Render(layout ...string) template.HTML {
 }
 
 func (p *Page) determineMarkupType() string {
-	// Try markup explicitly set in the frontmatter
-	p.Markup = helpers.GuessType(p.Markup)
-	if p.Markup == "unknown" {
-		// Fall back to file extension (might also return "unknown")
-		p.Markup = helpers.GuessType(p.Source.Ext())
-	}
-
+	p.markupTypeInit.Do(func() {
+		// Try markup explicitly set in the frontmatter
+		p.Markup = helpers.GuessType(p.Markup)
+		if p.Markup == "unknown" {
+			// Fall back to file extension (might also return "unknown")
+			p.Markup = helpers.GuessType(p.Source.Ext())
+		}
+	})
 	return p.Markup
 }
 

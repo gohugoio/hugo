@@ -33,6 +33,7 @@ import (
 type ShortcodeWithPage struct {
 	Params        interface{}
 	Inner         template.HTML
+	InnerPage     template.HTML
 	Page          *Page
 	Parent        *ShortcodeWithPage
 	IsNamedParams bool
@@ -116,11 +117,12 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 const shortcodePlaceholderPrefix = "HUGOSHORTCODE"
 
 type shortcode struct {
-	name     string
-	inner    []interface{} // string or nested shortcode
-	params   interface{}   // map or array
-	err      error
-	doMarkup bool
+	name      string
+	inner     []interface{} // string or nested shortcode
+	params    interface{}   // map or array
+	err       error
+	doMarkup  bool
+	reusePage bool
 }
 
 func (sc shortcode) String() string {
@@ -207,6 +209,29 @@ func createShortcodePlaceholder(id int) string {
 	return fmt.Sprintf("HAHA%s-%dHBHB", shortcodePlaceholderPrefix, id)
 }
 
+// HandleAndReplaceShortcodes does all in one go: extract, render and replace
+// used for Page Reuse shortcodes
+func (page *Page) HandleAndReplaceShortcodes() (string, error) {
+	stringToParse := string(page.rawContent)
+	shortcodeState := newShortcodeHandler()
+	tmpContent, err := shortcodeState.extractAndRenderShortcodes(stringToParse, page)
+	if err != nil {
+		return "", err
+	}
+	if len(shortcodeState.contentShortCodes) > 0 {
+		shortcodes, err := executeShortcodeFuncMap(shortcodeState.contentShortCodes)
+		if err != nil {
+			return "", err
+		}
+		tmpContentWithTokensReplaced, err := replaceShortcodeTokens([]byte(tmpContent), shortcodePlaceholderPrefix, shortcodes)
+		if err != nil {
+			return "", fmt.Errorf("Failed to replace shortcode tokens in %s:\n%s", page.BaseFileName(), err.Error())
+		}
+		return string(tmpContentWithTokensReplaced), nil
+	}
+	return tmpContent, nil
+}
+
 const innerNewlineRegexp = "\n"
 const innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
 const innerCleanupExpand = "$1"
@@ -214,17 +239,33 @@ const innerCleanupExpand = "$1"
 func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 	tmpl := getShortcodeTemplate(sc.name, p.s.Tmpl)
 
-	if tmpl == nil {
+	if tmpl == nil && !sc.reusePage {
 		p.s.Log.ERROR.Printf("Unable to locate template for shortcode '%s' in page %q", sc.name, p.Path())
 		return ""
 	}
 
 	data := &ShortcodeWithPage{Params: sc.params, Page: p, Parent: parent}
+	var reusedPageRef string
 	if sc.params != nil {
 		data.IsNamedParams = reflect.TypeOf(sc.params).Kind() == reflect.Map
+		if sc.reusePage {
+			if data.IsNamedParams {
+				reusedPageRef = sc.params.(map[string]string)["ref"]
+			} else {
+				paramsArr := sc.params.([]string)
+				if len(paramsArr) > 0 {
+					reusedPageRef = paramsArr[0]
+				}
+			}
+		}
 	}
-
-	if len(sc.inner) > 0 {
+	if sc.reusePage && reusedPageRef == "" {
+		p.s.Log.ERROR.Printf("No page ref specified for Reuse shortcode '%s' in page %s",
+			sc.name, p.BaseFileName())
+		return ""
+	}
+	var reuseContent []byte
+	if len(sc.inner) > 0 || sc.reusePage {
 		var inner string
 		for _, innerData := range sc.inner {
 			switch innerData.(type) {
@@ -238,9 +279,30 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 				return ""
 			}
 		}
+		if sc.reusePage {
+			reusedPage, err := p.Site.LookupPage(reusedPageRef, p)
+			if err != nil {
+				p.s.Log.ERROR.Printf("Unable to locate a page for Reuse shortcode '%s' in page %s: %s",
+					sc.name, p.BaseFileName(), err)
+				return ""
+			}
+			if reusedPage == nil {
+				p.s.Log.ERROR.Printf("Unable to locate a page for Reuse shortcode '%s' in page %s",
+					sc.name, p.BaseFileName())
+				return ""
+			}
+			reusedPageWithShortcodes, err := reusedPage.HandleAndReplaceShortcodes()
+			if err != nil {
+				p.s.Log.ERROR.Printf("Unable to handle shortcodes in the reused page '%s'",
+					reusedPage.BaseFileName())
+				return ""
+			}
+			reuseContent = p.renderReusedPage([]byte(reusedPageWithShortcodes), reusedPage)
+		}
 
+		var newInner []byte
 		if sc.doMarkup {
-			newInner := p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
+			newInner = p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
 				Content: []byte(inner), PageFmt: p.determineMarkupType(),
 				Cfg:          p.Language(),
 				DocumentID:   p.UniqueID(),
@@ -264,21 +326,24 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 			case "unknown", "markdown":
 				if match, _ := regexp.MatchString(innerNewlineRegexp, inner); !match {
 					cleaner, err := regexp.Compile(innerCleanupRegexp)
-
 					if err == nil {
 						newInner = cleaner.ReplaceAll(newInner, []byte(innerCleanupExpand))
 					}
 				}
 			}
-
-			data.Inner = template.HTML(newInner)
 		} else {
-			data.Inner = template.HTML(inner)
+			newInner = []byte(inner)
 		}
-
+		data.Inner = template.HTML(newInner)
+		if sc.reusePage {
+			data.InnerPage = template.HTML(reuseContent)
+		}
 	}
 
-	return renderShortcodeWithPage(tmpl, data)
+	if tmpl != nil {
+		return renderShortcodeWithPage(tmpl, data)
+	}
+	return string(reuseContent)
 }
 
 func (s *shortcodeHandler) extractAndRenderShortcodes(stringToParse string, p *Page) (string, error) {
@@ -344,7 +409,7 @@ Loop:
 		currItem = pt.next()
 
 		switch currItem.typ {
-		case tLeftDelimScWithMarkup, tLeftDelimScNoMarkup:
+		case tLeftDelimScWithMarkup, tLeftDelimScNoMarkup, tLeftDelimScReuse:
 			next := pt.peek()
 			if next.typ == tScClose {
 				continue
@@ -364,12 +429,13 @@ Loop:
 				}
 
 			} else {
-				sc.doMarkup = currItem.typ == tLeftDelimScWithMarkup
+				sc.doMarkup = currItem.typ == tLeftDelimScWithMarkup || currItem.typ == tLeftDelimScReuse
+				sc.reusePage = currItem.typ == tLeftDelimScReuse
 			}
 
 			cnt++
 
-		case tRightDelimScWithMarkup, tRightDelimScNoMarkup:
+		case tRightDelimScWithMarkup, tRightDelimScNoMarkup, tRightDelimScReuse:
 			// we trust the template on this:
 			// if there's no inner, we're done
 			if !isInner {
@@ -385,7 +451,7 @@ Loop:
 				}
 				return sc, fmt.Errorf("Shortcode '%s' in page '%s' has no .Inner, yet a closing tag was provided", next.val, p.FullFilePath())
 			}
-			if next.typ == tRightDelimScWithMarkup || next.typ == tRightDelimScNoMarkup {
+			if next.typ == tRightDelimScWithMarkup || next.typ == tRightDelimScNoMarkup || next.typ == tRightDelimScReuse {
 				// self-closing
 				pt.consume(1)
 			} else {
@@ -401,6 +467,9 @@ Loop:
 			{
 			}
 			if tmpl == nil {
+				if sc.reusePage {
+					continue
+				}
 				return sc, fmt.Errorf("Unable to locate template for shortcode %q in page %q", sc.name, p.Path())
 			}
 
@@ -486,7 +555,7 @@ Loop:
 		switch currItem.typ {
 		case tText:
 			result.WriteString(currItem.val)
-		case tLeftDelimScWithMarkup, tLeftDelimScNoMarkup:
+		case tLeftDelimScWithMarkup, tLeftDelimScNoMarkup, tLeftDelimScReuse:
 			// let extractShortcode handle left delim (will do so recursively)
 			pt.backup()
 

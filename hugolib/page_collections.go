@@ -35,6 +35,9 @@ type PageCollections struct {
 
 	// Includes absolute all pages (of all types), including drafts etc.
 	rawAllPages Pages
+
+	// Page snippets: pages with suffix "snippet.md". Ignored by default. Can be used only for Page reuse.
+	PageSnippets Pages
 }
 
 func (c *PageCollections) refreshPageCaches() {
@@ -106,6 +109,10 @@ func (c *PageCollections) findPagesByKind(kind string) Pages {
 
 func (c *PageCollections) addPage(page *Page) {
 	c.rawAllPages = append(c.rawAllPages, page)
+}
+
+func (c *PageCollections) addPageSnippet(pageSnippet *Page) {
+	c.PageSnippets = append(c.PageSnippets, pageSnippet)
 }
 
 func (c *PageCollections) removePageByPath(path string) {

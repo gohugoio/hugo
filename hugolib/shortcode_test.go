@@ -48,10 +48,16 @@ func pageFromString(in, filename string, withTemplate ...func(templ tpl.Template
 }
 
 func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error) {
-	CheckShortCodeMatchAndError(t, input, expected, withTemplate, false)
+	CheckShortCodeMatchWithTestDataAndError(t, input, "", expected, withTemplate, false, nil, nil)
 }
 
-func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error, expectError bool) {
+func CheckShortCodeMatchWithTestPages(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error,
+	testPages map[string]string) {
+	CheckShortCodeMatchWithTestDataAndError(t, input, "", expected, withTemplate, false, testPages, nil)
+}
+
+func CheckShortCodeMatchWithTestDataAndError(t *testing.T, input, inputPageDir string, expected string,
+	withTemplate func(templ tpl.Template) error, expectError bool, testPages map[string]string, testFiles map[string]string) {
 
 	cfg, fs := newTestCfg()
 
@@ -61,7 +67,19 @@ title: "Title"
 ---
 ` + input
 
-	writeSource(t, fs, "content/simple.md", contentFile)
+	var snippetCount int
+	for pageName, pageContent := range testPages {
+		if match, err := regexp.MatchString(".*\\.snippet\\.md", pageName); err == nil && match {
+			snippetCount = snippetCount + 1
+		}
+		writeSource(t, fs, "content/"+pageName, pageContent)
+	}
+
+	for fileName, fileContent := range testFiles {
+		writeSource(t, fs, "content/"+fileName, fileContent)
+	}
+
+	writeSource(t, fs, "content/"+inputPageDir+"simple.md", contentFile)
 
 	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate})
 
@@ -78,13 +96,18 @@ title: "Title"
 		t.Fatalf("No error from shortcode")
 	}
 
-	require.Len(t, h.Sites[0].RegularPages, 1)
+	require.Len(t, h.Sites[0].PageSnippets, snippetCount)
+	require.Len(t, h.Sites[0].RegularPages, len(testPages)+1-snippetCount)
 
-	output := strings.TrimSpace(string(h.Sites[0].RegularPages[0].Content))
+	var output string
+	for _, page := range h.Sites[0].RegularPages {
+		if page.Source.Path() == inputPageDir+"simple.md" {
+			output = strings.TrimSpace(string(page.Content))
+		}
+	}
+
 	output = strings.TrimPrefix(output, "<p>")
 	output = strings.TrimSuffix(output, "</p>")
-
-	expected = strings.TrimSpace(expected)
 
 	if output != expected {
 		t.Fatalf("Shortcode render didn't match. got \n%q but expected \n%q", output, expected)
@@ -95,6 +118,164 @@ func TestNonSC(t *testing.T) {
 	t.Parallel()
 	// notice the syntax diff from 0.12, now comment delims must be added
 	CheckShortCodeMatch(t, "{{%/* movie 47238zzb */%}}", "{{% movie 47238zzb %}}", nil)
+}
+
+func TestReusePageSCWithPositionalPathParam(t *testing.T) {
+	t.Parallel()
+	pages := make(map[string]string)
+	pages["simple.snippet.md"] = simplePage
+	CheckShortCodeMatchWithTestPages(t, `{{~ reuse "simple.snippet.md" ~}}`, "Simple Page", nil, pages)
+}
+
+// Reuse shortcode name could be anything. Closing tag will be ignored since there is no template
+func TestReusePageSCWithNamedPathParam(t *testing.T) {
+	t.Parallel()
+	pages := make(map[string]string)
+	pages["simple.snippet.md"] = simplePage
+	CheckShortCodeMatchWithTestPages(t, `{{~ include ref="simple.snippet.md" ~}}Just plain text{{~ /include ~}}`,
+		"<p>Simple Page</p>\nJust plain text", nil, pages)
+}
+
+func TestReusePageSCWithDifferentPages(t *testing.T) {
+	t.Parallel()
+	pages := make(map[string]string)
+	pages["simple.snippet.md"] = "Simple page .md"
+	pages["simple2.snippet.md"] = "Simple page No .md"
+	pages["simple3.snippet.md"] = "Simple page No snippet.md"
+	pages["simple4/index.md"] = "Simple page index.md"
+	pages["other/simple.snippet.md"] = "Other page"
+	CheckShortCodeMatchWithTestDataAndError(t, "{{~ reuse ref=\"/simple.snippet.md\" ~}}{{~ reuse \"/simple2.snippet\" ~}}"+
+		"{{~ reuse \"/simple3\" ~}}{{~ reuse \"/simple4\" ~}}{{~ reuse \"../simple.snippet\" ~}}{{~ reuse \"simple.snippet.md\" ~}}"+
+		"{{~ reuse ref=\"./simple.snippet\" ~}}",
+		"other/", "<p>Simple page .md</p>\n<p>Simple page No .md</p>\n<p>Simple page No snippet.md</p>\n"+
+			"<p>Simple page index.md</p>\n<p>Simple page .md</p>\n<p>Other page</p>\n<p>Other page</p>\n",
+		nil, false, pages, nil)
+}
+
+func TestReusePageSCReusePageNoFrontmatter(t *testing.T) {
+	t.Parallel()
+	pages := make(map[string]string)
+	pages["simple.snippet.md"] = "Simple Page"
+	CheckShortCodeMatchWithTestPages(t, `{{~ reuse "simple.snippet.md" ~}}`, "Simple Page", nil, pages)
+}
+
+func TestReusePageSCWithNoParam(t *testing.T) {
+	t.Parallel()
+	pages := make(map[string]string)
+	pages["simple.snippet.md"] = simplePage
+	CheckShortCodeMatchWithTestPages(t, `{{~ reuse ~}}`, "", nil, pages)
+}
+
+func TestReusePageSCWithNoReusePage(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{~ reuse ~}}`, "", nil)
+}
+
+func TestReusePageSCWithIncorrectRefParam(t *testing.T) {
+	t.Parallel()
+	pages := make(map[string]string)
+	pages["simple.snippet.md"] = simplePage
+	CheckShortCodeMatchWithTestPages(t, `{{~ reuse path="simple.snippet.md" ~}}`, "", nil, pages)
+}
+
+// Reuse shortcode name matters when you use the template for it
+func TestReusePageSCWithTemplateAndPositionalParams(t *testing.T) {
+	t.Parallel()
+	pages := make(map[string]string)
+	pages["simple.snippet.md"] = simplePage
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("reuse.html", "Inner page:\n{{ .InnerPage }}\nContent:\n{{ .Inner }}\n"+
+			"And here params are:\nPath to page:{{ .Get 0 }} and other:{{ .Get 1 }}")
+		return nil
+	}
+	CheckShortCodeMatchWithTestPages(t, `{{~ reuse "simple.snippet.md" for-fun ~}}This will be inner{{~ /reuse ~}}`,
+		"Inner page:\n<p>Simple Page</p>\n\nContent:\nThis will be inner\nAnd here params are:\n"+
+			"Path to page:simple.snippet.md and other:for-fun", wt, pages)
+}
+
+func TestReusePageSCWithTemplateAndNamedParams(t *testing.T) {
+	t.Parallel()
+	pages := make(map[string]string)
+	pages["simple.snippet.md"] = simplePage
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("include.html", "Inner page:\n{{ .InnerPage }}\nContent:\n{{ .Inner }}\n"+
+			"And here params are:\nPath to page:{{ .Get \"ref\" }} and other:{{ .Get \"other\" }}")
+		return nil
+	}
+	CheckShortCodeMatchWithTestPages(t, `{{~ include ref="simple.snippet.md" other="for-fun" ~}}This will be inner{{~ /include ~}}`,
+		"Inner page:\n<p>Simple Page</p>\n\nContent:\nThis will be inner\nAnd here params are:\n"+
+			"Path to page:simple.snippet.md and other:for-fun", wt, pages)
+}
+
+func TestReusePageSCWithShortcodesInReusePage(t *testing.T) {
+	t.Parallel()
+	pages := make(map[string]string)
+	pages["simple.snippet.md"] = "---\ntitle: Simple\n---\nSimple Page\n{{< custom \"I will be there\" >}}"
+	wt := func(tem tpl.Template) error {
+		tem.AddInternalShortcode("custom.html", "Custom shortcode: {{ .Get 0 }}")
+		return nil
+	}
+	CheckShortCodeMatchWithTestPages(t, `{{~ reuse ref="simple.snippet.md" ~}}`, "Simple Page\nCustom shortcode: I will be there",
+		wt, pages)
+}
+
+func TestReusePageSCWithRelativeLinks(t *testing.T) {
+	t.Parallel()
+	files := make(map[string]string)
+	// This will be taken since dynamical resolution has precedence
+	files["images/image.png"] = ""
+	files["direction1/images/image.png"] = ""
+	// This will be taken since dynamical resolution has precedence
+	files["direction2/images/image.png"] = ""
+	// This will be taken since no dynamical counterpart exists
+	files["direction1/images/image2.png"] = ""
+	pages := make(map[string]string)
+	// This will be taken since it is an absolute path
+	pages["direction1/absolute.md"] = "" // Content doesn't matter here
+	pages["direction2/absolute.md"] = ""
+	pages["direction1/dynamic.md"] = ""
+	// This will be taken since dynamical resolution has precedence
+	pages["direction2/dynamic.md"] = ""
+	pages["direction1/dynamic2/index.md"] = ""
+	// This will be taken since dynamical resolution has precedence
+	pages["direction2/dynamic2/index.md"] = ""
+	// This will be taken since dynamic resolution has precedence
+	pages["dynamic.md"] = ""
+	pages["root.md"] = ""
+	// This will be taken since no dynamical counterpart exists
+	pages["direction1/relative.md"] = ""
+	// This will be taken since no dynamical counterpart exists
+	pages["direction1/relative2/index.md"] = ""
+	pages["direction1/simple.snippet.md"] = "---\ntitle: Simple\n---\nSimple Page\n[absoluteLink](/direction1/absolute)\n" +
+		"[dynamicLink1](dynamic)\n[dynamicLink2](dynamic.md)\n[dynamicLink3](dynamic2)\n" +
+		"[dynamicLink4](./dynamic)\n" +
+		"[dynamicLink5](../dynamic)\n[rootLink](../../root)\n" + //special cases for page reuse
+		"![dynamicLinkFile1](images/image.png)\n![dynamicLinkFile2](../images/image.png)\n" +
+		"[relativeLink1](relative)\n[relativeLink2](relative.md)\n[relativeLink3](relative2)\n" +
+		"[relativeLink4](./relative)\n" +
+		"[relativeLink5](../relative)\n" + //special case for page reuse
+		"![relativeLinkFile1](images/image2.png)\n![relativeLinkFile2](../images/image2.png)\n" +
+		"[noLink](unknownLink)\n![noLinkFile](unknownFile)"
+	pages["direction1/index/index.md"] = "---\ntitle: Other\n---\nOther Page\n" +
+		"[dynamicLink](../dynamic)\n![dynamicImage](../images/image.png)\n[rootLink](../../root)\n" +
+		"[relativeLink](../relative)\n![relativeImage](../images/image2.png)"
+	CheckShortCodeMatchWithTestDataAndError(t, "{{~ reuse ref=\"/direction1/simple.snippet.md\" ~}}"+
+		"{{~ reuse \"/direction1/index\" ~}}", "direction2/",
+		"<p>Simple Page\n<a href=\"/direction1/absolute/\">absoluteLink</a>\n"+
+			"<a href=\"/direction2/dynamic/\">dynamicLink1</a>\n<a href=\"/direction2/dynamic/\">dynamicLink2</a>\n"+
+			"<a href=\"/direction2/dynamic2/\">dynamicLink3</a>\n<a href=\"/direction2/dynamic/\">dynamicLink4</a>\n"+
+			"<a href=\"/direction2/dynamic/\">dynamicLink5</a>\n<a href=\"/root/\">rootLink</a>\n"+
+			"<img src=\"/direction2/images/image.png\" alt=\"dynamicLinkFile1\" />\n"+
+			"<img src=\"/direction2/images/image.png\" alt=\"dynamicLinkFile2\" />\n"+
+			"<a href=\"/direction1/relative/\">relativeLink1</a>\n<a href=\"/direction1/relative/\">relativeLink2</a>\n"+
+			"<a href=\"/direction1/relative2/\">relativeLink3</a>\n<a href=\"/direction1/relative/\">relativeLink4</a>\n"+
+			"<a href=\"/direction1/relative/\">relativeLink5</a>\n"+
+			"<img src=\"/direction1/images/image2.png\" alt=\"relativeLinkFile1\" />\n"+
+			"<img src=\"/direction1/images/image2.png\" alt=\"relativeLinkFile2\" />\n"+
+			"<a href=\"unknownLink\">noLink</a>\n<img src=\"unknownFile\" alt=\"noLinkFile\" /></p>\n"+
+			"<p>Other Page\n<a href=\"/dynamic/\">dynamicLink</a>\n<img src=\"/images/image.png\" alt=\"dynamicImage\" />\n"+
+			"<a href=\"/root/\">rootLink</a>\n<a href=\"/direction1/relative/\">relativeLink</a>\n"+
+			"<img src=\"/direction1/images/image2.png\" alt=\"relativeImage\" /></p>\n", nil, false, pages, files)
 }
 
 // Issue #929
@@ -240,8 +421,8 @@ This is **plain** text.
 func TestEmbeddedSC(t *testing.T) {
 	t.Parallel()
 	CheckShortCodeMatch(t, "{{% test %}}", "This is a simple Test", nil)
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", nil)
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>", nil)
 }
 
 func TestNestedSC(t *testing.T) {
@@ -281,13 +462,13 @@ func TestParentShortcode(t *testing.T) {
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< r1 pr1="p1" >}}1: {{< r2 pr2="p2" >}}2: {{< r3 pr3="p3" >}}{{< /r3 >}}{{< /r2 >}}{{< /r1 >}}`,
-		"1: p1 1: 2: p1p2 2: 3: p1p2p3 ", wt)
+		"1: p1 1: 2: p1p2 2: 3: p1p2p3", wt)
 
 }
 
 func TestFigureImgWidth(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>", nil)
 }
 
 const testScPlaceholderRegexp = "HAHAHUGOSHORTCODE-\\d+HBHB"

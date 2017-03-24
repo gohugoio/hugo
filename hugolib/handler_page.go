@@ -27,19 +27,34 @@ func init() {
 	RegisterHandler(new(rstHandler))
 	RegisterHandler(new(mmarkHandler))
 	RegisterHandler(new(orgHandler))
+	RegisterHandler(new(snippetHandler))
 }
 
 type basicPageHandler Handle
 
-func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
-	page, err := s.NewPage(f.Path())
+func (h basicPageHandler) FilenamePatterns() []string {
+	return nil
+}
 
+func (h basicPageHandler) IgnoreFilenamePatterns() []string {
+	return nil
+}
+
+func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
+	page, err := commonReadPage(f, s)
 	if err != nil {
 		return HandledResult{file: f, err: err}
 	}
+	return HandledResult{file: f, page: page, err: err}
+}
 
+func commonReadPage(f *source.File, s *Site) (*Page, error) {
+	page, err := s.NewPage(f.Path())
+	if err != nil {
+		return nil, err
+	}
 	if _, err := page.ReadFrom(f.Contents); err != nil {
-		return HandledResult{file: f, err: err}
+		return nil, err
 	}
 
 	// In a multilanguage setup, we use the first site to
@@ -48,8 +63,7 @@ func (b basicPageHandler) Read(f *source.File, s *Site) HandledResult {
 	// so we do the assignment here.
 	// We should clean up this, but that will have to wait.
 	s.assignSiteByLanguage(page)
-
-	return HandledResult{file: f, page: page, err: err}
+	return page, err
 }
 
 func (b basicPageHandler) FileConvert(*source.File, *Site) HandledResult {
@@ -60,7 +74,8 @@ type markdownHandler struct {
 	basicPageHandler
 }
 
-func (h markdownHandler) Extensions() []string { return []string{"mdown", "markdown", "md"} }
+func (h markdownHandler) Extensions() []string             { return []string{"mdown", "markdown", "md"} }
+func (h markdownHandler) IgnoreFilenamePatterns() []string { return []string{".*\\.snippet\\..*$"} }
 func (h markdownHandler) PageConvert(p *Page) HandledResult {
 	return commonConvert(p)
 }
@@ -140,4 +155,23 @@ func commonConvert(p *Page) HandledResult {
 	p.workContent = p.renderContent(p.workContent)
 
 	return HandledResult{err: nil}
+}
+
+type snippetHandler struct {
+	basicPageHandler
+}
+
+func (h snippetHandler) Read(f *source.File, s *Site) HandledResult {
+	page, err := commonReadPage(f, s)
+	if err != nil {
+		return HandledResult{file: f, err: err}
+	}
+	return HandledResult{file: f, snippet: page, err: err}
+}
+
+func (h snippetHandler) Extensions() []string       { return []string{"mdown", "markdown", "md"} }
+func (h snippetHandler) FilenamePatterns() []string { return []string{".*\\.snippet\\..*$"} }
+
+func (b snippetHandler) PageConvert(p *Page) HandledResult {
+	return HandledResult{}
 }
