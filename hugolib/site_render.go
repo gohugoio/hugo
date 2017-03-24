@@ -218,7 +218,7 @@ func (s *Site) render404() error {
 	p.Title = "404 Page not found"
 	p.Data["Pages"] = s.Pages
 	p.Pages = s.Pages
-	s.setPageURLs(p, "404.html")
+	p.URLPath.URL = "404.html"
 
 	nfLayouts := []string{"404.html"}
 

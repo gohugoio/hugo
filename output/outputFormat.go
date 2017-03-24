@@ -23,6 +23,7 @@ import (
 var (
 	// An ordered list of built-in output formats
 	// See https://www.ampproject.org/learn/overview/
+	// TODO(bep) output rename to AMPFormat etc.
 	AMPType = Format{
 		Name:      "AMP",
 		MediaType: media.HTMLType,
@@ -83,6 +84,17 @@ var builtInTypes = map[string]Format{
 }
 
 type Formats []Format
+
+func (formats Formats) GetByName(name string) (f Format, found bool) {
+	for _, ff := range formats {
+		if name == ff.Name {
+			f = ff
+			found = true
+			return
+		}
+	}
+	return
+}
 
 // Format represents an output represenation, usually to a file on disk.
 type Format struct {
