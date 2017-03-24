@@ -69,6 +69,7 @@ If you don't want to use [Wercker for automated deployments]({{< relref "tutoria
 - [hugo-lambda](https://github.com/ryansb/hugo-lambda) - A wrapper around the Hugo static site generator to have it run in AWS Lambda whenever new (Markdown or other) content is uploaded.
 - [hugodeploy](https://github.com/mindok/hugodeploy) - Simple SFTP deployment tool for static websites (e.g. created by Hugo) with optional minification.
 - [webhook](https://github.com/adnanh/webhook) - Run build and deployment scripts (e.g. hugo) on incoming webhooks
+- [Hugo SFTP Upload](https://github.com/thomasmey/HugoSftpUpload) - Sync the local build of your Hugo website with your remote webserver via SFTP.
 
 ----
 
