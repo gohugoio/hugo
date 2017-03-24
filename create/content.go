@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -72,17 +71,18 @@ func NewContent(s *hugolib.Site, kind, name string) (err error) {
 
 	page.SetSourceContent(psr.Content())
 
-	if err = page.SafeSaveSourceAs(filepath.Join(s.Cfg.GetString("contentDir"), name)); err != nil {
+	contentPath := s.PathSpec.AbsPathify(filepath.Join(s.Cfg.GetString("contentDir"), name))
+
+	if err = page.SafeSaveSourceAs(contentPath); err != nil {
 		return
 	}
-	jww.FEEDBACK.Println(s.PathSpec.AbsPathify(filepath.Join(s.Cfg.GetString("contentDir"), name)), "created")
+	jww.FEEDBACK.Println(contentPath, "created")
 
 	editor := s.Cfg.GetString("newContentEditor")
-
 	if editor != "" {
 		jww.FEEDBACK.Printf("Editing %s with %q ...\n", name, editor)
 
-		cmd := exec.Command(editor, s.PathSpec.AbsPathify(path.Join(s.Cfg.GetString("contentDir"), name)))
+		cmd := exec.Command(editor, contentPath)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
