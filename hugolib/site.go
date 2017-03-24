@@ -115,6 +115,13 @@ type Site struct {
 
 	// Logger etc.
 	*deps.Deps `json:"-"`
+
+	siteStats *siteStats
+}
+
+type siteStats struct {
+	pageCount        int
+	pageCountRegular int
 }
 
 func (s *Site) isEnabled(kind string) bool {
@@ -1734,12 +1741,13 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 // Stats prints Hugo builds stats to the console.
 // This is what you see after a successful hugo build.
 func (s *Site) Stats() {
+
 	s.Log.FEEDBACK.Printf("Built site for language %s:\n", s.Language.Lang)
 	s.Log.FEEDBACK.Println(s.draftStats())
 	s.Log.FEEDBACK.Println(s.futureStats())
 	s.Log.FEEDBACK.Println(s.expiredStats())
-	s.Log.FEEDBACK.Printf("%d regular pages created\n", len(s.RegularPages))
-	s.Log.FEEDBACK.Printf("%d other pages created\n", (len(s.Pages) - len(s.RegularPages)))
+	s.Log.FEEDBACK.Printf("%d regular pages created\n", s.siteStats.pageCountRegular)
+	s.Log.FEEDBACK.Printf("%d other pages created\n", (s.siteStats.pageCount - s.siteStats.pageCountRegular))
 	s.Log.FEEDBACK.Printf("%d non-page files copied\n", len(s.Files))
 	s.Log.FEEDBACK.Printf("%d paginator pages created\n", s.Info.paginationPageCount)
 
