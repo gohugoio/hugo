@@ -26,18 +26,29 @@ func TestDefaultTypes(t *testing.T) {
 	require.Equal(t, "webcal://", CalendarType.Protocol)
 	require.Empty(t, CalendarType.Path)
 	require.True(t, CalendarType.IsPlainText)
+	require.False(t, CalendarType.IsHTML)
 
 	require.Equal(t, "HTML", HTMLType.Name)
 	require.Equal(t, media.HTMLType, HTMLType.MediaType)
 	require.Empty(t, HTMLType.Path)
 	require.Empty(t, HTMLType.Protocol) // Will inherit the BaseURL protocol.
 	require.False(t, HTMLType.IsPlainText)
+	require.True(t, HTMLType.IsHTML)
+
+	require.Equal(t, "AMP", AMPType.Name)
+	require.Equal(t, media.HTMLType, AMPType.MediaType)
+	require.Equal(t, "amp", AMPType.Path)
+	require.Empty(t, AMPType.Protocol) // Will inherit the BaseURL protocol.
+	require.False(t, AMPType.IsPlainText)
+	require.True(t, AMPType.IsHTML)
 
 	require.Equal(t, "RSS", RSSType.Name)
 	require.Equal(t, media.RSSType, RSSType.MediaType)
 	require.Empty(t, RSSType.Path)
 	require.False(t, RSSType.IsPlainText)
 	require.True(t, RSSType.NoUgly)
+	require.False(t, CalendarType.IsHTML)
+
 }
 
 func TestGetType(t *testing.T) {
