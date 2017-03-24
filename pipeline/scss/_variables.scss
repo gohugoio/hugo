@@ -80,18 +80,20 @@ $inline-code-text-color:$base-font-color;
 $inline-code-background-color:darken($hugo-gray-ultra-light,1%);
 $code-block-background-color: $inline-code-background-color;
 
-//Sidebar & Breadcrumb
-$site-navigation-width: 250px;
-$content-max-width: 90%;
-$site-navigation-bg-color:$hugo-gray-ultra-light;
-$breadcrumb-navigation-bg-color:$hugo-blue-ultra-light;
-$breadcrumb-navigation-bg-color-active:$hugo-blue;
-$breadcrumb-navigation-text-color-active:$hugo-white;
-
 //Headers
 $site-header-height:50px;
 $site-header-bg-color: #0A1922;
 $site-header-text-color: $hugo-white;
+
+//Sidebar & Breadcrumb
+$site-navigation-width: 250px;
+$content-max-width: 90%;
+$site-navigation-bg-color:$site-header-bg-color;
+$breadcrumb-navigation-bg-color:$hugo-blue-ultra-light;
+$breadcrumb-navigation-bg-color-active:$hugo-blue;
+$breadcrumb-navigation-text-color-active:$hugo-white;
+
+
 
 //Toc
 $toc-bg-color:$body-bg-color;
