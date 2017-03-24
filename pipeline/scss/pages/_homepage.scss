@@ -48,6 +48,7 @@ ul.animated {
 #all-content-wrapper.home {
   margin-left: 0px;
   margin-top: 0px;
+  background-color: #fff;
   @include MQ(M) {
     margin-left: 0px;
   }

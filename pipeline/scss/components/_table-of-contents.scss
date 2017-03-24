@@ -3,7 +3,7 @@ aside#toc {
   position: fixed;
   top: $site-header-height;
   transform: translateX(100%);
-  background-color: $body-bg-color;
+  background-color: $toc-bg-color;
   right: 0px;
   padding-left: 10px;
   padding-right: 10px;
@@ -42,13 +42,14 @@ aside#toc {
       min-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
       max-height: calc(100vh - #{$site-header-height});
     }
+    background-color: $body-bg-color;
     box-shadow: none;
     top: $site-header-height;
     right: 0px;
     bottom: auto;
     opacity: 1;
     min-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
-    max-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
+    // max-height: calc(100vh - #{$site-header-height} - #{$site-footer-height-l-plus});
     // transform: scale(1);
     transform: translateX(0%);
     border-radius: 0px;

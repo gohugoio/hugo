@@ -51,8 +51,9 @@ main.main {
     max-width: $content-max-width;
   }
   @include MQ(XL) {
-    min-width: $content-max-width;
-    max-width: 90%;
+    // min-width: $content-max-width;
+    max-width: $content-max-width;
+    float:none;
   }
 }
 

@@ -34,7 +34,7 @@ $input-example-color:$hugo-gray-dark;
 $output-example-color:$hugo-blue;
 
 //Document Body
-$body-bg-color:$hugo-white;
+$body-bg-color:#F9F9F9;
 
 //Typography
 $base-font-size: 18px;
@@ -87,7 +87,7 @@ $site-header-text-color: $hugo-white;
 
 //Sidebar & Breadcrumb
 $site-navigation-width: 250px;
-$content-max-width: 90%;
+$content-max-width: 38em;
 $site-navigation-bg-color:$site-header-bg-color;
 $breadcrumb-navigation-bg-color:$hugo-blue-ultra-light;
 $breadcrumb-navigation-bg-color-active:$hugo-blue;
@@ -96,7 +96,7 @@ $breadcrumb-navigation-text-color-active:$hugo-white;
 
 
 //Toc
-$toc-bg-color:$body-bg-color;
+$toc-bg-color:#ffffff;
 
 //Footers
 $site-footer-bg-color:$site-header-bg-color;
