@@ -112,13 +112,13 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	th.assertFileContent("public/en/sitemap.xml", "<loc>http://example.com/blog/en/</loc>")
 
 	// Check rss
-	// TODO(bep) output the Atom link must be cretated from the OutputFormats.RSS.Permalink
-	//	th.assertFileContent("public/fr/index.xml", `<atom:link href="http://example.com/blog/fr/index.xml"`)
-	//	th.assertFileContent("public/en/index.xml", `<atom:link href="http://example.com/blog/en/index.xml"`)
-	//	th.assertFileContent("public/fr/sect/index.xml", `<atom:link href="http://example.com/blog/fr/sect/index.xml"`)
-	//	th.assertFileContent("public/en/sect/index.xml", `<atom:link href="http://example.com/blog/en/sect/index.xml"`)
-	//	th.assertFileContent("public/fr/plaques/frtag1/index.xml", `<atom:link href="http://example.com/blog/fr/plaques/frtag1/index.xml"`)
-	//	th.assertFileContent("public/en/tags/tag1/index.xml", `<atom:link href="http://example.com/blog/en/tags/tag1/index.xml"`)
+	th.assertFileContent("public/fr/index.xml", `<atom:link href="http://example.com/blog/fr/index.xml"`,
+		`rel="self" type="application/rss+xml"`)
+	th.assertFileContent("public/en/index.xml", `<atom:link href="http://example.com/blog/en/index.xml"`)
+	th.assertFileContent("public/fr/sect/index.xml", `<atom:link href="http://example.com/blog/fr/sect/index.xml"`)
+	th.assertFileContent("public/en/sect/index.xml", `<atom:link href="http://example.com/blog/en/sect/index.xml"`)
+	th.assertFileContent("public/fr/plaques/frtag1/index.xml", `<atom:link href="http://example.com/blog/fr/plaques/frtag1/index.xml"`)
+	th.assertFileContent("public/en/tags/tag1/index.xml", `<atom:link href="http://example.com/blog/en/tags/tag1/index.xml"`)
 
 	// Check paginators
 	th.assertFileContent("public/fr/page/1/index.html", `refresh" content="0; url=http://example.com/blog/fr/"`)

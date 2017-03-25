@@ -76,7 +76,9 @@ func (t *GoHTMLTemplate) EmbedTemplates() {
     <webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}{{ with .Site.Copyright }}
     <copyright>{{.}}</copyright>{{end}}{{ if not .Date.IsZero }}
     <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
-    <atom:link href="{{.Permalink}}" rel="self" type="application/rss+xml" />
+    {{ with .OutputFormats.Get "RSS" }}
+	{{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
+    {{ end }}
     {{ range .Data.Pages }}
     <item>
       <title>{{ .Title }}</title>
