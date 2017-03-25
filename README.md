@@ -13,3 +13,8 @@ I originally posed a source reorganization of the current website in this Discus
 I reorganized the docs content and realized it did very little to make the documentation more intelligible or intuitive.
 
 So, I'm running with it...
+
+TODO:
+Fix theme /content/content-management/archetypes.md where theme is indicated
+Fix theme /content/contribute/documentation.md where theme is indicated
+Fix theme /content/templates/files.md where theme is indicated
