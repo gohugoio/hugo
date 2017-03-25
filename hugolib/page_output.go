@@ -48,8 +48,7 @@ func (p *PageOutput) targetPath(addends ...string) (string, error) {
 }
 
 func newPageOutput(p *Page, createCopy bool, f output.Format) (*PageOutput, error) {
-	// For tests
-	// TODO(bep) output get rid of this
+	// TODO(bep) This is only needed for tests and we should get rid of it.
 	if p.targetPathDescriptorPrototype == nil {
 		if err := p.initTargetPathDescriptor(); err != nil {
 			return nil, err
@@ -87,9 +86,8 @@ func (p *PageOutput) copy() *PageOutput {
 }
 
 func (p *PageOutput) layouts(layouts ...string) []string {
-	// TODO(bep) output the logic here needs to be redone.
-	if len(layouts) == 0 && len(p.layoutsCalculated) > 0 {
-		return p.layoutsCalculated
+	if len(layouts) == 0 && p.selfLayout != "" {
+		return []string{p.selfLayout}
 	}
 
 	layoutOverride := ""

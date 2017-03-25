@@ -452,55 +452,6 @@ func doTestSectionPagesMenu(canonifyURLs bool, t *testing.T) {
 	}
 }
 
-// TODO(bep) output fix or remove
-func _TestTaxonomyNodeMenu(t *testing.T) {
-	t.Parallel()
-
-	type taxRenderInfo struct {
-		key      string
-		singular string
-		plural   string
-	}
-
-	s := setupMenuTests(t, menuPageSources, "canonifyURLs", true)
-
-	for i, this := range []struct {
-		menu           string
-		taxInfo        taxRenderInfo
-		menuItem       *MenuEntry
-		isMenuCurrent  bool
-		hasMenuCurrent bool
-	}{
-		{"tax", taxRenderInfo{key: "key", singular: "one", plural: "two"},
-			findTestMenuEntryByID(s, "tax", "1"), true, false},
-		{"tax", taxRenderInfo{key: "key", singular: "one", plural: "two"},
-			findTestMenuEntryByID(s, "tax", "2"), true, false},
-		{"tax", taxRenderInfo{key: "key", singular: "one", plural: "two"},
-			&MenuEntry{Name: "Somewhere else", URL: "/somewhereelse"}, false, false},
-	} {
-
-		p := s.newTaxonomyPage(this.taxInfo.plural, this.taxInfo.key)
-
-		isMenuCurrent := p.IsMenuCurrent(this.menu, this.menuItem)
-		hasMenuCurrent := p.HasMenuCurrent(this.menu, this.menuItem)
-
-		if isMenuCurrent != this.isMenuCurrent {
-			t.Errorf("[%d] Wrong result from IsMenuCurrent: %v", i, isMenuCurrent)
-		}
-
-		if hasMenuCurrent != this.hasMenuCurrent {
-			t.Errorf("[%d] Wrong result for menuItem %v for HasMenuCurrent: %v", i, this.menuItem, hasMenuCurrent)
-		}
-
-	}
-
-	menuEntryXML := findTestMenuEntryByID(s, "tax", "xml")
-
-	if strings.HasSuffix(menuEntryXML.URL, "/") {
-		t.Error("RSS menu item should not be padded with trailing slash")
-	}
-}
-
 func TestMenuLimit(t *testing.T) {
 	t.Parallel()
 	s := setupMenuTests(t, menuPageSources)
