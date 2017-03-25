@@ -71,7 +71,7 @@ type targetPathDescriptor struct {
 // and URLs for this Page.
 func (p *Page) createTargetPathDescriptor(t output.Format) (targetPathDescriptor, error) {
 	if p.targetPathDescriptorPrototype == nil {
-		panic("Must run initTargetPathDescriptor()")
+		panic(fmt.Sprintf("Must run initTargetPathDescriptor() for page %q, kind %q", p.Title, p.Kind))
 	}
 	d := *p.targetPathDescriptorPrototype
 	d.Type = t
