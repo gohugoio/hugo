@@ -69,6 +69,5 @@ func newBaseURLFromString(b string) (BaseURL, error) {
 		return result, err
 	}
 
-	// TODO(bep) output consider saving original URL?
 	return BaseURL{url: base, urlStr: base.String()}, nil
 }

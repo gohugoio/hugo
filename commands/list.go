@@ -49,7 +49,10 @@ var listDraftsCmd = &cobra.Command{
 			return err
 		}
 
-		c := newCommandeer(cfg)
+		c, err := newCommandeer(cfg)
+		if err != nil {
+			return err
+		}
 
 		c.Set("buildDrafts", true)
 
@@ -87,7 +90,10 @@ posted in the future.`,
 			return err
 		}
 
-		c := newCommandeer(cfg)
+		c, err := newCommandeer(cfg)
+		if err != nil {
+			return err
+		}
 
 		c.Set("buildFuture", true)
 
@@ -125,7 +131,10 @@ expired.`,
 			return err
 		}
 
-		c := newCommandeer(cfg)
+		c, err := newCommandeer(cfg)
+		if err != nil {
+			return err
+		}
 
 		c.Set("buildExpired", true)
 

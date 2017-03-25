@@ -289,12 +289,16 @@ urlize: bat-man
 	}
 	config.Fs = fs
 
-	d := deps.New(config)
+	d, err := deps.New(config)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	if err := d.LoadResources(); err != nil {
 		t.Fatal(err)
 	}
 
-	err := d.Tmpl.Lookup("test").Execute(&b, &data)
+	err = d.Tmpl.Lookup("test").Execute(&b, &data)
 
 	if err != nil {
 		t.Fatal("Got error on execute", err)
@@ -2902,12 +2906,13 @@ func TestPartialCached(t *testing.T) {
 			return nil
 		}
 
-		de := deps.New(config)
+		de, err := deps.New(config)
+		require.NoError(t, err)
 		require.NoError(t, de.LoadResources())
 
 		buf := new(bytes.Buffer)
 		templ := de.Tmpl.Lookup("testroot")
-		err := templ.Execute(buf, &data)
+		err = templ.Execute(buf, &data)
 		if err != nil {
 			t.Fatalf("[%d] error executing template: %s", i, err)
 		}
@@ -2941,7 +2946,8 @@ func BenchmarkPartial(b *testing.B) {
 		return nil
 	}
 
-	de := deps.New(config)
+	de, err := deps.New(config)
+	require.NoError(b, err)
 	require.NoError(b, de.LoadResources())
 
 	buf := new(bytes.Buffer)
@@ -2972,7 +2978,8 @@ func BenchmarkPartialCached(b *testing.B) {
 		return nil
 	}
 
-	de := deps.New(config)
+	de, err := deps.New(config)
+	require.NoError(b, err)
 	require.NoError(b, de.LoadResources())
 
 	buf := new(bytes.Buffer)
@@ -2994,7 +3001,10 @@ func newTestFuncster() *templateFuncster {
 
 func newTestFuncsterWithViper(v *viper.Viper) *templateFuncster {
 	config := newDepsConfig(v)
-	d := deps.New(config)
+	d, err := deps.New(config)
+	if err != nil {
+		panic(err)
+	}
 
 	if err := d.LoadResources(); err != nil {
 		panic(err)
@@ -3013,7 +3023,8 @@ func newTestTemplate(t *testing.T, name, template string) *template.Template {
 		return nil
 	}
 
-	de := deps.New(config)
+	de, err := deps.New(config)
+	require.NoError(t, err)
 	require.NoError(t, de.LoadResources())
 
 	return de.Tmpl.Lookup(name)

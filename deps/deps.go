@@ -65,7 +65,7 @@ func (d *Deps) LoadResources() error {
 	return nil
 }
 
-func New(cfg DepsCfg) *Deps {
+func New(cfg DepsCfg) (*Deps, error) {
 	var (
 		logger = cfg.Logger
 		fs     = cfg.Fs
@@ -92,26 +92,37 @@ func New(cfg DepsCfg) *Deps {
 		fs = hugofs.NewDefault(cfg.Language)
 	}
 
+	ps, err := helpers.NewPathSpec(fs, cfg.Language)
+
+	if err != nil {
+		return nil, err
+	}
+
 	d := &Deps{
 		Fs:                  fs,
 		Log:                 logger,
 		templateProvider:    cfg.TemplateProvider,
 		translationProvider: cfg.TranslationProvider,
 		WithTemplate:        cfg.WithTemplate,
-		PathSpec:            helpers.NewPathSpec(fs, cfg.Language),
+		PathSpec:            ps,
 		ContentSpec:         helpers.NewContentSpec(cfg.Language),
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
 	}
 
-	return d
+	return d, nil
 }
 
 // ForLanguage creates a copy of the Deps with the language dependent
 // parts switched out.
 func (d Deps) ForLanguage(l *helpers.Language) (*Deps, error) {
+	var err error
 
-	d.PathSpec = helpers.NewPathSpec(d.Fs, l)
+	d.PathSpec, err = helpers.NewPathSpec(d.Fs, l)
+	if err != nil {
+		return nil, err
+	}
+
 	d.ContentSpec = helpers.NewContentSpec(l)
 	d.Cfg = l
 	d.Language = l

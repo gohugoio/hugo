@@ -40,8 +40,9 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	v.Set("staticDir", "thestatic")
 	v.Set("theme", "thetheme")
 
-	p := NewPathSpec(hugofs.NewMem(v), l)
+	p, err := NewPathSpec(hugofs.NewMem(v), l)
 
+	require.NoError(t, err)
 	require.True(t, p.canonifyURLs)
 	require.True(t, p.defaultContentLanguageInSubdir)
 	require.True(t, p.disablePathToLower)

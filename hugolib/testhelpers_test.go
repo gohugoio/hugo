@@ -74,7 +74,8 @@ func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
 
 func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *helpers.PathSpec {
 	l := helpers.NewDefaultLanguage(v)
-	return helpers.NewPathSpec(fs, l)
+	ps, _ := helpers.NewPathSpec(fs, l)
+	return ps
 }
 
 func newTestDefaultPathSpec() *helpers.PathSpec {
@@ -82,7 +83,8 @@ func newTestDefaultPathSpec() *helpers.PathSpec {
 	// Easier to reason about in tests.
 	v.Set("disablePathToLower", true)
 	fs := hugofs.NewDefault(v)
-	return helpers.NewPathSpec(fs, v)
+	ps, _ := helpers.NewPathSpec(fs, v)
+	return ps
 }
 
 func newTestCfg() (*viper.Viper, *hugofs.Fs) {
