@@ -212,7 +212,7 @@ type Page struct {
 }
 
 func (p *Page) RSSLink() template.URL {
-	f, found := p.outputFormats.GetByName(output.RSSType.Name)
+	f, found := p.outputFormats.GetByName(output.RSSFormat.Name)
 	if !found {
 		return ""
 	}

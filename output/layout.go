@@ -102,7 +102,7 @@ func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format)
 		layout = layoutOverride
 	}
 
-	isRSS := f.Name == RSSType.Name
+	isRSS := f.Name == RSSFormat.Name
 
 	if d.Kind == "page" {
 		if isRSS {

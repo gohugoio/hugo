@@ -21,41 +21,41 @@ import (
 )
 
 func TestDefaultTypes(t *testing.T) {
-	require.Equal(t, "Calendar", CalendarType.Name)
-	require.Equal(t, media.CalendarType, CalendarType.MediaType)
-	require.Equal(t, "webcal://", CalendarType.Protocol)
-	require.Empty(t, CalendarType.Path)
-	require.True(t, CalendarType.IsPlainText)
-	require.False(t, CalendarType.IsHTML)
+	require.Equal(t, "Calendar", CalendarFormat.Name)
+	require.Equal(t, media.CalendarType, CalendarFormat.MediaType)
+	require.Equal(t, "webcal://", CalendarFormat.Protocol)
+	require.Empty(t, CalendarFormat.Path)
+	require.True(t, CalendarFormat.IsPlainText)
+	require.False(t, CalendarFormat.IsHTML)
 
-	require.Equal(t, "HTML", HTMLType.Name)
-	require.Equal(t, media.HTMLType, HTMLType.MediaType)
-	require.Empty(t, HTMLType.Path)
-	require.Empty(t, HTMLType.Protocol) // Will inherit the BaseURL protocol.
-	require.False(t, HTMLType.IsPlainText)
-	require.True(t, HTMLType.IsHTML)
+	require.Equal(t, "HTML", HTMLFormat.Name)
+	require.Equal(t, media.HTMLType, HTMLFormat.MediaType)
+	require.Empty(t, HTMLFormat.Path)
+	require.Empty(t, HTMLFormat.Protocol) // Will inherit the BaseURL protocol.
+	require.False(t, HTMLFormat.IsPlainText)
+	require.True(t, HTMLFormat.IsHTML)
 
-	require.Equal(t, "AMP", AMPType.Name)
-	require.Equal(t, media.HTMLType, AMPType.MediaType)
-	require.Equal(t, "amp", AMPType.Path)
-	require.Empty(t, AMPType.Protocol) // Will inherit the BaseURL protocol.
-	require.False(t, AMPType.IsPlainText)
-	require.True(t, AMPType.IsHTML)
+	require.Equal(t, "AMP", AMPFormat.Name)
+	require.Equal(t, media.HTMLType, AMPFormat.MediaType)
+	require.Equal(t, "amp", AMPFormat.Path)
+	require.Empty(t, AMPFormat.Protocol) // Will inherit the BaseURL protocol.
+	require.False(t, AMPFormat.IsPlainText)
+	require.True(t, AMPFormat.IsHTML)
 
-	require.Equal(t, "RSS", RSSType.Name)
-	require.Equal(t, media.RSSType, RSSType.MediaType)
-	require.Empty(t, RSSType.Path)
-	require.False(t, RSSType.IsPlainText)
-	require.True(t, RSSType.NoUgly)
-	require.False(t, CalendarType.IsHTML)
+	require.Equal(t, "RSS", RSSFormat.Name)
+	require.Equal(t, media.RSSType, RSSFormat.MediaType)
+	require.Empty(t, RSSFormat.Path)
+	require.False(t, RSSFormat.IsPlainText)
+	require.True(t, RSSFormat.NoUgly)
+	require.False(t, CalendarFormat.IsHTML)
 
 }
 
 func TestGetType(t *testing.T) {
 	tp, _ := GetFormat("html")
-	require.Equal(t, HTMLType, tp)
+	require.Equal(t, HTMLFormat, tp)
 	tp, _ = GetFormat("HTML")
-	require.Equal(t, HTMLType, tp)
+	require.Equal(t, HTMLFormat, tp)
 	_, found := GetFormat("FOO")
 	require.False(t, found)
 }

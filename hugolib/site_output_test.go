@@ -38,8 +38,8 @@ func TestDefaultOutputFormats(t *testing.T) {
 		kind string
 		want output.Formats
 	}{
-		{"RSS not for regular pages", KindPage, output.Formats{output.HTMLType}},
-		{"Home Sweet Home", KindHome, output.Formats{output.HTMLType, output.RSSType}},
+		{"RSS not for regular pages", KindPage, output.Formats{output.HTMLFormat}},
+		{"Home Sweet Home", KindHome, output.Formats{output.HTMLFormat, output.RSSFormat}},
 	}
 
 	for _, tt := range tests {
@@ -59,7 +59,6 @@ func TestSiteWithPageOutputs(t *testing.T) {
 	}
 }
 
-// TODO(bep) output add test for site outputs config
 func doTestSiteWithPageOutputs(t *testing.T, outputs []string) {
 	t.Parallel()
 
@@ -147,7 +146,6 @@ Output/Rel: {{ .Name -}}/{{ .Rel }}|
 	require.Equal(t, "http://example.com/blog/index.json", json.Permalink())
 
 	if helpers.InStringArray(outputs, "cal") {
-		// TODO(bep) output have do some protocil handling for the default too if set.
 		cal := of.Get("calendar")
 		require.NotNil(t, cal)
 		require.Equal(t, "/blog/index.ics", cal.RelPermalink())

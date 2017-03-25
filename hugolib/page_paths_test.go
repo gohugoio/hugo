@@ -37,88 +37,88 @@ func TestPageTargetPath(t *testing.T) {
 						d        targetPathDescriptor
 						expected string
 					}{
-						{"JSON home", targetPathDescriptor{Kind: KindHome, Type: output.JSONType}, "/index.json"},
-						{"AMP home", targetPathDescriptor{Kind: KindHome, Type: output.AMPType}, "/amp/index.html"},
-						{"HTML home", targetPathDescriptor{Kind: KindHome, BaseName: "_index", Type: output.HTMLType}, "/index.html"},
+						{"JSON home", targetPathDescriptor{Kind: KindHome, Type: output.JSONFormat}, "/index.json"},
+						{"AMP home", targetPathDescriptor{Kind: KindHome, Type: output.AMPFormat}, "/amp/index.html"},
+						{"HTML home", targetPathDescriptor{Kind: KindHome, BaseName: "_index", Type: output.HTMLFormat}, "/index.html"},
 						{"HTML section list", targetPathDescriptor{
 							Kind:     KindSection,
 							Sections: []string{"sect1"},
 							BaseName: "_index",
-							Type:     output.HTMLType}, "/sect1/index.html"},
+							Type:     output.HTMLFormat}, "/sect1/index.html"},
 						{"HTML taxonomy list", targetPathDescriptor{
 							Kind:     KindTaxonomy,
 							Sections: []string{"tags", "hugo"},
 							BaseName: "_index",
-							Type:     output.HTMLType}, "/tags/hugo/index.html"},
+							Type:     output.HTMLFormat}, "/tags/hugo/index.html"},
 						{"HTML taxonomy term", targetPathDescriptor{
 							Kind:     KindTaxonomy,
 							Sections: []string{"tags"},
 							BaseName: "_index",
-							Type:     output.HTMLType}, "/tags/index.html"},
+							Type:     output.HTMLFormat}, "/tags/index.html"},
 						{
 							"HTML page", targetPathDescriptor{
 								Kind:     KindPage,
 								Dir:      "/a/b",
 								BaseName: "mypage",
 								Sections: []string{"a"},
-								Type:     output.HTMLType}, "/a/b/mypage/index.html"},
+								Type:     output.HTMLFormat}, "/a/b/mypage/index.html"},
 						{
 							"HTML page with special chars", targetPathDescriptor{
 								Kind:     KindPage,
 								Dir:      "/a/b",
 								BaseName: "My Page!",
-								Type:     output.HTMLType}, "/a/b/My-Page/index.html"},
-						{"RSS home", targetPathDescriptor{Kind: kindRSS, Type: output.RSSType}, "/index.xml"},
+								Type:     output.HTMLFormat}, "/a/b/My-Page/index.html"},
+						{"RSS home", targetPathDescriptor{Kind: kindRSS, Type: output.RSSFormat}, "/index.xml"},
 						{"RSS section list", targetPathDescriptor{
 							Kind:     kindRSS,
 							Sections: []string{"sect1"},
-							Type:     output.RSSType}, "/sect1/index.xml"},
+							Type:     output.RSSFormat}, "/sect1/index.xml"},
 						{
 							"AMP page", targetPathDescriptor{
 								Kind:     KindPage,
 								Dir:      "/a/b/c",
 								BaseName: "myamp",
-								Type:     output.AMPType}, "/amp/a/b/c/myamp/index.html"},
+								Type:     output.AMPFormat}, "/amp/a/b/c/myamp/index.html"},
 						{
 							"AMP page with URL with suffix", targetPathDescriptor{
 								Kind:     KindPage,
 								Dir:      "/sect/",
 								BaseName: "mypage",
 								URL:      "/some/other/url.xhtml",
-								Type:     output.HTMLType}, "/some/other/url.xhtml"},
+								Type:     output.HTMLFormat}, "/some/other/url.xhtml"},
 						{
 							"JSON page with URL without suffix", targetPathDescriptor{
 								Kind:     KindPage,
 								Dir:      "/sect/",
 								BaseName: "mypage",
 								URL:      "/some/other/path/",
-								Type:     output.JSONType}, "/some/other/path/index.json"},
+								Type:     output.JSONFormat}, "/some/other/path/index.json"},
 						{
 							"JSON page with URL without suffix and no trailing slash", targetPathDescriptor{
 								Kind:     KindPage,
 								Dir:      "/sect/",
 								BaseName: "mypage",
 								URL:      "/some/other/path",
-								Type:     output.JSONType}, "/some/other/path/index.json"},
+								Type:     output.JSONFormat}, "/some/other/path/index.json"},
 						{
 							"HTML page with expanded permalink", targetPathDescriptor{
 								Kind:              KindPage,
 								Dir:               "/a/b",
 								BaseName:          "mypage",
 								ExpandedPermalink: "/2017/10/my-title",
-								Type:              output.HTMLType}, "/2017/10/my-title/index.html"},
+								Type:              output.HTMLFormat}, "/2017/10/my-title/index.html"},
 						{
 							"Paginated HTML home", targetPathDescriptor{
 								Kind:     KindHome,
 								BaseName: "_index",
-								Type:     output.HTMLType,
+								Type:     output.HTMLFormat,
 								Addends:  "page/3"}, "/page/3/index.html"},
 						{
 							"Paginated Taxonomy list", targetPathDescriptor{
 								Kind:     KindTaxonomy,
 								BaseName: "_index",
 								Sections: []string{"tags", "hugo"},
-								Type:     output.HTMLType,
+								Type:     output.HTMLFormat,
 								Addends:  "page/3"}, "/tags/hugo/page/3/index.html"},
 						{
 							"Regular page with addend", targetPathDescriptor{
@@ -126,7 +126,7 @@ func TestPageTargetPath(t *testing.T) {
 								Dir:      "/a/b",
 								BaseName: "mypage",
 								Addends:  "c/d/e",
-								Type:     output.HTMLType}, "/a/b/mypage/c/d/e/index.html"},
+								Type:     output.HTMLFormat}, "/a/b/mypage/c/d/e/index.html"},
 					}
 
 					for i, test := range tests {

@@ -33,7 +33,6 @@ func createSiteOutputFormats(cfg config.Provider) (map[string]output.Formats, er
 	outputs := cfg.GetStringMap("outputs")
 
 	if outputs == nil || len(outputs) == 0 {
-		// TODO(bep) outputs log a warning?
 		return outFormats, nil
 	}
 
@@ -56,7 +55,7 @@ func createSiteOutputFormats(cfg config.Provider) (map[string]output.Formats, er
 	// Make sure every kind has at least one output format
 	for _, kind := range allKinds {
 		if _, found := outFormats[kind]; !found {
-			outFormats[kind] = output.Formats{output.HTMLType}
+			outFormats[kind] = output.Formats{output.HTMLFormat}
 		}
 	}
 
@@ -69,7 +68,7 @@ func createDefaultOutputFormats(cfg config.Provider) (map[string]output.Formats,
 	for _, kind := range allKinds {
 		var formats output.Formats
 		// All have HTML
-		formats = append(formats, output.HTMLType)
+		formats = append(formats, output.HTMLFormat)
 
 		// All but page have RSS
 		if kind != KindPage {
@@ -81,7 +80,7 @@ func createDefaultOutputFormats(cfg config.Provider) (map[string]output.Formats,
 
 			// RSS has now a well defined media type, so strip any suffix provided
 			rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
-			rssType := output.RSSType
+			rssType := output.RSSFormat
 			rssType.BaseName = rssBase
 			formats = append(formats, rssType)
 
