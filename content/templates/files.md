@@ -33,7 +33,7 @@ This shortcode creates a link to each of the files in a directory---display as t
 
 {{% code file="layouts/shortcodes/directoryindex.html" download="directoryindex.html" %}}
 ```html
-{{< readfile file="/layouts/shortcodes/directoryindex.html" >}}
+{{< readfile file="/themes/hugo-docs-concept/layouts/shortcodes/directoryindex.html" >}}
 ```
 {{% /code %}}
 
@@ -45,7 +45,7 @@ You can then call the shortcode as follows inside of your content's markup:
 
 The above shortcode [is part of the code for the Hugo docs][dirindex]. Here it lists this site's CSS files:
 
-{{< directoryindex path="/static/css" pathURL="/css" >}}
+{{< directoryindex path="/themes/hugo-docs-concept/static/css" pathURL="/css" >}}
 
 
 
@@ -75,7 +75,7 @@ Here is the templating for our new `readfile` shortcode:
 
 {{% code file="layouts/shortcodes/readfile.html" download="readfile.html" %}}
 ```
-{{< readfile file="/layouts/shortcodes/readfile.html">}}
+{{< readfile file="/themes/hugo-docs-concept/layouts/shortcodes/readfile.html">}}
 ```
 {{% /code %}}
 
