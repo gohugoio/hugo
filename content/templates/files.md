@@ -33,7 +33,7 @@ This shortcode creates a link to each of the files in a directory---display as t
 
 {{% code file="layouts/shortcodes/directoryindex.html" download="directoryindex.html" %}}
 ```html
-{{< readfile file="layouts/shortcodes/directoryindex.html" >}}
+{{< readfile file="/layouts/shortcodes/directoryindex.html" >}}
 ```
 {{% /code %}}
 
@@ -60,7 +60,7 @@ The [`readfile` function][reads] reads a file from disk and converts it into a s
 To use the `readFile` function in your templates, make sure the path is relative to your *Hugo project's root directory*:
 
 ```html
-{{ readFile "content/templates/local-file-templates" }}
+{{ readFile "/content/templates/local-file-templates" }}
 ```
 
 ### `readFile` Example: Add a Project File to Content
@@ -68,38 +68,38 @@ To use the `readFile` function in your templates, make sure the path is relative
 As `readFile` is a function, it is only available to you in your templates and not your content. However, we can create a simple [shortcode template][sct] that calls `readFile`, passes the first argument through the function, and then allows an optional second argument to send the file through the Blackfriday markdown processor. The pattern for adding this shortcode to your content will be as follows:
 
 ```
-{{</* readfile file="path/to/local/file.txt" markdown="true" */>}}
+{{</* readfile file="/path/to/local/file.txt" markdown="true" */>}}
 ```
 
 Here is the templating for our new `readfile` shortcode:
 
 {{% code file="layouts/shortcodes/readfile.html" download="readfile.html" %}}
 ```
-{{< readfile file="layouts/shortcodes/readfile.html">}}
+{{< readfile file="/layouts/shortcodes/readfile.html">}}
 ```
 {{% /code %}}
 
 This `readfile` shortcode is [also part of the Hugo docs][readfilesource]. So is [`testing.txt`][testfile], which we will call in this example by passing it into our new `readfile` shortcode as follows:
 
 ```
-{{</* readfile file="content/readfiles/testing.txt" */>}}
+{{</* readfile file="/content/readfiles/testing.txt" */>}}
 ```
 
 The output "string" for this shortcode declaration will be the following:
 
 ```markdown
-{{< readfile file="content/readfiles/testing.txt" >}}
+{{< readfile file="/content/readfiles/testing.txt" >}}
 ```
 
 However, if we want Hugo to pass this string through Blackfriday, we should add the `markdown="true"` optional parameter:
 
 ```html
-{{</* readfile file="content/readfiles/testing.txt" markdown="true" */>}}
+{{</* readfile file="/content/readfiles/testing.txt" markdown="true" */>}}
 ```
 
 And here is the result as [called directly in the Hugo docs][] and rendered for display:
 
-{{< readfile file="content/readfiles/testing.txt" markdown="true">}}
+{{< readfile file="/content/readfiles/testing.txt" markdown="true">}}
 
 [called directly in the Hugo docs]: https://github.com/spf13/hugo/blob/master/docs/content/templates/files.md
 [dirindex]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html

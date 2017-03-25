@@ -51,7 +51,7 @@ The archetype for the `functions` content type is as follows:
 
 {{% code file="archetypes/functions.md" %}}
 ```yaml
-{{< readfile file="archetypes/functions.md">}}
+{{< readfile file="/archetypes/functions.md">}}
 ```
 {{% /code %}}
 
@@ -103,7 +103,7 @@ The archetype for the `showcase` content type is as follows:
 
 {{% code file="archetypes/showcase.md" %}}
 ```yaml
-{{< readfile file="archetypes/showcase.md">}}
+{{< readfile file="/archetypes/showcase.md">}}
 ```
 {{% /code %}}
 
@@ -143,7 +143,7 @@ The archetype for the `tutorials` content type is as follows:
 
 {{% code file="archetypes/tutorials.md" %}}
 ```yaml
-{{< readfile file="archetypes/tutorials.md">}}
+{{< readfile file="/archetypes/tutorials.md">}}
 ```
 {{% /code %}}
 

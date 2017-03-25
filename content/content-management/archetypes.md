@@ -175,7 +175,7 @@ As an example of archetypes in practice, the following is the `functions` archet
 
 {{% code file="archetypes/functions.md" %}}
 ```yaml
-{{< readfile file="archetypes/functions.md" >}}
+{{< readfile file="/archetypes/functions.md" >}}
 ```
 {{% /code %}}
 

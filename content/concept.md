@@ -460,7 +460,7 @@ Apache License - 60
 ## Current Content (Source)
 
 ```markdown
-{{< readfile file="content/tree.txt" >}}
+{{< readfile file="/content/tree.txt" >}}
 ```
 
 ## Ideal Workflow

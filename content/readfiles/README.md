@@ -10,7 +10,7 @@ These files are called using the [`readfile` shortcode (source)](../layouts/read
 You can call this shortcode in the docs as follows:
 
 
-<code>{</code><code>{</code>% readfile file="path/to/file.txt" markdown="true" %<code>}</code><code>}</code>
+<code>{</code><code>{</code>% readfile file="/path/to/file.txt" markdown="true" %<code>}</code><code>}</code>
 
 
 `markdown="true"` is optional (default = `"false"`) and parses the string through the Blackfriday renderer.
