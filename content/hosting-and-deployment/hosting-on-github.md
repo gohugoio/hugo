@@ -24,10 +24,14 @@ The following sections are based on the assumption that you are working with a "
 
 ## Deployment via `/docs` Folder on Master Branch
 
-[As described](https://help.github.com/articles/configuring-a-publishing-source-for-github-pages/#publishing-your-github-pages-site-from-a-docs-folder-on-your-master-branch) in the GitHub Pages docs, you can deploy from a folder called _docs_ on your master branch. This requires to change the Hugo publish directory in the site config (e.g. _config.toml_):
+[As described](https://help.github.com/articles/configuring-a-publishing-source-for-github-pages/#publishing-your-github-pages-site-from-a-docs-folder-on-your-master-branch) in the GitHub Pages docs, you can deploy from a folder called _docs_ on your master branch. This requires to change the Hugo publish directory in your [site configuration[config]; e.g., in `config.toml` and `config.yaml`, respectively:
 
-```sh
-publishDir: "docs"
+```yaml
+publishDir: docs
+```
+
+```toml
+publishDir = "docs"
 ```
 
 After running `hugo`, push your master branch to the remote repo and choose the _docs_ folder as the website source of your repo (in your GitHub project, go to "Settings " -> "GitHub Pages" -> "Source" -> Select "master branch /docs folder"). If that option isn't enabled, you likely haven't pushed your _docs_ folder yet.
@@ -199,3 +203,5 @@ That's it! Your personal page is running (after up to 10 minutes delay).
 If you'd like to use a custom domain for your GitHub Pages site, create a file _static/CNAME_ with the domain name as its sole contents. This will put the CNAME file to the root of the published site as required by GitHub Pages.
 
 Refer to the [official documentation](https://help.github.com/articles/using-a-custom-domain-with-github-pages/) for further information.
+
+[config]: /getting-started/configuration/
