@@ -56,13 +56,13 @@ func TestLayout(t *testing.T) {
 		{"Page with overridden layout", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype"}, false, "myotherlayout", ampType,
 			[]string{"myttype/myotherlayout.amp.html", "myttype/myotherlayout.html"}},
 		// RSS
-		{"RSS Home with theme", LayoutDescriptor{Kind: "home"}, true, "", RSSType,
+		{"RSS Home with theme", LayoutDescriptor{Kind: "home"}, true, "", RSSFormat,
 			[]string{"rss.xml", "_default/rss.xml", "theme/rss.xml", "theme/_default/rss.xml", "_internal/_default/rss.xml"}},
-		{"RSS Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, false, "", RSSType,
+		{"RSS Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, false, "", RSSFormat,
 			[]string{"section/sect1.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}},
-		{"RSS Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, false, "", RSSType,
+		{"RSS Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, false, "", RSSFormat,
 			[]string{"taxonomy/tag.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}},
-		{"RSS Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "tag"}, false, "", RSSType,
+		{"RSS Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "tag"}, false, "", RSSFormat,
 			[]string{"taxonomy/tag.terms.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}},
 	} {
 		t.Run(this.name, func(t *testing.T) {
@@ -90,7 +90,7 @@ func BenchmarkLayout(b *testing.B) {
 	l := NewLayoutHandler(false)
 
 	for i := 0; i < b.N; i++ {
-		layouts := l.For(descriptor, "", HTMLType)
+		layouts := l.For(descriptor, "", HTMLFormat)
 		require.NotEmpty(b, layouts)
 	}
 }

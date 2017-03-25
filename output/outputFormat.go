@@ -22,9 +22,9 @@ import (
 
 var (
 	// An ordered list of built-in output formats
+	//
 	// See https://www.ampproject.org/learn/overview/
-	// TODO(bep) output rename to AMPFormat etc.
-	AMPType = Format{
+	AMPFormat = Format{
 		Name:      "AMP",
 		MediaType: media.HTMLType,
 		BaseName:  "index",
@@ -33,7 +33,7 @@ var (
 		IsHTML:    true,
 	}
 
-	CalendarType = Format{
+	CalendarFormat = Format{
 		Name:        "Calendar",
 		MediaType:   media.CalendarType,
 		IsPlainText: true,
@@ -42,14 +42,14 @@ var (
 		Rel:         "alternate",
 	}
 
-	CSSType = Format{
+	CSSFormat = Format{
 		Name:      "CSS",
 		MediaType: media.CSSType,
 		BaseName:  "styles",
 		Rel:       "stylesheet",
 	}
 
-	HTMLType = Format{
+	HTMLFormat = Format{
 		Name:      "HTML",
 		MediaType: media.HTMLType,
 		BaseName:  "index",
@@ -57,7 +57,7 @@ var (
 		IsHTML:    true,
 	}
 
-	JSONType = Format{
+	JSONFormat = Format{
 		Name:        "JSON",
 		MediaType:   media.JSONType,
 		BaseName:    "index",
@@ -65,7 +65,7 @@ var (
 		Rel:         "alternate",
 	}
 
-	RSSType = Format{
+	RSSFormat = Format{
 		Name:      "RSS",
 		MediaType: media.RSSType,
 		BaseName:  "index",
@@ -75,12 +75,12 @@ var (
 )
 
 var builtInTypes = map[string]Format{
-	strings.ToLower(AMPType.Name):      AMPType,
-	strings.ToLower(CalendarType.Name): CalendarType,
-	strings.ToLower(CSSType.Name):      CSSType,
-	strings.ToLower(HTMLType.Name):     HTMLType,
-	strings.ToLower(JSONType.Name):     JSONType,
-	strings.ToLower(RSSType.Name):      RSSType,
+	strings.ToLower(AMPFormat.Name):      AMPFormat,
+	strings.ToLower(CalendarFormat.Name): CalendarFormat,
+	strings.ToLower(CSSFormat.Name):      CSSFormat,
+	strings.ToLower(HTMLFormat.Name):     HTMLFormat,
+	strings.ToLower(JSONFormat.Name):     JSONFormat,
+	strings.ToLower(RSSFormat.Name):      RSSFormat,
 }
 
 type Formats []Format

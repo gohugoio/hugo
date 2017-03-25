@@ -34,7 +34,6 @@ type TemplateNames struct {
 	MasterFilename  string
 }
 
-// TODO(bep) output this is refactoring in progress.
 type TemplateLookupDescriptor struct {
 	// The full path to the site or theme root.
 	WorkingDir string

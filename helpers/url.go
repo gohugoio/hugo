@@ -317,7 +317,6 @@ func (p *PathSpec) PrependBasePath(rel string) string {
 
 // URLizeAndPrep applies misc sanitation to the given URL to get it in line
 // with the Hugo standard.
-// TODO(bep) output check usage
 func (p *PathSpec) URLizeAndPrep(in string) string {
 	return p.URLPrep(p.URLize(in))
 }
