@@ -273,7 +273,6 @@ THE END.`, refShortcode)),
 
 	cfg, fs := newTestCfg()
 
-	cfg.Set("defaultExtension", "html")
 	cfg.Set("baseURL", baseURL)
 	cfg.Set("uglyURLs", uglyURLs)
 	cfg.Set("verbose", true)
@@ -325,7 +324,6 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 
 	cfg, fs := newTestCfg()
 
-	cfg.Set("defaultExtension", "html")
 	cfg.Set("verbose", true)
 	cfg.Set("baseURL", "http://auth/bub")
 	cfg.Set("disableSitemap", false)
@@ -427,7 +425,6 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	cfg, fs := newTestCfg()
 
 	cfg.Set("baseURL", "http://auth/sub/")
-	cfg.Set("defaultExtension", "html")
 	cfg.Set("uglyURLs", uglify)
 	cfg.Set("pluralizeListTitles", pluralize)
 	cfg.Set("canonifyURLs", canonify)
@@ -481,7 +478,6 @@ func TestSkipRender(t *testing.T) {
 
 	cfg, fs := newTestCfg()
 
-	cfg.Set("defaultExtension", "html")
 	cfg.Set("verbose", true)
 	cfg.Set("canonifyURLs", true)
 	cfg.Set("uglyURLs", true)
@@ -539,7 +535,6 @@ func TestAbsURLify(t *testing.T) {
 
 			cfg, fs := newTestCfg()
 
-			cfg.Set("defaultExtension", "html")
 			cfg.Set("uglyURLs", true)
 			cfg.Set("canonifyURLs", canonify)
 			cfg.Set("baseURL", baseURL)
@@ -934,7 +929,6 @@ func setupLinkingMockSite(t *testing.T) *Site {
 	cfg, fs := newTestCfg()
 
 	cfg.Set("baseURL", "http://auth/")
-	cfg.Set("defaultExtension", "html")
 	cfg.Set("uglyURLs", false)
 	cfg.Set("pluralizeListTitles", false)
 	cfg.Set("canonifyURLs", false)

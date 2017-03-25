@@ -244,7 +244,6 @@ type pageInit struct {
 	plainInit           sync.Once
 	plainWordsInit      sync.Once
 	renderingConfigInit sync.Once
-	pageURLInit         sync.Once
 }
 
 // IsNode returns whether this is an item of one of the list types in Hugo,
@@ -764,15 +763,9 @@ func (p *Page) analyzePage() {
 }
 
 func (p *Page) Extension() string {
-	if p.extension != "" {
-		// TODO(bep) output remove/deprecate this
-		return p.extension
-	}
-	//
-	// TODO(bep) return MediaType.Suffix
-
-	// TODO(bep) remove this config option =>
-	return p.s.Cfg.GetString("defaultExtension")
+	// Remove in Hugo 0.22.
+	helpers.Deprecated("Page", "Extension", "See OutputFormats with its MediaType", false)
+	return p.extension
 }
 
 // AllTranslations returns all translations, including the current Page.
@@ -1694,17 +1687,6 @@ func (p *Page) addLangPathPrefixIfFlagSet(outfile string, should bool) string {
 		outfile += "/"
 	}
 	return outfile
-}
-
-func (p *Page) addLangFilepathPrefix(outfile string) string {
-	if outfile == "" {
-		outfile = helpers.FilePathSeparator
-	}
-
-	if !p.shouldAddLanguagePrefix() {
-		return outfile
-	}
-	return helpers.FilePathSeparator + filepath.Join(p.Lang(), outfile)
 }
 
 func sectionsFromFilename(filename string) []string {

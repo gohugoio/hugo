@@ -104,28 +104,6 @@ Content of the file goes Here
 Some text
 `
 
-	simplePageNoLayout = `---
-title: simple_no_layout
----
-No Layout called out`
-
-	simplePageLayoutFoobar = `---
-title: simple layout foobar
-layout: foobar
----
-Layout foobar`
-
-	simplePageTypeFoobar = `---
-type: foobar
----
-type foobar`
-
-	simplePageTypeLayout = `---
-type: barfoo
-layout: buzfoo
----
-type and layout set`
-
 	simplePageWithSummaryDelimiter = `---
 title: Simple
 ---
@@ -1089,10 +1067,6 @@ func TestSectionEvaluation(t *testing.T) {
 	}
 }
 
-func L(s ...string) []string {
-	return s
-}
-
 func TestSliceToLower(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -1139,8 +1113,6 @@ func TestPagePaths(t *testing.T) {
 
 	for _, test := range tests {
 		cfg, fs := newTestCfg()
-
-		cfg.Set("defaultExtension", "html")
 
 		if test.hasPermalink {
 			cfg.Set("permalinks", siteParmalinksSetting)
@@ -1385,20 +1357,6 @@ func TestChompBOM(t *testing.T) {
 	p := s.RegularPages[0]
 
 	checkPageTitle(t, p, "Simple")
-}
-
-func listEqual(left, right []string) bool {
-	if len(left) != len(right) {
-		return false
-	}
-
-	for i := range left {
-		if left[i] != right[i] {
-			return false
-		}
-	}
-
-	return true
 }
 
 // TODO(bep) this may be useful for other tests.

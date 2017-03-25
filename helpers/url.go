@@ -129,7 +129,6 @@ func (p *PathSpec) URLEscape(uri string) string {
 //    base:   http://spf13.com/
 //    path:   post/how-i-blog
 //    result: http://spf13.com/post/how-i-blog
-// TODO(bep) output check why this is still in use.
 func MakePermalink(host, plink string) *url.URL {
 
 	base, err := url.Parse(host)
