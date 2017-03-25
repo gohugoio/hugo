@@ -8,6 +8,8 @@ copyright = ""
 defaultContentLanguage = "en"
 # Set to true to keep url path preserve casing (eg, for sections)
 disablePathToLower = false
+# Site-level description
+description = ""
 # Allows use of emoji shorthand directly in content
 enableEmoji = true
 # Set the unicode character used for the "return" link in page footnotes.
@@ -82,4 +84,3 @@ googleAnalytics = ""
 ## As of v0.20, all content files include a default "categories" value that's the same as the section. This was a cheap future-proofing method and should/could be changed accordingly.
 [taxonomies]
   tag = "tags"
-  category = ""
