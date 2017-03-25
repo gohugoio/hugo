@@ -1,4 +1,3 @@
-archetypedir = "archetypes"
 baseurl = "https://hugodocs.info"
 buildDrafts = false
 buildFuture = false
