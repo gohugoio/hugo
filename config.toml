@@ -96,9 +96,5 @@ googleAnalytics = ""
   latexDashes = true
 
 [taxonomies]
-<<<<<<< HEAD
-  tag = "tags"
-=======
   tag = "tags"
   category = ""
->>>>>>> bfb0257e17971af1cf5f2a21d325bc569acef75c
