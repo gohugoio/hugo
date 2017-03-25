@@ -55,6 +55,15 @@ func TestLayout(t *testing.T) {
 			[]string{"myttype/mysubtype/mylayout.amp.html", "myttype/mysubtype/mylayout.html", "myttype/mylayout.amp.html"}},
 		{"Page with overridden layout", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype"}, false, "myotherlayout", ampType,
 			[]string{"myttype/myotherlayout.amp.html", "myttype/myotherlayout.html"}},
+		// RSS
+		{"RSS Home with theme", LayoutDescriptor{Kind: "home"}, true, "", RSSType,
+			[]string{"rss.xml", "_default/rss.xml", "theme/rss.xml", "theme/_default/rss.xml", "_internal/_default/rss.xml"}},
+		{"RSS Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, false, "", RSSType,
+			[]string{"section/sect1.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}},
+		{"RSS Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, false, "", RSSType,
+			[]string{"taxonomy/tag.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}},
+		{"RSS Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "tag"}, false, "", RSSType,
+			[]string{"taxonomy/tag.terms.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}},
 	} {
 		t.Run(this.name, func(t *testing.T) {
 			l := NewLayoutHandler(this.hasTheme)

@@ -661,30 +661,6 @@ func (p *Page) Section() string {
 	return p.Source.Section()
 }
 
-// TODO(bep) consolidate and test these KindHome switches (see other layouts methods)s
-// rssLayouts returns RSS layouts to use for the RSS version of this page, nil
-// if no RSS should be rendered.
-// TODO(bep) output
-func (p *Page) rssLayouts() []string {
-	switch p.Kind {
-	case KindHome:
-		return []string{"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"}
-	case KindSection:
-		section := p.sections[0]
-		return []string{"section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-	case KindTaxonomy:
-		singular := p.s.taxonomiesPluralSingular[p.sections[0]]
-		return []string{"taxonomy/" + singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-	case KindTaxonomyTerm:
-		singular := p.s.taxonomiesPluralSingular[p.sections[0]]
-		return []string{"taxonomy/" + singular + ".terms.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}
-	case KindPage:
-		// No RSS for regular pages
-	}
-
-	return nil
-}
-
 func (s *Site) NewPageFrom(buf io.Reader, name string) (*Page, error) {
 	p, err := s.NewPage(name)
 	if err != nil {
@@ -856,7 +832,6 @@ func (p *Page) RelPermalink() string {
 }
 
 func (p *Page) initURLs() error {
-	// TODO(bep) output
 	if len(p.outputFormats) == 0 {
 		p.outputFormats = p.s.outputFormats[p.Kind]
 	}

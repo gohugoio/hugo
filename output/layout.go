@@ -48,7 +48,20 @@ func NewLayoutHandler(hasTheme bool) *LayoutHandler {
 	return &LayoutHandler{hasTheme: hasTheme, cache: make(map[layoutCacheKey][]string)}
 }
 
+// RSS:
+// Home:"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"
+// Section: "section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"
+// Taxonomy "taxonomy/" + singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"
+// Tax term: taxonomy/" + singular + ".terms.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"
+
 const (
+
+	// The RSS templates doesn't map easily into the regular pages.
+	layoutsRSSHome         = `NAME.SUFFIX _default/NAME.SUFFIX _internal/_default/rss.xml`
+	layoutsRSSSection      = `section/SECTION.NAME.SUFFIX _default/NAME.SUFFIX NAME.SUFFIX _internal/_default/rss.xml`
+	layoutsRSSTaxonomy     = `taxonomy/SECTION.NAME.SUFFIX _default/NAME.SUFFIX NAME.SUFFIX _internal/_default/rss.xml`
+	layoutsRSSTaxonomyTerm = `taxonomy/SECTION.terms.NAME.SUFFIX _default/NAME.SUFFIX NAME.SUFFIX _internal/_default/rss.xml`
+
 	layoutsHome    = "index.NAME.SUFFIX index.SUFFIX _default/list.NAME.SUFFIX _default/list.SUFFIX"
 	layoutsSection = `
 section/SECTION.NAME.SUFFIX section/SECTION.SUFFIX
@@ -58,13 +71,13 @@ _default/list.NAME.SUFFIX _default/list.SUFFIX
 indexes/SECTION.NAME.SUFFIX indexes/SECTION.SUFFIX
 _default/indexes.NAME.SUFFIX _default/indexes.SUFFIX
 `
-	layoutTaxonomy = `
+	layoutsTaxonomy = `
 taxonomy/SECTION.NAME.SUFFIX taxonomy/SECTION.SUFFIX
 indexes/SECTION.NAME.SUFFIX indexes/SECTION.SUFFIX 
 _default/taxonomy.NAME.SUFFIX _default/taxonomy.SUFFIX
 _default/list.NAME.SUFFIX _default/list.SUFFIX
 `
-	layoutTaxonomyTerm = `
+	layoutsTaxonomyTerm = `
 taxonomy/SECTION.terms.NAME.SUFFIX taxonomy/SECTION.terms.SUFFIX
 _default/terms.NAME.SUFFIX _default/terms.SUFFIX
 indexes/indexes.NAME.SUFFIX indexes/indexes.SUFFIX
@@ -90,18 +103,27 @@ func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format)
 		layout = layoutOverride
 	}
 
-	switch d.Kind {
-	// TODO(bep) move the Kind constants some common place.
-	case "home":
-		layouts = resolveTemplate(layoutsHome, d, f)
-	case "section":
-		layouts = resolveTemplate(layoutsSection, d, f)
-	case "taxonomy":
-		layouts = resolveTemplate(layoutTaxonomy, d, f)
-	case "taxonomyTerm":
-		layouts = resolveTemplate(layoutTaxonomyTerm, d, f)
-	case "page":
+	isRSS := f.Name == RSSType.Name
+
+	if d.Kind == "page" {
+		if isRSS {
+			return []string{}
+		}
 		layouts = regularPageLayouts(d.Type, layout, f)
+	} else {
+		if isRSS {
+			layouts = resolveListTemplate(d, f,
+				layoutsRSSHome,
+				layoutsRSSSection,
+				layoutsRSSTaxonomy,
+				layoutsRSSTaxonomyTerm)
+		} else {
+			layouts = resolveListTemplate(d, f,
+				layoutsHome,
+				layoutsSection,
+				layoutsTaxonomy,
+				layoutsTaxonomyTerm)
+		}
 	}
 
 	if l.hasTheme {
@@ -133,6 +155,27 @@ func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format)
 	l.mu.Lock()
 	l.cache[key] = layouts
 	l.mu.Unlock()
+
+	return layouts
+}
+
+func resolveListTemplate(d LayoutDescriptor, f Format,
+	homeLayouts,
+	sectionLayouts,
+	taxonomyLayouts,
+	taxonomyTermLayouts string) []string {
+	var layouts []string
+
+	switch d.Kind {
+	case "home":
+		layouts = resolveTemplate(homeLayouts, d, f)
+	case "section":
+		layouts = resolveTemplate(sectionLayouts, d, f)
+	case "taxonomy":
+		layouts = resolveTemplate(taxonomyLayouts, d, f)
+	case "taxonomyTerm":
+		layouts = resolveTemplate(taxonomyTermLayouts, d, f)
+	}
 
 	return layouts
 }
