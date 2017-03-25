@@ -119,8 +119,11 @@ type Page struct {
 	contentType string
 	renderable  bool
 
-	Layout            string
-	layoutsCalculated []string
+	Layout string
+
+	// For npn-renderable pages (see IsRenderable), the content itself
+	// is used as template and the template name is stored here.
+	selfLayout string
 
 	linkTitle string
 
@@ -1379,13 +1382,12 @@ func (p *Page) prepareLayouts() error {
 	// TODO(bep): Check the IsRenderable logic.
 	if p.Kind == KindPage {
 		if !p.IsRenderable() {
-			// TODO(bep) output
 			self := "__" + p.UniqueID()
 			_, err := p.s.Tmpl.GetClone().New(self).Parse(string(p.Content))
 			if err != nil {
 				return err
 			}
-			p.layoutsCalculated = []string{self}
+			p.selfLayout = self
 		}
 	}
 	return nil

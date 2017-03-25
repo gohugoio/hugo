@@ -79,9 +79,8 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 
 			var layouts []string
 
-			if len(pageOutput.layoutsCalculated) > 0 {
-				// TODO(bep) output
-				layouts = pageOutput.layoutsCalculated
+			if page.selfLayout != "" {
+				layouts = []string{page.selfLayout}
 			} else {
 				layouts = s.layouts(pageOutput)
 			}

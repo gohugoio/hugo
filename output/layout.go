@@ -30,7 +30,6 @@ type LayoutDescriptor struct {
 }
 
 // Layout calculates the layout template to use to render a given output type.
-// TODO(bep) output improve names
 type LayoutHandler struct {
 	hasTheme bool
 
