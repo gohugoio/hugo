@@ -12,6 +12,7 @@
   top: 0px;
   left: 0px;
   z-index: 20;
+  font-family:$site-header-font-family;
   @include card(1);
   @include MQ(L) {
     justify-content: space-between;

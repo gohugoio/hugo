@@ -26,9 +26,9 @@ The power of the lookup order is that it enables you to craft specific layouts a
 Most Hugo websites will only need the default template files at the end of the lookup order (i.e. `_default/*.html`).
 {{% /note %}}
 
-## Single Page Template Lookup Examples
+## Template Lookup Examples
 
-The lookup order is best illustrated through examples. The following shows you the process Hugo uses for finding the appropriate template to render your [single content][], but the concept holds true for all templates in Hugo.
+The lookup order is best illustrated through examples. The following shows you the process Hugo uses for finding the appropriate template to render your [single page templates][], but the concept holds true for all templates in Hugo.
 
 1. The project is using the theme `mytheme` (specified in the project's [configuration][config]).
 2. The layouts and content directories for the project are as follows:
@@ -157,6 +157,8 @@ Here is the way Hugo traverses the single-page lookup order for `my-first-event.
 9. <span class="na">`/themes/<THEME>/layouts/events/single.html`</span>
 10. <span class="na">`/themes/<THEME>/layouts/_default/single.html`</span>
 
+## Lookup Orders
+
 The respective lookup order for each of Hugo's templates has been defined throughout the Hugo docs:
 
 * [Homepage Template][home]
@@ -175,7 +177,7 @@ The respective lookup order for each of Hugo's templates has been defined throug
 [rsslookup]: /templates/rss/#rss-template-lookup-order
 [sections]: /content-management/sections/
 [sectionlookup]: /templates/section-templates/#section-template-lookup-order
-[single content]: /templates/single-page-templates/
+[single page templates]: /templates/single-page-templates/
 [singlelookup]: /templates/single-page-templates/#single-page-template-lookup-order
 [switch]: https://en.wikipedia.org/wiki/Switch_statement#Fallthrough
 [taxonomylookup]: /templates/taxonomy-templates/#taxonomy-list-template-lookup-order

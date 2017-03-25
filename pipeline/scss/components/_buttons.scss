@@ -10,6 +10,7 @@ a[role="button"] {
   box-shadow: none;
   text-align: center;
   @include card(1, 3);
+  font-family:$button-font-family;
 }
 
 //main navigation button

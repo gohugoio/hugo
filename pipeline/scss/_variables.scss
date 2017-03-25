@@ -67,6 +67,7 @@ $active-color: $default-anchor-color;
 $base-button-color: $hugo-blue;
 $base-button-text-color: $hugo-white;
 $button-border-radius: 3px;
+$button-font-family: 'muli';
 
 //Codeblocks
 
@@ -85,6 +86,7 @@ $code-block-background-color: $inline-code-background-color;
 $site-header-height:50px;
 $site-header-bg-color: #0A1922;
 $site-header-text-color: $hugo-white;
+$site-header-font-family: $heading-font-family;
 
 //Sidebar & Breadcrumb
 $site-navigation-width: 250px;
@@ -95,8 +97,6 @@ $site-navigation-link-font-family: $heading-font-family;
 $breadcrumb-navigation-bg-color:$hugo-blue-ultra-light;
 $breadcrumb-navigation-bg-color-active:$hugo-blue;
 $breadcrumb-navigation-text-color-active:$hugo-white;
-
-
 
 //Toc
 $toc-bg-color:#ffffff;
