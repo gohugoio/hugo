@@ -45,9 +45,9 @@ $systemfonts: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,C
 
 // Font Families
 $serif: Palatino,"Palatino Linotype","Palatino LT STD", "Book Antiqua", George, serif;
-// $base-font-family: 'muli',$helvetica;
-$base-font-family: $serif;
-$heading-font-family: 'muli',$helvetica;
+$sans-serif: 'muli',$helvetica;
+$base-font-family: $sans-serif;
+$heading-font-family: $sans-serif;
 $code-font-family:"inconsolata",Menlo,Monaco,"Courier New",monospace;
 
 // Font Weights
