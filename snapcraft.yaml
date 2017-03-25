@@ -17,8 +17,21 @@ parts:
   hugo:
     source: .
     plugin: go
-    go-importpath: "github.com/spf13/hugo"
+    go-importpath: github.com/spf13/hugo
     build-packages:
       - git
+      - make
     stage-packages:
       - python-pygments
+    prepare: |
+      export GOPATH=$(dirname $SNAPCRAFT_PART_INSTALL)/go
+      export PATH=$GOPATH/bin:$PATH
+      cd $GOPATH/src/github.com/spf13/hugo
+      make vendor
+      make test
+      rm -f $GOPATH/bin/govendor
+    install: |
+      strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
+    after: [go]
+  go:
+    source-tag: go1.8
