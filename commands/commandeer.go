@@ -39,9 +39,22 @@ func (c *commandeer) PathSpec() *helpers.PathSpec {
 	return c.pathSpec
 }
 
+func (c *commandeer) initFs(fs *hugofs.Fs) error {
+	c.DepsCfg.Fs = fs
+	ps, err := helpers.NewPathSpec(fs, c.Cfg)
+	if err != nil {
+		return err
+	}
+	c.pathSpec = ps
+	return nil
+}
+
 func newCommandeer(cfg *deps.DepsCfg) (*commandeer, error) {
-	fs := hugofs.NewDefault(cfg.Language)
-	ps, err := helpers.NewPathSpec(fs, cfg.Cfg)
+	l := cfg.Language
+	if l == nil {
+		l = helpers.NewDefaultLanguage(cfg.Cfg)
+	}
+	ps, err := helpers.NewPathSpec(cfg.Fs, l)
 	if err != nil {
 		return nil, err
 	}
