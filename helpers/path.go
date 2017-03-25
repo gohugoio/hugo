@@ -358,23 +358,6 @@ func GetRelativePath(path, base string) (final string, err error) {
 	return name, nil
 }
 
-// PaginateAliasPath creates a path used to access the aliases in the paginator.
-func (p *PathSpec) PaginateAliasPath(base string, page int) string {
-	paginatePath := p.paginatePath
-	uglify := p.uglyURLs
-	var pth string
-	if base != "" {
-		pth = filepath.FromSlash(fmt.Sprintf("/%s/%s/%d", base, paginatePath, page))
-	} else {
-		pth = filepath.FromSlash(fmt.Sprintf("/%s/%d", paginatePath, page))
-	}
-	if uglify {
-		pth += ".html"
-	}
-
-	return pth
-}
-
 // GuessSection returns the section given a source path.
 // A section is the part between the root slash and the second slash
 // or before the first slash.
