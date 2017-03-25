@@ -30,6 +30,7 @@
   }
   ul li a {
     display: flex;
+    font-family:$site-navigation-link-font-family;
   }
   ul.top-menu {
     margin-top: $site-header-height + 30px;

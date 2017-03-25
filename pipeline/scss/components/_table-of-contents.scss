@@ -63,16 +63,15 @@ aside#toc {
 
 nav#TableOfContents {
   position: relative;
-  // margin-bottom: 20px;
+  font-family:$toc-font-family;
   height: auto;
-  // overflow-y: scroll;
   li code {
-    font-family: $base-font-family;
+    font-family: $toc-font-family;
   }
   li.active > a > code {
     color: inherit;
     font-weight: inherit;
-    font-family: $base-font-family;
+    font-family: $toc-font-family;
   }
   > ul:first-child {
     padding-left: 0px;

@@ -44,9 +44,10 @@ $base-font-bold-color: $base-font-color;
 $systemfonts: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbols";
 
 // Font Families
-// $base-font-family: 'museo-sans','muli',$helvetica;
-$base-font-family: 'muli',$helvetica;
-$heading-font-family: $base-font-family;
+$serif: Palatino,"Palatino Linotype","Palatino LT STD", "Book Antiqua", George, serif;
+// $base-font-family: 'muli',$helvetica;
+$base-font-family: $serif;
+$heading-font-family: 'muli',$helvetica;
 $code-font-family:"inconsolata",Menlo,Monaco,"Courier New",monospace;
 
 // Font Weights
@@ -90,6 +91,7 @@ $site-navigation-width: 250px;
 $content-max-width: 38em;
 $site-navigation-bg-color:$site-header-bg-color;
 $site-navigation-link-base-color: #fff;
+$site-navigation-link-font-family: $heading-font-family;
 $breadcrumb-navigation-bg-color:$hugo-blue-ultra-light;
 $breadcrumb-navigation-bg-color-active:$hugo-blue;
 $breadcrumb-navigation-text-color-active:$hugo-white;
@@ -98,6 +100,7 @@ $breadcrumb-navigation-text-color-active:$hugo-white;
 
 //Toc
 $toc-bg-color:#ffffff;
+$toc-font-family:$heading-font-family;
 
 //Footers
 $site-footer-bg-color:$site-header-bg-color;
