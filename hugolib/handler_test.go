@@ -28,7 +28,6 @@ func TestDefaultHandler(t *testing.T) {
 		cfg, fs = newTestCfg()
 	)
 
-	cfg.Set("defaultExtension", "html")
 	cfg.Set("verbose", true)
 	cfg.Set("uglyURLs", true)
 

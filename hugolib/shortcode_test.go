@@ -532,7 +532,6 @@ tags:
 
 	cfg, fs := newTestCfg()
 
-	cfg.Set("defaultExtension", "html")
 	cfg.Set("defaultContentLanguage", "en")
 	cfg.Set("baseURL", baseURL)
 	cfg.Set("uglyURLs", false)

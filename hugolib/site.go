@@ -1958,13 +1958,6 @@ func (s *Site) publish(path string, r io.Reader) (err error) {
 	return helpers.WriteToDisk(path, r, s.Fs.Destination)
 }
 
-func (s *Site) langDir() string {
-	if s.Language.Lang != s.Info.multilingual.DefaultLang.Lang || s.Info.defaultContentLanguageInSubdir {
-		return s.Language.Lang
-	}
-	return ""
-}
-
 func (s *Site) draftStats() string {
 	var msg string
 

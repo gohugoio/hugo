@@ -64,8 +64,6 @@ func TestPermalink(t *testing.T) {
 
 		cfg, fs := newTestCfg()
 
-		cfg.Set("defaultExtension", "html")
-
 		cfg.Set("uglyURLs", test.uglyURLs)
 		cfg.Set("canonifyURLs", test.canonifyURLs)
 		cfg.Set("baseURL", test.base)

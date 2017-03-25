@@ -811,7 +811,6 @@ var tocPageWithShortcodesInHeadingsExpected = `<nav id="TableOfContents">
 </nav>`
 
 var multiSiteTOMLConfigTemplate = `
-defaultExtension = "html"
 baseURL = "http://example.com/blog"
 disableSitemap = false
 disableRSS = false
@@ -872,7 +871,6 @@ lag = "lag"
 `
 
 var multiSiteYAMLConfigTemplate = `
-defaultExtension: "html"
 baseURL: "http://example.com/blog"
 disableSitemap: false
 disableRSS: false
@@ -934,7 +932,6 @@ Languages:
 
 var multiSiteJSONConfigTemplate = `
 {
-  "defaultExtension": "html",
   "baseURL": "http://example.com/blog",
   "disableSitemap": false,
   "disableRSS": false,

@@ -439,9 +439,6 @@ func isBackupFile(path string) bool {
 
 const baseFileBase = "baseof"
 
-var aceTemplateInnerMarkers = [][]byte{[]byte("= content")}
-var goTemplateInnerMarkers = [][]byte{[]byte("{{define"), []byte("{{ define")}
-
 func isBaseTemplate(path string) bool {
 	return strings.Contains(path, baseFileBase)
 }

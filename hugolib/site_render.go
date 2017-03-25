@@ -124,6 +124,7 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 
 		// write alias for page 1
 		// TODO(bep) ml all of these n.addLang ... fix.
+		//TODO(bep) output fix
 
 		aliasPath := p.addLangPathPrefix(s.PathSpec.PaginateAliasPath(path.Join(p.sections...), 1))
 		link := p.Permalink()
