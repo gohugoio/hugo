@@ -216,10 +216,15 @@ func (s *Site) render404() error {
 	}
 
 	p := s.newNodePage(kind404)
+
 	p.Title = "404 Page not found"
 	p.Data["Pages"] = s.Pages
 	p.Pages = s.Pages
 	p.URLPath.URL = "404.html"
+
+	if err := p.initTargetPathDescriptor(); err != nil {
+		return err
+	}
 
 	nfLayouts := []string{"404.html"}
 
@@ -245,12 +250,20 @@ func (s *Site) renderSitemap() error {
 
 	page := s.newNodePage(kindSitemap)
 	page.URLPath.URL = ""
+	if err := page.initTargetPathDescriptor(); err != nil {
+		return err
+	}
 	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
 	page.Sitemap.Priority = sitemapDefault.Priority
 	page.Sitemap.Filename = sitemapDefault.Filename
 
 	n.Data["Pages"] = pages
 	n.Pages = pages
+
+	// TODO(bep) output
+	if err := page.initTargetPathDescriptor(); err != nil {
+		return err
+	}
 
 	// TODO(bep) this should be done somewhere else
 	for _, page := range pages {
@@ -284,6 +297,9 @@ func (s *Site) renderRobotsTXT() error {
 	}
 
 	n := s.newNodePage(kindRobotsTXT)
+	if err := n.initTargetPathDescriptor(); err != nil {
+		return err
+	}
 	n.Data["Pages"] = s.Pages
 	n.Pages = s.Pages
 
