@@ -20,7 +20,7 @@ This hosting and deployment guide was originally contributed as a tutorial by [S
 
 ## Assumptions
 
-The following sections are based on the assumption that you are working with a "Project Pages Site". This means that you'll have your Hugo sources and the generated HTML output within a single repository (in contrast, with a "User/Organization Pages Site", you'd have one repo for the sources and another repo for the published HTML files; refer to the [GitHub Pages docs](https://help.github.com/articles/user-organization-and-project-pages/) to learn more).
+The following sections are based on the assumption that you are working with a "Project Pages Site." This means that you'll have your Hugo source and the generated HTML output within a single repository. In contrast with a "User/Organization Page Site", you're going to have one repo for the sources and another repo for the published HTML files. For more information on Organization Pages, refer to the [GitHub Pages docs](https://help.github.com/articles/user-organization-and-project-pages/) to learn more).
 
 ## Deployment via `/docs` Folder on Master Branch
 
