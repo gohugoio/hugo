@@ -122,12 +122,15 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 		paginatePath := s.Cfg.GetString("paginatePath")
 
 		// write alias for page 1
-		// TODO(bep) ml all of these n.addLang ... fix.
-		//TODO(bep) output fix
+		addend := fmt.Sprintf("/%s/%d", paginatePath, 1)
+		target, err := p.createTargetPath(p.outputFormat, addend)
+		if err != nil {
+			return err
+		}
 
-		aliasPath := p.addLangPathPrefix(s.PathSpec.PaginateAliasPath(path.Join(p.sections...), 1))
-		link := p.Permalink()
-		s.writeDestAlias(aliasPath, link, nil)
+		// TODO(bep) output do better
+		link := newOutputFormat(p.Page, p.outputFormat).Permalink()
+		s.writeDestAlias(target, link, nil)
 
 		pagers := p.paginator.Pagers()
 
