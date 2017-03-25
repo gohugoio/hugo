@@ -1859,8 +1859,15 @@ func sectionsFromFilename(filename string) []string {
 	return sections
 }
 
+const (
+	regularPageFileNameDoesNotStartWith = "_index"
+
+	// There can be "my_regular_index_page.md but not /_index_file.md
+	regularPageFileNameDoesNotContain = helpers.FilePathSeparator + regularPageFileNameDoesNotStartWith
+)
+
 func kindFromFilename(filename string) string {
-	if !strings.Contains(filename, "_index") {
+	if !strings.HasPrefix(filename, regularPageFileNameDoesNotStartWith) && !strings.Contains(filename, regularPageFileNameDoesNotContain) {
 		return KindPage
 	}
 

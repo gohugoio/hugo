@@ -201,6 +201,20 @@ func TestLastChange(t *testing.T) {
 	require.Equal(t, 2017, s.Info.LastChange.Year(), "Site.LastChange should be set to the page with latest Lastmod (year 2017)")
 }
 
+// Issue #_index
+func TestPageWithUnderScoreIndexInFilename(t *testing.T) {
+	t.Parallel()
+
+	cfg, fs := newTestCfg()
+
+	writeSource(t, fs, filepath.Join("content", "sect/my_index_file.md"), "---\ntitle: doc1\nweight: 1\ndate: 2014-05-29\n---\n# doc1\n*some content*")
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 1)
+
+}
+
 // Issue #957
 func TestCrossrefs(t *testing.T) {
 	t.Parallel()
