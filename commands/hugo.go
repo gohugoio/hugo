@@ -18,6 +18,9 @@ package commands
 import (
 	"fmt"
 	"io/ioutil"
+
+	"github.com/spf13/hugo/hugofs"
+
 	"log"
 	"net/http"
 	"os"
@@ -28,7 +31,6 @@ import (
 	"time"
 
 	"github.com/spf13/hugo/config"
-	"github.com/spf13/hugo/hugofs"
 
 	"github.com/spf13/hugo/parser"
 	flag "github.com/spf13/pflag"
@@ -288,6 +290,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 		return cfg, err
 	}
 
+	// Init file systems. This may be changed at a later point.
 	cfg.Cfg = config
 
 	c, err := newCommandeer(cfg)
@@ -343,13 +346,13 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 	}
 	config.Set("workingDir", dir)
 
-	cfg.Fs = hugofs.NewFrom(osFs, config)
+	fs := hugofs.NewFrom(osFs, config)
 
 	// Hugo writes the output to memory instead of the disk.
 	// This is only used for benchmark testing. Cause the content is only visible
 	// in memory.
 	if renderToMemory {
-		c.Fs.Destination = new(afero.MemMapFs)
+		fs.Destination = new(afero.MemMapFs)
 		// Rendering to memoryFS, publish to Root regardless of publishDir.
 		c.Set("publishDir", "/")
 	}
@@ -371,15 +374,17 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 		if helpers.FilePathSeparator != cacheDir[len(cacheDir)-1:] {
 			cacheDir = cacheDir + helpers.FilePathSeparator
 		}
-		isDir, err := helpers.DirExists(cacheDir, cfg.Fs.Source)
+		isDir, err := helpers.DirExists(cacheDir, fs.Source)
 		utils.CheckErr(cfg.Logger, err)
 		if !isDir {
 			mkdir(cacheDir)
 		}
 		config.Set("cacheDir", cacheDir)
 	} else {
-		config.Set("cacheDir", helpers.GetTempDir("hugo_cache", cfg.Fs.Source))
+		config.Set("cacheDir", helpers.GetTempDir("hugo_cache", fs.Source))
 	}
+
+	c.initFs(fs)
 
 	cfg.Logger.INFO.Println("Using config file:", viper.ConfigFileUsed())
 
