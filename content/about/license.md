@@ -6,7 +6,7 @@ date: 2016-02-01
 publishdate: 2016-02-01
 lastmod: 2016-03-02
 categories: ["about hugo"]
-tags: ["license","apache"]
+tags: ["License","apache"]
 weight: 60
 aliases: [/meta/license]
 toc: true

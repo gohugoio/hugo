@@ -4,17 +4,10 @@ buildFuture = false
 canonifyurls = true
 # Pointing to this file
 config = "config.toml"
-contentdir = "content"
 copyright = ""
 defaultContentLanguage = "en"
-# Set to true is you don't want livereload in local development
-disableLiveReload = false
 # Set to true to keep url path preserve casing (eg, for sections)
 disablePathToLower = false
-# Set to false if you want rss xml files auto-generated
-disableRSS = false
-# Set to false if you want a sitemap.xml created at the site root
-disableSitemap = false
 # Allows use of emoji shorthand directly in content
 enableEmoji = true
 # Set the unicode character used for the "return" link in page footnotes.
@@ -22,8 +15,6 @@ footnotereturnlinkcontents = "↩"
 # Create an array of files you don't want hugo to build
 ignoreFiles = []
 languageCode = "en-us"
-# Point the generator to the folder used for layouts and templating
-layoutDir = "layouts"
 # Enable Logging
 log = true
 # Log Filepath (if set, logging enabled automatically)
@@ -32,12 +23,7 @@ logFile = ""
 metaDataFormat = "yaml"
 # This intelligently adds an "s" to the titles of list pages
 pluralizelisttitles = false
-preserveTaxonomyNames = false
-# This sets the title of the directory where hugo builds and pushes the final site when running "Hugo" (ie, without "server")
-publishdir = "public"
-pygmentsUseClasses = true
 relativeURLs = true
-source = ""
 # Display memory and timing of different steps of the program
 stepAnalysis = true
 # This is the top-level, global site title
@@ -58,10 +44,9 @@ googleAnalytics = ""
 
 #CUSTOM PARAMS
 [params]
-  organizationname = ""
-  sitedescription = ""
+  ## Used for views in rendered HTML (i.e., rather than using the .Hugo variable)
   release = "0.20"
-  ## Critical Render Path. If true, site style will be embedded in a <style> tag in each html <head> as part of Gulp Build. False puts a typical <link> to the stylesheet in <head>>
+  ## Critical Render Path. If true, site style will be embedded in a <style> tag in each html <head> as part of Gulp Build. False puts a typical <link> to the stylesheet in <head> See layouts/partials/style-embed.html
   usecrp = true
   ## Twitter handle without the "@"
   twitterhandle = "GoHugoIO"
@@ -69,22 +54,21 @@ googleAnalytics = ""
   facebook = ""
   ## Default Image for Social Sharing. This image should live at static/images/
   defaultsocialimage = "hugodefaultsocial.png"
-  ## Setting this to true will add a "noindex" to *every* page on the site
+  ## Setting this to true will add a "noindex" to *EVERY* page on the site
   removefromexternalsearch = false
-  ## This is used when the BaseURL does not need to modified (eg, in share links or in prerender, prefetch, etc to control for relativeURLs setting); do not include trailing slash
+  ## This is used when the BaseURL does not need to modified (eg, in share links or in prerender, prefetch, etc to control for relativeURLs setting); do *not* include trailing slash
   siteaddress = "https://hugodocs.info"
   ## Gh repo for site footer (include trailing slash)
   ghrepo = "https://github.com/spf13/hugo/"
-  ## GitHub Docs Repository Base URL (include trailing slash)
-  ### https://github.com/spf13/hugo/tree/master/docs
-  ### Edit content repo (set to automatically enter "edit" mode => good for "improve this page" links)
+  ### Edit content repo (set to automatically enter "edit" mode; this is good for "improve this page" links)
   ghdocsrepo = "https://github.com/rdwatters/hugo-docs-concept/edit/master/"
   ## Gitter URL
   gitter = "https://gitter.im/spf13/hugo"
   ## Discuss Forum URL
   forum = "https://discuss.gohugo.io"
+  ## Google Tag Manager
   gtmid = ""
-  # Set to true to include a CDN call to FontAwesome (not that Hugo docs currently hosts its own FA (see pipeline/scss/_variables.scss))
+  # Set to true to include a CDN call to FontAwesome (note that Hugo currently hosts its own FA (see pipeline/scss/_variables.scss) if needed, but leverages a custom Fontello font or icons, including the "H" and "Gopher" icons for code blocks)
   usefontawesome = false
 
 # MARKDOWN
@@ -95,6 +79,7 @@ googleAnalytics = ""
   angledQuotes = false
   latexDashes = true
 
+## As of v0.20, all content files include a default "categories" value that's the same as the section. This was a cheap future-proofing method and should/could be changed accordingly.
 [taxonomies]
   tag = "tags"
   category = ""

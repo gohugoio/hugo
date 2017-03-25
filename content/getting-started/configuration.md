@@ -63,7 +63,7 @@ buildDrafts:                false
 buildFuture:                false
 # include content already expired
 buildExpired:               false
-# enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+# enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs. See the "URL Management" page
 relativeURLs:               false
 canonifyURLs:               false
 # config file (default is path/config.yaml|json|toml)
@@ -378,7 +378,7 @@ blackfriday:
 * [YAML Spec][yaml]
 * [JSON Spec][json]
 
-[`.Site.Params`]: /variables/
+[`.Site.Params`]: /variables/site/
 [dirs]: /getting-started/directory-structure
 [json]: /documents/ecma-404-json-spec.pdf
 [templates]: /templates/

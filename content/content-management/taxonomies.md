@@ -86,12 +86,18 @@ Moonrise Kingdom            <- Content
 
 Hugo natively supports taxonomies, which means there are architectural patterns for rendering your project's taxonomies baked into Hugo's core.
 
-<!-- See conversation between bep and rdwatters here: https://github.com/spf13/hugo/issues/3165 && https://github.com/spf13/hugo/issues/2977-->
-<!-- Luckily, Hugo limits these default behaviors to those that fit the most common use cases in an effort to save you time. -->
+{{% note %}}
+Users of versions older than v0.20 may notice that Hugo built `/tags` and `/categories` as long as these fields were called in at least a single content file. A previous hack involved setting these values to empty strings. This is *not* a proper workaround.
 
-<!-- ### Default Taxonomies
+As of v0.20, Hugo does *not* automatically generate default taxonomies for your site. If your site configuration contains no key-values in the taxonomies field, Hugo will not build anything.
+{{% /note %}}
 
-Hugo ships with *tags* and *categories* as default taxonomies. These taxonomies are common to many website systems (e.g., WordPress, Drupal, Jekyll). Unlike these systems, Hugo makes it trivial to customize the taxonomies you will be using for your website. -->
+### Default Destinations
+
+When taxonomies are used---and [taxonomy templates][] are provided---Hugo will automatically create both a page listing all the taxonomy's terms and individual pages with lists of content associated with each term. For example, a `categories` taxonomy declared in your your configuration and used in your content front matter will create the following pages:
+
+* A single page at `yoursite.com/categories/` that lists all the [terms within the taxonomy][]
+* [Individual taxonomy list pages][taxonomy templates] (e.g., `/categories/development/`) for each of the terms that shows a listing of all pages marked as part of that taxonomy within any content file's [front matter][]
 
 ## Configuring Taxonomies
 
@@ -114,30 +120,6 @@ taxonomies:
   category: "categories"
   series: "series"
 ```
-
-### Default Destinations
-
-When taxonomies are used---and [taxonomy templates][] are provided---Hugo will automatically create both a page listing all the taxonomy's terms and individual pages with lists of content associated with each term. For example, a `categories` taxonomy will create the following pages:
-
-* A single page at `yoursite.com/categories/` that lists all the [terms within the taxonomy][taxonomy terms templates]
-* [Individual taxonomy list pages][taxonomy templates] (e.g., `/categories/development/`) for each of the terms that shows a listing of all pages marked as part of that taxonomy within any content file's [front matter][]
-
-<!-- See conversation between bep and rdwatters here: https://github.com/spf13/hugo/issues/3165 && https://github.com/spf13/hugo/issues/2977-->
-<!-- ### Overriding Hugo's Default Taxonomies
-
-If you do not specify any taxonomies in your site configuration file *and* your content already includes front matter with `tags:` or `categories`, Hugo will automatically create taxonomy pages. To override this behavior, set the key-value pairs for both of the default taxonomies to empty strings in your `config` file:
-
-```toml
-[taxonomies]
-  tag = ""
-  category = ""
-```
-
-```yaml
-taxonomies:
-    tag: ""
-    category: ""
-``` -->
 
 ### Preserving Taxonomy Values
 
@@ -254,5 +236,5 @@ Currently taxonomies only support the [default `weight => date` ordering of list
 [front matter]: /content-management/front-matter/
 [taxonomy list templates]: /templates/taxonomy-templates/#taxonomy-page-templates
 [taxonomy templates]: /templates/taxonomy-templates/
-[taxonomy terms templates]: /templates/taxonomy-templates/#taxonomy-terms-templates "See how to order terms associated with a taxonomy"
+[terms within the taxonomy]: /templates/taxonomy-templates/#taxonomy-terms-templates "See how to order terms associated with a taxonomy"
 [config]: /getting-started/configuration/
