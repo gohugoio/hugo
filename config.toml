@@ -50,16 +50,17 @@ verbose = false
 verboseLog = false
 # Setting this to false will keep hugo from watching for changes during local development
 watch = true
+# Add GA Tracking Code Here. This leverages a built-in (ie, "internal") partial from HUGO: https://gohugo.io/extras/analytics#configuring-google-analytics
+googleAnalytics = ""
 
 [permalinks]
   temp = "/:title"
 
 #CUSTOM PARAMS
 [params]
-	organizationname = ""
+  organizationname = ""
   sitedescription = ""
   release = "0.20"
-  googleanalyticstrackingcode = "UA-76549364-1"
   ## Critical Render Path. If true, site style will be embedded in a <style> tag in each html <head> as part of Gulp Build. False puts a typical <link> to the stylesheet in <head>>
   usecrp = true
   ## Twitter handle without the "@"
@@ -95,4 +96,9 @@ watch = true
   latexDashes = true
 
 [taxonomies]
+<<<<<<< HEAD
   tag = "tags"
+=======
+  tag = "tags"
+  category = ""
+>>>>>>> bfb0257e17971af1cf5f2a21d325bc569acef75c
