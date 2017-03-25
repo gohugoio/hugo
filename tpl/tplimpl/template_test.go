@@ -79,7 +79,8 @@ html lang=en
 					[]byte(this.baseContent), []byte(this.innerContent))
 			}
 
-			a := deps.New(config)
+			a, err := deps.New(config)
+			require.NoError(t, err)
 
 			if err := a.LoadResources(); err != nil {
 				t.Fatal(err)
@@ -94,7 +95,7 @@ html lang=en
 			}
 
 			var buff bytes.Buffer
-			err := a.Tmpl.ExecuteTemplate(&buff, "mytemplate.html", d)
+			err = a.Tmpl.ExecuteTemplate(&buff, "mytemplate.html", d)
 
 			if err != nil && this.expectErr == 0 {
 				t.Errorf("Test %d with root '%s' errored: %s", i, root, err)
@@ -288,7 +289,8 @@ func TestTplGoFuzzReports(t *testing.T) {
 			return templ.AddTemplate("fuzz", this.data)
 		}
 
-		de := deps.New(config)
+		de, err := deps.New(config)
+		require.NoError(t, err)
 		require.NoError(t, de.LoadResources())
 
 		templ := de.Tmpl.(*GoHTMLTemplate)
@@ -299,7 +301,7 @@ func TestTplGoFuzzReports(t *testing.T) {
 			t.Errorf("#1 Test %d should have errored", i)
 		}
 
-		err := de.Tmpl.ExecuteTemplate(ioutil.Discard, "fuzz", d)
+		err = de.Tmpl.ExecuteTemplate(ioutil.Discard, "fuzz", d)
 
 		if err != nil && this.expectErr == 0 {
 			t.Fatalf("Test %d errored: %s", i, err)

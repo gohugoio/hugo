@@ -106,7 +106,10 @@ func server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c := newCommandeer(cfg)
+	c, err := newCommandeer(cfg)
+	if err != nil {
+		return err
+	}
 
 	if flagChanged(cmd.Flags(), "disableLiveReload") {
 		c.Set("disableLiveReload", disableLiveReload)

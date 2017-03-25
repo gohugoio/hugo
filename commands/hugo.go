@@ -118,7 +118,10 @@ Complete documentation is available at http://gohugo.io/.`,
 			return err
 		}
 
-		c := newCommandeer(cfg)
+		c, err := newCommandeer(cfg)
+		if err != nil {
+			return err
+		}
 
 		if buildWatch {
 			cfg.Cfg.Set("disableLiveReload", true)
@@ -287,7 +290,10 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 
 	cfg.Cfg = config
 
-	c := newCommandeer(cfg)
+	c, err := newCommandeer(cfg)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
 		c.initializeFlags(cmdV)

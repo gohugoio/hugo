@@ -60,10 +60,14 @@ func (p PathSpec) String() string {
 }
 
 // NewPathSpec creats a new PathSpec from the given filesystems and Language.
-func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) *PathSpec {
+func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 
-	// TODO(bep) output error handling
-	baseURL, _ := newBaseURLFromString(cfg.GetString("baseURL"))
+	baseURLstr := cfg.GetString("baseURL")
+	baseURL, err := newBaseURLFromString(baseURLstr)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create baseURL from %q: %s", baseURLstr, err)
+	}
 
 	ps := &PathSpec{
 		fs:                             fs,
@@ -87,7 +91,7 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) *PathSpec {
 		ps.language = language
 	}
 
-	return ps
+	return ps, nil
 }
 
 // PaginatePath returns the configured root path used for paginator pages.

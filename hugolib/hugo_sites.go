@@ -92,7 +92,13 @@ func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 		if d == nil {
 			cfg.Language = s.Language
 			cfg.WithTemplate = s.withSiteTemplates(cfg.WithTemplate)
-			d = deps.New(cfg)
+
+			var err error
+			d, err = deps.New(cfg)
+			if err != nil {
+				return err
+			}
+
 			s.Deps = d
 
 			if err = d.LoadResources(); err != nil {

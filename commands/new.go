@@ -93,7 +93,10 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c := newCommandeer(cfg)
+	c, err := newCommandeer(cfg)
+	if err != nil {
+		return err
+	}
 
 	if flagChanged(cmd.Flags(), "format") {
 		c.Set("metaDataFormat", configFormat)
@@ -220,7 +223,10 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 		return newUserError("theme name needs to be provided")
 	}
 
-	c := newCommandeer(cfg)
+	c, err := newCommandeer(cfg)
+	if err != nil {
+		return err
+	}
 
 	createpath := c.PathSpec().AbsPathify(filepath.Join(c.Cfg.GetString("themesDir"), args[0]))
 	jww.INFO.Println("creating theme at", createpath)

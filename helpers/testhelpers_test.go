@@ -8,7 +8,8 @@ import (
 
 func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *PathSpec {
 	l := NewDefaultLanguage(v)
-	return NewPathSpec(fs, l)
+	ps, _ := NewPathSpec(fs, l)
+	return ps
 }
 
 func newTestDefaultPathSpec(configKeyValues ...interface{}) *PathSpec {

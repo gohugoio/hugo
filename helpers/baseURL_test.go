@@ -48,4 +48,14 @@ func TestBaseURL(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "webcal://hugo@rules.com", p)
 
+	// Test with "non-URLs". Some people will try to use these as a way to get
+	// relative URLs working etc.
+	b, err = newBaseURLFromString("/")
+	require.NoError(t, err)
+	require.Equal(t, "/", b.String())
+
+	b, err = newBaseURLFromString("")
+	require.NoError(t, err)
+	require.Equal(t, "", b.String())
+
 }

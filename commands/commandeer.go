@@ -16,6 +16,7 @@ package commands
 import (
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
 )
 
 type commandeer struct {
@@ -35,12 +36,14 @@ func (c *commandeer) Set(key string, value interface{}) {
 // be configured before it is created.
 func (c *commandeer) PathSpec() *helpers.PathSpec {
 	c.configured = true
-	if c.pathSpec == nil {
-		c.pathSpec = helpers.NewPathSpec(c.Fs, c.Cfg)
-	}
 	return c.pathSpec
 }
 
-func newCommandeer(cfg *deps.DepsCfg) *commandeer {
-	return &commandeer{DepsCfg: cfg}
+func newCommandeer(cfg *deps.DepsCfg) (*commandeer, error) {
+	fs := hugofs.NewDefault(cfg.Language)
+	ps, err := helpers.NewPathSpec(fs, cfg.Cfg)
+	if err != nil {
+		return nil, err
+	}
+	return &commandeer{DepsCfg: cfg, pathSpec: ps}, nil
 }
