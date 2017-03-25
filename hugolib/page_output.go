@@ -148,7 +148,6 @@ func (o OutputFormat) MediaType() media.Type {
 	return o.f.MediaType
 }
 
-// TODO(bep) outputs consider just save this wrapper on Page.
 // OutputFormats gives the output formats for this Page.
 func (p *Page) OutputFormats() OutputFormats {
 	var o OutputFormats

@@ -173,13 +173,6 @@ func (s *Site) renderRSS(p *PageOutput) error {
 		return nil
 	}
 
-	layouts := p.rssLayouts()
-
-	if layouts == nil {
-		// No RSS for this Kind of page.
-		return nil
-	}
-
 	p.Kind = kindRSS
 
 	// TODO(bep) we zero the date here to get the number of diffs down in
@@ -196,6 +189,11 @@ func (s *Site) renderRSS(p *PageOutput) error {
 		p.Data["Pages"] = p.Pages
 	}
 
+	layouts := s.layoutHandler.For(
+		p.layoutDescriptor,
+		"",
+		p.outputFormat)
+
 	// TODO(bep) output deprecate/handle rssURI
 	targetPath, err := p.targetPath()
 	if err != nil {
@@ -203,7 +201,7 @@ func (s *Site) renderRSS(p *PageOutput) error {
 	}
 
 	return s.renderAndWriteXML(p.Title,
-		targetPath, p, s.appendThemeTemplates(layouts)...)
+		targetPath, p, layouts...)
 }
 
 func (s *Site) render404() error {
