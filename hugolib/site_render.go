@@ -60,22 +60,31 @@ func (s *Site) renderPages() error {
 
 func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
-	var mainPageOutput *PageOutput
 
 	for page := range pages {
 
 		for i, outFormat := range page.outputFormats {
 
-			pageOutput, err := newPageOutput(page, i > 0, outFormat)
+			var (
+				pageOutput *PageOutput
+				err        error
+			)
+
+			if i == 0 {
+				page.pageOutputInit.Do(func() {
+					var po *PageOutput
+					po, err = newPageOutput(page, false, outFormat)
+					page.mainPageOutput = po
+				})
+				pageOutput = page.mainPageOutput
+			} else {
+				pageOutput, err = newPageOutput(page, true, outFormat)
+			}
 
 			if err != nil {
 				s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outFormat.Name, page, err)
 				continue
 			}
-			if i == 0 {
-				mainPageOutput = pageOutput
-			}
-			page.mainPageOutput = mainPageOutput
 
 			var layouts []string
 

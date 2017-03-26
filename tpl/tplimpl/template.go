@@ -180,6 +180,7 @@ func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layou
 	for _, layout := range layouts {
 		templ := t.Lookup(layout)
 		if templ == nil {
+			// TODO(bep) output
 			layout += ".html"
 			templ = t.Lookup(layout)
 		}

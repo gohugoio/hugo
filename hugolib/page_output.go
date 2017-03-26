@@ -108,6 +108,21 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 
 // TODO(bep) output
 func (p *Page) Render(layout ...string) template.HTML {
+	p.pageOutputInit.Do(func() {
+		// If Render is called in a range loop, the page output isn't available.
+		// So, create one.
+		outFormat := p.outputFormats[0]
+		pageOutput, err := newPageOutput(p, true, outFormat)
+
+		if err != nil {
+			p.s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outFormat.Name, p, err)
+			return
+		}
+
+		p.mainPageOutput = pageOutput
+
+	})
+
 	return p.mainPageOutput.Render(layout...)
 }
 
