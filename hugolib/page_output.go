@@ -21,6 +21,7 @@ import (
 
 	"github.com/spf13/hugo/media"
 
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/output"
 )
 
@@ -85,9 +86,9 @@ func (p *PageOutput) copy() *PageOutput {
 	return c
 }
 
-func (p *PageOutput) layouts(layouts ...string) []string {
+func (p *PageOutput) layouts(layouts ...string) ([]string, error) {
 	if len(layouts) == 0 && p.selfLayout != "" {
-		return []string{p.selfLayout}
+		return []string{p.selfLayout}, nil
 	}
 
 	layoutOverride := ""
@@ -106,7 +107,11 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 		return template.HTML("")
 	}
 
-	l := p.layouts(layout...)
+	l, err := p.layouts(layout...)
+	if err != nil {
+		helpers.DistinctErrorLog.Printf("in .Render: Failed to resolve layout %q for page %q", layout, p.pathOrTitle())
+		return template.HTML("")
+	}
 	return p.s.Tmpl.ExecuteTemplateToHTML(p, l...)
 }
 
@@ -122,7 +127,7 @@ func (p *Page) Render(layout ...string) template.HTML {
 		pageOutput, err := newPageOutput(p, true, outFormat)
 
 		if err != nil {
-			p.s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outFormat.Name, p, err)
+			p.s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outFormat.Name, p.pathOrTitle(), err)
 			return
 		}
 
@@ -137,7 +142,7 @@ func (p *Page) Render(layout ...string) template.HTML {
 // for list pages.
 func (p *Page) checkRender() bool {
 	if p.Kind != KindPage {
-		p.s.Log.ERROR.Printf(".Render only available for regular pages, not for %q of kind %q", p.Path(), p.Kind)
+		helpers.DistinctErrorLog.Printf(".Render only available for regular pages, not for of kind %q. You probably meant .Site.RegularPages and not.Site.Pages.", p.Kind)
 		return false
 	}
 	return true

@@ -68,8 +68,9 @@ func TestLayout(t *testing.T) {
 		t.Run(this.name, func(t *testing.T) {
 			l := NewLayoutHandler(this.hasTheme)
 
-			layouts := l.For(this.d, this.layoutOverride, this.tp)
+			layouts, err := l.For(this.d, this.layoutOverride, this.tp)
 
+			require.NoError(t, err)
 			require.NotNil(t, layouts)
 			require.True(t, len(layouts) >= len(this.expect))
 			// Not checking the complete list for now ...
@@ -83,6 +84,10 @@ func TestLayout(t *testing.T) {
 		})
 	}
 
+	l := NewLayoutHandler(false)
+	_, err := l.For(LayoutDescriptor{Kind: "taxonomyTerm", Section: "tag"}, "override", RSSFormat)
+	require.Error(t, err)
+
 }
 
 func BenchmarkLayout(b *testing.B) {
@@ -90,7 +95,8 @@ func BenchmarkLayout(b *testing.B) {
 	l := NewLayoutHandler(false)
 
 	for i := 0; i < b.N; i++ {
-		layouts := l.For(descriptor, "", HTMLFormat)
+		layouts, err := l.For(descriptor, "", HTMLFormat)
+		require.NoError(b, err)
 		require.NotEmpty(b, layouts)
 	}
 }

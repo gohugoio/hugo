@@ -91,7 +91,11 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			if page.selfLayout != "" {
 				layouts = []string{page.selfLayout}
 			} else {
-				layouts = s.layouts(pageOutput)
+				layouts, err = s.layouts(pageOutput)
+				if err != nil {
+					s.Log.ERROR.Printf("Failed to resolve layout output %q for page %q: %s", outFormat.Name, page, err)
+					continue
+				}
 			}
 
 			switch pageOutput.outputFormat.Name {
@@ -161,7 +165,11 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 			pageNumber := i + 1
 			addend := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
 			targetPath, _ := p.targetPath(addend)
-			layouts := p.layouts()
+			layouts, err := p.layouts()
+
+			if err != nil {
+				return err
+			}
 
 			if err := s.renderAndWritePage(
 				pagerNode.Title,
@@ -200,10 +208,13 @@ func (s *Site) renderRSS(p *PageOutput) error {
 		p.Data["Pages"] = p.Pages
 	}
 
-	layouts := s.layoutHandler.For(
+	layouts, err := s.layoutHandler.For(
 		p.layoutDescriptor,
 		"",
 		p.outputFormat)
+	if err != nil {
+		return err
+	}
 
 	// TODO(bep) output deprecate/handle rssURI
 	targetPath, err := p.targetPath()

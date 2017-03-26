@@ -1721,3 +1721,11 @@ func (p *Page) setValuesForKind(s *Site) {
 		p.URLPath.URL = "/" + path.Join(p.sections...) + "/"
 	}
 }
+
+// Used in error logs.
+func (p *Page) pathOrTitle() string {
+	if p.Path() != "" {
+		return p.Path()
+	}
+	return p.Title
+}
