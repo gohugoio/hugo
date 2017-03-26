@@ -102,12 +102,19 @@ func (p *PageOutput) layouts(layouts ...string) []string {
 }
 
 func (p *PageOutput) Render(layout ...string) template.HTML {
+	if !p.checkRender() {
+		return template.HTML("")
+	}
+
 	l := p.layouts(layout...)
 	return p.s.Tmpl.ExecuteTemplateToHTML(p, l...)
 }
 
-// TODO(bep) output
 func (p *Page) Render(layout ...string) template.HTML {
+	if !p.checkRender() {
+		return template.HTML("")
+	}
+
 	p.pageOutputInit.Do(func() {
 		// If Render is called in a range loop, the page output isn't available.
 		// So, create one.
@@ -124,6 +131,16 @@ func (p *Page) Render(layout ...string) template.HTML {
 	})
 
 	return p.mainPageOutput.Render(layout...)
+}
+
+// We may fix this in the future, but the layout handling in Render isn't built
+// for list pages.
+func (p *Page) checkRender() bool {
+	if p.Kind != KindPage {
+		p.s.Log.ERROR.Printf(".Render only available for regular pages, not for %q of kind %q", p.Path(), p.Kind)
+		return false
+	}
+	return true
 }
 
 // OutputFormats holds a list of the relevant output formats for a given resource.
