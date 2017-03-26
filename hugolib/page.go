@@ -244,6 +244,7 @@ type pageInit struct {
 	languageInit        sync.Once
 	pageMenusInit       sync.Once
 	pageMetaInit        sync.Once
+	pageOutputInit      sync.Once
 	plainInit           sync.Once
 	plainWordsInit      sync.Once
 	renderingConfigInit sync.Once
