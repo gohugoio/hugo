@@ -1668,7 +1668,7 @@ func (s *Site) kindFromSections(sections []string) string {
 	return KindSection
 }
 
-func (s *Site) layouts(p *PageOutput) []string {
+func (s *Site) layouts(p *PageOutput) ([]string, error) {
 	return s.layoutHandler.For(p.layoutDescriptor, "", p.outputFormat)
 }
 

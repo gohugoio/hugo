@@ -83,18 +83,22 @@ indexes/indexes.NAME.SUFFIX indexes/indexes.SUFFIX
 `
 )
 
-func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format) []string {
+func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format) ([]string, error) {
 
 	// We will get lots of requests for the same layouts, so avoid recalculations.
 	key := layoutCacheKey{d, layoutOverride, f}
 	l.mu.RLock()
 	if cacheVal, found := l.cache[key]; found {
 		l.mu.RUnlock()
-		return cacheVal
+		return cacheVal, nil
 	}
 	l.mu.RUnlock()
 
 	var layouts []string
+
+	if layoutOverride != "" && d.Kind != "page" {
+		return layouts, fmt.Errorf("Custom layout (%q) only supported for regular pages, not kind %q", layoutOverride, d.Kind)
+	}
 
 	layout := d.Layout
 
@@ -106,7 +110,7 @@ func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format)
 
 	if d.Kind == "page" {
 		if isRSS {
-			return []string{}
+			return []string{}, nil
 		}
 		layouts = regularPageLayouts(d.Type, layout, f)
 	} else {
@@ -148,14 +152,14 @@ func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format)
 			}
 		}
 
-		return layoutsWithThemeLayouts
+		return layoutsWithThemeLayouts, nil
 	}
 
 	l.mu.Lock()
 	l.cache[key] = layouts
 	l.mu.Unlock()
 
-	return layouts
+	return layouts, nil
 }
 
 func resolveListTemplate(d LayoutDescriptor, f Format,
