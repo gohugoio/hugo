@@ -1070,31 +1070,13 @@ func TestUnion(t *testing.T) {
 
 func TestIsSet(t *testing.T) {
 	t.Parallel()
+	aSlice := []interface{}{1, 2, 3, 5}
+	aMap := map[string]interface{}{"a": 1, "b": 2}
 
-	for _, test := range []struct {
-		src    interface{}
-		key    interface{}
-		res    bool
-		isErr  bool
-		errStr string
-	}{
-		{[]interface{}{1, 2, 3, 5}, 2, true, false, ""},
-		{[]interface{}{1, 2, 3, 5}, 22, false, false, ""},
-
-		{map[string]interface{}{"a": 1, "b": 2}, "b", true, false, ""},
-		{map[string]interface{}{"a": 1, "b": 2}, "bc", false, false, ""},
-
-		{time.Now(), 1, false, true, `unsupported type "struct"`},
-	} {
-		res, err := isSet(test.src, test.key)
-		if test.isErr {
-			assert.EqualError(t, err, test.errStr)
-			continue
-		}
-
-		assert.NoError(t, err)
-		assert.Equal(t, test.res, res)
-	}
+	assert.True(t, isSet(aSlice, 2))
+	assert.True(t, isSet(aMap, "b"))
+	assert.False(t, isSet(aSlice, 22))
+	assert.False(t, isSet(aMap, "bc"))
 }
 
 func (x *TstX) TstRp() string {

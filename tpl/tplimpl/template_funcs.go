@@ -1325,24 +1325,22 @@ func (p pairList) sort() interface{} {
 
 // isSet returns whether a given array, channel, slice, or map has a key
 // defined.
-func isSet(a interface{}, key interface{}) (bool, error) {
+func isSet(a interface{}, key interface{}) bool {
 	av := reflect.ValueOf(a)
 	kv := reflect.ValueOf(key)
 
 	switch av.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Slice:
 		if int64(av.Len()) > kv.Int() {
-			return true, nil
+			return true
 		}
 	case reflect.Map:
 		if kv.Type() == av.Type().Key() {
-			return av.MapIndex(kv).IsValid(), nil
+			return av.MapIndex(kv).IsValid()
 		}
-	default:
-		return false, fmt.Errorf("unsupported type %q", av.Kind())
 	}
 
-	return false, nil
+	return false
 }
 
 // returnWhenSet returns a given value if it set.  Otherwise, it returns an
