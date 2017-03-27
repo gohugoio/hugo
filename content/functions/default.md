@@ -11,7 +11,7 @@ tags: [defaults]
 categories: [functions]
 toc:
 ns:
-signature: []
+signature: ["default DEFAULT INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: []

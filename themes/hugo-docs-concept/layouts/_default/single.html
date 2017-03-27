@@ -11,6 +11,9 @@
 			{{ end }}
 		</header>
 		<div class="body-copy" data-section={{.Section | urlize}}>
+		{{- if eq .Section "functions" -}}
+			{{- partial "functions-signature.html" . -}}
+		{{- end -}}
 		{{.Content}}
 		</div>
 		{{- partial "content-footer.html" . -}}

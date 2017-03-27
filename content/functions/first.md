@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [iteration]
 ns:
-signature: []
+signature: ["first LIMIT COLLECTION"]
 workson: [lists,taxonomies,terms,groups]
 hugoversion:
 relatedfuncs: [after,last]

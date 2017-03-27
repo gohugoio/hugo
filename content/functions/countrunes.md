@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [counting, word count]
 ns:
-signature: []
+signature: ["countrunes INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: []

@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [strings]
 ns:
-signature: []
+signature: ["safeHTML INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: []

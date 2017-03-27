@@ -10,7 +10,7 @@ lastmod: 2017-02-26
 categories: [functions]
 tags: [dictionary]
 ns:
-signature: []
+signature: ["dict KEY VALUE [KEY VALUE]..."]
 workson: []
 hugoversion:
 relatedfuncs: []

@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [filtering]
 ns:
-signature: []
+signature: ["where COLLECTION KEY [OPERATOR] MATCH"]
 workson: [lists,taxonomies,terms,groups]
 hugoversion:
 relatedfuncs: [intersect,first,after,last]

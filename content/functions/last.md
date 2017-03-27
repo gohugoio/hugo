@@ -10,7 +10,7 @@ tags: []
 categories: [functions]
 toc:
 ns:
-signature: []
+signature: ["last INDEX COLLECTION"]
 workson: [lists, taxonomies, terms, groups]
 hugoversion:
 relatedfuncs: []

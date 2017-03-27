@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [advanced]
 ns:
-signature: []
+signature: ["apply COLLETION FUNCTION [PARAM...]"]
 workson: []
 hugoversion:
 relatedfuncs: []

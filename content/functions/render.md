@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [views]
 ns:
-signature: []
+signature: ["render LAYOUT"]
 workson: []
 hugoversion:
 relatedfuncs: []

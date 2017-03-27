@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: []
 ns:
-signature: []
+signature: ["md5 INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: []

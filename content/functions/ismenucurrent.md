@@ -9,8 +9,8 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [menus]
 ns:
-signature: []
-workson: []
+signature: ["IsMenuCurrent"]
+workson: [menus]
 hugoversion:
 relatedfuncs: []
 deprecated: false

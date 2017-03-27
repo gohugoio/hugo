@@ -9,7 +9,7 @@ lastmod: 2017-03-12
 categories: [functions]
 tags: [conditionals,fundamentals]
 ns:
-signature: []
+signature: ["with INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: []

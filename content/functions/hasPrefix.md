@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: []
 ns:
-signature: []
+signature: ["hasPrefix STRING PREFIX"]
 workson: []
 hugoversion:
 relatedfuncs: []
