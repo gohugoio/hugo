@@ -233,6 +233,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("enableGitInfo", false, "Add Git revision, date and author info to the pages")
 
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
+	cmd.Flags().Bool("templateAnalysis", false, "display stats about template executions")
 	cmd.Flags().Bool("pluralizeListTitles", true, "Pluralize titles in lists using inflect")
 	cmd.Flags().Bool("preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
 	cmd.Flags().BoolP("forceSyncStatic", "", false, "Copy all files when static is changed.")
@@ -448,6 +449,7 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 		"forceSyncStatic",
 		"noTimes",
 		"noChmod",
+		"templateAnalysis",
 	}
 
 	for _, key := range persFlagKeys {

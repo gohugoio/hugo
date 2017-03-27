@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/helpers"
@@ -43,6 +45,9 @@ type Deps struct {
 	WithTemplate     func(templ tpl.Template) error `json:"-"`
 
 	translationProvider ResourceProvider
+
+	mtx     *sync.Mutex
+	Timings map[string][]time.Duration // for template analysis
 }
 
 // ResourceProvider is used to create and refresh, and clone resources needed.
@@ -102,6 +107,8 @@ func New(cfg DepsCfg) *Deps {
 		ContentSpec:         helpers.NewContentSpec(cfg.Language),
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
+		mtx:                 &sync.Mutex{},
+		Timings:             make(map[string][]time.Duration),
 	}
 
 	return d
@@ -126,6 +133,12 @@ func (d Deps) ForLanguage(l *helpers.Language) (*Deps, error) {
 
 	return &d, nil
 
+}
+
+func (d *Deps) AddTemplateTiming(path string, dt time.Duration) {
+	d.mtx.Lock()
+	d.Timings[path] = append(d.Timings[path], dt)
+	d.mtx.Unlock()
 }
 
 // DepsCfg contains configuration options that can be used to configure Hugo
