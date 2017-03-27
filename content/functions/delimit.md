@@ -12,7 +12,7 @@ categories: [functions]
 tags: [iteration]
 toc: false
 ns:
-signature: [] ""
+signature: []
 workson: [lists,taxonomies,terms]
 hugoversion:
 relatedfuncs: []
