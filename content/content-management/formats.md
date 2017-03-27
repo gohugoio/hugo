@@ -9,7 +9,7 @@ categories: [content management]
 tags: [markdown,asciidoc,mmark,content format]
 weight: 20
 draft: false
-aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/]
+aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/,/tutorials/mathjax/]
 toc: true
 ---
 
