@@ -137,10 +137,10 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 		// in the theme's layouts folder.
 		// Also note that the <current-path> may be both the project's layout folder and the theme's.
 		pairsToCheck := [][]string{
-			[]string{baseTemplatedDir, currBaseFilename},
-			[]string{baseTemplatedDir, baseFilename},
-			[]string{"_default", currBaseFilename},
-			[]string{"_default", baseFilename},
+			{baseTemplatedDir, currBaseFilename},
+			{baseTemplatedDir, baseFilename},
+			{"_default", currBaseFilename},
+			{"_default", baseFilename},
 		}
 
 	Loop:

@@ -718,7 +718,7 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 
 	}
 
-	for shortcode, _ := range shortcodesChanged {
+	for shortcode := range shortcodesChanged {
 		// There are certain scenarios that, when a shortcode changes,
 		// it isn't sufficient to just rerender the already parsed shortcode.
 		// One example is if the user adds a new shortcode to the content file first,
