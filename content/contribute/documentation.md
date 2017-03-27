@@ -47,7 +47,7 @@ Once you have cloned the Hugo repository, you can create a new function via the 
 hugo new functions/newfunction.md
 ```
 
-The archetype for the `functions` content type is as follows:
+The archetype for `functions` according to the Hugo theme is as follows:
 
 {{% code file="archetypes/functions.md" %}}
 ```yaml

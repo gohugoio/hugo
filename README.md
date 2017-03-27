@@ -14,7 +14,8 @@ I reorganized the docs content and realized it did very little to make the docum
 
 So, I'm running with it...
 
-TODO:
-Fix theme /content/content-management/archetypes.md where theme is indicated
-Fix theme /content/contribute/documentation.md where theme is indicated
-Fix theme /content/templates/files.md where theme is indicated
+TODOs:
+
+- [X] Fix theme /content/content-management/archetypes.md where theme is indicated
+- [X] Fix theme /content/contribute/documentation.md where theme is indicated
+- [X] Fix theme /content/templates/files.md where theme is indicated
