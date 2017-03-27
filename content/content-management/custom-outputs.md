@@ -124,17 +124,19 @@ path = "amp"
 
 Note that Hugo well hard code a predefined list of the most common output types (not sure what that would be, suggestions welcome) with the obvious identifiers and sensible defaults: So whenever you want them, you can just say "json, yaml, amp ..." etc.
 
-Page frontmatter:
+Page front matter:
 
 ```
 title = "My Home Page"
 outputs = ["html", "rss", "json", "calendar", "amp" ]
 ```
 
-About the `outputs` in the page frontmatter:
+About the `outputs` in the page front matter:
 
-* If none is provided, it defaults to the current behaviour (HTML + RSS (for the list pages))
-* Is some are provided, no defaults will be added. So, if you want the plain HTML representation, you must be explicit. This way you can have the home page as JSON only if you want.
+* If none is provided, it defaults to the current behaviour (i.e. HTML for all pages and RSS for the list pages)
+* If some are provided, no defaults will be added. So, if you want the plain HTML representation, you must be explicit. This way you can have the home page as JSON only if you want.
 * The names used are case-insensitive and must match either a definition in `config.toml` or the standard set.
 
-**Note that it should also be possible to set a list of default output formats in `config.toml`, avoiding the need to repeat the `outputs` list in thousands of pages, with a way to restrict each type to a set of pages (using `Kind`, probably).**
+{{% note %}}
+It should also be possible to set a list of default output formats in `config.toml`, avoiding the need to repeat the `outputs` list in thousands of pages, with a way to restrict each type to a set of pages (using `Kind`, probably).
+{{% /note %}}
