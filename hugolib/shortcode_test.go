@@ -30,7 +30,7 @@ import (
 )
 
 // TODO(bep) remove
-func pageFromString(in, filename string, withTemplate ...func(templ tpl.Template) error) (*Page, error) {
+func pageFromString(in, filename string, withTemplate ...func(templ tpl.TemplateHandler) error) (*Page, error) {
 	s := newTestSite(nil)
 	if len(withTemplate) > 0 {
 		// Have to create a new site
@@ -47,11 +47,11 @@ func pageFromString(in, filename string, withTemplate ...func(templ tpl.Template
 	return s.NewPageFrom(strings.NewReader(in), filename)
 }
 
-func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error) {
+func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error) {
 	CheckShortCodeMatchAndError(t, input, expected, withTemplate, false)
 }
 
-func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tpl.Template) error, expectError bool) {
+func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error, expectError bool) {
 
 	cfg, fs := newTestCfg()
 
@@ -100,8 +100,9 @@ func TestNonSC(t *testing.T) {
 // Issue #929
 func TestHyphenatedSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
+	wt := func(tem tpl.TemplateHandler) error {
+
+		tem.AddTemplate("_internal/shortcodes/hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
 		return nil
 	}
 
@@ -111,8 +112,8 @@ func TestHyphenatedSC(t *testing.T) {
 // Issue #1753
 func TestNoTrailingNewline(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("a.html", `{{ .Get 0 }}`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/a.html", `{{ .Get 0 }}`)
 		return nil
 	}
 
@@ -121,8 +122,8 @@ func TestNoTrailingNewline(t *testing.T) {
 
 func TestPositionalParamSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/video.html", `Playing Video {{ .Get 0 }}`)
 		return nil
 	}
 
@@ -135,8 +136,8 @@ func TestPositionalParamSC(t *testing.T) {
 
 func TestPositionalParamIndexOutOfBounds(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 1 }}`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/video.html", `Playing Video {{ .Get 1 }}`)
 		return nil
 	}
 	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video error: index out of range for positional param at position 1", wt)
@@ -146,8 +147,8 @@ func TestPositionalParamIndexOutOfBounds(t *testing.T) {
 
 func TestNamedParamSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< img src="one" >}}`, `<img src="one">`, wt)
@@ -161,10 +162,10 @@ func TestNamedParamSC(t *testing.T) {
 // Issue #2294
 func TestNestedNamedMissingParam(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("acc.html", `<div class="acc">{{ .Inner }}</div>`)
-		tem.AddInternalShortcode("div.html", `<div {{with .Get "class"}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
-		tem.AddInternalShortcode("div2.html", `<div {{with .Get 0}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/acc.html", `<div class="acc">{{ .Inner }}</div>`)
+		tem.AddTemplate("_internal/shortcodes/div.html", `<div {{with .Get "class"}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
+		tem.AddTemplate("_internal/shortcodes/div2.html", `<div {{with .Get 0}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
 		return nil
 	}
 	CheckShortCodeMatch(t,
@@ -174,10 +175,10 @@ func TestNestedNamedMissingParam(t *testing.T) {
 
 func TestIsNamedParamsSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("byposition.html", `<div id="{{ .Get 0 }}">`)
-		tem.AddInternalShortcode("byname.html", `<div id="{{ .Get "id" }}">`)
-		tem.AddInternalShortcode("ifnamedparams.html", `<div id="{{ if .IsNamedParams }}{{ .Get "id" }}{{ else }}{{ .Get 0 }}{{end}}">`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/byposition.html", `<div id="{{ .Get 0 }}">`)
+		tem.AddTemplate("_internal/shortcodes/byname.html", `<div id="{{ .Get "id" }}">`)
+		tem.AddTemplate("_internal/shortcodes/ifnamedparams.html", `<div id="{{ if .IsNamedParams }}{{ .Get "id" }}{{ else }}{{ .Get 0 }}{{end}}">`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< ifnamedparams id="name" >}}`, `<div id="name">`, wt)
@@ -190,8 +191,8 @@ func TestIsNamedParamsSC(t *testing.T) {
 
 func TestInnerSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< inside class="aspen" >}}`, `<div class="aspen"></div>`, wt)
@@ -201,8 +202,8 @@ func TestInnerSC(t *testing.T) {
 
 func TestInnerSCWithMarkdown(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{% inside %}}
@@ -215,8 +216,8 @@ func TestInnerSCWithMarkdown(t *testing.T) {
 
 func TestInnerSCWithAndWithoutMarkdown(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{% inside %}}
@@ -246,9 +247,9 @@ func TestEmbeddedSC(t *testing.T) {
 
 func TestNestedSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("scn1.html", `<div>Outer, inner is {{ .Inner }}</div>`)
-		tem.AddInternalShortcode("scn2.html", `<div>SC2</div>`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/scn1.html", `<div>Outer, inner is {{ .Inner }}</div>`)
+		tem.AddTemplate("_internal/shortcodes/scn2.html", `<div>SC2</div>`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{% scn1 %}}{{% scn2 %}}{{% /scn1 %}}`, "<div>Outer, inner is <div>SC2</div>\n</div>", wt)
@@ -258,10 +259,10 @@ func TestNestedSC(t *testing.T) {
 
 func TestNestedComplexSC(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("row.html", `-row-{{ .Inner}}-rowStop-`)
-		tem.AddInternalShortcode("column.html", `-col-{{.Inner    }}-colStop-`)
-		tem.AddInternalShortcode("aside.html", `-aside-{{    .Inner  }}-asideStop-`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/row.html", `-row-{{ .Inner}}-rowStop-`)
+		tem.AddTemplate("_internal/shortcodes/column.html", `-col-{{.Inner    }}-colStop-`)
+		tem.AddTemplate("_internal/shortcodes/aside.html", `-aside-{{    .Inner  }}-asideStop-`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< row >}}1-s{{% column %}}2-**s**{{< aside >}}3-**s**{{< /aside >}}4-s{{% /column %}}5-s{{< /row >}}6-s`,
@@ -274,10 +275,10 @@ func TestNestedComplexSC(t *testing.T) {
 
 func TestParentShortcode(t *testing.T) {
 	t.Parallel()
-	wt := func(tem tpl.Template) error {
-		tem.AddInternalShortcode("r1.html", `1: {{ .Get "pr1" }} {{ .Inner }}`)
-		tem.AddInternalShortcode("r2.html", `2: {{ .Parent.Get "pr1" }}{{ .Get "pr2" }} {{ .Inner }}`)
-		tem.AddInternalShortcode("r3.html", `3: {{ .Parent.Parent.Get "pr1" }}{{ .Parent.Get "pr2" }}{{ .Get "pr3" }} {{ .Inner }}`)
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/r1.html", `1: {{ .Get "pr1" }} {{ .Inner }}`)
+		tem.AddTemplate("_internal/shortcodes/r2.html", `2: {{ .Parent.Get "pr1" }}{{ .Get "pr2" }} {{ .Inner }}`)
+		tem.AddTemplate("_internal/shortcodes/r3.html", `3: {{ .Parent.Parent.Get "pr1" }}{{ .Parent.Get "pr2" }}{{ .Get "pr3" }} {{ .Inner }}`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< r1 pr1="p1" >}}1: {{< r2 pr2="p2" >}}2: {{< r3 pr3="p3" >}}{{< /r3 >}}{{< /r2 >}}{{< /r1 >}}`,
@@ -342,13 +343,13 @@ func TestExtractShortcodes(t *testing.T) {
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
-		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.Template) error {
-			templ.AddInternalShortcode("tag.html", `tag`)
-			templ.AddInternalShortcode("sc1.html", `sc1`)
-			templ.AddInternalShortcode("sc2.html", `sc2`)
-			templ.AddInternalShortcode("inner.html", `{{with .Inner }}{{ . }}{{ end }}`)
-			templ.AddInternalShortcode("inner2.html", `{{.Inner}}`)
-			templ.AddInternalShortcode("inner3.html", `{{.Inner}}`)
+		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.TemplateHandler) error {
+			templ.AddTemplate("_internal/shortcodes/tag.html", `tag`)
+			templ.AddTemplate("_internal/shortcodes/sc1.html", `sc1`)
+			templ.AddTemplate("_internal/shortcodes/sc2.html", `sc2`)
+			templ.AddTemplate("_internal/shortcodes/inner.html", `{{with .Inner }}{{ . }}{{ end }}`)
+			templ.AddTemplate("_internal/shortcodes/inner2.html", `{{.Inner}}`)
+			templ.AddTemplate("_internal/shortcodes/inner3.html", `{{.Inner}}`)
 			return nil
 		})
 
@@ -517,14 +518,14 @@ tags:
 		sources[i] = source.ByteSource{Name: filepath.FromSlash(test.contentPath), Content: []byte(test.content)}
 	}
 
-	addTemplates := func(templ tpl.Template) error {
+	addTemplates := func(templ tpl.TemplateHandler) error {
 		templ.AddTemplate("_default/single.html", "{{.Content}}")
 
-		templ.AddInternalShortcode("b.html", `b`)
-		templ.AddInternalShortcode("c.html", `c`)
-		templ.AddInternalShortcode("d.html", `d`)
-		templ.AddInternalShortcode("menu.html", `{{ len (index .Page.Menus "main").Children }}`)
-		templ.AddInternalShortcode("tags.html", `{{ len .Page.Site.Taxonomies.tags }}`)
+		templ.AddTemplate("_internal/shortcodes/b.html", `b`)
+		templ.AddTemplate("_internal/shortcodes/c.html", `c`)
+		templ.AddTemplate("_internal/shortcodes/d.html", `d`)
+		templ.AddTemplate("_internal/shortcodes/menu.html", `{{ len (index .Page.Menus "main").Children }}`)
+		templ.AddTemplate("_internal/shortcodes/tags.html", `{{ len .Page.Site.Taxonomies.tags }}`)
 
 		return nil
 
