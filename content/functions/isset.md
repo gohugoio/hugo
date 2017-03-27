@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: []
 ns:
-signature: []
+signature: ["isset COLLECTION INDEX", "isset COLLECTION KEY"]
 workson: []
 hugoversion:
 relatedfuncs: []

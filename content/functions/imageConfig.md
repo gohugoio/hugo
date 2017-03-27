@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [images]
 ns:
-signature: []
+signature: ["imageConfig PATH"]
 workson: []
 hugoversion:
 relatedfuncs: []

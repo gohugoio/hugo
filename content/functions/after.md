@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [iteration]
 ns:
-signature: []
+signature: ["after INDEX COLLECTION"]
 workson: []
 hugoversion:
 relatedfuncs: [last,first,seq]

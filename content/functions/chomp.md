@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [trim]
 ns:
-signature: []
+signature: ["chomp INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: [truncate]

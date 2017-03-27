@@ -10,7 +10,7 @@ tags: []
 categories: [functions]
 toc:
 ns:
-signature: []
+signature: ["Param KEY"]
 workson: []
 hugoversion:
 relatedfuncs: []

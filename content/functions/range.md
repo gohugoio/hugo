@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [iteration,fundamentals]
 ns:
-signature: []
+signature: ["range COLLECTION"]
 workson: []
 hugoversion:
 relatedfuncs: []

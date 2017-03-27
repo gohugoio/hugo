@@ -9,8 +9,8 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [dates,time]
 ns:
-signature: []
-workson: []
+signature: ["AddDate YEARS MONTHS DAYS"]
+workson: [times]
 hugoversion:
 relatedfuncs: [now]
 deprecated: false

@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [files]
 ns:
-signature: []
+signature: ["readFile PATH"]
 workson: []
 hugoversion:
 relatedfuncs: [readDir]

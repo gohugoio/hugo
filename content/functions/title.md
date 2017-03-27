@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [fundamentals,strings]
 ns:
-signature: []
+signature: ["title INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: []

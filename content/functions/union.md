@@ -9,7 +9,7 @@ lastmod: 2017-03-12
 categories: [functions]
 tags: [filtering,lists]
 ns:
-signature: []
+signature: ["union SET1 SET2"]
 workson: []
 hugoversion: 0.20
 relatedfuncs: [intersect,where]

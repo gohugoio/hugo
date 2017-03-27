@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [multilingual,i18n,urls]
 ns:
-signature: []
+signature: ["absLangURL INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: [relLangURL]

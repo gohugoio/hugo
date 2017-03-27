@@ -9,8 +9,8 @@ lastmod: 2017-02-01
 tags: [dates,time]
 categories: [functions]
 ns:
-signature: []
-workson: []
+signature: ["Unix"]
+workson: [times]
 hugoversion:
 relatedfuncs: [Format,dateFormat,now,time]
 deprecated: false

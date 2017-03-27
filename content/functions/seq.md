@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: []
 ns:
-signature: []
+signature: ["seq LAST", "seq FIRST LAST", "seq FIRST INCREMENT LAST"]
 workson: []
 hugoversion:
 relatedfuncs: []

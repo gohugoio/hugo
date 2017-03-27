@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [regex]
 ns:
-signature: []
+signature: ["findRE PATTERN INPUT [LIMIT]"]
 workson: []
 hugoversion:
 relatedfuncs: []

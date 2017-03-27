@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [sections,lists,indexes]
 ns:
-signature: []
+signature: ["GetPage TYPE PATH"]
 workson: []
 hugoversion:
 relatedfuncs: []

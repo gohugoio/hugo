@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [shortcodes]
 ns:
-signature: []
+signature: ["Get INDEX", "Get KEY"]
 workson: []
 hugoversion:
 relatedfuncs: []

@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [dates,time]
 ns:
-signature: []
+signature: ["now"]
 workson: []
 hugoversion:
 relatedfuncs: [Unix,dateFormat]

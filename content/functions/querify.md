@@ -9,7 +9,7 @@ categories: [functions]
 tags: [urls]
 godocref:
 ns:
-signature: []
+signature: ["querify KEY VALUE [KEY VALUE]..."]
 hugoversion:
 deprecated: false
 workson: []

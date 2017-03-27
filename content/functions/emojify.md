@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [strings,emojis]
 ns:
-signature: []
+signature: ["emojify INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: []

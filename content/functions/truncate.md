@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [strings]
 ns:
-signature: []
+signature: ["truncate SIZE INPUT", "truncate SIZE ELLIPSIS INPUT"]
 workson: []
 hugoversion: 19
 relatedfuncs: []

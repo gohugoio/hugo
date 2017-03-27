@@ -1,6 +1,6 @@
 ---
 title: base64
-linktitle: base64
+linktitle: base64Encode and base64Decode
 description: base64Encode and base64Decode let you easily decode content with a base64 encoding and vice versa through pipes.
 godocref:
 date: 2017-02-01
@@ -10,7 +10,7 @@ categories: [functions]
 tags: []
 relatedfuncs: []
 ns:
-signature: []
+signature: ["base64Decode INPUT", "base64Encode INPUT"]
 workson: []
 hugoversion:
 deprecated: false

@@ -10,8 +10,8 @@ categories: [functions]
 tags: [menus]
 toc:
 ns:
-signature: []
-workson: []
+signature: ["HasChildren"]
+workson: [menus]
 hugoversion:
 relatedfuncs: []
 deprecated: false

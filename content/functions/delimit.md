@@ -12,7 +12,7 @@ categories: [functions]
 tags: [iteration]
 toc: false
 ns:
-signature: []
+signature: ["delimit COLLECTION DELIMIT LAST"]
 workson: [lists,taxonomies,terms]
 hugoversion:
 relatedfuncs: []
