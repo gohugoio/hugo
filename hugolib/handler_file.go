@@ -27,6 +27,14 @@ func init() {
 
 type basicFileHandler Handle
 
+func (h basicFileHandler) FilenamePatterns() []string {
+	return nil
+}
+
+func (h basicFileHandler) IgnoreFilenamePatterns() []string {
+	return nil
+}
+
 func (h basicFileHandler) Read(f *source.File, s *Site) HandledResult {
 	return HandledResult{file: f}
 }

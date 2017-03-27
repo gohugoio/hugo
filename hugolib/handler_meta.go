@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/hugo/source"
+	"regexp"
 )
 
 var handlers []Handler
@@ -35,15 +36,20 @@ type MetaHandler interface {
 
 type HandleResults chan<- HandledResult
 
-func NewMetaHandler(in string) *MetaHandle {
-	x := &MetaHandle{ext: in}
+func NewMetaHandler(ext string) *MetaHandle {
+	return NewFilenameMetaHandler(ext, "*")
+}
+
+func NewFilenameMetaHandler(ext string, filename string) *MetaHandle {
+	x := &MetaHandle{ext: ext, filename: filename}
 	x.Handler()
 	return x
 }
 
 type MetaHandle struct {
-	handler Handler
-	ext     string
+	handler  Handler
+	ext      string
+	filename string
 }
 
 func (mh *MetaHandle) Read(f *source.File, s *Site, results HandleResults) {
@@ -80,26 +86,46 @@ func (mh *MetaHandle) Convert(i interface{}, s *Site, results HandleResults) {
 
 func (mh *MetaHandle) Handler() Handler {
 	if mh.handler == nil {
-		mh.handler = FindHandler(mh.ext)
+		mh.handler = FindHandler(mh.ext, mh.filename)
 
 		// if no handler found, use default handler
 		if mh.handler == nil {
-			mh.handler = FindHandler("*")
+			mh.handler = FindHandler("*", "*")
 		}
 	}
 	return mh.handler
 }
 
-func FindHandler(ext string) Handler {
+func FindHandler(ext string, filename string) Handler {
 	for _, h := range Handlers() {
-		if HandlerMatch(h, ext) {
+		if HandlerMatch(h, ext, filename) {
 			return h
 		}
 	}
 	return nil
 }
 
-func HandlerMatch(h Handler, ext string) bool {
+func HandlerMatch(h Handler, ext string, filename string) bool {
+	match := true
+	if len(h.FilenamePatterns()) > 0 && filename != "*" {
+		match = checkFileNameMatch(filename, h.FilenamePatterns())
+	}
+	if len(h.IgnoreFilenamePatterns()) > 0 && filename != "*" {
+		match = match && !checkFileNameMatch(filename, h.IgnoreFilenamePatterns())
+	}
+	return match && checkFileExtension(h, ext)
+}
+
+func checkFileNameMatch(filename string, filenamePatterns []string) bool {
+	for _, filenamePattern := range filenamePatterns {
+		if match, err := regexp.MatchString(filenamePattern, filename); err == nil && match {
+			return true
+		}
+	}
+	return false
+}
+
+func checkFileExtension(h Handler, ext string) bool {
 	for _, x := range h.Extensions() {
 		if ext == x {
 			return true

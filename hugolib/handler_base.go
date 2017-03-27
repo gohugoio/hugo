@@ -22,6 +22,8 @@ type Handler interface {
 	PageConvert(*Page) HandledResult
 	Read(*source.File, *Site) HandledResult
 	Extensions() []string
+	IgnoreFilenamePatterns() []string
+	FilenamePatterns() []string
 }
 
 type Handle struct {
@@ -33,9 +35,10 @@ func (h Handle) Extensions() []string {
 }
 
 type HandledResult struct {
-	page *Page
-	file *source.File
-	err  error
+	page    *Page
+	snippet *Page
+	file    *source.File
+	err     error
 }
 
 // HandledResult is an error

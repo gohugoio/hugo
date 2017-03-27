@@ -121,6 +121,8 @@ const (
 	// shortcode items
 	tLeftDelimScNoMarkup
 	tRightDelimScNoMarkup
+	tLeftDelimScReuse
+	tRightDelimScReuse
 	tLeftDelimScWithMarkup
 	tRightDelimScWithMarkup
 	tScClose
@@ -195,6 +197,8 @@ const (
 	rightDelimScNoMarkup   = ">}}"
 	leftDelimScWithMarkup  = "{{%"
 	rightDelimScWithMarkup = "%}}"
+	leftDelimScReuse       = "{{~"
+	rightDelimScReuse      = "~}}"
 	leftComment            = "/*" // comments in this context us used to to mark shortcodes as "not really a shortcode"
 	rightComment           = "*/"
 )
@@ -275,16 +279,20 @@ func (l *pagelexer) nextItem() item {
 // if no shortcodes, it will keep on scanning until EOF
 func lexTextOutsideShortcodes(l *pagelexer) stateFunc {
 	for {
-		if strings.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) || strings.HasPrefix(l.input[l.pos:], leftDelimScNoMarkup) {
+		if strings.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) || strings.HasPrefix(l.input[l.pos:], leftDelimScNoMarkup) ||
+			strings.HasPrefix(l.input[l.pos:], leftDelimScReuse) {
 			if l.pos > l.start {
 				l.emit(tText)
 			}
 			if strings.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) {
 				l.currLeftDelimItem = tLeftDelimScWithMarkup
 				l.currRightDelimItem = tRightDelimScWithMarkup
-			} else {
+			} else if strings.HasPrefix(l.input[l.pos:], leftDelimScNoMarkup) {
 				l.currLeftDelimItem = tLeftDelimScNoMarkup
 				l.currRightDelimItem = tRightDelimScNoMarkup
+			} else {
+				l.currLeftDelimItem = tLeftDelimScReuse
+				l.currRightDelimItem = tRightDelimScReuse
 			}
 			return lexShortcodeLeftDelim
 
@@ -557,15 +565,20 @@ func (l *pagelexer) currentLeftShortcodeDelim() string {
 	if l.currLeftDelimItem == tLeftDelimScWithMarkup {
 		return leftDelimScWithMarkup
 	}
-	return leftDelimScNoMarkup
-
+	if l.currLeftDelimItem == tLeftDelimScNoMarkup {
+		return leftDelimScNoMarkup
+	}
+	return leftDelimScReuse
 }
 
 func (l *pagelexer) currentRightShortcodeDelim() string {
 	if l.currRightDelimItem == tRightDelimScWithMarkup {
 		return rightDelimScWithMarkup
 	}
-	return rightDelimScNoMarkup
+	if l.currRightDelimItem == tRightDelimScNoMarkup {
+		return rightDelimScNoMarkup
+	}
+	return rightDelimScReuse
 }
 
 // helper functions

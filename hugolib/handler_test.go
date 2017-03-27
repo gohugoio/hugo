@@ -41,6 +41,7 @@ func TestDefaultHandler(t *testing.T) {
 	writeSource(t, fs, filepath.FromSlash("content/sect/img2.spf"), "****FAKE-FILETYPE****")
 	writeSource(t, fs, filepath.FromSlash("content/doc7.html"), "<html><body>doc7 content</body></html>")
 	writeSource(t, fs, filepath.FromSlash("content/sect/doc8.html"), "---\nmarkup: md\n---\n# title\nsome *content*")
+	writeSource(t, fs, filepath.FromSlash("content/setc/doc9.snippet.md"), "# doc9\n*some* content")
 
 	writeSource(t, fs, filepath.FromSlash("layouts/_default/single.html"), "{{.Content}}")
 	writeSource(t, fs, filepath.FromSlash("head"), "<head><script src=\"script.js\"></script></head>")
@@ -75,4 +76,14 @@ func TestDefaultHandler(t *testing.T) {
 		}
 	}
 
+	pageSnippets := []string{
+		filepath.FromSlash("public/sect/doc9.snippet.html"),
+	}
+
+	for _, snippet := range pageSnippets {
+		_, err := fs.Destination.Open(snippet)
+		if err == nil {
+			t.Fatalf("Snippet %s must not be public available", snippet)
+		}
+	}
 }
