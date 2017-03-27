@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [operators,logic]
 ns:
-signature:
+signature: []
 workson: []
 hugoversion:
 relatedfuncs: []

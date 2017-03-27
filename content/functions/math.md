@@ -10,7 +10,7 @@ tags: [math, operators]
 categories: [functions]
 toc:
 ns:
-signature:
+signature: []
 workson: []
 hugoversion:
 relatedfuncs: []

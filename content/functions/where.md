@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [filtering]
 ns:
-signature:
+signature: []
 workson: [lists,taxonomies,terms,groups]
 hugoversion:
 relatedfuncs: [intersect,first,after,last]

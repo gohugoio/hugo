@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [strings,json]
 ns:
-signature:
+signature: []
 workson: []
 hugoversion:
 relatedfuncs: [plainify]

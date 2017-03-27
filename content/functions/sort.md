@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 categories: [functions]
 tags: [ordering,sorting,lists]
 ns:
-signature:
+signature: []
 workson: [lists,taxonomies,terms,groups]
 hugoversion:
 relatedfuncs: []

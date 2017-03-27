@@ -10,7 +10,7 @@ categories: [functions]
 tags: []
 relatedfuncs: []
 ns:
-signature:
+signature: []
 workson: []
 hugoversion:
 deprecated: false

@@ -10,7 +10,7 @@ categories: [functions]
 tags: [menus]
 toc:
 ns:
-signature:
+signature: []
 workson: []
 hugoversion:
 relatedfuncs: []

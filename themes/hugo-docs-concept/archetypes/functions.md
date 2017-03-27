@@ -6,7 +6,7 @@ publishdate: ""
 lastmod: ""
 categories: [functions]
 tags: []
-signature: ""
+signature: []
 workson: []
 hugoversion: ""
 aliases: []

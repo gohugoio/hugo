@@ -10,7 +10,7 @@ categories: [functions]
 tags: [strings]
 aliases: []
 ns:
-signature:
+signature: []
 workson: []
 hugoversion:
 relatedfuncs: []

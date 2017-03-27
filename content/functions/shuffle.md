@@ -9,7 +9,7 @@ lastmod: 2017-02-01
 tags: [ordering]
 categories: [functions]
 ns:
-signature:
+signature: []
 workson: []
 hugoversion:
 relatedfuncs: []

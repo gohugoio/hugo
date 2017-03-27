@@ -9,7 +9,7 @@ categories: [functions]
 tags: [urls]
 godocref:
 ns:
-signature:
+signature: []
 hugoversion:
 deprecated: false
 workson: []
