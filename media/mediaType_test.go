@@ -20,25 +20,29 @@ import (
 )
 
 func TestDefaultTypes(t *testing.T) {
-	require.Equal(t, "text", CalendarType.MainType)
-	require.Equal(t, "calendar", CalendarType.SubType)
-	require.Equal(t, "ics", CalendarType.Suffix)
+	for _, test := range []struct {
+		tp               Type
+		expectedMainType string
+		expectedSubType  string
+		expectedSuffix   string
+		expectedType     string
+		expectedString   string
+	}{
+		{CalendarType, "text", "calendar", "ics", "text/calendar", "text/calendar+ics"},
+		{CSSType, "text", "css", "css", "text/css", "text/css+css"},
+		{HTMLType, "text", "html", "html", "text/html", "text/html+html"},
+		{JavascriptType, "application", "javascript", "js", "application/javascript", "application/javascript+js"},
+		{JSONType, "application", "json", "json", "application/json", "application/json+json"},
+		{RSSType, "application", "rss", "xml", "application/rss", "application/rss+xml"},
+		{TextType, "text", "plain", "txt", "text/plain", "text/plain+txt"},
+	} {
+		require.Equal(t, test.expectedMainType, test.tp.MainType)
+		require.Equal(t, test.expectedSubType, test.tp.SubType)
+		require.Equal(t, test.expectedSuffix, test.tp.Suffix)
 
-	require.Equal(t, "text/calendar+ics", CalendarType.String())
-	require.Equal(t, "text/calendar", CalendarType.Type())
+		require.Equal(t, test.expectedType, test.tp.Type())
+		require.Equal(t, test.expectedString, test.tp.String())
 
-	require.Equal(t, "text", HTMLType.MainType)
-	require.Equal(t, "html", HTMLType.SubType)
-	require.Equal(t, "html", HTMLType.Suffix)
-
-	require.Equal(t, "text/html", HTMLType.Type())
-	require.Equal(t, "text/html+html", HTMLType.String())
-
-	require.Equal(t, "application", RSSType.MainType)
-	require.Equal(t, "rss", RSSType.SubType)
-	require.Equal(t, "xml", RSSType.Suffix)
-
-	require.Equal(t, "application/rss", RSSType.Type())
-	require.Equal(t, "application/rss+xml", RSSType.String())
+	}
 
 }
