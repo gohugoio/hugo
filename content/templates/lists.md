@@ -44,6 +44,117 @@ Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxte
 1. `layouts/_default/taxonomy.html`
 2. `themes/<THEME>/layouts/_default/taxonomy.html`
 
+## Adding Content to List Pages
+
+Since v0.18, [everything in Hugo is a `Page`][bepsays]. This means list pages and the homepage can have associated content files---i.e. `_index.md`---that contains page metadata (i.e., front matter) and content. This model allows you to include list-specific front matter via `.Params` and also means that list templates (e.g., `layouts/_default/list.html`) also have access to all [page variables][pagevars].
+
+### Example Project Directory
+
+The following is an example of a typical Hugo project directory:
+
+```bash
+.
+├── config.toml
+├── content
+|   ├── post
+|   |   ├── _index.md
+|   |   ├── post-01.md
+|   |   └── post-02.md
+|   └── quote
+|   |   ├── quote-01.md
+|   |   └── quote-02.md
+```
+
+Using the above example, let's assume you have the following in `content/post/_index.md`:
+
+{{% code file="content/post/_index.md" %}}
+```yaml
+---
+title: My Golang Journey
+date: 2017-03-23
+publishdate: 2017-03-24
+---
+
+I decided to start learning Golang in March 2017.
+
+Follow my journey through this new blog.
+```
+{{% /code %}}
+
+You can now access this `_index.md`'s' content in your list template:
+
+{{% code file="layouts/_default/list.html" %}}
+```html
+{{ define "main" }}
+<main class="main">
+    <article>
+        <header>
+            <h1>{{.Title}}</h1>
+        </header>
+        {{.Content}}
+    </article>
+    <ul class="section-contents">
+    {{ range .Data.Pages }}
+        <li>
+            <a href="{{.Permalink}}">{{.Date.Format "2006-01-02"}} | {{.Title}}</a
+        </li>
+    {{ end }}
+    </ul>
+</main>
+{{ end }}
+```
+{{% /code %}}
+
+This above will output the following HTML:
+
+{{% code file="yoursite.com/post/index.html" copy="false" %}}
+```html
+<!--all your baseof.html code-->
+<main class="main">
+    <article>
+        <header>
+            <h1>My Golang Journey</h1>
+        </header>
+        <p>I decided to start learning Golang in March 2017.</p>
+        <p>Follow my journey through this new blog.</p>
+    </article>
+    <ul class="section-contents">
+        <li><a href="/post/post-01/">Post 1</a></li>
+        <li><a href="/post/post-02/">Post 2</a></li>
+    </ul>
+</main>
+<!--all your other baseof.html code-->
+```
+{{% /code %}}
+
+### List Pages Without `_index.md`
+
+You do *not* have to create an `_index.md` file for every list page (i.e. section, taxonomy, taxonomy terms, etc) or the homepage. If Hugo does not find an `_index.md` within the respective content section when rendering a [list template][lists], the page will be created but with no `{{.Content}}` and only the default values for `.Title` etc.
+
+Using this same `layouts/_default/list.html` template and applying it to the the `quotes` section above will render the following output. Note that `quotes` does not have an `_index.md` file to pull from:
+
+{{% code file="yoursite.com/quote/index.html" copy="false" %}}
+```html
+<!--baseof.html code-->
+<main class="main">
+    <article>
+        <header>
+            <h1>Quotes</h1>
+        </header>
+    </article>
+    <ul class="section-contents">
+        <li><a href="https://yoursite.com/quote/quotes-01/">Quote 1</a></li>
+        <li><a href="https://yoursite.com/quote/quotes-02/">Quote 2</a></li>
+    </ul>
+</main>
+<!--baseof.html code-->
+```
+{{% /code %}}
+
+{{% note %}}
+The default behavior of Hugo is to pluralize list titles; hence the inflection of the `quote` section to "Quotes" when called with the `.Title` [page variable](/variables/page/). You can change this via the `pluralizeListTitles` directive in your [site configuration](/getting-started/configuration/).
+{{% /note %}}
+
 
 ## Example List Templates
 
@@ -446,6 +557,7 @@ Using `first` and `where` together can be very powerful:
 {{% /code %}}
 
 
+[bepsays]: http://bepsays.com/en/2016/12/19/hugo-018/
 [directorystructure]: /getting-started/directory-structure/
 [homepage]: /templates/homepage/
 [homepage]: /templates/homepage/

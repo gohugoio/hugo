@@ -33,7 +33,7 @@ You can limit the number of matches in the list with a third parameter. The foll
     <!-- returns ["<h2 id="#foo">Foo</h2>"] -->
 ```
 
-<!-- Removed per request of @bep -->
+<!-- Removed per request of @bep: https://github.com/spf13/hugo/issues/3188 -->
 <!-- ## `findRE` Example: Building a Table of Contents
 
 `findRE` allows us to build an automatically generated table of contents that could be used for a simple scrollspy if you don't want to use [Hugo's native .TableOfContents feature][toc]. The following shows how this could be done in a [partial template][partials]:
