@@ -127,11 +127,11 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	return newHugoSites(cfg, sites...)
 }
 
-func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.Template) error) func(templ tpl.Template) error {
-	return func(templ tpl.Template) error {
-		templ.LoadTemplates(s.PathSpec.GetLayoutDirPath())
+func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateHandler) error) func(templ tpl.TemplateHandler) error {
+	return func(templ tpl.TemplateHandler) error {
+		templ.LoadTemplates(s.PathSpec.GetLayoutDirPath(), "")
 		if s.PathSpec.ThemeSet() {
-			templ.LoadTemplatesWithPrefix(s.PathSpec.GetThemeDir()+"/layouts", "theme")
+			templ.LoadTemplates(s.PathSpec.GetThemeDir()+"/layouts", "theme")
 		}
 
 		for _, wt := range withTemplates {

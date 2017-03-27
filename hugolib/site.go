@@ -193,7 +193,7 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 // NewSiteDefaultLang creates a new site in the default language.
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
-func NewSiteDefaultLang(withTemplate ...func(templ tpl.Template) error) (*Site, error) {
+func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
 	v := viper.New()
 	loadDefaultSettingsFor(v)
 	return newSiteForLang(helpers.NewDefaultLanguage(v), withTemplate...)
@@ -202,15 +202,15 @@ func NewSiteDefaultLang(withTemplate ...func(templ tpl.Template) error) (*Site, 
 // NewEnglishSite creates a new site in English language.
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
-func NewEnglishSite(withTemplate ...func(templ tpl.Template) error) (*Site, error) {
+func NewEnglishSite(withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
 	v := viper.New()
 	loadDefaultSettingsFor(v)
 	return newSiteForLang(helpers.NewLanguage("en", v), withTemplate...)
 }
 
 // newSiteForLang creates a new site in the given language.
-func newSiteForLang(lang *helpers.Language, withTemplate ...func(templ tpl.Template) error) (*Site, error) {
-	withTemplates := func(templ tpl.Template) error {
+func newSiteForLang(lang *helpers.Language, withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
+	withTemplates := func(templ tpl.TemplateHandler) error {
 		for _, wt := range withTemplate {
 			if err := wt(templ); err != nil {
 				return err
@@ -1911,14 +1911,14 @@ Your rendered home page is blank: /index.html is zero-length
 }
 
 func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) error {
-	layout, found := s.findFirstLayout(layouts...)
-	if !found {
+	templ := s.findFirstTemplate(layouts...)
+	if templ == nil {
 		s.Log.WARN.Printf("[%s] Unable to locate layout for %s: %s\n", s.Language.Lang, name, layouts)
 
 		return nil
 	}
 
-	if err := s.renderThing(d, layout, w); err != nil {
+	if err := templ.Execute(w, d); err != nil {
 
 		// Behavior here should be dependent on if running in server or watch mode.
 		distinctErrorLogger.Printf("Error while rendering %q: %s", name, err)
@@ -1933,23 +1933,13 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 	return nil
 }
 
-func (s *Site) findFirstLayout(layouts ...string) (string, bool) {
+func (s *Site) findFirstTemplate(layouts ...string) tpl.Template {
 	for _, layout := range layouts {
-		if s.Tmpl.Lookup(layout) != nil {
-			return layout, true
+		if templ := s.Tmpl.Lookup(layout); templ != nil {
+			return templ
 		}
 	}
-	return "", false
-}
-
-func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
-
-	// If the template doesn't exist, then return, but leave the Writer open
-	if templ := s.Tmpl.Lookup(layout); templ != nil {
-		return templ.Execute(w, d)
-	}
-	return fmt.Errorf("Layout not found: %s", layout)
-
+	return nil
 }
 
 func (s *Site) publish(path string, r io.Reader) (err error) {

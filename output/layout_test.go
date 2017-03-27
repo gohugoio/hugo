@@ -64,6 +64,10 @@ func TestLayout(t *testing.T) {
 			[]string{"taxonomy/tag.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}},
 		{"RSS Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "tag"}, false, "", RSSFormat,
 			[]string{"taxonomy/tag.terms.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"}},
+		{"Home plain text", LayoutDescriptor{Kind: "home"}, true, "", JSONFormat,
+			[]string{"_text/index.json.json", "_text/index.json", "_text/_default/list.json.json", "_text/_default/list.json", "_text/theme/index.json.json", "_text/theme/index.json"}},
+		{"Page plain text", LayoutDescriptor{Kind: "page"}, true, "", JSONFormat,
+			[]string{"_text/_default/single.json.json", "_text/_default/single.json", "_text/theme/_default/single.json.json"}},
 	} {
 		t.Run(this.name, func(t *testing.T) {
 			l := NewLayoutHandler(this.hasTheme)

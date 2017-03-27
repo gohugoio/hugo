@@ -164,9 +164,9 @@ func newDebugLogger() *jww.Notepad {
 func newErrorLogger() *jww.Notepad {
 	return jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 }
-func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.Template) error {
+func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.TemplateHandler) error {
 
-	return func(templ tpl.Template) error {
+	return func(templ tpl.TemplateHandler) error {
 		for i := 0; i < len(additionalTemplates); i += 2 {
 			err := templ.AddTemplate(additionalTemplates[i], additionalTemplates[i+1])
 			if err != nil {

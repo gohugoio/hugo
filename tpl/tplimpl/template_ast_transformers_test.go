@@ -115,13 +115,13 @@ F3: {{ Echo (printf "themes/%s-theme" .Site.Params.LOWER) }}
 func TestParamsKeysToLower(t *testing.T) {
 	t.Parallel()
 
-	require.Error(t, applyTemplateTransformers(nil))
+	require.Error(t, applyTemplateTransformers(nil, nil))
 
 	templ, err := template.New("foo").Funcs(testFuncs).Parse(paramsTempl)
 
 	require.NoError(t, err)
 
-	c := newTemplateContext(templ)
+	c := newTemplateContext(createParseTreeLookup(templ))
 
 	require.Equal(t, -1, c.decl.indexOfReplacementStart([]string{}))
 
@@ -185,7 +185,7 @@ func BenchmarkTemplateParamsKeysToLower(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		c := newTemplateContext(templates[i])
+		c := newTemplateContext(createParseTreeLookup(templates[i]))
 		c.paramsKeysToLower(templ.Tree.Root)
 	}
 }
@@ -214,7 +214,7 @@ Blue: {{ $__amber_1.Blue}}
 
 	require.NoError(t, err)
 
-	c := newTemplateContext(templ)
+	c := newTemplateContext(createParseTreeLookup(templ))
 
 	c.paramsKeysToLower(templ.Tree.Root)
 
@@ -254,7 +254,7 @@ P2: {{ .Params.LOWER }}
 	require.NoError(t, err)
 	overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
 
-	c := newTemplateContext(overlayTpl)
+	c := newTemplateContext(createParseTreeLookup(overlayTpl))
 
 	c.paramsKeysToLower(overlayTpl.Tree.Root)
 
@@ -284,7 +284,7 @@ func TestTransformRecursiveTemplate(t *testing.T) {
 	templ, err := template.New("foo").Parse(recursive)
 	require.NoError(t, err)
 
-	c := newTemplateContext(templ)
+	c := newTemplateContext(createParseTreeLookup(templ))
 	c.paramsKeysToLower(templ.Tree.Root)
 
 }

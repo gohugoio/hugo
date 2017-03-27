@@ -110,9 +110,29 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 	l, err := p.layouts(layout...)
 	if err != nil {
 		helpers.DistinctErrorLog.Printf("in .Render: Failed to resolve layout %q for page %q", layout, p.pathOrTitle())
-		return template.HTML("")
+		return ""
 	}
-	return p.s.Tmpl.ExecuteTemplateToHTML(p, l...)
+
+	for _, layout := range l {
+		templ := p.s.Tmpl.Lookup(layout)
+		if templ == nil {
+			// This is legacy from when we had only one output format and
+			// HTML templates only. Some have references to layouts without suffix.
+			// We default to good old HTML.
+			templ = p.s.Tmpl.Lookup(layout + ".html")
+		}
+		if templ != nil {
+			res, err := templ.ExecuteToString(p)
+			if err != nil {
+				helpers.DistinctErrorLog.Printf("in .Render: Failed to execute template %q for page %q", layout, p.pathOrTitle())
+				return template.HTML("")
+			}
+			return template.HTML(res)
+		}
+	}
+
+	return ""
+
 }
 
 func (p *Page) Render(layout ...string) template.HTML {
