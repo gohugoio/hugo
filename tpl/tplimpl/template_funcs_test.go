@@ -281,8 +281,8 @@ urlize: bat-man
 	v.Set("CurrentContentLanguage", helpers.NewLanguage("en", v))
 
 	config := newDepsConfig(v)
-	config.WithTemplate = func(templ tpl.Template) error {
-		if _, err := templ.New("test").Parse(in); err != nil {
+	config.WithTemplate = func(templ tpl.TemplateHandler) error {
+		if err := templ.AddTemplate("test", in); err != nil {
 			t.Fatal("Got error on parse", err)
 		}
 		return nil
@@ -2858,6 +2858,56 @@ func TestReadFile(t *testing.T) {
 	}
 }
 
+func TestPartialHTMLAndText(t *testing.T) {
+	t.Parallel()
+	config := newDepsConfig(viper.New())
+
+	data := struct {
+		Name string
+	}{
+		Name: "a+b+c", // This should get encoded in HTML.
+	}
+
+	config.WithTemplate = func(templ tpl.TemplateHandler) error {
+		if err := templ.AddTemplate("htmlTemplate.html", `HTML Test Partial: {{ partial "test.foo" . -}}`); err != nil {
+			return err
+		}
+
+		if err := templ.AddTemplate("_text/textTemplate.txt", `Text Test Partial: {{ partial "test.foo" . -}}`); err != nil {
+			return err
+		}
+
+		// Use "foo" here to say that the extension doesn't really matter in this scenario.
+		// It will look for templates in "partials/test.foo" and "partials/test.foo.html".
+		if err := templ.AddTemplate("partials/test.foo", "HTML Name: {{ .Name }}"); err != nil {
+			return err
+		}
+		if err := templ.AddTemplate("_text/partials/test.foo", "Text Name: {{ .Name }}"); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	de, err := deps.New(config)
+	require.NoError(t, err)
+	require.NoError(t, de.LoadResources())
+
+	templ := de.Tmpl.Lookup("htmlTemplate.html")
+	require.NotNil(t, templ)
+	resultHTML, err := templ.ExecuteToString(data)
+	require.NoError(t, err)
+
+	templ = de.Tmpl.Lookup("_text/textTemplate.txt")
+	require.NotNil(t, templ)
+	resultText, err := templ.ExecuteToString(data)
+	require.NoError(t, err)
+
+	require.Contains(t, resultHTML, "HTML Test Partial: HTML Name: a&#43;b&#43;c")
+	require.Contains(t, resultText, "Text Test Partial: Text Name: a+b+c")
+
+}
+
 func TestPartialCached(t *testing.T) {
 	t.Parallel()
 	testCases := []struct {
@@ -2893,7 +2943,7 @@ func TestPartialCached(t *testing.T) {
 
 		config := newDepsConfig(viper.New())
 
-		config.WithTemplate = func(templ tpl.Template) error {
+		config.WithTemplate = func(templ tpl.TemplateHandler) error {
 			err := templ.AddTemplate("testroot", tmp)
 			if err != nil {
 				return err
@@ -2933,7 +2983,7 @@ func TestPartialCached(t *testing.T) {
 
 func BenchmarkPartial(b *testing.B) {
 	config := newDepsConfig(viper.New())
-	config.WithTemplate = func(templ tpl.Template) error {
+	config.WithTemplate = func(templ tpl.TemplateHandler) error {
 		err := templ.AddTemplate("testroot", `{{ partial "bench1" . }}`)
 		if err != nil {
 			return err
@@ -2965,7 +3015,7 @@ func BenchmarkPartial(b *testing.B) {
 
 func BenchmarkPartialCached(b *testing.B) {
 	config := newDepsConfig(viper.New())
-	config.WithTemplate = func(templ tpl.Template) error {
+	config.WithTemplate = func(templ tpl.TemplateHandler) error {
 		err := templ.AddTemplate("testroot", `{{ partialCached "bench1" . }}`)
 		if err != nil {
 			return err
@@ -3010,12 +3060,12 @@ func newTestFuncsterWithViper(v *viper.Viper) *templateFuncster {
 		panic(err)
 	}
 
-	return d.Tmpl.(*GoHTMLTemplate).funcster
+	return d.Tmpl.(*templateHandler).html.funcster
 }
 
-func newTestTemplate(t *testing.T, name, template string) *template.Template {
+func newTestTemplate(t *testing.T, name, template string) tpl.Template {
 	config := newDepsConfig(viper.New())
-	config.WithTemplate = func(templ tpl.Template) error {
+	config.WithTemplate = func(templ tpl.TemplateHandler) error {
 		err := templ.AddTemplate(name, template)
 		if err != nil {
 			return err
