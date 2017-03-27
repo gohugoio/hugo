@@ -29,7 +29,10 @@ var (
 )
 
 type TemplateNames struct {
-	Name            string
+	// The name used as key in the template map. Note that this will be
+	// prefixed with "_text/" if it should be parsed with text/template.
+	Name string
+
 	OverlayFilename string
 	MasterFilename  string
 }
@@ -50,6 +53,10 @@ type TemplateLookupDescriptor struct {
 
 	// The theme name if active.
 	Theme string
+
+	// All the output formats in play. This is used to decide if text/template or
+	// html/template.
+	OutputFormats Formats
 
 	FileExists  func(filename string) (bool, error)
 	ContainsAny func(filename string, subslices [][]byte) (bool, error)
@@ -74,6 +81,12 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 	// index.amp.html
 	// index.json
 	filename := filepath.Base(d.RelPath)
+	isPlainText := false
+	outputFormat, found := d.OutputFormats.FromFilename(filename)
+
+	if found && outputFormat.IsPlainText {
+		isPlainText = true
+	}
 
 	var ext, outFormat string
 
@@ -89,6 +102,10 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 
 	id.OverlayFilename = fullPath
 	id.Name = name
+
+	if isPlainText {
+		id.Name = "_text/" + id.Name
+	}
 
 	// Ace and Go templates may have both a base and inner template.
 	pathDir := filepath.Dir(fullPath)

@@ -124,18 +124,17 @@ func newTestSite(t testing.TB, configKeyValues ...interface{}) *Site {
 	return s
 }
 
-func newTestSitesFromConfig(t testing.TB, tomlConfig string, layoutPathContentPairs ...string) (testHelper, *HugoSites) {
+func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layoutPathContentPairs ...string) (testHelper, *HugoSites) {
 	if len(layoutPathContentPairs)%2 != 0 {
 		t.Fatalf("Layouts must be provided in pairs")
 	}
-	mf := afero.NewMemMapFs()
 
-	writeToFs(t, mf, "config.toml", tomlConfig)
+	writeToFs(t, afs, "config.toml", tomlConfig)
 
-	cfg, err := LoadConfig(mf, "", "config.toml")
+	cfg, err := LoadConfig(afs, "", "config.toml")
 	require.NoError(t, err)
 
-	fs := hugofs.NewFrom(mf, cfg)
+	fs := hugofs.NewFrom(afs, cfg)
 	th := testHelper{cfg, fs, t}
 
 	for i := 0; i < len(layoutPathContentPairs); i += 2 {
@@ -150,7 +149,7 @@ func newTestSitesFromConfig(t testing.TB, tomlConfig string, layoutPathContentPa
 }
 
 func newTestSitesFromConfigWithDefaultTemplates(t testing.TB, tomlConfig string) (testHelper, *HugoSites) {
-	return newTestSitesFromConfig(t, tomlConfig,
+	return newTestSitesFromConfig(t, afero.NewMemMapFs(), tomlConfig,
 		"layouts/_default/single.html", "Single|{{ .Title }}|{{ .Content }}",
 		"layouts/_default/list.html", "List|{{ .Title }}|{{ .Content }}",
 		"layouts/_default/terms.html", "Terms List|{{ .Title }}|{{ .Content }}",
@@ -164,9 +163,9 @@ func newDebugLogger() *jww.Notepad {
 func newErrorLogger() *jww.Notepad {
 	return jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 }
-func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.Template) error {
+func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.TemplateHandler) error {
 
-	return func(templ tpl.Template) error {
+	return func(templ tpl.TemplateHandler) error {
 		for i := 0; i < len(additionalTemplates); i += 2 {
 			err := templ.AddTemplate(additionalTemplates[i], additionalTemplates[i+1])
 			if err != nil {

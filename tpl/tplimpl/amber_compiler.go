@@ -19,7 +19,7 @@ import (
 	"github.com/eknkc/amber"
 )
 
-func (gt *GoHTMLTemplate) CompileAmberWithTemplate(b []byte, path string, t *template.Template) (*template.Template, error) {
+func (t *templateHandler) compileAmberWithTemplate(b []byte, path string, templ *template.Template) (*template.Template, error) {
 	c := amber.New()
 
 	if err := c.ParseData(b, path); err != nil {
@@ -32,7 +32,7 @@ func (gt *GoHTMLTemplate) CompileAmberWithTemplate(b []byte, path string, t *tem
 		return nil, err
 	}
 
-	tpl, err := t.Funcs(gt.amberFuncMap).Parse(data)
+	tpl, err := templ.Funcs(t.amberFuncMap).Parse(data)
 
 	if err != nil {
 		return nil, err

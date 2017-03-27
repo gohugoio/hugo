@@ -45,7 +45,6 @@ import (
 	"github.com/bep/inflect"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
 
@@ -54,22 +53,6 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 )
-
-// Some of the template funcs are'nt entirely stateless.
-type templateFuncster struct {
-	funcMap        template.FuncMap
-	cachedPartials partialCache
-	image          *imageHandler
-	*deps.Deps
-}
-
-func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
-	return &templateFuncster{
-		Deps:           deps,
-		cachedPartials: partialCache{p: make(map[string]template.HTML)},
-		image:          &imageHandler{fs: deps.Fs, imageConfigCache: map[string]image.Config{}},
-	}
-}
 
 // eq returns the boolean truth of arg1 == arg2.
 func eq(x, y interface{}) bool {
@@ -1558,13 +1541,13 @@ func replace(a, b, c interface{}) (string, error) {
 // partialCache represents a cache of partials protected by a mutex.
 type partialCache struct {
 	sync.RWMutex
-	p map[string]template.HTML
+	p map[string]interface{}
 }
 
 // Get retrieves partial output from the cache based upon the partial name.
 // If the partial is not found in the cache, the partial is rendered and added
 // to the cache.
-func (t *templateFuncster) Get(key, name string, context interface{}) (p template.HTML) {
+func (t *templateFuncster) Get(key, name string, context interface{}) (p interface{}, err error) {
 	var ok bool
 
 	t.cachedPartials.RLock()
@@ -1572,13 +1555,13 @@ func (t *templateFuncster) Get(key, name string, context interface{}) (p templat
 	t.cachedPartials.RUnlock()
 
 	if ok {
-		return p
+		return
 	}
 
 	t.cachedPartials.Lock()
 	if p, ok = t.cachedPartials.p[key]; !ok {
 		t.cachedPartials.Unlock()
-		p = t.Tmpl.Partial(name, context)
+		p, err = t.partial(name, context)
 
 		t.cachedPartials.Lock()
 		t.cachedPartials.p[key] = p
@@ -1586,14 +1569,14 @@ func (t *templateFuncster) Get(key, name string, context interface{}) (p templat
 	}
 	t.cachedPartials.Unlock()
 
-	return p
+	return
 }
 
 // partialCached executes and caches partial templates.  An optional variant
 // string parameter (a string slice actually, but be only use a variadic
 // argument to make it optional) can be passed so that a given partial can have
 // multiple uses.  The cache is created with name+variant as the key.
-func (t *templateFuncster) partialCached(name string, context interface{}, variant ...string) template.HTML {
+func (t *templateFuncster) partialCached(name string, context interface{}, variant ...string) (interface{}, error) {
 	key := name
 	if len(variant) > 0 {
 		for i := 0; i < len(variant); i++ {
@@ -2195,7 +2178,7 @@ func (t *templateFuncster) initFuncMap() {
 		"mul":           func(a, b interface{}) (interface{}, error) { return helpers.DoArithmetic(a, b, '*') },
 		"ne":            ne,
 		"now":           func() time.Time { return time.Now() },
-		"partial":       t.Tmpl.Partial,
+		"partial":       t.partial,
 		"partialCached": t.partialCached,
 		"plainify":      plainify,
 		"pluralize":     pluralize,
@@ -2249,5 +2232,5 @@ func (t *templateFuncster) initFuncMap() {
 	}
 
 	t.funcMap = funcMap
-	t.Tmpl.Funcs(funcMap)
+	t.Tmpl.setFuncs(funcMap)
 }

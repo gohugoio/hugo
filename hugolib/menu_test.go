@@ -18,6 +18,8 @@ import (
 
 	"fmt"
 
+	"github.com/spf13/afero"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -42,7 +44,7 @@ title = "Section Menu"
 sectionPagesMenu = "sect"
 `
 
-	th, h := newTestSitesFromConfig(t, siteConfig,
+	th, h := newTestSitesFromConfig(t, afero.NewMemMapFs(), siteConfig,
 		"layouts/partials/menu.html", `{{- $p := .page -}}
 {{- $m := .menu -}}
 {{ range (index $p.Site.Menus $m) -}}
