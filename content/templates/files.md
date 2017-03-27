@@ -47,8 +47,6 @@ The above shortcode [is part of the code for the Hugo docs][dirindex]. Here it l
 
 {{< directoryindex path="/themes/hugo-docs-concept/static/css" pathURL="/css" >}}
 
-
-
 {{% note "Slashes are Important" %}}
 The initial slash `/` in `pathURL` is important in the `directoryindex` shortcode. Otherwise, `pathURL` becomes relative to the current web page.
 {{% /note %}}
