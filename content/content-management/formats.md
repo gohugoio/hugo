@@ -86,8 +86,6 @@ Hugo supports GitHub-flavored markdown's use of triple back ticks, as well as pr
 
 ## MathJax with Hugo
 
-### What is MathJax?
-
 [MathJax](http://www.mathjax.org/) is a JavaScript library that allows the display of mathematical expressions described via a LaTeX-style syntax in the HTML (or Markdown) source of a web page. As it is a pure a JavaScript library, getting it to work within Hugo is fairly straightforward, but does have some oddities that will be discussed here.
 
 This is not an introduction into actually using MathJax to render typeset mathematics on your website. Instead, this page is a collection of tips and hints for one way to get MathJax working on a website built with Hugo.
