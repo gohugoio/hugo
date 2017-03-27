@@ -96,7 +96,7 @@ func (formats Formats) GetByName(name string) (f Format, found bool) {
 	return
 }
 
-// Format represents an output represenation, usually to a file on disk.
+// Format represents an output representation, usually to a file on disk.
 type Format struct {
 	// The Name is used as an identifier. Internal output formats (i.e. HTML and RSS)
 	// can be overridden by providing a new definition for those types.

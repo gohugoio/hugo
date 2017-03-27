@@ -30,7 +30,7 @@ func (b BaseURL) String() string {
 	return b.urlStr
 }
 
-// Protocol is normaly on the form "scheme://", i.e. "webcal://".
+// Protocol is normally on the form "scheme://", i.e. "webcal://".
 func (b BaseURL) WithProtocol(protocol string) (string, error) {
 	u := b.URL()
 
