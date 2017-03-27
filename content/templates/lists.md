@@ -83,7 +83,7 @@ Follow my journey through this new blog.
 
 You can now access this `_index.md`'s' content in your list template:
 
-{{% code file="layouts/_default/list.html" %}}
+{{% code file="layouts/_default/list.html" download="list.html" %}}
 ```html
 {{ define "main" }}
 <main class="main">
