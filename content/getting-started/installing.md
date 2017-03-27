@@ -23,7 +23,7 @@ Hugo currently provides pre-built binaries for the following:
 * <i class="icon-linux"></i> Linux
 * <i class="icon-freebsd"></i> FreeBSD
 
-Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., for other operating systems, including DragonFly BSD, OpenBSD, Plan&nbsp;9 and Solaris. See <http://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
+Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., DragonFly BSD, OpenBSD, Plan&nbsp;9, and Solaris. See <http://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
 
 ## Quick Install
 
@@ -33,7 +33,7 @@ Download the appropriate version for your platform from [Hugo Releases][releases
 
 Ideally, you should install it somewhere in your `PATH` for easy use. `/usr/local/bin` is the most probable location.
 
-### macOS (Homebrew)
+### Homebrew (macOS)
 
 If you are on macOS and using [Homebrew][brew], you can install Hugo with the following one-liner:
 
@@ -45,7 +45,7 @@ brew update && brew install hugo
 
 For more detailed explanations, read the installation guides that follow for installing on macOS and Windows.
 
-### Windows (Chocolatey)
+### Chocolatey (Windows)
 
 If you are on a Windows machine and use [Chocolatey][] for package management, you can install Hugo with the following one-liner:
 
@@ -57,34 +57,35 @@ choco install hugo -confirm
 
 ### Source
 
-#### Prerequisite tools for downloading and building source code
+#### Prerequisite Tools
 
 * [Git][installgit]
 * [Go 1.5+][installgo]
 
-#### Get Hugo Directly from GitHub
+#### Get Hugo Directly From GitHub
 
+{{% code file="from-gh.sh" %}}
 ```sh
 export GOPATH=$HOME/go
 go get -v github.com/spf13/hugo
 ```
+{{% /code %}}
 
-`go get` will then fetch Hugo and all its dependent libraries to your
-`$GOPATH/src` directory, and compile everything into the final `hugo`
-(or `hugo.exe`) executable, which you will find sitting in the
-`$GOPATH/bin/` directory, all ready to go!
+`go get` will then fetch Hugo and all its dependent libraries to your `$GOPATH/src` directory, and compile everything into the final `hugo` (or `hugo.exe`) executable, which you will find sitting in the `$GOPATH/bin/` directory, all ready to go!
 
 You may run `go get` with the `-u` option to update Hugo's dependencies:
 
+{{% code file="from-gh-update-deps.sh" %}}
 ```sh
 go get -u -v github.com/spf13/hugo
 ```
+{{% /code %}}
 
 ## <i class="icon-apple"></i>macOS
 
 ### Assumptions
 
-1. You know how to open a terminal window.
+1. You know how to open the macOS terminal.
 2. You're running a modern 64-bit Mac.
 3. You will use `~/Sites` as the starting point for your site.
 
@@ -109,7 +110,7 @@ There are pros and cons to each of the aforementioned methods:
 3. **Building from Source.** Building from source is the most work. The advantage of building from source is that you don't have to wait for a release to add features or bug fixes. The disadvantage is that you need to spend more time managing the setup, which is manageable but requires more time than the preceding two options.
 
 {{% note %}}
-Since building from source is appealing to more seasoned command line users, this guide will focus more on installing Hugo via Homebrew or Tarball.
+Since building from source is appealing to more seasoned command line users, this guide will focus more on installing Hugo via Homebrew and Tarball.
 {{% /note %}}
 
 ### Installing Hugo with Brew
@@ -144,7 +145,7 @@ brew install hugo
 
 If Homebrew is working properly, you should see something similar to the following:
 
-```bash
+```sh
 ==> Downloading https://homebrew.bintray.com/bottles/hugo-0.13_1.yosemite.bottle.tar.gz
 ######################################################################### 100.0%
 ==> Pouring hugo-0.13_1.yosemite.bottle.tar.gz
@@ -152,11 +153,10 @@ If Homebrew is working properly, you should see something similar to the followi
 ```
 
 {{% note "Installing the Latest Hugo with Brew" %}}
-Replace `brew install hugo` with `brew install hugo --HEAD`
-if you want the absolute latest version in development.
+Replace `brew install hugo` with `brew install hugo --HEAD` if you want the absolute latest in-development version.
 {{% /note %}}
 
-`brew` should have updated your path to include Hugo. Confirm by opening a new terminal window and running a few commands:
+`brew` should have updated your path to include Hugo. You can confirm by opening a new terminal window and running a few commands:
 
 ```bash
 $ # show the location of the hugo executable
@@ -307,34 +307,34 @@ The following aims to be a complete guide to installing Hugo on your Windows PC.
 
 ### Assumptions
 
-1. We'll call your website `example.com` for the purpose of this tutorial.
-2. You will use `C:\Hugo\Sites` as the starting point for your site.
-3. You will use `C:\Hugo\bin` to store executable files.
+1. You will use `C:\Hugo\Sites` as the starting point for your new project.
+2. You will use `C:\Hugo\bin` to store executable files.
 
 ### Set up Your Directories
 
-You'll need a place to store the Hugo executable, your content (the files that you build), and the generated files (the HTML that Hugo builds for you).
+You'll need a place to store the Hugo executable, your [content][], and the generated Hugo website:
 
 1. Open Windows Explorer.
-2. Create a new folder: `C:\Hugo` (assuming you want Hugo on your C drive – it can go anywhere.)
-3. Create a subfolder in the Hugo folder: `C:\Hugo\bin`.
-4. Create another subfolder in Hugo: `C:\Hugo\Sites`.
+2. Create a new folder: `C:\Hugo`, assuming you want Hugo on your C drive, although this can go anywhere
+3. Create a subfolder in the Hugo folder: `C:\Hugo\bin`
+4. Create another subfolder in Hugo: `C:\Hugo\Sites`
 
 ### Technical Users
 
-1. Download the latest zipped Hugo executable from the [Hugo Releases](https://github.com/spf13/hugo/releases) page.
+1. Download the latest zipped Hugo executable from [Hugo Releases][releases].
 2. Extract all contents to your `..\Hugo\bin` folder.
-3. The `hugo` executable will be named as `hugo_hugo-version_platform_arch.exe`. Rename that executable to `hugo.exe` for ease of use.
+3. The `hugo` executable will be named as `hugo_hugo-version_platform_arch.exe`. Rename the executable to `hugo.exe` for ease of use.
 4. In PowerShell or your preferred CLI, add the `hugo.exe` executable to your PATH by navigating to `C:\Hugo\bin` (or the location of your hugo.exe file) and use the command `set PATH=%PATH%;C:\Hugo\bin`. If the `hugo` command does not work after a reboot, you may have to run the command prompt as administrator.
 
 ### Less-technical Users
 
-1. Go to the [Hugo Releases](https://github.com/spf13/hugo/releases) page.
-2. The latest release is announced on top. Scroll to the bottom of the release announcement to see the downloads. They're all ZIP files.
-3. Find the Windows files near the bottom (they're in alphabetical order, so Windows is last) – download either the 32-bit or 64-bit file depending on whether you have 32-bit or 64-bit Windows. (If you don't know, [see here](https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx).)
-4. Move the ZIP file into your `C:\Hugo\bin` folder.
-5. Double-click on the ZIP file and extract its contents. Be sure to extract the contents into the same `C:\Hugo\bin` folder – Windows will do this by default unless you tell it to extract somewhere else.
-6. You should now have three new files: hugo executable (e.g. `hugo_0.18_windows_amd64.exe`), `license.md`, and `readme.md`. (You can delete the ZIP download now.) Rename that hugo executable (`hugo_hugo-version_platform_arch.exe`) to `hugo.exe` for ease of use.
+1. Go to [Hugo Releases][releases]
+2. The latest release is at the top of the page. Scroll to the bottom of the release announcement to see the downloads. All downloads are `.zip` files in alphabetical order.
+3. Download either the 32-bit or 64-bit Windows file depending on whether you are using 32-bit or 64-bit Windows. [You can find this information online][windowsarch].
+4. Move the `.zip` file into your `C:\Hugo\bin` folder.
+5. Double-click on the ZIP file and extract its contents. Be sure to extract the contents into the same `C:\Hugo\bin` folder. Windows will do this by default unless you tell it to extract somewhere else.
+6. You should now have three new files: hugo executable (e.g. `hugo_0.20_windows_amd64.exe`), `license.md`, and `readme.md`. You can delete the ZIP download now.
+7. Rename the hugo executable (`hugo_hugo-version_platform_arch.exe`) to `hugo.exe` for ease of use.
 7. Now add Hugo to your Windows PATH settings:
 
 ##### For Windows 10 users:
@@ -346,7 +346,7 @@ You'll need a place to store the Hugo executable, your content (the files that y
 * In the User variables section, find the row that starts with PATH (PATH will be all caps).
 * Double-click on **PATH**.
 * Click the **New...** button.
-* Type in the folder where `hugo.exe` was extracted, which is `C:\Hugo\bin` if you went by the instructions above. *The PATH entry should be the folder where Hugo lives, not the binary.* Press <kbd>Enter</kbd> when you're done typing.
+* Type in the folder where `hugo.exe` was extracted, which is `C:\Hugo\bin` if you went by the instructions above. *The PATH entry should be the folder where Hugo lives and not the binary.* Press <kbd>Enter</kbd> when you're done typing.
 * Click OK at every window to exit.
 
 {{% note "Path Editor in Windows 10"%}}
@@ -412,7 +412,7 @@ C:\Hugo\Sites\example.com&gt;dir
 
 ### Troubleshooting Windows Installation
 
-@dhersam has created a nice video on common issues:
+[@dhersam][] has created a nice video on common issues:
 
 {{< youtube c8fJIRNChmU >}}
 
@@ -467,15 +467,13 @@ Hugo-as-a-snap can write only inside the user’s `$HOME` directory---and gvfs-m
 
 ## Upgrading Hugo
 
-Upgrading Hugo is as easy as downloading and replacing the executable you’ve
-placed in your `PATH`.
+Upgrading Hugo is as easy as downloading and replacing the executable you’ve placed in your `PATH`.
 
 ## Installing Pygments (Optional)
 
 The Hugo executable has one *optional* external dependency for source code highlighting ([Pygments][pygments]).
 
-If you want to have source code highlighting using the [highlight shortcode][],
-you need to install the Python-based Pygments program. The procedure is outlined on the [Pygments home page][pygments].
+If you want to have source code highlighting using the [highlight shortcode][], you need to install the Python-based Pygments program. The procedure is outlined on the [Pygments home page][pygments].
 
 ## Next Steps
 
@@ -483,6 +481,8 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 
 [brew]: https://brew.sh/
 [Chocolatey]: https://chocolatey.org/
+[content]: /content-management/
+[@dhersam]: https://github.com/dhersam
 [forum]: https://discuss.gohugo.io
 [highlight shortcode]: /content-management/shortcodes/#highlight
 [installgit]: http://git-scm.com/
@@ -493,4 +493,5 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [redhatforum]: https://discuss.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
 [releases]: https://github.com/spf13/hugo/releases
 [snaps]: http://snapcraft.io/docs/core/install
+[windowsarch]: https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx
 [Windows Environment Variables Editor]: http://eveditor.com/
