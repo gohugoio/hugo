@@ -129,7 +129,7 @@ This above will output the following HTML:
 
 ### List Pages Without `_index.md`
 
-You do *not* have to create an `_index.md` file for every list page (i.e. section, taxonomy, taxonomy terms, etc) or the homepage. If Hugo does not find an `_index.md` within the respective content section when rendering a [list template][lists], the page will be created but with no `{{.Content}}` and only the default values for `.Title` etc.
+You do *not* have to create an `_index.md` file for every list page (i.e. section, taxonomy, taxonomy terms, etc) or the homepage. If Hugo does not find an `_index.md` within the respective content section when rendering a list template, the page will be created but with no `{{.Content}}` and only the default values for `.Title` etc.
 
 Using this same `layouts/_default/list.html` template and applying it to the the `quotes` section above will render the following output. Note that `quotes` does not have an `_index.md` file to pull from:
 
@@ -154,7 +154,6 @@ Using this same `layouts/_default/list.html` template and applying it to the the
 {{% note %}}
 The default behavior of Hugo is to pluralize list titles; hence the inflection of the `quote` section to "Quotes" when called with the `.Title` [page variable](/variables/page/). You can change this via the `pluralizeListTitles` directive in your [site configuration](/getting-started/configuration/).
 {{% /note %}}
-
 
 ## Example List Templates
 
