@@ -13,7 +13,7 @@ aliases: [/layout/content/]
 toc: true
 ---
 
-The primary view of content in Hugo is the single view. Hugo will render every Markdown file provided with a corresponding single template.
+The primary view of content in Hugo is the single view. Hugo's default behavior is to render every Markdown file provided with a corresponding single template.
 
 ## Single Page Template Lookup Order
 

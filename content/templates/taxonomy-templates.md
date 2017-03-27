@@ -14,11 +14,12 @@ toc: true
 wip: true
 ---
 
-<!-- NOTE! Check on https://github.com/spf13/hugo/issues/2826 for shifting of terms' pages to .Data.Pages -->
+<!-- NOTE! Check on https://github.com/spf13/hugo/issues/2826 for shifting of terms' pages to .Data.Pages AND
+https://discuss.gohugo.io/t/how-to-specify-category-slug/4856/15 for original discussion.-->
 
-Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications that demonstrate logical relationships between content. See [Taxonomies](/content-management/taxonomies) if you are unfamiliar with how Hugo leverages this powerful feature for content management.
+Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications that demonstrate logical relationships between content. See [Taxonomies under Content Management](/content-management/taxonomies) if you are unfamiliar with how Hugo leverages this powerful feature.
 
-Hugo provides multiple ways to use taxonomies throughout your project:
+Hugo provides multiple ways to use taxonomies throughout your project templates:
 
 * Order the way the terms for a taxonomy are displayed in a [taxonomy terms template](#taxonomy-terms-template)
 * Order the way content associated with a taxonomy term is displayed in a [taxonomy list template](#taxonomy-list-template)
