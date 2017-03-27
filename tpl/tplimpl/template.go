@@ -476,25 +476,23 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 				return nil
 			}
 
-			workingDir := t.PathSpec.WorkingDir()
-			themeDir := t.PathSpec.GetThemeDir()
+			var (
+				workingDir = t.PathSpec.WorkingDir()
+				themeDir   = t.PathSpec.GetThemeDir()
+				layoutDir  = t.PathSpec.LayoutDir()
+			)
 
 			if themeDir != "" && strings.HasPrefix(absPath, themeDir) {
 				workingDir = themeDir
+				layoutDir = "layouts"
 			}
 
-			li := strings.LastIndex(path, t.PathSpec.LayoutDir()) + len(t.PathSpec.LayoutDir()) + 1
-
-			if li < 0 {
-				// Possibly a theme
-				li = strings.LastIndex(path, "layouts") + 8
-			}
-
+			li := strings.LastIndex(path, layoutDir) + len(layoutDir) + 1
 			relPath := path[li:]
 
 			descriptor := output.TemplateLookupDescriptor{
 				WorkingDir: workingDir,
-				LayoutDir:  t.PathSpec.LayoutDir(),
+				LayoutDir:  layoutDir,
 				RelPath:    relPath,
 				Prefix:     prefix,
 				Theme:      t.PathSpec.Theme(),
@@ -509,6 +507,7 @@ func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 			tplID, err := output.CreateTemplateNames(descriptor)
 			if err != nil {
 				t.Log.ERROR.Printf("Failed to resolve template in path %q: %s", path, err)
+
 				return nil
 			}
 
