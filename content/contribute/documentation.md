@@ -305,6 +305,8 @@ Previous versions of Hugo documentation used blockquotes to draw attention to te
 
 > Admonitions are specially marked "topics" that can appear anywhere an ordinary body element can. They contain arbitrary body elements. Typically, an admonition is rendered as an offset block in a document, sometimes outlined or shaded, with a title matching the admonition type. - [SourceForge][sourceforge]
 
+The Hugo docs contain three admonitions: `note`, `tip`, and `warning`.
+
 ### `note` Admonition
 
 Use the `note` shortcode when you want to draw attention to information subtly. `note` is intended to be less of an interruption in content than is `warning`.
@@ -334,6 +336,36 @@ Here is a piece of information I would like to draw your **attention** to.
 {{% note %}}
 Here is a piece of information I would like to draw your **attention** to.
 {{% /note %}}
+
+### `tip` Admonition
+
+Use the `tip` shortcode when you want to give the reader advice. `tip`, like `note`, is intended to be less of an interruption in content than is `warning`.
+
+#### Example `tip` Input
+
+{{% code file="using-tip.md" %}}
+```markdown
+{{%/* tip */%}}
+Here's a bit of advice to improve your productivity with Hugo.
+{{%/* /tip */%}}
+```
+{{% /code %}}
+
+#### Example `tip` Output
+
+{{% output file="tip-output.html" %}}
+```html
+{{% tip %}}
+Here's a bit of advice to improve your productivity with Hugo.
+{{% /tip %}}
+```
+{{% /output %}}
+
+#### Example `tip` Display
+
+{{% tip %}}
+Here's a bit of advice to improve your productivity with Hugo.
+{{% /tip %}}
 
 ### `warning` Admonition
 
