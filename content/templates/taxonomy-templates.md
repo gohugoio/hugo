@@ -11,7 +11,6 @@ weight: 50
 draft: false
 aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy/]
 toc: true
-wip: true
 ---
 
 <!-- NOTE! Check on https://github.com/spf13/hugo/issues/2826 for shifting of terms' pages to .Data.Pages AND
@@ -303,11 +302,11 @@ This example will list all taxonomies and their terms, as well as all the conten
 ```
 {{% /code %}}
 
-## `.Site.GetPage` for Taxonomies
+<!-- ## `.Site.GetPage` for Taxonomies
 
 ### `.Site.GetPage` Taxonomy List Example
 
-### `.Site.GetPage` Taxonomy Terms Example
+### `.Site.GetPage` Taxonomy Terms Example -->
 
 
 [delimit]: /functions/delimit/
