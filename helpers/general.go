@@ -250,6 +250,11 @@ func NewDistinctErrorLogger() *DistinctLogger {
 	return &DistinctLogger{m: make(map[string]bool), logger: jww.ERROR}
 }
 
+// NewDistinctWarnLogger creates a new DistinctLogger that logs WARNs
+func NewDistinctWarnLogger() *DistinctLogger {
+	return &DistinctLogger{m: make(map[string]bool), logger: jww.WARN}
+}
+
 // NewDistinctFeedbackLogger creates a new DistinctLogger that can be used
 // to give feedback to the user while not spamming with duplicates.
 func NewDistinctFeedbackLogger() *DistinctLogger {
@@ -260,13 +265,16 @@ var (
 	// DistinctErrorLog can be used to avoid spamming the logs with errors.
 	DistinctErrorLog = NewDistinctErrorLogger()
 
+	// DistinctWarnLog can be used to avoid spamming the logs with warnings.
+	DistinctWarnLog = NewDistinctWarnLogger()
+
 	// DistinctFeedbackLog can be used to avoid spamming the logs with info messages.
 	DistinctFeedbackLog = NewDistinctFeedbackLogger()
 )
 
 // InitLoggers sets up the global distinct loggers.
 func InitLoggers() {
-	DistinctErrorLog = NewDistinctErrorLogger()
+	jww.ResetLogCounters()
 }
 
 // Deprecated informs about a deprecation, but only once for a given set of arguments' values.

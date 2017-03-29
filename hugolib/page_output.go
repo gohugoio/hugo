@@ -104,7 +104,7 @@ func (p *PageOutput) layouts(layouts ...string) ([]string, error) {
 
 func (p *PageOutput) Render(layout ...string) template.HTML {
 	if !p.checkRender() {
-		return template.HTML("")
+		return ""
 	}
 
 	l, err := p.layouts(layout...)
@@ -117,7 +117,7 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 
 func (p *Page) Render(layout ...string) template.HTML {
 	if !p.checkRender() {
-		return template.HTML("")
+		return ""
 	}
 
 	p.pageOutputInit.Do(func() {
@@ -142,7 +142,7 @@ func (p *Page) Render(layout ...string) template.HTML {
 // for list pages.
 func (p *Page) checkRender() bool {
 	if p.Kind != KindPage {
-		helpers.DistinctErrorLog.Printf(".Render only available for regular pages, not for of kind %q. You probably meant .Site.RegularPages and not.Site.Pages.", p.Kind)
+		helpers.DistinctWarnLog.Printf(".Render only available for regular pages, not for of kind %q. You probably meant .Site.RegularPages and not.Site.Pages.", p.Kind)
 		return false
 	}
 	return true
