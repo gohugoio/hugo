@@ -18,8 +18,8 @@ GitHub provides free and fast static hosting over SSL for personal, organization
 
 ## Assumptions
 
-1. You have a GitHub account. [Signing up][ghsignup] for GitHub is free.
-2. You are working with a "GitHub Project Pages Site", which means you'll have your Hugo source and generated HTML output within a single repository.
+1. You have Git 2.5 or greater [installed on your machine][installgit].
+2. You have a GitHub account. [Signing up][ghsignup] for GitHub is free.
 3. You have a ready-to-publish Hugo website or have at least completed the [Quick Start][].
 
 If you are working within an Organization account or want to set up a User website on GitHub and would like more information, refer to the [GitHub Pages documentation][ghorgs].
@@ -158,22 +158,6 @@ You will also need to set `master` as your publishable branch from within the Gi
 1. Go to **Settings** &rarr; **GitHub Pages**
 2. From **Source**,  select "master branch" and then **Save**.
 
-## Deployment with Git 2.4 and Earlier
-
-The `worktree` command was only introduced in Git 2.5. If you are still on an earlier version and cannot update, you can simply clone your local repository into the _public_ directory, only keeping the gh-pages branch:
-
-```sh
-git clone .git --branch gh-pages public
-```
-
-Having re-generated the site, you'd push back the gh-pages branch to your primary local repo:
-
-```sh
-cd public && git add --all && git commit -m "Publishing to gh-pages" && git push origin gh-pages
-```
-
-The other steps are the same as with the worktree approach.
-
 ## Hosting GitHub User or Organization Pages
 
 As mentioned [in this GitHub Help article](https://help.github.com/articles/user-organization-and-project-pages/), you can host a user/organization page in addition to project pages. Here are the key differences in GitHub Pages websites for Users and Organizations:
@@ -244,6 +228,7 @@ Refer to the [official documentation for custom domains][domains] for further in
 [ghpfromdocs]: https://help.github.com/articles/configuring-a-publishing-source-for-github-pages/#publishing-your-github-pages-site-from-a-docs-folder-on-your-master-branch
 [ghsignup]: https://github.com/join
 [GitHub Pages service]: https://help.github.com/articles/what-is-github-pages/
+[installgit]: https://git-scm.com/downloads
 [orphan branch]: https://git-scm.com/docs/git-checkout/#git-checkout---orphanltnewbranchgt
 [Quick Start]: /getting-started/quick-start/
 [submodule]: https://github.com/blog/2104-working-with-submodules
