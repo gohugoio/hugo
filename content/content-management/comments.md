@@ -51,7 +51,6 @@ There are a few alternatives to commenting on static sites for those who do not 
 
 * [Static Man](https://staticman.net/)
 * [IntenseDebate](http://intensedebate.com/)
-* [Livefyre](http://livefyre.com/)
 * [Graph Comment][]
 * [Muut](http://muut.com/)
 * [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
