@@ -17,7 +17,6 @@ To track Hugo's progress, see our [GitHub Milestones][milestones].
 
 In no particular order, here are some other features currently being worked on:
 
-* Intelligently related posts ({{< gh 98 >}})
 * Even easier deployment to S3, SSH, GitHub, rsync. Give the [hosting and deployment][] section a shot.
 * Import from other website systems. There are already [existing migration tools][migrate], but they don’t cover all major platforms.
 * An interactive web-based editor (See the [related forum thread][])
