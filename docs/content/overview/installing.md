@@ -2,7 +2,7 @@
 ---
 aliases:
 - /doc/installing/
-lastmod: 2016-01-04
+lastmod: 2017-03-30
 date: 2013-07-01
 menu:
   main:
