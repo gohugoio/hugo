@@ -46,12 +46,17 @@ type remoteLock struct {
 
 // URLLock locks an URL during download
 func (l *remoteLock) URLLock(url string) {
+	var (
+		lock *sync.Mutex
+		ok   bool
+	)
 	l.Lock()
-	if _, ok := l.m[url]; !ok {
-		l.m[url] = &sync.Mutex{}
+	if lock, ok = l.m[url]; !ok {
+		lock = &sync.Mutex{}
+		l.m[url] = lock
 	}
 	l.Unlock()
-	l.m[url].Lock()
+	lock.Lock()
 }
 
 // URLUnlock unlocks an URL when the download has been finished. Use only in defer calls.
