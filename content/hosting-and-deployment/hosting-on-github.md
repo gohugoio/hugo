@@ -4,7 +4,7 @@ linktitle: Hosting on GitHub
 description: Deploy Hugo as a GitHub Pages project or personal/organizational site and automate the whole process with a simple shell script.
 date: 2014-03-21
 publishdate: 2014-03-21
-lastmod: 2017-02-01
+lastmod: 2017-03-30
 categories: [hosting and deployment]
 tags: [github,git,deployment,hosting]
 authors: [Spencer Lyon, Gunnar Morling]
