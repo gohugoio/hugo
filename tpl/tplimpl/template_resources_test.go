@@ -20,7 +20,9 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/hugo/helpers"
@@ -171,6 +173,47 @@ func TestScpGetRemote(t *testing.T) {
 			}
 		}
 	}
+}
+
+func TestScpGetRemoteParallel(t *testing.T) {
+	t.Parallel()
+	fs := new(afero.MemMapFs)
+	content := []byte(`T€st Content 123`)
+	url := "http://Foo.Bar/foo_Bar-Foo"
+	srv, cl := getTestServer(func(w http.ResponseWriter, r *http.Request) {
+		w.Write(content)
+	})
+	defer func() { srv.Close() }()
+
+	for _, ignoreCache := range []bool{false, true} {
+
+		cfg := viper.New()
+		cfg.Set("ignoreCache", ignoreCache)
+
+		var wg sync.WaitGroup
+
+		for i := 0; i < 50; i++ {
+			wg.Add(1)
+			go func(gor int) {
+				defer wg.Done()
+				for j := 0; j < 10; j++ {
+					c, err := resGetRemote(url, fs, cfg, cl)
+					if err != nil {
+						t.Errorf("Error getting resource content: %s", err)
+					}
+					if !bytes.Equal(c, content) {
+						t.Errorf("\nNet Expected: %s\nNet Actual: %s\n", string(content), string(c))
+					}
+
+					time.Sleep(23 * time.Millisecond)
+				}
+			}(i)
+		}
+
+		wg.Wait()
+	}
+
+	t.Log("Done!")
 }
 
 func TestParseCSV(t *testing.T) {
