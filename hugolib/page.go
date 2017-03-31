@@ -1291,6 +1291,10 @@ func (p *Page) RawContent() string {
 	return string(p.rawContent)
 }
 
+func (p *Page) Frontmatter() string {
+	return string(p.frontmatter)
+}
+
 func (p *Page) SetSourceContent(content []byte) {
 	p.Source.Content = content
 }

@@ -34,6 +34,7 @@ matter, content or derived from file location.
 **.Description** The description for the page.<br>
 **.Draft** A boolean, `true` if the content is marked as a draft in the front matter.<br>
 **.ExpiryDate** The date where the content is scheduled to expire on.<br>
+**.Frontmatter** Raw metadata header.<br>
 **.FuzzyWordCount** The approximate number of words in the content.<br>
 **.Hugo** See [Hugo Variables]({{< relref "#hugo-variables" >}}) below.<br>
 **.IsHome** True if this is the home page.<br>
