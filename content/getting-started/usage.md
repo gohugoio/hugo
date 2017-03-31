@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [getting started]
 tags: [usage,livereload,command line,flags]
-weight: 40
+menu:
+  main:
+    parent: "Getting Started"
+    weight: 40
+weight: 40	#rem
 draft: false
 aliases: [/overview/usage/,/extras/livereload/,/doc/usage/,/usage/]
 toc: true

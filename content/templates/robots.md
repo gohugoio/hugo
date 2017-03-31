@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [robots,search engines]
-weight: 165
+menu:
+  main:
+    parent: "Templates"
+    weight: 165
+weight: 165	#rem
 draft: false
 aliases: [/extras/robots-txt/]
 toc: false

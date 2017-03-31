@@ -8,7 +8,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [amber,ace,templating languages]
-weight: 170
+menu:
+  main:
+    parent: "Templates"
+    weight: 170
+weight: 170	#rem
 draft: false
 aliases: [/templates/ace/,/templates/amber/]
 toc: true

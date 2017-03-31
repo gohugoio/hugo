@@ -8,7 +8,11 @@ lastmod: 2017-02-01
 categories: [contribute]
 tags: [dev,open source]
 authors: [digitalcraftsman]
-weight: 10
+menu:
+  main:
+    parent: "Contribute"
+    weight: 10
+weight: 10	#rem
 draft: false
 aliases: [/contribute/development/]
 toc: true

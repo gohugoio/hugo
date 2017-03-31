@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [lists,sections,rss,taxonomies,terms]
-weight: 22
+menu:
+  main:
+    parent: "Templates"
+    weight: 22
+weight: 22	#rem
 draft: false
 aliases: [/templates/list/,/layout/indexes/]
 toc: true

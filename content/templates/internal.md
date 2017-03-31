@@ -7,7 +7,11 @@ publishdate: 2017-03-06
 lastmod: 2017-03-06
 categories: [templates]
 tags: [internal, analytics,]
-weight: 168
+menu:
+  main:
+    parent: "Templates"
+    weight: 168
+weight: 168	#rem
 draft: false
 aliases: []
 toc: true

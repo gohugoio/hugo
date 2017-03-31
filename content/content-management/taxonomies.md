@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [taxonomies,metadata,front matter,terms]
 categories: [content management]
-weight: 80
+menu:
+  main:
+    parent: "Content Management"
+    weight: 80
+weight: 80	#rem
 draft: false
 aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/indexes/,/extras/indexes]
 toc: true

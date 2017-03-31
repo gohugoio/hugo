@@ -8,7 +8,11 @@ lastmod: 2017-02-01
 categories: [getting started]
 tags: [usage,docs,fundamentals]
 tags_weight: 01
-weight: 20
+menu:
+  main:
+    parent: "Getting Started"
+    weight: 20
+weight: 20	#rem
 draft: true
 aliases: [/getting-started/using-the-docs/]
 toc: true

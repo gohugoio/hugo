@@ -7,7 +7,11 @@ publishdate: 2017-01-10
 lastmod: 2017-01-10
 categories: [content management]
 tags: [markdown,asciidoc,mmark,content format]
-weight: 20
+menu:
+  main:
+    parent: "Content Management"
+    weight: 20
+weight: 20	#rem
 draft: false
 aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/,/tutorials/mathjax/]
 toc: true

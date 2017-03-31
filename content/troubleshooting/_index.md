@@ -5,7 +5,11 @@ description: Frequently asked questions and known issues pulled from the Hugo Di
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight: 01
+menu:
+  main:
+    parent: "Troubleshooting"
+    weight: 01
+weight: 01	#rem
 draft: false
 hidesectioncontents: false
 slug:

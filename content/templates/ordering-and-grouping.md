@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: []
-weight: 27
+menu:
+  main:
+    parent: "Templates"
+    weight: 27
+weight: 27	#rem
 draft: true
 aliases: [/templates/ordering/,/templates/grouping/]
 toc: true

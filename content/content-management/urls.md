@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-03-09
 tags: [aliases,redirects,permalinks,urls]
 categories: [content management]
-weight: 110
+menu:
+  main:
+    parent: "Content Management"
+    weight: 110
+weight: 110	#rem
 draft: false
 aliases: [/extras/permalinks/,/extras/aliases/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
 toc: true

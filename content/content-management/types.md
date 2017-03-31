@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [content management]
 tags: [lists,sections,content types,types,organization]
-weight: 60
+menu:
+  main:
+    parent: "Content Management"
+    weight: 60
+weight: 60	#rem
 draft: false
 aliases: [/content/types]
 toc: true

@@ -8,7 +8,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [files,directories]
-weight: 110
+menu:
+  main:
+    parent: "Templates"
+    weight: 110
+weight: 110	#rem
 draft: false
 aliases: [/extras/localfiles/,/templates/local-files/]
 toc: true

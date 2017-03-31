@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [contribute]
 tags: [docs,documentation,community, contribute]
-weight: 20
+menu:
+  main:
+    parent: "Contribute"
+    weight: 20
+weight: 20	#rem
 draft: false
 aliases: [/contribute/docs/]
 toc: true

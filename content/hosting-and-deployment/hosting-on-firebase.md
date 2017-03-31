@@ -8,7 +8,11 @@ lastmod: 2017-03-15
 categories: [hosting and deployment]
 tags: [hosting,firebase]
 authors: [Michel Racic]
-weight: 20
+menu:
+  main:
+    parent: "Hosting and Deployment"
+    weight: 20
+weight: 20	#rem
 draft: false
 toc: true
 aliases: []

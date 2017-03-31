@@ -8,7 +8,11 @@ lastmod: 2017-02-01
 categories: [hosting and deployment]
 tags: [wercker,deployment,github,git]
 authors: [Arjen Schwarz, Samuel Debruyn]
-weight: 60
+menu:
+  main:
+    parent: "Hosting and Deployment"
+    weight: 60
+weight: 60	#rem
 draft: false
 aliases: [/tutorials/automated-deployments/]
 toc: true

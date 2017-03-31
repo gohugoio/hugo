@@ -8,7 +8,11 @@ lastmod: 2017-02-01
 categories: [variables and params]
 tags: [global,site]
 draft: false
-weight: 10
+menu:
+  main:
+    parent: "Variables"
+    weight: 10
+weight: 10	#rem
 aliases: [/variables/site-variables/]
 toc: true
 ---

@@ -7,7 +7,11 @@ publishdate: 2017-03-12
 lastmod: 2017-03-12
 tags: [authors]
 categories: ["content management"]
-weight: 55
+menu:
+  main:
+    parent: "Content Management"
+    weight: 55
+weight: 55	#rem
 draft: true
 aliases: [/content/archetypes/]
 toc: true

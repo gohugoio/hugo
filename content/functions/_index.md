@@ -7,7 +7,11 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: []
-weight: 01
+menu:
+  main:
+    parent: "Functions"
+    weight: 01
+weight: 01	#rem
 draft: false
 aliases: [/layout/functions/]
 ---

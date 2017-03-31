@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [contribute]
 tags: []
-weight: 01
+menu:
+  main:
+    parent: "Contribute"
+    weight: 01
+weight: 01	#rem
 draft: false
 slug:
 aliases: [/tutorials/how-to-contribute-to-hugo/,/community/contributing/]

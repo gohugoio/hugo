@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [themes]
 tags: [themes, source, organization, directories]
-weight: 30
+menu:
+  main:
+    parent: "Themes"
+    weight: 30
+weight: 30	#rem
 draft: false
 aliases: [/themes/creation/,/tutorials/creating-a-new-theme/]
 toc: true

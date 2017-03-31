@@ -8,7 +8,11 @@ lastmod: 2017-02-01
 categories: [variables and params]
 tags: [taxonomies,terms]
 draft: false
-weight: 30
+menu:
+  main:
+    parent: "Variables"
+    weight: 30
+weight: 30	#rem
 aliases: []
 toc: true
 wip: false

@@ -7,7 +7,11 @@ publishdate: 2016-11-01
 lastmod: 2016-11-01
 categories: [hosting and deployment]
 tags: []
-weight: 01
+menu:
+  main:
+    parent: "Hosting and Deployment"
+    weight: 01
+weight: 01	#rem
 draft: false
 aliases: []
 toc: false

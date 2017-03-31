@@ -8,7 +8,11 @@ lastmod: 2017-03-11
 categories: [hosting and deployment]
 tags: [netlify,hosting,deployment]
 authors: [Ryan Watters, Seth MacLeod]
-weight: 10
+menu:
+  main:
+    parent: "Hosting and Deployment"
+    weight: 10
+weight: 10	#rem
 draft: false
 aliases: []
 toc: true

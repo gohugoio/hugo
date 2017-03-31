@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [releases,improvements,features,issues,fixes]
 categories: [news and articles]
-weight: 30
+menu:
+  main:
+    parent: "News"
+    weight: 30
+weight: 30	#rem
 draft: false
 aliases: [/meta/release-notes/]
 toc: true

@@ -8,7 +8,11 @@ lastmod: 2017-03-12
 categories: [variables and params]
 tags: [git]
 draft: false
-weight: 70
+menu:
+  main:
+    parent: "Variables"
+    weight: 70
+weight: 70	#rem
 aliases: [/extras/gitinfo/]
 toc: false
 wip: false

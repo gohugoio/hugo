@@ -7,7 +7,11 @@ publishdate: 2016-02-01
 lastmod: 2016-03-02
 categories: ["about hugo"]
 tags: ["License","apache"]
-weight: 60
+menu:
+  main:
+    parent: "About Hugo"
+    weight: 60
+weight: 60	#rem
 aliases: [/meta/license]
 toc: true
 ---

@@ -5,7 +5,7 @@ description: Join the Hugo mailing list for updates on the project. The mailing 
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight: 01
+weight: 01	#rem
 categories: []
 tags: [mailing list, community]
 draft: true

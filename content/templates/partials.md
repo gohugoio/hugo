@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [lists,sections,partials]
-weight: 90
+menu:
+  main:
+    parent: "Templates"
+    weight: 90
+weight: 90	#rem
 draft: false
 aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 toc: true

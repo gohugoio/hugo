@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [themes]
 tags: [themes, source, organization, directories]
-weight: 20
+menu:
+  main:
+    parent: "Themes"
+    weight: 20
+weight: 20	#rem
 draft: false
 aliases: [/themes/customize/]
 toc: true

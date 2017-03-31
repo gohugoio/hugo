@@ -6,7 +6,11 @@ date: 2017-02-22
 publishdate: 2017-02-01
 lastmod: 2017-02-22
 tags: [starters,assets,pipeline]
-weight: 30
+menu:
+  main:
+    parent: "Tools"
+    weight: 30
+weight: 30	#rem
 draft: false
 aliases: [/developer-tools/migrations/,/developer-tools/migrated/]
 toc: false

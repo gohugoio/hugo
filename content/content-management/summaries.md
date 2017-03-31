@@ -7,7 +7,11 @@ publishdate: 2017-01-10
 lastmod: 2017-01-10
 categories: [content management]
 tags: [summaries,abstracts,read more]
-weight: 90
+menu:
+  main:
+    parent: "Content Management"
+    weight: 90
+weight: 90	#rem
 draft: false
 aliases: [/content/summaries/,/content-management/content-summaries/]
 toc: true

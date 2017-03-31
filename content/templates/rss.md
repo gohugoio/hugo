@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [rss, xml]
 categories: [templates]
-weight: 150
+menu:
+  main:
+    parent: "Templates"
+    weight: 150
+weight: 150	#rem
 draft: false
 aliases: [/templates/rss/]
 toc: true

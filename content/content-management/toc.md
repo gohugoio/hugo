@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [content management]
 tags: [table of contents, toc]
-weight: 130
+menu:
+  main:
+    parent: "Content Management"
+    weight: 130
+weight: 130	#rem
 draft: false
 aliases: [/extras/toc/,/content-management/toc/]
 toc: false

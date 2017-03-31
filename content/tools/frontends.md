@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [developer tools]
 tags: [frontend,gui]
-weight: 40
+menu:
+  main:
+    parent: "Tools"
+    weight: 40
+weight: 40	#rem
 draft: false
 aliases: []
 toc: false
