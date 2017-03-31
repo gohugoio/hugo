@@ -426,7 +426,7 @@ func (s *SiteInfo) RelRef(ref string, page *Page) (string, error) {
 }
 
 // SourceRelativeLink attempts to convert any source page relative links (like [../another.md]) into absolute links
-func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, error) {
+func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page, reusedPage *Page) (string, error) {
 	var refURL *url.URL
 	var err error
 
@@ -450,12 +450,23 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 			refPath = refPath[1:]
 		} else {
 			if currentPage != nil {
-				refPath = filepath.Join(currentPage.Source.Dir(), refURL.Path)
+				if reusedPage != nil &&
+					!reusedPage.getRenderingConfig().SourceRelativeLinksEval && strings.HasPrefix(refPath, ".."+string(os.PathSeparator)) {
+					// if a full page (instead of a snippet) with a relative URL is reused there often would be a path like "../some-image.md"
+					// that WILL match the page in that SAME directory where the MARKDOWN file is located and NOT the parent of this dir as you'd expect
+					// because Hugo starts from the DIRECTORY and the browser starts from the LAST PATH which is MARKDOWN file in our case...
+					// so we need to trim the prefix here since we want the current dir...
+					// This not the case if reused page is "index.md" since the LAST PATH in the browser would start from the DIR.
+					// And the same if SourceRelativeLinksEval is TRUE since then HUGO will translate all relative links to absolute by its rules as we'd expect.
+					refPath = filepath.Join(currentPage.Source.Dir(), strings.TrimPrefix(refPath, ".."+string(os.PathSeparator)))
+				} else {
+					refPath = filepath.Join(currentPage.Source.Dir(), refURL.Path)
+				}
 			}
 		}
 
 		for _, page := range s.AllRegularPages {
-			if page.Source.Path() == refPath {
+			if page.Source.Path() == refPath || aliasesContainLink(page.Aliases, refPath) {
 				target = page
 				break
 			}
@@ -464,20 +475,24 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 		// if the refPath doesn't end in a filename with extension `.md`, then try with `.md` , and then `/index.md`
 		mdPath := strings.TrimSuffix(refPath, string(os.PathSeparator)) + ".md"
 		for _, page := range s.AllRegularPages {
-			if page.Source.Path() == mdPath {
+			if page.Source.Path() == mdPath || aliasesContainLink(page.Aliases, mdPath) {
 				target = page
 				break
 			}
 		}
 		indexPath := filepath.Join(refPath, "index.md")
 		for _, page := range s.AllRegularPages {
-			if page.Source.Path() == indexPath {
+			if page.Source.Path() == indexPath || aliasesContainLink(page.Aliases, indexPath) {
 				target = page
 				break
 			}
 		}
 
 		if target == nil {
+			if reusedPage != nil && reusedPage == currentPage {
+				currentPage.s.Log.WARN.Printf("No page found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
+				return ref, nil
+			}
 			return "", fmt.Errorf("No page found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
 		}
 
@@ -498,8 +513,17 @@ func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, er
 	return link, nil
 }
 
+func aliasesContainLink(aliases []string, link string) bool {
+	for _, alias := range aliases {
+		if strings.TrimPrefix(filepath.FromSlash(alias), string(os.PathSeparator)) == link {
+			return true
+		}
+	}
+	return false
+}
+
 // SourceRelativeLinkFile attempts to convert any non-md source relative links (like [../another.gif]) into absolute links
-func (s *SiteInfo) SourceRelativeLinkFile(ref string, currentPage *Page) (string, error) {
+func (s *SiteInfo) SourceRelativeLinkFile(ref string, currentPage *Page, reusedPage *Page) (string, error) {
 	var refURL *url.URL
 	var err error
 
@@ -523,7 +547,18 @@ func (s *SiteInfo) SourceRelativeLinkFile(ref string, currentPage *Page) (string
 			refPath = refPath[1:]
 		} else {
 			if currentPage != nil {
-				refPath = filepath.Join(currentPage.Source.Dir(), refURL.Path)
+				if reusedPage != nil &&
+					!reusedPage.getRenderingConfig().SourceRelativeLinksEval && strings.HasPrefix(refPath, ".."+string(os.PathSeparator)) {
+					// if a full page (instead of a snippet) with a relative URL is reused there often would be a path like "../some-image.png"
+					// that WILL match the image in that SAME directory where the MARKDOWN file is located and NOT the parent of this dir as you'd expect
+					// because Hugo starts from the DIRECTORY and the browser starts from the LAST PATH which is MARKDOWN file in our case...
+					// so we need to trim the prefix here since we want the current dir...
+					// This not the case if reused page is "index.md" since the LAST PATH in the browser would start from the DIR.
+					// And the same if SourceRelativeLinksEval is TRUE since then HUGO will translate all relative links to absolute by its rules as we'd expect.
+					refPath = filepath.Join(currentPage.Source.Dir(), strings.TrimPrefix(refPath, ".."+string(os.PathSeparator)))
+				} else {
+					refPath = filepath.Join(currentPage.Source.Dir(), refURL.Path)
+				}
 			}
 		}
 
@@ -535,6 +570,10 @@ func (s *SiteInfo) SourceRelativeLinkFile(ref string, currentPage *Page) (string
 		}
 
 		if target == nil {
+			if reusedPage != nil && reusedPage == currentPage {
+				currentPage.s.Log.WARN.Printf("No file found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
+				return ref, nil
+			}
 			return "", fmt.Errorf("No file found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
 		}
 
@@ -543,6 +582,65 @@ func (s *SiteInfo) SourceRelativeLinkFile(ref string, currentPage *Page) (string
 	}
 
 	return "", fmt.Errorf("failed to find a file to match \"%s\" on page \"%s\"", ref, currentPage.Source.Path())
+}
+
+func (s *SiteInfo) LookupPage(ref string, currentPage *Page) (*Page, error) {
+	var refURL *url.URL
+	var err error
+	refURL, err = url.Parse(ref)
+	if err != nil {
+		return nil, err
+	}
+	if refURL.Scheme != "" {
+		// Not a relative source level path
+		return nil, fmt.Errorf("Ref has a redundant scheme in the URL '%s'", ref)
+	}
+	var target *Page
+	if refURL.Path != "" {
+		refPath := filepath.Clean(filepath.FromSlash(refURL.Path))
+		if strings.IndexRune(refPath, os.PathSeparator) == 0 { // filepath.IsAbs fails to me.
+			refPath = refPath[1:]
+		} else {
+			if currentPage != nil {
+				refPath = filepath.Join(currentPage.Source.Dir(), refURL.Path)
+			}
+		}
+		target = searchPage(refPath, s.PageSnippets)
+		if target == nil {
+			target = searchPage(refPath, s.AllRegularPages)
+		}
+		if target == nil {
+			return nil, fmt.Errorf("No page found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
+		}
+	}
+	return target, nil
+}
+
+func searchPage(refPath string, pagesToSearch Pages) *Page {
+	var target *Page
+	for _, page := range pagesToSearch {
+		if page.Source.Path() == refPath {
+			target = page
+			break
+		}
+	}
+	// need to exhaust the test, then try with the others :/
+	// if the refPath doesn't end in a filename with extension `.md`, then try with `.md` , and then `/index.md`
+	mdPath := strings.TrimSuffix(refPath, string(os.PathSeparator)) + ".md"
+	for _, page := range pagesToSearch {
+		if page.Source.Path() == mdPath {
+			target = page
+			break
+		}
+	}
+	indexPath := filepath.Join(refPath, "index.md")
+	for _, page := range pagesToSearch {
+		if page.Source.Path() == indexPath {
+			target = page
+			break
+		}
+	}
+	return target
 }
 
 func (s *SiteInfo) addToPaginationPageCount(cnt uint64) {
@@ -1746,6 +1844,7 @@ func (s *Site) Stats() {
 	s.Log.FEEDBACK.Println(s.expiredStats())
 	s.Log.FEEDBACK.Printf("%d regular pages created\n", s.siteStats.pageCountRegular)
 	s.Log.FEEDBACK.Printf("%d other pages created\n", (s.siteStats.pageCount - s.siteStats.pageCountRegular))
+	s.Log.FEEDBACK.Printf("%d page snippets created\n", len(s.PageSnippets))
 	s.Log.FEEDBACK.Printf("%d non-page files copied\n", len(s.Files))
 	s.Log.FEEDBACK.Printf("%d paginator pages created\n", s.Info.paginationPageCount)
 

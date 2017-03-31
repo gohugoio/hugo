@@ -35,6 +35,9 @@ type PageCollections struct {
 
 	// Includes absolute all pages (of all types), including drafts etc.
 	rawAllPages Pages
+
+	// Page snippets that can be used only for Page reuse. Ignored by default.
+	PageSnippets Pages
 }
 
 func (c *PageCollections) refreshPageCaches() {

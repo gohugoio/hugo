@@ -458,6 +458,10 @@ func (h *HugoSites) setupTranslations() {
 		for i, site := range h.Sites {
 			// The site is assigned by language when read.
 			if site == p.s {
+				if p.Kind == KindSnippet {
+					site.PageSnippets = append(site.PageSnippets, p)
+					continue
+				}
 				site.updateBuildStats(p)
 				if shouldBuild {
 					site.Pages = append(site.Pages, p)

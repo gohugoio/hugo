@@ -66,6 +66,44 @@ The `%` characters indicates that the shortcode's inner content needs further pr
 The `<` character indicates that the shortcode's inner content doesn't need any further rendering, this will typically be pure HTML:
 
     {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
+    
+### Page Reuse shortcodes
+
+The `~` character indiciates that the shortcode's inner content must be taken from other referred page. For example, 
+this will take the rendered content (including shortcodes/images/links etc.) of the page "mypage.md" located by path "/path/to/page"
+starting from the content folder:
+ 
+    {{~/* myshortcode ref="/path/to/page/mypage" */~}}
+    
+Page Reuse shortcode must contain at least one parameter "ref" if _named parameters_ are used or the first one if _positional parameters_ are used
+indicating the page to be reused. The page can be referred by an absolute path (starting from slash) or by a relative to the current directory path.
+The page extension (.md) can be omitted as well as "/index.md" filename since it will be searched by Hugo engine if any.
+If search is failed then Hugo will output an error and the shortcode will not be handled at all.
+
+Page Reuse shortcodes don't require a template to be provided since they can act as built-in shortcodes just substituting themselves with the content
+of the reused pages.  
+Note: If a template is omitted a closing shortcode will be omitted as well.
+
+#### Page snippets
+In order to have possibility to create pages that can be reused in different places but don't have its own served page on the site, 
+a new concept of page snippets has been introduced. To mark the page as a snippet you must add a parameter "issnippet=true" inside the front matter of the page. 
+This page will not be served by Hugo and instead can be used only in Page Reuse shortcodes.
+When building your site you will see the output indicating how many page snippets your site will contain.
+
+#### Links resolution
+To provide flexibility in writing pages that can be reused in other pages there must be proper mechanism of links resolution.
+This only concerns relative links since absolute links (starting from slash or even from a scheme like https://) are not considered 
+to be modified in any way.
+So the relative links in the reused pages are resolved in 2 modes:
+* Dynamic resolution - the links are resolved in the context of the page that specifies a Reuse Page shortcode.
+* Relative resolution - the links are resolved in the context of the reused page.
+ 
+The first one has bigger precedence.  
+Hugo will try to find the corresponding page or file that is included to the current built site.
+If a link indicates a page and not a file (image/font etc.) the search will always expand to adding a .md, /index.md suffix
+to find the most appropriate page. Links can be relative to the current directory or the current page file 
+(since the filename will be transformed to a part of the URL path).
+If search is failed then Hugo will output a warning and won't transform the link.
 
 
 ## Built-in Shortcodes
@@ -251,6 +289,9 @@ parameters, named parameters work best.  Allowing both types of parameters is
 useful for complex layouts where you want to set default values that can be
 overridden.
 
+If you create a Reuse Page shortcode the first parameter will always be the "ref" parameter indicating the page to be reused.
+It can be also referred by the first index since it always must go first if _positional parameters_ are used.
+
 **Inside the template**
 
 To access a parameter by position, the `.Get` method can be used:
@@ -275,6 +316,8 @@ If a closing shortcode is used, the variable `.Inner` will be populated with all
 of the content between the opening and closing shortcodes. If a closing
 shortcode is required, you can check the length of `.Inner` and provide a warning
 to the user.
+
+If a Reuse Page shortcode is used, the variable `.InnerPage` will be populated with the content of the reused page for better control of the output.
 
 A shortcode with `.Inner` content can be used without the inline content, and without the closing shortcode, by using the self-closing syntax:
 
