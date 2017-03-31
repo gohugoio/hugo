@@ -36,6 +36,7 @@ var (
 	remoteURLLock = &remoteLock{m: make(map[string]*sync.Mutex)}
 	resSleep      = time.Second * 2 // if JSON decoding failed sleep for n seconds before retrying
 	resRetries    = 1               // number of retries to load the JSON from URL or local file system
+	resCacheMu    sync.RWMutex
 )
 
 type remoteLock struct {
@@ -49,8 +50,8 @@ func (l *remoteLock) URLLock(url string) {
 	if _, ok := l.m[url]; !ok {
 		l.m[url] = &sync.Mutex{}
 	}
-	l.m[url].Lock()
 	l.Unlock()
+	l.m[url].Lock()
 }
 
 // URLUnlock unlocks an URL when the download has been finished. Use only in defer calls.
@@ -70,6 +71,9 @@ func getCacheFileID(cfg config.Provider, id string) string {
 // resGetCache returns the content for an ID from the file cache or an error
 // if the file is not found returns nil,nil
 func resGetCache(id string, fs afero.Fs, cfg config.Provider, ignoreCache bool) ([]byte, error) {
+	resCacheMu.RLock()
+	defer resCacheMu.RUnlock()
+
 	if ignoreCache {
 		return nil, nil
 	}
@@ -88,6 +92,9 @@ func resGetCache(id string, fs afero.Fs, cfg config.Provider, ignoreCache bool) 
 
 // resWriteCache writes bytes to an ID into the file cache
 func resWriteCache(id string, c []byte, fs afero.Fs, cfg config.Provider, ignoreCache bool) error {
+	resCacheMu.Lock()
+	defer resCacheMu.Unlock()
+
 	if ignoreCache {
 		return nil
 	}
