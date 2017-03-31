@@ -8,7 +8,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [blocks,base,fundamentals]
-weight: 20
+menu:
+  main:
+    parent: "Templates"
+    weight: 20
+weight: 20	#rem
 draft: false
 aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 toc: true

@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [developer tools]
 tags: [editor, plug-ins]
-weight: 50
+menu:
+  main:
+    parent: "Tools"
+    weight: 50
+weight: 50	#rem
 draft: false
 aliases: []
 toc: false

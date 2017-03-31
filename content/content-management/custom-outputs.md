@@ -7,7 +7,11 @@ publishdate: 2017-03-22
 lastmod: 2017-03-22
 categories: [content management]
 tags: ["amp","outputs"]
-weight: 100
+menu:
+  main:
+    parent: "Content Management"
+    weight: 100
+weight: 100	#rem
 draft: false
 aliases: [/extras/custom-output-types/]
 toc: true

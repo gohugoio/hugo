@@ -8,7 +8,11 @@ lastmod: 2017-03-12
 categories: [variables and params]
 tags: [hugo,generator]
 draft: false
-weight: 60
+menu:
+  main:
+    parent: "Variables"
+    weight: 60
+weight: 60	#rem
 aliases: []
 toc: false
 wip: false

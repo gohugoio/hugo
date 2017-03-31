@@ -5,7 +5,11 @@ description: Hugo boasts blistering speed, robust content management, and a powe
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight: 20
+menu:
+  main:
+    parent: "About Hugo"
+    weight: 20
+weight: 20	#rem
 draft: false
 aliases: [/about/features]
 toc: true

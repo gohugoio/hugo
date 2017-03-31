@@ -8,7 +8,11 @@ lastmod: 2017-02-27
 categories: [contribute]
 tags: [contribute,themes,design]
 authors: [digitalcraftsman]
-weight: 30
+menu:
+  main:
+    parent: "Contribute"
+    weight: 30
+weight: 30	#rem
 draft: false
 aliases: [/contribute/theme/]
 wip: true

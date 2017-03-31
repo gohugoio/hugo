@@ -5,7 +5,11 @@ description: Install, use, and create Hugo themes.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight: 01
+menu:
+  main:
+    parent: "Themes"
+    weight: 01
+weight: 01	#rem
 categories: [themes]
 tags: [themes,introduction,overview]
 draft: false

@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [shortcodes]
-weight: 100
+menu:
+  main:
+    parent: "Templates"
+    weight: 100
+weight: 100	#rem
 draft: false
 aliases: []
 toc: true

@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [getting started]
 tags: [usage,docs]
-weight: 01
+menu:
+  main:
+    parent: "Getting Started"
+    weight: 01
+weight: 01	#rem
 draft: false
 aliases: [/overview/introduction/]
 toc: false

@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [sitemap, xml]
-weight: 160
+menu:
+  main:
+    parent: "Templates"
+    weight: 160
+weight: 160	#rem
 draft: false
 aliases: [/layout/sitemap/,/templates/sitemap/]
 toc: false

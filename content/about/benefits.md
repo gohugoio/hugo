@@ -6,7 +6,11 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [ssg,static,performance,security]
-weight: 30
+menu:
+  main:
+    parent: "About Hugo"
+    weight: 30
+weight: 30	#rem
 draft: false
 aliases: []
 toc: false

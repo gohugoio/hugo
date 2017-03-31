@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-03-12
 categories: [templates]
 tags: [data,dynamic,csv,json,toml,yaml]
-weight: 80
+menu:
+  main:
+    parent: "Templates"
+    weight: 80
+weight: 80	#rem
 draft: false
 aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/]
 toc: true

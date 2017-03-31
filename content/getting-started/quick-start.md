@@ -8,7 +8,11 @@ lastmod: 2017-02-19
 categories: [getting started]
 tags: [quick start,usage]
 authors: [Shekhar Gulati, Ryan Watters]
-weight: 10
+menu:
+  main:
+    parent: "Getting Started"
+    weight: 10
+weight: 10	#rem
 draft: false
 aliases: [/overview/quickstart/]
 toc: true

@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [lists,sections,pagination]
-weight: 140
+menu:
+  main:
+    parent: "Templates"
+    weight: 140
+weight: 140	#rem
 draft: false
 aliases: [/extras/pagination,/doc/pagination/]
 toc: true

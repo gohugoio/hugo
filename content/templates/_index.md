@@ -5,7 +5,11 @@ description: Golang templating, template types and lookup order, shortcodes, and
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-weight: 01
+menu:
+  main:
+    parent: "Templates"
+    weight: 01
+weight: 01	#rem
 categories: [templates]
 tags: []
 draft: false

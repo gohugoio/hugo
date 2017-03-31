@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [archetypes,generators,metadata,front matter]
 categories: ["content management"]
-weight: 70
+menu:
+  main:
+    parent: "Content Management"
+    weight: 70
+weight: 70	#rem
 draft: false
 aliases: [/content/archetypes/]
 toc: true

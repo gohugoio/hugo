@@ -8,7 +8,11 @@ lastmod: 2017-02-01
 categories: [content management]
 tags: [menus]
 draft: false
-weight: 120
+menu:
+  main:
+    parent: "Content Management"
+    weight: 120
+weight: 120	#rem
 aliases: [/extras/menus/]
 toc: true
 ---

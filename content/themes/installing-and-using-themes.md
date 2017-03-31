@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [themes]
 tags: [install, themes, source, organization, directories,usage]
-weight: 10
+menu:
+  main:
+    parent: "Themes"
+    weight: 10
+weight: 10	#rem
 draft: false
 aliases: [/themes/usage/,/themes/installing/]
 toc: true

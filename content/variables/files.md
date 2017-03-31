@@ -8,7 +8,11 @@ lastmod: 2017-02-01
 categories: [variables and params]
 tags: [files]
 draft: false
-weight: 40
+menu:
+  main:
+    parent: "Variables"
+    weight: 40
+weight: 40	#rem
 aliases: [/variables/file-variables/]
 toc: false
 ---

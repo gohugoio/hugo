@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [taxonomies,metadata,front matter,terms]
-weight: 50
+menu:
+  main:
+    parent: "Templates"
+    weight: 50
+weight: 50	#rem
 draft: false
 aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy/]
 toc: true

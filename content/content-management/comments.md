@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-03-09
 tags: [sections,content,organization, fundamentals]
 categories: [project organization]
-weight: 140
+menu:
+  main:
+    parent: "Content Management"
+    weight: 140
+weight: 140	#rem
 draft: false
 aliases: [/extras/comments/]
 toc: true

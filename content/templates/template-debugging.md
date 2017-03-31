@@ -8,7 +8,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [debugging,troubleshooting]
-weight: 180
+menu:
+  main:
+    parent: "Templates"
+    weight: 180
+weight: 180	#rem
 draft: false
 aliases: []
 toc: false

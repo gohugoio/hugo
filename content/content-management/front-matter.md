@@ -7,7 +7,11 @@ publishdate: 2017-01-09
 lastmod: 2017-01-09
 categories: [content management]
 tags: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
-weight: 30
+menu:
+  main:
+    parent: "Content Management"
+    weight: 30
+weight: 30	#rem
 draft: false
 aliases: [/content/front-matter/]
 toc: true

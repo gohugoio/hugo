@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [highlighting,pygments,code blocks,syntax]
 categories: [developer tools]
-weight: 20
+menu:
+  main:
+    parent: "Tools"
+    weight: 20
+weight: 20	#rem
 draft: false
 aliases: [/extras/highlighting/,/extras/highlight/]
 toc: true

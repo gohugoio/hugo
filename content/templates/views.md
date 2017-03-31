@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [views]
-weight: 70
+menu:
+  main:
+    parent: "Templates"
+    weight: 70
+weight: 70	#rem
 draft: false
 aliases: []
 toc: true

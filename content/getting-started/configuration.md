@@ -7,7 +7,11 @@ publishdate: 2017-01-02
 lastmod: 2017-03-05
 categories: [getting started]
 tags: [configuration,fundamentals,toml,yaml,json]
-weight: 60
+menu:
+  main:
+    parent: "Getting Started"
+    weight: 60
+weight: 60	#rem
 draft: false
 aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true

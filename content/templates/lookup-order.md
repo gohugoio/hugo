@@ -8,7 +8,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-25
 categories: [templates]
 tags: [lookup,fundamentals]
-weight: 15
+menu:
+  main:
+    parent: "Templates"
+    weight: 15
+weight: 15	#rem
 draft: false
 aliases: [/templates/lookup/]
 toc: true

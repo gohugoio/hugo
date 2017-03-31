@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [commands]
 tags: [cli,command line]
-weight: 01
+menu:
+  main:
+    parent: "Commands"
+    weight: 01
+weight: 01	#rem
 draft: false
 aliases: [/cli/]
 wip: true

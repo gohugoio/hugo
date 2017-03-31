@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-01-09
 categories: [content management]
 tags: ["cross references","references", "anchors", "urls"]
-weight: 100
+menu:
+  main:
+    parent: "Content Management"
+    weight: 100
+weight: 100	#rem
 draft: false
 aliases: [/extras/crossreferences/]
 toc: true

@@ -8,7 +8,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-25
 categories: [templates]
 tags: [go,fundamentals]
-weight: 10
+menu:
+  main:
+    parent: "Templates"
+    weight: 10
+weight: 10	#rem
 draft: false
 aliases: [/templates/introduction/,/layouts/introduction/,/layout/introduction/]
 toc: true

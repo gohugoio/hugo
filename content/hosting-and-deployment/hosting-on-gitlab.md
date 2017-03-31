@@ -8,7 +8,11 @@ lastmod: 2016-06-23
 categories: [hosting and deployment]
 tags: [hosting,deployment,git,gitlab]
 authors: [Riku-Pekka Silvola]
-weight: 40
+menu:
+  main:
+    parent: "Hosting and Deployment"
+    weight: 40
+weight: 40	#rem
 draft: false
 toc: true
 wip: false

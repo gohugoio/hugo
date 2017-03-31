@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [lists,sections]
-weight: 40
+menu:
+  main:
+    parent: "Templates"
+    weight: 40
+weight: 40	#rem
 draft: false
 aliases: [/templates/sections/]
 toc: true

@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-26
 categories: [developer tools]
 tags: [search,tools]
-weight: 60
+menu:
+  main:
+    parent: "Tools"
+    weight: 60
+weight: 60	#rem
 draft: false
 aliases: []
 toc: true

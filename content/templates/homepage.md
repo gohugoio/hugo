@@ -7,7 +7,11 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
 tags: [homepage]
-weight: 30
+menu:
+  main:
+    parent: "Templates"
+    weight: 30
+weight: 30	#rem
 draft: false
 aliases: [/layout/homepage/,/templates/homepage-template/]
 toc: false

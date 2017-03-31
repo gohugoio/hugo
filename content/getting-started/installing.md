@@ -8,7 +8,11 @@ lastmod: 2017-02-20
 categories: [getting started]
 authors: ["Michael Henderson"]
 tags: [install,fundamentals,pc,windows,linux,macos,binary,tarball]
-weight: 30
+menu:
+  main:
+    parent: "Getting Started"
+    weight: 30
+weight: 30	#rem
 draft: false
 aliases: [/tutorials/installing-on-windows/,/tutorials/installing-on-mac/,/overview/installing/,/getting-started/install,/install/]
 toc: true
