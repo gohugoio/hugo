@@ -1,10 +1,10 @@
 ---
 date: 2017-03-31T22:36:12+03:00
-description: "Multilingual webiste. Size 20GB, build time 25 mins. Cloudflare, s3, bootstrap 4"
+description: "Multilingual website. Size 20GB, build time 25 mins. Cloudflare, s3, bootstrap 4"
 license: ""
 licenseLink: ""
 sitelink: https://firstname.club
-sourceLink: https://github.com/spf13/spf13.com
+sourceLink:
 tags:
 - data
 - website
