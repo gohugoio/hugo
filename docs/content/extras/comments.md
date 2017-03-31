@@ -74,7 +74,7 @@ A few alternatives exist to [Disqus](https://disqus.com/):
 
 * [Discourse](http://www.discourse.org)
 * [IntenseDebate](http://intensedebate.com/)
-* [Livefyre](http://livefyre.com/)
+* [Livefyre](http://www.adobe.com/marketing-cloud/enterprise-content-management/ugc-content-platform.html)
 * [Muut](http://muut.com/)
 * [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
 * [isso](http://posativ.org/isso/) (Self-hosted, Python)
