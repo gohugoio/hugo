@@ -39,7 +39,7 @@ verboseLog = false
 # Setting this to false will keep hugo from watching for changes during local development
 watch = true
 # Add GA Tracking Code Here. This leverages a built-in (ie, "internal") partial from HUGO: https://gohugo.io/extras/analytics#configuring-google-analytics
-googleAnalytics = ""
+googleAnalytics = "UA-76549364-1"
 
 [permalinks]
   temp = "/:title"

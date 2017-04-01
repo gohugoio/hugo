@@ -24,7 +24,7 @@
 
     ga('create', '{{$gaid}}', 'auto');
     ga('send', 'pageview');
-    ga('create', '{{$gaid}}', {
+    ga('create', '{{$gaid | safeJS}}', {
       'siteSpeedSampleRate': 100
     });
   }
