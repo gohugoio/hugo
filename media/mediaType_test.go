@@ -30,6 +30,7 @@ func TestDefaultTypes(t *testing.T) {
 	}{
 		{CalendarType, "text", "calendar", "ics", "text/calendar", "text/calendar+ics"},
 		{CSSType, "text", "css", "css", "text/css", "text/css+css"},
+		{CSVType, "text", "csv", "csv", "text/csv", "text/csv+csv"},
 		{HTMLType, "text", "html", "html", "text/html", "text/html+html"},
 		{JavascriptType, "application", "javascript", "js", "application/javascript", "application/javascript+js"},
 		{JSONType, "application", "json", "json", "application/json", "application/json+json"},

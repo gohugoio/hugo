@@ -43,10 +43,18 @@ var (
 	}
 
 	CSSFormat = Format{
-		Name:      "CSS",
-		MediaType: media.CSSType,
-		BaseName:  "styles",
-		Rel:       "stylesheet",
+		Name:        "CSS",
+		MediaType:   media.CSSType,
+		BaseName:    "styles",
+		IsPlainText: true,
+		Rel:         "stylesheet",
+	}
+	CSVFormat = Format{
+		Name:        "CSV",
+		MediaType:   media.CSVType,
+		BaseName:    "index",
+		IsPlainText: true,
+		Rel:         "alternate",
 	}
 
 	HTMLFormat = Format{

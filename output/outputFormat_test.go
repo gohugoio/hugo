@@ -28,17 +28,31 @@ func TestDefaultTypes(t *testing.T) {
 	require.True(t, CalendarFormat.IsPlainText)
 	require.False(t, CalendarFormat.IsHTML)
 
+	require.Equal(t, "CSS", CSSFormat.Name)
+	require.Equal(t, media.CSSType, CSSFormat.MediaType)
+	require.Empty(t, CSSFormat.Path)
+	require.Empty(t, CSSFormat.Protocol) // Will inherit the BaseURL protocol.
+	require.True(t, CSSFormat.IsPlainText)
+	require.False(t, CSSFormat.IsHTML)
+
+	require.Equal(t, "CSV", CSVFormat.Name)
+	require.Equal(t, media.CSVType, CSVFormat.MediaType)
+	require.Empty(t, CSVFormat.Path)
+	require.Empty(t, CSVFormat.Protocol)
+	require.True(t, CSVFormat.IsPlainText)
+	require.False(t, CSVFormat.IsHTML)
+
 	require.Equal(t, "HTML", HTMLFormat.Name)
 	require.Equal(t, media.HTMLType, HTMLFormat.MediaType)
 	require.Empty(t, HTMLFormat.Path)
-	require.Empty(t, HTMLFormat.Protocol) // Will inherit the BaseURL protocol.
+	require.Empty(t, HTMLFormat.Protocol)
 	require.False(t, HTMLFormat.IsPlainText)
 	require.True(t, HTMLFormat.IsHTML)
 
 	require.Equal(t, "AMP", AMPFormat.Name)
 	require.Equal(t, media.HTMLType, AMPFormat.MediaType)
 	require.Equal(t, "amp", AMPFormat.Path)
-	require.Empty(t, AMPFormat.Protocol) // Will inherit the BaseURL protocol.
+	require.Empty(t, AMPFormat.Protocol)
 	require.False(t, AMPFormat.IsPlainText)
 	require.True(t, AMPFormat.IsHTML)
 

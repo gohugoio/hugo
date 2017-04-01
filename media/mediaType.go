@@ -49,6 +49,7 @@ func (m Type) String() string {
 var (
 	CalendarType   = Type{"text", "calendar", "ics"}
 	CSSType        = Type{"text", "css", "css"}
+	CSVType        = Type{"text", "csv", "csv"}
 	HTMLType       = Type{"text", "html", "html"}
 	JavascriptType = Type{"application", "javascript", "js"}
 	JSONType       = Type{"application", "json", "json"}
