@@ -88,16 +88,16 @@ See [Shortcodes][sc] for usage, particularly for the built-in shortcodes that sh
 
 Hugo supports GitHub-flavored markdown's use of triple back ticks, as well as provides a special [`highlight` nested shortcode][hlsc] to render syntax highlighting via [Pygments][]. For usage examples and a complete explanation, see the [syntax highlighting documentation][hl] in [developer tools][].
 
-## MMark
+## Mmark
 
-MMark is a [fork of BlackFriday][mmark] and markdown superset that is well suited for writing [IETF documentation][ietf]. You can see examples of the syntax in the [Mmark GitHub repository][mmarkgh] or the full syntax on [Miek Gieben's website][].
+Mmark is a [fork of BlackFriday][mmark] and markdown superset that is well suited for writing [IETF documentation][ietf]. You can see examples of the syntax in the [Mmark GitHub repository][mmarkgh] or the full syntax on [Miek Gieben's website][].
 
-### Using MMark
+### Using Mmark
 
 As Hugo ships with Mmark, using the syntax is as easy as changing the extension of your content files from `.md` to `.mmark`.
 
 {{% warning %}}
-MMark support is still considered an *experimental* feature in Hugo. For example, shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/spf13/hugo/issues/3137)) and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/spf13/hugo/issues/1970)) and the aforementioned GFM todo lists ([#2270](https://github.com/spf13/hugo/issues/2270)) are not fully supported. Contributions are welcome.
+Mmark support is still an *experimental* feature in Hugo. For example, shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/spf13/hugo/issues/3137)) and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/spf13/hugo/issues/1970)) and the aforementioned GFM todo lists ([#2270](https://github.com/spf13/hugo/issues/2270)) are not fully supported. Contributions are welcome.
 {{% /warning %}}
 
 ## MathJax with Hugo
@@ -164,7 +164,7 @@ MathJax.Hub.Config({
 {{% /code %}}
 
 {{% note %}}
-If you are using Mmark with MathJax, use `displayMath: [['$$','$$'], ['\\[','\\]']]`. See the [MMark `README.md`](https://github.com/miekg/mmark/wiki/Syntax#math-blocks) for more information. Additionally, MMark has been shown to work well with [KaTex](https://github.com/Khan/KaTeX). See the [related blog post from a Hugo user](http://nosubstance.me/post/a-great-toolset-for-static-blogging/).
+If you are using Mmark with MathJax, use `displayMath: [['$$','$$'], ['\\[','\\]']]`. See the [Mmark `README.md`](https://github.com/miekg/mmark/wiki/Syntax#math-blocks) for more information. Additionally, Mmark has been shown to work well with [KaTex](https://github.com/Khan/KaTeX). See the [related blog post from a Hugo user](http://nosubstance.me/post/a-great-toolset-for-static-blogging/).
 {{% /note %}}
 
 As before, this content should be included in the HTML source of each page that will be using MathJax. The next code snippet contains the CSS that is used to have verbatim MathJax blocks render with the same font style as the body of the page.
