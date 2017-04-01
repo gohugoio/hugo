@@ -40,8 +40,8 @@ var i18nTests = []i18nTest{
 	// All translations present
 	{
 		data: map[string][]byte{
-			"en.yaml": []byte("- id: \"hello\"\n  translation: \"Hello, World!\""),
-			"es.yaml": []byte("- id: \"hello\"\n  translation: \"¡Hola, Mundo!\""),
+			"en.toml": []byte("[hello]\nother = \"Hello, World!\""),
+			"es.toml": []byte("[hello]\nother = \"¡Hola, Mundo!\""),
 		},
 		args:         nil,
 		lang:         "es",
@@ -52,8 +52,8 @@ var i18nTests = []i18nTest{
 	// Translation missing in current language but present in default
 	{
 		data: map[string][]byte{
-			"en.yaml": []byte("- id: \"hello\"\n  translation: \"Hello, World!\""),
-			"es.yaml": []byte("- id: \"goodbye\"\n  translation: \"¡Adiós, Mundo!\""),
+			"en.toml": []byte("[hello]\nother = \"Hello, World!\""),
+			"es.toml": []byte("[goodbye]\nother = \"¡Adiós, Mundo!\""),
 		},
 		args:         nil,
 		lang:         "es",
@@ -64,8 +64,8 @@ var i18nTests = []i18nTest{
 	// Translation missing in default language but present in current
 	{
 		data: map[string][]byte{
-			"en.yaml": []byte("- id: \"goodybe\"\n  translation: \"Goodbye, World!\""),
-			"es.yaml": []byte("- id: \"hello\"\n  translation: \"¡Hola, Mundo!\""),
+			"en.toml": []byte("[goodybe]\nother = \"Goodbye, World!\""),
+			"es.toml": []byte("[hello]\nother = \"¡Hola, Mundo!\""),
 		},
 		args:         nil,
 		lang:         "es",
@@ -76,8 +76,8 @@ var i18nTests = []i18nTest{
 	// Translation missing in both default and current language
 	{
 		data: map[string][]byte{
-			"en.yaml": []byte("- id: \"goodbye\"\n  translation: \"Goodbye, World!\""),
-			"es.yaml": []byte("- id: \"goodbye\"\n  translation: \"¡Adiós, Mundo!\""),
+			"en.toml": []byte("[goodbye]\nother = \"Goodbye, World!\""),
+			"es.toml": []byte("[goodbye]\nother = \"¡Adiós, Mundo!\""),
 		},
 		args:         nil,
 		lang:         "es",
@@ -88,7 +88,7 @@ var i18nTests = []i18nTest{
 	// Default translation file missing or empty
 	{
 		data: map[string][]byte{
-			"en.yaml": []byte(""),
+			"en.toml": []byte(""),
 		},
 		args:         nil,
 		lang:         "es",
@@ -99,8 +99,8 @@ var i18nTests = []i18nTest{
 	// Context provided
 	{
 		data: map[string][]byte{
-			"en.yaml": []byte("- id: \"wordCount\"\n  translation: \"Hello, {{.WordCount}} people!\""),
-			"es.yaml": []byte("- id: \"wordCount\"\n  translation: \"¡Hola, {{.WordCount}} gente!\""),
+			"en.toml": []byte("[wordCount]\nother = \"Hello, {{.WordCount}} people!\""),
+			"es.toml": []byte("[wordCount]\nother = \"¡Hola, {{.WordCount}} gente!\""),
 		},
 		args: struct {
 			WordCount int
@@ -114,10 +114,10 @@ var i18nTests = []i18nTest{
 	},
 }
 
-func doTestI18nTranslate(t *testing.T, data map[string][]byte, lang, id string, args interface{}, cfg config.Provider) string {
+func doTestI18nTranslate(t *testing.T, test i18nTest, cfg config.Provider) string {
 	i18nBundle := bundle.New()
 
-	for file, content := range data {
+	for file, content := range test.data {
 		err := i18nBundle.ParseTranslationFileBytes(file, content)
 		if err != nil {
 			t.Errorf("Error parsing translation file: %s", err)
@@ -125,11 +125,8 @@ func doTestI18nTranslate(t *testing.T, data map[string][]byte, lang, id string, 
 	}
 
 	translator := NewTranslator(i18nBundle, cfg, logger)
-
-	f := translator.Func(lang)
-
-	translated := f(id, args)
-
+	f := translator.Func(test.lang)
+	translated := f(test.id, test.args)
 	return translated
 }
 
@@ -148,7 +145,7 @@ func TestI18nTranslate(t *testing.T) {
 			} else {
 				expected = test.expected
 			}
-			actual = doTestI18nTranslate(t, test.data, test.lang, test.id, test.args, v)
+			actual = doTestI18nTranslate(t, test, v)
 			require.Equal(t, expected, actual)
 		}
 	}
