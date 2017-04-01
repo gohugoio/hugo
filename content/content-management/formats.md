@@ -96,7 +96,7 @@ Mmark is a [fork of BlackFriday][mmark] and markdown superset that is well suite
 
 As Hugo ships with Mmark, using the syntax is as easy as changing the extension of your content files from `.md` to `.mmark`.
 
-In the event that you want to only use Mmark in specific files, you can also define the Mmark syntax in the front matter of individual content (`.md`) files:
+In the event that you want to only use Mmark in specific files, you can also define the Mmark syntax in your content's front matter:
 
 ```yaml
 ---
