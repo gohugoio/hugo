@@ -96,6 +96,14 @@ Mmark is a [fork of BlackFriday][mmark] and markdown superset that is well suite
 
 As Hugo ships with Mmark, using the syntax is as easy as changing the extension of your content files from `.md` to `.mmark`.
 
+In the event that you want to only use Mmark in specific files, you can also define the Mmark syntax in the front matter of individual content (`.md`) files:
+
+```yaml
+title: My Post
+date: 2017-04-01
+markdown: 'mmark'
+```
+
 {{% warning %}}
 Mmark support is still an *experimental* feature in Hugo. For example, shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/spf13/hugo/issues/3137)) and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/spf13/hugo/issues/1970)) and the aforementioned GFM todo lists ([#2270](https://github.com/spf13/hugo/issues/2270)) are not fully supported. Contributions are welcome.
 {{% /warning %}}
