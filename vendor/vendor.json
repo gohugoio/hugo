@@ -269,19 +269,19 @@
 			"revisionTime": "2017-03-03T19:59:13Z"
 		},
 		{
-			"checksumSHA1": "AlQX4i6VrV8vIfnjpwabRzIVNLU=",
+			"checksumSHA1": "lU+gVOtSFnBKx11uhPL8b9v0uTE=",
 			"path": "github.com/spf13/cobra",
-			"revision": "92ea23a837e66f46ac9e7d04fa826602b7b0a42d",
-			"revisionTime": "2017-02-23T13:12:51Z"
+			"revision": "7be4beda01ec05d0b93d80b3facd2b6f44080d94",
+			"revisionTime": "2017-03-14T19:12:53Z"
 		},
 		{
-			"checksumSHA1": "e98Bh9eCYfpey3PIVt/W5lRlsGo=",
+			"checksumSHA1": "PYbTJf6/eKMy0TkHt/tu1x9mb68=",
 			"path": "github.com/spf13/cobra/doc",
-			"revision": "ee4055870c2d5f7ce112642377e32c9929c3bbaf",
-			"revisionTime": "2017-02-17T16:44:07Z"
+			"revision": "0960ff7fa929d3ac272ee8fc1051aed532521623",
+			"revisionTime": "2017-03-09T15:37:15Z"
 		},
 		{
-			"checksumSHA1": "XSh/IxmHbGUf4tYB61wn9zK4g7U=",
+			"checksumSHA1": "TmmnmNJgWmRK0eMo+43gTzVA8zI=",
 			"path": "github.com/spf13/fsync",
 			"revision": "12a01e648f05a938100a26858d2d59a120307a18",
 			"revisionTime": "2017-03-20T14:25:52Z"
