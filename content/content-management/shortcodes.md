@@ -351,6 +351,14 @@ Using the preceding `vimeo` example, the following HTML will be added to your re
 ```
 {{% /output %}}
 
+{{% tip %}}
+If you want to further customize the visual styling of the YouTube or Vimeo output, you can add a `class` named parameter when calling the shortcode that will be added to the `<div>` that wraps the `<iframe>` *and* remove the inline styles. Note that you will need to call the `id` as a named parameter as well.
+
+```
+{{</* vimeo id="146022717" class="my-vimeo-wrapper-class" */>}}
+```
+{{% /tip %}}
+
 #### Example `vimeo` Display
 
 Using the preceding `vimeo` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
