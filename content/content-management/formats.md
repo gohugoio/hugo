@@ -99,9 +99,11 @@ As Hugo ships with Mmark, using the syntax is as easy as changing the extension 
 In the event that you want to only use Mmark in specific files, you can also define the Mmark syntax in the front matter of individual content (`.md`) files:
 
 ```yaml
+---
 title: My Post
 date: 2017-04-01
-markdown: 'mmark'
+markdown: mmark
+---
 ```
 
 {{% warning %}}
