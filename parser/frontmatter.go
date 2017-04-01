@@ -14,13 +14,15 @@
 package parser
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"regexp"
 	"strings"
 
-	"github.com/chaseadamsio/goorgeous"
 	toml "github.com/pelletier/go-toml"
 
 	"gopkg.in/yaml.v2"
@@ -227,8 +229,51 @@ func HandleJSONMetaData(datum []byte) (interface{}, error) {
 	return f, err
 }
 
+var reHeader = regexp.MustCompile(`^#\+(\w+?): (.*)`)
+
 // HandleOrgMetaData unmarshals org-mode encoded datum and returns a Go
 // interface representing the encoded data structure.
 func HandleOrgMetaData(datum []byte) (interface{}, error) {
-	return goorgeous.OrgHeaders(datum)
+	out := make(map[string]interface{})
+	if datum == nil {
+		// Return an empty map to be consistent with our other supported
+		// formats.
+		return out, nil
+	}
+
+	scanner := bufio.NewScanner(bytes.NewReader(datum))
+
+	for scanner.Scan() {
+		data := scanner.Bytes()
+		fmt.Println(string(data))
+		if !(data[0] == '#' && data[1] == '+') {
+			return out, nil
+		}
+		matches := reHeader.FindSubmatch(data)
+
+		if len(matches) < 3 {
+			continue
+		}
+
+		key := string(matches[1])
+		val := matches[2]
+		switch {
+		case strings.ToLower(key) == "tags" || strings.ToLower(key) == "categories" || strings.ToLower(key) == "aliases":
+			bTags := bytes.Split(val, []byte(" "))
+			tags := make([]string, len(bTags))
+			for idx, tag := range bTags {
+				tags[idx] = string(tag)
+			}
+			out[key] = tags
+		case string(val) == "true":
+			out[key] = true
+		case string(val) == "false":
+			out[key] = false
+		default:
+			out[key] = string(val)
+		}
+
+	}
+	return out, nil
+
 }

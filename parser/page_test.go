@@ -59,7 +59,7 @@ func TestPage(t *testing.T) {
 		},
 		{
 			testPageLeader + orgPageFrontMatter + orgPageContent,
-			orgPageContent,
+			orgPageFrontMatter + orgPageContent,
 			orgPageFrontMatter,
 			true,
 			map[string]interface{}{
