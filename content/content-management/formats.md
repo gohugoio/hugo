@@ -107,7 +107,7 @@ markdown: mmark
 ```
 
 {{% warning %}}
-Mmark support is still an *experimental* feature in Hugo. For example, shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/spf13/hugo/issues/3137)) and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/spf13/hugo/issues/1970)) and the aforementioned GFM todo lists ([#2270](https://github.com/spf13/hugo/issues/2270)) are not fully supported. Contributions are welcome.
+Mmark support is still an *experimental* feature in Hugo. For example, shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/spf13/hugo/issues/3137)), and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/spf13/hugo/issues/1970)) and the aforementioned GFM todo lists ([#2270](https://github.com/spf13/hugo/issues/2270)) are not fully supported. Contributions are welcome.
 {{% /warning %}}
 
 ## MathJax with Hugo
