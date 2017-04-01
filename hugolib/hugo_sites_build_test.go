@@ -1050,8 +1050,8 @@ func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, conf
 	if err := afero.WriteFile(mf,
 		filepath.Join("i18n", "en.yaml"),
 		[]byte(`
-- id: hello
-  translation: "Hello"
+hello:
+  other: "Hello"
 `),
 		0755); err != nil {
 		t.Fatalf("Failed to write language file: %s", err)
@@ -1059,8 +1059,8 @@ func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, conf
 	if err := afero.WriteFile(mf,
 		filepath.Join("i18n", "fr.yaml"),
 		[]byte(`
-- id: hello
-  translation: "Bonjour"
+hello:
+  other: "Bonjour"
 `),
 		0755); err != nil {
 		t.Fatalf("Failed to write language file: %s", err)
