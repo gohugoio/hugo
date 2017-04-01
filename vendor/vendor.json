@@ -184,22 +184,22 @@
 			"revisionTime": "2016-12-11T22:23:15Z"
 		},
 		{
-			"checksumSHA1": "UW57eu+Se/KHPD+SoNJLIERYHZQ=",
+			"checksumSHA1": "K1cQRPixkKsqOEYC/7PmbAO4KuY=",
 			"path": "github.com/nicksnyder/go-i18n/i18n/bundle",
-			"revision": "f757c9f9b69c16ff69d38dbf224be28a7b6537bb",
-			"revisionTime": "2016-12-02T02:38:45Z"
+			"revision": "7e6a19b81bf3b5a1b480fd176a853b2ac4803be5",
+			"revisionTime": "2017-04-02T15:44:13Z"
 		},
 		{
 			"checksumSHA1": "+XOg99I1zdmBRUb04ZswvzQ2WS0=",
 			"path": "github.com/nicksnyder/go-i18n/i18n/language",
-			"revision": "f757c9f9b69c16ff69d38dbf224be28a7b6537bb",
-			"revisionTime": "2016-12-02T02:38:45Z"
+			"revision": "fed5740db6b83ee8ba7c1b07ff063115bc6f4b96",
+			"revisionTime": "2017-04-01T20:06:44Z"
 		},
 		{
-			"checksumSHA1": "nhlpSPeAP6jMGAuLPM2xflAZTlo=",
+			"checksumSHA1": "WZOU406In2hs8FJOHWqV8PWkJKs=",
 			"path": "github.com/nicksnyder/go-i18n/i18n/translation",
-			"revision": "f757c9f9b69c16ff69d38dbf224be28a7b6537bb",
-			"revisionTime": "2016-12-02T02:38:45Z"
+			"revision": "fed5740db6b83ee8ba7c1b07ff063115bc6f4b96",
+			"revisionTime": "2017-04-01T20:06:44Z"
 		},
 		{
 			"checksumSHA1": "TkXI1L27/2icLlcE/4wTZCfxLeM=",
