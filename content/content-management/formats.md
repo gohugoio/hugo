@@ -4,7 +4,7 @@ linktitle: Formats
 description: Markdown is natively supported in Hugo and is parsed by the feature-rich and incredibly speed Blackfriday parse. Hugo also provides support for additional syntaxes (eg, Asciidoc) via external helpers.
 date: 2017-01-10
 publishdate: 2017-01-10
-lastmod: 2017-01-10
+lastmod: 2017-03-31
 categories: [content management]
 tags: [markdown,asciidoc,mmark,content format]
 menu:

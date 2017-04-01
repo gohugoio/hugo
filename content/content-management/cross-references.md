@@ -4,7 +4,7 @@ linktitle:
 description: Hugo makes it easy to link documents together with the ref and relref shortcodes, which safely provide links to headings inside of your content, whether across documents or within a document.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-01-09
+lastmod: 2017-03-31
 categories: [content management]
 tags: ["cross references","references", "anchors", "urls"]
 menu:
@@ -21,7 +21,7 @@ Hugo makes it easy to link documents together with `ref` and `relref`, both of w
 
 ## Using `ref` and `relref`
 
-```golang
+```md
 {{</* ref "document" */>}}
 {{</* ref "#anchor" */>}}
 {{</* ref "document#anchor" */>}}
@@ -36,9 +36,9 @@ The single parameter to `ref` is a string with a content `documentname` (e.g., `
 
 The `documentname` is the name of a document, including the format extension; this may be just the filename, or the relative path from the `content/` directory. With a document `content/blog/post.md`, either format will produce the same result:
 
-```golang
-{{</* relref "blog/post.md" */>}} &rarr; `/blog/post/`
-{{</* relref "post.md" */>}} &rarr; `/blog/post/`
+```md
+{{</* relref "blog/post.md" */>}} => `/blog/post/`
+{{</* relref "post.md" */>}} => `/blog/post/`
 ```
 
 If you have the same filename used across multiple sections, you should only use the relative path format; otherwise, the behavior will be `undefined`. This is best illustrated with an example `content` directory:
@@ -59,46 +59,46 @@ If you have the same filename used across multiple sections, you should only use
 The potential for conflicting `documentname` is more likely in larger sites. Using the example of multiple `my-birthday.md` files, the following shows how these cross references may or may not render when called from within `content/meta/my-article.md`:
 
 {{% code file="content/meta/my-article.md" copy="false" %}}
-```golang
-{{</* relref "my-birthday.md" */>}} &rarr; `/events/my-birthday/` (maybe)
-{{</* relref "my-birthday.md" */>}} &rarr; `/posts/my-birthday/` (maybe)
-{{</* relref "my-birthday.md" */>}} &rarr; `/galleries/my-birthday/` (maybe)
-{{</* relref "events/my-birthday.md" */>}} &rarr; `/events/my-birthday/`
-{{</* relref "galleries/my-birthday.md" */>}} &rarr; `/galleries/my-birthday/`
+```md
+{{</* relref "my-birthday.md" */>}} => /events/my-birthday/ (maybe)
+{{</* relref "my-birthday.md" */>}} => /posts/my-birthday/ (maybe)
+{{</* relref "my-birthday.md" */>}} => /galleries/my-birthday/ (maybe)
+{{</* relref "events/my-birthday.md" */>}} => /events/my-birthday/
+{{</* relref "galleries/my-birthday.md" */>}} => /galleries/my-birthday/
 ```
 {{% /code %}}
 
 A relative document name must *not* begin with a slash (`/`).
-```golang
-{{</* relref "/events/my-birthday.md" */>}} &rarr; `""`
+```md
+{{</* relref "/events/my-birthday.md" */>}} => ""
 ```
 
 ### Anchors
 
 When an `anchor` is provided by itself, the current page’s unique identifier will be appended; when an `anchor` is provided appended to `documentname`, the found page's unique identifier will be appended:
 
-```golang
-{{</* relref "#anchors" */>}} &rarr; `#anchors:9decaf7`
-{{</* relref "about-hugo/hugo-features.md#content" */>}} &rarr; `/blog/post/#who:badcafe`
+```md
+{{</* relref "#anchors" */>}} => #anchors:9decaf7
+{{</* relref "about-hugo/hugo-features.md#content" */>}} => /blog/post/#who:badcafe
 ```
 
 The above examples render as follows for this very page as well as a reference to the "Content" heading in the Hugo docs features pageyoursite
 
-```golang
-{{</* relref "#who" */>}} &rarr; `#who:9decaf7`
-{{</* relref "blog/post.md#who" */>}} &rarr; `/blog/post/#who:badcafe`
+```md
+{{</* relref "#who" */>}} => #who:9decaf7
+{{</* relref "blog/post.md#who" */>}} => /blog/post/#who:badcafe
 ```
 
 More information about document unique identifiers and headings can be found [below]({{< ref "#hugo-heading-anchors" >}}).
 
 ### Examples
 
-* `{{</* ref "blog/post.md" */>}}` &rarr; `http://yoursite.com/blog/post/`
-* `{{</* ref "post.md#tldr" */>}}` &rarr; `http://yoursite.com/blog/post/#tldr:caffebad`
-* `{{</* relref "post.md" */>}}` &rarr; `/blog/post/`
-* `{{</* relref "blog/post.md#tldr" */>}}` &rarr; `/blog/post/#tldr:caffebad`
-* `{{</* ref "#tldr" */>}}` &rarr; `#tldr:badcaffe`
-* `{{</* relref "#tldr" */>}}` &rarr; `#tldr:badcaffe`
+* `{{</* ref "blog/post.md" */>}} => http://yoursite.com/blog/post/`
+* `{{</* ref "post.md#tldr" */>}} => http://yoursite.com/blog/post/#tldr:caffebad`
+* `{{</* relref "post.md" */>}} => /blog/post/`
+* `{{</* relref "blog/post.md#tldr" */>}} => /blog/post/#tldr:caffebad`
+* `{{</* ref "#tldr" */>}} => #tldr:badcaffe`
+* `{{</* relref "#tldr" */>}} => #tldr:badcaffe`
 
 ## Hugo Heading Anchors
 
@@ -108,7 +108,7 @@ Ensuring heading uniqueness across the site is accomplished with a unique identi
 
 `ref` and `relref` were added so you can make these reference links without having to know the document’s unique identifier. (The links in document tables of contents are automatically up-to-date with this value.)
 
-```golang
+```md
 {{</* relref "content-management/cross-references.md#hugo-heading-anchors" */>}}
 /content-management/cross-references/#hugo-heading-anchors:77cd9ea530577debf4ce0f28c8dca242
 ```
@@ -119,18 +119,24 @@ What follows is a deeper discussion of *why* and *how* Hugo generates heading an
 
 Convert the text of the heading to lowercase.
 
-    Hugo: A Fast & Modern Static Web Engine
-    hugo: a fast & modern static web engine
+```
+Hugo: A Fast & Modern Static Web Engine
+=> hugo: a fast & modern static web engine
+```
 
 Replace anything that isn't an ASCII letter (`a-z`) or number (`0-9`) with a dash (`-`).
 
-    hugo: a fast & modern static web engine
-    hugo--a-fast---modern-static-web-engine
+```
+hugo: a fast & modern static web engine
+=> hugo--a-fast---modern-static-web-engine
+```
 
 Get rid of extra dashes.
 
-    hugo--a-fast---modern-static-web-engine
-    hugo-a-fast-modern-static-web-engine
+```
+hugo--a-fast---modern-static-web-engine
+=> hugo-a-fast-modern-static-web-engine
+```
 
 You have just converting the text of a heading to a suitable anchor. If your document has unique heading text, all of the anchors will be unique, too.
 
@@ -138,23 +144,27 @@ You have just converting the text of a heading to a suitable anchor. If your doc
 
 You can also tell Hugo to use a particular heading anchor.
 
-    # Hugo: A Fast & Modern Static Web Engine {#hugo-main}
+```md
+# Hugo: A Fast & Modern Static Web Engine {#hugo-main}
+```
 
 Hugo will use `hugo-main` as the heading anchor.
 
 ### What About Duplicate Heading Anchors?
 
-The technique outlined above works well enough, but some documents have headings with identical text, like the [shortcodes](/extras/shortcodes/) page—there are three headings with the text "Example". You can specify heading anchors manually:
+The technique outlined above works well enough, but some documents have headings with identical text, like the [shortcodes][] page—there are three headings with the text "Example". You can specify heading anchors manually:
 
-    ### Example {#example-1}
-    ### Example {#example-2}
-    ### Example {#example-3}
+```
+### Example {#example-1}
+### Example {#example-2}
+### Example {#example-3}
+```
 
 It’s easy to forget to do that all the time, and Hugo is smart enough to do it for you. It just adds `-x` to the end of each heading it has already seen.
 
-* `### Example` &rarr; `example`
-* `### Example` &rarr; `example-1`
-* `### Example` &rarr; `example-2`
+* `### Example` => `example`
+* `### Example` => `example-1`
+* `### Example` => `example-2`
 
 Sometimes it's a little harder, but Hugo can recover from those, too, by adding more suffixes:
 
@@ -193,3 +203,4 @@ Enter the document’s unique identifier. To prevent this sort of collision on l
 
 [built-in Hugo shortcodes]: /content-management/shortcodes/#using-the-built-in-shortcodes
 [lists]: /templates/lists/
+[shortcode]: /content-management/shortcodes/
