@@ -424,6 +424,7 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [quickstart]: /getting-started/quick-start/
 [sctemps]: /templates/shortcode-templates/
 [scvars]: /variables/shortcodes/
+[shortcode template documentation]: /templates/shortcode-templates/
 [Speaker Deck]: https://speakerdeck.com/
 [templatessection]: /templates/
 [Vimeo]: https://vimeo.com/
