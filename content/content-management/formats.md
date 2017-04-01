@@ -97,7 +97,7 @@ MMark is a [fork of BlackFriday][mmark] and markdown superset that is well suite
 As Hugo ships with Mmark, using the syntax is as easy as changing the extension of your content files from `.md` to `.mmark`.
 
 {{% warning %}}
-MMark support is still considered an *experimental* feature in Hugo. For example, shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/spf13/hugo/issues/3137)) and the aforementioned todo lists ([#2270](https://github.com/spf13/hugo/issues/2270)) and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/spf13/hugo/issues/1970)) are not fully supported. Contributions are welcome.
+MMark support is still considered an *experimental* feature in Hugo. For example, shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/spf13/hugo/issues/3137)) and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/spf13/hugo/issues/1970)) and the aforementioned GFM todo lists ([#2270](https://github.com/spf13/hugo/issues/2270)) are not fully supported. Contributions are welcome.
 {{% /warning %}}
 
 ## MathJax with Hugo
