@@ -63,7 +63,9 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 	// TODO(bep)
 	cfg.Cfg.Set("multilingual", sites[0].multilingualEnabled())
 
-	applyDepsIfNeeded(cfg, sites...)
+	if err := applyDepsIfNeeded(cfg, sites...); err != nil {
+		return nil, err
+	}
 
 	h.Deps = sites[0].Deps
 
