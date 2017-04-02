@@ -52,11 +52,6 @@ var testMode bool
 
 var defaultTimer *nitro.B
 
-var (
-	distinctErrorLogger    = helpers.NewDistinctErrorLogger()
-	distinctFeedbackLogger = helpers.NewDistinctFeedbackLogger()
-)
-
 // Site contains all the information relevant for constructing a static
 // site.  The basic flow of information is as follows:
 //
@@ -1834,11 +1829,11 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 
 }
 
-func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layouts ...string) error {
+func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layouts ...string) error {
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
-	err := s.renderForLayouts(name, d, renderBuffer, layouts...)
+	err := s.renderForLayouts(p.Kind, p, renderBuffer, layouts...)
 
 	if err != nil {
 		return err
@@ -1858,7 +1853,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 	}
 
 	// For performance reasons we only inject the Hugo generator tag on the home page.
-	if n, ok := d.(*PageOutput); ok && n.IsHome() {
+	if p.IsHome() {
 		if !s.Cfg.GetBool("disableHugoGeneratorInject") {
 			transformLinks = append(transformLinks, transform.HugoGeneratorInject)
 		}
@@ -1887,7 +1882,7 @@ func (s *Site) renderAndWritePage(name string, dest string, d interface{}, layou
 			if !s.Cfg.GetBool("verbose") {
 				debugAddend = "* For more debugging information, run \"hugo -v\""
 			}
-			distinctFeedbackLogger.Printf(`=============================================================
+			helpers.DistinctFeedbackLog.Printf(`=============================================================
 Your rendered home page is blank: /index.html is zero-length
  * Did you specify a theme on the command-line or in your
    %q file?  (Current theme: %q)
@@ -1913,7 +1908,7 @@ Your rendered home page is blank: /index.html is zero-length
 func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) error {
 	templ := s.findFirstTemplate(layouts...)
 	if templ == nil {
-		s.Log.WARN.Printf("[%s] Unable to locate layout for %s: %s\n", s.Language.Lang, name, layouts)
+		helpers.DistinctWarnLog.Printf("[%s] Unable to locate layout for %s: %s\n", s.Language.Lang, name, layouts)
 
 		return nil
 	}
@@ -1921,7 +1916,7 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 	if err := templ.Execute(w, d); err != nil {
 
 		// Behavior here should be dependent on if running in server or watch mode.
-		distinctErrorLogger.Printf("Error while rendering %q: %s", name, err)
+		helpers.DistinctErrorLog.Printf("Error while rendering %q: %s", name, err)
 		if !s.running() && !testMode {
 			// TODO(bep) check if this can be propagated
 			os.Exit(-1)

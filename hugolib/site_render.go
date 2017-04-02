@@ -19,6 +19,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/spf13/hugo/output"
+
 	bp "github.com/spf13/hugo/bufferpool"
 )
 
@@ -248,7 +250,12 @@ func (s *Site) render404() error {
 
 	nfLayouts := []string{"404.html"}
 
-	return s.renderAndWritePage("404 page", "404.html", p, s.appendThemeTemplates(nfLayouts)...)
+	pageOutput, err := newPageOutput(p, false, output.HTMLFormat)
+	if err != nil {
+		return err
+	}
+
+	return s.renderAndWritePage("404 page", "404.html", pageOutput, s.appendThemeTemplates(nfLayouts)...)
 
 }
 
