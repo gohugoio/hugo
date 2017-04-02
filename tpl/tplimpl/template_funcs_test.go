@@ -2908,6 +2908,46 @@ func TestPartialHTMLAndText(t *testing.T) {
 
 }
 
+func TestPartialWithError(t *testing.T) {
+	t.Parallel()
+	config := newDepsConfig(viper.New())
+
+	data := struct {
+		Name string
+	}{
+		Name: "bep",
+	}
+
+	config.WithTemplate = func(templ tpl.TemplateHandler) error {
+		if err := templ.AddTemplate("container.html", `HTML Test Partial: {{ partial "fail.foo" . -}}`); err != nil {
+			return err
+		}
+
+		if err := templ.AddTemplate("partials/fail.foo", "Template: {{ .DoesNotExist }}"); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	de, err := deps.New(config)
+	require.NoError(t, err)
+	require.NoError(t, de.LoadResources())
+
+	templ := de.Tmpl.Lookup("container.html")
+	require.NotNil(t, templ)
+	result, err := templ.ExecuteToString(data)
+	require.Error(t, err)
+
+	errStr := err.Error()
+
+	require.Contains(t, errStr, `template: container.html:1:22: executing "container.html" at <partial "fail.foo" .>`)
+	require.Contains(t, errStr, `can't evaluate field DoesNotExist`)
+
+	require.Empty(t, result)
+
+}
+
 func TestPartialCached(t *testing.T) {
 	t.Parallel()
 	testCases := []struct {
