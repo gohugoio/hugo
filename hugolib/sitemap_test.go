@@ -48,7 +48,7 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 	depsCfg := deps.DepsCfg{Fs: fs, Cfg: cfg}
 
 	if !internal {
-		depsCfg.WithTemplate = func(templ tpl.TemplateHandler) error {
+		depsCfg.WithTemplate = func(templ tpl.Template) error {
 			templ.AddTemplate("sitemap.xml", sitemapTemplate)
 			return nil
 		}

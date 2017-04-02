@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2016 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,39 +15,23 @@ package tplimpl
 
 import (
 	"html/template"
-	"strings"
-	texttemplate "text/template"
-
-	"github.com/eknkc/amber"
-
+	"io"
 	"os"
-
-	"github.com/spf13/hugo/output"
-
 	"path/filepath"
+	"strings"
+
 	"sync"
 
+	"github.com/eknkc/amber"
 	"github.com/spf13/afero"
+	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/tpl"
+	"github.com/spf13/hugo/output"
+	"github.com/yosssi/ace"
 )
 
-const (
-	textTmplNamePrefix = "_text/"
-)
-
-var (
-	_ tpl.TemplateHandler       = (*templateHandler)(nil)
-	_ tpl.TemplateTestMocker    = (*templateHandler)(nil)
-	_ tpl.TemplateFinder        = (*htmlTemplates)(nil)
-	_ tpl.TemplateFinder        = (*textTemplates)(nil)
-	_ templateLoader            = (*htmlTemplates)(nil)
-	_ templateLoader            = (*textTemplates)(nil)
-	_ templateLoader            = (*templateHandler)(nil)
-	_ templateFuncsterTemplater = (*htmlTemplates)(nil)
-	_ templateFuncsterTemplater = (*textTemplates)(nil)
-)
+// TODO(bep) globals get rid of the rest of the jww.ERR etc.
 
 // Protecting global map access (Amber)
 var amberMu sync.Mutex
@@ -57,120 +41,8 @@ type templateErr struct {
 	err  error
 }
 
-type templateLoader interface {
-	handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (string, error)) error
-	addTemplate(name, tpl string) error
-	addLateTemplate(name, tpl string) error
-}
-
-type templateFuncsterTemplater interface {
-	tpl.TemplateFinder
-	setFuncs(funcMap map[string]interface{})
-	setTemplateFuncster(f *templateFuncster)
-}
-
-// templateHandler holds the templates in play.
-// It implements the templateLoader and tpl.TemplateHandler interfaces.
-type templateHandler struct {
-	// text holds all the pure text templates.
-	text *textTemplates
-	html *htmlTemplates
-
-	amberFuncMap template.FuncMap
-
-	errors []*templateErr
-
-	*deps.Deps
-}
-
-func (t *templateHandler) addError(name string, err error) {
-	t.errors = append(t.errors, &templateErr{name, err})
-}
-
-// PrintErrors prints the accumulated errors as ERROR to the log.
-func (t *templateHandler) PrintErrors() {
-	for _, e := range t.errors {
-		t.Log.ERROR.Println(e.name, ":", e.err)
-	}
-}
-
-// Lookup tries to find a template with the given name in both template
-// collections: First HTML, then the plain text template collection.
-func (t *templateHandler) Lookup(name string) *tpl.TemplateAdapter {
-	var te *tpl.TemplateAdapter
-
-	isTextTemplate := strings.HasPrefix(name, textTmplNamePrefix)
-
-	if isTextTemplate {
-		// The templates are stored without the prefix identificator.
-		name = strings.TrimPrefix(name, textTmplNamePrefix)
-		te = t.text.Lookup(name)
-	} else {
-		te = t.html.Lookup(name)
-	}
-
-	if te == nil {
-		return nil
-	}
-
-	return te
-}
-
-func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
-	c := &templateHandler{
-		Deps:   d,
-		html:   &htmlTemplates{t: template.Must(t.html.t.Clone()), overlays: make(map[string]*template.Template)},
-		text:   &textTemplates{t: texttemplate.Must(t.text.t.Clone()), overlays: make(map[string]*texttemplate.Template)},
-		errors: make([]*templateErr, 0),
-	}
-
-	d.Tmpl = c
-
-	c.initFuncs()
-
-	for k, v := range t.html.overlays {
-		vc := template.Must(v.Clone())
-		// The extra lookup is a workaround, see
-		// * https://github.com/golang/go/issues/16101
-		// * https://github.com/spf13/hugo/issues/2549
-		vc = vc.Lookup(vc.Name())
-		vc.Funcs(t.html.funcster.funcMap)
-		c.html.overlays[k] = vc
-	}
-
-	for k, v := range t.text.overlays {
-		vc := texttemplate.Must(v.Clone())
-		vc = vc.Lookup(vc.Name())
-		vc.Funcs(texttemplate.FuncMap(t.text.funcster.funcMap))
-		c.text.overlays[k] = vc
-	}
-
-	return c
-
-}
-
-func newTemplateAdapter(deps *deps.Deps) *templateHandler {
-	htmlT := &htmlTemplates{
-		t:        template.New(""),
-		overlays: make(map[string]*template.Template),
-	}
-	textT := &textTemplates{
-		t:        texttemplate.New(""),
-		overlays: make(map[string]*texttemplate.Template),
-	}
-	return &templateHandler{
-		Deps:   deps,
-		html:   htmlT,
-		text:   textT,
-		errors: make([]*templateErr, 0),
-	}
-
-}
-
-type htmlTemplates struct {
-	funcster *templateFuncster
-
-	t *template.Template
+type GoHTMLTemplate struct {
+	*template.Template
 
 	// This looks, and is, strange.
 	// The clone is used by non-renderable content pages, and these need to be
@@ -182,201 +54,397 @@ type htmlTemplates struct {
 	// a separate storage for the overlays created from cloned master templates.
 	// note: No mutex protection, so we add these in one Go routine, then just read.
 	overlays map[string]*template.Template
-}
 
-func (t *htmlTemplates) setTemplateFuncster(f *templateFuncster) {
-	t.funcster = f
-}
+	errors []*templateErr
 
-func (t *htmlTemplates) Lookup(name string) *tpl.TemplateAdapter {
-	templ := t.lookup(name)
-	if templ == nil {
-		return nil
-	}
-	return &tpl.TemplateAdapter{templ}
-}
-
-func (t *htmlTemplates) lookup(name string) *template.Template {
-	if templ := t.t.Lookup(name); templ != nil {
-		return templ
-	}
-	if t.overlays != nil {
-		if templ, ok := t.overlays[name]; ok {
-			return templ
-		}
-	}
-
-	if t.clone != nil {
-		return t.clone.Lookup(name)
-	}
-
-	return nil
-}
-
-type textTemplates struct {
 	funcster *templateFuncster
 
-	t *texttemplate.Template
+	amberFuncMap template.FuncMap
 
-	clone      *texttemplate.Template
-	cloneClone *texttemplate.Template
-
-	overlays map[string]*texttemplate.Template
+	*deps.Deps
 }
 
-func (t *textTemplates) setTemplateFuncster(f *templateFuncster) {
-	t.funcster = f
-}
+type TemplateProvider struct{}
 
-func (t *textTemplates) Lookup(name string) *tpl.TemplateAdapter {
-	templ := t.lookup(name)
-	if templ == nil {
-		return nil
+var DefaultTemplateProvider *TemplateProvider
+
+// Update updates the Hugo Template System in the provided Deps.
+// with all the additional features, templates & functions
+func (*TemplateProvider) Update(deps *deps.Deps) error {
+	tmpl := &GoHTMLTemplate{
+		Template: template.New(""),
+		overlays: make(map[string]*template.Template),
+		errors:   make([]*templateErr, 0),
+		Deps:     deps,
 	}
-	return &tpl.TemplateAdapter{templ}
+
+	deps.Tmpl = tmpl
+
+	tmpl.initFuncs(deps)
+
+	tmpl.LoadEmbedded()
+
+	if deps.WithTemplate != nil {
+		err := deps.WithTemplate(tmpl)
+		if err != nil {
+			tmpl.errors = append(tmpl.errors, &templateErr{"init", err})
+		}
+
+	}
+
+	tmpl.MarkReady()
+
+	return nil
+
 }
 
-func (t *textTemplates) lookup(name string) *texttemplate.Template {
-	if templ := t.t.Lookup(name); templ != nil {
+// Clone clones
+func (*TemplateProvider) Clone(d *deps.Deps) error {
+
+	t := d.Tmpl.(*GoHTMLTemplate)
+
+	// 1. Clone the clone with new template funcs
+	// 2. Clone any overlays with new template funcs
+
+	tmpl := &GoHTMLTemplate{
+		Template: template.Must(t.Template.Clone()),
+		overlays: make(map[string]*template.Template),
+		errors:   make([]*templateErr, 0),
+		Deps:     d,
+	}
+
+	d.Tmpl = tmpl
+	tmpl.initFuncs(d)
+
+	for k, v := range t.overlays {
+		vc := template.Must(v.Clone())
+		// The extra lookup is a workaround, see
+		// * https://github.com/golang/go/issues/16101
+		// * https://github.com/spf13/hugo/issues/2549
+		vc = vc.Lookup(vc.Name())
+		vc.Funcs(tmpl.funcster.funcMap)
+		tmpl.overlays[k] = vc
+	}
+
+	tmpl.MarkReady()
+
+	return nil
+}
+
+func (t *GoHTMLTemplate) initFuncs(d *deps.Deps) {
+
+	t.funcster = newTemplateFuncster(d)
+
+	// The URL funcs in the funcMap is somewhat language dependent,
+	// so we need to wait until the language and site config is loaded.
+	t.funcster.initFuncMap()
+
+	t.amberFuncMap = template.FuncMap{}
+
+	amberMu.Lock()
+	for k, v := range amber.FuncMap {
+		t.amberFuncMap[k] = v
+	}
+
+	for k, v := range t.funcster.funcMap {
+		t.amberFuncMap[k] = v
+		// Hacky, but we need to make sure that the func names are in the global map.
+		amber.FuncMap[k] = func() string {
+			panic("should never be invoked")
+		}
+	}
+	amberMu.Unlock()
+
+}
+
+func (t *GoHTMLTemplate) Funcs(funcMap template.FuncMap) {
+	t.Template.Funcs(funcMap)
+}
+
+func (t *GoHTMLTemplate) Partial(name string, contextList ...interface{}) template.HTML {
+	if strings.HasPrefix("partials/", name) {
+		name = name[8:]
+	}
+	var context interface{}
+
+	if len(contextList) == 0 {
+		context = nil
+	} else {
+		context = contextList[0]
+	}
+	return t.ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
+}
+
+func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layouts ...string) {
+	var worked bool
+	for _, layout := range layouts {
+		templ := t.Lookup(layout)
+		if templ == nil {
+			// TODO(bep) output
+			layout += ".html"
+			templ = t.Lookup(layout)
+		}
+
+		if templ != nil {
+			if err := templ.Execute(w, context); err != nil {
+				helpers.DistinctErrorLog.Println(layout, err)
+			}
+			worked = true
+			break
+		}
+	}
+	if !worked {
+		t.Log.ERROR.Println("Unable to render", layouts)
+		t.Log.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
+	}
+}
+
+func (t *GoHTMLTemplate) ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+	t.executeTemplate(context, b, layouts...)
+	return template.HTML(b.String())
+}
+
+func (t *GoHTMLTemplate) Lookup(name string) *template.Template {
+
+	if templ := t.Template.Lookup(name); templ != nil {
 		return templ
 	}
+
 	if t.overlays != nil {
 		if templ, ok := t.overlays[name]; ok {
 			return templ
 		}
 	}
 
+	// The clone is used for the non-renderable HTML pages (p.IsRenderable == false) that is parsed
+	// as Go templates late in the build process.
 	if t.clone != nil {
-		return t.clone.Lookup(name)
+		if templ := t.clone.Lookup(name); templ != nil {
+			return templ
+		}
 	}
 
 	return nil
-}
-
-func (t *templateHandler) setFuncs(funcMap map[string]interface{}) {
-	t.html.setFuncs(funcMap)
-	t.text.setFuncs(funcMap)
-}
-
-// SetFuncs replaces the funcs in the func maps with new definitions.
-// This is only used in tests.
-func (t *templateHandler) SetFuncs(funcMap map[string]interface{}) {
-	t.setFuncs(funcMap)
-}
-
-func (t *htmlTemplates) setFuncs(funcMap map[string]interface{}) {
-	t.t.Funcs(funcMap)
-}
-
-func (t *textTemplates) setFuncs(funcMap map[string]interface{}) {
-	t.t.Funcs(funcMap)
-}
-
-// LoadTemplates loads the templates, starting from the given absolute path.
-// A prefix can be given to indicate a template namespace to load the templates
-// into, i.e. "_internal" etc.
-func (t *templateHandler) LoadTemplates(absPath, prefix string) {
-	// TODO(bep) output formats. Will have to get to complete list when that is ready.
-	t.loadTemplates(absPath, prefix, output.Formats{output.HTMLFormat, output.RSSFormat, output.CalendarFormat, output.AMPFormat, output.JSONFormat})
 
 }
 
-func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) error {
-	templ, err := tt.New(name).Parse(tpl)
-	if err != nil {
-		return err
-	}
-
-	if err := applyTemplateTransformersToHMLTTemplate(templ); err != nil {
-		return err
-	}
-
-	return nil
+func (t *GoHTMLTemplate) GetClone() *template.Template {
+	return t.clone
 }
 
-func (t *htmlTemplates) addTemplate(name, tpl string) error {
-	return t.addTemplateIn(t.t, name, tpl)
+func (t *GoHTMLTemplate) RebuildClone() *template.Template {
+	t.clone = template.Must(t.cloneClone.Clone())
+	return t.clone
 }
 
-func (t *htmlTemplates) addLateTemplate(name, tpl string) error {
-	return t.addTemplateIn(t.clone, name, tpl)
+func (t *GoHTMLTemplate) LoadEmbedded() {
+	t.EmbedShortcodes()
+	t.EmbedTemplates()
 }
 
-func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl string) error {
-	name = strings.TrimPrefix(name, textTmplNamePrefix)
-	templ, err := tt.New(name).Parse(tpl)
-	if err != nil {
-		return err
-	}
-
-	if err := applyTemplateTransformersToTextTemplate(templ); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *textTemplates) addTemplate(name, tpl string) error {
-	return t.addTemplateIn(t.t, name, tpl)
-}
-
-func (t *textTemplates) addLateTemplate(name, tpl string) error {
-	return t.addTemplateIn(t.clone, name, tpl)
-}
-
-func (t *templateHandler) addTemplate(name, tpl string) error {
-	return t.AddTemplate(name, tpl)
-}
-
-func (t *templateHandler) addLateTemplate(name, tpl string) error {
-	return t.AddLateTemplate(name, tpl)
-}
-
-// AddLateTemplate is used to add a template late, i.e. after the
-// regular templates have started its execution.
-func (t *templateHandler) AddLateTemplate(name, tpl string) error {
-	h := t.getTemplateHandler(name)
-	if err := h.addLateTemplate(name, tpl); err != nil {
-		t.addError(name, err)
-		return err
-	}
-	return nil
-}
-
-// AddTemplate parses and adds a template to the collection.
-// Templates with name prefixed with "_text" will be handled as plain
-// text templates.
-func (t *templateHandler) AddTemplate(name, tpl string) error {
-	h := t.getTemplateHandler(name)
-	if err := h.addTemplate(name, tpl); err != nil {
-		t.addError(name, err)
-		return err
-	}
-	return nil
-}
-
-// MarkReady marks the templates as "ready for execution". No changes allowed
+// MarkReady marks the template as "ready for execution". No changes allowed
 // after this is set.
 // TODO(bep) if this proves to be resource heavy, we could detect
 // earlier if we really need this, or make it lazy.
-func (t *templateHandler) MarkReady() {
-	if t.html.clone == nil {
-		t.html.clone = template.Must(t.html.t.Clone())
-		t.html.cloneClone = template.Must(t.html.clone.Clone())
-	}
-	if t.text.clone == nil {
-		t.text.clone = texttemplate.Must(t.text.t.Clone())
-		t.text.cloneClone = texttemplate.Must(t.text.clone.Clone())
+func (t *GoHTMLTemplate) MarkReady() {
+	if t.clone == nil {
+		t.clone = template.Must(t.Template.Clone())
+		t.cloneClone = template.Must(t.clone.Clone())
 	}
 }
 
-// RebuildClone rebuilds the cloned templates. Used for live-reloads.
-func (t *templateHandler) RebuildClone() {
-	t.html.clone = template.Must(t.html.cloneClone.Clone())
-	t.text.clone = texttemplate.Must(t.text.cloneClone.Clone())
+func (t *GoHTMLTemplate) checkState() {
+	if t.clone != nil {
+		panic("template is cloned and cannot be modfified")
+	}
 }
 
-func (t *templateHandler) loadTemplates(absPath string, prefix string, formats output.Formats) {
+func (t *GoHTMLTemplate) AddInternalTemplate(prefix, name, tpl string) error {
+	if prefix != "" {
+		return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
+	}
+	return t.AddTemplate("_internal/"+name, tpl)
+}
+
+func (t *GoHTMLTemplate) AddInternalShortcode(name, content string) error {
+	return t.AddInternalTemplate("shortcodes", name, content)
+}
+
+func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
+	t.checkState()
+	templ, err := t.New(name).Parse(tpl)
+	if err != nil {
+		t.errors = append(t.errors, &templateErr{name: name, err: err})
+		return err
+	}
+	if err := applyTemplateTransformers(templ); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *GoHTMLTemplate) AddTemplateFileWithMaster(name, overlayFilename, masterFilename string) error {
+
+	// There is currently no known way to associate a cloned template with an existing one.
+	// This funky master/overlay design will hopefully improve in a future version of Go.
+	//
+	// Simplicity is hard.
+	//
+	// Until then we'll have to live with this hackery.
+	//
+	// See https://github.com/golang/go/issues/14285
+	//
+	// So, to do minimum amount of changes to get this to work:
+	//
+	// 1. Lookup or Parse the master
+	// 2. Parse and store the overlay in a separate map
+
+	masterTpl := t.Lookup(masterFilename)
+
+	if masterTpl == nil {
+		b, err := afero.ReadFile(t.Fs.Source, masterFilename)
+		if err != nil {
+			return err
+		}
+		masterTpl, err = t.New(masterFilename).Parse(string(b))
+
+		if err != nil {
+			// TODO(bep) Add a method that does this
+			t.errors = append(t.errors, &templateErr{name: name, err: err})
+			return err
+		}
+	}
+
+	b, err := afero.ReadFile(t.Fs.Source, overlayFilename)
+	if err != nil {
+		return err
+	}
+
+	overlayTpl, err := template.Must(masterTpl.Clone()).Parse(string(b))
+	if err != nil {
+		t.errors = append(t.errors, &templateErr{name: name, err: err})
+	} else {
+		// The extra lookup is a workaround, see
+		// * https://github.com/golang/go/issues/16101
+		// * https://github.com/spf13/hugo/issues/2549
+		overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
+		if err := applyTemplateTransformers(overlayTpl); err != nil {
+			return err
+		}
+		t.overlays[name] = overlayTpl
+	}
+
+	return err
+}
+
+func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error {
+	t.checkState()
+	var base, inner *ace.File
+	name = name[:len(name)-len(filepath.Ext(innerPath))] + ".html"
+
+	// Fixes issue #1178
+	basePath = strings.Replace(basePath, "\\", "/", -1)
+	innerPath = strings.Replace(innerPath, "\\", "/", -1)
+
+	if basePath != "" {
+		base = ace.NewFile(basePath, baseContent)
+		inner = ace.NewFile(innerPath, innerContent)
+	} else {
+		base = ace.NewFile(innerPath, innerContent)
+		inner = ace.NewFile("", []byte{})
+	}
+	parsed, err := ace.ParseSource(ace.NewSource(base, inner, []*ace.File{}), nil)
+	if err != nil {
+		t.errors = append(t.errors, &templateErr{name: name, err: err})
+		return err
+	}
+	templ, err := ace.CompileResultWithTemplate(t.New(name), parsed, nil)
+	if err != nil {
+		t.errors = append(t.errors, &templateErr{name: name, err: err})
+		return err
+	}
+	return applyTemplateTransformers(templ)
+}
+
+func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) error {
+	t.checkState()
+	// get the suffix and switch on that
+	ext := filepath.Ext(path)
+	switch ext {
+	case ".amber":
+		templateName := strings.TrimSuffix(name, filepath.Ext(name)) + ".html"
+		b, err := afero.ReadFile(t.Fs.Source, path)
+
+		if err != nil {
+			return err
+		}
+
+		amberMu.Lock()
+		templ, err := t.CompileAmberWithTemplate(b, path, t.New(templateName))
+		amberMu.Unlock()
+		if err != nil {
+			return err
+		}
+
+		return applyTemplateTransformers(templ)
+	case ".ace":
+		var innerContent, baseContent []byte
+		innerContent, err := afero.ReadFile(t.Fs.Source, path)
+
+		if err != nil {
+			return err
+		}
+
+		if baseTemplatePath != "" {
+			baseContent, err = afero.ReadFile(t.Fs.Source, baseTemplatePath)
+			if err != nil {
+				return err
+			}
+		}
+
+		return t.AddAceTemplate(name, baseTemplatePath, path, baseContent, innerContent)
+	default:
+
+		if baseTemplatePath != "" {
+			return t.AddTemplateFileWithMaster(name, path, baseTemplatePath)
+		}
+
+		b, err := afero.ReadFile(t.Fs.Source, path)
+
+		if err != nil {
+			return err
+		}
+
+		t.Log.DEBUG.Printf("Add template file from path %s", path)
+
+		return t.AddTemplate(name, string(b))
+	}
+
+}
+
+func (t *GoHTMLTemplate) GenerateTemplateNameFrom(base, path string) string {
+	name, _ := filepath.Rel(base, path)
+	return filepath.ToSlash(name)
+}
+
+func isDotFile(path string) bool {
+	return filepath.Base(path)[0] == '.'
+}
+
+func isBackupFile(path string) bool {
+	return path[len(path)-1] == '~'
+}
+
+const baseFileBase = "baseof"
+
+func isBaseTemplate(path string) bool {
+	return strings.Contains(path, baseFileBase)
+}
+
+func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
 	t.Log.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -423,12 +491,11 @@ func (t *templateHandler) loadTemplates(absPath string, prefix string, formats o
 			relPath := path[li:]
 
 			descriptor := output.TemplateLookupDescriptor{
-				WorkingDir:    workingDir,
-				LayoutDir:     layoutDir,
-				RelPath:       relPath,
-				Prefix:        prefix,
-				Theme:         t.PathSpec.Theme(),
-				OutputFormats: formats,
+				WorkingDir: workingDir,
+				LayoutDir:  layoutDir,
+				RelPath:    relPath,
+				Prefix:     prefix,
+				Theme:      t.PathSpec.Theme(),
 				FileExists: func(filename string) (bool, error) {
 					return helpers.Exists(filename, t.Fs.Source)
 				},
@@ -444,7 +511,7 @@ func (t *templateHandler) loadTemplates(absPath string, prefix string, formats o
 				return nil
 			}
 
-			if err := t.addTemplateFile(tplID.Name, tplID.MasterFilename, tplID.OverlayFilename); err != nil {
+			if err := t.AddTemplateFile(tplID.Name, tplID.MasterFilename, tplID.OverlayFilename); err != nil {
 				t.Log.ERROR.Printf("Failed to add template %q in path %q: %s", tplID.Name, path, err)
 			}
 
@@ -456,223 +523,16 @@ func (t *templateHandler) loadTemplates(absPath string, prefix string, formats o
 	}
 }
 
-func (t *templateHandler) initFuncs() {
-
-	// The template funcs need separation between text and html templates.
-	for _, funcsterHolder := range []templateFuncsterTemplater{t.html, t.text} {
-		funcster := newTemplateFuncster(t.Deps, funcsterHolder)
-
-		// The URL funcs in the funcMap is somewhat language dependent,
-		// so we need to wait until the language and site config is loaded.
-		funcster.initFuncMap()
-
-		funcsterHolder.setTemplateFuncster(funcster)
-
-	}
-
-	// Amber is HTML only.
-	t.amberFuncMap = template.FuncMap{}
-
-	amberMu.Lock()
-	for k, v := range amber.FuncMap {
-		t.amberFuncMap[k] = v
-	}
-
-	for k, v := range t.html.funcster.funcMap {
-		t.amberFuncMap[k] = v
-		// Hacky, but we need to make sure that the func names are in the global map.
-		amber.FuncMap[k] = func() string {
-			panic("should never be invoked")
-		}
-	}
-	amberMu.Unlock()
-
+func (t *GoHTMLTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) {
+	t.loadTemplates(absPath, prefix)
 }
 
-func (t *templateHandler) getTemplateHandler(name string) templateLoader {
-	if strings.HasPrefix(name, textTmplNamePrefix) {
-		return t.text
-	}
-	return t.html
+func (t *GoHTMLTemplate) LoadTemplates(absPath string) {
+	t.loadTemplates(absPath, "")
 }
 
-func (t *templateHandler) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (string, error)) error {
-	h := t.getTemplateHandler(name)
-	return h.handleMaster(name, overlayFilename, masterFilename, onMissing)
-}
-
-func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (string, error)) error {
-	masterTpl := t.lookup(masterFilename)
-
-	if masterTpl == nil {
-		templ, err := onMissing(masterFilename)
-		if err != nil {
-			return err
-		}
-
-		masterTpl, err = t.t.New(overlayFilename).Parse(templ)
-		if err != nil {
-			return err
-		}
+func (t *GoHTMLTemplate) PrintErrors() {
+	for i, e := range t.errors {
+		t.Log.ERROR.Println(i, ":", e.err)
 	}
-
-	templ, err := onMissing(overlayFilename)
-	if err != nil {
-		return err
-	}
-
-	overlayTpl, err := template.Must(masterTpl.Clone()).Parse(templ)
-	if err != nil {
-		return err
-	}
-
-	// The extra lookup is a workaround, see
-	// * https://github.com/golang/go/issues/16101
-	// * https://github.com/spf13/hugo/issues/2549
-	overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
-	if err := applyTemplateTransformersToHMLTTemplate(overlayTpl); err != nil {
-		return err
-	}
-	t.overlays[name] = overlayTpl
-
-	return err
-
-}
-
-func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (string, error)) error {
-	masterTpl := t.lookup(masterFilename)
-
-	if masterTpl == nil {
-		templ, err := onMissing(masterFilename)
-		if err != nil {
-			return err
-		}
-
-		masterTpl, err = t.t.New(overlayFilename).Parse(templ)
-		if err != nil {
-			return err
-		}
-	}
-
-	templ, err := onMissing(overlayFilename)
-	if err != nil {
-		return err
-	}
-
-	overlayTpl, err := texttemplate.Must(masterTpl.Clone()).Parse(templ)
-	if err != nil {
-		return err
-	}
-
-	overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
-	if err := applyTemplateTransformersToTextTemplate(overlayTpl); err != nil {
-		return err
-	}
-	t.overlays[name] = overlayTpl
-
-	return err
-
-}
-
-func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) error {
-	t.checkState()
-
-	getTemplate := func(filename string) (string, error) {
-		b, err := afero.ReadFile(t.Fs.Source, filename)
-		if err != nil {
-			return "", err
-		}
-		return string(b), nil
-	}
-
-	// get the suffix and switch on that
-	ext := filepath.Ext(path)
-	switch ext {
-	case ".amber":
-		//	Only HTML support for Amber
-		templateName := strings.TrimSuffix(name, filepath.Ext(name)) + ".html"
-		b, err := afero.ReadFile(t.Fs.Source, path)
-
-		if err != nil {
-			return err
-		}
-
-		amberMu.Lock()
-		templ, err := t.compileAmberWithTemplate(b, path, t.html.t.New(templateName))
-		amberMu.Unlock()
-		if err != nil {
-			return err
-		}
-
-		return applyTemplateTransformersToHMLTTemplate(templ)
-	case ".ace":
-		//	Only HTML support for Ace
-		var innerContent, baseContent []byte
-		innerContent, err := afero.ReadFile(t.Fs.Source, path)
-
-		if err != nil {
-			return err
-		}
-
-		if baseTemplatePath != "" {
-			baseContent, err = afero.ReadFile(t.Fs.Source, baseTemplatePath)
-			if err != nil {
-				return err
-			}
-		}
-
-		return t.addAceTemplate(name, baseTemplatePath, path, baseContent, innerContent)
-	default:
-
-		if baseTemplatePath != "" {
-			return t.handleMaster(name, path, baseTemplatePath, getTemplate)
-		}
-
-		templ, err := getTemplate(path)
-
-		if err != nil {
-			return err
-		}
-
-		t.Log.DEBUG.Printf("Add template file from path %s", path)
-
-		return t.AddTemplate(name, templ)
-	}
-
-}
-
-func (t *templateHandler) loadEmbedded() {
-	t.embedShortcodes()
-	t.embedTemplates()
-}
-
-func (t *templateHandler) addInternalTemplate(prefix, name, tpl string) error {
-	if prefix != "" {
-		return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
-	}
-	return t.AddTemplate("_internal/"+name, tpl)
-}
-
-func (t *templateHandler) addInternalShortcode(name, content string) error {
-	return t.addInternalTemplate("shortcodes", name, content)
-}
-
-func (t *templateHandler) checkState() {
-	if t.html.clone != nil || t.text.clone != nil {
-		panic("template is cloned and cannot be modfified")
-	}
-}
-
-func isDotFile(path string) bool {
-	return filepath.Base(path)[0] == '.'
-}
-
-func isBackupFile(path string) bool {
-	return path[len(path)-1] == '~'
-}
-
-const baseFileBase = "baseof"
-
-func isBaseTemplate(path string) bool {
-	return strings.Contains(path, baseFileBase)
 }

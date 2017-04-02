@@ -14,16 +14,240 @@
 package tplimpl
 
 import (
+	"bytes"
 	"errors"
+	"html/template"
 	"io/ioutil"
+	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/hugo/deps"
 
 	"github.com/spf13/hugo/tpl"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
+
+// Some tests for Issue #1178 -- Ace
+func TestAceTemplates(t *testing.T) {
+	t.Parallel()
+
+	for i, this := range []struct {
+		basePath     string
+		innerPath    string
+		baseContent  string
+		innerContent string
+		expect       string
+		expectErr    int
+	}{
+		{"", filepath.FromSlash("_default/single.ace"), "", "{{ . }}", "DATA", 0},
+		{filepath.FromSlash("_default/baseof.ace"), filepath.FromSlash("_default/single.ace"),
+			`= content main
+  h2 This is a content named "main" of an inner template. {{ . }}`,
+			`= doctype html
+html lang=en
+  head
+    meta charset=utf-8
+    title Base and Inner Template
+  body
+    h1 This is a base template {{ . }}
+    = yield main`, `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Base and Inner Template</title></head><body><h1>This is a base template DATA</h1></body></html>`, 0},
+	} {
+
+		for _, root := range []string{"", os.TempDir()} {
+
+			basePath := this.basePath
+			innerPath := this.innerPath
+
+			if basePath != "" && root != "" {
+				basePath = filepath.Join(root, basePath)
+			}
+
+			if innerPath != "" && root != "" {
+				innerPath = filepath.Join(root, innerPath)
+			}
+
+			d := "DATA"
+
+			config := newDepsConfig(viper.New())
+			config.WithTemplate = func(templ tpl.Template) error {
+				return templ.AddAceTemplate("mytemplate.ace", basePath, innerPath,
+					[]byte(this.baseContent), []byte(this.innerContent))
+			}
+
+			a, err := deps.New(config)
+			require.NoError(t, err)
+
+			if err := a.LoadResources(); err != nil {
+				t.Fatal(err)
+			}
+
+			templ := a.Tmpl.(*GoHTMLTemplate)
+
+			if len(templ.errors) > 0 && this.expectErr == 0 {
+				t.Errorf("Test %d with root '%s' errored: %v", i, root, templ.errors)
+			} else if len(templ.errors) == 0 && this.expectErr == 1 {
+				t.Errorf("#1 Test %d with root '%s' should have errored", i, root)
+			}
+
+			var buff bytes.Buffer
+			err = a.Tmpl.ExecuteTemplate(&buff, "mytemplate.html", d)
+
+			if err != nil && this.expectErr == 0 {
+				t.Errorf("Test %d with root '%s' errored: %s", i, root, err)
+			} else if err == nil && this.expectErr == 2 {
+				t.Errorf("#2 Test with root '%s' %d should have errored", root, i)
+			} else {
+				result := buff.String()
+				if result != this.expect {
+					t.Errorf("Test %d  with root '%s' got\n%s\nexpected\n%s", i, root, result, this.expect)
+				}
+			}
+
+		}
+	}
+
+}
+
+func isAtLeastGo16() bool {
+	version := runtime.Version()
+	return strings.Contains(version, "1.6") || strings.Contains(version, "1.7")
+}
+
+func TestAddTemplateFileWithMaster(t *testing.T) {
+	t.Parallel()
+
+	if !isAtLeastGo16() {
+		t.Skip("This test only runs on Go >= 1.6")
+	}
+
+	for i, this := range []struct {
+		masterTplContent  string
+		overlayTplContent string
+		writeSkipper      int
+		expect            interface{}
+	}{
+		{`A{{block "main" .}}C{{end}}C`, `{{define "main"}}B{{end}}`, 0, "ABC"},
+		{`A{{block "main" .}}C{{end}}C{{block "sub" .}}D{{end}}E`, `{{define "main"}}B{{end}}`, 0, "ABCDE"},
+		{`A{{block "main" .}}C{{end}}C{{block "sub" .}}D{{end}}E`, `{{define "main"}}B{{end}}{{define "sub"}}Z{{end}}`, 0, "ABCZE"},
+		{`tpl`, `tpl`, 1, false},
+		{`tpl`, `tpl`, 2, false},
+		{`{{.0.E}}`, `tpl`, 0, false},
+		{`tpl`, `{{.0.E}}`, 0, false},
+	} {
+
+		overlayTplName := "ot"
+		masterTplName := "mt"
+		finalTplName := "tp"
+
+		config := newDepsConfig(viper.New())
+		config.WithTemplate = func(templ tpl.Template) error {
+
+			err := templ.AddTemplateFileWithMaster(finalTplName, overlayTplName, masterTplName)
+
+			if b, ok := this.expect.(bool); ok && !b {
+				if err == nil {
+					t.Errorf("[%d] AddTemplateFileWithMaster didn't return an expected error", i)
+				}
+			} else {
+
+				if err != nil {
+					t.Errorf("[%d] AddTemplateFileWithMaster failed: %s", i, err)
+					return nil
+				}
+
+				resultTpl := templ.Lookup(finalTplName)
+
+				if resultTpl == nil {
+					t.Errorf("[%d] AddTemplateFileWithMaster: Result template not found", i)
+					return nil
+				}
+
+				var b bytes.Buffer
+				err := resultTpl.Execute(&b, nil)
+
+				if err != nil {
+					t.Errorf("[%d] AddTemplateFileWithMaster execute failed: %s", i, err)
+					return nil
+				}
+				resultContent := b.String()
+
+				if resultContent != this.expect {
+					t.Errorf("[%d] AddTemplateFileWithMaster got \n%s but expected \n%v", i, resultContent, this.expect)
+				}
+			}
+
+			return nil
+		}
+
+		if this.writeSkipper != 1 {
+			afero.WriteFile(config.Fs.Source, masterTplName, []byte(this.masterTplContent), 0644)
+		}
+		if this.writeSkipper != 2 {
+			afero.WriteFile(config.Fs.Source, overlayTplName, []byte(this.overlayTplContent), 0644)
+		}
+
+		deps.New(config)
+
+	}
+
+}
+
+// A Go stdlib test for linux/arm. Will remove later.
+// See #1771
+func TestBigIntegerFunc(t *testing.T) {
+	t.Parallel()
+	var func1 = func(v int64) error {
+		return nil
+	}
+	var funcs = map[string]interface{}{
+		"A": func1,
+	}
+
+	tpl, err := template.New("foo").Funcs(funcs).Parse("{{ A 3e80 }}")
+	if err != nil {
+		t.Fatal("Parse failed:", err)
+	}
+	err = tpl.Execute(ioutil.Discard, "foo")
+
+	if err == nil {
+		t.Fatal("Execute should have failed")
+	}
+
+	t.Log("Got expected error:", err)
+
+}
+
+// A Go stdlib test for linux/arm. Will remove later.
+// See #1771
+type BI struct {
+}
+
+func (b BI) A(v int64) error {
+	return nil
+}
+func TestBigIntegerMethod(t *testing.T) {
+	t.Parallel()
+
+	data := &BI{}
+
+	tpl, err := template.New("foo2").Parse("{{ .A 3e80 }}")
+	if err != nil {
+		t.Fatal("Parse failed:", err)
+	}
+	err = tpl.ExecuteTemplate(ioutil.Discard, "foo2", data)
+
+	if err == nil {
+		t.Fatal("Execute should have failed")
+	}
+
+	t.Log("Got expected error:", err)
+
+}
 
 // Test for bugs discovered by https://github.com/dvyukov/go-fuzz
 func TestTplGoFuzzReports(t *testing.T) {
@@ -61,7 +285,7 @@ func TestTplGoFuzzReports(t *testing.T) {
 
 		config := newDepsConfig(viper.New())
 
-		config.WithTemplate = func(templ tpl.TemplateHandler) error {
+		config.WithTemplate = func(templ tpl.Template) error {
 			return templ.AddTemplate("fuzz", this.data)
 		}
 
@@ -69,7 +293,7 @@ func TestTplGoFuzzReports(t *testing.T) {
 		require.NoError(t, err)
 		require.NoError(t, de.LoadResources())
 
-		templ := de.Tmpl.(*templateHandler)
+		templ := de.Tmpl.(*GoHTMLTemplate)
 
 		if len(templ.errors) > 0 && this.expectErr == 0 {
 			t.Errorf("Test %d errored: %v", i, templ.errors)
@@ -77,9 +301,7 @@ func TestTplGoFuzzReports(t *testing.T) {
 			t.Errorf("#1 Test %d should have errored", i)
 		}
 
-		tt := de.Tmpl.Lookup("fuzz")
-		require.NotNil(t, tt)
-		err = tt.Execute(ioutil.Discard, d)
+		err = de.Tmpl.ExecuteTemplate(ioutil.Discard, "fuzz", d)
 
 		if err != nil && this.expectErr == 0 {
 			t.Fatalf("Test %d errored: %s", i, err)

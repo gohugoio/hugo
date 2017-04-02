@@ -20,7 +20,7 @@ type Deps struct {
 	Log *jww.Notepad `json:"-"`
 
 	// The templates to use.
-	Tmpl tpl.TemplateHandler `json:"-"`
+	Tmpl tpl.Template `json:"-"`
 
 	// The file systems to use.
 	Fs *hugofs.Fs `json:"-"`
@@ -40,7 +40,7 @@ type Deps struct {
 	Language *helpers.Language
 
 	templateProvider ResourceProvider
-	WithTemplate     func(templ tpl.TemplateHandler) error `json:"-"`
+	WithTemplate     func(templ tpl.Template) error `json:"-"`
 
 	translationProvider ResourceProvider
 }
@@ -158,7 +158,7 @@ type DepsCfg struct {
 
 	// Template handling.
 	TemplateProvider ResourceProvider
-	WithTemplate     func(templ tpl.TemplateHandler) error
+	WithTemplate     func(templ tpl.Template) error
 
 	// i18n handling.
 	TranslationProvider ResourceProvider

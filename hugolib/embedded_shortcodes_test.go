@@ -335,8 +335,8 @@ func TestShortcodeTweet(t *testing.T) {
 			th      = testHelper{cfg, fs, t}
 		)
 
-		withTemplate := func(templ tpl.TemplateHandler) error {
-			templ.(tpl.TemplateTestMocker).SetFuncs(tweetFuncMap)
+		withTemplate := func(templ tpl.Template) error {
+			templ.Funcs(tweetFuncMap)
 			return nil
 		}
 
@@ -390,8 +390,8 @@ func TestShortcodeInstagram(t *testing.T) {
 			th      = testHelper{cfg, fs, t}
 		)
 
-		withTemplate := func(templ tpl.TemplateHandler) error {
-			templ.(tpl.TemplateTestMocker).SetFuncs(instagramFuncMap)
+		withTemplate := func(templ tpl.Template) error {
+			templ.Funcs(instagramFuncMap)
 			return nil
 		}
 

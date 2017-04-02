@@ -33,7 +33,6 @@ var (
 		IsHTML:    true,
 	}
 
-	// CalendarFormat is AAA
 	CalendarFormat = Format{
 		Name:        "Calendar",
 		MediaType:   media.CalendarType,
@@ -101,45 +100,6 @@ func (formats Formats) GetByName(name string) (f Format, found bool) {
 			found = true
 			return
 		}
-	}
-	return
-}
-
-func (formats Formats) GetBySuffix(name string) (f Format, found bool) {
-	for _, ff := range formats {
-		if name == ff.MediaType.Suffix {
-			if found {
-				// ambiguous
-				found = false
-				return
-			}
-			f = ff
-			found = true
-		}
-	}
-	return
-}
-
-func (formats Formats) FromFilename(filename string) (f Format, found bool) {
-	// mytemplate.amp.html
-	// mytemplate.html
-	// mytemplate
-	var ext, outFormat string
-
-	parts := strings.Split(filename, ".")
-	if len(parts) > 2 {
-		outFormat = parts[1]
-		ext = parts[2]
-	} else if len(parts) > 1 {
-		ext = parts[1]
-	}
-
-	if outFormat != "" {
-		return formats.GetByName(outFormat)
-	}
-
-	if ext != "" {
-		return formats.GetBySuffix(ext)
 	}
 	return
 }

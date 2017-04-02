@@ -90,15 +90,9 @@ outputs: %s
 Alt Output: {{ .Name -}}|
 {{- end -}}|
 {{- range .OutputFormats -}}
-Output/Rel: {{ .Name -}}/{{ .Rel }}|{{ .MediaType }}
+Output/Rel: {{ .Name -}}/{{ .Rel }}|
 {{- end -}}
- {{ with .OutputFormats.Get "JSON" }}
-<atom:link href={{ .Permalink }} rel="self" type="{{ .MediaType }}" />
-{{ end }}
 `,
-		"layouts/_default/list.html", `List HTML|{{ with .OutputFormats.Get "HTML" -}}
-<atom:link href={{ .Permalink }} rel="self" type="{{ .MediaType }}" />
-{{- end -}}`,
 	)
 	require.Len(t, h.Sites, 1)
 
@@ -119,6 +113,7 @@ Output/Rel: {{ .Name -}}/{{ .Rel }}|{{ .MediaType }}
 
 	require.Len(t, home.outputFormats, lenOut)
 
+	// TODO(bep) output assert template/text
 	// There is currently always a JSON output to make it simpler ...
 	altFormats := lenOut - 1
 	hasHTML := helpers.InStringArray(outputs, "html")
@@ -133,16 +128,9 @@ Output/Rel: {{ .Name -}}/{{ .Rel }}|{{ .MediaType }}
 			"Output/Rel: JSON/alternate|",
 			"Output/Rel: HTML/canonical|",
 		)
-		th.assertFileContent("public/index.html",
-			// The HTML entity is a deliberate part of this test: The HTML templates are
-			// parsed with html/template.
-			`List HTML|<atom:link href=http://example.com/blog/ rel="self" type="text/html&#43;html" />`,
-		)
 	} else {
 		th.assertFileContent("public/index.json",
 			"Output/Rel: JSON/canonical|",
-			// JSON is plain text, so no need to safeHTML this and that
-			`<atom:link href=http://example.com/blog/index.json rel="self" type="application/json+json" />`,
 		)
 	}
 

@@ -152,10 +152,8 @@ func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format)
 			}
 		}
 
-		layouts = layoutsWithThemeLayouts
+		return layoutsWithThemeLayouts, nil
 	}
-
-	layouts = prependTextPrefixIfNeeded(f, layouts...)
 
 	l.mu.Lock()
 	l.cache[key] = layouts
@@ -186,26 +184,10 @@ func resolveListTemplate(d LayoutDescriptor, f Format,
 }
 
 func resolveTemplate(templ string, d LayoutDescriptor, f Format) []string {
-	layouts := strings.Fields(replaceKeyValues(templ,
+	return strings.Fields(replaceKeyValues(templ,
 		"SUFFIX", f.MediaType.Suffix,
 		"NAME", strings.ToLower(f.Name),
 		"SECTION", d.Section))
-
-	return layouts
-}
-
-func prependTextPrefixIfNeeded(f Format, layouts ...string) []string {
-	if !f.IsPlainText {
-		return layouts
-	}
-
-	newLayouts := make([]string, len(layouts))
-
-	for i, l := range layouts {
-		newLayouts[i] = "_text/" + l
-	}
-
-	return newLayouts
 }
 
 func replaceKeyValues(s string, oldNew ...string) string {
@@ -213,9 +195,7 @@ func replaceKeyValues(s string, oldNew ...string) string {
 	return replacer.Replace(s)
 }
 
-func regularPageLayouts(types string, layout string, f Format) []string {
-	var layouts []string
-
+func regularPageLayouts(types string, layout string, f Format) (layouts []string) {
 	if layout == "" {
 		layout = "single"
 	}
@@ -239,5 +219,5 @@ func regularPageLayouts(types string, layout string, f Format) []string {
 	layouts = append(layouts, fmt.Sprintf("_default/%s.%s.%s", layout, name, suffix))
 	layouts = append(layouts, fmt.Sprintf("_default/%s.%s", layout, suffix))
 
-	return layouts
+	return
 }

@@ -177,7 +177,7 @@ var isInnerShortcodeCache = struct {
 // to avoid potential costly look-aheads for closing tags we look inside the template itself
 // we could change the syntax to self-closing tags, but that would make users cry
 // the value found is cached
-func isInnerShortcode(t tpl.TemplateExecutor) (bool, error) {
+func isInnerShortcode(t *template.Template) (bool, error) {
 	isInnerShortcodeCache.RLock()
 	m, ok := isInnerShortcodeCache.m[t.Name()]
 	isInnerShortcodeCache.RUnlock()
@@ -188,7 +188,10 @@ func isInnerShortcode(t tpl.TemplateExecutor) (bool, error) {
 
 	isInnerShortcodeCache.Lock()
 	defer isInnerShortcodeCache.Unlock()
-	match, _ := regexp.MatchString("{{.*?\\.Inner.*?}}", t.Tree())
+	if t.Tree == nil {
+		return false, errors.New("Template failed to compile")
+	}
+	match, _ := regexp.MatchString("{{.*?\\.Inner.*?}}", t.Tree.Root.String())
 	isInnerShortcodeCache.m[t.Name()] = match
 
 	return match, nil
@@ -395,6 +398,8 @@ Loop:
 		case tScName:
 			sc.name = currItem.val
 			tmpl := getShortcodeTemplate(sc.name, p.s.Tmpl)
+			{
+			}
 			if tmpl == nil {
 				return sc, fmt.Errorf("Unable to locate template for shortcode %q in page %q", sc.name, p.Path())
 			}
@@ -565,10 +570,7 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 	return source, nil
 }
 
-func getShortcodeTemplate(name string, t tpl.TemplateHandler) *tpl.TemplateAdapter {
-	isInnerShortcodeCache.RLock()
-	defer isInnerShortcodeCache.RUnlock()
-
+func getShortcodeTemplate(name string, t tpl.Template) *template.Template {
 	if x := t.Lookup("shortcodes/" + name + ".html"); x != nil {
 		return x
 	}
@@ -578,7 +580,7 @@ func getShortcodeTemplate(name string, t tpl.TemplateHandler) *tpl.TemplateAdapt
 	return t.Lookup("_internal/shortcodes/" + name + ".html")
 }
 
-func renderShortcodeWithPage(tmpl tpl.Template, data *ShortcodeWithPage) string {
+func renderShortcodeWithPage(tmpl *template.Template, data *ShortcodeWithPage) string {
 	buffer := bp.GetBuffer()
 	defer bp.PutBuffer(buffer)
 

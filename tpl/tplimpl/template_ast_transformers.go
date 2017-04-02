@@ -17,7 +17,6 @@ import (
 	"errors"
 	"html/template"
 	"strings"
-	texttemplate "text/template"
 	"text/template/parse"
 )
 
@@ -36,57 +35,32 @@ var paramsPaths = [][]string{
 }
 
 type templateContext struct {
-	decl     decl
-	visited  map[string]bool
-	lookupFn func(name string) *parse.Tree
+	decl    decl
+	templ   *template.Template
+	visited map[string]bool
 }
 
-func (c templateContext) getIfNotVisited(name string) *parse.Tree {
+func (c templateContext) getIfNotVisited(name string) *template.Template {
 	if c.visited[name] {
 		return nil
 	}
 	c.visited[name] = true
-	return c.lookupFn(name)
+	return c.templ.Lookup(name)
 }
 
-func newTemplateContext(lookupFn func(name string) *parse.Tree) *templateContext {
-	return &templateContext{lookupFn: lookupFn, decl: make(map[string]string), visited: make(map[string]bool)}
+func newTemplateContext(templ *template.Template) *templateContext {
+	return &templateContext{templ: templ, decl: make(map[string]string), visited: make(map[string]bool)}
 
 }
 
-func createParseTreeLookup(templ *template.Template) func(nn string) *parse.Tree {
-	return func(nn string) *parse.Tree {
-		tt := templ.Lookup(nn)
-		if tt != nil {
-			return tt.Tree
-		}
-		return nil
-	}
-}
-
-func applyTemplateTransformersToHMLTTemplate(templ *template.Template) error {
-	return applyTemplateTransformers(templ.Tree, createParseTreeLookup(templ))
-}
-
-func applyTemplateTransformersToTextTemplate(templ *texttemplate.Template) error {
-	return applyTemplateTransformers(templ.Tree,
-		func(nn string) *parse.Tree {
-			tt := templ.Lookup(nn)
-			if tt != nil {
-				return tt.Tree
-			}
-			return nil
-		})
-}
-
-func applyTemplateTransformers(templ *parse.Tree, lookupFn func(name string) *parse.Tree) error {
-	if templ == nil {
+func applyTemplateTransformers(templ *template.Template) error {
+	if templ == nil || templ.Tree == nil {
 		return errors.New("expected template, but none provided")
 	}
 
-	c := newTemplateContext(lookupFn)
+	c := newTemplateContext(templ)
 
-	c.paramsKeysToLower(templ.Root)
+	c.paramsKeysToLower(templ.Tree.Root)
 
 	return nil
 }
@@ -110,7 +84,7 @@ func (c *templateContext) paramsKeysToLower(n parse.Node) {
 	case *parse.TemplateNode:
 		subTempl := c.getIfNotVisited(x.Name)
 		if subTempl != nil {
-			c.paramsKeysToLowerForNodes(subTempl.Root)
+			c.paramsKeysToLowerForNodes(subTempl.Tree.Root)
 		}
 	case *parse.PipeNode:
 		for i, elem := range x.Decl {

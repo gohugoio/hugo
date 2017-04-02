@@ -22,8 +22,6 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/spf13/hugo/tpl"
-
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/spf13/hugo/helpers"
@@ -37,19 +35,18 @@ const (
 var defaultAliasTemplates *template.Template
 
 func init() {
-	//TODO(bep) consolidate
 	defaultAliasTemplates = template.New("")
 	template.Must(defaultAliasTemplates.New("alias").Parse(alias))
 	template.Must(defaultAliasTemplates.New("alias-xhtml").Parse(aliasXHtml))
 }
 
 type aliasHandler struct {
-	t         tpl.TemplateHandler
+	Templates *template.Template
 	log       *jww.Notepad
 	allowRoot bool
 }
 
-func newAliasHandler(t tpl.TemplateHandler, l *jww.Notepad, allowRoot bool) aliasHandler {
+func newAliasHandler(t *template.Template, l *jww.Notepad, allowRoot bool) aliasHandler {
 	return aliasHandler{t, l, allowRoot}
 }
 
@@ -59,19 +56,12 @@ func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (i
 		t = "alias-xhtml"
 	}
 
-	var templ *tpl.TemplateAdapter
-
-	if a.t != nil {
-		templ = a.t.Lookup("alias.html")
+	template := defaultAliasTemplates
+	if a.Templates != nil {
+		template = a.Templates
+		t = "alias.html"
 	}
 
-	if templ == nil {
-		def := defaultAliasTemplates.Lookup(t)
-		if def != nil {
-			templ = &tpl.TemplateAdapter{def}
-		}
-
-	}
 	data := struct {
 		Permalink string
 		Page      *Page
@@ -81,7 +71,7 @@ func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (i
 	}
 
 	buffer := new(bytes.Buffer)
-	err := templ.Execute(buffer, data)
+	err := template.ExecuteTemplate(buffer, t, data)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +83,8 @@ func (s *Site) writeDestAlias(path, permalink string, p *Page) (err error) {
 }
 
 func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, p *Page) (err error) {
-	handler := newAliasHandler(s.Tmpl, s.Log, allowRoot)
+
+	handler := newAliasHandler(s.Tmpl.Lookup("alias.html"), s.Log, allowRoot)
 
 	isXHTML := strings.HasSuffix(path, ".xhtml")
 

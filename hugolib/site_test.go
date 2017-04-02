@@ -52,6 +52,24 @@ func pageMust(p *Page, err error) *Page {
 	return p
 }
 
+func TestDegenerateRenderThingMissingTemplate(t *testing.T) {
+	t.Parallel()
+	cfg, fs := newTestCfg()
+
+	writeSource(t, fs, filepath.Join("content", "a", "file.md"), pageSimpleTitle)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+	require.Len(t, s.RegularPages, 1)
+
+	p := s.RegularPages[0]
+
+	err := s.renderThing(p, "foobar", nil)
+	if err == nil {
+		t.Errorf("Expected err to be returned when missing the template.")
+	}
+}
+
 func TestRenderWithInvalidTemplate(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()

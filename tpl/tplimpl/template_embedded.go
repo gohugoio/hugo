@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2015 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,17 @@
 
 package tplimpl
 
-func (t *templateHandler) embedShortcodes() {
-	t.addInternalShortcode("ref.html", `{{ .Get 0 | ref .Page }}`)
-	t.addInternalShortcode("relref.html", `{{ .Get 0 | relref .Page }}`)
-	t.addInternalShortcode("highlight.html", `{{ if len .Params | eq 2 }}{{ highlight .Inner (.Get 0) (.Get 1) }}{{ else }}{{ highlight .Inner (.Get 0) "" }}{{ end }}`)
-	t.addInternalShortcode("test.html", `This is a simple Test`)
-	t.addInternalShortcode("figure.html", `<!-- image -->
+type Tmpl struct {
+	Name string
+	Data string
+}
+
+func (t *GoHTMLTemplate) EmbedShortcodes() {
+	t.AddInternalShortcode("ref.html", `{{ .Get 0 | ref .Page }}`)
+	t.AddInternalShortcode("relref.html", `{{ .Get 0 | relref .Page }}`)
+	t.AddInternalShortcode("highlight.html", `{{ if len .Params | eq 2 }}{{ highlight .Inner (.Get 0) (.Get 1) }}{{ else }}{{ highlight .Inner (.Get 0) "" }}{{ end }}`)
+	t.AddInternalShortcode("test.html", `This is a simple Test`)
+	t.AddInternalShortcode("figure.html", `<!-- image -->
 <figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
     {{ with .Get "link"}}<a href="{{.}}">{{ end }}
         <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt"}}{{.}}{{else}}{{ .Get "caption" }}{{ end }}" {{ end }}{{ with .Get "width" }}width="{{.}}" {{ end }}/>
@@ -36,8 +41,8 @@ func (t *templateHandler) embedShortcodes() {
     {{ end }}
 </figure>
 <!-- image -->`)
-	t.addInternalShortcode("speakerdeck.html", "<script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='//speakerdeck.com/assets/embed.js'></script>")
-	t.addInternalShortcode("youtube.html", `{{ if .IsNamedParams }}
+	t.AddInternalShortcode("speakerdeck.html", "<script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='//speakerdeck.com/assets/embed.js'></script>")
+	t.AddInternalShortcode("youtube.html", `{{ if .IsNamedParams }}
 <div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
   <iframe src="//www.youtube.com/embed/{{ .Get "id" }}?{{ with .Get "autoplay" }}{{ if eq . "true" }}autoplay=1{{ end }}{{ end }}" 
   {{ if not (.Get "class") }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0"></iframe>
@@ -46,21 +51,21 @@ func (t *templateHandler) embedShortcodes() {
   <iframe src="//www.youtube.com/embed/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0"></iframe>
  </div>
 {{ end }}`)
-	t.addInternalShortcode("vimeo.html", `{{ if .IsNamedParams }}<div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+	t.AddInternalShortcode("vimeo.html", `{{ if .IsNamedParams }}<div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
   <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" {{ if not (.Get "class") }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
  </div>{{ else }}
 <div {{ if len .Params | eq 2 }}class="{{ .Get 1 }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
   <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
  </div>
 {{ end }}`)
-	t.addInternalShortcode("gist.html", `<script src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>`)
-	t.addInternalShortcode("tweet.html", `{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}`)
-	t.addInternalShortcode("instagram.html", `{{ if len .Params | eq 2 }}{{ if eq (.Get 1) "hidecaption" }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=1" }}{{ .html | safeHTML }}{{ end }}{{ end }}{{ else }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=0" }}{{ .html | safeHTML }}{{ end }}{{ end }}`)
+	t.AddInternalShortcode("gist.html", `<script src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>`)
+	t.AddInternalShortcode("tweet.html", `{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}`)
+	t.AddInternalShortcode("instagram.html", `{{ if len .Params | eq 2 }}{{ if eq (.Get 1) "hidecaption" }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=1" }}{{ .html | safeHTML }}{{ end }}{{ end }}{{ else }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=0" }}{{ .html | safeHTML }}{{ end }}{{ end }}`)
 }
 
-func (t *templateHandler) embedTemplates() {
+func (t *GoHTMLTemplate) EmbedTemplates() {
 
-	t.addInternalTemplate("_default", "rss.xml", `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	t.AddInternalTemplate("_default", "rss.xml", `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{{ if eq  .Title  .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}{{ end }}</title>
     <link>{{ .Permalink }}</link>
@@ -87,7 +92,7 @@ func (t *templateHandler) embedTemplates() {
   </channel>
 </rss>`)
 
-	t.addInternalTemplate("_default", "sitemap.xml", `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	t.AddInternalTemplate("_default", "sitemap.xml", `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {{ range .Data.Pages }}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
@@ -99,7 +104,7 @@ func (t *templateHandler) embedTemplates() {
 </urlset>`)
 
 	// For multilanguage sites
-	t.addInternalTemplate("_default", "sitemapindex.xml", `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	t.AddInternalTemplate("_default", "sitemapindex.xml", `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	{{ range . }}
 	<sitemap>
 	   	<loc>{{ .SitemapAbsURL }}</loc>
@@ -111,7 +116,7 @@ func (t *templateHandler) embedTemplates() {
 </sitemapindex>
 `)
 
-	t.addInternalTemplate("", "pagination.html", `{{ $pag := $.Paginator }}
+	t.AddInternalTemplate("", "pagination.html", `{{ $pag := $.Paginator }}
     {{ if gt $pag.TotalPages 1 }}
     <ul class="pagination">
         {{ with $pag.First }}
@@ -139,7 +144,7 @@ func (t *templateHandler) embedTemplates() {
     </ul>
     {{ end }}`)
 
-	t.addInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
+	t.AddInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = '{{ .Site.DisqusShortname }}';
     var disqus_identifier = '{{with .GetParam "disqus_identifier" }}{{ . }}{{ else }}{{ .Permalink }}{{end}}';
@@ -156,7 +161,7 @@ func (t *templateHandler) embedTemplates() {
 <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}`)
 
 	// Add SEO & Social metadata
-	t.addInternalTemplate("", "opengraph.html", `<meta property="og:title" content="{{ .Title }}" />
+	t.AddInternalTemplate("", "opengraph.html", `<meta property="og:title" content="{{ .Title }}" />
 <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}" />
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
@@ -200,7 +205,7 @@ func (t *templateHandler) embedTemplates() {
 <!-- Facebook Page Admin ID for Domain Insights -->
 {{ with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}`)
 
-	t.addInternalTemplate("", "twitter_cards.html", `{{ if .IsPage }}
+	t.AddInternalTemplate("", "twitter_cards.html", `{{ if .IsPage }}
 {{ with .Params.images }}
 <!-- Twitter summary card with large image must be at least 280x150px -->
   <meta name="twitter:card" content="summary_large_image"/>
@@ -218,11 +223,11 @@ func (t *templateHandler) embedTemplates() {
   {{ with .twitter }}<meta name="twitter:creator" content="@{{ . }}"/>{{ end }}
 {{ end }}{{ end }}`)
 
-	t.addInternalTemplate("", "google_news.html", `{{ if .IsPage }}{{ with .Params.news_keywords }}
+	t.AddInternalTemplate("", "google_news.html", `{{ if .IsPage }}{{ with .Params.news_keywords }}
   <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
 {{ end }}{{ end }}`)
 
-	t.addInternalTemplate("", "schema.html", `{{ with .Site.Social.GooglePlus }}<link rel="publisher" href="{{ . }}"/>{{ end }}
+	t.AddInternalTemplate("", "schema.html", `{{ with .Site.Social.GooglePlus }}<link rel="publisher" href="{{ . }}"/>{{ end }}
 <meta itemprop="name" content="{{ .Title }}">
 <meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
 
@@ -238,7 +243,7 @@ func (t *templateHandler) embedTemplates() {
 <meta itemprop="keywords" content="{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}" />
 {{ end }}`)
 
-	t.addInternalTemplate("", "google_analytics.html", `{{ with .Site.GoogleAnalytics }}
+	t.AddInternalTemplate("", "google_analytics.html", `{{ with .Site.GoogleAnalytics }}
 <script>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -250,7 +255,7 @@ ga('send', 'pageview');
 </script>
 {{ end }}`)
 
-	t.addInternalTemplate("", "google_analytics_async.html", `{{ with .Site.GoogleAnalytics }}
+	t.AddInternalTemplate("", "google_analytics_async.html", `{{ with .Site.GoogleAnalytics }}
 <script>
 window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 ga('create', '{{ . }}', 'auto');
@@ -259,5 +264,5 @@ ga('send', 'pageview');
 <script async src='//www.google-analytics.com/analytics.js'></script>
 {{ end }}`)
 
-	t.addInternalTemplate("_default", "robots.txt", "User-agent: *")
+	t.AddInternalTemplate("_default", "robots.txt", "User-agent: *")
 }

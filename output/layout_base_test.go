@@ -141,7 +141,6 @@ func TestLayoutBase(t *testing.T) {
 				return this.needsBase, nil
 			}
 
-			this.d.OutputFormats = Formats{AMPFormat, HTMLFormat, RSSFormat, JSONFormat}
 			this.d.WorkingDir = filepath.FromSlash(this.d.WorkingDir)
 			this.d.LayoutDir = filepath.FromSlash(this.d.LayoutDir)
 			this.d.RelPath = filepath.FromSlash(this.d.RelPath)
@@ -150,11 +149,6 @@ func TestLayoutBase(t *testing.T) {
 
 			this.expect.MasterFilename = filepath.FromSlash(this.expect.MasterFilename)
 			this.expect.OverlayFilename = filepath.FromSlash(this.expect.OverlayFilename)
-
-			if strings.Contains(this.d.RelPath, "json") {
-				// currently the only plain text templates in this test.
-				this.expect.Name = "_text/" + this.expect.Name
-			}
 
 			id, err := CreateTemplateNames(this.d)
 

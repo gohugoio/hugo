@@ -1384,14 +1384,13 @@ func (p *Page) prepareLayouts() error {
 	if p.Kind == KindPage {
 		if !p.IsRenderable() {
 			self := "__" + p.UniqueID()
-			err := p.s.Tmpl.AddLateTemplate(self, string(p.Content))
+			_, err := p.s.Tmpl.GetClone().New(self).Parse(string(p.Content))
 			if err != nil {
 				return err
 			}
 			p.selfLayout = self
 		}
 	}
-
 	return nil
 }
 
