@@ -1037,7 +1037,7 @@ func TestSourceRelativeLinksing(t *testing.T) {
 			t.Fatalf("failed to find current page in site")
 		}
 		for link, url := range results {
-			if out, err := site.Info.SourceRelativeLink(link, currentPage); err != nil || out != url {
+			if out, err := site.Info.SourceRelativeLink(link, currentPage, nil); err != nil || out != url {
 				t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
 			} else {
 				//t.Logf("tested ok %s maps to %s", link, out)
@@ -1048,6 +1048,126 @@ func TestSourceRelativeLinksing(t *testing.T) {
 	// 			"https://docker.com":           "",
 	// site_test.go:1094: Expected https://docker.com to resolve to (), got () - error: Not a plain filepath link (https://docker.com)
 
+}
+
+func TestSourceRelativeLinksingForPageReuse(t *testing.T) {
+	t.Parallel()
+	site := setupLinkingMockSite(t)
+
+	type resultMap map[string]string
+
+	okresults := map[string]resultMap{
+		"index.md": map[string]string{
+			"/docs/rootfile.md":             "/rootfile/",
+			"/docs/index.md":                "/index/",
+			"rootfile.md":                   "/rootfile/",
+			"index.md":                      "/index/",
+			"level2/2-root.md":              "/level2/2-root/",
+			"level2/index.md":               "/level2/index/",
+			"/docs/level2/2-root.md":        "/level2/2-root/",
+			"/docs/level2/index.md":         "/level2/index/",
+			"level2/level3/3-root.md":       "/level2/level3/3-root/",
+			"level2/level3/index.md":        "/level2/level3/index/",
+			"/docs/level2/level3/3-root.md": "/level2/level3/3-root/",
+			"/docs/level2/level3/index.md":  "/level2/level3/index/",
+			"/docs/level2/2-root/":          "/level2/2-root/",
+			"/docs/level2/":                 "/level2/index/",
+			"/docs/level2/2-root":           "/level2/2-root/",
+			"/docs/level2":                  "/level2/index/",
+			"/level2/2-root/":               "/level2/2-root/",
+			"/level2/":                      "/level2/index/",
+			"/level2/2-root":                "/level2/2-root/",
+			"/level2":                       "/level2/index/",
+		}, "rootfile.md": map[string]string{
+			"/docs/rootfile.md":             "/rootfile/",
+			"/docs/index.md":                "/index/",
+			"rootfile.md":                   "/rootfile/",
+			"index.md":                      "/index/",
+			"level2/2-root.md":              "/level2/2-root/",
+			"level2/index.md":               "/level2/index/",
+			"/docs/level2/2-root.md":        "/level2/2-root/",
+			"/docs/level2/index.md":         "/level2/index/",
+			"level2/level3/3-root.md":       "/level2/level3/3-root/",
+			"level2/level3/index.md":        "/level2/level3/index/",
+			"/docs/level2/level3/3-root.md": "/level2/level3/3-root/",
+			"/docs/level2/level3/index.md":  "/level2/level3/index/",
+		}, "level2/2-root.md": map[string]string{
+			"../index.md":                   "/level2/index/",
+			"/docs/rootfile.md":             "/rootfile/",
+			"/docs/index.md":                "/index/",
+			"2-root.md":                     "/level2/2-root/",
+			"index.md":                      "/level2/index/",
+			"../2-root.md":                  "/level2/2-root/",
+			"../level3/3-root.md":           "/level2/level3/3-root/",
+			"../level3/index.md":            "/level2/level3/index/",
+			"./2-root.md":                   "/level2/2-root/",
+			"./index.md":                    "/level2/index/",
+			"/docs/level2/index.md":         "/level2/index/",
+			"/docs/level2/2-root.md":        "/level2/2-root/",
+			"level3/3-root.md":              "/level2/level3/3-root/",
+			"level3/index.md":               "/level2/level3/index/",
+			"/docs/level2/level3/index.md":  "/level2/level3/index/",
+			"/docs/level2/level3/3-root.md": "/level2/level3/3-root/",
+		}, "level2/index.md": map[string]string{
+			"../../rootfile.md":             "/rootfile/",
+			"/docs/rootfile.md":             "/rootfile/",
+			"/docs/index.md":                "/index/",
+			"2-root.md":                     "/level2/2-root/",
+			"index.md":                      "/level2/index/",
+			"./2-root.md":                   "/level2/2-root/",
+			"./index.md":                    "/level2/index/",
+			"/docs/level2/index.md":         "/level2/index/",
+			"/docs/level2/2-root.md":        "/level2/2-root/",
+			"level3/3-root.md":              "/level2/level3/3-root/",
+			"level3/index.md":               "/level2/level3/index/",
+			"../index.md":                   "/level2/index/",
+			"../2-root.md":                  "/level2/2-root/",
+			"/docs/level2/level3/index.md":  "/level2/level3/index/",
+			"/docs/level2/level3/3-root.md": "/level2/level3/3-root/",
+		}, "level2/level3/3-root.md": map[string]string{
+			"../../../rootfile.md":          "/rootfile/",
+			"../../../index.md":             "/index/",
+			"../../index.md":                "/level2/index/",
+			"/docs/rootfile.md":             "/rootfile/",
+			"/docs/index.md":                "/index/",
+			"../../2-root.md":               "/level2/2-root/",
+			"../index.md":                   "/level2/level3/index/",
+			"/docs/level2/2-root.md":        "/level2/2-root/",
+			"/docs/level2/index.md":         "/level2/index/",
+			"3-root.md":                     "/level2/level3/3-root/",
+			"index.md":                      "/level2/level3/index/",
+			"./3-root.md":                   "/level2/level3/3-root/",
+			"./index.md":                    "/level2/level3/index/",
+			"/docs/level2/level3/3-root.md": "/level2/level3/3-root/",
+			"/docs/level2/level3/index.md":  "/level2/level3/index/",
+		}, "level2/level3/index.md": map[string]string{
+			"../../../rootfile.md":          "/rootfile/",
+			"../index.md":                   "/level2/level3/index/",
+			"/docs/rootfile.md":             "/rootfile/",
+			"/docs/index.md":                "/index/",
+			"../../2-root.md":               "/level2/2-root/",
+			"/docs/level2/2-root.md":        "/level2/2-root/",
+			"/docs/level2/index.md":         "/level2/index/",
+			"3-root.md":                     "/level2/level3/3-root/",
+			"index.md":                      "/level2/level3/index/",
+			"./3-root.md":                   "/level2/level3/3-root/",
+			"./index.md":                    "/level2/level3/index/",
+			"/docs/level2/level3/3-root.md": "/level2/level3/3-root/",
+			"/docs/level2/level3/index.md":  "/level2/level3/index/",
+		},
+	}
+
+	for currentFile, results := range okresults {
+		currentPage := findPage(site, currentFile)
+		if currentPage == nil {
+			t.Fatalf("failed to find current page in site")
+		}
+		for link, url := range results {
+			if out, err := site.Info.SourceRelativeLink(link, currentPage, currentPage); err != nil || out != url {
+				t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
+			}
+		}
+	}
 }
 
 func TestSourceRelativeLinkFileing(t *testing.T) {
@@ -1086,10 +1206,395 @@ func TestSourceRelativeLinkFileing(t *testing.T) {
 			t.Fatalf("failed to find current page in site")
 		}
 		for link, url := range results {
-			if out, err := site.Info.SourceRelativeLinkFile(link, currentPage); err != nil || out != url {
+			if out, err := site.Info.SourceRelativeLinkFile(link, currentPage, nil); err != nil || out != url {
 				t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
 			} else {
 				//t.Logf("tested ok %s maps to %s", link, out)
+			}
+		}
+	}
+}
+
+func TestSourceRelativeLinkFileingForPageReuse(t *testing.T) {
+	t.Parallel()
+	site := setupLinkingMockSite(t)
+
+	type resultMap map[string]string
+
+	okresults := map[string]resultMap{
+		"index.md": map[string]string{
+			"/root-image.png": "/root-image.png",
+			"root-image.png":  "/root-image.png",
+		}, "rootfile.md": map[string]string{
+			"/root-image.png": "/root-image.png",
+		}, "level2/2-root.md": map[string]string{
+			"/root-image.png": "/root-image.png",
+			"common.png":      "/level2/common.png",
+			"../common.png":   "/level2/common.png",
+		}, "level2/index.md": map[string]string{
+			"/root-image.png":      "/root-image.png",
+			"common.png":           "/level2/common.png",
+			"./common.png":         "/level2/common.png",
+			"../../root-image.png": "/root-image.png",
+		}, "level2/level3/3-root.md": map[string]string{
+			"/root-image.png":  "/root-image.png",
+			"common.png":       "/level2/level3/common.png",
+			"../../common.png": "/level2/common.png",
+		}, "level2/level3/index.md": map[string]string{
+			"/root-image.png":         "/root-image.png",
+			"common.png":              "/level2/level3/common.png",
+			"../../../root-image.png": "/root-image.png",
+		},
+	}
+
+	for currentFile, results := range okresults {
+		currentPage := findPage(site, currentFile)
+		if currentPage == nil {
+			t.Fatalf("failed to find current page in site")
+		}
+		for link, url := range results {
+			if out, err := site.Info.SourceRelativeLinkFile(link, currentPage, currentPage); err != nil || out != url {
+				t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
+			}
+		}
+	}
+}
+
+func TestLookupPage(t *testing.T) {
+	t.Parallel()
+	site := setupLinkingMockSite(t)
+
+	type resultList []string
+
+	okresults := map[string]resultList{
+		"index.md": []string{
+			"rootfile.md",
+			"/rootfile.md",
+			"index.md",
+			"/index.md",
+			".",
+			"/",
+			"level2/2-root.md",
+			"level2/2-root",
+			"level2/2-root/",
+			"level2/index.md",
+			"level2",
+			"level2/",
+			"level2/level3/3-root.md",
+			"level2/level3/3-root",
+			"level2/level3/3-root/",
+			"level2/level3/index.md",
+			"level2/level3",
+			"level2/level3/",
+			"/level2/2-root.md",
+			"/level2/2-root",
+			"/level2/2-root/",
+			"/level2/index.md",
+			"/level2",
+			"/level2/",
+			"/level2/level3/3-root.md",
+			"/level2/level3/3-root",
+			"/level2/level3/3-root/",
+			"/level2/level3/index.md",
+			"/level2/level3",
+			"/level2/level3/",
+		}, "rootfile.md": []string{
+			"rootfile.md",
+			"/rootfile.md",
+			"index.md",
+			"/index.md",
+			".",
+			"/",
+			"level2/2-root.md",
+			"level2/2-root",
+			"level2/2-root/",
+			"level2/index.md",
+			"level2",
+			"level2/",
+			"level2/level3/3-root.md",
+			"level2/level3/3-root",
+			"level2/level3/3-root/",
+			"level2/level3/index.md",
+			"level2/level3",
+			"level2/level3/",
+			"/level2/2-root.md",
+			"/level2/2-root",
+			"/level2/2-root/",
+			"/level2/index.md",
+			"/level2",
+			"/level2/",
+			"/level2/level3/3-root.md",
+			"/level2/level3/3-root",
+			"/level2/level3/3-root/",
+			"/level2/level3/index.md",
+			"/level2/level3",
+			"/level2/level3/",
+		}, "level2/2-root.md": []string{
+			"../rootfile.md",
+			"/rootfile.md",
+			"../index.md",
+			"/index.md",
+			"/",
+			"../level2/2-root.md",
+			"../level2/2-root",
+			"../level2/2-root/",
+			"../level2/index.md",
+			"../level2",
+			"../level2/",
+			"../level2/level3/3-root.md",
+			"../level2/level3/3-root",
+			"../level2/level3/3-root/",
+			"../level2/level3/index.md",
+			"../level2/level3",
+			"../level2/level3/",
+			"2-root.md",
+			"2-root",
+			"2-root/",
+			"index.md",
+			".",
+			"level3/3-root.md",
+			"level3/3-root",
+			"level3/3-root/",
+			"level3/index.md",
+			"level3",
+			"level3/",
+			"/level2/2-root.md",
+			"/level2/2-root",
+			"/level2/2-root/",
+			"/level2/index.md",
+			"/level2",
+			"/level2/",
+			"/level2/level3/3-root.md",
+			"/level2/level3/3-root",
+			"/level2/level3/3-root/",
+			"/level2/level3/index.md",
+			"/level2/level3",
+			"/level2/level3/",
+		}, "level2/index.md": []string{
+			"../rootfile.md",
+			"/rootfile.md",
+			"../index.md",
+			"/index.md",
+			"/",
+			"../level2/2-root.md",
+			"../level2/2-root",
+			"../level2/2-root/",
+			"../level2/index.md",
+			"../level2",
+			"../level2/",
+			"../level2/level3/3-root.md",
+			"../level2/level3/3-root",
+			"../level2/level3/3-root/",
+			"../level2/level3/index.md",
+			"../level2/level3",
+			"../level2/level3/",
+			"2-root.md",
+			"2-root",
+			"2-root/",
+			"index.md",
+			".",
+			"level3/3-root.md",
+			"level3/3-root",
+			"level3/3-root/",
+			"level3/index.md",
+			"level3",
+			"level3/",
+			"/level2/2-root.md",
+			"/level2/2-root",
+			"/level2/2-root/",
+			"/level2/index.md",
+			"/level2",
+			"/level2/",
+			"/level2/level3/3-root.md",
+			"/level2/level3/3-root",
+			"/level2/level3/3-root/",
+			"/level2/level3/index.md",
+			"/level2/level3",
+			"/level2/level3/",
+		}, "level2/level3/3-root.md": []string{
+			"../../rootfile.md",
+			"/rootfile.md",
+			"../../index.md",
+			"/index.md",
+			"/",
+			"../../level2/2-root.md",
+			"../../level2/2-root",
+			"../../level2/2-root/",
+			"../../level2/index.md",
+			"../../level2",
+			"../../level2/",
+			"../../level2/level3/3-root.md",
+			"../../level2/level3/3-root",
+			"../../level2/level3/3-root/",
+			"../../level2/level3/index.md",
+			"../../level2/level3",
+			"../../level2/level3/",
+			"../2-root.md",
+			"../2-root",
+			"../2-root/",
+			"../index.md",
+			"..",
+			"../",
+			"../level3/3-root.md",
+			"../level3/3-root",
+			"../level3/3-root/",
+			"../level3/index.md",
+			"../level3",
+			"../level3/",
+			".",
+			"3-root.md",
+			"3-root",
+			"3-root/",
+			"index.md",
+			"/level2/2-root.md",
+			"/level2/2-root",
+			"/level2/2-root/",
+			"/level2/index.md",
+			"/level2",
+			"/level2/",
+			"/level2/level3/3-root.md",
+			"/level2/level3/3-root",
+			"/level2/level3/3-root/",
+			"/level2/level3/index.md",
+			"/level2/level3",
+			"/level2/level3/",
+		}, "level2/level3/index.md": []string{
+			"../../rootfile.md",
+			"/rootfile.md",
+			"../../index.md",
+			"/index.md",
+			"/",
+			"../../level2/2-root.md",
+			"../../level2/2-root",
+			"../../level2/2-root/",
+			"../../level2/index.md",
+			"../../level2",
+			"../../level2/",
+			"../../level2/level3/3-root.md",
+			"../../level2/level3/3-root",
+			"../../level2/level3/3-root/",
+			"../../level2/level3/index.md",
+			"../../level2/level3",
+			"../../level2/level3/",
+			"../2-root.md",
+			"../2-root",
+			"../2-root/",
+			"../index.md",
+			"..",
+			"../",
+			"../level3/3-root.md",
+			"../level3/3-root",
+			"../level3/3-root/",
+			"../level3/index.md",
+			"../level3",
+			"../level3/",
+			".",
+			"3-root.md",
+			"3-root",
+			"3-root/",
+			"index.md",
+			"/level2/2-root.md",
+			"/level2/2-root",
+			"/level2/2-root/",
+			"/level2/index.md",
+			"/level2",
+			"/level2/",
+			"/level2/level3/3-root.md",
+			"/level2/level3/3-root",
+			"/level2/level3/3-root/",
+			"/level2/level3/index.md",
+			"/level2/level3",
+			"/level2/level3/",
+		},
+	}
+
+	failresults := map[string]resultList{
+		"index.md": []string{
+			"/docs/rootfile.md",
+			"/docs/index.md",
+			"/docs/level2/2-root.md",
+			"/docs/level2/index.md",
+			"/docs/level2/level3/3-root.md",
+			"/docs/level2/level3/index.md",
+			"/docs/level2/2-root/",
+			"/docs/level2/",
+			"/docs/level2/2-root",
+			"/docs/level2",
+		}, "rootfile.md": []string{
+			"/docs/rootfile.md",
+			"/docs/index.md",
+			"/docs/level2/2-root.md",
+			"/docs/level2/index.md",
+			"/docs/level2/level3/3-root.md",
+			"/docs/level2/level3/index.md",
+		}, "level2/2-root.md": []string{
+			"/docs/rootfile.md",
+			"/docs/index.md",
+			"../2-root.md",
+			"level2/2-root.md",
+			"level2/index.md",
+			"/docs/level2/index.md",
+			"/docs/level2/2-root.md",
+			"../level3/3-root.md",
+			"../level3/index.md",
+			"/docs/level2/level3/index.md",
+			"/docs/level2/level3/3-root.md",
+		}, "level2/index.md": []string{
+			"/docs/rootfile.md",
+			"/docs/index.md",
+			"../2-root.md",
+			"level2/2-root.md",
+			"level2/index.md",
+			"/docs/level2/index.md",
+			"/docs/level2/2-root.md",
+			"../level3/3-root.md",
+			"../level3/index.md",
+			"/docs/level2/level3/index.md",
+			"/docs/level2/level3/3-root.md",
+		}, "level2/level3/3-root.md": []string{
+			"../rootfile.md",
+			"/docs/rootfile.md",
+			"/docs/index.md",
+			"2-root.md",
+			"/docs/level2/2-root.md",
+			"/docs/level2/index.md",
+			"../3-root.md",
+			"/docs/level2/level3/3-root.md",
+			"/docs/level2/level3/index.md",
+		}, "level2/level3/index.md": []string{
+			"../rootfile.md",
+			"/docs/rootfile.md",
+			"/docs/index.md",
+			"2-root.md",
+			"/docs/level2/2-root.md",
+			"/docs/level2/index.md",
+			"../3-root.md",
+			"/docs/level2/level3/3-root.md",
+			"/docs/level2/level3/index.md",
+		},
+	}
+
+	for currentFile, results := range okresults {
+		currentPage := findPage(site, currentFile)
+		if currentPage == nil {
+			t.Fatalf("failed to find current page in site")
+		}
+		for _, link := range results {
+			if out, err := site.Info.LookupPage(link, currentPage); err != nil && out == nil {
+				t.Errorf("Expected to find %s on the page %s, got error: %s", link, currentFile, err)
+			}
+		}
+	}
+
+	for currentFile, results := range failresults {
+		currentPage := findPage(site, currentFile)
+		if currentPage == nil {
+			t.Fatalf("failed to find current page in site")
+		}
+		for _, link := range results {
+			if out, err := site.Info.LookupPage(link, currentPage); err == nil && out != nil {
+				t.Errorf("Expected to get an error searching for %s on the page %s, got (%s)", link, currentFile,
+					out.Source.Path())
 			}
 		}
 	}
