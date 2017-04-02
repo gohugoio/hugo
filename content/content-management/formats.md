@@ -135,6 +135,12 @@ MathJax is a stable open-source library with many features. I encourage the inte
 
 ### Issues with Markdown
 
+{{% note %}}
+The following issues with Markdown assume you are using `.md` for content and BlackFriday for parsing. Using [Mmark](#mmark) as your content format will obviate the need for the following workarounds.
+
+When using Mmark with MathJax, use `displayMath: [['$$','$$'], ['\\[','\\]']]`. See the [Mmark `README.md`](https://github.com/miekg/mmark/wiki/Syntax#math-blocks) for more information. In addition to MathJax, Mmark has been shown to work well with [KaTex](https://github.com/Khan/KaTeX). See this [related blog post from a Hugo user](http://nosubstance.me/post/a-great-toolset-for-static-blogging/).
+{{% /note %}}
+
 After enabling MathJax, any math entered between proper markers (see the [MathJax documentation][mathjaxdocs]) will be processed and typeset in the web page. One issue that comes up, however, with Markdown is that the underscore character (`_`) is interpreted by Markdown as a way to wrap text in `emph` blocks while LaTeX (MathJax) interprets the underscore as a way to create a subscript. This "double speak" of the underscore can result in some unexpected and unwanted behavior.
 
 ### Solution
@@ -173,9 +179,7 @@ MathJax.Hub.Config({
 ```
 {{% /code %}}
 
-{{% note %}}
-If you are using Mmark with MathJax, use `displayMath: [['$$','$$'], ['\\[','\\]']]`. See the [Mmark `README.md`](https://github.com/miekg/mmark/wiki/Syntax#math-blocks) for more information. Additionally, Mmark has been shown to work well with [KaTex](https://github.com/Khan/KaTeX). See the [related blog post from a Hugo user](http://nosubstance.me/post/a-great-toolset-for-static-blogging/).
-{{% /note %}}
+
 
 As before, this content should be included in the HTML source of each page that will be using MathJax. The next code snippet contains the CSS that is used to have verbatim MathJax blocks render with the same font style as the body of the page.
 
