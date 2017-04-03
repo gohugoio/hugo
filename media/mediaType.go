@@ -15,9 +15,19 @@ package media
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Types []Type
+
+func (t Types) GetByType(tp string) (Type, bool) {
+	for _, tt := range t {
+		if strings.EqualFold(tt.Type(), tp) {
+			return tt, true
+		}
+	}
+	return Type{}, false
+}
 
 // A media type (also known as MIME type and content type) is a two-part identifier for
 // file formats and format contents transmitted on the Internet.
