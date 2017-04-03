@@ -25,7 +25,7 @@ The Hugo community uses a wide range of preferred tools and has developed plug-i
 
 ## Visual Studio Code
 
-* [Hugofy](https://marketplace.visualstudio.com/items?itemName=akmittal.hugofy) - Hugofy is a plugin for Visual Studio Code to make life easier to use Hugo static site generator. The source code can be found [here](https://github.com/akmittal/hugofy-vscode).
+* [Hugofy](https://marketplace.visualstudio.com/items?itemName=akmittal.hugofy). Hugofy is a plugin for Visual Studio Code to "make life easier" when developing with Hugo. The source code can be found [here](https://github.com/akmittal/hugofy-vscode).
 
 ## Emacs
 
@@ -37,6 +37,7 @@ The Hugo community uses a wide range of preferred tools and has developed plug-i
 
 ## Atom
 
-* [Hugofy](https://atom.io/packages/hugofy) - A Hugo Static Website Generator package for Atom.
+* [Hugofy](https://atom.io/packages/hugofy). A Hugo Static Website Generator package for Atom.
+* [language-hugo](https://atom.io/packages/language-hugo). Adds syntax highlighting to Hugo files.
 
 [formats]: /content-management/formats/
