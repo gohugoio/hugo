@@ -58,3 +58,81 @@ func TestGetByType(t *testing.T) {
 	_, found = types.GetByType("text/nono")
 	require.False(t, found)
 }
+
+func TestFromTypeString(t *testing.T) {
+	f, err := FromString("text/html")
+	require.NoError(t, err)
+	require.Equal(t, HTMLType, f)
+
+	f, err = FromString("application/custom")
+	require.NoError(t, err)
+	require.Equal(t, Type{MainType: "application", SubType: "custom", Suffix: "custom"}, f)
+
+	f, err = FromString("application/custom+pdf")
+	require.NoError(t, err)
+	require.Equal(t, Type{MainType: "application", SubType: "custom", Suffix: "pdf"}, f)
+
+	f, err = FromString("noslash")
+	require.Error(t, err)
+
+}
+
+func TestDecodeTypes(t *testing.T) {
+
+	var tests = []struct {
+		name        string
+		maps        []map[string]interface{}
+		shouldError bool
+		assert      func(t *testing.T, name string, tt Types)
+	}{
+		{
+			"Redefine JSON",
+			[]map[string]interface{}{
+				map[string]interface{}{
+					"application/json": map[string]interface{}{
+						"suffix": "jsn"}}},
+			false,
+			func(t *testing.T, name string, tt Types) {
+				require.Len(t, tt, len(DefaultTypes))
+				json, found := tt.GetBySuffix("jsn")
+				require.True(t, found)
+				require.Equal(t, "application/json+jsn", json.String(), name)
+			}},
+		{
+			"Add custom media type",
+			[]map[string]interface{}{
+				map[string]interface{}{
+					"text/hugo": map[string]interface{}{
+						"suffix": "hgo"}}},
+			false,
+			func(t *testing.T, name string, tt Types) {
+				require.Len(t, tt, len(DefaultTypes)+1)
+				// Make sure we have not broken the default config.
+				_, found := tt.GetBySuffix("json")
+				require.True(t, found)
+
+				hugo, found := tt.GetBySuffix("hgo")
+				require.True(t, found)
+				require.Equal(t, "text/hugo+hgo", hugo.String(), name)
+			}},
+		{
+			"Add media type invalid key",
+			[]map[string]interface{}{
+				map[string]interface{}{
+					"text/hugo+hgo": map[string]interface{}{}}},
+			true,
+			func(t *testing.T, name string, tt Types) {
+
+			}},
+	}
+
+	for _, test := range tests {
+		result, err := DecodeTypes(test.maps...)
+		if test.shouldError {
+			require.Error(t, err, test.name)
+		} else {
+			require.NoError(t, err, test.name)
+			test.assert(t, test.name, result)
+		}
+	}
+}

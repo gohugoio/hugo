@@ -216,9 +216,9 @@ func (formats Formats) FromFilename(filename string) (f Format, found bool) {
 	return
 }
 
-// DecodeOutputFormats takes a list of output format configurations and merges those,
+// DecodeFormats takes a list of output format configurations and merges those,
 // in ther order given, with the Hugo defaults as the last resort.
-func DecodeOutputFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Formats, error) {
+func DecodeFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Formats, error) {
 	f := make(Formats, len(DefaultFormats))
 	copy(f, DefaultFormats)
 
