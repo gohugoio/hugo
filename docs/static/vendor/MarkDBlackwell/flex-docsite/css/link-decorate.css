@@ -1,0 +1,36 @@
+a:after {
+    display: block;
+}
+a {
+    display: inline-block;
+}
+a:focus:after,
+a:hover:after {
+    width: 100%;
+}
+a:after {
+    width: 0;
+}
+a#hamburger-menu,
+a#hamburger-top,
+a#logo-article,
+a#logo-menu,
+a#logo-top,
+nav#nav-binary > a.direction,
+nav#TableOfContents ul > li > a,
+ul#nav-menu a.name {
+    text-decoration: none;
+}
+a#hamburger-menu,
+a#hamburger-top,
+a#logo-article,
+a#logo-menu,
+a#logo-top,
+nav#nav-binary > a.direction,
+nav#TableOfContents ul > li > a,
+ul#nav-menu a.name {
+    outline-style: none;
+}
+a:after {
+    content: '';
+}

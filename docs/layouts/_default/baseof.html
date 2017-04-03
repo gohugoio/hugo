@@ -1,12 +1,6 @@
 {{ partial "header.html" . }}
-{{ if .Params.toc }}
-<div class="col-lg-8 col-md-12">
-{{block "main" .}}{{end}}
-</div>
-<div id="toc" class="col-lg-offset-6 toc {{ if gt (len .TableOfContents) 2500 }}compact{{ end }}">
-    {{ .TableOfContents }}
-</div>
-{{ else }}
-{{block "main" .}}{{end}}
-{{ end }}
+{{ "<!--content start-->" | safeHTML }}
+{{- block "main" . }}{{ end -}}
+{{ "<!--content end-->" | safeHTML }}
+
 {{ partial "footer.html" . }}

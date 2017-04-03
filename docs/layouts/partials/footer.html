@@ -1,54 +1,118 @@
-                    <div class="row">
-                        <div class="footer-panel">
-			  <p>Last revision: {{ .Lastmod.Format "January 2, 2006" }}{{ if .IsPage }}{{ with .GitInfo }} | <a href="https://github.com/spf13/hugo/commit/{{ .Hash }}">{{ .Subject }} ({{ .AbbreviatedHash }})</a>{{end }}{{ end }}
-                          <span style="float: right;">Hugo v{{ .Site.Params.release }} documentation</span>
-                        </p>
-                        </div>
-                    </div>
+			{{ "<!--content footer start-->" | safeHTML }}
+			<footer class="footer-panel">
+				<span>Hugo v{{ .Site.Params.release }} documentation</span>
+				<p>
+					Last revision:&nbsp;
+{{- .Lastmod.Format "January 2, 2006" -}}
+{{- if .IsPage -}}
+  {{- with .GitInfo -}}
+					&nbsp;|
+					<a id="revision" href="https://github.com/spf13/hugo/commit/{{ .Hash }}">
+						{{ .Subject }}
+						(
+						{{- .AbbreviatedHash -}}
+						)
+					</a>
+  {{- end -}}
+{{- end }}
+				</p>
+			</footer>
+			{{ "<!--content footer end-->" | safeHTML }}
 
-                    </div>
-                    </section>
+		</article>
+		{{ "<!--article end-->" | safeHTML }}
 
-                    </div>
+{{- if .Params.toc -}}
+{{ "<!--table of contents start-->" | safeHTML }}
+{{ .TableOfContents }}
+{{ "<!--table of contents end-->" | safeHTML }}
+{{ end }}
 
-                <div class="col-md-1">
-                    {{ if .IsPage }}
-                    {{ with .GetParam "next" }}
-                    <a class="navigation next" href="{{.}}">
-                        <i class="fa fa-angle-right"> </i>
-                    </a>
-                    {{ end }}
-                    {{ end }}
-                </div>
-              </div>
-              <!-- page start-->
-          </section>
-      </section>
-     <!--main content end-->
-  </section>
-  <!-- container section end -->
+	</main>
+	{{ "<!--main content end-->" | safeHTML }}
 
-    <!-- javascripts -->
-    <script type="text/javascript" src="/vendor/jquery/js/jquery-2.1.4.min.js"></script>
-    <script type="text/javascript" src="/vendor/flesler/js/jquery.scrollTo.min.js"></script>
-    <script type="text/javascript" src="/vendor/twitter/js/bootstrap.min.js"></script>
-    <!--custom script for all page-->
-    <script type="text/javascript" src="/vendor/highlightjs/js/highlight.pack.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/scripts.js"></script>
-    <!-- Algolia search -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script> 
-    <script type="text/javascript"> 
-    docsearch({
-      apiKey: '167e7998590aebda7f9fedcf86bc4a55',
-      indexName: 'hugodocs',
-      inputSelector: '#search-input',
-      algoliaOptions: {
-        hitsPerPage: 5
-      }
-    }); 
-    </script>
-    <!-- Google Analytics -->
-    {{ template "partials/analytics.html" . }}
-  </body>
+{{ partial "menu.html" . }}
+{{- if .IsPage }}
+
+	{{ "<!--next/previous navigation start-->" | safeHTML }}
+	<nav id="nav-binary">
+  {{- with .GetParam "prev" }}
+		<a class="direction" title="previous document" href="{{.}}">
+			<i class="fa-angle-left fa"></i>
+		</a>
+  {{- end -}}
+  {{- with .GetParam "next" }}
+		<a class="direction" title="next document" href="{{.}}">
+			<i class="fa-angle-right fa"> </i>
+		</a>
+  {{- end }}
+	</nav>
+	{{ "<!--next/previous navigation end-->" | safeHTML }}
+{{- end }}
+
+</div>
+{{ "<!--page container end-->" | safeHTML }}
+
+{{ "<!--page header start-->" | safeHTML }}
+<div id="header-page">
+
+	<p id="title-top">{{ .Scratch.Get "title" }}</p>
+
+	{{ "<!--GitHub notification buttons start-->" | safeHTML }}
+	<nav id="nav-repo">
+		<span class="show-repo" rel="show-repo" data-type="follow" data-user="bep"                   ></span>
+		<span class="show-repo" rel="show-repo" data-type="star"   data-user="spf13" data-repo="hugo"></span>
+		<span class="show-repo" rel="show-repo" data-type="fork"   data-user="spf13" data-repo="hugo"></span>
+	</nav>
+	{{ "<!--GitHub notification buttons end-->" | safeHTML }}
+
+	<nav id="anchor-top">
+
+		{{ "<!--logo top start-->" | safeHTML }}
+		<a id="logo-top" title="home page" href="/">
+			<img src="/img/hugo-logo.png">
+			<span>v{{ .Site.Params.release }}</span>
+		</a>
+		{{ "<!--logo top end-->" | safeHTML }}
+
+		{{ "<!--hamburger top start-->" | safeHTML }}
+		{{ "<!-- JavaScript replaces #hamburger-top-->" | safeHTML }}
+		<a id="hamburger-top" title="menu" href="#nav-menu">
+			<i class="fa-bars fa"></i>
+		</a>
+		{{ "<!--hamburger top end-->" | safeHTML }}
+
+	</nav>
+</div>
+{{ "<!--page header end-->" | safeHTML }}
+
+{{ "<!--JavaScript: Keep at the end of the document so the pages load faster-->" | safeHTML }}
+<script type="text/javascript" src="/vendor/MarkDBlackwell/flex-docsite/js/scripts.js"></script>
+<script type="text/javascript" src="/vendor/jquery/js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript" src="/vendor/flesler/js/jquery.scrollTo.min.js"></script>
+<script type="text/javascript" src="/vendor/twitter/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/vendor/highlightjs/js/highlight.pack.js"></script>
+
+{{ "<!--custom script for all pages-->" | safeHTML }}
+<script type="text/javascript" src="/js/scripts.js"></script>
+<script>
+	hljs.initHighlightingOnLoad();
+</script>
+
+{{ "<!--Algolia search-->" | safeHTML }}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script>
+<script type="text/javascript">
+docsearch({
+	apiKey: '167e7998590aebda7f9fedcf86bc4a55',
+	indexName: 'hugodocs',
+	inputSelector: '#search-input',
+	algoliaOptions: {
+		hitsPerPage: 5
+	}
+});
+</script>
+
+{{ "<!--Google Analytics-->" | safeHTML }}
+{{ template "partials/analytics.html" . }}
+</body>
 </html>

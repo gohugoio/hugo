@@ -1,0 +1,69 @@
+/* See http://trentwalton.com/2013/01/16/windows-phone-8-viewport-fix/ */
+@-webkit-viewport { width: device-width }
+   @-moz-viewport { width: device-width }
+        @-ms-viewport { width: device-width }
+        @-o-viewport { width: device-width }
+        @viewport { width: device-width }
+
+@media screen and (max-width: 768px) {
+  a#hamburger-menu {
+      position: relative;
+  }
+  a#hamburger-top {
+/* 'position: absolute' fails, even when <html> is 'position: relative' */
+      position: fixed;
+  }
+  a#hamburger-menu {
+      z-index: 1;
+  }
+  a#hamburger-top {
+      top: 0;
+  }
+  a#hamburger-top {
+      left: 0;
+  }
+  a#logo-article,
+  main#main.toggle-alternate,
+  nav#anchor-menu.toggle-alternate,
+  nav#nav-binary.toggle-alternate,
+  nav#TableOfContents.toggle-alternate,
+  p#title-top,
+  ul#nav-menu.reverse:not(.toggle-alternate) {
+      display: none;
+  }
+  ul#nav-menu {
+      overflow-x: auto;
+  }
+  article#article {
+      overflow-y: hidden; /* Chrome */
+  }
+  div#container-page {
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+          -ms-flex-direction: column;
+              flex-direction: column;
+  }
+  ul#nav-menu {
+      -webkit-box-ordinal-group: 5;
+          -ms-flex-order: 4;
+              order: 4;
+  }
+  nav#TableOfContents {
+      padding-right: 0;
+  }
+  ul#nav-menu {
+      border-top-style: solid;
+  }
+}
+@media screen and (min-width: 264.1px)
+              and (max-width: 768px) {
+  ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name {
+      -ms-flex-pack: distribute;
+          justify-content: space-around;
+  }
+}
+@media screen and (max-width: 264px) {
+  ul#nav-menu > li.menu-dynamic > ul.menu-sub > li.leaf > a.name > span.name {
+      margin-left: auto;
+  }
+}

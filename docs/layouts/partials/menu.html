@@ -1,40 +1,65 @@
-<!--sidebar start-->
-<aside>
-    <div id="sidebar" class="nav-collapse">
-        <!-- sidebar menu start-->
-        <ul class="sidebar-menu">
-          {{ $currentNode := . }}
-          {{ range .Site.Menus.main }}
-              {{ if .HasChildren }}
+{{ "<!--navigation menu sidebar start-->" | safeHTML }}
+<ul id="nav-menu" class="nav-collapse">
+	<nav id="anchor-menu">
 
-            <li class="sub-menu{{if $currentNode.HasMenuCurrent "main" . }} active{{end}}">
-            <a href="javascript:;" class="">
-                {{ .Pre }}
-                <!--<i class="icon_desktop"></i>-->
-                <span>{{ .Name }}</span>
-                <span class="menu-arrow fa {{if $currentNode.HasMenuCurrent "main" . }}fa-angle-down{{else}}fa-angle-right{{end}}"></span>
-            </a>
-                <ul class="sub{{if $currentNode.HasMenuCurrent "main" . }} open{{end}}">
-                    {{ range .Children }}
-                    <li{{if $currentNode.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.URL}}">{{ .Name }}</a> </li>
-                    {{ end }}
-                </ul>
-              {{else}}
-                <li>
-                <a class="" href="{{.URL}}">
-                    {{ .Pre }}
-                    <!--<i class="icon_house_alt"></i>-->
-                    <span>{{ .Name }}</span>
-                </a>
-              {{end}}
-              </li>
-          {{end}}
-            <li> <a href="https://github.com/spf13/hugo/issues" target="blank"><i class='fa fa-life-ring'></i> <span>Issues & Help</span></a> </li>
-            {{ if .IsPage }}
-            {{ $File := .File }}  {{with $File.Path }}<li><a href="https://github.com/spf13/hugo/edit/master/docs/content/{{ $File.Dir }}{{ $File.LogicalName }}" target="blank"><i class='fa fa-edit'></i> Refine this Page</a> </li>{{end}}
-            {{ end }}
-        </ul>
-        <!-- sidebar menu end-->
-    </div>
-</aside>
-<!--sidebar end-->
+		{{ "<!--hamburger menu start-->" | safeHTML }}
+		<a id="hamburger-menu" title="document" href="#">
+			<i class="fa-bars fa"></i>
+		</a>
+		{{ "<!--hamburger menu end-->" | safeHTML }}
+
+		<a id="logo-menu" title="home page" href="/">
+			<img src="/img/hugo-logo.png">
+		</a>
+	</nav>
+
+{{- $currentNode := . -}}
+{{- range .Site.Menus.main -}}
+  {{- if not .HasChildren }}
+		<li class="menu-single
+		{{- if $currentNode.IsMenuCurrent "main" . }} active{{ end }}">
+			<a class="name" title="{{ .Name }}" href="{{ .URL }}">{{ .Pre }}
+			    <span class="name">{{ .Name }}</span></a>
+		</li>
+  {{- else }}
+		<li class="menu-dynamic open
+		{{- if $currentNode.HasMenuCurrent "main" . }} active{{ end }}">
+			<a class="name" title="{{ .Name }}" href="javascript:">{{ .Pre }}
+			    <span class="name">{{ .Name }}</span>
+			    <span class="
+			    {{- if $currentNode.HasMenuCurrent "main" . }}fa-angle-down {{ else }}fa-angle-right {{ end -}}
+			    menu-arrow fa"></span></a>
+			<ul class="menu-sub open
+			{{- if $currentNode.HasMenuCurrent "main" . }} active{{ end }}">
+    {{- range .Children }}
+				<li class="leaf
+				{{- if $currentNode.IsMenuCurrent "main" . }} active{{ end }}">
+					<a class="name" title="{{ .Name }}" href="{{ .URL }}">
+					    <span class="name">{{ .Name }}</span></a></li>
+    {{- end }}
+			</ul>
+		</li>
+  {{- end }}
+{{- end }}
+		<li class="menu-single
+		{{- if eq .URL "/commands/" }} active{{ end }}">
+			<a class="name" title="Hugo Command Reference" href="/commands/"><i class='fa-space-shuttle fa'></i>
+			    <span class="name">Hugo Command<br>Reference</span></a>
+		</li>
+		<li class="menu-single">
+			<a class="name" title="Issues &amp; Help" rel="noopener noreferrer" href="https://github.com/spf13/hugo/issues"><i class="fa-life-ring fa"></i>
+			    <span class="name">Issues &amp; Help</span></a>
+		</li>
+{{- if .IsPage -}}
+  {{- $File := .File -}}
+  {{- with $File.Path }}
+		<li class="menu-single">
+			<a class="name" title="Refine this Page" rel="noopener noreferrer" href="https://github.com/spf13/hugo/edit/master/docs/content/
+			{{- trim $File.Dir `/\` }}{{ `/` }}{{ $File.LogicalName -}}
+			"><i class="fa-edit fa"></i>
+			    <span class="name">Refine this Page</span></a>
+		</li>
+  {{- end -}}
+{{- end }}
+</ul>
+{{ "<!--navigation menu sidebar end-->" | safeHTML -}}

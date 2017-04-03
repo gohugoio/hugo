@@ -1,0 +1,128 @@
+ul#nav-menu li > a.name {
+    border-right-color: rgb(215,215,215);
+}
+ul#nav-menu   li.leaf > a.name:focus, /* need this specificity */
+ul#nav-menu   li.leaf > a.name:hover, /* need this specificity */
+ul#nav-menu > li.active > ul.menu-sub > li.leaf.active > a.name,
+ul#nav-menu > li.menu-dynamic.active:not(.open) > a.name:focus,
+ul#nav-menu > li.menu-dynamic:not(.open) > a.name:focus,
+ul#nav-menu > li.menu-dynamic:not(.open) > a.name:hover,
+ul#nav-menu > li.menu-dynamic:not(.open):not(.active) > a.name:hover,
+ul#nav-menu > li.menu-single > a.name:hover,
+ul#nav-menu > li.menu-single.active > a.name,
+ul#nav-menu > li.menu-single:not(.active) > a.name:focus {
+    border-bottom-color: rgb(255,64,136);
+}
+div#header-page {
+    border-bottom-color: rgb(241,242,247);
+}
+ul#nav-menu li > a.name {
+    border-bottom-color: rgb(215,215,215);
+}
+a#hamburger-menu > i:active, /* IE 10 */
+a#hamburger-menu:active:link,
+a#hamburger-menu:active:visited,
+a#hamburger-top > i:active, /* IE 10 */
+a#hamburger-top:active:link,
+a#hamburger-top:active:visited,
+a#logo-menu > img:active, /* IE 10 */
+a#logo-menu:active:link,
+a#logo-menu:active:visited,
+a#logo-top > img:active, /* IE 10 */
+a#logo-top > span:active, /* IE 10 */
+a#logo-top:active:link,
+a#logo-top:active:visited,
+nav#nav-binary > a.direction > i.fa:active, /* IE 10 - doesn't work for desktop! */
+nav#nav-binary > a.direction:active:link,
+nav#nav-binary > a.direction:active:visited,
+nav#TableOfContents a:active:link,
+nav#TableOfContents a:active:visited,
+ul#nav-menu li > a.name > i:active, /* IE 10 */
+ul#nav-menu li > a.name > span:active, /* IE 10 */
+ul#nav-menu li > a.name:active:link,
+ul#nav-menu li > a.name:active:visited,
+ul#nav-menu li.leaf > a.name > i:active, /* IE 10 */
+ul#nav-menu li.leaf > a.name > span:active, /* IE 10 */
+ul#nav-menu li.leaf > a.name:active:link, /* need this specificity */
+ul#nav-menu li.leaf > a.name:active:visited { /* need this specificity */
+    background-color: DarkSeaGreen;
+}
+main#main,
+ul#nav-menu > li, /* overrides Bootstrap, etc. */
+ul#nav-menu {
+    background-color: white;
+}
+ul#nav-menu   li > a.name:focus,
+ul#nav-menu   li > a.name:hover,
+ul#nav-menu   li.leaf > a.name,
+ul#nav-menu   li.leaf > a.name:focus, /* need this specificity */
+ul#nav-menu   li.leaf > a.name:hover, /* need this specificity */
+ul#nav-menu > li.menu-dynamic.active > a.name,
+ul#nav-menu > li.menu-dynamic.open:focus > a.name,
+ul#nav-menu > li.menu-single.active > a.name {
+    background-color: rgb(237,237,237);
+}
+body,
+html,
+nav#nav-binary {
+    background-color: rgb(237,236,228);
+}
+nav#nav-binary > a.direction:focus,
+nav#nav-binary > a.direction:hover {
+    background-color: rgb(212,211,203);
+}
+div#header-page,
+nav#anchor-menu {
+    background-color: rgb(18,18,18);
+}
+a#hamburger-menu:link,
+a#hamburger-menu:visited,
+a#hamburger-top:link,
+a#hamburger-top:visited {
+    color: gray;
+}
+article#article > p > a:link, /* IE 11 */
+article#article > p > a:visited, /* IE 11 */
+nav#nav-binary > a.direction:focus,
+nav#nav-binary > a.direction:hover,
+nav#TableOfContents ul > li > a:link,
+nav#TableOfContents ul > li > a:visited,
+ul#nav-menu   li > a.name:hover,
+ul#nav-menu   li.active > a.name,
+ul#nav-menu > li > a.name:focus {
+    color: rgb(255,64,136);
+}
+p#title-top {
+    color: rgb(238,238,238);
+}
+a#logo-top:link,
+a#logo-top:visited {
+    color: rgb(142,142,147);
+}
+ul#nav-menu li > *:link,
+ul#nav-menu li > *:visited {
+    color: rgb(114,118,125);
+}
+nav#nav-binary > *:link,
+nav#nav-binary > *:visited {
+    color: rgb(109,108,100);
+}
+nav#anchor-menu > a#hamburger-menu:hover, /* need this specificity */
+nav#anchor-menu > a#logo-menu:focus, /* need this specificity */
+nav#anchor-menu > a#logo-menu:hover, /* need this specificity */
+nav#anchor-top > a#hamburger-top:hover, /* need this specificity */
+nav#anchor-top > a#logo-top:focus, /* need this specificity */
+nav#anchor-top > a#logo-top:hover { /* need this specificity */
+    color: rgb(65,131,196);
+}
+a#logo-article:link,
+a#logo-article:visited,
+a#logo-menu:link,
+a#logo-menu:visited,
+article#article {
+    color: rgb(53,59,68);
+}
+nav#anchor-menu > a#hamburger-menu:focus, /* need this specificity */
+nav#anchor-top > a#hamburger-top:focus { /* need this specificity */
+    outline-color: gray; /* Chrome, Opera */
+}

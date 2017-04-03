@@ -18,48 +18,48 @@ enableGitInfo = true
 
 [[menu.main]]
     name = "Download Hugo"
-    pre = "<i class='fa fa-download'></i>"
+    pre = "<i class='fa-download fa'></i>"
     url = "https://github.com/spf13/hugo/releases"
     weight = -200
 [[menu.main]]
     name = "Site Showcase"
-    pre = "<i class='fa fa-cubes'></i>"
+    pre = "<i class='fa-cubes fa'></i>"
     url = "/showcase/"
     weight = -180
 [[menu.main]]
     name = "Theme Showcase"
-    pre = "<i class='fa fa-puzzle-piece'></i>"
+    pre = "<i class='fa-puzzle-piece fa'></i>"
     url = "http://themes.gohugo.io"
     weight = -170
 [[menu.main]]
     name = "Press & Articles"
-    pre = "<i class='fa fa-bullhorn'></i>"
+    pre = "<i class='fa-bullhorn fa'></i>"
     url = "/community/press/"
     weight = -160
 [[menu.main]]
     name = "Discuss Hugo"
-    pre = "<i class='fa fa-comments'></i>"
+    pre = "<i class='fa-comments fa'></i>"
     url = "http://discuss.gohugo.io/"
     weight = -150
 [[menu.main]]
     name = "About Hugo"
     identifier = "about"
-    pre = "<i class='fa fa-heart'></i>"
+    pre = "<i class='fa-heart fa'></i>"
     weight = -110
 [[menu.main]]
     name = "Getting Started"
     identifier = "getting started"
-    pre = "<i class='fa fa-road'></i>"
+    pre = "<i class='fa-road fa'></i>"
     weight = -100
 [[menu.main]]
     name = "Content"
     identifier = "content"
-    pre = "<i class='fa fa-file-text'></i>"
+    pre = "<i class='fa-file-text fa'></i>"
     weight = -90
 [[menu.main]]
     name = "Themes"
     identifier = "themes"
-    pre = "<i class='fa fa-desktop'></i>"
+    pre = "<i class='fa-desktop fa'></i>"
     weight = -85
 [[menu.main]]
     parent = "themes"
@@ -69,22 +69,22 @@ enableGitInfo = true
 [[menu.main]]
     name = "Templates"
     identifier = "layout"
-    pre = "<i class='fa fa-columns'></i>"
+    pre = "<i class='fa-columns fa'></i>"
     weight = -80
 [[menu.main]]
     name = "Taxonomies"
     identifier = "taxonomy"
-    pre = "<i class='fa fa-tags'></i>"
+    pre = "<i class='fa-tags fa'></i>"
     weight = -70
 [[menu.main]]
     name = "Extras"
     identifier = "extras"
-    pre = "<i class='fa fa-gift'></i>"
+    pre = "<i class='fa-gift fa'></i>"
     weight = -60
 [[menu.main]]
     name = "Community"
     identifier = "community"
-    pre = "<i class='fa fa-group'></i>"
+    pre = "<i class='fa-group fa'></i>"
     weight = -50
 [[menu.main]]
     parent = "community"
@@ -94,21 +94,15 @@ enableGitInfo = true
 [[menu.main]]
     name = "Tutorials"
     identifier = "tutorials"
-    pre = "<i class='fa fa-book'></i>"
+    pre = "<i class='fa-book fa'></i>"
     weight = -40
 [[menu.main]]
     name = "Troubleshooting"
     identifier = "troubleshooting"
-    pre = "<i class='fa fa-wrench'></i>"
+    pre = "<i class='fa-wrench fa'></i>"
     weight = -30
 [[menu.main]]
     name = "Tools"
     url = "/tools/"
-    pre = "<i class='fa fa-cogs'></i>"
+    pre = "<i class='fa-cogs fa'></i>"
     weight = -25
-[[menu.main]]
-    name = "Hugo Cmd Reference"
-    identifier = "commands"
-    pre = "<i class='fa fa-space-shuttle'></i>"
-    weight = -20
-    url = "/commands/"

@@ -1,0 +1,3 @@
+main { /* IE 10: <main> defaults to 'display: inline' */
+    display: block;
+}
