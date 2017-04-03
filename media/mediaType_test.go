@@ -47,3 +47,14 @@ func TestDefaultTypes(t *testing.T) {
 	}
 
 }
+
+func TestGetByType(t *testing.T) {
+	types := Types{HTMLType, RSSType}
+
+	mt, found := types.GetByType("text/HTML")
+	require.True(t, found)
+	require.Equal(t, mt, HTMLType)
+
+	_, found = types.GetByType("text/nono")
+	require.False(t, found)
+}

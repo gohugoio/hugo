@@ -40,7 +40,7 @@ func createSiteOutputFormats(cfg config.Provider) (map[string]output.Formats, er
 		var formats output.Formats
 		vals := cast.ToStringSlice(v)
 		for _, format := range vals {
-			f, found := output.GetFormat(format)
+			f, found := output.DefaultFormats.GetByName(format)
 			if !found {
 				return nil, fmt.Errorf("Failed to resolve output format %q from site config", format)
 			}

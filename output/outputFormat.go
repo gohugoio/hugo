@@ -15,10 +15,54 @@ package output
 
 import (
 	"fmt"
+	"sort"
 	"strings"
+
+	"reflect"
+
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/spf13/hugo/media"
 )
+
+// Format represents an output representation, usually to a file on disk.
+type Format struct {
+	// The Name is used as an identifier. Internal output formats (i.e. HTML and RSS)
+	// can be overridden by providing a new definition for those types.
+	Name string
+
+	MediaType media.Type
+
+	// Must be set to a value when there are two or more conflicting mediatype for the same resource.
+	Path string
+
+	// The base output file name used when not using "ugly URLs", defaults to "index".
+	BaseName string
+
+	// The value to use for rel links
+	//
+	// See https://www.w3schools.com/tags/att_link_rel.asp
+	//
+	// AMP has a special requirement in this department, see:
+	// https://www.ampproject.org/docs/guides/deploy/discovery
+	// I.e.:
+	// <link rel="amphtml" href="https://www.example.com/url/to/amp/document.html">
+	Rel string
+
+	// The protocol to use, i.e. "webcal://". Defaults to the protocol of the baseURL.
+	Protocol string
+
+	// IsPlainText decides whether to use text/template or html/template
+	// as template parser.
+	IsPlainText bool
+
+	// IsHTML returns whether this format is int the HTML family. This includes
+	// HTML, AMP etc. This is used to decide when to create alias redirects etc.
+	IsHTML bool
+
+	// Enable to ignore the global uglyURLs setting.
+	NoUgly bool
+}
 
 var (
 	// An ordered list of built-in output formats
@@ -33,7 +77,6 @@ var (
 		IsHTML:    true,
 	}
 
-	// CalendarFormat is AAA
 	CalendarFormat = Format{
 		Name:        "Calendar",
 		MediaType:   media.CalendarType,
@@ -83,32 +126,33 @@ var (
 	}
 )
 
-var builtInTypes = map[string]Format{
-	strings.ToLower(AMPFormat.Name):      AMPFormat,
-	strings.ToLower(CalendarFormat.Name): CalendarFormat,
-	strings.ToLower(CSSFormat.Name):      CSSFormat,
-	strings.ToLower(CSVFormat.Name):      CSVFormat,
-	strings.ToLower(HTMLFormat.Name):     HTMLFormat,
-	strings.ToLower(JSONFormat.Name):     JSONFormat,
-	strings.ToLower(RSSFormat.Name):      RSSFormat,
+var DefaultFormats = Formats{
+	AMPFormat,
+	CalendarFormat,
+	CSSFormat,
+	CSVFormat,
+	HTMLFormat,
+	JSONFormat,
+	RSSFormat,
+}
+
+func init() {
+	sort.Sort(DefaultFormats)
 }
 
 type Formats []Format
 
-func (formats Formats) GetByName(name string) (f Format, found bool) {
-	for _, ff := range formats {
-		if name == ff.Name {
-			f = ff
-			found = true
-			return
-		}
-	}
-	return
-}
+func (f Formats) Len() int           { return len(f) }
+func (f Formats) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
+func (f Formats) Less(i, j int) bool { return f[i].Name < f[j].Name }
 
-func (formats Formats) GetBySuffix(name string) (f Format, found bool) {
+// GetBySuffix gets a output format given as suffix, e.g. "html".
+// It will return false if no format could be found, or if the suffix given
+// is ambiguous.
+// The lookup is case insensitive.
+func (formats Formats) GetBySuffix(suffix string) (f Format, found bool) {
 	for _, ff := range formats {
-		if name == ff.MediaType.Suffix {
+		if strings.EqualFold(suffix, ff.MediaType.Suffix) {
 			if found {
 				// ambiguous
 				found = false
@@ -121,6 +165,33 @@ func (formats Formats) GetBySuffix(name string) (f Format, found bool) {
 	return
 }
 
+// GetByName gets a format by its identifier name.
+func (formats Formats) GetByName(name string) (f Format, found bool) {
+	for _, ff := range formats {
+		if strings.EqualFold(name, ff.Name) {
+			f = ff
+			found = true
+			return
+		}
+	}
+	return
+}
+
+// GetByNames gets a list of formats given a list of identifiers.
+func (formats Formats) GetByNames(names ...string) (Formats, error) {
+	var types []Format
+
+	for _, name := range names {
+		tpe, ok := formats.GetByName(name)
+		if !ok {
+			return types, fmt.Errorf("OutputFormat with key %q not found", name)
+		}
+		types = append(types, tpe)
+	}
+	return types, nil
+}
+
+// FromFilename gets a Format given a filename.
 func (formats Formats) FromFilename(filename string) (f Format, found bool) {
 	// mytemplate.amp.html
 	// mytemplate.html
@@ -145,66 +216,79 @@ func (formats Formats) FromFilename(filename string) (f Format, found bool) {
 	return
 }
 
-// Format represents an output representation, usually to a file on disk.
-type Format struct {
-	// The Name is used as an identifier. Internal output formats (i.e. HTML and RSS)
-	// can be overridden by providing a new definition for those types.
-	Name string
+// DecodeOutputFormats takes a list of output format configurations and merges those,
+// in ther order given, with the Hugo defaults as the last resort.
+func DecodeOutputFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Formats, error) {
+	f := make(Formats, len(DefaultFormats))
+	copy(f, DefaultFormats)
 
-	MediaType media.Type
+	for _, m := range maps {
+		for k, v := range m {
+			found := false
+			for i, vv := range f {
+				if strings.EqualFold(k, vv.Name) {
+					// Merge it with the existing
+					if err := decode(mediaTypes, v, &f[i]); err != nil {
+						return f, err
+					}
+					found = true
+				}
+			}
+			if !found {
+				var newOutFormat Format
+				newOutFormat.Name = k
+				if err := decode(mediaTypes, v, &newOutFormat); err != nil {
+					return f, err
+				}
 
-	// Must be set to a value when there are two or more conflicting mediatype for the same resource.
-	Path string
-
-	// The base output file name used when not using "ugly URLs", defaults to "index".
-	BaseName string
-
-	// The value to use for rel links
-	//
-	// See https://www.w3schools.com/tags/att_link_rel.asp
-	//
-	// AMP has a special requirement in this department, see:
-	// https://www.ampproject.org/docs/guides/deploy/discovery
-	// I.e.:
-	// <link rel="amphtml" href="https://www.example.com/url/to/amp/document.html">
-	Rel string
-
-	// The protocol to use, i.e. "webcal://". Defaults to the protocol of the baseURL.
-	Protocol string
-
-	// IsPlainText decides whether to use text/template or html/template
-	// as template parser.
-	IsPlainText bool
-
-	// IsHTML returns whether this format is int the HTML family. This includes
-	// HTML, AMP etc. This is used to decide when to create alias redirects etc.
-	IsHTML bool
-
-	// Enable to ignore the global uglyURLs setting.
-	NoUgly bool
-}
-
-func GetFormat(key string) (Format, bool) {
-	found, ok := builtInTypes[key]
-	if !ok {
-		found, ok = builtInTypes[strings.ToLower(key)]
-	}
-	return found, ok
-}
-
-// TODO(bep) outputs rewamp on global config?
-func GetFormats(keys ...string) (Formats, error) {
-	var types []Format
-
-	for _, key := range keys {
-		tpe, ok := GetFormat(key)
-		if !ok {
-			return types, fmt.Errorf("OutputFormat with key %q not found", key)
+				f = append(f, newOutFormat)
+			}
 		}
-		types = append(types, tpe)
 	}
 
-	return types, nil
+	sort.Sort(f)
+
+	return f, nil
+}
+
+func decode(mediaTypes media.Types, input, output interface{}) error {
+	config := &mapstructure.DecoderConfig{
+		Metadata:         nil,
+		Result:           output,
+		WeaklyTypedInput: true,
+		DecodeHook: func(a reflect.Type, b reflect.Type, c interface{}) (interface{}, error) {
+			if a.Kind() == reflect.Map {
+				dataVal := reflect.Indirect(reflect.ValueOf(c))
+				for _, key := range dataVal.MapKeys() {
+					keyStr, ok := key.Interface().(string)
+					if !ok {
+						// Not a string key
+						continue
+					}
+					if strings.EqualFold(keyStr, "mediaType") {
+						// If mediaType is a string, look it up and replace it
+						// in the map.
+						vv := dataVal.MapIndex(key)
+						if mediaTypeStr, ok := vv.Interface().(string); ok {
+							mediaType, found := mediaTypes.GetByType(mediaTypeStr)
+							if !found {
+								return c, fmt.Errorf("media type %q not found", mediaTypeStr)
+							}
+							dataVal.SetMapIndex(key, reflect.ValueOf(mediaType))
+						}
+					}
+				}
+			}
+			return c, nil
+		},
+	}
+
+	decoder, err := mapstructure.NewDecoder(config)
+	if err != nil {
+		return err
+	}
+
+	return decoder.Decode(input)
 }
 
 func (t Format) BaseFilename() string {

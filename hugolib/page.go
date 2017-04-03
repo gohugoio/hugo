@@ -909,7 +909,7 @@ func (p *Page) update(f interface{}) error {
 			o := cast.ToStringSlice(v)
 			if len(o) > 0 {
 				// Output formats are exlicitly set in front matter, use those.
-				outFormats, err := output.GetFormats(o...)
+				outFormats, err := output.DefaultFormats.GetByNames(o...)
 
 				if err != nil {
 					p.s.Log.ERROR.Printf("Failed to resolve output formats: %s", err)
