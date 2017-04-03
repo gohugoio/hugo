@@ -58,7 +58,11 @@ used by Hugo when generating your website. You can write these files in YAML, JS
 : stores templates in the form of `.html` files that specify how views of your content will be rendered into a static website. Templates include [list pages][lists], your [homepage][], [taxonomy templates][], [partials][], [single page templates][singles], and more.
 
 `static`
-: stores all the static content for your future website: images, CSS, JavaScript, etc. Note that when Hugo build your site, all assets inside your static directory are copied over as-is.
+: stores all the static content for your future website: images, CSS, JavaScript, etc. When Hugo builds your site, all assets inside your static directory are copied over as-is. A good example of using the `static` folder is for [verifying site ownership on Google Search Console][searchconsole], where you want Hugo to copy over a complete HTML file without modifying its content.
+
+{{% note %}}
+Hugo does not currently ship with an asset pipeline ([#3207](https://github.com/spf13/hugo/issues/3207)). You can solicit support from the community in the [Hugo forums](https://discuss.gohugo.io) or check out a few of the [Hugo starter kits](/tools/starter-kits/) for examples of how Hugo developers are managing these assets.
+{{% /note %}}
 
 
 [archetypes]: /content-management/archetypes/
@@ -72,7 +76,9 @@ used by Hugo when generating your website. You can write these files in YAML, JS
 [lists]: /templates/list/
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
+[searchconsole]: https://support.google.com/analytics/answer/1142414?hl=en
 [singles]: /templates/single-page-templates/
+[starters]: /tools/starter-kits/
 [taxonomies]: /content-management/taxonomies/
 [taxonomy templates]: /templates/taxonomy-templates/
 [types]: /content-management/types/

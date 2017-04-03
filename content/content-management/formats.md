@@ -4,7 +4,7 @@ linktitle: Formats
 description: Markdown is natively supported in Hugo and is parsed by the feature-rich and incredibly speed Blackfriday parse. Hugo also provides support for additional syntaxes (eg, Asciidoc) via external helpers.
 date: 2017-01-10
 publishdate: 2017-01-10
-lastmod: 2017-04-01
+lastmod: 2017-04-02
 categories: [content management]
 tags: [markdown,asciidoc,mmark,content format]
 menu:
@@ -80,7 +80,7 @@ For a full list of emojis, see the [Emoji cheat sheet][emojis].
 
 ### Shortcodes
 
-If you write in markdown and find yourself frequently embedding your content with raw HTML, Hugo provides built-in shortcodes functionality to act as the intermediary between your content and templating. This is one of the most powerful features in Hugo and allows you to essentially create your own markdown extensions very quickly.
+If you write in markdown and find yourself frequently embedding your content with raw HTML, Hugo provides built-in shortcode functionality to act as the intermediary between your content and templating. This is one of the most powerful features in Hugo in that is allows you to extend markdown arbitrarily and quickly.
 
 See [Shortcodes][sc] for usage, particularly for the built-in shortcodes that ship with Hugo, and [Shortcode Templating][sct] to learn how to build your own.
 
