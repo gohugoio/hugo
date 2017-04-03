@@ -174,7 +174,7 @@ func TestDecodeFormats(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result, err := DecodeOutputFormats(mediaTypes, test.maps...)
+		result, err := DecodeFormats(mediaTypes, test.maps...)
 		if test.shouldError {
 			require.Error(t, err, test.name)
 		} else {
