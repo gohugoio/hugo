@@ -15,7 +15,6 @@ weight: 30	#rem
 draft: false
 aliases: [/meta/release-notes/]
 toc: true
-notesforauthors:
 ---
 
 ## **0.19** February 27th 2017

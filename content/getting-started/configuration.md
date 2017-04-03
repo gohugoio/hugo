@@ -17,13 +17,17 @@ aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
 
-The [directory structure][dirs] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to statically generate a finished website.
+The [directory structure][] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to statically generate a finished website.
 
 Because of Hugo's preference for sane defaults, many websites may not need a configuration file. Hugo is designed to recognize certain typical usage patterns (and even expects them by default).
 
 ## Configuration Lookup Order
 
-Hugo searches for a configuration file in the root of your website's source directory as a default behavior. First, it looks for a `./config.toml` file. If that's not present, it will seek a `./config.yaml` file, followed by a `./config.json` file.
+Similar to the template [lookup order][], Hugo has a default set of rules for searching for a configuration file in the root of your website's source directory as a default behavior:
+
+1. `./config.toml`
+2. `./config.yaml`
+3. `./config.json`
 
 In your `config` file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
 
@@ -383,8 +387,9 @@ blackfriday:
 * [JSON Spec][json]
 
 [`.Site.Params`]: /variables/site/
-[dirs]: /getting-started/directory-structure
+[directory structure]: /getting-started/directory-structure
 [json]: /documents/ecma-404-json-spec.pdf
+[lookup order]: /templates/lookup-order/
 [templates]: /templates/
 [toml]: https://github.com/toml-lang/toml
 [yaml]: http://yaml.org/spec/

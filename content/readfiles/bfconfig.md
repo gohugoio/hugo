@@ -52,4 +52,4 @@
 : default: **`[]`** <br>
     Blackfriday flag: **`EXTENSION_*`** <br>
     Purpose: Enable one or more of Blackfriday's Markdown extensions (if they aren't Hugo defaults). <br>
-    Example: Include `autoHeaderIds` in the list of disable Blackfriday's `EXTENSION_AUTO_HEADER_IDS`.
+    Example: Include `autoHeaderIds` as `false` in the list to disable Blackfriday's `EXTENSION_AUTO_HEADER_IDS`.

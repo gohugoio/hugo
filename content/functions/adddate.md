@@ -51,7 +51,3 @@ Let's assume you want to grab Tweets from the last two years and present them in
 {{ end }}
 ```
 {{% /code %}}
-
-<!-- Look to example in docs site here: https://github.com/spf13/hugo/blob/master/docs/layouts/index.html--e.g., can be paired with now and where -->
-
-

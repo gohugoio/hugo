@@ -41,7 +41,7 @@ Important {{.important}}
 {{.content}}
 ```
 
-`dict` also allows you to create a map on the fly to pass into your [partial templates][partials]
+`dict` also allows you to create a map on the fly to pass into your [partial templates][partials]:
 
 {{% code file="dict-create-map.html" %}}
 ```golang
