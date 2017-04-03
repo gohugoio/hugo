@@ -87,6 +87,7 @@ var builtInTypes = map[string]Format{
 	strings.ToLower(AMPFormat.Name):      AMPFormat,
 	strings.ToLower(CalendarFormat.Name): CalendarFormat,
 	strings.ToLower(CSSFormat.Name):      CSSFormat,
+	strings.ToLower(CSVFormat.Name):      CSVFormat,
 	strings.ToLower(HTMLFormat.Name):     HTMLFormat,
 	strings.ToLower(JSONFormat.Name):     JSONFormat,
 	strings.ToLower(RSSFormat.Name):      RSSFormat,
