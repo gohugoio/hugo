@@ -276,8 +276,7 @@ func (t *textTemplates) setFuncs(funcMap map[string]interface{}) {
 // A prefix can be given to indicate a template namespace to load the templates
 // into, i.e. "_internal" etc.
 func (t *templateHandler) LoadTemplates(absPath, prefix string) {
-	// TODO(bep) output formats. Will have to get to complete list when that is ready.
-	t.loadTemplates(absPath, prefix, output.Formats{output.HTMLFormat, output.RSSFormat, output.CalendarFormat, output.AMPFormat, output.JSONFormat})
+	t.loadTemplates(absPath, prefix)
 
 }
 
@@ -376,7 +375,7 @@ func (t *templateHandler) RebuildClone() {
 	t.text.clone = texttemplate.Must(t.text.cloneClone.Clone())
 }
 
-func (t *templateHandler) loadTemplates(absPath string, prefix string, formats output.Formats) {
+func (t *templateHandler) loadTemplates(absPath string, prefix string) {
 	t.Log.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -428,7 +427,7 @@ func (t *templateHandler) loadTemplates(absPath string, prefix string, formats o
 				RelPath:       relPath,
 				Prefix:        prefix,
 				Theme:         t.PathSpec.Theme(),
-				OutputFormats: formats,
+				OutputFormats: t.OutputFormatsConfig,
 				FileExists: func(filename string) (bool, error) {
 					return helpers.Exists(filename, t.Fs.Source)
 				},

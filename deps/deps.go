@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/hugofs"
+	"github.com/spf13/hugo/output"
 	"github.com/spf13/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -38,6 +39,9 @@ type Deps struct {
 	Translate func(translationID string, args ...interface{}) string `json:"-"`
 
 	Language *helpers.Language
+
+	// All the output formats available for the current site.
+	OutputFormatsConfig output.Formats
 
 	templateProvider ResourceProvider
 	WithTemplate     func(templ tpl.TemplateHandler) error `json:"-"`
