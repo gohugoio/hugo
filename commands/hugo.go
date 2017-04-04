@@ -436,6 +436,12 @@ func createLogger(cfg config.Provider) (*jww.Notepad, error) {
 		logThreshold = jww.LevelInfo
 	}
 
+	// The global logger is used in some few cases.
+	jww.SetLogOutput(logHandle)
+	jww.SetLogThreshold(logThreshold)
+	jww.SetStdoutThreshold(stdoutThreshold)
+	helpers.InitLoggers()
+
 	return jww.NewNotepad(stdoutThreshold, logThreshold, outHandle, logHandle, "", log.Ldate|log.Ltime), nil
 }
 

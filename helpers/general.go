@@ -274,7 +274,9 @@ var (
 
 // InitLoggers sets up the global distinct loggers.
 func InitLoggers() {
-	jww.ResetLogCounters()
+	DistinctErrorLog = NewDistinctErrorLogger()
+	DistinctWarnLog = NewDistinctWarnLogger()
+	DistinctFeedbackLog = NewDistinctFeedbackLogger()
 }
 
 // Deprecated informs about a deprecation, but only once for a given set of arguments' values.
