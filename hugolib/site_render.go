@@ -19,6 +19,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/spf13/hugo/helpers"
+
 	"github.com/spf13/hugo/output"
 
 	bp "github.com/spf13/hugo/bufferpool"
@@ -333,13 +335,12 @@ func (s *Site) renderRobotsTXT() error {
 	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
-	err := s.renderForLayouts("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
-
-	if err == nil {
-		err = s.publish("robots.txt", outBuffer)
+	if err := s.renderForLayouts("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...); err != nil {
+		helpers.DistinctWarnLog.Println(err)
+		return nil
 	}
 
-	return err
+	return s.publish("robots.txt", outBuffer)
 }
 
 // renderAliases renders shell pages that simply have a redirect in the header.
