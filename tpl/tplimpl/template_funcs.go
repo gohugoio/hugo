@@ -46,7 +46,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
 
 	// Importing image codecs for image.DecodeConfig
 	_ "image/gif"
@@ -1432,41 +1431,30 @@ func plainify(in interface{}) (string, error) {
 	return helpers.StripHTML(s), nil
 }
 
-func refPage(page interface{}, ref, methodName string) template.HTML {
-	value := reflect.ValueOf(page)
-
-	method := value.MethodByName(methodName)
-
-	if method.IsValid() && method.Type().NumIn() == 1 && method.Type().NumOut() == 2 {
-		result := method.Call([]reflect.Value{reflect.ValueOf(ref)})
-
-		url, err := result[0], result[1]
-
-		if !err.IsNil() {
-			jww.ERROR.Printf("%s", err.Interface())
-			return template.HTML(fmt.Sprintf("%s", err.Interface()))
-		}
-
-		if url.String() == "" {
-			jww.ERROR.Printf("ref %s could not be found\n", ref)
-			return template.HTML(ref)
-		}
-
-		return template.HTML(url.String())
-	}
-
-	jww.ERROR.Printf("Can only create references from Page and Node objects.")
-	return template.HTML(ref)
+type reflinker interface {
+	Ref(refs ...string) (string, error)
+	RelRef(refs ...string) (string, error)
 }
 
 // ref returns the absolute URL path to a given content item.
-func ref(page interface{}, ref string) template.HTML {
-	return refPage(page, ref, "Ref")
+func ref(in interface{}, refs ...string) (template.HTML, error) {
+	p, ok := in.(reflinker)
+	if !ok {
+		return "", errors.New("invalid Page received in ref")
+	}
+	s, err := p.Ref(refs...)
+	return template.HTML(s), err
 }
 
 // relRef returns the relative URL path to a given content item.
-func relRef(page interface{}, ref string) template.HTML {
-	return refPage(page, ref, "RelRef")
+func relRef(in interface{}, refs ...string) (template.HTML, error) {
+	p, ok := in.(reflinker)
+	if !ok {
+		return "", errors.New("invalid Page received in relref")
+	}
+
+	s, err := p.RelRef(refs...)
+	return template.HTML(s), err
 }
 
 // chomp removes trailing newline characters from a string.

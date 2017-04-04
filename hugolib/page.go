@@ -1522,12 +1522,24 @@ func (p *Page) RSSlink() template.URL {
 	return p.RSSLink()
 }
 
-func (p *Page) Ref(ref string) (string, error) {
-	return p.Site.Ref(ref, nil)
+func (p *Page) Ref(refs ...string) (string, error) {
+	if len(refs) == 0 {
+		return "", nil
+	}
+	if len(refs) > 1 {
+		return p.Site.Ref(refs[0], nil, refs[1])
+	}
+	return p.Site.Ref(refs[0], nil)
 }
 
-func (p *Page) RelRef(ref string) (string, error) {
-	return p.Site.RelRef(ref, nil)
+func (p *Page) RelRef(refs ...string) (string, error) {
+	if len(refs) == 0 {
+		return "", nil
+	}
+	if len(refs) > 1 {
+		return p.Site.RelRef(refs[0], nil, refs[1])
+	}
+	return p.Site.RelRef(refs[0], nil)
 }
 
 func (p *Page) String() string {

@@ -894,10 +894,6 @@ func setupLinkingMockSite(t *testing.T) *Site {
 		{Name: filepath.FromSlash("level2/index.md"), Content: []byte("")},
 		{Name: filepath.FromSlash("level2/common.md"), Content: []byte("")},
 
-		//		{Name: filepath.FromSlash("level2b/2b-root.md"), Content: []byte("")},
-		//		{Name: filepath.FromSlash("level2b/index.md"), Content: []byte("")},
-		//		{Name: filepath.FromSlash("level2b/common.md"), Content: []byte("")},
-
 		{Name: filepath.FromSlash("level2/2-image.png"), Content: []byte("")},
 		{Name: filepath.FromSlash("level2/common.png"), Content: []byte("")},
 
@@ -912,12 +908,14 @@ func setupLinkingMockSite(t *testing.T) *Site {
 
 	cfg.Set("baseURL", "http://auth/")
 	cfg.Set("uglyURLs", false)
+	cfg.Set("outputs", map[string]interface{}{
+		"page": []string{"HTML", "AMP"},
+	})
 	cfg.Set("pluralizeListTitles", false)
 	cfg.Set("canonifyURLs", false)
 	cfg.Set("blackfriday",
 		map[string]interface{}{
 			"sourceRelativeLinksProjectFolder": "/docs"})
-
 	writeSourcesToSource(t, "content", fs, sources...)
 	return buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
@@ -932,19 +930,25 @@ func TestRefLinking(t *testing.T) {
 		t.Fatalf("failed to find current page in site")
 	}
 
-	// refLink doesn't use the location of the current page to work out reflinks
-	okresults := map[string]string{
+	for i, test := range []struct {
+		link         string
+		outputFormat string
+		relative     bool
+		expected     string
+	}{
 		// Note: There are no magic in the index.md name. This was fixed in Hugo 0.20.
 		// Before that, index.md would wrongly resolve to "/".
-		"index.md":  "/index/",
-		"common.md": "/level2/common/",
-		"3-root.md": "/level2/level3/3-root/",
-	}
-	for link, url := range okresults {
-		if out, err := site.Info.refLink(link, currentPage, true); err != nil || out != url {
-			t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
+		{"index.md", "", true, "/index/"},
+		{"common.md", "", true, "/level2/common/"},
+		{"3-root.md", "", true, "/level2/level3/3-root/"},
+		{"index.md", "amp", true, "/amp/index/"},
+		{"index.md", "amp", false, "http://auth/amp/index/"},
+	} {
+		if out, err := site.Info.refLink(test.link, currentPage, test.relative, test.outputFormat); err != nil || out != test.expected {
+			t.Errorf("[%d] Expected %s to resolve to (%s), got (%s) - error: %s", i, test.link, test.expected, out, err)
 		}
 	}
+
 	// TODO: and then the failure cases.
 }
 
