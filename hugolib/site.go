@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"mime"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -608,6 +609,15 @@ func (s *Site) timerStep(step string) {
 type whatChanged struct {
 	source bool
 	other  bool
+}
+
+// RegisterMediaTypes will register the Site's media types in the mime
+// package, so it will behave correctly with Hugo's built-in server.
+func (s *Site) RegisterMediaTypes() {
+	for _, mt := range s.mediaTypesConfig {
+		// The last one will win if there are any duplicates.
+		mime.AddExtensionType("."+mt.Suffix, mt.Type()+"; charset=utf-8")
+	}
 }
 
 // reBuild partially rebuilds a site given the filesystem events.

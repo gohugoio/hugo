@@ -177,5 +177,3 @@ func DecodeTypes(maps ...map[string]interface{}) (Types, error) {
 
 	return m, nil
 }
-
-// TODO(bep) output mime.AddExtensionType

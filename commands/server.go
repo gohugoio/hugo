@@ -24,8 +24,6 @@ import (
 	"strings"
 	"time"
 
-	"mime"
-
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/hugo/config"
@@ -95,9 +93,6 @@ func init() {
 
 	serverCmd.RunE = server
 
-	mime.AddExtensionType(".json", "application/json; charset=utf-8")
-	mime.AddExtensionType(".css", "text/css; charset=utf-8")
-
 }
 
 func server(cmd *cobra.Command, args []string) error {
@@ -166,6 +161,10 @@ func server(cmd *cobra.Command, args []string) error {
 
 	if err := c.build(serverWatch); err != nil {
 		return err
+	}
+
+	for _, s := range Hugo.Sites {
+		s.RegisterMediaTypes()
 	}
 
 	// Watch runs its own server as part of the routine
