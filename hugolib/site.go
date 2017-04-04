@@ -1845,10 +1845,9 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 	defer bp.PutBuffer(renderBuffer)
 	renderBuffer.WriteString("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n")
 
-	err := s.renderForLayouts(name, d, renderBuffer, layouts...)
-
-	if err != nil {
-		return err
+	if err := s.renderForLayouts(name, d, renderBuffer, layouts...); err != nil {
+		helpers.DistinctWarnLog.Println(err)
+		return nil
 	}
 
 	outBuffer := bp.GetBuffer()
@@ -1875,10 +1874,9 @@ func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layou
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
-	err := s.renderForLayouts(p.Kind, p, renderBuffer, layouts...)
-
-	if err != nil {
-		return err
+	if err := s.renderForLayouts(p.Kind, p, renderBuffer, layouts...); err != nil {
+		helpers.DistinctWarnLog.Println(err)
+		return nil
 	}
 
 	outBuffer := bp.GetBuffer()
@@ -1916,46 +1914,16 @@ func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layou
 	transformer := transform.NewChain(transformLinks...)
 	transformer.Apply(outBuffer, renderBuffer, path)
 
-	if outBuffer.Len() == 0 {
-
-		s.Log.WARN.Printf("%s is rendered empty\n", dest)
-		if dest == "/" {
-			debugAddend := ""
-			if !s.Cfg.GetBool("verbose") {
-				debugAddend = "* For more debugging information, run \"hugo -v\""
-			}
-			helpers.DistinctFeedbackLog.Printf(`=============================================================
-Your rendered home page is blank: /index.html is zero-length
- * Did you specify a theme on the command-line or in your
-   %q file?  (Current theme: %q)
- %s
-=============================================================`,
-				filepath.Base(viper.ConfigFileUsed()),
-				s.Cfg.GetString("theme"),
-				debugAddend)
-		}
-
-		// Avoid writing empty files to disk.
-		return nil
-
-	}
-
-	if err = s.publish(dest, outBuffer); err != nil {
-		return err
-	}
-
-	return nil
+	return s.publish(dest, outBuffer)
 }
 
 func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) error {
 	templ := s.findFirstTemplate(layouts...)
 	if templ == nil {
-		helpers.DistinctWarnLog.Printf("[%s] Unable to locate layout for %s: %s\n", s.Language.Lang, name, layouts)
-		return nil
+		return fmt.Errorf("[%s] Unable to locate layout for %q: %s\n", s.Language.Lang, name, layouts)
 	}
 
 	if err := templ.Execute(w, d); err != nil {
-
 		// Behavior here should be dependent on if running in server or watch mode.
 		helpers.DistinctErrorLog.Printf("Error while rendering %q: %s", name, err)
 		if !s.running() && !testMode {
