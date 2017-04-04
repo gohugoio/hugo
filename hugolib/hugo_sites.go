@@ -101,6 +101,7 @@ func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 				return err
 			}
 
+			d.OutputFormatsConfig = s.outputFormatsConfig
 			s.Deps = d
 
 			if err = d.LoadResources(); err != nil {
@@ -112,6 +113,7 @@ func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 			if err != nil {
 				return err
 			}
+			d.OutputFormatsConfig = s.outputFormatsConfig
 			s.Deps = d
 		}
 
