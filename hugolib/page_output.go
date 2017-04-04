@@ -243,9 +243,8 @@ func (p *Page) AlternativeOutputFormats() (OutputFormats, error) {
 // Get gets a OutputFormat given its name, i.e. json, html etc.
 // It returns nil if not found.
 func (o OutputFormats) Get(name string) *OutputFormat {
-	name = strings.ToLower(name)
 	for _, f := range o {
-		if strings.ToLower(f.f.Name) == name {
+		if strings.EqualFold(f.f.Name, name) {
 			return f
 		}
 	}

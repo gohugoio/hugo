@@ -407,7 +407,7 @@ func (s *SiteInfo) IsMultiLingual() bool {
 	return len(s.Languages) > 1
 }
 
-func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error) {
+func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat string) (string, error) {
 	var refURL *url.URL
 	var err error
 
@@ -433,10 +433,21 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 			return "", fmt.Errorf("No page found with path or logical name \"%s\".\n", refURL.Path)
 		}
 
+		var permalinker Permalinker = target
+
+		if outputFormat != "" {
+			o := target.OutputFormats().Get(outputFormat)
+
+			if o == nil {
+				return "", fmt.Errorf("Output format %q not found for page %q", outputFormat, refURL.Path)
+			}
+			permalinker = o
+		}
+
 		if relative {
-			link = target.RelPermalink()
+			link = permalinker.RelPermalink()
 		} else {
-			link = target.Permalink()
+			link = permalinker.Permalink()
 		}
 	}
 
@@ -454,13 +465,23 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool) (string, error
 }
 
 // Ref will give an absolute URL to ref in the given Page.
-func (s *SiteInfo) Ref(ref string, page *Page) (string, error) {
-	return s.refLink(ref, page, false)
+func (s *SiteInfo) Ref(ref string, page *Page, options ...string) (string, error) {
+	outputFormat := ""
+	if len(options) > 0 {
+		outputFormat = options[0]
+	}
+
+	return s.refLink(ref, page, false, outputFormat)
 }
 
 // RelRef will give an relative URL to ref in the given Page.
-func (s *SiteInfo) RelRef(ref string, page *Page) (string, error) {
-	return s.refLink(ref, page, true)
+func (s *SiteInfo) RelRef(ref string, page *Page, options ...string) (string, error) {
+	outputFormat := ""
+	if len(options) > 0 {
+		outputFormat = options[0]
+	}
+
+	return s.refLink(ref, page, true, outputFormat)
 }
 
 // SourceRelativeLink attempts to convert any source page relative links (like [../another.md]) into absolute links
