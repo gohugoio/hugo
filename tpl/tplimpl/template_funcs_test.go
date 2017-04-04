@@ -2908,6 +2908,40 @@ func TestPartialHTMLAndText(t *testing.T) {
 
 }
 
+func TestPartialHTMLWithNoSuffix(t *testing.T) {
+	t.Parallel()
+	config := newDepsConfig(viper.New())
+
+	data := struct {
+		Name string
+	}{
+		Name: "a",
+	}
+
+	config.WithTemplate = func(templ tpl.TemplateHandler) error {
+		if err := templ.AddTemplate("htmlTemplate.html", `HTML Test Partial: {{ partial "test" . -}}`); err != nil {
+			return err
+		}
+
+		if err := templ.AddTemplate("partials/test.html", "HTML Name: {{ .Name }}"); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	de, err := deps.New(config)
+	require.NoError(t, err)
+	require.NoError(t, de.LoadResources())
+
+	templ := de.Tmpl.Lookup("htmlTemplate.html")
+	require.NotNil(t, templ)
+	resultHTML, err := templ.ExecuteToString(data)
+	require.NoError(t, err)
+
+	require.Contains(t, resultHTML, "HTML Test Partial: HTML Name: a")
+
+}
+
 func TestPartialWithError(t *testing.T) {
 	t.Parallel()
 	config := newDepsConfig(viper.New())

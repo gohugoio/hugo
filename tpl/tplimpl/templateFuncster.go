@@ -63,6 +63,10 @@ func (t *templateFuncster) partial(name string, contextList ...interface{}) (int
 
 	for _, n := range []string{"partials/" + name, "theme/partials/" + name} {
 		templ := t.Tmpl.Lookup(n)
+		if templ == nil {
+			// For legacy reasons.
+			templ = t.Tmpl.Lookup(n + ".html")
+		}
 		if templ != nil {
 			b := bp.GetBuffer()
 			defer bp.PutBuffer(b)
