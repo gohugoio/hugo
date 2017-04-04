@@ -209,7 +209,7 @@ build:
         flags: --buildDrafts=true
 ```
 
-As you can see, we have two steps in the build pipeline. The first step downloads the theme, and the second step runs arjen's hugo-build step. To use a different theme, you can replace the link to the herring-cove source with another theme's repository - just make sure the name of the folder you download the theme to (./themes/your-theme-name) matches the theme name you tell arjen/hugo-build to use (theme: your-theme-name). Now we'll test that it all works as it should by pushing up our wercker.yml file to Github and seeing the magic at work.
+As you can see, we have two steps in the build pipeline. The first step downloads the theme, and the second step runs arjen's hugo-build step. To use a different theme, you can replace the link to the herring-cove source with another theme's repository - just make sure the name of the folder you download the theme to (./themes/your-theme-name) matches the theme name you tell arjen/hugo-build to use (theme: your-theme-name). Now we'll test that it all works as it should by pushing up our wercker.yml file to GitHub and seeing the magic at work.
 
 ```bash
 git commit -a -m "Add wercker.yml"
@@ -236,7 +236,7 @@ In order to deploy to GitHub Pages we need to add a deploy pipeline.
 
 ## Adding a deploy step
 
-Next, we need to add a step to our deploy pipeline that will deploy the Hugo-built website to your Github pages repository. Once again searching through the Steps registry, we find that the most popular step is the **lukevevier/gh-pages** step so we add the configuration for that to our wercker.yml file. Additionally, we need to ensure that the box we run on has git and ssh installed. We can do this using the **install-packages** command, which then turns the wercker.yml file into this:
+Next, we need to add a step to our deploy pipeline that will deploy the Hugo-built website to your GitHub pages repository. Once again searching through the Steps registry, we find that the most popular step is the **lukevevier/gh-pages** step so we add the configuration for that to our wercker.yml file. Additionally, we need to ensure that the box we run on has git and ssh installed. We can do this using the **install-packages** command, which then turns the wercker.yml file into this:
 
 ```yaml
 box: debian
@@ -260,7 +260,7 @@ How does the GitHub Pages configuration work? We've selected a couple of things,
 
 Secondly we've configured the basedir to **public**, this is the directory that will be used as the website on GitHub Pages.
 
-And lastly, you can see here that this has a **$GIT_TOKEN** variable. This is used for pushing our changes up to GitHub and we will need to configure this before we can do that. To do this, go to your application page and click on the "Environment" tab. Under Application Environment Variables, put **$GIT_TOKEN** for the Key. Now you'll need to create an access token in GitHub. How to do that is described on a [GitHub help page](https://help.github.com/articles/creating-an-access-token-for-command-line-use/). Copy and paste the access token you generated from Github into the Value box. **Make sure you check Protected** and then hit Add. 
+And lastly, you can see here that this has a **$GIT_TOKEN** variable. This is used for pushing our changes up to GitHub and we will need to configure this before we can do that. To do this, go to your application page and click on the "Environment" tab. Under Application Environment Variables, put **$GIT_TOKEN** for the Key. Now you'll need to create an access token in GitHub. How to do that is described on a [GitHub help page](https://help.github.com/articles/creating-an-access-token-for-command-line-use/). Copy and paste the access token you generated from GitHub into the Value box. **Make sure you check Protected** and then hit Add. 
 
 ![][14]
 

@@ -60,7 +60,7 @@ You **must use govendor** to fetch Hugo's dependencies.
 
 You got your new website running and it's powered by Hugo? Great. You can add your website with a few steps to the [showcase](/showcase/).
 
-First, make sure that you created a [fork](https://help.github.com/articles/fork-a-repo/) of Hugo on Github and cloned your fork on your local computer. Next, create a separate branch for your additions:
+First, make sure that you created a [fork](https://help.github.com/articles/fork-a-repo/) of Hugo on GitHub and cloned your fork on your local computer. Next, create a separate branch for your additions:
 
 ```
 # You can choose a different descriptive branch name if you like
