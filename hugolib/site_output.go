@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/hugo/output"
 )
 
-func createSiteOutputFormats(cfg config.Provider) (map[string]output.Formats, error) {
+func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (map[string]output.Formats, error) {
 	if !cfg.IsSet("outputs") {
 		return createDefaultOutputFormats(cfg)
 	}
@@ -40,7 +40,7 @@ func createSiteOutputFormats(cfg config.Provider) (map[string]output.Formats, er
 		var formats output.Formats
 		vals := cast.ToStringSlice(v)
 		for _, format := range vals {
-			f, found := output.DefaultFormats.GetByName(format)
+			f, found := allFormats.GetByName(format)
 			if !found {
 				return nil, fmt.Errorf("Failed to resolve output format %q from site config", format)
 			}

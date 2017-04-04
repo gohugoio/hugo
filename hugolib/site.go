@@ -26,6 +26,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/spf13/hugo/config"
+
+	"github.com/spf13/hugo/media"
+
 	"github.com/bep/inflect"
 
 	"sync/atomic"
@@ -107,6 +111,12 @@ type Site struct {
 	// Output formats defined in Page front matter will override these.
 	outputFormats map[string]output.Formats
 
+	// All the output formats and media types available for this site.
+	// These values will be merged from the Hugo defaults, the site config and,
+	// finally, the language settings.
+	outputFormatsConfig output.Formats
+	mediaTypesConfig    media.Types
+
 	// Logger etc.
 	*deps.Deps `json:"-"`
 
@@ -128,12 +138,14 @@ func (s *Site) isEnabled(kind string) bool {
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
 	return &Site{Deps: s.Deps,
-		layoutHandler:   output.NewLayoutHandler(s.PathSpec.ThemeSet()),
-		disabledKinds:   s.disabledKinds,
-		outputFormats:   s.outputFormats,
-		Language:        s.Language,
-		owner:           s.owner,
-		PageCollections: newPageCollections()}
+		layoutHandler:       output.NewLayoutHandler(s.PathSpec.ThemeSet()),
+		disabledKinds:       s.disabledKinds,
+		outputFormats:       s.outputFormats,
+		outputFormatsConfig: s.outputFormatsConfig,
+		mediaTypesConfig:    s.mediaTypesConfig,
+		Language:            s.Language,
+		owner:               s.owner,
+		PageCollections:     newPageCollections()}
 }
 
 // newSite creates a new site with the given configuration.
@@ -149,18 +161,48 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		disabledKinds[disabled] = true
 	}
 
-	outputFormats, err := createSiteOutputFormats(cfg.Language)
+	var (
+		mediaTypesConfig    []map[string]interface{}
+		outputFormatsConfig []map[string]interface{}
 
+		siteOutputFormatsConfig output.Formats
+		siteMediaTypesConfig    media.Types
+		err                     error
+	)
+
+	// Add language last, if set, so it gets precedence.
+	for _, cfg := range []config.Provider{cfg.Cfg, cfg.Language} {
+		if cfg.IsSet("mediaTypes") {
+			mediaTypesConfig = append(mediaTypesConfig, cfg.GetStringMap("mediaTypes"))
+		}
+		if cfg.IsSet("outputFormats") {
+			outputFormatsConfig = append(outputFormatsConfig, cfg.GetStringMap("outputFormats"))
+		}
+	}
+
+	siteMediaTypesConfig, err = media.DecodeTypes(mediaTypesConfig...)
+	if err != nil {
+		return nil, err
+	}
+
+	siteOutputFormatsConfig, err = output.DecodeFormats(siteMediaTypesConfig, outputFormatsConfig...)
+	if err != nil {
+		return nil, err
+	}
+
+	outputFormats, err := createSiteOutputFormats(siteOutputFormatsConfig, cfg.Language)
 	if err != nil {
 		return nil, err
 	}
 
 	s := &Site{
-		PageCollections: c,
-		layoutHandler:   output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""),
-		Language:        cfg.Language,
-		disabledKinds:   disabledKinds,
-		outputFormats:   outputFormats,
+		PageCollections:     c,
+		layoutHandler:       output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""),
+		Language:            cfg.Language,
+		disabledKinds:       disabledKinds,
+		outputFormats:       outputFormats,
+		outputFormatsConfig: siteOutputFormatsConfig,
+		mediaTypesConfig:    siteMediaTypesConfig,
 	}
 
 	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
