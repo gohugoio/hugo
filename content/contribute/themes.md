@@ -48,7 +48,7 @@ In order to add your theme to the Hugo Themes Showcase, the following requiremen
 1. `theme.toml` with all required fields
 2. Images for thumbnail and screenshot
 3. A good README file instructions for users
-4. Added to the hugoThemes GitHub repository
+4. Addition to the hugoThemes GitHub repository
 
 ### Add Your Theme to the Repo
 

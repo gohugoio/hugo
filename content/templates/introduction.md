@@ -14,14 +14,14 @@ menu:
     weight: 10
 weight: 10	#rem
 draft: false
-aliases: [/templates/introduction/,/layouts/introduction/,/layout/introduction/]
+aliases: [/templates/introduction/,/layouts/introduction/,/layout/introduction/, /templates/go-templates/]
 toc: true
 ---
 
 Hugo uses the excellent [Go html/template][gohtmltemplate] library, an extremely lightweight engine that provides just the right amount of logic to be able to create any style of static website. If you have used other template systems from different languages or frameworks, you will find a lot of similarities in Go templates.
 
-{{% note "Go Deep with the Go Docs" %}}
-This is only a primer. For an in-depth look into Go templates, check the official [Go docs](http://golang.org/pkg/html/template/).
+{{% note %}}
+The following is only a primer on Go templates. For an in-depth look into Go templates, check the official [Go docs](http://golang.org/pkg/html/template/).
 {{% /note %}}
 
 ## Introduction to Go Templates
