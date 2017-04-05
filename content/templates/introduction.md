@@ -12,7 +12,8 @@ menu:
   main:
     parent: "Templates"
     weight: 10
-weight: 10	#rem
+weight: 10
+sections_weight: 10
 draft: false
 aliases: [/templates/introduction/,/layouts/introduction/,/layout/introduction/, /templates/go-templates/]
 toc: true

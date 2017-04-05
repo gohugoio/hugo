@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Contribute"
     weight: 20
-weight: 20	#rem
+weight: 20
+sections_weight: 20
 draft: false
 aliases: [/contribute/docs/]
 toc: true

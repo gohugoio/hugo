@@ -12,7 +12,8 @@ menu:
   main:
     parent: "Themes"
     weight: 40
-weight: 40	#rem
+weight: 40
+sections_weight: 40
 draft: false
 aliases: []
 toc: false

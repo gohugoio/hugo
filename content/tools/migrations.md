@@ -10,7 +10,8 @@ menu:
   main:
     parent: "Tools"
     weight: 10
-weight: 10	#rem
+weight: 10
+sections_weight: 10
 draft: false
 aliases: [/developer-tools/migrations/,/developer-tools/migrated/]
 toc: true

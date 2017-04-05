@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Templates"
     weight: 165
-weight: 165	#rem
+weight: 165
+sections_weight: 165
 draft: false
 aliases: [/extras/robots-txt/]
 toc: false

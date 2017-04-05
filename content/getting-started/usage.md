@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Getting Started"
     weight: 40
-weight: 40	#rem
+weight: 40
+sections_weight: 40
 draft: false
 aliases: [/overview/usage/,/extras/livereload/,/doc/usage/,/usage/]
 toc: true

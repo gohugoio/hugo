@@ -12,7 +12,8 @@ menu:
   main:
     parent: "Templates"
     weight: 15
-weight: 15	#rem
+weight: 15
+sections_weight: 15
 draft: false
 aliases: [/templates/lookup/]
 toc: true

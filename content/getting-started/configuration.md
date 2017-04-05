@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Getting Started"
     weight: 60
-weight: 60	#rem
+weight: 60
+sections_weight: 60
 draft: false
 aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true

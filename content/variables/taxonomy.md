@@ -12,10 +12,10 @@ menu:
   main:
     parent: "Variables"
     weight: 30
-weight: 30	#rem
+weight: 30
+sections_weight: 30
 aliases: []
 toc: true
-wip: false
 ---
 
 ## Taxonomy Terms Page Variables

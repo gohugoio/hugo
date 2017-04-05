@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Templates"
     weight: 30
-weight: 30	#rem
+weight: 30
+sections_weight: 30
 draft: false
 aliases: [/layout/homepage/,/templates/homepage-template/]
 toc: false

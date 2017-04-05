@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Templates"
     weight: 27
-weight: 27	#rem
+weight: 27
+sections_weight: 27
 draft: true
 aliases: [/templates/ordering/,/templates/grouping/]
 toc: true

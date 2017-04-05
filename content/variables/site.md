@@ -12,7 +12,8 @@ menu:
   main:
     parent: "Variables"
     weight: 10
-weight: 10	#rem
+weight: 10
+sections_weight: 10
 aliases: [/variables/site-variables/]
 toc: true
 ---

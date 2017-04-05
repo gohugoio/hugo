@@ -12,7 +12,8 @@ menu:
   main:
     parent: "Variables"
     weight: 70
-weight: 70	#rem
+weight: 70
+sections_weight: 70
 aliases: [/extras/gitinfo/]
 toc: false
 wip: false

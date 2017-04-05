@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Templates"
     weight: 150
-weight: 150	#rem
+weight: 150
+sections_weight: 150
 draft: false
 aliases: [/templates/rss/]
 toc: true

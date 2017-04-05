@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Templates"
     weight: 50
-weight: 50	#rem
+weight: 50
+sections_weight: 50
 draft: false
 aliases: [/taxonomies/displaying/,/templates/terms/,/indexes/displaying/,/taxonomies/templates/,/indexes/ordering/, /templates/taxonomies/, /templates/taxonomy/]
 toc: true

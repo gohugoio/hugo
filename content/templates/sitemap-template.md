@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Templates"
     weight: 160
-weight: 160	#rem
+weight: 160
+sections_weight: 160
 draft: false
 aliases: [/layout/sitemap/,/templates/sitemap/]
 toc: false

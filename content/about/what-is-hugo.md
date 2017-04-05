@@ -10,7 +10,8 @@ menu:
   main:
     parent: "About Hugo"
     weight: 10
-weight: 10	#rem
+weight: 10
+sections_weight: 10
 draft: false
 aliases: [/overview/introduction/,/about/why-i-built-hugo/]
 toc: true

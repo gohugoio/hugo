@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Tools"
     weight: 01
-weight: 01	#rem
+weight: 01
+sections_weight: 01
 draft: false
 aliases: [/tools/]
 ---

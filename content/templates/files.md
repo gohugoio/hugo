@@ -12,7 +12,8 @@ menu:
   main:
     parent: "Templates"
     weight: 110
-weight: 110	#rem
+weight: 110
+sections_weight: 110
 draft: false
 aliases: [/extras/localfiles/,/templates/local-files/]
 toc: true

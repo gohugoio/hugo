@@ -12,7 +12,8 @@ menu:
   main:
     parent: "Getting Started"
     weight: 30
-weight: 30	#rem
+weight: 30
+sections_weight: 30
 draft: false
 aliases: [/tutorials/installing-on-windows/,/tutorials/installing-on-mac/,/overview/installing/,/getting-started/install,/install/]
 toc: true

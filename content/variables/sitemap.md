@@ -12,7 +12,8 @@ menu:
   main:
     parent: "Variables"
     weight: 80
-weight: 80	#rem
+weight: 80
+sections_weight: 80
 aliases: []
 toc: false
 ---

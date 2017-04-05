@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Templates"
     weight: 22
-weight: 22	#rem
+weight: 22
+sections_weight: 22
 draft: false
 aliases: [/templates/list/,/layout/indexes/]
 toc: true

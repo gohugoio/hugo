@@ -12,7 +12,8 @@ menu:
   main:
     parent: "Getting Started"
     weight: 10
-weight: 10	#rem
+weight: 10
+sections_weight: 10
 draft: false
 aliases: [/overview/quickstart/]
 toc: true

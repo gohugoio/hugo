@@ -11,7 +11,8 @@ menu:
   main:
     parent: "Templates"
     weight: 100
-weight: 100	#rem
+weight: 100
+sections_weight: 100
 draft: false
 aliases: []
 toc: true

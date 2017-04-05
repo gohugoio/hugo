@@ -12,7 +12,8 @@ menu:
   main:
     parent: "Variables"
     weight: 01
-weight: 01	#rem
+weight: 01
+sections_weight: 01
 aliases: [/templates/variables/]
 toc: false
 ---
