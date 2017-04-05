@@ -9,29 +9,45 @@ title: Block Templates
 weight: 80
 ---
 
-Go 1.6 includes a powerful new keyword, `block`. This construct allows you to define the outer shell of your pages one or more master template(s), filling in or overriding portions as necessary.
+The `block` keyword in Go templates allows you to define the outer shell of your pages one or more master template(s), filling in or overriding portions as necessary.
 
 ## Base template lookup
-This is the order Hugo searches for a base template:
 
-1. /layouts/_current-path_/_template-name_-baseof.html, e.g. list-baseof.html.
-2. /layouts/_current-path_/baseof.html
-3. /layouts/_default/_template-name_-baseof.html e.g. list-baseof.html.
-4. /layouts/_default/baseof.html
+In version `0.20` Hugo introduced custom [Output Formats]({{< relref "extras/output-formats.md" >}}), all of which can have their own templates that also can use a base template if needed.
+
+This introduced two new terms relevant in the lookup of the templates, the media type's `Suffix` and the output format's `Name`. 
+
+Given the above, Hugo tries to use the most specific base tamplate it finds:
+
+1. /layouts/_current-path_/_template-name_-baseof.[output-format].[suffix], e.g. list-baseof.amp.html.
+1. /layouts/_current-path_/_template-name_-baseof.[suffix], e.g. list-baseof.html.
+2. /layouts/_current-path_/baseof.[output-format].[suffix], e.g baseof.amp.html
+2. /layouts/_current-path_/baseof.[suffix], e.g baseof.html
+3. /layouts/_default/_template-name_-baseof.[output-format].[suffix] e.g. list-baseof.amp.html.
+3. /layouts/_default/_template-name_-baseof.[suffix], e.g. list-baseof.html.
+4. /layouts/_default/baseof.[output-format].[suffix]
+4. /layouts/_default/baseof.[suffix]
 
 For each of the steps above, it will first look in the project, then, if theme is set, in the theme's layouts folder. Hugo picks the first base template found.
 
-As an example, with a site using the theme `exampletheme`, when rendering the section list for the section `post`. Hugo picks the `section/post.html` as the template and this template has a `define` section that indicates it needs a base template. This is then the lookup order:
+As an example, with a site using the theme `exampletheme`, when rendering the section list for the section `post` for the output format `Calendar`. Hugo picks the `section/post.calendar.ics` as the template and this template has a `define` section that indicates it needs a base template. This is then the lookup order:
 
-1. `/layouts/section/post-baseof.html`
-2.  `/themes/exampletheme/layouts/section/post-baseof.html`
-3.  `/layouts/section/baseof.html`
-4. `/themes/exampletheme/layouts/section/baseof.html`
-5.  `/layouts/_default/post-baseof.html`
-6.  `/themes/exampletheme/layouts/_default/post-baseof.html`
-7.   `/layouts/_default/baseof.html`
-8. `/themes/exampletheme/layouts/_default/baseof.html`
-
+1. `/layouts/section/post-baseof.calendar.ics`
+1. `/layouts/section/post-baseof.ics`
+2.  `/themes/exampletheme/layouts/section/post-baseof.calendar.ics`
+2.  `/themes/exampletheme/layouts/section/post-baseof.ics`
+3.  `/layouts/section/baseof.calendar.ics`
+3.  `/layouts/section/baseof.ics`
+4. `/themes/exampletheme/layouts/section/baseof.calendar.ics`
+4. `/themes/exampletheme/layouts/section/baseof.ics`
+5.  `/layouts/_default/post-baseof.calendar.ics`
+5.  `/layouts/_default/post-baseof.ics`
+6.  `/themes/exampletheme/layouts/_default/post-baseof.calendar.ics`
+6.  `/themes/exampletheme/layouts/_default/post-baseof.ics`
+7.   `/layouts/_default/baseof.calendar.ics`
+7.   `/layouts/_default/baseof.ics`
+8. `/themes/exampletheme/layouts/_default/baseof.calendar.ics`
+8. `/themes/exampletheme/layouts/_default/baseof.ics`
 
 
 ## Define the base template
