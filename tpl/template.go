@@ -88,7 +88,7 @@ func (t *TemplateAdapter) Tree() string {
 		panic("Unknown template")
 	}
 
-	if tree.Root == nil {
+	if tree == nil || tree.Root == nil {
 		return ""
 	}
 	s := tree.Root.String()
