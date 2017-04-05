@@ -21,7 +21,7 @@ Hugo provides the ability for you to highlight source code in _two different way
 
 ## Server-side
 
-For the pre-processed approach, highlighting is performed by an external Python-based program called [Pygments](http://pygments.org/) and is triggered via an embedded Hugo shortcode (see [example](#example-highlight-shortcode-input) below). If Pygments is absent from the path, it will silently simply pass the content along withou highlighting.
+For the pre-processed approach, highlighting is performed by an external Python-based program called [Pygments](http://pygments.org/) and is triggered via an embedded Hugo shortcode (see [example](#example-highlight-shortcode-input) below). If Pygments is absent from the path, it will silently simply pass the content along without highlighting.
 
 ### Server-side Advantages
 
@@ -43,7 +43,7 @@ Hugo gives you two options that you can set with the variable `pygmentsuseclasse
 
 ### Server-side Usage
 
-Highlighting is carried out via the [built-in shortcode](/content-management/shortcodes/) `highlight`. `highlight` takes exactly one required parameter for the programming language to be highlighted and requires a closing shortcode. Note that `highlight` is _not_ used for client-side javascript highlighting.
+Highlighting is carried out via the [built-in shortcode](/content-management/shortcodes/) `highlight`. `highlight` takes exactly one required parameter for the programming language to be highlighted and requires a closing shortcode. Note that `highlight` is *not* used for client-side javascript highlighting.
 
 ### Example `highlight` Shortcode Input
 
