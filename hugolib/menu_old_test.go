@@ -46,6 +46,7 @@ const (
     name = "ext"
     url = "http://gohugo.io"
 	identifier = "ext"
+	newTab = true
 [[menu.main]]
     name = "ext2"
     url = "http://foo.local/Zoo/foo"
@@ -182,6 +183,23 @@ menu:
       name: "somename"
 ---
 Front Matter with Menu with Identifier`, title, menu, identifier))
+}
+
+func TestConfigMenuWithNewTab(t *testing.T) {
+	t.Parallel()
+	s := setupMenuTests(t, menuPageSources)
+
+	extTargets := 0
+
+	for _, menuItem := range *s.Menus["main"] {
+		if menuItem.NewTab {
+			extTargets = extTargets + 1
+		}
+	}
+
+	if extTargets != 1 {
+		t.Fatalf("Menu items designated to open in a new tab aren't being read correctly, expected 1 got %d", extTargets)
+	}
 }
 
 // Issue 817 - identifier should trump everything
