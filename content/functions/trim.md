@@ -28,10 +28,15 @@ deprecated: false
 {{ trim .Inner}}
 ```
 
-Instead, the following example tells `trim` to remove extra new lines from the content contained in the `.Inner`, which has specific usage with [shortcodes](/templates/shortcode-templates/):
+Instead, the following example tells `trim` to remove extra new lines from the content contained in the [shortcode `.Inner` variable][shortcodevars]:
 
 ```
 {{ trim .Inner "\n" }}
 ```
 
+{{% note %}}
 Go templates also provide a simple [method for trimming whitespace](/templates/introduction/#whitespace) from either side of a Go tag by including a hyphen (`-`).
+{{% /note %}}
+
+
+[shortcodevars]: /variables/shortcodes/
