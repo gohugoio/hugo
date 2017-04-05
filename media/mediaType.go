@@ -14,6 +14,7 @@
 package media
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -176,4 +177,17 @@ func DecodeTypes(maps ...map[string]interface{}) (Types, error) {
 	sort.Sort(m)
 
 	return m, nil
+}
+
+func (t Type) MarshalJSON() ([]byte, error) {
+	type Alias Type
+	return json.Marshal(&struct {
+		Type   string
+		String string
+		Alias
+	}{
+		Type:   t.Type(),
+		String: t.String(),
+		Alias:  (Alias)(t),
+	})
 }

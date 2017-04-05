@@ -14,6 +14,7 @@
 package output
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -299,6 +300,17 @@ func decode(mediaTypes media.Types, input, output interface{}) error {
 	return decoder.Decode(input)
 }
 
-func (t Format) BaseFilename() string {
-	return t.BaseName + "." + t.MediaType.Suffix
+func (f Format) BaseFilename() string {
+	return f.BaseName + "." + f.MediaType.Suffix
+}
+
+func (f Format) MarshalJSON() ([]byte, error) {
+	type Alias Format
+	return json.Marshal(&struct {
+		MediaType string
+		Alias
+	}{
+		MediaType: f.MediaType.String(),
+		Alias:     (Alias)(f),
+	})
 }
