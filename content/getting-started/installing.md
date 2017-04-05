@@ -65,25 +65,27 @@ choco install hugo -confirm
 
 * [Git][installgit]
 * [Go 1.5+][installgo]
+* [govendor][]
 
-#### Get Hugo Directly From GitHub
+#### Vendored Dependencies
+
+Hugo uses [govendor][] to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository. Therefore, a simple `go get` is *not* supported because the command is not vendor aware. *You must use `govendor` to fetch Hugo's dependencies.*
+
+#### Fetching from GitHub
 
 {{% code file="from-gh.sh" %}}
 ```sh
-export GOPATH=$HOME/go
-go get -v github.com/spf13/hugo
+go get github.com/kardianos/govendor
+govendor get github.com/spf13/hugo
+go install github.com/spf13/hugo
 ```
 {{% /code %}}
 
-`go get` will then fetch Hugo and all its dependent libraries to your `$GOPATH/src` directory, and compile everything into the final `hugo` (or `hugo.exe`) executable, which you will find sitting in the `$GOPATH/bin/` directory, all ready to go!
+`govendor get` will fetch Hugo and all its dependent libraries to `$GOPATH/src/github.com/spf13/hugo`, and `go install` compiles everything into a final `hugo` (or `hugo.exe`) executable inside `$GOPATH/bin/`.
 
-You may run `go get` with the `-u` option to update Hugo's dependencies:
-
-{{% code file="from-gh-update-deps.sh" %}}
-```sh
-go get -u -v github.com/spf13/hugo
-```
-{{% /code %}}
+{{% note %}}
+If you are a Windows user, substitute the `$HOME` environment variable above with `%USERPROFILE%`.
+{{% /note %}}
 
 ## <i class="icon-apple"></i>macOS
 
@@ -91,7 +93,7 @@ go get -u -v github.com/spf13/hugo
 
 1. You know how to open the macOS terminal.
 2. You're running a modern 64-bit Mac.
-3. You will use `~/Sites` as the starting point for your site.
+3. You will use `~/Sites` as the starting point for your site. (`~/Sites` is used for example purposes. If you are familiar enough with the command line and file system, you should have no issues following along with the instructions.)
 
 ### Pick Your Method
 
@@ -186,7 +188,7 @@ When installing from the tarball, you have to decide if you're going to install 
 
 2. Install it in `~/bin` so that only you can execute it. This is a good idea because it's easy to do, easy to maintain, and doesn't require elevated privileges. The downside is that only you can run Hugo. If there are other users on your site, they have to maintain their own copies. That can lead to people running different versions. Of course, this does make it easier for you to experiment with different releases.
 
-3. Install it in your `sites` directory. This is not a bad idea if you have only one site that you're building. It keeps every thing in a single place. If you want to try out new releases, you can make a copy of the entire site and update the Hugo executable.
+3. Install it in your `Sites` directory. This is not a bad idea if you have only one site that you're building. It keeps every thing in a single place. If you want to try out new releases, you can make a copy of the entire site and update the Hugo executable.
 
 All three locations will work for you. In the interest of brevity, this guide focuses on option #2.
 
@@ -488,6 +490,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [content]: /content-management/
 [@dhersam]: https://github.com/dhersam
 [forum]: https://discuss.gohugo.io
+[govendor]: https://github.com/kardianos/govendor
 [highlight shortcode]: /content-management/shortcodes/#highlight
 [installgit]: http://git-scm.com/
 [installgo]: https://golang.org/dl/

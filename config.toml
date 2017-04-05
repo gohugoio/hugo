@@ -30,7 +30,7 @@ relativeURLs = true
 stepAnalysis = true
 # This is the top-level, global site title
 title = "Hugo"
-# Change this once you've created your theme
+# Change this to your preferred theme
 theme = "hugo-docs-concept"
 # Set to true to convert mysite/section/ to mysite/section.html
 uglyURLs = false
@@ -49,7 +49,7 @@ googleAnalytics = "UA-76549364-1"
   ## Used for views in rendered HTML (i.e., rather than using the .Hugo variable)
   release = "0.20"
   ## Critical Render Path. If true, site style will be embedded in a <style> tag in each html <head> as part of Gulp Build. False puts a typical <link> to the stylesheet in <head> See layouts/partials/style-embed.html
-  usecrp = true
+  usecrp = false
   ## Twitter handle without the "@"
   twitterhandle = "GoHugoIO"
   ## Facebook URL

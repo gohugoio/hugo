@@ -22,9 +22,14 @@ wip: true
 Hugo currently doesn’t ship with a “default” theme. This decision is intentional. We leave it up to you to decide which theme best suits your Hugo project.
 {{% /note %}}
 
+## Assumptions
+
+1. You have already [installed Hugo on your development machine][install].
+2. You have git installed on your machine and you are familiar with basic git usage.
+
 ## Installing Themes
 
-The community-contributed themes featured at [themes.gohugo.io](//themes.gohugo.io/), are hosted in a [centralized GitHub repository][themesrepo]. The Hugo Themes Repo at <https://github.com/spf13/hugoThemes> is really a meta repository that contains pointers to a set of contributed themes.
+The community-contributed themes featured on [themes.gohugo.io](//themes.gohugo.io/) are hosted in a [centralized GitHub repository][themesrepo]. The Hugo Themes Repo at <https://github.com/spf13/hugoThemes> is really a meta repository that contains pointers to a set of contributed themes.
 
 {{% warning "Get `git` First" %}}
 Without [Git](https://git-scm.com/) installed on your computer, none of the following theme instructions will work. Git tutorials are beyond the scope of the Hugo docs, but [GitHub](https://try.github.io/) and [codecademy](https://www.codecademy.com/learn/learn-git) offer free, interactive courses for beginners.
@@ -103,5 +108,6 @@ The `themename` in the above examples must match the name of the specific theme 
 
 [customizethemes]: /themes/customizing/
 [flag]: /getting-started/usage/ "See the full list of flags in Hugo's basic usage."
+[install]: /getting-started/installing/
 [config]: /getting-started/configuration/  "Learn how to customize your Hugo website configuration file in yaml, toml, or json."
 [themesrepo]: https://github.com/spf13/hugoThemes
