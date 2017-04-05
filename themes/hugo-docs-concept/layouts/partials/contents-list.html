@@ -1,5 +1,5 @@
 {{$kind := .Kind}}
-	<div class="all-contents">
+<div class="all-contents">
 {{range .Data.Pages}}
 <!-- if statement checks for sitelink. sitelink: is a field in front matter of /content/showcase/*.md) -->
 	<a {{with .Params.sitelink }}href="{{.}} "target="_blank"{{else}}href="{{.Permalink}}"{{end}}>
