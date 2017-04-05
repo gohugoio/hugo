@@ -77,7 +77,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 | [<span lang="ja">Hugoでブログをつくった</span>](http://porgy13.github.io/post/new-hugo-blog/) | porgy13 | 2015-02-07 |
 | [<span lang="ja">Hugoにブログを移行した</span>](http://keichi.net/post/first/) | Keichi Takahashi | 2015-02-04 |
 | [<span lang="zh-CN">Hugo静态网站生成器中文教程</span>](http://nanshu.wang/post/2015-01-31/) | Nanshu Wang | 2015-01-31 |
-| [<span lang="ja">Hugo + Github Pages + Wercker CI = ¥0（無料）<br>でコマンド 1 発（自動化）でサイト<br>・ブログを公開・運営・分析・収益化</span>](http://qiita.com/yoheimuta/items/8a619cac356bed89a4c9) | Yohei Yoshimuta | 2015-01-31 |
+| [<span lang="ja">Hugo + GitHub Pages + Wercker CI = ¥0（無料）<br>でコマンド 1 発（自動化）でサイト<br>・ブログを公開・運営・分析・収益化</span>](http://qiita.com/yoheimuta/items/8a619cac356bed89a4c9) | Yohei Yoshimuta | 2015-01-31 |
 | [Running Hugo websites on anynines](http://blog.anynines.com/running-hugo-websites-on-anynines/) | Julian Weber | 2015-01-30 |
 | [MiddlemanからHugoへ移行した](http://re-dzine.net/2015/01/hugo/) | Haruki Konishi | 2015-01-21 |
 | [WordPress から Hugo に乗り換えました](http://rakuishi.com/archives/wordpress-to-hugo/)  | rakuishi | 2015-01-20 |

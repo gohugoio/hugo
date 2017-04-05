@@ -79,12 +79,12 @@ The Hugo community and maintainers are [very active](https://github.com/spf13/hu
 ### Asking Support Questions
 
 We have an active [discussion forum](http://discuss.gohugo.io) where users and developers can ask questions.
-Please don't use the Github issue tracker to ask questions.
+Please don't use the GitHub issue tracker to ask questions.
 
 ### Reporting Issues
 
 If you believe you have found a defect in Hugo or its documentation, use
-the Github issue tracker to report the problem to the Hugo maintainers.
+the GitHub issue tracker to report the problem to the Hugo maintainers.
 If you're not sure if it's a bug or not, start by asking in the [discussion forum](http://discuss.gohugo.io).
 When reporting the issue, please provide the version of Hugo in use (`hugo version`).
 
