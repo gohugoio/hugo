@@ -4,7 +4,7 @@ linktitle:
 description: The primary view of content in Hugo is the single view. Hugo will render every Markdown file provided with a corresponding single template.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2017-04-06
 categories: [templates]
 tags: [page]
 menu:
