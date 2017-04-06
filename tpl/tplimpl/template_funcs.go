@@ -1392,7 +1392,8 @@ func (t *templateFuncster) markdownify(in interface{}) (template.HTML, error) {
 
 	m := t.ContentSpec.RenderBytes(&helpers.RenderingContext{
 		Cfg:     t.Cfg,
-		Content: []byte(text), PageFmt: "markdown"})
+		Content: []byte(text), PageFmt: "markdown",
+		Config: t.ContentSpec.NewBlackfriday()})
 	m = bytes.TrimPrefix(m, markdownTrimPrefix)
 	m = bytes.TrimSuffix(m, markdownTrimSuffix)
 	return template.HTML(m), nil
