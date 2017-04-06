@@ -637,7 +637,7 @@ type whatChanged struct {
 func (s *Site) RegisterMediaTypes() {
 	for _, mt := range s.mediaTypesConfig {
 		// The last one will win if there are any duplicates.
-		mime.AddExtensionType("."+mt.Suffix, mt.Type()+"; charset=utf-8")
+		_ = mime.AddExtensionType("."+mt.Suffix, mt.Type()+"; charset=utf-8")
 	}
 }
 
@@ -709,7 +709,9 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 	}
 
 	if len(dataChanged) > 0 {
-		s.readDataFromSourceFS()
+		if err := s.readDataFromSourceFS(); err != nil {
+			s.Log.ERROR.Println(err)
+		}
 	}
 
 	// If a content file changes, we need to reload only it and re-render the entire site.
@@ -1895,7 +1897,10 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 		path = []byte(s)
 	}
 	transformer := transform.NewChain(transform.AbsURLInXML)
-	transformer.Apply(outBuffer, renderBuffer, path)
+	if err := transformer.Apply(outBuffer, renderBuffer, path); err != nil {
+		helpers.DistinctErrorLog.Println(err)
+		return nil
+	}
 
 	return s.publish(dest, outBuffer)
 
@@ -1943,7 +1948,10 @@ func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layou
 	}
 
 	transformer := transform.NewChain(transformLinks...)
-	transformer.Apply(outBuffer, renderBuffer, path)
+	if err := transformer.Apply(outBuffer, renderBuffer, path); err != nil {
+		helpers.DistinctErrorLog.Println(err)
+		return nil
+	}
 
 	return s.publish(dest, outBuffer)
 }
