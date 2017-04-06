@@ -134,7 +134,7 @@ func (t Types) GetBySuffix(suffix string) (tp Type, found bool) {
 }
 
 // DecodeTypes takes a list of media type configurations and merges those,
-// in ther order given, with the Hugo defaults as the last resort.
+// in the order given, with the Hugo defaults as the last resort.
 func DecodeTypes(maps ...map[string]interface{}) (Types, error) {
 	m := make(Types, len(DefaultTypes))
 	copy(m, DefaultTypes)
