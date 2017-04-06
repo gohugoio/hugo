@@ -135,7 +135,7 @@ The above also uses the [`i18n` function][i18func] described in the next section
 
 Hugo uses [go-i18n][] to support string translations. [See the project's source repository][go-i18n-source] to find tools that will help you manage your translation workflows.
 
-Translations are collected from the `themes/<THEME>/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project. In the `i18n`, the translations will be merged and take precedence over what is in the theme folder. Language files should be named according to [RFC 5646][] with names such as `en-US.yaml`, `fr.yaml`, etc.
+Translations are collected from the `themes/<THEME>/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project. In the `i18n`, the translations will be merged and take precedence over what is in the theme folder. Language files should be named according to [RFC 5646][] with names such as `en-US.toml`, `fr.toml`, etc.
 
 From within your templates, use the `i18n` function like this:
 
@@ -143,11 +143,11 @@ From within your templates, use the `i18n` function like this:
 {{ i18n "home" }}
 ```
 
-This uses a definition like this one in `i18n/en-US.yaml`:
+This uses a definition like this one in `i18n/en-US.toml`:
 
 ```
-- id: home
-  translation: "Home"
+[home]
+other = "Home"
 ```
 
 Often you will want to use to the page variables in the translations strings. To do that, pass on the "." context when calling `i18n`:
@@ -156,19 +156,18 @@ Often you will want to use to the page variables in the translations strings. To
 {{ i18n "wordCount" . }}
 ```
 
-This uses a definition like this one in `i18n/en-US.yaml`:
+This uses a definition like this one in `i18n/en-US.toml`:
 
 ```
-- id: wordCount
-  translation: "This article has {{ .WordCount }} words."
+[wordCount]
+other = "This article has {{ .WordCount }} words."
 ```
 An example of singular and plural form:
 
 ```
-- id: readingTime
-  translation:
-    one: "One minute read"
-    other: "{{.Count}} minutes read"
+[readingTime]
+one = "One minute read"
+other = "{{.Count}} minutes read"
 ```
 And then in the template:
 
@@ -186,7 +185,7 @@ i18n|MISSING_TRANSLATION|en|wordCount
 
 At the time of this writing, Golang does not yet have support for internationalized locales, but if you do some work, you can simulate it. For example, if you want to use French month names, you can add a data file like ``data/mois.yaml`` with this content:
 
-~~~toml
+~~~yaml
 1: "janvier"
 2: "février"
 3: "mars"
