@@ -43,7 +43,9 @@ in the "man" directory under the current directory.`,
 		}
 		if found, _ := helpers.Exists(genmandir, hugofs.Os); !found {
 			jww.FEEDBACK.Println("Directory", genmandir, "does not exist, creating...")
-			hugofs.Os.MkdirAll(genmandir, 0777)
+			if err := hugofs.Os.MkdirAll(genmandir, 0777); err != nil {
+				return err
+			}
 		}
 		cmd.Root().DisableAutoGenTag = true
 

@@ -551,7 +551,9 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 					p.Content = helpers.BytesToHTML(workContentCopy)
 
 					if summaryContent == nil {
-						p.setAutoSummary()
+						if err := p.setAutoSummary(); err != nil {
+							s.Log.ERROR.Printf("Failed to set user auto summary for page %q: %s", p.pathOrTitle(), err)
+						}
 					}
 
 				} else {

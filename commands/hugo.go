@@ -211,7 +211,7 @@ func initRootPersistentFlags() {
 
 	// Set bash-completion
 	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
-	HugoCmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
+	_ = HugoCmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
 }
 
 // initHugoBuildCommonFlags initialize common flags related to the Hugo build.
@@ -249,10 +249,10 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 
 	// Set bash-completion.
 	// Each flag must first be defined before using the SetAnnotation() call.
-	cmd.Flags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
-	cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
-	cmd.Flags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
-	cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
+	_ = cmd.Flags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	_ = cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
+	_ = cmd.Flags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
+	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 }
 
 func initBenchmarkBuildingFlags(cmd *cobra.Command) {
@@ -274,7 +274,7 @@ func init() {
 	hugoCmdV = HugoCmd
 
 	// Set bash-completion
-	HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
+	_ = HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
@@ -384,7 +384,9 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 		config.Set("cacheDir", helpers.GetTempDir("hugo_cache", fs.Source))
 	}
 
-	c.initFs(fs)
+	if err := c.initFs(fs); err != nil {
+		return nil, err
+	}
 
 	cfg.Logger.INFO.Println("Using config file:", viper.ConfigFileUsed())
 
@@ -682,17 +684,18 @@ func (c *commandeer) getDirList() []string {
 		return nil
 	}
 
-	helpers.SymbolicWalk(c.Fs.Source, dataDir, walker)
-	helpers.SymbolicWalk(c.Fs.Source, c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")), walker)
-	helpers.SymbolicWalk(c.Fs.Source, i18nDir, walker)
-	helpers.SymbolicWalk(c.Fs.Source, c.PathSpec().AbsPathify(c.Cfg.GetString("layoutDir")), walker)
+	// SymbolicWalk will log anny ERRORs
+	_ = helpers.SymbolicWalk(c.Fs.Source, dataDir, walker)
+	_ = helpers.SymbolicWalk(c.Fs.Source, c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")), walker)
+	_ = helpers.SymbolicWalk(c.Fs.Source, i18nDir, walker)
+	_ = helpers.SymbolicWalk(c.Fs.Source, c.PathSpec().AbsPathify(c.Cfg.GetString("layoutDir")), walker)
 
-	helpers.SymbolicWalk(c.Fs.Source, staticDir, walker)
+	_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, walker)
 	if c.PathSpec().ThemeSet() {
-		helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "layouts"), walker)
-		helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "static"), walker)
-		helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "i18n"), walker)
-		helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "data"), walker)
+		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "layouts"), walker)
+		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "static"), walker)
+		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "i18n"), walker)
+		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "data"), walker)
 
 	}
 
@@ -824,7 +827,9 @@ func (c *commandeer) newWatcher(port int) error {
 					walkAdder := func(path string, f os.FileInfo, err error) error {
 						if f.IsDir() {
 							c.Logger.FEEDBACK.Println("adding created directory to watchlist", path)
-							watcher.Add(path)
+							if err := watcher.Add(path); err != nil {
+								return err
+							}
 						}
 						return nil
 					}
@@ -833,7 +838,7 @@ func (c *commandeer) newWatcher(port int) error {
 					// When mkdir -p is used, only the top directory triggers an event (at least on OSX)
 					if ev.Op&fsnotify.Create == fsnotify.Create {
 						if s, err := c.Fs.Source.Stat(ev.Name); err == nil && s.Mode().IsDir() {
-							helpers.SymbolicWalk(c.Fs.Source, ev.Name, walkAdder)
+							_ = helpers.SymbolicWalk(c.Fs.Source, ev.Name, walkAdder)
 						}
 					}
 
@@ -921,7 +926,7 @@ func (c *commandeer) newWatcher(port int) error {
 									// If file doesn't exist in any static dir, remove it
 									toRemove := filepath.Join(publishDir, relPath)
 									logger.Println("File no longer exists in static dir, removing", toRemove)
-									c.Fs.Destination.RemoveAll(toRemove)
+									_ = c.Fs.Destination.RemoveAll(toRemove)
 								} else if err == nil {
 									// If file still exists, sync it
 									logger.Println("Syncing", relPath, "to", publishDir)

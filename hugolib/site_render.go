@@ -147,7 +147,9 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 
 		// TODO(bep) output do better
 		link := newOutputFormat(p.Page, p.outputFormat).Permalink()
-		s.writeDestAlias(target, link, nil)
+		if err := s.writeDestAlias(target, link, nil); err != nil {
+			return err
+		}
 
 		pagers := p.paginator.Pagers()
 
