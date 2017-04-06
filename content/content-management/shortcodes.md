@@ -18,7 +18,7 @@ aliases: [/extras/shortcodes/]
 toc: true
 ---
 
-## What is a hortcode
+## What is a Shortcode
 
 Hugo loves markdown because of its simple content format, but there are times when markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframes>`) to markdown content. We think this contradicts the beautiful simplicity of markdown's syntax.
 
