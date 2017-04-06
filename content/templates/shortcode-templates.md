@@ -114,7 +114,7 @@ You could then include the following as part of your shortcode templating:
 See the [example Vimeo shortcode][vimeoexample] below for `.IsNamedParams` in action
 
 {{% warning %}}
-While you can create shortcode templates that accept both positional and named parameter, you *cannot* declare shortcodes in content with a mix of parameter types. Therefore, a shortcode declare like `{{</* image src="images/my-image.jpg" "This is my alt text" */>}}` will return an error.
+While you can create shortcode templates that accept both positional and named parameters, you *cannot* declare shortcodes in content with a mix of parameter types. A shortcode declared like `{{</* image src="images/my-image.jpg" "This is my alt text" */>}}` will return an error.
 {{% /warning %}}
 
 You can also use the variable `.Page` to access all the normal [page variables][pagevars].
