@@ -1,7 +1,7 @@
 ---
 title: Hugo's Lookup Order
-linktitle: Lookup Order
-description: The lookup order is a prioritized list used by Hugo as it traverses your files looking for the appropriate template to render your content.
+linktitle: Template Lookup Order
+description: The lookup order is a prioritized list used by Hugo as it traverses your files looking for the appropriate corresponding file to render your content.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
