@@ -37,12 +37,12 @@ func TestStripHTML(t *testing.T) {
 		{"</br> strip br2<br />", " strip br2\n"},
 		{"This <strong>is</strong> a\nnewline", "This is a newline"},
 		{"No Tags", "No Tags"},
-		{`<p>Summary Next Line. 
+		{`<p>Summary Next Line.
 <figure >
-    
+
         <img src="/not/real" />
-    
-    
+
+
 </figure>
 .
 More text here.</p>
@@ -152,7 +152,7 @@ func TestTruncateWordsByRune(t *testing.T) {
 
 func TestGetHTMLRendererFlags(t *testing.T) {
 	c := newTestContentSpec()
-	ctx := newRenderingContext(c.cfg)
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	renderer := c.getHTMLRenderer(blackfriday.HTML_USE_XHTML, ctx)
 	flags := renderer.GetFlags()
 	if flags&blackfriday.HTML_USE_XHTML != blackfriday.HTML_USE_XHTML {
@@ -178,8 +178,7 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 		{blackfriday.HTML_SMARTYPANTS_LATEX_DASHES},
 	}
 	defaultFlags := blackfriday.HTML_USE_XHTML
-	ctx := newRenderingContext(c.cfg)
-	ctx.Config = ctx.getConfig()
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	ctx.Config.AngledQuotes = true
 	ctx.Config.Fractions = true
 	ctx.Config.HrefTargetBlank = true
@@ -202,9 +201,8 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 
 func TestGetHTMLRendererAnchors(t *testing.T) {
 	c := newTestContentSpec()
-	ctx := newRenderingContext(c.cfg)
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	ctx.DocumentID = "testid"
-	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
 
 	actualRenderer := c.getHTMLRenderer(0, ctx)
@@ -227,9 +225,8 @@ func TestGetHTMLRendererAnchors(t *testing.T) {
 
 func TestGetMmarkHTMLRenderer(t *testing.T) {
 	c := newTestContentSpec()
-	ctx := newRenderingContext(c.cfg)
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	ctx.DocumentID = "testid"
-	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
 	actualRenderer := c.getMmarkHTMLRenderer(0, ctx)
 
@@ -252,8 +249,7 @@ func TestGetMmarkHTMLRenderer(t *testing.T) {
 
 func TestGetMarkdownExtensionsMasksAreRemovedFromExtensions(t *testing.T) {
 	c := newTestContentSpec()
-	ctx := newRenderingContext(c.cfg)
-	ctx.Config = ctx.getConfig()
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	ctx.Config.Extensions = []string{"headerId"}
 	ctx.Config.ExtensionsMask = []string{"noIntraEmphasis"}
 
@@ -268,8 +264,7 @@ func TestGetMarkdownExtensionsByDefaultAllExtensionsAreEnabled(t *testing.T) {
 		testFlag int
 	}
 	c := newTestContentSpec()
-	ctx := newRenderingContext(c.cfg)
-	ctx.Config = ctx.getConfig()
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	ctx.Config.Extensions = []string{""}
 	ctx.Config.ExtensionsMask = []string{""}
 	allExtensions := []data{
@@ -301,8 +296,7 @@ func TestGetMarkdownExtensionsByDefaultAllExtensionsAreEnabled(t *testing.T) {
 
 func TestGetMarkdownExtensionsAddingFlagsThroughRenderingContext(t *testing.T) {
 	c := newTestContentSpec()
-	ctx := newRenderingContext(c.cfg)
-	ctx.Config = ctx.getConfig()
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	ctx.Config.Extensions = []string{"definitionLists"}
 	ctx.Config.ExtensionsMask = []string{""}
 
@@ -314,9 +308,8 @@ func TestGetMarkdownExtensionsAddingFlagsThroughRenderingContext(t *testing.T) {
 
 func TestGetMarkdownRenderer(t *testing.T) {
 	c := newTestContentSpec()
-	ctx := newRenderingContext(c.cfg)
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
 	actualRenderedMarkdown := c.markdownRender(ctx)
 	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
@@ -326,9 +319,8 @@ func TestGetMarkdownRenderer(t *testing.T) {
 
 func TestGetMarkdownRendererWithTOC(t *testing.T) {
 	c := newTestContentSpec()
-	ctx := &RenderingContext{RenderTOC: true, Cfg: c.cfg}
+	ctx := &RenderingContext{RenderTOC: true, Cfg: c.cfg, Config: c.NewBlackfriday()}
 	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
 	actualRenderedMarkdown := c.markdownRender(ctx)
 	expectedRenderedMarkdown := []byte("<nav>\n</nav>\n\n<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
@@ -342,8 +334,7 @@ func TestGetMmarkExtensions(t *testing.T) {
 		testFlag int
 	}
 	c := newTestContentSpec()
-	ctx := newRenderingContext(c.cfg)
-	ctx.Config = ctx.getConfig()
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	ctx.Config.Extensions = []string{"tables"}
 	ctx.Config.ExtensionsMask = []string{""}
 	allExtensions := []data{
@@ -372,9 +363,8 @@ func TestGetMmarkExtensions(t *testing.T) {
 
 func TestMmarkRender(t *testing.T) {
 	c := newTestContentSpec()
-	ctx := newRenderingContext(c.cfg)
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
 	actualRenderedMarkdown := c.mmarkRender(ctx)
 	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
