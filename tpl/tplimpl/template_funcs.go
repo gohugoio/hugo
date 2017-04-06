@@ -473,6 +473,11 @@ func (ic *imageHandler) config(path interface{}) (image.Config, error) {
 
 // in returns whether v is in the set l.  l may be an array or slice.
 func in(l interface{}, v interface{}) bool {
+
+	if v == nil {
+		return false
+	}
+
 	lv := reflect.ValueOf(l)
 	vv := reflect.ValueOf(v)
 
@@ -486,8 +491,11 @@ func in(l interface{}, v interface{}) bool {
 			}
 			switch lvv.Kind() {
 			case reflect.String:
-				if vv.Type() == lvv.Type() && vv.String() == lvv.String() {
-					return true
+				switch vv.Kind() {
+				case reflect.String:
+					if vv.Type() == lvv.Type() && vv.String() == lvv.String() {
+						return true
+					}
 				}
 			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 				switch vv.Kind() {
