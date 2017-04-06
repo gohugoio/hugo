@@ -43,11 +43,21 @@ var SummaryLength = 70
 var SummaryDivider = []byte("<!--more-->")
 
 type ContentSpec struct {
+	blackfriday                map[string]interface{}
+	footnoteAnchorPrefix       string
+	footnoteReturnLinkContents string
+
 	cfg config.Provider
 }
 
 func NewContentSpec(cfg config.Provider) *ContentSpec {
-	return &ContentSpec{cfg}
+	return &ContentSpec{
+		blackfriday:                cfg.GetStringMap("blackfriday"),
+		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
+		footnoteReturnLinkContents: cfg.GetString("footnoteReturnLinkContents"),
+
+		cfg: cfg,
+	}
 }
 
 // Blackfriday holds configuration values for Blackfriday rendering.
@@ -84,16 +94,14 @@ func (c ContentSpec) NewBlackfriday() *Blackfriday {
 
 	ToLowerMap(defaultParam)
 
-	siteParam := c.cfg.GetStringMap("blackfriday")
-
 	siteConfig := make(map[string]interface{})
 
 	for k, v := range defaultParam {
 		siteConfig[k] = v
 	}
 
-	if siteParam != nil {
-		for k, v := range siteParam {
+	if c.blackfriday != nil {
+		for k, v := range c.blackfriday {
 			siteConfig[k] = v
 		}
 	}
@@ -198,13 +206,15 @@ func BytesToHTML(b []byte) template.HTML {
 // getHTMLRenderer creates a new Blackfriday HTML Renderer with the given configuration.
 func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
-		FootnoteAnchorPrefix:       c.cfg.GetString("footnoteAnchorPrefix"),
-		FootnoteReturnLinkContents: c.cfg.GetString("footnoteReturnLinkContents"),
+		FootnoteAnchorPrefix:       c.footnoteAnchorPrefix,
+		FootnoteReturnLinkContents: c.footnoteReturnLinkContents,
 	}
 
 	b := len(ctx.DocumentID) != 0
 
-	if b && !ctx.getConfig().PlainIDAnchors {
+	config := ctx.getConfig()
+
+	if b && !config.PlainIDAnchors {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
 		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentID
 	}
@@ -213,27 +223,27 @@ func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) bl
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 
-	if ctx.getConfig().Smartypants {
+	if config.Smartypants {
 		htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	}
 
-	if ctx.getConfig().AngledQuotes {
+	if config.AngledQuotes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
 	}
 
-	if ctx.getConfig().Fractions {
+	if config.Fractions {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	}
 
-	if ctx.getConfig().HrefTargetBlank {
+	if config.HrefTargetBlank {
 		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
 	}
 
-	if ctx.getConfig().SmartDashes {
+	if config.SmartDashes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_DASHES
 	}
 
-	if ctx.getConfig().LatexDashes {
+	if config.LatexDashes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	}
 
@@ -287,8 +297,8 @@ func (c ContentSpec) markdownRender(ctx *RenderingContext) []byte {
 // getMmarkHTMLRenderer creates a new mmark HTML Renderer with the given configuration.
 func (c ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
-		FootnoteAnchorPrefix:       c.cfg.GetString("footnoteAnchorPrefix"),
-		FootnoteReturnLinkContents: c.cfg.GetString("footnoteReturnLinkContents"),
+		FootnoteAnchorPrefix:       c.footnoteAnchorPrefix,
+		FootnoteReturnLinkContents: c.footnoteReturnLinkContents,
 	}
 
 	b := len(ctx.DocumentID) != 0
