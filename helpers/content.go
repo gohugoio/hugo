@@ -19,6 +19,7 @@ package helpers
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"os/exec"
 	"unicode"
@@ -33,7 +34,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 
 	"strings"
-	"sync"
 )
 
 // SummaryLength is the length of the summary that Hugo extracts from a content.
@@ -78,7 +78,6 @@ type Blackfriday struct {
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
 func (c ContentSpec) NewBlackfriday() *Blackfriday {
-
 	defaultParam := map[string]interface{}{
 		"smartypants":                      true,
 		"angledQuotes":                     false,
@@ -212,9 +211,11 @@ func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) bl
 
 	b := len(ctx.DocumentID) != 0
 
-	config := ctx.getConfig()
+	if ctx.Config == nil {
+		panic(fmt.Sprintf("RenderingContext of %q doesn't have a config", ctx.DocumentID))
+	}
 
-	if b && !config.PlainIDAnchors {
+	if b && !ctx.Config.PlainIDAnchors {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
 		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentID
 	}
@@ -223,27 +224,27 @@ func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) bl
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 
-	if config.Smartypants {
+	if ctx.Config.Smartypants {
 		htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	}
 
-	if config.AngledQuotes {
+	if ctx.Config.AngledQuotes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
 	}
 
-	if config.Fractions {
+	if ctx.Config.Fractions {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	}
 
-	if config.HrefTargetBlank {
+	if ctx.Config.HrefTargetBlank {
 		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
 	}
 
-	if config.SmartDashes {
+	if ctx.Config.SmartDashes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_DASHES
 	}
 
-	if config.LatexDashes {
+	if ctx.Config.LatexDashes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	}
 
@@ -271,12 +272,16 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 		blackfriday.EXTENSION_AUTO_HEADER_IDS |
 		blackfriday.EXTENSION_FOOTNOTES
 
-	for _, extension := range ctx.getConfig().Extensions {
+	if ctx.Config == nil {
+		panic(fmt.Sprintf("RenderingContext of %q doesn't have a config", ctx.DocumentID))
+	}
+
+	for _, extension := range ctx.Config.Extensions {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags |= flag
 		}
 	}
-	for _, extension := range ctx.getConfig().ExtensionsMask {
+	for _, extension := range ctx.Config.ExtensionsMask {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags &= ^flag
 		}
@@ -303,7 +308,11 @@ func (c ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContex
 
 	b := len(ctx.DocumentID) != 0
 
-	if b && !ctx.getConfig().PlainIDAnchors {
+	if ctx.Config == nil {
+		panic(fmt.Sprintf("RenderingContext of %q doesn't have a config", ctx.DocumentID))
+	}
+
+	if b && !ctx.Config.PlainIDAnchors {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
 		// renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
 	}
@@ -333,7 +342,11 @@ func getMmarkExtensions(ctx *RenderingContext) int {
 	flags |= mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK
 	flags |= mmark.EXTENSION_INCLUDE
 
-	for _, extension := range ctx.getConfig().Extensions {
+	if ctx.Config == nil {
+		panic(fmt.Sprintf("RenderingContext of %q doesn't have a config", ctx.DocumentID))
+	}
+
+	for _, extension := range ctx.Config.Extensions {
 		if flag, ok := mmarkExtensionMap[extension]; ok {
 			flags |= flag
 		}
@@ -384,6 +397,7 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 
 // RenderingContext holds contextual information, like content and configuration,
 // for a given content rendering.
+// By creating you must set the Config, otherwise it will panic.
 type RenderingContext struct {
 	Content      []byte
 	PageFmt      string
@@ -394,22 +408,6 @@ type RenderingContext struct {
 	FileResolver FileResolverFunc
 	LinkResolver LinkResolverFunc
 	Cfg          config.Provider
-	configInit   sync.Once
-}
-
-func newRenderingContext(cfg config.Provider) *RenderingContext {
-	return &RenderingContext{Cfg: cfg}
-}
-
-func (c *RenderingContext) getConfig() *Blackfriday {
-	// TODO(bep) get rid of this
-	c.configInit.Do(func() {
-		if c.Config == nil {
-			cs := NewContentSpec(c.Cfg)
-			c.Config = cs.NewBlackfriday()
-		}
-	})
-	return c.Config
 }
 
 // RenderBytes renders a []byte.

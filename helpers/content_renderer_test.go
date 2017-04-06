@@ -23,7 +23,7 @@ import (
 
 // Renders a codeblock using Blackfriday
 func (c ContentSpec) render(input string) string {
-	ctx := newRenderingContext(c.cfg)
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	render := c.getHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
@@ -33,7 +33,7 @@ func (c ContentSpec) render(input string) string {
 
 // Renders a codeblock using Mmark
 func (c ContentSpec) renderWithMmark(input string) string {
-	ctx := newRenderingContext(c.cfg)
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
 	render := c.getMmarkHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
