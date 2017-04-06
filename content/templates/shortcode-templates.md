@@ -34,13 +34,11 @@ To create a shortcode, place an HTML template in the `layouts/shortcodes` direct
 
 ### Deciding Parameter Type
 
-You can create the following types of shortcodes
+You can create shortcodes using the following types of parameters:
 
 * Positional parameters
 * Named parameters
-* Positional *or* named parameters (i.e, "flexible"
-* Single-word shortcodes
-* Nested
+* Positional *or* named parameters (i.e, "flexible")
 
 #### Positional vs Named Parameters
 
