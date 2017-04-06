@@ -606,15 +606,20 @@ func (p *Page) renderContent(content []byte) []byte {
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {
-
 	p.renderingConfigInit.Do(func() {
-		pageParam := cast.ToStringMap(p.GetParam("blackfriday"))
+		p.renderingConfig = p.s.ContentSpec.NewBlackfriday()
+
 		if p.Language() == nil {
 			panic(fmt.Sprintf("nil language for %s with source lang %s", p.BaseFileName(), p.lang))
 		}
-		p.renderingConfig = p.s.ContentSpec.NewBlackfriday()
 
-		if err := mapstructure.Decode(pageParam, p.renderingConfig); err != nil {
+		bfParam := p.GetParam("blackfriday")
+		if bfParam == nil {
+			return
+		}
+
+		pageParam := cast.ToStringMap(bfParam)
+		if err := mapstructure.Decode(pageParam, &p.renderingConfig); err != nil {
 			p.s.Log.FATAL.Printf("Failed to get rendering config for %s:\n%s", p.BaseFileName(), err.Error())
 		}
 
