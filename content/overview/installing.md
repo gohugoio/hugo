@@ -125,6 +125,10 @@ You **must use govendor** to fetch Hugo's dependencies.
 
 *Windows users: where you see the `$HOME` environment variable above, replace it with `%USERPROFILE%`.*
 
+
+*Note: For syntax highlighting using the [highlight shortcode](/extras/highlighting/),
+you need to install the Python-based [Pygments](http://pygments.org/) program.*
+
 ## Contributing
 
 Please see the [contributing guide](/doc/contributing/) if you are interested in
