@@ -42,8 +42,6 @@ You can create shortcodes using the following types of parameters:
 
 #### Positional vs Named Parameters
 
-You can choose if the shortcode will use *positional parameters*, *named parameters*, or *both*.
-
 In shortcodes with positional parameters, the order of the parameters is important. If a shortcode has a single required value (e.g., the `youtube` shortcode below), positional parameters work very well and require less typing from during usage by content authors.
 
 For more complex layouts with multiple or optional parameters, named parameters work best. While less terse, named parameters require less memorization from a content author and can be added in a shortcode declaration in any order.
