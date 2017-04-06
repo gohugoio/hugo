@@ -1,5 +1,5 @@
 ---
-title: Creating Your Own Shortcode Templates
+title: Creating Your Own Shortcodes
 linktitle: Shortcode Templates
 description: You can extend Hugo's built-in shortcodes by creating your own using the same templating syntax as that for single and list pages.
 date: 2017-02-01
@@ -32,7 +32,14 @@ Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, H
 
 To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization][]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}` depending on the type of parameters you choose.
 
-### Deciding Parameter Type
+### Shortcode Template Lookup Order
+
+Shortcode templates have a simple [lookup order][]:
+
+1. `/layouts/shortcodes/<SHORTCODE>.html`
+2. `/themes/<THEME>/layouts/shortcodes/<SHORTCODE>.html`
+
+### Positional vs Named Parameters
 
 You can create shortcodes using the following types of parameters:
 
@@ -40,9 +47,7 @@ You can create shortcodes using the following types of parameters:
 * Named parameters
 * Positional *or* named parameters (i.e, "flexible")
 
-#### Positional vs Named Parameters
-
-In shortcodes with positional parameters, the order of the parameters is important. If a shortcode has a single required value (e.g., the `youtube` shortcode below), positional parameters work very well and require less typing from during usage by content authors.
+In shortcodes with positional parameters, the order of the parameters is important. If a shortcode has a single required value (e.g., the `youtube` shortcode below), positional parameters work very well and require less typing from content authors.
 
 For more complex layouts with multiple or optional parameters, named parameters work best. While less terse, named parameters require less memorization from a content author and can be added in a shortcode declaration in any order.
 
@@ -111,10 +116,10 @@ You could then include the following as part of your shortcode templating:
 {{ end }}.
 ```
 
-See the [example Vimeo shortcode][vimeoexample] below for `.IsNamedParams` in action
+See the [example Vimeo shortcode][vimeoexample] below for `.IsNamedParams` in action.
 
 {{% warning %}}
-While you can create shortcode templates that accept both positional and named parameters, you *cannot* declare shortcodes in content with a mix of parameter types. A shortcode declared like `{{</* image src="images/my-image.jpg" "This is my alt text" */>}}` will return an error.
+While you can create shortcode templates that accept both positional and named parameters, you *cannot* declare shortcodes in content with a mix of parameter types. Therefore, a shortcode declared like `{{</* image src="images/my-image.jpg" "This is my alt text" */>}}` will return an error.
 {{% /warning %}}
 
 You can also use the variable `.Page` to access all the normal [page variables][pagevars].
@@ -347,6 +352,7 @@ More shortcode examples can be found in the [shortcodes directory for spf13.com]
 [docsshortcodes]: https://github.com/spf13/hugo/tree/master/docs/layouts/shortcodes "See the shortcode source directory for the documentation site you're currently reading."
 [figure]: /content-management/shortcodes/#figure
 [hugosc]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
+[lookup order]: /templates/lookup-order/ "See the order in which Hugo traverses your template files to decide where and how to render your content at build time"
 [pagevars]: /variables/page/ "See which variables you can leverage in your templating for page vs list templates."
 [parent]: /variables/shortcodes/
 [shortcodesvars]: /variables/shortcodes/ "Certain variables are specific to shortcodes, although most .Page variables can be accessed within your shortcode template."

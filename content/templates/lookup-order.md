@@ -173,6 +173,7 @@ The respective lookup order for each of Hugo's templates has been defined throug
 * [Taxonomy Terms Templates][termslookup]
 * [Single Page Templates][singlelookup]
 * [RSS Templates][rsslookup]
+* [Shortcode Templates][sclookup]
 
 [base]: /templates/base/#base-template-lookup-order
 [config]: /getting-started/configuration/
@@ -180,6 +181,7 @@ The respective lookup order for each of Hugo's templates has been defined throug
 [DRY]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
 [home]: /templates/homepage/#homepage-template-lookup-order
 [rsslookup]: /templates/rss/#rss-template-lookup-order
+[sclookup]: /templates/shortcode-templates/#shortcode-template-lookup-order
 [sections]: /content-management/sections/
 [sectionlookup]: /templates/section-templates/#section-template-lookup-order
 [single page templates]: /templates/single-page-templates/
