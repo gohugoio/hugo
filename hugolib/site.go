@@ -1893,18 +1893,22 @@ func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layou
 
 	transformLinks := transform.NewEmptyTransforms()
 
-	if s.Info.relativeURLs || s.Info.canonifyURLs {
-		transformLinks = append(transformLinks, transform.AbsURL)
-	}
+	isHTML := p.outputFormat.IsHTML
 
-	if s.running() && s.Cfg.GetBool("watch") && !s.Cfg.GetBool("disableLiveReload") {
-		transformLinks = append(transformLinks, transform.LiveReloadInject(s.Cfg.GetInt("port")))
-	}
+	if isHTML {
+		if s.Info.relativeURLs || s.Info.canonifyURLs {
+			transformLinks = append(transformLinks, transform.AbsURL)
+		}
 
-	// For performance reasons we only inject the Hugo generator tag on the home page.
-	if p.IsHome() {
-		if !s.Cfg.GetBool("disableHugoGeneratorInject") {
-			transformLinks = append(transformLinks, transform.HugoGeneratorInject)
+		if s.running() && s.Cfg.GetBool("watch") && !s.Cfg.GetBool("disableLiveReload") {
+			transformLinks = append(transformLinks, transform.LiveReloadInject(s.Cfg.GetInt("port")))
+		}
+
+		// For performance reasons we only inject the Hugo generator tag on the home page.
+		if p.IsHome() {
+			if !s.Cfg.GetBool("disableHugoGeneratorInject") {
+				transformLinks = append(transformLinks, transform.HugoGeneratorInject)
+			}
 		}
 	}
 
