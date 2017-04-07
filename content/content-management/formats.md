@@ -80,7 +80,7 @@ For a full list of emojis, see the [Emoji cheat sheet][emojis].
 
 ### Shortcodes
 
-If you write in markdown and find yourself frequently embedding your content with raw HTML, Hugo provides built-in shortcode functionality to act as the intermediary between your content and templating. This is one of the most powerful features in Hugo in that is allows you to extend markdown arbitrarily and quickly.
+If you write in Markdown and find yourself frequently embedding your content with raw HTML, Hugo provides built-in shortcodes functionality to act as the intermediary between your content and templating. This is one of the most powerful features in Hugo and allows you to essentially create your own Markdown extensions very quickly.
 
 See [Shortcodes][sc] for usage, particularly for the built-in shortcodes that ship with Hugo, and [Shortcode Templating][sct] to learn how to build your own.
 
@@ -210,7 +210,7 @@ For example, for Asciidoc files, Hugo will try to call the `asciidoctor` or `asc
 To use these formats, just use the standard extension and the front matter exactly as you would do with natively supported `.md` files.
 
 {{% warning "Performance of External Helpers" %}}
-Because additional formats are external commands---with the exception of org mode---generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
+Because additional formats are external commands---with the exception of Org-mode---generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
 {{% /warning %}}
 
 ## Learn Markdown
