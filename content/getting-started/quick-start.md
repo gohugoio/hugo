@@ -90,7 +90,7 @@ You'll see the `bookshelf` directory has 6 subdirectories and 1 file. Let's look
 * `config.toml`: Hugo uses `.toml` as its default configuration format but also accepts `.yml` and `.json`. The configuration settings mentioned in the `config.toml` are applied to the full website an include important global variables such as the `baseURL` and `title` of your website. (See [Configuration][configuration].)
 * `content`: This single directory houses all of the content for your website. Each subdirectory in content is considered a [section][]. If your website has sections for posts, events, and tutorials, you would create `content/posts`, `content/events`, and `content/tutorials`.
 * `data`: This directory is used to store files of serialized data (YAML, TOML, or JSON) that can be used in [data templates][datatemplates] and your [website's menu][sitemenu].
-* `layouts`: This is the hub for all your [templating][templating], including [list and section templates][listsectiontemplates] and [shortcodes][shortcodetemplates].
+* `layouts`: This is the hub for all your [templating][templating], including [list and section templates](/templates/lists/) and [shortcodes](/templates/shortcode-templates/).
 * `static`: This houses all your static content; i.e., images, JavaScript, and CSS. Everything in `/static` is copied over *as is* to your finished website.
 * `themes`: This is where you will download themes for Hugo. You can see a showcase of all themes at <http://themes.gohugo.io>.
 

@@ -87,7 +87,7 @@ nav#TableOfContents {
   ul > li > ul {
     li {
       line-height: 1.2;
-      font-size: 16px;
+      font-size: 14px;
       padding-left: 8px;
       position: relative;
       margin-top: .5em;
@@ -133,7 +133,7 @@ nav#TableOfContents {
         margin-top: 8px;
         margin-bottom: 0px;
         > li {
-          font-size: 14px;
+          font-size: 13px;
           a {
             @include MQ(L) {
               &:hover {
