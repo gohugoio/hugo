@@ -28,7 +28,8 @@ Hugo currently provides pre-built binaries for the following:
 * <i class="icon-linux"></i> Linux
 * <i class="icon-freebsd"></i> FreeBSD
 
-Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., DragonFly BSD, OpenBSD, Plan&nbsp;9, and Solaris. See <http://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
+
+Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., on other operating systems such as DragonFly BSD, OpenBSD, Plan&nbsp;9, Solaris, and others. See <https://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
 
 ## Quick Install
 
@@ -124,7 +125,7 @@ Since building from source is appealing to more seasoned command line users, thi
 
 #### Step 1: Install `brew` if you haven't already
 
-Go to the `brew` website, <http://brew.sh/>, and follow the directions there. The most important step is the installation from the command line:
+Go to the `brew` website, <https://brew.sh/>, and follow the directions there. The most important step is the installation from the command line:
 
 {{% code file="install-brew.sh" %}}
 ```bash
@@ -335,14 +336,14 @@ You'll need a place to store the Hugo executable, your [content][], and the gene
 
 ### Less-technical Users
 
-1. Go to [Hugo Releases][releases]
-2. The latest release is at the top of the page. Scroll to the bottom of the release announcement to see the downloads. All downloads are `.zip` files in alphabetical order.
-3. Download either the 32-bit or 64-bit Windows file depending on whether you are using 32-bit or 64-bit Windows. [You can find this information online][windowsarch].
-4. Move the `.zip` file into your `C:\Hugo\bin` folder.
-5. Double-click on the ZIP file and extract its contents. Be sure to extract the contents into the same `C:\Hugo\bin` folder. Windows will do this by default unless you tell it to extract somewhere else.
-6. You should now have three new files: hugo executable (e.g. `hugo_0.20_windows_amd64.exe`), `license.md`, and `readme.md`. You can delete the ZIP download now.
-7. Rename the hugo executable (`hugo_hugo-version_platform_arch.exe`) to `hugo.exe` for ease of use.
-7. Now add Hugo to your Windows PATH settings:
+1. Go to the [Hugo Releases][releases] page.
+2. The latest release is announced on top. Scroll to the bottom of the release announcement to see the downloads. They're all ZIP files.
+3. Find the Windows files near the bottom (they're in alphabetical order, so Windows is last) – download either the 32-bit or 64-bit file depending on whether you have 32-bit or 64-bit Windows. (If you don't know, [see here](https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx).)
+4. Move the ZIP file into your `C:\Hugo\bin` folder.
+5. Double-click on the ZIP file and extract its contents. Be sure to extract the contents into the same `C:\Hugo\bin` folder – Windows will do this by default unless you tell it to extract somewhere else.
+6. You should now have three new files: hugo executable (e.g. `hugo_0.18_windows_amd64.exe`), `license.md`, and `readme.md`. (You can delete the ZIP download now.) Rename that hugo executable (`hugo_hugo-version_platform_arch.exe`) to `hugo.exe` for ease of use.
+
+Now you need to add Hugo to your Windows PATH settings:
 
 ##### For Windows 10 users:
 
@@ -357,12 +358,12 @@ You'll need a place to store the Hugo executable, your [content][], and the gene
 * Click OK at every window to exit.
 
 {{% note "Path Editor in Windows 10"%}}
-The path editor in Windows 10 was added in the large [November 2015 Update](https://blogs.windows.com/windowsexperience/2015/11/12/first-major-update-for-windows-10-available-today/). You'll need to have that or a later update installed for the above steps to work. You can see what Windows 10 build you have by clicking on the <i class="fa fa-windows"></i>&nbsp;Start button → Settings → System → About. See [here](http://www.howtogeek.com/236195/how-to-find-out-which-build-and-version-of-windows-10-you-have/) for more.)
+The path editor in Windows 10 was added in the large [November 2015 Update](https://blogs.windows.com/windowsexperience/2015/11/12/first-major-update-for-windows-10-available-today/). You'll need to have that or a later update installed for the above steps to work. You can see what Windows 10 build you have by clicking on the <i class="fa fa-windows"></i>&nbsp;Start button → Settings → System → About. See [here](https://www.howtogeek.com/236195/how-to-find-out-which-build-and-version-of-windows-10-you-have/) for more.)
 {{% /note %}}
 
 #### For Windows 7 and 8.x users:
 
-Windows 7 and 8.1 do not include the easy path editor included in Windows 10, so non-technical users on those platforms are advised to install a free third-party path editor like [Windows Environment Variables Editor](http://eveditor.com/) or [Path Editor](https://patheditor2.codeplex.com/).
+Windows 7 and 8.1 do not include the easy path editor included in Windows 10, so non-technical users on those platforms are advised to install a free third-party path editor like [Windows Environment Variables Editor][Windows Environment Variables Editor] or [Path Editor](https://patheditor2.codeplex.com/).
 
 ### Verify the Executable
 
@@ -378,7 +379,7 @@ hugo is the main command, used to build your Hugo site.
 Hugo is a Fast and Flexible Static Site Generator
 built with love by spf13 and friends in Go.
 
-Complete documentation is available at http://gohugo.io/.
+Complete documentation is available at https://gohugo.io/.
 ```
 
 If you do, then the installation is complete. If you don't, double-check the path that you placed the `hugo.exe` file in and that you typed that path correctly when you added it to your `PATH` variable. If you're still not getting the output, search the [Hugo discussion forum][forum] to see if others have already figured out our problem. If not, add a note---in the "Support" category---and be sure to include your command and the output.
@@ -427,7 +428,7 @@ C:\Hugo\Sites\example.com&gt;dir
 
 ### Debian and Ubuntu
 
-Hugo has been included in Debian and Ubuntu since 2016 and can be installed as a traditional `.deb` package via `apt`:
+In any of the [Linux distributions that support snaps](https://snapcraft.io/docs/core/install):
 
 ```sh
 sudo apt install hugo
@@ -496,7 +497,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [installgit]: http://git-scm.com/
 [installgo]: https://golang.org/dl/
 [Path Editor]: https://patheditor2.codeplex.com/
-[pygments]: http://pygments.org
+[pygments]: https://pygments.org
 [quickstart]: /getting-started/quick-start/
 [redhatforum]: https://discuss.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
 [releases]: https://github.com/spf13/hugo/releases
