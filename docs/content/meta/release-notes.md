@@ -21,7 +21,7 @@ Hugo now has:
 - 495+ contributors
 - 156+ themes
 
-{{< gh "@bep" >}} still leads the Hugo development with his witty Norwegian humor, and once again contributed a significant amount of additions. Also a big shoutout  {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
+{{< gh "@bep" >}} still leads the Hugo development with his witty Norwegian humor, and once again contributed a significant amount of additions. Also a big shoutout to {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
 
 ## Other Highlights
 
