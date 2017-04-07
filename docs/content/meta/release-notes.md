@@ -9,18 +9,19 @@ menu:
 title: Release Notes
 weight: 10
 ---
-# **0.20** ???
+# **0.20** April 10th 2017
 
 Hugo `0.20` introduces the powerful and long sought after feature [Custom Output Formats](TODO add link to docs); Hugo isn't just that "static HTML with an added RSS feed" anymore. *Say hello* to calendars, e-book formats, Google AMP, and JSON search indexes, to name a few (gh 2828).
 
-This release represents **over 180 contributions by over 30 contributors** to the main Hugo code base. Since last release Hugo has **gained 1100 stars, 20 new contributors and 3 additional themes.**
+This release represents **over 180 contributions by over 30 contributors** to the main Hugo code base. Since last release Hugo has **gained 1100 stars, 20 new contributors and 5 additional themes.**
 
 Hugo now has:
 
 - 16300+ stars
 - 495+ contributors
-- 154+ themes
+- 156+ themes
 
+{{< gh "@bep" >}} still leads the Hugo development with his witty Norwegian humor, and once again contributed a significant amount of additions. Also a big shoutout  {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
 
 ## Other Highlights
 
@@ -35,6 +36,7 @@ Add something about the upcoming docs site rdwatters + budparr
 * Use of the deprecated `.Now` now logs an `ERROR`.
 * The deprecated `.RSSlink` is now removed. Use `.RSSLink`.
 * The deprecated `.Site.GetParam` is now removed, use `.Site.Param`.
+* Hugo does no longer append missing trailing slash to `baseURL` set as a command line parameter, making it consistent with how it behaves from site config. gh 3262
 
 ## Enhancements
 
