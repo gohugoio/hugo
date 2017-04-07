@@ -241,6 +241,14 @@ func DecodeFormats(mediaTypes media.Types, maps ...map[string]interface{}) (Form
 					return f, err
 				}
 
+				// We need values for these
+				if newOutFormat.BaseName == "" {
+					newOutFormat.BaseName = "index"
+				}
+				if newOutFormat.Rel == "" {
+					newOutFormat.Rel = "alternate"
+				}
+
 				f = append(f, newOutFormat)
 			}
 		}
