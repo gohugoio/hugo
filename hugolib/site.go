@@ -289,7 +289,6 @@ type SiteInfo struct {
 	_                   [4]byte
 	paginationPageCount uint64
 
-	BaseURL    template.URL
 	Taxonomies TaxonomyList
 	Authors    AuthorList
 	Social     SiteSocial
@@ -329,6 +328,10 @@ func (s *SiteInfo) String() string {
 	return fmt.Sprintf("Site(%q)", s.Title)
 }
 
+func (s *SiteInfo) BaseURL() template.URL {
+	return template.URL(s.s.PathSpec.BaseURL.String())
+}
+
 // Used in tests.
 
 type siteBuilderCfg struct {
@@ -342,7 +345,6 @@ type siteBuilderCfg struct {
 func newSiteInfo(cfg siteBuilderCfg) SiteInfo {
 	return SiteInfo{
 		s:               cfg.s,
-		BaseURL:         template.URL(cfg.baseURL),
 		multilingual:    newMultiLingualForLanguage(cfg.language),
 		PageCollections: cfg.pageCollections,
 		Params:          make(map[string]interface{}),
@@ -1049,7 +1051,6 @@ func (s *Site) initializeSiteInfo() {
 	}
 
 	s.Info = SiteInfo{
-		BaseURL:                        template.URL(helpers.SanitizeURLKeepTrailingSlash(s.Cfg.GetString("baseURL"))),
 		Title:                          lang.GetString("title"),
 		Author:                         lang.GetStringMap("author"),
 		Social:                         lang.GetStringMapString("social"),
@@ -1503,7 +1504,7 @@ func (s *SiteInfo) createNodeMenuEntryURL(in string) string {
 	menuEntryURL := in
 	menuEntryURL = helpers.SanitizeURLKeepTrailingSlash(s.s.PathSpec.URLize(menuEntryURL))
 	if !s.canonifyURLs {
-		menuEntryURL = helpers.AddContextRoot(string(s.BaseURL), menuEntryURL)
+		menuEntryURL = helpers.AddContextRoot(s.s.PathSpec.BaseURL.String(), menuEntryURL)
 	}
 	return menuEntryURL
 }

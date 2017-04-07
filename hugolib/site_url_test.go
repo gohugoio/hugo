@@ -57,8 +57,8 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 		require.NoError(t, err)
 		s.initializeSiteInfo()
 
-		if s.Info.BaseURL != template.URL(this.expected) {
-			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL, this.expected)
+		if s.Info.BaseURL() != template.URL(this.expected) {
+			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL(), this.expected)
 		}
 	}
 }
