@@ -314,14 +314,27 @@ This example will list all taxonomies and their terms, as well as all the conten
 ```
 {{% /code %}}
 
-<!-- ## `.Site.GetPage` for Taxonomies
+## `.Site.GetPage` for Taxonomies
 
-### `.Site.GetPage` Taxonomy List Example
+Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the "List All Site Tags" example above:
+
+{{% code file="links-to-all-tags" %}}
+```html
+<ul class="tags">
+  {{ range ($.Site.GetPage "taxonomyTerm" "tags").Pages }}
+   <li><a href="{{ .Permalink }}">{{ .Title}}</a></li>
+  {{ end }}
+</ul>
+```
+{{% /code %}}
+
+<!--### `.Site.GetPage` Taxonomy List Example
 
 ### `.Site.GetPage` Taxonomy Terms Example -->
 
 
 [delimit]: /functions/delimit/
+[getpage]: /functions/getpage/
 [lists]: /templates/lists/
 [renderlists]: /templates/lists/
 [single page template]: /templates/single-page-templates/
