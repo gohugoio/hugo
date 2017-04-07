@@ -20,13 +20,13 @@ toc: true
 
 ## What is a Shortcode
 
-Hugo loves markdown because of its simple content format, but there are times when markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframes>`) to markdown content. We think this contradicts the beautiful simplicity of markdown's syntax.
+Hugo loves Markdown because of its simple content format, but there are times when Markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframes>`) to Markdown content. We think this contradicts the beautiful simplicity of Markdown's syntax.
 
 Hugo created **shortcodes** to circumvent these limitations.
 
 A shortcode is a simple snippet inside a content file that Hugo will render using a predefined template. Note that shortcodes will not work in template files. If you need the type of drop-in functionality that shortcodes provide but in a template, you most likely want a [partial template][partials] instead.
 
-In addition to cleaner markdown, shortcodes can be updated any time to reflect new classes, techniques, or standards. At the point of site generation, Hugo shortcodes will easily merge in your changes. You avoid a possibly complicated search and replace operation.
+In addition to cleaner Markdown, shortcodes can be updated any time to reflect new classes, techniques, or standards. At the point of site generation, Hugo shortcodes will easily merge in your changes. You avoid a possibly complicated search and replace operation.
 
 ## Using Shortcodes
 
