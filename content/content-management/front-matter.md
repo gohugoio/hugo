@@ -149,7 +149,7 @@ If neither `slug` nor `url` is present and [permalinks are not configured otherw
 
 You can add fields to your front matter arbitrarily to meet your needs. These user-defined key-values are placed into a single `.Params` variable for use in your templates.
 
-These fields in the following example can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables][] section provides more information on using Hugo's page- and site-level variables in your templates.
+The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables][] section provides more information on using Hugo's page- and site-level variables in your templates.
 
 ```yaml
 include_toc: true
@@ -162,7 +162,7 @@ Field names are always normalized to lowercase; e.g., `camelCase: true` is avail
 
 ## Ordering Content Through Front Matter
 
-Assigning a specific `weight` in the front matter of individual content allows finer control over sorting of content in lists. The convention of [`<TAXONOMY>_weight`][taxweight] allows for ordering of content within a taxonomy. See [Hugo's multiple ordering methods][ordering] to find out how to use `weight` in your templates.
+You can assign content-specific `weight` in the front matter of your content. These values are especially useful for [ordering][ordering] in list views. You can use `weight` for ordering of content and the convention of [`<TAXONOMY>_weight`][taxweight] for ordering content within a taxonomy. See [Ordering and Grouping Hugo Lists][] to see how `weight` can be used to organize your content in list views.
 
 ## Overriding Global Blackfriday Configuration
 
@@ -170,11 +170,9 @@ It's possible to set some options for Markdown rendering in a content's front ma
 
 ## Front Matter Format Specs
 
-The following are the specs used for Hugo's accepted front matter data formats:
-
-* [TOML Spec][toml]
-* [YAML Spec][yaml]
-* [JSON Spec][json]
+* [TOML Spec][TOML Spec]
+* [YAML Spec][YAML Spec]
+* [JSON Spec][JSON Spec]
 
 [aliases]: /content-management/urls/#aliases/
 [archetype]: /content-management/archetypes/
@@ -190,4 +188,5 @@ The following are the specs used for Hugo's accepted front matter data formats:
 [taxweight]: /content-management/taxonomies/
 [toml]: https://github.com/toml-lang/toml "Specification for TOML, Tom's Obvious Minimal Language"
 [urls]: /content-management/urls/
+[variables]: /variables/
 [yaml]: http://yaml.org/spec/ "Specification for YAML, YAML Ain't Markup Language"
