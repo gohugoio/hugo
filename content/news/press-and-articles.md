@@ -25,5 +25,5 @@ Know of a post, article, or tutorial on Hugo? [Please add it to this list](https
 
 Hugo has been featured in the following Blog Posts, Press, and Media.
 
-{{< datatable >}}
+{{< articlelist >}}
 
