@@ -1,4 +1,10 @@
 [[article]]
+	title = "Hugo Easy Gallery - Automagical PhotoSwipe image gallery with a one-line shortcode"
+	url = "https://www.liwen.id.au/heg/"
+	author = "Li-Wen Yip"
+	date = "2017-03-25"
+
+[[article]]
 	title = "Automagical Image Gallery in Hugo with PhotoSwipe and jQuery"
 	url = "https://www.liwen.id.au/photoswipe/"
 	author = "Li-Wen Yip"
@@ -44,6 +50,12 @@
 	title = "NPM scripts for building and deploying Hugo site"
 	url = "https://www.aerobatic.com/blog/hugo-npm-buildtool-setup/"
 	author = "Aerobatic"
+	date = "2017-02-12"
+
+[[article]]
+	title = "Getting started with Hugo and the plain-blog theme, on NearlyFreeSpeech.Net"
+	url = "https://www.penwatch.net/cms/get_started_plain_blog/"
+	author = "Li-aung “Lewis” Yip"
 	date = "2017-02-12"
 
 [[article]]
