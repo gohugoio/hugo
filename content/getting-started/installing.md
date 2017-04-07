@@ -28,7 +28,6 @@ Hugo currently provides pre-built binaries for the following:
 * <i class="icon-linux"></i> Linux
 * <i class="icon-freebsd"></i> FreeBSD
 
-
 Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., on other operating systems such as DragonFly BSD, OpenBSD, Plan&nbsp;9, Solaris, and others. See <https://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
 
 ## Quick Install
@@ -345,7 +344,7 @@ You'll need a place to store the Hugo executable, your [content][], and the gene
 
 Now you need to add Hugo to your Windows PATH settings:
 
-##### For Windows 10 users:
+##### For Windows 10 Users:
 
 * Right click on the **Start** button.
 * Click on **System**.
