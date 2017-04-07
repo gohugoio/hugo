@@ -218,25 +218,6 @@ hugo -s ~/Code/hugo/docs
 
 This prevents draft content from accidentally becoming available.
 
-### Using Hugo's Server in Production
-
-Because Hugo is so blazingly fast both in website creation *and* in web serving (thanks to its concurrent, multi-threaded design and Golang heritage), some users prefer to use Hugo itself to serve their website *on their production server*.
-
-No other web server software (e.g., Apache, nginx, IIS) is necessary.
-
-Here is the command:
-
-```bash
-hugo server --baseURL=http://yoursite.org/ \
---port=80 \
---appendPort=false \
---bind=87.245.198.50
-```
-
-Note the `bind` option, which is the interface to which the server will bind (defaults to `127.0.0.1`: fine for most development use cases). Some hosts, such as Amazon Web Services, run NAT (network address translation); sometimes it can be hard to figure out the actual IP address. Using `--bind=0.0.0.0` will bind to all interfaces.
-
-By using Hugo's server in production, you are able to deploy just the source files. Hugo, running on your server, will generate the resulting website on the fly and serve them at the same time.
-
 [commands]: /commands/
 [config]: /getting-started/configuration/
 [dirs]: /getting-started/directory-structure/
