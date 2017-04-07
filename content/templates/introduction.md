@@ -248,6 +248,7 @@ The following accesses the page parameter called "disqus_url" and escapes the HT
 {{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr") }}
 Stuff Here
 {{ end }}
+```
 
 Could be rewritten as
 
