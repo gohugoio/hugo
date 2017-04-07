@@ -400,6 +400,8 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 	sources := []source.ByteSource{
 		{Name: filepath.FromSlash("sect/doc1.html"), Content: []byte("doc1")},
+		// Add one more page to sect to make sure sect is picked in mainSections
+		{Name: filepath.FromSlash("sect/sect.html"), Content: []byte("sect")},
 		{Name: filepath.FromSlash("Fish and Chips/doc2.html"), Content: []byte("doc2")},
 		{Name: filepath.FromSlash("ラーメン/doc3.html"), Content: []byte("doc3")},
 	}
@@ -419,6 +421,11 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	writeSource(t, fs, filepath.Join("layouts", "_default/list.html"), "{{.Title}}")
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+	mainSections, err := s.Info.Param("mainSections")
+	require.NoError(t, err)
+	require.Equal(t, mainSections, []string{"sect"})
+
 	th := testHelper{s.Cfg, s.Fs, t}
 	tests := []struct {
 		doc         string

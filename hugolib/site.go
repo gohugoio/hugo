@@ -1698,6 +1698,36 @@ func (s *Site) assembleSections() {
 				wp.Page.PrevInSection = s.Sections[k][i+1].Page
 			}
 		}
+
+	}
+
+	var (
+		sectionsParamId      = "mainSections"
+		sectionsParamIdLower = strings.ToLower(sectionsParamId)
+		mainSections         interface{}
+		found                bool
+	)
+
+	if mainSections, found = s.Info.Params[sectionsParamIdLower]; !found {
+		// Pick the section with most regular pages
+		var (
+			chosenSection string
+			pageCount     int
+		)
+
+		for sect, pages := range s.Sections {
+			if pages.Count() >= pageCount {
+				chosenSection = sect
+				pageCount = pages.Count()
+			}
+		}
+		mainSections = []string{chosenSection}
+
+		// Try to make this as backwards compatible as possible.
+		s.Info.Params[sectionsParamId] = mainSections
+		s.Info.Params[sectionsParamIdLower] = mainSections
+	} else {
+		s.Info.Params[sectionsParamId] = mainSections
 	}
 }
 
