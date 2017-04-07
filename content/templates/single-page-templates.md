@@ -43,11 +43,11 @@ Hugo assumes your content section and content type are the same unless you tell 
 
 ## Example Single Page Templates
 
-Content pages are of the type `page` and will therefore have all the [page variables][] and [site variables][] available to use in their templates.
+Content pages are of the type `page` and will therefore have all the [page variables][pagevars] and [site variables][] available to use in their templates.
 
 ### `post/single.html`
 
-This single page template is a modified version of one used for for [spf13.com][spf13]. It makes use of [base templates][]:
+This single page template makes use of Hugo [base templates][], the [`.Format` function][] for dates, the [`.WordCount` page variable][pagevars], and ranges through the single content's specific [taxonomies][pagetaxonomy]. [`with`][] is also used to check whether the taxonomies are set in the front matter.
 
 {{% code file="layouts/post/single.html" download="single.html" %}}
 ```html
@@ -64,7 +64,7 @@ This single page template is a modified version of one used for for [spf13.com][
     <div>
     <section>
       <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
-      <h5 id="wc"> {{ .FuzzyWordCount }} Words </h5>
+      <h5 id="wordcount"> {{ .WordCount }} Words </h5>
     </section>
     {{ with .Params.topics }}
     <ul id="topics">
@@ -82,10 +82,10 @@ This single page template is a modified version of one used for for [spf13.com][
     {{ end }}
     </div>
     <div>
-        {{ with .Prev }}
+        {{ with .PrevInSection }}
           <a class="previous" href="{{.Permalink}}"> {{.Title}}</a>
         {{ end }}
-        {{ with .Next }}
+        {{ with .NextInSection }}
           <a class="next" href="{{.Permalink}}"> {{.Title}}</a>
         {{ end }}
     </div>
@@ -93,54 +93,6 @@ This single page template is a modified version of one used for for [spf13.com][
 {{ end }}
 ```
 {{% /code %}}
-
-### `project/single.html`
-
-This single page template is also modified from an existing template for [spf13.com][spf13] and makes use of [base templates][]:
-
-{{% code file="project/single.html" download="single.html" %}}
-```html
-{{ define "main" }}
-  <section id="main">
-    <h1 id="title">{{ .Title }}</h1>
-    <div>
-          <article id="content">
-             {{ .Content }}
-          </article>
-    </div>
-  </section>
-  <aside id="meta">
-      <div>
-      <section>
-        <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
-        <h5 id="wc"> {{ .FuzzyWordCount }} Words </h5>
-      </section>
-      {{ with .Params.topics }}
-      <ul id="topics">
-        {{ range . }}
-          <li><a href="{{ "topics" | absURL}}{{ . | urlize }}">{{ . }}</a> </li>
-        {{ end }}
-      </ul>
-      {{ end }}
-      {{ with .Params.tags}}
-      <ul id="tags">
-        {{ range . }}
-          <li> <a href="{{ "tags" | absURL }}{{ . | urlize}}">{{ . }}</a> </li>
-        {{ end }}
-      </ul>
-      {{ end }}
-      </div>
-  </aside>
-  {{with .Params "project_url" }}
-  <div id="ribbon">
-      <a href="{{ . }}">Fork me on GitHub</a>
-  </div>
-  {{ end }}
-{{ end }}
-```
-{{% /code %}}
-
-Notice how `project/single.html` uses an additional parameter unique to this template (i.e., `project_url`). This doesn't need to be defined ahead of time. The use of [`with`](/functions/with) means the key can be used in the template only if set in the content file's front matter.
 
 To easily generate new instances of a content type (e.g., new `.md` files in a section like `project/`) with preconfigured front matter, use [content archetypes][archetypes].
 
@@ -150,9 +102,12 @@ To easily generate new instances of a content type (e.g., new `.md` files in a s
 [content type]: /content-management/types/
 [directory structure]: /getting-started/directory-structure/
 [dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+[`.Format` function]: /functions/format/
 [front matter]: /content-management/front-matter/
-[page variables]: /variables/page/
+[pagetaxonomy]: /templates/taxonomy-templates/#displaying-a-single-piece-of-content-s-taxonomies
+[pagevars]: /variables/page/
 [partials]: /templates/partials/
 [section]: /content-management/sections/
 [site variables]: /variables/site/
 [spf13]: http://spf13.com/
+[`with`]: /functions/with/

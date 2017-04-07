@@ -203,7 +203,7 @@ using the [list templates](/templates/list/):
 3. You can list all terms for a taxonomy
 4. You can list all taxonomies (with their terms)
 
-### Displaying a Single Piece of Content's Taxonomies
+## Displaying a Single Piece of Content's Taxonomies
 
 Within your content templates, you may wish to display the taxonomies that piece of content is assigned to.
 
