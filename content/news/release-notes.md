@@ -40,7 +40,7 @@ Hugo `0.19` brings native Emacs Org-mode content support ({{<gh 1483>}}), big th
 
 Also, a considerably amount of work have been put into cleaning up the Hugo source code, in an issue titled [Refactor the globals out of site build](https://github.com/spf13/hugo/issues/2701). This is not immediately visible to the Hugo end user, but will speed up future development.
 
-Hugo `0.18` was bringing full-parallel page rendering, so workarounds depending on rendering order did not work anymore, and pages with duplicate target paths (common examples would be `/index.md` or `/about/index.md`) would now conflict with the home page or the section listing.
+Hugo `0.18` was bringing full-parallel page rendering, so workarounds depending on rendering order did not work anymore, and pages with duplicate target paths (common examples would be `/index.md` or `/about/index.md`) would now conflict with the homepage or the section listing.
 
 With Hugo `0.19`, you can control this behaviour by turning off page types you do not want ({{<gh 2534 >}}). In its most extreme case, if you put the below setting in your [`config.toml`](/getting-started/configuration/), you will get **nothing!**:
 
@@ -133,7 +133,7 @@ Not only is this a much simpler model to understand, it is also faster and paved
 * Enable proper titles for Nodes {{<gh 1051>}}
 * Sitemap.xml should include nodes, as well as pages {{<gh 1303>}}
 * Document homepage content workaround {{<gh 2240>}}
-* Allow home page to be easily authored in markdown {{<gh 720>}}
+* Allow homepage to be easily authored in markdown {{<gh 720>}}
 * Minimalist website with homepage as content {{<gh 330>}}
 
 Hugo again continues its trend of each release being faster than the last. It's quite a challenge to consistently add significant new functionality and simultaneously dramatically improve performance. Running [this benchmark]( https://github.com/bep/hugo-benchmark) with [these sites](https://github.com/bep/hugo-benchmark/tree/master/sites) (renders to memory) shows about   60% reduction in time spent and 30% reduction in memory usage compared to Hugo 0.17.
@@ -156,7 +156,7 @@ Hugo again continues its trend of each release being faster than the last. It's 
 
 ### Notices
 
-* `.Site.Pages` will now contain *several kinds of pages*, including regular pages, sections, taxonomies, and the home page.
+* `.Site.Pages` will now contain *several kinds of pages*, including regular pages, sections, taxonomies, and the homepage.
   If you want a specific kind of page, you can filter it with `where` and `Kind`.
   `.Site.RegularPages` is a shortcut to the page collection you have been used to getting.
 * `RSSlink` is now deprecated.  Use `RSSLink` instead.
@@ -367,7 +367,7 @@ times decreased anywhere from 10% to 99%.
 * Add description to `Page.Params` {{<gh 1484>}}
 * Add async version of Google Analytics internal template {{<gh 1711>}}
 * Add autostart option to YouTube shortcode {{<gh 1784>}}
-* Set Date and Lastmod for main home page {{<gh 1903>}}
+* Set Date and Lastmod for main homepage {{<gh 1903>}}
 * Allow URL with extension in front matter {{<gh 1923>}}
 * Add list support in Scratch {{<gh
   0xeaba04e82bdfc5d4c29e970f11b4aab9cc0efeaa>}}
@@ -462,7 +462,7 @@ Huge thanks to all who participated in this release. A special thanks to
 * Several new information elements have been added to `Page` and `Node`:
     * `RuneCount`: The number of [runes](http://blog.golang.org/strings) in the content, excluding any whitespace. This may be a good alternative to `.WordCount`  for Japanese and other CJK languages where a word-split by spaces makes no sense.  {{< gh 1266 >}}
     * `RawContent`: Raw Markdown as a string. One use case may be of embedding remarkjs.com slides.
-    * `IsHome`: tells the truth about whether you're on the home page or not.
+    * `IsHome`: tells the truth about whether you're on the homepage or not.
 
 ### Improvements
 * `hugo server` now builds ~30%+ faster by rendering to memory instead of disk. To get the old behavior, start the server with `--renderToDisk=true`.
@@ -649,7 +649,7 @@ maintainers and their tremendous contributions this release.
 * Support for [dynamic content](/templates/data-templates/) by loading JSON & CSV
   from remote sources via GetJson and GetCsv in short codes or other layout
   files ({{< gh 748 >}})
-* [Pagination support](/templates/pagination/) for home page, sections and
+* [Pagination support](/templates/pagination/) for homepage, sections and
   taxonomies ({{< gh 750 >}})
 * Universal sequencing support
     * A new, generic Next/Prev functionality is added to all lists of pages
