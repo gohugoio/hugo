@@ -317,9 +317,6 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 	config.Set("logI18nWarnings", logI18nWarnings)
 
 	if baseURL != "" {
-		if !strings.HasSuffix(baseURL, "/") {
-			baseURL = baseURL + "/"
-		}
 		config.Set("baseURL", baseURL)
 	}
 
