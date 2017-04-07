@@ -376,33 +376,6 @@ func (s *SiteInfo) Param(key interface{}) (interface{}, error) {
 	return s.Params[keyStr], nil
 }
 
-// GetParam gets a site parameter value if found, nil if not.
-func (s *SiteInfo) GetParam(key string) interface{} {
-	// Remove in Hugo 0.20
-	helpers.Deprecated("SiteInfo", ".GetParam", "Use .Param", true)
-	v := s.Params[strings.ToLower(key)]
-
-	if v == nil {
-		return nil
-	}
-
-	switch val := v.(type) {
-	case bool:
-		return val
-	case string:
-		return val
-	case int64, int32, int16, int8, int:
-		return cast.ToInt(v)
-	case float64, float32:
-		return cast.ToFloat64(v)
-	case time.Time:
-		return val
-	case []string:
-		return v
-	}
-	return nil
-}
-
 func (s *SiteInfo) IsMultiLingual() bool {
 	return len(s.Languages) > 1
 }

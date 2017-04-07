@@ -1507,19 +1507,12 @@ func (p *Page) copy() *Page {
 
 func (p *Page) Now() time.Time {
 	// Delete in Hugo 0.21
-	helpers.Deprecated("Page", "Now", "Use now (the template func)", false)
+	helpers.Deprecated("Page", "Now", "Use now (the template func)", true)
 	return time.Now()
 }
 
 func (p *Page) Hugo() *HugoInfo {
 	return hugoInfo
-}
-
-func (p *Page) RSSlink() template.URL {
-	// TODO(bep) we cannot have two of these
-	// Remove in Hugo 0.20
-	helpers.Deprecated(".Page", "RSSlink", "Use RSSLink", true)
-	return p.RSSLink()
 }
 
 func (p *Page) Ref(refs ...string) (string, error) {
