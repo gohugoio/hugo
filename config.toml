@@ -49,7 +49,7 @@ googleAnalytics = "UA-76549364-1"
   ## Used for views in rendered HTML (i.e., rather than using the .Hugo variable)
   release = "0.20"
   ## Critical Render Path. If true, site style will be embedded in a <style> tag in each html <head> as part of Gulp Build. False puts a typical <link> to the stylesheet in <head> See layouts/partials/style-embed.html
-  usecrp = false
+  usecrp = true
   ## Twitter handle without the "@"
   twitterhandle = "GoHugoIO"
   ## Facebook URL
