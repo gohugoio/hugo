@@ -77,7 +77,8 @@
         "Protocol": "",
         "IsPlainText": false,
         "IsHTML": true,
-        "NoUgly": false
+        "NoUgly": false,
+        "NotAlternative": false
       },
       {
         "MediaType": "text/css+css",
@@ -88,7 +89,8 @@
         "Protocol": "",
         "IsPlainText": true,
         "IsHTML": false,
-        "NoUgly": false
+        "NoUgly": false,
+        "NotAlternative": true
       },
       {
         "MediaType": "text/csv+csv",
@@ -99,7 +101,8 @@
         "Protocol": "",
         "IsPlainText": true,
         "IsHTML": false,
-        "NoUgly": false
+        "NoUgly": false,
+        "NotAlternative": false
       },
       {
         "MediaType": "text/calendar+ics",
@@ -110,7 +113,8 @@
         "Protocol": "webcal://",
         "IsPlainText": true,
         "IsHTML": false,
-        "NoUgly": false
+        "NoUgly": false,
+        "NotAlternative": false
       },
       {
         "MediaType": "text/html+html",
@@ -121,7 +125,8 @@
         "Protocol": "",
         "IsPlainText": false,
         "IsHTML": true,
-        "NoUgly": false
+        "NoUgly": false,
+        "NotAlternative": false
       },
       {
         "MediaType": "application/json+json",
@@ -132,7 +137,8 @@
         "Protocol": "",
         "IsPlainText": true,
         "IsHTML": false,
-        "NoUgly": false
+        "NoUgly": false,
+        "NotAlternative": false
       },
       {
         "MediaType": "application/rss+xml",
@@ -143,7 +149,8 @@
         "Protocol": "",
         "IsPlainText": false,
         "IsHTML": false,
-        "NoUgly": true
+        "NoUgly": true,
+        "NotAlternative": false
       }
     ],
     "layouts": [
