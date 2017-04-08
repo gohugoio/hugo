@@ -1499,9 +1499,7 @@ func (p *Page) updatePageDates() {
 // so they will be evaluated again, for word count calculations etc.
 func (p *Page) copy() *Page {
 	c := *p
-	c.pageInit = &pageInit{
-	//pageMenusInit: p.pageMenusInit,
-	}
+	c.pageInit = &pageInit{}
 	return &c
 }
 
