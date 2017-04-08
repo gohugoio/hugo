@@ -21,7 +21,7 @@ Hugo now has:
 - 495+ contributors
 - 156+ themes
 
-{{< gh "@bep" >}} still leads the Hugo development with his witty Norwegian humor, and once again contributed a significant amount of additions. Also a big shoutout to {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
+{{< gh "@bep" >}} still leads the Hugo development with his witty Norwegian humor, and once again contributed a significant amount of additions. Also a big shoutout to {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions.
 
 ## Other Highlights
 
@@ -44,12 +44,13 @@ Worth mentioning is also the ongoing work that  gh rdwatters and gh budparr is d
 * Add `.Site.Params.mainSections` that defaults to the section with the most pages. Plan is to get themes to use this instead of the hardcoded `blog` in `where` clauses.  gh 3206
 * File extension is now configurable. gh 320
 * Add taxonomy terms' pages to `.Data.Pages` gh 2826
-* Change RSS description from full `.Content` to `.Summary`. 
-* Ignore "." dirs in `hugo --cleanDestinationDir gh 3202
+* Change RSS description from full `.Content` to `.Summary`.
+* Ignore "." dirs in `hugo --cleanDestinationDir` gh 3202
 * Allow 'jekyll import' to accept both 2006-01-02 and 2006-1-2 date format gh 2738
 * Raise the default rssLimit gh 3145
 * Unify section list vs single template lookup order gh 3116
 * Allow `apply` to be used with the built-in Go template funcs `print`, `printf` and `println`. gh 3139
+* Impove `markdownify` template function performance. gh 3292
 
 ## Fixes
 * Fix deadlock in getJSON gh 3211
@@ -85,7 +86,7 @@ Hugo now has:
 
 Furthermore, Hugo has its own Twitter account ([@gohugoio](https://twitter.com/gohugoio)) where we share bite-sized news and themes from the Hugo community.
 
-{{< gh "@bep" >}} leads the Hugo development and once again contributed a significant amount of additions. Also a big shoutout to  {{< gh "@chaseadamsio" >}} for the Emacs Org-mode support, {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, {{< gh "@fj" >}}for his work on revising the `params` handling in Hugo, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions. 
+{{< gh "@bep" >}} leads the Hugo development and once again contributed a significant amount of additions. Also a big shoutout to  {{< gh "@chaseadamsio" >}} for the Emacs Org-mode support, {{< gh "@digitalcraftsman" >}} for his relentless work on keeping the documentation and the themes site in pristine condition, {{< gh "@fj" >}}for his work on revising the `params` handling in Hugo, and {{< gh "@moorereason" >}} and {{< gh "@bogem" >}} for their ongoing contributions.
 
 ## Highlights
 Hugo `0.19` brings native Emacs Org-mode content support ({{<gh 1483>}}), big thanks to {{< gh "@chaseadamsio" >}}.
@@ -131,10 +132,10 @@ disableKinds = ["page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "s
 * Fix `.Site.Pages` handling on live reloads {{<gh 2869 >}}
 * `UniqueID` now correctly uses the fill file path from the content root to calculate the hash, and is finally ... unique!
 * Discard current language based on `.Lang()`, go get translations correct for paginated pages. {{<gh 2972 >}}
-* Fix infinite loop in template AST handling for recursive templates  {{<gh 2927 >}} 
-* Fix issue with watching when config loading fails {{<gh 2603 >}} 
-* Correctly flush the imageConfig on live-reload {{<gh 3016 >}} 
-* Fix parsing of TOML arrays in frontmatter {{<gh 2752 >}} 
+* Fix infinite loop in template AST handling for recursive templates  {{<gh 2927 >}}
+* Fix issue with watching when config loading fails {{<gh 2603 >}}
+* Correctly flush the imageConfig on live-reload {{<gh 3016 >}}
+* Fix parsing of TOML arrays in frontmatter {{<gh 2752 >}}
 
 ## Docs
 * Add tutorial "How to use Google Firebase to host a Hugo site" {{<gh 3007 >}}
