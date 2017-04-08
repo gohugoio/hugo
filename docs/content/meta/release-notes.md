@@ -42,17 +42,17 @@ Worth mentioning is also the ongoing work that  gh rdwatters and gh budparr is d
 * Hugo `0.20` is built with Go 1.8.1.
 * Add `.Site.Params.mainSections` that defaults to the section with the most pages. Plan is to get themes to use this instead of the hardcoded `blog` in `where` clauses.  gh 3206
 * File extension is now configurable. gh 320
+* Impove `markdownify` template function performance. gh 3292
 * Add taxonomy terms' pages to `.Data.Pages` gh 2826
-* Change RSS description from full `.Content` to `.Summary`.
+* Change `RSS` description from full `.Content` to `.Summary`.
 * Ignore "." dirs in `hugo --cleanDestinationDir` gh 3202
-* Allow 'jekyll import' to accept both 2006-01-02 and 2006-1-2 date format gh 2738
-* Raise the default rssLimit gh 3145
+* Allow `jekyll import` to accept both `2006-01-02` and `2006-1-2` date format gh 2738
+* Raise the default `rssLimit` gh 3145
 * Unify section list vs single template lookup order gh 3116
 * Allow `apply` to be used with the built-in Go template funcs `print`, `printf` and `println`. gh 3139
-* Impove `markdownify` template function performance. gh 3292
 
 ## Fixes
-* Fix deadlock in getJSON gh 3211
+* Fix deadlock in `getJSON` gh 3211
 * Make sure empty terms pages are created. gh 2977
 * Fix base template lookup order for sections gh 2995
 * `URL` fixes:
@@ -62,13 +62,13 @@ Worth mentioning is also the ongoing work that  gh rdwatters and gh budparr is d
     * Handle `uglyURLs` ambiguity in `Permalink` gh 3102
     * Fix `Permalink` for language-roots wrong when `uglyURLs` is `true` gh 3179
     * Fix misc case issues for `URLs` gh 1641
-    * Fix taxonomies URLs on `uglyUrls=true` gh 1989
+    * Fix for taxonomies URLs when `uglyUrls=true` gh 1989
     * Fix empty `RSSLink` for list pages with content page. gh 3131
-* Correctly identify pages on the form "my_index_page.md" gh 3234
+* Correctly identify regular pages on the form "my_index_page.md" gh 3234
 *  `Exit -1` on `ERROR` in global logger gh 3239
-* Document hugo help command gh 2349
-* Fix internal Hugo version handling for bug fix releases. gh 3025
-* Only return `RSSLink` for pages that actually have an RSS feed. gh 1302
+* Document hugo `help command` gh 2349
+* Fix internal `Hugo` version handling for bug fix releases. gh 3025
+* Only return `RSSLink` for pages that actually have a RSS feed. gh 1302
 
 
 # **0.19** February 27th 2017
