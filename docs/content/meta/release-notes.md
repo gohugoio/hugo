@@ -33,7 +33,6 @@ Worth mentioning is also the ongoing work that  gh rdwatters and gh budparr is d
 
 ## Notes
 * `RSS` description in the built-in template is changed from full `.Content` to `.Summary`. This is a somewhat breaking change, but is what most people expect from their RSS feeds. If you want full content, please provide your own RSS template.
-* Use of the deprecated `.Now` now logs an `ERROR`.
 * The deprecated `.RSSlink` is now removed. Use `.RSSLink`.
 * The deprecated `.Site.GetParam` is now removed, use `.Site.Param`.
 * Hugo does no longer append missing trailing slash to `baseURL` set as a command line parameter, making it consistent with how it behaves from site config. gh 3262
