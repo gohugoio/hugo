@@ -49,7 +49,7 @@ Given a media type and some additional configuration, you get an `Output Format`
 
 This is the full set of built-in output formats in Hugo:
 
-{{< datatable "output" "formats" "Name" "MediaType" "Path" "BaseName" "Rel" "Protocol" "IsPlainText" "IsHTML" "NoUgly">}}
+{{< datatable "output" "formats" "Name" "MediaType" "Path" "BaseName" "Rel" "Protocol" "IsPlainText" "IsHTML" "NoUgly" "NotAlternative">}}
 
 **Note:**
 
@@ -84,6 +84,7 @@ Field | Description
 **IsPlainText** | Use Go's plain text templates parser for the templates. **Default:** _false_.
 **IsHTML** | Used in situations only relevant for `HTML` type of formats, page aliases being one example.|
 **NoUgly** | If `uglyURLs` is enabled globally, this can be used to turn it off for a given output format. **Default:** _false_.
+**NotAlternative** |  Enable if it doesn't make sense to include this format in an the `.AlternativeOutputFormats` format listing on `Page`, `CSS` being one good example. Note that we use the term "alternative" and not "alternate" here, as it does not necessarily replace the other format, it is an alternative representation.  **Default:** _false_.
 
 
 ## Output Formats for your pages
@@ -118,6 +119,32 @@ A `Page` with `YAML` front matter defining some output formats for that `Page`:
  ---
  ```
  Note that the names used for the output formats are case insensitive.
+ 
+## Link to Output Formats
+ 
+ `Page` has both  `.OutputFormats` (all formats including the current) and `.AlternativeOutputFormats`, the latter useful for creating a `link rel` list in your `head` section:
+ 
+ ```
+ {{ range .AlternativeOutputFormats -}}
+ <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
+ {{ end -}}
+  ```
+  
+Note that `.Permalink` on `RelPermalink` on `Page` will return the first output format defined for that page (usually `HTML` if nothing else is defined). 
+
+This is how you link to a given output format:
+
+```
+{{ with  .OutputFormats.Get "json" -}}
+<a href="{{ .Permalink }}">{{ .Name }}</a>
+{{- end }}
+```
+From content files, you can use the `ref` or `relref` shortcodes:
+
+```
+[Neat]({{</* ref "blog/neat.md" "amp" */>}})
+[Who]({{</* relref "about.md#who" "amp" */>}})
+```
 
 ## Templates for your Output Formats
 

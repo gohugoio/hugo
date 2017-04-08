@@ -157,6 +157,11 @@ Read more on [cross-references]({{% ref "extras/crossreferences.md" %}}).
 
     [Neat]({{</* ref "blog/neat.md" */>}})
     [Who]({{</* relref "about.md#who" */>}})
+    
+If the page exists in multiple [output formats]({{< relref "extras/output-formats.md" >}}),  `ref` or `relref` can be used with a output format name:
+ 
+     [Neat]({{</* ref "blog/neat.md" "amp" */>}})
+ 
 
 #### Example Output
 
