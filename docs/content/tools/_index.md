@@ -99,6 +99,7 @@ If you still want to use an editor, look at these plugins to automate your workf
 
 ### Emacs
 
+- [easy-hugo](https://github.com/masasam/emacs-easy-hugo) - Major mode & tools for Hugo.
 - [hugo.el](https://github.com/yewton/hugo.el) - Some helper functions for creating a Website with Hugo.
 
 ### Vim
@@ -126,10 +127,10 @@ A static site with a dynamic search function? Yes. Alternatively to embeddable s
 - [Algolia](https://www.algolia.com/)'s Search API makes it easy to deliver a great search experience in your apps &amp; websites. Algolia Search provides hosted full-text, numerical, faceted and geolocalized search.
 
 - [Appernetic.io](https://appernetic.io) is a Hugo Static Site Generator as a Service that is easy to use for non-technical users.
-Features: inline PageDown editor, visual tree view, image upload and digital asset management with Cloudinary, site preview, continuous integration with GitHub, atomic deploy and hosting, Git and Hugo integration, autosave, custom domain, project syncing, theme cloning and management. Developers have complete control over the source code and can manage it with GitHub’s deceptively simple workflow.
+Features: inline PageDown editor, visual tree view, image upload and digital asset management with Cloudinary, site preview, continuous integration with GitHub, atomic deploy and hosting, Git and Hugo integration, autosave, custom domain, project syncing, theme cloning and management. Developers have complete control over the source code and can manage it with GitHub's deceptively simple workflow.
 
 - [Netlify.com](https://www.netlify.com), builds, deploy & hosts your static site or app (Hugo, Jekyll etc). Build, deploy and host your static site or app with a drag and drop interface and automatic deploys from GitHub or Bitbucket.
-Features: global CDN, atomic deploys, ultra fast DNS, instant cache invalidation, high availability, automated hosting, Git integration, form submission hooks, authentication providers, custom domain. Developers have complete control over the source code and can manage it with GitHub’s or Bitbuckets deceptively simple workflow.
+Features: global CDN, atomic deploys, ultra fast DNS, instant cache invalidation, high availability, automated hosting, Git integration, form submission hooks, authentication providers, custom domain. Developers have complete control over the source code and can manage it with GitHub's or Bitbuckets deceptively simple workflow.
 
 - [Forestry.io](https://forestry.io/) - A simple CMS for Jekyll and Hugo sites with support for GitHub, GitLab and Bitbucket. Every time an update is made via the CMS, Forestry will commit changes back to your repo and will compile/deploy your site (S3, GitHub Pages, FTP, etc).
 
