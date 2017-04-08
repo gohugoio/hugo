@@ -145,7 +145,7 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 			return err
 		}
 
-		// TODO(bep) output do better
+		// TODO(bep) do better
 		link := newOutputFormat(p.Page, p.outputFormat).Permalink()
 		if err := s.writeDestAlias(target, link, nil); err != nil {
 			return err
@@ -222,7 +222,6 @@ func (s *Site) renderRSS(p *PageOutput) error {
 		return err
 	}
 
-	// TODO(bep) output deprecate/handle rssURI
 	targetPath, err := p.targetPath()
 	if err != nil {
 		return err

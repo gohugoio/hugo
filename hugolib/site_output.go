@@ -20,6 +20,7 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/config"
+	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/output"
 )
 
@@ -72,15 +73,18 @@ func createDefaultOutputFormats(cfg config.Provider) (map[string]output.Formats,
 
 		// All but page have RSS
 		if kind != KindPage {
-			// TODO(bep) output deprecate rssURI
+			rssType := output.RSSFormat
+
 			rssBase := cfg.GetString("rssURI")
 			if rssBase == "" {
-				rssBase = "index"
+				rssBase = rssType.BaseName
+			} else {
+				// Remove in Hugo 0.22.
+				helpers.Deprecated("Site config", "rssURI", "Set baseName in outputFormats.RSS", false)
+				// RSS has now a well defined media type, so strip any suffix provided
+				rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
 			}
 
-			// RSS has now a well defined media type, so strip any suffix provided
-			rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
-			rssType := output.RSSFormat
 			rssType.BaseName = rssBase
 			formats = append(formats, rssType)
 
