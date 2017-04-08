@@ -63,6 +63,12 @@ type Format struct {
 
 	// Enable to ignore the global uglyURLs setting.
 	NoUgly bool
+
+	// Enable if it doesn't make sense to include this format in an alternative
+	// format listing, CSS being one good example.
+	// Note that we use the term "alternative" and not "alternate" here, as it
+	// does not necessarily replace the other format, it is an alternative representation.
+	NotAlternative bool
 }
 
 var (
@@ -88,11 +94,12 @@ var (
 	}
 
 	CSSFormat = Format{
-		Name:        "CSS",
-		MediaType:   media.CSSType,
-		BaseName:    "styles",
-		IsPlainText: true,
-		Rel:         "stylesheet",
+		Name:           "CSS",
+		MediaType:      media.CSSType,
+		BaseName:       "styles",
+		IsPlainText:    true,
+		Rel:            "stylesheet",
+		NotAlternative: true,
 	}
 	CSVFormat = Format{
 		Name:        "CSV",

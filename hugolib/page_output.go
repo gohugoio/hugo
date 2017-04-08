@@ -177,8 +177,6 @@ type OutputFormat struct {
 	// This is value is fetched from the output format definition.
 	// Note that for pages with only one output format,
 	// this method will always return "canonical".
-	// TODO(bep) output -- the above may not be correct for CSS etc. Figure out a way around that.
-	// TODO(bep) output -- re the above, maybe add a "alternate" filter to AlternativeOutputFormats.
 	// As an example, the AMP output format will, by default, return "amphtml".
 	//
 	// See:
@@ -222,10 +220,12 @@ func newOutputFormat(p *Page, f output.Format) *OutputFormat {
 }
 
 // OutputFormats gives the alternative output formats for this PageOutput.
+// Note that we use the term "alternative" and not "alternate" here, as it
+// does not necessarily replace the other format, it is an alternative representation.
 func (p *PageOutput) AlternativeOutputFormats() (OutputFormats, error) {
 	var o OutputFormats
 	for _, of := range p.OutputFormats() {
-		if of.f == p.outputFormat {
+		if of.f.NotAlternative || of.f == p.outputFormat {
 			continue
 		}
 		o = append(o, of)

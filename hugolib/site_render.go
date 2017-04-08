@@ -290,7 +290,7 @@ func (s *Site) renderSitemap() error {
 	n.Data["Pages"] = pages
 	n.Pages = pages
 
-	// TODO(bep) output
+	// TODO(bep) we have several of these
 	if err := page.initTargetPathDescriptor(); err != nil {
 		return err
 	}
