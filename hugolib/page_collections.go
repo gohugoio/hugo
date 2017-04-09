@@ -101,7 +101,6 @@ func (c *PageCollections) getPage(typ string, sections ...string) *Page {
 		key = path.Join(sections...)
 	}
 
-	// TODO(bep) section error
 	p, _ := c.pageCache.Get(typ, key)
 	if p == nil {
 		return nil

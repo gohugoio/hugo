@@ -69,7 +69,7 @@ func TestPageCount(t *testing.T) {
 	cfg.Set("uglyURLs", false)
 	cfg.Set("paginate", 10)
 
-	writeSourcesToSource(t, "content", fs, urlFakeSource...)
+	writeSourcesToSource(t, "", fs, urlFakeSource...)
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	_, err := s.Fs.Destination.Open("public/blue")

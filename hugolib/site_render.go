@@ -167,6 +167,8 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 				return err
 			}
 
+			pagerNode.origOnCopy = p.Page
+
 			pagerNode.paginator = pager
 			if pager.TotalPages() > 0 {
 				first, _ := pager.page(0)
