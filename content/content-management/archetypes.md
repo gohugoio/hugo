@@ -168,7 +168,7 @@ categories = ""
 date = 2017-02-13T17:24:43-08:00
 description = ""
 tags = ""
-title = post from custom archetype
+title = "post from custom archetype"
 +++
 ```
 {{% /output %}}

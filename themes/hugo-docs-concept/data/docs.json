@@ -2,55 +2,55 @@
   "media": {
     "types": [{
       "Type": "application/javascript",
-      "String": "application/javascriptjs",
+      "String": "application/javascript+js",
       "MainType": "application",
       "SubType": "javascript",
       "Suffix": "js"
     }, {
       "Type": "application/json",
-      "String": "application/jsonjson",
+      "String": "application/json+json",
       "MainType": "application",
       "SubType": "json",
       "Suffix": "json"
     }, {
       "Type": "application/rss",
-      "String": "application/rssxml",
+      "String": "application/rss+xml",
       "MainType": "application",
       "SubType": "rss",
       "Suffix": "xml"
     }, {
       "Type": "application/xml",
-      "String": "application/xmlxml",
+      "String": "application/xml+xml",
       "MainType": "application",
       "SubType": "xml",
       "Suffix": "xml"
     }, {
       "Type": "text/calendar",
-      "String": "text/calendarics",
+      "String": "text/calendar+ics",
       "MainType": "text",
       "SubType": "calendar",
       "Suffix": "ics"
     }, {
       "Type": "text/css",
-      "String": "text/csscss",
+      "String": "text/css+css",
       "MainType": "text",
       "SubType": "css",
       "Suffix": "css"
     }, {
       "Type": "text/csv",
-      "String": "text/csvcsv",
+      "String": "text/csv+csv",
       "MainType": "text",
       "SubType": "csv",
       "Suffix": "csv"
     }, {
       "Type": "text/html",
-      "String": "text/htmlhtml",
+      "String": "text/html+html",
       "MainType": "text",
       "SubType": "html",
       "Suffix": "html"
     }, {
       "Type": "text/plain",
-      "String": "text/plaintxt",
+      "String": "text/plain+txt",
       "MainType": "text",
       "SubType": "plain",
       "Suffix": "txt"
@@ -58,7 +58,7 @@
   },
   "output": {
     "formats": [{
-      "MediaType": "text/htmlhtml",
+      "MediaType": "text/html+html",
       "Name": "AMP",
       "Path": "amp",
       "BaseName": "index",
@@ -66,9 +66,10 @@
       "Protocol": "",
       "IsPlainText": false,
       "IsHTML": true,
-      "NoUgly": false
+      "NoUgly": false,
+      "NotAlternative": false
     }, {
-      "MediaType": "text/csscss",
+      "MediaType": "text/css+css",
       "Name": "CSS",
       "Path": "",
       "BaseName": "styles",
@@ -76,9 +77,10 @@
       "Protocol": "",
       "IsPlainText": true,
       "IsHTML": false,
-      "NoUgly": false
+      "NoUgly": false,
+      "NotAlternative": true
     }, {
-      "MediaType": "text/csvcsv",
+      "MediaType": "text/csv+csv",
       "Name": "CSV",
       "Path": "",
       "BaseName": "index",
@@ -86,9 +88,10 @@
       "Protocol": "",
       "IsPlainText": true,
       "IsHTML": false,
-      "NoUgly": false
+      "NoUgly": false,
+      "NotAlternative": false
     }, {
-      "MediaType": "text/calendarics",
+      "MediaType": "text/calendar+ics",
       "Name": "Calendar",
       "Path": "",
       "BaseName": "index",
@@ -96,9 +99,10 @@
       "Protocol": "webcal://",
       "IsPlainText": true,
       "IsHTML": false,
-      "NoUgly": false
+      "NoUgly": false,
+      "NotAlternative": false
     }, {
-      "MediaType": "text/htmlhtml",
+      "MediaType": "text/html+html",
       "Name": "HTML",
       "Path": "",
       "BaseName": "index",
@@ -106,9 +110,10 @@
       "Protocol": "",
       "IsPlainText": false,
       "IsHTML": true,
-      "NoUgly": false
+      "NoUgly": false,
+      "NotAlternative": false
     }, {
-      "MediaType": "application/jsonjson",
+      "MediaType": "application/json+json",
       "Name": "JSON",
       "Path": "",
       "BaseName": "index",
@@ -116,9 +121,10 @@
       "Protocol": "",
       "IsPlainText": true,
       "IsHTML": false,
-      "NoUgly": false
+      "NoUgly": false,
+      "NotAlternative": false
     }, {
-      "MediaType": "application/rssxml",
+      "MediaType": "application/rss+xml",
       "Name": "RSS",
       "Path": "",
       "BaseName": "index",
@@ -126,7 +132,8 @@
       "Protocol": "",
       "IsPlainText": false,
       "IsHTML": false,
-      "NoUgly": true
+      "NoUgly": true,
+      "NotAlternative": false
     }],
     "layouts": [{
       "Example": "AMP home, with theme \"demoTheme\".",

@@ -108,6 +108,9 @@ The following is the full list of configuration options for output formats and t
 `NoUgly`
 : Used to turn off ugly URLs If `uglyURLs` is set to `true` in your site. **Default:** `false`.
 
+`NotAlternative`
+: Enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term *alternative* and not *alternate* here, as it does not necessarily replace the other format. **Default:** `false`.
+
 
 ## Output Formats for your pages
 
@@ -151,6 +154,33 @@ outputs:
 ---
 ```
 
+## Linking to Output Formats
+
++ `Page` has both  `.OutputFormats` (all formats including the current) and `.AlternativeOutputFormats`, the latter useful for creating a `link rel` list in your `head` section:
+
+```
+{{ range .AlternativeOutputFormats -}}
+<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
+{{ end -}}
+```
+
+Note that `.Permalink` on `RelPermalink` on `Page` will return the first output format defined for that page (usually `HTML` if nothing else is defined).
+
+This is how you link to a given output format:
+
+```
+{{ with  .OutputFormats.Get "json" -}}
+<a href="{{ .Permalink }}">{{ .Name }}</a>
+{{- end }}
+```
+
+From content files, you can use the [`ref` or `relref` shortcodes](/content-management/shortcodes/#ref-and-relref):
+
+```
+[Neat]({{</* ref "blog/neat.md" "amp" */>}})
+[Who]({{</* relref "about.md#who" "amp" */>}})
+```
+
 ## Templates for Your Output Formats
 
 A new output format needs needs a corresponding template in order to render anything useful.
@@ -170,7 +200,11 @@ And with so many possible variations, this is best explained with some examples:
 
 Hugo will now also detect the media type and output format of partials, if possible, and use that information to decide if the partial should be parsed as a plain text template or not.
 
-Hugo will look for the name given, so you can name it whatever you want. But if you want it treated as plain text, you should use the file suffix and, if needed, the name of the Output Format (`[partial name].[OutputFormat].[suffix])`.
+Hugo will look for the name given, so you can name it whatever you want. But if you want it treated as plain text, you should use the file suffix and, if needed, the name of the Output Format. The pattern is as follows:
+
+```
+[partial name].[OutputFormat].[suffix]
+```
 
 The partial below is a plain text template (Outpuf Format is `CSV`, and since this is the only output format with the suffix `csv`, we don't need to include the Output Format's `Name`):
 

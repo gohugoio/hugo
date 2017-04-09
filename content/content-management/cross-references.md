@@ -73,6 +73,14 @@ A relative document name must *not* begin with a slash (`/`).
 {{</* relref "/events/my-birthday.md" */>}} => ""
 ```
 
+### With Multiple Output Formats
+
+If the page exists in multiple [output formats][], `ref` or `relref` can be used with a output format name:
+
+```
+ [Neat]({{</* ref "blog/neat.md" "amp" */>}})
+```
+
 ### Anchors
 
 When an `anchor` is provided by itself, the current page’s unique identifier will be appended; when an `anchor` is provided appended to `documentname`, the found page's unique identifier will be appended:
