@@ -1,7 +1,7 @@
 ---
 aliases:
 - /doc/front-matter/
-lastmod: 2015-12-23
+lastmod: 2017-04-09
 date: 2013-07-01
 menu:
   main:
@@ -117,3 +117,5 @@ It's possible to set some options for Markdown rendering in the page's front mat
 
 See [Configuration]({{< ref "overview/configuration.md#configure-blackfriday-rendering" >}}) for more.
 
+## Fallback date variable from filenames
+If you're migrating content to Hugo, you may have content with dates in the filename. For example `2017-01-31-myblog.md`.  You can optionally enable the `useFilenameDateAsFallback` configuration option. This will attempt to parse the datestamp in the filename and use it as a fallback to providing a date variable in the frontmatter.
