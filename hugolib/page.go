@@ -175,6 +175,16 @@ type Page struct {
 	// isn't accomanied by one.
 	sections []string
 
+	// Will only be set for sections and regular pages.
+	parent *Page
+
+	// When we create paginator pages, we create a copy of the original,
+	// but keep track of it here.
+	origOnCopy *Page
+
+	// Will only be set for section pages and the home page.
+	subSections Pages
+
 	s *Site
 
 	// Pulled over from old Node. TODO(bep) reorg and group (embed)
@@ -228,6 +238,9 @@ func (p *Page) createLayoutDescriptor() output.LayoutDescriptor {
 
 	switch p.Kind {
 	case KindSection:
+		// In Hugo 0.22 we introduce nested sections, but we still only
+		// use the first level to pick the correct template. This may change in
+		// the future.
 		section = p.sections[0]
 	case KindTaxonomy, KindTaxonomyTerm:
 		section = p.s.taxonomiesPluralSingular[p.sections[0]]
@@ -263,6 +276,11 @@ func (p *Page) IsNode() bool {
 // IsHome returns whether this is the home page.
 func (p *Page) IsHome() bool {
 	return p.Kind == KindHome
+}
+
+// IsSection returns whether this is a section page.
+func (p *Page) IsSection() bool {
+	return p.Kind == KindSection
 }
 
 // IsPage returns whether this is a regular content page.
@@ -667,6 +685,9 @@ func (p *Page) Type() string {
 	return "page"
 }
 
+// Section returns the first path element below the content root. Note that
+// since Hugo 0.22 we support nested sections, but this will always be the first
+// element of any nested path.
 func (p *Page) Section() string {
 	if p.Kind == KindSection {
 		return p.sections[0]
@@ -1100,10 +1121,6 @@ func (p *Page) HasMenuCurrent(menuID string, me *MenuEntry) bool {
 	if sectionPagesMenu != "" {
 		section := p.Section()
 
-		if !p.s.Info.preserveTaxonomyNames {
-			section = p.s.PathSpec.MakePathSanitized(section)
-		}
-
 		if section != "" && sectionPagesMenu == menuID && section == me.Identifier {
 			return true
 		}
@@ -1415,59 +1432,54 @@ func (p *Page) prepareLayouts() error {
 }
 
 func (p *Page) prepareData(s *Site) error {
+	if p.Kind != KindSection {
+		var pages Pages
+		p.Data = make(map[string]interface{})
 
-	var pages Pages
+		switch p.Kind {
+		case KindPage:
+		case KindHome:
+			pages = s.RegularPages
+		case KindTaxonomy:
+			plural := p.sections[0]
+			term := p.sections[1]
 
-	p.Data = make(map[string]interface{})
-	switch p.Kind {
-	case KindPage:
-	case KindHome:
-		pages = s.RegularPages
-	case KindSection:
-		sectionData, ok := s.Sections[p.Section()]
-		if !ok {
-			return fmt.Errorf("Data for section %s not found", p.Section())
-		}
-		pages = sectionData.Pages()
-	case KindTaxonomy:
-		plural := p.sections[0]
-		term := p.sections[1]
+			if s.Info.preserveTaxonomyNames {
+				if v, ok := s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, term)]; ok {
+					term = v
+				}
+			}
 
-		if s.Info.preserveTaxonomyNames {
-			if v, ok := s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, term)]; ok {
-				term = v
+			singular := s.taxonomiesPluralSingular[plural]
+			taxonomy := s.Taxonomies[plural].Get(term)
+
+			p.Data[singular] = taxonomy
+			p.Data["Singular"] = singular
+			p.Data["Plural"] = plural
+			p.Data["Term"] = term
+			pages = taxonomy.Pages()
+		case KindTaxonomyTerm:
+			plural := p.sections[0]
+			singular := s.taxonomiesPluralSingular[plural]
+
+			p.Data["Singular"] = singular
+			p.Data["Plural"] = plural
+			p.Data["Terms"] = s.Taxonomies[plural]
+			// keep the following just for legacy reasons
+			p.Data["OrderedIndex"] = p.Data["Terms"]
+			p.Data["Index"] = p.Data["Terms"]
+
+			// A list of all KindTaxonomy pages with matching plural
+			for _, p := range s.findPagesByKind(KindTaxonomy) {
+				if p.sections[0] == plural {
+					pages = append(pages, p)
+				}
 			}
 		}
 
-		singular := s.taxonomiesPluralSingular[plural]
-		taxonomy := s.Taxonomies[plural].Get(term)
-
-		p.Data[singular] = taxonomy
-		p.Data["Singular"] = singular
-		p.Data["Plural"] = plural
-		p.Data["Term"] = term
-		pages = taxonomy.Pages()
-	case KindTaxonomyTerm:
-		plural := p.sections[0]
-		singular := s.taxonomiesPluralSingular[plural]
-
-		p.Data["Singular"] = singular
-		p.Data["Plural"] = plural
-		p.Data["Terms"] = s.Taxonomies[plural]
-		// keep the following just for legacy reasons
-		p.Data["OrderedIndex"] = p.Data["Terms"]
-		p.Data["Index"] = p.Data["Terms"]
-
-		// A list of all KindTaxonomy pages with matching plural
-		for _, p := range s.findPagesByKind(KindTaxonomy) {
-			if p.sections[0] == plural {
-				pages = append(pages, p)
-			}
-		}
+		p.Data["Pages"] = pages
+		p.Pages = pages
 	}
-
-	p.Data["Pages"] = pages
-	p.Pages = pages
 
 	// Now we know enough to set missing dates on home page etc.
 	p.updatePageDates()
@@ -1736,11 +1748,8 @@ func (p *Page) setValuesForKind(s *Site) {
 	switch p.Kind {
 	case KindHome:
 		p.URLPath.URL = "/"
-	case KindSection:
-		p.URLPath.URL = "/" + p.sections[0] + "/"
-	case KindTaxonomy:
-		p.URLPath.URL = "/" + path.Join(p.sections...) + "/"
-	case KindTaxonomyTerm:
+	case KindPage:
+	default:
 		p.URLPath.URL = "/" + path.Join(p.sections...) + "/"
 	}
 }

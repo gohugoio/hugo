@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2017 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -323,7 +323,6 @@ type SiteInfo struct {
 	Taxonomies TaxonomyList
 	Authors    AuthorList
 	Social     SiteSocial
-	Sections   Taxonomy
 	*PageCollections
 	Files                 *[]*source.File
 	Menus                 *Menus
@@ -1512,8 +1511,6 @@ func (s *Site) buildSiteMeta() (err error) {
 		p.setValuesForKind(s)
 	}
 
-	s.assembleSections()
-
 	return
 }
 
@@ -1590,6 +1587,9 @@ func (s *Site) assembleMenus() {
 	if sectionPagesMenu != "" {
 		for _, p := range pages {
 			if p.Kind == KindSection {
+				// From Hugo 0.22 we have nested sections, but until we get a
+				// feel of how that would work in this setting, let us keep
+				// this menu for the top level only.
 				id := p.Section()
 				if _, ok := flat[twoD{sectionPagesMenu, id}]; ok {
 					continue
@@ -1724,69 +1724,8 @@ func (s *Site) resetBuildState() {
 
 	for _, p := range s.rawAllPages {
 		p.scratch = newScratch()
-	}
-}
-
-func (s *Site) assembleSections() {
-	s.Sections = make(Taxonomy)
-	s.Info.Sections = s.Sections
-
-	regularPages := s.findPagesByKind(KindPage)
-	sectionPages := s.findPagesByKind(KindSection)
-
-	for i, p := range regularPages {
-		section := s.getTaxonomyKey(p.Section())
-		s.Sections.add(section, WeightedPage{regularPages[i].Weight, regularPages[i]})
-	}
-
-	// Add sections without regular pages, but with a content page
-	for _, sectionPage := range sectionPages {
-		if _, ok := s.Sections[sectionPage.sections[0]]; !ok {
-			s.Sections[sectionPage.sections[0]] = WeightedPages{}
-		}
-	}
-
-	for k := range s.Sections {
-		s.Sections[k].Sort()
-
-		for i, wp := range s.Sections[k] {
-			if i > 0 {
-				wp.Page.NextInSection = s.Sections[k][i-1].Page
-			}
-			if i < len(s.Sections[k])-1 {
-				wp.Page.PrevInSection = s.Sections[k][i+1].Page
-			}
-		}
-
-	}
-
-	var (
-		sectionsParamId      = "mainSections"
-		sectionsParamIdLower = strings.ToLower(sectionsParamId)
-		mainSections         interface{}
-		found                bool
-	)
-
-	if mainSections, found = s.Info.Params[sectionsParamIdLower]; !found {
-		// Pick the section with most regular pages
-		var (
-			chosenSection string
-			pageCount     int
-		)
-
-		for sect, pages := range s.Sections {
-			if pages.Count() >= pageCount {
-				chosenSection = sect
-				pageCount = pages.Count()
-			}
-		}
-		mainSections = []string{chosenSection}
-
-		// Try to make this as backwards compatible as possible.
-		s.Info.Params[sectionsParamId] = mainSections
-		s.Info.Params[sectionsParamIdLower] = mainSections
-	} else {
-		s.Info.Params[sectionsParamId] = mainSections
+		p.subSections = Pages{}
+		p.parent = nil
 	}
 }
 
@@ -1891,10 +1830,11 @@ func (s *Site) Stats() {
 
 }
 
-// GetPage looks up a index page of a given type in the path given.
+// GetPage looks up a page of a given type in the path given.
 //    {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
 //
-// This will return nil when no page could be found.
+// This will return nil when no page could be found, and will return the
+// first page found if the key is ambigous.
 func (s *SiteInfo) GetPage(typ string, path ...string) (*Page, error) {
 	return s.getPage(typ, path...), nil
 }
@@ -2163,15 +2103,10 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 	return p
 }
 
-func (s *Site) newSectionPage(name string, section WeightedPages) *Page {
+func (s *Site) newSectionPage(name string) *Page {
 	p := s.newNodePage(KindSection, name)
 
-	sectionName := name
-	if !s.Info.preserveTaxonomyNames && len(section) > 0 {
-		sectionName = section[0].Page.Section()
-	}
-
-	sectionName = helpers.FirstUpper(sectionName)
+	sectionName := helpers.FirstUpper(name)
 	if s.Cfg.GetBool("pluralizeListTitles") {
 		p.Title = inflect.Pluralize(sectionName)
 	} else {

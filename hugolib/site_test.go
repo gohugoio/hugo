@@ -438,7 +438,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 	mainSections, err := s.Info.Param("mainSections")
 	require.NoError(t, err)
-	require.Equal(t, mainSections, []string{"sect"})
+	require.Equal(t, []string{"sect"}, mainSections)
 
 	th := testHelper{s.Cfg, s.Fs, t}
 	tests := []struct {
@@ -635,12 +635,8 @@ func TestOrderedPages(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	if s.Sections["sect"][0].Weight != 2 || s.Sections["sect"][3].Weight != 6 {
-		t.Errorf("Pages in unexpected order. First should be '%d', got '%d'", 2, s.Sections["sect"][0].Weight)
-	}
-
-	if s.Sections["sect"][1].Page.Title != "Three" || s.Sections["sect"][2].Page.Title != "Four" {
-		t.Errorf("Pages in unexpected order. Second should be '%s', got '%s'", "Three", s.Sections["sect"][1].Page.Title)
+	if s.getPage(KindSection, "sect").Pages[1].Title != "Three" || s.getPage(KindSection, "sect").Pages[2].Title != "Four" {
+		t.Error("Pages in unexpected order.")
 	}
 
 	bydate := s.RegularPages.ByDate()

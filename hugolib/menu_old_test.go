@@ -402,25 +402,27 @@ func doTestSectionPagesMenu(canonifyURLs bool, t *testing.T) {
 		"canonifyURLs", canonifyURLs,
 	)
 
-	require.Equal(t, 3, len(s.Sections))
+	sects := s.getPage(KindHome).Sections()
 
-	firstSectionPages := s.Sections["first"]
+	require.Equal(t, 3, len(sects))
+
+	firstSectionPages := s.getPage(KindSection, "first").Pages
 	require.Equal(t, 2, len(firstSectionPages))
-	secondSectionPages := s.Sections["second-section"]
+	secondSectionPages := s.getPage(KindSection, "second-section").Pages
 	require.Equal(t, 1, len(secondSectionPages))
-	fishySectionPages := s.Sections["fish-and-chips"]
+	fishySectionPages := s.getPage(KindSection, "Fish and Chips").Pages
 	require.Equal(t, 1, len(fishySectionPages))
 
 	nodeFirst := s.getPage(KindSection, "first")
 	require.NotNil(t, nodeFirst)
 	nodeSecond := s.getPage(KindSection, "second-section")
 	require.NotNil(t, nodeSecond)
-	nodeFishy := s.getPage(KindSection, "fish-and-chips")
-	require.Equal(t, "fish-and-chips", nodeFishy.sections[0])
+	nodeFishy := s.getPage(KindSection, "Fish and Chips")
+	require.Equal(t, "Fish and Chips", nodeFishy.sections[0])
 
 	firstSectionMenuEntry := findTestMenuEntryByID(s, "spm", "first")
 	secondSectionMenuEntry := findTestMenuEntryByID(s, "spm", "second-section")
-	fishySectionMenuEntry := findTestMenuEntryByID(s, "spm", "fish-and-chips")
+	fishySectionMenuEntry := findTestMenuEntryByID(s, "spm", "Fish and Chips")
 
 	require.NotNil(t, firstSectionMenuEntry)
 	require.NotNil(t, secondSectionMenuEntry)
@@ -436,19 +438,19 @@ func doTestSectionPagesMenu(canonifyURLs bool, t *testing.T) {
 	require.Equal(t, "Fish and Chips", fishySectionMenuEntry.Name)
 
 	for _, p := range firstSectionPages {
-		require.True(t, p.Page.HasMenuCurrent("spm", firstSectionMenuEntry))
-		require.False(t, p.Page.HasMenuCurrent("spm", secondSectionMenuEntry))
+		require.True(t, p.HasMenuCurrent("spm", firstSectionMenuEntry))
+		require.False(t, p.HasMenuCurrent("spm", secondSectionMenuEntry))
 	}
 
 	for _, p := range secondSectionPages {
-		require.False(t, p.Page.HasMenuCurrent("spm", firstSectionMenuEntry))
-		require.True(t, p.Page.HasMenuCurrent("spm", secondSectionMenuEntry))
+		require.False(t, p.HasMenuCurrent("spm", firstSectionMenuEntry))
+		require.True(t, p.HasMenuCurrent("spm", secondSectionMenuEntry))
 	}
 
 	for _, p := range fishySectionPages {
-		require.False(t, p.Page.HasMenuCurrent("spm", firstSectionMenuEntry))
-		require.False(t, p.Page.HasMenuCurrent("spm", secondSectionMenuEntry))
-		require.True(t, p.Page.HasMenuCurrent("spm", fishySectionMenuEntry))
+		require.False(t, p.HasMenuCurrent("spm", firstSectionMenuEntry))
+		require.False(t, p.HasMenuCurrent("spm", secondSectionMenuEntry))
+		require.True(t, p.HasMenuCurrent("spm", fishySectionMenuEntry))
 	}
 }
 
