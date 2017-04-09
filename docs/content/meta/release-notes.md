@@ -29,7 +29,7 @@ Hugo now has:
 
 Also, there have been some important updates in the Emacs Org-mode handling: {{< gh "@chaseadamsio" >}} has fixed the newline-handling ({{< gh 3126 >}}) and {{< gh "@clockoon" >}}  has added basic footnote support.
 
-Worth mentioning is also the ongoing work that {{< gh "@rdwatters" >}} and {{< gh "@budparr" >}} is doing to re-do the `gohugo.io` site, including a total restructuring and partial rewrite of the documentation. It is getting close to finished, and it looks fantastic!
+Worth mentioning is also the ongoing work that {{< gh "@rdwatters" >}} and {{< gh "@budparr" >}} is doing to re-do the [gohugo.io](https://gohugo.io/) site, including a total restructuring and partial rewrite of the documentation. It is getting close to finished, and it looks fantastic!
 
 ## Notes
 * `RSS` description in the built-in template is changed from full `.Content` to `.Summary`. This is a somewhat breaking change, but is what most people expect from their RSS feeds. If you want full content, please provide your own RSS template.
