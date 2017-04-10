@@ -43,8 +43,6 @@ import (
 	"github.com/spf13/hugo/transform"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
-
-  "github.com/sotetsuk/gobibtex"
 )
 
 var _ = transform.AbsURL
@@ -831,7 +829,7 @@ func (s *Site) readData(f *source.File) (interface{}, error) {
 	case "toml":
 		return parser.HandleTOMLMetaData(f.Bytes())
   case "bib":
-    return gobibtex.Decode(string(f.Bytes()))
+    return parser.HandleBibtexData(f.Bytes())
 	default:
 		return nil, fmt.Errorf("Data not supported for extension '%s'", f.Extension())
 	}
