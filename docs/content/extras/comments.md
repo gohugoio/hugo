@@ -93,14 +93,6 @@ It is in early development but shows promise. If you have interest, please help 
 
 [txtpen](https://txtpen.com) adds highlighting an in-line commenting similar to Medium to your Hugo blog. 
 
-Hugo comes with everything you would need to include load Disqus. Simply include the following line where you want your comments to appear:
-
-    {{ template "_internal/txtpen.html" . }}
-
-You also need to set a single value in your site config file, e.g. config.yaml.
-
-    txtpenShortname = "<Your Site Name>"
-
 ## Discourse
 
 Additionally, you may recognize [Discourse](http://www.discourse.org) as the system that powers the [Hugo Discussion Forum](http://discuss.gohugo.io).

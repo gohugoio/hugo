@@ -1057,7 +1057,6 @@ func (s *Site) initializeSiteInfo() {
 		LanguageCode:                   lang.GetString("languageCode"),
 		Copyright:                      lang.GetString("copyright"),
 		DisqusShortname:                lang.GetString("disqusShortname"),
-		txtpenShortname:                lang.GetString("txtpenShortname"),
 		multilingual:                   multilingual,
 		Language:                       lang,
 		LanguagePrefix:                 languagePrefix,

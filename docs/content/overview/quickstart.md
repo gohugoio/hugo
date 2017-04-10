@@ -469,7 +469,7 @@ Now, you can start the server without the `buildDrafts` option.
 $ hugo server --theme=hugo_theme_robust
 ```
 
-## Step 10. Integrate Disqus and txtpen
+## Step 10. Integrate Disqus
 
 txtpen enables text highlights and in-text comments similar to Medium. To enable txtpen, set `txtpenShortname` in the `config.toml`.
 
@@ -478,7 +478,6 @@ Disqus allows you to integrate comments in your static blog. To enable Disqus, y
 ```
 [Params]
   Author = "Shekhar Gulati"
-  txtpenShortname = <your txtpen site name>
   disqusShortname = <your disqus shortname>
 ```
 

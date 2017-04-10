@@ -195,7 +195,6 @@ Also available is `.Site` which has the following:
 **.Site.Title** A string representing the title of the site.<br>
 **.Site.Author** A map of the authors as defined in the site configuration.<br>
 **.Site.LanguageCode** A string representing the language as defined in the site configuration. This is mostly used to populate the RSS feeds with the right language code.<br>
-**.Site.txtpenShortname** A string representing the site name of the txtpen as defined in the site configuration.<br>
 **.Site.DisqusShortname** A string representing the shortname of the Disqus shortcode as defined in the site configuration.<br>
 **.Site.GoogleAnalytics** A string representing your tracking code for Google Analytics as defined in the site configuration.<br>
 **.Site.Copyright** A string representing the copyright of your web site as defined in the site configuration.<br>
