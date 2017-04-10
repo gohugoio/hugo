@@ -72,6 +72,7 @@ Now, reference the partial template from your page template:
 
 A few alternatives exist to [Disqus](https://disqus.com/):
 
+* [txtpen](https://txtpen.com)
 * [Discourse](http://www.discourse.org)
 * [IntenseDebate](http://intensedebate.com/)
 * [Livefyre](http://www.adobe.com/marketing-cloud/enterprise-content-management/ugc-content-platform.html)
@@ -87,6 +88,10 @@ A few alternatives exist to [Disqus](https://disqus.com/):
 Written using Go, Socket.io and MongoDB, it is very fast and easy to deploy.
 
 It is in early development but shows promise. If you have interest, please help by contributing whether via a pull request, an issue or even just a tweet. Everything helps.
+
+## txtpen
+
+[txtpen](https://txtpen.com) adds highlighting an in-line commenting similar to Medium to your Hugo blog. 
 
 ## Discourse
 
