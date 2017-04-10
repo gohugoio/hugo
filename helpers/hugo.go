@@ -24,7 +24,7 @@ import (
 // This should be the only one
 const (
 	// Major and minor version.
-	HugoVersionNumber = 0.20
+	HugoVersionNumber = 0.21
 
 	// Increment this for bug releases
 	HugoPatchVersion = 0
@@ -32,8 +32,8 @@ const (
 
 // HugoVersionSuffix is the suffix used in the Hugo version string.
 // It will be blank for release versions.
-//const HugoVersionSuffix = "-DEV" // use this when not doing a release
-const HugoVersionSuffix = "" // use this line when doing a release
+const HugoVersionSuffix = "-DEV" // use this when not doing a release
+//const HugoVersionSuffix = "" // use this line when doing a release
 
 // HugoVersion returns the current Hugo version. It will include
 // a suffix, typically '-DEV', if it's development version.
