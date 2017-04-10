@@ -155,8 +155,6 @@ func (t *templateHandler) embedTemplates() {
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}`)
 
-	t.addInternalTemplate("", "txtpen.html", `{{ if .Site.txtpenShortname }}<script type="text/javascript" src="https://txtpen.com/embed.js?site={{ .Site.txtpenShortname }}" />{{end}}`)
-
 	// Add SEO & Social metadata
 	t.addInternalTemplate("", "opengraph.html", `<meta property="og:title" content="{{ .Title }}" />
 <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}" />
