@@ -76,13 +76,11 @@ func createDefaultOutputFormats(cfg config.Provider) (map[string]output.Formats,
 			rssType := output.RSSFormat
 
 			rssBase := cfg.GetString("rssURI")
-			if rssBase == "" {
+			if rssBase == "" || rssBase == "index.xml" {
 				rssBase = rssType.BaseName
 			} else {
 				// Remove in Hugo 0.22.
-				if rssBase != "index.xml" {
-					helpers.Deprecated("Site config", "rssURI", "Set baseName in outputFormats.RSS", false)
-				}
+				helpers.Deprecated("Site config", "rssURI", "Set baseName in outputFormats.RSS", false)
 				// RSS has now a well defined media type, so strip any suffix provided
 				rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
 			}
