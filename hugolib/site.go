@@ -302,7 +302,7 @@ type SiteInfo struct {
 	Author                map[string]interface{}
 	LanguageCode          string
 	DisqusShortname       string
-    txtpenShortname       string
+	txtpenShortname       string
 	GoogleAnalytics       string
 	Copyright             string
 	LastChange            time.Time
