@@ -111,6 +111,7 @@ It makes use of [partial templates](/templates/partials/)
         </div>
     </aside>
 
+    {{ partial "txtpen.html" . }}
     {{ partial "disqus.html" . }}
     {{ partial "footer.html" . }}
 
