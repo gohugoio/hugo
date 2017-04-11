@@ -1,5 +1,5 @@
 ---
-title: Custom Outputs
+title: Custom Output Formats
 linktitle: Custom Outputs
 description: Hugo can output content in multiple formats to make quick work of
 date: 2017-03-22
@@ -13,7 +13,7 @@ menu:
     weight: 18
 weight: 18
 draft: false
-aliases: [/extras/output-formats/,/doc/output-formats/,/doc/custom-output/]
+aliases: [/templates/outputs/,/extras/output-formats/,/doc/output-formats/,/doc/custom-output/]
 toc: true
 wip: true
 ---
