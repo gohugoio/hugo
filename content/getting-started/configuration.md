@@ -381,6 +381,10 @@ blackfriday:
 ```
 {{% /code %}}
 
+## Configuring Additional Output Formats
+
+Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats][] for information on how to add these values to your Hugo project's configuration file.
+
 ## Configuration Format Specs
 
 * [TOML Spec][toml]
@@ -391,6 +395,7 @@ blackfriday:
 [directory structure]: /getting-started/directory-structure
 [json]: /documents/ecma-404-json-spec.pdf
 [lookup order]: /templates/lookup-order/
+[Output Formats]: /templates/output-formats/
 [templates]: /templates/
 [toml]: https://github.com/toml-lang/toml
 [yaml]: http://yaml.org/spec/

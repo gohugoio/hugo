@@ -17,7 +17,7 @@ aliases: [/templates/outputs/,/extras/output-formats/,/doc/output-formats/,/doc/
 toc: true
 ---
 
-Hugo `0.20` introduced the powerful feature **Custom Output Formats**; Hugo isn't just that "static HTML with an added RSS feed" anymore. _Say hello_ to calendars, e-book formats, Google AMP, and JSON search indexes, to name a few.
+Hugo `0.20` introduced the powerful feature **custom output formats**; Hugo isn't just "static HTML with an added RSS feed" anymore. *Say hello* to calendars, e-book formats, Google AMP, and JSON search indexes, to name a few.
 
 This page describes how to properly configure your site with the media types and output formats, as well as where to create your templates for your custom outputs.
 
