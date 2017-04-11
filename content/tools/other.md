@@ -25,3 +25,4 @@ And for all the other small things around Hugo:
 * [hugo-openapispec-shortcode](https://github.com/tenfourty/hugo-openapispec-shortcode) A shortcode that allows you to include [Open API Spec](https://openapis.org) (formerly known as Swagger Spec) in a page.
 * [HugoPhotoSwipe](https://github.com/GjjvdBurg/HugoPhotoSwipe) makes it easy to create image galleries using PhotoSwipe.
 * [Hugo SFTP Upload](https://github.com/thomasmey/HugoSftpUpload) Syncs the local build of your Hugo website with your remote webserver via SFTP.
+* [Emacs Easy Hugo](https://github.com/masasam/emacs-easy-hugo) Emacs package for writing blog posts in markdown or org-mode and building your site with Hugo.
