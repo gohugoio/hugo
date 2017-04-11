@@ -133,7 +133,6 @@ Hugo boasts the following features:
 ### Additional Features
 
   * Integrated [Disqus](https://disqus.com/) comment support
-  * [txtpen](https://txtpen.com/) highlights and in-text commenting support
   * Integrated [Google Analytics](https://google-analytics.com/) support
   * Automatic [RSS](/layout/rss/) creation
   * Support for [Go](http://golang.org/pkg/html/template/), [Amber](https://github.com/eknkc/amber) and [Ace](https://github.com/yosssi/ace) HTML templates
