@@ -323,7 +323,7 @@ enableemoji: true
 
 ## Environmental Variables
 
-In addition to the 3 config options already mentioned, website configuration can be accomplished through operating system environment variables.
+In addition to the 3 config options already mentioned, configuration key-values can be defined through operating system environment variables.
 
 For example, the following command will effectively set a website's title on Unix-like systems:
 
