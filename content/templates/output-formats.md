@@ -15,7 +15,6 @@ weight: 18
 draft: false
 aliases: [/templates/outputs/,/extras/output-formats/,/doc/output-formats/,/doc/custom-output/]
 toc: true
-wip: true
 ---
 
 Hugo `0.20` introduced the powerful feature **Custom Output Formats**; Hugo isn't just that "static HTML with an added RSS feed" anymore. _Say hello_ to calendars, e-book formats, Google AMP, and JSON search indexes, to name a few.
