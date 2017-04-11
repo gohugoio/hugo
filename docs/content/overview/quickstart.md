@@ -471,8 +471,6 @@ $ hugo server --theme=hugo_theme_robust
 
 ## Step 10. Integrate Disqus
 
-txtpen enables text highlights and in-text comments similar to Medium. To enable txtpen, set `txtpenShortname` in the `config.toml`.
-
 Disqus allows you to integrate comments in your static blog. To enable Disqus, you just have to set `disqusShortname`  in the config.toml as shown below.
 
 ```
