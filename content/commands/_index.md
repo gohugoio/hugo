@@ -14,7 +14,6 @@ menu:
 weight: 01	#rem
 draft: false
 aliases: [/cli/]
-wip: true
 ---
 
 The following list contains auto-generated and up-to-date (thanks to [Cobra][]) documentation for all the CLI commands in Hugo.
