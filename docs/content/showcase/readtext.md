@@ -6,7 +6,7 @@ sitelink: http://readtext.org/
 tags:
 - textfiles
 - reading
-thumbnail: /img/readtext-tn.png
+image: readtext.jpg
 title: ReadText
 ---
 

@@ -8,6 +8,6 @@ sourceLink:
 tags:
 - data
 - website
-thumbnail: /img/firstnameclub.png
+image: "firstnameclub.jpg"
 title: firstname club
 ---

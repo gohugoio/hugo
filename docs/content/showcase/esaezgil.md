@@ -1,5 +1,5 @@
 ---
-date: 2017-04-02T07:32:00Z
+date: 2017-04-02
 description: "Personal blog of Enrique Saez Gil - esaezgil"
 license: ""
 licenseLink: ""
@@ -10,7 +10,6 @@ tags:
 - technical blog
 - software
 - open source
-thumbnail: /img/esaezgil_com-tn.png
+image: "esaezgil.jpg"
 title: esaezgil.com
 ---
-

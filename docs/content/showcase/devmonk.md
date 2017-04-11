@@ -5,11 +5,11 @@ description: ""
 license: ""
 licenseLink: ""
 sitelink: https://devmonk.com/
-sourceLink: https://github.com/peteraba/devmonk.com
+sourcelink: https://github.com/peteraba/devmonk.com
 tags:
 - educational
 - video
-thumbnail: /img/devmonk-tn.jpg
+image: devmonk.jpg
 title: devmonk
 ---
 

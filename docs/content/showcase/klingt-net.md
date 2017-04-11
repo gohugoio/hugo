@@ -4,12 +4,12 @@ description: "klingt.net is the personal homepage of Andreas Linz."
 license: ""
 licenseLink: ""
 sitelink: https://klingt.net/
-sourceLink: https://github.com/klingtnet/klingt.net
+sourcelink: https://github.com/klingtnet/klingt.net
 tags:
 - personal
 - blog
 - programming
-thumbnail: /img/klingt-net-tn.png
+image: klingt-net.jpg
 title: klingt net
 ---
 

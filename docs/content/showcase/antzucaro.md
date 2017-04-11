@@ -5,12 +5,12 @@ description: Ant Zucaro's Blog
 license: GPL
 licenseLink: ""
 sitelink: http://antzucaro.com/
-sourceLink: https://github.com/antzucaro/az.com
+sourcelink: https://github.com/antzucaro/az.com
 tags:
 - personal
 - blog
 - foundation
-thumbnail: /img/antzucaro-tn.jpg
+image: antzucaro.jpg
 title: Ant Zucaro
 ---
 

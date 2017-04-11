@@ -6,7 +6,7 @@ licenseLink: ""
 sitelink: http://silvergeko.it/
 tags:
 - profesional
-thumbnail: /img/silvergeko.jpg
+image: silvergeko.jpg
 title: Silvergeko
 ---
 

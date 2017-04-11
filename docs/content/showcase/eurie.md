@@ -6,6 +6,6 @@ licenseLink: ""
 sitelink: https://docs.eurie.io
 tags:
 - documentation
-thumbnail: /img/docs.eurie.io-tn.png
+image: docs.eurie.io.jpg
 title: eurie Desk docs
 ---

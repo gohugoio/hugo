@@ -10,6 +10,6 @@ tags:
 - projects
 - music
 - drawings
-thumbnail: /img/gntech-tn.png
+image: gntech.jpg
 title: gntech.se
 ---

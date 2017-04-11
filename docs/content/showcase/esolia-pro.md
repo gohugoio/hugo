@@ -5,12 +5,12 @@ description: Tokyo IT service provider eSolia Inc's eSolia.pro blog site, powere
 license: MIT
 licenseLink: ""
 sitelink: http://esolia.pro/
-sourceLink: https://github.com/eSolia/eSolia.pro
+sourcelink: https://github.com/eSolia/eSolia.pro
 tags:
 - company
 - esolia
 - rickcogley
 - japan
-thumbnail: /img/esolia_pro-tn.png
+image: esolia_pro.jpg
 title: eSolia.pro
 ---

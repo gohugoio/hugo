@@ -9,6 +9,6 @@ tags:
 - personal
 - blog
 - music
-thumbnail: /img/myearworms-tn.jpg
+image: myearworms.jpg
 title: My Earworms
 ---

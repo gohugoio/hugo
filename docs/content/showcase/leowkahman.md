@@ -7,6 +7,6 @@ sitelink: https://www.leowkahman.com/
 tags:
 - personal
 - blog
-thumbnail: /img/leowkahman-tn.png
+image: leowkahman.jpg
 title: Leow Kah Man - Tech Blog
 ---
