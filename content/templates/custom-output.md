@@ -10,8 +10,8 @@ tags: ["amp","outputs"]
 menu:
   main:
     parent: "Content Management"
-    weight: 100
-weight: 100	#rem
+    weight: 18
+weight: 18
 draft: false
 aliases: [/extras/output-formats/,/doc/output-formats/,/doc/custom-output/]
 toc: true
