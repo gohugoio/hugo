@@ -90,7 +90,7 @@ func (f *Filesystem) captureFiles() {
 			return nil
 		}
 
-		b, err := f.shouldRead(filePath, fi)
+		b, err := f.ShouldRead(filePath, fi)
 		if err != nil {
 			return err
 		}
@@ -118,7 +118,7 @@ func (f *Filesystem) captureFiles() {
 
 }
 
-func (f *Filesystem) shouldRead(filePath string, fi os.FileInfo) (bool, error) {
+func (f *Filesystem) ShouldRead(filePath string, fi os.FileInfo) (bool, error) {
 	if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 		link, err := filepath.EvalSymlinks(filePath)
 		if err != nil {
