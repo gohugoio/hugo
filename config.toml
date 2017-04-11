@@ -1,6 +1,4 @@
 baseurl = "https://hugodocs.info"
-buildDrafts = false
-buildFuture = false
 canonifyurls = true
 # Pointing to this file
 config = "config.toml"
@@ -40,9 +38,6 @@ verboseLog = false
 watch = true
 # Add GA Tracking Code Here. This leverages a built-in (ie, "internal") partial from HUGO: https://gohugo.io/extras/analytics#configuring-google-analytics
 googleAnalytics = "UA-76549364-1"
-
-[permalinks]
-  temp = "/:title"
 
 #CUSTOM PARAMS
 [params]

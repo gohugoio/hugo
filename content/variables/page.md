@@ -18,13 +18,16 @@ aliases: [/variables/page/]
 toc: true
 ---
 
-The following is a list of page-level variables that can be defined for a piece of content. Many of these will be defined in the front matter, derived from file location, or extracted from the content itself.
+The following is a list of page-level variables. Many of these will be defined in the front matter, derived from file location, or extracted from the content itself.
 
 {{% note "`.Scratch`" %}}
 See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 {{% /note %}}
 
 ## Page Variables
+
+`.AlternativeOutputFormats`
+: contains all alternative formats for a given page; this variable is especially useful `link rel` list in your site's `<head>`. (See [Output Formats](/templates/output-formats/).)
 
 `.Content`
 : the content itself, defined below the front matter.
@@ -86,6 +89,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 
 `.NextInSection`
 : pointer to the following content within the same section (based on `publishdate` in front matter).
+
+`.OutputFormats`
+: contains all formats, including the current format, for a given page. Can be combined the with [`.Get` function](/functions/get/) to grab a specific format. (See [Output Formats](/templates/output-formats/).)
 
 `.Pages`
 : a collection of associated pages. This value will be `nil` for regular content pages. `.Pages` is an alias for `.Data.Pages`.
