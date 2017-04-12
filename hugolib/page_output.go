@@ -83,6 +83,7 @@ func (p *PageOutput) copy() *PageOutput {
 	if err != nil {
 		panic(err)
 	}
+	c.paginator = p.paginator
 	return c
 }
 
