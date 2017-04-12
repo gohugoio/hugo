@@ -98,6 +98,8 @@ along with their current, default values:
 
     ---
     archetypeDir:               "archetypes"
+    # The below example will will use specified extensions when rendering content with asciidoctor
+    asciidoctorRequires = ["./extensions/custom-admonition-block.rb", "./extensions/copyright.rb"]
     # hostname (and path) to the root, e.g. http://spf13.com/
     baseURL:                    ""
     # include content marked as draft
