@@ -78,13 +78,17 @@ func newPageOutput(p *Page, createCopy bool, f output.Format) (*PageOutput, erro
 
 // copy creates a copy of this PageOutput with the lazy sync.Once vars reset
 // so they will be evaluated again, for word count calculations etc.
-func (p *PageOutput) copy() *PageOutput {
-	c, err := newPageOutput(p.Page, true, p.outputFormat)
+func (p *PageOutput) copyWithFormat(f output.Format) (*PageOutput, error) {
+	c, err := newPageOutput(p.Page, true, f)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	c.paginator = p.paginator
-	return c
+	return c, nil
+}
+
+func (p *PageOutput) copy() (*PageOutput, error) {
+	return p.copyWithFormat(p.outputFormat)
 }
 
 func (p *PageOutput) layouts(layouts ...string) ([]string, error) {
@@ -142,6 +146,9 @@ func (p *Page) Render(layout ...string) template.HTML {
 	}
 
 	p.pageOutputInit.Do(func() {
+		if p.mainPageOutput != nil {
+			return
+		}
 		// If Render is called in a range loop, the page output isn't available.
 		// So, create one.
 		outFormat := p.outputFormats[0]
