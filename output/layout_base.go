@@ -101,7 +101,7 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 	filenameNoSuffix := parts[0]
 
 	id.OverlayFilename = fullPath
-	id.Name = strings.ToLower(name)
+	id.Name = name
 
 	if isPlainText {
 		id.Name = "_text/" + id.Name

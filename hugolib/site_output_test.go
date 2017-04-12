@@ -114,6 +114,8 @@ other = "Olboge"
 
 	th, h := newTestSitesFromConfig(t, mf, siteConfig,
 
+		// Case issue partials #3333
+		"layouts/partials/GoHugo.html", `Go Hugo Partial`,
 		"layouts/_default/baseof.json", `START JSON:{{block "main" .}}default content{{ end }}:END JSON`,
 		"layouts/_default/baseof.html", `START HTML:{{block "main" .}}default content{{ end }}:END HTML`,
 
@@ -137,6 +139,8 @@ List HTML|{{.Title }}|
 <atom:link href={{ .Permalink }} rel="self" type="{{ .MediaType }}" />
 {{- end -}}
 {{ .Site.Language.Lang }}: {{ T "elbow" -}}
+Partial Hugo 1: {{ partial "GoHugo.html" . }}
+Partial Hugo 2: {{ partial "GoHugo" . -}}
 {{ end }}
 `,
 	)
