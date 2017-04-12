@@ -75,14 +75,10 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			)
 
 			if i == 0 {
-				page.pageOutputInit.Do(func() {
-					var po *PageOutput
-					po, err = newPageOutput(page, false, outFormat)
-					page.mainPageOutput = po
-				})
-				pageOutput = page.mainPageOutput
+				pageOutput, err = newPageOutput(page, false, outFormat)
+				page.mainPageOutput = pageOutput
 			} else {
-				pageOutput, err = newPageOutput(page, true, outFormat)
+				pageOutput, err = page.mainPageOutput.copyWithFormat(outFormat)
 			}
 
 			if err != nil {
@@ -159,7 +155,10 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 				continue
 			}
 
-			pagerNode := p.copy()
+			pagerNode, err := p.copy()
+			if err != nil {
+				return err
+			}
 
 			pagerNode.paginator = pager
 			if pager.TotalPages() > 0 {
