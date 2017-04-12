@@ -1,3 +1,4 @@
+{{$socialimg := add "images/" .Site.Params.defaultsocialimage }}
 <script type="application/ld+json">
 {
     "@context": "http://schema.org",
@@ -15,7 +16,7 @@
     "wordCount": {{.WordCount}},
     "image": {
         "@type": "ImageObject",
-        "url": "{{.Site.Params.siteaddress}}/images/{{.Site.Params.defaultsocialimage }}",
+        "url": "{{ $socialimg | absURL }}",
         "height": 800,
         "width": 1500
     }

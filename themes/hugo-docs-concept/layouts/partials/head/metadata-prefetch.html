@@ -1,7 +1,7 @@
 <link rel="dns-prefetch" href="{{ .Site.BaseURL }}">
 <!-- Preconnect API. For browser compatibility, check http://caniuse.com/#feat=link-rel-preconnect -->
 <link rel="preconnect" href="{{ .Site.Params.siteaddress }}">
-<link rel="canonical" href="{{ .Site.Params.siteaddress }}{{.URL}}">
+<link rel="canonical" href="{{ .Permalink }}">
 {{with .NextInSection }}
 <link rel="prefetch" href="{{.Permalink}}">
 <link rel="prerender" href="{{.Permalink}}">
