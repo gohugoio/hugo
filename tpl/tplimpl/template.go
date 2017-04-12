@@ -420,13 +420,15 @@ func (t *templateHandler) loadTemplates(absPath string, prefix string) {
 
 			li := strings.LastIndex(path, layoutDir) + len(layoutDir) + 1
 			relPath := path[li:]
+			templateDir := path[:li-len(layoutDir)-1]
 
 			descriptor := output.TemplateLookupDescriptor{
+				TemplateDir:   templateDir,
 				WorkingDir:    workingDir,
 				LayoutDir:     layoutDir,
 				RelPath:       relPath,
 				Prefix:        prefix,
-				Theme:         t.PathSpec.Theme(),
+				ThemeDir:      themeDir,
 				OutputFormats: t.OutputFormatsConfig,
 				FileExists: func(filename string) (bool, error) {
 					return helpers.Exists(filename, t.Fs.Source)

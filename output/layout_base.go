@@ -38,7 +38,11 @@ type TemplateNames struct {
 }
 
 type TemplateLookupDescriptor struct {
-	// The full path to the site or theme root.
+	// TemplateDir is the project or theme root of the current template.
+	// This will be the same as WorkingDir for non-theme templates.
+	TemplateDir string
+
+	// The full path to the site root.
 	WorkingDir string
 
 	// Main project layout dir, defaults to "layouts"
@@ -51,8 +55,8 @@ type TemplateLookupDescriptor struct {
 	// The template name prefix to look for, i.e. "theme".
 	Prefix string
 
-	// The theme name if active.
-	Theme string
+	// The theme dir if theme active.
+	ThemeDir string
 
 	// All the output formats in play. This is used to decide if text/template or
 	// html/template.
@@ -64,16 +68,29 @@ type TemplateLookupDescriptor struct {
 
 func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 
-	var id TemplateNames
-
 	name := filepath.ToSlash(d.RelPath)
 
 	if d.Prefix != "" {
 		name = strings.Trim(d.Prefix, "/") + "/" + name
 	}
 
-	baseLayoutDir := filepath.Join(d.WorkingDir, d.LayoutDir)
-	fullPath := filepath.Join(baseLayoutDir, d.RelPath)
+	var (
+		id TemplateNames
+
+		// This is the path to the actual template in process. This may
+		// be in the theme's or the project's /layouts.
+		baseLayoutDir = filepath.Join(d.TemplateDir, d.LayoutDir)
+		fullPath      = filepath.Join(baseLayoutDir, d.RelPath)
+
+		// This is always the project's layout dir.
+		baseWorkLayoutDir = filepath.Join(d.WorkingDir, d.LayoutDir)
+
+		baseThemeLayoutDir string
+	)
+
+	if d.ThemeDir != "" {
+		baseThemeLayoutDir = filepath.Join(d.ThemeDir, "layouts")
+	}
 
 	// The filename will have a suffix with an optional type indicator.
 	// Examples:
@@ -140,8 +157,8 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 		currBaseFilename := fmt.Sprintf("%s-%s", filenameNoSuffix, baseFilename)
 
 		templateDir := filepath.Dir(fullPath)
-		themeDir := filepath.Join(d.WorkingDir, d.Theme)
 
+		// Find the base, e.g. "_default".
 		baseTemplatedDir := strings.TrimPrefix(templateDir, baseLayoutDir)
 		baseTemplatedDir = strings.TrimPrefix(baseTemplatedDir, helpers.FilePathSeparator)
 
@@ -162,7 +179,7 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 
 	Loop:
 		for _, pair := range pairsToCheck {
-			pathsToCheck := basePathsToCheck(pair, baseLayoutDir, themeDir)
+			pathsToCheck := basePathsToCheck(pair, baseLayoutDir, baseWorkLayoutDir, baseThemeLayoutDir)
 
 			for _, pathToCheck := range pathsToCheck {
 				if ok, err := d.FileExists(pathToCheck); err == nil && ok {
@@ -177,13 +194,18 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 
 }
 
-func basePathsToCheck(path []string, layoutDir, themeDir string) []string {
-	// Always look in the project.
-	pathsToCheck := []string{filepath.Join((append([]string{layoutDir}, path...))...)}
+func basePathsToCheck(path []string, layoutDir, workLayoutDir, themeLayoutDir string) []string {
+	// workLayoutDir will always be the most specific, so start there.
+	pathsToCheck := []string{filepath.Join((append([]string{workLayoutDir}, path...))...)}
+
+	if layoutDir != "" && layoutDir != workLayoutDir {
+		pathsToCheck = append(pathsToCheck, filepath.Join((append([]string{layoutDir}, path...))...))
+	}
 
 	// May have a theme
-	if themeDir != "" {
-		pathsToCheck = append(pathsToCheck, filepath.Join((append([]string{themeDir, "layouts"}, path...))...))
+	if themeLayoutDir != "" && themeLayoutDir != layoutDir {
+		pathsToCheck = append(pathsToCheck, filepath.Join((append([]string{themeLayoutDir}, path...))...))
+
 	}
 
 	return pathsToCheck
