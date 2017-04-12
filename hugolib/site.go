@@ -633,8 +633,15 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 	shortcodesChanged := make(map[string]bool)
 	// prevent spamming the log on changes
 	logger := helpers.NewDistinctFeedbackLogger()
+	seen := make(map[fsnotify.Event]bool)
 
 	for _, ev := range events {
+		// Avoid processing the same event twice.
+		if seen[ev] {
+			continue
+		}
+		seen[ev] = true
+
 		if s.isContentDirEvent(ev) {
 			logger.Println("Source changed", ev.Name)
 			sourceChanged = append(sourceChanged, ev)
