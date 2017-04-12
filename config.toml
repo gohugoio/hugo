@@ -44,11 +44,9 @@ googleAnalytics = "UA-76549364-1"
   ## Used for views in rendered HTML (i.e., rather than using the .Hugo variable)
   release = "0.20"
   ## Critical Render Path. If true, site style will be embedded in a <style> tag in each html <head> as part of Gulp Build. False puts a typical <link> to the stylesheet in <head> See layouts/partials/style-embed.html
-  usecrp = true
+  usecrp = false
   ## Twitter handle without the "@"
   twitterhandle = "GoHugoIO"
-  ## Facebook URL
-  facebook = ""
   ## Default Image for Social Sharing. This image should live at static/images/
   defaultsocialimage = "hugodefaultsocial.png"
   ## Setting this to true will add a "noindex" to *EVERY* page on the site
@@ -58,15 +56,13 @@ googleAnalytics = "UA-76549364-1"
   ## Gh repo for site footer (include trailing slash)
   ghrepo = "https://github.com/spf13/hugo/"
   ### Edit content repo (set to automatically enter "edit" mode; this is good for "improve this page" links)
-  ghdocsrepo = "https://github.com/rdwatters/hugo-docs-concept/edit/master/"
+  ghdocsrepo = "https://github.com/spf13/hugo/tree/master/docs"
   ## Gitter URL
   gitter = "https://gitter.im/spf13/hugo"
   ## Discuss Forum URL
   forum = "https://discuss.gohugo.io"
   ## Google Tag Manager
   gtmid = ""
-  # Set to true to include a CDN call to FontAwesome (note that Hugo currently hosts its own FA (see pipeline/scss/_variables.scss) if needed, but leverages a custom Fontello font or icons, including the "H" and "Gopher" icons for code blocks)
-  usefontawesome = false
 
 # MARKDOWN
 ## Configuration for BlackFriday markdown parser: https://github.com/russross/blackfriday
