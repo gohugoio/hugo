@@ -4,10 +4,10 @@ description: "Blog by Rocchi Cesare"
 license: ""
 licenseLink: ""
 sitelink: http://upbeat.it/
-sourceLink: 
+sourcelink:
 tags:
 - personal
 - blog
-thumbnail: /img/upbeat.png
+image: upbeat.jpg
 title: upbeat
 ---

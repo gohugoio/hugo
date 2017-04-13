@@ -5,10 +5,10 @@ description: Personal blog
 license: ""
 licenseLink: ""
 sitelink: http://ninjaducks.in
-sourceLink: https://github.com/shivanshuag/shivanshuag.github.io/tree/new
+sourcelink: https://github.com/shivanshuag/shivanshuag.github.io/tree/new
 tags:
 - personal
 - blog
-thumbnail: /img/ninjaducks-tn.png
+image: ninjaducks.jpg
 title: ninjaducks.in
 ---

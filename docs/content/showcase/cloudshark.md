@@ -9,7 +9,7 @@ tags:
 - company
 - documentation
 - foundation
-thumbnail: /img/cloudshark-tn.jpg
+image: cloudshark.jpg
 title: CloudShark
 ---
 

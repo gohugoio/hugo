@@ -5,11 +5,11 @@ description: "Tom Helmer Hansen"
 license: ""
 licenseLink: ""
 sitelink: http://www.thehome.dk/
-sourceLink: "https://github.com/tomhelmer/website-source"
+sourcelink: "https://github.com/tomhelmer/website-source"
 tags:
 - personal
 - blog
-thumbnail: /img/thehome-tn.png
+image: thehome.jpg
 title: thehome.dk
 ---
 

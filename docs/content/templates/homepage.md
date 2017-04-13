@@ -1,81 +1,76 @@
 ---
-aliases:
-- /layout/homepage/
-lastmod: 2015-08-04
-date: 2013-07-01
+title: Homepage Template
+linktitle: Homepage Template
+description: The homepage of a website is often formatted differently than the other pages. For this reason, Hugo makes it easy for you to define your new site's homepage as a unique template.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+categories: [templates]
+tags: [homepage]
 menu:
   main:
-    parent: layout
-next: /templates/terms
-notoc: true
-prev: /templates/list
-title: Homepage
-weight: 50
+    parent: "Templates"
+    weight: 30
+weight: 30
+sections_weight: 30
+draft: false
+aliases: [/layout/homepage/,/templates/homepage-template/]
+toc: false
 ---
 
-The home page of a website is often formatted differently than the other
-pages. In Hugo you can define your own homepage template.
+The homepage of a website often has a unique design. In Hugo, you can define your own homepage template.
 
-Homepage is a `Page` and have all the [page
-variables](/templates/variables/) and [site
-variables](/templates/variables/) available to use in the templates.
+Homepage is a `Page` and therefore has all the [page variables][pagevars] and [site variables][sitevars] available for use.
 
-*This is the only required template for building a site and useful when
-bootstrapping a new site and template. It is also the only required
-template when using a single page site.*
+{{% note "The Only Required Template" %}}
+The homepage template is the *only* required template for building a site and therefore useful when bootstrapping a new site and template. It is also the only required template if you are developing a single-page website.
+{{% /note %}}
 
-In addition to the standard page variables, the homepage has access to
-all site content accessible from `.Data.Pages`. Details on how to use the
-list of pages can be found in the [Lists Template](/templates/list/).
+## Homepage Template Lookup Order
 
-Note that a home page can also have a content file with frontmatter,  see [Source Organization]({{< relref "overview/source-directory.md#content-for-home-page-and-other-list-pages" >}}).
+The [lookup order][lookup] for the homepage template is as follows:
 
-## Which Template will be rendered?
-Hugo uses a set of rules to figure out which template to use when
-rendering a specific page.
+1. `/layouts/index.html`
+2. `/layouts/_default/list.html`
+3. `/layouts/_default/single.html`
+4. `/themes/<THEME>/layouts/index.html`
+5. `/themes/<THEME>/layouts/_default/list.html`
+6. `/themes/<THEME>/layouts/_default/single.html`
 
-Hugo will use the following prioritized list. If a file isn’t present,
-then the next one in the list will be used. This enables you to craft
-specific layouts when you want to without creating more templates
-than necessary. For most sites, only the \_default file at the end of
-the list will be needed.
+## `.Data.Pages` on the Homepage
 
-* /layouts/index.html
-* /layouts/\_default/list.html
-* /layouts/\_default/single.html
-* /themes/`THEME`/layouts/index.html
-* /themes/`THEME`/layouts/\_default/list.html
-* /themes/`THEME`/layouts/\_default/single.html
+In addition to the standard [page variables][pagevars], the homepage template has access to *all* site content via `.Data.Pages`.
 
-## Example index.html
-This content template is used for [spf13.com](http://spf13.com/).
 
-It makes use of [partial templates](/templates/partials/) and uses a similar approach as a [List](/templates/list/).
+## Homepage Content and Front Matter
 
-    <!DOCTYPE html>
-    <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
-    <head>
-        <meta charset="utf-8">
+A homepage can also have a content file with front matter: `content/_index.md`. See [Content Organization][contentorg] for more information.
 
-        {{ partial "meta.html" . }}
+## Example Homepage Template
 
-        <base href="{{ .Site.BaseURL }}">
-        <title>{{ .Site.Title }}</title>
-        <link rel="canonical" href="{{ .Permalink }}">
-        <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
+The following is an example of a homepage template that uses [partial][partials] and [block][] templates.
 
-        {{ partial "head_includes.html" . }}
-    </head>
-    <body lang="en">
-
-    {{ partial "subheader.html" . }}
-
-    <section id="main">
+{{% code file="layouts/index.html" download="index.html" %}}
+```html
+{{ define "main" }}
+    {{ partial "content-header.html" . }}
+    <main aria-role="main">
       <div>
+        <!-- Note that .Data.Pages is the equivalent of .Site.Pages on the homepage template. -->
         {{ range first 10 .Data.Pages }}
             {{ .Render "summary"}}
         {{ end }}
       </div>
-    </section>
+    </main>
+    {{ partial "content-footer.html" . }}
+{{ end }}
+```
+{{% /code %}}
 
-    {{ partial "footer.html" . }}
+[block]: /templates/base/
+[contentorg]: /content-management/organization/
+[lists]: /templates/lists/
+[lookup]: /templates/lookup-order/
+[pagevars]: /variables/page/
+[partials]: /templates/partials/
+[sitevars]: /variables/site/

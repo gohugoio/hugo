@@ -5,11 +5,11 @@ description: "personal blog and portfolio of Samuel Debruyn"
 license: ""
 licenseLink: ""
 sitelink: https://chipsncookies.com
-sourceLink: https://github.com/SamuelDebruyn/chipsncookies-site
+sourcelink: https://github.com/SamuelDebruyn/chipsncookies-site-builder
 tags:
 - personal
 - blog
-thumbnail: /img/chipsncookies-tn.png
+image: chipsncookies.jpg
 title: Chips 'n' Cookies
 ---
 

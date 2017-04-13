@@ -8,7 +8,7 @@ tags:
 - edtech
 - technology
 - blog
-thumbnail: /img/ctlcompiled-tn.png
+image: ctlcompiled.jpg
 title: CompilED at CTL
 ---
 

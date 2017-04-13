@@ -5,10 +5,12 @@ description: ""
 license: ""
 licenseLink: ""
 sitelink: http://philosophy.ucsb.edu/
-sourceLink: https://github.com/ucsbphil/philweb
+sourcelink:
 tags:
 - education
-thumbnail: /img/ucsb-tn.jpg
-title: ucsb
+image: ucsb.jpg
+draft: true
+title: UC Santa Barbara Dept of Philosophy
+notes: Set to draft true on 2017-03-12 after this came up in a linkchecker run; looks like the current site is built on Drupal and not Hugo.
 ---
 

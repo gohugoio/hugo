@@ -5,12 +5,12 @@ description: Kieran Healy's Website
 license: ""
 licenseLink: ""
 sitelink: http://kieranhealy.org/
-sourceLink: https://github.com/kjhealy/kieranhealy.hugo
+sourcelink: https://github.com/kjhealy/kieranhealy.hugo
 tags:
 - personal
 - blog
 - academic
-thumbnail: /img/kjhealy-tn.jpg
+image: kjhealy.jpg
 title: Kieran Healy
 ---
 

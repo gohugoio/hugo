@@ -10,7 +10,7 @@ tags:
 - blog
 - recipes
 - zurb-foundation
-thumbnail: /img/enjoyablerecipes-tn.png
+image: "enjoyablerecipes.jpg"
 title: Enjoyable Recipes
 ---
 

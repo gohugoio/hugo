@@ -5,10 +5,10 @@ description: ""
 license: ""
 licenseLink: ""
 sitelink: http://tendermint.com/
-sourceLink: https://github.com/tendermint/tendermint.github.io
+sourcelink: https://github.com/tendermint/tendermint.github.io
 tags:
 - project
-thumbnail: /img/tendermint-tn.jpg
+image: tendermint.jpg
 title: tendermint
 ---
 

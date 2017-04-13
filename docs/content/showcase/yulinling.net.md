@@ -5,10 +5,10 @@ description: Multilingual, blog
 license: ""
 licenseLink: ""
 sitelink: https://yulinling.net/
-sourceLink: https://bitbucket.org/lynxiayel/yulinling_source_public
+sourcelink: https://bitbucket.org/lynxiayel/yulinling_source_public
 tags:
 - blog
 - documentation
-thumbnail: /img/yulinling-tn.jpg
+image: yulinling.jpg
 title: <span lang="zh-CN">语林灵</span> (Yulinling)
 ---
