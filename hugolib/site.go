@@ -880,6 +880,8 @@ func (s *Site) readData(f *source.File) (interface{}, error) {
 		return parser.HandleJSONMetaData(f.Bytes())
 	case "toml":
 		return parser.HandleTOMLMetaData(f.Bytes())
+  case "bib":
+    return parser.HandleBibtexData(f.Bytes())
 	default:
 		return nil, fmt.Errorf("Data not supported for extension '%s'", f.Extension())
 	}
