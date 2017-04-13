@@ -1,0 +1,6 @@
+{{ define "main" }}
+{{ range .Pages }}
+<h1>{{ .Title }} {{ .Date.Format "Jan 2, 2006" }}</h1>
+{{ .Content }}
+{{ end }}
+{{ end }}

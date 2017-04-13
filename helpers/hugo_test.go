@@ -22,10 +22,14 @@ import (
 
 func TestHugoVersion(t *testing.T) {
 	assert.Equal(t, "0.15-DEV", hugoVersion(0.15, 0, "-DEV"))
-	assert.Equal(t, "0.17", hugoVersionNoSuffix(0.16+0.01, 0))
-	assert.Equal(t, "0.20", hugoVersionNoSuffix(0.20, 0))
 	assert.Equal(t, "0.15.2-DEV", hugoVersion(0.15, 2, "-DEV"))
-	assert.Equal(t, "0.17.3", hugoVersionNoSuffix(0.16+0.01, 3))
+
+	v := HugoVersion{Number: 0.21, PatchLevel: 0, Suffix: "-DEV"}
+
+	require.Equal(t, v.ReleaseVersion().String(), "0.21")
+	require.Equal(t, "0.21-DEV", v.String())
+	require.Equal(t, "0.22", v.Next().String())
+	require.Equal(t, "0.20.3", v.NextPatchLevel(3).String())
 }
 
 func TestCompareVersions(t *testing.T) {

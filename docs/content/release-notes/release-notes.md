@@ -2,12 +2,8 @@
 aliases:
 - /doc/release-notes/
 - /meta/release-notes/
-date: 2013-07-01
-menu:
-  main:
-    parent: about
-title: Release Notes
-weight: 10
+date: 2017-04-16
+title: Older Release Notes
 ---
 # **0.20.2** April 16th 2017
 
