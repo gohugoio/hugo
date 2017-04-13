@@ -41,9 +41,9 @@ type HugoInfo struct {
 
 func init() {
 	hugoInfo = &HugoInfo{
-		Version:    helpers.HugoVersion(),
+		Version:    helpers.CurrentHugoVersion.String(),
 		CommitHash: CommitHash,
 		BuildDate:  BuildDate,
-		Generator:  template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, helpers.HugoVersion())),
+		Generator:  template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, helpers.CurrentHugoVersion.String())),
 	}
 }

@@ -399,7 +399,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 
 	if themeVersionMismatch {
 		cfg.Logger.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
-			helpers.HugoReleaseVersion(), minVersion)
+			helpers.CurrentHugoVersion.ReleaseVersion(), minVersion)
 	}
 
 	return cfg, nil

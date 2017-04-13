@@ -22,7 +22,7 @@ import (
 )
 
 var metaTagsCheck = regexp.MustCompile(`(?i)<meta\s+name=['|"]?generator['|"]?`)
-var hugoGeneratorTag = fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, helpers.HugoVersion())
+var hugoGeneratorTag = fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, helpers.CurrentHugoVersion)
 
 // HugoGeneratorInject injects a meta generator tag for Hugo if none present.
 func HugoGeneratorInject(ct contentTransformer) {
