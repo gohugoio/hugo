@@ -20,35 +20,51 @@ import (
 	"github.com/spf13/cast"
 )
 
-// HugoVersionNumber represents the current build version.
-// This should be the only one
-const (
+// HugoVersion represents the Hugo build version.
+type HugoVersion struct {
 	// Major and minor version.
-	HugoVersionNumber = 0.20
+	Number float32
 
 	// Increment this for bug releases
-	HugoPatchVersion = 2
-)
+	PatchLevel int
 
-// HugoVersionSuffix is the suffix used in the Hugo version string.
-// It will be blank for release versions.
-//const HugoVersionSuffix = "-DEV" // use this when not doing a release
-const HugoVersionSuffix = "" // use this line when doing a release
-
-// HugoVersion returns the current Hugo version. It will include
-// a suffix, typically '-DEV', if it's development version.
-func HugoVersion() string {
-	return hugoVersion(HugoVersionNumber, HugoPatchVersion, HugoVersionSuffix)
+	// HugoVersionSuffix is the suffix used in the Hugo version string.
+	// It will be blank for release versions.
+	Suffix string
 }
 
-// HugoReleaseVersion is same as HugoVersion, but no suffix.
-func HugoReleaseVersion() string {
-	return hugoVersionNoSuffix(HugoVersionNumber, HugoPatchVersion)
+func (v HugoVersion) String() string {
+	return hugoVersion(v.Number, v.PatchLevel, v.Suffix)
 }
 
-// NextHugoReleaseVersion returns the next Hugo release version.
-func NextHugoReleaseVersion() string {
-	return hugoVersionNoSuffix(HugoVersionNumber+0.01, 0)
+// ReleaseVersion represents the release version.
+func (v HugoVersion) ReleaseVersion() HugoVersion {
+	v.Suffix = ""
+	return v
+}
+
+// Next returns the next Hugo release version.
+func (v HugoVersion) Next() HugoVersion {
+	return HugoVersion{Number: v.Number + 0.01}
+}
+
+// Pre returns the previous Hugo release version.
+func (v HugoVersion) Prev() HugoVersion {
+	return HugoVersion{Number: v.Number - 0.01}
+}
+
+// NextPatchLevel returns the next patch/bugfix Hugo version.
+// This will be a patch increment on the previous Hugo version.
+func (v HugoVersion) NextPatchLevel(level int) HugoVersion {
+	return HugoVersion{Number: v.Number - 0.01, PatchLevel: level}
+}
+
+// CurrentHugoVersion represents the current build version.
+// This should be the only one.
+var CurrentHugoVersion = HugoVersion{
+	Number:     0.21,
+	PatchLevel: 0,
+	Suffix:     "-DEV",
 }
 
 func hugoVersion(version float32, patchVersion int, suffix string) string {
@@ -58,19 +74,12 @@ func hugoVersion(version float32, patchVersion int, suffix string) string {
 	return fmt.Sprintf("%.2f%s", version, suffix)
 }
 
-func hugoVersionNoSuffix(version float32, patchVersion int) string {
-	if patchVersion > 0 {
-		return fmt.Sprintf("%.2f.%d", version, patchVersion)
-	}
-	return fmt.Sprintf("%.2f", version)
-}
-
 // CompareVersion compares the given version string or number against the
 // running Hugo version.
 // It returns -1 if the given version is less than, 0 if equal and 1 if greater than
 // the running version.
 func CompareVersion(version interface{}) int {
-	return compareVersions(HugoVersionNumber, HugoPatchVersion, version)
+	return compareVersions(CurrentHugoVersion.Number, CurrentHugoVersion.PatchLevel, version)
 }
 
 func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int {

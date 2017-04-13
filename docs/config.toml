@@ -46,6 +46,11 @@ pluralizeListTitles = false
     pre = "<i class='fa fa-heart'></i>"
     weight = -110
 [[menu.main]]
+    name = "Release Notes"
+     url = "/release-notes/"
+    pre = "<i class='fa fa-newspaper-o'></i>"
+    weight = -111
+[[menu.main]]
     name = "Getting Started"
     identifier = "getting started"
     pre = "<i class='fa fa-road'></i>"
