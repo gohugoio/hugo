@@ -9,6 +9,16 @@ menu:
 title: Release Notes
 weight: 10
 ---
+# **0.20.1** April 13th 2017
+Hugo `0.20.1` is a bug fix release, fixing some important regressions introduced in `0.20` a couple of days ago:
+
+* Fix logic for base template in work dir vs in the theme {{< gh 3323 >}}
+* camelCased templates (partials, shortcodes etc.) not found {{< gh 3333 >}}
+* Live-reload fails with `_index.md` with paginator {{< gh 3315 >}}
+* `rssURI` WARNING always shown {{< gh 3319 >}}
+
+See the [full list](https://github.com/spf13/hugo/milestone/16?closed=1).
+
 # **0.20** April 10th 2017
 
 Hugo `0.20` introduces the powerful and long sought after feature [Custom Output Formats]({{< ref "extras/output-formats.md" >}}); Hugo isn't just that "static HTML with an added RSS feed" anymore. *Say hello* to calendars, e-book formats, Google AMP, and JSON search indexes, to name a few ({{< gh 2828 >}}).
