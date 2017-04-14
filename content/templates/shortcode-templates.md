@@ -94,7 +94,16 @@ A shortcode with content declared via the `.Inner` variable can also be declared
 
 #### `.Params`
 
-The `.Params` variable in shortcodes contains a list of the shortcode's parameters for more complicated use cases.
+The `.Params` variable in shortcodes contains the list parameters passed to shortcode for more complicated use cases. You can also access higher-scoped parameters with the following logic:
+
+`$.Params`
+: these are the parameters passed directly into the shortcode declaration (e.g., a YouTube video ID)
+
+`$.Page.Params`
+: refers to the page's params; the "page" in this case refers to the content file in which the shortcode is declared (e.g., a `shortcode_color` field in a content's front matter).
+
+`$.Page.Site.Params`
+: refers to global variables as defined in your [site's configuration file][config]
 
 #### `.IsNameParams`
 
@@ -347,7 +356,8 @@ More shortcode examples can be found in the [shortcodes directory for spf13.com]
 
 [basic content files]: /content-management/formats/ "See how Hugo leverages markdown--and other supported formats--to create content for your website."
 [built-in shortcode]: /content-management/shortcodes/
-[Content Management: Shortcodes]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes
+[config]: /getting-started/configuration/ "Learn more about Hugo's built-in configuration variables as well as how to us your site's configuration file to include global key-values that can be used throughout your rendered website."
+[Content Management: Shortcodes]: /content-management/shortcodes/#using-hugo-s-built-in-shortcodes "Check this section if you are not familiar with the definition of what a shortcode is or if you are unfamiliar with how to use Hugo's built-in shortcodes in your content files."
 [source organization]: /getting-started/directory-structure/#directory-structure-explained "Learn how Hugo scaffolds new sites and what it expects to find in each of your directories."
 [docsshortcodes]: https://github.com/spf13/hugo/tree/master/docs/layouts/shortcodes "See the shortcode source directory for the documentation site you're currently reading."
 [figure]: /content-management/shortcodes/#figure
