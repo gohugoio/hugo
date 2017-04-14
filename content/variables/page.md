@@ -36,7 +36,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 : the data specific to this type of page.
 
 `.Date`
-: the date associated with the page.
+: the date associated with the page; `.Date` pulls from the `date` field in a content's front matter. See also `.ExpiryDate`, `.PublishDate`, and `.Lastmod`.
 
 `.Description`
 : the description for the page.
@@ -45,7 +45,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 : a boolean, `true` if the content is marked as a draft in the front matter.
 
 `.ExpiryDate`
-: the date on which the content is scheduled to expire.
+: the date on which the content is scheduled to expire; `.ExpiryDate` pulls from the `expirydate` field in a content's front matter. See also `.PublishDate`, `.Date`, and `.Lastmod`.
 
 `.FuzzyWordCount`
 : the approximate number of words in the content.
@@ -79,16 +79,16 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 `config`.
 
 `.Lastmod`
-: the date the content was last modified (i.e. from `lastmod` in the content's front matter)
+: the date the content was last modified; `.Lastmod` pulls from the `lastmod` field in a content's front matter. If `lastmod` is not set, Hugo will default to the `date` field. See also `.ExpiryDate`, `.Date`, and `.PublishDate`.
 
 `.LinkTitle`
 : access when creating links to the content. If set, Hugo will use the `linktitle` from the front matter before `title`.
 
 `.Next`
-: pointer to the following content (based on `publishdate` in front matter).
+: pointer to the following content (based on the `publishdate` field in front matter).
 
 `.NextInSection`
-: pointer to the following content within the same section (based on `publishdate` in front matter).
+: pointer to the following content within the same section (based on `publishdate` field in front matter).
 
 `.OutputFormats`
 : contains all formats, including the current format, for a given page. Can be combined the with [`.Get` function](/functions/get/) to grab a specific format. (See [Output Formats](/templates/output-formats/).)
@@ -112,7 +112,7 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 : Pointer to the previous content within the same section (based on `publishdate` in front matter). For example, `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.
 
 `.PublishDate`
-: the date on which the content was or will be published.
+: the date on which the content was or will be published; `.Publishdate` pulls from the `publishdate` field in a content's front matter. See also `.ExpiryDate`, `.Date`, and `.Lastmod`.
 
 `.RSSLink`
 : link to the taxonomies' RSS link.
