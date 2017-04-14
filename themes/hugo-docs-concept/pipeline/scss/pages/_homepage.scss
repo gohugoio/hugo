@@ -291,7 +291,7 @@ ul.animated {
   left: -5%;
   max-width: 360px;
   @include MQ(M) {
-    width: 100%;
+    min-width: 100%;
     left: auto;
   }
   @include card(2);

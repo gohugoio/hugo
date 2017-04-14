@@ -3,8 +3,9 @@
     {{partial "svg-icons/gopher-homepage.svg" .}}
   </div>
   <div class="homepage-terminal">
-    $ export GOPATH=$HOME/go
-    <br> $ go get -v github.com/spf13/hugo
+    $ go get github.com/kardianos/govendor
+    <br> $ govendor get github.com/spf13/hugo
+    <br> $ go install github.com/spf13/hugo
   </div>
 </div>
 <div class="half half-content">
