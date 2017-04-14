@@ -29,6 +29,10 @@ GitHub provides free and fast static hosting over SSL for personal, organization
 
 If you are working within an Organization account or want to set up a User website on GitHub and would like more information, refer to the [GitHub Pages documentation][ghorgs].
 
+{{% note %}}
+Make sure your `baseURL` key-value in your [site configuration](/getting-started/configuration/) reflects the full URL of your GitHub pages repository if you're using the default GH Pages URL (e.g., `username.github.io/myprojectname/`) and not a custom domain.
+{{% /note %}}
+
 ## Deployment via `/docs` Folder on Master Branch
 
 [As described in the GitHub Pages documentation][ghpfromdocs], you can deploy from a folder called `docs/` on your master branch. To effectively use this feature with Hugo, you need to change the Hugo publish directory in your [site's][config] `config.toml` and `config.yaml`, respectively:
