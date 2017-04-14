@@ -211,4 +211,5 @@ Enter the document’s unique identifier. To prevent this sort of collision on l
 
 [built-in Hugo shortcodes]: /content-management/shortcodes/#using-the-built-in-shortcodes
 [lists]: /templates/lists/
+[output formats]: /templates/output-formats/
 [shortcode]: /content-management/shortcodes/
