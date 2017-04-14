@@ -48,7 +48,7 @@ The concept of a *summary divider* is not unique to Hugo. It is also called the 
 {{% /note %}}
 
 * Pros: Freedom, precision, and improved rendering.  All HTML tags and formatting are preserved.
-* Cons: Extra work for content authors, since they need to remember to type <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> (or `# more` for [org content][org]) in each content file.
+* Cons: Extra work for content authors, since they need to remember to type <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> (or `# more` for [org content][org]) in each content file. This can be automated by adding the summary divider below the front matter of an [archetype](/content-management/archetypes/).
 
 {{% warning "Be Precise with the Summary Divider" %}}
 Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly; i.e., all lowercase and with no whitespace. Any mistakes in the divider will tell Hugo to treat the divider as a regular comment and will fail to store your desired content in the `.Summary` variable.
@@ -56,7 +56,7 @@ Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly
 
 ## Example: First 10 Articles with Summaries
 
-You can show content summaries with the following code. You could use the following snipper, for example, in a [section template][].
+You can show content summaries with the following code. You could use the following snippet, for example, in a [section template][].
 
 {{% code file="page-list-with-summaries.html" %}}
 ```html
