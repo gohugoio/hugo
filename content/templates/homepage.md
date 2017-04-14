@@ -15,7 +15,7 @@ weight: 30
 sections_weight: 30
 draft: false
 aliases: [/layout/homepage/,/templates/homepage-template/]
-toc: false
+toc: true
 ---
 
 The homepage of a website often has a unique design. In Hugo, you can define your own homepage template.
@@ -37,24 +37,32 @@ The [lookup order][lookup] for the homepage template is as follows:
 5. `/themes/<THEME>/layouts/_default/list.html`
 6. `/themes/<THEME>/layouts/_default/single.html`
 
+## Homepage Content and Front Matter
+
+The homepage, similar to other [list pages in Hugo][lists], accepts content and front matter from an `_index.md` file. This file should live at the root of your `content` folder (i.e., `content/_index.md`). You can then add body copy and metadata to your homepage the way you would any other content file. See the homepage template below or [Content Organization][contentorg] for more information on the role of `_index.md` for adding content and front matter to list pages.
+
 ## `.Data.Pages` on the Homepage
 
 In addition to the standard [page variables][pagevars], the homepage template has access to *all* site content via `.Data.Pages`.
 
-
-## Homepage Content and Front Matter
-
-A homepage can also have a content file with front matter: `content/_index.md`. See [Content Organization][contentorg] for more information.
-
 ## Example Homepage Template
 
-The following is an example of a homepage template that uses [partial][partials] and [block][] templates.
+The following is an example of a homepage template that uses [partial][partials], [block][] templates, and a content file at `content/_index.md` to populate the `{{.Title}}` and `{{Content}}` [page variables][pagevars].
 
 {{% code file="layouts/index.html" download="index.html" %}}
 ```html
 {{ define "main" }}
-    {{ partial "content-header.html" . }}
     <main aria-role="main">
+      <header class="homepage-header">
+        <h1>{{.Title}}</h1>
+        {{ with .Params.subtitle }}
+        <span class="subtitle">{{.}}</span>
+        {{ end }}
+      </header>
+      <div class="homepage-content">
+        <!-- Note that the content for index.html, as a sort of list page, will pull from content/_index.md -->
+        {{.Content}}
+      </div>
       <div>
         <!-- Note that .Data.Pages is the equivalent of .Site.Pages on the homepage template. -->
         {{ range first 10 .Data.Pages }}
@@ -62,7 +70,6 @@ The following is an example of a homepage template that uses [partial][partials]
         {{ end }}
       </div>
     </main>
-    {{ partial "content-footer.html" . }}
 {{ end }}
 ```
 {{% /code %}}
