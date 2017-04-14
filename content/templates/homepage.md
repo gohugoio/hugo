@@ -39,7 +39,9 @@ The [lookup order][lookup] for the homepage template is as follows:
 
 ## Adding Content and Front Matter to the Homepage
 
-The homepage, similar to other [list pages in Hugo][lists], accepts content and front matter from an `_index.md` file. This file should live at the root of your `content` folder (i.e., `content/_index.md`). You can then add body copy and metadata to your homepage the way you would any other content file. See the homepage template below or [Content Organization][contentorg] for more information on the role of `_index.md` for adding content and front matter to list pages.
+The homepage, similar to other [list pages in Hugo][lists], accepts content and front matter from an `_index.md` file. This file should live at the root of your `content` folder (i.e., `content/_index.md`). You can then add body copy and metadata to your homepage the way you would any other content file.
+
+See the homepage template below or [Content Organization][contentorg] for more information on the role of `_index.md` in adding content and front matter to list pages.
 
 ## `.Data.Pages` on the Homepage
 
