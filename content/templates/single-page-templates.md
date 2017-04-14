@@ -22,7 +22,7 @@ The primary view of content in Hugo is the single view. Hugo's default behavior 
 
 ## Single Page Template Lookup Order
 
-You can specify `type` (i.e., [content type][]) and `layout` in a single content file's [front matter][]. However, you cannot specify `section` because this is determined based on file location (see [content section][section]).
+You can specify a [content's `type`][content type] and `layout` in a single content file's [front matter][]. However, you cannot specify `section` because this is determined based on file location (see [content section][section]).
 
 Hugo assumes your content section and content type are the same unless you tell Hugo otherwise by providing a `type` directly in the front matter of a content file. This is why #1 and #3 come before #2 and #4, respectively, in the following lookup order. Values in angle brackets (`<>`) are variable.
 
@@ -36,10 +36,6 @@ Hugo assumes your content section and content type are the same unless you tell 
 8. `/themes/<THEME>/layouts/<TYPE>/single.html`
 9. `/themes/<THEME>/layouts/<SECTION>/single.html`
 10. `/themes/<THEME>/layouts/_default/single.html`
-
-{{% note %}}
-`my-first-event.md` is significant because it demonstrates the role of the lookup order in Hugo themes. Both the root project directory *and* the `mytheme` themes directory have a file at `_default/single.html`. Understanding this order allows you to [customize Hugo themes](/themes/customizing/) by creating template files with identical names in your project directory that step in front of theme template files in the lookup. This allows you to customize the look and feel of your website while maintaining compatibility with the theme's upstream.
-{{% /note %}}
 
 ## Example Single Page Templates
 

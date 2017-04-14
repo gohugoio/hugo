@@ -20,10 +20,9 @@ toc: true
 
 Templates used for section pages are *lists* and therefore have all the variables and methods available to [list pages][lists].
 
-## Adding Content to Section Templates
+## Adding Content and Front Matter to Section Templates
 
 To effectively leverage section page templates, you should first understand Hugo's [content organization](/content-management/organization/) and, specifically, the purpose of `_index.md` for adding content and front matter to section and other list pages.
-
 
 ## Section Template Lookup Order
 
