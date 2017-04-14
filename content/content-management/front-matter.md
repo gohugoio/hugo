@@ -156,6 +156,8 @@ include_toc: true
 show_comments: false
 ```
 
+These two user-defined fields can then be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables][variables] section provides more information on using Hugo's page- and site-level variables in your templates.
+
 {{% note %}}
 Field names are always normalized to lowercase; e.g., `camelCase: true` is available as `.Params.camelcase`.
 {{% /note %}}
@@ -174,6 +176,7 @@ It's possible to set some options for Markdown rendering in a content's front ma
 * [YAML Spec][YAML Spec]
 * [JSON Spec][JSON Spec]
 
+[variables]: /variables/
 [aliases]: /content-management/urls/#aliases/
 [archetype]: /content-management/archetypes/
 [bylinktitle]: /templates/lists/#by-link-title
