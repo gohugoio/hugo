@@ -31,16 +31,29 @@ one.
 
 ## Hugo’s sitemap.xml
 
-This template respects the version 0.9 of the [Sitemap
-Protocol](http://www.sitemaps.org/protocol.html).
+This template uses the version 0.9 of the [Sitemap
+Protocol](http://www.sitemaps.org/protocol.html) with Google's [hreflang
+attributes](https://support.google.com/webmasters/answer/2620865?hl=en&topic=2370587&ctx=topic)
+for linking to translated content.
 
-    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xhtml="http://www.w3.org/1999/xhtml">
       {{ range .Data.Pages }}
       <url>
         <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
         <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
         <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
-        <priority>{{ .Sitemap.Priority }}</priority>{{ end }}
+        <priority>{{ .Sitemap.Priority }}</priority>{{ end }}{{ if .IsTranslated }}{{ range .Translations }}
+        <xhtml:link
+                    rel="alternate"
+                    hreflang="{{ .Lang }}"
+                    href="{{ .Permalink }}"
+                    />{{ end }}
+        <xhtml:link
+                    rel="alternate"
+                    hreflang="{{ .Lang }}"
+                    href="{{ .Permalink }}"
+                    />{{ end }}
       </url>
       {{ end }}
     </urlset>
