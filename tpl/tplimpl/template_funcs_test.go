@@ -2869,20 +2869,27 @@ func TestPartialHTMLAndText(t *testing.T) {
 	}
 
 	config.WithTemplate = func(templ tpl.TemplateHandler) error {
-		if err := templ.AddTemplate("htmlTemplate.html", `HTML Test Partial: {{ partial "test.foo" . -}}`); err != nil {
+		if err := templ.AddTemplate("htmlTemplate.html", `HTML Test|HTML:{{ partial "test.html" . -}}|Text:{{ partial "test.txt" . }}
+CSS plain:  <style type="text/css">{{ partial "mystyles.css" . -}}</style>
+CSS safe:  <style type="text/css">{{ partial "mystyles.css" . | safeCSS -}}</style>
+`); err != nil {
 			return err
 		}
 
-		if err := templ.AddTemplate("_text/textTemplate.txt", `Text Test Partial: {{ partial "test.foo" . -}}`); err != nil {
+		if err := templ.AddTemplate("_text/textTemplate.txt", `Text Test|HTML:{{ partial "test.html" . -}}|Text:{{ partial "test.txt" . }}
+CSS plain:  <style type="text/css">{{ partial "mystyles.css" . -}}</style>`); err != nil {
 			return err
 		}
 
-		// Use "foo" here to say that the extension doesn't really matter in this scenario.
-		// It will look for templates in "partials/test.foo" and "partials/test.foo.html".
-		if err := templ.AddTemplate("partials/test.foo", "HTML Name: {{ .Name }}"); err != nil {
+		if err := templ.AddTemplate("partials/test.html", "HTML Name: {{ .Name }}"); err != nil {
 			return err
 		}
-		if err := templ.AddTemplate("_text/partials/test.foo", "Text Name: {{ .Name }}"); err != nil {
+		if err := templ.AddTemplate("_text/partials/test.txt", "Text Name: {{ .Name }}"); err != nil {
+			return err
+		}
+		if err := templ.AddTemplate("_text/partials/mystyles.css",
+			`body { background-color: blue; }
+`); err != nil {
 			return err
 		}
 
@@ -2903,8 +2910,12 @@ func TestPartialHTMLAndText(t *testing.T) {
 	resultText, err := templ.ExecuteToString(data)
 	require.NoError(t, err)
 
-	require.Contains(t, resultHTML, "HTML Test Partial: HTML Name: a&#43;b&#43;c")
-	require.Contains(t, resultText, "Text Test Partial: Text Name: a+b+c")
+	require.Contains(t, resultHTML, "HTML Test|HTML:HTML Name: a&#43;b&#43;c|Text:Text Name: a&#43;b&#43;c")
+	require.Contains(t, resultHTML, `CSS plain:  <style type="text/css">ZgotmplZ</style>`)
+	require.Contains(t, resultHTML, `CSS safe:  <style type="text/css">body { background-color: blue; }`)
+
+	require.Contains(t, resultText, "Text Test|HTML:HTML Name: a&#43;b&#43;c|Text:Text Name: a+b+c")
+	require.Contains(t, resultText, `CSS plain:  <style type="text/css">body { background-color: blue; }`)
 
 }
 

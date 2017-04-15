@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"html/template"
 	"strings"
+	texttemplate "text/template"
 
 	bp "github.com/spf13/hugo/bufferpool"
 
@@ -31,17 +32,12 @@ type templateFuncster struct {
 	cachedPartials partialCache
 	image          *imageHandler
 
-	// Make sure each funcster gets its own TemplateFinder to get
-	// proper text and HTML template separation.
-	Tmpl templateFuncsterTemplater
-
 	*deps.Deps
 }
 
-func newTemplateFuncster(deps *deps.Deps, t templateFuncsterTemplater) *templateFuncster {
+func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 	return &templateFuncster{
 		Deps:           deps,
-		Tmpl:           t,
 		cachedPartials: partialCache{p: make(map[string]interface{})},
 		image:          &imageHandler{fs: deps.Fs, imageConfigCache: map[string]image.Config{}},
 	}
@@ -75,14 +71,12 @@ func (t *templateFuncster) partial(name string, contextList ...interface{}) (int
 				return "", err
 			}
 
-			switch t.Tmpl.(type) {
-			case *htmlTemplates:
-				return template.HTML(b.String()), nil
-			case *textTemplates:
+			if _, ok := templ.Template.(*texttemplate.Template); ok {
 				return b.String(), nil
-			default:
-				panic("Unknown type")
 			}
+
+			return template.HTML(b.String()), nil
+
 		}
 	}
 

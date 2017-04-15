@@ -2221,5 +2221,5 @@ func (t *templateFuncster) initFuncMap() {
 	}
 
 	t.funcMap = funcMap
-	t.Tmpl.setFuncs(funcMap)
+	t.Tmpl.(*templateHandler).setFuncs(funcMap)
 }

@@ -97,23 +97,21 @@ func (t *templateHandler) PrintErrors() {
 // Lookup tries to find a template with the given name in both template
 // collections: First HTML, then the plain text template collection.
 func (t *templateHandler) Lookup(name string) *tpl.TemplateAdapter {
-	var te *tpl.TemplateAdapter
 
-	isTextTemplate := strings.HasPrefix(name, textTmplNamePrefix)
-
-	if isTextTemplate {
+	if strings.HasPrefix(name, textTmplNamePrefix) {
+		// The caller has explicitly asked for a text template, so only look
+		// in the text template collection.
 		// The templates are stored without the prefix identificator.
 		name = strings.TrimPrefix(name, textTmplNamePrefix)
-		te = t.text.Lookup(name)
-	} else {
-		te = t.html.Lookup(name)
+		return t.text.Lookup(name)
 	}
 
-	if te == nil {
-		return nil
+	// Look in both
+	if te := t.html.Lookup(name); te != nil {
+		return te
 	}
 
-	return te
+	return t.text.Lookup(name)
 }
 
 func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
@@ -459,9 +457,10 @@ func (t *templateHandler) loadTemplates(absPath string, prefix string) {
 
 func (t *templateHandler) initFuncs() {
 
-	// The template funcs need separation between text and html templates.
+	// Both template types will get their own funcster instance, which
+	// in the current case contains the same set of funcs.
 	for _, funcsterHolder := range []templateFuncsterTemplater{t.html, t.text} {
-		funcster := newTemplateFuncster(t.Deps, funcsterHolder)
+		funcster := newTemplateFuncster(t.Deps)
 
 		// The URL funcs in the funcMap is somewhat language dependent,
 		// so we need to wait until the language and site config is loaded.
