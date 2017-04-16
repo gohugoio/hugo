@@ -355,7 +355,7 @@ also get it:
 
 {{% code file="layouts/partials/by-nested-param.html" %}}
 ```html
-{{ range (.Date.Pages.ByParam "author.last_name") }}
+{{ range (.Data.Pages.ByParam "author.last_name") }}
   <!-- ... -->
 {{ end }}
 ```
