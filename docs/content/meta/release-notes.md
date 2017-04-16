@@ -48,7 +48,7 @@ Of course, `0.20` also made it super-easy to create external CSS stylesheets bas
 
 Add "CSS" to your home page's `outputs` list, create the template `/layouts/index.css` using Go template syntax for the dynamic parts, and then include it into your `HTML` template with:
 
-```
+```html
 {{ with  .OutputFormats.Get "css" }}
 <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink |  safeURL }}">
 {{ end }}`
