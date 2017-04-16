@@ -11,7 +11,7 @@ weight: 10
 ---
 # **0.20.2** April 16th 2017
 
-Hugo `0.20.2` adds support for plain text partials included into HTML templates. This was a side-effect of the big new [Custom Output Format](https://gohugo.io/extras/output-formats/) feature in `0.20`, and while the change was intentional and there was an ongoing discussion about fixing it in {{< gh 3273  >}}, it did break some themes. There were valid workarounds for these themes, but we might as well get it right. 
+Hugo `0.20.2` adds support for plain text partials included into `HTML` templates. This was a side-effect of the big new [Custom Output Format](https://gohugo.io/extras/output-formats/) feature in `0.20`, and while the change was intentional and there was an ongoing discussion about fixing it in {{< gh 3273  >}}, it did break some themes. There were valid workarounds for these themes, but we might as well get it right. 
 
 The most obvious use case for this is inline `CSS` styles,  which you now can do without having to name your partials with a `html` suffix. 
 
