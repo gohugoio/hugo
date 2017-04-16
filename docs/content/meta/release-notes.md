@@ -9,6 +9,42 @@ menu:
 title: Release Notes
 weight: 10
 ---
+# **0.20.2** April 16th 2017
+
+Hugo `0.20.2` adds support for plain text partials included into HTML templates. This was a side-effect of the big new [Custom Output Format](https://gohugo.io/extras/output-formats/) feature in `0.20`, and while the change was intentional and there was an ongoing discussion about fixing it in {{< gh 3273  >}}, it did break a couple of themes. There were valid workarounds for these themes, but we might as well get it right. 
+
+The most obvious use case for this is inline CSS styles. `0.20` made it super-easy to create external CSS stylesheets based on your site and page configuration (**tip:** add "CSS" to your home page's `outputs` list, create the template `/layouts/index.css` using Go template syntax for the dynamic parts, and then include it into your HTML template with `{{ with  .OutputFormats.Get "css" }}<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">{{ end }}`). But there may also be good reasons to adding them inline,  which you now can without having to name your partials with a `html` suffix. 
+
+A simple example:
+
+In `layouts/partials/mystyles.css`:
+
+```css
+body {
+	background-color: {{ .Param "colors.main" }}
+}
+```
+
+Then in `config.toml` (note that by using the `.Param` lookup func, we can override the color in a page's front matter if we want):
+
+```toml
+[params]
+[params.colors]
+main = "green"
+text = "blue"
+```
+
+And then in `layouts/partials/head.html` (or the partial used to include the head section into your layout):
+
+```html
+<head>
+    <style type="text/css">
+    {{ partial "mystyles.css" . | safeCSS }}
+    </style>
+</head>
+```
+
+
 # **0.20.1** April 13th 2017
 Hugo `0.20.1` is a bug fix release, fixing some important regressions introduced in `0.20` a couple of days ago:
 
