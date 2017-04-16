@@ -13,7 +13,7 @@ weight: 10
 
 Hugo `0.20.2` adds support for plain text partials included into HTML templates. This was a side-effect of the big new [Custom Output Format](https://gohugo.io/extras/output-formats/) feature in `0.20`, and while the change was intentional and there was an ongoing discussion about fixing it in {{< gh 3273  >}}, it did break a couple of themes. There were valid workarounds for these themes, but we might as well get it right. 
 
-The most obvious use case for this is inline CSS styles. `0.20` made it super-easy to create external CSS stylesheets based on your site and page configuration (**tip:** add "CSS" to your home page's `outputs` list, create the template `/layouts/index.css` using Go template syntax for the dynamic parts, and then include it into your HTML template with `{{ with  .OutputFormats.Get "css" }}<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">{{ end }}`). But there may also be good reasons to adding them inline,  which you now can without having to name your partials with a `html` suffix. 
+The most obvious use case for this is inline CSS styles,  which you now can do without having to name your partials with a `html` suffix. 
 
 A simple example:
 
@@ -42,6 +42,16 @@ And then in `layouts/partials/head.html` (or the partial used to include the hea
     {{ partial "mystyles.css" . | safeCSS }}
     </style>
 </head>
+```
+
+Of course, `0.20` also made it super-easy to create external CSS stylesheets based on your site and page configuration. A simple example:
+
+Add "CSS" to your home page's `outputs` list, create the template `/layouts/index.css` using Go template syntax for the dynamic parts, and then include it into your `HTML` template with:
+
+```
+{{ with  .OutputFormats.Get "css" }}
+<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink |  safeURL }}">
+{{ end }}`
 ```
 
 
