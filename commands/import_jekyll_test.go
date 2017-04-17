@@ -97,6 +97,26 @@ func TestConvertJekyllContent(t *testing.T) {
 		{map[interface{}]interface{}{},
 			"{% highlight go %}\nvar s int\n{% endhighlight %}",
 			"{{< highlight go >}}\nvar s int\n{{< / highlight >}}"},
+
+		// Octopress image tag
+		{map[interface{}]interface{}{},
+			"{% img http://placekitten.com/890/280 %}",
+			"{{< figure src=\"http://placekitten.com/890/280\" >}}"},
+		{map[interface{}]interface{}{},
+			"{% img left http://placekitten.com/320/250 Place Kitten #2 %}",
+			"{{< figure class=\"left\" src=\"http://placekitten.com/320/250\" title=\"Place Kitten #2\" >}}"},
+		{map[interface{}]interface{}{},
+			"{% img right http://placekitten.com/300/500 150 250 'Place Kitten #3' %}",
+			"{{< figure class=\"right\" src=\"http://placekitten.com/300/500\" width=\"150\" height=\"250\" title=\"Place Kitten #3\" >}}"},
+		{map[interface{}]interface{}{},
+			"{% img right http://placekitten.com/300/500 150 250 'Place Kitten #4' 'An image of a very cute kitten' %}",
+			"{{< figure class=\"right\" src=\"http://placekitten.com/300/500\" width=\"150\" height=\"250\" title=\"Place Kitten #4\" alt=\"An image of a very cute kitten\" >}}"},
+		{map[interface{}]interface{}{},
+			"{% img http://placekitten.com/300/500 150 250 'Place Kitten #4' 'An image of a very cute kitten' %}",
+			"{{< figure src=\"http://placekitten.com/300/500\" width=\"150\" height=\"250\" title=\"Place Kitten #4\" alt=\"An image of a very cute kitten\" >}}"},
+		{map[interface{}]interface{}{},
+			"{% img right /placekitten/300/500 'Place Kitten #4' 'An image of a very cute kitten' %}",
+			"{{< figure class=\"right\" src=\"/placekitten/300/500\" title=\"Place Kitten #4\" alt=\"An image of a very cute kitten\" >}}"},
 	}
 
 	for _, data := range testDataList {
