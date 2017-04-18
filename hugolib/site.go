@@ -841,7 +841,8 @@ func (s *Site) loadData(sources []source.Input) (err error) {
 
 			data, err := s.readData(r)
 			if err != nil {
-				return fmt.Errorf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
+				s.Log.WARN.Printf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
+				continue
 			}
 
 			if data == nil {

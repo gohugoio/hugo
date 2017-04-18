@@ -98,15 +98,6 @@ func TestDataDirMultipleSources(t *testing.T) {
 
 }
 
-func TestDataDirUnknownFormat(t *testing.T) {
-	t.Parallel()
-
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("data/test.roml"), Content: []byte("boo")},
-	}
-	doTestDataDir(t, true, sources)
-}
-
 func doTestDataDir(t *testing.T, expected interface{}, sources []source.ByteSource, configKeyValues ...interface{}) {
 	var (
 		cfg, fs = newTestCfg()
