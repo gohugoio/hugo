@@ -57,7 +57,7 @@ When developing a [homepage][], what does one of the pages you're looping throug
 {{ end }}
 ```
 
-{{% note "`.Date.Pages` on the Homepage" %}}
+{{% note "`.Data.Pages` on the Homepage" %}}
 `.Data.Pages` on the homepage is equivalent to `.Site.Pages`.
 {{% /note %}}
 
