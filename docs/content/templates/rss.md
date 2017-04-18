@@ -73,6 +73,12 @@ If the following values are specified in the site’s config file (`config.toml`
 By default, the RSS feed is limited to **15** items.
 You may override the default by using the `rssLimit` [site configuration variable](/overview/configuration/).
 
+### Choosing Content Format
+
+By default, the RSS feed contains only article summaries.
+You may override the default by using the `rssSummary` [site configuration variable](/overview/configuration/).
+
+
 ## The Embedded rss.xml
 This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.0 Specification][RSS 2.0].
 
@@ -87,7 +93,9 @@ This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.
         <webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}{{ with .Site.Copyright }}
         <copyright>{{.}}</copyright>{{end}}{{ if not .Date.IsZero }}
         <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
-        <atom:link href="{{.Permalink}}" rel="self" type="application/rss+xml" />
+        {{ with .OutputFormats.Get "RSS" }}
+    	  {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
+        {{ end }}
         {{ range .Data.Pages }}
         <item>
           <title>{{ .Title }}</title>
@@ -95,7 +103,7 @@ This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.
           <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
           {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
           <guid>{{ .Permalink }}</guid>
-          <description>{{ .Content | html }}</description>
+          <description>{{ if .Site.RSSSummary }}{{ .Summary | html }}{{ else }}{{ .Content | html }}{{ end }}</description>
         </item>
         {{ end }}
       </channel>
