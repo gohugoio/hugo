@@ -398,7 +398,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 ```
 {{% /code %}}
 
-### By Page date
+### By Date
 
 {{% code file="layouts/partials/by-page-date.html" %}}
 ```html
@@ -416,7 +416,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 ```
 {{% /code %}}
 
-### By Page publish date
+### By Publish Date
 
 {{% code file="layouts/partials/by-page-publish-date.html" %}}
 ```html
@@ -434,7 +434,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 ```
 {{% /code %}}
 
-### By Page Param
+### By Page Parameter
 
 {{% code file="layouts/partials/by-page-param.html" %}}
 ```html
@@ -452,7 +452,9 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 ```
 {{% /code %}}
 
-### By Page Param in Date Format
+### By Page Parameter in Date Format
+
+The following template takes grouping by `date` a step further and uses Golang's layout string. See the [`Format` function][] for more examples of how to format dates in Hugo.
 
 {{% code file="layouts/partials/by-page-param-as-date.html" %}}
 ```html
@@ -570,6 +572,7 @@ Using `first` and `where` together can be very powerful:
 
 [bepsays]: http://bepsays.com/en/2016/12/19/hugo-018/
 [directorystructure]: /getting-started/directory-structure/
+[`Format` function]: /functions/format/
 [homepage]: /templates/homepage/
 [homepage]: /templates/homepage/
 [limitkeyword]: https://www.techonthenet.com/sql/select_limit.php
