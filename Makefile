@@ -38,7 +38,7 @@ gitinfo: hugo # Deprecated: use "hugo" target
 install-gitinfo: install # Deprecated: use "install" target
 no-git-info: hugo-no-gitinfo # Deprecated: use "hugo-no-gitinfo" target
 
-check: test-race test386 fmt vet ## Run tests and linters
+check: test-race test386 fmt vet check-vendor ## Run tests and linters
 
 test386: ## Run tests in 32-bit mode
 	GOARCH=386 govendor test +local
@@ -75,6 +75,9 @@ test-cover-html: ## Generate test coverage report
 		govendor test -coverprofile=coverage.out -covermode=count $(pkg);\
 		tail -n +2 coverage.out >> coverage-all.out;)
 	go tool cover -html=coverage-all.out
+
+check-vendor: ## Verify that vendored packages match git HEAD
+	@git diff-index --quiet HEAD || echo "check-vendor target failed: vendored packages out of sync" && echo && git diff vendor/ && exit 1
 
 help:
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
