@@ -9,7 +9,7 @@ lastmod: 2017-04-18
 categories: [functions]
 tags: []
 ns:
-signature: ["len VARIABLE"]
+signature: ["len INPUT"]
 workson: [lists,taxonomies,terms]
 hugoversion:
 relatedfuncs: []
