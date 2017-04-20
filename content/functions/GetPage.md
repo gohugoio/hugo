@@ -41,7 +41,7 @@ This code snippet---in the form of a [partial template][partials]---allows you t
 {{% code file="grab-top-two-tags.html" %}}
 ```html
 <ul class="most-popular-tags">
-{{ $t := $.Site.GetPage("taxonomyTerm", "tags") }}
+{{ $t := $.Site.GetPage "taxonomyTerm" "tags" }}
 {{ range first 2 $t.Data.Terms.ByCount }}
     <li>{{.}}</li>
 {{ end }}
