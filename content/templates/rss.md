@@ -65,7 +65,7 @@ Hugo provides the ability for you to define any RSS type you wish and can have d
 
 ## Configuring RSS
 
-By default, Hugo will create an unlimited number of RSS entries. You can limit this number via the `rssLimit:` field in your [`config` file](/getting-started/configuration/).
+By default, Hugo will create an unlimited number of RSS entries. You can limit this number via the `rssLimit:` field in your project's [`config` file][config].
 
 The following values will also be included in the RSS output if specified in your site’s configuration:
 
