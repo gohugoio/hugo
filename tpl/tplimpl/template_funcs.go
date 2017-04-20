@@ -634,7 +634,7 @@ func after(index interface{}, seq interface{}) (interface{}, error) {
 	default:
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(seq).Type().String())
 	}
-	if indexv >= seqv.Len() {
+	if indexv > seqv.Len() {
 		return nil, errors.New("no items left")
 	}
 	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
