@@ -1,9 +1,8 @@
 ---
 title: delimit
 linktitle: delimit
-description: Loops through any array, slice, or map and returns a string of all the values separated by a delimiter."
+description: Loops through any array, slice, or map and returns a string of all the values separated by a delimiter.
 godocref:
-qref: loops through array, slice, or map and returns string of all values separated by a delimiter.
 workson: []
 date: 2017-02-01
 publishdate: 2017-02-01
