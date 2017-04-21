@@ -55,7 +55,7 @@ layout = "birthday"
 ```
 {{% /code %}}
 
-By default, Hugo assumes `*.md` under `events` is of the `events` content type. However, we have specified that this particular file at `content/events/ my-first-event.md` is of type `special` and should render using the `birthday` layout.
+By default, Hugo assumes `*.md` under `events` is of the `events` content type. However, we have specified that this particular file at `content/events/ my-first-event.md` is of type `event` and should render using the `birthday` layout.
 
 ### Create a Type Layout Directory
 
