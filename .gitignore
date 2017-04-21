@@ -1,3 +1,4 @@
 pipeline/node_modules
 ryans-notes.md
 themes/hugo-docs-concept/pipeline/node_modules
+.DS_Store
