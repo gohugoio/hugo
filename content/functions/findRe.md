@@ -33,6 +33,10 @@ You can limit the number of matches in the list with a third parameter. The foll
     <!-- returns ["<h2 id="#foo">Foo</h2>"] -->
 ```
 
+{{% note %}}
+Hugo uses Golang's [Regular Expression package](https://golang.org/pkg/regexp/), which is the same general syntax used by Perl, Python, and other languages but with a few minor differences for those coming from a background in PCRE. For a full syntax listing, see the [GitHub wiki for re2](https://github.com/google/re2/wiki/Syntax).
+{{% /note %}}
+
 <!-- Removed per request of @bep: https://github.com/spf13/hugo/issues/3188 -->
 <!-- ## `findRE` Example: Building a Table of Contents
 
