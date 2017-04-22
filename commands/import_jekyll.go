@@ -528,5 +528,50 @@ func convertJekyllContent(m interface{}, content string) string {
 		content = replace.re.ReplaceAllString(content, replace.replace)
 	}
 
+	replaceListFunc := []struct {
+		re      *regexp.Regexp
+		replace func(string) string
+	}{
+		// Octopress image tag: http://octopress.org/docs/plugins/image-tag/
+		{regexp.MustCompile(`{%\s+img\s*(.*?)\s*%}`), replaceImageTag},
+	}
+
+	for _, replace := range replaceListFunc {
+		content = replace.re.ReplaceAllStringFunc(content, replace.replace)
+	}
+
 	return content
+}
+
+func replaceImageTag(match string) string {
+	r := regexp.MustCompile(`{%\s+img\s*(\p{L}*)\s+([\S]*/[\S]+)\s+(\d*)\s*(\d*)\s*(.*?)\s*%}`)
+	result := bytes.NewBufferString("{{< figure ")
+	parts := r.FindStringSubmatch(match)
+	// Index 0 is the entire string, ignore
+	replaceOptionalPart(result, "class", parts[1])
+	replaceOptionalPart(result, "src", parts[2])
+	replaceOptionalPart(result, "width", parts[3])
+	replaceOptionalPart(result, "height", parts[4])
+	// title + alt
+	part := parts[5]
+	if len(part) > 0 {
+		splits := strings.Split(part, "'")
+		lenSplits := len(splits)
+		if lenSplits == 1 {
+			replaceOptionalPart(result, "title", splits[0])
+		} else if lenSplits == 3 {
+			replaceOptionalPart(result, "title", splits[1])
+		} else if lenSplits == 5 {
+			replaceOptionalPart(result, "title", splits[1])
+			replaceOptionalPart(result, "alt", splits[3])
+		}
+	}
+	result.WriteString(">}}")
+	return result.String()
+
+}
+func replaceOptionalPart(buffer *bytes.Buffer, partName string, part string) {
+	if len(part) > 0 {
+		buffer.WriteString(partName + "=\"" + part + "\" ")
+	}
 }
