@@ -61,6 +61,12 @@ func (th testHelper) assertFileContentRegexp(filename string, matches ...string)
 	}
 }
 
+func (th testHelper) assertFileNotExist(filename string) {
+	exists, err := helpers.Exists(filename, th.Fs.Destination)
+	require.NoError(th.T, err)
+	require.False(th.T, exists)
+}
+
 func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
 	defaultInSubDir := th.Cfg.GetBool("defaultContentLanguageInSubDir")
 	replace := th.Cfg.GetString("defaultContentLanguage") + "/"

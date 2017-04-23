@@ -340,6 +340,10 @@ func (s *Site) renderRobotsTXT() error {
 		return nil
 	}
 
+	if outBuffer.Len() == 0 {
+		return nil
+	}
+
 	return s.publish("robots.txt", outBuffer)
 }
 

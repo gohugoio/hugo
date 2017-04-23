@@ -376,6 +376,20 @@ func TestNewSiteDefaultLang(t *testing.T) {
 	require.Equal(t, hugofs.Os, s.Fs.Destination)
 }
 
+// Issue #3355
+func TestShouldNotWriteZeroLengthFilesToDestination(t *testing.T) {
+	cfg, fs := newTestCfg()
+
+	writeSource(t, fs, filepath.Join("content", "simple.html"), "simple")
+	writeSource(t, fs, filepath.Join("layouts", "_default/single.html"), "{{.Content}}")
+	writeSource(t, fs, filepath.Join("layouts", "_default/list.html"), "")
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	th := testHelper{s.Cfg, s.Fs, t}
+
+	th.assertFileNotExist(filepath.Join("public", "index.html"))
+}
+
 // Issue #1176
 func TestSectionNaming(t *testing.T) {
 	t.Parallel()
