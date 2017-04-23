@@ -1939,6 +1939,10 @@ func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layou
 		return nil
 	}
 
+	if renderBuffer.Len() == 0 {
+		return nil
+	}
+
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
 
