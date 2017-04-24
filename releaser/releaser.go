@@ -60,11 +60,10 @@ func (r ReleaseHandler) calculateVersions(current helpers.HugoVersion) (helpers.
 	if r.shouldContinue() {
 		// The version in the current code base is in the state we want for
 		// the release.
-		if r.patch == 0 {
-			finalVersion = newVersion.Next()
-		}
+		finalVersion = newVersion.Next()
 	} else if r.patch > 0 {
-		newVersion = helpers.CurrentHugoVersion.NextPatchLevel(r.patch)
+		newVersion = current.NextPatchLevel(r.patch)
+		finalVersion = newVersion.Next()
 	} else {
 		finalVersion = newVersion.Next()
 	}

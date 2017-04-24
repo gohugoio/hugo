@@ -18,7 +18,6 @@ package releaser
 
 import (
 	"bytes"
-	"fmt"
 	"testing"
 
 	"runtime"
@@ -40,5 +39,4 @@ func TestReleaseNotesWriter(t *testing.T) {
 
 	require.NoError(t, writeReleaseNotes("0.20", infos, &b))
 
-	fmt.Println(">>>", b.String())
 }

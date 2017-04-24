@@ -56,6 +56,9 @@ func (v HugoVersion) Prev() HugoVersion {
 // NextPatchLevel returns the next patch/bugfix Hugo version.
 // This will be a patch increment on the previous Hugo version.
 func (v HugoVersion) NextPatchLevel(level int) HugoVersion {
+	if v.PatchLevel > 0 {
+		return HugoVersion{Number: v.Number, PatchLevel: level}
+	}
 	return HugoVersion{Number: v.Number - 0.01, PatchLevel: level}
 }
 

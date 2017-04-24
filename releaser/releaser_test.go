@@ -17,6 +17,7 @@
 package releaser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/spf13/hugo/helpers"
@@ -41,7 +42,7 @@ func TestCalculateVersions(t *testing.T) {
 		{
 			New(2, 0, true),
 			startVersion,
-			"0.20.2",
+			"0.19.2",
 			"0.20-DEV",
 		},
 		{
@@ -59,20 +60,38 @@ func TestCalculateVersions(t *testing.T) {
 		{
 			New(3, 1, true),
 			startVersion,
-			"0.20.3",
+			"0.19.3",
 			"0.20-DEV",
 		},
 		{
 			New(3, 2, true),
-			startVersion.Next(),
-			"0.21",
+			helpers.HugoVersion{Number: 0.20, PatchLevel: 2},
+			"0.20.2",
+			"0.21-DEV",
+		},
+		{
+			New(3, 0, true),
+			helpers.HugoVersion{Number: 0.20, Suffix: "", PatchLevel: 2},
+			"0.20.3",
+			"0.21-DEV",
+		},
+		{
+			New(3, 1, true),
+			helpers.HugoVersion{Number: 0.20, Suffix: "", PatchLevel: 2},
+			"0.20.3",
+			"0.21-DEV",
+		},
+		{
+			New(3, 2, true),
+			helpers.HugoVersion{Number: 0.20, Suffix: "", PatchLevel: 3},
+			"0.20.3",
 			"0.21-DEV",
 		},
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		v1, v2 := test.handler.calculateVersions(test.version)
-		require.Equal(t, test.v1, v1.String(), "Release version")
-		require.Equal(t, test.v2, v2.String(), "Final version")
+		require.Equal(t, test.v1, v1.String(), fmt.Sprintf("[%d] Release version", i))
+		require.Equal(t, test.v2, v2.String(), fmt.Sprintf("[%d] Final version", i))
 	}
 }

@@ -207,6 +207,15 @@ func (g gitInfos) ContribCountPerAuthor() contribCounts {
 	return c
 }
 
+func getCurrentBranch() (string, error) {
+	return gitShort("rev-parse", "--abbrev-ref", "HEAD")
+}
+
+func isMaster() bool {
+	curr, _ := getCurrentBranch()
+	return curr == "master"
+}
+
 func getGitInfosBefore(ref string, remote bool) (gitInfos, error) {
 
 	var g gitInfos

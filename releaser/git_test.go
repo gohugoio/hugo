@@ -51,3 +51,9 @@ See #456
 	require.Equal(t, 543, issues[2])
 
 }
+
+func TestGetCurrentBranch(t *testing.T) {
+	curr, err := getCurrentBranch()
+	require.NoError(t, err)
+	require.Equal(t, (curr == "master"), isMaster())
+}
