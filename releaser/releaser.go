@@ -254,8 +254,6 @@ func replaceInFile(filename string, oldNew ...string) error {
 	}
 
 	return ioutil.WriteFile(fullFilename, []byte(newContent), fi.Mode())
-
-	return nil
 }
 
 func hugoFilepath(filename string) string {
