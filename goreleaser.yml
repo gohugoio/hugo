@@ -1,7 +1,7 @@
 build:
   main: main.go
   binary: hugo
-  ldflags_template: -s -w -X hugolib.BuildDate={{.Date}}
+  ldflags_template: -s -w -X hugolib.BuildDate={{.Date}} -linkmode external -extldflags "-static"
   goos:
     - darwin
     - linux
