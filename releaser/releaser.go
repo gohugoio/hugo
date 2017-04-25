@@ -29,7 +29,7 @@ import (
 	"github.com/spf13/hugo/helpers"
 )
 
-const commitPrefix = "releaser:"
+const commitPrefix = "release:"
 
 type ReleaseHandler struct {
 	patch       int
