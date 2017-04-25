@@ -106,6 +106,7 @@ Example from site config in `config.toml`:
  * The names used must match the `Name` of a defined `Output Format`.
  * Any `Kind` without a definition will get `HTML`.
  * These can be overriden per `Page` in front matter (see below).
+ * When `outputs` is specified, only the formats defined in outputs will be rendered
 
 A `Page` with `YAML` front matter defining some output formats for that `Page`:
 
@@ -118,7 +119,11 @@ A `Page` with `YAML` front matter defining some output formats for that `Page`:
  - json
  ---
  ```
- Note that the names used for the output formats are case insensitive.
+ Note:
+ 
+ * The names used for the output formats are case insensitive.
+ * The first output format in the list will act as the default.
+ * The default output format is used when generating links to other pages in menus, etc.
  
 ## Link to Output Formats
  
