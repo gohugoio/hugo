@@ -218,35 +218,35 @@ func initRootPersistentFlags() {
 // initHugoBuildCommonFlags initialize common flags related to the Hugo build.
 // Called by initHugoBuilderFlags.
 func initHugoBuildCommonFlags(cmd *cobra.Command) {
-	cmd.Flags().Bool("cleanDestinationDir", false, "Remove files from destination not found in static directories")
+	cmd.Flags().Bool("cleanDestinationDir", false, "remove files from destination not found in static directories")
 	cmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
-	cmd.Flags().Bool("disable404", false, "Do not render 404 page")
-	cmd.Flags().Bool("disableRSS", false, "Do not build RSS files")
-	cmd.Flags().Bool("disableSitemap", false, "Do not build Sitemap file")
+	cmd.Flags().Bool("disable404", false, "do not render 404 page")
+	cmd.Flags().Bool("disableRSS", false, "do not build RSS files")
+	cmd.Flags().Bool("disableSitemap", false, "do not build Sitemap file")
 	cmd.Flags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	cmd.Flags().StringVarP(&contentDir, "contentDir", "c", "", "filesystem path to content directory")
 	cmd.Flags().StringVarP(&layoutDir, "layoutDir", "l", "", "filesystem path to layout directory")
 	cmd.Flags().StringVarP(&cacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
-	cmd.Flags().BoolP("ignoreCache", "", false, "Ignores the cache directory")
+	cmd.Flags().BoolP("ignoreCache", "", false, "ignores the cache directory")
 	cmd.Flags().StringVarP(&destination, "destination", "d", "", "filesystem path to write files to")
 	cmd.Flags().StringVarP(&theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
 	cmd.Flags().StringVarP(&themesDir, "themesDir", "", "", "filesystem path to themes directory")
 	cmd.Flags().Bool("uglyURLs", false, "if true, use /filename.html instead of /filename/")
 	cmd.Flags().Bool("canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
 	cmd.Flags().StringVarP(&baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
-	cmd.Flags().Bool("enableGitInfo", false, "Add Git revision, date and author info to the pages")
+	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date and author info to the pages")
 
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
-	cmd.Flags().Bool("pluralizeListTitles", true, "Pluralize titles in lists using inflect")
-	cmd.Flags().Bool("preserveTaxonomyNames", false, `Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
-	cmd.Flags().BoolP("forceSyncStatic", "", false, "Copy all files when static is changed.")
-	cmd.Flags().BoolP("noTimes", "", false, "Don't sync modification time of files")
-	cmd.Flags().BoolP("noChmod", "", false, "Don't sync permission mode of files")
-	cmd.Flags().BoolVarP(&logI18nWarnings, "i18n-warnings", "", false, "Print missing translations")
+	cmd.Flags().Bool("pluralizeListTitles", true, "pluralize titles in lists using inflect")
+	cmd.Flags().Bool("preserveTaxonomyNames", false, `preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
+	cmd.Flags().BoolP("forceSyncStatic", "", false, "copy all files when static is changed.")
+	cmd.Flags().BoolP("noTimes", "", false, "don't sync modification time of files")
+	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
+	cmd.Flags().BoolVarP(&logI18nWarnings, "i18n-warnings", "", false, "print missing translations")
 
-	cmd.Flags().StringSliceVar(&disableKinds, "disableKinds", []string{}, "Disable different kind of pages (home, RSS etc.)")
+	cmd.Flags().StringSliceVar(&disableKinds, "disableKinds", []string{}, "disable different kind of pages (home, RSS etc.)")
 
 	// Set bash-completion.
 	// Each flag must first be defined before using the SetAnnotation() call.
@@ -263,8 +263,8 @@ func initBenchmarkBuildingFlags(cmd *cobra.Command) {
 // init initializes flags.
 func init() {
 	HugoCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
-	HugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "Enable Logging")
-	HugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "Log File path (if set, logging enabled automatically)")
+	HugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "enable Logging")
+	HugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "log File path (if set, logging enabled automatically)")
 	HugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
 
 	initRootPersistentFlags()

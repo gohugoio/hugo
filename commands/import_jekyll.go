@@ -58,7 +58,7 @@ Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root
 }
 
 func init() {
-	importJekyllCmd.Flags().Bool("force", false, "Allow import into non-empty target directory")
+	importJekyllCmd.Flags().Bool("force", false, "allow import into non-empty target directory")
 }
 
 func importFromJekyll(cmd *cobra.Command, args []string) error {

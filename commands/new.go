@@ -41,9 +41,9 @@ var (
 
 func init() {
 	newSiteCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "config & frontmatter format")
-	newSiteCmd.Flags().Bool("force", false, "Init inside non-empty directory")
+	newSiteCmd.Flags().Bool("force", false, "init inside non-empty directory")
 	newCmd.Flags().StringVarP(&configFormat, "format", "f", "toml", "frontmatter format")
-	newCmd.Flags().StringVarP(&contentType, "kind", "k", "", "Content type to create")
+	newCmd.Flags().StringVarP(&contentType, "kind", "k", "", "content type to create")
 	newCmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	newCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 	newCmd.Flags().StringVar(&contentEditor, "editor", "", "edit new content with this editor, if provided")
