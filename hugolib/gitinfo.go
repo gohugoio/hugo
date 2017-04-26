@@ -58,7 +58,7 @@ func (h *HugoSites) assembleGitInfo() {
 		filename := path.Join(filepath.ToSlash(contentRoot), contentDir, filepath.ToSlash(p.Path()))
 		g, ok := gitMap[filename]
 		if !ok {
-			h.Log.ERROR.Printf("Failed to find GitInfo for %q", filename)
+			h.Log.WARN.Printf("Failed to find GitInfo for %q", filename)
 			return
 		}
 
