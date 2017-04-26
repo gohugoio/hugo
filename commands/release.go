@@ -50,9 +50,9 @@ func createReleaser() *releaseCommandeer {
 		return r.release()
 	}
 
-	r.cmd.PersistentFlags().IntVarP(&r.patchLevel, "patch", "p", 0, "Patch level, defaults to 0 for main releases")
-	r.cmd.PersistentFlags().IntVarP(&r.step, "step", "s", -1, "Release step, defaults to -1 for all steps.")
-	r.cmd.PersistentFlags().BoolVarP(&r.skipPublish, "skip-publish", "", false, "Skip all publishing pipes of the release")
+	r.cmd.PersistentFlags().IntVarP(&r.patchLevel, "patch", "p", 0, "patch level, defaults to 0 for main releases")
+	r.cmd.PersistentFlags().IntVarP(&r.step, "step", "s", -1, "release step, defaults to -1 for all steps.")
+	r.cmd.PersistentFlags().BoolVarP(&r.skipPublish, "skip-publish", "", false, "skip all publishing pipes of the release")
 
 	return r
 }

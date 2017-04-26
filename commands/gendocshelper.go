@@ -41,7 +41,7 @@ func createGenDocsHelper() *genDocsHelper {
 		return g.generate()
 	}
 
-	g.cmd.PersistentFlags().StringVarP(&g.target, "dir", "", "docs/data", "Data dir")
+	g.cmd.PersistentFlags().StringVarP(&g.target, "dir", "", "docs/data", "data dir")
 
 	return g
 }
