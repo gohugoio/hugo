@@ -141,6 +141,15 @@ func createTargetPath(d targetPathDescriptor) string {
 
 	isUgly := d.UglyURLs && !d.Type.NoUgly
 
+	// If the page output format's base name is the same as the page base name,
+	// we treat it as an ugly path, i.e.
+	// my-blog-post-1/index.md => my-blog-post-1/index.html
+	// (given the default values for that content file, i.e. no slug set etc.).
+	// This introduces the behaviour from < Hugo 0.20, see issue #3396.
+	if d.BaseName != "" && d.BaseName == d.Type.BaseName {
+		isUgly = true
+	}
+
 	if d.Kind != KindPage && len(d.Sections) > 0 {
 		pagePath = filepath.Join(d.Sections...)
 		needsBase = false

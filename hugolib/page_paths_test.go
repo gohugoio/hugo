@@ -62,6 +62,16 @@ func TestPageTargetPath(t *testing.T) {
 								BaseName: "mypage",
 								Sections: []string{"a"},
 								Type:     output.HTMLFormat}, "/a/b/mypage/index.html"},
+
+						{
+							// Issue #3396
+							"HTML page with index as base", targetPathDescriptor{
+								Kind:     KindPage,
+								Dir:      "/a/b",
+								BaseName: "index",
+								Sections: []string{"a"},
+								Type:     output.HTMLFormat}, "/a/b/index.html"},
+
 						{
 							"HTML page with special chars", targetPathDescriptor{
 								Kind:     KindPage,
@@ -139,7 +149,9 @@ func TestPageTargetPath(t *testing.T) {
 						expected := test.expected
 
 						// TODO(bep) simplify
-						if test.d.Kind == KindHome && test.d.Type.Path != "" {
+						if test.d.BaseName == test.d.Type.BaseName {
+
+						} else if test.d.Kind == KindHome && test.d.Type.Path != "" {
 						} else if (!strings.HasPrefix(expected, "/index") || test.d.Addends != "") && test.d.URL == "" && isUgly {
 							expected = strings.Replace(expected,
 								"/"+test.d.Type.BaseName+"."+test.d.Type.MediaType.Suffix,
