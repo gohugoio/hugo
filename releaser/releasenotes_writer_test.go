@@ -18,7 +18,7 @@ package releaser
 
 import (
 	"bytes"
-	"fmt"
+	"os"
 	"testing"
 
 	"runtime"
@@ -27,9 +27,9 @@ import (
 )
 
 func TestReleaseNotesWriter(t *testing.T) {
-	if runtime.GOOS == "linux" {
+	if os.Getenv("CI") != "" {
 		// Travis has an ancient git with no --invert-grep: https://github.com/travis-ci/travis-ci/issues/6328
-		t.Skip("Skip git test on Linux to make Travis happy.")
+		t.Skip("Skip git test on CI to make Travis happy.")
 	}
 
 	var b bytes.Buffer
@@ -40,5 +40,4 @@ func TestReleaseNotesWriter(t *testing.T) {
 
 	require.NoError(t, writeReleaseNotes("0.20", infos, &b))
 
-	fmt.Println(">>>", b.String())
 }
