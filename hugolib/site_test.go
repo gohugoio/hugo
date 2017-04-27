@@ -959,11 +959,13 @@ func TestRefLinking(t *testing.T) {
 	}{
 		// Note: There are no magic in the index.md name. This was fixed in Hugo 0.20.
 		// Before that, index.md would wrongly resolve to "/".
-		{"index.md", "", true, "/index/"},
+		// See #3396 -- there is an ambiguity in the examples below, even if they do work.
+		// TODO(bep) better test cases
+		{"index.md", "", true, "/"},
 		{"common.md", "", true, "/level2/common/"},
 		{"3-root.md", "", true, "/level2/level3/3-root/"},
-		{"index.md", "amp", true, "/amp/index/"},
-		{"index.md", "amp", false, "http://auth/amp/index/"},
+		{"index.md", "amp", true, "/amp/"},
+		{"index.md", "amp", false, "http://auth/amp/"},
 	} {
 		if out, err := site.Info.refLink(test.link, currentPage, test.relative, test.outputFormat); err != nil || out != test.expected {
 			t.Errorf("[%d] Expected %s to resolve to (%s), got (%s) - error: %s", i, test.link, test.expected, out, err)
@@ -981,9 +983,11 @@ func TestSourceRelativeLinksing(t *testing.T) {
 
 	okresults := map[string]resultMap{
 		"index.md": map[string]string{
-			"/docs/rootfile.md":             "/rootfile/",
-			"rootfile.md":                   "/rootfile/",
-			"index.md":                      "/index/",
+			"/docs/rootfile.md": "/rootfile/",
+			"rootfile.md":       "/rootfile/",
+			// See #3396 -- this may potentially be ambiguous (i.e. name conflict with home page).
+			// But the user have chosen so. This index.md patterns is more relevant in /sub-folders.
+			"index.md":                      "/",
 			"level2/2-root.md":              "/level2/2-root/",
 			"/docs/level2/2-root.md":        "/level2/2-root/",
 			"level2/level3/3-root.md":       "/level2/level3/3-root/",
