@@ -21,8 +21,6 @@ import (
 	"os"
 	"testing"
 
-	"runtime"
-
 	"github.com/stretchr/testify/require"
 )
 
