@@ -149,7 +149,7 @@ func TestPageTargetPath(t *testing.T) {
 						expected := test.expected
 
 						// TODO(bep) simplify
-						if test.d.BaseName == test.d.Type.BaseName {
+						if test.d.Kind == KindPage && test.d.BaseName == test.d.Type.BaseName {
 
 						} else if test.d.Kind == KindHome && test.d.Type.Path != "" {
 						} else if (!strings.HasPrefix(expected, "/index") || test.d.Addends != "") && test.d.URL == "" && isUgly {
