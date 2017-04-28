@@ -173,6 +173,12 @@ func (p *PathSpec) GetStaticDirPath() string {
 	return p.AbsPathify(p.staticDir)
 }
 
+// GetWidgetsDirPath returns the absolute path to the widgets'
+// directory for the current Hugo project.
+func (p *PathSpec) GetWidgetsDirPath() string {
+	return p.AbsPathify(p.widgetsDir)
+}
+
 // GetThemeDir gets the root directory of the current theme, if there is one.
 // If there is no theme, returns the empty string.
 func (p *PathSpec) GetThemeDir() string {

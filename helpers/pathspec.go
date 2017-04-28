@@ -39,6 +39,7 @@ type PathSpec struct {
 	// Directories
 	themesDir  string
 	layoutDir  string
+	widgetsDir string
 	workingDir string
 	staticDir  string
 
@@ -82,6 +83,7 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		BaseURL:                        baseURL,
 		themesDir:                      cfg.GetString("themesDir"),
 		layoutDir:                      cfg.GetString("layoutDir"),
+		widgetsDir:                     cfg.GetString("widgetsDir"),
 		workingDir:                     cfg.GetString("workingDir"),
 		staticDir:                      cfg.GetString("staticDir"),
 		theme:                          cfg.GetString("theme"),
@@ -107,6 +109,11 @@ func (p *PathSpec) WorkingDir() string {
 // LayoutDir returns the relative layout dir in the currenct Hugo project.
 func (p *PathSpec) LayoutDir() string {
 	return p.layoutDir
+}
+
+// WidgetsDir returns the relative layout dir in the currenct Hugo project.
+func (p *PathSpec) WidgetsDir() string {
+	return p.widgetsDir
 }
 
 // Theme returns the theme name if set.

@@ -20,6 +20,8 @@ import (
 	texttemplate "text/template"
 
 	bp "github.com/spf13/hugo/bufferpool"
+
+	"github.com/spf13/cast"
 	"github.com/spf13/hugo/deps"
 )
 
@@ -39,6 +41,7 @@ func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 // Partial executes the named partial and returns either a string,
 // when called from text/template, for or a template.HTML.
 func (t *templateFuncster) partial(name string, contextList ...interface{}) (interface{}, error) {
+	var prefix = "partials"
 	if strings.HasPrefix("partials/", name) {
 		name = name[8:]
 	}
@@ -46,11 +49,17 @@ func (t *templateFuncster) partial(name string, contextList ...interface{}) (int
 
 	if len(contextList) == 0 {
 		context = nil
+	} else if pr, err := cast.ToStringE(contextList[0]); err == nil && len(contextList) >= 2 {
+		// The first parameter of the list (second of the partial
+		// call) is the prefix
+		prefix = pr
+		context = contextList[1]
 	} else {
 		context = contextList[0]
 	}
 
-	for _, n := range []string{"partials/" + name, "theme/partials/" + name} {
+	prefix += "/"
+	for _, n := range []string{prefix + name, "theme/" + prefix + name} {
 		templ := t.Tmpl.Lookup(n)
 		if templ == nil {
 			// For legacy reasons.
@@ -75,3 +84,28 @@ func (t *templateFuncster) partial(name string, contextList ...interface{}) (int
 
 	return "", fmt.Errorf("Partial %q not found", name)
 }
+
+/*
+// Retrieves and display a widget area using the /widgets/ shortcode
+func (t *templateFuncster) widgets(name string, context interface{}) (interface{}, error) {
+	// Add (_wa: name) index/value to context to access it inside
+	// the embedded template (as Widget Area)
+	outcontext := make(map[string]interface{})
+	outcontext["c"] = context
+	outcontext["_wa"] = name
+
+	// See in template_embedded for widgets.html
+	templ := t.Tmpl.Lookup("_internal/widgets.html")
+	if templ != nil {
+		b := bp.GetBuffer()
+		defer bp.PutBuffer(b)
+
+		if err := templ.Execute(b, outcontext); err != nil {
+			return "", err
+		}
+
+		return template.HTML(b.String()), nil
+	}
+	return "", fmt.Errorf("Widget area %q not found", name)
+}
+*/

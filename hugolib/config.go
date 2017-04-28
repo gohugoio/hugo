@@ -68,6 +68,7 @@ func loadDefaultSettingsFor(v *viper.Viper) {
 	v.SetDefault("contentDir", "content")
 	v.SetDefault("layoutDir", "layouts")
 	v.SetDefault("staticDir", "static")
+	v.SetDefault("widgetsDir", "widgets")
 	v.SetDefault("archetypeDir", "archetypes")
 	v.SetDefault("publishDir", "public")
 	v.SetDefault("dataDir", "data")

@@ -95,6 +95,7 @@ type Site struct {
 	Sections Taxonomy
 	Info     SiteInfo
 	Menus    Menus
+	Widgets  Widgets
 	timer    *nitro.B
 
 	layoutHandler *output.LayoutHandler
@@ -296,6 +297,7 @@ type SiteInfo struct {
 	*PageCollections
 	Files                 *[]*source.File
 	Menus                 *Menus
+	Widgets               *Widgets
 	Hugo                  *HugoInfo
 	Title                 string
 	RSSLink               string
@@ -1097,6 +1099,7 @@ func (s *Site) initializeSiteInfo() {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		s:                              s,
+		Widgets:                        &s.Widgets,
 	}
 
 	s.Info.RSSLink = s.permalink(lang.GetString("rssURI"))
@@ -1152,6 +1155,18 @@ func (s *Site) getThemeDataDir(path string) string {
 		return ""
 	}
 	return s.getRealDir(filepath.Join(s.PathSpec.GetThemeDir(), s.dataDir()), path)
+}
+
+func (s *Site) widgetDir() string {
+	return s.Cfg.GetString("widgetsDir")
+}
+
+func (s *Site) getWidgetDir(path string) string {
+	return s.getRealDir(s.Cfg.GetString("widgetDir"), path)
+}
+
+func (s *Site) isWidgetDirEvent(e fsnotify.Event) bool {
+	return s.getWidgetDir(e.Name) != ""
 }
 
 func (s *Site) layoutDir() string {
