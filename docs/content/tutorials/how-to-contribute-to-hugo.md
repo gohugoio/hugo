@@ -108,7 +108,7 @@ govendor get -v github.com/spf13/hugo
 
 ### Fork the repository
 
-If you're not fimiliar with this term, GitHub's [help pages](https://help.github.com/articles/fork-a-repo/) provide again a simple explanation:
+If you're not familiar with this term, GitHub's [help pages](https://help.github.com/articles/fork-a-repo/) provide again a simple explanation:
 
 > A fork is a copy of a repository. Forking a repository allows you to freely experiment with changes without affecting the original project.
 
@@ -207,7 +207,7 @@ make check
 
 ### Formatting
 
-The Go code styleguide maybe is opiniated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our additions:
+The Go code styleguide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our additions:
 
 ```sh
 govendor fmt +local
@@ -309,7 +309,7 @@ Check the commit log if everything looks as expected. Should an error occur you 
 
 ### Push commits
 
-To push our commits to the fork on GitHub we need to speficy a destination. A destination is defined by the remote and a branch name. Earlier, the defined that the remote url of our fork is the same as our GitHub handle, in my case `digitalcraftsman`. The branch should have the same as our local one. This makes it easy to identify corresponding branches.
+To push our commits to the fork on GitHub we need to specify a destination. A destination is defined by the remote and a branch name. Earlier, the defined that the remote url of our fork is the same as our GitHub handle, in my case `digitalcraftsman`. The branch should have the same as our local one. This makes it easy to identify corresponding branches.
 
 ```sh
 git push --set-upstream <YOUR-GITHUB-USERNAME> <BRANCHNAME>
@@ -324,7 +324,7 @@ If you modified your commit history in the last step GitHub will reject your try
 
 We made a lot of progress. Good work. In this step we finally open a pull request to submit our additions. Open the [Hugo master repository](https://github.com/spf13/hugo/) on GitHub in your browser.
 
-You should find a green button labeld with "New pull request". But GitHub is clever and probably suggests you a pull request like in the beige box below:
+You should find a green button labeled with "New pull request". But GitHub is clever and probably suggests you a pull request like in the beige box below:
 
 <img src="/img/tutorials/how-to-contribute-to-hugo/open-pull-request.png" alt="Open a pull request">
 
