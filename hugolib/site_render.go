@@ -81,6 +81,11 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 				pageOutput, err = page.mainPageOutput.copyWithFormat(outFormat)
 			}
 
+			if outFormat != page.s.rc.Format {
+				// Will be rendered  ... later.
+				continue
+			}
+
 			if err != nil {
 				s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outFormat.Name, page, err)
 				continue

@@ -22,6 +22,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -118,10 +119,40 @@ type Site struct {
 	outputFormatsConfig output.Formats
 	mediaTypesConfig    media.Types
 
+	// We render each site for all the relevant output formats in serial with
+	// this rendering context pointing to the current one.
+	rc *siteRenderingContext
+
+	// The output formats that we need to render this site in. This slice
+	// will be fixed once set.
+	// This will be the union of Site.Pages' outputFormats.
+	// This slice will be sorted.
+	renderFormats output.Formats
+
 	// Logger etc.
 	*deps.Deps `json:"-"`
 
 	siteStats *siteStats
+}
+
+type siteRenderingContext struct {
+	output.Format
+}
+
+func (s *Site) initRenderFormats() {
+	formatSet := make(map[string]bool)
+	formats := output.Formats{}
+	for _, p := range s.Pages {
+		for _, f := range p.outputFormats {
+			if !formatSet[f.Name] {
+				formats = append(formats, f)
+				formatSet[f.Name] = true
+			}
+		}
+	}
+
+	sort.Sort(formats)
+	s.renderFormats = formats
 }
 
 type siteStats struct {
@@ -971,8 +1002,13 @@ func (s *Site) render() (err error) {
 	}
 	s.timerStep("render and write aliases")
 
-	if err = s.renderPages(); err != nil {
-		return
+	// TODO(bep) render consider this, ref. render404 etc.
+	s.initRenderFormats()
+	for _, rf := range s.renderFormats {
+		s.rc = &siteRenderingContext{Format: rf}
+		if err = s.renderPages(); err != nil {
+			return
+		}
 	}
 	s.timerStep("render and write pages")
 
