@@ -39,7 +39,7 @@ If that option isn't enabled, you likely haven't pushed your _docs_ folder yet.
 
 This is the simplest approach but requires the usage of a non-standard publish directory
 (GitHub Pages cannot be configured to use another directory than _docs_ currently).
-Also the presence of generated files on the master branch may not be to eveyone's taste.
+Also the presence of generated files on the master branch may not be to everyone's taste.
 
 ## Deployment via gh-pages branch
 
