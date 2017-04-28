@@ -39,8 +39,8 @@ If this is confusing or you are unfamiliar with Hugo's template hierarchy, visit
 Now that you've got a handle on templates lets recap some Hugo basics to understand how to use an \_index.md file with a List page.
 
 1. Sections and Taxonomies are 'List' pages, NOT single pages.
-2. List pages are rendered using the template heirarchy found in the [Content - List Template](/templates/list/) docs.
-3. The Home page, though technically a List page, can have [it's own template](/templates/homepage/) at layouts/index.html rather than \_default/list.html. Many themes exploit this behaviour so you are likely to encounter this specific use case. 
+2. List pages are rendered using the template hierarchy found in the [Content - List Template](/templates/list/) docs.
+3. The Home page, though technically a List page, can have [its own template](/templates/homepage/) at layouts/index.html rather than \_default/list.html. Many themes exploit this behaviour so you are likely to encounter this specific use case. 
 4. Taxonomy terms pages are 'lists of metadata' not lists of content, so [have their own templates](/templates/terms/). 
 
 Let's put all this information together:

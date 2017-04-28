@@ -21,7 +21,7 @@ Data Files can also be used in [themes](/themes/overview/), but note: If the sam
 
 ## The Data Folder
 
-The `data` folder is where you can store additional data for Hugo to use when generating your site. Data files aren't used to generate standalone pages - rather they're meant supplemental to the content files. This feature can extend the content in case your frontmatter would grow immensely. Or perhaps your want to show a larger dataset in a template (see example below). In both cases it's a good idea to outsource the data in their own file.  
+The `data` folder is where you can store additional data for Hugo to use when generating your site. Data files aren't used to generate standalone pages - rather they're meant supplemental to the content files. This feature can extend the content in case your frontmatter would grow immensely. Or perhaps you want to show a larger dataset in a template (see example below). In both cases it's a good idea to outsource the data in their own file.  
 
 These files must be YAML, JSON or TOML files (using either the `.yml`, `.yaml`, `.json` or `toml` extension) and the data will be accessible as a `map` in `.Site.Data`.
 
