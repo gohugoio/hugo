@@ -305,7 +305,7 @@ Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` 
 `$` has special significance in your templates. `$` is set to the starting value of `.` ("the dot") by default. This is a [documented feature of Go text/template][dotdoc]. This means you have access to the global context from anywhere. Here is an equivalent example of the preceding code block but now using `$` to grab `.Site.Title` from the global context:
 
 {{% code file="range-through-tags-w-global.html" %}}
-```html
+```hbs
 <ul class="tags">
 {{ range .Params.tags }}
   <li>

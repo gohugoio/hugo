@@ -267,7 +267,7 @@ hugo config | FINDSTR /I canon
 
 In addition to specifying permalink values in your site configuration for different content sections, Hugo provides even more granular control for individual pieces of content.
 
-Both `slug` and `url` can be defined in individual front matter. For more information on content destinations at build time, seee [Content Organization][contentorg].
+Both `slug` and `url` can be defined in individual front matter. For more information on content destinations at build time, see [Content Organization][contentorg].
 
 ## Relative URLs
 
