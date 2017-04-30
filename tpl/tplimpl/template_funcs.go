@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/hugo/tpl/internal"
 
 	// Init the namespaces
+	_ "github.com/spf13/hugo/tpl/collections"
 	_ "github.com/spf13/hugo/tpl/compare"
 	_ "github.com/spf13/hugo/tpl/data"
 	_ "github.com/spf13/hugo/tpl/lang"
@@ -82,43 +83,30 @@ func (t *templateFuncster) partialCached(name string, context interface{}, varia
 func (t *templateFuncster) initFuncMap() {
 	funcMap := template.FuncMap{
 		// Namespaces
-		"collections": t.collections.Namespace,
-		"crypto":      t.crypto.Namespace,
-		"encoding":    t.encoding.Namespace,
-		"images":      t.images.Namespace,
-		"inflect":     t.inflect.Namespace,
-		"os":          t.os.Namespace,
-		"safe":        t.safe.Namespace,
+		"crypto":   t.crypto.Namespace,
+		"encoding": t.encoding.Namespace,
+		"images":   t.images.Namespace,
+		"inflect":  t.inflect.Namespace,
+		"os":       t.os.Namespace,
+		"safe":     t.safe.Namespace,
 		//"time":        t.time.Namespace,
 		"transform": t.transform.Namespace,
 		"urls":      t.urls.Namespace,
 
 		"absURL":        t.urls.AbsURL,
 		"absLangURL":    t.urls.AbsLangURL,
-		"after":         t.collections.After,
-		"apply":         t.collections.Apply,
 		"base64Decode":  t.encoding.Base64Decode,
 		"base64Encode":  t.encoding.Base64Encode,
 		"dateFormat":    t.time.Format,
-		"delimit":       t.collections.Delimit,
-		"dict":          t.collections.Dictionary,
-		"echoParam":     t.collections.EchoParam,
 		"emojify":       t.transform.Emojify,
-		"first":         t.collections.First,
 		"getenv":        t.os.Getenv,
 		"highlight":     t.transform.Highlight,
 		"htmlEscape":    t.transform.HTMLEscape,
 		"htmlUnescape":  t.transform.HTMLUnescape,
 		"humanize":      t.inflect.Humanize,
 		"imageConfig":   t.images.Config,
-		"in":            t.collections.In,
-		"index":         t.collections.Index,
 		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
-		"intersect":     t.collections.Intersect,
-		"isSet":         t.collections.IsSet,
-		"isset":         t.collections.IsSet,
 		"jsonify":       t.encoding.Jsonify,
-		"last":          t.collections.Last,
 		"markdownify":   t.transform.Markdownify,
 		"md5":           t.crypto.MD5,
 		"now":           t.time.Now,
@@ -129,7 +117,6 @@ func (t *templateFuncster) initFuncMap() {
 		"print":         fmt.Sprint,
 		"printf":        fmt.Sprintf,
 		"println":       fmt.Sprintln,
-		"querify":       t.collections.Querify,
 		"readDir":       t.os.ReadDir,
 		"readFile":      t.os.ReadFile,
 		"ref":           t.urls.Ref,
@@ -144,18 +131,12 @@ func (t *templateFuncster) initFuncMap() {
 		"safeURL":       t.safe.URL,
 		"sanitizeURL":   t.safe.SanitizeURL,
 		"sanitizeurl":   t.safe.SanitizeURL,
-		"seq":           t.collections.Seq,
 		"sha1":          t.crypto.SHA1,
 		"sha256":        t.crypto.SHA256,
-		"shuffle":       t.collections.Shuffle,
 		"singularize":   t.inflect.Singularize,
-		"slice":         t.collections.Slice,
-		"sort":          t.collections.Sort,
 		"string":        func(v interface{}) (string, error) { return cast.ToStringE(v) },
 		"time":          t.time.AsTime,
-		"union":         t.collections.Union,
 		"urlize":        t.PathSpec.URLize,
-		"where":         t.collections.Where,
 	}
 
 	// Merge the namespace funcs
@@ -172,5 +153,4 @@ func (t *templateFuncster) initFuncMap() {
 
 	t.funcMap = funcMap
 	t.Tmpl.(*templateHandler).setFuncs(funcMap)
-	t.collections.Funcs(funcMap)
 }

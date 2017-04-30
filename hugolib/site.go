@@ -676,7 +676,7 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 			s.Log.ERROR.Println(err)
 		}
 
-		s.Tmpl.PrintErrors()
+		s.TemplateHandler().PrintErrors()
 
 		for i := 1; i < len(sites); i++ {
 			site := sites[i]

@@ -565,7 +565,7 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 	return source, nil
 }
 
-func getShortcodeTemplate(name string, t tpl.TemplateHandler) *tpl.TemplateAdapter {
+func getShortcodeTemplate(name string, t tpl.TemplateFinder) *tpl.TemplateAdapter {
 	isInnerShortcodeCache.RLock()
 	defer isInnerShortcodeCache.RUnlock()
 

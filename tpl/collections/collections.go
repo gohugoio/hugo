@@ -21,7 +21,6 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/spf13/cast"
@@ -37,23 +36,11 @@ func New(deps *deps.Deps) *Namespace {
 
 // Namespace provides template functions for the "collections" namespace.
 type Namespace struct {
-	sync.Mutex
-	funcMap template.FuncMap
-
 	deps *deps.Deps
 }
 
 // Namespace returns a pointer to the current namespace instance.
 func (ns *Namespace) Namespace() *Namespace { return ns }
-
-// Funcs sets the internal funcMap for the collections namespace.
-func (ns *Namespace) Funcs(fm template.FuncMap) *Namespace {
-	ns.Lock()
-	ns.funcMap = fm
-	ns.Unlock()
-
-	return ns
-}
 
 // After returns all the items after the first N in a rangeable list.
 func (ns *Namespace) After(index interface{}, seq interface{}) (interface{}, error) {

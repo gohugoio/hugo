@@ -20,8 +20,8 @@ type Deps struct {
 	// The logger to use.
 	Log *jww.Notepad `json:"-"`
 
-	// The templates to use.
-	Tmpl tpl.TemplateHandler `json:"-"`
+	// The templates to use. This will usually implement the full tpl.TemplateHandler.
+	Tmpl tpl.TemplateFinder `json:"-"`
 
 	// The file systems to use.
 	Fs *hugofs.Fs `json:"-"`
@@ -55,6 +55,10 @@ type ResourceProvider interface {
 	Clone(deps *Deps) error
 }
 
+func (d *Deps) TemplateHandler() tpl.TemplateHandler {
+	return d.Tmpl.(tpl.TemplateHandler)
+}
+
 func (d *Deps) LoadResources() error {
 	// Note that the translations need to be loaded before the templates.
 	if err := d.translationProvider.Update(d); err != nil {
@@ -64,7 +68,10 @@ func (d *Deps) LoadResources() error {
 	if err := d.templateProvider.Update(d); err != nil {
 		return err
 	}
-	d.Tmpl.PrintErrors()
+
+	if th, ok := d.Tmpl.(tpl.TemplateHandler); ok {
+		th.PrintErrors()
+	}
 
 	return nil
 }
