@@ -26,6 +26,7 @@ import (
 
 	// Init the namespaces
 	_ "github.com/spf13/hugo/tpl/lang"
+	_ "github.com/spf13/hugo/tpl/math"
 )
 
 // Get retrieves partial output from the cache based upon the partial name.
@@ -84,7 +85,6 @@ func (t *templateFuncster) initFuncMap() {
 		"encoding":    t.encoding.Namespace,
 		"images":      t.images.Namespace,
 		"inflect":     t.inflect.Namespace,
-		"math":        t.math.Namespace,
 		"os":          t.os.Namespace,
 		"safe":        t.safe.Namespace,
 		"strings":     t.strings.Namespace,
@@ -94,7 +94,6 @@ func (t *templateFuncster) initFuncMap() {
 
 		"absURL":        t.urls.AbsURL,
 		"absLangURL":    t.urls.AbsLangURL,
-		"add":           t.math.Add,
 		"after":         t.collections.After,
 		"apply":         t.collections.Apply,
 		"base64Decode":  t.encoding.Base64Decode,
@@ -106,7 +105,6 @@ func (t *templateFuncster) initFuncMap() {
 		"dateFormat":    t.time.Format,
 		"delimit":       t.collections.Delimit,
 		"dict":          t.collections.Dictionary,
-		"div":           t.math.Div,
 		"echoParam":     t.collections.EchoParam,
 		"emojify":       t.transform.Emojify,
 		"eq":            compare.Eq,
@@ -136,9 +134,6 @@ func (t *templateFuncster) initFuncMap() {
 		"lt":            compare.Lt,
 		"markdownify":   t.transform.Markdownify,
 		"md5":           t.crypto.MD5,
-		"mod":           t.math.Mod,
-		"modBool":       t.math.ModBool,
-		"mul":           t.math.Mul,
 		"ne":            compare.Ne,
 		"now":           t.time.Now,
 		"partial":       t.partial,
@@ -175,7 +170,6 @@ func (t *templateFuncster) initFuncMap() {
 		"sort":          t.collections.Sort,
 		"split":         t.strings.Split,
 		"string":        func(v interface{}) (string, error) { return cast.ToStringE(v) },
-		"sub":           t.math.Sub,
 		"substr":        t.strings.Substr,
 		"time":          t.time.AsTime,
 		"title":         t.strings.Title,

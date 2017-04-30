@@ -27,7 +27,6 @@ import (
 	"github.com/spf13/hugo/tpl/encoding"
 	"github.com/spf13/hugo/tpl/images"
 	"github.com/spf13/hugo/tpl/inflect"
-	"github.com/spf13/hugo/tpl/math"
 	"github.com/spf13/hugo/tpl/os"
 	"github.com/spf13/hugo/tpl/safe"
 	hstrings "github.com/spf13/hugo/tpl/strings"
@@ -48,7 +47,6 @@ type templateFuncster struct {
 	encoding    *encoding.Namespace
 	images      *images.Namespace
 	inflect     *inflect.Namespace
-	math        *math.Namespace
 	os          *os.Namespace
 	safe        *safe.Namespace
 	strings     *hstrings.Namespace
@@ -71,7 +69,6 @@ func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 		encoding:    encoding.New(),
 		images:      images.New(deps),
 		inflect:     inflect.New(),
-		math:        math.New(),
 		os:          os.New(deps),
 		safe:        safe.New(),
 		strings:     hstrings.New(deps),

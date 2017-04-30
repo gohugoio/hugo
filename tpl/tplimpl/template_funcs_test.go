@@ -32,6 +32,7 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/hugo/i18n"
 	"github.com/spf13/hugo/tpl"
+	"github.com/spf13/hugo/tpl/internal"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -52,6 +53,53 @@ func newDepsConfig(cfg config.Provider) deps.DepsCfg {
 		TemplateProvider:    DefaultTemplateProvider,
 		TranslationProvider: i18n.NewTranslationProvider(),
 	}
+}
+
+func TestTemplateFuncsExamples(t *testing.T) {
+	t.Parallel()
+
+	workingDir := "/home/hugo"
+
+	v := viper.New()
+
+	v.Set("workingDir", workingDir)
+	v.Set("multilingual", true)
+
+	fs := hugofs.NewMem(v)
+
+	afero.WriteFile(fs.Source, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)
+
+	d, err := deps.New(newDepsConfig(v))
+	require.NoError(t, err)
+
+	var data struct {
+		Title   string
+		Section string
+		Params  map[string]interface{}
+	}
+
+	data.Title = "**BatMan**"
+	data.Section = "blog"
+	data.Params = map[string]interface{}{"langCode": "en"}
+
+	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
+		ns := nsf(d)
+		for i, example := range ns.Examples {
+			in, expected := example[0], example[1]
+			d.WithTemplate = func(templ tpl.TemplateHandler) error {
+				require.NoError(t, templ.AddTemplate("test", in))
+				return nil
+			}
+			require.NoError(t, d.LoadResources())
+
+			var b bytes.Buffer
+			require.NoError(t, d.Tmpl.Lookup("test").Execute(&b, &data))
+			if b.String() != expected {
+				t.Fatalf("%s[%d]: got %q expected %q", ns.Name, i, b.String(), expected)
+			}
+		}
+	}
+
 }
 
 func TestFuncsInTemplate(t *testing.T) {
@@ -76,7 +124,6 @@ func TestFuncsInTemplate(t *testing.T) {
 absURL: {{ "http://gohugo.io/" | absURL }}
 absURL: {{ "mystyle.css" | absURL }}
 absURL: {{ 42 | absURL }}
-add: {{add 1 2}}
 base64Decode 1: {{ "SGVsbG8gd29ybGQ=" | base64Decode }}
 base64Decode 2: {{ 42 | base64Encode | base64Decode }}
 base64Encode: {{ "Hello world" | base64Encode }}
@@ -84,7 +131,6 @@ chomp: {{chomp "<p>Blockhead</p>\n" }}
 crypto.MD5: {{ crypto.MD5 "Hello world, gophers!" }}
 dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
 delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
-div: {{div 6 3}}
 echoParam: {{ echoParam .Params "langCode" }}
 emojify: {{ "I :heart: Hugo" | emojify }}
 eq: {{ if eq .Section "blog" }}current{{ end }}
@@ -107,9 +153,6 @@ jsonify: {{ (slice "A" "B" "C") | jsonify }}
 lower: {{lower "BatMan"}}
 markdownify: {{ .Title | markdownify}}
 md5: {{ md5 "Hello world, gophers!" }}
-mod: {{mod 15 3}}
-modBool: {{modBool 15 3}}
-mul: {{mul 2 3}}
 print: {{ print "works!" }}
 printf: {{ printf "%s!" "works" }}
 println: {{ println "works!" -}}
@@ -138,7 +181,6 @@ slicestr: {{slicestr "BatMan" 0 3}}
 slicestr: {{slicestr "BatMan" 3}}
 sort: {{ slice "B" "C" "A" | sort }}
 strings.TrimPrefix: {{ strings.TrimPrefix "Goodbye,, world!" "Goodbye," }}
-sub: {{sub 3 2}}
 substr: {{substr "BatMan" 0 -3}}
 substr: {{substr "BatMan" 3 3}}
 title: {{title "Bat man"}}
@@ -155,7 +197,6 @@ urlize: {{ "Bat Man" | urlize }}
 absURL: http://gohugo.io/
 absURL: http://mysite.com/hugo/mystyle.css
 absURL: http://mysite.com/hugo/42
-add: 3
 base64Decode 1: Hello world
 base64Decode 2: 42
 base64Encode: SGVsbG8gd29ybGQ=
@@ -163,7 +204,6 @@ chomp: <p>Blockhead</p>
 crypto.MD5: b3029f756f98f79e7f1b7f1d1f0dd53b
 dateFormat: Wednesday, Jan 21, 2015
 delimit: A, B and C
-div: 2
 echoParam: en
 emojify: I ❤️ Hugo
 eq: current
@@ -186,9 +226,6 @@ jsonify: ["A","B","C"]
 lower: batman
 markdownify: <strong>BatMan</strong>
 md5: b3029f756f98f79e7f1b7f1d1f0dd53b
-mod: 0
-modBool: true
-mul: 6
 print: works!
 printf: works!
 println: works!
@@ -217,7 +254,6 @@ slicestr: Bat
 slicestr: Man
 sort: [A B C]
 strings.TrimPrefix: , world!
-sub: 1
 substr: Bat
 substr: Man
 title: Bat Man
