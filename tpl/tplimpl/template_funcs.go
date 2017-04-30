@@ -33,6 +33,7 @@ import (
 	_ "github.com/spf13/hugo/tpl/inflect"
 	_ "github.com/spf13/hugo/tpl/lang"
 	_ "github.com/spf13/hugo/tpl/math"
+	_ "github.com/spf13/hugo/tpl/os"
 	_ "github.com/spf13/hugo/tpl/strings"
 )
 
@@ -87,7 +88,6 @@ func (t *templateFuncster) partialCached(name string, context interface{}, varia
 func (t *templateFuncster) initFuncMap() {
 	funcMap := template.FuncMap{
 		// Namespaces
-		"os":   t.os.Namespace,
 		"safe": t.safe.Namespace,
 		//"time":        t.time.Namespace,
 		"transform": t.transform.Namespace,
@@ -97,7 +97,6 @@ func (t *templateFuncster) initFuncMap() {
 		"absLangURL":    t.urls.AbsLangURL,
 		"dateFormat":    t.time.Format,
 		"emojify":       t.transform.Emojify,
-		"getenv":        t.os.Getenv,
 		"highlight":     t.transform.Highlight,
 		"htmlEscape":    t.transform.HTMLEscape,
 		"htmlUnescape":  t.transform.HTMLUnescape,
@@ -110,8 +109,6 @@ func (t *templateFuncster) initFuncMap() {
 		"print":         fmt.Sprint,
 		"printf":        fmt.Sprintf,
 		"println":       fmt.Sprintln,
-		"readDir":       t.os.ReadDir,
-		"readFile":      t.os.ReadFile,
 		"ref":           t.urls.Ref,
 		"relURL":        t.urls.RelURL,
 		"relLangURL":    t.urls.RelLangURL,
