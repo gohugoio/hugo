@@ -197,8 +197,6 @@ layout: mylayout
 ---
 ```
 {{% /code %}}
-
-
 <!-- See https://discuss.gohugo.io/t/path-not-works/6387 -->
 <!-- ### `path`
 
