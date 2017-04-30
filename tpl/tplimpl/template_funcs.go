@@ -1798,7 +1798,7 @@ func index(item interface{}, indices ...interface{}) (interface{}, error) {
 // readFile reads the file named by filename relative to the given basepath
 // and returns the contents as a string.
 // There is a upper size limit set at 1 megabytes.
-func readFile(fs *afero.BasePathFs, filename string) (string, error) {
+func readFile(fs afero.Fs, filename string) (string, error) {
 	if filename == "" {
 		return "", errors.New("readFile needs a filename")
 	}

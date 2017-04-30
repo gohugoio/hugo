@@ -34,7 +34,7 @@ type Fs struct {
 
 	// WorkingDir is a read-only file system
 	// restricted to the project working dir.
-	WorkingDir *afero.BasePathFs
+	WorkingDir afero.Fs
 }
 
 // NewDefault creates a new Fs with the OS file system
@@ -68,11 +68,11 @@ func newFs(base afero.Fs, cfg config.Provider) *Fs {
 	}
 }
 
-func getWorkingDirFs(base afero.Fs, cfg config.Provider) *afero.BasePathFs {
+func getWorkingDirFs(base afero.Fs, cfg config.Provider) afero.Fs {
 	workingDir := cfg.GetString("workingDir")
 
 	if workingDir != "" {
-		return afero.NewBasePathFs(afero.NewReadOnlyFs(base), workingDir).(*afero.BasePathFs)
+		return afero.NewBasePathFs(afero.NewReadOnlyFs(base), workingDir)
 	}
 
 	return nil
