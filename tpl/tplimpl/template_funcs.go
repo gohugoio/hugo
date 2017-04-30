@@ -27,6 +27,7 @@ import (
 	// Init the namespaces
 	_ "github.com/spf13/hugo/tpl/lang"
 	_ "github.com/spf13/hugo/tpl/math"
+	_ "github.com/spf13/hugo/tpl/strings"
 )
 
 // Get retrieves partial output from the cache based upon the partial name.
@@ -87,7 +88,6 @@ func (t *templateFuncster) initFuncMap() {
 		"inflect":     t.inflect.Namespace,
 		"os":          t.os.Namespace,
 		"safe":        t.safe.Namespace,
-		"strings":     t.strings.Namespace,
 		//"time":        t.time.Namespace,
 		"transform": t.transform.Namespace,
 		"urls":      t.urls.Namespace,
@@ -98,9 +98,6 @@ func (t *templateFuncster) initFuncMap() {
 		"apply":         t.collections.Apply,
 		"base64Decode":  t.encoding.Base64Decode,
 		"base64Encode":  t.encoding.Base64Encode,
-		"chomp":         t.strings.Chomp,
-		"countrunes":    t.strings.CountRunes,
-		"countwords":    t.strings.CountWords,
 		"default":       compare.Default,
 		"dateFormat":    t.time.Format,
 		"delimit":       t.collections.Delimit,
@@ -108,14 +105,12 @@ func (t *templateFuncster) initFuncMap() {
 		"echoParam":     t.collections.EchoParam,
 		"emojify":       t.transform.Emojify,
 		"eq":            compare.Eq,
-		"findRE":        t.strings.FindRE,
 		"first":         t.collections.First,
 		"ge":            compare.Ge,
 		"getCSV":        t.data.GetCSV,
 		"getJSON":       t.data.GetJSON,
 		"getenv":        t.os.Getenv,
 		"gt":            compare.Gt,
-		"hasPrefix":     t.strings.HasPrefix,
 		"highlight":     t.transform.Highlight,
 		"htmlEscape":    t.transform.HTMLEscape,
 		"htmlUnescape":  t.transform.HTMLUnescape,
@@ -130,7 +125,6 @@ func (t *templateFuncster) initFuncMap() {
 		"jsonify":       t.encoding.Jsonify,
 		"last":          t.collections.Last,
 		"le":            compare.Le,
-		"lower":         t.strings.ToLower,
 		"lt":            compare.Lt,
 		"markdownify":   t.transform.Markdownify,
 		"md5":           t.crypto.MD5,
@@ -150,8 +144,6 @@ func (t *templateFuncster) initFuncMap() {
 		"relURL":        t.urls.RelURL,
 		"relLangURL":    t.urls.RelLangURL,
 		"relref":        t.urls.RelRef,
-		"replace":       t.strings.Replace,
-		"replaceRE":     t.strings.ReplaceRE,
 		"safeCSS":       t.safe.CSS,
 		"safeHTML":      t.safe.HTML,
 		"safeHTMLAttr":  t.safe.HTMLAttr,
@@ -166,17 +158,10 @@ func (t *templateFuncster) initFuncMap() {
 		"shuffle":       t.collections.Shuffle,
 		"singularize":   t.inflect.Singularize,
 		"slice":         t.collections.Slice,
-		"slicestr":      t.strings.SliceString,
 		"sort":          t.collections.Sort,
-		"split":         t.strings.Split,
 		"string":        func(v interface{}) (string, error) { return cast.ToStringE(v) },
-		"substr":        t.strings.Substr,
 		"time":          t.time.AsTime,
-		"title":         t.strings.Title,
-		"trim":          t.strings.Trim,
-		"truncate":      t.strings.Truncate,
 		"union":         t.collections.Union,
-		"upper":         t.strings.ToUpper,
 		"urlize":        t.PathSpec.URLize,
 		"where":         t.collections.Where,
 	}
