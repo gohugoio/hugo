@@ -34,6 +34,7 @@ import (
 	_ "github.com/spf13/hugo/tpl/lang"
 	_ "github.com/spf13/hugo/tpl/math"
 	_ "github.com/spf13/hugo/tpl/os"
+	_ "github.com/spf13/hugo/tpl/safe"
 	_ "github.com/spf13/hugo/tpl/strings"
 )
 
@@ -88,7 +89,6 @@ func (t *templateFuncster) partialCached(name string, context interface{}, varia
 func (t *templateFuncster) initFuncMap() {
 	funcMap := template.FuncMap{
 		// Namespaces
-		"safe": t.safe.Namespace,
 		//"time":        t.time.Namespace,
 		"transform": t.transform.Namespace,
 		"urls":      t.urls.Namespace,
@@ -113,14 +113,6 @@ func (t *templateFuncster) initFuncMap() {
 		"relURL":        t.urls.RelURL,
 		"relLangURL":    t.urls.RelLangURL,
 		"relref":        t.urls.RelRef,
-		"safeCSS":       t.safe.CSS,
-		"safeHTML":      t.safe.HTML,
-		"safeHTMLAttr":  t.safe.HTMLAttr,
-		"safeJS":        t.safe.JS,
-		"safeJSStr":     t.safe.JSStr,
-		"safeURL":       t.safe.URL,
-		"sanitizeURL":   t.safe.SanitizeURL,
-		"sanitizeurl":   t.safe.SanitizeURL,
 		"string":        func(v interface{}) (string, error) { return cast.ToStringE(v) },
 		"time":          t.time.AsTime,
 		"urlize":        t.PathSpec.URLize,
