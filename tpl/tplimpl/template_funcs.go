@@ -38,6 +38,7 @@ import (
 	_ "github.com/spf13/hugo/tpl/strings"
 	_ "github.com/spf13/hugo/tpl/time"
 	_ "github.com/spf13/hugo/tpl/transform"
+	_ "github.com/spf13/hugo/tpl/urls"
 )
 
 // Get retrieves partial output from the cache based upon the partial name.
@@ -92,20 +93,12 @@ func (t *templateFuncster) initFuncMap() {
 	funcMap := template.FuncMap{
 		// Namespaces
 		//"time":        t.time.Namespace,
-		"urls": t.urls.Namespace,
-
-		"absURL":        t.urls.AbsURL,
-		"absLangURL":    t.urls.AbsLangURL,
 		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
 		"partial":       t.partial,
 		"partialCached": t.partialCached,
 		"print":         fmt.Sprint,
 		"printf":        fmt.Sprintf,
 		"println":       fmt.Sprintln,
-		"ref":           t.urls.Ref,
-		"relURL":        t.urls.RelURL,
-		"relLangURL":    t.urls.RelLangURL,
-		"relref":        t.urls.RelRef,
 		"string":        func(v interface{}) (string, error) { return cast.ToStringE(v) },
 		"urlize":        t.PathSpec.URLize,
 	}
