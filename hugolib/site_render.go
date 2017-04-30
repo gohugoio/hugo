@@ -239,6 +239,10 @@ func (s *Site) render404() error {
 		return nil
 	}
 
+	if s.owner.multilingual.enabled() && (s.Language.Lang != s.owner.multilingual.DefaultLang.Lang) {
+		return nil
+	}
+
 	p := s.newNodePage(kind404)
 
 	p.Title = "404 Page not found"
