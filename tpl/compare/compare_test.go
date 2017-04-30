@@ -46,6 +46,7 @@ func TestDefaultFunc(t *testing.T) {
 
 	then := time.Now()
 	now := time.Now()
+	ns := New()
 
 	for i, test := range []struct {
 		dflt   interface{}
@@ -91,7 +92,7 @@ func TestDefaultFunc(t *testing.T) {
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
-		result, err := Default(test.dflt, test.given)
+		result, err := ns.Default(test.dflt, test.given)
 
 		require.NoError(t, err, errMsg)
 		assert.Equal(t, result, test.expect, errMsg)
@@ -101,16 +102,18 @@ func TestDefaultFunc(t *testing.T) {
 func TestCompare(t *testing.T) {
 	t.Parallel()
 
+	n := New()
+
 	for _, test := range []struct {
 		tstCompareType
 		funcUnderTest func(a, b interface{}) bool
 	}{
-		{tstGt, Gt},
-		{tstLt, Lt},
-		{tstGe, Ge},
-		{tstLe, Le},
-		{tstEq, Eq},
-		{tstNe, Ne},
+		{tstGt, n.Gt},
+		{tstLt, n.Lt},
+		{tstGe, n.Ge},
+		{tstLe, n.Le},
+		{tstEq, n.Eq},
+		{tstNe, n.Ne},
 	} {
 		doTestCompare(t, test.tstCompareType, test.funcUnderTest)
 	}

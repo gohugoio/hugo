@@ -21,10 +21,10 @@ import (
 	"sync"
 
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/tpl/compare"
 	"github.com/spf13/hugo/tpl/internal"
 
 	// Init the namespaces
+	_ "github.com/spf13/hugo/tpl/compare"
 	_ "github.com/spf13/hugo/tpl/data"
 	_ "github.com/spf13/hugo/tpl/lang"
 	_ "github.com/spf13/hugo/tpl/math"
@@ -99,17 +99,13 @@ func (t *templateFuncster) initFuncMap() {
 		"apply":         t.collections.Apply,
 		"base64Decode":  t.encoding.Base64Decode,
 		"base64Encode":  t.encoding.Base64Encode,
-		"default":       compare.Default,
 		"dateFormat":    t.time.Format,
 		"delimit":       t.collections.Delimit,
 		"dict":          t.collections.Dictionary,
 		"echoParam":     t.collections.EchoParam,
 		"emojify":       t.transform.Emojify,
-		"eq":            compare.Eq,
 		"first":         t.collections.First,
-		"ge":            compare.Ge,
 		"getenv":        t.os.Getenv,
-		"gt":            compare.Gt,
 		"highlight":     t.transform.Highlight,
 		"htmlEscape":    t.transform.HTMLEscape,
 		"htmlUnescape":  t.transform.HTMLUnescape,
@@ -123,11 +119,8 @@ func (t *templateFuncster) initFuncMap() {
 		"isset":         t.collections.IsSet,
 		"jsonify":       t.encoding.Jsonify,
 		"last":          t.collections.Last,
-		"le":            compare.Le,
-		"lt":            compare.Lt,
 		"markdownify":   t.transform.Markdownify,
 		"md5":           t.crypto.MD5,
-		"ne":            compare.Ne,
 		"now":           t.time.Now,
 		"partial":       t.partial,
 		"partialCached": t.partialCached,
