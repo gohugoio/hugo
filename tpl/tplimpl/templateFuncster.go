@@ -23,7 +23,6 @@ import (
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/tpl/collections"
 	"github.com/spf13/hugo/tpl/crypto"
-	"github.com/spf13/hugo/tpl/data"
 	"github.com/spf13/hugo/tpl/encoding"
 	"github.com/spf13/hugo/tpl/images"
 	"github.com/spf13/hugo/tpl/inflect"
@@ -42,7 +41,6 @@ type templateFuncster struct {
 	// Namespaces
 	collections *collections.Namespace
 	crypto      *crypto.Namespace
-	data        *data.Namespace
 	encoding    *encoding.Namespace
 	images      *images.Namespace
 	inflect     *inflect.Namespace
@@ -63,7 +61,6 @@ func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 		// Namespaces
 		collections: collections.New(deps),
 		crypto:      crypto.New(),
-		data:        data.New(deps),
 		encoding:    encoding.New(),
 		images:      images.New(deps),
 		inflect:     inflect.New(),
