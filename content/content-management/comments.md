@@ -54,6 +54,7 @@ See [Partial Templates][partials] to learn how to add the Disqus partial to your
 There are a few alternatives to commenting on static sites for those who do not want to use Disqus:
 
 * [Static Man](https://staticman.net/)
+* [txtpen](https://txtpen.com)
 * [IntenseDebate](http://intensedebate.com/)
 * [Graph Comment][]
 * [Muut](http://muut.com/)
