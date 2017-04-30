@@ -7,7 +7,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-30
 categories: [functions]
-tags: [filtering]
+tags: [filtering,logic,operators]
 ns:
 signature: ["where COLLECTION KEY [OPERATOR] MATCH"]
 workson: [lists,taxonomies,terms,groups]

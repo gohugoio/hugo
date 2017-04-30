@@ -5,7 +5,7 @@ description: Replaces all occurrences of a regular expression with the replaceme
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2017-04-30
 categories: [functions]
 tags: [regex]
 ns:
