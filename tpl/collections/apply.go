@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/spf13/hugo/tpl"
 )
 
 // Apply takes a map, array, or slice and returns a new slice with the function fname applied over it.
@@ -104,7 +106,12 @@ func applyFnToThis(fn, this reflect.Value, args ...interface{}) (reflect.Value, 
 
 func (ns *Namespace) lookupFunc(fname string) (reflect.Value, bool) {
 	if !strings.ContainsRune(fname, '.') {
-		fn, found := ns.funcMap[fname]
+		templ, ok := ns.deps.Tmpl.(tpl.TemplateFuncsGetter)
+		if !ok {
+			panic("Needs a tpl.TemplateFuncsGetter")
+		}
+		fm := templ.GetFuncs()
+		fn, found := fm[fname]
 		if !found {
 			return reflect.Value{}, false
 		}

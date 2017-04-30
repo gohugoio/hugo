@@ -39,6 +39,7 @@ const (
 
 var (
 	_ tpl.TemplateHandler       = (*templateHandler)(nil)
+	_ tpl.TemplateFuncsGetter   = (*templateHandler)(nil)
 	_ tpl.TemplateTestMocker    = (*templateHandler)(nil)
 	_ tpl.TemplateFinder        = (*htmlTemplates)(nil)
 	_ tpl.TemplateFinder        = (*textTemplates)(nil)
@@ -260,6 +261,10 @@ func (t *templateHandler) setFuncs(funcMap map[string]interface{}) {
 // This is only used in tests.
 func (t *templateHandler) SetFuncs(funcMap map[string]interface{}) {
 	t.setFuncs(funcMap)
+}
+
+func (t *templateHandler) GetFuncs() map[string]interface{} {
+	return t.html.funcster.funcMap
 }
 
 func (t *htmlTemplates) setFuncs(funcMap map[string]interface{}) {

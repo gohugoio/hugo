@@ -96,6 +96,10 @@ func (t *TemplateAdapter) Tree() string {
 	return s
 }
 
+type TemplateFuncsGetter interface {
+	GetFuncs() map[string]interface{}
+}
+
 // TemplateTestMocker adds a way to override some template funcs during tests.
 // The interface is named so it's not used in regular application code.
 type TemplateTestMocker interface {

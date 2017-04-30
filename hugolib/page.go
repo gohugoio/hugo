@@ -1389,7 +1389,7 @@ func (p *Page) prepareLayouts() error {
 	if p.Kind == KindPage {
 		if !p.IsRenderable() {
 			self := "__" + p.UniqueID()
-			err := p.s.Tmpl.AddLateTemplate(self, string(p.Content))
+			err := p.s.TemplateHandler().AddLateTemplate(self, string(p.Content))
 			if err != nil {
 				return err
 			}

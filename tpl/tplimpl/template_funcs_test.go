@@ -129,8 +129,6 @@ base64Decode 2: {{ 42 | base64Encode | base64Decode }}
 base64Encode: {{ "Hello world" | base64Encode }}
 crypto.MD5: {{ crypto.MD5 "Hello world, gophers!" }}
 dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
-delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
-echoParam: {{ echoParam .Params "langCode" }}
 emojify: {{ "I :heart: Hugo" | emojify }}
 htmlEscape 1: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML}}
 htmlEscape 2: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>"}}
@@ -143,7 +141,6 @@ humanize 1: {{ humanize "my-first-post" }}
 humanize 2: {{ humanize "myCamelPost" }}
 humanize 3: {{ humanize "52" }}
 humanize 4: {{ humanize 103 }}
-in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
 jsonify: {{ (slice "A" "B" "C") | jsonify }}
 markdownify: {{ .Title | markdownify}}
 md5: {{ md5 "Hello world, gophers!" }}
@@ -152,8 +149,6 @@ printf: {{ printf "%s!" "works" }}
 println: {{ println "works!" -}}
 plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
 pluralize: {{ "cat" | pluralize }}
-querify 1: {{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those") | safeHTML }}
-querify 2: <a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>
 readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
 readFile: {{ readFile "README.txt" }}
 relLangURL: {{ "index.html" | relLangURL }}
@@ -165,14 +160,11 @@ safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
 safeHTML: {{ "Bat&Man" | safeHTML }}
 safeJS: {{ "(1*2)" | safeJS | safeJS }}
 safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
-seq: {{ seq 3 }}
 sha1: {{ sha1 "Hello world, gophers!" }}
 sha256: {{ sha256 "Hello world, gophers!" }}
 singularize: {{ "cats" | singularize }}
-sort: {{ slice "B" "C" "A" | sort }}
 strings.TrimPrefix: {{ strings.TrimPrefix "Goodbye,, world!" "Goodbye," }}
 time: {{ (time "2015-01-21").Year }}
-union: {{ union (slice 1 2 3) (slice 3 4 5) }}
 urlize: {{ "Bat Man" | urlize }}
 `
 
@@ -185,8 +177,6 @@ base64Decode 2: 42
 base64Encode: SGVsbG8gd29ybGQ=
 crypto.MD5: b3029f756f98f79e7f1b7f1d1f0dd53b
 dateFormat: Wednesday, Jan 21, 2015
-delimit: A, B and C
-echoParam: en
 emojify: I ❤️ Hugo
 htmlEscape 1: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
 htmlEscape 2: Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;
@@ -199,7 +189,6 @@ humanize 1: My first post
 humanize 2: My camel post
 humanize 3: 52nd
 humanize 4: 103rd
-in: Substring found!
 jsonify: ["A","B","C"]
 markdownify: <strong>BatMan</strong>
 md5: b3029f756f98f79e7f1b7f1d1f0dd53b
@@ -208,8 +197,6 @@ printf: works!
 println: works!
 plainify: Hello world, gophers!
 pluralize: cats
-querify 1: bar=2&baz=with+spaces&foo=1&qux=this%26that%3Dthose
-querify 2: <a href="https://www.google.com?page=3&amp;q=test">Search</a>
 readDir: README.txt
 readFile: Hugo Rocks!
 relLangURL: /hugo/en/index.html
@@ -221,14 +208,11 @@ safeHTML: Bat&Man
 safeHTML: Bat&Man
 safeJS: (1*2)
 safeURL: http://gohugo.io
-seq: [1 2 3]
 sha1: c8b5b0e33d408246e30f53e32b8f7627a7a649d4
 sha256: 6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46
 singularize: cat
-sort: [A B C]
 strings.TrimPrefix: , world!
 time: 2015
-union: [1 2 3 4 5]
 urlize: bat-man
 `
 

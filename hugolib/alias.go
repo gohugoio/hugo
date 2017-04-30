@@ -44,12 +44,12 @@ func init() {
 }
 
 type aliasHandler struct {
-	t         tpl.TemplateHandler
+	t         tpl.TemplateFinder
 	log       *jww.Notepad
 	allowRoot bool
 }
 
-func newAliasHandler(t tpl.TemplateHandler, l *jww.Notepad, allowRoot bool) aliasHandler {
+func newAliasHandler(t tpl.TemplateFinder, l *jww.Notepad, allowRoot bool) aliasHandler {
 	return aliasHandler{t, l, allowRoot}
 }
 
