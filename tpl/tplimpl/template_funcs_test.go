@@ -145,11 +145,6 @@ relLangURL: {{ "index.html" | relLangURL }}
 relURL 1: {{ "http://gohugo.io/" | relURL }}
 relURL 2: {{ "mystyle.css" | relURL }}
 relURL 3: {{ mul 2 21 | relURL }}
-safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
-safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
-safeHTML: {{ "Bat&Man" | safeHTML }}
-safeJS: {{ "(1*2)" | safeJS | safeJS }}
-safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
 strings.TrimPrefix: {{ strings.TrimPrefix "Goodbye,, world!" "Goodbye," }}
 time: {{ (time "2015-01-21").Year }}
 urlize: {{ "Bat Man" | urlize }}
@@ -178,11 +173,6 @@ relLangURL: /hugo/en/index.html
 relURL 1: http://gohugo.io/
 relURL 2: /hugo/mystyle.css
 relURL 3: /hugo/42
-safeCSS: Bat&amp;Man
-safeHTML: Bat&Man
-safeHTML: Bat&Man
-safeJS: (1*2)
-safeURL: http://gohugo.io
 strings.TrimPrefix: , world!
 time: 2015
 urlize: bat-man
