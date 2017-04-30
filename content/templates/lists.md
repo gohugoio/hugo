@@ -98,14 +98,16 @@ You can now access this `_index.md`'s' content in your list template:
 {{% code file="layouts/_default/list.html" download="list.html" %}}
 ```html
 {{ define "main" }}
-<main class="main">
+<main>
     <article>
         <header>
             <h1>{{.Title}}</h1>
         </header>
+        <!-- "{{.Content}}" pulls from the markdown content of the corresponding _inde.xmd -->
         {{.Content}}
     </article>
-    <ul class="section-contents">
+    <ul>
+    <!-- Ranges through content/post/*.md -->
     {{ range .Data.Pages }}
         <li>
             <a href="{{.Permalink}}">{{.Date.Format "2006-01-02"}} | {{.Title}}</a
@@ -121,8 +123,8 @@ This above will output the following HTML:
 
 {{% code file="yoursite.com/post/index.html" copy="false" %}}
 ```html
-<!--all your baseof.html code-->
-<main class="main">
+<!--top of your baseof code-->
+<main>
     <article>
         <header>
             <h1>My Golang Journey</h1>
@@ -130,12 +132,12 @@ This above will output the following HTML:
         <p>I decided to start learning Golang in March 2017.</p>
         <p>Follow my journey through this new blog.</p>
     </article>
-    <ul class="section-contents">
+    <ul>
         <li><a href="/post/post-01/">Post 1</a></li>
         <li><a href="/post/post-02/">Post 2</a></li>
     </ul>
 </main>
-<!--all your other baseof.html code-->
+<!--bottom of your baseof-->
 ```
 {{% /code %}}
 
@@ -147,19 +149,20 @@ Using this same `layouts/_default/list.html` template and applying it to the the
 
 {{% code file="yoursite.com/quote/index.html" copy="false" %}}
 ```html
-<!--baseof.html code-->
-<main class="main">
+<!--baseof-->
+<main>
     <article>
         <header>
+        <!-- Hugo assumes that .Title is the name of the section since there is no _index.md content file from which to pull a "title:" field -->
             <h1>Quotes</h1>
         </header>
     </article>
-    <ul class="section-contents">
+    <ul>
         <li><a href="https://yoursite.com/quote/quotes-01/">Quote 1</a></li>
         <li><a href="https://yoursite.com/quote/quotes-02/">Quote 2</a></li>
     </ul>
 </main>
-<!--baseof.html code-->
+<!--baseof-->
 ```
 {{% /code %}}
 
@@ -171,23 +174,23 @@ The default behavior of Hugo is to pluralize list titles; hence the inflection o
 
 ### Section Template
 
-This list template is used for [spf13.com](http://spf13.com/). It makes use of [partial templates][partials]. All examples use a [view](/templates/views/) called either "li" or "summary."
+This list template has been modified slightly from a template originally used in [spf13.com](http://spf13.com/). It makes use of [partial templates][partials] for the chrome of the rendered page rather than using a [base template][base] The examples that follow also use the [content view templates][views] `li.html` or `summary.html`.
 
 {{% code file="layouts/section/post.html" %}}
 ```html
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
-
-<section id="main">
+<main>
   <div>
-   <h1 id="title">{{ .Title }}</h1>
-        <ul id="list">
+   <h1>{{ .Title }}</h1>
+        <ul>
+        <!-- Renders the li.html content view for each content/post/*.md -->
             {{ range .Data.Pages }}
                 {{ .Render "li"}}
             {{ end }}
         </ul>
   </div>
-</section>
+</main>
 {{ partial "footer.html" . }}
 ```
 {{% /code %}}
@@ -197,30 +200,28 @@ This list template is used for [spf13.com](http://spf13.com/). It makes use of [
 {{% code file="layouts/_default/taxonomies.html" download="taxonomies.html" %}}
 ```html
 {{ define "main" }}
-<section id="main">
+<main>
   <div>
-   <h1 id="title">{{ .Title }}</h1>
+   <h1>{{ .Title }}</h1>
+   <!-- ranges through each of the content files associated with a particular taxonomy term and renders the summary.html content view -->
     {{ range .Data.Pages }}
         {{ .Render "summary"}}
     {{ end }}
   </div>
-</section>
+</main>
 {{ end }}
 ```
 {{% /code %}}
 
 ## Ordering Content
 
-Hugo lists render the content based on metadata provided in the [front matter](/content-management/front-matter/)..
+Hugo lists render the content based on metadata you provide in [front matter][]. In addition to sane defaults, Hugo also ships with multiple methods to make quick work of ordering content inside list templates:
 
-Here are a variety of different ways you can order the content items in
-your list templates:
+### Default List Ordering: Weight > Date
 
-### Default: Weight > Date
-
-{{% code file="layouts/partials/order-default.html" %}}
+{{% code file="layouts/partials/default-order.html" %}}
 ```html
-<ul class="pages">
+<ul>
     {{ range .Data.Pages }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
@@ -235,12 +236,14 @@ your list templates:
 
 {{% code file="layouts/partials/by-weight.html" %}}
 ```html
-{{ range .Data.Pages.ByWeight }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-{{ end }}
+<ul>
+    {{ range .Data.Pages.ByWeight }}
+        <li>
+            <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+            <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+        </li>
+    {{ end }}
+</ul>
 ```
 {{% /code %}}
 
@@ -248,12 +251,15 @@ your list templates:
 
 {{% code file="layouts/partials/by-date.html" %}}
 ```html
-{{ range .Data.Pages.ByDate }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-{{ end }}
+<ul>
+    <!-- orders content according to the "date" field in front matter -->
+    {{ range .Data.Pages.ByDate }}
+        <li>
+            <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+            <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+        </li>
+    {{ end }}
+</ul>
 ```
 {{% /code %}}
 
@@ -261,12 +267,15 @@ your list templates:
 
 {{% code file="layouts/partials/by-publish-date.html" %}}
 ```html
-{{ range .Data.Pages.ByPublishDate }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-{{ end }}
+<ul>
+    <!-- orders content according to the "publishdate" field in front matter -->
+    {{ range .Data.Pages.ByPublishDate }}
+        <li>
+            <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+            <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+        </li>
+    {{ end }}
+</ul>
 ```
 {{% /code %}}
 
@@ -274,12 +283,14 @@ your list templates:
 
 {{% code file="layouts/partials/by-expiry-date.html" %}}
 ```html
-{{ range .Data.Pages.ByExpiryDate }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .ExpiryDate.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-{{ end }}
+<ul>
+    {{ range .Data.Pages.ByExpiryDate }}
+        <li>
+            <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+            <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+        </li>
+    {{ end }}
+</ul>
 ```
 {{% /code %}}
 
@@ -287,12 +298,15 @@ your list templates:
 
 {{% code file="layouts/partials/by-last-mod.html" %}}
 ```html
-{{ range .Data.Pages.ByLastmod }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-{{ end }}
+<ul>
+    <!-- orders content according to the "lastmod" field in front matter -->
+    {{ range .Data.Pages.ByLastmod }}
+        <li>
+            <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+            <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+        </li>
+    {{ end }}
+</ul>
 ```
 {{% /code %}}
 
@@ -300,26 +314,31 @@ your list templates:
 
 {{% code file="layouts/partials/by-length.html" %}}
 ```html
-{{ range .Data.Pages.ByLength }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-{{ end }}
+<ul>
+    <!-- orders content according to content length in ascending order (i.e., the shortest content will be listed first) -->
+    {{ range .Data.Pages.ByLength }}
+        <li>
+            <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+            <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+        </li>
+    {{ end }}
+</ul>
 ```
 {{% /code %}}
-
 
 ### By Title
 
 {{% code file="layouts/partials/by-title.html" %}}
 ```html
-{{ range .Data.Pages.ByTitle }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .Title }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-{{ end }}
+<ul>
+    <!-- ranges through content in ascending order according to the "title" field set in front matter -->
+    {{ range .Data.Pages.ByTitle }}
+        <li>
+            <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+            <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+        </li>
+    {{ end }}
+</ul>
 ```
 {{% /code %}}
 
@@ -327,12 +346,15 @@ your list templates:
 
 {{% code file="layouts/partials/by-link-title.html" %}}
 ```html
-{{ range .Data.Pages.ByLinkTitle }}
-    <li>
-    <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
-    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-    </li>
-{{ end }}
+<ul>
+    <!-- ranges through content in ascending order according to the "linktitle" field in front matter. If a "linktitle" field is not set, the range will start with content that only has a "title" field and use that value for .LinkTitle -->
+    {{ range .Data.Pages.ByLinkTitle }}
+        <li>
+            <h1><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></h1>
+            <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+        </li>
+    {{ end }}
+</ul>
 ```
 {{% /code %}}
 
@@ -340,10 +362,9 @@ your list templates:
 
 Order based on the specified front matter parameter. Content that does not have the specified front matter field  will use the site's `.Site.Params` default. If the parameter is not found at all in some entries, those entries will appear together at the end of the ordering.
 
-The below example sorts a list of posts by their rating.
-
 {{% code file="layouts/partials/by-rating.html" %}}
 ```html
+<!-- Ranges through a list of content according to the "rating" field set in front matter -->
 {{ range (.Data.Pages.ByParam "rating") }}
   <!-- ... -->
 {{ end }}
@@ -355,6 +376,7 @@ also get it:
 
 {{% code file="layouts/partials/by-nested-param.html" %}}
 ```html
+
 {{ range (.Data.Pages.ByParam "author.last_name") }}
   <!-- ... -->
 {{ end }}
@@ -569,10 +591,11 @@ Using `first` and `where` together can be very powerful:
 ```
 {{% /code %}}
 
-
+[base]: /templates/base/
 [bepsays]: http://bepsays.com/en/2016/12/19/hugo-018/
 [directorystructure]: /getting-started/directory-structure/
 [`Format` function]: /functions/format/
+[front matter]: /content-management/front-matter/
 [homepage]: /templates/homepage/
 [homepage]: /templates/homepage/
 [limitkeyword]: https://www.techonthenet.com/sql/select_limit.php

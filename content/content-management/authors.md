@@ -15,9 +15,10 @@ weight: 55	#rem
 draft: true
 aliases: [/content/archetypes/]
 toc: true
+comments: Before this page is published, need to also update both site- and page-level variables documentation.
 ---
 
-<!-- Before this page is published, need to also update both site- and page-level variables documentation. -->
+
 
 Larger sites often have multiple content authors. Hugo provides standardized author profiles to organize relationships between content and content creators for sites operating under a distributed authorship model.
 

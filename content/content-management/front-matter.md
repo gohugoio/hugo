@@ -108,7 +108,7 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 : the meta keywords for the content.
 
 `layout`
-: the layout Hugo should select from the [lookup order][] when rendering the content.
+: the layout Hugo should select from the [lookup order][lookup] when rendering the content.
 
 `lastmod`
 : the datetime at which the content was last modified.
@@ -164,7 +164,7 @@ Field names are always normalized to lowercase; e.g., `camelCase: true` is avail
 
 ## Ordering Content Through Front Matter
 
-You can assign content-specific `weight` in the front matter of your content. These values are especially useful for [ordering][ordering] in list views. You can use `weight` for ordering of content and the convention of [`<TAXONOMY>_weight`][taxweight] for ordering content within a taxonomy. See [Ordering and Grouping Hugo Lists][] to see how `weight` can be used to organize your content in list views.
+You can assign content-specific `weight` in the front matter of your content. These values are especially useful for [ordering][ordering] in list views. You can use `weight` for ordering of content and the convention of [`<TAXONOMY>_weight`][taxweight] for ordering content within a taxonomy. See [Ordering and Grouping Hugo Lists][lists] to see how `weight` can be used to organize your content in list views.
 
 ## Overriding Global Blackfriday Configuration
 
@@ -172,9 +172,9 @@ It's possible to set some options for Markdown rendering in a content's front ma
 
 ## Front Matter Format Specs
 
-* [TOML Spec][TOML Spec]
-* [YAML Spec][YAML Spec]
-* [JSON Spec][JSON Spec]
+* [TOML Spec][toml]
+* [YAML Spec][yaml]
+* [JSON Spec][json]
 
 [variables]: /variables/
 [aliases]: /content-management/urls/#aliases/
@@ -184,7 +184,8 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [content type]: /content-management/types/
 [contentorg]: /content-management/organization/
 [json]: /documents/ecma-404-json-spec.pdf "Specification for JSON, JavaScript Object Notation"
-[lookup]: /content-management/l
+[lists]: /templates/lists/#ordering-content
+[lookup]: /templates/lookup-order/
 [ordering]: /templates/lists/ "Hugo provides multiple ways to sort and order your content in list templates"
 [pagevars]: /variables/page/
 [section]: /content-management/sections/
