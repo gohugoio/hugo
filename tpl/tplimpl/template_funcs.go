@@ -25,6 +25,7 @@ import (
 	"github.com/spf13/hugo/tpl/internal"
 
 	// Init the namespaces
+	_ "github.com/spf13/hugo/tpl/data"
 	_ "github.com/spf13/hugo/tpl/lang"
 	_ "github.com/spf13/hugo/tpl/math"
 	_ "github.com/spf13/hugo/tpl/strings"
@@ -107,8 +108,6 @@ func (t *templateFuncster) initFuncMap() {
 		"eq":            compare.Eq,
 		"first":         t.collections.First,
 		"ge":            compare.Ge,
-		"getCSV":        t.data.GetCSV,
-		"getJSON":       t.data.GetJSON,
 		"getenv":        t.os.Getenv,
 		"gt":            compare.Gt,
 		"highlight":     t.transform.Highlight,
