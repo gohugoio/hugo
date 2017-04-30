@@ -29,6 +29,7 @@ import (
 	_ "github.com/spf13/hugo/tpl/crypto"
 	_ "github.com/spf13/hugo/tpl/data"
 	_ "github.com/spf13/hugo/tpl/encoding"
+	_ "github.com/spf13/hugo/tpl/images"
 	_ "github.com/spf13/hugo/tpl/lang"
 	_ "github.com/spf13/hugo/tpl/math"
 	_ "github.com/spf13/hugo/tpl/strings"
@@ -85,7 +86,6 @@ func (t *templateFuncster) partialCached(name string, context interface{}, varia
 func (t *templateFuncster) initFuncMap() {
 	funcMap := template.FuncMap{
 		// Namespaces
-		"images":  t.images.Namespace,
 		"inflect": t.inflect.Namespace,
 		"os":      t.os.Namespace,
 		"safe":    t.safe.Namespace,
@@ -102,7 +102,6 @@ func (t *templateFuncster) initFuncMap() {
 		"htmlEscape":    t.transform.HTMLEscape,
 		"htmlUnescape":  t.transform.HTMLUnescape,
 		"humanize":      t.inflect.Humanize,
-		"imageConfig":   t.images.Config,
 		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
 		"markdownify":   t.transform.Markdownify,
 		"now":           t.time.Now,
