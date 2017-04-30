@@ -124,9 +124,6 @@ func TestFuncsInTemplate(t *testing.T) {
 absURL: {{ "http://gohugo.io/" | absURL }}
 absURL: {{ "mystyle.css" | absURL }}
 absURL: {{ 42 | absURL }}
-base64Decode 1: {{ "SGVsbG8gd29ybGQ=" | base64Decode }}
-base64Decode 2: {{ 42 | base64Encode | base64Decode }}
-base64Encode: {{ "Hello world" | base64Encode }}
 crypto.MD5: {{ crypto.MD5 "Hello world, gophers!" }}
 dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
 emojify: {{ "I :heart: Hugo" | emojify }}
@@ -141,7 +138,6 @@ humanize 1: {{ humanize "my-first-post" }}
 humanize 2: {{ humanize "myCamelPost" }}
 humanize 3: {{ humanize "52" }}
 humanize 4: {{ humanize 103 }}
-jsonify: {{ (slice "A" "B" "C") | jsonify }}
 markdownify: {{ .Title | markdownify}}
 print: {{ print "works!" }}
 printf: {{ printf "%s!" "works" }}
@@ -169,9 +165,6 @@ urlize: {{ "Bat Man" | urlize }}
 absURL: http://gohugo.io/
 absURL: http://mysite.com/hugo/mystyle.css
 absURL: http://mysite.com/hugo/42
-base64Decode 1: Hello world
-base64Decode 2: 42
-base64Encode: SGVsbG8gd29ybGQ=
 crypto.MD5: b3029f756f98f79e7f1b7f1d1f0dd53b
 dateFormat: Wednesday, Jan 21, 2015
 emojify: I ❤️ Hugo
@@ -186,7 +179,6 @@ humanize 1: My first post
 humanize 2: My camel post
 humanize 3: 52nd
 humanize 4: 103rd
-jsonify: ["A","B","C"]
 markdownify: <strong>BatMan</strong>
 print: works!
 printf: works!

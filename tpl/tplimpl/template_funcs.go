@@ -28,6 +28,7 @@ import (
 	_ "github.com/spf13/hugo/tpl/compare"
 	_ "github.com/spf13/hugo/tpl/crypto"
 	_ "github.com/spf13/hugo/tpl/data"
+	_ "github.com/spf13/hugo/tpl/encoding"
 	_ "github.com/spf13/hugo/tpl/lang"
 	_ "github.com/spf13/hugo/tpl/math"
 	_ "github.com/spf13/hugo/tpl/strings"
@@ -84,19 +85,16 @@ func (t *templateFuncster) partialCached(name string, context interface{}, varia
 func (t *templateFuncster) initFuncMap() {
 	funcMap := template.FuncMap{
 		// Namespaces
-		"encoding": t.encoding.Namespace,
-		"images":   t.images.Namespace,
-		"inflect":  t.inflect.Namespace,
-		"os":       t.os.Namespace,
-		"safe":     t.safe.Namespace,
+		"images":  t.images.Namespace,
+		"inflect": t.inflect.Namespace,
+		"os":      t.os.Namespace,
+		"safe":    t.safe.Namespace,
 		//"time":        t.time.Namespace,
 		"transform": t.transform.Namespace,
 		"urls":      t.urls.Namespace,
 
 		"absURL":        t.urls.AbsURL,
 		"absLangURL":    t.urls.AbsLangURL,
-		"base64Decode":  t.encoding.Base64Decode,
-		"base64Encode":  t.encoding.Base64Encode,
 		"dateFormat":    t.time.Format,
 		"emojify":       t.transform.Emojify,
 		"getenv":        t.os.Getenv,
@@ -106,7 +104,6 @@ func (t *templateFuncster) initFuncMap() {
 		"humanize":      t.inflect.Humanize,
 		"imageConfig":   t.images.Config,
 		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
-		"jsonify":       t.encoding.Jsonify,
 		"markdownify":   t.transform.Markdownify,
 		"now":           t.time.Now,
 		"partial":       t.partial,
