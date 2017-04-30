@@ -132,7 +132,6 @@ dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
 delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
 echoParam: {{ echoParam .Params "langCode" }}
 emojify: {{ "I :heart: Hugo" | emojify }}
-eq: {{ if eq .Section "blog" }}current{{ end }}
 htmlEscape 1: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML}}
 htmlEscape 2: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>"}}
 htmlUnescape 1: {{htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | safeHTML}}
@@ -189,7 +188,6 @@ dateFormat: Wednesday, Jan 21, 2015
 delimit: A, B and C
 echoParam: en
 emojify: I ❤️ Hugo
-eq: current
 htmlEscape 1: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
 htmlEscape 2: Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;
 htmlUnescape 1: Cathal Garvey & The Sunshine Band <cathal@foo.bar>

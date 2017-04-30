@@ -20,11 +20,20 @@ import (
 	"time"
 )
 
+// New returns a new instance of the compare-namespaced template functions.
+func New() *Namespace {
+	return &Namespace{}
+}
+
+// Namespace provides template functions for the "compare" namespace.
+type Namespace struct {
+}
+
 // Default checks whether a given value is set and returns a default value if it
 // is not.  "Set" in this context means non-zero for numeric types and times;
 // non-zero length for strings, arrays, slices, and maps;
 // any boolean or struct value; or non-nil for any other types.
-func Default(dflt interface{}, given ...interface{}) (interface{}, error) {
+func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, error) {
 	// given is variadic because the following construct will not pass a piped
 	// argument when the key is missing:  {{ index . "key" | default "foo" }}
 	// The Go template will complain that we got 1 argument when we expectd 2.
@@ -75,7 +84,7 @@ func Default(dflt interface{}, given ...interface{}) (interface{}, error) {
 }
 
 // Eq returns the boolean truth of arg1 == arg2.
-func Eq(x, y interface{}) bool {
+func (*Namespace) Eq(x, y interface{}) bool {
 	normalize := func(v interface{}) interface{} {
 		vv := reflect.ValueOf(v)
 		switch vv.Kind() {
@@ -95,35 +104,35 @@ func Eq(x, y interface{}) bool {
 }
 
 // Ne returns the boolean truth of arg1 != arg2.
-func Ne(x, y interface{}) bool {
-	return !Eq(x, y)
+func (n *Namespace) Ne(x, y interface{}) bool {
+	return !n.Eq(x, y)
 }
 
 // Ge returns the boolean truth of arg1 >= arg2.
-func Ge(a, b interface{}) bool {
-	left, right := compareGetFloat(a, b)
+func (n *Namespace) Ge(a, b interface{}) bool {
+	left, right := n.compareGetFloat(a, b)
 	return left >= right
 }
 
 // Gt returns the boolean truth of arg1 > arg2.
-func Gt(a, b interface{}) bool {
-	left, right := compareGetFloat(a, b)
+func (n *Namespace) Gt(a, b interface{}) bool {
+	left, right := n.compareGetFloat(a, b)
 	return left > right
 }
 
 // Le returns the boolean truth of arg1 <= arg2.
-func Le(a, b interface{}) bool {
-	left, right := compareGetFloat(a, b)
+func (n *Namespace) Le(a, b interface{}) bool {
+	left, right := n.compareGetFloat(a, b)
 	return left <= right
 }
 
 // Lt returns the boolean truth of arg1 < arg2.
-func Lt(a, b interface{}) bool {
-	left, right := compareGetFloat(a, b)
+func (n *Namespace) Lt(a, b interface{}) bool {
+	left, right := n.compareGetFloat(a, b)
 	return left < right
 }
 
-func compareGetFloat(a interface{}, b interface{}) (float64, float64) {
+func (*Namespace) compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	var left, right float64
 	var leftStr, rightStr *string
 	av := reflect.ValueOf(a)

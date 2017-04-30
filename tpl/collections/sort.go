@@ -23,6 +23,8 @@ import (
 	"github.com/spf13/hugo/tpl/compare"
 )
 
+var comp = compare.New()
+
 // Sort returns a sorted sequence.
 func (ns *Namespace) Sort(seq interface{}, args ...interface{}) (interface{}, error) {
 	if seq == nil {
@@ -129,15 +131,15 @@ func (p pairList) Less(i, j int) bool {
 	if iv.IsValid() {
 		if jv.IsValid() {
 			// can only call Interface() on valid reflect Values
-			return compare.Lt(iv.Interface(), jv.Interface())
+			return comp.Lt(iv.Interface(), jv.Interface())
 		}
 		// if j is invalid, test i against i's zero value
-		return compare.Lt(iv.Interface(), reflect.Zero(iv.Type()))
+		return comp.Lt(iv.Interface(), reflect.Zero(iv.Type()))
 	}
 
 	if jv.IsValid() {
 		// if i is invalid, test j against j's zero value
-		return compare.Lt(reflect.Zero(jv.Type()), jv.Interface())
+		return comp.Lt(reflect.Zero(jv.Type()), jv.Interface())
 	}
 
 	return false
