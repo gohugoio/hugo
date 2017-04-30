@@ -21,16 +21,12 @@ import (
 
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/tpl/urls"
 )
 
 // Some of the template funcs are'nt entirely stateless.
 type templateFuncster struct {
 	funcMap        template.FuncMap
 	cachedPartials partialCache
-
-	// Namespaces
-	urls *urls.Namespace
 
 	*deps.Deps
 }
@@ -39,9 +35,6 @@ func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 	return &templateFuncster{
 		Deps:           deps,
 		cachedPartials: partialCache{p: make(map[string]interface{})},
-
-		// Namespaces
-		urls: urls.New(deps),
 	}
 }
 

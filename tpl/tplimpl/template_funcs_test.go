@@ -64,6 +64,8 @@ func TestTemplateFuncsExamples(t *testing.T) {
 
 	v.Set("workingDir", workingDir)
 	v.Set("multilingual", true)
+	v.Set("baseURL", "http://mysite.com/hugo/")
+	v.Set("CurrentContentLanguage", helpers.NewLanguage("en", v))
 
 	fs := hugofs.NewMem(v)
 
@@ -122,10 +124,7 @@ func TestFuncsInTemplate(t *testing.T) {
 	// TODO(bep): docs: fix title example
 	// TODO(bep) namespace remove when done
 	in :=
-		`absLangURL: {{ "index.html" | absLangURL }}
-absURL: {{ "http://gohugo.io/" | absURL }}
-absURL: {{ "mystyle.css" | absURL }}
-absURL: {{ 42 | absURL }}
+		`
 crypto.MD5: {{ crypto.MD5 "Hello world, gophers!" }}
 dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
 htmlEscape 1: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML}}
@@ -138,18 +137,11 @@ htmlUnescape 5: {{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;catha
 print: {{ print "works!" }}
 printf: {{ printf "%s!" "works" }}
 println: {{ println "works!" -}}
-relLangURL: {{ "index.html" | relLangURL }}
-relURL 1: {{ "http://gohugo.io/" | relURL }}
-relURL 2: {{ "mystyle.css" | relURL }}
-relURL 3: {{ mul 2 21 | relURL }}
 strings.TrimPrefix: {{ strings.TrimPrefix "Goodbye,, world!" "Goodbye," }}
 urlize: {{ "Bat Man" | urlize }}
 `
 
-	expected := `absLangURL: http://mysite.com/hugo/en/index.html
-absURL: http://gohugo.io/
-absURL: http://mysite.com/hugo/mystyle.css
-absURL: http://mysite.com/hugo/42
+	expected := `
 crypto.MD5: b3029f756f98f79e7f1b7f1d1f0dd53b
 dateFormat: Wednesday, Jan 21, 2015
 htmlEscape 1: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
@@ -162,10 +154,6 @@ htmlUnescape 5: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
 print: works!
 printf: works!
 println: works!
-relLangURL: /hugo/en/index.html
-relURL 1: http://gohugo.io/
-relURL 2: /hugo/mystyle.css
-relURL 3: /hugo/42
 strings.TrimPrefix: , world!
 urlize: bat-man
 `
