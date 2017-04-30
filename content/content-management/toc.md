@@ -14,7 +14,7 @@ menu:
 weight: 130	#rem
 draft: false
 aliases: [/extras/toc/,/content-management/toc/]
-toc: false
+toc: true
 ---
 
 Hugo can automatically parse Markdown content and create a Table of Contents you can leverage in your templates to guide readers to sections of longer pages.
@@ -38,14 +38,14 @@ One morning, when Gregor Samsa woke from troubled dreams, he found himself trans
 
 He lay on his armour-like back, and if he lifted his head a little he could see his brown belly, slightly domed and divided by arches into stiff sections. The bedding was hardly able to cover it and seemed ready to slide off any moment.
 
-His many legs, pitifully thin compared with the size of the rest of him, waved about helplessly as he looked. "What's happened to me? " he thought. It wasn't a dream. His room, a proper human room although a little too small, lay peacefully between its four familiar walls.
-
 ### My Subheading
 
 A collection of textile samples lay spread out on the table - Samsa was a travelling salesman - and above it there hung a picture that he had recently cut out of an illustrated magazine and housed in a nice, gilded frame. It showed a lady fitted out with a fur hat and fur boa who sat upright, raising a heavy fur muff that covered the whole of her lower arm towards the viewer. Gregor then turned to look out the window at the dull weather. Drops
 ```
 
 Hugo will take this Markdown and create a table of contents from `## Introduction`, `## My Heading`, and `### My Subheading` and then store it in the [page variable][pagevars]`.TableOfContents`.
+
+The built-in `.TableOfContents` variables outputs a `<nav id="TableOfContents">` element with a child `<ul>`, whose child `<li>` elements begin with any `<h1>`'s (i.e., `#` in markdown) inside your content.'
 
 ## Template Example: Basic TOC
 
@@ -54,12 +54,14 @@ The following is an example of a very basic [single page template][]:
 {{% code file="layout/_default/single.html" download="single.html" %}}
 ```html
 {{ define "main" }}
-<main id="main">
+<main>
+    <article>
     <header>
         <h1>{{ .Title }}</h1>
     </header>
         {{ .Content }}
-    <aside id="toc">
+    </article>
+    <aside>
         {{ .TableOfContents }}
     </aside>
 </main>
@@ -74,9 +76,9 @@ The following is a [partial template][partials] that adds slightly more logic fo
 {{% code file="layouts/partials/toc.html" download="toc.html" %}}
 ```html
 {{ if and (gt .WordCount 400 ) (ne .Params.toc "false") }}
-<aside id="toc">
+<aside>
     <header>
-    <h2 class="toc-heading">{{.Title}}</h2>
+    <h2>{{.Title}}</h2>
     </header>
     {{.TableOfContents}}
 </aside>
@@ -85,10 +87,10 @@ The following is a [partial template][partials] that adds slightly more logic fo
 {{% /code %}}
 
 {{% note %}}
-With the preceding example, even pages with > 400 words *and* `toc` not set to false will not render a table of contents if there are no headings in the page for the `{{.TableOfContents}}` variable to pull from.
+With the preceding example, even pages with > 400 words *and* `toc` not set to `false` will not render a table of contents if there are no headings in the page for the `{{.TableOfContents}}` variable to pull from.
 {{% /note %}}
 
-[conditionals]: /templates/introduction/#conditionals/
+[conditionals]: /templates/introduction/#conditionals
 [front matter]: /content-management/table-of-contents/
 [pagevars]: /variables/page/
 [partials]: /templates/partials/

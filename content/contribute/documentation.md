@@ -158,7 +158,7 @@ Code blocks are crucial for providing examples of Hugo's new features to end use
 
 ### Standard Syntax
 
-Across all pages on the Hugo docs, the typical triple-back-tick markdown syntax is used. If you do not want to take the extra time to implement the following code block shortcodes, please use standard Github-flavored markdown. The Hugo docs use a version of [highlight.js](https://highlightjs.org/) that's been modified for specific Hugo keywords.
+Across all pages on the Hugo docs, the typical triple-back-tick markdown syntax is used. If you do not want to take the extra time to implement the following code block shortcodes, please use standard Github-flavored markdown. The Hugo docs use a version of [highlight.js](https://highlightjs.org/) with a specific set of languages.
 
 Your options for languages are `xml`/`html`, `go`/`golang`, `md`/`markdown`/`mkd`, `handlebars`, `apache`, `toml`, `yaml`, `json`, `css`, `asciidoc`, `ruby`, `powershell`/`ps`, `scss`, `sh`/`zsh`/`bash`/`git`, `http`/`https`, and `javascript`/`js`.
 
@@ -210,17 +210,17 @@ This example HTML code block tells Hugo users the following:
 {{%/* code file="layouts/_default/single.html" download="single.html" */%}}
 ```html
 {{ define "main" }}
-<main class="main">
-    <article class="content">
+<main>
+    <article>
         <header>
             <h1>{{.Title}}</h1>
             {{with .Params.subtitle}}
-            <span class="subtitle">{{.}}</span>
+            <span>{{.}}</span>
         </header>
-        <div class="body-copy">
+        <div>
             {{.Content}}
         </div>
-        <aside class="toc">
+        <aside>
             {{.TableOfContents}}
         </aside>
     </article>
@@ -237,17 +237,17 @@ The output of this example will render to the Hugo docs as follows:
 {{% code file="layouts/_default/single.html" download="single.html" %}}
 ```html
 {{ define "main" }}
-<main class="main">
-    <article class="content">
+<main>
+    <article>
         <header>
             <h1>{{.Title}}</h1>
             {{with .Params.subtitle}}
-            <span class="subtitle">{{.}}</span>
+            <span>{{.}}</span>
         </header>
-        <div class="body-copy">
+        <div>
             {{.Content}}
         </div>
-        <aside class="toc">
+        <aside>
             {{.TableOfContents}}
         </aside>
     </article>
