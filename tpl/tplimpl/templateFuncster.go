@@ -21,7 +21,6 @@ import (
 
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/tpl/transform"
 	"github.com/spf13/hugo/tpl/urls"
 )
 
@@ -31,8 +30,7 @@ type templateFuncster struct {
 	cachedPartials partialCache
 
 	// Namespaces
-	transform *transform.Namespace
-	urls      *urls.Namespace
+	urls *urls.Namespace
 
 	*deps.Deps
 }
@@ -43,8 +41,7 @@ func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 		cachedPartials: partialCache{p: make(map[string]interface{})},
 
 		// Namespaces
-		transform: transform.New(deps),
-		urls:      urls.New(deps),
+		urls: urls.New(deps),
 	}
 }
 
