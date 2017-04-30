@@ -146,7 +146,6 @@ relURL 1: {{ "http://gohugo.io/" | relURL }}
 relURL 2: {{ "mystyle.css" | relURL }}
 relURL 3: {{ mul 2 21 | relURL }}
 strings.TrimPrefix: {{ strings.TrimPrefix "Goodbye,, world!" "Goodbye," }}
-time: {{ (time "2015-01-21").Year }}
 urlize: {{ "Bat Man" | urlize }}
 `
 
@@ -174,7 +173,6 @@ relURL 1: http://gohugo.io/
 relURL 2: /hugo/mystyle.css
 relURL 3: /hugo/42
 strings.TrimPrefix: , world!
-time: 2015
 urlize: bat-man
 `
 
