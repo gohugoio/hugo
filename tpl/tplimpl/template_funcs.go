@@ -22,6 +22,10 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/tpl/compare"
+	"github.com/spf13/hugo/tpl/internal"
+
+	// Init the namespaces
+	_ "github.com/spf13/hugo/tpl/lang"
 )
 
 // Get retrieves partial output from the cache based upon the partial name.
@@ -181,8 +185,18 @@ func (t *templateFuncster) initFuncMap() {
 		"upper":         t.strings.ToUpper,
 		"urlize":        t.PathSpec.URLize,
 		"where":         t.collections.Where,
-		"i18n":          t.lang.Translate,
-		"T":             t.lang.T,
+	}
+
+	// Merge the namespace funcs
+	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
+		ns := nsf(t.Deps)
+		// TODO(bep) namespace ns.Context is a dummy func just to make this work.
+		// Consider if we can add this context to the rendering context in an easy
+		// way to make this cleaner. Maybe.
+		funcMap[ns.Name] = ns.Context
+		for k, v := range ns.Aliases {
+			funcMap[k] = v
+		}
 	}
 
 	t.funcMap = funcMap

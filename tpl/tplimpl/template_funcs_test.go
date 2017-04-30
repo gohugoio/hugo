@@ -70,6 +70,7 @@ func TestFuncsInTemplate(t *testing.T) {
 
 	// Add the examples from the docs: As a smoke test and to make sure the examples work.
 	// TODO(bep): docs: fix title example
+	// TODO(bep) namespace remove when done
 	in :=
 		`absLangURL: {{ "index.html" | absLangURL }}
 absURL: {{ "http://gohugo.io/" | absURL }}
