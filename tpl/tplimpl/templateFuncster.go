@@ -29,7 +29,6 @@ import (
 	"github.com/spf13/hugo/tpl/inflect"
 	"github.com/spf13/hugo/tpl/os"
 	"github.com/spf13/hugo/tpl/safe"
-	hstrings "github.com/spf13/hugo/tpl/strings"
 	"github.com/spf13/hugo/tpl/time"
 	"github.com/spf13/hugo/tpl/transform"
 	"github.com/spf13/hugo/tpl/urls"
@@ -49,7 +48,6 @@ type templateFuncster struct {
 	inflect     *inflect.Namespace
 	os          *os.Namespace
 	safe        *safe.Namespace
-	strings     *hstrings.Namespace
 	time        *time.Namespace
 	transform   *transform.Namespace
 	urls        *urls.Namespace
@@ -71,7 +69,6 @@ func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 		inflect:     inflect.New(),
 		os:          os.New(deps),
 		safe:        safe.New(),
-		strings:     hstrings.New(deps),
 		time:        time.New(),
 		transform:   transform.New(deps),
 		urls:        urls.New(deps),

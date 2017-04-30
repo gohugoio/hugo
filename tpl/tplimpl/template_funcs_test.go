@@ -127,16 +127,12 @@ absURL: {{ 42 | absURL }}
 base64Decode 1: {{ "SGVsbG8gd29ybGQ=" | base64Decode }}
 base64Decode 2: {{ 42 | base64Encode | base64Decode }}
 base64Encode: {{ "Hello world" | base64Encode }}
-chomp: {{chomp "<p>Blockhead</p>\n" }}
 crypto.MD5: {{ crypto.MD5 "Hello world, gophers!" }}
 dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
 delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}
 echoParam: {{ echoParam .Params "langCode" }}
 emojify: {{ "I :heart: Hugo" | emojify }}
 eq: {{ if eq .Section "blog" }}current{{ end }}
-findRE: {{ findRE "[G|g]o" "Hugo is a static side generator written in Go." "1" }}
-hasPrefix 1: {{ hasPrefix "Hugo" "Hu" }}
-hasPrefix 2: {{ hasPrefix "Hugo" "Fu" }}
 htmlEscape 1: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML}}
 htmlEscape 2: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>"}}
 htmlUnescape 1: {{htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | safeHTML}}
@@ -150,7 +146,6 @@ humanize 3: {{ humanize "52" }}
 humanize 4: {{ humanize 103 }}
 in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}
 jsonify: {{ (slice "A" "B" "C") | jsonify }}
-lower: {{lower "BatMan"}}
 markdownify: {{ .Title | markdownify}}
 md5: {{ md5 "Hello world, gophers!" }}
 print: {{ print "works!" }}
@@ -166,8 +161,6 @@ relLangURL: {{ "index.html" | relLangURL }}
 relURL 1: {{ "http://gohugo.io/" | relURL }}
 relURL 2: {{ "mystyle.css" | relURL }}
 relURL 3: {{ mul 2 21 | relURL }}
-replace: {{ replace "Batman and Robin" "Robin" "Catwoman" }}
-replaceRE: {{ "http://gohugo.io/docs" | replaceRE "^https?://([^/]+).*" "$1" }}
 safeCSS: {{ "Bat&Man" | safeCSS | safeCSS }}
 safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
 safeHTML: {{ "Bat&Man" | safeHTML }}
@@ -177,18 +170,9 @@ seq: {{ seq 3 }}
 sha1: {{ sha1 "Hello world, gophers!" }}
 sha256: {{ sha256 "Hello world, gophers!" }}
 singularize: {{ "cats" | singularize }}
-slicestr: {{slicestr "BatMan" 0 3}}
-slicestr: {{slicestr "BatMan" 3}}
 sort: {{ slice "B" "C" "A" | sort }}
 strings.TrimPrefix: {{ strings.TrimPrefix "Goodbye,, world!" "Goodbye," }}
-substr: {{substr "BatMan" 0 -3}}
-substr: {{substr "BatMan" 3 3}}
-title: {{title "Bat man"}}
 time: {{ (time "2015-01-21").Year }}
-trim: {{ trim "++Batman--" "+-" }}
-truncate: {{ "this is a very long text" | truncate 10 " ..." }}
-truncate: {{ "With [Markdown](/markdown) inside." | markdownify | truncate 14 }}
-upper: {{upper "BatMan"}}
 union: {{ union (slice 1 2 3) (slice 3 4 5) }}
 urlize: {{ "Bat Man" | urlize }}
 `
@@ -200,16 +184,12 @@ absURL: http://mysite.com/hugo/42
 base64Decode 1: Hello world
 base64Decode 2: 42
 base64Encode: SGVsbG8gd29ybGQ=
-chomp: <p>Blockhead</p>
 crypto.MD5: b3029f756f98f79e7f1b7f1d1f0dd53b
 dateFormat: Wednesday, Jan 21, 2015
 delimit: A, B and C
 echoParam: en
 emojify: I ❤️ Hugo
 eq: current
-findRE: [go]
-hasPrefix 1: true
-hasPrefix 2: false
 htmlEscape 1: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
 htmlEscape 2: Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;
 htmlUnescape 1: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
@@ -223,7 +203,6 @@ humanize 3: 52nd
 humanize 4: 103rd
 in: Substring found!
 jsonify: ["A","B","C"]
-lower: batman
 markdownify: <strong>BatMan</strong>
 md5: b3029f756f98f79e7f1b7f1d1f0dd53b
 print: works!
@@ -239,8 +218,6 @@ relLangURL: /hugo/en/index.html
 relURL 1: http://gohugo.io/
 relURL 2: /hugo/mystyle.css
 relURL 3: /hugo/42
-replace: Batman and Catwoman
-replaceRE: gohugo.io
 safeCSS: Bat&amp;Man
 safeHTML: Bat&Man
 safeHTML: Bat&Man
@@ -250,18 +227,9 @@ seq: [1 2 3]
 sha1: c8b5b0e33d408246e30f53e32b8f7627a7a649d4
 sha256: 6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46
 singularize: cat
-slicestr: Bat
-slicestr: Man
 sort: [A B C]
 strings.TrimPrefix: , world!
-substr: Bat
-substr: Man
-title: Bat Man
 time: 2015
-trim: Batman
-truncate: this is a ...
-truncate: With <a href="/markdown">Markdown …</a>
-upper: BATMAN
 union: [1 2 3 4 5]
 urlize: bat-man
 `
