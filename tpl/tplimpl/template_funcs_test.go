@@ -143,7 +143,6 @@ humanize 3: {{ humanize "52" }}
 humanize 4: {{ humanize 103 }}
 jsonify: {{ (slice "A" "B" "C") | jsonify }}
 markdownify: {{ .Title | markdownify}}
-md5: {{ md5 "Hello world, gophers!" }}
 print: {{ print "works!" }}
 printf: {{ printf "%s!" "works" }}
 println: {{ println "works!" -}}
@@ -160,8 +159,6 @@ safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
 safeHTML: {{ "Bat&Man" | safeHTML }}
 safeJS: {{ "(1*2)" | safeJS | safeJS }}
 safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
-sha1: {{ sha1 "Hello world, gophers!" }}
-sha256: {{ sha256 "Hello world, gophers!" }}
 singularize: {{ "cats" | singularize }}
 strings.TrimPrefix: {{ strings.TrimPrefix "Goodbye,, world!" "Goodbye," }}
 time: {{ (time "2015-01-21").Year }}
@@ -191,7 +188,6 @@ humanize 3: 52nd
 humanize 4: 103rd
 jsonify: ["A","B","C"]
 markdownify: <strong>BatMan</strong>
-md5: b3029f756f98f79e7f1b7f1d1f0dd53b
 print: works!
 printf: works!
 println: works!
@@ -208,8 +204,6 @@ safeHTML: Bat&Man
 safeHTML: Bat&Man
 safeJS: (1*2)
 safeURL: http://gohugo.io
-sha1: c8b5b0e33d408246e30f53e32b8f7627a7a649d4
-sha256: 6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46
 singularize: cat
 strings.TrimPrefix: , world!
 time: 2015

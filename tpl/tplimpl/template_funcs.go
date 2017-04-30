@@ -26,6 +26,7 @@ import (
 	// Init the namespaces
 	_ "github.com/spf13/hugo/tpl/collections"
 	_ "github.com/spf13/hugo/tpl/compare"
+	_ "github.com/spf13/hugo/tpl/crypto"
 	_ "github.com/spf13/hugo/tpl/data"
 	_ "github.com/spf13/hugo/tpl/lang"
 	_ "github.com/spf13/hugo/tpl/math"
@@ -83,7 +84,6 @@ func (t *templateFuncster) partialCached(name string, context interface{}, varia
 func (t *templateFuncster) initFuncMap() {
 	funcMap := template.FuncMap{
 		// Namespaces
-		"crypto":   t.crypto.Namespace,
 		"encoding": t.encoding.Namespace,
 		"images":   t.images.Namespace,
 		"inflect":  t.inflect.Namespace,
@@ -108,7 +108,6 @@ func (t *templateFuncster) initFuncMap() {
 		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
 		"jsonify":       t.encoding.Jsonify,
 		"markdownify":   t.transform.Markdownify,
-		"md5":           t.crypto.MD5,
 		"now":           t.time.Now,
 		"partial":       t.partial,
 		"partialCached": t.partialCached,
@@ -131,8 +130,6 @@ func (t *templateFuncster) initFuncMap() {
 		"safeURL":       t.safe.URL,
 		"sanitizeURL":   t.safe.SanitizeURL,
 		"sanitizeurl":   t.safe.SanitizeURL,
-		"sha1":          t.crypto.SHA1,
-		"sha256":        t.crypto.SHA256,
 		"singularize":   t.inflect.Singularize,
 		"string":        func(v interface{}) (string, error) { return cast.ToStringE(v) },
 		"time":          t.time.AsTime,

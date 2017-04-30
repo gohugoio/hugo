@@ -21,7 +21,6 @@ import (
 
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/tpl/crypto"
 	"github.com/spf13/hugo/tpl/encoding"
 	"github.com/spf13/hugo/tpl/images"
 	"github.com/spf13/hugo/tpl/inflect"
@@ -38,7 +37,6 @@ type templateFuncster struct {
 	cachedPartials partialCache
 
 	// Namespaces
-	crypto    *crypto.Namespace
 	encoding  *encoding.Namespace
 	images    *images.Namespace
 	inflect   *inflect.Namespace
@@ -57,7 +55,6 @@ func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 		cachedPartials: partialCache{p: make(map[string]interface{})},
 
 		// Namespaces
-		crypto:    crypto.New(),
 		encoding:  encoding.New(),
 		images:    images.New(deps),
 		inflect:   inflect.New(),
