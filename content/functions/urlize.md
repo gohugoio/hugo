@@ -34,16 +34,21 @@ The following might be used as a partial within a [single page template][singlet
 
 {{% code file="layouts/partials/content-header.html" download="content-header.html" %}}
 ```html
-<header class="content-header">
+<header>
     <h1>{{.Title}}</h1>
     {{ with .Params.location }}
-        <div class="location"><a href="/locations/{{ . | urlize}}">{{.}}</a></div>
+        <div><a href="/locations/{{ . | urlize}}">{{.}}</a></div>
     {{ end }}
-    <div class="tags">
-    {{range .Params.tags}}
-        <a href="/tags/{{ . | urlize }}" class="tag">{{ . }}</a><br>
-    {{end}}
-    </div>
+    <!-- Creates a list of tags for the content and links to each of their pages -->
+    {{ with .Params.tags }}
+    <ul>
+        {{range .}}
+            <li>
+                <a href="/tags/{{ . | urlize }}">{{ . }}</a>
+            </li>
+        {{end}}
+    </ul>
+    {{ end }}
 </header>
 ```
 {{% /code %}}
@@ -52,14 +57,20 @@ The preceding partial would then output to the rendered page as follows, assumin
 
 {{% output file="/blog/greatest-city/index.html" %}}
 ```html
-<header class="content-header">
+<header>
     <h1>The World's Greatest City</h1>
-    <div class="location"><a href="/locations/chicago-il/">Chicago IL</a></div>
-    <div class="tags">
-        <a href="/tags/pizza" class="tag">pizza</a>
-        <a href="/tags/beer" class="tag">beer</a>
-        <a href="/tags/hot-dogs" class="tag">hot dogs</a>
-    </div>
+    <div><a href="/locations/chicago-il/">Chicago IL</a></div>
+    <ul>
+        <li>
+            <a href="/tags/pizza">pizza</a>
+        </li>
+        <li>
+            <a href="/tags/beer">beer</a>
+        </li>
+        <li>
+            <a href="/tags/hot-dogs">hot dogs</a>
+        </li>
+    </ul>
 </header>
 ```
 {{% /output %}}

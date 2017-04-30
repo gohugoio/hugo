@@ -16,9 +16,9 @@ relatedfuncs: []
 deprecated: false
 ---
 
-An alternative way of writing the "`if`" and then referencing the same value is to use `with` instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent.
+An alternative way of writing an `if` statement and then referencing the same value is to use `with` instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent or unset.
 
-The following example checks for a [user-defined site variable](/variables/site/) defined as `twitteruser` in your [site configuration](/getting-started/configuration/). If the key-value is not set, the following will render nothing:
+The following example checks for a [user-defined site variable](/variables/site/) called `twitteruser`. If the key-value is not set, the following will render nothing:
 
 {{% code file="layouts/partials/twitter.html" %}}
 ```html

@@ -5,7 +5,7 @@ description: Filters an array to only the elements containing a matching value f
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2017-04-30
 categories: [functions]
 tags: [filtering]
 ns:

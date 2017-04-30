@@ -5,7 +5,7 @@ description: Reads a file from disk relative to the current project working dire
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2017-04-30
 categories: [functions]
 tags: [files]
 ns:
@@ -21,7 +21,7 @@ aliases: []
 
 So, if you have a file with the name `README.txt` in the root of your project with the content `Hugo Rocks!`:
 
-```
+```html
 {{readFile "README.txt"}} → "Hugo Rocks!"
 ```
 

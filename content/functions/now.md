@@ -5,7 +5,7 @@ description: Returns the current local time as a [`time.Time`]
 godocref: https://godoc.org/time#Time
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2017-04-30
 categories: [functions]
 tags: [dates,time]
 ns:
@@ -23,7 +23,7 @@ needsexamples: true
 For example, building your site on June 24, 2017 with the following templating:
 
 ```html
-<div class="copyright">
+<div>
     <small>&copy; {{ now.Format "2006"}}</small>
 </div>
 ```
@@ -31,12 +31,12 @@ For example, building your site on June 24, 2017 with the following templating:
 Which will produce the following:
 
 ```html
-<div class="copyright">
+<div>
     <small>&copy; 2017</small>
 </div>
 ```
 
-The above example also uses the [`.Format` function](/functions/format), which page includes a full listing of date formatting using Golang's layout string.
+The above example uses the [`.Format` function](/functions/format), which page includes a full listing of date formatting using Golang's layout string.
 
 {{% note %}}
 Older Hugo themes may use the deprecated `.Now` (uppercase). Be sure to use the lowercase `.now` in your templating.
