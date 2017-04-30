@@ -69,7 +69,9 @@ func TestTemplateFuncsExamples(t *testing.T) {
 
 	afero.WriteFile(fs.Source, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)
 
-	d, err := deps.New(newDepsConfig(v))
+	depsCfg := newDepsConfig(v)
+	depsCfg.Fs = fs
+	d, err := deps.New(depsCfg)
 	require.NoError(t, err)
 
 	var data struct {
@@ -139,8 +141,6 @@ print: {{ print "works!" }}
 printf: {{ printf "%s!" "works" }}
 println: {{ println "works!" -}}
 plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
-readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
-readFile: {{ readFile "README.txt" }}
 relLangURL: {{ "index.html" | relLangURL }}
 relURL 1: {{ "http://gohugo.io/" | relURL }}
 relURL 2: {{ "mystyle.css" | relURL }}
@@ -174,8 +174,6 @@ print: works!
 printf: works!
 println: works!
 plainify: Hello world, gophers!
-readDir: README.txt
-readFile: Hugo Rocks!
 relLangURL: /hugo/en/index.html
 relURL 1: http://gohugo.io/
 relURL 2: /hugo/mystyle.css
