@@ -31,6 +31,7 @@ type Namespace struct {
 }
 
 // Namespace returns a pointer to the current namespace instance.
+// TODO(bep) namespace remove this and other unused when done.
 func (ns *Namespace) Namespace() *Namespace { return ns }
 
 // Translate ...
@@ -41,9 +42,4 @@ func (ns *Namespace) Translate(id interface{}, args ...interface{}) (string, err
 	}
 
 	return ns.deps.Translate(sid, args...), nil
-}
-
-// T is an alias to Translate.
-func (ns *Namespace) T(id interface{}, args ...interface{}) (string, error) {
-	return ns.Translate(id, args...)
 }
