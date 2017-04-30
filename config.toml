@@ -56,7 +56,7 @@ googleAnalytics = "UA-76549364-1"
   ## Gh repo for site footer (include trailing slash)
   ghrepo = "https://github.com/spf13/hugo/"
   ### Edit content repo (set to automatically enter "edit" mode; this is good for "improve this page" links)
-  ghdocsrepo = "https://github.com/spf13/hugo/tree/master/docs"
+  ghdocsrepo = "https://github.com/rdwatters/hugo-docs-concept/tree/master"
   ## Gitter URL
   gitter = "https://gitter.im/spf13/hugo"
   ## Discuss Forum URL
