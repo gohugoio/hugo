@@ -771,6 +771,7 @@ func TestIn(t *testing.T) {
 		{[]float64{1.234567, 2.45, 4.67}, 1.234568, false},
 		{"this substring should be found", "substring", true},
 		{"this substring should not be found", "subseastring", false},
+		{[]string{"a", "b", "c"}, nil, false},
 	} {
 		result := in(this.v1, this.v2)
 
