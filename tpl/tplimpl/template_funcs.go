@@ -30,6 +30,7 @@ import (
 	_ "github.com/spf13/hugo/tpl/data"
 	_ "github.com/spf13/hugo/tpl/encoding"
 	_ "github.com/spf13/hugo/tpl/images"
+	_ "github.com/spf13/hugo/tpl/inflect"
 	_ "github.com/spf13/hugo/tpl/lang"
 	_ "github.com/spf13/hugo/tpl/math"
 	_ "github.com/spf13/hugo/tpl/strings"
@@ -86,9 +87,8 @@ func (t *templateFuncster) partialCached(name string, context interface{}, varia
 func (t *templateFuncster) initFuncMap() {
 	funcMap := template.FuncMap{
 		// Namespaces
-		"inflect": t.inflect.Namespace,
-		"os":      t.os.Namespace,
-		"safe":    t.safe.Namespace,
+		"os":   t.os.Namespace,
+		"safe": t.safe.Namespace,
 		//"time":        t.time.Namespace,
 		"transform": t.transform.Namespace,
 		"urls":      t.urls.Namespace,
@@ -101,14 +101,12 @@ func (t *templateFuncster) initFuncMap() {
 		"highlight":     t.transform.Highlight,
 		"htmlEscape":    t.transform.HTMLEscape,
 		"htmlUnescape":  t.transform.HTMLUnescape,
-		"humanize":      t.inflect.Humanize,
 		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
 		"markdownify":   t.transform.Markdownify,
 		"now":           t.time.Now,
 		"partial":       t.partial,
 		"partialCached": t.partialCached,
 		"plainify":      t.transform.Plainify,
-		"pluralize":     t.inflect.Pluralize,
 		"print":         fmt.Sprint,
 		"printf":        fmt.Sprintf,
 		"println":       fmt.Sprintln,
@@ -126,7 +124,6 @@ func (t *templateFuncster) initFuncMap() {
 		"safeURL":       t.safe.URL,
 		"sanitizeURL":   t.safe.SanitizeURL,
 		"sanitizeurl":   t.safe.SanitizeURL,
-		"singularize":   t.inflect.Singularize,
 		"string":        func(v interface{}) (string, error) { return cast.ToStringE(v) },
 		"time":          t.time.AsTime,
 		"urlize":        t.PathSpec.URLize,

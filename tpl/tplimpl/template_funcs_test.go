@@ -134,16 +134,11 @@ htmlUnescape 2: {{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.
 htmlUnescape 3: {{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape }}
 htmlUnescape 4: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | htmlUnescape | safeHTML }}
 htmlUnescape 5: {{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | htmlEscape | safeHTML }}
-humanize 1: {{ humanize "my-first-post" }}
-humanize 2: {{ humanize "myCamelPost" }}
-humanize 3: {{ humanize "52" }}
-humanize 4: {{ humanize 103 }}
 markdownify: {{ .Title | markdownify}}
 print: {{ print "works!" }}
 printf: {{ printf "%s!" "works" }}
 println: {{ println "works!" -}}
 plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
-pluralize: {{ "cat" | pluralize }}
 readDir: {{ range (readDir ".") }}{{ .Name }}{{ end }}
 readFile: {{ readFile "README.txt" }}
 relLangURL: {{ "index.html" | relLangURL }}
@@ -155,7 +150,6 @@ safeHTML: {{ "Bat&Man" | safeHTML | safeHTML }}
 safeHTML: {{ "Bat&Man" | safeHTML }}
 safeJS: {{ "(1*2)" | safeJS | safeJS }}
 safeURL: {{ "http://gohugo.io" | safeURL | safeURL }}
-singularize: {{ "cats" | singularize }}
 strings.TrimPrefix: {{ strings.TrimPrefix "Goodbye,, world!" "Goodbye," }}
 time: {{ (time "2015-01-21").Year }}
 urlize: {{ "Bat Man" | urlize }}
@@ -175,16 +169,11 @@ htmlUnescape 2: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
 htmlUnescape 3: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
 htmlUnescape 4: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
 htmlUnescape 5: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
-humanize 1: My first post
-humanize 2: My camel post
-humanize 3: 52nd
-humanize 4: 103rd
 markdownify: <strong>BatMan</strong>
 print: works!
 printf: works!
 println: works!
 plainify: Hello world, gophers!
-pluralize: cats
 readDir: README.txt
 readFile: Hugo Rocks!
 relLangURL: /hugo/en/index.html
@@ -196,7 +185,6 @@ safeHTML: Bat&Man
 safeHTML: Bat&Man
 safeJS: (1*2)
 safeURL: http://gohugo.io
-singularize: cat
 strings.TrimPrefix: , world!
 time: 2015
 urlize: bat-man
