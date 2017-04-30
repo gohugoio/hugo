@@ -128,7 +128,6 @@ absURL: {{ "mystyle.css" | absURL }}
 absURL: {{ 42 | absURL }}
 crypto.MD5: {{ crypto.MD5 "Hello world, gophers!" }}
 dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
-emojify: {{ "I :heart: Hugo" | emojify }}
 htmlEscape 1: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML}}
 htmlEscape 2: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>"}}
 htmlUnescape 1: {{htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | safeHTML}}
@@ -136,11 +135,9 @@ htmlUnescape 2: {{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.
 htmlUnescape 3: {{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape }}
 htmlUnescape 4: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | htmlUnescape | safeHTML }}
 htmlUnescape 5: {{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | htmlEscape | safeHTML }}
-markdownify: {{ .Title | markdownify}}
 print: {{ print "works!" }}
 printf: {{ printf "%s!" "works" }}
 println: {{ println "works!" -}}
-plainify: {{ plainify  "Hello <strong>world</strong>, gophers!" }}
 relLangURL: {{ "index.html" | relLangURL }}
 relURL 1: {{ "http://gohugo.io/" | relURL }}
 relURL 2: {{ "mystyle.css" | relURL }}
@@ -155,7 +152,6 @@ absURL: http://mysite.com/hugo/mystyle.css
 absURL: http://mysite.com/hugo/42
 crypto.MD5: b3029f756f98f79e7f1b7f1d1f0dd53b
 dateFormat: Wednesday, Jan 21, 2015
-emojify: I ❤️ Hugo
 htmlEscape 1: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
 htmlEscape 2: Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;
 htmlUnescape 1: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
@@ -163,11 +159,9 @@ htmlUnescape 2: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
 htmlUnescape 3: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
 htmlUnescape 4: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
 htmlUnescape 5: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
-markdownify: <strong>BatMan</strong>
 print: works!
 printf: works!
 println: works!
-plainify: Hello world, gophers!
 relLangURL: /hugo/en/index.html
 relURL 1: http://gohugo.io/
 relURL 2: /hugo/mystyle.css

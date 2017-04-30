@@ -37,6 +37,7 @@ import (
 	_ "github.com/spf13/hugo/tpl/safe"
 	_ "github.com/spf13/hugo/tpl/strings"
 	_ "github.com/spf13/hugo/tpl/time"
+	_ "github.com/spf13/hugo/tpl/transform"
 )
 
 // Get retrieves partial output from the cache based upon the partial name.
@@ -91,20 +92,13 @@ func (t *templateFuncster) initFuncMap() {
 	funcMap := template.FuncMap{
 		// Namespaces
 		//"time":        t.time.Namespace,
-		"transform": t.transform.Namespace,
-		"urls":      t.urls.Namespace,
+		"urls": t.urls.Namespace,
 
 		"absURL":        t.urls.AbsURL,
 		"absLangURL":    t.urls.AbsLangURL,
-		"emojify":       t.transform.Emojify,
-		"highlight":     t.transform.Highlight,
-		"htmlEscape":    t.transform.HTMLEscape,
-		"htmlUnescape":  t.transform.HTMLUnescape,
 		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
-		"markdownify":   t.transform.Markdownify,
 		"partial":       t.partial,
 		"partialCached": t.partialCached,
-		"plainify":      t.transform.Plainify,
 		"print":         fmt.Sprint,
 		"printf":        fmt.Sprintf,
 		"println":       fmt.Sprintln,
