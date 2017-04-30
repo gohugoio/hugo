@@ -364,19 +364,17 @@ Order based on the specified front matter parameter. Content that does not have 
 
 {{% code file="layouts/partials/by-rating.html" %}}
 ```html
-<!-- Ranges through a list of content according to the "rating" field set in front matter -->
+<!-- Ranges through content according to the "rating" field set in front matter -->
 {{ range (.Data.Pages.ByParam "rating") }}
   <!-- ... -->
 {{ end }}
 ```
 {{% /code %}}
 
-If the front matter field of interest is nested beneath another field, you can
-also get it:
+If the targeted front matter field is nested beneath another field, you can access the field using dot notation.
 
 {{% code file="layouts/partials/by-nested-param.html" %}}
 ```html
-
 {{ range (.Data.Pages.ByParam "author.last_name") }}
   <!-- ... -->
 {{ end }}
@@ -389,12 +387,14 @@ Reversing order can be applied to any of the above methods. The following uses `
 
 {{% code file="layouts/partials/by-date-reverse.html" %}}
 ```html
-{{ range .Data.Pages.ByDate.Reverse }}
-<li>
-<a href="{{ .Permalink }}">{{ .Title }}</a>
-<div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
-</li>
-{{ end }}
+<ul>
+    {{ range .Data.Pages.ByDate.Reverse }}
+        <li>
+            <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
+            <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
+        </li>
+    {{ end }}
+</ul>
 ```
 {{% /code %}}
 
@@ -406,8 +406,34 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
 {{% code file="layouts/partials/by-page-field.html" %}}
 ```html
+<!-- Groups content according to content section. The ".Key" in this instance will be the section's title. -->
 {{ range .Data.Pages.GroupBy "Section" }}
 <h3>{{ .Key }}</h3>
+<ul>
+    {{ range .Pages }}
+    <li>
+    <a href="{{ .Permalink }}">{{ .Title }}</a>
+    <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}
+```
+{{% /code %}}
+
+In the above example, you may want `{{.Title}}` to point the `title` field you have added to your `_index.md` file instead. You can access this value using the [`.GetPage` function][getpage]:
+
+{{% code file="layouts/partials/by-page-field.html" %}}
+```html
+<!-- Groups content according to content section.-->
+{{ range .Data.Pages.GroupBy "Section" }}
+<!-- Checks for existence of _index.md for a section; if available, pulls from "title" in front matter -->
+{{ with $.Site.GetPage "section" .Key }}
+<h3>{{.Title}}</h3>
+{{ else }}
+<!-- If no _index.md is available, ".Key" defaults to the section title and filters to title casing -->
+<h3>{{ .Key | title }}</h3>
+{{ end }}
 <ul>
     {{ range .Pages }}
     <li>
@@ -424,6 +450,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
 {{% code file="layouts/partials/by-page-date.html" %}}
 ```html
+<!-- Groups content by month according to the "date" field in front matter -->
 {{ range .Data.Pages.GroupByDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -442,6 +469,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
 {{% code file="layouts/partials/by-page-publish-date.html" %}}
 ```html
+<!-- Groups content by month according to the "publishdate" field in front matter -->
 {{ range .Data.Pages.GroupByPublishDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -460,6 +488,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
 {{% code file="layouts/partials/by-page-param.html" %}}
 ```html
+<!-- Groups content according to the "param_key" field in front matter -->
 {{ range .Data.Pages.GroupByParam "param_key" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -476,10 +505,11 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
 ### By Page Parameter in Date Format
 
-The following template takes grouping by `date` a step further and uses Golang's layout string. See the [`Format` function][] for more examples of how to format dates in Hugo.
+The following template takes grouping by `date` a step further and uses Golang's layout string. See the [`Format` function][] for more examples of how to use Golang's layout string to format dates in Hugo.
 
 {{% code file="layouts/partials/by-page-param-as-date.html" %}}
 ```html
+<!-- Groups content by month according to the "param_key" field in front matter -->
 {{ range .Data.Pages.GroupByParamDate "param_key" "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -496,11 +526,11 @@ The following template takes grouping by `date` a step further and uses Golang's
 
 ### Reversing Key Order
 
-The ordering of the groups is performed by keys in alphanumeric order (A–Z, 1–100) and in reverse chronological order (newest first) for dates.
+Ordering of groups is performed by keys in alphanumeric order (A–Z, 1–100) and in reverse chronological order (i.e., with the newest first) for dates.
 
-While these are logical defaults, they are not always the desired order. There are two different syntaxes to change the order, both of which work the same way. You can use your preferred syntax.
+While these are logical defaults, they are not always the desired order. There are two different syntaxes to change Hugo's default ordering for groups, both of which work the same way.
 
-#### Reverse Method
+#### 1. Adding the Reverse Method
 
 ```html
 {{ range (.Data.Pages.GroupBy "Section").Reverse }}
@@ -510,8 +540,7 @@ While these are logical defaults, they are not always the desired order. There a
 {{ range (.Data.Pages.GroupByDate "2006-01").Reverse }}
 ```
 
-
-#### Providing the Alternate Direction
+#### 2. Providing the Alternate Direction
 
 ```html
 {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
@@ -525,8 +554,11 @@ While these are logical defaults, they are not always the desired order. There a
 
 Because Grouping returns a `{{.Key}}` and a slice of pages, all of the ordering methods listed above are available.
 
-In the following example, groups are ordered chronologically and then content
-within each group is ordered alphabetically by title.
+Here is the ordering for the example that follows:
+
+1. Content is grouped by month according to the `date` field in front matter.
+2. Groups are listed in ascending order (i.e., the oldest groups first)
+3. Pages within each respective group are ordered alphabetically according to the `title`.
 
 {{% code file="layouts/partials/by-group-by-page.html" %}}
 ```html
@@ -546,14 +578,14 @@ within each group is ordered alphabetically by title.
 
 ## Filtering and Limiting Lists
 
-Sometimes you only want to list a subset of the available content. A common request is to only display “Posts” on the homepage. You can accomplish this with the `where` function.
+Sometimes you only want to list a subset of the available content. A common is to only display “Posts” on blog's homepage. You can accomplish this with the `where` function.
 
 ### `where`
 
-`where` works in a similar manner to the `where` keyword in SQL. It selects all elements of the array or slice that match the provided field and value. `where` takes three arguments:
+`where` works in a similar manner to the [`where` keyword in SQL][wherekeyword]. It selects all elements of the array or slice that match the provided field and value. `where` takes three arguments:
 
-1. `array` or a `slice of maps or structs`
-2. `key` or `field name`
+1. `array` *or* `slice of maps or structs`
+2. `key` *or* `field name`
 3. `match value`
 
 {{% code file="layouts/_default/.html" %}}
@@ -564,11 +596,13 @@ Sometimes you only want to list a subset of the available content. A common requ
 ```
 {{% /code %}}
 
+You can see more examples in the [functions documentation for `where`][wherefunction].
+
 ### `first`
 
 `first` works in a similar manner to the [`limit` keyword in SQL][limitkeyword]. It reduces the array to only the `first N` elements. It takes the array and number of elements as input. `first` takes two arguments:
 
-1. `array` or `slice of maps or structs`
+1. `array` *or* `slice of maps or structs`
 2. `number of elements`
 
 {{% code file="layout/_default/section.html" %}}
@@ -585,7 +619,8 @@ Using `first` and `where` together can be very powerful:
 
 {{% code file="first-and-where-together.html" %}}
 ```html
-{{ range first 5 (where .Data.Pages "Section" "post") }}
+<!-- Orders the content inside the "posts" section by the "title" field and then ranges through only the first 5 posts -->
+{{ range first 5 (where .Data.Pages "Section" "post").ByTitle }}
    {{ .Content }}
 {{ end }}
 ```
@@ -596,6 +631,7 @@ Using `first` and `where` together can be very powerful:
 [directorystructure]: /getting-started/directory-structure/
 [`Format` function]: /functions/format/
 [front matter]: /content-management/front-matter/
+[getpage]: /functions/getpage/
 [homepage]: /templates/homepage/
 [homepage]: /templates/homepage/
 [limitkeyword]: https://www.techonthenet.com/sql/select_limit.php
@@ -611,3 +647,5 @@ Using `first` and `where` together can be very powerful:
 [taxterms]: /templates/taxonomy-templates/#taxonomy-terms-templates/
 [taxvars]: /variables/taxonomy/
 [views]: /templates/views/
+[wherefunction]: /functions/where/
+[wherekeyword]: https://www.techonthenet.com/sql/where.php
