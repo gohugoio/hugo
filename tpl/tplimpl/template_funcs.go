@@ -51,8 +51,14 @@ func (t *templateFuncster) initFuncMap() {
 			panic(ns.Name + " is a duplicate template func")
 		}
 		funcMap[ns.Name] = ns.Context
-		for k, v := range ns.Aliases {
-			funcMap[k] = v
+		for _, mm := range ns.MethodMappings {
+			for _, alias := range mm.Aliases {
+				if _, exists := funcMap[alias]; exists {
+					panic(alias + " is a duplicate template func")
+				}
+				funcMap[alias] = mm.Method
+			}
+
 		}
 	}
 

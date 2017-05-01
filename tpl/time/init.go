@@ -24,21 +24,31 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New()
 
-		examples := [][2]string{
-			{`{{ (time "2015-01-21").Year }}`, `2015`},
-			{`dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}`, `dateFormat: Wednesday, Jan 21, 2015`},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"dateFormat": ctx.Format,
-				"now":        ctx.Now,
-				"time":       ctx.AsTime,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.Format,
+			[]string{"dateFormat"},
+			[][2]string{
+				{`dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}`, `dateFormat: Wednesday, Jan 21, 2015`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Now,
+			[]string{"now"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.AsTime,
+			[]string{"asTime"}, // TODO(bep) handle duplicate
+			[][2]string{
+				{`{{ (asTime "2015-01-21").Year }}`, `2015`},
+			},
+		)
+
+		return ns
 
 	}
 

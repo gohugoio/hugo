@@ -24,28 +24,54 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New()
 
-		examples := [][2]string{
-			{"{{add 1 2}}", "3"},
-			{"{{div 6 3}}", "2"},
-			{"{{mod 15 3}}", "0"},
-			{"{{modBool 15 3}}", "true"},
-			{"{{mul 2 3}}", "6"},
-			{"{{sub 3 2}}", "1"},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"add":     ctx.Add,
-				"div":     ctx.Div,
-				"mod":     ctx.Mod,
-				"modBool": ctx.ModBool,
-				"mul":     ctx.Mul,
-				"sub":     ctx.Sub,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.Add,
+			[]string{"add"},
+			[][2]string{
+				{"{{add 1 2}}", "3"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Div,
+			[]string{"div"},
+			[][2]string{
+				{"{{div 6 3}}", "2"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Mod,
+			[]string{"mod"},
+			[][2]string{
+				{"{{mod 15 3}}", "0"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.ModBool,
+			[]string{"modBool"},
+			[][2]string{
+				{"{{modBool 15 3}}", "true"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Mul,
+			[]string{"mul"},
+			[][2]string{
+				{"{{mul 2 3}}", "6"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Sub,
+			[]string{"sub"},
+			[][2]string{
+				{"{{sub 3 2}}", "1"},
+			},
+		)
+
+		return ns
 
 	}
 

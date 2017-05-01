@@ -24,19 +24,24 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New(d)
 
-		examples := [][2]string{
-			{`{{ partial "header.html" . }}`, `<title>Hugo Rocks!</title>`},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"partial":       ctx.Include,
-				"partialCached": ctx.getCached,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.Include,
+			[]string{"partial"},
+			[][2]string{
+				{`{{ partial "header.html" . }}`, `<title>Hugo Rocks!</title>`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.getCached,
+			[]string{"partialCached"},
+			[][2]string{},
+		)
+
+		return ns
 
 	}
 

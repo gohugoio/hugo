@@ -24,23 +24,34 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New()
 
-		examples := [][2]string{
-			{`{{ (slice "A" "B" "C") | jsonify }}`, `["A","B","C"]`},
-			{`{{ "SGVsbG8gd29ybGQ=" | base64Decode }}`, `Hello world`},
-			{`{{ 42 | base64Encode | base64Decode }}`, `42`},
-			{`{{ "Hello world" | base64Encode }}`, `SGVsbG8gd29ybGQ=`},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"base64Decode": ctx.Base64Decode,
-				"base64Encode": ctx.Base64Encode,
-				"jsonify":      ctx.Jsonify,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.Base64Decode,
+			[]string{"base64Decode"},
+			[][2]string{
+				{`{{ "SGVsbG8gd29ybGQ=" | base64Decode }}`, `Hello world`},
+				{`{{ 42 | base64Encode | base64Decode }}`, `42`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Base64Encode,
+			[]string{"base64Encode"},
+			[][2]string{
+				{`{{ "Hello world" | base64Encode }}`, `SGVsbG8gd29ybGQ=`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Jsonify,
+			[]string{"jsonify"},
+			[][2]string{
+				{`{{ (slice "A" "B" "C") | jsonify }}`, `["A","B","C"]`},
+			},
+		)
+
+		return ns
 
 	}
 

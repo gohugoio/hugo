@@ -24,26 +24,52 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New()
 
-		examples := [][2]string{
-			{`{{ if eq .Section "blog" }}current{{ end }}`, `current`},
-			{`{{ "Hugo Rocks!" | default "Hugo Rules!" }}`, `Hugo Rocks!`},
-			{`{{ "" | default "Hugo Rules!" }}`, `Hugo Rules!`},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"default": ctx.Default,
-				"eq":      ctx.Eq,
-				"ge":      ctx.Ge,
-				"gt":      ctx.Gt,
-				"le":      ctx.Le,
-				"lt":      ctx.Lt,
-				"ne":      ctx.Ne,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.Default,
+			[]string{"default"},
+			[][2]string{
+				{`{{ "Hugo Rocks!" | default "Hugo Rules!" }}`, `Hugo Rocks!`},
+				{`{{ "" | default "Hugo Rules!" }}`, `Hugo Rules!`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Eq,
+			[]string{"eq"},
+			[][2]string{
+				{`{{ if eq .Section "blog" }}current{{ end }}`, `current`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Ge,
+			[]string{"ge"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Gt,
+			[]string{"gt"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Le,
+			[]string{"le"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Lt,
+			[]string{"lt"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Ne,
+			[]string{"ne"},
+			[][2]string{},
+		)
+
+		return ns
 
 	}
 

@@ -24,19 +24,21 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New(d)
 
-		examples := [][2]string{
-			{},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"getCSV":  ctx.GetCSV,
-				"getJSON": ctx.GetJSON,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.GetCSV,
+			[]string{"getCSV"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.GetJSON,
+			[]string{"getJSON"},
+			[][2]string{},
+		)
+		return ns
 	}
 
 	internal.AddTemplateFuncsNamespace(f)

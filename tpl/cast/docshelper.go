@@ -15,37 +15,27 @@ package cast
 
 import (
 	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/docshelper"
 	"github.com/spf13/hugo/tpl/internal"
 )
 
-const name = "cast"
-
+// This file provides documentation support and is randomly put into this package.
 func init() {
-	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New()
+	docsProvider := func() map[string]interface{} {
+		docs := make(map[string]interface{})
+		d := &deps.Deps{}
 
-		ns := &internal.TemplateFuncsNamespace{
-			Name:    name,
-			Context: func() interface{} { return ctx },
+		var namespaces []*internal.TemplateFuncsNamespace
+
+		for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
+			nf := nsf(d)
+			namespaces = append(namespaces, nf)
+
 		}
 
-		ns.AddMethodMapping(ctx.ToInt,
-			[]string{"int"},
-			[][2]string{
-				{`{{ "1234" | int | printf "%T" }}`, `int`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.ToString,
-			[]string{"string"},
-			[][2]string{
-				{`{{ 1234 | string | printf "%T" }}`, `string`},
-			},
-		)
-
-		return ns
-
+		docs["funcs"] = namespaces
+		return docs
 	}
 
-	internal.AddTemplateFuncsNamespace(f)
+	docshelper.AddDocProvider("tpl", docsProvider)
 }

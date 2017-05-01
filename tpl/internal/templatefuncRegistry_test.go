@@ -11,41 +11,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cast
+package internal
 
 import (
-	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/tpl/internal"
+	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-const name = "cast"
+type Test struct {
+}
 
-func init() {
-	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New()
+func (t *Test) MyTestMethod() string {
+	return "abcde"
+}
 
-		ns := &internal.TemplateFuncsNamespace{
-			Name:    name,
-			Context: func() interface{} { return ctx },
-		}
+func TestMethodToName(t *testing.T) {
+	test := &Test{}
 
-		ns.AddMethodMapping(ctx.ToInt,
-			[]string{"int"},
-			[][2]string{
-				{`{{ "1234" | int | printf "%T" }}`, `int`},
-			},
-		)
-
-		ns.AddMethodMapping(ctx.ToString,
-			[]string{"string"},
-			[][2]string{
-				{`{{ 1234 | string | printf "%T" }}`, `string`},
-			},
-		)
-
-		return ns
-
-	}
-
-	internal.AddTemplateFuncsNamespace(f)
+	require.Equal(t, "MyTestMethod", methodToName(test.MyTestMethod))
 }

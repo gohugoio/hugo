@@ -87,19 +87,21 @@ func TestTemplateFuncsExamples(t *testing.T) {
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 		ns := nsf(d)
-		for i, example := range ns.Examples {
-			in, expected := example[0], example[1]
-			d.WithTemplate = func(templ tpl.TemplateHandler) error {
-				require.NoError(t, templ.AddTemplate("test", in))
-				require.NoError(t, templ.AddTemplate("partials/header.html", "<title>Hugo Rocks!</title>"))
-				return nil
-			}
-			require.NoError(t, d.LoadResources())
+		for _, mm := range ns.MethodMappings {
+			for i, example := range mm.Examples {
+				in, expected := example[0], example[1]
+				d.WithTemplate = func(templ tpl.TemplateHandler) error {
+					require.NoError(t, templ.AddTemplate("test", in))
+					require.NoError(t, templ.AddTemplate("partials/header.html", "<title>Hugo Rocks!</title>"))
+					return nil
+				}
+				require.NoError(t, d.LoadResources())
 
-			var b bytes.Buffer
-			require.NoError(t, d.Tmpl.Lookup("test").Execute(&b, &data))
-			if b.String() != expected {
-				t.Fatalf("%s[%d]: got %q expected %q", ns.Name, i, b.String(), expected)
+				var b bytes.Buffer
+				require.NoError(t, d.Tmpl.Lookup("test").Execute(&b, &data))
+				if b.String() != expected {
+					t.Fatalf("%s[%d]: got %q expected %q", ns.Name, i, b.String(), expected)
+				}
 			}
 		}
 	}
