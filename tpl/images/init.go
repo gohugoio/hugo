@@ -24,18 +24,17 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New(d)
 
-		examples := [][2]string{
-			{},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"imageConfig": ctx.Config,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.Config,
+			[]string{"imageConfig"},
+			[][2]string{},
+		)
+
+		return ns
 
 	}
 

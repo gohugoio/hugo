@@ -24,32 +24,42 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New(d)
 
-		examples := [][2]string{
-			{`{{ "index.html" | absLangURL }}`, `http://mysite.com/hugo/en/index.html`},
-			{`{{ "http://gohugo.io/" | absURL }}`, `http://gohugo.io/`},
-			{`{{ "mystyle.css" | absURL }}`, `http://mysite.com/hugo/mystyle.css`},
-			{`{{ 42 | absURL }}`, `http://mysite.com/hugo/42`},
-			{`{{ "index.html" | relLangURL }}`, `/hugo/en/index.html`},
-			{`{{ "http://gohugo.io/" | relURL }}`, `http://gohugo.io/`},
-			{`{{ "mystyle.css" | relURL }}`, `/hugo/mystyle.css`},
-			{`{{ mul 2 21 | relURL }}`, `/hugo/42`},
-			{`{{ "Bat Man" | urlize }}`, `bat-man`},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"absURL":     ctx.AbsURL,
-				"absLangURL": ctx.AbsLangURL,
-				"ref":        ctx.Ref,
-				"relURL":     ctx.RelURL,
-				"relLangURL": ctx.RelLangURL,
-				"relref":     ctx.RelRef,
-				"urlize":     ctx.URLize,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.AbsURL,
+			[]string{"absURL"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.AbsLangURL,
+			[]string{"absLangURL"},
+			[][2]string{},
+		)
+		ns.AddMethodMapping(ctx.Ref,
+			[]string{"ref"},
+			[][2]string{},
+		)
+		ns.AddMethodMapping(ctx.RelURL,
+			[]string{"relURL"},
+			[][2]string{},
+		)
+		ns.AddMethodMapping(ctx.RelLangURL,
+			[]string{"relLangURL"},
+			[][2]string{},
+		)
+		ns.AddMethodMapping(ctx.RelRef,
+			[]string{"relref"},
+			[][2]string{},
+		)
+		ns.AddMethodMapping(ctx.URLize,
+			[]string{"urlize"},
+			[][2]string{},
+		)
+
+		return ns
 
 	}
 

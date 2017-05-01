@@ -258,5 +258,1228 @@
         ]
       }
     ]
+  },
+  "tpl": {
+    "funcs": [
+      {
+        "Name": "cast",
+        "Funcs": [
+          {
+            "Name": "ToInt",
+            "Description": "",
+            "Aliases": [
+              "int"
+            ],
+            "Examples": [
+              [
+                "{{ \"1234\" | int | printf \"%T\" }}",
+                "int"
+              ]
+            ]
+          },
+          {
+            "Name": "ToString",
+            "Description": "",
+            "Aliases": [
+              "string"
+            ],
+            "Examples": [
+              [
+                "{{ 1234 | string | printf \"%T\" }}",
+                "string"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "compare",
+        "Funcs": [
+          {
+            "Name": "Default",
+            "Description": "",
+            "Aliases": [
+              "default"
+            ],
+            "Examples": [
+              [
+                "{{ \"Hugo Rocks!\" | default \"Hugo Rules!\" }}",
+                "Hugo Rocks!"
+              ],
+              [
+                "{{ \"\" | default \"Hugo Rules!\" }}",
+                "Hugo Rules!"
+              ]
+            ]
+          },
+          {
+            "Name": "Eq",
+            "Description": "",
+            "Aliases": [
+              "eq"
+            ],
+            "Examples": [
+              [
+                "{{ if eq .Section \"blog\" }}current{{ end }}",
+                "current"
+              ]
+            ]
+          },
+          {
+            "Name": "Ge",
+            "Description": "",
+            "Aliases": [
+              "ge"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Gt",
+            "Description": "",
+            "Aliases": [
+              "gt"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Le",
+            "Description": "",
+            "Aliases": [
+              "le"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Lt",
+            "Description": "",
+            "Aliases": [
+              "lt"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Ne",
+            "Description": "",
+            "Aliases": [
+              "ne"
+            ],
+            "Examples": []
+          }
+        ]
+      },
+      {
+        "Name": "collections",
+        "Funcs": [
+          {
+            "Name": "After",
+            "Description": "",
+            "Aliases": [
+              "after"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Apply",
+            "Description": "",
+            "Aliases": [
+              "apply"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Delimit",
+            "Description": "",
+            "Aliases": [
+              "delimit"
+            ],
+            "Examples": [
+              [
+                "{{ delimit (slice \"A\" \"B\" \"C\") \", \" \" and \" }}",
+                "A, B and C"
+              ]
+            ]
+          },
+          {
+            "Name": "Dictionary",
+            "Description": "",
+            "Aliases": [
+              "dict"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "EchoParam",
+            "Description": "",
+            "Aliases": [
+              "echoParam"
+            ],
+            "Examples": [
+              [
+                "{{ echoParam .Params \"langCode\" }}",
+                "en"
+              ]
+            ]
+          },
+          {
+            "Name": "First",
+            "Description": "",
+            "Aliases": [
+              "first"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "In",
+            "Description": "",
+            "Aliases": [
+              "in"
+            ],
+            "Examples": [
+              [
+                "{{ if in \"this string contains a substring\" \"substring\" }}Substring found!{{ end }}",
+                "Substring found!"
+              ]
+            ]
+          },
+          {
+            "Name": "Index",
+            "Description": "",
+            "Aliases": [
+              "index"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Intersect",
+            "Description": "",
+            "Aliases": [
+              "intersect"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "IsSet",
+            "Description": "",
+            "Aliases": [
+              "isSet",
+              "isset"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Last",
+            "Description": "",
+            "Aliases": [
+              "last"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Querify",
+            "Description": "",
+            "Aliases": [
+              "querify"
+            ],
+            "Examples": [
+              [
+                "{{ (querify \"foo\" 1 \"bar\" 2 \"baz\" \"with spaces\" \"qux\" \"this\u0026that=those\") | safeHTML }}",
+                "bar=2\u0026baz=with+spaces\u0026foo=1\u0026qux=this%26that%3Dthose"
+              ],
+              [
+                "\u003ca href=\"https://www.google.com?{{ (querify \"q\" \"test\" \"page\" 3) | safeURL }}\"\u003eSearch\u003c/a\u003e",
+                "\u003ca href=\"https://www.google.com?page=3\u0026amp;q=test\"\u003eSearch\u003c/a\u003e"
+              ]
+            ]
+          },
+          {
+            "Name": "Seq",
+            "Description": "",
+            "Aliases": [
+              "seq"
+            ],
+            "Examples": [
+              [
+                "{{ seq 3 }}",
+                "[1 2 3]"
+              ]
+            ]
+          },
+          {
+            "Name": "Shuffle",
+            "Description": "",
+            "Aliases": [
+              "shuffle"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Slice",
+            "Description": "",
+            "Aliases": [
+              "slice"
+            ],
+            "Examples": [
+              [
+                "{{ slice \"B\" \"C\" \"A\" | sort }}",
+                "[A B C]"
+              ]
+            ]
+          },
+          {
+            "Name": "Sort",
+            "Description": "",
+            "Aliases": [
+              "sort"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Union",
+            "Description": "",
+            "Aliases": [
+              "union"
+            ],
+            "Examples": [
+              [
+                "{{ union (slice 1 2 3) (slice 3 4 5) }}",
+                "[1 2 3 4 5]"
+              ]
+            ]
+          },
+          {
+            "Name": "Where",
+            "Description": "",
+            "Aliases": [
+              "where"
+            ],
+            "Examples": []
+          }
+        ]
+      },
+      {
+        "Name": "crypto",
+        "Funcs": [
+          {
+            "Name": "MD5",
+            "Description": "",
+            "Aliases": [
+              "md5"
+            ],
+            "Examples": [
+              [
+                "{{ md5 \"Hello world, gophers!\" }}",
+                "b3029f756f98f79e7f1b7f1d1f0dd53b"
+              ],
+              [
+                "{{ crypto.MD5 \"Hello world, gophers!\" }}",
+                "b3029f756f98f79e7f1b7f1d1f0dd53b"
+              ]
+            ]
+          },
+          {
+            "Name": "SHA1",
+            "Description": "",
+            "Aliases": [
+              "sha1"
+            ],
+            "Examples": [
+              [
+                "{{ sha1 \"Hello world, gophers!\" }}",
+                "c8b5b0e33d408246e30f53e32b8f7627a7a649d4"
+              ]
+            ]
+          },
+          {
+            "Name": "SHA256",
+            "Description": "",
+            "Aliases": [
+              "sha256"
+            ],
+            "Examples": [
+              [
+                "{{ sha256 \"Hello world, gophers!\" }}",
+                "6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "data",
+        "Funcs": [
+          {
+            "Name": "GetCSV",
+            "Description": "",
+            "Aliases": [
+              "getCSV"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "GetJSON",
+            "Description": "",
+            "Aliases": [
+              "getJSON"
+            ],
+            "Examples": []
+          }
+        ]
+      },
+      {
+        "Name": "encoding",
+        "Funcs": [
+          {
+            "Name": "Base64Decode",
+            "Description": "",
+            "Aliases": [
+              "base64Decode"
+            ],
+            "Examples": [
+              [
+                "{{ \"SGVsbG8gd29ybGQ=\" | base64Decode }}",
+                "Hello world"
+              ],
+              [
+                "{{ 42 | base64Encode | base64Decode }}",
+                "42"
+              ]
+            ]
+          },
+          {
+            "Name": "Base64Encode",
+            "Description": "",
+            "Aliases": [
+              "base64Encode"
+            ],
+            "Examples": [
+              [
+                "{{ \"Hello world\" | base64Encode }}",
+                "SGVsbG8gd29ybGQ="
+              ]
+            ]
+          },
+          {
+            "Name": "Jsonify",
+            "Description": "",
+            "Aliases": [
+              "jsonify"
+            ],
+            "Examples": [
+              [
+                "{{ (slice \"A\" \"B\" \"C\") | jsonify }}",
+                "[\"A\",\"B\",\"C\"]"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "fmt",
+        "Funcs": [
+          {
+            "Name": "Print",
+            "Description": "",
+            "Aliases": [
+              "print"
+            ],
+            "Examples": [
+              [
+                "{{ print \"works!\" }}",
+                "works!"
+              ]
+            ]
+          },
+          {
+            "Name": "Printf",
+            "Description": "",
+            "Aliases": [
+              "printf"
+            ],
+            "Examples": [
+              [
+                "{{ printf \"%s!\" \"works\" }}",
+                "works!"
+              ]
+            ]
+          },
+          {
+            "Name": "Println",
+            "Description": "",
+            "Aliases": [
+              "println"
+            ],
+            "Examples": [
+              [
+                "{{ println \"works!\" }}",
+                "works!\n"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "images",
+        "Funcs": [
+          {
+            "Name": "Config",
+            "Description": "",
+            "Aliases": [
+              "imageConfig"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Lock",
+            "Description": "",
+            "Aliases": null,
+            "Examples": null
+          },
+          {
+            "Name": "RLock",
+            "Description": "",
+            "Aliases": null,
+            "Examples": null
+          },
+          {
+            "Name": "RLocker",
+            "Description": "",
+            "Aliases": null,
+            "Examples": null
+          },
+          {
+            "Name": "RUnlock",
+            "Description": "",
+            "Aliases": null,
+            "Examples": null
+          },
+          {
+            "Name": "Unlock",
+            "Description": "",
+            "Aliases": null,
+            "Examples": null
+          }
+        ]
+      },
+      {
+        "Name": "inflect",
+        "Funcs": [
+          {
+            "Name": "Humanize",
+            "Description": "",
+            "Aliases": [
+              "humanize"
+            ],
+            "Examples": [
+              [
+                "{{ humanize \"my-first-post\" }}",
+                "My first post"
+              ],
+              [
+                "{{ humanize \"myCamelPost\" }}",
+                "My camel post"
+              ],
+              [
+                "{{ humanize \"52\" }}",
+                "52nd"
+              ],
+              [
+                "{{ humanize 103 }}",
+                "103rd"
+              ]
+            ]
+          },
+          {
+            "Name": "Pluralize",
+            "Description": "",
+            "Aliases": [
+              "pluralize"
+            ],
+            "Examples": [
+              [
+                "{{ \"cat\" | pluralize }}",
+                "cats"
+              ]
+            ]
+          },
+          {
+            "Name": "Singularize",
+            "Description": "",
+            "Aliases": [
+              "singularize"
+            ],
+            "Examples": [
+              [
+                "{{ \"cats\" | singularize }}",
+                "cat"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "lang",
+        "Funcs": [
+          {
+            "Name": "Translate",
+            "Description": "",
+            "Aliases": [
+              "i18n",
+              "T"
+            ],
+            "Examples": []
+          }
+        ]
+      },
+      {
+        "Name": "math",
+        "Funcs": [
+          {
+            "Name": "Add",
+            "Description": "",
+            "Aliases": [
+              "add"
+            ],
+            "Examples": [
+              [
+                "{{add 1 2}}",
+                "3"
+              ]
+            ]
+          },
+          {
+            "Name": "Div",
+            "Description": "",
+            "Aliases": [
+              "div"
+            ],
+            "Examples": [
+              [
+                "{{div 6 3}}",
+                "2"
+              ]
+            ]
+          },
+          {
+            "Name": "Mod",
+            "Description": "",
+            "Aliases": [
+              "mod"
+            ],
+            "Examples": [
+              [
+                "{{mod 15 3}}",
+                "0"
+              ]
+            ]
+          },
+          {
+            "Name": "ModBool",
+            "Description": "",
+            "Aliases": [
+              "modBool"
+            ],
+            "Examples": [
+              [
+                "{{modBool 15 3}}",
+                "true"
+              ]
+            ]
+          },
+          {
+            "Name": "Mul",
+            "Description": "",
+            "Aliases": [
+              "mul"
+            ],
+            "Examples": [
+              [
+                "{{mul 2 3}}",
+                "6"
+              ]
+            ]
+          },
+          {
+            "Name": "Sub",
+            "Description": "",
+            "Aliases": [
+              "sub"
+            ],
+            "Examples": [
+              [
+                "{{sub 3 2}}",
+                "1"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "os",
+        "Funcs": [
+          {
+            "Name": "Getenv",
+            "Description": "",
+            "Aliases": [
+              "getenv"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "ReadDir",
+            "Description": "",
+            "Aliases": [
+              "readDir"
+            ],
+            "Examples": [
+              [
+                "{{ range (readDir \".\") }}{{ .Name }}{{ end }}",
+                "README.txt"
+              ]
+            ]
+          },
+          {
+            "Name": "ReadFile",
+            "Description": "",
+            "Aliases": [
+              "readFile"
+            ],
+            "Examples": [
+              [
+                "{{ readFile \"README.txt\" }}",
+                "Hugo Rocks!"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "partials",
+        "Funcs": [
+          {
+            "Name": "Include",
+            "Description": "",
+            "Aliases": [
+              "partial"
+            ],
+            "Examples": [
+              [
+                "{{ partial \"header.html\" . }}",
+                "\u003ctitle\u003eHugo Rocks!\u003c/title\u003e"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "safe",
+        "Funcs": [
+          {
+            "Name": "CSS",
+            "Description": "",
+            "Aliases": [
+              "safeCSS"
+            ],
+            "Examples": [
+              [
+                "{{ \"Bat\u0026Man\" | safeCSS | safeCSS }}",
+                "Bat\u0026amp;Man"
+              ]
+            ]
+          },
+          {
+            "Name": "HTML",
+            "Description": "",
+            "Aliases": [
+              "safeHTML"
+            ],
+            "Examples": [
+              [
+                "{{ \"Bat\u0026Man\" | safeHTML | safeHTML }}",
+                "Bat\u0026Man"
+              ],
+              [
+                "{{ \"Bat\u0026Man\" | safeHTML }}",
+                "Bat\u0026Man"
+              ]
+            ]
+          },
+          {
+            "Name": "HTMLAttr",
+            "Description": "",
+            "Aliases": [
+              "safeHTMLAttr"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "JS",
+            "Description": "",
+            "Aliases": [
+              "safeJS"
+            ],
+            "Examples": [
+              [
+                "{{ \"(1*2)\" | safeJS | safeJS }}",
+                "(1*2)"
+              ]
+            ]
+          },
+          {
+            "Name": "JSStr",
+            "Description": "",
+            "Aliases": [
+              "safeJSStr"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "SanitizeURL",
+            "Description": "",
+            "Aliases": [
+              "sanitizeURL",
+              "sanitizeurl"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "URL",
+            "Description": "",
+            "Aliases": [
+              "safeURL"
+            ],
+            "Examples": [
+              [
+                "{{ \"http://gohugo.io\" | safeURL | safeURL }}",
+                "http://gohugo.io"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "strings",
+        "Funcs": [
+          {
+            "Name": "Chomp",
+            "Description": "",
+            "Aliases": [
+              "chomp"
+            ],
+            "Examples": [
+              [
+                "{{chomp \"\u003cp\u003eBlockhead\u003c/p\u003e\\n\" }}",
+                "\u003cp\u003eBlockhead\u003c/p\u003e"
+              ]
+            ]
+          },
+          {
+            "Name": "Contains",
+            "Description": "",
+            "Aliases": null,
+            "Examples": null
+          },
+          {
+            "Name": "ContainsAny",
+            "Description": "",
+            "Aliases": null,
+            "Examples": null
+          },
+          {
+            "Name": "CountRunes",
+            "Description": "",
+            "Aliases": [
+              "countrunes"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "CountWords",
+            "Description": "",
+            "Aliases": [
+              "countwords"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "FindRE",
+            "Description": "",
+            "Aliases": [
+              "findRE"
+            ],
+            "Examples": [
+              [
+                "{{ findRE \"[G|g]o\" \"Hugo is a static side generator written in Go.\" \"1\" }}",
+                "[go]"
+              ]
+            ]
+          },
+          {
+            "Name": "HasPrefix",
+            "Description": "",
+            "Aliases": [
+              "hasPrefix"
+            ],
+            "Examples": [
+              [
+                "{{ hasPrefix \"Hugo\" \"Hu\" }}",
+                "true"
+              ],
+              [
+                "{{ hasPrefix \"Hugo\" \"Fu\" }}",
+                "false"
+              ]
+            ]
+          },
+          {
+            "Name": "HasSuffix",
+            "Description": "",
+            "Aliases": null,
+            "Examples": null
+          },
+          {
+            "Name": "Replace",
+            "Description": "",
+            "Aliases": [
+              "replace"
+            ],
+            "Examples": [
+              [
+                "{{ replace \"Batman and Robin\" \"Robin\" \"Catwoman\" }}",
+                "Batman and Catwoman"
+              ]
+            ]
+          },
+          {
+            "Name": "ReplaceRE",
+            "Description": "",
+            "Aliases": [
+              "replaceRE"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "SliceString",
+            "Description": "",
+            "Aliases": [
+              "slicestr"
+            ],
+            "Examples": [
+              [
+                "{{slicestr \"BatMan\" 0 3}}",
+                "Bat"
+              ],
+              [
+                "{{slicestr \"BatMan\" 3}}",
+                "Man"
+              ]
+            ]
+          },
+          {
+            "Name": "Split",
+            "Description": "",
+            "Aliases": [
+              "split"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Substr",
+            "Description": "",
+            "Aliases": [
+              "substr"
+            ],
+            "Examples": [
+              [
+                "{{substr \"BatMan\" 0 -3}}",
+                "Bat"
+              ],
+              [
+                "{{substr \"BatMan\" 3 3}}",
+                "Man"
+              ]
+            ]
+          },
+          {
+            "Name": "Title",
+            "Description": "",
+            "Aliases": [
+              "title"
+            ],
+            "Examples": [
+              [
+                "{{title \"Bat man\"}}",
+                "Bat Man"
+              ]
+            ]
+          },
+          {
+            "Name": "ToLower",
+            "Description": "",
+            "Aliases": [
+              "lower"
+            ],
+            "Examples": [
+              [
+                "{{lower \"BatMan\"}}",
+                "batman"
+              ]
+            ]
+          },
+          {
+            "Name": "ToUpper",
+            "Description": "",
+            "Aliases": [
+              "upper"
+            ],
+            "Examples": [
+              [
+                "{{upper \"BatMan\"}}",
+                "BATMAN"
+              ]
+            ]
+          },
+          {
+            "Name": "Trim",
+            "Description": "",
+            "Aliases": [
+              "trim"
+            ],
+            "Examples": [
+              [
+                "{{ trim \"++Batman--\" \"+-\" }}",
+                "Batman"
+              ]
+            ]
+          },
+          {
+            "Name": "TrimPrefix",
+            "Description": "",
+            "Aliases": null,
+            "Examples": null
+          },
+          {
+            "Name": "TrimSuffix",
+            "Description": "",
+            "Aliases": null,
+            "Examples": null
+          },
+          {
+            "Name": "Truncate",
+            "Description": "",
+            "Aliases": [
+              "truncate"
+            ],
+            "Examples": [
+              [
+                "{{ \"this is a very long text\" | truncate 10 \" ...\" }}",
+                "this is a ..."
+              ],
+              [
+                "{{ \"With [Markdown](/markdown) inside.\" | markdownify | truncate 14 }}",
+                "With \u003ca href=\"/markdown\"\u003eMarkdown …\u003c/a\u003e"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "time",
+        "Funcs": [
+          {
+            "Name": "AsTime",
+            "Description": "",
+            "Aliases": [
+              "asTime"
+            ],
+            "Examples": [
+              [
+                "{{ (asTime \"2015-01-21\").Year }}",
+                "2015"
+              ]
+            ]
+          },
+          {
+            "Name": "Format",
+            "Description": "",
+            "Aliases": [
+              "dateFormat"
+            ],
+            "Examples": [
+              [
+                "dateFormat: {{ dateFormat \"Monday, Jan 2, 2006\" \"2015-01-21\" }}",
+                "dateFormat: Wednesday, Jan 21, 2015"
+              ]
+            ]
+          },
+          {
+            "Name": "Now",
+            "Description": "",
+            "Aliases": [
+              "now"
+            ],
+            "Examples": []
+          }
+        ]
+      },
+      {
+        "Name": "transform",
+        "Funcs": [
+          {
+            "Name": "Emojify",
+            "Description": "",
+            "Aliases": [
+              "emojify"
+            ],
+            "Examples": [
+              [
+                "{{ \"I :heart: Hugo\" | emojify }}",
+                "I ❤️ Hugo"
+              ]
+            ]
+          },
+          {
+            "Name": "HTMLEscape",
+            "Description": "",
+            "Aliases": [
+              "htmlEscape"
+            ],
+            "Examples": [
+              [
+                "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\" | safeHTML}}",
+                "Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;"
+              ],
+              [
+                "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\"}}",
+                "Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;"
+              ],
+              [
+                "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\" | htmlUnescape | safeHTML }}",
+                "Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e"
+              ]
+            ]
+          },
+          {
+            "Name": "HTMLUnescape",
+            "Description": "",
+            "Aliases": [
+              "htmlUnescape"
+            ],
+            "Examples": [
+              [
+                "{{ htmlUnescape \"Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;\" | safeHTML}}",
+                "Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e"
+              ],
+              [
+                "{{\"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape | safeHTML}}",
+                "Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e"
+              ],
+              [
+                "{{\"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape }}",
+                "Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;"
+              ],
+              [
+                "{{ htmlUnescape \"Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;\" | htmlEscape | safeHTML }}",
+                "Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;"
+              ]
+            ]
+          },
+          {
+            "Name": "Highlight",
+            "Description": "",
+            "Aliases": [
+              "highlight"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Markdownify",
+            "Description": "",
+            "Aliases": [
+              "markdownify"
+            ],
+            "Examples": [
+              [
+                "{{ .Title | markdownify}}",
+                "\u003cstrong\u003eBatMan\u003c/strong\u003e"
+              ]
+            ]
+          },
+          {
+            "Name": "Plainify",
+            "Description": "",
+            "Aliases": [
+              "plainify"
+            ],
+            "Examples": [
+              [
+                "{{ plainify  \"Hello \u003cstrong\u003eworld\u003c/strong\u003e, gophers!\" }}",
+                "Hello world, gophers!"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "Name": "urls",
+        "Funcs": [
+          {
+            "Name": "AbsLangURL",
+            "Description": "",
+            "Aliases": [
+              "absLangURL"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "AbsURL",
+            "Description": "",
+            "Aliases": [
+              "absURL"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "Ref",
+            "Description": "",
+            "Aliases": [
+              "ref"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "RelLangURL",
+            "Description": "",
+            "Aliases": [
+              "relLangURL"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "RelRef",
+            "Description": "",
+            "Aliases": [
+              "relref"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "RelURL",
+            "Description": "",
+            "Aliases": [
+              "relURL"
+            ],
+            "Examples": []
+          },
+          {
+            "Name": "URLize",
+            "Description": "",
+            "Aliases": [
+              "urlize"
+            ],
+            "Examples": []
+          }
+        ]
+      }
+    ]
   }
 }

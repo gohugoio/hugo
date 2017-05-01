@@ -24,29 +24,56 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New()
 
-		examples := [][2]string{
-			{`{{ "Bat&Man" | safeCSS | safeCSS }}`, `Bat&amp;Man`},
-			{`{{ "Bat&Man" | safeHTML | safeHTML }}`, `Bat&Man`},
-			{`{{ "Bat&Man" | safeHTML }}`, `Bat&Man`},
-			{`{{ "(1*2)" | safeJS | safeJS }}`, `(1*2)`},
-			{`{{ "http://gohugo.io" | safeURL | safeURL }}`, `http://gohugo.io`},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"safeCSS":      ctx.CSS,
-				"safeHTML":     ctx.HTML,
-				"safeHTMLAttr": ctx.HTMLAttr,
-				"safeJS":       ctx.JS,
-				"safeJSStr":    ctx.JSStr,
-				"safeURL":      ctx.URL,
-				"sanitizeURL":  ctx.SanitizeURL,
-				"sanitizeurl":  ctx.SanitizeURL,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.CSS,
+			[]string{"safeCSS"},
+			[][2]string{
+				{`{{ "Bat&Man" | safeCSS | safeCSS }}`, `Bat&amp;Man`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.HTML,
+			[]string{"safeHTML"},
+			[][2]string{
+				{`{{ "Bat&Man" | safeHTML | safeHTML }}`, `Bat&Man`},
+				{`{{ "Bat&Man" | safeHTML }}`, `Bat&Man`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.HTMLAttr,
+			[]string{"safeHTMLAttr"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.JS,
+			[]string{"safeJS"},
+			[][2]string{
+				{`{{ "(1*2)" | safeJS | safeJS }}`, `(1*2)`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.JSStr,
+			[]string{"safeJSStr"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.URL,
+			[]string{"safeURL"},
+			[][2]string{
+				{`{{ "http://gohugo.io" | safeURL | safeURL }}`, `http://gohugo.io`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.SanitizeURL,
+			[]string{"sanitizeURL", "sanitizeurl"},
+			[][2]string{},
+		)
+
+		return ns
 
 	}
 

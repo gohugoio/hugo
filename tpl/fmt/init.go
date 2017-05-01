@@ -24,18 +24,33 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New()
 
-		examples := [][2]string{
-			{`{{ print "works!" }}`, `works!`},
-			{`{{ printf "%s!" "works" }}`, `works!`},
-			{`{{ println "works!" }}`, "works!\n"},
+		ns := &internal.TemplateFuncsNamespace{
+			Name:    name,
+			Context: func() interface{} { return ctx },
 		}
 
-		return &internal.TemplateFuncsNamespace{
-			Name:     name,
-			Context:  func() interface{} { return ctx },
-			Aliases:  map[string]interface{}{},
-			Examples: examples,
-		}
+		ns.AddMethodMapping(ctx.Print,
+			[]string{"print"},
+			[][2]string{
+				{`{{ print "works!" }}`, `works!`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Println,
+			[]string{"println"},
+			[][2]string{
+				{`{{ println "works!" }}`, "works!\n"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Printf,
+			[]string{"printf"},
+			[][2]string{
+				{`{{ printf "%s!" "works" }}`, `works!`},
+			},
+		)
+
+		return ns
 
 	}
 

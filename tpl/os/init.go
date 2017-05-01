@@ -24,21 +24,31 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New(d)
 
-		examples := [][2]string{
-			{`{{ range (readDir ".") }}{{ .Name }}{{ end }}`, "README.txt"},
-			{`{{ readFile "README.txt" }}`, `Hugo Rocks!`},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"getenv":   ctx.Getenv,
-				"readDir":  ctx.ReadDir,
-				"readFile": ctx.ReadFile,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.Getenv,
+			[]string{"getenv"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.ReadDir,
+			[]string{"readDir"},
+			[][2]string{
+				{`{{ range (readDir ".") }}{{ .Name }}{{ end }}`, "README.txt"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.ReadFile,
+			[]string{"readFile"},
+			[][2]string{
+				{`{{ readFile "README.txt" }}`, `Hugo Rocks!`},
+			},
+		)
+
+		return ns
 
 	}
 

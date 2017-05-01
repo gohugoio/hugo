@@ -24,19 +24,17 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New(d)
 
-		examples := [][2]string{
-			{},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"i18n": ctx.Translate,
-				"T":    ctx.Translate,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.Translate,
+			[]string{"i18n", "T"},
+			[][2]string{},
+		)
+
+		return ns
 
 	}
 

@@ -24,25 +24,36 @@ func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New()
 
-		examples := [][2]string{
-			{`{{ humanize "my-first-post" }}`, `My first post`},
-			{`{{ humanize "myCamelPost" }}`, `My camel post`},
-			{`{{ humanize "52" }}`, `52nd`},
-			{`{{ humanize 103 }}`, `103rd`},
-			{`{{ "cat" | pluralize }}`, `cats`},
-			{`{{ "cats" | singularize }}`, `cat`},
-		}
-
-		return &internal.TemplateFuncsNamespace{
+		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
-			Aliases: map[string]interface{}{
-				"humanize":    ctx.Humanize,
-				"pluralize":   ctx.Pluralize,
-				"singularize": ctx.Singularize,
-			},
-			Examples: examples,
 		}
+
+		ns.AddMethodMapping(ctx.Humanize,
+			[]string{"humanize"},
+			[][2]string{
+				{`{{ humanize "my-first-post" }}`, `My first post`},
+				{`{{ humanize "myCamelPost" }}`, `My camel post`},
+				{`{{ humanize "52" }}`, `52nd`},
+				{`{{ humanize 103 }}`, `103rd`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Pluralize,
+			[]string{"pluralize"},
+			[][2]string{
+				{`{{ "cat" | pluralize }}`, `cats`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Singularize,
+			[]string{"singularize"},
+			[][2]string{
+				{`{{ "cats" | singularize }}`, `cat`},
+			},
+		)
+
+		return ns
 
 	}
 

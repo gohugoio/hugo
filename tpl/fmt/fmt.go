@@ -26,14 +26,15 @@ func New() *Namespace {
 type Namespace struct {
 }
 
-func (ns *Namespace) Print(a ...interface{}) (n int, err error) {
-	return _fmt.Print(a...)
+func (ns *Namespace) Print(a ...interface{}) string {
+	return _fmt.Sprint(a...)
 }
 
-func (ns *Namespace) Printf(format string, a ...interface{}) (n int, err error) {
-	return _fmt.Printf(format, a...)
+func (ns *Namespace) Printf(format string, a ...interface{}) string {
+	return _fmt.Sprintf(format, a...)
+
 }
 
-func (ns *Namespace) Println(a ...interface{}) (n int, err error) {
-	return _fmt.Println(a...)
+func (ns *Namespace) Println(a ...interface{}) string {
+	return _fmt.Sprintln(a...)
 }
