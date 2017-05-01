@@ -68,20 +68,21 @@ func (l *remoteLock) URLUnlock(url string) {
 	}
 }
 
-// getCacheFileID returns the cache ID for a string
+// getCacheFileID returns the cache ID for a string.
 func getCacheFileID(cfg config.Provider, id string) string {
 	return cfg.GetString("cacheDir") + url.QueryEscape(id)
 }
 
-// resGetCache returns the content for an ID from the file cache or an error
-// if the file is not found returns nil,nil
-func resGetCache(id string, fs afero.Fs, cfg config.Provider, ignoreCache bool) ([]byte, error) {
-	resCacheMu.RLock()
-	defer resCacheMu.RUnlock()
-
+// getCache returns the content for an ID from the file cache or an error.
+// If the ID is not found, return nil,nil.
+func getCache(id string, fs afero.Fs, cfg config.Provider, ignoreCache bool) ([]byte, error) {
 	if ignoreCache {
 		return nil, nil
 	}
+
+	resCacheMu.RLock()
+	defer resCacheMu.RUnlock()
+
 	fID := getCacheFileID(cfg, id)
 	isExists, err := helpers.Exists(fID, fs)
 	if err != nil {
@@ -92,40 +93,41 @@ func resGetCache(id string, fs afero.Fs, cfg config.Provider, ignoreCache bool) 
 	}
 
 	return afero.ReadFile(fs, fID)
-
 }
 
-// resWriteCache writes bytes to an ID into the file cache
-func resWriteCache(id string, c []byte, fs afero.Fs, cfg config.Provider, ignoreCache bool) error {
-	resCacheMu.Lock()
-	defer resCacheMu.Unlock()
-
+// writeCache writes bytes associated with an ID into the file cache.
+func writeCache(id string, c []byte, fs afero.Fs, cfg config.Provider, ignoreCache bool) error {
 	if ignoreCache {
 		return nil
 	}
+
+	resCacheMu.Lock()
+	defer resCacheMu.Unlock()
+
 	fID := getCacheFileID(cfg, id)
 	f, err := fs.Create(fID)
 	if err != nil {
 		return errors.New("Error: " + err.Error() + ". Failed to create file: " + fID)
 	}
 	defer f.Close()
+
 	n, err := f.Write(c)
-	if n == 0 {
-		return errors.New("No bytes written to file: " + fID)
-	}
 	if err != nil {
 		return errors.New("Error: " + err.Error() + ". Failed to write to file: " + fID)
+	}
+	if n == 0 {
+		return errors.New("No bytes written to file: " + fID)
 	}
 	return nil
 }
 
-func resDeleteCache(id string, fs afero.Fs, cfg config.Provider) error {
+func deleteCache(id string, fs afero.Fs, cfg config.Provider) error {
 	return fs.Remove(getCacheFileID(cfg, id))
 }
 
-// resGetRemote loads the content of a remote file. This method is thread safe.
-func resGetRemote(url string, fs afero.Fs, cfg config.Provider, hc *http.Client) ([]byte, error) {
-	c, err := resGetCache(url, fs, cfg, cfg.GetBool("ignoreCache"))
+// getRemote loads the content of a remote file. This method is thread safe.
+func getRemote(url string, fs afero.Fs, cfg config.Provider, hc *http.Client) ([]byte, error) {
+	c, err := getCache(url, fs, cfg, cfg.GetBool("ignoreCache"))
 	if c != nil && err == nil {
 		return c, nil
 	}
@@ -137,8 +139,8 @@ func resGetRemote(url string, fs afero.Fs, cfg config.Provider, hc *http.Client)
 	remoteURLLock.URLLock(url)
 	defer func() { remoteURLLock.URLUnlock(url) }()
 
-	// avoid multiple locks due to calling resGetCache twice
-	c, err = resGetCache(url, fs, cfg, cfg.GetBool("ignoreCache"))
+	// avoid multiple locks due to calling getCache twice
+	c, err = getCache(url, fs, cfg, cfg.GetBool("ignoreCache"))
 	if c != nil && err == nil {
 		return c, nil
 	}
@@ -156,7 +158,7 @@ func resGetRemote(url string, fs afero.Fs, cfg config.Provider, hc *http.Client)
 	if err != nil {
 		return nil, err
 	}
-	err = resWriteCache(url, c, fs, cfg, cfg.GetBool("ignoreCache"))
+	err = writeCache(url, c, fs, cfg, cfg.GetBool("ignoreCache"))
 	if err != nil {
 		return nil, err
 	}
@@ -164,8 +166,8 @@ func resGetRemote(url string, fs afero.Fs, cfg config.Provider, hc *http.Client)
 	return c, nil
 }
 
-// resGetLocal loads the content of a local file
-func resGetLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
+// getLocal loads the content of a local file
+func getLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
 	filename := filepath.Join(cfg.GetString("workingDir"), url)
 	if e, err := helpers.Exists(filename, fs); !e {
 		return nil, err
@@ -175,15 +177,15 @@ func resGetLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
 
 }
 
-// resGetResource loads the content of a local or remote file
-func (ns *Namespace) resGetResource(url string) ([]byte, error) {
+// getResource loads the content of a local or remote file
+func (ns *Namespace) getResource(url string) ([]byte, error) {
 	if url == "" {
 		return nil, nil
 	}
 	if strings.Contains(url, "://") {
-		return resGetRemote(url, ns.deps.Fs.Source, ns.deps.Cfg, http.DefaultClient)
+		return getRemote(url, ns.deps.Fs.Source, ns.deps.Cfg, http.DefaultClient)
 	}
-	return resGetLocal(url, ns.deps.Fs.Source, ns.deps.Cfg)
+	return getLocal(url, ns.deps.Fs.Source, ns.deps.Cfg)
 }
 
 // GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
@@ -194,7 +196,7 @@ func (ns *Namespace) GetJSON(urlParts ...string) interface{} {
 	url := strings.Join(urlParts, "")
 
 	for i := 0; i <= resRetries; i++ {
-		c, err := ns.resGetResource(url)
+		c, err := ns.getResource(url)
 		if err != nil {
 			jww.ERROR.Printf("Failed to get json resource %s with error message %s", url, err)
 			return nil
@@ -205,7 +207,7 @@ func (ns *Namespace) GetJSON(urlParts ...string) interface{} {
 			jww.ERROR.Printf("Cannot read json from resource %s with error message %s", url, err)
 			jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 			time.Sleep(resSleep)
-			resDeleteCache(url, ns.deps.Fs.Source, ns.deps.Cfg)
+			deleteCache(url, ns.deps.Fs.Source, ns.deps.Cfg)
 			continue
 		}
 		break
@@ -238,11 +240,11 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) [][]string {
 	var clearCacheSleep = func(i int, u string) {
 		jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 		time.Sleep(resSleep)
-		resDeleteCache(url, ns.deps.Fs.Source, ns.deps.Cfg)
+		deleteCache(url, ns.deps.Fs.Source, ns.deps.Cfg)
 	}
 
 	for i := 0; i <= resRetries; i++ {
-		c, err := ns.resGetResource(url)
+		c, err := ns.getResource(url)
 
 		if err == nil && !bytes.Contains(c, []byte(sep)) {
 			err = errors.New("Cannot find separator " + sep + " in CSV.")
