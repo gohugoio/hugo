@@ -54,7 +54,7 @@ func TestScpCache(t *testing.T) {
 
 	for _, test := range tests {
 		cfg := viper.New()
-		c, err := resGetCache(test.path, fs, cfg, test.ignore)
+		c, err := getCache(test.path, fs, cfg, test.ignore)
 		if err != nil {
 			t.Errorf("Error getting cache: %s", err)
 		}
@@ -62,12 +62,12 @@ func TestScpCache(t *testing.T) {
 			t.Errorf("There is content where there should not be anything: %s", string(c))
 		}
 
-		err = resWriteCache(test.path, test.content, fs, cfg, test.ignore)
+		err = writeCache(test.path, test.content, fs, cfg, test.ignore)
 		if err != nil {
 			t.Errorf("Error writing cache: %s", err)
 		}
 
-		c, err = resGetCache(test.path, fs, cfg, test.ignore)
+		c, err = getCache(test.path, fs, cfg, test.ignore)
 		if err != nil {
 			t.Errorf("Error getting cache after writing: %s", err)
 		}
@@ -107,7 +107,7 @@ func TestScpGetLocal(t *testing.T) {
 			t.Error(err)
 		}
 
-		c, err := resGetLocal(test.path, fs.Source, v)
+		c, err := getLocal(test.path, fs.Source, v)
 		if err != nil {
 			t.Errorf("Error getting resource content: %s", err)
 		}
@@ -154,14 +154,14 @@ func TestScpGetRemote(t *testing.T) {
 
 		cfg := viper.New()
 
-		c, err := resGetRemote(test.path, fs, cfg, cl)
+		c, err := getRemote(test.path, fs, cfg, cl)
 		if err != nil {
 			t.Errorf("Error getting resource content: %s", err)
 		}
 		if !bytes.Equal(c, test.content) {
 			t.Errorf("\nNet Expected: %s\nNet Actual: %s\n", string(test.content), string(c))
 		}
-		cc, cErr := resGetCache(test.path, fs, cfg, test.ignore)
+		cc, cErr := getCache(test.path, fs, cfg, test.ignore)
 		if cErr != nil {
 			t.Error(cErr)
 		}
@@ -199,7 +199,7 @@ func TestScpGetRemoteParallel(t *testing.T) {
 			go func(gor int) {
 				defer wg.Done()
 				for j := 0; j < 10; j++ {
-					c, err := resGetRemote(url, fs, cfg, cl)
+					c, err := getRemote(url, fs, cfg, cl)
 					if err != nil {
 						t.Errorf("Error getting resource content: %s", err)
 					}
