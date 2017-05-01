@@ -46,10 +46,6 @@ type Namespace struct {
 	cachedPartials partialCache
 }
 
-func (ns *Namespace) Foo(i interface{}) {
-
-}
-
 // Include executes the named partial and returns either a string,
 // when the partial is a text/template, or template.HTML when html/template.
 func (ns *Namespace) Include(name string, contextList ...interface{}) (interface{}, error) {
