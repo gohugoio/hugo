@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestReleaseNotesWriter(t *testing.T) {
+func _TestReleaseNotesWriter(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		// Travis has an ancient git with no --invert-grep: https://github.com/travis-ci/travis-ci/issues/6328
 		t.Skip("Skip git test on CI to make Travis happy.")
