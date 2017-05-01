@@ -20,7 +20,6 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -36,7 +35,6 @@ var (
 	remoteURLLock = &remoteLock{m: make(map[string]*sync.Mutex)}
 	resSleep      = time.Second * 2 // if JSON decoding failed sleep for n seconds before retrying
 	resRetries    = 1               // number of retries to load the JSON from URL or local file system
-	resCacheMu    sync.RWMutex
 )
 
 type remoteLock struct {
@@ -66,63 +64,6 @@ func (l *remoteLock) URLUnlock(url string) {
 	if um, ok := l.m[url]; ok {
 		um.Unlock()
 	}
-}
-
-// getCacheFileID returns the cache ID for a string.
-func getCacheFileID(cfg config.Provider, id string) string {
-	return cfg.GetString("cacheDir") + url.QueryEscape(id)
-}
-
-// getCache returns the content for an ID from the file cache or an error.
-// If the ID is not found, return nil,nil.
-func getCache(id string, fs afero.Fs, cfg config.Provider, ignoreCache bool) ([]byte, error) {
-	if ignoreCache {
-		return nil, nil
-	}
-
-	resCacheMu.RLock()
-	defer resCacheMu.RUnlock()
-
-	fID := getCacheFileID(cfg, id)
-	isExists, err := helpers.Exists(fID, fs)
-	if err != nil {
-		return nil, err
-	}
-	if !isExists {
-		return nil, nil
-	}
-
-	return afero.ReadFile(fs, fID)
-}
-
-// writeCache writes bytes associated with an ID into the file cache.
-func writeCache(id string, c []byte, fs afero.Fs, cfg config.Provider, ignoreCache bool) error {
-	if ignoreCache {
-		return nil
-	}
-
-	resCacheMu.Lock()
-	defer resCacheMu.Unlock()
-
-	fID := getCacheFileID(cfg, id)
-	f, err := fs.Create(fID)
-	if err != nil {
-		return errors.New("Error: " + err.Error() + ". Failed to create file: " + fID)
-	}
-	defer f.Close()
-
-	n, err := f.Write(c)
-	if err != nil {
-		return errors.New("Error: " + err.Error() + ". Failed to write to file: " + fID)
-	}
-	if n == 0 {
-		return errors.New("No bytes written to file: " + fID)
-	}
-	return nil
-}
-
-func deleteCache(id string, fs afero.Fs, cfg config.Provider) error {
-	return fs.Remove(getCacheFileID(cfg, id))
 }
 
 // getRemote loads the content of a remote file. This method is thread safe.
