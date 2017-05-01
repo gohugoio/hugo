@@ -16,17 +16,7 @@ package time
 import (
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
-
-func TestNamespace(t *testing.T) {
-	t.Parallel()
-
-	ns := New()
-
-	assert.Equal(t, ns, ns.Namespace(), "object pointers should match")
-}
 
 func TestFormat(t *testing.T) {
 	t.Parallel()

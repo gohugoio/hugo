@@ -25,18 +25,18 @@ func init() {
 		ctx := New(d)
 
 		examples := [][2]string{
-			{`delimit: {{ delimit (slice "A" "B" "C") ", " " and " }}`, `delimit: A, B and C`},
-			{`echoParam: {{ echoParam .Params "langCode" }}`, `echoParam: en`},
-			{`in: {{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}`, `in: Substring found!`},
+			{`{{ delimit (slice "A" "B" "C") ", " " and " }}`, `A, B and C`},
+			{`{{ echoParam .Params "langCode" }}`, `en`},
+			{`{{ if in "this string contains a substring" "substring" }}Substring found!{{ end }}`, `Substring found!`},
 			{
-				`querify 1: {{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those") | safeHTML }}`,
-				`querify 1: bar=2&baz=with+spaces&foo=1&qux=this%26that%3Dthose`},
+				`{{ (querify "foo" 1 "bar" 2 "baz" "with spaces" "qux" "this&that=those") | safeHTML }}`,
+				`bar=2&baz=with+spaces&foo=1&qux=this%26that%3Dthose`},
 			{
-				`querify 2: <a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>`,
-				`querify 2: <a href="https://www.google.com?page=3&amp;q=test">Search</a>`},
-			{`sort: {{ slice "B" "C" "A" | sort }}`, `sort: [A B C]`},
-			{`seq: {{ seq 3 }}`, `seq: [1 2 3]`},
-			{`union: {{ union (slice 1 2 3) (slice 3 4 5) }}`, `union: [1 2 3 4 5]`},
+				`<a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>`,
+				`<a href="https://www.google.com?page=3&amp;q=test">Search</a>`},
+			{`{{ slice "B" "C" "A" | sort }}`, `[A B C]`},
+			{`{{ seq 3 }}`, `[1 2 3]`},
+			{`{{ union (slice 1 2 3) (slice 3 4 5) }}`, `[1 2 3 4 5]`},
 		}
 
 		return &internal.TemplateFuncsNamespace{

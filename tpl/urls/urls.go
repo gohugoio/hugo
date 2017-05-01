@@ -33,11 +33,6 @@ type Namespace struct {
 	deps *deps.Deps
 }
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace {
-	return ns
-}
-
 // AbsURL takes a given string and converts it to an absolute URL.
 func (ns *Namespace) AbsURL(a interface{}) (template.HTML, error) {
 	s, err := cast.ToStringE(a)
@@ -57,6 +52,14 @@ func (ns *Namespace) RelURL(a interface{}) (template.HTML, error) {
 	}
 
 	return template.HTML(ns.deps.PathSpec.RelURL(s, false)), nil
+}
+
+func (ns *Namespace) URLize(a interface{}) (template.URL, error) {
+	s, err := cast.ToStringE(a)
+	if err != nil {
+		return "", nil
+	}
+	return template.URL(ns.deps.PathSpec.URLize(s)), nil
 }
 
 type reflinker interface {

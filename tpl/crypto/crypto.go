@@ -30,9 +30,6 @@ func New() *Namespace {
 // Namespace provides template functions for the "crypto" namespace.
 type Namespace struct{}
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace { return ns }
-
 // MD5 hashes the given input and returns its MD5 checksum.
 func (ns *Namespace) MD5(in interface{}) (string, error) {
 	conv, err := cast.ToStringE(in)

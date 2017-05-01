@@ -29,14 +29,6 @@ import (
 
 type tstNoStringer struct{}
 
-func TestNamespace(t *testing.T) {
-	t.Parallel()
-
-	ns := New(newDeps(viper.New()))
-
-	assert.Equal(t, ns, ns.Namespace(), "object pointers should match")
-}
-
 func TestEmojify(t *testing.T) {
 	t.Parallel()
 

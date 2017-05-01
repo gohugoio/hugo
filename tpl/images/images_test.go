@@ -80,17 +80,6 @@ var configTests = []struct {
 	{path: "", expect: false},
 }
 
-func TestNamespace(t *testing.T) {
-	t.Parallel()
-
-	v := viper.New()
-	v.Set("workingDir", "/a/b")
-
-	ns := New(&deps.Deps{Fs: hugofs.NewMem(v)})
-
-	assert.Equal(t, ns, ns.Namespace(), "object pointers should match")
-}
-
 func TestNSConfig(t *testing.T) {
 	t.Parallel()
 

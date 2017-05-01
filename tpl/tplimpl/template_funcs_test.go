@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
-	"strings"
 	"testing"
 
 	"io/ioutil"
@@ -92,6 +91,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 			in, expected := example[0], example[1]
 			d.WithTemplate = func(templ tpl.TemplateHandler) error {
 				require.NoError(t, templ.AddTemplate("test", in))
+				require.NoError(t, templ.AddTemplate("partials/header.html", "<title>Hugo Rocks!</title>"))
 				return nil
 			}
 			require.NoError(t, d.LoadResources())
@@ -106,134 +106,8 @@ func TestTemplateFuncsExamples(t *testing.T) {
 
 }
 
-func TestFuncsInTemplate(t *testing.T) {
-	t.Parallel()
-
-	workingDir := "/home/hugo"
-
-	v := viper.New()
-
-	v.Set("workingDir", workingDir)
-	v.Set("multilingual", true)
-
-	fs := hugofs.NewMem(v)
-
-	afero.WriteFile(fs.Source, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)
-
-	// Add the examples from the docs: As a smoke test and to make sure the examples work.
-	// TODO(bep): docs: fix title example
-	// TODO(bep) namespace remove when done
-	in :=
-		`
-crypto.MD5: {{ crypto.MD5 "Hello world, gophers!" }}
-dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}
-htmlEscape 1: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | safeHTML}}
-htmlEscape 2: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>"}}
-htmlUnescape 1: {{htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | safeHTML}}
-htmlUnescape 2: {{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape | safeHTML}}
-htmlUnescape 3: {{"Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;" | htmlUnescape | htmlUnescape }}
-htmlUnescape 4: {{ htmlEscape "Cathal Garvey & The Sunshine Band <cathal@foo.bar>" | htmlUnescape | safeHTML }}
-htmlUnescape 5: {{ htmlUnescape "Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;" | htmlEscape | safeHTML }}
-print: {{ print "works!" }}
-printf: {{ printf "%s!" "works" }}
-println: {{ println "works!" -}}
-strings.TrimPrefix: {{ strings.TrimPrefix "Goodbye,, world!" "Goodbye," }}
-urlize: {{ "Bat Man" | urlize }}
-`
-
-	expected := `
-crypto.MD5: b3029f756f98f79e7f1b7f1d1f0dd53b
-dateFormat: Wednesday, Jan 21, 2015
-htmlEscape 1: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
-htmlEscape 2: Cathal Garvey &amp;amp; The Sunshine Band &amp;lt;cathal@foo.bar&amp;gt;
-htmlUnescape 1: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
-htmlUnescape 2: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
-htmlUnescape 3: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
-htmlUnescape 4: Cathal Garvey & The Sunshine Band <cathal@foo.bar>
-htmlUnescape 5: Cathal Garvey &amp; The Sunshine Band &lt;cathal@foo.bar&gt;
-print: works!
-printf: works!
-println: works!
-strings.TrimPrefix: , world!
-urlize: bat-man
-`
-
-	var b bytes.Buffer
-
-	var data struct {
-		Title   string
-		Section string
-		Params  map[string]interface{}
-	}
-
-	data.Title = "**BatMan**"
-	data.Section = "blog"
-	data.Params = map[string]interface{}{"langCode": "en"}
-
-	v.Set("baseURL", "http://mysite.com/hugo/")
-	v.Set("CurrentContentLanguage", helpers.NewLanguage("en", v))
-
-	config := newDepsConfig(v)
-	config.WithTemplate = func(templ tpl.TemplateHandler) error {
-		if err := templ.AddTemplate("test", in); err != nil {
-			t.Fatal("Got error on parse", err)
-		}
-		return nil
-	}
-	config.Fs = fs
-
-	d, err := deps.New(config)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := d.LoadResources(); err != nil {
-		t.Fatal(err)
-	}
-
-	err = d.Tmpl.Lookup("test").Execute(&b, &data)
-
-	if err != nil {
-		t.Fatal("Got error on execute", err)
-	}
-
-	if b.String() != expected {
-		sl1 := strings.Split(b.String(), "\n")
-		sl2 := strings.Split(expected, "\n")
-		t.Errorf("Diff:\n%q", helpers.DiffStringSlices(sl1, sl2))
-	}
-}
-
-func TestDefault(t *testing.T) {
-	t.Parallel()
-	for i, this := range []struct {
-		input    interface{}
-		tpl      string
-		expected string
-		ok       bool
-	}{
-		{map[string]string{"foo": "bar"}, `{{ index . "foo" | default "nope" }}`, `bar`, true},
-		{map[string]string{"foo": "pop"}, `{{ index . "bar" | default "nada" }}`, `nada`, true},
-		{map[string]string{"foo": "cat"}, `{{ default "nope" .foo }}`, `cat`, true},
-		{map[string]string{"foo": "dog"}, `{{ default "nope" .foo "extra" }}`, ``, false},
-		{map[string]interface{}{"images": []string{}}, `{{ default "default.jpg" (index .images 0) }}`, `default.jpg`, true},
-	} {
-
-		tmpl := newTestTemplate(t, "test", this.tpl)
-
-		buf := new(bytes.Buffer)
-		err := tmpl.Execute(buf, this.input)
-		if (err == nil) != this.ok {
-			t.Errorf("[%d] execute template returned unexpected error: %s", i, err)
-			continue
-		}
-
-		if buf.String() != this.expected {
-			t.Errorf("[%d] execute template got %v, but expected %v", i, buf.String(), this.expected)
-		}
-	}
-}
-
+// TODO(bep) it would be dandy to put this one into the partials package, but
+// we have some package cycle issues to solve first.
 func TestPartialCached(t *testing.T) {
 	t.Parallel()
 	testCases := []struct {
@@ -387,21 +261,4 @@ func newTestFuncsterWithViper(v *viper.Viper) *templateFuncster {
 	}
 
 	return d.Tmpl.(*templateHandler).html.funcster
-}
-
-func newTestTemplate(t *testing.T, name, template string) tpl.Template {
-	config := newDepsConfig(viper.New())
-	config.WithTemplate = func(templ tpl.TemplateHandler) error {
-		err := templ.AddTemplate(name, template)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-
-	de, err := deps.New(config)
-	require.NoError(t, err)
-	require.NoError(t, de.LoadResources())
-
-	return de.Tmpl.Lookup(name)
 }

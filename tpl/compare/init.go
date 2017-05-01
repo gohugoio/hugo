@@ -25,7 +25,9 @@ func init() {
 		ctx := New()
 
 		examples := [][2]string{
-			{`eq: {{ if eq .Section "blog" }}current{{ end }}`, `eq: current`},
+			{`{{ if eq .Section "blog" }}current{{ end }}`, `current`},
+			{`{{ "Hugo Rocks!" | default "Hugo Rules!" }}`, `Hugo Rocks!`},
+			{`{{ "" | default "Hugo Rules!" }}`, `Hugo Rules!`},
 		}
 
 		return &internal.TemplateFuncsNamespace{

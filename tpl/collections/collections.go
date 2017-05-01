@@ -39,9 +39,6 @@ type Namespace struct {
 	deps *deps.Deps
 }
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace { return ns }
-
 // After returns all the items after the first N in a rangeable list.
 func (ns *Namespace) After(index interface{}, seq interface{}) (interface{}, error) {
 	if index == nil || seq == nil {

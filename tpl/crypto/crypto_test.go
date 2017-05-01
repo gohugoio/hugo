@@ -21,14 +21,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNamespace(t *testing.T) {
-	t.Parallel()
-
-	ns := New()
-
-	assert.Equal(t, ns, ns.Namespace(), "object pointers should match")
-}
-
 func TestMD5(t *testing.T) {
 	t.Parallel()
 

@@ -27,11 +27,6 @@ var ns = New(&deps.Deps{})
 
 type tstNoStringer struct{}
 
-func TestNamespace(t *testing.T) {
-	t.Parallel()
-	assert.Equal(t, ns, ns.Namespace(), "object pointers should match")
-}
-
 func TestChomp(t *testing.T) {
 	t.Parallel()
 

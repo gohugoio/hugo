@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2017-present The Hugo Authors. All rights reserved.
 //
 // Portions Copyright The Go Authors.
 
@@ -16,24 +16,24 @@
 package tplimpl
 
 import (
-	"fmt"
 	"html/template"
-	"sync"
 
-	"github.com/spf13/cast"
 	"github.com/spf13/hugo/tpl/internal"
 
 	// Init the namespaces
+	_ "github.com/spf13/hugo/tpl/cast"
 	_ "github.com/spf13/hugo/tpl/collections"
 	_ "github.com/spf13/hugo/tpl/compare"
 	_ "github.com/spf13/hugo/tpl/crypto"
 	_ "github.com/spf13/hugo/tpl/data"
 	_ "github.com/spf13/hugo/tpl/encoding"
+	_ "github.com/spf13/hugo/tpl/fmt"
 	_ "github.com/spf13/hugo/tpl/images"
 	_ "github.com/spf13/hugo/tpl/inflect"
 	_ "github.com/spf13/hugo/tpl/lang"
 	_ "github.com/spf13/hugo/tpl/math"
 	_ "github.com/spf13/hugo/tpl/os"
+	_ "github.com/spf13/hugo/tpl/partials"
 	_ "github.com/spf13/hugo/tpl/safe"
 	_ "github.com/spf13/hugo/tpl/strings"
 	_ "github.com/spf13/hugo/tpl/time"
@@ -41,74 +41,15 @@ import (
 	_ "github.com/spf13/hugo/tpl/urls"
 )
 
-// Get retrieves partial output from the cache based upon the partial name.
-// If the partial is not found in the cache, the partial is rendered and added
-// to the cache.
-func (t *templateFuncster) Get(key, name string, context interface{}) (p interface{}, err error) {
-	var ok bool
-
-	t.cachedPartials.RLock()
-	p, ok = t.cachedPartials.p[key]
-	t.cachedPartials.RUnlock()
-
-	if ok {
-		return
-	}
-
-	t.cachedPartials.Lock()
-	if p, ok = t.cachedPartials.p[key]; !ok {
-		t.cachedPartials.Unlock()
-		p, err = t.partial(name, context)
-
-		t.cachedPartials.Lock()
-		t.cachedPartials.p[key] = p
-
-	}
-	t.cachedPartials.Unlock()
-
-	return
-}
-
-// partialCache represents a cache of partials protected by a mutex.
-type partialCache struct {
-	sync.RWMutex
-	p map[string]interface{}
-}
-
-// partialCached executes and caches partial templates.  An optional variant
-// string parameter (a string slice actually, but be only use a variadic
-// argument to make it optional) can be passed so that a given partial can have
-// multiple uses.  The cache is created with name+variant as the key.
-func (t *templateFuncster) partialCached(name string, context interface{}, variant ...string) (interface{}, error) {
-	key := name
-	if len(variant) > 0 {
-		for i := 0; i < len(variant); i++ {
-			key += variant[i]
-		}
-	}
-	return t.Get(key, name, context)
-}
-
 func (t *templateFuncster) initFuncMap() {
-	funcMap := template.FuncMap{
-		// Namespaces
-		//"time":        t.time.Namespace,
-		"int":           func(v interface{}) (int, error) { return cast.ToIntE(v) },
-		"partial":       t.partial,
-		"partialCached": t.partialCached,
-		"print":         fmt.Sprint,
-		"printf":        fmt.Sprintf,
-		"println":       fmt.Sprintln,
-		"string":        func(v interface{}) (string, error) { return cast.ToStringE(v) },
-		"urlize":        t.PathSpec.URLize,
-	}
+	funcMap := template.FuncMap{}
 
 	// Merge the namespace funcs
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 		ns := nsf(t.Deps)
-		// TODO(bep) namespace ns.Context is a dummy func just to make this work.
-		// Consider if we can add this context to the rendering context in an easy
-		// way to make this cleaner. Maybe.
+		if _, exists := funcMap[ns.Name]; exists {
+			panic(ns.Name + " is a duplicate template func")
+		}
 		funcMap[ns.Name] = ns.Context
 		for k, v := range ns.Aliases {
 			funcMap[k] = v

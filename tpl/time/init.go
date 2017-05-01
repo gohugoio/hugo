@@ -26,6 +26,7 @@ func init() {
 
 		examples := [][2]string{
 			{`{{ (time "2015-01-21").Year }}`, `2015`},
+			{`dateFormat: {{ dateFormat "Monday, Jan 2, 2006" "2015-01-21" }}`, `dateFormat: Wednesday, Jan 21, 2015`},
 		}
 
 		return &internal.TemplateFuncsNamespace{

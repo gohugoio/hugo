@@ -11,33 +11,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package crypto
+package partials
 
 import (
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/tpl/internal"
 )
 
-const name = "crypto"
+const name = "partials"
 
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
-		ctx := New()
+		ctx := New(d)
 
 		examples := [][2]string{
-			{`{{ md5 "Hello world, gophers!" }}`, `b3029f756f98f79e7f1b7f1d1f0dd53b`},
-			{`{{ crypto.MD5 "Hello world, gophers!" }}`, `b3029f756f98f79e7f1b7f1d1f0dd53b`},
-			{`{{ sha1 "Hello world, gophers!" }}`, `c8b5b0e33d408246e30f53e32b8f7627a7a649d4`},
-			{`{{ sha256 "Hello world, gophers!" }}`, `6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46`},
+			{`{{ partial "header.html" . }}`, `<title>Hugo Rocks!</title>`},
 		}
 
 		return &internal.TemplateFuncsNamespace{
 			Name:    name,
 			Context: func() interface{} { return ctx },
 			Aliases: map[string]interface{}{
-				"md5":    ctx.MD5,
-				"sha1":   ctx.SHA1,
-				"sha256": ctx.SHA256,
+				"partial":       ctx.Include,
+				"partialCached": ctx.getCached,
 			},
 			Examples: examples,
 		}
