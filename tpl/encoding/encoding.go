@@ -29,9 +29,6 @@ func New() *Namespace {
 // Namespace provides template functions for the "encoding" namespace.
 type Namespace struct{}
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace { return ns }
-
 // Base64Decode returns the base64 decoding of the given content.
 func (ns *Namespace) Base64Decode(content interface{}) (string, error) {
 	conv, err := cast.ToStringE(content)

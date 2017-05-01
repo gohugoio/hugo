@@ -28,9 +28,6 @@ func New() *Namespace {
 // Namespace provides template functions for the "inflect" namespace.
 type Namespace struct{}
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace { return ns }
-
 // Humanize returns the humanized form of a single parameter.
 //
 // If the parameter is either an integer or a string containing an integer

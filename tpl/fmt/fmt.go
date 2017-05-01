@@ -11,18 +11,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package data
+package fmt
 
-import "github.com/spf13/hugo/deps"
+import (
+	_fmt "fmt"
+)
 
-// New returns a new instance of the data-namespaced template functions.
-func New(deps *deps.Deps) *Namespace {
-	return &Namespace{
-		deps: deps,
-	}
+// New returns a new instance of the fmt-namespaced template functions.
+func New() *Namespace {
+	return &Namespace{}
 }
 
-// Namespace provides template functions for the "data" namespace.
+// Namespace provides template functions for the "fmt" namespace.
 type Namespace struct {
-	deps *deps.Deps
+}
+
+func (ns *Namespace) Print(a ...interface{}) (n int, err error) {
+	return _fmt.Print(a...)
+}
+
+func (ns *Namespace) Printf(format string, a ...interface{}) (n int, err error) {
+	return _fmt.Printf(format, a...)
+}
+
+func (ns *Namespace) Println(a ...interface{}) (n int, err error) {
+	return _fmt.Println(a...)
 }

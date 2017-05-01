@@ -35,11 +35,6 @@ type Namespace struct {
 	deps *deps.Deps
 }
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace {
-	return ns
-}
-
 // Emojify returns a copy of s with all emoji codes replaced with actual emojis.
 //
 // See http://www.emoji-cheat-sheet.com/

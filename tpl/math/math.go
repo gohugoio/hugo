@@ -26,9 +26,6 @@ func New() *Namespace {
 // Namespace provides template functions for the "math" namespace.
 type Namespace struct{}
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace { return ns }
-
 func (ns *Namespace) Add(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '+')
 }

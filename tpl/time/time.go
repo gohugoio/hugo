@@ -27,9 +27,6 @@ func New() *Namespace {
 // Namespace provides template functions for the "time" namespace.
 type Namespace struct{}
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace { return ns }
-
 // AsTime converts the textual representation of the datetime string into
 // a time.Time interface.
 func (ns *Namespace) AsTime(v interface{}) (interface{}, error) {

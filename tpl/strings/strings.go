@@ -37,9 +37,6 @@ type Namespace struct {
 	deps *deps.Deps
 }
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace { return ns }
-
 // CountRunes returns the number of runes in s, excluding whitepace.
 func (ns *Namespace) CountRunes(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)

@@ -30,10 +30,6 @@ type Namespace struct {
 	deps *deps.Deps
 }
 
-// Namespace returns a pointer to the current namespace instance.
-// TODO(bep) namespace remove this and other unused when done.
-func (ns *Namespace) Namespace() *Namespace { return ns }
-
 // Translate ...
 func (ns *Namespace) Translate(id interface{}, args ...interface{}) (string, error) {
 	sid, err := cast.ToStringE(id)

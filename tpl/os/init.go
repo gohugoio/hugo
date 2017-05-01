@@ -25,7 +25,7 @@ func init() {
 		ctx := New(d)
 
 		examples := [][2]string{
-			{`{{ range (readDir ".") }}{{ .Name }}{{ end }}`, `README.txt`},
+			{`{{ range (readDir ".") }}{{ .Name }}{{ end }}`, "README.txt"},
 			{`{{ readFile "README.txt" }}`, `Hugo Rocks!`},
 		}
 

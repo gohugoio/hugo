@@ -28,9 +28,6 @@ func New() *Namespace {
 // Namespace provides template functions for the "safe" namespace.
 type Namespace struct{}
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace { return ns }
-
 // CSS returns a given string as html/template CSS content.
 func (ns *Namespace) CSS(a interface{}) (template.CSS, error) {
 	s, err := cast.ToStringE(a)

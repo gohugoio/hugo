@@ -43,9 +43,6 @@ type Namespace struct {
 	deps *deps.Deps
 }
 
-// Namespace returns a pointer to the current namespace instance.
-func (ns *Namespace) Namespace() *Namespace { return ns }
-
 // Config returns the image.Config for the specified path relative to the
 // working directory.
 func (ns *Namespace) Config(path interface{}) (image.Config, error) {

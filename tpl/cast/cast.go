@@ -11,18 +11,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package data
+package cast
 
-import "github.com/spf13/hugo/deps"
+import (
+	_cast "github.com/spf13/cast"
+)
 
-// New returns a new instance of the data-namespaced template functions.
-func New(deps *deps.Deps) *Namespace {
-	return &Namespace{
-		deps: deps,
-	}
+// New returns a new instance of the cast-namespaced template functions.
+func New() *Namespace {
+	return &Namespace{}
 }
 
-// Namespace provides template functions for the "data" namespace.
+// Namespace provides template functions for the "cast" namespace.
 type Namespace struct {
-	deps *deps.Deps
+}
+
+func (ns *Namespace) ToInt(v interface{}) (int, error) {
+	return _cast.ToIntE(v)
+}
+
+func (ns *Namespace) ToString(v interface{}) (string, error) {
+	return _cast.ToStringE(v)
 }

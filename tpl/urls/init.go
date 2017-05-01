@@ -33,6 +33,7 @@ func init() {
 			{`{{ "http://gohugo.io/" | relURL }}`, `http://gohugo.io/`},
 			{`{{ "mystyle.css" | relURL }}`, `/hugo/mystyle.css`},
 			{`{{ mul 2 21 | relURL }}`, `/hugo/42`},
+			{`{{ "Bat Man" | urlize }}`, `bat-man`},
 		}
 
 		return &internal.TemplateFuncsNamespace{
@@ -45,6 +46,7 @@ func init() {
 				"relURL":     ctx.RelURL,
 				"relLangURL": ctx.RelLangURL,
 				"relref":     ctx.RelRef,
+				"urlize":     ctx.URLize,
 			},
 			Examples: examples,
 		}
