@@ -14,14 +14,10 @@
 package data
 
 import (
-	"bytes"
-	"encoding/csv"
-	"encoding/json"
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
@@ -67,13 +63,15 @@ func (l *remoteLock) URLUnlock(url string) {
 }
 
 // getRemote loads the content of a remote file. This method is thread safe.
-func getRemote(url string, fs afero.Fs, cfg config.Provider, hc *http.Client) ([]byte, error) {
+func getRemote(req *http.Request, fs afero.Fs, cfg config.Provider, hc *http.Client) ([]byte, error) {
+	url := req.URL.String()
+
 	c, err := getCache(url, fs, cfg, cfg.GetBool("ignoreCache"))
-	if c != nil && err == nil {
-		return c, nil
-	}
 	if err != nil {
 		return nil, err
+	}
+	if c != nil {
+		return c, nil
 	}
 
 	// avoid race condition with locks, block other goroutines if the current url is processing
@@ -82,27 +80,34 @@ func getRemote(url string, fs afero.Fs, cfg config.Provider, hc *http.Client) ([
 
 	// avoid multiple locks due to calling getCache twice
 	c, err = getCache(url, fs, cfg, cfg.GetBool("ignoreCache"))
-	if c != nil && err == nil {
+	if err != nil {
+		return nil, err
+	}
+	if c != nil {
 		return c, nil
 	}
+
+	jww.INFO.Printf("Downloading: %s ...", url)
+	res, err := hc.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
-	jww.INFO.Printf("Downloading: %s ...", url)
-	res, err := hc.Get(url)
-	if err != nil {
-		return nil, err
+	if res.StatusCode < 200 || res.StatusCode > 299 {
+		return nil, fmt.Errorf("Failed to retrieve remote file: %s", http.StatusText(res.StatusCode))
 	}
+
 	c, err = ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
 		return nil, err
 	}
+
 	err = writeCache(url, c, fs, cfg, cfg.GetBool("ignoreCache"))
 	if err != nil {
 		return nil, err
 	}
+
 	jww.INFO.Printf("... and cached to: %s", getCacheFileID(cfg, url))
 	return c, nil
 }
@@ -119,90 +124,11 @@ func getLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
 }
 
 // getResource loads the content of a local or remote file
-func (ns *Namespace) getResource(url string) ([]byte, error) {
-	if url == "" {
-		return nil, nil
+func (ns *Namespace) getResource(req *http.Request) ([]byte, error) {
+	switch req.URL.Scheme {
+	case "":
+		return getLocal(req.URL.String(), ns.deps.Fs.Source, ns.deps.Cfg)
+	default:
+		return getRemote(req, ns.deps.Fs.Source, ns.deps.Cfg, ns.client)
 	}
-	if strings.Contains(url, "://") {
-		return getRemote(url, ns.deps.Fs.Source, ns.deps.Cfg, http.DefaultClient)
-	}
-	return getLocal(url, ns.deps.Fs.Source, ns.deps.Cfg)
-}
-
-// GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.
-// If you provide multiple parts they will be joined together to the final URL.
-// GetJSON returns nil or parsed JSON to use in a short code.
-func (ns *Namespace) GetJSON(urlParts ...string) interface{} {
-	var v interface{}
-	url := strings.Join(urlParts, "")
-
-	for i := 0; i <= resRetries; i++ {
-		c, err := ns.getResource(url)
-		if err != nil {
-			jww.ERROR.Printf("Failed to get json resource %s with error message %s", url, err)
-			return nil
-		}
-
-		err = json.Unmarshal(c, &v)
-		if err != nil {
-			jww.ERROR.Printf("Cannot read json from resource %s with error message %s", url, err)
-			jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
-			time.Sleep(resSleep)
-			deleteCache(url, ns.deps.Fs.Source, ns.deps.Cfg)
-			continue
-		}
-		break
-	}
-	return v
-}
-
-// parseCSV parses bytes of CSV data into a slice slice string or an error
-func parseCSV(c []byte, sep string) ([][]string, error) {
-	if len(sep) != 1 {
-		return nil, errors.New("Incorrect length of csv separator: " + sep)
-	}
-	b := bytes.NewReader(c)
-	r := csv.NewReader(b)
-	rSep := []rune(sep)
-	r.Comma = rSep[0]
-	r.FieldsPerRecord = 0
-	return r.ReadAll()
-}
-
-// GetCSV expects a data separator and one or n-parts of a URL to a resource which
-// can either be a local or a remote one.
-// The data separator can be a comma, semi-colon, pipe, etc, but only one character.
-// If you provide multiple parts for the URL they will be joined together to the final URL.
-// GetCSV returns nil or a slice slice to use in a short code.
-func (ns *Namespace) GetCSV(sep string, urlParts ...string) [][]string {
-	var d [][]string
-	url := strings.Join(urlParts, "")
-
-	var clearCacheSleep = func(i int, u string) {
-		jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
-		time.Sleep(resSleep)
-		deleteCache(url, ns.deps.Fs.Source, ns.deps.Cfg)
-	}
-
-	for i := 0; i <= resRetries; i++ {
-		c, err := ns.getResource(url)
-
-		if err == nil && !bytes.Contains(c, []byte(sep)) {
-			err = errors.New("Cannot find separator " + sep + " in CSV.")
-		}
-
-		if err != nil {
-			jww.ERROR.Printf("Failed to read csv resource %s with error message %s", url, err)
-			clearCacheSleep(i, url)
-			continue
-		}
-
-		if d, err = parseCSV(c, sep); err != nil {
-			jww.ERROR.Printf("Failed to parse csv file %s with error message %s", url, err)
-			clearCacheSleep(i, url)
-			continue
-		}
-		break
-	}
-	return d
 }
