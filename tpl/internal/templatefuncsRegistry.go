@@ -16,11 +16,20 @@
 package internal
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
+	"go/doc"
+	"go/parser"
+	"go/token"
+	"io/ioutil"
+	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
+	"sync"
 
 	"github.com/spf13/hugo/deps"
 )
@@ -41,6 +50,8 @@ type TemplateFuncsNamespace struct {
 	// Additional info, aliases and examples, per method name.
 	MethodMappings map[string]TemplateFuncMethodMapping
 }
+
+type TemplateFuncsNamespaces []*TemplateFuncsNamespace
 
 func (t *TemplateFuncsNamespace) AddMethodMapping(m interface{}, aliases []string, examples [][2]string) {
 	if t.MethodMappings == nil {
@@ -94,35 +105,172 @@ func methodToName(m interface{}) string {
 	return name
 }
 
-func (t *TemplateFuncsNamespace) MarshalJSON() ([]byte, error) {
-	type Func struct {
-		Name        string
-		Description string // TODO(bep)
-		Aliases     []string
-		Examples    [][2]string
+type goDocFunc struct {
+	Name        string
+	Description string
+	Args        []string
+	Aliases     []string
+	Examples    [][2]string
+}
+
+func (t goDocFunc) toJSON() ([]byte, error) {
+	args, err := json.Marshal(t.Args)
+	if err != nil {
+		return nil, err
 	}
-	// TODO(bep) map/lookup from docs template Namespace + Func name.
-	var funcs []Func
+	aliases, err := json.Marshal(t.Aliases)
+	if err != nil {
+		return nil, err
+	}
+	examples, err := json.Marshal(t.Examples)
+	if err != nil {
+		return nil, err
+	}
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf(`%q:
+    { "Description": %q, "Args": %s, "Aliases": %s, "Examples": %s }	
+`, t.Name, t.Description, args, aliases, examples))
+
+	return buf.Bytes(), nil
+}
+
+func (namespaces TemplateFuncsNamespaces) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+
+	buf.WriteString("{")
+
+	for i, ns := range namespaces {
+		if i != 0 {
+			buf.WriteString(",")
+		}
+		b, err := ns.toJSON()
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(b)
+	}
+
+	buf.WriteString("}")
+
+	return buf.Bytes(), nil
+}
+
+func (t *TemplateFuncsNamespace) toJSON() ([]byte, error) {
+
+	var buf bytes.Buffer
+
+	godoc := getGetTplPackagesGoDoc()[t.Name]
+
+	var funcs []goDocFunc
+
+	buf.WriteString(fmt.Sprintf(`%q: {`, t.Name))
 
 	ctx := t.Context.(func() interface{})()
 	ctxType := reflect.TypeOf(ctx)
 	for i := 0; i < ctxType.NumMethod(); i++ {
 		method := ctxType.Method(i)
-		f := Func{
+		f := goDocFunc{
 			Name: method.Name,
 		}
+
+		methodGoDoc := godoc[method.Name]
+
 		if mapping, ok := t.MethodMappings[method.Name]; ok {
 			f.Aliases = mapping.Aliases
 			f.Examples = mapping.Examples
+			f.Description = methodGoDoc.Description
+			f.Args = methodGoDoc.Args
 		}
+
 		funcs = append(funcs, f)
 	}
 
-	return json.Marshal(&struct {
-		Name  string
-		Funcs []Func
-	}{
-		Name:  t.Name,
-		Funcs: funcs,
+	for i, f := range funcs {
+		if i != 0 {
+			buf.WriteString(",")
+		}
+		funcStr, err := f.toJSON()
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(funcStr)
+	}
+
+	buf.WriteString("}")
+
+	return buf.Bytes(), nil
+}
+
+type methodGoDocInfo struct {
+	Description string
+	Args        []string
+}
+
+var (
+	tplPackagesGoDoc     map[string]map[string]methodGoDocInfo
+	tplPackagesGoDocInit sync.Once
+)
+
+func getGetTplPackagesGoDoc() map[string]map[string]methodGoDocInfo {
+	tplPackagesGoDocInit.Do(func() {
+		tplPackagesGoDoc = make(map[string]map[string]methodGoDocInfo)
+		pwd, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fset := token.NewFileSet()
+
+		// pwd will be inside one of the namespace packages during tests
+		var basePath string
+		if strings.Contains(pwd, "tpl") {
+			basePath = filepath.Join(pwd, "..")
+		} else {
+			basePath = filepath.Join(pwd, "tpl")
+		}
+
+		files, err := ioutil.ReadDir(basePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, fi := range files {
+			if !fi.IsDir() {
+				continue
+			}
+
+			namespaceDoc := make(map[string]methodGoDocInfo)
+			packagePath := filepath.Join(basePath, fi.Name())
+
+			d, err := parser.ParseDir(fset, packagePath, nil, parser.ParseComments)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			for _, f := range d {
+				p := doc.New(f, "./", 0)
+
+				for _, t := range p.Types {
+					if t.Name == "Namespace" {
+						for _, tt := range t.Methods {
+							var args []string
+							for _, p := range tt.Decl.Type.Params.List {
+								for _, pp := range p.Names {
+									args = append(args, pp.Name)
+								}
+							}
+
+							description := strings.TrimSpace(tt.Doc)
+							di := methodGoDocInfo{Description: description, Args: args}
+							namespaceDoc[tt.Name] = di
+						}
+					}
+				}
+			}
+
+			tplPackagesGoDoc[fi.Name()] = namespaceDoc
+		}
 	})
+
+	return tplPackagesGoDoc
 }
