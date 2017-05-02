@@ -19,7 +19,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -31,57 +30,8 @@ import (
 	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
-
-func TestScpCache(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		path    string
-		content []byte
-		ignore  bool
-	}{
-		{"http://Foo.Bar/foo_Bar-Foo", []byte(`T€st Content 123`), false},
-		{"fOO,bar:foo%bAR", []byte(`T€st Content 123 fOO,bar:foo%bAR`), false},
-		{"FOo/BaR.html", []byte(`FOo/BaR.html T€st Content 123`), false},
-		{"трям/трям", []byte(`T€st трям/трям Content 123`), false},
-		{"은행", []byte(`T€st C은행ontent 123`), false},
-		{"Банковский кассир", []byte(`Банковский кассир T€st Content 123`), false},
-		{"Банковский кассир", []byte(`Банковский кассир T€st Content 456`), true},
-	}
-
-	fs := new(afero.MemMapFs)
-
-	for _, test := range tests {
-		cfg := viper.New()
-		c, err := getCache(test.path, fs, cfg, test.ignore)
-		if err != nil {
-			t.Errorf("Error getting cache: %s", err)
-		}
-		if c != nil {
-			t.Errorf("There is content where there should not be anything: %s", string(c))
-		}
-
-		err = writeCache(test.path, test.content, fs, cfg, test.ignore)
-		if err != nil {
-			t.Errorf("Error writing cache: %s", err)
-		}
-
-		c, err = getCache(test.path, fs, cfg, test.ignore)
-		if err != nil {
-			t.Errorf("Error getting cache after writing: %s", err)
-		}
-		if test.ignore {
-			if c != nil {
-				t.Errorf("Cache ignored but content is not nil: %s", string(c))
-			}
-		} else {
-			if !bytes.Equal(c, test.content) {
-				t.Errorf("\nExpected: %s\nActual: %s\n", string(test.content), string(c))
-			}
-		}
-	}
-}
 
 func TestScpGetLocal(t *testing.T) {
 	t.Parallel()
@@ -146,6 +96,10 @@ func TestScpGetRemote(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		msg := fmt.Sprintf("%v", test)
+
+		req, err := http.NewRequest("GET", test.path, nil)
+		require.NoError(t, err, msg)
 
 		srv, cl := getTestServer(func(w http.ResponseWriter, r *http.Request) {
 			w.Write(test.content)
@@ -154,41 +108,38 @@ func TestScpGetRemote(t *testing.T) {
 
 		cfg := viper.New()
 
-		c, err := getRemote(test.path, fs, cfg, cl)
-		if err != nil {
-			t.Errorf("Error getting resource content: %s", err)
-		}
-		if !bytes.Equal(c, test.content) {
-			t.Errorf("\nNet Expected: %s\nNet Actual: %s\n", string(test.content), string(c))
-		}
-		cc, cErr := getCache(test.path, fs, cfg, test.ignore)
-		if cErr != nil {
-			t.Error(cErr)
-		}
+		c, err := getRemote(req, fs, cfg, cl)
+		require.NoError(t, err, msg)
+		assert.Equal(t, string(test.content), string(c))
+
+		c, err = getCache(req.URL.String(), fs, cfg, test.ignore)
+		require.NoError(t, err, msg)
+
 		if test.ignore {
-			if cc != nil {
-				t.Errorf("Cache ignored but content is not nil: %s", string(cc))
-			}
+			assert.Empty(t, c, msg)
 		} else {
-			if !bytes.Equal(cc, test.content) {
-				t.Errorf("\nCache Expected: %s\nCache Actual: %s\n", string(test.content), string(cc))
-			}
+			assert.Equal(t, string(test.content), string(c))
+
 		}
 	}
 }
 
 func TestScpGetRemoteParallel(t *testing.T) {
 	t.Parallel()
-	fs := new(afero.MemMapFs)
+
+	ns := New(newDeps(viper.New()))
+
 	content := []byte(`T€st Content 123`)
-	url := "http://Foo.Bar/foo_Bar-Foo"
 	srv, cl := getTestServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Write(content)
 	})
 	defer func() { srv.Close() }()
 
-	for _, ignoreCache := range []bool{false, true} {
+	url := "http://Foo.Bar/foo_Bar-Foo"
+	req, err := http.NewRequest("GET", url, nil)
+	require.NoError(t, err)
 
+	for _, ignoreCache := range []bool{false, true} {
 		cfg := viper.New()
 		cfg.Set("ignoreCache", ignoreCache)
 
@@ -199,13 +150,9 @@ func TestScpGetRemoteParallel(t *testing.T) {
 			go func(gor int) {
 				defer wg.Done()
 				for j := 0; j < 10; j++ {
-					c, err := getRemote(url, fs, cfg, cl)
-					if err != nil {
-						t.Errorf("Error getting resource content: %s", err)
-					}
-					if !bytes.Equal(c, content) {
-						t.Errorf("\nNet Expected: %s\nNet Actual: %s\n", string(content), string(c))
-					}
+					c, err := getRemote(req, ns.deps.Fs.Source, ns.deps.Cfg, cl)
+					assert.NoError(t, err)
+					assert.Equal(t, string(content), string(c))
 
 					time.Sleep(23 * time.Millisecond)
 				}
@@ -213,137 +160,6 @@ func TestScpGetRemoteParallel(t *testing.T) {
 		}
 
 		wg.Wait()
-	}
-
-	t.Log("Done!")
-}
-
-func TestParseCSV(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		csv []byte
-		sep string
-		exp string
-		err bool
-	}{
-		{[]byte("a,b,c\nd,e,f\n"), "", "", true},
-		{[]byte("a,b,c\nd,e,f\n"), "~/", "", true},
-		{[]byte("a,b,c\nd,e,f"), "|", "a,b,cd,e,f", false},
-		{[]byte("q,w,e\nd,e,f"), ",", "qwedef", false},
-		{[]byte("a|b|c\nd|e|f|g"), "|", "abcdefg", true},
-		{[]byte("z|y|c\nd|e|f"), "|", "zycdef", false},
-	}
-	for _, test := range tests {
-		csv, err := parseCSV(test.csv, test.sep)
-		if test.err && err == nil {
-			t.Error("Expecting an error")
-		}
-		if test.err {
-			continue
-		}
-		if !test.err && err != nil {
-			t.Error(err)
-		}
-
-		act := ""
-		for _, v := range csv {
-			act = act + strings.Join(v, "")
-		}
-
-		if act != test.exp {
-			t.Errorf("\nExpected: %s\nActual: %s\n%#v\n", test.exp, act, csv)
-		}
-
-	}
-}
-
-func TestGetJSONFailParse(t *testing.T) {
-	t.Parallel()
-
-	ns := New(newDeps(viper.New()))
-
-	reqCount := 0
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if reqCount > 0 {
-			w.Header().Add("Content-type", "application/json")
-			fmt.Fprintln(w, `{"gomeetup":["Sydney", "San Francisco", "Stockholm"]}`)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintln(w, `ERROR 500`)
-		}
-		reqCount++
-	}))
-	defer ts.Close()
-	url := ts.URL + "/test.json"
-
-	want := map[string]interface{}{"gomeetup": []interface{}{"Sydney", "San Francisco", "Stockholm"}}
-	have := ns.GetJSON(url)
-	assert.NotNil(t, have)
-	if have != nil {
-		assert.EqualValues(t, want, have)
-	}
-}
-
-func TestGetCSVFailParseSep(t *testing.T) {
-	t.Parallel()
-
-	ns := New(newDeps(viper.New()))
-
-	reqCount := 0
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if reqCount > 0 {
-			w.Header().Add("Content-type", "application/json")
-			fmt.Fprintln(w, `gomeetup,city`)
-			fmt.Fprintln(w, `yes,Sydney`)
-			fmt.Fprintln(w, `yes,San Francisco`)
-			fmt.Fprintln(w, `yes,Stockholm`)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintln(w, `ERROR 500`)
-		}
-		reqCount++
-	}))
-	defer ts.Close()
-	url := ts.URL + "/test.csv"
-
-	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
-	have := ns.GetCSV(",", url)
-	assert.NotNil(t, have)
-	if have != nil {
-		assert.EqualValues(t, want, have)
-	}
-}
-
-func TestGetCSVFailParse(t *testing.T) {
-	t.Parallel()
-
-	ns := New(newDeps(viper.New()))
-
-	reqCount := 0
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-type", "application/json")
-		if reqCount > 0 {
-			fmt.Fprintln(w, `gomeetup,city`)
-			fmt.Fprintln(w, `yes,Sydney`)
-			fmt.Fprintln(w, `yes,San Francisco`)
-			fmt.Fprintln(w, `yes,Stockholm`)
-		} else {
-			fmt.Fprintln(w, `gomeetup,city`)
-			fmt.Fprintln(w, `yes,Sydney,Bondi,`) // wrong number of fields in line
-			fmt.Fprintln(w, `yes,San Francisco`)
-			fmt.Fprintln(w, `yes,Stockholm`)
-		}
-		reqCount++
-	}))
-	defer ts.Close()
-	url := ts.URL + "/test.csv"
-
-	want := [][]string{{"gomeetup", "city"}, {"yes", "Sydney"}, {"yes", "San Francisco"}, {"yes", "Stockholm"}}
-	have := ns.GetCSV(",", url)
-	assert.NotNil(t, have)
-	if have != nil {
-		assert.EqualValues(t, want, have)
 	}
 }
 
