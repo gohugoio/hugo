@@ -37,8 +37,8 @@ func New(deps *deps.Deps) *Namespace {
 
 // Namespace provides template functions for the "images" namespace.
 type Namespace struct {
-	sync.RWMutex
-	cache map[string]image.Config
+	cacheMu sync.RWMutex
+	cache   map[string]image.Config
 
 	deps *deps.Deps
 }
@@ -56,9 +56,9 @@ func (ns *Namespace) Config(path interface{}) (image.Config, error) {
 	}
 
 	// Check cache for image config.
-	ns.RLock()
+	ns.cacheMu.RLock()
 	config, ok := ns.cache[filename]
-	ns.RUnlock()
+	ns.cacheMu.RUnlock()
 
 	if ok {
 		return config, nil
@@ -71,9 +71,9 @@ func (ns *Namespace) Config(path interface{}) (image.Config, error) {
 
 	config, _, err = image.DecodeConfig(f)
 
-	ns.Lock()
+	ns.cacheMu.Lock()
 	ns.cache[filename] = config
-	ns.Unlock()
+	ns.cacheMu.Unlock()
 
 	return config, err
 }

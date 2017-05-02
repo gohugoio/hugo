@@ -727,36 +727,6 @@
               "imageConfig"
             ],
             "Examples": []
-          },
-          {
-            "Name": "Lock",
-            "Description": "",
-            "Aliases": null,
-            "Examples": null
-          },
-          {
-            "Name": "RLock",
-            "Description": "",
-            "Aliases": null,
-            "Examples": null
-          },
-          {
-            "Name": "RLocker",
-            "Description": "",
-            "Aliases": null,
-            "Examples": null
-          },
-          {
-            "Name": "RUnlock",
-            "Description": "",
-            "Aliases": null,
-            "Examples": null
-          },
-          {
-            "Name": "Unlock",
-            "Description": "",
-            "Aliases": null,
-            "Examples": null
           }
         ]
       },
