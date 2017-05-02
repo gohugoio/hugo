@@ -124,16 +124,15 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			iv := v.Int()
 			ivp = &iv
 			for i := 0; i < mv.Len(); i++ {
-				if anInt := toInt(mv.Index(i)); anInt != -1 {
+				if anInt, err := toInt(mv.Index(i)); err == nil {
 					ima = append(ima, anInt)
 				}
-
 			}
 		case reflect.String:
 			sv := v.String()
 			svp = &sv
 			for i := 0; i < mv.Len(); i++ {
-				if aString := toString(mv.Index(i)); aString != "" {
+				if aString, err := toString(mv.Index(i)); err == nil {
 					sma = append(sma, aString)
 				}
 			}
@@ -382,26 +381,37 @@ func (ns *Namespace) checkWhereMap(seqv, kv, mv reflect.Value, path []string, op
 	return rv.Interface(), nil
 }
 
+// toFloat returns the int value if possible.
+func toFloat(v reflect.Value) (float64, error) {
+	switch v.Kind() {
+	case reflect.Float32, reflect.Float64:
+		return v.Float(), nil
+	case reflect.Interface:
+		return toFloat(v.Elem())
+	}
+	return -1, errors.New("unable to convert value to float")
+}
+
 // toInt returns the int value if possible, -1 if not.
-func toInt(v reflect.Value) int64 {
+func toInt(v reflect.Value) (int64, error) {
 	switch v.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return v.Int()
+		return v.Int(), nil
 	case reflect.Interface:
 		return toInt(v.Elem())
 	}
-	return -1
+	return -1, errors.New("unable to convert value to int")
 }
 
 // toString returns the string value if possible, "" if not.
-func toString(v reflect.Value) string {
+func toString(v reflect.Value) (string, error) {
 	switch v.Kind() {
 	case reflect.String:
-		return v.String()
+		return v.String(), nil
 	case reflect.Interface:
 		return toString(v.Elem())
 	}
-	return ""
+	return "", errors.New("unable to convert value to string")
 }
 
 var (
