@@ -108,6 +108,15 @@ If left unspecified, the default value for `defaultContentLanguage` is `en`.
 
 By having the same *base filename*, the content pieces are linked together as translated pieces.
 
+If you need distinct URLs per language, you can set the slug in the non-default language file. For example, you can define a custom slug for a French translation in the front matter of `content/about.fr.md` as follows:
+
+```yaml
+slug: "a-propos"
+
+```
+
+At render, Hugo will build both `/about/` and `/a-propos/` as properly linked translated pages.
+
 ## Link to Translated Content
 
 To create a list of links to translated content, use a template similar to the following:
