@@ -96,6 +96,16 @@ If left unspecified, the value for `defaultContentLanguage` defaults to `en`.
 
 By having the same _base file name_, the content pieces are linked together as translated pieces.
 
+If you need distinct URLs per language you can set the slug in the non-default language file. Just define the custom slug for the french translation in your `/content/about.fr.md` file:
+
+```
+---
+slug: "a-propos"
+---
+```
+
+You will get both `/about/` and `/a-propos/` URLs in your build, properly linked as translated pieces.
+
 ### Link to translated content
 
 To create a list of links to translated content, use a template similar to this:
