@@ -76,7 +76,21 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 			tFunc, err := bndl.Tfunc(currentLang)
 			if err != nil {
 				jww.WARN.Printf("could not load translations for language %q (%s), will use default content language.\n", lang, err)
-			} else if translated := tFunc(translationID, args...); translated != translationID {
+			}
+
+			translated := tFunc(translationID, args...)
+			// If there is no translation for translationID,
+			// then Tfunc returns translationID itself.
+			if translated == translationID {
+				// But if user set same translationID and translation, we should check
+				// if it really untranslated this way:
+				// If bndl contains the translationID for specified currentLang,
+				// then the translationID is actually translated.
+				_, contains := bndl.Translations()[currentLang][translationID]
+				if contains {
+					return translated
+				}
+			} else {
 				return translated
 			}
 			if t.cfg.GetBool("logI18nWarnings") {
