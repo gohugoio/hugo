@@ -26,10 +26,12 @@ func New() *Namespace {
 type Namespace struct {
 }
 
+// ToInt converts the given value to an int.
 func (ns *Namespace) ToInt(v interface{}) (int, error) {
 	return _cast.ToIntE(v)
 }
 
+// ToString converts the given value to a string.
 func (ns *Namespace) ToString(v interface{}) (string, error) {
 	return _cast.ToStringE(v)
 }

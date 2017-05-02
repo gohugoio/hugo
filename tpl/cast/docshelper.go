@@ -25,7 +25,7 @@ func init() {
 		docs := make(map[string]interface{})
 		d := &deps.Deps{}
 
-		var namespaces []*internal.TemplateFuncsNamespace
+		var namespaces internal.TemplateFuncsNamespaces
 
 		for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 			nf := nsf(d)
