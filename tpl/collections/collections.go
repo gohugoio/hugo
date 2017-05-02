@@ -298,21 +298,49 @@ func (ns *Namespace) Intersect(l1, l2 interface{}) (interface{}, error) {
 					l2vv := l2v.Index(j)
 					switch l1vv.Kind() {
 					case reflect.String:
-						if l1vv.Type() == l2vv.Type() && l1vv.String() == l2vv.String() && !ns.In(r.Interface(), l2vv.Interface()) {
-							r = reflect.Append(r, l2vv)
+						l2t, err := toString(l2vv)
+						if err == nil && l1vv.String() == l2t && !ns.In(r.Interface(), l1vv.Interface()) {
+							r = reflect.Append(r, l1vv)
 						}
 					case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-						switch l2vv.Kind() {
-						case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-							if l1vv.Int() == l2vv.Int() && !ns.In(r.Interface(), l2vv.Interface()) {
-								r = reflect.Append(r, l2vv)
-							}
+						l2t, err := toInt(l2vv)
+						if err == nil && l1vv.Int() == l2t && !ns.In(r.Interface(), l1vv.Interface()) {
+							r = reflect.Append(r, l1vv)
 						}
 					case reflect.Float32, reflect.Float64:
-						switch l2vv.Kind() {
-						case reflect.Float32, reflect.Float64:
-							if l1vv.Float() == l2vv.Float() && !ns.In(r.Interface(), l2vv.Interface()) {
-								r = reflect.Append(r, l2vv)
+						l2t, err := toFloat(l2vv)
+						if err == nil && l1vv.Float() == l2t && !ns.In(r.Interface(), l1vv.Interface()) {
+							r = reflect.Append(r, l1vv)
+						}
+					case reflect.Interface:
+						switch l1vvActual := l1vv.Interface().(type) {
+						case string:
+							switch l2vvActual := l2vv.Interface().(type) {
+							case string:
+								if l1vvActual == l2vvActual && !ns.In(r.Interface(), l1vvActual) {
+									r = reflect.Append(r, l1vv)
+								}
+							}
+						case int, int8, int16, int32, int64:
+							switch l2vvActual := l2vv.Interface().(type) {
+							case int, int8, int16, int32, int64:
+								if l1vvActual == l2vvActual && !ns.In(r.Interface(), l1vvActual) {
+									r = reflect.Append(r, l1vv)
+								}
+							}
+						case uint, uint8, uint16, uint32, uint64:
+							switch l2vvActual := l2vv.Interface().(type) {
+							case uint, uint8, uint16, uint32, uint64:
+								if l1vvActual == l2vvActual && !ns.In(r.Interface(), l1vvActual) {
+									r = reflect.Append(r, l1vv)
+								}
+							}
+						case float32, float64:
+							switch l2vvActual := l2vv.Interface().(type) {
+							case float32, float64:
+								if l1vvActual == l2vvActual && !ns.In(r.Interface(), l1vvActual) {
+									r = reflect.Append(r, l1vv)
+								}
 							}
 						}
 					}
