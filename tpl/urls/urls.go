@@ -54,12 +54,12 @@ func (ns *Namespace) RelURL(a interface{}) (template.HTML, error) {
 	return template.HTML(ns.deps.PathSpec.RelURL(s, false)), nil
 }
 
-func (ns *Namespace) URLize(a interface{}) (template.URL, error) {
+func (ns *Namespace) URLize(a interface{}) (string, error) {
 	s, err := cast.ToStringE(a)
 	if err != nil {
 		return "", nil
 	}
-	return template.URL(ns.deps.PathSpec.URLize(s)), nil
+	return ns.deps.PathSpec.URLize(s), nil
 }
 
 type reflinker interface {
