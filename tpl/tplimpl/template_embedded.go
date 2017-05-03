@@ -155,9 +155,10 @@ func (t *templateHandler) embedTemplates() {
 {{- if eq .Name $._wa -}}{{/* Display only the current widget area */}}
 <div class="widget-area widget-area-{{ .Name }}">
   {{- $waname := .Name -}}
+  {{- $wa := . -}}
   {{ range .Widgets -}}
   <div class="widget widget-{{ .Type }}">
-    {{ $context := (dict "$" $.c "wa" $._wa "w" .Type "Params" .Params) }}
+    {{ $context := (dict "$" $.c "WidgetArea" $wa "Widget" .) }}
     {{ partial (print .Type "/widget.html") "widgets" $context }}
   </div>
   {{- end }}{{/* end range widgets */}}

@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"html/template"
 
+	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/deps"
 )
@@ -39,9 +40,8 @@ type Namespace struct {
 func (ns *Namespace) Widgets(name string, context interface{}) (interface{}, error) {
 	// Add (_wa: name) index/value to context to access it inside
 	// the embedded template (as Widget Area)
-	outcontext := make(map[string]interface{})
-	outcontext["c"] = context
-	outcontext["_wa"] = name
+	outcontext := cast.ToStringMap(context)
+	outcontext["_wa"] = name // The widget area name
 
 	// See in template_embedded for widgets.html
 	templ := ns.deps.Tmpl.Lookup("_internal/widgets.html")
