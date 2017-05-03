@@ -57,13 +57,8 @@ func (t Translator) Func(lang string) bundle.TranslateFunc {
 
 func (t Translator) initFuncs(bndl *bundle.Bundle) {
 	defaultContentLanguage := t.cfg.GetString("defaultContentLanguage")
-	var (
-		defaultT bundle.TranslateFunc
-		err      error
-	)
 
-	defaultT, err = bndl.Tfunc(defaultContentLanguage)
-
+	defaultT, err := bndl.Tfunc(defaultContentLanguage)
 	if err != nil {
 		jww.WARN.Printf("No translation bundle found for default language %q", defaultContentLanguage)
 	}
@@ -79,20 +74,17 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 			}
 
 			translated := tFunc(translationID, args...)
-			// If there is no translation for translationID,
-			// then Tfunc returns translationID itself.
-			if translated == translationID {
-				// But if user set same translationID and translation, we should check
-				// if it really untranslated this way:
-				// If bndl contains the translationID for specified currentLang,
-				// then the translationID is actually translated.
-				_, contains := bndl.Translations()[currentLang][translationID]
-				if contains {
-					return translated
-				}
-			} else {
+			if translated != translationID {
 				return translated
 			}
+			// If there is no translation for translationID,
+			// then Tfunc returns translationID itself.
+			// But if user set same translationID and translation, we should check
+			// if it really untranslated:
+			if isIDTranslated(currentLang, translationID, bndl) {
+				return translated
+			}
+
 			if t.cfg.GetBool("logI18nWarnings") {
 				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLang, translationID)
 			}
@@ -100,11 +92,22 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 				return "[i18n] " + translationID
 			}
 			if defaultT != nil {
-				if translated := defaultT(translationID, args...); translated != translationID {
+				translated := defaultT(translationID, args...)
+				if translated != translationID {
+					return translated
+				}
+				if isIDTranslated(defaultContentLanguage, translationID, bndl) {
 					return translated
 				}
 			}
 			return ""
 		}
 	}
+}
+
+// If bndl contains the translationID for specified currentLang,
+// then the translationID is actually translated.
+func isIDTranslated(lang, id string, b *bundle.Bundle) bool {
+	_, contains := b.Translations()[lang][id]
+	return contains
 }
