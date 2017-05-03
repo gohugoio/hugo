@@ -153,6 +153,10 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
+	if _, err := git("push", "origin", tag); err != nil {
+		return err
+	}
+
 	if err := r.release(releaseNotesFile); err != nil {
 		return err
 	}
