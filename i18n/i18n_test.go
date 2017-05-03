@@ -64,7 +64,7 @@ var i18nTests = []i18nTest{
 	// Translation missing in default language but present in current
 	{
 		data: map[string][]byte{
-			"en.toml": []byte("[goodybe]\nother = \"Goodbye, World!\""),
+			"en.toml": []byte("[goodbye]\nother = \"Goodbye, World!\""),
 			"es.toml": []byte("[hello]\nother = \"¡Hola, Mundo!\""),
 		},
 		args:         nil,
@@ -111,6 +111,31 @@ var i18nTests = []i18nTest{
 		id:           "wordCount",
 		expected:     "¡Hola, 50 gente!",
 		expectedFlag: "¡Hola, 50 gente!",
+	},
+	// Same id and translation in current language
+	// https://github.com/spf13/hugo/issues/2607
+	{
+		data: map[string][]byte{
+			"es.toml": []byte("[hello]\nother = \"hello\""),
+			"en.toml": []byte("[hello]\nother = \"hi\""),
+		},
+		args:         nil,
+		lang:         "es",
+		id:           "hello",
+		expected:     "hello",
+		expectedFlag: "hello",
+	},
+	// Translation missing in current language, but same id and translation in default
+	{
+		data: map[string][]byte{
+			"es.toml": []byte("[bye]\nother = \"bye\""),
+			"en.toml": []byte("[hello]\nother = \"hello\""),
+		},
+		args:         nil,
+		lang:         "es",
+		id:           "hello",
+		expected:     "hello",
+		expectedFlag: "[i18n] hello",
 	},
 }
 
