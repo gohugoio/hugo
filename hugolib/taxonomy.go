@@ -39,7 +39,7 @@ type WeightedPages []WeightedPage
 // A WeightedPage is a Page with a weight.
 type WeightedPage struct {
 	Weight int
-	Page   *Page
+	*Page
 }
 
 func (w WeightedPage) String() string {
