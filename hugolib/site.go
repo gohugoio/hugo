@@ -986,31 +986,35 @@ func (s *Site) setupSitePages() {
 	s.Info.LastChange = siteLastChange
 }
 
-func (s *Site) render() (err error) {
+func (s *Site) render(outFormatIdx int) (err error) {
 
-	if err = s.preparePages(); err != nil {
-		return
-	}
-	s.timerStep("prepare pages")
-
-	// Aliases must be rendered before pages.
-	// Some sites, Hugo docs included, have faulty alias definitions that point
-	// to itself or another real page. These will be overwritten in the next
-	// step.
-	if err = s.renderAliases(); err != nil {
-		return
-	}
-	s.timerStep("render and write aliases")
-
-	// TODO(bep) render consider this, ref. render404 etc.
-	s.initRenderFormats()
-	for _, rf := range s.renderFormats {
-		s.rc = &siteRenderingContext{Format: rf}
-		if err = s.renderPages(); err != nil {
+	if outFormatIdx == 0 {
+		if err = s.preparePages(); err != nil {
 			return
 		}
+		s.timerStep("prepare pages")
+
+		// Aliases must be rendered before pages.
+		// Some sites, Hugo docs included, have faulty alias definitions that point
+		// to itself or another real page. These will be overwritten in the next
+		// step.
+		if err = s.renderAliases(); err != nil {
+			return
+		}
+		s.timerStep("render and write aliases")
+
 	}
+
+	if err = s.renderPages(); err != nil {
+		return
+	}
+
 	s.timerStep("render and write pages")
+
+	// TODO(bep) render consider this, ref. render404 etc.
+	if outFormatIdx > 0 {
+		return
+	}
 
 	if err = s.renderSitemap(); err != nil {
 		return
