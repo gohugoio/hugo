@@ -309,6 +309,7 @@ func executeShortcodeFuncMap(funcs map[string]func() (string, error)) (map[strin
 }
 
 func renderShortcodes(shortcodes map[string]shortcode, p *Page) map[string]func() (string, error) {
+
 	renderedShortcodes := make(map[string]func() (string, error))
 
 	for key, sc := range shortcodes {
@@ -316,8 +317,8 @@ func renderShortcodes(shortcodes map[string]shortcode, p *Page) map[string]func(
 			// need to have something to replace with
 			renderedShortcodes[key] = emptyShortcodeFn
 		} else {
-			shorctode := sc
-			renderedShortcodes[key] = func() (string, error) { return renderShortcode(shorctode, nil, p), nil }
+			shortcode := sc
+			renderedShortcodes[key] = func() (string, error) { return renderShortcode(shortcode, nil, p), nil }
 		}
 	}
 

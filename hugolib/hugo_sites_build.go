@@ -203,26 +203,31 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 		return err
 	}
 
-	for _, s := range h.Sites {
-		s.preparePagesForRender(config)
-	}
-
 	return nil
 
 }
 
 func (h *HugoSites) render(config *BuildCfg) error {
-	if !config.SkipRender {
-		for _, s := range h.Sites {
-			if err := s.render(); err != nil {
-				return err
-			}
 
-			if config.PrintStats {
-				s.Stats()
+	for _, s := range h.Sites {
+		s.initRenderFormats()
+		for i, rf := range s.renderFormats {
+			s.rc = &siteRenderingContext{Format: rf}
+			s.preparePagesForRender(i, config)
+
+			if !config.SkipRender {
+				if err := s.render(i); err != nil {
+					return err
+				}
 			}
 		}
 
+		if !config.SkipRender && config.PrintStats {
+			s.Stats()
+		}
+	}
+
+	if !config.SkipRender {
 		if err := h.renderCrossSitesArtifacts(); err != nil {
 			return err
 		}

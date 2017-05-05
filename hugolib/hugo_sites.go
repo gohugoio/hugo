@@ -492,7 +492,13 @@ func (h *HugoSites) setupTranslations() {
 	}
 }
 
-func (s *Site) preparePagesForRender(cfg *BuildCfg) {
+func (s *Site) preparePagesForRender(outFormatIdx int, cfg *BuildCfg) {
+
+	if outFormatIdx > 0 {
+		// TODO(bep) for now
+		return
+	}
+
 	pageChan := make(chan *Page)
 	wg := &sync.WaitGroup{}
 	numWorkers := getGoMaxProcs() * 4
