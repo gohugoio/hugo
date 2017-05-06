@@ -1319,6 +1319,7 @@ func (p *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
 	if err != nil {
 		return
 	}
+	by = append(by, '\n')
 
 	_, err = buf.WriteRune('\n')
 	if err != nil {
