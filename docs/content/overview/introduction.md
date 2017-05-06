@@ -34,6 +34,8 @@ like Ruby, Python or PHP and without dependencies on any databases.
 [Aerobatic]: https://www.aerobatic.com/
 [Firebase Hosting]: https://firebase.google.com/docs/hosting/
 [Google Cloud Storage]: http://cloud.google.com/storage/
+[Ccloud Storage]: https://www.ccloud.com/
+[Comodo Online Backup]: https://backup.comodo.com/
 [Amazon S3]: http://aws.amazon.com/s3/
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
 [Surge]: https://surge.sh
