@@ -79,7 +79,9 @@ func (h htmlHandler) PageConvert(p *Page) HandledResult {
 	// Work on a copy of the raw content from now on.
 	p.createWorkContentCopy()
 
-	p.ProcessShortcodes()
+	if err := p.processShortcodes(); err != nil {
+		return HandledResult{err: err}
+	}
 
 	return HandledResult{err: nil}
 }
@@ -128,7 +130,9 @@ func commonConvert(p *Page) HandledResult {
 	// Work on a copy of the raw content from now on.
 	p.createWorkContentCopy()
 
-	p.ProcessShortcodes()
+	if err := p.processShortcodes(); err != nil {
+		return HandledResult{err: err}
+	}
 
 	// TODO(bep) these page handlers need to be re-evaluated, as it is hard to
 	// process a page in isolation. See the new preRender func.
