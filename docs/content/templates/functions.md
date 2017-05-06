@@ -529,6 +529,13 @@ e.g.
 ```
 
 
+
+### markdownify
+
+This will run the string through the Markdown processesor. The result will be declared as "safe" so Go templates will not filter it.
+
+e.g. {{ .Title | markdownify }}
+
 ### lower
 Converts all characters in string to lowercase.
 
