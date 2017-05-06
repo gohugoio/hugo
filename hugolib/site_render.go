@@ -77,13 +77,15 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			if i == 0 {
 				pageOutput, err = newPageOutput(page, false, outFormat)
 				page.mainPageOutput = pageOutput
-			} else {
-				pageOutput, err = page.mainPageOutput.copyWithFormat(outFormat)
 			}
 
 			if outFormat != page.s.rc.Format {
 				// Will be rendered  ... later.
 				continue
+			}
+
+			if pageOutput == nil {
+				pageOutput, err = page.mainPageOutput.copyWithFormat(outFormat)
 			}
 
 			if err != nil {

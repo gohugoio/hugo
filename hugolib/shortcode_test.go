@@ -22,6 +22,14 @@ import (
 	"strings"
 	"testing"
 
+	jww "github.com/spf13/jwalterweatherman"
+
+	"github.com/spf13/afero"
+
+	"github.com/spf13/hugo/output"
+
+	"github.com/spf13/hugo/media"
+
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/hugo/source"
@@ -353,7 +361,7 @@ func TestExtractShortcodes(t *testing.T) {
 			return nil
 		})
 
-		s := newShortcodeHandler()
+		s := newShortcodeHandler(p)
 		content, err := s.extractShortcodes(this.input, p)
 
 		if b, ok := this.expect.(bool); ok && !b {
@@ -563,6 +571,150 @@ tags:
 
 }
 
+func TestShortcodeMultipleOutputFormats(t *testing.T) {
+	t.Parallel()
+
+	siteConfig := `
+baseURL = "http://example.com/blog"
+
+paginate = 1
+
+disableKinds = ["section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+
+[outputs]
+home = [ "HTML", "AMP", "Calendar" ]
+page =  [ "HTML", "AMP", "JSON" ]
+
+`
+
+	pageTemplate := `---
+title: "%s"
+---
+# Doc
+
+{{< myShort >}}
+{{< noExt >}}
+{{%% onlyHTML %%}}
+
+{{< myInner >}}{{< myShort >}}{{< /myInner >}}
+
+`
+
+	pageTemplateCSVOnly := `---
+title: "%s"
+outputs: ["CSV"]
+---
+# Doc
+
+CSV: {{< myShort >}}
+`
+
+	pageTemplateShortcodeNotFound := `---
+title: "%s"
+outputs: ["CSV"]
+---
+# Doc
+
+NotFound: {{< thisDoesNotExist >}}
+`
+
+	mf := afero.NewMemMapFs()
+
+	th, h := newTestSitesFromConfig(t, mf, siteConfig,
+		"layouts/_default/single.html", `Single HTML: {{ .Title }}|{{ .Content }}`,
+		"layouts/_default/single.json", `Single JSON: {{ .Title }}|{{ .Content }}`,
+		"layouts/_default/single.csv", `Single CSV: {{ .Title }}|{{ .Content }}`,
+		"layouts/index.html", `Home HTML: {{ .Title }}|{{ .Content }}`,
+		"layouts/index.amp.html", `Home AMP: {{ .Title }}|{{ .Content }}`,
+		"layouts/index.ics", `Home Calendar: {{ .Title }}|{{ .Content }}`,
+		"layouts/shortcodes/myShort.html", `ShortHTML`,
+		"layouts/shortcodes/myShort.amp.html", `ShortAMP`,
+		"layouts/shortcodes/myShort.csv", `ShortCSV`,
+		"layouts/shortcodes/myShort.ics", `ShortCalendar`,
+		"layouts/shortcodes/myShort.json", `ShortJSON`,
+		"layouts/shortcodes/noExt", `ShortNoExt`,
+		"layouts/shortcodes/onlyHTML.html", `ShortOnlyHTML`,
+		"layouts/shortcodes/myInner.html", `myInner:--{{- .Inner -}}--`,
+	)
+
+	fs := th.Fs
+
+	writeSource(t, fs, "content/_index.md", fmt.Sprintf(pageTemplate, "Home"))
+	writeSource(t, fs, "content/sect/mypage.md", fmt.Sprintf(pageTemplate, "Single"))
+	writeSource(t, fs, "content/sect/mycsvpage.md", fmt.Sprintf(pageTemplateCSVOnly, "Single CSV"))
+	writeSource(t, fs, "content/sect/notfound.md", fmt.Sprintf(pageTemplateShortcodeNotFound, "Single CSV"))
+
+	require.NoError(t, h.Build(BuildCfg{}))
+	require.Len(t, h.Sites, 1)
+
+	s := h.Sites[0]
+	home := s.getPage(KindHome)
+	require.NotNil(t, home)
+	require.Len(t, home.outputFormats, 3)
+
+	th.assertFileContent("public/index.html",
+		"Home HTML",
+		"ShortHTML",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortHTML--",
+	)
+
+	th.assertFileContent("public/amp/index.html",
+		"Home AMP",
+		"ShortAMP",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortAMP--",
+	)
+
+	th.assertFileContent("public/index.ics",
+		"Home Calendar",
+		"ShortCalendar",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortCalendar--",
+	)
+
+	th.assertFileContent("public/sect/mypage/index.html",
+		"Single HTML",
+		"ShortHTML",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortHTML--",
+	)
+
+	th.assertFileContent("public/sect/mypage/index.json",
+		"Single JSON",
+		"ShortJSON",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortJSON--",
+	)
+
+	th.assertFileContent("public/amp/sect/mypage/index.html",
+		// No special AMP template
+		"Single HTML",
+		"ShortAMP",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortAMP--",
+	)
+
+	th.assertFileContent("public/sect/mycsvpage/index.csv",
+		"Single CSV",
+		"ShortCSV",
+	)
+
+	th.assertFileContent("public/sect/notfound/index.csv",
+		"NotFound:",
+		"thisDoesNotExist",
+	)
+
+	require.Equal(t, uint64(1), s.Log.LogCountForLevel(jww.LevelError))
+
+}
+
 func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
 	var asArray []string
 
@@ -679,5 +831,15 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		}
 
 	}
+
+}
+
+func TestScKey(t *testing.T) {
+	require.Equal(t, scKey{Suffix: "xml", ShortcodePlaceholder: "ABCD"},
+		newScKey(media.XMLType, "ABCD"))
+	require.Equal(t, scKey{Suffix: "html", OutputFormat: "AMP", ShortcodePlaceholder: "EFGH"},
+		newScKeyFromOutputFormat(output.AMPFormat, "EFGH"))
+	require.Equal(t, scKey{Suffix: "html", ShortcodePlaceholder: "IJKL"},
+		newDefaultScKey("IJKL"))
 
 }

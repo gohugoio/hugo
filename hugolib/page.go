@@ -1257,6 +1257,11 @@ func (p *Page) Menus() PageMenus {
 	return p.pageMenus
 }
 
+func (p *Page) shouldRenderTo(f output.Format) bool {
+	_, found := p.outputFormats.GetByName(f.Name)
+	return found
+}
+
 func (p *Page) determineMarkupType() string {
 	// Try markup explicitly set in the frontmatter
 	p.Markup = helpers.GuessType(p.Markup)
@@ -1372,8 +1377,8 @@ func (p *Page) SaveSource() error {
 }
 
 func (p *Page) processShortcodes() error {
-	p.shortcodeState = newShortcodeHandler()
-	tmpContent, err := p.shortcodeState.extractAndRenderShortcodes(string(p.workContent), p)
+	p.shortcodeState = newShortcodeHandler(p)
+	tmpContent, err := p.shortcodeState.extractShortcodes(string(p.workContent), p)
 	if err != nil {
 		return err
 	}

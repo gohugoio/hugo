@@ -58,6 +58,11 @@ type TemplateExecutor interface {
 	Tree() string
 }
 
+// TemplateDebugger prints some debug info to stdoud.
+type TemplateDebugger interface {
+	Debug()
+}
+
 // TemplateAdapter implements the TemplateExecutor interface.
 type TemplateAdapter struct {
 	Template

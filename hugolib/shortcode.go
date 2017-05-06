@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2017 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,10 @@ import (
 	"sort"
 	"strings"
 	"sync"
+
+	"github.com/spf13/hugo/output"
+
+	"github.com/spf13/hugo/media"
 
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/helpers"
@@ -149,9 +153,43 @@ func (sc shortcode) String() string {
 	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
 }
 
+// We may have special shortcode templates for AMP etc.
+// Note that in the below, OutputFormat may be empty.
+// We will try to look for the most specific shortcode template available.
+type scKey struct {
+	OutputFormat         string
+	Suffix               string
+	ShortcodePlaceholder string
+}
+
+func newScKey(m media.Type, shortcodeplaceholder string) scKey {
+	return scKey{Suffix: m.Suffix, ShortcodePlaceholder: shortcodeplaceholder}
+}
+
+func newScKeyFromOutputFormat(o output.Format, shortcodeplaceholder string) scKey {
+	return scKey{Suffix: o.MediaType.Suffix, OutputFormat: o.Name, ShortcodePlaceholder: shortcodeplaceholder}
+}
+
+func newDefaultScKey(shortcodeplaceholder string) scKey {
+	return newScKey(media.HTMLType, shortcodeplaceholder)
+}
+
 type shortcodeHandler struct {
-	// Maps the shortcodeplaceholder with the shortcode rendering func.
-	contentShortCodes map[string]func() (string, error)
+	init sync.Once
+
+	p *Page
+
+	// This is all shortcode rendering funcs for all potential output formats.
+	contentShortcodes map[scKey]func() (string, error)
+
+	// This map contains the new or changed set of shortcodes that need
+	// to be rendered for the current output format.
+	contentShortcodesDelta map[scKey]func() (string, error)
+
+	// This maps the shorcode placeholders with the rendered content.
+	// We will do (potential) partial re-rendering per output format,
+	// so keep this for the unchanged.
+	renderedShortcodes map[string]string
 
 	// Maps the shortcodeplaceholder with the actual shortcode.
 	shortcodes map[string]shortcode
@@ -160,11 +198,13 @@ type shortcodeHandler struct {
 	nameSet map[string]bool
 }
 
-func newShortcodeHandler() *shortcodeHandler {
+func newShortcodeHandler(p *Page) *shortcodeHandler {
 	return &shortcodeHandler{
-		contentShortCodes: make(map[string]func() (string, error)),
-		shortcodes:        make(map[string]shortcode),
-		nameSet:           make(map[string]bool),
+		p:                  p,
+		contentShortcodes:  make(map[scKey]func() (string, error)),
+		shortcodes:         make(map[string]shortcode),
+		nameSet:            make(map[string]bool),
+		renderedShortcodes: make(map[string]string),
 	}
 }
 
@@ -208,11 +248,30 @@ const innerNewlineRegexp = "\n"
 const innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
 const innerCleanupExpand = "$1"
 
-func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
-	tmpl := getShortcodeTemplate(sc.name, p.s.Tmpl)
+func prepareShortcodeForPage(placeholder string, sc shortcode, parent *ShortcodeWithPage, p *Page) map[scKey]func() (string, error) {
 
+	m := make(map[scKey]func() (string, error))
+
+	for _, f := range p.outputFormats {
+		// The most specific template will win.
+		key := newScKeyFromOutputFormat(f, placeholder)
+		m[key] = func() (string, error) {
+			return renderShortcode(key, sc, nil, p), nil
+		}
+	}
+
+	return m
+}
+
+func renderShortcode(
+	tmplKey scKey,
+	sc shortcode,
+	parent *ShortcodeWithPage,
+	p *Page) string {
+
+	tmpl := getShortcodeTemplateForTemplateKey(tmplKey, sc.name, p.s.Tmpl)
 	if tmpl == nil {
-		p.s.Log.ERROR.Printf("Unable to locate template for shortcode '%s' in page %q", sc.name, p.Path())
+		p.s.Log.ERROR.Printf("Unable to locate template for shortcode %q in page %q", sc.name, p.Path())
 		return ""
 	}
 
@@ -228,7 +287,7 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 			case string:
 				inner += innerData.(string)
 			case shortcode:
-				inner += renderShortcode(innerData.(shortcode), data, p)
+				inner += renderShortcode(tmplKey, innerData.(shortcode), data, p)
 			default:
 				p.s.Log.ERROR.Printf("Illegal state on shortcode rendering of %q in page %q. Illegal type in inner data: %s ",
 					sc.name, p.Path(), reflect.TypeOf(innerData))
@@ -268,6 +327,7 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 				}
 			}
 
+			// TODO(bep) we may have plain text inner templates.
 			data.Inner = template.HTML(newInner)
 		} else {
 			data.Inner = template.HTML(inner)
@@ -278,51 +338,91 @@ func renderShortcode(sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 	return renderShortcodeWithPage(tmpl, data)
 }
 
-func (s *shortcodeHandler) extractAndRenderShortcodes(stringToParse string, p *Page) (string, error) {
-	content, err := s.extractShortcodes(stringToParse, p)
+// The delta represents new output format-versions of the shortcodes,
+// which, combined with the ones that do not have alternative representations,
+// builds a complete set ready for a full rebuild of the Page content.
+// This method returns false if there are no new shortcode variants in the
+// current rendering context's output format. This mean we can safely reuse
+// the content from the previous output format, if any.
+func (s *shortcodeHandler) updateDelta() bool {
+	s.init.Do(func() {
+		s.contentShortcodes = createShortcodeRenderers(s.shortcodes, s.p)
+	})
 
-	if err != nil {
-		//  try to render what we have whilst logging the error
-		p.s.Log.ERROR.Println(err.Error())
+	contentShortcodes := s.contentShortcodesForOutputFormat(s.p.s.rc.Format)
+
+	if s.contentShortcodesDelta == nil || len(s.contentShortcodesDelta) == 0 {
+		s.contentShortcodesDelta = contentShortcodes
+		return true
 	}
 
-	s.contentShortCodes = renderShortcodes(s.shortcodes, p)
+	delta := make(map[scKey]func() (string, error))
 
-	return content, err
+	for k, v := range contentShortcodes {
+		if _, found := s.contentShortcodesDelta[k]; !found {
+			delta[k] = v
+		}
+	}
 
+	s.contentShortcodesDelta = delta
+
+	return len(delta) > 0
 }
 
-var emptyShortcodeFn = func() (string, error) { return "", nil }
+func (s *shortcodeHandler) contentShortcodesForOutputFormat(f output.Format) map[scKey]func() (string, error) {
+	contentShortcodesForOuputFormat := make(map[scKey]func() (string, error))
+	for shortcodePlaceholder := range s.shortcodes {
 
-func executeShortcodeFuncMap(funcs map[string]func() (string, error)) (map[string]string, error) {
-	result := make(map[string]string)
+		key := newScKeyFromOutputFormat(f, shortcodePlaceholder)
+		renderFn, found := s.contentShortcodes[key]
 
-	for k, v := range funcs {
-		s, err := v()
+		if !found {
+			key.OutputFormat = ""
+			renderFn, found = s.contentShortcodes[key]
+		}
+
+		// Fall back to HTML
+		if !found && key.Suffix != "html" {
+			key.Suffix = "html"
+			renderFn, found = s.contentShortcodes[key]
+		}
+
+		if !found {
+			panic(fmt.Sprintf("Shortcode %q could not be found", shortcodePlaceholder))
+		}
+		contentShortcodesForOuputFormat[newScKeyFromOutputFormat(f, shortcodePlaceholder)] = renderFn
+	}
+
+	return contentShortcodesForOuputFormat
+}
+
+func (s *shortcodeHandler) executeShortcodesForDelta(p *Page) error {
+
+	for k, render := range s.contentShortcodesDelta {
+		renderedShortcode, err := render()
 		if err != nil {
-			return nil, fmt.Errorf("Failed to execute shortcode with key %s: %s", k, err)
+			return fmt.Errorf("Failed to execute shortcode in page %q: %s", p.Path(), err)
 		}
-		result[k] = s
+
+		s.renderedShortcodes[k.ShortcodePlaceholder] = renderedShortcode
 	}
 
-	return result, nil
+	return nil
+
 }
 
-func renderShortcodes(shortcodes map[string]shortcode, p *Page) map[string]func() (string, error) {
+func createShortcodeRenderers(shortcodes map[string]shortcode, p *Page) map[scKey]func() (string, error) {
 
-	renderedShortcodes := make(map[string]func() (string, error))
+	shortcodeRenderers := make(map[scKey]func() (string, error))
 
-	for key, sc := range shortcodes {
-		if sc.err != nil {
-			// need to have something to replace with
-			renderedShortcodes[key] = emptyShortcodeFn
-		} else {
-			shortcode := sc
-			renderedShortcodes[key] = func() (string, error) { return renderShortcode(shortcode, nil, p), nil }
+	for k, v := range shortcodes {
+		prepared := prepareShortcodeForPage(k, v, nil, p)
+		for kk, vv := range prepared {
+			shortcodeRenderers[kk] = vv
 		}
 	}
 
-	return renderedShortcodes
+	return shortcodeRenderers
 }
 
 var errShortCodeIllegalState = errors.New("Illegal shortcode state")
@@ -395,7 +495,9 @@ Loop:
 			sc.inner = append(sc.inner, currItem.val)
 		case tScName:
 			sc.name = currItem.val
-			tmpl := getShortcodeTemplate(sc.name, p.s.Tmpl)
+			// We pick the first template for an arbitrary output format
+			// if more than one. It is "all inner or no inner".
+			tmpl := getShortcodeTemplateForTemplateKey(scKey{}, sc.name, p.s.Tmpl)
 			if tmpl == nil {
 				return sc, fmt.Errorf("Unable to locate template for shortcode %q in page %q", sc.name, p.Path())
 			}
@@ -566,17 +668,38 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 	return source, nil
 }
 
-func getShortcodeTemplate(name string, t tpl.TemplateFinder) *tpl.TemplateAdapter {
+func getShortcodeTemplateForTemplateKey(key scKey, shortcodeName string, t tpl.TemplateFinder) *tpl.TemplateAdapter {
 	isInnerShortcodeCache.RLock()
 	defer isInnerShortcodeCache.RUnlock()
 
-	if x := t.Lookup("shortcodes/" + name + ".html"); x != nil {
-		return x
+	var names []string
+
+	suffix := strings.ToLower(key.Suffix)
+	outFormat := strings.ToLower(key.OutputFormat)
+
+	if outFormat != "" && suffix != "" {
+		names = append(names, fmt.Sprintf("%s.%s.%s", shortcodeName, outFormat, suffix))
 	}
-	if x := t.Lookup("theme/shortcodes/" + name + ".html"); x != nil {
-		return x
+
+	if suffix != "" {
+		names = append(names, fmt.Sprintf("%s.%s", shortcodeName, suffix))
 	}
-	return t.Lookup("_internal/shortcodes/" + name + ".html")
+
+	names = append(names, shortcodeName)
+
+	for _, name := range names {
+
+		if x := t.Lookup("shortcodes/" + name); x != nil {
+			return x
+		}
+		if x := t.Lookup("theme/shortcodes/" + name); x != nil {
+			return x
+		}
+		if x := t.Lookup("_internal/shortcodes/" + name); x != nil {
+			return x
+		}
+	}
+	return nil
 }
 
 func renderShortcodeWithPage(tmpl tpl.Template, data *ShortcodeWithPage) string {

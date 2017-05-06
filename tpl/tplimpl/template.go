@@ -14,7 +14,9 @@
 package tplimpl
 
 import (
+	"fmt"
 	"html/template"
+	"path"
 	"strings"
 	texttemplate "text/template"
 
@@ -39,6 +41,7 @@ const (
 
 var (
 	_ tpl.TemplateHandler       = (*templateHandler)(nil)
+	_ tpl.TemplateDebugger      = (*templateHandler)(nil)
 	_ tpl.TemplateFuncsGetter   = (*templateHandler)(nil)
 	_ tpl.TemplateTestMocker    = (*templateHandler)(nil)
 	_ tpl.TemplateFinder        = (*htmlTemplates)(nil)
@@ -86,6 +89,11 @@ type templateHandler struct {
 
 func (t *templateHandler) addError(name string, err error) {
 	t.errors = append(t.errors, &templateErr{name, err})
+}
+
+func (t *templateHandler) Debug() {
+	fmt.Println("HTML templates:\n", t.html.t.DefinedTemplates())
+	fmt.Println("\n\nText templates:\n", t.text.t.DefinedTemplates())
 }
 
 // PrintErrors prints the accumulated errors as ERROR to the log.
@@ -293,6 +301,13 @@ func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) e
 		return err
 	}
 
+	if strings.Contains(name, "shortcodes") {
+		// We need to keep track of one ot the output format's shortcode template
+		// without knowing the rendering context.
+		withoutExt := strings.TrimSuffix(name, path.Ext(name))
+		tt.AddParseTree(withoutExt, templ.Tree)
+	}
+
 	return nil
 }
 
@@ -313,6 +328,13 @@ func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl strin
 
 	if err := applyTemplateTransformersToTextTemplate(templ); err != nil {
 		return err
+	}
+
+	if strings.Contains(name, "shortcodes") {
+		// We need to keep track of one ot the output format's shortcode template
+		// without knowing the rendering context.
+		withoutExt := strings.TrimSuffix(name, path.Ext(name))
+		tt.AddParseTree(withoutExt, templ.Tree)
 	}
 
 	return nil

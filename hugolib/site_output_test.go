@@ -99,6 +99,8 @@ title: "%s"
 outputs: %s
 ---
 # Doc
+
+{{< myShort >}}
 `
 
 	mf := afero.NewMemMapFs()
@@ -118,6 +120,8 @@ other = "Olboge"
 		"layouts/partials/GoHugo.html", `Go Hugo Partial`,
 		"layouts/_default/baseof.json", `START JSON:{{block "main" .}}default content{{ end }}:END JSON`,
 		"layouts/_default/baseof.html", `START HTML:{{block "main" .}}default content{{ end }}:END HTML`,
+		"layouts/shortcodes/myShort.html", `ShortHTML`,
+		"layouts/shortcodes/myShort.json", `ShortJSON`,
 
 		"layouts/_default/list.json", `{{ define "main" }}
 List JSON|{{ .Title }}|{{ .Content }}|Alt formats: {{ len .AlternativeOutputFormats -}}|
@@ -141,6 +145,7 @@ List HTML|{{.Title }}|
 {{ .Site.Language.Lang }}: {{ T "elbow" -}}
 Partial Hugo 1: {{ partial "GoHugo.html" . }}
 Partial Hugo 2: {{ partial "GoHugo" . -}}
+Content: {{ .Content }}
 {{ end }}
 `,
 	)
@@ -180,6 +185,7 @@ Partial Hugo 2: {{ partial "GoHugo" . -}}
 			"Output/Rel: JSON/alternate|",
 			"Output/Rel: HTML/canonical|",
 			"en: Elbow",
+			"ShortJSON",
 		)
 
 		th.assertFileContent("public/index.html",
@@ -187,6 +193,7 @@ Partial Hugo 2: {{ partial "GoHugo" . -}}
 			// parsed with html/template.
 			`List HTML|JSON Home|<atom:link href=http://example.com/blog/ rel="self" type="text/html&#43;html" />`,
 			"en: Elbow",
+			"ShortHTML",
 		)
 		th.assertFileContent("public/nn/index.html",
 			"List HTML|JSON Nynorsk Heim|",
@@ -196,10 +203,12 @@ Partial Hugo 2: {{ partial "GoHugo" . -}}
 			"Output/Rel: JSON/canonical|",
 			// JSON is plain text, so no need to safeHTML this and that
 			`<atom:link href=http://example.com/blog/index.json rel="self" type="application/json+json" />`,
+			"ShortJSON",
 		)
 		th.assertFileContent("public/nn/index.json",
 			"List JSON|JSON Nynorsk Heim|",
 			"nn: Olboge",
+			"ShortJSON",
 		)
 	}
 
