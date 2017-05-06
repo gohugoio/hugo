@@ -492,12 +492,7 @@ func (h *HugoSites) setupTranslations() {
 	}
 }
 
-func (s *Site) preparePagesForRender(outFormatIdx int, cfg *BuildCfg) {
-
-	if outFormatIdx > 0 {
-		// TODO(bep) for now
-		return
-	}
+func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 
 	pageChan := make(chan *Page)
 	wg := &sync.WaitGroup{}
@@ -508,8 +503,16 @@ func (s *Site) preparePagesForRender(outFormatIdx int, cfg *BuildCfg) {
 		go func(pages <-chan *Page, wg *sync.WaitGroup) {
 			defer wg.Done()
 			for p := range pages {
+				if !p.shouldRenderTo(s.rc.Format) {
+					// No need to prepare
+					continue
+				}
+				var shortcodeUpdate bool
+				if p.shortcodeState != nil {
+					shortcodeUpdate = p.shortcodeState.updateDelta()
+				}
 
-				if !cfg.whatChanged.other && p.rendered {
+				if !shortcodeUpdate && !cfg.whatChanged.other && p.rendered {
 					// No need to process it again.
 					continue
 				}
@@ -521,10 +524,12 @@ func (s *Site) preparePagesForRender(outFormatIdx int, cfg *BuildCfg) {
 				// Mark it as rendered
 				p.rendered = true
 
-				// If in watch mode, we need to keep the original so we can
-				// repeat this process on rebuild.
+				// If in watch mode or if we have multiple output formats,
+				// we need to keep the original so we can
+				// potentially repeat this process on rebuild.
+				needsACopy := cfg.Watching || len(p.outputFormats) > 1
 				var workContentCopy []byte
-				if cfg.Watching {
+				if needsACopy {
 					workContentCopy = make([]byte, len(p.workContent))
 					copy(workContentCopy, p.workContent)
 				} else {
@@ -589,15 +594,15 @@ func (h *HugoSites) Pages() Pages {
 }
 
 func handleShortcodes(p *Page, rawContentCopy []byte) ([]byte, error) {
-	if p.shortcodeState != nil && len(p.shortcodeState.contentShortCodes) > 0 {
-		p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.shortcodeState.contentShortCodes), p.BaseFileName())
-		shortcodes, err := executeShortcodeFuncMap(p.shortcodeState.contentShortCodes)
+	if p.shortcodeState != nil && len(p.shortcodeState.contentShortcodes) > 0 {
+		p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.shortcodeState.contentShortcodes), p.BaseFileName())
+		err := p.shortcodeState.executeShortcodesForDelta(p)
 
 		if err != nil {
 			return rawContentCopy, err
 		}
 
-		rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, shortcodePlaceholderPrefix, shortcodes)
+		rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, shortcodePlaceholderPrefix, p.shortcodeState.renderedShortcodes)
 
 		if err != nil {
 			p.s.Log.FATAL.Printf("Failed to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())

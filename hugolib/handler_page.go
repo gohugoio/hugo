@@ -80,7 +80,7 @@ func (h htmlHandler) PageConvert(p *Page) HandledResult {
 	p.createWorkContentCopy()
 
 	if err := p.processShortcodes(); err != nil {
-		return HandledResult{err: err}
+		p.s.Log.ERROR.Println(err)
 	}
 
 	return HandledResult{err: nil}
@@ -131,7 +131,7 @@ func commonConvert(p *Page) HandledResult {
 	p.createWorkContentCopy()
 
 	if err := p.processShortcodes(); err != nil {
-		return HandledResult{err: err}
+		p.s.Log.ERROR.Println(err)
 	}
 
 	// TODO(bep) these page handlers need to be re-evaluated, as it is hard to
