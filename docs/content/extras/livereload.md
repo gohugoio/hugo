@@ -54,6 +54,9 @@ just do:
 {{< nohighlight >}}$ hugo server --watch=false
 {{< /nohighlight >}}
 
+It's worth noting that "--watch" is enabled by default when "hugo server"
+is run.
+
 ## Disabling LiveReload
 
 LiveReload works by injecting JavaScript into the pages Hugo generates,
