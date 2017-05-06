@@ -422,8 +422,17 @@ func prettifyPath(in string, b filepathPathBridge) string {
 		// /section/name/index.html -> /section/name/index.html
 		return b.Clean(in)
 	}
+
 	// /section/name.html -> /section/name/index.html
-	return b.Join(b.Dir(in), name, "index"+ext)
+	// /.xml -> /index.xml
+	// /node.js/page/2 -> /node.js/page/2
+	r := regexp.MustCompile("[.html|.xml]$")
+	if r.MatchString(ext) {
+		return b.Join(b.Dir(in), name, "index"+ext)
+	} else {
+		return b.Clean(in)
+	}
+
 }
 
 // ExtractRootPaths extracts the root paths from the supplied list of paths.
