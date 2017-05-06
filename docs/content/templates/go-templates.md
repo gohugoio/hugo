@@ -145,6 +145,10 @@ range.
         {{ $element }}
     {{ end }}
 
+The `index` function is a [Go][] built-in, and you can read about it [here][gostdlibpkgtexttemplate]. `index`:
+
+> ...returns the result of indexing its first argument by the following arguments. Thus "index x 1 2 3" is, in Go syntax, `x[1][2][3]`. Each indexed item must be a map, slice, or array.
+
 ### Conditionals
 
 `if`, `else`, `with`, `or` & `and` provide the framework for handling conditional
