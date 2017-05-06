@@ -62,6 +62,7 @@ func NewContent(s *hugolib.Site, kind, name string) (err error) {
 
 	page, err := s.NewPage(name)
 	if err != nil {
+		jww.ERROR.Println("Error processing archetype file:", location)
 		return err
 	}
 
