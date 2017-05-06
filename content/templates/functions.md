@@ -63,7 +63,7 @@ e.g.
     // Outputs Tags: tag1, tag2 and tag3
 
 ### dict
-Creates a dictionary `(map[string, interface{})`, expects parameters added in value:object fasion.
+Creates a dictionary `(map[string, interface{})`, expects parameters added in value:object fashion.
 Invalid combinations like keys that are not strings or uneven number of parameters, will result in an exception thrown.
 Useful for passing maps to partials when adding to a template.
 
