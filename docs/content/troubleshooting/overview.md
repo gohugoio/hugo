@@ -8,9 +8,9 @@ title: Troubleshooting Overview
 weight: 0
 ---
 
-Got stuck?  Worry not!  Chances are other users have encountered
-the exact same problem as you have, brought it up for
-[discussion](http://discuss.gohugo.io/), and have likely found a solution
+Got stuck? Worry not! Chances are other users have encountered
+the exact same problem, brought it up for
+[discussion](http://discuss.gohugo.io/), and found a solution
 through the collective wisdom of our vibrant Hugo community!
 
 Here are some examples:
@@ -24,13 +24,9 @@ Here are some examples:
 {{% youtube c8fJIRNChmU %}}
 
 Indeed, you may find many questions and solutions
-to problems in our [discussion forum](http://discuss.gohugo.io/),
-and you may find the [support](http://discuss.gohugo.io/category/support)
+to problems in our [discussion forum](http://discuss.gohugo.io/). The [support](http://discuss.gohugo.io/category/support)
 and [tips & tricks](http://discuss.gohugo.io/category/tips-tricks)
-categories particularly helpful.
+categories are particularly helpful.
 
-Can't find anything?  Please write on the forum and post your questions
-and comments!  Sometimes, your feedback may lead to the discovery of
-existing bugs in the code or in the documentation, and may even spur
-the interest of adding new features to the next Hugo version, improving
-Hugo for everybody!  (Thank you!)  See you on the forum!
+Can't find what you're looking for? Please write on the forum and post your questions
+and comments! Your feedback may help us find bugs in the code or documentation. It may even encourage us to add new features to the next version of Hugo, which makes it better for everybody! (Thank you!) See you on the forum!
