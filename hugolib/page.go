@@ -1371,10 +1371,15 @@ func (p *Page) SaveSource() error {
 	return p.SaveSourceAs(p.FullFilePath())
 }
 
-func (p *Page) ProcessShortcodes() {
+func (p *Page) processShortcodes() error {
 	p.shortcodeState = newShortcodeHandler()
-	tmpContent, _ := p.shortcodeState.extractAndRenderShortcodes(string(p.workContent), p)
+	tmpContent, err := p.shortcodeState.extractAndRenderShortcodes(string(p.workContent), p)
+	if err != nil {
+		return err
+	}
 	p.workContent = []byte(tmpContent)
+
+	return nil
 
 }
 
