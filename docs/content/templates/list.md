@@ -54,10 +54,10 @@ Note that a sections list page can also have a content file with frontmatter,  s
 
 A Taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g.&nbsp;http://spf13.com/topics/golang/) from:
 
-* /layouts/taxonomy/`SINGULAR`.html (e.g.&nbsp;`/layouts/taxonomy/topic.html`)
+* /layouts/taxonomy/`PLURAL`.html (e.g.&nbsp;`/layouts/taxonomy/topics.html`)
 * /layouts/\_default/taxonomy.html
 * /layouts/\_default/list.html
-* /themes/`THEME`/layouts/taxonomy/`SINGULAR`.html
+* /themes/`THEME`/layouts/taxonomy/`PLURAL`.html
 * /themes/`THEME`/layouts/\_default/taxonomy.html
 * /themes/`THEME`/layouts/\_default/list.html
 
@@ -90,9 +90,9 @@ user.*
 Hugo provides the ability for you to define any RSS type you wish, and
 can have different RSS files for each section and taxonomy.
 
-* /layouts/taxonomy/`SINGULAR`.rss.xml
+* /layouts/taxonomy/`PLURAL`.rss.xml
 * /layouts/\_default/rss.xml
-* /themes/`THEME`/layouts/taxonomy/`SINGULAR`.rss.xml
+* /themes/`THEME`/layouts/taxonomy/`PLURAL`.rss.xml
 * /themes/`THEME`/layouts/\_default/rss.xml
 
 
