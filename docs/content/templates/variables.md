@@ -173,6 +173,18 @@ The **.Site.Taxonomies** variable holds all taxonomies defines site-wide.  It is
 
 The Taxonomy variable, available as **.Site.Taxonomies.tags** for example, contains the list of tags (values) and, for each of those, their corresponding content pages.
 
+### Taxonomy Term Variables
+
+[Taxonomy Terms](/templates/terms/) pages are of the type "node" and have the following additional variables.
+
+* **.Data.Singular** The singular name of the taxonomy
+* **.Data.Plural** The plural name of the taxonomy
+* **.Data.Terms** The taxonomy itself
+* **.Data.Terms.Alphabetical** The Terms alphabetized
+* **.Data.Terms.ByCount** The Terms ordered by popularity
+
+The last two can also be reversed: **.Data.Terms.Alphabetical.Reverse**, **.Data.Terms.ByCount.Reverse**.
+
 ## Site Variables
 
 Also available is `.Site` which has the following:
