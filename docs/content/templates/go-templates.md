@@ -263,7 +263,7 @@ access this from within the loop, you will likely want to do one of the followin
         {{ $title := .Site.Title }}
         {{ range .Params.tags }}
           <li>
-            <a href="{{ $baseURL }}/tags/{{ . | urlize }}">{{ . }}</a>
+            <a href="/tags/{{ . | urlize }}">{{ . }}</a>
             - {{ $title }}
           </li>
         {{ end }}
