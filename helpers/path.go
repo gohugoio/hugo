@@ -158,7 +158,7 @@ func (p *PathSpec) AbsPathify(inPath string) string {
 	}
 
 	// TODO(bep): Consider moving workingDir to argument list
-	return filepath.Clean(filepath.Join(p.workingDir, inPath))
+	return filepath.Join(p.workingDir, inPath)
 }
 
 // GetLayoutDirPath returns the absolute path to the layout file dir
