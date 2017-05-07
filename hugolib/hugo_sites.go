@@ -561,7 +561,6 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 				}
 
 				if p.Markup != "html" {
-
 					// Now we know enough to create a summary of the page and count some words
 					summaryContent, err := p.setUserDefinedSummaryIfProvided(workContentCopy)
 
@@ -578,14 +577,12 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 							s.Log.ERROR.Printf("Failed to set user auto summary for page %q: %s", p.pathOrTitle(), err)
 						}
 					}
-
 				} else {
 					p.Content = helpers.BytesToHTML(workContentCopy)
 				}
 
-				//analyze for raw stats
+				// Analyze for raw stats
 				p.analyzePage()
-
 			}
 		}(pageChan, wg)
 	}
@@ -606,19 +603,19 @@ func (h *HugoSites) Pages() Pages {
 }
 
 func handleShortcodes(p *Page, rawContentCopy []byte) ([]byte, error) {
-	if p.shortcodeState != nil && len(p.shortcodeState.contentShortcodes) > 0 {
-		p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.shortcodeState.contentShortcodes), p.BaseFileName())
-		err := p.shortcodeState.executeShortcodesForDelta(p)
+	if p.shortcodeState == nil || len(p.shortcodeState.contentShortcodes) == 0 {
+		return rawContentCopy, nil
+	}
 
-		if err != nil {
-			return rawContentCopy, err
-		}
+	p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.shortcodeState.contentShortcodes), p.BaseFileName())
+	err := p.shortcodeState.executeShortcodesForDelta(p)
+	if err != nil {
+		return rawContentCopy, err
+	}
 
-		rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, shortcodePlaceholderPrefix, p.shortcodeState.renderedShortcodes)
-
-		if err != nil {
-			p.s.Log.FATAL.Printf("Failed to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
-		}
+	rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, p.shortcodeState.renderedShortcodes)
+	if err != nil {
+		p.s.Log.FATAL.Printf("Failed to replace shortcode tokens in %s: %s", p.BaseFileName(), err)
 	}
 
 	return rawContentCopy, nil
