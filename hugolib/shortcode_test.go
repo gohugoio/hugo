@@ -243,7 +243,7 @@ And then:
 This is **plain** text.
 
 {{< /inside >}}
-`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\n<p>And then:</p>\n\n<p><div>\n# More Here\n\nThis is **plain** text.\n\n</div>", wt)
+`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\n<p>And then:</p>\n\n<div>\n# More Here\n\nThis is **plain** text.\n\n</div>", wt)
 }
 
 func TestEmbeddedSC(t *testing.T) {
