@@ -439,7 +439,7 @@ func TestShortcodesInSite(t *testing.T) {
 		// Deliberately forced to pass even if they maybe shouldn't.
 		{"sect/doc2.md", `a
 
-{{< b >}}
+{{< b >}}		
 {{< c >}}
 {{< d >}}
 
@@ -448,7 +448,7 @@ e`,
 			"<p>a</p>\n\n<p>b<br />\nc\nd</p>\n\n<p>e</p>\n"},
 		{"sect/doc3.md", `a
 
-{{< b >}}
+{{< b >}}		
 {{< c >}}
 
 {{< d >}}
@@ -476,7 +476,7 @@ e`,
 			filepath.FromSlash("public/sect/doc4/index.html"),
 			"<p>a\nb\nb\nb\nb\nb</p>\n"},
 		// #2192 #2209: Shortcodes in markdown headers
-		{"sect/doc5.md", `# {{< b >}}
+		{"sect/doc5.md", `# {{< b >}}	
 ## {{% c %}}`,
 			filepath.FromSlash("public/sect/doc5/index.html"), "\n\n<h1 id=\"hahahugoshortcode-1hbhb\">b</h1>\n\n<h2 id=\"hahahugoshortcode-2hbhb\">c</h2>\n"},
 		// #2223 pygments
@@ -536,7 +536,6 @@ tags:
 		templ.AddTemplate("_internal/shortcodes/tags.html", "{{ len .Page.Site.Taxonomies.tags }}")
 
 		return nil
-
 	}
 
 	cfg, fs := newTestCfg()
@@ -752,9 +751,7 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 			if len(results) != len(test.expect) {
 				b.Fatalf("[%d] replaceShortcodeTokens, got \n%s but expected \n%s", j, results, test.expect)
 			}
-
 		}
-
 	}
 }
 
@@ -786,6 +783,7 @@ func BenchmarkReplaceManyShortcodes(b *testing.B) {
 }
 
 func TestReplaceShortcodeTokens(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		input             string
 		replacements      map[string]string
