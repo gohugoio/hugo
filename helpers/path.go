@@ -415,7 +415,7 @@ func prettifyPath(in string, b filepathPathBridge) string {
 		if len(in) < 2 {
 			return b.Separator()
 		}
-		return b.Join(b.Clean(in), "index.html")
+		return b.Join(in, "index.html")
 	}
 	name, ext := fileAndExt(in, b)
 	if name == "index" {
