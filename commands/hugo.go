@@ -616,13 +616,8 @@ func (c *commandeer) getDirList() []string {
 	var a []string
 	dataDir := c.PathSpec().AbsPathify(c.Cfg.GetString("dataDir"))
 	i18nDir := c.PathSpec().AbsPathify(c.Cfg.GetString("i18nDir"))
-	layoutDir := c.PathSpec().AbsPathify(c.Cfg.GetString("layoutDir"))
-	staticDir := c.PathSpec().AbsPathify(c.Cfg.GetString("staticDir"))
-	var themesDir string
-
-	if c.PathSpec().ThemeSet() {
-		themesDir = c.PathSpec().AbsPathify(c.Cfg.GetString("themesDir") + "/" + c.Cfg.GetString("theme"))
-	}
+	layoutDir := c.PathSpec().GetLayoutDirPath()
+	staticDir := c.PathSpec().GetStaticDirPath()
 
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -686,15 +681,15 @@ func (c *commandeer) getDirList() []string {
 	_ = helpers.SymbolicWalk(c.Fs.Source, dataDir, walker)
 	_ = helpers.SymbolicWalk(c.Fs.Source, c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")), walker)
 	_ = helpers.SymbolicWalk(c.Fs.Source, i18nDir, walker)
-	_ = helpers.SymbolicWalk(c.Fs.Source, c.PathSpec().AbsPathify(c.Cfg.GetString("layoutDir")), walker)
-
+	_ = helpers.SymbolicWalk(c.Fs.Source, layoutDir, walker)
 	_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, walker)
+
 	if c.PathSpec().ThemeSet() {
+		themesDir := c.PathSpec().GetThemeDir()
 		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "layouts"), walker)
 		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "static"), walker)
 		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "i18n"), walker)
 		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "data"), walker)
-
 	}
 
 	return a

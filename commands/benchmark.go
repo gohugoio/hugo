@@ -49,7 +49,6 @@ func init() {
 
 func benchmark(cmd *cobra.Command, args []string) error {
 	cfg, err := InitializeConfig(benchmarkCmd)
-
 	if err != nil {
 		return err
 	}
