@@ -76,7 +76,7 @@ Now check out the gh-pages branch into your _public_ folder, using git's [worktr
 Regenerate the site using Hugo and commit the generated files on the gh-pages branch:
 
     hugo
-    cd public && git add --all && git commit -m "Publishing to gh-pages" & cd ..
+    cd public && git add --all && git commit -m "Publishing to gh-pages" && cd ..
 
 If the changes in your local gh-pages branch look alright, push them to the remote repo:
 
