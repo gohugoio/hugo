@@ -728,51 +728,60 @@ func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
 }
 
 func BenchmarkReplaceShortcodeTokens(b *testing.B) {
-	type input struct {
-		in           []byte
-		replacements map[string]string
-		expect       []byte
-	}
-
-	data := []struct {
-		input        string
+	testCases := []struct {
+		input        []byte
 		replacements map[string]string
 		expect       []byte
 	}{
-		{"Hello HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, []byte("Hello World.")},
-		{strings.Repeat("A", 100) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
-		{strings.Repeat("A", 500) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
-		{strings.Repeat("ABCD ", 500) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
-		{strings.Repeat("A ", 3000) + " HAHAHUGOSHORTCODE-1HBHB." + strings.Repeat("BC ", 1000) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
-	}
-
-	var in = make([]input, b.N*len(data))
-	var cnt = 0
-	for i := 0; i < b.N; i++ {
-		for _, this := range data {
-			in[cnt] = input{[]byte(this.input), this.replacements, this.expect}
-			cnt++
-		}
+		{[]byte("Hello HAHAHUGOSHORTCODE-1HBHB."), map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, []byte("Hello World.")},
+		{[]byte(strings.Repeat("A", 100) + " HAHAHUGOSHORTCODE-1HBHB."), map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
+		{[]byte(strings.Repeat("A", 500) + " HAHAHUGOSHORTCODE-1HBHB."), map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
+		{[]byte(strings.Repeat("ABCD ", 500) + " HAHAHUGOSHORTCODE-1HBHB."), map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
+		{[]byte(strings.Repeat("A ", 3000) + " HAHAHUGOSHORTCODE-1HBHB." + strings.Repeat("BC ", 1000) + " HAHAHUGOSHORTCODE-1HBHB."), map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
 	}
 
 	b.ResetTimer()
-	cnt = 0
 	for i := 0; i < b.N; i++ {
-		for j := range data {
-			currIn := in[cnt]
-			cnt++
-			results, err := replaceShortcodeTokens(currIn.in, currIn.replacements)
+		for j, test := range testCases {
+			results, err := replaceShortcodeTokens(test.input, test.replacements)
 
 			if err != nil {
-				b.Fatalf("[%d] failed: %s", i, err)
+				b.Fatalf("[%d] failed: %s", j, err)
 				continue
 			}
-			if len(results) != len(currIn.expect) {
-				b.Fatalf("[%d] replaceShortcodeTokens, got \n%q but expected \n%q", j, results, currIn.expect)
+			if len(results) != len(test.expect) {
+				b.Fatalf("[%d] replaceShortcodeTokens, got \n%s but expected \n%s", j, results, test.expect)
 			}
 
 		}
 
+	}
+}
+
+func BenchmarkReplaceSingleShortcode(b *testing.B) {
+	input := []byte(strings.Repeat("A", 500) + " HAHAHUGOSHORTCODE-1HBHB.")
+	replacements := map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := replaceShortcodeTokens(input, replacements)
+		if err != nil {
+			b.Error(err)
+		}
+	}
+}
+
+func BenchmarkReplaceManyShortcodes(b *testing.B) {
+	as := strings.Repeat("A", 500)
+	input := []byte(as + " HAHAHUGOSHORTCODE-1HBHB" + as + "HUGOSHORTCODE-2HBHB" + as + "HUGOSHORTCODE-3HBHB")
+	replacements := map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World", "HAHAHUGOSHORTCODE-2HBHB": "Hello World", "HAHAHUGOSHORTCODE-3HBHB": "Hello World"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := replaceShortcodeTokens(input, replacements)
+		if err != nil {
+			b.Error(err)
+		}
 	}
 }
 
