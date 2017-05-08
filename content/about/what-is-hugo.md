@@ -8,7 +8,7 @@ lastmod: 2017-02-01
 layout: single
 menu:
   main:
-    parent: "About Hugo"
+    parent: "about"
     weight: 10
 weight: 10
 sections_weight: 10

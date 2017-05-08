@@ -31,7 +31,7 @@ This is the full set of built-in media types in Hugo:
 
 **Note:**
 
-* It is possible to add custom media types or change the defaults; e.g., if want to change the suffix for `text/html` to `asp`.
+* It is possible to add custom media types or change the defaults; e.g., if you want to change the suffix for `text/html` to `asp`.
 * The `Suffix` is the value that will be used for URLs and filenames for that media type in Hugo.
 * The `Type` is the identifier that must be used when defining new/custom `Output Formats` (see below).
 * The full set of media types will be registered in Hugo's built-in development server to make sure they are recognized by the browser.
@@ -42,10 +42,10 @@ Example in `config.toml`:
 
 ```toml
 [mediaTypes]
-[mediaTypes."text/enriched"]
-suffix = "enr"
-[mediaTypes."text/html"]
-suffix = "asp"
+  [mediaTypes."text/enriched"]
+  suffix = "enr"
+  [mediaTypes."text/html"]
+  suffix = "asp"
 ```
 
 The above example adds one new media type, `text/enriched`, and changes the suffix for the built-in `text/html` media type.
