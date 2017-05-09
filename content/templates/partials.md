@@ -22,7 +22,7 @@ In practice, splitting out reusable template portions into **partial templates**
 
 ## Partial Template Lookup Order
 
-Partial templates---like [single page templates][singletemps] and [list page templates][listtemps]---have a specific lookup order. However, partials are simpler in that Hugo will only check in two places:
+Partial templates---like [single page templates][singletemps] and [list page templates][listtemps]---have a specific [lookup order][]. However, partials are simpler in that Hugo will only check in two places:
 
 1. `layouts/partials/*<PARTIALNAME>.html`
 2. `themes/<THEME>/layouts/partials/*<PARTIALNAME>.html`
@@ -169,6 +169,7 @@ The following `footer.html` partial template is used for [spf13.com](http://spf1
 [disqus]: https://disqus.com
 [disqussignup]: https://disqus.com/profile/signup/
 [listtemps]: /templates/lists/
+[lookup order]: /templates/lookup-order/
 [partialcached]: /functions/partialcached/
 [singletemps]: /templates/single-page-templates/
 [themes]: /themes/
