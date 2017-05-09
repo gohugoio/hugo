@@ -4,6 +4,7 @@ description: "The Ontario Council of University Libraries Historical Topographic
 license: ""
 licenseLink: ""
 sitelink: http://ocul.on.ca/topomaps
+sourcelink: https://github.com/scholarsportal/historical-topos
 tags:
 - education
 - project
