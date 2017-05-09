@@ -586,8 +586,7 @@ func renderShortcodeWithPage(tmpl tpl.Template, data *ShortcodeWithPage) string 
 	err := tmpl.Execute(buffer, data)
 	isInnerShortcodeCache.RUnlock()
 	if err != nil {
-		data.Page.s.Log.ERROR.Println("error processing shortcode", tmpl.Name(), "\n ERR:", err)
-		data.Page.s.Log.WARN.Println(data)
+		data.Page.s.Log.ERROR.Printf("error processing shortcode %q for page %q: %s", tmpl.Name(), data.Page.Path(), err)
 	}
 	return buffer.String()
 }
