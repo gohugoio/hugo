@@ -95,7 +95,7 @@ This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.
           <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
           {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
           <guid>{{ .Permalink }}</guid>
-          <description>{{ .Content | html }}</description>
+          <description>{{ .Summary | html }}</description>
         </item>
         {{ end }}
       </channel>
