@@ -749,7 +749,7 @@ func (p *Page) analyzePage() {
 
 func (p *Page) Extension() string {
 	// Remove in Hugo 0.22.
-	helpers.Deprecated("Page", "Extension", "See OutputFormats with its MediaType", false)
+	helpers.Deprecated("Page", "Extension", "See OutputFormats with its MediaType", true)
 	return p.extension
 }
 
@@ -1510,7 +1510,7 @@ func (p *Page) copy() *Page {
 
 func (p *Page) Now() time.Time {
 	// Delete in Hugo 0.22
-	helpers.Deprecated("Page", "Now", "Use now (the template func)", false)
+	helpers.Deprecated("Page", "Now", "Use now (the template func)", true)
 	return time.Now()
 }
 

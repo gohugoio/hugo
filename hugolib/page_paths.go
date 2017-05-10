@@ -251,6 +251,6 @@ func (p *Page) createRelativePermalinkForOutputFormat(f output.Format) string {
 
 func (p *Page) TargetPath() (outfile string) {
 	// Delete in Hugo 0.22
-	helpers.Deprecated("Page", "TargetPath", "This method does not make sanse any more.", false)
+	helpers.Deprecated("Page", "TargetPath", "This method does not make sanse any more.", true)
 	return ""
 }
