@@ -25,8 +25,26 @@ func init() {
 		ctx := New()
 
 		ns := &internal.TemplateFuncsNamespace{
-			Name:    name,
-			Context: func() interface{} { return ctx },
+			Name: name,
+			Context: func(v ...interface{}) interface{} {
+				// Handle overlapping "time" namespace and func.
+				//
+				// If no args are passed to `time`, assume namespace usage and
+				// return namespace context.
+				//
+				// If args are passed, show a deprecation warning and attempt to
+				// simulate the old "as time" behavior.
+
+				if len(v) == 0 {
+					return ctx
+				}
+
+				t, err := ctx.AsTime(v[0])
+				if err != nil {
+					return err
+				}
+				return t
+			},
 		}
 
 		ns.AddMethodMapping(ctx.Format,
@@ -42,7 +60,7 @@ func init() {
 		)
 
 		ns.AddMethodMapping(ctx.AsTime,
-			[]string{"asTime"}, // TODO(bep) handle duplicate
+			[]string{"asTime"},
 			[][2]string{
 				{`{{ (asTime "2015-01-21").Year }}`, `2015`},
 			},
