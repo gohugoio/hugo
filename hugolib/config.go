@@ -49,6 +49,23 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 
 	v.RegisterAlias("indexes", "taxonomies")
 
+	// Remove these in Hugo 0.23.
+	if v.IsSet("disable404") {
+		helpers.Deprecated("site config", "disable404", "Use disableKinds=[\"404\"]", false)
+	}
+
+	if v.IsSet("disableRSS") {
+		helpers.Deprecated("site config", "disableRSS", "Use disableKinds=[\"RSS\"]", false)
+	}
+
+	if v.IsSet("disableSitemap") {
+		helpers.Deprecated("site config", "disableSitemap", "Use disableKinds= [\"sitemap\"]", false)
+	}
+
+	if v.IsSet("disableRobotsTXT") {
+		helpers.Deprecated("site config", "disableRobotsTXT", "Use disableKinds= [\"robotsTXT\"]", false)
+	}
+
 	loadDefaultSettingsFor(v)
 
 	return v, nil

@@ -467,6 +467,19 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 		"noChmod",
 	}
 
+	// Remove these in Hugo 0.23.
+	if flagChanged(cmd.Flags(), "disable404") {
+		helpers.Deprecated("command line", "--disable404", "Use --disableKinds=404", false)
+	}
+
+	if flagChanged(cmd.Flags(), "disableRSS") {
+		helpers.Deprecated("command line", "--disableRSS", "Use --disableKinds=RSS", false)
+	}
+
+	if flagChanged(cmd.Flags(), "disableSitemap") {
+		helpers.Deprecated("command line", "--disableSitemap", "Use --disableKinds=sitemap", false)
+	}
+
 	for _, key := range persFlagKeys {
 		c.setValueFromFlag(cmd.PersistentFlags(), key)
 	}
