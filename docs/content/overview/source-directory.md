@@ -64,7 +64,7 @@ An example directory may look like:
     |   ├── partials
     |   |   ├── header.html
     |   |   └── footer.html
-    |   ├── taxonomies
+    |   ├── taxonomy
     |   |   ├── category.html
     |   |   ├── post.html
     |   |   ├── quote.html
