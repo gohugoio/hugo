@@ -8,10 +8,10 @@ import (
 
 func TestDisallowedEscaper(t *testing.T) {
 	data := map[string]string{
-		"html": "<h1>Hi!</h1>",
+		"ftml": "<h1>Hi!</h1>",
 	}
 
-	tpl := `{{ .html | print }}`
+	tpl := `{{ .ftml | print }}`
 
 	var buf bytes.Buffer
 	tmpl, err := template.New("").Parse(tpl)
