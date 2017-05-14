@@ -1091,17 +1091,26 @@ func TestSourceRelativeLinkFileing(t *testing.T) {
 		},
 	}
 
-	for currentFile, results := range okresults {
-		currentPage := findPage(site, currentFile)
-		if currentPage == nil {
-			t.Fatalf("failed to find current page in site")
-		}
-		for link, url := range results {
-			if out, err := site.Info.SourceRelativeLinkFile(link, currentPage); err != nil || out != url {
-				t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
-			} else {
-				//t.Logf("tested ok %s maps to %s", link, out)
+	baseURLPaths := []string{"", "/foo", "/foo/bar"}
+	origBaseURL := site.Info.BaseURL
+	for _, baseURLPath := range baseURLPaths {
+		baseURL := helpers.SanitizeURLKeepTrailingSlash(string(origBaseURL) + baseURLPath)
+		site.Info.BaseURL = template.URL(baseURL)
+
+		for currentFile, results := range okresults {
+			currentPage := findPage(site, currentFile)
+			if currentPage == nil {
+				t.Fatalf("failed to find current page in site")
+			}
+			for link, url := range results {
+				url = baseURLPath + url
+				if out, err := site.Info.SourceRelativeLinkFile(link, currentPage); err != nil || out != url {
+					t.Errorf("Expected %s to resolve to (%s), got (%s) - error: %s", link, url, out, err)
+				} else {
+					//t.Logf("tested ok %s maps to %s", link, out)
+				}
 			}
 		}
 	}
+
 }

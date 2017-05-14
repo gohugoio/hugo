@@ -603,8 +603,19 @@ func (s *SiteInfo) SourceRelativeLinkFile(ref string, currentPage *Page) (string
 			return "", fmt.Errorf("No file found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
 		}
 
-		link = target.Path()
-		return "/" + filepath.ToSlash(link), nil
+		link = filepath.ToSlash(target.Path())
+		if viper.GetBool("CanonifyURLs") {
+			return "/" + link, nil
+		}
+
+		// When baseURL is on the form http://myhost.com/sub/, we need to prepend /sub.
+		baseURL := string(s.BaseURL)
+		permalink := helpers.MakePermalink(baseURL, link)
+		permalink.Scheme = ""
+		permalink.Host = ""
+		permalink.User = nil
+		permalink.Opaque = ""
+		return permalink.String(), nil
 	}
 
 	return "", fmt.Errorf("failed to find a file to match \"%s\" on page \"%s\"", ref, currentPage.Source.Path())
