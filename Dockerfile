@@ -13,5 +13,3 @@ COPY . $GOPATH/src/github.com/spf13/hugo
 
 RUN cd $GOPATH/src/github.com/spf13/hugo \
  	&& make install test
-
-ENTRYPOINT "/bin/sh"
