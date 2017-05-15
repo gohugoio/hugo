@@ -43,7 +43,7 @@ Highlighting is carried out via the in-built shortcode `highlight`. `highlight` 
 ### Example
 
 ```
-{{</* highlight html */>}}
+{{% highlight html %}}
 <section id="main">
   <div>
     <h1 id="title">{{ .Title }}</h1>
@@ -52,7 +52,7 @@ Highlighting is carried out via the in-built shortcode `highlight`. `highlight` 
     {{ end }}
   </div>
 </section>
-{{</* /highlight */>}}
+{{% /highlight %}}
 ```
 
 ### Example Output
