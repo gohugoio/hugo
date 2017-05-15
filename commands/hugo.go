@@ -663,6 +663,12 @@ func (c *commandeer) getDirList() []string {
 			return nil
 		}
 
+		// Skip .git directories.
+		// Related to https://github.com/spf13/hugo/issues/3468.
+		if fi.Name() == ".git" {
+			return nil
+		}
+
 		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 			link, err := filepath.EvalSymlinks(path)
 			if err != nil {
