@@ -1,4 +1,18 @@
 [[tweet]]
+name = "James Michael Dupont"
+twitter_handle = "@h4ck3rm1k3"
+quote = "Need a static site generator? Sick of nodejs dependency hell? ruby gem slowness? Try <a href='https://twitter.com/gohugoio' target='_blank'>#gohugoio</a> the <a href='https://twitter.com/golang' target='_blank'>#golang</a> static site generator"
+link = "https://twitter.com/h4ck3rm1k3/status/864050089358176257"
+date = 2017-05-15T00:00:00Z
+
+[[tweet]]
+name = "Benoit Pasquier"
+twitter_handle = "@BenoitPasquier_"
+quote = "Migrate your Wordpress website to a static one with <a href='https://twitter.com/gohugoio' target='_blank'>@GoHugoIO</a>"
+link = "https://twitter.com/BenoitPasquier_/status/862575128634433536"
+date = 2017-05-11T00:00:00Z
+
+[[tweet]]
 name = "Hans Beck"
 twitter_handle = "@EnrichedGamesHB"
 quote = "Diving deeper into <a href='https://twitter.com/GoHugoIO' target='_blank'>@GoHugoIO</a>. A lot of docs there, top work! But I've the impression that <a href='https://twitter.com/hashtag/gohugo' target='_blank'>#gohugo</a> is far easier than its feels from the docs!"
