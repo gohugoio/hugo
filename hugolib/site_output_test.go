@@ -284,4 +284,9 @@ baseName = "feed"
 
 	th.assertFileContent("public/feed.xml", "Recent content on")
 
+	s := h.Sites[0]
+
+	//Issue #3450
+	require.Equal(t, "http://example.com/blog/feed.xml", s.Info.RSSLink)
+
 }
