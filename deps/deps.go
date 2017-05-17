@@ -135,9 +135,9 @@ func (d Deps) ForLanguage(l *helpers.Language) (*Deps, error) {
 
 }
 
-func (d *Deps) AddTemplateTiming(path string, dt time.Duration) {
+func (d *Deps) AddTemplateTiming(path string, start time.Time) {
 	d.mtx.Lock()
-	d.Timings[path] = append(d.Timings[path], dt)
+	d.Timings[path] = append(d.Timings[path], time.Since(start))
 	d.mtx.Unlock()
 }
 

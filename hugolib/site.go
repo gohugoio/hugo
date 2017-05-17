@@ -1939,18 +1939,10 @@ func (s *Site) renderThing(d interface{}, layout string, w io.Writer) error {
 
 	// If the template doesn't exist, then return, but leave the Writer open
 	if templ := s.Tmpl.Lookup(layout); templ != nil {
-		var start time.Time
 		if s.Cfg.GetBool("templateAnalysis") {
-			start = time.Now()
+			defer s.AddTemplateTiming(layout, time.Now())
 		}
-
-		err := templ.Execute(w, d)
-
-		if s.Cfg.GetBool("templateAnalysis") {
-			s.AddTemplateTiming(layout, time.Now().Sub(start))
-		}
-
-		return err
+		return templ.Execute(w, d)
 	}
 	return fmt.Errorf("Layout not found: %s", layout)
 

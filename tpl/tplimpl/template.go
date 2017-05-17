@@ -186,17 +186,12 @@ func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layou
 		}
 
 		if templ != nil {
-			var start time.Time
 			if t.Cfg.GetBool("templateAnalysis") {
-				start = time.Now()
+				defer t.AddTemplateTiming(layout, time.Now())
 			}
 
 			if err := templ.Execute(w, context); err != nil {
 				helpers.DistinctErrorLog.Println(layout, err)
-			}
-
-			if t.Cfg.GetBool("templateAnalysis") {
-				t.AddTemplateTiming(layout, time.Now().Sub(start))
 			}
 
 			worked = true
