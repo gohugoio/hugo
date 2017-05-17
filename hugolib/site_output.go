@@ -26,7 +26,7 @@ import (
 
 func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (map[string]output.Formats, error) {
 	if !cfg.IsSet("outputs") {
-		return createDefaultOutputFormats(cfg)
+		return createDefaultOutputFormats(allFormats, cfg)
 	}
 
 	outFormats := make(map[string]output.Formats)
@@ -64,20 +64,22 @@ func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (ma
 
 }
 
-func createDefaultOutputFormats(cfg config.Provider) (map[string]output.Formats, error) {
+func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) (map[string]output.Formats, error) {
 	outFormats := make(map[string]output.Formats)
+	rssOut, _ := allFormats.GetByName(output.RSSFormat.Name)
+	htmlOut, _ := allFormats.GetByName(output.HTMLFormat.Name)
+
 	for _, kind := range allKinds {
 		var formats output.Formats
 		// All have HTML
-		formats = append(formats, output.HTMLFormat)
+		formats = append(formats, htmlOut)
 
 		// All but page have RSS
 		if kind != KindPage {
-			rssType := output.RSSFormat
 
 			rssBase := cfg.GetString("rssURI")
 			if rssBase == "" || rssBase == "index.xml" {
-				rssBase = rssType.BaseName
+				rssBase = rssOut.BaseName
 			} else {
 				// Remove in Hugo 0.22.
 				helpers.Deprecated("Site config", "rssURI", "Set baseName in outputFormats.RSS", false)
@@ -85,8 +87,8 @@ func createDefaultOutputFormats(cfg config.Provider) (map[string]output.Formats,
 				rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
 			}
 
-			rssType.BaseName = rssBase
-			formats = append(formats, rssType)
+			rssOut.BaseName = rssBase
+			formats = append(formats, rssOut)
 
 		}
 

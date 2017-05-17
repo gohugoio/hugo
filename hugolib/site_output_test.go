@@ -31,7 +31,7 @@ import (
 
 func TestDefaultOutputFormats(t *testing.T) {
 	t.Parallel()
-	defs, err := createDefaultOutputFormats(viper.New())
+	defs, err := createDefaultOutputFormats(output.DefaultFormats, viper.New())
 
 	require.NoError(t, err)
 
@@ -51,6 +51,30 @@ func TestDefaultOutputFormats(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDefaultOutputFormatsWithOverrides(t *testing.T) {
+	t.Parallel()
+
+	htmlOut := output.HTMLFormat
+	htmlOut.BaseName = "htmlindex"
+	rssOut := output.RSSFormat
+	rssOut.BaseName = "feed"
+
+	defs, err := createDefaultOutputFormats(output.Formats{htmlOut, rssOut}, viper.New())
+
+	homeDefs := defs[KindHome]
+
+	rss, found := homeDefs.GetByName("RSS")
+	require.True(t, found)
+	require.Equal(t, rss.BaseName, "feed")
+
+	html, found := homeDefs.GetByName("HTML")
+	require.True(t, found)
+	require.Equal(t, html.BaseName, "htmlindex")
+
+	require.NoError(t, err)
+
 }
 
 func TestSiteWithPageOutputs(t *testing.T) {
@@ -229,5 +253,35 @@ Content: {{ .Content }}
 		require.Equal(t, "/blog/index.ics", cal.RelPermalink())
 		require.Equal(t, "webcal://example.com/blog/index.ics", cal.Permalink())
 	}
+
+}
+
+// Issue #3447
+func TestRedefineRSSOutputFormat(t *testing.T) {
+	siteConfig := `
+baseURL = "http://example.com/blog"
+
+paginate = 1
+defaultContentLanguage = "en"
+
+disableKinds = ["page", "section", "taxonomy", "taxonomyTerm", "sitemap", "robotsTXT", "404"]
+
+[outputFormats]
+[outputFormats.RSS]
+mediatype = "application/rss"
+baseName = "feed"
+
+`
+
+	mf := afero.NewMemMapFs()
+	writeToFs(t, mf, "content/foo.html", `foo`)
+
+	th, h := newTestSitesFromConfig(t, mf, siteConfig)
+
+	err := h.Build(BuildCfg{})
+
+	require.NoError(t, err)
+
+	th.assertFileContent("public/feed.xml", "Recent content on")
 
 }
