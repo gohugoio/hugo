@@ -32,8 +32,7 @@ func init() {
 				// If no args are passed to `time`, assume namespace usage and
 				// return namespace context.
 				//
-				// If args are passed, show a deprecation warning and attempt to
-				// simulate the old "as time" behavior.
+				// If args are passed, call AsTime().
 
 				if len(v) == 0 {
 					return ctx
@@ -57,13 +56,6 @@ func init() {
 		ns.AddMethodMapping(ctx.Now,
 			[]string{"now"},
 			[][2]string{},
-		)
-
-		ns.AddMethodMapping(ctx.AsTime,
-			[]string{"asTime"},
-			[][2]string{
-				{`{{ (asTime "2015-01-21").Year }}`, `2015`},
-			},
 		)
 
 		return ns
