@@ -1139,7 +1139,11 @@ func (s *Site) initializeSiteInfo() {
 		s:                              s,
 	}
 
-	s.Info.RSSLink = s.permalink(lang.GetString("rssURI"))
+	rssOutputFormat, found := s.outputFormats[KindHome].GetByName(output.RSSFormat.Name)
+
+	if found {
+		s.Info.RSSLink = s.permalink(rssOutputFormat.BaseFilename())
+	}
 }
 
 func (s *Site) dataDir() string {
