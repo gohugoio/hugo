@@ -40,7 +40,7 @@ can be quoted.
 
 The first word is always the name of the shortcode. Parameters follow the name.
 Depending upon how the shortcode is defined, the parameters may be named,
-positional or both (although you can't mixed parameter types in a single call).
+positional or both (although you can't mix parameter types in a single call).
 The format for named parameters models that of HTML with the format
 `name="value"`.
 
