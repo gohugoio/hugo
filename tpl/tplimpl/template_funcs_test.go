@@ -75,19 +75,25 @@ func TestTemplateFuncsExamples(t *testing.T) {
 	d, err := deps.New(depsCfg)
 	require.NoError(t, err)
 
-	var data struct {
+	var defaultData struct {
 		Title   string
 		Section string
 		Params  map[string]interface{}
 	}
 
-	data.Title = "**BatMan**"
-	data.Section = "blog"
-	data.Params = map[string]interface{}{"langCode": "en"}
+	defaultData.Title = "**BatMan**"
+	defaultData.Section = "blog"
+	defaultData.Params = map[string]interface{}{"langCode": "en"}
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 		ns := nsf(d)
 		for _, mm := range ns.MethodMappings {
+			var data interface{}
+			if mm.ExamplesData != nil {
+				data = mm.ExamplesData
+			} else {
+				data = defaultData
+			}
 			for i, example := range mm.Examples {
 				in, expected := example[0], example[1]
 				d.WithTemplate = func(templ tpl.TemplateHandler) error {

@@ -21,12 +21,29 @@ import (
 const name = "collections"
 
 func init() {
+
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 		ctx := New(d)
 
+		// some test types and data used for the examples
+		type page struct {
+			Title string
+		}
+		type pages []*page
+
+		var (
+			p1, p2, p3 = &page{Title: "Page 1"}, &page{Title: "Page 2"}, &page{Title: "Page 3"}
+			data       = map[string]interface{}{
+				"Site": map[string]interface{}{
+					"Pages": pages{p1, p2, p3},
+				},
+			}
+		)
+
 		ns := &internal.TemplateFuncsNamespace{
-			Name:    name,
-			Context: func() interface{} { return ctx },
+			Name:         name,
+			Context:      func() interface{} { return ctx },
+			ExamplesData: data,
 		}
 
 		ns.AddMethodMapping(ctx.After,

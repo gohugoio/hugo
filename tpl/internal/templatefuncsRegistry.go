@@ -49,6 +49,10 @@ type TemplateFuncsNamespace struct {
 
 	// Additional info, aliases and examples, per method name.
 	MethodMappings map[string]TemplateFuncMethodMapping
+
+	// The data provided to the templates when executing the examples.
+	// Some default data will be provided if this is not set.
+	ExamplesData map[string]interface{}
 }
 
 type TemplateFuncsNamespaces []*TemplateFuncsNamespace
