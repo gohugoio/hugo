@@ -70,10 +70,13 @@ func (ns *Namespace) Config(path interface{}) (image.Config, error) {
 	}
 
 	config, _, err = image.DecodeConfig(f)
+	if err != nil {
+		return config, err
+	}
 
 	ns.cacheMu.Lock()
 	ns.cache[filename] = config
 	ns.cacheMu.Unlock()
 
-	return config, err
+	return config, nil
 }
