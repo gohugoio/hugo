@@ -46,7 +46,7 @@ func createLayoutExamples() interface{} {
 		{`AMP home, with theme "demoTheme".`, LayoutDescriptor{Kind: "home"}, true, "", AMPFormat},
 		{"JSON home, no theme.", LayoutDescriptor{Kind: "home"}, false, "", JSONFormat},
 		{fmt.Sprintf(`CSV regular, "layout: %s" in front matter.`, demoLayout), LayoutDescriptor{Kind: "page", Layout: demoLayout}, false, "", CSVFormat},
-		{fmt.Sprintf(`JSON regular, "type: %s" in front matter.`, demoType), LayoutDescriptor{Kind: "page", Type: demoType}, false, "", CSVFormat},
+		{fmt.Sprintf(`JSON regular, "type: %s" in front matter.`, demoType), LayoutDescriptor{Kind: "page", Type: demoType}, false, "", JSONFormat},
 		{"HTML regular.", LayoutDescriptor{Kind: "page"}, false, "", HTMLFormat},
 		{"AMP regular.", LayoutDescriptor{Kind: "page"}, false, "", AMPFormat},
 		{"Calendar blog section.", LayoutDescriptor{Kind: "section", Section: "blog"}, false, "", CalendarFormat},
