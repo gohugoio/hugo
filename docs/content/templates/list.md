@@ -44,7 +44,7 @@ A Section will be rendered at /`SECTION`/ (e.g.&nbsp;http://spf13.com/project/)
 * /layouts/\_default/section.html
 * /layouts/\_default/list.html
 * /themes/`THEME`/layouts/section/`SECTION`.html
-* /themes/layouts/`SECTION`/list.html
+* /themes/`THEME`/layouts/`SECTION`/list.html
 * /themes/`THEME`/layouts/\_default/section.html
 * /themes/`THEME`/layouts/\_default/list.html
 
