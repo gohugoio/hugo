@@ -96,46 +96,6 @@ Here is a review of the front matter fields automatically generated for you usin
 
 In the body of your function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [`code` shortcode](#adding-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
 
-### Adding to the Showcase
-
-Once you have cloned the Hugo repository, you can add your Hugo website as a new showcase content file via the following command. Name the markdown file accordingly:
-
-```
-hugo new tutorials/my-hugo-showcase-website.md
-```
-
-The archetype for the `showcase` content type is as follows:
-
-{{% code file="archetypes/showcase.md" %}}
-```yaml
-{{< readfile file="/themes/hugo-docs-concept/archetypes/showcase.md">}}
-```
-{{% /code %}}
-
-#### Showcase Required Fields
-
-***`sitelink`***
-: the *full* URL to your website.
-
-***`title`***
-: the `<title>` of your website.
-
-***`description`***
-: a general description of your website, preferably < 180 characters.
-
-***`image`***
-: the image (filename only) you want to associate with your website on the Showcase page. The image should be 450px &times; 300px.
-
-We also appreciate the addition of the remaining fields, especially `sourcelink` and `license` if you are willing to share your hard work with the open-source community. `tags` is optional, but we recommend adding at least 2 to 3 tags to improve discoverability.
-
-#### Add an Image for the Showcase
-
-Youl will need to create a thumbnail of your website. Give your thumbnail a name like `my-hugo-site-name.jpg`. Save it under [`docs/static/images/showcase/`][].
-
-{{% warning "Showcase Image Size" %}}
-It's important that the image you use for your showcase submission has the required dimensions of 450px &times; 300px or the site will not render appropriately. Be sure to optimize your image as a matter of best practice. [Compressor](https://compressor.io/) offers a simple drag-and-drop GUI for optimizing your images. JPEGs are typically smaller in size than are PNGs.
-{{% /warning %}}
-
 ### Adding a New Tutorial
 
 Once you have cloned the Hugo repository, you can create a new tutorial via the following command. Name the markdown file accordingly:
