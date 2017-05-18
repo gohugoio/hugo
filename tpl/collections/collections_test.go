@@ -17,12 +17,20 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io/ioutil"
+	"log"
 	"math/rand"
+	"os"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/spf13/hugo/config"
 	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/helpers"
+	"github.com/spf13/hugo/hugofs"
+	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -320,7 +328,7 @@ func TestIntersect(t *testing.T) {
 func TestIsSet(t *testing.T) {
 	t.Parallel()
 
-	ns := New(&deps.Deps{})
+	ns := New(newDeps(viper.New()))
 
 	for i, test := range []struct {
 		a      interface{}
@@ -336,6 +344,7 @@ func TestIsSet(t *testing.T) {
 		{map[string]interface{}{"a": 1, "b": 2}, "bc", false, false, ""},
 
 		{time.Now(), "Day", false, false, ""},
+		{nil, "nil", false, false, ""},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
@@ -631,4 +640,15 @@ func (x TstX) String() string {
 type TstX struct {
 	A, B       string
 	unexported string
+}
+
+func newDeps(cfg config.Provider) *deps.Deps {
+	l := helpers.NewLanguage("en", cfg)
+	l.Set("i18nDir", "i18n")
+	return &deps.Deps{
+		Cfg:         cfg,
+		Fs:          hugofs.NewMem(l),
+		ContentSpec: helpers.NewContentSpec(l),
+		Log:         jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime),
+	}
 }
