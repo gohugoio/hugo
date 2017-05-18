@@ -342,6 +342,8 @@ func (ns *Namespace) IsSet(a interface{}, key interface{}) (bool, error) {
 		if kv.Type() == av.Type().Key() {
 			return av.MapIndex(kv).IsValid(), nil
 		}
+	default:
+		ns.deps.Log.ERROR.Printf("calling IsSet with unsupported type %T will always return false", a)
 	}
 
 	return false, nil
