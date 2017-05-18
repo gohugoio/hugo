@@ -343,7 +343,7 @@ func (ns *Namespace) IsSet(a interface{}, key interface{}) (bool, error) {
 			return av.MapIndex(kv).IsValid(), nil
 		}
 	default:
-		ns.deps.Log.ERROR.Printf("calling IsSet with unsupported type %T will always return false", a)
+		ns.deps.Log.FEEDBACK.Printf("WARNING: calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), a)
 	}
 
 	return false, nil
