@@ -12,6 +12,7 @@ matrix:
     - go: tip
   fast_finish: true
 install:
+  - git tag -l
   - make vendor
 script:
   - make hugo-race check
