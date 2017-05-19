@@ -25,6 +25,7 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/hugo/deps"
+	"github.com/spf13/hugo/helpers"
 )
 
 // New returns a new instance of the collections-namespaced template functions.
@@ -371,7 +372,7 @@ func (ns *Namespace) IsSet(a interface{}, key interface{}) (bool, error) {
 			return av.MapIndex(kv).IsValid(), nil
 		}
 	default:
-		ns.deps.Log.FEEDBACK.Printf("WARNING: calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), a)
+		helpers.DistinctFeedbackLog.Printf("WARNING: calling IsSet with unsupported type %q (%T) will always return false.\n", av.Kind(), a)
 	}
 
 	return false, nil
