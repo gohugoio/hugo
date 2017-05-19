@@ -62,7 +62,10 @@ Hugo now has:
 {{ with .ThemeCount }}
 * 156+ [themes](http://themes.gohugo.io/)
 {{- end }}
-
+{{ with .Notes }}
+## Notes
+{{ template "change-section" . }}
+{{- end -}}
 ## Enhancements
 {{ template "change-headers"  .Enhancements -}}
 ## Fixes
@@ -80,7 +83,7 @@ Hugo now has:
 {{- end -}}
 {{- with $outChanges -}}
 ### Output
-{{- template "change-section"  . }}
+{{ template "change-section"  . }}
 {{- end -}}
 {{- with $coreChanges -}}
 ### Core
@@ -88,7 +91,7 @@ Hugo now has:
 {{- end -}}
 {{- with $docsChanges -}}
 ### Docs
-{{- template "change-section"  . }}
+{{ template "change-section"  . }}
 {{- end -}}
 {{- with $otherChanges -}}
 ### Other

@@ -24,7 +24,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"strings"
 
 	"github.com/spf13/hugo/helpers"
 )
@@ -89,20 +88,31 @@ func (r *ReleaseHandler) Run() error {
 	tag := "v" + version
 
 	// Exit early if tag already exists
-	out, err := git("tag", "-l", tag)
-
+	exists, err := tagExists(tag)
 	if err != nil {
 		return err
 	}
 
-	if strings.Contains(out, tag) {
+	if exists {
 		return fmt.Errorf("Tag %q already exists", tag)
+	}
+
+	var changeLogFromTag string
+
+	if newVersion.PatchLevel == 0 {
+		// There may have been patch releases inbetween, so set the tag explicitly.
+		changeLogFromTag = "v" + newVersion.Prev().String()
+		exists, _ := tagExists(changeLogFromTag)
+		if !exists {
+			// fall back to one that exists.
+			changeLogFromTag = ""
+		}
 	}
 
 	var gitCommits gitInfos
 
 	if r.shouldPrepare() || r.shouldRelease() {
-		gitCommits, err = getGitInfos(true)
+		gitCommits, err = getGitInfos(changeLogFromTag, true)
 		if err != nil {
 			return err
 		}
