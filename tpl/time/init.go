@@ -26,7 +26,7 @@ func init() {
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name: name,
-			Context: func(v ...interface{}) interface{} {
+			Context: func(args ...interface{}) interface{} {
 				// Handle overlapping "time" namespace and func.
 				//
 				// If no args are passed to `time`, assume namespace usage and
@@ -34,11 +34,11 @@ func init() {
 				//
 				// If args are passed, call AsTime().
 
-				if len(v) == 0 {
+				if len(args) == 0 {
 					return ctx
 				}
 
-				t, err := ctx.AsTime(v[0])
+				t, err := ctx.AsTime(args[0])
 				if err != nil {
 					return err
 				}

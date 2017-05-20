@@ -34,5 +34,5 @@ func TestInit(t *testing.T) {
 	}
 
 	require.True(t, found)
-	require.IsType(t, &Namespace{}, ns.Context.(func(v ...interface{}) interface{})())
+	require.IsType(t, &Namespace{}, ns.Context())
 }

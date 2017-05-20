@@ -26,7 +26,7 @@ func init() {
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
-			Context: func() interface{} { return ctx },
+			Context: func(args ...interface{}) interface{} { return ctx },
 		}
 
 		ns.AddMethodMapping(ctx.Add,
