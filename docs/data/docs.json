@@ -1439,12 +1439,10 @@
           "Args": [
             "v"
           ],
-          "Aliases": [
-            "asTime"
-          ],
+          "Aliases": null,
           "Examples": [
             [
-              "{{ (asTime \"2015-01-21\").Year }}",
+              "{{ (time \"2015-01-21\").Year }}",
               "2015"
             ]
           ]

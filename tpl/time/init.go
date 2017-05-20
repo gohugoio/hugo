@@ -58,6 +58,13 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.AsTime,
+			nil,
+			[][2]string{
+				{`{{ (time "2015-01-21").Year }}`, `2015`},
+			},
+		)
+
 		return ns
 
 	}
