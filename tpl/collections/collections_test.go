@@ -571,21 +571,45 @@ func TestUnion(t *testing.T) {
 		expect interface{}
 		isErr  bool
 	}{
+		{nil, nil, []interface{}{}, false},
+		{nil, []string{"a", "b"}, []string{"a", "b"}, false},
+		{[]string{"a", "b"}, nil, []string{"a", "b"}, false},
+
+		// []A ∪ []B
+		{[]string{"1", "2"}, []int{3}, []string{}, false},
+		{[]int{1, 2}, []string{"1", "2"}, []int{}, false},
+
+		// []T ∪ []T
 		{[]string{"a", "b", "c", "c"}, []string{"a", "b", "b"}, []string{"a", "b", "c"}, false},
 		{[]string{"a", "b"}, []string{"a", "b", "c"}, []string{"a", "b", "c"}, false},
 		{[]string{"a", "b", "c"}, []string{"d", "e"}, []string{"a", "b", "c", "d", "e"}, false},
 		{[]string{}, []string{}, []string{}, false},
-		{[]string{"a", "b"}, nil, []string{"a", "b"}, false},
-		{nil, []string{"a", "b"}, []string{"a", "b"}, false},
-		{nil, nil, make([]interface{}, 0), true},
-		{[]string{"1", "2"}, []int{1, 2}, make([]string, 0), false},
-		{[]int{1, 2}, []string{"1", "2"}, make([]int, 0), false},
 		{[]int{1, 2, 3}, []int{3, 4, 5}, []int{1, 2, 3, 4, 5}, false},
 		{[]int{1, 2, 3}, []int{1, 2, 3}, []int{1, 2, 3}, false},
 		{[]int{1, 2, 4}, []int{2, 4}, []int{1, 2, 4}, false},
 		{[]int{2, 4}, []int{1, 2, 4}, []int{2, 4, 1}, false},
 		{[]int{1, 2, 4}, []int{3, 6}, []int{1, 2, 4, 3, 6}, false},
 		{[]float64{2.2, 4.4}, []float64{1.1, 2.2, 4.4}, []float64{2.2, 4.4, 1.1}, false},
+		{[]interface{}{"a", "b", "c", "c"}, []interface{}{"a", "b", "b"}, []interface{}{"a", "b", "c"}, false},
+
+		// []T ∪ []interface{}
+		{[]string{"1", "2"}, []interface{}{"9"}, []string{"1", "2", "9"}, false},
+		{[]int{2, 4}, []interface{}{1, 2, 4}, []int{2, 4, 1}, false},
+		{[]int8{2, 4}, []interface{}{int8(1), int8(2), int8(4)}, []int8{2, 4, 1}, false},
+		{[]int8{2, 4}, []interface{}{1, 2, 4}, []int8{2, 4, 1}, false},
+		{[]int16{2, 4}, []interface{}{1, 2, 4}, []int16{2, 4, 1}, false},
+		{[]int32{2, 4}, []interface{}{1, 2, 4}, []int32{2, 4, 1}, false},
+		{[]int64{2, 4}, []interface{}{1, 2, 4}, []int64{2, 4, 1}, false},
+		{[]float64{2.2, 4.4}, []interface{}{1.1, 2.2, 4.4}, []float64{2.2, 4.4, 1.1}, false},
+		{[]float32{2.2, 4.4}, []interface{}{1.1, 2.2, 4.4}, []float32{2.2, 4.4, 1.1}, false},
+
+		// []interface{} ∪ []T
+		{[]interface{}{"a", "b", "c", "c"}, []string{"a", "b", "b"}, []interface{}{"a", "b", "c"}, false},
+		{[]interface{}{}, []string{}, []interface{}{}, false},
+		{[]interface{}{1, 2}, []int{2, 3}, []interface{}{1, 2, 3}, false},
+		{[]interface{}{1, 2}, []int8{2, 3}, []interface{}{1, 2, int8(3)}, false},
+		{[]interface{}{1.1, 2.2}, []float64{2.2, 3.3}, []interface{}{1.1, 2.2, 3.3}, false},
+
 		// errors
 		{"not array or slice", []string{"a"}, false, true},
 		{[]string{"a"}, "not array or slice", false, true},
