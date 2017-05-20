@@ -18,6 +18,7 @@ package releaser
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"testing"
 
@@ -33,9 +34,11 @@ func _TestReleaseNotesWriter(t *testing.T) {
 	var b bytes.Buffer
 
 	// TODO(bep) consider to query GitHub directly for the gitlog with author info, probably faster.
-	infos, err := getGitInfosBefore("v0.20", false)
+	infos, err := getGitInfosBefore("HEAD", "v0.20", false)
 	require.NoError(t, err)
 
-	require.NoError(t, writeReleaseNotes("0.20", infos, &b))
+	require.NoError(t, writeReleaseNotes("0.21", infos, &b))
+
+	fmt.Println(b.String())
 
 }
