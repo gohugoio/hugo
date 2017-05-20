@@ -119,14 +119,6 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	if r.shouldPrepare() {
-		if err := bumpVersions(newVersion); err != nil {
-			return err
-		}
-
-		if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
-			return err
-		}
-
 		releaseNotesFile, err := writeReleaseNotesToDocsTemp(version, gitCommits)
 		if err != nil {
 			return err
@@ -143,6 +135,14 @@ func (r *ReleaseHandler) Run() error {
 	if !r.shouldRelease() {
 		fmt.Println("Skip release ... Use --state=2 to continue.")
 		return nil
+	}
+
+	if err := bumpVersions(newVersion); err != nil {
+		return err
+	}
+
+	if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+		return err
 	}
 
 	releaseNotesFile := getRelaseNotesDocsTempFilename(version)
