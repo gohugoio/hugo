@@ -14,15 +14,14 @@
 package releaser
 
 import (
+	"os"
 	"testing"
-
-	"runtime"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestGitInfos(t *testing.T) {
-	skipIfLinux(t)
+	skipIfCI(t)
 	infos, err := getGitInfos("v0.20", false)
 
 	require.NoError(t, err)
@@ -50,14 +49,14 @@ See #456
 }
 
 func TestGitVersionTagBefore(t *testing.T) {
-	skipIfLinux(t)
+	skipIfCI(t)
 	v1, err := gitVersionTagBefore("v0.18")
 	require.NoError(t, err)
 	require.Equal(t, "v0.17", v1)
 }
 
 func TestTagExists(t *testing.T) {
-	skipIfLinux(t)
+	skipIfCI(t)
 	b1, err := tagExists("v0.18")
 	require.NoError(t, err)
 	require.True(t, b1)
@@ -68,9 +67,10 @@ func TestTagExists(t *testing.T) {
 
 }
 
-func skipIfLinux(t *testing.T) {
-	if runtime.GOOS == "linux" {
+func skipIfCI(t *testing.T) {
+	if os.Getenv("CI") != "" {
 		// Travis has an ancient git with no --invert-grep: https://github.com/travis-ci/travis-ci/issues/6328
+		// Also Travis clones very shallowly, making some of the tests above shaky.
 		t.Skip("Skip git test on Linux to make Travis happy.")
 	}
 }
