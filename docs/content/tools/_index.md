@@ -77,10 +77,8 @@ If you don't want to use [Wercker for automated deployments]({{< relref "tutoria
 
 Do you prefer an graphical user interface over a text editor? Then give these frontends a try:
 
-- [rango](https://github.com/stayradiated/rango) - A web frontend for Hugo. It's designed to make it easy to manage a small site, even for people with little computer experience.
 - [enwrite](https://github.com/zzamboni/enwrite) - Evernote-powered statically-generated blogs and websites. Now posting to your blog or updating your website is as easy as writing a new note in Evernote!
 - [caddy-hugo](https://github.com/hacdias/caddy-hugo) - This is an add-on for [Caddy](https://caddyserver.com/) which wants to deliver a good UI to edit the content of the website.
-- [Hugopit](https://github.com/sjardim/Hugopit) - A web-based editor for Hugo build on top of [Cockpit CMS](http://www.getcockpit.com/).
 - [Lipi](https://github.com/SohanChy/Lipi) - A native GUI frontend written in Java to manage your Hugo websites.
 
 ----
