@@ -14,6 +14,8 @@
 package cast
 
 import (
+	"html/template"
+
 	_cast "github.com/spf13/cast"
 )
 
@@ -28,6 +30,18 @@ type Namespace struct {
 
 // ToInt converts the given value to an int.
 func (ns *Namespace) ToInt(v interface{}) (int, error) {
+	switch vv := v.(type) {
+	case template.HTML:
+		v = string(vv)
+	case template.CSS:
+		v = string(vv)
+	case template.HTMLAttr:
+		v = string(vv)
+	case template.JS:
+		v = string(vv)
+	case template.JSStr:
+		v = string(vv)
+	}
 	return _cast.ToIntE(v)
 }
 
