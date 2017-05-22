@@ -31,7 +31,12 @@ import (
 const commitPrefix = "releaser:"
 
 type ReleaseHandler struct {
-	patch       int
+	patch int
+
+	// If set, we do the relases in 3 steps:
+	// 1: Create and write a draft release notes
+	// 2: Prepare files for new version.
+	// 3: Release
 	step        int
 	skipPublish bool
 }
@@ -41,11 +46,15 @@ func (r ReleaseHandler) shouldRelease() bool {
 }
 
 func (r ReleaseHandler) shouldContinue() bool {
-	return r.step == 2
+	return r.step == 3
 }
 
-func (r ReleaseHandler) shouldPrepare() bool {
+func (r ReleaseHandler) shouldPrepareReleasenotes() bool {
 	return r.step < 1 || r.step == 1
+}
+
+func (r ReleaseHandler) shouldPrepareVersions() bool {
+	return r.step < 1 || r.step == 2
 }
 
 func (r ReleaseHandler) calculateVersions(current helpers.HugoVersion) (helpers.HugoVersion, helpers.HugoVersion) {
@@ -111,14 +120,14 @@ func (r *ReleaseHandler) Run() error {
 
 	var gitCommits gitInfos
 
-	if r.shouldPrepare() || r.shouldRelease() {
+	if r.shouldPrepareReleasenotes() || r.shouldRelease() {
 		gitCommits, err = getGitInfos(changeLogFromTag, true)
 		if err != nil {
 			return err
 		}
 	}
 
-	if r.shouldPrepare() {
+	if r.shouldPrepareReleasenotes() {
 		releaseNotesFile, err := writeReleaseNotesToDocsTemp(version, gitCommits)
 		if err != nil {
 			return err
@@ -132,17 +141,19 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
+	if r.shouldPrepareVersions() {
+		if err := bumpVersions(newVersion); err != nil {
+			return err
+		}
+
+		if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+			return err
+		}
+	}
+
 	if !r.shouldRelease() {
-		fmt.Println("Skip release ... Use --state=2 to continue.")
+		fmt.Println("Skip release ... Use --state=3 to continue.")
 		return nil
-	}
-
-	if err := bumpVersions(newVersion); err != nil {
-		return err
-	}
-
-	if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
-		return err
 	}
 
 	releaseNotesFile := getRelaseNotesDocsTempFilename(version)

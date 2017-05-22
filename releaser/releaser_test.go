@@ -51,7 +51,7 @@ func TestCalculateVersions(t *testing.T) {
 			"0.21-DEV",
 		},
 		{
-			New(0, 2, true),
+			New(0, 3, true),
 			startVersion,
 			"0.20",
 			"0.21-DEV",
@@ -63,7 +63,7 @@ func TestCalculateVersions(t *testing.T) {
 			"0.20-DEV",
 		},
 		{
-			New(3, 2, true),
+			New(3, 3, true),
 			startVersion.Next(),
 			"0.21",
 			"0.21-DEV",
