@@ -298,6 +298,7 @@ func TestIntersect(t *testing.T) {
 		{[]interface{}{int16(1), int16(2), int16(3)}, []int16{1, 2, 2}, []interface{}{int16(1), int16(2)}},
 		{[]interface{}{int32(1), int32(2), int32(3)}, []int32{1, 2, 2}, []interface{}{int32(1), int32(2)}},
 		{[]interface{}{int64(1), int64(2), int64(3)}, []int64{1, 2, 2}, []interface{}{int64(1), int64(2)}},
+		{[]interface{}{uint(1), uint(2), uint(3)}, []uint{1, 2, 2}, []interface{}{uint(1), uint(2)}},
 		{[]interface{}{float32(1), float32(2), float32(3)}, []float32{1, 2, 2}, []interface{}{float32(1), float32(2)}},
 		{[]interface{}{float64(1), float64(2), float64(3)}, []float64{1, 2, 2}, []interface{}{float64(1), float64(2)}},
 
@@ -604,10 +605,11 @@ func TestUnion(t *testing.T) {
 		{[]float32{2.2, 4.4}, []interface{}{1.1, 2.2, 4.4}, []float32{2.2, 4.4, 1.1}, false},
 
 		// []interface{} ∪ []T
-		{[]interface{}{"a", "b", "c", "c"}, []string{"a", "b", "b"}, []interface{}{"a", "b", "c"}, false},
+		{[]interface{}{"a", "b", "c", "c"}, []string{"a", "b", "d"}, []interface{}{"a", "b", "c", "d"}, false},
 		{[]interface{}{}, []string{}, []interface{}{}, false},
 		{[]interface{}{1, 2}, []int{2, 3}, []interface{}{1, 2, 3}, false},
 		{[]interface{}{1, 2}, []int8{2, 3}, []interface{}{1, 2, int8(3)}, false},
+		{[]interface{}{uint(1), uint(2)}, []uint{2, 3}, []interface{}{uint(1), uint(2), uint(3)}, false},
 		{[]interface{}{1.1, 2.2}, []float64{2.2, 3.3}, []interface{}{1.1, 2.2, 3.3}, false},
 
 		// errors
