@@ -261,6 +261,13 @@ func (ns *Namespace) In(l interface{}, v interface{}) bool {
 						return true
 					}
 				}
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				switch vv.Kind() {
+				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+					if vv.Uint() == lvv.Uint() {
+						return true
+					}
+				}
 			case reflect.Float32, reflect.Float64:
 				switch vv.Kind() {
 				case reflect.Float32, reflect.Float64:
@@ -564,7 +571,6 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 			if l1v.Type() != l2v.Type() &&
 				l1v.Type().Elem().Kind() != reflect.Interface &&
 				l2v.Type().Elem().Kind() != reflect.Interface {
-
 				return r.Interface(), nil
 			}
 
