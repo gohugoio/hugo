@@ -25,12 +25,15 @@ import (
 )
 
 var (
-	jsonFM      = "{\n \"date\": \"12-04-06\",\n \"title\": \"test json\"\n}"
-	jsonDraftFM = "{\n \"draft\": true,\n \"date\": \"12-04-06\",\n \"title\":\"test json\"\n}"
-	tomlFM      = "+++\n date= \"12-04-06\"\n title= \"test toml\"\n+++"
-	tomlDraftFM = "+++\n draft= true\n date= \"12-04-06\"\n title=\"test toml\"\n+++"
-	yamlFM      = "---\n date: \"12-04-06\"\n title: \"test yaml\"\n---"
-	yamlDraftFM = "---\n draft: true\n date: \"12-04-06\"\n title: \"test yaml\"\n---"
+	jsonFM         = "{\n \"date\": \"12-04-06\",\n \"title\": \"test json\"\n}"
+	jsonDraftFM    = "{\n \"draft\": true,\n \"date\": \"12-04-06\",\n \"title\":\"test json\"\n}"
+	tomlFM         = "+++\n date= \"12-04-06\"\n title= \"test toml\"\n+++"
+	tomlDraftFM    = "+++\n draft= true\n date= \"12-04-06\"\n title=\"test toml\"\n+++"
+	yamlFM         = "---\n date: \"12-04-06\"\n title: \"test yaml\"\n---"
+	yamlDraftFM    = "---\n draft: true\n date: \"12-04-06\"\n title: \"test yaml\"\n---"
+	yamlDraftYesFM = "---\n draft: yes\n date: \"12-04-06\"\n title: \"test yaml\"\n---"
+	yamlDraftOnFM  = "---\n draft: on\n date: \"12-04-06\"\n title: \"test yaml\"\n---"
+	yamlDraftYFM   = "---\n draft: Y\n date: \"12-04-06\"\n title: \"test yaml\"\n---"
 )
 
 func TestUndraftContent(t *testing.T) {
@@ -44,6 +47,9 @@ func TestUndraftContent(t *testing.T) {
 		{tomlDraftFM, ""},
 		{yamlFM, "not a Draft: nothing was done"},
 		{yamlDraftFM, ""},
+		{yamlDraftYesFM, ""},
+		{yamlDraftOnFM, ""},
+		{yamlDraftYFM, ""},
 	}
 
 	for i, test := range tests {
