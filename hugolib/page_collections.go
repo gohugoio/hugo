@@ -51,8 +51,8 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 	return &PageCollections{rawAllPages: pages}
 }
 
-func (c *PageCollections) getPage(typ string, path ...string) *Page {
-	pages := c.findPagesByKindIn(typ, c.Pages)
+func (c *PageCollections) getFirstPageMatchIn(ps Pages, typ string, path ...string) *Page {
+	pages := c.findPagesByKindIn(typ, ps)
 
 	if len(pages) == 0 {
 		return nil
@@ -78,6 +78,20 @@ func (c *PageCollections) getPage(typ string, path ...string) *Page {
 	}
 
 	return nil
+
+}
+
+func (c *PageCollections) getPage(typ string, path ...string) *Page {
+	var pages Pages
+
+	if typ == KindPage {
+		pages = c.RegularPages
+	} else {
+		pages = c.indexPages
+	}
+
+	return c.getFirstPageMatchIn(pages, typ, path...)
+
 }
 
 func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {

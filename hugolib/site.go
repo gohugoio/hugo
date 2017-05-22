@@ -1906,8 +1906,11 @@ func (s *Site) Stats() {
 // This will return nil when no page could be found.
 //
 // The valid page types are: home, section, taxonomy and taxonomyTerm
-func (s *SiteInfo) GetPage(typ string, path ...string) *Page {
-	return s.getPage(typ, path...)
+func (s *SiteInfo) GetPage(typ string, path ...string) (*Page, error) {
+	if typ == KindPage {
+		return nil, errors.New("GetPage not supported for regular pages")
+	}
+	return s.getPage(typ, path...), nil
 }
 
 func (s *Site) permalinkForOutputFormat(link string, f output.Format) (string, error) {
