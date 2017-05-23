@@ -182,11 +182,11 @@ func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ 
 	}
 }
 
-func buildSingleSite(t *testing.T, depsCfg deps.DepsCfg, buildCfg BuildCfg) *Site {
+func buildSingleSite(t testing.TB, depsCfg deps.DepsCfg, buildCfg BuildCfg) *Site {
 	return buildSingleSiteExpected(t, false, depsCfg, buildCfg)
 }
 
-func buildSingleSiteExpected(t *testing.T, expectBuildError bool, depsCfg deps.DepsCfg, buildCfg BuildCfg) *Site {
+func buildSingleSiteExpected(t testing.TB, expectBuildError bool, depsCfg deps.DepsCfg, buildCfg BuildCfg) *Site {
 	h, err := NewHugoSites(depsCfg)
 
 	require.NoError(t, err)
