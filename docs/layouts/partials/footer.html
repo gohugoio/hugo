@@ -1,6 +1,6 @@
                     <div class="row">
                         <div class="footer-panel">
-			  <p>Last revision: {{ if .Lastmod.IsZero }}{{ .Site.LastChange.Format "January 2, 2006" }}{{ else }}{{ .Lastmod.Format "January 2, 2006" }}{{ end }}                  {{ if .IsPage }}{{ with .GitInfo }} | <a href="https://github.com/spf13/hugo/commit/{{ .Hash }}">{{ .Subject }} ({{ .AbbreviatedHash }})</a>{{end }}{{ end }}
+			  <p>Last revision: {{ if .Lastmod.IsZero }}{{ .Site.LastChange.Format "January 2, 2006" }}{{ else }}{{ .Lastmod.Format "January 2, 2006" }}{{ end }}{{ if .IsPage }}{{ with .GitInfo }} | <a href="https://github.com/spf13/hugo/commit/{{ .Hash }}">{{ .Subject }} ({{ .AbbreviatedHash }})</a>{{end }}{{ end }}
                           <span style="float: right;">Hugo v{{ .Hugo.Version }} documentation</span>
                         </p>
                         </div>
