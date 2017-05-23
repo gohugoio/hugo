@@ -128,7 +128,7 @@ The following rules apply when creating new content:
 
 * If an archetype with a filename matching the new post's [content type](/content/types) exists, it will be used.
 * If no match is found, `archetypes/default.md` will be used.
-* If neither is present and a theme is in use, then within the theme:
+* If neither is present and a theme is specified via `--theme`, then within the theme:
     * If an archetype with a filename that matches the content type being created, it will be used.
     * If no match is found, `archetypes/default.md` will be used.
 * If no archetype files are present, then the one that ships with Hugo will be used.
