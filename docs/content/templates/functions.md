@@ -123,6 +123,12 @@ e.g.
     {{ if eq .Section "blog" }}current{{ end }}
 
 
+### eq
+Return true if the parameters are equal.
+
+e.g.
+    {{ if eq .Section "blog" }}current{{ end}}"
+
 ### first
 Slices an array to only the first _N_ elements.
 
