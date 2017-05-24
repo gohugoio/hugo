@@ -60,26 +60,22 @@ When I did this, I had some problems with directory permissions. Searches on Goo
 
 ### Step 2: Run the `brew` command to install `hugo`
 
-First, update the formulae and Homebrew itself by running:
-
-```bash
-$ brew update
-```
-
-Then, install Hugo using Homebrew by running:
-
-
 ```bash
 $ brew install hugo
-==> Downloading https://homebrew.bintray.com/bottles/hugo-0.13_1.yosemite.bottle.tar.gz
-######################################################################## 100.0%
-==> Pouring hugo-0.13_1.yosemite.bottle.tar.gz
-🍺  /usr/local/Cellar/hugo/0.13_1: 4 files,  14M
+==> Downloading https://homebrew.bintray.com/bottles/hugo-0.21.sierra.bottle.tar.gz
+######################################################################## 100,0%
+==> Pouring hugo-0.21.sierra.bottle.tar.gz
+==> Using the sandbox
+==> Caveats
+Bash completion has been installed to:
+  /usr/local/etc/bash_completion.d
+==> Summary
+🍺  /usr/local/Cellar/hugo/0.21: 32 files, 17.4MB
 ```
 
 (Note: Replace `brew install hugo` with `brew install hugo --HEAD`
 if you want the absolute latest version in development,
-but beware—there might be bugs!)
+but beware — there might be bugs!)
 
 `Brew` should have updated your path to include Hugo. Confirm by opening a new terminal window and running a few commands:
 

@@ -37,7 +37,7 @@ Ideally, you should install it somewhere in your `PATH` for easy use.
 `/usr/local/bin` is the most probable location.
 
 On macOS, if you have [Homebrew](http://brew.sh/), installation is even
-easier: just run `brew update && brew install hugo`.
+easier: just run `brew install hugo`.
 
 For a more detailed explanation follow the corresponding installation guides:
 
