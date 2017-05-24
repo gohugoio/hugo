@@ -145,9 +145,9 @@ brew install hugo
 If Homebrew is working properly, you should see something similar to the following:
 
 ```sh
-==> Downloading https://homebrew.bintray.com/bottles/hugo-0.13_1.yosemite.bottle.tar.gz
+==> Downloading https://homebrew.bintray.com/bottles/hugo-0.21.sierra.bottle.tar.gz
 ######################################################################### 100.0%
-==> Pouring hugo-0.13_1.yosemite.bottle.tar.gz
+==> Pouring hugo-0.21.sierra.bottle.tar.gz
 🍺  /usr/local/Cellar/hugo/0.21: 32 files, 17.4MB
 ```
 
