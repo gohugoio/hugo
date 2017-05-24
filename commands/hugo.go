@@ -467,15 +467,15 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 	}
 
 	// Remove these in Hugo 0.23.
-	if flagChanged(cmd.Flags(), "disable404") {
+	if cmd.Flags().Changed("disable404") {
 		helpers.Deprecated("command line", "--disable404", "Use --disableKinds=404", false)
 	}
 
-	if flagChanged(cmd.Flags(), "disableRSS") {
+	if cmd.Flags().Changed("disableRSS") {
 		helpers.Deprecated("command line", "--disableRSS", "Use --disableKinds=RSS", false)
 	}
 
-	if flagChanged(cmd.Flags(), "disableSitemap") {
+	if cmd.Flags().Changed("disableSitemap") {
 		helpers.Deprecated("command line", "--disableSitemap", "Use --disableKinds=sitemap", false)
 	}
 
@@ -489,18 +489,10 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 }
 
 func (c *commandeer) setValueFromFlag(flags *flag.FlagSet, key string) {
-	if flagChanged(flags, key) {
+	if flags.Changed(key) {
 		f := flags.Lookup(key)
 		c.Set(key, f.Value.String())
 	}
-}
-
-func flagChanged(flags *flag.FlagSet, key string) bool {
-	flag := flags.Lookup(key)
-	if flag == nil {
-		return false
-	}
-	return flag.Changed
 }
 
 func (c *commandeer) watchConfig() {

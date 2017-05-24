@@ -98,11 +98,11 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if flagChanged(cmd.Flags(), "format") {
+	if cmd.Flags().Changed("format") {
 		c.Set("metaDataFormat", configFormat)
 	}
 
-	if flagChanged(cmd.Flags(), "editor") {
+	if cmd.Flags().Changed("editor") {
 		c.Set("newContentEditor", contentEditor)
 	}
 
