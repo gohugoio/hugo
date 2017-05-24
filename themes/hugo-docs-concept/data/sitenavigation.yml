@@ -89,13 +89,6 @@ news:
   haschildren: true
   sortsubpagesby: "weight"
   desc: "Articles featuring Hugo, as well as updates and release notes for the project"
-siteshowcase:
-  order: 14
-  title: "Site Showcase"
-  url: "showcase"
-  haschildren: false
-  sortsubpagesby: "weight"
-  desc: "A collection of websites built using Hugo"
 contributetohugo:
   order: 15
   title: "Contribute to Hugo"
