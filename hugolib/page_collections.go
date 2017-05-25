@@ -15,6 +15,9 @@ package hugolib
 
 import (
 	"path"
+	"path/filepath"
+
+	"github.com/spf13/hugo/cache"
 )
 
 // PageCollections contains the page collections for a site.
@@ -39,12 +42,46 @@ type PageCollections struct {
 
 	// Includes absolute all pages (of all types), including drafts etc.
 	rawAllPages Pages
+
+	pageCache *cache.PartitionedLazyCache
 }
 
 func (c *PageCollections) refreshPageCaches() {
 	c.indexPages = c.findPagesByKindNotIn(KindPage, c.Pages)
 	c.RegularPages = c.findPagesByKindIn(KindPage, c.Pages)
 	c.AllRegularPages = c.findPagesByKindIn(KindPage, c.AllPages)
+
+	cacheLoader := func(kind string) func() (map[string]interface{}, error) {
+		return func() (map[string]interface{}, error) {
+			cache := make(map[string]interface{})
+			switch kind {
+			case KindPage:
+				// Note that we deliberately use the pages from all sites
+				// in this cache, as we intend to use this in the ref and relref
+				// shortcodes. If the user says "sect/doc1.en.md", he/she knows
+				// what he/she is looking for.
+				for _, p := range c.AllRegularPages {
+					// TODO(bep) section
+					cache[filepath.ToSlash(p.Source.Path())] = p
+				}
+			default:
+				for _, p := range c.indexPages {
+					key := path.Join(p.sections...)
+					cache[key] = p
+				}
+			}
+
+			return cache, nil
+		}
+	}
+
+	var partitions []cache.Partition
+
+	for _, kind := range allKindsInPages {
+		partitions = append(partitions, cache.Partition{Key: kind, Load: cacheLoader(kind)})
+	}
+
+	c.pageCache = cache.NewPartitionedLazyCache(partitions...)
 }
 
 func newPageCollections() *PageCollections {
@@ -55,65 +92,20 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 	return &PageCollections{rawAllPages: pages}
 }
 
-func (c *PageCollections) getFirstPageMatchIn(pages Pages, typ string, pathElements ...string) *Page {
+func (c *PageCollections) getPage(typ string, sections ...string) *Page {
+	var key string
+	if len(sections) == 1 {
+		key = filepath.ToSlash(sections[0])
+	} else {
+		key = path.Join(sections...)
+	}
 
-	if len(pages) == 0 {
+	// TODO(bep) section error
+	p, _ := c.pageCache.Get(typ, key)
+	if p == nil {
 		return nil
 	}
-
-	var filename string
-	if typ == KindPage {
-		filename = path.Join(pathElements...)
-	}
-
-	for _, p := range pages {
-		if p.Kind != typ {
-			continue
-		}
-
-		if typ == KindHome {
-			return p
-		}
-
-		if typ == KindPage {
-			if p.Source.Path() == filename {
-				return p
-			}
-			continue
-		}
-
-		match := false
-		for i := 0; i < len(pathElements); i++ {
-			if len(p.sections) > i && pathElements[i] == p.sections[i] {
-				match = true
-			} else {
-				match = false
-				break
-			}
-		}
-		if match {
-			return p
-		}
-	}
-
-	return nil
-
-}
-
-func (c *PageCollections) getRegularPage(filename string) {
-
-}
-
-func (c *PageCollections) getPage(typ string, path ...string) *Page {
-	var pages Pages
-
-	if typ == KindPage {
-		pages = c.AllPages
-	} else {
-		pages = c.indexPages
-	}
-
-	return c.getFirstPageMatchIn(pages, typ, path...)
+	return p.(*Page)
 
 }
 
