@@ -42,8 +42,9 @@ import (
 )
 
 var (
-	cjk      = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
-	allKinds = []string{KindPage, KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm, kindRSS, kindSitemap, kindRobotsTXT, kind404}
+	cjk             = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
+	allKindsInPages = []string{KindPage, KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm, kindRSS}
+	allKinds        = append(allKindsInPages, []string{kindSitemap, kindRobotsTXT, kind404}...)
 )
 
 const (
