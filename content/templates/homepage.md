@@ -32,10 +32,8 @@ The [lookup order][lookup] for the homepage template is as follows:
 
 1. `/layouts/index.html`
 2. `/layouts/_default/list.html`
-3. `/layouts/_default/single.html`
-4. `/themes/<THEME>/layouts/index.html`
-5. `/themes/<THEME>/layouts/_default/list.html`
-6. `/themes/<THEME>/layouts/_default/single.html`
+3. `/themes/<THEME>/layouts/index.html`
+4. `/themes/<THEME>/layouts/_default/list.html`
 
 ## Adding Content and Front Matter to the Homepage
 
