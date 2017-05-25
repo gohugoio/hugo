@@ -1105,33 +1105,3 @@ func TestSourceRelativeLinkFileing(t *testing.T) {
 		}
 	}
 }
-
-func BenchmarkGetPage(b *testing.B) {
-	var (
-		cfg, fs = newTestCfg()
-	)
-
-	for i := 0; i < 10; i++ {
-		for j := 0; j < 100; j++ {
-			writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), "CONTENT")
-		}
-	}
-
-	s := buildSingleSite(b, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		home := s.getPage(KindHome)
-		if home == nil {
-			b.Fatal("Home is nil")
-		}
-
-		for i := 0; i < 10; i++ {
-			sect := fmt.Sprintf("sect%d", i)
-			p := s.getPage(KindSection, sect)
-			if p == nil {
-				b.Fatal(fmt.Sprintf("Section %q is nil", sect))
-			}
-		}
-	}
-}

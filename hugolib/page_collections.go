@@ -13,6 +13,10 @@
 
 package hugolib
 
+import (
+	"path"
+)
+
 // PageCollections contains the page collections for a site.
 type PageCollections struct {
 	// Includes only pages of all types, and only pages in the current language.
@@ -51,21 +55,36 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 	return &PageCollections{rawAllPages: pages}
 }
 
-func (c *PageCollections) getFirstPageMatchIn(ps Pages, typ string, path ...string) *Page {
-	pages := c.findPagesByKindIn(typ, ps)
+func (c *PageCollections) getFirstPageMatchIn(pages Pages, typ string, pathElements ...string) *Page {
 
 	if len(pages) == 0 {
 		return nil
 	}
 
-	if len(path) == 0 && len(pages) == 1 {
-		return pages[0]
+	var filename string
+	if typ == KindPage {
+		filename = path.Join(pathElements...)
 	}
 
 	for _, p := range pages {
+		if p.Kind != typ {
+			continue
+		}
+
+		if typ == KindHome {
+			return p
+		}
+
+		if typ == KindPage {
+			if p.Source.Path() == filename {
+				return p
+			}
+			continue
+		}
+
 		match := false
-		for i := 0; i < len(path); i++ {
-			if len(p.sections) > i && path[i] == p.sections[i] {
+		for i := 0; i < len(pathElements); i++ {
+			if len(p.sections) > i && pathElements[i] == p.sections[i] {
 				match = true
 			} else {
 				match = false
@@ -81,11 +100,15 @@ func (c *PageCollections) getFirstPageMatchIn(ps Pages, typ string, path ...stri
 
 }
 
+func (c *PageCollections) getRegularPage(filename string) {
+
+}
+
 func (c *PageCollections) getPage(typ string, path ...string) *Page {
 	var pages Pages
 
 	if typ == KindPage {
-		pages = c.RegularPages
+		pages = c.AllPages
 	} else {
 		pages = c.indexPages
 	}
