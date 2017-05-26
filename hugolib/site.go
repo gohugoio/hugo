@@ -427,13 +427,7 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat s
 	var link string
 
 	if refURL.Path != "" {
-		for _, page := range s.AllRegularPages {
-			refPath := filepath.FromSlash(refURL.Path)
-			if page.Source.Path() == refPath || page.Source.LogicalName() == refPath {
-				target = page
-				break
-			}
-		}
+		target := s.getPage(KindPage, refURL.Path)
 
 		if target == nil {
 			return "", fmt.Errorf("No page found with path or logical name \"%s\".\n", refURL.Path)

@@ -907,6 +907,7 @@ func findPage(site *Site, f string) *Page {
 
 func setupLinkingMockSite(t *testing.T) *Site {
 	sources := []source.ByteSource{
+		{Name: filepath.FromSlash("level2/unique.md"), Content: []byte("")},
 		{Name: filepath.FromSlash("index.md"), Content: []byte("")},
 		{Name: filepath.FromSlash("rootfile.md"), Content: []byte("")},
 		{Name: filepath.FromSlash("root-image.png"), Content: []byte("")},
@@ -957,15 +958,11 @@ func TestRefLinking(t *testing.T) {
 		relative     bool
 		expected     string
 	}{
-		// Note: There are no magic in the index.md name. This was fixed in Hugo 0.20.
-		// Before that, index.md would wrongly resolve to "/".
-		// See #3396 -- there is an ambiguity in the examples below, even if they do work.
-		// TODO(bep) better test cases
-		{"index.md", "", true, "/"},
-		{"common.md", "", true, "/level2/common/"},
+		{"unique.md", "", true, "/level2/unique/"},
+		{"level2/common.md", "", true, "/level2/common/"},
 		{"3-root.md", "", true, "/level2/level3/3-root/"},
-		{"index.md", "amp", true, "/amp/"},
-		{"index.md", "amp", false, "http://auth/amp/"},
+		{"level2/level3/index.md", "amp", true, "/amp/level2/level3/"},
+		{"level2/index.md", "amp", false, "http://auth/amp/level2/"},
 	} {
 		if out, err := site.Info.refLink(test.link, currentPage, test.relative, test.outputFormat); err != nil || out != test.expected {
 			t.Errorf("[%d] Expected %s to resolve to (%s), got (%s) - error: %s", i, test.link, test.expected, out, err)

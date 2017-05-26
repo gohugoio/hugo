@@ -110,6 +110,9 @@ func TestGetPage(t *testing.T) {
 		}
 	}
 
+	content := fmt.Sprintf(pageCollectionsPageTemplate, "UniqueBase")
+	writeSource(t, fs, filepath.Join("content", "sect3", "unique.md"), content)
+
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	tests := []struct {
@@ -122,7 +125,8 @@ func TestGetPage(t *testing.T) {
 		{KindPage, []string{"sect3", "page1.md"}, "Title3_1"},
 		{KindPage, []string{"sect4/page2.md"}, "Title4_2"},
 		{KindPage, []string{filepath.FromSlash("sect5/page3.md")}, "Title5_3"},
-		// TODO(bep) section maybe support sect5/page2, aka relref.
+		// Ref/Relref supports this potentially ambiguous lookup.
+		{KindPage, []string{"unique.md"}, "UniqueBase"},
 	}
 
 	for i, test := range tests {
