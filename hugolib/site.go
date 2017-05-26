@@ -1892,18 +1892,10 @@ func (s *Site) Stats() {
 }
 
 // GetPage looks up a index page of a given type in the path given.
-// This method may support regular pages in the future, but currently it is a
-// convenient way of getting the home page or
-// a section from a template:
 //    {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
 //
 // This will return nil when no page could be found.
-//
-// The valid page types are: home, section, taxonomy and taxonomyTerm
 func (s *SiteInfo) GetPage(typ string, path ...string) (*Page, error) {
-	if typ == KindPage {
-		return nil, errors.New("GetPage not supported for regular pages")
-	}
 	return s.getPage(typ, path...), nil
 }
 
