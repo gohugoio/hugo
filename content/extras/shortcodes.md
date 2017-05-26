@@ -190,7 +190,7 @@ Copy the ID from behind `v=` and pass it to the shortcode:
 
     {{</* youtube w7Ft2ymGmfc */>}}
 
-Furthermore, you can autostart the embedded video by setting the `autostart` parameter to true. Remember that you can't mix named an unamed parameters. Assign the yet unamed video id to the parameter `id` like below too.
+Furthermore, you can autoplay the embedded video by setting the `autoplay` parameter to true. Remember that you can't mix named an unamed parameters. Assign the yet unamed video id to the parameter `id` like below too.
 
      {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 
