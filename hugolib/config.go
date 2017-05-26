@@ -20,7 +20,6 @@ import (
 	"github.com/spf13/hugo/helpers"
 	"github.com/spf13/viper"
 	"io"
-	"os"
 	"strings"
 )
 
@@ -52,7 +51,7 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 	for _, configFile := range configFilenames[1:] {
 		var r io.Reader
 		var err error
-		if r, err = os.Open(configFile); err != nil {
+		if r, err = fs.Open(configFile); err != nil {
 			return nil, fmt.Errorf("Unable to open Config file.\n (%s)\n", err)
 		}
 		if err = v.MergeConfig(r); err != nil {
