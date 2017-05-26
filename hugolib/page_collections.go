@@ -61,8 +61,9 @@ func (c *PageCollections) refreshPageCaches() {
 				// shortcodes. If the user says "sect/doc1.en.md", he/she knows
 				// what he/she is looking for.
 				for _, p := range c.AllRegularPages {
-					// TODO(bep) section
 					cache[filepath.ToSlash(p.Source.Path())] = p
+					// Ref/Relref supports this potentially ambiguous lookup.
+					cache[p.Source.LogicalName()] = p
 				}
 			default:
 				for _, p := range c.indexPages {
