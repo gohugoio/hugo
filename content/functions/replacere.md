@@ -1,12 +1,15 @@
 ---
 title: replacere
-linktitle: replaceRE
+# linktitle: replaceRE
 description: Replaces all occurrences of a regular expression with the replacement pattern.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-30
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [regex]
 ns:
 signature: ["replaceRE PATTERN REPLACEMENT INPUT"]

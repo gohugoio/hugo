@@ -9,8 +9,8 @@ categories: [hosting and deployment]
 tags: [hosting,firebase]
 authors: [Michel Racic]
 menu:
-  main:
-    parent: "Hosting and Deployment"
+  docs:
+    parent: "hosting-and-deployment"
     weight: 20
 weight: 20
 sections_weight: 20

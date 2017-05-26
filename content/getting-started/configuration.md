@@ -8,8 +8,8 @@ lastmod: 2017-03-05
 categories: [getting started]
 tags: [configuration,fundamentals,toml,yaml,json]
 menu:
-  main:
-    parent: "Getting Started"
+  docs:
+    parent: "getting-started"
     weight: 60
 weight: 60
 sections_weight: 60

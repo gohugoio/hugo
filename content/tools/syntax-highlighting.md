@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 tags: [highlighting,pygments,code blocks,syntax]
 categories: [developer tools]
 menu:
-  main:
-    parent: "Tools"
+  docs:
+    parent: "tools"
     weight: 20
 weight: 20
 sections_weight: 20

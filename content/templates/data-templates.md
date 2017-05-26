@@ -8,8 +8,8 @@ lastmod: 2017-03-12
 categories: [templates]
 tags: [data,dynamic,csv,json,toml,yaml]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 80
 weight: 80
 sections_weight: 80

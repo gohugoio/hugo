@@ -9,8 +9,8 @@ categories: [contribute]
 tags: [contribute,themes,design]
 authors: [digitalcraftsman]
 menu:
-  main:
-    parent: "Contribute"
+  docs:
+    parent: "contribute"
     weight: 30
 weight: 30
 sections_weight: 30

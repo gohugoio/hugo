@@ -1,12 +1,15 @@
 ---
 title: title
-linktitle:
+# linktitle:
 description: Converts all characters in the provided string to title case.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [fundamentals,strings]
 ns:
 signature: ["title INPUT"]

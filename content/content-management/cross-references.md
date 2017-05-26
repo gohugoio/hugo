@@ -8,8 +8,8 @@ lastmod: 2017-03-31
 categories: [content management]
 tags: ["cross references","references", "anchors", "urls"]
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 100
 weight: 100	#rem
 draft: false

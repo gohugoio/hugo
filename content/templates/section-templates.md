@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 categories: [templates]
 tags: [lists,sections]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 40
 weight: 40
 sections_weight: 40

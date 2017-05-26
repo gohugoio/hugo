@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 tags: [taxonomies,metadata,front matter,terms]
 categories: [content management]
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 80
 weight: 80	#rem
 draft: false

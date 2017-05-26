@@ -9,6 +9,9 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [defaults]
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 toc:
 ns:
 signature: ["default DEFAULT INPUT"]
@@ -102,8 +105,3 @@ Using `with`:
 => Sane Defaults
 ```
 {{% /code %}}
-
-
-
-
-

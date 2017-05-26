@@ -8,8 +8,8 @@ lastmod: 2017-02-26
 categories: [developer tools]
 tags: [search,tools]
 menu:
-  main:
-    parent: "Tools"
+  docs:
+    parent: "tools"
     weight: 60
 weight: 60
 sections_weight: 60

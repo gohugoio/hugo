@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 categories: [templates]
 tags: [lists,sections,rss,taxonomies,terms]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 22
 weight: 22
 sections_weight: 22

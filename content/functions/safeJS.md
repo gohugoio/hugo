@@ -1,12 +1,15 @@
 ---
 title: safeJS
-linktitle:
+# linktitle:
 description: Declares the provided string as a known "safe" JavaScript string.
 godocref: https://golang.org/src/html/template/content.go?s=2548:2557#L51
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [strings]
 ns:
 signature: ["safeJS INPUT"]

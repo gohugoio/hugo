@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 categories: [templates]
 tags: [robots,search engines]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 165
 weight: 165
 sections_weight: 165

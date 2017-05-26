@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 categories: [getting started]
 tags: [usage,livereload,command line,flags]
 menu:
-  main:
-    parent: "Getting Started"
+  docs:
+    parent: "getting-started"
     weight: 40
 weight: 40
 sections_weight: 40

@@ -9,8 +9,8 @@ categories: [hosting and deployment]
 tags: [wercker,deployment,github,git]
 authors: [Arjen Schwarz, Samuel Debruyn]
 menu:
-  main:
-    parent: "Hosting and Deployment"
+  docs:
+    parent: "hosting-and-deployment"
     weight: 60
 weight: 60
 sections_weight: 60

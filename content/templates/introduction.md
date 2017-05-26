@@ -9,8 +9,8 @@ lastmod: 2017-02-25
 categories: [templates]
 tags: [go,fundamentals]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 10
 weight: 10
 sections_weight: 10

@@ -1,6 +1,9 @@
 ---
 date: 2017-02-25T10:01:37+01:00
 title: "hugo list expired"
+menu:
+  docs:
+    parent: "commands"
 slug: hugo_list_expired
 url: /commands/hugo_list_expired/
 ---

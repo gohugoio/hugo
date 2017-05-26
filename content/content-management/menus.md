@@ -9,8 +9,8 @@ categories: [content management]
 tags: [menus]
 draft: false
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 120
 weight: 120	#rem
 aliases: [/extras/menus/]
@@ -111,7 +111,7 @@ Take the advanced approach if more control is required. All of the menu entry pr
 ```yaml
 ---
 menu:
-  main:
+  docs:
     parent: 'extras'
     weight: 20
 ---
@@ -145,7 +145,7 @@ Here's the equivalent snippet in a `config.yaml`:
 ```yaml
 ---
 menu:
-  main:
+  docs:
       - Name: "about hugo"
         Pre: "<i class='fa fa-heart'></i>"
         Weight: -110

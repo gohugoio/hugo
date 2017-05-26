@@ -1,6 +1,9 @@
 ---
 date: 2017-02-25T10:01:37+01:00
 title: "hugo version"
+menu:
+  docs:
+    parent: "commands"
 slug: hugo_version
 url: /commands/hugo_version/
 ---

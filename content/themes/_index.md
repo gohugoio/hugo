@@ -1,13 +1,13 @@
 ---
 title: Themes
-linktitle: Overview
+linktitle: Overview of Themes
 description: Install, use, and create Hugo themes.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 menu:
-  main:
-    parent: "Themes"
+  docs:
+    parent: "themes"
     weight: 01
 weight: 01
 sections_weight: 01

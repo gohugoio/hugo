@@ -1,6 +1,9 @@
 ---
 date: 2017-02-25T10:01:37+01:00
 title: "hugo server"
+menu:
+  docs:
+    parent: "commands"
 slug: hugo_server
 url: /commands/hugo_server/
 ---

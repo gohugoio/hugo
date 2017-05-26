@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 categories: [about hugo]
 tags: [about,contribute,roadmap]
 menu:
-  main:
-    parent: "About Hugo"
+  docs:
+    parent: "about"
     weight: 50
 weight: 50
 sections_weight: 50

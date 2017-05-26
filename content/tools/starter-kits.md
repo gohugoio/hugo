@@ -7,8 +7,8 @@ publishdate: 2017-02-01
 lastmod: 2017-02-22
 tags: [starters,assets,pipeline]
 menu:
-  main:
-    parent: "Tools"
+  docs:
+    parent: "tools"
     weight: 30
 weight: 30
 sections_weight: 30

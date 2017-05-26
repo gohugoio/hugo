@@ -8,6 +8,9 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: []
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 toc:
 ns:
 signature: ["last INDEX COLLECTION"]

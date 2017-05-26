@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 tags: [rss, xml]
 categories: [templates]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 150
 weight: 150
 sections_weight: 150

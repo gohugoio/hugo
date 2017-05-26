@@ -1,12 +1,15 @@
 ---
 title: time
-linktitle:
+# linktitle:
 description: Converts a timestamp string into a `time.Time` structure.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [dates,time]
 ns:
 signature: ["time INPUT"]

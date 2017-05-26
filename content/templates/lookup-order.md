@@ -9,9 +9,10 @@ lastmod: 2017-02-25
 categories: [templates]
 tags: [lookup,fundamentals]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 15
+  quicklinks:
 weight: 15
 sections_weight: 15
 draft: false
@@ -69,25 +70,25 @@ The lookup order is best illustrated through examples. The following shows you t
 ```bash
 .
 ├── content
-│   ├── events
-│   │   ├── _index.md
-│   │   └── my-first-event.md
-│   └── posts
-│       ├── my-first-post.md
-│       └── my-second-post.md
+│   ├── events
+│   │   ├── _index.md
+│   │   └── my-first-event.md
+│   └── posts
+│       ├── my-first-post.md
+│       └── my-second-post.md
 ├── layouts
-│   ├── _default
-│   │   └── single.html
-│   ├── posts
-│   │   └── single.html
-│   └── reviews
-│       └── reviewarticle.html
+│   ├── _default
+│   │   └── single.html
+│   ├── posts
+│   │   └── single.html
+│   └── reviews
+│       └── reviewarticle.html
 └── themes
     └── mytheme
         └── layouts
             ├── _default
-            │   ├── list.html
-            │   └── single.html
+            │   ├── list.html
+            │   └── single.html
             └── posts
                 ├── list.html
                 └── single.html

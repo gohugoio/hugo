@@ -1,12 +1,15 @@
 ---
 title: slice
-linktitle: slice
+# linktitle: slice
 description: Creates an array (`[]interface{}``) of all passed arguments.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [slice, array, interface]
 ns:
 signature: ["slice ITEM..."]

@@ -9,8 +9,8 @@ categories: [contribute]
 tags: [dev,open source]
 authors: [digitalcraftsman]
 menu:
-  main:
-    parent: "Contribute"
+  docs:
+    parent: "contribute"
     weight: 10
 weight: 10
 sections_weight: 10

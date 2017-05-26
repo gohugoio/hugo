@@ -1,6 +1,9 @@
 ---
 date: 2017-02-25T10:01:37+01:00
 title: "hugo env"
+menu:
+  docs:
+    parent: "commands"
 slug: hugo_env
 url: /commands/hugo_env/
 ---

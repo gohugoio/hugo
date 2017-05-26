@@ -8,8 +8,8 @@ lastmod: 2017-03-09
 tags: [aliases,redirects,permalinks,urls]
 categories: [content management]
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 110
 weight: 110	#rem
 draft: false

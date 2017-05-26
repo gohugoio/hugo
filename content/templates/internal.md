@@ -8,8 +8,8 @@ lastmod: 2017-03-06
 categories: [templates]
 tags: [internal, analytics,]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 168
 weight: 168
 sections_weight: 168

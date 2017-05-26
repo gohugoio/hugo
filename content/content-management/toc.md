@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 categories: [content management]
 tags: [table of contents, toc]
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 130
 weight: 130	#rem
 draft: false

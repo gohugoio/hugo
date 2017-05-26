@@ -8,8 +8,8 @@ lastmod: 2017-01-10
 categories: [content management]
 tags: [summaries,abstracts,read more]
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 90
 weight: 90	#rem
 draft: false

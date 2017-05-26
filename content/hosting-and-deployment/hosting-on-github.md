@@ -9,8 +9,8 @@ categories: [hosting and deployment]
 tags: [github,git,deployment,hosting]
 authors: [Spencer Lyon, Gunnar Morling]
 menu:
-  main:
-    parent: "Hosting and Deployment"
+  docs:
+    parent: "hosting-and-deployment"
     weight: 30
 weight: 30
 sections_weight: 30

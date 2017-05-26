@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 categories: [developer tools]
 tags: [frontend,gui]
 menu:
-  main:
-    parent: "Tools"
+  docs:
+    parent: "tools"
     weight: 40
 weight: 40
 sections_weight: 40

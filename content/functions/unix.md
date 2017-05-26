@@ -1,6 +1,6 @@
 ---
 title: unix
-linktitle: Unix
+# linktitle: Unix
 description: Unix returns the local Time corresponding to the given Unix time, sec seconds and nsec nanoseconds since January 1, 1970 UTC.
 godocref: https://golang.org/search?q=Unix#Functions
 date: 2017-02-01
@@ -8,6 +8,9 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [dates,time]
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 ns:
 signature: ["Unix"]
 workson: [times]

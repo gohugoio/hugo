@@ -1,6 +1,9 @@
 ---
 date: 2017-02-25T10:01:37+01:00
 title: "hugo new theme"
+menu:
+  docs:
+    parent: "commands"
 slug: hugo_new_theme
 url: /commands/hugo_new_theme/
 ---

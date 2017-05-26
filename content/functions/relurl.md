@@ -1,12 +1,15 @@
 ---
 title: relurl
-linktitle: relURL
+# linktitle: relURL
 description: Given a string, prepends the relative URL according to a page's position in the project directory structure.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [urls]
 ns:
 signature: ["relURL INPUT"]

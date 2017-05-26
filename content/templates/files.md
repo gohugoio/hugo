@@ -9,8 +9,8 @@ lastmod: 2017-02-01
 categories: [templates]
 tags: [files,directories]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 110
 weight: 110
 sections_weight: 110

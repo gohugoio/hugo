@@ -1,6 +1,6 @@
 ---
 title: upper
-linktitle: upper
+# linktitle: upper
 description: Converts all characters in a string to uppercase
 godocref:
 date: 2017-02-01
@@ -8,6 +8,9 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: []
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 toc:
 ns:
 signature: ["upper INPUT"]

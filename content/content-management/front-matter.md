@@ -8,8 +8,8 @@ lastmod: 2017-02-24
 categories: [content management]
 tags: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 30
 weight: 30	#rem
 draft: false

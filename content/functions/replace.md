@@ -1,12 +1,15 @@
 ---
 title: replace
-linktitle: replace
+# linktitle: replace
 description: Replaces all occurrences of the search string with the replacement string.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: []
 ns:
 signature: ["replace INPUT OLD NEW"]

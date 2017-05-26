@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 categories: [themes]
 tags: [install, themes, source, organization, directories,usage]
 menu:
-  main:
-    parent: "Themes"
+  docs:
+    parent: "themes"
     weight: 10
 weight: 10
 sections_weight: 10

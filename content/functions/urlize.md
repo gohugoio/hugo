@@ -1,11 +1,14 @@
 ---
 title: urlize
-linktitle: urlize
+# linktitle: urlize
 description: Takes a string, sanitizes it for usage in URLs, and converts spaces to hyphens.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [urls,strings]
 godocref:
 ns:

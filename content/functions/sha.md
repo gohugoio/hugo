@@ -1,12 +1,15 @@
 ---
 title: sha
-linktitle: sha
+# linktitle: sha
 description: Hashes the given input and returns either an SHA1 or SHA256 checksum.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [sha,checksum]
 ns:
 signature: ["sha1 INPUT", "sha256 INPUT"]

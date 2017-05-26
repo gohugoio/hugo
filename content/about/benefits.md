@@ -7,8 +7,8 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [ssg,static,performance,security]
 menu:
-  main:
-    parent: "About Hugo"
+  docs:
+    parent: "about"
     weight: 30
 weight: 30
 sections_weight: 30

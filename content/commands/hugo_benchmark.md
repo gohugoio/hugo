@@ -1,6 +1,9 @@
 ---
 date: 2017-02-25T10:01:37+01:00
 title: "hugo benchmark"
+menu:
+  docs:
+    parent: "commands"
 slug: hugo_benchmark
 url: /commands/hugo_benchmark/
 ---

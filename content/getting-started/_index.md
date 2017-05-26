@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-linktitle: Overview
+# linktitle: Overview Getting Started
 description: Quick start and guides for installing Hugo on your preferred operating system.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -8,10 +8,10 @@ lastmod: 2017-02-01
 categories: [getting started]
 tags: [usage,docs]
 menu:
-  main:
-    parent: "Getting Started"
-    weight: 01
-weight: 01	#rem
+  docs:
+    parent: "getting-started"
+    weight: 1
+weight: 0001	#rem
 draft: false
 aliases: [/overview/introduction/]
 toc: false

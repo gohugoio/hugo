@@ -9,8 +9,8 @@ lastmod: 2017-02-20
 categories: [templates]
 tags: [amber,ace,templating languages]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 170
 weight: 170
 sections_weight: 170

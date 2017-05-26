@@ -8,8 +8,8 @@ lastmod: 2017-03-09
 categories: [getting started]
 tags: [source, organization, directories,fundamentals]
 menu:
-  main:
-    parent: "Getting Started"
+  docs:
+    parent: "getting-started"
     weight: 50
 weight: 50
 sections_weight: 50

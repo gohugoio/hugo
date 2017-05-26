@@ -1,6 +1,6 @@
 ---
 title: Contributing to the Hugo Project
-linktitle: Overview
+linktitle: Contributing
 description: Contribute to Hugo development and documentation.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 categories: [contribute]
 tags: []
 menu:
-  main:
-    parent: "Contribute"
+  docs:
+    parent: "contribute"
     weight: 01
 weight: 01	#rem
 draft: false

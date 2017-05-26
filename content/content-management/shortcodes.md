@@ -7,8 +7,8 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-31
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 25
 weight: 25	#rem
 categories: [content management]

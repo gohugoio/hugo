@@ -1,6 +1,6 @@
 ---
 title: Command Line Reference
-linktitle: Command Line Reference
+linktitle: CLI
 description: Comprehensive list of Hugo templating functions, including basic and advanced usage examples.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -8,9 +8,9 @@ lastmod: 2017-02-01
 categories: [commands]
 tags: [cli,command line]
 menu:
-  main:
-    parent: "Commands"
-    weight: 01
+  docs:
+    parent: "commands"
+    weight: 1
 weight: 01	#rem
 draft: false
 aliases: [/cli/]

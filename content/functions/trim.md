@@ -1,12 +1,15 @@
 ---
 title: trim
-linktitle:
+# linktitle:
 description: Returns a slice of a passed string with all leading and trailing characters from cutset removed.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [strings]
 ns:
 signature: ["trim INPUT CUTSET"]

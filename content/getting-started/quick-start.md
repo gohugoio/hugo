@@ -9,8 +9,8 @@ categories: [getting started]
 tags: [quick start,usage]
 authors: [Shekhar Gulati, Ryan Watters]
 menu:
-  main:
-    parent: "Getting Started"
+  docs:
+    parent: "getting-started"
     weight: 10
 weight: 10
 sections_weight: 10

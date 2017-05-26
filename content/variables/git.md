@@ -9,8 +9,8 @@ categories: [variables and params]
 tags: [git]
 draft: false
 menu:
-  main:
-    parent: "Variables"
+  docs:
+    parent: "variables"
     weight: 70
 weight: 70
 sections_weight: 70

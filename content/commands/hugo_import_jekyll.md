@@ -1,6 +1,9 @@
 ---
 date: 2017-02-25T10:01:37+01:00
 title: "hugo import jekyll"
+menu:
+  docs:
+    parent: "commands"
 slug: hugo_import_jekyll
 url: /commands/hugo_import_jekyll/
 ---

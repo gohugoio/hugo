@@ -9,8 +9,8 @@ categories: [variables and params]
 tags: [shortcodes]
 draft: false
 menu:
-  main:
-    parent: "Variables"
+  docs:
+    parent: "variables"
     weight: 20
 weight: 20
 sections_weight: 20

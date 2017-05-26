@@ -1,12 +1,15 @@
 ---
 title: relref
-linktitle: relref
+# linktitle: relref
 description: Looks up a content page by relative path.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [cross references, anchors]
 ns:
 signature: ["relref PAGE CONTENT"]

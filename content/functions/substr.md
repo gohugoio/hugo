@@ -1,12 +1,15 @@
 ---
 title: substr
-linktitle:
+# linktitle:
 description: Extracts parts of a string from a specified character's position and returns the specified number of characters.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [strings]
 aliases: []
 ns:

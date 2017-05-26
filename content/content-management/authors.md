@@ -8,8 +8,8 @@ lastmod: 2017-03-12
 tags: [authors]
 categories: ["content management"]
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 55
 weight: 55	#rem
 draft: true

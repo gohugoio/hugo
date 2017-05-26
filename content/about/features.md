@@ -6,8 +6,8 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 menu:
-  main:
-    parent: "About Hugo"
+  docs:
+    parent: "about"
     weight: 20
 weight: 20
 sections_weight: 20

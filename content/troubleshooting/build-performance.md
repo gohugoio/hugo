@@ -7,6 +7,9 @@ publishdate: 2017-03-12
 lastmod: 2017-03-12
 tags: [performance, build]
 categories: [troubleshooting]
+menu:
+  docs:
+    parent: "troubleshooting"
 weight:
 draft: true
 slug:

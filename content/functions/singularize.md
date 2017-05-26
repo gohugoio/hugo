@@ -1,12 +1,15 @@
 ---
 title: singularize
-linktitle: singularize
+# linktitle: singularize
 description: Converts a word according to a set of common English singularization rules.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [strings,singular]
 ns:
 signature: ["singularize INPUT"]

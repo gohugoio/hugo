@@ -8,6 +8,9 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-26
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [dictionary]
 ns:
 signature: ["dict KEY VALUE [KEY VALUE]..."]

@@ -1,12 +1,15 @@
 ---
 title: seq
-linktitle:
+# linktitle:
 description: Creates a sequence of integers.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: []
 ns:
 signature: ["seq LAST", "seq FIRST LAST", "seq FIRST INCREMENT LAST"]

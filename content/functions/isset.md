@@ -7,6 +7,9 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: []
 ns:
 signature: ["isset COLLECTION INDEX", "isset COLLECTION KEY"]

@@ -8,8 +8,8 @@ lastmod: 2017-01-10
 categories: [content management]
 tags: [multilingual,i18n, internationalization]
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 150
 weight: 150	#rem
 draft: false

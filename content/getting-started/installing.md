@@ -9,8 +9,8 @@ categories: [getting started]
 authors: ["Michael Henderson"]
 tags: [install,fundamentals,pc,windows,linux,macos,binary,tarball]
 menu:
-  main:
-    parent: "Getting Started"
+  docs:
+    parent: "getting-started"
     weight: 30
 weight: 30
 sections_weight: 30

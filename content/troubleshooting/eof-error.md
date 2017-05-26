@@ -6,6 +6,9 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [troubleshooting]
+menu:
+  docs:
+    parent: "troubleshooting"
 tags: [eof, end of file, error, faqs]
 draft: false
 weight:

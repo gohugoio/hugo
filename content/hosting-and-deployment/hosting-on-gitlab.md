@@ -9,8 +9,8 @@ categories: [hosting and deployment]
 tags: [hosting,deployment,git,gitlab]
 authors: [Riku-Pekka Silvola]
 menu:
-  main:
-    parent: "Hosting and Deployment"
+  docs:
+    parent: "hosting-and-deployment"
     weight: 40
 weight: 40
 sections_weight: 40

@@ -1,6 +1,6 @@
 ---
 title: shuffle
-linktitle:
+# linktitle:
 description: Returns a random permutation of a given array or slice.
 godocref:
 date: 2017-02-01
@@ -8,6 +8,9 @@ publishdate: 2017-02-01
 lastmod: 2017-04-30
 tags: [ordering]
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 ns:
 signature: ["shuffle COLLECTION"]
 workson: []

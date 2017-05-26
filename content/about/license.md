@@ -8,8 +8,8 @@ lastmod: 2016-03-02
 categories: ["about hugo"]
 tags: ["License","apache"]
 menu:
-  main:
-    parent: "About Hugo"
+  docs:
+    parent: "about"
     weight: 60
 weight: 60
 sections_weight: 60

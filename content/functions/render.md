@@ -1,12 +1,15 @@
 ---
 title: render
-linktitle: Render
+# linktitle: Render
 description: Takes a view to apply when rendering content.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [views]
 ns:
 signature: ["render LAYOUT"]

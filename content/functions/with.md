@@ -1,12 +1,15 @@
 ---
 title: with
-linktitle: with
+# linktitle: with
 description: Rebinds the context (`.`) within its scope and skips the block if the variable is absent.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-12
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [conditionals,fundamentals]
 ns:
 signature: ["with INPUT"]

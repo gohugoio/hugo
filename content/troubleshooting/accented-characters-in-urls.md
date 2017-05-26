@@ -7,6 +7,9 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [urls,multilingual,special characters]
 categories: [troubleshooting]
+menu:
+  docs:
+    parent: "troubleshooting"
 weight:
 draft: false
 slug:

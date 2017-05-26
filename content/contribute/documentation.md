@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 categories: [contribute]
 tags: [docs,documentation,community, contribute]
 menu:
-  main:
-    parent: "Contribute"
+  docs:
+    parent: "contribute"
     weight: 20
 weight: 20
 sections_weight: 20

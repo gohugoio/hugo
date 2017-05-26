@@ -8,8 +8,8 @@ lastmod: 2017-03-09
 tags: [sections,content,organization, fundamentals]
 categories: [project organization]
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "content-management"
     weight: 140
 weight: 140	#rem
 draft: false

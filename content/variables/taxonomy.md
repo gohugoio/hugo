@@ -9,8 +9,8 @@ categories: [variables and params]
 tags: [taxonomies,terms]
 draft: false
 menu:
-  main:
-    parent: "Variables"
+  docs:
+    parent: "variables"
     weight: 30
 weight: 30
 sections_weight: 30

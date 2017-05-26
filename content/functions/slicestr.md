@@ -1,12 +1,15 @@
 ---
 title: slicestr
-linktitle:
+# linktitle:
 description: Creates a slice of a half-open range, including start and end indices.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [strings]
 ns:
 signature: ["slicestr STRING START [END]"]

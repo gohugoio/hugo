@@ -1,6 +1,9 @@
 ---
 date: 2017-02-25T10:01:37+01:00
 title: "hugo convert toTOML"
+menu:
+  docs:
+    parent: "commands"
 slug: hugo_convert_toTOML
 url: /commands/hugo_convert_totoml/
 ---

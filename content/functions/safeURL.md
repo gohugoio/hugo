@@ -1,6 +1,6 @@
 ---
 title: safeurl
-linktitle: safeURL
+# linktitle: safeURL
 description: Declares the provided string as a safe URL or URL substring.
 godocref: https://golang.org/pkg/html/template/#HTMLEscape
 date: 2017-02-01
@@ -8,6 +8,9 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [strings,urls]
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 ns:
 signature: ["safeURL INPUT"]
 workson: []

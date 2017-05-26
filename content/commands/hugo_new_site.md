@@ -1,6 +1,9 @@
 ---
 date: 2017-02-25T10:01:37+01:00
 title: "hugo new site"
+menu:
+  docs:
+    parent: "commands"
 slug: hugo_new_site
 url: /commands/hugo_new_site/
 ---

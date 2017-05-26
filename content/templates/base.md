@@ -9,8 +9,8 @@ lastmod: 2017-02-01
 categories: [templates]
 tags: [blocks,base,fundamentals]
 menu:
-  main:
-    parent: "Templates"
+  docs:
+    parent: "templates"
     weight: 20
 weight: 20
 sections_weight: 20

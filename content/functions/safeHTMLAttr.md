@@ -1,12 +1,15 @@
 ---
 title: safeHTMLAttr
-linktitle: safeHTMLAttr
+# linktitle: safeHTMLAttr
 description: Declares the provided string as a "safe" HTML attribute.
 godocref: https://golang.org/src/html/template/content.go?s=1661:1676#L33
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [strings]
 ns:
 signature: ["safeHTMLAttr INPUT"]

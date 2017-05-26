@@ -7,8 +7,8 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [migrations,jekyll,wordpress,drupal,ghost,contentful]
 menu:
-  main:
-    parent: "Tools"
+  docs:
+    parent: "tools"
     weight: 10
 weight: 10
 sections_weight: 10

@@ -1,12 +1,15 @@
 ---
 title: string
-linktitle: string
+# linktitle: string
 description: Creates a string from the argument passed to the function
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 tags: [strings]
 ns:
 signature: ["string INPUT"]

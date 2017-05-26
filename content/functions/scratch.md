@@ -1,6 +1,6 @@
 ---
 title: scratch
-linktitle: Scratch
+# linktitle: Scratch
 description: Acts as a "scratchpad" to allow for writable page-scoped variables.
 godocref:
 date: 2017-02-01
@@ -8,6 +8,9 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [iteration]
 categories: [functions]
+menu:
+  docs:
+    parent: "functions"
 toc:
 ns:
 signature: []

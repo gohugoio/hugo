@@ -9,8 +9,8 @@ categories: [hosting and deployment]
 tags: [rysnc,deployment]
 authors: [Adrien Poupin]
 menu:
-  main:
-    parent: "Hosting and Deployment"
+  docs:
+    parent: "hosting-and-deployment"
     weight: 70
 weight: 70
 sections_weight: 70

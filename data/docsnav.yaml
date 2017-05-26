@@ -1,0 +1,105 @@
+about:
+  order: 1
+  title: "About Hugo"
+  url: "about"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Hugo's features, roadmap, and license, as well as the motivation behind creating Hugo"
+gettingstarted:
+  order: 2
+  title: "Getting Started"
+  url: "getting-started"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Quick start, cross-platform installation, configuration, basic usage, and directory structure"
+contentmanagement:
+  order: 3
+  title: "Content Management"
+  url: "content-management"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Summaries, shortcodes, archetypes, permalinks, front matter, and supported content formats"
+templates:
+  order: 4
+  title: "Templates"
+  url: "templates"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Pagination, homepage, rss, sitemap, lookup order, and data templates"
+functions:
+  order: 5
+  title: "Functions"
+  url: "functions"
+  haschildren: false
+  sortsubpagesby: "title"
+  desc: "Comprehensive list of Hugo templating functions, including basic and advanced usage examples"
+variables:
+  order: 6
+  title: "Variables"
+  url: "variables"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Page-, file-, taxonomy-, and site-level variables and parameters available in templates"
+themes:
+  order: 7
+  title: "Themes"
+  url: "themes"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Install, use, and create your own Hugo themes"
+hostinganddeployment:
+  order: 8
+  title: "Hosting and Deployment"
+  url: "hosting-and-deployment"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Site builds, automated deployments, and popular hosting solutions, as explained by the Hugo community"
+# tutorials:
+#   order: 9
+#   title: "Tutorials"
+#   url: "tutorials"
+#   haschildren: true
+#   sortsubpagesby: "weight"
+#   desc: "Community-aggregated articles and code examples for approaching different projects with Hugo"
+tools:
+  order: 10
+  title: "Developer Tools"
+  url: "tools"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Syntax highlighting, site search, text editor plug-ins, and migration tools"
+commands:
+  order: 11
+  title: "Command Line Reference"
+  url: "commands"
+  haschildren: false
+  sortsubpagesby: ""
+  desc: "Hugo's easy-to-use but extensive command line interface"
+troubleshooting:
+  order: 12
+  title: "Troubleshooting"
+  url: "troubleshooting"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Known issues and workarounds, as well as FAQs pulled from the Hugo discussion forum"
+news:
+  order: 13
+  title: "News"
+  url: "news"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Articles featuring Hugo, as well as updates and release notes for the project"
+siteshowcase:
+  order: 14
+  title: "Site Showcase"
+  url: "showcase"
+  haschildren: false
+  sortsubpagesby: "weight"
+  desc: "A collection of websites built using Hugo"
+contributetohugo:
+  order: 15
+  title: "Contribute to Hugo"
+  url: "contribute"
+  haschildren: true
+  sortsubpagesby: "weight"
+  desc: "Contribute to Hugo development and documentation"

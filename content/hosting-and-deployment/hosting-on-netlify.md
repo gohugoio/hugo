@@ -9,8 +9,8 @@ categories: [hosting and deployment]
 tags: [netlify,hosting,deployment]
 authors: [Ryan Watters, Seth MacLeod]
 menu:
-  main:
-    parent: "Hosting and Deployment"
+  docs:
+    parent: "hosting-and-deployment"
     weight: 10
 weight: 10
 sections_weight: 10
