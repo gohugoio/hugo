@@ -374,6 +374,8 @@ We will use the default image shown below.
 
 Hugo will sync the changes and reload the website to use new image as shown below.
 
+> _Note: if you don't see your changes applied immediately, restart your server with the `--ignoreCache` flag to disable caching._
+
 ![](/img/quickstart/bookshelf-new-default-image.png)
 
 Now, we need to change the layout of the index page so that only images are shown instead of the text. The index.html inside the layouts directory of the theme refer to partial `li` that renders the list view shown below.
