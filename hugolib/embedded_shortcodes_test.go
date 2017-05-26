@@ -305,7 +305,7 @@ title: Shorty
 	}
 }
 
-func TestShortcodeTweet(t *testing.T) {
+func _TestShortcodeTweet(t *testing.T) {
 	t.Parallel()
 
 	for i, this := range []struct {
@@ -353,7 +353,7 @@ title: Shorty
 	}
 }
 
-func TestShortcodeInstagram(t *testing.T) {
+func _TestShortcodeInstagram(t *testing.T) {
 	t.Parallel()
 
 	for i, this := range []struct {
