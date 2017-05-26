@@ -637,7 +637,7 @@ func getRstContent(ctx *RenderingContext) []byte {
 	}
 
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	cmd := exec.Command(python, path, "--leave-comments")
+	cmd := exec.Command(python, path, "--leave-comments", "--initial-header-level=2")
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
