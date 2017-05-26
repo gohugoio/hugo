@@ -1,6 +1,6 @@
 ---
 title: Content Management
-linktitle: Content Mgmt.
+linktitle: Content Management Overview
 description: Hugo makes managing large static sites easy with support for archetypes, content types, menus, cross references, summaries, and more.
 date: 2017-02-01
 publishdate: 2017-02-01

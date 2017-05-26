@@ -21,10 +21,6 @@ toc: true
 
 Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications that demonstrate logical relationships between content.
 
-{{% note %}}
-Taxonomies were previously known as *indexes* in Hugo before v0.11.
-{{% /note %}}
-
 ### Definitions
 
 In order to effectively work with taxonomies in Hugo, it's important to first understand the language used to described the concept.

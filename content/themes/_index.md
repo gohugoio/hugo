@@ -1,6 +1,6 @@
 ---
 title: Themes
-linktitle: Overview of Themes
+linktitle: Themes Overview
 description: Install, use, and create Hugo themes.
 date: 2017-02-01
 publishdate: 2017-02-01

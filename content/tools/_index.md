@@ -1,6 +1,6 @@
 ---
 title: Developer Tools
-linktitle: Overview of Developer Tools
+linktitle: Developer Tools Overview
 description: In addition to Hugo's powerful CLI, there is a large number of community-developed tool chains for Hugo developers.
 date: 2016-12-05
 publishdate: 2016-12-05
