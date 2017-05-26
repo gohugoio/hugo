@@ -42,9 +42,12 @@ import (
 )
 
 var (
-	cjk             = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
-	allKindsInPages = []string{KindPage, KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm, kindRSS}
-	allKinds        = append(allKindsInPages, []string{kindSitemap, kindRobotsTXT, kind404}...)
+	cjk = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
+
+	// This is all the kinds we can expect to find in .Site.Pages.
+	allKindsInPages = []string{KindPage, KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm}
+
+	allKinds = append(allKindsInPages, []string{kindRSS, kindSitemap, kindRobotsTXT, kind404}...)
 )
 
 const (
