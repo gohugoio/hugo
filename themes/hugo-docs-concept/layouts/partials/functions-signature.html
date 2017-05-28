@@ -1,9 +1,0 @@
-{{ if isset .Params "signature" -}}
-  {{- with .Params.signature }}
-<pre>
-    {{- range . }}
-{{ . }}
-    {{- end }}
-</pre>
-  {{- end -}}
-{{ end }}

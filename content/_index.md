@@ -1,18 +1,43 @@
 ---
-title: Hugo
-linktitle: Hugo
-description: Hugo is the world's fastest static website engine. It's written in Golang and developed by spf13 and friends.
-date: 2017-02-01
-publishdate: 2017-02-01
-lastmod: 2017-02-01
-menu:
-  main:
-    parent: "section name"
-    weight: 01
-weight: 01	#rem
-draft: false
-slug:
-aliases: []
-toc: false
+title: "Hugo"
+date: 2017-03-02T12:00:00-05:00
+features:
+  - heading: Blistering Speed
+    image_path: /images/icon-fast.svg
+    tagline: What's modern about waiting for your site to build?
+    copy: Hugo is the fastest tool of its kind. At <1 ms per page, the average site builds in less than a second.
+
+  - heading: Robust Content Management
+    image_path: /images/icon-content-management.svg
+    tagline: Flexibility rules. Hugo is a content strategist's dream.
+    copy: Hugo supports unlimited content types, taxonomies, menus, dynamic API-driven content, and more, all without plugins.
+
+  - heading: Shortcodes
+    image_path: /images/icon-shortcodes.svg
+    tagline: Hugo's shortcodes are Markdown's hidden superpower.
+    copy: We love the beautiful simplicity of markdown’s syntax, but there are times when we want more flexibility. Hugo created shortcodes to so we could have beauty and flexibility.
+
+  - heading: Built-in Templates
+    image_path: /images/icon-built-in-templates.svg
+    tagline: Hugo has common patterns to get your work done quickly.
+    copy: Hugo ships with pre-made templates to make quick work of SEO, commenting, analytics and other functions. One line of code, and you're done.
+
+  - heading: Multilingual and i18n
+    image_path: /images/icon-multilingual2.svg
+    tagline: Polyglot baked in.
+    copy: Hugo provides full i18n support for multi-language sites with the same straightforward development experience Hugo users love in single-language sites.
+sections:
+  - heading: "100s of Themes"
+    cta: Check out the Hugo's themes.
+    link: http://themes.gohugo.io/
+    color_classes: bg-accent-color white
+    image: /images/homepage-screenshot-hugo-themes.jpg
+    copy: "Hugo provides a robust theming system that is easy to implement but capable of producing even the most complicated websites."
+  - heading: "Capable Templating"
+    cta: Get Started.
+    link: https://hugodocs.info/templates/
+    color_classes: bg-primary-color-light black
+    image: /images/home-page-templating-example.png
+    copy: "Hugo's Go-based templating provides just the right amount of logic to build anything from the simple to complex. If you prefer Jade/Pug-like syntax, you can also use Amber, Ace, or any combination of the three."
 ---
-Hugo is the world's fastest static website engine. It's written in Golang and developed by spf13 and friends. Below you will find some of the most common and helpful pages from our documentation.
+Hugo is one of the most popular open-source static site generators. With its amazing speed and flexibility, Hugo makes building websites fun again.

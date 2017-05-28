@@ -1,9 +1,0 @@
-<h2>What Makes Hugo Special? <br><span>Check Out Just a Few of Hugo's Powerful Features</span></h2>
-{{ range sort $.Site.Data.homepagefeatures.feature "order" }}
-<div class="home-row-content-feature" id="{{ .name | urlize }}">
-		<h3>{{.name}}</h3>
-		<div class="homepage-feature-content">
-			{{ .description | markdownify }}
-		</div>
-</div>
-{{ end }}

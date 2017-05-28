@@ -1,9 +1,0 @@
-kbd {
-	background-color: inherit;
-	border:1px solid $base-font-color;
-	display:inline-block;
-	font-size:.9em;
-	padding:.1em .3em;
-	border-radius:5px;
-	@include card(1);
-}

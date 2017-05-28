@@ -2,7 +2,7 @@
 title: Press and Articles
 linktitle: Press and Articles
 description: A list of articles, blog posts, or tutorials where Hugo is featured.
-date: 2017-02-01
+date: 2016-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 tags: [articles, tutorials, press]
@@ -26,4 +26,3 @@ Know of a post, article, or tutorial on Hugo? [Please add it to this list](https
 Hugo has been featured in the following Blog Posts, Press, and Media.
 
 {{< articlelist >}}
-

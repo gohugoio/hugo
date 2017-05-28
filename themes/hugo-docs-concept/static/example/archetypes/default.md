@@ -1,6 +1,0 @@
----
-publishdate: ""
-description: ""
-tags: []
-categories: []
----

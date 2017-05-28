@@ -1,5 +1,0 @@
-{{- if .Site.Params.usecrp -}}
-	<style>{{- print (partial "style-embed.html" .) | safeCSS -}}</style>
-{{- else -}}
-	<link rel="stylesheet" href="{{ "css/style.min.css" | relURL}}">
-{{- end -}}

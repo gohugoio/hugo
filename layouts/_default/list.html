@@ -1,6 +1,0 @@
-{{/* {{ define "header" }}{{ partial "page-header" . }}{{ end }} */}}
-{{ define "main" }}
-  {{ $section_to_display :=  .Paginator.Pages }}
-  {{ $.Scratch.Add "section_to_display" $section_to_display }}
-  {{ partial "pagelayout.html" . }}
-{{ end }}

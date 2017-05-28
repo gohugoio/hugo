@@ -1,6 +1,0 @@
-<!-- looks for a sitelink field and front matter - creates redirects - useful for things like showcase additions -->
-{{if and (eq .Kind "page") ( .Params.sitelink )}}
-<link rel="canonical" href="{{.Permalink}}"/>
-<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-<meta http-equiv="refresh" content="0; url={{if .Params.redirecturl}}{{.Params.redirecturl}}{{else}}{{.Params.sitelink}}{{end}}"/>
-{{end}}

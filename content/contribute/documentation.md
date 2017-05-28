@@ -56,7 +56,7 @@ The archetype for `functions` according to the Hugo theme is as follows:
 
 {{% code file="archetypes/functions.md" %}}
 ```yaml
-{{< readfile file="/themes/hugo-docs-concept/archetypes/functions.md">}}
+{{< readfile file="/themes/gohugo-theme/archetypes/functions.md">}}
 ```
 {{% /code %}}
 
@@ -108,7 +108,7 @@ The archetype for the `tutorials` content type is as follows:
 
 {{% code file="archetypes/tutorials.md" %}}
 ```yaml
-{{< readfile file="/themes/hugo-docs-concept/archetypes/tutorials.md">}}
+{{< readfile file="/themes/gohugo-theme/archetypes/tutorials.md">}}
 ```
 {{% /code %}}
 

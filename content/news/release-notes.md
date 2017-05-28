@@ -2,17 +2,10 @@
 title: Release Notes
 linktitle: Release Notes
 description: See the full list of Hugo release notes since v0.05 in June 2015.
-date: 2017-02-01
+date: 2016-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [releases,improvements,features,issues,fixes]
-categories: [news and articles]
-menu:
-  main:
-    parent: "News"
-    weight: 30
-weight: 30
-sections_weight: 30
+categories: [releases]
 draft: false
 aliases: [/meta/release-notes/]
 toc: true

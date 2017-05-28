@@ -1,8 +1,0 @@
-<div class="content-header-links">
-	{{- if .Params.godocref -}}
-	<a target="_blank" class="tooltip right godoc-link" data-tooltip="See the related Godocs for {{.Title }}" href="{{.Params.godocref}}" >
-		{{ partial "svg-icons/godoc-icon.html" .}}
-	</a>
-	{{- end -}}
-	<a target="_blank" class="tooltip right edit-link" data-tooltip="Edit this page on GitHub" href="{{.Site.Params.ghrepo}}edit/master/content/{{.File.Path}}"><i class="icon-pencil" aria-hidden="true"></i></a>
-</div>
