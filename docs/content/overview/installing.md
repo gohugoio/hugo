@@ -2,7 +2,7 @@
 ---
 aliases:
 - /doc/installing/
-lastmod: 2016-01-04
+lastmod: 2017-03-30
 date: 2013-07-01
 menu:
   main:
@@ -119,9 +119,9 @@ You **must use govendor** to fetch Hugo's dependencies.
     govendor get github.com/spf13/hugo
 
 `govendor get` will fetch Hugo and all its dependent libraries to
-`$HOME/go/src/github.com/spf13/hugo`, and compile everything into a final `hugo`
+`$GOPATH/src/github.com/spf13/hugo`, and compile everything into a final `hugo`
 (or `hugo.exe`) executable, which you will find sitting inside
-`$HOME/go/bin/`, all ready to go!
+`$GOPATH/bin/`, all ready to go!
 
 *Windows users: where you see the `$HOME` environment variable above, replace it with `%USERPROFILE%`.*
 
