@@ -587,3 +587,41 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(l1).Type().String())
 	}
 }
+
+// Uniq takes in a slice or array and returns a slice with subsequent
+// duplicate elements removed.
+func (ns *Namespace) Uniq(l interface{}) (interface{}, error) {
+	if l == nil {
+		return make([]interface{}, 0), nil
+	}
+
+	lv := reflect.ValueOf(l)
+	lv, isNil := indirect(lv)
+	if isNil {
+		return nil, errors.New("invalid nil argument to Uniq")
+	}
+
+	var ret reflect.Value
+
+	switch lv.Kind() {
+	case reflect.Slice:
+		ret = reflect.MakeSlice(lv.Type(), 0, 0)
+	case reflect.Array:
+		ret = reflect.MakeSlice(reflect.SliceOf(lv.Type().Elem()), 0, 0)
+	default:
+		return nil, errors.New("Can't use Uniq on " + reflect.ValueOf(lv).Type().String())
+	}
+
+	for i := 0; i != lv.Len(); i++ {
+		lvv := lv.Index(i)
+		lvv, isNil := indirect(lvv)
+		if isNil {
+			continue
+		}
+
+		if !ns.In(ret.Interface(), lvv.Interface()) {
+			ret = reflect.Append(ret, lvv)
+		}
+	}
+	return ret.Interface(), nil
+}

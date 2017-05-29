@@ -603,6 +603,42 @@ func TestUnion(t *testing.T) {
 	}
 }
 
+func TestUniq(t *testing.T) {
+	t.Parallel()
+
+	ns := New(&deps.Deps{})
+	for i, test := range []struct {
+		l      interface{}
+		expect interface{}
+		isErr  bool
+	}{
+		{[]string{"a", "b", "c"}, []string{"a", "b", "c"}, false},
+		{[]string{"a", "b", "c", "c"}, []string{"a", "b", "c"}, false},
+		{[]string{"a", "b", "b", "c"}, []string{"a", "b", "c"}, false},
+		{[]string{"a", "b", "c", "b"}, []string{"a", "b", "c"}, false},
+		{[]int{1, 2, 3}, []int{1, 2, 3}, false},
+		{[]int{1, 2, 3, 3}, []int{1, 2, 3}, false},
+		{[]int{1, 2, 2, 3}, []int{1, 2, 3}, false},
+		{[]int{1, 2, 3, 2}, []int{1, 2, 3}, false},
+		{[4]int{1, 2, 3, 2}, []int{1, 2, 3}, false},
+		{nil, make([]interface{}, 0), false},
+		// should-errors
+		{1, 1, true},
+		{"foo", "fo", true},
+	} {
+		errMsg := fmt.Sprintf("[%d] %v", i, test)
+
+		result, err := ns.Uniq(test.l)
+		if test.isErr {
+			assert.Error(t, err, errMsg)
+			continue
+		}
+
+		assert.NoError(t, err, errMsg)
+		assert.Equal(t, test.expect, result, errMsg)
+	}
+}
+
 func (x *TstX) TstRp() string {
 	return "r" + x.A
 }
