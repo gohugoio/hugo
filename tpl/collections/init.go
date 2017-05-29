@@ -137,6 +137,12 @@ func init() {
 				{`{{ seq 3 }}`, `[1 2 3]`},
 			},
 		)
+		ns.AddMethodMapping(ctx.Uniq,
+			[]string{"uniq"},
+			[][2]string{
+				{`{{ slice 1 2 3 2 | uniq }}`, `[1 2 3]`},
+			},
+		)
 
 		return ns
 

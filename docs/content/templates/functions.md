@@ -373,6 +373,15 @@ e.g.
        {{ .Content }}
     {{ end }}
 
+
+### uniq
+
+Takes in a slice or array and returns a slice with subsequent duplicate elements removed.
+
+    {{ uniq (slice 1 2 3 2) }}
+    {{ slice 1 2 3 2 | uniq }}
+    <!-- both return [1 2 3] -->
+
 ## Files
 
 ### readDir
