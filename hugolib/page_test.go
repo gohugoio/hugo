@@ -706,6 +706,22 @@ func TestPageWithDelimiter(t *testing.T) {
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiter)
 }
 
+// Issue 2538
+func TestPageWithHTMLInUserDefinedSummary(t *testing.T) {
+
+	assertFunc := func(t *testing.T, ext string, p *Page) {
+		checkPageTitle(t, p, "Simple")
+		// Just verify that it doesn't panic.
+	}
+
+	testAllMarkdownEnginesForPage(t, assertFunc, "simple", `---
+title: Simple
+---
+<p class="lead"><strong>Situation</strong><br/>
+This is my introduction.</p><!--more-->
+<b>Some more.</b>`)
+}
+
 // Issue #1076
 func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	t.Parallel()
