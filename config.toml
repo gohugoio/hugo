@@ -8,8 +8,7 @@ copyright = ""
 defaultContentLanguage = "en"
 # Set to true to keep url path preserve casing (eg, for sections)
 disablePathToLower = false
-# Site-level description
-description = "Website and documentation for the Hugo Project, the world's fastest framework for building websites."
+
 # Allows use of emoji shorthand directly in content
 enableEmoji = true
 # Set the unicode character used for the "return" link in page footnotes.
@@ -49,6 +48,7 @@ twitter = "GoHugoIO"
 
 #CUSTOM PARAMS
 [params]
+  description = "The world’s fastest framework for building websites"
   ## Used for views in rendered HTML (i.e., rather than using the .Hugo variable)
   release = "0.20"
   ## Setting this to true will add a "noindex" to *EVERY* page on the site
