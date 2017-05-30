@@ -27,10 +27,15 @@ import (
 type SourceSpec struct {
 	Cfg config.Provider
 	Fs  *hugofs.Fs
+
+	languages              map[string]interface{}
+	defaultContentLanguage string
 }
 
 func NewSourceSpec(cfg config.Provider, fs *hugofs.Fs) SourceSpec {
-	return SourceSpec{Cfg: cfg, Fs: fs}
+	defaultLang := cfg.GetString("defaultContentLanguage")
+	languages := cfg.GetStringMap("languages")
+	return SourceSpec{Cfg: cfg, Fs: fs, languages: languages, defaultContentLanguage: defaultLang}
 }
 
 // File represents a source content file.
@@ -139,8 +144,8 @@ func (sp SourceSpec) NewFile(relpath string) *File {
 	f.baseName = helpers.Filename(f.LogicalName())
 
 	lang := strings.TrimPrefix(filepath.Ext(f.baseName), ".")
-	if _, ok := sp.Cfg.GetStringMap("languages")[lang]; lang == "" || !ok {
-		f.lang = sp.Cfg.GetString("defaultContentLanguage")
+	if _, ok := sp.languages[lang]; lang == "" || !ok {
+		f.lang = sp.defaultContentLanguage
 		f.translationBaseName = f.baseName
 	} else {
 		f.lang = lang
