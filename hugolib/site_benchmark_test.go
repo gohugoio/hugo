@@ -131,8 +131,10 @@ category = "categories"
 		tags                = make([]string, cfg.TagsPerPage)
 	)
 
+	tagOffset := rand.Intn(10)
+
 	for i := 0; i < len(tags); i++ {
-		tags[i] = fmt.Sprintf("Hugo %d", i)
+		tags[i] = fmt.Sprintf("Hugo %d", i+tagOffset)
 	}
 
 	tagsStr := "[]"
