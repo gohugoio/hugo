@@ -20,10 +20,8 @@ toc: false
 
 Do you prefer a graphical user interface over a text editor? Give these frontends a try:
 
-* [rango](https://github.com/stayradiated/rango). Rango is a web frontend for Hugo. It's designed to make it easy to manage a small site, even for people with little computer experience.
 * [enwrite](https://github.com/zzamboni/enwrite). Enwrite enables evernote-powered, statically generated blogs and websites. Now posting to your blog or updating your website is as easy as writing a new note in Evernote!
 * [caddy-hugo](https://github.com/hacdias/caddy-hugo). `caddy-hugo` is an add-on for [Caddy](https://caddyserver.com/) that delivers a good UI to edit the content of your Hugo website.
-* [Hugopit](https://github.com/sjardim/Hugopit). Hugopit is a web-based editor for Hugo built on top of [Cockpit CMS](http://www.getcockpit.com/).
 * [Lipi](https://github.com/SohanChy/Lipi). Lipi is a native GUI frontend written in Java to manage your Hugo websites.
 
 
