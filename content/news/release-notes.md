@@ -453,8 +453,8 @@ times decreased anywhere from 10% to 99%.
 * Add `themesDir` option to configuration {{<gh 1556>}}
 * Add support for Go 1.6 `block` keyword in templates {{<gh 1832>}}
 * Partial static sync {{<gh 1644>}}
-* Source file based relative linking (a la Github) {{<gh 0x0f6b334b6715253b030c4e783b88e911b6e53e56>}}
-*  Add `ByLastmod` sort function to pages. {{<gh 0xeb627ca16de6fb5e8646279edd295a8bf0f72bf1 >}}
+* Source file based relative linking (à la GitHub) {{<gh 0x0f6b334b6715253b030c4e783b88e911b6e53e56>}}
+* Add `ByLastmod` sort function to pages. {{<gh 0xeb627ca16de6fb5e8646279edd295a8bf0f72bf1 >}}
 * New templates functions:
     * `readFile` {{<gh 1551 >}}
     * `countwords` and `countrunes` {{<gh 1440>}}

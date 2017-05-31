@@ -226,7 +226,7 @@ twitter = "GoHugoIO"
 
 
   [[menu.global]]
-    name = "Github"
+    name = "GitHub"
     weight = 200
     identifier = "github"
     post = "external"

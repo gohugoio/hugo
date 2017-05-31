@@ -149,7 +149,7 @@ If you're not fimiliar with this term, GitHub's [help pages](https://help.github
 
 #### Fork by hand
 
-Open the [Hugo repository](https://github.com/spf13/hugo) on Github and click on the "Fork" button in the top right.
+Open the [Hugo repository](https://github.com/spf13/hugo) on GitHub and click on the "Fork" button in the top right.
 
 ![Fork button](/images/contribute/development/forking-a-repository.png)
 

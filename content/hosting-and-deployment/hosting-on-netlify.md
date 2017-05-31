@@ -23,7 +23,7 @@ toc: true
 
 ## Assumptions
 
-* You have an account with Github, GitLab, or Bitbucket.
+* You have an account with GitHub, GitLab, or Bitbucket.
 * You have completed the [Quick Start][] or have Hugo website you are ready to deploy and share with the world.
 * You do not already have a Netlify account.
 
@@ -37,7 +37,7 @@ The following examples use GitHub, but other git providers will follow a similar
 
 Selecting GitHub will bring up a typical modal you've seen through other application that use GitHub for authentication. Select "Authorize application."
 
-![Screenshot of the authorization popup for Netlify and Github.](/images/hosting-and-deployment/hosting-on-netlify/netlify-first-authorize.jpg)
+![Screenshot of the authorization popup for Netlify and GitHub.](/images/hosting-and-deployment/hosting-on-netlify/netlify-first-authorize.jpg)
 
 ## Create a New Site with Continuous Deployment
 
