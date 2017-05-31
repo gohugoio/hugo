@@ -619,7 +619,6 @@ Loop:
 }
 
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
-// Note: This function will rewrite the input slice.
 func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]byte, error) {
 	if len(replacements) == 0 {
 		return source, nil
@@ -684,11 +683,7 @@ func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]by
 		}
 	}
 
-	buf.Write(source[lastShortcodeEnd:])
-	source = make([]byte, buf.Len())
-	copy(source, buf.Bytes())
-
-	return source, nil
+	return append(buf.Bytes(), source[lastShortcodeEnd:]...), nil
 }
 
 func getShortcodeTemplateForTemplateKey(key scKey, shortcodeName string, t tpl.TemplateFinder) *tpl.TemplateAdapter {
