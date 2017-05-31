@@ -355,7 +355,7 @@ func newContentPathSection(path string) (string, string) {
 }
 
 func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {
-	in := map[string]interface{}{
+	in := map[string]string{
 		"baseURL":      "http://example.org/",
 		"title":        "My New Hugo Site",
 		"languageCode": "en-us",
