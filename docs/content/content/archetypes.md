@@ -106,6 +106,8 @@ title = "my archetype example"
 
 As we can see, the file contains the `title` and `date` property that Hugo created for us, along with the front matter that we defined in the `archetypes/default.md` file.
 
+You'll also notice that the fields have been sorted into alphabetical order. This is an unintentional side-effect that stems from the underlying code libraries that Hugo relies upon. It is, however, [a known issue that is actively being discussed](https://github.com/spf13/hugo/issues/452).
+
 ## Section Archetypes
 
 By creating the `archetypes/default.md` file, we've created a default archetype that is more useful than the built-in archetype, but since Hugo encourages us to [organize our content into sections](/content/sections/), each of which will likely have different front matter requirements, a "one-size-fits-all" archetype isn't necessarily the best approach.
@@ -258,6 +260,7 @@ This is still a fairly simple example, but if your content usually contains a va
 ## Theme Archetypes
 
 Whenever you generate a content file with the `hugo new` command, Hugo will start by searching for archetypes in the `archetypes` directory, initially looking for an archetype that matches the content's section and falling-back on the `default.md` archetype. If no archetypes are found in this directory, Hugo will continue its search in the `archetypes` directory of the currently active theme. In other words, it's possible for themes to come packaged with their own archetypes, ensuring that users of that theme format their content files with correctly structured front matter.
+Whenever you generate a content file with the `hugo new` command, Hugo will start by searching for archetypes in the `archetypes` directory, initially looking for an archetype that matches the content's section and falling-back on the `default.md` archetype (if one is present). If no archetypes are found in this directory, Hugo will continue its search in the `archetypes` directory of the currently active theme. In other words, it's possible for themes to come packaged with their own archetypes, ensuring that users of that theme format their content files with correctly structured front matter.
 
 To allow Hugo to use archetypes from a theme, [that theme must be activated via the project's configuration file](/themes/usage/):
 
