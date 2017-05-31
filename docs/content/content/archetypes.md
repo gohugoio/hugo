@@ -11,7 +11,7 @@ weight: 50
 toc: true
 ---
 
-Typically, each piece of content you create within a Hugo project will have [front-matter](/content/front-matter/) that follows a consistent structure. If you write blog posts, for instance, you might use the following front-matter for the vast majority of those posts:
+Typically, each piece of content you create within a Hugo project will have [front matter](/content/front-matter/) that follows a consistent structure. If you write blog posts, for instance, you might use the following front matter for the vast majority of those posts:
 
 ```toml
 +++
@@ -28,15 +28,15 @@ draft = true
 +++
 ```
 
-You can always add non-typical front-matter to any piece of content, but since it takes extra work to develop a theme that handles unique metadata, consistency is simpler.
+You can always add non-typical front matter to any piece of content, but since it takes extra work to develop a theme that handles unique metadata, consistency is simpler.
 
-With this in mind, Hugo has a convenient feature known as *archetypes* that allows users to define default front-matter for new pieces of content.
+With this in mind, Hugo has a convenient feature known as *archetypes* that allows users to define default front matter for new pieces of content.
 
 By using archetypes, we can:
 
-1. **Save time**. Stop writing the same front-matter over and over again.
+1. **Save time**. Stop writing the same front matter over and over again.
 2. **Avoid errors**. Reduce the odds of typos, improperly formatted syntax, and other simple mistakes.
-3. **Focus on more important things**. Avoid having to remember all of the fields that need to be associated with each piece of content. (This is particularly important for larger projects with complex front-matter and a variety of content types.)
+3. **Focus on more important things**. Avoid having to remember all of the fields that need to be associated with each piece of content. (This is particularly important for larger projects with complex front matter and a variety of content types.)
 
 Let's explore how they work.
 
@@ -50,7 +50,7 @@ To see this in action, open the command line, navigate into your project's direc
 hugo new hello-world.md
 ```
 
-This `hugo new` command creates a new content file inside the project's `content` directory — in this case, a file named `hello-world.md` — and if you open this file, you'll notice it contains the following front-matter:
+This `hugo new` command creates a new content file inside the project's `content` directory — in this case, a file named `hello-world.md` — and if you open this file, you'll notice it contains the following front matter:
 
 ```toml
 +++
@@ -66,11 +66,11 @@ This, in its most basic form, is an example of an archetype. To understand how u
 
 ## Creating Archetypes
 
-In this section, we're going to create an archetype that will override the built-in archetype, allowing us to define custom front-matter that will be included in any content files that we generate with the `hugo new` command.
+In this section, we're going to create an archetype that will override the built-in archetype, allowing us to define custom front matter that will be included in any content files that we generate with the `hugo new` command.
 
 To achieve this, create a file named `default.md` inside the `archetypes` folder of a Hugo project. (If the folder doesn't exist, create it.)
 
-Then, inside this file, define the following front-matter:
+Then, inside this file, define the following front matter:
 
 ```toml
 +++
@@ -81,9 +81,9 @@ draft = true
 +++
 ```
 
-You'll notice that we haven't defined a `title` or `date` field. This is because Hugo will automatically add these fields to the beginning of the front-matter. We do, however, need to define the `draft` field if we want it to exist in our front-matter.
+You'll notice that we haven't defined a `title` or `date` field. This is because Hugo will automatically add these fields to the beginning of the front matter. We do, however, need to define the `draft` field if we want it to exist in our front matter.
 
-You'll also notice that we're writing the front-matter in the TOML format. It's possible to define archetype front-matter in other formats, but a setting needs to be changed in the configuration file for this to be possible. See the "[Archetype Formats](#archetype-formats)" section of this article for more details.
+You'll also notice that we're writing the front matter in the TOML format. It's possible to define archetype front matter in other formats, but a setting needs to be changed in the configuration file for this to be possible. See the "[Archetype Formats](#archetype-formats)" section of this article for more details.
 
 Next, run the following command:
 
@@ -104,17 +104,17 @@ title = "my archetype example"
 +++
 ```
 
-As we can see, the file contains the `title` and `date` property that Hugo created for us, along with the front-matter that we defined in the `archetypes/default.md` file.
+As we can see, the file contains the `title` and `date` property that Hugo created for us, along with the front matter that we defined in the `archetypes/default.md` file.
 
 ## Section Archetypes
 
-By creating the `archetypes/default.md` file, we've created a default archetype that is more useful than the built-in archetype, but since Hugo encourages us to [organize our content into sections](/content/sections/), each of which will likely have different front-matter requirements, a "one-size-fits-all" archetype isn't necessarily the best approach.
+By creating the `archetypes/default.md` file, we've created a default archetype that is more useful than the built-in archetype, but since Hugo encourages us to [organize our content into sections](/content/sections/), each of which will likely have different front matter requirements, a "one-size-fits-all" archetype isn't necessarily the best approach.
 
-To accommodate for this, Hugo allows us to create archetypes for each section of our project. This means, whenever we generate content for a certain section, the appropriate front-matter for that section will be automatically included in the generated file.
+To accommodate for this, Hugo allows us to create archetypes for each section of our project. This means, whenever we generate content for a certain section, the appropriate front matter for that section will be automatically included in the generated file.
 
 To see this in action, create a "photo" section by creating a directory named "photo" inside the `content` directory.
 
-Then create a file named `photo.md` inside the `archetypes` directory and include the following front-matter inside this file:
+Then create a file named `photo.md` inside the `archetypes` directory and include the following front matter inside this file:
 
 ```toml
 +++
@@ -150,7 +150,7 @@ title = "my pretty cat"
 +++
 ```
 
-As we can see, the `title` and `date` fields are still included by Hugo, but the rest of the front-matter is being generated from the `photo.md` archetype instead of the `default.md` archetype.
+As we can see, the `title` and `date` fields are still included by Hugo, but the rest of the front matter is being generated from the `photo.md` archetype instead of the `default.md` archetype.
 
 ### Tip: Default Values
 
@@ -178,9 +178,9 @@ Then, after generating a content file, simply remove the values that aren't rele
 
 ## Scaffolding Content
 
-Archetypes aren't limited to defining default front-matter. They can also be used to define a default structure for the body of Markdown documents.
+Archetypes aren't limited to defining default front matter. They can also be used to define a default structure for the body of Markdown documents.
 
-For example, imagine creating a `review.md` archetype for the purpose of writing camera reviews. This is what the front-matter for such an archetype might look like:
+For example, imagine creating a `review.md` archetype for the purpose of writing camera reviews. This is what the front matter for such an archetype might look like:
 
 ```toml
 +++
@@ -194,7 +194,7 @@ rating = ""
 
 But reviews tend to follow strict formats and need to answer specific questions, and it's with these expectations of precise structure that archetypes can prove to be even more useful.
 
-For the sake of writing reviews, for instance, we could define the structure of a review beneath the front-matter of the `review.md` file:
+For the sake of writing reviews, for instance, we could define the structure of a review beneath the front matter of the `review.md` file:
 
 ```markdown
 +++
@@ -212,7 +212,7 @@ rating = ""
 ## Conclusion
 ```
 
-Then, whenever we use the `hugo new` command to create a new review, not only will the default front-matter be copied into the newly created Markdown document, but the body of the `review.md` archetype will also be copied.
+Then, whenever we use the `hugo new` command to create a new review, not only will the default front matter be copied into the newly created Markdown document, but the body of the `review.md` archetype will also be copied.
 
 To take this further though — and to ensure authors on multi-author websites are on the same page about how content should be written — we could include notes and reminders within the archetype:
 
@@ -257,7 +257,7 @@ This is still a fairly simple example, but if your content usually contains a va
 
 ## Theme Archetypes
 
-Whenever you generate a content file with the `hugo new` command, Hugo will start by searching for archetypes in the `archetypes` directory, initially looking for an archetype that matches the content's section and falling-back on the `default.md` archetype. If no archetypes are found in this directory, Hugo will continue its search in the `archetypes` directory of the currently active theme. In other words, it's possible for themes to come packaged with their own archetypes, ensuring that users of that theme format their content files with correctly structured front-matter.
+Whenever you generate a content file with the `hugo new` command, Hugo will start by searching for archetypes in the `archetypes` directory, initially looking for an archetype that matches the content's section and falling-back on the `default.md` archetype. If no archetypes are found in this directory, Hugo will continue its search in the `archetypes` directory of the currently active theme. In other words, it's possible for themes to come packaged with their own archetypes, ensuring that users of that theme format their content files with correctly structured front matter.
 
 To allow Hugo to use archetypes from a theme, [that theme must be activated via the project's configuration file](/themes/usage/):
 
@@ -269,7 +269,7 @@ If an archetype doesn't exist in the `archetypes` directory at the top-level of 
 
 ## Archetype Formats
 
-By default, the `hugo new` command will generate front-matter in the TOML format. This means, even if we define the front-matter in our archetype files as YAML or JSON, it will be converted to the TOML format before it ends up in our content files.
+By default, the `hugo new` command will generate front matter in the TOML format. This means, even if we define the front matter in our archetype files as YAML or JSON, it will be converted to the TOML format before it ends up in our content files.
 
 Fortunately, this functionality can be overwritten.
 
@@ -285,15 +285,15 @@ Then set this property to any of the following values:
 * yaml
 * json
 
-By defining this option, any front-matter will be generated in your preferred format.
+By defining this option, any front matter will be generated in your preferred format.
 
-It's worth noting, however, that when generating front-matter in the TOML format, you might encounter the following error:
+It's worth noting, however, that when generating front matter in the TOML format, you might encounter the following error:
 
 ```bash
 Error: cannot convert type <nil> to TomlTree
 ```
 
-This is because, to generate TOML, all of the fields in the front-matter need to have a default value, even if that default value is just an empty string.
+This is because, to generate TOML, all of the fields in the front matter need to have a default value, even if that default value is just an empty string.
 
 For example, this YAML would *not* successfully compile into the TOML format:
 
