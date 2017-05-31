@@ -273,6 +273,7 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 	for _, s := range h.Sites {
 		if s.isEnabled(kindSitemap) {
 			sitemapEnabled = true
+			break
 		}
 	}
 
