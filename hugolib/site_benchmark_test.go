@@ -33,7 +33,8 @@ type siteBuildingBenchmarkConfig struct {
 }
 
 func (s siteBuildingBenchmarkConfig) String() string {
-	return fmt.Sprintf("frontmatter=%s|num_root_sections=%d|num_pages=%d|tags_per_page=%d|shortcodes=%t|render=%t", s.Frontmatter, s.RootSections, s.NumPages, s.TagsPerPage, s.Shortcodes, s.Render)
+	// Make it comma separated with no spaces, so it is both Bash and regexp friendly.
+	return fmt.Sprintf("frontmatter=%s,num_root_sections=%d,num_pages=%d,tags_per_page=%d,shortcodes=%t,render=%t", s.Frontmatter, s.RootSections, s.NumPages, s.TagsPerPage, s.Shortcodes, s.Render)
 }
 
 func BenchmarkSiteBuilding(b *testing.B) {
