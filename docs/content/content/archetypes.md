@@ -259,7 +259,6 @@ This is still a fairly simple example, but if your content usually contains a va
 
 ## Theme Archetypes
 
-Whenever you generate a content file with the `hugo new` command, Hugo will start by searching for archetypes in the `archetypes` directory, initially looking for an archetype that matches the content's section and falling-back on the `default.md` archetype. If no archetypes are found in this directory, Hugo will continue its search in the `archetypes` directory of the currently active theme. In other words, it's possible for themes to come packaged with their own archetypes, ensuring that users of that theme format their content files with correctly structured front matter.
 Whenever you generate a content file with the `hugo new` command, Hugo will start by searching for archetypes in the `archetypes` directory, initially looking for an archetype that matches the content's section and falling-back on the `default.md` archetype (if one is present). If no archetypes are found in this directory, Hugo will continue its search in the `archetypes` directory of the currently active theme. In other words, it's possible for themes to come packaged with their own archetypes, ensuring that users of that theme format their content files with correctly structured front matter.
 
 To allow Hugo to use archetypes from a theme, [that theme must be activated via the project's configuration file](/themes/usage/):
