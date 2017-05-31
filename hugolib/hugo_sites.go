@@ -269,6 +269,17 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 		return nil
 	}
 
+	sitemapEnabled := false
+	for _, s := range h.Sites {
+		if s.isEnabled(kindSitemap) {
+			sitemapEnabled = true
+		}
+	}
+
+	if !sitemapEnabled {
+		return nil
+	}
+
 	// TODO(bep) DRY
 	sitemapDefault := parseSitemap(h.Cfg.GetStringMap("sitemap"))
 

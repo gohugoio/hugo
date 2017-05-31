@@ -59,6 +59,7 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 	}
 
 	if v.IsSet("disableSitemap") {
+		// NOTE: Do not remove this until Hugo 0.24, ERROR in 0.23.
 		helpers.Deprecated("site config", "disableSitemap", "Use disableKinds= [\"sitemap\"]", false)
 	}
 
