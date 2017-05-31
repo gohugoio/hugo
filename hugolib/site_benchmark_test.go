@@ -45,7 +45,7 @@ func BenchmarkSiteBuilding(b *testing.B) {
 			conf.RootSections = rootSections
 			for _, tagsPerPage := range []int{0, 1, 5, 20} {
 				conf.TagsPerPage = tagsPerPage
-				for _, numPages := range []int{10, 100, 500, 1000, 5000} {
+				for _, numPages := range []int{10, 100, 500, 1000, 5000, 10000} {
 					conf.NumPages = numPages
 					for _, render := range []bool{false, true} {
 						conf.Render = render
