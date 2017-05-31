@@ -253,7 +253,7 @@ rating = ""
 
 That way, each time we generate a new content file, we have a series of handy notes to push us closer to a piece of writing that's suitable for publishing.
 
-(If you're wondering why the notes are wrapped in the HTML comment syntax, it's to ensure that these notes won't appear inside the preview window of whatever Markdown editor the author happens to be using. The syntax isn't strictly necessary though.)
+(If you're wondering why the notes are wrapped in the HTML comment syntax, it's to ensure they won't appear inside the preview window of whatever Markdown editor the author happens to be using. They're not strictly necessary though.)
 
 This is still a fairly simple example, but if your content usually contains a variety of components — headings, bullet-points, images, [short-codes](/extras/shortcodes/), etc — it's not hard to see the time-saving benefits of placing these components in the body of an archetype file.
 
@@ -268,6 +268,8 @@ theme = "ThemeNameGoesHere"
 ```
 
 If an archetype doesn't exist in the `archetypes` directory at the top-level of a project or inside the `archetypes` directory of an active theme, the built-in archetype will be used.
+
+{{< figure src="/img/content/archetypes/archetype-hierarchy.png" alt="How Hugo Decides Which Archetype To Use" >}}
 
 ## Archetype Formats
 
@@ -314,9 +316,9 @@ But this YAML *would* successfully compile:
 ---
 slug: ""
 tags:
-  - 
+  -
 categories:
-  - 
+  -
 draft: true
 ---
 ```
