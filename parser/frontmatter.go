@@ -20,8 +20,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/BurntSushi/toml"
 	"github.com/chaseadamsio/goorgeous"
-	toml "github.com/pelletier/go-toml"
 
 	"gopkg.in/yaml.v2"
 )
@@ -52,13 +52,7 @@ func InterfaceToConfig(in interface{}, mark rune, w io.Writer) error {
 		return err
 
 	case rune(TOMLLead[0]):
-		tree, err := toml.TreeFromMap(in.(map[string]interface{}))
-		if err != nil {
-			return err
-		}
-
-		_, err = tree.WriteTo(w)
-		return err
+		return toml.NewEncoder(w).Encode(in)
 	case rune(JSONLead[0]):
 		b, err := json.MarshalIndent(in, "", "   ")
 		if err != nil {
@@ -176,14 +170,10 @@ func HandleTOMLMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
 	datum = removeTOMLIdentifier(datum)
 
-	tree, err := toml.LoadReader(bytes.NewReader(datum))
-	if err != nil {
-		return m, err
-	}
+	_, err := toml.Decode(string(datum), &m)
 
-	m = tree.ToMap()
+	return m, err
 
-	return m, nil
 }
 
 // removeTOMLIdentifier removes, if necessary, beginning and ending TOML

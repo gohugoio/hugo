@@ -25,7 +25,7 @@ import (
 
 	"path/filepath"
 
-	toml "github.com/pelletier/go-toml"
+	"github.com/BurntSushi/toml"
 	"github.com/spf13/hugo/source"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -634,12 +634,7 @@ func setupMenuTests(t *testing.T, pageSources []source.ByteSource, configKeyValu
 }
 
 func tomlToMap(s string) (map[string]interface{}, error) {
-	tree, err := toml.Load(s)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return tree.ToMap(), nil
-
+	var data = make(map[string]interface{})
+	_, err := toml.Decode(s, &data)
+	return data, err
 }
