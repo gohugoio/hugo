@@ -21,6 +21,7 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -117,7 +118,7 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 }
 
 // Note - this value must not contain any markup syntax
-const shortcodePlaceholderPrefix = "HUGOSHORTCODE"
+const shortcodePlaceholderPrefix = "HAHAHUGOSHORTCODE"
 
 type shortcode struct {
 	name     string
@@ -238,10 +239,6 @@ func clearIsInnerShortcodeCache() {
 	isInnerShortcodeCache.Lock()
 	defer isInnerShortcodeCache.Unlock()
 	isInnerShortcodeCache.m = make(map[string]bool)
-}
-
-func createShortcodePlaceholder(id int) string {
-	return fmt.Sprintf("HAHA%s-%dHBHB", shortcodePlaceholderPrefix, id)
 }
 
 const innerNewlineRegexp = "\n"
@@ -553,10 +550,7 @@ Loop:
 }
 
 func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *Page) (string, error) {
-
 	startIdx := strings.Index(stringToParse, "{{")
-
-	// short cut for docs with no shortcodes
 	if startIdx < 0 {
 		return stringToParse, nil
 	}
@@ -570,7 +564,6 @@ func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *Page) (str
 
 	result := bp.GetBuffer()
 	defer bp.PutBuffer(result)
-	//var result bytes.Buffer
 
 	// the parser is guaranteed to return items in proper order or fail, so …
 	// … it's safe to keep some "global" state
@@ -602,7 +595,7 @@ Loop:
 				currShortcode.params = make([]string, 0)
 			}
 
-			placeHolder := createShortcodePlaceholder(id)
+			placeHolder := shortcodePlaceholderPrefix + "-" + strconv.Itoa(id) + "HBHB"
 			result.WriteString(placeHolder)
 			s.shortcodes[placeHolder] = currShortcode
 			id++
@@ -621,48 +614,49 @@ Loop:
 }
 
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
-// Note: This function will rewrite the input slice.
-func replaceShortcodeTokens(source []byte, prefix string, replacements map[string]string) ([]byte, error) {
-
+func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]byte, error) {
 	if len(replacements) == 0 {
 		return source, nil
 	}
 
-	sourceLen := len(source)
-	start := 0
-
-	pre := []byte("HAHA" + prefix)
+	pre := []byte(shortcodePlaceholderPrefix)
 	post := []byte("HBHB")
 	pStart := []byte("<p>")
 	pEnd := []byte("</p>")
 
-	k := bytes.Index(source[start:], pre)
+	preIndex := bytes.Index(source, pre)
+	if preIndex < 0 {
+		return source, nil
+	}
 
-	for k != -1 {
-		j := start + k
-		postIdx := bytes.Index(source[j:], post)
-		if postIdx < 0 {
-			// this should never happen, but let the caller decide to panic or not
+	for {
+		postIndex := bytes.Index(source[preIndex:], post)
+		if postIndex < 0 {
+			// This should never happen, but let the caller decide to panic or not.
 			return nil, errors.New("illegal state in content; shortcode token missing end delim")
 		}
 
-		end := j + postIdx + 4
+		shortcodeEnd := preIndex + postIndex + len(post)
 
-		newVal := []byte(replacements[string(source[j:end])])
+		replacement := []byte(replacements[string(source[preIndex:shortcodeEnd])])
 
 		// Issue #1148: Check for wrapping p-tags <p>
-		if j >= 3 && bytes.Equal(source[j-3:j], pStart) {
-			if (k+4) < sourceLen && bytes.Equal(source[end:end+4], pEnd) {
-				j -= 3
-				end += 4
+		if preIndex >= len(pStart) && bytes.Equal(source[preIndex-len(pStart):preIndex], pStart) {
+			if (preIndex+len(pEnd)) < len(source) && bytes.Equal(source[shortcodeEnd:shortcodeEnd+len(pEnd)], pEnd) {
+				// Don't write <p>.
+				preIndex -= 3
+				// Skip </p>.
+				shortcodeEnd += 4
 			}
 		}
 
-		// This and other cool slice tricks: https://github.com/golang/go/wiki/SliceTricks
-		source = append(source[:j], append(newVal, source[end:]...)...)
-		start = j
-		k = bytes.Index(source[start:], pre)
-
+		source = append(source[:preIndex], append(replacement, source[shortcodeEnd:]...)...)
+		nextPre := bytes.Index(source[preIndex:], pre)
+		if nextPre < 0 {
+			break
+		} else {
+			preIndex += nextPre
+		}
 	}
 
 	return source, nil

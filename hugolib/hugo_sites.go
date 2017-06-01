@@ -606,19 +606,19 @@ func (h *HugoSites) Pages() Pages {
 }
 
 func handleShortcodes(p *Page, rawContentCopy []byte) ([]byte, error) {
-	if p.shortcodeState != nil && len(p.shortcodeState.contentShortcodes) > 0 {
-		p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.shortcodeState.contentShortcodes), p.BaseFileName())
-		err := p.shortcodeState.executeShortcodesForDelta(p)
+	if p.shortcodeState == nil || len(p.shortcodeState.contentShortcodes) == 0 {
+		return rawContentCopy, nil
+	}
 
-		if err != nil {
-			return rawContentCopy, err
-		}
+	p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.shortcodeState.contentShortcodes), p.BaseFileName())
+	err := p.shortcodeState.executeShortcodesForDelta(p)
+	if err != nil {
+		return rawContentCopy, err
+	}
 
-		rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, shortcodePlaceholderPrefix, p.shortcodeState.renderedShortcodes)
-
-		if err != nil {
-			p.s.Log.FATAL.Printf("Failed to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
-		}
+	rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, p.shortcodeState.renderedShortcodes)
+	if err != nil {
+		p.s.Log.FATAL.Printf("Failed to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
 	}
 
 	return rawContentCopy, nil
