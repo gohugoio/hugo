@@ -749,6 +749,27 @@ title: Raw
 
 }
 
+func TestPageFrontmatter(t *testing.T) {
+	t.Parallel()
+	cfg, fs := newTestCfg()
+
+	writeSource(t, fs, filepath.Join("content", "frontmatter.md"), `---
+title: Frontmatter
+---
+**Some text**`)
+
+	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .Frontmatter }}`)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 1)
+	p := s.RegularPages[0]
+
+	require.Contains(t, p.Frontmatter(), `---
+title: Frontmatter
+---`)
+}
+
 func TestPageWithShortCodeInSummary(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
