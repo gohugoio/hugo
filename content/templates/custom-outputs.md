@@ -1,6 +1,6 @@
 ---
 title: Custom Outputs
-linktitle: Custom Outputs
+linktitle: Custom Output Templates
 description: Hugo can output content in multiple formats to make quick work of
 date: 2017-03-22
 publishdate: 2017-03-22
@@ -9,19 +9,15 @@ categories: [content management]
 tags: ["amp","outputs"]
 menu:
   docs:
-    parent: "content-management"
+    parent: "templatesd"
     weight: 100
   quicklinks:
 weight: 100	#rem
 draft: false
-aliases: [/extras/custom-output-types/]
+aliases: [/extras/custom-output-types/,/content-management/custom-outputs/]
 toc: true
 wip: true
 ---
-
-{{% warning %}}
-Custom output formats is a major feature being released with v20. The following copy is taken from the original proposal and spec and is therefore far from complete.
-{{% /warning %}}
 
 ## Media Type
 
