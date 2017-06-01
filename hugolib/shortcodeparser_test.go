@@ -174,7 +174,7 @@ func BenchmarkShortcodeLexer(b *testing.B) {
 }
 
 func collect(t *shortCodeLexerTest) (items []item) {
-	l := newShortcodeLexer(t.name, t.input, 0)
+	l := newShortcodeLexer(t.input, 0)
 	for {
 		item := l.nextItem()
 		items = append(items, item)
