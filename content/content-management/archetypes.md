@@ -11,7 +11,7 @@ menu:
   docs:
     parent: "content-management"
     weight: 70
-  quicklinks:    
+  quicklinks:
 weight: 70	#rem
 draft: false
 aliases: [/content/archetypes/]
@@ -25,7 +25,7 @@ toc: true
 The `hugo new` generator for archetypes assumes your working directory is the content folder at the root of your project. Hugo is able to infer the appropriate archetype by assuming the content type from the content section passed to the CLI command:
 
 ```bash
-hugo new [content-section/file-name.md]
+hugo new <content-section>/<file-name.md>
 ```
 
 We can use this pattern to create a new `.md` file in the `posts` section:
