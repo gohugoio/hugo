@@ -9,8 +9,8 @@ lastmod: 2017-03-31
 menu:
   docs:
     parent: "content-management"
-    weight: 25
-weight: 25	#rem
+    weight: 35
+weight: 35	#rem
 categories: [content management]
 tags: [markdown,content,shortcodes]
 draft: false

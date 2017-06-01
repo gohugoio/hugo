@@ -1,7 +1,7 @@
 ---
 title: Content Sections
 linktitle: Sections
-description: Hugo provides full support for content sections, which according to Hugo's default behavior, should reflect the architecture of the output website sections as well.
+description: Hugo provides full support for content sections, which according to Hugo's default behavior, will reflect the architecture of the rendered website.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01

@@ -66,7 +66,7 @@ Three variables per content file are often not enough for effective content mana
 
 ## Lookup Order for Archetypes
 
-Similar to the lookup order for [templates in the `layouts` directory][lookup], Hugo looks for a default file before falling back on the base/internal archetype. For the `my-first-post.md` example, Hugo looks for the new content's archetype file in the following order:
+Similar to the [lookup order for templates][lookup] in your `layouts` directory, Hugo looks for a section- or type-specific archetype, then a default archetype, and finally an internal archetype that ships with Hugo. For example, Hugo will look for an archetype for `content/posts/my-first-post.md` in the following order:
 
 1. `archetypes/posts.md`
 2. `archetypes/default.md`

@@ -5,19 +5,20 @@ description: Hugo can output content in multiple formats, including calendar eve
 date: 2017-03-22
 publishdate: 2017-03-22
 lastmod: 2017-03-22
-categories: [content management]
-tags: ["amp","outputs"]
+categories: [templates]
+tags: ["amp","outputs","rss"]
 menu:
-  main:
-    parent: "Content Management"
+  docs:
+    parent: "templates"
     weight: 18
 weight: 18
+sections_weight: 18
 draft: false
-aliases: [/templates/outputs/,/extras/output-formats/,/doc/output-formats/,/doc/custom-output/]
+aliases: [/templates/outputs/,/extras/output-formats/,/content-management/custom-outputs/]
 toc: true
 ---
 
-Hugo `0.20` introduced the powerful feature **custom output formats**; Hugo isn't just "static HTML with an added RSS feed" anymore. *Say hello* to calendars, e-book formats, Google AMP, and JSON search indexes, to name a few.
+In addition to the default behavior of generating RSS feeds and HTML pages, Hugo can generate any text-based output, including e-book formats, Google AMP, and JSON search indexes, to name a few.
 
 This page describes how to properly configure your site with the media types and output formats, as well as where to create your templates for your custom outputs.
 
