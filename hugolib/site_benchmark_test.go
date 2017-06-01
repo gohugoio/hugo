@@ -29,6 +29,7 @@ type siteBuildingBenchmarkConfig struct {
 	RootSections int
 	Render       bool
 	Shortcodes   bool
+	NumTags      int
 	TagsPerPage  int
 }
 
@@ -41,6 +42,10 @@ func (s siteBuildingBenchmarkConfig) String() string {
 		id += fmt.Sprintf("num_root_sections=%d%s", s.RootSections, sep)
 	}
 	id += fmt.Sprintf("num_pages=%d%s", s.NumPages, sep)
+
+	if s.NumTags > 0 {
+		id += fmt.Sprintf("num_tags=%d%s", s.NumTags, sep)
+	}
 
 	if s.TagsPerPage > 0 {
 		id += fmt.Sprintf("tags_per_page=%d%s", s.TagsPerPage, sep)
@@ -64,15 +69,18 @@ func BenchmarkSiteBuilding(b *testing.B) {
 		conf.Frontmatter = frontmatter
 		for _, rootSections := range []int{1, 5} {
 			conf.RootSections = rootSections
-			for _, tagsPerPage := range []int{0, 1, 5, 20} {
-				conf.TagsPerPage = tagsPerPage
-				for _, numPages := range []int{10, 100, 500, 1000, 5000, 10000} {
-					conf.NumPages = numPages
-					for _, render := range []bool{false, true} {
-						conf.Render = render
-						for _, shortcodes := range []bool{false, true} {
-							conf.Shortcodes = shortcodes
-							doBenchMarkSiteBuilding(conf, b)
+			for _, numTags := range []int{20, 50, 100, 500, 1000, 5000} {
+				conf.NumTags = numTags
+				for _, tagsPerPage := range []int{0, 1, 5, 20} {
+					conf.TagsPerPage = tagsPerPage
+					for _, numPages := range []int{10, 100, 500, 1000, 5000, 10000} {
+						conf.NumPages = numPages
+						for _, render := range []bool{false, true} {
+							conf.Render = render
+							for _, shortcodes := range []bool{false, true} {
+								conf.Shortcodes = shortcodes
+								doBenchMarkSiteBuilding(conf, b)
+							}
 						}
 					}
 				}
@@ -163,31 +171,15 @@ category = "categories"
 `
 	var (
 		contentPagesContent [3]string
-		tags                = make([]string, cfg.TagsPerPage)
+		tags                = make([]string, cfg.NumTags)
 		pageTemplate        string
 	)
 
-	tagOffset := rand.Intn(10)
-
-	for i := 0; i < len(tags); i++ {
-		tags[i] = fmt.Sprintf("Hugo %d", i+tagOffset)
+	for i := 0; i < cfg.NumTags; i++ {
+		tags[i] = fmt.Sprintf("Hugo %d", i+1)
 	}
 
 	var tagsStr string
-
-	if cfg.Frontmatter == "TOML" {
-		pageTemplate = pageTemplateTOML
-		tagsStr = "[]"
-		if cfg.TagsPerPage > 0 {
-			tagsStr = strings.Replace(fmt.Sprintf("%q", tags[0:cfg.TagsPerPage]), " ", ", ", -1)
-		}
-	} else {
-		// YAML
-		pageTemplate = pageTemplateYAML
-		for _, tag := range tags {
-			tagsStr += "\n- " + tag
-		}
-	}
 
 	if cfg.Shortcodes {
 		contentPagesContent = [3]string{
@@ -218,6 +210,25 @@ category = "categories"
 
 		for i := 0; i < cfg.RootSections; i++ {
 			for j := 0; j < pagesPerSection; j++ {
+				tagsStart := rand.Intn(cfg.NumTags) - cfg.TagsPerPage
+				if tagsStart < 0 {
+					tagsStart = 0
+				}
+				tagsSlice := tags[tagsStart : tagsStart+cfg.TagsPerPage]
+				if cfg.Frontmatter == "TOML" {
+					pageTemplate = pageTemplateTOML
+					tagsStr = "[]"
+					if cfg.TagsPerPage > 0 {
+						tagsStr = strings.Replace(fmt.Sprintf("%q", tagsSlice), " ", ", ", -1)
+					}
+				} else {
+					// YAML
+					pageTemplate = pageTemplateYAML
+					for _, tag := range tagsSlice {
+						tagsStr += "\n- " + tag
+					}
+				}
+
 				content := fmt.Sprintf(pageTemplate, fmt.Sprintf("Title%d_%d", i, j), tagsStr, contentPagesContent[rand.Intn(3)])
 
 				writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), content)
