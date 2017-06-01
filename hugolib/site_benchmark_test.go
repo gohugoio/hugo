@@ -34,7 +34,28 @@ type siteBuildingBenchmarkConfig struct {
 
 func (s siteBuildingBenchmarkConfig) String() string {
 	// Make it comma separated with no spaces, so it is both Bash and regexp friendly.
-	return fmt.Sprintf("frontmatter=%s,num_root_sections=%d,num_pages=%d,tags_per_page=%d,shortcodes=%t,render=%t", s.Frontmatter, s.RootSections, s.NumPages, s.TagsPerPage, s.Shortcodes, s.Render)
+	// To make it a short as possible, we only shows bools when enabled and ints when >= 0 (RootSections > 1)
+	sep := ","
+	id := s.Frontmatter + sep
+	if s.RootSections > 1 {
+		id += fmt.Sprintf("num_root_sections=%d%s", s.RootSections, sep)
+	}
+	id += fmt.Sprintf("num_pages=%d%s", s.NumPages, sep)
+
+	if s.TagsPerPage > 0 {
+		id += fmt.Sprintf("tags_per_page=%d%s", s.TagsPerPage, sep)
+	}
+
+	if s.Shortcodes {
+		id += "shortcodes" + sep
+	}
+
+	if s.Render {
+		id += "render" + sep
+	}
+
+	return strings.TrimSuffix(id, sep)
+
 }
 
 func BenchmarkSiteBuilding(b *testing.B) {
