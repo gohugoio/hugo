@@ -260,12 +260,7 @@ func prepareShortcodeForPage(placeholder string, sc shortcode, parent *Shortcode
 	return m
 }
 
-func renderShortcode(
-	tmplKey scKey,
-	sc shortcode,
-	parent *ShortcodeWithPage,
-	p *Page) string {
-
+func renderShortcode(tmplKey scKey, sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 	tmpl := getShortcodeTemplateForTemplateKey(tmplKey, sc.name, p.s.Tmpl)
 	if tmpl == nil {
 		p.s.Log.ERROR.Printf("Unable to locate template for shortcode %q in page %q", sc.name, p.Path())
@@ -549,21 +544,21 @@ Loop:
 	return sc, nil
 }
 
-func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *Page) (string, error) {
-	startIdx := strings.Index(stringToParse, "{{")
+func (s *shortcodeHandler) extractShortcodes(input []byte, p *Page) ([]byte, error) {
+	startIdx := bytes.Index(input, []byte("{{"))
 	if startIdx < 0 {
-		return stringToParse, nil
+		return input, nil
 	}
 
 	// the parser takes a string;
 	// since this is an internal API, it could make sense to use the mutable []byte all the way, but
 	// it seems that the time isn't really spent in the byte copy operations, and the impl. gets a lot cleaner
-	pt := &pageTokens{lexer: newShortcodeLexer("parse-page", stringToParse, pos(startIdx))}
+	pt := &pageTokens{lexer: newShortcodeLexer(string(input), pos(startIdx))}
 
 	id := 1 // incremented id, will be appended onto temp. shortcode placeholders
 
-	result := bp.GetBuffer()
-	defer bp.PutBuffer(result)
+	result := bytes.Buffer{}
+	result.Grow(len(input))
 
 	// the parser is guaranteed to return items in proper order or fail, so …
 	// … it's safe to keep some "global" state
@@ -588,7 +583,7 @@ Loop:
 			}
 
 			if err != nil {
-				return result.String(), err
+				return result.Bytes(), err
 			}
 
 			if currShortcode.params == nil {
@@ -605,11 +600,11 @@ Loop:
 			err := fmt.Errorf("%s:%d: %s",
 				p.FullFilePath(), (p.lineNumRawContentStart() + pt.lexer.lineNum() - 1), currItem)
 			currShortcode.err = err
-			return result.String(), err
+			return result.Bytes(), err
 		}
 	}
 
-	return result.String(), nil
+	return result.Bytes(), nil
 
 }
 
@@ -682,7 +677,6 @@ func getShortcodeTemplateForTemplateKey(key scKey, shortcodeName string, t tpl.T
 	names = append(names, shortcodeName)
 
 	for _, name := range names {
-
 		if x := t.Lookup("shortcodes/" + name); x != nil {
 			return x
 		}
