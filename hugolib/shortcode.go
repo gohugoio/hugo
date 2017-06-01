@@ -73,46 +73,47 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 	if scp.Params == nil {
 		return nil
 	}
-	if reflect.ValueOf(scp.Params).Len() == 0 {
+	paramsValue := reflect.ValueOf(scp.Params)
+	if paramsValue.Len() == 0 {
 		return nil
 	}
+	paramsType := reflect.TypeOf(scp.Params)
 
-	var x reflect.Value
-
+	var result reflect.Value
 	switch key.(type) {
 	case int64, int32, int16, int8, int:
-		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
+		if paramsType.Kind() == reflect.Map {
 			return "error: cannot access named params by position"
-		} else if reflect.TypeOf(scp.Params).Kind() == reflect.Slice {
+		} else if paramsType.Kind() == reflect.Slice {
 			idx := int(reflect.ValueOf(key).Int())
-			ln := reflect.ValueOf(scp.Params).Len()
+			ln := paramsValue.Len()
 			if idx > ln-1 {
 				helpers.DistinctErrorLog.Printf("No shortcode param at .Get %d in page %s, have params: %v", idx, scp.Page.FullFilePath(), scp.Params)
 				return fmt.Sprintf("error: index out of range for positional param at position %d", idx)
 			}
-			x = reflect.ValueOf(scp.Params).Index(idx)
+			result = paramsValue.Index(idx)
 		}
 	case string:
-		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
-			x = reflect.ValueOf(scp.Params).MapIndex(reflect.ValueOf(key))
-			if !x.IsValid() {
+		if paramsType.Kind() == reflect.Map {
+			result = paramsValue.MapIndex(reflect.ValueOf(key))
+			if !result.IsValid() {
 				return ""
 			}
-		} else if reflect.TypeOf(scp.Params).Kind() == reflect.Slice {
-			if reflect.ValueOf(scp.Params).Len() == 1 && reflect.ValueOf(scp.Params).Index(0).String() == "" {
+		} else if paramsType.Kind() == reflect.Slice {
+			if paramsValue.Len() == 1 && paramsValue.Index(0).String() == "" {
 				return nil
 			}
 			return "error: cannot access positional params by string name"
 		}
 	}
 
-	switch x.Kind() {
+	switch result.Kind() {
 	case reflect.String:
-		return x.String()
+		return result.String()
 	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
-		return x.Int()
+		return result.Int()
 	default:
-		return x
+		return result
 	}
 
 }
