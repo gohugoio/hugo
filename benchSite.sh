@@ -6,4 +6,4 @@
 
 echo "Running with BenchmarkSiteBuilding/${1}"
 
-go test -run="NONE" -bench="BenchmarkSiteBuilding/${1}$" -test.benchmem=true ./hugolib
+go test -run="NONE" -bench="BenchmarkSiteBuilding/${1}$" -test.benchmem=true ./hugolib -memprofile mem.prof -cpuprofile cpu.prof
