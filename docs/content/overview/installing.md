@@ -117,11 +117,12 @@ You **must use govendor** to fetch Hugo's dependencies.
 
     go get github.com/kardianos/govendor
     govendor get github.com/spf13/hugo
+    go install github.com/spf13/hugo
 
 `govendor get` will fetch Hugo and all its dependent libraries to
-`$HOME/go/src/github.com/spf13/hugo`, and compile everything into a final `hugo`
+`$GOPATH/src/github.com/spf13/hugo`, and `go install` compiles everything into a final `hugo`
 (or `hugo.exe`) executable, which you will find sitting inside
-`$HOME/go/bin/`, all ready to go!
+`$GOPATH/bin/`, all ready to go!
 
 *Windows users: where you see the `$HOME` environment variable above, replace it with `%USERPROFILE%`.*
 
