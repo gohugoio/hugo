@@ -155,14 +155,17 @@ e.g.
 
 ### after
 Slices an array to only the items after the <em>N</em>th item. Use this in combination
-with `first` to use both halves of an array split at item _N_.
+with `first` to use both (not necessarily equal) halves of an array split at item _N_.
 
 Works on [lists](/templates/list/), [taxonomies](/taxonomies/displaying/), [terms](/templates/terms/), [groups](/templates/list/)
 
 e.g.
 
-    {{ range after 10 .Data.Pages }}
-        {{ .Render "title" }}
+    {{ range after 2 .Data.Pages }}
+        {{ .Render "caesars" }}
+    {{ end }}
+    {{ range first 2 .Data.Pages }}
+        {{ .Render "yours" }}
     {{ end }}
 
 ### getenv
