@@ -69,11 +69,11 @@ func BenchmarkSiteBuilding(b *testing.B) {
 		conf.Frontmatter = frontmatter
 		for _, rootSections := range []int{1, 5} {
 			conf.RootSections = rootSections
-			for _, numTags := range []int{20, 50, 100, 500, 1000, 5000} {
+			for _, numTags := range []int{0, 1, 10, 20, 50, 100, 500, 1000, 5000} {
 				conf.NumTags = numTags
 				for _, tagsPerPage := range []int{0, 1, 5, 20} {
 					conf.TagsPerPage = tagsPerPage
-					for _, numPages := range []int{10, 100, 500, 1000, 5000, 10000} {
+					for _, numPages := range []int{1, 10, 100, 500, 1000, 5000, 10000} {
 						conf.NumPages = numPages
 						for _, render := range []bool{false, true} {
 							conf.Render = render
@@ -169,13 +169,20 @@ defaultContentLanguage = "en"
 tag = "tags"
 category = "categories"
 `
+
+	numTags := cfg.NumTags
+
+	if cfg.TagsPerPage > numTags {
+		numTags = cfg.TagsPerPage
+	}
+
 	var (
 		contentPagesContent [3]string
-		tags                = make([]string, cfg.NumTags)
+		tags                = make([]string, numTags)
 		pageTemplate        string
 	)
 
-	for i := 0; i < cfg.NumTags; i++ {
+	for i := 0; i < numTags; i++ {
 		tags[i] = fmt.Sprintf("Hugo %d", i+1)
 	}
 
@@ -210,11 +217,16 @@ category = "categories"
 
 		for i := 0; i < cfg.RootSections; i++ {
 			for j := 0; j < pagesPerSection; j++ {
-				tagsStart := rand.Intn(cfg.NumTags) - cfg.TagsPerPage
-				if tagsStart < 0 {
-					tagsStart = 0
+				var tagsSlice []string
+
+				if numTags > 0 {
+					tagsStart := rand.Intn(numTags) - cfg.TagsPerPage
+					if tagsStart < 0 {
+						tagsStart = 0
+					}
+					tagsSlice = tags[tagsStart : tagsStart+cfg.TagsPerPage]
 				}
-				tagsSlice := tags[tagsStart : tagsStart+cfg.TagsPerPage]
+
 				if cfg.Frontmatter == "TOML" {
 					pageTemplate = pageTemplateTOML
 					tagsStr = "[]"
