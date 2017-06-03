@@ -322,8 +322,8 @@ func TestRemoveTOMLIdentifier(t *testing.T) {
 
 func BenchmarkFrontmatterTags(b *testing.B) {
 
-	for _, frontmatter := range []string{"JSON", "YAML", "TOML"} {
-		for i := 1; i < 30; i += 10 {
+	for _, frontmatter := range []string{"JSON", "YAML", "YAML2", "TOML"} {
+		for i := 1; i < 60; i += 20 {
 			doBenchmarkFrontmatter(b, frontmatter, i)
 		}
 	}
@@ -334,6 +334,12 @@ func doBenchmarkFrontmatter(b *testing.B, fileformat string, numTags int) {
 name: "Tags"
 tags:
 %s
+---
+`
+
+	yaml2Template := `---
+name: "Tags"
+tags: %s
 ---
 `
 	tomlTemplate := `+++
@@ -363,6 +369,9 @@ tags = %s
 			tagsStr = strings.Replace(fmt.Sprintf("%q", tags), " ", ", ", -1)
 		} else if fileformat == "JSON" {
 			frontmatterTemplate = jsonTemplate
+			tagsStr = strings.Replace(fmt.Sprintf("%q", tags), " ", ", ", -1)
+		} else if fileformat == "YAML2" {
+			frontmatterTemplate = yaml2Template
 			tagsStr = strings.Replace(fmt.Sprintf("%q", tags), " ", ", ", -1)
 		} else {
 			frontmatterTemplate = yamlTemplate
