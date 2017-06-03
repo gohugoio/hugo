@@ -58,7 +58,6 @@ There are a few alternatives to commenting on static sites for those who do not 
 * [IntenseDebate](http://intensedebate.com/)
 * [Graph Comment][]
 * [Muut](http://muut.com/)
-* [多说](http://duoshuo.com/) ([Duoshuo](http://duoshuo.com/), popular in China)
 * [isso](http://posativ.org/isso/) (Self-hosted, Python)
     * [Tutorial on Implementing Isso with Hugo][issotutorial]
 
