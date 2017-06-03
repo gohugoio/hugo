@@ -227,6 +227,20 @@ Available are the following attributes:
 **.File.Lang** The language associated with the given file if [Multilingual]({{< relref "content/multilingual.md" >}}) is enabled, e.g. `en`<br>
 **.File.Dir** Given the path `content/posts/dir1/dir2/`, the relative directory path of the content file will be returned, e.g. `posts/dir1/dir2/`<br>
 
+## File Variables
+
+The `.File` variable gives you additional information of a page.
+
+> **Note:** `.File` is only accessible on *Pages* but **not** on *Nodes* (like the homepage and list pages).
+
+Available are the following attributes:
+
+**.File.Path** The original relative path of the page, e.g. `content/posts/foo.md`<br>
+**.File.LogicalName** The name of the content file that represents a page, e.g. `foo.md`<br>
+**.File.BaseFileName** The filename without extension, e.g. `foo`<br>
+**.File.Ext** or **.File.Extension** The file extension of the content file, e.g. `md`<br>
+**.File.Dir** Given the path `content/posts/dir1/dir2/`, the relative directory path of the content file will be returned, e.g. `posts/dir1/dir2/`<br>
+
 ## Hugo Variables
 
 Also available is `.Hugo` which has the following:
