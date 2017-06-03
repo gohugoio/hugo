@@ -109,6 +109,7 @@ along with their current, default values:
     # enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
     relativeURLs:               false
     canonifyURLs:               false
+    trimTrailingURLSlashes:       true
     # config file (default is path/config.yaml|json|toml)
     config:                     "config.toml"
     contentDir:                 "content"
