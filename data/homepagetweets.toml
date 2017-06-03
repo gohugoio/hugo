@@ -1,4 +1,11 @@
 [[tweet]]
+name = "Christophe Diericx"
+twitter_handle = "@spcrngr_"
+quote = "The more I use <a href='https://gohugo.io' target='_blank'>gohugo.io</a>, the more I really like it. Super intuitive/powerful static site generator...great job <a href='https://twitter.com/gohugoio' target='_blank'>@GoHugoIO</a>"
+link = "https://twitter.com/spcrngr_/status/870863020905435136"
+date = 2017-06-03T00:00:00Z
+
+[[tweet]]
 name = "marcoscan"
 twitter_handle = "@marcoscan"
 quote = "Blog migrated from <a href='https://twitter.com/WordPress' target='_blank'>@WordPress</a> to <a href='https://twitter.com/GoHugoIO' target='_blank'>@GoHugoIO</a>, with a little refresh of my theme, Vim shortcuts and a full featured deploy script <a href='https://twitter.com/hashtag/gohugo?src=hash' target='_blank'>#gohugo</a>"
