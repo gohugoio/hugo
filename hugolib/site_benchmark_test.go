@@ -144,7 +144,7 @@ Unicode is supported. ☺
 
 	pageTemplateTOML := `+++
 title = "%s"
-tags = %s
+tags = %q
 +++
 %s
 
@@ -152,8 +152,7 @@ tags = %s
 
 	pageTemplateYAML := `---
 title: "%s"
-tags:
-%s
+tags: %q
 ---
 %s
 
@@ -183,7 +182,7 @@ category = "categories"
 	)
 
 	for i := 0; i < numTags; i++ {
-		tags[i] = fmt.Sprintf("Hugo %d", i+1)
+		tags[i] = fmt.Sprintf("Hugo%d", i+1)
 	}
 
 	var tagsStr string
@@ -227,18 +226,14 @@ category = "categories"
 					tagsSlice = tags[tagsStart : tagsStart+cfg.TagsPerPage]
 				}
 
+				tagsStr = strings.Join(tagsSlice, ",")
+
 				if cfg.Frontmatter == "TOML" {
 					pageTemplate = pageTemplateTOML
-					tagsStr = "[]"
-					if cfg.TagsPerPage > 0 {
-						tagsStr = strings.Replace(fmt.Sprintf("%q", tagsSlice), " ", ", ", -1)
-					}
 				} else {
 					// YAML
 					pageTemplate = pageTemplateYAML
-					for _, tag := range tagsSlice {
-						tagsStr += "\n- " + tag
-					}
+
 				}
 
 				content := fmt.Sprintf(pageTemplate, fmt.Sprintf("Title%d_%d", i, j), tagsStr, contentPagesContent[rand.Intn(3)])
