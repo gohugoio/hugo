@@ -15,7 +15,9 @@ package parser
 
 import (
 	"bytes"
+	"fmt"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -316,4 +318,72 @@ func TestRemoveTOMLIdentifier(t *testing.T) {
 			t.Errorf("[%d] given %q\nwant: %q\n got: %q", i, c.input, c.want, res)
 		}
 	}
+}
+
+func BenchmarkFrontmatterTags(b *testing.B) {
+
+	for _, frontmatter := range []string{"JSON", "YAML", "TOML"} {
+		for i := 1; i < 30; i += 10 {
+			doBenchmarkFrontmatter(b, frontmatter, i)
+		}
+	}
+}
+
+func doBenchmarkFrontmatter(b *testing.B, fileformat string, numTags int) {
+	yamlTemplate := `---
+name: "Tags"
+tags:
+%s
+---
+`
+	tomlTemplate := `+++
+name = "Tags"
+tags = %s
++++
+`
+
+	jsonTemplate := `{
+	"name": "Tags",
+	"tags": [
+		%s
+	]
+}`
+	name := fmt.Sprintf("%s:%d", fileformat, numTags)
+	b.Run(name, func(b *testing.B) {
+		tags := make([]string, numTags)
+		var (
+			tagsStr             string
+			frontmatterTemplate string
+		)
+		for i := 0; i < numTags; i++ {
+			tags[i] = fmt.Sprintf("Hugo %d", i+1)
+		}
+		if fileformat == "TOML" {
+			frontmatterTemplate = tomlTemplate
+			tagsStr = strings.Replace(fmt.Sprintf("%q", tags), " ", ", ", -1)
+		} else if fileformat == "JSON" {
+			frontmatterTemplate = jsonTemplate
+			tagsStr = strings.Replace(fmt.Sprintf("%q", tags), " ", ", ", -1)
+		} else {
+			frontmatterTemplate = yamlTemplate
+			for _, tag := range tags {
+				tagsStr += "\n- " + tag
+			}
+		}
+
+		frontmatter := fmt.Sprintf(frontmatterTemplate, tagsStr)
+
+		p := page{frontmatter: []byte(frontmatter)}
+
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			meta, err := p.Metadata()
+			if err != nil {
+				b.Fatal(err)
+			}
+			if meta == nil {
+				b.Fatal("Meta is nil")
+			}
+		}
+	})
 }
