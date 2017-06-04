@@ -34,6 +34,13 @@ link = "https://twitter.com/philhawksworth/status/866684170512326657"
 date = 2017-05-22T00:00:00Z
 
 [[tweet]]
+name = "Aras Pranckevicius"
+twitter_handle = "@aras_p"
+quote = "I've probably said it before...but having Hugo rebuild the whole website in 300ms is amazing. <a href='https://gohugo.io' target='_blank'>gohugo.io</a>, <a href='https://twitter.com/hashtag/gohugo' target='_blank'>#gohugo</a>"
+link = "https://twitter.com/aras_p/status/861157286823288832"
+date = 2017-05-07T00:00:00Z
+
+[[tweet]]
 name = "Hans Beck"
 twitter_handle = "@EnrichedGamesHB"
 quote = "Diving deeper into <a href='https://twitter.com/GoHugoIO' target='_blank' rel='noopener noreferrer'>@GoHugoIO</a>. A lot of docs there, top work! But I've the impressed that <a href='https://twitter.com/hashtag/gohugo' target='_blank' rel='noopener noreferrer'>#gohugo</a> is far easier than its feels from the docs!"
