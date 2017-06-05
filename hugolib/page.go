@@ -779,6 +779,14 @@ func (p *Page) Translations() Pages {
 	return translations
 }
 
+// returns frontmatter slug or generates from filename
+func (p *Page) GetSlug() string {
+	if len(p.Slug) > 0 {
+		return p.Slug
+	}
+	return p.Source.BaseFileName()
+}
+
 func (p *Page) LinkTitle() string {
 	if len(p.linkTitle) > 0 {
 		return p.linkTitle
