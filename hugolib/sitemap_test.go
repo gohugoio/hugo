@@ -18,6 +18,8 @@ import (
 
 	"reflect"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/spf13/hugo/deps"
 	"github.com/spf13/hugo/tpl"
 )
@@ -47,18 +49,24 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 	depsCfg := deps.DepsCfg{Fs: fs, Cfg: cfg}
 
-	if !internal {
-		depsCfg.WithTemplate = func(templ tpl.TemplateHandler) error {
+	depsCfg.WithTemplate = func(templ tpl.TemplateHandler) error {
+		if !internal {
 			templ.AddTemplate("sitemap.xml", sitemapTemplate)
-			return nil
 		}
+
+		// We want to check that the 404 page is not included in the sitemap
+		// output. This template should have no effect either way, but include
+		// it for the clarity.
+		templ.AddTemplate("404.html", "Not found")
+		return nil
 	}
 
 	writeSourcesToSource(t, "content", fs, weightedSources...)
 	s := buildSingleSite(t, depsCfg, BuildCfg{})
 	th := testHelper{s.Cfg, s.Fs, t}
+	outputSitemap := "public/sitemap.xml"
 
-	th.assertFileContent("public/sitemap.xml",
+	th.assertFileContent(outputSitemap,
 		// Regular page
 		" <loc>http://auth/bub/sect/doc1/</loc>",
 		// Home page
@@ -70,6 +78,9 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 		// Tax list
 		"<loc>http://auth/bub/categories/hugo/</loc>",
 	)
+
+	content := readDestination(th.T, th.Fs, outputSitemap)
+	require.NotContains(t, content, "404")
 
 }
 
