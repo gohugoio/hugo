@@ -1417,70 +1417,90 @@ func TestShouldBuild(t *testing.T) {
 	}
 }
 
-// Issue #1885 and #2110
-func TestDotInPath(t *testing.T) {
+// "dot" in path: #1885 and #2110
+// disablePathToLower regression: #3374
+func TestPathIssues(t *testing.T) {
 	t.Parallel()
+	for _, disablePathToLower := range []bool{false, true} {
+		for _, uglyURLs := range []bool{false, true} {
+			t.Run(fmt.Sprintf("disablePathToLower=%t,uglyURLs=%t", disablePathToLower, uglyURLs), func(t *testing.T) {
 
-	for _, uglyURLs := range []bool{false, true} {
-		t.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(t *testing.T) {
+				cfg, fs := newTestCfg()
+				th := testHelper{cfg, fs, t}
 
-			cfg, fs := newTestCfg()
-			th := testHelper{cfg, fs, t}
+				cfg.Set("permalinks", map[string]string{
+					"post": ":section/:title",
+				})
 
-			cfg.Set("permalinks", map[string]string{
-				"post": ":section/:title",
-			})
+				cfg.Set("uglyURLs", uglyURLs)
+				cfg.Set("disablePathToLower", disablePathToLower)
+				cfg.Set("paginate", 1)
 
-			cfg.Set("uglyURLs", uglyURLs)
-			cfg.Set("paginate", 1)
+				writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), "<html><body>{{.Content}}</body></html>")
+				writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"),
+					"<html><body>P{{.Paginator.PageNumber}}|URL: {{.Paginator.URL}}|{{ if .Paginator.HasNext }}Next: {{.Paginator.Next.URL }}{{ end }}</body></html>")
 
-			writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), "<html><body>{{.Content}}</body></html>")
-			writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"),
-				"<html><body>P{{.Paginator.PageNumber}}|URL: {{.Paginator.URL}}|{{ if .Paginator.HasNext }}Next: {{.Paginator.Next.URL }}{{ end }}</body></html>")
-
-			for i := 0; i < 3; i++ {
-				writeSource(t, fs, filepath.Join("content", "post", fmt.Sprintf("doc%d.md", i)),
-					fmt.Sprintf(`---
+				for i := 0; i < 3; i++ {
+					writeSource(t, fs, filepath.Join("content", "post", fmt.Sprintf("doc%d.md", i)),
+						fmt.Sprintf(`---
 title: "test%d.dot"
 tags:
 - ".net"
 ---
 # doc1
 *some content*`, i))
-			}
-
-			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-			require.Len(t, s.RegularPages, 3)
-
-			pathFunc := func(s string) string {
-				if uglyURLs {
-					return strings.Replace(s, "/index.html", ".html", 1)
 				}
-				return s
-			}
 
-			th.assertFileContent(pathFunc("public/post/test0.dot/index.html"), "some content")
+				writeSource(t, fs, filepath.Join("content", "Blog", "Blog1.md"),
+					fmt.Sprintf(`---
+title: "testBlog"
+tags:
+- "Blog"
+---
+# doc1
+*some blog content*`))
 
-			if uglyURLs {
-				th.assertFileContent("public/post/page/1.html", `canonical" href="/post.html"/`)
-				th.assertFileContent("public/post.html", `<body>P1|URL: /post.html|Next: /post/page/2.html</body>`)
-				th.assertFileContent("public/post/page/2.html", `<body>P2|URL: /post/page/2.html|Next: /post/page/3.html</body>`)
-			} else {
-				th.assertFileContent("public/post/page/1/index.html", `canonical" href="/post/"/`)
-				th.assertFileContent("public/post/index.html", `<body>P1|URL: /post/|Next: /post/page/2/</body>`)
-				th.assertFileContent("public/post/page/2/index.html", `<body>P2|URL: /post/page/2/|Next: /post/page/3/</body>`)
-				th.assertFileContent("public/tags/.net/index.html", `<body>P1|URL: /tags/.net/|Next: /tags/.net/page/2/</body>`)
+				s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+				require.Len(t, s.RegularPages, 4)
 
-			}
+				pathFunc := func(s string) string {
+					if uglyURLs {
+						return strings.Replace(s, "/index.html", ".html", 1)
+					}
+					return s
+				}
 
-			p := s.RegularPages[0]
-			if uglyURLs {
-				require.Equal(t, "/post/test0.dot.html", p.RelPermalink())
-			} else {
-				require.Equal(t, "/post/test0.dot/", p.RelPermalink())
-			}
+				blog := "blog"
 
-		})
+				if disablePathToLower {
+					blog = "Blog"
+				}
+
+				th.assertFileContent(pathFunc("public/"+blog+"/"+blog+"1/index.html"), "some blog content")
+
+				th.assertFileContent(pathFunc("public/post/test0.dot/index.html"), "some content")
+
+				if uglyURLs {
+					th.assertFileContent("public/post/page/1.html", `canonical" href="/post.html"/`)
+					th.assertFileContent("public/post.html", `<body>P1|URL: /post.html|Next: /post/page/2.html</body>`)
+					th.assertFileContent("public/post/page/2.html", `<body>P2|URL: /post/page/2.html|Next: /post/page/3.html</body>`)
+				} else {
+					th.assertFileContent("public/post/page/1/index.html", `canonical" href="/post/"/`)
+					th.assertFileContent("public/post/index.html", `<body>P1|URL: /post/|Next: /post/page/2/</body>`)
+					th.assertFileContent("public/post/page/2/index.html", `<body>P2|URL: /post/page/2/|Next: /post/page/3/</body>`)
+					th.assertFileContent("public/tags/.net/index.html", `<body>P1|URL: /tags/.net/|Next: /tags/.net/page/2/</body>`)
+
+				}
+
+				p := s.RegularPages[0]
+				if uglyURLs {
+					require.Equal(t, "/post/test0.dot.html", p.RelPermalink())
+				} else {
+					require.Equal(t, "/post/test0.dot/", p.RelPermalink())
+				}
+
+			})
+		}
 	}
 }
 
