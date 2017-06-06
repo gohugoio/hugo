@@ -28,9 +28,9 @@ func TestPageTargetPath(t *testing.T) {
 	pathSpec := newTestDefaultPathSpec()
 
 	for _, langPrefix := range []string{"", "no"} {
-		t.Run(fmt.Sprintf("langPrefix=%q", langPrefix), func(t *testing.T) {
-			for _, uglyURLs := range []bool{false, true} {
-				t.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(t *testing.T) {
+		for _, uglyURLs := range []bool{false, true} {
+			t.Run(fmt.Sprintf("langPrefix=%q,uglyURLs=%t", langPrefix, uglyURLs),
+				func(t *testing.T) {
 
 					tests := []struct {
 						name     string
@@ -171,8 +171,6 @@ func TestPageTargetPath(t *testing.T) {
 						}
 					}
 				})
-			}
-		})
+		}
 	}
-
 }

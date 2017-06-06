@@ -206,58 +206,55 @@ func TestPaginationURLFactory(t *testing.T) {
 	cfg.Set("paginatePath", "zoo")
 
 	for _, uglyURLs := range []bool{false, true} {
-		t.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(t *testing.T) {
-			for _, canonifyURLs := range []bool{false, true} {
-				t.Run(fmt.Sprintf("canonifyURLs=%t", canonifyURLs), func(t *testing.T) {
+		for _, canonifyURLs := range []bool{false, true} {
+			t.Run(fmt.Sprintf("uglyURLs=%t,canonifyURLs=%t", uglyURLs, canonifyURLs), func(t *testing.T) {
 
-					tests := []struct {
-						name     string
-						d        targetPathDescriptor
-						baseURL  string
-						page     int
-						expected string
-					}{
-						{"HTML home page 32",
-							targetPathDescriptor{Kind: KindHome, Type: output.HTMLFormat}, "http://example.com/", 32, "/zoo/32/"},
-						{"JSON home page 42",
-							targetPathDescriptor{Kind: KindHome, Type: output.JSONFormat}, "http://example.com/", 42, "/zoo/42/"},
-						// Issue #1252
-						{"BaseURL with sub path",
-							targetPathDescriptor{Kind: KindHome, Type: output.HTMLFormat}, "http://example.com/sub/", 999, "/sub/zoo/999/"},
+				tests := []struct {
+					name     string
+					d        targetPathDescriptor
+					baseURL  string
+					page     int
+					expected string
+				}{
+					{"HTML home page 32",
+						targetPathDescriptor{Kind: KindHome, Type: output.HTMLFormat}, "http://example.com/", 32, "/zoo/32/"},
+					{"JSON home page 42",
+						targetPathDescriptor{Kind: KindHome, Type: output.JSONFormat}, "http://example.com/", 42, "/zoo/42/"},
+					// Issue #1252
+					{"BaseURL with sub path",
+						targetPathDescriptor{Kind: KindHome, Type: output.HTMLFormat}, "http://example.com/sub/", 999, "/sub/zoo/999/"},
+				}
+
+				for _, test := range tests {
+					d := test.d
+					cfg.Set("baseURL", test.baseURL)
+					cfg.Set("canonifyURLs", canonifyURLs)
+					cfg.Set("uglyURLs", uglyURLs)
+					d.UglyURLs = uglyURLs
+
+					expected := test.expected
+
+					if canonifyURLs {
+						expected = strings.Replace(expected, "/sub", "", 1)
 					}
 
-					for _, test := range tests {
-						d := test.d
-						cfg.Set("baseURL", test.baseURL)
-						cfg.Set("canonifyURLs", canonifyURLs)
-						cfg.Set("uglyURLs", uglyURLs)
-						d.UglyURLs = uglyURLs
-
-						expected := test.expected
-
-						if canonifyURLs {
-							expected = strings.Replace(expected, "/sub", "", 1)
-						}
-
-						if uglyURLs {
-							expected = expected[:len(expected)-1] + "." + test.d.Type.MediaType.Suffix
-						}
-
-						pathSpec := newTestPathSpec(fs, cfg)
-						d.PathSpec = pathSpec
-
-						factory := newPaginationURLFactory(d)
-
-						got := factory(test.page)
-
-						require.Equal(t, expected, got)
-
+					if uglyURLs {
+						expected = expected[:len(expected)-1] + "." + test.d.Type.MediaType.Suffix
 					}
-				})
-			}
-		})
+
+					pathSpec := newTestPathSpec(fs, cfg)
+					d.PathSpec = pathSpec
+
+					factory := newPaginationURLFactory(d)
+
+					got := factory(test.page)
+
+					require.Equal(t, expected, got)
+
+				}
+			})
+		}
 	}
-
 }
 
 func TestPaginator(t *testing.T) {

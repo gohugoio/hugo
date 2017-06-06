@@ -53,14 +53,11 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 //
 func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
 	for _, uglyURLs := range []bool{false, true} {
-		t.Run(fmt.Sprintf("uglyURLs=%t", uglyURLs), func(t *testing.T) {
-			for _, preserveTaxonomyNames := range []bool{false, true} {
-				t.Run(fmt.Sprintf("preserveTaxonomyNames=%t", preserveTaxonomyNames), func(t *testing.T) {
-					doTestTaxonomiesWithAndWithoutContentFile(t, preserveTaxonomyNames, uglyURLs)
-				})
-			}
-		})
-
+		for _, preserveTaxonomyNames := range []bool{false, true} {
+			t.Run(fmt.Sprintf("uglyURLs=%t,preserveTaxonomyNames=%t", uglyURLs, preserveTaxonomyNames), func(t *testing.T) {
+				doTestTaxonomiesWithAndWithoutContentFile(t, preserveTaxonomyNames, uglyURLs)
+			})
+		}
 	}
 }
 
