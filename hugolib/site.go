@@ -753,9 +753,6 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 		go pageConverter(pageChan, convertResults, wg2)
 	}
 
-	sp := source.NewSourceSpec(s.Cfg, s.Fs)
-	fs := sp.NewFilesystem("")
-
 	for _, ev := range sourceChanged {
 		// The incrementalReadCollator below will also make changes to the site's pages,
 		// so we do this first to prevent races.
@@ -774,15 +771,6 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 			if ex, err := afero.Exists(s.Fs.Source, ev.Name); !ex || err != nil {
 				path, _ := helpers.GetRelativePath(ev.Name, s.getContentDir(ev.Name))
 				s.removePageByPath(path)
-				continue
-			}
-		}
-
-		// ignore files shouldn't be proceed
-		if fi, err := s.Fs.Source.Stat(ev.Name); err != nil {
-			continue
-		} else {
-			if ok, err := fs.ShouldRead(ev.Name, fi); err != nil || !ok {
 				continue
 			}
 		}
