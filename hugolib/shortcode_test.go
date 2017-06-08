@@ -243,7 +243,7 @@ And then:
 This is **plain** text.
 
 {{< /inside >}}
-`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\n<p>And then:</p>\n\n<p><div>\n# More Here\n\nThis is **plain** text.\n\n</div>", wt)
+`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\n<p>And then:</p>\n\n<div>\n# More Here\n\nThis is **plain** text.\n\n</div>", wt)
 }
 
 func TestEmbeddedSC(t *testing.T) {
@@ -529,14 +529,13 @@ tags:
 	addTemplates := func(templ tpl.TemplateHandler) error {
 		templ.AddTemplate("_default/single.html", "{{.Content}}")
 
-		templ.AddTemplate("_internal/shortcodes/b.html", `b`)
-		templ.AddTemplate("_internal/shortcodes/c.html", `c`)
-		templ.AddTemplate("_internal/shortcodes/d.html", `d`)
+		templ.AddTemplate("_internal/shortcodes/b.html", "b")
+		templ.AddTemplate("_internal/shortcodes/c.html", "c")
+		templ.AddTemplate("_internal/shortcodes/d.html", "d")
 		templ.AddTemplate("_internal/shortcodes/menu.html", `{{ len (index .Page.Menus "main").Children }}`)
-		templ.AddTemplate("_internal/shortcodes/tags.html", `{{ len .Page.Site.Taxonomies.tags }}`)
+		templ.AddTemplate("_internal/shortcodes/tags.html", "{{ len .Page.Site.Taxonomies.tags }}")
 
 		return nil
-
 	}
 
 	cfg, fs := newTestCfg()
@@ -728,110 +727,110 @@ func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
 }
 
 func BenchmarkReplaceShortcodeTokens(b *testing.B) {
-
-	type input struct {
-		in           []byte
-		replacements map[string]string
-		expect       []byte
-	}
-
-	data := []struct {
-		input        string
+	testCases := []struct {
+		input        []byte
 		replacements map[string]string
 		expect       []byte
 	}{
-		{"Hello HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, []byte("Hello World.")},
-		{strings.Repeat("A", 100) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
-		{strings.Repeat("A", 500) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
-		{strings.Repeat("ABCD ", 500) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
-		{strings.Repeat("A ", 3000) + " HAHAHUGOSHORTCODE-1HBHB." + strings.Repeat("BC ", 1000) + " HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
-	}
-
-	var in = make([]input, b.N*len(data))
-	var cnt = 0
-	for i := 0; i < b.N; i++ {
-		for _, this := range data {
-			in[cnt] = input{[]byte(this.input), this.replacements, this.expect}
-			cnt++
-		}
+		{[]byte("Hello HAHAHUGOSHORTCODE-1HBHB."), map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, []byte("Hello World.")},
+		{[]byte(strings.Repeat("A", 100) + " HAHAHUGOSHORTCODE-1HBHB."), map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A", 100) + " Hello World.")},
+		{[]byte(strings.Repeat("A", 500) + " HAHAHUGOSHORTCODE-1HBHB."), map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A", 500) + " Hello World.")},
+		{[]byte(strings.Repeat("ABCD ", 500) + " HAHAHUGOSHORTCODE-1HBHB."), map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("ABCD ", 500) + " Hello World.")},
+		{[]byte(strings.Repeat("A ", 3000) + " HAHAHUGOSHORTCODE-1HBHB." + strings.Repeat("BC ", 1000) + " HAHAHUGOSHORTCODE-1HBHB."), map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}, []byte(strings.Repeat("A ", 3000) + " Hello World." + strings.Repeat("BC ", 1000) + " Hello World.")},
 	}
 
 	b.ResetTimer()
-	cnt = 0
 	for i := 0; i < b.N; i++ {
-		for j := range data {
-			currIn := in[cnt]
-			cnt++
-			results, err := replaceShortcodeTokens(currIn.in, "HUGOSHORTCODE", currIn.replacements)
+		for j, test := range testCases {
+			results, err := replaceShortcodeTokens(test.input, test.replacements)
 
 			if err != nil {
-				b.Fatalf("[%d] failed: %s", i, err)
+				b.Fatalf("[%d] failed: %s", j, err)
 				continue
 			}
-			if len(results) != len(currIn.expect) {
-				b.Fatalf("[%d] replaceShortcodeTokens, got \n%q but expected \n%q", j, results, currIn.expect)
+			if len(results) != len(test.expect) {
+				b.Fatalf("[%d] replaceShortcodeTokens, got \n%s but expected \n%s", j, results, test.expect)
 			}
-
 		}
+	}
+}
 
+func BenchmarkReplaceSingleShortcode(b *testing.B) {
+	input := []byte(strings.Repeat("A", 500) + " HAHAHUGOSHORTCODE-1HBHB.")
+	replacements := map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := replaceShortcodeTokens(input, replacements)
+		if err != nil {
+			b.Error(err)
+		}
+	}
+}
+
+func BenchmarkReplaceManyShortcodes(b *testing.B) {
+	as := strings.Repeat("A", 500)
+	input := []byte(as + " HAHAHUGOSHORTCODE-1HBHB" + as + "HUGOSHORTCODE-2HBHB" + as + "HUGOSHORTCODE-3HBHB")
+	replacements := map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Hello World", "HAHAHUGOSHORTCODE-2HBHB": "Hello World", "HAHAHUGOSHORTCODE-3HBHB": "Hello World"}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := replaceShortcodeTokens(input, replacements)
+		if err != nil {
+			b.Error(err)
+		}
 	}
 }
 
 func TestReplaceShortcodeTokens(t *testing.T) {
 	t.Parallel()
-	for i, this := range []struct {
-		input        string
-		prefix       string
-		replacements map[string]string
-		expect       interface{}
+	testCases := []struct {
+		input             string
+		replacements      map[string]string
+		expected          string
+		shouldReturnError bool
 	}{
-		{"Hello HAHAPREFIX-1HBHB.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World"}, "Hello World."},
-		{"Hello HAHAPREFIX-1@}@.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World"}, false},
-		{"HAHAPREFIX2-1HBHB", "PREFIX2", map[string]string{"HAHAPREFIX2-1HBHB": "World"}, "World"},
-		{"Hello World!", "PREFIX2", map[string]string{}, "Hello World!"},
-		{"!HAHAPREFIX-1HBHB", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World"}, "!World"},
-		{"HAHAPREFIX-1HBHB!", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World"}, "World!"},
-		{"!HAHAPREFIX-1HBHB!", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World"}, "!World!"},
-		{"_{_PREFIX-1HBHB", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World"}, "_{_PREFIX-1HBHB"},
-		{"Hello HAHAPREFIX-1HBHB.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "To You My Old Friend Who Told Me This Fantastic Story"}, "Hello To You My Old Friend Who Told Me This Fantastic Story."},
-		{"A HAHAA-1HBHB asdf HAHAA-2HBHB.", "A", map[string]string{"HAHAA-1HBHB": "v1", "HAHAA-2HBHB": "v2"}, "A v1 asdf v2."},
-		{"Hello HAHAPREFIX2-1HBHB. Go HAHAPREFIX2-2HBHB, Go, Go HAHAPREFIX2-3HBHB Go Go!.", "PREFIX2", map[string]string{"HAHAPREFIX2-1HBHB": "Europe", "HAHAPREFIX2-2HBHB": "Jonny", "HAHAPREFIX2-3HBHB": "Johnny"}, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!."},
-		{"A HAHAPREFIX-2HBHB HAHAPREFIX-1HBHB.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "A", "HAHAPREFIX-2HBHB": "B"}, "A B A."},
-		{"A HAHAPREFIX-1HBHB HAHAPREFIX-2", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "A"}, false},
-		{"A HAHAPREFIX-1HBHB but not the second.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "A", "HAHAPREFIX-2HBHB": "B"}, "A A but not the second."},
-		{"An HAHAPREFIX-1HBHB.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "A", "HAHAPREFIX-2HBHB": "B"}, "An A."},
-		{"An HAHAPREFIX-1HBHB HAHAPREFIX-2HBHB.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "A", "HAHAPREFIX-2HBHB": "B"}, "An A B."},
-		{"A HAHAPREFIX-1HBHB HAHAPREFIX-2HBHB HAHAPREFIX-3HBHB HAHAPREFIX-1HBHB HAHAPREFIX-3HBHB.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "A", "HAHAPREFIX-2HBHB": "B", "HAHAPREFIX-3HBHB": "C"}, "A A B C A C."},
-		{"A HAHAPREFIX-1HBHB HAHAPREFIX-2HBHB HAHAPREFIX-3HBHB HAHAPREFIX-1HBHB HAHAPREFIX-3HBHB.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "A", "HAHAPREFIX-2HBHB": "B", "HAHAPREFIX-3HBHB": "C"}, "A A B C A C."},
+		{"Hello HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "Hello World.", false},
+		{"Hello HAHAHUGOSHORTCODE-1@}@.", map[string]string{"HAHAPHUGOSHORTCODE-1HBHB": "World"}, "", true},
+		{"HAHAHUGOSHORTCODE-1HBHB", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "World", false},
+		{"Hello World!", map[string]string{}, "Hello World!", false},
+		{"!HAHAHUGOSHORTCODE-1HBHB", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "!World", false},
+		{"HAHAHUGOSHORTCODE-1HBHB!", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "World!", false},
+		{"!HAHAHUGOSHORTCODE-1HBHB!", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "!World!", false},
+		{"_{_HUGOSHORTCODE-1HBHB", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "_{_HUGOSHORTCODE-1HBHB", false},
+		{"Hello HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "To You My Old Friend Who Told Me This Fantastic Story"}, "Hello To You My Old Friend Who Told Me This Fantastic Story.", false},
+		{"A HAHAHUGOSHORTCODE-1HBHB asdf HAHAHUGOSHORTCODE-2HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "v1", "HAHAHUGOSHORTCODE-2HBHB": "v2"}, "A v1 asdf v2.", false},
+		{"Hello HAHAHUGOSHORTCODE-1HBHB. Go HAHAHUGOSHORTCODE-2HBHB, Go, Go HAHAHUGOSHORTCODE-3HBHB Go Go!.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "Europe", "HAHAHUGOSHORTCODE-2HBHB": "Jonny", "HAHAHUGOSHORTCODE-3HBHB": "Johnny"}, "Hello Europe. Go Jonny, Go, Go Johnny Go Go!.", false},
+		{"A HAHAHUGOSHORTCODE-2HBHB HAHAHUGOSHORTCODE-1HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "A", "HAHAHUGOSHORTCODE-2HBHB": "B"}, "A B A.", false},
+		{"A HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODEPREFIX-2", map[string]string{"HAHAHUGOSHORTCODEPREFIX-1HBHB": "A"}, "", true},
+		{"A HAHAHUGOSHORTCODE-1HBHB but not the second.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "A", "HAHAHUGOSHORTCODE-2HBHB": "B"}, "A A but not the second.", false},
+		{"An HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-2HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "A", "HAHAHUGOSHORTCODE-2HBHB": "B"}, "An A B.", false},
+		{"A HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-2HBHB HAHAHUGOSHORTCODE-3HBHB HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-3HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "A", "HAHAHUGOSHORTCODE-2HBHB": "B", "HAHAHUGOSHORTCODE-3HBHB": "C"}, "A A B C A C.", false},
+		{"A HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-2HBHB HAHAHUGOSHORTCODE-3HBHB HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-3HBHB.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "A", "HAHAHUGOSHORTCODE-2HBHB": "B", "HAHAHUGOSHORTCODE-3HBHB": "C"}, "A A B C A C.", false},
 		// Issue #1148 remove p-tags 10 =>
-		{"Hello <p>HAHAPREFIX-1HBHB</p>. END.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World"}, "Hello World. END."},
-		{"Hello <p>HAHAPREFIX-1HBHB</p>. <p>HAHAPREFIX-2HBHB</p> END.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World", "HAHAPREFIX-2HBHB": "THE"}, "Hello World. THE END."},
-		{"Hello <p>HAHAPREFIX-1HBHB. END</p>.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World"}, "Hello <p>World. END</p>."},
-		{"<p>Hello HAHAPREFIX-1HBHB</p>. END.", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World"}, "<p>Hello World</p>. END."},
-		{"Hello <p>HAHAPREFIX-1HBHB12", "PREFIX", map[string]string{"HAHAPREFIX-1HBHB": "World"}, "Hello <p>World12"},
-		{"Hello HAHAP-1HBHB. HAHAP-1HBHB-HAHAP-1HBHB HAHAP-1HBHB HAHAP-1HBHB HAHAP-1HBHB END", "P", map[string]string{"HAHAP-1HBHB": strings.Repeat("BC", 100)},
+		{"Hello <p>HAHAHUGOSHORTCODE-1HBHB</p>. END.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "Hello World. END.", false},
+		{"Hello <p>HAHAHUGOSHORTCODE-1HBHB</p>. <p>HAHAHUGOSHORTCODE-2HBHB</p> END.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World", "HAHAHUGOSHORTCODE-2HBHB": "THE"}, "Hello World. THE END.", false},
+		{"Hello <p>HAHAHUGOSHORTCODE-1HBHB. END</p>.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "Hello <p>World. END</p>.", false},
+		{"<p>Hello HAHAHUGOSHORTCODE-1HBHB</p>. END.", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "<p>Hello World</p>. END.", false},
+		{"Hello <p>HAHAHUGOSHORTCODE-1HBHB12", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": "World"}, "Hello <p>World12", false},
+		{"Hello HAHAHUGOSHORTCODE-1HBHB. HAHAHUGOSHORTCODE-1HBHB-HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-1HBHB HAHAHUGOSHORTCODE-1HBHB END", map[string]string{"HAHAHUGOSHORTCODE-1HBHB": strings.Repeat("BC", 100)},
 			fmt.Sprintf("Hello %s. %s-%s %s %s %s END",
-				strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100))},
-	} {
+				strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100), strings.Repeat("BC", 100)), false},
+	}
+	for i, test := range testCases {
+		got, err := replaceShortcodeTokens([]byte(test.input), test.replacements)
 
-		results, err := replaceShortcodeTokens([]byte(this.input), this.prefix, this.replacements)
-
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] replaceShortcodeTokens didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
-			}
-			if !reflect.DeepEqual(results, []byte(this.expect.(string))) {
-				t.Errorf("[%d] replaceShortcodeTokens, got \n%q but expected \n%q", i, results, this.expect)
-			}
+		if err == nil && test.shouldReturnError {
+			t.Errorf("[%v] Expected error, got nil: %q", i, test.input)
+		}
+		if err != nil && !test.shouldReturnError {
+			t.Errorf("[%v] %q returned unexpected error: %v", i, test.input, err)
 		}
 
+		if string(got) != test.expected {
+			t.Errorf("[%v] Expected: %q, got: %q", i, test.expected, got)
+		}
 	}
-
 }
 
 func TestScKey(t *testing.T) {

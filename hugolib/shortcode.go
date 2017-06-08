@@ -553,7 +553,6 @@ Loop:
 }
 
 func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *Page) (string, error) {
-
 	startIdx := strings.Index(stringToParse, "{{")
 
 	// short cut for docs with no shortcodes
@@ -570,10 +569,9 @@ func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *Page) (str
 
 	result := bp.GetBuffer()
 	defer bp.PutBuffer(result)
-	//var result bytes.Buffer
 
-	// the parser is guaranteed to return items in proper order or fail, so …
-	// … it's safe to keep some "global" state
+	// the parser is guaranteed to return items in proper order or fail, so
+	// it's safe to keep some "global" state
 	var currItem item
 	var currShortcode shortcode
 
@@ -621,51 +619,71 @@ Loop:
 }
 
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
-// Note: This function will rewrite the input slice.
-func replaceShortcodeTokens(source []byte, prefix string, replacements map[string]string) ([]byte, error) {
-
+func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]byte, error) {
 	if len(replacements) == 0 {
 		return source, nil
 	}
 
-	sourceLen := len(source)
-	start := 0
-
-	pre := []byte("HAHA" + prefix)
+	pre := []byte("HAHA" + shortcodePlaceholderPrefix)
 	post := []byte("HBHB")
 	pStart := []byte("<p>")
 	pEnd := []byte("</p>")
 
-	k := bytes.Index(source[start:], pre)
+	preIndex := bytes.Index(source, pre)
+	if preIndex < 0 {
+		return source, nil
+	}
 
-	for k != -1 {
-		j := start + k
-		postIdx := bytes.Index(source[j:], post)
-		if postIdx < 0 {
-			// this should never happen, but let the caller decide to panic or not
-			return nil, errors.New("illegal state in content; shortcode token missing end delim")
+	buf := bp.GetBuffer()
+	defer bp.PutBuffer(buf)
+
+	lastShortcodeEnd := 0
+	for {
+		postIndex := bytes.Index(source[preIndex:], post)
+		if postIndex < 0 {
+			return nil, errors.New("illegal state in content: shortcode token missing end delim")
 		}
 
-		end := j + postIdx + 4
+		shortcodeEnd := preIndex + postIndex + len(post)
 
-		newVal := []byte(replacements[string(source[j:end])])
-
-		// Issue #1148: Check for wrapping p-tags <p>
-		if j >= 3 && bytes.Equal(source[j-3:j], pStart) {
-			if (k+4) < sourceLen && bytes.Equal(source[end:end+4], pEnd) {
-				j -= 3
-				end += 4
+		replacement := []byte(replacements[string(source[preIndex:shortcodeEnd])])
+		// If replacement also contains shortcodes.
+		if bytes.Contains(replacement, pre) {
+			var err error
+			replacement, err = replaceShortcodeTokens(replacement, replacements)
+			if err != nil {
+				return nil, err
 			}
 		}
 
-		// This and other cool slice tricks: https://github.com/golang/go/wiki/SliceTricks
-		source = append(source[:j], append(newVal, source[end:]...)...)
-		start = j
-		k = bytes.Index(source[start:], pre)
+		// Issue #1148: Check for wrapping p-tags <p>
+		containPs := false
+		if preIndex >= len(pStart) && bytes.Equal(source[preIndex-len(pStart):preIndex], pStart) {
+			if preIndex+len(pEnd) < len(source) && bytes.Equal(source[shortcodeEnd:shortcodeEnd+len(pEnd)], pEnd) {
+				containPs = true
+			}
+		}
 
+		if containPs {
+			// Don't write <p>.
+			buf.Write(source[lastShortcodeEnd : preIndex-len(pStart)])
+			// Skip </p>.
+			shortcodeEnd += len(pEnd)
+		} else {
+			buf.Write(source[lastShortcodeEnd:preIndex])
+		}
+		buf.Write(replacement)
+
+		lastShortcodeEnd = shortcodeEnd
+		nextPre := bytes.Index(source[shortcodeEnd:], pre)
+		if nextPre < 0 {
+			break
+		} else {
+			preIndex = shortcodeEnd + nextPre
+		}
 	}
 
-	return source, nil
+	return append(buf.Bytes(), source[lastShortcodeEnd:]...), nil
 }
 
 func getShortcodeTemplateForTemplateKey(key scKey, shortcodeName string, t tpl.TemplateFinder) *tpl.TemplateAdapter {
