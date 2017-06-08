@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"path"
 	"sync"
-	"time"
 
 	"github.com/spf13/hugo/helpers"
 
@@ -207,14 +206,6 @@ func (s *Site) renderRSS(p *PageOutput) error {
 	}
 
 	p.Kind = kindRSS
-
-	// TODO(bep) we zero the date here to get the number of diffs down in
-	// testing. But this should be set back later; the RSS feed should
-	// inherit the publish date from the node it represents.
-	if p.Kind == KindTaxonomy {
-		var zeroDate time.Time
-		p.Date = zeroDate
-	}
 
 	limit := s.Cfg.GetInt("rssLimit")
 	if limit >= 0 && len(p.Pages) > limit {
