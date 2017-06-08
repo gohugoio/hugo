@@ -322,6 +322,18 @@ func (ps Pages) FindPagePosByFilePath(inPath string) int {
 	return -1
 }
 
+func (ps Pages) FindPagePosByFilePathPrefix(prefix string) int {
+	if prefix == "" {
+		return -1
+	}
+	for i, x := range ps {
+		if strings.HasPrefix(x.Source.Path(), prefix) {
+			return i
+		}
+	}
+	return -1
+}
+
 // FindPagePos Given a page, it will find the position in Pages
 // will return -1 if not found
 func (ps Pages) FindPagePos(page *Page) int {

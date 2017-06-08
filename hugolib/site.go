@@ -667,11 +667,11 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 		seen[ev] = true
 
 		if s.isContentDirEvent(ev) {
-			logger.Println("Source changed", ev.Name)
+			logger.Println("Source changed", ev)
 			sourceChanged = append(sourceChanged, ev)
 		}
 		if s.isLayoutDirEvent(ev) {
-			logger.Println("Template changed", ev.Name)
+			logger.Println("Template changed", ev)
 			tmplChanged = append(tmplChanged, ev)
 
 			if strings.Contains(ev.Name, "shortcodes") {
@@ -682,11 +682,11 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 			}
 		}
 		if s.isDataDirEvent(ev) {
-			logger.Println("Data changed", ev.Name)
+			logger.Println("Data changed", ev)
 			dataChanged = append(dataChanged, ev)
 		}
 		if s.isI18nEvent(ev) {
-			logger.Println("i18n changed", ev.Name)
+			logger.Println("i18n changed", ev)
 			i18nChanged = append(dataChanged, ev)
 		}
 	}
@@ -761,7 +761,7 @@ func (s *Site) reProcess(events []fsnotify.Event) (whatChanged, error) {
 		if ev.Op&fsnotify.Remove == fsnotify.Remove {
 			//remove the file & a create will follow
 			path, _ := helpers.GetRelativePath(ev.Name, s.getContentDir(ev.Name))
-			s.removePageByPath(path)
+			s.removePageByPathPrefix(path)
 			continue
 		}
 

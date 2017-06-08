@@ -829,6 +829,11 @@ func (c *commandeer) newWatcher(port int) error {
 							if err := watcher.Add(path); err != nil {
 								return err
 							}
+						} else if !c.isStatic(path) {
+							// Hugo's rebuilding logic is entirely file based. When you drop a new folder into
+							// /content on OSX, the above logic will handle future watching of those files,
+							// but the initial CREATE is lost.
+							dynamicEvents = append(dynamicEvents, fsnotify.Event{Name: path, Op: fsnotify.Create})
 						}
 						return nil
 					}
@@ -841,9 +846,7 @@ func (c *commandeer) newWatcher(port int) error {
 						}
 					}
 
-					isstatic := strings.HasPrefix(ev.Name, c.PathSpec().GetStaticDirPath()) || (len(c.PathSpec().GetThemesDirPath()) > 0 && strings.HasPrefix(ev.Name, c.PathSpec().GetThemesDirPath()))
-
-					if isstatic {
+					if c.isStatic(ev.Name) {
 						staticEvents = append(staticEvents, ev)
 					} else {
 						dynamicEvents = append(dynamicEvents, ev)
@@ -997,6 +1000,10 @@ func (c *commandeer) newWatcher(port int) error {
 
 	wg.Wait()
 	return nil
+}
+
+func (c *commandeer) isStatic(path string) bool {
+	return strings.HasPrefix(path, c.PathSpec().GetStaticDirPath()) || (len(c.PathSpec().GetThemesDirPath()) > 0 && strings.HasPrefix(path, c.PathSpec().GetThemesDirPath()))
 }
 
 // isThemeVsHugoVersionMismatch returns whether the current Hugo version is
