@@ -141,7 +141,7 @@ func (c *PageCollections) addPage(page *Page) {
 // so we need to remove all below a given path.
 func (c *PageCollections) removePageByPathPrefix(path string) {
 	for {
-		i := c.rawAllPages.FindPagePosByFilePathPrefix(path)
+		i := c.rawAllPages.findFirstPagePosByFilePathPrefix(path)
 		if i == -1 {
 			break
 		}
@@ -150,13 +150,13 @@ func (c *PageCollections) removePageByPathPrefix(path string) {
 }
 
 func (c *PageCollections) removePageByPath(path string) {
-	if i := c.rawAllPages.FindPagePosByFilePath(path); i >= 0 {
+	if i := c.rawAllPages.findPagePosByFilePath(path); i >= 0 {
 		c.rawAllPages = append(c.rawAllPages[:i], c.rawAllPages[i+1:]...)
 	}
 }
 
 func (c *PageCollections) removePage(page *Page) {
-	if i := c.rawAllPages.FindPagePos(page); i >= 0 {
+	if i := c.rawAllPages.findPagePos(page); i >= 0 {
 		c.rawAllPages = append(c.rawAllPages[:i], c.rawAllPages[i+1:]...)
 	}
 }

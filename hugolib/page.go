@@ -313,7 +313,7 @@ func (ps Pages) String() string {
 	return fmt.Sprintf("Pages(%d)", len(ps))
 }
 
-func (ps Pages) FindPagePosByFilePath(inPath string) int {
+func (ps Pages) findPagePosByFilePath(inPath string) int {
 	for i, x := range ps {
 		if x.Source.Path() == inPath {
 			return i
@@ -322,7 +322,7 @@ func (ps Pages) FindPagePosByFilePath(inPath string) int {
 	return -1
 }
 
-func (ps Pages) FindPagePosByFilePathPrefix(prefix string) int {
+func (ps Pages) findFirstPagePosByFilePathPrefix(prefix string) int {
 	if prefix == "" {
 		return -1
 	}
@@ -334,9 +334,9 @@ func (ps Pages) FindPagePosByFilePathPrefix(prefix string) int {
 	return -1
 }
 
-// FindPagePos Given a page, it will find the position in Pages
+// findPagePos Given a page, it will find the position in Pages
 // will return -1 if not found
-func (ps Pages) FindPagePos(page *Page) int {
+func (ps Pages) findPagePos(page *Page) int {
 	for i, x := range ps {
 		if x.Source.Path() == page.Source.Path() {
 			return i
