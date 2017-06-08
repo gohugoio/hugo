@@ -20,6 +20,7 @@ import (
 	"sync"
 	texttemplate "text/template"
 
+	"github.com/spf13/cast"
 	bp "github.com/spf13/hugo/bufferpool"
 	"github.com/spf13/hugo/deps"
 )
@@ -49,6 +50,7 @@ type Namespace struct {
 // Include executes the named partial and returns either a string,
 // when the partial is a text/template, or template.HTML when html/template.
 func (ns *Namespace) Include(name string, contextList ...interface{}) (interface{}, error) {
+	var prefix = "partials"
 	if strings.HasPrefix("partials/", name) {
 		name = name[8:]
 	}
@@ -56,11 +58,17 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 
 	if len(contextList) == 0 {
 		context = nil
+	} else if pr, err := cast.ToStringE(contextList[0]); err == nil && len(contextList) >= 2 {
+		// The first parameter of the list (second of the partial
+		// call) is the prefix
+		prefix = pr
+		context = contextList[1]
 	} else {
 		context = contextList[0]
 	}
 
-	for _, n := range []string{"partials/" + name, "theme/partials/" + name} {
+	prefix += "/"
+	for _, n := range []string{prefix + name, "theme/" + prefix + name} {
 		templ := ns.deps.Tmpl.Lookup(n)
 		if templ == nil {
 			// For legacy reasons.

@@ -56,6 +56,7 @@ func (t *templateHandler) embedShortcodes() {
 	t.addInternalShortcode("gist.html", `<script src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>`)
 	t.addInternalShortcode("tweet.html", `{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}`)
 	t.addInternalShortcode("instagram.html", `{{ if len .Params | eq 2 }}{{ if eq (.Get 1) "hidecaption" }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=1" }}{{ .html | safeHTML }}{{ end }}{{ end }}{{ else }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=0" }}{{ .html | safeHTML }}{{ end }}{{ end }}`)
+	t.addInternalShortcode("widgets.html", `{{ widgets (.Get 0) $ }}`)
 }
 
 func (t *templateHandler) embedTemplates() {
@@ -165,6 +166,25 @@ func (t *templateHandler) embedTemplates() {
 </ul>
 {{ end }}`)
 
+	t.addInternalTemplate("", "widgets.html", `{{- range .c.Site.Widgets -}}
+{{- if eq .Name $._wa -}}{{/* Display only the current widget area */}}
+<div class="widget-area widget-area-{{ .Name }}">
+  {{- $waname := .Name -}}
+  {{- $wa := . -}}
+  {{ range .Widgets -}}
+  <div class="widget widget-{{ .Type }}">
+    {{ $context := (dict "$" $.c "WidgetArea" $wa "Widget" .) }}
+    {{ partial (print .Type "/widget.html") "widgets" $context }}
+  </div>
+  {{- end }}{{/* end range widgets */}}
+</div>
+{{/* end if */}}{{- end -}}
+{{/* end range widget areas */}}{{- end -}}`)
+
+	t.addInternalTemplate("widgets", "text/widget.html", `{{- if isset .Params "content" -}}
+  {{- .Params.content | safeHTML -}}
+{{- else -}}<pre>Here is a text widget, but there is nothing to print. Please define options.content inside every text widget in your config.</pre>
+{{- end -}}`)
 	t.addInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = '{{ .Site.DisqusShortname }}';

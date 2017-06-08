@@ -39,6 +39,7 @@ import (
 	_ "github.com/spf13/hugo/tpl/time"
 	_ "github.com/spf13/hugo/tpl/transform"
 	_ "github.com/spf13/hugo/tpl/urls"
+	_ "github.com/spf13/hugo/tpl/widget"
 )
 
 func (t *templateFuncster) initFuncMap() {
