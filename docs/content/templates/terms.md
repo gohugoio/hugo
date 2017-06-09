@@ -87,7 +87,7 @@ content tagged with each tag.
         <ul>
         {{ $data := .Data }}
         {{ range $key, $value := .Data.Terms }}
-          <li><a href="{{ .Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $key | urlize }}">{{ $key }}</a> {{ len $value }}</li>
+          <li><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $key | urlize }}">{{ $key }}</a> {{ len $value }}</li>
         {{ end }}
        </ul>
       </div>
@@ -107,7 +107,7 @@ Another example listing the content for each term (ordered by Date):
 
         {{ $data := .Data }}
         {{ range $key,$value := .Data.Terms.ByCount }}
-        <h2><a href="{{ .Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}">{{ $value.Name }}</a> {{ $value.Count }}</h2>
+        <h2><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}">{{ $value.Name }}</a> {{ $value.Count }}</h2>
         <ul>
         {{ range $value.Pages.ByDate }}
           <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
@@ -138,7 +138,7 @@ Hugo can order the term meta data in two different ways. It can be ordered:
         <ul>
         {{ $data := .Data }}
         {{ range $key, $value := .Data.Terms.Alphabetical }}
-          <li><a href="{{ .Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}">{{ $value.Name }}</a> {{ $value.Count }}</li>
+          <li><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}">{{ $value.Name }}</a> {{ $value.Count }}</li>
         {{ end }}
         </ul>
       </div>
@@ -156,7 +156,7 @@ Hugo can order the term meta data in two different ways. It can be ordered:
         <ul>
         {{ $data := .Data }}
         {{ range $key, $value := .Data.Terms.ByCount }}
-          <li><a href="{{ .Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}">{{ $value.Name }}</a> {{ $value.Count }}</li>
+          <li><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}">{{ $value.Name }}</a> {{ $value.Count }}</li>
         {{ end }}
         </ul>
       </div>
