@@ -108,7 +108,7 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 : the meta keywords for the content.
 
 `layout`
-: the layout Hugo should select from the [lookup order][lookup] when rendering the content. If a `type` is not specified in the front matter, Hugo will look for the layout of the same name in the layout directory that corresponds with a content's section.
+: the layout Hugo should select from the [lookup order][lookup] when rendering the content. If a `type` is not specified in the front matter, Hugo will look for the layout of the same name in the layout directory that corresponds with a content's section. See ["Defining a Content Type"][definetype]
 
 `lastmod`
 : the datetime at which the content was last modified.
@@ -186,6 +186,7 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [config]: /getting-started/configuration/ "Hugo documentation for site configuration"
 [content type]: /content-management/types/
 [contentorg]: /content-management/organization/
+[definetype]: /content-management/types/#defining-a-content-type "Learn how to specify a type and a layout in a content's front matter"
 [json]: /documents/ecma-404-json-spec.pdf "Specification for JSON, JavaScript Object Notation"
 [lists]: /templates/lists/#ordering-content "See how to order content in list pages; for example, templates that look to specific _index.md for content and front matter."
 [lookup]: /templates/lookup-order/ "Hugo traverses your templates in a specific order when rendering content to allow for DRYer templating."
