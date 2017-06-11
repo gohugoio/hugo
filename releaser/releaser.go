@@ -136,7 +136,7 @@ func (r *ReleaseHandler) Run() error {
 		if _, err := git("add", releaseNotesFile); err != nil {
 			return err
 		}
-		if _, err := git("commit", "-m", fmt.Sprintf("%s Add relase notes draft for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+		if _, err := git("commit", "-m", fmt.Sprintf("%s Add release notes draft for %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
 			return err
 		}
 	}
