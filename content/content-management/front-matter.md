@@ -120,7 +120,7 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 : **experimental**; specify `"rst"` for reStructuredText (requires`rst2html`) or `"md"` (default) for Markdown.
 
 `outputs`
-: allows you to specify output formats specific to the content. See [output formats][outputs]
+: allows you to specify output formats specific to the content. See [output formats][outputs].
 
 `publishdate`
 : if in the future, content will not be rendered unless the `--buildFuture` flag is passed to `hugo`.
@@ -135,7 +135,7 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 : the title for the content.
 
 `type`
-: the type of the content; this value will be derived from the directory (i.e., the [section][]) automatically if unset.
+: the type of the content; this value will be automatically derived from the directory (i.e., the [section][]) if not specified in front matter.
 
 `url`
 : the full path to the content from the web root. It makes no assumptions about the path of the content file. It also ignores any language prefixes of
@@ -145,7 +145,7 @@ the multilingual feature.
 : used for [ordering your content in lists][ordering].
 
 {{% note "Hugo's Default URL Destinations" %}}
-If neither `slug` nor `url` is present and [permalinks are not configured otherwise](/content-management/urls/#permalinks), Hugo will use the filename of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
+If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site `config` file](/content-management/urls/#permalinks), Hugo will use the filename of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
 {{% /note %}}
 
 ### User-Defined
