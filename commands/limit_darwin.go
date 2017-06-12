@@ -75,8 +75,8 @@ func tweakLimit() {
 		jww.ERROR.Println("Unable to obtain rLimit", err)
 	}
 	if rLimit.Cur < rLimit.Max {
-		rLimit.Max = 10000
-		rLimit.Cur = 10000
+		rLimit.Max = 64000
+		rLimit.Cur = 64000
 		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 		if err != nil {
 			jww.WARN.Println("Unable to increase number of open files limit", err)
