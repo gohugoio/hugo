@@ -32,6 +32,10 @@ func TestNestedSections(t *testing.T) {
 		th      = testHelper{cfg, fs, t}
 	)
 
+	cfg.Set("permalinks", map[string]string{
+		"perm a": ":sections/:title",
+	})
+
 	pageTemplate := `---
 title: T%d_%d
 ---
@@ -63,6 +67,15 @@ Content
 	// Empty with content file in the middle.
 	writeSource(t, fs, filepath.Join("content", "empty3", "b", "c", "d", "_index.md"), fmt.Sprintf(pageTemplate, 41, -1))
 	writeSource(t, fs, filepath.Join("content", "empty3", "b", "empty3.md"), fmt.Sprintf(pageTemplate, 3, -1))
+
+	// Section with permalink config
+	writeSource(t, fs, filepath.Join("content", "perm a", "link", "_index.md"), fmt.Sprintf(pageTemplate, 9, -1))
+	for i := 1; i < 4; i++ {
+		writeSource(t, fs, filepath.Join("content", "perm a", "link", fmt.Sprintf("page_%d.md", i)),
+			fmt.Sprintf(pageTemplate, 1, i))
+	}
+	writeSource(t, fs, filepath.Join("content", "perm a", "link", "regular", fmt.Sprintf("page_%d.md", 5)),
+		fmt.Sprintf(pageTemplate, 1, 5))
 
 	writeSource(t, fs, filepath.Join("content", "l1", "l2", "_index.md"), fmt.Sprintf(pageTemplate, 2, -1))
 	writeSource(t, fs, filepath.Join("content", "l1", "l2_2", "_index.md"), fmt.Sprintf(pageTemplate, 22, -1))
@@ -96,7 +109,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	cfg.Set("paginate", 2)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-	require.Len(t, s.RegularPages, 14)
+	require.Len(t, s.RegularPages, 18)
 
 	tests := []struct {
 		sections string
@@ -185,6 +198,18 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.Equal("T2_-1", p.Parent().Title)
 			assert.Len(p.Sections(), 0)
 		}},
+		{"perm a,link", func(p *Page) {
+			assert.Equal("T9_-1", p.Title)
+			assert.Equal("/perm-a/link/", p.RelPermalink())
+			assert.Len(p.Pages, 4)
+			first := p.Pages[0]
+			assert.Equal("/perm-a/link/t1_1/", first.RelPermalink())
+			th.assertFileContent("public/perm-a/link/t1_1/index.html", "Single|T1_1")
+
+			last := p.Pages[3]
+			assert.Equal("/perm-a/link/t1_5/", last.RelPermalink())
+
+		}},
 	}
 
 	for _, test := range tests {
@@ -203,7 +228,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 
 	assert.NotNil(home)
 
-	assert.Len(home.Sections(), 6)
+	assert.Len(home.Sections(), 7)
 
 	rootPage := s.getPage(KindPage, "mypage.md")
 	assert.NotNil(rootPage)
