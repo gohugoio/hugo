@@ -16,6 +16,7 @@ package hugolib
 import (
 	"errors"
 	"fmt"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -182,6 +183,12 @@ func pageToPermalinkSection(p *Page, _ string) (string, error) {
 	return p.Section(), nil
 }
 
+func pageToPermalinkSections(p *Page, _ string) (string, error) {
+	// TODO(bep) we have some superflous URLize in this file, but let's
+	// deal with that later.
+	return path.Join(p.current().sections...), nil
+}
+
 func init() {
 	knownPermalinkAttributes = map[string]pageToPermaAttribute{
 		"year":        pageToPermalinkDate,
@@ -192,6 +199,7 @@ func init() {
 		"weekdayname": pageToPermalinkDate,
 		"yearday":     pageToPermalinkDate,
 		"section":     pageToPermalinkSection,
+		"sections":    pageToPermalinkSections,
 		"title":       pageToPermalinkTitle,
 		"slug":        pageToPermalinkSlugElseTitle,
 		"filename":    pageToPermalinkFilename,
