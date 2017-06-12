@@ -83,10 +83,10 @@ Cons:
 * Might not be the latest version, especially if you are using an older stable version (e.g., Ubuntu 16.04&nbsp;LTS).
   Until backports and PPA are available, you may consider installing the Hugo snap package to get the latest version of Hugo, as described below.
 
-### Fedora and Red Hat
+### Fedora, CentOS and Red Hat
 
 * https://copr.fedorainfracloud.org/coprs/spf13/Hugo/ (updated to Hugo v0.16)
-* https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/ (updated to Hugo v0.19)
+* https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/ (updated to Hugo v0.22) : usually released a few days after the official Hugo release.
 
 See also [this discussion](https://discuss.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491).
 
