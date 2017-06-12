@@ -320,7 +320,7 @@ description = ""
 homepage = "http://siteforthistheme.com/"
 tags = []
 features = []
-min_version = "0.21"
+min_version = "0.22"
 
 [author]
   name = ""
