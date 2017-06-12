@@ -25,6 +25,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -758,6 +759,10 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 
 // newWatcher creates a new watcher to watch filesystem events.
 func (c *commandeer) newWatcher(port int) error {
+	if runtime.GOOS == "darwin" {
+		tweakLimit()
+	}
+
 	watcher, err := watcher.New(1 * time.Second)
 	var wg sync.WaitGroup
 
