@@ -1,7 +1,7 @@
 Hugo Example Blog
 =================
 
-This repository provides a fully-working example of a [Hugo](https://github.com/spf13/hugo)-powered blog. Many
+This repository provides a fully-working example of a [Hugo](https://github.com/gohugoio/hugo)-powered blog. Many
 Hugo-specific features are used as a way to see them in action, and hopefully ease the learning curve for creating your
 very own site with Hugo.
 
