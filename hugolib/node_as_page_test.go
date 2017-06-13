@@ -31,7 +31,7 @@ import (
 /*
 	This file will test the "making everything a page" transition.
 
-	See https://github.com/spf13/hugo/issues/2297
+	See https://github.com/gohugoio/hugo/issues/2297
 
 */
 

@@ -311,7 +311,7 @@ func touchFile(fs afero.Fs, x ...string) {
 func createThemeMD(fs *hugofs.Fs, inpath string) (err error) {
 
 	by := []byte(`# theme.toml template for a Hugo theme
-# See https://github.com/spf13/hugoThemes#themetoml for an example
+# See https://github.com/gohugoio/hugoThemes#themetoml for an example
 
 name = "` + strings.Title(helpers.MakeTitle(filepath.Base(inpath))) + `"
 license = "MIT"

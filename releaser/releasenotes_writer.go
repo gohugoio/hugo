@@ -29,7 +29,7 @@ import (
 )
 
 const (
-	issueLinkTemplate            = "[#%d](https://github.com/spf13/hugo/issues/%d)"
+	issueLinkTemplate            = "[#%d](https://github.com/gohugoio/hugo/issues/%d)"
 	linkTemplate                 = "[%s](%s)"
 	releaseNotesMarkdownTemplate = `
 {{- $patchRelease := isPatch . -}}
@@ -56,8 +56,8 @@ And as always a big thanks to [@digitalcraftsman](https://github.com/digitalcraf
 Hugo now has:
 
 {{ with .Repo -}}
-* {{ .Stars }}+ [stars](https://github.com/spf13/hugo/stargazers)
-* {{ len .Contributors }}+ [contributors](https://github.com/spf13/hugo/graphs/contributors)
+* {{ .Stars }}+ [stars](https://github.com/gohugoio/hugo/stargazers)
+* {{ len .Contributors }}+ [contributors](https://github.com/gohugoio/hugo/graphs/contributors)
 {{- end -}}
 {{ with .ThemeCount }}
 * 156+ [themes](http://themes.gohugo.io/)
@@ -160,7 +160,7 @@ func writeReleaseNotes(version string, infos gitInfos, to io.Writer) error {
 }
 
 func fetchThemeCount() (int, error) {
-	resp, err := http.Get("https://github.com/spf13/hugoThemes/blob/master/.gitmodules")
+	resp, err := http.Get("https://github.com/gohugoio/hugoThemes/blob/master/.gitmodules")
 	if err != nil {
 		return 0, err
 	}

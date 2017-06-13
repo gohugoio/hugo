@@ -49,7 +49,7 @@ func createTranslationKey(p *Page) string {
 	base := p.TranslationBaseName()
 
 	if p.IsNode() {
-		// TODO(bep) see https://github.com/spf13/hugo/issues/2699
+		// TODO(bep) see https://github.com/gohugoio/hugo/issues/2699
 		// Must prepend the section and kind to the key to make it unique
 		base = fmt.Sprintf("%s/%s/%s", p.Kind, p.sections, base)
 	}

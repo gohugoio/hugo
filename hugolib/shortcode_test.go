@@ -63,7 +63,7 @@ func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTempl
 
 	cfg, fs := newTestCfg()
 
-	// Need some front matter, see https://github.com/spf13/hugo/issues/2337
+	// Need some front matter, see https://github.com/gohugoio/hugo/issues/2337
 	contentFile := `---
 title: "Title"
 ---

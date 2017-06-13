@@ -87,7 +87,7 @@ type Site struct {
 	// to get the singular form from that value.
 	taxonomiesPluralSingular map[string]string
 
-	// This is temporary, see https://github.com/spf13/hugo/issues/2835
+	// This is temporary, see https://github.com/gohugoio/hugo/issues/2835
 	// Maps 	"actors-gerard-depardieu" to "Gérard Depardieu" when preserveTaxonomyNames
 	// is set.
 	taxonomiesOrigKey map[string]string

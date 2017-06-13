@@ -160,7 +160,7 @@ func FindArchetype(s *hugolib.Site, kind string) (outpath string) {
 	for _, x := range search {
 		// If the new content isn't in a subdirectory, kind == "".
 		// Therefore it should be excluded otherwise `is a directory`
-		// error will occur. github.com/spf13/hugo/issues/411
+		// error will occur. github.com/gohugoio/hugo/issues/411
 		var pathsToCheck []string
 
 		if kind == "" {

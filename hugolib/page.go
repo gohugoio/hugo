@@ -1339,7 +1339,7 @@ func (p *Page) SetSourceContent(content []byte) {
 }
 
 func (p *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
-	// See https://github.com/spf13/hugo/issues/2458
+	// See https://github.com/gohugoio/hugo/issues/2458
 	defer func() {
 		if r := recover(); r != nil {
 			var ok bool

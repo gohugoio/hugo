@@ -9,9 +9,9 @@ import (
 )
 
 var (
-	gitHubCommitsApi      = "https://api.github.com/repos/spf13/hugo/commits/%s"
-	gitHubRepoApi         = "https://api.github.com/repos/spf13/hugo"
-	gitHubContributorsApi = "https://api.github.com/repos/spf13/hugo/contributors"
+	gitHubCommitsApi      = "https://api.github.com/repos/gohugoio/hugo/commits/%s"
+	gitHubRepoApi         = "https://api.github.com/repos/gohugoio/hugo"
+	gitHubContributorsApi = "https://api.github.com/repos/gohugoio/hugo/contributors"
 )
 
 type gitHubCommit struct {

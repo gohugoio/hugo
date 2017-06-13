@@ -656,7 +656,7 @@ func (c *commandeer) getDirList() []string {
 		}
 
 		// Skip .git directories.
-		// Related to https://github.com/spf13/hugo/issues/3468.
+		// Related to https://github.com/gohugoio/hugo/issues/3468.
 		if fi.Name() == ".git" {
 			return nil
 		}
