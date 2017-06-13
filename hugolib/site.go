@@ -342,6 +342,7 @@ type SiteInfo struct {
 	relativeURLs          bool
 	uglyURLs              bool
 	preserveTaxonomyNames bool
+	RSSSummary            bool
 	Data                  *map[string]interface{}
 
 	owner                          *HugoSites
@@ -1121,6 +1122,7 @@ func (s *Site) initializeSiteInfo() {
 		canonifyURLs:                   s.Cfg.GetBool("canonifyURLs"),
 		relativeURLs:                   s.Cfg.GetBool("relativeURLs"),
 		uglyURLs:                       s.Cfg.GetBool("uglyURLs"),
+		RSSSummary:                     s.Cfg.GetBool("rssSummary"),
 		preserveTaxonomyNames:          lang.GetBool("preserveTaxonomyNames"),
 		PageCollections:                s.PageCollections,
 		Files:                          &s.Files,

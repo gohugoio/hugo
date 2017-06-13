@@ -21,6 +21,19 @@ import (
 	"github.com/gohugoio/hugo/deps"
 )
 
+var lorem = `Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
+incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
+nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit
+amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore
+et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
+ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
+officia deserunt mollit anim id est laborum.`
+
 func TestRSSOutput(t *testing.T) {
 	t.Parallel()
 	var (
@@ -37,23 +50,32 @@ func TestRSSOutput(t *testing.T) {
 	cfg.Set("title", "RSSTest")
 	cfg.Set("rssLimit", rssLimit)
 
-	for _, src := range weightedSources {
-		writeSource(t, fs, filepath.Join("content", "sect", src.Name), string(src.Content))
-	}
+	for _, summary := range []bool{true, false} {
+		cfg.Set("rssSummary", summary)
 
-	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+		for _, src := range weightedSources {
+			writeSource(t, fs, filepath.Join("content", "sect", src.Name), string(src.Content)+lorem)
+		}
 
-	// Home RSS
-	th.assertFileContent(filepath.Join("public", rssURI), "<?xml", "rss version", "RSSTest")
-	// Section RSS
-	th.assertFileContent(filepath.Join("public", "sect", rssURI), "<?xml", "rss version", "Sects on RSSTest")
-	// Taxonomy RSS
-	th.assertFileContent(filepath.Join("public", "categories", "hugo", rssURI), "<?xml", "rss version", "Hugo on RSSTest")
+		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	// RSS Item Limit
-	content := readDestination(t, fs, filepath.Join("public", rssURI))
-	c := strings.Count(content, "<item>")
-	if c != rssLimit {
-		t.Errorf("incorrect RSS item count: expected %d, got %d", rssLimit, c)
+		// Home RSS
+		th.assertFileContent(filepath.Join("public", rssURI), "<?xml", "rss version", "RSSTest")
+		// Section RSS
+		th.assertFileContent(filepath.Join("public", "sect", rssURI), "<?xml", "rss version", "Sects on RSSTest")
+		// Taxonomy RSS
+		th.assertFileContent(filepath.Join("public", "categories", "hugo", rssURI), "<?xml", "rss version", "Hugo on RSSTest")
+
+		// RSS Item Limit
+		content := readDestination(t, fs, filepath.Join("public", rssURI))
+		c := strings.Count(content, "<item>")
+		if c != rssLimit {
+			t.Errorf("incorrect RSS item count: expected %d, got %d", rssLimit, c)
+		}
+
+		full := strings.Count(content, lorem)
+		if (full == rssLimit) == summary {
+			t.Errorf("incorrect RSS item contents: expected summary: %t, got %t", summary, full != rssLimit)
+		}
 	}
 }

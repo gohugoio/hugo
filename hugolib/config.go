@@ -120,6 +120,7 @@ func loadDefaultSettingsFor(v *viper.Viper) {
 	v.SetDefault("blackfriday", c.NewBlackfriday())
 	v.SetDefault("rSSUri", "index.xml")
 	v.SetDefault("rssLimit", -1)
+	v.SetDefault("rssSummary", true)
 	v.SetDefault("sectionPagesMenu", "")
 	v.SetDefault("disablePathToLower", false)
 	v.SetDefault("hasCJKLanguage", false)

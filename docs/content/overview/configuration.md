@@ -174,6 +174,8 @@ along with their current, default values:
     pygmentsUseClasses:         false
     # maximum number of items in the RSS feed
     rssLimit:                   15
+    # if true RSS contains only article summaries
+    rssSummary:                 true
     # default sitemap configuration map
     sitemap:
     # filesystem path to read files relative from
