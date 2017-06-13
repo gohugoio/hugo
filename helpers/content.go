@@ -26,11 +26,11 @@ import (
 	"unicode/utf8"
 
 	"github.com/chaseadamsio/goorgeous"
+	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/config"
 	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
-	bp "github.com/gohugoio/hugo/bufferpool"
-	"github.com/gohugoio/hugo/config"
 	jww "github.com/spf13/jwalterweatherman"
 
 	"strings"

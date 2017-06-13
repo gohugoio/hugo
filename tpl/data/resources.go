@@ -21,9 +21,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spf13/afero"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
 )
 

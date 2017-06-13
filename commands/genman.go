@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/cobra/doc"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/spf13/cobra"
+	"github.com/spf13/cobra/doc"
 	jww "github.com/spf13/jwalterweatherman"
 )
 

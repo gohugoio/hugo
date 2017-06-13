@@ -22,10 +22,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/spf13/afero"
-	"github.com/spf13/cast"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/spf13/afero"
+	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

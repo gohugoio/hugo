@@ -18,10 +18,10 @@ import (
 	"path"
 	"strings"
 
-	"github.com/spf13/cast"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
+	"github.com/spf13/cast"
 )
 
 func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (map[string]output.Formats, error) {

@@ -13,11 +13,11 @@ import (
 
 	"github.com/fortytw2/leaktest"
 	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/afero"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/source"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )

@@ -14,9 +14,9 @@
 package i18n
 
 import (
-	"github.com/nicksnyder/go-i18n/i18n/bundle"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/nicksnyder/go-i18n/i18n/bundle"
 	jww "github.com/spf13/jwalterweatherman"
 )
 

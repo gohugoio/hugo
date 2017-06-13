@@ -19,9 +19,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/afero"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
 

@@ -16,8 +16,8 @@ package hugolib
 import (
 	"fmt"
 
-	"github.com/spf13/afero"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
 

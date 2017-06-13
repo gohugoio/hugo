@@ -19,8 +19,8 @@ import (
 	"strconv"
 	"strings"
 
-	radix "github.com/hashicorp/go-immutable-radix"
 	"github.com/gohugoio/hugo/helpers"
+	radix "github.com/hashicorp/go-immutable-radix"
 )
 
 // Deprecated: Use .Site.Home.Sections.

@@ -18,9 +18,9 @@ import (
 	"fmt"
 	_os "os"
 
+	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-	"github.com/gohugoio/hugo/deps"
 )
 
 // New returns a new instance of the os-namespaced template functions.

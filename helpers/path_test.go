@@ -29,8 +29,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/spf13/afero"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
 

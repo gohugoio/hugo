@@ -37,8 +37,6 @@ import (
 	"sync/atomic"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/afero"
-	"github.com/spf13/cast"
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -47,6 +45,8 @@ import (
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/transform"
+	"github.com/spf13/afero"
+	"github.com/spf13/cast"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 )

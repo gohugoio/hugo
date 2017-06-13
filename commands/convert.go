@@ -19,10 +19,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/spf13/cast"
-	"github.com/spf13/cobra"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/parser"
+	"github.com/spf13/cast"
+	"github.com/spf13/cobra"
 )
 
 var outputDir string

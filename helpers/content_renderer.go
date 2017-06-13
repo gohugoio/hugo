@@ -17,9 +17,9 @@ import (
 	"bytes"
 	"html"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
-	"github.com/gohugoio/hugo/config"
 	jww "github.com/spf13/jwalterweatherman"
 )
 

@@ -15,8 +15,8 @@
 package hugofs
 
 import (
-	"github.com/spf13/afero"
 	"github.com/gohugoio/hugo/config"
+	"github.com/spf13/afero"
 )
 
 // Os points to an Os Afero file system.

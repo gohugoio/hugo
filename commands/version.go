@@ -20,10 +20,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kardianos/osext"
-	"github.com/spf13/cobra"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/kardianos/osext"
+	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
 

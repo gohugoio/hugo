@@ -18,8 +18,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/spf13/cast"
 	"github.com/gohugoio/hugo/config"
+	"github.com/spf13/cast"
 )
 
 // These are the settings that should only be looked up in the global Viper

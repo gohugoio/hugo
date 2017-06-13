@@ -29,10 +29,10 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/spf13/afero"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/spf13/afero"
 )
 
 const (

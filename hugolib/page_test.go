@@ -25,9 +25,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/cast"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/spf13/cast"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

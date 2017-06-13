@@ -21,8 +21,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/spf13/cast"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
 	"golang.org/x/text/unicode/norm"
 )

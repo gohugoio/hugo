@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/afero"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/source"

@@ -16,8 +16,8 @@
 package commands
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/gohugoio/hugo/releaser"
+	"github.com/spf13/cobra"
 )
 
 func init() {

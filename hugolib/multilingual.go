@@ -21,9 +21,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/spf13/cast"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/spf13/cast"
 )
 
 type Multilingual struct {

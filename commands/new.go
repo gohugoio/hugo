@@ -22,13 +22,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/afero"
-	"github.com/spf13/cobra"
 	"github.com/gohugoio/hugo/create"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/parser"
+	"github.com/spf13/afero"
+	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 )
