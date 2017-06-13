@@ -58,6 +58,11 @@ Content
 			fmt.Sprintf(pageTemplate, 1, level1))
 	}
 
+	// Issue #3586
+	writeSource(t, fs, filepath.Join("content", "post", "0000.md"), fmt.Sprintf(pageTemplate, 1, 2))
+	writeSource(t, fs, filepath.Join("content", "post", "0000", "0001.md"), fmt.Sprintf(pageTemplate, 1, 3))
+	writeSource(t, fs, filepath.Join("content", "elsewhere", "0003.md"), fmt.Sprintf(pageTemplate, 1, 4))
+
 	// Empty nested section, i.e. no regular content pages.
 	writeSource(t, fs, filepath.Join("content", "empty1", "b", "c", "_index.md"), fmt.Sprintf(pageTemplate, 33, -1))
 	// Index content file a the end and in the middle.
@@ -109,12 +114,24 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	cfg.Set("paginate", 2)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-	require.Len(t, s.RegularPages, 18)
+	require.Len(t, s.RegularPages, 21)
 
 	tests := []struct {
 		sections string
 		verify   func(p *Page)
 	}{
+		{"elsewhere", func(p *Page) {
+			assert.Len(p.Pages, 1)
+			for _, p := range p.Pages {
+				assert.Equal([]string{"elsewhere"}, p.sections)
+			}
+		}},
+		{"post", func(p *Page) {
+			assert.Len(p.Pages, 2)
+			for _, p := range p.Pages {
+				assert.Equal("post", p.Section())
+			}
+		}},
 		{"empty1", func(p *Page) {
 			// > b,c
 			assert.NotNil(p.s.getPage(KindSection, "empty1", "b"))
@@ -228,7 +245,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 
 	assert.NotNil(home)
 
-	assert.Len(home.Sections(), 7)
+	assert.Len(home.Sections(), 9)
 
 	rootPage := s.getPage(KindPage, "mypage.md")
 	assert.NotNil(rootPage)

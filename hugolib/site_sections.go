@@ -154,13 +154,25 @@ func (s *Site) assembleSections() Pages {
 			sect = s.newSectionPage(p.sections[0])
 			sectionPages[sectionKey] = sect
 			newPages = append(newPages, sect)
-		} else if !found {
-			// We don't know what to do with this section yet.
-			undecided = append(undecided, p)
+			found = true
 		}
 
-		pagePath := path.Join(sectionKey, sectPageKey, strconv.Itoa(i))
-		inPages.Insert([]byte(pagePath), p)
+		if len(p.sections) > 1 {
+			// Create the root section if not found.
+			_, rootFound := sectionPages[p.sections[0]]
+			if !rootFound {
+				sect = s.newSectionPage(p.sections[0])
+				sectionPages[p.sections[0]] = sect
+				newPages = append(newPages, sect)
+			}
+		}
+
+		if found {
+			pagePath := path.Join(sectionKey, sectPageKey, strconv.Itoa(i))
+			inPages.Insert([]byte(pagePath), p)
+		} else {
+			undecided = append(undecided, p)
+		}
 	}
 
 	// Create any missing sections in the tree.
@@ -181,17 +193,6 @@ func (s *Site) assembleSections() Pages {
 		}
 	}
 
-	// Create any missing root sections.
-	for _, p := range undecided {
-		sectionKey := p.sections[0]
-		sect, found := sectionPages[sectionKey]
-		if !found {
-			sect = s.newSectionPage(sectionKey)
-			sectionPages[sectionKey] = sect
-			newPages = append(newPages, sect)
-		}
-	}
-
 	for k, sect := range sectionPages {
 		inPages.Insert([]byte(path.Join(k, sectSectKey)), sect)
 		inSections.Insert([]byte(k), sect)
@@ -200,9 +201,19 @@ func (s *Site) assembleSections() Pages {
 	var (
 		currentSection *Page
 		children       Pages
-		rootPages      = inPages.Commit().Root()
 		rootSections   = inSections.Commit().Root()
 	)
+
+	for i, p := range undecided {
+		// Now we can decide where to put this page into the tree.
+		sectionKey := path.Join(p.sections...)
+		_, v, _ := rootSections.LongestPrefix([]byte(sectionKey))
+		sect := v.(*Page)
+		pagePath := path.Join(path.Join(sect.sections...), sectSectKey, "u", strconv.Itoa(i))
+		inPages.Insert([]byte(pagePath), p)
+	}
+
+	var rootPages = inPages.Commit().Root()
 
 	rootPages.Walk(func(path []byte, v interface{}) bool {
 		p := v.(*Page)
