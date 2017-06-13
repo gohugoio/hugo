@@ -106,7 +106,7 @@ title = "my archetype example"
 
 As we can see, the file contains the `title` and `date` property that Hugo created for us, along with the front matter that we defined in the `archetypes/default.md` file.
 
-You'll also notice that the fields have been sorted into alphabetical order. This is an unintentional side-effect that stems from the underlying code libraries that Hugo relies upon. It is, however, [a known issue that is actively being discussed](https://github.com/spf13/hugo/issues/452).
+You'll also notice that the fields have been sorted into alphabetical order. This is an unintentional side-effect that stems from the underlying code libraries that Hugo relies upon. It is, however, [a known issue that is actively being discussed](https://github.com/gohugoio/hugo/issues/452).
 
 ## Section Archetypes
 
@@ -327,4 +327,4 @@ It's a subtle yet important detail to remember.
 
 ## Notes
 
-* Prior to Hugo v0.13, some users received [an "EOF" error when using archetypes](https://github.com/spf13/hugo/issues/776), related to what text editor they used to create the archetype. As of Hugo v0.13, this error has been [resolved](https://github.com/spf13/hugo/pull/785).
+* Prior to Hugo v0.13, some users received [an "EOF" error when using archetypes](https://github.com/gohugoio/hugo/issues/776), related to what text editor they used to create the archetype. As of Hugo v0.13, this error has been [resolved](https://github.com/gohugoio/hugo/pull/785).

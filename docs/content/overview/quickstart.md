@@ -22,7 +22,7 @@ In this quickstart, we will build an online bookshelf that will list books and t
 
 ## Step 1. Install Hugo
 
-Go to [Hugo Releases](https://github.com/spf13/hugo/releases) and download the
+Go to [Hugo Releases](https://github.com/gohugoio/hugo/releases) and download the
 appropriate version for your OS and architecture.
 
 Save the main executable as `hugo` (or `hugo.exe` on Windows) somewhere in your `PATH` as we will be using it in the next step.

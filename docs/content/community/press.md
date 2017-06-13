@@ -9,7 +9,7 @@ weight: 20
 
 ### Help keep this list up to date
 
-Know of a post, article or tutorial on Hugo? [Add it to this list](https://github.com/spf13/hugo/edit/master/docs/content/community/press.md).
+Know of a post, article or tutorial on Hugo? [Add it to this list](https://github.com/gohugoio/hugo/edit/master/docs/content/community/press.md).
 
 ## Press and Articles
 

@@ -193,5 +193,5 @@ as I have writing it.
  * [Install Hugo](/overview/installing/)
  * [Quick start](/overview/quickstart/)
  * [Join the Mailing List](/community/mailing-list/)
- * [Star us on GitHub](https://github.com/spf13/hugo)
+ * [Star us on GitHub](https://github.com/gohugoio/hugo)
  * [Discussion Forum](http://discuss.gohugo.io/)

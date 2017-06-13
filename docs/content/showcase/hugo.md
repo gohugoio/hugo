@@ -5,7 +5,7 @@ description: This site
 license: Simpl
 licenseLink: ""
 sitelink: http://gohugo.io/
-sourceLink: https://github.com/spf13/hugo/tree/master/docs
+sourceLink: https://github.com/gohugoio/hugo/tree/master/docs
 tags:
 - documentation
 - bootstrap

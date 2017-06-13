@@ -116,7 +116,7 @@ All three locations will work for you. I'm going to document the second option, 
 
 ### Step 2: Download the Tarball
 
-1. Open <https://github.com/spf13/hugo/releases> in your browser.
+1. Open <https://github.com/gohugoio/hugo/releases> in your browser.
 
 2. Find the current release by scrolling down and looking for the green tag that reads "Latest Release."
 
@@ -199,13 +199,13 @@ install go`.
 ### Step 1: Get the Source
 
 If you want to compile a specific version, go to
-<https://github.com/spf13/hugo/releases> and download the source code
+<https://github.com/gohugoio/hugo/releases> and download the source code
 for the version of your choice.  If you want to compile Hugo with all
 the latest changes (which might include bugs), clone the Hugo
 repository:
 
 ```
-git clone https://github.com/spf13/hugo
+git clone https://github.com/gohugoio/hugo
 ```
 
 ### Step 2: Compiling
@@ -215,7 +215,7 @@ fetch Hugo's dependencies:
 
 ```
 mkdir -p src/github.com/spf13
-ln -sf $(pwd) src/github.com/spf13/hugo
+ln -sf $(pwd) src/github.com/gohugoio/hugo
 
 # set the build path for Go
 export GOPATH=$(pwd)

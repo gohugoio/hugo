@@ -12,7 +12,7 @@ weight: 10
 
 ## Introduction
 
-Hugo is an open source project and lives by the work of its [contributors](https://github.com/spf13/hugo/graphs/contributors). Help to make Hugo even more awesome. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub and we need your help.
+Hugo is an open source project and lives by the work of its [contributors](https://github.com/gohugoio/hugo/graphs/contributors). Help to make Hugo even more awesome. There are plenty of [open issues](https://github.com/gohugoio/hugo/issues) on GitHub and we need your help.
 
 This tutorial is intended for people who are new to Git, GitHub or open source projects in general. It should help to overcome most of the barriers that newcomers encounter. It describes step by step what you need to do.
 
@@ -98,12 +98,12 @@ We assume that you've set up your `GOPATH` (see the section above if you're unsu
 
 > When you create a repository on GitHub, it exists as a remote repository. You can create a local clone of your repository on your computer and sync between the two locations.
 
-We're going to clone the [master Hugo repository](https://github.com/spf13/hugo). That seems counter-intuitive, since you won't have commit rights on it. But it's required for the Go workflow. You'll work on a copy of the master and push your changes to your own repository on GitHub.
+We're going to clone the [master Hugo repository](https://github.com/gohugoio/hugo). That seems counter-intuitive, since you won't have commit rights on it. But it's required for the Go workflow. You'll work on a copy of the master and push your changes to your own repository on GitHub.
 
 So, let's clone that master repository with govendor:
 
 ```sh
-govendor get -v github.com/spf13/hugo
+govendor get -v github.com/gohugoio/hugo
 ```
 
 ### Fork the repository
@@ -114,7 +114,7 @@ If you're not familiar with this term, GitHub's [help pages](https://help.github
 
 #### Fork by hand
 
-Open the [Hugo repository](https://github.com/spf13/hugo) on GitHub and click on the "Fork" button in the top right.
+Open the [Hugo repository](https://github.com/gohugoio/hugo) on GitHub and click on the "Fork" button in the top right.
 
 ![Fork button](/img/tutorials/how-to-contribute-to-hugo/forking-a-repository.png)
 
@@ -125,7 +125,7 @@ Now open your fork repository on GitHub and copy the remote url of your fork. Yo
 Switch back to the terminal and move into the directory of the cloned master repository from the last step.
 
 ```sh
-cd $GOPATH/src/github.com/spf13/hugo
+cd $GOPATH/src/github.com/gohugoio/hugo
 ```
 
 Now Git needs to know that our fork exists by adding the copied remote url:
@@ -157,8 +157,8 @@ The output should look similar:
 ```sh
 digitalcraftsman	git@github.com:digitalcraftsman/hugo.git (fetch)
 digitalcraftsman	git@github.com:digitalcraftsman/hugo.git (push)
-origin	https://github.com/spf13/hugo (fetch)
-origin	https://github.com/spf13/hugo (push)
+origin	https://github.com/gohugoio/hugo (fetch)
+origin	https://github.com/gohugoio/hugo (push)
 ```
 
 
@@ -213,7 +213,7 @@ The Go code styleguide maybe is opinionated but it ensures that the codebase loo
 govendor fmt +local
 ```
 
-Once you made your additions commit your changes. Make sure that you follow our [code contribution guidelines](https://github.com/spf13/hugo/blob/master/CONTRIBUTING.md):
+Once you made your additions commit your changes. Make sure that you follow our [code contribution guidelines](https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md):
 
 ```sh
 # Add all changed files
@@ -322,7 +322,7 @@ If you modified your commit history in the last step GitHub will reject your try
 
 ## Open a pull request
 
-We made a lot of progress. Good work. In this step we finally open a pull request to submit our additions. Open the [Hugo master repository](https://github.com/spf13/hugo/) on GitHub in your browser.
+We made a lot of progress. Good work. In this step we finally open a pull request to submit our additions. Open the [Hugo master repository](https://github.com/gohugoio/hugo/) on GitHub in your browser.
 
 You should find a green button labeled with "New pull request". But GitHub is clever and probably suggests you a pull request like in the beige box below:
 
@@ -339,7 +339,7 @@ Last but not least you should accept the contributor license agreement (CLA). A 
 
 ### Automatic builds
 
-We use the [Travis CI loop](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) to compile Hugo with your additions. This should ensure that everything works as expected before merging your pull request. This in most cases only relevant if you made changes to the codebase of Hugo.
+We use the [Travis CI loop](https://travis-ci.org/gohugoio/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/gohugoio/hugo/branch/master) (Windows) to compile Hugo with your additions. This should ensure that everything works as expected before merging your pull request. This in most cases only relevant if you made changes to the codebase of Hugo.
 
 <img src="/img/tutorials/how-to-contribute-to-hugo/ci-errors.png" alt="Automic builds and their status">
 
@@ -349,4 +349,4 @@ If you have questions leave a comment in the pull request. We are willing to ass
 
 ## Where to start?
 
-Thank you for reading this tutorial. Hopefully, we see you again on GitHub. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub. Feel free to open an issue if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
+Thank you for reading this tutorial. Hopefully, we see you again on GitHub. There are plenty of [open issues](https://github.com/gohugoio/hugo/issues) on GitHub. Feel free to open an issue if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
