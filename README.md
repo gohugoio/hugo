@@ -1,20 +1,20 @@
-![Hugo](https://raw.githubusercontent.com/spf13/hugo/master/docs/static/img/hugo-logo.png)
+![Hugo](https://raw.githubusercontent.com/gohugoio/hugo/master/docs/static/img/hugo-logo.png)
 
-A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com/) and [friends](https://github.com/spf13/hugo/graphs/contributors) in [Go][].
+A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com/) and [friends](https://github.com/gohugoio/hugo/graphs/contributors) in [Go][].
 
 [Website](https://gohugo.io) |
 [Forum](https://discuss.gohugo.io) |
-[Developer Chat (no support)](https://gitter.im/spf13/hugo) |
+[Developer Chat (no support)](https://gitter.im/gohugoio/hugo) |
 [Documentation](https://gohugo.io/overview/introduction/) |
 [Installation Guide](https://gohugo.io/overview/installing/) |
 [Contribution Guide](CONTRIBUTING.md) |
 [Twitter](http://twitter.com/gohugoio)
 
-[![GoDoc](https://godoc.org/github.com/spf13/hugo?status.svg)](https://godoc.org/github.com/spf13/hugo)
-[![Linux and macOS Build Status](https://api.travis-ci.org/spf13/hugo.svg?branch=master&label=Linux+and+macOS+build "Linux and macOS Build Status")](https://travis-ci.org/spf13/hugo)
-[![Windows Build Status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true&label=Windows+build "Windows Build Status")](https://ci.appveyor.com/project/spf13/hugo/branch/master)
-[![Dev chat at https://gitter.im/spf13/hugo](https://img.shields.io/badge/gitter-developer_chat-46bc99.svg)](https://gitter.im/spf13/hugo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Go Report Card](https://goreportcard.com/badge/github.com/spf13/hugo)](https://goreportcard.com/report/github.com/spf13/hugo)
+[![GoDoc](https://godoc.org/github.com/gohugoio/hugo?status.svg)](https://godoc.org/github.com/gohugoio/hugo)
+[![Linux and macOS Build Status](https://api.travis-ci.org/gohugoio/hugo.svg?branch=master&label=Linux+and+macOS+build "Linux and macOS Build Status")](https://travis-ci.org/gohugoio/hugo)
+[![Windows Build Status](https://ci.appveyor.com/api/projects/status/n2mo912b8s2505e8/branch/master?svg=true&label=Windows+build "Windows Build Status")](https://ci.appveyor.com/project/gohugoio/hugo/branch/master)
+[![Dev chat at https://gitter.im/gohugoio/hugo](https://img.shields.io/badge/gitter-developer_chat-46bc99.svg)](https://gitter.im/gohugoio/hugo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gohugoio/hugo)](https://goreportcard.com/report/github.com/gohugoio/hugo)
 
 ## Overview
 
@@ -44,7 +44,7 @@ Hugo may also be compiled from source wherever the Go compiler tool chain can ru
 If you want to use Hugo as your site generator, simply install the Hugo binaries.
 The Hugo binaries have no external dependencies.
 
-To contribute to the Hugo source code or documentation, you should [fork the Hugo GitHub project](https://github.com/spf13/hugo#fork-destination-box) and clone it to your local machine.
+To contribute to the Hugo source code or documentation, you should [fork the Hugo GitHub project](https://github.com/gohugoio/hugo#fork-destination-box) and clone it to your local machine.
 
 Finally, you can install the Hugo source code with `go`, build the binaries yourself, and run Hugo that way.
 Building the binaries is an easy task for an experienced `go` getter.
@@ -57,13 +57,13 @@ Use the [installation instructions in the Hugo documentation](https://gohugo.io/
 
 Add Hugo and its package dependencies to your go `src` directory.
 
-    go get -v github.com/spf13/hugo
+    go get -v github.com/gohugoio/hugo
 
 Once the `get` completes, you should find your new `hugo` (or `hugo.exe`) executable sitting inside `$GOPATH/bin/`.
 
 To update Hugo’s dependencies, use `go get` with the `-u` option.
 
-    go get -u -v github.com/spf13/hugo
+    go get -u -v github.com/gohugoio/hugo
 
 ## Contributing to Hugo
 
@@ -74,7 +74,7 @@ organization, tutorials, blog posts, bug reports, issues, feature requests,
 feature implementations, pull requests, answering questions on the forum,
 helping to manage issues, etc.
 
-The Hugo community and maintainers are [very active](https://github.com/spf13/hugo/pulse/monthly) and helpful, and the project benefits greatly from this activity.
+The Hugo community and maintainers are [very active](https://github.com/gohugoio/hugo/pulse/monthly) and helpful, and the project benefits greatly from this activity.
 
 ### Asking Support Questions
 
