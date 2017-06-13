@@ -6,7 +6,7 @@ weight: 120
 
 This section highlights some projects around Hugo that are independently developed. These tools try to extend the functionality of our static site generator or help you to get started.
 
-> **Note:** Do you know or maintain a similar project around Hugo? Feel free to open a [pull request](https://github.com/spf13/hugo/pulls) on GitHub if you think it should be added.
+> **Note:** Do you know or maintain a similar project around Hugo? Feel free to open a [pull request](https://github.com/gohugoio/hugo/pulls) on GitHub if you think it should be added.
 
 
 ## Migration

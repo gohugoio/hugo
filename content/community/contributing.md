@@ -13,7 +13,7 @@ title: Contributing to Hugo
 weight: 30
 ---
 
-All contributions to Hugo are welcome. Whether you want to scratch an itch or simply contribute to the project, feel free to pick something from the [roadmap]({{< relref "meta/roadmap.md" >}}) or contact the dev team via the [Forums](https://discuss.gohugo.io/) or [Gitter](https://gitter.im/spf13/hugo) about what may make sense to do next.
+All contributions to Hugo are welcome. Whether you want to scratch an itch or simply contribute to the project, feel free to pick something from the [roadmap]({{< relref "meta/roadmap.md" >}}) or contact the dev team via the [Forums](https://discuss.gohugo.io/) or [Gitter](https://gitter.im/gohugoio/hugo) about what may make sense to do next.
 
 You should fork the project and make your changes.  *We encourage pull requests to discuss code changes.*
 
@@ -23,7 +23,7 @@ When you're ready to create a pull request, be sure to:
   * Have test cases for the new code.  If you have questions about how to do it, please ask in your pull request.
   * Run `go fmt`.
   * Squash your commits into a single commit.  `git rebase -i`.  It's okay to force update your pull request.
-  * Run `make check` and ensure it succeeds.  [Travis CI](https://travis-ci.org/spf13/hugo) and [Appveyor](https://ci.appveyor.com/project/spf13/hugo) will runs these checks and fail the build if `make check` fails.
+  * Run `make check` and ensure it succeeds.  [Travis CI](https://travis-ci.org/gohugoio/hugo) and [Appveyor](https://ci.appveyor.com/project/gohugoio/hugo) will runs these checks and fail the build if `make check` fails.
 
 ## Contribution Overview
 
@@ -41,16 +41,16 @@ You **must use govendor** to fetch Hugo's dependencies.
 ## Fetch the Sources
 
     go get github.com/kardianos/govendor
-    govendor get github.com/spf13/hugo
+    govendor get github.com/gohugoio/hugo
 
 ## Running Hugo
 
-    cd $HOME/go/src/github.com/spf13/hugo
+    cd $HOME/go/src/github.com/gohugoio/hugo
     go run main.go
 
 ## Building Hugo
 
-    cd $HOME/go/src/github.com/spf13/hugo
+    cd $HOME/go/src/github.com/gohugoio/hugo
     make build
     # or to install to $HOME/go/bin:
     make install
@@ -100,11 +100,11 @@ Check a last time that everything works as expected. Start Hugo's built-in serve
 
     hugo server
 
-If everything looks fine, we are ready to commit your additions. For the sake of best practices, please make sure that your commit follows our [code contribution guideline](https://github.com/spf13/hugo#code-contribution-guideline).
+If everything looks fine, we are ready to commit your additions. For the sake of best practices, please make sure that your commit follows our [code contribution guideline](https://github.com/gohugoio/hugo#code-contribution-guideline).
 
     git commit -m"docs: Add example.com to the showcase"
 
-Last but not least, we're ready to create a [pull request](https://github.com/spf13/hugo/compare).
+Last but not least, we're ready to create a [pull request](https://github.com/gohugoio/hugo/compare).
 
 Don't forget to accept the contributor license agreement. Click on the yellow badge in the automatically added comment in the pull request.
 

@@ -15,7 +15,7 @@ weight: 20
 
 Hugo is written in [Go][] with support for multiple platforms.
 
-The latest release can be found at [Hugo Releases](https://github.com/spf13/hugo/releases).
+The latest release can be found at [Hugo Releases](https://github.com/gohugoio/hugo/releases).
 We currently provide pre-built binaries for
 <i class="fa fa-windows"></i>&nbsp;Windows,
 <i class="fa fa-linux"></i>&nbsp;Linux,
@@ -28,7 +28,7 @@ Hugo may also be compiled from source wherever the Go compiler tool chain can ru
 ## Installing Hugo (binary)
 
 Installation is very easy. Simply download the appropriate version for your
-platform from [Hugo Releases](https://github.com/spf13/hugo/releases).
+platform from [Hugo Releases](https://github.com/gohugoio/hugo/releases).
 Once downloaded it can be run from anywhere. You don't need to install
 it into a global location. This works well for shared hosts and other systems
 where you don't have a privileged account.
@@ -97,7 +97,7 @@ In any of the [Linux distributions that support snaps](http://snapcraft.io/docs/
     snap install hugo
 
 > Note: Hugo-as-a-snap can write only inside the user’s `$HOME` directory—and gvfs-mounted directories owned by the user—because of Snaps’ confinement and security model.
-> More information is also available [in this related GitHub issue](https://github.com/spf13/hugo/issues/3143).
+> More information is also available [in this related GitHub issue](https://github.com/gohugoio/hugo/issues/3143).
 
 ## Installing from source
 
@@ -116,10 +116,10 @@ You **must use govendor** to fetch Hugo's dependencies.
 ### Fetch from GitHub
 
     go get github.com/kardianos/govendor
-    govendor get github.com/spf13/hugo
+    govendor get github.com/gohugoio/hugo
 
 `govendor get` will fetch Hugo and all its dependent libraries to
-`$HOME/go/src/github.com/spf13/hugo`, and compile everything into a final `hugo`
+`$HOME/go/src/github.com/gohugoio/hugo`, and compile everything into a final `hugo`
 (or `hugo.exe`) executable, which you will find sitting inside
 `$HOME/go/bin/`, all ready to go!
 

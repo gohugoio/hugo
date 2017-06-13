@@ -54,5 +54,5 @@ Some examples for the layout files above:
 **Note:** An Ace template without a reference to a base section, e.g. `= content`, will be handled as a standalone template.
 
 
-[^ace-theme]: Note that the `html` suffix is needed, even if the filename is suffixed `ace`. This does not work from inside a theme, see [issue 763](https://github.com/spf13/hugo/issues/763).
+[^ace-theme]: Note that the `html` suffix is needed, even if the filename is suffixed `ace`. This does not work from inside a theme, see [issue 763](https://github.com/gohugoio/hugo/issues/763).
 

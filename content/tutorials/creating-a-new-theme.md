@@ -422,7 +422,7 @@ All that's left is to add some content, as well as a theme to display it.
 
 Hugo doesn't ship with a default theme. However, a large number of themes
 are easily available: for example, at
-[hugoThemes](https://github.com/spf13/hugoThemes).
+[hugoThemes](https://github.com/gohugoio/hugoThemes).
 Also, Hugo comes with a command to generate them.
 
 We're going to generate a new theme called Zafta.
