@@ -16,8 +16,8 @@ package hugolib
 import (
 	"fmt"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/source"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/source"
 )
 
 func init() {

@@ -19,7 +19,7 @@ import (
 
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
-	"github.com/spf13/hugo/config"
+	"github.com/gohugoio/hugo/config"
 	jww "github.com/spf13/jwalterweatherman"
 )
 

@@ -20,7 +20,7 @@ import (
 
 	"fmt"
 
-	"github.com/spf13/hugo/output"
+	"github.com/gohugoio/hugo/output"
 )
 
 func TestPageTargetPath(t *testing.T) {

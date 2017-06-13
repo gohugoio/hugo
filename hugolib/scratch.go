@@ -18,7 +18,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/spf13/hugo/tpl/math"
+	"github.com/gohugoio/hugo/tpl/math"
 )
 
 // Scratch is a writable context used for stateful operations in Page/Node rendering.

@@ -23,11 +23,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/deps"
 	jww "github.com/spf13/jwalterweatherman"
 
-	"github.com/spf13/hugo/parser"
-	"github.com/spf13/hugo/source"
+	"github.com/gohugoio/hugo/parser"
+	"github.com/gohugoio/hugo/source"
 	"github.com/stretchr/testify/require"
 )
 

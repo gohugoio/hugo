@@ -29,8 +29,8 @@ import (
 	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
-	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/config"
+	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/config"
 	jww "github.com/spf13/jwalterweatherman"
 
 	"strings"

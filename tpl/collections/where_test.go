@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/deps"
 )
 
 func TestWhere(t *testing.T) {

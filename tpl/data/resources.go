@@ -22,8 +22,8 @@ import (
 	"time"
 
 	"github.com/spf13/afero"
-	"github.com/spf13/hugo/config"
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
 )
 

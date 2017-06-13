@@ -5,11 +5,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/spf13/hugo/config"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/output"
-	"github.com/spf13/hugo/tpl"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
 )
 

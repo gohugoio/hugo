@@ -24,15 +24,15 @@ import (
 
 	"os"
 
-	"github.com/spf13/hugo/output"
+	"github.com/gohugoio/hugo/output"
 
 	"path/filepath"
 	"sync"
 
 	"github.com/spf13/afero"
-	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/tpl"
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/tpl"
 )
 
 const (

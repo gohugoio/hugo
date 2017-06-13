@@ -22,7 +22,7 @@ import (
 	"log"
 
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
-	"github.com/spf13/hugo/config"
+	"github.com/gohugoio/hugo/config"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"

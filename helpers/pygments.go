@@ -24,8 +24,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/hugo/config"
-	"github.com/spf13/hugo/hugofs"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 )
 

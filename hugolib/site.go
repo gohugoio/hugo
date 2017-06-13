@@ -28,9 +28,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spf13/hugo/config"
+	"github.com/gohugoio/hugo/config"
 
-	"github.com/spf13/hugo/media"
+	"github.com/gohugoio/hugo/media"
 
 	"github.com/bep/inflect"
 
@@ -39,14 +39,14 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/output"
-	"github.com/spf13/hugo/parser"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tpl"
-	"github.com/spf13/hugo/transform"
+	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/parser"
+	"github.com/gohugoio/hugo/source"
+	"github.com/gohugoio/hugo/tpl"
+	"github.com/gohugoio/hugo/transform"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 )

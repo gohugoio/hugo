@@ -19,7 +19,7 @@ package releaser
 import (
 	"testing"
 
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/stretchr/testify/require"
 )
 

@@ -20,8 +20,8 @@ import (
 	"sync"
 	texttemplate "text/template"
 
-	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/deps"
+	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/deps"
 )
 
 var TestTemplateProvider deps.ResourceProvider

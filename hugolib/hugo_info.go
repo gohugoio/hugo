@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"html/template"
 
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 var (

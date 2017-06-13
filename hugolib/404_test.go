@@ -18,7 +18,7 @@ import (
 
 	"testing"
 
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/deps"
 )
 
 func Test404(t *testing.T) {

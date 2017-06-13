@@ -1,6 +1,6 @@
 # A Self-Documenting Makefile: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 
-PACKAGE = github.com/spf13/hugo
+PACKAGE = github.com/gohugoio/hugo
 COMMIT_HASH = `git rev-parse --short HEAD 2>/dev/null`
 BUILD_DATE = `date +%FT%T%z`
 LDFLAGS = -ldflags "-X ${PACKAGE}/hugolib.CommitHash=${COMMIT_HASH} -X ${PACKAGE}/hugolib.BuildDate=${BUILD_DATE}"

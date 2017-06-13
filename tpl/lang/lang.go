@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/deps"
 )
 
 // New returns a new instance of the lang-namespaced template functions.

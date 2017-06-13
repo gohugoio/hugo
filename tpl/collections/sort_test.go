@@ -17,7 +17,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/deps"
 )
 
 func TestSort(t *testing.T) {

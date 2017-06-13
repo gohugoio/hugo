@@ -17,7 +17,7 @@ import (
 	"html/template"
 
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 // New returns a new instance of the safe-namespaced template functions.

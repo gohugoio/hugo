@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/tpl/compare"
+	"github.com/gohugoio/hugo/tpl/compare"
 )
 
 var comp = compare.New()

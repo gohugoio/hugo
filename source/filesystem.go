@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
 	"golang.org/x/text/unicode/norm"
 )

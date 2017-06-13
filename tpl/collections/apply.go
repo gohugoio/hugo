@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/spf13/hugo/tpl"
+	"github.com/gohugoio/hugo/tpl"
 )
 
 // Apply takes a map, array, or slice and returns a new slice with the function fname applied over it.

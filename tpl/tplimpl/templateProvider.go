@@ -14,7 +14,7 @@
 package tplimpl
 
 import (
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/deps"
 )
 
 type TemplateProvider struct{}

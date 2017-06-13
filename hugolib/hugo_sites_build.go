@@ -19,7 +19,7 @@ import (
 	"errors"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 // Build builds all sites. If filesystem events are provided,

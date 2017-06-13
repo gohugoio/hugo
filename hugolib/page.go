@@ -22,9 +22,9 @@ import (
 	"github.com/bep/gitmap"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/output"
-	"github.com/spf13/hugo/parser"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/parser"
 
 	"html/template"
 	"io"
@@ -37,8 +37,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/spf13/cast"
-	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/source"
+	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/source"
 )
 
 var (

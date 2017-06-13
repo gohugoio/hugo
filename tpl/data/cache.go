@@ -19,8 +19,8 @@ import (
 	"sync"
 
 	"github.com/spf13/afero"
-	"github.com/spf13/hugo/config"
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 var cacheMu sync.RWMutex

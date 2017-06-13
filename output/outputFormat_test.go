@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/spf13/hugo/media"
+	"github.com/gohugoio/hugo/media"
 	"github.com/stretchr/testify/require"
 )
 

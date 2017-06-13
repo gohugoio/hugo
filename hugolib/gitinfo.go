@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	"github.com/bep/gitmap"
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 func (h *HugoSites) assembleGitInfo() {

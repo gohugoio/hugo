@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	radix "github.com/hashicorp/go-immutable-radix"
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 // Deprecated: Use .Site.Home.Sections.

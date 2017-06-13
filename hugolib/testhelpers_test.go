@@ -10,12 +10,12 @@ import (
 	"strings"
 
 	"github.com/spf13/afero"
-	"github.com/spf13/hugo/config"
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/deps"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tpl"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/source"
+	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/viper"
 
 	"io/ioutil"
@@ -23,7 +23,7 @@ import (
 
 	"log"
 
-	"github.com/spf13/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/stretchr/testify/require"
 )

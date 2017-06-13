@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/spf13/hugo/config"
+	"github.com/gohugoio/hugo/config"
 
 	"github.com/spf13/cast"
 )

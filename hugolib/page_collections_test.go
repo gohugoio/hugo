@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/deps"
 	"github.com/stretchr/testify/require"
 )
 

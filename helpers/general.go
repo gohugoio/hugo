@@ -27,7 +27,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/spf13/cast"
-	bp "github.com/spf13/hugo/bufferpool"
+	bp "github.com/gohugoio/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/pflag"
 )

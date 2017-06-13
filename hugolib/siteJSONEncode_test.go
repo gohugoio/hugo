@@ -19,7 +19,7 @@ import (
 
 	"path/filepath"
 
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/deps"
 )
 
 // Issue #1123

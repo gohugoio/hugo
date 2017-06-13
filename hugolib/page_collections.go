@@ -17,7 +17,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/spf13/hugo/cache"
+	"github.com/gohugoio/hugo/cache"
 )
 
 // PageCollections contains the page collections for a site.

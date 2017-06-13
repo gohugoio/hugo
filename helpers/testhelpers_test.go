@@ -3,7 +3,7 @@ package helpers
 import (
 	"github.com/spf13/viper"
 
-	"github.com/spf13/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugofs"
 )
 
 func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *PathSpec {

@@ -18,11 +18,11 @@ import (
 	"path"
 	"sync"
 
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/spf13/hugo/output"
+	"github.com/gohugoio/hugo/output"
 
-	bp "github.com/spf13/hugo/bufferpool"
+	bp "github.com/gohugoio/hugo/bufferpool"
 )
 
 // renderPages renders pages each corresponding to a markdown file.

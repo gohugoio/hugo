@@ -18,10 +18,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/spf13/hugo/config"
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 type SourceSpec struct {

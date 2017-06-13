@@ -24,7 +24,7 @@ import (
 	_ "image/png"
 
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/deps"
 )
 
 // New returns a new instance of the images-namespaced template functions.

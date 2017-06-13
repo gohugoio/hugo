@@ -25,7 +25,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 const commitPrefix = "releaser:"

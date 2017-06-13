@@ -19,8 +19,8 @@ import (
 	"strings"
 	texttemplate "text/template"
 
-	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/deps"
+	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/deps"
 )
 
 // Some of the template funcs are'nt entirely stateless.

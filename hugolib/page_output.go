@@ -19,10 +19,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/spf13/hugo/media"
+	"github.com/gohugoio/hugo/media"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/output"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/output"
 )
 
 // PageOutput represents one of potentially many output formats of a given

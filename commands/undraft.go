@@ -20,7 +20,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/hugo/parser"
+	"github.com/gohugoio/hugo/parser"
 )
 
 var undraftCmd = &cobra.Command{

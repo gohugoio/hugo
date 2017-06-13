@@ -31,7 +31,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/spf13/hugo/deps"
+	"github.com/gohugoio/hugo/deps"
 )
 
 var TemplateFuncsNamespaceRegistry []func(d *deps.Deps) *TemplateFuncsNamespace
