@@ -208,3 +208,7 @@ func writeSourcesToSource(t *testing.T, base string, fs *hugofs.Fs, sources ...s
 		writeSource(t, fs, filepath.Join(base, src.Name), string(src.Content))
 	}
 }
+
+func isCI() bool {
+	return os.Getenv("CI") != ""
+}

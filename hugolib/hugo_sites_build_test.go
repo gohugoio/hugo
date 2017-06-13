@@ -392,8 +392,10 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 func TestMultiSitesRebuild(t *testing.T) {
 	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
-	defer leaktest.CheckTimeout(t, 30*time.Second)()
-
+	// This leaktest seems to be a little bit shaky on Travis.
+	if !isCI() {
+		defer leaktest.CheckTimeout(t, 30*time.Second)()
+	}
 	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: true}
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
 	fs := sites.Fs
