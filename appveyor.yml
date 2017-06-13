@@ -5,7 +5,7 @@ init:
   - go env
 
 # clones and cd's to path
-clone_folder: C:\GOPATH\src\github.com\spf13\hugo
+clone_folder: C:\GOPATH\src\github.com\gohugoio\hugo
 
 install:
   - gem install asciidoctor
