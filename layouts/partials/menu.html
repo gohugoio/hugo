@@ -31,7 +31,7 @@
           {{end}}
             <li> <a href="https://github.com/gohugoio/hugo/issues" target="blank"><i class='fa fa-life-ring'></i> <span>Issues & Help</span></a> </li>
             {{ if .IsPage }}
-            {{ $File := .File }}  {{with $File.Path }}<li><a href="https://github.com/gohugoio/hugo/edit/master/docs/content/{{ $File.Dir }}{{ $File.LogicalName }}" target="blank"><i class='fa fa-edit'></i> Refine this Page</a> </li>{{end}}
+            {{ $File := .File }}  {{with $File.Path }}<li><a href="https://github.com/gohugoio/hugoDocs/edit/master/content/{{ $File.Dir }}{{ $File.LogicalName }}" target="blank"><i class='fa fa-edit'></i> Refine this Page</a> </li>{{end}}
             {{ end }}
         </ul>
         <!-- sidebar menu end-->
