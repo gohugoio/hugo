@@ -1,4 +1,11 @@
 [[tweet]]
+name = "STOQE"
+twitter_handle = "@STOQE"
+quote = "I fear <a href='https://twitter.com/gohugoio' target='_blank'>@GoHugoIO</a> v0.22 might be so fast it creates a code vortex that time-warps me back to a time I used Wordpress. <a href='https://twitter.com/hashtag/gasp?src=hash'>#gasp</a>"
+link = "https://twitter.com/spcrngr_/status/870863020905435136"
+date = 2017-06-12T00:00:00Z
+
+[[tweet]]
 name = "Christophe Diericx"
 twitter_handle = "@spcrngr_"
 quote = "The more I use <a href='https://gohugo.io' target='_blank'>gohugo.io</a>, the more I really like it. Super intuitive/powerful static site generator...great job <a href='https://twitter.com/gohugoio' target='_blank'>@GoHugoIO</a>"
