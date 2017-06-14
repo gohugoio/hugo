@@ -171,7 +171,7 @@ Hugo will now also detect the media type and output format of partials, if possi
 
 Hugo will look for the name given, so you can name it whatever you want. But if you want it treated as plain text, you should use the file suffix and, if needed, the name of the Output Format (`[partial name].[OutputFormat].[suffix])`.
 
-The partial below is a plain text template (Outpuf Format is `CSV`, and since this is the only output format with the suffix `csv`, we don't need to include the Output Format's `Name`):
+The partial below is a plain text template (Output Format is `CSV`, and since this is the only output format with the suffix `csv`, we don't need to include the Output Format's `Name`):
 
 ```
 {{ partial "mytextpartial.csv" . }}
