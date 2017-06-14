@@ -15,8 +15,6 @@ install:
   - make vendor
 script:
   - make hugo-race check
-  - ./hugo -s docs/
-  - ./hugo --renderToMemory -s docs/
 before_install:
   # gem install must be run with sudo on OSX
   - sudo gem install asciidoctor | gem install asciidoctor
