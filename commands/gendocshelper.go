@@ -41,7 +41,9 @@ func createGenDocsHelper() *genDocsHelper {
 		return g.generate()
 	}
 
-	g.cmd.PersistentFlags().StringVarP(&g.target, "dir", "", "docs/data", "data dir")
+	// Note that ./docs is a submodule, and writing to that would be suboptimal.
+	// Let us assume that the default is a sibling project.
+	g.cmd.PersistentFlags().StringVarP(&g.target, "dir", "", "../hugoDocs/data", "data dir")
 
 	return g
 }
