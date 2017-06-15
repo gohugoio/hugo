@@ -31,7 +31,7 @@ stepAnalysis = true
 title = "Hugo"
 
 # Change this once you've created your theme
-theme = "gohugo-theme"
+theme = "gohugoioTheme"
 
 # Set to true to convert mysite/section/ to mysite/section.html
 uglyURLs = false

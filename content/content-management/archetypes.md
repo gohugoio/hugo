@@ -180,7 +180,7 @@ As an example of archetypes in practice, the following is the `functions` archet
 
 {{% code file="archetypes/functions.md" %}}
 ```yaml
-{{< readfile file="/themes/gohugo-theme/archetypes/functions.md" >}}
+{{< readfile file="/themes/gohugoioTheme/archetypes/functions.md" >}}
 ```
 {{% /code %}}
 
