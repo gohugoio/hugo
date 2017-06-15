@@ -15,7 +15,9 @@ package hugolib
 
 import (
 	"fmt"
+	"os"
 	"path"
+	"strings"
 	"sync"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -101,6 +103,36 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 				if err != nil {
 					s.Log.ERROR.Printf("Failed to resolve layout output %q for page %q: %s", outFormat.Name, page, err)
 					continue
+				}
+
+				atLeastOneLayoutThere := false
+
+				for _, layout := range layouts {
+					if strings.HasPrefix(layout, "_internal/") {
+						atLeastOneLayoutThere = true
+						break
+					}
+
+					// we just need to ensure that the file exists; we don't need to actually
+					// use the FileInfo
+					_, err := os.Stat(path.Join("layouts", layout))
+					if err != nil {
+						if os.IsNotExist(err) {
+							continue
+						}
+					}
+					atLeastOneLayoutThere = true
+					break
+				}
+
+				if !atLeastOneLayoutThere {
+					s.Log.FEEDBACK.Printf("No layout for %q found in the usual places.", page.URL())
+
+					if page.URL() == "/" || page.URL() == "/tags/" || page.URL() == "/categories/" {
+						s.Log.FEEDBACK.Printf("layouts for %q were: %q", page.URL(), layouts)
+					}
+				} else {
+					s.Log.FEEDBACK.Printf("Found a layout for %q", page.URL())
 				}
 			}
 
