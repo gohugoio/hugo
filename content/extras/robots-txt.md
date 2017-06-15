@@ -9,7 +9,7 @@ prev: /extras/crossreferences
 title: Custom robots.txt
 ---
 
-Hugo can generated a customized [robots.txt](http://www.robotstxt.org/) in the
+Hugo can generate a customized [robots.txt](http://www.robotstxt.org/) in the
 [same way as any other templates]({{< ref "templates/go-templates.md" >}}).
 
 To enable it, just set `enableRobotsTXT` option to `true` in the [configuration file]({{< ref "overview/configuration.md" >}}). By default, it generates a robots.txt, which allows everything, with the following content:
