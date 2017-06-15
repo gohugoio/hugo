@@ -128,7 +128,7 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	if r.shouldPrepareReleasenotes() {
-		releaseNotesFile, err := writeReleaseNotesToDocsTemp(version, gitCommits)
+		releaseNotesFile, err := writeReleaseNotesToTemp(version, gitCommits)
 		if err != nil {
 			return err
 		}
@@ -142,12 +142,23 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	if r.shouldPrepareVersions() {
+		// Make sure the docs submodule is up to date.
+		if _, err := git("submodule", "update", "--remote", "--merge"); err != nil {
+			return err
+		}
+		// TODO(bep) the above may not have changed anything.
+		if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Update /docs [ci skip]", commitPrefix)); err != nil {
+			return err
+		}
+
 		if err := bumpVersions(newVersion); err != nil {
 			return err
 		}
 
-		if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
-			return err
+		for _, repo := range []string{"docs", "."} {
+			if _, err := git("-C", repo, "commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -164,19 +175,29 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
-	if _, err := git("add", docFile); err != nil {
+	if _, err := git("-C", "docs", "add", docFile); err != nil {
 		return err
 	}
-	if _, err := git("commit", "-m", fmt.Sprintf("%s Add relase notes to /docs for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
-		return err
-	}
-
-	if _, err := git("tag", "-a", tag, "-m", fmt.Sprintf("%s %s [ci deploy]", commitPrefix, newVersion)); err != nil {
+	if _, err := git("-C", "docs", "commit", "-m", fmt.Sprintf("%s Add relase notes to /docs for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
 		return err
 	}
 
-	if _, err := git("push", "origin", tag); err != nil {
-		return err
+	for i, repo := range []string{"docs", "."} {
+		if i == 1 {
+			if _, err := git("add", "docs"); err != nil {
+				return err
+			}
+			if _, err := git("commit", "-m", fmt.Sprintf("%s Update /docs to %s [ci skip]", commitPrefix, newVersion)); err != nil {
+				return err
+			}
+		}
+		if _, err := git("-C", repo, "tag", "-a", tag, "-m", fmt.Sprintf("%s %s [ci deploy]", commitPrefix, newVersion)); err != nil {
+			return err
+		}
+
+		if _, err := git("-C", repo, "push", "origin", tag); err != nil {
+			return err
+		}
 	}
 
 	if err := r.release(releaseNotesFile); err != nil {
@@ -192,8 +213,10 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
-	if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Prepare repository for %s\n\n[ci skip]", commitPrefix, finalVersion)); err != nil {
-		return err
+	for _, repo := range []string{"docs", "."} {
+		if _, err := git("-C", repo, "commit", "-a", "-m", fmt.Sprintf("%s Prepare repository for %s\n\n[ci skip]", commitPrefix, finalVersion)); err != nil {
+			return err
+		}
 	}
 
 	return nil

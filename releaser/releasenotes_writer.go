@@ -160,7 +160,7 @@ func writeReleaseNotes(version string, infos gitInfos, to io.Writer) error {
 }
 
 func fetchThemeCount() (int, error) {
-	resp, err := http.Get("https://github.com/gohugoio/hugoThemes/blob/master/.gitmodules")
+	resp, err := http.Get("https://raw.githubusercontent.com/gohugoio/hugoThemes/master/.gitmodules")
 	if err != nil {
 		return 0, err
 	}
@@ -186,14 +186,14 @@ func writeReleaseNotesToTmpFile(version string, infos gitInfos) (string, error) 
 }
 
 func getRelaseNotesDocsTempDirAndName(version string) (string, string) {
-	return hugoFilepath("docs/temp"), fmt.Sprintf("%s-relnotes.md", version)
+	return hugoFilepath("temp"), fmt.Sprintf("%s-relnotes.md", version)
 }
 
 func getRelaseNotesDocsTempFilename(version string) string {
 	return filepath.Join(getRelaseNotesDocsTempDirAndName(version))
 }
 
-func writeReleaseNotesToDocsTemp(version string, infos gitInfos) (string, error) {
+func writeReleaseNotesToTemp(version string, infos gitInfos) (string, error) {
 	docsTempPath, name := getRelaseNotesDocsTempDirAndName(version)
 	os.Mkdir(docsTempPath, os.ModePerm)
 

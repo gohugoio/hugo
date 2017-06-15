@@ -152,7 +152,7 @@ func git(args ...string) (string, error) {
 	cmd := exec.Command("git", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", fmt.Errorf("git failed: %q: %q", err, out)
+		return "", fmt.Errorf("git failed: %q: %q (%q)", err, out, args)
 	}
 	return string(out), nil
 }
