@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package create_test
+package create
 
 import (
 	"os"
@@ -27,12 +27,39 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/gohugoio/hugo/create"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
+
+func TestEnrichArchetype(t *testing.T) {
+
+	tests := []struct {
+		archetypeContent string
+		name             string
+		expected         string
+	}{
+		{
+			`+++
+draft = true
++++`,
+			"first",
+			`+++
+title = "First"
+draft = true
++++`},
+	}
+
+	for i, test := range tests {
+		got, err := enrichArchetype([]byte(test.archetypeContent), test.name)
+		require.NoError(t, err)
+
+		if string(got.FrontMatter()) != test.expected {
+			t.Fatalf("[%d] Expected %q, got %q", i, test.expected, got.FrontMatter())
+		}
+	}
+}
 
 func TestNewContent(t *testing.T) {
 	v := viper.New()
@@ -58,7 +85,7 @@ func TestNewContent(t *testing.T) {
 
 		s := h.Sites[0]
 
-		require.NoError(t, create.NewContent(s, c.kind, c.path))
+		require.NoError(t, NewContent(s, c.kind, c.path))
 
 		fname := filepath.Join("content", filepath.FromSlash(c.path))
 		content := readFileFromFs(t, fs.Source, fname)

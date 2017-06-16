@@ -266,13 +266,13 @@ func TestFormatToLeadRune(t *testing.T) {
 func TestDetectFrontMatter(t *testing.T) {
 	cases := []struct {
 		mark rune
-		want *FrontmatterType
+		want *FrontmatterParser
 	}{
 		// funcs are uncomparable, so we ignore FrontmatterType.Parse in these tests
-		{'-', &FrontmatterType{nil, []byte(YAMLDelim), []byte(YAMLDelim), false}},
-		{'+', &FrontmatterType{nil, []byte(TOMLDelim), []byte(TOMLDelim), false}},
-		{'{', &FrontmatterType{nil, []byte("{"), []byte("}"), true}},
-		{'#', &FrontmatterType{nil, []byte("#+"), []byte("\n"), false}},
+		{'-', &FrontmatterParser{nil, []byte(YAMLDelim), []byte(YAMLDelim), false}},
+		{'+', &FrontmatterParser{nil, []byte(TOMLDelim), []byte(TOMLDelim), false}},
+		{'{', &FrontmatterParser{nil, []byte("{"), []byte("}"), true}},
+		{'#', &FrontmatterParser{nil, []byte("#+"), []byte("\n"), false}},
 		{'$', nil},
 	}
 

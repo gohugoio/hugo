@@ -26,8 +26,18 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type FrontmatterType int
+
+const (
+	YAML FrontmatterType = iota
+	TOML
+	JSON
+	ORG
+	UNKNOWN
+)
+
 // FrontmatterType represents a type of frontmatter.
-type FrontmatterType struct {
+type FrontmatterParser struct {
 	// Parse decodes content into a Go interface.
 	Parse func([]byte) (interface{}, error)
 
@@ -148,17 +158,32 @@ func FormatSanitize(kind string) string {
 	}
 }
 
-// DetectFrontMatter detects the type of frontmatter analysing its first character.
-func DetectFrontMatter(mark rune) (f *FrontmatterType) {
+func detectFrontmatterType(mark rune) FrontmatterType {
 	switch mark {
 	case '-':
-		return &FrontmatterType{HandleYAMLMetaData, []byte(YAMLDelim), []byte(YAMLDelim), false}
+		return YAML
 	case '+':
-		return &FrontmatterType{HandleTOMLMetaData, []byte(TOMLDelim), []byte(TOMLDelim), false}
+		return TOML
 	case '{':
-		return &FrontmatterType{HandleJSONMetaData, []byte{'{'}, []byte{'}'}, true}
+		return JSON
 	case '#':
-		return &FrontmatterType{HandleOrgMetaData, []byte("#+"), []byte("\n"), false}
+		return ORG
+	default:
+		return UNKNOWN
+	}
+}
+
+// DetectFrontMatter detects the type of frontmatter analysing its first character.
+func DetectFrontMatter(mark rune) (f *FrontmatterParser) {
+	switch detectFrontmatterType(mark) {
+	case YAML:
+		return &FrontmatterParser{HandleYAMLMetaData, []byte(YAMLDelim), []byte(YAMLDelim), false}
+	case TOML:
+		return &FrontmatterParser{HandleTOMLMetaData, []byte(TOMLDelim), []byte(TOMLDelim), false}
+	case JSON:
+		return &FrontmatterParser{HandleJSONMetaData, []byte{'{'}, []byte{'}'}, true}
+	case ORG:
+		return &FrontmatterParser{HandleOrgMetaData, []byte("#+"), []byte("\n"), false}
 	default:
 		return nil
 	}

@@ -35,7 +35,7 @@ import (
 func NewContent(s *hugolib.Site, kind, name string) (err error) {
 	jww.INFO.Println("attempting to create ", name, "of", kind)
 
-	location := FindArchetype(s, kind)
+	location := findArchetype(s, kind)
 
 	var by []byte
 
@@ -93,6 +93,21 @@ func NewContent(s *hugolib.Site, kind, name string) (err error) {
 	return nil
 }
 
+func enrichArchetype(archetype []byte, name string) (parser.Page, error) {
+	p, err := parser.ReadFrom(bytes.NewReader(archetype))
+	if err != nil {
+		return nil, err
+	}
+
+	/*archMeta, err := p.Frontmatter()
+	if err != nil {
+		return nil, err
+	}*/
+
+	return p, nil
+}
+
+// TODO(bep) archetype remove
 // createMetadata generates Metadata for a new page based upon the metadata
 // found in an archetype.
 func createMetadata(archetype parser.Page, name string) (map[string]interface{}, error) {
@@ -142,10 +157,10 @@ func createMetadata(archetype parser.Page, name string) (map[string]interface{},
 	return metadata, nil
 }
 
-// FindArchetype takes a given kind/archetype of content and returns an output
+// findArchetype takes a given kind/archetype of content and returns an output
 // path for that archetype.  If no archetype is found, an empty string is
 // returned.
-func FindArchetype(s *hugolib.Site, kind string) (outpath string) {
+func findArchetype(s *hugolib.Site, kind string) (outpath string) {
 	search := []string{s.PathSpec.AbsPathify(s.Cfg.GetString("archetypeDir"))}
 
 	if s.Cfg.GetString("theme") != "" {
