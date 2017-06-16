@@ -204,6 +204,11 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
+	// We make changes to the submodule, which is in detached state. Reconsider this
+	// to get changes pushed to both.
+	// TODO(bep) git fetch git@github.com:gohugoio/hugoDocs.git -- master
+	// git branch -f master 8c9359b
+
 	if err := r.release(releaseNotesFile); err != nil {
 		return err
 	}
