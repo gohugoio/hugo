@@ -195,7 +195,11 @@ func (r *ReleaseHandler) Run() error {
 			return err
 		}
 
-		if _, err := git("-C", repo, "push", "origin", tag); err != nil {
+		repoURL := "git@github.com:gohugoio/hugo.git"
+		if i == 0 {
+			repoURL = "git@github.com:gohugoio/hugoDocs.git"
+		}
+		if _, err := git("-C", repo, "push", repoURL, "origin/master", tag); err != nil {
 			return err
 		}
 	}
