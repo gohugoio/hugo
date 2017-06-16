@@ -56,6 +56,9 @@ you need to install the Python-based Pygments program. The procedure is outlined
 Upgrading Hugo is as easy as downloading and replacing the executable you’ve
 placed in your `PATH`.
 
+On macOS, if you have [Homebrew](http://brew.sh/), upgrading is even
+easier: just run `brew upgrade hugo`.
+
 ## Installing Hugo on Linux from native packages
 
 ### Arch Linux
