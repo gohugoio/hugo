@@ -38,7 +38,7 @@ pluralizeListTitles = false
 [[menu.main]]
     name = "Discuss Hugo"
     pre = "<i class='fa fa-comments'></i>"
-    url = "http://discuss.gohugo.io/"
+    url = "https://discourse.gohugo.io/"
     weight = -150
 [[menu.main]]
     name = "About Hugo"
@@ -93,7 +93,7 @@ pluralizeListTitles = false
 [[menu.main]]
     parent = "community"
     name = "Discussion Forum"
-    url = "http://discuss.gohugo.io"
+    url = "https://discourse.gohugo.io/"
     weight = 150
 [[menu.main]]
     name = "Tutorials"
