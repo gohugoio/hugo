@@ -13,7 +13,7 @@ title: Contributing to Hugo
 weight: 30
 ---
 
-All contributions to Hugo are welcome. Whether you want to scratch an itch or simply contribute to the project, feel free to pick something from the [roadmap]({{< relref "meta/roadmap.md" >}}) or contact the dev team via the [Forums](https://discuss.gohugo.io/) or [Gitter](https://gitter.im/gohugoio/hugo) about what may make sense to do next.
+All contributions to Hugo are welcome. Whether you want to scratch an itch or simply contribute to the project, feel free to pick something from the [roadmap]({{< relref "meta/roadmap.md" >}}) or contact the dev team via the [Forums](https://discourse.gohugo.io/) or [Gitter](https://gitter.im/gohugoio/hugo) about what may make sense to do next.
 
 You should fork the project and make your changes.  *We encourage pull requests to discuss code changes.*
 

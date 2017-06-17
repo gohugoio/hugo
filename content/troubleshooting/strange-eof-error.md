@@ -27,8 +27,8 @@ weight: 5
 
 Thank you for reporting this issue.  The solution is to add a final newline (i.e. EOL) to the end of your default.md archetype file of your theme.  More discussions happened on the forum here:
 
-* http://discuss.gohugo.io/t/archetypes-not-properly-working-in-0-12/544
-* http://discuss.gohugo.io/t/eol-f-in-archetype-files/554
+* https://discourse.gohugo.io/t/archetypes-not-properly-working-in-0-12/544
+* https://discourse.gohugo.io/t/eol-f-in-archetype-files/554
 
 Due to popular demand, Hugo's parser has been enhanced to
 accommodate archetype files without final EOL,

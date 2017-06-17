@@ -95,5 +95,5 @@ It is in early development but shows promise. If you have interest, please help 
 
 ## Discourse
 
-Additionally, you may recognize [Discourse](http://www.discourse.org) as the system that powers the [Hugo Discussion Forum](http://discuss.gohugo.io).
+Additionally, you may recognize [Discourse](http://www.discourse.org) as the system that powers the [Hugo Discussion Forum](https://discourse.gohugo.io).
 

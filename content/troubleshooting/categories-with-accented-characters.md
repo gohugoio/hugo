@@ -39,7 +39,7 @@ Please make sure you have the latest version rsync 3.x installed.  The rsync tha
 
 ### References
 
-* http://discuss.gohugo.io/t/categories-with-accented-characters/505
+* https://discourse.gohugo.io/t/categories-with-accented-characters/505
 * [Converting UTF-8 NFD filenames to UTF-8 NFC, in either rsync or afpd](http://serverfault.com/questions/397420/converting-utf-8-nfd-filenames-to-utf-8-nfc-in-either-rsync-or-afpd) (Server Fault)
 * http://wiki.apache.org/subversion/NonNormalizingUnicodeCompositionAwareness
 * https://en.wikipedia.org/wiki/Unicode_equivalence#Example

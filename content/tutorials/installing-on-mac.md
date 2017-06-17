@@ -98,7 +98,7 @@ Hugo Static Site Generator v0.13 BuildDate: 2015-03-09T21:34:47-05:00
 You've installed Hugo. Now you need to set up your site. Read the
 [Quickstart guide](/overview/quickstart/), explore the rest of the
 documentation, and if you still have questions
-[just ask!](http://discuss.gohugo.io/ "Discussion forum")
+[just ask!](https://discourse.gohugo.io/ "Discussion forum")
 
 ## From Tarball
 
@@ -188,7 +188,7 @@ Close the terminal and then open a new terminal to pick up the changes to your p
 You've installed Hugo. Now you need to set up your site. Read the
 [Quickstart guide](/overview/quickstart/), explore the rest of the
 documentation, and if you still have questions
-[just ask!](http://discuss.gohugo.io/ "Discussion forum")
+[just ask!](https://discourse.gohugo.io/ "Discussion forum")
 
 ## Building from Source
 

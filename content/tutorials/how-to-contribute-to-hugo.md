@@ -16,7 +16,7 @@ Hugo is an open source project and lives by the work of its [contributors](https
 
 This tutorial is intended for people who are new to Git, GitHub or open source projects in general. It should help to overcome most of the barriers that newcomers encounter. It describes step by step what you need to do.
 
-For any kind of questions please take a look at our [forum](https://discuss.gohugo.io/).
+For any kind of questions please take a look at our [forum](https://discourse.gohugo.io/).
 
 ## Install Go
 

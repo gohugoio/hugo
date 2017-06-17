@@ -17,7 +17,7 @@ In no particular order, here is what we are working on:
  * Intelligently related posts ([#98][])
  * Even easier deployment to S3, SSH, GitHub, rsync. Give the [tools section](https://gohugo.io/tools/#deployment) a shot or read one of the related tutorials.
  * Import from other website systems. There are already existing [migration tools](https://gohugo.io/tools/#migration) but they don't cover all major platforms.
- * An interactive web based editor (See https://discuss.gohugo.io/t/web-based-editor/155)
+ * An interactive web based editor (See https://discourse.gohugo.io/t/web-based-editor/155)
  * Additional [themes](https://github.com/gohugoio/hugoThemes) (always on-going, contributions welcome!)
  * Dynamic image resizing via shortcodes ([#1014][])
  * Native support for additional content formats (AsciiDoc [#1435][], reST [#1436][])

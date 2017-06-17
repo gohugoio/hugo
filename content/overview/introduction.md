@@ -194,4 +194,4 @@ as I have writing it.
  * [Quick start](/overview/quickstart/)
  * [Join the Mailing List](/community/mailing-list/)
  * [Star us on GitHub](https://github.com/gohugoio/hugo)
- * [Discussion Forum](http://discuss.gohugo.io/)
+ * [Discussion Forum](https://discourse.gohugo.io/)
