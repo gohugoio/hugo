@@ -115,6 +115,16 @@ func (p *page) Metadata() (meta interface{}, err error) {
 	return
 }
 
+func (p *page) FrontmatterType() FrontmatterType {
+	frontmatter := p.FrontMatter()
+
+	if len(frontmatter) != 0 {
+		return detectFrontmatterType(rune(frontmatter[0]))
+	}
+
+	return UNKNOWN
+}
+
 // ReadFrom reads the content from an io.Reader and constructs a page.
 func ReadFrom(r io.Reader) (p Page, err error) {
 	reader := bufio.NewReader(r)
