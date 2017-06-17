@@ -76,7 +76,7 @@ It is in early development but shows promise. If you have interest, please help 
 [configuration]: /getting-started/configuration/
 [disquspartial]: /templates/partials/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
-[forum]: https://discuss.gohugo.io
+[forum]: https://discourse.gohugo.io
 [front matter]: /content-management/front-matter/
 [Graph Comment]: https://graphcomment.com/
 [kaijuissue]: https://github.com/spf13/kaiju/issues/new

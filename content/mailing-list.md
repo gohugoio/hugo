@@ -15,7 +15,7 @@ toc: false
 
 ## Discussion Forum
 
-Hugo has its own [discussion forum](http://discuss.gohugo.io/) powered by [Discourse](http://www.discourse.org/).
+Hugo has its own [discussion forum](http://discourse.gohugo.io/) powered by [Discourse](http://www.discourse.org/).
 
 Please use this for all discussions, questions, etc.
 
@@ -32,7 +32,7 @@ Very low traffic. Only releases will be emailed here.
 ### Discussion Forum (Archived)
 
 {{% note %}}
-This has been replaced with the [Hugo discussion forum](http://discuss.gohugo.io/) and is available for archival purposes only.
+This has been replaced with the [Hugo discussion forum](http://discourse.gohugo.io/) and is available for archival purposes only.
 {{% /note %}}
 
 You can find the old Hugo discussion forum at <https://groups.google.com/forum/#!forum/hugo-discuss>.

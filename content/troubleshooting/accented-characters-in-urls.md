@@ -49,7 +49,7 @@ Please make sure you have the latest version of rsync 3.x installed. The rsync t
 
 ### Discussion Forum References
 
-* http://discuss.gohugo.io/t/categories-with-accented-characters/505
+* http://discourse.gohugo.io/t/categories-with-accented-characters/505
 * http://wiki.apache.org/subversion/NonNormalizingUnicodeCompositionAwareness
 * https://en.wikipedia.org/wiki/Unicode_equivalence#Example
 * http://zaiste.net/2012/07/brand_new_rsync_for_osx/

@@ -197,7 +197,7 @@ layout: mylayout
 ---
 ```
 {{% /code %}}
-<!-- See https://discuss.gohugo.io/t/path-not-works/6387 -->
+<!-- See https://discourse.gohugo.io/t/path-not-works/6387 -->
 <!-- ### `path`
 
 `path` can be provided in the front matter. This will replace the actual path to the file on disk. Destination will create the destination with the same path, including the section. -->

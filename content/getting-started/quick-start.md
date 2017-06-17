@@ -566,7 +566,7 @@ Here's what you should look into next:
 [configuration]: /getting-started/configuration/
 [createtheme]: /themes/creating/
 [datatemplates]: /templates/data-templates/
-[forum]: https://discuss.gohugo.io
+[forum]: https://discourse.gohugo.io
 [fm]: /content-management/front-matter/
 [hostinganddeploy]: /hosting-and-deployment/
 [hugodirectories]: /getting-started/directory-structure/

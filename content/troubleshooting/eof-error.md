@@ -41,8 +41,8 @@ As of v0.13, Hugo's parser has been enhanced to accommodate archetype files with
 
 ## Discussion Forum References
 
-* http://discuss.gohugo.io/t/archetypes-not-properly-working-in-0-12/544
-* http://discuss.gohugo.io/t/eol-f-in-archetype-files/554
+* http://discourse.gohugo.io/t/archetypes-not-properly-working-in-0-12/544
+* http://discourse.gohugo.io/t/eol-f-in-archetype-files/554
 
 ## Related Hugo Issues
 

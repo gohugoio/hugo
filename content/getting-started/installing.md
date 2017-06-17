@@ -482,7 +482,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [Chocolatey]: https://chocolatey.org/
 [content]: /content-management/
 [@dhersam]: https://github.com/dhersam
-[forum]: https://discuss.gohugo.io
+[forum]: https://discourse.gohugo.io
 [govendor]: https://github.com/kardianos/govendor
 [highlight shortcode]: /content-management/shortcodes/#highlight
 [installgit]: http://git-scm.com/
@@ -490,7 +490,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [Path Editor]: https://patheditor2.codeplex.com/
 [pygments]: https://pygments.org
 [quickstart]: /getting-started/quick-start/
-[redhatforum]: https://discuss.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
+[redhatforum]: https://discourse.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
 [releases]: https://github.com/gohugoio/hugo/releases
 [snaps]: http://snapcraft.io/docs/core/install
 [windowsarch]: https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx

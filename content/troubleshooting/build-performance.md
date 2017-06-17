@@ -18,6 +18,6 @@ toc: true
 wip: true
 ---
 
-<!-- See https://discuss.gohugo.io/t/new-docs-site-need-feedback/5765/6-->
+<!-- See https://discourse.gohugo.io/t/new-docs-site-need-feedback/5765/6-->
 
 <!-- Lots of forums threads that give the same answers. Should call attention to --verbose, --stepAnalysis, and --renderToMemory (for troubleshooting disk I/O). Highlight partialCached template function. -->

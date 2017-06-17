@@ -109,7 +109,7 @@ Hugo assumes you want to append `nd` as a string to the day of the month and out
 Mar 3nd 2017
 ```
 
-<!-- Content idea: see https://discuss.gohugo.io/t/formatting-a-date-with-suffix-2nd/5701 -->
+<!-- Content idea: see https://discourse.gohugo.io/t/formatting-a-date-with-suffix-2nd/5701 -->
 
 ### Using `.Local` and `.UTC`
 

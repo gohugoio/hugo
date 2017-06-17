@@ -8,7 +8,7 @@ This is *not* a new theme or skin for the [current website](https://gohugo.io). 
 
 I originally posed a source reorganization of the current website in this Discuss thread in November 2016 here:
 
-<https://discuss.gohugo.io/t/proposed-source-organization-for-hugo-docs-concept/4506>
+<https://discourse.gohugo.io/t/proposed-source-organization-for-hugo-docs-concept/4506>
 
 I reorganized the docs content and realized it did very little to make the documentation more intelligible or intuitive.
 

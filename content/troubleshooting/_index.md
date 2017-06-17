@@ -23,4 +23,4 @@ The Troubleshooting section includes known issues, recent workarounds, and FAQs 
 
 
 
-[forum]: https://discuss.gohugo.io
+[forum]: https://discourse.gohugo.io
