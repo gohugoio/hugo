@@ -336,7 +336,7 @@ You'll need a place to store the Hugo executable, your [content][], and the gene
 
 Now you need to add Hugo to your Windows PATH settings:
 
-##### For Windows 10 Users:
+#### For Windows 10 Users:
 
 * Right click on the **Start** button.
 * Click on **System**.
