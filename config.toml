@@ -56,13 +56,13 @@ twitter = "GoHugoIO"
   ## This is used when the BaseURL does not need to modified (eg, in share links or in prerender, prefetch, etc to control for relativeURLs setting); do *not* include trailing slash
   siteaddress = "https://hugodocs.info"
   ## Gh repo for site footer (include trailing slash)
-  ghrepo = "https://github.com/spf13/hugo/"
+  ghrepo = "https://github.com/gohugoio/hugo/"
   ### Edit content repo (set to automatically enter "edit" mode; this is good for "improve this page" links)
-  ghdocsrepo = "https://github.com/spf13/hugo/tree/master/docs"
+  ghdocsrepo = "https://github.com/gohugoio/hugo/tree/master/docs"
   ## Gitter URL
   gitter = "https://gitter.im/spf13/hugo"
   ## Discuss Forum URL
-  forum = "https://discuss.gohugo.io"
+  forum = "https://discourse.gohugo.io/"
   ## Google Tag Manager
   gtmid = ""
 
@@ -213,7 +213,7 @@ twitter = "GoHugoIO"
     name = "Themes"
     weight = 10
     identifier = "themes"
-    url = "http://themes.gohugo.io/"
+    url = "https://themes.gohugo.io/"
 
   # Anything with a weight > 100 gets an external icon
   [[menu.global]]
@@ -222,7 +222,7 @@ twitter = "GoHugoIO"
     icon = true
     identifier = "community"
     post = "external"
-    url = "https://discuss.gohugo.io/"
+    url = "https://discourse.gohugo.io/"
 
 
   [[menu.global]]
@@ -230,4 +230,4 @@ twitter = "GoHugoIO"
     weight = 200
     identifier = "github"
     post = "external"
-    url = "https://github.com/spf13/hugo"
+    url = "https://github.com/gohugoio/hugo"
