@@ -77,12 +77,12 @@ Hugo uses [govendor][] to vendor dependencies, but we don't commit the vendored 
 {{% code file="from-gh.sh" %}}
 ```sh
 go get github.com/kardianos/govendor
-govendor get github.com/spf13/hugo
-go install github.com/spf13/hugo
+govendor get github.com/gohugoio/hugo
+go install github.com/gohugoio/hugo
 ```
 {{% /code %}}
 
-`govendor get` will fetch Hugo and all its dependent libraries to `$GOPATH/src/github.com/spf13/hugo`, and `go install` compiles everything into a final `hugo` (or `hugo.exe`) executable inside `$GOPATH/bin/`.
+`govendor get` will fetch Hugo and all its dependent libraries to `$GOPATH/src/github.com/gohugoio/hugo`, and `go install` compiles everything into a final `hugo` (or `hugo.exe`) executable inside `$GOPATH/bin/`.
 
 {{% note %}}
 If you are a Windows user, substitute the `$HOME` environment variable above with `%USERPROFILE%`.
@@ -187,7 +187,7 @@ All three locations will work for you. In the interest of brevity, this guide fo
 
 #### Step 2: Download the Tarball
 
-1. Open <https://github.com/spf13/hugo/releases> in your browser.
+1. Open <https://github.com/gohugoio/hugo/releases> in your browser.
 
 2. Find the current release by scrolling down and looking for the green tag that reads "Latest Release."
 
@@ -266,14 +266,14 @@ brew install go
 
 #### Step 1: Get the Source
 
-If you want to compile a specific version of Hugo, go to <https://github.com/spf13/hugo/releases> and download the source code for the version of your choice. If you want to compile Hugo with all the latest changes (which might include bugs), clone the Hugo repository:
+If you want to compile a specific version of Hugo, go to <https://github.com/gohugoio/hugo/releases> and download the source code for the version of your choice. If you want to compile Hugo with all the latest changes (which might include bugs), clone the Hugo repository:
 
 ```bash
-git clone https://github.com/spf13/hugo
+git clone https://github.com/gohugoio/hugo
 ```
 
 {{% warning "Sometimes \"Latest\" = \"Bugs\""%}}
-Cloning the Hugo repository directly means taking the good with the bad. By using the bleeding-edge version of Hugo, you make your development susceptible to the latest features, as well as the latest bugs. Your feedback is appreciated. If you find a bug in the latest release, [please create an issue on GitHub](https://github.com/spf13/hugo/issues/new).
+Cloning the Hugo repository directly means taking the good with the bad. By using the bleeding-edge version of Hugo, you make your development susceptible to the latest features, as well as the latest bugs. Your feedback is appreciated. If you find a bug in the latest release, [please create an issue on GitHub](https://github.com/gohugoio/hugo/issues/new).
 {{% /warning %}}
 
 #### Step 2: Compiling
@@ -281,8 +281,8 @@ Cloning the Hugo repository directly means taking the good with the bad. By usin
 Make the directory containing the source your working directory and then fetch Hugo's dependencies:
 
 ```bash
-mkdir -p src/github.com/spf13
-ln -sf $(pwd) src/github.com/spf13/hugo
+mkdir -p src/github.com/gohugoio
+ln -sf $(pwd) src/github.com/gohugoio/hugo
 
 # set the build path for Go
 export GOPATH=$(pwd)
@@ -461,7 +461,7 @@ snap install hugo
 ```
 
 {{% note %}}
-Hugo-as-a-snap can write only inside the user’s `$HOME` directory---and gvfs-mounted directories owned by the user---because of Snaps’ confinement and security model. More information is also available [in this related GitHub issue](https://github.com/spf13/hugo/issues/3143).
+Hugo-as-a-snap can write only inside the user’s `$HOME` directory---and gvfs-mounted directories owned by the user---because of Snaps’ confinement and security model. More information is also available [in this related GitHub issue](https://github.com/gohugoio/hugo/issues/3143).
 {{% /note %}}
 
 ## Upgrading Hugo
@@ -491,7 +491,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [pygments]: https://pygments.org
 [quickstart]: /getting-started/quick-start/
 [redhatforum]: https://discuss.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
-[releases]: https://github.com/spf13/hugo/releases
+[releases]: https://github.com/gohugoio/hugo/releases
 [snaps]: http://snapcraft.io/docs/core/install
 [windowsarch]: https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx
 [Windows Environment Variables Editor]: http://eveditor.com/
