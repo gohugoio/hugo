@@ -3,7 +3,7 @@
 A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com/) and [friends](https://github.com/gohugoio/hugo/graphs/contributors) in [Go][].
 
 [Website](https://gohugo.io) |
-[Forum](https://discuss.gohugo.io) |
+[Forum](https://discourse.gohugo.io) |
 [Developer Chat (no support)](https://gitter.im/gohugoio/hugo) |
 [Documentation](https://gohugo.io/overview/introduction/) |
 [Installation Guide](https://gohugo.io/overview/installing/) |
@@ -78,14 +78,14 @@ The Hugo community and maintainers are [very active](https://github.com/gohugoio
 
 ### Asking Support Questions
 
-We have an active [discussion forum](http://discuss.gohugo.io) where users and developers can ask questions.
+We have an active [discussion forum](https://discourse.gohugo.io) where users and developers can ask questions.
 Please don't use the GitHub issue tracker to ask questions.
 
 ### Reporting Issues
 
 If you believe you have found a defect in Hugo or its documentation, use
 the GitHub issue tracker to report the problem to the Hugo maintainers.
-If you're not sure if it's a bug or not, start by asking in the [discussion forum](http://discuss.gohugo.io).
+If you're not sure if it's a bug or not, start by asking in the [discussion forum](https://discourse.gohugo.io).
 When reporting the issue, please provide the version of Hugo in use (`hugo version`).
 
 ### Submitting Patches
