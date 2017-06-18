@@ -13,6 +13,8 @@
 
 package parser
 
+// TODO(bep) archetype remove unused from this package.
+
 import (
 	"bytes"
 	"encoding/json"
