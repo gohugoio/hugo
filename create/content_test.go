@@ -110,7 +110,7 @@ func initFs(fs *hugofs.Fs) error {
 		{
 			path: filepath.Join("archetypes", "product.md"),
 			content: `+++
-title = "{{ .Name  | upper }}"
+title = "{{ .BaseFileName  | upper }}"
 +++`,
 		},
 		{

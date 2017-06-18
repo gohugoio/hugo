@@ -18,7 +18,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/source"
+
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/afero"
@@ -26,7 +27,7 @@ import (
 
 const (
 	archetypeTemplateTemplate = `+++
-title = "{{ replace .Name "-" " " | title }}"
+title = "{{ replace .BaseFileName "-" " " | title }}"
 date = {{ .Date }}
 draft = true
 +++`
@@ -40,11 +41,17 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 		err               error
 	)
 
-	data := map[string]interface{}{
-		"Type": kind,
-		"Name": helpers.Filename(targetPath),
-		"Path": targetPath,
-		"Date": time.Now().Format(time.RFC3339),
+	sp := source.NewSourceSpec(s.Deps.Cfg, s.Deps.Fs)
+	f := sp.NewFile(targetPath)
+
+	data := struct {
+		Type string
+		Date string
+		*source.File
+	}{
+		Type: kind,
+		Date: time.Now().Format(time.RFC3339),
+		File: f,
 	}
 
 	if archetypeFilename == "" {
