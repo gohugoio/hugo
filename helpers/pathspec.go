@@ -52,7 +52,10 @@ type PathSpec struct {
 	multilingual                   bool
 
 	// The file systems to use
-	fs *hugofs.Fs
+	Fs *hugofs.Fs
+
+	// The config provider to use
+	Cfg config.Provider
 }
 
 func (p PathSpec) String() string {
@@ -70,7 +73,8 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 	}
 
 	ps := &PathSpec{
-		fs:                             fs,
+		Fs:                             fs,
+		Cfg:                            cfg,
 		disablePathToLower:             cfg.GetBool("disablePathToLower"),
 		removePathAccents:              cfg.GetBool("removePathAccents"),
 		uglyURLs:                       cfg.GetBool("uglyURLs"),

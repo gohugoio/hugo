@@ -215,7 +215,7 @@ func (p *PathSpec) getThemeDirPath(path string) (string, error) {
 	}
 
 	themeDir := filepath.Join(p.GetThemeDir(), path)
-	if _, err := p.fs.Source.Stat(themeDir); os.IsNotExist(err) {
+	if _, err := p.Fs.Source.Stat(themeDir); os.IsNotExist(err) {
 		return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, p.theme, themeDir)
 	}
 

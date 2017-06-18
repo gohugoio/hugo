@@ -52,13 +52,17 @@ func TestNewContent(t *testing.T) {
 
 	for _, c := range cases {
 		cfg, fs := newTestCfg()
+		ps, err := helpers.NewPathSpec(fs, cfg)
+		require.NoError(t, err)
 		h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
 		require.NoError(t, err)
 		require.NoError(t, initFs(fs))
 
-		s := h.Sites[0]
+		siteFactory := func(filename string, siteUsed bool) (*hugolib.Site, error) {
+			return h.Sites[0], nil
+		}
 
-		require.NoError(t, create.NewContent(s, c.kind, c.path))
+		require.NoError(t, create.NewContent(ps, siteFactory, c.kind, c.path))
 
 		fname := filepath.Join("content", filepath.FromSlash(c.path))
 		content := readFileFromFs(t, fs.Source, fname)

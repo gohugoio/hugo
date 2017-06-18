@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -25,9 +26,30 @@ import (
 	"github.com/spf13/afero"
 )
 
+// ArchetypeFileData represents the data available to an archetype template.
+type ArchetypeFileData struct {
+	// The archetype content type, either given as --kind option or extracted
+	// from the target path's section, i.e. "blog/mypost.md" will resolve to
+	// "blog".
+	Type string
+
+	// The current date and time as a RFC3339 formatted string, suitable for use in front matter.
+	Date string
+
+	// The Site, fully equipped with all the pages etc. Note: This will only be set if it is actually
+	// used in the archetype template. Also, if this is a multilingual setup,
+	// this site is the site that best matches the target content file, based
+	// on the presence of language code in the filename.
+	Site *hugolib.Site
+
+	// The target content file. Note that the .Content will be empty, as that
+	// has not been created yet.
+	*source.File
+}
+
 const (
 	archetypeTemplateTemplate = `+++
-title = "{{ replace .BaseFileName "-" " " | title }}"
+title = "{{ replace .TranslationBaseName "-" " " | title }}"
 date = {{ .Date }}
 draft = true
 +++`
@@ -44,14 +66,11 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 	sp := source.NewSourceSpec(s.Deps.Cfg, s.Deps.Fs)
 	f := sp.NewFile(targetPath)
 
-	data := struct {
-		Type string
-		Date string
-		*source.File
-	}{
+	data := ArchetypeFileData{
 		Type: kind,
 		Date: time.Now().Format(time.RFC3339),
 		File: f,
+		Site: s,
 	}
 
 	if archetypeFilename == "" {
@@ -67,11 +86,12 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 
 	// Reuse the Hugo template setup to get the template funcs properly set up.
 	templateHandler := s.Deps.Tmpl.(tpl.TemplateHandler)
-	if err := templateHandler.AddTemplate("_text/archetype", string(archetypeTemplate)); err != nil {
+	templateName := "_text/" + helpers.Filename(archetypeFilename)
+	if err := templateHandler.AddTemplate(templateName, string(archetypeTemplate)); err != nil {
 		return nil, fmt.Errorf("Failed to parse archetype file %q: %s", archetypeFilename, err)
 	}
 
-	templ := templateHandler.Lookup("_text/archetype")
+	templ := templateHandler.Lookup(templateName)
 
 	var buff bytes.Buffer
 	if err := templ.Execute(&buff, data); err != nil {
