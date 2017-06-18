@@ -27,15 +27,31 @@ import (
 
 // NewContent creates a new content file in the content directory based upon the
 // given kind, which is used to lookup an archetype.
-func NewContent(s *hugolib.Site, kind, targetPath string) error {
+func NewContent(
+	ps *helpers.PathSpec,
+	siteFactory func(filename string, siteUsed bool) (*hugolib.Site, error), kind, targetPath string) error {
+
 	jww.INFO.Println("attempting to create ", targetPath, "of", kind)
 
-	archetypeFilename := findArchetype(s, kind)
+	archetypeFilename := findArchetype(ps, kind)
 
-	var (
-		content []byte
-		err     error
-	)
+	f, err := ps.Fs.Source.Open(archetypeFilename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	// Building the sites can be expensive, so only do it if really needed.
+	siteUsed := false
+	if helpers.ReaderContains(f, []byte(".Site")) {
+		siteUsed = true
+	}
+
+	s, err := siteFactory(targetPath, siteUsed)
+	if err != nil {
+		return err
+	}
+
+	var content []byte
 
 	content, err = executeArcheTypeAsTemplate(s, kind, targetPath, archetypeFilename)
 	if err != nil {
@@ -68,13 +84,13 @@ func NewContent(s *hugolib.Site, kind, targetPath string) error {
 // FindArchetype takes a given kind/archetype of content and returns an output
 // path for that archetype.  If no archetype is found, an empty string is
 // returned.
-func findArchetype(s *hugolib.Site, kind string) (outpath string) {
-	search := []string{s.PathSpec.AbsPathify(s.Cfg.GetString("archetypeDir"))}
+func findArchetype(ps *helpers.PathSpec, kind string) (outpath string) {
+	search := []string{ps.AbsPathify(ps.Cfg.GetString("archetypeDir"))}
 
-	if s.Cfg.GetString("theme") != "" {
-		themeDir := filepath.Join(s.PathSpec.AbsPathify(s.Cfg.GetString("themesDir")+"/"+s.Cfg.GetString("theme")), "/archetypes/")
-		if _, err := s.Fs.Source.Stat(themeDir); os.IsNotExist(err) {
-			jww.ERROR.Printf("Unable to find archetypes directory for theme %q at %q", s.Cfg.GetString("theme"), themeDir)
+	if ps.Cfg.GetString("theme") != "" {
+		themeDir := filepath.Join(ps.AbsPathify(ps.Cfg.GetString("themesDir")+"/"+ps.Cfg.GetString("theme")), "/archetypes/")
+		if _, err := ps.Fs.Source.Stat(themeDir); os.IsNotExist(err) {
+			jww.ERROR.Printf("Unable to find archetypes directory for theme %q at %q", ps.Cfg.GetString("theme"), themeDir)
 		} else {
 			search = append(search, themeDir)
 		}
@@ -94,7 +110,7 @@ func findArchetype(s *hugolib.Site, kind string) (outpath string) {
 		for _, p := range pathsToCheck {
 			curpath := filepath.Join(x, p)
 			jww.DEBUG.Println("checking", curpath, "for archetypes")
-			if exists, _ := helpers.Exists(curpath, s.Fs.Source); exists {
+			if exists, _ := helpers.Exists(curpath, ps.Fs.Source); exists {
 				jww.INFO.Println("curpath: " + curpath)
 				return curpath
 			}

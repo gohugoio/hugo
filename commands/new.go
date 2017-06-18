@@ -115,13 +115,40 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		kind = contentType
 	}
 
-	s, err := hugolib.NewSite(*cfg)
-
+	ps, err := helpers.NewPathSpec(cfg.Fs, cfg.Cfg)
 	if err != nil {
-		return newSystemError(err)
+		return err
 	}
 
-	return create.NewContent(s, kind, createPath)
+	// If a site isn't in use in the archetype template, we can skip the build.
+	siteFactory := func(filename string, siteUsed bool) (*hugolib.Site, error) {
+		if !siteUsed {
+			return hugolib.NewSite(*cfg)
+		}
+		var s *hugolib.Site
+		if err := c.initSites(); err != nil {
+			return nil, err
+		}
+
+		if err := Hugo.Build(hugolib.BuildCfg{SkipRender: true, PrintStats: false}); err != nil {
+			return nil, err
+		}
+
+		s = Hugo.Sites[0]
+
+		if len(Hugo.Sites) > 1 {
+			// Find the best match.
+			for _, ss := range Hugo.Sites {
+				if strings.Contains(createPath, "."+ss.Language.Lang) {
+					s = ss
+					break
+				}
+			}
+		}
+		return s, nil
+	}
+
+	return create.NewContent(ps, siteFactory, kind, createPath)
 }
 
 func doNewSite(fs *hugofs.Fs, basepath string, force bool) error {
