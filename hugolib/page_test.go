@@ -79,21 +79,7 @@ Leading
 
 Content of the file goes Here
 `
-	simplePageJSONLoose = `
-{
-"title": "spf13-vim 3.0 release and new website"
-"description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-"tags": [ ".vimrc", "plugins", "spf13-vim", "VIm" ]
-"date": "2012-04-06"
-"categories": [
-    "Development"
-    "VIM"
-],
-"slug": "spf13-vim-3-0-release-and-new-website"
-}
 
-Content of the file goes Here
-`
 	simplePageRFC3339Date  = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
 	simplePageJSONMultiple = `
 {
@@ -941,16 +927,15 @@ func TestCreatePage(t *testing.T) {
 		r string
 	}{
 		{simplePageJSON},
-		{simplePageJSONLoose},
 		{simplePageJSONMultiple},
 		//{strings.NewReader(SIMPLE_PAGE_JSON_COMPACT)},
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		s := newTestSite(t)
 		p, _ := s.NewPage("page")
 		if _, err := p.ReadFrom(strings.NewReader(test.r)); err != nil {
-			t.Errorf("Unable to parse page: %s", err)
+			t.Fatalf("[%d] Unable to parse page: %s", i, err)
 		}
 	}
 }

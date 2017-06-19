@@ -304,8 +304,8 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 		buf       bytes.Buffer
 		level     int
 		sameDelim = bytes.Equal(left, right)
+		inQuote   bool
 	)
-
 	// Frontmatter must start with a delimiter. To check it first,
 	// pre-reads beginning delimiter length - 1 bytes from Reader
 	for i := 0; i < len(left)-1; i++ {
@@ -332,6 +332,8 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 		}
 
 		switch c {
+		case '"':
+			inQuote = !inQuote
 		case left[len(left)-1]:
 			if sameDelim { // YAML, TOML case
 				if bytes.HasSuffix(buf.Bytes(), left) && (buf.Len() == len(left) || buf.Bytes()[buf.Len()-len(left)-1] == '\n') {
@@ -373,10 +375,14 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 					}
 				}
 			} else { // JSON case
-				level++
+				if !inQuote {
+					level++
+				}
 			}
 		case right[len(right)-1]: // JSON case only reaches here
-			level--
+			if !inQuote {
+				level--
+			}
 		}
 
 		if level == 0 {

@@ -296,18 +296,21 @@ func TestExtractFrontMatterDelim(t *testing.T) {
 		{"{\n{\n}\n}\n", "{\n{\n}\n}", noErrExpected},
 		{"{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories", "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}", noErrExpected},
 		{"{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories", "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}", noErrExpected},
+		// Issue #3511
+		{`{ "title": "{" }`, `{ "title": "{" }`, noErrExpected},
+		{`{ "title": "{}" }`, `{ "title": "{}" }`, noErrExpected},
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		fm, err := extractFrontMatterDelims(bufio.NewReader(strings.NewReader(test.frontmatter)), []byte("{"), []byte("}"))
 		if (err == nil) != test.errIsNil {
 			t.Logf("\n%q\n", string(test.frontmatter))
-			t.Errorf("Expected err == nil => %t, got: %t. err: %s", test.errIsNil, err == nil, err)
+			t.Errorf("[%d] Expected err == nil => %t, got: %t. err: %s", i, test.errIsNil, err == nil, err)
 			continue
 		}
 		if !bytes.Equal(fm, []byte(test.extracted)) {
 			t.Logf("\n%q\n", string(test.frontmatter))
-			t.Errorf("Frontmatter did not match:\nexp: %q\ngot: %q", string(test.extracted), fm)
+			t.Errorf("[%d] Frontmatter did not match:\nexp: %q\ngot: %q", i, string(test.extracted), fm)
 		}
 	}
 }
