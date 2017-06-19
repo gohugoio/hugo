@@ -179,7 +179,7 @@ From content files, you can use the [`ref` or `relref` shortcodes](/content-mana
 
 ## Templates for Your Output Formats
 
-A new output format needs needs a corresponding template in order to render anything useful.
+A new output format needs a corresponding template in order to render anything useful.
 
 {{% note %}}
 The key distinction for Hugo versions 0.20 and newer is that Hugo looks at an output format's `Name` and MediaType's `Suffix` when choosing the template used to render a given `Page`.
