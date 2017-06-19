@@ -1318,10 +1318,11 @@ func (p *Page) parse(reader io.Reader) error {
 	p.lang = p.Source.File.Lang()
 
 	meta, err := psr.Metadata()
+	if err != nil {
+		return fmt.Errorf("failed to parse page metadata for %q: %s", p.File.Path(), err)
+	}
+
 	if meta != nil {
-		if err != nil {
-			return fmt.Errorf("failed to parse page metadata for %s: %s", p.File.Path(), err)
-		}
 		if err = p.update(meta); err != nil {
 			return err
 		}
