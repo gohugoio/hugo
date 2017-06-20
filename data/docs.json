@@ -611,6 +611,21 @@
             ]
           ]
         },
+        "Uniq": {
+          "Description": "Uniq takes in a slice or array and returns a slice with subsequent\nduplicate elements removed.",
+          "Args": [
+            "l"
+          ],
+          "Aliases": [
+            "uniq"
+          ],
+          "Examples": [
+            [
+              "{{ slice 1 2 3 2 | uniq }}",
+              "[1 2 3]"
+            ]
+          ]
+        },
         "Where": {
           "Description": "Where returns a filtered subset of a given data type.",
           "Args": [

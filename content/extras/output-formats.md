@@ -28,6 +28,7 @@ This is the full set of built-in media types in Hugo:
 * It is possible to add custom media types or change the defaults (if you, say, want to change the suffix to `asp` for `text/html`).
 * The `Suffix` is the value that will be used for URLs and filenames for that media type in Hugo.
 * The `Type` is the identifier that must be used when defining new `Output Formats` (see below). 
+* The `Delimiter` defaults to ".", but can be changed or even blanked out to support, as an example, Netlify's `_redirect` files.
 * The full set of media types will be registered in Hugo's built-in development server to make sure they are recognized by the browser.
 
 To add or modify a media type, define it in a `mediaTypes` section in your site config (either for all sites or for a given language). 
