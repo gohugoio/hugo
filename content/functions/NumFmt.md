@@ -1,14 +1,17 @@
 ---
 title: numfmt
 linktitle: NumFmt
-description: Formats a number with a given precision using the requested `decimal`, `grouping`, and `negative` characters.
-godocref:
+description: "Formats a number with a given precision using the requested `decimal`, `grouping`, and `negative` characters."
+godocref: ""
 workson: []
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [functions]
-tags: []
+tags: [numbers]
+menu:
+  docs:
+    parent: "functions"
 toc: false
 ns: "lang"
 signature: ["NumFmt <decimal> <grouping> <negative> <precision> <number>"]
@@ -16,13 +19,12 @@ workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-draft: true
+draft: false
 aliases: []
 comments:
 ---
 
-`NumFmt` formats a number with a given precision using the requested `decimal`,
-`grouping`, and `negative` characters.
+`lang.NumFmt` formats a number with a given precision using the requested `decimal`, `grouping`, and `negative` characters. The default options value is `- . ,`.
 
 Numbers greater than or equal to 5 are rounded up. For example, if precision is set to `0`, `1.5` becomes `2`, and `1.4` becomes `1`.
 
@@ -32,10 +34,3 @@ Numbers greater than or equal to 5 are rounded up. For example, if precision is 
 {{ lang.NumFmt "." "," "-" 0 -12345.6789 }} → -12,346
 {{ -98765.4321 | lang.NumFmt "." "," "-" 2 }} → -98,765.43
 ```
-
-
-
-
-
-
-
