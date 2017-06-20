@@ -287,6 +287,12 @@ func GetDottedRelativePath(inPath string) string {
 	return dottedPath
 }
 
+// Ext takes a path and returns the extension, including the delmiter, i.e. ".md".
+func Ext(in string) string {
+	_, ext := fileAndExt(in, fpb)
+	return ext
+}
+
 // Filename takes a path, strips out the extension,
 // and returns the name of the file.
 func Filename(in string) (name string) {

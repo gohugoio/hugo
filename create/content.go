@@ -30,10 +30,11 @@ import (
 func NewContent(
 	ps *helpers.PathSpec,
 	siteFactory func(filename string, siteUsed bool) (*hugolib.Site, error), kind, targetPath string) error {
+	ext := helpers.Ext(targetPath)
 
-	jww.INFO.Println("attempting to create ", targetPath, "of", kind)
+	jww.INFO.Printf("attempting to create %q of %q of ext %q", targetPath, kind, ext)
 
-	archetypeFilename := findArchetype(ps, kind)
+	archetypeFilename := findArchetype(ps, kind, ext)
 
 	f, err := ps.Fs.Source.Open(archetypeFilename)
 	if err != nil {
@@ -84,7 +85,7 @@ func NewContent(
 // FindArchetype takes a given kind/archetype of content and returns an output
 // path for that archetype.  If no archetype is found, an empty string is
 // returned.
-func findArchetype(ps *helpers.PathSpec, kind string) (outpath string) {
+func findArchetype(ps *helpers.PathSpec, kind, ext string) (outpath string) {
 	search := []string{ps.AbsPathify(ps.Cfg.GetString("archetypeDir"))}
 
 	if ps.Cfg.GetString("theme") != "" {
@@ -100,13 +101,16 @@ func findArchetype(ps *helpers.PathSpec, kind string) (outpath string) {
 		// If the new content isn't in a subdirectory, kind == "".
 		// Therefore it should be excluded otherwise `is a directory`
 		// error will occur. github.com/gohugoio/hugo/issues/411
-		var pathsToCheck []string
+		var pathsToCheck = []string{"default"}
 
-		if kind == "" {
-			pathsToCheck = []string{"default.md", "default"}
-		} else {
-			pathsToCheck = []string{kind + ".md", kind, "default.md", "default"}
+		if ext != "" {
+			if kind != "" {
+				pathsToCheck = append([]string{kind + ext, "default" + ext}, pathsToCheck...)
+			} else {
+				pathsToCheck = append([]string{"default" + ext}, pathsToCheck...)
+			}
 		}
+
 		for _, p := range pathsToCheck {
 			curpath := filepath.Join(x, p)
 			jww.DEBUG.Println("checking", curpath, "for archetypes")
