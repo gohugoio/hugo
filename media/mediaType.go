@@ -22,6 +22,10 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+const (
+	defaultDelimiter = "."
+)
+
 // A media type (also known as MIME type and content type) is a two-part identifier for
 // file formats and format contents transmitted on the Internet.
 // For Hugo's use case, we use the top-level type name / subtype name + suffix.
@@ -29,9 +33,10 @@ import (
 // If suffix is not provided, the sub type will be used.
 // See // https://en.wikipedia.org/wiki/Media_type
 type Type struct {
-	MainType string // i.e. text
-	SubType  string // i.e. html
-	Suffix   string // i.e html
+	MainType  string // i.e. text
+	SubType   string // i.e. html
+	Suffix    string // i.e html
+	Delimiter string // defaults to "."
 }
 
 // FromTypeString creates a new Type given a type sring on the form MainType/SubType and
@@ -54,7 +59,7 @@ func FromString(t string) (Type, error) {
 		suffix = subParts[1]
 	}
 
-	return Type{MainType: mainType, SubType: subType, Suffix: suffix}, nil
+	return Type{MainType: mainType, SubType: subType, Suffix: suffix, Delimiter: defaultDelimiter}, nil
 }
 
 // Type returns a string representing the main- and sub-type of a media type, i.e. "text/css".
@@ -72,16 +77,21 @@ func (m Type) String() string {
 	return fmt.Sprintf("%s/%s", m.MainType, m.SubType)
 }
 
+// FullSuffix returns the file suffix with any delimiter prepended.
+func (m Type) FullSuffix() string {
+	return m.Delimiter + m.Suffix
+}
+
 var (
-	CalendarType   = Type{"text", "calendar", "ics"}
-	CSSType        = Type{"text", "css", "css"}
-	CSVType        = Type{"text", "csv", "csv"}
-	HTMLType       = Type{"text", "html", "html"}
-	JavascriptType = Type{"application", "javascript", "js"}
-	JSONType       = Type{"application", "json", "json"}
-	RSSType        = Type{"application", "rss", "xml"}
-	XMLType        = Type{"application", "xml", "xml"}
-	TextType       = Type{"text", "plain", "txt"}
+	CalendarType   = Type{"text", "calendar", "ics", defaultDelimiter}
+	CSSType        = Type{"text", "css", "css", defaultDelimiter}
+	CSVType        = Type{"text", "csv", "csv", defaultDelimiter}
+	HTMLType       = Type{"text", "html", "html", defaultDelimiter}
+	JavascriptType = Type{"application", "javascript", "js", defaultDelimiter}
+	JSONType       = Type{"application", "json", "json", defaultDelimiter}
+	RSSType        = Type{"application", "rss", "xml", defaultDelimiter}
+	XMLType        = Type{"application", "xml", "xml", defaultDelimiter}
+	TextType       = Type{"text", "plain", "txt", defaultDelimiter}
 )
 
 var DefaultTypes = Types{

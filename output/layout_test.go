@@ -21,13 +21,33 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var ampType = Format{
-	Name:      "AMP",
-	MediaType: media.HTMLType,
-	BaseName:  "index",
-}
-
 func TestLayout(t *testing.T) {
+
+	noExtNoDelimMediaType := media.TextType
+	noExtNoDelimMediaType.Suffix = ""
+	noExtNoDelimMediaType.Delimiter = ""
+
+	noExtMediaType := media.TextType
+	noExtMediaType.Suffix = ""
+
+	var (
+		ampType = Format{
+			Name:      "AMP",
+			MediaType: media.HTMLType,
+			BaseName:  "index",
+		}
+
+		noExtDelimFormat = Format{
+			Name:      "NEM",
+			MediaType: noExtNoDelimMediaType,
+			BaseName:  "_redirects",
+		}
+		noExt = Format{
+			Name:      "NEX",
+			MediaType: noExtMediaType,
+			BaseName:  "next",
+		}
+	)
 
 	for _, this := range []struct {
 		name           string
@@ -39,6 +59,12 @@ func TestLayout(t *testing.T) {
 	}{
 		{"Home", LayoutDescriptor{Kind: "home"}, true, "", ampType,
 			[]string{"index.amp.html", "index.html", "_default/list.amp.html", "_default/list.html", "theme/index.amp.html", "theme/index.html"}},
+		{"Home, no ext or delim", LayoutDescriptor{Kind: "home"}, true, "", noExtDelimFormat,
+			[]string{"index.nem", "_default/list.nem"}},
+		{"Home, no ext", LayoutDescriptor{Kind: "home"}, true, "", noExt,
+			[]string{"index.nex", "_default/list.nex"}},
+		{"Page, no ext or delim", LayoutDescriptor{Kind: "page"}, true, "", noExtDelimFormat,
+			[]string{"_default/single.nem", "theme/_default/single.nem"}},
 		{"Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, false, "", ampType,
 			[]string{"section/sect1.amp.html", "section/sect1.html"}},
 		{"Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, false, "", ampType,
