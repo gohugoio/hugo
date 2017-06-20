@@ -445,10 +445,10 @@ sudo pacman -S yaourt
 yaourt -S hugo
 ```
 
-### Fedora and Red Hat
+### Fedora, CentOS, and Red Hat
 
 * <https://copr.fedorainfracloud.org/coprs/spf13/Hugo/> (updated to Hugo v0.16)
-* <https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/> (updated to Hugo v0.19)
+* <https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/> (updated to Hugo v0.22); usually released a few days after the official Hugo release.
 
 See the [related discussion in the Hugo forums][redhatforum].
 
