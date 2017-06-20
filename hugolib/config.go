@@ -131,4 +131,5 @@ func loadDefaultSettingsFor(v *viper.Viper) {
 	v.SetDefault("enableMissingTranslationPlaceholders", false)
 	v.SetDefault("enableGitInfo", false)
 	v.SetDefault("ignoreFiles", make([]string, 0))
+	v.SetDefault("disableAliases", false)
 }

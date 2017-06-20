@@ -987,14 +987,19 @@ func (s *Site) render(outFormatIdx int) (err error) {
 		}
 		s.timerStep("prepare pages")
 
-		// Aliases must be rendered before pages.
-		// Some sites, Hugo docs included, have faulty alias definitions that point
-		// to itself or another real page. These will be overwritten in the next
-		// step.
-		if err = s.renderAliases(); err != nil {
-			return
+		// Note that even if disableAliases is set, the aliases themselves are
+		// preserved on page. The motivation with this is to be able to generate
+		// 301 redirects in a .htacess file and similar using a custom output format.
+		if !s.Cfg.GetBool("disableAliases") {
+			// Aliases must be rendered before pages.
+			// Some sites, Hugo docs included, have faulty alias definitions that point
+			// to itself or another real page. These will be overwritten in the next
+			// step.
+			if err = s.renderAliases(); err != nil {
+				return
+			}
+			s.timerStep("render and write aliases")
 		}
-		s.timerStep("render and write aliases")
 
 	}
 
