@@ -1,235 +1,263 @@
 {
   "media": {
-    "types": [{
-      "Type": "application/javascript",
-      "String": "application/javascript+js",
-      "MainType": "application",
-      "SubType": "javascript",
-      "Suffix": "js"
-    }, {
-      "Type": "application/json",
-      "String": "application/json+json",
-      "MainType": "application",
-      "SubType": "json",
-      "Suffix": "json"
-    }, {
-      "Type": "application/rss",
-      "String": "application/rss+xml",
-      "MainType": "application",
-      "SubType": "rss",
-      "Suffix": "xml"
-    }, {
-      "Type": "application/xml",
-      "String": "application/xml+xml",
-      "MainType": "application",
-      "SubType": "xml",
-      "Suffix": "xml"
-    }, {
-      "Type": "text/calendar",
-      "String": "text/calendar+ics",
-      "MainType": "text",
-      "SubType": "calendar",
-      "Suffix": "ics"
-    }, {
-      "Type": "text/css",
-      "String": "text/css+css",
-      "MainType": "text",
-      "SubType": "css",
-      "Suffix": "css"
-    }, {
-      "Type": "text/csv",
-      "String": "text/csv+csv",
-      "MainType": "text",
-      "SubType": "csv",
-      "Suffix": "csv"
-    }, {
-      "Type": "text/html",
-      "String": "text/html+html",
-      "MainType": "text",
-      "SubType": "html",
-      "Suffix": "html"
-    }, {
-      "Type": "text/plain",
-      "String": "text/plain+txt",
-      "MainType": "text",
-      "SubType": "plain",
-      "Suffix": "txt"
-    }]
+    "types": [
+      {
+        "Type": "application/javascript",
+        "String": "application/javascript+js",
+        "MainType": "application",
+        "SubType": "javascript",
+        "Suffix": "js"
+      },
+      {
+        "Type": "application/json",
+        "String": "application/json+json",
+        "MainType": "application",
+        "SubType": "json",
+        "Suffix": "json"
+      },
+      {
+        "Type": "application/rss",
+        "String": "application/rss+xml",
+        "MainType": "application",
+        "SubType": "rss",
+        "Suffix": "xml"
+      },
+      {
+        "Type": "application/xml",
+        "String": "application/xml+xml",
+        "MainType": "application",
+        "SubType": "xml",
+        "Suffix": "xml"
+      },
+      {
+        "Type": "text/calendar",
+        "String": "text/calendar+ics",
+        "MainType": "text",
+        "SubType": "calendar",
+        "Suffix": "ics"
+      },
+      {
+        "Type": "text/css",
+        "String": "text/css+css",
+        "MainType": "text",
+        "SubType": "css",
+        "Suffix": "css"
+      },
+      {
+        "Type": "text/csv",
+        "String": "text/csv+csv",
+        "MainType": "text",
+        "SubType": "csv",
+        "Suffix": "csv"
+      },
+      {
+        "Type": "text/html",
+        "String": "text/html+html",
+        "MainType": "text",
+        "SubType": "html",
+        "Suffix": "html"
+      },
+      {
+        "Type": "text/plain",
+        "String": "text/plain+txt",
+        "MainType": "text",
+        "SubType": "plain",
+        "Suffix": "txt"
+      }
+    ]
   },
   "output": {
-    "formats": [{
-      "MediaType": "text/html+html",
-      "Name": "AMP",
-      "Path": "amp",
-      "BaseName": "index",
-      "Rel": "amphtml",
-      "Protocol": "",
-      "IsPlainText": false,
-      "IsHTML": true,
-      "NoUgly": false,
-      "NotAlternative": false
-    }, {
-      "MediaType": "text/css+css",
-      "Name": "CSS",
-      "Path": "",
-      "BaseName": "styles",
-      "Rel": "stylesheet",
-      "Protocol": "",
-      "IsPlainText": true,
-      "IsHTML": false,
-      "NoUgly": false,
-      "NotAlternative": true
-    }, {
-      "MediaType": "text/csv+csv",
-      "Name": "CSV",
-      "Path": "",
-      "BaseName": "index",
-      "Rel": "alternate",
-      "Protocol": "",
-      "IsPlainText": true,
-      "IsHTML": false,
-      "NoUgly": false,
-      "NotAlternative": false
-    }, {
-      "MediaType": "text/calendar+ics",
-      "Name": "Calendar",
-      "Path": "",
-      "BaseName": "index",
-      "Rel": "alternate",
-      "Protocol": "webcal://",
-      "IsPlainText": true,
-      "IsHTML": false,
-      "NoUgly": false,
-      "NotAlternative": false
-    }, {
-      "MediaType": "text/html+html",
-      "Name": "HTML",
-      "Path": "",
-      "BaseName": "index",
-      "Rel": "canonical",
-      "Protocol": "",
-      "IsPlainText": false,
-      "IsHTML": true,
-      "NoUgly": false,
-      "NotAlternative": false
-    }, {
-      "MediaType": "application/json+json",
-      "Name": "JSON",
-      "Path": "",
-      "BaseName": "index",
-      "Rel": "alternate",
-      "Protocol": "",
-      "IsPlainText": true,
-      "IsHTML": false,
-      "NoUgly": false,
-      "NotAlternative": false
-    }, {
-      "MediaType": "application/rss+xml",
-      "Name": "RSS",
-      "Path": "",
-      "BaseName": "index",
-      "Rel": "alternate",
-      "Protocol": "",
-      "IsPlainText": false,
-      "IsHTML": false,
-      "NoUgly": true,
-      "NotAlternative": false
-    }],
-    "layouts": [{
-      "Example": "AMP home, with theme \"demoTheme\".",
-      "OutputFormat": "AMP",
-      "Suffix": "html",
-      "Template Lookup Order": [
-        "layouts/index.amp.html",
-        "layouts/index.html",
-        "layouts/_default/list.amp.html",
-        "layouts/_default/list.html",
-        "demoTheme/layouts/index.amp.html",
-        "demoTheme/layouts/index.html",
-        "demoTheme/layouts/_default/list.amp.html",
-        "demoTheme/layouts/_default/list.html"
-      ]
-    }, {
-      "Example": "JSON home, no theme.",
-      "OutputFormat": "JSON",
-      "Suffix": "json",
-      "Template Lookup Order": [
-        "layouts/index.json.json",
-        "layouts/index.json",
-        "layouts/_default/list.json.json",
-        "layouts/_default/list.json"
-      ]
-    }, {
-      "Example": "CSV regular, \"layout: demolayout\" in front matter.",
-      "OutputFormat": "CSV",
-      "Suffix": "csv",
-      "Template Lookup Order": [
-        "layouts/_default/demolayout.csv.csv",
-        "layouts/_default/demolayout.csv"
-      ]
-    }, {
-      "Example": "JSON regular, \"type: demotype\" in front matter.",
-      "OutputFormat": "JSON",
-      "Suffix": "json",
-      "Template Lookup Order": [
-        "layouts/demotype/single.json.json",
-        "layouts/demotype/single.json",
-        "layouts/_default/single.json.json",
-        "layouts/_default/single.json"
-      ]
-    }, {
-      "Example": "HTML regular.",
-      "OutputFormat": "HTML",
-      "Suffix": "html",
-      "Template Lookup Order": [
-        "layouts/_default/single.html.html",
-        "layouts/_default/single.html"
-      ]
-    }, {
-      "Example": "AMP regular.",
-      "OutputFormat": "AMP",
-      "Suffix": "html",
-      "Template Lookup Order": [
-        "layouts/_default/single.amp.html",
-        "layouts/_default/single.html"
-      ]
-    }, {
-      "Example": "Calendar blog section.",
-      "OutputFormat": "Calendar",
-      "Suffix": "ics",
-      "Template Lookup Order": [
-        "layouts/section/blog.calendar.ics",
-        "layouts/section/blog.ics",
-        "layouts/blog/list.calendar.ics",
-        "layouts/blog/list.ics",
-        "layouts/_default/section.calendar.ics",
-        "layouts/_default/section.ics",
-        "layouts/_default/list.calendar.ics",
-        "layouts/_default/list.ics"
-      ]
-    }, {
-      "Example": "Calendar taxonomy list.",
-      "OutputFormat": "Calendar",
-      "Suffix": "ics",
-      "Template Lookup Order": [
-        "layouts/taxonomy/tag.calendar.ics",
-        "layouts/taxonomy/tag.ics",
-        "layouts/_default/taxonomy.calendar.ics",
-        "layouts/_default/taxonomy.ics",
-        "layouts/_default/list.calendar.ics",
-        "layouts/_default/list.ics"
-      ]
-    }, {
-      "Example": "Calendar taxonomy term.",
-      "OutputFormat": "Calendar",
-      "Suffix": "ics",
-      "Template Lookup Order": [
-        "layouts/taxonomy/tag.terms.calendar.ics",
-        "layouts/taxonomy/tag.terms.ics",
-        "layouts/_default/terms.calendar.ics",
-        "layouts/_default/terms.ics"
-      ]
-    }]
+    "formats": [
+      {
+        "MediaType": "text/html+html",
+        "Name": "AMP",
+        "Path": "amp",
+        "BaseName": "index",
+        "Rel": "amphtml",
+        "Protocol": "",
+        "IsPlainText": false,
+        "IsHTML": true,
+        "NoUgly": false,
+        "NotAlternative": false
+      },
+      {
+        "MediaType": "text/css+css",
+        "Name": "CSS",
+        "Path": "",
+        "BaseName": "styles",
+        "Rel": "stylesheet",
+        "Protocol": "",
+        "IsPlainText": true,
+        "IsHTML": false,
+        "NoUgly": false,
+        "NotAlternative": true
+      },
+      {
+        "MediaType": "text/csv+csv",
+        "Name": "CSV",
+        "Path": "",
+        "BaseName": "index",
+        "Rel": "alternate",
+        "Protocol": "",
+        "IsPlainText": true,
+        "IsHTML": false,
+        "NoUgly": false,
+        "NotAlternative": false
+      },
+      {
+        "MediaType": "text/calendar+ics",
+        "Name": "Calendar",
+        "Path": "",
+        "BaseName": "index",
+        "Rel": "alternate",
+        "Protocol": "webcal://",
+        "IsPlainText": true,
+        "IsHTML": false,
+        "NoUgly": false,
+        "NotAlternative": false
+      },
+      {
+        "MediaType": "text/html+html",
+        "Name": "HTML",
+        "Path": "",
+        "BaseName": "index",
+        "Rel": "canonical",
+        "Protocol": "",
+        "IsPlainText": false,
+        "IsHTML": true,
+        "NoUgly": false,
+        "NotAlternative": false
+      },
+      {
+        "MediaType": "application/json+json",
+        "Name": "JSON",
+        "Path": "",
+        "BaseName": "index",
+        "Rel": "alternate",
+        "Protocol": "",
+        "IsPlainText": true,
+        "IsHTML": false,
+        "NoUgly": false,
+        "NotAlternative": false
+      },
+      {
+        "MediaType": "application/rss+xml",
+        "Name": "RSS",
+        "Path": "",
+        "BaseName": "index",
+        "Rel": "alternate",
+        "Protocol": "",
+        "IsPlainText": false,
+        "IsHTML": false,
+        "NoUgly": true,
+        "NotAlternative": false
+      }
+    ],
+    "layouts": [
+      {
+        "Example": "AMP home, with theme \"demoTheme\".",
+        "OutputFormat": "AMP",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/index.amp.html",
+          "layouts/index.html",
+          "layouts/_default/list.amp.html",
+          "layouts/_default/list.html",
+          "demoTheme/layouts/index.amp.html",
+          "demoTheme/layouts/index.html",
+          "demoTheme/layouts/_default/list.amp.html",
+          "demoTheme/layouts/_default/list.html"
+        ]
+      },
+      {
+        "Example": "JSON home, no theme.",
+        "OutputFormat": "JSON",
+        "Suffix": "json",
+        "Template Lookup Order": [
+          "layouts/index.json.json",
+          "layouts/index.json",
+          "layouts/_default/list.json.json",
+          "layouts/_default/list.json"
+        ]
+      },
+      {
+        "Example": "CSV regular, \"layout: demolayout\" in front matter.",
+        "OutputFormat": "CSV",
+        "Suffix": "csv",
+        "Template Lookup Order": [
+          "layouts/_default/demolayout.csv.csv",
+          "layouts/_default/demolayout.csv"
+        ]
+      },
+      {
+        "Example": "JSON regular, \"type: demotype\" in front matter.",
+        "OutputFormat": "JSON",
+        "Suffix": "json",
+        "Template Lookup Order": [
+          "layouts/demotype/single.json.json",
+          "layouts/demotype/single.json",
+          "layouts/_default/single.json.json",
+          "layouts/_default/single.json"
+        ]
+      },
+      {
+        "Example": "HTML regular.",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/_default/single.html.html",
+          "layouts/_default/single.html"
+        ]
+      },
+      {
+        "Example": "AMP regular.",
+        "OutputFormat": "AMP",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/_default/single.amp.html",
+          "layouts/_default/single.html"
+        ]
+      },
+      {
+        "Example": "Calendar blog section.",
+        "OutputFormat": "Calendar",
+        "Suffix": "ics",
+        "Template Lookup Order": [
+          "layouts/section/blog.calendar.ics",
+          "layouts/section/blog.ics",
+          "layouts/blog/list.calendar.ics",
+          "layouts/blog/list.ics",
+          "layouts/_default/section.calendar.ics",
+          "layouts/_default/section.ics",
+          "layouts/_default/list.calendar.ics",
+          "layouts/_default/list.ics"
+        ]
+      },
+      {
+        "Example": "Calendar taxonomy list.",
+        "OutputFormat": "Calendar",
+        "Suffix": "ics",
+        "Template Lookup Order": [
+          "layouts/taxonomy/tag.calendar.ics",
+          "layouts/taxonomy/tag.ics",
+          "layouts/_default/taxonomy.calendar.ics",
+          "layouts/_default/taxonomy.ics",
+          "layouts/_default/list.calendar.ics",
+          "layouts/_default/list.ics"
+        ]
+      },
+      {
+        "Example": "Calendar taxonomy term.",
+        "OutputFormat": "Calendar",
+        "Suffix": "ics",
+        "Template Lookup Order": [
+          "layouts/taxonomy/tag.terms.calendar.ics",
+          "layouts/taxonomy/tag.terms.ics",
+          "layouts/_default/terms.calendar.ics",
+          "layouts/_default/terms.ics"
+        ]
+      }
+    ]
   },
   "tpl": {
     "funcs": {
@@ -580,6 +608,21 @@
             [
               "{{ union (slice 1 2 3) (slice 3 4 5) }}",
               "[1 2 3 4 5]"
+            ]
+          ]
+        },
+        "Uniq": {
+          "Description": "Uniq takes in a slice or array and returns a slice with subsequent\nduplicate elements removed.",
+          "Args": [
+            "l"
+          ],
+          "Aliases": [
+            "uniq"
+          ],
+          "Examples": [
+            [
+              "{{ slice 1 2 3 2 | uniq }}",
+              "[1 2 3]"
             ]
           ]
         },
