@@ -26,6 +26,11 @@ features:
     image_path: /images/icon-multilingual2.svg
     tagline: Polyglot baked in.
     copy: Hugo provides full i18n support for multi-language sites with the same straightforward development experience Hugo users love in single-language sites.
+
+  - heading: Custom Outputs
+    image_path: /images/icon-custom-outputs.svg
+    tagline: HTML not Enough?
+    copy: Hugo allows you to output your content in multiple types, like JSON, AMP, or you can create your own.
 sections:
   - heading: "100s of Themes"
     cta: Check out the Hugo's themes.
