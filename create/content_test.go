@@ -44,6 +44,7 @@ func TestNewContent(t *testing.T) {
 		expected []string
 	}{
 		{"post", "post/sample-1.md", []string{`title = "Post Arch title"`, `test = "test1"`, "date = \"2015-01-12T19:20:04-07:00\""}},
+		{"post", "post/org-1.org", []string{`#+title: ORG-1`}},
 		{"emptydate", "post/sample-ed.md", []string{`title = "Empty Date Arch title"`, `test = "test1"`}},
 		{"stump", "stump/sample-2.md", []string{`title = "Sample 2"`}},     // no archetype file
 		{"", "sample-3.md", []string{`title = "Sample 3"`}},                // no archetype
@@ -110,6 +111,10 @@ func initFs(fs *hugofs.Fs) error {
 		{
 			path:    filepath.Join("archetypes", "post.md"),
 			content: "+++\ndate = \"2015-01-12T19:20:04-07:00\"\ntitle = \"Post Arch title\"\ntest = \"test1\"\n+++\n",
+		},
+		{
+			path:    filepath.Join("archetypes", "post.org"),
+			content: "#+title: {{ .BaseFileName  | upper }}",
 		},
 		{
 			path: filepath.Join("archetypes", "product.md"),
