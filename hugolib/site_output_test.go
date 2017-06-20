@@ -290,3 +290,76 @@ baseName = "feed"
 	require.Equal(t, "http://example.com/blog/feed.xml", s.Info.RSSLink)
 
 }
+
+// Issue #3614
+func TestDotLessOutputFormat(t *testing.T) {
+	siteConfig := `
+baseURL = "http://example.com/blog"
+
+paginate = 1
+defaultContentLanguage = "en"
+
+disableKinds = ["page", "section", "taxonomy", "taxonomyTerm", "sitemap", "robotsTXT", "404"]
+
+[mediaTypes]
+[mediaTypes."text/nodot"]
+suffix = ""
+delimiter = ""
+[mediaTypes."text/defaultdelim"]
+suffix = "defd"
+[mediaTypes."text/nosuffix"]
+suffix = ""
+[mediaTypes."text/customdelim"]
+suffix = "del"
+delimiter = "_"
+
+[outputs]
+home = [ "DOTLESS", "DEF", "NOS", "CUS" ]
+
+[outputFormats]
+[outputFormats.DOTLESS]
+mediatype = "text/nodot"
+baseName = "_redirects" # This is how Netlify names their redirect files.
+[outputFormats.DEF]
+mediatype = "text/defaultdelim"
+baseName = "defaultdelimbase"
+[outputFormats.NOS]
+mediatype = "text/nosuffix"
+baseName = "nosuffixbase"
+[outputFormats.CUS]
+mediatype = "text/customdelim"
+baseName = "customdelimbase"
+
+`
+
+	mf := afero.NewMemMapFs()
+	writeToFs(t, mf, "content/foo.html", `foo`)
+	writeToFs(t, mf, "layouts/_default/list.dotless", `a dotless`)
+	writeToFs(t, mf, "layouts/_default/list.def.defd", `default delimim`)
+	writeToFs(t, mf, "layouts/_default/list.nos", `no suffix`)
+	writeToFs(t, mf, "layouts/_default/list.cus.del", `custom delim`)
+
+	th, h := newTestSitesFromConfig(t, mf, siteConfig)
+
+	err := h.Build(BuildCfg{})
+
+	require.NoError(t, err)
+
+	th.assertFileContent("public/_redirects", "a dotless")
+	th.assertFileContent("public/defaultdelimbase.defd", "default delimim")
+	// This looks weird, but the user has chosen this definition.
+	th.assertFileContent("public/nosuffixbase.", "no suffix")
+	th.assertFileContent("public/customdelimbase_del", "custom delim")
+
+	s := h.Sites[0]
+	home := s.getPage(KindHome)
+	require.NotNil(t, home)
+
+	outputs := home.OutputFormats()
+
+	require.Equal(t, "/blog/_redirects", outputs.Get("DOTLESS").RelPermalink())
+	require.Equal(t, "/blog/defaultdelimbase.defd", outputs.Get("DEF").RelPermalink())
+	require.Equal(t, "/blog/nosuffixbase.", outputs.Get("NOS").RelPermalink())
+	require.Equal(t, "/blog/customdelimbase_del", outputs.Get("CUS").RelPermalink())
+
+}

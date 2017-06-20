@@ -181,17 +181,37 @@ func resolveListTemplate(d LayoutDescriptor, f Format,
 	case "taxonomyTerm":
 		layouts = resolveTemplate(taxonomyTermLayouts, d, f)
 	}
-
 	return layouts
 }
 
 func resolveTemplate(templ string, d LayoutDescriptor, f Format) []string {
+	delim := "."
+	if f.MediaType.Delimiter == "" {
+		delim = ""
+	}
 	layouts := strings.Fields(replaceKeyValues(templ,
-		"SUFFIX", f.MediaType.Suffix,
+		".SUFFIX", delim+f.MediaType.Suffix,
 		"NAME", strings.ToLower(f.Name),
 		"SECTION", d.Section))
 
-	return layouts
+	return filterDotLess(layouts)
+}
+
+func filterDotLess(layouts []string) []string {
+	var filteredLayouts []string
+
+	for _, l := range layouts {
+		// This may be constructed, but media types can be suffix-less, but can contain
+		// a delimiter.
+		l = strings.TrimSuffix(l, ".")
+		// If media type has no suffix, we have "index" type of layouts in this list, which
+		// doesn't make much sense.
+		if strings.Contains(l, ".") {
+			filteredLayouts = append(filteredLayouts, l)
+		}
+	}
+
+	return filteredLayouts
 }
 
 func prependTextPrefixIfNeeded(f Format, layouts ...string) []string {
@@ -220,7 +240,12 @@ func regularPageLayouts(types string, layout string, f Format) []string {
 		layout = "single"
 	}
 
-	suffix := f.MediaType.Suffix
+	delimiter := "."
+	if f.MediaType.Delimiter == "" {
+		delimiter = ""
+	}
+
+	suffix := delimiter + f.MediaType.Suffix
 	name := strings.ToLower(f.Name)
 
 	if types != "" {
@@ -229,15 +254,15 @@ func regularPageLayouts(types string, layout string, f Format) []string {
 		// Add type/layout.html
 		for i := range t {
 			search := t[:len(t)-i]
-			layouts = append(layouts, fmt.Sprintf("%s/%s.%s.%s", strings.ToLower(path.Join(search...)), layout, name, suffix))
-			layouts = append(layouts, fmt.Sprintf("%s/%s.%s", strings.ToLower(path.Join(search...)), layout, suffix))
+			layouts = append(layouts, fmt.Sprintf("%s/%s.%s%s", strings.ToLower(path.Join(search...)), layout, name, suffix))
+			layouts = append(layouts, fmt.Sprintf("%s/%s%s", strings.ToLower(path.Join(search...)), layout, suffix))
 
 		}
 	}
 
 	// Add _default/layout.html
-	layouts = append(layouts, fmt.Sprintf("_default/%s.%s.%s", layout, name, suffix))
-	layouts = append(layouts, fmt.Sprintf("_default/%s.%s", layout, suffix))
+	layouts = append(layouts, fmt.Sprintf("_default/%s.%s%s", layout, name, suffix))
+	layouts = append(layouts, fmt.Sprintf("_default/%s%s", layout, suffix))
 
-	return layouts
+	return filterDotLess(layouts)
 }

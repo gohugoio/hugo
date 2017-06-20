@@ -40,6 +40,7 @@ func TestDefaultTypes(t *testing.T) {
 		require.Equal(t, test.expectedMainType, test.tp.MainType)
 		require.Equal(t, test.expectedSubType, test.tp.SubType)
 		require.Equal(t, test.expectedSuffix, test.tp.Suffix)
+		require.Equal(t, defaultDelimiter, test.tp.Delimiter)
 
 		require.Equal(t, test.expectedType, test.tp.Type())
 		require.Equal(t, test.expectedString, test.tp.String())
@@ -66,11 +67,11 @@ func TestFromTypeString(t *testing.T) {
 
 	f, err = FromString("application/custom")
 	require.NoError(t, err)
-	require.Equal(t, Type{MainType: "application", SubType: "custom", Suffix: "custom"}, f)
+	require.Equal(t, Type{MainType: "application", SubType: "custom", Suffix: "custom", Delimiter: defaultDelimiter}, f)
 
 	f, err = FromString("application/custom+pdf")
 	require.NoError(t, err)
-	require.Equal(t, Type{MainType: "application", SubType: "custom", Suffix: "pdf"}, f)
+	require.Equal(t, Type{MainType: "application", SubType: "custom", Suffix: "pdf", Delimiter: defaultDelimiter}, f)
 
 	f, err = FromString("noslash")
 	require.Error(t, err)
