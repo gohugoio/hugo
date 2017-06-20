@@ -49,6 +49,7 @@ Available Commands:
   convert     Convert your content to different formats
   env         Print Hugo version and environment info
   gen         A collection of several useful generators.
+  help        Help about any command
   import      Import your site from others.
   list        Listing out various types of content
   new         Create new content for your site
@@ -63,25 +64,26 @@ Flags:
   -F, --buildFuture                include content with publishdate in the future
       --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
       --canonifyURLs               if true, all relative URLs will be canonicalized using baseURL
-      --cleanDestinationDir        Remove files from destination not found in static directories
+      --cleanDestinationDir        remove files from destination not found in static directories
       --config string              config file (default is path/config.yaml|json|toml)
   -c, --contentDir string          filesystem path to content directory
   -d, --destination string         filesystem path to write files to
-      --disable404                 Do not render 404 page
-      --disableKinds stringSlice   Disable different kind of pages (home, RSS etc.)
-      --disableRSS                 Do not build RSS files
-      --disableSitemap             Do not build Sitemap file
-      --enableGitInfo              Add Git revision, date and author info to the pages
-      --forceSyncStatic            Copy all files when static is changed.
-      --i18n-warnings              Print missing translations
-      --ignoreCache                Ignores the cache directory
+      --disable404                 do not render 404 page
+      --disableKinds stringSlice   disable different kind of pages (home, RSS etc.)
+      --disableRSS                 do not build RSS files
+      --disableSitemap             do not build Sitemap file
+      --enableGitInfo              add Git revision, date and author info to the pages
+      --forceSyncStatic            copy all files when static is changed.
+  -h, --help                       help for hugo
+      --i18n-warnings              print missing translations
+      --ignoreCache                ignores the cache directory
   -l, --layoutDir string           filesystem path to layout directory
-      --log                        Enable Logging
-      --logFile string             Log File path (if set, logging enabled automatically)
-      --noChmod                    Don't sync permission mode of files
-      --noTimes                    Don't sync modification time of files
-      --pluralizeListTitles        Pluralize titles in lists using inflect (default true)
-      --preserveTaxonomyNames      Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
+      --log                        enable Logging
+      --logFile string             log File path (if set, logging enabled automatically)
+      --noChmod                    don't sync permission mode of files
+      --noTimes                    don't sync modification time of files
+      --pluralizeListTitles        pluralize titles in lists using inflect (default true)
+      --preserveTaxonomyNames      preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
       --quiet                      build in quiet mode
       --renderToMemory             render to memory (only useful for benchmark testing)
   -s, --source string              filesystem path to read files relative from
