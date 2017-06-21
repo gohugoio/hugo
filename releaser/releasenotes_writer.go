@@ -39,7 +39,7 @@ const (
 {{ if eq (len .All) 1 }}
 This is a bug-fix release with one important fix.
 {{ else }}
-This is a bug-fix relase with a couple of important fixes.
+This is a bug-fix release with a couple of important fixes.
 {{ end }}
 {{ else }}
 This release represents **{{ len .All }} contributions by {{ len $contribsPerAuthor }} contributors** to the main Hugo code base.
@@ -185,16 +185,16 @@ func writeReleaseNotesToTmpFile(version string, infos gitInfos) (string, error) 
 	return f.Name(), nil
 }
 
-func getRelaseNotesDocsTempDirAndName(version string) (string, string) {
+func getReleaseNotesDocsTempDirAndName(version string) (string, string) {
 	return hugoFilepath("temp"), fmt.Sprintf("%s-relnotes.md", version)
 }
 
-func getRelaseNotesDocsTempFilename(version string) string {
-	return filepath.Join(getRelaseNotesDocsTempDirAndName(version))
+func getReleaseNotesDocsTempFilename(version string) string {
+	return filepath.Join(getReleaseNotesDocsTempDirAndName(version))
 }
 
 func writeReleaseNotesToTemp(version string, infos gitInfos) (string, error) {
-	docsTempPath, name := getRelaseNotesDocsTempDirAndName(version)
+	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version)
 	os.Mkdir(docsTempPath, os.ModePerm)
 
 	f, err := os.Create(filepath.Join(docsTempPath, name))
