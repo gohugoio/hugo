@@ -29,6 +29,7 @@ relativeURLs = true
 stepAnalysis = true
 # This is the top-level, global site title
 title = "Hugo"
+theme = "gohugoioTheme"
 
 # Change this once you've created your theme
 
