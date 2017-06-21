@@ -1,4 +1,4 @@
-baseurl = "https://hugodocs.info"
+baseurl = ""
 canonifyurls = true
 # Pointing to this file
 config = "config.toml"
