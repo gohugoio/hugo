@@ -33,7 +33,7 @@ const commitPrefix = "releaser:"
 type ReleaseHandler struct {
 	patch int
 
-	// If set, we do the relases in 3 steps:
+	// If set, we do the releases in 3 steps:
 	// 1: Create and write a draft release notes
 	// 2: Prepare files for new version.
 	// 3: Release
@@ -167,7 +167,7 @@ func (r *ReleaseHandler) Run() error {
 		return nil
 	}
 
-	releaseNotesFile := getRelaseNotesDocsTempFilename(version)
+	releaseNotesFile := getReleaseNotesDocsTempFilename(version)
 
 	// Write the release notes to the docs site as well.
 	docFile, err := writeReleaseNotesToDocs(version, releaseNotesFile)
@@ -178,7 +178,7 @@ func (r *ReleaseHandler) Run() error {
 	if _, err := git("-C", "docs", "add", docFile); err != nil {
 		return err
 	}
-	if _, err := git("-C", "docs", "commit", "-m", fmt.Sprintf("%s Add relase notes to /docs for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+	if _, err := git("-C", "docs", "commit", "-m", fmt.Sprintf("%s Add release notes to /docs for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
 		return err
 	}
 
