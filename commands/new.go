@@ -152,10 +152,11 @@ func NewContent(cmd *cobra.Command, args []string) error {
 }
 
 func doNewSite(fs *hugofs.Fs, basepath string, force bool) error {
+	archeTypePath := filepath.Join(basepath, "archetypes")
 	dirs := []string{
 		filepath.Join(basepath, "layouts"),
 		filepath.Join(basepath, "content"),
-		filepath.Join(basepath, "archetypes"),
+		archeTypePath,
 		filepath.Join(basepath, "static"),
 		filepath.Join(basepath, "data"),
 		filepath.Join(basepath, "themes"),
@@ -189,6 +190,10 @@ func doNewSite(fs *hugofs.Fs, basepath string, force bool) error {
 	}
 
 	createConfig(fs, basepath, configFormat)
+
+	// Create a defaul archetype file.
+	helpers.SafeWriteToDisk(filepath.Join(archeTypePath, "default.md"),
+		strings.NewReader(create.ArchetypeTemplateTemplate), fs.Source)
 
 	jww.FEEDBACK.Printf("Congratulations! Your new Hugo site is created in %s.\n\n", basepath)
 	jww.FEEDBACK.Println(nextStepsText())
