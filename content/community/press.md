@@ -18,6 +18,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 
 | Title                                                                                                                                                                                                    | Author                                                                  | Date                   |
 | ------                                                                                                                                                                                                   | ------                                                                  | -----:                 |
+| [Build, Test, And Deploy Statically Generated Websites With Hugo & CircleCI](https://circleci.com/blog/build-test-deploy-hugo-sites/)| Ricardo N Feliciano | 2017-05-31 |
 | [Hugo Easy Gallery - Automagical PhotoSwipe image gallery with a one-line shortcode](https://www.liwen.id.au/heg/)| Li-Wen Yip | 2017-03-25 |
 | [Hugo Tutorial: How to Build & Host a (Very Fast) Static E-Commerce Site](https://snipcart.com/blog/hugo-tutorial-static-site-ecommerce) | Snipcart | 2017-03-12 |
 | [Automagical image gallery in Hugo with PhotoSwipe and jQuery](https://www.liwen.id.au/photoswipe/)| Li-Wen Yip | 2017-03-04 |
