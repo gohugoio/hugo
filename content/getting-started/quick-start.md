@@ -282,7 +282,7 @@ To view your website, you can go to <http://localhost:1313/>. You should see som
 
 ![](/images/quickstart/bookshelf-robust-theme.png)
 
-Similar to the way we looked at the scaffolding for our new Hugo website, let's take a look at what comprises a typical Hugo theme. The following is only a selection of what you would see if you were to list out the contents of the Robust theme directory. These are also some of the default files created by Hugo as of v0.18.1. (See [Creating a Theme][createtheme])
+Similar to the way we looked at the scaffolding for our new Hugo website, let's take a look at what comprises a typical Hugo theme. The following is only a selection of what you would see if you were to list out the contents of the Robust theme directory. These are also some of the default files created by Hugo as of v0.23. (See [Creating a Theme][createtheme])
 
 ```bash
 .
@@ -296,15 +296,16 @@ Similar to the way we looked at the scaffolding for our new Hugo website, let's 
 │   │   └── single.html
 │   ├── index.html
 │   └── partials
+│       ├── footer.html
+│       └── header.html
 ├── static
 │   ├── css
-|   ├── images
 │   └── js
 └── theme.toml
 ```
 
-* `theme.toml` is the theme configuration file that provides information about the theme; e.g., theme name, theme description, theme author, and theme license.
-* `layouts` contains different views (i.e., templates) for different content types. In this quick start, we see that each content type has a `single.html` and `list.html`. `single.html` is used for rendering a single piece of content. `list.html` is used to view a list of content items. For example, you will use `list.html` to view `*.md` in the posts [section][listsectiontemplates]. Think of `list.html` as `example.com/posts` and `single.html` as `example.com/posts/my-single-post/`.
+* `theme.toml` is the theme configuration file that provides information about the theme; e.g., theme name, theme description, theme author, theme license, and minimum Hugo version, which will default to your locally installed version of Hugo.
+* `layouts` contains different views (i.e., [templates][templating]) for different content types. In this quick start, we see that each content type has a `single.html` and `list.html`. `single.html` is used for rendering a single piece of content. `list.html` is used to view a list of content items. For example, you will use `list.html` to view `*.md` in the posts [section][listsectiontemplates]. Think of `list.html` as `example.com/posts` and `single.html` as `example.com/posts/my-single-post/`.
 * `static` has the same purpose as that of the `static` in our original scaffolding. This directory stores all the static assets used by the theme and is copied over *as is* at build time.
 
 ## Step 6. Use Multiple Themes
@@ -554,12 +555,6 @@ Here's what you should look into next:
 2. [Learn more about Hugo's powerful templating][templating] to tailor your new Hugo website to your specific needs and keep it scaling accordingly.
 3. [Visit the Hugo Discussion Forum][forum] to ask questions, answer questions, and become an active member of the Hugo community.
 
---------
-
-## Video: Hugo Website in 2 Minutes
-
-{{% youtube w7Ft2ymGmfc %}}
-
 [archetypes]: /content-management/archetypes/
 [bookurl]: https://www.amazon.com/Good-Great-Some-Companies-Others/dp/0066620996/
 [bleaktheme]: http://themes.gohugo.io/bleak/
@@ -580,6 +575,6 @@ Here's what you should look into next:
 [sectiontemplates]: /templates/section-templates/
 [shortcodetemplates]: /templates/shortcode-templates/
 [sitemenu]: /content-management/menus/
-[templating]: /templates/
+[templating]: /templates/introduction/
 [themessection]: /themes/
 [themes]: /themes/
