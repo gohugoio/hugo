@@ -56,7 +56,7 @@ By default, hugo will create new content files with at least `date`, `title` (in
 used by Hugo when generating your website. You can write these files in YAML, JSON, or TOML format. In addition to the files you add to this folder, you can also create [data templates][] that pull from dynamic content.
 
 [`layouts`][]
-: stores templates in the form of `.html` files that specify how views of your content will be rendered into a static website. Templates include [list pages][lists], your [homepage][], [taxonomy templates][], [partials][], [single page templates][singles], and more.
+: Stores templates in the form of `.html` files that specify how views of your content will be rendered into a static website. Templates include [list pages][lists], your [homepage][], [taxonomy templates][], [partials][], [single page templates][singles], and more.
 
 `static`
 : stores all the static content for your future website: images, CSS, JavaScript, etc. When Hugo builds your site, all assets inside your static directory are copied over as-is. A good example of using the `static` folder is for [verifying site ownership on Google Search Console][searchconsole], where you want Hugo to copy over a complete HTML file without modifying its content.
@@ -72,7 +72,7 @@ Hugo does not currently ship with an asset pipeline ([#3207](https://github.com/
 [content section]: /content-management/sections/
 [content types]: /content-management/types/
 [data templates]: /templates/data-templates/
-[homepage]: /templates/homepage-templates/
+[homepage]: /templates/homepage/
 [`layouts`]: /templates/
 [lists]: /templates/list/
 [pagevars]: /variables/page/
