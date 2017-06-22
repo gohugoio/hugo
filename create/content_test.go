@@ -46,8 +46,8 @@ func TestNewContent(t *testing.T) {
 		{"post", "post/sample-1.md", []string{`title = "Post Arch title"`, `test = "test1"`, "date = \"2015-01-12T19:20:04-07:00\""}},
 		{"post", "post/org-1.org", []string{`#+title: ORG-1`}},
 		{"emptydate", "post/sample-ed.md", []string{`title = "Empty Date Arch title"`, `test = "test1"`}},
-		{"stump", "stump/sample-2.md", []string{`title = "Sample 2"`}},     // no archetype file
-		{"", "sample-3.md", []string{`title = "Sample 3"`}},                // no archetype
+		{"stump", "stump/sample-2.md", []string{`title: "Sample 2"`}},      // no archetype file
+		{"", "sample-3.md", []string{`title: "Sample 3"`}},                 // no archetype
 		{"product", "product/sample-4.md", []string{`title = "SAMPLE-4"`}}, // empty archetype front matter
 	}
 

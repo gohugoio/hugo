@@ -36,15 +36,19 @@ func NewContent(
 
 	archetypeFilename := findArchetype(ps, kind, ext)
 
-	f, err := ps.Fs.Source.Open(archetypeFilename)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
 	// Building the sites can be expensive, so only do it if really needed.
 	siteUsed := false
-	if helpers.ReaderContains(f, []byte(".Site")) {
-		siteUsed = true
+
+	if archetypeFilename != "" {
+		f, err := ps.Fs.Source.Open(archetypeFilename)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		if helpers.ReaderContains(f, []byte(".Site")) {
+			siteUsed = true
+		}
 	}
 
 	s, err := siteFactory(targetPath, siteUsed)
