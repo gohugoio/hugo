@@ -88,8 +88,8 @@ Cons:
 
 ### Fedora, CentOS and Red Hat
 
+* https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/ : updated as soon as possible after the official Hugo release.
 * https://copr.fedorainfracloud.org/coprs/spf13/Hugo/ (updated to Hugo v0.16)
-* https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/ (updated to Hugo v0.22) : usually released a few days after the official Hugo release.
 
 See also [this discussion](https://discourse.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491).
 
