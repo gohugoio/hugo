@@ -4,7 +4,7 @@ linktitle: Quick Start
 description: Build an online bookshelf that taps into HUGO's CLI, directory structure, configuration, and theming.
 date: 2013-07-01
 publishdate: 2013-07-01
-lastmod: 2017-02-19
+lastmod: 2017-06-22
 categories: [getting started]
 tags: [quick start,usage]
 authors: [Shekhar Gulati, Ryan Watters]
@@ -532,8 +532,6 @@ Then type the following command while in the root directory of your Hugo project
 
 ```bash
 hugo --theme=hugo_theme_robust
-```
-```
 0 draft content
 0 future content
 5 pages created
