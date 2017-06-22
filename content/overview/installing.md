@@ -93,7 +93,9 @@ Cons:
 
 See also [this discussion](https://discourse.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491).
 
-### Snap package for Hugo
+## Alternate Installation Methods
+
+### Snap Package
 
 In any of the [Linux distributions that support snaps](http://snapcraft.io/docs/core/install):
 
@@ -101,6 +103,10 @@ In any of the [Linux distributions that support snaps](http://snapcraft.io/docs/
 
 > Note: Hugo-as-a-snap can write only inside the user’s `$HOME` directory—and gvfs-mounted directories owned by the user—because of Snaps’ confinement and security model.
 > More information is also available [in this related GitHub issue](https://github.com/gohugoio/hugo/issues/3143).
+
+### Docker Image (unofficial)
+
+[Docker Hugo](https://hub.docker.com/r/felicianotech/docker-hugo/) is a Docker image that can be used for local development but more importantly, can be easily used for continuous integration builds of your Hugo site on [CircleCI](https://circleci.com/) or [Travis CI](https://travis-ci.org/). Source available on [GitHub](https://github.com/felicianotech/docker-hugo).
 
 ## Installing from source
 
