@@ -48,11 +48,11 @@ type ArchetypeFileData struct {
 }
 
 const (
-	archetypeTemplateTemplate = `+++
-title = "{{ replace .TranslationBaseName "-" " " | title }}"
-date = {{ .Date }}
-draft = true
-+++`
+	archetypeTemplateTemplate = `---
+title: "{{ replace .TranslationBaseName "-" " " | title }}"
+date: {{ .Date }}
+draft: true
+---`
 )
 
 func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFilename string) ([]byte, error) {
