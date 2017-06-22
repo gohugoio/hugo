@@ -48,11 +48,13 @@ type ArchetypeFileData struct {
 }
 
 const (
-	archetypeTemplateTemplate = `---
+	ArchetypeTemplateTemplate = `---
 title: "{{ replace .TranslationBaseName "-" " " | title }}"
 date: {{ .Date }}
 draft: true
----`
+---
+
+`
 )
 
 func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFilename string) ([]byte, error) {
@@ -75,7 +77,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 
 	if archetypeFilename == "" {
 		// TODO(bep) archetype revive the issue about wrong tpl funcs arg order
-		archetypeTemplate = []byte(archetypeTemplateTemplate)
+		archetypeTemplate = []byte(ArchetypeTemplateTemplate)
 	} else {
 		archetypeTemplate, err = afero.ReadFile(s.Fs.Source, archetypeFilename)
 		if err != nil {
@@ -105,7 +107,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 		s.Log.FEEDBACK.Println(fmt.Sprintf(`WARNING: date and/or title missing from archetype file %q. 
 From Hugo 0.24 this must be provided in the archetype file itself, if needed. Example:
 %s
-`, archetypeFilename, archetypeTemplateTemplate))
+`, archetypeFilename, ArchetypeTemplateTemplate))
 
 	}
 
