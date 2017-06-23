@@ -16,6 +16,7 @@ package create
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -57,6 +58,20 @@ draft: true
 `
 )
 
+var (
+	archetypeShortcodeReplacementsPre = strings.NewReplacer(
+		"{{<", "{x{<",
+		"{{%", "{x{%",
+		">}}", ">}x}",
+		"%}}", "%}x}")
+
+	archetypeShortcodeReplacementsPost = strings.NewReplacer(
+		"{x{<", "{{<",
+		"{x{%", "{{%",
+		">}x}", ">}}",
+		"%}x}", "%}}")
+)
+
 func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFilename string) ([]byte, error) {
 
 	var (
@@ -86,6 +101,10 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 
 	}
 
+	// The archetype template may contain shortcodes, and these does not play well
+	// with the Go templates. Need to set some temporary delimiters.
+	archetypeTemplate = []byte(archetypeShortcodeReplacementsPre.Replace(string(archetypeTemplate)))
+
 	// Reuse the Hugo template setup to get the template funcs properly set up.
 	templateHandler := s.Deps.Tmpl.(tpl.TemplateHandler)
 	templateName := "_text/" + helpers.Filename(archetypeFilename)
@@ -100,7 +119,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 		return nil, fmt.Errorf("Failed to process archetype file %q: %s", archetypeFilename, err)
 	}
 
-	archetypeContent = buff.Bytes()
+	archetypeContent = []byte(archetypeShortcodeReplacementsPost.Replace(buff.String()))
 
 	if !bytes.Contains(archetypeContent, []byte("date")) || !bytes.Contains(archetypeContent, []byte("title")) {
 		// TODO(bep) remove some time in the future.

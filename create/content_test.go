@@ -49,6 +49,11 @@ func TestNewContent(t *testing.T) {
 		{"stump", "stump/sample-2.md", []string{`title: "Sample 2"`}},      // no archetype file
 		{"", "sample-3.md", []string{`title: "Sample 3"`}},                 // no archetype
 		{"product", "product/sample-4.md", []string{`title = "SAMPLE-4"`}}, // empty archetype front matter
+		{"shortcodes", "shortcodes/go.md", []string{
+			`title = "GO"`,
+			"{{< myshortcode >}}",
+			"{{% myshortcode %}}",
+			"{{</* comment */>}}\n{{%/* comment */%}}"}}, // shortcodes
 	}
 
 	for _, c := range cases {
@@ -125,6 +130,24 @@ title = "{{ .BaseFileName  | upper }}"
 		{
 			path:    filepath.Join("archetypes", "emptydate.md"),
 			content: "+++\ndate =\"\"\ntitle = \"Empty Date Arch title\"\ntest = \"test1\"\n+++\n",
+		},
+		// #3623x
+		{
+			path: filepath.Join("archetypes", "shortcodes.md"),
+			content: `+++
+title = "{{ .BaseFileName  | upper }}"
++++
+
+{{< myshortcode >}}
+
+Some text.
+
+{{% myshortcode %}}
+{{</* comment */>}}
+{{%/* comment */%}}
+
+
+`,
 		},
 	} {
 		f, err := fs.Source.Create(v.path)
