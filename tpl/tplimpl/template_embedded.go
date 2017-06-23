@@ -167,18 +167,18 @@ func (t *templateHandler) embedTemplates() {
 
 	t.addInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script type="text/javascript">
-    var disqus_shortname = '{{ .Site.DisqusShortname }}';
-    {{with .GetParam "disqus_identifier" }}var disqus_identifier = '{{ . }}';{{end}}
-    {{with .GetParam "disqus_title" }}var disqus_title = '{{ . }}';{{end}}
-    {{with .GetParam "disqus_url" }}var disqus_url = '{{ . | html  }}';{{end}}
-
+    var disqus_config = function () {
+    {{with .GetParam "disqus_identifier" }}this.page.identifier = '{{ . }}';{{end}}
+    {{with .GetParam "disqus_title" }}this.page.title = '{{ . }}';{{end}}
+    {{with .GetParam "disqus_url" }}this.page.url = '{{ . | html  }}';{{end}}
+    };
     (function() {
         if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
             document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
             return;
         }
         var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        dsq.src = '//' + {{ .Site.DisqusShortname }} + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
 </script>
