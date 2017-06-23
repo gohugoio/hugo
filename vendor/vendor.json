@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "pPH/BoINXxzYDObljpsGZbysMrw=",
+			"checksumSHA1": "fEgW0LDkuhB+99rGbe1upZnGK6I=",
 			"path": "github.com/BurntSushi/toml",
-			"revision": "b26d9c308763d68093482582cea63d69be07a0f0",
-			"revisionTime": "2017-03-28T06:15:53Z"
+			"revision": "8fb9fdc4f82fd3495b9086c911b86cc3d50cb7ab",
+			"revisionTime": "2017-06-23T11:17:45Z"
 		},
 		{
 			"checksumSHA1": "NX4v3cbkXAJxFlrncqT9yEUBuoA=",
