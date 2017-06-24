@@ -153,10 +153,11 @@ func (r *ReleaseHandler) Run() error {
 			if _, err := git("submodule", "update", "--remote", "--merge"); err != nil {
 				return err
 			}
-		}
-		// TODO(bep) the above may not have changed anything.
-		if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Update /docs [ci skip]", commitPrefix)); err != nil {
-			return err
+
+			// TODO(bep) the above may not have changed anything.
+			if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Update /docs [ci skip]", commitPrefix)); err != nil {
+				return err
+			}
 		}
 
 		if err := bumpVersions(newVersion); err != nil {
