@@ -142,9 +142,17 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	if r.shouldPrepareVersions() {
-		// Make sure the docs submodule is up to date.
-		if _, err := git("submodule", "update", "--remote", "--merge"); err != nil {
-			return err
+		if newVersion.PatchLevel == 0 {
+			// Make sure the docs submodule is up to date.
+			// TODO(bep) improve this. Maybe it was not such a good idea to do
+			// this in the sobmodule directly.
+			if _, err := git("submodule", "update", "--init"); err != nil {
+				return err
+			}
+			//git submodule update
+			if _, err := git("submodule", "update", "--remote", "--merge"); err != nil {
+				return err
+			}
 		}
 		// TODO(bep) the above may not have changed anything.
 		if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Update /docs [ci skip]", commitPrefix)); err != nil {
