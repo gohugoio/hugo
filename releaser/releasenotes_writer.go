@@ -103,9 +103,9 @@ Hugo now has:
 {{ define "change-section" }}
 {{ range . }}
 {{- if .GitHubCommit -}}
-* {{ .Subject }} {{ . | commitURL }} {{ . | authorURL }} {{ range .Issues }}{{ . | issue }} {{ end }}
+* {{ .Subject }} {{ . | commitURL }} {{ . | authorURL }} {{ range .Issues }}{{ . | issue }}{{ end }}
 {{ else -}}
-* {{ .Subject }} {{ range .Issues }}{{ . | issue }} {{ end }}
+* {{ .Subject }} {{ range .Issues }}{{ . | issue }}{{ end }}
 {{ end -}}
 {{- end }}
 {{ end }}
