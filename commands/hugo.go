@@ -981,8 +981,15 @@ func (c *commandeer) newWatcher(port int) error {
 					}
 
 					if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
-						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
-						livereload.ForceRefresh()
+						// TODO(bep) open filter unique paths
+						// TODO(bep) open add CLI flag + config.
+						first := dynamicEvents[0]
+						p := Hugo.GetContentPage(first.Name)
+						if p != nil {
+							livereload.NavigateToPath(p.RelPermalink())
+						} else {
+							livereload.ForceRefresh()
+						}
 					}
 				}
 			case err := <-watcher.Errors:
