@@ -19,6 +19,8 @@ import (
 	"strings"
 	"sync"
 
+	"path/filepath"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 
@@ -36,6 +38,27 @@ type HugoSites struct {
 	multilingual *Multilingual
 
 	*deps.Deps
+}
+
+// GetContentPage finds a Page with content given the absolute filename.
+// Returns nil if none found.
+func (h *HugoSites) GetContentPage(filename string) *Page {
+	s := h.Sites[0]
+	contendDir := filepath.Join(s.PathSpec.AbsPathify(s.Cfg.GetString("contentDir")))
+	if !strings.HasPrefix(filename, contendDir) {
+		return nil
+	}
+
+	rel := strings.TrimPrefix(filename, contendDir)
+	rel = strings.TrimPrefix(rel, helpers.FilePathSeparator)
+
+	pos := s.rawAllPages.findPagePosByFilePath(rel)
+
+	if pos == -1 {
+		return nil
+	}
+	return s.rawAllPages[pos]
+
 }
 
 // NewHugoSites creates a new collection of sites given the input sites, building

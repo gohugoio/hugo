@@ -981,8 +981,28 @@ func (c *commandeer) newWatcher(port int) error {
 					}
 
 					if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
-						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
-						livereload.ForceRefresh()
+
+						navigate := c.Cfg.GetBool("navigateToChanged")
+
+						var p *hugolib.Page
+
+						if navigate {
+
+							// It is probably more confusing than useful
+							// to navigate to a new URL on RENAME etc.
+							// so for now we use the WRITE event only.
+							name := pickOneWritePath(dynamicEvents)
+
+							if name != "" {
+								p = Hugo.GetContentPage(name)
+							}
+						}
+
+						if p != nil {
+							livereload.NavigateToPath(p.RelPermalink())
+						} else {
+							livereload.ForceRefresh()
+						}
 					}
 				}
 			case err := <-watcher.Errors:
@@ -1005,6 +1025,16 @@ func (c *commandeer) newWatcher(port int) error {
 
 	wg.Wait()
 	return nil
+}
+
+func pickOneWritePath(events []fsnotify.Event) string {
+	for _, ev := range events {
+		if ev.Op&fsnotify.Write == fsnotify.Write {
+			return ev.Name
+		}
+	}
+
+	return ""
 }
 
 func (c *commandeer) isStatic(path string) bool {

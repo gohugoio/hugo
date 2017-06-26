@@ -223,6 +223,12 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 		require.NotNil(t, s.disabledKinds)
 	}
 
+	gp1 := sites.GetContentPage(filepath.FromSlash("content/sect/doc1.en.md"))
+	require.NotNil(t, gp1)
+	require.Equal(t, "doc1", gp1.Title)
+	gp2 := sites.GetContentPage(filepath.FromSlash("content/sect/notfound.md"))
+	require.Nil(t, gp2)
+
 	enSite := sites.Sites[0]
 	enSiteHome := enSite.getPage(KindHome)
 	require.True(t, enSiteHome.IsTranslated())

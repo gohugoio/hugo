@@ -33,6 +33,7 @@ import (
 
 var (
 	disableLiveReload bool
+	navigateToChanged bool
 	renderToDisk      bool
 	serverAppend      bool
 	serverInterface   string
@@ -87,6 +88,7 @@ func init() {
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseURL")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
+	serverCmd.Flags().BoolVar(&navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
 	serverCmd.Flags().BoolVar(&renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
@@ -108,6 +110,10 @@ func server(cmd *cobra.Command, args []string) error {
 
 	if cmd.Flags().Changed("disableLiveReload") {
 		c.Set("disableLiveReload", disableLiveReload)
+	}
+
+	if cmd.Flags().Changed("navigateToChanged") {
+		c.Set("navigateToChanged", navigateToChanged)
 	}
 
 	if serverWatch {
