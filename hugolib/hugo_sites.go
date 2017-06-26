@@ -42,7 +42,6 @@ type HugoSites struct {
 
 // GetContentPage finds a Page with content given the absolute filename.
 // Returns nil if none found.
-// TODO(bep) open add test
 func (h *HugoSites) GetContentPage(filename string) *Page {
 	s := h.Sites[0]
 	contendDir := filepath.Join(s.PathSpec.AbsPathify(s.Cfg.GetString("contentDir")))
