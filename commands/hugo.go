@@ -981,17 +981,21 @@ func (c *commandeer) newWatcher(port int) error {
 					}
 
 					if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
-						// TODO(bep) open add CLI flag + config.
 
-						// It is probably more confusing than usueful
-						// to navigate to a new URL on RENAME etc.
-						// so for now we use the WRITE event only.
-						name := pickOneWritePath(dynamicEvents)
+						navigate := c.Cfg.GetBool("navigateToChanged")
 
 						var p *hugolib.Page
 
-						if name != "" {
-							p = Hugo.GetContentPage(name)
+						if navigate {
+
+							// It is probably more confusing than usueful
+							// to navigate to a new URL on RENAME etc.
+							// so for now we use the WRITE event only.
+							name := pickOneWritePath(dynamicEvents)
+
+							if name != "" {
+								p = Hugo.GetContentPage(name)
+							}
 						}
 
 						if p != nil {
