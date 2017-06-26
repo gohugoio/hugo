@@ -1,0 +1,12 @@
+{{ define "main" }}
+{{ with .Content }}
+{{ . }}
+{{ end }}
+<ul style="margin-top: 20px">
+    {{ range .Data.Pages }}
+    <li>
+         <a href="{{ .Permalink }}">{{ .Title }}</a> <em>Updated {{ .Lastmod.Format "Mon, Jan 2, 2006" }}</em>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}
