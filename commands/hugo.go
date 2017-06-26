@@ -981,10 +981,19 @@ func (c *commandeer) newWatcher(port int) error {
 					}
 
 					if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
-						// TODO(bep) open filter unique paths
 						// TODO(bep) open add CLI flag + config.
-						first := dynamicEvents[0]
-						p := Hugo.GetContentPage(first.Name)
+
+						// It is probably more confusing than usueful
+						// to navigate to a new URL on RENAME etc.
+						// so for now we use the WRITE event only.
+						name := pickOneWritePath(dynamicEvents)
+
+						var p *hugolib.Page
+
+						if name != "" {
+							p = Hugo.GetContentPage(name)
+						}
+
 						if p != nil {
 							livereload.NavigateToPath(p.RelPermalink())
 						} else {
@@ -1012,6 +1021,16 @@ func (c *commandeer) newWatcher(port int) error {
 
 	wg.Wait()
 	return nil
+}
+
+func pickOneWritePath(events []fsnotify.Event) string {
+	for _, ev := range events {
+		if ev.Op&fsnotify.Write == fsnotify.Write {
+			return ev.Name
+		}
+	}
+
+	return ""
 }
 
 func (c *commandeer) isStatic(path string) bool {
