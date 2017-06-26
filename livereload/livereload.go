@@ -74,7 +74,7 @@ func ForceRefresh() {
 }
 
 // NavigateToPath tells livereload to navigate to the given path.
-// This is translates to `window.location.href = path` in the client.
+// This translates to `window.location.href = path` in the client.
 func NavigateToPath(path string) {
 	RefreshPath(hugoNavigatePrefix + path)
 }
@@ -89,7 +89,6 @@ func RefreshPath(s string) {
 }
 
 // ServeJS serves the liverreload.js who's reference is injected into the page.
-// TODO(bep) open we need some basic server tests.
 func ServeJS(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
 	w.Write(liveReloadJS())
