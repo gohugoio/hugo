@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hugo, a fast and flexible static site generator built with love by spf13, bep, and friends in Go">
+    <meta name="author" content="Steve Francia (spf13), Bjørn Erik Pedersen (bep), and friends">
+    <title>Hugo :: A fast and modern static website engine</title>
+
+    {{ "<!--icon for browser shortcuts-->" | safeHTML }}
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+    {{ "<!--icon to represent this web page on Apple iOS-->" | safeHTML }}
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    {{ "<!--Bootstrap core CSS-->" | safeHTML }}
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-stripped-gohugo.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-changes-gohugo.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-additions-gohugo.css">
+
+    {{ "<!--non-Bootstrap CSS (keep below Bootstrap CSS)-->" | safeHTML }}
+    <link rel="stylesheet" type="text/css" href="/vendor/OwlCarousel2/css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="/vendor/OwlCarousel2/css/owl.theme.default.css">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Arbutus+Slab%7CCabin:600%7CSource+Code+Pro">
+    <link rel="stylesheet" type="text/css" href="/css/hugofont.css">
+    <link rel="stylesheet" type="text/css" href="/css/home-page-style.css">
+    <link rel="stylesheet" type="text/css" href="/css/home-page-style-responsive.css">
+  </head>
+  <body>
+
+    {{ "<!--full page image header area start-->" | safeHTML }}
+    <div id="top" class="header">
+      <div class="vert-text">
+        <a href="#intro">
+            <img class="logo" src="/img/hugo.png" alt="Hugo logo">
+        </a>
+        <div class="buttonbox">
+            <a class="btn-primary btn btn-lg" href="/overview/introduction/">
+                Docs <i class="icon-idea"></i>
+            </a>
+            <a class="btn-success btn btn-lg" href="#action">
+                Install <i class="icon-arrow-down"></i>
+            </a>
+            <a class="btn-info btn btn-lg" href="https://discourse.gohugo.io/">
+                Community <i class="icon-talking"></i>
+            </a>
+            <a class="btn-repo btn btn-lg" href="https://github.com/gohugoio/hugo">
+                GitHub <i class="icon-circlestar"></i>
+            </a>
+        </div>
+      </div>
+    </div>
+    {{ "<!--full page image header area end-->" | safeHTML }}
+
+    {{ "<!--main start-->" | safeHTML }}
+    <div id="main">
+
+        {{ "<!--intro start-->" | safeHTML }}
+        <div id="intro" class="counterpoint">
+          <div class="container">
+
+            {{ "<!--row start-->" | safeHTML }}
+            <div class="row">
+              <div class="text-center col-md-6 col-md-offset-3">
+                  <i class="lead-icon icon-pacman"></i>
+                <h2>Make the Web Fun Again</h2>
+                <p class="lead">
+                    Introducing Hugo, a new idea for making website creation simple again.
+                    Hugo works flexibly with many formats, and is ideal for
+                    blogs, docs, portfolios and much more.
+                    Hugo’s speed fosters
+                    creativity&mdash;it makes building a website fun again.
+                </p>
+              </div>
+            </div>
+            {{ "<!--row end-->" | safeHTML }}
+
+          </div>
+        </div>
+        {{ "<!--intro end-->" | safeHTML }}
+
+        {{ "<!--point start-->" | safeHTML }}
+        <div class="point">
+          <div class="container">
+
+            {{ "<!--row start-->" | safeHTML }}
+            <div class="row">
+              <div class="text-center col-md-6 col-md-offset-3">
+                  <i class="point-icon icon-tux"></i>
+                  <i class="point-icon icon-apple"></i>
+                  <i class="point-icon icon-windows8"></i>
+                <h2>Run Anywhere</h2>
+                <p class="lead">
+                Hugo is quite possibly the easiest software to install you’ve ever used:
+                simply download and run!
+                <b>
+                Hugo doesn’t depend on administrative privileges, databases, runtimes,
+                interpreters or external libraries.
+                </b>
+                Sites built with Hugo can be deployed on S3, GitHub Pages, Dropbox or any web host.
+                </p>
+              </div>
+            </div>
+            {{ "<!--row end-->" | safeHTML }}
+
+          </div>
+        </div>
+        {{ "<!--point end-->" | safeHTML }}
+
+        {{ "<!--counterpoint start-->" | safeHTML }}
+        <div class="counterpoint">
+          <div class="container">
+
+            {{ "<!--row start-->" | safeHTML }}
+            <div class="row">
+              <div class="text-center col-md-6 col-md-offset-3">
+                  <i class="lead-icon icon-rocket"></i>
+                <h2>Fast &amp; Powerful</h2>
+                <p class="lead">
+                Hugo is designed for speed and performance. Great care has been
+                taken to ensure build time with Hugo is as short as possible.
+                We’re talking milliseconds to build your entire site&mdash;for most setups!
+                </p>
+              </div>
+            </div>
+            {{ "<!--row end-->" | safeHTML }}
+
+          </div>
+        </div>
+        {{ "<!--counterpoint end-->" | safeHTML }}
+
+        {{ "<!--point start-->" | safeHTML }}
+        <div class="point">
+          <div class="container">
+
+            {{ "<!--row start-->" | safeHTML }}
+            <div class="row">
+              <div class="text-center col-md-6 col-md-offset-3">
+                  <i class="point-icon icon-fork"></i>
+                <h2>Flexible</h2>
+                <p class="lead">
+                Hugo is designed to work the way you do.
+                Organize your content however you want with any URL structure.
+                Group your content using your own indexes and categories.
+                Define your own metadata in any format: YAML, TOML or JSON.
+                Best of all, Hugo handles all these variations
+                with virtually no configuration. Hugo
+                just works.
+                </p>
+              </div>
+            </div>
+            {{ "<!--row end-->" | safeHTML }}
+
+          </div>
+        </div>
+        {{ "<!--point end-->" | safeHTML }}
+
+
+        {{ "<!--quote carousel start-->" | safeHTML }}
+        <div class="callout">
+          <div class="container">
+
+            {{ "<!--row start-->" | safeHTML }}
+            <div class="row">
+              <div class="text-center col-md-12">
+                  <i class="callout-icon icon-circlestar"></i>
+                  <p></p>
+              </div>
+            </div>
+            {{ "<!--row end-->" | safeHTML }}
+
+            {{ "<!--row start-->" | safeHTML }}
+            <div class="row">
+              <div class="text-center col-md-12">
+
+                  {{ "<!--wrapper for slides start-->" | safeHTML }}
+                  <div class="carousel-inner owl-carousel">
+{{ partial "quotes.html" ((where $.Site.Data.references.quotes "date" "ge" (now.AddDate -2 0 0) | shuffle )) }}
+                  </div>
+                  {{ "<!--wrapper for slides end-->" | safeHTML }}
+
+              </div>
+            </div>
+            {{ "<!--row end-->" | safeHTML }}
+
+          </div>
+        </div>
+        {{ "<!--quote carousel end-->" | safeHTML }}
+
+    </div>
+    {{ "<!--main end-->" | safeHTML }}
+
+        {{ "<!--counterpoint start-->" | safeHTML }}
+        <div class="counterpoint">
+          <div class="container">
+
+            {{ "<!--row start-->" | safeHTML }}
+            <div class="row">
+              <div class="text-center col-md-6 col-md-offset-3">
+                  <i class="lead-icon icon-octocat"></i>
+                <h2>Open and Free</h2>
+                <p class="lead">
+                    Hugo is <a href="https://github.com/gohugoio/hugo">open source</a> and completely free.
+                </p>
+              </div>
+            </div>
+            {{ "<!--row end-->" | safeHTML }}
+
+          </div>
+        </div>
+        {{ "<!--counterpoint end-->" | safeHTML }}
+
+        {{ "<!--point start-->" | safeHTML }}
+        <div class="point">
+          <div class="container">
+
+            {{ "<!--row start-->" | safeHTML }}
+            <div class="row">
+              <div class="text-center col-md-6 col-md-offset-3">
+                  <i class="point-icon icon-beaker-alt"></i>
+                  <i class="point-icon icon-heart"></i>
+                  <i class="point-icon icon-spf13"></i>
+                  <h2>Built with <i class="icon-heart"></i></h2>
+                <p class="lead">
+                Hugo is developed with love by <a href="http://spf13.com">spf13</a> and friends.
+                We welcome all contributions.
+                    New to Go? We’ll help you.
+                    Not a developer? No problem! Help
+                with <a href="/overview/introduction/">docs,</a> testing
+                and <a href="https://github.com/gohugoio/hugoThemes/">themes.</a>
+                </p>
+              </div>
+            </div>
+            {{ "<!--row end-->" | safeHTML }}
+
+          </div>
+        </div>
+        {{ "<!--counterpoint end-->" | safeHTML }}
+
+        {{ "<!--call to action start-->" | safeHTML }}
+        <div id="action" class="call-to-action">
+          <div class="container">
+
+            {{ "<!--row start-->" | safeHTML }}
+            <div class="row">
+              <div class="text-center col-md-10 col-md-offset-1">
+                <h1>Getting Started</h1>
+                <a class="btn-primary btn btn-lg" href="https://github.com/gohugoio/hugo/releases">
+                    Download
+                    <i class="icon-arrow-down"></i>
+                </a>
+                <a class="quickstart" href="/overview/quickstart/">
+                    Quickstart Guide
+                </a>
+                <p>&nbsp;</p>
+                <h4>Using Homebrew?</h4>
+                <pre><code>brew install hugo</code></pre>
+              </div>
+            </div>
+            {{ "<!--row end-->" | safeHTML }}
+
+          </div>
+        </div>
+        {{ "<!--call to action end-->" | safeHTML }}
+
+        {{ "<!--footer start-->" | safeHTML }}
+        <footer>
+          <div class="container">
+
+            {{ "<!--row start-->" | safeHTML }}
+            <div class="row">
+              <div class="text-center col-md-6 col-md-offset-3">
+                <ul class="list-inline">
+                    <li><a class="icon-twitter icon-2x" href="https://twitter.com/gohugoio"></a></li>
+                    <li><a class="icon-octocat icon-2x" href="https://github.com/gohugoio/hugo"></a></li>
+                </ul>
+                <hr>
+                <p>Copyright &copy; Steve Francia 2013&ndash;{{ now.Format "2006" }}</p>
+              </div>
+            </div>
+            {{ "<!--row end-->" | safeHTML }}
+
+          </div>
+        </footer>
+        {{ "<!--footer end-->" | safeHTML }}
+
+  {{ "<!--JavaScript: Keep at the end of the document so the page loads faster-->" | safeHTML }}
+  <script src="/vendor/jquery/js/jquery-2.1.4.min.js"></script>
+
+  {{ "<!--Bootstrap core JavaScript here-->" | safeHTML }}
+  {{ `<!--<script src="/vendor/twitter/js/bootstrap.min.js"></script>-->` | safeHTML }}
+
+  <script src="/vendor/OwlCarousel2/js/owl.carousel.min.js"></script>
+  <script src="/js/owl.carousel-custom.js"></script>
+
+  {{ "<!--custom JavaScript-->" | safeHTML }}
+  <script>
+    $(function() {
+        $('a[href*=#]:not([href=#])').click(function() {
+          if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')
+              || location.hostname == this.hostname) {
+
+            var target = $(this.hash);
+            target = target.length ? target : $('[name=' + this.hash.slice(1) +']');
+            if (target.length) {
+              $('html,body').animate({
+                scrollTop: target.offset().top
+              }, 1000);
+              return false;
+            }
+          }
+        });
+      });
+  </script>
+
+{{ "<!--Google analytics-->" | safeHTML }}
+{{ template "partials/analytics.html" . }}
+  </body>
+</html>

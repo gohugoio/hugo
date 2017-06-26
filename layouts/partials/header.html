@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
+    {{ with .Site.Params.author }}<meta name="author" content="{{ . }}">{{ end }}
+    {{ .Hugo.Generator }}
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+{{ .Scratch.Add "title" "" }}{{ if isset .Site.Data.titles .Title }}{{ .Scratch.Set "title" (index .Site.Data.titles .Title).title }}{{ else }}{{ .Scratch.Set "title" .Title}}{{end}}
+    <title>Hugo - {{ .Scratch.Get "title" }}</title>
+
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-stripped-gohugo.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-changes-gohugo.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-additions-gohugo.css">
+
+    <link rel="stylesheet" type="text/css" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.css" />
+    <link href="/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/content-style.css" />
+    <link href="/css/style-responsive.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="/vendor/highlightjs/css/monokai-sublime.css">
+
+  </head>
+
+  <body>
+  <!-- container section start -->
+  <section id="container" class="">
+
+      <!--header start-->
+      <header class="header black-bg">
+            <div class="toggle-nav">
+                <i class="fa fa-bars"></i>
+                <div class="icon-reorder tooltips" data-original-title="Toggle Navigation" data-placement="bottom"></div>
+            </div>
+
+            <!--logo start-->
+            <a href="/" class="logo"><img src="/img/hugo-logo.png" style="height: 40px; vertical-align: bottom;"> <span style="font-size: small; text-transform: none;">v{{ .Site.Params.release }}</span></a>
+            <!--logo end-->
+            <div class="top-nav notification-row">
+                <!-- notification dropdown end-->
+                <div class="hidden-xs nav-github pull-right">
+                    <span rel="show-github" data-user="bep" data-type="follow"></span>
+                    <span rel="show-github" data-user="spf13" data-type="follow"></span>
+                    <span rel="show-github" data-user="spf13" data-repo="hugo"></span>
+                </div>
+            </div>
+
+            <div class="nav title-row" id="top_menu">
+                <h1 class="nav top-menu">{{ .Scratch.Get "title" }}</h1>
+            </div>
+      </header>
+      <!--header end-->
+
+{{ partial "menu.html" . }}
+
+      <!--main content start-->
+      <section id="main-content">
+          <section class="wrapper">
+
+              <!--<div class="row">-->
+                  <!--<div class="col-lg-12">-->
+                      <!--breadcrumbs start -->
+                      <!--<ul class="breadcrumb">-->
+                          <!--<li><a href="#"><i class="icon_house_alt"></i> Home</a></li>-->
+                          <!--<li><a href="#"> UI Kit</a></li>-->
+                          <!--<li class="active"> General</li>-->
+                      <!--</ul>-->
+                      <!--breadcrumbs end -->
+                  <!--</div>-->
+              <!--</div>-->
+
+              <div class="row">
+                  <div class="col-md-1">
+                      {{ if .IsPage }}
+                      {{ with .GetParam "prev" }}
+                      <a class="navigation prev" href="{{.}}">
+                      <i class="fa fa-angle-left"></i>
+                      </a>
+                      {{ end }}
+                      {{ end }}
+                  </div>
+                <div class="col-md-10">
+                    <section class="panel">
+                          <!--<header class="panel-heading">-->
+                              <!--<h3>{{ .Scratch.Get "title" }}</h3>-->
+                          <!--</header>-->
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-lg-8 col-lg-offset-2 cse">
+                                {{ partial "search.html" . }}
+                            </div>
+                        </div>
