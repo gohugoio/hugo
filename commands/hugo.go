@@ -988,7 +988,7 @@ func (c *commandeer) newWatcher(port int) error {
 
 						if navigate {
 
-							// It is probably more confusing than usueful
+							// It is probably more confusing than useful
 							// to navigate to a new URL on RENAME etc.
 							// so for now we use the WRITE event only.
 							name := pickOneWritePath(dynamicEvents)
