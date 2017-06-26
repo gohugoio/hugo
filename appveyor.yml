@@ -13,3 +13,5 @@ install:
 
 build_script:
   - make hugo-race check
+  - hugo -s docs/
+  - hugo --renderToMemory -s docs/
