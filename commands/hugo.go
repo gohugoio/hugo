@@ -1028,13 +1028,15 @@ func (c *commandeer) newWatcher(port int) error {
 }
 
 func pickOneWritePath(events []fsnotify.Event) string {
+	name := ""
+
 	for _, ev := range events {
-		if ev.Op&fsnotify.Write == fsnotify.Write {
-			return ev.Name
+		if ev.Op&fsnotify.Write == fsnotify.Write && len(ev.Name) > len(name) {
+			name = ev.Name
 		}
 	}
 
-	return ""
+	return name
 }
 
 func (c *commandeer) isStatic(path string) bool {
