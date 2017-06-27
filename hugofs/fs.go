@@ -26,7 +26,7 @@ type Fs struct {
 	// Source is Hugo's source file system.
 	Source afero.Fs
 
-	// Destination is Hugo's destionation file system.
+	// Destination is Hugo's destination file system.
 	Destination afero.Fs
 
 	// Os is an OS file system.
