@@ -166,7 +166,7 @@ func (t *templateHandler) embedTemplates() {
 {{ end }}`)
 
 	t.addInternalTemplate("", "disqus.html", `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
-<script type="text/javascript">
+<script>
     var disqus_config = function () {
     {{with .GetParam "disqus_identifier" }}this.page.identifier = '{{ . }}';{{end}}
     {{with .GetParam "disqus_title" }}this.page.title = '{{ . }}';{{end}}
@@ -177,9 +177,10 @@ func (t *templateHandler) embedTemplates() {
             document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
             return;
         }
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + {{ .Site.DisqusShortname }} + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + {{ .Site.DisqusShortname }} + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
     })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
