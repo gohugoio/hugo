@@ -1695,11 +1695,26 @@ func (s *Site) assembleTaxonomies() {
 						}
 					}
 				} else if v, ok := vals.(string); ok {
-					x := WeightedPage{weight.(int), p}
-					s.Taxonomies[plural].add(s.getTaxonomyKey(v), x)
-					if s.Info.preserveTaxonomyNames {
-						// Need to track the original
-						s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, s.PathSpec.MakePathSanitized(v))] = v
+
+					if strings.Contains(v, ",") {
+						// Hack
+						vs := strings.Split(v, ",")
+						for _, idx := range vs {
+							x := WeightedPage{weight.(int), p}
+							s.Taxonomies[plural].add(s.getTaxonomyKey(idx), x)
+							if s.Info.preserveTaxonomyNames {
+								// Need to track the original
+								s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, s.PathSpec.MakePathSanitized(idx))] = idx
+							}
+						}
+					} else {
+
+						x := WeightedPage{weight.(int), p}
+						s.Taxonomies[plural].add(s.getTaxonomyKey(v), x)
+						if s.Info.preserveTaxonomyNames {
+							// Need to track the original
+							s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, s.PathSpec.MakePathSanitized(v))] = v
+						}
 					}
 				} else {
 					s.Log.ERROR.Printf("Invalid %s in %s\n", plural, p.File.Path())
