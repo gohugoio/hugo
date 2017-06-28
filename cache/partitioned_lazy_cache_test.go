@@ -123,13 +123,15 @@ func TestConcurrentPartitionedLazyCache(t *testing.T) {
 
 	cache := NewPartitionedLazyCache(p1, p2)
 
-	for j := 0; j < 100; j++ {
+	for i := 0; i < 100; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			v, err := cache.Get("p1", "p1_1")
-			assert.NoError(err)
-			assert.Equal("p1v1", v)
+			for j := 0; j < 10; j++ {
+				v, err := cache.Get("p1", "p1_1")
+				assert.NoError(err)
+				assert.Equal("p1v1", v)
+			}
 		}()
 	}
 	wg.Wait()
