@@ -200,7 +200,26 @@ func removeTOMLIdentifier(datum []byte) []byte {
 // representing the encoded data structure.
 func HandleYAMLMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
+
+	tagsIdx := bytes.Index(datum, []byte("tags"))
+	var tags []string
+	if tagsIdx != -1 {
+		eol := bytes.Index(datum[tagsIdx:], []byte("\n"))
+
+		if eol != -1 {
+			tagsLine := datum[tagsIdx : tagsIdx+eol]
+			startBracket := bytes.Index(tagsLine, []byte("["))
+			if startBracket != -1 {
+				endBracket := bytes.LastIndex(tagsLine, []byte("]"))
+				tags = strings.Split(string(tagsLine[startBracket+1:endBracket]), ",")
+				datum = append(datum[:tagsIdx], datum[tagsIdx+eol:]...)
+			}
+		}
+	}
 	err := yaml.Unmarshal(datum, &m)
+	if len(tags) > 0 {
+		m["tags"] = tags
+	}
 	return m, err
 }
 
