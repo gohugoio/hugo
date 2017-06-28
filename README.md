@@ -1,6 +1,6 @@
 ![Hugo](https://raw.githubusercontent.com/gohugoio/hugoDocs/master/static/img/hugo-logo.png)
 
-A Fast and Flexible Static Site Generator built with love by [spf13](http://spf13.com/) and [friends](https://github.com/gohugoio/hugo/graphs/contributors) in [Go][].
+A Fast and Flexible Static Site Generator built with love by [spf13](https://spf13.com/) and [friends](https://github.com/gohugoio/hugo/graphs/contributors) in [Go][].
 
 [Website](https://gohugo.io) |
 [Forum](https://discourse.gohugo.io) |
@@ -8,7 +8,7 @@ A Fast and Flexible Static Site Generator built with love by [spf13](http://spf1
 [Documentation](https://gohugo.io/overview/introduction/) |
 [Installation Guide](https://gohugo.io/overview/installing/) |
 [Contribution Guide](CONTRIBUTING.md) |
-[Twitter](http://twitter.com/gohugoio)
+[Twitter](https://twitter.com/gohugoio)
 
 [![GoDoc](https://godoc.org/github.com/gohugoio/hugo?status.svg)](https://godoc.org/github.com/gohugoio/hugo)
 [![Linux and macOS Build Status](https://api.travis-ci.org/gohugoio/hugo.svg?branch=master&label=Linux+and+macOS+build "Linux and macOS Build Status")](https://travis-ci.org/gohugoio/hugo)
