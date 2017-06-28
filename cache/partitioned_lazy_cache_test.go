@@ -15,6 +15,7 @@ package cache
 
 import (
 	"errors"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -89,4 +90,47 @@ func TestNewPartitionedLazyCache(t *testing.T) {
 	_, err = cache.Get("p3", "doesnotexist")
 	assert.Error(err)
 
+}
+
+func TestConcurrentPartitionedLazyCache(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	var wg sync.WaitGroup
+
+	p1 := Partition{
+		Key: "p1",
+		Load: func() (map[string]interface{}, error) {
+			return map[string]interface{}{
+				"p1_1":   "p1v1",
+				"p1_2":   "p1v2",
+				"p1_nil": nil,
+			}, nil
+		},
+	}
+
+	p2 := Partition{
+		Key: "p2",
+		Load: func() (map[string]interface{}, error) {
+			return map[string]interface{}{
+				"p2_1": "p2v1",
+				"p2_2": "p2v2",
+				"p2_3": "p2v3",
+			}, nil
+		},
+	}
+
+	cache := NewPartitionedLazyCache(p1, p2)
+
+	for j := 0; j < 100; j++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			v, err := cache.Get("p1", "p1_1")
+			assert.NoError(err)
+			assert.Equal("p1v1", v)
+		}()
+	}
+	wg.Wait()
 }
