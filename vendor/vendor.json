@@ -365,6 +365,12 @@
 			"revisionTime": "2017-06-13T19:24:08Z"
 		},
 		{
+			"checksumSHA1": "wwirbKM4d69iWA4s9JwpXTsda3A=",
+			"path": "golang.org/x/image/webp",
+			"revision": "426cfd8eeb6e08ab1932954e09e3c2cb2bc6e36d",
+			"revisionTime": "2017-05-14T06:33:48Z"
+		},
+		{
 			"checksumSHA1": "VrzPJyWI6disCgYuVEQzkjqUsJk=",
 			"path": "golang.org/x/net/idna",
 			"revision": "ddf80d0970594e2e4cccf5a98861cad3d9eaa4cd",
