@@ -817,6 +817,29 @@ func TestPageWithMoreTagOnlySummary(t *testing.T) {
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiterOnlySummary)
 }
 
+// #2973
+func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
+
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
+		require.Contains(t, p.Summary, "Happy new year everyone!")
+		require.NotContains(t, p.Summary, "User interface")
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, `---
+title: Simple
+---
+Happy new year everyone!
+
+Here is the last report for commits in the year 2016. It covers hrev50718-hrev50829.
+
+<!--more-->
+
+<h3>User interface</h3>
+
+`)
+}
+
 func TestPageWithDate(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
