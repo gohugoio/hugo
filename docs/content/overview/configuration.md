@@ -139,9 +139,9 @@ along with their current, default values:
     enableEmoji:				false
     # Show a placeholder instead of the default value or an empty string if a translation is missing
     enableMissingTranslationPlaceholders: false
-    # Regex to use for dates in filenames. Only used with `useFilenameDateAsFallback`
+    # Regex to use for dates in filenames.
     filenameDateFallbackPattern: "(?P<year>\\d{4})\\-(?P<month>\\d{2})\\-(?P<day>\\d{2})"
-    # Time format for custom dates in filenames. Only used with `useFilenameDateAsFallback` and must match `filenameDateFallbackPattern`
+    # Time format for custom dates in filenames. Must match `filenameDateFallbackPattern`
     filenameDateFallbackFormat: "2006-01-02"
     footnoteAnchorPrefix:       ""
     footnoteReturnLinkContents: ""
@@ -191,8 +191,6 @@ along with their current, default values:
     title:                      ""
     # if true, use /filename.html instead of /filename/
     uglyURLs:                   false
-    #if true, use dates in filenames e.g. 2017-01-31-mypostname.md
-    useFilenameDateAsFallback:  false
     # Do not make the url/path to lowercase
     disablePathToLower:         false
     # if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
