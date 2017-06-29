@@ -15,6 +15,7 @@ package math
 
 import (
 	"fmt"
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -135,6 +136,42 @@ func TestDoArithmetic(t *testing.T) {
 		if b, ok := test.expect.(bool); ok && !b {
 			require.Error(t, err, errMsg)
 			continue
+		}
+
+		require.NoError(t, err, errMsg)
+		assert.Equal(t, test.expect, result, errMsg)
+	}
+}
+
+func TestLog(t *testing.T) {
+	t.Parallel()
+
+	ns := New()
+
+	for i, test := range []struct {
+		a      interface{}
+		expect interface{}
+	}{
+		{1, float64(0)},
+		{3, float64(1.0986)},
+		{0, float64(math.Inf(-1))},
+		{1.0, float64(0)},
+		{3.1, float64(1.1314)},
+		{"abc", false},
+	} {
+		errMsg := fmt.Sprintf("[%d] %v", i, test)
+
+		result, err := ns.Log(test.a)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			require.Error(t, err, errMsg)
+			continue
+		}
+
+		// we compare only 4 digits behind point if its a real float
+		// otherwise we usually get different float values on the last positions
+		if result != math.Inf(-1) {
+			result = float64(int(result*10000)) / 10000
 		}
 
 		require.NoError(t, err, errMsg)

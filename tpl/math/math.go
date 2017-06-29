@@ -15,7 +15,10 @@ package math
 
 import (
 	"errors"
+	"math"
 	"reflect"
+
+	"github.com/spf13/cast"
 )
 
 // New returns a new instance of the math-namespaced template functions.
@@ -32,6 +35,16 @@ func (ns *Namespace) Add(a, b interface{}) (interface{}, error) {
 
 func (ns *Namespace) Div(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '/')
+}
+
+func (ns *Namespace) Log(a interface{}) (float64, error) {
+	af, err := cast.ToFloat64E(a)
+
+	if err != nil {
+		return 0, errors.New("Log operator can't be used with non integer or float value")
+	}
+
+	return math.Log(af), nil
 }
 
 // Mod returns a % b.
