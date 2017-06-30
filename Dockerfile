@@ -1,13 +1,4 @@
-# Developer: Maik Ellerbrock <opensource@frapsoft.com>
-#
-# GitHub:  https://github.com/ellerbrock
-# Twitter: https://twitter.com/frapsoft
-# Docker:  https://hub.docker.com/u/ellerbrock
-# Quay:    https://quay.io/user/ellerbrock
-
 FROM golang:alpine3.6
-
-LABEL maintainer "Maik Ellerbrock <opensource@frapsoft.com>"
 
 ENV GOPATH /go
 
