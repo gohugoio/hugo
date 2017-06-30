@@ -124,7 +124,7 @@ You **must use govendor** to fetch Hugo's dependencies.
 
 ### Fetch from GitHub
 	
-	The commands below assume that you have [Go](https://golang.org/dl/) installed with your `$GOPATH` is set.
+	The commands below assume that you have [Go](https://golang.org/dl/) installed with your `$GOPATH` set.
 
     go get github.com/kardianos/govendor
     govendor get github.com/gohugoio/hugo
