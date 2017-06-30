@@ -124,10 +124,7 @@ You **must use govendor** to fetch Hugo's dependencies.
 
 ### Fetch from GitHub
 
-Assuming `$HOME/go/bin` is in your PATH:
-
     go get github.com/kardianos/govendor
-    cd $HOME/go/src/github.com
     govendor get github.com/gohugoio/hugo
 
 `govendor get` will fetch Hugo and all its dependent libraries to
