@@ -60,7 +60,7 @@ You **must use govendor** to fetch Hugo's dependencies.
 
 You got your new website running and it's powered by Hugo? Great. You can add your website with a few steps to the [showcase](/showcase/).
 
-First, make sure that you created a [fork](https://help.github.com/articles/fork-a-repo/) of the [`hugoDocs`](https://github.com/gohugoio/hugodocs) repository on GitHub and cloned your fork on your local computer. Next, create a separate branch for your additions:
+First, make sure that you created a [fork](https://help.github.com/articles/fork-a-repo/) of the [`hugoDocs`](https://github.com/gohugoio/hugodocs) repository on GitHub and cloned your fork on your local computer. **Next, create a separate branch for your additions**:
 
 ```
 # You can choose a different descriptive branch name if you like
@@ -94,7 +94,7 @@ title: example
 
 Add at least values for `sitelink`, `title`,  `description` and a path for `thumbnail`.
 
-Furthermore, we need to create the thumbnail of your website. **It's important that the thumbnail has the required dimensions of 600px by 400px.** Give your thumbnail a name like `example-tn.png`. Save it under `docs/static/img/`.
+Furthermore, we need to create the thumbnail of your website. **It's important that the thumbnail has the required dimensions of 600px by 400px.** Give your thumbnail a name like `example-tn.png`. Save it under `static/img/`.
 
 Check a last time that everything works as expected. Start Hugo's built-in server in order to inspect your local copy of the showcase in the browser:
 
