@@ -123,14 +123,16 @@ Therefore, a simple `go get` is not supported since `go get` is not vendor-aware
 You **must use govendor** to fetch Hugo's dependencies.
 
 ### Fetch from GitHub
+	
+	The commands below assume that you have [Go](https://golang.org/dl/) installed with your `$GOPATH` is set.
 
     go get github.com/kardianos/govendor
     govendor get github.com/gohugoio/hugo
 
 `govendor get` will fetch Hugo and all its dependent libraries to
-`$HOME/go/src/github.com/gohugoio/hugo`, and compile everything into a final `hugo`
+`$GOPATH/src/github.com/gohugoio/hugo`, and compile everything into a final `hugo`
 (or `hugo.exe`) executable, which you will find sitting inside
-`$HOME/go/bin/`, all ready to go!
+`$GOPATH/go/bin/`, all ready to go!
 
 *Windows users: where you see the `$HOME` environment variable above, replace it with `%USERPROFILE%`.*
 
