@@ -239,10 +239,6 @@ func (s *Site) render404() error {
 		return nil
 	}
 
-	if s.owner.multilingual.enabled() && (s.Language.Lang != s.owner.multilingual.DefaultLang.Lang) {
-		return nil
-	}
-
 	p := s.newNodePage(kind404)
 
 	p.Title = "404 Page not found"
@@ -256,13 +252,20 @@ func (s *Site) render404() error {
 
 	nfLayouts := []string{"404.html"}
 
-	pageOutput, err := newPageOutput(p, false, output.HTMLFormat)
+	htmlOut := output.HTMLFormat
+	htmlOut.BaseName = "404"
+
+	pageOutput, err := newPageOutput(p, false, htmlOut)
 	if err != nil {
 		return err
 	}
 
-	return s.renderAndWritePage("404 page", "404.html", pageOutput, s.appendThemeTemplates(nfLayouts)...)
+	targetPath, err := pageOutput.targetPath()
+	if err != nil {
+		s.Log.ERROR.Printf("Failed to create target path for page %q: %s", p, err)
+	}
 
+	return s.renderAndWritePage("404 page", targetPath, pageOutput, s.appendThemeTemplates(nfLayouts)...)
 }
 
 func (s *Site) renderSitemap() error {
