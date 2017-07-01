@@ -102,7 +102,7 @@ Check a last time that everything works as expected. Start Hugo's built-in serve
 
 If everything looks fine, we are ready to commit your additions. For the sake of best practices, please make sure that your commit follows our [code contribution guideline](https://github.com/gohugoio/hugo#code-contribution-guideline).
 
-    git commit -m"docs: Add example.com to the showcase"
+    git commit -m"Add example.com to the showcase"
 
 Last but not least, we're ready to create a [pull request](https://github.com/gohugoio/hugoDocs/compare).
 
