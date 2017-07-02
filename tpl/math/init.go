@@ -43,6 +43,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Log,
+			nil,
+			[][2]string{
+				{"{{math.Log 1}}", "0"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Mod,
 			[]string{"mod"},
 			[][2]string{
