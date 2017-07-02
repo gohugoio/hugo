@@ -433,6 +433,12 @@ favicon.ico: {{.Width}} x {{.Height}}
 </tr>
 
 <tr>
+<td><code>math.Log</code></td>
+<td>Natural logarithm of one float.</td>
+<td><code>{{math.Log 1.0}}</code> → 0</td>
+</tr>
+
+<tr>
 <td><code>mod</code></td>
 <td>Modulus of two integers.</td>
 <td><code>{{mod 15 3}}</code> → 0</td>
@@ -714,7 +720,7 @@ e.g.
 
 * `{{ "this is a text" | truncate 10 " ..." }}` → `this is a ...`
 * `{{ "<em>Keep my HTML</em>" | safeHTML | truncate 10 }}` → `<em>Keep my …</em>`
-* `{{ "With [Markdown](#markdown) inside." | markdownify | truncate 10 }}` → `With <a href='#markdown'>Markdown …</a>`  
+* `{{ "With [Markdown](#markdown) inside." | markdownify | truncate 10 }}` → `With <a href='#markdown'>Markdown …</a>`
 
 ### split
 
