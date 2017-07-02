@@ -186,7 +186,7 @@ func pageToPermalinkSection(p *Page, _ string) (string, error) {
 func pageToPermalinkSections(p *Page, _ string) (string, error) {
 	// TODO(bep) we have some superflous URLize in this file, but let's
 	// deal with that later.
-	return path.Join(p.current().sections...), nil
+	return path.Join(p.CurrentSection().sections...), nil
 }
 
 func init() {

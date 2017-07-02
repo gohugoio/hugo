@@ -166,7 +166,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			home := p.Parent()
 			assert.True(home.IsHome())
 			assert.Len(p.Sections(), 0)
-			assert.Equal(home, home.current())
+			assert.Equal(home, home.CurrentSection())
 			active, err := home.InSection(home)
 			assert.NoError(err)
 			assert.True(active)
@@ -187,7 +187,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.Len(p.Sections(), 1)
 
 			for _, child := range p.Pages {
-				assert.Equal(p, child.current())
+				assert.Equal(p, child.CurrentSection())
 				active, err := child.InSection(p)
 				assert.NoError(err)
 				assert.True(active)
@@ -197,9 +197,23 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 				active, err = p.InSection(p.s.getPage(KindHome))
 				assert.NoError(err)
 				assert.False(active)
+
+				isAncestor, err := p.IsAncestor(child)
+				assert.NoError(err)
+				assert.True(isAncestor)
+				isAncestor, err = child.IsAncestor(p)
+				assert.NoError(err)
+				assert.False(isAncestor)
+
+				isDescendant, err := p.IsDescendant(child)
+				assert.NoError(err)
+				assert.False(isDescendant)
+				isDescendant, err = child.IsDescendant(p)
+				assert.NoError(err)
+				assert.True(isDescendant)
 			}
 
-			assert.Equal(p, p.current())
+			assert.Equal(p, p.CurrentSection())
 
 		}},
 		{"l1,l2_2", func(p *Page) {
@@ -214,6 +228,22 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.Len(p.Pages, 2)
 			assert.Equal("T2_-1", p.Parent().Title)
 			assert.Len(p.Sections(), 0)
+
+			l1 := p.s.getPage(KindSection, "l1")
+			isDescendant, err := l1.IsDescendant(p)
+			assert.NoError(err)
+			assert.False(isDescendant)
+			isDescendant, err = p.IsDescendant(l1)
+			assert.NoError(err)
+			assert.True(isDescendant)
+
+			isAncestor, err := l1.IsAncestor(p)
+			assert.NoError(err)
+			assert.True(isAncestor)
+			isAncestor, err = p.IsAncestor(l1)
+			assert.NoError(err)
+			assert.False(isAncestor)
+
 		}},
 		{"perm a,link", func(p *Page) {
 			assert.Equal("T9_-1", p.Title)
