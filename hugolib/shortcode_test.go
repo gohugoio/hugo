@@ -837,8 +837,8 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 func TestScKey(t *testing.T) {
 	require.Equal(t, scKey{Suffix: "xml", ShortcodePlaceholder: "ABCD"},
 		newScKey(media.XMLType, "ABCD"))
-	require.Equal(t, scKey{Suffix: "html", OutputFormat: "AMP", ShortcodePlaceholder: "EFGH"},
-		newScKeyFromOutputFormat(output.AMPFormat, "EFGH"))
+	require.Equal(t, scKey{Lang: "en", Suffix: "html", OutputFormat: "AMP", ShortcodePlaceholder: "EFGH"},
+		newScKeyFromLangAndOutputFormat("en", output.AMPFormat, "EFGH"))
 	require.Equal(t, scKey{Suffix: "html", ShortcodePlaceholder: "IJKL"},
 		newDefaultScKey("IJKL"))
 
