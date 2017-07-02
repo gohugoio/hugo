@@ -157,6 +157,7 @@ func (sc shortcode) String() string {
 // Note that in the below, OutputFormat may be empty.
 // We will try to look for the most specific shortcode template available.
 type scKey struct {
+	Lang                 string
 	OutputFormat         string
 	Suffix               string
 	ShortcodePlaceholder string
@@ -166,8 +167,8 @@ func newScKey(m media.Type, shortcodeplaceholder string) scKey {
 	return scKey{Suffix: m.Suffix, ShortcodePlaceholder: shortcodeplaceholder}
 }
 
-func newScKeyFromOutputFormat(o output.Format, shortcodeplaceholder string) scKey {
-	return scKey{Suffix: o.MediaType.Suffix, OutputFormat: o.Name, ShortcodePlaceholder: shortcodeplaceholder}
+func newScKeyFromLangAndOutputFormat(lang string, o output.Format, shortcodeplaceholder string) scKey {
+	return scKey{Lang: lang, Suffix: o.MediaType.Suffix, OutputFormat: o.Name, ShortcodePlaceholder: shortcodeplaceholder}
 }
 
 func newDefaultScKey(shortcodeplaceholder string) scKey {
@@ -251,10 +252,11 @@ const innerCleanupExpand = "$1"
 func prepareShortcodeForPage(placeholder string, sc shortcode, parent *ShortcodeWithPage, p *Page) map[scKey]func() (string, error) {
 
 	m := make(map[scKey]func() (string, error))
+	lang := p.Lang()
 
 	for _, f := range p.outputFormats {
 		// The most specific template will win.
-		key := newScKeyFromOutputFormat(f, placeholder)
+		key := newScKeyFromLangAndOutputFormat(lang, f, placeholder)
 		m[key] = func() (string, error) {
 			return renderShortcode(key, sc, nil, p), nil
 		}
@@ -371,9 +373,11 @@ func (s *shortcodeHandler) updateDelta() bool {
 
 func (s *shortcodeHandler) contentShortcodesForOutputFormat(f output.Format) map[scKey]func() (string, error) {
 	contentShortcodesForOuputFormat := make(map[scKey]func() (string, error))
+	lang := s.p.Lang()
+
 	for shortcodePlaceholder := range s.shortcodes {
 
-		key := newScKeyFromOutputFormat(f, shortcodePlaceholder)
+		key := newScKeyFromLangAndOutputFormat(lang, f, shortcodePlaceholder)
 		renderFn, found := s.contentShortcodes[key]
 
 		if !found {
@@ -390,7 +394,7 @@ func (s *shortcodeHandler) contentShortcodesForOutputFormat(f output.Format) map
 		if !found {
 			panic(fmt.Sprintf("Shortcode %q could not be found", shortcodePlaceholder))
 		}
-		contentShortcodesForOuputFormat[newScKeyFromOutputFormat(f, shortcodePlaceholder)] = renderFn
+		contentShortcodesForOuputFormat[newScKeyFromLangAndOutputFormat(lang, f, shortcodePlaceholder)] = renderFn
 	}
 
 	return contentShortcodesForOuputFormat
@@ -676,12 +680,19 @@ func getShortcodeTemplateForTemplateKey(key scKey, shortcodeName string, t tpl.T
 
 	suffix := strings.ToLower(key.Suffix)
 	outFormat := strings.ToLower(key.OutputFormat)
+	lang := strings.ToLower(key.Lang)
 
 	if outFormat != "" && suffix != "" {
+		if lang != "" {
+			names = append(names, fmt.Sprintf("%s.%s.%s.%s", shortcodeName, lang, outFormat, suffix))
+		}
 		names = append(names, fmt.Sprintf("%s.%s.%s", shortcodeName, outFormat, suffix))
 	}
 
 	if suffix != "" {
+		if lang != "" {
+			names = append(names, fmt.Sprintf("%s.%s.%s", shortcodeName, lang, suffix))
+		}
 		names = append(names, fmt.Sprintf("%s.%s", shortcodeName, suffix))
 	}
 

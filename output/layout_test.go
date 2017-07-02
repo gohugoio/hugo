@@ -59,6 +59,8 @@ func TestLayout(t *testing.T) {
 	}{
 		{"Home", LayoutDescriptor{Kind: "home"}, true, "", ampType,
 			[]string{"index.amp.html", "index.html", "_default/list.amp.html", "_default/list.html", "theme/index.amp.html", "theme/index.html"}},
+		{"Home, french language", LayoutDescriptor{Kind: "home", Lang: "fr"}, true, "", ampType,
+			[]string{"index.fr.amp.html", "index.amp.html", "index.fr.html", "index.html", "_default/list.fr.amp.html", "_default/list.amp.html", "_default/list.fr.html", "_default/list.html", "theme/index.fr.amp.html", "theme/index.amp.html", "theme/index.fr.html"}},
 		{"Home, no ext or delim", LayoutDescriptor{Kind: "home"}, true, "", noExtDelimFormat,
 			[]string{"index.nem", "_default/list.nem"}},
 		{"Home, no ext", LayoutDescriptor{Kind: "home"}, true, "", noExt,

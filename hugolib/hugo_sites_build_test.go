@@ -305,12 +305,12 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.True(t, strings.Contains(languageRedirect, "0; url=http://example.com/blog/fr"), languageRedirect)
 
 	// check home page content (including data files rendering)
-	th.assertFileContent("public/en/index.html", "Home Page 1", "Hello", "Hugo Rocks!")
-	th.assertFileContent("public/fr/index.html", "Home Page 1", "Bonjour", "Hugo Rocks!")
+	th.assertFileContent("public/en/index.html", "Default Home Page 1", "Hello", "Hugo Rocks!")
+	th.assertFileContent("public/fr/index.html", "French Home Page 1", "Bonjour", "Hugo Rocks!")
 
 	// check single page content
-	th.assertFileContent("public/fr/sect/doc1/index.html", "Single", "Shortcode: Bonjour")
-	th.assertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Shortcode: Hello")
+	th.assertFileContent("public/fr/sect/doc1/index.html", "Single", "Shortcode: Bonjour", "LingoFrench")
+	th.assertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Shortcode: Hello", "LingoDefault")
 
 	// Check node translations
 	homeEn := enSite.getPage(KindHome)
@@ -1042,7 +1042,14 @@ func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, conf
 
 	if err := afero.WriteFile(mf,
 		filepath.Join("layouts", "index.html"),
-		[]byte("{{ $p := .Paginator }}Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}"),
+		[]byte("{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}"),
+		0755); err != nil {
+		t.Fatalf("Failed to write layout file: %s", err)
+	}
+
+	if err := afero.WriteFile(mf,
+		filepath.Join("layouts", "index.fr.html"),
+		[]byte("{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}"),
 		0755); err != nil {
 		t.Fatalf("Failed to write layout file: %s", err)
 	}
@@ -1051,6 +1058,21 @@ func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, conf
 	if err := afero.WriteFile(mf,
 		filepath.Join("layouts", "shortcodes", "shortcode.html"),
 		[]byte("Shortcode: {{ i18n \"hello\" }}"),
+		0755); err != nil {
+		t.Fatalf("Failed to write layout file: %s", err)
+	}
+
+	// A shortcode in multiple languages
+	if err := afero.WriteFile(mf,
+		filepath.Join("layouts", "shortcodes", "lingo.html"),
+		[]byte("LingoDefault"),
+		0755); err != nil {
+		t.Fatalf("Failed to write layout file: %s", err)
+	}
+
+	if err := afero.WriteFile(mf,
+		filepath.Join("layouts", "shortcodes", "lingo.fr.html"),
+		[]byte("LingoFrench"),
 		0755); err != nil {
 		t.Fatalf("Failed to write layout file: %s", err)
 	}
@@ -1098,6 +1120,8 @@ publishdate: "2000-01-01"
 
 {{< shortcode >}}
 
+{{< lingo >}}
+
 NOTE: slug should be used as URL
 `)},
 		{Name: filepath.FromSlash("sect/doc1.fr.md"), Content: []byte(`---
@@ -1112,6 +1136,8 @@ publishdate: "2000-01-04"
 *quelque "contenu"*
 
 {{< shortcode >}}
+
+{{< lingo >}}
 
 NOTE: should be in the 'en' Page's 'Translations' field.
 NOTE: date is after "doc3"

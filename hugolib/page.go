@@ -250,6 +250,7 @@ func (p *Page) createLayoutDescriptor() output.LayoutDescriptor {
 	return output.LayoutDescriptor{
 		Kind:    p.Kind,
 		Type:    p.Type(),
+		Lang:    p.Lang(),
 		Layout:  p.Layout,
 		Section: section,
 	}

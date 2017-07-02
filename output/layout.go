@@ -26,6 +26,7 @@ type LayoutDescriptor struct {
 	Type    string
 	Section string
 	Kind    string
+	Lang    string
 	Layout  string
 }
 
@@ -55,31 +56,33 @@ func NewLayoutHandler(hasTheme bool) *LayoutHandler {
 
 const (
 
-	// The RSS templates doesn't map easily into the regular pages.
-	layoutsRSSHome         = `NAME.SUFFIX _default/NAME.SUFFIX _internal/_default/rss.xml`
-	layoutsRSSSection      = `section/SECTION.NAME.SUFFIX _default/NAME.SUFFIX NAME.SUFFIX _internal/_default/rss.xml`
-	layoutsRSSTaxonomy     = `taxonomy/SECTION.NAME.SUFFIX _default/NAME.SUFFIX NAME.SUFFIX _internal/_default/rss.xml`
-	layoutsRSSTaxonomyTerm = `taxonomy/SECTION.terms.NAME.SUFFIX _default/NAME.SUFFIX NAME.SUFFIX _internal/_default/rss.xml`
+	// TODO(bep) variations reduce to 1 "."
 
-	layoutsHome    = "index.NAME.SUFFIX index.SUFFIX _default/list.NAME.SUFFIX _default/list.SUFFIX"
+	// The RSS templates doesn't map easily into the regular pages.
+	layoutsRSSHome         = `VARIATIONS _default/VARIATIONS _internal/_default/rss.xml`
+	layoutsRSSSection      = `section/SECTION.VARIATIONS _default/VARIATIONS VARIATIONS _internal/_default/rss.xml`
+	layoutsRSSTaxonomy     = `taxonomy/SECTION.VARIATIONS _default/VARIATIONS VARIATIONS _internal/_default/rss.xml`
+	layoutsRSSTaxonomyTerm = `taxonomy/SECTION.terms.VARIATIONS _default/VARIATIONS VARIATIONS _internal/_default/rss.xml`
+
+	layoutsHome    = "index.VARIATIONS _default/list.VARIATIONS"
 	layoutsSection = `
-section/SECTION.NAME.SUFFIX section/SECTION.SUFFIX
-SECTION/list.NAME.SUFFIX SECTION/list.SUFFIX
-_default/section.NAME.SUFFIX _default/section.SUFFIX
-_default/list.NAME.SUFFIX _default/list.SUFFIX
-indexes/SECTION.NAME.SUFFIX indexes/SECTION.SUFFIX
-_default/indexes.NAME.SUFFIX _default/indexes.SUFFIX
+section/SECTION.VARIATIONS
+SECTION/list.VARIATIONS
+_default/section.VARIATIONS
+_default/list.VARIATIONS
+indexes/SECTION.VARIATIONS
+_default/indexes.VARIATIONS
 `
 	layoutsTaxonomy = `
-taxonomy/SECTION.NAME.SUFFIX taxonomy/SECTION.SUFFIX
-indexes/SECTION.NAME.SUFFIX indexes/SECTION.SUFFIX 
-_default/taxonomy.NAME.SUFFIX _default/taxonomy.SUFFIX
-_default/list.NAME.SUFFIX _default/list.SUFFIX
+taxonomy/SECTION.VARIATIONS
+indexes/SECTION.VARIATIONS 
+_default/taxonomy.VARIATIONS
+_default/list.VARIATIONS
 `
 	layoutsTaxonomyTerm = `
-taxonomy/SECTION.terms.NAME.SUFFIX taxonomy/SECTION.terms.SUFFIX
-_default/terms.NAME.SUFFIX _default/terms.SUFFIX
-indexes/indexes.NAME.SUFFIX indexes/indexes.SUFFIX
+taxonomy/SECTION.terms.VARIATIONS
+_default/terms.VARIATIONS
+indexes/indexes.VARIATIONS
 `
 )
 
@@ -185,14 +188,41 @@ func resolveListTemplate(d LayoutDescriptor, f Format,
 }
 
 func resolveTemplate(templ string, d LayoutDescriptor, f Format) []string {
-	delim := "."
-	if f.MediaType.Delimiter == "" {
-		delim = ""
+
+	// VARIATIONS will be replaced with
+	// .lang.name.suffix
+	// .name.suffix
+	// .lang.suffix
+	// .suffix
+	var replacementValues []string
+
+	name := strings.ToLower(f.Name)
+
+	if d.Lang != "" {
+		replacementValues = append(replacementValues, fmt.Sprintf("%s.%s.%s", d.Lang, name, f.MediaType.Suffix))
 	}
-	layouts := strings.Fields(replaceKeyValues(templ,
-		".SUFFIX", delim+f.MediaType.Suffix,
-		"NAME", strings.ToLower(f.Name),
-		"SECTION", d.Section))
+
+	replacementValues = append(replacementValues, fmt.Sprintf("%s.%s", name, f.MediaType.Suffix))
+
+	if d.Lang != "" {
+		replacementValues = append(replacementValues, fmt.Sprintf("%s.%s", d.Lang, f.MediaType.Suffix))
+	}
+
+	isRSS := f.Name == RSSFormat.Name
+
+	if !isRSS {
+		replacementValues = append(replacementValues, f.MediaType.Suffix)
+	}
+
+	var layouts []string
+
+	templFields := strings.Fields(templ)
+
+	for _, field := range templFields {
+		for _, replacements := range replacementValues {
+			layouts = append(layouts, replaceKeyValues(field, "VARIATIONS", replacements, "SECTION", d.Section))
+		}
+	}
 
 	return filterDotLess(layouts)
 }
@@ -201,9 +231,7 @@ func filterDotLess(layouts []string) []string {
 	var filteredLayouts []string
 
 	for _, l := range layouts {
-		// This may be constructed, but media types can be suffix-less, but can contain
-		// a delimiter.
-		l = strings.TrimSuffix(l, ".")
+		l = strings.Trim(l, ".")
 		// If media type has no suffix, we have "index" type of layouts in this list, which
 		// doesn't make much sense.
 		if strings.Contains(l, ".") {
