@@ -19,33 +19,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gohugoio/hugo/helpers"
 	radix "github.com/hashicorp/go-immutable-radix"
 )
 
-// Deprecated: Use .Site.Home.Sections.
-// TODO(bep) Hugo 0.23 = Reuse as an alias for home's sections.
-func (s *SiteInfo) Sections() Taxonomy {
-
-	helpText := `In Hugo 0.22 we introduced nested sections, so this method now returns an empty taxonomy.
-	
-To list sections with its pages, you can do something like this:
-
-{{ range $.Site.Home.Sections }}
-  Section: {{ .Title }}
-  {{ range .Pages }}
-     Section Page: {{ .Title }}
-  {{ end }}
-{{ end }}
-
-To get a specific section, you can do this:
-
-{{ $section := $.Site.GetPage "section" "blog" }}
-`
-
-	helpers.Deprecated("Site", "Sections", helpText, true)
-
-	return Taxonomy{}
+// Sections returns the top level sections.
+func (s *SiteInfo) Sections() Pages {
+	home, err := s.Home()
+	if err == nil {
+		return home.Sections()
+	}
+	return nil
 }
 
 // Home is a shortcut to the home page, equivalent to .Site.GetPage "home".

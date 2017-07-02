@@ -246,6 +246,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	assert.NotNil(home)
 
 	assert.Len(home.Sections(), 9)
+	assert.Equal(home.Sections(), s.Info.Sections())
 
 	rootPage := s.getPage(KindPage, "mypage.md")
 	assert.NotNil(rootPage)
