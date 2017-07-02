@@ -19,6 +19,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	radix "github.com/hashicorp/go-immutable-radix"
 )
 
@@ -42,10 +44,9 @@ func (p *Page) Parent() *Page {
 	return p.parent
 }
 
-// current returns the page's current section.
+// CurrentSection returns the page's current section or the page itself if home or a section.
 // Note that this will return nil for pages that is not regular, home or section pages.
-// Note that for paginated sections and home pages, this will return the original page pointer.
-func (p *Page) current() *Page {
+func (p *Page) CurrentSection() *Page {
 	v := p
 	if v.origOnCopy != nil {
 		v = v.origOnCopy
@@ -65,20 +66,59 @@ func (p *Page) InSection(other interface{}) (bool, error) {
 		return false, nil
 	}
 
-	if po, ok := other.(*PageOutput); ok {
-		other = po.Page
-	}
-
-	pp, ok := other.(*Page)
-	if !ok {
-		return false, fmt.Errorf("%T not supported in InSection", other)
+	pp, err := unwrapPage(other)
+	if err != nil {
+		return false, err
 	}
 
 	if pp == nil {
 		return false, nil
 	}
 
-	return pp.current() == p.current(), nil
+	return pp.CurrentSection() == p.CurrentSection(), nil
+}
+
+// IsDescendant returns whether the current page is a descendant of the given page.
+// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
+func (p *Page) IsDescendant(other interface{}) (bool, error) {
+	pp, err := unwrapPage(other)
+	if err != nil {
+		return false, err
+	}
+
+	if pp.Kind == KindPage && len(p.sections) == len(pp.sections) {
+		// A regular page is never its section's descendant.
+		return false, nil
+	}
+	return helpers.HasStringsPrefix(p.sections, pp.sections), nil
+}
+
+// IsAncestor returns whether the current page is an ancestor of the given page.
+// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
+func (p *Page) IsAncestor(other interface{}) (bool, error) {
+	pp, err := unwrapPage(other)
+	if err != nil {
+		return false, err
+	}
+
+	if p.Kind == KindPage && len(p.sections) == len(pp.sections) {
+		// A regular page is never its section's ancestor.
+		return false, nil
+	}
+
+	return helpers.HasStringsPrefix(pp.sections, p.sections), nil
+}
+
+func unwrapPage(in interface{}) (*Page, error) {
+	if po, ok := in.(*PageOutput); ok {
+		in = po.Page
+	}
+
+	pp, ok := in.(*Page)
+	if !ok {
+		return nil, fmt.Errorf("%T not supported", in)
+	}
+	return pp, nil
 }
 
 // Sections returns this section's subsections, if any.

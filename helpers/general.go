@@ -194,6 +194,38 @@ func ReaderContains(r io.Reader, subslice []byte) bool {
 	return false
 }
 
+// HasStringsPrefix tests whether the string slice s begins with prefix slice s.
+func HasStringsPrefix(s, prefix []string) bool {
+	return len(s) >= len(prefix) && compareStringSlices(s[0:len(prefix)], prefix)
+}
+
+// HasStringsSuffix tests whether the string slice s ends with suffix slice s.
+func HasStringsSuffix(s, suffix []string) bool {
+	return len(s) >= len(suffix) && compareStringSlices(s[len(s)-len(suffix):], suffix)
+}
+
+func compareStringSlices(a, b []string) bool {
+	if a == nil && b == nil {
+		return true
+	}
+
+	if a == nil || b == nil {
+		return false
+	}
+
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
 // ThemeSet checks whether a theme is in use or not.
 func (p *PathSpec) ThemeSet() bool {
 	return p.theme != ""

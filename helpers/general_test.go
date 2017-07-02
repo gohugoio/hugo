@@ -64,6 +64,45 @@ func TestFirstUpper(t *testing.T) {
 	}
 }
 
+func TestHasStringsPrefix(t *testing.T) {
+	for i, this := range []struct {
+		s      []string
+		prefix []string
+		expect bool
+	}{
+		{[]string{"a"}, []string{"a"}, true},
+		{[]string{}, []string{}, true},
+		{[]string{"a", "b", "c"}, []string{"a", "b"}, true},
+		{[]string{"d", "a", "b", "c"}, []string{"a", "b"}, false},
+		{[]string{"abra", "ca", "dabra"}, []string{"abra", "ca"}, true},
+		{[]string{"abra", "ca"}, []string{"abra", "ca", "dabra"}, false},
+	} {
+		result := HasStringsPrefix(this.s, this.prefix)
+		if result != this.expect {
+			t.Fatalf("[%d] got %t but expected %t", i, result, this.expect)
+		}
+	}
+}
+
+func TestHasStringsSuffix(t *testing.T) {
+	for i, this := range []struct {
+		s      []string
+		suffix []string
+		expect bool
+	}{
+		{[]string{"a"}, []string{"a"}, true},
+		{[]string{}, []string{}, true},
+		{[]string{"a", "b", "c"}, []string{"b", "c"}, true},
+		{[]string{"abra", "ca", "dabra"}, []string{"abra", "ca"}, false},
+		{[]string{"abra", "ca", "dabra"}, []string{"ca", "dabra"}, true},
+	} {
+		result := HasStringsSuffix(this.s, this.suffix)
+		if result != this.expect {
+			t.Fatalf("[%d] got %t but expected %t", i, result, this.expect)
+		}
+	}
+}
+
 var containsTestText = (`На берегу пустынных волн
 Стоял он, дум великих полн,
 И вдаль глядел. Пред ним широко
