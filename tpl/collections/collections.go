@@ -254,24 +254,9 @@ func (ns *Namespace) In(l interface{}, v interface{}) bool {
 				if vv.Type() == lvv.Type() && vv.String() == lvv.String() {
 					return true
 				}
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				switch vv.Kind() {
-				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-					if vv.Int() == lvv.Int() {
-						return true
-					}
-				}
-			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				switch vv.Kind() {
-				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-					if vv.Uint() == lvv.Uint() {
-						return true
-					}
-				}
-			case reflect.Float32, reflect.Float64:
-				switch vv.Kind() {
-				case reflect.Float32, reflect.Float64:
-					if vv.Float() == lvv.Float() {
+			default:
+				if isNumber(vv.Kind()) && isNumber(lvv.Kind()) {
+					if numberToFloat(vv) == numberToFloat(lvv) {
 						return true
 					}
 				}
