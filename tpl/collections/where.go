@@ -381,7 +381,7 @@ func (ns *Namespace) checkWhereMap(seqv, kv, mv reflect.Value, path []string, op
 	return rv.Interface(), nil
 }
 
-// toFloat returns the int value if possible.
+// toFloat returns the float value if possible.
 func toFloat(v reflect.Value) (float64, error) {
 	switch v.Kind() {
 	case reflect.Float32, reflect.Float64:
@@ -393,6 +393,7 @@ func toFloat(v reflect.Value) (float64, error) {
 }
 
 // toInt returns the int value if possible, -1 if not.
+// TODO(bep) consolidate all these reflect funcs.
 func toInt(v reflect.Value) (int64, error) {
 	switch v.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:

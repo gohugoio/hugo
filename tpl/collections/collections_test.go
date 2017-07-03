@@ -244,10 +244,13 @@ func TestIn(t *testing.T) {
 		{[]int{1, 2, 4}, 3, false},
 		{[]float64{1.23, 2.45, 4.67}, 1.23, true},
 		{[]float64{1.234567, 2.45, 4.67}, 1.234568, false},
+		{[]float64{1, 2, 3}, 1, true},
+		{[]float32{1, 2, 3}, 1, true},
 		{"this substring should be found", "substring", true},
 		{"this substring should not be found", "subseastring", false},
 		{nil, "foo", false},
 	} {
+
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result := ns.In(test.l1, test.l2)
