@@ -1,6 +1,6 @@
 ---
 title: time
-# linktitle:
+linktitle:
 description: Converts a timestamp string into a `time.Time` structure.
 godocref:
 date: 2017-02-01
