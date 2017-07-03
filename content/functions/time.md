@@ -27,3 +27,25 @@ aliases: []
 {{ (time "2016-05-28").YearDay }} → 149
 {{ mul 1000 (time "2016-05-28T10:30:00.00+10:00").Unix }} → 1464395400000, or Unix time in milliseconds
 ```
+
+## Example: Using `time` to get Month Index
+
+The following example takes a UNIX timestamp---set as `utimestamp: "1489276800"` in a content's front matter---converts the timestamp (string) to an integer using the [`int` function][int], and then uses [`printf`][] to convert the `Month` property of `time` into an index. 
+
+The following example may be useful when setting up [multilingual sites][multilingual]:
+
+{{% code file="unix-to-month-integer.html" %}}
+```html
+{{$time := time (int .Params.addDate)}}
+=> $time = 1489276800
+{{$time.Month}}
+=> "March"
+{{$monthindex := printf "%d" $time.Month }}
+=> $monthindex = 3
+```
+{{% /code %}}
+
+
+[int]: /functions/int/
+[multilingual]: /content-management/multilingual/
+[`printf`]: /functions/printf/
