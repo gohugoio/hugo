@@ -256,7 +256,9 @@ func (ns *Namespace) In(l interface{}, v interface{}) bool {
 				}
 			default:
 				if isNumber(vv.Kind()) && isNumber(lvv.Kind()) {
-					if numberToFloat(vv) == numberToFloat(lvv) {
+					f1, err1 := numberToFloat(vv)
+					f2, err2 := numberToFloat(lvv)
+					if err1 == nil && err2 == nil && f1 == f2 {
 						return true
 					}
 				}
@@ -277,69 +279,24 @@ func (ns *Namespace) Intersect(l1, l2 interface{}) (interface{}, error) {
 		return make([]interface{}, 0), nil
 	}
 
+	var ins *intersector
+
 	l1v := reflect.ValueOf(l1)
 	l2v := reflect.ValueOf(l2)
 
 	switch l1v.Kind() {
 	case reflect.Array, reflect.Slice:
+		ins = &intersector{r: reflect.MakeSlice(l1v.Type(), 0, 0), seen: make(map[interface{}]bool)}
 		switch l2v.Kind() {
 		case reflect.Array, reflect.Slice:
-			r := reflect.MakeSlice(l1v.Type(), 0, 0)
 			for i := 0; i < l1v.Len(); i++ {
 				l1vv := l1v.Index(i)
 				for j := 0; j < l2v.Len(); j++ {
 					l2vv := l2v.Index(j)
-					switch l1vv.Kind() {
-					case reflect.String:
-						l2t, err := toString(l2vv)
-						if err == nil && l1vv.String() == l2t && !ns.In(r.Interface(), l1vv.Interface()) {
-							r = reflect.Append(r, l1vv)
-						}
-					case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-						l2t, err := toInt(l2vv)
-						if err == nil && l1vv.Int() == l2t && !ns.In(r.Interface(), l1vv.Interface()) {
-							r = reflect.Append(r, l1vv)
-						}
-					case reflect.Float32, reflect.Float64:
-						l2t, err := toFloat(l2vv)
-						if err == nil && l1vv.Float() == l2t && !ns.In(r.Interface(), l1vv.Interface()) {
-							r = reflect.Append(r, l1vv)
-						}
-					case reflect.Interface:
-						switch l1vvActual := l1vv.Interface().(type) {
-						case string:
-							switch l2vvActual := l2vv.Interface().(type) {
-							case string:
-								if l1vvActual == l2vvActual && !ns.In(r.Interface(), l1vvActual) {
-									r = reflect.Append(r, l1vv)
-								}
-							}
-						case int, int8, int16, int32, int64:
-							switch l2vvActual := l2vv.Interface().(type) {
-							case int, int8, int16, int32, int64:
-								if l1vvActual == l2vvActual && !ns.In(r.Interface(), l1vvActual) {
-									r = reflect.Append(r, l1vv)
-								}
-							}
-						case uint, uint8, uint16, uint32, uint64:
-							switch l2vvActual := l2vv.Interface().(type) {
-							case uint, uint8, uint16, uint32, uint64:
-								if l1vvActual == l2vvActual && !ns.In(r.Interface(), l1vvActual) {
-									r = reflect.Append(r, l1vv)
-								}
-							}
-						case float32, float64:
-							switch l2vvActual := l2vv.Interface().(type) {
-							case float32, float64:
-								if l1vvActual == l2vvActual && !ns.In(r.Interface(), l1vvActual) {
-									r = reflect.Append(r, l1vv)
-								}
-							}
-						}
-					}
+					ins.handleValuePair(l1vv, l2vv)
 				}
 			}
-			return r.Interface(), nil
+			return ins.r.Interface(), nil
 		default:
 			return nil, errors.New("can't iterate over " + reflect.ValueOf(l2).Type().String())
 		}
@@ -531,6 +488,41 @@ func (ns *Namespace) Slice(args ...interface{}) []interface{} {
 	return args
 }
 
+type intersector struct {
+	r    reflect.Value
+	seen map[interface{}]bool
+}
+
+func (i *intersector) appendIfNotSeen(v reflect.Value) {
+	vi := v.Interface()
+	if !i.seen[vi] {
+		i.r = reflect.Append(i.r, v)
+		i.seen[vi] = true
+	}
+}
+
+func (ins *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
+	switch kind := l1vv.Kind(); {
+	case kind == reflect.String:
+		l2t, err := toString(l2vv)
+		if err == nil && l1vv.String() == l2t {
+			ins.appendIfNotSeen(l1vv)
+		}
+	case isNumber(kind):
+		f1, err1 := numberToFloat(l1vv)
+		f2, err2 := numberToFloat(l2vv)
+		if err1 == nil && err2 == nil && f1 == f2 {
+			ins.appendIfNotSeen(l1vv)
+		}
+	case kind == reflect.Ptr, kind == reflect.Struct:
+		if l1vv.Interface() == l2vv.Interface() {
+			ins.appendIfNotSeen(l1vv)
+		}
+	case kind == reflect.Interface:
+		ins.handleValuePair(reflect.ValueOf(l1vv.Interface()), l2vv)
+	}
+}
+
 // Union returns the union of the given sets, l1 and l2. l1 and
 // l2 must be of the same type and may be either arrays or slices.
 // If l1 and l2 aren't of the same type then l1 will be returned.
@@ -547,105 +539,54 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 	l1v := reflect.ValueOf(l1)
 	l2v := reflect.ValueOf(l2)
 
+	var ins *intersector
+
 	switch l1v.Kind() {
 	case reflect.Array, reflect.Slice:
 		switch l2v.Kind() {
 		case reflect.Array, reflect.Slice:
-			r := reflect.MakeSlice(l1v.Type(), 0, 0)
+			ins = &intersector{r: reflect.MakeSlice(l1v.Type(), 0, 0), seen: make(map[interface{}]bool)}
 
 			if l1v.Type() != l2v.Type() &&
 				l1v.Type().Elem().Kind() != reflect.Interface &&
 				l2v.Type().Elem().Kind() != reflect.Interface {
-				return r.Interface(), nil
+				return ins.r.Interface(), nil
 			}
 
-			var l1vv reflect.Value
+			var (
+				l1vv  reflect.Value
+				isNil bool
+			)
+
 			for i := 0; i < l1v.Len(); i++ {
-				l1vv = l1v.Index(i)
-				if !ns.In(r.Interface(), l1vv.Interface()) {
-					r = reflect.Append(r, l1vv)
+				l1vv, isNil = indirectInterface(l1v.Index(i))
+				if !isNil {
+					ins.appendIfNotSeen(l1vv)
 				}
 			}
 
 			for j := 0; j < l2v.Len(); j++ {
 				l2vv := l2v.Index(j)
 
-				switch l1vv.Kind() {
-				case reflect.String:
+				switch kind := l1vv.Kind(); {
+				case kind == reflect.String:
 					l2t, err := toString(l2vv)
-					if err == nil && !ns.In(r.Interface(), l2t) {
-						r = reflect.Append(r, reflect.ValueOf(l2t))
+					if err == nil {
+						ins.appendIfNotSeen(reflect.ValueOf(l2t))
 					}
-				case reflect.Int:
-					l2t, err := toInt(l2vv)
-					if err == nil && !ns.In(r.Interface(), l2t) {
-						r = reflect.Append(r, reflect.ValueOf(int(l2t)))
+				case isNumber(kind):
+					var err error
+					l2vv, err = convertNumber(l2vv, kind)
+					if err == nil {
+						ins.appendIfNotSeen(l2vv)
 					}
-				case reflect.Int8:
-					l2t, err := toInt(l2vv)
-					if err == nil && !ns.In(r.Interface(), l2t) {
-						r = reflect.Append(r, reflect.ValueOf(int8(l2t)))
-					}
-				case reflect.Int16:
-					l2t, err := toInt(l2vv)
-					if err == nil && !ns.In(r.Interface(), l2t) {
-						r = reflect.Append(r, reflect.ValueOf(int16(l2t)))
-					}
-				case reflect.Int32:
-					l2t, err := toInt(l2vv)
-					if err == nil && !ns.In(r.Interface(), l2t) {
-						r = reflect.Append(r, reflect.ValueOf(int32(l2t)))
-					}
-				case reflect.Int64:
-					l2t, err := toInt(l2vv)
-					if err == nil && !ns.In(r.Interface(), l2t) {
-						r = reflect.Append(r, reflect.ValueOf(l2t))
-					}
-				case reflect.Float32:
-					l2t, err := toFloat(l2vv)
-					if err == nil && !ns.In(r.Interface(), float32(l2t)) {
-						r = reflect.Append(r, reflect.ValueOf(float32(l2t)))
-					}
-				case reflect.Float64:
-					l2t, err := toFloat(l2vv)
-					if err == nil && !ns.In(r.Interface(), l2t) {
-						r = reflect.Append(r, reflect.ValueOf(l2t))
-					}
-				case reflect.Interface:
-					switch l1vv.Interface().(type) {
-					case string:
-						switch l2vvActual := l2vv.Interface().(type) {
-						case string:
-							if !ns.In(r.Interface(), l2vvActual) {
-								r = reflect.Append(r, l2vv)
-							}
-						}
-					case int, int8, int16, int32, int64:
-						switch l2vvActual := l2vv.Interface().(type) {
-						case int, int8, int16, int32, int64:
-							if !ns.In(r.Interface(), l2vvActual) {
-								r = reflect.Append(r, l2vv)
-							}
-						}
-					case uint, uint8, uint16, uint32, uint64:
-						switch l2vvActual := l2vv.Interface().(type) {
-						case uint, uint8, uint16, uint32, uint64:
-							if !ns.In(r.Interface(), l2vvActual) {
-								r = reflect.Append(r, l2vv)
-							}
-						}
-					case float32, float64:
-						switch l2vvActual := l2vv.Interface().(type) {
-						case float32, float64:
-							if !ns.In(r.Interface(), l2vvActual) {
-								r = reflect.Append(r, l2vv)
-							}
-						}
-					}
+				case kind == reflect.Interface, kind == reflect.Struct, kind == reflect.Ptr:
+					ins.appendIfNotSeen(l2vv)
+
 				}
 			}
 
-			return r.Interface(), nil
+			return ins.r.Interface(), nil
 		default:
 			return nil, errors.New("can't iterate over " + reflect.ValueOf(l2).Type().String())
 		}
