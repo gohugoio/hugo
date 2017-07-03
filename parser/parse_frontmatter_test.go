@@ -299,6 +299,11 @@ func TestExtractFrontMatterDelim(t *testing.T) {
 		// Issue #3511
 		{`{ "title": "{" }`, `{ "title": "{" }`, noErrExpected},
 		{`{ "title": "{}" }`, `{ "title": "{}" }`, noErrExpected},
+		// Issue #3661
+		{`{ "title": "\"" }`, `{ "title": "\"" }`, noErrExpected},
+		{`{ "title": "\"{", "other": "\"{}" }`, `{ "title": "\"{", "other": "\"{}" }`, noErrExpected},
+		{`{ "title": "\"Foo\"" }`, `{ "title": "\"Foo\"" }`, noErrExpected},
+		{`{ "title": "\"Foo\"\"" }`, `{ "title": "\"Foo\"\"" }`, noErrExpected},
 	}
 
 	for i, test := range tests {
@@ -310,7 +315,7 @@ func TestExtractFrontMatterDelim(t *testing.T) {
 		}
 		if !bytes.Equal(fm, []byte(test.extracted)) {
 			t.Logf("\n%q\n", string(test.frontmatter))
-			t.Errorf("[%d] Frontmatter did not match:\nexp: %q\ngot: %q", i, string(test.extracted), fm)
+			t.Errorf("[%d] Frontmatter did not match:\nexp: %q\ngot:  %q", i, string(test.extracted), fm)
 		}
 	}
 }
