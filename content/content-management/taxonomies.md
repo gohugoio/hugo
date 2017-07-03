@@ -84,13 +84,13 @@ Moonrise Kingdom            <- Content
 
 ## Hugo Taxonomy Defaults
 
-Hugo natively supports taxonomies, which means there are architectural patterns for rendering your project's taxonomies baked into Hugo's core.
+Hugo natively supports taxonomies, which means there are architectural patterns for rendering your project's taxonomies baked into Hugo's core. 
 
-{{% note %}}
-Users of versions older than v0.20 may notice that Hugo built `/tags` and `/categories` as long as these fields were called in at least a single content file. A previous hack involved setting these values to empty strings. This is *not* a proper workaround.
+Without adding a single line to your site's configuration file, Hugo will automatically create taxonomies for `tags` and `categories`. If you do not want Hugo to create these taxonomies---even though the values may be added to your content files' front matter---set `disableKinds` in your site's configuration to the following:
 
-As of v0.20, Hugo does *not* automatically generate default taxonomies for your site. If your site configuration contains no key-values in the taxonomies field, Hugo will not build anything.
-{{% /note %}}
+```toml
+disableKinds = ["taxonomy","taxonomyTerm"]
+```
 
 ### Default Destinations
 
