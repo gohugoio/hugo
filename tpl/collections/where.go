@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"time"
 )
 
 // Where returns a filtered subset of a given data type.
@@ -404,6 +403,16 @@ func toInt(v reflect.Value) (int64, error) {
 	return -1, errors.New("unable to convert value to int")
 }
 
+func toUint(v reflect.Value) (uint64, error) {
+	switch v.Kind() {
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return v.Uint(), nil
+	case reflect.Interface:
+		return toUint(v.Elem())
+	}
+	return 0, errors.New("unable to convert value to uint")
+}
+
 // toString returns the string value if possible, "" if not.
 func toString(v reflect.Value) (string, error) {
 	switch v.Kind() {
@@ -414,12 +423,6 @@ func toString(v reflect.Value) (string, error) {
 	}
 	return "", errors.New("unable to convert value to string")
 }
-
-var (
-	zero      reflect.Value
-	errorType = reflect.TypeOf((*error)(nil)).Elem()
-	timeType  = reflect.TypeOf((*time.Time)(nil)).Elem()
-)
 
 func toTimeUnix(v reflect.Value) int64 {
 	if v.Kind() == reflect.Interface {

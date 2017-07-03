@@ -148,3 +148,15 @@ func indirect(v reflect.Value) (rv reflect.Value, isNil bool) {
 	}
 	return v, false
 }
+
+func indirectInterface(v reflect.Value) (rv reflect.Value, isNil bool) {
+	for ; v.Kind() == reflect.Interface; v = v.Elem() {
+		if v.IsNil() {
+			return v, true
+		}
+		if v.Kind() == reflect.Interface && v.NumMethod() > 0 {
+			break
+		}
+	}
+	return v, false
+}
