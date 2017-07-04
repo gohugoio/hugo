@@ -7,11 +7,12 @@ RUN \
   apk add --no-cache \
     dumb-init \
     git && \
-  go get github.com/gohugoio/hugo && \
+  go get github.com/kardianos/govendor && \
+  govendor get github.com/gohugoio/hugo && \
   cd $GOPATH/src/github.com/gohugoio/hugo && \
   go install && \
   cd $GOPATH && \
-  rm -rf pkg src && \
+  rm -rf pkg src bin/govendor && \
   apk del --no-cache git go
 
 USER    hugo
