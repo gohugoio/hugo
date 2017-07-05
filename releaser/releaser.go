@@ -51,7 +51,7 @@ func (r ReleaseHandler) shouldRelease() bool {
 }
 
 func (r ReleaseHandler) shouldContinue() bool {
-	return r.step == 3
+	return r.step >= 3
 }
 
 func (r ReleaseHandler) shouldPrepareReleasenotes() bool {
@@ -59,7 +59,7 @@ func (r ReleaseHandler) shouldPrepareReleasenotes() bool {
 }
 
 func (r ReleaseHandler) shouldPrepareVersions() bool {
-	return r.step < 1 || r.step == 2
+	return r.step < 1 || r.step == 2 || r.step > 3
 }
 
 func (r ReleaseHandler) calculateVersions() (helpers.HugoVersion, helpers.HugoVersion) {
@@ -150,37 +150,23 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	if r.shouldPrepareVersions() {
-		if newVersion.PatchLevel == 0 {
-			// Make sure the docs submodule is up to date.
-			// TODO(bep) improve this. Maybe it was not such a good idea to do
-			// this in the sobmodule directly.
-			if _, err := r.git("submodule", "update", "--init"); err != nil {
-				return err
-			}
-			//git submodule update
-			if _, err := r.git("submodule", "update", "--remote", "--merge"); err != nil {
-				return err
-			}
 
-			// TODO(bep) the above may not have changed anything.
-			if _, err := r.git("commit", "-a", "-m", fmt.Sprintf("%s Update /docs [ci skip]", commitPrefix)); err != nil {
-				return err
-			}
-		}
+		// For docs, for now we assume that:
+		// The /docs subtree is up to date and ready to go.
+		// The hugoDocs/dev and hugoDocs/master must be merged manually after release.
+		// TODO(bep) improve this when we see how it works.
 
 		if err := r.bumpVersions(newVersion); err != nil {
 			return err
 		}
 
-		for _, repo := range []string{"docs", "."} {
-			if _, err := r.git("-C", repo, "commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
-				return err
-			}
+		if _, err := r.git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+			return err
 		}
 	}
 
 	if !r.shouldRelease() {
-		fmt.Println("Skip release ... Use --state=3 to continue.")
+		fmt.Printf("Skip release ... Use --state=%d for next or --state=4 to finish\n", r.step+1)
 		return nil
 	}
 
@@ -192,39 +178,20 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
-	if _, err := r.git("-C", "docs", "add", docFile); err != nil {
+	if _, err := r.git("add", docFile); err != nil {
 		return err
 	}
-	if _, err := r.git("-C", "docs", "commit", "-m", fmt.Sprintf("%s Add release notes to /docs for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+	if _, err := r.git("commit", "-m", fmt.Sprintf("%s Add release notes to /docs for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
 		return err
 	}
 
-	for i, repo := range []string{"docs", "."} {
-		if i == 1 {
-			if _, err := r.git("add", "docs"); err != nil {
-				return err
-			}
-			if _, err := r.git("commit", "-m", fmt.Sprintf("%s Update /docs to %s [ci skip]", commitPrefix, newVersion)); err != nil {
-				return err
-			}
-		}
-		if _, err := r.git("-C", repo, "tag", "-a", tag, "-m", fmt.Sprintf("%s %s [ci deploy]", commitPrefix, newVersion)); err != nil {
-			return err
-		}
-
-		repoURL := "git@github.com:gohugoio/hugo.git"
-		if i == 0 {
-			repoURL = "git@github.com:gohugoio/hugoDocs.git"
-		}
-		if _, err := r.git("-C", repo, "push", repoURL, "origin/master", tag); err != nil {
-			return err
-		}
+	if _, err := r.git("tag", "-a", tag, "-m", fmt.Sprintf("%s %s [ci deploy]", commitPrefix, newVersion)); err != nil {
+		return err
 	}
 
-	// We make changes to the submodule, which is in detached state. Reconsider this
-	// to get changes pushed to both.
-	// TODO(bep) git fetch git@github.com:gohugoio/hugoDocs.git -- master
-	// git branch -f master 8c9359b
+	if _, err := r.git("push", tag); err != nil {
+		return err
+	}
 
 	if err := r.release(releaseNotesFile); err != nil {
 		return err
@@ -241,10 +208,8 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
-	for _, repo := range []string{"docs", "."} {
-		if _, err := r.git("-C", repo, "commit", "-a", "-m", fmt.Sprintf("%s Prepare repository for %s\n\n[ci skip]", commitPrefix, finalVersion)); err != nil {
-			return err
-		}
+	if _, err := r.git("commit", "-a", "-m", fmt.Sprintf("%s Prepare repository for %s\n\n[ci skip]", commitPrefix, finalVersion)); err != nil {
+		return err
 	}
 
 	return nil
