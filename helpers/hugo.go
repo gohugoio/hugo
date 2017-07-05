@@ -14,6 +14,7 @@
 package helpers
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -35,6 +36,29 @@ type HugoVersion struct {
 
 func (v HugoVersion) String() string {
 	return hugoVersion(v.Number, v.PatchLevel, v.Suffix)
+}
+
+func ParseHugoVersion(s string) (HugoVersion, error) {
+	var vv HugoVersion
+
+	if strings.Contains(s, "DEV") {
+		return vv, errors.New("DEV versions not supported by parse")
+	}
+
+	v, p := parseVersion(s)
+
+	vv.Number = v
+	vv.PatchLevel = p
+
+	return vv, nil
+}
+
+func MustParseHugoVersion(s string) HugoVersion {
+	vv, err := ParseHugoVersion(s)
+	if err != nil {
+		panic(err)
+	}
+	return vv
 }
 
 // ReleaseVersion represents the release version.
@@ -100,18 +124,7 @@ func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int 
 			return -1
 		}
 
-		var (
-			v float32
-			p int
-		)
-
-		if strings.Count(s, ".") == 2 {
-			li := strings.LastIndex(s, ".")
-			p = cast.ToInt(s[li+1:])
-			s = s[:li]
-		}
-
-		v = float32(cast.ToFloat64(s))
+		v, p := parseVersion(s)
 
 		if v == inVersion && p == inPatchVersion {
 			return 0
@@ -123,6 +136,23 @@ func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int 
 
 		return 1
 	}
+}
+
+func parseVersion(s string) (float32, int) {
+	var (
+		v float32
+		p int
+	)
+
+	if strings.Count(s, ".") == 2 {
+		li := strings.LastIndex(s, ".")
+		p = cast.ToInt(s[li+1:])
+		s = s[:li]
+	}
+
+	v = float32(cast.ToFloat64(s))
+
+	return v, p
 }
 
 func compareFloatVersions(version float32, v float32) int {

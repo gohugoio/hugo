@@ -31,7 +31,7 @@ import (
 const commitPrefix = "releaser:"
 
 type ReleaseHandler struct {
-	patch int
+	cliVersion string
 
 	// If set, we do the releases in 3 steps:
 	// 1: Create and write a draft release notes
@@ -62,24 +62,16 @@ func (r ReleaseHandler) shouldPrepareVersions() bool {
 	return r.step < 1 || r.step == 2
 }
 
-func (r ReleaseHandler) calculateVersions(current helpers.HugoVersion) (helpers.HugoVersion, helpers.HugoVersion) {
-	var (
-		newVersion   = current
-		finalVersion = current
-	)
+func (r ReleaseHandler) calculateVersions() (helpers.HugoVersion, helpers.HugoVersion) {
+
+	newVersion := helpers.MustParseHugoVersion(r.cliVersion)
+	finalVersion := newVersion
+	finalVersion.PatchLevel = 0
 
 	newVersion.Suffix = ""
 
-	if r.shouldContinue() {
-		// The version in the current code base is in the state we want for
-		// the release.
-		if r.patch == 0 {
-			finalVersion = newVersion.Next()
-		}
-	} else if r.patch > 0 {
-		newVersion = helpers.CurrentHugoVersion.NextPatchLevel(r.patch)
-	} else {
-		finalVersion = newVersion.Next()
+	if newVersion.PatchLevel == 0 {
+		finalVersion = finalVersion.Next()
 	}
 
 	finalVersion.Suffix = "-DEV"
@@ -87,8 +79,8 @@ func (r ReleaseHandler) calculateVersions(current helpers.HugoVersion) (helpers.
 	return newVersion, finalVersion
 }
 
-func New(patch, step int, skipPublish, try bool) *ReleaseHandler {
-	rh := &ReleaseHandler{patch: patch, step: step, skipPublish: skipPublish, try: try}
+func New(version string, step int, skipPublish, try bool) *ReleaseHandler {
+	rh := &ReleaseHandler{cliVersion: version, step: step, skipPublish: skipPublish, try: try}
 
 	if try {
 		rh.git = func(args ...string) (string, error) {
@@ -107,7 +99,7 @@ func (r *ReleaseHandler) Run() error {
 		return errors.New("GITHUB_TOKEN not set, create one here with the repo scope selected: https://github.com/settings/tokens/new")
 	}
 
-	newVersion, finalVersion := r.calculateVersions(helpers.CurrentHugoVersion)
+	newVersion, finalVersion := r.calculateVersions()
 
 	version := newVersion.String()
 	tag := "v" + version
