@@ -31,6 +31,7 @@ type releaseCommandeer struct {
 	patchLevel int
 
 	skipPublish bool
+	try         bool
 
 	step int
 }
@@ -53,10 +54,11 @@ func createReleaser() *releaseCommandeer {
 	r.cmd.PersistentFlags().IntVarP(&r.patchLevel, "patch", "p", 0, "patch level, defaults to 0 for main releases")
 	r.cmd.PersistentFlags().IntVarP(&r.step, "step", "s", -1, "release step, defaults to -1 for all steps.")
 	r.cmd.PersistentFlags().BoolVarP(&r.skipPublish, "skip-publish", "", false, "skip all publishing pipes of the release")
+	r.cmd.PersistentFlags().BoolVarP(&r.try, "try", "", false, "simulate a release, i.e. no changes")
 
 	return r
 }
 
 func (r *releaseCommandeer) release() error {
-	return releaser.New(r.patchLevel, r.step, r.skipPublish).Run()
+	return releaser.New(r.patchLevel, r.step, r.skipPublish, r.try).Run()
 }

@@ -39,6 +39,11 @@ type ReleaseHandler struct {
 	// 3: Release
 	step        int
 	skipPublish bool
+
+	// Just simulate, no actual changes.
+	try bool
+
+	git func(args ...string) (string, error)
 }
 
 func (r ReleaseHandler) shouldRelease() bool {
@@ -82,8 +87,19 @@ func (r ReleaseHandler) calculateVersions(current helpers.HugoVersion) (helpers.
 	return newVersion, finalVersion
 }
 
-func New(patch, step int, skipPublish bool) *ReleaseHandler {
-	return &ReleaseHandler{patch: patch, step: step, skipPublish: skipPublish}
+func New(patch, step int, skipPublish, try bool) *ReleaseHandler {
+	rh := &ReleaseHandler{patch: patch, step: step, skipPublish: skipPublish, try: try}
+
+	if try {
+		rh.git = func(args ...string) (string, error) {
+			fmt.Println("git", args)
+			return "", nil
+		}
+	} else {
+		rh.git = git
+	}
+
+	return rh
 }
 
 func (r *ReleaseHandler) Run() error {
@@ -121,22 +137,22 @@ func (r *ReleaseHandler) Run() error {
 	var gitCommits gitInfos
 
 	if r.shouldPrepareReleasenotes() || r.shouldRelease() {
-		gitCommits, err = getGitInfos(changeLogFromTag, true)
+		gitCommits, err = getGitInfos(changeLogFromTag, !r.try)
 		if err != nil {
 			return err
 		}
 	}
 
 	if r.shouldPrepareReleasenotes() {
-		releaseNotesFile, err := writeReleaseNotesToTemp(version, gitCommits)
+		releaseNotesFile, err := r.writeReleaseNotesToTemp(version, gitCommits)
 		if err != nil {
 			return err
 		}
 
-		if _, err := git("add", releaseNotesFile); err != nil {
+		if _, err := r.git("add", releaseNotesFile); err != nil {
 			return err
 		}
-		if _, err := git("commit", "-m", fmt.Sprintf("%s Add release notes draft for %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+		if _, err := r.git("commit", "-m", fmt.Sprintf("%s Add release notes draft for %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
 			return err
 		}
 	}
@@ -146,26 +162,26 @@ func (r *ReleaseHandler) Run() error {
 			// Make sure the docs submodule is up to date.
 			// TODO(bep) improve this. Maybe it was not such a good idea to do
 			// this in the sobmodule directly.
-			if _, err := git("submodule", "update", "--init"); err != nil {
+			if _, err := r.git("submodule", "update", "--init"); err != nil {
 				return err
 			}
 			//git submodule update
-			if _, err := git("submodule", "update", "--remote", "--merge"); err != nil {
+			if _, err := r.git("submodule", "update", "--remote", "--merge"); err != nil {
 				return err
 			}
 
 			// TODO(bep) the above may not have changed anything.
-			if _, err := git("commit", "-a", "-m", fmt.Sprintf("%s Update /docs [ci skip]", commitPrefix)); err != nil {
+			if _, err := r.git("commit", "-a", "-m", fmt.Sprintf("%s Update /docs [ci skip]", commitPrefix)); err != nil {
 				return err
 			}
 		}
 
-		if err := bumpVersions(newVersion); err != nil {
+		if err := r.bumpVersions(newVersion); err != nil {
 			return err
 		}
 
 		for _, repo := range []string{"docs", "."} {
-			if _, err := git("-C", repo, "commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+			if _, err := r.git("-C", repo, "commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
 				return err
 			}
 		}
@@ -179,28 +195,28 @@ func (r *ReleaseHandler) Run() error {
 	releaseNotesFile := getReleaseNotesDocsTempFilename(version)
 
 	// Write the release notes to the docs site as well.
-	docFile, err := writeReleaseNotesToDocs(version, releaseNotesFile)
+	docFile, err := r.writeReleaseNotesToDocs(version, releaseNotesFile)
 	if err != nil {
 		return err
 	}
 
-	if _, err := git("-C", "docs", "add", docFile); err != nil {
+	if _, err := r.git("-C", "docs", "add", docFile); err != nil {
 		return err
 	}
-	if _, err := git("-C", "docs", "commit", "-m", fmt.Sprintf("%s Add release notes to /docs for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+	if _, err := r.git("-C", "docs", "commit", "-m", fmt.Sprintf("%s Add release notes to /docs for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
 		return err
 	}
 
 	for i, repo := range []string{"docs", "."} {
 		if i == 1 {
-			if _, err := git("add", "docs"); err != nil {
+			if _, err := r.git("add", "docs"); err != nil {
 				return err
 			}
-			if _, err := git("commit", "-m", fmt.Sprintf("%s Update /docs to %s [ci skip]", commitPrefix, newVersion)); err != nil {
+			if _, err := r.git("commit", "-m", fmt.Sprintf("%s Update /docs to %s [ci skip]", commitPrefix, newVersion)); err != nil {
 				return err
 			}
 		}
-		if _, err := git("-C", repo, "tag", "-a", tag, "-m", fmt.Sprintf("%s %s [ci deploy]", commitPrefix, newVersion)); err != nil {
+		if _, err := r.git("-C", repo, "tag", "-a", tag, "-m", fmt.Sprintf("%s %s [ci deploy]", commitPrefix, newVersion)); err != nil {
 			return err
 		}
 
@@ -208,7 +224,7 @@ func (r *ReleaseHandler) Run() error {
 		if i == 0 {
 			repoURL = "git@github.com:gohugoio/hugoDocs.git"
 		}
-		if _, err := git("-C", repo, "push", repoURL, "origin/master", tag); err != nil {
+		if _, err := r.git("-C", repo, "push", repoURL, "origin/master", tag); err != nil {
 			return err
 		}
 	}
@@ -222,17 +238,19 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
-	if err := bumpVersions(finalVersion); err != nil {
+	if err := r.bumpVersions(finalVersion); err != nil {
 		return err
 	}
 
-	// No longer needed.
-	if err := os.Remove(releaseNotesFile); err != nil {
-		return err
+	if !r.try {
+		// No longer needed.
+		if err := os.Remove(releaseNotesFile); err != nil {
+			return err
+		}
 	}
 
 	for _, repo := range []string{"docs", "."} {
-		if _, err := git("-C", repo, "commit", "-a", "-m", fmt.Sprintf("%s Prepare repository for %s\n\n[ci skip]", commitPrefix, finalVersion)); err != nil {
+		if _, err := r.git("-C", repo, "commit", "-a", "-m", fmt.Sprintf("%s Prepare repository for %s\n\n[ci skip]", commitPrefix, finalVersion)); err != nil {
 			return err
 		}
 	}
@@ -241,6 +259,11 @@ func (r *ReleaseHandler) Run() error {
 }
 
 func (r *ReleaseHandler) release(releaseNotesFile string) error {
+	if r.try {
+		fmt.Println("Skip goreleaser...")
+		return nil
+	}
+
 	cmd := exec.Command("goreleaser", "--release-notes", releaseNotesFile, "--skip-publish="+fmt.Sprint(r.skipPublish))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -251,7 +274,7 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 	return nil
 }
 
-func bumpVersions(ver helpers.HugoVersion) error {
+func (r *ReleaseHandler) bumpVersions(ver helpers.HugoVersion) error {
 	fromDev := ""
 	toDev := ""
 
@@ -261,7 +284,7 @@ func bumpVersions(ver helpers.HugoVersion) error {
 		fromDev = "-DEV"
 	}
 
-	if err := replaceInFile("helpers/hugo.go",
+	if err := r.replaceInFile("helpers/hugo.go",
 		`Number:(\s{4,})(.*),`, fmt.Sprintf(`Number:${1}%.2f,`, ver.Number),
 		`PatchLevel:(\s*)(.*),`, fmt.Sprintf(`PatchLevel:${1}%d,`, ver.PatchLevel),
 		fmt.Sprintf(`Suffix:(\s{4,})"%s",`, fromDev), fmt.Sprintf(`Suffix:${1}"%s",`, toDev)); err != nil {
@@ -272,7 +295,7 @@ func bumpVersions(ver helpers.HugoVersion) error {
 	if ver.Suffix != "" {
 		snapcraftGrade = "devel"
 	}
-	if err := replaceInFile("snapcraft.yaml",
+	if err := r.replaceInFile("snapcraft.yaml",
 		`version: "(.*)"`, fmt.Sprintf(`version: "%s"`, ver),
 		`grade: (.*) #`, fmt.Sprintf(`grade: %s #`, snapcraftGrade)); err != nil {
 		return err
@@ -287,13 +310,13 @@ func bumpVersions(ver helpers.HugoVersion) error {
 		minVersion = ver.String()
 	}
 
-	if err := replaceInFile("commands/new.go",
+	if err := r.replaceInFile("commands/new.go",
 		`min_version = "(.*)"`, fmt.Sprintf(`min_version = "%s"`, minVersion)); err != nil {
 		return err
 	}
 
 	// docs/config.toml
-	if err := replaceInFile("docs/config.toml",
+	if err := r.replaceInFile("docs/config.toml",
 		`release = "(.*)"`, fmt.Sprintf(`release = "%s"`, ver)); err != nil {
 		return err
 	}
@@ -301,11 +324,16 @@ func bumpVersions(ver helpers.HugoVersion) error {
 	return nil
 }
 
-func replaceInFile(filename string, oldNew ...string) error {
+func (r *ReleaseHandler) replaceInFile(filename string, oldNew ...string) error {
 	fullFilename := hugoFilepath(filename)
 	fi, err := os.Stat(fullFilename)
 	if err != nil {
 		return err
+	}
+
+	if r.try {
+		fmt.Printf("Replace in %q: %q\n", filename, oldNew)
+		return nil
 	}
 
 	b, err := ioutil.ReadFile(fullFilename)
