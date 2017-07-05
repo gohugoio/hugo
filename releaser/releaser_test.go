@@ -34,37 +34,37 @@ func _TestCalculateVersions(t *testing.T) {
 		v2      string
 	}{
 		{
-			New(0, 0, true),
+			New(0, 0, true, true),
 			startVersion,
 			"0.20",
 			"0.21-DEV",
 		},
 		{
-			New(2, 0, true),
+			New(2, 0, true, true),
 			startVersion,
 			"0.20.2",
 			"0.20-DEV",
 		},
 		{
-			New(0, 1, true),
+			New(0, 1, true, true),
 			startVersion,
 			"0.20",
 			"0.21-DEV",
 		},
 		{
-			New(0, 3, true),
+			New(0, 3, true, true),
 			startVersion,
 			"0.20",
 			"0.21-DEV",
 		},
 		{
-			New(3, 1, true),
+			New(3, 1, true, true),
 			startVersion,
 			"0.20.3",
 			"0.20-DEV",
 		},
 		{
-			New(3, 3, true),
+			New(3, 3, true, true),
 			startVersion.Next(),
 			"0.21",
 			"0.21-DEV",

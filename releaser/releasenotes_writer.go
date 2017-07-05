@@ -193,29 +193,49 @@ func getReleaseNotesDocsTempFilename(version string) string {
 	return filepath.Join(getReleaseNotesDocsTempDirAndName(version))
 }
 
-func writeReleaseNotesToTemp(version string, infos gitInfos) (string, error) {
+func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infos gitInfos) (string, error) {
+
 	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version)
-	os.Mkdir(docsTempPath, os.ModePerm)
 
-	f, err := os.Create(filepath.Join(docsTempPath, name))
-	if err != nil {
+	var (
+		w io.WriteCloser
+	)
+
+	if !r.try {
+		os.Mkdir(docsTempPath, os.ModePerm)
+
+		f, err := os.Create(filepath.Join(docsTempPath, name))
+		if err != nil {
+			return "", err
+		}
+
+		name = f.Name()
+
+		defer f.Close()
+
+		w = f
+
+	} else {
+		w = os.Stdout
+	}
+
+	if err := writeReleaseNotes(version, infos, w); err != nil {
 		return "", err
 	}
 
-	defer f.Close()
-
-	if err := writeReleaseNotes(version, infos, f); err != nil {
-		return "", err
-	}
-
-	return f.Name(), nil
+	return name, nil
 
 }
 
-func writeReleaseNotesToDocs(title, sourceFilename string) (string, error) {
+func (r *ReleaseHandler) writeReleaseNotesToDocs(title, sourceFilename string) (string, error) {
 	targetFilename := filepath.Base(sourceFilename)
 	contentDir := hugoFilepath("docs/content/release-notes")
 	targetFullFilename := filepath.Join(contentDir, targetFilename)
+
+	if r.try {
+		return targetFullFilename, nil
+	}
+
 	os.Mkdir(contentDir, os.ModePerm)
 
 	b, err := ioutil.ReadFile(sourceFilename)
