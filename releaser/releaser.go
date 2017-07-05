@@ -24,6 +24,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
 )
@@ -84,7 +85,7 @@ func New(version string, step int, skipPublish, try bool) *ReleaseHandler {
 
 	if try {
 		rh.git = func(args ...string) (string, error) {
-			fmt.Println("git", args)
+			fmt.Println("git", strings.Join(args, " "))
 			return "", nil
 		}
 	} else {

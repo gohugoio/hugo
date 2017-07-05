@@ -75,7 +75,6 @@ Hugo now has:
 {{ $tmplChanges := index . "templateChanges" -}}
 {{- $outChanges := index . "outChanges" -}}
 {{- $coreChanges := index . "coreChanges" -}}
-{{- $docsChanges := index . "docsChanges" -}}
 {{- $otherChanges := index . "otherChanges" -}}
 {{- with $tmplChanges -}}
 ### Templates
@@ -88,10 +87,6 @@ Hugo now has:
 {{- with $coreChanges -}}
 ### Core
 {{ template "change-section" . }}
-{{- end -}}
-{{- with $docsChanges -}}
-### Docs
-{{ template "change-section"  . }}
 {{- end -}}
 {{- with $otherChanges -}}
 ### Other
