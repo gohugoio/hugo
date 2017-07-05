@@ -1,4 +1,4 @@
-baseurl = ""
+baseurl = "/"
 canonifyurls = true
 # Pointing to this file
 config = "config.toml"
@@ -8,7 +8,6 @@ copyright = ""
 defaultContentLanguage = "en"
 # Set to true to keep url path preserve casing (eg, for sections)
 disablePathToLower = false
-
 # Allows use of emoji shorthand directly in content
 enableEmoji = true
 # Set the unicode character used for the "return" link in page footnotes.
