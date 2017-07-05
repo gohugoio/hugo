@@ -60,7 +60,7 @@ The  auto-populated fields are worth examining:
 
 * `title` is generated from the new content's filename (i.e. in this case, `my-first-post` becomes `"my first post"`)
 * `date` and `title` are the variables that ship with Hugo and are therefore included in *all* content files created with the Hugo CLI. `date` is generated in [RFC 3339 format][] by way of Golang's [`now()`][] function, which returns the current time.
-* The third variable, `draft = true`, is *not* inherited by your default or custom archetypes but is include in Hugo's internal/base archetype for convenience.
+* The third variable, `draft = true`, is *not* inherited by your default or custom archetypes but is included in Hugo's automatically scaffolded `default.md` archetype for convenience.
 
 Three variables per content file are often not enough for effective content management of larger websites. Luckily, Hugo provides a simple mechanism for extending the number of variables through custom archetypes, as well as default archetypes to keep content creation DRY.
 
@@ -71,14 +71,13 @@ Similar to the [lookup order for templates][lookup] in your `layouts` directory,
 1. `archetypes/posts.md`
 2. `archetypes/default.md`
 3. `themes/<THEME>/archetypes/posts.md`
-4. `themes/<THEME>/archetypes/default.md`
-5. `_internal` (i.e., `title` and `date`)
+4. `themes/<THEME>/archetypes/default.md` (Auto-generated with `hugo new site`)
 
 {{% note "Using a Theme Archetype" %}}
 If you wish to use archetypes that ship with a theme, the `theme` field must be specified in your [configuration file](/getting-started/configuration/).
 {{% /note %}}
 
-## Choosing Your Front Matter Format
+## Choosing Your Archetype's Front Matter Format
 
 By default, `hugo new` content files include front matter in the TOML format regardless of the format used in `archetypes/*.md`.
 
@@ -89,6 +88,8 @@ You can specify a different default format in your site [configuration file][] f
 Default archetypes are convenient if your content's front matter stays consistent across multiple [content sections][sections].
 
 ### Creating the Default Archetype
+
+When you create a new Hugo project using `hugo new site`, you'll notice that Hugo has already scaffolded a file at `archetypes/default.md`. 
 
 The following examples are from a site that's using `tags` and `categories` as [taxonomies][]. If we assume that all content files will require these two key-values, we can create a `default.md` archetype that *extends* Hugo's base archetype. In this example, we are including "golang" and "hugo" as tags and "web development" as a category.
 
