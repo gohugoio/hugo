@@ -6,63 +6,72 @@
         "String": "application/javascript+js",
         "MainType": "application",
         "SubType": "javascript",
-        "Suffix": "js"
+        "Suffix": "js",
+        "Delimiter": "."
       },
       {
         "Type": "application/json",
         "String": "application/json+json",
         "MainType": "application",
         "SubType": "json",
-        "Suffix": "json"
+        "Suffix": "json",
+        "Delimiter": "."
       },
       {
         "Type": "application/rss",
         "String": "application/rss+xml",
         "MainType": "application",
         "SubType": "rss",
-        "Suffix": "xml"
+        "Suffix": "xml",
+        "Delimiter": "."
       },
       {
         "Type": "application/xml",
         "String": "application/xml+xml",
         "MainType": "application",
         "SubType": "xml",
-        "Suffix": "xml"
+        "Suffix": "xml",
+        "Delimiter": "."
       },
       {
         "Type": "text/calendar",
         "String": "text/calendar+ics",
         "MainType": "text",
         "SubType": "calendar",
-        "Suffix": "ics"
+        "Suffix": "ics",
+        "Delimiter": "."
       },
       {
         "Type": "text/css",
         "String": "text/css+css",
         "MainType": "text",
         "SubType": "css",
-        "Suffix": "css"
+        "Suffix": "css",
+        "Delimiter": "."
       },
       {
         "Type": "text/csv",
         "String": "text/csv+csv",
         "MainType": "text",
         "SubType": "csv",
-        "Suffix": "csv"
+        "Suffix": "csv",
+        "Delimiter": "."
       },
       {
         "Type": "text/html",
         "String": "text/html+html",
         "MainType": "text",
         "SubType": "html",
-        "Suffix": "html"
+        "Suffix": "html",
+        "Delimiter": "."
       },
       {
         "Type": "text/plain",
         "String": "text/plain+txt",
         "MainType": "text",
         "SubType": "plain",
-        "Suffix": "txt"
+        "Suffix": "txt",
+        "Delimiter": "."
       }
     ]
   },
@@ -167,6 +176,21 @@
           "demoTheme/layouts/index.html",
           "demoTheme/layouts/_default/list.amp.html",
           "demoTheme/layouts/_default/list.html"
+        ]
+      },
+      {
+        "Example": "AMP home, French language\".",
+        "OutputFormat": "AMP",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/index.fr.amp.html",
+          "layouts/index.amp.html",
+          "layouts/index.fr.html",
+          "layouts/index.html",
+          "layouts/_default/list.fr.amp.html",
+          "layouts/_default/list.amp.html",
+          "layouts/_default/list.fr.html",
+          "layouts/_default/list.html"
         ]
       },
       {
@@ -958,6 +982,19 @@
             [
               "{{div 6 3}}",
               "2"
+            ]
+          ]
+        },
+        "Log": {
+          "Description": "",
+          "Args": [
+            "a"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Log 1}}",
+              "0"
             ]
           ]
         },
