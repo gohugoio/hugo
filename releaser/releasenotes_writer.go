@@ -60,7 +60,7 @@ Hugo now has:
 * {{ len .Contributors }}+ [contributors](https://github.com/gohugoio/hugo/graphs/contributors)
 {{- end -}}
 {{ with .ThemeCount }}
-* 156+ [themes](http://themes.gohugo.io/)
+* {{ . }}+ [themes](http://themes.gohugo.io/)
 {{- end }}
 {{ with .Notes }}
 ## Notes
