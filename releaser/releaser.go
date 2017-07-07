@@ -190,7 +190,7 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
-	if _, err := r.git("push", tag); err != nil {
+	if _, err := r.git("push", "origin", tag); err != nil {
 		return err
 	}
 
