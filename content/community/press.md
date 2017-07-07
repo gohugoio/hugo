@@ -38,6 +38,7 @@ Hugo has been featured in the following Blog Posts, Press and Media.
 | [通过 Gitlab-cl 将 Hugo blog 自动部署至 GitHub](https://zetaoyang.github.io/post/2016/10/17/gitlab-cl.html) <small>(Chinese, Continious integration)</small> | Zetao Yang | 2016-10-17 |
 | [A Step-by-Step Guide: Hugo on Netlify](https://www.netlify.com/blog/2016/09/21/a-step-by-step-guide-hugo-on-netlify/) | Eli Williamson | 2016-09-21 |
 | [Building our site: From Django & Wordpress to a static generator (Part I)](https://tryolabs.com/blog/2016/09/20/building-our-site-django-wordpress-to-static-part-i/) | Alan Descoins | 2016-09-20 |
+| [A visit to the Workshop: Hugo/Unix/Vim integration](https://blog.afoolishmanifesto.com/posts/hugo-unix-vim-integration/) | fREW Schmidt | 2016-07-22 |
 | [Webseitenmaschine - Statische Websites mit Hugo erzeugen](http://www.heise.de/ct/ausgabe/2016-12-Statische-Websites-mit-Hugo-erzeugen-3211704.html) <small>(German, $)</small> | Christian Helmbold | 2016-05-27 |
 | [Cómo hacer sitios web estáticos con Hugo y Go - Platzi](https://www.youtube.com/watch?v=qaXXpdiCHXE) <small>(Video tutorial)</small> | Verónica López  | 2016-04-06 |
 | [CDNOverview: A CDN comparison site made with Hugo](https://www.cloakfusion.com/cdnoverview-cdn-comparison-site-made-hugo/) | Thijs de Zoete | 2016-02-23 |
