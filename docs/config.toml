@@ -26,7 +26,7 @@ notAlternative = true
 [params]
   description = "Documentation of Hugo, a fast and flexible static site generator built with love by spf13, bep and friends in Go"
   author = "Steve Francia (spf13) and friends"
-  release = "0.25"
+  release = "0.26-DEV"
 
 [taxonomies]
   tag = "tags"
