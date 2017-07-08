@@ -990,8 +990,8 @@ func (c *commandeer) newWatcher(port int) error {
 
 							// It is probably more confusing than useful
 							// to navigate to a new URL on RENAME etc.
-							// so for now we use the WRITE event only.
-							name := pickOneWritePath(dynamicEvents)
+							// so for now we use the WRITE and CREATE events only.
+							name := pickOneWriteOrCreatePath(dynamicEvents)
 
 							if name != "" {
 								p = Hugo.GetContentPage(name)
@@ -1027,11 +1027,11 @@ func (c *commandeer) newWatcher(port int) error {
 	return nil
 }
 
-func pickOneWritePath(events []fsnotify.Event) string {
+func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 	name := ""
 
 	for _, ev := range events {
-		if ev.Op&fsnotify.Write == fsnotify.Write && len(ev.Name) > len(name) {
+		if (ev.Op&fsnotify.Write == fsnotify.Write || ev.Op&fsnotify.Create == fsnotify.Create) && len(ev.Name) > len(name) {
 			name = ev.Name
 		}
 	}
