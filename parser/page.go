@@ -337,7 +337,6 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 			if escapeState != 1 {
 				inQuote = !inQuote
 			}
-			escapeState = 0
 		case '\\':
 			escapeState++
 		case left[len(left)-1]:
@@ -401,6 +400,10 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 			}
 
 			return buf.Bytes(), nil
+		}
+
+		if c != '\\' {
+			escapeState = 0
 		}
 
 	}

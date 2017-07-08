@@ -305,6 +305,8 @@ func TestExtractFrontMatterDelim(t *testing.T) {
 		{`{ "title": "\"Foo\"" }`, `{ "title": "\"Foo\"" }`, noErrExpected},
 		{`{ "title": "\"Foo\"\"" }`, `{ "title": "\"Foo\"\"" }`, noErrExpected},
 		{`{ "url": "http:\/\/example.com\/play\/url?id=1" }`, `{ "url": "http:\/\/example.com\/play\/url?id=1" }`, noErrExpected},
+		{`{ "test": "\"New\r\nString\"" }`, `{ "test": "\"New\r\nString\"" }`, noErrExpected},
+		{`{ "test": "RTS\/RPG" }`, `{ "test": "RTS\/RPG" }`, noErrExpected},
 	}
 
 	for i, test := range tests {
