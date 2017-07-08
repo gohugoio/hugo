@@ -300,12 +300,12 @@ func determineDelims(firstLine []byte) (left, right []byte) {
 // function.
 func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, err error) {
 	var (
-		c         byte
-		buf       bytes.Buffer
-		level     int
-		sameDelim = bytes.Equal(left, right)
-		inQuote   bool
-		escaped   bool
+		c           byte
+		buf         bytes.Buffer
+		level       int
+		sameDelim   = bytes.Equal(left, right)
+		inQuote     bool
+		escapeState int
 	)
 	// Frontmatter must start with a delimiter. To check it first,
 	// pre-reads beginning delimiter length - 1 bytes from Reader
@@ -334,12 +334,12 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 
 		switch c {
 		case '"':
-			if !escaped {
+			if escapeState != 1 {
 				inQuote = !inQuote
 			}
-			escaped = false
+			escapeState = 0
 		case '\\':
-			escaped = true
+			escapeState++
 		case left[len(left)-1]:
 			if sameDelim { // YAML, TOML case
 				if bytes.HasSuffix(buf.Bytes(), left) && (buf.Len() == len(left) || buf.Bytes()[buf.Len()-len(left)-1] == '\n') {
