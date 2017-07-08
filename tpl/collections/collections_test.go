@@ -344,6 +344,10 @@ func TestIntersect(t *testing.T) {
 		{pagesVals{p1v, p4v, p2v, p3v}, pagesVals{p1v, p3v, p3v}, pagesVals{p1v, p3v}},
 		{[]interface{}{p1, p4, p2, p3}, []interface{}{p4, p2, p2}, []interface{}{p4, p2}},
 		{[]interface{}{p1v, p4v, p2v, p3v}, []interface{}{p1v, p3v, p3v}, []interface{}{p1v, p3v}},
+		{pagesPtr{p1, p4, p2, p3}, pagesPtr{}, pagesPtr{}},
+		{pagesVals{}, pagesVals{p1v, p3v, p3v}, pagesVals{}},
+		{[]interface{}{p1, p4, p2, p3}, []interface{}{}, []interface{}{}},
+		{[]interface{}{}, []interface{}{p1v, p3v, p3v}, []interface{}{}},
 	} {
 
 		errMsg := fmt.Sprintf("[%d]", test)
