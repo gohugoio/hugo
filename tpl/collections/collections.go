@@ -494,6 +494,7 @@ type intersector struct {
 }
 
 func (i *intersector) appendIfNotSeen(v reflect.Value) {
+
 	vi := v.Interface()
 	if !i.seen[vi] {
 		i.r = reflect.Append(i.r, v)
@@ -562,6 +563,14 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 				l1vv, isNil = indirectInterface(l1v.Index(i))
 				if !isNil {
 					ins.appendIfNotSeen(l1vv)
+				}
+			}
+
+			if !l1vv.IsValid() {
+				// The first slice may be empty. Pick the first value of the second
+				// to use as a prototype.
+				if l2v.Len() > 0 {
+					l1vv = l2v.Index(0)
 				}
 			}
 

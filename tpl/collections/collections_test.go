@@ -666,6 +666,13 @@ func TestUnion(t *testing.T) {
 		{pagesVals{p1v}, pagesVals{p3v, p3v}, pagesVals{p1v, p3v}, false},
 		{[]interface{}{p1, p4}, []interface{}{p4, p2, p2}, []interface{}{p1, p4, p2}, false},
 		{[]interface{}{p1v}, []interface{}{p3v, p3v}, []interface{}{p1v, p3v}, false},
+		// #3686
+		{[]interface{}{p1v}, []interface{}{}, []interface{}{p1v}, false},
+		{[]interface{}{}, []interface{}{p1v}, []interface{}{p1v}, false},
+		{pagesPtr{p1}, pagesPtr{}, pagesPtr{p1}, false},
+		{pagesVals{p1v}, pagesVals{}, pagesVals{p1v}, false},
+		{pagesPtr{}, pagesPtr{p1}, pagesPtr{p1}, false},
+		{pagesVals{}, pagesVals{p1v}, pagesVals{p1v}, false},
 
 		// errors
 		{"not array or slice", []string{"a"}, false, true},
