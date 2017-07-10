@@ -222,7 +222,7 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 		return nil
 	}
 
-	cmd := exec.Command("goreleaser", "--release-notes", releaseNotesFile, "--skip-publish="+fmt.Sprint(r.skipPublish))
+	cmd := exec.Command("goreleaser", "--rm-dist", "--release-notes", releaseNotesFile, "--skip-publish="+fmt.Sprint(r.skipPublish))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
