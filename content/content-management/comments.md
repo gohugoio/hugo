@@ -1,7 +1,7 @@
 ---
 title: Comments
 linktitle: Comments
-description: Hugo ships with an internal Disqus template that requires negligible effort to implement, but Disqus isn't the only commenting system that will work with your new Hugo website.
+description: Hugo ships with an internal Disqus template, but this isn't the only commenting system that will work with your new Hugo website.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-09
@@ -16,8 +16,6 @@ draft: false
 aliases: [/extras/comments/]
 toc: true
 ---
-
-The most common interaction people ask for in static websites is the ability to add comments.
 
 Hugo ships with support for [Disqus](https://disqus.com/), a third-party service that provides comment and community capabilities to websites via JavaScript.
 

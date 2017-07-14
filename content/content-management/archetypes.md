@@ -18,6 +18,10 @@ aliases: [/content/archetypes/]
 toc: true
 ---
 
+{{% note %}}
+This section is outdated, see https://github.com/gohugoio/hugoDocs/issues/11
+{{% /note %}}
+
 ## What are Archetypes?
 
 **Archetypes** are content files in the [archetypes directory][] of your project that contain preconfigured [front matter][] for your website's [content types][]. Archetypes facilitate consistent metadata across your website content and allow content authors to quickly generate instances of a content type via the `hugo new` command.

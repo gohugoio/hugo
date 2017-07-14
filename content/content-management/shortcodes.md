@@ -193,14 +193,14 @@ To see even more options for adding syntax-highlighted code blocks to your websi
 If you'd like to embed a photo from [Instagram][], you only need the photo's ID. You can discern an Instagram photo ID from the URL:
 
 ```html
-https://www.instagram.com/p/BMokmydjG-M/
+https://www.instagram.com/p/BWNjjyYFxVx/
 ```
 
 #### Example `instagram` Input
 
 {{% code file="instagram-input.md" %}}
 ```md
-{{</* instagram BMokmydjG-M */>}}
+{{</* instagram BWNjjyYFxVx */>}}
 ```
 {{% /code %}}
 
@@ -208,7 +208,7 @@ You also have the option to hide the caption:
 
 {{% code file="instagram-input-hide-caption.md" %}}
 ```md
-{{</* instagram BMokmydjG-M hidecaption */>}}
+{{</* instagram BWNjjyYFxVx hidecaption */>}}
 ```
 {{% /code %}}
 
@@ -218,7 +218,7 @@ By adding the preceding `hidecaption` example, the following HTML will be added 
 
 {{% output file="instagram-hide-caption-output.html" %}}
 ```html
-{{< instagram BMokmydjG-M hidecaption >}}
+{{< instagram BWNjjyYFxVx hidecaption >}}
 ```
 {{% /output %}}
 
@@ -226,7 +226,7 @@ By adding the preceding `hidecaption` example, the following HTML will be added 
 
 Using the preceding `instagram` with hidecaption` example above, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
 
-{{< instagram BMokmydjG-M hidecaption >}}
+{{< instagram BWNjjyYFxVx hidecaption >}}
 
 
 ### `ref` and `relref`
@@ -294,7 +294,7 @@ For the preceding `speakerdeck` example, the following simulates the displayed e
 You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
 
 ```
-https://twitter.com/spf13/status/666616452582129664
+https://twitter.com/spf13/status/877500564405444608
 ```
 
 #### Example `tweet` Input
@@ -303,7 +303,7 @@ Pass the tweet's ID from the URL as a parameter to the `tweet` shortcode:
 
 {{% code file="example-tweet-input.md" %}}
 ```md
-{{</* tweet 666616452582129664 */>}}
+{{</* tweet 877500564405444608 */>}}
 ```
 {{% /code %}}
 
@@ -313,7 +313,7 @@ Using the preceding `tweet` example, the following HTML will be added to your re
 
 {{% output file="example-tweet-output.html" %}}
 ```html
-{{< tweet 666616452582129664 >}}
+{{< tweet 877500564405444608 >}}
 ```
 {{% /output %}}
 
@@ -321,7 +321,7 @@ Using the preceding `tweet` example, the following HTML will be added to your re
 
 Using the preceding `tweet` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
 
-{{< tweet 666616452582129664 >}}
+{{< tweet 877500564405444608 >}}
 
 ### `vimeo`
 

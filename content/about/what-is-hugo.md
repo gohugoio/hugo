@@ -1,7 +1,7 @@
 ---
 title: What is Hugo
 linktitle: What is Hugo
-description: Hugo is a fast and modern static site generator written in Go and designed to make website creation fun again.
+description: Hugo is a fast and modern static site generator written in Go, and designed to make website creation fun again.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -21,7 +21,7 @@ Hugo is a general-purpose website framework. Technically speaking, Hugo is a [st
 
 Websites built with Hugo are extremely fast and secure. Hugo sites can be hosted anywhere, including [Netlify][], [Heroku][], [GoDaddy][], [DreamHost][], [GitHub Pages][], [Surge][], [Aerobatic][], [Firebase][], [Google Cloud Storage][], [Amazon S3][], [Rackspace][], [Azure][], and [CloudFront][] and work well with CDNs. Hugo sites run without the need for a database or dependencies on expensive runtimes like Ruby, Python, or PHP.
 
-We think of Hugo as the ideal website creation tool. Hugo provides nearly instant build times and the ability to rebuild whenever a change is made, which is invaluable when you are designing websites and creating content.
+We think of Hugo as the ideal website creation tool with nearly instant build times, able to rebuild whenever a change is made.
 
 ## How Fast is Hugo?
 
@@ -39,17 +39,6 @@ Hugo is for people who want to hand code their own website without worrying abou
 
 Hugo is for people building a blog, a company site, a portfolio site, documentation, a single landing page, or a website with thousands of pages.
 
-## Why I Built Hugo
-
-I wrote Hugo ultimately for a few reasons. First, I was disappointed with WordPress, my then website solution. With it, I couldn't create content as efficiently as I wanted to.
-
-WordPress sites rendered slowly and required I be online to write posts. WordPress is known for its constant security updates and horror stories of hacked blogs. I hated writing content in HTML instead of the much simpler Markdown. Overall, I felt like WordPress hindered more than helped. It kept me from writing great content.
-
-I looked at existing static site generators like [Jekyll][], [Middleman][], and [Nanoc][]. All had complicated installation dependencies and an unacceptably long time to render my blog with hundreds of posts. I wanted a framework that would give me rapid feedback while making changes to the templates, and the 5-minute-plus render times were just too slow. In general, the static site generators were very blog-minded and didn't provide for other content types and flexible URLs.
-
-I wanted to develop a fast and full-featured website framework without any dependencies. The [Go language][] seemed to have all the features I needed. I began developing Hugo in Go and fell in love with the language. I hope you will enjoy using Hugo (and [contributing to it][]) as much as I have writing it.
-
-&#8213;Steve Francia ([@spf13][])
 
 
 [@spf13]: https://twitter.com/@spf13

@@ -1,7 +1,7 @@
 ---
 title: Hugo Features
 linktitle: Hugo Features
-description: Hugo boasts blistering speed, robust content management, and a powerful templating language that make it appropriate for all kinds of static websites.
+description: Hugo boasts blistering speed, robust content management, and a powerful templating language making it a great fit for all kinds of static websites.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -18,7 +18,7 @@ toc: true
 
 ## General
 
-* [Extremely fast][] build times (&lt; .7 ms per page)
+* [Extremely fast][] build times (&lt; 1 ms per page)
 * Completely cross platform, with [easy installation][install] on macOS, Linux, Windows, and more
 * Renders changes on the fly with [LiveReload][] as you develop
 * [Powerful theming][]
@@ -29,7 +29,7 @@ toc: true
 * Straightforward [organization for your projects][], including website sections
 * Customizable [URLs][]
 * Support for configurable [taxonomies][], including categories and tags
-* Ability to [sort content][] as you desire through powerful template [functions][]
+* [Sort content][] as you desire through powerful template [functions][]
 * Automatic [table of contents][] generation
 * [Dynamic menu][] creation
 * [Pretty URLs][] support
@@ -38,8 +38,8 @@ toc: true
 
 ## Content
 
-* Native Markdown support, as well as other languages through *external helpers* (see [supported formats][])
-* Support for TOML, YAML, and JSON metadata in [front matter][]
+* Native Markdown and Emacs Org-Mode support, as well as other languages via *external helpers* (see [supported formats][])
+* TOML, YAML, and JSON metadata support in [front matter][]
 * Customizable [homepage][]
 * Multiple [content types][]
 * Automatic and user defined [content summaries][]

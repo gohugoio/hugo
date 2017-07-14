@@ -1,7 +1,7 @@
 ---
 title: Supported Content Formats
 linktitle: Supported Content Formats
-description: Markdown is natively supported in Hugo and is parsed by the feature-rich and incredibly speed Blackfriday parse. Hugo also provides support for additional syntaxes (eg, Asciidoc) via external helpers.
+description: Markdown and Emacs Org-Mode have native support, and additional formats (e.g. Asciidoc) come via external helpers.
 date: 2017-01-10
 publishdate: 2017-01-10
 lastmod: 2017-04-06
@@ -17,9 +17,9 @@ aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-f
 toc: true
 ---
 
-## Markdown
+**Markdown is the main content format** and comes in two flavours:  The excellent [Blackfriday project][blackfriday] (name your files `*.md` or set `markup = "markdown"` in frontmatter) or its fork [Mmark][mmark] (name your files `*.mmark` or set `markup = "mmark"` in frontmatter), both very fast markdown engines written in Golang.
 
-Markdown is the native content format for Hugo and is rendered using the excellent [Blackfriday project][blackfriday], a blazingly fast parser written in Golang.
+For Emacs users, [goorgeous](https://github.com/chaseadamsio/goorgeous) provides built-in native support for Org mode  (name your files `*.org` or set `markup = "org"` in frontmatter) 
 
 {{% note "Deeply Nested Lists" %}}
 Before you begin writing your content in markdown, Blackfriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists. Luckily, there is an easy workaround. Use 4-spaces (i.e., <kbd>tab</kbd>) rather than 2-space indentations.
@@ -74,13 +74,13 @@ The following shows how the example task list will look to the end users of your
 
 ### Emojis
 
-Hugo comes with built-in support for emojis in your content, as well as ships with the [`emojify` function][]. To add emojis directly to content, set `enableEmoji` to `true` in your [site configuration][config].
+To add emojis directly to content, set `enableEmoji` to `true` in your [site configuration][config]. To use emojis in templates or shortcodes, see [`emojify` function][].
 
 For a full list of emojis, see the [Emoji cheat sheet][emojis].
 
 ### Shortcodes
 
-If you write in Markdown and find yourself frequently embedding your content with raw HTML, Hugo provides built-in shortcodes functionality to act as the intermediary between your content and templating. This is one of the most powerful features in Hugo and allows you to essentially create your own Markdown extensions very quickly.
+If you write in Markdown and find yourself frequently embedding your content with raw HTML, Hugo provides built-in shortcodes functionality. This is one of the most powerful features in Hugo and allows you to create your own Markdown extensions very quickly.
 
 See [Shortcodes][sc] for usage, particularly for the built-in shortcodes that ship with Hugo, and [Shortcode Templating][sct] to learn how to build your own.
 
@@ -107,7 +107,7 @@ markdown: mmark
 ```
 
 {{% warning %}}
-Mmark support is still an *experimental* feature in Hugo. For example, shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/spf13/hugo/issues/3137)), and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/spf13/hugo/issues/1970)) and the aforementioned GFM todo lists ([#2270](https://github.com/spf13/hugo/issues/2270)) are not fully supported. Contributions are welcome.
+Thare are some features not available in Mmark; one example being that shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/spf13/hugo/issues/3137)), and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/spf13/hugo/issues/1970)) and the aforementioned GFM todo lists ([#2270](https://github.com/spf13/hugo/issues/2270)) are not fully supported. Contributions are welcome.
 {{% /warning %}}
 
 ## MathJax with Hugo
@@ -225,6 +225,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [ascii]: http://asciidoc.org/
 [bfconfig]: /getting-started/configuration/#configuring-blackfriday-rendering
 [blackfriday]: https://github.com/russross/blackfriday
+[mmark]: https://github.com/miekg/mmark
 [config]: /getting-started/configuration/
 [developer tools]: /tools/
 [emojis]: https://www.webpagefx.com/tools/emoji-cheat-sheet/

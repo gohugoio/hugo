@@ -17,6 +17,10 @@ aliases: [/content/sections/]
 toc: true
 ---
 
+{{% note %}}
+This section is not updated with the new nested sections support in Hugo 0.24, see https://github.com/gohugoio/hugoDocs/issues/36
+{{% /note %}}
+
 ## Organization of Content Source
 
 In Hugo, your content should be organized in a manner that reflects the rendered website.

@@ -1,7 +1,6 @@
 ---
 title: Cross References
-linktitle:
-description: Hugo makes it easy to link documents together with the ref and relref shortcodes, which safely provide links to headings inside of your content, whether across documents or within a document.
+description: Hugo makes it easy to link documents together.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-31
@@ -12,12 +11,12 @@ menu:
     parent: "content-management"
     weight: 100
 weight: 100	#rem
-draft: false
 aliases: [/extras/crossreferences/]
 toc: true
 ---
 
-Hugo makes it easy to link documents together with `ref` and `relref`, both of which are [built-in Hugo shortcodes][]. These shortcodes are also used to safely provide links to headings inside of your content, whether across documents or within a document. The only difference between `ref` and `relref` is whether the resulting URL is absolute (`http://1.com/about/`) or relative (`/about/`), respectively.
+
+ The `ref` and `relref` shortcodes link documents together, both of which are [built-in Hugo shortcodes][]. These shortcodes are also used to safely provide links to headings inside of your content, whether across documents or within a document. The only difference between `ref` and `relref` is whether the resulting URL is absolute (`http://1.com/about/`) or relative (`/about/`), respectively.
 
 ## Using `ref` and `relref`
 

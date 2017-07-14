@@ -1,7 +1,7 @@
 ---
 title: Menus
 linktitle: Menus
-description: Hugo's simple yet powerful menu system allows you to add content to menus with a high level of control and low level of effort.
+description: Hugo has a simple yet powerful menu system.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-31
@@ -17,13 +17,11 @@ aliases: [/extras/menus/]
 toc: true
 ---
 
-Hugo's simple yet powerful menu system allows you to add content to menus with a high degree of control and a very low amount of effort on the part of content authors.
-
 {{% note "Lazy Blogger"%}}
 If all you want is a simple menu for your sections, see the ["Section Menu for Lazy Bloggers" in Menu Templates](/templates/menu-templates/#section-menu-for-lazy-blogger).
 {{% /note %}}
 
-Hugo's robust menu features allow you to do the following:
+You can do this:
 
 * Place content in one or many menus
 * Handle nested menus with unlimited depth
