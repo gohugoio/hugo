@@ -1967,6 +1967,9 @@ func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layou
 }
 
 func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) error {
+	defer func() {
+		recover()
+	}()
 	templ := s.findFirstTemplate(layouts...)
 	if templ == nil {
 		return fmt.Errorf("[%s] Unable to locate layout for %q: %s\n", s.Language.Lang, name, layouts)
