@@ -1966,27 +1966,40 @@ func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layou
 	return s.publish(dest, outBuffer)
 }
 
-func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) error {
+func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) (err error) {
+	var templ tpl.Template
+
 	defer func() {
-		recover()
+		if r := recover(); r != nil {
+			templName := ""
+			if templ != nil {
+				templName = templ.Name()
+			}
+			helpers.DistinctErrorLog.Printf("Failed to render %q: %s", templName, r)
+			// TOD(bep) we really need to fix this. Also see below.
+			if !s.running() && !testMode {
+				os.Exit(-1)
+			}
+		}
 	}()
-	templ := s.findFirstTemplate(layouts...)
+
+	templ = s.findFirstTemplate(layouts...)
 	if templ == nil {
 		return fmt.Errorf("[%s] Unable to locate layout for %q: %s\n", s.Language.Lang, name, layouts)
 	}
 
-	if err := templ.Execute(w, d); err != nil {
+	if err = templ.Execute(w, d); err != nil {
 		// Behavior here should be dependent on if running in server or watch mode.
 		helpers.DistinctErrorLog.Printf("Error while rendering %q: %s", name, err)
 		if !s.running() && !testMode {
 			// TODO(bep) check if this can be propagated
 			os.Exit(-1)
 		} else if testMode {
-			return err
+			return
 		}
 	}
 
-	return nil
+	return
 }
 
 func (s *Site) findFirstTemplate(layouts ...string) tpl.Template {
