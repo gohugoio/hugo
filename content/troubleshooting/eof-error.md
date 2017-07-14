@@ -1,43 +1,49 @@
 ---
-lastmod: 2015-01-17
-date: 2015-01-08T16:11:23-07:00
+title: EOF Error
+linktitle: EOF Error
+description: If you find yourself seeing an EOF error in the console whenever you create a new content file from Hugo's archetype feature.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+categories: [troubleshooting]
 menu:
-  main:
-    parent: troubleshooting
-title: Strange EOF error
-weight: 5
+  docs:
+    parent: "troubleshooting"
+tags: [eof, end of file, error, faqs]
+draft: false
+weight:
+aliases: [/troubleshooting/strange-eof-error/]
+toc: true
 ---
 
-## Trouble: `hugo new` aborts with cryptic EOF error
+## Trouble: `hugo new` Aborts with EOF error
 
 > I'm running into an issue where I cannot get archetypes working, when running `hugo new showcase/test.md`, for example, I see an `EOF` error thrown by Hugo.
 >
-> I have set up this test repository to show exactly what I've done, but it is essentially a vanilla installation of Hugo. https://github.com/polds/hugo-archetypes-test
+> When I run Hugo with v0.12 via `hugo new -v showcase/test.md`, I see the following output:
 >
-> When in that repository, using Hugo v0.12 to run `hugo new -v showcase/test.md`, I see the following output:
->
->     INFO: 2015/01/04 Using config file: /private/tmp/test/config.toml
->     INFO: 2015/01/04 attempting to create  showcase/test.md of showcase
->     INFO: 2015/01/04 curpath: /private/tmp/test/archetypes/showcase.md
->     ERROR: 2015/01/04 EOF
+> ```bash
+> INFO: 2015/01/04 Using config file: /private/tmp/test/config.toml
+> INFO: 2015/01/04 attempting to create  showcase/test.md of showcase
+> INFO: 2015/01/04 curpath: /private/tmp/test/archetypes/showcase.md
+> ERROR: 2015/01/04 EOF
+> ```
 >
 > Is there something that I am blatantly missing?
 
-## Solution
+## Solution: Carriage Returns
 
-Thank you for reporting this issue.  The solution is to add a final newline (i.e. EOL) to the end of your default.md archetype file of your theme.  More discussions happened on the forum here:
+The solution is to add a final newline (i.e., `EOL`) to the end of your default.md archetype file of your theme. You can do this by adding a carriage return after the closing `+++` or `---` of your TOML or YAML front matter, respectively.
 
-* http://discuss.gohugo.io/t/archetypes-not-properly-working-in-0-12/544
-* http://discuss.gohugo.io/t/eol-f-in-archetype-files/554
+{{% note "Final EOL Unnecessary in v0.13+" %}}
+As of v0.13, Hugo's parser has been enhanced to accommodate archetype files without final EOL thanks to the great work by [@tatsushid](https://github.com/tatsushid).
+{{% /note %}}
 
-Due to popular demand, Hugo's parser has been enhanced to
-accommodate archetype files without final EOL,
-thanks to the great work by [@tatsushid](https://github.com/tatsushid),
-in the upcoming v0.13 release,
+## Discussion Forum References
 
-Until then, for us running the stable v0.12 release, please remember to add the final EOL diligently.  <i class="fa fa-smile-o"></i>
+* http://discourse.gohugo.io/t/archetypes-not-properly-working-in-0-12/544
+* http://discourse.gohugo.io/t/eol-f-in-archetype-files/554
 
-## References
+## Related Hugo Issues
 
 * https://github.com/spf13/hugo/issues/776
-

@@ -1,105 +1,143 @@
 ---
-authors:
-- Jason Gowans
-lastmod: 2016-03-11
-date: 2016-03-11
+title: Hosting on Bitbucket
 linktitle: Hosting on Bitbucket
-toc: true
+description: You can use Bitbucket in conjunction with Aerobatic to build, deploy, and host a Hugo website.
+date: 2017-02-04
+publishdate: 2017-02-04
+lastmod: 2017-02-04
+categories: [hosting and deployment]
+tags: [hosting,bitbucket,deployment,aerobatic]
+authors: [Jason Gowans]
 menu:
-  main:
-    parent: tutorials
-next: /tutorials/github-pages-blog
-prev: /tutorials/creating-a-new-theme
-title: Continuous deployment with Bitbucket & Aerobatic
-weight: 10
+  docs:
+    parent: "hosting-and-deployment"
+    weight: 50
+weight: 50
+sections_weight: 50
+draft: false
+toc: true
+aliases: [/tutorials/hosting-on-bitbucket/]
 ---
 
-# Continuous deployment with Bitbucket & Aerobatic
+You can use [Bitbucket](https://bitbucket.org/) and [Aerobatic](https://www.aerobatic.com) to build, deploy, and host a Hugo website. Aerobatic is a static hosting service that integrates with Bitbucket and provides a free hosting tier.
 
-## Introduction
+## Assumptions
 
-In this tutorial, we will use [Bitbucket](https://bitbucket.org/) and [Aerobatic](https://www.aerobatic.com) to build, deploy, and host a Hugo site. Aerobatic is a static hosting service that is installed as an add-on to Bitbucket and provides a free hosting tier with custom domain and wildcard SSL certificate.
+* Working familiarity with Git for version control
+* A [Bitbucket account](https://bitbucket.org/account/signup/)
 
-It is assumed that you know how to use git for version control and have a Bitbucket account. It is also assumed that you have gone through the [quickstart guide]({{< relref "overview/quickstart.md" >}}) and already have a Hugo site on your local machine.
+## Install Aerobatic CLI
 
-## Create package.json
+If you haven't previously used Aerobatic, you'll first need to install the Command Line Interface (CLI) and create an account. For a list of all commands available, see the [Aerobatic CLI](https://www.aerobatic.com/docs/cli/) docs.
 
 ```bash
-cd your-hugo-site
+npm install aerobatic-cli -g
+aero register
 ```
 
-In the root directory of your Hugo site, create a `package.json` file. The `package.json` informs Aerobatic to build a Hugo site. 
+## Create and Deploy Site
 
-To do so, declare the following snippet in your `package.json` manifest. You can, of course, use any [Hugo theme](http://themes.gohugo.io/) of your choosing with the `themeRepo` option. Just tell Aerobatic where the theme’s git repo is.
+```bash
+hugo new site my-new-hugo-site
+cd my-new-hugo-site
+cd themes; git clone https://github.com/eliasson/liquorice
+hugo -t liquorice
+aero create                                           # create the Aerobatic site
+hugo --baseURL https://my-new-hugo-site.aerobatic.io  # build the site overriding baseURL
+aero deploy -d public                                 # deploy output to Aerobatic
 
-```json
-{
-  "_aerobatic": {
-    "build": {
-      "engine": "hugo",
-      "themeRepo": "https://github.com/alexurquhart/hugo-geo.git"
-    }
-  }
-}
+Version v1 deployment complete.
+View now at https://hugo-docs-test.aerobatic.io
 ```
+
+In the rendered page response, the `https://__baseurl__` will be replaced with your actual site url (in this example, `https://my-new-hugo-site.aerobatic.io`). You can always rename your Aerobatic website with the `aero rename` command.
 
 ## Push Hugo site to Bitbucket
-We will now create a git repository and then push our code to Bitbucket. Because Aerobatic both builds *and* hosts Hugo sites, there is no need to push the compiled assets in the `/public` folder.
+
+We will now create a git repository and then push our code to Bitbucket. In Bitbucket, create a repository.
+
+![][1]
+
+[1]: /images/hosting-and-deployment/hosting-on-bitbucket/bitbucket-create-repo.png
+
 
 ```bash
 # initialize new git repository
 git init
 
-# add /public directory to our .gitignore file
-echo "/public" >> .gitignore
+# set up our .gitignore file
+echo -e "/public \n/themes \naero-deploy.tar.gz" >> .gitignore
 
 # commit and push code to master branch
-git commit -a -m "Initial commit"
-git remote add origin git@bitbucket.org:YourUsername/your-hugo-site.git
+git add --all
+git commit -m "Initial commit"
+git remote add origin git@bitbucket.org:YourUsername/my-new-hugo-site.git
 git push -u origin master
 ```
 
-## Install Aerobatic
-Clicking [this link](https://aerobatic.io/bb) will automatically install the Aerobatic add-on to your Bitbucket account. Alternatively, you can also install Aerobatic from the Bitbucket [add-on directory](https://bitbucket.org/account/addon-directory). Click **Grant Access** in the install dialog.
+## Continuous Deployment With Bitbucket Pipelines
 
-![][1]
+In the example above, we pushed the compiled assets in the `/public` folder to Aerobatic. In the following example, we use Bitbucket Pipelines to continuously create and deploy the compiled assets to Aerobatic.
 
-[1]: /img/tutorials/hosting-on-bitbucket/bitbucket-grant-access.png
+### Step 1: Configure Bitbucket Pipelines
 
-## Setup hosting
+In your Hugo website's Bitbucket repo;
 
-Select your repository from the dropdown menu and click **Setup hosting**
+1. Click the Pipelines link in the left nav menu of your Bitbucket repository.
+2. Click the Enable Pipelines button.
+3. On the next screen, leave the default template and click Next.
+4. In the editor, paste in the yaml contents below and click Commit.
+
+```bash
+image: beevelop/nodejs-python
+pipelines:
+  branches:
+    master:
+      - step:
+          script:
+            - apt-get update -y && apt-get install wget
+            - apt-get -y install git
+            - wget https://github.com/spf13/hugo/releases/download/v0.18/hugo_0.18-64bit.deb
+            - dpkg -i hugo*.deb
+            - git clone https://github.com/eliasson/liquorice themes/liquorice
+            - hugo --theme=liquorice --baseURL https://__baseurl__ --buildDrafts
+            - npm install -g aerobatic-cli
+            - aero deploy
+```
+
+### Step 2: Create `AEROBATIC_API_KEY` environment variable.
+
+This step only needs to be done once per account. From the command line;
+
+```bash
+aero apikey
+```
+
+1. Navigate to the Bitbucket account settings for the account that the website repo belongs to.
+2. Scroll down to the bottom of the left nav and click the Environment variables link in the PIPELINES section.
+3. Create a new environment variable called AEROBATIC_API_KEY with the value you got by running the `aero apikey` command. Be sure to click the Secured checkbox.
+
+### Step 3: Edit and Commit Code
+
+```bash
+hugo new post/good-to-great.md
+hugo server --buildDrafts -t liquorice #Check that all looks good
+
+# commit and push code to master branch
+git add --all
+git commit -m "New blog post"
+git push -u origin master
+```
+
+Your code will be committed to Bitbucket, Bitbucket Pipelines will run your build, and a new version of your site will be deployed to Aerobatic.
+
+At this point, you can now create and edit blog posts directly in the Bitbucket UI.
 
 ![][2]
 
-[2]: /img/tutorials/hosting-on-bitbucket/bitbucket-setup-hosting.png
+[2]: /images/hosting-and-deployment/hosting-on-bitbucket/bitbucket-blog-post.png
 
-You will then be directed to the **Create Website** screen. This is a one-time step. With each subsequent `git push` to Bitbucket, Aerobatic will automatically build and deploy a new version of your site instantly.
-
-  - Give your website a name. 
-  - In this example, we won't setup a custom domain, but [you can](https://www.aerobatic.com/docs/custom-domains-ssl). 
-  - Leave the deploy branch as master.
-
-Click the **Create website** button:
-
-![][3]
-
-[3]: /img/tutorials/hosting-on-bitbucket/bitbucket-create-website.png
-
-
-In less than 30 seconds, your Hugo site will be built and live on the Internet at http://your-hugo-site.aerobatic.io
-
-![][4]
-
-[4]: /img/tutorials/hosting-on-bitbucket/bitbucket-site-built.png
-
-
-![][5]
-
-[5]: /img/tutorials/hosting-on-bitbucket/bitbucket-site-live.png
 
 ## Suggested next steps
 
-The code for this example can be found in this [Bitbucket repository](https://bitbucket.org/dundonian/wee-hugo/src).
-
-Aerobatic provides a number of plugins such as [custom error pages](https://www.aerobatic.com/docs/custom-error-pages), [custom redirects](https://www.aerobatic.com/docs/redirects), [basic authentication](https://www.aerobatic.com/docs/http-basic-authentication), and many other [features](https://www.aerobatic.com/features/). In the case of authentication, [this blog post](https://www.aerobatic.com/blog/password-protect-a-hugo-site) describes how to password protect all, or part, of your Hugo site.
+The code for this example can be found in this Bitbucket [repository](https://bitbucket.org/dundonian/hugo-docs-test). Aerobatic also provides a number of additional [plugins](https://www.aerobatic.com/docs) such as auth and redirects that you can use for your Hugo site.

@@ -1,243 +1,271 @@
 ---
-authors:
-- Arjen Schwarz
-- Samuel Debruyn
-lastmod: 2015-11-01
-date: 2015-01-12
-linktitle: Automated deployments
-toc: true
+title: Deployment with Wercker
+linktitle: Deployment with Wercker
+description: You can use a free tool called Wercker to automate deployments between your GitHub-hosted source and final website on GitHub pages.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+categories: [hosting and deployment]
+tags: [wercker,deployment,github,git]
+authors: [Arjen Schwarz, Samuel Debruyn]
 menu:
-  main:
-    parent: tutorials
-next: /tutorials/creating-a-new-theme
-prev: /community/contributing
-title: Automated deployments with Wercker
-weight: 10
+  docs:
+    parent: "hosting-and-deployment"
+    weight: 60
+weight: 60
+sections_weight: 60
+draft: false
+aliases: [/tutorials/automated-deployments/]
+toc: true
+wip: false
+notesforauthors:
 ---
 
-# Automated deployments with Wercker
+## Goals
 
-In this tutorial we will set up a basic Hugo project and then configure a free tool called Wercker to automatically deploy the generated site any time we add an article. We will deploy it to GitHub pages as that is easiest to set up, but you will see that we can use anything. This tutorial takes you through every step of the process, complete with screenshots and is fairly long.
+By the end of this guide, you will have completed the following:
 
-The  assumptions made for this tutorial are that you know how to use git for version control, and have a GitHub account. In case you are unfamiliar with these, in their [help section](https://help.github.com/articles/set-up-git/) GitHub has an explanation of how to install and use git and you can easily sign up for a free GitHub account as well.
+* Creating a basic Hugo project and website
+* Version controlling your project with Git
+* Adding your project to GitHub
+* Automating site deployments with a free tool called Wercker
+* Deploying your website to GitHub Pages for free hosting
 
-## Creating a basic Hugo site
+## Assumptions
 
-There are already [pages](http://gohugo.io/overview/quickstart/) dedicated to describing how to set up a Hugo site so we will only go through the most basic steps required to get a site up and running before we dive into the Wercker configuration. All the work for setting up the project is done using the command line, and kept as simple as possible.
+1. You have a working familiarity with using Git for version control
+2. You have a GitHub account
+3. You have already created a basic Hugo project
 
-Create the new site using the `hugo new site` command, and we move into it.
+If you do not meet these assumptions, the [GitHub help section][githubhelp] has an explanation of how to install and use git. [Signing up for a GitHub][ghsignup] account is free as well. If you are completely unfamiliar with creating a new Hugo website, visit the [Hugo Quick Start][quickstart].
 
+## Creating a Basic Hugo Site
+
+{{% note "This Guide Uses the Hugo CLI" %}}
+All the work for setting up a Hugo project and using this guide is done via the Hugo CLI's most basic commands. See the [command line reference page](/commands/) for a more exhaustive account of the CLI's features.
+{{% /note %}}
+
+First, create your new Hugo website using the [`hugo new site` command][basicusage] and change into the newly created directory for the project. In this guide, we are calling our new project `hugo-wercker-example`:
+
+{{% code file="hugo-new-site.sh" %}}
 ```bash
 hugo new site hugo-wercker-example
 cd hugo-wercker-example
 ```
+{{% /code %}}
 
-Add the herring-cove theme by cloning it into the theme directory using the following commands.
+We will use the [Herring Cove theme][] by first cloning the theme into the `themes` directory.
 
+{{% code file="clone-herring-cove-theme.sh" %}}
 ```bash
-mkdir themes
 cd themes
 git clone https://github.com/spf13/herring-cove.git
 ```
+{{% /code %}}
 
-Cloning the project like this will conflict with our own version control, so we remove the external git configuration.
+Cloning the project from the command line will conflict with our own version control. So, we need to remove the external git configuration that came with the clone of Herring Cove:
 
+{{% code file="remove-herring-cove-git.sh" %}}
 ```bash
 rm -rf herring-cove/.git
 ```
+{{% /code %}}
 
-Let's add a quick **about** page.
+We need content for Hugo to build. Let's add a quick `/about` page:
 
 ```bash
 hugo new about.md
 ```
 
-Now we'll edit contents/about.md to ensure it's no longer a draft and add some text to it.
+{{% note %}}
+The preceding example for the about page leverages archetypes to scaffold a new content file with preconfigured front matter. [Find out more about Hugo's archetypes](/content-management/archetypes/).
+{{% /note %}}
 
+Now you can edit `contents/about.md` in your text editor of choice, but this is not necessary for the purposes of this guide. Running the following command will build your Hugo site into the `public` directory. We have added `undraft` to ensure that the example page is no longer in draft mode:
+
+{{% code file="hugo-build-undraft.sh" %}}
 ```bash
 hugo undraft content/about.md
 ```
+{{% /code %}}
 
-Once completed it's a good idea to do a quick check if everything is working by running
+Once the website is build, t's a good idea to run the following command to start a local server and ensure you're changes have been implemented:
 
 ```bash
 hugo server --theme=herring-cove
 ```
 
-If everything is fine, you should be able to see something similar to the image below when you go to localhost:1313 in your browser.
+If everything is fine, you should see something similar to the image below when you go to <http://localhost:1313> in your browser.
 
 ![][1]
 
-[1]: /img/tutorials/automated-deployments/creating-a-basic-hugo-site.png
+## Setting up Version Control in Git
 
-## Setting up version control
-
-Adding git to our project is done by running the `git init` command from the root directory of the project.
+Adding Git to your project is done by running the `git init` command from the root directory of your project.
 
 ```bash
 git init
 ```
 
-Running `git status` at this point will show you p entries: the **config.toml** file, the **themes** directory, the **contents** directory, and the **public** directory. We don't want the **public** directory version controlled however, as we will use wercker to generate that later on. Therefore, we'll add a gitignore file that will exclude this using the following command.
+Running `git status` at this point will show you the following entries: the `config.toml` file, the `themes` directory, the `contents` directory, and the `public` directory. However, we don't want the `public` directory version controlled because Wercker is responsible for generating the finished website later on. Therefore, we'll add a `.gitignore` file to our project that will exclude the `/public` directory from being tracked by Git:
 
+{{% code file="gitignore.sh" %}}
 ```bash
 echo "/public" >> .gitignore
 ```
+{{% /code %}}
 
-As we currently have no static files outside of the theme directory, Wercker might complain when we try to build the site later on. To prevent this, we simply have to add any file to the static folder. To keep it simple for now we'll add a robots.txt file that will give all search engines full access to the site when it's up.
+Wercker might complain when we try to build the site later on because we currently do not have any static files outside of the `themes` directory. We simply have to add *any* file to the static folder to prevent Wercker from complaining. To keep this guide simple, let's add a `robots.txt`. The following command creates the file in `/static`. The contents of the `robots.txt` lets search engines know they have full access to crawl the published website:
 
+{{% code file="addrobotstxt.sh" %}}
 ```bash
 echo "User-agent: *\nDisallow:" > static/robots.txt
 ```
+{{% /code %}}
 
-After this we can add everything to the repository.
+Now we need to add (i.e., [stage [see Git documentation]][gitbasics]) and commit all of our changes in the repository into Git:
 
 ```bash
 git commit -a -m "Initial commit"
 ```
 
-## Adding the project to GitHub
+## Adding the Project to GitHub
 
-First we'll create a new repository. You can do this by clicking on the **+** sign at the top right, or by going to https://github.com/new
+Now we need to create a new repository on GitHub. Once you are signed in to GitHub, you can add a new repository by clicking on the **&#43;&#9660;** dropdown at the top right or by going to [https://github.com/new](https://github.com)..
 
-We then choose a name for the project (**hugo-wercker-example**). When clicking on create repository GitHub displays the commands for adding an existing project to the site. The commands shown below are the ones used for this site, if you're following along you will need to use the ones shown by GitHub. Once we've run those commands the project is in GitHub and we can move on to setting up the Wercker configuration.
+We then choose a name for the project (`hugo-wercker-example`). When clicking on create repository GitHub displays the commands for adding an existing project to the site. The commands shown below are the ones used for this site, if you're following along you will need to use the ones shown by GitHub. Once we've run those commands the project is in GitHub and we can move on to setting up the Wercker configuration. Be sure to replace `YourUserName` with your GitHub account/username:
 
+{{% code file="setup-gh-repo.sh" %}}
 ```bash
 git remote add origin git@github.com:YourUsername/hugo-wercker-example.git
 git push -u origin master
 ```
+{{% /code %}}
 
 ![][2]
 
-[2]: /img/tutorials/automated-deployments/adding-the-project-to-github.png
+## Setting Up Wercker
 
-## Welcome to wercker
-
-Let's start by setting up an account for Wercker. To do so we'll go to http://wercker.com and click on the **Sign up** button.
+To sign up for a free Wercker account, go to <https://wercker.com> and click the the **Sign Up** button on the top right of the home screen.
 
 ![][3]
 
-[3]: /img/tutorials/automated-deployments/wercker-sign-up.png
+### Registing for Wercker with Your GitHub Account
 
-## Register
-
-To make life easier for ourselves, we will then register using GitHub. If you don't have a GitHub account, or don't want to use it for your account, you can of course register with a username and password as well.
+Sign up for Wercker using your GitHub credentials. If you don't have a GitHub account, or don't want to use it for your account, you have the option to register with a username and password as well. However, the second half of this guide---devoted to hosting your website on GitHub pages---will no longer be of interest to you.
 
 ![][4]
 
-[4]: /img/tutorials/automated-deployments/wercker-sign-up-page.png
+### Connecting GitHub or Bitbucket
 
-## Connect GitHub/Bitbucket
+After you are registered, you will need to link your GitHub or Bitbucket account to Wercker. You can link your account by navigating to your profile settings and then selecting "Git connections."
 
-After you are registered, you will need to link your GitHub and/or Bitbucket account to Wercker. You do this by going to your profile settings, and then "Git connections" If you registered using GitHub it will most likely look like the image below. To connect a missing service, simply click on the connect button which will then send you to either GitHub or Bitbucket where you might need to log in and approve their access to your account.
+![][17]
+
+If you registered for Wercker using GitHub, it will most likely look like the following image. To connect a missing service, click the **Connect** button, which may send you to either GitHub or Bitbucket to sign into your respective account.
 
 ![][5]
 
-[5]: /img/tutorials/automated-deployments/wercker-git-connections.png
+### Add Your Project
 
-## Add your project
-
-Now that we've got all the preliminaries out of the way, it's time to set up our application. For this we click on the **+ Create** button next to Applications, and then we'll choose to use GitHub as our provider.
+Now that we've got all the preliminaries out of the way, it's time to set up our application. For this we click on the **+ Create** button next to Applications and choose GitHub as our provider.
 
 ![][6]
 
-[6]: /img/tutorials/automated-deployments/wercker-add-app.png
+### Select a Repository
 
-## Select a repository
-
-Clicking this will make Wercker show you all the repositories you have on GitHub, but you can easily filter them as well. So we search for our repository, select it, and then click on "Use selected repo".
+When selecting GitHub, Wercker will show all your GitHub repositories. You have the option to filter repositories using the search input at the top of the repositories list. Once you have your repository selected, click the **Use selected repo** button.
 
 ![][7]
 
-[7]: /img/tutorials/automated-deployments/wercker-select-repository.png
+### Select the Repository Owner
 
-## Select the repository owner
-
-In the next step, Wercker asks you to select the repository owner. Just select your own GitHub account and continue.
+In the next step, Wercker asks you to select the repository owner. Select your GitHub account and continue.
 
 ![][8]
 
-[8]: /img/tutorials/automated-deployments/wercker-select-owner.png
+### Configuring Access
 
-## Configure access
+{{% note %}}
+This guide assumes you are using a public GitHub repository and understand that the [published GitHub Pages website will be available to everyone](https://help.github.com/articles/what-is-github-pages/#usage-limits).
+{{%/note %}}
 
-This step can be slightly tricky. As Wercker doesn't access to check out your private projects by default it will ask you what you want to do. When your project is public, as needs to be the case if you wish to use GitHub Pages, the top choice is recommended. When you use this it will simply check out the code in the same way anybody visiting the project on GitHub can do.
+This step can be slightly tricky. Wercker does not have privileges to check out your private projects by default and therefore needs your permission to add a deploy key to your repository. By selecting the first option, you're simply allowing Wercker to check out the code via the same methods available to anyone visiting the project on GitHub.
 
 ![][9]
 
-[9]: /img/tutorials/automated-deployments/wercker-access.png
+### Wercker.yml
 
-## Wercker.yml
+Wercker will now attempt to create an initial `wercker.yml` file for you. More specifically, it will create a code block within the Wercker interface that you can copy to your finished file. Wercker gives us a `debian` box because our project does not have any special requirements.
 
-Wercker will now attempt to create an initial *wercker.yml* file for you. Or rather, it will create the code you can copy into it yourself. Because there is nothing special about our project according to Wercker, we will simply get the `debian` box. So what we do now is create a *wercker.yml* file in the root of our project that contains the provided configuration, and after we finish setting up the app we will expand this file to make it actually do something.
+Now we need to create a *wercker.yml* file in the root of our project. This file will contain our Wercker app's configuration. After we finish setting up our app, we will expand the contents of this file to build and deploy our website.
 
 ![][10]
 
-[10]: /img/tutorials/automated-deployments/werckeryml.png
+### Public or Private
 
-## Public or not
-
-This is a personal choice, you can make an app public so that everyone can see more details about it. This doesn't give you any real benefits either way in general, although as part of the tutorial I have of course made this app public so you can see it in action [yourself](https://app.wercker.com/#applications/5586dcbdaf7de9c51b02b0d5).
+This is a personal choice. You can make an app public so that everyone can see more details about it. Keeping it private or public does not provide any overt benefits for you as the creator of the app. That said, [the app we are currently creating has been made public][publicappurl] to facilitate easier usage of this hosting and deployment guide.
 
 ![][11]
 
-[11]: /img/tutorials/automated-deployments/public-or-not.png
+#### App Successfully Created
 
-## And we've got an app
-
-The application is added now, and Wercker will be offering you the chance to trigger a build. As we haven't pushed up the **wercker.yml** file however, we will politely decline this option.
+The application is now added and Wercker will offer you the chance to trigger a build. However, we will decline the offer because we haven't yet pushed our `wercker.yml` file to our GitHub repository.
 
 ![][12]
 
-[12]: /img/tutorials/automated-deployments/and-we-ve-got-an-app.png
+### Adding the Hugo-build Step
 
-## Adding steps
-
-And now we're going to add the steps themselves. First, we go to the "Registry" action in the top menu and then search for "hugo build". The first result is the **Hugo-Build** task, which we select.
+Now we need to add the Wercker steps to our build process. First, we go to the "Registry" action in the top menu. When in the registry, we can search for "hugo build". Select the "Hugo-Build by **arjen**" step.
 
 ![][13]
 
-[13]: /img/tutorials/automated-deployments/wercker-search.png
+### Using the Hugo-build Step
 
-## Using Hugo-Build
+A summary of very basic usage is available at the top of the details for the Hugo-Build step. Below the basic usage is the contents of the `README.md` file associated with the step's repository. `README.md`'s on Wercker usually contain more details about the advanced options and examples of usage.
 
-Inside the details of this step you will see how to use it. At the top is a summary for the very basic usage, but when scrolling down you go through the README of the step which will usually contain more details about the advanced options available and a full example of using the step.
+We're not going to use any of the advanced features of Hugo-Build in this guide. Let's return to our project and add the first section of details we need to our `wercker.yml`.
 
-We're not going to use any of the advanced features in this tutorial, so we'll return to our project and add the details we need to our wercker.yml file so that it looks like the below. Wercker also has a [page](http://devcenter.wercker.com/articles/werckeryml/validate.html) for validating wercker.yml files, and it's usually a good idea to do so before committing changes as minor typos might cause it to fail.
+{{% warning "Hugo Version in `wercker.yml`" %}}
+The docs are a work in progress. As such, the `version` represented in this guide may not represent the version you've been using for local development. Be sure to use the appropriate Hugo version for your build step.
+{{% /warning %}}
 
+{{% code file="wercker-build-step.yml" %}}
 ```yaml
 box: debian
 build:
   steps:
     - arjen/hugo-build:
-        version: "0.14"
+        version: "0.17"
         theme: herring-cove
         flags: --buildDrafts=true
 ```
+{{% /code %}}
 
-This concludes the first step, so we'll test that it all works as it should by pushing up our wercker.yml file and seeing the magic at work.
+We can conclude this first step by pushing our `wercker.yml` to our GitHub repository and then seeing the magic at work within Wercker's interface.
 
+{{% code file="push-wecker-to-gh.sh" %}}
 ```bash
 git commit -a -m "Add wercker.yml"
 git push origin master
 ```
+{{% /code %}}
 
-Once completed a nice tick should have appeared in front of your first build, and if you want you can look at the details by clicking on it. However, we're not done yet as we still need to deploy it to GitHub Pages.
+If completed and successful, a green check mark should appear in the commit column of your first build. However, this is only the build step. We still need to deploy the website to our free hosting on GitHub Pages. If you would like more details about the build, you can click the commit hash.
 
 ![][14]
 
-[14]: /img/tutorials/automated-deployments/using-hugo-build.png
+### Adding a GitHub Pages Deploy Step to `wercker.yml`
 
-## Adding a GitHub Pages step
+In order to deploy to GitHub Pages, we need to add a deploy step to our `wercker.yml`. We are going to add `lukevevier/gh-pages`, the most popular GitHub Pages step in the Wercker Steps repository. Additionally, we need to ensure the box Wercker uses for our deployments has git and ssh installed. We can do this using the `install-packages` command. Here is our *final* `wercker.yml` file:
 
-In order to deploy to GitHub Pages we need to add a deploy step. Once again searching through the Steps repository we find that the most popular step is the **lukevevier/gh-pages** step so we add the configuration for that to our wercker.yml file. Additionally we need to ensure that the box we run on has git and ssh installed. We can do this using the **install-packages** command, which then turns the wercker.yml file into this:
-
+{{% code file="wercker.yml" %}}
 ```yaml
 box: debian
 build:
   steps:
     - arjen/hugo-build:
-        version: "0.14"
+        version: "0.17"
         theme: herring-cove
         flags: --buildDrafts=true
 deploy:
@@ -249,27 +277,72 @@ deploy:
         domain: hugo-wercker.ig.nore.me
         basedir: public
 ```
+{{% /code %}}
 
-How does the GitHub Pages configuration work? We've selected a couple of things, first the domain we want to use for the site. Configuring this here will ensure that GitHub Pages is aware of the domain you want to use.
+### How does the GitHub Pages Configuration Work?
 
-Secondly we've configured the basedir to **public**, this is the directory that will be used as the website on GitHub Pages.
+We've provided a some important information in our `wercker.yml`. First, we've added the domain we want to use for our published website. Configuring the domain here will ensure that GitHub Pages is aware of the domain we want to use.
 
-And lastly, you can see here that this has a **$GIT_TOKEN** variable. This is used for pushing our changes up to GitHub and we will need to configure this before we can do that. We do this by going to our app's settings and clicking on **Deploy targets**. Now, we **Add deploy target** and select **Custom deploy**.
+Secondly, we've configured the `basedir` to `public`. This is the directory that will be used as the website on GitHub Pages. `public` is also the default publishing directory in Hugo. (For more information, see [hugo's configuration docs][hugoconfig]).
+
+Lastly, you'll notice a `$GIT_TOKEN` variable. This is used for pushing our changes to GitHub. We will need to configure this token before Wercker can build our website.
+
+### Setting the App's Deploy Target
+
+We can set our deploy target by going to our app's settings and clicking on **Deploy targets**. Now select **Add deploy target** and then **Custom deploy**.
 
 ![][15]
 
-[15]: /img/tutorials/automated-deployments/adding-a-github-pages-step.png
+### Configuring the Deploy Step in Wercker
 
-## Configure the deploy step
+The next screen requires you fill in the deploy target name.
 
-Simply fill in the name, and make sure you enable **auto deploy** from the **master** branch. Next you add a variable for the **GIT_TOKEN**, for this you'll need to create an access token in GitHub. How to do that is described on a [GitHub help page](https://help.github.com/articles/creating-an-access-token-for-command-line-use/). With the deploy step configured in Wercker, we can push the updated wercker.yml file to GitHub and it will create the GitHub pages site for us. The example site we used here is accessible under hugo-wercker.ig.nore.me
+1. Make sure you enable **auto deploy** from the **master** branch.
+2. Add a variable for the **GIT_TOKEN**. You'll need to create an access token in GitHub. Follow the directions in [GitHub help][accesstokenghhelp].
+3. With the deploy step configured in Wercker, we can push the updated wercker.yml file to GitHub and it will create the GitHub pages site for us.
+
+The website described in this guide is available at <http://hugo-wercker.ig.nore.me>.
 
 ![][16]
 
-[16]: /img/tutorials/automated-deployments/configure-the-deploy-step.png
-
 ## Conclusion
 
-From now on, any time you want to put a new post on your blog all you need to do is push your new page to GitHub and the rest will happen automatically. The source code for the example site used here is available on [GitHub](https://github.com/ArjenSchwarz/hugo-wercker-example), as is the [Hugo Build step](https://github.com/ArjenSchwarz/wercker-step-hugo-build) itself.
+Once this workflow is established, you can update your website automatically by pushing any content changes to your GitHub repository.
 
-If you want to see an example of how you can deploy to S3 instead of GitHub pages, take a look at [Wercker's documentation](http://devcenter.wercker.com/docs/deploy/s3.html) about how to set that up.
+### Code for the Wercker Deployment Guide
+
+[The source code for the site used in this guide is available on GitHub][guidesource], as is the [Wercker Hugo Build step][guidestep].
+
+If you want to see an example of how you can deploy to S3 instead of GitHub pages, check [Wercker's documentation][werckerdocs] for guidance on setup.
+
+[1]: /images/hosting-and-deployment/deployment-with-wercker/creating-a-basic-hugo-site.png
+[2]: /images/hosting-and-deployment/deployment-with-wercker/adding-the-project-to-github.png
+[3]: /images/hosting-and-deployment/deployment-with-wercker/wercker-sign-up.png
+[4]: /images/hosting-and-deployment/deployment-with-wercker/wercker-sign-up-page.png
+[5]: /images/hosting-and-deployment/deployment-with-wercker/wercker-git-connections.png
+[6]: /images/hosting-and-deployment/deployment-with-wercker/wercker-add-app.png
+[7]: /images/hosting-and-deployment/deployment-with-wercker/wercker-select-repository.png
+[8]: /images/hosting-and-deployment/deployment-with-wercker/wercker-select-owner.png
+[9]: /images/hosting-and-deployment/deployment-with-wercker/wercker-access.png
+[10]: /images/hosting-and-deployment/deployment-with-wercker/werckeryml.png
+[11]: /images/hosting-and-deployment/deployment-with-wercker/public-or-not.png
+[12]: /images/hosting-and-deployment/deployment-with-wercker/and-we-ve-got-an-app.png
+[13]: /images/hosting-and-deployment/deployment-with-wercker/wercker-search.png
+[14]: /images/hosting-and-deployment/deployment-with-wercker/using-hugo-build.png
+[15]: /images/hosting-and-deployment/deployment-with-wercker/adding-a-github-pages-step.png
+[16]: /images/hosting-and-deployment/deployment-with-wercker/configure-the-deploy-step.png
+[17]: /images/hosting-and-deployment/deployment-with-wercker/wercker-account-settings.png
+
+
+[accesstokenghhelp]: https://help.github.com/articles/creating-an-access-token-for-command-line-use/
+[basicusage]: /getting-started/usage/
+[ghsignup]: https://github.com/join
+[gitbasics]: https://git-scm.com/book/en/v2/Getting-Started-Git-Basics
+[githubhelp]: https://help.github.com/articles/set-up-git/
+[guidesource]: https://github.com/ArjenSchwarz/hugo-wercker-example
+[guidestep]: https://github.com/ArjenSchwarz/wercker-step-hugo-build
+[Herring Cove theme]: https://github.com/spf13/herring-cove
+[hugoconfig]: /getting-started/configuration/
+[publicappurl]: https://app.wercker.com/#applications/5586dcbdaf7de9c51b02b0d5
+[quickstart]: /getting-started/quick-start/
+[werckerdocs]: http://devcenter.wercker.com/docs/deploy/s3.html

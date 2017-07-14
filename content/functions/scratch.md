@@ -1,18 +1,28 @@
 ---
-aliases:
-- /doc/scratch/
-lastmod: 2015-08-02
-date: 2015-01-22
+title: scratch
+# linktitle: Scratch
+description: Acts as a "scratchpad" to allow for writable page-scoped variables.
+godocref:
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+tags: [iteration]
+categories: [functions]
 menu:
-  main:
-    parent: extras
-next: /extras/datafiles
-prev: /extras/pagination
-title: Scratch
-weight: 80
+  docs:
+    parent: "functions"
+toc:
+ns:
+signature: []
+workson: []
+hugoversion:
+relatedfuncs: []
+deprecated: false
+draft: false
+aliases: [/extras/scratch/,/doc/scratch/]
 ---
 
-`Scratch` -- a "scratchpad" for your page-scoped variables. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
+`Scratch` is a "scratchpad" for your [page-scoped variables][pagevars]. In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
 
 `Scratch` is added to both `Page` and `Shortcode` -- with following methods:
 
@@ -21,7 +31,7 @@ weight: 80
 * `SetInMap` takes a `key`, `mapKey` and `value`
 * `GetSortedMapValues` returns array of values from `key` sorted by `mapKey`
 
-`Set` and `SetInMap` can store values of any type. 
+`Set` and `SetInMap` can store values of any type.
 
 For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
 
@@ -59,6 +69,9 @@ The usage is best illustrated with some samples:
 {{ $.Scratch.GetSortedMapValues "a3" }} {{/* => []interface {}{"AA", "BB", "CC"} */}}
 ```
 
-**Note:** The examples above uses the special `$` variable, which refers to the top-level node. This is the behavior you most likely want, and will help remove some confusion when using `Scratch` inside page range loops -- and you start inadvertently calling the wrong `Scratch`. But there may be use cases for `{{ .Scratch.Add "key" "some value" }}`.
+{{% note %}}
+The examples above uses the special `$` variable, which refers to the top-level node. This is the behavior you most likely want, and will help remove some confusion when using `Scratch` inside page range loops -- and you start inadvertently calling the wrong `Scratch`. But there may be use cases for `{{ .Scratch.Add "key" "some value" }}`.
+{{% /note %}}
 
 
+[pagevars]: /variables/page/

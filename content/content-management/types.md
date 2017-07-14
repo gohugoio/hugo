@@ -1,80 +1,100 @@
 ---
-lastmod: 2015-09-28
-date: 2013-07-01
-linktitle: Types
-menu:
-  main:
-    parent: content
-next: /content/archetypes
-prev: /content/sections
 title: Content Types
-weight: 40
+linktitle: Types
+description: Hugo provides support for sites with multiple content types and assumes your site will be organized into sections, where each section will use the corresponding type.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+categories: [content management]
+tags: [lists,sections,content types,types,organization]
+menu:
+  docs:
+    parent: "content-management"
+    weight: 60
+weight: 60	#rem
+draft: false
+aliases: [/content/types]
 toc: true
 ---
 
-Hugo has full support for different types of content. A content type can have a
-unique set of meta data, template and can be automatically created by the `hugo new`
-command through using content [archetypes](/content/archetypes/).
+Hugo provides full support for sites with multiple content types. A **content type** can have a unique set of metadata (i.e., [front matter][]) or customized [template][] and can be created by the `hugo new` command via [archetypes][].
 
-A good example of when multiple types are needed is to look at [Tumblr](https://www.tumblr.com/). A piece
-of content could be a photo, quote or post, each with different meta data and
-rendered differently.
+## What is a Content Type
 
-## Assigning a content type
+[Tumblr][] is a good example of a website with multiple content types. A piece of "content" could be a photo, quote, or a post, each with different sets of metadata and different visual rendering.
 
-Hugo assumes that your site will be organized into [sections](/content/sections/)
-and each section will use the corresponding type. If you are taking advantage of
-this, then each new piece of content you place into a section will automatically
-inherit the type.
+## Assigning a Content Type
 
-Alternatively, you can set the type in the meta data under the key "`type`".
+Hugo assumes that your site will be organized into [sections][] and each section will use a corresponding type. This is to reduce the amount of configuration necessary for new Hugo projects.
 
+If you are taking advantage of this default behavior, each new piece of content you place into a section will automatically inherit the type. Therefore a new file created at `content/posts/new-post.md` will automatically be assigned the type `posts`. Alternatively, you can set the content type in a content file's [front matter][] in the field "`type`".
 
-## Creating new content of a specific type
+## Creating New Content of a Specific Type
 
-Hugo has the ability to create a new content file and populate the front matter
-with the data set corresponding to that type. Hugo does this by utilizing
-[archetypes](/content/archetypes/).
+You can manually add files to your content directories, but Hugo has the ability to create and populate a new content file with preconfigured front matter via [archetypes][].
 
-To create a new piece of content, use:
+## Defining a Content Type
 
-    hugo new relative/path/to/content.md
+Creating a new content type is easy in Hugo. You simply define and provide the templates and archetype unique to your new content type. Hugo will fall back to using the general templates and default archetype whenever a specific file is not present.
 
-For example, if I wanted to create a new post inside the post section, I would type:
+{{% note "Declaring Content Types" %}}
+Remember, all of the following are *optional*. If you do not specifically declare content types in your front matter or develop specific layouts for content types, Hugo is smart enough to assume the content type from the file path and section. (See [Content Sections](/content-management/sections/) for more information.)
+{{% /note %}}
 
-    hugo new post/my-newest-post.md
+The following examples take you stepwise through creating a new type layout for a content file that contains the following front matter:
 
+{{% code file="content/events/my-first-event.md" copy="false" %}}
+```toml
++++
+title = My First Event
+date = "2016-06-24T19:20:04-07:00"
+description = "Today is my 36th birthday. How time flies."
+type = "event"
+layout = "birthday"
++++
+```
+{{% /code %}}
 
-## Defining a content type
+By default, Hugo assumes `*.md` under `events` is of the `events` content type. However, we have specified that this particular file at `content/events/ my-first-event.md` is of type `event` and should render using the `birthday` layout.
 
-Creating a new content type is easy in Hugo. You simply provide the templates and archetype
-that the new type will use. You only need to define the templates, archetypes and/or views
-unique to that content type. Hugo will fall back to using the general templates and default archetype
-whenever a specific file is not present.
+### Create a Type Layout Directory
 
-*Remember, all of the following are optional:*
+Create a directory with the name of the type in `/layouts`. For creating these custom layouts, **type is always singular**; e.g., `events => event` and `posts => post`.
 
-### Create Type Directory
-Create a directory with the name of the type in `/layouts`. Type is always singular.  *E.g. `/layouts/post`*.
+For this example, you need to create `layouts/event/birthday.html`.
 
-### Create single template
-Create a file called `single.html` inside your directory. *E.g. `/layouts/post/single.html`*.
+{{% note %}}
+If you have multiple content files in your `events` directory that are of the `special` type and you don't want to define the `layout` specifically for each piece of content, you can create a layout at `layouts/special/single.html` to observe the [single page template lookup order](/templates/single-page-templates/).
+{{% /note %}}
 
-### Create list template
-Create a file called `post.html` inside the section lists template directory, `/layouts/section`. *E.g. `/layouts/section/post.html`*.
+{{% warning %}}
+With the "everything is a page" data model introduced in v0.18 (see [Content Organization](/content-management/organization/)), you can use `_index.md` in content directories to add both content and front matter to [list pages](/templates/lists/). However, `type` and `layout` declared in the front matter of `_index.md` are *not* currently respected at build time as of v0.19. This is a known issue [(#3005)](https://github.com/spf13/hugo/issues/3005).
+{{% /warning %}}
 
-### Create views
-Many sites support rendering content in a few different ways, for
-instance, a single page view and a summary view to be used when
-displaying a [list of contents on a single page](/templates/list).
-Hugo makes no assumptions here about how you want to display your
-content, and will support as many different views of a content type
-as your site requires. All that is required for these additional
-views is that a template exists in each `/layouts/TYPE` directory
-with the same name.
+### Create Views
 
-### Create a corresponding archetype
+Many sites support rendering content in a few different ways; e.g., a single page view and a summary view to be used when displaying a [list of section contents][sectiontemplates].
 
-Create a file called <code><em>type</em>.md</code> in the `/archetypes` directory. *E.g. `/archetypes/post.md`*.
+Hugo limits assumptions about how you want to display your content to an intuitive set of sane defaults and will support as many different views of a content type as your site requires. All that is required for these additional views is that a template exists in each `/layouts/<TYPE>` directory with the same name.
 
-More details about archetypes can be found at the [archetypes docs](/content/archetypes/).
+### Custom Content Type Template Lookup Order
+
+The lookup order for the `content/events/my-first-event.md` templates would be as follows:
+
+* `layouts/event/birthday.html`
+* `layouts/event/single.html`
+* `layouts/events/single.html`
+* `layouts/_default/single.html`
+
+### Create a Corresponding Archetype
+
+We can then create a custom archetype with preconfigured front matter at `event.md` in the `/archetypes` directory; i.e. `archetypes/event.md`.
+
+Read [Archetypes][archetypes] for more information on archetype usage with `hugo new`.
+
+[archetypes]: /content-management/archetypes/
+[front matter]: /content-management/front-matter/
+[sectiontemplates]: /templates/section-templates/
+[sections]: /content-management/sections/
+[template]: /templates/
+[Tumblr]: https://www.tumblr.com/

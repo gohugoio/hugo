@@ -1,409 +1,431 @@
 ---
-aliases:
-- /doc/shortcodes/
-lastmod: 2016-02-03
-date: 2013-07-01
-menu:
-  main:
-    parent: extras
-next: /extras/pagination
-prev: /extras/permalinks
 title: Shortcodes
-weight: 80
-toc: false
+linktitle:
+description: Shortcodes are simple snippets inside your content files that Hugo renders renders so as not to mess with the clean and simple syntax of your preferred content format.
+godocref:
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-03-31
+menu:
+  docs:
+    parent: "content-management"
+    weight: 35
+weight: 35	#rem
+categories: [content management]
+tags: [markdown,content,shortcodes]
+draft: false
+aliases: [/extras/shortcodes/]
+toc: true
 ---
 
-Hugo uses Markdown for its simple content format. However, there are a lot
-of things that Markdown doesn’t support well.
+## What is a Shortcode
 
-We are unwilling to accept being constrained by our simple format. Also
-unacceptable is writing raw HTML in our Markdown every time we want to include
-unsupported content such as a video. To do so is in complete opposition to the
-intent of using a bare-bones format for our content and utilizing templates to
-apply styling for display.
+Hugo loves Markdown because of its simple content format, but there are times when Markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframes>`) to Markdown content. We think this contradicts the beautiful simplicity of Markdown's syntax.
 
-To avoid both of these limitations, Hugo created shortcodes.
+Hugo created **shortcodes** to circumvent these limitations.
 
-A shortcode is a simple snippet inside a content file that Hugo will render
-using a predefined template. Note that shortcodes will not work in template
-files---if you need a functionality like that in a template, you most likely
-want a [partial template](/templates/partials/) instead.
+A shortcode is a simple snippet inside a content file that Hugo will render using a predefined template. Note that shortcodes will not work in template files. If you need the type of drop-in functionality that shortcodes provide but in a template, you most likely want a [partial template][partials] instead.
 
-Another benefit is, you can update your shortcode with any related new classes or
-techniques, and upon generation, Hugo will easily merge in your changes. You
-avoid a possibly complicated search and replace operation.
+In addition to cleaner Markdown, shortcodes can be updated any time to reflect new classes, techniques, or standards. At the point of site generation, Hugo shortcodes will easily merge in your changes. You avoid a possibly complicated search and replace operation.
 
-## Using a shortcode
+## Using Shortcodes
 
-In your content files, a shortcode can be called by using the `{{%/* name parameters
-*/%}}` form. Shortcode parameters are space delimited.  Parameters with spaces
-can be quoted.
+In your content files, a shortcode can be called by calling `{{%/* shortcodename parameters*/%}}`. Shortcode parameters are space delimited, and parameters with internal spaces can be quoted.
 
-The first word is always the name of the shortcode. Parameters follow the name.
-Depending upon how the shortcode is defined, the parameters may be named,
-positional or both (although you can't mixed parameter types in a single call).
-The format for named parameters models that of HTML with the format
-`name="value"`.
+The first word in the shortcode declaration is always the name of the shortcode. Parameters follow the name. Depending upon how the shortcode is defined, the parameters may be named, positional, or both, although you can't mix parameter types in a single call. The format for named parameters models that of HTML with the format `name="value"`.
 
-Some shortcodes use or require closing shortcodes. Like HTML, the opening and closing
-shortcodes match (name only), the closing being prepended with a slash.
+Some shortcodes use or require closing shortcodes. Again like HTML, the opening and closing shortcodes match (name only) with the closing declaration, which is prepended with a slash.
 
-Example of a paired shortcode:
+Here are two examples of paired shortcodes:
 
-    {{</* highlight go */>}} A bunch of code here {{</* /highlight */>}}
+```md
+{{%/* mdshortcode */%}}Stuff to `process` in the *center*.{{%/* /mdshortcode */%}}
+```
 
-The examples above use two different delimiters, the difference being the `%` and the `<` character:
+```md
+{{</* highlight go */>}} A bunch of code here {{</* /highlight */>}}
+```
+
+The examples above use two different delimiters, the difference being the `%` character in the first and the `<>` characters in the second.
 
 ### Shortcodes with Markdown
 
-The `%` characters indicates that the shortcode's inner content needs further processing by the page's rendering processor (i.e. Markdown), needed to get the **bold** text in the example below:
+The `%` character indicates that the shortcode's inner content---called in the [shortcode template][sctemps] with the [`.Inner` variable][scvars]---needs further processing by the page's rendering processor (i.e. markdown via Blackfriday). In the following example, Blackfriday would convert `**World**` to `<strong>World</strong>`:
 
+```md
+{{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
+```
 
-    {{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
+### Shortcodes Without Markdown
 
+The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without markdown include internal HTML:
 
-### Shortcodes without Markdown
+```md
+{{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
+```
 
-The `<` character indicates that the shortcode's inner content doesn't need any further rendering, this will typically be pure HTML:
+### Nested Shortcodes
 
-    {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
+You can call shortcodes within other shortcodes by creating your own templates that leverage the `.Parent` variable. `.Parent` allows you to check the context in which the shortcode is being called. See [Shortcode templates][sctemps].
 
+## Using Hugo's Built-in Shortcodes
 
-## Built-in Shortcodes
+Hugo ships with a set of predefined shortcodes that represent very common usage. These shortcodes are provided for author convenience and to keep your markdown content clean.
 
-Hugo ships with a set of predefined shortcodes.
+### `figure`
 
-### highlight
+`figure` is an extension of the image syntax in markdown, which does not provide a shorthand for the more semantic [HTML5 `<figure>` element][figureelement].
 
-This shortcode will convert the source code provided into syntax highlighted
-HTML. Read more on [highlighting](/extras/highlighting/).
+The `figure` shortcode can use the following named parameters:
 
-#### Usage
+* `src`
+* `link`
+* `title`
+* `caption`
+* `class`
+* `attr` (i.e., attribution)
+* `attrlink`
+* `alt`
 
-`highlight` takes exactly one required parameter of _language_ and requires a
-closing shortcode.
+#### Example `figure` Input
 
-#### Example
+{{% code file="figure-input-example.md" %}}
+```markdown
+{{</* figure src="/media/spf13.jpg" title="Steve Francia" */>}}
+```
+{{% /code %}}
 
-    {{</* highlight html */>}}
-    <section id="main">
-      <div>
-       <h1 id="title">{{ .Title }}</h1>
-        {{ range .Data.Pages }}
-            {{ .Render "summary"}}
-        {{ end }}
-      </div>
-    </section>
-    {{</* /highlight */>}}
+#### Example `figure` Output
 
+{{% output file="figure-output-example.html" %}}
+```html
+<figure>
+  <img src="/media/spf13.jpg"  />
+  <figcaption>
+      <h4>Steve Francia</h4>
+  </figcaption>
+</figure>
+```
+{{% /output %}}
 
-#### Example Output
+### `gist`
 
-    <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
-      <span style="color: #f92672">&lt;div&gt;</span>
-       <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
-        {{ range .Data.Pages }}
-            {{ .Render &quot;summary&quot;}}
-        {{ end }}
-      <span style="color: #f92672">&lt;/div&gt;</span>
-    <span style="color: #f92672">&lt;/section&gt;</span>
+Bloggers often want to include GitHub gists when writing posts. Let's suppose we want to use the [gist at the following url][examplegist]:
 
-### figure
+```html
+https://gist.github.com/spf13/7896402
+```
 
-`figure` is simply an extension of the image capabilities present with Markdown.
-`figure` provides the ability to add captions, CSS classes, alt text, links etc.
+We can embed the gist in our content via username and gist ID pulled from the URL:
 
-#### Usage
+```md
+{{</* gist spf13 7896402 */>}}
+```
 
-`figure` can use the following named parameters:
-
- * src
- * link
- * title
- * caption
- * class
- * attr (attribution)
- * attrlink
- * alt
-
-#### Example
-
-    {{</* figure src="/media/spf13.jpg" title="Steve Francia" */>}}
-
-#### Example output
-
-    <figure>
-        <img src="/media/spf13.jpg"  />
-        <figcaption>
-            <h4>Steve Francia</h4>
-        </figcaption>
-    </figure>
-
-### ref, relref
-
-These shortcodes will look up the pages by their relative path (e.g.,
-`blog/post.md`) or their logical name (`post.md`) and return the permalink
-(`ref`) or relative permalink (`relref`) for the found page.
-
-`ref` and `relref` also make it possible to make fragmentary links that work
-for the header links generated by Hugo.
-
-Read more on [cross-references]({{% ref "extras/crossreferences.md" %}}).
-
-#### Usage
-
-`ref` and `relref` take exactly one required parameter of _reference_.
-
-#### Example
-
-    [Neat]({{</* ref "blog/neat.md" */>}})
-    [Who]({{</* relref "about.md#who" */>}})
-
-#### Example Output
-
-Assuming that standard Hugo pretty URLs are turned on.
-
-    <a href="/blog/neat">Neat</a>
-    <a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
-
-### Twitter
-
-You want to include a single tweet into your blog post? Everything you need is the URL of the tweet, e.g.:
-
-* https://twitter.com/spf13/status/666616452582129664
-
-Pass the tweet's ID from the URL as parameter to the shortcode as shown below:
-
-    {{</* tweet 666616452582129664 */>}}
-
-### YouTube
-
-This shortcode embeds a responsive video player for [YouTube](https://www.youtube.com/) videos. Only the ID of the video is required, e.g.:
-
-* https://www.youtube.com/watch?v=w7Ft2ymGmfc
-
-Copy the ID from behind `v=` and pass it to the shortcode:
-
-    {{</* youtube w7Ft2ymGmfc */>}}
-
-Furthermore, you can autostart the embedded video by setting the `autostart` parameter to true. Remember that you can't mix named an unamed parameters. Assign the yet unamed video id to the parameter `id` like below too.
-
-     {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
-
-
-### Vimeo
-
-Adding a video from [Vimeo](https://vimeo.com/) is equivalent to the YouTube shortcode above. Extract the ID from the URL, e.g.:
-
-* https://vimeo.com/channels/staffpicks/146022717
-
-and pass it to the shortcode:
-
-    {{</* vimeo 146022717 */>}}
-
-### GitHub gists
-
-Including code snippets with GitHub gists while writing a tutorial is common situation bloggers face. With a given URL of the gist, e.g.:
-
-* https://gist.github.com/spf13/7896402
-
-pass the owner and the ID of the gist to the shortcode:
-
-    {{</* gist spf13 7896402 */>}}
+#### Example `gist` Input
 
 If the gist contains several files and you want to quote just one of them, you can pass the filename (quoted) as an optional third argument:
 
-    {{</* gist spf13 7896402 "img.html" */>}}
+{{% code file="gist-input.md" %}}
+```md
+{{</* gist spf13 7896402 "img.html" */>}}
+```
+{{% /code %}}
 
-### Speaker Deck
+#### Example `gist` Output
 
-To embed slides from [Speaker Deck](https://speakerdeck.com/), click on "&lt;&#8239;/&gt;&nbsp;Embed" (under Share right next to the template on Speaker Deck) and copy the URL, e.g.:
+{{% output file="gist-output.html" %}}
+```html
+{{< gist spf13 7896402 >}}
+```
+{{% /output %}}
 
-    <script async class="speakerdeck-embed" data-id="4e8126e72d853c0060001f97" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+#### Example `gist` Display
+
+To demonstrate the remarkably efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page. The following simulates the experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+
+{{< gist spf13 7896402 >}}
+
+### `highlight`
+
+This shortcode will convert the source code provided into syntax-highlighted HTML. Read more on [highlighting](/tools/syntax-highlighting/). `highlight` takes exactly one required `language` parameter and requires a closing shortcode.
+
+#### Example `highlight` Input
+
+{{% code file="content/tutorials/learn-html.md" %}}
+```html
+{{</* highlight html */>}}
+<section id="main">
+  <div>
+   <h1 id="title">{{ .Title }}</h1>
+    {{ range .Data.Pages }}
+        {{ .Render "summary"}}
+    {{ end }}
+  </div>
+</section>
+{{</* /highlight */>}}
+```
+{{% /code %}}
+
+#### Example `highlight` Output
+
+The `highlight` shortcode example above would produce the following HTML when the site is rendered:
+
+{{% output file="tutorials/learn-html/index.html" %}}
+```html
+<span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
+  <span style="color: #f92672">&lt;div&gt;</span>
+   <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
+    {{ range .Data.Pages }}
+        {{ .Render &quot;summary&quot;}}
+    {{ end }}
+  <span style="color: #f92672">&lt;/div&gt;</span>
+<span style="color: #f92672">&lt;/section&gt;</span>
+```
+{{% /output %}}
+
+{{% note "More on Syntax Highlighting" %}}
+To see even more options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting in Developer Tools](/tools/syntax-highlighting/).
+{{% /note %}}
+
+### `instagram`
+
+If you'd like to embed a photo from [Instagram][], you only need the photo's ID. You can discern an Instagram photo ID from the URL:
+
+```html
+https://www.instagram.com/p/BMokmydjG-M/
+```
+
+#### Example `instagram` Input
+
+{{% code file="instagram-input.md" %}}
+```md
+{{</* instagram BMokmydjG-M */>}}
+```
+{{% /code %}}
+
+You also have the option to hide the caption:
+
+{{% code file="instagram-input-hide-caption.md" %}}
+```md
+{{</* instagram BMokmydjG-M hidecaption */>}}
+```
+{{% /code %}}
+
+#### Example `instagram` Output
+
+By adding the preceding `hidecaption` example, the following HTML will be added to your rendered website's markup:
+
+{{% output file="instagram-hide-caption-output.html" %}}
+```html
+{{< instagram BMokmydjG-M hidecaption >}}
+```
+{{% /output %}}
+
+#### Example `instagram` Display
+
+Using the preceding `instagram` with hidecaption` example above, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+
+{{< instagram BMokmydjG-M hidecaption >}}
+
+
+### `ref` and `relref`
+
+These shortcodes will look up the pages by their relative path (e.g., `blog/post.md`) or their logical name (`post.md`) and return the permalink (`ref`) or relative permalink (`relref`) for the found page.
+
+`ref` and `relref` also make it possible to make fragmentary links that work for the header links generated by Hugo.
+
+{{% note "More on Cross References" %}}
+Read a more extensive description of `ref` and `relref` in the [cross references](/content-management/cross-references/) documentation.
+{{% /note %}}
+
+`ref` and `relref` take exactly one required parameter of _reference_, quoted and in position `0`.
+
+#### Example `ref` and `relref` Input
+
+```md
+[Neat]({{</* ref "blog/neat.md" */>}})
+[Who]({{</* relref "about.md#who" */>}})
+```
+
+#### Example `ref` and `relref` Output
+
+Assuming that standard Hugo pretty URLs are turned on.
+
+```html
+<a href="/blog/neat">Neat</a>
+<a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
+```
+
+### `speakerdeck`
+
+To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (under Share right next to the template on Speaker Deck) and copy the URL:
+
+```html
+<script async class="speakerdeck-embed" data-id="4e8126e72d853c0060001f97" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
+```
+
+#### `speakerdeck` Example Input
 
 Extract the value from the field `data-id` and pass it to the shortcode:
 
-    {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
+{{% code file="speakerdeck-example-input.md" %}}
+```md
+{{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
+```
+{{% /code %}}
 
-### Instagram
+#### `speakerdeck` Example Output
 
-If you'd like to embed photo from [Instagram](https://www.instagram.com/), all you need is photo ID from the URL, e. g.:
+{{% output file="speakerdeck-example-input.md" %}}
+```html
+{{< speakerdeck 4e8126e72d853c0060001f97 >}}
+```
+{{% /output %}}
 
-* https://www.instagram.com/p/BMokmydjG-M/
+#### `speakerdeck` Example Display
 
-Pass it to the shortcode:
+For the preceding `speakerdeck` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
 
-    {{</* instagram BMokmydjG-M */>}}
+{{< speakerdeck 4e8126e72d853c0060001f97 >}}
 
-Optionally, hide caption:
+### `tweet`
 
-    {{</* instagram BMokmydjG-M hidecaption */>}}
+You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
 
-## Creating your own shortcodes
+```
+https://twitter.com/spf13/status/666616452582129664
+```
 
-To create a shortcode, place a template in the layouts/shortcodes directory. The
-template name will be the name of the shortcode.
+#### Example `tweet` Input
 
-In creating a shortcode, you can choose if the shortcode will use _positional
-parameters_, or _named parameters_, or _both_. A good rule of thumb is that if a
-shortcode has a single required value in the case of the `youtube` example below,
-then positional works very well. For more complex layouts with optional
-parameters, named parameters work best.  Allowing both types of parameters is
-useful for complex layouts where you want to set default values that can be
-overridden.
+Pass the tweet's ID from the URL as a parameter to the `tweet` shortcode:
 
-**Inside the template**
+{{% code file="example-tweet-input.md" %}}
+```md
+{{</* tweet 666616452582129664 */>}}
+```
+{{% /code %}}
 
-To access a parameter by position, the `.Get` method can be used:
+#### Example `tweet` Output
 
-    {{ .Get 0 }}
+Using the preceding `tweet` example, the following HTML will be added to your rendered website's markup:
 
-To access a parameter by name, the `.Get` method should be utilized:
+{{% output file="example-tweet-output.html" %}}
+```html
+{{< tweet 666616452582129664 >}}
+```
+{{% /output %}}
 
-    {{ .Get "class" }}
+#### Example `tweet` Display
 
-`with` is great when the output depends on a parameter being set:
+Using the preceding `tweet` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
 
-    {{ with .Get "class"}} class="{{.}}"{{ end }}
+{{< tweet 666616452582129664 >}}
 
-`.Get` can also be used to check if a parameter has been provided. This is
-most helpful when the condition depends on either one value or another...
-or both:
+### `vimeo`
 
-    {{ or .Get "title" | .Get "alt" | if }} alt="{{ with .Get "alt"}}{{.}}{{else}}{{.Get "title"}}{{end}}"{{ end }}
+Adding a video from [Vimeo][] is equivalent to the YouTube shortcode above.
 
-If a closing shortcode is used, the variable `.Inner` will be populated with all
-of the content between the opening and closing shortcodes. If a closing
-shortcode is required, you can check the length of `.Inner` and provide a warning
-to the user.
+```
+https://vimeo.com/channels/staffpicks/146022717
+```
 
-A shortcode with `.Inner` content can be used without the inline content, and without the closing shortcode, by using the self-closing syntax:
+#### Example `vimeo` Input
 
-    {{</* innershortcode /*/>}}
+Extract the ID from the video's URL and pass it to the `vimeo` shortcode:
 
-The variable `.Params` contains the list of parameters in case you need to do
-more complicated things than `.Get`.  It is sometimes useful to provide a
-flexible shortcode that can take named or positional parameters.  To meet this
-need, Hugo shortcodes have a `.IsNamedParams` boolean available that can be used
-such as `{{ if .IsNamedParams }}...{{ else }}...{{ end }}`.  See the
-`Single Flexible Example` below for an example.
+{{% code file="example-vimeo-input.md" %}}
+```md
+{{</* vimeo 146022717 */>}}
+```
+{{% /code %}}
 
-You can also use the variable `.Page` to access all the normal [Page Variables](/templates/variables/).
+#### Example `vimeo` Output
 
-A shortcodes can be nested. In a nested shortcode you can access the parent shortcode context with `.Parent`. This can be very useful for inheritance of common shortcode parameters from the root.
+Using the preceding `vimeo` example, the following HTML will be added to your rendered website's markup:
 
-## Single Positional Example: youtube
+{{% output file="example-vimeo-output.html" %}}
+```html
+{{< vimeo 146022717 >}}
+```
+{{% /output %}}
 
-    {{</* youtube 09jf3ow9jfw */>}}
+{{% tip %}}
+If you want to further customize the visual styling of the YouTube or Vimeo output, add a `class` named parameter when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named parameter as well.
 
-Would load the template /layouts/shortcodes/youtube.html
+```md
+{{</* vimeo id="146022717" class="my-vimeo-wrapper-class" */>}}
+```
+{{% /tip %}}
 
-    <div class="embed video-player">
-    <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
-    </iframe>
-    </div>
+#### Example `vimeo` Display
 
-This would be rendered as:
+Using the preceding `vimeo` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
 
-    <div class="embed video-player">
-    <iframe class="youtube-player" type="text/html"
-        width="640" height="385"
-        src="http://www.youtube.com/embed/09jf3ow9jfw"
-        allowfullscreen frameborder="0">
-    </iframe>
-    </div>
+{{< vimeo 146022717 >}}
 
-## Single Named Example: image with caption
+### `youtube`
 
-    {{</* img src="/media/spf13.jpg" title="Steve Francia" */>}}
+The `youtube` shortcode embeds a responsive video player for [YouTube videos][]. Only the ID of the video is required, e.g.:
 
-Would load the template /layouts/shortcodes/img.html
+```
+https://www.youtube.com/watch?v=w7Ft2ymGmfc
+```
 
-    <!-- image -->
-    <figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
-        {{ with .Get "link"}}<a href="{{.}}">{{ end }}
-            <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt"}}{{.}}{{else}}{{ .Get "caption" }}{{ end }}"{{ end }} />
-        {{ if .Get "link"}}</a>{{ end }}
-        {{ if or (or (.Get "title") (.Get "caption")) (.Get "attr")}}
-        <figcaption>{{ if isset .Params "title" }}
-            <h4>{{ .Get "title" }}</h4>{{ end }}
-            {{ if or (.Get "caption") (.Get "attr")}}<p>
-            {{ .Get "caption" }}
-            {{ with .Get "attrlink"}}<a href="{{.}}"> {{ end }}
-                {{ .Get "attr" }}
-            {{ if .Get "attrlink"}}</a> {{ end }}
-            </p> {{ end }}
-        </figcaption>
-        {{ end }}
-    </figure>
-    <!-- image -->
 
-Would be rendered as:
+#### Example `youtube` Input
 
-    <figure >
-        <img src="/media/spf13.jpg"  />
-        <figcaption>
-            <h4>Steve Francia</h4>
-        </figcaption>
-    </figure>
+Copy the YouTube video ID that follows `v=` in the video's URL and pass it to the `youtube` shortcode:
 
-## Single Flexible Example: vimeo with defaults
+{{% code file="example-youtube-input.md" %}}
+```md
+{{</* youtube w7Ft2ymGmfc */>}}
+```
+{{% /code %}}
 
-    {{</* vimeo 49718712 */>}}
-    {{</* vimeo id="49718712" class="flex-video" */>}}
+Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named an unnamed parameters, so you'll need to assign the yet unnamed video id to the parameter `id`:
 
-Would load the template /layouts/shortcodes/vimeo.html
 
-    {{ if .IsNamedParams }}
-      <div class="{{ if .Get "class" }}{{ .Get "class" }}{{ else }}vimeo-container{{ end }}">
-        <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
-      </div>
-    {{ else }}
-      <div class="{{ if len .Params | eq 2 }}{{ .Get 1 }}{{ else }}vimeo-container{{ end }}">
-        <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" allowfullscreen></iframe>
-      </div>
-    {{ end }}
+{{% code file="example-youtube-input-with-autoplay.md" %}}
+```md
+{{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
+```
+{{% /code %}}
 
-Would be rendered as:
+#### Example `youtube` Output
 
-    <div class="vimeo-container">
-      <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
-    </div>
-    <div class="flex-video">
-      <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
-    </div>
+Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
 
-## Paired Example: Highlight
-*Hugo already ships with the `highlight` shortcode*
+{{% code file="example-youtube-output.html" %}}
+```html
+{{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
+```
+{{% /code %}}
 
-    {{</* highlight html */>}}
-    <html>
-        <body> This HTML </body>
-    </html>
-    {{</* /highlight */>}}
+#### Example `youtube` Display
 
-The template for this utilizes the following code (already included in Hugo)
+Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
 
-    {{ .Get 0 | highlight .Inner  }}
+{{< youtube w7Ft2ymGmfc >}}
 
-And will be rendered as:
+## Creating Custom Shortcodes
 
-    <div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span style="color: #f92672">&lt;html&gt;</span>
-        <span style="color: #f92672">&lt;body&gt;</span> This HTML <span style="color: #f92672">&lt;/body&gt;</span>
-    <span style="color: #f92672">&lt;/html&gt;</span>
-    </pre></div>
+To learn more about creating custom shortcodes, see the [shortcode template documentation][].
 
-Please notice that this template makes use of a Hugo-specific template function
-called `highlight` which uses Pygments to add the highlighting code.
-
-## Simple Single-word Example: Year
-
-Let's assume you would like to have a shortcode to be replaced by the current year in your Markdown content files, for a license or copyright statement. Calling a shortcode like this:
-
-    {{</* year */>}}
-
-... would load your one-line template ``/layouts/shortcodes/year.html``, which contains:
-
-    {{ .Page.Now.Year }}
-
-More shortcode examples can be found at [spf13.com](https://github.com/spf13/spf13.com/tree/master/layouts/shortcodes).
+[`figure` shortcode]: #figure
+[contentmanagementsection]: /content-management/formats/
+[examplegist]: https://gist.github.com/spf13/7896402
+[figureelement]: http://html5doctor.com/the-figure-figcaption-elements/ "An article from HTML5 doctor discussing the fig and figcaption elements."
+[Instagram]: https://www.instagram.com/
+[pagevariables]: /variables/page/
+[partials]: /templates/partials/
+[Pygments]: http://pygments.org/
+[quickstart]: /getting-started/quick-start/
+[sctemps]: /templates/shortcode-templates/
+[scvars]: /variables/shortcodes/
+[shortcode template documentation]: /templates/shortcode-templates/
+[Speaker Deck]: https://speakerdeck.com/
+[templatessection]: /templates/
+[Vimeo]: https://vimeo.com/
+[YouTube Videos]: https://www.youtube.com/

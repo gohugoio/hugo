@@ -1,163 +1,109 @@
 ---
-aliases:
-- /layout/content/
-lastmod: 2015-05-22
-date: 2013-07-01
-linktitle: Single Content
+title: Single Page Templates
+linktitle:
+description: The primary view of content in Hugo is the single view. Hugo will render every Markdown file provided with a corresponding single template.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-04-06
+categories: [templates]
+tags: [page]
 menu:
-  main:
-    parent: layout
-next: /templates/list
-prev: /templates/variables
-title: Single Content Template
-weight: 30
+  docs:
+    parent: "templates"
+    weight: 60
+weight: 60
+sections_weight: 60
+draft: false
+aliases: [/layout/content/]
 toc: true
 ---
 
-The primary view of content in Hugo is the single view. Hugo, for every
-Markdown file provided, will render it with a single template.
+The primary view of content in Hugo is the single view. Hugo's default behavior is to render every Markdown file provided with a corresponding single template.
 
+## Single Page Template Lookup Order
 
-## Which Template will be rendered?
-Hugo uses a set of rules to figure out which template to use when
-rendering a specific page.
+You can specify a [content's `type`][content type] and `layout` in a single content file's [front matter][]. However, you cannot specify `section` because this is determined based on file location (see [content section][section]).
 
-Hugo will use the following prioritized list. If a file isn’t present,
-then the next one in the list will be used. This enables you to craft
-specific layouts when you want to without creating more templates
-than necessary. For most sites, only the `_default` file at the end of
-the list will be needed.
+Hugo assumes your content section and content type are the same unless you tell Hugo otherwise by providing a `type` directly in the front matter of a content file. This is why #1 and #3 come before #2 and #4, respectively, in the following lookup order. Values in angle brackets (`<>`) are variable.
 
-Users can specify the `type` and `layout` in the [front-matter](/content/front-matter/). `Section`
-is determined based on the content file’s location. If `type` is provided,
-it will be used instead of `section`.
+1. `/layouts/<TYPE>/<LAYOUT>.html`
+2. `/layouts/<SECTION>>/<LAYOUT>.html`
+3. `/layouts/<TYPE>/single.html`
+4. `/layouts/<SECTION>/single.html`
+5. `/layouts/_default/single.html`
+6. `/themes/<THEME>/layouts/<TYPE>/<LAYOUT>.html`
+7. `/themes/<THEME>/layouts/<SECTION>/<LAYOUT>.html`
+8. `/themes/<THEME>/layouts/<TYPE>/single.html`
+9. `/themes/<THEME>/layouts/<SECTION>/single.html`
+10. `/themes/<THEME>/layouts/_default/single.html`
 
-### Single
+## Example Single Page Templates
 
-* /layouts/`TYPE`-or-`SECTION`/`LAYOUT`.html
-* /layouts/`TYPE`-or-`SECTION`/single.html
-* /layouts/\_default/single.html
-* /themes/`THEME`/layouts/`TYPE`-or-`SECTION`/`LAYOUT`.html
-* /themes/`THEME`/layouts/`TYPE`-or-`SECTION`/single.html
-* /themes/`THEME`/layouts/\_default/single.html
+Content pages are of the type `page` and will therefore have all the [page variables][pagevars] and [site variables][] available to use in their templates.
 
-## Example Single Template File
+### `post/single.html`
 
-Content pages are of the type "page" and have all the [page
-variables](/layout/variables/) and [site
-variables](/templates/variables/) available to use in the templates.
+This single page template makes use of Hugo [base templates][], the [`.Format` function][] for dates, the [`.WordCount` page variable][pagevars], and ranges through the single content's specific [taxonomies][pagetaxonomy]. [`with`][] is also used to check whether the taxonomies are set in the front matter.
 
-In the following examples we have created two different content types as well as
-a default content type.
-
-The default content template to be used in the event that a specific
-template has not been provided for that type. The default type works the
-same as the other types, but the directory must be called "\_default".
-
-    ▾ layouts/
-      ▾ _default/
-          single.html
-      ▾ post/
-          single.html
-      ▾ project/
-          single.html
-
-
-### post/single.html
-This content template is used for [spf13.com](http://spf13.com/).
-It makes use of [partial templates](/templates/partials/)
-
-    {{ partial "header.html" . }}
-    {{ partial "subheader.html" . }}
-    {{ $baseURL := .Site.BaseURL }}
-
-    <section id="main">
-      <h1 id="title">{{ .Title }}</h1>
-      <div>
-            <article id="content">
-               {{ .Content }}
-            </article>
-      </div>
+{{% code file="layouts/post/single.html" download="single.html" %}}
+```html
+{{ define "main" }}
+<section id="main">
+  <h1 id="title">{{ .Title }}</h1>
+  <div>
+        <article id="content">
+           {{ .Content }}
+        </article>
+  </div>
+</section>
+<aside id="meta">
+    <div>
+    <section>
+      <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
+      <h5 id="wordcount"> {{ .WordCount }} Words </h5>
     </section>
-
-    <aside id="meta">
-        <div>
-        <section>
-          <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
-          <h5 id="wc"> {{ .FuzzyWordCount }} Words </h5>
-        </section>
-        <ul id="categories">
-          {{ range .Params.topics }}
-            <li><a href="{{ $baseURL }}/topics/{{ . | urlize }}">{{ . }}</a> </li>
-          {{ end }}
-        </ul>
-        <ul id="tags">
-          {{ range .Params.tags }}
-            <li> <a href="{{ $baseURL }}/tags/{{ . | urlize }}">{{ . }}</a> </li>
-          {{ end }}
-        </ul>
-        </div>
-        <div>
-            {{ if .Prev }}
-              <a class="previous" href="{{.Prev.Permalink}}"> {{.Prev.Title}}</a>
-            {{ end }}
-            {{ if .Next }}
-              <a class="next" href="{{.Next.Permalink}}"> {{.Next.Title}}</a>
-            {{ end }}
-        </div>
-    </aside>
-
-    {{ partial "disqus.html" . }}
-    {{ partial "footer.html" . }}
-
-
-### project/single.html
-This content template is used for [spf13.com](http://spf13.com/).
-It makes use of [partial templates](/templates/partials/)
-
-
-    {{ partial "header.html" . }}
-    {{ partial "subheader.html" . }}
-    {{ $baseURL := .Site.BaseURL }}
-
-    <section id="main">
-      <h1 id="title">{{ .Title }}</h1>
-      <div>
-            <article id="content">
-               {{ .Content }}
-            </article>
-      </div>
-    </section>
-
-    <aside id="meta">
-        <div>
-        <section>
-          <h4 id="date"> {{ .Date.Format "Mon Jan 2, 2006" }} </h4>
-          <h5 id="wc"> {{ .FuzzyWordCount }} Words </h5>
-        </section>
-        <ul id="categories">
-          {{ range .Params.topics }}
-          <li><a href="{{ $baseURL }}/topics/{{ . | urlize }}">{{ . }}</a> </li>
-          {{ end }}
-        </ul>
-        <ul id="tags">
-          {{ range .Params.tags }}
-            <li> <a href="{{ $baseURL }}/tags/{{ . | urlize }}">{{ . }}</a> </li>
-          {{ end }}
-        </ul>
-        </div>
-    </aside>
-
-    {{if isset .Params "project_url" }}
-    <div id="ribbon">
-        <a href="{{ index .Params "project_url" }}" rel="me">Fork me on GitHub</a>
-    </div>
+    {{ with .Params.topics }}
+    <ul id="topics">
+      {{ range . }}
+        <li><a href="{{ "topics" | absURL}}{{ . | urlize }}">{{ . }}</a> </li>
+      {{ end }}
+    </ul>
     {{ end }}
+    {{ with .Params.tags }}
+    <ul id="tags">
+      {{ range . }}
+        <li> <a href="{{ "tags" | absURL }}{{ . | urlize }}">{{ . }}</a> </li>
+      {{ end }}
+    </ul>
+    {{ end }}
+    </div>
+    <div>
+        {{ with .PrevInSection }}
+          <a class="previous" href="{{.Permalink}}"> {{.Title}}</a>
+        {{ end }}
+        {{ with .NextInSection }}
+          <a class="next" href="{{.Permalink}}"> {{.Title}}</a>
+        {{ end }}
+    </div>
+</aside>
+{{ end }}
+```
+{{% /code %}}
 
-    {{ partial "footer.html" . }}
+To easily generate new instances of a content type (e.g., new `.md` files in a section like `project/`) with preconfigured front matter, use [content archetypes][archetypes].
 
-Notice how the project/single.html template uses an additional parameter unique
-to this template. This doesn't need to be defined ahead of time. If the key is
-present in the front matter than it can be used in the template. To
-easily generate new content of this type with these keys ready use
-[content archetypes](/content/archetypes/).
+[archetypes]: /content-management/archetypes/
+[base templates]: /templates/base/
+[config]: /getting-started/configuration/
+[content type]: /content-management/types/
+[directory structure]: /getting-started/directory-structure/
+[dry]: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself
+[`.Format` function]: /functions/format/
+[front matter]: /content-management/front-matter/
+[pagetaxonomy]: /templates/taxonomy-templates/#displaying-a-single-piece-of-content-s-taxonomies
+[pagevars]: /variables/page/
+[partials]: /templates/partials/
+[section]: /content-management/sections/
+[site variables]: /variables/site/
+[spf13]: http://spf13.com/
+[`with`]: /functions/with/

@@ -1,109 +1,200 @@
 ---
-author: "Rick Cogley"
-lastmod: 2015-12-24
-date: 2015-07-08
-linktitle: Multilingual Site
+title: Multilingual Mode
+linktitle: Multilingual and i18n
+description: As of v0.17, Hugo supports the creation of websites with multiple languages side by side.
+date: 2017-01-10
+publishdate: 2017-01-10
+lastmod: 2017-01-10
+categories: [content management]
+tags: [multilingual,i18n, internationalization]
 menu:
-  main:
-    parent: tutorials
-prev: /tutorials/migrate-from-jekyll
-title: Create a Multilingual Site
-weight: 10
+  docs:
+    parent: "content-management"
+    weight: 150
+weight: 150	#rem
+draft: false
+aliases: [/content/multilingual/,/content-management/multilingual/]
+toc: true
 ---
 
-> **Note:** Since v0.17 Hugo has built-in support for the creation of multilingual website. [Read more about it]({{< relref "content/multilingual.md" >}}).
+Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). You should Define the available languages in a `Languages` section in your site configuration.
 
-## Introduction
+## Configuring Multilingual Mode
 
-Hugo allows you to create a multilingual site from its built-in tools. This tutorial will show one way to do it, and assumes:
+The following is an example of a TOML site configuration for a multilingual Hugo project:
 
-* You already know the basics about creating a Hugo site
-* You have a separate domain name for each language
-* You'll use `/data` files for some translation strings
-* You'll use single, combined `layout` and `static` folders
-* You'll use a subfolder for each language under `content` and `public`
+{{% code file="config.toml" download="config.toml" %}}
+```toml
+DefaultContentLanguage = "en"
+copyright = "Everything is mine"
 
-## Site Configs
+[params.navigation]
+help  = "Help"
 
-Create your site configs in the root of your repository, for example for an English and Japanese site.
+[Languages]
+[Languages.en]
+title = "My blog"
+weight = 1
+[Languages.en.params]
+linkedin = "english-link"
 
-**English Config `config_en.toml`**:
+[Languages.fr]
+copyright = "Tout est à moi"
+title = "Mon blog"
+weight = 2
+[Languages.fr.params]
+linkedin = "lien-francais"
+[Languages.fr.navigation]
+help  = "Aide"
+```
+{{% /code %}}
 
-~~~toml
-baseURL = "http://acme.com/"
-title = "Acme Inc."
-contentDir = "content/en"
-publishDir = "public/en"
+Anything not defined in a `[Languages]` block will fall back to the global
+value for that key (e.g., `copyright` for the English [`en`] language).
 
-[params]
-    locale = "en-US"
-~~~
+With the configuration above, all content, sitemap, RSS feeds, paginations,
+and taxonomy pages will be rendered below `/` in English (your default content language) and then below `/fr` in French.
 
-**Japanese Config `config_ja.toml`**:
+When working with front matter `Params` in [single page templates][singles], omit the `params` in the key for the translation.
 
-~~~toml
-baseURL = "http://acme.jp/"
-title = "有限会社アクミー"
-contentDir = "content/ja"
-publishDir = "public/ja"
+If you want all of the languages to be put below their respective language code, enable `defaultContentLanguageInSubdir: true`.
 
-[params]
-    locale = "ja-JP"
-~~~
+Only the obvious non-global options can be overridden per language. Examples of global options are `BaseURL`, `BuildDrafts`, etc.
 
-If you had more domains and languages, you would just create more config files. The standard `config.toml` is what Hugo will run as a default, but since we're creating language-specific ones, you'll need to specify each config file when running `hugo server` or just `hugo` before deploying.
+## Taxonomies and Blackfriday
 
-## Prep Translation Strings in `/data`
+Taxonomies and [Blackfriday configuration][config] can also be set per language:
 
-Create `.yaml` (or `.json` or `.toml`) files for each language, under `/data/translations`.
 
-**English Strings `en-US.yaml`**:
+{{% code file="bf-config.toml" %}}
+```toml
+[Taxonomies]
+tag = "tags"
 
-~~~yaml
-topSlogan: Acme Inc.
-topSubslogan: You'll love us
-...
-~~~
+[blackfriday]
+angledQuotes = true
+hrefTargetBlank = true
 
-**Japanese Strings `ja-JP.yaml`**:
+[Languages]
+[Languages.en]
+weight = 1
+title = "English"
+[Languages.en.blackfriday]
+angledQuotes = false
 
-~~~yaml
-topSlogan: 有限会社アクミー
-topSubslogan: キット勝つぞ
-...
-~~~
+[Languages.fr]
+weight = 2
+title = "Français"
+[Languages.fr.Taxonomies]
+plaque = "plaques"
+```
+{{% /code %}}
 
-In some cases, where there is more complex formatting within the strings you want to show, it might be better to employ some conditional logic in your template, to display a block of html per language.
+## Translating Your Content
 
-## Reference Strings in templates
+Translated articles are identified by the name of the content file.
 
-Now you can reference the strings in your templates. One way is to do it like in this `layouts/index.html`, leveraging the fact that you have the locale set:
+### Examples of Translated Articles
 
-~~~html
-<!DOCTYPE html>
-<html lang="{{ .Site.Params.locale }}">
-...
-  <head>
-    <meta charset="utf-8">
-    <title>{{ if eq .Site.Params.locale "en-US" }}{{ if .IsHome }}Welcome to {{ end }}{{ end }}{{ .Title }}{{ if eq .Site.Params.locale "ja-JP" }}{{ if .IsHome }}へようこそ{{ end }}{{ end }}{{ if ne .Title .Site.Title }} : {{ .Site.Title }}{{ end }}</title>
-    ...
-  </head>
-  <body>
-    <div class="container">
-      <h1 class="header">{{ ( index $.Site.Data.translations $.Site.Params.locale ).topSlogan }}</h1>
-      <h3 class="subheader">{{ ( index $.Site.Data.translations $.Site.Params.locale ).topSubslogan }}</h3>
-    </div>
-  </body>
-</html>
-~~~
+1. `/content/about.en.md`
+2. `/content/about.fr.md`
 
-The above shows both techniques, using an `if eq` and `else if eq` to check the locale, and using `index` to pull strings from the data file that matches the locale set in the site's config file.
+You can also have the following, in which case the config variable `defaultContentLanguage` will be used to affect the default language `about.md`.  This way, you can slowly start to translate your current content without having to rename everything:
+
+1. `/content/about.md`
+2. `/content/about.fr.md`
+
+If left unspecified, the default value for `defaultContentLanguage` is `en`.
+
+By having the same *base filename*, the content pieces are linked together as translated pieces.
+
+If you need distinct URLs per language, you can set the slug in the non-default language file. For example, you can define a custom slug for a French translation in the front matter of `content/about.fr.md` as follows:
+
+```yaml
+slug: "a-propos"
+
+```
+
+At render, Hugo will build both `/about/` and `/a-propos/` as properly linked translated pages.
+
+## Link to Translated Content
+
+To create a list of links to translated content, use a template similar to the following:
+
+{{% code file="layouts/partials/i18nlist.html" %}}
+```html
+{{ if .IsTranslated }}
+<h4>{{ i18n "translations" }}</h4>
+<ul>
+    {{ range .Translations }}
+    <li>
+        <a href="{{ .Permalink }}">{{ .Lang }}: {{ .Title }}{{ if .IsPage }} ({{ i18n "wordCount" . }}){{ end }}</a>
+    </li>
+    {{ end}}
+</ul>
+{{ end }}
+```
+{{% /code %}}
+
+The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template, be it for a [single content page][contenttemplate] or the [homepage][]. It will not print anything if there are no translations for a given page, or if there are translations---in the case of the homepage, section listing, etc.---a site with only render one language.
+
+The above also uses the [`i18n` function][i18func] described in the next section.
+
+## Translation of Strings
+
+Hugo uses [go-i18n][] to support string translations. [See the project's source repository][go-i18n-source] to find tools that will help you manage your translation workflows.
+
+Translations are collected from the `themes/<THEME>/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project. In the `i18n`, the translations will be merged and take precedence over what is in the theme folder. Language files should be named according to [RFC 5646][] with names such as `en-US.toml`, `fr.toml`, etc.
+
+From within your templates, use the `i18n` function like this:
+
+```
+{{ i18n "home" }}
+```
+
+This uses a definition like this one in `i18n/en-US.toml`:
+
+```
+[home]
+other = "Home"
+```
+
+Often you will want to use to the page variables in the translations strings. To do that, pass on the "." context when calling `i18n`:
+
+```
+{{ i18n "wordCount" . }}
+```
+
+This uses a definition like this one in `i18n/en-US.toml`:
+
+```
+[wordCount]
+other = "This article has {{ .WordCount }} words."
+```
+An example of singular and plural form:
+
+```
+[readingTime]
+one = "One minute read"
+other = "{{.Count}} minutes read"
+```
+And then in the template:
+
+```
+{{ i18n "readingTime" .ReadingTime }}
+```
+To track down missing translation strings, run Hugo with the `--i18n-warnings` flag:
+
+```bash
+ hugo --i18n-warnings | grep i18n
+i18n|MISSING_TRANSLATION|en|wordCount
+```
 
 ## Customize Dates
 
 At the time of this writing, Golang does not yet have support for internationalized locales, but if you do some work, you can simulate it. For example, if you want to use French month names, you can add a data file like ``data/mois.yaml`` with this content:
 
-~~~toml
+~~~yaml
 1: "janvier"
 2: "février"
 3: "mars"
@@ -128,41 +219,76 @@ At the time of this writing, Golang does not yet have support for internationali
 
 This technique extracts the day, month and year by specifying ``.Date.Day``, ``.Date.Month``, and ``.Date.Year``, and uses the month number as a key, when indexing the month name data file.
 
-## Create Multilingual Content
+## Menus
 
-Now you can create markdown content in your languages, in the `content/en` and `content/ja` folders. The frontmatter stays the same on the key side, but the values would be set in each of the languages.
+You can define your menus for each language independently. The [creation of a menu][menus] works analogous to earlier versions of Hugo, except that they have to be defined in their language-specific block in the configuration file:
 
-## Run Hugo Server or Deploy Commands
+```toml
+defaultContentLanguage = "en"
 
-Once you have things set up, you can run `hugo server` or `hugo` before deploying. You can create scripts to do it, or as shell functions. Here are sample basic `zsh` functions:
+[languages.en]
+weight = 0
+languageName = "English"
 
-**Live Reload with `hugo server`**:
+[[languages.en.menu.main]]
+url    = "/"
+name   = "Home"
+weight = 0
 
-~~~shell
-function hugoserver-com {
-  cd /Users/me/dev/mainsite
-  hugo server --buildDrafts --verbose --source="/Users/me/dev/mainsite" --config="/Users/me/dev/mainsite/config_en.toml" --port=1377
-}
-function hugoserver-jp {
-  cd /Users/me/dev/mainsite
-  hugo server --buildDrafts --verbose --source="/Users/me/dev/mainsite" --config="/Users/me/dev/mainsite/config_ja.toml" --port=1399
-}
-~~~
 
-**Deploy with `hugo` and `rsync`**:
+[languages.de]
+weight = 10
+languageName = "Deutsch"
 
-~~~shell
-function hugodeploy-acmecom {
-    rm -rf /tmp/acme.com
-    hugo --config="/Users/me/dev/mainsite/config_en.toml" -s /Users/me/dev/mainsite/ -d /tmp/acme.com
-    rsync -avze "ssh -p 22" --delete /tmp/acme.com/ me@mywebhost.com:/home/me/webapps/acme_com_site
-}
+[[languages.de.menu.main]]
+url    = "/"
+name   = "Startseite"
+weight = 0
+```
 
-function hugodeploy-acmejp {
-    rm -rf /tmp/acme.jp
-    hugo --config="/Users/me/dev/mainsite/config_ja.toml" -s /Users/me/dev/mainsite/ -d /tmp/acme.jp
-    rsync -avze "ssh -p 22" --delete /tmp/acme.jp/ me@mywebhost.com:/home/me/webapps/acme_jp_site
-}
-~~~
+The rendering of the main navigation works as usual. `.Site.Menus` will just contain the menu of the current language. Pay attention to the generation of the menu links. `absLangURL` takes care that you link to the correct locale of your website. Otherwise, both menu entries would link to the English version as the default content language that resides in the root directory.
 
-Adjust to fit your situation, setting dns, your webserver config, and other settings as appropriate.
+```html
+<ul>
+    {{- $currentPage := . -}}
+    {{ range .Site.Menus.main -}}
+    <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
+        <a href="{{ .URL | absLangURL }}">{{ .Name }}</a>
+    </li>
+    {{- end }}
+</ul>
+
+```
+
+## Missing translations
+
+If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
+
+While translating a Hugo website, it can be handy to have a visual indicator of missing translations. The [`EnableMissingTranslationPlaceholders` configuration option][config] will flag all untranslated strings with the placeholder `[i18n] identifier`, where `identifier` is the id of the missing translation.
+
+{{% note %}}
+Hugo will generate your website with these missing translation placeholders. It might not be suited for production environments.
+{{% /note %}}
+
+## Multilingual Themes support
+
+To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there is more than one language, URLs must meet the following criteria:
+
+* Come from the built-in `.Permalink` or `.URL`
+* Be constructed with
+    * The [`relLangURL` template function][rellangurl] or the [`absLangURL` template function][abslangurl] **OR**
+    * Prefixed with `{{ .LanguagePrefix }}`
+
+If there is more than one language defined, the `LanguagePrefix` variable will equal `/en` (or whatever your `CurrentLanguage` is). If not enabled, it will be an empty string and is therefore harmless for single-language Hugo websites.
+
+[abslangurl]: /functions/abslangurl
+[config]: /getting-started/configuration/
+[contenttemplate]: /templates/single-page-templates/
+[go-i18n-source]: https://github.com/nicksnyder/go-i18n
+[go-i18n]: https://github.com/nicksnyder/go-i18n
+[homepage]: /templates/homepage/
+[i18func]: /functions/i18n/
+[menus]: /content-management/menus/
+[rellangurl]: /functions/rellangurl
+[RFC 5646]: https://tools.ietf.org/html/rfc5646
+[singles]: /templates/single-page-templates/

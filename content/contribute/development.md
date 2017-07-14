@@ -1,48 +1,94 @@
 ---
-date: 2016-04-03T13:21:56+02:00
-linktitle: How to contribute
+title: Contribute to Hugo Development
+linktitle: Development
+description: Hugo relies heavily on contributions from the open source community. You don't need to be a Golang guru to contribute to the project's development.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+categories: [contribute]
+tags: [dev,open source]
+authors: [digitalcraftsman]
 menu:
-  main:
-    parent: tutorials
-next: /tutorials/installing-on-mac/
-prev: /tutorials/github-pages-blog/
-title: How to contribute to Hugo
+  docs:
+    parent: "contribute"
+    weight: 10
 weight: 10
+sections_weight: 10
+draft: false
+aliases: [/contribute/development/]
+toc: true
 ---
 
 ## Introduction
 
-Hugo is an open source project and lives by the work of its [contributors](https://github.com/spf13/hugo/graphs/contributors). Help to make Hugo even more awesome. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub and we need your help.
+Hugo is an open-source project and lives by the work of its [contributors][]. There are plenty of [open issues][issues], and we need your help to make Hugo even more awesome.
 
-This tutorial is intended for people who are new to Git, GitHub or open source projects in general. It should help to overcome most of the barriers that newcomers encounter. It describes step by step what you need to do. 
+## Assumptions
 
-For any kind of questions please take a look at our [forum](https://discuss.gohugo.io/).
+This contribution guide takes a step-by-step approach in hopes of helping newcomers. Therefore, we only assume the following:
 
-## Install Go
+* You are new to Git or open-source projects in general
+* You are a fan of Hugo and enthusiastic about contributing to the project
 
-The installation of Go should take only a few minutes. [Download](https://golang.org/dl/) the latest stable version of Go and follow the official [installation guide](https://golang.org/doc/install).
+{{% note "Additional Questions?" %}}
+If you're struggling at any point in this contribution guide, reach out to the Hugo community in [Hugo's Discussion forum](https://discourse.gohugo.io).
+{{% /note %}}
 
-Let's confirm the correct installation of Go. Open a terminal (or command line under Windows). Execute `go version` and you should see the version number of your Go installation. Next, make sure that you setup the `GOPATH` as described in the installation guide.
+## Installing Golang
 
-You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace. 
+The installation of Go should take only a few minutes. You have more than one option to get Go up and running on your machine.
 
-### GVM as alternative
+If you are having trouble following the installation guides for go, check out [Go Bootcamp, which contains setups for every platform][gobootcamp] or reach out to the Hugo community in the [Hugo Discussion Forums][forums].
 
-More experienced users can use the [Go Version Manager](https://github.com/moovweb/gvm), or GVM for short. It allows you to switch between different Go versions *on the same machine*. Probably you don't need this feature. But you can easily upgrade to a new released Go version with a few commands.
+### Installing Go From Source
 
-This is handy if you follow the developement of Hugo over a longer period of time. Future versions of Hugo will usually be compiled with the latest version of Go. Sooner or later you have to upgrade if you want to keep up.
+[Download the latest stable version of Go][godl] and follow the official [Golang installation guide][goinstall].
 
+Once you're finished installing Go, let's confirm everything is working correctly. Open a terminal---or command line under Windows--and type the following:
 
-## Create an account on GitHub
+```bash
+`go version`
+```
+
+You should see something similar to the following written to the console. Note that the version here reflects the most recent version of Go as of the last update for this page:
+
+```bash
+go version go1.8 darwin/amd64
+```
+
+Next, make sure that you set up your `GOPATH` [as described in the installation guide][setupgopath].
+
+You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace; .e.g.:
+
+```bash
+/Users/<yourusername>/Code/go
+```
+
+### Installing Go with Homebrew
+
+If you are a macOS user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
+
+{{% code file="install-go.sh" %}}
+```bash
+brew install go
+```
+{{% /code %}}
+
+### Install Go via GVM
+
+More experienced users can use the [Go Version Manager][gvm] (GVM). GVM allows you to switch between different Go versions *on the same machine*. If you're a beginner, you probably don't need this feature. However, GVM makes it easy to upgrade to a new released Go version with just a few commands.
+
+GVM comes in especially handy if you follow the development of Hugo over a longer period of time. Future versions of Hugo will usually be compiled with the latest version of Go. Sooner or later, you will have to upgrade if you want to keep up.
+
+## Creating a GitHub Account
 
 If you're going to contribute code, you'll need to have an account on GitHub. Go to [www.github.com/join](https://github.com/join) and set up a personal account.
 
+## Installing Git on Your System
 
-## Install Git on your system
+You will need to have Git installed on your computer to contribute to Hugo development. Teaching git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book][gitbook] if you are not sure where to begin. The used terminology will be explained with annotations.
 
-You will need to install Git. This tutorial assumes basic knowledge about Git. Refer to this excellent [Git book](https://git-scm.com/) if you are not sure where to begin. The used terminology will be explained with annotations.
-
-Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel. 
+Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel.
 
 Go ships with a sub-command called `get` that will download these packages for us when we setup our working environment. The source code of the packages is tracked with Git. `get` will interact with the Git servers of the package hosters in order to fetch all dependencies.
 
@@ -54,17 +100,17 @@ Finally, check again with `git version` if Git was installed successfully.
 
 There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Thus, so we will use the command line since the commands are everywhere the same.
 
-### Install Hub on your system (optional)
+### Install Hub on Your System (Optional)
 
 Hub is a great tool for working with GitHub. The main site for it is [www.hub.github.com](https://hub.github.com/). Feel free to install this little Git wrapper.
 
-On a Mac, install Hub using brew:
+On a Mac, you can install [Hub](https://github.com/github/hub) using [Homebrew](https://brew.sh):
 
 ```sh
 brew install hub
 ```
 
-Create an alias (in Bash) so that typing git actually runs Hub:
+Now we'll create an [alias in Bash](http://tldp.org/LDP/abs/html/aliases.html) so that typing `git` actually runs `Hub`:
 
 ```sh
 echo "alias git='hub'" >> ~/.bash_profile
@@ -76,7 +122,6 @@ Confirm the installation:
 git version 2.6.3
 hub version 2.2.2
 ```
-
 
 ## Set up your working copy
 
@@ -104,19 +149,19 @@ If you're not fimiliar with this term, GitHub's [help pages](https://help.github
 
 #### Fork by hand
 
-Open the [Hugo repository](https://github.com/spf13/hugo) on Github and click on the "Fork" button in the top right.
+Open the [Hugo repository](https://github.com/spf13/hugo) on GitHub and click on the "Fork" button in the top right.
 
-![Fork button](/img/tutorials/how-to-contribute-to-hugo/forking-a-repository.png)
+![Fork button](/images/contribute/development/forking-a-repository.png)
 
 Now open your fork repository on GitHub and copy the remote url of your fork. You can choose between HTTPS and SSH as protocol that Git should use for the following operations. HTTPS works always [if you're not sure](https://help.github.com/articles/which-remote-url-should-i-use/).
 
-![Copy remote url](/img/tutorials/how-to-contribute-to-hugo/copy-remote-url.png)
+![Copy remote url](/images/contribute/development/copy-remote-url.png)
 
 Switch back to the terminal and move into the directory of the cloned master repository from the last step.
 
 ```sh
 cd $GOPATH/src/github.com/spf13/hugo
-``` 
+```
 
 Now Git needs to know that our fork exists by adding the copied remote url:
 
@@ -128,11 +173,11 @@ git remote add <YOUR-GITHUB-USERNAME> <COPIED REMOTE-URL>
 
 Alternatively, you can use the Git wrapper Hub. Hub makes forking a repository easy:
 
-```sh 
+```sh
 git fork
 ```
 
-That command will log in to GitHub using your account, create a fork of the repository that you're currently working in, and add it as a remote to your working copy. 
+That command will log in to GitHub using your account, create a fork of the repository that you're currently working in, and add it as a remote to your working copy.
 
 #### Trust, but verify
 
@@ -145,14 +190,13 @@ git remote -v
 The output should look similar:
 
 ```sh
-digitalcraftsman	git@github.com:digitalcraftsman/hugo.git (fetch)
-digitalcraftsman	git@github.com:digitalcraftsman/hugo.git (push)
-origin	https://github.com/spf13/hugo (fetch)
-origin	https://github.com/spf13/hugo (push)
+digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (fetch)
+digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (push)
+origin  https://github.com/spf13/hugo (fetch)
+origin  https://github.com/spf13/hugo (push)
 ```
 
-
-## The contribution workflow
+## The Hugo Git Contribution Workflow
 
 ### Create a new branch
 
@@ -173,11 +217,13 @@ git checkout -b <BRANCH-NAME>
 
 You can check on which branch your are with `git branch`. You should see a list of all local branches. The current branch is indicated with a little asterisk.
 
-### Contributing to the documentation
+### Contributing to Documentation
 
-Perhaps you want to start contributing to the docs. Then you can ignore most of the following steps. You can find the documentation within the cloned repository in the subfolder `docs`. Change the directory with `cd docs`. Install the [latest release]({{< relref "overview/installing.md" >}}). Or read on and build Hugo from source. 
+Perhaps you want to start contributing to the Hugo docs. If so, you can ignore most of the following steps and focus on the `/docs` directory within your newly cloned repository. You can change directories into the Hugo docs using `cd docs`.
 
-You can start Hugo's built-in server via `hugo server`. Browse the documentation by entering [http://localhost:1313](http://localhost:1313) in the address bar of your browser. The server automatically updates the page if you change its content.
+You can start Hugo's built-in server via `hugo server`. Browse the documentation by entering [http://localhost:1313](http://localhost:1313) in the address bar of your browser. The server automatically updates the page whenever you change content.
+
+We have developed a [separate Hugo documentation contribution guide][docscontrib] for more information on how the Hugo docs are built, organized, and improved by the generosity of people like you.
 
 ### Building Hugo
 
@@ -213,7 +259,7 @@ The commit message should describe what the commit does (e.g. add feature XYZ), 
 
 ### Modify commits
 
-You noticed some commit messages don't fulfill the code contribution guidelines or you just forget something to add some files? No problem. Git provides the necessary tools to fix such problems. The next two methods cover all common cases. 
+You noticed some commit messages don't fulfill the code contribution guidelines or you just forget something to add some files? No problem. Git provides the necessary tools to fix such problems. The next two methods cover all common cases.
 
 If you are unsure what a command does leave the commit as it is. We can fix your commits later in the pull request.
 
@@ -241,7 +287,11 @@ git commit --amend
 
 #### Modifying multiple commits
 
-This is a bit more advanced. Git allows you to [rebase](https://git-scm.com/docs/git-rebase) commits interactively. In other words: it allows you to rewrite the commit history. **Take care of your actions. They can cause unintended changes. Skip this section if you're not sure!**
+{{% warning "Be Careful Modifying Multiple Commits"%}}
+Modifications such as those described in this section can have serious unintended consequences. Skip this section if you're not sure!
+{{% /warning %}}
+
+This is a bit more advanced. Git allows you to [rebase](https://git-scm.com/docs/git-rebase) commits interactively. In other words: it allows you to rewrite the commit history.
 
 ```sh
 git rebase --interactive @~6
@@ -262,7 +312,6 @@ In the case above we should merge the last to commits in the commit of this tuto
 
 All operations are written before the commit message. Replace "pick" with an operation. In this case `squash` or `s` for short:
 
-
 ```sh
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
 pick aaee038 tpl: Sort the smoke tests
@@ -274,7 +323,7 @@ squash 3502f2e Refactoring and typo fixes
 
 We also want to rewrite the commits message of the third last commit. We forgot "docs:" as prefix according to the code contribution guidelines. The operation to rewrite a commit is called `reword` (or `r` as shortcut).
 
-You should end up with a similar setup: 
+You should end up with a similar setup:
 
 ```sh
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
@@ -285,7 +334,7 @@ squash 33c8973 Begin workflow
 squash 3502f2e Refactoring and typo fixes
 ```
 
-Close the editor. It should open again with a new tab. A text is instructing you to define a new commit message for the last two commits that should be merged (a.k.a. squashed). Save the file (<kbd>CTRL</kbd>+<kbd>S</kbd>) and close the editor again.
+Close the editor. It should open again with a new tab. A text is instructing you to define a new commit message for the last two commits that should be merged (aka "squashed"). Save the file with <kbd>CTRL</kbd>+<kbd>S</kbd> and close the editor again.
 
 A last time a new tab opens. Enter a new commit message and save again. Your terminal should contain a status message. Hopefully this one:
 
@@ -303,10 +352,9 @@ To push our commits to the fork on GitHub we need to speficy a destination. A de
 git push --set-upstream <YOUR-GITHUB-USERNAME> <BRANCHNAME>
 ```
 
-Now Git knows the destination. Next time when you to push commits you just need to enter `git push`. 
+Now Git knows the destination. Next time when you to push commits you just need to enter `git push`.
 
 If you modified your commit history in the last step GitHub will reject your try to push. This is a safety-feature because the commit history isn't the same and new commits can't be appended as usual. You can enforce this push explicitly with `git push --force`.
-
 
 ## Open a pull request
 
@@ -314,7 +362,7 @@ We made a lot of progress. Good work. In this step we finally open a pull reques
 
 You should find a green button labeld with "New pull request". But GitHub is clever and probably suggests you a pull request like in the beige box below:
 
-<img src="/img/tutorials/how-to-contribute-to-hugo/open-pull-request.png" alt="Open a pull request">
+![Open a pull request](/images/contribute/development/open-pull-request.png)
 
 The new page summaries the most important information of your pull request. Scroll down and you find the additions of all your commits. Make sure everything looks as expected and click on "Create pull request".
 
@@ -322,19 +370,45 @@ The new page summaries the most important information of your pull request. Scro
 
 Last but not least you should accept the contributor license agreement (CLA). A new comment should be added automatically to your pull request. Click on the yellow badge, accept the agreement and authenticate yourself with your GitHub account. It just takes a few clicks and only needs to be done once.
 
-<img src="/img/tutorials/how-to-contribute-to-hugo/accept-cla.png" alt="Accept the CLA">
-
+![Accept the CLA](/images/contribute/development/accept-cla.png)
 
 ### Automatic builds
 
 We use the [Travis CI loop](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) to compile Hugo with your additions. This should ensure that everything works as expected before merging your pull request. This in most cases only relevant if you made changes to the codebase of Hugo.
 
-<img src="/img/tutorials/how-to-contribute-to-hugo/ci-errors.png" alt="Automic builds and their status">
+![Automic builds and their status](/images/contribute/development/ci-errors.png)
 
 Above you can see that Travis wasn't able to compile the changes in this pull request. Click on "Details" and try to investigate why the build failed. But it doesn't have to be your fault. Mostly, the `master` branch that we used as foundation for your pull request should build without problems.
 
-If you have questions leave a comment in the pull request. We are willing to assist you.
+If you have questions, leave a comment in the pull request. We are willing to assist you.
 
 ## Where to start?
 
-Thank you for reading this tutorial. Hopefully, we see you again on GitHub. There are plenty of [open issues](https://github.com/spf13/hugo/issues) on GitHub. Feel free to open an issue if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
+Thank you for reading through this contribution guide. Hopefully, we will see you again soon on GitHub. There are plenty of [open issues][issues] for you to help with.
+
+Feel free to [open an issue][newissue] if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
+
+## Additional References for Learning Git and Golang
+
+* [Codecademy's Free "Learn Git" Course][codecademy] (Free)
+* [Code School and GitHub's "Try Git" Tutorial][trygit] (Free)
+* [The Git Book][gitbook] (Free)
+* [Go Bootcamp][gobootcamp]
+* [GitHub Pull Request Tutorial, Thinkful][thinkful]
+
+
+[codecademy]: https://www.codecademy.com/learn/learn-git
+[contributors]: https://github.com/spf13/hugo/graphs/contributors
+[docscontrib]: /contribute/documentation/
+[forums]: https://discourse.gohugo.io
+[gitbook]: https://git-scm.com/
+[gobootcamp]: http://www.golangbootcamp.com/book/get_setup
+[godl]: https://golang.org/dl/
+[goinstall]: https://golang.org/doc/install
+[gvm]: https://github.com/moovweb/gvm
+[issues]: https://github.com/spf13/hugo/issues
+[newissue]: https://github.com/spf13/hugo/issues/new
+[releases]: /getting-started/
+[setupgopath]: https://golang.org/doc/code.html#Workspaces
+[thinkful]: https://www.thinkful.com/learn/github-pull-request-tutorial/
+[trygit]: https://try.github.io/levels/1/challenges/1

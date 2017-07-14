@@ -1,6 +1,9 @@
 ---
-date: 2016-10-05T10:21:48+02:00
+date: 2017-02-25T10:01:37+01:00
 title: "hugo server"
+menu:
+  docs:
+    parent: "commands"
 slug: hugo_server
 url: /commands/hugo_server/
 ---
@@ -31,38 +34,41 @@ hugo server
 ### Options
 
 ```
-      --appendPort              append port to baseurl (default true)
-  -b, --baseURL string          hostname (and path) to the root, e.g. http://spf13.com/
-      --bind string             interface to which the server will bind (default "127.0.0.1")
-  -D, --buildDrafts             include content marked as draft
-  -E, --buildExpired            include expired content
-  -F, --buildFuture             include content with publishdate in the future
-      --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-      --canonifyURLs            if true, all relative URLs will be canonicalized using baseURL
-      --cleanDestinationDir     Remove files from destination not found in static directories
-  -c, --contentDir string       filesystem path to content directory
-  -d, --destination string      filesystem path to write files to
-      --disable404              Do not render 404 page
-      --disableLiveReload       watch without enabling live browser reload on rebuild
-      --disableRSS              Do not build RSS files
-      --disableSitemap          Do not build Sitemap file
-      --forceSyncStatic         Copy all files when static is changed.
-      --i18n-warnings           Print missing translations
-      --ignoreCache             Ignores the cache directory
-  -l, --layoutDir string        filesystem path to layout directory
-      --meminterval string      interval to poll memory usage (requires --memstats), valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". (default "100ms")
-      --memstats string         log memory usage to this file
-      --noChmod                 Don't sync permission mode of files
-      --noTimes                 Don't sync modification time of files
-      --pluralizeListTitles     Pluralize titles in lists using inflect (default true)
-  -p, --port int                port on which the server will listen (default 1313)
-      --preserveTaxonomyNames   Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
-      --renderToDisk            render to Destination path (default is render to memory & serve from there)
-  -s, --source string           filesystem path to read files relative from
-      --stepAnalysis            display memory and timing of different steps of the program
-  -t, --theme string            theme to use (located in /themes/THEMENAME/)
-      --uglyURLs                if true, use /filename.html instead of /filename/
-  -w, --watch                   watch filesystem for changes and recreate as needed (default true)
+      --appendPort                 append port to baseURL (default true)
+  -b, --baseURL string             hostname (and path) to the root, e.g. http://spf13.com/
+      --bind string                interface to which the server will bind (default "127.0.0.1")
+  -D, --buildDrafts                include content marked as draft
+  -E, --buildExpired               include expired content
+  -F, --buildFuture                include content with publishdate in the future
+      --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --canonifyURLs               if true, all relative URLs will be canonicalized using baseURL
+      --cleanDestinationDir        Remove files from destination not found in static directories
+  -c, --contentDir string          filesystem path to content directory
+  -d, --destination string         filesystem path to write files to
+      --disable404                 Do not render 404 page
+      --disableKinds stringSlice   Disable different kind of pages (home, RSS etc.)
+      --disableLiveReload          watch without enabling live browser reload on rebuild
+      --disableRSS                 Do not build RSS files
+      --disableSitemap             Do not build Sitemap file
+      --enableGitInfo              Add Git revision, date and author info to the pages
+      --forceSyncStatic            Copy all files when static is changed.
+      --i18n-warnings              Print missing translations
+      --ignoreCache                Ignores the cache directory
+  -l, --layoutDir string           filesystem path to layout directory
+      --meminterval string         interval to poll memory usage (requires --memstats), valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h". (default "100ms")
+      --memstats string            log memory usage to this file
+      --noChmod                    Don't sync permission mode of files
+      --noTimes                    Don't sync modification time of files
+      --pluralizeListTitles        Pluralize titles in lists using inflect (default true)
+  -p, --port int                   port on which the server will listen (default 1313)
+      --preserveTaxonomyNames      Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
+      --renderToDisk               render to Destination path (default is render to memory & serve from there)
+  -s, --source string              filesystem path to read files relative from
+      --stepAnalysis               display memory and timing of different steps of the program
+  -t, --theme string               theme to use (located in /themes/THEMENAME/)
+      --themesDir string           filesystem path to themes directory
+      --uglyURLs                   if true, use /filename.html instead of /filename/
+  -w, --watch                      watch filesystem for changes and recreate as needed (default true)
 ```
 
 ### Options inherited from parent commands
@@ -71,6 +77,7 @@ hugo server
       --config string    config file (default is path/config.yaml|json|toml)
       --log              Enable Logging
       --logFile string   Log File path (if set, logging enabled automatically)
+      --quiet            build in quiet mode
   -v, --verbose          verbose output
       --verboseLog       verbose logging
 ```
@@ -78,4 +85,4 @@ hugo server
 ### SEE ALSO
 * [hugo](/commands/hugo/)	 - hugo builds your site
 
-###### Auto generated by spf13/cobra on 5-Oct-2016
+###### Auto generated by spf13/cobra on 25-Feb-2017

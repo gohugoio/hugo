@@ -1,23 +1,30 @@
 ---
-aliases:
-- /doc/output-formats/
-- /doc/custom-output/
-date: 2017-03-22T08:20:13+01:00
+title: Custom Output Formats
+linktitle: Custom Output Formats
+description: Hugo can output content in multiple formats, including calendar events, e-book formats, Google AMP, and JSON search indexes, while allowing extensibility for any format your site needs.
+date: 2017-03-22
+publishdate: 2017-03-22
+lastmod: 2017-03-22
+categories: [templates]
+tags: ["amp","outputs","rss"]
 menu:
-  main:
-    parent: extras
-title: Output Formats
-weight: 5
+  docs:
+    parent: "templates"
+    weight: 18
+weight: 18
+sections_weight: 18
+draft: false
+aliases: [/templates/outputs/,/extras/output-formats/,/content-management/custom-outputs/]
 toc: true
 ---
 
-Hugo `0.20` introduced the powerful feature **Custom Output Formats**; Hugo isn't just that "static HTML with an added RSS feed" anymore. _Say hello_ to calendars, e-book formats, Google AMP, and JSON search indexes, to name a few.
+In addition to the default behavior of generating RSS feeds and HTML pages, Hugo can generate any text-based output, including e-book formats, Google AMP, and JSON search indexes, to name a few.
 
-This page describes how to properly configure your site with the media types and output formats you need.
+This page describes how to properly configure your site with the media types and output formats, as well as where to create your templates for your custom outputs.
 
 ## Media Types
 
-A [media type](https://en.wikipedia.org/wiki/Media_type) (also known as MIME type and content type) is a two-part identifier for file formats and format contents transmitted on the Internet.
+A [media type][] (also known as *MIME type* and *content type*) is a two-part identifier for file formats and format contents transmitted on the Internet.
 
 This is the full set of built-in media types in Hugo:
 
@@ -25,118 +32,135 @@ This is the full set of built-in media types in Hugo:
 
 **Note:**
 
-* It is possible to add custom media types or change the defaults (if you, say, want to change the suffix to `asp` for `text/html`).
+* It is possible to add custom media types or change the defaults; e.g., if you want to change the suffix for `text/html` to `asp`.
 * The `Suffix` is the value that will be used for URLs and filenames for that media type in Hugo.
-* The `Type` is the identifier that must be used when defining new `Output Formats` (see below). 
-* The `Delimiter` defaults to ".", but can be changed or even blanked out to support, as an example, Netlify's `_redirect` files.
+* The `Type` is the identifier that must be used when defining new/custom `Output Formats` (see below).
 * The full set of media types will be registered in Hugo's built-in development server to make sure they are recognized by the browser.
 
-To add or modify a media type, define it in a `mediaTypes` section in your site config (either for all sites or for a given language). 
+To add or modify a media type, define it in a `mediaTypes` section in your [site configuration][config], either for all sites or for a given language.
 
 Example in `config.toml`:
 
 ```toml
 [mediaTypes]
-[mediaTypes."text/enriched"]
-suffix = "enr"
-[mediaTypes."text/html"]
-suffix = "asp"
+  [mediaTypes."text/enriched"]
+  suffix = "enr"
+  [mediaTypes."text/html"]
+  suffix = "asp"
 ```
 
 The above example adds one new media type, `text/enriched`, and changes the suffix for the built-in `text/html` media type.
 
 ## Output Formats
-Given a media type and some additional configuration, you get an `Output Format`.
 
-This is the full set of built-in output formats in Hugo:
+Given a media type and some additional configuration, you get an `Output Format`:
 
-{{< datatable "output" "formats" "Name" "MediaType" "Path" "BaseName" "Rel" "Protocol" "IsPlainText" "IsHTML" "NoUgly" "NotAlternative">}}
+This is the full set of Hugo's built-in output formats:
 
-**Note:**
+{{< datatable "output" "formats" "Name" "MediaType" "Path" "BaseName" "Rel" "Protocol" "IsPlainText" "IsHTML" "NoUgly">}}
 
-* A page can be output in as many output formats as you want, and you can have an infinite amount of output formats defined, as long as _they resolve to a unique path on the file system_. In the table above, the best example of this is `AMP` vs. `HTML`: We have given `AMP` a value for `Path` so it doesn't overwrite the `HTML` version, i.e. we can now have both `/index.html` and `/amp/index.html`.
-* The `MediaType` must match the `Type` of an already defined media type (see above).
-* You can define new or redefine built-in output formats (if you, as an example, want to put `AMP` pages in a different path).
+* A page can be output in as many output formats as you want, and you can have an infinite amount of output formats defined **as long as they resolve to a unique path on the file system**. In the above table, the best example of this is `AMP` vs. `HTML`. `AMP` has the value `amp` for `Path` so it doesn't overwrite the `HTML` version; e.g. we can now have both `/index.html` and `/amp/index.html`.
+* The `MediaType` must match the `Type` of an already defined media type.
+* You can define new output formats or redefine built-in output formats; e.g., if you want to put `AMP` pages in a different path.
 
-To add or modify a media type, define it in a `outputFormats` section in your site config (either for all sites or for a given language). 
-
-Example in `config.toml`:
+To add or modify an output format, define it in an `outputFormats` section in your site's [configuration file](/templates/configuration/), either for all sites or for a given language.
 
 ```toml
 [outputFormats.MyEnrichedFormat]
-mediaType = "text/enriched" 
+mediaType = "text/enriched"
 baseName = "myindex"
 isPlainText = true
 protocol = "bep://"
 ```
 
-The above example is fictional, but if used for the home page on a site with `baseURL` `http://example.org`, it will produce a plain text home page with the URL `bep://example.org/myindex.enr`.
+The above example is fictional, but if used for the homepage on a site with `baseURL` `http://example.org`, it will produce a plain text homepage with the URL `bep://example.org/myindex.enr`.
 
-All the available configuration options for output formats and their default values:
+### Configuring Output Formats
 
-Field | Description 
---- | ---
-**Name** | The output format identifier. This is used to define what output format(s) you want for your pages. 
-**MediaType**|This must match the `Type` of a defined media type. |
-**Path** | Sub path to save the output files.
-**BaseName** | The base filename for the list filenames (home page etc.). **Default:** _index_.
-**Rel** | Can be used to create `rel` values in `link` tags. **Default:** _alternate_.
-**Protocol** | Will replace the "http://" or "https://" in your `baseURL` for this output format.
-**IsPlainText** | Use Go's plain text templates parser for the templates. **Default:** _false_.
-**IsHTML** | Used in situations only relevant for `HTML` type of formats, page aliases being one example.|
-**NoUgly** | If `uglyURLs` is enabled globally, this can be used to turn it off for a given output format. **Default:** _false_.
-**NotAlternative** |  Enable if it doesn't make sense to include this format in an the `.AlternativeOutputFormats` format listing on `Page`, `CSS` being one good example. Note that we use the term "alternative" and not "alternate" here, as it does not necessarily replace the other format, it is an alternative representation.  **Default:** _false_.
+The following is the full list of configuration options for output formats and their default values:
 
+`Name`
+: the output format identifier. This is used to define what output format(s) you want for your pages.
 
-## Output Formats for your pages
+`MediaType`
+: this must match the `Type` of a defined media type.
 
-A `Page` in Hugo can be rendered to multiple representations on the file system: In its default configuration all will get an `HTML` page and some of them will get an `RSS` page (home page, sections etc.).
+`Path`
+: sub path to save the output files.
+
+`BaseName`
+: the base filename for the list filenames (homepage, etc.). **Default:** `index`.
+
+`Rel`
+: can be used to create `rel` values in `link` tags. **Default:** `alternate`.
+
+`Protocol`
+: will replace the "http://" or "https://" in your `baseURL` for this output format.
+
+`IsPlainText`
+: use Go's plain text templates parser for the templates. **Default:** `false`.
+
+`IsHTML`
+: used in situations only relevant for `HTML`-type formats; e.g., page aliases.
+
+`NoUgly`
+: used to turn off ugly URLs If `uglyURLs` is set to `true` in your site. **Default:** `false`.
+
+`NotAlternative`
+: enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term *alternative* and not *alternate* here, as it does not necessarily replace the other format. **Default:** `false`.
+
+## Output Formats for Pages
+
+A `Page` in Hugo can be rendered to multiple representations on the file system. By default, all pages will render as `HTML` with some of them also as `RSS` (homepage, sections, etc.).
 
 This can be changed by defining an `outputs` list of output formats in either the `Page` front matter or in the site configuration (either for all sites or per language).
 
-Example from site config in `config.toml`:
+Example from site `config.toml`:
 
 ```toml
- [outputs]
- home = [ "HTML", "AMP", "RSS"]
- page = [ "HTML"]
- ```
- Note: 
- 
- * The output definition is per `Page` `Kind`(`page`, `home`, `section`, `taxonomy`, `taxonomyTerm`). 
- * The names used must match the `Name` of a defined `Output Format`.
- * Any `Kind` without a definition will get `HTML`.
- * These can be overriden per `Page` in front matter (see below).
- * When `outputs` is specified, only the formats defined in outputs will be rendered
+[outputs]
+  home = ["HTML", "AMP", "RSS"]
+  page = ["HTML"]
+```
 
-A `Page` with `YAML` front matter defining some output formats for that `Page`:
+Example from site `config.yml`:
+
+```yml
+outputs:
+  home: ["HTML", "AMP", "RSS"]
+  page: ["HTML"]
+```
+
+
+* The output definition is per `Page` `Kind` (i.e, `page`, `home`, `section`, `taxonomy`, or `taxonomyTerm`).
+* The names used must match the `Name` of a defined `Output Format`.
+* Any `Kind` without a definition will default to `HTML`.
+* These can be overridden per `Page` in the front matter of content files.
+* Output formats are case insensitive.
+
+The following is an example of `YAML` front matter in a content file that defines output formats for the rendered `Page`:
 
 ```yaml
 ---
- date: "2016-03-19"
- outputs:
- - html
- - amp
- - json
- ---
- ```
- Note:
- 
- * The names used for the output formats are case insensitive.
- * The first output format in the list will act as the default.
- * The default output format is used when generating links to other pages in menus, etc.
- 
-## Link to Output Formats
- 
- `Page` has both  `.OutputFormats` (all formats including the current) and `.AlternativeOutputFormats`, the latter useful for creating a `link rel` list in your `head` section:
- 
- ```
- {{ range .AlternativeOutputFormats -}}
- <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
- {{ end -}}
-  ```
-  
-Note that `.Permalink` on `RelPermalink` on `Page` will return the first output format defined for that page (usually `HTML` if nothing else is defined). 
+date: "2016-03-19"
+outputs:
+- html
+- amp
+- json
+---
+```
+
+## Linking to Output Formats
+
+Each `Page` has both an `.OutputFormats` (all formats, including the current) and an `.AlternativeOutputFormats` variable, the latter of which is useful for creating a `link rel` list in your site's `<head>`:
+
+```
+{{ range .AlternativeOutputFormats -}}
+<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
+{{ end -}}
+```
+
+Note that `.Permalink` and `.RelPermalink` on `Page` will return the first output format defined for that page (usually `HTML` if nothing else is defined).
 
 This is how you link to a given output format:
 
@@ -145,41 +169,49 @@ This is how you link to a given output format:
 <a href="{{ .Permalink }}">{{ .Name }}</a>
 {{- end }}
 ```
-From content files, you can use the `ref` or `relref` shortcodes:
+
+From content files, you can use the [`ref` or `relref` shortcodes](/content-management/shortcodes/#ref-and-relref):
 
 ```
 [Neat]({{</* ref "blog/neat.md" "amp" */>}})
 [Who]({{</* relref "about.md#who" "amp" */>}})
 ```
 
-## Templates for your Output Formats
+## Templates for Your Output Formats
 
-Of course, for a new Output Format to render anything useful, we need a template for it.
+A new output format needs a corresponding template in order to render anything useful.
 
-**The fundamental thing to understand about this is that we in `Hugo 0.20` now also look at Output Format´s `Name` and MediaType´s `Suffix` when we choose the templates to use to render a given `Page`.**
+{{% note %}}
+The key distinction for Hugo versions 0.20 and newer is that Hugo looks at an output format's `Name` and MediaType's `Suffix` when choosing the template used to render a given `Page`.
+{{% /note %}}
 
-And with so many possible variations, this is best explained with some examples:
+The following table shows examples of different output formats, the suffix used, and Hugo's respective template [lookup order][]. All of the examples in the table can:
 
+* Use a [base template][base].
+* Include [partial templates][partials]
 
 {{< datatable "output" "layouts" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
 
-**Note:**
-
-* All of the above examples can use a base template, see [Blocks]({{< relref "templates/blocks.md" >}}).
-* All of the above examples can also include partials.
-
 Hugo will now also detect the media type and output format of partials, if possible, and use that information to decide if the partial should be parsed as a plain text template or not.
 
-Hugo will look for the name given, so you can name it whatever you want. But if you want it treated as plain text, you should use the file suffix and, if needed, the name of the Output Format (`[partial name].[OutputFormat].[suffix])`.
+Hugo will look for the name given, so you can name it whatever you want. But if you want it treated as plain text, you should use the file suffix and, if needed, the name of the Output Format. The pattern is as follows:
 
-The partial below is a plain text template (Output Format is `CSV`, and since this is the only output format with the suffix `csv`, we don't need to include the Output Format's `Name`):
+```
+[partial name].[OutputFormat].[suffix]
+```
+
+The partial below is a plain text template (Outpuf Format is `CSV`, and since this is the only output format with the suffix `csv`, we don't need to include the Output Format's `Name`):
 
 ```
 {{ partial "mytextpartial.csv" . }}
 ```
 
-Also note that plain text partials can currently only be included in plain text templates, and vice versa. See [this issue](https://github.com/gohugoio/hugo/issues/3273) for some background.
+{{% note %}}
+Plain text partials can currently only be included in plain text templates, and vice versa. See [this issue](https://github.com/spf13/hugo/issues/3273) for some background.
+{{% /note %}}
 
-
-
-
+[base]: /templates/base/
+[config]: /getting-started/configuration/
+[lookup order]: /templates/lookup/
+[media type]: https://en.wikipedia.org/wiki/Media_type
+[partials]: /templates/partials/

@@ -1,124 +1,173 @@
 ---
-aliases:
-- /layout/chrome/
-lastmod: 2016-01-01
-date: 2013-07-01
-menu:
-  main:
-    parent: layout
-next: /templates/rss
-prev: /templates/blocks/
 title: Partial Templates
-weight: 80
+linktitle: Partial Templates
+description: Partials are smaller, context-aware components in your list and page templates that can be used economically to keep your templating DRY.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+categories: [templates]
+tags: [lists,sections,partials]
+menu:
+  docs:
+    parent: "templates"
+    weight: 90
+weight: 90
+sections_weight: 90
+draft: false
+aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 toc: true
 ---
 
-In practice, it's very convenient to split out common template portions into a
-partial template that can be included anywhere. As you create the rest of your
-templates, you will include templates from the /layout/partials directory, or from arbitrary subdirectories like /layout/partials/post/tag.
+In practice, splitting out reusable template portions into **partial templates** to be included anywhere help keep your templating DRY.
 
-Partials are especially important for themes as it gives users an opportunity
-to overwrite just a small part of your theme, while maintaining future compatibility.
+## Partial Template Lookup Order
 
-Theme developers may want to include a few partials with empty HTML
-files in the theme just so end users have an easy place to inject their
-customized content.
+Partial templates---like [single page templates][singletemps] and [list page templates][listtemps]---have a specific [lookup order][]. However, partials are simpler in that Hugo will only check in two places:
 
-I've found it helpful to include a header and footer template in
-partials so I can include those in all the full page layouts.  There is
-nothing special about header.html and footer.html other than they seem
-like good names to use for inclusion in your other templates.
+1. `layouts/partials/*<PARTIALNAME>.html`
+2. `themes/<THEME>/layouts/partials/*<PARTIALNAME>.html`
 
-    ▾ layouts/
-      ▾ partials/
-          header.html
-          footer.html
+This allows a theme's end user to copy a partial's contents into a file of the same name for [further customization][customize].
 
-## Partial vs Template
+## Using Partials in your Templates
 
-Version v0.12 of Hugo introduced the `partial` call inside the template system.
-This is a change to the way partials were handled previously inside the
-template system. In earlier versions, Hugo didn’t treat partials specially, and
-you could include a partial template with the `template` call in the standard
-template language.
+All partials for your Hugo project are located in a single `layouts/partials` directory. For better organization, you can create multiple subdirectories within `partials` as well:
 
-With the addition of the theme system in v0.11, it became apparent that a theme
-& override aware partial was needed.
+```
+.
+└── layouts
+    └── partials
+        ├── footer
+        │   ├── scripts.html
+        │   └── site-footer.html
+        ├── head
+        │   ├── favicons.html
+        │   ├── metadata.html
+        │   ├── prerender.html
+        │   └── twitter.html
+        └── header
+            ├── site-header.html
+            └── site-nav.html
+```
 
-When using Hugo v0.12 and above, please use the `partial` call (and leave out
-the “partial/” path). The old approach would still work, but wouldn’t benefit from
-the ability to have users override the partial theme file with local layouts.
+All partials are called within your templates using the following pattern:
 
-## Example header.html
-This header template is used for [spf13.com](http://spf13.com/):
+```
+{{ partial "<PATH>/<PARTIAL>.html" . }}
+```
 
-    <!DOCTYPE html>
-    <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
-    <head>
-        <meta charset="utf-8">
+{{% note %}}
+One of the most common mistakes with new Hugo users is failing to pass a context to the partial call. In the pattern above, note how "the dot" (`.`) is required as the second argument to give the partial context. You can read more about "the dot" in the [Hugo templating introduction](/templates/introduction/).
+{{% /note %}}
 
-        {{ partial "meta.html" . }}
+As shown in the above example directory structure, you can nest your directories within `partials` for better source organization. You only need to call the nested partial's path relative to the `partials` directory:
 
-        <base href="{{ .Site.BaseURL }}">
-        <title> {{ .Title }} : spf13.com </title>
-        <link rel="canonical" href="{{ .Permalink }}">
-        {{ if .RSSLink }}<link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Title }}" />{{ end }}
+```golang
+{{ partial "header/site-header.html" . }}
+{{ partial "footer/scripts.html" . }}
+```
 
-        {{ partial "head_includes.html" . }}
-    </head>
-    <body lang="en">
+{{% note %}}
+Before v0.12, Hugo used the `template` call to include partial templates. When using Hugo v0.12 and newer, be sure to use the `{{ partial "<PATH>/<PARTIAL>.html" . }}` syntax. The old approach will still work but has fewer benefits.
+{{% /note %}}
 
-## Example footer.html
-This footer template is used for [spf13.com](http://spf13.com/):
+### Variable Scoping
 
-    <footer>
-      <div>
-        <p>
-        &copy; 2013-14 Steve Francia.
-        <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>;
-        please attribute properly and link back. Hosted by <a href="http://servergrove.com">ServerGrove</a>.
-        </p>
-      </div>
-    </footer>
-    <script type="text/javascript">
+The second argument in a partial call is the variable being passed down. The above examples are passing the `.`, which tells the template receiving the partial to apply the current [context][context].
 
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-XYSYXYSY-X']);
-      _gaq.push(['_trackPageview']);
+This means the partial will *only* be able to access those variables. The partial is isolated and *has no access to the outer scope*. From within the partial, `$.Var` is equivalent to `.Var`.
 
-      (function() {
-        var ga = document.createElement('script');
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
-            'http://www') + '.google-analytics.com/ga.js';
-        ga.setAttribute('async', 'true');
-        document.documentElement.firstChild.appendChild(ga);
-      })();
+### Cached Partials
 
-    </script>
-    </body>
-    </html>
+The [`partialCached` template function][partialcached] can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation. The simplest usage is as follows:
 
-To reference a partial template stored in a subfolder, e.g. `/layout/partials/post/tag/list.html`, call it this way:
+```
+{{ partialCached "footer.html" . }}
+```
 
-     {{ partial "post/tag/list" . }}
+You can also pass additional parameters to `partialCached` to create *variants* of the cached partial.
 
-Note that the subdirectories you create under /layout/partials can be named whatever you like.
+For example, you can tell Hugo to only render the partial `footer.html` once per section:
 
-For more examples of referencing these templates, see
-[single content templates](/templates/content/),
-[list templates](/templates/list/) and
-[homepage templates](/templates/homepage/).
+```
+{{ partialCached "footer.html" . .Section }}
+```
 
+If you need to pass additional parameters to create unique variants, you can pass as many variant parameters as you need:
 
-Variable scoping
-----------------
+```
+{{ partialCached "footer.html" . .Params.country .Params.province }}
+```
 
-As you might have noticed, `partial` calls receive two parameters.
+Note that the variant parameters are not made available to the underlying partial template. They are only use to create a unique cache key.
 
-1. The first is the name of the partial and determines the file
-location to be read.
-2. The second is the variables to be passed down to the partial.
+### Example `header.html`
 
-This means that the partial will _only_ be able to access those variables. It is
-isolated and has no access to the outer scope. From within the
-partial, `$.Var` is equivalent to `.Var`
+The following `header.html` partial template is used for [spf13.com](http://spf13.com/):
+
+{{% code file="layouts/partials/header.html" download="header.html" %}}
+```html
+<!DOCTYPE html>
+<html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<head>
+    <meta charset="utf-8">
+
+    {{ partial "meta.html" . }}
+
+    <base href="{{ .Site.BaseURL }}">
+    <title> {{ .Title }} : spf13.com </title>
+    <link rel="canonical" href="{{ .Permalink }}">
+    {{ if .RSSLink }}<link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Title }}" />{{ end }}
+
+    {{ partial "head_includes.html" . }}
+</head>
+<body lang="en">
+```
+{{% /code %}}
+
+{{% note %}}
+The `header.html` example partial was built before the introduction of block templates to Hugo. Read more on [base templates and blocks](/templates/base/) for defining the outer chrome or shell of your master templates (i.e., your site's head, header, and footer). You can even combine blocks and partials for added flexibility.
+{{% /note %}}
+
+### Example `footer.html`
+
+The following `footer.html` partial template is used for [spf13.com](http://spf13.com/):
+
+{{% code file="layouts/partials/footer.html" download="footer.html" %}}
+```html
+<footer>
+  <div>
+    <p>
+    &copy; 2013-14 Steve Francia.
+    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons Attribution">Some rights reserved</a>;
+    please attribute properly and link back. Hosted by <a href="http://servergrove.com">ServerGrove</a>.
+    </p>
+  </div>
+</footer>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-XYSYXYSY-X']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
+        'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+  })();
+
+</script>
+</body>
+</html>
+```
+{{% /code %}}
+
+[context]: /templates/introduction/ "The most easily overlooked concept to understand about Go templating is how the dot always refers to the current context."
+[customize]: /themes/customizing/ "Hugo provides easy means to customize themes as long as users are familiar with Hugo's template lookup order."
+[listtemps]: /templates/lists/ "To effectively leverage Hugo's system, see how Hugo handles list pages, where content for sections, taxonomies, and the homepage are listed and ordered."
+[lookup order]: /templates/lookup-order/ "To keep your templating dry, read the documentation on Hugo's lookup order."
+[partialcached]: /functions/partialcached/ "Use the partial cached function to improve build times in cases where Hugo can cache partials that don't need to be rendered with every page."
+[singletemps]: /templates/single-page-templates/ "The most common form of template in Hugo is the single content template. Read the docs on how to create templates for individual pages."
+[themes]: /themes/

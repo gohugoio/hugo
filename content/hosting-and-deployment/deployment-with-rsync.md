@@ -1,23 +1,31 @@
 ---
-authors:
-- Adrien Poupin
-date: 2016-11-01
-linktitle: Deployment with rsync
-toc: true
+title: Deployment with Rysnc
+linktitle: Deployment with Rysnc
+description: If you have access to your web host with SSH, you can use a simple rsync one-liner to incrementally deploy your entire Hugo website.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+categories: [hosting and deployment]
+tags: [rysnc,deployment]
+authors: [Adrien Poupin]
 menu:
-  main:
-    parent: tutorials
-next: /tutorials/creating-a-new-theme
-prev: /tutorials/automated-deployments
-title: Easy deployments with rsync
-weight: 11
-
+  docs:
+    parent: "hosting-and-deployment"
+    weight: 70
+weight: 70
+sections_weight: 70
+draft: false
+aliases: [/tutorials/deployment-with-rsync/]
+toc: true
+notesforauthors:
 ---
 
-# How to build and deploy with hugo and rsync
-We assume here that you have an access to your web host with SSH. In that case, as you will see, deployment is very simple. We also assume that you have a functional static site with hugo installed. 
+## Assumptions
 
-The spoil is, you can deploy your entire site with a command that looks like this:
+* Access to your web host with SSH
+* A functional static website built with Hugo
+
+The spoiler is that you can deploy your entire website with a command that looks like the following:
 
 ```bash
 hugo && rsync -avz --delete public/ www-data@ftp.topologix.fr:~/www/
@@ -29,10 +37,17 @@ As you will see, we put it in a shell script file, which makes building and depl
 
 If it is not done yet, we will make an automated way to SSH to your server. If you have already installed an SSH key, switch to the next section.
 
-First, install the ssh client. On Debian/Ubuntu/derivates, enter `sudo apt-get install openssh-client`.
+First, install the ssh client. On Debian/Ubuntu/derivates, use the following command:
+
+{{% code file="install-openssh.sh" %}}
+```bash
+sudo apt-get install openssh-client
+```
+{{% /code %}}
 
 Then generate your ssh key by entering the following commands:
-```
+
+```bash
 ~$ cd && mkdir .ssh & cd .ssh
 ~/.ssh/$ ssh-keygen -t rsa -q -C "For SSH" -f rsa_id
 ~/.ssh/$ cat >> config <<EOF
@@ -43,9 +58,10 @@ Host HOST
      IdentityFile ~/.ssh/rsa_id
 EOF
 ```
+
 Don't forget to replace the `HOST` and `USER` values with your own ones. Then copy your ssh public key to the remote server:
 
-```
+```bash
 ~/.ssh/$ ssh-copy-id -i rsa_id.pub USER@HOST.com
 ```
 
@@ -58,16 +74,17 @@ Enter passphrase for key '/home/mylogin/.ssh/rsa_id':
 
 And you've done it!
 
-## Shell script
+## Shell Script
 
-We will put the first command in a script at the root of your hugo tree:
+We will put the first command in a script at the root of your Hugo tree:
 
-```
+```bash
 ~/websites/topologix.fr$ editor deploy
 ```
-Here you put the following content. Replace the `USER`, `HOST` and `DIR` values with your own.
 
-```
+Here you put the following content. Replace the `USER`, `HOST`, and `DIR` values with your own:
+
+```bash
 #!/bin/sh
 USER=my-user
 HOST=my-server.com
@@ -120,6 +137,3 @@ tarifs-contact/index.html
 sent 9,550 bytes  received 1,708 bytes  7,505.33 bytes/sec
 total size is 966,557  speedup is 85.86
 ```
-
-And it's done!
-

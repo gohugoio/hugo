@@ -1,48 +1,42 @@
 ---
-aliases:
-- /doc/templates/ace
-- /layout/templates/ace
-- /layout/ace/
-lastmod: 2015-08-04
-date: 2014-04-20
-linktitle: Ace templates
+title: Alternative Templating Languages
+linktitle: Alternative Templating
+description: In addition to Go templates, Hugo supports the powerful Ace templating from @yosssi and Amber templating from @eknkc.
+godocref:
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-20
+categories: [templates]
+tags: [amber,ace,templating languages]
 menu:
-  main:
-    parent: layout
-next: /templates/functions
-prev: /templates/go-templates
-title: Ace Templates
-weight: 17
+  docs:
+    parent: "templates"
+    weight: 170
+weight: 170
+sections_weight: 170
+draft: false
+aliases: [/templates/ace/,/templates/amber/]
+toc: true
 ---
 
-In addition to [Go templates](/templates/go-templates) and [Amber](/templates/amber) templates, Hugo supports the powerful Ace templates.
+Hugo natively supports Amber and Ace in addition to the powerful [Go templates][].
+
+## Ace Templates
 
 For template documentation, follow the links from the [Ace project](https://github.com/yosssi/ace).
 
-* Ace templates must be named with the ace-suffix, e.g. `list.ace`
-* It's possible to use both Go templates and Ace templates side-by-side, and include one into the other
-* Full Go template syntax support, including all the useful helper funcs
-* Partials can be included both with the Ace and the Go template syntax:
-	* `= include partials/foo.html .`[^ace-theme]
-	* `{{ partial "foo" . }}`
+* Ace templates must be named with the ace-suffix; e.g., `list.ace`
+* It's possible to use both Go templates and Ace templates side by side and even include one into the other
+* Full Go template syntax support, including all the useful helper [template functions][]
+* Partials can be included both with the Ace and the Go template syntax. For example, the following two will have the same output in Ace:
+    * `= include partials/foo.html .`
+    * `{{ partial "foo" . }}`
 
+One noticeable difference between Ace and the other templating engines in Hugo is [Ace's inheritance support through base and inner templates][aceinheritance].
 
-One noticeable difference between Ace and the others is the inheritance support through [base and inner templates](https://github.com/yosssi/ace/tree/master/examples/base_inner_template).
+In Hugo, the Ace base template will be chosen with the same rule set as for [Go base templates][].
 
-In Hugo the base template will be chosen in the following order:
-
-```
-1. <current-path>/<template-name>-baseof.ace, e.g. list-baseof.ace
-2. <current-path>/baseof.ace
-3. _default/<template-name>-baseof.ace, e.g. list-baseof.ace.
-4. _default/baseof.ace
-5. <themedir>/layouts/_default/<template-name>-baseof.ace
-6. <themedir>/layouts/_default/baseof.ace
-```
-
-In the above, `current-path` is where the corresponding inner template lives, `list.ace`, `single.ace`, `index.ace` ...
-
-```
+```bash
 .:
 index.ace
 
@@ -54,6 +48,10 @@ baseof.ace
 baseof.ace  list.ace  single.ace  single-baseof.ace
 ```
 
+{{% note %}}
+Note that the `html` suffix is needed even if the filename is suffixed `ace`. This does not work from inside a theme ([issue #763](https://github.com/spf13/hugo/issues/763)).
+{{% /note %}}
+
 Some examples for the layout files above:
 
 * Home page: `./index.ace` +  `./_default/baseof.ace`
@@ -61,9 +59,21 @@ Some examples for the layout files above:
 * Single page in another section: `./_default/single.ace` +  `./_default/single-baseof.ace`
 * Taxonomy page in any section: `./_default/list.ace` +  `./_default/baseof.ace`
 
-**Note:** In most cases one `baseof.ace` in `_default` will suffice.
-**Note:** An Ace template without a reference to a base section, e.g. `= content`, will be handled as a standalone template.
+{{% note %}}
+In most cases, one `baseof.ace` in `_default` will suffice. An Ace template without a reference to a base section (e.g., `= content`) will be handled as a standalone template.
+{{% /note %}}
 
+## Amber Templates
 
-[^ace-theme]: Note that the `html` suffix is needed, even if the filename is suffixed `ace`. This does not work from inside a theme, see [issue 763](https://github.com/spf13/hugo/issues/763).
+For Amber template documentation, follow the links from the [Amber project][].
 
+* Amber templates must be named with the Amber suffix; e.g., `list.amber`
+* Partials in Amber or HTML can be included with the Amber template syntax:
+    * `import ../partials/test.html `
+    * `import ../partials/test_a.amber `
+
+[aceinheritance]: https://github.com/yosssi/ace/tree/master/examples/base_inner_template
+[Amber Project]: https://github.com/eknkc/amber
+[template functions]: /functions/
+[Go templates]: /templates/introduction/
+[Go base templates]: /templates/base/

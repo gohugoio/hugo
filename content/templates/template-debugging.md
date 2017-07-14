@@ -1,62 +1,81 @@
 ---
-aliases:
-- /doc/debugging/
-- /layout/debugging/
-lastmod: 2015-05-25
-date: 2015-05-22
-linktitle: Debugging
-menu:
-  main:
-    parent: layout
-prev: /templates/404
 title: Template Debugging
-weight: 110
+# linktitle: Template Debugging
+description: You can use Go templates' `printf` function to debug your Hugo  templates. These snippets provide a quick and easy visualization of the variables available to you in different contexts.
+godocref: http://golang.org/pkg/fmt/
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+categories: [templates]
+tags: [debugging,troubleshooting]
+menu:
+  docs:
+    parent: "templates"
+    weight: 180
+weight: 180
+sections_weight: 180
+draft: false
+aliases: []
+toc: false
 ---
 
-
-# Template Debugging
-
 Here are some snippets you can add to your template to answer some common questions.
-These snippets use the `printf` function available in all Go templates.  This function is
-an alias to the Go function, [fmt.Printf](http://golang.org/pkg/fmt/).
 
+These snippets use the `printf` function available in all Go templates.  This function is an alias to the Go function, [fmt.Printf](http://golang.org/pkg/fmt/).
 
-### What variables are available in this context?
+## What Variables are Available in this Context?
 
-You can use the template syntax, `$.`, to get the top-level template context
-from anywhere in your template.  This will print out all the values under, `.Site`.
+You can use the template syntax, `$.`, to get the top-level template context from anywhere in your template. This will print out all the values under, `.Site`.
 
-    {{ printf "%#v" $.Site }}
+```html
+{{ printf "%#v" $.Site }}
+```
 
 This will print out the value of `.Permalink`:
 
-    {{ printf "%#v" .Permalink }}
+
+```html
+{{ printf "%#v" .Permalink }}
+```
+
 
 This will print out a list of all the variables scoped to the current context
-(a.k.a. The dot, "`.`").
+(`.`, aka ["the dot"][tempintro]).
 
-    {{ printf "%#v" . }}
 
-When writing a [Homepage](/templates/homepage), what does one of the pages
-you're looping through look like?
-
+```html
+{{ printf "%#v" . }}
 ```
+
+
+When developing a [homepage][], what does one of the pages you're looping through look like?
+
+```html
 {{ range .Data.Pages }}
-    {{/* The context, ".", is now a Page */}}
+    {{/* The context, ".", is now each one of the pages as it goes through the loop */}}
     {{ printf "%#v" . }}
 {{ end }}
 ```
 
-### Why do I have no variables defined?
+{{% note "`.Data.Pages` on the Homepage" %}}
+`.Data.Pages` on the homepage is equivalent to `.Site.Pages`.
+{{% /note %}}
 
-Check that you are passing variables in the `partial` function. For example
+## Why Am I Showing No Defined Variables?
 
-```
+Check that you are passing variables in the `partial` function:
+
+```html
 {{ partial "header" }}
 ```
 
-will render the header partial, but the header partial will not have access to any variables. You need to pass variables explicitly. For example:
+This example will render the header partial, but the header partial will not have access to any contextual variables. You need to pass variables explicitly. For example, note the addition of ["the dot"][tempintro].
 
-```
+```html
 {{ partial "header" . }}
 ```
+
+The dot (`.`) is considered fundamental to understanding Hugo templating. For more information, see [Introduction to Hugo Templating][tempintro].
+
+[homepage]: /templates/homepage/
+[tempintro]: /templates/introduction/

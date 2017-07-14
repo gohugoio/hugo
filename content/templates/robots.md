@@ -1,37 +1,58 @@
 ---
-lastmod: 2016-01-06
-date: 2015-12-08
+title: Robots.txt File
+linktitle: Robots.txt
+description: Hugo can generate a customized robots.txt in the same way as any other template.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+categories: [templates]
+tags: [robots,search engines]
 menu:
-  main:
-    parent: extras
-next: /community/mailing-list
-prev: /extras/urls
-title: Custom robots.txt
-weight: 120
+  docs:
+    parent: "templates"
+    weight: 165
+weight: 165
+sections_weight: 165
+draft: false
+aliases: [/extras/robots-txt/]
+toc: false
 ---
 
-Hugo can generated a customized [robots.txt](http://www.robotstxt.org/) in the
-[same way as any other templates]({{< ref "templates/go-templates.md" >}}).
+Hugo can generate a customized [robots.txt][robots] in the same way as any other template.
 
-To enable it, just set `enableRobotsTXT` option to `true` in the [configuration file]({{< ref "overview/configuration.md" >}}). By default, it generates a robots.txt, which allows everything, with the following content:
+To create your robots.txt as a template, first set the `enableRobotsTXT` value to `true` in your [configuration file][config]. By default, this option generates a robots.txt with the following content, which tells search engines that they are allowed to crawl everything:
 
 ```http
 User-agent: *
 ```
 
+## Robots.txt Template Lookup Order
 
-Hugo will use the template `robots.txt` according to the following list in descending precedence:
+The [lookup order][lookup] for the `robots.txt` template is as follows:
 
-* /layouts/robots.txt
-* /themes/`THEME`/layout/robots.txt
+* `/layouts/robots.txt`
+* `/themes/<THEME>/layout/robots.txt`
 
-An example of a robots.txt layout is:
+{{% note %}}
+If you do not want Hugo to create a default `robots.txt` or leverage the `robots.txt` template, you can hand code your own and place the file in `static`. Remember that everything in the [static directory](/getting-started/directory-structure/) is copied over as-is when Hugo builds your site.
+{{% /note %}}
 
+## Robots.txt Template Example
+
+The following is an example `robots.txt` layout:
+
+{{% code file="layouts/robots.txt" download="robots.txt" %}}
 ```http
 User-agent: *
 
 {{range .Data.Pages}}
-Disallow: {{.RelPermalink}}{{end}}
+Disallow: {{.RelPermalink}}
+{{end}}
 ```
+{{% /code %}}
 
-This template disallows and all the pages of the site creating one `Disallow` entry for each one.
+This template disallows all the pages of the site by creating one `Disallow` entry for each page.
+
+[config]: /getting-started/configuration/
+[lookup]: /templates/lookup-order/
+[robots]: http://www.robotstxt.org/

@@ -1,32 +1,26 @@
 ---
-lastmod: 2015-10-10
-date: 2014-05-12T10:03:52Z
+title: Themes
+linktitle: Themes Overview
+description: Install, use, and create Hugo themes.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
 menu:
-  main:
-    parent: themes
-next: /themes/installing
-prev: /content/example
-title: Themes Overview
-weight: 10
+  docs:
+    parent: "themes"
+    weight: 01
+weight: 01
+sections_weight: 01
+categories: [themes]
+tags: [themes,introduction,overview]
+draft: false
+aliases: [/themes/overview/]
+toc: false
 ---
 
-Hugo provides a robust theming system which is simple, yet capable of producing
-even the most complicated websites.
+Hugo provides a robust theming system that is easy to implement but capable of producing even the most complicated websites. You can view the themes created by the Hugo community on the [Hugo themes website][hugothemes].
 
-The Hugo community has created [a wide variety of beautiful themes](//themes.gohugo.io/), as demoed at [themes.gohugo.io](//themes.gohugo.io/),
-ready for using in your own site.
+Hugo themes are powered by the excellent Go template library and are designed to reduce code duplication. They are easy to simultaneously customize while retaining upgradability with the upstream theme.
 
-Hugo themes have been designed to be the perfect balance between
-simplicity and functionality. Hugo themes are powered by the excellent
-Go template library. If you are new to Go templates, see our [primer on
-Go templates](/templates/go-templates/).
-
-Hugo themes support all modern features you come to expect. They are
-structured in such a way to eliminate code duplication. Themes are also
-designed to be very easy to customize while retaining the ability to
-maintain upgradeability as the upstream theme changes.
-
-Hugo currently doesn’t ship with a “default” theme, allowing the user to
-pick whichever theme best suits their project.
-
-We hope you will find Hugo themes perfect for your site.
+[goprimer]: /templates/introduction/
+[hugothemes]: http://themes.gohugo.io/
