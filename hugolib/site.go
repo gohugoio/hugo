@@ -359,6 +359,7 @@ type SiteInfo struct {
 	Languages                      helpers.Languages
 	defaultContentLanguageInSubdir bool
 	sectionPagesMenu               string
+	sectionTreeMenu                bool
 }
 
 func (s *SiteInfo) String() string {
@@ -1011,6 +1012,7 @@ func (s *Site) initializeSiteInfo() {
 		Languages:                      languages,
 		defaultContentLanguageInSubdir: defaultContentInSubDir,
 		sectionPagesMenu:               lang.GetString("sectionPagesMenu"),
+		sectionTreeMenu:                lang.GetBool("sectionTreeMenu"),
 		GoogleAnalytics:                lang.GetString("googleAnalytics"),
 		BuildDrafts:                    s.Cfg.GetBool("buildDrafts"),
 		canonifyURLs:                   s.Cfg.GetBool("canonifyURLs"),

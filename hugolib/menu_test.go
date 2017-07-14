@@ -94,3 +94,57 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 		"Menu Sect:  /sect5/|Section Five|10|-|-|/sect1/|Section One|100|-|-|/sect2/|Sect2s|0|-|HasMenuCurrent|/sect3/|Sect3s|0|-|-|")
 
 }
+
+func TestSectionTreeMenu(t *testing.T) {
+	t.Parallel()
+
+	siteConfig := `
+baseurl = "http://example.com/"
+title = "Section Tree Menu"
+sectionTreeMenu = true
+`
+
+	th, h := newTestSitesFromConfig(t, afero.NewMemMapFs(), siteConfig,
+		"layouts/partials/menu.html", `{{- $p := .page -}}
+{{- $m := .menu -}}
+{{ range $m -}}
+{{- .URL }}|{{ .Name }}|{{ .Weight }}|{{ .Parent -}}|
+{{- if $p.IsMenuCurrent "sect" . }}IsMenuCurrent{{ else }}-{{ end -}}|
+{{- if $p.HasMenuCurrent "sect" . }}HasMenuCurrent{{ else }}-{{ end -}}|
+{{- if .HasChildren }}HasChildren{{ else }}-{{ end -}}|
+{{- if .HasChildren }}Children:{{ partial "menu.html" (dict "menu" .Children "page" $p) }}{{ else }}-{{ end -}}|
+{{- end -}}
+`,
+		"layouts/_default/single.html",
+		`Single|{{ .Title }}
+Menu Sect:  {{ partial "menu.html" (dict "menu" .Site.Menus.sect "page" .) }}`,
+		"layouts/_default/list.html", "List|{{ .Title }}|{{ .Content }}",
+	)
+	require.Len(t, h.Sites, 1)
+
+	fs := th.Fs
+
+	writeNewContentFile(t, fs, "Section", "2017-08-25", "content/sect.md", 100)
+	writeNewContentFile(t, fs, "Section", "2017-08-25", "content/sect/one.md", 100)
+	writeNewContentFile(t, fs, "Section", "2017-08-25", "content/sect/two.md", 200)
+	writeNewContentFile(t, fs, "Section", "2017-08-25", "content/sect/two/two.one/two.one.three.md", 300)
+	writeNewContentFile(t, fs, "Section", "2017-08-25", "content/sect/two/two.one/two.one.two.md", 200)
+	writeNewContentFile(t, fs, "Section", "2017-08-25", "content/sect/two/two.one/two.one.one.md", 100)
+
+	err := h.Build(BuildCfg{})
+
+	require.NoError(t, err)
+
+	s := h.Sites[0]
+
+	require.Len(t, s.Menus, 1)
+
+	p1 := s.RegularPages[0].Menus()
+
+	// There is only one menu in the page, but it is "member of" 1
+	require.Len(t, p1, 0)
+
+	th.assertFileContent("public/sect/one/index.html", "Single",
+		"Menu Sect:  /sect/one/|Section|100||IsMenuCurrent|-|-|-|/sect/two/|Section|200||-|-|HasChildren|Children:/sect/two/two.one/two.one.one/|Section|100|sect/two.md|-|-|-|-|/sect/two/two.one/two.one.two/|Section|200|sect/two.md|-|-|-|-|/sect/two/two.one/two.one.three/|Section|300|sect/two.md|-|-|-|-||",
+	)
+}

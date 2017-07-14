@@ -194,8 +194,8 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 				return err
 			}
 		}
-		s.assembleMenus()
 		s.refreshPageCaches()
+		s.assembleMenus()
 		s.setupSitePages()
 	}
 
