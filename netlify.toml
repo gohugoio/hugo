@@ -1,0 +1,5 @@
+[context.next.environment]
+  HUGO_VERSION = "0.25.1"
+  HUGO_ENV = "development"
+  HUGO_BASEURL = "https://next--gohugoio.netlify.com/"
+  HUGO_ENABLEGITINFO = "true"
