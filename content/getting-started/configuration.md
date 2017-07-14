@@ -5,8 +5,8 @@ description: Hugo's defaults are often enough that no configuration is needed. H
 date: 2013-07-01
 publishdate: 2017-01-02
 lastmod: 2017-03-05
-categories: [getting started]
-tags: [configuration,fundamentals,toml,yaml,json]
+categories: [getting started,fundamentals]
+#tags: [configuration,toml,yaml,json]
 menu:
   docs:
     parent: "getting-started"

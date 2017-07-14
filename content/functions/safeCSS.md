@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [style,css,strings]
+#tags: [style,css,strings]
 ns:
 signature: ["safeCSS INPUT"]
 workson: []

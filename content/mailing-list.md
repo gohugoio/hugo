@@ -7,7 +7,7 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 weight: 01	#rem
 categories: []
-tags: [mailing list, community]
+#tags: [mailing list, community]
 draft: true
 aliases: [/community/mailing-list/]
 toc: false

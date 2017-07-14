@@ -5,7 +5,7 @@ description: Hugo provides native support for permalinks, aliases, link canonica
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-09
-tags: [aliases,redirects,permalinks,urls]
+#tags: [aliases,redirects,permalinks,urls]
 categories: [content management]
 menu:
   docs:

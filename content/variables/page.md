@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [variables and params]
-tags: [pages]
+#tags: [pages]
 draft: false
 menu:
   docs:
@@ -179,7 +179,7 @@ Any other value defined in the front matter in a content file, including taxonom
 title: My First Post
 date: date: 2017-02-20T15:26:23-06:00
 categories: [one]
-tags: [two,three,four]
+#tags: [two,three,four]
 ```
 
 With the above front matter, the `tags` and `categories` taxonomies are accessible via the following:

@@ -5,7 +5,7 @@ description: Improved performance, security, ease of use, and exportability of c
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [ssg,static,performance,security]
+#tags: [ssg,static,performance,security]
 menu:
   docs:
     parent: "about"

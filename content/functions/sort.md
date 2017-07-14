@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [ordering,sorting,lists]
+#tags: [ordering,sorting,lists]
 ns:
 signature: []
 workson: [lists,taxonomies,terms,groups]
@@ -24,7 +24,7 @@ aliases: []
 
 ```toml
 +++
-tags: [ "tag3", "tag1", "tag2" ]
+#tags: [ "tag3", "tag1", "tag2" ]
 +++
 
 // Site config

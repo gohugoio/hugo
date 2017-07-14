@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [filtering,lists]
+#tags: [filtering,lists]
 ns:
 signature: ["union SET1 SET2"]
 workson: []

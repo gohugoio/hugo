@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [multilingual,i18n,urls]
+#tags: [multilingual,i18n,urls]
 ns:
 signature: ["absLangURL INPUT"]
 workson: []

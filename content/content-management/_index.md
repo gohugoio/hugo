@@ -9,7 +9,7 @@ menu:
   docs:
     parent: "content-management"
     weight: 1
-tags: [source, organization]
+#tags: [source, organization]
 categories: [content management]
 weight: 01	#rem
 draft: false

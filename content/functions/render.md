@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [views]
+#tags: [views]
 ns:
 signature: ["render LAYOUT"]
 workson: []

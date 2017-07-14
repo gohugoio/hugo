@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-31
 categories: [content management]
-tags: [menus]
+#tags: [menus]
 draft: false
 menu:
   docs:

@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [trim]
+#tags: [trim]
 ns:
 signature: ["chomp INPUT"]
 workson: []

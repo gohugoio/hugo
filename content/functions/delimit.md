@@ -11,7 +11,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [iteration]
+#tags: [iteration]
 toc: false
 ns:
 signature: ["delimit COLLECTION DELIMIT LAST"]
@@ -39,7 +39,7 @@ The examples of `delimit` that follow all use the same front matter:
 ```toml
 +++
 title: I love Delimit
-tags: [ "tag1", "tag2", "tag3" ]
+#tags: [ "tag1", "tag2", "tag3" ]
 +++
 ```
 {{% /code %}}

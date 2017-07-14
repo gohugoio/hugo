@@ -5,7 +5,7 @@ description: A list of articles, blog posts, or tutorials where Hugo is featured
 date: 2016-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [articles, tutorials, press]
+#tags: [articles, tutorials, press]
 categories: [news and articles]
 menu:
   main:

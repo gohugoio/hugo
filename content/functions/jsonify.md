@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [strings,json]
+#tags: [strings,json]
 ns:
 signature: ["jsonify INPUT"]
 workson: []

@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: []
+#tags: []
 relatedfuncs: []
 ns:
 signature: ["base64Decode INPUT", "base64Encode INPUT"]

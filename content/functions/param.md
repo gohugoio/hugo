@@ -6,7 +6,7 @@ godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-30
-tags: ["front matter"]
+#tags: ["front matter"]
 categories: [functions]
 menu:
   docs:

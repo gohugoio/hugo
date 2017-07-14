@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [strings,emojis]
+#tags: [strings,emojis]
 ns:
 signature: ["emojify INPUT"]
 workson: []

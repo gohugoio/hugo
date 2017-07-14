@@ -6,11 +6,11 @@ godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-12
-categories: [functions]
+categories: [functions,fundamentals]
 menu:
   docs:
     parent: "functions"
-tags: [conditionals,fundamentals]
+#tags: [conditionals]
 ns:
 signature: ["with INPUT"]
 workson: []

@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [cross references, anchors]
+#tags: [cross references, anchors]
 ns:
 signature: ["relref PAGE CONTENT"]
 workson: []

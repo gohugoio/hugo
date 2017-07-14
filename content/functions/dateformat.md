@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [dates,time,strings]
+#tags: [dates,time,strings]
 ns:
 signature: ["dateFormat LAYOUT INPUT"]
 workson: []

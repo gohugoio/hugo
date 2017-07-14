@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [urls,strings]
+#tags: [urls,strings]
 godocref:
 ns:
 signature: ["urlize INPUT"]

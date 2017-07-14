@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [menus]
+#tags: [menus]
 ns:
 signature: ["HasMenuCurrent"]
 workson: [menus]

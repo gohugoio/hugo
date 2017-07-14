@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [dates,time]
+#tags: [dates,time]
 ns:
 signature: ["time INPUT"]
 workson: []

@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [images]
+#tags: [images]
 ns:
 signature: ["imageConfig PATH"]
 workson: []

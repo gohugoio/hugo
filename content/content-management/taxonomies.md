@@ -5,7 +5,7 @@ description: Hugo includes support for user-defined taxonomies to help you  demo
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-tags: [taxonomies,metadata,front matter,terms]
+#tags: [taxonomies,metadata,front matter,terms]
 categories: [content management]
 menu:
   docs:
@@ -163,7 +163,7 @@ project_url = "https://github.com/spf13/hugo"
 ```yaml
 ---
 title: "Hugo: A fast and flexible static site generator"
-tags: ["Development", "Go", "fast", "Blogging"]
+#tags: ["Development", "Go", "fast", "Blogging"]
 categories: ["Development"]
 categories: ["Go Web Dev"]
 slug: "hugo"
@@ -216,7 +216,7 @@ categories_weight = 44
 ```yaml
 ---
 title: foo
-tags: [ "a", "b", "c" ]
+#tags: [ "a", "b", "c" ]
 tags_weight: 22
 categories: ["d"]
 categories_weight: 44

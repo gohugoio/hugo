@@ -6,7 +6,7 @@ date: 2013-07-01
 publishdate: 2013-07-01
 lastmod: 2017-06-22
 categories: [getting started]
-tags: [quick start,usage]
+#tags: [quick start,usage]
 authors: [Shekhar Gulati, Ryan Watters]
 menu:
   docs:

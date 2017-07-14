@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: []
+#tags: []
 ns:
 signature: ["intersect SET1 SET2"]
 workson: []

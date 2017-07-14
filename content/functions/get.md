@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [shortcodes]
+#tags: [shortcodes]
 ns:
 signature: ["Get INDEX", "Get KEY"]
 workson: []

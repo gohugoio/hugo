@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [operators,logic]
+#tags: [operators,logic]
 ns:
 signature: ["eq ARG1 ARG2"]
 workson: []

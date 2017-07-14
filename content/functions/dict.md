@@ -11,7 +11,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [dictionary]
+#tags: [dictionary]
 ns:
 signature: ["dict KEY VALUE [KEY VALUE]..."]
 workson: []

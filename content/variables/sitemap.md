@@ -6,7 +6,7 @@ date: 2017-03-12
 publishdate: 2017-03-12
 lastmod: 2017-03-12
 categories: [variables and params]
-tags: [sitemap]
+#tags: [sitemap]
 draft: false
 menu:
   docs:

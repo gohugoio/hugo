@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [iteration]
+#tags: [iteration]
 ns:
 signature: ["after INDEX COLLECTION"]
 workson: []

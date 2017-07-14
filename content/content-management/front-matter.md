@@ -6,7 +6,7 @@ date: 2017-01-09
 publishdate: 2017-01-09
 lastmod: 2017-02-24
 categories: [content management]
-tags: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
+#tags: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
 menu:
   docs:
     parent: "content-management"
@@ -54,7 +54,7 @@ slug = "spf13-vim-3-0-release-and-new-website"
 ---
 title: "spf13-vim 3.0 release and new website"
 description: "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-tags: [ ".vimrc", "plugins", "spf13-vim", "vim" ]
+#tags: [ ".vimrc", "plugins", "spf13-vim", "vim" ]
 lastmod: 2015-12-23
 date: "2012-04-06"
 categories:

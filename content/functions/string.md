@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [strings]
+#tags: [strings]
 ns:
 signature: ["string INPUT"]
 workson: []

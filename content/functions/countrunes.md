@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: [counting, word count]
+#tags: [counting, word count]
 ns:
 signature: ["countrunes INPUT"]
 workson: []

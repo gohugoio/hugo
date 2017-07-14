@@ -5,9 +5,9 @@ description: Install Hugo on macOS, Windows, Linux, FreeBSD, and on any machine 
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2017-02-20
-categories: [getting started]
+categories: [getting started,fundamentals]
 authors: ["Michael Henderson"]
-tags: [install,fundamentals,pc,windows,linux,macos,binary,tarball]
+#tags: [install,pc,windows,linux,macos,binary,tarball]
 menu:
   docs:
     parent: "getting-started"

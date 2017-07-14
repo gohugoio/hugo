@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-tags: []
+#tags: []
 ns:
 signature: ["seq LAST", "seq FIRST LAST", "seq FIRST INCREMENT LAST"]
 workson: []

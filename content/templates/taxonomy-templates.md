@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
-tags: [taxonomies,metadata,front matter,terms]
+#tags: [taxonomies,metadata,front matter,terms]
 menu:
   docs:
     parent: "templates"

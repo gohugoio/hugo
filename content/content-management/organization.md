@@ -5,8 +5,8 @@ description: Hugo assumes that the same structure that works to organize your so
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-categories: [content management]
-tags: [sections,content,organization,fundamentals]
+categories: [content management,fundamentals]
+#tags: [sections,content,organization]
 menu:
   docs:
     parent: "content-management"
