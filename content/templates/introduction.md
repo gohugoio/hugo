@@ -1,7 +1,7 @@
 ---
 title: Introduction to Hugo Templating
 linktitle: Introduction
-description: Hugo uses Go's html/template library, an extremely lightweight and performant engine, as the basis for all Hugo templating.
+description: Hugo uses Go's `html/template` and `text/template` libraries as the basis for the templating.
 godocref: https://golang.org/pkg/html/template/
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -19,21 +19,15 @@ aliases: [/templates/introduction/,/layouts/introduction/,/layout/introduction/,
 toc: true
 ---
 
-Hugo uses the excellent [Go html/template][gohtmltemplate] library, an extremely lightweight engine that provides just the right amount of logic to be able to create any style of static website. If you have used other template systems from different languages or frameworks, you will find a lot of similarities in Go templates.
-
 {{% note %}}
 The following is only a primer on Go templates. For an in-depth look into Go templates, check the official [Go docs](http://golang.org/pkg/html/template/).
 {{% /note %}}
 
-## Introduction to Go Templates
-
-Go templates provide an extremely simple template language that adheres to the belief that only the most basic of logic belongs in the template or view layer. As a positive consequence of this simplicity, Go templates parse very quickly.
-
-A unique characteristic of Go templates is that they are *content aware*. Variables and content will be sanitized depending on the context of where they are used.
+Go templates provide an extremely simple template language that adheres to the belief that only the most basic of logic belongs in the template or view layer.
 
 ## Basic Syntax
 
-Golang templates are HTML files with the addition of [variables][variables] and [functions][hugofunctions]. Golang template variables and functions are accessible within `{{ }}`.
+Golang templates are HTML files with the addition of [variables][variables] and [functions][functions]. Golang template variables and functions are accessible within `{{ }}`.
 
 ### Accessing a Predefined Variable
 
@@ -63,20 +57,27 @@ Accessing the Page Parameter `bar` defined in a piece of content's [front matter
 
 ## Variables
 
-Each Go template has a struct (object) made available to it. In Hugo, each template is passed a page's struct. More details on the structs passed to specific page kinds are in the [variables][] section.
+Each Go template gets a data object. In Hugo, each template is passed a `Page`. See [variables][] for more information.
 
-A variable is accessed by referencing the variable name inside of a template:
+This is how you access a `Page` variable from a template:
 
 ```golang
 <title>{{ .Title }}</title>
 ```
 
-Variables can also be defined and referenced:
+Values can also be stored in custom variables and referenced later:
 
 ```golang
 {{ $address := "123 Main St."}}
 {{ $address }}
 ```
+
+{{% warning %}}
+Variables defined inside `if` conditionals and similar are not visible on the outside. See [https://github.com/golang/go/issues/10608](https://github.com/golang/go/issues/10608).
+
+Hugo has created a workaround for this issue in [Scratch](/functions/scratch).
+
+{{% /warning %}}
 
 ## Functions
 

@@ -17,9 +17,9 @@ aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-f
 toc: true
 ---
 
-**Markdown is the main content format** and comes in two flavours:  The excellent [Blackfriday project][blackfriday] (name your files `*.md` or set `markup = "markdown"` in frontmatter) or its fork [Mmark][mmark] (name your files `*.mmark` or set `markup = "mmark"` in frontmatter), both very fast markdown engines written in Golang.
+**Markdown is the main content format** and comes in two flavours:  The excellent [Blackfriday project][blackfriday] (name your files `*.md` or set `markup = "markdown"` in front matter) or its fork [Mmark][mmark] (name your files `*.mmark` or set `markup = "mmark"` in front matter), both very fast markdown engines written in Go.
 
-For Emacs users, [goorgeous](https://github.com/chaseadamsio/goorgeous) provides built-in native support for Org mode  (name your files `*.org` or set `markup = "org"` in frontmatter) 
+For Emacs users, [goorgeous](https://github.com/chaseadamsio/goorgeous) provides built-in native support for Org-mode  (name your files `*.org` or set `markup = "org"` in front matter) 
 
 {{% note "Deeply Nested Lists" %}}
 Before you begin writing your content in markdown, Blackfriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists. Luckily, there is an easy workaround. Use 4-spaces (i.e., <kbd>tab</kbd>) rather than 2-space indentations.
@@ -234,7 +234,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [helperssource]: https://github.com/spf13/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65
 [hl]: /tools/syntax-highlighting/
 [hlsc]: /content-management/shortcodes/#highlight
-[hugocss]: /css/style.min.css
+[hugocss]: /css/style.css
 [ietf]: https://tools.ietf.org/html/
 [mathjaxdocs]: https://docs.mathjax.org/en/latest/
 [mdcheatsheet]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
