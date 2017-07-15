@@ -102,9 +102,8 @@ menu: ["main", "footer"]
 ---
 ```
 
-### Advanced
+#### Advanced
 
-Take the advanced approach if more control is required. All of the menu entry properties listed above are available.
 
 ```yaml
 ---

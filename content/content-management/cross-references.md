@@ -16,7 +16,7 @@ toc: true
 ---
 
 
- The `ref` and `relref` shortcodes link documents together, both of which are [built-in Hugo shortcodes][]. These shortcodes are also used to safely provide links to headings inside of your content, whether across documents or within a document. The only difference between `ref` and `relref` is whether the resulting URL is absolute (`http://1.com/about/`) or relative (`/about/`), respectively.
+ The `ref` and `relref` shortcodes link documents together, both of which are [built-in Hugo shortcodes][]. These shortcodes are also used to provide links to headings inside of your content, whether across documents or within a document. The only difference between `ref` and `relref` is whether the resulting URL is absolute (`http://1.com/about/`) or relative (`/about/`), respectively.
 
 ## Using `ref` and `relref`
 
@@ -55,17 +55,15 @@ If you have the same filename used across multiple sections, you should only use
         └── my-birthday.md
 ```
 
-The potential for conflicting `documentname` is more likely in larger sites. Using the example of multiple `my-birthday.md` files, the following shows how these cross references may or may not render when called from within `content/meta/my-article.md`:
+To be sure to get the correct reference in this case, use the full path: 
 
 {{% code file="content/meta/my-article.md" copy="false" %}}
 ```md
-{{</* relref "my-birthday.md" */>}} => /events/my-birthday/ (maybe)
-{{</* relref "my-birthday.md" */>}} => /posts/my-birthday/ (maybe)
-{{</* relref "my-birthday.md" */>}} => /galleries/my-birthday/ (maybe)
 {{</* relref "events/my-birthday.md" */>}} => /events/my-birthday/
-{{</* relref "galleries/my-birthday.md" */>}} => /galleries/my-birthday/
 ```
 {{% /code %}}
+
+{{< todo >}}Remove this warning when https://github.com/gohugoio/hugo/issues/3703 is released.{{< /todo >}}
 
 A relative document name must *not* begin with a slash (`/`).
 ```md
@@ -100,12 +98,12 @@ More information about document unique identifiers and headings can be found [be
 
 ### Examples
 
-* `{{</* ref "blog/post.md" */>}} => http://yoursite.com/blog/post/`
-* `{{</* ref "post.md#tldr" */>}} => http://yoursite.com/blog/post/#tldr:caffebad`
-* `{{</* relref "post.md" */>}} => /blog/post/`
-* `{{</* relref "blog/post.md#tldr" */>}} => /blog/post/#tldr:caffebad`
-* `{{</* ref "#tldr" */>}} => #tldr:badcaffe`
-* `{{</* relref "#tldr" */>}} => #tldr:badcaffe`
+* `{{</* ref "blog/post.md" */>}}` => `http://yoursite.com/blog/post/`
+* `{{</* ref "post.md#tldr" */>}}` => `http://yoursite.com/blog/post/#tldr:caffebad`
+* `{{</* relref "post.md" */>}}` => `/blog/post/`
+* `{{</* relref "blog/post.md#tldr" */>}}` => `/blog/post/#tldr:caffebad`
+* `{{</* ref "#tldr" */>}}` => `#tldr:badcaffe`
+* `{{</* relref "#tldr" */>}}` => `#tldr:badcaffe`
 
 ## Hugo Heading Anchors
 
@@ -120,93 +118,6 @@ Ensuring heading uniqueness across the site is accomplished with a unique identi
 /content-management/cross-references/#hugo-heading-anchors:77cd9ea530577debf4ce0f28c8dca242
 ```
 
-What follows is a deeper discussion of *why* and *how* Hugo generates heading anchors. It is not necessary to know this to use `ref` and `relref`, but it may be useful in understanding how some anchors may not match your expectations.
-
-### How to Generate a Heading Anchor
-
-Convert the text of the heading to lowercase.
-
-```
-Hugo: A Fast & Modern Static Web Engine
-=> hugo: a fast & modern static web engine
-```
-
-Replace anything that isn't an ASCII letter (`a-z`) or number (`0-9`) with a dash (`-`).
-
-```
-hugo: a fast & modern static web engine
-=> hugo--a-fast---modern-static-web-engine
-```
-
-Get rid of extra dashes.
-
-```
-hugo--a-fast---modern-static-web-engine
-=> hugo-a-fast-modern-static-web-engine
-```
-
-You have just converting the text of a heading to a suitable anchor. If your document has unique heading text, all of the anchors will be unique, too.
-
-#### Specifying Heading Anchors
-
-You can also tell Hugo to use a particular heading anchor.
-
-```md
-# Hugo: A Fast & Modern Static Web Engine {#hugo-main}
-```
-
-Hugo will use `hugo-main` as the heading anchor.
-
-### What About Duplicate Heading Anchors?
-
-The technique outlined above works well enough, but some documents have headings with identical text, like the [shortcodes][] page—there are three headings with the text "Example". You can specify heading anchors manually:
-
-```
-### Example {#example-1}
-### Example {#example-2}
-### Example {#example-3}
-```
-
-It’s easy to forget to do that all the time, and Hugo is smart enough to do it for you. It just adds `-x` to the end of each heading it has already seen.
-
-* `### Example` => `example`
-* `### Example` => `example-1`
-* `### Example` => `example-2`
-
-Sometimes it's a little harder, but Hugo can recover from those, too, by adding more suffixes:
-
-* `# Heading` &rarr; `heading`
-* `# Heading 1` &rarr; `heading-1`
-* `# Heading` &rarr; `heading-1-1`
-* `# Heading` &rarr; `heading-1-2`
-* `# Heading 1` &rarr; `heading-2`
-
-This can even affect specified heading anchors that come after a generated heading anchor.
-
-* `# My Heading` &rarr; `my-heading`
-* `# My Heading {#my-heading}` &rarr; `my-heading-1`
-
-{{% note %}}
-This particular collision and override both unfortunate and unavoidable because Hugo processes each heading for collision detection as it sees it during conversion.
-{{% /note %}}
-
-This technique works well for documents rendered on individual pages (e.g., blog posts), but what about [Hugo list pages][lists]?
-
-### Unique Heading Anchors in Lists
-
-Hugo converts each document from Markdown independently. It doesn’t know that `blog/post.md` has an "Example" heading that will collide with the "Example" heading in `blog/post2.md`. Even if it did know this, the addition of `blog/post3.md` should not cause the anchors for the headings in the other blog posts to change.
-
-Enter the document’s unique identifier. To prevent this sort of collision on list pages, Hugo always appends the document's to a generated heading anchor. So, the "Example" heading in `blog/post.md` actually turns into `#example:81df004…`, and the "Example" heading in `blog/post2.md` actually turns into `#example:8cf1599…`. All you have to know is the heading anchor that was generated, not the document identifier; `ref` and `relref` take care of the rest for you.
-
-```html
-<a href='{{</* relref "blog/post.md#example" */>}}'>Post Example</a>
-<a href='/blog/post.md#81df004…'>Post Example</a>
-```
-
-```
-[Post Two Example]({{</* relref "blog/post2.md#example" */>}})
-<a href='/blog/post2.md#8cf1599…'>Post Two Example</a>
-```
 
 [built-in Hugo shortcodes]: /content-management/shortcodes/#using-the-built-in-shortcodes
 [lists]: /templates/lists/

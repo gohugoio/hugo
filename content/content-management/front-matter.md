@@ -27,7 +27,7 @@ TOML
 : identified by opening and closing `+++`.
 
 YAML
-: identified by opening and closing `---` *or* opening `---` and closing `...`
+: identified by opening and closing `---`.
 
 JSON
 : a single JSON object surrounded by '`{`' and '`}`', followed by a new line.
@@ -98,7 +98,7 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 `draft`
 : if `true`, the content will not be rendered unless the `--buildDrafts` flag is passed to the `hugo` command.
 
-`expirydate`
+`expiryDate`
 : the datetime at which the content should no longer be published by Hugo; expired content will not be rendered unless the `--buildExpired` flag is passed to the `hugo` command.
 
 `isCJKLanguage`
@@ -113,7 +113,7 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 `lastmod`
 : the datetime at which the content was last modified.
 
-`linktitle`
+`linkTitle`
 : used for creating links to content; if set, Hugo defaults to using the `linktitle` before the `title`. Hugo can also [order lists of content by `linktitle`][bylinktitle].
 
 `markup`
@@ -122,7 +122,7 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 `outputs`
 : allows you to specify output formats specific to the content. See [output formats][outputs].
 
-`publishdate`
+`publishDate`
 : if in the future, content will not be rendered unless the `--buildFuture` flag is passed to `hugo`.
 
 `slug`
@@ -161,15 +161,12 @@ show_comments: false
 
 These two user-defined fields can then be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables][variables] section provides more information on using Hugo's page- and site-level variables in your templates.
 
-{{% note %}}
-Field names are always normalized to lowercase; e.g., `camelCase: true` is available as `.Params.camelcase`.
-{{% /note %}}
 
 ## Ordering Content Through Front Matter
 
 You can assign content-specific `weight` in the front matter of your content. These values are especially useful for [ordering][ordering] in list views. You can use `weight` for ordering of content and the convention of [`<TAXONOMY>_weight`][taxweight] for ordering content within a taxonomy. See [Ordering and Grouping Hugo Lists][lists] to see how `weight` can be used to organize your content in list views.
 
-## Overriding Global Blackfriday Configuration
+## Overriding Global Markdown Configuration
 
 It's possible to set some options for Markdown rendering in a content's front matter as an override to the [BlackFriday rendering options set in your project configuration][config].
 

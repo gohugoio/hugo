@@ -1,7 +1,7 @@
 ---
 title: Multilingual Mode
 linktitle: Multilingual and i18n
-description: As of v0.17, Hugo supports the creation of websites with multiple languages side by side.
+description: Hugo supports the creation of websites with multiple languages side by side.
 date: 2017-01-10
 publishdate: 2017-01-10
 lastmod: 2017-01-10
@@ -17,9 +17,9 @@ aliases: [/content/multilingual/,/content-management/multilingual/]
 toc: true
 ---
 
-Hugo supports multiple languages side-by-side (added in `Hugo 0.17`). You should Define the available languages in a `Languages` section in your site configuration.
+You should define the available languages in a `Languages` section in your site configuration.
 
-## Configuring Multilingual Mode
+## Configure Languages
 
 The following is an example of a TOML site configuration for a multilingual Hugo project:
 
@@ -99,12 +99,12 @@ Translated articles are identified by the name of the content file.
 1. `/content/about.en.md`
 2. `/content/about.fr.md`
 
-You can also have the following, in which case the config variable `defaultContentLanguage` will be used to affect the default language `about.md`.  This way, you can slowly start to translate your current content without having to rename everything:
+In this eample, the `about.md` will be assigned the configured `defaultContentLanguage`. 
 
 1. `/content/about.md`
 2. `/content/about.fr.md`
 
-If left unspecified, the default value for `defaultContentLanguage` is `en`.
+This way, you can slowly start to translate your current content without having to rename everything. If left unspecified, the default value for `defaultContentLanguage` is `en`.
 
 By having the same *base filename*, the content pieces are linked together as translated pieces.
 
@@ -116,6 +116,12 @@ slug: "a-propos"
 ```
 
 At render, Hugo will build both `/about/` and `/a-propos/` as properly linked translated pages.
+
+{{%note %}}
+Hugo currently uses the base filename as the translation key, which can be an issue with identical filenames in different sections.
+We will fix this in https://github.com/gohugoio/hugo/issues/2699
+{{% /note %}}
+{{< todo >}}Rewrite/remove the above one issue is fixed.{{< /todo >}}
 
 ## Link to Translated Content
 
@@ -264,7 +270,7 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 
 If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
 
-While translating a Hugo website, it can be handy to have a visual indicator of missing translations. The [`EnableMissingTranslationPlaceholders` configuration option][config] will flag all untranslated strings with the placeholder `[i18n] identifier`, where `identifier` is the id of the missing translation.
+While translating a Hugo website, it can be handy to have a visual indicator of missing translations. The [`enableMissingTranslationPlaceholders` configuration option][config] will flag all untranslated strings with the placeholder `[i18n] identifier`, where `identifier` is the id of the missing translation.
 
 {{% note %}}
 Hugo will generate your website with these missing translation placeholders. It might not be suited for production environments.
