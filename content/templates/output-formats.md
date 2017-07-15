@@ -206,10 +206,6 @@ The partial below is a plain text template (Outpuf Format is `CSV`, and since th
 {{ partial "mytextpartial.csv" . }}
 ```
 
-{{% note %}}
-Plain text partials can currently only be included in plain text templates, and vice versa. See [this issue](https://github.com/spf13/hugo/issues/3273) for some background.
-{{% /note %}}
-
 [base]: /templates/base/
 [config]: /getting-started/configuration/
 [lookup order]: /templates/lookup/
