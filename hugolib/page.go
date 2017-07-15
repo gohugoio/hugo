@@ -444,31 +444,43 @@ func traverse(keys []string, m map[string]interface{}) interface{} {
 
 func (p *Page) Author() Author {
 	authors := p.Authors()
-
-	for _, author := range authors {
-		return author
+	if len(authors) > 0 {
+		return authors[0].languageOverride(p.lang)
 	}
 	return Author{}
 }
 
-func (p *Page) Authors() AuthorList {
-	authorKeys, ok := p.Params["authors"]
-	if !ok {
-		return AuthorList{}
-	}
-	authors := authorKeys.([]string)
-	if len(authors) < 1 || len(p.Site.Authors) < 1 {
-		return AuthorList{}
-	}
+// Authors returns all listed authors for a page in the order they
+// are defined in the front matter. It first checks for a single author
+// since that it the most common use case, then checks for multiple authors.
+func (p *Page) Authors() Authors {
+	authorID, ok := p.Params["author"].(string)
 
-	al := make(AuthorList)
-	for _, author := range authors {
-		a, ok := p.Site.Authors[author]
-		if ok {
-			al[author] = a
+	if ok && authorID != "" {
+		a := p.Site.Authors.Get(authorID)
+		if a.ID == authorID {
+			return Authors{a.languageOverride(p.lang)}
 		}
 	}
-	return al
+
+	authorIDs, ok := p.Params["authors"].([]string)
+	if !ok || len(authorIDs) == 0 || len(p.Site.Authors) == 0 {
+		return Authors{}
+	}
+
+	authors := make([]Author, 0, len(authorIDs))
+	for _, authorID := range authorIDs {
+		if authorID == "" {
+			continue
+		}
+
+		a := p.Site.Authors.Get(authorID)
+		if a.ID == authorID {
+			authors = append(authors, a.languageOverride(p.lang))
+		}
+	}
+
+	return authors
 }
 
 func (p *Page) UniqueID() string {

@@ -246,7 +246,7 @@ func (t *templateHandler) embedTemplates() {
 <meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}"/>
 {{ with .Site.Social.twitter }}<meta name="twitter:site" content="@{{ . }}"/>{{ end }}
 {{ range .Site.Authors }}
-  {{ with .twitter }}<meta name="twitter:creator" content="@{{ . }}"/>{{ end }}
+  {{ with .Social.twitter }}<meta name="twitter:creator" content="@{{ . }}"/>{{ end }}
 {{ end }}{{ end }}`)
 
 	t.addInternalTemplate("", "google_news.html", `{{ if .IsPage }}{{ with .Params.news_keywords }}

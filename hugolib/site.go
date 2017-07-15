@@ -105,6 +105,7 @@ type Site struct {
 	expiredCount int
 	Data         map[string]interface{}
 	Language     *helpers.Language
+	authorInit     sync.Once
 
 	disabledKinds map[string]bool
 
@@ -321,7 +322,8 @@ type SiteInfo struct {
 	paginationPageCount uint64
 
 	Taxonomies TaxonomyList
-	Authors    AuthorList
+	Authors    Authors
+	Author     map[string]interface{}
 	Social     SiteSocial
 	*PageCollections
 	Files                 *[]*source.File
@@ -329,7 +331,6 @@ type SiteInfo struct {
 	Hugo                  *HugoInfo
 	Title                 string
 	RSSLink               string
-	Author                map[string]interface{}
 	LanguageCode          string
 	DisqusShortname       string
 	GoogleAnalytics       string
@@ -934,6 +935,14 @@ func (s *Site) readDataFromSourceFS() error {
 	}
 
 	err = s.loadData(dataSources)
+
+	// extract author data from /data/_authors then delete it from .Data
+	// only do it once per site
+	s.authorInit.Do(func() {
+		s.Info.Authors = mapToAuthors(cast.ToStringMap(s.Data["_authors"]))
+		delete(s.Data, "_authors")
+	})
+
 	s.timerStep("load data")
 	return err
 }
