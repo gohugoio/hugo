@@ -42,8 +42,6 @@ twitter = "GoHugoIO"
   release = "Hugo-Next"
   ## Setting this to true will add a "noindex" to *EVERY* page on the site
   removefromexternalsearch = false
-  ## This is used when the BaseURL does not need to modified (eg, in share links or in prerender, prefetch, etc to control for relativeURLs setting); do *not* include trailing slash
-  siteaddress = "https://hugodocs.info"
   ## Gh repo for site footer (include trailing slash)
   ghrepo = "https://github.com/gohugoio/hugoDocs/"
   ### Edit content repo (set to automatically enter "edit" mode; this is good for "improve this page" links)
@@ -182,7 +180,7 @@ twitter = "GoHugoIO"
 
 
 
-######## GLOBAL ITEMS TO BE SHARED WITH THE HUGO siteaddress
+######## GLOBAL ITEMS TO BE SHARED WITH THE HUGO SITES
 
 [[menu.global]]
     name = "News"
