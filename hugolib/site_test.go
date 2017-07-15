@@ -232,6 +232,8 @@ func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
 		expectedPathSuffix = "/index.html"
 	}
 
+	doc3Slashed := filepath.FromSlash("/sect/doc3.md")
+
 	sources := []source.ByteSource{
 		{
 			Name:    filepath.FromSlash("sect/doc1.md"),
@@ -250,6 +252,11 @@ THE END.`, refShortcode)),
 		{
 			Name:    filepath.FromSlash("sect/doc3.md"),
 			Content: []byte(fmt.Sprintf(`**Ref 1:**{{< %s "sect/doc3.md" >}}.`, refShortcode)),
+		},
+		// Issue #3703
+		{
+			Name:    filepath.FromSlash("sect/doc4.md"),
+			Content: []byte(fmt.Sprintf(`**Ref 1:**{{< %s "%s" >}}.`, refShortcode, doc3Slashed)),
 		},
 	}
 
@@ -271,9 +278,7 @@ THE END.`, refShortcode)),
 			WithTemplate: createWithTemplateFromNameValues("_default/single.html", "{{.Content}}")},
 		BuildCfg{})
 
-	if len(s.RegularPages) != 3 {
-		t.Fatalf("Expected 3 got %d pages", len(s.AllPages))
-	}
+	require.Len(t, s.RegularPages, 4)
 
 	th := testHelper{s.Cfg, s.Fs, t}
 
@@ -284,6 +289,7 @@ THE END.`, refShortcode)),
 		{filepath.FromSlash(fmt.Sprintf("public/sect/doc1%s", expectedPathSuffix)), fmt.Sprintf("<p>Ref 2: %s/sect/doc2%s</p>\n", expectedBase, expectedURLSuffix)},
 		{filepath.FromSlash(fmt.Sprintf("public/sect/doc2%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong></p>\n\n%s/sect/doc1%s\n\n<p>THE END.</p>\n", expectedBase, expectedURLSuffix)},
 		{filepath.FromSlash(fmt.Sprintf("public/sect/doc3%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong>%s/sect/doc3%s.</p>\n", expectedBase, expectedURLSuffix)},
+		{filepath.FromSlash(fmt.Sprintf("public/sect/doc4%s", expectedPathSuffix)), fmt.Sprintf("<p><strong>Ref 1:</strong>%s/sect/doc3%s.</p>\n", expectedBase, expectedURLSuffix)},
 	}
 
 	for _, test := range tests {
