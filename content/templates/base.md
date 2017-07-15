@@ -57,7 +57,7 @@ Here is the lookup order for the `post` base template:
 
 ## Defining the Base Template
 
-The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will be rendered unless you specify another `*baseof.html` closer to the beginning of the lookup order..
+The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will be rendered unless you specify another `*baseof.html` closer to the beginning of the lookup order.
 
 {{% code file="layouts/_default/baseof.html" download="baseof.html" %}}
 ```html
@@ -100,10 +100,6 @@ From the above base template, you can define a [default list template][hugolists
 {{ end }}
 ```
 {{% /code %}}
-
-{{% note "No Go Context \"the dot\" in Block Definitions" %}}
-When using the `define` keyword, you do *not* need to use Go templates context reference (i.e., "the dot"). (Read more on "the dot" in [Templates Introduction](/templates/introduction/).)
-{{% /note %}}
 
 This replaces the contents of our (basically empty) "main" block with something useful for the list template. In this case, we didn't define a `"title"` block, so the contents from our base template remain unchanged in lists.
 
