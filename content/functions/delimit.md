@@ -1,6 +1,5 @@
 ---
 title: delimit
-linktitle: delimit
 description: Loops through any array, slice, or map and returns a string of all the values separated by a delimiter.
 godocref:
 workson: []

@@ -1,6 +1,5 @@
 ---
-title: echoparam
-linktitle: echoParam
+title: echoParam
 description: Prints a parameter if it is set.
 godocref:
 date: 2017-02-01
@@ -19,6 +18,7 @@ deprecated: false
 draft: false
 aliases: []
 ---
+
 
 `echoParam` prints a parameter if it is set.
 

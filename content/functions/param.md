@@ -1,6 +1,5 @@
 ---
-title: param
-linktitle: Param
+title: .Param
 description: Calls page or site variables into your template.
 godocref:
 date: 2017-02-01
@@ -12,7 +11,7 @@ menu:
   docs:
     parent: "functions"
 toc:
-signature: ["Param KEY"]
+signature: [".Param KEY"]
 workson: []
 hugoversion:
 relatedfuncs: [default]

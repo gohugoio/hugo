@@ -1,6 +1,5 @@
 ---
-title: get
-linktitle: Get
+title: .Get
 description: Accesses positional and ordered parameters in shortcode declaration.
 godocref:
 date: 2017-02-01

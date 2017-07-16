@@ -1,6 +1,5 @@
 ---
 title: after
-linktitle: after
 description: Slices an array to only the items after the Nth item.
 godocref:
 date: 2017-02-01

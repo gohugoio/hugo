@@ -1,6 +1,5 @@
 ---
-title: findre
-linktitle: findRE
+title: findRE
 description: Returns a list of strings that match the regular expression.
 godocref:
 date: 2017-02-01

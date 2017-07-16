@@ -1,6 +1,5 @@
 ---
-title: math
-linktitle: Math
+title: Math
 description: Hugo provides six mathematical operators in templates.
 godocref:
 date: 2017-02-01

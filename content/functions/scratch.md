@@ -1,5 +1,5 @@
 ---
-title: Scratch
+title: .Scratch
 description: Acts as a "scratchpad" to allow for writable page- or shortcode-scoped variables.
 godocref:
 date: 2017-02-01

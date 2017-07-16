@@ -1,9 +1,6 @@
 ---
-title: unix
-# Set this to draft for now; "unix" is not a function. We need to redo this section with:
-# - methods vs functions
-# - function namespaces as subsections.
-draft: true
+title: .Unix
+draft: false
 description: Unix returns the local Time corresponding to the given Unix time, sec seconds and nsec nanoseconds since January 1, 1970 UTC.
 godocref: https://golang.org/search?q=Unix#Functions
 date: 2017-02-01

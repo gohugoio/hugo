@@ -1,6 +1,5 @@
 ---
 title: chomp
-linktitle: chomp
 description: Removes any trailing newline characters.
 godocref: Removes any trailing newline characters.
 date: 2017-02-01

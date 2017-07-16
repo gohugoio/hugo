@@ -1,6 +1,5 @@
 ---
 title: getenv
-linktitle: getenv
 description: Returns the value of an environment variable.
 godocref:
 date: 2017-02-01

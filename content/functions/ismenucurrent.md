@@ -1,5 +1,5 @@
 ---
-title: ismenucurrent
+title: .IsMenuCurrent
 linktitle: IsMenuCurrent
 description:
 godocref:

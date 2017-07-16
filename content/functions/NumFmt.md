@@ -1,6 +1,5 @@
 ---
-title: numfmt
-linktitle: NumFmt
+title: lang.NumFmt
 description: "Formats a number with a given precision using the requested `decimal`, `grouping`, and `negative` characters."
 godocref: ""
 workson: []
@@ -13,8 +12,7 @@ menu:
   docs:
     parent: "functions"
 toc: false
-ns: "lang"
-signature: ["NumFmt <decimal> <grouping> <negative> <precision> <number>"]
+signature: ["lang.NumFmt <decimal> <grouping> <negative> <precision> <number>"]
 workson: []
 hugoversion:
 relatedfuncs: []

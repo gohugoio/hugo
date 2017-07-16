@@ -1,6 +1,5 @@
 ---
-title: haschildren
-linktitle: HasChildren
+title: .HasChildren
 description:
 godocref:
 date: 2017-02-01

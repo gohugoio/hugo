@@ -1,6 +1,5 @@
 ---
 title: dict
-linktitle: dict
 description: Creates a dictionary `(map[string, interface{})` that expects parameters added in a value:object fashion.
 godocref:
 workson: []

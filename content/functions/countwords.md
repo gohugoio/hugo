@@ -1,6 +1,5 @@
 ---
 title: countwords
-linktitle: countwords
 description: Counts the number of words in a string that has been passed to it.
 godocref:
 date: 2017-02-01

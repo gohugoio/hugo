@@ -1,6 +1,5 @@
 ---
 title: apply
-linktitle: apply
 description: Given a map, array, or slice, `description` returns a new slice with a function applied over it.
 godocref:
 date: 2017-02-01

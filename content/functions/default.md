@@ -1,6 +1,5 @@
 ---
 title: default
-linktitle: default
 description: Allows setting a default value that can be returned if a first value is not set.
 qref: "Returns a default value if a value is not set when checked."
 godocref:

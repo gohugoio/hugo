@@ -1,6 +1,5 @@
 ---
 title: dateFormat
-linktitle:
 description: Converts the textual representation of the `datetime` into the specified format.
 godocref: https://golang.org/pkg/time/
 date: 2017-02-01

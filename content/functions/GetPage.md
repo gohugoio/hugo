@@ -1,6 +1,5 @@
 ---
-title: getpage
-linktitle: GetPage
+title: .GetPage
 description: Looks up the index page (`_index.md`) of a given `Kind` and `path`.
 godocref:
 date: 2017-02-01

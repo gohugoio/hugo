@@ -1,6 +1,5 @@
 ---
-title: hasmenucurrent
-linktitle: HasMenuCurrent
+title: .HasMenuCurrent
 description:
 godocref:
 date: 2017-02-01

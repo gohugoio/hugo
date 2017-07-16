@@ -1,6 +1,5 @@
 ---
 title: emojify
-linktitle:
 description: Runs a string through the Emoji emoticons processor.
 godocref:
 date: 2017-02-01
