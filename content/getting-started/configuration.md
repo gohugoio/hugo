@@ -1,7 +1,7 @@
 ---
 title: Configuring Hugo
 linktitle: Configuration
-description: Hugo's defaults are often enough that no configuration is needed. However, a site config file can provide highly granular control over how your site is rendered.
+description: Often the default settings are good enough, but the config file can provide highly granular control over how your site is rendered.
 date: 2013-07-01
 publishdate: 2017-01-02
 lastmod: 2017-03-05
@@ -18,9 +18,9 @@ aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
 
-The [directory structure][] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to statically generate a finished website.
+The [directory structure][] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to generate a finished website.
 
-Because of Hugo's preference for sane defaults, many websites may not need a configuration file. Hugo is designed to recognize certain typical usage patterns (and even expects them by default).
+Because of Hugo's sensible defaults, many websites may not need a configuration file. Hugo is designed to recognize certain typical usage patterns.
 
 ## Configuration Lookup Order
 

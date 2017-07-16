@@ -19,7 +19,12 @@ aliases: [/tutorials/installing-on-windows/,/tutorials/installing-on-mac/,/overv
 toc: true
 ---
 
-Hugo is written in [Golang](https://golang.org/) with support for multiple platforms. The latest release can be found at [Hugo Releases][releases].
+
+{{% note %}}
+There is lots of talk about "Hugo being written in Go", but you don't need to install Go to enjoy Hugo. Just grab a precompiled binary!
+{{% /note %}}
+
+Hugo is written in [Go](https://golang.org/) with support for multiple platforms. The latest release can be found at [Hugo Releases][releases].
 
 Hugo currently provides pre-built binaries for the following:
 

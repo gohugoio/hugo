@@ -1,7 +1,7 @@
 ---
 title: Directory Structure
 linktitle: Directory Structure
-description: Hugo's CLI scaffolds a project directory structure and then takes that single directory and uses it as the input for creating a complete website.
+description: Hugo's CLI scaffolds a project directory structure and then takes that single directory and uses it as the input to create a complete website.
 date: 2017-01-02
 publishdate: 2017-02-01
 lastmod: 2017-03-09
@@ -17,9 +17,6 @@ draft: false
 aliases: [/overview/source-directory/]
 toc: true
 ---
-
-Hugo takes a single directory and uses it as the input for creating a complete
-website.
 
 ## New Site Scaffolding
 
