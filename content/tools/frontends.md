@@ -1,7 +1,7 @@
 ---
 title: Frontend Interfaces with Hugo
 linktitle: Frontends
-description: Do you (or your content authors) prefer a graphical user interface over a text editor? Give these frontends a try.
+description: Do you prefer a graphical user interface over a text editor? Give these frontends a try.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -17,8 +17,6 @@ draft: false
 aliases: []
 toc: false
 ---
-
-Do you prefer a graphical user interface over a text editor? Give these frontends a try:
 
 * [enwrite](https://github.com/zzamboni/enwrite). Enwrite enables evernote-powered, statically generated blogs and websites. Now posting to your blog or updating your website is as easy as writing a new note in Evernote!
 * [caddy-hugo](https://github.com/hacdias/caddy-hugo). `caddy-hugo` is an add-on for [Caddy](https://caddyserver.com/) that delivers a good UI to edit the content of your Hugo website.
