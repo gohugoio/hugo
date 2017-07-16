@@ -10,7 +10,7 @@ menu:
   docs:
     parent: "functions"
 #tags: [sections,lists,indexes]
-signature: ["GetPage TYPE PATH"]
+signature: [".GetPage TYPE PATH"]
 workson: []
 hugoversion:
 relatedfuncs: []
@@ -20,7 +20,7 @@ aliases: []
 
 Every `Page` has a `Kind` attribute that shows what kind of page it is. While this attribute can be used to list pages of a certain `kind` using `where`, often it can be useful to fetch a single page by its path.
 
-`GetPage` looks up a page of a given `Kind` and `path`.
+`.GetPage` looks up a page of a given `Kind` and `path`.
 
 ```
 {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
@@ -32,6 +32,12 @@ For a regular page:
 
 ```
 {{ with .Site.GetPage "page" "blog" "my-post.md" }}{{ .Title }}{{ end }}
+```
+
+Note that the path can also be supplied like this:
+
+```
+{{ with .Site.GetPage "page" "blog/my-post.md" }}{{ .Title }}{{ end }}
 ```
 
 The valid page kinds are: *page, home, section, taxonomy and taxonomyTerm.*
