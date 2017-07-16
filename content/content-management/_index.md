@@ -13,7 +13,7 @@ menu:
 categories: [content management]
 weight: 01	#rem
 draft: false
-aliases: [/content/]
+aliases: [/content/,/content/organization]
 toc: false
 ---
 

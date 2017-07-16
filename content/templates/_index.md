@@ -13,7 +13,7 @@ weight: 01	#rem
 categories: [templates]
 #tags: []
 draft: false
-aliases: [/templates/overview/]
+aliases: [/templates/overview/,/templates/content]
 toc: false
 notesforauthors:
 ---
