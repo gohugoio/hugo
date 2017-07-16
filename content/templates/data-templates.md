@@ -20,8 +20,6 @@ toc: true
 
 <!-- begin data files -->
 
-In addition to the [built-in variables][vars] available from Hugo, you can specify your own custom data that can be accessed via templates or shortcodes.
-
 Hugo supports loading data from YAML, JSON, and TOML files located in the `data` directory in the root of your Hugo project.
 
 ## The Data Folder

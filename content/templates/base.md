@@ -19,7 +19,7 @@ aliases: [/templates/blocks/,/templates/base-templates-and-blocks/]
 toc: true
 ---
 
-Go 1.6 includes a powerful new keyword, `block`. This construct allows you to define the outer shell of your pages' one or more master template(s) and then fill in or override portions as necessary.
+The `block` keyword allows you to define the outer shell of your pages' one or more master template(s) and then fill in or override portions as necessary.
 
 ## Base Template Lookup Order
 

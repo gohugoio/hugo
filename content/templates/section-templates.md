@@ -1,7 +1,7 @@
 ---
 title: Section Page Templates
 linktitle: Section Templates
-description: Templates used for section pages are lists and therefore have all the variables and methods available to list pages.
+description: Templates used for section pages are **lists** and therefore have all the variables and methods available to list pages.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -17,8 +17,6 @@ draft: false
 aliases: [/templates/sections/]
 toc: true
 ---
-
-Templates used for section pages are *lists* and therefore have all the variables and methods available to [list pages][lists].
 
 ## Adding Content and Front Matter to Section Templates
 

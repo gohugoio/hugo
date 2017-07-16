@@ -18,8 +18,6 @@ aliases: [/extras/robots-txt/]
 toc: false
 ---
 
-Hugo can generate a customized [robots.txt][robots] in the same way as any other template.
-
 To create your robots.txt as a template, first set the `enableRobotsTXT` value to `true` in your [configuration file][config]. By default, this option generates a robots.txt with the following content, which tells search engines that they are allowed to crawl everything:
 
 ```http

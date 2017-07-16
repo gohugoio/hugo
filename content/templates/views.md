@@ -18,7 +18,7 @@ aliases: []
 toc: true
 ---
 
-Hugo's flexibility allows you to render alternative views for specific content. These alternative **content views** are especially useful in [list templates][lists].
+These alternative **content views** are especially useful in [list templates][lists].
 
 The following are common use cases for content views:
 

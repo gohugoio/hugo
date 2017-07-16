@@ -18,8 +18,6 @@ aliases: [/layout/content/]
 toc: true
 ---
 
-The primary view of content in Hugo is the single view. Hugo's default behavior is to render every Markdown file provided with a corresponding single template.
-
 ## Single Page Template Lookup Order
 
 You can specify a [content's `type`][content type] and `layout` in a single content file's [front matter][]. However, you cannot specify `section` because this is determined based on file location (see [content section][section]).

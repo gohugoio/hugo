@@ -18,8 +18,6 @@ aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 toc: true
 ---
 
-In practice, splitting out reusable template portions into **partial templates** to be included anywhere help keep your templating DRY.
-
 ## Partial Template Lookup Order
 
 Partial templates---like [single page templates][singletemps] and [list page templates][listtemps]---have a specific [lookup order][]. However, partials are simpler in that Hugo will only check in two places:

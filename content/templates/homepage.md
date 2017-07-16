@@ -18,8 +18,6 @@ aliases: [/layout/homepage/,/templates/homepage-template/]
 toc: true
 ---
 
-The homepage of a website often has a unique design. In Hugo, you can define your own homepage template.
-
 Homepage is a `Page` and therefore has all the [page variables][pagevars] and [site variables][sitevars] available for use.
 
 {{% note "The Only Required Template" %}}

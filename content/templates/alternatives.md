@@ -19,8 +19,6 @@ aliases: [/templates/ace/,/templates/amber/]
 toc: true
 ---
 
-Hugo natively supports Amber and Ace in addition to the powerful [Go templates][].
-
 ## Ace Templates
 
 For template documentation, follow the links from the [Ace project](https://github.com/yosssi/ace).

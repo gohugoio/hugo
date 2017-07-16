@@ -1,7 +1,7 @@
 ---
 title: Pagination
 linktitle: Pagination
-description: Hugo supports pagination for your homepage, section pages, and taxonomies and shines when combined with Hugo's SQL-like operators.
+description: Hugo supports pagination for your homepage, section pages, and taxonomies.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -18,7 +18,7 @@ aliases: [/extras/pagination,/doc/pagination/]
 toc: true
 ---
 
-Hugo supports pagination for your homepage, section pages, and taxonomies. Hugo's pagination features were designed with ease of use and flexibility in mind. The real power of Hugo pagination shines when combined with the [`where` function][where] and its SQL-like operators: [`first`][], [`last`][], and [`after`][]. You can even [order the content][lists] the way you've become used to with Hugo.
+The real power of Hugo pagination shines when combined with the [`where` function][where] and its SQL-like operators: [`first`][], [`last`][], and [`after`][]. You can even [order the content][lists] the way you've become used to with Hugo.
 
 ## Configuring Pagination
 
