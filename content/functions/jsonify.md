@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [strings,json]
-ns:
 signature: ["jsonify INPUT"]
 workson: []
 hugoversion:

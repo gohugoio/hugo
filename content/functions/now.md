@@ -11,14 +11,12 @@ menu:
   docs:
     parent: "functions"
 #tags: [dates,time]
-ns:
 signature: ["now"]
 workson: []
 hugoversion:
 relatedfuncs: [Unix,dateFormat]
 deprecated: false
 aliases: []
-needsexamples: true
 ---
 
 `now` returns the current local time as a [`time.Time`](https://godoc.org/time#Time).

@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [cross references, anchors]
-ns:
 signature: ["ref PAGE CONTENT"]
 workson: []
 hugoversion:

@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [strings,integers]
-ns:
 signature: ["int INPUT"]
 workson: []
 hugoversion:

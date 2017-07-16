@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [regex]
-ns:
 signature: ["findRE PATTERN INPUT [LIMIT]"]
 workson: []
 hugoversion:

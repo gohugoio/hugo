@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [filtering]
-ns:
 signature: ["where COLLECTION KEY [OPERATOR] MATCH"]
 workson: [lists,taxonomies,terms,groups]
 hugoversion:

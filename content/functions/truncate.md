@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [strings]
-ns:
 signature: ["truncate SIZE INPUT", "truncate SIZE ELLIPSIS INPUT"]
 workson: []
 hugoversion: 19

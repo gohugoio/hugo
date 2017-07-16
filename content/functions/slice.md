@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [slice, array, interface]
-ns:
 signature: ["slice ITEM..."]
 workson: []
 hugoversion:
@@ -20,7 +19,6 @@ deprecated: false
 draft: false
 aliases: []
 toc: false
-needsexamples: true
 ---
 
 `slice` allows you to create an array (`[]interface{}`) of all arguments that you pass to this function.

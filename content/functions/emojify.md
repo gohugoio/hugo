@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [strings,emojis]
-ns:
 signature: ["emojify INPUT"]
 workson: []
 hugoversion:

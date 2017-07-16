@@ -12,14 +12,12 @@ menu:
   docs:
     parent: "functions"
 #tags: [dictionary]
-ns:
 signature: ["dict KEY VALUE [KEY VALUE]..."]
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
 aliases: []
-needsexamples: true
 ---
 
 `dict` creates a dictionary `(map[string, interface{})` that expects parameters added in a value:object fashion.

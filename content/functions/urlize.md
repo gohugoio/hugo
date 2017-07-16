@@ -11,7 +11,6 @@ menu:
     parent: "functions"
 #tags: [urls,strings]
 godocref:
-ns:
 signature: ["urlize INPUT"]
 hugoversion:
 deprecated: false

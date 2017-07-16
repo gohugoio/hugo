@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [strings, html]
-ns:
 signature: ["htmlEscape INPUT"]
 workson: []
 hugoversion:

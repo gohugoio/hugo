@@ -11,7 +11,6 @@ menu:
     parent: "functions"
 #tags: [urls]
 godocref:
-ns:
 signature: ["querify KEY VALUE [KEY VALUE]..."]
 hugoversion:
 deprecated: false

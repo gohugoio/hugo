@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [shortcodes]
-ns:
 signature: ["Get INDEX", "Get KEY"]
 workson: []
 hugoversion:

@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [menus]
-ns:
 signature: ["HasMenuCurrent"]
 workson: [menus]
 hugoversion:
@@ -20,7 +19,6 @@ deprecated: false
 toc: false
 draft: true
 aliases: []
-needsexamples: true
 ---
 
 Used in [menu templates](/templates/menu-templates/).

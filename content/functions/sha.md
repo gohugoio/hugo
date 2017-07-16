@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [sha,checksum]
-ns:
 signature: ["sha1 INPUT", "sha256 INPUT"]
 workson: []
 hugoversion:

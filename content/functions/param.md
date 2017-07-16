@@ -12,7 +12,6 @@ menu:
   docs:
     parent: "functions"
 toc:
-ns:
 signature: ["Param KEY"]
 workson: []
 hugoversion:

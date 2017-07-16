@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: []
-ns:
 signature: ["index COLLECTION INDEX", "index COLLECTION KEY"]
 workson: []
 hugoversion:

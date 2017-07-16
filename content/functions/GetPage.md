@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [sections,lists,indexes]
-ns:
 signature: ["GetPage TYPE PATH"]
 workson: []
 hugoversion:

@@ -12,7 +12,6 @@ menu:
     parent: "functions"
 #tags: [strings]
 aliases: []
-ns:
 signature: ["substr STRING START [LENGTH]"]
 workson: []
 hugoversion:

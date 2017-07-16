@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: []
-ns:
 signature: ["intersect SET1 SET2"]
 workson: []
 hugoversion:

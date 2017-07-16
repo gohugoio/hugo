@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [filtering,lists]
-ns:
 signature: ["union SET1 SET2"]
 workson: []
 hugoversion: 0.20

@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [strings]
-ns:
 signature: ["slicestr STRING START [END]"]
 workson: []
 hugoversion:

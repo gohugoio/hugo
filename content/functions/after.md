@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [iteration]
-ns:
 signature: ["after INDEX COLLECTION"]
 workson: []
 hugoversion:

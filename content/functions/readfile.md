@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [files]
-ns:
 signature: ["readFile PATH"]
 workson: []
 hugoversion:

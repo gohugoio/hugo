@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [operators,logic]
-ns:
 signature: ["eq ARG1 ARG2"]
 workson: []
 hugoversion:

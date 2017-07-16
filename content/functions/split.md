@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [strings]
-ns:
 signature: ["split STRING DELIM"]
 workson: []
 hugoversion:

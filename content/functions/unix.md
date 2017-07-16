@@ -14,7 +14,6 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-ns:
 signature: ["Unix"]
 workson: [times]
 hugoversion:

@@ -11,14 +11,12 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-ns:
 signature: ["relLangURL INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
 aliases: []
-needsexamples: true
 ---
 
 `absLangURL` and `relLangURL` functions are similar to their [`absURL`](/functions/absurl/) and [`relURL`](/functions/relurl/) relatives but will add the correct language prefix when the site is configured with more than one language. (See [Configuring Multilingual][multiliconfig].)

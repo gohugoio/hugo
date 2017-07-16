@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [trim]
-ns:
 signature: ["chomp INPUT"]
 workson: []
 hugoversion:

@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [views]
-ns:
 signature: ["render LAYOUT"]
 workson: []
 hugoversion:

@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [images]
-ns:
 signature: ["imageConfig PATH"]
 workson: []
 hugoversion:

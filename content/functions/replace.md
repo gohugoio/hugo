@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: []
-ns:
 signature: ["replace INPUT OLD NEW"]
 workson: []
 hugoversion:

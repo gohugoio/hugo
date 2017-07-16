@@ -13,7 +13,6 @@ menu:
     parent: "functions"
 #tags: [iteration]
 toc: false
-ns:
 signature: ["delimit COLLECTION DELIMIT LAST"]
 workson: [lists,taxonomies,terms]
 hugoversion:

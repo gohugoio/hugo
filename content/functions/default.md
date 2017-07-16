@@ -13,7 +13,6 @@ menu:
   docs:
     parent: "functions"
 toc:
-ns:
 signature: ["default DEFAULT INPUT"]
 workson: []
 hugoversion:

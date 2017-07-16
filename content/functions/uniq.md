@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [multilingual,i18n,urls]
-ns:
 signature: ["uniq SET"]
 workson: []
 hugoversion:

@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [regex]
-ns:
 signature: ["replaceRE PATTERN REPLACEMENT INPUT"]
 workson: []
 hugoversion:

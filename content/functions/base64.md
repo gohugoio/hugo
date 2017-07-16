@@ -12,7 +12,6 @@ menu:
     parent: "functions"
 #tags: []
 relatedfuncs: []
-ns:
 signature: ["base64Decode INPUT", "base64Encode INPUT"]
 workson: []
 hugoversion:

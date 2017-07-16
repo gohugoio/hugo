@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [iteration]
-ns:
 signature: ["first LIMIT COLLECTION"]
 workson: [lists,taxonomies,terms,groups]
 hugoversion:

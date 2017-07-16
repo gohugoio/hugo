@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [urls]
-ns:
 signature: ["relURL INPUT"]
 workson: []
 hugoversion:

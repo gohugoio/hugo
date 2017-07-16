@@ -11,14 +11,12 @@ menu:
   docs:
     parent: "functions"
 #tags: [multilingual,i18n,urls]
-ns:
 signature: ["absLangURL INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: [relLangURL]
 deprecated: false
 aliases: []
-needsexamples: true
 ---
 
 Both `absLangURL` and [`relLangURL`](/functions/rellangurl/) are similar to their [`absURL`](/functions/absurl/) and [`relURL`](/functions/relurl) relatives but will add the correct language prefix when the site is configured with more than one language.

@@ -360,22 +360,8 @@ This is a warning, which should be reserved for *important* information like bre
 This is a warning, which should be reserved for *important* information like breaking changes.
 {{% /warning %}}
 
-## Ask for Code Examples
-
-Sometimes you want to contribute to the docs but don't have enough time to provide lengthy examples. If you want to flag a piece of content as needing more examples, add the following field to your front matter:
-
-```
-needsexamples: true
-```
-
-## Places to Start
-
-The preceding `needsexamples` field is used to generate the following list of flagged content. Links will take you directly to the edit URL for the file within the GitHub GUI in the event that you are not comfortable cloning and editing the repository locally.
-
-{{< needsexamples >}}
-
 {{% note "Pull Requests and Branches" %}}
-Similar to [contributing to Hugo development](/contribute/development/), the Hugo team expects you to create a separate branch/fork when you make your generous contributions to the Hugo docs.
+Similar to [contributing to Hugo development](/contribute/development/), the Hugo team expects you to create a separate branch/fork when you make your contributions to the Hugo docs.
 {{% /note %}}
 
 [abe]: https://en.wikipedia.org/wiki/Kobo_Abe

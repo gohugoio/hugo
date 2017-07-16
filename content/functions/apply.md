@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [advanced]
-ns:
 signature: ["apply COLLETION FUNCTION [PARAM...]"]
 workson: []
 hugoversion:

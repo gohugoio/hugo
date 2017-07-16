@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: []
-ns:
 signature: ["seq LAST", "seq FIRST LAST", "seq FIRST INCREMENT LAST"]
 workson: []
 hugoversion:

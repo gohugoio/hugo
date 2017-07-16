@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [ordering,sorting,lists]
-ns:
 signature: []
 workson: [lists,taxonomies,terms,groups]
 hugoversion:

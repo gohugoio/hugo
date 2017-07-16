@@ -12,7 +12,6 @@ menu:
     parent: "functions"
 #tags: [menus]
 toc:
-ns:
 signature: ["HasChildren"]
 workson: [menus]
 hugoversion:
@@ -20,7 +19,6 @@ relatedfuncs: []
 deprecated: false
 draft: true
 aliases: []
-needsexamples: true
 ---
 
 Used in [menu templates](/templates/menu-templates/).

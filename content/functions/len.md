@@ -8,7 +8,6 @@ publishdate: 2017-02-01
 lastmod: 2017-04-18
 categories: [functions]
 #tags: []
-ns:
 signature: ["len INPUT"]
 workson: [lists,taxonomies,terms]
 hugoversion:

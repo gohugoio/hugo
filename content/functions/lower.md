@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [strings,casing]
-ns:
 signature: ["lower INPUT"]
 workson: []
 hugoversion:

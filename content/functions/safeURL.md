@@ -11,7 +11,6 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-ns:
 signature: ["safeURL INPUT"]
 workson: []
 hugoversion:

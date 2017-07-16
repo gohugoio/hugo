@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [highlighting,pygments,code blocks,syntax]
-ns:
 signature: ["highlight INPUT"]
 workson: []
 hugoversion:

@@ -11,13 +11,11 @@ menu:
   docs:
     parent: "functions"
 #tags: [strings]
-ns:
 signature: ["printf FORMAT INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-needsexamples: true
 ---
 
 `printf` formats a string using the standard `fmt.Sprintf` function. See [the go doc](https://golang.org/pkg/fmt/) for additional information.

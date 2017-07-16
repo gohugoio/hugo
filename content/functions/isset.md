@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: []
-ns:
 signature: ["isset COLLECTION INDEX", "isset COLLECTION KEY"]
 workson: []
 hugoversion:

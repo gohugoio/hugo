@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [dates,time,strings]
-ns:
 signature: ["dateFormat LAYOUT INPUT"]
 workson: []
 hugoversion:

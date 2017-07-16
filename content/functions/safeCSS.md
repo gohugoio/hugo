@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [style,css,strings]
-ns:
 signature: ["safeCSS INPUT"]
 workson: []
 hugoversion:

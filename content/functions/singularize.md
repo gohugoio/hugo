@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [strings,singular]
-ns:
 signature: ["singularize INPUT"]
 workson: []
 hugoversion:

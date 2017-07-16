@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: []
-ns:
 signature: ["hasPrefix STRING PREFIX"]
 workson: []
 hugoversion:

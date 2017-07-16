@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: []
-ns:
 signature: ["md5 INPUT"]
 workson: []
 hugoversion:

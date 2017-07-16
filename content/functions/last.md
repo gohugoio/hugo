@@ -12,7 +12,6 @@ menu:
   docs:
     parent: "functions"
 toc:
-ns:
 signature: ["last INDEX COLLECTION"]
 workson: [lists, taxonomies, terms, groups]
 hugoversion:

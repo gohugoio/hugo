@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: []
-ns:
 signature: ["partialCached LAYOUT INPUT [VARIANT...]"]
 workson: []
 hugoversion:

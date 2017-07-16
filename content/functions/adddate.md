@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [dates,time]
-ns:
 signature: ["AddDate YEARS MONTHS DAYS"]
 workson: [times]
 hugoversion:

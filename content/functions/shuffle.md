@@ -11,7 +11,6 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-ns:
 signature: ["shuffle COLLECTION"]
 workson: []
 hugoversion:
@@ -19,7 +18,6 @@ relatedfuncs: [seq]
 deprecated: false
 draft: false
 aliases: []
-needsexamples: true
 ---
 
 `shuffle` returns a random permutation of a given array or slice:

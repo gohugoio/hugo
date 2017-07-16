@@ -11,7 +11,6 @@ menu:
   docs:
     parent: "functions"
 #tags: [counting, word count]
-ns:
 signature: ["countrunes INPUT"]
 workson: []
 hugoversion:
