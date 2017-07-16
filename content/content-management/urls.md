@@ -1,7 +1,7 @@
 ---
 title: URL Management
 linktitle: URL Management
-description: Hugo provides native support for permalinks, aliases, link canonicalization, and multiple options for handling relative vs absolute URLs.
+description: Hugo supports permalinks, aliases, link canonicalization, and multiple options for handling relative vs absolute URLs.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-09
@@ -19,7 +19,7 @@ toc: true
 
 ## Permalinks
 
-The default Hugo target directory for your built website is `public/`. However, you can change this value by specifying a different `publishdir` in your [site configuration][config]. The directories created at build time for a section reflect the position of the content's directory within the `content` folder and namespace matching its layout within the `contentdir` hierarchy.
+The default Hugo target directory for your built website is `public/`. However, you can change this value by specifying a different `publishDir` in your [site configuration][config]. The directories created at build time for a section reflect the position of the content's directory within the `content` folder and namespace matching its layout within the `contentdir` hierarchy.
 
 The `permalinks` option in your [site configuration][config] allows you to adjust the directory paths (i.e., the URLs) on a per-section basis. This will change where the files are written to and will change the page's internal "canonical" location, such that template references to `.RelPermalink` will honor the adjustments made as a result of the mappings in this option.
 

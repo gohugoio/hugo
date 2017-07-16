@@ -59,7 +59,7 @@ When working with front matter `Params` in [single page templates][singles], omi
 
 If you want all of the languages to be put below their respective language code, enable `defaultContentLanguageInSubdir: true`.
 
-Only the obvious non-global options can be overridden per language. Examples of global options are `BaseURL`, `BuildDrafts`, etc.
+Only the obvious non-global options can be overridden per language. Examples of global options are `baseURL`, `buildDrafts`, etc.
 
 ## Taxonomies and Blackfriday
 

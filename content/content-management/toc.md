@@ -1,7 +1,7 @@
 ---
 title: Table of Contents
 linktitle:
-description: Hugo can automatically parse Markdown content and create a Table of Contents you can leverage in your templates to guide readers to sections of longer pages.
+description: Hugo can automatically parse Markdown content and create a Table of Contents you can use in your templates.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -16,8 +16,6 @@ draft: false
 aliases: [/extras/toc/,/content-management/toc/]
 toc: true
 ---
-
-Hugo can automatically parse Markdown content and create a Table of Contents you can leverage in your templates to guide readers to sections of longer pages.
 
 {{% note "TOC Heading Levels are Fixed" %}}
 Currently, the `{{.TableOfContents}}` [page variable](/variables/page/) does not allow you to specify which heading levels you want the TOC to render. [See the related GitHub discussion (#1778)](https://github.com/spf13/hugo/issues/1778). As such, the resulting `<nav id="TableOfContents"><ul></ul></nav>` is going to start at `<h1>` when pulling from `{{.Content}}`.

@@ -1,7 +1,7 @@
 ---
 title: Contribute to the Hugo Docs
 linktitle: Documentation
-description: Documentation is an integral part of any open source project. The Hugo docs are as much a work in progress as the source it attempts to teach its users.
+description: Documentation is an integral part of any open source project. The Hugo docs are as much a work in progress as the source it attempts to cover.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -18,11 +18,9 @@ aliases: [/contribute/docs/]
 toc: true
 ---
 
-Documentation is a critical component of any open-source project. The Hugo docs were completely reworked for the release of v0.20, but there is always room for improvement.
-
 ## Create Your Fork
 
-It's best to make changes to the Hugo docs on your local machine to check for consistent visual styling. Make sure you've created a fork of Hugo on GitHub and cloned the repository locally on your machine. For more information, you can see [GitHub's documentation on "forking"][ghforking] or follow along with [Hugo's development contribution guide][hugodev].
+It's best to make changes to the Hugo docs on your local machine to check for consistent visual styling. Make sure you've created a fork of [hugoDocs](https://github.com/gohugoio/hugoDocs) on GitHub and cloned the repository locally on your machine. For more information, you can see [GitHub's documentation on "forking"][ghforking] or follow along with [Hugo's development contribution guide][hugodev].
 
 You can then create a separate branch for your additions. Be sure to choose a descriptive branch name that best fits the type of content. The following is an example of a branch name you might use for adding a new website to the showcase:
 

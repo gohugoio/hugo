@@ -19,11 +19,9 @@ toc: true
 
 ## What is a Taxonomy?
 
-Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications that demonstrate logical relationships between content.
+Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications of logical relationships between content.
 
 ### Definitions
-
-In order to effectively work with taxonomies in Hugo, it's important to first understand the language used to described the concept.
 
 Taxonomy
 : a categorization that can be used to classify content
@@ -84,9 +82,9 @@ Moonrise Kingdom            <- Content
 
 ## Hugo Taxonomy Defaults
 
-Hugo natively supports taxonomies, which means there are architectural patterns for rendering your project's taxonomies baked into Hugo's core. 
+Hugo natively supports taxonomies. 
 
-Without adding a single line to your site's configuration file, Hugo will automatically create taxonomies for `tags` and `categories`. If you do not want Hugo to create these taxonomies---even though the values may be added to your content files' front matter---set `disableKinds` in your site's configuration to the following:
+Without adding a single line to your site's configuration file, Hugo will automatically create taxonomies for `tags` and `categories`. If you do not want Hugo to create any taxonomies, set `disableKinds` in your site's configuration to the following:
 
 ```toml
 disableKinds = ["taxonomy","taxonomyTerm"]
@@ -123,7 +121,7 @@ taxonomies:
 
 ### Preserving Taxonomy Values
 
-By default, taxonomy names are hyphenated, lower-cased, normalized, and then fixed and title-ized within.
+By default, taxonomy names are normalized.
 
 Therefore, if you want to have a taxonomy term with special characters such as `Gérard Depardieu` instead of `Gerard Depardieu`, set the value for `preserveTaxonomyNames` to `true` in your [site configuration][config]. Hugo will then preserve special characters in taxonomy values but will still title-ize the values for titles and normalize them in URLs.
 

@@ -1,7 +1,7 @@
 ---
 title: Content Sections
 linktitle: Sections
-description: Hugo provides full support for content sections, which according to Hugo's default behavior, will reflect the architecture of the rendered website.
+description: Hugo supports content sections, which according to Hugo's default behavior, will reflect the structure of the rendered website.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -17,7 +17,12 @@ aliases: [/content/sections/]
 toc: true
 ---
 
-## What are Sections in Hugo
+{{% note %}}
+This section is not updated with the new nested sections support in Hugo 0.24, see https://github.com/gohugoio/hugoDocs/issues/36
+{{% /note %}}
+{{% todo %}}
+See above
+{{% /todo %}}
 
 Hugo believes that you organize your content with a purpose. The same structure that works to organize your source content is used to organize the rendered site (see [directory structure][]).
 

@@ -1,7 +1,7 @@
 ---
 title: Shortcodes
 linktitle:
-description: Shortcodes are simple snippets inside your content files that Hugo renders renders so as not to mess with the clean and simple syntax of your preferred content format.
+description: Shortcodes are simple snippets inside your content files calling built-in or custom templates.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -18,7 +18,7 @@ aliases: [/extras/shortcodes/]
 toc: true
 ---
 
-## What is a Shortcode
+## What a Shortcode is
 
 Hugo loves Markdown because of its simple content format, but there are times when Markdown falls short. Often, content authors are forced to add raw HTML (e.g., video `<iframes>`) to Markdown content. We think this contradicts the beautiful simplicity of Markdown's syntax.
 
@@ -30,7 +30,7 @@ In addition to cleaner Markdown, shortcodes can be updated any time to reflect n
 
 ## Using Shortcodes
 
-In your content files, a shortcode can be called by calling `{{%/* shortcodename parameters*/%}}`. Shortcode parameters are space delimited, and parameters with internal spaces can be quoted.
+In your content files, a shortcode can be called by calling `{{%/* shortcodename parameters */%}}`. Shortcode parameters are space delimited, and parameters with internal spaces can be quoted.
 
 The first word in the shortcode declaration is always the name of the shortcode. Parameters follow the name. Depending upon how the shortcode is defined, the parameters may be named, positional, or both, although you can't mix parameter types in a single call. The format for named parameters models that of HTML with the format `name="value"`.
 

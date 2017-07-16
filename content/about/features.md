@@ -52,7 +52,7 @@ toc: true
 * Integrated [Disqus][] comment support
 * Integrated [Google Analytics][] support
 * Automatic [RSS][] creation
-* Support for [Golang][], [Amber], and [Ace][] HTML templates
+* Support for [Go][], [Amber], and [Ace][] HTML templates
 * [Syntax highlighting][] powered by [Pygments][]
 
 See what's coming next in the [Hugo roadmap][].
@@ -67,7 +67,7 @@ See what's coming next in the [Hugo roadmap][].
 [Extremely fast]: https://github.com/bep/hugo-benchmark
 [front matter]: /content-management/front-matter/
 [functions]: /functions/
-[Golang]: http://golang.org/pkg/html/template/
+[Go]: http://golang.org/pkg/html/template/
 [Google Analytics]: https://google-analytics.com/
 [homepage]: /templates/homepage/
 [hostanywhere]: /hosting-and-deployment/

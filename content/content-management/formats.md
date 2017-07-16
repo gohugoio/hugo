@@ -203,14 +203,14 @@ With this setup, everything is in place for a natural usage of MathJax on pages 
 
 ## Additional Formats Through External Helpers
 
-Since 0.14, Hugo has defined a new concept called _external helpers_. It means that you can write your content using [Asciidoc][ascii], [reStructuredText][rest], or Emacs org-mode. If you have files with associated extensions, Hugo will call external commands to generate the content. ([See the Hugo source code for external helpers][helperssource].)
+Hugo has new concept called _external helpers_. It means that you can write your content using [Asciidoc][ascii], [reStructuredText][rest]. If you have files with associated extensions, Hugo will call external commands to generate the content. ([See the Hugo source code for external helpers][helperssource].)
 
 For example, for Asciidoc files, Hugo will try to call the `asciidoctor` or `asciidoc` command. This means that you will have to install the associated tool on your machine to be able to use these formats. ([See the Asciidoctor docs for installation instructions](http://asciidoctor.org/docs/install-toolchain/)).
 
 To use these formats, just use the standard extension and the front matter exactly as you would do with natively supported `.md` files.
 
 {{% warning "Performance of External Helpers" %}}
-Because additional formats are external commands---with the exception of Org-mode---generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
+Because additional formats are external commands generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
 {{% /warning %}}
 
 ## Learn Markdown

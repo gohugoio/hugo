@@ -21,6 +21,9 @@ toc: true
 {{% note %}}
 This section is outdated, see https://github.com/gohugoio/hugoDocs/issues/11
 {{% /note %}}
+{{% todo %}}
+See above
+{{% /todo %}}
 
 ## What are Archetypes?
 
@@ -63,7 +66,7 @@ In this example, if you do not already have a `content/posts` directory, Hugo wi
 The  auto-populated fields are worth examining:
 
 * `title` is generated from the new content's filename (i.e. in this case, `my-first-post` becomes `"my first post"`)
-* `date` and `title` are the variables that ship with Hugo and are therefore included in *all* content files created with the Hugo CLI. `date` is generated in [RFC 3339 format][] by way of Golang's [`now()`][] function, which returns the current time.
+* `date` and `title` are the variables that ship with Hugo and are therefore included in *all* content files created with the Hugo CLI. `date` is generated in [RFC 3339 format][] by way of Go's [`now()`][] function, which returns the current time.
 * The third variable, `draft = true`, is *not* inherited by your default or custom archetypes but is included in Hugo's automatically scaffolded `default.md` archetype for convenience.
 
 Three variables per content file are often not enough for effective content management of larger websites. Luckily, Hugo provides a simple mechanism for extending the number of variables through custom archetypes, as well as default archetypes to keep content creation DRY.

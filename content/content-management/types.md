@@ -1,7 +1,7 @@
 ---
 title: Content Types
 linktitle: Types
-description: Hugo provides support for sites with multiple content types and assumes your site will be organized into sections, where each section will use the corresponding type.
+description: Hugo supports sites with multiple content types and assumes your site will be organized into sections, where each section represents the corresponding type.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -17,7 +17,7 @@ aliases: [/content/types]
 toc: true
 ---
 
-Hugo provides full support for sites with multiple content types. A **content type** can have a unique set of metadata (i.e., [front matter][]) or customized [template][] and can be created by the `hugo new` command via [archetypes][].
+A **content type** can have a unique set of metadata (i.e., [front matter][]) or customized [template][] and can be created by the `hugo new` command via [archetypes][].
 
 ## What is a Content Type
 
@@ -25,17 +25,18 @@ Hugo provides full support for sites with multiple content types. A **content ty
 
 ## Assigning a Content Type
 
-Hugo assumes that your site will be organized into [sections][] and each section will use a corresponding type. This is to reduce the amount of configuration necessary for new Hugo projects.
+Hugo assumes that your site will be organized into [sections][] and each section represents a corresponding type. This is to reduce the amount of configuration necessary for new Hugo projects.
 
 If you are taking advantage of this default behavior, each new piece of content you place into a section will automatically inherit the type. Therefore a new file created at `content/posts/new-post.md` will automatically be assigned the type `posts`. Alternatively, you can set the content type in a content file's [front matter][] in the field "`type`".
 
 ## Creating New Content of a Specific Type
 
-You can manually add files to your content directories, but Hugo has the ability to create and populate a new content file with preconfigured front matter via [archetypes][].
+You can manually add files to your content directories, but Hugo can create and populate a new content file with preconfigured front matter via [archetypes][].
 
 ## Defining a Content Type
 
-Creating a new content type is easy in Hugo. You simply define and provide the templates and archetype unique to your new content type. Hugo will fall back to using the general templates and default archetype whenever a specific file is not present.
+Creating a new content type is easy. You simply define the templates and archetype unique to your new content type, or Hugo will use defaults.
+
 
 {{% note "Declaring Content Types" %}}
 Remember, all of the following are *optional*. If you do not specifically declare content types in your front matter or develop specific layouts for content types, Hugo is smart enough to assume the content type from the file path and section. (See [Content Sections](/content-management/sections/) for more information.)

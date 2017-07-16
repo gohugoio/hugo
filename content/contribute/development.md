@@ -1,7 +1,7 @@
 ---
 title: Contribute to Hugo Development
 linktitle: Development
-description: Hugo relies heavily on contributions from the open source community. You don't need to be a Golang guru to contribute to the project's development.
+description: Hugo relies heavily on contributions from the open source community.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -21,7 +21,7 @@ toc: true
 
 ## Introduction
 
-Hugo is an open-source project and lives by the work of its [contributors][]. There are plenty of [open issues][issues], and we need your help to make Hugo even more awesome.
+Hugo is an open-source project and lives by the work of its [contributors][]. There are plenty of [open issues][issues], and we need your help to make Hugo even more awesome. You don't need to be a Go guru to contribute to the project's development.
 
 ## Assumptions
 
@@ -34,7 +34,7 @@ This contribution guide takes a step-by-step approach in hopes of helping newcom
 If you're struggling at any point in this contribution guide, reach out to the Hugo community in [Hugo's Discussion forum](https://discourse.gohugo.io).
 {{% /note %}}
 
-## Installing Golang
+## Installing Go
 
 The installation of Go should take only a few minutes. You have more than one option to get Go up and running on your machine.
 
@@ -47,7 +47,7 @@ If you are having trouble following the installation guides for go, check out [G
 Once you're finished installing Go, let's confirm everything is working correctly. Open a terminal---or command line under Windows--and type the following:
 
 ```bash
-`go version`
+go version
 ```
 
 You should see something similar to the following written to the console. Note that the version here reflects the most recent version of Go as of the last update for this page:
