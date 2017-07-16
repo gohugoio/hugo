@@ -156,11 +156,11 @@ twitter = "GoHugoIO"
   identifier = "contribute"
   url = "/contribute/"
 
-[[menu.docs]]
-  name = "Tags"
-  weight = 120
-  identifier = "tags"
-  url = "/tags/"
+#[[menu.docs]]
+#  name = "Tags"
+#  weight = 120
+#  identifier = "tags"
+#  url = "/tags/"
 
 
 # [[menu.docs]]
