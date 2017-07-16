@@ -563,7 +563,7 @@ Here's what you should look into next:
 [lists]: /templating/lists/
 [partials]: /templates/partials/
 [quickinstall]: /getting-started/installing/#quick-install
-[releases]: https://github.com/spf13/hugo/releases
+[releases]: https://github.com/gohugoio/hugo/releases
 [robusttheme]: https://github.com/dim0627/hugo_theme_robust
 [section]: /content-management/sections/
 [sectiontemplates]: /templates/section-templates/

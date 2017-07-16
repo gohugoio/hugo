@@ -29,7 +29,7 @@ The following starter kits are developed by active members of the Hugo community
 * [hugulp][]. hugulp is a tool to optimize the assets of a Hugo website. The main idea is to recreate the famous Ruby on Rails Asset Pipeline, which minifies, concatenates and fingerprints the assets used in your website.
 
 
-[addkit]: https://github.com/spf13/hugo/edit/master/docs/content/tools/starter-kits.md
+[addkit]: https://github.com/gohugoio/hugo/edit/master/docs/content/tools/starter-kits.md
 [amp]: https://www.ampproject.org/
 [Blaupause]: https://github.com/fspoettel/blaupause
 [GOHUGO AMP]: https://github.com/wildhaber/gohugo-amp

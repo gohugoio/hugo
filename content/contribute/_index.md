@@ -20,4 +20,4 @@ toc: false
 
 Hugo relies heavily on the enthusiasm and participation of the open-source community. We need your support in both its development and documentation.
 
-Hugo's contribution guidelines are [detailed in a `CONTRIBUTING.md`](https://github.com/spf13/hugo/blob/master/CONTRIBUTING.md) in the Hugo source repository on GitHub.
+Hugo's contribution guidelines are [detailed in a `CONTRIBUTING.md`](https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md) in the Hugo source repository on GitHub.

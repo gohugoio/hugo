@@ -18,7 +18,7 @@ toc: true
 ---
 
 {{% note "TOC Heading Levels are Fixed" %}}
-Currently, the `{{.TableOfContents}}` [page variable](/variables/page/) does not allow you to specify which heading levels you want the TOC to render. [See the related GitHub discussion (#1778)](https://github.com/spf13/hugo/issues/1778). As such, the resulting `<nav id="TableOfContents"><ul></ul></nav>` is going to start at `<h1>` when pulling from `{{.Content}}`.
+Currently, the `{{.TableOfContents}}` [page variable](/variables/page/) does not allow you to specify which heading levels you want the TOC to render. [See the related GitHub discussion (#1778)](https://github.com/gohugoio/hugo/issues/1778). As such, the resulting `<nav id="TableOfContents"><ul></ul></nav>` is going to start at `<h1>` when pulling from `{{.Content}}`.
 {{% /note %}}
 
 ## Usage

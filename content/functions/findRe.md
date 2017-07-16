@@ -42,7 +42,7 @@ Hugo uses Golang's [Regular Expression package](https://golang.org/pkg/regexp/),
 If you are just learning RegEx, or at least Golang's flavor, you can practice pattern matching in the browser at <https://regex101.com/>.
 {{% /note %}}
 
-<!-- Removed per request of @bep: https://github.com/spf13/hugo/issues/3188 -->
+<!-- Removed per request of @bep: https://github.com/gohugoio/hugo/issues/3188 -->
 <!-- ## `findRE` Example: Building a Table of Contents
 
 `findRE` allows us to build an automatically generated table of contents that could be used for a simple scrollspy if you don't want to use [Hugo's native .TableOfContents feature][toc]. The following shows how this could be done in a [partial template][partials]:

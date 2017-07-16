@@ -46,4 +46,4 @@ As of v0.13, Hugo's parser has been enhanced to accommodate archetype files with
 
 ## Related Hugo Issues
 
-* https://github.com/spf13/hugo/issues/776
+* https://github.com/gohugoio/hugo/issues/776

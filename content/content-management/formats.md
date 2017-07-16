@@ -107,7 +107,7 @@ markdown: mmark
 ```
 
 {{% warning %}}
-Thare are some features not available in Mmark; one example being that shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/spf13/hugo/issues/3137)), and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/spf13/hugo/issues/1970)) and the aforementioned GFM todo lists ([#2270](https://github.com/spf13/hugo/issues/2270)) are not fully supported. Contributions are welcome.
+Thare are some features not available in Mmark; one example being that shortcodes are not translated when used in an included `.mmark` file ([#3131](https://github.com/gohugoio/hugo/issues/3137)), and `EXTENSION_ABBREVIATION` ([#1970](https://github.com/gohugoio/hugo/issues/1970)) and the aforementioned GFM todo lists ([#2270](https://github.com/gohugoio/hugo/issues/2270)) are not fully supported. Contributions are welcome.
 {{% /warning %}}
 
 ## MathJax with Hugo
@@ -231,7 +231,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [emojis]: https://www.webpagefx.com/tools/emoji-cheat-sheet/
 [fireball]: https://daringfireball.net/projects/markdown/
 [gfmtasks]: https://guides.github.com/features/mastering-markdown/#syntax
-[helperssource]: https://github.com/spf13/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65
+[helperssource]: https://github.com/gohugoio/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65
 [hl]: /tools/syntax-highlighting/
 [hlsc]: /content-management/shortcodes/#highlight
 [hugocss]: /css/style.css

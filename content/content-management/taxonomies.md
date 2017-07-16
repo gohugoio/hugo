@@ -152,7 +152,7 @@ tags = [ "Development", "Go", "fast", "Blogging" ]
 categories = [ "Development" ]
 series = [ "Go Web Dev" ]
 slug = "hugo"
-project_url = "https://github.com/spf13/hugo"
+project_url = "https://github.com/gohugoio/hugo"
 +++
 ```
 
@@ -165,7 +165,7 @@ title: "Hugo: A fast and flexible static site generator"
 categories: ["Development"]
 categories: ["Go Web Dev"]
 slug: "hugo"
-project_url: "https://github.com/spf13/hugo"
+project_url: "https://github.com/gohugoio/hugo"
 ---
 ```
 
@@ -187,7 +187,7 @@ project_url: "https://github.com/spf13/hugo"
         "Go Web Dev"
     ],
     "slug": "hugo",
-    "project_url": "https://github.com/spf13/hugo"
+    "project_url": "https://github.com/gohugoio/hugo"
 }
 ```
 

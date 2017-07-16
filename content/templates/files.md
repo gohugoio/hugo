@@ -108,11 +108,11 @@ And here is the result as [called directly in the Hugo docs][] and rendered for 
 
 {{< readfile file="/content/readfiles/testing.txt" markdown="true">}}
 
-[called directly in the Hugo docs]: https://github.com/spf13/hugo/blob/master/docs/content/templates/files.md
-[dirindex]: https://github.com/spf13/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
+[called directly in the Hugo docs]: https://github.com/gohugoio/hugo/blob/master/docs/content/templates/files.md
+[dirindex]: https://github.com/gohugoio/hugo/blob/master/docs/layouts/shortcodes/directoryindex.html
 [osfileinfo]: https://golang.org/pkg/os/#FileInfo
 [reads]: /functions/readfile/
 [sc]: /content-management/shortcodes/
 [sct]: /templates/shortcode-templates/
-[readfilesource]: https://github.com/spf13/hugo/blob/master/
-[testfile]: https://github.com/spf13/hugo/blob/master/docs/testfile
+[readfilesource]: https://github.com/gohugoio/hugo/blob/master/
+[testfile]: https://github.com/gohugoio/hugo/blob/master/docs/testfile

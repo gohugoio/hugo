@@ -55,7 +55,7 @@ The following is an example:
           {{end}}
           </li>
           {{end}}
-            <li> <a href="https://github.com/spf13/hugo/issues" target="blank">Questions and Issues</a> </li>
+            <li> <a href="https://github.com/gohugoio/hugo/issues" target="blank">Questions and Issues</a> </li>
             <li> <a href="#" target="blank">Edit this Page</a> </li>
         </ul>
         <!-- sidebar menu end-->

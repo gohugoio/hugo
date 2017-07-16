@@ -50,8 +50,8 @@ Using base64 to decode and encode becomes really powerful if we have to handle
 responses from APIs.
 
 ```golang
-{{ $resp := getJSON "https://api.github.com/repos/spf13/hugo/readme"  }}
+{{ $resp := getJSON "https://api.github.com/repos/gohugoio/hugo/readme"  }}
 {{ $resp.content | base64Decode | markdownify }}
 ```
 
-The response of the GitHub API contains the base64-encoded version of the [README.md](https://github.com/spf13/hugo/blob/master/README.md) in the Hugo repository. Now we can decode it and parse the Markdown. The final output will look similar to the rendered version on GitHub.
+The response of the GitHub API contains the base64-encoded version of the [README.md](https://github.com/gohugoio/hugo/blob/master/README.md) in the Hugo repository. Now we can decode it and parse the Markdown. The final output will look similar to the rendered version on GitHub.

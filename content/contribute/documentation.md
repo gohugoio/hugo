@@ -39,7 +39,7 @@ hugo new <DOCS-SECTION>/<new-content-lowercase>.md
 ```
 
 {{% note "`title:`, `date:`, and Field Order" %}}
-`title` and `date` fields are added automatically when using archetypes via `hugo new`. Do not be worried if the order of the new file's front matter fields on your local machine is different than that of the examples provided in the Hugo docs. This is a known issue [(#452)](https://github.com/spf13/hugo/issues/452).
+`title` and `date` fields are added automatically when using archetypes via `hugo new`. Do not be worried if the order of the new file's front matter fields on your local machine is different than that of the examples provided in the Hugo docs. This is a known issue [(#452)](https://github.com/gohugoio/hugo/issues/452).
 {{% /note %}}
 
 ### Adding a New Function
@@ -382,7 +382,7 @@ Similar to [contributing to Hugo development](/contribute/development/), the Hug
 [archetypes]: /content-management/archetypes/
 [bqsyntax]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#blockquotes
 [charcount]: http://www.lettercount.com/
-[`docs/static/images/showcase/`]: https://github.com/spf13/hugo/tree/master/docs/static/images/showcase/
+[`docs/static/images/showcase/`]: https://github.com/gohugoio/hugo/tree/master/docs/static/images/showcase/
 [ghforking]: https://help.github.com/articles/fork-a-repo/
 [hugodev]: /contribute/development/
 [shortcodeparams]: content-management/shortcodes/#shortcodes-without-markdown

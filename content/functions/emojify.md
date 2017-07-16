@@ -35,4 +35,4 @@ I :heart: Hugo!
 [config]: /getting-started/configuration/
 [emojis]: http://www.emoji-cheat-sheet.com/
 [sc]: /templates/shortcode-templates/
-[scsource]: https://github.com/spf13/hugo/tree/master/docs/layouts/shortcodes
+[scsource]: https://github.com/gohugoio/hugo/tree/master/docs/layouts/shortcodes

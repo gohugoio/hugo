@@ -30,7 +30,7 @@ Hugo currently doesn’t ship with a “default” theme. This decision is inten
 
 ## Installing Themes
 
-The community-contributed themes featured on [themes.gohugo.io](//themes.gohugo.io/) are hosted in a [centralized GitHub repository][themesrepo]. The Hugo Themes Repo at <https://github.com/spf13/hugoThemes> is really a meta repository that contains pointers to a set of contributed themes.
+The community-contributed themes featured on [themes.gohugo.io](//themes.gohugo.io/) are hosted in a [centralized GitHub repository][themesrepo]. The Hugo Themes Repo at <https://github.com/gohugoio/hugoThemes> is really a meta repository that contains pointers to a set of contributed themes.
 
 {{% warning "Get `git` First" %}}
 Without [Git](https://git-scm.com/) installed on your computer, none of the following theme instructions will work. Git tutorials are beyond the scope of the Hugo docs, but [GitHub](https://try.github.io/) and [codecademy](https://www.codecademy.com/learn/learn-git) offer free, interactive courses for beginners.
@@ -41,7 +41,7 @@ Without [Git](https://git-scm.com/) installed on your computer, none of the foll
 You can install *all* available Hugo themes by cloning the entire [Hugo Theme repository on GitHub][themesrepo] from within your working directory. Depending on your internet connection the download of all themes might take a while.
 
 ```bash
-git clone --depth 1 --recursive https://github.com/spf13/hugoThemes.git themes
+git clone --depth 1 --recursive https://github.com/gohugoio/hugoThemes.git themes
 ```
 
 Before you use a theme, remove the .git folder in that theme's root folder. Otherwise, this will cause problem if you deploy using Git.
@@ -111,4 +111,4 @@ The `themename` in the above examples must match the name of the specific theme 
 [flag]: /getting-started/usage/ "See the full list of flags in Hugo's basic usage."
 [install]: /getting-started/installing/
 [config]: /getting-started/configuration/  "Learn how to customize your Hugo website configuration file in yaml, toml, or json."
-[themesrepo]: https://github.com/spf13/hugoThemes
+[themesrepo]: https://github.com/gohugoio/hugoThemes

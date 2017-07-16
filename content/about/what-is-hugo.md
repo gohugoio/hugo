@@ -46,7 +46,7 @@ Hugo is for people building a blog, a company site, a portfolio site, documentat
 [Amazon S3]: http://aws.amazon.com/s3/
 [Azure]: https://blogs.msdn.microsoft.com/acoat/2016/01/28/publish-a-static-web-site-using-azure-web-apps/
 [CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
-[contributing to it]: https://github.com/spf13/hugo
+[contributing to it]: https://github.com/gohugoio/hugo
 [DreamHost]: http://www.dreamhost.com/
 [Firebase]: https://firebase.google.com/docs/hosting/ "Firebase static hosting"
 [GitHub Pages]: https://pages.github.com/

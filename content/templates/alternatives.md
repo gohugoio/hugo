@@ -49,7 +49,7 @@ baseof.ace  list.ace  single.ace  single-baseof.ace
 ```
 
 {{% note %}}
-Note that the `html` suffix is needed even if the filename is suffixed `ace`. This does not work from inside a theme ([issue #763](https://github.com/spf13/hugo/issues/763)).
+Note that the `html` suffix is needed even if the filename is suffixed `ace`. This does not work from inside a theme ([issue #763](https://github.com/gohugoio/hugo/issues/763)).
 {{% /note %}}
 
 Some examples for the layout files above:

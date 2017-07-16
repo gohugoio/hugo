@@ -34,16 +34,16 @@ In no particular order, here are some other features currently being worked on:
 
 Feel free to [contribute to Hugo's development][devcontribute], [improve Hugo's documentation][doccontribute], or [open a new issue][newissue] if you have an idea for a new feature.
 
-[#98]: https://github.com/spf13/hugo/issues/98
-[#1014]: https://github.com/spf13/hugo/issues/1014
-[#1435]: https://github.com/spf13/hugo/issues/1435
-[#1436]: https://github.com/spf13/hugo/issues/1436
+[#98]: https://github.com/gohugoio/hugo/issues/98
+[#1014]: https://github.com/gohugoio/hugo/issues/1014
+[#1435]: https://github.com/gohugoio/hugo/issues/1435
+[#1436]: https://github.com/gohugoio/hugo/issues/1436
 [devcontribute]: /contribute/development/
 [doccontribute]: /contribute/documentation/
 [hosting and deployment]: /hosting-and-deployment/
 [migrate]: /tools/migrations/
-[milestones]: https://github.com/spf13/hugo/milestone/14
-[newissue]: https://github.com/spf13/hugo/issues/
+[milestones]: https://github.com/gohugoio/hugo/milestone/14
+[newissue]: https://github.com/gohugoio/hugo/issues/
 [related forum thread]: https://disourse.gohugo.io/t/web-based-editor/155
 [themes]: /themes/
 [themescontrib]: /contribute/themes/

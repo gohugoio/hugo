@@ -97,7 +97,7 @@ pipelines:
           script:
             - apt-get update -y && apt-get install wget
             - apt-get -y install git
-            - wget https://github.com/spf13/hugo/releases/download/v0.18/hugo_0.18-64bit.deb
+            - wget https://github.com/gohugoio/hugo/releases/download/v0.18/hugo_0.18-64bit.deb
             - dpkg -i hugo*.deb
             - git clone https://github.com/eliasson/liquorice themes/liquorice
             - hugo --theme=liquorice --baseURL https://__baseurl__ --buildDrafts

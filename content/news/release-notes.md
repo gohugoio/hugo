@@ -65,7 +65,7 @@ Hugo `0.20.1` is a bug fix release, fixing some important regressions introduced
 * LiveReload fails with `_index.md` with paginator {{< gh 3315 >}}
 * `rssURI` WARNING always shown {{< gh 3319 >}}
 
-See the [full list of closed issues on GitHub](https://github.com/spf13/hugo/milestone/16?closed=1).
+See the [full list of closed issues on GitHub](https://github.com/gohugoio/hugo/milestone/16?closed=1).
 
 ## **0.20** April 10th 2017
 
@@ -152,7 +152,7 @@ Furthermore, Hugo has its own Twitter account ([@gohugoio](https://twitter.com/g
 
 Hugo `0.19` brings native Emacs Org-mode content support ({{<gh 1483>}}), big thanks to {{< gh "@chaseadamsio" >}}.
 
-Also, a considerably amount of work have been put into cleaning up the Hugo source code, in an issue titled [Refactor the globals out of site build](https://github.com/spf13/hugo/issues/2701). This is not immediately visible to the Hugo end user, but will speed up future development.
+Also, a considerably amount of work have been put into cleaning up the Hugo source code, in an issue titled [Refactor the globals out of site build](https://github.com/gohugoio/hugo/issues/2701). This is not immediately visible to the Hugo end user, but will speed up future development.
 
 Hugo `0.18` was bringing full-parallel page rendering, so workarounds depending on rendering order did not work anymore, and pages with duplicate target paths (common examples would be `/index.md` or `/about/index.md`) would now conflict with the homepage or the section listing.
 
@@ -645,7 +645,7 @@ Huge thanks to all who participated in this release. A special thanks to
 
 Using the Hugo v0.15 32-bit Windows or ARM binary, running `hugo server` would crash or hang due to a [memory alignment issue](https://golang.org/pkg/sync/atomic/#pkg-note-BUG) in [Afero](https://github.com/spf13/afero).  The bug was discovered shortly after the v0.15.0 release and has since been [fixed](https://github.com/spf13/afero/pull/23) by {{< gh "@tpng" >}}.  If you encounter this bug, you may either compile Hugo v0.16-DEV from source, or use the following solution/workaround:
 
-* **64-bit Windows users: Please use [hugo_0.15_windows_amd64.zip](https://github.com/spf13/hugo/releases/download/v0.15/hugo_0.15_windows_amd64.zip)** (amd64 == x86-64).  It is only the 32-bit hugo_0.15_windows_386.zip that crashes/hangs (see {{< gh 1621 >}} and {{< gh 1628 >}}).
+* **64-bit Windows users: Please use [hugo_0.15_windows_amd64.zip](https://github.com/gohugoio/hugo/releases/download/v0.15/hugo_0.15_windows_amd64.zip)** (amd64 == x86-64).  It is only the 32-bit hugo_0.15_windows_386.zip that crashes/hangs (see {{< gh 1621 >}} and {{< gh 1628 >}}).
 * **32-bit Windows and ARM users: Please run `hugo server --renderToDisk` as a workaround** until Hugo v0.16 is released (see [“hugo server” returns runtime error on armhf](https://discourse.gohugo.io/t/hugo-server-returns-runtime-error-on-armhf/2293) and {{< gh 1716 >}}).
 
 ----
@@ -683,14 +683,14 @@ and {{< gh "@tatsushid" >}} for his continuous improvements
 to the templates. Also a big thanks to all the theme creators. 11 new themes
 have been added since last release and the [hugoThemes repo now has previews of
 all of
-them](https://github.com/spf13/hugoThemes/blob/master/README.md#theme-list).
+them](https://github.com/gohugoio/hugoThemes/blob/master/README.md#theme-list).
 
 Hugo also depends on a lot of other great projects. A big thanks to all of our dependencies including:
 [cobra](https://github.com/spf13/cobra),
 [viper](https://github.com/spf13/viper),
 [blackfriday](https://github.com/russross/blackfriday),
 [pflag](https://github.com/spf13/pflag),
-[HugoThemes](https://github.com/spf13/hugothemes),
+[HugoThemes](https://github.com/gohugoio/hugothemes),
 [BurntSushi](https://github.com/BurntSushi/toml),
 [goYaml](https://github.com/go-yaml/yaml/tree/v2), and the Go standard library.
 
@@ -833,7 +833,7 @@ maintainers and their tremendous contributions this release.
 * Enabled soft LiveReload of CSS and images ({{< gh 490 >}})
 * Various fixes in RSS feed generation ({{< gh 789 >}})
 * `HasMenuCurrent` and `IsMenuCurrent` is now supported on Nodes
-* A bunch of [bug fixes](https://github.com/spf13/hugo/commits/master)
+* A bunch of [bug fixes](https://github.com/gohugoio/hugo/commits/master)
 
 ----
 
@@ -845,7 +845,7 @@ templates.
 
 This release represents over 90 code commits from 28 different contributors.
 
-  * 10 [new themes](https://github.com/spf13/hugoThemes) created by the community
+  * 10 [new themes](https://github.com/gohugoio/hugoThemes) created by the community
   * Fully themable [Partials](/templates/partials/)
   * [404 template](/templates/404/) support in themes
   * [Shortcode](/content-management/shortcodes/) support in themes
@@ -870,7 +870,7 @@ This release represents over 110 code commits from 29 different contributors.
 
   * Considerably faster... about 3 - 4x faster on average
   * [LiveReload](/getting-started/usage/). Hugo will automatically reload the browser when the build is complete
-  * Theme engine w/[Theme Repository](https://github.com/spf13/hugoThemes)
+  * Theme engine w/[Theme Repository](https://github.com/gohugoio/hugoThemes)
   * [Menu system](/content-management/menus/) with support for active page
   * [Builders](/getting-started/usage/) to quickly create a new site, content or theme
   * [XML sitemap](/templates/sitemap-template/) generation
@@ -904,7 +904,7 @@ This release represents over 110 code commits from 29 different contributors.
   * RSS generation improved. Limited to 50 items by default, can limit further in [template](/templates/rss/)
   * Boolean params now supported in [fm](/content-management/front-matter/)
   * Launched website [showcase](/showcase/). Show off your own hugo site!
-  * A bunch of [bug fixes](https://github.com/spf13/hugo/commits/master)
+  * A bunch of [bug fixes](https://github.com/gohugoio/hugo/commits/master)
 
 ----
 

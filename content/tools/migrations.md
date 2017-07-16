@@ -20,7 +20,7 @@ toc: true
 This section highlights some projects around Hugo that are independently developed. These tools try to extend the functionality of our static site generator or help you to get started.
 
 {{% note %}}
-Do you know or maintain a similar project around Hugo? Feel free to open a [pull request](https://github.com/spf13/hugo/pulls) on GitHub if you think it should be added.
+Do you know or maintain a similar project around Hugo? Feel free to open a [pull request](https://github.com/gohugoio/hugo/pulls) on GitHub if you think it should be added.
 {{% /note %}}
 
 Take a look at this list of migration tools if you currently use other logging tools like Jekyll or WordPress but intend to switch to Hugo instead. They'll take care to export your content into Hugo-friendly formats.

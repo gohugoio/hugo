@@ -133,12 +133,12 @@ We assume that you've set up your `GOPATH` (see the section above if you're unsu
 
 > When you create a repository on GitHub, it exists as a remote repository. You can create a local clone of your repository on your computer and sync between the two locations.
 
-We're going to clone the [master Hugo repository](https://github.com/spf13/hugo). That seems counter-intuitive, since you won't have commit rights on it. But it's required for the Go workflow. You'll work on a copy of the master and push your changes to your own repository on GitHub.
+We're going to clone the [master Hugo repository](https://github.com/gohugoio/hugo). That seems counter-intuitive, since you won't have commit rights on it. But it's required for the Go workflow. You'll work on a copy of the master and push your changes to your own repository on GitHub.
 
 So, let's clone that master repository:
 
 ```sh
-go get -v -u github.com/spf13/hugo
+go get -v -u github.com/gohugoio/hugo
 ```
 
 ### Fork the repository
@@ -149,7 +149,7 @@ If you're not fimiliar with this term, GitHub's [help pages](https://help.github
 
 #### Fork by hand
 
-Open the [Hugo repository](https://github.com/spf13/hugo) on GitHub and click on the "Fork" button in the top right.
+Open the [Hugo repository](https://github.com/gohugoio/hugo) on GitHub and click on the "Fork" button in the top right.
 
 ![Fork button](/images/contribute/development/forking-a-repository.png)
 
@@ -160,7 +160,7 @@ Now open your fork repository on GitHub and copy the remote url of your fork. Yo
 Switch back to the terminal and move into the directory of the cloned master repository from the last step.
 
 ```sh
-cd $GOPATH/src/github.com/spf13/hugo
+cd $GOPATH/src/github.com/gohugoio/hugo
 ```
 
 Now Git needs to know that our fork exists by adding the copied remote url:
@@ -192,8 +192,8 @@ The output should look similar:
 ```sh
 digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (fetch)
 digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (push)
-origin  https://github.com/spf13/hugo (fetch)
-origin  https://github.com/spf13/hugo (push)
+origin  https://github.com/gohugoio/hugo (fetch)
+origin  https://github.com/gohugoio/hugo (push)
 ```
 
 ## The Hugo Git Contribution Workflow
@@ -247,7 +247,7 @@ The Go code styleguide maybe is opiniated but it ensures that the codebase looks
 go fmt ./...
 ```
 
-Once you made your additions commit your changes. Make sure that you follow our [code contribution guidelines](https://github.com/spf13/hugo/blob/master/CONTRIBUTING.md):
+Once you made your additions commit your changes. Make sure that you follow our [code contribution guidelines](https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md):
 
 ```sh
 # Add all changed files
@@ -358,7 +358,7 @@ If you modified your commit history in the last step GitHub will reject your try
 
 ## Open a pull request
 
-We made a lot of progress. Good work. In this step we finally open a pull request to submit our additions. Open the [Hugo master repository](https://github.com/spf13/hugo/) on GitHub in your browser.
+We made a lot of progress. Good work. In this step we finally open a pull request to submit our additions. Open the [Hugo master repository](https://github.com/gohugoio/hugo/) on GitHub in your browser.
 
 You should find a green button labeld with "New pull request". But GitHub is clever and probably suggests you a pull request like in the beige box below:
 
@@ -374,7 +374,7 @@ Last but not least you should accept the contributor license agreement (CLA). A 
 
 ### Automatic builds
 
-We use the [Travis CI loop](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) to compile Hugo with your additions. This should ensure that everything works as expected before merging your pull request. This in most cases only relevant if you made changes to the codebase of Hugo.
+We use the [Travis CI loop](https://travis-ci.org/gohugoio/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/gohugoio/hugo/branch/master) (Windows) to compile Hugo with your additions. This should ensure that everything works as expected before merging your pull request. This in most cases only relevant if you made changes to the codebase of Hugo.
 
 ![Automic builds and their status](/images/contribute/development/ci-errors.png)
 
@@ -398,7 +398,7 @@ Feel free to [open an issue][newissue] if you think you found a bug or you have 
 
 
 [codecademy]: https://www.codecademy.com/learn/learn-git
-[contributors]: https://github.com/spf13/hugo/graphs/contributors
+[contributors]: https://github.com/gohugoio/hugo/graphs/contributors
 [docscontrib]: /contribute/documentation/
 [forums]: https://discourse.gohugo.io
 [gitbook]: https://git-scm.com/
@@ -406,8 +406,8 @@ Feel free to [open an issue][newissue] if you think you found a bug or you have 
 [godl]: https://golang.org/dl/
 [goinstall]: https://golang.org/doc/install
 [gvm]: https://github.com/moovweb/gvm
-[issues]: https://github.com/spf13/hugo/issues
-[newissue]: https://github.com/spf13/hugo/issues/new
+[issues]: https://github.com/gohugoio/hugo/issues
+[newissue]: https://github.com/gohugoio/hugo/issues/new
 [releases]: /getting-started/
 [setupgopath]: https://golang.org/doc/code.html#Workspaces
 [thinkful]: https://www.thinkful.com/learn/github-pull-request-tutorial/
