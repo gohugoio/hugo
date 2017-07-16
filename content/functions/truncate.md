@@ -18,7 +18,7 @@ relatedfuncs: []
 deprecated: false
 ---
 
-Truncate a text to a max length without cutting words or leaving unclosed HTML tags. Since Go templates are HTML-aware, `truncate` will intelligently handle normal strings vs HTML strings:
+Since Go templates are HTML-aware, `truncate` will intelligently handle normal strings vs HTML strings:
 
 ```
 {{ "<em>Keep my HTML</em>" | safeHTML | truncate 10 }}` → <em>Keep my …</em>`

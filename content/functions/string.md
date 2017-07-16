@@ -19,7 +19,5 @@ deprecated: false
 aliases: []
 ---
 
-`string` creates a string from the argument passed to the function.
-
 * `{{string "BatMan"}}` → "BatMan"
 

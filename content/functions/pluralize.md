@@ -19,8 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-`pluralize` will pluralize the given word according to a set of common English pluralization rules.
-
 ```
 {{ "cat" | pluralize }} → "cats"
 ```

@@ -19,8 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-`jsonify` encodes a given object to JSON and converts it to HTML-safe content.
-
 ```
 {{ dict "title" .Title "content" .Plain | jsonify }}
 ```

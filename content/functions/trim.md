@@ -18,8 +18,6 @@ relatedfuncs: []
 deprecated: false
 ---
 
-`trim` returns a slice of the string with all leading and trailing characters contained in cutset removed.
-
 ```
 {{ trim "++Batman--" "+-" }} → "Batman"
 ```

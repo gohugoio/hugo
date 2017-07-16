@@ -1,6 +1,5 @@
 ---
-title: readdir
-linktitle: readDir
+title: readDir
 description: Gets a directory listing from a directory relative to the current working directory.
 godocref:
 date: 2017-02-01
@@ -18,8 +17,6 @@ relatedfuncs: [readFile]
 deprecated: false
 aliases: []
 ---
-
-`readDir` gets a directory listing from a directory relative to the current project working directory.
 
 If your current project working directory has a single file named `README.txt`:
 

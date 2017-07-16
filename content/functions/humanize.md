@@ -19,7 +19,7 @@ deprecated: false
 aliases: []
 ---
 
-`humanize` returns the humanized version of an argument with the first letter capitalized. If the input is either an int64 value or the string representation of an integer, humanize returns the number with the proper ordinal appended.
+If the input is either an int64 value or the string representation of an integer, humanize returns the number with the proper ordinal appended.
 
 
 ```

@@ -1,7 +1,7 @@
 ---
 title: htmlEscape
 linktitle:
-description: Returns the given string with the critical reserved HTML codes escaped.
+description: Returns the given string with the reserved HTML codes escaped.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -19,9 +19,7 @@ deprecated: false
 aliases: []
 ---
 
-`htmlEscape` returns the given string with the critical reserved HTML codes escaped, such that `&` becomes `&amp;` and so on. It escapes only: `<`, `>`, `&`, `'` and `"`.
-
-Bear in mind that, unless content is passed to `safeHTML`, output strings are escaped usually by the processor anyway.
+In the result `&` becomes `&amp;` and so on. It escapes only: `<`, `>`, `&`, `'` and `"`.
 
 ```
 {{ htmlEscape "Hugo & Caddy > Wordpress & Apache" }} → "Hugo &amp; Caddy &gt; Wordpress &amp; Apache"

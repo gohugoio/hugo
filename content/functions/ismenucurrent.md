@@ -1,6 +1,5 @@
 ---
 title: .IsMenuCurrent
-linktitle: IsMenuCurrent
 description:
 godocref:
 date: 2017-02-01

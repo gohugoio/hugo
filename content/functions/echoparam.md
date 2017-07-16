@@ -20,8 +20,6 @@ aliases: []
 ---
 
 
-`echoParam` prints a parameter if it is set.
-
 ```
 {{ echoParam .Params "project_url" }}
 ```

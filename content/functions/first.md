@@ -1,7 +1,7 @@
 ---
 title: first
 linktitle: first
-description: Slices an array to only the first Nth elements.
+description: "Slices an array to only the first _N_ elements."
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -19,7 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-`first` slices an array to only the first _N_th elements.
 
 ```golang
 {{ range first 10 .Data.Pages }}

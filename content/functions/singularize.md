@@ -19,8 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-`singularize` converts a word according to a set of common English singularization rules.
-
 `{{ "cats" | singularize }}` → "cat"
 
 See also the `.Data.Singular` [taxonomy variable](/variables/taxonomy/) for singularizing taxonomy names.

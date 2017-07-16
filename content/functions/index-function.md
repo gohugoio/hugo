@@ -20,8 +20,6 @@ aliases: [/functions/index/]
 needsexample: true
 ---
 
-`index` looks up the index(es) or key(s) of the data structure passed into it.
-
 From the Godocs:
 
 > Returns the result of indexing its first argument by the following arguments. Thus "index x 1 2 3" is, in Go syntax, x[1][2][3]. Each indexed item must be a map, slice, or array.

@@ -20,8 +20,6 @@ draft: false
 aliases: []
 ---
 
-`shuffle` returns a random permutation of a given array or slice:
-
 {{% code file="shuffle-input.html" %}}
 ```html
 <!-- Shuffled sequence = -->

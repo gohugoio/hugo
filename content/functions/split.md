@@ -19,8 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-`split` splits a string into substrings separated by a delimiter.
-
 * `{{split "tag1,tag2,tag3" "," }}` → ["tag1" "tag2" "tag3"]
 
 

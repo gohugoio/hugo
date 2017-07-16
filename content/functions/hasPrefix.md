@@ -19,6 +19,4 @@ deprecated: false
 aliases: []
 ---
 
-`hasPrefix` tests whether a string begins with prefix.
-
 * `{{ hasPrefix "Hugo" "Hu" }}` → true

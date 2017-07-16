@@ -1,7 +1,7 @@
 ---
 title: slice
 # linktitle: slice
-description: Creates an array (`[]interface{}``) of all passed arguments.
+description: Creates a alice (array) of all passed arguments.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -20,8 +20,6 @@ draft: false
 aliases: []
 toc: false
 ---
-
-`slice` allows you to create an array (`[]interface{}`) of all arguments that you pass to this function.
 
 One use case is the concatenation of elements in combination with the [`delimit` function][]:
 

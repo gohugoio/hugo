@@ -1,6 +1,5 @@
 ---
-title: safeurl
-# linktitle: safeURL
+title: safeURL
 description: Declares the provided string as a safe URL or URL substring.
 godocref: https://golang.org/pkg/html/template/#HTMLEscape
 date: 2017-02-01

@@ -1,6 +1,6 @@
 ---
 title: apply
-description: Given a map, array, or slice, `description` returns a new slice with a function applied over it.
+description: Given a map, array, or slice, `apply` returns a new slice with a function applied over it.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -19,9 +19,11 @@ draft: false
 aliases: []
 ---
 
+{{< todo >}}
 <!-- POTENTIAL NEW CONTENT: see apply/sequence discussion: https://discourse.gohugo.io/t/apply-printf-on-a-sequence/5722; -->
+{{< /todo >}}
 
-Given a map, array, or slice, `apply` returns a new slice with a function applied over it. `apply` expects at least three parameters, depending on the function being applied.
+`apply` expects at least three parameters, depending on the function being applied.
 
 1. The first parameter is the sequence to operate on
 2. The second parameter is the name of the function as a string, which must be the name of a valid [Hugo function][functions].

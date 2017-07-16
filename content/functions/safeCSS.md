@@ -1,6 +1,5 @@
 ---
-title: safecss
-# linktitle: safeCSS
+title: safeCSS
 description: Declares the provided string as a known "safe" CSS string.
 godocref: https://golang.org/src/html/template/content.go?s=919:929#L15
 date: 2017-02-01
@@ -18,8 +17,6 @@ relatedfuncs: [safeHTML,safeHTMLAttr,]
 deprecated: false
 aliases: []
 ---
-
-`safeCSS` declares the provided string as a known "safe" CSS string so that Go html/templates will not filter it as unsafe.
 
 In this context, *safe* means CSS content that matches any of the following:
 

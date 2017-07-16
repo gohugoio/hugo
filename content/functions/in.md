@@ -19,7 +19,7 @@ deprecated: false
 aliases: []
 ---
 
-`in` checks if an element is in an array (or slice) and returns a corresponding boolean value. The elements supported are strings, integers and floats, although only float64 will match as expected.
+The elements supported are strings, integers and floats, although only float64 will match as expected.
 
 In addition, `in` can also check if a substring exists in a string.
 

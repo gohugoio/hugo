@@ -19,7 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-`eq` returns true if the parameters are equal.
 
 ```
 {{ if eq .Section "blog" }}current{{ end }}

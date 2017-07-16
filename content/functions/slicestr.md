@@ -19,8 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-Slicing in `slicestr` is done by specifying a half-open range with two indices; i.e., a `start` and and `end`.
-
 For example, 1 and 4 creates a slice including elements 1 through 3.
 The `end` index can be omitted; it defaults to the string's length.
 

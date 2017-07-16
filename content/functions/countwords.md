@@ -1,6 +1,6 @@
 ---
 title: countwords
-description: Counts the number of words in a string that has been passed to it.
+description: Counts the number of words in a string.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -18,7 +18,7 @@ deprecated: false
 aliases: [/functions/countrunes/,/functions/countwords/]
 ---
 
-`countwords` tries to convert the passed content to a string and counts each word in it. The template function works similar to the [.WordCount page variable][pagevars].
+The template function works similar to the [.WordCount page variable][pagevars].
 
 ```html
 {{ "Hugo is a static site generator." | countwords }}

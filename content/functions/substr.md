@@ -19,8 +19,6 @@ relatedfuncs: []
 deprecated: false
 ---
 
-`substr` extracts parts of a string, beginning at the character at the specified position, and returns the specified number of characters.
-
 It normally takes two parameters: `start` and `length`. It can also take one parameter: `start`, i.e. `length` is omitted, in which case the substring starting from start until the end of the string will be returned.
 
 To extract characters from the end of the string, use a negative start number.

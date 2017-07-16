@@ -1,7 +1,7 @@
 ---
 title: now
 linktitle: now
-description: Returns the current local time as a [`time.Time`]
+description: Returns the current local time 
 godocref: https://godoc.org/time#Time
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -19,7 +19,7 @@ deprecated: false
 aliases: []
 ---
 
-`now` returns the current local time as a [`time.Time`](https://godoc.org/time#Time).
+See [`time.Time`](https://godoc.org/time#Time).
 
 For example, building your site on June 24, 2017 with the following templating:
 

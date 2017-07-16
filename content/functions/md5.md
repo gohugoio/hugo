@@ -19,7 +19,7 @@ deprecated: false
 aliases: []
 ---
 
-The `md5` function hashes the given input and returns its MD5 checksum.
+
 
 ```html
 {{ md5 "Hello world, gophers!" }}

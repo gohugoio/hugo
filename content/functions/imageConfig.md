@@ -1,5 +1,4 @@
 ---
-title: imageconfig
 linktitle: imageConfig
 description: Parses the image and returns the height, width, and color model.
 godocref:
@@ -17,8 +16,6 @@ hugoversion:
 relatedfuncs: []
 deprecated: false
 ---
-
-`imageConfig` parses the image and returns the height, width, and color model.
 
 ```golang
 {{ with (imageConfig "favicon.ico") }}

@@ -17,7 +17,7 @@ relatedfuncs: [truncate]
 deprecated: false
 ---
 
-Removes any trailing newline characters. Useful in a pipeline to remove newlines added by other processing (e.g., [`markdownify`](/functions/markdownify/)).
+Useful in a pipeline to remove newlines added by other processing (e.g., [`markdownify`](/functions/markdownify/)).
 
 ```golang
 {{chomp "<p>Blockhead</p>\n"}} → "<p>Blockhead</p>"

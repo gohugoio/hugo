@@ -10,7 +10,7 @@ menu:
   docs:
     parent: "functions"
 #tags: [dates,time]
-signature: ["Format FORMAT"]
+signature: [".Format FORMAT"]
 workson: [times]
 hugoversion:
 relatedfuncs: [dateFormat,now,Unix,time]
@@ -19,7 +19,7 @@ aliases: []
 toc: true
 ---
 
-`Format` will format date values defined in your front matter and can be used as a property on the following [page variables][pagevars]:
+`.Format` will format date values defined in your front matter and can be used as a property on the following [page variables][pagevars]:
 
 * `.PublishDate`
 * `.Date`

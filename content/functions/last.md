@@ -1,7 +1,7 @@
 ---
 title: last
 linktitle: last
-description: Slices an array to only the last Nth elements.
+description: "slices an array to only the last <em>N</em>th elements."
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -21,7 +21,6 @@ draft: false
 aliases: []
 ---
 
-`last` slices an array to only the last <em>N</em>th elements.
 
 ```
 {{ range last 10 .Data.Pages }}

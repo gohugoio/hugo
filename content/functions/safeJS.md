@@ -1,7 +1,7 @@
 ---
 title: safeJS
 # linktitle:
-description: Declares the provided string as a known "safe" JavaScript string.
+description: Declares the provided string as a known safe JavaScript string.
 godocref: https://golang.org/src/html/template/content.go?s=2548:2557#L51
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -19,8 +19,6 @@ deprecated: false
 draft: false
 aliases: []
 ---
-
-`safeJs` declares the provided string as a known "safe" Javascript string so that Go html/templates will not escape it as unsafe.
 
 In this context, *safe* means the string encapsulates a known safe EcmaScript5 Expression (e.g., `(x + y * z())`).
 

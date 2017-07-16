@@ -19,7 +19,7 @@ deprecated: false
 aliases: []
 ---
 
-`htmlUnescape` returns the given string with HTML escape codes un-escaped. This un-escapes more codes than `htmlEscape` escapes, including `#` codes and pre-UTF8 escapes for accented characters. It defers completely to the Go `html.UnescapeString` function, so functionality is consistent with that codebase.
+`htmlUnescape` returns the given string with HTML escape codes un-escaped. 
 
 Remember to pass the output of this to `safeHTML` if fully un-escaped characters are desired. Otherwise, the output will be escaped again as normal.
 

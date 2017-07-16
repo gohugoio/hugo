@@ -19,7 +19,7 @@ deprecated: false
 aliases: []
 ---
 
-`sort` sorts maps, arrays, and slices and returns a sorted slice. A sorted array of map values will be returned with the keys eliminated. There are two optional arguments: `sortByField` and `sortAsc`. If left blank, sort will sort by keys (for maps) in ascending order as its default behavior.
+A sorted array of map values will be returned with the keys eliminated. There are two optional arguments: `sortByField` and `sortAsc`. If left blank, sort will sort by keys (for maps) in ascending order as its default behavior.
 
 ```toml
 +++

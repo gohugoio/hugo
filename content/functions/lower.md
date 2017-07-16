@@ -19,8 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-`lower` converts all characters in the provided string to lowercase.
-
 ```
 {{lower "BatMan"}} → "batman"
 ```

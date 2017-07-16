@@ -1,6 +1,6 @@
 ---
 title: after
-description: Slices an array to only the items after the Nth item.
+description: "`after` slices an array to only the items after the <em>N</em>th item."
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -18,7 +18,7 @@ deprecated: false
 aliases: []
 ---
 
-`after` slices an array to only the items after the <em>N</em>th item. The following shows `after` being used in conjunction with the [`slice` function][slice]:
+The following shows `after` being used in conjunction with the [`slice` function][slice]:
 
 ```html
 {{ $data := slice "one" "two" "three" "four" }}

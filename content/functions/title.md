@@ -20,8 +20,6 @@ aliases: []
 ---
 
 
-`title` converts all characters in the provided string to title case.
-
 ```
 {{title "BatMan"}}` → "Batman"
 ```

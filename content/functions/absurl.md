@@ -1,6 +1,6 @@
 ---
 title: absURL
-description: Given a string, prepends the full absolute URL according to position in file structure and the configured baseURL.
+description: Creates an absolute URL based on the configured baseURL.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01

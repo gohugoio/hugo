@@ -20,8 +20,6 @@ aliases: []
 needsexamples: false
 ---
 
-The `uniq` function takes in a slice or array and returns a slice with subsequent duplicate elements removed:
-
 ```html
 {{ uniq (slice 1 2 3 2) }}
 {{ slice 1 2 3 2 | uniq }}

@@ -1,6 +1,5 @@
 ---
-title: rellangurl
-# linktitle: relLangURL
+title: relLangURL
 description: Adds the relative URL with correct language prefix according to site configuration for multilingual.
 godocref:
 date: 2017-02-01

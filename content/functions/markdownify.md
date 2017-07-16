@@ -19,7 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-`markdownify` runs the provided string through the Markdown processor. The result will be declared as "safe" so Go/html templates do not filter it.
 
 ```
 {{ .Title | markdownify }}

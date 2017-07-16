@@ -22,7 +22,7 @@ aliases: []
 comments:
 ---
 
-`lang.NumFmt` formats a number with a given precision using the requested `decimal`, `grouping`, and `negative` characters. The default options value is `- . ,`.
+The default options value is `- . ,`.
 
 Numbers greater than or equal to 5 are rounded up. For example, if precision is set to `0`, `1.5` becomes `2`, and `1.4` becomes `1`.
 

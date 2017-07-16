@@ -18,8 +18,6 @@ workson: []
 relatedfuncs: []
 ---
 
-`urlize` takes a string, sanitizes it for usage in URLs, and converts spaces to hyphens ("`-`").
-
 The following examples pull from a content file with the following front matter:
 
 {{% code file="content/blog/greatest-city.md" copy="false"%}}

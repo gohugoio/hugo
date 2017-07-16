@@ -21,7 +21,7 @@ draft: false
 aliases: []
 ---
 
-`upper` converts all characters in string to uppercase. Note that `upper` can be applied in your templates in more than one way:
+Note that `upper` can be applied in your templates in more than one way:
 
 ```
 {{ upper "BatMan" }} → "BATMAN"

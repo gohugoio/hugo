@@ -18,7 +18,7 @@ relatedfuncs: []
 deprecated: false
 ---
 
-`printf` formats a string using the standard `fmt.Sprintf` function. See [the go doc](https://golang.org/pkg/fmt/) for additional information.
+See [the go doc](https://golang.org/pkg/fmt/) for additional information.
 
 ```golang
 {{ i18n ( printf "combined_%s" $var ) }}

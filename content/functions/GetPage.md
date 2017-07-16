@@ -1,6 +1,6 @@
 ---
 title: .GetPage
-description: Looks up the index page (`_index.md`) of a given `Kind` and `path`.
+description: "Gets a `Page` of a given `Kind` and `path`."
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -20,7 +20,7 @@ aliases: []
 
 Every `Page` has a `Kind` attribute that shows what kind of page it is. While this attribute can be used to list pages of a certain `kind` using `where`, often it can be useful to fetch a single page by its path.
 
-`GetPage` looks up an index page of a given `Kind` and `path`. This method may support regular pages in the future, but currently it is a convenient way of getting the index pages, such as the homepage or a section, from a template:
+`GetPage` looks up a page of a given `Kind` and `path`.
 
 ```
 {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
@@ -28,7 +28,13 @@ Every `Page` has a `Kind` attribute that shows what kind of page it is. While th
 
 This method wil return `nil` when no page could be found, so the above will not print anything if the blog section isn't found.
 
-The valid page kinds are: *home, section, taxonomy and taxonomyTerm.*
+For a regular page:
+
+```
+{{ with .Site.GetPage "page" "blog" "my-post.md" }}{{ .Title }}{{ end }}
+```
+
+The valid page kinds are: *page, home, section, taxonomy and taxonomyTerm.*
 
 ## `.GetPage` Example
 

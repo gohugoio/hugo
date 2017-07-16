@@ -20,7 +20,7 @@ draft: false
 aliases: []
 ---
 
-`seq` creates a sequence of integers. It's named and used in the model of [GNU's seq][].
+It's named and used in the model of [GNU's seq][].
 
 ```
 3 → 1, 2, 3

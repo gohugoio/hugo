@@ -19,7 +19,7 @@ deprecated: false
 aliases: []
 ---
 
-Given two arrays (or slices), `intersect` returns the common elements. The elements supported are strings, integers, and floats (only float64).
+The elements supported are strings, integers, and floats (only float64).
 
 A useful example of `intersect` functionality is a "related posts" block. `isset` allows us to create a list of links to other posts that have tags that intersect with the tags in the current post.
 

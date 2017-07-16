@@ -19,7 +19,7 @@ aliases: []
 ---
 
 
-Returns a list of strings that match the regular expression. By default all matches will be included. The number of matches can be limitted with an optional third parameter.
+By default all matches will be included. The number of matches can be limitted with an optional third parameter.
 
 The example below returns a list of all second level headers (`<h2>`) in the content:
 
@@ -40,29 +40,6 @@ Hugo uses Golang's [Regular Expression package](https://golang.org/pkg/regexp/),
 If you are just learning RegEx, or at least Golang's flavor, you can practice pattern matching in the browser at <https://regex101.com/>.
 {{% /note %}}
 
-<!-- Removed per request of @bep: https://github.com/gohugoio/hugo/issues/3188 -->
-<!-- ## `findRE` Example: Building a Table of Contents
-
-`findRE` allows us to build an automatically generated table of contents that could be used for a simple scrollspy if you don't want to use [Hugo's native .TableOfContents feature][toc]. The following shows how this could be done in a [partial template][partials]:
-
-{{% code file="layouts/partials/toc.html" download="toc.html" %}}
-```html
-{{ $headers := findRE "<h2.*?>(.|\n)*?</h2>" .Content }}
-{{ if ge (len $headers) 1 }}
-    <ul>
-    {{ range $headers }}
-        <li>
-            <a href="#{{ . | plainify | urlize }}">
-                {{ . | plainify }}
-            </a>
-        </li>
-    {{ end }}
-    </ul>
-{{ end }}
-```
-{{% /code %}}
-
-The preceding snippet tries to find all second-level headers and generate a list where at least one header is found. [`plainify`][] strips the HTML and [`urlize`][] converts the header into a valid URL. -->
 
 [partials]: /templates/partials/
 [`plainify`]: /functions/plainify/

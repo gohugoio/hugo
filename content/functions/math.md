@@ -60,7 +60,7 @@ You can then concatenate the `image` value (string) with the path to your `image
 {{% /code %}}
 
 {{% note %}}
-The `add` example above makes use of the [`absURL` function](/functions/absurl/). `absURL` is a more elegant and future-proofed approach to creating URLs than combining `.Site.BaseURL` with hard-coded strings&mdash;a templating style sometimes seen in older [Hugo themes](/themes). `absURL` works very well, for example, when creating `link` references to stylesheets and other metadata in your rendered site's `<head>`.
+The `add` example above makes use of the [`absURL` function](/functions/absurl/). `absURL` and its relative companion `relURL` is the recommended way to construct URLs in Hugo.
 {{% /note %}}
 
 [cards]: https://dev.twitter.com/cards/overview

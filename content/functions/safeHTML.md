@@ -18,9 +18,7 @@ relatedfuncs: []
 deprecated: false
 ---
 
-`safeHTML` declares the provided string as a "safe" HTML document fragment
-so Go html/template will not filter it.  It should not be used
-for HTML from a third-party, or HTML with unclosed tags or comments.
+It should not be used for HTML from a third-party, or HTML with unclosed tags or comments.
 
 Given a site-wide [`config.toml`][config] with the following `copyright` value:
 

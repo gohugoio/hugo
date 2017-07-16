@@ -19,8 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-`plainify` strips any HTML and returns the plain text version of the provided string.
-
 ```
 {{ "<b>BatMan</b>" | plainify }} → "BatMan"
 ```

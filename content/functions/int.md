@@ -19,7 +19,7 @@ deprecated: false
 aliases: []
 ---
 
-Creates an integer (`int`) from the argument passed into the function. Useful for turning strings into numbers.
+Useful for turning strings into numbers.
 
 ```
 {{ int "123" }} → 123

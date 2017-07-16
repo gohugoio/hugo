@@ -19,8 +19,6 @@ deprecated: false
 aliases: []
 ---
 
-`replace` replaces all occurrences of the search string with the replacement string:
-
 ```
 `{{ replace "Batman and Robin" "Robin" "Catwoman" }}`
 → "Batman and Catwoman"
