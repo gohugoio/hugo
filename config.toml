@@ -1,4 +1,4 @@
-baseurl = "http://gohugo.io/"
+baseURL = "https://gohugo.io/"
 paginate =  100
 defaultContentLanguage = "en"
 enableEmoji = true
