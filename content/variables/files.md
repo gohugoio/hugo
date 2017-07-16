@@ -1,7 +1,7 @@
 ---
 title: File Variables
 linktitle:
-description: Hugo provides the ability to traverse your website's files on your server, including the local Hugo server.
+description: "You can access filesystem-related data for a content file in the `.File` variable."
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
@@ -17,8 +17,6 @@ sections_weight: 40
 aliases: [/variables/file-variables/]
 toc: false
 ---
-
-Hugo provides the ability to traverse your website's files on your server, including the local `Hugo server`. You can access file-system-related data for a piece of content via the `.File` variable.
 
 {{% note "Rendering Local Files" %}}
 For information on creating shortcodes and templates that tap into Hugo's file-related feature set, see [Local File Templates](/templates/files/).

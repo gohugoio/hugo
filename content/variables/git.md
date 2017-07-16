@@ -1,7 +1,7 @@
 ---
 title: Git Info Variables
 linktitle: Git Variables
-description:
+description: Get the last Git revision information for every content file.
 date: 2017-03-12
 publishdate: 2017-03-12
 lastmod: 2017-03-12
@@ -18,8 +18,6 @@ aliases: [/extras/gitinfo/]
 toc: false
 wip: false
 ---
-
-Hugo provides a way to integrate Git data into your website.
 
 {{% note "`.GitInfo` Performance Considerations"  %}}
 Hugo's Git integrations should be fairly performant but *can* increase your build time. This will depend on the size of your Git history.

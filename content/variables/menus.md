@@ -18,7 +18,7 @@ aliases: [/variables/menu/]
 toc: false
 ---
 
-A menu entry in a [menu template][] has the following properties:
+The [menu template][] has the following properties:
 
 `.URL`
 : string

@@ -1,7 +1,7 @@
 ---
 title: Hugo-specific Variables
 linktitle: Hugo Variables
-description: Hugo variables can be used in your templates to show metadata such as Hugo version and commit hashes.
+description: The `.Hugo` variable provides easy access to Hugo-related data.
 date: 2017-03-12
 publishdate: 2017-03-12
 lastmod: 2017-03-12
@@ -19,7 +19,7 @@ toc: false
 wip: false
 ---
 
-The `.Hugo` variable provides easy access to Hugo-related data and contains the following fields:
+It contains the following fields:
 
 `.Hugo.Generator`
 : `<meta>` tag for the version of Hugo that generated the site. `.Hugo.Generator` outputs a *complete* HTML tag; e.g. `<meta name="generator" content="Hugo 0.18" />`
