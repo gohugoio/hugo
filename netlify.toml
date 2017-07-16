@@ -7,8 +7,12 @@
   HUGO_ENV = "production"
   HUGO_ENABLEGITINFO = "true"
 
-[context.next.environment]
+[context.deploy-preview.environment]
   HUGO_VERSION = "0.25.1"
-  HUGO_ENV = "development"
+
+[context.branch-deploy.environment]
+  HUGO_VERSION = "0.25.1"
+
+[context.next.environment]
   HUGO_BASEURL = "https://next--gohugoio.netlify.com/"
   HUGO_ENABLEGITINFO = "true"
