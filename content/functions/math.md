@@ -31,7 +31,7 @@ There are 6 basic mathematical operators that can be used in Hugo templates:
 | `mul`    | Multiplies two integers. | `{{mul 2 3}}` &rarr; 6        |
 | `sub`    | Subtracts two integers.  | `{{sub 3 2}}` &rarr; 1        |
 
-## Using `add` with Strings
+## Use `add` with Strings
 
 You can also use the `add` function with strings. You may like this functionality in many use cases, including creating new variables by combining page- or site-level variables with other strings.
 

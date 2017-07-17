@@ -20,7 +20,7 @@ toc: true
 
 The following is a description of the most command commands you will use while developing your Hugo project. See the [Command Line Reference][commands] for a comprehensive view of Hugo's CLI.
 
-## Testing Installation
+## Test Installation
 
 Once you have [installed Hugo][install], make sure it is in your `PATH`. You can test that Hugo has been installed correctly via the `help` command:
 
@@ -166,7 +166,7 @@ Most Hugo builds are so fast that you may not notice the change unless looking d
 Hugo injects the LiveReload `<script>` before the closing `</body>` in your templates and will therefore not work if this tag is not present..
 {{% /note %}}
 
-### Disabling LiveReload
+### Disable LiveReload
 
 LiveReload works by injecting JavaScript into the pages Hugo generates. The script creates a connection from the browser's web socket client to the Hugo web socket server.
 
@@ -192,7 +192,7 @@ disableLiveReload = true
 disableLiveReload: true
 ```
 
-## Deploying Your Website
+## Deploy Your Website
 
 After running `hugo server` for local web development, you need to do a final `hugo` run *without the `server` part of the command* to rebuild your site. You may then deploy your site by copying the `public/` directory to your production web server.
 

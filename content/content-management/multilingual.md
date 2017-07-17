@@ -90,7 +90,7 @@ plaque = "plaques"
 ```
 {{% /code %}}
 
-## Translating Your Content
+## Translate Your Content
 
 Translated articles are identified by the name of the content file.
 

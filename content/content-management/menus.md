@@ -78,7 +78,7 @@ Additionally, there are some relevant functions available to menus on a page:
 `.HasMenuCurrent`
 : (menu string, menuEntry *MenuEntry) boolean
 
-## Adding content to menus
+## Add content to menus
 
 Hugo allows you to add content to a menu via the content's [front matter](/content-management/front-matter/).
 
@@ -114,7 +114,7 @@ menu:
 ---
 ```
 
-## Adding Non-content Entries to a Menu
+## Add Non-content Entries to a Menu
 
 You can also add entries to menus that aren’t attached to a piece of content. This takes place in your Hugo project's [`config` file][config].
 
@@ -161,7 +161,7 @@ The URLs must be relative to the context root. If the `baseURL` is `http://examp
 {{% /note %}}
 
 ## Nesting
-
+ 
 All nesting of content is done via the `parent` field.
 
 The parent of an entry should be the identifier of another entry. The identifier should be unique (within a menu).
@@ -174,7 +174,7 @@ This means that `.Title` will be used unless `.LinkTitle` is present, etc. In pr
 
 In this example, the top level of the menu is defined in your [site `config` file][config]). All content entries are attached to one of these entries via the `.Parent` field.
 
-## Rendering Menus
+## Render Menus
 
 See [Menu Templates](/templates/menu-templates/) for information on how to render your site menus within your templates.
 

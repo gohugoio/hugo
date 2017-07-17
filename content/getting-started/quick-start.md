@@ -338,7 +338,7 @@ hugo server --theme=hugo_theme_robust --buildDrafts
 ```
 {{% /code %}}
 
-### Updating Our `config.toml`
+### Update Our `config.toml`
 
 Our website is currently using the dummy values specified in `bookshelf/config.toml`, which were auto-generated with `hugo new site bookshelf`. Let's update the configuration:
 

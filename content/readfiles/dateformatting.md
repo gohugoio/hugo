@@ -70,7 +70,7 @@ Hugo assumes you want to append `nd` as a string to the day of the month and out
 Mar 3nd 2017
 ```
 
-### Using `.Local` and `.UTC`
+### Use `.Local` and `.UTC`
 
 In conjunction with the [`dateFormat` function][dateFormat], you can also convert your dates to `UTC` or to local timezones:
 

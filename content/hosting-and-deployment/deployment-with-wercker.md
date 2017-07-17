@@ -39,7 +39,7 @@ By the end of this guide, you will have completed the following:
 
 If you do not meet these assumptions, the [GitHub help section][githubhelp] has an explanation of how to install and use git. [Signing up for a GitHub][ghsignup] account is free as well. If you are completely unfamiliar with creating a new Hugo website, visit the [Hugo Quick Start][quickstart].
 
-## Creating a Basic Hugo Site
+## Create a Basic Hugo Site
 
 {{% note "This Guide Uses the Hugo CLI" %}}
 All the work for setting up a Hugo project and using this guide is done via the Hugo CLI's most basic commands. See the [command line reference page](/commands/) for a more exhaustive account of the CLI's features.
@@ -99,7 +99,7 @@ If everything is fine, you should see something similar to the image below when 
 
 ![][1]
 
-## Setting up Version Control in Git
+## Set up Version Control in Git
 
 Adding Git to your project is done by running the `git init` command from the root directory of your project.
 
@@ -129,7 +129,7 @@ Now we need to add (i.e., [stage [see Git documentation]][gitbasics]) and commit
 git commit -a -m "Initial commit"
 ```
 
-## Adding the Project to GitHub
+## Add the Project to GitHub
 
 Now we need to create a new repository on GitHub. Once you are signed in to GitHub, you can add a new repository by clicking on the **&#43;&#9660;** dropdown at the top right or by going to [https://github.com/new](https://github.com)..
 
@@ -144,19 +144,19 @@ git push -u origin master
 
 ![][2]
 
-## Setting Up Wercker
+## Set Up Wercker
 
 To sign up for a free Wercker account, go to <https://wercker.com> and click the the **Sign Up** button on the top right of the home screen.
 
 ![][3]
 
-### Registing for Wercker with Your GitHub Account
+### Registe for Wercker with Your GitHub Account
 
 Sign up for Wercker using your GitHub credentials. If you don't have a GitHub account, or don't want to use it for your account, you have the option to register with a username and password as well. However, the second half of this guide---devoted to hosting your website on GitHub pages---will no longer be of interest to you.
 
 ![][4]
 
-### Connecting GitHub or Bitbucket
+### Connecte GitHub or Bitbucket
 
 After you are registered, you will need to link your GitHub or Bitbucket account to Wercker. You can link your account by navigating to your profile settings and then selecting "Git connections."
 
@@ -184,7 +184,7 @@ In the next step, Wercker asks you to select the repository owner. Select your G
 
 ![][8]
 
-### Configuring Access
+### Configure Access
 
 {{% note %}}
 This guide assumes you are using a public GitHub repository and understand that the [published GitHub Pages website will be available to everyone](https://help.github.com/articles/what-is-github-pages/#usage-limits).
@@ -214,13 +214,13 @@ The application is now added and Wercker will offer you the chance to trigger a 
 
 ![][12]
 
-### Adding the Hugo-build Step
+### Add the Hugo-build Step
 
 Now we need to add the Wercker steps to our build process. First, we go to the "Registry" action in the top menu. When in the registry, we can search for "hugo build". Select the "Hugo-Build by **arjen**" step.
 
 ![][13]
 
-### Using the Hugo-build Step
+### Use the Hugo-build Step
 
 A summary of very basic usage is available at the top of the details for the Hugo-Build step. Below the basic usage is the contents of the `README.md` file associated with the step's repository. `README.md`'s on Wercker usually contain more details about the advanced options and examples of usage.
 
@@ -255,7 +255,7 @@ If completed and successful, a green check mark should appear in the commit colu
 
 ![][14]
 
-### Adding a GitHub Pages Deploy Step to `wercker.yml`
+### Add a GitHub Pages Deploy Step to `wercker.yml`
 
 In order to deploy to GitHub Pages, we need to add a deploy step to our `wercker.yml`. We are going to add `lukevevier/gh-pages`, the most popular GitHub Pages step in the Wercker Steps repository. Additionally, we need to ensure the box Wercker uses for our deployments has git and ssh installed. We can do this using the `install-packages` command. Here is our *final* `wercker.yml` file:
 
@@ -287,13 +287,13 @@ Secondly, we've configured the `basedir` to `public`. This is the directory that
 
 Lastly, you'll notice a `$GIT_TOKEN` variable. This is used for pushing our changes to GitHub. We will need to configure this token before Wercker can build our website.
 
-### Setting the App's Deploy Target
+### Set the App's Deploy Target
 
 We can set our deploy target by going to our app's settings and clicking on **Deploy targets**. Now select **Add deploy target** and then **Custom deploy**.
 
 ![][15]
 
-### Configuring the Deploy Step in Wercker
+### Configure the Deploy Step in Wercker
 
 The next screen requires you fill in the deploy target name.
 

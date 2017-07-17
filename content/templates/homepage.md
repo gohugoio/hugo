@@ -33,7 +33,7 @@ The [lookup order][lookup] for the homepage template is as follows:
 3. `/themes/<THEME>/layouts/index.html`
 4. `/themes/<THEME>/layouts/_default/list.html`
 
-## Adding Content and Front Matter to the Homepage
+## Add Content and Front Matter to the Homepage
 
 The homepage, similar to other [list pages in Hugo][lists], accepts content and front matter from an `_index.md` file. This file should live at the root of your `content` folder (i.e., `content/_index.md`). You can then add body copy and metadata to your homepage the way you would any other content file.
 

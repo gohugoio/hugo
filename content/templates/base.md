@@ -55,7 +55,7 @@ Here is the lookup order for the `post` base template:
 9. `/layouts/_default/baseof.html`
 10. `/themes/mytheme/layouts/_default/baseof.html`
 
-## Defining the Base Template
+## Define the Base Template
 
 The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will be rendered unless you specify another `*baseof.html` closer to the beginning of the lookup order.
 
@@ -83,7 +83,7 @@ The following defines a simple base template at `_default/baseof.html`. As a def
 ```
 {{% /code %}}
 
-## Overriding the Base Template
+## Override the Base Template
 
 From the above base template, you can define a [default list template][hugolists]. The default list template will inherit all of the code defined above and can then implement its own `"main"` block from:
 

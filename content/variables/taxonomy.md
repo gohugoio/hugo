@@ -47,7 +47,7 @@ Note that `.Data.Terms.Alphabetical` and `.Data.Terms.ByCount` can also be rever
 * `.Data.Terms.Alphabetical.Reverse`
 * `.Data.Terms.ByCount.Reverse`
 
-## Using `.Site.Taxonomies` Outside of Taxonomy Templates
+## Use `.Site.Taxonomies` Outside of Taxonomy Templates
 
 The `.Site.Taxonomies` variable holds all the taxonomies defined site-wide. `.Site.Taxonomies` is a map of the taxonomy name to a list of its values (e.g., `"tags" -> ["tag1", "tag2", "tag3"]``). Each value, though, is not a string but rather a *Taxonomy variable*.
 

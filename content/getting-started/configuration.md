@@ -335,7 +335,7 @@ $ env HUGO_TITLE="Some Title" hugo
 Names must be prefixed with `HUGO_` and the configuration key must be set in uppercase when setting operating system environment variables.
 {{% /note %}}
 
-## Ignoring Files When Rendering
+## Ignore Files When Rendering
 
 The following statement inside `./config.toml` will cause Hugo to ignore files ending with `.foo` and `.boo` when rendering:
 
@@ -345,7 +345,7 @@ ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 
 The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
 
-## Configuring Blackfriday
+## Configure Blackfriday
 
 [Blackfriday](https://github.com/russross/blackfriday) is Hugo's built-in Markdown rendering engine.
 
@@ -381,7 +381,7 @@ blackfriday:
 ```
 {{% /code %}}
 
-## Configuring Additional Output Formats
+## Configure Additional Output Formats
 
 Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats][] for information on how to add these values to your Hugo project's configuration file.
 

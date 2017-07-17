@@ -59,7 +59,7 @@ on render. Please don't include this in the template as it's not valid HTML.
 `<?xml version="1.0" encoding="utf-8" standalone="yes" ?>`
 {{% /note %}}
 
-## Configuring `sitemap.xml`
+## Configure `sitemap.xml`
 
 Defaults for `<changefreq>`, `<priority>` and `filename` values can be set in the site's config file, e.g.:
 

@@ -25,13 +25,13 @@ For Emacs users, [goorgeous](https://github.com/chaseadamsio/goorgeous) provides
 Before you begin writing your content in markdown, Blackfriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists. Luckily, there is an easy workaround. Use 4-spaces (i.e., <kbd>tab</kbd>) rather than 2-space indentations.
 {{% /note %}}
 
-## Configuring BlackFriday Markdown Rendering
+## Configure BlackFriday Markdown Rendering
 
 You can configure multiple aspects of Blackfriday as show in the following list. See the docs on [Configuration][config] for the full list of explicit directions you can give to Hugo when rendering your site.
 
 {{< readfile file="/content/readfiles/bfconfig.md" markdown="true" >}}
 
-## Extending Markdown
+## Extend Markdown
 
 Hugo provides some convenient methods for extending markdown.
 
@@ -92,7 +92,7 @@ Hugo supports GitHub-flavored markdown's use of triple back ticks, as well as pr
 
 Mmark is a [fork of BlackFriday][mmark] and markdown superset that is well suited for writing [IETF documentation][ietf]. You can see examples of the syntax in the [Mmark GitHub repository][mmarkgh] or the full syntax on [Miek Gieben's website][].
 
-### Using Mmark
+### Use Mmark
 
 As Hugo ships with Mmark, using the syntax is as easy as changing the extension of your content files from `.md` to `.mmark`.
 
@@ -116,7 +116,7 @@ Thare are some features not available in Mmark; one example being that shortcode
 
 This is not an introduction into actually using MathJax to render typeset mathematics on your website. Instead, this page is a collection of tips and hints for one way to get MathJax working on a website built with Hugo.
 
-### Enabling MathJax
+### Enable MathJax
 
 The first step is to enable MathJax on pages that you would like to have typeset math. There are multiple ways to do this (adventurous readers can consult the [Loading and Configuring](http://docs.mathjax.org/en/latest/configuration.html) section of the MathJax documentation for additional methods of including MathJax), but the easiest way is to use the secure MathJax CDN by include a `<script>` tag for the officially recommended secure CDN ([cdn.js.com](https://cdnjs.com)):
 

@@ -29,7 +29,7 @@ Go templates provide an extremely simple template language that adheres to the b
 
 Golang templates are HTML files with the addition of [variables][variables] and [functions][functions]. Golang template variables and functions are accessible within `{{ }}`.
 
-### Accessing a Predefined Variable
+### Access a Predefined Variable
 
 ```golang
 {{ foo }}
@@ -367,7 +367,7 @@ Go considers the following characters whitespace:
 
 Hugo provides the option of passing values to your template layer through your [site configuration][config] (i.e. for site-wide values) or through the metadata of each specific piece of content (i.e. the [front matter][]). You can define any values of any type and use them however you want in your templates, as long as the values are supported by the front matter format specified via `metaDataFormat` in your configuration file.
 
-## Using Content (`Page`) Parameters
+## Use Content (`Page`) Parameters
 
 You can provide variables to be used by templates in individual content's [front matter][].
 
@@ -404,7 +404,7 @@ Here is an example of corresponding code that could be used inside a `toc.html` 
 
 We want the *default* behavior to be for pages to include a TOC unless otherwise specified. This template checks to make sure that the `notoc:` field in this page's front matter is not `true`.
 
-## Using Site Configuration Parameters
+## Use Site Configuration Parameters
 
 You can arbitrarily define as many site-level parameters as you want in your [site's configuration file][config]. These parameters are globally available in your templates.
 

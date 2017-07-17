@@ -84,7 +84,7 @@ Similar to the [lookup order for templates][lookup] in your `layouts` directory,
 If you wish to use archetypes that ship with a theme, the `theme` field must be specified in your [configuration file](/getting-started/configuration/).
 {{% /note %}}
 
-## Choosing Your Archetype's Front Matter Format
+## Choose Your Archetype's Front Matter Format
 
 By default, `hugo new` content files include front matter in the TOML format regardless of the format used in `archetypes/*.md`.
 
@@ -94,7 +94,7 @@ You can specify a different default format in your site [configuration file][] f
 
 Default archetypes are convenient if your content's front matter stays consistent across multiple [content sections][sections].
 
-### Creating the Default Archetype
+### Create the Default Archetype
 
 When you create a new Hugo project using `hugo new site`, you'll notice that Hugo has already scaffolded a file at `archetypes/default.md`. 
 
@@ -113,7 +113,7 @@ categories = ["web development"]
 If you get an `EOF error` when using `hugo new`, add a carriage return after the closing `+++` or `---` for your TOML or YAML front matter, respectively. (See the [troubleshooting article on EOF errors](/troubleshooting/eof-error/) for more information.)
 {{% /warning %}}
 
-### Using the Default Archetype
+### Use the Default Archetype
 
 With an `archetypes/default.md` in place, we can use the CLI to create a new post in the `posts` content section:
 
@@ -146,7 +146,7 @@ You may notice that content files created with `hugo new` do not respect the ord
 
 Suppose your site's `posts` section requires more sophisticated front matter than what has been specified in `archetypes/default.md`. You can create a custom archetype for your posts at `archetypes/posts.md` that includes the full set of front matter to be added to the two default archetypes fields.
 
-### Creating a Custom Archetype
+### Create a Custom Archetype
 
 {{% code file="archetypes/posts.md"%}}
 ```toml
@@ -158,7 +158,7 @@ categories = ""
 ```
 {{% /code %}}
 
-### Using a Custom Archetype
+### Use a Custom Archetype
 
 With an `archetypes/posts.md` in place, you can use the Hugo CLI to create a new post with your preconfigured front matter in the `posts` content section:
 

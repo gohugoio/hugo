@@ -236,7 +236,7 @@ In Hugo, you can declare params in individual pages and globally for your entire
 
 The `.Param` method provides a way to resolve a single value according to it's definition in a page parameter (i.e. in the content's front matter) or a site parameter (i.e., in your `config`).
 
-### Accessing Nested Fields in Front Matter
+### Access Nested Fields in Front Matter
 
 When front matter contains nested fields like the following:
 

@@ -166,8 +166,7 @@ Assuming a `baseURL` of `yoursite.com`, the contents of the auto-generated alias
 
 The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://yoursite.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name=\"robots\" content=\"noindex\">` lets search engine bots know they they should not crawl and index your new alias page.
 
-### Customizing
-
+### Customize 
 You may customize this alias page by creating an `alias.html` template in the
 layouts folder of your site (i.e., `layouts/alias.html`). In this case, the data passed to the template is
 
@@ -264,7 +263,7 @@ Or, if you are on Windows and do not have `grep` installed:
 hugo config | FINDSTR /I canon
 ```
 
-## Overriding URLS with Front Matter
+## Override URLS with Front Matter
 
 In addition to specifying permalink values in your site configuration for different content sections, Hugo provides even more granular control for individual pieces of content.
 

@@ -28,7 +28,7 @@ You can then create a separate branch for your additions. Be sure to choose a de
 git checkout -b jon-doe-showcase-addition
 ```
 
-## Adding New Content
+## Add New Content
 
 The Hugo docs make heavy use of Hugo's [archetypes][] feature. All content sections in Hugo documentation have an assigned archetype.
 
@@ -42,7 +42,7 @@ hugo new <DOCS-SECTION>/<new-content-lowercase>.md
 `title` and `date` fields are added automatically when using archetypes via `hugo new`. Do not be worried if the order of the new file's front matter fields on your local machine is different than that of the examples provided in the Hugo docs. This is a known issue [(#452)](https://github.com/gohugoio/hugo/issues/452).
 {{% /note %}}
 
-### Adding a New Function
+### Add a New Function
 
 Once you have cloned the Hugo repository, you can create a new function via the following command. Keep the file name lowercase.
 
@@ -94,7 +94,7 @@ Here is a review of the front matter fields automatically generated for you usin
 
 In the body of your function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [`code` shortcode](#adding-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
 
-### Adding a New Tutorial
+### Add a New Tutorial
 
 Once you have cloned the Hugo repository, you can create a new tutorial via the following command. Name the markdown file accordingly:
 
@@ -110,7 +110,7 @@ The archetype for the `tutorials` content type is as follows:
 ```
 {{% /code %}}
 
-## Adding Code Blocks
+## Add Code Blocks
 
 Code blocks are crucial for providing examples of Hugo's new features to end users of the Hugo docs. Whenever possible, create examples that you think Hugo users will be able to implement in their own projects.
 

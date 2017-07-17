@@ -73,7 +73,7 @@ protocol = "bep://"
 
 The above example is fictional, but if used for the homepage on a site with `baseURL` `http://example.org`, it will produce a plain text homepage with the URL `bep://example.org/myindex.enr`.
 
-### Configuring Output Formats
+### Configure Output Formats
 
 The following is the full list of configuration options for output formats and their default values:
 
@@ -148,7 +148,7 @@ outputs:
 ---
 ```
 
-## Linking to Output Formats
+## Link to Output Formats
 
 Each `Page` has both an `.OutputFormats` (all formats, including the current) and an `.AlternativeOutputFormats` variable, the latter of which is useful for creating a `link rel` list in your site's `<head>`:
 

@@ -23,17 +23,17 @@ A **content type** can have a unique set of metadata (i.e., [front matter][]) or
 
 [Tumblr][] is a good example of a website with multiple content types. A piece of "content" could be a photo, quote, or a post, each with different sets of metadata and different visual rendering.
 
-## Assigning a Content Type
+## Assign a Content Type
 
 Hugo assumes that your site will be organized into [sections][] and each section represents a corresponding type. This is to reduce the amount of configuration necessary for new Hugo projects.
 
 If you are taking advantage of this default behavior, each new piece of content you place into a section will automatically inherit the type. Therefore a new file created at `content/posts/new-post.md` will automatically be assigned the type `posts`. Alternatively, you can set the content type in a content file's [front matter][] in the field "`type`".
 
-## Creating New Content of a Specific Type
+## Create New Content of a Specific Type
 
 You can manually add files to your content directories, but Hugo can create and populate a new content file with preconfigured front matter via [archetypes][].
 
-## Defining a Content Type
+## Define a Content Type
 
 Creating a new content type is easy. You simply define the templates and archetype unique to your new content type, or Hugo will use defaults.
 

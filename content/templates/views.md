@@ -25,7 +25,7 @@ The following are common use cases for content views:
 * You want content of every type to be shown on the homepage but only with limited [summary views][summaries].
 * You only want a bulleted list of your content on a [taxonomy list page][taxonomylists]. Views make this very straightforward by delegating the rendering of each different type of content to the content itself.
 
-## Creating a Content View
+## Create a Content View
 
 To create a new view, create a template in each of your different content type directories with the view name. The following example contains an "li" view and a "summary" view for the `post` and `project` content types. As you can see, these sit next to the [single content view][single] template, `single.html. You can even provide a specific view for a given type and continue to use the `_default/single.html` for the primary view.
 

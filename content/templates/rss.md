@@ -63,7 +63,7 @@ Hugo provides the ability for you to define any RSS type you wish and can have d
 4. `/themes/<THEME>/layouts/_default/rss.xml`
 5. Embedded rss.xml
 
-## Configuring RSS
+## Configure RSS
 
 By default, Hugo will create an unlimited number of RSS entries. You can limit the number of articles included in the built-in RSS templates by assigning a numeric value to `rssLimit:` field in your project's [`config` file][config].
 
@@ -115,7 +115,7 @@ Hugo will automatically add the following header line to this file on render. Pl
 ```
 {{% /warning %}}
 
-## Referencing your RSS Feed in `<head>`
+## Reference your RSS Feed in `<head>`
 
 In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag like this:
 

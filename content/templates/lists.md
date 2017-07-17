@@ -49,7 +49,7 @@ Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxte
 1. `layouts/_default/taxonomy.html`
 2. `themes/<THEME>/layouts/_default/taxonomy.html`
 
-## Adding Content and Front Matter to List Pages
+## Add Content and Front Matter to List Pages
 
 Since v0.18, [everything in Hugo is a `Page`][bepsays]. This means list pages and the homepage can have associated content files (i.e. `_index.md`) that contain page metadata (i.e., front matter) and content.
 
@@ -213,7 +213,7 @@ This list template has been modified slightly from a template originally used in
 ```
 {{% /code %}}
 
-## Ordering Content
+## Order Content
 
 Hugo lists render the content based on metadata you provide in [front matter][]. In addition to sane defaults, Hugo also ships with multiple methods to make quick work of ordering content inside list templates:
 
@@ -398,7 +398,7 @@ Reversing order can be applied to any of the above methods. The following uses `
 ```
 {{% /code %}}
 
-## Grouping Content
+## Group Content
 
 Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
@@ -524,7 +524,7 @@ The following template takes grouping by `date` a step further and uses Golang's
 ```
 {{% /code %}}
 
-### Reversing Key Order
+### Reverse Key Order
 
 Ordering of groups is performed by keys in alphanumeric order (A–Z, 1–100) and in reverse chronological order (i.e., with the newest first) for dates.
 
@@ -550,7 +550,7 @@ While these are logical defaults, they are not always the desired order. There a
 {{ range .Data.Pages.GroupBy "Section" "desc" }}
 ```
 
-### Ordering Within Groups
+### Order Within Groups
 
 Because Grouping returns a `{{.Key}}` and a slice of pages, all of the ordering methods listed above are available.
 
@@ -576,7 +576,7 @@ Here is the ordering for the example that follows:
 ```
 {{% /code %}}
 
-## Filtering and Limiting Lists
+## Filter and Limiting Lists
 
 Sometimes you only want to list a subset of the available content. A common is to only display “Posts” on blog's homepage. You can accomplish this with the `where` function.
 

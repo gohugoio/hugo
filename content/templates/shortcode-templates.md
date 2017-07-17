@@ -24,7 +24,7 @@ Shortcodes are a means to consolidate templating into small, reusable snippets t
 Hugo also ships with built-in shortcodes for common use cases. (See [Content Management: Shortcodes](/content-management/shortcodes/).)
 {{% /note %}}
 
-## Creating Custom Shortcodes
+## Create Custom Shortcodes
 
 Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, Hugo provides the ability to easily create custom shortcodes to meet your website's needs.
 
@@ -53,7 +53,7 @@ For more complex layouts with multiple or optional parameters, named parameters 
 
 Allowing both types of parameters (i.e., a "flexible" shortcode) is useful for complex layouts where you want to set default values that can be easily overridden by users.
 
-### Accessing Parameters
+### Access Parameters
 
 All shortcode parameters can be accessed via the `.Get` method. Whether you pass a key (i.e., string) or a number to the `.Get` method depends on whether you are accessing a named or positional parameter, respectively.
 

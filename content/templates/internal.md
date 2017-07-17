@@ -29,7 +29,7 @@ While the following internal templates are called similar to partials, they do *
 
 Hugo ships with internal templates for Google Analytics tracking, including both synchronous and asynchronous tracking codes.
 
-### Configuring Google Analytics
+### Configure Google Analytics
 
 Provide your tracking id in your configuration file:
 
@@ -41,7 +41,7 @@ googleAnalytics = "UA-123-45"
 googleAnalytics: "UA-123-45"
 ```
 
-### Using the Google Analytics Template
+### Use the Google Analytics Template
 
 You can then include the Google Analytics internal template:
 
@@ -58,7 +58,7 @@ You can then include the Google Analytics internal template:
 
 Hugo also ships with an internal template for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites. In order to effectively use Disqus, you will need to secure a Disqus "shortname" by [signing up for the free service][disqussignup].
 
-### Configuring Disqus
+### Configure Disqus
 
 To use Hugo's Disqus template, you first need to set a single value in your site's `config.toml` or `config.yml`:
 
@@ -76,7 +76,7 @@ You also have the option to set the following in the front matter for a given pi
 * `disqus_title`
 * `disqus_url`
 
-### Using the Disqus Template
+### Use the Disqus Template
 
 To add Disqus, include the following line in templates where you want your comments to appear:
 

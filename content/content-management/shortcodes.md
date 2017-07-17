@@ -28,7 +28,7 @@ A shortcode is a simple snippet inside a content file that Hugo will render usin
 
 In addition to cleaner Markdown, shortcodes can be updated any time to reflect new classes, techniques, or standards. At the point of site generation, Hugo shortcodes will easily merge in your changes. You avoid a possibly complicated search and replace operation.
 
-## Using Shortcodes
+## Use Shortcodes
 
 In your content files, a shortcode can be called by calling `{{%/* shortcodename parameters */%}}`. Shortcode parameters are space delimited, and parameters with internal spaces can be quoted.
 
@@ -68,7 +68,7 @@ The `<` character indicates that the shortcode's inner content does *not* need f
 
 You can call shortcodes within other shortcodes by creating your own templates that leverage the `.Parent` variable. `.Parent` allows you to check the context in which the shortcode is being called. See [Shortcode templates][sctemps].
 
-## Using Hugo's Built-in Shortcodes
+## Use Hugo's Built-in Shortcodes
 
 Hugo ships with a set of predefined shortcodes that represent very common usage. These shortcodes are provided for author convenience and to keep your markdown content clean.
 
@@ -409,7 +409,7 @@ Using the preceding `youtube` example (without `autoplay="true"`), the following
 
 {{< youtube w7Ft2ymGmfc >}}
 
-## Creating Custom Shortcodes
+## Create Custom Shortcodes
 
 To learn more about creating custom shortcodes, see the [shortcode template documentation][].
 

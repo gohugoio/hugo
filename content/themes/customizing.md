@@ -25,7 +25,7 @@ The following are key concepts for Hugo site customization with themes. Hugo per
 When you use a theme cloned from its git repository, do not edit the theme's files directly. Instead, theme customization in Hugo is a matter of *overriding* the templates made available to you in a theme. This provides the added flexibility of tweaking a theme to meet your needs while staying current with a theme's upstream.
 {{% /note %}}
 
-## Overriding Static Files
+## Override Static Files
 
 There are times where you want to include static assets that differ from versions of the same asset that ships with a theme.
 
@@ -41,7 +41,7 @@ You want to replace the version of jQuery that ships with the theme with the new
 /static/js/jquery.min.js
 ```
 
-## Overriding Template Files
+## Override Template Files
 
 Anytime Hugo looks for a matching template, it will first check the working directory before looking in the theme directory. If you would like to modify a template, simply create that template in your local `layouts` directory.
 
@@ -65,7 +65,7 @@ Would be overwritten by
 This only works for templates that Hugo "knows about" (i.e., that follow its convention for folder structure and naming). If a theme imports template files in a creatively named directory, Hugo won’t know to look for the local `/layouts` first.
 {{% /warning %}}
 
-## Overriding Archetypes
+## Override Archetypes
 
 If the archetype that ships with the theme for a given content type (or all content types) doesn’t fit with how you are using the theme, feel free to copy it to your `/archetypes` directory and make modifications as you see fit.
 

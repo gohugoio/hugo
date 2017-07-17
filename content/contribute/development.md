@@ -34,13 +34,13 @@ This contribution guide takes a step-by-step approach in hopes of helping newcom
 If you're struggling at any point in this contribution guide, reach out to the Hugo community in [Hugo's Discussion forum](https://discourse.gohugo.io).
 {{% /note %}}
 
-## Installing Go
+## Install Go
 
 The installation of Go should take only a few minutes. You have more than one option to get Go up and running on your machine.
 
 If you are having trouble following the installation guides for go, check out [Go Bootcamp, which contains setups for every platform][gobootcamp] or reach out to the Hugo community in the [Hugo Discussion Forums][forums].
 
-### Installing Go From Source
+### Install Go From Source
 
 [Download the latest stable version of Go][godl] and follow the official [Golang installation guide][goinstall].
 
@@ -64,7 +64,7 @@ You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty strin
 /Users/<yourusername>/Code/go
 ```
 
-### Installing Go with Homebrew
+### Install Go with Homebrew
 
 If you are a macOS user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
 
@@ -80,11 +80,11 @@ More experienced users can use the [Go Version Manager][gvm] (GVM). GVM allows y
 
 GVM comes in especially handy if you follow the development of Hugo over a longer period of time. Future versions of Hugo will usually be compiled with the latest version of Go. Sooner or later, you will have to upgrade if you want to keep up.
 
-## Creating a GitHub Account
+## Create a GitHub Account
 
 If you're going to contribute code, you'll need to have an account on GitHub. Go to [www.github.com/join](https://github.com/join) and set up a personal account.
 
-## Installing Git on Your System
+## Install Git on Your System
 
 You will need to have Git installed on your computer to contribute to Hugo development. Teaching git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book][gitbook] if you are not sure where to begin. The used terminology will be explained with annotations.
 
@@ -217,7 +217,7 @@ git checkout -b <BRANCH-NAME>
 
 You can check on which branch your are with `git branch`. You should see a list of all local branches. The current branch is indicated with a little asterisk.
 
-### Contributing to Documentation
+### Contribute to Documentation
 
 Perhaps you want to start contributing to the Hugo docs. If so, you can ignore most of the following steps and focus on the `/docs` directory within your newly cloned repository. You can change directories into the Hugo docs using `cd docs`.
 
@@ -225,7 +225,7 @@ You can start Hugo's built-in server via `hugo server`. Browse the documentation
 
 We have developed a [separate Hugo documentation contribution guide][docscontrib] for more information on how the Hugo docs are built, organized, and improved by the generosity of people like you.
 
-### Building Hugo
+### Build Hugo
 
 While making changes in the codebase it's a good idea to build the binary to test them:
 
@@ -233,14 +233,12 @@ While making changes in the codebase it's a good idea to build the binary to tes
 go build -o hugo main.go
 ```
 
-### Testing
-
+### Test 
 Sometimes changes on the codebase can cause unintended side effects. Or they don't work as expected. Most functions have their own test cases. You can find them in files ending with `_test.go`.
 
 Make sure the commands `go test ./...` passes, and `go build` completes.
 
-### Formatting
-
+### Formatting 
 The Go code styleguide maybe is opiniated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our addtions:
 
 ```sh
@@ -263,7 +261,7 @@ You noticed some commit messages don't fulfill the code contribution guidelines 
 
 If you are unsure what a command does leave the commit as it is. We can fix your commits later in the pull request.
 
-#### Modifying the last commit
+#### Modify the last commit
 
 Let's say you want to modify the last commit message. Run the following command and replace the current message:
 
@@ -285,7 +283,7 @@ git add --all
 git commit --amend
 ```
 
-#### Modifying multiple commits
+#### Modify multiple commits
 
 {{% warning "Be Careful Modifying Multiple Commits"%}}
 Modifications such as those described in this section can have serious unintended consequences. Skip this section if you're not sure!

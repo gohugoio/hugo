@@ -119,7 +119,7 @@ type WeightedPages []WeightedPage
 
 <!-- Begin /taxonomies/ordering/ -->
 
-## Ordering Taxonomies
+## Order Taxonomies
 
 Taxonomies can be ordered by either alphabetical key or by the number of content pieces assigned to that key.
 
@@ -147,7 +147,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 <!-- [See Also Taxonomy Lists](/templates/list/) -->
 
-## Ordering Content within Taxonomies
+## Order Content within Taxonomies
 
 Hugo uses both `date` and `weight` to order content within taxonomies.
 
@@ -155,7 +155,7 @@ Each piece of content in Hugo can optionally be assigned a date. It can also be 
 
 When iterating over content within taxonomies, the default sort is the same as that used for [section and list pages]() first by weight then by date. This means that if the weights for two pieces of content are the same, than the more recent content will be displayed first. The default weight for any piece of content is 0.
 
-### Assigning Weight
+### Assign Weight
 
 Content can be assigned weight for each taxonomy that it's assigned to.
 
@@ -203,7 +203,7 @@ using the [list templates](/templates/list/):
 3. You can list all terms for a taxonomy
 4. You can list all taxonomies (with their terms)
 
-## Displaying a Single Piece of Content's Taxonomies
+## Display a Single Piece of Content's Taxonomies
 
 Within your content templates, you may wish to display the taxonomies that piece of content is assigned to.
 
@@ -234,7 +234,7 @@ To list such taxonomies, use the following:
 
 Alternatively, you may use the [delimit template function][delimit] as a shortcut if the taxonomies should just be listed with a separator. See {{< gh 2143 >}} on GitHub for discussion.
 
-## Listing Content with the Same Taxonomy Term
+## List Content with the Same Taxonomy Term
 
 If you are using a taxonomy for something like a series of posts, you can list individual pages associated with the same taxonomy. This is also a quick and dirty method for showing related content:
 
@@ -248,7 +248,7 @@ If you are using a taxonomy for something like a series of posts, you can list i
 </ul>
 ```
 
-## Listing All content in a Given taxonomy
+## List All content in a Given taxonomy
 
 This would be very useful in a sidebar as “featured content”. You could even have different sections of “featured content” by assigning different terms to the content.
 
@@ -269,7 +269,7 @@ This would be very useful in a sidebar as “featured content”. You could even
 </section>
 ```
 
-## Rendering a Site's Taxonomies
+## Render a Site's Taxonomies
 
 If you wish to display the list of all keys for your site's taxonomy, you can retrieve them from the [`.Site` variable][sitevars] available on every page.
 

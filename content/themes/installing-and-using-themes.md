@@ -28,7 +28,7 @@ Hugo currently doesn’t ship with a “default” theme. This decision is inten
 1. You have already [installed Hugo on your development machine][install].
 2. You have git installed on your machine and you are familiar with basic git usage.
 
-## Installing Themes
+## Install Themes
 
 The community-contributed themes featured on [themes.gohugo.io](//themes.gohugo.io/) are hosted in a [centralized GitHub repository][themesrepo]. The Hugo Themes Repo at <https://github.com/gohugoio/hugoThemes> is really a meta repository that contains pointers to a set of contributed themes.
 
@@ -36,7 +36,7 @@ The community-contributed themes featured on [themes.gohugo.io](//themes.gohugo.
 Without [Git](https://git-scm.com/) installed on your computer, none of the following theme instructions will work. Git tutorials are beyond the scope of the Hugo docs, but [GitHub](https://try.github.io/) and [codecademy](https://www.codecademy.com/learn/learn-git) offer free, interactive courses for beginners.
 {{% /warning %}}
 
-### Installing All Themes
+### Install All Themes
 
 You can install *all* available Hugo themes by cloning the entire [Hugo Theme repository on GitHub][themesrepo] from within your working directory. Depending on your internet connection the download of all themes might take a while.
 
@@ -46,7 +46,7 @@ git clone --depth 1 --recursive https://github.com/gohugoio/hugoThemes.git theme
 
 Before you use a theme, remove the .git folder in that theme's root folder. Otherwise, this will cause problem if you deploy using Git.
 
-### Installing a Single Theme
+### Install a Single Theme
 
 Change into the `themes` directory and download a theme by replacing `URL_TO_THEME` with the URL of the theme repository:
 
@@ -75,7 +75,7 @@ Always review the `README.md` file that is shipped with a theme. Often, these fi
 Please make certain you have installed the themes you want to use in the
 `/themes` directory. This is the default directory used by Hugo. Hugo comes with the ability to change the themes directory via the [`themesDir` variable in your site configuration][config], but this is not recommended.
 
-## Using Themes
+## Use Themes
 
 Hugo applies the decided theme first and then applies anything that is in the local directory. This allows for easier customization while retaining compatibility with the upstream version of the theme. To learn more, go to [customizing themes][customizethemes].
 

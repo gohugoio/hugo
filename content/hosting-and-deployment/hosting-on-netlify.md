@@ -59,7 +59,7 @@ Select the repo you want to use for continuous deployment. If you have a large n
 
 Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you wanted published, your [build command][], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration][config], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
 
-### Building with a Specific Hugo Version
+### Build with a Specific Hugo Version
 
 Setting the build command to `hugo` will build your site according to the current default Hugo version used by Netlify. You can see the full list of [available Hugo versions in Netlify's Docker file][hugoversions].
 
@@ -87,7 +87,7 @@ Once the build is finished---this should only take a few seconds--you should now
 
 Now every time you push changes to your hosted git repository, Netlify will rebuild and redeploy your site.
 
-## Using Hugo Themes with Netlify
+## Use Hugo Themes with Netlify
 
 The [`git clone` method for installing themes][installthemes] is not supported by Netlify. If you were to use `git clone`, it would require you to recursively remove the `.git` subdirectory from the theme folder and would therefore prevent compatibility with future versions of the theme.
 

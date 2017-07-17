@@ -21,11 +21,11 @@ Hugo ships with support for [Disqus](https://disqus.com/), a third-party service
 
 Your theme may already support Disqus, but if not, it is easy to add to your templates via [Hugo's built-in Disqus partial][disquspartial].
 
-## Adding Disqus
+## Add Disqus
 
 Hugo comes with all the code you need to load Disqus into your templates. Before adding Disqus to your site, you'll need to [set up an account][disqussetup].
 
-### Configuring Disqus
+### Configure Disqus
 
 Disqus comments require you set a single value in your [site's configuration file][configuration]. The following show the configuration variable in a `config.toml` and `config.yml`, respectively:
 
@@ -43,11 +43,11 @@ For many websites, this is enough configuration. However, you also have the opti
 * `disqus_title`
 * `disqus_url`
 
-### Rendering Hugo's Built-in Disqus Partial Template
+### Render Hugo's Built-in Disqus Partial Template
 
 See [Partial Templates][partials] to learn how to add the Disqus partial to your Hugo website's templates.
 
-## Commenting Alternatives
+## Comments Alternatives
 
 There are a few alternatives to commenting on static sites for those who do not want to use Disqus:
 

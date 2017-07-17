@@ -27,7 +27,7 @@ Partial templates---like [single page templates][singletemps] and [list page tem
 
 This allows a theme's end user to copy a partial's contents into a file of the same name for [further customization][customize].
 
-## Using Partials in your Templates
+## Use Partials in your Templates
 
 All partials for your Hugo project are located in a single `layouts/partials` directory. For better organization, you can create multiple subdirectories within `partials` as well:
 

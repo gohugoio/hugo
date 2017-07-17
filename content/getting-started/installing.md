@@ -77,7 +77,7 @@ choco install hugo -confirm
 
 Hugo uses [govendor][] to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository. Therefore, a simple `go get` is *not* supported because the command is not vendor aware. *You must use `govendor` to fetch Hugo's dependencies.*
 
-#### Fetching from GitHub
+#### Fetch from GitHub
 
 {{% code file="from-gh.sh" %}}
 ```sh
@@ -125,7 +125,7 @@ There are pros and cons to each of the aforementioned methods:
 Since building from source is appealing to more seasoned command line users, this guide will focus more on installing Hugo via Homebrew and Tarball.
 {{% /note %}}
 
-### Installing Hugo with Brew
+### Install Hugo with Brew
 
 #### Step 1: Install `brew` if you haven't already
 
@@ -176,7 +176,7 @@ hugo version
 Hugo Static Site Generator v0.13 BuildDate: 2015-03-09T21:34:47-05:00
 ```
 
-### Installing Hugo from Tarball
+### Install Hugo from Tarball
 
 #### Step 1: Decide on the location
 
@@ -261,7 +261,7 @@ Close the terminal and open a new terminal to pick up the changes to your profil
 
 You've successfully installed Hugo.
 
-### Building from Source on Mac
+### Build from Source on Mac
 
 If you want to compile Hugo yourself, you'll need to install Go (aka Golang). You can [install Go directly from the Go website](https://golang.org/dl/) or via Homebrew using the following command:
 
@@ -414,7 +414,7 @@ C:\Hugo\Sites\example.com&gt;dir
                7 Dir(s)   6,273,331,200 bytes free
 ```
 
-### Troubleshooting Windows Installation
+### Troubleshoot Windows Installation
 
 [@dhersam][] has created a nice video on common issues:
 
@@ -469,11 +469,11 @@ snap install hugo
 Hugo-as-a-snap can write only inside the user’s `$HOME` directory---and gvfs-mounted directories owned by the user---because of Snaps’ confinement and security model. More information is also available [in this related GitHub issue](https://github.com/gohugoio/hugo/issues/3143).
 {{% /note %}}
 
-## Upgrading Hugo
+## Upgrade Hugo
 
 Upgrading Hugo is as easy as downloading and replacing the executable you’ve placed in your `PATH`.
 
-## Installing Pygments (Optional)
+## Install Pygments (Optional)
 
 The Hugo executable has one *optional* external dependency for source code highlighting ([Pygments][pygments]).
 

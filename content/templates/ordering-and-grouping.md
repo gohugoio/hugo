@@ -63,7 +63,7 @@ This list template is used for [spf13.com](http://spf13.com/). It makes use of [
 ```
 {{% /code %}}
 
-## Ordering Content
+## Order Content
 
 Hugo lists render the content based on metadata provided in the [front matter](/content-management/front-matter/)..
 
@@ -230,7 +230,7 @@ Reversing order can be applied to any of the above methods. The following uses `
 ```
 {{% /code %}}
 
-## Grouping Content
+## Group Content
 
 Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
@@ -324,7 +324,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 ```
 {{% /code %}}
 
-### Reversing Key Order
+### Reverse Key Order
 
 The ordering of the groups is performed by keys in alphanumeric order (A–Z, 1–100) and in reverse chronological order (newest first) for dates.
 
@@ -341,7 +341,7 @@ While these are logical defaults, they are not always the desired order. There a
 ```
 
 
-#### Providing the Alternate Direction
+#### Provide the Alternate Direction
 
 ```html
 {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
@@ -351,7 +351,7 @@ While these are logical defaults, they are not always the desired order. There a
 {{ range .Data.Pages.GroupBy "Section" "desc" }}
 ```
 
-### Ordering Within Groups
+### Order Within Groups
 
 Because Grouping returns a `{{.Key}}` and a slice of pages, all of the ordering methods listed above are available.
 
@@ -374,7 +374,7 @@ within each group is ordered alphabetically by title.
 ```
 {{% /code %}}
 
-## Filtering and Limiting Lists
+## Filter and Limiting Lists
 
 Sometimes you only want to list a subset of the available content. A common request is to only display “Posts” on the homepage. You can accomplish this with the `where` function.
 

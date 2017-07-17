@@ -109,7 +109,7 @@ Mar 3nd 2017
 
 <!-- Content idea: see https://discourse.gohugo.io/t/formatting-a-date-with-suffix-2nd/5701 -->
 
-### Using `.Local` and `.UTC`
+### Use `.Local` and `.UTC`
 
 In conjunction with the [`dateFormat` function][dateFormat], you can also convert your dates to `UTC` or to local timezones:
 

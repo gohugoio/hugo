@@ -79,7 +79,7 @@ The following logical operators are vailable with `where`:
 `intersect`
 : `true` if a given field value that is a slice/array of strings or integers contains elements in common with the matching value; it follows the same rules as the [`intersect` function][intersect].
 
-## Using `where` with `intersect`
+## Use `where` with `intersect`
 
 ```html
 {{ range where .Site.Pages ".Params.tags" "intersect" .Params.tags }}
@@ -101,7 +101,7 @@ You can also put the returned value of the `where` clauses into a variable:
 ```
 {{% /code %}}
 
-## Using `where` with `first`
+## Use `where` with `first`
 
 The following grabs the first five content files in `post` using the [default ordering](/templates/lists/) for lists (i.e., `weight => date`):
 
@@ -113,7 +113,7 @@ The following grabs the first five content files in `post` using the [default or
 ```
 {{% /code %}}
 
-## Nesting `where` Clauses
+## Nest `where` Clauses
 
 You can also nest `where` clauses to drill down on lists of content by more than one parameter. The following first grabs all pages in the "blog" section and then ranges through the result of the first `where` clause and finds all pages that are *not* featured:
 

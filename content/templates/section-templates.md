@@ -18,7 +18,7 @@ aliases: [/templates/sections/]
 toc: true
 ---
 
-## Adding Content and Front Matter to Section Templates
+## Add Content and Front Matter to Section Templates
 
 To effectively leverage section page templates, you should first understand Hugo's [content organization](/content-management/organization/) and, specifically, the purpose of `_index.md` for adding content and front matter to section and other list pages.
 

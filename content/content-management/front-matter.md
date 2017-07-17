@@ -162,11 +162,11 @@ show_comments: false
 These two user-defined fields can then be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables][variables] section provides more information on using Hugo's page- and site-level variables in your templates.
 
 
-## Ordering Content Through Front Matter
+## Order Content Through Front Matter
 
 You can assign content-specific `weight` in the front matter of your content. These values are especially useful for [ordering][ordering] in list views. You can use `weight` for ordering of content and the convention of [`<TAXONOMY>_weight`][taxweight] for ordering content within a taxonomy. See [Ordering and Grouping Hugo Lists][lists] to see how `weight` can be used to organize your content in list views.
 
-## Overriding Global Markdown Configuration
+## Override Global Markdown Configuration
 
 It's possible to set some options for Markdown rendering in a content's front matter as an override to the [BlackFriday rendering options set in your project configuration][config].
 

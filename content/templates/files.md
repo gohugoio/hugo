@@ -19,11 +19,11 @@ aliases: [/extras/localfiles/,/templates/local-files/]
 toc: true
 ---
 
-## Traversing Local Files
+## Traverse Local Files
 
 With Hugo's [`readDir` and `readFile` template functions][reads], you can traverse your website's files on your server.
 
-## Using `readDir`
+## Use `readDir`
 
 The [`readDir` function][reads] returns an array of [`os.FileInfo`][osfileinfo]. It takes the file's `path` as a single string argument. This path can be to any directory of your website (i.e., as found on your server's file system).
 
@@ -56,7 +56,7 @@ The above shortcode [is part of the code for the Hugo docs][dirindex]. Here it l
 The initial slash `/` in `pathURL` is important in the `directoryindex` shortcode. Otherwise, `pathURL` becomes relative to the current web page.
 {{% /note %}}
 
-## Using `readFile`
+## Use `readFile`
 
 The [`readfile` function][reads] reads a file from disk and converts it into a string to be manipulated by other Hugo functions or added as-is. `readFile` takes the file, including path, as an argument passed to the function.
 

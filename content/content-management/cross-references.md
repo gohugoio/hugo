@@ -18,7 +18,7 @@ toc: true
 
  The `ref` and `relref` shortcodes link documents together, both of which are [built-in Hugo shortcodes][]. These shortcodes are also used to provide links to headings inside of your content, whether across documents or within a document. The only difference between `ref` and `relref` is whether the resulting URL is absolute (`http://1.com/about/`) or relative (`/about/`), respectively.
 
-## Using `ref` and `relref`
+## Use `ref` and `relref`
 
 ```md
 {{</* ref "document" */>}}

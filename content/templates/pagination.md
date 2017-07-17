@@ -20,7 +20,7 @@ toc: true
 
 The real power of Hugo pagination shines when combined with the [`where` function][where] and its SQL-like operators: [`first`][], [`last`][], and [`after`][]. You can even [order the content][lists] the way you've become used to with Hugo.
 
-## Configuring Pagination
+## Configure Pagination
 
 Pagination can be configured in your [site configuration][configuration]:
 
@@ -34,7 +34,7 @@ Setting `Paginate` to a positive value will split the list pages for the homepag
 
 `PaginatePath` is used to adapt the `URL` to the pages in the paginator (the default setting will produce URLs on the form `/page/1/`.
 
-## Listing Paginator Pages
+## List Paginator Pages
 
 {{% warning %}}
 `.Paginator` is provided to help you build a pager menu. This feature is currently only supported on homepage and list pages (i.e., taxonomies and section lists).

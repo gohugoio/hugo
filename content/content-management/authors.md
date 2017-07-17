@@ -63,7 +63,7 @@ The `social` section contains all the links to the social network accounts of an
 
 The `params` section can contain arbitrary data much like the same-named section in the config file. What it contains is up to you.
 
-## Associating Content Through Identifiers
+## Associate Content Through Identifiers
 
 Earlier it was mentioned that content can be associated with an author through their corresponding identifier. In our case, blogger Alice has the identifier `alice`. In the front matter of a content file, you can create a list of identifiers and assign it to the `authors` variable. Here are examples for `alice` using YAML and TOML, respectively.
 
@@ -89,7 +89,7 @@ Nothing to read here. Move along...
 
 Future authors who might work on this blog post can append their identifiers to the `authors` array in the front matter as well.
 
-## Working with Templates
+## Work with Templates
 
 After a successful setup it's time to give some credit to the authors by showing them on the website. Within the templates Hugo provides a list of the author's profiles if they are listed in the `authors` variable within the front matter.
 
@@ -108,7 +108,7 @@ Even if there are co-authors you may only want to show the main author. For this
 You can find a list of all template variables to access the profile information in [Author Variables](/variables/authors/).
 {{% /note %}}
 
-### Linking Social Network Accounts
+### Link Social Network Accounts
 
 As aforementioned, Hugo is able to generate links to profiles of the most popular social networks. The following social networks with their corrersponding identifiers are supported:  `github`, `facebook`, `twitter`, `googleplus`, `pinterest`, `instagram`, `youtube` and `linkedin`.
 
@@ -148,7 +148,7 @@ taxonomies:
 ```
 
 
-### Listing All Authors
+### List All Authors
 
 In the next step we can create a template to list all authors of your website. Later, the list can be accessed at `www.example.com/authors/`. Create a new template in the `layouts/taxonomy/` directory called `authors.term.html`. This template will be exclusively used for this taxonomy.
 
@@ -169,7 +169,7 @@ In the next step we can create a template to list all authors of your website. L
 
 `.Data.Terms` contains the identifiers of all authors and we can range over it to create a list with all author names. The `$profile` variable gives us access to the profile of the current author. This allows you to generate a nice info box with a thumbnail, a biography and social media links, like at the [end of a blog post](#linking-social-network-accounts-automatically).
 
-### Listing Each Author's Publications
+### List Each Author's Publications
 
 Last but not least, we have to create the second list that contains all publications of an author. Each list will be shown in its own page and can be accessed at `www.example.com/authors/<IDENTIFIER>`. Replace `<IDENTIFIER>` with a valid author identifier like `alice`.
 

@@ -33,7 +33,7 @@ hugo && rsync -avz --delete public/ www-data@ftp.topologix.fr:~/www/
 
 As you will see, we put it in a shell script file, which makes building and deployment as easy as executing `./deploy`.
 
-## Installing SSH Key
+## Install SSH Key
 
 If it is not done yet, we will make an automated way to SSH to your server. If you have already installed an SSH key, switch to the next section.
 

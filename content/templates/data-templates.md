@@ -122,7 +122,7 @@ Data-driven content currently consists of two functions, `getJSON` and `getCSV`,
 
 ## Implementation details
 
-### Calling the Functions with a URL
+### Call the Functions with a URL
 
 In your template, call the functions like this:
 
@@ -199,7 +199,7 @@ For `getCSV`, the one-character-long separator must be placed in the first posit
 
 The expression `{{index $r number}}` must be used to output the nth-column from the current row.
 
-### Caching of URLs
+### Cache URLs
 
 Each downloaded URL will be cached in the default folder `$TMPDIR/hugo_cache/`. The variable `$TMPDIR` will be resolved to your system-dependent temporary directory.
 
@@ -213,7 +213,7 @@ If you don't like caching at all, you can fully disable caching with the command
 
 Currently, you can only use those authentication methods that can be put into an URL. [OAuth][] and other authentication methods are not implemented.
 
-### Loading Local files
+### Load Local files
 
 To load local files with `getJSON` and `getCSV`, the source files must reside within Hugo's working directory. The file extension does not matter, but the content does.
 

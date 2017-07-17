@@ -85,7 +85,7 @@ git push upstream gh-pages
 git checkout master
 ```
 
-### Building and Deployment
+### Build and Deployment
 
 Now check out the `gh-pages` branch into your `public` folder using git's [worktree feature][]. Essentially, the worktree allows you to have multiple branches of the same local repository to be checked out in different directories:
 
@@ -109,7 +109,7 @@ If the changes in your local `gh-pages` branch look alright, push them to the re
 git push upstream gh-pages
 ```
 
-#### Setting `gh-pages` as Your Publish Branch
+#### Set `gh-pages` as Your Publish Branch
 
 In order to use your `gh-pages` branch as your publishing branch, you'll need to configure the repository within the GitHub UI. This will likely happen automatically once GitHub realizes you've created this branch. You can also set the branch manually from within your GitHub project:
 
@@ -118,7 +118,7 @@ In order to use your `gh-pages` branch as your publishing branch, you'll need to
 
 After a short while, you'll see the updated contents on your GitHub Pages site.
 
-### Putting it Into a Script
+### Put it Into a Script
 
 To automate these steps, you can create a script with the following contents:
 
@@ -167,7 +167,7 @@ You will also need to set `master` as your publishable branch from within the Gi
 1. Go to **Settings** &rarr; **GitHub Pages**
 2. From **Source**,  select "master branch" and then **Save**.
 
-## Hosting GitHub User or Organization Pages
+## Host GitHub User or Organization Pages
 
 As mentioned [in this GitHub Help article](https://help.github.com/articles/user-organization-and-project-pages/), you can host a user/organization page in addition to project pages. Here are the key differences in GitHub Pages websites for Users and Organizations:
 
@@ -187,7 +187,7 @@ It becomes much simpler in this case: we'll create two separate repos, one for H
     * `rm -rf public` to completely remove the `public` directory if there
 6. `git submodule add -b master git@github.com:<USERNAME>/<USERNAME>.github.io.git public`. This creates a git [submodule][]. Now when you run the `hugo` command to build your site to `public`, the created `public` directory will have a different remote origin (i.e. hosted GitHub repository). You can automate some of these steps with the following script.
 
-#### Putting it Into a Script
+#### Put it Into a Script
 
 You're almost done. You can also add a `deploy.sh` script to automate the preceding steps for you. You can also make it executable with `chmod +x deploy.sh`.
 
@@ -225,7 +225,7 @@ You can then run `./deploy.sh "Your optional commit message"` to send changes to
 
 That's it! Your personal page should be up and running at `https://yourusername.github.io` within a couple minutes.
 
-## Using a Custom Domain
+## Use a Custom Domain
 
 If you'd like to use a custom domain for your GitHub Pages site, create a file `static/CNAME`. Your custom domain name should be the only contents inside `CNAME`. Since it's inside `static`, the published site will contain the CNAME file at the root of the published site, which is a requirements of GitHub Pages.
 
