@@ -231,23 +231,22 @@ func (t *templateHandler) embedTemplates() {
 <!-- Facebook Page Admin ID for Domain Insights -->
 {{ with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}`)
 
-	t.addInternalTemplate("", "twitter_cards.html", `{{ if .IsPage }}
-{{ with .Params.images }}
-<!-- Twitter summary card with large image must be at least 280x150px -->
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:image:src" content="{{ index . 0 | absURL }}"/>
-{{ else }}
-  <meta name="twitter:card" content="summary"/>
-{{ end }}
-
-<!-- Twitter Card data -->
-<meta name="twitter:text:title" content="{{ .Title }}"/>
+	t.addInternalTemplate("", "twitter_cards.html", `{{- with $.Param "images" -}}
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image:src" content="{{ index . 0 | absURL }}"/>
+{{ else -}}
+<meta name="twitter:card" content="summary"/>
+{{- end -}}
 <meta name="twitter:title" content="{{ .Title }}"/>
-<meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}"/>
-{{ with .Site.Social.twitter }}<meta name="twitter:site" content="@{{ . }}"/>{{ end }}
+<meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end -}}"/>
+{{ with .Site.Social.twitter -}}
+<meta name="twitter:site" content="@{{ . }}"/>
+{{ end -}}
 {{ range .Site.Authors }}
-  {{ with .twitter }}<meta name="twitter:creator" content="@{{ . }}"/>{{ end }}
-{{ end }}{{ end }}`)
+{{ with .twitter -}}
+<meta name="twitter:creator" content="@{{ . }}"/>
+{{ end -}}
+{{ end -}}`)
 
 	t.addInternalTemplate("", "google_news.html", `{{ if .IsPage }}{{ with .Params.news_keywords }}
   <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
