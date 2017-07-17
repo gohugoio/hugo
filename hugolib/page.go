@@ -1075,6 +1075,14 @@ func (p *Page) update(f interface{}) error {
 			p.Date = fi.ModTime()
 			p.Params["date"] = p.Date
 		}
+	} else if p.Date.IsZero() && p.s.Cfg.GetString("filenameDateFallbackPattern") != "" {
+		dateExp := regexp.MustCompile(p.s.Cfg.GetString("filenameDateFallbackPattern"))
+		dateString := dateExp.FindString(p.File.Path())
+		filenameDate, err := time.Parse(p.s.Cfg.GetString("filenameDateFallbackFormat"), dateString)
+		if err == nil {
+			p.Date = filenameDate
+			p.Params["date"] = p.Date
+		}
 	}
 
 	if p.Lastmod.IsZero() {
