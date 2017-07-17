@@ -36,7 +36,7 @@ Given two arrays (or slices) A and B, this function will return a new array that
 ```
 
 
-This is also very useful to use as `AND` filters when combined with where:
+This is also very useful to use as `OR` filters when combined with where:
 
 ```html
 {{ $pages := where .Site.RegularPages "Type" "not in" (slice "page" "about") }}
