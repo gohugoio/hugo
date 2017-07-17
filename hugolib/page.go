@@ -791,6 +791,17 @@ func (p *Page) Extension() string {
 	return p.extension
 }
 
+// HasShortcode return whether the page has a shortcode with the given name.
+// This method is mainly motivated with the Hugo Docs site's need for a list
+// of pages with the `todo` shortcode in it.
+func (p *Page) HasShortcode(name string) bool {
+	if p.shortcodeState == nil {
+		return false
+	}
+
+	return p.shortcodeState.nameSet[name]
+}
+
 // AllTranslations returns all translations, including the current Page.
 func (p *Page) AllTranslations() Pages {
 	return p.translations

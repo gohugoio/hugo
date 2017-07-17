@@ -254,6 +254,9 @@ Content: {{ .Content }}
 		require.Equal(t, "webcal://example.com/blog/index.ics", cal.Permalink())
 	}
 
+	require.True(t, home.HasShortcode("myShort"))
+	require.False(t, home.HasShortcode("doesNotExist"))
+
 }
 
 // Issue #3447
