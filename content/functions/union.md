@@ -34,3 +34,16 @@ Given two arrays (or slices) A and B, this function will return a new array that
 {{ union nil nil }}
 <!-- returns an error because both arrays/slices have to be of the same type -->
 ```
+
+
+This is also very useful to use as `AND` filters when combined with where:
+
+```html
+{{ $pages := where .Site.RegularPages "Type" "not in" (slice "page" "about") }}
+{{ $pages := $pages | union (where .Site.RegularPages "Params.pinned" true) }}
+{{ $pages := $pages | intersect (where .Site.RegularPages "Params.images" "!=" nil) }}
+```
+
+The above fetches regular pages not of `page` or `about` type unless they are pinned. And finally, we exclude all pages with no `images` set in Page params.
+
+See [intersect](/functions/intersect) for `AND`.
