@@ -246,6 +246,10 @@ func (p *Page) createRelativePermalinkForOutputFormat(f output.Format) string {
 		tp = strings.TrimSuffix(tp, f.BaseFilename())
 	}
 
+	if p.s.PathSpec.TrimTrailingURLSlashes {
+		tp = strings.TrimSuffix(tp, "/")
+	}
+
 	return p.s.PathSpec.URLizeFilename(tp)
 }
 

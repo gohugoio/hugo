@@ -215,7 +215,11 @@ func (c *commandeer) serve(port int) {
 	if u.Path == "" || u.Path == "/" {
 		http.Handle("/", fileserver)
 	} else {
-		http.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
+		h := http.StripPrefix(u.Path, addSlashSuffix(fileserver))
+		http.Handle(u.Path, h)
+		if !strings.HasSuffix(u.Path, "/") {
+			http.Handle(u.Path+"/", h)
+		}
 	}
 
 	jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", u.String(), serverInterface)
@@ -229,6 +233,20 @@ func (c *commandeer) serve(port int) {
 	}
 }
 
+func addSlashSuffix(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		parts := strings.Split(r.URL.Path, "/")
+		filePart := parts[len(parts)-1]
+
+		// Only add the / suffix if request isn't for a file (with an extension).
+		if !strings.Contains(filePart, ".") && !strings.HasSuffix(r.URL.Path, "/") {
+			r.URL.Path += "/"
+		}
+
+		h.ServeHTTP(w, r)
+	})
+}
+
 // fixURL massages the baseURL into a form needed for serving
 // all pages correctly.
 func fixURL(cfg config.Provider, s string) (string, error) {
@@ -238,7 +256,7 @@ func fixURL(cfg config.Provider, s string) (string, error) {
 		useLocalhost = true
 	}
 
-	if !strings.HasSuffix(s, "/") {
+	if !cfg.GetBool("trimTrailingURLSlashes") && !strings.HasSuffix(s, "/") {
 		s = s + "/"
 	}
 

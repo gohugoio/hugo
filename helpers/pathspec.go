@@ -23,6 +23,7 @@ import (
 // PathSpec holds methods that decides how paths in URLs and files in Hugo should look like.
 type PathSpec struct {
 	BaseURL
+	TrimTrailingURLSlashes bool
 
 	disablePathToLower bool
 	removePathAccents  bool
@@ -84,6 +85,7 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		defaultContentLanguage:         cfg.GetString("defaultContentLanguage"),
 		paginatePath:                   cfg.GetString("paginatePath"),
 		BaseURL:                        baseURL,
+		TrimTrailingURLSlashes:         cfg.GetBool("trimTrailingURLSlashes"),
 		themesDir:                      cfg.GetString("themesDir"),
 		layoutDir:                      cfg.GetString("layoutDir"),
 		workingDir:                     cfg.GetString("workingDir"),
