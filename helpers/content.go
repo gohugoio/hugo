@@ -33,6 +33,7 @@ import (
 	"github.com/russross/blackfriday"
 	jww "github.com/spf13/jwalterweatherman"
 
+	"github.com/spf13/cast"
 	"strings"
 )
 
@@ -543,20 +544,25 @@ func truncateWordsToWholeSentenceOld(content string, max int) (string, bool) {
 	return strings.Join(words[:max], " "), true
 }
 
-func getAsciidocExecPath() string {
+func getAsciidoctorExecPath() string {
 	path, err := exec.LookPath("asciidoctor")
 	if err != nil {
-		path, err = exec.LookPath("asciidoc")
-		if err != nil {
-			return ""
-		}
+		return ""
+	}
+	return path
+}
+
+func getAsciidocExecPath() string {
+	path, err := exec.LookPath("asciidoc")
+	if err != nil {
+		return ""
 	}
 	return path
 }
 
 // HasAsciidoc returns whether Asciidoctor or Asciidoc is installed on this computer.
 func HasAsciidoc() bool {
-	return getAsciidocExecPath() != ""
+	return getAsciidoctorExecPath() != "" || getAsciidocExecPath() != ""
 }
 
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
@@ -565,15 +571,31 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 	content := ctx.Content
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
-	path := getAsciidocExecPath()
+	path := getAsciidoctorExecPath()
+	hasAsciidoctor := true
 	if path == "" {
-		jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
-			"                 Leaving AsciiDoc content unrendered.")
-		return content
+		hasAsciidoctor = false
+		path = getAsciidocExecPath()
+		if path == "" {
+			jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
+				"                 Leaving AsciiDoc content unrendered.")
+			return content
+		}
 	}
 
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
+
+	args := []string{"--no-header-footer", "--safe"}
+	if hasAsciidoctor {
+		if ctx.Cfg.IsSet("asciidoctorRequires") {
+			for _, requirePath := range cast.ToStringSlice(ctx.Cfg.Get("asciidoctorRequires")) {
+				args = append(args, "--require", requirePath)
+			}
+		}
+	}
+	args = append(args, "-")
+
+	cmd := exec.Command(path, args...)
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
