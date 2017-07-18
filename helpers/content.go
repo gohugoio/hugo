@@ -573,7 +573,12 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 	}
 
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
+	cmd := exec.Command(path, "--no-header-footer", "--safe")
+	if strings.HasSuffix(path, "asciidoctor") {
+		// asciidoctor-specific arg to show stack traces on errors
+		cmd.Args = append(cmd.Args, "--trace")
+	}
+	cmd.Args = append(cmd.Args, "-")
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
