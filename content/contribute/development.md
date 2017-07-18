@@ -102,7 +102,7 @@ There are several [GUI clients](https://git-scm.com/downloads/guis) that help yo
 
 ### Install Hub on Your System (Optional)
 
-Hub is a great tool for working with GitHub. The main site for it is [www.hub.github.com](https://hub.github.com/). Feel free to install this little Git wrapper.
+Hub is a great tool for working with GitHub. The main site for it is [hub.github.com](https://hub.github.com/). Feel free to install this little Git wrapper.
 
 On a Mac, you can install [Hub](https://github.com/github/hub) using [Homebrew](https://brew.sh):
 
