@@ -1,81 +1,81 @@
 ---
-aliases:
-- /layout/homepage/
-lastmod: 2015-08-04
-date: 2013-07-01
+title: Homepage Template
+linktitle: Homepage Template
+description: The homepage of a website is often formatted differently than the other pages. For this reason, Hugo makes it easy for you to define your new site's homepage as a unique template.
+date: 2017-02-01
+publishdate: 2017-02-01
+lastmod: 2017-02-01
+categories: [templates]
+#tags: [homepage]
 menu:
-  main:
-    parent: layout
-next: /templates/terms
-notoc: true
-prev: /templates/list
-title: Homepage
-weight: 50
+  docs:
+    parent: "templates"
+    weight: 30
+weight: 30
+sections_weight: 30
+draft: false
+aliases: [/layout/homepage/,/templates/homepage-template/]
+toc: true
 ---
 
-The home page of a website is often formatted differently than the other
-pages. In Hugo you can define your own homepage template.
+Homepage is a `Page` and therefore has all the [page variables][pagevars] and [site variables][sitevars] available for use.
 
-Homepage is a `Page` and have all the [page
-variables](/templates/variables/) and [site
-variables](/templates/variables/) available to use in the templates.
+{{% note "The Only Required Template" %}}
+The homepage template is the *only* required template for building a site and therefore useful when bootstrapping a new site and template. It is also the only required template if you are developing a single-page website.
+{{% /note %}}
 
-*This is the only required template for building a site and useful when
-bootstrapping a new site and template. It is also the only required
-template when using a single page site.*
+## Homepage Template Lookup Order
 
-In addition to the standard page variables, the homepage has access to
-all site content accessible from `.Data.Pages`. Details on how to use the
-list of pages can be found in the [Lists Template](/templates/list/).
+The [lookup order][lookup] for the homepage template is as follows:
 
-Note that a home page can also have a content file with frontmatter,  see [Source Organization]({{< relref "overview/source-directory.md#content-for-home-page-and-other-list-pages" >}}).
+1. `/layouts/index.html`
+2. `/layouts/_default/list.html`
+3. `/themes/<THEME>/layouts/index.html`
+4. `/themes/<THEME>/layouts/_default/list.html`
 
-## Which Template will be rendered?
-Hugo uses a set of rules to figure out which template to use when
-rendering a specific page.
+## Add Content and Front Matter to the Homepage
 
-Hugo will use the following prioritized list. If a file isn’t present,
-then the next one in the list will be used. This enables you to craft
-specific layouts when you want to without creating more templates
-than necessary. For most sites, only the \_default file at the end of
-the list will be needed.
+The homepage, similar to other [list pages in Hugo][lists], accepts content and front matter from an `_index.md` file. This file should live at the root of your `content` folder (i.e., `content/_index.md`). You can then add body copy and metadata to your homepage the way you would any other content file.
 
-* /layouts/index.html
-* /layouts/\_default/list.html
-* /layouts/\_default/single.html
-* /themes/`THEME`/layouts/index.html
-* /themes/`THEME`/layouts/\_default/list.html
-* /themes/`THEME`/layouts/\_default/single.html
+See the homepage template below or [Content Organization][contentorg] for more information on the role of `_index.md` in adding content and front matter to list pages.
 
-## Example index.html
-This content template is used for [spf13.com](http://spf13.com/).
+## `.Data.Pages` on the Homepage
 
-It makes use of [partial templates](/templates/partials/) and uses a similar approach as a [List](/templates/list/).
+In addition to the standard [page variables][pagevars], the homepage template has access to *all* site content via `.Data.Pages`.
 
-    <!DOCTYPE html>
-    <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
-    <head>
-        <meta charset="utf-8">
+## Example Homepage Template
 
-        {{ partial "meta.html" . }}
+The following is an example of a homepage template that uses [partial][partials], [base][] templates, and a content file at `content/_index.md` to populate the `{{.Title}}` and `{{Content}}` [page variables][pagevars].
 
-        <base href="{{ .Site.BaseURL }}">
-        <title>{{ .Site.Title }}</title>
-        <link rel="canonical" href="{{ .Permalink }}">
-        <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
-
-        {{ partial "head_includes.html" . }}
-    </head>
-    <body lang="en">
-
-    {{ partial "subheader.html" . }}
-
-    <section id="main">
+{{% code file="layouts/index.html" download="index.html" %}}
+```html
+{{ define "main" }}
+    <main aria-role="main">
+      <header class="homepage-header">
+        <h1>{{.Title}}</h1>
+        {{ with .Params.subtitle }}
+        <span class="subtitle">{{.}}</span>
+        {{ end }}
+      </header>
+      <div class="homepage-content">
+        <!-- Note that the content for index.html, as a sort of list page, will pull from content/_index.md -->
+        {{.Content}}
+      </div>
       <div>
+        <!-- Note that .Data.Pages is the equivalent of .Site.Pages on the homepage template. -->
         {{ range first 10 .Data.Pages }}
             {{ .Render "summary"}}
         {{ end }}
       </div>
-    </section>
+    </main>
+{{ end }}
+```
+{{% /code %}}
 
-    {{ partial "footer.html" . }}
+[base]: /templates/base/
+[contentorg]: /content-management/organization/
+[lists]: /templates/lists/
+[lookup]: /templates/lookup-order/
+[pagevars]: /variables/page/
+[partials]: /templates/partials/
+[sitevars]: /variables/site/

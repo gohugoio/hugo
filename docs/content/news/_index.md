@@ -1,0 +1,3 @@
+---
+title: "Hugo News"
+---
