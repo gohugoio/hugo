@@ -16,3 +16,14 @@ Or if you already have a clone locally:
 git submodule update --init
 ```
 Also note that the documentation version for a given version of Hugo can also be found in the `/docs` sub-folder of the [Hugo source repository](https://github.com/gohugoio/hugo).
+
+Then to view the docs in your browser, run Hugo and open up the link:
+```bash
+hugo serve
+Started building sites ...
+.
+.
+Serving pages from memory
+Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
+Press Ctrl+C to stop
+```
