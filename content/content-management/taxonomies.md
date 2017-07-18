@@ -52,7 +52,7 @@ To continue with the example of a movie site, the following demonstrates content
 ```
 Actor                    <- Taxonomy
     Bruce Willis         <- Term
-        The Six Sense    <- Content
+        The Sixth Sense    <- Content
         Unbreakable      <- Content
         Moonrise Kingdom <- Content
     Samuel L. Jackson    <- Term
