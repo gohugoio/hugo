@@ -555,7 +555,7 @@ tags:
 	th := testHelper{s.Cfg, s.Fs, t}
 
 	for _, test := range tests {
-		if strings.HasSuffix(test.contentPath, ".ad") && !helpers.HasAsciidoc() {
+		if strings.HasSuffix(test.contentPath, ".ad") && !helpers.HasAsciidoc() && !helpers.HasAsciidoctor() {
 			fmt.Println("Skip Asciidoc test case as no Asciidoc present.")
 			continue
 		} else if strings.HasSuffix(test.contentPath, ".rst") && !helpers.HasRst() {
