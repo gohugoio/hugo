@@ -18,6 +18,7 @@ disableAliases = true
 
 [outputs]
 home = [ "HTML", "RSS", "REDIR" ]
+section = [ "HTML", "RSS"]
 
 [mediaTypes]
 [mediaTypes."text/netlify"]
