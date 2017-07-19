@@ -217,7 +217,7 @@ This list template has been modified slightly from a template originally used in
 
 Hugo lists render the content based on metadata you provide in [front matter][]. In addition to sane defaults, Hugo also ships with multiple methods to make quick work of ordering content inside list templates:
 
-### Default List Ordering: Weight > Date
+### Default: Weight > Date > LinkTitle > FilePath
 
 {{% code file="layouts/partials/default-order.html" %}}
 ```html
