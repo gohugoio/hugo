@@ -14,10 +14,10 @@
 package data
 
 import (
-	"errors"
-	"sync"
 	"crypto/md5"
 	"encoding/hex"
+	"errors"
+	"sync"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
