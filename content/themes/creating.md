@@ -1,6 +1,6 @@
 ---
-title: Creating a Theme
-linktitle: Creating a Theme
+title: Create a Theme
+linktitle: Create a Theme
 description: The `hugo new theme` command will scaffold the beginnings of a new theme for you to get you on your way.
 date: 2017-02-01
 publishdate: 2017-02-01

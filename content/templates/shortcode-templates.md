@@ -1,5 +1,5 @@
 ---
-title: Creating Your Own Shortcodes
+title: Create Your Own Shortcodes
 linktitle: Shortcode Templates
 description: You can extend Hugo's built-in shortcodes by creating your own using the same templating syntax as that for single and list pages.
 date: 2017-02-01

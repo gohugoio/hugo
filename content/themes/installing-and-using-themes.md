@@ -1,6 +1,6 @@
 ---
-title: Installing and Using Themes
-linktitle: Installing and Using Themes
+title: Install and Use Themes
+linktitle: Install and Use Themes
 description: Install and use a theme from the Hugo theme showcase easily through the CLI.
 date: 2017-02-01
 publishdate: 2017-02-01

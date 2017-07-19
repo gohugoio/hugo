@@ -1,6 +1,6 @@
 ---
-title: Hosting on GitHub
-linktitle: Hosting on GitHub
+title: Host on GitHub
+linktitle: Host on GitHub
 description: Deploy Hugo as a GitHub Pages project or personal/organizational site and automate the whole process with a simple shell script.
 date: 2014-03-21
 publishdate: 2014-03-21

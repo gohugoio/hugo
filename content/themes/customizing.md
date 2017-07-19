@@ -1,6 +1,6 @@
 ---
-title: Customizing a Theme
-linktitle: Customizing a Theme
+title: Customize a Theme
+linktitle: Customize a Theme
 description: Customize a theme by overriding theme layouts and static assets in your top-level project directories.
 date: 2017-02-01
 publishdate: 2017-02-01

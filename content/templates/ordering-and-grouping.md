@@ -1,5 +1,5 @@
 ---
-title: Ordering and Grouping Hugo Lists
+title: Ordere and Grouping Hugo Lists
 linktitle: List Ordering and Grouping
 description: You can group or order your content in both your templating and content front matter.
 date: 2017-02-01

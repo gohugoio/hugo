@@ -1,5 +1,5 @@
 ---
-title: Configuring Hugo
+title: Configure Hugo
 linktitle: Configuration
 description: Often the default settings are good enough, but the config file can provide highly granular control over how your site is rendered.
 date: 2013-07-01
