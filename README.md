@@ -2,6 +2,15 @@
 
 Documentation site for [Hugo](https://github.com/gohugoio/hugo), the very fast and flexible static site generator built with love in GoLang.
 
+## Contributing
+
+We welcome contributions to Hugo of any kind including documentation, suggestions, bug reports, pull requests etc. Also check out our [contribution guide](https://gohugo.io/contribute/documentation/). We would love to hear from you. 
+
+Note that this repository contains solely the documentation for Hugo. For contributions that aren't documentation-related please refer to the [hugo](https://github.com/gohugoio/hugo) repository. 
+
+*Pull requests shall only contain changes to the actual documentation. However, changes on the code base of Hugo and the documentation shall remain a single, atomic pull requests in the [hugo](https://github.com/gohugoio/hugo) repository.*
+
+
 ## Build
 
 To view the documentation site locally, you need to clone this repository with submodules:
