@@ -43,7 +43,7 @@ permalinks:
   post = "/:year/:month/:title/"
 {{< /code >}}
 
-Only the content under `post/` will have the new URL structure. For example, the file `content/post/sample-entry.md` with `date: 2017-02-27T19:20:00-05:00` in its front matter will render to `public/2017/02/sample-entry/index.html` at build time and therefore be reachable at `http://yoursite.com/2013/11/sample-entry/`.
+Only the content under `post/` will have the new URL structure. For example, the file `content/post/sample-entry.md` with `date: 2017-02-27T19:20:00-05:00` in its front matter will render to `public/2017/02/sample-entry/index.html` at build time and therefore be reachable at `http://example.com/2013/11/sample-entry/`.
 
 ### Permalink Configuration Values
 
@@ -113,7 +113,7 @@ aliases:
 ---
 {{< /code >}}
 
-Now when you visit any of the locations specified in aliases---i.e., *assuming the same site domain*---you'll be redirected to the page they are specified on. For example, a visitor to `yoursite.com/posts/my-original-url/` will be immediately redirected to `yoursite.com/posts/my-awesome-blog-post/`.
+Now when you visit any of the locations specified in aliases---i.e., *assuming the same site domain*---you'll be redirected to the page they are specified on. For example, a visitor to `example.com/posts/my-original-url/` will be immediately redirected to `example.com/posts/my-awesome-blog-post/`.
 
 ### Example: Aliases in Multilingual
 
@@ -141,22 +141,22 @@ aliases: [/posts/my-old-url/]
 ---
 ```
 
-Assuming a `baseURL` of `yoursite.com`, the contents of the auto-generated alias `.html` found at `https://yoursite.com/posts/my-old-url/ will contain the following:`
+Assuming a `baseURL` of `example.com`, the contents of the auto-generated alias `.html` found at `https://example.com/posts/my-old-url/ will contain the following:`
 
 ```
 <!DOCTYPE html>
 <html>
   <head>
-    <title>http://yoursite.com/posts/my-intended-url</title>
-    <link rel="canonical" href="http://yoursite.com/posts/my-intended-url"/>
+    <title>http://example.com/posts/my-intended-url</title>
+    <link rel="canonical" href="http://example.com/posts/my-intended-url"/>
     <meta name=\"robots\" content=\"noindex\">
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="refresh" content="0; url=http://yoursite.com/posts/my-intended-url"/>
+    <meta http-equiv="refresh" content="0; url=http://example.com/posts/my-intended-url"/>
   </head>
 </html>
 ```
 
-The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://yoursite.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name=\"robots\" content=\"noindex\">` lets search engine bots know they they should not crawl and index your new alias page.
+The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://example.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name=\"robots\" content=\"noindex\">` lets search engine bots know they they should not crawl and index your new alias page.
 
 ### Customize 
 You may customize this alias page by creating an `alias.html` template in the
@@ -183,14 +183,14 @@ The following demonstrates the concept:
 
 ```
 content/posts/_index.md
-=> yoursite.com/posts/index.html
+=> example.com/posts/index.html
 content/posts/post-1.md
-=> yoursite.com/posts/post-1/
+=> example.com/posts/post-1/
 ```
 
 ## Ugly URLs
 
-If you would like to have are often referred to as "ugly URLs" (e.g., yoursite.com/urls.html), set `uglyurls = true` or `uglyurls: true` in your site's `config.toml` or `config.yaml`, respectively. You can also use the `--uglyURLs=true` [flag from the command line][usage] with `hugo` or `hugo server`..
+If you would like to have are often referred to as "ugly URLs" (e.g., example.com/urls.html), set `uglyurls = true` or `uglyurls: true` in your site's `config.toml` or `config.yaml`, respectively. You can also use the `--uglyURLs=true` [flag from the command line][usage] with `hugo` or `hugo server`..
 
 If you want a specific piece of content to have an exact URL, you can specify this in the [front matter][] under the `url` key. The following are examples of the same content directory and what the eventual URL structure will be when Hugo runs with its default behavior.
 
@@ -200,15 +200,15 @@ See [Content Organization][contentorg] for more details on paths.
 .
 └── content
     └── about
-    |   └── _index.md  // <- http://yoursite.com/about/
+    |   └── _index.md  // <- http://example.com/about/
     ├── post
-    |   ├── firstpost.md   // <- http://yoursite.com/post/firstpost/
+    |   ├── firstpost.md   // <- http://example.com/post/firstpost/
     |   ├── happy
-    |   |   └── ness.md  // <- http://yoursite.com/post/happy/ness/
-    |   └── secondpost.md  // <- http://yoursite.com/post/secondpost/
+    |   |   └── ness.md  // <- http://example.com/post/happy/ness/
+    |   └── secondpost.md  // <- http://example.com/post/secondpost/
     └── quote
-        ├── first.md       // <- http://yoursite.com/quote/first/
-        └── second.md      // <- http://yoursite.com/quote/second/
+        ├── first.md       // <- http://example.com/quote/first/
+        └── second.md      // <- http://example.com/quote/second/
 ```
 
 Here's the same organization run with `hugo --uglyURLs`:
@@ -217,15 +217,15 @@ Here's the same organization run with `hugo --uglyURLs`:
 .
 └── content
     └── about
-    |   └── _index.md  // <- http://yoursite.com/about/index.html
+    |   └── _index.md  // <- http://example.com/about/index.html
     ├── post
-    |   ├── firstpost.md   // <- http://yoursite.com/post/firstpost.html
+    |   ├── firstpost.md   // <- http://example.com/post/firstpost.html
     |   ├── happy
-    |   |   └── ness.md    // <- http://yoursite.com/post/happy/ness.html
-    |   └── secondpost.md  // <- http://yoursite.com/post/secondpost.html
+    |   |   └── ness.md    // <- http://example.com/post/happy/ness.html
+    |   └── secondpost.md  // <- http://example.com/post/secondpost.html
     └── quote
-        ├── first.md       // <- http://yoursite.com/quote/first.html
-        └── second.md      // <- http://yoursite.com/quote/second.html
+        ├── first.md       // <- http://example.com/quote/first.html
+        └── second.md      // <- http://example.com/quote/second.html
 ```
 
 
@@ -233,7 +233,7 @@ Here's the same organization run with `hugo --uglyURLs`:
 
 By default, all relative URLs encountered in the input are left unmodified, e.g. `/css/foo.css` would stay as `/css/foo.css`. The `canonifyURLs` field in your site `config` has a default value of `false`.
 
-By setting `canonifyURLs` to `true`, all relative URLs would instead be *canonicalized* using `baseURL`.  For example, assuming you have `baseURL = https://yoursite.com/`, the relative URL `/css/foo.css` would be turned into the absolute URL `http://yoursite.com/css/foo.css`.
+By setting `canonifyURLs` to `true`, all relative URLs would instead be *canonicalized* using `baseURL`.  For example, assuming you have `baseURL = https://example.com/`, the relative URL `/css/foo.css` would be turned into the absolute URL `http://example.com/css/foo.css`.
 
 Benefits of canonicalization include fixing all URLs to be absolute, which may aid with some parsing tasks. Note, however, that all modern browsers handle this on the client without issue.
 

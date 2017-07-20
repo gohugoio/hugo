@@ -117,7 +117,7 @@ You can now access this `_index.md`'s' content in your list template:
 
 This above will output the following HTML:
 
-{{< code file="yoursite.com/post/index.html" copy="false" >}}
+{{< code file="example.com/post/index.html" copy="false" >}}
 <!--top of your baseof code-->
 <main>
     <article>
@@ -141,7 +141,7 @@ You do *not* have to create an `_index.md` file for every list page (i.e. sectio
 
 Using this same `layouts/_default/list.html` template and applying it to the the `quotes` section above will render the following output. Note that `quotes` does not have an `_index.md` file to pull from:
 
-{{< code file="yoursite.com/quote/index.html" copy="false" >}}
+{{< code file="example.com/quote/index.html" copy="false" >}}
 <!--baseof-->
 <main>
     <article>
@@ -151,8 +151,8 @@ Using this same `layouts/_default/list.html` template and applying it to the the
         </header>
     </article>
     <ul>
-        <li><a href="https://yoursite.com/quote/quotes-01/">Quote 1</a></li>
-        <li><a href="https://yoursite.com/quote/quotes-02/">Quote 2</a></li>
+        <li><a href="https://example.com/quote/quotes-01/">Quote 1</a></li>
+        <li><a href="https://example.com/quote/quotes-02/">Quote 2</a></li>
     </ul>
 </main>
 <!--baseof-->

@@ -34,20 +34,20 @@ While Hugo supports content nested at any level, the top levels (i.e. `content/<
 .
 └── content
     └── about
-    |   └── _index.md  // <- http://yoursite.com/about/
+    |   └── _index.md  // <- http://example.com/about/
     ├── post
-    |   ├── firstpost.md   // <- http://yoursite.com/post/firstpost/
+    |   ├── firstpost.md   // <- http://example.com/post/firstpost/
     |   ├── happy
-    |   |   └── ness.md  // <- http://yoursite.com/post/happy/ness/
-    |   └── secondpost.md  // <- http://yoursite.com/post/secondpost/
+    |   |   └── ness.md  // <- http://example.com/post/happy/ness/
+    |   └── secondpost.md  // <- http://example.com/post/secondpost/
     └── quote
-        ├── first.md       // <- http://yoursite.com/quote/first/
-        └── second.md      // <- http://yoursite.com/quote/second/
+        ├── first.md       // <- http://example.com/quote/first/
+        └── second.md      // <- http://example.com/quote/second/
 ```
 
 ## Path Breakdown in Hugo
 
-The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://yoursite.com"` in your [site's configuration file][config].
+The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://example.com"` in your [site's configuration file][config].
 
 ### Index Pages: `_index.md`
 
@@ -76,7 +76,7 @@ At build, this will output to the following destination with the associated valu
 ⊢--------^---------⊣⊢-^-⊣
         permalink
 ⊢----------^-------------⊣
-http://yoursite.com/posts/index.html
+http://example.com/posts/index.html
 ```
 
 ### Single Pages in Sections
@@ -102,7 +102,7 @@ At the time Hugo builds your site, the content will be output to the following d
 ⊢--------^--------⊣⊢-^--⊣⊢-------^---------⊣
                  permalink
 ⊢--------------------^---------------------⊣
-http://yoursite.com/posts/my-first-hugo-post/index.html
+http://example.com/posts/my-first-hugo-post/index.html
 ```
 
 ### Section with Nested Directories
@@ -120,7 +120,7 @@ To continue the example, the following demonstrates destination paths for a file
 ⊢--------^--------⊣ ⊢------^-----⊣⊢----^------⊣
                   permalink
 ⊢----------------------^-----------------------⊣
-http://yoursite.com/events/chicago/lollapalooza/
+http://example.com/events/chicago/lollapalooza/
 ```
 
 {{% note %}}
@@ -166,7 +166,7 @@ The following items are defined in this order for a specific reason: items expla
 
 ### `filename`
 
-This isn't in the front matter, but is the actual name of the file minus the extension. This will be the name of the file in the destination (e.g., `content/posts/my-post.md` becomes `yoursite.com/posts/my-post/`).
+This isn't in the front matter, but is the actual name of the file minus the extension. This will be the name of the file in the destination (e.g., `content/posts/my-post.md` becomes `example.com/posts/my-post/`).
 
 ### `slug`
 
@@ -182,7 +182,7 @@ slug: "new-post"
 This will render to the following destination according to Hugo's default behavior:
 
 ```
-yoursite.com/posts/new-post/
+example.com/posts/new-post/
 ```
 
 ### `section`
@@ -216,10 +216,10 @@ url: /blog/new-url/
 ---
 {{< /code >}}
 
-Assuming your `baseURL` is [configured][config] to `https://yoursite.com`, the addition of `url` to the front matter will make `old-url.md` render to the following destination:
+Assuming your `baseURL` is [configured][config] to `https://example.com`, the addition of `url` to the front matter will make `old-url.md` render to the following destination:
 
 ```
-https://yoursite.com/blog/new-url/
+https://example.com/blog/new-url/
 ```
 
 You can see more information on how to control output paths in [URL Management][urls].

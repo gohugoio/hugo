@@ -48,7 +48,7 @@ A taxonomy will be rendered at /`PLURAL`/`TERM`/ (e.g., http://spf13.com/topics/
 
 ### Taxonomy Terms Templates Lookup Order
 
-A taxonomy terms page will be rendered at `yoursite.com/<PLURALTAXONOMYNAME>`/ (e.g., http://spf13.com/topics/) according to the following lookup order:
+A taxonomy terms page will be rendered at `example.com/<PLURALTAXONOMYNAME>`/ (e.g., http://spf13.com/topics/) according to the following lookup order:
 
 1. `/layouts/taxonomy/<SINGULAR>.terms.html`
 2. `/layouts/_default/terms.html`
