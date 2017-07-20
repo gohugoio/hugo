@@ -59,8 +59,7 @@ The easiest way to add your theme is to [open up a new issue in the theme reposi
 
 `theme.toml` contains metadata about the theme and its creator and should be created automatically when running the `hugo new theme`. The auto-generated file is provided here as well for easy downloading:
 
-{{% code file="theme.toml" download="theme.toml" %}}
-```
+{{< code file="theme.toml" download="theme.toml" >}}
 name = ""
 license = "MIT"
 licenselink = "https://github.com/<YOURNAME>/<YOURTHEME>/blob/master/LICENSE.md"
@@ -79,8 +78,7 @@ min_version = 0.19
   name = ""
   homepage = ""
   repo = ""
-```
-{{% /code %}}
+{{< /code >}}
 
 The following fields are required:
 
@@ -133,8 +131,7 @@ Your theme's README file should be written in markdown and saved at the root of 
 
 You can download the following `README.md` as an outline:
 
-{{% code file="README.md" download="README.md" %}}
-```
+{{< code file="README.md" download="README.md" >}}
 
 # Theme Title
 
@@ -143,8 +140,7 @@ You can download the following `README.md` as an outline:
 
 
 
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note "Screenshots in your `README.md`"%}}
 If you add screenshots to the README, please make use of absolute file paths instead of relative ones like `/images/screenshot.png`. Relative paths work great on GitHub but they don't correspond to the directory structure of [themes.gohugo.io](http://themes.gohugo.io/). Therefore, browsers will not be able to display screenshots on the theme site under the given (relative) path.

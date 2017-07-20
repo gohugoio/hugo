@@ -29,8 +29,7 @@ Both `absURL` and `relURL` consider the configured value of `baseURL` in your si
 
 The last two examples may look strange but can be very useful. For example, the following shows how to use `absURL` in [JSON-LD structured data (SEO)][jsonld], where some of your images for a piece of content may or may not be hosted locally:
 
-{{% code file="layouts/partials/schemaorg-metadata.html" download="schemaorg-metadata.html" %}}
-```
+{{< code file="layouts/partials/schemaorg-metadata.html" download="schemaorg-metadata.html" >}}
 <script type="application/ld+json">
 {
     "@context" : "http://schema.org",
@@ -38,8 +37,7 @@ The last two examples may look strange but can be very useful. For example, the 
     "image" : {{ apply .Params.images "absURL" "." }}
 }
 </script>
-```
-{{% /code %}}
+{{< /code >}}
 
 The above uses the [apply function][] and also exposes how the Go template parser JSON-encodes objects inside `<script>` tags. See [the safeJS template function][safejs] for examples of how to tell Hugo not to escape strings inside of such tags.
 

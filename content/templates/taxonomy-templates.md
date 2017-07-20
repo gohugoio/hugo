@@ -291,8 +291,7 @@ The following example displays all terms in a site's tags taxonomy:
 
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
-{{% code file="layouts/partials/all-taxonomies.html" download="all-taxonomies.html" download="all-taxonomies.html" %}}
-```
+{{< code file="layouts/partials/all-taxonomies.html" download="all-taxonomies.html" download="all-taxonomies.html" >}}
 <section>
   <ul id="all-taxonomies">
     {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
@@ -311,22 +310,19 @@ This example will list all taxonomies and their terms, as well as all the conten
     {{ end }}
   </ul>
 </section>
-```
-{{% /code %}}
+{{< /code >}}
 
 ## `.Site.GetPage` for Taxonomies
 
 Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the "List All Site Tags" example above:
 
-{{% code file="links-to-all-tags" %}}
-```
+{{< code file="links-to-all-tags" >}}
 <ul class="tags">
   {{ range ($.Site.GetPage "taxonomyTerm" "tags").Pages }}
    <li><a href="{{ .Permalink }}">{{ .Title}}</a></li>
   {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 <!--### `.Site.GetPage` Taxonomy List Example
 

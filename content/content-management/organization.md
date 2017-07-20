@@ -172,14 +172,12 @@ This isn't in the front matter, but is the actual name of the file minus the ext
 
 When defined in the front matter, the `slug` can take the place of the filename for the destination.
 
-{{% code file="content/posts/old-post.md" %}}
-```
+{{< code file="content/posts/old-post.md" >}}
 ---
 title: New Post
 slug: "new-post"
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
 This will render to the following destination according to Hugo's default behavior:
 
@@ -195,15 +193,13 @@ yoursite.com/posts/new-post/
 
 A content's `type` is also determined by its location on disk but, unlike `section`, it *can* be specified in the front matter. See [types][]. This can come in especially handy when you want a piece of content to render using a different layout. In the following example, you can create a layout at `layouts/new/mylayout.html` that Hugo will use to render this piece of content, even in the midst of many other posts.
 
-{{% code file="content/posts/my-post.md" %}}
-```
+{{< code file="content/posts/my-post.md" >}}
 ---
 title: My Post
 type: new
 layout: mylayout
 ---
-```
-{{% /code %}}
+{{< /code >}}
 <!-- See https://discourse.gohugo.io/t/path-not-works/6387 -->
 <!-- ### `path`
 
@@ -213,14 +209,12 @@ layout: mylayout
 
 A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a `/`). `url` will be used exactly as it provided in the front matter and will ignore the `--uglyURLs` setting in your site configuration:
 
-{{% code file="content/posts/old-url.md" %}}
-```
+{{< code file="content/posts/old-url.md" >}}
 ---
 title: Old URL
 url: /blog/new-url/
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
 Assuming your `baseURL` is [configured][config] to `https://yoursite.com`, the addition of `url` to the front matter will make `old-url.md` render to the following destination:
 

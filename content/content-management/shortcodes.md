@@ -89,11 +89,9 @@ The `figure` shortcode can use the following named parameters:
 
 #### Example `figure` Input
 
-{{% code file="figure-input-example.md" %}}
-```
+{{< code file="figure-input-example.md" >}}
 {{</* figure src="/media/spf13.jpg" title="Steve Francia" */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `figure` Output
 
@@ -126,11 +124,9 @@ We can embed the gist in our content via username and gist ID pulled from the UR
 
 If the gist contains several files and you want to quote just one of them, you can pass the filename (quoted) as an optional third argument:
 
-{{% code file="gist-input.md" %}}
-```
+{{< code file="gist-input.md" >}}
 {{</* gist spf13 7896402 "img.html" */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `gist` Output
 
@@ -152,8 +148,7 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 
 #### Example `highlight` Input
 
-{{% code file="content/tutorials/learn-html.md" %}}
-```
+{{< code file="content/tutorials/learn-html.md" >}}
 {{</* highlight html */>}}
 <section id="main">
   <div>
@@ -164,8 +159,7 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
   </div>
 </section>
 {{</* /highlight */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `highlight` Output
 
@@ -198,19 +192,15 @@ https://www.instagram.com/p/BWNjjyYFxVx/
 
 #### Example `instagram` Input
 
-{{% code file="instagram-input.md" %}}
-```
+{{< code file="instagram-input.md" >}}
 {{</* instagram BWNjjyYFxVx */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 You also have the option to hide the caption:
 
-{{% code file="instagram-input-hide-caption.md" %}}
-```
+{{< code file="instagram-input-hide-caption.md" >}}
 {{</* instagram BWNjjyYFxVx hidecaption */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `instagram` Output
 
@@ -269,11 +259,9 @@ To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (u
 
 Extract the value from the field `data-id` and pass it to the shortcode:
 
-{{% code file="speakerdeck-example-input.md" %}}
-```
+{{< code file="speakerdeck-example-input.md" >}}
 {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### `speakerdeck` Example Output
 
@@ -301,11 +289,9 @@ https://twitter.com/spf13/status/877500564405444608
 
 Pass the tweet's ID from the URL as a parameter to the `tweet` shortcode:
 
-{{% code file="example-tweet-input.md" %}}
-```
+{{< code file="example-tweet-input.md" >}}
 {{</* tweet 877500564405444608 */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `tweet` Output
 
@@ -335,11 +321,9 @@ https://vimeo.com/channels/staffpicks/146022717
 
 Extract the ID from the video's URL and pass it to the `vimeo` shortcode:
 
-{{% code file="example-vimeo-input.md" %}}
-```
+{{< code file="example-vimeo-input.md" >}}
 {{</* vimeo 146022717 */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `vimeo` Output
 
@@ -378,30 +362,24 @@ https://www.youtube.com/watch?v=w7Ft2ymGmfc
 
 Copy the YouTube video ID that follows `v=` in the video's URL and pass it to the `youtube` shortcode:
 
-{{% code file="example-youtube-input.md" %}}
-```
+{{< code file="example-youtube-input.md" >}}
 {{</* youtube w7Ft2ymGmfc */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named an unnamed parameters, so you'll need to assign the yet unnamed video id to the parameter `id`:
 
 
-{{% code file="example-youtube-input-with-autoplay.md" %}}
-```
+{{< code file="example-youtube-input-with-autoplay.md" >}}
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `youtube` Output
 
 Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
 
-{{% code file="example-youtube-output.html" %}}
-```
+{{< code file="example-youtube-output.html" >}}
 {{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `youtube` Display
 

@@ -31,8 +31,7 @@ needsexamples: false
 
 `default` function examples reference the following content page:
 
-{{% code file="content/posts/default-function-example.md" %}}
-```
+{{< code file="content/posts/default-function-example.md" >}}
 ---
 title: Sane Defaults
 seo_title:
@@ -41,8 +40,7 @@ font:
 oldparam: The default function helps make your templating DRYer.
 newparam:
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
 `default` can be written in more than one way:
 
@@ -55,12 +53,10 @@ Both of the above `default` function calls return `Roboto`.
 
 A `default` value, however, does not need to be hard coded like the previous example. The `default` value can be a variable or pulled directly from the front matter using dot notation:
 
-{{% code file="variable-as-default-value.html" nocopy="true" %}}
-```
+{{< code file="variable-as-default-value.html" nocopy="true" >}}
 {{$old := .Params.oldparam }}
 <p>{{ .Params.newparam | default $old }}</p>
-```
-{{% /code %}}
+{{< /code >}}
 
 Which would return:
 
@@ -70,11 +66,9 @@ Which would return:
 
 And then using dot notation
 
-{{% code file="dot-notation-default-value.html" %}}
-```
+{{< code file="dot-notation-default-value.html" >}}
 <title>{{ .Params.seo_title | default .Title }}</title>
-```
-{{% /code %}}
+{{< /code >}}
 
 Which would return
 
@@ -88,18 +82,14 @@ The following have equivalent return values but are far less terse. This demonst
 
 Using `if`:
 
-{{% code file="if-instead-of-default.html" nocopy="true" %}}
-```
+{{< code file="if-instead-of-default.html" nocopy="true" >}}
 <title>{{if .Params.seo_title}}{{.Params.seo_title}}{{else}}{{.Title}}{{end}}</title>
 => Sane Defaults
-```
-{{% /code %}}
+{{< /code >}}
 
 Using `with`:
 
-{{% code file="with-instead-of-default.html" nocopy="true" %}}
-```
+{{< code file="with-instead-of-default.html" nocopy="true" >}}
 <title>{{with .Params.seo_title}}{{.}}{{else}}{{.Title}}{{end}}</title>
 => Sane Defaults
-```
-{{% /code %}}
+{{< /code >}}

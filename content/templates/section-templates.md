@@ -57,8 +57,7 @@ These are the valid values for 'kind':
 
 ## Example: Creating a Default Section Template
 
-{{% code file="layouts/_default/section.html" download="section.html" %}}
-```
+{{< code file="layouts/_default/section.html" download="section.html" >}}
 {{ define "main" }}
   <main>
       {{ .Content }}
@@ -74,8 +73,7 @@ These are the valid values for 'kind':
       {{ partial "pagination.html" . }}
   </main>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Example: Using `.Site.GetPage`
 

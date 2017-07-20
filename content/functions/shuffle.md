@@ -20,14 +20,12 @@ draft: false
 aliases: []
 ---
 
-{{% code file="shuffle-input.html" %}}
-```
+{{< code file="shuffle-input.html" >}}
 <!-- Shuffled sequence = -->
 <div>{{ shuffle (seq 1 5) }}</div>
 <!-- Shuffled slice =  -->
 <div>{{ shuffle (slice "foo" "bar" "buzz") }}</div>
-```
-{{% /code %}}
+{{< /code >}}
 
 This example would return the following:
 

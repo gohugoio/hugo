@@ -94,11 +94,9 @@ You'll see the `bookshelf` directory has 6 subdirectories and 1 file. Let's look
 
 Let's now add a post to our "bookshelf." We will use the `hugo new` command to add a post. This first post will be on the book [*Good To Great*][bookurl]. Make sure you are inside the `bookshelf` directory.
 
-{{% code file="create-new-book-review-post.sh" %}}
-```
+{{< code file="create-new-book-review-post.sh" >}}
 hugo new post/good-to-great.md
-```
-{{% /code %}}
+{{< /code >}}
 
 You should then see the following output:
 
@@ -140,8 +138,7 @@ The text bracketed by `+++` is the TOML [front matter][fm] for the content. Fron
 
 Let's update `good-to-great.md` with a short review of *Good to Great*:
 
-{{% code file="good-to-great-start.md" %}}
-```
+{{< code file="good-to-great-start.md" >}}
 +++
 date = "2016-02-14T16:11:58+05:30"
 draft = true
@@ -149,8 +146,7 @@ title = "Good to Great Book Review"
 +++
 
 I read **Good to Great in January 2016**. An awesome read sharing detailed analysis on how good companies became great. Although this book is about how companies became great but we could apply a lot of the learnings on ourselves. Concepts like level 5 leader, hedgehog concept, the stockdale paradox are equally applicable to individuals.
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Step 4. Serve Content
 
@@ -233,19 +229,15 @@ You can clone one or more themes from within the `themes` directory. We will use
 
 Once inside the `themes` directory, you can use the following one-liner to clone Robust, check out the specific commit, and then return to your project's root directory:
 
-{{% code file="clone-robust-theme" %}}
-```
+{{< code file="clone-robust-theme" >}}
 git clone https://github.com/dim0627/hugo_theme_robust.git && cd hugo_theme_robust && git checkout 3baae29 && cd ../..
-```
-{{% /code %}}
+{{< /code >}}
 
 Now let's start Hugo's server again but with the addition of the `-theme` flag for Robust:
 
-{{% code file="hugo-server-with-theme.sh" %}}
-```
+{{< code file="hugo-server-with-theme.sh" >}}
 hugo server --theme=hugo_theme_robust --buildDrafts
-```
-{{% /code %}}
+{{< /code >}}
 
 You should see an output to the console similar to the following:
 
@@ -310,19 +302,15 @@ You can very easily switch between different themes in Hugo. Let's suppose we wa
 
 From your project root, you can use this one-liner to change into `themes`, clone Bleak, and go back to your project's root directory:
 
-{{% code file="clone-bleak-theme.sh" %}}
-```
+{{< code file="clone-bleak-theme.sh" >}}
 cd themes && git clone https://github.com/Zenithar/hugo-theme-bleak.git && cd ..
-```
-{{% /code %}}
+{{< /code >}}
 
 Now restart the server with our new theme flag:
 
-{{% code file="run-server-with-bleak.sh" %}}
-```
+{{< code file="run-server-with-bleak.sh" >}}
 hugo server --theme=hugo-theme-bleak --buildDrafts
-```
-{{% /code %}}
+{{< /code >}}
 
 Our website is now using the `bleak` theme at <http://localhost:1313>, which should look similar to the following screenshot:
 
@@ -332,26 +320,22 @@ Our website is now using the `bleak` theme at <http://localhost:1313>, which sho
 
 Kill the Hugo server if you are still running it with the Bleak theme, and then restart the server with the `robust` theme. We will use Robust for the duration of this Quick Start:
 
-{{% code file="restart-with-robust-sh" %}}
-```
+{{< code file="restart-with-robust-sh" >}}
 hugo server --theme=hugo_theme_robust --buildDrafts
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Update Our `config.toml`
 
 Our website is currently using the dummy values specified in `bookshelf/config.toml`, which were auto-generated with `hugo new site bookshelf`. Let's update the configuration:
 
-{{% code file="updated-config.toml" %}}
-```
+{{< code file="updated-config.toml" >}}
 baseURL = "http://example.org/"
 languageCode = "en-us"
 title = "Shekhar Gulati Book Reviews"
 
 [Params]
   Author = "Shekhar Gulati"
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Watch Your Site Reload Instantly
 
@@ -408,23 +392,19 @@ Now we need to change the layout of the index page so that only images are shown
 
 Create a new file for `li.html` inside the `bookshelf/layouts/_default` directory. If you are in your project root, you can use the following one-liner to both create the file and return to the project root:
 
-{{% code file="create-new-li-html.sh" %}}
-```
+{{< code file="create-new-li-html.sh" >}}
 cd layouts && mkdir _default && cd _default && touch li.html && cd ../..
-```
-{{% /code %}}
+{{< /code >}}
 
 Copy the content shown below into the new `li.html`. When contrasting this with the `li.html` that ships with the Robust theme, you'll notice we have removed details of the book so that only the image is shown:
 
-{{% code file="layouts/_default/li.html" %}}
-```
+{{< code file="layouts/_default/li.html" >}}
 <article class="li">
   <a href="{{ .Permalink }}" class="clearfix">
     <div class="image" style="background-image: url({{ $.Site.BaseURL }}images/{{ with .Params.image }}{{ . }}{{ else }}default.jpg{{ end }});"></div>
   </a>
 </article>
-```
-{{% /code %}}
+{{< /code >}}
 
 Now, the website should render similar to the following screenshot:
 
@@ -434,27 +414,22 @@ Next, we want to remove information related to the theme from the footer. Let's 
 
 This is a new [partial template][partials]. If you are still in the project's root directory, you can use the following one-liner to create the partial before returning to the project root:
 
-{{% code file="create-new-default-foot.sh" %}}
-```
+{{< code file="create-new-default-foot.sh" >}}
 cd layouts && mkdir partials && cd partials && touch default_foot.html && cd ../..
-```
-{{% /code %}}
+{{< /code >}}
 
 Now add the following to our new `default_foot.html` partial template:
 
-{{% code file="layouts/partials/default_foot.html" %}}
-```
+{{< code file="layouts/partials/default_foot.html" >}}
 <footer class="site">
   <p>{{ with .Site.Copyright | safeHTML }}{{ . }}{{ else }}&copy; {{ $.Site.LastChange.Year }} {{ if isset $.Site.Params "Author" }}{{ $.Site.Params.Author }}{{ else }}{{ .Site.Title }}{{ end }}{{ end }}</p>
   <p>Powered by <a href="http://gohugo.io" target="_blank">Hugo</a>,</p>
 </footer>
-```
-{{% /code %}}
+{{< /code >}}
 
 So far we are using the default image, but we would like to use the book image so that we can relate to the book. Every book review will define a configuration setting in its front matter. Update the content and front matter of `good-to-great.md` as shown below.
 
-{{% code file="content/post/good-to-great.md" %}}
-```
+{{< code file="content/post/good-to-great.md" >}}
 +++
 date = "2017-02-19T21:09:05-06:00"
 draft = true
@@ -463,8 +438,7 @@ image = "good-to-great.jpg"
 +++
 
 I read **Good to Great in January 2016**. An awesome read sharing detailed analysis on how good companies became great. Although this book is about how companies became great but we could apply a lot of the learnings on ourselves. Concepts like level 5 leader, hedgehog concept, the stockdale paradox are equally applicable to individuals.
-```
-{{% /code %}}
+{{< /code >}}
 
 Grab a (legal) image from somewhere, name it `good-to-great.jpg`, and place it in the `bookshelf/static/images` directory.
 

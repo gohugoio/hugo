@@ -21,12 +21,10 @@ aliases: []
 
 An example:
 
-{{% code file="base64-input.html" %}}
-```
+{{< code file="base64-input.html" >}}
 <p>Hello world = {{ "Hello world" | base64Encode }}</p>
 <p>SGVsbG8gd29ybGQ = {{ "SGVsbG8gd29ybGQ=" | base64Decode }}</p>
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% output file="base-64-output.html" %}}
 ```

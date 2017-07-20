@@ -36,11 +36,9 @@ Whether the path is absolute or relative does not matter because---at least for 
 
 This shortcode creates a link to each of the files in a directory---display as the file's basename---along with the file's size in bytes.
 
-{{% code file="layouts/shortcodes/directoryindex.html" download="directoryindex.html" %}}
-```
+{{< code file="layouts/shortcodes/directoryindex.html" download="directoryindex.html" >}}
 {{< readfile file="/themes/gohugoioTheme/layouts/shortcodes/directoryindex.html" >}}
-```
-{{% /code %}}
+{{< /code >}}
 
 You can then call the shortcode as follows inside of your content's markup:
 
@@ -80,11 +78,9 @@ If you are going to create [custom shortcodes](/templates/shortcode-templates/) 
 
 Here is the templating for our new `readfile` shortcode:
 
-{{% code file="layouts/shortcodes/readfile.html" download="readfile.html" %}}
-```
+{{< code file="layouts/shortcodes/readfile.html" download="readfile.html" >}}
 {{< readfile file="/themes/gohugoioTheme/layouts/shortcodes/readfile.html">}}
-```
-{{% /code %}}
+{{< /code >}}
 
 This `readfile` shortcode is [also part of the Hugo docs][readfilesource]. So is [`testing.txt`][testfile], which we will call in this example by passing it into our new `readfile` shortcode as follows:
 

@@ -25,8 +25,7 @@ A useful example of `intersect` functionality is a "related posts" block. `isset
 
 The following is an example of a "related posts" [partial template][partials] that could be added to a [single page template][single]:
 
-{{% code file="layouts/partials/related-posts.html" download="related-posts.html" %}}
-```
+{{< code file="layouts/partials/related-posts.html" download="related-posts.html" >}}
 <ul>
 {{ $page_link := .Permalink }}
 {{ $tags := .Params.tags }}
@@ -38,8 +37,7 @@ The following is an example of a "related posts" [partial template][partials] th
     {{ end }}
 {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 This is also very useful to use as `AND` filters when combined with where:
 

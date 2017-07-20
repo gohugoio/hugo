@@ -147,11 +147,9 @@ Let's assume you would like to keep mentions of your copyright year current in y
 {{</* year */>}}
 ```
 
-{{% code file="/layouts/shortcodes/year.html" %}}
-```
+{{< code file="/layouts/shortcodes/year.html" >}}
 {{ .Page.Now.Year }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Single Positional Example: `youtube`
 
@@ -163,17 +161,14 @@ Embedded videos are a common addition to markdown content that can quickly becom
 
 Would load the template at `/layouts/shortcodes/youtube.html`:
 
-{{% code file="/layouts/shortcodes/youtube.html" %}}
-```
+{{< code file="/layouts/shortcodes/youtube.html" >}}
 <div class="embed video-player">
 <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/{{ index .Params 0 }}" allowfullscreen frameborder="0">
 </iframe>
 </div>
-```
-{{% /code %}}
+{{< /code >}}
 
-{{% code file="youtube-embed.html" copy="false" %}}
-```
+{{< code file="youtube-embed.html" copy="false" >}}
 <div class="embed video-player">
     <iframe class="youtube-player" type="text/html"
         width="640" height="385"
@@ -181,23 +176,19 @@ Would load the template at `/layouts/shortcodes/youtube.html`:
         allowfullscreen frameborder="0">
     </iframe>
 </div>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Single Named Example: `image`
 
 Let's say you want to create your own `img` shortcode rather than use Hugo's built-in [`figure` shortcode][figure]. Your goal is to be able to call the shortcode as follows in your content files:
 
-{{% code file="content-image.md" %}}
-```
+{{< code file="content-image.md" >}}
 {{</* img src="/media/spf13.jpg" title="Steve Francia" */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 You have created the shortcode at `/layouts/shortcodes/img.html`, which loads the following shortcode template:
 
-{{% code file="/layouts/shortcodes/img.html" %}}
-```
+{{< code file="/layouts/shortcodes/img.html" >}}
 <!-- image -->
 <figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
     {{ with .Get "link"}}<a href="{{.}}">{{ end }}
@@ -216,21 +207,18 @@ You have created the shortcode at `/layouts/shortcodes/img.html`, which loads th
     {{ end }}
 </figure>
 <!-- image -->
-```
-{{% /code %}}
+{{< /code >}}
 
 Would be rendered as:
 
-{{% code file="img-output.html" copy="false" %}}
-```
+{{< code file="img-output.html" copy="false" >}}
 <figure >
     <img src="/media/spf13.jpg"  />
     <figcaption>
         <h4>Steve Francia</h4>
     </figcaption>
 </figure>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Single Flexible Example: `vimeo`
 
@@ -241,8 +229,7 @@ Would be rendered as:
 
 Would load the template found at `/layouts/shortcodes/vimeo.html`:
 
-{{% code file="/layouts/shortcodes/vimeo.html" %}}
-```
+{{< code file="/layouts/shortcodes/vimeo.html" >}}
 {{ if .IsNamedParams }}
   <div class="{{ if .Get "class" }}{{ .Get "class" }}{{ else }}vimeo-container{{ end }}">
     <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" allowfullscreen></iframe>
@@ -252,35 +239,30 @@ Would load the template found at `/layouts/shortcodes/vimeo.html`:
     <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" allowfullscreen></iframe>
   </div>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 Would be rendered as:
 
-{{% code file="vimeo-iframes.html" copy="false" %}}
-```
+{{< code file="vimeo-iframes.html" copy="false" >}}
 <div class="vimeo-container">
   <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
 <div class="flex-video">
   <iframe src="//player.vimeo.com/video/49718712" allowfullscreen></iframe>
 </div>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Paired Example: `highlight`
 
 The following is taken from `highlight`, which is a [built-in shortcode][] that ships with Hugo.
 
-{{% code file="highlight-example.md" %}}
-```
+{{< code file="highlight-example.md" >}}
 {{</* highlight html */>}}
   <html>
     <body> This HTML </body>
   </html>
 {{</* /highlight */>}}
-```
-{{% /code %}}
+{{< /code >}}
 
 The template for the `highlight` shortcode uses the following code, which is already included in Hugo:
 
@@ -290,14 +272,12 @@ The template for the `highlight` shortcode uses the following code, which is alr
 
 The rendered output of the HTML example code block will be as follows:
 
-{{% code file="syntax-highlighted.html" copy="false" %}}
-```
+{{< code file="syntax-highlighted.html" copy="false" >}}
 <div class="highlight" style="background: #272822"><pre style="line-height: 125%"><span style="color: #f92672">&lt;html&gt;</span>
     <span style="color: #f92672">&lt;body&gt;</span> This HTML <span style="color: #f92672">&lt;/body&gt;</span>
 <span style="color: #f92672">&lt;/html&gt;</span>
 </pre></div>
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note %}}
 The preceding shortcode makes use of a Hugo-specific template function called `highlight`, which uses [Pygments](http://pygments.org) to add syntax highlighting to the example HTML code block. See the [developer tools page on syntax highlighting](/tools/syntax-highlighting/) for more information.
@@ -309,26 +289,22 @@ Hugo's [`.Parent` shortcode variable][parent] returns a boolean value depending 
 
 The following example is contrived but demonstrates the concept. Assume you have a `gallery` shortcode that expects one named `class` parameter:
 
-{{% code file="layouts/shortcodes/gallery.html" %}}
-```
+{{< code file="layouts/shortcodes/gallery.html" >}}
 <div class="{{.Get "class"}}">
   {{.Inner}}
 </div>
-```
-{{% /code %}}
+{{< /code >}}
 
 You also have an `image` shortcode with a single named `src` parameter that you want to call inside of `gallery` and other shortcodes so that the parent defines the context of each `image`:
 
-{{% code file="layouts/shortcodes/image.html" %}}
-```
+{{< code file="layouts/shortcodes/image.html" >}}
 {{- $src := .Get "src" -}}
 {{- with .Parent -}}
   <img src="{{$src}}" class="{{.Get "class"}}-image">
 {{- else -}}
   <img src="{{$src}}">
 {{- end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 You can then call your shortcode in your content as follows:
 

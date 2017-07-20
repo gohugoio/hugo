@@ -57,11 +57,9 @@ If you have the same filename used across multiple sections, you should only use
 
 To be sure to get the correct reference in this case, use the full path: 
 
-{{% code file="content/meta/my-article.md" copy="false" %}}
-```
+{{< code file="content/meta/my-article.md" copy="false" >}}
 {{</* relref "events/my-birthday.md" */>}} => /events/my-birthday/
-```
-{{% /code %}}
+{{< /code >}}
 
 {{< todo >}}Remove this warning when https://github.com/gohugoio/hugo/issues/3703 is released.{{< /todo >}}
 

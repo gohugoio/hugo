@@ -52,12 +52,10 @@ image: my-post-image.jpg
 
 You can then concatenate the `image` value (string) with the path to your `images` directory in `static` and leverage a URL-related templating function for increased flexibility:
 
-{{% code file="partials/head/twitter-card.html" %}}
-```
+{{< code file="partials/head/twitter-card.html" >}}
 {{$socialimage := add "images/" .Params.image}}
 <meta name="twitter:image" content="{{ $socialimage | absURL }}">
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note %}}
 The `add` example above makes use of the [`absURL` function](/functions/absurl/). `absURL` and its relative companion `relURL` is the recommended way to construct URLs in Hugo.

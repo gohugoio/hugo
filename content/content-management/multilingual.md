@@ -23,8 +23,7 @@ You should define the available languages in a `Languages` section in your site 
 
 The following is an example of a TOML site configuration for a multilingual Hugo project:
 
-{{% code file="config.toml" download="config.toml" %}}
-```
+{{< code file="config.toml" download="config.toml" >}}
 DefaultContentLanguage = "en"
 copyright = "Everything is mine"
 
@@ -46,8 +45,7 @@ weight = 2
 linkedin = "lien-francais"
 [Languages.fr.navigation]
 help  = "Aide"
-```
-{{% /code %}}
+{{< /code >}}
 
 Anything not defined in a `[Languages]` block will fall back to the global
 value for that key (e.g., `copyright` for the English [`en`] language).
@@ -66,8 +64,7 @@ Only the obvious non-global options can be overridden per language. Examples of 
 Taxonomies and [Blackfriday configuration][config] can also be set per language:
 
 
-{{% code file="bf-config.toml" %}}
-```
+{{< code file="bf-config.toml" >}}
 [Taxonomies]
 tag = "tags"
 
@@ -87,8 +84,7 @@ weight = 2
 title = "Français"
 [Languages.fr.Taxonomies]
 plaque = "plaques"
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Translate Your Content
 
@@ -127,8 +123,7 @@ We will fix this in https://github.com/gohugoio/hugo/issues/2699
 
 To create a list of links to translated content, use a template similar to the following:
 
-{{% code file="layouts/partials/i18nlist.html" %}}
-```
+{{< code file="layouts/partials/i18nlist.html" >}}
 {{ if .IsTranslated }}
 <h4>{{ i18n "translations" }}</h4>
 <ul>
@@ -139,8 +134,7 @@ To create a list of links to translated content, use a template similar to the f
     {{ end}}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template, be it for a [single content page][contenttemplate] or the [homepage][]. It will not print anything if there are no translations for a given page, or if there are translations---in the case of the homepage, section listing, etc.---a site with only render one language.
 

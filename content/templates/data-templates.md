@@ -172,8 +172,7 @@ first 5 gists for a GitHub user:
 
 For `getCSV`, the one-character-long separator must be placed in the first position followed by the URL. The following is an example of creating an HTML table in a [partial template][partials] from a published CSV:
 
-{{% code file="layouts/partials/get-csv.html" %}}
-```
+{{< code file="layouts/partials/get-csv.html" >}}
   <table>
     <thead>
       <tr>
@@ -194,8 +193,7 @@ For `getCSV`, the one-character-long separator must be placed in the first posit
     {{ end }}
     </tbody>
   </table>
-```
-{{% /code %}}
+{{< /code >}}
 
 The expression `{{index $r number}}` must be used to output the nth-column from the current row.
 

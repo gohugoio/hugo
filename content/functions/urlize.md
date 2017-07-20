@@ -20,20 +20,17 @@ relatedfuncs: []
 
 The following examples pull from a content file with the following front matter:
 
-{{% code file="content/blog/greatest-city.md" copy="false"%}}
-```
+{{< code file="content/blog/greatest-city.md" copy="false">}}
 +++
 title = "The World's Greatest City"
 location = "Chicago IL"
 tags = ["pizza","beer","hot dogs"]
 +++
-```
-{{% /code %}}
+{{< /code >}}
 
 The following might be used as a partial within a [single page template][singletemplate]:
 
-{{% code file="layouts/partials/content-header.html" download="content-header.html" %}}
-```
+{{< code file="layouts/partials/content-header.html" download="content-header.html" >}}
 <header>
     <h1>{{.Title}}</h1>
     {{ with .Params.location }}
@@ -50,8 +47,7 @@ The following might be used as a partial within a [single page template][singlet
     </ul>
     {{ end }}
 </header>
-```
-{{% /code %}}
+{{< /code >}}
 
 The preceding partial would then output to the rendered page as follows, assuming the page is being built with Hugo's default pretty URLs.
 

@@ -90,8 +90,7 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
 
 You can create the following `layouts/partials/disqus.html`:
 
-{{% code file="layouts/partials/disqus.html" download="disqus.html" %}}
-```
+{{< code file="layouts/partials/disqus.html" download="disqus.html" >}}
 <div id="disqus_thread"></div>
 <script type="text/javascript">
 
@@ -109,8 +108,7 @@ You can create the following `layouts/partials/disqus.html`:
 </script>
 <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
-```
-{{% /code %}}
+{{< /code >}}
 
 The `if` statement skips the initialization of the Disqus comment injection when you are running on `localhost`.
 

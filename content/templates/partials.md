@@ -103,8 +103,7 @@ Note that the variant parameters are not made available to the underlying partia
 
 The following `header.html` partial template is used for [spf13.com](http://spf13.com/):
 
-{{% code file="layouts/partials/header.html" download="header.html" %}}
-```
+{{< code file="layouts/partials/header.html" download="header.html" >}}
 <!DOCTYPE html>
 <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
@@ -120,8 +119,7 @@ The following `header.html` partial template is used for [spf13.com](http://spf1
     {{ partial "head_includes.html" . }}
 </head>
 <body lang="en">
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note %}}
 The `header.html` example partial was built before the introduction of block templates to Hugo. Read more on [base templates and blocks](/templates/base/) for defining the outer chrome or shell of your master templates (i.e., your site's head, header, and footer). You can even combine blocks and partials for added flexibility.
@@ -131,8 +129,7 @@ The `header.html` example partial was built before the introduction of block tem
 
 The following `footer.html` partial template is used for [spf13.com](http://spf13.com/):
 
-{{% code file="layouts/partials/footer.html" download="footer.html" %}}
-```
+{{< code file="layouts/partials/footer.html" download="footer.html" >}}
 <footer>
   <div>
     <p>
@@ -159,8 +156,7 @@ The following `footer.html` partial template is used for [spf13.com](http://spf1
 </script>
 </body>
 </html>
-```
-{{% /code %}}
+{{< /code >}}
 
 [context]: /templates/introduction/ "The most easily overlooked concept to understand about Go templating is how the dot always refers to the current context."
 [customize]: /themes/customizing/ "Hugo provides easy means to customize themes as long as users are familiar with Hugo's template lookup order."

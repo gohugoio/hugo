@@ -88,15 +88,13 @@ Only three of the four markdown files in the above project are subject to the *s
 
 ### Example: `my-first-post.md`
 
-{{% code file="content/posts/my-first-post.md" copy="false" %}}
-```
+{{< code file="content/posts/my-first-post.md" copy="false" >}}
 ---
 title: My First Post
 date: 2017-02-19
 description: This is my first post.
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
 When building your site, Hugo will go through the lookup order until it finds what it needs for `my-first-post.md`:
 
@@ -118,8 +116,7 @@ Notice the term `UNSPECIFIED` rather than `UNDEFINED`. If you don't tell Hugo th
 
 ### Example: `my-second-post.md`
 
-{{% code file="content/posts/my-second-post.md" copy="false" %}}
-```
+{{< code file="content/posts/my-second-post.md" copy="false" >}}
 ---
 title: My Second Post
 date: 2017-02-21
@@ -127,8 +124,7 @@ description: This is my second post.
 type: review
 layout: reviewarticle
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
 Here is the way Hugo traverses the single-page lookup order for `my-second-post.md`:
 
@@ -152,15 +148,13 @@ Notice that the directory for the template for `my-second-post.md` is `review` a
 
 ### Example: `my-first-event.md`
 
-{{% code file="content/events/my-first-event.md" copy="false" %}}
-```
+{{< code file="content/events/my-first-event.md" copy="false" >}}
 ---
 title: My First
 date: 2017-02-21
 description: This is an upcoming event..
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
 Here is the way Hugo traverses the single-page lookup order for `my-first-event.md`:
 

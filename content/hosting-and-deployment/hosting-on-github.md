@@ -96,12 +96,10 @@ git worktree add -B gh-pages public upstream/gh-pages
 
 Regenerate the site using the `hugo` command and commit the generated files on the `gh-pages` branch:
 
-{{% code file="commit-gh-pages-files.sh"%}}
-```
+{{< code file="commit-gh-pages-files.sh">}}
 hugo
 cd public && git add --all && git commit -m "Publishing to gh-pages" && cd ..
-```
-{{% /code %}}
+{{< /code >}}
 
 If the changes in your local `gh-pages` branch look alright, push them to the remote repo:
 
@@ -122,8 +120,7 @@ After a short while, you'll see the updated contents on your GitHub Pages site.
 
 To automate these steps, you can create a script with the following contents:
 
-{{% code file="publish_to_ghpages.sh" %}}
-```
+{{< code file="publish_to_ghpages.sh" >}}
 #!/bin/sh
 
 DIR=$(dirname "$0")
@@ -153,8 +150,7 @@ hugo
 
 echo "Updating gh-pages branch"
 cd public && git add --all && git commit -m "Publishing to gh-pages (publish.sh)"
-```
-{{% /code %}}
+{{< /code >}}
 
 This will abort if there are pending changes in the working directory and also makes sure that all previously existing output files are removed. Adjust the script to taste, e.g. to include the final push to the remote repository if you don't need to take a look at the gh-pages branch before pushing. Or adding `echo yourdomainname.com >> CNAME` if you set up for your gh-pages to use customize domain.
 

@@ -52,11 +52,9 @@ hugo new functions/newfunction.md
 
 The archetype for `functions` according to the Hugo theme is as follows:
 
-{{% code file="archetypes/functions.md" %}}
-```
+{{< code file="archetypes/functions.md" >}}
 {{< readfile file="/themes/gohugoioTheme/archetypes/functions.md">}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### New Function Required Fields
 
@@ -104,11 +102,9 @@ hugo new tutorials/my-new-tutorial.md
 
 The archetype for the `tutorials` content type is as follows:
 
-{{% code file="archetypes/tutorials.md" %}}
-```
+{{< code file="archetypes/tutorials.md" >}}
 {{< readfile file="/themes/gohugoioTheme/archetypes/tutorials.md">}}
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Add Code Blocks
 
@@ -192,8 +188,7 @@ This example HTML code block tells Hugo users the following:
 
 The output of this example will render to the Hugo docs as follows:
 
-{{% code file="layouts/_default/single.html" download="single.html" %}}
-```
+{{< code file="layouts/_default/single.html" download="single.html" >}}
 {{ define "main" }}
 <main>
     <article>
@@ -211,8 +206,7 @@ The output of this example will render to the Hugo docs as follows:
     </article>
 </main>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 <!-- #### Output Code Block
 
@@ -276,13 +270,11 @@ Use the `note` shortcode when you want to draw attention to information subtly. 
 
 #### Example `note` Input
 
-{{% code file="note-with-heading.md" %}}
-```
+{{< code file="note-with-heading.md" >}}
 {{%/* note */%}}
 Here is a piece of information I would like to draw your **attention** to.
 {{%/* /note */%}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `note` Output
 
@@ -306,13 +298,11 @@ Use the `tip` shortcode when you want to give the reader advice. `tip`, like `no
 
 #### Example `tip` Input
 
-{{% code file="using-tip.md" %}}
-```
+{{< code file="using-tip.md" >}}
 {{%/* tip */%}}
 Here's a bit of advice to improve your productivity with Hugo.
 {{%/* /tip */%}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `tip` Output
 
@@ -336,13 +326,11 @@ Use the `warning` shortcode when you want to draw the user's attention to someth
 
 #### Example `warning` Input
 
-{{% code file="warning-admonition-input.md" %}}
-```
+{{< code file="warning-admonition-input.md" >}}
 {{%/* warning */%}}
 This is a warning, which should be reserved for *important* information like breaking changes.
 {{%/* /warning */%}}
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Example `warning` Output
 

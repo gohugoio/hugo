@@ -91,27 +91,23 @@ The following logical operators are vailable with `where`:
 
 You can also put the returned value of the `where` clauses into a variable:
 
-{{% code file="where-intersect-variables.html" %}}
-```
+{{< code file="where-intersect-variables.html" >}}
 {{ $v1 := where .Site.Pages "Params.a" "v1" }}
 {{ $v2 := where .Site.Pages "Params.b" "v2" }}
 {{ $filtered := $v1 | intersect $v2 }}
 {{ range $filtered }}
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Use `where` with `first`
 
 The following grabs the first five content files in `post` using the [default ordering](/templates/lists/) for lists (i.e., `weight => date`):
 
-{{% code file="where-with-first.html" %}}
-```
+{{< code file="where-with-first.html" >}}
 {{ range first 5 (where .Data.Pages "Section" "post") }}
    {{ .Content }}
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Nest `where` Clauses
 

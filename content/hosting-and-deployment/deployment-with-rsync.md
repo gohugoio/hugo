@@ -39,11 +39,9 @@ If it is not done yet, we will make an automated way to SSH to your server. If y
 
 First, install the ssh client. On Debian/Ubuntu/derivates, use the following command:
 
-{{% code file="install-openssh.sh" %}}
-```
+{{< code file="install-openssh.sh" >}}
 sudo apt-get install openssh-client
-```
-{{% /code %}}
+{{< /code >}}
 
 Then generate your ssh key by entering the following commands:
 

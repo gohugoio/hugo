@@ -79,8 +79,7 @@ The following is an example of a typical Hugo project directory's content:
 
 Using the above example, let's assume you have the following in `content/post/_index.md`:
 
-{{% code file="content/post/_index.md" %}}
-```
+{{< code file="content/post/_index.md" >}}
 ---
 title: My Golang Journey
 date: 2017-03-23
@@ -90,13 +89,11 @@ publishdate: 2017-03-24
 I decided to start learning Golang in March 2017.
 
 Follow my journey through this new blog.
-```
-{{% /code %}}
+{{< /code >}}
 
 You can now access this `_index.md`'s' content in your list template:
 
-{{% code file="layouts/_default/list.html" download="list.html" %}}
-```
+{{< code file="layouts/_default/list.html" download="list.html" >}}
 {{ define "main" }}
 <main>
     <article>
@@ -116,13 +113,11 @@ You can now access this `_index.md`'s' content in your list template:
     </ul>
 </main>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 This above will output the following HTML:
 
-{{% code file="yoursite.com/post/index.html" copy="false" %}}
-```
+{{< code file="yoursite.com/post/index.html" copy="false" >}}
 <!--top of your baseof code-->
 <main>
     <article>
@@ -138,8 +133,7 @@ This above will output the following HTML:
     </ul>
 </main>
 <!--bottom of your baseof-->
-```
-{{% /code %}}
+{{< /code >}}
 
 ### List Pages Without `_index.md`
 
@@ -147,8 +141,7 @@ You do *not* have to create an `_index.md` file for every list page (i.e. sectio
 
 Using this same `layouts/_default/list.html` template and applying it to the the `quotes` section above will render the following output. Note that `quotes` does not have an `_index.md` file to pull from:
 
-{{% code file="yoursite.com/quote/index.html" copy="false" %}}
-```
+{{< code file="yoursite.com/quote/index.html" copy="false" >}}
 <!--baseof-->
 <main>
     <article>
@@ -163,8 +156,7 @@ Using this same `layouts/_default/list.html` template and applying it to the the
     </ul>
 </main>
 <!--baseof-->
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note %}}
 The default behavior of Hugo is to pluralize list titles; hence the inflection of the `quote` section to "Quotes" when called with the `.Title` [page variable](/variables/page/). You can change this via the `pluralizeListTitles` directive in your [site configuration](/getting-started/configuration/).
@@ -176,8 +168,7 @@ The default behavior of Hugo is to pluralize list titles; hence the inflection o
 
 This list template has been modified slightly from a template originally used in [spf13.com](http://spf13.com/). It makes use of [partial templates][partials] for the chrome of the rendered page rather than using a [base template][base] The examples that follow also use the [content view templates][views] `li.html` or `summary.html`.
 
-{{% code file="layouts/section/post.html" %}}
-```
+{{< code file="layouts/section/post.html" >}}
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
 <main>
@@ -192,13 +183,11 @@ This list template has been modified slightly from a template originally used in
   </div>
 </main>
 {{ partial "footer.html" . }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Taxonomy Template
 
-{{% code file="layouts/_default/taxonomies.html" download="taxonomies.html" %}}
-```
+{{< code file="layouts/_default/taxonomies.html" download="taxonomies.html" >}}
 {{ define "main" }}
 <main>
   <div>
@@ -210,8 +199,7 @@ This list template has been modified slightly from a template originally used in
   </div>
 </main>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Order Content
 
@@ -219,8 +207,7 @@ Hugo lists render the content based on metadata you provide in [front matter][].
 
 ### Default: Weight > Date > LinkTitle > FilePath
 
-{{% code file="layouts/partials/default-order.html" %}}
-```
+{{< code file="layouts/partials/default-order.html" >}}
 <ul>
     {{ range .Data.Pages }}
         <li>
@@ -229,13 +216,11 @@ Hugo lists render the content based on metadata you provide in [front matter][].
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Weight
 
-{{% code file="layouts/partials/by-weight.html" %}}
-```
+{{< code file="layouts/partials/by-weight.html" >}}
 <ul>
     {{ range .Data.Pages.ByWeight }}
         <li>
@@ -244,13 +229,11 @@ Hugo lists render the content based on metadata you provide in [front matter][].
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Date
 
-{{% code file="layouts/partials/by-date.html" %}}
-```
+{{< code file="layouts/partials/by-date.html" >}}
 <ul>
     <!-- orders content according to the "date" field in front matter -->
     {{ range .Data.Pages.ByDate }}
@@ -260,13 +243,11 @@ Hugo lists render the content based on metadata you provide in [front matter][].
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Publish Date
 
-{{% code file="layouts/partials/by-publish-date.html" %}}
-```
+{{< code file="layouts/partials/by-publish-date.html" >}}
 <ul>
     <!-- orders content according to the "publishdate" field in front matter -->
     {{ range .Data.Pages.ByPublishDate }}
@@ -276,13 +257,11 @@ Hugo lists render the content based on metadata you provide in [front matter][].
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Expiration Date
 
-{{% code file="layouts/partials/by-expiry-date.html" %}}
-```
+{{< code file="layouts/partials/by-expiry-date.html" >}}
 <ul>
     {{ range .Data.Pages.ByExpiryDate }}
         <li>
@@ -291,13 +270,11 @@ Hugo lists render the content based on metadata you provide in [front matter][].
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Last Modified Date
 
-{{% code file="layouts/partials/by-last-mod.html" %}}
-```
+{{< code file="layouts/partials/by-last-mod.html" >}}
 <ul>
     <!-- orders content according to the "lastmod" field in front matter -->
     {{ range .Data.Pages.ByLastmod }}
@@ -307,13 +284,11 @@ Hugo lists render the content based on metadata you provide in [front matter][].
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Length
 
-{{% code file="layouts/partials/by-length.html" %}}
-```
+{{< code file="layouts/partials/by-length.html" >}}
 <ul>
     <!-- orders content according to content length in ascending order (i.e., the shortest content will be listed first) -->
     {{ range .Data.Pages.ByLength }}
@@ -323,13 +298,11 @@ Hugo lists render the content based on metadata you provide in [front matter][].
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Title
 
-{{% code file="layouts/partials/by-title.html" %}}
-```
+{{< code file="layouts/partials/by-title.html" >}}
 <ul>
     <!-- ranges through content in ascending order according to the "title" field set in front matter -->
     {{ range .Data.Pages.ByTitle }}
@@ -339,13 +312,11 @@ Hugo lists render the content based on metadata you provide in [front matter][].
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Link Title
 
-{{% code file="layouts/partials/by-link-title.html" %}}
-```
+{{< code file="layouts/partials/by-link-title.html" >}}
 <ul>
     <!-- ranges through content in ascending order according to the "linktitle" field in front matter. If a "linktitle" field is not set, the range will start with content that only has a "title" field and use that value for .LinkTitle -->
     {{ range .Data.Pages.ByLinkTitle }}
@@ -355,38 +326,32 @@ Hugo lists render the content based on metadata you provide in [front matter][].
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Parameter
 
 Order based on the specified front matter parameter. Content that does not have the specified front matter field  will use the site's `.Site.Params` default. If the parameter is not found at all in some entries, those entries will appear together at the end of the ordering.
 
-{{% code file="layouts/partials/by-rating.html" %}}
-```
+{{< code file="layouts/partials/by-rating.html" >}}
 <!-- Ranges through content according to the "rating" field set in front matter -->
 {{ range (.Data.Pages.ByParam "rating") }}
   <!-- ... -->
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 If the targeted front matter field is nested beneath another field, you can access the field using dot notation.
 
-{{% code file="layouts/partials/by-nested-param.html" %}}
-```
+{{< code file="layouts/partials/by-nested-param.html" >}}
 {{ range (.Data.Pages.ByParam "author.last_name") }}
   <!-- ... -->
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Reverse Order
 
 Reversing order can be applied to any of the above methods. The following uses `ByDate` as an example:
 
-{{% code file="layouts/partials/by-date-reverse.html" %}}
-```
+{{< code file="layouts/partials/by-date-reverse.html" >}}
 <ul>
     {{ range .Data.Pages.ByDate.Reverse }}
         <li>
@@ -395,8 +360,7 @@ Reversing order can be applied to any of the above methods. The following uses `
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Group Content
 
@@ -404,8 +368,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
 ### By Page Field
 
-{{% code file="layouts/partials/by-page-field.html" %}}
-```
+{{< code file="layouts/partials/by-page-field.html" >}}
 <!-- Groups content according to content section. The ".Key" in this instance will be the section's title. -->
 {{ range .Data.Pages.GroupBy "Section" }}
 <h3>{{ .Key }}</h3>
@@ -418,13 +381,11 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 In the above example, you may want `{{.Title}}` to point the `title` field you have added to your `_index.md` file instead. You can access this value using the [`.GetPage` function][getpage]:
 
-{{% code file="layouts/partials/by-page-field.html" %}}
-```
+{{< code file="layouts/partials/by-page-field.html" >}}
 <!-- Groups content according to content section.-->
 {{ range .Data.Pages.GroupBy "Section" }}
 <!-- Checks for existence of _index.md for a section; if available, pulls from "title" in front matter -->
@@ -443,13 +404,11 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Date
 
-{{% code file="layouts/partials/by-page-date.html" %}}
-```
+{{< code file="layouts/partials/by-page-date.html" >}}
 <!-- Groups content by month according to the "date" field in front matter -->
 {{ range .Data.Pages.GroupByDate "2006-01" }}
 <h3>{{ .Key }}</h3>
@@ -462,13 +421,11 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Publish Date
 
-{{% code file="layouts/partials/by-page-publish-date.html" %}}
-```
+{{< code file="layouts/partials/by-page-publish-date.html" >}}
 <!-- Groups content by month according to the "publishdate" field in front matter -->
 {{ range .Data.Pages.GroupByPublishDate "2006-01" }}
 <h3>{{ .Key }}</h3>
@@ -481,13 +438,11 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Page Parameter
 
-{{% code file="layouts/partials/by-page-param.html" %}}
-```
+{{< code file="layouts/partials/by-page-param.html" >}}
 <!-- Groups content according to the "param_key" field in front matter -->
 {{ range .Data.Pages.GroupByParam "param_key" }}
 <h3>{{ .Key }}</h3>
@@ -500,15 +455,13 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Page Parameter in Date Format
 
 The following template takes grouping by `date` a step further and uses Golang's layout string. See the [`Format` function][] for more examples of how to use Golang's layout string to format dates in Hugo.
 
-{{% code file="layouts/partials/by-page-param-as-date.html" %}}
-```
+{{< code file="layouts/partials/by-page-param-as-date.html" >}}
 <!-- Groups content by month according to the "param_key" field in front matter -->
 {{ range .Data.Pages.GroupByParamDate "param_key" "2006-01" }}
 <h3>{{ .Key }}</h3>
@@ -521,8 +474,7 @@ The following template takes grouping by `date` a step further and uses Golang's
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Reverse Key Order
 
@@ -560,8 +512,7 @@ Here is the ordering for the example that follows:
 2. Groups are listed in ascending order (i.e., the oldest groups first)
 3. Pages within each respective group are ordered alphabetically according to the `title`.
 
-{{% code file="layouts/partials/by-group-by-page.html" %}}
-```
+{{< code file="layouts/partials/by-group-by-page.html" >}}
 {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -573,8 +524,7 @@ Here is the ordering for the example that follows:
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Filter and Limiting Lists
 
@@ -588,13 +538,11 @@ Sometimes you only want to list a subset of the available content. A common is t
 2. `key` *or* `field name`
 3. `match value`
 
-{{% code file="layouts/_default/.html" %}}
-```
+{{< code file="layouts/_default/.html" >}}
 {{ range where .Data.Pages "Section" "post" }}
    {{ .Content }}
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 You can see more examples in the [functions documentation for `where`][wherefunction].
 
@@ -605,26 +553,22 @@ You can see more examples in the [functions documentation for `where`][wherefunc
 1. `array` *or* `slice of maps or structs`
 2. `number of elements`
 
-{{% code file="layout/_default/section.html" %}}
-```
+{{< code file="layout/_default/section.html" >}}
 {{ range first 10 .Data.Pages }}
   {{ .Render "summary" }}
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### `first` and `where` Together
 
 Using `first` and `where` together can be very powerful:
 
-{{% code file="first-and-where-together.html" %}}
-```
+{{< code file="first-and-where-together.html" >}}
 <!-- Orders the content inside the "posts" section by the "title" field and then ranges through only the first 5 posts -->
 {{ range first 5 (where .Data.Pages "Section" "post").ByTitle }}
    {{ .Content }}
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 [base]: /templates/base/
 [bepsays]: http://bepsays.com/en/2016/12/19/hugo-018/

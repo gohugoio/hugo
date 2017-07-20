@@ -27,8 +27,7 @@ In Hugo, A list template is any template that will be used to render multiple pi
 
 This list template is used for [spf13.com](http://spf13.com/). It makes use of [partial templates][partials]. All examples use a [view](/templates/views/) called either "li" or "summary."
 
-{{% code file="layouts/section/post.html" %}}
-```
+{{< code file="layouts/section/post.html" >}}
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
 
@@ -43,13 +42,11 @@ This list template is used for [spf13.com](http://spf13.com/). It makes use of [
   </div>
 </section>
 {{ partial "footer.html" . }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Taxonomy Template
 
-{{% code file="layouts/_default/taxonomies.html" download="taxonomies.html" %}}
-```
+{{< code file="layouts/_default/taxonomies.html" download="taxonomies.html" >}}
 {{ define "main" }}
 <section id="main">
   <div>
@@ -60,8 +57,7 @@ This list template is used for [spf13.com](http://spf13.com/). It makes use of [
   </div>
 </section>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Order Content
 
@@ -72,8 +68,7 @@ your list templates:
 
 ### Default: Weight > Date
 
-{{% code file="layouts/partials/order-default.html" %}}
-```
+{{< code file="layouts/partials/order-default.html" >}}
 <ul class="pages">
     {{ range .Data.Pages }}
         <li>
@@ -82,113 +77,96 @@ your list templates:
         </li>
     {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Weight
 
-{{% code file="layouts/partials/by-weight.html" %}}
-```
+{{< code file="layouts/partials/by-weight.html" >}}
 {{ range .Data.Pages.ByWeight }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Date
 
-{{% code file="layouts/partials/by-date.html" %}}
-```
+{{< code file="layouts/partials/by-date.html" >}}
 {{ range .Data.Pages.ByDate }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Publish Date
 
-{{% code file="layouts/partials/by-publish-date.html" %}}
-```
+{{< code file="layouts/partials/by-publish-date.html" >}}
 {{ range .Data.Pages.ByPublishDate }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .PublishDate.Format "Mon, Jan 2, 2006" }}</div>
     </li>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Expiration Date
 
-{{% code file="layouts/partials/by-expiry-date.html" %}}
-```
+{{< code file="layouts/partials/by-expiry-date.html" >}}
 {{ range .Data.Pages.ByExpiryDate }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .ExpiryDate.Format "Mon, Jan 2, 2006" }}</div>
     </li>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Last Modified Date
 
-{{% code file="layouts/partials/by-last-mod.html" %}}
-```
+{{< code file="layouts/partials/by-last-mod.html" >}}
 {{ range .Data.Pages.ByLastmod }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Length
 
-{{% code file="layouts/partials/by-length.html" %}}
-```
+{{< code file="layouts/partials/by-length.html" >}}
 {{ range .Data.Pages.ByLength }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 
 ### By Title
 
-{{% code file="layouts/partials/by-title.html" %}}
-```
+{{< code file="layouts/partials/by-title.html" >}}
 {{ range .Data.Pages.ByTitle }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Link Title
 
-{{% code file="layouts/partials/by-link-title.html" %}}
-```
+{{< code file="layouts/partials/by-link-title.html" >}}
 {{ range .Data.Pages.ByLinkTitle }}
     <li>
     <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
     <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
     </li>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Parameter
 
@@ -196,39 +174,33 @@ Order based on the specified front matter parameter. Content that does not have 
 
 The below example sorts a list of posts by their rating.
 
-{{% code file="layouts/partials/by-rating.html" %}}
-```
+{{< code file="layouts/partials/by-rating.html" >}}
 {{ range (.Data.Pages.ByParam "rating") }}
   <!-- ... -->
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 If the front matter field of interest is nested beneath another field, you can
 also get it:
 
-{{% code file="layouts/partials/by-nested-param.html" %}}
-```
+{{< code file="layouts/partials/by-nested-param.html" >}}
 {{ range (.Data.Pages.ByParam "author.last_name") }}
   <!-- ... -->
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Reverse Order
 
 Reversing order can be applied to any of the above methods. The following uses `ByDate` as an example:
 
-{{% code file="layouts/partials/by-date-reverse.html" %}}
-```
+{{< code file="layouts/partials/by-date-reverse.html" >}}
 {{ range .Data.Pages.ByDate.Reverse }}
 <li>
 <a href="{{ .Permalink }}">{{ .Title }}</a>
 <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
 </li>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Group Content
 
@@ -236,8 +208,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
 ### By Page Field
 
-{{% code file="layouts/partials/by-page-field.html" %}}
-```
+{{< code file="layouts/partials/by-page-field.html" >}}
 {{ range .Data.Pages.GroupBy "Section" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -249,13 +220,11 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Page date
 
-{{% code file="layouts/partials/by-page-date.html" %}}
-```
+{{< code file="layouts/partials/by-page-date.html" >}}
 {{ range .Data.Pages.GroupByDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -267,13 +236,11 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Page publish date
 
-{{% code file="layouts/partials/by-page-publish-date.html" %}}
-```
+{{< code file="layouts/partials/by-page-publish-date.html" >}}
 {{ range .Data.Pages.GroupByPublishDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -285,13 +252,11 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Page Param
 
-{{% code file="layouts/partials/by-page-param.html" %}}
-```
+{{< code file="layouts/partials/by-page-param.html" >}}
 {{ range .Data.Pages.GroupByParam "param_key" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -303,13 +268,11 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### By Page Param in Date Format
 
-{{% code file="layouts/partials/by-page-param-as-date.html" %}}
-```
+{{< code file="layouts/partials/by-page-param-as-date.html" >}}
 {{ range .Data.Pages.GroupByParamDate "param_key" "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -321,8 +284,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Reverse Key Order
 
@@ -358,8 +320,7 @@ Because Grouping returns a `{{.Key}}` and a slice of pages, all of the ordering 
 In the following example, groups are ordered chronologically and then content
 within each group is ordered alphabetically by title.
 
-{{% code file="layouts/partials/by-group-by-page.html" %}}
-```
+{{< code file="layouts/partials/by-group-by-page.html" >}}
 {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -371,8 +332,7 @@ within each group is ordered alphabetically by title.
     {{ end }}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Filter and Limiting Lists
 
@@ -386,13 +346,11 @@ Sometimes you only want to list a subset of the available content. A common requ
 2. `key` or `field name`
 3. `match value`
 
-{{% code file="layouts/_default/.html" %}}
-```
+{{< code file="layouts/_default/.html" >}}
 {{ range where .Data.Pages "Section" "post" }}
    {{ .Content }}
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### `first`
 
@@ -401,25 +359,21 @@ Sometimes you only want to list a subset of the available content. A common requ
 1. `array` or `slice of maps or structs`
 2. `number of elements`
 
-{{% code file="layout/_default/section.html" %}}
-```
+{{< code file="layout/_default/section.html" >}}
 {{ range first 10 .Data.Pages }}
   {{ .Render "summary" }}
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ### `first` and `where` Together
 
 Using `first` and `where` together can be very powerful:
 
-{{% code file="first-and-where-together.html" %}}
-```
+{{< code file="first-and-where-together.html" >}}
 {{ range first 5 (where .Data.Pages "Section" "post") }}
    {{ .Content }}
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 
 [views]: /templates/views/

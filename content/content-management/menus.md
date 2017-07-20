@@ -120,8 +120,7 @@ You can also add entries to menus that aren’t attached to a piece of content. 
 
 Here’s an example snippet pulled from a `config.toml`:
 
-{{% code file="config.toml" %}}
-```
+{{< code file="config.toml" >}}
 [[menu.main]]
     name = "about hugo"
     pre = "<i class='fa fa-heart'></i>"
@@ -133,13 +132,11 @@ Here’s an example snippet pulled from a `config.toml`:
     pre = "<i class='fa fa-road'></i>"
     weight = -100
     url = "/getting-started/"
-```
-{{% /code %}}
+{{< /code >}}
 
 Here's the equivalent snippet in a `config.yaml`:
 
-{{% code file="config.yml" %}}
-```
+{{< code file="config.yml" >}}
 ---
 menu:
   docs:
@@ -153,8 +150,7 @@ menu:
         Weight: -100
         URL: "/getting-started/"
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note %}}
 The URLs must be relative to the context root. If the `baseURL` is `http://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will overide the baseURL. If the value used for `URL` in the above example is `http://subdomain.example.com/`, the output will be `http://subdomain.example.com`.

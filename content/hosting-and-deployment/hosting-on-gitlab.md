@@ -37,8 +37,7 @@ cd your-hugo-site
 
 In the root directory of your Hugo site, create a `.gitlab-ci.yml` file. The `.gitlab-ci.yml` configures the GitLab CI on how to build your page. Simply add the content below.
 
-{{% code file="gitlab-ci.yml" %}}
-```
+{{< code file="gitlab-ci.yml" >}}
 image: publysher/hugo
 
 pages:
@@ -49,8 +48,7 @@ pages:
     - public
   only:
   - master
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Push Your Hugo Website to GitLab
 

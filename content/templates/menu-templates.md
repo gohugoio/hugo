@@ -24,8 +24,7 @@ able to build your menu however you want.
 
 The following is an example:
 
-{{% code file="layouts/partials/sidebar.html" download="sidebar.html" %}}
-```
+{{< code file="layouts/partials/sidebar.html" download="sidebar.html" >}}
 <!-- sidebar start -->
 <aside>
     <div id="sidebar" class="nav-collapse">
@@ -62,8 +61,7 @@ The following is an example:
     </div>
 </aside>
 <!--sidebar end-->
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note "`absLangURL` and `relLangURL`" %}}
 Use the [`absLangUrl`](/functions/abslangurl) or [`relLangUrl`](/functions/rellangurl) functions if your theme makes use of the [multilingual feature](/content-management/multilingual/). In contrast to `absURL` and `relURL`, these two functions add the correct language prefix to the url.

@@ -33,20 +33,16 @@ To maintain a consistent output order, maps will be sorted by keys and only a sl
 
 The examples of `delimit` that follow all use the same front matter:
 
-{{% code file="delimit-example-front-matter.toml" nocopy="true" %}}
-```
+{{< code file="delimit-example-front-matter.toml" nocopy="true" >}}
 +++
 title: I love Delimit
 #tags: [ "tag1", "tag2", "tag3" ]
 +++
-```
-{{% /code %}}
+{{< /code >}}
 
-{{% code file="delimit-page-tags-input.html" %}}
-```
+{{< code file="delimit-page-tags-input.html" >}}
 <p>Tags: {{ delimit .Params.tags ", " }}</p>
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% output file="delimit-page-tags-output.html" %}}
 ```
@@ -56,11 +52,9 @@ title: I love Delimit
 
 Here is the same example but with the optional "last" delimiter:
 
-{{% code file="delimit-page-tags-final-and-input.html" %}}
-```
+{{< code file="delimit-page-tags-final-and-input.html" >}}
 Tags: {{ delimit .Params.tags ", " ", and " }}
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% output file="delimit-page-tags-final-and-output.html" %}}
 ```

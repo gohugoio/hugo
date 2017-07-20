@@ -47,11 +47,9 @@ Ideally, you should install it somewhere in your `PATH` for easy use. `/usr/loca
 
 If you are on macOS and using [Homebrew][brew], you can install Hugo with the following one-liner:
 
-{{% code file="install-with-homebrew.sh" %}}
-```
+{{< code file="install-with-homebrew.sh" >}}
 brew install hugo
-```
-{{% /code %}}
+{{< /code >}}
 
 For more detailed explanations, read the installation guides that follow for installing on macOS and Windows.
 
@@ -59,11 +57,9 @@ For more detailed explanations, read the installation guides that follow for ins
 
 If you are on a Windows machine and use [Chocolatey][] for package management, you can install Hugo with the following one-liner:
 
-{{% code file="install-with-chocolatey.ps1" %}}
-```
+{{< code file="install-with-chocolatey.ps1" >}}
 choco install hugo -confirm
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Source
 
@@ -79,13 +75,11 @@ Hugo uses [govendor][] to vendor dependencies, but we don't commit the vendored 
 
 #### Fetch from GitHub
 
-{{% code file="from-gh.sh" %}}
-```
+{{< code file="from-gh.sh" >}}
 go get github.com/kardianos/govendor
 govendor get github.com/gohugoio/hugo
 go install github.com/gohugoio/hugo
-```
-{{% /code %}}
+{{< /code >}}
 
 `govendor get` will fetch Hugo and all its dependent libraries to `$GOPATH/src/github.com/gohugoio/hugo`, and `go install` compiles everything into a final `hugo` (or `hugo.exe`) executable inside `$GOPATH/bin/`.
 
@@ -131,21 +125,17 @@ Since building from source is appealing to more seasoned command line users, thi
 
 Go to the `brew` website, <https://brew.sh/>, and follow the directions there. The most important step is the installation from the command line:
 
-{{% code file="install-brew.sh" %}}
-```
+{{< code file="install-brew.sh" >}}
 ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
-{{% /code %}}
+{{< /code >}}
 
 #### Step 2: Run the `brew` Command to Install `hugo`
 
 Installing Hugo using `brew` is as easy as the following:
 
-{{% code file="install-brew.sh" %}}
-```
+{{< code file="install-brew.sh" >}}
 brew install hugo
-```
-{{% /code %}}
+{{< /code >}}
 
 If Homebrew is working properly, you should see something similar to the following:
 

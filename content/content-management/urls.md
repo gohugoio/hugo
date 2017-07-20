@@ -31,21 +31,17 @@ For example, if one of your [sections][] is called `post` and you want to adjust
 
 ### YAML Permalinks Configuration Example
 
-{{% code file="config.yml" copy="false" %}}
-```
+{{< code file="config.yml" copy="false" >}}
 permalinks:
   post: /:year/:month/:title/
-```
-{{% /code %}}
+{{< /code >}}
 
 ### TOML Permalinks Configuration Example
 
-{{% code file="config.toml" copy="false" %}}
-```
+{{< code file="config.toml" copy="false" >}}
 [permalinks]
   post = "/:year/:month/:title/"
-```
-{{% /code %}}
+{{< /code >}}
 
 Only the content under `post/` will have the new URL structure. For example, the file `content/post/sample-entry.md` with `date: 2017-02-27T19:20:00-05:00` in its front matter will render to `public/2017/02/sample-entry/index.html` at build time and therefore be reachable at `http://yoursite.com/2013/11/sample-entry/`.
 
@@ -98,28 +94,24 @@ Let's assume you create a new piece of content at `content/posts/my-awesome-blog
 
 #### TOML Front Matter
 
-{{% code file="content/posts/my-awesome-post.md" copy="false" %}}
-```
+{{< code file="content/posts/my-awesome-post.md" copy="false" >}}
 +++
 aliases = [
     "/posts/my-original-url/",
     "/2010/01/01/even-earlier-url.html"
 ]
 +++
-```
-{{% /code %}}
+{{< /code >}}
 
 #### YAML Front Matter
 
-{{% code file="content/posts/my-awesome-post.md" copy="false" %}}
-```
+{{< code file="content/posts/my-awesome-post.md" copy="false" >}}
 ---
 aliases:
     - /posts/my-original-url/
     - /2010/01/01/even-earlier-url.html
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
 Now when you visit any of the locations specified in aliases---i.e., *assuming the same site domain*---you'll be redirected to the page they are specified on. For example, a visitor to `yoursite.com/posts/my-original-url/` will be immediately redirected to `yoursite.com/posts/my-awesome-blog-post/`.
 

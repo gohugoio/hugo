@@ -23,11 +23,9 @@ aliases: []
 
 This very simple one-liner uses `now.Unix` to calculate the amount of time that has passed between the `.LastMod` for the current page and the last build of the current page.
 
-{{% code file="time-passed.html" %}}
-```
+{{< code file="time-passed.html" >}}
 {{ div (sub now.Unix .Lastmod.Unix) 86400 }}
-```
-{{% /code %}}
+{{< /code >}}
 
 Since both values are integers, they can be subtracted and then divided by the number of seconds in a day (i.e., `60 * 60 * 24 == 86400`).
 

@@ -283,8 +283,7 @@ The most easily overlooked concept to understand about Go templates is that `{{ 
 
 The following shows how to define a variable independent of the context.
 
-{{% code file="tags-range-with-page-variable.html" %}}
-```
+{{< code file="tags-range-with-page-variable.html" >}}
 {{ $title := .Site.Title }}
 <ul>
 {{ range .Params.tags }}
@@ -294,8 +293,7 @@ The following shows how to define a variable independent of the context.
     </li>
 {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note %}}
 Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` has changed. We have defined a variable outside of the loop (`{{$title}}`) that we've assigned a value so that we have access to the value from within the loop as well.
@@ -305,8 +303,7 @@ Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` 
 
 `$` has special significance in your templates. `$` is set to the starting value of `.` ("the dot") by default. This is a [documented feature of Go text/template][dotdoc]. This means you have access to the global context from anywhere. Here is an equivalent example of the preceding code block but now using `$` to grab `.Site.Title` from the global context:
 
-{{% code file="range-through-tags-w-global.html" %}}
-```
+{{< code file="range-through-tags-w-global.html" >}}
 <ul>
 {{ range .Params.tags }}
   <li>
@@ -315,8 +312,7 @@ Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` 
   </li>
 {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% warning "Don't Redefine the Dot" %}}
 The built-in magic of `$` would cease to work if someone were to mischievously redefine the special character; e.g. `{{ $ := .Site }}`. *Don't do it.* You may, of course, recover from this mischief by using `{{ $ := . }}` in a global context to reset `$` to its default value.
@@ -386,8 +382,7 @@ notoc: true
 
 Here is an example of corresponding code that could be used inside a `toc.html` [partial template][partials]:
 
-{{% code file="layouts/partials/toc.html" download="toc.html" %}}
-```
+{{< code file="layouts/partials/toc.html" download="toc.html" >}}
 {{ if not .Params.notoc }}
 <aside>
   <header>
@@ -399,8 +394,7 @@ Here is an example of corresponding code that could be used inside a `toc.html` 
 </aside>
 <a href="#" id="toc-toggle"></a>
 {{end}}
-```
-{{% /code %}}
+{{< /code >}}
 
 We want the *default* behavior to be for pages to include a TOC unless otherwise specified. This template checks to make sure that the `notoc:` field in this page's front matter is not `true`.
 
@@ -410,14 +404,12 @@ You can arbitrarily define as many site-level parameters as you want in your [si
 
 For instance, you might declare the following:
 
-{{% code file="config.yaml" %}}
-```
+{{< code file="config.yaml" >}}
 params:
   copyrighthtml: "Copyright &#xA9; 2017 John Doe. All Rights Reserved."
   twitteruser: "spf13"
   sidebarrecentlimit: 5
-```
-{{% /code %}}
+{{< /code >}}
 
 Within a footer layout, you might then declare a `<footer>` that is only rendered if the `copyrighthtml` parameter is provided. If it *is* provided, you will then need to declare the string is safe to use via the [`safeHTML` function][safehtml] so that the HTML entity is not escaped again. This would let you easily update just your top-level config file each January 1st, instead of hunting through your templates.
 
@@ -429,16 +421,14 @@ Within a footer layout, you might then declare a `<footer>` that is only rendere
 
 An alternative way of writing the "`if`" and then referencing the same value is to use [`with`][with] instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent:
 
-{{% code file="layouts/partials/twitter.html" %}}
-```
+{{< code file="layouts/partials/twitter.html" >}}
 {{with .Site.Params.twitteruser}}
 <div>
   <a href="https://twitter.com/{{.}}" rel="author">
   <img src="/images/twitter.png" width="48" height="48" title="Twitter: {{.}}" alt="Twitter"></a>
 </div>
 {{end}}
-```
-{{% /code %}}
+{{< /code >}}
 
 Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`][first] function, as well as the [`.RelPermalink`][relpermalink] page variable and the [`.Site.Pages`][sitevars] site variable.
 
@@ -457,8 +447,7 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
 
 Go allows you to do more than what's shown here. Using Hugo's [`where` function][where] and Go built-ins, we can list only the items from `content/events/` whose date (set in a content file's [front matter][]) is in the future. The following is an example [partial template][partials]:
 
-{{% code file="layouts/partials/upcoming-events.html" download="upcoming-events.html" %}}
-```
+{{< code file="layouts/partials/upcoming-events.html" download="upcoming-events.html" >}}
 <h4>Upcoming Events</h4>
 <ul class="upcoming-events">
 {{ range where .Data.Pages.ByDate "Section" "events" }}
@@ -474,8 +463,7 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
   {{ end }}
 {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 
 [`where` function]: /functions/where/
