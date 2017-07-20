@@ -28,7 +28,7 @@ In Hugo, A list template is any template that will be used to render multiple pi
 This list template is used for [spf13.com](http://spf13.com/). It makes use of [partial templates][partials]. All examples use a [view](/templates/views/) called either "li" or "summary."
 
 {{% code file="layouts/section/post.html" %}}
-```html
+```
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
 
@@ -49,7 +49,7 @@ This list template is used for [spf13.com](http://spf13.com/). It makes use of [
 ### Taxonomy Template
 
 {{% code file="layouts/_default/taxonomies.html" download="taxonomies.html" %}}
-```html
+```
 {{ define "main" }}
 <section id="main">
   <div>
@@ -73,7 +73,7 @@ your list templates:
 ### Default: Weight > Date
 
 {{% code file="layouts/partials/order-default.html" %}}
-```html
+```
 <ul class="pages">
     {{ range .Data.Pages }}
         <li>
@@ -88,7 +88,7 @@ your list templates:
 ### By Weight
 
 {{% code file="layouts/partials/by-weight.html" %}}
-```html
+```
 {{ range .Data.Pages.ByWeight }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
@@ -101,7 +101,7 @@ your list templates:
 ### By Date
 
 {{% code file="layouts/partials/by-date.html" %}}
-```html
+```
 {{ range .Data.Pages.ByDate }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
@@ -114,7 +114,7 @@ your list templates:
 ### By Publish Date
 
 {{% code file="layouts/partials/by-publish-date.html" %}}
-```html
+```
 {{ range .Data.Pages.ByPublishDate }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
@@ -127,7 +127,7 @@ your list templates:
 ### By Expiration Date
 
 {{% code file="layouts/partials/by-expiry-date.html" %}}
-```html
+```
 {{ range .Data.Pages.ByExpiryDate }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
@@ -140,7 +140,7 @@ your list templates:
 ### By Last Modified Date
 
 {{% code file="layouts/partials/by-last-mod.html" %}}
-```html
+```
 {{ range .Data.Pages.ByLastmod }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
@@ -153,7 +153,7 @@ your list templates:
 ### By Length
 
 {{% code file="layouts/partials/by-length.html" %}}
-```html
+```
 {{ range .Data.Pages.ByLength }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
@@ -167,7 +167,7 @@ your list templates:
 ### By Title
 
 {{% code file="layouts/partials/by-title.html" %}}
-```html
+```
 {{ range .Data.Pages.ByTitle }}
     <li>
     <a href="{{ .Permalink }}">{{ .Title }}</a>
@@ -180,7 +180,7 @@ your list templates:
 ### By Link Title
 
 {{% code file="layouts/partials/by-link-title.html" %}}
-```html
+```
 {{ range .Data.Pages.ByLinkTitle }}
     <li>
     <a href="{{ .Permalink }}">{{ .LinkTitle }}</a>
@@ -197,7 +197,7 @@ Order based on the specified front matter parameter. Content that does not have 
 The below example sorts a list of posts by their rating.
 
 {{% code file="layouts/partials/by-rating.html" %}}
-```html
+```
 {{ range (.Data.Pages.ByParam "rating") }}
   <!-- ... -->
 {{ end }}
@@ -208,7 +208,7 @@ If the front matter field of interest is nested beneath another field, you can
 also get it:
 
 {{% code file="layouts/partials/by-nested-param.html" %}}
-```html
+```
 {{ range (.Data.Pages.ByParam "author.last_name") }}
   <!-- ... -->
 {{ end }}
@@ -220,7 +220,7 @@ also get it:
 Reversing order can be applied to any of the above methods. The following uses `ByDate` as an example:
 
 {{% code file="layouts/partials/by-date-reverse.html" %}}
-```html
+```
 {{ range .Data.Pages.ByDate.Reverse }}
 <li>
 <a href="{{ .Permalink }}">{{ .Title }}</a>
@@ -237,7 +237,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 ### By Page Field
 
 {{% code file="layouts/partials/by-page-field.html" %}}
-```html
+```
 {{ range .Data.Pages.GroupBy "Section" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -255,7 +255,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 ### By Page date
 
 {{% code file="layouts/partials/by-page-date.html" %}}
-```html
+```
 {{ range .Data.Pages.GroupByDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -273,7 +273,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 ### By Page publish date
 
 {{% code file="layouts/partials/by-page-publish-date.html" %}}
-```html
+```
 {{ range .Data.Pages.GroupByPublishDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -291,7 +291,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 ### By Page Param
 
 {{% code file="layouts/partials/by-page-param.html" %}}
-```html
+```
 {{ range .Data.Pages.GroupByParam "param_key" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -309,7 +309,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 ### By Page Param in Date Format
 
 {{% code file="layouts/partials/by-page-param-as-date.html" %}}
-```html
+```
 {{ range .Data.Pages.GroupByParamDate "param_key" "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -332,22 +332,22 @@ While these are logical defaults, they are not always the desired order. There a
 
 #### Reverse Method
 
-```html
+```
 {{ range (.Data.Pages.GroupBy "Section").Reverse }}
 ```
 
-```html
+```
 {{ range (.Data.Pages.GroupByDate "2006-01").Reverse }}
 ```
 
 
 #### Provide the Alternate Direction
 
-```html
+```
 {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
 ```
 
-```html
+```
 {{ range .Data.Pages.GroupBy "Section" "desc" }}
 ```
 
@@ -359,7 +359,7 @@ In the following example, groups are ordered chronologically and then content
 within each group is ordered alphabetically by title.
 
 {{% code file="layouts/partials/by-group-by-page.html" %}}
-```html
+```
 {{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
 <h3>{{ .Key }}</h3>
 <ul>
@@ -387,7 +387,7 @@ Sometimes you only want to list a subset of the available content. A common requ
 3. `match value`
 
 {{% code file="layouts/_default/.html" %}}
-```html
+```
 {{ range where .Data.Pages "Section" "post" }}
    {{ .Content }}
 {{ end }}
@@ -402,7 +402,7 @@ Sometimes you only want to list a subset of the available content. A common requ
 2. `number of elements`
 
 {{% code file="layout/_default/section.html" %}}
-```html
+```
 {{ range first 10 .Data.Pages }}
   {{ .Render "summary" }}
 {{ end }}
@@ -414,7 +414,7 @@ Sometimes you only want to list a subset of the available content. A common requ
 Using `first` and `where` together can be very powerful:
 
 {{% code file="first-and-where-together.html" %}}
-```html
+```
 {{ range first 5 (where .Data.Pages "Section" "post") }}
    {{ .Content }}
 {{ end }}

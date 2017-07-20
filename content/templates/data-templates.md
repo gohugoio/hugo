@@ -73,7 +73,7 @@ The list of bass players can be accessed via `.Site.Data.jazz.bass`, a single ba
 
 You can now render the list of recordings for all the bass players in a template:
 
-```html
+```
 {{ range $.Site.Data.jazz.bass }}
    {{ partial "artist.html" . }}
 {{ end }}
@@ -126,7 +126,7 @@ Data-driven content currently consists of two functions, `getJSON` and `getCSV`,
 
 In your template, call the functions like this:
 
-```golang
+```
 {{ $dataJ := getJSON "url" }}
 {{ $dataC := getCSV "separator" "url" }}
 ```
@@ -142,21 +142,21 @@ The separator for `getCSV` must be put in the first position and can only be one
 
 All passed arguments will be joined to the final URL:
 
-```html
+```
 {{ $urlPre := "https://api.github.com" }}
 {{ $gistJ := getJSON $urlPre "/users/GITHUB_USERNAME/gists" }}
 ```
 
 This will resolve internally to the following:
 
-```html
+```
 {{ $gistJ := getJSON "https://api.github.com/users/GITHUB_USERNAME/gists" }}
 ```
 
 Finally, you can range over an array. This example will output the
 first 5 gists for a GitHub user:
 
-```html
+```
 <ul>
   {{ $urlPre := "https://api.github.com" }}
   {{ $gistJ := getJSON $urlPre "/users/GITHUB_USERNAME/gists" }}
@@ -173,7 +173,7 @@ first 5 gists for a GitHub user:
 For `getCSV`, the one-character-long separator must be placed in the first position followed by the URL. The following is an example of creating an HTML table in a [partial template][partials] from a published CSV:
 
 {{% code file="layouts/partials/get-csv.html" %}}
-```html
+```
   <table>
     <thead>
       <tr>

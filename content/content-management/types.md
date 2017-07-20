@@ -45,7 +45,7 @@ Remember, all of the following are *optional*. If you do not specifically declar
 The following examples take you stepwise through creating a new type layout for a content file that contains the following front matter:
 
 {{% code file="content/events/my-first-event.md" copy="false" %}}
-```toml
+```
 +++
 title = My First Event
 date = "2016-06-24T19:20:04-07:00"

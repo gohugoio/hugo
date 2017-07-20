@@ -24,13 +24,13 @@ The following is a description of the most command commands you will use while d
 
 Once you have [installed Hugo][install], make sure it is in your `PATH`. You can test that Hugo has been installed correctly via the `help` command:
 
-```bash
+```
 hugo help
 ```
 
 The output you see in your console should be similar to the following:
 
-```bash
+```
 hugo is the main command, used to build your Hugo site.
 
 Hugo is a Fast and Flexible Static Site Generator
@@ -104,7 +104,7 @@ This generates your website to the `public/` directory by default, although you 
 
 The site Hugo renders into `public/` is ready to be deployed to your web server:
 
-```bash
+```
 hugo
 0 draft content
 0 future content
@@ -133,7 +133,7 @@ All three of these can be overridden during both local development *and* deploym
 
 Hugo comes with [LiveReload](https://github.com/livereload/livereload-js) built in. There are no additional packages to install. A common way to use Hugo while developing a site is to have Hugo run a server with the `hugo server` command and watch for changes:
 
-```bash
+```
 hugo server
 0 draft content
 0 future content
@@ -172,23 +172,23 @@ LiveReload works by injecting JavaScript into the pages Hugo generates. The scri
 
 LiveReload is awesome for development. However, some Hugo users may use `hugo server` in production to instantly display updated content. The following methods make it easy to disable LiveReload:
 
-```bash
+```
 hugo server --watch=false
 ```
 
 Or...
 
-```bash
+```
 hugo server --disableLiveReload
 ```
 
 The latter flag can be omitted by adding the following key-value to  your `config.toml` or `config.yml` file, respectively:
 
-```toml
+```
 disableLiveReload = true
 ```
 
-```yaml
+```
 disableLiveReload: true
 ```
 
@@ -208,13 +208,13 @@ Hugo does not remove generated files before building. An easy workaround is to u
 
 To start a server that builds draft content (helpful for editing), you can specify a different destination; e.g., a `dev/` directory:
 
-```bash
+```
 hugo server -wDs ~/Code/hugo/docs -d dev
 ```
 
 When the content is ready for publishing, use the default `public/` dir:
 
-```bash
+```
 hugo -s ~/Code/hugo/docs
 ```
 

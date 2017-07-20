@@ -20,7 +20,7 @@ toc: false
 
 To create your robots.txt as a template, first set the `enableRobotsTXT` value to `true` in your [configuration file][config]. By default, this option generates a robots.txt with the following content, which tells search engines that they are allowed to crawl everything:
 
-```http
+```
 User-agent: *
 ```
 
@@ -40,7 +40,7 @@ If you do not want Hugo to create a default `robots.txt` or leverage the `robots
 The following is an example `robots.txt` layout:
 
 {{% code file="layouts/robots.txt" download="robots.txt" %}}
-```http
+```
 User-agent: *
 
 {{range .Data.Pages}}

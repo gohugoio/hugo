@@ -88,7 +88,7 @@ If all you need to do is add an entry to a menu, the simple form works well.
 
 #### A Single Menu
 
-```yaml
+```
 ---
 menu: "main"
 ---
@@ -96,7 +96,7 @@ menu: "main"
 
 #### Multiple Menus
 
-```yaml
+```
 ---
 menu: ["main", "footer"]
 ---
@@ -105,7 +105,7 @@ menu: ["main", "footer"]
 #### Advanced
 
 
-```yaml
+```
 ---
 menu:
   docs:
@@ -121,7 +121,7 @@ You can also add entries to menus that aren’t attached to a piece of content. 
 Here’s an example snippet pulled from a `config.toml`:
 
 {{% code file="config.toml" %}}
-```toml
+```
 [[menu.main]]
     name = "about hugo"
     pre = "<i class='fa fa-heart'></i>"
@@ -139,7 +139,7 @@ Here’s an example snippet pulled from a `config.toml`:
 Here's the equivalent snippet in a `config.yaml`:
 
 {{% code file="config.yml" %}}
-```yaml
+```
 ---
 menu:
   docs:

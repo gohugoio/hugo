@@ -31,7 +31,7 @@ You can create a profile containing metadata for each author on your website. Th
 Let's suppose Alice Allison is a blogger. A simple unique identifier would be `alice`. Now, we have to create a file called `alice.toml` in the `data/_authors/` directory. The following example is the standardized template written in TOML:
 
 {{% code  file="data/_authors/alice.toml" %}}
-```toml
+```
 givenName      = "Alice"   # or firstName as alias
 familyName     = "Allison" # or lastName as alias
 displayName    = "Alice Allison"
@@ -67,7 +67,7 @@ The `params` section can contain arbitrary data much like the same-named section
 
 Earlier it was mentioned that content can be associated with an author through their corresponding identifier. In our case, blogger Alice has the identifier `alice`. In the front matter of a content file, you can create a list of identifiers and assign it to the `authors` variable. Here are examples for `alice` using YAML and TOML, respectively.
 
-```yaml
+```
 ---
 title: Why Hugo is so Awesome
 date: 2016-08-22T14:27:502:00
@@ -77,7 +77,7 @@ authors: ["alice"]
 Nothing to read here. Move along...
 ```
 
-```toml
+```
 +++
 title = Why Hugo is so Awesome
 date = "2016-08-22T14:27:502:00"
@@ -117,7 +117,7 @@ This is can be done with the `.Social.URL` function. Its only parameter is the n
 Most articles feature a small section with information about the author at the end. Let's create one containing the author's name, a thumbnail, a (summarized) biography and links to all social networks:
 
 {{% code file="layouts/partials/author-info.html" download="author-info.html" %}}
-```html
+```
 {{ with .Author }}
     <h3>{{ .DisplayName }}</h3>
     <img src="{{ .Thumbnail | absURL }}" alt="{{ .DisplayName }}">
@@ -137,12 +137,12 @@ That question can be answered with a list of all authors and another list contai
 
 In order to let Hugo know that we want to group content based on their author, we have to create a new taxonomy called `author` (the name corresponds to the variable in the front matter). Here is the snippet in a `config.yaml` and `config.toml`, respectively:
 
-```yaml
+```
 taxonomies:
     author: authors
 ```
 
-```toml
+```
 [taxonomies]
     author = "authors"
 ```
@@ -153,7 +153,7 @@ taxonomies:
 In the next step we can create a template to list all authors of your website. Later, the list can be accessed at `www.example.com/authors/`. Create a new template in the `layouts/taxonomy/` directory called `authors.term.html`. This template will be exclusively used for this taxonomy.
 
 {{% code file="layouts/taxonomy/author.term.html" download="author.term.html" %}}
-```html
+```
 <ul>
 {{ range $author, $v := .Data.Terms }}
     {{ $profile := $.Authors.Get $author }}
@@ -176,7 +176,7 @@ Last but not least, we have to create the second list that contains all publicat
 The layout for this page can be defined in the template `layouts/taxonomy/author.html`.
 
 {{% code file="layouts/taxonomy/author.html" download="author.html" %}}
-```html
+```
 {{ range .Data.Pages }}
     <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
     <span>written by {{ .Author.DisplayName }}</span>

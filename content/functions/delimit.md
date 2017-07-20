@@ -34,7 +34,7 @@ To maintain a consistent output order, maps will be sorted by keys and only a sl
 The examples of `delimit` that follow all use the same front matter:
 
 {{% code file="delimit-example-front-matter.toml" nocopy="true" %}}
-```toml
+```
 +++
 title: I love Delimit
 #tags: [ "tag1", "tag2", "tag3" ]
@@ -43,13 +43,13 @@ title: I love Delimit
 {{% /code %}}
 
 {{% code file="delimit-page-tags-input.html" %}}
-```html
+```
 <p>Tags: {{ delimit .Params.tags ", " }}</p>
 ```
 {{% /code %}}
 
 {{% output file="delimit-page-tags-output.html" %}}
-```html
+```
 <p>Tags: tag1, tag2, tag3</p>
 ```
 {{% /output %}}
@@ -57,13 +57,13 @@ title: I love Delimit
 Here is the same example but with the optional "last" delimiter:
 
 {{% code file="delimit-page-tags-final-and-input.html" %}}
-```golang
+```
 Tags: {{ delimit .Params.tags ", " ", and " }}
 ```
 {{% /code %}}
 
 {{% output file="delimit-page-tags-final-and-output.html" %}}
-```html
+```
 <p>Tags: tag1, tag2, and tag3</p>
 ```
 {{% /output %}}

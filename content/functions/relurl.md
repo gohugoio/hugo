@@ -20,7 +20,7 @@ aliases: []
 
 Both `absURL` and `relURL` consider the configured value of `baseURL` in your site's [`config` file][configuration]. Given a `baseURL` set to `http://yoursite.com/hugo/`:
 
-```golang
+```
 {{ "mystyle.css" | absURL }} → "http://yoursite.com/hugo/mystyle.css"
 {{ "mystyle.css" | relURL }} → "/hugo/mystyle.css"
 {{ "http://gohugo.io/" | relURL }} →  "http://gohugo.io/"
@@ -30,7 +30,7 @@ Both `absURL` and `relURL` consider the configured value of `baseURL` in your si
 The last two examples may look strange but can be very useful. For example, the following shows how to use `absURL` in [JSON-LD structured data for SEO][jsonld] where some of your images for a piece of content may or may not be hosted locally:
 
 {{% code file="layouts/partials/schemaorg-metadata.html" download="schemaorg-metadata.html" %}}
-```html
+```
 <script type="application/ld+json">
 {
     "@context" : "http://schema.org",

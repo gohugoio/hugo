@@ -21,7 +21,7 @@ relatedfuncs: []
 The following examples pull from a content file with the following front matter:
 
 {{% code file="content/blog/greatest-city.md" copy="false"%}}
-```toml
+```
 +++
 title = "The World's Greatest City"
 location = "Chicago IL"
@@ -33,7 +33,7 @@ tags = ["pizza","beer","hot dogs"]
 The following might be used as a partial within a [single page template][singletemplate]:
 
 {{% code file="layouts/partials/content-header.html" download="content-header.html" %}}
-```html
+```
 <header>
     <h1>{{.Title}}</h1>
     {{ with .Params.location }}
@@ -56,7 +56,7 @@ The following might be used as a partial within a [single page template][singlet
 The preceding partial would then output to the rendered page as follows, assuming the page is being built with Hugo's default pretty URLs.
 
 {{% output file="/blog/greatest-city/index.html" %}}
-```html
+```
 <header>
     <h1>The World's Greatest City</h1>
     <div><a href="/locations/chicago-il/">Chicago IL</a></div>

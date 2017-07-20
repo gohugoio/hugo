@@ -21,7 +21,7 @@ aliases: []
 
 `ref` and `relRef` look up a content page by relative path (`relref`) or logical name (`ref`) to return the permalink. Both functions require a `Page` object (usually satisfied with a "`.`"):
 
-```golang
+```
 {{ relref . "about.md" }}
 ```
 

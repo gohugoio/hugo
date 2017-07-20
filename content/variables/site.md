@@ -108,7 +108,7 @@ The following is a list of site-level (aka "global") variables. Many of these va
 
 The following `config.toml` defines a site-wide param for `description`:
 
-```toml
+```
 baseURL = "http://yoursite.example.com/"
 
 [params]
@@ -119,7 +119,7 @@ baseURL = "http://yoursite.example.com/"
 You can use `.Site.Params` in a [partial template](/templates/partials/) to call the default site description:
 
 {{% code file="layouts/partials/head.html" %}}
-```html
+```
 <meta name="description" content="{{if .IsHome}}{{ $.Site.Params.description }}{{else}}{{.Description}}{{end}}" />
 ```
 {{% /code %}}

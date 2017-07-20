@@ -21,7 +21,7 @@ A simple example:
 
 In `layouts/partials/mystyles.css`:
 
-```css
+```
 body {
   background-color: {{ .Param "colors.main" }}
 }
@@ -29,7 +29,7 @@ body {
 
 Then in `config.toml` (note that by using the `.Param` lookup func, we can override the color in a page's front matter if we want):
 
-```toml
+```
 [params]
 [params.colors]
 main = "green"
@@ -38,7 +38,7 @@ text = "blue"
 
 And then in `layouts/partials/head.html` (or the partial used to include the head section into your layout):
 
-```html
+```
 <head>
     <style type="text/css">
     {{ partial "mystyles.css" . | safeCSS }}
@@ -50,7 +50,7 @@ Of course, `0.20` also made it super-easy to create external `CSS` stylesheets b
 
 Add "CSS" to your home page's `outputs` list, create the template `/layouts/index.css` using Go template syntax for the dynamic parts, and then include it into your `HTML` template with:
 
-```html
+```
 {{ with  .OutputFormats.Get "css" }}
 <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink |  safeURL }}">
 {{ end }}`

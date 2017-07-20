@@ -30,7 +30,7 @@ Following this pattern, Hugo uses the top level of your content organization as 
 
 The following example shows a content directory structure for a website that has three sections: "authors," "events," and "posts":
 
-```bash
+```
 .
 └── content
     ├── authors

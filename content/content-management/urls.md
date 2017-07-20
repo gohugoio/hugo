@@ -32,7 +32,7 @@ For example, if one of your [sections][] is called `post` and you want to adjust
 ### YAML Permalinks Configuration Example
 
 {{% code file="config.yml" copy="false" %}}
-```yaml
+```
 permalinks:
   post: /:year/:month/:title/
 ```
@@ -41,7 +41,7 @@ permalinks:
 ### TOML Permalinks Configuration Example
 
 {{% code file="config.toml" copy="false" %}}
-```toml
+```
 [permalinks]
   post = "/:year/:month/:title/"
 ```
@@ -99,7 +99,7 @@ Let's assume you create a new piece of content at `content/posts/my-awesome-blog
 #### TOML Front Matter
 
 {{% code file="content/posts/my-awesome-post.md" copy="false" %}}
-```toml
+```
 +++
 aliases = [
     "/posts/my-original-url/",
@@ -112,7 +112,7 @@ aliases = [
 #### YAML Front Matter
 
 {{% code file="content/posts/my-awesome-post.md" copy="false" %}}
-```yaml
+```
 ---
 aliases:
     - /posts/my-original-url/
@@ -129,7 +129,7 @@ On [multilingual sites][multilingual], each translation of a post can have uniqu
 
 In `/posts/my-new-post.es.md`:
 
-```yaml
+```
 ---
 aliases:
     - /es/posts/my-original-post/
@@ -142,7 +142,7 @@ When aliases are specified, Hugo creates a directory to match the alias entry. I
 
 For example, a content file at `posts/my-intended-url.md` with the following in the front matter:
 
-```yaml
+```
 ---
 title: My New post
 aliases: [/posts/my-old-url/]
@@ -151,7 +151,7 @@ aliases: [/posts/my-old-url/]
 
 Assuming a `baseURL` of `yoursite.com`, the contents of the auto-generated alias `.html` found at `https://yoursite.com/posts/my-old-url/ will contain the following:`
 
-```html
+```
 <!DOCTYPE html>
 <html>
   <head>
@@ -189,7 +189,7 @@ Hugo's default behavior is to render your content with "pretty" URLs. No non-sta
 
 The following demonstrates the concept:
 
-```bash
+```
 content/posts/_index.md
 => yoursite.com/posts/index.html
 content/posts/post-1.md
@@ -204,7 +204,7 @@ If you want a specific piece of content to have an exact URL, you can specify th
 
 See [Content Organization][contentorg] for more details on paths.
 
-```bash
+```
 .
 └── content
     └── about
@@ -221,7 +221,7 @@ See [Content Organization][contentorg] for more details on paths.
 
 Here's the same organization run with `hugo --uglyURLs`:
 
-```bash
+```
 .
 └── content
     └── about
@@ -253,7 +253,7 @@ In the May 2014 release of Hugo v0.11, the default value of `canonifyURLs` was s
 
 To find out the current value of `canonifyURLs` for your website, you may use the handy `hugo config` command added in v0.13.
 
-```bash
+```
 hugo config | grep -i canon
 ```
 

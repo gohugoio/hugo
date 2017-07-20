@@ -86,7 +86,7 @@ Hugo natively supports taxonomies.
 
 Without adding a single line to your site's configuration file, Hugo will automatically create taxonomies for `tags` and `categories`. If you do not want Hugo to create any taxonomies, set `disableKinds` in your site's configuration to the following:
 
-```toml
+```
 disableKinds = ["taxonomy","taxonomyTerm"]
 ```
 
@@ -103,7 +103,7 @@ Taxonomies must be defined in your [website configuration][config] before they c
 
 ### Example: TOML Taxonomy Configuration
 
-```toml
+```
 [taxonomies]
   tag = "tags"
   category = "categories"
@@ -112,7 +112,7 @@ Taxonomies must be defined in your [website configuration][config] before they c
 
 ### Example: YAML Taxonomy Configuration
 
-```yaml
+```
 taxonomies:
   tag: "tags"
   category: "categories"
@@ -145,7 +145,7 @@ If you would like the ability to quickly generate content files with preconfigur
 
 ### Example: TOML Front Matter with Taxonomies
 
-```toml
+```
 +++
 title = "Hugo: A fast and flexible static site generator"
 tags = [ "Development", "Go", "fast", "Blogging" ]
@@ -158,7 +158,7 @@ project_url = "https://github.com/gohugoio/hugo"
 
 ### Example: YAML Front Matter with Taxonomies
 
-```yaml
+```
 ---
 title: "Hugo: A fast and flexible static site generator"
 #tags: ["Development", "Go", "fast", "Blogging"]
@@ -171,7 +171,7 @@ project_url: "https://github.com/gohugoio/hugo"
 
 ### Example: JSON Front Matter with Taxonomies
 
-```json
+```
 {
     "title": "Hugo: A fast and flexible static site generator",
     "tags": [
@@ -199,7 +199,7 @@ The following TOML and YAML examples show a piece of content that has a weight o
 
 ### Example: TOML Taxonomic `weight`
 
-```toml
+```
 +++
 title = "foo"
 tags = [ "a", "b", "c" ]
@@ -211,7 +211,7 @@ categories_weight = 44
 
 ### Example: YAML Taxonomic `weight`
 
-```yaml
+```
 ---
 title: foo
 #tags: [ "a", "b", "c" ]

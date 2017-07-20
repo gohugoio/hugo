@@ -60,7 +60,7 @@ The `.Taxonomy` variable, available, for example, as `.Site.Taxonomies.tags`, co
 The following [partial template][partials] will list all your site's taxonomies, each of their keys, and all the content assigned to each of the keys. For more examples of how to order and render your taxonomies, see  [Taxonomy Templates][taxonomytemplates].
 
 {{% code file="all-taxonomies-keys-and-pages.html" download="all-taxonomies-keys-and-pages.html" %}}
-```html
+```
 <section>
   <ul>
     {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}

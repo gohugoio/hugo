@@ -60,7 +60,7 @@ The easiest way to add your theme is to [open up a new issue in the theme reposi
 `theme.toml` contains metadata about the theme and its creator and should be created automatically when running the `hugo new theme`. The auto-generated file is provided here as well for easy downloading:
 
 {{% code file="theme.toml" download="theme.toml" %}}
-```toml
+```
 name = ""
 license = "MIT"
 licenselink = "https://github.com/<YOURNAME>/<YOURTHEME>/blob/master/LICENSE.md"
@@ -84,7 +84,7 @@ min_version = 0.19
 
 The following fields are required:
 
-```toml
+```
 name = "Hyde"
 license = "MIT"
 licenselink = "https://github.com/spf13/hyde/blob/master/LICENSE.md"
@@ -134,7 +134,7 @@ Your theme's README file should be written in markdown and saved at the root of 
 You can download the following `README.md` as an outline:
 
 {{% code file="README.md" download="README.md" %}}
-```markdown
+```
 
 # Theme Title
 

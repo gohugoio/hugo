@@ -22,7 +22,7 @@ Note that the filename must be relative to the current project working directory
 
 So, if you have a file with the name `README.txt` in the root of your project with the content `Hugo Rocks!`:
 
-```html
+```
 {{readFile "README.txt"}} → "Hugo Rocks!"
 ```
 

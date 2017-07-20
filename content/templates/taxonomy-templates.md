@@ -82,7 +82,7 @@ A Taxonomy is a `map[string]WeightedPages`.
 
 Since Maps are unordered, an OrderedTaxonomy is a special structure that has a defined order.
 
-```go
+```
 []struct {
     Name          string
     WeightedPages WeightedPages
@@ -107,7 +107,7 @@ Each element of the slice has:
 
 WeightedPages is simply a slice of WeightedPage.
 
-```go
+```
 type WeightedPages []WeightedPage
 ```
 
@@ -125,7 +125,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 ### Order Alphabetically Example
 
-```html
+```
 <ul>
   {{ $data := .Data }}
   {{ range $key, $value := .Data.Taxonomy.Alphabetical }}
@@ -136,7 +136,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 ### Order by Popularity Example
 
-```html
+```
 <ul>
   {{ $data := .Data }}
   {{ range $key, $value := .Data.Taxonomy.ByCount }}
@@ -159,7 +159,7 @@ When iterating over content within taxonomies, the default sort is the same as t
 
 Content can be assigned weight for each taxonomy that it's assigned to.
 
-```toml
+```
 +++
 tags = [ "a", "b", "c" ]
 tags_weight = 22
@@ -211,7 +211,7 @@ Because we are leveraging the front matter system to define taxonomies for conte
 
 ### Example: List Tags in a Single Page Template
 
-```html
+```
 <ul id="tags">
   {{ range .Params.tags }}
     <li><a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }}</a> </li>
@@ -225,7 +225,7 @@ To list such taxonomies, use the following:
 
 ### Example: Comma-delimit Tags in a Single Page Template
 
-```html
+```
 {{ if .Params.directors }}
   <strong>Director{{ if gt (len .Params.directors) 1 }}s{{ end }}:</strong>
   {{ range $index, $director := .Params.directors }}{{ if gt $index 0 }}, {{ end }}<a href="{{ "directors/" | relURL }}{{ . | urlize }}">{{ . }}</a>{{ end }}
@@ -240,7 +240,7 @@ If you are using a taxonomy for something like a series of posts, you can list i
 
 ### Example: Showing Content in Same Series
 
-```html
+```
 <ul>
   {{ range .Site.Taxonomies.series.golang }}
     <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a></li>
@@ -254,7 +254,7 @@ This would be very useful in a sidebar as “featured content”. You could even
 
 ### Example: Grouping "Featured" Content
 
-```html
+```
 <section id="menu">
     <ul>
         {{ range $key, $taxonomy := .Site.Taxonomies.featured }}
@@ -279,7 +279,7 @@ The following example displays all terms in a site's tags taxonomy:
 
 ### Example: List All Site Tags
 
-```html
+```
 <ul id="all-tags">
   {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
     <li><a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}">{{ $name }}</a></li>
@@ -292,7 +292,7 @@ The following example displays all terms in a site's tags taxonomy:
 This example will list all taxonomies and their terms, as well as all the content assigned to each of the terms.
 
 {{% code file="layouts/partials/all-taxonomies.html" download="all-taxonomies.html" download="all-taxonomies.html" %}}
-```html
+```
 <section>
   <ul id="all-taxonomies">
     {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
@@ -319,7 +319,7 @@ This example will list all taxonomies and their terms, as well as all the conten
 Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the "List All Site Tags" example above:
 
 {{% code file="links-to-all-tags" %}}
-```html
+```
 <ul class="tags">
   {{ range ($.Site.GetPage "taxonomyTerm" "tags").Pages }}
    <li><a href="{{ .Permalink }}">{{ .Title}}</a></li>

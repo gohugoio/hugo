@@ -27,7 +27,7 @@ notesforauthors:
 
 The spoiler is that you can deploy your entire website with a command that looks like the following:
 
-```bash
+```
 hugo && rsync -avz --delete public/ www-data@ftp.topologix.fr:~/www/
 ```
 
@@ -40,14 +40,14 @@ If it is not done yet, we will make an automated way to SSH to your server. If y
 First, install the ssh client. On Debian/Ubuntu/derivates, use the following command:
 
 {{% code file="install-openssh.sh" %}}
-```bash
+```
 sudo apt-get install openssh-client
 ```
 {{% /code %}}
 
 Then generate your ssh key by entering the following commands:
 
-```bash
+```
 ~$ cd && mkdir .ssh & cd .ssh
 ~/.ssh/$ ssh-keygen -t rsa -q -C "For SSH" -f rsa_id
 ~/.ssh/$ cat >> config <<EOF
@@ -61,7 +61,7 @@ EOF
 
 Don't forget to replace the `HOST` and `USER` values with your own ones. Then copy your ssh public key to the remote server:
 
-```bash
+```
 ~/.ssh/$ ssh-copy-id -i rsa_id.pub USER@HOST.com
 ```
 
@@ -78,13 +78,13 @@ And you've done it!
 
 We will put the first command in a script at the root of your Hugo tree:
 
-```bash
+```
 ~/websites/topologix.fr$ editor deploy
 ```
 
 Here you put the following content. Replace the `USER`, `HOST`, and `DIR` values with your own:
 
-```bash
+```
 #!/bin/sh
 USER=my-user
 HOST=my-server.com

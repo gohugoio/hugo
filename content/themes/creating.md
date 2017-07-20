@@ -25,7 +25,7 @@ If you're creating a theme with plans to share it with the community, use relati
 
 Hugo can initialize a new blank theme directory within your existing `themes` using the `hugo new` command:
 
-```bash
+```
 hugo new theme [name]
 ```
 

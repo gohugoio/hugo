@@ -23,7 +23,7 @@ An alternative way of writing an `if` statement and then referencing the same va
 The following example checks for a [user-defined site variable](/variables/site/) called `twitteruser`. If the key-value is not set, the following will render nothing:
 
 {{% code file="layouts/partials/twitter.html" %}}
-```html
+```
 {{with .Site.Params.twitteruser}}<span class="twitter">
 <a href="https://twitter.com/{{.}}" rel="author">
 <img src="/images/twitter.png" width="48" height="48" title="Twitter: {{.}}"

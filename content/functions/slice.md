@@ -24,7 +24,7 @@ toc: false
 One use case is the concatenation of elements in combination with the [`delimit` function][]:
 
 {{% code file="slice.html" %}}
-```html
+```
 {{ delimit (slice "foo" "bar" "buzz") ", " }}
 <!-- returns the string "foo, bar, buzz" -->
 ```

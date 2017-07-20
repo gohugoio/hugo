@@ -31,7 +31,7 @@ aliases: []
 
 Here is an example of a content file with `name:` as a front matter field:
 
-```toml
+```
 +++
 names: [ "Derek Perkins", "Joe Bergevin", "Tanner Linsley" ]
 +++
@@ -39,7 +39,7 @@ names: [ "Derek Perkins", "Joe Bergevin", "Tanner Linsley" ]
 
 You can then use `apply` as follows:
 
-```golang
+```
 {{ apply .Params.names "urlize" "." }}
 ```
 
@@ -51,7 +51,7 @@ Which will result as follows:
 
 This is *roughly* equivalent to using the following with [range][]
 
-```golang
+```
 {{ range .Params.names }}{{ . | urlize }}{{ end }}
 ```
 
@@ -60,7 +60,7 @@ However, it isn’t possible to provide the output of a range to the [`delimit` 
 If you have `post-tag-list.html` and `post-tag-link.html` as [partials][], you *could* use the following snippets, respectively:
 
 {{% code file="layouts/partial/post-tag-list.html" copy="false" %}}
-```html
+```
 {{ with .Params.tags }}
 <div class="tags-list">
   Tags:
@@ -80,7 +80,7 @@ If you have `post-tag-list.html` and `post-tag-link.html` as [partials][], you *
 {{% /code %}}
 
 {{% code file="layouts/partial/post-tag-link.html" copy="false" %}}
-```html
+```
 <a class="post-tag post-tag-{{ . | urlize }}" href="/tags/{{ . | urlize }}">{{ . }}</a>
 ```
 {{% /code %}}
@@ -89,7 +89,7 @@ This works, but the complexity of `post-tag-list.html` is fairly high. The Hugo 
 
 This first version of `layouts/partials/post-tag-list.html` separates all of the operations for ease of reading. The combined and DRYer version is shown next:
 
-```html
+```
 {{ with .Params.tags }}
     <div class="tags-list">
       Tags:
@@ -104,7 +104,7 @@ This first version of `layouts/partials/post-tag-list.html` separates all of the
 Now in the completed version, you can sort the tags, convert the tags to links with `layouts/partials/post-tag-link.html`, [chomp][] off stray newlines, and join the tags together in a delimited list for presentation. Here is an even DRYer version of the preceding example:
 
 {{% code file="layouts/partials/post-tag-list.html" download="post-tag-list.html" %}}
-```html
+```
     {{ with .Params.tags }}
     <div class="tags-list">
       Tags:

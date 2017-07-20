@@ -21,7 +21,7 @@ aliases: []
 
 Example: Given a site-wide `config.toml` that contains this menu entry:
 
-```toml
+```
 [[menu.main]]
     name = "IRC: #golang at freenode"
     url = "irc://irc.freenode.net/#golang"

@@ -21,7 +21,7 @@ aliases: []
 ---
 
 {{% code file="shuffle-input.html" %}}
-```html
+```
 <!-- Shuffled sequence = -->
 <div>{{ shuffle (seq 1 5) }}</div>
 <!-- Shuffled slice =  -->
@@ -32,7 +32,7 @@ aliases: []
 This example would return the following:
 
 {{% output file="shuffle-output.html" %}}
-```html
+```
 <!-- Shuffled sequence =  -->
 <div>2 5 3 1 4</div>
 <!-- Shuffled slice =  -->

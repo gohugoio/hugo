@@ -22,7 +22,7 @@ needsexample: true
 
 `where` filters an array to only the elements containing a matching value for a given field.
 
-```html
+```
 {{ range where .Data.Pages "Section" "post" }}
   {{ .Content }}
 {{ end }}
@@ -30,13 +30,13 @@ needsexample: true
 
 It can be used by dot-chaining the second argument to refer to a nested element of a value.
 
-```toml
+```
 +++
 series: golang
 +++
 ```
 
-```html
+```
 {{ range where .Site.Pages "Params.series" "golang" }}
    {{ .Content }}
 {{ end }}
@@ -44,7 +44,7 @@ series: golang
 
 It can also be used with the logical operators `!=`, `>=`, `in`, etc. Without an operator, `where` compares a given field with a matching value equivalent to `=`.
 
-```html
+```
 {{ range where .Data.Pages "Section" "!=" "post" }}
    {{ .Content }}
 {{ end }}
@@ -81,7 +81,7 @@ The following logical operators are vailable with `where`:
 
 ## Use `where` with `intersect`
 
-```html
+```
 {{ range where .Site.Pages ".Params.tags" "intersect" .Params.tags }}
   {{ if ne .Permalink $.Permalink }}
     {{ .Render "summary" }}
@@ -92,7 +92,7 @@ The following logical operators are vailable with `where`:
 You can also put the returned value of the `where` clauses into a variable:
 
 {{% code file="where-intersect-variables.html" %}}
-```html
+```
 {{ $v1 := where .Site.Pages "Params.a" "v1" }}
 {{ $v2 := where .Site.Pages "Params.b" "v2" }}
 {{ $filtered := $v1 | intersect $v2 }}
@@ -106,7 +106,7 @@ You can also put the returned value of the `where` clauses into a variable:
 The following grabs the first five content files in `post` using the [default ordering](/templates/lists/) for lists (i.e., `weight => date`):
 
 {{% code file="where-with-first.html" %}}
-```html
+```
 {{ range first 5 (where .Data.Pages "Section" "post") }}
    {{ .Content }}
 {{ end }}
@@ -117,7 +117,7 @@ The following grabs the first five content files in `post` using the [default or
 
 You can also nest `where` clauses to drill down on lists of content by more than one parameter. The following first grabs all pages in the "blog" section and then ranges through the result of the first `where` clause and finds all pages that are *not* featured:
 
-```html
+```
 {{ range where (where .Data.Pages "Section" "blog" ) ".Params.featured" "!=" "true" }}
 ```
 
@@ -132,7 +132,7 @@ Only the following operators are available for `nil`
 * `=`, `==`, `eq`: True if the given field is not set.
 * `!=`, `<>`, `ne`: True if the given field is set.
 
-```html
+```
 {{ range where .Data.Pages ".Params.specialpost" "!=" nil }}
    {{ .Content }}
 {{ end }}

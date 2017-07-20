@@ -60,7 +60,7 @@ One of the most common mistakes with new Hugo users is failing to pass a context
 
 As shown in the above example directory structure, you can nest your directories within `partials` for better source organization. You only need to call the nested partial's path relative to the `partials` directory:
 
-```golang
+```
 {{ partial "header/site-header.html" . }}
 {{ partial "footer/scripts.html" . }}
 ```
@@ -104,7 +104,7 @@ Note that the variant parameters are not made available to the underlying partia
 The following `header.html` partial template is used for [spf13.com](http://spf13.com/):
 
 {{% code file="layouts/partials/header.html" download="header.html" %}}
-```html
+```
 <!DOCTYPE html>
 <html class="no-js" lang="en-US" prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
 <head>
@@ -132,7 +132,7 @@ The `header.html` example partial was built before the introduction of block tem
 The following `footer.html` partial template is used for [spf13.com](http://spf13.com/):
 
 {{% code file="layouts/partials/footer.html" download="footer.html" %}}
-```html
+```
 <footer>
   <div>
     <p>

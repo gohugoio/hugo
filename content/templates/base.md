@@ -60,7 +60,7 @@ Here is the lookup order for the `post` base template:
 The following defines a simple base template at `_default/baseof.html`. As a default template, it is the shell from which all your pages will be rendered unless you specify another `*baseof.html` closer to the beginning of the lookup order.
 
 {{% code file="layouts/_default/baseof.html" download="baseof.html" %}}
-```html
+```
 <!DOCTYPE html>
 <html>
   <head>
@@ -88,7 +88,7 @@ The following defines a simple base template at `_default/baseof.html`. As a def
 From the above base template, you can define a [default list template][hugolists]. The default list template will inherit all of the code defined above and can then implement its own `"main"` block from:
 
 {{% code file="layouts/_default/list.html" download="list.html" %}}
-```html
+```
 {{ define "main" }}
   <h1>Posts</h1>
   {{ range .Data.Pages }}
@@ -106,7 +106,7 @@ This replaces the contents of our (basically empty) "main" block with something 
 {{% warning %}}
 Code that you put outside the block definitions *can* break your layout. This even includes HTML comments. For example:
 
-```html
+```
 <!-- Seemingly harmless HTML comment..that will break your layout at build -->
 {{ define "main" }}
 ...your code here
@@ -118,7 +118,7 @@ Code that you put outside the block definitions *can* break your layout. This ev
 The following shows how you can override both the `"main"` and `"title"` block areas from the base template with code unique to your [default single page template][singletemplate]:
 
 {{% code file="layouts/_default/single.html" download="single.html" %}}
-```html
+```
 {{ define "title" }}
   <!-- This will override the default value set in baseof.html; i.e., "{{.Site.Title}}" in the original example-->
   {{ .Title }} &ndash; {{ .Site.Title }}

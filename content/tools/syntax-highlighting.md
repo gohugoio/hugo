@@ -49,7 +49,7 @@ Highlighting is carried out via the [built-in shortcode](/content-management/sho
 ### Example `highlight` Shortcode Input
 
 {{% code file="example-highlight-shortcode-input.md" %}}
-```html
+```
 {{</* highlight html */>}}
 <section id="main">
   <div>
@@ -107,8 +107,8 @@ The keywords in the `highlight` shortcode mirror those of Pygments from the comm
 
 It is also possible to add syntax highlighting with GitHub flavored code fences. To enable this, set the `PygmentsCodeFences` to `true` in Hugo's [configuration file](/getting-started/configuration/);
 
-````
-```html
+```
+```
 <section id="main">
   <div>
     <h1 id="title">{{ .Title }}</h1>
@@ -118,7 +118,7 @@ It is also possible to add syntax highlighting with GitHub flavored code fences.
   </div>
 </section>
 ```
-````
+```
 
 {{% note "Disclaimers on Pygments" %}}
 * Pygments is relatively slow and _causes a performance hit when building your site_, but Hugo has been designed to cache the results to disk.
@@ -162,7 +162,7 @@ The [download section of the prism.js website][prismdownload] is simple to use a
 
 Similar to Highlight.js, you simply load `prism.css` in your `<head>` via whatever Hugo partial template is creating that part of your pages:
 
-```html
+```
 ...
 <link href="/css/prism.css" rel="stylesheet" />
 ...
@@ -170,7 +170,7 @@ Similar to Highlight.js, you simply load `prism.css` in your `<head>` via whatev
 
 Add `prism.js` near the bottom of your `<body>` tag in whatever Hugo partial template is appropriate for your site or theme.
 
-```html
+```
 ...
 <script src="/js/prism.js"></script>
 </body>
@@ -184,7 +184,7 @@ To use client-side highlighting, most of these javascript libraries expect your 
 
 The client-side highlighting script therefore looks for programming language classes according to this convention: `language-go`, `language-html`, `language-css`, `language-bash`, etc. If you look at the page's source, you might see something like the following:
 
-```html
+```
 <pre>
   <code class="language-css">
   body {
@@ -207,7 +207,7 @@ body {
 Here is the same example but with triple back ticks to denote the fenced code block:
 
 {{< nohighlight >}}
-```css
+```
 body {
   font-family: "Noto Sans", sans-serif;
 }
@@ -224,7 +224,7 @@ Passing the above examples through the highlighter script would yield the follow
 
 In the case of the coding color scheme used by the Hugo docs, the resulting output would then look like the following to the website's end users:
 
-```css
+```
 body {
   font-family: "Noto Sans", sans-serif;
 }

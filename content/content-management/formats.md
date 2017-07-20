@@ -42,7 +42,7 @@ Hugo supports [GitHub-styled task lists (i.e., TODO lists)][gfmtasks] for the Bl
 #### Example Task List Input
 
 {{% code file="content/my-to-do-list.md" %}}
-```markdown
+```
 - [ ] a task list item
 - [ ] list syntax required
 - [ ] incomplete
@@ -54,7 +54,7 @@ Hugo supports [GitHub-styled task lists (i.e., TODO lists)][gfmtasks] for the Bl
 
 The preceding markdown produces the following HTML in your rendered website:
 
-```html
+```
 <ul class="task-list">
     <li><input type="checkbox" disabled="" class="task-list-item"> a task list item</li>
     <li><input type="checkbox" disabled="" class="task-list-item"> list syntax required</li>
@@ -98,7 +98,7 @@ As Hugo ships with Mmark, using the syntax is as easy as changing the extension 
 
 In the event that you want to only use Mmark in specific files, you can also define the Mmark syntax in your content's front matter:
 
-```yaml
+```
 ---
 title: My Post
 date: 2017-04-01
@@ -121,7 +121,7 @@ This is not an introduction into actually using MathJax to render typeset mathem
 The first step is to enable MathJax on pages that you would like to have typeset math. There are multiple ways to do this (adventurous readers can consult the [Loading and Configuring](http://docs.mathjax.org/en/latest/configuration.html) section of the MathJax documentation for additional methods of including MathJax), but the easiest way is to use the secure MathJax CDN by include a `<script>` tag for the officially recommended secure CDN ([cdn.js.com](https://cdnjs.com)):
 
 {{% code file="add-mathjax-to-page.html" %}}
-```html
+```
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 ```
@@ -150,7 +150,7 @@ There are multiple ways to remedy this problem. One solution is to simply escape
 Another option is to tell Markdown to treat the MathJax code as verbatim code and not process it. One way to do this is to wrap the math expression inside a `<div>` `</div>` block. Markdown would ignore these sections and they would get passed directly on to MathJax and processed correctly. This works great for display style mathematics, but for inline math expressions the line break induced by the `<div>` is not acceptable. The syntax for instructing Markdown to treat inline text as verbatim is by wrapping it in backticks (`` ` ``). You might have noticed, however, that the text included in between backticks is rendered differently than standard text (on this site these are items highlighted in red). To get around this problem, we could create a new CSS entry that would apply standard styling to all inline verbatim text that includes MathJax code. Below I will show the HTML and CSS source that would accomplish this (note this solution was adapted from [this blog post](http://doswa.com/2011/07/20/mathjax-in-markdown.html)---all credit goes to the original author).
 
 {{% code file="mathjax-markdown-solution.html" %}}
-```js
+```
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({
   tex2jax: {
@@ -184,7 +184,7 @@ MathJax.Hub.Config({
 As before, this content should be included in the HTML source of each page that will be using MathJax. The next code snippet contains the CSS that is used to have verbatim MathJax blocks render with the same font style as the body of the page.
 
 {{% code file="mathjax-style.css" %}}
-```css
+```
 code.has-jax {
     font: inherit;
     font-size: 100%;

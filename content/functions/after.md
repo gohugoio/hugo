@@ -20,7 +20,7 @@ aliases: []
 
 The following shows `after` being used in conjunction with the [`slice` function][slice]:
 
-```html
+```
 {{ $data := slice "one" "two" "three" "four" }}
 {{ range after 2 $data }}
     {{ . }}
@@ -36,7 +36,7 @@ You can use `after` in combination with the [`first` function][] and Hugo's [pow
 2. The second row is titled "Recent Articles" and shows only the 2nd- to 4th-most recently published articles.
 
 {{% code file="layouts/section/articles.html" download="articles.html" %}}
-```html
+```
 {{ define "main" }}
 <section class="row featured-article">
     <h2>Featured Article</h2>

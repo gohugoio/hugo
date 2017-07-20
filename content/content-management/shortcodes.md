@@ -38,11 +38,11 @@ Some shortcodes use or require closing shortcodes. Again like HTML, the opening 
 
 Here are two examples of paired shortcodes:
 
-```md
+```
 {{%/* mdshortcode */%}}Stuff to `process` in the *center*.{{%/* /mdshortcode */%}}
 ```
 
-```md
+```
 {{</* highlight go */>}} A bunch of code here {{</* /highlight */>}}
 ```
 
@@ -52,7 +52,7 @@ The examples above use two different delimiters, the difference being the `%` ch
 
 The `%` character indicates that the shortcode's inner content---called in the [shortcode template][sctemps] with the [`.Inner` variable][scvars]---needs further processing by the page's rendering processor (i.e. markdown via Blackfriday). In the following example, Blackfriday would convert `**World**` to `<strong>World</strong>`:
 
-```md
+```
 {{%/* myshortcode */%}}Hello **World!**{{%/* /myshortcode */%}}
 ```
 
@@ -60,7 +60,7 @@ The `%` character indicates that the shortcode's inner content---called in the [
 
 The `<` character indicates that the shortcode's inner content does *not* need further rendering. Often shortcodes without markdown include internal HTML:
 
-```md
+```
 {{</* myshortcode */>}}<p>Hello <strong>World!</strong></p>{{</* /myshortcode */>}}
 ```
 
@@ -90,7 +90,7 @@ The `figure` shortcode can use the following named parameters:
 #### Example `figure` Input
 
 {{% code file="figure-input-example.md" %}}
-```markdown
+```
 {{</* figure src="/media/spf13.jpg" title="Steve Francia" */>}}
 ```
 {{% /code %}}
@@ -98,7 +98,7 @@ The `figure` shortcode can use the following named parameters:
 #### Example `figure` Output
 
 {{% output file="figure-output-example.html" %}}
-```html
+```
 <figure>
   <img src="/media/spf13.jpg"  />
   <figcaption>
@@ -112,13 +112,13 @@ The `figure` shortcode can use the following named parameters:
 
 Bloggers often want to include GitHub gists when writing posts. Let's suppose we want to use the [gist at the following url][examplegist]:
 
-```html
+```
 https://gist.github.com/spf13/7896402
 ```
 
 We can embed the gist in our content via username and gist ID pulled from the URL:
 
-```md
+```
 {{</* gist spf13 7896402 */>}}
 ```
 
@@ -127,7 +127,7 @@ We can embed the gist in our content via username and gist ID pulled from the UR
 If the gist contains several files and you want to quote just one of them, you can pass the filename (quoted) as an optional third argument:
 
 {{% code file="gist-input.md" %}}
-```md
+```
 {{</* gist spf13 7896402 "img.html" */>}}
 ```
 {{% /code %}}
@@ -135,7 +135,7 @@ If the gist contains several files and you want to quote just one of them, you c
 #### Example `gist` Output
 
 {{% output file="gist-output.html" %}}
-```html
+```
 {{< gist spf13 7896402 >}}
 ```
 {{% /output %}}
@@ -153,7 +153,7 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 #### Example `highlight` Input
 
 {{% code file="content/tutorials/learn-html.md" %}}
-```html
+```
 {{</* highlight html */>}}
 <section id="main">
   <div>
@@ -172,7 +172,7 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 The `highlight` shortcode example above would produce the following HTML when the site is rendered:
 
 {{% output file="tutorials/learn-html/index.html" %}}
-```html
+```
 <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
   <span style="color: #f92672">&lt;div&gt;</span>
    <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
@@ -192,14 +192,14 @@ To see even more options for adding syntax-highlighted code blocks to your websi
 
 If you'd like to embed a photo from [Instagram][], you only need the photo's ID. You can discern an Instagram photo ID from the URL:
 
-```html
+```
 https://www.instagram.com/p/BWNjjyYFxVx/
 ```
 
 #### Example `instagram` Input
 
 {{% code file="instagram-input.md" %}}
-```md
+```
 {{</* instagram BWNjjyYFxVx */>}}
 ```
 {{% /code %}}
@@ -207,7 +207,7 @@ https://www.instagram.com/p/BWNjjyYFxVx/
 You also have the option to hide the caption:
 
 {{% code file="instagram-input-hide-caption.md" %}}
-```md
+```
 {{</* instagram BWNjjyYFxVx hidecaption */>}}
 ```
 {{% /code %}}
@@ -217,7 +217,7 @@ You also have the option to hide the caption:
 By adding the preceding `hidecaption` example, the following HTML will be added to your rendered website's markup:
 
 {{% output file="instagram-hide-caption-output.html" %}}
-```html
+```
 {{< instagram BWNjjyYFxVx hidecaption >}}
 ```
 {{% /output %}}
@@ -243,7 +243,7 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 
 #### Example `ref` and `relref` Input
 
-```md
+```
 [Neat]({{</* ref "blog/neat.md" */>}})
 [Who]({{</* relref "about.md#who" */>}})
 ```
@@ -252,7 +252,7 @@ Read a more extensive description of `ref` and `relref` in the [cross references
 
 Assuming that standard Hugo pretty URLs are turned on.
 
-```html
+```
 <a href="/blog/neat">Neat</a>
 <a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
 ```
@@ -261,7 +261,7 @@ Assuming that standard Hugo pretty URLs are turned on.
 
 To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (under Share right next to the template on Speaker Deck) and copy the URL:
 
-```html
+```
 <script async class="speakerdeck-embed" data-id="4e8126e72d853c0060001f97" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
 ```
 
@@ -270,7 +270,7 @@ To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (u
 Extract the value from the field `data-id` and pass it to the shortcode:
 
 {{% code file="speakerdeck-example-input.md" %}}
-```md
+```
 {{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
 ```
 {{% /code %}}
@@ -278,7 +278,7 @@ Extract the value from the field `data-id` and pass it to the shortcode:
 #### `speakerdeck` Example Output
 
 {{% output file="speakerdeck-example-input.md" %}}
-```html
+```
 {{< speakerdeck 4e8126e72d853c0060001f97 >}}
 ```
 {{% /output %}}
@@ -302,7 +302,7 @@ https://twitter.com/spf13/status/877500564405444608
 Pass the tweet's ID from the URL as a parameter to the `tweet` shortcode:
 
 {{% code file="example-tweet-input.md" %}}
-```md
+```
 {{</* tweet 877500564405444608 */>}}
 ```
 {{% /code %}}
@@ -312,7 +312,7 @@ Pass the tweet's ID from the URL as a parameter to the `tweet` shortcode:
 Using the preceding `tweet` example, the following HTML will be added to your rendered website's markup:
 
 {{% output file="example-tweet-output.html" %}}
-```html
+```
 {{< tweet 877500564405444608 >}}
 ```
 {{% /output %}}
@@ -336,7 +336,7 @@ https://vimeo.com/channels/staffpicks/146022717
 Extract the ID from the video's URL and pass it to the `vimeo` shortcode:
 
 {{% code file="example-vimeo-input.md" %}}
-```md
+```
 {{</* vimeo 146022717 */>}}
 ```
 {{% /code %}}
@@ -346,7 +346,7 @@ Extract the ID from the video's URL and pass it to the `vimeo` shortcode:
 Using the preceding `vimeo` example, the following HTML will be added to your rendered website's markup:
 
 {{% output file="example-vimeo-output.html" %}}
-```html
+```
 {{< vimeo 146022717 >}}
 ```
 {{% /output %}}
@@ -354,7 +354,7 @@ Using the preceding `vimeo` example, the following HTML will be added to your re
 {{% tip %}}
 If you want to further customize the visual styling of the YouTube or Vimeo output, add a `class` named parameter when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named parameter as well.
 
-```md
+```
 {{</* vimeo id="146022717" class="my-vimeo-wrapper-class" */>}}
 ```
 {{% /tip %}}
@@ -379,7 +379,7 @@ https://www.youtube.com/watch?v=w7Ft2ymGmfc
 Copy the YouTube video ID that follows `v=` in the video's URL and pass it to the `youtube` shortcode:
 
 {{% code file="example-youtube-input.md" %}}
-```md
+```
 {{</* youtube w7Ft2ymGmfc */>}}
 ```
 {{% /code %}}
@@ -388,7 +388,7 @@ Furthermore, you can automatically start playback of the embedded video by setti
 
 
 {{% code file="example-youtube-input-with-autoplay.md" %}}
-```md
+```
 {{</* youtube id="w7Ft2ymGmfc" autoplay="true" */>}}
 ```
 {{% /code %}}
@@ -398,7 +398,7 @@ Furthermore, you can automatically start playback of the embedded video by setti
 Using the preceding `youtube` example, the following HTML will be added to your rendered website's markup:
 
 {{% code file="example-youtube-output.html" %}}
-```html
+```
 {{< youtube id="w7Ft2ymGmfc" autoplay="true" >}}
 ```
 {{% /code %}}

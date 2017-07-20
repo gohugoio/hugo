@@ -36,7 +36,7 @@ aliases: []
 You may want to append a class to a heading according to the length of the string therein. The following templating checks to see if the title's length is greater than 80 characters and, if so, adds a `long-title` class to the `<h1>`:
 
 {{% code file="check-title-length.html" %}}
-```html
+```
 <header>
     <h1{{if gt (len .Title) 80}} class="long-title"{{end}}>{{.Title}}</h1>
 </header>
@@ -48,7 +48,7 @@ You may want to append a class to a heading according to the length of the strin
 The following templating uses [`where`][] in conjunction with `len` to figure out the total number of content pages in a `posts` [section][]:
 
 {{% code file="how-many-posts.html" %}}
-```html
+```
 {{ $posts := (where .Site.RegularPages "Section" "==" "post") }}
 {{ $postCount := len $posts }}
 ```

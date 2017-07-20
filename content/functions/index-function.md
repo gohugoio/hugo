@@ -44,7 +44,7 @@ Assume you want to add a `location = ""` field to your front matter for every ar
 
 Here is an example of the data inside `data/locations/oslo.toml`:
 
-```toml
+```
 website = "https://www.oslo.kommune.no"
 pop_city = 658390
 pop_metro = 1717900
@@ -52,7 +52,7 @@ pop_metro = 1717900
 
 The example we will use will be an article on Oslo, which front matter should set to exactly the same name as the corresponding file name in `data/locations/`:
 
-```toml
+```
 title = "My Norwegian Vacation"
 location = "oslo"
 ```
@@ -70,14 +70,14 @@ This is where the `index` function is needed. `index` takes 2 parameters in this
 
 The variable for `.Params.location` is a string and can therefore replace `oslo` in the example above:
 
-```golang
+```
 {{ index .Site.Data.authors .Params.author }}
 => map[website:https://www.oslo.kommune.no pop_city:658390 pop_metro:1717900]
 ```
 
 Now the call will return the specific file according to the location specified in the content's front matter, but you will likely want to write specific properties to the template. You can do this by continuing down the node path via dot notation (`.`):
 
-```golang
+```
 {{ (index .Site.Data.locations .Params.location).pop_city }}
 => 658390
 ```

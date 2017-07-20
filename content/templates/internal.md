@@ -33,11 +33,11 @@ Hugo ships with internal templates for Google Analytics tracking, including both
 
 Provide your tracking id in your configuration file:
 
-```toml
+```
 googleAnalytics = "UA-123-45"
 ```
 
-```yml
+```
 googleAnalytics: "UA-123-45"
 ```
 
@@ -45,12 +45,12 @@ googleAnalytics: "UA-123-45"
 
 You can then include the Google Analytics internal template:
 
-```golang
+```
 {{ template "_internal/google_analytics.html" . }}
 ```
 
 
-```golang
+```
 {{ template "_internal/google_analytics_async.html" . }}
 ```
 
@@ -62,11 +62,11 @@ Hugo also ships with an internal template for [Disqus comments][disqus], a popul
 
 To use Hugo's Disqus template, you first need to set a single value in your site's `config.toml` or `config.yml`:
 
-```toml
+```
 disqusShortname = "yourdiscussshortname"
 ```
 
-```yaml
+```
 disqusShortname: "yourdiscussshortname"
 ```
 
@@ -80,7 +80,7 @@ You also have the option to set the following in the front matter for a given pi
 
 To add Disqus, include the following line in templates where you want your comments to appear:
 
-```golang
+```
 {{ template "_internal/disqus.html" . }}
 ```
 
@@ -91,7 +91,7 @@ Users have noticed that enabling Disqus comments when running the Hugo web serve
 You can create the following `layouts/partials/disqus.html`:
 
 {{% code file="layouts/partials/disqus.html" download="disqus.html" %}}
-```html
+```
 <div id="disqus_thread"></div>
 <script type="text/javascript">
 
@@ -116,7 +116,7 @@ The `if` statement skips the initialization of the Disqus comment injection when
 
 You can then render your custom Disqus partial template as follows:
 
-```golang
+```
 {{ partial "disqus.html" . }}
 ```
 

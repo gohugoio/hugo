@@ -32,7 +32,7 @@ needsexamples: false
 `default` function examples reference the following content page:
 
 {{% code file="content/posts/default-function-example.md" %}}
-```yaml
+```
 ---
 title: Sane Defaults
 seo_title:
@@ -46,7 +46,7 @@ newparam:
 
 `default` can be written in more than one way:
 
-```golang
+```
 {{ index .Params "font" | default "Roboto" }}
 {{ default "Roboto" (index .Params "font") }}
 ```
@@ -56,7 +56,7 @@ Both of the above `default` function calls return `Roboto`.
 A `default` value, however, does not need to be hard coded like the previous example. The `default` value can be a variable or pulled directly from the front matter using dot notation:
 
 {{% code file="variable-as-default-value.html" nocopy="true" %}}
-```golang
+```
 {{$old := .Params.oldparam }}
 <p>{{ .Params.newparam | default $old }}</p>
 ```
@@ -71,7 +71,7 @@ Which would return:
 And then using dot notation
 
 {{% code file="dot-notation-default-value.html" %}}
-```golang
+```
 <title>{{ .Params.seo_title | default .Title }}</title>
 ```
 {{% /code %}}
@@ -79,7 +79,7 @@ And then using dot notation
 Which would return
 
 {{% output file="dot-notation-default-return-value.html" %}}
-```html
+```
 <title>Sane Defaults</title>
 ```
 {{% /output %}}
@@ -89,7 +89,7 @@ The following have equivalent return values but are far less terse. This demonst
 Using `if`:
 
 {{% code file="if-instead-of-default.html" nocopy="true" %}}
-```golang
+```
 <title>{{if .Params.seo_title}}{{.Params.seo_title}}{{else}}{{.Title}}{{end}}</title>
 => Sane Defaults
 ```
@@ -98,7 +98,7 @@ Using `if`:
 Using `with`:
 
 {{% code file="with-instead-of-default.html" nocopy="true" %}}
-```golang
+```
 <title>{{with .Params.seo_title}}{{.}}{{else}}{{.Title}}{{end}}</title>
 => Sane Defaults
 ```

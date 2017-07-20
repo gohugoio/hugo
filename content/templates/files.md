@@ -37,14 +37,14 @@ Whether the path is absolute or relative does not matter because---at least for 
 This shortcode creates a link to each of the files in a directory---display as the file's basename---along with the file's size in bytes.
 
 {{% code file="layouts/shortcodes/directoryindex.html" download="directoryindex.html" %}}
-```html
+```
 {{< readfile file="/themes/gohugoioTheme/layouts/shortcodes/directoryindex.html" >}}
 ```
 {{% /code %}}
 
 You can then call the shortcode as follows inside of your content's markup:
 
-```html
+```
 {{</* directoryindex path="/static/css" pathURL="/css" */>}}
 ```
 
@@ -62,7 +62,7 @@ The [`readfile` function][reads] reads a file from disk and converts it into a s
 
 To use the `readFile` function in your templates, make sure the path is relative to your *Hugo project's root directory*:
 
-```html
+```
 {{ readFile "/content/templates/local-file-templates" }}
 ```
 
@@ -94,13 +94,13 @@ This `readfile` shortcode is [also part of the Hugo docs][readfilesource]. So is
 
 The output "string" for this shortcode declaration will be the following:
 
-```markdown
+```
 {{< readfile file="/content/readfiles/testing.txt" >}}
 ```
 
 However, if we want Hugo to pass this string through Blackfriday, we should add the `markdown="true"` optional parameter:
 
-```html
+```
 {{</* readfile file="/content/readfiles/testing.txt" markdown="true" */>}}
 ```
 

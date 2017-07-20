@@ -31,13 +31,13 @@ Golang templates are HTML files with the addition of [variables][variables] and 
 
 ### Access a Predefined Variable
 
-```golang
+```
 {{ foo }}
 ```
 
 Parameters for functions are separated using spaces. The following example calls the `add` function with inputs of `1` and `2`:
 
-```golang
+```
 {{ add 1 2 }}
 ```
 
@@ -45,13 +45,13 @@ Parameters for functions are separated using spaces. The following example calls
 
 Accessing the Page Parameter `bar` defined in a piece of content's [front matter][].
 
-```golang
+```
 {{ .Params.bar }}
 ```
 
 #### Parentheses Can be Used to Group Items Together
 
-```golang
+```
 {{ if or (isset .Params "alt") (isset .Params "caption") }} Caption {{ end }}
 ```
 
@@ -61,13 +61,13 @@ Each Go template gets a data object. In Hugo, each template is passed a `Page`. 
 
 This is how you access a `Page` variable from a template:
 
-```golang
+```
 <title>{{ .Title }}</title>
 ```
 
 Values can also be stored in custom variables and referenced later:
 
-```golang
+```
 {{ $address := "123 Main St."}}
 {{ $address }}
 ```
@@ -87,14 +87,14 @@ Go templates only ship with a few basic functions but also provide a mechanism f
 
 ### Example 1: Adding Numbers
 
-```golang
+```
 {{ add 1 2 }}
 => 3
 ```
 
 ### Example 2: Comparing Numbers
 
-```golang
+```
 {{ lt 1 2 }}
 => true (i.e., since 1 is less than 2)
 ```
@@ -114,14 +114,14 @@ the `/layout/` directory within Hugo.
 
 ### Template and Partial Examples
 
-```golang
+```
 {{ template "partials/header.html" . }}
 ```
 
 Starting with Hugo v0.12, you may also use the `partial` call
 for [partial templates][partials]:
 
-```golang
+```
 {{ partial "header.html" . }}
 ```
 
@@ -137,7 +137,7 @@ range.
 
 #### Example 1: Using Context
 
-```golang
+```
 {{ range array }}
     {{ . }}
 {{ end }}
@@ -145,7 +145,7 @@ range.
 
 #### Example 2: Declaring Value => Variable name
 
-```golang
+```
 {{range $element := array}}
     {{ $element }}
 {{ end }}
@@ -153,7 +153,7 @@ range.
 
 #### Example 3: Declaring Key-Value Variable Name
 
-```golang
+```
 {{range $index, $element := array}}
    {{ $index }}
    {{ $element }}
@@ -172,13 +172,13 @@ Go Templates treat the following values as false:
 
 #### Example 1: `if`
 
-```golang
+```
 {{ if isset .Params "title" }}<h4>{{ index .Params "title" }}</h4>{{ end }}
 ```
 
 #### Example 2: `if` … `else`
 
-```golang
+```
 {{ if isset .Params "alt" }}
     {{ index .Params "alt" }}
 {{else}}
@@ -188,7 +188,7 @@ Go Templates treat the following values as false:
 
 #### Example 3: `and` & `or`
 
-```golang
+```
 {{ if and (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr")}}
 ```
 
@@ -200,13 +200,13 @@ and skips the block if the variable is absent.
 
 The first example above could be simplified as:
 
-```golang
+```
 {{ with .Params.title }}<h4>{{ . }}</h4>{{ end }}
 ```
 
 #### Example 5: `if` … `else if`
 
-```golang
+```
 {{ if isset .Params "alt" }}
     {{ index .Params "alt" }}
 {{ else if isset .Params "caption" }}
@@ -226,12 +226,12 @@ A few simple examples should help convey how to use the pipe.
 
 The following two examples are functionally the same:
 
-```golang
+```
 {{ shuffle (seq 1 5) }}
 ```
 
 
-```golang
+```
 {{ (seq 1 5) | shuffle }}
 ```
 
@@ -239,13 +239,13 @@ The following two examples are functionally the same:
 
 The following accesses the page parameter called "disqus_url" and escapes the HTML. This example also uses the [`index` function][index], which is built into Go templates:
 
-```golang
+```
 {{ index .Params "disqus_url" | html }}
 ```
 
 ### Example 3: `or` with `isset`
 
-```golang
+```
 {{ if or (or (isset .Params "title") (isset .Params "caption")) (isset .Params "attr") }}
 Stuff Here
 {{ end }}
@@ -253,7 +253,7 @@ Stuff Here
 
 Could be rewritten as
 
-```golang
+```
 {{ if isset .Params "caption" | or isset .Params "title" | or isset .Params "attr" }}
 Stuff Here
 {{ end }}
@@ -263,7 +263,7 @@ Stuff Here
 
 By default, Go Templates remove HTML comments from output. This has the unfortunate side effect of removing Internet Explorer conditional comments. As a workaround, use something like this:
 
-```golang
+```
 {{ "<!--[if lt IE 9]>" | safeHTML }}
   <script src="html5shiv.js"></script>
 {{ "<![endif]-->" | safeHTML }}
@@ -284,7 +284,7 @@ The most easily overlooked concept to understand about Go templates is that `{{ 
 The following shows how to define a variable independent of the context.
 
 {{% code file="tags-range-with-page-variable.html" %}}
-```html
+```
 {{ $title := .Site.Title }}
 <ul>
 {{ range .Params.tags }}
@@ -306,7 +306,7 @@ Notice how once we have entered the loop (i.e. `range`), the value of `{{ . }}` 
 `$` has special significance in your templates. `$` is set to the starting value of `.` ("the dot") by default. This is a [documented feature of Go text/template][dotdoc]. This means you have access to the global context from anywhere. Here is an equivalent example of the preceding code block but now using `$` to grab `.Site.Title` from the global context:
 
 {{% code file="range-through-tags-w-global.html" %}}
-```hbs
+```
 <ul>
 {{ range .Params.tags }}
   <li>
@@ -328,7 +328,7 @@ Go 1.6 includes the ability to trim the whitespace from either side of a Go tag 
 
 For instance, the following Go template will include the newlines and horizontal tab in its HTML output:
 
-```html
+```
 <div>
   {{ .Title }}
 </div>
@@ -336,7 +336,7 @@ For instance, the following Go template will include the newlines and horizontal
 
 Which will output:
 
-```html
+```
 <div>
   Hello, World!
 </div>
@@ -344,7 +344,7 @@ Which will output:
 
 Leveraging the `-` in the following example will remove the extra white space surrounding the `.Title` variable and remove the newline:
 
-```html
+```
 <div>
   {{- .Title -}}
 </div>
@@ -352,7 +352,7 @@ Leveraging the `-` in the following example will remove the extra white space su
 
 Which then outputs:
 
-```html
+```
 <div>Hello, World!</div>
 ```
 
@@ -375,7 +375,7 @@ An example of this is used in the Hugo docs. Most of the pages benefit from havi
 
 Here is the example front matter:
 
-```yaml
+```
 ---
 title: Roadmap
 lastmod: 2017-03-05
@@ -387,7 +387,7 @@ notoc: true
 Here is an example of corresponding code that could be used inside a `toc.html` [partial template][partials]:
 
 {{% code file="layouts/partials/toc.html" download="toc.html" %}}
-```html
+```
 {{ if not .Params.notoc }}
 <aside>
   <header>
@@ -411,7 +411,7 @@ You can arbitrarily define as many site-level parameters as you want in your [si
 For instance, you might declare the following:
 
 {{% code file="config.yaml" %}}
-```yaml
+```
 params:
   copyrighthtml: "Copyright &#xA9; 2017 John Doe. All Rights Reserved."
   twitteruser: "spf13"
@@ -421,7 +421,7 @@ params:
 
 Within a footer layout, you might then declare a `<footer>` that is only rendered if the `copyrighthtml` parameter is provided. If it *is* provided, you will then need to declare the string is safe to use via the [`safeHTML` function][safehtml] so that the HTML entity is not escaped again. This would let you easily update just your top-level config file each January 1st, instead of hunting through your templates.
 
-```html
+```
 {{if .Site.Params.copyrighthtml}}<footer>
 <div class="text-center">{{.Site.Params.CopyrightHTML | safeHTML}}</div>
 </footer>{{end}}
@@ -430,7 +430,7 @@ Within a footer layout, you might then declare a `<footer>` that is only rendere
 An alternative way of writing the "`if`" and then referencing the same value is to use [`with`][with] instead. `with` rebinds the context (`.`) within its scope and skips the block if the variable is absent:
 
 {{% code file="layouts/partials/twitter.html" %}}
-```html
+```
 {{with .Site.Params.twitteruser}}
 <div>
   <a href="https://twitter.com/{{.}}" rel="author">
@@ -442,7 +442,7 @@ An alternative way of writing the "`if`" and then referencing the same value is 
 
 Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`][first] function, as well as the [`.RelPermalink`][relpermalink] page variable and the [`.Site.Pages`][sitevars] site variable.
 
-```html
+```
 <nav>
   <h1>Recent Posts</h1>
   <ul>
@@ -458,7 +458,7 @@ Finally, you can pull "magic constants" out of your layouts as well. The followi
 Go allows you to do more than what's shown here. Using Hugo's [`where` function][where] and Go built-ins, we can list only the items from `content/events/` whose date (set in a content file's [front matter][]) is in the future. The following is an example [partial template][partials]:
 
 {{% code file="layouts/partials/upcoming-events.html" download="upcoming-events.html" %}}
-```html
+```
 <h4>Upcoming Events</h4>
 <ul class="upcoming-events">
 {{ range where .Data.Pages.ByDate "Section" "events" }}

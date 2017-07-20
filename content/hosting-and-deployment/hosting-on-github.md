@@ -37,11 +37,11 @@ Make sure your `baseURL` key-value in your [site configuration](/getting-started
 
 [As described in the GitHub Pages documentation][ghpfromdocs], you can deploy from a folder called `docs/` on your master branch. To effectively use this feature with Hugo, you need to change the Hugo publish directory in your [site's][config] `config.toml` and `config.yaml`, respectively:
 
-```yaml
+```
 publishDir: docs
 ```
 
-```toml
+```
 publishDir = "docs"
 ```
 
@@ -69,7 +69,7 @@ These steps only need to be done once. Replace `upstream` with the name of your 
 
 First, add the `public` folder to your `.gitignore` file at the project root so that the directory is ignored on the master branch:
 
-```bash
+```
 echo "public" >> .gitignore
 ```
 
@@ -77,7 +77,7 @@ echo "public" >> .gitignore
 
 You can now initialize your `gh-pages` branch as an empty [orphan branch][]:
 
-```bash
+```
 git checkout --orphan gh-pages
 git reset --hard
 git commit --allow-empty -m "Initializing gh-pages branch"
@@ -89,7 +89,7 @@ git checkout master
 
 Now check out the `gh-pages` branch into your `public` folder using git's [worktree feature][]. Essentially, the worktree allows you to have multiple branches of the same local repository to be checked out in different directories:
 
-```sh
+```
 rm -rf public
 git worktree add -B gh-pages public upstream/gh-pages
 ```
@@ -97,7 +97,7 @@ git worktree add -B gh-pages public upstream/gh-pages
 Regenerate the site using the `hugo` command and commit the generated files on the `gh-pages` branch:
 
 {{% code file="commit-gh-pages-files.sh"%}}
-```bash
+```
 hugo
 cd public && git add --all && git commit -m "Publishing to gh-pages" && cd ..
 ```
@@ -105,7 +105,7 @@ cd public && git add --all && git commit -m "Publishing to gh-pages" && cd ..
 
 If the changes in your local `gh-pages` branch look alright, push them to the remote repo:
 
-```bash
+```
 git push upstream gh-pages
 ```
 
@@ -123,7 +123,7 @@ After a short while, you'll see the updated contents on your GitHub Pages site.
 To automate these steps, you can create a script with the following contents:
 
 {{% code file="publish_to_ghpages.sh" %}}
-```sh
+```
 #!/bin/sh
 
 DIR=$(dirname "$0")
@@ -193,7 +193,7 @@ You're almost done. You can also add a `deploy.sh` script to automate the preced
 
 The following are the contents of the `deploy.sh` script:
 
-```sh
+```
 #!/bin/bash
 
 echo -e "\033[0;32mDeploying updates to GitHub...\033[0m"

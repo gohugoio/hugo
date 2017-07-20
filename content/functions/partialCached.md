@@ -21,7 +21,7 @@ aliases: []
 
 The `partialCached` template function can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation. Here is the simplest usage:
 
-```golang
+```
 {{ partialCached "footer.html" . }}
 ```
 

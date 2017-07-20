@@ -31,14 +31,14 @@ aliases: [/tutorials/hosting-on-gitlab/]
 
 ## Create .gitlab-ci.yml
 
-```bash
+```
 cd your-hugo-site
 ```
 
 In the root directory of your Hugo site, create a `.gitlab-ci.yml` file. The `.gitlab-ci.yml` configures the GitLab CI on how to build your page. Simply add the content below.
 
 {{% code file="gitlab-ci.yml" %}}
-```yml
+```
 image: publysher/hugo
 
 pages:
@@ -56,7 +56,7 @@ pages:
 
 Next, create a new repository on GitLab. It is *not* necessary to make the repository public. In addition, you might want to add `/public` to your .gitignore file, as there is no need to push compiled assets to GitLab or keep your output website in version control.
 
-```bash
+```
 # initialize new git repository
 git init
 

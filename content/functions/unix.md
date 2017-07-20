@@ -24,7 +24,7 @@ aliases: []
 This very simple one-liner uses `now.Unix` to calculate the amount of time that has passed between the `.LastMod` for the current page and the last build of the current page.
 
 {{% code file="time-passed.html" %}}
-```golang
+```
 {{ div (sub now.Unix .Lastmod.Unix) 86400 }}
 ```
 {{% /code %}}

@@ -30,14 +30,14 @@ You can use [Bitbucket](https://bitbucket.org/) and [Aerobatic](https://www.aero
 
 If you haven't previously used Aerobatic, you'll first need to install the Command Line Interface (CLI) and create an account. For a list of all commands available, see the [Aerobatic CLI](https://www.aerobatic.com/docs/cli/) docs.
 
-```bash
+```
 npm install aerobatic-cli -g
 aero register
 ```
 
 ## Create and Deploy Site
 
-```bash
+```
 hugo new site my-new-hugo-site
 cd my-new-hugo-site
 cd themes; git clone https://github.com/eliasson/liquorice
@@ -61,7 +61,7 @@ We will now create a git repository and then push our code to Bitbucket. In Bitb
 [1]: /images/hosting-and-deployment/hosting-on-bitbucket/bitbucket-create-repo.png
 
 
-```bash
+```
 # initialize new git repository
 git init
 
@@ -88,7 +88,7 @@ In your Hugo website's Bitbucket repo;
 3. On the next screen, leave the default template and click Next.
 4. In the editor, paste in the yaml contents below and click Commit.
 
-```bash
+```
 image: beevelop/nodejs-python
 pipelines:
   branches:
@@ -109,7 +109,7 @@ pipelines:
 
 This step only needs to be done once per account. From the command line;
 
-```bash
+```
 aero apikey
 ```
 
@@ -119,7 +119,7 @@ aero apikey
 
 ### Step 3: Edit and Commit Code
 
-```bash
+```
 hugo new post/good-to-great.md
 hugo server --buildDrafts -t liquorice #Check that all looks good
 

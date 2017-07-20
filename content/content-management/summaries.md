@@ -57,7 +57,7 @@ Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly
 You can show content summaries with the following code. You could use the following snippet, for example, in a [section template][].
 
 {{% code file="page-list-with-summaries.html" %}}
-```html
+```
 {{ range first 10 .Data.Pages }}
     <article>
       <!-- this <div> includes the title summary -->

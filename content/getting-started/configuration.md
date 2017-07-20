@@ -37,7 +37,7 @@ In your `config` file, you can direct Hugo as to how you want your website rende
 The following is a typical example of a YAML configuration file. Note the document opens with 3 hyphens and closes with 3 periods. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
 
 {{% code file="config.yml"%}}
-```yaml
+```
 ---
 baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
@@ -61,7 +61,7 @@ params:
 The following is the full list of Hugo-defined variables in an example YAML file. The values provided in this example represent the default values used by Hugo.
 
 {{% code file="config.yml" download="config.yml" %}}
-```yaml
+```
 ---
 archetypeDir:               "archetypes"
 # hostname (and path) to the root, e.g. http://spf13.com/
@@ -177,7 +177,7 @@ taxonomies:
 
 The following is an example of a TOML configuration file. The values under `[params]` will populate the `.Site.Params` variable for use in [templates][]:
 
-```toml
+```
 contentDir = "content"
 layoutDir = "layouts"
 publishDir = "public"
@@ -200,7 +200,7 @@ title = "My Hugo Site"
 The following is the full list of Hugo-defined variables in an example TOML file. The values provided in this example represent the default values used by Hugo.
 
 {{% code file="config.toml" download="config.toml"%}}
-```toml
+```
 +++
 archetypeDir =                "archetypes"
 # hostname (and path) to the root, e.g. http://spf13.com/
@@ -314,7 +314,7 @@ watch =                       true
 
 {{% note %}}
 If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
-```bash
+```
 ~/sites/yourhugosite
 hugo config | grep emoji
 enableemoji: true
@@ -327,7 +327,7 @@ In addition to the 3 config options already mentioned, configuration key-values 
 
 For example, the following command will effectively set a website's title on Unix-like systems:
 
-```bash
+```
 $ env HUGO_TITLE="Some Title" hugo
 ```
 
@@ -339,7 +339,7 @@ Names must be prefixed with `HUGO_` and the configuration key must be set in upp
 
 The following statement inside `./config.toml` will cause Hugo to ignore files ending with `.foo` and `.boo` when rendering:
 
-```toml
+```
 ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 ```
 
@@ -361,7 +361,7 @@ However, if you have specific needs with respect to Markdown, Hugo exposes some 
 {{% /note %}}
 
 {{% code file="bf-config.toml" %}}
-```toml
+```
 [blackfriday]
   angledQuotes = true
   fractions = false
@@ -371,7 +371,7 @@ However, if you have specific needs with respect to Markdown, Hugo exposes some 
 {{% /code %}}
 
 {{% code file="bf-config.yml" %}}
-```yaml
+```
 blackfriday:
   angledQuotes: true
   fractions: false

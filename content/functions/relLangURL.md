@@ -22,7 +22,7 @@ aliases: []
 
 So for a site  `baseURL` set to `http://yoursite.com/hugo/` and the current language is `en`:
 
-```golang
+```
 {{ "blog/" | absLangURL }} → "http://yoursite.com/hugo/en/blog/"
 {{ "blog/" | relLangURL }} → "/hugo/en/blog/"
 ```
