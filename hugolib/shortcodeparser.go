@@ -141,7 +141,6 @@ const eof = -1
 type stateFunc func(*pagelexer) stateFunc
 
 type pagelexer struct {
-	name    string
 	input   string
 	state   stateFunc
 	pos     pos // input position
@@ -164,9 +163,8 @@ type pagelexer struct {
 
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
-func newShortcodeLexer(name, input string, inputPosition pos) *pagelexer {
+func newShortcodeLexer(input string, inputPosition pos) *pagelexer {
 	lexer := &pagelexer{
-		name:               name,
 		input:              input,
 		currLeftDelimItem:  tLeftDelimScNoMarkup,
 		currRightDelimItem: tRightDelimScNoMarkup,

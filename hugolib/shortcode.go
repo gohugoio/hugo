@@ -21,6 +21,7 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -72,52 +73,53 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 	if scp.Params == nil {
 		return nil
 	}
-	if reflect.ValueOf(scp.Params).Len() == 0 {
+	paramsValue := reflect.ValueOf(scp.Params)
+	if paramsValue.Len() == 0 {
 		return nil
 	}
+	paramsType := reflect.TypeOf(scp.Params)
 
-	var x reflect.Value
-
+	var result reflect.Value
 	switch key.(type) {
 	case int64, int32, int16, int8, int:
-		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
+		if paramsType.Kind() == reflect.Map {
 			return "error: cannot access named params by position"
-		} else if reflect.TypeOf(scp.Params).Kind() == reflect.Slice {
+		} else if paramsType.Kind() == reflect.Slice {
 			idx := int(reflect.ValueOf(key).Int())
-			ln := reflect.ValueOf(scp.Params).Len()
+			ln := paramsValue.Len()
 			if idx > ln-1 {
 				helpers.DistinctErrorLog.Printf("No shortcode param at .Get %d in page %s, have params: %v", idx, scp.Page.FullFilePath(), scp.Params)
 				return fmt.Sprintf("error: index out of range for positional param at position %d", idx)
 			}
-			x = reflect.ValueOf(scp.Params).Index(idx)
+			result = paramsValue.Index(idx)
 		}
 	case string:
-		if reflect.TypeOf(scp.Params).Kind() == reflect.Map {
-			x = reflect.ValueOf(scp.Params).MapIndex(reflect.ValueOf(key))
-			if !x.IsValid() {
+		if paramsType.Kind() == reflect.Map {
+			result = paramsValue.MapIndex(reflect.ValueOf(key))
+			if !result.IsValid() {
 				return ""
 			}
-		} else if reflect.TypeOf(scp.Params).Kind() == reflect.Slice {
-			if reflect.ValueOf(scp.Params).Len() == 1 && reflect.ValueOf(scp.Params).Index(0).String() == "" {
+		} else if paramsType.Kind() == reflect.Slice {
+			if paramsValue.Len() == 1 && paramsValue.Index(0).String() == "" {
 				return nil
 			}
 			return "error: cannot access positional params by string name"
 		}
 	}
 
-	switch x.Kind() {
+	switch result.Kind() {
 	case reflect.String:
-		return x.String()
+		return result.String()
 	case reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8, reflect.Int:
-		return x.Int()
+		return result.Int()
 	default:
-		return x
+		return result
 	}
 
 }
 
 // Note - this value must not contain any markup syntax
-const shortcodePlaceholderPrefix = "HUGOSHORTCODE"
+const shortcodePlaceholderPrefix = "HAHAHUGOSHORTCODE"
 
 type shortcode struct {
 	name     string
@@ -241,10 +243,6 @@ func clearIsInnerShortcodeCache() {
 	isInnerShortcodeCache.m = make(map[string]bool)
 }
 
-func createShortcodePlaceholder(id int) string {
-	return fmt.Sprintf("HAHA%s-%dHBHB", shortcodePlaceholderPrefix, id)
-}
-
 const innerNewlineRegexp = "\n"
 const innerCleanupRegexp = `\A<p>(.*)</p>\n\z`
 const innerCleanupExpand = "$1"
@@ -265,12 +263,7 @@ func prepareShortcodeForPage(placeholder string, sc shortcode, parent *Shortcode
 	return m
 }
 
-func renderShortcode(
-	tmplKey scKey,
-	sc shortcode,
-	parent *ShortcodeWithPage,
-	p *Page) string {
-
+func renderShortcode(tmplKey scKey, sc shortcode, parent *ShortcodeWithPage, p *Page) string {
 	tmpl := getShortcodeTemplateForTemplateKey(tmplKey, sc.name, p.s.Tmpl)
 	if tmpl == nil {
 		p.s.Log.ERROR.Printf("Unable to locate template for shortcode %q in page %q", sc.name, p.Path())
@@ -556,25 +549,21 @@ Loop:
 	return sc, nil
 }
 
-func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *Page) (string, error) {
-
-	startIdx := strings.Index(stringToParse, "{{")
-
-	// short cut for docs with no shortcodes
+func (s *shortcodeHandler) extractShortcodes(input []byte, p *Page) ([]byte, error) {
+	startIdx := bytes.Index(input, []byte("{{"))
 	if startIdx < 0 {
-		return stringToParse, nil
+		return input, nil
 	}
 
 	// the parser takes a string;
 	// since this is an internal API, it could make sense to use the mutable []byte all the way, but
 	// it seems that the time isn't really spent in the byte copy operations, and the impl. gets a lot cleaner
-	pt := &pageTokens{lexer: newShortcodeLexer("parse-page", stringToParse, pos(startIdx))}
+	pt := &pageTokens{lexer: newShortcodeLexer(string(input), pos(startIdx))}
 
 	id := 1 // incremented id, will be appended onto temp. shortcode placeholders
 
-	result := bp.GetBuffer()
-	defer bp.PutBuffer(result)
-	//var result bytes.Buffer
+	result := bytes.Buffer{}
+	result.Grow(len(input))
 
 	// the parser is guaranteed to return items in proper order or fail, so …
 	// … it's safe to keep some "global" state
@@ -599,14 +588,14 @@ Loop:
 			}
 
 			if err != nil {
-				return result.String(), err
+				return result.Bytes(), err
 			}
 
 			if currShortcode.params == nil {
 				currShortcode.params = make([]string, 0)
 			}
 
-			placeHolder := createShortcodePlaceholder(id)
+			placeHolder := shortcodePlaceholderPrefix + "-" + strconv.Itoa(id) + "HBHB"
 			result.WriteString(placeHolder)
 			s.shortcodes[placeHolder] = currShortcode
 			id++
@@ -616,57 +605,58 @@ Loop:
 			err := fmt.Errorf("%s:%d: %s",
 				p.FullFilePath(), (p.lineNumRawContentStart() + pt.lexer.lineNum() - 1), currItem)
 			currShortcode.err = err
-			return result.String(), err
+			return result.Bytes(), err
 		}
 	}
 
-	return result.String(), nil
+	return result.Bytes(), nil
 
 }
 
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
-// Note: This function will rewrite the input slice.
-func replaceShortcodeTokens(source []byte, prefix string, replacements map[string]string) ([]byte, error) {
-
+func replaceShortcodeTokens(source []byte, replacements map[string]string) ([]byte, error) {
 	if len(replacements) == 0 {
 		return source, nil
 	}
 
-	sourceLen := len(source)
-	start := 0
-
-	pre := []byte("HAHA" + prefix)
+	pre := []byte(shortcodePlaceholderPrefix)
 	post := []byte("HBHB")
 	pStart := []byte("<p>")
 	pEnd := []byte("</p>")
 
-	k := bytes.Index(source[start:], pre)
+	preIndex := bytes.Index(source, pre)
+	if preIndex < 0 {
+		return source, nil
+	}
 
-	for k != -1 {
-		j := start + k
-		postIdx := bytes.Index(source[j:], post)
-		if postIdx < 0 {
-			// this should never happen, but let the caller decide to panic or not
+	for {
+		postIndex := bytes.Index(source[preIndex:], post)
+		if postIndex < 0 {
+			// This should never happen, but let the caller decide to panic or not.
 			return nil, errors.New("illegal state in content; shortcode token missing end delim")
 		}
 
-		end := j + postIdx + 4
+		shortcodeEnd := preIndex + postIndex + len(post)
 
-		newVal := []byte(replacements[string(source[j:end])])
+		replacement := []byte(replacements[string(source[preIndex:shortcodeEnd])])
 
 		// Issue #1148: Check for wrapping p-tags <p>
-		if j >= 3 && bytes.Equal(source[j-3:j], pStart) {
-			if (k+4) < sourceLen && bytes.Equal(source[end:end+4], pEnd) {
-				j -= 3
-				end += 4
+		if preIndex >= len(pStart) && bytes.Equal(source[preIndex-len(pStart):preIndex], pStart) {
+			if (preIndex+len(pEnd)) < len(source) && bytes.Equal(source[shortcodeEnd:shortcodeEnd+len(pEnd)], pEnd) {
+				// Don't write <p>.
+				preIndex -= 3
+				// Skip </p>.
+				shortcodeEnd += 4
 			}
 		}
 
-		// This and other cool slice tricks: https://github.com/golang/go/wiki/SliceTricks
-		source = append(source[:j], append(newVal, source[end:]...)...)
-		start = j
-		k = bytes.Index(source[start:], pre)
-
+		source = append(source[:preIndex], append(replacement, source[shortcodeEnd:]...)...)
+		nextPre := bytes.Index(source[preIndex:], pre)
+		if nextPre < 0 {
+			break
+		} else {
+			preIndex += nextPre
+		}
 	}
 
 	return source, nil
@@ -699,7 +689,6 @@ func getShortcodeTemplateForTemplateKey(key scKey, shortcodeName string, t tpl.T
 	names = append(names, shortcodeName)
 
 	for _, name := range names {
-
 		if x := t.Lookup("shortcodes/" + name); x != nil {
 			return x
 		}

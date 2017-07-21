@@ -1423,15 +1423,10 @@ func (p *Page) SaveSource() error {
 }
 
 func (p *Page) processShortcodes() error {
+	var err error
 	p.shortcodeState = newShortcodeHandler(p)
-	tmpContent, err := p.shortcodeState.extractShortcodes(string(p.workContent), p)
-	if err != nil {
-		return err
-	}
-	p.workContent = []byte(tmpContent)
-
-	return nil
-
+	p.workContent, err = p.shortcodeState.extractShortcodes(p.workContent, p)
+	return err
 }
 
 func (p *Page) FullFilePath() string {
