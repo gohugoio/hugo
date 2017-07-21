@@ -544,19 +544,29 @@ func truncateWordsToWholeSentenceOld(content string, max int) (string, bool) {
 }
 
 func getAsciidocExecPath() string {
-	path, err := exec.LookPath("asciidoctor")
+	path, err := exec.LookPath("asciidoc")
 	if err != nil {
-		path, err = exec.LookPath("asciidoc")
-		if err != nil {
-			return ""
-		}
+		return ""
 	}
 	return path
 }
 
-// HasAsciidoc returns whether Asciidoctor or Asciidoc is installed on this computer.
+// HasAsciidoc returns whether Asciidoc is installed on this computer.
 func HasAsciidoc() bool {
 	return getAsciidocExecPath() != ""
+}
+
+func getAsciidoctorExecPath() string {
+	path, err := exec.LookPath("asciidoctor")
+	if err != nil {
+		return ""
+	}
+	return path
+}
+
+// HasAsciidoctor returns whether Asciidoctor is installed on this computer.
+func HasAsciidoctor() bool {
+	return getAsciidoctorExecPath() != ""
 }
 
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
@@ -565,15 +575,27 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 	content := ctx.Content
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
-	path := getAsciidocExecPath()
+	var isAsciidoctor bool
+	path := getAsciidoctorExecPath()
 	if path == "" {
-		jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
-			"                 Leaving AsciiDoc content unrendered.")
-		return content
+		path = getAsciidocExecPath()
+		if path == "" {
+			jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
+				"                 Leaving AsciiDoc content unrendered.")
+			return content
+		}
+	} else {
+		isAsciidoctor = true
 	}
 
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
+	args := []string{"--no-header-footer", "--safe"}
+	if isAsciidoctor {
+		// asciidoctor-specific arg to show stack traces on errors
+		args = append(args, "--trace")
+	}
+	args = append(args, "-")
+	cmd := exec.Command(path, args...)
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
