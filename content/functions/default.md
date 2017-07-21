@@ -72,11 +72,9 @@ And then using dot notation
 
 Which would return
 
-{{% output file="dot-notation-default-return-value.html" %}}
-```
+{{< output file="dot-notation-default-return-value.html" >}}
 <title>Sane Defaults</title>
-```
-{{% /output %}}
+{{< /output >}}
 
 The following have equivalent return values but are far less terse. This demonstrates the utility of `default`:
 

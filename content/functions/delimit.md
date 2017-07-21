@@ -44,11 +44,9 @@ title: I love Delimit
 <p>Tags: {{ delimit .Params.tags ", " }}</p>
 {{< /code >}}
 
-{{% output file="delimit-page-tags-output.html" %}}
-```
+{{< output file="delimit-page-tags-output.html" >}}
 <p>Tags: tag1, tag2, tag3</p>
-```
-{{% /output %}}
+{{< /output >}}
 
 Here is the same example but with the optional "last" delimiter:
 
@@ -56,11 +54,9 @@ Here is the same example but with the optional "last" delimiter:
 Tags: {{ delimit .Params.tags ", " ", and " }}
 {{< /code >}}
 
-{{% output file="delimit-page-tags-final-and-output.html" %}}
-```
+{{< output file="delimit-page-tags-final-and-output.html" >}}
 <p>Tags: tag1, tag2, and tag3</p>
-```
-{{% /output %}}
+{{< /output >}}
 
 
 [lists]: /templates/lists/

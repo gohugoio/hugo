@@ -223,12 +223,10 @@ The `output` shortcode is almost identical to the `code` shortcode but only take
 
 The preceding `output` example will render as follows to the Hugo docs:
 
-{{% output file="post/my-first-post/index.html" %}}
-```
+{{< output file="post/my-first-post/index.html" >}}
 <h1>This is my First Hugo Blog Post</h1>
 <p>I am excited to be using Hugo.</p>
-```
-{{% /output %}} -->
+{{< /output >}} -->
 
 ## Blockquotes
 
@@ -278,13 +276,11 @@ Here is a piece of information I would like to draw your **attention** to.
 
 #### Example `note` Output
 
-{{% output file="note-with-heading.html" %}}
-```
+{{< output file="note-with-heading.html" >}}
 {{% note %}}
 Here is a piece of information I would like to draw your **attention** to.
 {{% /note %}}
-```
-{{% /output %}}
+{{< /output >}}
 
 #### Example `note` Display
 
@@ -306,13 +302,11 @@ Here's a bit of advice to improve your productivity with Hugo.
 
 #### Example `tip` Output
 
-{{% output file="tip-output.html" %}}
-```
+{{< output file="tip-output.html" >}}
 {{% tip %}}
 Here's a bit of advice to improve your productivity with Hugo.
 {{% /tip %}}
-```
-{{% /output %}}
+{{< /output >}}
 
 #### Example `tip` Display
 
@@ -334,13 +328,11 @@ This is a warning, which should be reserved for *important* information like bre
 
 #### Example `warning` Output
 
-{{% output file="warning-admonition-output.html" %}}
-```
+{{< output file="warning-admonition-output.html" >}}
 {{% warning %}}
 This is a warning, which should be reserved for *important* information like breaking changes.
 {{% /warning %}}
-```
-{{% /output %}}
+{{< /output >}}
 
 #### Example `warning` Display
 
