@@ -21,15 +21,13 @@ aliases: []
 
 An example:
 
-{{% code file="base64-input.html" %}}
-```html
+{{< code file="base64-input.html" >}}
 <p>Hello world = {{ "Hello world" | base64Encode }}</p>
 <p>SGVsbG8gd29ybGQ = {{ "SGVsbG8gd29ybGQ=" | base64Decode }}</p>
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% output file="base-64-output.html" %}}
-```html
+```
 <p>Hello world = SGVsbG8gd29ybGQ=</p>
 <p>SGVsbG8gd29ybGQ = Hello world</p>
 ```
@@ -47,7 +45,7 @@ You can also pass other data types as arguments to the template function which t
 Using base64 to decode and encode becomes really powerful if we have to handle
 responses from APIs.
 
-```golang
+```
 {{ $resp := getJSON "https://api.github.com/repos/gohugoio/hugo/readme"  }}
 {{ $resp.content | base64Decode | markdownify }}
 ```

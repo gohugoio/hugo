@@ -20,7 +20,7 @@ deprecated: false
 
 See [the go doc](https://golang.org/pkg/fmt/) for additional information.
 
-```golang
+```
 {{ i18n ( printf "combined_%s" $var ) }}
 ```
 

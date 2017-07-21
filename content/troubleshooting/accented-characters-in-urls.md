@@ -21,7 +21,7 @@ toc: true
 
 > One of my categories is named "Le-carré," but the link ends up being generated like this:
 >
-> ```bash
+> ```
 > categories/le-carr%C3%A9
 > ```
 >

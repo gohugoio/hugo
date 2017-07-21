@@ -36,7 +36,7 @@ If you're on Windows, this Quick Start will assume you're using [Git Bash](https
 
 Once `hugo` is installed, make sure to run the `help` command to verify `hugo` installation. The following is an abridged version of what will write to the console when entering the command:
 
-```bash
+```
 hugo help
 
 hugo is the main command, used to build your Hugo site.
@@ -49,11 +49,11 @@ Complete documentation is available at http://gohugo.io/.
 
 You can check the version of Hugo you're currently using with the `hugo version` command:
 
-```bash
+```
 hugo version
 ```
 
-```bash
+```
 Hugo Static Site Generator v0.18.1 BuildDate: 2016-12-30T05:02:43-05:00
 ```
 
@@ -61,13 +61,13 @@ Hugo Static Site Generator v0.18.1 BuildDate: 2016-12-30T05:02:43-05:00
 
 Hugo's CLI has commands that allow you to quickly scaffold a new website. Navigate to your preferred location on your file system and create a new Hugo site `bookshelf` by executing the `hugo new` command:
 
-```bash
+```
 hugo new site bookshelf
 ```
 
 Change into the newly created `bookshelf` directory. Listing the new directory's content will show the following:
 
-```bash
+```
 .
 ├── archetypes
 ├── config.toml
@@ -94,21 +94,19 @@ You'll see the `bookshelf` directory has 6 subdirectories and 1 file. Let's look
 
 Let's now add a post to our "bookshelf." We will use the `hugo new` command to add a post. This first post will be on the book [*Good To Great*][bookurl]. Make sure you are inside the `bookshelf` directory.
 
-{{% code file="create-new-book-review-post.sh" %}}
-```bash
+{{< code file="create-new-book-review-post.sh" >}}
 hugo new post/good-to-great.md
-```
-{{% /code %}}
+{{< /code >}}
 
 You should then see the following output:
 
-```bash
+```
 /Users/yourusername/bookshelf/content/post/good-to-great.md created
 ```
 
 The above command will create a new directory `post` inside the `content` directory and create `content/post/good-to-great.md`. The directory for your Hugo project will now look like the following:
 
-```bash
+```
 .
 ├── archetypes
 ├── config.toml
@@ -123,7 +121,7 @@ The above command will create a new directory `post` inside the `content` direct
 
 Open `good-to-great.md` in your preferred text editor:
 
-```toml
+```
 +++
 date = "2017-02-19T21:09:05-06:00"
 title = "good to great"
@@ -140,8 +138,7 @@ The text bracketed by `+++` is the TOML [front matter][fm] for the content. Fron
 
 Let's update `good-to-great.md` with a short review of *Good to Great*:
 
-{{% code file="good-to-great-start.md" %}}
-```markdown
+{{< code file="good-to-great-start.md" >}}
 +++
 date = "2016-02-14T16:11:58+05:30"
 draft = true
@@ -149,20 +146,19 @@ title = "Good to Great Book Review"
 +++
 
 I read **Good to Great in January 2016**. An awesome read sharing detailed analysis on how good companies became great. Although this book is about how companies became great but we could apply a lot of the learnings on ourselves. Concepts like level 5 leader, hedgehog concept, the stockdale paradox are equally applicable to individuals.
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Step 4. Serve Content
 
 Hugo has a built-in server that can serve your website locally for easy previewing and development. To serve content, execute the following command inside the `bookshelf` directory:
 
-```bash
+```
 hugo server
 ```
 
 You should see something similar to the following output:
 
-```bash
+```
 Built site for language en:
 0 of 1 draft rendered
 0 future content
@@ -187,13 +183,13 @@ This will start the server on port `1313`. You can view your blog at <http://loc
 
 Kill the server using <kbd>Ctrl</kbd> + <kbd>C</kbd> and then rerun the server with the `--buildDrafts` flag appended to the command:
 
-```bash
+```
 hugo server --buildDrafts
 ```
 
 You should now see something similar to the following:
 
-```bash
+```
 Built site for language en:
 1 of 1 draft rendered
 0 future content
@@ -225,7 +221,7 @@ Hugo currently doesn’t ship with a default theme, thus allowing end users to p
 
 Themes should be added in the `themes` directory, one of the directories scaffolded with the `hugo new site` command we used to start our Hugo project. To install our themes, first change into the `themes` directory:
 
-```bash
+```
 cd themes
 ```
 
@@ -233,23 +229,19 @@ You can clone one or more themes from within the `themes` directory. We will use
 
 Once inside the `themes` directory, you can use the following one-liner to clone Robust, check out the specific commit, and then return to your project's root directory:
 
-{{% code file="clone-robust-theme" %}}
-```bash
+{{< code file="clone-robust-theme" >}}
 git clone https://github.com/dim0627/hugo_theme_robust.git && cd hugo_theme_robust && git checkout 3baae29 && cd ../..
-```
-{{% /code %}}
+{{< /code >}}
 
 Now let's start Hugo's server again but with the addition of the `-theme` flag for Robust:
 
-{{% code file="hugo-server-with-theme.sh" %}}
-```bash
+{{< code file="hugo-server-with-theme.sh" >}}
 hugo server --theme=hugo_theme_robust --buildDrafts
-```
-{{% /code %}}
+{{< /code >}}
 
 You should see an output to the console similar to the following:
 
-```bash
+```
 Built site for language en:
 1 of 1 draft rendered
 0 future content
@@ -270,7 +262,7 @@ Press Ctrl+C to stop
 If Hugo doesn't find the specified theme in the `themes` directory,
 it will throw an exception:
 
-```bash
+```
 FATAL: 2016/02/14 Unable to find theme Directory: /Users/yourusername/bookshelf/themes/robust
 ```
 
@@ -280,7 +272,7 @@ To view your website, you can go to <http://localhost:1313/>. You should see som
 
 Similar to the way we looked at the scaffolding for our new Hugo website, let's take a look at what comprises a typical Hugo theme. The following is only a selection of what you would see if you were to list out the contents of the Robust theme directory. These are also some of the default files created by Hugo as of v0.23. (See [Creating a Theme][createtheme])
 
-```bash
+```
 .
 ├── LICENSE.md
 ├── archetypes
@@ -310,19 +302,15 @@ You can very easily switch between different themes in Hugo. Let's suppose we wa
 
 From your project root, you can use this one-liner to change into `themes`, clone Bleak, and go back to your project's root directory:
 
-{{% code file="clone-bleak-theme.sh" %}}
-```bash
+{{< code file="clone-bleak-theme.sh" >}}
 cd themes && git clone https://github.com/Zenithar/hugo-theme-bleak.git && cd ..
-```
-{{% /code %}}
+{{< /code >}}
 
 Now restart the server with our new theme flag:
 
-{{% code file="run-server-with-bleak.sh" %}}
-```bash
+{{< code file="run-server-with-bleak.sh" >}}
 hugo server --theme=hugo-theme-bleak --buildDrafts
-```
-{{% /code %}}
+{{< /code >}}
 
 Our website is now using the `bleak` theme at <http://localhost:1313>, which should look similar to the following screenshot:
 
@@ -332,26 +320,22 @@ Our website is now using the `bleak` theme at <http://localhost:1313>, which sho
 
 Kill the Hugo server if you are still running it with the Bleak theme, and then restart the server with the `robust` theme. We will use Robust for the duration of this Quick Start:
 
-{{% code file="restart-with-robust-sh" %}}
-```bash
+{{< code file="restart-with-robust-sh" >}}
 hugo server --theme=hugo_theme_robust --buildDrafts
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Update Our `config.toml`
 
 Our website is currently using the dummy values specified in `bookshelf/config.toml`, which were auto-generated with `hugo new site bookshelf`. Let's update the configuration:
 
-{{% code file="updated-config.toml" %}}
-```toml
+{{< code file="updated-config.toml" >}}
 baseURL = "http://example.org/"
 languageCode = "en-us"
 title = "Shekhar Gulati Book Reviews"
 
 [Params]
   Author = "Shekhar Gulati"
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Watch Your Site Reload Instantly
 
@@ -393,7 +377,7 @@ Hugo will sync the changes and reload the website to use the new image:
 
 Now we need to change the layout of the index page so that only images are shown instead of the text. The file at `themes/hugo_theme_robust/layouts/index.html` refers to a partial `li.html` template that renders the following list view:
 
-```html
+```
 <article class="li">
   <a href="{{ .Permalink }}" class="clearfix">
     <div class="image" style="background-image: url({{ $.Site.BaseURL }}images/{{ with .Params.image }}{{ . }}{{ else }}default.jpg{{ end }});"></div>
@@ -408,23 +392,19 @@ Now we need to change the layout of the index page so that only images are shown
 
 Create a new file for `li.html` inside the `bookshelf/layouts/_default` directory. If you are in your project root, you can use the following one-liner to both create the file and return to the project root:
 
-{{% code file="create-new-li-html.sh" %}}
-```bash
+{{< code file="create-new-li-html.sh" >}}
 cd layouts && mkdir _default && cd _default && touch li.html && cd ../..
-```
-{{% /code %}}
+{{< /code >}}
 
 Copy the content shown below into the new `li.html`. When contrasting this with the `li.html` that ships with the Robust theme, you'll notice we have removed details of the book so that only the image is shown:
 
-{{% code file="layouts/_default/li.html" %}}
-```html
+{{< code file="layouts/_default/li.html" >}}
 <article class="li">
   <a href="{{ .Permalink }}" class="clearfix">
     <div class="image" style="background-image: url({{ $.Site.BaseURL }}images/{{ with .Params.image }}{{ . }}{{ else }}default.jpg{{ end }});"></div>
   </a>
 </article>
-```
-{{% /code %}}
+{{< /code >}}
 
 Now, the website should render similar to the following screenshot:
 
@@ -434,27 +414,22 @@ Next, we want to remove information related to the theme from the footer. Let's 
 
 This is a new [partial template][partials]. If you are still in the project's root directory, you can use the following one-liner to create the partial before returning to the project root:
 
-{{% code file="create-new-default-foot.sh" %}}
-```bash
+{{< code file="create-new-default-foot.sh" >}}
 cd layouts && mkdir partials && cd partials && touch default_foot.html && cd ../..
-```
-{{% /code %}}
+{{< /code >}}
 
 Now add the following to our new `default_foot.html` partial template:
 
-{{% code file="layouts/partials/default_foot.html" %}}
-```html
+{{< code file="layouts/partials/default_foot.html" >}}
 <footer class="site">
   <p>{{ with .Site.Copyright | safeHTML }}{{ . }}{{ else }}&copy; {{ $.Site.LastChange.Year }} {{ if isset $.Site.Params "Author" }}{{ $.Site.Params.Author }}{{ else }}{{ .Site.Title }}{{ end }}{{ end }}</p>
   <p>Powered by <a href="http://gohugo.io" target="_blank">Hugo</a>,</p>
 </footer>
-```
-{{% /code %}}
+{{< /code >}}
 
 So far we are using the default image, but we would like to use the book image so that we can relate to the book. Every book review will define a configuration setting in its front matter. Update the content and front matter of `good-to-great.md` as shown below.
 
-{{% code file="content/post/good-to-great.md" %}}
-```markdown
+{{< code file="content/post/good-to-great.md" >}}
 +++
 date = "2017-02-19T21:09:05-06:00"
 draft = true
@@ -463,8 +438,7 @@ image = "good-to-great.jpg"
 +++
 
 I read **Good to Great in January 2016**. An awesome read sharing detailed analysis on how good companies became great. Although this book is about how companies became great but we could apply a lot of the learnings on ourselves. Concepts like level 5 leader, hedgehog concept, the stockdale paradox are equally applicable to individuals.
-```
-{{% /code %}}
+{{< /code >}}
 
 Grab a (legal) image from somewhere, name it `good-to-great.jpg`, and place it in the `bookshelf/static/images` directory.
 
@@ -477,13 +451,13 @@ After adding a few more books to our shelf, the shelf appears as shown below.
 
 So far, all the posts that we have written are in draft status (i.e., `draft = true`). To make a draft public, you can run a Hugo CLI command or manually change the draft status in the post's front matter to `false`. Hugo provides a handy command line argument called `undraft` to do this for us:
 
-```bash
+```
 hugo undraft content/post/good-to-great.md
 ```
 
 If we check the front matter of `good-to-great.md` after running this command, we'll notice that Hugo has written the change of draft status to the file:
 
-```toml
+```
 +++
 date = "2017-02-19T22:42:53-06:00"
 draft = false
@@ -494,7 +468,7 @@ image = "good-to-great.jpg"
 
 Now, we can start the server *without* the `buildDrafts` option.
 
-```bash
+```
 hugo server --theme=hugo_theme_robust
 ```
 
@@ -506,7 +480,7 @@ To implement Disqus comments as part of the Quick Start, you'll need to set up a
 
 To enable Disqus on our new site, we only need to update the `disqusShortname` in the config.toml as shown below.
 
-```toml
+```
 [Params]
   Author = "Shekhar Gulati"
   disqusShortname = <your disqus shortname>
@@ -520,13 +494,13 @@ Now, commenting will be enabled in your blog.
 
 To generate a website that can be deployed to GitHub pages, we first need to change the `baseURL` in our configuration as follows:
 
-```toml
+```
 baseURL = "https://<yourgithubusername>.github.io/bookshelf/"
 ```
 
 Then type the following command while in the root directory of your Hugo project:
 
-```bash
+```
 hugo --theme=hugo_theme_robust
 0 draft content
 0 future content

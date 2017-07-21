@@ -22,19 +22,19 @@ It should not be used for HTML from a third-party, or HTML with unclosed tags or
 
 Given a site-wide [`config.toml`][config] with the following `copyright` value:
 
-```toml
+```
 copyright = "© 2015 Jane Doe.  <a href=\"http://creativecommons.org/licenses/by/4.0/\">Some rights reserved</a>."
 ```
 
 `{{ .Site.Copyright | safeHTML }}` in a template would then output:
 
-```html
+```
 © 2015 Jane Doe.  <a href="http://creativecommons.org/licenses/by/4.0/">Some rights reserved</a>.
 ```
 
 However, without the `safeHTML` function, html/template assumes `.Site.Copyright` to be unsafe and therefore escapes all HTML tags and renders the whole string as plain text:
 
-```html
+```
 <p>© 2015 Jane Doe.  &lt;a href=&#34;http://creativecommons.org/licenses by/4.0/&#34;&gt;Some rights reserved&lt;/a&gt;.</p>
 ```
 

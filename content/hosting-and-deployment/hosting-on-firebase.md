@@ -1,6 +1,6 @@
 ---
-title: Hosting on Firebase
-linktitle: Hosting on Firebase
+title: Host on Firebase
+linktitle: Host on Firebase
 description: You can use Firebase's free tier to host your static website; this also gives you access to Firebase's NOSQL API.
 date: 2017-03-12
 publishdate: 2017-03-12
@@ -29,19 +29,19 @@ aliases: []
 Go to the [Firebase console][console] and create a new project (unless you already have a project). You will need to globally install `firebase-tools` (node.js):
 
 
-```sh
+```
 npm install -g firebase-tools
 ```
 
 Log in to Firebase (setup on your local machine) using `firebase login`, which opens a browser where you can select your account. Use `firebase logout` in case you are already logged in but to the wrong account.
 
 
-```sh
+```
 firebase login
 ```
 In the root of your Hugo project, initialize the Firebase project with the `firebase init` command:
 
-```sh
+```
 firebase init
 ```
 From here:
@@ -56,7 +56,7 @@ From here:
 
 To deploy your Hugo site, execute the `firebase deploy` command, and your site will be up in no time:
 
-```sh
+```
 hugo && firebase deploy
 ```
 
@@ -65,7 +65,7 @@ hugo && firebase deploy
 You can generate a deploy token using
 
 
-```sh
+```
 firebase login:ci
 ```
 
@@ -77,7 +77,7 @@ This is a private secret and it should not appear in a public repository. Make s
 
 You can then add a step in your build to do the deployment using the token:
 
-```sh
+```
 firebase deploy --token $FIREBASE_DEPLOY_TOKEN
 ```
 

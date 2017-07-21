@@ -174,7 +174,7 @@ http://remarkjs.com)
 
 Any other value defined in the front matter in a content file, including taxonomies, will be made available as part of the `.Params` variable.
 
-```yaml
+```
 ---
 title: My First Post
 date: date: 2017-02-20T15:26:23-06:00
@@ -193,7 +193,7 @@ Page-level `.Params` are *only* accessible in lowercase.
 
 The `.Params` variable is particularly useful for the introduction of user-defined front matter fields in content files. For example, a Hugo website on book reviews could have the following front matter in `/content/review/book01.md`:
 
-```yaml
+```
 ---
 ...
 affiliatelink: "http://www.my-book-link.here"
@@ -206,17 +206,15 @@ These fields would then be accessible to the `/themes/yourtheme/layouts/review/s
 
 Two common situations where this type of front matter field could be introduced is as a value of a certain attribute like `href=""` or by itself to be displayed as text to the website's visitors.
 
-{{% code file="/themes/yourtheme/layouts/review/single.html" %}}
-```html
+{{< code file="/themes/yourtheme/layouts/review/single.html" >}}
 <h3><a href={{ printf "%s" $.Params.affiliatelink }}>Buy this book</a></h3>
 <p>It was recommended by {{ .Params.recommendedby }}.</p>
-```
-{{% /code %}}
+{{< /code >}}
 
 This template would render as follows, assuming you've set [`uglyURLs`](/content-management/urls/) to `false` in your [site `config`](/getting-started/configuration/):
 
 {{% output file="yourbaseurl/review/book01/index.html" %}}
-```html
+```
 <h3><a href="http://www.my-book-link.here">Buy this book</a></h3>
 <p>It was recommended by my Mother.</p>
 ```
@@ -230,7 +228,7 @@ See [Archetypes](/content-management/archetypes/) for consistency of `Params` ac
 
 In Hugo, you can declare params in individual pages and globally for your entire website. A common use case is to have a general value for the site param and a more specific value for some of the pages (i.e., a header image):
 
-```golang
+```
 {{ $.Param "header_image" }}
 ```
 
@@ -240,7 +238,7 @@ The `.Param` method provides a way to resolve a single value according to it's d
 
 When front matter contains nested fields like the following:
 
-```yaml
+```
 ---
 author:
   given_name: John
@@ -266,7 +264,7 @@ favorites:
 
 The top-level key will be preferred. Therefore, the following method, when applied to the previous example, will print `vanilla` and not `chocolate`:
 
-```golang
+```
 {{ $.Param "favorites.flavor" }}
 => vanilla
 ```

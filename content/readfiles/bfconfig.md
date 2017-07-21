@@ -11,7 +11,7 @@
 `angledQuotes`
 : default: **`false`**<br>
     Blackfriday flag: **`HTML_SMARTYPANTS_ANGLED_QUOTES`**<br>
-    Purpose: `true` enables smart, angled double quotes. Example: "Hugo" renders to renders to «Hugo» instead of “Hugo”.
+    Purpose: `true` enables smart, angled double quotes. Example: "Hugo" renders to «Hugo» instead of “Hugo”.
 
 `fractions`
 : default: **`true`**<br>

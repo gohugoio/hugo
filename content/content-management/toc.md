@@ -25,7 +25,7 @@ Currently, the `{{.TableOfContents}}` [page variable](/variables/page/) does not
 
 Create your markdown the way you normally would with the appropriate headings. Here is some example content:
 
-```md
+```
 <!-- Your front matter up here -->
 
 ## Introduction
@@ -49,8 +49,7 @@ The built-in `.TableOfContents` variables outputs a `<nav id="TableOfContents">`
 
 The following is an example of a very basic [single page template][]:
 
-{{% code file="layout/_default/single.html" download="single.html" %}}
-```html
+{{< code file="layout/_default/single.html" download="single.html" >}}
 {{ define "main" }}
 <main>
     <article>
@@ -64,15 +63,13 @@ The following is an example of a very basic [single page template][]:
     </aside>
 </main>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Template Example: TOC Partial
 
 The following is a [partial template][partials] that adds slightly more logic for page-level control over your table of contents. It assumes you are using a `toc` field in your content's [front matter][] that, unless specifically set to `false`, will add a TOC to any page with a `.WordCount` (see [Page Variables][pagevars]) greater than 400. This example also demonstrates how to use [conditionals][] in your templating:
 
-{{% code file="layouts/partials/toc.html" download="toc.html" %}}
-```html
+{{< code file="layouts/partials/toc.html" download="toc.html" >}}
 {{ if and (gt .WordCount 400 ) (ne .Params.toc "false") }}
 <aside>
     <header>
@@ -81,8 +78,7 @@ The following is a [partial template][partials] that adds slightly more logic fo
     {{.TableOfContents}}
 </aside>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note %}}
 With the preceding example, even pages with > 400 words *and* `toc` not set to `false` will not render a table of contents if there are no headings in the page for the `{{.TableOfContents}}` variable to pull from.

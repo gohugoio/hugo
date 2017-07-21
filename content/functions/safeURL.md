@@ -24,31 +24,27 @@ Without `safeURL`, only the URI schemes `http:`, `https:` and `mailto:` are cons
 
 The following examples use a [site `config.toml`][configuration] with the following [menu entry][menus]:
 
-{{% code file="config.toml" copy="false" %}}
-```toml
+{{< code file="config.toml" copy="false" >}}
 [[menu.main]]
     name = "IRC: #golang at freenode"
     url = "irc://irc.freenode.net/#golang"
-```
-{{% /code %}}
+{{< /code >}}
 
 The following is an example of a sidebar partial that may be used in conjunction with the preceding front matter example:
 
-{{% code file="layouts/partials/bad-url-sidebar-menu.html" copy="false" %}}
-```html
+{{< code file="layouts/partials/bad-url-sidebar-menu.html" copy="false" >}}
 <!-- This unordered list may be part of a sidebar menu -->
 <ul>
   {{ range .Site.Menus.main }}
   <li><a href="{{ .URL }}">{{ .Name }}</a></li>
   {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 This partial would produce the following HTML output:
 
 {{% output file="bad-url-sidebar-menu-output.html" %}}
-```html
+```
 <!-- This unordered list may be part of a sidebar menu -->
 <ul>
     <li><a href="#ZgotmplZ">IRC: #golang at freenode</a></li>
@@ -58,19 +54,17 @@ This partial would produce the following HTML output:
 
 The odd output can be remedied by adding ` | safeURL` to our `.Title` page variable:
 
-{{% code file="layouts/partials/correct-url-sidebar-menu.html" copy="false" %}}
-```html
+{{< code file="layouts/partials/correct-url-sidebar-menu.html" copy="false" >}}
 <!-- This unordered list may be part of a sidebar menu -->
 <ul>
     <li><a href="{{ .URL | safeURL }}">{{ .Name }}</a></li>
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 With the `.URL` page variable piped through `safeURL`, we get the desired output:
 
 {{% output file="correct-url-sidebar-menu-output.html" %}}
-```html
+```
 <ul class="sidebar-menu">
     <li><a href="irc://irc.freenode.net/#golang">IRC: #golang at freenode</a></li>
 </ul>

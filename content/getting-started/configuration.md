@@ -1,5 +1,5 @@
 ---
-title: Configuring Hugo
+title: Configure Hugo
 linktitle: Configuration
 description: Often the default settings are good enough, but the config file can provide highly granular control over how your site is rendered.
 date: 2013-07-01
@@ -36,8 +36,7 @@ In your `config` file, you can direct Hugo as to how you want your website rende
 
 The following is a typical example of a YAML configuration file. Note the document opens with 3 hyphens and closes with 3 periods. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
 
-{{% code file="config.yml"%}}
-```yaml
+{{< code file="config.yml">}}
 ---
 baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
@@ -53,15 +52,13 @@ params:
     - "foo2"
   SidebarRecentLimit: 5
 ...
-```
-{{% /code %}}
+{{< /code >}}
 
 ### All Variables, YAML
 
 The following is the full list of Hugo-defined variables in an example YAML file. The values provided in this example represent the default values used by Hugo.
 
-{{% code file="config.yml" download="config.yml" %}}
-```yaml
+{{< code file="config.yml" download="config.yml" >}}
 ---
 archetypeDir:               "archetypes"
 # hostname (and path) to the root, e.g. http://spf13.com/
@@ -170,14 +167,13 @@ taxonomies:
   - category:               "categories"
   - tag:                    "tags"
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
 ## TOML Configuration
 
 The following is an example of a TOML configuration file. The values under `[params]` will populate the `.Site.Params` variable for use in [templates][]:
 
-```toml
+```
 contentDir = "content"
 layoutDir = "layouts"
 publishDir = "public"
@@ -199,8 +195,7 @@ title = "My Hugo Site"
 
 The following is the full list of Hugo-defined variables in an example TOML file. The values provided in this example represent the default values used by Hugo.
 
-{{% code file="config.toml" download="config.toml"%}}
-```toml
+{{< code file="config.toml" download="config.toml">}}
 +++
 archetypeDir =                "archetypes"
 # hostname (and path) to the root, e.g. http://spf13.com/
@@ -309,12 +304,11 @@ watch =                       true
   category = "categories"
   tag = "tags"
 +++
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note %}}
 If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
-```bash
+```
 ~/sites/yourhugosite
 hugo config | grep emoji
 enableemoji: true
@@ -327,7 +321,7 @@ In addition to the 3 config options already mentioned, configuration key-values 
 
 For example, the following command will effectively set a website's title on Unix-like systems:
 
-```bash
+```
 $ env HUGO_TITLE="Some Title" hugo
 ```
 
@@ -339,7 +333,7 @@ Names must be prefixed with `HUGO_` and the configuration key must be set in upp
 
 The following statement inside `./config.toml` will cause Hugo to ignore files ending with `.foo` and `.boo` when rendering:
 
-```toml
+```
 ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 ```
 
@@ -360,26 +354,22 @@ However, if you have specific needs with respect to Markdown, Hugo exposes some 
 2. Blackfriday flags must be grouped under the `blackfriday` key and can be set on both the site level *and* the page level. Any setting on a page will override its respective site setting.
 {{% /note %}}
 
-{{% code file="bf-config.toml" %}}
-```toml
+{{< code file="bf-config.toml" >}}
 [blackfriday]
   angledQuotes = true
   fractions = false
   plainIDAnchors = true
   extensions = ["hardLineBreak"]
-```
-{{% /code %}}
+{{< /code >}}
 
-{{% code file="bf-config.yml" %}}
-```yaml
+{{< code file="bf-config.yml" >}}
 blackfriday:
   angledQuotes: true
   fractions: false
   plainIDAnchors: true
   extensions:
     - hardLineBreak
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Configure Additional Output Formats
 

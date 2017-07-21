@@ -20,7 +20,7 @@ aliases: []
 ---
 
 
-```golang
+```
 {{ range first 10 .Data.Pages }}
     {{ .Render "summary" }}
 {{ end }}
