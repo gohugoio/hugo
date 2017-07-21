@@ -23,12 +23,12 @@ aliases: []
 
 The following example creates a link to a search results page on Google.
 
-```html
+```
 <a href="https://www.google.com?{{ (querify "q" "test" "page" 3) | safeURL }}">Search</a>
 ```
 
 This example renders the following HTML:
 
-```html
+```
 <a href="https://www.google.com?page=3&q=test">Search</a>
 ```

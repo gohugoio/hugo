@@ -20,7 +20,7 @@ toc: true
 
 ## Use `ref` and `relref`
 
-```md
+```
 {{</* ref "document" */>}}
 {{</* ref "#anchor" */>}}
 {{</* ref "document#anchor" */>}}
@@ -35,14 +35,14 @@ The single parameter to `ref` is a string with a content `documentname` (e.g., `
 
 The `documentname` is the name of a document, including the format extension; this may be just the filename, or the relative path from the `content/` directory. With a document `content/blog/post.md`, either format will produce the same result:
 
-```md
+```
 {{</* relref "blog/post.md" */>}} => `/blog/post/`
 {{</* relref "post.md" */>}} => `/blog/post/`
 ```
 
 If you have the same filename used across multiple sections, you should only use the relative path format; otherwise, the behavior will be `undefined`. This is best illustrated with an example `content` directory:
 
-```bash
+```
 .
 └── content
     ├── events
@@ -57,16 +57,14 @@ If you have the same filename used across multiple sections, you should only use
 
 To be sure to get the correct reference in this case, use the full path: 
 
-{{% code file="content/meta/my-article.md" copy="false" %}}
-```md
+{{< code file="content/meta/my-article.md" copy="false" >}}
 {{</* relref "events/my-birthday.md" */>}} => /events/my-birthday/
-```
-{{% /code %}}
+{{< /code >}}
 
 {{< todo >}}Remove this warning when https://github.com/gohugoio/hugo/issues/3703 is released.{{< /todo >}}
 
 A relative document name must *not* begin with a slash (`/`).
-```md
+```
 {{</* relref "/events/my-birthday.md" */>}} => ""
 ```
 
@@ -82,14 +80,14 @@ If the page exists in multiple [output formats][], `ref` or `relref` can be used
 
 When an `anchor` is provided by itself, the current page’s unique identifier will be appended; when an `anchor` is provided appended to `documentname`, the found page's unique identifier will be appended:
 
-```md
+```
 {{</* relref "#anchors" */>}} => #anchors:9decaf7
 {{</* relref "about-hugo/hugo-features.md#content" */>}} => /blog/post/#who:badcafe
 ```
 
 The above examples render as follows for this very page as well as a reference to the "Content" heading in the Hugo docs features pageyoursite
 
-```md
+```
 {{</* relref "#who" */>}} => #who:9decaf7
 {{</* relref "blog/post.md#who" */>}} => /blog/post/#who:badcafe
 ```
@@ -98,8 +96,8 @@ More information about document unique identifiers and headings can be found [be
 
 ### Examples
 
-* `{{</* ref "blog/post.md" */>}}` => `http://yoursite.com/blog/post/`
-* `{{</* ref "post.md#tldr" */>}}` => `http://yoursite.com/blog/post/#tldr:caffebad`
+* `{{</* ref "blog/post.md" */>}}` => `http://example.com/blog/post/`
+* `{{</* ref "post.md#tldr" */>}}` => `http://example.com/blog/post/#tldr:caffebad`
 * `{{</* relref "post.md" */>}}` => `/blog/post/`
 * `{{</* relref "blog/post.md#tldr" */>}}` => `/blog/post/#tldr:caffebad`
 * `{{</* ref "#tldr" */>}}` => `#tldr:badcaffe`
@@ -113,7 +111,7 @@ Ensuring heading uniqueness across the site is accomplished with a unique identi
 
 `ref` and `relref` were added so you can make these reference links without having to know the document’s unique identifier. (The links in document tables of contents are automatically up-to-date with this value.)
 
-```md
+```
 {{</* relref "content-management/cross-references.md#hugo-heading-anchors" */>}}
 /content-management/cross-references/#hugo-heading-anchors:77cd9ea530577debf4ce0f28c8dca242
 ```

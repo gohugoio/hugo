@@ -44,8 +44,7 @@ Remember, all of the following are *optional*. If you do not specifically declar
 
 The following examples take you stepwise through creating a new type layout for a content file that contains the following front matter:
 
-{{% code file="content/events/my-first-event.md" copy="false" %}}
-```toml
+{{< code file="content/events/my-first-event.md" copy="false" >}}
 +++
 title = My First Event
 date = "2016-06-24T19:20:04-07:00"
@@ -53,8 +52,7 @@ description = "Today is my 36th birthday. How time flies."
 type = "event"
 layout = "birthday"
 +++
-```
-{{% /code %}}
+{{< /code >}}
 
 By default, Hugo assumes `*.md` under `events` is of the `events` content type. However, we have specified that this particular file at `content/events/ my-first-event.md` is of type `event` and should render using the `birthday` layout.
 

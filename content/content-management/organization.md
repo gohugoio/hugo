@@ -34,20 +34,20 @@ While Hugo supports content nested at any level, the top levels (i.e. `content/<
 .
 └── content
     └── about
-    |   └── _index.md  // <- http://yoursite.com/about/
+    |   └── _index.md  // <- http://example.com/about/
     ├── post
-    |   ├── firstpost.md   // <- http://yoursite.com/post/firstpost/
+    |   ├── firstpost.md   // <- http://example.com/post/firstpost/
     |   ├── happy
-    |   |   └── ness.md  // <- http://yoursite.com/post/happy/ness/
-    |   └── secondpost.md  // <- http://yoursite.com/post/secondpost/
+    |   |   └── ness.md  // <- http://example.com/post/happy/ness/
+    |   └── secondpost.md  // <- http://example.com/post/secondpost/
     └── quote
-        ├── first.md       // <- http://yoursite.com/quote/first/
-        └── second.md      // <- http://yoursite.com/quote/second/
+        ├── first.md       // <- http://example.com/quote/first/
+        └── second.md      // <- http://example.com/quote/second/
 ```
 
 ## Path Breakdown in Hugo
 
-The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://yoursite.com"` in your [site's configuration file][config].
+The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://example.com"` in your [site's configuration file][config].
 
 ### Index Pages: `_index.md`
 
@@ -56,7 +56,7 @@ The following demonstrates the relationships between your content organization a
 You can keep one `_index.md` for your homepage and one in each of your content sections, taxonomies, and taxonomy terms. The following shows typical placement of an `_index.md` that would contain content and front matter for a `posts` section list page on a Hugo website:
 
 
-```bash
+```
 .         url
 .       ⊢--^-⊣
 .        path    slug
@@ -68,7 +68,7 @@ content/posts/_index.md
 
 At build, this will output to the following destination with the associated values:
 
-```bash
+```
 
                      url ("/posts/")
                     ⊢-^-⊣
@@ -76,7 +76,7 @@ At build, this will output to the following destination with the associated valu
 ⊢--------^---------⊣⊢-^-⊣
         permalink
 ⊢----------^-------------⊣
-http://yoursite.com/posts/index.html
+http://example.com/posts/index.html
 ```
 
 ### Single Pages in Sections
@@ -84,7 +84,7 @@ http://yoursite.com/posts/index.html
 Single content files in each of your sections are going to be rendered as [single page templates][singles]. Here is an example of a single `post` within `posts`:
 
 
-```bash
+```
                    path ("posts/my-first-hugo-post.md")
 .       ⊢-----------^------------⊣
 .      section        slug
@@ -94,7 +94,7 @@ content/posts/my-first-hugo-post.md
 
 At the time Hugo builds your site, the content will be output to the following destination:
 
-```bash
+```
 
                                url ("/posts/my-first-hugo-post/")
                    ⊢------------^----------⊣
@@ -102,7 +102,7 @@ At the time Hugo builds your site, the content will be output to the following d
 ⊢--------^--------⊣⊢-^--⊣⊢-------^---------⊣
                  permalink
 ⊢--------------------^---------------------⊣
-http://yoursite.com/posts/my-first-hugo-post/index.html
+http://example.com/posts/my-first-hugo-post/index.html
 ```
 
 ### Section with Nested Directories
@@ -110,7 +110,7 @@ http://yoursite.com/posts/my-first-hugo-post/index.html
 To continue the example, the following demonstrates destination paths for a file located at `content/events/chicago/lollapalooza.md` in the same site:
 
 
-```bash
+```
                     section
                     ⊢--^--⊣
                                url
@@ -120,7 +120,7 @@ To continue the example, the following demonstrates destination paths for a file
 ⊢--------^--------⊣ ⊢------^-----⊣⊢----^------⊣
                   permalink
 ⊢----------------------^-----------------------⊣
-http://yoursite.com/events/chicago/lollapalooza/
+http://example.com/events/chicago/lollapalooza/
 ```
 
 {{% note %}}
@@ -166,25 +166,23 @@ The following items are defined in this order for a specific reason: items expla
 
 ### `filename`
 
-This isn't in the front matter, but is the actual name of the file minus the extension. This will be the name of the file in the destination (e.g., `content/posts/my-post.md` becomes `yoursite.com/posts/my-post/`).
+This isn't in the front matter, but is the actual name of the file minus the extension. This will be the name of the file in the destination (e.g., `content/posts/my-post.md` becomes `example.com/posts/my-post/`).
 
 ### `slug`
 
 When defined in the front matter, the `slug` can take the place of the filename for the destination.
 
-{{% code file="content/posts/old-post.md" %}}
-```yaml
+{{< code file="content/posts/old-post.md" >}}
 ---
 title: New Post
 slug: "new-post"
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
 This will render to the following destination according to Hugo's default behavior:
 
 ```
-yoursite.com/posts/new-post/
+example.com/posts/new-post/
 ```
 
 ### `section`
@@ -195,15 +193,13 @@ yoursite.com/posts/new-post/
 
 A content's `type` is also determined by its location on disk but, unlike `section`, it *can* be specified in the front matter. See [types][]. This can come in especially handy when you want a piece of content to render using a different layout. In the following example, you can create a layout at `layouts/new/mylayout.html` that Hugo will use to render this piece of content, even in the midst of many other posts.
 
-{{% code file="content/posts/my-post.md" %}}
-```yaml
+{{< code file="content/posts/my-post.md" >}}
 ---
 title: My Post
 type: new
 layout: mylayout
 ---
-```
-{{% /code %}}
+{{< /code >}}
 <!-- See https://discourse.gohugo.io/t/path-not-works/6387 -->
 <!-- ### `path`
 
@@ -213,19 +209,17 @@ layout: mylayout
 
 A complete URL can be provided. This will override all the above as it pertains to the end destination. This must be the path from the baseURL (starting with a `/`). `url` will be used exactly as it provided in the front matter and will ignore the `--uglyURLs` setting in your site configuration:
 
-{{% code file="content/posts/old-url.md" %}}
-```yaml
+{{< code file="content/posts/old-url.md" >}}
 ---
 title: Old URL
 url: /blog/new-url/
 ---
-```
-{{% /code %}}
+{{< /code >}}
 
-Assuming your `baseURL` is [configured][config] to `https://yoursite.com`, the addition of `url` to the front matter will make `old-url.md` render to the following destination:
+Assuming your `baseURL` is [configured][config] to `https://example.com`, the addition of `url` to the front matter will make `old-url.md` render to the following destination:
 
 ```
-https://yoursite.com/blog/new-url/
+https://example.com/blog/new-url/
 ```
 
 You can see more information on how to control output paths in [URL Management][urls].

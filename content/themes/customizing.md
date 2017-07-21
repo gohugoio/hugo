@@ -1,6 +1,6 @@
 ---
-title: Customizing a Theme
-linktitle: Customizing a Theme
+title: Customize a Theme
+linktitle: Customize a Theme
 description: Customize a theme by overriding theme layouts and static assets in your top-level project directories.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -31,13 +31,13 @@ There are times where you want to include static assets that differ from version
 
 For example, a theme may use jQuery 1.8 in the following location:
 
-```bash
+```
 /themes/<THEME>/static/js/jquery.min.js
 ```
 
 You want to replace the version of jQuery that ships with the theme with the newer `jquery-3.1.1.js`. The easiest way to do this is to replace the file *with a file of the same name* in the same relative path in your project's root. Therefore, change `jquery-3.1.1.js` to `jquery.min.js` so that it is *identical* to the theme's version and place the file here:
 
-```bash
+```
 /static/js/jquery.min.js
 ```
 
@@ -51,13 +51,13 @@ This is especially helpful when the theme creator used [partial templates][parti
 
 For example:
 
-```bash
+```
 /themes/<THEME>/layouts/_default/single.html
 ```
 
 Would be overwritten by
 
-```bash
+```
 /layouts/_default/single.html
 ```
 

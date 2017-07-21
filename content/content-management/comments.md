@@ -29,11 +29,11 @@ Hugo comes with all the code you need to load Disqus into your templates. Before
 
 Disqus comments require you set a single value in your [site's configuration file][configuration]. The following show the configuration variable in a `config.toml` and `config.yml`, respectively:
 
-```toml
+```
 disqusShortname = "yourdiscussshortname"
 ```
 
-```yaml
+```
 disqusShortname: "yourdiscussshortname"
 ```
 

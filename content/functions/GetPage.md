@@ -51,16 +51,14 @@ This code snippet---in the form of a [partial template][partials]---allows you t
 3. Sort the terms associated with the taxonomy by popularity.
 4. Grab the top two most popular terms in the taxonomy (i.e., the two most popular tags assigned to content.
 
-{{% code file="grab-top-two-tags.html" %}}
-```html
+{{< code file="grab-top-two-tags.html" >}}
 <ul class="most-popular-tags">
 {{ $t := $.Site.GetPage "taxonomyTerm" "tags" }}
 {{ range first 2 $t.Data.Terms.ByCount }}
     <li>{{.}}</li>
 {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 
 [partials]: /templates/partials/

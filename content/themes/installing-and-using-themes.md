@@ -1,6 +1,6 @@
 ---
-title: Installing and Using Themes
-linktitle: Installing and Using Themes
+title: Install and Use Themes
+linktitle: Install and Use Themes
 description: Install and use a theme from the Hugo theme showcase easily through the CLI.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -40,7 +40,7 @@ Without [Git](https://git-scm.com/) installed on your computer, none of the foll
 
 You can install *all* available Hugo themes by cloning the entire [Hugo Theme repository on GitHub][themesrepo] from within your working directory. Depending on your internet connection the download of all themes might take a while.
 
-```bash
+```
 git clone --depth 1 --recursive https://github.com/gohugoio/hugoThemes.git themes
 ```
 
@@ -50,19 +50,17 @@ Before you use a theme, remove the .git folder in that theme's root folder. Othe
 
 Change into the `themes` directory and download a theme by replacing `URL_TO_THEME` with the URL of the theme repository:
 
-```bash
+```
 cd themes
 git clone URL_TO_THEME
 ```
 
 The following example shows how to use the "Hyde" theme, which has its source hosted at <https://github.com/spf13/hyde>:
 
-{{% code file="clone-theme.sh" %}}
-```bash
+{{< code file="clone-theme.sh" >}}
 cd themes
 git clone https://github.com/spf13/hyde
-```
-{{% /code %}}
+{{< /code >}}
 
 Alternatively, you can download the theme as a `.zip` file, unzip the theme contents, and then move the unzipped source into your `themes` directory.
 
@@ -85,13 +83,13 @@ There are two different approaches to using a theme with your Hugo website: via 
 
 To change a theme via the Hugo CLI, you can pass the `-t` [flag][] when building your site:
 
-```bash
+```
 hugo -t themename
 ```
 
 Likely, you will want to add the theme when running the Hugo local server, especially if you are going to [customize the theme][customizethemes]:
 
-```bash
+```
 hugo server -t themename
 ```
 
@@ -99,7 +97,7 @@ hugo server -t themename
 
 If you've already decided on the theme for your site and do not want to fiddle with the command line, you can add the theme directly to your [site configuration file][config]:
 
-```yaml
+```
 theme: themename
 ```
 

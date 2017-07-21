@@ -22,7 +22,7 @@ toc: true
 
 Running the `hugo new site` generator from the command line will create a directory structure with the following elements:
 
-```bash
+```
 .
 ├── archetypes
 ├── config.toml

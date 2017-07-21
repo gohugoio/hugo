@@ -19,7 +19,7 @@ deprecated: false
 aliases: []
 ---
 
-```golang
+```
 {{ replaceRE "^https?://([^/]+).*" "$1" "http://gohugo.io/docs" }}` → "gohugo.io"
 {{ "http://gohugo.io/docs" | replaceRE "^https?://([^/]+).*" "$1" }}` → "gohugo.io"
 ```

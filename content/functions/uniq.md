@@ -20,7 +20,7 @@ aliases: []
 needsexamples: false
 ---
 
-```html
+```
 {{ uniq (slice 1 2 3 2) }}
 {{ slice 1 2 3 2 | uniq }}
 <!-- both return [1 2 3] -->

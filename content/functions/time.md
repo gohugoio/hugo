@@ -33,16 +33,14 @@ The following example takes a UNIX timestamp---set as `utimestamp: "1489276800"`
 
 The following example may be useful when setting up [multilingual sites][multilingual]:
 
-{{% code file="unix-to-month-integer.html" %}}
-```html
+{{< code file="unix-to-month-integer.html" >}}
 {{$time := time (int .Params.addDate)}}
 => $time = 1489276800
 {{$time.Month}}
 => "March"
 {{$monthindex := printf "%d" $time.Month }}
 => $monthindex = 3
-```
-{{% /code %}}
+{{< /code >}}
 
 
 [int]: /functions/int/

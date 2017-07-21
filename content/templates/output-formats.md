@@ -39,7 +39,7 @@ To add or modify a media type, define it in a `mediaTypes` section in your [site
 
 Example in `config.toml`:
 
-```toml
+```
 [mediaTypes]
   [mediaTypes."text/enriched"]
   suffix = "enr"
@@ -63,7 +63,7 @@ This is the full set of Hugo's built-in output formats:
 
 To add or modify an output format, define it in an `outputFormats` section in your site's [configuration file](/templates/configuration/), either for all sites or for a given language.
 
-```toml
+```
 [outputFormats.MyEnrichedFormat]
 mediaType = "text/enriched"
 baseName = "myindex"
@@ -115,7 +115,7 @@ This can be changed by defining an `outputs` list of output formats in either th
 
 Example from site `config.toml`:
 
-```toml
+```
 [outputs]
   home = ["HTML", "AMP", "RSS"]
   page = ["HTML"]
@@ -123,7 +123,7 @@ Example from site `config.toml`:
 
 Example from site `config.yml`:
 
-```yml
+```
 outputs:
   home: ["HTML", "AMP", "RSS"]
   page: ["HTML"]
@@ -138,7 +138,7 @@ outputs:
 
 The following is an example of `YAML` front matter in a content file that defines output formats for the rendered `Page`:
 
-```yaml
+```
 ---
 date: "2016-03-19"
 outputs:

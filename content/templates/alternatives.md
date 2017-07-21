@@ -34,7 +34,7 @@ One noticeable difference between Ace and the other templating engines in Hugo i
 
 In Hugo, the Ace base template will be chosen with the same rule set as for [Go base templates][].
 
-```bash
+```
 .:
 index.ace
 

@@ -64,7 +64,7 @@ The `.Paginator` contains enough information to build a paginator interface.
 
 The easiest way to add this to your pages is to include the built-in template (with `Bootstrap`-compatible styles):
 
-```html
+```
 {{ template "_internal/pagination.html" . }}
 ```
 
@@ -74,7 +74,7 @@ If you use any filters or ordering functions to create your `.Paginator` *and* y
 
 The following example shows how to create `.Paginator` before its used:
 
-```html
+```
 {{ $paginator := .Paginate (where .Data.Pages "Type" "post") }}
 {{ template "_internal/pagination.html" . }}
 {{ range $paginator.Pages }}
@@ -84,7 +84,7 @@ The following example shows how to create `.Paginator` before its used:
 
 Without the `where` filter, the above example is even simpler:
 
-```html
+```
 {{ template "_internal/pagination.html" . }}
 {{ range .Paginator.Pages }}
    {{ .Title }}
