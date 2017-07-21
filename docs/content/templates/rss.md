@@ -69,7 +69,7 @@ By default, Hugo will create an unlimited number of RSS entries. You can limit t
 
 The following values will also be included in the RSS output if specified in your site’s configuration:
 
-```toml
+```
 languageCode = "en-us"
 copyright = "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License."
 
@@ -81,7 +81,7 @@ copyright = "This work is licensed under a Creative Commons Attribution-ShareAli
 
 This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.0 Specification][RSS 2.0].
 
-```xml
+```
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}</title>
@@ -110,7 +110,7 @@ This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.
 
 {{% warning "XML Header" %}}
 Hugo will automatically add the following header line to this file on render. Please do *not* include this in the template as it's not valid HTML.
-```xml
+```
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 ```
 {{% /warning %}}
@@ -119,7 +119,7 @@ Hugo will automatically add the following header line to this file on render. Pl
 
 In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag like this:
 
-```html
+```
 {{ if .RSSLink }}
   <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
   <link href="{{ .RSSLink }}" rel="feed" type="application/rss+xml" title="{{ .Site.Title }}" />
@@ -132,7 +132,7 @@ The `.RSSLink` will render the appropriate RSS feed URL for the section, whether
 
 If you reference your RSS link, be sure to specify the MIME type with `type="application/rss+xml"`.
 
-```html
+```
 <a href="{{ .URL }}" type="application/rss+xml" target="_blank">{{ .SomeText }}</a>
 ```
 

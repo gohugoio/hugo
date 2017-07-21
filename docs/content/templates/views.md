@@ -29,7 +29,7 @@ The following are common use cases for content views:
 
 To create a new view, create a template in each of your different content type directories with the view name. The following example contains an "li" view and a "summary" view for the `post` and `project` content types. As you can see, these sit next to the [single content view][single] template, `single.html. You can even provide a specific view for a given type and continue to use the `_default/single.html` for the primary view.
 
-```bash
+```
   ▾ layouts/
     ▾ post/
         li.html
@@ -44,7 +44,7 @@ To create a new view, create a template in each of your different content type d
 Hugo also has support for a default content template to be used in the event that a specific content view template has not been provided for that type. Content views can also be defined in the `_default` directory and will work the same as list and single templates who eventually trickle down to the `_default` directory as a matter of the lookup order.
 
 
-```bash
+```
 ▾ layouts/
   ▾ _default/
       li.html
@@ -69,8 +69,7 @@ The following example demonstrates how to use content views inside of your [list
 
 In this example, `.Render` is passed into the template to call the [render function][render]. `.Render` is a special function that instructs content to render itself with the view template provided as the first argument. In this case, the template is going to render the `summary.html` view that follows:
 
-{{% code file="layouts/_default/list.html" download="list.html" %}}
-```
+{{< code file="layouts/_default/list.html" download="list.html" >}}
 <main id="main">
   <div>
   <h1 id="title">{{ .Title }}</h1>
@@ -79,15 +78,13 @@ In this example, `.Render` is passed into the template to call the [render funct
   {{ end }}
   </div>
 </main>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### `summary.html`
 
 Hugo will pass the entire page object to the following `summary.html` view template. (See [Page Variables][pagevars] for a complete list.)
 
-{{% code file="layouts/_default/summary.html" download="summary.html" %}}
-```html
+{{< code file="layouts/_default/summary.html" download="summary.html" >}}
 <article class="post">
   <header>
     <h2><a href='{{ .Permalink }}'> {{ .Title }}</a> </h2>
@@ -98,21 +95,18 @@ Hugo will pass the entire page object to the following `summary.html` view templ
   <a href='{{ .Permalink }}'><nobr>Read more →</nobr></a>
   </footer>
 </article>
-```
-{{% /code %}}
+{{< /code >}}
 
 ### `li.html`
 
 Continuing on the previous example, we can change our render function to use a smaller `li.html` view by changing the argument in the call to the `.Render` function (i.e., `{{ .Render "li" }}`).
 
-{{% code file="layouts/_default/li.html" download="li.html" %}}
-```html
+{{< code file="layouts/_default/li.html" download="li.html" >}}
 <li>
   <a href="{{ .Permalink }}">{{ .Title }}</a>
   <div class="meta">{{ .Date.Format "Mon, Jan 2, 2006" }}</div>
 </li>
-```
-{{% /code %}}
+{{< /code >}}
 
 [lists]: /templates/lists/
 [lookup]: /templates/lookup-order/

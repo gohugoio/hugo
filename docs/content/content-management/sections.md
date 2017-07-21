@@ -30,25 +30,25 @@ Following this pattern, Hugo uses the top level of your content organization as 
 
 The following example shows a content directory structure for a website that has three sections: "authors," "events," and "posts":
 
-```bash
+```
 .
 └── content
     ├── authors
-    |   ├── _index.md     // <- yoursite.com/authors/
-    |   ├── john-doe.md   // <- yoursite.com/authors/john-doe/
-    |   └── jane-doe.md   // <- yoursite.com/authors/jane-doe/
+    |   ├── _index.md     // <- example.com/authors/
+    |   ├── john-doe.md   // <- example.com/authors/john-doe/
+    |   └── jane-doe.md   // <- example.com/authors/jane-doe/
     └── events
-    |   ├── _index.md     // <- yoursite.com/events/
-    |   ├── event-1.md    // <- yoursite.com/events/event-1/
-    |   ├── event-2.md    // <- yoursite.com/events/event-2/
-    |   └── event-3.md    // <- yoursite.com/events/event-3/
+    |   ├── _index.md     // <- example.com/events/
+    |   ├── event-1.md    // <- example.com/events/event-1/
+    |   ├── event-2.md    // <- example.com/events/event-2/
+    |   └── event-3.md    // <- example.com/events/event-3/
     └── posts
-    |   ├── _index.md     // <- yoursite.com/posts/
-    |   ├── event-1.md    // <- yoursite.com/posts/event-1/
-    |   ├── event-2.md    // <- yoursite.com/posts/event-2/
-    |   ├── event-3.md    // <- yoursite.com/posts/event-3/
-    |   ├── event-4.md    // <- yoursite.com/posts/event-4/
-    |   └── event-5.md    // <- yoursite.com/posts/event-5/
+    |   ├── _index.md     // <- example.com/posts/
+    |   ├── event-1.md    // <- example.com/posts/event-1/
+    |   ├── event-2.md    // <- example.com/posts/event-2/
+    |   ├── event-3.md    // <- example.com/posts/event-3/
+    |   ├── event-4.md    // <- example.com/posts/event-4/
+    |   └── event-5.md    // <- example.com/posts/event-5/
 ```
 
 ## Content Section Lists

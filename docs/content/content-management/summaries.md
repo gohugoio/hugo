@@ -56,8 +56,7 @@ Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly
 
 You can show content summaries with the following code. You could use the following snippet, for example, in a [section template][].
 
-{{% code file="page-list-with-summaries.html" %}}
-```html
+{{< code file="page-list-with-summaries.html" >}}
 {{ range first 10 .Data.Pages }}
     <article>
       <!-- this <div> includes the title summary -->
@@ -73,8 +72,7 @@ You can show content summaries with the following code. You could use the follow
       {{ end }}
     </article>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 Note how the `.Truncated` boolean valuable may be used to hide the "Read More..." link when the content is not truncated; i.e., when the summary contains the entire article.
 

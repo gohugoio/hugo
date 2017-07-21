@@ -29,7 +29,7 @@ The example below returns a list of all second level headers (`<h2>`) in the con
 
 You can limit the number of matches in the list with a third parameter. The following example shows how to limit the returned value to just one match (or none, if there are no matched substrings):
 
-```golang
+```
 {{ findRE "<h2.*?>(.|\n)*?</h2>" .Content 1 }}
     <!-- returns ["<h2 id="#foo">Foo</h2>"] -->
 ```

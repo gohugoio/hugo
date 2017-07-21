@@ -29,7 +29,7 @@ features:
 
   - heading: Custom Outputs
     image_path: /images/icon-custom-outputs.svg
-    tagline: HTML not Enough?
+    tagline: HTML not enough?
     copy: Hugo allows you to output your content in multiple formats, including JSON or AMP, and makes it easy to create your own.
 sections:
   - heading: "100s of Themes"

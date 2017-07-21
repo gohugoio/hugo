@@ -30,8 +30,7 @@ You can create a profile containing metadata for each author on your website. Th
 
 Let's suppose Alice Allison is a blogger. A simple unique identifier would be `alice`. Now, we have to create a file called `alice.toml` in the `data/_authors/` directory. The following example is the standardized template written in TOML:
 
-{{% code  file="data/_authors/alice.toml" %}}
-```toml
+{{< code  file="data/_authors/alice.toml" >}}
 givenName      = "Alice"   # or firstName as alias
 familyName     = "Allison" # or lastName as alias
 displayName    = "Alice Allison"
@@ -50,8 +49,7 @@ weight         = 10
 
 [params]
     random     = "whatever you want"
-```
-{{% /code %}}
+{{< /code >}}
 
 All variables are optional but it's advised to fill all important ones (e.g. names and biography) because themes can vary in their usage.
 
@@ -67,7 +65,7 @@ The `params` section can contain arbitrary data much like the same-named section
 
 Earlier it was mentioned that content can be associated with an author through their corresponding identifier. In our case, blogger Alice has the identifier `alice`. In the front matter of a content file, you can create a list of identifiers and assign it to the `authors` variable. Here are examples for `alice` using YAML and TOML, respectively.
 
-```yaml
+```
 ---
 title: Why Hugo is so Awesome
 date: 2016-08-22T14:27:502:00
@@ -77,7 +75,7 @@ authors: ["alice"]
 Nothing to read here. Move along...
 ```
 
-```toml
+```
 +++
 title = Why Hugo is so Awesome
 date = "2016-08-22T14:27:502:00"
@@ -116,8 +114,7 @@ This is can be done with the `.Social.URL` function. Its only parameter is the n
 
 Most articles feature a small section with information about the author at the end. Let's create one containing the author's name, a thumbnail, a (summarized) biography and links to all social networks:
 
-{{% code file="layouts/partials/author-info.html" download="author-info.html" %}}
-```html
+{{< code file="layouts/partials/author-info.html" download="author-info.html" >}}
 {{ with .Author }}
     <h3>{{ .DisplayName }}</h3>
     <img src="{{ .Thumbnail | absURL }}" alt="{{ .DisplayName }}">
@@ -128,8 +125,7 @@ Most articles feature a small section with information about the author at the e
     {{ end }}
     </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Who Published What?
 
@@ -137,12 +133,12 @@ That question can be answered with a list of all authors and another list contai
 
 In order to let Hugo know that we want to group content based on their author, we have to create a new taxonomy called `author` (the name corresponds to the variable in the front matter). Here is the snippet in a `config.yaml` and `config.toml`, respectively:
 
-```yaml
+```
 taxonomies:
     author: authors
 ```
 
-```toml
+```
 [taxonomies]
     author = "authors"
 ```
@@ -152,8 +148,7 @@ taxonomies:
 
 In the next step we can create a template to list all authors of your website. Later, the list can be accessed at `www.example.com/authors/`. Create a new template in the `layouts/taxonomy/` directory called `authors.term.html`. This template will be exclusively used for this taxonomy.
 
-{{% code file="layouts/taxonomy/author.term.html" download="author.term.html" %}}
-```html
+{{< code file="layouts/taxonomy/author.term.html" download="author.term.html" >}}
 <ul>
 {{ range $author, $v := .Data.Terms }}
     {{ $profile := $.Authors.Get $author }}
@@ -164,8 +159,7 @@ In the next step we can create a template to list all authors of your website. L
     </li>
 {{ end }}
 </ul>
-```
-{{% /code %}}
+{{< /code >}}
 
 `.Data.Terms` contains the identifiers of all authors and we can range over it to create a list with all author names. The `$profile` variable gives us access to the profile of the current author. This allows you to generate a nice info box with a thumbnail, a biography and social media links, like at the [end of a blog post](#linking-social-network-accounts-automatically).
 
@@ -175,15 +169,13 @@ Last but not least, we have to create the second list that contains all publicat
 
 The layout for this page can be defined in the template `layouts/taxonomy/author.html`.
 
-{{% code file="layouts/taxonomy/author.html" download="author.html" %}}
-```html
+{{< code file="layouts/taxonomy/author.html" download="author.html" >}}
 {{ range .Data.Pages }}
     <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
     <span>written by {{ .Author.DisplayName }}</span>
     {{ .Summary }}
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 The example above generates a simple list of all posts written by a single author. Inside the loop you've access to the complete set of [page variables][pagevars]. Therefore, you can add additional information about the current posts like the publishing date or the tags.
 

@@ -39,7 +39,7 @@ If provided, Hugo will use `/layouts/sitemap.xml` instead of the internal `sitem
 
 This template respects the version 0.9 of the [Sitemap Protocol](http://www.sitemaps.org/protocol.html).
 
-```xml
+```
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {{ range .Data.Pages }}
   <url>
@@ -63,7 +63,7 @@ on render. Please don't include this in the template as it's not valid HTML.
 
 Defaults for `<changefreq>`, `<priority>` and `filename` values can be set in the site's config file, e.g.:
 
-```toml
+```
 [sitemap]
   changefreq = "monthly"
   priority = 0.5

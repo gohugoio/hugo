@@ -24,8 +24,7 @@ able to build your menu however you want.
 
 The following is an example:
 
-{{% code file="layouts/partials/sidebar.html" download="sidebar.html" %}}
-```html
+{{< code file="layouts/partials/sidebar.html" download="sidebar.html" >}}
 <!-- sidebar start -->
 <aside>
     <div id="sidebar" class="nav-collapse">
@@ -62,8 +61,7 @@ The following is an example:
     </div>
 </aside>
 <!--sidebar end-->
-```
-{{% /code %}}
+{{< /code >}}
 
 {{% note "`absLangURL` and `relLangURL`" %}}
 Use the [`absLangUrl`](/functions/abslangurl) or [`relLangUrl`](/functions/rellangurl) functions if your theme makes use of the [multilingual feature](/content-management/multilingual/). In contrast to `absURL` and `relURL`, these two functions add the correct language prefix to the url.
@@ -73,7 +71,7 @@ Use the [`absLangUrl`](/functions/abslangurl) or [`relLangUrl`](/functions/rella
 
 To enable this menu, add the following to your site `config`:
 
-```toml
+```
 SectionPagesMenu = "main"
 ```
 
@@ -81,7 +79,7 @@ The menu name can be anything, but take a note of what it is.
 
 This will create a menu with all the sections as menu items and all the sections' pages as "shadow-members". The _shadow_ implies that the pages isn't represented by a menu-item themselves, but this enables you to create a top-level menu like this:
 
-```html
+```
 <nav class="sidebar-nav">
     {{ $currentPage := . }}
     {{ range .Site.Menus.main }}
@@ -94,7 +92,7 @@ In the above, the menu item is marked as active if on the current section's list
 
 The above is all that's needed. But if you want custom menu items, e.g. changing weight or name, you can define them manually in the site config, i.e. `config.toml`:
 
-```toml
+```
 [[menu.main]]
     name = "This is the blog section"
     weight = -110

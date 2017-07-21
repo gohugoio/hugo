@@ -1,6 +1,6 @@
 ---
-title: Hosting on Netlify
-linktitle: Hosting on Netlify
+title: Host on Netlify
+linktitle: Host on Netlify
 description: Netlify can host your Hugo site with CDN, continuous deployment, 1-click HTTPS, an admin GUI, and its own CLI.
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -65,7 +65,7 @@ Setting the build command to `hugo` will build your site according to the curren
 
 If you want to tell Netlify to build with a specific version, you can append an underscore followed by the version number to the build command:
 
-```bash
+```
 hugo_0.19
 ```
 
@@ -93,7 +93,7 @@ The [`git clone` method for installing themes][installthemes] is not supported b
 
 A *better* approach is to install a theme as a proper git submodule. You can [read the GitHub documentation for submodules][ghsm] or those found on [Git's website][gitsm] for more information, but the command is similar to that of `git clone`:
 
-```bash
+```
 cd themes
 git submodule add https://github.com/<THEMECREATOR>/<THEMENAME>
 ```

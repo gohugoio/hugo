@@ -17,7 +17,7 @@ relatedfuncs: []
 deprecated: false
 ---
 
-```golang
+```
 {{ with (imageConfig "favicon.ico") }}
 favicon.ico: {{.Width}} x {{.Height}}
 {{ end }}

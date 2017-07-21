@@ -22,7 +22,7 @@ toc: true
 >
 > When I run Hugo with v0.12 via `hugo new -v showcase/test.md`, I see the following output:
 >
-> ```bash
+> ```
 > INFO: 2015/01/04 Using config file: /private/tmp/test/config.toml
 > INFO: 2015/01/04 attempting to create  showcase/test.md of showcase
 > INFO: 2015/01/04 curpath: /private/tmp/test/archetypes/showcase.md

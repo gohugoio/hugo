@@ -20,7 +20,7 @@ aliases: [/functions/countrunes/,/functions/countwords/]
 
 The template function works similar to the [.WordCount page variable][pagevars].
 
-```html
+```
 {{ "Hugo is a static site generator." | countwords }}
 <!-- outputs a content length of 6 words.  -->
 ```

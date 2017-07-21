@@ -46,13 +46,13 @@ If you are having trouble following the installation guides for go, check out [G
 
 Once you're finished installing Go, let's confirm everything is working correctly. Open a terminal---or command line under Windows--and type the following:
 
-```bash
+```
 go version
 ```
 
 You should see something similar to the following written to the console. Note that the version here reflects the most recent version of Go as of the last update for this page:
 
-```bash
+```
 go version go1.8 darwin/amd64
 ```
 
@@ -60,7 +60,7 @@ Next, make sure that you set up your `GOPATH` [as described in the installation 
 
 You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace; .e.g.:
 
-```bash
+```
 /Users/<yourusername>/Code/go
 ```
 
@@ -68,11 +68,9 @@ You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty strin
 
 If you are a macOS user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
 
-{{% code file="install-go.sh" %}}
-```bash
+{{< code file="install-go.sh" >}}
 brew install go
-```
-{{% /code %}}
+{{< /code >}}
 
 ### Install Go via GVM
 
@@ -102,23 +100,23 @@ There are several [GUI clients](https://git-scm.com/downloads/guis) that help yo
 
 ### Install Hub on Your System (Optional)
 
-Hub is a great tool for working with GitHub. The main site for it is [www.hub.github.com](https://hub.github.com/). Feel free to install this little Git wrapper.
+Hub is a great tool for working with GitHub. The main site for it is [hub.github.com](https://hub.github.com/). Feel free to install this little Git wrapper.
 
 On a Mac, you can install [Hub](https://github.com/github/hub) using [Homebrew](https://brew.sh):
 
-```sh
+```
 brew install hub
 ```
 
 Now we'll create an [alias in Bash](http://tldp.org/LDP/abs/html/aliases.html) so that typing `git` actually runs `Hub`:
 
-```sh
+```
 echo "alias git='hub'" >> ~/.bash_profile
 ```
 
 Confirm the installation:
 
-```sh
+```
 git version 2.6.3
 hub version 2.2.2
 ```
@@ -137,7 +135,7 @@ We're going to clone the [master Hugo repository](https://github.com/gohugoio/hu
 
 So, let's clone that master repository:
 
-```sh
+```
 go get -v -u github.com/gohugoio/hugo
 ```
 
@@ -159,13 +157,13 @@ Now open your fork repository on GitHub and copy the remote url of your fork. Yo
 
 Switch back to the terminal and move into the directory of the cloned master repository from the last step.
 
-```sh
+```
 cd $GOPATH/src/github.com/gohugoio/hugo
 ```
 
 Now Git needs to know that our fork exists by adding the copied remote url:
 
-```sh
+```
 git remote add <YOUR-GITHUB-USERNAME> <COPIED REMOTE-URL>
 ```
 
@@ -173,7 +171,7 @@ git remote add <YOUR-GITHUB-USERNAME> <COPIED REMOTE-URL>
 
 Alternatively, you can use the Git wrapper Hub. Hub makes forking a repository easy:
 
-```sh
+```
 git fork
 ```
 
@@ -183,13 +181,13 @@ That command will log in to GitHub using your account, create a fork of the repo
 
 Let's check if everything went right by listing all known remotes:
 
-```sh
+```
 git remote -v
 ```
 
 The output should look similar:
 
-```sh
+```
 digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (fetch)
 digitalcraftsman    git@github.com:digitalcraftsman/hugo.git (push)
 origin  https://github.com/gohugoio/hugo (fetch)
@@ -204,14 +202,14 @@ You should never develop against the "master" branch. The development team will 
 
 First, you should always pull the latest changes from the master repository:
 
-```sh
+```
 git checkout master
 git pull
 ```
 
 Now we can create a new branch for your additions:
 
-```sh
+```
 git checkout -b <BRANCH-NAME>
 ```
 
@@ -229,7 +227,7 @@ We have developed a [separate Hugo documentation contribution guide][docscontrib
 
 While making changes in the codebase it's a good idea to build the binary to test them:
 
-```sh
+```
 go build -o hugo main.go
 ```
 
@@ -241,13 +239,13 @@ Make sure the commands `go test ./...` passes, and `go build` completes.
 ### Formatting 
 The Go code styleguide maybe is opiniated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our addtions:
 
-```sh
+```
 go fmt ./...
 ```
 
 Once you made your additions commit your changes. Make sure that you follow our [code contribution guidelines](https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md):
 
-```sh
+```
 # Add all changed files
 git add --all
 git commit --message "YOUR COMMIT MESSAGE"
@@ -265,20 +263,20 @@ If you are unsure what a command does leave the commit as it is. We can fix your
 
 Let's say you want to modify the last commit message. Run the following command and replace the current message:
 
-```sh
+```
 git commit --amend -m"YOUR NEW COMMIT MESSAGE"
 ```
 
 Take a look at the commit log to see the change:
 
-```sh
+```
 git log
 # Exit with q
 ```
 
 After making the last commit you may forgot something. There is no need to create a new commit. Just add the latest changes and merge them into the intended commit:
 
-```sh
+```
 git add --all
 git commit --amend
 ```
@@ -291,13 +289,13 @@ Modifications such as those described in this section can have serious unintende
 
 This is a bit more advanced. Git allows you to [rebase](https://git-scm.com/docs/git-rebase) commits interactively. In other words: it allows you to rewrite the commit history.
 
-```sh
+```
 git rebase --interactive @~6
 ```
 
 The `6` at the end of the command represents the number of commits that should be modified. An editor should open and present a list of last six commit messages:
 
-```sh
+```
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
@@ -310,7 +308,7 @@ In the case above we should merge the last to commits in the commit of this tuto
 
 All operations are written before the commit message. Replace "pick" with an operation. In this case `squash` or `s` for short:
 
-```sh
+```
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
@@ -323,7 +321,7 @@ We also want to rewrite the commits message of the third last commit. We forgot 
 
 You should end up with a similar setup:
 
-```sh
+```
 pick 80d02a1 tpl: Add hasPrefix to the template funcs' "smoke test"
 pick aaee038 tpl: Sort the smoke tests
 pick f0dbf2c tpl: Add the other test case for hasPrefix
@@ -336,7 +334,7 @@ Close the editor. It should open again with a new tab. A text is instructing you
 
 A last time a new tab opens. Enter a new commit message and save again. Your terminal should contain a status message. Hopefully this one:
 
-```sh
+```
 Successfully rebased and updated refs/heads/<BRANCHNAME>.
 ```
 
@@ -346,7 +344,7 @@ Check the commit log if everything looks as expected. Should an error occur you 
 
 To push our commits to the fork on GitHub we need to speficy a destination. A destination is defined by the remote and a branch name. Earlier, the defined that the remote url of our fork is the same as our GitHub handle, in my case `digitalcraftsman`. The branch should have the same as our local one. This makes it easy to identify corresponding branches.
 
-```sh
+```
 git push --set-upstream <YOUR-GITHUB-USERNAME> <BRANCHNAME>
 ```
 

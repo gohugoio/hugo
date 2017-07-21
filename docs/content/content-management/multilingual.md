@@ -23,8 +23,7 @@ You should define the available languages in a `Languages` section in your site 
 
 The following is an example of a TOML site configuration for a multilingual Hugo project:
 
-{{% code file="config.toml" download="config.toml" %}}
-```toml
+{{< code file="config.toml" download="config.toml" >}}
 DefaultContentLanguage = "en"
 copyright = "Everything is mine"
 
@@ -46,8 +45,7 @@ weight = 2
 linkedin = "lien-francais"
 [Languages.fr.navigation]
 help  = "Aide"
-```
-{{% /code %}}
+{{< /code >}}
 
 Anything not defined in a `[Languages]` block will fall back to the global
 value for that key (e.g., `copyright` for the English [`en`] language).
@@ -66,8 +64,7 @@ Only the obvious non-global options can be overridden per language. Examples of 
 Taxonomies and [Blackfriday configuration][config] can also be set per language:
 
 
-{{% code file="bf-config.toml" %}}
-```toml
+{{< code file="bf-config.toml" >}}
 [Taxonomies]
 tag = "tags"
 
@@ -87,8 +84,7 @@ weight = 2
 title = "Français"
 [Languages.fr.Taxonomies]
 plaque = "plaques"
-```
-{{% /code %}}
+{{< /code >}}
 
 ## Translate Your Content
 
@@ -110,7 +106,7 @@ By having the same *base filename*, the content pieces are linked together as tr
 
 If you need distinct URLs per language, you can set the slug in the non-default language file. For example, you can define a custom slug for a French translation in the front matter of `content/about.fr.md` as follows:
 
-```yaml
+```
 slug: "a-propos"
 
 ```
@@ -127,8 +123,7 @@ We will fix this in https://github.com/gohugoio/hugo/issues/2699
 
 To create a list of links to translated content, use a template similar to the following:
 
-{{% code file="layouts/partials/i18nlist.html" %}}
-```html
+{{< code file="layouts/partials/i18nlist.html" >}}
 {{ if .IsTranslated }}
 <h4>{{ i18n "translations" }}</h4>
 <ul>
@@ -139,8 +134,7 @@ To create a list of links to translated content, use a template similar to the f
     {{ end}}
 </ul>
 {{ end }}
-```
-{{% /code %}}
+{{< /code >}}
 
 The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template, be it for a [single content page][contenttemplate] or the [homepage][]. It will not print anything if there are no translations for a given page, or if there are translations---in the case of the homepage, section listing, etc.---a site with only render one language.
 
@@ -191,7 +185,7 @@ And then in the template:
 ```
 To track down missing translation strings, run Hugo with the `--i18n-warnings` flag:
 
-```bash
+```
  hugo --i18n-warnings | grep i18n
 i18n|MISSING_TRANSLATION|en|wordCount
 ```
@@ -229,7 +223,7 @@ This technique extracts the day, month and year by specifying ``.Date.Day``, ``.
 
 You can define your menus for each language independently. The [creation of a menu][menus] works analogous to earlier versions of Hugo, except that they have to be defined in their language-specific block in the configuration file:
 
-```toml
+```
 defaultContentLanguage = "en"
 
 [languages.en]
@@ -254,7 +248,7 @@ weight = 0
 
 The rendering of the main navigation works as usual. `.Site.Menus` will just contain the menu of the current language. Pay attention to the generation of the menu links. `absLangURL` takes care that you link to the correct locale of your website. Otherwise, both menu entries would link to the English version as the default content language that resides in the root directory.
 
-```html
+```
 <ul>
     {{- $currentPage := . -}}
     {{ range .Site.Menus.main -}}
