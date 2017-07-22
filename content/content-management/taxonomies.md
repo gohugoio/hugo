@@ -32,6 +32,8 @@ Term
 Value
 : a piece of content assigned to a term
 
+{{< youtube "-np9GX6cL38" >}}
+
 ## Example Taxonomy: Movie Website
 
 Let's assume you are making a website about movies. You may want to include the following taxonomies:
