@@ -1,5 +1,5 @@
 ---
-title: replacere
+title: replaceRE
 # linktitle: replaceRE
 description: Replaces all occurrences of a regular expression with the replacement pattern.
 godocref:
