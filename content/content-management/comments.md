@@ -19,7 +19,7 @@ toc: true
 
 Hugo ships with support for [Disqus](https://disqus.com/), a third-party service that provides comment and community capabilities to websites via JavaScript.
 
-Your theme may already support Disqus, but if not, it is easy to add to your templates via [Hugo's built-in Disqus template][disqustemplate].
+Your theme may already support Disqus, but if not, it is easy to add to your templates via [Hugo's built-in Disqus partial][disquspartial].
 
 ## Add Disqus
 
@@ -43,9 +43,9 @@ For many websites, this is enough configuration. However, you also have the opti
 * `disqus_title`
 * `disqus_url`
 
-### Render Hugo's Built-in Disqus Template
+### Render Hugo's Built-in Disqus Partial Template
 
-See [Internal Templates][disqustemplate] to learn how to add Disqus to your Hugo website.
+See [Partial Templates][partials] to learn how to add the Disqus partial to your Hugo website's templates.
 
 ## Comments Alternatives
 
@@ -72,12 +72,13 @@ Written using Go, Socket.io, and [MongoDB][], Kaiju is very fast and easy to dep
 It is in early development but shows promise. If you have interest, please help by contributing via pull request, [opening an issue in the Kaiju GitHub repository][kaijuissue], or [Tweeting about it][tweet]. Every bit helps. -->
 
 [configuration]: /getting-started/configuration/
-[disqustemplate]: /templates/internal/#disqus
+[disquspartial]: /templates/partials/#disqus
 [disqussetup]: https://disqus.com/profile/signup/
 [forum]: https://discourse.gohugo.io
 [front matter]: /content-management/front-matter/
 [Graph Comment]: https://graphcomment.com/
 [kaijuissue]: https://github.com/spf13/kaiju/issues/new
 [issotutorial]: https://stiobhart.net/2017-02-24-isso-comments/
+[partials]: /templates/partials/
 [MongoDB]: https://www.mongodb.com/
 [tweet]: https://twitter.com/spf13
