@@ -77,7 +77,7 @@ echo 'theme = "ananke"' >> config.toml
 ## Step 4: Add Some Content
 
 ```
-hugo new post/my-first-post.md
+hugo new posts/my-first-post.md
 ```
 
 
@@ -135,8 +135,6 @@ For theme specific configuration options, see the [theme site](https://github.co
 
 **For further theme customization, see [Customize a Theme](/themes/customizing/).**
 
+## All Commands Repeated
 
-
-
-
-
+{{< asciicast pWp4uvyAkdWgQllD9RCfeBL5k >}}
