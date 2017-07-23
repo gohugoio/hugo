@@ -27,8 +27,10 @@ git submodule update --init
 Also note that the documentation version for a given version of Hugo can also be found in the `/docs` sub-folder of the [Hugo source repository](https://github.com/gohugoio/hugo).
 
 Then to view the docs in your browser, run Hugo and open up the link:
+
 ```bash
-hugo serve
+▶ hugo server
+
 Started building sites ...
 .
 .
