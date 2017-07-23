@@ -133,7 +133,7 @@ Replace the `title` above with something more personal. Also, if you already hav
 
 For theme specific configuration options, see the [theme site](https://github.com/budparr/gohugo-theme-ananke).
 
-**For further theme customization, see [Customize a Theme](themes/customizing/#readout).**
+**For further theme customization, see [Customize a Theme](/themes/customizing/).**
 
 
 
