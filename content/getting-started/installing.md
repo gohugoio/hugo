@@ -28,10 +28,10 @@ Hugo is written in [Go](https://golang.org/) with support for multiple platforms
 
 Hugo currently provides pre-built binaries for the following:
 
-* <i class="icon-apple"></i> macOS (Darwin) for x64, i386, and ARM architectures
-* <i class="icon-windows"></i> Windows
-* <i class="icon-linux"></i> Linux
-* <i class="icon-freebsd"></i> FreeBSD
+* macOS (Darwin) for x64, i386, and ARM architectures
+* Windows
+* Linux
+* FreeBSD
 
 Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., on other operating systems such as DragonFly BSD, OpenBSD, Plan&nbsp;9, Solaris, and others. See <https://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
 
@@ -87,7 +87,7 @@ go install github.com/gohugoio/hugo
 If you are a Windows user, substitute the `$HOME` environment variable above with `%USERPROFILE%`.
 {{% /note %}}
 
-## <i class="icon-apple"></i>macOS
+## macOS
 
 ### Assumptions
 
@@ -295,7 +295,7 @@ go build -o hugo main.go
 
 Then place the `hugo` executable somewhere in your `$PATH`. You're now ready to start using Hugo.
 
-## <i class="icon-windows"></i>Windows
+## Windows
 
 The following aims to be a complete guide to installing Hugo on your Windows PC.
 
@@ -410,7 +410,7 @@ C:\Hugo\Sites\example.com&gt;dir
 
 {{< youtube c8fJIRNChmU >}}
 
-## <i class="icon-linux"></i>Linux
+## Linux
 
 ### Snap Package
 
