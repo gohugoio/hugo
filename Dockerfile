@@ -12,7 +12,7 @@ RUN \
   cd $GOPATH/src/github.com/gohugoio/hugo && \
   go install && \
   cd $GOPATH && \
-  rm -rf pkg src bin/govendor && \
+  rm -rf pkg src .cache bin/govendor && \
   apk del --no-cache git go
 
 USER    hugo
