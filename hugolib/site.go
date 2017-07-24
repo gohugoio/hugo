@@ -1360,6 +1360,7 @@ func (s *Site) convertSource() chan error {
 	return errs
 }
 
+// TODO(bep) bundler
 func (s *Site) createPages() error {
 	readErrs := <-s.readPagesFromSource()
 	s.timerStep("read pages from source")
