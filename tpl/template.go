@@ -79,7 +79,7 @@ func (t *TemplateAdapter) ExecuteToString(data interface{}) (string, error) {
 	return b.String(), nil
 }
 
-// Tree returns the template Parse tree as a string.
+// Tree returns the template Parse tree a				s a string.
 // Note: this isn't safe for parallel execution on the same template
 // vs Lookup and Execute.
 func (t *TemplateAdapter) Tree() string {
