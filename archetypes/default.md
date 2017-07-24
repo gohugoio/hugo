@@ -1,5 +1,5 @@
 ---
-linktitle: "{{ replace .TranslationBaseName "-" " " | title }}"
+title: "{{ replace .TranslationBaseName "-" " " | title }}"
 date: {{ .Date }}
 description: ""
 categories: []
