@@ -37,6 +37,7 @@ type PathSpec struct {
 	theme string
 
 	// Directories
+	contentDir string
 	themesDir  string
 	layoutDir  string
 	workingDir string
@@ -84,6 +85,7 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		defaultContentLanguage:         cfg.GetString("defaultContentLanguage"),
 		paginatePath:                   cfg.GetString("paginatePath"),
 		BaseURL:                        baseURL,
+		contentDir:                     cfg.GetString("contentDir"),
 		themesDir:                      cfg.GetString("themesDir"),
 		layoutDir:                      cfg.GetString("layoutDir"),
 		workingDir:                     cfg.GetString("workingDir"),
@@ -101,6 +103,11 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 // PaginatePath returns the configured root path used for paginator pages.
 func (p *PathSpec) PaginatePath() string {
 	return p.paginatePath
+}
+
+// ContentDir returns the configured workingDir.
+func (p *PathSpec) ContentDir() string {
+	return p.contentDir
 }
 
 // WorkingDir returns the configured workingDir.
