@@ -277,6 +277,12 @@ func Ext(in string) string {
 	return ext
 }
 
+// FileAndExt takes a path and returns the file and extension separated,
+// the extension including the delmiter, i.e. ".md".
+func FileAndExt(in string) (string, string) {
+	return fileAndExt(in, fpb)
+}
+
 // Filename takes a path, strips out the extension,
 // and returns the name of the file.
 func Filename(in string) (name string) {
@@ -346,40 +352,6 @@ func GetRelativePath(path, base string) (final string, err error) {
 		name += FilePathSeparator
 	}
 	return name, nil
-}
-
-// GuessSection returns the section given a source path.
-// A section is the part between the root slash and the second slash
-// or before the first slash.
-func GuessSection(in string) string {
-	parts := strings.Split(in, FilePathSeparator)
-	// This will include an empty entry before and after paths with leading and trailing slashes
-	// eg... /sect/one/ -> ["", "sect", "one", ""]
-
-	// Needs to have at least a value and a slash
-	if len(parts) < 2 {
-		return ""
-	}
-
-	// If it doesn't have a leading slash and value and file or trailing slash, then return ""
-	if parts[0] == "" && len(parts) < 3 {
-		return ""
-	}
-
-	// strip leading slash
-	if parts[0] == "" {
-		parts = parts[1:]
-	}
-
-	// if first directory is "content", return second directory
-	if parts[0] == "content" {
-		if len(parts) > 2 {
-			return parts[1]
-		}
-		return ""
-	}
-
-	return parts[0]
 }
 
 // PathPrep prepares the path using the uglify setting to create paths on
@@ -504,7 +476,7 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 }
 
 func getRealFileInfo(fs afero.Fs, path string) (os.FileInfo, string, error) {
-	fileInfo, err := lstatIfOs(fs, path)
+	fileInfo, err := LstatIfOs(fs, path)
 	realPath := path
 
 	if err != nil {
@@ -516,7 +488,7 @@ func getRealFileInfo(fs afero.Fs, path string) (os.FileInfo, string, error) {
 		if err != nil {
 			return nil, "", fmt.Errorf("Cannot read symbolic link '%s', error was: %s", path, err)
 		}
-		fileInfo, err = lstatIfOs(fs, link)
+		fileInfo, err = LstatIfOs(fs, link)
 		if err != nil {
 			return nil, "", fmt.Errorf("Cannot stat '%s', error was: %s", link, err)
 		}
@@ -539,7 +511,7 @@ func GetRealPath(fs afero.Fs, path string) (string, error) {
 
 // Code copied from Afero's path.go
 // if the filesystem is OsFs use Lstat, else use fs.Stat
-func lstatIfOs(fs afero.Fs, path string) (info os.FileInfo, err error) {
+func LstatIfOs(fs afero.Fs, path string) (info os.FileInfo, err error) {
 	_, ok := fs.(*afero.OsFs)
 	if ok {
 		info, err = os.Lstat(path)

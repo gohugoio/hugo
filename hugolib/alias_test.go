@@ -51,7 +51,9 @@ func TestAlias(t *testing.T) {
 	writeSource(t, fs, filepath.Join("content", "page.md"), pageWithAlias)
 	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
 
-	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+	require.Len(t, s.rawAllPages, 1)
 
 	// the real page
 	th.assertFileContent(filepath.Join("public", "page", "index.html"), "For some moments the old man")

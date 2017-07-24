@@ -468,7 +468,6 @@ func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft b
 		return err
 	}
 
-	page.SetDir(targetParentDir)
 	page.SetSourceContent([]byte(content))
 	page.SetSourceMetaData(newmetadata, parser.FormatToLeadRune("yaml"))
 	page.SaveSourceAs(targetFile)

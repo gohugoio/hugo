@@ -21,8 +21,8 @@
  revision = "v1.1.0"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/dchest/cssmin"
+ name = "github.com/disintegration/imaging"
+ revision = "v1.2.4"
 
 [[constraint]]
   name = "github.com/magefile/mage"
@@ -115,6 +115,10 @@
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "1.1.4"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/olekukonko/tablewriter"
 
 [[constraint]]
   name = "github.com/yosssi/ace"

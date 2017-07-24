@@ -53,7 +53,16 @@ func (l *Language) String() string {
 
 // NewLanguage creates a new language.
 func NewLanguage(lang string, cfg config.Provider) *Language {
-	return &Language{Lang: lang, Cfg: cfg, params: make(map[string]interface{})}
+	params := make(map[string]interface{})
+	// Merge with global config.
+	globalParams := cfg.GetStringMap("params")
+	for k, v := range globalParams {
+		if _, ok := params[k]; !ok {
+			params[k] = v
+		}
+	}
+	l := &Language{Lang: lang, Cfg: cfg, params: params}
+	return l
 }
 
 // NewDefaultLanguage creates the default language for a config.Provider.
@@ -88,17 +97,6 @@ func (l Languages) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
 // Params retunrs language-specific params merged with the global params.
 func (l *Language) Params() map[string]interface{} {
-	l.paramsInit.Do(func() {
-		// Merge with global config.
-		// TODO(bep) consider making this part of a constructor func.
-
-		globalParams := l.Cfg.GetStringMap("params")
-		for k, v := range globalParams {
-			if _, ok := l.params[k]; !ok {
-				l.params[k] = v
-			}
-		}
-	})
 	return l.params
 }
 

@@ -300,7 +300,6 @@ func (p *PageOutput) Paginator(options ...interface{}) (*Pager, error) {
 			p.paginator = pagers[0]
 			p.paginator.source = "paginator"
 			p.paginator.options = options
-			p.Site.addToPaginationPageCount(uint64(p.paginator.TotalPages()))
 		}
 
 	})
@@ -353,7 +352,6 @@ func (p *PageOutput) Paginate(seq interface{}, options ...interface{}) (*Pager, 
 			p.paginator = pagers[0]
 			p.paginator.source = seq
 			p.paginator.options = options
-			p.Site.addToPaginationPageCount(uint64(p.paginator.TotalPages()))
 		}
 
 	})
@@ -417,6 +415,10 @@ func paginatePages(td targetPathDescriptor, seq interface{}, pagerSize int) (pag
 }
 
 func toPages(seq interface{}) (Pages, error) {
+	if seq == nil {
+		return Pages{}, nil
+	}
+
 	switch seq.(type) {
 	case Pages:
 		return seq.(Pages), nil

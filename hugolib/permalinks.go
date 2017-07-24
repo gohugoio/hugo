@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -156,9 +157,13 @@ func pageToPermalinkTitle(p *Page, _ string) (string, error) {
 
 // pageToPermalinkFilename returns the URL-safe form of the filename
 func pageToPermalinkFilename(p *Page, _ string) (string, error) {
-	//var extension = p.Source.Ext
-	//var name = p.Source.Path()[0 : len(p.Source.Path())-len(extension)]
-	return p.s.PathSpec.URLize(p.Source.TranslationBaseName()), nil
+	name := p.File.TranslationBaseName()
+	if name == "index" {
+		// Page bundles; the directory name will hopefully have a better name.
+		_, name = filepath.Split(p.File.Dir())
+	}
+
+	return p.s.PathSpec.URLize(name), nil
 }
 
 // if the page has a slug, return the slug, else return the title

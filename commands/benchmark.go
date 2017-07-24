@@ -48,12 +48,7 @@ func init() {
 }
 
 func benchmark(cmd *cobra.Command, args []string) error {
-	cfg, err := InitializeConfig(benchmarkCmd)
-	if err != nil {
-		return err
-	}
-
-	c, err := newCommandeer(cfg)
+	c, err := InitializeConfig(false, nil, benchmarkCmd)
 	if err != nil {
 		return err
 	}
@@ -84,7 +79,7 @@ func benchmark(cmd *cobra.Command, args []string) error {
 
 	t := time.Now()
 	for i := 0; i < benchmarkTimes; i++ {
-		if err = c.resetAndBuildSites(false); err != nil {
+		if err = c.resetAndBuildSites(); err != nil {
 			return err
 		}
 	}

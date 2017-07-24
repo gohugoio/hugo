@@ -10,6 +10,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -32,6 +33,9 @@ type Deps struct {
 
 	// The ContentSpec to use
 	*helpers.ContentSpec `json:"-"`
+
+	// The SourceSpec to use
+	SourceSpec *source.SourceSpec `json:"-"`
 
 	// The configuration to use
 	Cfg config.Provider `json:"-"`
@@ -122,6 +126,8 @@ func New(cfg DepsCfg) (*Deps, error) {
 		return nil, err
 	}
 
+	sp := source.NewSourceSpec(cfg.Language, fs)
+
 	d := &Deps{
 		Fs:                  fs,
 		Log:                 logger,
@@ -130,6 +136,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		WithTemplate:        cfg.WithTemplate,
 		PathSpec:            ps,
 		ContentSpec:         contentSpec,
+		SourceSpec:          sp,
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
 	}
@@ -194,4 +201,7 @@ type DepsCfg struct {
 
 	// i18n handling.
 	TranslationProvider ResourceProvider
+
+	// Whether we are in running (server) mode
+	Running bool
 }

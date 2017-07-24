@@ -38,7 +38,7 @@ type Dirs struct {
 	staticDirs    []string
 	AbsStaticDirs []string
 
-	publishDir string
+	Language *helpers.Language
 }
 
 // NewDirs creates a new dirs with the given configuration and filesystem.
@@ -48,7 +48,12 @@ func NewDirs(fs *hugofs.Fs, cfg config.Provider, logger *jww.Notepad) (*Dirs, er
 		return nil, err
 	}
 
-	d := &Dirs{pathSpec: ps, logger: logger}
+	var l *helpers.Language
+	if language, ok := cfg.(*helpers.Language); ok {
+		l = language
+	}
+
+	d := &Dirs{Language: l, pathSpec: ps, logger: logger}
 
 	return d, d.init(cfg)
 
@@ -95,8 +100,6 @@ func (d *Dirs) init(cfg config.Provider) error {
 	for i, di := range d.staticDirs {
 		d.AbsStaticDirs[i] = d.pathSpec.AbsPathify(di) + helpers.FilePathSeparator
 	}
-
-	d.publishDir = d.pathSpec.AbsPathify(cfg.GetString("publishDir")) + helpers.FilePathSeparator
 
 	return nil
 }

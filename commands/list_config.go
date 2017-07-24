@@ -33,7 +33,7 @@ func init() {
 }
 
 func printConfig(cmd *cobra.Command, args []string) error {
-	cfg, err := InitializeConfig(configCmd)
+	cfg, err := InitializeConfig(false, nil, configCmd)
 
 	if err != nil {
 		return err

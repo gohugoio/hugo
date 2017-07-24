@@ -14,7 +14,6 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/viper"
 
@@ -169,6 +168,11 @@ func newDebugLogger() *jww.Notepad {
 func newErrorLogger() *jww.Notepad {
 	return jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 }
+
+func newWarningLogger() *jww.Notepad {
+	return jww.NewNotepad(jww.LevelWarn, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+}
+
 func createWithTemplateFromNameValues(additionalTemplates ...string) func(templ tpl.TemplateHandler) error {
 
 	return func(templ tpl.TemplateHandler) error {
@@ -203,9 +207,17 @@ func buildSingleSiteExpected(t testing.TB, expectBuildError bool, depsCfg deps.D
 	return h.Sites[0]
 }
 
-func writeSourcesToSource(t *testing.T, base string, fs *hugofs.Fs, sources ...source.ByteSource) {
+func writeSourcesToSource(t *testing.T, base string, fs *hugofs.Fs, sources ...[2]string) {
 	for _, src := range sources {
-		writeSource(t, fs, filepath.Join(base, src.Name), string(src.Content))
+		writeSource(t, fs, filepath.Join(base, src[0]), src[1])
+	}
+}
+
+func dumpPages(pages ...*Page) {
+	for i, p := range pages {
+		fmt.Printf("%d: Kind: %s Title: %-10s RelPermalink: %-10s Path: %-10s sections: %s Len Sections(): %d\n",
+			i+1,
+			p.Kind, p.Title, p.RelPermalink(), p.Path(), p.sections, len(p.Sections()))
 	}
 }
 
