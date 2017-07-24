@@ -114,6 +114,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	cfg.Set("paginate", 2)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
 	require.Len(t, s.RegularPages, 21)
 
 	tests := []struct {
@@ -264,6 +265,8 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		}},
 	}
 
+	home := s.getPage(KindHome)
+
 	for _, test := range tests {
 		sections := strings.Split(test.sections, ",")
 		p := s.getPage(KindSection, sections...)
@@ -275,8 +278,6 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		assert.NotNil(p.Parent(), fmt.Sprintf("Parent nil: %q", test.sections))
 		test.verify(p)
 	}
-
-	home := s.getPage(KindHome)
 
 	assert.NotNil(home)
 

@@ -23,7 +23,6 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
@@ -74,11 +73,11 @@ func TestRenderWithInvalidTemplate(t *testing.T) {
 
 func TestDraftAndFutureRender(t *testing.T) {
 	t.Parallel()
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("sect/doc1.md"), Content: []byte("---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*")},
-		{Name: filepath.FromSlash("sect/doc2.md"), Content: []byte("---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*")},
-		{Name: filepath.FromSlash("sect/doc3.md"), Content: []byte("---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*")},
-		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*")},
+	sources := [][2]string{
+		{filepath.FromSlash("sect/doc1.md"), "---\ntitle: doc1\ndraft: true\npublishdate: \"2414-05-29\"\n---\n# doc1\n*some content*"},
+		{filepath.FromSlash("sect/doc2.md"), "---\ntitle: doc2\ndraft: true\npublishdate: \"2012-05-29\"\n---\n# doc2\n*some content*"},
+		{filepath.FromSlash("sect/doc3.md"), "---\ntitle: doc3\ndraft: false\npublishdate: \"2414-05-29\"\n---\n# doc3\n*some content*"},
+		{filepath.FromSlash("sect/doc4.md"), "---\ntitle: doc4\ndraft: false\npublishdate: \"2012-05-29\"\n---\n# doc4\n*some content*"},
 	}
 
 	siteSetup := func(t *testing.T, configKeyValues ...interface{}) *Site {
@@ -91,7 +90,7 @@ func TestDraftAndFutureRender(t *testing.T) {
 		}
 
 		for _, src := range sources {
-			writeSource(t, fs, filepath.Join("content", src.Name), string(src.Content))
+			writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 
 		}
 
@@ -132,9 +131,9 @@ func TestDraftAndFutureRender(t *testing.T) {
 
 func TestFutureExpirationRender(t *testing.T) {
 	t.Parallel()
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("sect/doc3.md"), Content: []byte("---\ntitle: doc1\nexpirydate: \"2400-05-29\"\n---\n# doc1\n*some content*")},
-		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc2\nexpirydate: \"2000-05-29\"\n---\n# doc2\n*some content*")},
+	sources := [][2]string{
+		{filepath.FromSlash("sect/doc3.md"), "---\ntitle: doc1\nexpirydate: \"2400-05-29\"\n---\n# doc1\n*some content*"},
+		{filepath.FromSlash("sect/doc4.md"), "---\ntitle: doc2\nexpirydate: \"2000-05-29\"\n---\n# doc2\n*some content*"},
 	}
 
 	siteSetup := func(t *testing.T) *Site {
@@ -142,7 +141,7 @@ func TestFutureExpirationRender(t *testing.T) {
 		cfg.Set("baseURL", "http://auth/bub")
 
 		for _, src := range sources {
-			writeSource(t, fs, filepath.Join("content", src.Name), string(src.Content))
+			writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 
 		}
 
@@ -234,29 +233,29 @@ func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
 
 	doc3Slashed := filepath.FromSlash("/sect/doc3.md")
 
-	sources := []source.ByteSource{
+	sources := [][2]string{
 		{
-			Name:    filepath.FromSlash("sect/doc1.md"),
-			Content: []byte(fmt.Sprintf(`Ref 2: {{< %s "sect/doc2.md" >}}`, refShortcode)),
+			filepath.FromSlash("sect/doc1.md"),
+			fmt.Sprintf(`Ref 2: {{< %s "sect/doc2.md" >}}`, refShortcode),
 		},
 		// Issue #1148: Make sure that no P-tags is added around shortcodes.
 		{
-			Name: filepath.FromSlash("sect/doc2.md"),
-			Content: []byte(fmt.Sprintf(`**Ref 1:**
+			filepath.FromSlash("sect/doc2.md"),
+			fmt.Sprintf(`**Ref 1:**
 
 {{< %s "sect/doc1.md" >}}
 
-THE END.`, refShortcode)),
+THE END.`, refShortcode),
 		},
 		// Issue #1753: Should not add a trailing newline after shortcode.
 		{
-			Name:    filepath.FromSlash("sect/doc3.md"),
-			Content: []byte(fmt.Sprintf(`**Ref 1:**{{< %s "sect/doc3.md" >}}.`, refShortcode)),
+			filepath.FromSlash("sect/doc3.md"),
+			fmt.Sprintf(`**Ref 1:**{{< %s "sect/doc3.md" >}}.`, refShortcode),
 		},
 		// Issue #3703
 		{
-			Name:    filepath.FromSlash("sect/doc4.md"),
-			Content: []byte(fmt.Sprintf(`**Ref 1:**{{< %s "%s" >}}.`, refShortcode, doc3Slashed)),
+			filepath.FromSlash("sect/doc4.md"),
+			fmt.Sprintf(`**Ref 1:**{{< %s "%s" >}}.`, refShortcode, doc3Slashed),
 		},
 	}
 
@@ -267,7 +266,7 @@ THE END.`, refShortcode)),
 	cfg.Set("verbose", true)
 
 	for _, src := range sources {
-		writeSource(t, fs, filepath.Join("content", src.Name), string(src.Content))
+		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 	}
 
 	s := buildSingleSite(
@@ -323,13 +322,13 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 
 	cfg.Set("uglyURLs", uglyURLs)
 
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("sect/doc1.md"), Content: []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
-		{Name: filepath.FromSlash("sect/doc2.md"), Content: []byte("---\nurl: /ugly.html\nmarkup: markdown\n---\n# title\ndoc2 *content*")},
+	sources := [][2]string{
+		{filepath.FromSlash("sect/doc1.md"), "---\nmarkup: markdown\n---\n# title\nsome *content*"},
+		{filepath.FromSlash("sect/doc2.md"), "---\nurl: /ugly.html\nmarkup: markdown\n---\n# title\ndoc2 *content*"},
 	}
 
 	for _, src := range sources {
-		writeSource(t, fs, filepath.Join("content", src.Name), string(src.Content))
+		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 	}
 
 	writeSource(t, fs, filepath.Join("layouts", "index.html"), "Home Sweet {{ if.IsHome  }}Home{{ end }}.")
@@ -402,7 +401,9 @@ func TestSectionNaming(t *testing.T) {
 	for _, canonify := range []bool{true, false} {
 		for _, uglify := range []bool{true, false} {
 			for _, pluralize := range []bool{true, false} {
-				doTestSectionNaming(t, canonify, uglify, pluralize)
+				t.Run(fmt.Sprintf("canonify=%t,uglify=%t,pluralize=%t", canonify, uglify, pluralize), func(t *testing.T) {
+					doTestSectionNaming(t, canonify, uglify, pluralize)
+				})
 			}
 		}
 	}
@@ -418,12 +419,12 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 		expectedPathSuffix = "/index.html"
 	}
 
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("sect/doc1.html"), Content: []byte("doc1")},
+	sources := [][2]string{
+		{filepath.FromSlash("sect/doc1.html"), "doc1"},
 		// Add one more page to sect to make sure sect is picked in mainSections
-		{Name: filepath.FromSlash("sect/sect.html"), Content: []byte("sect")},
-		{Name: filepath.FromSlash("Fish and Chips/doc2.html"), Content: []byte("doc2")},
-		{Name: filepath.FromSlash("ラーメン/doc3.html"), Content: []byte("doc3")},
+		{filepath.FromSlash("sect/sect.html"), "sect"},
+		{filepath.FromSlash("Fish and Chips/doc2.html"), "doc2"},
+		{filepath.FromSlash("ラーメン/doc3.html"), "doc3"},
 	}
 
 	cfg, fs := newTestCfg()
@@ -433,8 +434,8 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 	cfg.Set("pluralizeListTitles", pluralize)
 	cfg.Set("canonifyURLs", canonify)
 
-	for _, source := range sources {
-		writeSource(t, fs, filepath.Join("content", source.Name), string(source.Content))
+	for _, src := range sources {
+		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 	}
 
 	writeSource(t, fs, filepath.Join("layouts", "_default/single.html"), "{{.Content}}")
@@ -472,17 +473,17 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 }
 func TestSkipRender(t *testing.T) {
 	t.Parallel()
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("sect/doc1.html"), Content: []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
-		{Name: filepath.FromSlash("sect/doc2.html"), Content: []byte("<!doctype html><html><body>more content</body></html>")},
-		{Name: filepath.FromSlash("sect/doc3.md"), Content: []byte("# doc3\n*some* content")},
-		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
-		{Name: filepath.FromSlash("sect/doc5.html"), Content: []byte("<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>")},
-		{Name: filepath.FromSlash("sect/doc6.html"), Content: []byte("<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>")},
-		{Name: filepath.FromSlash("doc7.html"), Content: []byte("<html><body>doc7 content</body></html>")},
-		{Name: filepath.FromSlash("sect/doc8.html"), Content: []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
+	sources := [][2]string{
+		{filepath.FromSlash("sect/doc1.html"), "---\nmarkup: markdown\n---\n# title\nsome *content*"},
+		{filepath.FromSlash("sect/doc2.html"), "<!doctype html><html><body>more content</body></html>"},
+		{filepath.FromSlash("sect/doc3.md"), "# doc3\n*some* content"},
+		{filepath.FromSlash("sect/doc4.md"), "---\ntitle: doc4\n---\n# doc4\n*some content*"},
+		{filepath.FromSlash("sect/doc5.html"), "<!doctype html><html>{{ template \"head\" }}<body>body5</body></html>"},
+		{filepath.FromSlash("sect/doc6.html"), "<!doctype html><html>{{ template \"head_abs\" }}<body>body5</body></html>"},
+		{filepath.FromSlash("doc7.html"), "<html><body>doc7 content</body></html>"},
+		{filepath.FromSlash("sect/doc8.html"), "---\nmarkup: md\n---\n# title\nsome *content*"},
 		// Issue #3021
-		{Name: filepath.FromSlash("doc9.html"), Content: []byte("<html><body>doc9: {{< myshortcode >}}</body></html>")},
+		{filepath.FromSlash("doc9.html"), "<html><body>doc9: {{< myshortcode >}}</body></html>"},
 	}
 
 	cfg, fs := newTestCfg()
@@ -493,7 +494,7 @@ func TestSkipRender(t *testing.T) {
 	cfg.Set("baseURL", "http://auth/bub")
 
 	for _, src := range sources {
-		writeSource(t, fs, filepath.Join("content", src.Name), string(src.Content))
+		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 
 	}
 
@@ -535,9 +536,9 @@ func TestSkipRender(t *testing.T) {
 
 func TestAbsURLify(t *testing.T) {
 	t.Parallel()
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("sect/doc1.html"), Content: []byte("<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>")},
-		{Name: filepath.FromSlash("blue/doc2.html"), Content: []byte("---\nf: t\n---\n<!doctype html><html><body>more content</body></html>")},
+	sources := [][2]string{
+		{filepath.FromSlash("sect/doc1.html"), "<!doctype html><html><head></head><body><a href=\"#frag1\">link</a></body></html>"},
+		{filepath.FromSlash("blue/doc2.html"), "---\nf: t\n---\n<!doctype html><html><body>more content</body></html>"},
 	}
 	for _, baseURL := range []string{"http://auth/bub", "http://base", "//base"} {
 		for _, canonify := range []bool{true, false} {
@@ -549,7 +550,7 @@ func TestAbsURLify(t *testing.T) {
 			cfg.Set("baseURL", baseURL)
 
 			for _, src := range sources {
-				writeSource(t, fs, filepath.Join("content", src.Name), string(src.Content))
+				writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 
 			}
 
@@ -584,23 +585,23 @@ func TestAbsURLify(t *testing.T) {
 	}
 }
 
-var weightedPage1 = []byte(`+++
+var weightedPage1 = `+++
 weight = "2"
 title = "One"
 my_param = "foo"
 my_date = 1979-05-27T07:32:00Z
 +++
-Front Matter with Ordered Pages`)
+Front Matter with Ordered Pages`
 
-var weightedPage2 = []byte(`+++
+var weightedPage2 = `+++
 weight = "6"
 title = "Two"
 publishdate = "2012-03-05"
 my_param = "foo"
 +++
-Front Matter with Ordered Pages 2`)
+Front Matter with Ordered Pages 2`
 
-var weightedPage3 = []byte(`+++
+var weightedPage3 = `+++
 weight = "4"
 title = "Three"
 date = "2012-04-06"
@@ -609,9 +610,9 @@ my_param = "bar"
 only_one = "yes"
 my_date = 2010-05-27T07:32:00Z
 +++
-Front Matter with Ordered Pages 3`)
+Front Matter with Ordered Pages 3`
 
-var weightedPage4 = []byte(`+++
+var weightedPage4 = `+++
 weight = "4"
 title = "Four"
 date = "2012-01-01"
@@ -620,13 +621,13 @@ my_param = "baz"
 my_date = 2010-05-27T07:32:00Z
 categories = [ "hugo" ]
 +++
-Front Matter with Ordered Pages 4. This is longer content`)
+Front Matter with Ordered Pages 4. This is longer content`
 
-var weightedSources = []source.ByteSource{
-	{Name: filepath.FromSlash("sect/doc1.md"), Content: weightedPage1},
-	{Name: filepath.FromSlash("sect/doc2.md"), Content: weightedPage2},
-	{Name: filepath.FromSlash("sect/doc3.md"), Content: weightedPage3},
-	{Name: filepath.FromSlash("sect/doc4.md"), Content: weightedPage4},
+var weightedSources = [][2]string{
+	{filepath.FromSlash("sect/doc1.md"), weightedPage1},
+	{filepath.FromSlash("sect/doc2.md"), weightedPage2},
+	{filepath.FromSlash("sect/doc3.md"), weightedPage3},
+	{filepath.FromSlash("sect/doc4.md"), weightedPage4},
 }
 
 func TestOrderedPages(t *testing.T) {
@@ -635,7 +636,7 @@ func TestOrderedPages(t *testing.T) {
 	cfg.Set("baseURL", "http://auth/bub")
 
 	for _, src := range weightedSources {
-		writeSource(t, fs, filepath.Join("content", src.Name), string(src.Content))
+		writeSource(t, fs, filepath.Join("content", src[0]), src[1])
 
 	}
 
@@ -678,11 +679,11 @@ func TestOrderedPages(t *testing.T) {
 	}
 }
 
-var groupedSources = []source.ByteSource{
-	{Name: filepath.FromSlash("sect1/doc1.md"), Content: weightedPage1},
-	{Name: filepath.FromSlash("sect1/doc2.md"), Content: weightedPage2},
-	{Name: filepath.FromSlash("sect2/doc3.md"), Content: weightedPage3},
-	{Name: filepath.FromSlash("sect3/doc4.md"), Content: weightedPage4},
+var groupedSources = [][2]string{
+	{filepath.FromSlash("sect1/doc1.md"), weightedPage1},
+	{filepath.FromSlash("sect1/doc2.md"), weightedPage2},
+	{filepath.FromSlash("sect2/doc3.md"), weightedPage3},
+	{filepath.FromSlash("sect3/doc4.md"), weightedPage4},
 }
 
 func TestGroupedPages(t *testing.T) {
@@ -822,16 +823,16 @@ func TestGroupedPages(t *testing.T) {
 	}
 }
 
-var pageWithWeightedTaxonomies1 = []byte(`+++
+var pageWithWeightedTaxonomies1 = `+++
 tags = [ "a", "b", "c" ]
 tags_weight = 22
 categories = ["d"]
 title = "foo"
 categories_weight = 44
 +++
-Front Matter with weighted tags and categories`)
+Front Matter with weighted tags and categories`
 
-var pageWithWeightedTaxonomies2 = []byte(`+++
+var pageWithWeightedTaxonomies2 = `+++
 tags = "a"
 tags_weight = 33
 title = "bar"
@@ -840,23 +841,23 @@ categories_weight = 11
 alias = "spf13"
 date = 1979-05-27T07:32:00Z
 +++
-Front Matter with weighted tags and categories`)
+Front Matter with weighted tags and categories`
 
-var pageWithWeightedTaxonomies3 = []byte(`+++
+var pageWithWeightedTaxonomies3 = `+++
 title = "bza"
 categories = [ "e" ]
 categories_weight = 11
 alias = "spf13"
 date = 2010-05-27T07:32:00Z
 +++
-Front Matter with weighted tags and categories`)
+Front Matter with weighted tags and categories`
 
 func TestWeightedTaxonomies(t *testing.T) {
 	t.Parallel()
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("sect/doc1.md"), Content: pageWithWeightedTaxonomies2},
-		{Name: filepath.FromSlash("sect/doc2.md"), Content: pageWithWeightedTaxonomies1},
-		{Name: filepath.FromSlash("sect/doc3.md"), Content: pageWithWeightedTaxonomies3},
+	sources := [][2]string{
+		{filepath.FromSlash("sect/doc1.md"), pageWithWeightedTaxonomies2},
+		{filepath.FromSlash("sect/doc2.md"), pageWithWeightedTaxonomies1},
+		{filepath.FromSlash("sect/doc3.md"), pageWithWeightedTaxonomies3},
 	}
 	taxonomies := make(map[string]string)
 
@@ -884,39 +885,23 @@ func TestWeightedTaxonomies(t *testing.T) {
 	}
 }
 
-func findPage(site *Site, f string) *Page {
-	sp := source.NewSourceSpec(site.Cfg, site.Fs)
-	currentPath := sp.NewFile(filepath.FromSlash(f))
-	//t.Logf("looking for currentPath: %s", currentPath.Path())
-
-	for _, page := range site.Pages {
-		//t.Logf("page: %s", page.Source.Path())
-		if page.Source.Path() == currentPath.Path() {
-			return page
-		}
-	}
-	return nil
-}
-
 func setupLinkingMockSite(t *testing.T) *Site {
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("level2/unique.md"), Content: []byte("")},
-		{Name: filepath.FromSlash("index.md"), Content: []byte("")},
-		{Name: filepath.FromSlash("rootfile.md"), Content: []byte("")},
-		{Name: filepath.FromSlash("root-image.png"), Content: []byte("")},
+	sources := [][2]string{
+		{filepath.FromSlash("level2/unique.md"), ""},
+		{filepath.FromSlash("rootfile.md"), ""},
+		{filepath.FromSlash("root-image.png"), ""},
 
-		{Name: filepath.FromSlash("level2/2-root.md"), Content: []byte("")},
-		{Name: filepath.FromSlash("level2/index.md"), Content: []byte("")},
-		{Name: filepath.FromSlash("level2/common.md"), Content: []byte("")},
+		{filepath.FromSlash("level2/2-root.md"), ""},
+		{filepath.FromSlash("level2/common.md"), ""},
 
-		{Name: filepath.FromSlash("level2/2-image.png"), Content: []byte("")},
-		{Name: filepath.FromSlash("level2/common.png"), Content: []byte("")},
+		{filepath.FromSlash("level2/2-image.png"), ""},
+		{filepath.FromSlash("level2/common.png"), ""},
 
-		{Name: filepath.FromSlash("level2/level3/3-root.md"), Content: []byte("")},
-		{Name: filepath.FromSlash("level2/level3/index.md"), Content: []byte("")},
-		{Name: filepath.FromSlash("level2/level3/common.md"), Content: []byte("")},
-		{Name: filepath.FromSlash("level2/level3/3-image.png"), Content: []byte("")},
-		{Name: filepath.FromSlash("level2/level3/common.png"), Content: []byte("")},
+		{filepath.FromSlash("level2/level3/start.md"), ""},
+		{filepath.FromSlash("level2/level3/3-root.md"), ""},
+		{filepath.FromSlash("level2/level3/common.md"), ""},
+		{filepath.FromSlash("level2/level3/3-image.png"), ""},
+		{filepath.FromSlash("level2/level3/common.png"), ""},
 	}
 
 	cfg, fs := newTestCfg()
@@ -939,7 +924,7 @@ func TestRefLinking(t *testing.T) {
 	t.Parallel()
 	site := setupLinkingMockSite(t)
 
-	currentPage := findPage(site, "level2/level3/index.md")
+	currentPage := site.getPage(KindPage, "level2/level3/start.md")
 	if currentPage == nil {
 		t.Fatalf("failed to find current page in site")
 	}
@@ -953,8 +938,6 @@ func TestRefLinking(t *testing.T) {
 		{"unique.md", "", true, "/level2/unique/"},
 		{"level2/common.md", "", true, "/level2/common/"},
 		{"3-root.md", "", true, "/level2/level3/3-root/"},
-		{"level2/level3/index.md", "amp", true, "/amp/level2/level3/"},
-		{"level2/index.md", "amp", false, "http://auth/amp/level2/"},
 	} {
 		if out, err := site.Info.refLink(test.link, currentPage, test.relative, test.outputFormat); err != nil || out != test.expected {
 			t.Errorf("[%d] Expected %s to resolve to (%s), got (%s) - error: %s", i, test.link, test.expected, out, err)

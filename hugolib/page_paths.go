@@ -82,7 +82,6 @@ func (p *Page) createTargetPathDescriptor(t output.Format) (targetPathDescriptor
 }
 
 func (p *Page) initTargetPathDescriptor() error {
-
 	d := &targetPathDescriptor{
 		PathSpec:    p.s.PathSpec,
 		Kind:        p.Kind,
@@ -126,6 +125,35 @@ func (p *Page) initTargetPathDescriptor() error {
 
 }
 
+func (p *Page) initURLs() error {
+	if len(p.outputFormats) == 0 {
+		p.outputFormats = p.s.outputFormats[p.Kind]
+	}
+	rel := p.createRelativePermalink()
+
+	var err error
+	f := p.outputFormats[0]
+	p.permalink, err = p.s.permalinkForOutputFormat(rel, f)
+	if err != nil {
+		return err
+	}
+	rel = p.s.PathSpec.PrependBasePath(rel)
+	p.relPermalink = rel
+	p.relPermalinkBase = strings.TrimSuffix(rel, f.MediaType.FullSuffix())
+	p.layoutDescriptor = p.createLayoutDescriptor()
+	return nil
+}
+
+func (p *Page) initPaths() error {
+	if err := p.initTargetPathDescriptor(); err != nil {
+		return err
+	}
+	if err := p.initURLs(); err != nil {
+		return err
+	}
+	return nil
+}
+
 // createTargetPath creates the target filename for this Page for the given
 // output.Format. Some additional URL parts can also be provided, the typical
 // use case being pagination.
@@ -156,12 +184,7 @@ func createTargetPath(d targetPathDescriptor) string {
 
 	isUgly := d.UglyURLs && !d.Type.NoUgly
 
-	// If the page output format's base name is the same as the page base name,
-	// we treat it as an ugly path, i.e.
-	// my-blog-post-1/index.md => my-blog-post-1/index.html
-	// (given the default values for that content file, i.e. no slug set etc.).
-	// This introduces the behaviour from < Hugo 0.20, see issue #3396.
-	if d.BaseName != "" && d.BaseName == d.Type.BaseName {
+	if d.ExpandedPermalink == "" && d.BaseName != "" && d.BaseName == d.Type.BaseName {
 		isUgly = true
 	}
 
@@ -247,6 +270,9 @@ func createTargetPath(d targetPathDescriptor) string {
 func (p *Page) createRelativePermalink() string {
 
 	if len(p.outputFormats) == 0 {
+		if p.Kind == kindUnknown {
+			panic(fmt.Sprintf("Page %q has unknown kind", p.Title))
+		}
 		panic(fmt.Sprintf("Page %q missing output format(s)", p.Title))
 	}
 
@@ -264,6 +290,7 @@ func (p *Page) createRelativePermalinkForOutputFormat(f output.Format) string {
 		p.s.Log.ERROR.Printf("Failed to create permalink for page %q: %s", p.FullFilePath(), err)
 		return ""
 	}
+
 	// For /index.json etc. we must  use the full path.
 	if strings.HasSuffix(f.BaseFilename(), "html") {
 		tp = strings.TrimSuffix(tp, f.BaseFilename())

@@ -29,11 +29,13 @@ func TestEncodePage(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
 
-	// borrowed from menu_test.go
-	for _, src := range menuPageSources {
-		writeSource(t, fs, filepath.Join("content", src.Name), string(src.Content))
+	writeSource(t, fs, filepath.Join("content", "page.md"), `---
+title: Simple
+---
+Summary text
 
-	}
+<!--more-->
+`)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 

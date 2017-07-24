@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"bytes"
-	"time"
 
 	"errors"
 
@@ -30,7 +29,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		h.Metrics.Reset()
 	}
 
-	t0 := time.Now()
+	//t0 := time.Now()
 
 	// Need a pointer as this may be modified.
 	conf := &config
@@ -61,10 +60,6 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 
 	if err := h.render(conf); err != nil {
 		return err
-	}
-
-	if config.PrintStats {
-		h.Log.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
 	}
 
 	if h.Metrics != nil {
@@ -101,8 +96,6 @@ func (h *HugoSites) init(config *BuildCfg) error {
 		}
 	}
 
-	h.runMode.Watching = config.Watching
-
 	return nil
 }
 
@@ -115,11 +108,9 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 		return errors.New("Rebuild does not support 'ResetState'.")
 	}
 
-	if !config.Watching {
+	if !h.running {
 		return errors.New("Rebuild called when not in watch mode")
 	}
-
-	h.runMode.Watching = config.Watching
 
 	if config.whatChanged.source {
 		// This is for the non-renderable content pages (rarely used, I guess).
@@ -147,7 +138,7 @@ func (h *HugoSites) process(config *BuildCfg, events ...fsnotify.Event) error {
 
 	if len(events) > 0 {
 		// This is a rebuild
-		changed, err := firstSite.reProcess(events)
+		changed, err := firstSite.processPartial(events)
 		config.whatChanged = &changed
 		return err
 	}
@@ -188,25 +179,19 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 	}
 
 	for _, s := range h.Sites {
-		s.siteStats = &siteStats{}
 		for _, p := range s.Pages {
 			// May have been set in front matter
 			if len(p.outputFormats) == 0 {
 				p.outputFormats = s.outputFormats[p.Kind]
 			}
-
-			cnt := len(p.outputFormats)
-			if p.Kind == KindPage {
-				s.siteStats.pageCountRegular += cnt
+			for _, r := range p.Resources.ByType(pageResourceType) {
+				r.(*Page).outputFormats = p.outputFormats
 			}
-			s.siteStats.pageCount += cnt
 
-			if err := p.initTargetPathDescriptor(); err != nil {
+			if err := p.initPaths(); err != nil {
 				return err
 			}
-			if err := p.initURLs(); err != nil {
-				return err
-			}
+
 		}
 		s.assembleMenus()
 		s.refreshPageCaches()
@@ -222,7 +207,6 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 }
 
 func (h *HugoSites) render(config *BuildCfg) error {
-
 	for _, s := range h.Sites {
 		s.initRenderFormats()
 		for i, rf := range s.renderFormats {
@@ -234,10 +218,6 @@ func (h *HugoSites) render(config *BuildCfg) error {
 					return err
 				}
 			}
-		}
-
-		if !config.SkipRender && config.PrintStats {
-			s.Stats()
 		}
 	}
 

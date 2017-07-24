@@ -17,6 +17,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/source"
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
@@ -73,9 +75,8 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 
 	for _, currentSource := range sources {
 		for _, r := range currentSource.Files() {
-			err := i18nBundle.ParseTranslationFileBytes(r.LogicalName(), r.Bytes())
-			if err != nil {
-				return fmt.Errorf("Failed to load translations in file %q: %s", r.LogicalName(), err)
+			if err := addTranslationFile(i18nBundle, r); err != nil {
+				return err
 			}
 		}
 	}
@@ -86,6 +87,19 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 
 	return nil
 
+}
+
+func addTranslationFile(bundle *bundle.Bundle, r source.ReadableFile) error {
+	f, err := r.Open()
+	if err != nil {
+		return fmt.Errorf("Failed to open translations file %q: %s", r.LogicalName(), err)
+	}
+	defer f.Close()
+	err = bundle.ParseTranslationFileBytes(r.LogicalName(), helpers.ReaderToBytes(f))
+	if err != nil {
+		return fmt.Errorf("Failed to load translations in file %q: %s", r.LogicalName(), err)
+	}
+	return nil
 }
 
 // Clone sets the language func for the new language.

@@ -18,6 +18,7 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	src "github.com/gohugoio/hugo/source"
 )
 
 type commandeer struct {
@@ -25,7 +26,10 @@ type commandeer struct {
 	pathSpec    *helpers.PathSpec
 	visitedURLs *types.EvictingStringQueue
 
+	staticDirsConfig []*src.Dirs
+
 	serverPorts []int
+	languages   helpers.Languages
 
 	configured bool
 }
@@ -44,10 +48,6 @@ func (c *commandeer) PathSpec() *helpers.PathSpec {
 	return c.pathSpec
 }
 
-func (c *commandeer) languages() helpers.Languages {
-	return c.Cfg.Get("languagesSorted").(helpers.Languages)
-}
-
 func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	c.DepsCfg.Fs = fs
 	ps, err := helpers.NewPathSpec(fs, c.Cfg)
@@ -55,18 +55,26 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 		return err
 	}
 	c.pathSpec = ps
+
+	dirsConfig, err := c.createStaticDirsConfig()
+	if err != nil {
+		return err
+	}
+	c.staticDirsConfig = dirsConfig
+
 	return nil
 }
 
-func newCommandeer(cfg *deps.DepsCfg) (*commandeer, error) {
-	l := cfg.Language
-	if l == nil {
-		l = helpers.NewDefaultLanguage(cfg.Cfg)
-	}
-	ps, err := helpers.NewPathSpec(cfg.Fs, l)
-	if err != nil {
-		return nil, err
+func newCommandeer(cfg *deps.DepsCfg, running bool) (*commandeer, error) {
+	cfg.Running = running
+
+	var languages helpers.Languages
+
+	if l, ok := cfg.Cfg.Get("languagesSorted").(helpers.Languages); ok {
+		languages = l
 	}
 
-	return &commandeer{DepsCfg: cfg, pathSpec: ps, visitedURLs: types.NewEvictingStringQueue(10)}, nil
+	c := &commandeer{DepsCfg: cfg, languages: languages, visitedURLs: types.NewEvictingStringQueue(10)}
+
+	return c, nil
 }

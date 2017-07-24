@@ -98,6 +98,26 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 				continue
 			}
 
+			// We only need to re-publish the resources if the output format is different
+			// from all of the previous (e.g. the "amp" use case).
+			shouldRender := i == 0
+			if i > 0 {
+				for j := i; j >= 0; j-- {
+					if outFormat.Path != page.outputFormats[j].Path {
+						shouldRender = true
+					} else {
+						shouldRender = false
+					}
+				}
+			}
+
+			if shouldRender {
+				if err := pageOutput.renderResources(); err != nil {
+					s.Log.ERROR.Printf("Failed to render resources for page %q: %s", page, err)
+					continue
+				}
+			}
+
 			var layouts []string
 
 			if page.selfLayout != "" {
@@ -125,7 +145,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 
 				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", pageOutput.Kind, targetPath, layouts)
 
-				if err := s.renderAndWritePage("page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
+				if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
 					results <- err
 				}
 
@@ -191,6 +211,7 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 			}
 
 			if err := s.renderAndWritePage(
+				&s.PathSpec.ProcessingStats.PaginatorPages,
 				pagerNode.Title,
 				targetPath, pagerNode, layouts...); err != nil {
 				return err
@@ -232,7 +253,7 @@ func (s *Site) renderRSS(p *PageOutput) error {
 		return err
 	}
 
-	return s.renderAndWriteXML(p.Title,
+	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Pages, p.Title,
 		targetPath, p, layouts...)
 }
 
@@ -271,7 +292,7 @@ func (s *Site) render404() error {
 		s.Log.ERROR.Printf("Failed to create target path for page %q: %s", p, err)
 	}
 
-	return s.renderAndWritePage("404 page", targetPath, pageOutput, s.appendThemeTemplates(nfLayouts)...)
+	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "404 page", targetPath, pageOutput, s.appendThemeTemplates(nfLayouts)...)
 }
 
 func (s *Site) renderSitemap() error {
@@ -325,7 +346,7 @@ func (s *Site) renderSitemap() error {
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}
 	addLanguagePrefix := n.Site.IsMultiLingual()
 
-	return s.renderAndWriteXML("sitemap",
+	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemap",
 		n.addLangPathPrefixIfFlagSet(page.Sitemap.Filename, addLanguagePrefix), n, s.appendThemeTemplates(smLayouts)...)
 }
 
@@ -357,7 +378,7 @@ func (s *Site) renderRobotsTXT() error {
 		return nil
 	}
 
-	return s.publish("robots.txt", outBuffer)
+	return s.publish(&s.PathSpec.ProcessingStats.Pages, "robots.txt", outBuffer)
 }
 
 // renderAliases renders shell pages that simply have a redirect in the header.

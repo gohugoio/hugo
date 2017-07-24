@@ -45,7 +45,7 @@ type ArchetypeFileData struct {
 
 	// The target content file. Note that the .Content will be empty, as that
 	// has not been created yet.
-	*source.File
+	source.File
 }
 
 const (
@@ -82,7 +82,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 	)
 
 	sp := source.NewSourceSpec(s.Deps.Cfg, s.Deps.Fs)
-	f := sp.NewFile(targetPath)
+	f := sp.NewFileInfo("", targetPath, nil)
 
 	data := ArchetypeFileData{
 		Type: kind,

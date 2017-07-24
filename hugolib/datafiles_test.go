@@ -27,16 +27,15 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/parser"
-	"github.com/gohugoio/hugo/source"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDataDirJSON(t *testing.T) {
 	t.Parallel()
 
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("data/test/foo.json"), Content: []byte(`{ "bar": "foofoo"  }`)},
-		{Name: filepath.FromSlash("data/test.json"), Content: []byte(`{ "hello": [ { "world": "foo" } ] }`)},
+	sources := [][2]string{
+		{filepath.FromSlash("data/test/foo.json"), `{ "bar": "foofoo"  }`},
+		{filepath.FromSlash("data/test.json"), `{ "hello": [ { "world": "foo" } ] }`},
 	}
 
 	expected, err := parser.HandleJSONMetaData([]byte(`{ "test": { "hello": [{ "world": "foo"  }] , "foo": { "bar":"foofoo" } } }`))
@@ -51,8 +50,8 @@ func TestDataDirJSON(t *testing.T) {
 func TestDataDirToml(t *testing.T) {
 	t.Parallel()
 
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("data/test/kung.toml"), Content: []byte("[foo]\nbar = 1")},
+	sources := [][2]string{
+		{"data/test/kung.toml", "[foo]\nbar = 1"},
 	}
 
 	expected, err := parser.HandleTOMLMetaData([]byte("[test]\n[test.kung]\n[test.kung.foo]\nbar = 1"))
@@ -67,12 +66,12 @@ func TestDataDirToml(t *testing.T) {
 func TestDataDirYAMLWithOverridenValue(t *testing.T) {
 	t.Parallel()
 
-	sources := []source.ByteSource{
+	sources := [][2]string{
 		// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
-		{Name: filepath.FromSlash("data/a.yaml"), Content: []byte("a: 1")},
-		{Name: filepath.FromSlash("data/test/v1.yaml"), Content: []byte("v1-2: 2")},
-		{Name: filepath.FromSlash("data/test/v2.yaml"), Content: []byte("v2:\n- 2\n- 3")},
-		{Name: filepath.FromSlash("data/test.yaml"), Content: []byte("v1: 1")},
+		{filepath.FromSlash("data/a.yaml"), "a: 1"},
+		{filepath.FromSlash("data/test/v1.yaml"), "v1-2: 2"},
+		{filepath.FromSlash("data/test/v2.yaml"), "v2:\n- 2\n- 3"},
+		{filepath.FromSlash("data/test.yaml"), "v1: 1"},
 	}
 
 	expected := map[string]interface{}{"a": map[string]interface{}{"a": 1},
@@ -85,10 +84,10 @@ func TestDataDirYAMLWithOverridenValue(t *testing.T) {
 func TestDataDirMultipleSources(t *testing.T) {
 	t.Parallel()
 
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("data/test/first.toml"), Content: []byte("bar = 1")},
-		{Name: filepath.FromSlash("themes/mytheme/data/test/first.toml"), Content: []byte("bar = 2")},
-		{Name: filepath.FromSlash("data/test/second.toml"), Content: []byte("tender = 2")},
+	sources := [][2]string{
+		{filepath.FromSlash("data/test/first.toml"), "bar = 1"},
+		{filepath.FromSlash("themes/mytheme/data/test/first.toml"), "bar = 2"},
+		{filepath.FromSlash("data/test/second.toml"), "tender = 2"},
 	}
 
 	expected, _ := parser.HandleTOMLMetaData([]byte("[test.first]\nbar = 1\n[test.second]\ntender=2"))
@@ -98,7 +97,7 @@ func TestDataDirMultipleSources(t *testing.T) {
 
 }
 
-func doTestDataDir(t *testing.T, expected interface{}, sources []source.ByteSource, configKeyValues ...interface{}) {
+func doTestDataDir(t *testing.T, expected interface{}, sources [][2]string, configKeyValues ...interface{}) {
 	var (
 		cfg, fs = newTestCfg()
 	)

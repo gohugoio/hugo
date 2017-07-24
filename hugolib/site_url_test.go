@@ -20,7 +20,6 @@ import (
 	"html/template"
 
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/source"
 	"github.com/stretchr/testify/require"
 )
 
@@ -33,9 +32,9 @@ slug: slug-doc-2
 slug doc 2 content
 `
 
-var urlFakeSource = []source.ByteSource{
-	{Name: filepath.FromSlash("content/blue/doc1.md"), Content: []byte(slugDoc1)},
-	{Name: filepath.FromSlash("content/blue/doc2.md"), Content: []byte(slugDoc2)},
+var urlFakeSource = [][2]string{
+	{filepath.FromSlash("content/blue/doc1.md"), slugDoc1},
+	{filepath.FromSlash("content/blue/doc2.md"), slugDoc2},
 }
 
 // Issue #1105

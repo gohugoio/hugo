@@ -79,7 +79,6 @@ func TestPageTargetPath(t *testing.T) {
 									Type:     output.HTMLFormat}, "/a/b/mypage/index.html"},
 
 							{
-								// Issue #3396
 								"HTML page with index as base", targetPathDescriptor{
 									Kind:     KindPage,
 									Dir:      "/a/b",

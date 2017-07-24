@@ -15,6 +15,7 @@ package helpers
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
@@ -31,6 +32,7 @@ type PathSpec struct {
 	canonifyURLs       bool
 
 	language *Language
+	//StatsCounter *siteSta
 
 	// pagination path handling
 	paginatePath string
@@ -38,10 +40,12 @@ type PathSpec struct {
 	theme string
 
 	// Directories
+	contentDir string
 	themesDir  string
 	layoutDir  string
 	workingDir string
 	staticDirs []string
+	PublishDir string
 
 	// The PathSpec looks up its config settings in both the current language
 	// and then in the global Viper config.
@@ -51,6 +55,8 @@ type PathSpec struct {
 	defaultContentLanguageInSubdir bool
 	defaultContentLanguage         string
 	multilingual                   bool
+
+	ProcessingStats *ProcessingStats
 
 	// The file systems to use
 	Fs *hugofs.Fs
@@ -79,6 +85,11 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		staticDirs = append(staticDirs, getStringOrStringSlice(cfg, "staticDir", i)...)
 	}
 
+	var lang string
+	if l, ok := cfg.(*Language); ok {
+		lang = l.Lang
+	}
+
 	ps := &PathSpec{
 		Fs:                             fs,
 		Cfg:                            cfg,
@@ -91,12 +102,22 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		defaultContentLanguage:         cfg.GetString("defaultContentLanguage"),
 		paginatePath:                   cfg.GetString("paginatePath"),
 		BaseURL:                        baseURL,
+		contentDir:                     cfg.GetString("contentDir"),
 		themesDir:                      cfg.GetString("themesDir"),
 		layoutDir:                      cfg.GetString("layoutDir"),
 		workingDir:                     cfg.GetString("workingDir"),
 		staticDirs:                     staticDirs,
 		theme:                          cfg.GetString("theme"),
+		ProcessingStats:                NewProcessingStats(lang),
 	}
+
+	publishDir := ps.AbsPathify(cfg.GetString("publishDir")) + FilePathSeparator
+	// If root, remove the second '/'
+	if publishDir == "//" {
+		publishDir = FilePathSeparator
+	}
+
+	ps.PublishDir = publishDir
 
 	if language, ok := cfg.(*Language); ok {
 		ps.language = language
@@ -129,6 +150,11 @@ func (p *PathSpec) PaginatePath() string {
 	return p.paginatePath
 }
 
+// ContentDir returns the configured workingDir.
+func (p *PathSpec) ContentDir() string {
+	return p.contentDir
+}
+
 // WorkingDir returns the configured workingDir.
 func (p *PathSpec) WorkingDir() string {
 	return p.workingDir
@@ -152,4 +178,14 @@ func (p *PathSpec) Theme() string {
 // Theme returns the theme relative theme dir.
 func (p *PathSpec) ThemesDir() string {
 	return p.themesDir
+}
+
+// PermalinkForBaseURL creates a permalink from the given link and baseURL.
+func (p *PathSpec) PermalinkForBaseURL(link, baseURL string) string {
+	link = strings.TrimPrefix(link, "/")
+	if !strings.HasSuffix(baseURL, "/") {
+		baseURL += "/"
+	}
+	return baseURL + link
+
 }

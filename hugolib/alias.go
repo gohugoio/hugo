@@ -109,7 +109,7 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, p *Page)
 		return err
 	}
 
-	return s.publish(targetPath, aliasContent)
+	return s.publish(&s.PathSpec.ProcessingStats.Aliases, targetPath, aliasContent)
 
 }
 

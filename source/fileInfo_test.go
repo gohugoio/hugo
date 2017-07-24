@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2017-present The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,13 +13,10 @@
 
 package source
 
-// ByteSource represents a source's name and content.
-// It's currently only used for testing purposes.
-type ByteSource struct {
-	Name    string
-	Content []byte
-}
+import (
+	"testing"
+)
 
-func (b *ByteSource) String() string {
-	return b.Name + " " + string(b.Content)
+func TestFileInfo(t *testing.T) {
+
 }

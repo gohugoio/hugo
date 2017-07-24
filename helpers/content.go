@@ -47,6 +47,10 @@ type ContentSpec struct {
 	// SummaryLength is the length of the summary that Hugo extracts from a content.
 	summaryLength int
 
+	BuildFuture  bool
+	BuildExpired bool
+	BuildDrafts  bool
+
 	Highlight            func(code, lang, optsStr string) (string, error)
 	defatultPygmentsOpts map[string]string
 
@@ -62,6 +66,9 @@ func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
 		footnoteReturnLinkContents: cfg.GetString("footnoteReturnLinkContents"),
 		summaryLength:              cfg.GetInt("summaryLength"),
+		BuildFuture:                cfg.GetBool("buildFuture"),
+		BuildExpired:               cfg.GetBool("buildExpired"),
+		BuildDrafts:                cfg.GetBool("buildDrafts"),
 
 		cfg: cfg,
 	}

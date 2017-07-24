@@ -16,7 +16,6 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/source"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -26,6 +25,7 @@ type testSiteConfig struct {
 	DefaultContentLanguage         string
 	DefaultContentLanguageInSubdir bool
 	Fs                             afero.Fs
+	Running                        bool
 }
 
 func TestMultiSitesMainLangInRoot(t *testing.T) {
@@ -226,7 +226,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	gp1 := sites.GetContentPage(filepath.FromSlash("content/sect/doc1.en.md"))
 	require.NotNil(t, gp1)
 	require.Equal(t, "doc1", gp1.Title)
-	gp2 := sites.GetContentPage(filepath.FromSlash("content/sect/notfound.md"))
+	gp2 := sites.GetContentPage(filepath.FromSlash("content/dummysect/notfound.md"))
 	require.Nil(t, gp2)
 
 	enSite := sites.Sites[0]
@@ -238,7 +238,6 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	if len(enSite.RegularPages) != 4 {
 		t.Fatal("Expected 4 english pages")
 	}
-	require.Len(t, enSite.Source.Files(), 14, "should have 13 source files")
 	require.Len(t, enSite.AllPages, 28, "should have 28 total pages (including translations and index types)")
 
 	doc1en := enSite.RegularPages[0]
@@ -401,12 +400,11 @@ func TestMultiSitesRebuild(t *testing.T) {
 	if !isCI() {
 		defer leaktest.CheckTimeout(t, 30*time.Second)()
 	}
-	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: true}
+	siteConfig := testSiteConfig{Running: true, Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: true}
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
 	fs := sites.Fs
-	cfg := BuildCfg{Watching: true}
 	th := testHelper{sites.Cfg, fs, t}
-
+	cfg := BuildCfg{}
 	err := sites.Build(cfg)
 
 	if err != nil {
@@ -446,8 +444,10 @@ func TestMultiSitesRebuild(t *testing.T) {
 		// * Change a template
 		// * Change language file
 		{
-			nil,
-			[]fsnotify.Event{{Name: "content/sect/doc2.en.md", Op: fsnotify.Remove}},
+			func(t *testing.T) {
+				fs.Source.Remove("content/sect/doc2.en.md")
+			},
+			[]fsnotify.Event{{Name: filepath.FromSlash("content/sect/doc2.en.md"), Op: fsnotify.Remove}},
 			func(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 3, "1 en removed")
 
@@ -467,9 +467,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 				writeNewContentFile(t, fs, "new_fr_1", "2016-07-30", "content/new1.fr.md", 10)
 			},
 			[]fsnotify.Event{
-				{Name: "content/new1.en.md", Op: fsnotify.Create},
-				{Name: "content/new2.en.md", Op: fsnotify.Create},
-				{Name: "content/new1.fr.md", Op: fsnotify.Create},
+				{Name: filepath.FromSlash("content/new1.en.md"), Op: fsnotify.Create},
+				{Name: filepath.FromSlash("content/new2.en.md"), Op: fsnotify.Create},
+				{Name: filepath.FromSlash("content/new1.fr.md"), Op: fsnotify.Create},
 			},
 			func(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 5)
@@ -490,7 +490,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				doc1 += "CHANGED"
 				writeSource(t, fs, p, doc1)
 			},
-			[]fsnotify.Event{{Name: "content/sect/doc1.en.md", Op: fsnotify.Write}},
+			[]fsnotify.Event{{Name: filepath.FromSlash("content/sect/doc1.en.md"), Op: fsnotify.Write}},
 			func(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 5)
 				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
@@ -506,8 +506,8 @@ func TestMultiSitesRebuild(t *testing.T) {
 				}
 			},
 			[]fsnotify.Event{
-				{Name: "content/new1renamed.en.md", Op: fsnotify.Rename},
-				{Name: "content/new1.en.md", Op: fsnotify.Rename},
+				{Name: filepath.FromSlash("content/new1renamed.en.md"), Op: fsnotify.Rename},
+				{Name: filepath.FromSlash("content/new1.en.md"), Op: fsnotify.Rename},
 			},
 			func(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 5, "Rename")
@@ -523,7 +523,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				templateContent += "{{ print \"Template Changed\"}}"
 				writeSource(t, fs, template, templateContent)
 			},
-			[]fsnotify.Event{{Name: "layouts/_default/single.html", Op: fsnotify.Write}},
+			[]fsnotify.Event{{Name: filepath.FromSlash("layouts/_default/single.html"), Op: fsnotify.Write}},
 			func(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 5)
 				require.Len(t, enSite.AllPages, 30)
@@ -540,7 +540,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				langContent = strings.Replace(langContent, "Bonjour", "Salut", 1)
 				writeSource(t, fs, languageFile, langContent)
 			},
-			[]fsnotify.Event{{Name: "i18n/fr.yaml", Op: fsnotify.Write}},
+			[]fsnotify.Event{{Name: filepath.FromSlash("i18n/fr.yaml"), Op: fsnotify.Write}},
 			func(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 5)
 				require.Len(t, enSite.AllPages, 30)
@@ -563,7 +563,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				writeSource(t, fs, "layouts/shortcodes/shortcode.html", "Modified Shortcode: {{ i18n \"hello\" }}")
 			},
 			[]fsnotify.Event{
-				{Name: "layouts/shortcodes/shortcode.html", Op: fsnotify.Write},
+				{Name: filepath.FromSlash("layouts/shortcodes/shortcode.html"), Op: fsnotify.Write},
 			},
 			func(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 5)
@@ -1097,16 +1097,16 @@ hello:
 	}
 
 	// Sources
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("root.en.md"), Content: []byte(`---
+	sources := [][2]string{
+		{filepath.FromSlash("root.en.md"), `---
 title: root
 weight: 10000
 slug: root
 publishdate: "2000-01-01"
 ---
 # root
-`)},
-		{Name: filepath.FromSlash("sect/doc1.en.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("sect/doc1.en.md"), `---
 title: doc1
 weight: 1
 slug: doc1-slug
@@ -1122,8 +1122,8 @@ publishdate: "2000-01-01"
 {{< lingo >}}
 
 NOTE: slug should be used as URL
-`)},
-		{Name: filepath.FromSlash("sect/doc1.fr.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("sect/doc1.fr.md"), `---
 title: doc1
 weight: 1
 plaques:
@@ -1140,8 +1140,8 @@ publishdate: "2000-01-04"
 
 NOTE: should be in the 'en' Page's 'Translations' field.
 NOTE: date is after "doc3"
-`)},
-		{Name: filepath.FromSlash("sect/doc2.en.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("sect/doc2.en.md"), `---
 title: doc2
 weight: 2
 publishdate: "2000-01-02"
@@ -1149,8 +1149,8 @@ publishdate: "2000-01-02"
 # doc2
 *some content*
 NOTE: without slug, "doc2" should be used, without ".en" as URL
-`)},
-		{Name: filepath.FromSlash("sect/doc3.en.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("sect/doc3.en.md"), `---
 title: doc3
 weight: 3
 publishdate: "2000-01-03"
@@ -1163,8 +1163,8 @@ url: /superbob
 # doc3
 *some content*
 NOTE: third 'en' doc, should trigger pagination on home page.
-`)},
-		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("sect/doc4.md"), `---
 title: doc4
 weight: 4
 plaques:
@@ -1175,8 +1175,8 @@ publishdate: "2000-01-05"
 *du contenu francophone*
 NOTE: should use the defaultContentLanguage and mark this doc as 'fr'.
 NOTE: doesn't have any corresponding translation in 'en'
-`)},
-		{Name: filepath.FromSlash("other/doc5.fr.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("other/doc5.fr.md"), `---
 title: doc5
 weight: 5
 publishdate: "2000-01-06"
@@ -1184,45 +1184,45 @@ publishdate: "2000-01-06"
 # doc5
 *autre contenu francophone*
 NOTE: should use the "permalinks" configuration with :filename
-`)},
+`},
 		// Add some for the stats
-		{Name: filepath.FromSlash("stats/expired.fr.md"), Content: []byte(`---
+		{filepath.FromSlash("stats/expired.fr.md"), `---
 title: expired
 publishdate: "2000-01-06"
 expiryDate: "2001-01-06"
 ---
 # Expired
-`)},
-		{Name: filepath.FromSlash("stats/future.fr.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("stats/future.fr.md"), `---
 title: future
 weight: 6
 publishdate: "2100-01-06"
 ---
 # Future
-`)},
-		{Name: filepath.FromSlash("stats/expired.en.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("stats/expired.en.md"), `---
 title: expired
 weight: 7
 publishdate: "2000-01-06"
 expiryDate: "2001-01-06"
 ---
 # Expired
-`)},
-		{Name: filepath.FromSlash("stats/future.en.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("stats/future.en.md"), `---
 title: future
 weight: 6
 publishdate: "2100-01-06"
 ---
 # Future
-`)},
-		{Name: filepath.FromSlash("stats/draft.en.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("stats/draft.en.md"), `---
 title: expired
 publishdate: "2000-01-06"
 draft: true
 ---
 # Draft
-`)},
-		{Name: filepath.FromSlash("stats/tax.nn.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("stats/tax.nn.md"), `---
 title: Tax NN
 weight: 8
 publishdate: "2000-01-06"
@@ -1231,8 +1231,8 @@ lag:
 - Sogndal
 ---
 # Tax NN
-`)},
-		{Name: filepath.FromSlash("stats/tax.nb.md"), Content: []byte(`---
+`},
+		{filepath.FromSlash("stats/tax.nb.md"), `---
 title: Tax NB
 weight: 8
 publishdate: "2000-01-06"
@@ -1241,7 +1241,7 @@ lag:
 - Sogndal
 ---
 # Tax NB
-`)},
+`},
 	}
 
 	configFile := "multilangconfig." + configSuffix
@@ -1252,10 +1252,8 @@ lag:
 
 	fs := hugofs.NewFrom(mf, cfg)
 
-	// Hugo support using ByteSource's directly (for testing),
-	// but to make it more real, we write them to the mem file system.
 	for _, s := range sources {
-		if err := afero.WriteFile(mf, filepath.Join("content", s.Name), s.Content, 0755); err != nil {
+		if err := afero.WriteFile(mf, filepath.Join("content", s[0]), []byte(s[1]), 0755); err != nil {
 			t.Fatalf("Failed to write file: %s", err)
 		}
 	}
@@ -1263,7 +1261,7 @@ lag:
 	// Add some data
 	writeSource(t, fs, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
 
-	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg}) //, Logger: newDebugLogger()})
+	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg, Running: siteConfig.Running}) //, Logger: newDebugLogger()})
 
 	if err != nil {
 		t.Fatalf("Failed to create sites: %s", err)
@@ -1311,7 +1309,7 @@ func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
 		// Print some debug info
-		root := strings.Split(filename, helpers.FilePathSeparator)[0]
+		root := "/" //strings.Split(filename, helpers.FilePathSeparator)[0]
 		afero.Walk(fs, root, func(path string, info os.FileInfo, err error) error {
 			if info != nil && !info.IsDir() {
 				fmt.Println("    ", path)

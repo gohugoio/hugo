@@ -16,8 +16,11 @@ package hugolib
 import (
 	"fmt"
 	"html/template"
+	"os"
 	"strings"
 	"sync"
+
+	"github.com/gohugoio/hugo/resource"
 
 	"github.com/gohugoio/hugo/media"
 
@@ -33,6 +36,10 @@ type PageOutput struct {
 	// Pagination
 	paginator     *Pager
 	paginatorInit sync.Once
+
+	// Page output specific resources
+	resources     resource.Resources
+	resourcesInit sync.Once
 
 	// Keep this to create URL/path variations, i.e. paginators.
 	targetPathDescriptor targetPathDescriptor
@@ -51,10 +58,7 @@ func (p *PageOutput) targetPath(addends ...string) (string, error) {
 func newPageOutput(p *Page, createCopy bool, f output.Format) (*PageOutput, error) {
 	// TODO(bep) This is only needed for tests and we should get rid of it.
 	if p.targetPathDescriptorPrototype == nil {
-		if err := p.initTargetPathDescriptor(); err != nil {
-			return nil, err
-		}
-		if err := p.initURLs(); err != nil {
+		if err := p.initPaths(); err != nil {
 			return nil, err
 		}
 	}
@@ -239,6 +243,68 @@ func (p *PageOutput) AlternativeOutputFormats() (OutputFormats, error) {
 		o = append(o, of)
 	}
 	return o, nil
+}
+
+// deleteResource removes the resource from this PageOutput and the Page. They will
+// always be of the same length, but may contain different elements.
+func (p *PageOutput) deleteResource(i int) {
+	p.resources = append(p.resources[:i], p.resources[i+1:]...)
+	p.Page.Resources = append(p.Page.Resources[:i], p.Page.Resources[i+1:]...)
+
+}
+
+func (p *PageOutput) Resources() resource.Resources {
+	p.resourcesInit.Do(func() {
+		// If the current out shares the same path as the main page output, we reuse
+		// the resource set. For the "amp" use case, we need to clone them with new
+		// base folder.
+		ff := p.outputFormats[0]
+		if p.outputFormat.Path == ff.Path {
+			p.resources = p.Page.Resources
+			return
+		}
+
+		// Clone it with new base.
+		resources := make(resource.Resources, len(p.Page.Resources))
+
+		for i, r := range p.Page.Resources {
+			if c, ok := r.(resource.Cloner); ok {
+				// Clone the same resource with a new target.
+				resources[i] = c.WithNewBase(p.outputFormat.Path)
+			} else {
+				resources[i] = r
+			}
+		}
+
+		p.resources = resources
+	})
+
+	return p.resources
+}
+
+func (p *PageOutput) renderResources() error {
+
+	for i, r := range p.Resources() {
+		src, ok := r.(resource.Source)
+		if !ok {
+			// Pages gets rendered with the owning page.
+			continue
+		}
+
+		if err := src.Publish(); err != nil {
+			if os.IsNotExist(err) {
+				// The resource has been deleted from the file system.
+				// This should be extremely rare, but can happen on live reload in server
+				// mode when the same resource is member of different page bundles.
+				p.deleteResource(i)
+			} else {
+				p.s.Log.ERROR.Printf("Failed to publish %q for page %q: %s", src.AbsSourceFilename(), p.pathOrTitle(), err)
+			}
+		} else {
+			p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Files)
+		}
+	}
+	return nil
 }
 
 // AlternativeOutputFormats is only available on the top level rendering

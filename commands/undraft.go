@@ -36,7 +36,7 @@ If the content's draft status is 'False', nothing is done.`,
 // to false and setting its publish date to now. If the specified content is
 // not a draft, it will log an error.
 func Undraft(cmd *cobra.Command, args []string) error {
-	cfg, err := InitializeConfig()
+	c, err := InitializeConfig(false, nil)
 
 	if err != nil {
 		return err
@@ -45,6 +45,8 @@ func Undraft(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		return newUserError("a piece of content needs to be specified")
 	}
+
+	cfg := c.DepsCfg
 
 	location := args[0]
 	// open the file

@@ -1458,8 +1458,7 @@ func TestTranslationKey(t *testing.T) {
 	assert.Equal("page/k1", s.RegularPages[0].TranslationKey())
 	p2 := s.RegularPages[1]
 
-	// This is a single language setup
-	assert.Equal("page/sect/simple.en", p2.TranslationKey())
+	assert.Equal("page/sect/simple", p2.TranslationKey())
 
 }
 
@@ -1582,6 +1581,7 @@ tags:
 *some blog content*`))
 
 				s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
 				require.Len(t, s.RegularPages, 4)
 
 				pathFunc := func(s string) string {

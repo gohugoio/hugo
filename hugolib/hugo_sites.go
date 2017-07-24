@@ -15,10 +15,13 @@ package hugolib
 
 import (
 	"errors"
+	"io"
+	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 
-	"path/filepath"
+	"github.com/gohugoio/hugo/resource"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -32,18 +35,38 @@ import (
 type HugoSites struct {
 	Sites []*Site
 
-	runMode runmode
-
 	multilingual *Multilingual
 
 	// Multihost is set if multilingual and baseURL set on the language level.
 	multihost bool
 
+	// If this is running in the dev server.
+	running bool
+
 	*deps.Deps
+
+	// Keeps track of bundle directories and symlinks to enable partial rebuilding.
+	ContentChanges *contentChangeMap
 }
 
 func (h *HugoSites) IsMultihost() bool {
 	return h != nil && h.multihost
+}
+
+func (h *HugoSites) PrintProcessingStats(w io.Writer) {
+	stats := make([]*helpers.ProcessingStats, len(h.Sites))
+	for i := 0; i < len(h.Sites); i++ {
+		stats[i] = h.Sites[i].PathSpec.ProcessingStats
+	}
+	helpers.ProcessingStatsTable(w, stats...)
+}
+
+func (h *HugoSites) langSite() map[string]*Site {
+	m := make(map[string]*Site)
+	for _, s := range h.Sites {
+		m[s.Language.Lang] = s
+	}
+	return m
 }
 
 // GetContentPage finds a Page with content given the absolute filename.
@@ -58,12 +81,29 @@ func (h *HugoSites) GetContentPage(filename string) *Page {
 	rel := strings.TrimPrefix(filename, contendDir)
 	rel = strings.TrimPrefix(rel, helpers.FilePathSeparator)
 
-	pos := s.rawAllPages.findPagePosByFilePath(rel)
+	for _, s := range h.Sites {
 
-	if pos == -1 {
-		return nil
+		pos := s.rawAllPages.findPagePosByFilePath(rel)
+
+		if pos == -1 {
+			continue
+		}
+		return s.rawAllPages[pos]
 	}
-	return s.rawAllPages[pos]
+
+	// If not found already, this may be bundled in another content file.
+	rel = filepath.Dir(rel)
+	for _, s := range h.Sites {
+
+		pos := s.rawAllPages.findFirstPagePosByFilePathPrefix(rel)
+
+		if pos == -1 {
+			continue
+		}
+		return s.rawAllPages[pos]
+	}
+
+	return nil
 
 }
 
@@ -81,10 +121,20 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		return nil, err
 	}
 
+	var contentChangeTracker *contentChangeMap
+
+	// Only needed in server mode.
+	// TODO(bep) clean up the running vs watching terms
+	if cfg.Running {
+		contentChangeTracker = &contentChangeMap{symContent: make(map[string]map[string]bool)}
+	}
+
 	h := &HugoSites{
-		multilingual: langConfig,
-		multihost:    cfg.Cfg.GetBool("multihost"),
-		Sites:        sites}
+		running:        cfg.Running,
+		multilingual:   langConfig,
+		multihost:      cfg.Cfg.GetBool("multihost"),
+		ContentChanges: contentChangeTracker,
+		Sites:          sites}
 
 	for _, s := range sites {
 		s.owner = h
@@ -142,6 +192,10 @@ func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 			}
 			d.OutputFormatsConfig = s.outputFormatsConfig
 			s.Deps = d
+		}
+		s.resourceSpec, err = resource.NewSpec(s.Deps.PathSpec, s.mediaTypesConfig)
+		if err != nil {
+			return err
 		}
 
 	}
@@ -258,10 +312,6 @@ func (h *HugoSites) toSiteInfos() []*SiteInfo {
 
 // BuildCfg holds build options used to, as an example, skip the render step.
 type BuildCfg struct {
-	// Whether we are in watch (server) mode
-	Watching bool
-	// Print build stats at the end of a build
-	PrintStats bool
 	// Reset site state before build. Use to force full rebuilds.
 	ResetState bool
 	// Re-creates the sites from configuration before a build.
@@ -304,11 +354,12 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 
 	smLayouts := []string{"sitemapindex.xml", "_default/sitemapindex.xml", "_internal/_default/sitemapindex.xml"}
 
-	return s.renderAndWriteXML("sitemapindex",
+	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemapindex",
 		sitemapDefault.Filename, h.toSiteInfos(), s.appendThemeTemplates(smLayouts)...)
 }
 
 func (h *HugoSites) assignMissingTranslations() error {
+
 	// This looks heavy, but it should be a small number of nodes by now.
 	allPages := h.findAllPagesByKindNotIn(KindPage)
 	for _, nodeType := range []string{KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm} {
@@ -427,73 +478,57 @@ func (h *HugoSites) createMissingPages() error {
 	return nil
 }
 
-func (s *Site) assignSiteByLanguage(p *Page) {
-
-	pageLang := p.Lang()
-
-	if pageLang == "" {
-		panic("Page language missing: " + p.Title)
+func (h *HugoSites) removePageByPathPrefix(path string) {
+	for _, s := range h.Sites {
+		s.removePageByPathPrefix(path)
 	}
+}
 
-	for _, site := range s.owner.Sites {
-		if strings.HasPrefix(site.Language.Lang, pageLang) {
-			p.s = site
-			p.Site = &site.Info
-			return
-		}
+func (h *HugoSites) removePageByPath(path string) {
+	for _, s := range h.Sites {
+		s.removePageByPath(path)
 	}
-
 }
 
 func (h *HugoSites) setupTranslations() {
-
-	master := h.Sites[0]
-
-	for _, p := range master.rawAllPages {
-		if p.Lang() == "" {
-			panic("Page language missing: " + p.Title)
-		}
-
-		if p.Kind == kindUnknown {
-			p.Kind = p.s.kindFromSections(p.sections)
-		}
-
-		if !p.s.isEnabled(p.Kind) {
-			continue
-		}
-
-		shouldBuild := p.shouldBuild()
-
-		for i, site := range h.Sites {
-			// The site is assigned by language when read.
-			if site == p.s {
-				site.updateBuildStats(p)
-				if shouldBuild {
-					site.Pages = append(site.Pages, p)
-				}
+	for _, s := range h.Sites {
+		for _, p := range s.rawAllPages {
+			if p.Kind == kindUnknown {
+				p.Kind = p.s.kindFromSections(p.sections)
 			}
 
-			if !shouldBuild {
+			if !p.s.isEnabled(p.Kind) {
 				continue
 			}
 
-			if i == 0 {
-				site.AllPages = append(site.AllPages, p)
+			shouldBuild := p.shouldBuild()
+			s.updateBuildStats(p)
+			if shouldBuild {
+				s.Pages = append(s.Pages, p)
 			}
 		}
+	}
 
+	allPages := make(Pages, 0)
+
+	for _, s := range h.Sites {
+		allPages = append(allPages, s.Pages...)
+	}
+
+	allPages.Sort()
+
+	for _, s := range h.Sites {
+		s.AllPages = allPages
 	}
 
 	// Pull over the collections from the master site
 	for i := 1; i < len(h.Sites); i++ {
-		h.Sites[i].AllPages = h.Sites[0].AllPages
 		h.Sites[i].Data = h.Sites[0].Data
 	}
 
 	if len(h.Sites) > 1 {
-		pages := h.Sites[0].AllPages
-		allTranslations := pagesToTranslationsMap(pages)
-		assignTranslationsToPages(allTranslations, pages)
+		allTranslations := pagesToTranslationsMap(allPages)
+		assignTranslationsToPages(allTranslations, allPages)
 	}
 }
 
@@ -501,6 +536,7 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 
 	pageChan := make(chan *Page)
 	wg := &sync.WaitGroup{}
+
 	numWorkers := getGoMaxProcs() * 4
 
 	for i := 0; i < numWorkers; i++ {
@@ -508,77 +544,10 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 		go func(pages <-chan *Page, wg *sync.WaitGroup) {
 			defer wg.Done()
 			for p := range pages {
-				if !p.shouldRenderTo(s.rc.Format) {
-					// No need to prepare
-					continue
+				if err := p.prepareForRender(cfg); err != nil {
+					s.Log.ERROR.Printf("Failed to prepare page %q for render: %s", p.BaseFileName(), err)
+
 				}
-				var shortcodeUpdate bool
-				if p.shortcodeState != nil {
-					shortcodeUpdate = p.shortcodeState.updateDelta()
-				}
-
-				if !shortcodeUpdate && !cfg.whatChanged.other && p.rendered {
-					// No need to process it again.
-					continue
-				}
-
-				// If we got this far it means that this is either a new Page pointer
-				// or a template or similar has changed so wee need to do a rerendering
-				// of the shortcodes etc.
-
-				// Mark it as rendered
-				p.rendered = true
-
-				// If in watch mode or if we have multiple output formats,
-				// we need to keep the original so we can
-				// potentially repeat this process on rebuild.
-				needsACopy := cfg.Watching || len(p.outputFormats) > 1
-				var workContentCopy []byte
-				if needsACopy {
-					workContentCopy = make([]byte, len(p.workContent))
-					copy(workContentCopy, p.workContent)
-				} else {
-					// Just reuse the same slice.
-					workContentCopy = p.workContent
-				}
-
-				if p.Markup == "markdown" {
-					tmpContent, tmpTableOfContents := helpers.ExtractTOC(workContentCopy)
-					p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
-					workContentCopy = tmpContent
-				}
-
-				var err error
-				if workContentCopy, err = handleShortcodes(p, workContentCopy); err != nil {
-					s.Log.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
-				}
-
-				if p.Markup != "html" {
-
-					// Now we know enough to create a summary of the page and count some words
-					summaryContent, err := p.setUserDefinedSummaryIfProvided(workContentCopy)
-
-					if err != nil {
-						s.Log.ERROR.Printf("Failed to set user defined summary for page %q: %s", p.Path(), err)
-					} else if summaryContent != nil {
-						workContentCopy = summaryContent.content
-					}
-
-					p.Content = helpers.BytesToHTML(workContentCopy)
-
-					if summaryContent == nil {
-						if err := p.setAutoSummary(); err != nil {
-							s.Log.ERROR.Printf("Failed to set user auto summary for page %q: %s", p.pathOrTitle(), err)
-						}
-					}
-
-				} else {
-					p.Content = helpers.BytesToHTML(workContentCopy)
-				}
-
-				//analyze for raw stats
-				p.analyzePage()
-
 			}
 		}(pageChan, wg)
 	}
@@ -645,4 +614,114 @@ func (h *HugoSites) findAllPagesByKind(kind string) Pages {
 
 func (h *HugoSites) findAllPagesByKindNotIn(kind string) Pages {
 	return h.findPagesByKindNotIn(kind, h.Sites[0].AllPages)
+}
+
+func (h *HugoSites) findPagesByShortcode(shortcode string) Pages {
+	var pages Pages
+	for _, s := range h.Sites {
+		pages = append(pages, s.findPagesByShortcode(shortcode)...)
+	}
+	return pages
+}
+
+// Used in partial reloading to determine if the change is in a bundle.
+type contentChangeMap struct {
+	mu       sync.RWMutex
+	branches []string
+	leafs    []string
+
+	// Hugo supports symlinked content (both directories and files). This
+	// can lead to situations where the same file can be referenced from several
+	// locations in /content -- which is really cool, but also means we have to
+	// go an extra mile to handle changes.
+	// This map is only used in watch mode.
+	// It maps either file to files or the real dir to a set of content directories where it is in use.
+	symContent   map[string]map[string]bool
+	symContentMu sync.Mutex
+}
+
+func (m *contentChangeMap) add(filename string, tp bundleDirType) {
+	m.mu.Lock()
+	dir := filepath.Dir(filename)
+	switch tp {
+	case bundleBranch:
+		m.branches = append(m.branches, dir)
+	case bundleLeaf:
+		m.leafs = append(m.leafs, dir)
+	default:
+		panic("invalid bundle type")
+	}
+	m.mu.Unlock()
+}
+
+// Track the addition of bundle dirs.
+func (m *contentChangeMap) handleBundles(b *bundleDirs) {
+	for _, bd := range b.bundles {
+		m.add(bd.fi.Filename(), bd.tp)
+	}
+}
+
+// resolveAndRemove resolves the given filename to the root folder of a bundle, if relevant.
+// It also removes the entry from the map. It will be re-added again by the partial
+// build if it still is a bundle.
+func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bundleDirType) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	dir, name := filepath.Split(filename)
+	dir = strings.TrimSuffix(dir, helpers.FilePathSeparator)
+	fileTp, isContent := classifyBundledFile(name)
+
+	// If the file itself is a bundle, no need to look further:
+	if fileTp > bundleNot {
+		return dir, dir, fileTp
+	}
+
+	// This may be a member of a bundle. Start with branch bundles, the most specific.
+	if !isContent {
+		for i, b := range m.branches {
+			if b == dir {
+				m.branches = append(m.branches[:i], m.branches[i+1:]...)
+				return dir, dir, bundleBranch
+			}
+		}
+	}
+
+	// And finally the leaf bundles, which can contain anything.
+	for i, l := range m.leafs {
+		if strings.HasPrefix(dir, l) {
+			m.leafs = append(m.leafs[:i], m.leafs[i+1:]...)
+			return dir, dir, bundleLeaf
+		}
+	}
+
+	// Not part of any bundle
+	return dir, filename, bundleNot
+}
+
+func (m *contentChangeMap) addSymbolicLinkMapping(from, to string) {
+	m.symContentMu.Lock()
+	mm, found := m.symContent[from]
+	if !found {
+		mm = make(map[string]bool)
+		m.symContent[from] = mm
+	}
+	mm[to] = true
+	m.symContentMu.Unlock()
+}
+
+func (m *contentChangeMap) GetSymbolicLinkMappings(dir string) []string {
+	mm, found := m.symContent[dir]
+	if !found {
+		return nil
+	}
+	dirs := make([]string, len(mm))
+	i := 0
+	for dir, _ := range mm {
+		dirs[i] = dir
+		i++
+	}
+
+	sort.Strings(dirs)
+	return dirs
 }
