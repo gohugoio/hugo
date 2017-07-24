@@ -111,7 +111,7 @@ Press Ctrl+C to stop
 
 ## Step 5: Customize The Theme
 
-Your new site already looks great, but you will want to tweak it a little before you relase it to the public.
+Your new site already looks great, but you will want to tweak it a little before you release it to the public.
 
 ### Site Configuration
 
