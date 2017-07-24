@@ -1,5 +1,5 @@
 ---
-title: "Http/2 Server Push in Hugo"
+title: "HTTP/2 Server Push in Hugo"
 date: 2017-07-24T18:36:00+02:00
 description: >
     As every page in Hugo can be output to multiple formats, it is easy to create Netlify's _redirects and _headers files on the fly.
