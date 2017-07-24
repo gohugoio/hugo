@@ -25,7 +25,7 @@ pygmentsCodeFences = true
 pygmentsStyle = "friendly"
 
 [outputs]
-home = [ "HTML", "RSS", "REDIR" ]
+home = [ "HTML", "RSS", "REDIR", "HEADERS" ]
 section = [ "HTML", "RSS"]
 
 [mediaTypes]
@@ -39,7 +39,11 @@ mediatype = "text/netlify"
 baseName = "_redirects"
 isPlainText = true
 notAlternative = true
-
+[outputFormats.HEADERS]
+mediatype = "text/netlify"
+baseName = "_headers"
+isPlainText = true
+notAlternative = true
 
 [social]
 twitter = "GoHugoIO"
