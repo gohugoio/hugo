@@ -109,7 +109,7 @@ Press Ctrl+C to stop
 
 
 
-## Step 5: Customize The Theme
+## Step 5: Customize the Theme
 
 Your new site already looks great, but you will want to tweak it a little before you release it to the public.
 
@@ -135,6 +135,6 @@ For theme specific configuration options, see the [theme site](https://github.co
 
 **For further theme customization, see [Customize a Theme](/themes/customizing/).**
 
-## All Commands Repeated
+## Recapitulation
 
 {{< asciicast pWp4uvyAkdWgQllD9RCfeBL5k >}}
