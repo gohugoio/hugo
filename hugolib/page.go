@@ -611,9 +611,9 @@ func (p *Page) setAutoSummary() error {
 	var summary string
 	var truncated bool
 	if p.isCJKLanguage {
-		summary, truncated = helpers.TruncateWordsByRune(p.PlainWords() , viper.GetInt("SummaryLength"))
+		summary, truncated = helpers.TruncateWordsByRune(p.PlainWords() , p.s.Cfg.GetInt("SummaryLength"))
 	} else {
-		summary, truncated = helpers.TruncateWordsToWholeSentence(p.Plain() , viper.GetInt("SummaryLength"))
+		summary, truncated = helpers.TruncateWordsToWholeSentence(p.Plain() , p.s.Cfg.GetInt("SummaryLength"))
 	}
 	p.Summary = template.HTML(summary)
 	p.Truncated = truncated
