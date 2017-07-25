@@ -15,9 +15,7 @@ RUN \
   mkdir -p \
     ${GOPATH}/bin \
     ${GOPATH}/pkg \
-    ${GOPATH}/src
-
-RUN \
+    ${GOPATH}/src && \
   go get github.com/kardianos/govendor && \
   govendor get github.com/gohugoio/hugo && \
   cd $GOPATH/src/github.com/gohugoio/hugo && \
