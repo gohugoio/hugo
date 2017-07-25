@@ -133,5 +133,5 @@ func loadDefaultSettingsFor(v *viper.Viper) {
 	v.SetDefault("enableGitInfo", false)
 	v.SetDefault("ignoreFiles", make([]string, 0))
 	v.SetDefault("disableAliases", false)
-  viper.SetDefault("SummaryLength", 200)
+	v.SetDefault("SummaryLength", 200)
 }
