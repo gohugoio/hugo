@@ -19,24 +19,22 @@ import (
 	"strings"
 
 	"github.com/bep/gitmap"
-	"github.com/spf13/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 func (h *HugoSites) assembleGitInfo() {
-	if !viper.GetBool("enableGitInfo") {
+	if !h.Cfg.GetBool("enableGitInfo") {
 		return
 	}
 
 	var (
-		workingDir = viper.GetString("workingDir")
-		contentDir = viper.GetString("contentDir")
+		workingDir = h.Cfg.GetString("workingDir")
+		contentDir = h.Cfg.GetString("contentDir")
 	)
 
 	gitRepo, err := gitmap.Map(workingDir, "")
 	if err != nil {
-		jww.ERROR.Printf("Got error reading Git log: %s", err)
+		h.Log.ERROR.Printf("Got error reading Git log: %s", err)
 		return
 	}
 
@@ -60,7 +58,7 @@ func (h *HugoSites) assembleGitInfo() {
 		filename := path.Join(filepath.ToSlash(contentRoot), contentDir, filepath.ToSlash(p.Path()))
 		g, ok := gitMap[filename]
 		if !ok {
-			jww.ERROR.Printf("Failed to find GitInfo for %q", filename)
+			h.Log.WARN.Printf("Failed to find GitInfo for %q", filename)
 			return
 		}
 

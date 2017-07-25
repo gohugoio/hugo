@@ -21,22 +21,22 @@ import (
 
 // CheckErr logs the messages given and then the error.
 // TODO(bep) Remove this package.
-func CheckErr(err error, s ...string) {
+func CheckErr(logger *jww.Notepad, err error, s ...string) {
 	if err == nil {
 		return
 	}
 	if len(s) == 0 {
-		jww.CRITICAL.Println(err)
+		logger.CRITICAL.Println(err)
 		return
 	}
 	for _, message := range s {
-		jww.ERROR.Println(message)
+		logger.ERROR.Println(message)
 	}
-	jww.ERROR.Println(err)
+	logger.ERROR.Println(err)
 }
 
 // StopOnErr exits on any error after logging it.
-func StopOnErr(err error, s ...string) {
+func StopOnErr(logger *jww.Notepad, err error, s ...string) {
 	if err == nil {
 		return
 	}
@@ -48,12 +48,12 @@ func StopOnErr(err error, s ...string) {
 		// Printing an empty string results in a error with
 		// no message, no bueno.
 		if newMessage != "" {
-			jww.CRITICAL.Println(newMessage)
+			logger.CRITICAL.Println(newMessage)
 		}
 	}
 	for _, message := range s {
 		if message != "" {
-			jww.CRITICAL.Println(message)
+			logger.CRITICAL.Println(message)
 		}
 	}
 }

@@ -21,61 +21,40 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestInitDefault(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+func TestNewDefault(t *testing.T) {
+	v := viper.New()
+	f := NewDefault(v)
 
-	InitDefaultFs()
+	assert.NotNil(t, f.Source)
+	assert.IsType(t, new(afero.OsFs), f.Source)
+	assert.NotNil(t, f.Destination)
+	assert.IsType(t, new(afero.OsFs), f.Destination)
+	assert.NotNil(t, f.Os)
+	assert.IsType(t, new(afero.OsFs), f.Os)
+	assert.Nil(t, f.WorkingDir)
 
-	assert.NotNil(t, Source())
-	assert.IsType(t, new(afero.OsFs), Source())
-	assert.NotNil(t, Destination())
-	assert.IsType(t, new(afero.OsFs), Destination())
-	assert.NotNil(t, Os())
-	assert.IsType(t, new(afero.OsFs), Os())
-	assert.Nil(t, WorkingDir())
+	assert.IsType(t, new(afero.OsFs), Os)
 }
 
-func TestInitMemFs(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+func TestNewMem(t *testing.T) {
+	v := viper.New()
+	f := NewMem(v)
 
-	InitMemFs()
-
-	assert.NotNil(t, Source())
-	assert.IsType(t, new(afero.MemMapFs), Source())
-	assert.NotNil(t, Destination())
-	assert.IsType(t, new(afero.MemMapFs), Destination())
-	assert.IsType(t, new(afero.OsFs), Os())
-	assert.Nil(t, WorkingDir())
-}
-
-func TestSetSource(t *testing.T) {
-
-	InitMemFs()
-
-	SetSource(new(afero.OsFs))
-	assert.NotNil(t, Source())
-	assert.IsType(t, new(afero.OsFs), Source())
-}
-
-func TestSetDestination(t *testing.T) {
-
-	InitMemFs()
-
-	SetDestination(new(afero.OsFs))
-	assert.NotNil(t, Destination())
-	assert.IsType(t, new(afero.OsFs), Destination())
+	assert.NotNil(t, f.Source)
+	assert.IsType(t, new(afero.MemMapFs), f.Source)
+	assert.NotNil(t, f.Destination)
+	assert.IsType(t, new(afero.MemMapFs), f.Destination)
+	assert.IsType(t, new(afero.OsFs), f.Os)
+	assert.Nil(t, f.WorkingDir)
 }
 
 func TestWorkingDir(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	v := viper.New()
 
-	viper.Set("workingDir", "/a/b/")
+	v.Set("workingDir", "/a/b/")
 
-	InitMemFs()
+	f := NewMem(v)
 
-	assert.NotNil(t, WorkingDir())
-	assert.IsType(t, new(afero.BasePathFs), WorkingDir())
+	assert.NotNil(t, f.WorkingDir)
+	assert.IsType(t, new(afero.BasePathFs), f.WorkingDir)
 }

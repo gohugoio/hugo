@@ -29,15 +29,17 @@ var configCmd = &cobra.Command{
 }
 
 func init() {
-	configCmd.RunE = config
+	configCmd.RunE = printConfig
 }
 
-func config(cmd *cobra.Command, args []string) error {
-	if _, err := InitializeConfig(configCmd); err != nil {
+func printConfig(cmd *cobra.Command, args []string) error {
+	cfg, err := InitializeConfig(configCmd)
+
+	if err != nil {
 		return err
 	}
 
-	allSettings := viper.AllSettings()
+	allSettings := cfg.Cfg.(*viper.Viper).AllSettings()
 
 	var separator string
 	if allSettings["metadataformat"] == "toml" {

@@ -18,9 +18,10 @@ import (
 
 	"reflect"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
+
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/tpl"
 )
 
 const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -35,34 +36,37 @@ const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/
 </urlset>`
 
 func TestSitemapOutput(t *testing.T) {
+	t.Parallel()
 	for _, internal := range []bool{false, true} {
 		doTestSitemapOutput(t, internal)
 	}
 }
 
 func doTestSitemapOutput(t *testing.T, internal bool) {
-	testCommonResetState()
 
-	viper.Set("baseURL", "http://auth/bub/")
+	cfg, fs := newTestCfg()
+	cfg.Set("baseURL", "http://auth/bub/")
 
-	s := &Site{
-		deps:     newDeps(DepsCfg{}),
-		Source:   &source.InMemorySource{ByteSource: weightedSources},
-		Language: helpers.NewDefaultLanguage(),
-	}
+	depsCfg := deps.DepsCfg{Fs: fs, Cfg: cfg}
 
-	if internal {
-		if err := buildAndRenderSite(s); err != nil {
-			t.Fatalf("Failed to build site: %s", err)
+	depsCfg.WithTemplate = func(templ tpl.TemplateHandler) error {
+		if !internal {
+			templ.AddTemplate("sitemap.xml", sitemapTemplate)
 		}
 
-	} else {
-		if err := buildAndRenderSite(s, "sitemap.xml", sitemapTemplate); err != nil {
-			t.Fatalf("Failed to build site: %s", err)
-		}
+		// We want to check that the 404 page is not included in the sitemap
+		// output. This template should have no effect either way, but include
+		// it for the clarity.
+		templ.AddTemplate("404.html", "Not found")
+		return nil
 	}
 
-	assertFileContent(t, "public/sitemap.xml", true,
+	writeSourcesToSource(t, "content", fs, weightedSources...)
+	s := buildSingleSite(t, depsCfg, BuildCfg{})
+	th := testHelper{s.Cfg, s.Fs, t}
+	outputSitemap := "public/sitemap.xml"
+
+	th.assertFileContent(outputSitemap,
 		// Regular page
 		" <loc>http://auth/bub/sect/doc1/</loc>",
 		// Home page
@@ -75,9 +79,13 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 		"<loc>http://auth/bub/categories/hugo/</loc>",
 	)
 
+	content := readDestination(th.T, th.Fs, outputSitemap)
+	require.NotContains(t, content, "404")
+
 }
 
 func TestParseSitemap(t *testing.T) {
+	t.Parallel()
 	expected := Sitemap{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
 	input := map[string]interface{}{
 		"changefreq": "3",

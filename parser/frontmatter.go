@@ -13,124 +13,127 @@
 
 package parser
 
+// TODO(bep) archetype remove unused from this package.
+
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"strings"
 
-	toml "github.com/pelletier/go-toml"
+	"github.com/BurntSushi/toml"
+	"github.com/chaseadamsio/goorgeous"
 
 	"gopkg.in/yaml.v2"
 )
 
-type frontmatterType struct {
-	markstart, markend []byte
-	Parse              func([]byte) (interface{}, error)
-	includeMark        bool
+// FrontmatterType represents a type of frontmatter.
+type FrontmatterType struct {
+	// Parse decodes content into a Go interface.
+	Parse func([]byte) (interface{}, error)
+
+	markstart, markend []byte // starting and ending delimiters
+	includeMark        bool   // include start and end mark in output
 }
 
-func InterfaceToConfig(in interface{}, mark rune) ([]byte, error) {
+// InterfaceToConfig encodes a given input based upon the mark and writes to w.
+func InterfaceToConfig(in interface{}, mark rune, w io.Writer) error {
 	if in == nil {
-		return []byte{}, errors.New("input was nil")
+		return errors.New("input was nil")
 	}
-
-	b := new(bytes.Buffer)
 
 	switch mark {
 	case rune(YAMLLead[0]):
-		by, err := yaml.Marshal(in)
+		b, err := yaml.Marshal(in)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		b.Write(by)
-		_, err = b.Write([]byte("..."))
-		if err != nil {
-			return nil, err
-		}
-		return b.Bytes(), nil
+
+		_, err = w.Write(b)
+		return err
+
 	case rune(TOMLLead[0]):
-		tree := toml.TreeFromMap(in.(map[string]interface{}))
-		return []byte(tree.String()), nil
+		return toml.NewEncoder(w).Encode(in)
 	case rune(JSONLead[0]):
-		by, err := json.MarshalIndent(in, "", "   ")
+		b, err := json.MarshalIndent(in, "", "   ")
 		if err != nil {
-			return nil, err
+			return err
 		}
-		b.Write(by)
-		_, err = b.Write([]byte("\n"))
+
+		_, err = w.Write(b)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		return b.Bytes(), nil
+
+		_, err = w.Write([]byte{'\n'})
+		return err
+
 	default:
-		return nil, errors.New("Unsupported Format provided")
+		return errors.New("Unsupported Format provided")
 	}
 }
 
-func InterfaceToFrontMatter(in interface{}, mark rune) ([]byte, error) {
+// InterfaceToFrontMatter encodes a given input into a frontmatter
+// representation based upon the mark with the appropriate front matter delimiters
+// surrounding the output, which is written to w.
+func InterfaceToFrontMatter(in interface{}, mark rune, w io.Writer) error {
 	if in == nil {
-		return []byte{}, errors.New("input was nil")
+		return errors.New("input was nil")
 	}
-
-	b := new(bytes.Buffer)
 
 	switch mark {
 	case rune(YAMLLead[0]):
-		_, err := b.Write([]byte(YAMLDelimUnix))
+		_, err := w.Write([]byte(YAMLDelimUnix))
 		if err != nil {
-			return nil, err
-		}
-		by, err := yaml.Marshal(in)
-		if err != nil {
-			return nil, err
-		}
-		b.Write(by)
-		_, err = b.Write([]byte(YAMLDelimUnix))
-		if err != nil {
-			return nil, err
-		}
-		return b.Bytes(), nil
-	case rune(TOMLLead[0]):
-		_, err := b.Write([]byte(TOMLDelimUnix))
-		if err != nil {
-			return nil, err
+			return err
 		}
 
-		tree := toml.TreeFromMap(in.(map[string]interface{}))
-		b.Write([]byte(tree.String()))
-		_, err = b.Write([]byte("\n" + TOMLDelimUnix))
+		err = InterfaceToConfig(in, mark, w)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		return b.Bytes(), nil
-	case rune(JSONLead[0]):
-		by, err := json.MarshalIndent(in, "", "   ")
+
+		_, err = w.Write([]byte(YAMLDelimUnix))
+		return err
+
+	case rune(TOMLLead[0]):
+		_, err := w.Write([]byte(TOMLDelimUnix))
 		if err != nil {
-			return nil, err
+			return err
 		}
-		b.Write(by)
-		_, err = b.Write([]byte("\n"))
+
+		err = InterfaceToConfig(in, mark, w)
+
 		if err != nil {
-			return nil, err
+			return err
 		}
-		return b.Bytes(), nil
+
+		_, err = w.Write([]byte("\n" + TOMLDelimUnix))
+		return err
+
 	default:
-		return nil, errors.New("Unsupported Format provided")
+		return InterfaceToConfig(in, mark, w)
 	}
 }
 
+// FormatToLeadRune takes a given format kind and return the leading front
+// matter delimiter.
 func FormatToLeadRune(kind string) rune {
 	switch FormatSanitize(kind) {
 	case "yaml":
 		return rune([]byte(YAMLLead)[0])
 	case "json":
 		return rune([]byte(JSONLead)[0])
+	case "org":
+		return '#'
 	default:
 		return rune([]byte(TOMLLead)[0])
 	}
 }
 
+// FormatSanitize returns the canonical format name for a given kind.
+//
 // TODO(bep) move to helpers
 func FormatSanitize(kind string) string {
 	switch strings.ToLower(kind) {
@@ -140,52 +143,84 @@ func FormatSanitize(kind string) string {
 		return "toml"
 	case "json", "js":
 		return "json"
+	case "org":
+		return kind
 	default:
 		return "toml"
 	}
 }
 
 // DetectFrontMatter detects the type of frontmatter analysing its first character.
-func DetectFrontMatter(mark rune) (f *frontmatterType) {
+func DetectFrontMatter(mark rune) (f *FrontmatterType) {
 	switch mark {
 	case '-':
-		return &frontmatterType{[]byte(YAMLDelim), []byte(YAMLDelim), HandleYAMLMetaData, false}
+		return &FrontmatterType{HandleYAMLMetaData, []byte(YAMLDelim), []byte(YAMLDelim), false}
 	case '+':
-		return &frontmatterType{[]byte(TOMLDelim), []byte(TOMLDelim), HandleTOMLMetaData, false}
+		return &FrontmatterType{HandleTOMLMetaData, []byte(TOMLDelim), []byte(TOMLDelim), false}
 	case '{':
-		return &frontmatterType{[]byte{'{'}, []byte{'}'}, HandleJSONMetaData, true}
+		return &FrontmatterType{HandleJSONMetaData, []byte{'{'}, []byte{'}'}, true}
+	case '#':
+		return &FrontmatterType{HandleOrgMetaData, []byte("#+"), []byte("\n"), false}
 	default:
 		return nil
 	}
 }
 
+// HandleTOMLMetaData unmarshals TOML-encoded datum and returns a Go interface
+// representing the encoded data structure.
 func HandleTOMLMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
 	datum = removeTOMLIdentifier(datum)
 
-	tree, err := toml.Load(string(datum))
+	_, err := toml.Decode(string(datum), &m)
 
-	if err != nil {
-		return m, err
+	return m, err
+
+}
+
+// removeTOMLIdentifier removes, if necessary, beginning and ending TOML
+// frontmatter delimiters from a byte slice.
+func removeTOMLIdentifier(datum []byte) []byte {
+	ld := len(datum)
+	if ld < 8 {
+		return datum
 	}
 
-	m = tree.ToMap()
+	b := bytes.TrimPrefix(datum, []byte(TOMLDelim))
+	if ld-len(b) != 3 {
+		// No TOML prefix trimmed, so bail out
+		return datum
+	}
 
-	return m, nil
+	b = bytes.Trim(b, "\r\n")
+	return bytes.TrimSuffix(b, []byte(TOMLDelim))
 }
 
-func removeTOMLIdentifier(datum []byte) []byte {
-	return bytes.Replace(datum, []byte(TOMLDelim), []byte(""), -1)
-}
-
+// HandleYAMLMetaData unmarshals YAML-encoded datum and returns a Go interface
+// representing the encoded data structure.
 func HandleYAMLMetaData(datum []byte) (interface{}, error) {
 	m := map[string]interface{}{}
 	err := yaml.Unmarshal(datum, &m)
 	return m, err
 }
 
+// HandleJSONMetaData unmarshals JSON-encoded datum and returns a Go interface
+// representing the encoded data structure.
 func HandleJSONMetaData(datum []byte) (interface{}, error) {
+	if datum == nil {
+		// Package json returns on error on nil input.
+		// Return an empty map to be consistent with our other supported
+		// formats.
+		return make(map[string]interface{}), nil
+	}
+
 	var f interface{}
 	err := json.Unmarshal(datum, &f)
 	return f, err
+}
+
+// HandleOrgMetaData unmarshals org-mode encoded datum and returns a Go
+// interface representing the encoded data structure.
+func HandleOrgMetaData(datum []byte) (interface{}, error) {
+	return goorgeous.OrgHeaders(datum)
 }

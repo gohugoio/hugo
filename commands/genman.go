@@ -17,10 +17,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -36,14 +36,16 @@ in the "man" directory under the current directory.`,
 		header := &doc.GenManHeader{
 			Section: "1",
 			Manual:  "Hugo Manual",
-			Source:  fmt.Sprintf("Hugo %s", helpers.HugoVersion()),
+			Source:  fmt.Sprintf("Hugo %s", helpers.CurrentHugoVersion),
 		}
 		if !strings.HasSuffix(genmandir, helpers.FilePathSeparator) {
 			genmandir += helpers.FilePathSeparator
 		}
-		if found, _ := helpers.Exists(genmandir, hugofs.Os()); !found {
+		if found, _ := helpers.Exists(genmandir, hugofs.Os); !found {
 			jww.FEEDBACK.Println("Directory", genmandir, "does not exist, creating...")
-			hugofs.Os().MkdirAll(genmandir, 0777)
+			if err := hugofs.Os.MkdirAll(genmandir, 0777); err != nil {
+				return err
+			}
 		}
 		cmd.Root().DisableAutoGenTag = true
 

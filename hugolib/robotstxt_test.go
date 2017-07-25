@@ -14,13 +14,10 @@
 package hugolib
 
 import (
-	"bytes"
+	"path/filepath"
 	"testing"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/deps"
 )
 
 const robotTxtTemplate = `User-agent: Googlebot
@@ -30,30 +27,20 @@ const robotTxtTemplate = `User-agent: Googlebot
 `
 
 func TestRobotsTXTOutput(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg, fs, t}
+	)
 
-	hugofs.InitMemFs()
+	cfg.Set("baseURL", "http://auth/bub/")
+	cfg.Set("enableRobotsTXT", true)
 
-	viper.Set("baseURL", "http://auth/bub/")
-	viper.Set("enableRobotsTXT", true)
+	writeSource(t, fs, filepath.Join("layouts", "robots.txt"), robotTxtTemplate)
+	writeSourcesToSource(t, "content", fs, weightedSources...)
 
-	s := &Site{
-		Source:   &source.InMemorySource{ByteSource: weightedSources},
-		Language: helpers.NewDefaultLanguage(),
-	}
+	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	if err := buildAndRenderSite(s, "robots.txt", robotTxtTemplate); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	th.assertFileContent("public/robots.txt", "User-agent: Googlebot")
 
-	robotsFile, err := hugofs.Destination().Open("public/robots.txt")
-
-	if err != nil {
-		t.Fatalf("Unable to locate: robots.txt")
-	}
-
-	robots := helpers.ReaderToBytes(robotsFile)
-	if !bytes.HasPrefix(robots, []byte("User-agent: Googlebot")) {
-		t.Errorf("Robots file should start with 'User-agent: Googlebot'. %s", robots)
-	}
 }

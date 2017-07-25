@@ -18,15 +18,17 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestURLize(t *testing.T) {
-	initCommonTestConfig()
 
-	p := NewPathSpecFromConfig(viper.GetViper())
+	v := viper.New()
+	l := NewDefaultLanguage(v)
+	p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
 	tests := []struct {
 		input    string
@@ -61,11 +63,10 @@ func TestAbsURL(t *testing.T) {
 }
 
 func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
-	viper.Reset()
-	viper.Set("multilingual", multilingual)
-	viper.Set("currentContentLanguage", NewLanguage(lang))
-	viper.Set("defaultContentLanguage", "en")
-	viper.Set("defaultContentLanguageInSubdir", defaultInSubDir)
+	v := viper.New()
+	v.Set("multilingual", multilingual)
+	v.Set("defaultContentLanguage", "en")
+	v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 
 	tests := []struct {
 		input    string
@@ -86,8 +87,10 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 	}
 
 	for _, test := range tests {
-		viper.Set("baseURL", test.baseURL)
-		p := NewPathSpecFromConfig(viper.GetViper())
+		v.Set("baseURL", test.baseURL)
+		l := NewLanguage(lang, v)
+		p, _ := NewPathSpec(hugofs.NewMem(v), l)
+
 		output := p.AbsURL(test.input, addLanguage)
 		expected := test.expected
 		if multilingual && addLanguage {
@@ -135,11 +138,10 @@ func TestRelURL(t *testing.T) {
 }
 
 func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
-	viper.Reset()
-	viper.Set("multilingual", multilingual)
-	viper.Set("currentContentLanguage", NewLanguage(lang))
-	viper.Set("defaultContentLanguage", "en")
-	viper.Set("defaultContentLanguageInSubdir", defaultInSubDir)
+	v := viper.New()
+	v.Set("multilingual", multilingual)
+	v.Set("defaultContentLanguage", "en")
+	v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
 
 	tests := []struct {
 		input    string
@@ -162,9 +164,10 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 	}
 
 	for i, test := range tests {
-		viper.Set("baseURL", test.baseURL)
-		viper.Set("canonifyURLs", test.canonify)
-		p := NewPathSpecFromConfig(viper.GetViper())
+		v.Set("baseURL", test.baseURL)
+		v.Set("canonifyURLs", test.canonify)
+		l := NewLanguage(lang, v)
+		p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
 		output := p.RelURL(test.input, addLanguage)
 
@@ -247,9 +250,12 @@ func TestURLPrep(t *testing.T) {
 		{false, "/section/name.html", "/section/name/"},
 		{true, "/section/name/index.html", "/section/name.html"},
 	}
+
 	for i, d := range data {
-		viper.Set("uglyURLs", d.ugly)
-		p := NewPathSpecFromConfig(viper.GetViper())
+		v := viper.New()
+		v.Set("uglyURLs", d.ugly)
+		l := NewDefaultLanguage(v)
+		p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
 		output := p.URLPrep(d.input)
 		if d.output != output {

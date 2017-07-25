@@ -19,13 +19,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugolib"
-	"github.com/spf13/hugo/parser"
-	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 var outputDir string
@@ -86,7 +83,7 @@ func convertContents(mark rune) error {
 		return err
 	}
 
-	h, err := hugolib.NewHugoSitesFromConfiguration(cfg)
+	h, err := hugolib.NewHugoSites(*cfg)
 	if err != nil {
 		return err
 	}
@@ -104,10 +101,10 @@ func convertContents(mark rune) error {
 		return errors.New("No source files found")
 	}
 
-	contentDir := helpers.AbsPathify(viper.GetString("contentDir"))
-	jww.FEEDBACK.Println("processing", len(site.Source.Files()), "content files")
+	contentDir := site.PathSpec.AbsPathify(site.Cfg.GetString("contentDir"))
+	site.Log.FEEDBACK.Println("processing", len(site.Source.Files()), "content files")
 	for _, file := range site.Source.Files() {
-		jww.INFO.Println("Attempting to convert", file.LogicalName())
+		site.Log.INFO.Println("Attempting to convert", file.LogicalName())
 		page, err := site.NewPage(file.LogicalName())
 		if err != nil {
 			return err
@@ -115,31 +112,31 @@ func convertContents(mark rune) error {
 
 		psr, err := parser.ReadFrom(file.Contents)
 		if err != nil {
-			jww.ERROR.Println("Error processing file:", file.Path())
+			site.Log.ERROR.Println("Error processing file:", file.Path())
 			return err
 		}
 		metadata, err := psr.Metadata()
 		if err != nil {
-			jww.ERROR.Println("Error processing file:", file.Path())
+			site.Log.ERROR.Println("Error processing file:", file.Path())
 			return err
 		}
 
 		// better handling of dates in formats that don't have support for them
 		if mark == parser.FormatToLeadRune("json") || mark == parser.FormatToLeadRune("yaml") || mark == parser.FormatToLeadRune("toml") {
-			newmetadata := cast.ToStringMap(metadata)
-			for k, v := range newmetadata {
+			newMetadata := cast.ToStringMap(metadata)
+			for k, v := range newMetadata {
 				switch vv := v.(type) {
 				case time.Time:
-					newmetadata[k] = vv.Format(time.RFC3339)
+					newMetadata[k] = vv.Format(time.RFC3339)
 				}
 			}
-			metadata = newmetadata
+			metadata = newMetadata
 		}
 
 		page.SetDir(filepath.Join(contentDir, file.Dir()))
 		page.SetSourceContent(psr.Content())
 		if err = page.SetSourceMetaData(metadata, mark); err != nil {
-			jww.ERROR.Printf("Failed to set source metadata for file %q: %s. For more info see For more info see https://github.com/spf13/hugo/issues/2458", page.FullFilePath(), err)
+			site.Log.ERROR.Printf("Failed to set source metadata for file %q: %s. For more info see For more info see https://github.com/gohugoio/hugo/issues/2458", page.FullFilePath(), err)
 			continue
 		}
 
@@ -153,7 +150,7 @@ func convertContents(mark rune) error {
 					return fmt.Errorf("Failed to save file %q: %s", page.FullFilePath(), err)
 				}
 			} else {
-				jww.FEEDBACK.Println("Unsafe operation not allowed, use --unsafe or set a different output path")
+				site.Log.FEEDBACK.Println("Unsafe operation not allowed, use --unsafe or set a different output path")
 			}
 		}
 	}

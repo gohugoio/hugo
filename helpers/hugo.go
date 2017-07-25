@@ -14,50 +14,153 @@
 package helpers
 
 import (
+	"errors"
 	"fmt"
+	"strings"
+
+	"github.com/spf13/cast"
 )
 
-// HugoVersionNumber represents the current build version.
-// This should be the only one
-const (
+// HugoVersion represents the Hugo build version.
+type HugoVersion struct {
 	// Major and minor version.
-	HugoVersionNumber = 0.19
+	Number float32
 
 	// Increment this for bug releases
-	HugoPatchVersion = 0
-)
+	PatchLevel int
 
-// HugoVersionSuffix is the suffix used in the Hugo version string.
-// It will be blank for release versions.
-const HugoVersionSuffix = "-DEV" // use this when not doing a release
-//const HugoVersionSuffix = "" // use this line when doing a release
-
-// HugoVersion returns the current Hugo version. It will include
-// a suffix, typically '-DEV', if it's development version.
-func HugoVersion() string {
-	return hugoVersion(HugoVersionNumber, HugoPatchVersion, HugoVersionSuffix)
+	// HugoVersionSuffix is the suffix used in the Hugo version string.
+	// It will be blank for release versions.
+	Suffix string
 }
 
-// HugoReleaseVersion is same as HugoVersion, but no suffix.
-func HugoReleaseVersion() string {
-	return hugoVersionNoSuffix(HugoVersionNumber, HugoPatchVersion)
+func (v HugoVersion) String() string {
+	return hugoVersion(v.Number, v.PatchLevel, v.Suffix)
 }
 
-// NextHugoReleaseVersion returns the next Hugo release version.
-func NextHugoReleaseVersion() string {
-	return hugoVersionNoSuffix(HugoVersionNumber+0.01, 0)
+func ParseHugoVersion(s string) (HugoVersion, error) {
+	var vv HugoVersion
+
+	if strings.Contains(s, "DEV") {
+		return vv, errors.New("DEV versions not supported by parse")
+	}
+
+	v, p := parseVersion(s)
+
+	vv.Number = v
+	vv.PatchLevel = p
+
+	return vv, nil
+}
+
+func MustParseHugoVersion(s string) HugoVersion {
+	vv, err := ParseHugoVersion(s)
+	if err != nil {
+		panic(err)
+	}
+	return vv
+}
+
+// ReleaseVersion represents the release version.
+func (v HugoVersion) ReleaseVersion() HugoVersion {
+	v.Suffix = ""
+	return v
+}
+
+// Next returns the next Hugo release version.
+func (v HugoVersion) Next() HugoVersion {
+	return HugoVersion{Number: v.Number + 0.01}
+}
+
+// Pre returns the previous Hugo release version.
+func (v HugoVersion) Prev() HugoVersion {
+	return HugoVersion{Number: v.Number - 0.01}
+}
+
+// NextPatchLevel returns the next patch/bugfix Hugo version.
+// This will be a patch increment on the previous Hugo version.
+func (v HugoVersion) NextPatchLevel(level int) HugoVersion {
+	return HugoVersion{Number: v.Number - 0.01, PatchLevel: level}
+}
+
+// CurrentHugoVersion represents the current build version.
+// This should be the only one.
+var CurrentHugoVersion = HugoVersion{
+	Number:     0.26,
+	PatchLevel: 0,
+	Suffix:     "-DEV",
 }
 
 func hugoVersion(version float32, patchVersion int, suffix string) string {
 	if patchVersion > 0 {
-		return fmt.Sprintf("%.2g.%d%s", version, patchVersion, suffix)
+		return fmt.Sprintf("%.2f.%d%s", version, patchVersion, suffix)
 	}
-	return fmt.Sprintf("%.2g%s", version, suffix)
+	return fmt.Sprintf("%.2f%s", version, suffix)
 }
 
-func hugoVersionNoSuffix(version float32, patchVersion int) string {
-	if patchVersion > 0 {
-		return fmt.Sprintf("%.2g.%d", version, patchVersion)
+// CompareVersion compares the given version string or number against the
+// running Hugo version.
+// It returns -1 if the given version is less than, 0 if equal and 1 if greater than
+// the running version.
+func CompareVersion(version interface{}) int {
+	return compareVersions(CurrentHugoVersion.Number, CurrentHugoVersion.PatchLevel, version)
+}
+
+func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int {
+	switch d := in.(type) {
+	case float64:
+		return compareFloatVersions(inVersion, float32(d))
+	case float32:
+		return compareFloatVersions(inVersion, d)
+	case int:
+		return compareFloatVersions(inVersion, float32(d))
+	case int32:
+		return compareFloatVersions(inVersion, float32(d))
+	case int64:
+		return compareFloatVersions(inVersion, float32(d))
+	default:
+		s, err := cast.ToStringE(in)
+		if err != nil {
+			return -1
+		}
+
+		v, p := parseVersion(s)
+
+		if v == inVersion && p == inPatchVersion {
+			return 0
+		}
+
+		if v < inVersion || (v == inVersion && p < inPatchVersion) {
+			return -1
+		}
+
+		return 1
 	}
-	return fmt.Sprintf("%.2g", version)
+}
+
+func parseVersion(s string) (float32, int) {
+	var (
+		v float32
+		p int
+	)
+
+	if strings.Count(s, ".") == 2 {
+		li := strings.LastIndex(s, ".")
+		p = cast.ToInt(s[li+1:])
+		s = s[:li]
+	}
+
+	v = float32(cast.ToFloat64(s))
+
+	return v, p
+}
+
+func compareFloatVersions(version float32, v float32) int {
+	if v == version {
+		return 0
+	}
+	if v < version {
+		return -1
+	}
+	return 1
 }

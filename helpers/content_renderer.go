@@ -17,10 +17,10 @@ import (
 	"bytes"
 	"html"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 type LinkResolverFunc func(ref string) (string, error)
@@ -33,49 +33,49 @@ type HugoHTMLRenderer struct {
 	blackfriday.Renderer
 }
 
-func (renderer *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
-	if viper.GetBool("pygmentsCodeFences") && (lang != "" || viper.GetBool("pygmentsCodeFencesGuessSyntax")) {
-		opts := viper.GetString("pygmentsOptions")
+func (r *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
+	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
+		opts := r.Cfg.GetString("pygmentsOptions")
 		str := html.UnescapeString(string(text))
-		out.WriteString(Highlight(str, lang, opts))
+		out.WriteString(Highlight(r.RenderingContext.Cfg, str, lang, opts))
 	} else {
-		renderer.Renderer.BlockCode(out, text, lang)
+		r.Renderer.BlockCode(out, text, lang)
 	}
 }
 
-func (renderer *HugoHTMLRenderer) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
-	if renderer.LinkResolver == nil || bytes.HasPrefix(link, []byte("HAHAHUGOSHORTCODE")) {
+func (r *HugoHTMLRenderer) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
+	if r.LinkResolver == nil || bytes.HasPrefix(link, []byte("HAHAHUGOSHORTCODE")) {
 		// Use the blackfriday built in Link handler
-		renderer.Renderer.Link(out, link, title, content)
+		r.Renderer.Link(out, link, title, content)
 	} else {
 		// set by SourceRelativeLinksEval
-		newLink, err := renderer.LinkResolver(string(link))
+		newLink, err := r.LinkResolver(string(link))
 		if err != nil {
 			newLink = string(link)
 			jww.ERROR.Printf("LinkResolver: %s", err)
 		}
-		renderer.Renderer.Link(out, []byte(newLink), title, content)
+		r.Renderer.Link(out, []byte(newLink), title, content)
 	}
 }
-func (renderer *HugoHTMLRenderer) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
-	if renderer.FileResolver == nil || bytes.HasPrefix(link, []byte("HAHAHUGOSHORTCODE")) {
+func (r *HugoHTMLRenderer) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
+	if r.FileResolver == nil || bytes.HasPrefix(link, []byte("HAHAHUGOSHORTCODE")) {
 		// Use the blackfriday built in Image handler
-		renderer.Renderer.Image(out, link, title, alt)
+		r.Renderer.Image(out, link, title, alt)
 	} else {
 		// set by SourceRelativeLinksEval
-		newLink, err := renderer.FileResolver(string(link))
+		newLink, err := r.FileResolver(string(link))
 		if err != nil {
 			newLink = string(link)
 			jww.ERROR.Printf("FileResolver: %s", err)
 		}
-		renderer.Renderer.Image(out, []byte(newLink), title, alt)
+		r.Renderer.Image(out, []byte(newLink), title, alt)
 	}
 }
 
 // ListItem adds task list support to the Blackfriday renderer.
-func (renderer *HugoHTMLRenderer) ListItem(out *bytes.Buffer, text []byte, flags int) {
-	if !renderer.Config.TaskLists {
-		renderer.Renderer.ListItem(out, text, flags)
+func (r *HugoHTMLRenderer) ListItem(out *bytes.Buffer, text []byte, flags int) {
+	if !r.Config.TaskLists {
+		r.Renderer.ListItem(out, text, flags)
 		return
 	}
 
@@ -87,17 +87,17 @@ func (renderer *HugoHTMLRenderer) ListItem(out *bytes.Buffer, text []byte, flags
 		text = append([]byte(`<input type="checkbox" checked disabled class="task-list-item">`), text[3:]...)
 	}
 
-	renderer.Renderer.ListItem(out, text, flags)
+	r.Renderer.ListItem(out, text, flags)
 }
 
 // List adds task list support to the Blackfriday renderer.
-func (renderer *HugoHTMLRenderer) List(out *bytes.Buffer, text func() bool, flags int) {
-	if !renderer.Config.TaskLists {
-		renderer.Renderer.List(out, text, flags)
+func (r *HugoHTMLRenderer) List(out *bytes.Buffer, text func() bool, flags int) {
+	if !r.Config.TaskLists {
+		r.Renderer.List(out, text, flags)
 		return
 	}
 	marker := out.Len()
-	renderer.Renderer.List(out, text, flags)
+	r.Renderer.List(out, text, flags)
 	if out.Len() > marker {
 		list := out.Bytes()[marker:]
 		if bytes.Contains(list, []byte("task-list-item")) {
@@ -114,13 +114,14 @@ func (renderer *HugoHTMLRenderer) List(out *bytes.Buffer, text func() bool, flag
 // Enabling Hugo to customise the rendering experience
 type HugoMmarkHTMLRenderer struct {
 	mmark.Renderer
+	Cfg config.Provider
 }
 
-func (renderer *HugoMmarkHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string, caption []byte, subfigure bool, callouts bool) {
-	if viper.GetBool("pygmentsCodeFences") && (lang != "" || viper.GetBool("pygmentsCodeFencesGuessSyntax")) {
+func (r *HugoMmarkHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string, caption []byte, subfigure bool, callouts bool) {
+	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
 		str := html.UnescapeString(string(text))
-		out.WriteString(Highlight(str, lang, ""))
+		out.WriteString(Highlight(r.Cfg, str, lang, ""))
 	} else {
-		renderer.Renderer.BlockCode(out, text, lang, caption, subfigure, callouts)
+		r.Renderer.BlockCode(out, text, lang, caption, subfigure, callouts)
 	}
 }

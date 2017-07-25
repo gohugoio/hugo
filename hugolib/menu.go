@@ -157,6 +157,15 @@ var defaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {
 		}
 		return m1.Name < m2.Name
 	}
+
+	if m2.Weight == 0 {
+		return true
+	}
+
+	if m1.Weight == 0 {
+		return false
+	}
+
 	return m1.Weight < m2.Weight
 }
 

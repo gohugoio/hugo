@@ -26,20 +26,22 @@ import (
 )
 
 const (
-	contentNoFrontmatter                 = "a page with no front matter"
-	contentWithFrontmatter               = "---\ntitle: front matter\n---\nContent with front matter"
-	contentHTMLNoDoctype                 = "<html>\n\t<body>\n\t</body>\n</html>"
-	contentHTMLWithDoctype               = "<!doctype html><html><body></body></html>"
-	contentHTMLWithFrontmatter           = "---\ntitle: front matter\n---\n<!doctype><html><body></body></html>"
-	contentHTML                          = "    <html><body></body></html>"
-	contentLinefeedAndHTML               = "\n<html><body></body></html>"
-	contentIncompleteEndFrontmatterDelim = "---\ntitle: incomplete end fm delim\n--\nincomplete frontmatter delim"
-	contentMissingEndFrontmatterDelim    = "---\ntitle: incomplete end fm delim\nincomplete frontmatter delim"
-	contentSlugWorking                   = "---\ntitle: slug doc 2\nslug: slug-doc-2\n\n---\nslug doc 2 content"
-	contentSlugWorkingVariation          = "---\ntitle: slug doc 3\nslug: slug-doc 3\n---\nslug doc 3 content"
-	contentSlugBug                       = "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\nslug doc 2 content"
-	contentSlugWithJSONFrontMatter       = "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
-	contentWithJSONLooseFrontmatter      = "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
+	contentNoFrontmatter                        = "a page with no front matter"
+	contentWithFrontmatter                      = "---\ntitle: front matter\n---\nContent with front matter"
+	contentHTMLNoDoctype                        = "<html>\n\t<body>\n\t</body>\n</html>"
+	contentHTMLWithDoctype                      = "<!doctype html><html><body></body></html>"
+	contentHTMLWithFrontmatter                  = "---\ntitle: front matter\n---\n<!doctype><html><body></body></html>"
+	contentHTML                                 = "    <html><body></body></html>"
+	contentLinefeedAndHTML                      = "\n<html><body></body></html>"
+	contentIncompleteEndFrontmatterDelim        = "---\ntitle: incomplete end fm delim\n--\nincomplete frontmatter delim"
+	contentMissingEndFrontmatterDelim           = "---\ntitle: incomplete end fm delim\nincomplete frontmatter delim"
+	contentSlugWorking                          = "---\ntitle: slug doc 2\nslug: slug-doc-2\n\n---\nslug doc 2 content"
+	contentSlugWorkingVariation                 = "---\ntitle: slug doc 3\nslug: slug-doc 3\n---\nslug doc 3 content"
+	contentSlugBug                              = "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\nslug doc 2 content"
+	contentSlugWithJSONFrontMatter              = "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
+	contentWithJSONLooseFrontmatter             = "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories"
+	contentSlugWithJSONFrontMatterFirstLineOnly = "{\"categories\":\"d\",\"tags\":[\"a\",\"b\",\"c\"]}\nJSON Front Matter with tags and categories"
+	contentSlugWithJSONFrontMatterFirstLine     = "{\"categories\":\"d\",\n  \"tags\":[\"a\",\"b\",\"c\"]}\nJSON Front Matter with tags and categories"
 )
 
 var lineEndings = []string{"\n", "\r\n"}
@@ -117,6 +119,8 @@ func TestStandaloneCreatePageFrom(t *testing.T) {
 		{contentLinefeedAndHTML, false, true, "", "<html><body></body></html>"},
 		{contentSlugWithJSONFrontMatter, true, false, "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}", "JSON Front Matter with tags and categories"},
 		{contentWithJSONLooseFrontmatter, true, false, "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}", "JSON Front Matter with tags and categories"},
+		{contentSlugWithJSONFrontMatterFirstLineOnly, true, false, "{\"categories\":\"d\",\"tags\":[\"a\",\"b\",\"c\"]}", "JSON Front Matter with tags and categories"},
+		{contentSlugWithJSONFrontMatterFirstLine, true, false, "{\"categories\":\"d\",\n  \"tags\":[\"a\",\"b\",\"c\"]}", "JSON Front Matter with tags and categories"},
 		{contentSlugWorking, true, false, "---\ntitle: slug doc 2\nslug: slug-doc-2\n\n---\n", "slug doc 2 content"},
 		{contentSlugWorkingVariation, true, false, "---\ntitle: slug doc 3\nslug: slug-doc 3\n---\n", "slug doc 3 content"},
 		{contentSlugBug, true, false, "---\ntitle: slug doc 2\nslug: slug-doc-2\n---\n", "slug doc 2 content"},
@@ -292,18 +296,29 @@ func TestExtractFrontMatterDelim(t *testing.T) {
 		{"{\n{\n}\n}\n", "{\n{\n}\n}", noErrExpected},
 		{"{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories", "{\n  \"categories\": \"d\",\n  \"tags\": [\n    \"a\", \n    \"b\", \n    \"c\"\n  ]\n}", noErrExpected},
 		{"{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}\nJSON Front Matter with tags and categories", "{\n  \"categories\": \"d\"\n  \"tags\": [\n    \"a\" \n    \"b\" \n    \"c\"\n  ]\n}", noErrExpected},
+		// Issue #3511
+		{`{ "title": "{" }`, `{ "title": "{" }`, noErrExpected},
+		{`{ "title": "{}" }`, `{ "title": "{}" }`, noErrExpected},
+		// Issue #3661
+		{`{ "title": "\"" }`, `{ "title": "\"" }`, noErrExpected},
+		{`{ "title": "\"{", "other": "\"{}" }`, `{ "title": "\"{", "other": "\"{}" }`, noErrExpected},
+		{`{ "title": "\"Foo\"" }`, `{ "title": "\"Foo\"" }`, noErrExpected},
+		{`{ "title": "\"Foo\"\"" }`, `{ "title": "\"Foo\"\"" }`, noErrExpected},
+		{`{ "url": "http:\/\/example.com\/play\/url?id=1" }`, `{ "url": "http:\/\/example.com\/play\/url?id=1" }`, noErrExpected},
+		{`{ "test": "\"New\r\nString\"" }`, `{ "test": "\"New\r\nString\"" }`, noErrExpected},
+		{`{ "test": "RTS\/RPG" }`, `{ "test": "RTS\/RPG" }`, noErrExpected},
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		fm, err := extractFrontMatterDelims(bufio.NewReader(strings.NewReader(test.frontmatter)), []byte("{"), []byte("}"))
 		if (err == nil) != test.errIsNil {
 			t.Logf("\n%q\n", string(test.frontmatter))
-			t.Errorf("Expected err == nil => %t, got: %t. err: %s", test.errIsNil, err == nil, err)
+			t.Errorf("[%d] Expected err == nil => %t, got: %t. err: %s", i, test.errIsNil, err == nil, err)
 			continue
 		}
 		if !bytes.Equal(fm, []byte(test.extracted)) {
 			t.Logf("\n%q\n", string(test.frontmatter))
-			t.Errorf("Frontmatter did not match:\nexp: %q\ngot: %q", string(test.extracted), fm)
+			t.Errorf("[%d] Frontmatter did not match:\nexp: %q\ngot:  %q", i, string(test.extracted), fm)
 		}
 	}
 }

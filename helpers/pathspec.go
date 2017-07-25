@@ -13,17 +13,34 @@
 
 package helpers
 
+import (
+	"fmt"
+
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs"
+)
+
 // PathSpec holds methods that decides how paths in URLs and files in Hugo should look like.
 type PathSpec struct {
+	BaseURL
+
 	disablePathToLower bool
 	removePathAccents  bool
 	uglyURLs           bool
 	canonifyURLs       bool
 
-	currentContentLanguage *Language
+	language *Language
 
 	// pagination path handling
 	paginatePath string
+
+	theme string
+
+	// Directories
+	themesDir  string
+	layoutDir  string
+	workingDir string
+	staticDir  string
 
 	// The PathSpec looks up its config settings in both the current language
 	// and then in the global Viper config.
@@ -33,24 +50,70 @@ type PathSpec struct {
 	defaultContentLanguageInSubdir bool
 	defaultContentLanguage         string
 	multilingual                   bool
+
+	// The file systems to use
+	Fs *hugofs.Fs
+
+	// The config provider to use
+	Cfg config.Provider
 }
 
-// NewPathSpecFromConfig creats a new PathSpec from the given ConfigProvider.
-func NewPathSpecFromConfig(config ConfigProvider) *PathSpec {
-	return &PathSpec{
-		disablePathToLower:             config.GetBool("disablePathToLower"),
-		removePathAccents:              config.GetBool("removePathAccents"),
-		uglyURLs:                       config.GetBool("uglyURLs"),
-		canonifyURLs:                   config.GetBool("canonifyURLs"),
-		multilingual:                   config.GetBool("multilingual"),
-		defaultContentLanguageInSubdir: config.GetBool("defaultContentLanguageInSubdir"),
-		defaultContentLanguage:         config.GetString("defaultContentLanguage"),
-		currentContentLanguage:         config.Get("currentContentLanguage").(*Language),
-		paginatePath:                   config.GetString("paginatePath"),
+func (p PathSpec) String() string {
+	return fmt.Sprintf("PathSpec, language %q, prefix %q, multilingual: %T", p.language.Lang, p.getLanguagePrefix(), p.multilingual)
+}
+
+// NewPathSpec creats a new PathSpec from the given filesystems and Language.
+func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
+
+	baseURLstr := cfg.GetString("baseURL")
+	baseURL, err := newBaseURLFromString(baseURLstr)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create baseURL from %q: %s", baseURLstr, err)
 	}
+
+	ps := &PathSpec{
+		Fs:                             fs,
+		Cfg:                            cfg,
+		disablePathToLower:             cfg.GetBool("disablePathToLower"),
+		removePathAccents:              cfg.GetBool("removePathAccents"),
+		uglyURLs:                       cfg.GetBool("uglyURLs"),
+		canonifyURLs:                   cfg.GetBool("canonifyURLs"),
+		multilingual:                   cfg.GetBool("multilingual"),
+		defaultContentLanguageInSubdir: cfg.GetBool("defaultContentLanguageInSubdir"),
+		defaultContentLanguage:         cfg.GetString("defaultContentLanguage"),
+		paginatePath:                   cfg.GetString("paginatePath"),
+		BaseURL:                        baseURL,
+		themesDir:                      cfg.GetString("themesDir"),
+		layoutDir:                      cfg.GetString("layoutDir"),
+		workingDir:                     cfg.GetString("workingDir"),
+		staticDir:                      cfg.GetString("staticDir"),
+		theme:                          cfg.GetString("theme"),
+	}
+
+	if language, ok := cfg.(*Language); ok {
+		ps.language = language
+	}
+
+	return ps, nil
 }
 
 // PaginatePath returns the configured root path used for paginator pages.
 func (p *PathSpec) PaginatePath() string {
 	return p.paginatePath
+}
+
+// WorkingDir returns the configured workingDir.
+func (p *PathSpec) WorkingDir() string {
+	return p.workingDir
+}
+
+// LayoutDir returns the relative layout dir in the currenct Hugo project.
+func (p *PathSpec) LayoutDir() string {
+	return p.layoutDir
+}
+
+// Theme returns the theme name if set.
+func (p *PathSpec) Theme() string {
+	return p.theme
 }

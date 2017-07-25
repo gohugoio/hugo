@@ -21,11 +21,12 @@ import (
 )
 
 func TestGetGlobalOnlySetting(t *testing.T) {
-	lang := NewDefaultLanguage()
+	v := viper.New()
+	lang := NewDefaultLanguage(v)
 	lang.SetParam("defaultContentLanguageInSubdir", false)
 	lang.SetParam("paginatePath", "side")
-	viper.Set("defaultContentLanguageInSubdir", true)
-	viper.Set("paginatePath", "page")
+	v.Set("defaultContentLanguageInSubdir", true)
+	v.Set("paginatePath", "page")
 
 	require.True(t, lang.GetBool("defaultContentLanguageInSubdir"))
 	require.Equal(t, "side", lang.GetString("paginatePath"))

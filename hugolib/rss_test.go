@@ -15,32 +15,45 @@ package hugolib
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/deps"
 )
 
 func TestRSSOutput(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
+	var (
+		cfg, fs = newTestCfg()
+		th      = testHelper{cfg, fs, t}
+	)
+
+	rssLimit := len(weightedSources) - 1
 
 	rssURI := "customrss.xml"
-	viper.Set("baseURL", "http://auth/bub/")
-	viper.Set("rssURI", rssURI)
-	viper.Set("title", "RSSTest")
 
-	for _, s := range weightedSources {
-		writeSource(t, filepath.Join("content", "sect", s.Name), string(s.Content))
+	cfg.Set("baseURL", "http://auth/bub/")
+	cfg.Set("rssURI", rssURI)
+	cfg.Set("title", "RSSTest")
+	cfg.Set("rssLimit", rssLimit)
+
+	for _, src := range weightedSources {
+		writeSource(t, fs, filepath.Join("content", "sect", src.Name), string(src.Content))
 	}
 
-	if err := buildAndRenderSite(NewSiteDefaultLang()); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	// Home RSS
-	assertFileContent(t, filepath.Join("public", rssURI), true, "<?xml", "rss version", "RSSTest")
+	th.assertFileContent(filepath.Join("public", rssURI), "<?xml", "rss version", "RSSTest")
 	// Section RSS
-	assertFileContent(t, filepath.Join("public", "sect", rssURI), true, "<?xml", "rss version", "Sects on RSSTest")
+	th.assertFileContent(filepath.Join("public", "sect", rssURI), "<?xml", "rss version", "Sects on RSSTest")
 	// Taxonomy RSS
-	assertFileContent(t, filepath.Join("public", "categories", "hugo", rssURI), true, "<?xml", "rss version", "Hugo on RSSTest")
+	th.assertFileContent(filepath.Join("public", "categories", "hugo", rssURI), "<?xml", "rss version", "Hugo on RSSTest")
 
+	// RSS Item Limit
+	content := readDestination(t, fs, filepath.Join("public", rssURI))
+	c := strings.Count(content, "<item>")
+	if c != rssLimit {
+		t.Errorf("incorrect RSS item count: expected %d, got %d", rssLimit, c)
+	}
 }

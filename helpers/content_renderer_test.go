@@ -22,9 +22,9 @@ import (
 )
 
 // Renders a codeblock using Blackfriday
-func render(input string) string {
-	ctx := newViperProvidedRenderingContext()
-	render := getHTMLRenderer(0, ctx)
+func (c ContentSpec) render(input string) string {
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
+	render := c.getHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
 	render.BlockCode(buf, []byte(input), "html")
@@ -32,9 +32,9 @@ func render(input string) string {
 }
 
 // Renders a codeblock using Mmark
-func renderWithMmark(input string) string {
-	ctx := newViperProvidedRenderingContext()
-	render := getMmarkHTMLRenderer(0, ctx)
+func (c ContentSpec) renderWithMmark(input string) string {
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
+	render := c.getMmarkHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
 	render.BlockCode(buf, []byte(input), "html", []byte(""), false, false)
@@ -59,16 +59,16 @@ func TestCodeFence(t *testing.T) {
 		{false, "<html></html>", `(?s)^<pre><code class="language-html">.*?</code></pre>\n$`},
 	}
 
-	viper.Reset()
-	defer viper.Reset()
-
-	viper.Set("pygmentsStyle", "monokai")
-	viper.Set("pygmentsUseClasses", true)
-
 	for i, d := range data {
-		viper.Set("pygmentsCodeFences", d.enabled)
+		v := viper.New()
 
-		result := render(d.input)
+		v.Set("pygmentsStyle", "monokai")
+		v.Set("pygmentsUseClasses", true)
+		v.Set("pygmentsCodeFences", d.enabled)
+
+		c := NewContentSpec(v)
+
+		result := c.render(d.input)
 
 		expectedRe, err := regexp.Compile(d.expected)
 
@@ -81,7 +81,7 @@ func TestCodeFence(t *testing.T) {
 			t.Errorf("Test %d failed. BlackFriday enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
 		}
 
-		result = renderWithMmark(d.input)
+		result = c.renderWithMmark(d.input)
 		matched = expectedRe.MatchString(result)
 		if !matched {
 			t.Errorf("Test %d failed. Mmark enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
@@ -90,6 +90,8 @@ func TestCodeFence(t *testing.T) {
 }
 
 func TestBlackfridayTaskList(t *testing.T) {
+	c := newTestContentSpec()
+
 	for i, this := range []struct {
 		markdown        string
 		taskListEnabled bool
@@ -118,11 +120,11 @@ END
 </ul>
 `},
 	} {
-		blackFridayConfig := NewBlackfriday(viper.GetViper())
+		blackFridayConfig := c.NewBlackfriday()
 		blackFridayConfig.TaskLists = this.taskListEnabled
 		ctx := &RenderingContext{Content: []byte(this.markdown), PageFmt: "markdown", Config: blackFridayConfig}
 
-		result := string(RenderBytes(ctx))
+		result := string(c.RenderBytes(ctx))
 
 		if result != this.expect {
 			t.Errorf("[%d] got \n%v but expected \n%v", i, result, this.expect)

@@ -16,30 +16,47 @@ package helpers
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/hugofs"
+
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewPathSpecFromConfig(t *testing.T) {
-	viper.Set("disablePathToLower", true)
-	viper.Set("removePathAccents", true)
-	viper.Set("uglyURLs", true)
-	viper.Set("multilingual", true)
-	viper.Set("defaultContentLanguageInSubdir", true)
-	viper.Set("defaultContentLanguage", "no")
-	viper.Set("currentContentLanguage", NewLanguage("no"))
-	viper.Set("canonifyURLs", true)
-	viper.Set("paginatePath", "side")
+	v := viper.New()
+	l := NewLanguage("no", v)
+	v.Set("disablePathToLower", true)
+	v.Set("removePathAccents", true)
+	v.Set("uglyURLs", true)
+	v.Set("multilingual", true)
+	v.Set("defaultContentLanguageInSubdir", true)
+	v.Set("defaultContentLanguage", "no")
+	v.Set("canonifyURLs", true)
+	v.Set("paginatePath", "side")
+	v.Set("baseURL", "http://base.com")
+	v.Set("themesDir", "thethemes")
+	v.Set("layoutDir", "thelayouts")
+	v.Set("workingDir", "thework")
+	v.Set("staticDir", "thestatic")
+	v.Set("theme", "thetheme")
 
-	pathSpec := NewPathSpecFromConfig(viper.GetViper())
+	p, err := NewPathSpec(hugofs.NewMem(v), l)
 
-	require.True(t, pathSpec.canonifyURLs)
-	require.True(t, pathSpec.defaultContentLanguageInSubdir)
-	require.True(t, pathSpec.disablePathToLower)
-	require.True(t, pathSpec.multilingual)
-	require.True(t, pathSpec.removePathAccents)
-	require.True(t, pathSpec.uglyURLs)
-	require.Equal(t, "no", pathSpec.defaultContentLanguage)
-	require.Equal(t, "no", pathSpec.currentContentLanguage.Lang)
-	require.Equal(t, "side", pathSpec.paginatePath)
+	require.NoError(t, err)
+	require.True(t, p.canonifyURLs)
+	require.True(t, p.defaultContentLanguageInSubdir)
+	require.True(t, p.disablePathToLower)
+	require.True(t, p.multilingual)
+	require.True(t, p.removePathAccents)
+	require.True(t, p.uglyURLs)
+	require.Equal(t, "no", p.defaultContentLanguage)
+	require.Equal(t, "no", p.language.Lang)
+	require.Equal(t, "side", p.paginatePath)
+
+	require.Equal(t, "http://base.com", p.BaseURL.String())
+	require.Equal(t, "thethemes", p.themesDir)
+	require.Equal(t, "thelayouts", p.layoutDir)
+	require.Equal(t, "thework", p.workingDir)
+	require.Equal(t, "thestatic", p.staticDir)
+	require.Equal(t, "thetheme", p.theme)
 }

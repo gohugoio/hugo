@@ -19,20 +19,21 @@ package helpers
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"os/exec"
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/chaseadamsio/goorgeous"
+	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/config"
 	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
-	bp "github.com/spf13/hugo/bufferpool"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 
 	"strings"
-	"sync"
 )
 
 // SummaryLength is the length of the summary that Hugo extracts from a content.
@@ -40,6 +41,24 @@ var SummaryLength = 200
 
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
 var SummaryDivider = []byte("<!--more-->")
+
+type ContentSpec struct {
+	blackfriday                map[string]interface{}
+	footnoteAnchorPrefix       string
+	footnoteReturnLinkContents string
+
+	cfg config.Provider
+}
+
+func NewContentSpec(cfg config.Provider) *ContentSpec {
+	return &ContentSpec{
+		blackfriday:                cfg.GetStringMap("blackfriday"),
+		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
+		footnoteReturnLinkContents: cfg.GetString("footnoteReturnLinkContents"),
+
+		cfg: cfg,
+	}
+}
 
 // Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
@@ -58,8 +77,7 @@ type Blackfriday struct {
 }
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
-func NewBlackfriday(c ConfigProvider) *Blackfriday {
-
+func (c ContentSpec) NewBlackfriday() *Blackfriday {
 	defaultParam := map[string]interface{}{
 		"smartypants":                      true,
 		"angledQuotes":                     false,
@@ -75,16 +93,14 @@ func NewBlackfriday(c ConfigProvider) *Blackfriday {
 
 	ToLowerMap(defaultParam)
 
-	siteParam := c.GetStringMap("blackfriday")
-
 	siteConfig := make(map[string]interface{})
 
 	for k, v := range defaultParam {
 		siteConfig[k] = v
 	}
 
-	if siteParam != nil {
-		for k, v := range siteParam {
+	if c.blackfriday != nil {
+		for k, v := range c.blackfriday {
 			siteConfig[k] = v
 		}
 	}
@@ -92,6 +108,13 @@ func NewBlackfriday(c ConfigProvider) *Blackfriday {
 	combinedConfig := &Blackfriday{}
 	if err := mapstructure.Decode(siteConfig, combinedConfig); err != nil {
 		jww.FATAL.Printf("Failed to get site rendering config\n%s", err.Error())
+	}
+
+	if combinedConfig.SourceRelativeLinksEval {
+		// Remove in Hugo 0.21
+		Deprecated("blackfriday", "sourceRelativeLinksEval",
+			`There is no replacement for this feature, as no developer has stepped up to the plate and volunteered to maintain this feature`, false)
+
 	}
 
 	return combinedConfig
@@ -114,6 +137,7 @@ var blackfridayExtensionMap = map[string]int{
 	"autoHeaderIds":          blackfriday.EXTENSION_AUTO_HEADER_IDS,
 	"backslashLineBreak":     blackfriday.EXTENSION_BACKSLASH_LINE_BREAK,
 	"definitionLists":        blackfriday.EXTENSION_DEFINITION_LISTS,
+	"joinLines":              blackfriday.EXTENSION_JOIN_LINES,
 }
 
 var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
@@ -180,15 +204,19 @@ func BytesToHTML(b []byte) template.HTML {
 }
 
 // getHTMLRenderer creates a new Blackfriday HTML Renderer with the given configuration.
-func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
+func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
-		FootnoteAnchorPrefix:       viper.GetString("footnoteAnchorPrefix"),
-		FootnoteReturnLinkContents: viper.GetString("footnoteReturnLinkContents"),
+		FootnoteAnchorPrefix:       c.footnoteAnchorPrefix,
+		FootnoteReturnLinkContents: c.footnoteReturnLinkContents,
 	}
 
 	b := len(ctx.DocumentID) != 0
 
-	if b && !ctx.getConfig().PlainIDAnchors {
+	if ctx.Config == nil {
+		panic(fmt.Sprintf("RenderingContext of %q doesn't have a config", ctx.DocumentID))
+	}
+
+	if b && !ctx.Config.PlainIDAnchors {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
 		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentID
 	}
@@ -197,27 +225,27 @@ func getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Render
 	htmlFlags |= blackfriday.HTML_USE_XHTML
 	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
 
-	if ctx.getConfig().Smartypants {
+	if ctx.Config.Smartypants {
 		htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
 	}
 
-	if ctx.getConfig().AngledQuotes {
+	if ctx.Config.AngledQuotes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
 	}
 
-	if ctx.getConfig().Fractions {
+	if ctx.Config.Fractions {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
 	}
 
-	if ctx.getConfig().HrefTargetBlank {
+	if ctx.Config.HrefTargetBlank {
 		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
 	}
 
-	if ctx.getConfig().SmartDashes {
+	if ctx.Config.SmartDashes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_DASHES
 	}
 
-	if ctx.getConfig().LatexDashes {
+	if ctx.Config.LatexDashes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	}
 
@@ -245,12 +273,16 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 		blackfriday.EXTENSION_AUTO_HEADER_IDS |
 		blackfriday.EXTENSION_FOOTNOTES
 
-	for _, extension := range ctx.getConfig().Extensions {
+	if ctx.Config == nil {
+		panic(fmt.Sprintf("RenderingContext of %q doesn't have a config", ctx.DocumentID))
+	}
+
+	for _, extension := range ctx.Config.Extensions {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags |= flag
 		}
 	}
-	for _, extension := range ctx.getConfig().ExtensionsMask {
+	for _, extension := range ctx.Config.ExtensionsMask {
 		if flag, ok := blackfridayExtensionMap[extension]; ok {
 			flags &= ^flag
 		}
@@ -258,26 +290,30 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 	return flags
 }
 
-func markdownRender(ctx *RenderingContext) []byte {
+func (c ContentSpec) markdownRender(ctx *RenderingContext) []byte {
 	if ctx.RenderTOC {
 		return blackfriday.Markdown(ctx.Content,
-			getHTMLRenderer(blackfriday.HTML_TOC, ctx),
+			c.getHTMLRenderer(blackfriday.HTML_TOC, ctx),
 			getMarkdownExtensions(ctx))
 	}
-	return blackfriday.Markdown(ctx.Content, getHTMLRenderer(0, ctx),
+	return blackfriday.Markdown(ctx.Content, c.getHTMLRenderer(0, ctx),
 		getMarkdownExtensions(ctx))
 }
 
 // getMmarkHTMLRenderer creates a new mmark HTML Renderer with the given configuration.
-func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
+func (c ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
-		FootnoteAnchorPrefix:       viper.GetString("footnoteAnchorPrefix"),
-		FootnoteReturnLinkContents: viper.GetString("footnoteReturnLinkContents"),
+		FootnoteAnchorPrefix:       c.footnoteAnchorPrefix,
+		FootnoteReturnLinkContents: c.footnoteReturnLinkContents,
 	}
 
 	b := len(ctx.DocumentID) != 0
 
-	if b && !ctx.getConfig().PlainIDAnchors {
+	if ctx.Config == nil {
+		panic(fmt.Sprintf("RenderingContext of %q doesn't have a config", ctx.DocumentID))
+	}
+
+	if b && !ctx.Config.PlainIDAnchors {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
 		// renderParameters.HeaderIDSuffix = ":" + ctx.DocumentId
 	}
@@ -287,6 +323,7 @@ func getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Rendere
 
 	return &HugoMmarkHTMLRenderer{
 		mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+		c.cfg,
 	}
 }
 
@@ -306,7 +343,11 @@ func getMmarkExtensions(ctx *RenderingContext) int {
 	flags |= mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK
 	flags |= mmark.EXTENSION_INCLUDE
 
-	for _, extension := range ctx.getConfig().Extensions {
+	if ctx.Config == nil {
+		panic(fmt.Sprintf("RenderingContext of %q doesn't have a config", ctx.DocumentID))
+	}
+
+	for _, extension := range ctx.Config.Extensions {
 		if flag, ok := mmarkExtensionMap[extension]; ok {
 			flags |= flag
 		}
@@ -314,8 +355,8 @@ func getMmarkExtensions(ctx *RenderingContext) int {
 	return flags
 }
 
-func mmarkRender(ctx *RenderingContext) []byte {
-	return mmark.Parse(ctx.Content, getMmarkHTMLRenderer(0, ctx),
+func (c ContentSpec) mmarkRender(ctx *RenderingContext) []byte {
+	return mmark.Parse(ctx.Content, c.getMmarkHTMLRenderer(0, ctx),
 		getMmarkExtensions(ctx)).Bytes()
 }
 
@@ -357,45 +398,34 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 
 // RenderingContext holds contextual information, like content and configuration,
 // for a given content rendering.
+// By creating you must set the Config, otherwise it will panic.
 type RenderingContext struct {
-	Content        []byte
-	PageFmt        string
-	DocumentID     string
-	DocumentName   string
-	Config         *Blackfriday
-	RenderTOC      bool
-	FileResolver   FileResolverFunc
-	LinkResolver   LinkResolverFunc
-	ConfigProvider ConfigProvider
-	configInit     sync.Once
-}
-
-func newViperProvidedRenderingContext() *RenderingContext {
-	return &RenderingContext{ConfigProvider: viper.GetViper()}
-}
-
-func (c *RenderingContext) getConfig() *Blackfriday {
-	c.configInit.Do(func() {
-		if c.Config == nil {
-			c.Config = NewBlackfriday(c.ConfigProvider)
-		}
-	})
-	return c.Config
+	Content      []byte
+	PageFmt      string
+	DocumentID   string
+	DocumentName string
+	Config       *Blackfriday
+	RenderTOC    bool
+	FileResolver FileResolverFunc
+	LinkResolver LinkResolverFunc
+	Cfg          config.Provider
 }
 
 // RenderBytes renders a []byte.
-func RenderBytes(ctx *RenderingContext) []byte {
+func (c ContentSpec) RenderBytes(ctx *RenderingContext) []byte {
 	switch ctx.PageFmt {
 	default:
-		return markdownRender(ctx)
+		return c.markdownRender(ctx)
 	case "markdown":
-		return markdownRender(ctx)
+		return c.markdownRender(ctx)
 	case "asciidoc":
 		return getAsciidocContent(ctx)
 	case "mmark":
-		return mmarkRender(ctx)
+		return c.mmarkRender(ctx)
 	case "rst":
 		return getRstContent(ctx)
+	case "org":
+		return orgRender(ctx, c)
 	}
 }
 
@@ -514,19 +544,29 @@ func truncateWordsToWholeSentenceOld(content string, max int) (string, bool) {
 }
 
 func getAsciidocExecPath() string {
-	path, err := exec.LookPath("asciidoctor")
+	path, err := exec.LookPath("asciidoc")
 	if err != nil {
-		path, err = exec.LookPath("asciidoc")
-		if err != nil {
-			return ""
-		}
+		return ""
 	}
 	return path
 }
 
-// HasAsciidoc returns whether Asciidoctor or Asciidoc is installed on this computer.
+// HasAsciidoc returns whether Asciidoc is installed on this computer.
 func HasAsciidoc() bool {
 	return getAsciidocExecPath() != ""
+}
+
+func getAsciidoctorExecPath() string {
+	path, err := exec.LookPath("asciidoctor")
+	if err != nil {
+		return ""
+	}
+	return path
+}
+
+// HasAsciidoctor returns whether Asciidoctor is installed on this computer.
+func HasAsciidoctor() bool {
+	return getAsciidoctorExecPath() != ""
 }
 
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
@@ -535,15 +575,27 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 	content := ctx.Content
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
-	path := getAsciidocExecPath()
+	var isAsciidoctor bool
+	path := getAsciidoctorExecPath()
 	if path == "" {
-		jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
-			"                 Leaving AsciiDoc content unrendered.")
-		return content
+		path = getAsciidocExecPath()
+		if path == "" {
+			jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
+				"                 Leaving AsciiDoc content unrendered.")
+			return content
+		}
+	} else {
+		isAsciidoctor = true
 	}
 
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	cmd := exec.Command(path, "--no-header-footer", "--safe", "-")
+	args := []string{"--no-header-footer", "--safe"}
+	if isAsciidoctor {
+		// asciidoctor-specific arg to show stack traces on errors
+		args = append(args, "--trace")
+	}
+	args = append(args, "-")
+	cmd := exec.Command(path, args...)
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
@@ -608,7 +660,7 @@ func getRstContent(ctx *RenderingContext) []byte {
 	}
 
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	cmd := exec.Command(python, path, "--leave-comments")
+	cmd := exec.Command(python, path, "--leave-comments", "--initial-header-level=2")
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
@@ -643,4 +695,11 @@ func getRstContent(ctx *RenderingContext) []byte {
 	}
 
 	return result[bodyStart+7 : bodyEnd]
+}
+
+func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
+	content := ctx.Content
+	cleanContent := bytes.Replace(content, []byte("# more"), []byte(""), 1)
+	return goorgeous.Org(cleanContent,
+		c.getHTMLRenderer(blackfriday.HTML_TOC, ctx))
 }

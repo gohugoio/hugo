@@ -14,20 +14,19 @@
 package hugolib
 
 import (
+	"errors"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"os"
 	"strings"
 	"sync"
 
-	"github.com/spf13/hugo/helpers"
+	"path/filepath"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tpl"
-	jww "github.com/spf13/jwalterweatherman"
+	"github.com/gohugoio/hugo/i18n"
+	"github.com/gohugoio/hugo/tpl"
+	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
 
 // HugoSites represents the sites to build. Each site represents a language.
@@ -38,74 +37,116 @@ type HugoSites struct {
 
 	multilingual *Multilingual
 
-	*deps
+	*deps.Deps
 }
 
-// deps holds dependencies used by many.
-// TODO(bep) globals a better name.
-// There will be normally be only one instance of deps in play
-// at a given time.
-type deps struct {
-	// The logger to use.
-	log *jww.Notepad
-
-	tmpl *tpl.GoHTMLTemplate
-
-	// TODO(bep) next in line: Viper, hugofs
-}
-
-func (d *deps) refreshTemplates(withTemplate ...func(templ tpl.Template) error) {
-	d.tmpl = tpl.New(d.log, withTemplate...)
-	d.tmpl.PrintErrors() // TODO(bep) globals error handling
-}
-
-func newDeps(cfg DepsCfg) *deps {
-	logger := cfg.Logger
-
-	if logger == nil {
-		// TODO(bep) globals default log level
-		//logger = jww.NewNotepad(jww.LevelError, jww.LevelWarn, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
-		logger = jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+// GetContentPage finds a Page with content given the absolute filename.
+// Returns nil if none found.
+func (h *HugoSites) GetContentPage(filename string) *Page {
+	s := h.Sites[0]
+	contendDir := filepath.Join(s.PathSpec.AbsPathify(s.Cfg.GetString("contentDir")))
+	if !strings.HasPrefix(filename, contendDir) {
+		return nil
 	}
 
-	return &deps{
-		log:  logger,
-		tmpl: tpl.New(logger, cfg.WithTemplate...),
+	rel := strings.TrimPrefix(filename, contendDir)
+	rel = strings.TrimPrefix(rel, helpers.FilePathSeparator)
+
+	pos := s.rawAllPages.findPagePosByFilePath(rel)
+
+	if pos == -1 {
+		return nil
 	}
+	return s.rawAllPages[pos]
+
 }
 
 // NewHugoSites creates a new collection of sites given the input sites, building
 // a language configuration based on those.
-func newHugoSites(cfg DepsCfg, sites ...*Site) (*HugoSites, error) {
-	langConfig, err := newMultiLingualFromSites(sites...)
+func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
+
+	if cfg.Language != nil {
+		return nil, errors.New("Cannot provide Language in Cfg when sites are provided")
+	}
+
+	langConfig, err := newMultiLingualFromSites(cfg.Cfg, sites...)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var d *deps
-
-	if sites[0].deps != nil {
-		d = sites[0].deps
-	} else {
-		d = newDeps(cfg)
-	}
-
 	h := &HugoSites{
-		deps:         d,
 		multilingual: langConfig,
 		Sites:        sites}
 
 	for _, s := range sites {
 		s.owner = h
-		s.deps = h.deps
 	}
+
+	// TODO(bep)
+	cfg.Cfg.Set("multilingual", sites[0].multilingualEnabled())
+
+	if err := applyDepsIfNeeded(cfg, sites...); err != nil {
+		return nil, err
+	}
+
+	h.Deps = sites[0].Deps
+
 	return h, nil
 }
 
-// NewHugoSitesFromConfiguration creates HugoSites from the global Viper config.
-// TODO(bep) globals rename this when all the globals are gone.
-func NewHugoSitesFromConfiguration(cfg DepsCfg) (*HugoSites, error) {
+func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
+	if cfg.TemplateProvider == nil {
+		cfg.TemplateProvider = tplimpl.DefaultTemplateProvider
+	}
+
+	if cfg.TranslationProvider == nil {
+		cfg.TranslationProvider = i18n.NewTranslationProvider()
+	}
+
+	var (
+		d   *deps.Deps
+		err error
+	)
+
+	for _, s := range sites {
+		if s.Deps != nil {
+			continue
+		}
+
+		if d == nil {
+			cfg.Language = s.Language
+			cfg.WithTemplate = s.withSiteTemplates(cfg.WithTemplate)
+
+			var err error
+			d, err = deps.New(cfg)
+			if err != nil {
+				return err
+			}
+
+			d.OutputFormatsConfig = s.outputFormatsConfig
+			s.Deps = d
+
+			if err = d.LoadResources(); err != nil {
+				return err
+			}
+
+		} else {
+			d, err = d.ForLanguage(s.Language)
+			if err != nil {
+				return err
+			}
+			d.OutputFormatsConfig = s.outputFormatsConfig
+			s.Deps = d
+		}
+
+	}
+
+	return nil
+}
+
+// NewHugoSites creates HugoSites from the given config.
+func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 	sites, err := createSitesFromConfig(cfg)
 	if err != nil {
 		return nil, err
@@ -113,32 +154,65 @@ func NewHugoSitesFromConfiguration(cfg DepsCfg) (*HugoSites, error) {
 	return newHugoSites(cfg, sites...)
 }
 
-func createSitesFromConfig(cfg DepsCfg) ([]*Site, error) {
-	deps := newDeps(cfg)
-	return createSitesFromDeps(deps)
+func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateHandler) error) func(templ tpl.TemplateHandler) error {
+	return func(templ tpl.TemplateHandler) error {
+		templ.LoadTemplates(s.PathSpec.GetLayoutDirPath(), "")
+		if s.PathSpec.ThemeSet() {
+			templ.LoadTemplates(s.PathSpec.GetThemeDir()+"/layouts", "theme")
+		}
+
+		for _, wt := range withTemplates {
+			if wt == nil {
+				continue
+			}
+			if err := wt(templ); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
 }
 
-func createSitesFromDeps(deps *deps) ([]*Site, error) {
-	var sites []*Site
-	multilingual := viper.GetStringMap("languages")
+func createSitesFromConfig(cfg deps.DepsCfg) ([]*Site, error) {
+
+	var (
+		sites []*Site
+	)
+
+	multilingual := cfg.Cfg.GetStringMap("languages")
 
 	if len(multilingual) == 0 {
-		sites = append(sites, newSite(helpers.NewDefaultLanguage(), deps))
+		l := helpers.NewDefaultLanguage(cfg.Cfg)
+		cfg.Language = l
+		s, err := newSite(cfg)
+		if err != nil {
+			return nil, err
+		}
+		sites = append(sites, s)
 	}
 
 	if len(multilingual) > 0 {
 		var err error
 
-		languages, err := toSortedLanguages(multilingual)
+		languages, err := toSortedLanguages(cfg.Cfg, multilingual)
 
 		if err != nil {
 			return nil, fmt.Errorf("Failed to parse multilingual config: %s", err)
 		}
 
 		for _, lang := range languages {
-			sites = append(sites, newSite(lang, deps))
-		}
+			var s *Site
+			var err error
+			cfg.Language = lang
+			s, err = newSite(cfg)
 
+			if err != nil {
+				return nil, err
+			}
+
+			sites = append(sites, s)
+		}
 	}
 
 	return sites, nil
@@ -149,19 +223,18 @@ func (h *HugoSites) reset() {
 	for i, s := range h.Sites {
 		h.Sites[i] = s.reset()
 	}
-
-	tpl.ResetCaches()
 }
 
 func (h *HugoSites) createSitesFromConfig() error {
 
-	sites, err := createSitesFromDeps(h.deps)
+	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: h.Cfg}
+	sites, err := createSitesFromConfig(depsCfg)
 
 	if err != nil {
 		return err
 	}
 
-	langConfig, err := newMultiLingualFromSites(sites...)
+	langConfig, err := newMultiLingualFromSites(depsCfg.Cfg, sites...)
 
 	if err != nil {
 		return err
@@ -172,6 +245,12 @@ func (h *HugoSites) createSitesFromConfig() error {
 	for _, s := range sites {
 		s.owner = h
 	}
+
+	if err := applyDepsIfNeeded(depsCfg, sites...); err != nil {
+		return err
+	}
+
+	h.Deps = sites[0].Deps
 
 	h.multilingual = langConfig
 
@@ -199,22 +278,8 @@ type BuildCfg struct {
 	CreateSitesFromConfig bool
 	// Skip rendering. Useful for testing.
 	SkipRender bool
-	// Use this to add templates to use for rendering.
-	// Useful for testing.
-	withTemplate func(templ tpl.Template) error
 	// Use this to indicate what changed (for rebuilds).
 	whatChanged *whatChanged
-}
-
-// DepsCfg contains configuration options that can be used to configure Hugo
-// on a global level, i.e. logging etc.
-// Nil values will be given default values.
-type DepsCfg struct {
-
-	// The Logger to use.
-	Logger *jww.Notepad
-
-	WithTemplate []func(templ tpl.Template) error
 }
 
 func (h *HugoSites) renderCrossSitesArtifacts() error {
@@ -223,12 +288,24 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 		return nil
 	}
 
-	if viper.GetBool("disableSitemap") {
+	if h.Cfg.GetBool("disableSitemap") {
+		return nil
+	}
+
+	sitemapEnabled := false
+	for _, s := range h.Sites {
+		if s.isEnabled(kindSitemap) {
+			sitemapEnabled = true
+			break
+		}
+	}
+
+	if !sitemapEnabled {
 		return nil
 	}
 
 	// TODO(bep) DRY
-	sitemapDefault := parseSitemap(viper.GetStringMap("sitemap"))
+	sitemapDefault := parseSitemap(h.Cfg.GetStringMap("sitemap"))
 
 	s := h.Sites[0]
 
@@ -270,17 +347,23 @@ func (h *HugoSites) createMissingPages() error {
 	var newPages Pages
 
 	for _, s := range h.Sites {
+		if s.isEnabled(KindHome) {
+			// home pages
+			home := s.findPagesByKind(KindHome)
+			if len(home) > 1 {
+				panic("Too many homes")
+			}
+			if len(home) == 0 {
+				n := s.newHomePage()
+				s.Pages = append(s.Pages, n)
+				newPages = append(newPages, n)
+			}
+		}
 
-		// home pages
-		home := s.findPagesByKind(KindHome)
-		if len(home) > 1 {
-			panic("Too many homes")
-		}
-		if len(home) == 0 {
-			n := s.newHomePage()
-			s.Pages = append(s.Pages, n)
-			newPages = append(newPages, n)
-		}
+		// Will create content-less root sections.
+		newSections := s.assembleSections()
+		s.Pages = append(s.Pages, newSections...)
+		newPages = append(newPages, newSections...)
 
 		// taxonomy list and terms pages
 		taxonomies := s.Language.GetStringMapString("taxonomies")
@@ -288,29 +371,13 @@ func (h *HugoSites) createMissingPages() error {
 			taxonomyPages := s.findPagesByKind(KindTaxonomy)
 			taxonomyTermsPages := s.findPagesByKind(KindTaxonomyTerm)
 			for _, plural := range taxonomies {
-				tax := s.Taxonomies[plural]
-				foundTaxonomyPage := false
-				foundTaxonomyTermsPage := false
-				for key := range tax {
-					if s.Info.preserveTaxonomyNames {
-						key = s.Info.pathSpec.MakePathSanitized(key)
-					}
-					for _, p := range taxonomyPages {
-						if p.sections[0] == plural && p.sections[1] == key {
-							foundTaxonomyPage = true
-							break
-						}
-					}
+				if s.isEnabled(KindTaxonomyTerm) {
+					foundTaxonomyTermsPage := false
 					for _, p := range taxonomyTermsPages {
 						if p.sections[0] == plural {
 							foundTaxonomyTermsPage = true
 							break
 						}
-					}
-					if !foundTaxonomyPage {
-						n := s.newTaxonomyPage(plural, key)
-						s.Pages = append(s.Pages, n)
-						newPages = append(newPages, n)
 					}
 
 					if !foundTaxonomyTermsPage {
@@ -320,30 +387,28 @@ func (h *HugoSites) createMissingPages() error {
 						newPages = append(newPages, n)
 					}
 				}
-			}
-		}
 
-		sectionPages := s.findPagesByKind(KindSection)
-		if len(sectionPages) < len(s.Sections) {
-			for name, section := range s.Sections {
-				// A section may be created for the root content folder if a
-				// content file is placed there.
-				// We cannot create a section node for that, because
-				// that would overwrite the home page.
-				if name == "" {
-					continue
-				}
-				foundSection := false
-				for _, sectionPage := range sectionPages {
-					if sectionPage.sections[0] == name {
-						foundSection = true
-						break
+				if s.isEnabled(KindTaxonomy) {
+					for key := range s.Taxonomies[plural] {
+						foundTaxonomyPage := false
+						origKey := key
+
+						if s.Info.preserveTaxonomyNames {
+							key = s.PathSpec.MakePathSanitized(key)
+						}
+						for _, p := range taxonomyPages {
+							if p.sections[0] == plural && p.sections[1] == key {
+								foundTaxonomyPage = true
+								break
+							}
+						}
+
+						if !foundTaxonomyPage {
+							n := s.newTaxonomyPage(plural, origKey)
+							s.Pages = append(s.Pages, n)
+							newPages = append(newPages, n)
+						}
 					}
-				}
-				if !foundSection {
-					n := s.newSectionPage(name, section)
-					s.Pages = append(s.Pages, n)
-					newPages = append(newPages, n)
 				}
 			}
 		}
@@ -370,6 +435,24 @@ func (h *HugoSites) createMissingPages() error {
 	return nil
 }
 
+func (s *Site) assignSiteByLanguage(p *Page) {
+
+	pageLang := p.Lang()
+
+	if pageLang == "" {
+		panic("Page language missing: " + p.Title)
+	}
+
+	for _, site := range s.owner.Sites {
+		if strings.HasPrefix(site.Language.Lang, pageLang) {
+			p.s = site
+			p.Site = &site.Info
+			return
+		}
+	}
+
+}
+
 func (h *HugoSites) setupTranslations() {
 
 	master := h.Sites[0]
@@ -379,14 +462,22 @@ func (h *HugoSites) setupTranslations() {
 			panic("Page language missing: " + p.Title)
 		}
 
+		if p.Kind == kindUnknown {
+			p.Kind = p.s.kindFromSections(p.sections)
+		}
+
+		if !p.s.isEnabled(p.Kind) {
+			continue
+		}
+
 		shouldBuild := p.shouldBuild()
 
 		for i, site := range h.Sites {
-			if strings.HasPrefix(site.Language.Lang, p.Lang()) {
+			// The site is assigned by language when read.
+			if site == p.s {
 				site.updateBuildStats(p)
 				if shouldBuild {
 					site.Pages = append(site.Pages, p)
-					p.Site = &site.Info
 				}
 			}
 
@@ -409,22 +500,32 @@ func (h *HugoSites) setupTranslations() {
 
 	if len(h.Sites) > 1 {
 		pages := h.Sites[0].AllPages
-		allTranslations := pagesToTranslationsMap(h.multilingual, pages)
+		allTranslations := pagesToTranslationsMap(pages)
 		assignTranslationsToPages(allTranslations, pages)
 	}
 }
 
 func (s *Site) preparePagesForRender(cfg *BuildCfg) {
+
 	pageChan := make(chan *Page)
 	wg := &sync.WaitGroup{}
+	numWorkers := getGoMaxProcs() * 4
 
-	for i := 0; i < getGoMaxProcs()*4; i++ {
+	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
 		go func(pages <-chan *Page, wg *sync.WaitGroup) {
 			defer wg.Done()
 			for p := range pages {
+				if !p.shouldRenderTo(s.rc.Format) {
+					// No need to prepare
+					continue
+				}
+				var shortcodeUpdate bool
+				if p.shortcodeState != nil {
+					shortcodeUpdate = p.shortcodeState.updateDelta()
+				}
 
-				if !cfg.whatChanged.other && p.rendered {
+				if !shortcodeUpdate && !cfg.whatChanged.other && p.rendered {
 					// No need to process it again.
 					continue
 				}
@@ -436,10 +537,12 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 				// Mark it as rendered
 				p.rendered = true
 
-				// If in watch mode, we need to keep the original so we can
-				// repeat this process on rebuild.
+				// If in watch mode or if we have multiple output formats,
+				// we need to keep the original so we can
+				// potentially repeat this process on rebuild.
+				needsACopy := cfg.Watching || len(p.outputFormats) > 1
 				var workContentCopy []byte
-				if cfg.Watching {
+				if needsACopy {
 					workContentCopy = make([]byte, len(p.workContent))
 					copy(workContentCopy, p.workContent)
 				} else {
@@ -454,8 +557,8 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 				}
 
 				var err error
-				if workContentCopy, err = handleShortcodes(p, s.owner.tmpl, workContentCopy); err != nil {
-					jww.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
+				if workContentCopy, err = handleShortcodes(p, workContentCopy); err != nil {
+					s.Log.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
 				}
 
 				if p.Markup != "html" {
@@ -464,7 +567,7 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 					summaryContent, err := p.setUserDefinedSummaryIfProvided(workContentCopy)
 
 					if err != nil {
-						jww.ERROR.Printf("Failed to set user defined summary for page %q: %s", p.Path(), err)
+						s.Log.ERROR.Printf("Failed to set user defined summary for page %q: %s", p.Path(), err)
 					} else if summaryContent != nil {
 						workContentCopy = summaryContent.content
 					}
@@ -472,7 +575,9 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 					p.Content = helpers.BytesToHTML(workContentCopy)
 
 					if summaryContent == nil {
-						p.setAutoSummary()
+						if err := p.setAutoSummary(); err != nil {
+							s.Log.ERROR.Printf("Failed to set user auto summary for page %q: %s", p.pathOrTitle(), err)
+						}
 					}
 
 				} else {
@@ -501,19 +606,19 @@ func (h *HugoSites) Pages() Pages {
 	return h.Sites[0].AllPages
 }
 
-func handleShortcodes(p *Page, t tpl.Template, rawContentCopy []byte) ([]byte, error) {
-	if len(p.contentShortCodes) > 0 {
-		jww.DEBUG.Printf("Replace %d shortcodes in %q", len(p.contentShortCodes), p.BaseFileName())
-		shortcodes, err := executeShortcodeFuncMap(p.contentShortCodes)
+func handleShortcodes(p *Page, rawContentCopy []byte) ([]byte, error) {
+	if p.shortcodeState != nil && len(p.shortcodeState.contentShortcodes) > 0 {
+		p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.shortcodeState.contentShortcodes), p.BaseFileName())
+		err := p.shortcodeState.executeShortcodesForDelta(p)
 
 		if err != nil {
 			return rawContentCopy, err
 		}
 
-		rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, shortcodePlaceholderPrefix, shortcodes)
+		rawContentCopy, err = replaceShortcodeTokens(rawContentCopy, shortcodePlaceholderPrefix, p.shortcodeState.renderedShortcodes)
 
 		if err != nil {
-			jww.FATAL.Printf("Failed to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
+			p.s.Log.FATAL.Printf("Failed to replace shortcode tokens in %s:\n%s", p.BaseFileName(), err.Error())
 		}
 	}
 
@@ -548,69 +653,4 @@ func (h *HugoSites) findAllPagesByKind(kind string) Pages {
 
 func (h *HugoSites) findAllPagesByKindNotIn(kind string) Pages {
 	return h.findPagesByKindNotIn(kind, h.Sites[0].AllPages)
-}
-
-// Convenience func used in tests to build a single site/language excluding render phase.
-func buildSiteSkipRender(s *Site, additionalTemplates ...string) error {
-	return doBuildSite(s, false, additionalTemplates...)
-}
-
-// Convenience func used in tests to build a single site/language including render phase.
-func buildAndRenderSite(s *Site, additionalTemplates ...string) error {
-	return doBuildSite(s, true, additionalTemplates...)
-}
-
-// Convenience func used in tests to build a single site/language.
-func doBuildSite(s *Site, render bool, additionalTemplates ...string) error {
-	if s.PageCollections == nil {
-		s.PageCollections = newPageCollections()
-	}
-	sites, err := newHugoSites(DepsCfg{}, s)
-	if err != nil {
-		return err
-	}
-
-	addTemplates := func(templ tpl.Template) error {
-		for i := 0; i < len(additionalTemplates); i += 2 {
-			err := templ.AddTemplate(additionalTemplates[i], additionalTemplates[i+1])
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	}
-
-	config := BuildCfg{SkipRender: !render, withTemplate: addTemplates}
-	return sites.Build(config)
-}
-
-// Convenience func used in tests.
-func newHugoSitesFromSourceAndLanguages(input []source.ByteSource, languages helpers.Languages) (*HugoSites, error) {
-	if len(languages) == 0 {
-		panic("Must provide at least one language")
-	}
-
-	cfg := DepsCfg{}
-
-	first := &Site{
-		Source:   &source.InMemorySource{ByteSource: input},
-		Language: languages[0],
-	}
-	if len(languages) == 1 {
-		return newHugoSites(cfg, first)
-	}
-
-	sites := make([]*Site, len(languages))
-	sites[0] = first
-	for i := 1; i < len(languages); i++ {
-		sites[i] = &Site{Language: languages[i]}
-	}
-
-	return newHugoSites(cfg, sites...)
-
-}
-
-// Convenience func used in tests.
-func newHugoSitesDefaultLanguage() (*HugoSites, error) {
-	return newHugoSitesFromSourceAndLanguages(nil, helpers.Languages{helpers.NewDefaultLanguage()})
 }

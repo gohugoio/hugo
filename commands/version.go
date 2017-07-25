@@ -20,10 +20,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugolib"
 	"github.com/kardianos/osext"
 	"github.com/spf13/cobra"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugolib"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -44,9 +44,9 @@ func printHugoVersion() {
 		formatBuildDate() // format the compile time
 	}
 	if hugolib.CommitHash == "" {
-		jww.FEEDBACK.Printf("Hugo Static Site Generator v%s %s/%s BuildDate: %s\n", helpers.HugoVersion(), runtime.GOOS, runtime.GOARCH, hugolib.BuildDate)
+		jww.FEEDBACK.Printf("Hugo Static Site Generator v%s %s/%s BuildDate: %s\n", helpers.CurrentHugoVersion, runtime.GOOS, runtime.GOARCH, hugolib.BuildDate)
 	} else {
-		jww.FEEDBACK.Printf("Hugo Static Site Generator v%s-%s %s/%s BuildDate: %s\n", helpers.HugoVersion(), strings.ToUpper(hugolib.CommitHash), runtime.GOOS, runtime.GOARCH, hugolib.BuildDate)
+		jww.FEEDBACK.Printf("Hugo Static Site Generator v%s-%s %s/%s BuildDate: %s\n", helpers.CurrentHugoVersion, strings.ToUpper(hugolib.CommitHash), runtime.GOOS, runtime.GOARCH, hugolib.BuildDate)
 	}
 }
 

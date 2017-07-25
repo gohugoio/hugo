@@ -16,9 +16,10 @@ package main
 import (
 	"runtime"
 
-	"github.com/spf13/hugo/commands"
-	jww "github.com/spf13/jwalterweatherman"
 	"os"
+
+	"github.com/gohugoio/hugo/commands"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 func main() {
@@ -27,5 +28,11 @@ func main() {
 
 	if jww.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError) > 0 {
 		os.Exit(-1)
+	}
+
+	if commands.Hugo != nil {
+		if commands.Hugo.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError) > 0 {
+			os.Exit(-1)
+		}
 	}
 }

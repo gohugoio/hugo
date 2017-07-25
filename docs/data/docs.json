@@ -1,0 +1,1712 @@
+{
+  "media": {
+    "types": [
+      {
+        "Type": "application/javascript",
+        "String": "application/javascript+js",
+        "MainType": "application",
+        "SubType": "javascript",
+        "Suffix": "js",
+        "Delimiter": "."
+      },
+      {
+        "Type": "application/json",
+        "String": "application/json+json",
+        "MainType": "application",
+        "SubType": "json",
+        "Suffix": "json",
+        "Delimiter": "."
+      },
+      {
+        "Type": "application/rss",
+        "String": "application/rss+xml",
+        "MainType": "application",
+        "SubType": "rss",
+        "Suffix": "xml",
+        "Delimiter": "."
+      },
+      {
+        "Type": "application/xml",
+        "String": "application/xml+xml",
+        "MainType": "application",
+        "SubType": "xml",
+        "Suffix": "xml",
+        "Delimiter": "."
+      },
+      {
+        "Type": "text/calendar",
+        "String": "text/calendar+ics",
+        "MainType": "text",
+        "SubType": "calendar",
+        "Suffix": "ics",
+        "Delimiter": "."
+      },
+      {
+        "Type": "text/css",
+        "String": "text/css+css",
+        "MainType": "text",
+        "SubType": "css",
+        "Suffix": "css",
+        "Delimiter": "."
+      },
+      {
+        "Type": "text/csv",
+        "String": "text/csv+csv",
+        "MainType": "text",
+        "SubType": "csv",
+        "Suffix": "csv",
+        "Delimiter": "."
+      },
+      {
+        "Type": "text/html",
+        "String": "text/html+html",
+        "MainType": "text",
+        "SubType": "html",
+        "Suffix": "html",
+        "Delimiter": "."
+      },
+      {
+        "Type": "text/plain",
+        "String": "text/plain+txt",
+        "MainType": "text",
+        "SubType": "plain",
+        "Suffix": "txt",
+        "Delimiter": "."
+      }
+    ]
+  },
+  "output": {
+    "formats": [
+      {
+        "MediaType": "text/html+html",
+        "Name": "AMP",
+        "Path": "amp",
+        "BaseName": "index",
+        "Rel": "amphtml",
+        "Protocol": "",
+        "IsPlainText": false,
+        "IsHTML": true,
+        "NoUgly": false,
+        "NotAlternative": false
+      },
+      {
+        "MediaType": "text/css+css",
+        "Name": "CSS",
+        "Path": "",
+        "BaseName": "styles",
+        "Rel": "stylesheet",
+        "Protocol": "",
+        "IsPlainText": true,
+        "IsHTML": false,
+        "NoUgly": false,
+        "NotAlternative": true
+      },
+      {
+        "MediaType": "text/csv+csv",
+        "Name": "CSV",
+        "Path": "",
+        "BaseName": "index",
+        "Rel": "alternate",
+        "Protocol": "",
+        "IsPlainText": true,
+        "IsHTML": false,
+        "NoUgly": false,
+        "NotAlternative": false
+      },
+      {
+        "MediaType": "text/calendar+ics",
+        "Name": "Calendar",
+        "Path": "",
+        "BaseName": "index",
+        "Rel": "alternate",
+        "Protocol": "webcal://",
+        "IsPlainText": true,
+        "IsHTML": false,
+        "NoUgly": false,
+        "NotAlternative": false
+      },
+      {
+        "MediaType": "text/html+html",
+        "Name": "HTML",
+        "Path": "",
+        "BaseName": "index",
+        "Rel": "canonical",
+        "Protocol": "",
+        "IsPlainText": false,
+        "IsHTML": true,
+        "NoUgly": false,
+        "NotAlternative": false
+      },
+      {
+        "MediaType": "application/json+json",
+        "Name": "JSON",
+        "Path": "",
+        "BaseName": "index",
+        "Rel": "alternate",
+        "Protocol": "",
+        "IsPlainText": true,
+        "IsHTML": false,
+        "NoUgly": false,
+        "NotAlternative": false
+      },
+      {
+        "MediaType": "application/rss+xml",
+        "Name": "RSS",
+        "Path": "",
+        "BaseName": "index",
+        "Rel": "alternate",
+        "Protocol": "",
+        "IsPlainText": false,
+        "IsHTML": false,
+        "NoUgly": true,
+        "NotAlternative": false
+      }
+    ],
+    "layouts": [
+      {
+        "Example": "AMP home, with theme \"demoTheme\".",
+        "OutputFormat": "AMP",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/index.amp.html",
+          "layouts/index.html",
+          "layouts/_default/list.amp.html",
+          "layouts/_default/list.html",
+          "demoTheme/layouts/index.amp.html",
+          "demoTheme/layouts/index.html",
+          "demoTheme/layouts/_default/list.amp.html",
+          "demoTheme/layouts/_default/list.html"
+        ]
+      },
+      {
+        "Example": "AMP home, French language\".",
+        "OutputFormat": "AMP",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/index.fr.amp.html",
+          "layouts/index.amp.html",
+          "layouts/index.fr.html",
+          "layouts/index.html",
+          "layouts/_default/list.fr.amp.html",
+          "layouts/_default/list.amp.html",
+          "layouts/_default/list.fr.html",
+          "layouts/_default/list.html"
+        ]
+      },
+      {
+        "Example": "JSON home, no theme.",
+        "OutputFormat": "JSON",
+        "Suffix": "json",
+        "Template Lookup Order": [
+          "layouts/index.json.json",
+          "layouts/index.json",
+          "layouts/_default/list.json.json",
+          "layouts/_default/list.json"
+        ]
+      },
+      {
+        "Example": "CSV regular, \"layout: demolayout\" in front matter.",
+        "OutputFormat": "CSV",
+        "Suffix": "csv",
+        "Template Lookup Order": [
+          "layouts/_default/demolayout.csv.csv",
+          "layouts/_default/demolayout.csv"
+        ]
+      },
+      {
+        "Example": "JSON regular, \"type: demotype\" in front matter.",
+        "OutputFormat": "JSON",
+        "Suffix": "json",
+        "Template Lookup Order": [
+          "layouts/demotype/single.json.json",
+          "layouts/demotype/single.json",
+          "layouts/_default/single.json.json",
+          "layouts/_default/single.json"
+        ]
+      },
+      {
+        "Example": "HTML regular.",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/_default/single.html.html",
+          "layouts/_default/single.html"
+        ]
+      },
+      {
+        "Example": "AMP regular.",
+        "OutputFormat": "AMP",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/_default/single.amp.html",
+          "layouts/_default/single.html"
+        ]
+      },
+      {
+        "Example": "Calendar blog section.",
+        "OutputFormat": "Calendar",
+        "Suffix": "ics",
+        "Template Lookup Order": [
+          "layouts/section/blog.calendar.ics",
+          "layouts/section/blog.ics",
+          "layouts/blog/list.calendar.ics",
+          "layouts/blog/list.ics",
+          "layouts/_default/section.calendar.ics",
+          "layouts/_default/section.ics",
+          "layouts/_default/list.calendar.ics",
+          "layouts/_default/list.ics"
+        ]
+      },
+      {
+        "Example": "Calendar taxonomy list.",
+        "OutputFormat": "Calendar",
+        "Suffix": "ics",
+        "Template Lookup Order": [
+          "layouts/taxonomy/tag.calendar.ics",
+          "layouts/taxonomy/tag.ics",
+          "layouts/_default/taxonomy.calendar.ics",
+          "layouts/_default/taxonomy.ics",
+          "layouts/_default/list.calendar.ics",
+          "layouts/_default/list.ics"
+        ]
+      },
+      {
+        "Example": "Calendar taxonomy term.",
+        "OutputFormat": "Calendar",
+        "Suffix": "ics",
+        "Template Lookup Order": [
+          "layouts/taxonomy/tag.terms.calendar.ics",
+          "layouts/taxonomy/tag.terms.ics",
+          "layouts/_default/terms.calendar.ics",
+          "layouts/_default/terms.ics"
+        ]
+      }
+    ]
+  },
+  "tpl": {
+    "funcs": {
+      "cast": {
+        "ToInt": {
+          "Description": "ToInt converts the given value to an int.",
+          "Args": [
+            "v"
+          ],
+          "Aliases": [
+            "int"
+          ],
+          "Examples": [
+            [
+              "{{ \"1234\" | int | printf \"%T\" }}",
+              "int"
+            ]
+          ]
+        },
+        "ToString": {
+          "Description": "ToString converts the given value to a string.",
+          "Args": [
+            "v"
+          ],
+          "Aliases": [
+            "string"
+          ],
+          "Examples": [
+            [
+              "{{ 1234 | string | printf \"%T\" }}",
+              "string"
+            ]
+          ]
+        }
+      },
+      "compare": {
+        "Default": {
+          "Description": "Default checks whether a given value is set and returns a default value if it\nis not.  \"Set\" in this context means non-zero for numeric types and times;\nnon-zero length for strings, arrays, slices, and maps;\nany boolean or struct value; or non-nil for any other types.",
+          "Args": [
+            "dflt",
+            "given"
+          ],
+          "Aliases": [
+            "default"
+          ],
+          "Examples": [
+            [
+              "{{ \"Hugo Rocks!\" | default \"Hugo Rules!\" }}",
+              "Hugo Rocks!"
+            ],
+            [
+              "{{ \"\" | default \"Hugo Rules!\" }}",
+              "Hugo Rules!"
+            ]
+          ]
+        },
+        "Eq": {
+          "Description": "Eq returns the boolean truth of arg1 == arg2.",
+          "Args": [
+            "x",
+            "y"
+          ],
+          "Aliases": [
+            "eq"
+          ],
+          "Examples": [
+            [
+              "{{ if eq .Section \"blog\" }}current{{ end }}",
+              "current"
+            ]
+          ]
+        },
+        "Ge": {
+          "Description": "Ge returns the boolean truth of arg1 \u003e= arg2.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "ge"
+          ],
+          "Examples": []
+        },
+        "Gt": {
+          "Description": "Gt returns the boolean truth of arg1 \u003e arg2.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "gt"
+          ],
+          "Examples": []
+        },
+        "Le": {
+          "Description": "Le returns the boolean truth of arg1 \u003c= arg2.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "le"
+          ],
+          "Examples": []
+        },
+        "Lt": {
+          "Description": "Lt returns the boolean truth of arg1 \u003c arg2.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "lt"
+          ],
+          "Examples": []
+        },
+        "Ne": {
+          "Description": "Ne returns the boolean truth of arg1 != arg2.",
+          "Args": [
+            "x",
+            "y"
+          ],
+          "Aliases": [
+            "ne"
+          ],
+          "Examples": []
+        }
+      },
+      "collections": {
+        "After": {
+          "Description": "After returns all the items after the first N in a rangeable list.",
+          "Args": [
+            "index",
+            "seq"
+          ],
+          "Aliases": [
+            "after"
+          ],
+          "Examples": []
+        },
+        "Apply": {
+          "Description": "Apply takes a map, array, or slice and returns a new slice with the function fname applied over it.",
+          "Args": [
+            "seq",
+            "fname",
+            "args"
+          ],
+          "Aliases": [
+            "apply"
+          ],
+          "Examples": []
+        },
+        "Delimit": {
+          "Description": "Delimit takes a given sequence and returns a delimited HTML string.\nIf last is passed to the function, it will be used as the final delimiter.",
+          "Args": [
+            "seq",
+            "delimiter",
+            "last"
+          ],
+          "Aliases": [
+            "delimit"
+          ],
+          "Examples": [
+            [
+              "{{ delimit (slice \"A\" \"B\" \"C\") \", \" \" and \" }}",
+              "A, B and C"
+            ]
+          ]
+        },
+        "Dictionary": {
+          "Description": "Dictionary creates a map[string]interface{} from the given parameters by\nwalking the parameters and treating them as key-value pairs.  The number\nof parameters must be even.",
+          "Args": [
+            "values"
+          ],
+          "Aliases": [
+            "dict"
+          ],
+          "Examples": []
+        },
+        "EchoParam": {
+          "Description": "EchoParam returns a given value if it is set; otherwise, it returns an\nempty string.",
+          "Args": [
+            "a",
+            "key"
+          ],
+          "Aliases": [
+            "echoParam"
+          ],
+          "Examples": [
+            [
+              "{{ echoParam .Params \"langCode\" }}",
+              "en"
+            ]
+          ]
+        },
+        "First": {
+          "Description": "First returns the first N items in a rangeable list.",
+          "Args": [
+            "limit",
+            "seq"
+          ],
+          "Aliases": [
+            "first"
+          ],
+          "Examples": []
+        },
+        "In": {
+          "Description": "In returns whether v is in the set l.  l may be an array or slice.",
+          "Args": [
+            "l",
+            "v"
+          ],
+          "Aliases": [
+            "in"
+          ],
+          "Examples": [
+            [
+              "{{ if in \"this string contains a substring\" \"substring\" }}Substring found!{{ end }}",
+              "Substring found!"
+            ]
+          ]
+        },
+        "Index": {
+          "Description": "Index returns the result of indexing its first argument by the following\narguments. Thus \"index x 1 2 3\" is, in Go syntax, x[1][2][3]. Each\nindexed item must be a map, slice, or array.\n\nCopied from Go stdlib src/text/template/funcs.go.\n\nWe deviate from the stdlib due to https://github.com/golang/go/issues/14751.\n\nTODO(moorereason): merge upstream changes.",
+          "Args": [
+            "item",
+            "indices"
+          ],
+          "Aliases": [
+            "index"
+          ],
+          "Examples": []
+        },
+        "Intersect": {
+          "Description": "Intersect returns the common elements in the given sets, l1 and l2.  l1 and\nl2 must be of the same type and may be either arrays or slices.",
+          "Args": [
+            "l1",
+            "l2"
+          ],
+          "Aliases": [
+            "intersect"
+          ],
+          "Examples": []
+        },
+        "IsSet": {
+          "Description": "IsSet returns whether a given array, channel, slice, or map has a key\ndefined.",
+          "Args": [
+            "a",
+            "key"
+          ],
+          "Aliases": [
+            "isSet",
+            "isset"
+          ],
+          "Examples": []
+        },
+        "Last": {
+          "Description": "Last returns the last N items in a rangeable list.",
+          "Args": [
+            "limit",
+            "seq"
+          ],
+          "Aliases": [
+            "last"
+          ],
+          "Examples": []
+        },
+        "Querify": {
+          "Description": "Querify encodes the given parameters in URL-encoded form (\"bar=baz\u0026foo=quux\") sorted by key.",
+          "Args": [
+            "params"
+          ],
+          "Aliases": [
+            "querify"
+          ],
+          "Examples": [
+            [
+              "{{ (querify \"foo\" 1 \"bar\" 2 \"baz\" \"with spaces\" \"qux\" \"this\u0026that=those\") | safeHTML }}",
+              "bar=2\u0026baz=with+spaces\u0026foo=1\u0026qux=this%26that%3Dthose"
+            ],
+            [
+              "\u003ca href=\"https://www.google.com?{{ (querify \"q\" \"test\" \"page\" 3) | safeURL }}\"\u003eSearch\u003c/a\u003e",
+              "\u003ca href=\"https://www.google.com?page=3\u0026amp;q=test\"\u003eSearch\u003c/a\u003e"
+            ]
+          ]
+        },
+        "Seq": {
+          "Description": "Seq creates a sequence of integers.  It's named and used as GNU's seq.\n\nExamples:\n    3 =\u003e 1, 2, 3\n    1 2 4 =\u003e 1, 3\n    -3 =\u003e -1, -2, -3\n    1 4 =\u003e 1, 2, 3, 4\n    1 -2 =\u003e 1, 0, -1, -2",
+          "Args": [
+            "args"
+          ],
+          "Aliases": [
+            "seq"
+          ],
+          "Examples": [
+            [
+              "{{ seq 3 }}",
+              "[1 2 3]"
+            ]
+          ]
+        },
+        "Shuffle": {
+          "Description": "Shuffle returns the given rangeable list in a randomised order.",
+          "Args": [
+            "seq"
+          ],
+          "Aliases": [
+            "shuffle"
+          ],
+          "Examples": []
+        },
+        "Slice": {
+          "Description": "Slice returns a slice of all passed arguments.",
+          "Args": [
+            "args"
+          ],
+          "Aliases": [
+            "slice"
+          ],
+          "Examples": [
+            [
+              "{{ slice \"B\" \"C\" \"A\" | sort }}",
+              "[A B C]"
+            ]
+          ]
+        },
+        "Sort": {
+          "Description": "Sort returns a sorted sequence.",
+          "Args": [
+            "seq",
+            "args"
+          ],
+          "Aliases": [
+            "sort"
+          ],
+          "Examples": []
+        },
+        "Union": {
+          "Description": "Union returns the union of the given sets, l1 and l2. l1 and\nl2 must be of the same type and may be either arrays or slices.\nIf l1 and l2 aren't of the same type then l1 will be returned.\nIf either l1 or l2 is nil then the non-nil list will be returned.",
+          "Args": [
+            "l1",
+            "l2"
+          ],
+          "Aliases": [
+            "union"
+          ],
+          "Examples": [
+            [
+              "{{ union (slice 1 2 3) (slice 3 4 5) }}",
+              "[1 2 3 4 5]"
+            ]
+          ]
+        },
+        "Uniq": {
+          "Description": "Uniq takes in a slice or array and returns a slice with subsequent\nduplicate elements removed.",
+          "Args": [
+            "l"
+          ],
+          "Aliases": [
+            "uniq"
+          ],
+          "Examples": [
+            [
+              "{{ slice 1 2 3 2 | uniq }}",
+              "[1 2 3]"
+            ]
+          ]
+        },
+        "Where": {
+          "Description": "Where returns a filtered subset of a given data type.",
+          "Args": [
+            "seq",
+            "key",
+            "args"
+          ],
+          "Aliases": [
+            "where"
+          ],
+          "Examples": []
+        }
+      },
+      "crypto": {
+        "MD5": {
+          "Description": "MD5 hashes the given input and returns its MD5 checksum.",
+          "Args": [
+            "in"
+          ],
+          "Aliases": [
+            "md5"
+          ],
+          "Examples": [
+            [
+              "{{ md5 \"Hello world, gophers!\" }}",
+              "b3029f756f98f79e7f1b7f1d1f0dd53b"
+            ],
+            [
+              "{{ crypto.MD5 \"Hello world, gophers!\" }}",
+              "b3029f756f98f79e7f1b7f1d1f0dd53b"
+            ]
+          ]
+        },
+        "SHA1": {
+          "Description": "SHA1 hashes the given input and returns its SHA1 checksum.",
+          "Args": [
+            "in"
+          ],
+          "Aliases": [
+            "sha1"
+          ],
+          "Examples": [
+            [
+              "{{ sha1 \"Hello world, gophers!\" }}",
+              "c8b5b0e33d408246e30f53e32b8f7627a7a649d4"
+            ]
+          ]
+        },
+        "SHA256": {
+          "Description": "SHA256 hashes the given input and returns its SHA256 checksum.",
+          "Args": [
+            "in"
+          ],
+          "Aliases": [
+            "sha256"
+          ],
+          "Examples": [
+            [
+              "{{ sha256 \"Hello world, gophers!\" }}",
+              "6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46"
+            ]
+          ]
+        }
+      },
+      "data": {
+        "GetCSV": {
+          "Description": "GetCSV expects a data separator and one or n-parts of a URL to a resource which\ncan either be a local or a remote one.\nThe data separator can be a comma, semi-colon, pipe, etc, but only one character.\nIf you provide multiple parts for the URL they will be joined together to the final URL.\nGetCSV returns nil or a slice slice to use in a short code.",
+          "Args": [
+            "sep",
+            "urlParts"
+          ],
+          "Aliases": [
+            "getCSV"
+          ],
+          "Examples": []
+        },
+        "GetJSON": {
+          "Description": "GetJSON expects one or n-parts of a URL to a resource which can either be a local or a remote one.\nIf you provide multiple parts they will be joined together to the final URL.\nGetJSON returns nil or parsed JSON to use in a short code.",
+          "Args": [
+            "urlParts"
+          ],
+          "Aliases": [
+            "getJSON"
+          ],
+          "Examples": []
+        }
+      },
+      "encoding": {
+        "Base64Decode": {
+          "Description": "Base64Decode returns the base64 decoding of the given content.",
+          "Args": [
+            "content"
+          ],
+          "Aliases": [
+            "base64Decode"
+          ],
+          "Examples": [
+            [
+              "{{ \"SGVsbG8gd29ybGQ=\" | base64Decode }}",
+              "Hello world"
+            ],
+            [
+              "{{ 42 | base64Encode | base64Decode }}",
+              "42"
+            ]
+          ]
+        },
+        "Base64Encode": {
+          "Description": "Base64Encode returns the base64 encoding of the given content.",
+          "Args": [
+            "content"
+          ],
+          "Aliases": [
+            "base64Encode"
+          ],
+          "Examples": [
+            [
+              "{{ \"Hello world\" | base64Encode }}",
+              "SGVsbG8gd29ybGQ="
+            ]
+          ]
+        },
+        "Jsonify": {
+          "Description": "Jsonify encodes a given object to JSON.",
+          "Args": [
+            "v"
+          ],
+          "Aliases": [
+            "jsonify"
+          ],
+          "Examples": [
+            [
+              "{{ (slice \"A\" \"B\" \"C\") | jsonify }}",
+              "[\"A\",\"B\",\"C\"]"
+            ]
+          ]
+        }
+      },
+      "fmt": {
+        "Print": {
+          "Description": "",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "print"
+          ],
+          "Examples": [
+            [
+              "{{ print \"works!\" }}",
+              "works!"
+            ]
+          ]
+        },
+        "Printf": {
+          "Description": "",
+          "Args": [
+            "format",
+            "a"
+          ],
+          "Aliases": [
+            "printf"
+          ],
+          "Examples": [
+            [
+              "{{ printf \"%s!\" \"works\" }}",
+              "works!"
+            ]
+          ]
+        },
+        "Println": {
+          "Description": "",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "println"
+          ],
+          "Examples": [
+            [
+              "{{ println \"works!\" }}",
+              "works!\n"
+            ]
+          ]
+        }
+      },
+      "images": {
+        "Config": {
+          "Description": "Config returns the image.Config for the specified path relative to the\nworking directory.",
+          "Args": [
+            "path"
+          ],
+          "Aliases": [
+            "imageConfig"
+          ],
+          "Examples": []
+        }
+      },
+      "inflect": {
+        "Humanize": {
+          "Description": "Humanize returns the humanized form of a single parameter.\n\nIf the parameter is either an integer or a string containing an integer\nvalue, the behavior is to add the appropriate ordinal.\n\n    Example:  \"my-first-post\" -\u003e \"My first post\"\n    Example:  \"103\" -\u003e \"103rd\"\n    Example:  52 -\u003e \"52nd\"",
+          "Args": [
+            "in"
+          ],
+          "Aliases": [
+            "humanize"
+          ],
+          "Examples": [
+            [
+              "{{ humanize \"my-first-post\" }}",
+              "My first post"
+            ],
+            [
+              "{{ humanize \"myCamelPost\" }}",
+              "My camel post"
+            ],
+            [
+              "{{ humanize \"52\" }}",
+              "52nd"
+            ],
+            [
+              "{{ humanize 103 }}",
+              "103rd"
+            ]
+          ]
+        },
+        "Pluralize": {
+          "Description": "Pluralize returns the plural form of a single word.",
+          "Args": [
+            "in"
+          ],
+          "Aliases": [
+            "pluralize"
+          ],
+          "Examples": [
+            [
+              "{{ \"cat\" | pluralize }}",
+              "cats"
+            ]
+          ]
+        },
+        "Singularize": {
+          "Description": "Singularize returns the singular form of a single word.",
+          "Args": [
+            "in"
+          ],
+          "Aliases": [
+            "singularize"
+          ],
+          "Examples": [
+            [
+              "{{ \"cats\" | singularize }}",
+              "cat"
+            ]
+          ]
+        }
+      },
+      "lang": {
+        "NumFmt": {
+          "Description": "NumFmt formats a number with the given precision using the\nnegative, decimal, and grouping options.  The `options`\nparameter is a string consisting of `\u003cnegative\u003e \u003cdecimal\u003e \u003cgrouping\u003e`.  The\ndefault `options` value is `- . ,`.\n\nNote that numbers are rounded up at 5 or greater.\nSo, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.",
+          "Args": [
+            "precision",
+            "number",
+            "options"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ lang.NumFmt 2 12345.6789 }}",
+              "12,345.68"
+            ],
+            [
+              "{{ lang.NumFmt 2 12345.6789 \"- , .\" }}",
+              "12.345,68"
+            ],
+            [
+              "{{ lang.NumFmt 6 -12345.6789 \"- .\" }}",
+              "-12345.678900"
+            ],
+            [
+              "{{ lang.NumFmt 0 -12345.6789 \"- . ,\" }}",
+              "-12,346"
+            ],
+            [
+              "{{ -98765.4321 | lang.NumFmt 2 }}",
+              "-98,765.43"
+            ]
+          ]
+        },
+        "Translate": {
+          "Description": "Translate ...",
+          "Args": [
+            "id",
+            "args"
+          ],
+          "Aliases": [
+            "i18n",
+            "T"
+          ],
+          "Examples": []
+        }
+      },
+      "math": {
+        "Add": {
+          "Description": "",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "add"
+          ],
+          "Examples": [
+            [
+              "{{add 1 2}}",
+              "3"
+            ]
+          ]
+        },
+        "Div": {
+          "Description": "",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "div"
+          ],
+          "Examples": [
+            [
+              "{{div 6 3}}",
+              "2"
+            ]
+          ]
+        },
+        "Log": {
+          "Description": "",
+          "Args": [
+            "a"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Log 1}}",
+              "0"
+            ]
+          ]
+        },
+        "Mod": {
+          "Description": "Mod returns a % b.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "mod"
+          ],
+          "Examples": [
+            [
+              "{{mod 15 3}}",
+              "0"
+            ]
+          ]
+        },
+        "ModBool": {
+          "Description": "ModBool returns the boolean of a % b.  If a % b == 0, return true.",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "modBool"
+          ],
+          "Examples": [
+            [
+              "{{modBool 15 3}}",
+              "true"
+            ]
+          ]
+        },
+        "Mul": {
+          "Description": "",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "mul"
+          ],
+          "Examples": [
+            [
+              "{{mul 2 3}}",
+              "6"
+            ]
+          ]
+        },
+        "Sub": {
+          "Description": "",
+          "Args": [
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "sub"
+          ],
+          "Examples": [
+            [
+              "{{sub 3 2}}",
+              "1"
+            ]
+          ]
+        }
+      },
+      "os": {
+        "Getenv": {
+          "Description": "Getenv retrieves the value of the environment variable named by the key.\nIt returns the value, which will be empty if the variable is not present.",
+          "Args": [
+            "key"
+          ],
+          "Aliases": [
+            "getenv"
+          ],
+          "Examples": []
+        },
+        "ReadDir": {
+          "Description": "ReadDir lists the directory contents relative to the configured WorkingDir.",
+          "Args": [
+            "i"
+          ],
+          "Aliases": [
+            "readDir"
+          ],
+          "Examples": [
+            [
+              "{{ range (readDir \".\") }}{{ .Name }}{{ end }}",
+              "README.txt"
+            ]
+          ]
+        },
+        "ReadFile": {
+          "Description": "ReadFilereads the file named by filename relative to the configured\nWorkingDir.  It returns the contents as a string.  There is a upper size\nlimit set at 1 megabytes.",
+          "Args": [
+            "i"
+          ],
+          "Aliases": [
+            "readFile"
+          ],
+          "Examples": [
+            [
+              "{{ readFile \"README.txt\" }}",
+              "Hugo Rocks!"
+            ]
+          ]
+        }
+      },
+      "partials": {
+        "Include": {
+          "Description": "Include executes the named partial and returns either a string,\nwhen the partial is a text/template, or template.HTML when html/template.",
+          "Args": [
+            "name",
+            "contextList"
+          ],
+          "Aliases": [
+            "partial"
+          ],
+          "Examples": [
+            [
+              "{{ partial \"header.html\" . }}",
+              "\u003ctitle\u003eHugo Rocks!\u003c/title\u003e"
+            ]
+          ]
+        }
+      },
+      "safe": {
+        "CSS": {
+          "Description": "CSS returns a given string as html/template CSS content.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "safeCSS"
+          ],
+          "Examples": [
+            [
+              "{{ \"Bat\u0026Man\" | safeCSS | safeCSS }}",
+              "Bat\u0026amp;Man"
+            ]
+          ]
+        },
+        "HTML": {
+          "Description": "HTML returns a given string as html/template HTML content.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "safeHTML"
+          ],
+          "Examples": [
+            [
+              "{{ \"Bat\u0026Man\" | safeHTML | safeHTML }}",
+              "Bat\u0026Man"
+            ],
+            [
+              "{{ \"Bat\u0026Man\" | safeHTML }}",
+              "Bat\u0026Man"
+            ]
+          ]
+        },
+        "HTMLAttr": {
+          "Description": "HTMLAttr returns a given string as html/template HTMLAttr content.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "safeHTMLAttr"
+          ],
+          "Examples": []
+        },
+        "JS": {
+          "Description": "JS returns the given string as a html/template JS content.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "safeJS"
+          ],
+          "Examples": [
+            [
+              "{{ \"(1*2)\" | safeJS | safeJS }}",
+              "(1*2)"
+            ]
+          ]
+        },
+        "JSStr": {
+          "Description": "JSStr returns the given string as a html/template JSStr content.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "safeJSStr"
+          ],
+          "Examples": []
+        },
+        "SanitizeURL": {
+          "Description": "SanitizeURL returns a given string as html/template URL content.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "sanitizeURL",
+            "sanitizeurl"
+          ],
+          "Examples": []
+        },
+        "URL": {
+          "Description": "URL returns a given string as html/template URL content.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "safeURL"
+          ],
+          "Examples": [
+            [
+              "{{ \"http://gohugo.io\" | safeURL | safeURL }}",
+              "http://gohugo.io"
+            ]
+          ]
+        }
+      },
+      "strings": {
+        "Chomp": {
+          "Description": "Chomp returns a copy of s with all trailing newline characters removed.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "chomp"
+          ],
+          "Examples": [
+            [
+              "{{chomp \"\u003cp\u003eBlockhead\u003c/p\u003e\\n\" }}",
+              "\u003cp\u003eBlockhead\u003c/p\u003e"
+            ]
+          ]
+        },
+        "Contains": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "ContainsAny": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "CountRunes": {
+          "Description": "CountRunes returns the number of runes in s, excluding whitepace.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "countrunes"
+          ],
+          "Examples": []
+        },
+        "CountWords": {
+          "Description": "CountWords returns the approximate word count in s.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "countwords"
+          ],
+          "Examples": []
+        },
+        "FindRE": {
+          "Description": "FindRE returns a list of strings that match the regular expression. By default all matches\nwill be included. The number of matches can be limited with an optional third parameter.",
+          "Args": [
+            "expr",
+            "content",
+            "limit"
+          ],
+          "Aliases": [
+            "findRE"
+          ],
+          "Examples": [
+            [
+              "{{ findRE \"[G|g]o\" \"Hugo is a static side generator written in Go.\" \"1\" }}",
+              "[go]"
+            ]
+          ]
+        },
+        "HasPrefix": {
+          "Description": "HasPrefix tests whether the input s begins with prefix.",
+          "Args": [
+            "s",
+            "prefix"
+          ],
+          "Aliases": [
+            "hasPrefix"
+          ],
+          "Examples": [
+            [
+              "{{ hasPrefix \"Hugo\" \"Hu\" }}",
+              "true"
+            ],
+            [
+              "{{ hasPrefix \"Hugo\" \"Fu\" }}",
+              "false"
+            ]
+          ]
+        },
+        "HasSuffix": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Replace": {
+          "Description": "Replace returns a copy of the string s with all occurrences of old replaced\nwith new.",
+          "Args": [
+            "s",
+            "old",
+            "new"
+          ],
+          "Aliases": [
+            "replace"
+          ],
+          "Examples": [
+            [
+              "{{ replace \"Batman and Robin\" \"Robin\" \"Catwoman\" }}",
+              "Batman and Catwoman"
+            ]
+          ]
+        },
+        "ReplaceRE": {
+          "Description": "ReplaceRE returns a copy of s, replacing all matches of the regular\nexpression pattern with the replacement text repl.",
+          "Args": [
+            "pattern",
+            "repl",
+            "s"
+          ],
+          "Aliases": [
+            "replaceRE"
+          ],
+          "Examples": []
+        },
+        "SliceString": {
+          "Description": "SliceString slices a string by specifying a half-open range with\ntwo indices, start and end. 1 and 4 creates a slice including elements 1 through 3.\nThe end index can be omitted, it defaults to the string's length.",
+          "Args": [
+            "a",
+            "startEnd"
+          ],
+          "Aliases": [
+            "slicestr"
+          ],
+          "Examples": [
+            [
+              "{{slicestr \"BatMan\" 0 3}}",
+              "Bat"
+            ],
+            [
+              "{{slicestr \"BatMan\" 3}}",
+              "Man"
+            ]
+          ]
+        },
+        "Split": {
+          "Description": "Split slices an input string into all substrings separated by delimiter.",
+          "Args": [
+            "a",
+            "delimiter"
+          ],
+          "Aliases": [
+            "split"
+          ],
+          "Examples": []
+        },
+        "Substr": {
+          "Description": "Substr extracts parts of a string, beginning at the character at the specified\nposition, and returns the specified number of characters.\n\nIt normally takes two parameters: start and length.\nIt can also take one parameter: start, i.e. length is omitted, in which case\nthe substring starting from start until the end of the string will be returned.\n\nTo extract characters from the end of the string, use a negative start number.\n\nIn addition, borrowing from the extended behavior described at http://php.net/substr,\nif length is given and is negative, then that many characters will be omitted from\nthe end of string.",
+          "Args": [
+            "a",
+            "nums"
+          ],
+          "Aliases": [
+            "substr"
+          ],
+          "Examples": [
+            [
+              "{{substr \"BatMan\" 0 -3}}",
+              "Bat"
+            ],
+            [
+              "{{substr \"BatMan\" 3 3}}",
+              "Man"
+            ]
+          ]
+        },
+        "Title": {
+          "Description": "Title returns a copy of the input s with all Unicode letters that begin words\nmapped to their title case.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "title"
+          ],
+          "Examples": [
+            [
+              "{{title \"Bat man\"}}",
+              "Bat Man"
+            ]
+          ]
+        },
+        "ToLower": {
+          "Description": "ToLower returns a copy of the input s with all Unicode letters mapped to their\nlower case.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "lower"
+          ],
+          "Examples": [
+            [
+              "{{lower \"BatMan\"}}",
+              "batman"
+            ]
+          ]
+        },
+        "ToUpper": {
+          "Description": "ToUpper returns a copy of the input s with all Unicode letters mapped to their\nupper case.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "upper"
+          ],
+          "Examples": [
+            [
+              "{{upper \"BatMan\"}}",
+              "BATMAN"
+            ]
+          ]
+        },
+        "Trim": {
+          "Description": "Trim returns a string with all leading and trailing characters defined\ncontained in cutset removed.",
+          "Args": [
+            "s",
+            "cutset"
+          ],
+          "Aliases": [
+            "trim"
+          ],
+          "Examples": [
+            [
+              "{{ trim \"++Batman--\" \"+-\" }}",
+              "Batman"
+            ]
+          ]
+        },
+        "TrimPrefix": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "TrimSuffix": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Truncate": {
+          "Description": "",
+          "Args": [
+            "a",
+            "options"
+          ],
+          "Aliases": [
+            "truncate"
+          ],
+          "Examples": [
+            [
+              "{{ \"this is a very long text\" | truncate 10 \" ...\" }}",
+              "this is a ..."
+            ],
+            [
+              "{{ \"With [Markdown](/markdown) inside.\" | markdownify | truncate 14 }}",
+              "With \u003ca href=\"/markdown\"\u003eMarkdown …\u003c/a\u003e"
+            ]
+          ]
+        }
+      },
+      "time": {
+        "AsTime": {
+          "Description": "AsTime converts the textual representation of the datetime string into\na time.Time interface.",
+          "Args": [
+            "v"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ (time \"2015-01-21\").Year }}",
+              "2015"
+            ]
+          ]
+        },
+        "Format": {
+          "Description": "Format converts the textual representation of the datetime string into\nthe other form or returns it of the time.Time value. These are formatted\nwith the layout string",
+          "Args": [
+            "layout",
+            "v"
+          ],
+          "Aliases": [
+            "dateFormat"
+          ],
+          "Examples": [
+            [
+              "dateFormat: {{ dateFormat \"Monday, Jan 2, 2006\" \"2015-01-21\" }}",
+              "dateFormat: Wednesday, Jan 21, 2015"
+            ]
+          ]
+        },
+        "Now": {
+          "Description": "Now returns the current local time.",
+          "Args": null,
+          "Aliases": [
+            "now"
+          ],
+          "Examples": []
+        }
+      },
+      "transform": {
+        "Emojify": {
+          "Description": "Emojify returns a copy of s with all emoji codes replaced with actual emojis.\n\nSee http://www.emoji-cheat-sheet.com/",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "emojify"
+          ],
+          "Examples": [
+            [
+              "{{ \"I :heart: Hugo\" | emojify }}",
+              "I ❤️ Hugo"
+            ]
+          ]
+        },
+        "HTMLEscape": {
+          "Description": "HTMLEscape returns a copy of s with reserved HTML characters escaped.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "htmlEscape"
+          ],
+          "Examples": [
+            [
+              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\" | safeHTML}}",
+              "Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;"
+            ],
+            [
+              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\"}}",
+              "Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;"
+            ],
+            [
+              "{{ htmlEscape \"Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e\" | htmlUnescape | safeHTML }}",
+              "Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e"
+            ]
+          ]
+        },
+        "HTMLUnescape": {
+          "Description": "HTMLUnescape returns a copy of with HTML escape requences converted to plain\ntext.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "htmlUnescape"
+          ],
+          "Examples": [
+            [
+              "{{ htmlUnescape \"Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;\" | safeHTML}}",
+              "Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e"
+            ],
+            [
+              "{{\"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape | safeHTML}}",
+              "Cathal Garvey \u0026 The Sunshine Band \u003ccathal@foo.bar\u003e"
+            ],
+            [
+              "{{\"Cathal Garvey \u0026amp;amp; The Sunshine Band \u0026amp;lt;cathal@foo.bar\u0026amp;gt;\" | htmlUnescape | htmlUnescape }}",
+              "Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;"
+            ],
+            [
+              "{{ htmlUnescape \"Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;\" | htmlEscape | safeHTML }}",
+              "Cathal Garvey \u0026amp; The Sunshine Band \u0026lt;cathal@foo.bar\u0026gt;"
+            ]
+          ]
+        },
+        "Highlight": {
+          "Description": "Highlight returns a copy of s as an HTML string with syntax\nhighlighting applied.",
+          "Args": [
+            "s",
+            "lang",
+            "opts"
+          ],
+          "Aliases": [
+            "highlight"
+          ],
+          "Examples": []
+        },
+        "Markdownify": {
+          "Description": "Markdownify renders a given input from Markdown to HTML.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "markdownify"
+          ],
+          "Examples": [
+            [
+              "{{ .Title | markdownify}}",
+              "\u003cstrong\u003eBatMan\u003c/strong\u003e"
+            ]
+          ]
+        },
+        "Plainify": {
+          "Description": "Plainify returns a copy of s with all HTML tags removed.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "plainify"
+          ],
+          "Examples": [
+            [
+              "{{ plainify  \"Hello \u003cstrong\u003eworld\u003c/strong\u003e, gophers!\" }}",
+              "Hello world, gophers!"
+            ]
+          ]
+        }
+      },
+      "urls": {
+        "AbsLangURL": {
+          "Description": "AbsLangURL takes a given string and converts it to an absolute URL according\nto a page's position in the project directory structure and the current\nlanguage.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "absLangURL"
+          ],
+          "Examples": []
+        },
+        "AbsURL": {
+          "Description": "AbsURL takes a given string and converts it to an absolute URL.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "absURL"
+          ],
+          "Examples": []
+        },
+        "Ref": {
+          "Description": "Ref returns the absolute URL path to a given content item.",
+          "Args": [
+            "in",
+            "refs"
+          ],
+          "Aliases": [
+            "ref"
+          ],
+          "Examples": []
+        },
+        "RelLangURL": {
+          "Description": "RelLangURL takes a given string and prepends the relative path according to a\npage's position in the project directory structure and the current language.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "relLangURL"
+          ],
+          "Examples": []
+        },
+        "RelRef": {
+          "Description": "RelRef returns the relative URL path to a given content item.",
+          "Args": [
+            "in",
+            "refs"
+          ],
+          "Aliases": [
+            "relref"
+          ],
+          "Examples": []
+        },
+        "RelURL": {
+          "Description": "RelURL takes a given string and prepends the relative path according to a\npage's position in the project directory structure.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "relURL"
+          ],
+          "Examples": []
+        },
+        "URLize": {
+          "Description": "",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "urlize"
+          ],
+          "Examples": []
+        }
+      }
+    }
+  }
+}

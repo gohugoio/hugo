@@ -19,7 +19,7 @@ import (
 	"errors"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 // Build builds all sites. If filesystem events are provided,
@@ -59,7 +59,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	}
 
 	if config.PrintStats {
-		h.log.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
+		h.Log.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
 	}
 
 	return nil
@@ -107,6 +107,13 @@ func (h *HugoSites) initRebuild(config *BuildCfg) error {
 
 	h.runMode.Watching = config.Watching
 
+	if config.whatChanged.source {
+		// This is for the non-renderable content pages (rarely used, I guess).
+		// We could maybe detect if this is really needed, but it should be
+		// pretty fast.
+		h.TemplateHandler().RebuildClone()
+	}
+
 	for _, s := range h.Sites {
 		s.resetBuildState()
 	}
@@ -121,6 +128,7 @@ func (h *HugoSites) process(config *BuildCfg, events ...fsnotify.Event) error {
 	// but that seems like a daunting task.
 	// So for now, if there are more than one site (language),
 	// we pre-process the first one, then configure all the sites based on that.
+
 	firstSite := h.Sites[0]
 
 	if len(events) > 0 {
@@ -135,6 +143,12 @@ func (h *HugoSites) process(config *BuildCfg, events ...fsnotify.Event) error {
 }
 
 func (h *HugoSites) assemble(config *BuildCfg) error {
+	if config.whatChanged.source {
+		for _, s := range h.Sites {
+			s.createTaxonomiesEntries()
+		}
+	}
+
 	// TODO(bep) we could probably wait and do this in one go later
 	h.setupTranslations()
 
@@ -160,19 +174,33 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 	}
 
 	for _, s := range h.Sites {
+		s.siteStats = &siteStats{}
+		for _, p := range s.Pages {
+			// May have been set in front matter
+			if len(p.outputFormats) == 0 {
+				p.outputFormats = s.outputFormats[p.Kind]
+			}
+
+			cnt := len(p.outputFormats)
+			if p.Kind == KindPage {
+				s.siteStats.pageCountRegular += cnt
+			}
+			s.siteStats.pageCount += cnt
+
+			if err := p.initTargetPathDescriptor(); err != nil {
+				return err
+			}
+			if err := p.initURLs(); err != nil {
+				return err
+			}
+		}
+		s.assembleMenus()
 		s.refreshPageCaches()
-		s.setupPrevNext()
+		s.setupSitePages()
 	}
 
 	if err := h.assignMissingTranslations(); err != nil {
 		return err
-	}
-
-	for _, s := range h.Sites {
-		if err := s.setCurrentLanguageConfig(); err != nil {
-			return err
-		}
-		s.preparePagesForRender(config)
 	}
 
 	return nil
@@ -180,17 +208,26 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 }
 
 func (h *HugoSites) render(config *BuildCfg) error {
-	if !config.SkipRender {
-		for _, s := range h.Sites {
-			if err := s.render(); err != nil {
-				return err
-			}
 
-			if config.PrintStats {
-				s.Stats()
+	for _, s := range h.Sites {
+		s.initRenderFormats()
+		for i, rf := range s.renderFormats {
+			s.rc = &siteRenderingContext{Format: rf}
+			s.preparePagesForRender(config)
+
+			if !config.SkipRender {
+				if err := s.render(i); err != nil {
+					return err
+				}
 			}
 		}
 
+		if !config.SkipRender && config.PrintStats {
+			s.Stats()
+		}
+	}
+
+	if !config.SkipRender {
 		if err := h.renderCrossSitesArtifacts(); err != nil {
 			return err
 		}

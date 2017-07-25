@@ -14,10 +14,11 @@
 package hugolib
 
 import (
-	"github.com/spf13/hugo/helpers"
 	"reflect"
 	"sort"
 	"sync"
+
+	"github.com/gohugoio/hugo/tpl/math"
 )
 
 // Scratch is a writable context used for stateful operations in Page/Node rendering.
@@ -49,7 +50,7 @@ func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
 				newVal = reflect.Append(addendV, nav).Interface()
 			}
 		} else {
-			newVal, err = helpers.DoArithmetic(existingAddend, newAddend, '+')
+			newVal, err = math.DoArithmetic(existingAddend, newAddend, '+')
 			if err != nil {
 				return "", err
 			}

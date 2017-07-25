@@ -18,28 +18,40 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/spf13/viper"
+
 	"github.com/stretchr/testify/assert"
 )
 
 func TestFileUniqueID(t *testing.T) {
+	ss := newTestSourceSpec()
+
 	f1 := File{uniqueID: "123"}
-	f2 := NewFile("a")
+	f2 := ss.NewFile("a")
 
 	assert.Equal(t, "123", f1.UniqueID())
 	assert.Equal(t, "0cc175b9c0f1b6a831c399e269772661", f2.UniqueID())
 
-	f3 := NewFile(filepath.FromSlash("test1/index.md"))
-	f4 := NewFile(filepath.FromSlash("test2/index.md"))
+	f3 := ss.NewFile(filepath.FromSlash("test1/index.md"))
+	f4 := ss.NewFile(filepath.FromSlash("test2/index.md"))
 
 	assert.NotEqual(t, f3.UniqueID(), f4.UniqueID())
 }
 
 func TestFileString(t *testing.T) {
-	assert.Equal(t, "abc", NewFileWithContents("a", strings.NewReader("abc")).String())
-	assert.Equal(t, "", NewFile("a").String())
+	ss := newTestSourceSpec()
+	assert.Equal(t, "abc", ss.NewFileWithContents("a", strings.NewReader("abc")).String())
+	assert.Equal(t, "", ss.NewFile("a").String())
 }
 
 func TestFileBytes(t *testing.T) {
-	assert.Equal(t, []byte("abc"), NewFileWithContents("a", strings.NewReader("abc")).Bytes())
-	assert.Equal(t, []byte(""), NewFile("a").Bytes())
+	ss := newTestSourceSpec()
+	assert.Equal(t, []byte("abc"), ss.NewFileWithContents("a", strings.NewReader("abc")).Bytes())
+	assert.Equal(t, []byte(""), ss.NewFile("a").Bytes())
+}
+
+func newTestSourceSpec() SourceSpec {
+	v := viper.New()
+	return SourceSpec{Fs: hugofs.NewMem(v), Cfg: v}
 }

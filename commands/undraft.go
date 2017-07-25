@@ -19,15 +19,14 @@ import (
 	"os"
 	"time"
 
+	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/cobra"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/parser"
 )
 
 var undraftCmd = &cobra.Command{
 	Use:   "undraft path/to/content",
-	Short: "Undraft changes the content's draft status from 'True' to 'False'",
-	Long: `Undraft changes the content's draft status from 'True' to 'False'
+	Short: "Undraft resets the content's draft status",
+	Long: `Undraft resets the content's draft status
 and updates the date to the current date and time.
 If the content's draft status is 'False', nothing is done.`,
 	RunE: Undraft,
@@ -37,7 +36,9 @@ If the content's draft status is 'False', nothing is done.`,
 // to false and setting its publish date to now. If the specified content is
 // not a draft, it will log an error.
 func Undraft(cmd *cobra.Command, args []string) error {
-	if _, err := InitializeConfig(); err != nil {
+	cfg, err := InitializeConfig()
+
+	if err != nil {
 		return err
 	}
 
@@ -47,7 +48,7 @@ func Undraft(cmd *cobra.Command, args []string) error {
 
 	location := args[0]
 	// open the file
-	f, err := hugofs.Source().Open(location)
+	f, err := cfg.Fs.Source.Open(location)
 	if err != nil {
 		return err
 	}
@@ -64,7 +65,7 @@ func Undraft(cmd *cobra.Command, args []string) error {
 		return newSystemErrorF("an error occurred while undrafting %q: %s", location, err)
 	}
 
-	f, err = hugofs.Source().OpenFile(location, os.O_WRONLY|os.O_TRUNC, 0644)
+	f, err = cfg.Fs.Source.OpenFile(location, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		return newSystemErrorF("%q not be undrafted due to error opening file to save changes: %q\n", location, err)
 	}
@@ -137,14 +138,12 @@ L:
 	for _, v := range fmLines {
 		pos := bytes.Index(v, []byte("draft"))
 		if pos != -1 {
-			v = bytes.Replace(v, []byte("true"), []byte("false"), 1)
-			goto write
+			continue
 		}
 		pos = bytes.Index(v, []byte("date"))
 		if pos != -1 { // if date field wasn't found, add it
 			v = bytes.Replace(v, []byte(date), []byte(time.Now().Format(time.RFC3339)), 1)
 		}
-	write:
 		buff.Write(v)
 		buff.Write(lineEnding)
 	}

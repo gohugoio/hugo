@@ -17,7 +17,7 @@ import (
 	"bytes"
 
 	"github.com/dchest/cssmin"
-	"github.com/spf13/hugo/source"
+	"github.com/gohugoio/hugo/source"
 )
 
 func init() {
@@ -39,7 +39,10 @@ type defaultHandler struct{ basicFileHandler }
 
 func (h defaultHandler) Extensions() []string { return []string{"*"} }
 func (h defaultHandler) FileConvert(f *source.File, s *Site) HandledResult {
-	s.writeDestFile(f.Path(), f.Contents)
+	err := s.publish(f.Path(), f.Contents)
+	if err != nil {
+		return HandledResult{err: err}
+	}
 	return HandledResult{file: f}
 }
 
@@ -48,6 +51,9 @@ type cssHandler struct{ basicFileHandler }
 func (h cssHandler) Extensions() []string { return []string{"css"} }
 func (h cssHandler) FileConvert(f *source.File, s *Site) HandledResult {
 	x := cssmin.Minify(f.Bytes())
-	s.writeDestFile(f.Path(), bytes.NewReader(x))
+	err := s.publish(f.Path(), bytes.NewReader(x))
+	if err != nil {
+		return HandledResult{err: err}
+	}
 	return HandledResult{file: f}
 }

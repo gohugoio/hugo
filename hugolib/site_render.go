@@ -16,13 +16,13 @@ package hugolib
 import (
 	"fmt"
 	"path"
-	"path/filepath"
 	"sync"
-	"time"
 
-	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/helpers"
+
+	"github.com/gohugoio/hugo/output"
+
+	bp "github.com/gohugoio/hugo/bufferpool"
 )
 
 // renderPages renders pages each corresponding to a markdown file.
@@ -35,11 +35,11 @@ func (s *Site) renderPages() error {
 
 	go errorCollator(results, errs)
 
-	procs := getGoMaxProcs()
+	numWorkers := getGoMaxProcs() * 4
 
 	wg := &sync.WaitGroup{}
 
-	for i := 0; i < procs*4; i++ {
+	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
 		go pageRenderer(s, pages, results, wg)
 	}
@@ -63,40 +63,95 @@ func (s *Site) renderPages() error {
 
 func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {
 	defer wg.Done()
-	for p := range pages {
-		targetPath := p.TargetPath()
-		layouts := p.layouts()
-		s.log.DEBUG.Printf("Render %s to %q with layouts %q", p.Kind, targetPath, layouts)
 
-		if err := s.renderAndWritePage("page "+p.FullFilePath(), targetPath, p, s.appendThemeTemplates(layouts)...); err != nil {
-			results <- err
-		}
+	for page := range pages {
 
-		// Taxonomy terms have no page set to paginate, so skip that for now.
-		if p.IsNode() && p.Kind != KindTaxonomyTerm {
-			if err := s.renderPaginator(p); err != nil {
-				results <- err
+		for i, outFormat := range page.outputFormats {
+
+			var (
+				pageOutput *PageOutput
+				err        error
+			)
+
+			if i == 0 {
+				pageOutput, err = newPageOutput(page, false, outFormat)
+				page.mainPageOutput = pageOutput
 			}
-		}
 
-		if err := s.renderRSS(p); err != nil {
-			results <- err
+			if outFormat != page.s.rc.Format {
+				// Will be rendered  ... later.
+				continue
+			}
+
+			if pageOutput == nil {
+				pageOutput, err = page.mainPageOutput.copyWithFormat(outFormat)
+			}
+
+			if err != nil {
+				s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outFormat.Name, page, err)
+				continue
+			}
+
+			var layouts []string
+
+			if page.selfLayout != "" {
+				layouts = []string{page.selfLayout}
+			} else {
+				layouts, err = s.layouts(pageOutput)
+				if err != nil {
+					s.Log.ERROR.Printf("Failed to resolve layout output %q for page %q: %s", outFormat.Name, page, err)
+					continue
+				}
+			}
+
+			switch pageOutput.outputFormat.Name {
+
+			case "RSS":
+				if err := s.renderRSS(pageOutput); err != nil {
+					results <- err
+				}
+			default:
+				targetPath, err := pageOutput.targetPath()
+				if err != nil {
+					s.Log.ERROR.Printf("Failed to create target path for output %q for page %q: %s", outFormat.Name, page, err)
+					continue
+				}
+
+				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", pageOutput.Kind, targetPath, layouts)
+
+				if err := s.renderAndWritePage("page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
+					results <- err
+				}
+
+				if pageOutput.IsNode() {
+					if err := s.renderPaginator(pageOutput); err != nil {
+						results <- err
+					}
+				}
+			}
+
 		}
 	}
 }
 
 // renderPaginator must be run after the owning Page has been rendered.
-func (s *Site) renderPaginator(p *Page) error {
+func (s *Site) renderPaginator(p *PageOutput) error {
 	if p.paginator != nil {
-		s.log.DEBUG.Printf("Render paginator for page %q", p.Path())
-		paginatePath := helpers.Config().GetString("paginatePath")
+		s.Log.DEBUG.Printf("Render paginator for page %q", p.Path())
+		paginatePath := s.Cfg.GetString("paginatePath")
 
 		// write alias for page 1
-		// TODO(bep) ml all of these n.addLang ... fix.
+		addend := fmt.Sprintf("/%s/%d", paginatePath, 1)
+		target, err := p.createTargetPath(p.outputFormat, addend)
+		if err != nil {
+			return err
+		}
 
-		aliasPath := p.addLangPathPrefix(helpers.PaginateAliasPath(path.Join(p.sections...), 1))
-		link := p.Permalink()
-		s.writeDestAlias(aliasPath, link, nil)
+		// TODO(bep) do better
+		link := newOutputFormat(p.Page, p.outputFormat).Permalink()
+		if err := s.writeDestAlias(target, link, nil); err != nil {
+			return err
+		}
 
 		pagers := p.paginator.Pagers()
 
@@ -106,7 +161,12 @@ func (s *Site) renderPaginator(p *Page) error {
 				continue
 			}
 
-			pagerNode := p.copy()
+			pagerNode, err := p.copy()
+			if err != nil {
+				return err
+			}
+
+			pagerNode.origOnCopy = p.Page
 
 			pagerNode.paginator = pager
 			if pager.TotalPages() > 0 {
@@ -116,11 +176,17 @@ func (s *Site) renderPaginator(p *Page) error {
 			}
 
 			pageNumber := i + 1
-			htmlBase := path.Join(append(p.sections, fmt.Sprintf("/%s/%d", paginatePath, pageNumber))...)
-			htmlBase = p.addLangPathPrefix(htmlBase)
+			addend := fmt.Sprintf("/%s/%d", paginatePath, pageNumber)
+			targetPath, _ := p.targetPath(addend)
+			layouts, err := p.layouts()
 
-			if err := s.renderAndWritePage(pagerNode.Title,
-				filepath.FromSlash(htmlBase), pagerNode, p.layouts()...); err != nil {
+			if err != nil {
+				return err
+			}
+
+			if err := s.renderAndWritePage(
+				pagerNode.Title,
+				targetPath, pagerNode, layouts...); err != nil {
 				return err
 			}
 
@@ -129,67 +195,89 @@ func (s *Site) renderPaginator(p *Page) error {
 	return nil
 }
 
-func (s *Site) renderRSS(p *Page) error {
+func (s *Site) renderRSS(p *PageOutput) error {
 
-	if viper.GetBool("disableRSS") {
+	if !s.isEnabled(kindRSS) {
 		return nil
 	}
 
-	layouts := p.rssLayouts()
-
-	if layouts == nil {
-		// No RSS for this Kind of page.
+	if s.Cfg.GetBool("disableRSS") {
 		return nil
 	}
 
-	rssPage := p.copy()
-	rssPage.Kind = kindRSS
+	p.Kind = kindRSS
 
-	// TODO(bep) we zero the date here to get the number of diffs down in
-	// testing. But this should be set back later; the RSS feed should
-	// inherit the publish date from the node it represents.
-	if p.Kind == KindTaxonomy {
-		var zeroDate time.Time
-		rssPage.Date = zeroDate
+	limit := s.Cfg.GetInt("rssLimit")
+	if limit >= 0 && len(p.Pages) > limit {
+		p.Pages = p.Pages[:limit]
+		p.Data["Pages"] = p.Pages
 	}
 
-	high := 50
-	if len(rssPage.Pages) > high {
-		rssPage.Pages = rssPage.Pages[:high]
-		rssPage.Data["Pages"] = rssPage.Pages
+	layouts, err := s.layoutHandler.For(
+		p.layoutDescriptor,
+		"",
+		p.outputFormat)
+	if err != nil {
+		return err
 	}
-	rssURI := s.Language.GetString("rssURI")
 
-	rssPath := path.Join(append(rssPage.sections, rssURI)...)
-	s.setPageURLs(rssPage, rssPath)
+	targetPath, err := p.targetPath()
+	if err != nil {
+		return err
+	}
 
-	return s.renderAndWriteXML(rssPage.Title,
-		rssPage.addLangFilepathPrefix(rssPath), rssPage, s.appendThemeTemplates(layouts)...)
+	return s.renderAndWriteXML(p.Title,
+		targetPath, p, layouts...)
 }
 
 func (s *Site) render404() error {
-	if viper.GetBool("disable404") {
+	if !s.isEnabled(kind404) {
+		return nil
+	}
+
+	if s.Cfg.GetBool("disable404") {
 		return nil
 	}
 
 	p := s.newNodePage(kind404)
+
 	p.Title = "404 Page not found"
 	p.Data["Pages"] = s.Pages
 	p.Pages = s.Pages
-	s.setPageURLs(p, "404.html")
+	p.URLPath.URL = "404.html"
+
+	if err := p.initTargetPathDescriptor(); err != nil {
+		return err
+	}
 
 	nfLayouts := []string{"404.html"}
 
-	return s.renderAndWritePage("404 page", "404.html", p, s.appendThemeTemplates(nfLayouts)...)
+	htmlOut := output.HTMLFormat
+	htmlOut.BaseName = "404"
 
+	pageOutput, err := newPageOutput(p, false, htmlOut)
+	if err != nil {
+		return err
+	}
+
+	targetPath, err := pageOutput.targetPath()
+	if err != nil {
+		s.Log.ERROR.Printf("Failed to create target path for page %q: %s", p, err)
+	}
+
+	return s.renderAndWritePage("404 page", targetPath, pageOutput, s.appendThemeTemplates(nfLayouts)...)
 }
 
 func (s *Site) renderSitemap() error {
-	if viper.GetBool("disableSitemap") {
+	if !s.isEnabled(kindSitemap) {
 		return nil
 	}
 
-	sitemapDefault := parseSitemap(viper.GetStringMap("sitemap"))
+	if s.Cfg.GetBool("disableSitemap") {
+		return nil
+	}
+
+	sitemapDefault := parseSitemap(s.Cfg.GetStringMap("sitemap"))
 
 	n := s.newNodePage(kindSitemap)
 
@@ -198,12 +286,20 @@ func (s *Site) renderSitemap() error {
 
 	page := s.newNodePage(kindSitemap)
 	page.URLPath.URL = ""
+	if err := page.initTargetPathDescriptor(); err != nil {
+		return err
+	}
 	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
 	page.Sitemap.Priority = sitemapDefault.Priority
 	page.Sitemap.Filename = sitemapDefault.Filename
 
 	n.Data["Pages"] = pages
 	n.Pages = pages
+
+	// TODO(bep) we have several of these
+	if err := page.initTargetPathDescriptor(); err != nil {
+		return err
+	}
 
 	// TODO(bep) this should be done somewhere else
 	for _, page := range pages {
@@ -228,24 +324,34 @@ func (s *Site) renderSitemap() error {
 }
 
 func (s *Site) renderRobotsTXT() error {
-	if !viper.GetBool("enableRobotsTXT") {
+	if !s.isEnabled(kindRobotsTXT) {
+		return nil
+	}
+
+	if !s.Cfg.GetBool("enableRobotsTXT") {
 		return nil
 	}
 
 	n := s.newNodePage(kindRobotsTXT)
+	if err := n.initTargetPathDescriptor(); err != nil {
+		return err
+	}
 	n.Data["Pages"] = s.Pages
 	n.Pages = s.Pages
 
 	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
 	outBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(outBuffer)
-	err := s.renderForLayouts("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...)
-
-	if err == nil {
-		err = s.writeDestFile("robots.txt", outBuffer)
+	if err := s.renderForLayouts("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...); err != nil {
+		helpers.DistinctWarnLog.Println(err)
+		return nil
 	}
 
-	return err
+	if outBuffer.Len() == 0 {
+		return nil
+	}
+
+	return s.publish("robots.txt", outBuffer)
 }
 
 // renderAliases renders shell pages that simply have a redirect in the header.
@@ -255,27 +361,39 @@ func (s *Site) renderAliases() error {
 			continue
 		}
 
-		plink := p.Permalink()
+		for _, f := range p.outputFormats {
+			if !f.IsHTML {
+				continue
+			}
 
-		for _, a := range p.Aliases {
-			if err := s.writeDestAlias(a, plink, p); err != nil {
-				return err
+			o := newOutputFormat(p, f)
+			plink := o.Permalink()
+
+			for _, a := range p.Aliases {
+				if f.Path != "" {
+					// Make sure AMP and similar doesn't clash with regular aliases.
+					a = path.Join(a, f.Path)
+				}
+
+				if err := s.writeDestAlias(a, plink, p); err != nil {
+					return err
+				}
 			}
 		}
 	}
 
 	if s.owner.multilingual.enabled() {
-		mainLang := s.owner.multilingual.DefaultLang.Lang
+		mainLang := s.owner.multilingual.DefaultLang
 		if s.Info.defaultContentLanguageInSubdir {
-			mainLangURL := s.Info.pathSpec.AbsURL(mainLang, false)
-			s.log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(s.languageAliasTarget(), "/", mainLangURL, nil); err != nil {
+			mainLangURL := s.PathSpec.AbsURL(mainLang.Lang, false)
+			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			if err := s.publishDestAlias(true, "/", mainLangURL, nil); err != nil {
 				return err
 			}
 		} else {
-			mainLangURL := s.Info.pathSpec.AbsURL("", false)
-			s.log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(s.languageAliasTarget(), mainLang, mainLangURL, nil); err != nil {
+			mainLangURL := s.PathSpec.AbsURL("", false)
+			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+			if err := s.publishDestAlias(true, mainLang.Lang, mainLangURL, nil); err != nil {
 				return err
 			}
 		}

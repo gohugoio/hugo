@@ -13,8 +13,6 @@
 
 package source
 
-import "bytes"
-
 type ByteSource struct {
 	Name    string
 	Content []byte
@@ -22,16 +20,4 @@ type ByteSource struct {
 
 func (b *ByteSource) String() string {
 	return b.Name + " " + string(b.Content)
-}
-
-type InMemorySource struct {
-	ByteSource []ByteSource
-}
-
-func (i *InMemorySource) Files() (files []*File) {
-	files = make([]*File, len(i.ByteSource))
-	for i, fake := range i.ByteSource {
-		files[i] = NewFileWithContents(fake.Name, bytes.NewReader(fake.Content))
-	}
-	return
 }

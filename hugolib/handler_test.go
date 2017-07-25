@@ -17,44 +17,35 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/target"
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 func TestDefaultHandler(t *testing.T) {
-	testCommonResetState()
+	t.Parallel()
 
-	hugofs.InitMemFs()
-	sources := []source.ByteSource{
-		{Name: filepath.FromSlash("sect/doc1.html"), Content: []byte("---\nmarkup: markdown\n---\n# title\nsome *content*")},
-		{Name: filepath.FromSlash("sect/doc2.html"), Content: []byte("<!doctype html><html><body>more content</body></html>")},
-		{Name: filepath.FromSlash("sect/doc3.md"), Content: []byte("# doc3\n*some* content")},
-		{Name: filepath.FromSlash("sect/doc4.md"), Content: []byte("---\ntitle: doc4\n---\n# doc4\n*some content*")},
-		{Name: filepath.FromSlash("sect/doc3/img1.png"), Content: []byte("‰PNG  ��� IHDR����������:~›U��� IDATWcø��ZMoñ����IEND®B`‚")},
-		{Name: filepath.FromSlash("sect/img2.gif"), Content: []byte("GIF89a��€��ÿÿÿ���,�������D�;")},
-		{Name: filepath.FromSlash("sect/img2.spf"), Content: []byte("****FAKE-FILETYPE****")},
-		{Name: filepath.FromSlash("doc7.html"), Content: []byte("<html><body>doc7 content</body></html>")},
-		{Name: filepath.FromSlash("sect/doc8.html"), Content: []byte("---\nmarkup: md\n---\n# title\nsome *content*")},
-	}
+	var (
+		cfg, fs = newTestCfg()
+	)
 
-	viper.Set("defaultExtension", "html")
-	viper.Set("verbose", true)
+	cfg.Set("verbose", true)
+	cfg.Set("uglyURLs", true)
 
-	s := &Site{
-		Source:   &source.InMemorySource{ByteSource: sources},
-		targets:  targetList{page: &target.PagePub{UglyURLs: true, PublishDir: "public"}},
-		Language: helpers.NewLanguage("en"),
-	}
+	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.html"), "---\nmarkup: markdown\n---\n# title\nsome *content*")
+	writeSource(t, fs, filepath.FromSlash("content/sect/doc2.html"), "<!doctype html><html><body>more content</body></html>")
+	writeSource(t, fs, filepath.FromSlash("content/sect/doc3.md"), "# doc3\n*some* content")
+	writeSource(t, fs, filepath.FromSlash("content/sect/doc4.md"), "---\ntitle: doc4\n---\n# doc4\n*some content*")
+	writeSource(t, fs, filepath.FromSlash("content/sect/doc3/img1.png"), "‰PNG  ��� IHDR����������:~›U��� IDATWcø��ZMoñ����IEND®B`‚")
+	writeSource(t, fs, filepath.FromSlash("content/sect/img2.gif"), "GIF89a��€��ÿÿÿ���,�������D�;")
+	writeSource(t, fs, filepath.FromSlash("content/sect/img2.spf"), "****FAKE-FILETYPE****")
+	writeSource(t, fs, filepath.FromSlash("content/doc7.html"), "<html><body>doc7 content</body></html>")
+	writeSource(t, fs, filepath.FromSlash("content/sect/doc8.html"), "---\nmarkup: md\n---\n# title\nsome *content*")
 
-	if err := buildAndRenderSite(s,
-		"_default/single.html", "{{.Content}}",
-		"head", "<head><script src=\"script.js\"></script></head>",
-		"head_abs", "<head><script src=\"/script.js\"></script></head>"); err != nil {
-		t.Fatalf("Failed to render site: %s", err)
-	}
+	writeSource(t, fs, filepath.FromSlash("layouts/_default/single.html"), "{{.Content}}")
+	writeSource(t, fs, filepath.FromSlash("head"), "<head><script src=\"script.js\"></script></head>")
+	writeSource(t, fs, filepath.FromSlash("head_abs"), "<head><script src=\"/script.js\"></script></head")
+
+	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	tests := []struct {
 		doc      string
@@ -71,7 +62,7 @@ func TestDefaultHandler(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		file, err := hugofs.Destination().Open(test.doc)
+		file, err := fs.Destination.Open(test.doc)
 		if err != nil {
 			t.Fatalf("Did not find %s in target.", test.doc)
 		}

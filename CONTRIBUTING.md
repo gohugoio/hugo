@@ -5,9 +5,11 @@ organization, tutorials, blog posts, bug reports, issues, feature requests,
 feature implementations, pull requests, answering questions on the forum,
 helping to manage issues, etc.
 
-The Hugo community and maintainers are very active and helpful, and the project benefits greatly from this activity. We created a [step by step guide](https://gohugo.io/tutorials/how-to-contribute-to-hugo/) if you're unfamiliar with GitHub or contributing to open source projects in general.
+The Hugo community and maintainers are [very active](https://github.com/gohugoio/hugo/pulse/monthly) and helpful, and the project benefits greatly from this activity. We created a [step by step guide](https://gohugo.io/tutorials/how-to-contribute-to-hugo/) if you're unfamiliar with GitHub or contributing to open source projects in general.
 
-[![Throughput Graph](https://graphs.waffle.io/spf13/hugo/throughput.svg)](https://waffle.io/spf13/hugo/metrics)
+*Note that this repository only contains the actual source code of Hugo. For **only** documentation-related pull requests / issues please refer to the [hugoDocs](https://github.com/gohugoio/hugoDocs) repository.*
+
+*Pull requests that contain changes on the code base **and** related documentation, e.g. for a new feature, shall remain a single, atomic one.*
 
 ## Table of Contents
 
@@ -16,20 +18,22 @@ The Hugo community and maintainers are very active and helpful, and the project 
 * [Submitting Patches](#submitting-patches)
   * [Code Contribution Guidelines](#code-contribution-guidelines)
   * [Git Commit Message Guidelines](#git-commit-message-guidelines)
+  * [Vendored Dependencies](#vendored-dependencies)
+  * [Fetching the Sources From GitHub](#fetching-the-sources-from-github)
   * [Using Git Remotes](#using-git-remotes)
   * [Build Hugo with Your Changes](#build-hugo-with-your-changes)
-  * [Add Compile Information to Hugo](#add-compile-information-to-hugo)
+  * [Updating the Hugo Sources](#updating-the-hugo-sources)
 
 ## Asking Support Questions
 
-We have an active [discussion forum](http://discuss.gohugo.io) where users and developers can ask questions.
-Please don't use the Github issue tracker to ask questions.
+We have an active [discussion forum](https://discourse.gohugo.io) where users and developers can ask questions.
+Please don't use the GitHub issue tracker to ask questions.
 
 ## Reporting Issues
 
 If you believe you have found a defect in Hugo or its documentation, use
-the Github [issue tracker](https://github.com/spf13/hugo/issues) to report the problem to the Hugo maintainers.
-If you're not sure if it's a bug or not, start by asking in the [discussion forum](http://discuss.gohugo.io).
+the GitHub [issue tracker](https://github.com/gohugoio/hugo/issues) to report the problem to the Hugo maintainers.
+If you're not sure if it's a bug or not, start by asking in the [discussion forum](https://discourse.gohugo.io).
 When reporting the issue, please provide the version of Hugo in use (`hugo version`) and your operating system.
 
 ## Submitting Patches
@@ -48,12 +52,12 @@ To make the contribution process as seamless as possible, we ask for the followi
 
 * Go ahead and fork the project and make your changes.  We encourage pull requests to allow for review and discussion of code changes.
 * When you’re ready to create a pull request, be sure to:
-    * Sign the [CLA](https://cla-assistant.io/spf13/hugo).
+    * Sign the [CLA](https://cla-assistant.io/gohugoio/hugo).
     * Have test cases for the new code. If you have questions about how to do this, please ask in your pull request.
     * Run `go fmt`.
     * Add documentation if you are adding new features or changing functionality.  The docs site lives in `/docs`.
     * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request with `git push -f`.
-    * Make sure `go test ./...` passes, and `go build` completes. [Travis CI](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will catch most things that are missing.
+    * Ensure that `make check` succeeds. [Travis CI](https://travis-ci.org/gohugoio/hugo) (Linux and macOS) and [AppVeyor](https://ci.appveyor.com/project/gohugoio/hugo/branch/master) (Windows) will fail the build if `make check` fails.
     * Follow the **Git Commit Message Guidelines** below.
 
 ### Git Commit Message Guidelines
@@ -84,22 +88,31 @@ new default function more useful for Hugo users.
 Fixes #1949
 ```
 
+### Vendored Dependencies
+
+Hugo uses [govendor](https://github.com/kardianos/govendor) to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository.
+Therefore, a simple `go get` is not supported since `go get` is not vendor-aware.
+You **must use govendor** to fetch and manage Hugo's dependencies.
+
+### Fetch the Sources From GitHub
+
+```
+go get github.com/kardianos/govendor
+govendor get github.com/gohugoio/hugo
+```
+
 ### Using Git Remotes
 
 Due to the way Go handles package imports, the best approach for working on a
 Hugo fork is to use Git Remotes.  Here's a simple walk-through for getting
 started:
 
-1. Get the latest Hugo sources:
-
-    ```
-    go get -u -t github.com/spf13/hugo/...
-    ```
+1. Fetch the Hugo sources as described above.
 
 1. Change to the Hugo source directory:
 
     ```
-    cd $GOPATH/src/github.com/spf13/hugo
+    cd $HOME/go/src/github.com/gohugoio/hugo
     ```
 
 1. Create a new branch for your changes (the branch name is arbitrary):
@@ -114,7 +127,7 @@ started:
     git commit -a -v
     ```
 
-1. Fork Hugo in Github.
+1. Fork Hugo in GitHub.
 
 1. Add your fork as a new remote (the remote name, "fork" in this example, is arbitrary):
 
@@ -133,20 +146,20 @@ started:
 ### Build Hugo with Your Changes
 
 ```bash
-cd $GOPATH/src/github.com/spf13/hugo
-go build
-mv hugo /usr/local/bin/
+cd $HOME/go/src/github.com/gohugoio/hugo
+make hugo
+# or to install in $HOME/go/bin:
+make install
 ```
 
-### Add Compile Information to Hugo
+### Updating the Hugo Sources
 
-To add compile information to Hugo, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
+If you want to stay in sync with the Hugo repository, you can easily pull down
+the source changes, but you'll need to keep the vendored packages up-to-date as
+well.
 
-    go build -ldflags "-X /path/to/hugo/hugolib.CommitHash=`git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/hugolib.BuildDate=`date +%FT%T%z`"
-
-This will result in `hugo version` output that looks similar to:
-
-    Hugo Static Site Generator v0.13-DEV-8042E77 buildDate: 2014-12-25T03:25:57-07:00
-
-Alternatively, just run `make` &mdash; all the “magic” above is already in the `Makefile`.  :wink:
+```
+git pull
+make vendor
+```
 

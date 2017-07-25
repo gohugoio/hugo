@@ -1,5 +1,5 @@
 ---
-date: 2016-12-20T09:38:40+01:00
+date: 2017-07-16T23:23:14+02:00
 title: "hugo"
 slug: hugo
 url: /commands/hugo/
@@ -19,45 +19,48 @@ built with love by spf13 and friends in Go.
 Complete documentation is available at http://gohugo.io/.
 
 ```
-hugo
+hugo [flags]
 ```
 
 ### Options
 
 ```
-  -b, --baseURL string          hostname (and path) to the root, e.g. http://spf13.com/
-  -D, --buildDrafts             include content marked as draft
-  -E, --buildExpired            include expired content
-  -F, --buildFuture             include content with publishdate in the future
-      --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-      --canonifyURLs            if true, all relative URLs will be canonicalized using baseURL
-      --cleanDestinationDir     Remove files from destination not found in static directories
-      --config string           config file (default is path/config.yaml|json|toml)
-  -c, --contentDir string       filesystem path to content directory
-  -d, --destination string      filesystem path to write files to
-      --disable404              Do not render 404 page
-      --disableRSS              Do not build RSS files
-      --disableSitemap          Do not build Sitemap file
-      --enableGitInfo           Add Git revision, date and author info to the pages
-      --forceSyncStatic         Copy all files when static is changed.
-      --i18n-warnings           Print missing translations
-      --ignoreCache             Ignores the cache directory
-  -l, --layoutDir string        filesystem path to layout directory
-      --log                     Enable Logging
-      --logFile string          Log File path (if set, logging enabled automatically)
-      --noChmod                 Don't sync permission mode of files
-      --noTimes                 Don't sync modification time of files
-      --pluralizeListTitles     Pluralize titles in lists using inflect (default true)
-      --preserveTaxonomyNames   Preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
-      --quiet                   build in quiet mode
-      --renderToMemory          render to memory (only useful for benchmark testing)
-  -s, --source string           filesystem path to read files relative from
-      --stepAnalysis            display memory and timing of different steps of the program
-  -t, --theme string            theme to use (located in /themes/THEMENAME/)
-      --uglyURLs                if true, use /filename.html instead of /filename/
-  -v, --verbose                 verbose output
-      --verboseLog              verbose logging
-  -w, --watch                   watch filesystem for changes and recreate as needed
+  -b, --baseURL string             hostname (and path) to the root, e.g. http://spf13.com/
+  -D, --buildDrafts                include content marked as draft
+  -E, --buildExpired               include expired content
+  -F, --buildFuture                include content with publishdate in the future
+      --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --canonifyURLs               if true, all relative URLs will be canonicalized using baseURL
+      --cleanDestinationDir        remove files from destination not found in static directories
+      --config string              config file (default is path/config.yaml|json|toml)
+  -c, --contentDir string          filesystem path to content directory
+  -d, --destination string         filesystem path to write files to
+      --disable404                 do not render 404 page
+      --disableKinds stringSlice   disable different kind of pages (home, RSS etc.)
+      --disableRSS                 do not build RSS files
+      --disableSitemap             do not build Sitemap file
+      --enableGitInfo              add Git revision, date and author info to the pages
+      --forceSyncStatic            copy all files when static is changed.
+  -h, --help                       help for hugo
+      --i18n-warnings              print missing translations
+      --ignoreCache                ignores the cache directory
+  -l, --layoutDir string           filesystem path to layout directory
+      --log                        enable Logging
+      --logFile string             log File path (if set, logging enabled automatically)
+      --noChmod                    don't sync permission mode of files
+      --noTimes                    don't sync modification time of files
+      --pluralizeListTitles        pluralize titles in lists using inflect (default true)
+      --preserveTaxonomyNames      preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
+      --quiet                      build in quiet mode
+      --renderToMemory             render to memory (only useful for benchmark testing)
+  -s, --source string              filesystem path to read files relative from
+      --stepAnalysis               display memory and timing of different steps of the program
+  -t, --theme string               theme to use (located in /themes/THEMENAME/)
+      --themesDir string           filesystem path to themes directory
+      --uglyURLs                   if true, use /filename.html instead of /filename/
+  -v, --verbose                    verbose output
+      --verboseLog                 verbose logging
+  -w, --watch                      watch filesystem for changes and recreate as needed
 ```
 
 ### SEE ALSO
@@ -71,7 +74,7 @@ hugo
 * [hugo list](/commands/hugo_list/)	 - Listing out various types of content
 * [hugo new](/commands/hugo_new/)	 - Create new content for your site
 * [hugo server](/commands/hugo_server/)	 - A high performance webserver
-* [hugo undraft](/commands/hugo_undraft/)	 - Undraft changes the content's draft status from 'True' to 'False'
+* [hugo undraft](/commands/hugo_undraft/)	 - Undraft resets the content's draft status
 * [hugo version](/commands/hugo_version/)	 - Print the version number of Hugo
 
-###### Auto generated by spf13/cobra on 20-Dec-2016
+###### Auto generated by spf13/cobra on 16-Jul-2017

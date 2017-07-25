@@ -16,24 +16,28 @@ package hugolib
 import (
 	"testing"
 
-	"github.com/spf13/hugo/helpers"
-
-	"github.com/spf13/viper"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestLoadGlobalConfig(t *testing.T) {
+func TestLoadConfig(t *testing.T) {
+	t.Parallel()
+
 	// Add a random config variable for testing.
 	// side = page in Norwegian.
 	configContent := `
 	PaginatePath = "side"
 	`
 
-	writeSource(t, "hugo.toml", configContent)
+	mm := afero.NewMemMapFs()
 
-	require.NoError(t, LoadGlobalConfig("", "hugo.toml"))
-	assert.Equal(t, "side", helpers.Config().GetString("paginatePath"))
+	writeToFs(t, mm, "hugo.toml", configContent)
+
+	cfg, err := LoadConfig(mm, "", "hugo.toml")
+	require.NoError(t, err)
+
+	assert.Equal(t, "side", cfg.GetString("paginatePath"))
 	// default
-	assert.Equal(t, "layouts", viper.GetString("layoutDir"))
+	assert.Equal(t, "layouts", cfg.GetString("layoutDir"))
 }

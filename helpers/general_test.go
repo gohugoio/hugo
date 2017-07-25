@@ -36,6 +36,7 @@ func TestGuessType(t *testing.T) {
 		{"mmark", "mmark"},
 		{"html", "html"},
 		{"htm", "html"},
+		{"org", "org"},
 		{"excel", "unknown"},
 	} {
 		result := GuessType(this.in)
@@ -59,6 +60,45 @@ func TestFirstUpper(t *testing.T) {
 		result := FirstUpper(this.in)
 		if result != this.expect {
 			t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
+		}
+	}
+}
+
+func TestHasStringsPrefix(t *testing.T) {
+	for i, this := range []struct {
+		s      []string
+		prefix []string
+		expect bool
+	}{
+		{[]string{"a"}, []string{"a"}, true},
+		{[]string{}, []string{}, true},
+		{[]string{"a", "b", "c"}, []string{"a", "b"}, true},
+		{[]string{"d", "a", "b", "c"}, []string{"a", "b"}, false},
+		{[]string{"abra", "ca", "dabra"}, []string{"abra", "ca"}, true},
+		{[]string{"abra", "ca"}, []string{"abra", "ca", "dabra"}, false},
+	} {
+		result := HasStringsPrefix(this.s, this.prefix)
+		if result != this.expect {
+			t.Fatalf("[%d] got %t but expected %t", i, result, this.expect)
+		}
+	}
+}
+
+func TestHasStringsSuffix(t *testing.T) {
+	for i, this := range []struct {
+		s      []string
+		suffix []string
+		expect bool
+	}{
+		{[]string{"a"}, []string{"a"}, true},
+		{[]string{}, []string{}, true},
+		{[]string{"a", "b", "c"}, []string{"b", "c"}, true},
+		{[]string{"abra", "ca", "dabra"}, []string{"abra", "ca"}, false},
+		{[]string{"abra", "ca", "dabra"}, []string{"ca", "dabra"}, true},
+	} {
+		result := HasStringsSuffix(this.s, this.suffix)
+		if result != this.expect {
+			t.Fatalf("[%d] got %t but expected %t", i, result, this.expect)
 		}
 	}
 }
@@ -159,137 +199,6 @@ func TestFindAvailablePort(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, addr)
 	assert.True(t, addr.Port > 0)
-}
-
-func TestSeq(t *testing.T) {
-	for i, this := range []struct {
-		in     []interface{}
-		expect interface{}
-	}{
-		{[]interface{}{-2, 5}, []int{-2, -1, 0, 1, 2, 3, 4, 5}},
-		{[]interface{}{1, 2, 4}, []int{1, 3}},
-		{[]interface{}{1}, []int{1}},
-		{[]interface{}{3}, []int{1, 2, 3}},
-		{[]interface{}{3.2}, []int{1, 2, 3}},
-		{[]interface{}{0}, []int{}},
-		{[]interface{}{-1}, []int{-1}},
-		{[]interface{}{-3}, []int{-1, -2, -3}},
-		{[]interface{}{3, -2}, []int{3, 2, 1, 0, -1, -2}},
-		{[]interface{}{6, -2, 2}, []int{6, 4, 2}},
-		{[]interface{}{1, 0, 2}, false},
-		{[]interface{}{1, -1, 2}, false},
-		{[]interface{}{2, 1, 1}, false},
-		{[]interface{}{2, 1, 1, 1}, false},
-		{[]interface{}{2001}, false},
-		{[]interface{}{}, false},
-		// TODO(bep) {[]interface{}{t}, false},
-		{nil, false},
-	} {
-
-		result, err := Seq(this.in...)
-
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] TestSeq didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
-			}
-			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] TestSeq got %v but expected %v", i, result, this.expect)
-			}
-		}
-	}
-}
-
-func TestDoArithmetic(t *testing.T) {
-	for i, this := range []struct {
-		a      interface{}
-		b      interface{}
-		op     rune
-		expect interface{}
-	}{
-		{3, 2, '+', int64(5)},
-		{3, 2, '-', int64(1)},
-		{3, 2, '*', int64(6)},
-		{3, 2, '/', int64(1)},
-		{3.0, 2, '+', float64(5)},
-		{3.0, 2, '-', float64(1)},
-		{3.0, 2, '*', float64(6)},
-		{3.0, 2, '/', float64(1.5)},
-		{3, 2.0, '+', float64(5)},
-		{3, 2.0, '-', float64(1)},
-		{3, 2.0, '*', float64(6)},
-		{3, 2.0, '/', float64(1.5)},
-		{3.0, 2.0, '+', float64(5)},
-		{3.0, 2.0, '-', float64(1)},
-		{3.0, 2.0, '*', float64(6)},
-		{3.0, 2.0, '/', float64(1.5)},
-		{uint(3), uint(2), '+', uint64(5)},
-		{uint(3), uint(2), '-', uint64(1)},
-		{uint(3), uint(2), '*', uint64(6)},
-		{uint(3), uint(2), '/', uint64(1)},
-		{uint(3), 2, '+', uint64(5)},
-		{uint(3), 2, '-', uint64(1)},
-		{uint(3), 2, '*', uint64(6)},
-		{uint(3), 2, '/', uint64(1)},
-		{3, uint(2), '+', uint64(5)},
-		{3, uint(2), '-', uint64(1)},
-		{3, uint(2), '*', uint64(6)},
-		{3, uint(2), '/', uint64(1)},
-		{uint(3), -2, '+', int64(1)},
-		{uint(3), -2, '-', int64(5)},
-		{uint(3), -2, '*', int64(-6)},
-		{uint(3), -2, '/', int64(-1)},
-		{-3, uint(2), '+', int64(-1)},
-		{-3, uint(2), '-', int64(-5)},
-		{-3, uint(2), '*', int64(-6)},
-		{-3, uint(2), '/', int64(-1)},
-		{uint(3), 2.0, '+', float64(5)},
-		{uint(3), 2.0, '-', float64(1)},
-		{uint(3), 2.0, '*', float64(6)},
-		{uint(3), 2.0, '/', float64(1.5)},
-		{3.0, uint(2), '+', float64(5)},
-		{3.0, uint(2), '-', float64(1)},
-		{3.0, uint(2), '*', float64(6)},
-		{3.0, uint(2), '/', float64(1.5)},
-		{0, 0, '+', 0},
-		{0, 0, '-', 0},
-		{0, 0, '*', 0},
-		{"foo", "bar", '+', "foobar"},
-		{3, 0, '/', false},
-		{3.0, 0, '/', false},
-		{3, 0.0, '/', false},
-		{uint(3), uint(0), '/', false},
-		{3, uint(0), '/', false},
-		{-3, uint(0), '/', false},
-		{uint(3), 0, '/', false},
-		{3.0, uint(0), '/', false},
-		{uint(3), 0.0, '/', false},
-		{3, "foo", '+', false},
-		{3.0, "foo", '+', false},
-		{uint(3), "foo", '+', false},
-		{"foo", 3, '+', false},
-		{"foo", "bar", '-', false},
-		{3, 2, '%', false},
-	} {
-		result, err := DoArithmetic(this.a, this.b, this.op)
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] doArithmetic didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
-			}
-			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] doArithmetic got %v but expected %v", i, result, this.expect)
-			}
-		}
-	}
 }
 
 func TestToLowerMap(t *testing.T) {

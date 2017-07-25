@@ -1,23 +1,18 @@
-image: WMF 5
-clone_folder: c:\GOPATH\src\github.com\spf13\hugo
 init:
-- cmd: >-
-    set PATH=%PATH%;C:\MinGW\bin;C:\GOPATH\bin
+  - copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
+  - set PATH=%PATH%;C:\MinGW\bin;%GOPATH%\bin
+  - go version
+  - go env
 
-    copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
-environment:
-  GOPATH: c:\GOPATH
+# clones and cd's to path
+clone_folder: C:\GOPATH\src\github.com\gohugoio\hugo
+
 install:
-- cmd: >-
-    gem install asciidoctor
+  - git submodule update --init --recursive
+  - gem install asciidoctor
+  - pip install docutils
 
-    pip install docutils
 build_script:
-- cmd: make vendor
-test_script:
-- cmd: >-
-    make hugo-race check
-
-    hugo -s docs/
-
-    hugo --renderToMemory -s docs/
+  - make hugo-race check
+  - hugo -s docs/
+  - hugo --renderToMemory -s docs/

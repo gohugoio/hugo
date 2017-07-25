@@ -17,13 +17,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/spf13/hugo/helpers"
-
 	"html/template"
 
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/source"
+	"github.com/stretchr/testify/require"
 )
 
 const slugDoc1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content\n"
@@ -35,14 +33,6 @@ slug: slug-doc-2
 slug doc 2 content
 `
 
-const indexTemplate = "{{ range .Data.Pages }}.{{ end }}"
-
-func must(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
 var urlFakeSource = []source.ByteSource{
 	{Name: filepath.FromSlash("content/blue/doc1.md"), Content: []byte(slugDoc1)},
 	{Name: filepath.FromSlash("content/blue/doc2.md"), Content: []byte(slugDoc2)},
@@ -50,8 +40,7 @@ var urlFakeSource = []source.ByteSource{
 
 // Issue #1105
 func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
-	testCommonResetState()
-
+	t.Parallel()
 	for i, this := range []struct {
 		in       string
 		expected string
@@ -61,45 +50,41 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 		{"http://base.com/sub", "http://base.com/sub"},
 		{"http://base.com", "http://base.com"}} {
 
-		viper.Set("baseURL", this.in)
-		s := NewSiteDefaultLang()
+		cfg, fs := newTestCfg()
+		cfg.Set("baseURL", this.in)
+		d := deps.DepsCfg{Cfg: cfg, Fs: fs}
+		s, err := NewSiteForCfg(d)
+		require.NoError(t, err)
 		s.initializeSiteInfo()
 
-		if s.Info.BaseURL != template.URL(this.expected) {
-			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL, this.expected)
+		if s.Info.BaseURL() != template.URL(this.expected) {
+			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL(), this.expected)
 		}
 	}
-
 }
 
 func TestPageCount(t *testing.T) {
-	testCommonResetState()
-	hugofs.InitMemFs()
+	t.Parallel()
+	cfg, fs := newTestCfg()
+	cfg.Set("uglyURLs", false)
+	cfg.Set("paginate", 10)
 
-	viper.Set("uglyURLs", false)
-	viper.Set("paginate", 10)
-	s := &Site{
-		deps:     newDeps(DepsCfg{}),
-		Source:   &source.InMemorySource{ByteSource: urlFakeSource},
-		Language: helpers.NewDefaultLanguage(),
-	}
+	writeSourcesToSource(t, "", fs, urlFakeSource...)
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	if err := buildAndRenderSite(s, "indexes/blue.html", indexTemplate); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
-	_, err := hugofs.Destination().Open("public/blue")
+	_, err := s.Fs.Destination.Open("public/blue")
 	if err != nil {
 		t.Errorf("No indexed rendered.")
 	}
 
-	for _, s := range []string{
+	for _, pth := range []string{
 		"public/sd1/foo/index.html",
 		"public/sd2/index.html",
 		"public/sd3/index.html",
 		"public/sd4.html",
 	} {
-		if _, err := hugofs.Destination().Open(filepath.FromSlash(s)); err != nil {
-			t.Errorf("No alias rendered: %s", s)
+		if _, err := s.Fs.Destination.Open(filepath.FromSlash(pth)); err != nil {
+			t.Errorf("No alias rendered: %s", pth)
 		}
 	}
 }

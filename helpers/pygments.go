@@ -24,9 +24,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/spf13/hugo/hugofs"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 const pygmentsBin = "pygmentize"
@@ -41,13 +41,13 @@ func HasPygments() bool {
 }
 
 // Highlight takes some code and returns highlighted code.
-func Highlight(code, lang, optsStr string) string {
+func Highlight(cfg config.Provider, code, lang, optsStr string) string {
 	if !HasPygments() {
 		jww.WARN.Println("Highlighting requires Pygments to be installed and in the path")
 		return code
 	}
 
-	options, err := parsePygmentsOpts(optsStr)
+	options, err := parsePygmentsOpts(cfg, optsStr)
 
 	if err != nil {
 		jww.ERROR.Print(err.Error())
@@ -60,10 +60,10 @@ func Highlight(code, lang, optsStr string) string {
 	io.WriteString(hash, lang)
 	io.WriteString(hash, options)
 
-	fs := hugofs.Os()
+	fs := hugofs.Os
 
-	ignoreCache := viper.GetBool("ignoreCache")
-	cacheDir := viper.GetString("cacheDir")
+	ignoreCache := cfg.GetBool("ignoreCache")
+	cacheDir := cfg.GetString("cacheDir")
 	var cachefile string
 
 	if !ignoreCache && cacheDir != "" {
@@ -195,19 +195,19 @@ func createOptionsString(options map[string]string) string {
 	return optionsStr
 }
 
-func parseDefaultPygmentsOpts() (map[string]string, error) {
+func parseDefaultPygmentsOpts(cfg config.Provider) (map[string]string, error) {
 	options := make(map[string]string)
-	err := parseOptions(options, viper.GetString("pygmentsOptions"))
+	err := parseOptions(options, cfg.GetString("pygmentsOptions"))
 	if err != nil {
 		return nil, err
 	}
 
-	if viper.IsSet("pygmentsStyle") {
-		options["style"] = viper.GetString("pygmentsStyle")
+	if cfg.IsSet("pygmentsStyle") {
+		options["style"] = cfg.GetString("pygmentsStyle")
 	}
 
-	if viper.IsSet("pygmentsUseClasses") {
-		if viper.GetBool("pygmentsUseClasses") {
+	if cfg.IsSet("pygmentsUseClasses") {
+		if cfg.GetBool("pygmentsUseClasses") {
 			options["noclasses"] = "false"
 		} else {
 			options["noclasses"] = "true"
@@ -222,8 +222,8 @@ func parseDefaultPygmentsOpts() (map[string]string, error) {
 	return options, nil
 }
 
-func parsePygmentsOpts(in string) (string, error) {
-	options, err := parseDefaultPygmentsOpts()
+func parsePygmentsOpts(cfg config.Provider, in string) (string, error) {
+	options, err := parseDefaultPygmentsOpts(cfg)
 	if err != nil {
 		return "", err
 	}

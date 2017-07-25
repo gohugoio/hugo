@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# allow user to override go executable by running as GOEXE=xxx make ...
+GOEXE="${GOEXE-go}"
 
 # Convenience script to
 # - For a given branch
@@ -26,10 +28,10 @@ BRANCH=$1
 PACKAGE=$2
 
 git checkout $BRANCH
-go test -test.run=NONE -bench="$benchFilter" -test.benchmem=true ./$PACKAGE > /tmp/bench-$PACKAGE-$BRANCH.txt
+"${GOEXE}" test -test.run=NONE -bench="$benchFilter" -test.benchmem=true ./$PACKAGE > /tmp/bench-$PACKAGE-$BRANCH.txt
 
 git checkout master
-go test -test.run=NONE -bench="$benchFilter" -test.benchmem=true ./$PACKAGE > /tmp/bench-$PACKAGE-master.txt
+"${GOEXE}" test -test.run=NONE -bench="$benchFilter" -test.benchmem=true ./$PACKAGE > /tmp/bench-$PACKAGE-master.txt
 
 
 benchcmp /tmp/bench-$PACKAGE-master.txt /tmp/bench-$PACKAGE-$BRANCH.txt

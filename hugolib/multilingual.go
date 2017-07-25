@@ -21,8 +21,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
 )
 
 type Multilingual struct {
@@ -44,7 +45,7 @@ func (ml *Multilingual) Language(lang string) *helpers.Language {
 	return ml.langMap[lang]
 }
 
-func newMultiLingualFromSites(sites ...*Site) (*Multilingual, error) {
+func newMultiLingualFromSites(cfg config.Provider, sites ...*Site) (*Multilingual, error) {
 	languages := make(helpers.Languages, len(sites))
 
 	for i, s := range sites {
@@ -54,12 +55,14 @@ func newMultiLingualFromSites(sites ...*Site) (*Multilingual, error) {
 		languages[i] = s.Language
 	}
 
-	return &Multilingual{Languages: languages, DefaultLang: helpers.NewDefaultLanguage()}, nil
+	defaultLang := cfg.GetString("defaultContentLanguage")
 
-}
+	if defaultLang == "" {
+		defaultLang = "en"
+	}
 
-func newMultiLingualDefaultLanguage() *Multilingual {
-	return newMultiLingualForLanguage(helpers.NewDefaultLanguage())
+	return &Multilingual{Languages: languages, DefaultLang: helpers.NewLanguage(defaultLang, cfg)}, nil
+
 }
 
 func newMultiLingualForLanguage(language *helpers.Language) *Multilingual {
@@ -77,7 +80,7 @@ func (s *Site) multilingualEnabled() bool {
 	return s.owner.multilingual != nil && s.owner.multilingual.enabled()
 }
 
-func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
+func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (helpers.Languages, error) {
 	langs := make(helpers.Languages, len(l))
 	i := 0
 
@@ -88,7 +91,7 @@ func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
 			return nil, fmt.Errorf("Language config is not a map: %T", langConf)
 		}
 
-		language := helpers.NewLanguage(lang)
+		language := helpers.NewLanguage(lang, cfg)
 
 		for loki, v := range langsMap {
 			switch loki {

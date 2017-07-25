@@ -18,74 +18,64 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
-	"strings"
-	"time"
 
-	"github.com/spf13/afero"
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugolib"
-	"github.com/spf13/hugo/parser"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugolib"
 	jww "github.com/spf13/jwalterweatherman"
-	"github.com/spf13/viper"
 )
 
 // NewContent creates a new content file in the content directory based upon the
 // given kind, which is used to lookup an archetype.
-func NewContent(fs afero.Fs, kind, name string) (err error) {
-	jww.INFO.Println("attempting to create ", name, "of", kind)
+func NewContent(
+	ps *helpers.PathSpec,
+	siteFactory func(filename string, siteUsed bool) (*hugolib.Site, error), kind, targetPath string) error {
+	ext := helpers.Ext(targetPath)
 
-	location := FindArchetype(fs, kind)
+	jww.INFO.Printf("attempting to create %q of %q of ext %q", targetPath, kind, ext)
 
-	var by []byte
+	archetypeFilename := findArchetype(ps, kind, ext)
 
-	if location != "" {
-		by, err = afero.ReadFile(fs, location)
+	// Building the sites can be expensive, so only do it if really needed.
+	siteUsed := false
+
+	if archetypeFilename != "" {
+		f, err := ps.Fs.Source.Open(archetypeFilename)
 		if err != nil {
-			jww.ERROR.Println(err)
+			return err
+		}
+		defer f.Close()
+
+		if helpers.ReaderContains(f, []byte(".Site")) {
+			siteUsed = true
 		}
 	}
-	if location == "" || err != nil {
-		by = []byte("+++\ndraft = true \n+++\n")
-	}
 
-	psr, err := parser.ReadFrom(bytes.NewReader(by))
+	s, err := siteFactory(targetPath, siteUsed)
 	if err != nil {
 		return err
 	}
 
-	metadata, err := createMetadata(psr, name)
-	if err != nil {
-		jww.ERROR.Printf("Error processing archetype file %s: %s\n", location, err)
-		return err
-	}
+	var content []byte
 
-	site := hugolib.NewSiteDefaultLang()
-
-	page, err := site.NewPage(name)
+	content, err = executeArcheTypeAsTemplate(s, kind, targetPath, archetypeFilename)
 	if err != nil {
 		return err
 	}
 
-	if err = page.SetSourceMetaData(metadata, parser.FormatToLeadRune(viper.GetString("metaDataFormat"))); err != nil {
-		return
+	contentPath := s.PathSpec.AbsPathify(filepath.Join(s.Cfg.GetString("contentDir"), targetPath))
+
+	if err := helpers.SafeWriteToDisk(contentPath, bytes.NewReader(content), s.Fs.Source); err != nil {
+		return err
 	}
 
-	page.SetSourceContent(psr.Content())
+	jww.FEEDBACK.Println(contentPath, "created")
 
-	if err = page.SafeSaveSourceAs(filepath.Join(viper.GetString("contentDir"), name)); err != nil {
-		return
-	}
-	jww.FEEDBACK.Println(helpers.AbsPathify(filepath.Join(viper.GetString("contentDir"), name)), "created")
-
-	editor := viper.GetString("newContentEditor")
-
+	editor := s.Cfg.GetString("newContentEditor")
 	if editor != "" {
-		jww.FEEDBACK.Printf("Editing %s with %q ...\n", name, editor)
+		jww.FEEDBACK.Printf("Editing %s with %q ...\n", targetPath, editor)
 
-		cmd := exec.Command(editor, helpers.AbsPathify(path.Join(viper.GetString("contentDir"), name)))
+		cmd := exec.Command(editor, contentPath)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -96,70 +86,16 @@ func NewContent(fs afero.Fs, kind, name string) (err error) {
 	return nil
 }
 
-// createMetadata generates Metadata for a new page based upon the metadata
-// found in an archetype.
-func createMetadata(archetype parser.Page, name string) (map[string]interface{}, error) {
-	archMetadata, err := archetype.Metadata()
-	if err != nil {
-		return nil, err
-	}
-
-	metadata, err := cast.ToStringMapE(archMetadata)
-	if err != nil {
-		return nil, err
-	}
-
-	var date time.Time
-
-	for k, v := range metadata {
-		if v == "" {
-			continue
-		}
-		lk := strings.ToLower(k)
-		switch lk {
-		case "date":
-			date, err = cast.ToTimeE(v)
-			if err != nil {
-				return nil, err
-			}
-		case "title":
-			// Use the archetype title as is
-			metadata[lk] = v
-		}
-	}
-
-	if metadata == nil {
-		metadata = make(map[string]interface{})
-	}
-
-	if date.IsZero() {
-		date = time.Now()
-	}
-
-	if _, ok := metadata["title"]; !ok {
-		metadata["title"] = helpers.MakeTitle(helpers.Filename(name))
-	}
-
-	// TOD(bep) what is this?
-	if x := parser.FormatSanitize(viper.GetString("metaDataFormat")); x == "json" || x == "yaml" || x == "toml" {
-		metadata["date"] = date.Format(time.RFC3339)
-	} else {
-		metadata["date"] = date
-	}
-
-	return metadata, nil
-}
-
 // FindArchetype takes a given kind/archetype of content and returns an output
 // path for that archetype.  If no archetype is found, an empty string is
 // returned.
-func FindArchetype(fs afero.Fs, kind string) (outpath string) {
-	search := []string{helpers.AbsPathify(viper.GetString("archetypeDir"))}
+func findArchetype(ps *helpers.PathSpec, kind, ext string) (outpath string) {
+	search := []string{ps.AbsPathify(ps.Cfg.GetString("archetypeDir"))}
 
-	if viper.GetString("theme") != "" {
-		themeDir := filepath.Join(helpers.AbsPathify(viper.GetString("themesDir")+"/"+viper.GetString("theme")), "/archetypes/")
-		if _, err := fs.Stat(themeDir); os.IsNotExist(err) {
-			jww.ERROR.Printf("Unable to find archetypes directory for theme %q at %q", viper.GetString("theme"), themeDir)
+	if ps.Cfg.GetString("theme") != "" {
+		themeDir := filepath.Join(ps.AbsPathify(ps.Cfg.GetString("themesDir")+"/"+ps.Cfg.GetString("theme")), "/archetypes/")
+		if _, err := ps.Fs.Source.Stat(themeDir); os.IsNotExist(err) {
+			jww.ERROR.Printf("Unable to find archetypes directory for theme %q at %q", ps.Cfg.GetString("theme"), themeDir)
 		} else {
 			search = append(search, themeDir)
 		}
@@ -168,18 +104,21 @@ func FindArchetype(fs afero.Fs, kind string) (outpath string) {
 	for _, x := range search {
 		// If the new content isn't in a subdirectory, kind == "".
 		// Therefore it should be excluded otherwise `is a directory`
-		// error will occur. github.com/spf13/hugo/issues/411
-		var pathsToCheck []string
+		// error will occur. github.com/gohugoio/hugo/issues/411
+		var pathsToCheck = []string{"default"}
 
-		if kind == "" {
-			pathsToCheck = []string{"default.md", "default"}
-		} else {
-			pathsToCheck = []string{kind + ".md", kind, "default.md", "default"}
+		if ext != "" {
+			if kind != "" {
+				pathsToCheck = append([]string{kind + ext, "default" + ext}, pathsToCheck...)
+			} else {
+				pathsToCheck = append([]string{"default" + ext}, pathsToCheck...)
+			}
 		}
+
 		for _, p := range pathsToCheck {
 			curpath := filepath.Join(x, p)
 			jww.DEBUG.Println("checking", curpath, "for archetypes")
-			if exists, _ := helpers.Exists(curpath, fs); exists {
+			if exists, _ := helpers.Exists(curpath, ps.Fs.Source); exists {
 				jww.INFO.Println("curpath: " + curpath)
 				return curpath
 			}
