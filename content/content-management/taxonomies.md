@@ -165,7 +165,7 @@ project_url = "https://github.com/gohugoio/hugo"
 title: "Hugo: A fast and flexible static site generator"
 #tags: ["Development", "Go", "fast", "Blogging"]
 categories: ["Development"]
-categories: ["Go Web Dev"]
+series: ["Go Web Dev"]
 slug: "hugo"
 project_url: "https://github.com/gohugoio/hugo"
 ---
