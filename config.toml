@@ -6,7 +6,7 @@ enableEmoji = true
 footnotereturnlinkcontents = "↩"
 languageCode = "en-us"
 metaDataFormat = "yaml"
-title = "Hugo: A Fast and Flexible Website Generator"
+title = "Hugo"
 theme = "gohugoioTheme"
 
 googleAnalytics = "UA-7131036-4"
