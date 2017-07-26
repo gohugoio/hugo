@@ -19,7 +19,8 @@ RUN \
   go get github.com/kardianos/govendor && \
   govendor get github.com/gohugoio/hugo && \
   cd $GOPATH/src/github.com/gohugoio/hugo && \
-  go install && \
+  rm -f $GOPATH/bin/hugo && \
+  go install -ldflags '-s -w' && \
   cd $GOPATH && \
   rm -rf pkg src .cache bin/govendor && \
   apk del .build-deps
