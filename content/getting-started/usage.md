@@ -18,7 +18,7 @@ aliases: [/overview/usage/,/extras/livereload/,/doc/usage/,/usage/]
 toc: true
 ---
 
-The following is a description of the most command commands you will use while developing your Hugo project. See the [Command Line Reference][commands] for a comprehensive view of Hugo's CLI.
+The following is a description of the most common commands you will use while developing your Hugo project. See the [Command Line Reference][commands] for a comprehensive view of Hugo's CLI.
 
 ## Test Installation
 
