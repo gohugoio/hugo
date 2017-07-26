@@ -1,7 +1,7 @@
 ---
 title: eq
 linktitle: eq
-description: Returns true if the parameters are equal.
+description: Returns the boolean truth of arg1 == arg2.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
