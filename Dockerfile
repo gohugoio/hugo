@@ -8,9 +8,9 @@ RUN \
   apk add --no-cache \
     dumb-init && \
   apk add --no-cache --virtual .build-deps \
-	gcc \
-	musl-dev \
-	go \
+    gcc \
+    musl-dev \
+    go \
     git && \
   mkdir -p \
     ${GOPATH}/bin \
@@ -31,4 +31,3 @@ EXPOSE  1313
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "hugo"]
 CMD [ "--help" ]
-
