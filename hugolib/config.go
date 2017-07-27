@@ -72,6 +72,7 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 	return v, nil
 }
 
+
 func loadDefaultSettingsFor(v *viper.Viper) {
 
 	c := helpers.NewContentSpec(v)
@@ -132,4 +133,5 @@ func loadDefaultSettingsFor(v *viper.Viper) {
 	v.SetDefault("enableGitInfo", false)
 	v.SetDefault("ignoreFiles", make([]string, 0))
 	v.SetDefault("disableAliases", false)
+	v.SetDefault("summaryLength", 70)
 }
