@@ -536,6 +536,12 @@ func TestCheckCondition(t *testing.T) {
 		{reflect.ValueOf(true), reflect.ValueOf(false), ">", expect{false, false}},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{}), "in", expect{false, false}},
 		{reflect.ValueOf(123), reflect.ValueOf(123), "op", expect{false, true}},
+
+		// Issue #3718
+		{reflect.ValueOf([]interface{}{"a"}), reflect.ValueOf([]string{"a", "b"}), "intersect", expect{true, false}},
+		{reflect.ValueOf([]string{"a"}), reflect.ValueOf([]interface{}{"a", "b"}), "intersect", expect{true, false}},
+		{reflect.ValueOf([]interface{}{1, 2}), reflect.ValueOf([]int{1}), "intersect", expect{true, false}},
+		{reflect.ValueOf([]int{1}), reflect.ValueOf([]interface{}{1, 2}), "intersect", expect{true, false}},
 	} {
 		result, err := ns.checkCondition(test.value, test.match, test.op)
 		if test.expect.isError {
