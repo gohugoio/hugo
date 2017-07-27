@@ -53,6 +53,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 	if !v.IsValid() {
 		vIsNil = true
 	}
+
 	mv, mvIsNil := indirect(mv)
 	if !mv.IsValid() {
 		mvIsNil = true
@@ -115,7 +116,7 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			return false, nil
 		}
 
-		if v.Kind() != reflect.Interface && mv.Type().Elem().Kind() != reflect.Interface && mv.Type().Elem() != v.Type() {
+		if v.Kind() != reflect.Interface && mv.Type().Elem().Kind() != reflect.Interface && mv.Type().Elem() != v.Type() && v.Kind() != reflect.Array && v.Kind() != reflect.Slice {
 			return false, nil
 		}
 		switch v.Kind() {
@@ -144,6 +145,9 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 					ima = append(ima, toTimeUnix(mv.Index(i)))
 				}
 			}
+		case reflect.Array, reflect.Slice:
+			slv = v.Interface()
+			slmv = mv.Interface()
 		}
 	}
 
