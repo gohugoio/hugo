@@ -71,7 +71,7 @@ isPlainText = true
 protocol = "bep://"
 ```
 
-The above example is fictional, but if used for the homepage on a site with `baseURL` `http://example.org`, it will produce a plain text homepage with the URL `bep://example.org/myindex.enr`.
+The above example is fictional, but if used for the homepage on a site with `baseURL` `https://example.org`, it will produce a plain text homepage with the URL `bep://example.org/myindex.enr`.
 
 ### Configure Output Formats
 

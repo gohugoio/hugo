@@ -18,10 +18,10 @@ deprecated: false
 aliases: []
 ---
 
-Both `absURL` and `relURL` consider the configured value of `baseURL` in your site's [`config` file][configuration]. Given a `baseURL` set to `http://example.com/hugo/`:
+Both `absURL` and `relURL` consider the configured value of `baseURL` in your site's [`config` file][configuration]. Given a `baseURL` set to `https://example.com/hugo/`:
 
 ```
-{{ "mystyle.css" | absURL }} → "http://example.com/hugo/mystyle.css"
+{{ "mystyle.css" | absURL }} → "https://example.com/hugo/mystyle.css"
 {{ "mystyle.css" | relURL }} → "/hugo/mystyle.css"
 {{ "http://gohugo.io/" | relURL }} →  "http://gohugo.io/"
 {{ "http://gohugo.io/" | absURL }} →  "http://gohugo.io/"

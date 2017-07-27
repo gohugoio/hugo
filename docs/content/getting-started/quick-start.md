@@ -329,7 +329,7 @@ hugo server --theme=hugo_theme_robust --buildDrafts
 Our website is currently using the dummy values specified in `bookshelf/config.toml`, which were auto-generated with `hugo new site bookshelf`. Let's update the configuration:
 
 {{< code file="updated-config.toml" >}}
-baseURL = "http://example.org/"
+baseURL = "https://example.org/"
 languageCode = "en-us"
 title = "Shekhar Gulati Book Reviews"
 

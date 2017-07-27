@@ -344,7 +344,7 @@ name = "` + strings.Title(helpers.MakeTitle(filepath.Base(inpath))) + `"
 license = "MIT"
 licenselink = "https://github.com/yourname/yourtheme/blob/master/LICENSE.md"
 description = ""
-homepage = "http://example.com/"
+homepage = "https://example.com/"
 tags = []
 features = []
 min_version = "0.25.1"
@@ -383,7 +383,7 @@ func newContentPathSection(path string) (string, string) {
 
 func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {
 	in := map[string]string{
-		"baseURL":      "http://example.org/",
+		"baseURL":      "https://example.org/",
 		"title":        "My New Hugo Site",
 		"languageCode": "en-us",
 	}
