@@ -143,6 +143,7 @@ var (
 	renderToMemory bool // for benchmark testing
 	verbose        bool
 	verboseLog     bool
+	debug          bool
 	quiet          bool
 )
 
@@ -263,6 +264,7 @@ func initBenchmarkBuildingFlags(cmd *cobra.Command) {
 // init initializes flags.
 func init() {
 	HugoCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	HugoCmd.PersistentFlags().BoolVarP(&debug, "debug", "", false, "debug output")
 	HugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "enable Logging")
 	HugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "log File path (if set, logging enabled automatically)")
 	HugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
@@ -432,8 +434,15 @@ func createLogger(cfg config.Provider) (*jww.Notepad, error) {
 		stdoutThreshold = jww.LevelInfo
 	}
 
+	if cfg.GetBool("debug") {
+		stdoutThreshold = jww.LevelDebug
+	}
+
 	if verboseLog {
 		logThreshold = jww.LevelInfo
+		if cfg.GetBool("debug") {
+			logThreshold = jww.LevelDebug
+		}
 	}
 
 	// The global logger is used in some few cases.
@@ -446,7 +455,7 @@ func createLogger(cfg config.Provider) (*jww.Notepad, error) {
 }
 
 func (c *commandeer) initializeFlags(cmd *cobra.Command) {
-	persFlagKeys := []string{"verbose", "logFile"}
+	persFlagKeys := []string{"debug", "verbose", "logFile"}
 	flagKeys := []string{
 		"cleanDestinationDir",
 		"buildDrafts",
