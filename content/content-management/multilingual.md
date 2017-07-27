@@ -95,7 +95,7 @@ Translated articles are identified by the name of the content file.
 1. `/content/about.en.md`
 2. `/content/about.fr.md`
 
-In this eample, the `about.md` will be assigned the configured `defaultContentLanguage`. 
+In this example, the `about.md` will be assigned the configured `defaultContentLanguage`. 
 
 1. `/content/about.md`
 2. `/content/about.fr.md`
