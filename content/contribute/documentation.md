@@ -88,20 +88,6 @@ Here is a review of the front matter fields automatically generated for you usin
 
 In the body of your function, expand the short description used in the front matter. Include as many examples as possible, and leverage the Hugo docs [`code` shortcode](#adding-code-blocks). If you are unable to add examples but would like to solicit help from the Hugo community, add `needsexample: true` to your front matter.
 
-### Add a New Tutorial
-
-Once you have cloned the Hugo repository, you can create a new tutorial via the following command. Name the markdown file accordingly:
-
-```
-hugo new tutorials/my-new-tutorial.md
-```
-
-The archetype for the `tutorials` content type is as follows:
-
-{{< code file="archetypes/tutorials.md" >}}
-{{< readfile file="/themes/gohugoioTheme/archetypes/tutorials.md">}}
-{{< /code >}}
-
 ## Add Code Blocks
 
 Code blocks are crucial for providing examples of Hugo's new features to end users of the Hugo docs. Whenever possible, create examples that you think Hugo users will be able to implement in their own projects.
