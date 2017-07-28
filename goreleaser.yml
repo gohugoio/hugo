@@ -15,6 +15,13 @@ build:
     - 386
     - arm
     - arm64
+    - mips
+    - mipsle
+    - mips64
+    - mips64le
+    - ppc64
+    - ppc64le
+    - s390x
   ignore:
     - goos: openbsd
       goarch: arm
@@ -28,6 +35,7 @@ fpm:
   maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
   description: "A Fast and Flexible Static Site Generator built with love in GoLang."
   license: "Apache 2.0"
+
 archive:
   format: tar.gz
   format_overrides:
