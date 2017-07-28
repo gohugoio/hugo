@@ -38,10 +38,6 @@ Adding new content to the Hugo docs follows the same pattern, regardless of the 
 hugo new <DOCS-SECTION>/<new-content-lowercase>.md
 ```
 
-{{% note "`title:`, `date:`, and Field Order" %}}
-`title` and `date` fields are added automatically when using archetypes via `hugo new`. Do not be worried if the order of the new file's front matter fields on your local machine is different than that of the examples provided in the Hugo docs. This is a known issue [(#452)](https://github.com/gohugoio/hugo/issues/452).
-{{% /note %}}
-
 ### Add a New Function
 
 Once you have cloned the Hugo repository, you can create a new function via the following command. Keep the file name lowercase.
