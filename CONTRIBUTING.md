@@ -97,7 +97,7 @@ You **must use govendor** to fetch and manage Hugo's dependencies.
 ### Fetch the Sources From GitHub
 
 ```
-go get github.com/kardianos/govendor
+go get -u github.com/kardianos/govendor
 govendor get github.com/gohugoio/hugo
 ```
 
