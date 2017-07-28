@@ -14,6 +14,7 @@
 package internal
 
 import (
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -29,5 +30,9 @@ func (t *Test) MyTestMethod() string {
 func TestMethodToName(t *testing.T) {
 	test := &Test{}
 
-	require.Equal(t, "MyTestMethod", methodToName(test.MyTestMethod))
+	if runtime.Compiler == "gccgo" {
+		require.Equal(t, "$thunk0", methodToName(test.MyTestMethod))
+	} else {
+		require.Equal(t, "MyTestMethod", methodToName(test.MyTestMethod))
+	}
 }
