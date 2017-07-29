@@ -100,11 +100,16 @@ func (r *HugoHTMLRenderer) List(out *bytes.Buffer, text func() bool, flags int) 
 	r.Renderer.List(out, text, flags)
 	if out.Len() > marker {
 		list := out.Bytes()[marker:]
+		if list[0] == 10 {
+			out.Write(list[:1])
+			list = list[1:]
+			marker++
+		}
 		if bytes.Contains(list, []byte("task-list-item")) {
 			// Rewrite the buffer from the marker
 			out.Truncate(marker)
 			// May be either dl, ul or ol
-			list := append(list[:4], append([]byte(` class="task-list"`), list[4:]...)...)
+			list := append(list[:3], append([]byte(` class="task-list"`), list[3:]...)...)
 			out.Write(list)
 		}
 	}
