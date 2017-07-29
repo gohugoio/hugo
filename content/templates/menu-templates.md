@@ -72,7 +72,7 @@ Use the [`absLangUrl`](/functions/abslangurl) or [`relLangUrl`](/functions/rella
 To enable this menu, configure `sectionPagesMenu` in your site `config`:
 
 ```
-SectionPagesMenu = "main"
+sectionPagesMenu = "main"
 ```
 
 The menu name can be anything, but take a note of what it is.
