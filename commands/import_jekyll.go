@@ -260,7 +260,7 @@ func loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]interface{} {
 
 func createConfigFromJekyll(fs afero.Fs, inpath string, kind string, jekyllConfig map[string]interface{}) (err error) {
 	title := "My New Hugo Site"
-	baseURL := "http://example.org/"
+	baseURL := "https://example.org/"
 
 	for key, value := range jekyllConfig {
 		lowerKey := strings.ToLower(key)

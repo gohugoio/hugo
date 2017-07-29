@@ -34,20 +34,20 @@ While Hugo supports content nested at any level, the top levels (i.e. `content/<
 .
 └── content
     └── about
-    |   └── _index.md  // <- http://example.com/about/
+    |   └── _index.md  // <- https://example.com/about/
     ├── post
-    |   ├── firstpost.md   // <- http://example.com/post/firstpost/
+    |   ├── firstpost.md   // <- https://example.com/post/firstpost/
     |   ├── happy
-    |   |   └── ness.md  // <- http://example.com/post/happy/ness/
-    |   └── secondpost.md  // <- http://example.com/post/secondpost/
+    |   |   └── ness.md  // <- https://example.com/post/happy/ness/
+    |   └── secondpost.md  // <- https://example.com/post/secondpost/
     └── quote
-        ├── first.md       // <- http://example.com/quote/first/
-        └── second.md      // <- http://example.com/quote/second/
+        ├── first.md       // <- https://example.com/quote/first/
+        └── second.md      // <- https://example.com/quote/second/
 ```
 
 ## Path Breakdown in Hugo
 
-The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "http://example.com"` in your [site's configuration file][config].
+The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "https://example.com"` in your [site's configuration file][config].
 
 ### Index Pages: `_index.md`
 
@@ -76,7 +76,7 @@ At build, this will output to the following destination with the associated valu
 ⊢--------^---------⊣⊢-^-⊣
         permalink
 ⊢----------^-------------⊣
-http://example.com/posts/index.html
+https://example.com/posts/index.html
 ```
 
 ### Single Pages in Sections
@@ -102,7 +102,7 @@ At the time Hugo builds your site, the content will be output to the following d
 ⊢--------^--------⊣⊢-^--⊣⊢-------^---------⊣
                  permalink
 ⊢--------------------^---------------------⊣
-http://example.com/posts/my-first-hugo-post/index.html
+https://example.com/posts/my-first-hugo-post/index.html
 ```
 
 ### Section with Nested Directories
@@ -120,7 +120,7 @@ To continue the example, the following demonstrates destination paths for a file
 ⊢--------^--------⊣ ⊢------^-----⊣⊢----^------⊣
                   permalink
 ⊢----------------------^-----------------------⊣
-http://example.com/events/chicago/lollapalooza/
+https://example.com/events/chicago/lollapalooza/
 ```
 
 {{% note %}}
