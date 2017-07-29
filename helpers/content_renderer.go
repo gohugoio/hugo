@@ -101,10 +101,14 @@ func (r *HugoHTMLRenderer) List(out *bytes.Buffer, text func() bool, flags int) 
 	if out.Len() > marker {
 		list := out.Bytes()[marker:]
 		if bytes.Contains(list, []byte("task-list-item")) {
+			// Find the index of the first >, it might be 3 or 4 depending on whether
+			// there is a new line at the start, but this is safer than just hardcoding it.
+			closingBracketIndex := bytes.Index(list, []byte(">"))
 			// Rewrite the buffer from the marker
 			out.Truncate(marker)
+			// Safely assuming closingBracketIndex won't be -1 since there is a list
 			// May be either dl, ul or ol
-			list := append(list[:4], append([]byte(` class="task-list"`), list[4:]...)...)
+			list := append(list[:closingBracketIndex], append([]byte(` class="task-list"`), list[closingBracketIndex:]...)...)
 			out.Write(list)
 		}
 	}

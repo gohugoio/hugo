@@ -119,6 +119,14 @@ END
 <li>[x] On1</li>
 </ul>
 `},
+		{`* [ ] Off
+
+END`, true, `<ul class="task-list">
+<li><input type="checkbox" disabled class="task-list-item"> Off</li>
+</ul>
+
+<p>END</p>
+`},
 	} {
 		blackFridayConfig := c.NewBlackfriday()
 		blackFridayConfig.TaskLists = this.taskListEnabled
