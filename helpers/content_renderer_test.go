@@ -118,6 +118,19 @@ END
 		{`- [x] On1`, false, `<ul>
 <li>[x] On1</li>
 </ul>
+`}, {`
+- [x] On1
+- [X] On2
+- [ ] Off
+
+END
+`, true, `<ul class="task-list">
+<li><input type="checkbox" checked disabled class="task-list-item"> On1</li>
+<li><input type="checkbox" checked disabled class="task-list-item"> On2</li>
+<li><input type="checkbox" disabled class="task-list-item"> Off</li>
+</ul>
+
+<p>END</p>
 `},
 	} {
 		blackFridayConfig := c.NewBlackfriday()
