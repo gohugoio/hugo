@@ -8,6 +8,11 @@
     Blackfriday flag: **`HTML_USE_SMARTYPANTS`** <br>
     Purpose: `false` disables smart punctuation substitutions, including smart quotes, smart dashes, smart fractions, etc. If `true`, it may be fine-tuned with the `angledQuotes`, `fractions`, `smartDashes`, and `latexDashes` flags (see below).
 
+`smartypantsQuotesNBSP`
+: default: **`false`** <br>
+    Blackfriday flag: **`HTML_SMARTYPANTS_QUOTES_NBSP`** <br>
+    Purpose: `true` enables French style Guillemets with non-breaking space inside the quotes.
+
 `angledQuotes`
 : default: **`false`**<br>
     Blackfriday flag: **`HTML_SMARTYPANTS_ANGLED_QUOTES`**<br>

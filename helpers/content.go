@@ -63,6 +63,7 @@ func NewContentSpec(cfg config.Provider) *ContentSpec {
 // Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
 	Smartypants                      bool
+	SmartypantsQuotesNBSP            bool
 	AngledQuotes                     bool
 	Fractions                        bool
 	HrefTargetBlank                  bool
@@ -81,6 +82,7 @@ func (c ContentSpec) NewBlackfriday() *Blackfriday {
 	defaultParam := map[string]interface{}{
 		"smartypants":                      true,
 		"angledQuotes":                     false,
+		"smartypantsQuotesNBSP":            false,
 		"fractions":                        true,
 		"hrefTargetBlank":                  false,
 		"smartDashes":                      true,
@@ -227,6 +229,10 @@ func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) bl
 
 	if ctx.Config.Smartypants {
 		htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
+	}
+
+	if ctx.Config.SmartypantsQuotesNBSP {
+		htmlFlags |= blackfriday.HTML_SMARTYPANTS_QUOTES_NBSP
 	}
 
 	if ctx.Config.AngledQuotes {

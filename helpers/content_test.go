@@ -171,6 +171,7 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 		{blackfriday.HTML_USE_XHTML},
 		{blackfriday.HTML_FOOTNOTE_RETURN_LINKS},
 		{blackfriday.HTML_USE_SMARTYPANTS},
+		{blackfriday.HTML_SMARTYPANTS_QUOTES_NBSP},
 		{blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES},
 		{blackfriday.HTML_SMARTYPANTS_FRACTIONS},
 		{blackfriday.HTML_HREF_TARGET_BLANK},
@@ -186,6 +187,7 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 	ctx.Config.PlainIDAnchors = true
 	ctx.Config.SmartDashes = true
 	ctx.Config.Smartypants = true
+	ctx.Config.SmartypantsQuotesNBSP = true
 	ctx.Config.SourceRelativeLinksEval = true
 	renderer := c.getHTMLRenderer(defaultFlags, ctx)
 	actualFlags := renderer.GetFlags()
