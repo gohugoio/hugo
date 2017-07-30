@@ -19,11 +19,12 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/deps"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-var ns = New(&deps.Deps{})
+var ns = New(&deps.Deps{Cfg: viper.New()})
 
 type tstNoStringer struct{}
 

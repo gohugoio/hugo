@@ -156,6 +156,10 @@ themesDir:                  "themes"
 theme:                      ""
 title:                      ""
 # if true, use /filename.html instead of /filename/
+# Title Case style guide for the title func and other automatic title casing in Hugo.
+// Valid values are "AP" (default), "Chicago" and "Go" (which was what you had in Hugo <= 0.25.1).
+// See https://www.apstylebook.com/ and http://www.chicagomanualofstyle.org/home.html
+titleCaseStyle:             "AP"
 uglyURLs:                   false
 # verbose output
 verbose:                    false

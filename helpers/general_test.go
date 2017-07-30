@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGuessType(t *testing.T) {
@@ -171,6 +172,20 @@ func TestReaderContains(t *testing.T) {
 
 	assert.False(t, ReaderContains(nil, []byte("a")))
 	assert.False(t, ReaderContains(nil, nil))
+}
+
+func TestGetTitleFunc(t *testing.T) {
+	title := "somewhere over the rainbow"
+	assert := require.New(t)
+
+	assert.Equal("Somewhere Over The Rainbow", GetTitleFunc("go")(title))
+	assert.Equal("Somewhere over the Rainbow", GetTitleFunc("chicago")(title), "Chicago style")
+	assert.Equal("Somewhere over the Rainbow", GetTitleFunc("Chicago")(title), "Chicago style")
+	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("ap")(title), "AP style")
+	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("ap")(title), "AP style")
+	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("")(title), "AP style")
+	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("unknown")(title), "AP style")
+
 }
 
 func BenchmarkReaderContains(b *testing.B) {
