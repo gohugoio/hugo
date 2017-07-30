@@ -160,6 +160,18 @@
 			"revisionTime": "2014-10-17T20:07:13Z"
 		},
 		{
+			"checksumSHA1": "ywE9KA40kVq0qKcAIqLgpoA0su4=",
+			"path": "github.com/jdkato/prose/internal/util",
+			"revision": "c24611cae00c16858e611ef77226dd2f7502759f",
+			"revisionTime": "2017-07-29T20:17:14Z"
+		},
+		{
+			"checksumSHA1": "SpQ8EpkRvM9fAxEXQAy7Qy/L0Ig=",
+			"path": "github.com/jdkato/prose/transform",
+			"revision": "c24611cae00c16858e611ef77226dd2f7502759f",
+			"revisionTime": "2017-07-29T20:17:14Z"
+		},
+		{
 			"checksumSHA1": "gEjGS03N1eysvpQ+FCHTxPcbxXc=",
 			"path": "github.com/kardianos/osext",
 			"revision": "ae77be60afb1dcacde03767a8c37337fad28ac14",

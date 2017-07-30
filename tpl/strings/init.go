@@ -116,6 +116,7 @@ func init() {
 			[]string{"title"},
 			[][2]string{
 				{`{{title "Bat man"}}`, `Bat Man`},
+				{`{{title "somewhere over the rainbow"}}`, `Somewhere Over the Rainbow`},
 			},
 		)
 

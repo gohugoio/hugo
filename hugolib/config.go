@@ -101,6 +101,7 @@ func loadDefaultSettingsFor(v *viper.Viper) {
 	v.SetDefault("canonifyURLs", false)
 	v.SetDefault("relativeURLs", false)
 	v.SetDefault("removePathAccents", false)
+	v.SetDefault("titleCaseStyle", "AP")
 	v.SetDefault("taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	v.SetDefault("permalinks", make(PermalinkOverrides, 0))
 	v.SetDefault("sitemap", Sitemap{Priority: -1, Filename: "sitemap.xml"})

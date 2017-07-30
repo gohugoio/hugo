@@ -26,6 +26,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/jdkato/prose/transform"
+
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/spf13/cast"
 	jww "github.com/spf13/jwalterweatherman"
@@ -192,6 +194,29 @@ func ReaderContains(r io.Reader, subslice []byte) bool {
 		}
 	}
 	return false
+}
+
+// GetTitleFunc returns a func that can be used to transform a string to
+// title case.
+//
+// The supported styles are
+//
+// - "Go" (strings.Title)
+// - "AP" (see https://www.apstylebook.com/)
+// - "Chicago" (see http://www.chicagomanualofstyle.org/home.html)
+//
+// If an unknown or empty style is provided, AP style is what you get.
+func GetTitleFunc(style string) func(s string) string {
+	switch strings.ToLower(style) {
+	case "go":
+		return strings.Title
+	case "chicago":
+		tc := transform.NewTitleConverter(transform.ChicagoStyle)
+		return tc.Title
+	default:
+		tc := transform.NewTitleConverter(transform.APStyle)
+		return tc.Title
+	}
 }
 
 // HasStringsPrefix tests whether the string slice s begins with prefix slice s.

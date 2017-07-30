@@ -132,6 +132,9 @@ type Site struct {
 	// Logger etc.
 	*deps.Deps `json:"-"`
 
+	// The func used to title case titles.
+	titleFunc func(s string) string
+
 	siteStats *siteStats
 }
 
@@ -172,6 +175,7 @@ func (s *Site) reset() *Site {
 	return &Site{Deps: s.Deps,
 		layoutHandler:       output.NewLayoutHandler(s.PathSpec.ThemeSet()),
 		disabledKinds:       s.disabledKinds,
+		titleFunc:           s.titleFunc,
 		outputFormats:       s.outputFormats,
 		outputFormatsConfig: s.outputFormatsConfig,
 		mediaTypesConfig:    s.mediaTypesConfig,
@@ -227,11 +231,14 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 
+	titleFunc := helpers.GetTitleFunc(cfg.Language.GetString("titleCaseStyle"))
+
 	s := &Site{
 		PageCollections:     c,
 		layoutHandler:       output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""),
 		Language:            cfg.Language,
 		disabledKinds:       disabledKinds,
+		titleFunc:           titleFunc,
 		outputFormats:       outputFormats,
 		outputFormatsConfig: siteOutputFormatsConfig,
 		mediaTypesConfig:    siteMediaTypesConfig,
@@ -2121,7 +2128,7 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 		p.Title = helpers.FirstUpper(key)
 		key = s.PathSpec.MakePathSanitized(key)
 	} else {
-		p.Title = strings.Replace(strings.Title(key), "-", " ", -1)
+		p.Title = strings.Replace(s.titleFunc(key), "-", " ", -1)
 	}
 
 	return p
@@ -2141,6 +2148,6 @@ func (s *Site) newSectionPage(name string) *Page {
 
 func (s *Site) newTaxonomyTermsPage(plural string) *Page {
 	p := s.newNodePage(KindTaxonomyTerm, plural)
-	p.Title = strings.Title(plural)
+	p.Title = s.titleFunc(plural)
 	return p
 }

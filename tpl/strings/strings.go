@@ -27,14 +27,17 @@ import (
 
 // New returns a new instance of the strings-namespaced template functions.
 func New(d *deps.Deps) *Namespace {
-	return &Namespace{deps: d}
+	titleCaseStyle := d.Cfg.GetString("titleCaseStyle")
+	titleFunc := helpers.GetTitleFunc(titleCaseStyle)
+	return &Namespace{deps: d, titleFunc: titleFunc}
 }
 
 // Namespace provides template functions for the "strings" namespace.
 // Most functions mimic the Go stdlib, but the order of the parameters may be
 // different to ease their use in the Go template system.
 type Namespace struct {
-	deps *deps.Deps
+	titleFunc func(s string) string
+	deps      *deps.Deps
 }
 
 // CountRunes returns the number of runes in s, excluding whitepace.
@@ -303,7 +306,7 @@ func (ns *Namespace) Title(s interface{}) (string, error) {
 		return "", err
 	}
 
-	return _strings.Title(ss), nil
+	return ns.titleFunc(ss), nil
 }
 
 // ToLower returns a copy of the input s with all Unicode letters mapped to their
