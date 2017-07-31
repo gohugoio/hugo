@@ -245,7 +245,7 @@ disablePathToLower =          false
 enableEmoji =                 false
 # Show a placeholder instead of the default value or an empty string if a translation is missing
 enableMissingTranslationPlaceholders = false
-# Regex to use for dates in filenames. Only used with `useFilenameDateAsFallback`
+# Regex to use for dates in filenames.
 filenameDateFallbackPattern = "(?P<year>\\d{4})\\-(?P<month>\\d{2})\\-(?P<day>\\d{2})"
 # Time format for custom dates in filenames. Only used with `useFilenameDateAsFallback` and must match `filenameDateFallbackPattern`
 filenameDateFallbackFormat = "2006-01-02"

@@ -1147,16 +1147,21 @@ func (p *Page) update(f interface{}) error {
 	p.Params["draft"] = p.Draft
 
 	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
+
 		fi, err := p.s.Fs.Source.Stat(filepath.Join(p.s.PathSpec.AbsPathify(p.s.Cfg.GetString("contentDir")), p.File.Path()))
 		if err == nil {
+			p.s.Log.DEBUG.Printf("using file modification time as fallback for page %s", p.File.Path())
 			p.Date = fi.ModTime()
 			p.Params["date"] = p.Date
 		}
-	} else if p.Date.IsZero() && p.s.Cfg.GetString("filenameDateFallbackPattern") != "" {
+	}
+
+	if p.Date.IsZero() && p.s.Cfg.GetString("filenameDateFallbackPattern") != "" {
 		dateExp := regexp.MustCompile(p.s.Cfg.GetString("filenameDateFallbackPattern"))
 		dateString := dateExp.FindString(p.File.Path())
 		filenameDate, err := time.Parse(p.s.Cfg.GetString("filenameDateFallbackFormat"), dateString)
 		if err == nil {
+			p.s.Log.DEBUG.Printf("using filename date as fallback for page %s", p.File.Path())
 			p.Date = filenameDate
 			p.Params["date"] = p.Date
 		}
