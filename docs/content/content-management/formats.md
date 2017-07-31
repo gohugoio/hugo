@@ -100,7 +100,7 @@ In the event that you want to only use Mmark in specific files, you can also def
 ---
 title: My Post
 date: 2017-04-01
-markdown: mmark
+markup: mmark
 ---
 ```
 

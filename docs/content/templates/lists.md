@@ -100,14 +100,14 @@ You can now access this `_index.md`'s' content in your list template:
         <header>
             <h1>{{.Title}}</h1>
         </header>
-        <!-- "{{.Content}}" pulls from the markdown content of the corresponding _inde.xmd -->
+        <!-- "{{.Content}}" pulls from the markdown content of the corresponding _index.md -->
         {{.Content}}
     </article>
     <ul>
     <!-- Ranges through content/post/*.md -->
     {{ range .Data.Pages }}
         <li>
-            <a href="{{.Permalink}}">{{.Date.Format "2006-01-02"}} | {{.Title}}</a
+            <a href="{{.Permalink}}">{{.Date.Format "2006-01-02"}} | {{.Title}}</a>
         </li>
     {{ end }}
     </ul>

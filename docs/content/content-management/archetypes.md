@@ -29,6 +29,8 @@ See above
 
 **Archetypes** are content files in the [archetypes directory][] of your project that contain preconfigured [front matter][] for your website's [content types][]. Archetypes facilitate consistent metadata across your website content and allow content authors to quickly generate instances of a content type via the `hugo new` command.
 
+{{< youtube S3Tj3UcTFz8 >}}
+
 The `hugo new` generator for archetypes assumes your working directory is the content folder at the root of your project. Hugo is able to infer the appropriate archetype by assuming the content type from the content section passed to the CLI command:
 
 ```
@@ -47,15 +49,13 @@ To override the content type Hugo infers from `[content-section]`, add the `--ki
 
 Running this command in a new site that does not have default or custom archetypes will create the following file:
 
-{{% output file="content/posts/my-first-post.md" %}}
-```
+{{< output file="content/posts/my-first-post.md" >}}
 +++
 date = "2017-02-01T19:20:04-07:00"
 title = "my first post"
 draft = true
 +++
-```
-{{% /output %}}
+{{< /output >}}
 
 {{% note %}}
 In this example, if you do not already have a `content/posts` directory, Hugo will create both `content/posts/` and `content/posts/my-first-post.md` for you.
@@ -119,16 +119,14 @@ $ hugo new posts/my-new-post.md
 
 Hugo then creates a new markdown file with the following front matter:
 
-{{% output file="content/posts/my-new-post.md" %}}
-```
+{{< output file="content/posts/my-new-post.md" >}}
 +++
 categories = ["web development"]
 date = "2017-02-01T19:20:04-07:00"
 tags = ["golang", "hugo"]
 title = "my new post"
 +++
-```
-{{% /output %}}
+{{< /output >}}
 
 We see that the `title` and `date` key-values have been added in addition to the `tags` and `categories` key-values from `archetypes/default.md`.
 
@@ -160,8 +158,7 @@ $ hugo new posts/post-from-custom.md
 
 This time, Hugo recognizes our custom `archetypes/posts.md` archetype and uses it instead of `archetypes/default.md`. The generated file will now include the full list of front matter parameters, as well as the base archetype's `title` and `date`:
 
-{{% output file="content/posts/post-from-custom-archetype.md" %}}
-```
+{{< output file="content/posts/post-from-custom-archetype.md" >}}
 +++
 categories = ""
 date = 2017-02-13T17:24:43-08:00
@@ -169,8 +166,7 @@ description = ""
 tags = ""
 title = "post from custom archetype"
 +++
-```
-{{% /output %}}
+{{< /output >}}
 
 ### Hugo Docs Custom Archetype
 

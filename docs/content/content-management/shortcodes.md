@@ -95,16 +95,14 @@ The `figure` shortcode can use the following named parameters:
 
 #### Example `figure` Output
 
-{{% output file="figure-output-example.html" %}}
-```
+{{< output file="figure-output-example.html" >}}
 <figure>
   <img src="/media/spf13.jpg"  />
   <figcaption>
       <h4>Steve Francia</h4>
   </figcaption>
 </figure>
-```
-{{% /output %}}
+{{< /output >}}
 
 ### `gist`
 
@@ -130,11 +128,9 @@ If the gist contains several files and you want to quote just one of them, you c
 
 #### Example `gist` Output
 
-{{% output file="gist-output.html" %}}
-```
+{{< output file="gist-output.html" >}}
 {{< gist spf13 7896402 >}}
-```
-{{% /output %}}
+{{< /output >}}
 
 #### Example `gist` Display
 
@@ -165,8 +161,7 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 
 The `highlight` shortcode example above would produce the following HTML when the site is rendered:
 
-{{% output file="tutorials/learn-html/index.html" %}}
-```
+{{< output file="tutorials/learn-html/index.html" >}}
 <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
   <span style="color: #f92672">&lt;div&gt;</span>
    <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
@@ -175,8 +170,7 @@ The `highlight` shortcode example above would produce the following HTML when th
     {{ end }}
   <span style="color: #f92672">&lt;/div&gt;</span>
 <span style="color: #f92672">&lt;/section&gt;</span>
-```
-{{% /output %}}
+{{< /output >}}
 
 {{% note "More on Syntax Highlighting" %}}
 To see even more options for adding syntax-highlighted code blocks to your website, see [Syntax Highlighting in Developer Tools](/tools/syntax-highlighting/).
@@ -206,11 +200,9 @@ You also have the option to hide the caption:
 
 By adding the preceding `hidecaption` example, the following HTML will be added to your rendered website's markup:
 
-{{% output file="instagram-hide-caption-output.html" %}}
-```
+{{< output file="instagram-hide-caption-output.html" >}}
 {{< instagram BWNjjyYFxVx hidecaption >}}
-```
-{{% /output %}}
+{{< /output >}}
 
 #### Example `instagram` Display
 
@@ -265,11 +257,9 @@ Extract the value from the field `data-id` and pass it to the shortcode:
 
 #### `speakerdeck` Example Output
 
-{{% output file="speakerdeck-example-input.md" %}}
-```
+{{< output file="speakerdeck-example-input.md" >}}
 {{< speakerdeck 4e8126e72d853c0060001f97 >}}
-```
-{{% /output %}}
+{{< /output >}}
 
 #### `speakerdeck` Example Display
 
@@ -297,11 +287,9 @@ Pass the tweet's ID from the URL as a parameter to the `tweet` shortcode:
 
 Using the preceding `tweet` example, the following HTML will be added to your rendered website's markup:
 
-{{% output file="example-tweet-output.html" %}}
-```
+{{< output file="example-tweet-output.html" >}}
 {{< tweet 877500564405444608 >}}
-```
-{{% /output %}}
+{{< /output >}}
 
 #### Example `tweet` Display
 
@@ -329,11 +317,9 @@ Extract the ID from the video's URL and pass it to the `vimeo` shortcode:
 
 Using the preceding `vimeo` example, the following HTML will be added to your rendered website's markup:
 
-{{% output file="example-vimeo-output.html" %}}
-```
+{{< output file="example-vimeo-output.html" >}}
 {{< vimeo 146022717 >}}
-```
-{{% /output %}}
+{{< /output >}}
 
 {{% tip %}}
 If you want to further customize the visual styling of the YouTube or Vimeo output, add a `class` named parameter when calling the shortcode. The new `class` will be added to the `<div>` that wraps the `<iframe>` *and* will remove the inline styles. Note that you will need to call the `id` as a named parameter as well.
