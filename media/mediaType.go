@@ -33,10 +33,10 @@ const (
 // If suffix is not provided, the sub type will be used.
 // See // https://en.wikipedia.org/wiki/Media_type
 type Type struct {
-	MainType  string // i.e. text
-	SubType   string // i.e. html
-	Suffix    string // i.e html
-	Delimiter string // defaults to "."
+	MainType  string `json:"mainType"`  // i.e. text
+	SubType   string `json:"subType"`   // i.e. html
+	Suffix    string `json:"suffix"`    // i.e html
+	Delimiter string `json:"delimiter"` // defaults to "."
 }
 
 // FromTypeString creates a new Type given a type sring on the form MainType/SubType and
