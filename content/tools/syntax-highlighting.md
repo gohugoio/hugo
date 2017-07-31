@@ -63,8 +63,7 @@ Highlighting is carried out via the [built-in shortcode](/content-management/sho
 
 ### Example `highlight` Shortcode Output
 
-{{% output file="example-highlight-shortcode-output.html" %}}
-```
+{{< output file="example-highlight-shortcode-output.html" >}}
 <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
   <span style="color: #f92672">&lt;div&gt;</span>
     <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
@@ -73,8 +72,7 @@ Highlighting is carried out via the [built-in shortcode](/content-management/sho
     {{ end }}
   <span style="color: #f92672">&lt;/div&gt;</span>
 <span style="color: #f92672">&lt;/section&gt;</span>
-```
-{{% /output %}}
+{{< /output >}}
 
 ### Options
 

@@ -213,12 +213,10 @@ Two common situations where this type of front matter field could be introduced 
 
 This template would render as follows, assuming you've set [`uglyURLs`](/content-management/urls/) to `false` in your [site `config`](/getting-started/configuration/):
 
-{{% output file="yourbaseurl/review/book01/index.html" %}}
-```
+{{< output file="yourbaseurl/review/book01/index.html" >}}
 <h3><a href="http://www.my-book-link.here">Buy this book</a></h3>
 <p>It was recommended by my Mother.</p>
-```
-{{% /output %}}
+{{< /output >}}
 
 {{% note %}}
 See [Archetypes](/content-management/archetypes/) for consistency of `Params` across pieces of content.

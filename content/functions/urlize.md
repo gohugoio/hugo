@@ -51,8 +51,7 @@ The following might be used as a partial within a [single page template][singlet
 
 The preceding partial would then output to the rendered page as follows, assuming the page is being built with Hugo's default pretty URLs.
 
-{{% output file="/blog/greatest-city/index.html" %}}
-```
+{{< output file="/blog/greatest-city/index.html" >}}
 <header>
     <h1>The World's Greatest City</h1>
     <div><a href="/locations/chicago-il/">Chicago IL</a></div>
@@ -68,8 +67,7 @@ The preceding partial would then output to the rendered page as follows, assumin
         </li>
     </ul>
 </header>
-```
-{{% /output %}}
+{{< /output >}}
 
 
 [singletemplate]: /templates/single-page-templates/
