@@ -26,7 +26,7 @@ A [media type][] (also known as *MIME type* and *content type*) is a two-part id
 
 This is the full set of built-in media types in Hugo:
 
-{{< datatable "media" "types" "Type" "Suffix" >}}
+{{< datatable "media" "types" "type" "suffix" >}}
 
 **Note:**
 
@@ -55,7 +55,7 @@ Given a media type and some additional configuration, you get an `Output Format`
 
 This is the full set of Hugo's built-in output formats:
 
-{{< datatable "output" "formats" "Name" "MediaType" "Path" "BaseName" "Rel" "Protocol" "IsPlainText" "IsHTML" "NoUgly">}}
+{{< datatable "output" "formats" "name" "mediaType" "path" "baseName" "rel" "protocol" "isPlainText" "isHTML" "noUgly">}}
 
 * A page can be output in as many output formats as you want, and you can have an infinite amount of output formats defined **as long as they resolve to a unique path on the file system**. In the above table, the best example of this is `AMP` vs. `HTML`. `AMP` has the value `amp` for `Path` so it doesn't overwrite the `HTML` version; e.g. we can now have both `/index.html` and `/amp/index.html`.
 * The `MediaType` must match the `Type` of an already defined media type.
@@ -77,34 +77,34 @@ The above example is fictional, but if used for the homepage on a site with `bas
 
 The following is the full list of configuration options for output formats and their default values:
 
-`Name`
+`name`
 : the output format identifier. This is used to define what output format(s) you want for your pages.
 
-`MediaType`
+`mediaType`
 : this must match the `Type` of a defined media type.
 
-`Path`
+`path`
 : sub path to save the output files.
 
-`BaseName`
+`baseName`
 : the base filename for the list filenames (homepage, etc.). **Default:** `index`.
 
-`Rel`
+`rel`
 : can be used to create `rel` values in `link` tags. **Default:** `alternate`.
 
-`Protocol`
+`protocol`
 : will replace the "http://" or "https://" in your `baseURL` for this output format.
 
-`IsPlainText`
+`isPlainText`
 : use Go's plain text templates parser for the templates. **Default:** `false`.
 
-`IsHTML`
+`isHTML`
 : used in situations only relevant for `HTML`-type formats; e.g., page aliases.
 
-`NoUgly`
+`noUgly`
 : used to turn off ugly URLs If `uglyURLs` is set to `true` in your site. **Default:** `false`.
 
-`NotAlternative`
+`notAlternative`
 : enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term *alternative* and not *alternate* here, as it does not necessarily replace the other format. **Default:** `false`.
 
 ## Output Formats for Pages
