@@ -192,8 +192,8 @@ func DecodeTypes(maps ...map[string]interface{}) (Types, error) {
 func (t Type) MarshalJSON() ([]byte, error) {
 	type Alias Type
 	return json.Marshal(&struct {
-		Type   string
-		String string
+		Type   string `json:"type"`
+		String string `json:"string"`
 		Alias
 	}{
 		Type:   t.Type(),
