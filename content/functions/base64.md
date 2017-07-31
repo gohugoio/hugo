@@ -26,12 +26,10 @@ An example:
 <p>SGVsbG8gd29ybGQ = {{ "SGVsbG8gd29ybGQ=" | base64Decode }}</p>
 {{< /code >}}
 
-{{% output file="base-64-output.html" %}}
-```
+{{< output file="base-64-output.html" >}}
 <p>Hello world = SGVsbG8gd29ybGQ=</p>
 <p>SGVsbG8gd29ybGQ = Hello world</p>
-```
-{{% /output %}}
+{{< /output >}}
 
 You can also pass other data types as arguments to the template function which tries to convert them. The following will convert *42* from an integer to a string because both `base64Encode` and `base64Decode` always return a string.
 

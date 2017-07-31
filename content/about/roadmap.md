@@ -44,7 +44,7 @@ Feel free to [contribute to Hugo's development][devcontribute], [improve Hugo's 
 [migrate]: /tools/migrations/
 [milestones]: https://github.com/gohugoio/hugo/milestone/14
 [newissue]: https://github.com/gohugoio/hugo/issues/
-[related forum thread]: https://disourse.gohugo.io/t/web-based-editor/155
+[related forum thread]: https://discourse.gohugo.io/t/web-based-editor/155
 [themes]: /themes/
 [themescontrib]: /contribute/themes/
 [tutorials]: /tutorials

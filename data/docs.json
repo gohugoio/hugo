@@ -194,6 +194,16 @@
         ]
       },
       {
+        "Example": "RSS home, no theme.",
+        "OutputFormat": "RSS",
+        "Suffix": "xml",
+        "Template Lookup Order": [
+          "layouts/rss.xml",
+          "layouts/_default/rss.xml",
+          "layouts/_internal/_default/rss.xml"
+        ]
+      },
+      {
         "Example": "JSON home, no theme.",
         "OutputFormat": "JSON",
         "Suffix": "json",

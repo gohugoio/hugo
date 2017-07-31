@@ -43,14 +43,12 @@ The following is an example of a sidebar partial that may be used in conjunction
 
 This partial would produce the following HTML output:
 
-{{% output file="bad-url-sidebar-menu-output.html" %}}
-```
+{{< output file="bad-url-sidebar-menu-output.html" >}}
 <!-- This unordered list may be part of a sidebar menu -->
 <ul>
     <li><a href="#ZgotmplZ">IRC: #golang at freenode</a></li>
 </ul>
-```
-{{% /output %}}
+{{< /output >}}
 
 The odd output can be remedied by adding ` | safeURL` to our `.Title` page variable:
 
@@ -63,13 +61,11 @@ The odd output can be remedied by adding ` | safeURL` to our `.Title` page varia
 
 With the `.URL` page variable piped through `safeURL`, we get the desired output:
 
-{{% output file="correct-url-sidebar-menu-output.html" %}}
-```
+{{< output file="correct-url-sidebar-menu-output.html" >}}
 <ul class="sidebar-menu">
     <li><a href="irc://irc.freenode.net/#golang">IRC: #golang at freenode</a></li>
 </ul>
-```
-{{% /output %}}
+{{< /output >}}
 
 [configuration]: /getting-started/configuration/
 [menus]: /content-management/menus/

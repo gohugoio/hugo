@@ -69,10 +69,10 @@ Use the [`absLangUrl`](/functions/abslangurl) or [`relLangUrl`](/functions/rella
 
 ## Section Menu for Lazy Bloggers
 
-To enable this menu, add the following to your site `config`:
+To enable this menu, configure `sectionPagesMenu` in your site `config`:
 
 ```
-SectionPagesMenu = "main"
+sectionPagesMenu = "main"
 ```
 
 The menu name can be anything, but take a note of what it is.

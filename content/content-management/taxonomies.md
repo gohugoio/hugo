@@ -32,6 +32,8 @@ Term
 Value
 : a piece of content assigned to a term
 
+{{< youtube "-np9GX6cL38" >}}
+
 ## Example Taxonomy: Movie Website
 
 Let's assume you are making a website about movies. You may want to include the following taxonomies:
@@ -92,7 +94,7 @@ disableKinds = ["taxonomy","taxonomyTerm"]
 
 ### Default Destinations
 
-When taxonomies are used---and [taxonomy templates][] are provided---Hugo will automatically create both a page listing all the taxonomy's terms and individual pages with lists of content associated with each term. For example, a `categories` taxonomy declared in your your configuration and used in your content front matter will create the following pages:
+When taxonomies are used---and [taxonomy templates][] are provided---Hugo will automatically create both a page listing all the taxonomy's terms and individual pages with lists of content associated with each term. For example, a `categories` taxonomy declared in your configuration and used in your content front matter will create the following pages:
 
 * A single page at `example.com/categories/` that lists all the [terms within the taxonomy][]
 * [Individual taxonomy list pages][taxonomy templates] (e.g., `/categories/development/`) for each of the terms that shows a listing of all pages marked as part of that taxonomy within any content file's [front matter][]
@@ -163,7 +165,7 @@ project_url = "https://github.com/gohugoio/hugo"
 title: "Hugo: A fast and flexible static site generator"
 #tags: ["Development", "Go", "fast", "Blogging"]
 categories: ["Development"]
-categories: ["Go Web Dev"]
+series: ["Go Web Dev"]
 slug: "hugo"
 project_url: "https://github.com/gohugoio/hugo"
 ---

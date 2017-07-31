@@ -1,7 +1,7 @@
 ---
 title: slice
 # linktitle: slice
-description: Creates a alice (array) of all passed arguments.
+description: Creates a slice (array) of all passed arguments.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
