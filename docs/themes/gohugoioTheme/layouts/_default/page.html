@@ -1,0 +1,37 @@
+<header class="flex-none w-100">
+  {{ if .Params.categories }}
+    {{ range .Params.categories }}
+      <a href="{{ "/categories/" | relLangURL }}{{ . | urlize }}" class="f6 fw8 mb0 link mid-gray dim mr3">
+        {{ humanize  . | upper }}
+      </a>
+    {{ end }}
+  {{end}}
+  <h1 class="lh-title mb3 mv0 pt3 primary-color-dark">
+    {{- if eq .Section "functions" -}}
+      {{ .LinkTitle }}
+    {{- else -}}
+      {{ .Title }}
+    {{- end -}}
+  </h1>
+</header>
+
+<aside class="bt bw1 pt3 mt2 mid-gray b--mid-gray fn w-100">
+  {{ with .Params.description }}
+    <div class="f4 fw4 lh-copy">
+      {{ . | markdownify }}
+    </div>
+  {{ end }}
+
+  <!--
+  NOTE: Removed to test builds without it.
+  partial "components/author-github-data" (dict "context" . "size" "110") -->
+</aside>
+
+{{ with .Params.featured_image_path }}
+  <img src="{{ . }}" alt="Featured Image for {{ $.Title }}" class="mw-100">
+{{ end }}
+
+<div class="prose" id="prose">
+  {{- partial "docs/functions-signature.html" . -}}
+  {{ .Content }}
+</div>

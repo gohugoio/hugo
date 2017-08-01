@@ -1,0 +1,40 @@
+<footer class="fixed relative-l bg-primary-color-dark bottom-0 w-100 pa3 pa4-l" role="contentinfo">
+  <!-- TODO: Make sure we don't lose all the footer content on mobile -->
+  <!-- TODO: Add icons https://github.com/rdwatters/hugo-docs-concept/issues/3#issuecomment-287194777
+-->
+    <div class="dn db-l flex-ns flex-wrap w-80 center mw9 justify-between">
+      <div class="w-third pv3 dn db-l">
+         <div class="mb3 gray tc nested-links">
+           By the <a href="https://github.com/gohugoio/hugo/contributors" class="link">Hugo Authors</a><br />
+         </div>
+          <div class="w4 center">
+            {{ partialCached "svg/hugo-logo-wide.svg" (dict "size" "100") }}
+          </div>
+          <p class="f6 gray tc w-70 center">The Hugo logos are copyright © Steve Francia 2013–{{ now.Year }}.</p>
+          <p class="f6 gray tc w-70 center">The Hugo Gopher is based on an original work by Renée French.</p>
+          {{ with  getenv "REPOSITORY_URL" -}}
+          <p class="f6 tc w-70 center"><a href="https://www.netlify.com"><img src="https://www.netlify.com/img/global/badges/netlify-dark.svg"/></a></p>
+          {{- end }}
+      </div>
+
+      <div class="w-third pv3 dn db-l">
+        <ul class="list ma0 pa0 w-50 center">
+          {{- with .Site.Params.github_repo -}}<li><a href="{{ . }}" class="link white dim pv2 db">File an Issue</a></li>{{- end -}}
+          {{- with .Site.Params.forum -}}<li><a href="{{ . }}" class="link white dim pv2 db">Get Help</a></li>{{- end -}}
+          {{- with .Site.Params.gitter -}}<li><a href="{{ . }}" class="link white dim pv2 db">Discuss the Source Code</a></li>{{- end -}}
+        </ul>
+      </div>
+
+      <div class="w-third pv3 dn db-l">
+        <ul class="list ma0 pa0">
+          <li><a href="https://twitter.com/gohugoio" class="link white dim pv2 db">@GoHugoIO</a></li>
+          <li><a href="https://twitter.com/spf13" class="link white dim pv2 db">@spf13</a></li>
+          <li><a href="https://twitter.com/bepsays" class="link white dim pv2 db">@bepsays</a></li>
+        </ul>
+      </div>
+    </div>
+
+
+    {{ partial "nav-mobile.html" . }}
+
+</footer>

@@ -37,7 +37,11 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 
 `.Date`
 : the date associated with the page; `.Date` pulls from the `date` field in a content's front matter.
-If you're migrating content to Hugo, you may have content with dates in the filename. For example `2017-01-31-myblog.md`.  You can optionally enable the `useFilenameDateAsFallback` configuration option. This will attempt to parse the datestamp in the filename and use it as a fallback to providing a date variable in the front matter.
+If no `date` field present Hugo will try and extract the date from the filename. For example `2017-01-31-myblog.md`. It will also set `.Slug` to contain the path without the
+date prefix.'
+
+You can disable the automatic date detection and slug modification by setting `useFilenameDateAsFallback` configuration option to false. 
+
 See also `.ExpiryDate`, `.PublishDate`, and `.Lastmod`.
 
 `.Description`

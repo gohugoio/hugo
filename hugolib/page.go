@@ -48,6 +48,9 @@ import (
 var (
 	cjk = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 
+	// date expression used to find iso date in filename
+	dateExp = regexp.MustCompile("(?P<year>\\d{4})\\-(?P<month>\\d{2})\\-(?P<day>\\d{2})-(?P<slug>.*)\\..*")
+
 	// This is all the kinds we can expect to find in .Site.Pages.
 	allKindsInPages = []string{KindPage, KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm}
 
@@ -963,7 +966,9 @@ func (p *Page) initURLs() error {
 
 var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
 
-func (p *Page) update(f interface{}) error {
+// should just read metadata - should not handle any default fallback that
+// is done in updateMetadata
+func (p *Page) readMetadata(f interface{}) error {
 	if f == nil {
 		return errors.New("no metadata found")
 	}
@@ -1190,6 +1195,54 @@ func (p *Page) update(f interface{}) error {
 	}
 	p.Params["iscjklanguage"] = p.isCJKLanguage
 
+	return nil
+
+}
+
+func (p *Page) updateMetadata() error {
+
+	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
+
+		fi, err := p.s.Fs.Source.Stat(filepath.Join(p.s.PathSpec.AbsPathify(p.s.Cfg.GetString("contentDir")), p.File.Path()))
+		if err == nil {
+			p.s.Log.DEBUG.Printf("using file modification time as fallback for page %s", p.File.Path())
+			p.Date = fi.ModTime()
+			p.Params["date"] = p.Date
+		}
+	}
+
+	if p.Date.IsZero() && p.s.Cfg.GetBool("useFilenameDateAsFallback") {
+		match := dateExp.FindStringSubmatch(p.File.Path())
+
+		if match != nil {
+			year := match[1]
+			month := match[2]
+			day := match[3]
+			slug := match[4]
+
+			filenameDate, err := time.Parse("2006-01-02", year+"-"+month+"-"+day)
+
+			if err == nil {
+				p.Date = filenameDate
+				p.Params["date"] = p.Date
+				if p.Slug == "" {
+					p.Slug = slug
+					p.s.Log.DEBUG.Printf("Using filename date (%s) and slug (%s) as fallback for page %s", p.Date, p.Slug, p.File.Path())
+
+				} else {
+					p.s.Log.DEBUG.Printf("Using filename date (%s) as fallback for page %s", p.Date, p.File.Path())
+
+				}
+			} else {
+				p.s.Log.WARN.Printf("File has what looks like a date, but the date is invalid for page %s.", p.File.Path())
+			}
+		}
+	}
+
+	if p.Lastmod.IsZero() {
+		p.Lastmod = p.Date
+	}
+	p.Params["lastmod"] = p.Lastmod
 	return nil
 
 }
@@ -1432,10 +1485,11 @@ func (p *Page) parse(reader io.Reader) error {
 	}
 
 	if meta != nil {
-		if err = p.update(meta); err != nil {
+		if err = p.readMetadata(meta); err != nil {
 			return err
 		}
 	}
+	p.updateMetadata()
 
 	return nil
 }

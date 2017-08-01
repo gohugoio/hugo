@@ -516,6 +516,7 @@ func checkPageDate(t *testing.T, page *Page, time time.Time) {
 	if page.Date != time {
 		t.Fatalf("Page date is: %s.  Expected: %s", page.Date, time)
 	}
+
 }
 
 func checkTruncation(t *testing.T, page *Page, shouldBe bool, msg string) {
@@ -855,9 +856,29 @@ func TestPageWithDate(t *testing.T) {
 	d, _ := time.Parse(time.RFC3339, "2013-05-17T16:59:30Z")
 
 	checkPageDate(t, p, d)
+
 }
 
-func TestPageWithDateInFilename(t *testing.T) {
+func TestDateAsFallbackWithDateInFilenameDisabled(t *testing.T) {
+	t.Parallel()
+	cfg, fs := newTestCfg()
+
+	cfg.Set("useFilenameDateAsFallback", false)
+
+	writeSource(t, fs, filepath.Join("content", "2017-01-31-simple.md"), simplePageNoDate)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 1)
+
+	p := s.RegularPages[0]
+
+	assert.True(t, p.Date.IsZero(), "page date should be empty as no date in file nor filename.")
+
+	assert.Equal(t, "", p.Slug, "slug for page should not be set as filename as date is disabled.")
+}
+
+func TestDateAsFallbackWithDateInFilename(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
 
@@ -868,9 +889,47 @@ func TestPageWithDateInFilename(t *testing.T) {
 	require.Len(t, s.RegularPages, 1)
 
 	p := s.RegularPages[0]
-	d, _ := time.Parse(time.RFC3339, "2017-01-31")
+	d, err := time.Parse("2006-01-02", "2017-01-31")
+
+	assert.Equal(t, err, nil)
 
 	checkPageDate(t, p, d)
+
+	assert.Equal(t, "simple", p.Slug, "slug for page should be set as there is both date and title in filename")
+}
+
+func TestDateAsFallbackWithOutDateInFilename(t *testing.T) {
+	t.Parallel()
+	cfg, fs := newTestCfg()
+
+	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageNoDate)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 1)
+
+	p := s.RegularPages[0]
+
+	assert.True(t, p.Date.IsZero(), "page date should be empty as no date in filename")
+	assert.Equal(t, "", p.Slug, "page slug should not be set as no date in filename")
+
+}
+
+func TestDateAsFallbackWithInvalidDateInFilename(t *testing.T) {
+	t.Parallel()
+	cfg, fs := newTestCfg()
+
+	writeSource(t, fs, filepath.Join("content", "2017-31-31-simple.md"), simplePageNoDate)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 1)
+
+	p := s.RegularPages[0]
+
+	assert.True(t, p.Date.IsZero(), "page date should be empty as no valid date in filename")
+	assert.Equal(t, "", p.Slug, "page slug should not be set as no valid date in filename")
+
 }
 
 func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
