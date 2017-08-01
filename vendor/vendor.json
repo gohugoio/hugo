@@ -46,12 +46,6 @@
 			"revisionTime": "2017-07-13T16:51:06Z"
 		},
 		{
-			"checksumSHA1": "Gg9/TEWjO52UKbEQ6fRB/bpcOW8=",
-			"path": "github.com/dchest/cssmin",
-			"revision": "fb8d9b44afdc258bfff6052d3667521babcb2239",
-			"revisionTime": "2015-12-10T17:00:30Z"
-		},
-		{
 			"checksumSHA1": "248k9rTfZ4kAknuomoKsdBG9zCU=",
 			"path": "github.com/eknkc/amber",
 			"revision": "b8bd8b03e4f747e33f092617225e9fa8076c0448",
@@ -321,6 +315,42 @@
 			"path": "github.com/stretchr/testify/require",
 			"revision": "05e8a0eda380579888eb53c394909df027f06991",
 			"revisionTime": "2017-07-13T16:51:06Z"
+		},
+		{
+			"checksumSHA1": "SOB3whm8gc2xsL6j7exUFghj94s=",
+			"path": "github.com/tdewolff/buffer",
+			"revision": "df6253e2a2cda5aba1b5d0c59fc5bdf0a98ae192",
+			"revisionTime": "2017-01-15T11:41:28Z"
+		},
+		{
+			"checksumSHA1": "aOx9JqecdG4tSpzdRyohR56FUMo=",
+			"path": "github.com/tdewolff/minify",
+			"revision": "2d28d6e43c68537a32f9b835a89d5038ebcb6ec9",
+			"revisionTime": "2017-06-05T20:11:15Z"
+		},
+		{
+			"checksumSHA1": "8YbF2WE+p+vJquM8j8fvapWmRDg=",
+			"path": "github.com/tdewolff/minify/css",
+			"revision": "2d28d6e43c68537a32f9b835a89d5038ebcb6ec9",
+			"revisionTime": "2017-06-05T20:11:15Z"
+		},
+		{
+			"checksumSHA1": "EiTbuOQ08YQ0Foy0R8y4WlbVcvA=",
+			"path": "github.com/tdewolff/parse",
+			"revision": "e4ac711ab0bf625c08270ba17557c30b2c1c5c2d",
+			"revisionTime": "2017-07-12T11:51:05Z"
+		},
+		{
+			"checksumSHA1": "DXP+W4tt2j/iMPH50/Ebj/KLlsU=",
+			"path": "github.com/tdewolff/parse/css",
+			"revision": "e4ac711ab0bf625c08270ba17557c30b2c1c5c2d",
+			"revisionTime": "2017-07-12T11:51:05Z"
+		},
+		{
+			"checksumSHA1": "hR7GEsOkEtR/doq2kiCmOF8spEg=",
+			"path": "github.com/tdewolff/strconv",
+			"revision": "3e8091f4417ebaaa3910da63a45ea394ebbfb0e3",
+			"revisionTime": "2016-04-27T18:05:39Z"
 		},
 		{
 			"checksumSHA1": "U4bWGZ3c9p8FHrgU5l4l5i7A6bo=",
