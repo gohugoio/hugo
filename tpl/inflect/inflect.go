@@ -16,7 +16,7 @@ package inflect
 import (
 	"strconv"
 
-	_inflect "github.com/bep/inflect"
+	_inflect "github.com/markbates/inflect"
 	"github.com/spf13/cast"
 )
 

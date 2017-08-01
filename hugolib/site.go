@@ -32,7 +32,7 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 
-	"github.com/bep/inflect"
+	"github.com/markbates/inflect"
 
 	"sync/atomic"
 

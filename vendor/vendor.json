@@ -27,12 +27,6 @@
 			"revisionTime": "2017-06-13T14:57:45Z"
 		},
 		{
-			"checksumSHA1": "K8wTIgrK5sl+LmQs8CD/orvKsAM=",
-			"path": "github.com/bep/inflect",
-			"revision": "b896c45f5af983b1f416bdf3bb89c4f1f0926f69",
-			"revisionTime": "2016-04-08T19:03:23Z"
-		},
-		{
 			"checksumSHA1": "NKoZRlZix5wzCfN0rTg29GtKZRU=",
 			"path": "github.com/chaseadamsio/goorgeous",
 			"revision": "677defd0e024333503d8c946dd4ba3f32ad3e5d2",
@@ -188,6 +182,12 @@
 			"path": "github.com/magiconair/properties",
 			"revision": "be5ece7dd465ab0765a9682137865547526d1dfb",
 			"revisionTime": "2017-07-10T12:48:59Z"
+		},
+		{
+			"checksumSHA1": "qkfd5FEcNejotjbqr5GhIupw96w=",
+			"path": "github.com/markbates/inflect",
+			"revision": "6cacb66d100482ef7cc366289ccb156020e57e76",
+			"revisionTime": "2017-04-11T19:10:01Z"
 		},
 		{
 			"checksumSHA1": "Q0kIzeNiYBp4e336hnORWNTV80A=",
