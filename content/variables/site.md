@@ -109,7 +109,7 @@ The following is a list of site-level (aka "global") variables. Many of these va
 The following `config.toml` defines a site-wide param for `description`:
 
 ```
-baseURL = "http://yoursite.example.com/"
+baseURL = "https://yoursite.example.com/"
 
 [params]
   description = "Tesla's Awesome Hugo Site"

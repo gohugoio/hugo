@@ -118,7 +118,7 @@ Your new site already looks great, but you will want to tweak it a little before
 Open up `config.toml` in a text editor:
 
 ```
-baseURL = "http://example.org/"
+baseURL = "https://example.org/"
 languageCode = "en-us"
 title = "My New Hugo Site"
 theme = "ananke"
