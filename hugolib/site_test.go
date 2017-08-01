@@ -19,7 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/bep/inflect"
+	"github.com/markbates/inflect"
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/helpers"
