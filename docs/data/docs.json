@@ -1627,6 +1627,21 @@
             ]
           ]
         },
+        "Asciidocify": {
+          "Description": "Asciidocify renders a given input from AsciiDoc to HTML.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "asciidocify"
+          ],
+          "Examples": [
+            [
+              "{{ .Title | asciidocify}}",
+              "\u003cstrong\u003eBatMan\u003c/strong\u003e"
+            ]
+          ]
+        },
         "Plainify": {
           "Description": "Plainify returns a copy of s with all HTML tags removed.",
           "Args": [

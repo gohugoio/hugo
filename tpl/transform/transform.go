@@ -112,3 +112,27 @@ func (ns *Namespace) Plainify(s interface{}) (string, error) {
 
 	return helpers.StripHTML(ss), nil
 }
+
+
+var asciidocTrimPrefix = []byte("<p>")
+var asciidocTrimSuffix = []byte("</p>\n")
+
+// Asciidocify renders a given input from AsciiDoc to HTML.
+func (ns *Namespace) Asciidocify(s interface{}) (template.HTML, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	m := ns.deps.ContentSpec.RenderBytes(
+		&helpers.RenderingContext{
+			Content: []byte(ss),
+			PageFmt: "asciidoc",
+			DocumentName: "snippet",
+		},
+	)
+	m = bytes.TrimPrefix(m, asciidocTrimPrefix)
+	m = bytes.TrimSuffix(m, asciidocTrimSuffix)
+
+	return template.HTML(m), nil
+}

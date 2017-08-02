@@ -168,6 +168,33 @@ func TestMarkdownify(t *testing.T) {
 	}
 }
 
+func TestAsciidocify(t *testing.T) {
+	t.Parallel()
+
+	ns := New(newDeps(viper.New()))
+
+	for i, test := range []struct {
+		s      interface{}
+		expect interface{}
+	}{
+		{"Hello *World!*", template.HTML("Hello <strong>World!</strong>")},
+		{[]byte("Hello **Bytes World!**"), template.HTML("Hello <strong>Bytes World!</strong>")},
+		{tstNoStringer{}, false},
+	} {
+		errMsg := fmt.Sprintf("[%d] %s", i, test.s)
+
+		result, err := ns.Markdownify(test.s)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			require.Error(t, err, errMsg)
+			continue
+		}
+
+		require.NoError(t, err, errMsg)
+		assert.Equal(t, test.expect, result, errMsg)
+	}
+}
+
 func TestPlainify(t *testing.T) {
 	t.Parallel()
 

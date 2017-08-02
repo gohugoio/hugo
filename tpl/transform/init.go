@@ -81,6 +81,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Asciidocify,
+			[]string{"asciidocify"},
+			[][2]string{
+				{`{{ .Title | asciidocify}}`, `<strong>BatMan</strong>`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Plainify,
 			[]string{"plainify"},
 			[][2]string{
