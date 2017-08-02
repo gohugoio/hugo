@@ -20,7 +20,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 type LinkResolverFunc func(ref string) (string, error)
@@ -40,35 +39,6 @@ func (r *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string
 		out.WriteString(Highlight(r.RenderingContext.Cfg, str, lang, opts))
 	} else {
 		r.Renderer.BlockCode(out, text, lang)
-	}
-}
-
-func (r *HugoHTMLRenderer) Link(out *bytes.Buffer, link []byte, title []byte, content []byte) {
-	if r.LinkResolver == nil || bytes.HasPrefix(link, []byte("HAHAHUGOSHORTCODE")) {
-		// Use the blackfriday built in Link handler
-		r.Renderer.Link(out, link, title, content)
-	} else {
-		// set by SourceRelativeLinksEval
-		newLink, err := r.LinkResolver(string(link))
-		if err != nil {
-			newLink = string(link)
-			jww.ERROR.Printf("LinkResolver: %s", err)
-		}
-		r.Renderer.Link(out, []byte(newLink), title, content)
-	}
-}
-func (r *HugoHTMLRenderer) Image(out *bytes.Buffer, link []byte, title []byte, alt []byte) {
-	if r.FileResolver == nil || bytes.HasPrefix(link, []byte("HAHAHUGOSHORTCODE")) {
-		// Use the blackfriday built in Image handler
-		r.Renderer.Image(out, link, title, alt)
-	} else {
-		// set by SourceRelativeLinksEval
-		newLink, err := r.FileResolver(string(link))
-		if err != nil {
-			newLink = string(link)
-			jww.ERROR.Printf("FileResolver: %s", err)
-		}
-		r.Renderer.Image(out, []byte(newLink), title, alt)
 	}
 }
 
