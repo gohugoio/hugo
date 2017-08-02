@@ -622,22 +622,11 @@ func (p *Page) setAutoSummary() error {
 }
 
 func (p *Page) renderContent(content []byte) []byte {
-	var fn helpers.LinkResolverFunc
-	var fileFn helpers.FileResolverFunc
-	if p.getRenderingConfig().SourceRelativeLinksEval {
-		fn = func(ref string) (string, error) {
-			return p.Site.SourceRelativeLink(ref, p)
-		}
-		fileFn = func(ref string) (string, error) {
-			return p.Site.SourceRelativeLinkFile(ref, p)
-		}
-	}
-
 	return p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
 		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
 		Cfg:        p.Language(),
 		DocumentID: p.UniqueID(), DocumentName: p.Path(),
-		Config: p.getRenderingConfig(), LinkResolver: fn, FileResolver: fileFn})
+		Config: p.getRenderingConfig()})
 }
 
 func (p *Page) getRenderingConfig() *helpers.Blackfriday {
