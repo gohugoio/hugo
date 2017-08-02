@@ -38,6 +38,7 @@ func (v HugoVersion) String() string {
 	return hugoVersion(v.Number, v.PatchLevel, v.Suffix)
 }
 
+// ParseHugoVersion parses a version string.
 func ParseHugoVersion(s string) (HugoVersion, error) {
 	var vv HugoVersion
 
@@ -53,6 +54,8 @@ func ParseHugoVersion(s string) (HugoVersion, error) {
 	return vv, nil
 }
 
+// MustParseHugoVersion parses a version string
+// and panics if any error occurs.
 func MustParseHugoVersion(s string) HugoVersion {
 	vv, err := ParseHugoVersion(s)
 	if err != nil {
@@ -72,7 +75,7 @@ func (v HugoVersion) Next() HugoVersion {
 	return HugoVersion{Number: v.Number + 0.01}
 }
 
-// Pre returns the previous Hugo release version.
+// Prev returns the previous Hugo release version.
 func (v HugoVersion) Prev() HugoVersion {
 	return HugoVersion{Number: v.Number - 0.01}
 }

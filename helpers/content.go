@@ -42,6 +42,7 @@ var SummaryLength = 70
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
 var SummaryDivider = []byte("<!--more-->")
 
+// ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
 	blackfriday                map[string]interface{}
 	footnoteAnchorPrefix       string
@@ -50,6 +51,8 @@ type ContentSpec struct {
 	cfg config.Provider
 }
 
+// NewContentSpec returns a ContentSpec initialized
+// with the appropriate fields from the given config.Provider.
 func NewContentSpec(cfg config.Provider) *ContentSpec {
 	return &ContentSpec{
 		blackfriday:                cfg.GetStringMap("blackfriday"),

@@ -22,7 +22,10 @@ import (
 	"github.com/russross/blackfriday"
 )
 
+// LinkResolverFunc describes a custom function to resolve a given link.
 type LinkResolverFunc func(ref string) (string, error)
+
+// FileResolverFunc describes a custom function to resolve a given file path.
 type FileResolverFunc func(ref string) (string, error)
 
 // HugoHTMLRenderer wraps a blackfriday.Renderer, typically a blackfriday.Html
@@ -32,6 +35,8 @@ type HugoHTMLRenderer struct {
 	blackfriday.Renderer
 }
 
+// BlockCode renders a given text as a block of code.
+// Pygments is used if it is setup to handle code fences.
 func (r *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
 		opts := r.Cfg.GetString("pygmentsOptions")
@@ -84,13 +89,15 @@ func (r *HugoHTMLRenderer) List(out *bytes.Buffer, text func() bool, flags int) 
 	}
 }
 
-// HugoMmarkHTMLRenderer wraps a mmark.Renderer, typically a mmark.html
-// Enabling Hugo to customise the rendering experience
+// HugoMmarkHTMLRenderer wraps a mmark.Renderer, typically a mmark.html,
+// enabling Hugo to customise the rendering experience.
 type HugoMmarkHTMLRenderer struct {
 	mmark.Renderer
 	Cfg config.Provider
 }
 
+// BlockCode renders a given text as a block of code.
+// Pygments is used if it is setup to handle code fences.
 func (r *HugoMmarkHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string, caption []byte, subfigure bool, callouts bool) {
 	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
 		str := html.UnescapeString(string(text))

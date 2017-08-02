@@ -14,7 +14,7 @@ import (
 )
 
 // Deps holds dependencies used by many.
-// There will be normally be only one instance of deps in play
+// There will be normally only one instance of deps in play
 // at a given time, i.e. one per Site built.
 type Deps struct {
 	// The logger to use.
@@ -55,10 +55,12 @@ type ResourceProvider interface {
 	Clone(deps *Deps) error
 }
 
+// TemplateHandler returns the used tpl.TemplateFinder as tpl.TemplateHandler.
 func (d *Deps) TemplateHandler() tpl.TemplateHandler {
 	return d.Tmpl.(tpl.TemplateHandler)
 }
 
+// LoadResources loads translations and templates.
 func (d *Deps) LoadResources() error {
 	// Note that the translations need to be loaded before the templates.
 	if err := d.translationProvider.Update(d); err != nil {
@@ -76,6 +78,9 @@ func (d *Deps) LoadResources() error {
 	return nil
 }
 
+// New initializes a Dep struct.
+// Defaults are set for nil values,
+// but TemplateProvider, TranslationProvider and Language are always required.
 func New(cfg DepsCfg) (*Deps, error) {
 	var (
 		logger = cfg.Logger

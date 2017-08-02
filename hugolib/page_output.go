@@ -179,7 +179,7 @@ func (p *Page) checkRender() bool {
 // OutputFormats holds a list of the relevant output formats for a given resource.
 type OutputFormats []*OutputFormat
 
-// And OutputFormat links to a representation of a resource.
+// OutputFormat links to a representation of a resource.
 type OutputFormat struct {
 	// Rel constains a value that can be used to construct a rel link.
 	// This is value is fetched from the output format definition.
@@ -227,7 +227,7 @@ func newOutputFormat(p *Page, f output.Format) *OutputFormat {
 	return &OutputFormat{Rel: rel, f: f, p: p}
 }
 
-// OutputFormats gives the alternative output formats for this PageOutput.
+// AlternativeOutputFormats gives the alternative output formats for this PageOutput.
 // Note that we use the term "alternative" and not "alternate" here, as it
 // does not necessarily replace the other format, it is an alternative representation.
 func (p *PageOutput) AlternativeOutputFormats() (OutputFormats, error) {
@@ -266,7 +266,7 @@ func (o *OutputFormat) Permalink() string {
 	return perm
 }
 
-// Permalink returns the relative permalink to this output format.
+// RelPermalink returns the relative permalink to this output format.
 func (o *OutputFormat) RelPermalink() string {
 	rel := o.p.createRelativePermalinkForOutputFormat(o.f)
 	return o.p.s.PathSpec.PrependBasePath(rel)

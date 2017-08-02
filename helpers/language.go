@@ -35,6 +35,7 @@ var globalOnlySettings = map[string]bool{
 	strings.ToLower("multilingual"):                   true,
 }
 
+// Language manages specific-language configuration.
 type Language struct {
 	Lang         string
 	LanguageName string
@@ -50,10 +51,13 @@ func (l *Language) String() string {
 	return l.Lang
 }
 
+// NewLanguage creates a new language.
 func NewLanguage(lang string, cfg config.Provider) *Language {
 	return &Language{Lang: lang, Cfg: cfg, params: make(map[string]interface{})}
 }
 
+// NewDefaultLanguage creates the default language for a config.Provider.
+// If not otherwise specified the default is "en".
 func NewDefaultLanguage(cfg config.Provider) *Language {
 	defaultLang := cfg.GetString("defaultContentLanguage")
 
@@ -64,8 +68,11 @@ func NewDefaultLanguage(cfg config.Provider) *Language {
 	return NewLanguage(defaultLang, cfg)
 }
 
+// Languages is a sortable list of languages.
 type Languages []*Language
 
+// NewLanguages creates a sorted list of languages.
+// NOTE: function is currently unused.
 func NewLanguages(l ...*Language) Languages {
 	languages := make(Languages, len(l))
 	for i := 0; i < len(l); i++ {
@@ -79,6 +86,7 @@ func (l Languages) Len() int           { return len(l) }
 func (l Languages) Less(i, j int) bool { return l[i].Weight < l[j].Weight }
 func (l Languages) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
 
+// Params retunrs language-specific params merged with the global params.
 func (l *Language) Params() map[string]interface{} {
 	l.paramsInit.Do(func() {
 		// Merge with global config.

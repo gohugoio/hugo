@@ -30,7 +30,7 @@ type LayoutDescriptor struct {
 	Layout  string
 }
 
-// Layout calculates the layout template to use to render a given output type.
+// LayoutHandler calculates the layout template to use to render a given output type.
 type LayoutHandler struct {
 	hasTheme bool
 
@@ -44,6 +44,7 @@ type layoutCacheKey struct {
 	f              Format
 }
 
+// NewLayoutHandler creates a new LayoutHandler.
 func NewLayoutHandler(hasTheme bool) *LayoutHandler {
 	return &LayoutHandler{hasTheme: hasTheme, cache: make(map[layoutCacheKey][]string)}
 }
@@ -75,7 +76,7 @@ _default/indexes.VARIATIONS
 `
 	layoutsTaxonomy = `
 taxonomy/SECTION.VARIATIONS
-indexes/SECTION.VARIATIONS 
+indexes/SECTION.VARIATIONS
 _default/taxonomy.VARIATIONS
 _default/list.VARIATIONS
 `
@@ -86,6 +87,8 @@ indexes/indexes.VARIATIONS
 `
 )
 
+// For returns a layout for the given LayoutDescriptor and options.
+// Layouts are rendered and cached internally.
 func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format) ([]string, error) {
 
 	// We will get lots of requests for the same layouts, so avoid recalculations.

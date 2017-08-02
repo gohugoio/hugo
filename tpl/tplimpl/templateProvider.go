@@ -17,12 +17,14 @@ import (
 	"github.com/gohugoio/hugo/deps"
 )
 
+// TemplateProvider manages templates.
 type TemplateProvider struct{}
 
+// DefaultTemplateProvider is a globally available TemplateProvider.
 var DefaultTemplateProvider *TemplateProvider
 
-// Update updates the Hugo Template System in the provided Deps.
-// with all the additional features, templates & functions
+// Update updates the Hugo Template System in the provided Deps
+// with all the additional features, templates & functions.
 func (*TemplateProvider) Update(deps *deps.Deps) error {
 
 	newTmpl := newTemplateAdapter(deps)

@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 )
 
+// SourceSpec abstracts language-specific file creation.
 type SourceSpec struct {
 	Cfg config.Provider
 	Fs  *hugofs.Fs
@@ -32,6 +33,7 @@ type SourceSpec struct {
 	defaultContentLanguage string
 }
 
+// NewSourceSpec initializes SourceSpec using languages from a given configuration.
 func NewSourceSpec(cfg config.Provider, fs *hugofs.Fs) SourceSpec {
 	defaultLang := cfg.GetString("defaultContentLanguage")
 	languages := cfg.GetStringMap("languages")

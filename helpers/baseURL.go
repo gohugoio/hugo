@@ -30,7 +30,8 @@ func (b BaseURL) String() string {
 	return b.urlStr
 }
 
-// Protocol is normally on the form "scheme://", i.e. "webcal://".
+// WithProtocol returns the BaseURL prefixed with the given protocol.
+// The Protocol is normally of the form "scheme://", i.e. "webcal://".
 func (b BaseURL) WithProtocol(protocol string) (string, error) {
 	u := b.URL()
 
@@ -55,8 +56,9 @@ func (b BaseURL) WithProtocol(protocol string) (string, error) {
 	return u.String(), nil
 }
 
+// URL returns a copy of the internal URL.
+// The copy can be safely used and modified.
 func (b BaseURL) URL() *url.URL {
-	// create a copy as it will be modified.
 	c := *b.url
 	return &c
 }
