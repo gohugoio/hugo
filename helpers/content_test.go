@@ -188,7 +188,6 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 	ctx.Config.SmartDashes = true
 	ctx.Config.Smartypants = true
 	ctx.Config.SmartypantsQuotesNBSP = true
-	ctx.Config.SourceRelativeLinksEval = true
 	renderer := c.getHTMLRenderer(defaultFlags, ctx)
 	actualFlags := renderer.GetFlags()
 	var expectedFlags int

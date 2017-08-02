@@ -62,35 +62,31 @@ func NewContentSpec(cfg config.Provider) *ContentSpec {
 
 // Blackfriday holds configuration values for Blackfriday rendering.
 type Blackfriday struct {
-	Smartypants                      bool
-	SmartypantsQuotesNBSP            bool
-	AngledQuotes                     bool
-	Fractions                        bool
-	HrefTargetBlank                  bool
-	SmartDashes                      bool
-	LatexDashes                      bool
-	TaskLists                        bool
-	PlainIDAnchors                   bool
-	SourceRelativeLinksEval          bool
-	SourceRelativeLinksProjectFolder string
-	Extensions                       []string
-	ExtensionsMask                   []string
+	Smartypants           bool
+	SmartypantsQuotesNBSP bool
+	AngledQuotes          bool
+	Fractions             bool
+	HrefTargetBlank       bool
+	SmartDashes           bool
+	LatexDashes           bool
+	TaskLists             bool
+	PlainIDAnchors        bool
+	Extensions            []string
+	ExtensionsMask        []string
 }
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
 func (c ContentSpec) NewBlackfriday() *Blackfriday {
 	defaultParam := map[string]interface{}{
-		"smartypants":                      true,
-		"angledQuotes":                     false,
-		"smartypantsQuotesNBSP":            false,
-		"fractions":                        true,
-		"hrefTargetBlank":                  false,
-		"smartDashes":                      true,
-		"latexDashes":                      true,
-		"plainIDAnchors":                   true,
-		"taskLists":                        true,
-		"sourceRelativeLinks":              false,
-		"sourceRelativeLinksProjectFolder": "/docs/content",
+		"smartypants":           true,
+		"angledQuotes":          false,
+		"smartypantsQuotesNBSP": false,
+		"fractions":             true,
+		"hrefTargetBlank":       false,
+		"smartDashes":           true,
+		"latexDashes":           true,
+		"plainIDAnchors":        true,
+		"taskLists":             true,
 	}
 
 	ToLowerMap(defaultParam)
@@ -110,13 +106,6 @@ func (c ContentSpec) NewBlackfriday() *Blackfriday {
 	combinedConfig := &Blackfriday{}
 	if err := mapstructure.Decode(siteConfig, combinedConfig); err != nil {
 		jww.FATAL.Printf("Failed to get site rendering config\n%s", err.Error())
-	}
-
-	if combinedConfig.SourceRelativeLinksEval {
-		// Remove in Hugo 0.21
-		Deprecated("blackfriday", "sourceRelativeLinksEval",
-			`There is no replacement for this feature, as no developer has stepped up to the plate and volunteered to maintain this feature`, false)
-
 	}
 
 	return combinedConfig
@@ -412,8 +401,6 @@ type RenderingContext struct {
 	DocumentName string
 	Config       *Blackfriday
 	RenderTOC    bool
-	FileResolver FileResolverFunc
-	LinkResolver LinkResolverFunc
 	Cfg          config.Provider
 }
 

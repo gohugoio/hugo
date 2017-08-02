@@ -32,7 +32,7 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 
-	"github.com/markbates/inflect"
+	"github.com/bep/inflect"
 
 	"sync/atomic"
 
@@ -132,9 +132,6 @@ type Site struct {
 	// Logger etc.
 	*deps.Deps `json:"-"`
 
-	// The func used to title case titles.
-	titleFunc func(s string) string
-
 	siteStats *siteStats
 }
 
@@ -175,7 +172,6 @@ func (s *Site) reset() *Site {
 	return &Site{Deps: s.Deps,
 		layoutHandler:       output.NewLayoutHandler(s.PathSpec.ThemeSet()),
 		disabledKinds:       s.disabledKinds,
-		titleFunc:           s.titleFunc,
 		outputFormats:       s.outputFormats,
 		outputFormatsConfig: s.outputFormatsConfig,
 		mediaTypesConfig:    s.mediaTypesConfig,
@@ -231,14 +227,11 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 
-	titleFunc := helpers.GetTitleFunc(cfg.Language.GetString("titleCaseStyle"))
-
 	s := &Site{
 		PageCollections:     c,
 		layoutHandler:       output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""),
 		Language:            cfg.Language,
 		disabledKinds:       disabledKinds,
-		titleFunc:           titleFunc,
 		outputFormats:       outputFormats,
 		outputFormatsConfig: siteOutputFormatsConfig,
 		mediaTypesConfig:    siteMediaTypesConfig,
@@ -491,126 +484,6 @@ func (s *SiteInfo) RelRef(ref string, page *Page, options ...string) (string, er
 	}
 
 	return s.refLink(ref, page, true, outputFormat)
-}
-
-// SourceRelativeLink attempts to convert any source page relative links (like [../another.md]) into absolute links
-func (s *SiteInfo) SourceRelativeLink(ref string, currentPage *Page) (string, error) {
-	var refURL *url.URL
-	var err error
-
-	refURL, err = url.Parse(strings.TrimPrefix(ref, currentPage.getRenderingConfig().SourceRelativeLinksProjectFolder))
-	if err != nil {
-		return "", err
-	}
-
-	if refURL.Scheme != "" {
-		// Not a relative source level path
-		return ref, nil
-	}
-
-	var target *Page
-	var link string
-
-	if refURL.Path != "" {
-		refPath := filepath.Clean(filepath.FromSlash(refURL.Path))
-
-		if strings.IndexRune(refPath, os.PathSeparator) == 0 { // filepath.IsAbs fails to me.
-			refPath = refPath[1:]
-		} else {
-			if currentPage != nil {
-				refPath = filepath.Join(currentPage.Source.Dir(), refURL.Path)
-			}
-		}
-
-		for _, page := range s.AllRegularPages {
-			if page.Source.Path() == refPath {
-				target = page
-				break
-			}
-		}
-		// need to exhaust the test, then try with the others :/
-		// if the refPath doesn't end in a filename with extension `.md`, then try with `.md` , and then `/index.md`
-		mdPath := strings.TrimSuffix(refPath, string(os.PathSeparator)) + ".md"
-		for _, page := range s.AllRegularPages {
-			if page.Source.Path() == mdPath {
-				target = page
-				break
-			}
-		}
-		indexPath := filepath.Join(refPath, "index.md")
-		for _, page := range s.AllRegularPages {
-			if page.Source.Path() == indexPath {
-				target = page
-				break
-			}
-		}
-
-		if target == nil {
-			return "", fmt.Errorf("No page found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
-		}
-
-		link = target.RelPermalink()
-
-	}
-
-	if refURL.Fragment != "" {
-		link = link + "#" + refURL.Fragment
-
-		if refURL.Path != "" && target != nil && !target.getRenderingConfig().PlainIDAnchors {
-			link = link + ":" + target.UniqueID()
-		} else if currentPage != nil && !currentPage.getRenderingConfig().PlainIDAnchors {
-			link = link + ":" + currentPage.UniqueID()
-		}
-	}
-
-	return link, nil
-}
-
-// SourceRelativeLinkFile attempts to convert any non-md source relative links (like [../another.gif]) into absolute links
-func (s *SiteInfo) SourceRelativeLinkFile(ref string, currentPage *Page) (string, error) {
-	var refURL *url.URL
-	var err error
-
-	refURL, err = url.Parse(strings.TrimPrefix(ref, currentPage.getRenderingConfig().SourceRelativeLinksProjectFolder))
-	if err != nil {
-		return "", err
-	}
-
-	if refURL.Scheme != "" {
-		// Not a relative source level path
-		return ref, nil
-	}
-
-	var target *source.File
-	var link string
-
-	if refURL.Path != "" {
-		refPath := filepath.Clean(filepath.FromSlash(refURL.Path))
-
-		if strings.IndexRune(refPath, os.PathSeparator) == 0 { // filepath.IsAbs fails to me.
-			refPath = refPath[1:]
-		} else {
-			if currentPage != nil {
-				refPath = filepath.Join(currentPage.Source.Dir(), refURL.Path)
-			}
-		}
-
-		for _, file := range *s.Files {
-			if file.Path() == refPath {
-				target = file
-				break
-			}
-		}
-
-		if target == nil {
-			return "", fmt.Errorf("No file found for \"%s\" on page \"%s\".\n", ref, currentPage.Source.Path())
-		}
-
-		link = target.Path()
-		return "/" + filepath.ToSlash(link), nil
-	}
-
-	return "", fmt.Errorf("failed to find a file to match \"%s\" on page \"%s\"", ref, currentPage.Source.Path())
 }
 
 func (s *SiteInfo) addToPaginationPageCount(cnt uint64) {
@@ -2128,7 +2001,7 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 		p.Title = helpers.FirstUpper(key)
 		key = s.PathSpec.MakePathSanitized(key)
 	} else {
-		p.Title = strings.Replace(s.titleFunc(key), "-", " ", -1)
+		p.Title = strings.Replace(strings.Title(key), "-", " ", -1)
 	}
 
 	return p
@@ -2148,6 +2021,6 @@ func (s *Site) newSectionPage(name string) *Page {
 
 func (s *Site) newTaxonomyTermsPage(plural string) *Page {
 	p := s.newNodePage(KindTaxonomyTerm, plural)
-	p.Title = s.titleFunc(plural)
+	p.Title = strings.Title(plural)
 	return p
 }
