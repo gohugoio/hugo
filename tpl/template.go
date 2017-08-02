@@ -101,6 +101,7 @@ func (t *TemplateAdapter) Tree() string {
 	return s
 }
 
+// TemplateFuncsGetter allows to get a map of functions.
 type TemplateFuncsGetter interface {
 	GetFuncs() map[string]interface{}
 }

@@ -26,7 +26,7 @@ const (
 	defaultDelimiter = "."
 )
 
-// A media type (also known as MIME type and content type) is a two-part identifier for
+// Type (also known as MIME type and content type) is a two-part identifier for
 // file formats and format contents transmitted on the Internet.
 // For Hugo's use case, we use the top-level type name / subtype name + suffix.
 // One example would be image/jpeg+jpg
@@ -39,7 +39,7 @@ type Type struct {
 	Delimiter string `json:"delimiter"` // defaults to "."
 }
 
-// FromTypeString creates a new Type given a type sring on the form MainType/SubType and
+// FromString creates a new Type given a type sring on the form MainType/SubType and
 // an optional suffix, e.g. "text/html" or "text/html+html".
 func FromString(t string) (Type, error) {
 	t = strings.ToLower(t)

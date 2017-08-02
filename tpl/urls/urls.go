@@ -54,6 +54,7 @@ func (ns *Namespace) RelURL(a interface{}) (template.HTML, error) {
 	return template.HTML(ns.deps.PathSpec.RelURL(s, false)), nil
 }
 
+// URLize returns the given argument formatted as URL.
 func (ns *Namespace) URLize(a interface{}) (string, error) {
 	s, err := cast.ToStringE(a)
 	if err != nil {

@@ -70,9 +70,9 @@ func readFile(fs *afero.BasePathFs, filename string) (string, error) {
 	return string(b), nil
 }
 
-// ReadFilereads the file named by filename relative to the configured
-// WorkingDir.  It returns the contents as a string.  There is a upper size
-// limit set at 1 megabytes.
+// ReadFile reads the file named by filename relative to the configured WorkingDir.
+// It returns the contents as a string.
+// There is an upper size limit set at 1 megabytes.
 func (ns *Namespace) ReadFile(i interface{}) (string, error) {
 	s, err := cast.ToStringE(i)
 	if err != nil {

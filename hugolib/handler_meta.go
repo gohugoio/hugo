@@ -23,6 +23,7 @@ import (
 
 var handlers []Handler
 
+// MetaHandler abstracts reading and converting functionality of a Handler.
 type MetaHandler interface {
 	// Read the Files in and register
 	Read(*source.File, *Site, HandleResults)
@@ -33,14 +34,18 @@ type MetaHandler interface {
 	Handle() Handler
 }
 
+// HandledResults is a channel for HandledResult.
 type HandleResults chan<- HandledResult
 
+// NewMetaHandler creates a MetaHandle for a given extention.
 func NewMetaHandler(in string) *MetaHandle {
 	x := &MetaHandle{ext: in}
 	x.Handler()
 	return x
 }
 
+// MetaHandle is a generic MetaHandler that internally uses
+// the globally registered handlers for handling specific file types.
 type MetaHandle struct {
 	handler Handler
 	ext     string
@@ -55,6 +60,7 @@ func (mh *MetaHandle) Read(f *source.File, s *Site, results HandleResults) {
 	results <- HandledResult{err: errors.New("No handler found"), file: f}
 }
 
+// Convert handles the convertion of files and pages.
 func (mh *MetaHandle) Convert(i interface{}, s *Site, results HandleResults) {
 	h := mh.Handler()
 
@@ -78,6 +84,7 @@ func (mh *MetaHandle) Convert(i interface{}, s *Site, results HandleResults) {
 	}
 }
 
+// Handler finds the registered handler for the used extention.
 func (mh *MetaHandle) Handler() Handler {
 	if mh.handler == nil {
 		mh.handler = FindHandler(mh.ext)
@@ -90,6 +97,7 @@ func (mh *MetaHandle) Handler() Handler {
 	return mh.handler
 }
 
+// FindHandler finds a Handler in the globally registered handlers.
 func FindHandler(ext string) Handler {
 	for _, h := range Handlers() {
 		if HandlerMatch(h, ext) {
@@ -99,6 +107,7 @@ func FindHandler(ext string) Handler {
 	return nil
 }
 
+// HandlerMatch checks if the given extention matches.
 func HandlerMatch(h Handler, ext string) bool {
 	for _, x := range h.Extensions() {
 		if ext == x {
@@ -108,10 +117,12 @@ func HandlerMatch(h Handler, ext string) bool {
 	return false
 }
 
+// RegisterHandler adds a handler to the globally registered ones.
 func RegisterHandler(h Handler) {
 	handlers = append(handlers, h)
 }
 
+// Handlers returns the globally registered handlers.
 func Handlers() []Handler {
 	return handlers
 }

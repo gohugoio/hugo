@@ -13,6 +13,8 @@
 
 package source
 
+// ByteSource represents a source's name and content.
+// It's currently only used for testing purposes.
 type ByteSource struct {
 	Name    string
 	Content []byte

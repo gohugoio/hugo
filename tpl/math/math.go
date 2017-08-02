@@ -29,14 +29,17 @@ func New() *Namespace {
 // Namespace provides template functions for the "math" namespace.
 type Namespace struct{}
 
+// Add adds two numbers.
 func (ns *Namespace) Add(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '+')
 }
 
+// Div divides two numbers.
 func (ns *Namespace) Div(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '/')
 }
 
+// Log returns the natural logarithm of a number.
 func (ns *Namespace) Log(a interface{}) (float64, error) {
 	af, err := cast.ToFloat64E(a)
 
@@ -84,10 +87,12 @@ func (ns *Namespace) ModBool(a, b interface{}) (bool, error) {
 	return res == int64(0), nil
 }
 
+// Mul multiplies two numbers.
 func (ns *Namespace) Mul(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '*')
 }
 
+// Sub substracts two numbers.
 func (ns *Namespace) Sub(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '-')
 }

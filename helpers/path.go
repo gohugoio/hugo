@@ -32,6 +32,7 @@ var (
 	// ErrThemeUndefined is returned when a theme has not be defined by the user.
 	ErrThemeUndefined = errors.New("no theme set")
 
+	// ErrWalkRootTooShort is returned when the root specified for a file walk is shorter than 4 characters.
 	ErrWalkRootTooShort = errors.New("Path too short. Stop walking.")
 )
 
@@ -480,7 +481,7 @@ func FindCWD() (string, error) {
 
 // SymbolicWalk is like filepath.Walk, but it supports the root being a
 // symbolic link. It will still not follow symbolic links deeper down in
-// the file structure
+// the file structure.
 func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
 	// Sanity check

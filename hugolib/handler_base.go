@@ -17,6 +17,7 @@ import (
 	"github.com/gohugoio/hugo/source"
 )
 
+// Handler is used for processing files of a specific type.
 type Handler interface {
 	FileConvert(*source.File, *Site) HandledResult
 	PageConvert(*Page) HandledResult
@@ -24,14 +25,17 @@ type Handler interface {
 	Extensions() []string
 }
 
+// Handle identifies functionality assosiated with certain file extentions.
 type Handle struct {
 	extensions []string
 }
 
+// Extensions returns a list of extentions.
 func (h Handle) Extensions() []string {
 	return h.extensions
 }
 
+// HandledResult describes the results of a file handling operation.
 type HandledResult struct {
 	page *Page
 	file *source.File
@@ -55,6 +59,7 @@ func (h HandledResult) String() string {
 	return h.Error()
 }
 
+// Page returns the affected page.
 func (h HandledResult) Page() *Page {
 	return h.page
 }

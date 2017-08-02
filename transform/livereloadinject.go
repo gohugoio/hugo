@@ -18,6 +18,8 @@ import (
 	"fmt"
 )
 
+// LiveReloadInject returns a function that can be used
+// to inject a script tag for the livereload JavaScript in a HTML document.
 func LiveReloadInject(port int) func(ct contentTransformer) {
 	return func(ct contentTransformer) {
 		endBodyTag := "</body>"

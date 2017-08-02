@@ -24,6 +24,8 @@ import (
 	"github.com/gohugoio/hugo/deps"
 )
 
+// TestTemplateProvider is global deps.ResourceProvider.
+// NOTE: It's currently unused.
 var TestTemplateProvider deps.ResourceProvider
 
 // partialCache represents a cache of partials protected by a mutex.
