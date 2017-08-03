@@ -22,12 +22,6 @@ import (
 	"github.com/russross/blackfriday"
 )
 
-// LinkResolverFunc describes a custom function to resolve a given link.
-type LinkResolverFunc func(ref string) (string, error)
-
-// FileResolverFunc describes a custom function to resolve a given file path.
-type FileResolverFunc func(ref string) (string, error)
-
 // HugoHTMLRenderer wraps a blackfriday.Renderer, typically a blackfriday.Html
 // Enabling Hugo to customise the rendering experience
 type HugoHTMLRenderer struct {
