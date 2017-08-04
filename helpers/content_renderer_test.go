@@ -108,9 +108,9 @@ END
 `, true, `<p>TODO:</p>
 
 <ul class="task-list">
-<li><input type="checkbox" checked disabled class="task-list-item"> On1</li>
-<li><input type="checkbox" checked disabled class="task-list-item"> On2</li>
-<li><input type="checkbox" disabled class="task-list-item"> Off</li>
+<li><label><input type="checkbox" checked disabled class="task-list-item"> On1</label></li>
+<li><label><input type="checkbox" checked disabled class="task-list-item"> On2</label></li>
+<li><label><input type="checkbox" disabled class="task-list-item"> Off</label></li>
 </ul>
 
 <p>END</p>
@@ -122,7 +122,7 @@ END
 		{`* [ ] Off
 
 END`, true, `<ul class="task-list">
-<li><input type="checkbox" disabled class="task-list-item"> Off</li>
+<li><label><input type="checkbox" disabled class="task-list-item"> Off</label></li>
 </ul>
 
 <p>END</p>
