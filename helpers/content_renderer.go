@@ -50,10 +50,12 @@ func (r *HugoHTMLRenderer) ListItem(out *bytes.Buffer, text []byte, flags int) {
 
 	switch {
 	case bytes.HasPrefix(text, []byte("[ ] ")):
-		text = append([]byte(`<input type="checkbox" disabled class="task-list-item">`), text[3:]...)
+		text = append([]byte(`<label><input type="checkbox" disabled class="task-list-item">`), text[3:]...)
+		text = append(text, []byte(`</label>`)...)
 
 	case bytes.HasPrefix(text, []byte("[x] ")) || bytes.HasPrefix(text, []byte("[X] ")):
-		text = append([]byte(`<input type="checkbox" checked disabled class="task-list-item">`), text[3:]...)
+		text = append([]byte(`<label><input type="checkbox" checked disabled class="task-list-item">`), text[3:]...)
+		text = append(text, []byte(`</label>`)...)
 	}
 
 	r.Renderer.ListItem(out, text, flags)
