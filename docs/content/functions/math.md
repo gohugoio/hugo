@@ -38,7 +38,7 @@ You can also use the `add` function with strings. You may like this functionalit
 For example, social media sharing with [Twitter Cards][cards] requires the following `meta` link in your site's `<head>` to display Twitter's ["Summary Card with Large Image"][twtsummary]:
 
 ```
-<meta name="twitter:image" content="http://example.com/images/my-twitter-image.jpg">
+<meta name="twitter:image" content="https://example.com/images/my-twitter-image.jpg">
 ```
 
 Let's assume you have an `image` field in the front matter of each of your content files:
