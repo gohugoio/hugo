@@ -2,76 +2,76 @@
   "media": {
     "types": [
       {
-        "Type": "application/javascript",
-        "String": "application/javascript+js",
-        "MainType": "application",
-        "SubType": "javascript",
-        "Suffix": "js",
-        "Delimiter": "."
+        "type": "application/javascript",
+        "string": "application/javascript+js",
+        "mainType": "application",
+        "subType": "javascript",
+        "suffix": "js",
+        "delimiter": "."
       },
       {
-        "Type": "application/json",
-        "String": "application/json+json",
-        "MainType": "application",
-        "SubType": "json",
-        "Suffix": "json",
-        "Delimiter": "."
+        "type": "application/json",
+        "string": "application/json+json",
+        "mainType": "application",
+        "subType": "json",
+        "suffix": "json",
+        "delimiter": "."
       },
       {
-        "Type": "application/rss",
-        "String": "application/rss+xml",
-        "MainType": "application",
-        "SubType": "rss",
-        "Suffix": "xml",
-        "Delimiter": "."
+        "type": "application/rss",
+        "string": "application/rss+xml",
+        "mainType": "application",
+        "subType": "rss",
+        "suffix": "xml",
+        "delimiter": "."
       },
       {
-        "Type": "application/xml",
-        "String": "application/xml+xml",
-        "MainType": "application",
-        "SubType": "xml",
-        "Suffix": "xml",
-        "Delimiter": "."
+        "type": "application/xml",
+        "string": "application/xml+xml",
+        "mainType": "application",
+        "subType": "xml",
+        "suffix": "xml",
+        "delimiter": "."
       },
       {
-        "Type": "text/calendar",
-        "String": "text/calendar+ics",
-        "MainType": "text",
-        "SubType": "calendar",
-        "Suffix": "ics",
-        "Delimiter": "."
+        "type": "text/calendar",
+        "string": "text/calendar+ics",
+        "mainType": "text",
+        "subType": "calendar",
+        "suffix": "ics",
+        "delimiter": "."
       },
       {
-        "Type": "text/css",
-        "String": "text/css+css",
-        "MainType": "text",
-        "SubType": "css",
-        "Suffix": "css",
-        "Delimiter": "."
+        "type": "text/css",
+        "string": "text/css+css",
+        "mainType": "text",
+        "subType": "css",
+        "suffix": "css",
+        "delimiter": "."
       },
       {
-        "Type": "text/csv",
-        "String": "text/csv+csv",
-        "MainType": "text",
-        "SubType": "csv",
-        "Suffix": "csv",
-        "Delimiter": "."
+        "type": "text/csv",
+        "string": "text/csv+csv",
+        "mainType": "text",
+        "subType": "csv",
+        "suffix": "csv",
+        "delimiter": "."
       },
       {
-        "Type": "text/html",
-        "String": "text/html+html",
-        "MainType": "text",
-        "SubType": "html",
-        "Suffix": "html",
-        "Delimiter": "."
+        "type": "text/html",
+        "string": "text/html+html",
+        "mainType": "text",
+        "subType": "html",
+        "suffix": "html",
+        "delimiter": "."
       },
       {
-        "Type": "text/plain",
-        "String": "text/plain+txt",
-        "MainType": "text",
-        "SubType": "plain",
-        "Suffix": "txt",
-        "Delimiter": "."
+        "type": "text/plain",
+        "string": "text/plain+txt",
+        "mainType": "text",
+        "subType": "plain",
+        "suffix": "txt",
+        "delimiter": "."
       }
     ]
   },
@@ -79,87 +79,143 @@
     "formats": [
       {
         "MediaType": "text/html+html",
-        "Name": "AMP",
-        "Path": "amp",
-        "BaseName": "index",
-        "Rel": "amphtml",
-        "Protocol": "",
-        "IsPlainText": false,
-        "IsHTML": true,
-        "NoUgly": false,
-        "NotAlternative": false
+        "name": "AMP",
+        "mediaType": {
+          "type": "text/html",
+          "string": "text/html+html",
+          "mainType": "text",
+          "subType": "html",
+          "suffix": "html",
+          "delimiter": "."
+        },
+        "path": "amp",
+        "baseName": "index",
+        "rel": "amphtml",
+        "protocol": "",
+        "isPlainText": false,
+        "isHTML": true,
+        "noUgly": false,
+        "notAlternative": false
       },
       {
         "MediaType": "text/css+css",
-        "Name": "CSS",
-        "Path": "",
-        "BaseName": "styles",
-        "Rel": "stylesheet",
-        "Protocol": "",
-        "IsPlainText": true,
-        "IsHTML": false,
-        "NoUgly": false,
-        "NotAlternative": true
+        "name": "CSS",
+        "mediaType": {
+          "type": "text/css",
+          "string": "text/css+css",
+          "mainType": "text",
+          "subType": "css",
+          "suffix": "css",
+          "delimiter": "."
+        },
+        "path": "",
+        "baseName": "styles",
+        "rel": "stylesheet",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": true
       },
       {
         "MediaType": "text/csv+csv",
-        "Name": "CSV",
-        "Path": "",
-        "BaseName": "index",
-        "Rel": "alternate",
-        "Protocol": "",
-        "IsPlainText": true,
-        "IsHTML": false,
-        "NoUgly": false,
-        "NotAlternative": false
+        "name": "CSV",
+        "mediaType": {
+          "type": "text/csv",
+          "string": "text/csv+csv",
+          "mainType": "text",
+          "subType": "csv",
+          "suffix": "csv",
+          "delimiter": "."
+        },
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false
       },
       {
         "MediaType": "text/calendar+ics",
-        "Name": "Calendar",
-        "Path": "",
-        "BaseName": "index",
-        "Rel": "alternate",
-        "Protocol": "webcal://",
-        "IsPlainText": true,
-        "IsHTML": false,
-        "NoUgly": false,
-        "NotAlternative": false
+        "name": "Calendar",
+        "mediaType": {
+          "type": "text/calendar",
+          "string": "text/calendar+ics",
+          "mainType": "text",
+          "subType": "calendar",
+          "suffix": "ics",
+          "delimiter": "."
+        },
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "webcal://",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false
       },
       {
         "MediaType": "text/html+html",
-        "Name": "HTML",
-        "Path": "",
-        "BaseName": "index",
-        "Rel": "canonical",
-        "Protocol": "",
-        "IsPlainText": false,
-        "IsHTML": true,
-        "NoUgly": false,
-        "NotAlternative": false
+        "name": "HTML",
+        "mediaType": {
+          "type": "text/html",
+          "string": "text/html+html",
+          "mainType": "text",
+          "subType": "html",
+          "suffix": "html",
+          "delimiter": "."
+        },
+        "path": "",
+        "baseName": "index",
+        "rel": "canonical",
+        "protocol": "",
+        "isPlainText": false,
+        "isHTML": true,
+        "noUgly": false,
+        "notAlternative": false
       },
       {
         "MediaType": "application/json+json",
-        "Name": "JSON",
-        "Path": "",
-        "BaseName": "index",
-        "Rel": "alternate",
-        "Protocol": "",
-        "IsPlainText": true,
-        "IsHTML": false,
-        "NoUgly": false,
-        "NotAlternative": false
+        "name": "JSON",
+        "mediaType": {
+          "type": "application/json",
+          "string": "application/json+json",
+          "mainType": "application",
+          "subType": "json",
+          "suffix": "json",
+          "delimiter": "."
+        },
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false
       },
       {
         "MediaType": "application/rss+xml",
-        "Name": "RSS",
-        "Path": "",
-        "BaseName": "index",
-        "Rel": "alternate",
-        "Protocol": "",
-        "IsPlainText": false,
-        "IsHTML": false,
-        "NoUgly": true,
-        "NotAlternative": false
+        "name": "RSS",
+        "mediaType": {
+          "type": "application/rss",
+          "string": "application/rss+xml",
+          "mainType": "application",
+          "subType": "rss",
+          "suffix": "xml",
+          "delimiter": "."
+        },
+        "path": "",
+        "baseName": "index",
+        "rel": "alternate",
+        "protocol": "",
+        "isPlainText": false,
+        "isHTML": false,
+        "noUgly": true,
+        "notAlternative": false
       }
     ],
     "layouts": [
