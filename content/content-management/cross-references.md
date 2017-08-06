@@ -96,8 +96,8 @@ More information about document unique identifiers and headings can be found [be
 
 ### Examples
 
-* `{{</* ref "blog/post.md" */>}}` => `http://example.com/blog/post/`
-* `{{</* ref "post.md#tldr" */>}}` => `http://example.com/blog/post/#tldr:caffebad`
+* `{{</* ref "blog/post.md" */>}}` => `https://example.com/blog/post/`
+* `{{</* ref "post.md#tldr" */>}}` => `https://example.com/blog/post/#tldr:caffebad`
 * `{{</* relref "post.md" */>}}` => `/blog/post/`
 * `{{</* relref "blog/post.md#tldr" */>}}` => `/blog/post/#tldr:caffebad`
 * `{{</* ref "#tldr" */>}}` => `#tldr:badcaffe`

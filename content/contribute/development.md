@@ -139,6 +139,12 @@ So, let's clone that master repository:
 go get -v -u github.com/gohugoio/hugo
 ```
 
+Hugo relies on [Testify](https://github.com/stretchr/testify) for testing Go code. If you don't already have it, get the Testify testing tools:
+
+```
+go get github.com/stretchr/testify
+```
+
 ### Fork the repository
 
 If you're not fimiliar with this term, GitHub's [help pages](https://help.github.com/articles/fork-a-repo/) provide again a simple explanation:

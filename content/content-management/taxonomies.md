@@ -163,7 +163,7 @@ project_url = "https://github.com/gohugoio/hugo"
 ```
 ---
 title: "Hugo: A fast and flexible static site generator"
-#tags: ["Development", "Go", "fast", "Blogging"]
+tags: ["Development", "Go", "fast", "Blogging"]
 categories: ["Development"]
 series: ["Go Web Dev"]
 slug: "hugo"
@@ -216,7 +216,7 @@ categories_weight = 44
 ```
 ---
 title: foo
-#tags: [ "a", "b", "c" ]
+tags: [ "a", "b", "c" ]
 tags_weight: 22
 categories: ["d"]
 categories_weight: 44
