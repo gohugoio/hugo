@@ -34,7 +34,7 @@ const (
 	releaseNotesMarkdownTemplate = `
 {{- $patchRelease := isPatch . -}}
 {{- $contribsPerAuthor := .All.ContribCountPerAuthor -}}
-
+{{- $docsContribsPerAuthor := .Docs.ContribCountPerAuthor -}}
 {{- if $patchRelease }}
 {{ if eq (len .All) 1 }}
 This is a bug-fix release with one important fix.
@@ -53,6 +53,16 @@ This release represents **{{ len .All }} contributions by {{ len $contribsPerAut
 {{- $u1.AuthorLink }} leads the Hugo development with a significant amount of contributions, but also a big shoutout to {{ $u2.AuthorLink }}, {{ $u3.AuthorLink }}, and {{ $u4.AuthorLink }} for their ongoing contributions.
 And as always a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) for his relentless work on keeping the documentation and the themes site in pristine condition.
 {{ end }}
+{{- if not $patchRelease }}
+Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs), 
+which has received **{{ len .Docs }} contributions by {{ len $docsContribsPerAuthor }} contributors**.
+{{- if  gt (len $docsContribsPerAuthor) 3 -}}
+{{- $u1 := index $docsContribsPerAuthor 0 -}}
+{{- $u2 := index $docsContribsPerAuthor 1 -}}
+{{- $u3 := index $docsContribsPerAuthor 2 -}}
+{{- $u4 := index $docsContribsPerAuthor 3 }} A special thanks to {{ $u1.AuthorLink }}, {{ $u2.AuthorLink }}, {{ $u3.AuthorLink }}, and {{ $u4.AuthorLink }} for their work on the documentation site.
+{{ end }}
+{{ end }}
 Hugo now has:
 
 {{ with .Repo -}}
@@ -61,7 +71,7 @@ Hugo now has:
 {{- end -}}
 {{ with .ThemeCount }}
 * {{ . }}+ [themes](http://themes.gohugo.io/)
-{{- end }}
+{{ end }}
 {{ with .Notes }}
 ## Notes
 {{ template "change-section" . }}
@@ -128,8 +138,8 @@ var templateFuncs = template.FuncMap{
 	},
 }
 
-func writeReleaseNotes(version string, infos gitInfos, to io.Writer) error {
-	changes := gitInfosToChangeLog(infos)
+func writeReleaseNotes(version string, infosMain, infosDocs gitInfos, to io.Writer) error {
+	changes := gitInfosToChangeLog(infosMain, infosDocs)
 	changes.Version = version
 	repo, err := fetchRepo()
 	if err == nil {
@@ -165,7 +175,7 @@ func fetchThemeCount() (int, error) {
 	return bytes.Count(b, []byte("submodule")), nil
 }
 
-func writeReleaseNotesToTmpFile(version string, infos gitInfos) (string, error) {
+func writeReleaseNotesToTmpFile(version string, infosMain, infosDocs gitInfos) (string, error) {
 	f, err := ioutil.TempFile("", "hugorelease")
 	if err != nil {
 		return "", err
@@ -173,7 +183,7 @@ func writeReleaseNotesToTmpFile(version string, infos gitInfos) (string, error) 
 
 	defer f.Close()
 
-	if err := writeReleaseNotes(version, infos, f); err != nil {
+	if err := writeReleaseNotes(version, infosMain, infosDocs, f); err != nil {
 		return "", err
 	}
 
@@ -188,7 +198,7 @@ func getReleaseNotesDocsTempFilename(version string) string {
 	return filepath.Join(getReleaseNotesDocsTempDirAndName(version))
 }
 
-func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infos gitInfos) (string, error) {
+func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infosMain, infosDocs gitInfos) (string, error) {
 
 	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version)
 
@@ -214,7 +224,7 @@ func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infos gitInfos)
 		w = os.Stdout
 	}
 
-	if err := writeReleaseNotes(version, infos, w); err != nil {
+	if err := writeReleaseNotes(version, infosMain, infosDocs, w); err != nil {
 		return "", err
 	}
 

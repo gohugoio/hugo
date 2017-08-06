@@ -130,17 +130,24 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
-	var gitCommits gitInfos
+	var (
+		gitCommits     gitInfos
+		gitCommitsDocs gitInfos
+	)
 
 	if r.shouldPrepareReleasenotes() || r.shouldRelease() {
-		gitCommits, err = getGitInfos(changeLogFromTag, !r.try)
+		gitCommits, err = getGitInfos(changeLogFromTag, "", !r.try)
+		if err != nil {
+			return err
+		}
+		gitCommitsDocs, err = getGitInfos(changeLogFromTag, "../hugoDocs", !r.try)
 		if err != nil {
 			return err
 		}
 	}
 
 	if r.shouldPrepareReleasenotes() {
-		releaseNotesFile, err := r.writeReleaseNotesToTemp(version, gitCommits)
+		releaseNotesFile, err := r.writeReleaseNotesToTemp(version, gitCommits, gitCommitsDocs)
 		if err != nil {
 			return err
 		}
