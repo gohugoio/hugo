@@ -145,7 +145,7 @@ func TestDecodeFormats(t *testing.T) {
 		{
 			"Redefine JSON",
 			[]map[string]interface{}{
-				map[string]interface{}{
+				{
 					"JsON": map[string]interface{}{
 						"baseName":    "myindex",
 						"isPlainText": "false"}}},
@@ -161,7 +161,7 @@ func TestDecodeFormats(t *testing.T) {
 		{
 			"Add XML format with string as mediatype",
 			[]map[string]interface{}{
-				map[string]interface{}{
+				{
 					"MYXMLFORMAT": map[string]interface{}{
 						"baseName":  "myxml",
 						"mediaType": "application/xml",
@@ -182,7 +182,7 @@ func TestDecodeFormats(t *testing.T) {
 		{
 			"Add format unknown mediatype",
 			[]map[string]interface{}{
-				map[string]interface{}{
+				{
 					"MYINVALID": map[string]interface{}{
 						"baseName":  "mymy",
 						"mediaType": "application/hugo",
@@ -194,12 +194,12 @@ func TestDecodeFormats(t *testing.T) {
 		{
 			"Add and redefine XML format",
 			[]map[string]interface{}{
-				map[string]interface{}{
+				{
 					"MYOTHERXMLFORMAT": map[string]interface{}{
 						"baseName":  "myotherxml",
 						"mediaType": media.XMLType,
 					}},
-				map[string]interface{}{
+				{
 					"MYOTHERXMLFORMAT": map[string]interface{}{
 						"baseName": "myredefined",
 					}},

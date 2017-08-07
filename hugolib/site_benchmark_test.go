@@ -103,7 +103,7 @@ func doBenchMarkSiteBuilding(conf siteBuildingBenchmarkConfig, b *testing.B) {
 
 			// Try to help the GC
 			sites[0] = nil
-			sites = sites[1:len(sites)]
+			sites = sites[1:]
 		}
 	})
 }

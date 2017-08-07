@@ -89,7 +89,7 @@ func TestDecodeTypes(t *testing.T) {
 		{
 			"Redefine JSON",
 			[]map[string]interface{}{
-				map[string]interface{}{
+				{
 					"application/json": map[string]interface{}{
 						"suffix": "jsn"}}},
 			false,
@@ -102,7 +102,7 @@ func TestDecodeTypes(t *testing.T) {
 		{
 			"Add custom media type",
 			[]map[string]interface{}{
-				map[string]interface{}{
+				{
 					"text/hugo": map[string]interface{}{
 						"suffix": "hgo"}}},
 			false,
@@ -119,7 +119,7 @@ func TestDecodeTypes(t *testing.T) {
 		{
 			"Add media type invalid key",
 			[]map[string]interface{}{
-				map[string]interface{}{
+				{
 					"text/hugo+hgo": map[string]interface{}{}}},
 			true,
 			func(t *testing.T, name string, tt Types) {
