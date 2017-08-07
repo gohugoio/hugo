@@ -121,7 +121,7 @@ func (r *ReleaseHandler) Run() error {
 	var changeLogFromTag string
 
 	if newVersion.PatchLevel == 0 {
-		// There may have been patch releases inbetween, so set the tag explicitly.
+		// There may have been patch releases between, so set the tag explicitly.
 		changeLogFromTag = "v" + newVersion.Prev().String()
 		exists, _ := tagExists(changeLogFromTag)
 		if !exists {

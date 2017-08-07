@@ -49,7 +49,7 @@ type ArchetypeFileData struct {
 }
 
 const (
-	// ArchetypeTemplateTemplate is used as inital template when adding an archetype template.
+	// ArchetypeTemplateTemplate is used as initial template when adding an archetype template.
 	ArchetypeTemplateTemplate = `---
 title: "{{ replace .TranslationBaseName "-" " " | title }}"
 date: {{ .Date }}

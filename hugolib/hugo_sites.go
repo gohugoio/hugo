@@ -381,7 +381,6 @@ func (h *HugoSites) createMissingPages() error {
 					}
 
 					if !foundTaxonomyTermsPage {
-						foundTaxonomyTermsPage = true
 						n := s.newTaxonomyTermsPage(plural)
 						s.Pages = append(s.Pages, n)
 						newPages = append(newPages, n)

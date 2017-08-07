@@ -25,12 +25,12 @@ type Handler interface {
 	Extensions() []string
 }
 
-// Handle identifies functionality assosiated with certain file extentions.
+// Handle identifies functionality associated with certain file extensions.
 type Handle struct {
 	extensions []string
 }
 
-// Extensions returns a list of extentions.
+// Extensions returns a list of extensions.
 func (h Handle) Extensions() []string {
 	return h.extensions
 }

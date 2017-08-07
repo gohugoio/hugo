@@ -92,7 +92,7 @@ func (ns *Namespace) Mul(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '*')
 }
 
-// Sub substracts two numbers.
+// Sub subtracts two numbers.
 func (ns *Namespace) Sub(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '-')
 }

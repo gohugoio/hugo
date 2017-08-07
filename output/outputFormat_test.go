@@ -127,7 +127,7 @@ func TestGetFormatByFilename(t *testing.T) {
 	f, found = formats.FromFilename("my.nex")
 	require.True(t, found)
 	require.Equal(t, noExt, f)
-	f, found = formats.FromFilename("my.css")
+	_, found = formats.FromFilename("my.css")
 	require.False(t, found)
 
 }

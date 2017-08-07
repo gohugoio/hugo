@@ -73,7 +73,7 @@ func TestFromTypeString(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, Type{MainType: "application", SubType: "custom", Suffix: "pdf", Delimiter: defaultDelimiter}, f)
 
-	f, err = FromString("noslash")
+	_, err = FromString("noslash")
 	require.Error(t, err)
 
 }

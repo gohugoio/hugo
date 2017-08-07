@@ -84,7 +84,7 @@ type TemplateFuncMethodMapping struct {
 	Method interface{}
 
 	// Any template funcs aliases. This is mainly motivated by keeping
-	// backwards compability, but some new template funcs may also make
+	// backwards compatibility, but some new template funcs may also make
 	// sense to give short and snappy aliases.
 	// Note that these aliases are global and will be merged, so the last
 	// key will win.
