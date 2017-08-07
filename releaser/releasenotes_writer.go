@@ -234,7 +234,7 @@ func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infosMain, info
 
 func (r *ReleaseHandler) writeReleaseNotesToDocs(title, sourceFilename string) (string, error) {
 	targetFilename := filepath.Base(sourceFilename)
-	contentDir := hugoFilepath("docs/content/release-notes")
+	contentDir := hugoFilepath("docs/content/news")
 	targetFullFilename := filepath.Join(contentDir, targetFilename)
 
 	if r.try {
@@ -257,10 +257,12 @@ func (r *ReleaseHandler) writeReleaseNotesToDocs(title, sourceFilename string) (
 	if _, err := f.WriteString(fmt.Sprintf(`
 ---
 date: %s
-title: %s
+title: %q
+description: %q
+categories: ["Releases"]
 ---
 
-	`, time.Now().Format("2006-01-02"), title)); err != nil {
+	`, time.Now().Format("2006-01-02"), title, title)); err != nil {
 		return "", err
 	}
 
