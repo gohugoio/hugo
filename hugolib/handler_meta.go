@@ -37,7 +37,7 @@ type MetaHandler interface {
 // HandledResults is a channel for HandledResult.
 type HandleResults chan<- HandledResult
 
-// NewMetaHandler creates a MetaHandle for a given extention.
+// NewMetaHandler creates a MetaHandle for a given extensions.
 func NewMetaHandler(in string) *MetaHandle {
 	x := &MetaHandle{ext: in}
 	x.Handler()
@@ -60,7 +60,7 @@ func (mh *MetaHandle) Read(f *source.File, s *Site, results HandleResults) {
 	results <- HandledResult{err: errors.New("No handler found"), file: f}
 }
 
-// Convert handles the convertion of files and pages.
+// Convert handles the conversion of files and pages.
 func (mh *MetaHandle) Convert(i interface{}, s *Site, results HandleResults) {
 	h := mh.Handler()
 
@@ -84,7 +84,7 @@ func (mh *MetaHandle) Convert(i interface{}, s *Site, results HandleResults) {
 	}
 }
 
-// Handler finds the registered handler for the used extention.
+// Handler finds the registered handler for the used extensions.
 func (mh *MetaHandle) Handler() Handler {
 	if mh.handler == nil {
 		mh.handler = FindHandler(mh.ext)
@@ -107,7 +107,7 @@ func FindHandler(ext string) Handler {
 	return nil
 }
 
-// HandlerMatch checks if the given extention matches.
+// HandlerMatch checks if the given extensions matches.
 func HandlerMatch(h Handler, ext string) bool {
 	for _, x := range h.Extensions() {
 		if ext == x {
