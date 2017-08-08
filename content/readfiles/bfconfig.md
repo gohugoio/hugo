@@ -54,14 +54,14 @@
     Blackfriday flag: **`EXTENSION_*`** <br>
     Purpose: Enable one or more Blackfriday's Markdown extensions (if they aren't Hugo defaults). <br>
     Example: Include `hardLineBreak` in the list to enable Blackfriday's `EXTENSION_HARD_LINK_BREAK`. <br>
-    *See [Blackfriday extensions]({{< relref "#blackfriday-extensions" >}}) section for more information.*
+    *See [Blackfriday extensions](#blackfriday-extensions) section for more information.*
 
 `extensionsmask`
 : default: **`[]`** <br>
     Blackfriday flag: **`EXTENSION_*`** <br>
     Purpose: Enable one or more of Blackfriday's Markdown extensions (if they aren't Hugo defaults). <br>
     Example: Include `autoHeaderIds` as `false` in the list to disable Blackfriday's `EXTENSION_AUTO_HEADER_IDS`. <br>
-    *See [Blackfriday extensions]({{< relref "#blackfriday-extensions" >}}) section for more information.*
+    *See [Blackfriday extensions](#blackfriday-extensions) section for more information.*
 
 ## Blackfriday extensions
 
