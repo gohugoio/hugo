@@ -18,6 +18,8 @@ import (
 	"html"
 	"html/template"
 
+	"github.com/gohugoio/hugo/tpl/strings"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cast"
@@ -88,6 +90,7 @@ func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
 	if err != nil {
 		return "", err
 	}
+	_, isBlocks := s.(strings.Blocks)
 
 	m := ns.deps.ContentSpec.RenderBytes(
 		&helpers.RenderingContext{
@@ -97,8 +100,11 @@ func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
 			Config:  ns.deps.ContentSpec.NewBlackfriday(),
 		},
 	)
-	m = bytes.TrimPrefix(m, markdownTrimPrefix)
-	m = bytes.TrimSuffix(m, markdownTrimSuffix)
+
+	if !isBlocks {
+		m = bytes.TrimPrefix(m, markdownTrimPrefix)
+		m = bytes.TrimSuffix(m, markdownTrimSuffix)
+	}
 
 	return template.HTML(m), nil
 }
