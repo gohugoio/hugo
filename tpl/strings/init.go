@@ -29,6 +29,13 @@ func init() {
 			Context: func(args ...interface{}) interface{} { return ctx },
 		}
 
+		ns.AddMethodMapping(ctx.Blocks,
+			[]string{"blocks"},
+			[][2]string{
+				{`{{ "Hugo" | blocks }}`, `Hugo`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Chomp,
 			[]string{"chomp"},
 			[][2]string{

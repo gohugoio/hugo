@@ -28,6 +28,32 @@ var ns = New(&deps.Deps{Cfg: viper.New()})
 
 type tstNoStringer struct{}
 
+func TestBlocks(t *testing.T) {
+	t.Parallel()
+
+	for i, test := range []struct {
+		s      interface{}
+		expect interface{}
+	}{
+		{"text", Blocks("text")},
+		{123, Blocks("123")},
+		// errors
+		{tstNoStringer{}, false},
+	} {
+		errMsg := fmt.Sprintf("[%d] %v", i, test)
+
+		result, err := ns.Blocks(test.s)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			require.Error(t, err, errMsg)
+			continue
+		}
+
+		require.NoError(t, err, errMsg)
+		assert.Equal(t, test.expect, result, errMsg)
+	}
+}
+
 func TestChomp(t *testing.T) {
 	t.Parallel()
 
