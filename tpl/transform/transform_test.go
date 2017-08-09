@@ -168,6 +168,34 @@ func TestMarkdownify(t *testing.T) {
 	}
 }
 
+// Issue #3040
+func TestMarkdownifyBlocksOfText(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	ns := New(newDeps(viper.New()))
+
+	text := `
+#First 
+
+This is some *bold* text.
+
+## Second
+
+This is some more text.
+
+And then some.
+`
+
+	result, err := ns.Markdownify(text)
+	assert.NoError(err)
+	assert.Equal(template.HTML(
+		"<p>#First</p>\n\n<p>This is some <em>bold</em> text.</p>\n\n<h2 id=\"second\">Second</h2>\n\n<p>This is some more text.</p>\n\n<p>And then some.</p>\n"),
+		result)
+
+}
+
 func TestPlainify(t *testing.T) {
 	t.Parallel()
 

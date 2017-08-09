@@ -79,8 +79,11 @@ func (ns *Namespace) HTMLUnescape(s interface{}) (string, error) {
 	return html.UnescapeString(ss), nil
 }
 
-var markdownTrimPrefix = []byte("<p>")
-var markdownTrimSuffix = []byte("</p>\n")
+var (
+	markdownTrimPrefix         = []byte("<p>")
+	markdownTrimSuffix         = []byte("</p>\n")
+	markdownParagraphIndicator = []byte("<p")
+)
 
 // Markdownify renders a given input from Markdown to HTML.
 func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
@@ -97,8 +100,14 @@ func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
 			Config:  ns.deps.ContentSpec.NewBlackfriday(),
 		},
 	)
-	m = bytes.TrimPrefix(m, markdownTrimPrefix)
-	m = bytes.TrimSuffix(m, markdownTrimSuffix)
+
+	// Strip if this is a short inline type of text.
+	first := bytes.Index(m, markdownParagraphIndicator)
+	last := bytes.LastIndex(m, markdownParagraphIndicator)
+	if first == last {
+		m = bytes.TrimPrefix(m, markdownTrimPrefix)
+		m = bytes.TrimSuffix(m, markdownTrimSuffix)
+	}
 
 	return template.HTML(m), nil
 }
