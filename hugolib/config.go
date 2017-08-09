@@ -19,6 +19,8 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
+	"io"
+	"strings"
 )
 
 // LoadConfig loads Hugo configuration into a new Viper and then adds
@@ -29,10 +31,10 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 	if relativeSourcePath == "" {
 		relativeSourcePath = "."
 	}
-
+	configFilenames := strings.Split(configFilename, ",")
 	v.AutomaticEnv()
 	v.SetEnvPrefix("hugo")
-	v.SetConfigFile(configFilename)
+	v.SetConfigFile(configFilenames[0])
 	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
 	if relativeSourcePath == "" {
 		v.AddConfigPath(".")
@@ -45,6 +47,16 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 			return nil, err
 		}
 		return nil, fmt.Errorf("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
+	}
+	for _, configFile := range configFilenames[1:] {
+		var r io.Reader
+		var err error
+		if r, err = fs.Open(configFile); err != nil {
+			return nil, fmt.Errorf("Unable to open Config file.\n (%s)\n", err)
+		}
+		if err = v.MergeConfig(r); err != nil {
+			return nil, fmt.Errorf("Unable to parse/merge Config file (%s).\n (%s)\n", configFile, err)
+		}
 	}
 
 	v.RegisterAlias("indexes", "taxonomies")
