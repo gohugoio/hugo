@@ -155,7 +155,7 @@ func (sp SourceSpec) NewFile(relpath string) *File {
 	}
 
 	f.section = helpers.GuessSection(f.Dir())
-	f.uniqueID = helpers.Md5String(f.Path())
+	f.uniqueID = helpers.Md5String(filepath.ToSlash(f.relpath))
 
 	return f
 }

@@ -37,6 +37,11 @@ func TestFileUniqueID(t *testing.T) {
 	f4 := ss.NewFile(filepath.FromSlash("test2/index.md"))
 
 	assert.NotEqual(t, f3.UniqueID(), f4.UniqueID())
+
+	f5l := ss.NewFile("test3/index.md")
+	f5w := ss.NewFile(filepath.FromSlash("test3/index.md"))
+
+	assert.Equal(t, f5l.UniqueID(), f5w.UniqueID())
 }
 
 func TestFileString(t *testing.T) {
