@@ -13,17 +13,12 @@ Note that this repository contains solely the documentation for Hugo. For contri
 
 ## Build
 
-To view the documentation site locally, you need to clone this repository with submodules:
+To view the documentation site locally, you need to clone this repository:
 
 ```bash
-git clone --recursive https://github.com/gohugoio/hugoDocs.git
+git clone https://github.com/gohugoio/hugoDocs.git
 ```
 
-Or if you already have a clone locally:
-
-```bash
-git submodule update --init
-```
 Also note that the documentation version for a given version of Hugo can also be found in the `/docs` sub-folder of the [Hugo source repository](https://github.com/gohugoio/hugo).
 
 Then to view the docs in your browser, run Hugo and open up the link:
