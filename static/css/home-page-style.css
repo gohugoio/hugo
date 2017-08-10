@@ -1,0 +1,194 @@
+/* global styles */
+
+html {
+    width: 100%;
+    height: 100%;
+    letter-spacing: 0.5px;
+}
+body {
+    width: 100%;
+    height: 100%;
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    font-family: 'Arbutus Slab', "Helvetica Neue", "Helvetica", sans-serif !important;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cabin', "Helvetica Neue", "Helvetica", sans-serif;
+}
+div.vert-text {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* full page image header area */
+
+div.buttonbox {
+    margin: 2em 0 4em;
+}
+img.logo {
+    padding: 2em;
+    width: 100%;
+    max-width: 35em;
+}
+div#main {
+    position: relative;
+    z-index: 99999;
+    background: rgb(255, 255, 255);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+.header {
+    display: table;
+    position: relative;
+    width: 100%;
+    height: 70%;
+    min-height: 70%;
+    z-index: 99999;
+    background-color: black;
+    background-repeat: no-repeat;
+}
+.header a.btn {
+    margin: 10px;
+    font-weight: 100;
+}
+
+/* intro */
+
+a:hover {
+    color: rgb(52, 73, 94);
+}
+i.callout-icon, i.lead-icon, i.point-icon {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    width: 140px;
+    height: 140px;
+    font-size: 56px;
+    line-height: 136px;
+    border-radius: 50%;
+    -webkit-transition: box-shadow 0.2s;
+    -moz-transition: box-shadow 0.2s;
+    transition: box-shadow 0.2s;
+}
+div.counterpoint {
+    background-color: rgb(255, 252, 244);
+}
+div.counterpoint, div.point {
+    padding: 50px 0;
+}
+div.counterpoint a, div.point a {
+    color: rgb(7,162,166);
+}
+div.counterpoint h2, div.point h2 {
+    line-height: 1.7;
+    font-size: 32pt;
+}
+a.icon-2x {
+    font-size: 200%;
+}
+i.lead-icon {
+    border: 3px solid #222222;
+}
+i.lead-icon:hover {
+    border: 3px solid black;
+    background: black;
+    color: #ffffff;
+}
+div.point {
+    background: rgb(96,210,211);
+    color: #ffffff;
+}
+div.point h2 > i {
+    color:#FF4088;
+}
+i.point-icon {
+    border: 3px solid #ffffff;
+}
+i.point-icon:hover {
+    background: #ffffff;
+    color: rgb(22, 203, 230);
+}
+
+/* callout */
+
+div.callout {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    height: 420px;
+    padding: 50px 0;
+    background-color: rgb(118,156,172);
+    color: #ffffff;
+}
+i.callout-icon {
+    border: 3px solid #ffffff;
+}
+i.callout-icon:hover {
+    background: #ffffff;
+    color: rgb(249, 176, 190);
+}
+
+/* call to action */
+
+div#action.call-to-action {
+    padding: 30px 0px 40px;
+    padding: 30px 0px 50px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.19);
+    background: url('../img/gray.png');
+    color: #ffffff;
+}
+div#action.call-to-action code {
+    font-size: 14pt;
+}
+div#action.call-to-action h1 {
+    padding-bottom: .5em;
+}
+div#action.call-to-action pre {
+    background-color: #545454;
+    color: #f9f2f4;
+    margin-bottom: 0;
+}
+div#action.call-to-action pre:hover {
+    background-color: #f9f2f4;
+    color: #545454;
+}
+div#action.call-to-action a.btn {
+    margin: 10px;
+}
+div#action.call-to-action a.quickstart {
+    font-weight: 300;
+    color: white;
+}
+
+/* footer */
+
+footer {
+    padding: 50px 0px 25px 0px;
+    font-size: 14px;
+    background: rgb(255, 255, 255);
+}
+footer a {
+    color: black;
+}
+footer a:focus,
+footer a:hover {
+    text-decoration: none;
+    outline: none;
+}
+footer a:active {
+    color: green;
+}
+
+/* Bootstrap addons */
+
+div.owl-carousel a {
+    white-space: nowrap;
+    color: #243382;
+}
+div.owl-carousel blockquote {
+    border-left: 0px;
+}
+div.owl-carousel blockquote p {
+    font-size: 20pt;
+}

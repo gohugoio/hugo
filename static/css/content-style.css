@@ -1,0 +1,84 @@
+/* Styles used by tables at the URLs:
+
+   1. /overview/configuration/#configure-blackfriday-rendering
+   2. /templates/functions/#math
+
+Their HTML is in the files:
+
+   1. ./docs/content/overview/configuration.md
+   2. ./docs/content/templates/functions.md
+*/
+
+table.table {
+    margin: 1em 0;
+}
+table.table-bordered tr th,
+table.table-bordered tr td {
+    border-width: 2px;
+    border-color: #dddddd;
+    border-style: solid;
+    padding: 0 0.5em;
+}
+table.table-bordered-configuration {
+    max-width: 100%;
+}
+table.table-bordered-configuration,
+table.table-bordered-configuration tr,
+table.table-bordered-configuration tr th,
+table.table-bordered-configuration tr td:not(.purpose-description) {
+    border-width: 2px;
+}
+table.table-bordered-configuration tr td.purpose-description {
+    border-width: 1px;
+}
+table.table-bordered-configuration,
+table.table-bordered-configuration tr,
+table.table-bordered-configuration tr th,
+table.table-bordered-configuration tr td {
+    border-color: #dddddd;
+}
+table.table-bordered-configuration {
+    border-right-style: solid;
+    border-bottom-style: solid;
+}
+table.table-bordered-configuration tr,
+table.table-bordered-configuration tr th,
+table.table-bordered-configuration tr td:not(.purpose-description) {
+    border-left-style: solid;
+}
+table.table-bordered-configuration tr th,
+table.table-bordered-configuration tr td:not(.purpose-description) {
+    border-top-style: solid;
+}
+table.table-bordered-configuration tr td.purpose-description {
+    border-top-style: dotted;
+}
+table.table-bordered-configuration tr th,
+table.table-bordered-configuration tr td {
+    padding-top: 0;
+    padding-right: 0.5em;
+    padding-left: 0.5em;
+}
+table.table-bordered-configuration tr th,
+table.table-bordered-configuration tr td:not(.purpose-description) {
+    padding-bottom: 0;
+}
+table.table-bordered-configuration tr td.purpose-description {
+    padding-bottom: 0.5em;
+}
+table.table-bordered-configuration tr th,
+table.table-bordered-configuration tr td:not(.purpose-description) {
+    text-align: center;
+}
+table.table-bordered-configuration tr td:not(.purpose-description) code {
+    padding: 0;
+    border-radius: 0;
+    font-size: 14px;
+    background-color: inherit;
+    color: darkgreen;
+}
+table.table-bordered-configuration tr td span.purpose-title {
+    padding-right: 0.15em;
+    font-style: italic;
+    color: chocolate;
+}
