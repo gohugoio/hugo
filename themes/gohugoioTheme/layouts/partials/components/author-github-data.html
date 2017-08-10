@@ -1,0 +1,21 @@
+{{ $author := .context.Params.author }}
+{{ if $author }}
+  <aside class="mw5 br3 mv3 nested-links">
+    {{ $urlPre := "https://api.github.com" }}
+    {{ $user_json := getJSON $urlPre "/users/" $author }}
+      {{ if $user_json.name }}
+        <h3 class="f4 dib">
+            {{ $user_json.name | htmlEscape }}
+        </h3>
+
+      {{ end }}
+      {{ if $user_json.bio }}
+        <p class="lh-copy measure center mt0 f6 black-60">
+          {{ $user_json.bio | htmlEscape }}
+        </p>
+      {{ end }}
+      <a href="{{ $user_json.html_url }}" class="link dim v-mid dib">
+        {{ partial "svg/github-squared.svg" (dict "fill" "gray" "width" "16" "height" "18") }}
+      </a>
+  </aside>
+{{ end }}

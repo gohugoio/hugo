@@ -84,7 +84,7 @@ Moonrise Kingdom            <- Content
 
 ## Hugo Taxonomy Defaults
 
-Hugo natively supports taxonomies. 
+Hugo natively supports taxonomies.
 
 Without adding a single line to your site's configuration file, Hugo will automatically create taxonomies for `tags` and `categories`. If you do not want Hugo to create any taxonomies, set `disableKinds` in your site's configuration to the following:
 
@@ -228,6 +228,19 @@ By using taxonomic weight, the same piece of content can appear in different pos
 {{% note "Limits to Ordering Taxonomies" %}}
 Currently taxonomies only support the [default `weight => date` ordering of list content](/templates/lists/#default-weight-date). For more information, see the documentation on [taxonomy templates](/templates/taxonomy-templates/).
 {{% /note %}}
+
+## Add custom metadata to a Taxonomy Term
+
+If you need to add custom metadata to your taxonomy terms, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in it's front matter. Continuing with our 'Actors' example, let's say you want to add a wikipedia page link to each actor. Your terms pages would be something like this:
+
+{{< code file="/content/actors/bruce-willis/_index.md" >}}
+  ---
+  title: "Bruce Willis"
+  wikipedia: "https://en.wikipedia.org/wiki/Bruce_Willis"
+  ---
+{{< /code >}}
+
+You can later use your custom metadata as shown in the [Taxonomy Terms Templates documentation](/templates/taxonomy-templates/#displaying-custom-meta-data-in-taxonomy-terms-templates).
 
 [`urlize` template function]: /functions/urlize/
 [content section]: /content-management/sections/

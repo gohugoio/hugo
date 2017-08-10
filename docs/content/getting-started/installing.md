@@ -441,15 +441,12 @@ sudo apt-get install hugo
 
 * Might not be the latest version, especially if you are using an older, stable version (e.g., Ubuntu 16.04 LTS). Until backports and PPA are available, you may consider installing the Hugo snap package to get the latest version of Hugo.
 
-### Arch
+### Arch Linux
 
-You can also install Hugo from the [Arch user repository](https://aur.archlinux.org/) on Arch Linux or derivatives such as Manjaro.
-
-Be aware that Hugo is built from source. This means that additional tools like [Git](https://git-scm.com) and [Go](https://golang.org/doc/install) will be installed as well.
+You can also install Hugo from the Arch Linux [community](https://www.archlinux.org/packages/community/x86_64/hugo/) repository. Applies also for derivatives such as Manjaro.
 
 ```
-sudo pacman -S yaourt
-yaourt -S hugo
+sudo pacman -Sy hugo
 ```
 
 ### Fedora, CentOS, and Red Hat

@@ -1,0 +1,11 @@
+{{ if isset .Params "signature" -}}
+  {{- with .Params.signature }}
+    <h2 class="minor mb1 pt4 primary-color-dark">Syntax</h2>
+    {{- range . }}
+      <pre class="f5 mb4 ph3 pv2 bg-light-gray" style="border-left:4px solid #0594CB;">
+        {{- . -}}
+      </pre>
+    {{- end }}
+  {{- end -}}
+{{ end }}
+{{/* The inline style overrides `pre` styling defaults */}}

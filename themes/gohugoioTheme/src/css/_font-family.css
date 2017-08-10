@@ -1,0 +1,80 @@
+/* From http://cssfontstack.com */
+code, .code, pre code, .highlight pre  {
+  font-family: 'inconsolata',Menlo,Monaco,'Courier New',monospace;
+}
+
+.sans-serif {
+  font-family: 'Muli',
+              avenir,
+               'helvetica neue', helvetica,
+               ubuntu,
+               roboto, noto,
+               'segoe ui', arial,
+               sans-serif;
+}
+
+
+.serif {
+  font-family: Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif;
+}
+
+/* Monospaced Typefaces (for code) */
+
+
+.courier {
+  font-family: 'Courier Next',
+               courier,
+               monospace;
+}
+
+
+/* Sans-Serif Typefaces */
+
+.helvetica {
+  font-family: 'helvetica neue', helvetica,
+               sans-serif;
+}
+
+.avenir {
+  font-family: 'avenir next', avenir,
+               sans-serif;
+}
+
+
+/* Serif Typefaces */
+
+.athelas {
+  font-family: athelas,
+               georgia,
+               serif;
+}
+
+.georgia {
+  font-family: georgia,
+               serif;
+}
+
+.times {
+  font-family: times,
+               serif;
+}
+
+.bodoni {
+  font-family: "Bodoni MT",
+                serif;
+}
+
+.calisto {
+  font-family: "Calisto MT",
+                serif;
+}
+
+.garamond {
+  font-family: garamond,
+               serif;
+}
+
+.baskerville {
+  font-family: baskerville,
+               serif;
+}
