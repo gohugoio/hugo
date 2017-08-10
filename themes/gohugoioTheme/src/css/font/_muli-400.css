@@ -1,0 +1,30 @@
+
+/* muli-400normal - latin */
+@font-face {
+  font-family: 'Muli';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/files/muli-latin-400.eot'); /* IE9 Compat Modes */
+  src:
+    local('Muli Regular '),
+    local('Muli-Regular'),
+    url('/files/muli-latin-400.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('/files/muli-latin-400.woff2') format('woff2'), /* Super Modern Browsers */
+    url('/files/muli-latin-400.woff') format('woff'), /* Modern Browsers */
+    url('/files/muli-latin-400.svg#muli') format('svg'); /* Legacy iOS */
+}
+
+/* muli-400italic - latin */
+@font-face {
+  font-family: 'Muli';
+  font-style: italic;
+  font-weight: 400;
+  src: url('/files/muli-latin-400italic.eot'); /* IE9 Compat Modes */
+  src:
+    local('Muli Regular italic'),
+    local('Muli-Regularitalic'),
+    url('/files/muli-latin-400italic.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('/files/muli-latin-400italic.woff2') format('woff2'), /* Super Modern Browsers */
+    url('/files/muli-latin-400italic.woff') format('woff'), /* Modern Browsers */
+    url('/files/muli-latin-400italic.svg#muli') format('svg'); /* Legacy iOS */
+}

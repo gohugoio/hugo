@@ -1,0 +1,33 @@
+{{ $author := .context.Params.author }}
+{{ if $author }}
+  <aside class="mw5 center bg-white br3 pa3 pa4-ns mv3 ba b--black-10 nested-links">
+    {{ $urlPre := "https://api.github.com" }}
+    {{ $user_json := getJSON $urlPre "/users/" $author }}
+
+    <div class="tc">
+
+      {{ if $user_json.avatar_url }}
+        <a href="{{ $user_json.html_url }}" class="link  hover-bg-light-gray pa1 br-100">
+          <img src="{{ $user_json.avatar_url }}&size={{ .size }}" alt="" class="br-100 ba b--light-gray">
+        </a>
+      {{ end }}
+
+      {{ if $user_json.name }}
+        <h3 class="f4">
+          <a href="{{ $user_json.html_url }}" class="link dim">
+            {{ $user_json.name }}
+          </a>
+        </h3>
+        <hr class="mw3 bb bw1 b--black-10">
+      {{ end }}
+
+      {{ if $user_json.bio }}
+        <p class="lh-copy measure center f6 black-70">
+          {{ $user_json.bio }}
+        </p>
+      {{ end }}
+
+    </div>
+
+  </aside>
+{{ end }}

@@ -1,0 +1,9 @@
+{{ range .Params }}
+	{{   if eq (substr . 0 1) "@" }}
+	<a href="//github.com/{{ substr . 1 }}">{{ . }}</a>
+	{{   else if eq (substr . 0 2) "0x" }}
+	<a href="//github.com/gohugoio/hugo/commit/{{ substr . 2 }}">{{ substr . 2 6 }}</a>
+	{{   else }}
+	<a href="//github.com/gohugoio/hugo/issues/{{ . }}">#{{ . }}</a>
+	{{ end }}
+{{ end }}

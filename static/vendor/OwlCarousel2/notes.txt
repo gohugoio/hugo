@@ -1,0 +1,12 @@
+Version: 2.0.0-beta.3
+
+Source:
+  https://github.com/OwlCarousel2/OwlCarousel2
+
+Files (there):
+  dist/assets/owl.carousel.css
+  dist/assets/owl.theme.default.css
+  dist/owl.carousel.js
+
+Roadmap (from August 22, 2016):
+  https://github.com/OwlCarousel2/OwlCarousel2/issues/1538
