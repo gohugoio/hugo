@@ -40,6 +40,24 @@ type Namespace struct {
 	deps      *deps.Deps
 }
 
+// Blocks is a marker type used to mark one or more blocks of text. It is used in
+// markdownify to prevent stripping of p tags.
+type Blocks string
+
+// Implements the Stringer interface.
+func (b Blocks) String() string {
+	return string(b)
+}
+
+// Blocks converts the given string to Blocks to identify blocks of text.
+func (ns *Namespace) Blocks(s interface{}) (Blocks, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", fmt.Errorf("Failed to convert content to string: %s", err)
+	}
+	return Blocks(ss), nil
+}
+
 // CountRunes returns the number of runes in s, excluding whitepace.
 func (ns *Namespace) CountRunes(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)

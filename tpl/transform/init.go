@@ -78,6 +78,7 @@ func init() {
 			[]string{"markdownify"},
 			[][2]string{
 				{`{{ .Title | markdownify}}`, `<strong>BatMan</strong>`},
+				{`{{ "Blocks of *text*." | blocks | markdownify}}`, "<p>Blocks of <em>text</em>.</p>\n"},
 			},
 		)
 
