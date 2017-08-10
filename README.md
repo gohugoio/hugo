@@ -67,18 +67,11 @@ To update Hugo’s dependencies, use `go get` with the `-u` option.
 	
 ## The Hugo Documentation
 
-The Hugo documentation now lives in its own repository, see https://github.com/gohugoio/hugoDocs. But we do keep a version of that documentation as a `git subtree` in this repository. To build the sub folder `/docs` as a Hugo site, you need to clone this repo with submodules:
+The Hugo documentation now lives in its own repository, see https://github.com/gohugoio/hugoDocs. But we do keep a version of that documentation as a `git subtree` in this repository. To build the sub folder `/docs` as a Hugo site, you need to clone this repo:
 
 ```bash
-git clone --recursive git@github.com:gohugoio/hugo.git
+git clone git@github.com:gohugoio/hugo.git
 ```
-
-Or after you have cloned it you can do:
-
-```bash
-git submodule update --init
-```
-
 ## Contributing to Hugo
 
 For a complete guide to contributing to Hugo, see the [Contribution Guide](CONTRIBUTING.md).
