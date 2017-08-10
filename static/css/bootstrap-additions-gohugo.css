@@ -1,0 +1,65 @@
+/*!
+ * Bootstrap for http://gohugo.io/
+ * additional property-value pairs, for selectors already in Bootstrap;
+ * also, additional Bootstrap-like selectors
+ *
+ * Keep all such property additions to Bootstrap v3.3.6 here.
+ *
+ * Here, maintain the same order as the original Bootstrap file.
+ *
+ * Keep any additional Bootstrap-like selectors at the bottom.
+ *
+ * Copyright 2013-2016 Steve Francia and the Hugo Authors
+ *
+ * Based on 'dist/css/bootstrap.css' from:
+ *
+ * Bootstrap v3.3.6 (http://getbootstrap.com)
+ * Copyright 2011-2015 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+.btn {
+  -webkit-transition: all 0.15s;
+     -moz-transition: all 0.15s;
+          transition: all 0.15s;
+}
+.btn-primary:focus,
+.btn-primary:active,
+.btn-success:focus,
+.btn-success:active,
+.btn-info:focus,
+.btn-info:active {
+  background-color: transparent;
+}
+.btn-default:hover,
+.btn-default:active,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-success:hover,
+.btn-success:active,
+.btn-info:hover,
+.btn-info:active {
+  outline: none;
+}
+
+/* additional Bootstrap-like selectors */
+
+.btn-repo {
+  border-color: black;
+  background-color: rgba(30, 30, 30, 0.8);
+  color: white;
+}
+.btn-repo:focus,
+.btn-repo:active {
+  color: black;
+}
+.btn-repo:hover {
+  background-color: aliceblue;
+}
+.btn-repo:focus,
+.btn-repo:active {
+  background-color: transparent;
+}
+.btn-repo:hover,
+.btn-repo:active {
+  outline: none;
+}

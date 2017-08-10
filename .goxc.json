@@ -1,6 +1,0 @@
-{
-	"ArtifactsDest": "GoBuilds/",
-	"OutPath": "{{.Dest}}{{.PS}}{{.AppName}}{{.PS}}{{.Version}}{{.PS}}{{.AppName}}_{{.Version}}_{{.Os}}_{{.Arch}}{{.Ext}}",
-	"BuildConstraints": "linux windows darwin freebsd netbsd openbsd dragonfly",
-	"ConfigVersion": "0.9"
-}

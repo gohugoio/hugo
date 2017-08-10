@@ -1,0 +1,136 @@
+/*!
+ * Bootstrap for http://gohugo.io/
+ * value changes to properties in Bootstrap selectors;
+ * Bootstrap must already have the same properties in the same selectors.
+ *
+ * Keep all such value changes to Bootstrap v3.3.6 here.
+ *
+ * Here, maintain the same order as the original Bootstrap file.
+ *
+ * Keep all new properties, for new or existing selectors,
+ * in other stylesheets.
+ *
+ * Copyright 2013-2016 Steve Francia and the Hugo Authors
+ *
+ * Based on 'dist/css/bootstrap.css' from:
+ *
+ * Bootstrap v3.3.6 (http://getbootstrap.com)
+ * Copyright 2011-2015 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+body {
+  font-family: Lato;
+  color: #2b2b2b;
+}
+a {
+  color: #ff4088;
+}
+a:hover,
+a:focus {
+  color: #ff4088;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: Lato;
+  font-weight: 400;
+}
+code,
+kbd,
+pre,
+samp {
+  font-family: Menlo, Consolas, 'DejaVu Sans Mono',
+              'Bitstream Vera Sans Mono', 'Lucida Console', Monaco,
+              'Droid Sans Mono', monospace;
+}
+legend {
+  color: #2b2b2b;
+  border-bottom: 1px solid #c7c7cc;
+}
+.btn:focus {
+  /*outline: thin dotted;
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;*/
+  outline: none;
+}
+.btn:hover,
+.btn:focus {
+  color: #2b2b2b;
+}
+.btn-default:focus {
+  color: #fff;
+  background-color: #9e9e9e;
+  border-color: #9e9e9e;
+}
+.btn-default:hover {
+  color: #fff;
+  background-color: #9e9e9e;
+  border-color: #9e9e9e;
+}
+.btn-default:active {
+  color: #fff;
+  background-color: #9e9e9e;
+  border-color: #9e9e9e;
+}
+.btn-primary {
+  background-color: #007aff;
+  border-color: #007aff;
+}
+.btn-primary:focus {
+  color: #007aff;
+  border-color: #007aff;
+}
+.btn-primary:hover {
+  color: #007aff;
+  background-color: aliceblue;
+  border-color: #007aff;
+}
+.btn-primary:active {
+  color: #007aff;
+  border-color: #007aff;
+}
+.btn-success {
+  background-color: #4cd964;
+  border-color: #4cd964;
+}
+.btn-success:focus {
+  color: #4cd964;
+  border-color: #4cd964;
+}
+.btn-success:hover {
+  color: #4cd964;
+  background-color: aliceblue;
+  border-color: #4cd964;
+}
+.btn-success:active {
+  color: #4cd964;
+  border-color: #4cd964;
+}
+.btn-info {
+  background-color: #34aadc;
+  border-color: #34aadc;
+}
+.btn-info:focus {
+  color: #34aadc;
+  border-color: #34aadc;
+}
+.btn-info:hover {
+  color: #34aadc;
+  background-color: aliceblue;
+  border-color: #34aadc;
+}
+.btn-info:active {
+  color: #34aadc;
+  border-color: #34aadc;
+}
+.panel {
+  border: 0px solid transparent;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+.panel-body {
+  padding: 15px 15px 0px 15px;
+}

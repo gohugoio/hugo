@@ -1,0 +1,16 @@
+:root {
+  --primary-color:        #0594CB;
+  --primary-color-dark:   #0A1922;
+  --primary-color-light:  #f9f9f9;
+  --accent-color:         #EBB951;
+  --accent-color-light:   #FF4088;
+  --accent-color-dark:    #33ba91;
+  --text-color-primary:   #373737;
+  --text-on-primary-color: #fff;
+  --text-color-secondary: #ccc;
+  --text-color-disabled:  #F7f7f7;
+  --divider-color:        #f6f6f6;
+  --warn-color: red;
+
+  --blue: var(--primary-color);
+}
