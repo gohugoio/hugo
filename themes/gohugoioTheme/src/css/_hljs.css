@@ -1,0 +1,11 @@
+/* modified from:*/
+@import 'highlight.js/styles/atom-one-light.css';
+
+/* hljs-template-variable covers the handlebars templating*/
+.hljs-template-variable {
+  color: var(--primary-color);
+}
+
+.hljs-attr {
+  color: var(--accent-color-light);
+}
