@@ -112,6 +112,20 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.TrimLeft,
+			nil,
+			[][2]string{
+				{`{{ "++Batman++" | strings.TrimLeft "+" }}`, `Batman&#43;&#43;`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.TrimRight,
+			nil,
+			[][2]string{
+				{`{{ "++Batman++" | strings.TrimRight "+" }}`, `&#43;&#43;Batman`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Title,
 			[]string{"title"},
 			[][2]string{

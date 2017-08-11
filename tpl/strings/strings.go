@@ -347,6 +347,22 @@ func (ns *Namespace) Trim(s, cutset interface{}) (string, error) {
 	return _strings.Trim(ss, sc), nil
 }
 
+// TrimLeft returns a slice of the string s with all leading characters
+// contained in cutset removed.
+func (ns *Namespace) TrimLeft(cutset, s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	sc, err := cast.ToStringE(cutset)
+	if err != nil {
+		return "", err
+	}
+
+	return _strings.TrimLeft(ss, sc), nil
+}
+
 // TrimPrefix returns s without the provided leading prefix string. If s doesn't
 // start with prefix, s is returned unchanged.
 func (ns *Namespace) TrimPrefix(s, prefix interface{}) (string, error) {
@@ -361,6 +377,22 @@ func (ns *Namespace) TrimPrefix(s, prefix interface{}) (string, error) {
 	}
 
 	return _strings.TrimPrefix(ss, sx), nil
+}
+
+// TrimRight returns a slice of the string s with all trailing characters
+// contained in cutset removed.
+func (ns *Namespace) TrimRight(cutset, s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	sc, err := cast.ToStringE(cutset)
+	if err != nil {
+		return "", err
+	}
+
+	return _strings.TrimRight(ss, sc), nil
 }
 
 // TrimSuffix returns s without the provided trailing suffix string. If s
