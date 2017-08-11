@@ -1,1 +1,2 @@
 Pygments==2.1.3
+docutils==0.12
