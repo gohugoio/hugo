@@ -25,7 +25,7 @@ const baseFileBase = "baseof"
 
 var (
 	aceTemplateInnerMarkers = [][]byte{[]byte("= content")}
-	goTemplateInnerMarkers  = [][]byte{[]byte("{{define"), []byte("{{ define")}
+	goTemplateInnerMarkers  = [][]byte{[]byte("{{define"), []byte("{{ define"), []byte("{{- define"), []byte("{{-define")}
 )
 
 type TemplateNames struct {
