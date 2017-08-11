@@ -1,5 +1,6 @@
 language: go
 sudo: required
+dist: precise
 go:
   - 1.7.6
   - 1.8.3
@@ -20,5 +21,3 @@ script:
 before_install:
   # gem install must be run with sudo on OSX
   - sudo gem install asciidoctor | gem install asciidoctor
-  # Different behaviour between Linux and OSX
-  - sudo apt-get install python-docutils | sudo pip install docutils
