@@ -119,10 +119,26 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.TrimPrefix,
+			nil,
+			[][2]string{
+				{`{{ "aabbaa" | strings.TrimPrefix "a" }}`, `abbaa`},
+				{`{{ "aabbaa" | strings.TrimPrefix "aa" }}`, `bbaa`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.TrimRight,
 			nil,
 			[][2]string{
 				{`{{ "aabbaa" | strings.TrimRight "a" }}`, `aabb`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.TrimSuffix,
+			nil,
+			[][2]string{
+				{`{{ "aabbaa" | strings.TrimSuffix "a" }}`, `aabba`},
+				{`{{ "aabbaa" | strings.TrimSuffix "aa" }}`, `aabb`},
 			},
 		)
 
