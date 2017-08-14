@@ -214,7 +214,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 * [Markdown Tutorial (Interactive), Garen Torikian][mdtutorial]
 
 [`emojify` function]: /functions/emojify/
-[ascii]: http://asciidoc.org/
+[ascii]: http://asciidoctor.org/
 [bfconfig]: /getting-started/configuration/#configuring-blackfriday-rendering
 [blackfriday]: https://github.com/russross/blackfriday
 [mmark]: https://github.com/miekg/mmark
