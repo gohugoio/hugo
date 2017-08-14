@@ -484,26 +484,38 @@ var (
 	internalSummaryDivider = []byte("HUGOMORE42")
 )
 
-// We have to replace the <!--more--> with something that survives all the
-// rendering engines.
-// TODO(bep) inline replace
-func (p *Page) replaceDivider(content []byte) []byte {
-	summaryDivider := helpers.SummaryDivider
-	// TODO(bep) handle better.
-	if p.Ext() == "org" || p.Markup == "org" {
-		summaryDivider = []byte("# more")
-	}
-	sections := bytes.Split(content, summaryDivider)
+// replaceDivider replaces the <!--more--> with an internal value and returns
+// whether the contentis truncated or not.
+// Note: The content slice will be modified if needed.
+func replaceDivider(content, from, to []byte) ([]byte, bool) {
+	sections := bytes.Split(content, from)
 
 	// If the raw content has nothing but whitespace after the summary
 	// marker then the page shouldn't be marked as truncated.  This check
 	// is simplest against the raw content because different markup engines
 	// (rst and asciidoc in particular) add div and p elements after the
 	// summary marker.
-	p.Truncated = (len(sections) == 2 &&
+	truncated := (len(sections) == 2 &&
 		len(bytes.Trim(sections[1], " \n\r")) > 0)
 
-	return bytes.Join(sections, internalSummaryDivider)
+	return bytes.Join(sections, to), truncated
+
+}
+
+// We have to replace the <!--more--> with something that survives all the
+// rendering engines.
+func (p *Page) replaceDivider(content []byte) []byte {
+	summaryDivider := helpers.SummaryDivider
+	// TODO(bep) handle better.
+	if p.Ext() == "org" || p.Markup == "org" {
+		summaryDivider = []byte("# more")
+	}
+
+	replaced, truncated := replaceDivider(content, summaryDivider, internalSummaryDivider)
+
+	p.Truncated = truncated
+
+	return replaced
 }
 
 // Returns the page as summary and main if a user defined split is provided.
