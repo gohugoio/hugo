@@ -1107,7 +1107,7 @@ func TestReplaceDivider(t *testing.T) {
 		expectedTruncated bool
 	}{
 		{"none", "a", "b", "none", false},
-		{"summary divider content", "divider", "HUGO", "summary HUGO content", true},
+		{"summary <!--more--> content", "<!--more-->", "HUGO", "summary HUGO content", true},
 		{"summary\n\ndivider", "divider", "HUGO", "summary\n\nHUGO", false},
 		{"summary\n\ndivider\n\r", "divider", "HUGO", "summary\n\nHUGO\n\r", false},
 	}

@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"unicode"
 
 	"github.com/bep/gitmap"
 
@@ -488,17 +489,23 @@ var (
 // whether the contentis truncated or not.
 // Note: The content slice will be modified if needed.
 func replaceDivider(content, from, to []byte) ([]byte, bool) {
-	sections := bytes.Split(content, from)
+	dividerIdx := bytes.Index(content, from)
+	if dividerIdx == -1 {
+		return content, false
+	}
+
+	afterSummary := content[dividerIdx+len(from):]
 
 	// If the raw content has nothing but whitespace after the summary
 	// marker then the page shouldn't be marked as truncated.  This check
 	// is simplest against the raw content because different markup engines
 	// (rst and asciidoc in particular) add div and p elements after the
 	// summary marker.
-	truncated := (len(sections) == 2 &&
-		len(bytes.Trim(sections[1], " \n\r")) > 0)
+	truncated := bytes.IndexFunc(afterSummary, func(r rune) bool { return !unicode.IsSpace(r) }) != -1
 
-	return bytes.Join(sections, to), truncated
+	content = append(content[:dividerIdx], append(to, afterSummary...)...)
+
+	return content, truncated
 
 }
 
