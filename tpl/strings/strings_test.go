@@ -627,7 +627,7 @@ func TestTrimPrefix(t *testing.T) {
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
-		result, err := ns.TrimPrefix(test.s, test.prefix)
+		result, err := ns.TrimPrefix(test.prefix, test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			require.Error(t, err, errMsg)
@@ -692,7 +692,7 @@ func TestTrimSuffix(t *testing.T) {
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
-		result, err := ns.TrimSuffix(test.s, test.suffix)
+		result, err := ns.TrimSuffix(test.suffix, test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			require.Error(t, err, errMsg)
