@@ -119,7 +119,7 @@ You could then include the following as part of your shortcode templating:
 
 ```
 {{ if .IsNamedParams }}
-<img src="{{.Get "src" alt="">
+<img src="{{.Get "src" }}" alt="">
 {{ else }}
 <img src="{{.Get 0}}" alt="">
 {{ end }}.
