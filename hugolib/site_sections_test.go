@@ -150,13 +150,13 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.NotNil(d)
 			assert.Equal("T41_-1", d.Title)
 
-			equals, err := c.Equals(d)
+			equals, err := c.Eq(d)
 			assert.NoError(err)
 			assert.False(equals)
-			equals, err = c.Equals(c)
+			equals, err = c.Eq(c)
 			assert.NoError(err)
 			assert.True(equals)
-			_, err = c.Equals("asdf")
+			_, err = c.Eq("asdf")
 			assert.Error(err)
 
 		}},
