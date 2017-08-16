@@ -109,6 +109,18 @@ func (p *Page) IsAncestor(other interface{}) (bool, error) {
 	return helpers.HasStringsPrefix(pp.sections, p.sections), nil
 }
 
+// Equals returns whether the current page equals the given page.
+// Note that this is more accurate than doing `{{ if eq $page $otherPage }}`
+// since a Page can be embedded in another type.
+func (p *Page) Equals(other interface{}) (bool, error) {
+	pp, err := unwrapPage(other)
+	if err != nil {
+		return false, err
+	}
+
+	return p == pp, nil
+}
+
 func unwrapPage(in interface{}) (*Page, error) {
 	if po, ok := in.(*PageOutput); ok {
 		in = po.Page
