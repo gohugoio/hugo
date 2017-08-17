@@ -115,7 +115,8 @@ func (p *Page) IsAncestor(other interface{}) (bool, error) {
 func (p *Page) Eq(other interface{}) (bool, error) {
 	pp, err := unwrapPage(other)
 	if err != nil {
-		return false, err
+		// Do not return an error on type mismatch.
+		return false, nil
 	}
 
 	return p == pp, nil
