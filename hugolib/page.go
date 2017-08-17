@@ -38,6 +38,7 @@ import (
 	"unicode/utf8"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/source"
 	"github.com/spf13/cast"
 )
@@ -49,6 +50,10 @@ var (
 	allKindsInPages = []string{KindPage, KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm}
 
 	allKinds = append(allKindsInPages, []string{kindRSS, kindSitemap, kindRobotsTXT, kind404}...)
+
+	// Assert that it implements the Eqer interface.
+	_ compare.Eqer = (*Page)(nil)
+	_ compare.Eqer = (*PageOutput)(nil)
 )
 
 const (
