@@ -150,14 +150,9 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.NotNil(d)
 			assert.Equal("T41_-1", d.Title)
 
-			equals, err := c.Eq(d)
-			assert.NoError(err)
-			assert.False(equals)
-			equals, err = c.Eq(c)
-			assert.NoError(err)
-			assert.True(equals)
-			_, err = c.Eq("asdf")
-			assert.Error(err)
+			assert.False(c.Eq(d))
+			assert.True(c.Eq(c))
+			assert.False(c.Eq("asdf"))
 
 		}},
 		{"empty3", func(p *Page) {

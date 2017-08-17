@@ -112,14 +112,13 @@ func (p *Page) IsAncestor(other interface{}) (bool, error) {
 // Eq returns whether the current page equals the given page.
 // Note that this is more accurate than doing `{{ if eq $page $otherPage }}`
 // since a Page can be embedded in another type.
-func (p *Page) Eq(other interface{}) (bool, error) {
+func (p *Page) Eq(other interface{}) bool {
 	pp, err := unwrapPage(other)
 	if err != nil {
-		// Do not return an error on type mismatch.
-		return false, nil
+		return false
 	}
 
-	return p == pp, nil
+	return p == pp
 }
 
 func unwrapPage(in interface{}) (*Page, error) {
