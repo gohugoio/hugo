@@ -8,7 +8,6 @@ init:
 clone_folder: C:\GOPATH\src\github.com\gohugoio\hugo
 
 install:
-  - git submodule update --init --recursive
   - gem install asciidoctor
   - pip install docutils
 
