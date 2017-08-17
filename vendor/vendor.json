@@ -323,6 +323,12 @@
 			"revisionTime": "2017-07-13T16:51:06Z"
 		},
 		{
+			"checksumSHA1": "Ibp1ZKskA9vI3EXU0rLjXdpXh98=",
+			"path": "github.com/tychoish/shimgo",
+			"revision": "ae6a12277ce0f20f6442f32978f890306903e1f1",
+			"revisionTime": "2016-11-06T13:39:07Z"
+		},
+		{
 			"checksumSHA1": "U4bWGZ3c9p8FHrgU5l4l5i7A6bo=",
 			"path": "github.com/yosssi/ace",
 			"revision": "ea038f4770b6746c3f8f84f14fa60d9fe1205b56",

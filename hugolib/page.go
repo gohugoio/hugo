@@ -570,7 +570,6 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryCont
 	var (
 		startMarkup []byte
 		endMarkup   []byte
-		addDiv      bool
 	)
 
 	switch markup {
@@ -583,7 +582,6 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryCont
 	case "rst":
 		startMarkup = []byte("<p>")
 		endMarkup = []byte("</p>")
-		addDiv = true
 	}
 
 	// Find the closest end/start markup string to the divider
@@ -607,11 +605,6 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryCont
 
 	if len(withoutDivider) > 0 {
 		summary = bytes.TrimSpace(withoutDivider[:endSummary])
-	}
-
-	if addDiv {
-		// For the rst
-		summary = append(append([]byte(nil), summary...), []byte("</div>")...)
 	}
 
 	if err != nil {
