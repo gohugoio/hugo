@@ -112,6 +112,20 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.TrimLeft,
+			nil,
+			[][2]string{
+				{`{{ "aabbaa" | strings.TrimLeft "a" }}`, `bbaa`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.TrimRight,
+			nil,
+			[][2]string{
+				{`{{ "aabbaa" | strings.TrimRight "a" }}`, `aabb`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Title,
 			[]string{"title"},
 			[][2]string{
