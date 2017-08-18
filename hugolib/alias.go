@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/gohugoio/hugo/tpl"
 
@@ -78,6 +79,10 @@ func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (i
 	}{
 		permalink,
 		page,
+	}
+
+	if page != nil && page.s.Cfg.GetBool("templateMetrics") {
+		defer page.s.Metrics.MeasureSince(templ.Name(), time.Now())
 	}
 
 	buffer := new(bytes.Buffer)

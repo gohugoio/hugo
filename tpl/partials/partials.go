@@ -19,6 +19,7 @@ import (
 	"strings"
 	"sync"
 	texttemplate "text/template"
+	"time"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
@@ -71,6 +72,10 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		if templ != nil {
 			b := bp.GetBuffer()
 			defer bp.PutBuffer(b)
+
+			if ns.deps.Cfg.GetBool("templateMetrics") {
+				defer ns.deps.Metrics.MeasureSince(templ.Name(), time.Now())
+			}
 
 			if err := templ.Execute(b, context); err != nil {
 				return "", err

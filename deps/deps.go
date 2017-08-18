@@ -8,6 +8,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
@@ -47,6 +48,8 @@ type Deps struct {
 	WithTemplate     func(templ tpl.TemplateHandler) error `json:"-"`
 
 	translationProvider ResourceProvider
+
+	Metrics metrics.MetricsProvider
 }
 
 // ResourceProvider is used to create and refresh, and clone resources needed.
@@ -124,6 +127,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		ContentSpec:         helpers.NewContentSpec(cfg.Language),
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
+		Metrics:             metrics.NewStore(),
 	}
 
 	return d, nil
