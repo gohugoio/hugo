@@ -459,7 +459,7 @@ See the [related discussion in the Hugo forums][redhatforum].
 
 ## Upgrade Hugo
 
-Upgrading Hugo is as easy as downloading and replacing the executable you’ve placed in your `PATH`.
+Upgrading Hugo is as easy as downloading and replacing the executable you’ve placed in your `PATH` or run `brew upgrade hugo` if using Homebrew.
 
 ## Install Pygments (Optional)
 
