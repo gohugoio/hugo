@@ -59,33 +59,53 @@ func (s *Store) MeasureSince(key string, start time.Time) {
 
 // LogFeedback prints metrics in a pretty format to a jwalterweatherman.Feedback.
 func (s *Store) LogFeedback(w *jww.Feedback) {
-	w.Printf("  %13s  %12s  %12s  %5s  %s\n", "cumulative", "average", "maximum", "", "")
-	w.Printf("  %13s  %12s  %12s  %5s  %s\n", "duration", "duration", "duration", "count", "template")
-	w.Printf("  %13s  %12s  %12s  %5s  %s\n", "----------", "--------", "--------", "-----", "--------")
-
 	s.mtx.Lock()
 
-	// sort keys
-	var tkeys []string
-	for k := range s.metrics {
-		tkeys = append(tkeys, k)
-	}
-	sort.Strings(tkeys)
+	results := make([]result, len(s.metrics))
 
-	for _, k := range tkeys {
+	var i int
+	for k, v := range s.metrics {
 		var sum time.Duration
 		var max time.Duration
 
-		for _, d := range s.metrics[k] {
+		for _, d := range v {
 			sum += d
 			if d > max {
 				max = d
 			}
 		}
 
-		w.Printf("  %13s  %12s  %12s  %5d  %s\n",
-			sum, time.Duration(int(sum)/len(s.metrics[k])), max, len(s.metrics[k]), k)
+		avg := time.Duration(int(sum) / len(v))
+
+		results[i] = result{key: k, count: len(v), max: max, sum: sum, avg: avg}
+		i++
 	}
 
 	s.mtx.Unlock()
+
+	// sort and print results
+	w.Printf("  %13s  %12s  %12s  %5s  %s\n", "cumulative", "average", "maximum", "", "")
+	w.Printf("  %13s  %12s  %12s  %5s  %s\n", "duration", "duration", "duration", "count", "template")
+	w.Printf("  %13s  %12s  %12s  %5s  %s\n", "----------", "--------", "--------", "-----", "--------")
+
+	sort.Sort(bySum(results))
+	for _, v := range results {
+		w.Printf("  %13s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
+	}
+
 }
+
+// A result represents the calculated results for a given metric.
+type result struct {
+	key   string
+	count int
+	sum   time.Duration
+	max   time.Duration
+	avg   time.Duration
+}
+
+type bySum []result
+
+func (b bySum) Len() int           { return len(b) }
+func (b bySum) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
+func (b bySum) Less(i, j int) bool { return b[i].sum < b[j].sum }
