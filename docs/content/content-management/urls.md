@@ -149,14 +149,14 @@ Assuming a `baseURL` of `example.com`, the contents of the auto-generated alias 
   <head>
     <title>https://example.com/posts/my-intended-url</title>
     <link rel="canonical" href="https://example.com/posts/my-intended-url"/>
-    <meta name=\"robots\" content=\"noindex\">
+    <meta name="robots" content="noindex">
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta http-equiv="refresh" content="0; url=https://example.com/posts/my-intended-url"/>
   </head>
 </html>
 ```
 
-The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://example.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name=\"robots\" content=\"noindex\">` lets search engine bots know they they should not crawl and index your new alias page.
+The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://example.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name="robots" content="noindex">` lets search engine bots know they they should not crawl and index your new alias page.
 
 ### Customize 
 You may customize this alias page by creating an `alias.html` template in the
