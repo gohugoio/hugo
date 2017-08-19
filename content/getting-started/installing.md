@@ -388,10 +388,10 @@ C:\Hugo\Sites> hugo new site example.com
 You should now have a directory at `C:\Hugo\Sites\example.com`. Change into that directory and list the contents. You should get output similar to the following:
 
 ```
-C:\Hugo\Sites&gt;cd example.com
-C:\Hugo\Sites\example.com&gt;dir
-&nbsp;Directory of C:\hugo\sites\example.com
-&nbsp;
+C:\Hugo\Sites> cd example.com
+C:\Hugo\Sites\example.com> dir
+Directory of C:\hugo\sites\example.com
+
 04/13/2015  10:44 PM    <DIR>          .
 04/13/2015  10:44 PM    <DIR>          ..
 04/13/2015  10:44 PM    <DIR>          archetypes
