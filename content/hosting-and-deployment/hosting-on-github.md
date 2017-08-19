@@ -217,7 +217,7 @@ cd ..
 ```
 
 
-You can then run `./deploy.sh "Your optional commit message"` to send changes to `<USERNAME>.github.io`. Note that you likely will want to commit changes to your `<YOUR-PROJECDT>` repository as well.
+You can then run `./deploy.sh "Your optional commit message"` to send changes to `<USERNAME>.github.io`. Note that you likely will want to commit changes to your `<YOUR-PROJECT>` repository as well.
 
 That's it! Your personal page should be up and running at `https://yourusername.github.io` within a couple minutes.
 
