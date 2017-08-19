@@ -24,8 +24,8 @@ import (
 // PageGroup represents a group of pages, grouped by the key.
 // The key is typically a year or similar.
 type PageGroup struct {
-	Key   interface{}
-	Pages Pages
+	Key interface{}
+	Pages
 }
 
 type mapKeyValues []reflect.Value

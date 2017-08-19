@@ -115,7 +115,7 @@ func TestPageSortReverse(t *testing.T) {
 	assert.Equal(t, 9, p2[0].fuzzyWordCount)
 	assert.Equal(t, 0, p2[9].fuzzyWordCount)
 	// cached
-	assert.True(t, probablyEqualPages(p2, p1.Reverse()))
+	assert.True(t, fastEqualPages(p2, p1.Reverse()))
 }
 
 func TestPageSortByParam(t *testing.T) {

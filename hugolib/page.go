@@ -20,6 +20,8 @@ import (
 	"reflect"
 	"unicode"
 
+	"github.com/gohugoio/hugo/related"
+
 	"github.com/bep/gitmap"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -54,6 +56,9 @@ var (
 	// Assert that it implements the Eqer interface.
 	_ compare.Eqer = (*Page)(nil)
 	_ compare.Eqer = (*PageOutput)(nil)
+
+	// Assert that it implements the interface needed for related searches.
+	_ related.Document = (*Page)(nil)
 )
 
 const (
@@ -231,6 +236,28 @@ type Page struct {
 	targetPathDescriptorPrototype *targetPathDescriptor
 }
 
+// SearchKeywords implements the related.Document interface needed for fast page searches.
+func (p *Page) SearchKeywords(cfg related.IndexConfig) ([]related.Keyword, error) {
+
+	v, err := p.Param(cfg.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return cfg.ToKeywords(v)
+}
+
+// PubDate is when this page was or will be published.
+// NOTE: This is currently used for search only and is not meant to be used
+// directly in templates. We need to consolidate the dates in this struct.
+// TODO(bep) see https://github.com/gohugoio/hugo/issues/3854
+func (p *Page) PubDate() time.Time {
+	if !p.PublishDate.IsZero() {
+		return p.PublishDate
+	}
+	return p.Date
+}
+
 func (p *Page) RSSLink() template.URL {
 	f, found := p.outputFormats.GetByName(output.RSSFormat.Name)
 	if !found {
@@ -327,6 +354,21 @@ func (ps Pages) findPagePosByFilePath(inPath string) int {
 		}
 	}
 	return -1
+}
+
+func (ps Pages) removeFirstIfFound(p *Page) Pages {
+	ii := -1
+	for i, pp := range ps {
+		if pp == p {
+			ii = i
+			break
+		}
+	}
+
+	if ii != -1 {
+		ps = append(ps[:ii], ps[ii+1:]...)
+	}
+	return ps
 }
 
 func (ps Pages) findFirstPagePosByFilePathPrefix(prefix string) int {
