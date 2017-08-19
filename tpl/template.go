@@ -68,6 +68,14 @@ type TemplateAdapter struct {
 	Template
 }
 
+// Execute executes the current template. The actual execution is performed
+// by the embedded text or html template, but we add an implementation here so
+// we can add a timer for some metrics.
+func (t *TemplateAdapter) Execute(w io.Writer, data interface{}) error {
+	// TODO(moorereason) metrics fmt.Println("Execute:", t.Name())
+	return t.Template.Execute(w, data)
+}
+
 // ExecuteToString executes the current template and returns the result as a
 // string.
 func (t *TemplateAdapter) ExecuteToString(data interface{}) (string, error) {
