@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"html/template"
@@ -1727,9 +1728,12 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 // This is what you see after a successful hugo build.
 func (s *Site) Stats() {
 	if s.Cfg.GetBool("templateMetrics") {
+		var b bytes.Buffer
+		s.Metrics.WriteMetrics(&b)
+
 		s.Log.FEEDBACK.Println()
 		s.Log.FEEDBACK.Printf("Template Metrics:\n\n")
-		s.Metrics.LogFeedback(s.Log.FEEDBACK)
+		s.Log.FEEDBACK.Print(b.String())
 		s.Log.FEEDBACK.Println()
 	}
 

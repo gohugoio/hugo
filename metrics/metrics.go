@@ -15,17 +15,17 @@
 package metrics
 
 import (
+	"fmt"
+	"io"
 	"sort"
 	"sync"
 	"time"
-
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 // The MetricsProvider interface provides metric measuring features.
 type MetricsProvider interface {
 	MeasureSince(key string, start time.Time)
-	LogFeedback(w *jww.Feedback)
+	WriteMetrics(w io.Writer)
 	Reset()
 }
 
@@ -57,8 +57,8 @@ func (s *Store) MeasureSince(key string, start time.Time) {
 	s.mtx.Unlock()
 }
 
-// LogFeedback prints metrics in a pretty format to a jwalterweatherman.Feedback.
-func (s *Store) LogFeedback(w *jww.Feedback) {
+// WriteMetrics writes metrics to w in a pretty format.
+func (s *Store) WriteMetrics(w io.Writer) {
 	s.mtx.Lock()
 
 	results := make([]result, len(s.metrics))
@@ -84,13 +84,13 @@ func (s *Store) LogFeedback(w *jww.Feedback) {
 	s.mtx.Unlock()
 
 	// sort and print results
-	w.Printf("  %13s  %12s  %12s  %5s  %s\n", "cumulative", "average", "maximum", "", "")
-	w.Printf("  %13s  %12s  %12s  %5s  %s\n", "duration", "duration", "duration", "count", "template")
-	w.Printf("  %13s  %12s  %12s  %5s  %s\n", "----------", "--------", "--------", "-----", "--------")
+	fmt.Fprintf(w, "  %13s  %12s  %12s  %5s  %s\n", "cumulative", "average", "maximum", "", "")
+	fmt.Fprintf(w, "  %13s  %12s  %12s  %5s  %s\n", "duration", "duration", "duration", "count", "template")
+	fmt.Fprintf(w, "  %13s  %12s  %12s  %5s  %s\n", "----------", "--------", "--------", "-----", "--------")
 
 	sort.Sort(bySum(results))
 	for _, v := range results {
-		w.Printf("  %13s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
+		fmt.Fprintf(w, "  %13s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
 	}
 
 }
