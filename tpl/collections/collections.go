@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cast"
@@ -640,4 +641,9 @@ func (ns *Namespace) Uniq(l interface{}) (interface{}, error) {
 		}
 	}
 	return ret.Interface(), nil
+}
+
+// KeyVals creates a key and values wrapper.
+func (ns *Namespace) KeyVals(key interface{}, vals ...interface{}) (types.KeyValues, error) {
+	return types.KeyValues{Key: key, Values: vals}, nil
 }

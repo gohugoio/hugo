@@ -42,6 +42,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/parser"
+	"github.com/gohugoio/hugo/related"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/transform"
@@ -135,6 +136,8 @@ type Site struct {
 	// The func used to title case titles.
 	titleFunc func(s string) string
 
+	relatedDocsHandler *relatedDocsHandler
+
 	siteStats *siteStats
 }
 
@@ -176,6 +179,7 @@ func (s *Site) reset() *Site {
 		layoutHandler:       output.NewLayoutHandler(s.PathSpec.ThemeSet()),
 		disabledKinds:       s.disabledKinds,
 		titleFunc:           s.titleFunc,
+		relatedDocsHandler:  newSearchIndexHandler(s.relatedDocsHandler.cfg),
 		outputFormats:       s.outputFormats,
 		outputFormatsConfig: s.outputFormatsConfig,
 		mediaTypesConfig:    s.mediaTypesConfig,
@@ -231,6 +235,21 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 
+	var relatedContentConfig related.Config
+
+	if cfg.Language.IsSet("related") {
+		relatedContentConfig, err = related.DecodeConfig(cfg.Language.Get("related"))
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		relatedContentConfig = related.DefaultConfig
+		taxonomies := cfg.Language.GetStringMapString("taxonomies")
+		if _, found := taxonomies["tag"]; found {
+			relatedContentConfig.Add(related.IndexConfig{Name: "tags", Weight: 80})
+		}
+	}
+
 	titleFunc := helpers.GetTitleFunc(cfg.Language.GetString("titleCaseStyle"))
 
 	s := &Site{
@@ -239,6 +258,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		Language:            cfg.Language,
 		disabledKinds:       disabledKinds,
 		titleFunc:           titleFunc,
+		relatedDocsHandler:  newSearchIndexHandler(relatedContentConfig),
 		outputFormats:       outputFormats,
 		outputFormatsConfig: siteOutputFormatsConfig,
 		mediaTypesConfig:    siteMediaTypesConfig,
@@ -1607,6 +1627,7 @@ func (s *Site) assembleTaxonomies() {
 // Prepare site for a new full build.
 func (s *Site) resetBuildState() {
 
+	s.relatedDocsHandler = newSearchIndexHandler(s.relatedDocsHandler.cfg)
 	s.PageCollections = newPageCollectionsFromPages(s.rawAllPages)
 	// TODO(bep) get rid of this double
 	s.Info.PageCollections = s.PageCollections

@@ -63,6 +63,13 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.KeyVals,
+			[]string{"keyVals"},
+			[][2]string{
+				{`{{ keyVals "key" "a" "b" }}`, `key: [a b]`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.In,
 			[]string{"in"},
 			[][2]string{

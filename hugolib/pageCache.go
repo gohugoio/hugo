@@ -36,7 +36,7 @@ func (c *pageCache) get(key string, p Pages, apply func(p Pages)) (Pages, bool) 
 	c.RLock()
 	if cached, ok := c.m[key]; ok {
 		for _, ps := range cached {
-			if probablyEqualPages(p, ps[0]) {
+			if fastEqualPages(p, ps[0]) {
 				c.RUnlock()
 				return ps[1], true
 			}
@@ -51,7 +51,7 @@ func (c *pageCache) get(key string, p Pages, apply func(p Pages)) (Pages, bool) 
 	// double-check
 	if cached, ok := c.m[key]; ok {
 		for _, ps := range cached {
-			if probablyEqualPages(p, ps[0]) {
+			if fastEqualPages(p, ps[0]) {
 				return ps[1], true
 			}
 		}
@@ -73,10 +73,10 @@ func (c *pageCache) get(key string, p Pages, apply func(p Pages)) (Pages, bool) 
 
 }
 
-// "probably" as in: we do not compare every element for big slices, but that is
-// good enough for our use case.
+// "fast" as in: we do not compare every element for big slices, but that is
+// good enough for our use cases.
 // TODO(bep) there is a similar method in pagination.go. DRY.
-func probablyEqualPages(p1, p2 Pages) bool {
+func fastEqualPages(p1, p2 Pages) bool {
 	if p1 == nil && p2 == nil {
 		return true
 	}
