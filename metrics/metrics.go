@@ -32,34 +32,34 @@ type MetricsProvider interface {
 // Store provides storage for a set of metrics.
 type Store struct {
 	metrics map[string][]time.Duration
-	mtx     *sync.Mutex
+	mu      *sync.Mutex
 }
 
 // NewStore returns a new instance of a metric store.
 func NewStore() *Store {
 	return &Store{
 		metrics: make(map[string][]time.Duration),
-		mtx:     &sync.Mutex{},
+		mu:      &sync.Mutex{},
 	}
 }
 
 // Reset clears the metrics store.
 func (s *Store) Reset() {
-	s.mtx.Lock()
+	s.mu.Lock()
 	s.metrics = make(map[string][]time.Duration)
-	s.mtx.Unlock()
+	s.mu.Unlock()
 }
 
 // MeasureSince adds a measurement for key to the metric store.
 func (s *Store) MeasureSince(key string, start time.Time) {
-	s.mtx.Lock()
+	s.mu.Lock()
 	s.metrics[key] = append(s.metrics[key], time.Since(start))
-	s.mtx.Unlock()
+	s.mu.Unlock()
 }
 
 // WriteMetrics writes metrics to w in a pretty format.
 func (s *Store) WriteMetrics(w io.Writer) {
-	s.mtx.Lock()
+	s.mu.Lock()
 
 	results := make([]result, len(s.metrics))
 
@@ -81,7 +81,7 @@ func (s *Store) WriteMetrics(w io.Writer) {
 		i++
 	}
 
-	s.mtx.Unlock()
+	s.mu.Unlock()
 
 	// sort and print results
 	fmt.Fprintf(w, "  %13s  %12s  %12s  %5s  %s\n", "cumulative", "average", "maximum", "", "")
