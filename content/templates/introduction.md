@@ -110,7 +110,7 @@ There are more boolean operators than those listed in the Hugo docs in the [Gola
 When including another template, you will pass to it the data it will be
 able to access. To pass along the current context, please remember to
 include a trailing dot. The templates location will always be starting at
-the `/layout/` directory within Hugo.
+the `/layouts/` directory within Hugo.
 
 ### Template and Partial Examples
 
