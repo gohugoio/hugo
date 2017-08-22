@@ -122,7 +122,12 @@ HugoReload.prototype.reload = function(path, options) {
 	}
 
 	path = path.substring(prefix.length);
-	window.location.href = path;
+
+	if (window.location.pathname === path) {
+		window.location.reload();
+	} else {
+		window.location.href = path;
+	}
 
 	return true;
 };
