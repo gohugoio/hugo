@@ -143,7 +143,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 ```
 <ul>
   {{ $data := .Data }}
-  {{ range $key, $value := .Data.Taxonomy.Alphabetical }}
+  {{ range $key, $value := .Data.Terms.Alphabetical }}
   <li><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
   {{ end }}
 </ul>
@@ -154,7 +154,7 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 ```
 <ul>
   {{ $data := .Data }}
-  {{ range $key, $value := .Data.Taxonomy.ByCount }}
+  {{ range $key, $value := .Data.Terms.ByCount }}
   <li><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
   {{ end }}
 </ul>
