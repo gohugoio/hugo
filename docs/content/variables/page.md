@@ -36,7 +36,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 : the data specific to this type of page.
 
 `.Date`
-: the date associated with the page; `.Date` pulls from the `date` field in a content's front matter. See also `.ExpiryDate`, `.PublishDate`, and `.Lastmod`.
+: the date associated with the page; `.Date` pulls from the `date` field in a content's front matter.
+If you're migrating content to Hugo, you may have content with dates in the filename. For example `2017-01-31-myblog.md`.  You can optionally enable the `useFilenameDateAsFallback` configuration option. This will attempt to parse the datestamp in the filename and use it as a fallback to providing a date variable in the front matter.
+See also `.ExpiryDate`, `.PublishDate`, and `.Lastmod`.
 
 `.Description`
 : the description for the page.

@@ -196,3 +196,4 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [urls]: /content-management/urls/
 [variables]: /variables/
 [yaml]: http://yaml.org/spec/ "Specification for YAML, YAML Ain't Markup Language"
+
