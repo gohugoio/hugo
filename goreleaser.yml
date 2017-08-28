@@ -2,6 +2,8 @@ build:
   main: main.go
   binary: hugo
   ldflags: -s -w -X hugolib.BuildDate={{.Date}}
+  env:
+    - CGO_ENABLED=0
   goos:
     - darwin
     - linux
