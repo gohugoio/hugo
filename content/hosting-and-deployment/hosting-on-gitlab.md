@@ -40,6 +40,10 @@ In the root directory of your Hugo site, create a `.gitlab-ci.yml` file. The `.g
 {{< code file="gitlab-ci.yml" >}}
 image: monachus/hugo
 
+before_script:
+  - git submodule init
+  - git submodule update --force
+
 pages:
   script:
   - hugo
