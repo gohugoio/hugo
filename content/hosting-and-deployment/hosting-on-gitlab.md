@@ -70,7 +70,7 @@ git push -u origin master
 
 ## Wait for Your Page to Build
 
-That's it! You can now follow the CI agent building your page at https://gitlab.com/<YourUsername>/<your-hugo-site>/pipelines.
+That's it! You can now follow the CI agent building your page at `https://gitlab.com/<YourUsername>/<your-hugo-site>/pipelines`.
 
 After the build has passed, your new website is available at `https://<YourUsername>.gitlab.io/<your-hugo-site>/`.
 
