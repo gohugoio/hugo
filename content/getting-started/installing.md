@@ -481,7 +481,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [installgit]: http://git-scm.com/
 [installgo]: https://golang.org/dl/
 [Path Editor]: https://patheditor2.codeplex.com/
-[pygments]: https://pygments.org
+[pygments]: http://pygments.org
 [quickstart]: /getting-started/quick-start/
 [redhatforum]: https://discourse.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
 [releases]: https://github.com/gohugoio/hugo/releases
