@@ -38,11 +38,10 @@ Make sure your `baseURL` key-value in your [site configuration](/getting-started
 [As described in the GitHub Pages documentation][ghpfromdocs], you can deploy from a folder called `docs/` on your master branch. To effectively use this feature with Hugo, you need to change the Hugo publish directory in your [site's][config] `config.toml` and `config.yaml`, respectively:
 
 ```
-publishDir: docs
-```
-
-```
 publishDir = "docs"
+```
+```
+publishDir: docs
 ```
 
 After running `hugo`, push your master branch to the remote repository and choose the `docs/` folder as the website source of your repo. Do the following from within your GitHub project:
