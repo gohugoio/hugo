@@ -92,6 +92,12 @@ run.config:
   extra_steps:
     - bash ./install.sh
 
+deploy.config:
+
+  # generate site on deploy
+  extra_steps:
+    - hugo
+
 {{< /code >}}
 
 {{% note %}}
