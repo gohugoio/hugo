@@ -26,8 +26,8 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
-	"github.com/stretchr/testify/require"
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
 )
 
 const (
