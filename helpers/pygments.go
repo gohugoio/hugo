@@ -29,11 +29,10 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-const pygmentsBin = "pygmentize"
-
 // HasPygments checks to see if Pygments is installed and available
 // on the system.
-func HasPygments() bool {
+func HasPygments(cfg config.Provider) bool {
+	pygmentsBin := cfg.GetString("pygmentsPath")
 	if _, err := exec.LookPath(pygmentsBin); err != nil {
 		return false
 	}
@@ -42,11 +41,11 @@ func HasPygments() bool {
 
 // Highlight takes some code and returns highlighted code.
 func Highlight(cfg config.Provider, code, lang, optsStr string) string {
-	if !HasPygments() {
+	if !HasPygments(cfg) {
 		jww.WARN.Println("Highlighting requires Pygments to be installed and in the path")
 		return code
 	}
-
+	pygmentsBin := cfg.GetString("pygmentsPath")
 	options, err := parsePygmentsOpts(cfg, optsStr)
 
 	if err != nil {
