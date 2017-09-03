@@ -42,8 +42,8 @@ func (c ContentSpec) renderWithMmark(input string) string {
 }
 
 func TestCodeFence(t *testing.T) {
-
-	if !HasPygments() {
+	v := viper.New()
+	if !HasPygments(v) {
 		t.Skip("Skipping Pygments test as Pygments is not installed or available.")
 		return
 	}
