@@ -50,6 +50,14 @@ func TestLayoutBase(t *testing.T) {
 				OverlayFilename: "/sites/mysite/layouts/_default/single.html",
 				MasterFilename:  "/sites/mysite/layouts/_default/single-baseof.html",
 			}},
+		// Issue #3856
+		{"Base Taxonomy Term", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: "taxonomy/tag.terms.html"}, true, "_default/baseof.html",
+			TemplateNames{
+				Name:            "taxonomy/tag.terms.html",
+				OverlayFilename: "/sites/mysite/layouts/taxonomy/tag.terms.html",
+				MasterFilename:  "/sites/mysite/layouts/_default/baseof.html",
+			}},
+
 		{"Base in theme", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPath1, ThemeDir: themeDir}, true,
 			"mytheme/layouts/_default/baseof.html",
 			TemplateNames{

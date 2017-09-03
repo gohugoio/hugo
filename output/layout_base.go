@@ -21,7 +21,9 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 )
 
-const baseFileBase = "baseof"
+const (
+	baseFileBase = "baseof"
+)
 
 var (
 	aceTemplateInnerMarkers = [][]byte{[]byte("= content")}
@@ -170,11 +172,14 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 		// For each of the steps above, it will first look in the project, then, if theme is set,
 		// in the theme's layouts folder.
 		// Also note that the <current-path> may be both the project's layout folder and the theme's.
-		pairsToCheck := [][]string{
-			{baseTemplatedDir, currBaseFilename},
-			{baseTemplatedDir, baseFilename},
-			{"_default", currBaseFilename},
-			{"_default", baseFilename},
+		pairsToCheck := createPairsToCheck(baseTemplatedDir, baseFilename, currBaseFilename)
+
+		if strings.Contains(currBaseFilename, ".terms.") {
+			// We need to get from baseof.terms.html to baseof.html etc.
+			// See #3856
+			currBaseFilename = strings.Replace(currBaseFilename, ".terms", "", 1)
+			baseFilename = strings.Replace(baseFilename, ".terms", "", 1)
+			pairsToCheck = append(pairsToCheck, createPairsToCheck(baseTemplatedDir, baseFilename, currBaseFilename)...)
 		}
 
 	Loop:
@@ -192,6 +197,15 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 
 	return id, nil
 
+}
+
+func createPairsToCheck(baseTemplatedDir, baseFilename, currBaseFilename string) [][]string {
+	return [][]string{
+		{baseTemplatedDir, currBaseFilename},
+		{baseTemplatedDir, baseFilename},
+		{"_default", currBaseFilename},
+		{"_default", baseFilename},
+	}
 }
 
 func basePathsToCheck(path []string, layoutDir, workLayoutDir, themeLayoutDir string) []string {
