@@ -80,9 +80,10 @@ Leading
 Content of the file goes Here
 `
 
-	simplePageRFC3339Date  = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
-	simplePageNoDate       = "---\ntitle: Path Date\n---\n Date param from url"
-	simplePageJSONMultiple = `
+	simplePageRFC3339Date          = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
+	simplePageNoDate               = "---\ntitle: Path Date\n---\n Date param from url"
+	simplePageNoTitleNoFrontMatter = "No title nor frontmatter"
+	simplePageJSONMultiple         = `
 {
 	"title": "foobar",
 	"customData": { "foo": "bar" },
@@ -627,6 +628,36 @@ func TestCreateNewPage(t *testing.T) {
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePage)
+}
+
+func TestTitleWhenNoTitle(t *testing.T) {
+	t.Parallel()
+	cfg, fs := newTestCfg()
+
+	writeSource(t, fs, filepath.Join("content", "simple-is_sometimes-more.md"), simplePageNoTitleNoFrontMatter)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 1)
+
+	p := s.RegularPages[0]
+
+	checkPageTitle(t, p, "Simple Is Sometimes More")
+}
+
+func TestTitleWhenNoTitleFileDatestamp(t *testing.T) {
+	t.Parallel()
+	cfg, fs := newTestCfg()
+
+	writeSource(t, fs, filepath.Join("content", "2017-01-31-simple.md"), simplePageNoTitleNoFrontMatter)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 1)
+
+	p := s.RegularPages[0]
+
+	checkPageTitle(t, p, "Simple")
 }
 
 func TestSplitSummaryAndContent(t *testing.T) {

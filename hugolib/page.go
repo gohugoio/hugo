@@ -1243,6 +1243,26 @@ func (p *Page) updateMetadata() error {
 		p.Lastmod = p.Date
 	}
 	p.Params["lastmod"] = p.Lastmod
+
+	if p.Title == "" {
+		var rawpath = p.Slug
+		if rawpath == "" {
+			rawpath = p.File.BaseFileName()
+
+		}
+		// replace common separators with space
+		rawpath = strings.Replace(rawpath, "-", " ", -1)
+		rawpath = strings.Replace(rawpath, "_", " ", -1)
+		rawpath = strings.Replace(rawpath, ".", " ", -1)
+
+		if rawpath != "" {
+			p.Title = p.s.titleFunc(rawpath)
+			p.s.Log.DEBUG.Printf("Using slug/filename as title (%s) fallback for page %s", p.Title, p.File.Path())
+		} else {
+			// todo: is no path even ever possible to happen ?
+			p.Title = "Untitled " + p.Lastmod.Format("2006-01-02 15:04")
+		}
+	}
 	return nil
 
 }
