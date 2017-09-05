@@ -203,7 +203,7 @@ body {
 Here is the same example but with triple back ticks to denote the fenced code block:
 
 {{< nohighlight >}}
-```
+```css
 body {
   font-family: "Noto Sans", sans-serif;
 }

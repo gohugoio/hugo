@@ -31,8 +31,8 @@ The [lookup order][lookup] for base templates is as follows:
 4. `/themes/<THEME>/layouts/<TYPE>/baseof.html`
 5. `/layouts/section/baseof.html`
 6. `/themes/<THEME>/layouts/section/baseof.html`
-7. `/layouts/_default/post-baseof.html`
-8. `/themes/<THEME>/layouts/_default/post-baseof.html`
+7. `/layouts/_default/<TYPE>-baseof.html`
+8. `/themes/<THEME>/layouts/_default/<TYPE>-baseof.html`
 9. `/layouts/_default/baseof.html`
 10. `/themes/<THEME>/layouts/_default/baseof.html`
 
