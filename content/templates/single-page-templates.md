@@ -25,7 +25,7 @@ You can specify a [content's `type`][content type] and `layout` in a single cont
 Hugo assumes your content section and content type are the same unless you tell Hugo otherwise by providing a `type` directly in the front matter of a content file. This is why #1 and #3 come before #2 and #4, respectively, in the following lookup order. Values in angle brackets (`<>`) are variable.
 
 1. `/layouts/<TYPE>/<LAYOUT>.html`
-2. `/layouts/<SECTION>>/<LAYOUT>.html`
+2. `/layouts/<SECTION>/<LAYOUT>.html`
 3. `/layouts/<TYPE>/single.html`
 4. `/layouts/<SECTION>/single.html`
 5. `/layouts/_default/single.html`
