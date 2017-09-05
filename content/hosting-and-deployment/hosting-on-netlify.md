@@ -63,7 +63,7 @@ Once selected, you'll be brought to a screen for basic setup. Here you can selec
 
 Setting the build command to `hugo` will build your site according to the current default Hugo version used by Netlify. You can see the full list of [available Hugo versions in Netlify's Docker file][hugoversions].
 
-If you want to tell Netlify to build with a specific version, you can append an underscore followed by the version number to the build command:
+If you want to tell Netlify to build with a specific version (hugo <= 0.20), you can append an underscore followed by the version number to the build command:
 
 ```
 hugo_0.19
@@ -72,6 +72,22 @@ hugo_0.19
 Your simple configuration should now look similar to the following:
 
 ![Screenshot of 3-step, basic continuous deployment setup with a new Hugo site on Netlify](/images/hosting-and-deployment/hosting-on-netlify/netlify-create-new-site-step-3.jpg)
+
+For version hugo > 0.20 you have to [specify version hugo for testing and production](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) in `netlify.toml` file or set `HUGO_VERSION` as a build environment variable in the Netlify console.
+
+For production:
+
+```
+[context.production.environment]
+  HUGO_VERSION = "0.26"
+```
+
+For testing:
+
+```
+[context.deploy-preview.environment]
+  HUGO_VERSION = "0.26"
+```  
 
 Selecting "Deploy site" will immediately take you to a terminal for your build:.
 

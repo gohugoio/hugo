@@ -38,7 +38,11 @@ cd your-hugo-site
 In the root directory of your Hugo site, create a `.gitlab-ci.yml` file. The `.gitlab-ci.yml` configures the GitLab CI on how to build your page. Simply add the content below.
 
 {{< code file="gitlab-ci.yml" >}}
-image: publysher/hugo
+image: monachus/hugo
+
+before_script:
+  - git submodule init
+  - git submodule update --force
 
 pages:
   script:
@@ -70,7 +74,7 @@ git push -u origin master
 
 ## Wait for Your Page to Build
 
-That's it! You can now follow the CI agent building your page at https://gitlab.com/<YourUsername>/<your-hugo-site>/pipelines.
+That's it! You can now follow the CI agent building your page at `https://gitlab.com/<YourUsername>/<your-hugo-site>/pipelines`.
 
 After the build has passed, your new website is available at `https://<YourUsername>.gitlab.io/<your-hugo-site>/`.
 

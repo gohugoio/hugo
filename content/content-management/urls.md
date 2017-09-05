@@ -24,7 +24,7 @@ The default Hugo target directory for your built website is `public/`. However, 
 The `permalinks` option in your [site configuration][config] allows you to adjust the directory paths (i.e., the URLs) on a per-section basis. This will change where the files are written to and will change the page's internal "canonical" location, such that template references to `.RelPermalink` will honor the adjustments made as a result of the mappings in this option.
 
 {{% note "Default Publish and Content Folders" %}}
-These examples use the default values for `publishDir` and `contentDir`; i.e., `publish` and `content`, respectively. You can override the default values in your [site's `config` file](/getting-started/configuration/).
+These examples use the default values for `publishDir` and `contentDir`; i.e., `public` and `content`, respectively. You can override the default values in your [site's `config` file](/getting-started/configuration/).
 {{% /note %}}
 
 For example, if one of your [sections][] is called `post` and you want to adjust the canonical path to be hierarchical based on the year, month, and post title, you could set up the following configurations in YAML and TOML, respectively.
@@ -149,14 +149,14 @@ Assuming a `baseURL` of `example.com`, the contents of the auto-generated alias 
   <head>
     <title>https://example.com/posts/my-intended-url</title>
     <link rel="canonical" href="https://example.com/posts/my-intended-url"/>
-    <meta name=\"robots\" content=\"noindex\">
+    <meta name="robots" content="noindex">
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta http-equiv="refresh" content="0; url=https://example.com/posts/my-intended-url"/>
   </head>
 </html>
 ```
 
-The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://example.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name=\"robots\" content=\"noindex\">` lets search engine bots know they they should not crawl and index your new alias page.
+The `http-equiv="refresh"` line is what performs the redirect, in 0 seconds in this case. If an end user of your website goes to `https://example.com/posts/my-old-url`, they will now be automatically redirected to the newer, correct URL. The addition of `<meta name="robots" content="noindex">` lets search engine bots know they they should not crawl and index your new alias page.
 
 ### Customize 
 You may customize this alias page by creating an `alias.html` template in the

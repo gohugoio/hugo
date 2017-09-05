@@ -66,7 +66,7 @@ Also note that this is a template for the home page, so the full `Page` with its
 
 
 ## 3. Add Template For the _redirects File 
-Add `layouts/index.redirects`:
+Add `layouts/index.redir`:
 ```bash
 # Netlify redirects. See https://www.netlify.com/docs/redirects/
 {{  range $p := .Site.Pages -}}
