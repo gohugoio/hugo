@@ -388,10 +388,10 @@ C:\Hugo\Sites> hugo new site example.com
 You should now have a directory at `C:\Hugo\Sites\example.com`. Change into that directory and list the contents. You should get output similar to the following:
 
 ```
-C:\Hugo\Sites&gt;cd example.com
-C:\Hugo\Sites\example.com&gt;dir
-&nbsp;Directory of C:\hugo\sites\example.com
-&nbsp;
+C:\Hugo\Sites> cd example.com
+C:\Hugo\Sites\example.com> dir
+Directory of C:\hugo\sites\example.com
+
 04/13/2015  10:44 PM    <DIR>          .
 04/13/2015  10:44 PM    <DIR>          ..
 04/13/2015  10:44 PM    <DIR>          archetypes
@@ -459,7 +459,7 @@ See the [related discussion in the Hugo forums][redhatforum].
 
 ## Upgrade Hugo
 
-Upgrading Hugo is as easy as downloading and replacing the executable you’ve placed in your `PATH`.
+Upgrading Hugo is as easy as downloading and replacing the executable you’ve placed in your `PATH` or run `brew upgrade hugo` if using Homebrew.
 
 ## Install Pygments (Optional)
 
@@ -481,7 +481,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [installgit]: http://git-scm.com/
 [installgo]: https://golang.org/dl/
 [Path Editor]: https://patheditor2.codeplex.com/
-[pygments]: https://pygments.org
+[pygments]: http://pygments.org
 [quickstart]: /getting-started/quick-start/
 [redhatforum]: https://discourse.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
 [releases]: https://github.com/gohugoio/hugo/releases

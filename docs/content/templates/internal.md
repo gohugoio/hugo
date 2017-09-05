@@ -118,18 +118,14 @@ You can then render your custom Disqus partial template as follows:
 {{ partial "disqus.html" . }}
 ```
 
-```
-_internal/_default/robots.txt
-_internal/_default/rss.xml
-_internal/_default/sitemap.xml
-_internal/_default/sitemapindex.xml
+## The Internal Templates
 
-_internal/disqus.html
-_internal/google_news.html
-_internal/google_analytics.html
-_internal/google_analytics_async.html
-_internal/opengraph.html
-_internal/pagination.html
-_internal/schema.html
-_internal/twitter_cards.html
-```
+* `_internal/disqus.html`
+* `_internal/google_news.html`
+* `_internal/google_analytics.html`
+* `_internal/google_analytics_async.html`
+* `_internal/opengraph.html`
+* `_internal/pagination.html`
+* `_internal/schema.html`
+* `_internal/twitter_cards.html`
+

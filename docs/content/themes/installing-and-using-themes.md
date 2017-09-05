@@ -79,7 +79,7 @@ Hugo applies the decided theme first and then applies anything that is in the lo
 
 ### Command Line
 
-There are two different approaches to using a theme with your Hugo website: via the Hugo CLI or as part of your
+There are two different approaches to using a theme with your Hugo website: via the Hugo CLI or as part of your [site configuration file][config].
 
 To change a theme via the Hugo CLI, you can pass the `-t` [flag][] when building your site:
 
