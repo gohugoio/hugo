@@ -73,7 +73,7 @@ Your simple configuration should now look similar to the following:
 
 ![Screenshot of 3-step, basic continuous deployment setup with a new Hugo site on Netlify](/images/hosting-and-deployment/hosting-on-netlify/netlify-create-new-site-step-3.jpg)
 
-For version hugo > 0.20 you have to [specify version hugo for testing and production](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) in `netlify.toml` file.
+For version hugo > 0.20 you have to [specify version hugo for testing and production](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) in `netlify.toml` file or set `HUGO_VERSION` as a build environment variable in the Netlify console.
 
 For production:
 
