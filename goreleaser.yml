@@ -7,16 +7,8 @@ build:
   goos:
     - darwin
     - linux
-    - windows
-    - freebsd
-    - netbsd
-    - openbsd
-    - dragonfly
   goarch:
     - amd64
-    - 386
-    - arm
-    - arm64
   ignore:
     - goos: openbsd
       goarch: arm

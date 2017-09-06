@@ -68,7 +68,7 @@ func TestTagExists(t *testing.T) {
 }
 
 func skipIfCI(t *testing.T) {
-	if os.Getenv("CI") != "" {
+	if isCI() {
 		// Travis has an ancient git with no --invert-grep: https://github.com/travis-ci/travis-ci/issues/6328
 		// Also Travis clones very shallowly, making some of the tests above shaky.
 		t.Skip("Skip git test on Linux to make Travis happy.")

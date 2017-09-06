@@ -65,8 +65,7 @@ func (r ReleaseHandler) shouldPrepareVersions() bool {
 }
 
 func (r ReleaseHandler) calculateVersions() (helpers.HugoVersion, helpers.HugoVersion) {
-
-	newVersion := helpers.MustParseHugoVersion(r.cliVersion)
+	newVersion := helpers.MustParseHugoVersion(cliVersion)
 	finalVersion := newVersion
 	finalVersion.PatchLevel = 0
 
@@ -83,6 +82,7 @@ func (r ReleaseHandler) calculateVersions() (helpers.HugoVersion, helpers.HugoVe
 
 // New initialises a ReleaseHandler.
 func New(version string, step int, skipPublish, try bool) *ReleaseHandler {
+	version := strings.TrimPrefix(version, "v")
 	rh := &ReleaseHandler{cliVersion: version, step: step, skipPublish: skipPublish, try: try}
 
 	if try {
@@ -140,7 +140,12 @@ func (r *ReleaseHandler) Run() error {
 		if err != nil {
 			return err
 		}
-		gitCommitsDocs, err = getGitInfos(changeLogFromTag, "../hugoDocs", !r.try)
+
+		docsPath := "../hugoDocs"
+		if isCI() {
+			docsPath = "hugoDocs"
+		}
+		gitCommitsDocs, err = getGitInfos(changeLogFromTag, docsPath, !r.try)
 		if err != nil {
 			return err
 		}
@@ -324,4 +329,8 @@ func hugoFilepath(filename string) string {
 		log.Fatal(err)
 	}
 	return filepath.Join(pwd, filename)
+}
+
+func isCI() bool {
+	return os.Getenv("CI") != ""
 }
