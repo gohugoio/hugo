@@ -387,7 +387,7 @@ Hugo v0.20 introduced the ability to render your content to multiple output form
 
 [`.Site.Params`]: /variables/site/
 [directory structure]: /getting-started/directory-structure
-[json]: /documents/ecma-404-json-spec.pdf
+[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
 [lookup order]: /templates/lookup-order/
 [Output Formats]: /templates/output-formats/
 [templates]: /templates/
