@@ -69,6 +69,13 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Conditional,
+			[]string{"cond"},
+			[][2]string{
+				{`{{ cond (eq (add 2 2) 4) "2+2 is 4" "what?" | safeHTML }}`, `2+2 is 4`},
+			},
+		)
+
 		return ns
 
 	}
