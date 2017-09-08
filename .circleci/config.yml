@@ -15,9 +15,6 @@ jobs:
             command: |
                 git clone git@github.com:gohugoio/hugoDocs.git
                 make vendor
-      - persist_to_workspace:
-          root: .
-          paths: .
   release:
     <<: *defaults
     steps:
