@@ -142,6 +142,15 @@ func (n *Namespace) Lt(a, b interface{}) bool {
 	return left < right
 }
 
+// Conditional can be used as a ternary operator.
+// It returns a if condition, else b.
+func (n *Namespace) Conditional(condition bool, a, b interface{}) interface{} {
+	if condition {
+		return a
+	}
+	return b
+}
+
 func (*Namespace) compareGetFloat(a interface{}, b interface{}) (float64, float64) {
 	var left, right float64
 	var leftStr, rightStr *string

@@ -221,3 +221,12 @@ func TestTimeUnix(t *testing.T) {
 		toTimeUnix(iv)
 	}(t)
 }
+
+func TestConditional(t *testing.T) {
+	assert := require.New(t)
+	n := New()
+	a, b := "a", "b"
+
+	assert.Equal(a, n.Conditional(true, a, b))
+	assert.Equal(b, n.Conditional(false, a, b))
+}
