@@ -65,6 +65,20 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Duration,
+			[]string{"duration"},
+			[][2]string{
+				{`{{ mul 60 60 | duration "second" }}`, `1h0m0s`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.ParseDuration,
+			nil,
+			[][2]string{
+				{`{{ "1h12m10s" | time.ParseDuration }}`, `1h12m10s`},
+			},
+		)
+
 		return ns
 
 	}

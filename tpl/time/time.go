@@ -14,6 +14,7 @@
 package time
 
 import (
+	"fmt"
 	_time "time"
 
 	"github.com/spf13/cast"
@@ -53,4 +54,53 @@ func (ns *Namespace) Format(layout string, v interface{}) (string, error) {
 // Now returns the current local time.
 func (ns *Namespace) Now() _time.Time {
 	return _time.Now()
+}
+
+// ParseDuration parses a duration string.
+// A duration string is a possibly signed sequence of
+// decimal numbers, each with optional fraction and a unit suffix,
+// such as "300ms", "-1.5h" or "2h45m".
+// Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+// See https://golang.org/pkg/time/#ParseDuration
+func (ns *Namespace) ParseDuration(in interface{}) (_time.Duration, error) {
+	s, err := cast.ToStringE(in)
+	if err != nil {
+		return 0, err
+	}
+
+	return _time.ParseDuration(s)
+}
+
+var durationUnits = map[string]_time.Duration{
+	"nanosecond":  _time.Nanosecond,
+	"ns":          _time.Nanosecond,
+	"microsecond": _time.Microsecond,
+	"us":          _time.Microsecond,
+	"µs":          _time.Microsecond,
+	"millisecond": _time.Millisecond,
+	"ms":          _time.Millisecond,
+	"second":      _time.Second,
+	"s":           _time.Second,
+	"minute":      _time.Minute,
+	"m":           _time.Minute,
+	"hour":        _time.Hour,
+	"h":           _time.Hour,
+}
+
+// Duration converts the given number to a time.Duration.
+// Unit is one of nanosecond/ns, microsecond/us/µs, millisecond/ms, second/s, minute/m or hour/h.
+func (ns *Namespace) Duration(unit interface{}, number interface{}) (_time.Duration, error) {
+	unitStr, err := cast.ToStringE(unit)
+	if err != nil {
+		return 0, err
+	}
+	unitDuration, found := durationUnits[unitStr]
+	if !found {
+		return 0, fmt.Errorf("%q is not a valid duration unit", unit)
+	}
+	n, err := cast.ToInt64E(number)
+	if err != nil {
+		return 0, err
+	}
+	return _time.Duration(n) * unitDuration, nil
 }

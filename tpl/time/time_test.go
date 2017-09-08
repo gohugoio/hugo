@@ -55,3 +55,46 @@ func TestFormat(t *testing.T) {
 		}
 	}
 }
+
+func TestDuration(t *testing.T) {
+	t.Parallel()
+
+	ns := New()
+
+	for i, test := range []struct {
+		unit   interface{}
+		num    interface{}
+		expect interface{}
+	}{
+		{"nanosecond", 10, 10 * time.Nanosecond},
+		{"ns", 10, 10 * time.Nanosecond},
+		{"microsecond", 20, 20 * time.Microsecond},
+		{"us", 20, 20 * time.Microsecond},
+		{"µs", 20, 20 * time.Microsecond},
+		{"millisecond", 20, 20 * time.Millisecond},
+		{"ms", 20, 20 * time.Millisecond},
+		{"second", 30, 30 * time.Second},
+		{"s", 30, 30 * time.Second},
+		{"minute", 20, 20 * time.Minute},
+		{"m", 20, 20 * time.Minute},
+		{"hour", 20, 20 * time.Hour},
+		{"h", 20, 20 * time.Hour},
+		{"hours", 20, false},
+		{"hour", "30", 30 * time.Hour},
+	} {
+		result, err := ns.Duration(test.unit, test.num)
+		if b, ok := test.expect.(bool); ok && !b {
+			if err == nil {
+				t.Errorf("[%d] Duration didn't return an expected error, got %v", i, result)
+			}
+		} else {
+			if err != nil {
+				t.Errorf("[%d] Duration failed: %s", i, err)
+				continue
+			}
+			if result != test.expect {
+				t.Errorf("[%d] Duration got %v but expected %v", i, result, test.expect)
+			}
+		}
+	}
+}
