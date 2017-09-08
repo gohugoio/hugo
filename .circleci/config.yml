@@ -1,22 +1,45 @@
+defaults: &defaults
+  working_directory: /go/src/github.com/gohugoio/hugo
+  docker:
+      - image: bepsays/ci-goreleaser
+    
+
+
 version: 2
 jobs:
   build:
-    docker:
-      - image: bepsays/ci-goreleaser
-    working_directory: /go/src/github.com/gohugoio/hugo
+    <<: *defaults
     steps:
       - checkout
       - run:
             command: |
                 git clone git@github.com:gohugoio/hugoDocs.git
                 make vendor
-                go run -tags release main.go release --skip-publish --try -r ${CIRCLE_BRANCH}
+      - persist_to_workspace:
+          root: .
+          paths: .
+  release:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /go/src/github.com/gohugoio/hugo
+      - run:
+            command: |
+                    go run -tags release main.go release --skip-publish --try -r ${CIRCLE_BRANCH}
+
 workflows:
   version: 2
   release:
-      jobs:
+      jobs:  
         - build:
-            context: org-global
             filters:
               branches:
                 only: /release-.*/
+        - hold:
+            type: approval
+            requires:
+              - build
+        - release:
+            context: org-global
+            requires:
+              - hold
