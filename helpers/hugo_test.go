@@ -53,7 +53,7 @@ func TestCompareVersions(t *testing.T) {
 func TestParseHugoVersion(t *testing.T) {
 	require.Equal(t, "0.25", MustParseHugoVersion("0.25").String())
 	require.Equal(t, "0.25.2", MustParseHugoVersion("0.25.2").String())
-
+	require.Equal(t, "0.25-test", MustParseHugoVersion("0.25-test").String())
 	_, err := ParseHugoVersion("0.25-DEV")
 	require.Error(t, err)
 }

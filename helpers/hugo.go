@@ -41,6 +41,10 @@ func (v HugoVersion) String() string {
 // ParseHugoVersion parses a version string.
 func ParseHugoVersion(s string) (HugoVersion, error) {
 	var vv HugoVersion
+	if strings.HasSuffix(s, "-test") {
+		vv.Suffix = "-test"
+		s = strings.TrimSuffix(s, "-test")
+	}
 
 	if strings.Contains(s, "DEV") {
 		return vv, errors.New("DEV versions not supported by parse")
