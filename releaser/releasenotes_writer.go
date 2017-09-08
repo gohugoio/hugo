@@ -198,6 +198,18 @@ func getReleaseNotesDocsTempFilename(version string) string {
 	return filepath.Join(getReleaseNotesDocsTempDirAndName(version))
 }
 
+func (r *ReleaseHandler) tmpReleaseNotesExists(version string) (bool, error) {
+	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version)
+
+	_, err := os.Stat(filepath.Join(docsTempPath, name))
+
+	if !os.IsNotExist(err) {
+		return true, nil
+	}
+
+	return false, err
+}
+
 func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infosMain, infosDocs gitInfos) (string, error) {
 
 	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version)

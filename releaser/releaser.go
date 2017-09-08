@@ -64,6 +64,10 @@ func (r ReleaseHandler) shouldPrepareVersions() bool {
 	return r.step < 1 || r.step == 2 || r.step > 3
 }
 
+func (r ReleaseHandler) isCIAutoMode() bool {
+	return r.step < 1 && isCI()
+}
+
 func (r ReleaseHandler) calculateVersions() (helpers.HugoVersion, helpers.HugoVersion) {
 	newVersion := helpers.MustParseHugoVersion(r.cliVersion)
 	finalVersion := newVersion
@@ -133,11 +137,20 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	var (
-		gitCommits     gitInfos
-		gitCommitsDocs gitInfos
+		gitCommits         gitInfos
+		gitCommitsDocs     gitInfos
+		ciAutoMode         = r.isCIAutoMode()
+		tempRelnotesExists bool
 	)
 
-	if r.shouldPrepareReleasenotes() || r.shouldRelease() {
+	if ciAutoMode {
+		tempRelnotesExists, err = tmpReleaseNotesExists(version)
+		if err != nil {
+			return err
+		}
+	}
+
+	if ciAutoMode || r.shouldPrepareReleasenotes() || r.shouldRelease() {
 		gitCommits, err = getGitInfos(changeLogFromTag, "", !r.try)
 		if err != nil {
 			return err
@@ -154,7 +167,10 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
-	if r.shouldPrepareReleasenotes() {
+	prepareRelaseNotes := (ciAutoMode && !tempRelnotesExists) || r.shouldPrepareReleasenotes()
+	ciAutoContinue := ciAutoMode && tempRelnotesExists
+
+	if prepareRelaseNotes {
 		releaseNotesFile, err := r.writeReleaseNotesToTemp(version, gitCommits, gitCommitsDocs)
 		if err != nil {
 			return err
@@ -168,7 +184,11 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
-	if r.shouldPrepareVersions() {
+	if ciAutoMode && !ciAutoContinue {
+		return nil
+	}
+
+	if ciAutoContinue || r.shouldPrepareVersions() {
 
 		// For docs, for now we assume that:
 		// The /docs subtree is up to date and ready to go.
@@ -184,7 +204,7 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
-	if !r.shouldRelease() {
+	if !ciAutoContinue || !r.shouldRelease() {
 		fmt.Printf("Skip release ... Use --state=%d for next or --state=4 to finish\n", r.step+1)
 		return nil
 	}
