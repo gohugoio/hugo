@@ -14,7 +14,6 @@
 package releaser
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"

@@ -10,7 +10,7 @@ jobs:
             command: |
                 git clone https://github.com/gohugoio/hugoDocs.git
                 make vendor
-                go run -tags release main.go release -r ${CIRCLE_TAG}
+                go run -tags release main.go release --skip-publish --try -r ${CIRCLE_BRANCH}
 workflows:
   version: 2
   release:
@@ -18,7 +18,5 @@ workflows:
         - build:
             context: org-global
             filters:
-              tags:
-                only: /v[0-9]+(\.[0-9]+)*(-.*)*test$/
               branches:
-                ignore: /.*/
+                only: /release-.*/
