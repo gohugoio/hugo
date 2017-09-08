@@ -971,6 +971,8 @@ func (p *Page) update(f interface{}) error {
 	// Needed for case insensitive fetching of params values
 	helpers.ToLowerMap(m)
 
+	var modified time.Time
+
 	var err error
 	var draft, published, isCJKLanguage *bool
 	for k, v := range m {
@@ -1014,6 +1016,14 @@ func (p *Page) update(f interface{}) error {
 			if err != nil {
 				p.s.Log.ERROR.Printf("Failed to parse lastmod '%v' in page %s", v, p.File.Path())
 			}
+		case "modified":
+			vv, err := cast.ToTimeE(v)
+			if err == nil {
+				p.Params[loki] = vv
+				modified = vv
+			} else {
+				p.Params[loki] = cast.ToString(v)
+			}
 		case "outputs":
 			o := cast.ToStringSlice(v)
 			if len(o) > 0 {
@@ -1034,6 +1044,7 @@ func (p *Page) update(f interface{}) error {
 			if err != nil {
 				p.s.Log.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
 			}
+			p.Params[loki] = p.PublishDate
 		case "expirydate", "unpublishdate":
 			p.ExpiryDate, err = cast.ToTimeE(v)
 			if err != nil {
@@ -1043,8 +1054,19 @@ func (p *Page) update(f interface{}) error {
 			draft = new(bool)
 			*draft = cast.ToBool(v)
 		case "published": // Intentionally undocumented
-			published = new(bool)
-			*published = cast.ToBool(v)
+			vv, err := cast.ToBoolE(v)
+			if err == nil {
+				published = &vv
+			} else {
+				// Some sites use this as the publishdate
+				vv, err := cast.ToTimeE(v)
+				if err == nil {
+					p.PublishDate = vv
+					p.Params[loki] = p.PublishDate
+				} else {
+					p.Params[loki] = cast.ToString(v)
+				}
+			}
 		case "layout":
 			p.Layout = cast.ToString(v)
 			p.Params[loki] = p.Layout
@@ -1133,9 +1155,16 @@ func (p *Page) update(f interface{}) error {
 	}
 
 	if p.Lastmod.IsZero() {
-		p.Lastmod = p.Date
+		if !modified.IsZero() {
+			p.Lastmod = modified
+		} else {
+			p.Lastmod = p.Date
+		}
+
 	}
 	p.Params["lastmod"] = p.Lastmod
+	p.Params["publishdate"] = p.PublishDate
+	p.Params["expirydate"] = p.ExpiryDate
 
 	if isCJKLanguage != nil {
 		p.isCJKLanguage = *isCJKLanguage
