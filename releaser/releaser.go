@@ -147,7 +147,8 @@ func (r *ReleaseHandler) Run() error {
 		if isCI() {
 			docsPath = "hugoDocs"
 		}
-		gitCommitsDocs, err = getGitInfos(changeLogFromTag, docsPath, !r.try)
+		// TODO(bep) explicit tag?
+		gitCommitsDocs, err = getGitInfos("", docsPath, !r.try)
 		if err != nil {
 			return err
 		}

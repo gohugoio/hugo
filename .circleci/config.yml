@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
             command: |
-                git clone https://github.com/gohugoio/hugoDocs.git
+                git clone git@github.com:gohugoio/hugoDocs.git
                 make vendor
                 go run -tags release main.go release --skip-publish --try -r ${CIRCLE_BRANCH}
 workflows:
