@@ -13,8 +13,6 @@ jobs:
       - run:
             command: |
                 git clone git@github.com:gohugoio/hugoDocs.git
-                pwd
-                ls
                 cd hugo
                 make vendor
       - persist_to_workspace:

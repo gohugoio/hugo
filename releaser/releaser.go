@@ -31,6 +31,14 @@ import (
 
 const commitPrefix = "releaser:"
 
+type releaseNotesState int
+
+const (
+	releaseNotesNone = iota
+	releaseNotesCreated
+	releaseNotesReady
+)
+
 // ReleaseHandler provides functionality to release a new version of Hugo.
 type ReleaseHandler struct {
 	cliVersion string
@@ -126,6 +134,8 @@ func (r *ReleaseHandler) Run() error {
 		return fmt.Errorf("Tag %q already exists", tag)
 	}
 
+	defer r.gitPush()
+
 	var changeLogFromTag string
 
 	if newVersion.PatchLevel == 0 {
@@ -139,14 +149,14 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	var (
-		gitCommits         gitInfos
-		gitCommitsDocs     gitInfos
-		ciAutoMode         = r.isCIAutoMode()
-		tempRelnotesExists bool
+		gitCommits     gitInfos
+		gitCommitsDocs gitInfos
+		ciAutoMode     = r.isCIAutoMode()
+		relNotesState  releaseNotesState
 	)
 
 	if ciAutoMode {
-		tempRelnotesExists, err = r.tmpReleaseNotesExists(version)
+		relNotesState, err = r.releaseNotesState(version)
 		if err != nil {
 			return err
 		}
@@ -166,8 +176,24 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
-	prepareRelaseNotes := (ciAutoMode && !tempRelnotesExists) || r.shouldPrepareReleasenotes()
-	ciAutoContinue := ciAutoMode && tempRelnotesExists
+	prepareRelaseNotes := false
+	prepareVersions := false
+	shouldRelease := false
+
+	if ciAutoMode {
+		prepareRelaseNotes = relNotesState == releaseNotesNone
+		prepareVersions = relNotesState == releaseNotesCreated
+		shouldRelease = relNotesState == releaseNotesCreated
+
+		if relNotesState == releaseNotesCreated {
+			fmt.Println("Release notes created, but not ready ...")
+			return nil
+		}
+	} else {
+		prepareRelaseNotes = r.shouldPrepareReleasenotes()
+		prepareVersions = r.shouldPrepareVersions()
+		shouldRelease = r.shouldRelease()
+	}
 
 	if prepareRelaseNotes {
 		releaseNotesFile, err := r.writeReleaseNotesToTemp(version, gitCommits, gitCommitsDocs)
@@ -178,16 +204,12 @@ func (r *ReleaseHandler) Run() error {
 		if _, err := r.git("add", releaseNotesFile); err != nil {
 			return err
 		}
-		if _, err := r.git("commit", "-m", fmt.Sprintf("%s Add release notes draft for %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+		if _, err := r.git("commit", "-m", fmt.Sprintf("%s Add release notes draft for %s\n\nRename to *-ready.md to continue. [ci skip]", commitPrefix, newVersion)); err != nil {
 			return err
 		}
 	}
 
-	if ciAutoMode && !ciAutoContinue {
-		return nil
-	}
-
-	if ciAutoContinue || r.shouldPrepareVersions() {
+	if prepareVersions {
 
 		// For docs, for now we assume that:
 		// The /docs subtree is up to date and ready to go.
@@ -203,12 +225,12 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
-	if !ciAutoContinue || !r.shouldRelease() {
+	if !shouldRelease {
 		fmt.Printf("Skip release ... Use --state=%d for next or --state=4 to finish\n", r.step+1)
 		return nil
 	}
 
-	releaseNotesFile := getReleaseNotesDocsTempFilename(version)
+	releaseNotesFile := getReleaseNotesDocsTempFilename(version, true)
 
 	// Write the release notes to the docs site as well.
 	docFile, err := r.writeReleaseNotesToDocs(version, releaseNotesFile)
@@ -251,6 +273,12 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	return nil
+}
+
+func (r *ReleaseHandler) gitPush() {
+	if _, err := r.git("push", "origin"); err != nil {
+		log.Fatal("push failed:", err)
+	}
 }
 
 func (r *ReleaseHandler) release(releaseNotesFile string) error {
