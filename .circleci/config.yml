@@ -26,6 +26,7 @@ jobs:
       - run:
             command: |
                     cd hugo
+                    echo 'github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC2s2zoMySZPm5mcrE+Pjopr2lCBj8zM+xc8nWLiZgtVIVyX8OHARlwRF9HgqLMI/KbNyKf2JoFNdRYh73cVtYuFoFnvVqLznuizCPzXmhGhzc/OAQh0QxoFLiWGcddy4NfFUJWsEAwKaE6yKWhTGEMBi5GCAlXQtwZPRckImZdzbx41Z4FEN/14ePeYA014IhbHm9rznPpoQcrkf+F3UP9cbiuxp8XhPVH382ntwCecezArgeO+xZUeaN0S2L16aJciG5lDgOuuugVe3Vn6lqVVYoldRWS5OMtM/x5hq/gbWlAEnKaf+x0xwsSYrNRuy51ki0Oh5F9KjAoPUWKfnbJmqhDtiC1Da359U7eD1N820LCzoAxbwrz28UVTMnQHIqxU0e3V9fz++cEFaT+TxR2P2d9IzsrcB5D66Amyy9m3Epbxz63Qb0NVHzYHTIw9tkBdROasDQBpGjWJLU+zHnh6m7wA/b8NoDwkyPaAvoExKaswizYGoXgZ2MdTgU2p+mGjoZu4qjRZHDGortoDNaDVUvBFHHwEPYEaAMNSPpSfqNFRzsiK2y4Ms+6xJOxGMBkGF3ieA5XCd1e86P//fTclhMSU5US6AoowyDqtNPYS5Hw0V/NuX6DL1l2nM7FfQhRo5m5Rdee0w3Ux0B+l81hlBfoWZ908X3E1stHaSn2EQ== bjorn.erik.pedersen@gmail.com' >> ~/.ssh/known_hosts
                     go run -tags release main.go release -r ${CIRCLE_BRANCH}
 
 workflows:
