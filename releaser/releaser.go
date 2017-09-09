@@ -276,7 +276,7 @@ func (r *ReleaseHandler) Run() error {
 }
 
 func (r *ReleaseHandler) gitPush() {
-	if _, err := r.git("push", "origin"); err != nil {
+	if _, err := r.git("push", "origin", "HEAD"); err != nil {
 		log.Fatal("push failed:", err)
 	}
 }
