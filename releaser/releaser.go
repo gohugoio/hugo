@@ -43,37 +43,12 @@ const (
 type ReleaseHandler struct {
 	cliVersion string
 
-	// If set, we do the releases in 3 steps:
-	// 1: Create and write a draft release note
-	// 2: Prepare files for new version
-	// 3: Release
-	step        int
 	skipPublish bool
 
 	// Just simulate, no actual changes.
 	try bool
 
 	git func(args ...string) (string, error)
-}
-
-func (r ReleaseHandler) shouldRelease() bool {
-	return r.step < 1 || r.shouldContinue()
-}
-
-func (r ReleaseHandler) shouldContinue() bool {
-	return r.step >= 3
-}
-
-func (r ReleaseHandler) shouldPrepareReleasenotes() bool {
-	return r.step < 1 || r.step == 1
-}
-
-func (r ReleaseHandler) shouldPrepareVersions() bool {
-	return r.step < 1 || r.step == 2 || r.step > 3
-}
-
-func (r ReleaseHandler) isCIAutoMode() bool {
-	return r.step < 1 && isCI()
 }
 
 func (r ReleaseHandler) calculateVersions() (helpers.HugoVersion, helpers.HugoVersion) {
@@ -95,11 +70,11 @@ func (r ReleaseHandler) calculateVersions() (helpers.HugoVersion, helpers.HugoVe
 }
 
 // New initialises a ReleaseHandler.
-func New(version string, step int, skipPublish, try bool) *ReleaseHandler {
+func New(version string, skipPublish, try bool) *ReleaseHandler {
 	// When triggered from CI release branch
 	version = strings.TrimPrefix(version, "release-")
 	version = strings.TrimPrefix(version, "v")
-	rh := &ReleaseHandler{cliVersion: version, step: step, skipPublish: skipPublish, try: try}
+	rh := &ReleaseHandler{cliVersion: version, skipPublish: skipPublish, try: try}
 
 	if try {
 		rh.git = func(args ...string) (string, error) {
@@ -151,18 +126,19 @@ func (r *ReleaseHandler) Run() error {
 	var (
 		gitCommits     gitInfos
 		gitCommitsDocs gitInfos
-		ciAutoMode     = r.isCIAutoMode()
 		relNotesState  releaseNotesState
 	)
 
-	if ciAutoMode {
-		relNotesState, err = r.releaseNotesState(version)
-		if err != nil {
-			return err
-		}
+	relNotesState, err = r.releaseNotesState(version)
+	if err != nil {
+		return err
 	}
 
-	if ciAutoMode || r.shouldPrepareReleasenotes() || r.shouldRelease() {
+	prepareRelaseNotes := relNotesState == releaseNotesNone
+	prepareVersions := relNotesState == releaseNotesCreated
+	shouldRelease := relNotesState == releaseNotesReady
+
+	if prepareRelaseNotes || shouldRelease {
 		gitCommits, err = getGitInfos(changeLogFromTag, "", !r.try)
 		if err != nil {
 			return err
@@ -176,23 +152,9 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
-	prepareRelaseNotes := false
-	prepareVersions := false
-	shouldRelease := false
-
-	if ciAutoMode {
-		prepareRelaseNotes = relNotesState == releaseNotesNone
-		prepareVersions = relNotesState == releaseNotesCreated
-		shouldRelease = relNotesState == releaseNotesCreated
-
-		if relNotesState == releaseNotesCreated {
-			fmt.Println("Release notes created, but not ready ...")
-			return nil
-		}
-	} else {
-		prepareRelaseNotes = r.shouldPrepareReleasenotes()
-		prepareVersions = r.shouldPrepareVersions()
-		shouldRelease = r.shouldRelease()
+	if relNotesState == releaseNotesCreated {
+		fmt.Println("Release notes created, but not ready. Reneame to *-ready.md to continue ...")
+		return nil
 	}
 
 	if prepareRelaseNotes {
@@ -226,7 +188,7 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	if !shouldRelease {
-		fmt.Printf("Skip release ... Use --state=%d for next or --state=4 to finish\n", r.step+1)
+		fmt.Printf("Skip release ... ")
 		return nil
 	}
 

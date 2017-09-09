@@ -33,8 +33,6 @@ type releaseCommandeer struct {
 
 	skipPublish bool
 	try         bool
-
-	step int
 }
 
 func createReleaser() *releaseCommandeer {
@@ -53,7 +51,6 @@ func createReleaser() *releaseCommandeer {
 	}
 
 	r.cmd.PersistentFlags().StringVarP(&r.version, "rel", "r", "", "new release version, i.e. 0.25.1")
-	r.cmd.PersistentFlags().IntVarP(&r.step, "step", "s", -1, "release step, defaults to -1 for all steps.")
 	r.cmd.PersistentFlags().BoolVarP(&r.skipPublish, "skip-publish", "", false, "skip all publishing pipes of the release")
 	r.cmd.PersistentFlags().BoolVarP(&r.try, "try", "", false, "simulate a release, i.e. no changes")
 
@@ -64,5 +61,5 @@ func (r *releaseCommandeer) release() error {
 	if r.version == "" {
 		return errors.New("must set the --rel flag to the relevant version number")
 	}
-	return releaser.New(r.version, r.step, r.skipPublish, r.try).Run()
+	return releaser.New(r.version, r.skipPublish, r.try).Run()
 }
