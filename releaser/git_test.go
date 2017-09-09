@@ -21,7 +21,7 @@ import (
 
 func TestGitInfos(t *testing.T) {
 	skipIfCI(t)
-	infos, err := getGitInfos("v0.20", "", false)
+	infos, err := getGitInfos("v0.20", "hugo", "", false)
 
 	require.NoError(t, err)
 	require.True(t, len(infos) > 0)

@@ -109,8 +109,6 @@ func (r *ReleaseHandler) Run() error {
 		return fmt.Errorf("Tag %q already exists", tag)
 	}
 
-	defer r.gitPush()
-
 	var changeLogFromTag string
 
 	if newVersion.PatchLevel == 0 {
@@ -138,15 +136,16 @@ func (r *ReleaseHandler) Run() error {
 	prepareVersions := relNotesState == releaseNotesCreated
 	shouldRelease := relNotesState == releaseNotesReady
 
+	defer r.gitPush() // TODO(bep)
+
 	if prepareRelaseNotes || shouldRelease {
-		gitCommits, err = getGitInfos(changeLogFromTag, "", !r.try)
+		gitCommits, err = getGitInfos(changeLogFromTag, "hugo", "", !r.try)
 		if err != nil {
 			return err
 		}
 
-		docsPath := "../hugoDocs"
 		// TODO(bep) explicit tag?
-		gitCommitsDocs, err = getGitInfos("", docsPath, !r.try)
+		gitCommitsDocs, err = getGitInfos("", "hugoDocs", "../hugoDocs", !r.try)
 		if err != nil {
 			return err
 		}
@@ -207,7 +206,7 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
-	if _, err := r.git("tag", "-a", tag, "-m", fmt.Sprintf("%s %s [ci deploy]", commitPrefix, newVersion)); err != nil {
+	if _, err := r.git("tag", "-a", tag, "-m", fmt.Sprintf("%s %s [ci skip]", commitPrefix, newVersion)); err != nil {
 		return err
 	}
 

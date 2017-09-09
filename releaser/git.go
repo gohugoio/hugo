@@ -156,8 +156,8 @@ func git(args ...string) (string, error) {
 	return string(out), nil
 }
 
-func getGitInfos(tag, repoPath string, remote bool) (gitInfos, error) {
-	return getGitInfosBefore("HEAD", tag, repoPath, remote)
+func getGitInfos(tag, repo, repoPath string, remote bool) (gitInfos, error) {
+	return getGitInfosBefore("HEAD", tag, repo, repoPath, remote)
 }
 
 type countribCount struct {
@@ -213,8 +213,8 @@ func (g gitInfos) ContribCountPerAuthor() contribCounts {
 	return c
 }
 
-func getGitInfosBefore(ref, tag, repoPath string, remote bool) (gitInfos, error) {
-
+func getGitInfosBefore(ref, tag, repo, repoPath string, remote bool) (gitInfos, error) {
+	client := newGitHubAPI(repo)
 	var g gitInfos
 
 	log, err := gitLogBefore(ref, tag, repoPath)
@@ -234,7 +234,7 @@ func getGitInfosBefore(ref, tag, repoPath string, remote bool) (gitInfos, error)
 			Body:    items[3],
 		}
 		if remote {
-			gc, err := fetchCommit(gi.Hash)
+			gc, err := client.fetchCommit(gi.Hash)
 			if err == nil {
 				gi.GitHubCommit = &gc
 			}

@@ -139,9 +139,10 @@ var templateFuncs = template.FuncMap{
 }
 
 func writeReleaseNotes(version string, infosMain, infosDocs gitInfos, to io.Writer) error {
+	client := newGitHubAPI("hugo")
 	changes := gitInfosToChangeLog(infosMain, infosDocs)
 	changes.Version = version
-	repo, err := fetchRepo()
+	repo, err := client.fetchRepo()
 	if err == nil {
 		changes.Repo = &repo
 	}

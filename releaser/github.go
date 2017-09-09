@@ -6,13 +6,28 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 )
 
 var (
-	gitHubCommitsApi      = "https://api.github.com/repos/gohugoio/hugo/commits/%s"
-	gitHubRepoApi         = "https://api.github.com/repos/gohugoio/hugo"
-	gitHubContributorsApi = "https://api.github.com/repos/gohugoio/hugo/contributors"
+	gitHubCommitsAPI      = "https://api.github.com/repos/gohugoio/REPO/commits/%s"
+	gitHubRepoAPI         = "https://api.github.com/repos/gohugoio/REPO"
+	gitHubContributorsAPI = "https://api.github.com/repos/gohugoio/REPO/contributors"
 )
+
+type gitHubAPI struct {
+	commitsAPITemplate      string
+	repoAPI                 string
+	contributorsAPITemplate string
+}
+
+func newGitHubAPI(repo string) *gitHubAPI {
+	return &gitHubAPI{
+		commitsAPITemplate:      strings.Replace(gitHubCommitsAPI, "REPO", repo, -1),
+		repoAPI:                 strings.Replace(gitHubRepoAPI, "REPO", repo, -1),
+		contributorsAPITemplate: strings.Replace(gitHubContributorsAPI, "REPO", repo, -1),
+	}
+}
 
 type gitHubCommit struct {
 	Author  gitHubAuthor `json:"author"`
@@ -42,10 +57,10 @@ type gitHubContributor struct {
 	Contributions int    `json:"contributions"`
 }
 
-func fetchCommit(ref string) (gitHubCommit, error) {
+func (g *gitHubAPI) fetchCommit(ref string) (gitHubCommit, error) {
 	var commit gitHubCommit
 
-	u := fmt.Sprintf(gitHubCommitsApi, ref)
+	u := fmt.Sprintf(g.commitsAPITemplate, ref)
 
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
@@ -57,10 +72,10 @@ func fetchCommit(ref string) (gitHubCommit, error) {
 	return commit, err
 }
 
-func fetchRepo() (gitHubRepo, error) {
+func (g *gitHubAPI) fetchRepo() (gitHubRepo, error) {
 	var repo gitHubRepo
 
-	req, err := http.NewRequest("GET", gitHubRepoApi, nil)
+	req, err := http.NewRequest("GET", g.repoAPI, nil)
 	if err != nil {
 		return repo, err
 	}
@@ -75,7 +90,7 @@ func fetchRepo() (gitHubRepo, error) {
 	for {
 		page++
 		var currPage []gitHubContributor
-		url := fmt.Sprintf(gitHubContributorsApi+"?page=%d", page)
+		url := fmt.Sprintf(g.contributorsAPITemplate+"?page=%d", page)
 
 		req, err = http.NewRequest("GET", url, nil)
 		if err != nil {
