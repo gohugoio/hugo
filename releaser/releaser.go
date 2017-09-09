@@ -133,7 +133,6 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	prepareRelaseNotes := relNotesState == releaseNotesNone
-	prepareVersions := relNotesState == releaseNotesCreated
 	shouldRelease := relNotesState == releaseNotesReady
 
 	defer r.gitPush() // TODO(bep)
@@ -170,25 +169,22 @@ func (r *ReleaseHandler) Run() error {
 		}
 	}
 
-	if prepareVersions {
-
-		// For docs, for now we assume that:
-		// The /docs subtree is up to date and ready to go.
-		// The hugoDocs/dev and hugoDocs/master must be merged manually after release.
-		// TODO(bep) improve this when we see how it works.
-
-		if err := r.bumpVersions(newVersion); err != nil {
-			return err
-		}
-
-		if _, err := r.git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
-			return err
-		}
-	}
-
 	if !shouldRelease {
 		fmt.Printf("Skip release ... ")
 		return nil
+	}
+
+	// For docs, for now we assume that:
+	// The /docs subtree is up to date and ready to go.
+	// The hugoDocs/dev and hugoDocs/master must be merged manually after release.
+	// TODO(bep) improve this when we see how it works.
+
+	if err := r.bumpVersions(newVersion); err != nil {
+		return err
+	}
+
+	if _, err := r.git("commit", "-a", "-m", fmt.Sprintf("%s Bump versions for release of %s\n\n[ci skip]", commitPrefix, newVersion)); err != nil {
+		return err
 	}
 
 	releaseNotesFile := getReleaseNotesDocsTempFilename(version, true)
