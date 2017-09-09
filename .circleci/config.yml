@@ -34,7 +34,7 @@ workflows:
         - build:
             filters:
               branches:
-                only: /release-.*/
+                only: /^release-.*/
         - hold:
             type: approval
             requires:
