@@ -203,11 +203,12 @@ func (r *ReleaseHandler) tmpReleaseNotesExists(version string) (bool, error) {
 
 	_, err := os.Stat(filepath.Join(docsTempPath, name))
 
-	if !os.IsNotExist(err) {
-		return true, nil
+	if os.IsNotExist(err) {
+		return false, nil
 	}
 
-	return false, err
+	return err == nil, err
+
 }
 
 func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infosMain, infosDocs gitInfos) (string, error) {

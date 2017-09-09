@@ -1,19 +1,21 @@
 defaults: &defaults
-  working_directory: /go/src/github.com/gohugoio/hugo
+  working_directory: /go/src/github.com/gohugoio
   docker:
       - image: bepsays/ci-goreleaser
     
-
-
 version: 2
 jobs:
   build:
     <<: *defaults
     steps:
-      - checkout
+      - checkout:
+          path: hugo
       - run:
             command: |
                 git clone git@github.com:gohugoio/hugoDocs.git
+                pwd
+                ls
+                cd hugo
                 make vendor
       - persist_to_workspace:
           root: .
@@ -22,9 +24,10 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: /go/src/github.com/gohugoio/hugo
+          at: /go/src/github.com/gohugoio
       - run:
             command: |
+                    cd hugo
                     go run -tags release main.go release --skip-publish --try -r ${CIRCLE_BRANCH}
 
 workflows:
@@ -34,7 +37,7 @@ workflows:
         - build:
             filters:
               branches:
-                only: /^release-.*/
+                only: /release-.*/
         - hold:
             type: approval
             requires:

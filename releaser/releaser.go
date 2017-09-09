@@ -73,7 +73,9 @@ func (r ReleaseHandler) calculateVersions() (helpers.HugoVersion, helpers.HugoVe
 	finalVersion := newVersion
 	finalVersion.PatchLevel = 0
 
-	newVersion.Suffix = ""
+	if newVersion.Suffix != "-test" {
+		newVersion.Suffix = ""
+	}
 
 	if newVersion.PatchLevel == 0 {
 		finalVersion = finalVersion.Next()
@@ -144,7 +146,7 @@ func (r *ReleaseHandler) Run() error {
 	)
 
 	if ciAutoMode {
-		tempRelnotesExists, err = tmpReleaseNotesExists(version)
+		tempRelnotesExists, err = r.tmpReleaseNotesExists(version)
 		if err != nil {
 			return err
 		}
@@ -157,9 +159,6 @@ func (r *ReleaseHandler) Run() error {
 		}
 
 		docsPath := "../hugoDocs"
-		if isCI() {
-			docsPath = "hugoDocs"
-		}
 		// TODO(bep) explicit tag?
 		gitCommitsDocs, err = getGitInfos("", docsPath, !r.try)
 		if err != nil {
