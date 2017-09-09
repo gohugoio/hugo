@@ -23,9 +23,6 @@ jobs:
     steps:
       - attach_workspace:
           at: /go/src/github.com/gohugoio
-      - add_ssh_keys:
-          fingerprints:
-            - "38:9e:19:58:e6:cf:ab:58:7d:92:61:b3:52:49:a3:e8"
       - run:
             command: |
                     cd hugo
