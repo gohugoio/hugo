@@ -15,6 +15,7 @@ jobs:
                 git clone git@github.com:gohugoio/hugoDocs.git
                 cd hugo
                 make vendor
+                make check
       - persist_to_workspace:
           root: .
           paths: .
