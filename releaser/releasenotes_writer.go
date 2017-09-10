@@ -139,9 +139,10 @@ var templateFuncs = template.FuncMap{
 }
 
 func writeReleaseNotes(version string, infosMain, infosDocs gitInfos, to io.Writer) error {
+	client := newGitHubAPI("hugo")
 	changes := gitInfosToChangeLog(infosMain, infosDocs)
 	changes.Version = version
-	repo, err := fetchRepo()
+	repo, err := client.fetchRepo()
 	if err == nil {
 		changes.Repo = &repo
 	}
@@ -190,17 +191,43 @@ func writeReleaseNotesToTmpFile(version string, infosMain, infosDocs gitInfos) (
 	return f.Name(), nil
 }
 
-func getReleaseNotesDocsTempDirAndName(version string) (string, string) {
+func getReleaseNotesDocsTempDirAndName(version string, final bool) (string, string) {
+	if final {
+		return hugoFilepath("temp"), fmt.Sprintf("%s-relnotes-ready.md", version)
+	}
 	return hugoFilepath("temp"), fmt.Sprintf("%s-relnotes.md", version)
 }
 
-func getReleaseNotesDocsTempFilename(version string) string {
-	return filepath.Join(getReleaseNotesDocsTempDirAndName(version))
+func getReleaseNotesDocsTempFilename(version string, final bool) string {
+	return filepath.Join(getReleaseNotesDocsTempDirAndName(version, final))
+}
+
+func (r *ReleaseHandler) releaseNotesState(version string) (releaseNotesState, error) {
+	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version, false)
+	_, err := os.Stat(filepath.Join(docsTempPath, name))
+
+	if err == nil {
+		return releaseNotesCreated, nil
+	}
+
+	docsTempPath, name = getReleaseNotesDocsTempDirAndName(version, true)
+	_, err = os.Stat(filepath.Join(docsTempPath, name))
+
+	if err == nil {
+		return releaseNotesReady, nil
+	}
+
+	if !os.IsNotExist(err) {
+		return releaseNotesNone, err
+	}
+
+	return releaseNotesNone, nil
+
 }
 
 func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infosMain, infosDocs gitInfos) (string, error) {
 
-	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version)
+	docsTempPath, name := getReleaseNotesDocsTempDirAndName(version, false)
 
 	var (
 		w io.WriteCloser

@@ -23,14 +23,16 @@ import (
 
 func TestGitHubLookupCommit(t *testing.T) {
 	skipIfNoToken(t)
-	commit, err := fetchCommit("793554108763c0984f1a1b1a6ee5744b560d78d0")
+	client := newGitHubAPI("hugo")
+	commit, err := client.fetchCommit("793554108763c0984f1a1b1a6ee5744b560d78d0")
 	require.NoError(t, err)
 	fmt.Println(commit)
 }
 
 func TestFetchRepo(t *testing.T) {
 	skipIfNoToken(t)
-	repo, err := fetchRepo()
+	client := newGitHubAPI("hugo")
+	repo, err := client.fetchRepo()
 	require.NoError(t, err)
 	fmt.Println(">>", len(repo.Contributors))
 }

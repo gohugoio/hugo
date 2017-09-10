@@ -1,0 +1,49 @@
+defaults: &defaults
+  working_directory: /go/src/github.com/gohugoio
+  docker:
+      - image: bepsays/ci-goreleaser:0.30.5-2
+    
+version: 2
+jobs:
+  build:
+    <<: *defaults
+    steps:
+      - checkout:
+          path: hugo
+      - run:
+            command: |
+                git clone git@github.com:gohugoio/hugoDocs.git
+                cd hugo
+                make vendor
+                make check
+      - persist_to_workspace:
+          root: .
+          paths: .
+  release:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: /go/src/github.com/gohugoio
+      - run:
+            command: |
+                    cd hugo
+                    git config --global user.email "bjorn.erik.pedersen+hugoreleaser@gmail.com"
+                    git config --global user.name "hugoreleaser"
+                    go run -tags release main.go release -r ${CIRCLE_BRANCH}
+
+workflows:
+  version: 2
+  release:
+      jobs:  
+        - build:
+            filters:
+              branches:
+                only: /release-.*/
+        - hold:
+            type: approval
+            requires:
+              - build
+        - release:
+            context: org-global
+            requires:
+              - hold
