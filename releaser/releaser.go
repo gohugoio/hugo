@@ -206,8 +206,10 @@ func (r *ReleaseHandler) Run() error {
 		return err
 	}
 
-	if _, err := r.git("push", "origin", tag); err != nil {
-		return err
+	if !r.skipPublish {
+		if _, err := r.git("push", "origin", tag); err != nil {
+			return err
+		}
 	}
 
 	if err := r.release(releaseNotesFile); err != nil {
@@ -233,6 +235,9 @@ func (r *ReleaseHandler) Run() error {
 }
 
 func (r *ReleaseHandler) gitPush() {
+	if r.skipPublish {
+		return
+	}
 	if _, err := r.git("push", "origin", "HEAD"); err != nil {
 		log.Fatal("push failed:", err)
 	}
@@ -255,19 +260,16 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 }
 
 func (r *ReleaseHandler) bumpVersions(ver helpers.HugoVersion) error {
-	fromDev := ""
 	toDev := ""
 
 	if ver.Suffix != "" {
-		toDev = "-DEV"
-	} else {
-		fromDev = "-DEV"
+		toDev = ver.Suffix
 	}
 
 	if err := r.replaceInFile("helpers/hugo.go",
 		`Number:(\s{4,})(.*),`, fmt.Sprintf(`Number:${1}%.2f,`, ver.Number),
 		`PatchLevel:(\s*)(.*),`, fmt.Sprintf(`PatchLevel:${1}%d,`, ver.PatchLevel),
-		fmt.Sprintf(`Suffix:(\s{4,})"%s",`, fromDev), fmt.Sprintf(`Suffix:${1}"%s",`, toDev)); err != nil {
+		`Suffix:(\s{4,})".*",`, fmt.Sprintf(`Suffix:${1}"%s",`, toDev)); err != nil {
 		return err
 	}
 
