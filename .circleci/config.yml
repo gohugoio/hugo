@@ -27,7 +27,7 @@ jobs:
       - run:
             command: |
                     cd hugo
-                    git config --global user.email "releaser@gohugo.io"
+                    git config --global user.email "bjorn.erik.pedersen+hugoreleaser@gmail.com"
                     git config --global user.name "hugoreleaser"
                     go run -tags release main.go release -r ${CIRCLE_BRANCH}
 
