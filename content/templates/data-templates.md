@@ -240,7 +240,7 @@ If you change any local file and the LiveReload is triggered, Hugo will read the
 [config]: /getting-started/configuration/
 [csv]: https://tools.ietf.org/html/rfc4180
 [customize]: /themes/customizing/
-[json]: /documents/ecma-404-json-spec.pdf
+[json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
 [LiveReload]: /getting-started/usage/#livereload
 [lookup]: /templates/lookup-order/
 [markdownify]: /functions/markdownify/
