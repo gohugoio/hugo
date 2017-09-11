@@ -42,7 +42,7 @@ Feel free to [contribute to Hugo's development][devcontribute], [improve Hugo's 
 [doccontribute]: /contribute/documentation/
 [hosting and deployment]: /hosting-and-deployment/
 [migrate]: /tools/migrations/
-[milestones]: https://github.com/gohugoio/hugo/milestone/14
+[milestones]: https://github.com/gohugoio/hugo/milestones/
 [newissue]: https://github.com/gohugoio/hugo/issues/
 [related forum thread]: https://discourse.gohugo.io/t/web-based-editor/155
 [themes]: /themes/
