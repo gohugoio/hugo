@@ -19,6 +19,8 @@ toc: true
 
 **Front matter** allows you to keep metadata attached to an instance of a [content type][]---i.e., embedded inside a content file---and is one of the many features that gives Hugo its strength.
 
+{{< youtube Yh2xKRJGff4 >}}
+
 ## Front Matter Formats
 
 Hugo supports three formats for front matter, each with their own identifying tokens.

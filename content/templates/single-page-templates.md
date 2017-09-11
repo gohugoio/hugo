@@ -35,6 +35,8 @@ Hugo assumes your content section and content type are the same unless you tell 
 9. `/themes/<THEME>/layouts/<SECTION>/single.html`
 10. `/themes/<THEME>/layouts/_default/single.html`
 
+{{< youtube ZYQ5k0RQzmo >}}
+
 ## Example Single Page Templates
 
 Content pages are of the type `page` and will therefore have all the [page variables][pagevars] and [site variables][] available to use in their templates.

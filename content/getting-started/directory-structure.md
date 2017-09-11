@@ -20,6 +20,8 @@ toc: true
 
 ## New Site Scaffolding
 
+{{< youtube sB0HLHjgQ7E >}}
+
 Running the `hugo new site` generator from the command line will create a directory structure with the following elements:
 
 ```

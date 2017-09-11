@@ -35,6 +35,8 @@ The [lookup order][lookup] for section templates is as follows:
 7. `/themes/<THEME>/layouts/_default/section.html`
 8. `/themes/<THEME>/layouts/_default/list.html`
 
+{{< youtube jrMClsB3VsY >}}
+
 ## `.Site.GetPage` with Sections
 
 Every `Page` in Hugo has a `.Kind` attribute. `Kind` can easily be combined with the [`where` function][where] in your templates to create kind-specific lists of content. This method is ideal for creating lists, but there are times where you may want to fetch just the index page of a single section via the section's path.

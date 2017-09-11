@@ -121,6 +121,8 @@ Since building from source is appealing to more seasoned command line users, thi
 
 ### Install Hugo with Brew
 
+{{< youtube WvhCGlLcrF8 >}}
+
 #### Step 1: Install `brew` if you haven't already
 
 Go to the `brew` website, <https://brew.sh/>, and follow the directions there. The most important step is the installation from the command line:
@@ -298,6 +300,8 @@ Then place the `hugo` executable somewhere in your `$PATH`. You're now ready to 
 ## Windows
 
 The following aims to be a complete guide to installing Hugo on your Windows PC.
+
+{{< youtube G7umPCU-8xc >}}
 
 ### Assumptions
 

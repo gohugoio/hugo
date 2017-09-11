@@ -30,6 +30,8 @@ Hugo currently doesn’t ship with a “default” theme. This decision is inten
 
 ## Install Themes
 
+{{< youtube L34JL_3Jkyc >}}
+
 The community-contributed themes featured on [themes.gohugo.io](//themes.gohugo.io/) are hosted in a [centralized GitHub repository][themesrepo]. The Hugo Themes Repo at <https://github.com/gohugoio/hugoThemes> is really a meta repository that contains pointers to a set of contributed themes.
 
 {{% warning "Get `git` First" %}}

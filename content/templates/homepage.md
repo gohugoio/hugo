@@ -24,6 +24,8 @@ Homepage is a `Page` and therefore has all the [page variables][pagevars] and [s
 The homepage template is the *only* required template for building a site and therefore useful when bootstrapping a new site and template. It is also the only required template if you are developing a single-page website.
 {{% /note %}}
 
+{{< youtube ut1xtRZ1QOA >}}
+
 ## Homepage Template Lookup Order
 
 The [lookup order][lookup] for the homepage template is as follows:

@@ -25,6 +25,8 @@ The following is only a primer on Go templates. For an in-depth look into Go tem
 
 Go templates provide an extremely simple template language that adheres to the belief that only the most basic of logic belongs in the template or view layer.
 
+{{< youtube gnJbPO-GFIw >}}
+
 ## Basic Syntax
 
 Golang templates are HTML files with the addition of [variables][variables] and [functions][functions]. Golang template variables and functions are accessible within `{{ }}`.

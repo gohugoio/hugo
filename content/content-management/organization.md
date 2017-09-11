@@ -24,6 +24,8 @@ This section is not updated with the new nested sections support in Hugo 0.24, s
 See above
 {{% /todo %}}
 
+{{< youtube 0GZxidrlaRM >}}
+
 ## Organization of Content Source
 
 In Hugo, your content should be organized in a manner that reflects the rendered website.

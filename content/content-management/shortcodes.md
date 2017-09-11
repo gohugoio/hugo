@@ -30,6 +30,8 @@ In addition to cleaner Markdown, shortcodes can be updated any time to reflect n
 
 ## Use Shortcodes
 
+{{< youtube 2xkNJL4gJ9E >}}
+
 In your content files, a shortcode can be called by calling `{{%/* shortcodename parameters */%}}`. Shortcode parameters are space delimited, and parameters with internal spaces can be quoted.
 
 The first word in the shortcode declaration is always the name of the shortcode. Parameters follow the name. Depending upon how the shortcode is defined, the parameters may be named, positional, or both, although you can't mix parameter types in a single call. The format for named parameters models that of HTML with the format `name="value"`.

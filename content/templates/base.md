@@ -21,6 +21,8 @@ toc: true
 
 The `block` keyword allows you to define the outer shell of your pages' one or more master template(s) and then fill in or override portions as necessary.
 
+{{< youtube QVOMCYitLEc >}}
+
 ## Base Template Lookup Order
 
 The [lookup order][lookup] for base templates is as follows:
