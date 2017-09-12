@@ -14,6 +14,8 @@
 package hugolib
 
 import (
+	"bytes"
+	"html/template"
 	"reflect"
 	"strings"
 	"testing"
@@ -125,6 +127,8 @@ outputs: %s
 # Doc
 
 {{< myShort >}}
+
+{{< myHTMLShort >}}
 `
 
 	mf := afero.NewMemMapFs()
@@ -144,8 +148,14 @@ other = "Olboge"
 		"layouts/partials/GoHugo.html", `Go Hugo Partial`,
 		"layouts/_default/baseof.json", `START JSON:{{block "main" .}}default content{{ end }}:END JSON`,
 		"layouts/_default/baseof.html", `START HTML:{{block "main" .}}default content{{ end }}:END HTML`,
-		"layouts/shortcodes/myShort.html", `ShortHTML`,
-		"layouts/shortcodes/myShort.json", `ShortJSON`,
+		"layouts/shortcodes/myHTMLShort.html", `HTMLShort: <blockquote class="htmlShort">{{ .Site.Data.mydata.other | safeHTML }}</blockquote>`,
+		"layouts/shortcodes/myShort.html", `
+ShortHTML
+<blockquote class="html">Block {{ $data := .Site.Data.mydata }}{{ with $data }}{{ .html }}|{{ .other }}|Safe: {{ .html | safeHTML }}{{ end }}<blockquote>`,
+		"layouts/shortcodes/myShort.json", `
+ShortJSON
+<blockquote class="json">Block {{ $data := .Site.Data.mydata }}{{ with $data }}{{ .html | safeHTML }}|{{ .other }}|Safe: {{ .html | safeHTML }}{{ end }}<blockquote>
+`,
 
 		"layouts/_default/list.json", `{{ define "main" }}
 List JSON|{{ .Title }}|{{ .Content }}|Alt formats: {{ len .AlternativeOutputFormats -}}|
@@ -179,6 +189,10 @@ Content: {{ .Content }}
 
 	writeSource(t, fs, "content/_index.md", fmt.Sprintf(pageTemplate, "JSON Home", outputsStr))
 	writeSource(t, fs, "content/_index.nn.md", fmt.Sprintf(pageTemplate, "JSON Nynorsk Heim", outputsStr))
+	writeSource(t, fs, "data/mydata.toml", `
+html = "<p>htmlHTML</p>"
+other = "<p>otherHTML</p>"
+`)
 
 	err := h.Build(BuildCfg{})
 
@@ -210,6 +224,8 @@ Content: {{ .Content }}
 			"Output/Rel: HTML/canonical|",
 			"en: Elbow",
 			"ShortJSON",
+			`<blockquote class="json">Block <p>htmlHTML</p>|<p>otherHTML</p>|Safe: <p>htmlHTML</p><blockquote>`,
+			`<blockquote class="json">Block <p>htmlHTML</p>|<p>otherHTML</p>|Safe: <p>htmlHTML</p><blockquote>`,
 		)
 
 		th.assertFileContent("public/index.html",
@@ -218,6 +234,9 @@ Content: {{ .Content }}
 			`List HTML|JSON Home|<atom:link href=http://example.com/blog/ rel="self" type="text/html&#43;html" />`,
 			"en: Elbow",
 			"ShortHTML",
+			// TODO(bep) `Safe: <p>htmlHTML</p>`,
+			// #3876
+			`<p>HTMLShort: <blockquote class="htmlShort"><p>otherHTML</p></blockquote></p>`,
 		)
 		th.assertFileContent("public/nn/index.html",
 			"List HTML|JSON Nynorsk Heim|",
@@ -228,6 +247,7 @@ Content: {{ .Content }}
 			// JSON is plain text, so no need to safeHTML this and that
 			`<atom:link href=http://example.com/blog/index.json rel="self" type="application/json+json" />`,
 			"ShortJSON",
+			`<blockquote class="json">Block <p>htmlHTML</p>|<p>otherHTML</p>|Safe: <p>htmlHTML</p><blockquote>`,
 		)
 		th.assertFileContent("public/nn/index.json",
 			"List JSON|JSON Nynorsk Heim|",
@@ -364,5 +384,34 @@ baseName = "customdelimbase"
 	require.Equal(t, "/blog/defaultdelimbase.defd", outputs.Get("DEF").RelPermalink())
 	require.Equal(t, "/blog/nosuffixbase.", outputs.Get("NOS").RelPermalink())
 	require.Equal(t, "/blog/customdelimbase_del", outputs.Get("CUS").RelPermalink())
+
+}
+
+// #3876 TODO(bep)
+func TestSafeHTMLFromData(t *testing.T) {
+	data := map[string]string{
+		"html": "<h1>Hi!</h1>",
+	}
+
+	var funcs = map[string]interface{}{
+		"safeHTML": func(s string) template.HTML {
+			return template.HTML(s)
+		},
+	}
+
+	tpl := `<blockquote class="html">{{ .html | safeHTML }}</blockquote>`
+
+	var buf bytes.Buffer
+	tmpl, err := template.New("").Funcs(funcs).Parse(tpl)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := tmpl.Execute(&buf, data); err != nil {
+		t.Fatal(err)
+	}
+
+	if buf.String() != `<blockquote class="html"><h1>Hi!</h1></blockquote>` {
+		t.Fatalf("Got %q", buf.String())
+	}
 
 }
