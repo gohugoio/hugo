@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [menus]
+keywords: [menus]
 signature: ["IsMenuCurrent"]
 workson: [menus]
 hugoversion:

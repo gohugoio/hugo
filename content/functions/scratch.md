@@ -5,7 +5,7 @@ godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-#tags: [iteration]
+keywords: [iteration]
 categories: [functions]
 menu:
   docs:

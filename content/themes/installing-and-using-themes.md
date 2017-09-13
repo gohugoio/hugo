@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [themes]
-#tags: [install, themes, source, organization, directories,usage]
+keywords: [install, themes, source, organization, directories,usage]
 menu:
   docs:
     parent: "themes"

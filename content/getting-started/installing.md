@@ -7,7 +7,7 @@ publishdate: 2016-11-01
 lastmod: 2017-02-20
 categories: [getting started,fundamentals]
 authors: ["Michael Henderson"]
-#tags: [install,pc,windows,linux,macos,binary,tarball]
+keywords: [install,pc,windows,linux,macos,binary,tarball]
 menu:
   docs:
     parent: "getting-started"

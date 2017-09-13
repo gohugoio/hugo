@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [dates,time]
+keywords: [dates,time]
 signature: ["time INPUT"]
 workson: []
 hugoversion:

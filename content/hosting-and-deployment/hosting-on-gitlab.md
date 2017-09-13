@@ -6,7 +6,7 @@ date: 2016-06-23
 publishdate: 2016-06-23
 lastmod: 2016-06-23
 categories: [hosting and deployment]
-#tags: [hosting,deployment,git,gitlab]
+keywords: [hosting,deployment,git,gitlab]
 authors: [Riku-Pekka Silvola]
 menu:
   docs:

@@ -5,7 +5,7 @@ description: Hugo ships with its own RSS 2.0 template that requires almost no co
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-#tags: [rss, xml]
+keywords: [rss, xml]
 categories: [templates]
 menu:
   docs:

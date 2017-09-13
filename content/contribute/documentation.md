@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [contribute]
-#tags: [docs,documentation,community, contribute]
+keywords: [docs,documentation,community, contribute]
 menu:
   docs:
     parent: "contribute"

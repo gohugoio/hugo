@@ -11,7 +11,7 @@ menu:
     weight: 01
 weight: 01	#rem
 categories: [templates]
-#tags: []
+keywords: []
 draft: false
 aliases: [/templates/overview/,/templates/content]
 toc: false

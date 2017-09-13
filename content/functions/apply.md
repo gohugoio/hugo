@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [advanced]
+keywords: [advanced]
 signature: ["apply COLLETION FUNCTION [PARAM...]"]
 workson: []
 hugoversion:

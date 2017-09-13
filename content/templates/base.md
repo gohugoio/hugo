@@ -7,7 +7,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates,fundamentals]
-#tags: [blocks,base]
+keywords: [blocks,base]
 menu:
   docs:
     parent: "templates"

@@ -5,7 +5,7 @@ description: Archetypes allow you to create new instances of content types and s
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-#tags: [archetypes,generators,metadata,front matter]
+keywords: [archetypes,generators,metadata,front matter]
 categories: ["content management"]
 menu:
   docs:

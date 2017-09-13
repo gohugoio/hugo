@@ -3,7 +3,7 @@ title: "Hosting on KeyCDN"
 date: 2017-09-12
 description: "Accelerate your Hugo site globally with a KeyCDN integration. This tutorial shows you how to setup your static site as a GitLab page behind a KeyCDN pull zone."
 categories: [hosting and deployment]
-#tags: [keycdn,hosting,deployment,cdn]
+keywords: [keycdn,hosting,deployment,cdn]
 slug: ""
 aliases: []
 toc: false

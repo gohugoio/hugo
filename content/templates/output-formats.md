@@ -6,7 +6,7 @@ date: 2017-03-22
 publishdate: 2017-03-22
 lastmod: 2017-03-22
 categories: [templates]
-#tags: ["amp","outputs","rss"]
+keywords: ["amp","outputs","rss"]
 menu:
   docs:
     parent: "templates"

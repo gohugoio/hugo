@@ -12,7 +12,7 @@ menu:
     weight: 35
 weight: 35	#rem
 categories: [content management]
-#tags: [markdown,content,shortcodes]
+keywords: [markdown,content,shortcodes]
 draft: false
 aliases: [/extras/shortcodes/]
 toc: true

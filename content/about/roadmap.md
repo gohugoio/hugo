@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [about hugo]
-#tags: [about,contribute,roadmap]
+keywords: [about,contribute,roadmap]
 menu:
   docs:
     parent: "about"

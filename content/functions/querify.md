@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [urls]
+keywords: [urls]
 godocref:
 signature: ["querify KEY VALUE [KEY VALUE]..."]
 hugoversion:

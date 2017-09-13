@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [highlighting,pygments,code blocks,syntax]
+keywords: [highlighting,pygments,code blocks,syntax]
 signature: ["highlight INPUT"]
 workson: []
 hugoversion:

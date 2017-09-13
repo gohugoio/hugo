@@ -12,7 +12,7 @@ menu:
 weight: 01
 sections_weight: 01
 categories: [themes]
-#tags: [themes,introduction,overview]
+keywords: [themes,introduction,overview]
 draft: false
 aliases: [/themes/overview/]
 toc: false

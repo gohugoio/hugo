@@ -3,7 +3,7 @@ title: Related Content
 description: List related content in "See Also" sections.
 date: 2017-09-05
 categories: [content management]
-#tags: [content]
+keywords: [content]
 menu:
   docs:
     parent: "content-management"

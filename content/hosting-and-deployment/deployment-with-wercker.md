@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [hosting and deployment]
-#tags: [wercker,deployment,github,git]
+keywords: [wercker,deployment,github,git]
 authors: [Arjen Schwarz, Samuel Debruyn]
 menu:
   docs:

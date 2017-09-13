@@ -6,7 +6,7 @@ date: 2017-01-09
 publishdate: 2017-01-09
 lastmod: 2017-02-24
 categories: [content management]
-#tags: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
+keywords: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
 menu:
   docs:
     parent: "content-management"

@@ -6,7 +6,7 @@ date: 2017-01-02
 publishdate: 2017-02-01
 lastmod: 2017-03-09
 categories: [getting started,fundamentals]
-#tags: [source, organization, directories]
+keywords: [source, organization, directories]
 menu:
   docs:
     parent: "getting-started"

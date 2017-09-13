@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [slice, array, interface]
+keywords: [slice, array, interface]
 signature: ["slice ITEM..."]
 workson: []
 hugoversion:
