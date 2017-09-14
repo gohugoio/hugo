@@ -136,13 +136,13 @@ To sign up for a free Wercker account, go to <https://wercker.com> and click the
 
 ![][3]
 
-### Registe for Wercker with Your GitHub Account
+### Register for Wercker with Your GitHub Account
 
 Sign up for Wercker using your GitHub credentials. If you don't have a GitHub account, or don't want to use it for your account, you have the option to register with a username and password as well. However, the second half of this guide---devoted to hosting your website on GitHub pages---will no longer be of interest to you.
 
 ![][4]
 
-### Connecte GitHub or Bitbucket
+### Connect GitHub or Bitbucket
 
 After you are registered, you will need to link your GitHub or Bitbucket account to Wercker. You can link your account by navigating to your profile settings and then selecting "Git connections."
 
