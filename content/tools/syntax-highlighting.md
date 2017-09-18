@@ -103,7 +103,7 @@ The keywords in the `highlight` shortcode mirror those of Pygments from the comm
 
 It is also possible to add syntax highlighting with GitHub flavored code fences. To enable this, set the `PygmentsCodeFences` to `true` in Hugo's [configuration file](/getting-started/configuration/);
 
-```
+````
 ```
 <section id="main">
   <div>
@@ -114,7 +114,7 @@ It is also possible to add syntax highlighting with GitHub flavored code fences.
   </div>
 </section>
 ```
-```
+````
 
 {{% note "Disclaimers on Pygments" %}}
 * Pygments is relatively slow and _causes a performance hit when building your site_, but Hugo has been designed to cache the results to disk.
