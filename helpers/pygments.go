@@ -24,10 +24,24 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/alecthomas/chroma"
+	"github.com/alecthomas/chroma/formatters"
+	"github.com/alecthomas/chroma/formatters/html"
+	"github.com/alecthomas/chroma/lexers"
+	"github.com/alecthomas/chroma/styles"
+
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 )
+
+func init() {
+	// TODO(bep) highlight
+	options := []html.Option{
+		html.TabWidth(4)}
+
+	formatters.Register("html", html.New(options...))
+}
 
 const pygmentsBin = "pygmentize"
 
@@ -42,6 +56,19 @@ func HasPygments() bool {
 
 // Highlight takes some code and returns highlighted code.
 func Highlight(cfg config.Provider, code, lang, optsStr string) string {
+	if true {
+		// TODO(bep) highlight
+		var buff bytes.Buffer
+		err := chromaHighlight(&buff, code, lang, "html", "trac")
+		if err != nil {
+			jww.ERROR.Print(err.Error())
+			return code
+		}
+
+		return buff.String()
+
+	}
+
 	if !HasPygments() {
 		jww.WARN.Println("Highlighting requires Pygments to be installed and in the path")
 		return code
@@ -129,6 +156,35 @@ func Highlight(cfg config.Provider, code, lang, optsStr string) string {
 	}
 
 	return str
+}
+
+func chromaHighlight(w io.Writer, source, lexer, formatter, style string) error {
+
+	l := lexers.Get(lexer)
+	if l == nil {
+		l = lexers.Analyse(source)
+	}
+	if l == nil {
+		l = lexers.Fallback
+	}
+	l = chroma.Coalesce(l)
+
+	f := formatters.Get(formatter)
+	if f == nil {
+		f = formatters.Fallback
+	}
+
+	s := styles.Get(style)
+	if s == nil {
+		s = styles.Fallback
+	}
+
+	writer, err := f.Format(w, s)
+	if err != nil {
+		return err
+	}
+
+	return l.Tokenise(nil, source, writer)
 }
 
 var pygmentsKeywords = make(map[string]bool)
