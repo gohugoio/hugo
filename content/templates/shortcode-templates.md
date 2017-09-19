@@ -107,7 +107,7 @@ The `.Params` variable in shortcodes contains the list parameters passed to shor
 `$.Page.Site.Params`
 : refers to global variables as defined in your [site's configuration file][config].
 
-#### `.IsNameParams`
+#### `.IsNamedParams`
 
 The `.IsNamedParams` variable checks whether the shortcode declaration uses named parameters and returns a boolean value.
 
