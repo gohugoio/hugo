@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -47,6 +48,7 @@ const pygmentsBin = "pygmentize"
 
 // HasPygments checks to see if Pygments is installed and available
 // on the system.
+// TODO(bep) highlight unexport
 func HasPygments() bool {
 	if _, err := exec.LookPath(pygmentsBin); err != nil {
 		return false
@@ -54,27 +56,30 @@ func HasPygments() bool {
 	return true
 }
 
-// Highlight takes some code and returns highlighted code.
-func Highlight(cfg config.Provider, code, lang, optsStr string) string {
-	if true {
-		// TODO(bep) highlight
-		var buff bytes.Buffer
-		err := chromaHighlight(&buff, code, lang, "html", "trac")
-		if err != nil {
-			jww.ERROR.Print(err.Error())
-			return code
-		}
+type highlighters struct {
+	cfg         config.Provider
+	ignoreCache bool
+	cacheDir    string
+}
 
-		return buff.String()
+func newHiglighters(cfg config.Provider) highlighters {
+	return highlighters{cfg: cfg, ignoreCache: cfg.GetBool("ignoreCache"), cacheDir: cfg.GetString("cacheDir")}
+}
 
-	}
-
-	if !HasPygments() {
-		jww.WARN.Println("Highlighting requires Pygments to be installed and in the path")
+func (h highlighters) chromaHighlighter(code, lang, optsStr string) string {
+	// TODO(bep) highlight
+	var buff bytes.Buffer
+	err := chromaHighlight(&buff, code, lang, "html", "friendly")
+	if err != nil {
+		jww.ERROR.Print(err.Error())
 		return code
 	}
 
-	options, err := parsePygmentsOpts(cfg, optsStr)
+	return h.injectCodeTag(`<div class="highlight">`+buff.String()+"</div>", lang)
+}
+
+func (h highlighters) pygmentsHighlighter(code, lang, optsStr string) string {
+	options, err := parsePygmentsOpts(h.cfg, optsStr)
 
 	if err != nil {
 		jww.ERROR.Print(err.Error())
@@ -89,12 +94,10 @@ func Highlight(cfg config.Provider, code, lang, optsStr string) string {
 
 	fs := hugofs.Os
 
-	ignoreCache := cfg.GetBool("ignoreCache")
-	cacheDir := cfg.GetString("cacheDir")
 	var cachefile string
 
-	if !ignoreCache && cacheDir != "" {
-		cachefile = filepath.Join(cacheDir, fmt.Sprintf("pygments-%x", hash.Sum(nil)))
+	if !h.ignoreCache && h.cacheDir != "" {
+		cachefile = filepath.Join(h.cacheDir, fmt.Sprintf("pygments-%x", hash.Sum(nil)))
 
 		exists, err := Exists(cachefile, fs)
 		if err != nil {
@@ -141,14 +144,9 @@ func Highlight(cfg config.Provider, code, lang, optsStr string) string {
 
 	str := string(normalizeExternalHelperLineFeeds([]byte(out.String())))
 
-	// inject code tag into Pygments output
-	if lang != "" && strings.Contains(str, "<pre>") {
-		codeTag := fmt.Sprintf(`<pre><code class="language-%s" data-lang="%s">`, lang, lang)
-		str = strings.Replace(str, "<pre>", codeTag, 1)
-		str = strings.Replace(str, "</pre>", "</code></pre>", 1)
-	}
+	str = h.injectCodeTag(str, lang)
 
-	if !ignoreCache && cachefile != "" {
+	if !h.ignoreCache && cachefile != "" {
 		// Write cache file
 		if err := WriteToDisk(cachefile, strings.NewReader(str), fs); err != nil {
 			jww.ERROR.Print(stderr.String())
@@ -156,6 +154,19 @@ func Highlight(cfg config.Provider, code, lang, optsStr string) string {
 	}
 
 	return str
+}
+
+var preRe = regexp.MustCompile(`(.*?<pre.*?>)(.*?)(pre)`)
+
+func (h highlighters) injectCodeTag(code, lang string) string {
+	if lang == "" || !strings.Contains(code, "<pre") {
+		return code
+	}
+
+	// TODO(bep) hightlight fixme
+
+	//codeTag := fmt.Sprintf(`<code class="language-%s" data-lang="%s">`, lang, lang)
+	return preRe.ReplaceAllString(code, "!!!!$1=>$2!!!")
 }
 
 func chromaHighlight(w io.Writer, source, lexer, formatter, style string) error {

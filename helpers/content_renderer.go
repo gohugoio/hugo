@@ -25,6 +25,7 @@ import (
 // HugoHTMLRenderer wraps a blackfriday.Renderer, typically a blackfriday.Html
 // Enabling Hugo to customise the rendering experience
 type HugoHTMLRenderer struct {
+	cs *ContentSpec
 	*RenderingContext
 	blackfriday.Renderer
 }
@@ -35,7 +36,7 @@ func (r *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string
 	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
 		opts := r.Cfg.GetString("pygmentsOptions")
 		str := html.UnescapeString(string(text))
-		out.WriteString(Highlight(r.RenderingContext.Cfg, str, lang, opts))
+		out.WriteString(r.cs.highlight(str, lang, opts))
 	} else {
 		r.Renderer.BlockCode(out, text, lang)
 	}
@@ -88,6 +89,7 @@ func (r *HugoHTMLRenderer) List(out *bytes.Buffer, text func() bool, flags int) 
 // HugoMmarkHTMLRenderer wraps a mmark.Renderer, typically a mmark.html,
 // enabling Hugo to customise the rendering experience.
 type HugoMmarkHTMLRenderer struct {
+	cs *ContentSpec
 	mmark.Renderer
 	Cfg config.Provider
 }
@@ -97,7 +99,7 @@ type HugoMmarkHTMLRenderer struct {
 func (r *HugoMmarkHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string, caption []byte, subfigure bool, callouts bool) {
 	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
 		str := html.UnescapeString(string(text))
-		out.WriteString(Highlight(r.Cfg, str, lang, ""))
+		out.WriteString(r.cs.highlight(str, lang, ""))
 	} else {
 		r.Renderer.BlockCode(out, text, lang, caption, subfigure, callouts)
 	}

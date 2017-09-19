@@ -55,8 +55,8 @@ func TestCodeFence(t *testing.T) {
 
 	// Pygments 2.0 and 2.1 have slightly different outputs so only do partial matching
 	data := []test{
-		{true, "<html></html>", `(?s)^<div class="highlight"><pre><code class="language-html" data-lang="html">.*?</code></pre></div>\n$`},
-		{false, "<html></html>", `(?s)^<pre><code class="language-html">.*?</code></pre>\n$`},
+		{true, "<html></html>", `(?s)^<div class="highlight"><pre.*><code class="language-html" data-lang="html">.*?</code></pre></div>\n$`},
+		{false, "<html></html>", `(?s)^<pre.*><code class="language-html">.*?</code></pre>\n$`},
 	}
 
 	for i, d := range data {

@@ -48,19 +48,42 @@ type ContentSpec struct {
 	footnoteAnchorPrefix       string
 	footnoteReturnLinkContents string
 
+	highlight func(code, lang, optsStr string) string
+
 	cfg config.Provider
 }
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
 func NewContentSpec(cfg config.Provider) *ContentSpec {
-	return &ContentSpec{
+	spec := &ContentSpec{
 		blackfriday:                cfg.GetStringMap("blackfriday"),
 		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
 		footnoteReturnLinkContents: cfg.GetString("footnoteReturnLinkContents"),
 
 		cfg: cfg,
 	}
+
+	// Use the Pygmentize on path if present
+	useClassic := false
+	h := newHiglighters(cfg)
+
+	// TODO(bep) hightlight document
+	if cfg.GetBool("pygmentsUseClassic") {
+		if !HasPygments() {
+			jww.WARN.Println("Highlighting with pygmentsUseClassic set requires Pygments to be installed and in the path")
+		} else {
+			useClassic = true
+		}
+	}
+
+	if useClassic {
+		spec.highlight = h.pygmentsHighlighter
+	} else {
+		spec.highlight = h.chromaHighlighter
+	}
+
+	return spec
 }
 
 // Blackfriday holds configuration values for Blackfriday rendering.
@@ -198,7 +221,7 @@ func BytesToHTML(b []byte) template.HTML {
 }
 
 // getHTMLRenderer creates a new Blackfriday HTML Renderer with the given configuration.
-func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
+func (c *ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       c.footnoteAnchorPrefix,
 		FootnoteReturnLinkContents: c.footnoteReturnLinkContents,
@@ -248,6 +271,7 @@ func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) bl
 	}
 
 	return &HugoHTMLRenderer{
+		cs:               c,
 		RenderingContext: ctx,
 		Renderer:         blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
 	}
@@ -299,7 +323,7 @@ func (c ContentSpec) markdownRender(ctx *RenderingContext) []byte {
 }
 
 // getMmarkHTMLRenderer creates a new mmark HTML Renderer with the given configuration.
-func (c ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
+func (c *ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       c.footnoteAnchorPrefix,
 		FootnoteReturnLinkContents: c.footnoteReturnLinkContents,
@@ -320,8 +344,9 @@ func (c ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContex
 	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
 
 	return &HugoMmarkHTMLRenderer{
-		mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
-		c.cfg,
+		cs:       c,
+		Renderer: mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+		Cfg:      c.cfg,
 	}
 }
 
