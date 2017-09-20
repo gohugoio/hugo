@@ -48,7 +48,7 @@ type ContentSpec struct {
 	footnoteAnchorPrefix       string
 	footnoteReturnLinkContents string
 
-	highlight func(code, lang, optsStr string) string
+	Highlight func(code, lang, optsStr string) string
 
 	cfg config.Provider
 }
@@ -78,9 +78,9 @@ func NewContentSpec(cfg config.Provider) *ContentSpec {
 	}
 
 	if useClassic {
-		spec.highlight = h.pygmentsHighlighter
+		spec.Highlight = h.pygmentsHighlighter
 	} else {
-		spec.highlight = h.chromaHighlighter
+		spec.Highlight = h.chromaHighlighter
 	}
 
 	return spec

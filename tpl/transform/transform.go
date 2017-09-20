@@ -55,7 +55,7 @@ func (ns *Namespace) Highlight(s interface{}, lang, opts string) (template.HTML,
 		return "", err
 	}
 
-	return template.HTML(helpers.Highlight(ns.deps.Cfg, html.UnescapeString(ss), lang, opts)), nil
+	return template.HTML(ns.deps.ContentSpec.Highlight(html.UnescapeString(ss), lang, opts)), nil
 }
 
 // HTMLEscape returns a copy of s with reserved HTML characters escaped.
