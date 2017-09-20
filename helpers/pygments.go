@@ -39,7 +39,9 @@ import (
 func init() {
 	// TODO(bep) highlight
 	options := []html.Option{
-		html.TabWidth(4)}
+		html.TabWidth(4),
+		html.WithLineNumbers(),
+	}
 
 	formatters.Register("html", html.New(options...))
 }
@@ -67,6 +69,7 @@ func newHiglighters(cfg config.Provider) highlighters {
 }
 
 func (h highlighters) chromaHighlighter(code, lang, optsStr string) string {
+	// TODO(bep) pygments options to html options, line numbers and hightlight etc.
 	// TODO(bep) highlight
 	var buff bytes.Buffer
 	err := chromaHighlight(&buff, code, lang, "html", "friendly")
@@ -164,6 +167,10 @@ func (h highlighters) injectCodeTag(code, lang string) string {
 	}
 
 	// TODO(bep) hightlight fixme
+
+	if true {
+		return code
+	}
 
 	//codeTag := fmt.Sprintf(`<code class="language-%s" data-lang="%s">`, lang, lang)
 	return preRe.ReplaceAllString(code, "!!!!$1=>$2!!!")
