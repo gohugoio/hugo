@@ -30,6 +30,7 @@ import (
 	"github.com/alecthomas/chroma/formatters/html"
 	"github.com/alecthomas/chroma/lexers"
 	"github.com/alecthomas/chroma/styles"
+	bp "github.com/gohugoio/hugo/bufferpool"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
@@ -71,14 +72,34 @@ func newHiglighters(cs *ContentSpec) highlighters {
 func (h highlighters) chromaHighlighter(code, lang, optsStr string) string {
 	// TODO(bep) pygments options to html options, line numbers and hightlight etc.
 	// TODO(bep) highlight
-	var buff bytes.Buffer
-	err := chromaHighlight(&buff, code, lang, "html", "friendly")
+
+	opts, err := h.cs.parsePygmentsOpts(optsStr)
 	if err != nil {
 		jww.ERROR.Print(err.Error())
 		return code
 	}
 
-	return h.injectCodeTag(`<div class="highlight">`+buff.String()+"</div>", lang)
+	style, found := opts["style"]
+	if !found || style == "" {
+		style = "friendly"
+	}
+
+	f, err := h.cs.chromaFormatterFromOptions(opts)
+	if err != nil {
+		jww.ERROR.Print(err.Error())
+		return code
+	}
+
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+
+	err = chromaHighlight(b, code, lang, style, f)
+	if err != nil {
+		jww.ERROR.Print(err.Error())
+		return code
+	}
+
+	return h.injectCodeTag(`<div class="highlight">`+b.String()+"</div>", lang)
 }
 
 func (h highlighters) pygmentsHighlighter(code, lang, optsStr string) string {
@@ -176,7 +197,7 @@ func (h highlighters) injectCodeTag(code, lang string) string {
 	return preRe.ReplaceAllString(code, "!!!!$1=>$2!!!")
 }
 
-func chromaHighlight(w io.Writer, source, lexer, formatter, style string) error {
+func chromaHighlight(w io.Writer, source, lexer, style string, f chroma.Formatter) error {
 	// style := styles.Get(*styleFlag).Clone() style.Add(chroma.LineHighlight, *htmlHighlightStyleFlag)  => line highlight
 
 	l := lexers.Get(lexer)
@@ -188,7 +209,6 @@ func chromaHighlight(w io.Writer, source, lexer, formatter, style string) error 
 	}
 	l = chroma.Coalesce(l)
 
-	f := formatters.Get(formatter) // TODO(bep) highlight
 	if f == nil {
 		f = formatters.Fallback
 	}
@@ -301,6 +321,22 @@ func parseDefaultPygmentsOpts(cfg config.Provider) (map[string]string, error) {
 	}
 
 	return options, nil
+}
+
+func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string) (chroma.Formatter, error) {
+	var options = []html.Option{html.TabWidth(4)}
+
+	// TODO(bep) highlighting range lines++
+
+	if pygmentsOpts["noclasses"] == "false" {
+		options = append(options, html.WithClasses())
+	}
+
+	if pygmentsOpts["linenos"] != "" {
+		options = append(options, html.WithLineNumbers())
+	}
+
+	return html.New(options...), nil
 }
 
 func (cs *ContentSpec) parsePygmentsOpts(in string) (map[string]string, error) {
