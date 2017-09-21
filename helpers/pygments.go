@@ -191,8 +191,6 @@ func (h highlighters) injectCodeTag(code, lang string) string {
 }
 
 func chromaHighlight(w io.Writer, source, lexer, style string, f chroma.Formatter) error {
-	// style := styles.Get(*styleFlag).Clone() style.Add(chroma.LineHighlight, *htmlHighlightStyleFlag)  => line highlight
-
 	l := lexers.Get(lexer)
 	if l == nil {
 		l = lexers.Analyse(source)
