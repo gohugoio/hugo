@@ -226,9 +226,14 @@ func TestPlainify(t *testing.T) {
 func newDeps(cfg config.Provider) *deps.Deps {
 	l := helpers.NewLanguage("en", cfg)
 	l.Set("i18nDir", "i18n")
+	cs, err := helpers.NewContentSpec(l)
+	if err != nil {
+		panic(err)
+	}
+
 	return &deps.Deps{
 		Cfg:         cfg,
 		Fs:          hugofs.NewMem(l),
-		ContentSpec: helpers.NewContentSpec(l),
+		ContentSpec: cs,
 	}
 }
