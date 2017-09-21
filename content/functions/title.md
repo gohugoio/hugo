@@ -10,7 +10,7 @@ categories: [functions,fundamentals]
 menu:
   docs:
     parent: "functions"
-#tags: [strings]
+keywords: [strings]
 signature: ["title INPUT"]
 workson: []
 hugoversion:

@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [strings,casing]
+keywords: [strings,casing]
 signature: ["lower INPUT"]
 workson: []
 hugoversion:

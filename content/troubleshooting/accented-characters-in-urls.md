@@ -5,7 +5,7 @@ description: If you're having trouble with special characters in your taxonomies
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-#tags: [urls,multilingual,special characters]
+keywords: [urls,multilingual,special characters]
 categories: [troubleshooting]
 menu:
   docs:

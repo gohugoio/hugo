@@ -5,7 +5,7 @@ description: Hugo ships with an internal Disqus template, but this isn't the onl
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-09
-#tags: [sections,content,organization]
+keywords: [sections,content,organization]
 categories: [project organization, fundamentals]
 menu:
   docs:

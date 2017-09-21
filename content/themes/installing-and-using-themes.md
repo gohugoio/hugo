@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [themes]
-#tags: [install, themes, source, organization, directories,usage]
+keywords: [install, themes, source, organization, directories,usage]
 menu:
   docs:
     parent: "themes"
@@ -29,6 +29,8 @@ Hugo currently doesn’t ship with a “default” theme. This decision is inten
 2. You have git installed on your machine and you are familiar with basic git usage.
 
 ## Install Themes
+
+{{< youtube L34JL_3Jkyc >}}
 
 The community-contributed themes featured on [themes.gohugo.io](//themes.gohugo.io/) are hosted in a [centralized GitHub repository][themesrepo]. The Hugo Themes Repo at <https://github.com/gohugoio/hugoThemes> is really a meta repository that contains pointers to a set of contributed themes.
 

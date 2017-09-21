@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
-#tags: [views]
+keywords: [views]
 menu:
   docs:
     parent: "templates"

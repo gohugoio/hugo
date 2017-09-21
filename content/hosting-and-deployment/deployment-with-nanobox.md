@@ -6,7 +6,7 @@ date: 2017-08-24
 publishdate: 2017-08-24
 lastmod: 2017-08-24
 categories: [hosting and deployment]
-#tags: [nanobox,deployment,hosting,aws,digitalocean,azure,google,linode]
+keywords: [nanobox,deployment,hosting,aws,digitalocean,azure,google,linode]
 authors: [Steve Domino]
 menu:
   docs:

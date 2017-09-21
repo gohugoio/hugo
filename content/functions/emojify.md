@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [strings,emojis]
+keywords: [strings,emojis]
 signature: ["emojify INPUT"]
 workson: []
 hugoversion:
