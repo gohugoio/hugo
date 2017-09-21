@@ -49,6 +49,7 @@ func init() {
 
 const pygmentsBin = "pygmentize"
 
+// TODO(bep) document chroma -s perldoc --html --html-styles
 // HasPygments checks to see if Pygments is installed and available
 // on the system.
 // TODO(bep) highlight unexport
