@@ -27,12 +27,6 @@
 			"revisionTime": "2017-09-21T09:59:10Z"
 		},
 		{
-			"checksumSHA1": "eKxKK51/c3oyP077MDgHaNhZ9HY=",
-			"path": "github.com/alecthomas/chroma/formatters",
-			"revision": "e5e7b57c46d6290a92e7b9d3c4048bdf90d6a2b2",
-			"revisionTime": "2017-09-21T02:54:18Z"
-		},
-		{
 			"checksumSHA1": "mAfUGeuHEylKDZZDg/pRjiIqxGE=",
 			"path": "github.com/alecthomas/chroma/formatters/html",
 			"revision": "e5e7b57c46d6290a92e7b9d3c4048bdf90d6a2b2",
@@ -69,6 +63,12 @@
 			"revisionTime": "2017-06-03T12:52:39Z"
 		},
 		{
+			"checksumSHA1": "d/czTNq3bacK85PFEKcHvW6aR80=",
+			"path": "github.com/danwakefield/fnmatch",
+			"revision": "cbb64ac3d964b81592e64f957ad53df015803288",
+			"revisionTime": "2016-04-03T17:12:40Z"
+		},
+		{
 			"checksumSHA1": "OFu4xJEIjiI8Suu+j/gabfp+y6Q=",
 			"origin": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
 			"path": "github.com/davecgh/go-spew/spew",
@@ -80,6 +80,18 @@
 			"path": "github.com/dchest/cssmin",
 			"revision": "fb8d9b44afdc258bfff6052d3667521babcb2239",
 			"revisionTime": "2015-12-10T17:00:30Z"
+		},
+		{
+			"checksumSHA1": "6y/Ht8J58EotTDBEIuE3+s4AnL8=",
+			"path": "github.com/dlclark/regexp2",
+			"revision": "487489b64fb796de2e55f4e8a4ad1e145f80e957",
+			"revisionTime": "2017-07-18T21:59:41Z"
+		},
+		{
+			"checksumSHA1": "k0JXX65FspyueQ8/1i50DGRiCUk=",
+			"path": "github.com/dlclark/regexp2/syntax",
+			"revision": "487489b64fb796de2e55f4e8a4ad1e145f80e957",
+			"revisionTime": "2017-07-18T21:59:41Z"
 		},
 		{
 			"checksumSHA1": "248k9rTfZ4kAknuomoKsdBG9zCU=",
