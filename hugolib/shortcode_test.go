@@ -561,7 +561,7 @@ tags:
 		} else if strings.HasSuffix(test.contentPath, ".rst") && !helpers.HasRst() {
 			fmt.Println("Skip Rst test case as no rst2html present.")
 			continue
-		} else if strings.Contains(test.expected, "code") && !helpers.HasPygments() {
+		} else if strings.Contains(test.expected, "code") {
 			fmt.Println("Skip Pygments test case as no pygments present.")
 			continue
 		}
