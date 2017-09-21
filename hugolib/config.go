@@ -124,6 +124,7 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("pygmentsStyle", "monokai")
 	v.SetDefault("pygmentsUseClasses", false)
 	v.SetDefault("pygmentsCodeFences", false)
+	v.SetDefault("pygmentsUseClassic", false)
 	v.SetDefault("pygmentsOptions", "")
 	v.SetDefault("disableLiveReload", false)
 	v.SetDefault("pluralizeListTitles", true)
