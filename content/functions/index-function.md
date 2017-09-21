@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: []
+keywords: []
 signature: ["index COLLECTION INDEX", "index COLLECTION KEY"]
 workson: []
 hugoversion:
@@ -71,7 +71,7 @@ This is where the `index` function is needed. `index` takes 2 parameters in this
 The variable for `.Params.location` is a string and can therefore replace `oslo` in the example above:
 
 ```
-{{ index .Site.Data.authors .Params.author }}
+{{ index .Site.Data.locations .Params.location }}
 => map[website:https://www.oslo.kommune.no pop_city:658390 pop_metro:1717900]
 ```
 

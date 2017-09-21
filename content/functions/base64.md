@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: []
+keywords: []
 relatedfuncs: []
 signature: ["base64Decode INPUT", "base64Encode INPUT"]
 workson: []

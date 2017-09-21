@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [dates,time]
+keywords: [dates,time]
 signature: [".AddDate YEARS MONTHS DAYS"]
 workson: [times]
 hugoversion:

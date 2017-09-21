@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [files]
+keywords: [files]
 signature: ["readFile PATH"]
 workson: []
 hugoversion:

@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
-#tags: [homepage]
+keywords: [homepage]
 menu:
   docs:
     parent: "templates"
@@ -23,6 +23,8 @@ Homepage is a `Page` and therefore has all the [page variables][pagevars] and [s
 {{% note "The Only Required Template" %}}
 The homepage template is the *only* required template for building a site and therefore useful when bootstrapping a new site and template. It is also the only required template if you are developing a single-page website.
 {{% /note %}}
+
+{{< youtube ut1xtRZ1QOA >}}
 
 ## Homepage Template Lookup Order
 

@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
-#tags: [lists,sections,pagination]
+keywords: [lists,sections,pagination]
 menu:
   docs:
     parent: "templates"

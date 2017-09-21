@@ -10,7 +10,7 @@ categories: [functions,fundamentals]
 menu:
   docs:
     parent: "functions"
-#tags: [iteration]
+keywords: [iteration]
 signature: ["range COLLECTION"]
 workson: []
 hugoversion:

@@ -10,7 +10,7 @@ categories: [functions,fundamentals]
 menu:
   docs:
     parent: "functions"
-#tags: [conditionals]
+keywords: [conditionals]
 signature: ["with INPUT"]
 workson: []
 hugoversion:

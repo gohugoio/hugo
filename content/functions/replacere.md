@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [regex]
+keywords: [regex]
 signature: ["replaceRE PATTERN REPLACEMENT INPUT"]
 workson: []
 hugoversion:

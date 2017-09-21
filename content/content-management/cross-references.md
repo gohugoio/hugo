@@ -5,7 +5,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-31
 categories: [content management]
-#tags: ["cross references","references", "anchors", "urls"]
+keywords: ["cross references","references", "anchors", "urls"]
 menu:
   docs:
     parent: "content-management"

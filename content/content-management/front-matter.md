@@ -6,7 +6,7 @@ date: 2017-01-09
 publishdate: 2017-01-09
 lastmod: 2017-02-24
 categories: [content management]
-#tags: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
+keywords: ["front matter", "yaml", "toml", "json", "metadata", "archetypes"]
 menu:
   docs:
     parent: "content-management"
@@ -18,6 +18,8 @@ toc: true
 ---
 
 **Front matter** allows you to keep metadata attached to an instance of a [content type][]---i.e., embedded inside a content file---and is one of the many features that gives Hugo its strength.
+
+{{< youtube Yh2xKRJGff4 >}}
 
 ## Front Matter Formats
 

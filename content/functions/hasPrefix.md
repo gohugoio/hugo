@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: []
+keywords: []
 signature: ["hasPrefix STRING PREFIX"]
 workson: []
 hugoversion:
