@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
 )
 
 // Renders a codeblock using Blackfriday
@@ -42,6 +43,7 @@ func (c ContentSpec) renderWithMmark(input string) string {
 }
 
 func TestCodeFence(t *testing.T) {
+	assert := require.New(t)
 
 	if !HasPygments() {
 		t.Skip("Skipping Pygments test as Pygments is not installed or available.")
@@ -66,7 +68,8 @@ func TestCodeFence(t *testing.T) {
 		v.Set("pygmentsUseClasses", true)
 		v.Set("pygmentsCodeFences", d.enabled)
 
-		c := NewContentSpec(v)
+		c, err := NewContentSpec(v)
+		assert.NoError(err)
 
 		result := c.render(d.input)
 

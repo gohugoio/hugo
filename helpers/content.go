@@ -48,14 +48,15 @@ type ContentSpec struct {
 	footnoteAnchorPrefix       string
 	footnoteReturnLinkContents string
 
-	Highlight func(code, lang, optsStr string) string
+	Highlight            func(code, lang, optsStr string) string
+	defatultPygmentsOpts map[string]string
 
 	cfg config.Provider
 }
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
-func NewContentSpec(cfg config.Provider) *ContentSpec {
+func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 	spec := &ContentSpec{
 		blackfriday:                cfg.GetStringMap("blackfriday"),
 		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
@@ -64,9 +65,16 @@ func NewContentSpec(cfg config.Provider) *ContentSpec {
 		cfg: cfg,
 	}
 
+	// Highlighting setup
+	options, err := parseDefaultPygmentsOpts(cfg)
+	if err != nil {
+		return nil, err
+	}
+	spec.defatultPygmentsOpts = options
+
 	// Use the Pygmentize on path if present
 	useClassic := false
-	h := newHiglighters(cfg)
+	h := newHiglighters(spec)
 
 	// TODO(bep) hightlight document
 	if cfg.GetBool("pygmentsUseClassic") {
@@ -83,7 +91,7 @@ func NewContentSpec(cfg config.Provider) *ContentSpec {
 		spec.Highlight = h.chromaHighlighter
 	}
 
-	return spec
+	return spec, nil
 }
 
 // Blackfriday holds configuration values for Blackfriday rendering.

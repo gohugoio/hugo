@@ -59,13 +59,13 @@ func HasPygments() bool {
 }
 
 type highlighters struct {
-	cfg         config.Provider
+	cs          *ContentSpec
 	ignoreCache bool
 	cacheDir    string
 }
 
-func newHiglighters(cfg config.Provider) highlighters {
-	return highlighters{cfg: cfg, ignoreCache: cfg.GetBool("ignoreCache"), cacheDir: cfg.GetString("cacheDir")}
+func newHiglighters(cs *ContentSpec) highlighters {
+	return highlighters{cs: cs, ignoreCache: cs.cfg.GetBool("ignoreCache"), cacheDir: cs.cfg.GetString("cacheDir")}
 }
 
 func (h highlighters) chromaHighlighter(code, lang, optsStr string) string {
@@ -82,7 +82,7 @@ func (h highlighters) chromaHighlighter(code, lang, optsStr string) string {
 }
 
 func (h highlighters) pygmentsHighlighter(code, lang, optsStr string) string {
-	options, err := parsePygmentsOpts(h.cfg, optsStr)
+	options, err := h.cs.createPygmentsOptionsString(optsStr)
 
 	if err != nil {
 		jww.ERROR.Print(err.Error())
@@ -233,23 +233,30 @@ func init() {
 	pygmentsKeywords["startinline"] = true
 }
 
-func parseOptions(options map[string]string, in string) error {
+func parseOptions(defaults map[string]string, in string) (map[string]string, error) {
 	in = strings.Trim(in, " ")
+	opts := make(map[string]string)
+
+	if defaults != nil {
+		for k, v := range defaults {
+			opts[k] = v
+		}
+	}
 
 	if in == "" {
-		return nil
+		return opts, nil
 	}
 
 	for _, v := range strings.Split(in, ",") {
 		keyVal := strings.Split(v, "=")
 		key := strings.ToLower(strings.Trim(keyVal[0], " "))
 		if len(keyVal) != 2 || !pygmentsKeywords[key] {
-			return fmt.Errorf("invalid Pygments option: %s", key)
+			return opts, fmt.Errorf("invalid Pygments option: %s", key)
 		}
-		options[key] = keyVal[1]
+		opts[key] = keyVal[1]
 	}
 
-	return nil
+	return opts, nil
 }
 
 func createOptionsString(options map[string]string) string {
@@ -271,8 +278,7 @@ func createOptionsString(options map[string]string) string {
 }
 
 func parseDefaultPygmentsOpts(cfg config.Provider) (map[string]string, error) {
-	options := make(map[string]string)
-	err := parseOptions(options, cfg.GetString("pygmentsOptions"))
+	options, err := parseOptions(nil, cfg.GetString("pygmentsOptions"))
 	if err != nil {
 		return nil, err
 	}
@@ -297,16 +303,19 @@ func parseDefaultPygmentsOpts(cfg config.Provider) (map[string]string, error) {
 	return options, nil
 }
 
-func parsePygmentsOpts(cfg config.Provider, in string) (string, error) {
-	options, err := parseDefaultPygmentsOpts(cfg)
+func (cs *ContentSpec) parsePygmentsOpts(in string) (map[string]string, error) {
+	opts, err := parseOptions(cs.defatultPygmentsOpts, in)
+	if err != nil {
+		return nil, err
+	}
+	return opts, nil
+
+}
+
+func (cs *ContentSpec) createPygmentsOptionsString(in string) (string, error) {
+	opts, err := cs.parsePygmentsOpts(in)
 	if err != nil {
 		return "", err
 	}
-
-	err = parseOptions(options, in)
-	if err != nil {
-		return "", err
-	}
-
-	return createOptionsString(options), nil
+	return createOptionsString(opts), nil
 }

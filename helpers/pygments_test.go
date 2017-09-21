@@ -17,9 +17,12 @@ import (
 	"testing"
 
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParsePygmentsArgs(t *testing.T) {
+	assert := require.New(t)
+
 	for i, this := range []struct {
 		in                 string
 		pygmentsStyle      string
@@ -38,8 +41,10 @@ func TestParsePygmentsArgs(t *testing.T) {
 		v := viper.New()
 		v.Set("pygmentsStyle", this.pygmentsStyle)
 		v.Set("pygmentsUseClasses", this.pygmentsUseClasses)
+		spec, err := NewContentSpec(v)
+		assert.NoError(err)
 
-		result1, err := parsePygmentsOpts(v, this.in)
+		result1, err := spec.createPygmentsOptionsString(this.in)
 		if b, ok := this.expect1.(bool); ok && !b {
 			if err == nil {
 				t.Errorf("[%d] parsePygmentArgs didn't return an expected error", i)
@@ -58,6 +63,8 @@ func TestParsePygmentsArgs(t *testing.T) {
 }
 
 func TestParseDefaultPygmentsArgs(t *testing.T) {
+	assert := require.New(t)
+
 	expect := "encoding=utf8,noclasses=false,style=foo"
 
 	for i, this := range []struct {
@@ -83,7 +90,10 @@ func TestParseDefaultPygmentsArgs(t *testing.T) {
 			v.Set("pygmentsUseClasses", b)
 		}
 
-		result, err := parsePygmentsOpts(v, this.in)
+		spec, err := NewContentSpec(v)
+		assert.NoError(err)
+
+		result, err := spec.createPygmentsOptionsString(this.in)
 		if err != nil {
 			t.Errorf("[%d] parsePygmentArgs failed: %s", i, err)
 			continue
