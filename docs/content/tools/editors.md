@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [developer tools]
-#tags: [editor, plug-ins]
+keywords: [editor, plug-ins]
 menu:
   docs:
     parent: "tools"

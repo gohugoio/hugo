@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [dictionary]
+keywords: [dictionary]
 signature: ["dict KEY VALUE [KEY VALUE]..."]
 workson: []
 hugoversion:

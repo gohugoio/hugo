@@ -6,7 +6,7 @@ date: 2016-02-01
 publishdate: 2016-02-01
 lastmod: 2016-03-02
 categories: ["about hugo"]
-#tags: ["License","apache"]
+keywords: ["License","apache"]
 menu:
   docs:
     parent: "about"

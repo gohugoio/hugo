@@ -12,7 +12,7 @@ menu:
     weight: 35
 weight: 35	#rem
 categories: [content management]
-#tags: [markdown,content,shortcodes]
+keywords: [markdown,content,shortcodes]
 draft: false
 aliases: [/extras/shortcodes/]
 toc: true
@@ -29,6 +29,8 @@ A shortcode is a simple snippet inside a content file that Hugo will render usin
 In addition to cleaner Markdown, shortcodes can be updated any time to reflect new classes, techniques, or standards. At the point of site generation, Hugo shortcodes will easily merge in your changes. You avoid a possibly complicated search and replace operation.
 
 ## Use Shortcodes
+
+{{< youtube 2xkNJL4gJ9E >}}
 
 In your content files, a shortcode can be called by calling `{{%/* shortcodename parameters */%}}`. Shortcode parameters are space delimited, and parameters with internal spaces can be quoted.
 

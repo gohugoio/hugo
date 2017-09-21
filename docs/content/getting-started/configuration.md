@@ -6,7 +6,7 @@ date: 2013-07-01
 publishdate: 2017-01-02
 lastmod: 2017-03-05
 categories: [getting started,fundamentals]
-#tags: [configuration,toml,yaml,json]
+keywords: [configuration,toml,yaml,json]
 menu:
   docs:
     parent: "getting-started"

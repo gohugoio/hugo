@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [variables and params]
-#tags: [taxonomies,terms]
+keywords: [taxonomies,terms]
 draft: false
 menu:
   docs:

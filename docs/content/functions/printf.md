@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [strings]
+keywords: [strings]
 signature: ["printf FORMAT INPUT"]
 workson: []
 hugoversion:

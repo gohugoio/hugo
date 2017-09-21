@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [images]
+keywords: [images]
 signature: ["imageConfig PATH"]
 workson: []
 hugoversion:

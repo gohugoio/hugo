@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
-#tags: [lists,sections]
+keywords: [lists,sections]
 menu:
   docs:
     parent: "templates"
@@ -34,6 +34,8 @@ The [lookup order][lookup] for section templates is as follows:
 6. `/themes/<THEME>/layouts/<SECTION>/list.html`
 7. `/themes/<THEME>/layouts/_default/section.html`
 8. `/themes/<THEME>/layouts/_default/list.html`
+
+{{< youtube jrMClsB3VsY >}}
 
 ## `.Site.GetPage` with Sections
 
