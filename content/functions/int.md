@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [strings,integers]
+keywords: [strings,integers]
 signature: ["int INPUT"]
 workson: []
 hugoversion:

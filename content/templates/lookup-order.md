@@ -7,7 +7,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-05-25
 categories: [templates,fundamentals]
-#tags: [lookup]
+keywords: [lookup]
 menu:
   docs:
     parent: "templates"

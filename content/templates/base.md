@@ -7,7 +7,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates,fundamentals]
-#tags: [blocks,base]
+keywords: [blocks,base]
 menu:
   docs:
     parent: "templates"
@@ -20,6 +20,8 @@ toc: true
 ---
 
 The `block` keyword allows you to define the outer shell of your pages' one or more master template(s) and then fill in or override portions as necessary.
+
+{{< youtube QVOMCYitLEc >}}
 
 ## Base Template Lookup Order
 

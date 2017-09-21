@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [multilingual,i18n,urls]
+keywords: [multilingual,i18n,urls]
 signature: ["uniq SET"]
 workson: []
 hugoversion:

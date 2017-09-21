@@ -5,7 +5,7 @@ description: A list of community-developed projects designed to help you get up 
 date: 2017-02-22
 publishdate: 2017-02-01
 lastmod: 2017-02-22
-#tags: [starters,assets,pipeline]
+keywords: [starters,assets,pipeline]
 menu:
   docs:
     parent: "tools"

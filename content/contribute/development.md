@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [contribute]
-#tags: [dev,open source]
+keywords: [dev,open source]
 authors: [digitalcraftsman]
 menu:
   docs:

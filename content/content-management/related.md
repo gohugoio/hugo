@@ -3,7 +3,7 @@ title: Related Content
 description: List related content in "See Also" sections.
 date: 2017-09-05
 categories: [content management]
-#tags: [content]
+keywords: [content]
 menu:
   docs:
     parent: "content-management"
@@ -56,6 +56,10 @@ type PageGenealogist interface {
 ```
 ## Configure Related Content
 Hugo provides a sensible default configuration of Related Content, but you can fine-tune this in your configuration, on the global or language level if needed.
+
+{{% note %}}
+If you add a `related` config section, you need to add a complete configuration. It is not possible to just set, say, `includeNewer` and use the rest  from the Hugo defaults.
+{{% /note %}}
 
 Below is a sample `config.toml` section:
 

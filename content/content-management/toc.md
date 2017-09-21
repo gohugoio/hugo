@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [content management]
-#tags: [table of contents, toc]
+keywords: [table of contents, toc]
 menu:
   docs:
     parent: "content-management"

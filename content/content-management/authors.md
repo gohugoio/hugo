@@ -5,7 +5,7 @@ description:
 date: 2016-08-22
 publishdate: 2017-03-12
 lastmod: 2017-03-12
-#tags: [authors]
+keywords: [authors]
 categories: ["content management"]
 menu:
   docs:

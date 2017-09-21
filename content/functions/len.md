@@ -7,7 +7,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-18
 categories: [functions]
-#tags: []
+keywords: []
 signature: ["len INPUT"]
 workson: [lists,taxonomies,terms]
 hugoversion:

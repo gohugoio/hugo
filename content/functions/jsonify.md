@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [strings,json]
+keywords: [strings,json]
 signature: ["jsonify INPUT"]
 workson: []
 hugoversion:

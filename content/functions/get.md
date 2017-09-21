@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [shortcodes]
+keywords: [shortcodes]
 signature: ["Get INDEX", "Get KEY"]
 workson: []
 hugoversion:

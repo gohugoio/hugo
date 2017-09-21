@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [commands]
-#tags: [cli,command line]
+keywords: [cli,command line]
 menu:
   docs:
     parent: "commands"

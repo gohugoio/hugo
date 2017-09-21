@@ -7,7 +7,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-25
 categories: [templates,fundamentals]
-#tags: [go]
+keywords: [go]
 menu:
   docs:
     parent: "templates"
@@ -24,6 +24,8 @@ The following is only a primer on Go templates. For an in-depth look into Go tem
 {{% /note %}}
 
 Go templates provide an extremely simple template language that adheres to the belief that only the most basic of logic belongs in the template or view layer.
+
+{{< youtube gnJbPO-GFIw >}}
 
 ## Basic Syntax
 

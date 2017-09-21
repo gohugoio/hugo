@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [dates,time,strings]
+keywords: [dates,time,strings]
 signature: ["dateFormat LAYOUT INPUT"]
 workson: []
 hugoversion:
