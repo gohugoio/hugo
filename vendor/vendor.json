@@ -21,34 +21,34 @@
 			"revisionTime": "2017-03-24T14:02:28Z"
 		},
 		{
-			"checksumSHA1": "pM/9hI/Q1Nz4oeP5uzvWBIH3C9E=",
+			"checksumSHA1": "ttF85ZPTy5Gg9s9TfG+APQsOGa0=",
 			"path": "github.com/alecthomas/chroma",
-			"revision": "a5637e60b2a16a6fdb4390fc2c331f80f20608ac",
-			"revisionTime": "2017-09-20T04:15:06Z"
+			"revision": "e5e7b57c46d6290a92e7b9d3c4048bdf90d6a2b2",
+			"revisionTime": "2017-09-21T02:54:18Z"
 		},
 		{
-			"checksumSHA1": "hIBbm6T96GE6uexfQwDP7Xnop1g=",
+			"checksumSHA1": "eKxKK51/c3oyP077MDgHaNhZ9HY=",
 			"path": "github.com/alecthomas/chroma/formatters",
-			"revision": "a5637e60b2a16a6fdb4390fc2c331f80f20608ac",
-			"revisionTime": "2017-09-20T04:15:06Z"
+			"revision": "e5e7b57c46d6290a92e7b9d3c4048bdf90d6a2b2",
+			"revisionTime": "2017-09-21T02:54:18Z"
 		},
 		{
-			"checksumSHA1": "ZjOudyssf/cfN423eLCgdh9rQh0=",
+			"checksumSHA1": "mAfUGeuHEylKDZZDg/pRjiIqxGE=",
 			"path": "github.com/alecthomas/chroma/formatters/html",
-			"revision": "a5637e60b2a16a6fdb4390fc2c331f80f20608ac",
-			"revisionTime": "2017-09-20T04:15:06Z"
+			"revision": "e5e7b57c46d6290a92e7b9d3c4048bdf90d6a2b2",
+			"revisionTime": "2017-09-21T02:54:18Z"
 		},
 		{
-			"checksumSHA1": "k4iHIk4IrOcJwosB1UfXGKrLXrk=",
+			"checksumSHA1": "9o5ulmb7yCaNKitfoHqY9l6XqTw=",
 			"path": "github.com/alecthomas/chroma/lexers",
-			"revision": "a5637e60b2a16a6fdb4390fc2c331f80f20608ac",
-			"revisionTime": "2017-09-20T04:15:06Z"
+			"revision": "e5e7b57c46d6290a92e7b9d3c4048bdf90d6a2b2",
+			"revisionTime": "2017-09-21T02:54:18Z"
 		},
 		{
-			"checksumSHA1": "V+rAjRnac9zAcLTAuYBVQ1/UMMc=",
+			"checksumSHA1": "SE8tmZQOJRdN7uJHeMh/aEsMD48=",
 			"path": "github.com/alecthomas/chroma/styles",
-			"revision": "a5637e60b2a16a6fdb4390fc2c331f80f20608ac",
-			"revisionTime": "2017-09-20T04:15:06Z"
+			"revision": "e5e7b57c46d6290a92e7b9d3c4048bdf90d6a2b2",
+			"revisionTime": "2017-09-21T02:54:18Z"
 		},
 		{
 			"checksumSHA1": "7yrV1Gzr1ajco1xJ1gsyqRDTY2U=",
@@ -248,12 +248,6 @@
 			"path": "github.com/nicksnyder/go-i18n/i18n/translation",
 			"revision": "3e70a1a463008cea6726380c908b1a6a8bdf7b24",
 			"revisionTime": "2017-05-12T15:20:54Z"
-		},
-		{
-			"checksumSHA1": "F1IYMLBLAZaTOWnmXsgaxTGvrWI=",
-			"path": "github.com/pelletier/go-buffruneio",
-			"revision": "c37440a7cf42ac63b919c752ca73a85067e05992",
-			"revisionTime": "2017-02-27T22:03:11Z"
 		},
 		{
 			"checksumSHA1": "zZg0J0MqvnqXVYo644QDvnUinrc=",

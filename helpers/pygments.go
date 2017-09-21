@@ -188,7 +188,7 @@ func chromaHighlight(w io.Writer, source, lexer, formatter, style string) error 
 	}
 	l = chroma.Coalesce(l)
 
-	f := formatters.Get(formatter)
+	f := formatters.Get(formatter) // TODO(bep) highlight
 	if f == nil {
 		f = formatters.Fallback
 	}
@@ -198,12 +198,12 @@ func chromaHighlight(w io.Writer, source, lexer, formatter, style string) error 
 		s = styles.Fallback
 	}
 
-	writer, err := f.Format(w, s)
+	it, err := l.Tokenise(nil, source)
 	if err != nil {
 		return err
 	}
 
-	return l.Tokenise(nil, source, writer)
+	return f.Format(w, s, it)
 }
 
 var pygmentsKeywords = make(map[string]bool)
