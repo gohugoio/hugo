@@ -181,21 +181,14 @@ func (h highlighters) pygmentsHighlighter(code, lang, optsStr string) string {
 	return str
 }
 
-var preRe = regexp.MustCompile(`(.*?<pre.*?>)(.*?)(pre)`)
+var preRe = regexp.MustCompile(`(?s)(.*?<pre.*?>)(.*?)(</pre>)`)
 
 func (h highlighters) injectCodeTag(code, lang string) string {
 	if lang == "" || !strings.Contains(code, "<pre") {
 		return code
 	}
-
-	// TODO(bep) hightlight fixme
-
-	if true {
-		return code
-	}
-
-	//codeTag := fmt.Sprintf(`<code class="language-%s" data-lang="%s">`, lang, lang)
-	return preRe.ReplaceAllString(code, "!!!!$1=>$2!!!")
+	codeTag := fmt.Sprintf(`<code class="language-%s" data-lang="%s">`, lang, lang)
+	return preRe.ReplaceAllString(code, fmt.Sprintf("$1%s$2</code>$3", codeTag))
 }
 
 func chromaHighlight(w io.Writer, source, lexer, style string, f chroma.Formatter) error {
