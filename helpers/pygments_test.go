@@ -14,6 +14,7 @@
 package helpers
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -100,6 +101,34 @@ func TestParseDefaultPygmentsArgs(t *testing.T) {
 		}
 		if result != expect {
 			t.Errorf("[%d] parsePygmentArgs got %v but expected %v", i, result, expect)
+		}
+	}
+}
+
+func TestHlLinesToRanges(t *testing.T) {
+	var zero [][2]int
+
+	for _, this := range []struct {
+		in       string
+		expected interface{}
+	}{
+		{"", zero},
+		{"1 4", [][2]int{[2]int{1, 1}, [2]int{4, 4}}},
+		{"1, 4, 6", [][2]int{[2]int{1, 1}, [2]int{4, 4}, [2]int{6, 6}}},
+		{"1-4, 5-8", [][2]int{[2]int{1, 4}, [2]int{5, 8}}},
+		{" 1 - 4,   5- 8, 9", [][2]int{[2]int{1, 4}, [2]int{5, 8}, [2]int{9, 9}}},
+		{"a b", true},
+	} {
+		got, err := hlLinesToRanges(this.in)
+
+		if expectErr, ok := this.expected.(bool); ok && expectErr {
+			if err == nil {
+				t.Fatal("No error")
+			}
+		} else if err != nil {
+			t.Fatalf("Got error: %s", err)
+		} else if !reflect.DeepEqual(this.expected, got) {
+			t.Fatalf("Expected\n%v but got\n%v", this.expected, got)
 		}
 	}
 }

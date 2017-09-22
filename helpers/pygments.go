@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/alecthomas/chroma"
@@ -307,8 +308,6 @@ func parseDefaultPygmentsOpts(cfg config.Provider) (map[string]string, error) {
 func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string) (chroma.Formatter, error) {
 	var options = []html.Option{html.TabWidth(4)}
 
-	// TODO(bep) highlighting range lines++
-
 	if pygmentsOpts["noclasses"] == "false" {
 		options = append(options, html.WithClasses())
 	}
@@ -316,6 +315,17 @@ func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string
 	if pygmentsOpts["linenos"] != "" {
 		options = append(options, html.WithLineNumbers())
 	}
+
+	hlLines := pygmentsOpts["hl_lines"]
+
+	if hlLines != "" {
+		ranges, err := hlLinesToRanges(hlLines)
+		if err == nil {
+			options = append(options, html.HighlightLines(ranges))
+		}
+	}
+
+	// [2]int{5, 8}
 
 	return html.New(options...), nil
 }
@@ -336,3 +346,55 @@ func (cs *ContentSpec) createPygmentsOptionsString(in string) (string, error) {
 	}
 	return createOptionsString(opts), nil
 }
+
+func hlLinesToRanges(s string) ([][2]int, error) {
+	var ranges [][2]int
+	if s == "" {
+		return ranges, nil
+	}
+
+	// Variants:
+	// 1 2 3 4
+	// 1, 2, 3, 4
+	// 1-2, 3-4
+	// 1-2, 3
+	if !strings.Contains(s, ",") {
+		// One or more singles
+		fields := strings.Fields(s)
+		for _, field := range fields {
+			i, err := strconv.Atoi(strings.TrimSpace(field))
+			if err != nil {
+				return ranges, err
+			}
+			ranges = append(ranges, [2]int{i, i})
+		}
+
+		return ranges, nil
+	}
+
+	fields := strings.Split(s, ",")
+	for _, field := range fields {
+		numbers := strings.Split(field, "-")
+		var r [2]int
+		first, err := strconv.Atoi(strings.TrimSpace(numbers[0]))
+		if err != nil {
+			return ranges, err
+		}
+		r[0] = first
+		if len(numbers) > 1 {
+			second, err := strconv.Atoi(strings.TrimSpace(numbers[1]))
+			if err != nil {
+				return ranges, err
+			}
+			r[1] = second
+		} else {
+			r[1] = first
+		}
+
+		ranges = append(ranges, r)
+	}
+	return ranges, nil
+
+}
+
+//[][2]int
