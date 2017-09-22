@@ -199,6 +199,7 @@ func AddCommands() {
 	genCmd.AddCommand(gendocCmd)
 	genCmd.AddCommand(genmanCmd)
 	genCmd.AddCommand(createGenDocsHelper().cmd)
+	genCmd.AddCommand(createGenChromaStyles().cmd)
 }
 
 // initHugoBuilderFlags initializes all common flags, typically used by the
