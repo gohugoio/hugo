@@ -26,6 +26,7 @@ import (
 	"strings"
 
 	"github.com/alecthomas/chroma"
+	"github.com/alecthomas/chroma/formatters"
 	"github.com/alecthomas/chroma/formatters/html"
 	"github.com/alecthomas/chroma/lexers"
 	"github.com/alecthomas/chroma/styles"
@@ -190,7 +191,7 @@ func chromaHighlight(w io.Writer, source, lexer, style string, f chroma.Formatte
 	l = chroma.Coalesce(l)
 
 	if f == nil {
-		f = NoOpChromaFormatter
+		f = formatters.Fallback
 	}
 
 	s := styles.Get(style)
@@ -205,15 +206,6 @@ func chromaHighlight(w io.Writer, source, lexer, style string, f chroma.Formatte
 
 	return f.Format(w, s, it)
 }
-
-var NoOpChromaFormatter = chroma.FormatterFunc(func(w io.Writer, s *chroma.Style, iterator chroma.Iterator) error {
-	for t := iterator(); t != nil; t = iterator() {
-		if _, err := io.WriteString(w, t.Value); err != nil {
-			return err
-		}
-	}
-	return nil
-})
 
 var pygmentsKeywords = make(map[string]bool)
 
