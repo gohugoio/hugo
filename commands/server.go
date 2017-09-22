@@ -210,7 +210,7 @@ func (c *commandeer) serve(port int) {
 	decorate := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if noHTTPCache {
-				w.Header().Set("Cache-Control", " no-store, no-cache, must-revalidate, max-age=0")
+				w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
 				w.Header().Set("Pragma", "no-cache")
 			}
 			h.ServeHTTP(w, r)
