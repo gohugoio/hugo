@@ -39,7 +39,7 @@ var (
 	serverInterface   string
 	serverPort        int
 	serverWatch       bool
-	noHttpCache       bool
+	noHTTPCache       bool
 )
 
 var serverCmd = &cobra.Command{
@@ -87,7 +87,7 @@ func init() {
 	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port on which the server will listen")
 	serverCmd.Flags().StringVarP(&serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
-	serverCmd.Flags().BoolVar(&noHttpCache, "noHttpCache", false, "prevent HTTP caching")
+	serverCmd.Flags().BoolVar(&noHTTPCache, "noHTTPCache", false, "prevent HTTP caching")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseURL")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	serverCmd.Flags().BoolVar(&navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
@@ -209,7 +209,7 @@ func (c *commandeer) serve(port int) {
 	fs := filesOnlyFs{httpFs.Dir(c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")))}
 	decorate := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if noHttpCache {
+			if noHTTPCache {
 				w.Header().Set("Cache-Control", " no-store, no-cache, must-revalidate, max-age=0")
 				w.Header().Set("Pragma", "no-cache")
 			}
