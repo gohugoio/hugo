@@ -47,7 +47,7 @@ In addition to the standard [page variables][pagevars], the homepage template ha
 
 ## Example Homepage Template
 
-The following is an example of a homepage template that uses [partial][partials], [base][] templates, and a content file at `content/_index.md` to populate the `{{.Title}}` and `{{Content}}` [page variables][pagevars].
+The following is an example of a homepage template that uses [partial][partials], [base][] templates, and a content file at `content/_index.md` to populate the `{{.Title}}` and `{{.Content}}` [page variables][pagevars].
 
 {{< code file="layouts/index.html" download="index.html" >}}
 {{ define "main" }}
