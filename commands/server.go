@@ -38,6 +38,7 @@ var (
 	serverAppend      bool
 	serverInterface   string
 	serverPort        int
+	liveReloadPort    int
 	serverWatch       bool
 	noHTTPCache       bool
 )
@@ -85,6 +86,7 @@ func init() {
 	initHugoBuilderFlags(serverCmd)
 
 	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port on which the server will listen")
+	serverCmd.Flags().IntVar(&liveReloadPort, "liveReloadPort", -1, "port for live reloading (i.e. 443 in HTTPS proxy situations)")
 	serverCmd.Flags().StringVarP(&serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
 	serverCmd.Flags().BoolVar(&noHTTPCache, "noHTTPCache", false, "prevent HTTP caching")
@@ -144,6 +146,11 @@ func server(cmd *cobra.Command, args []string) error {
 	}
 
 	c.Set("port", serverPort)
+	if liveReloadPort != -1 {
+		c.Set("liveReloadPort", liveReloadPort)
+	} else {
+		c.Set("liveReloadPort", serverPort)
+	}
 
 	baseURL, err = fixURL(c.Cfg, baseURL)
 	if err != nil {

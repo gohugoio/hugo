@@ -1845,7 +1845,7 @@ func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layou
 		}
 
 		if s.running() && s.Cfg.GetBool("watch") && !s.Cfg.GetBool("disableLiveReload") {
-			transformLinks = append(transformLinks, transform.LiveReloadInject(s.Cfg.GetInt("port")))
+			transformLinks = append(transformLinks, transform.LiveReloadInject(s.Cfg.GetInt("liveReloadPort")))
 		}
 
 		// For performance reasons we only inject the Hugo generator tag on the home page.
