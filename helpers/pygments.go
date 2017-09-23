@@ -351,40 +351,33 @@ func (cs *ContentSpec) createPygmentsOptionsString(in string) (string, error) {
 
 func hlLinesToRanges(s string) ([][2]int, error) {
 	var ranges [][2]int
+	s = strings.TrimSpace(s)
+
 	if s == "" {
 		return ranges, nil
 	}
-	// TODO(bep) hightlight check vs pygmentsOptions (comma separated)
+
 	// Variants:
 	// 1 2 3 4
-	// 1, 2, 3, 4
-	// 1-2, 3-4
-	// 1-2, 3
-	if !strings.Contains(s, ",") {
-		// One or more singles
-		fields := strings.Fields(s)
-		for _, field := range fields {
-			i, err := strconv.Atoi(strings.TrimSpace(field))
-			if err != nil {
-				return ranges, err
-			}
-			ranges = append(ranges, [2]int{i, i})
-		}
-
-		return ranges, nil
-	}
-
-	fields := strings.Split(s, ",")
+	// 1-2 3-4
+	// 1-2 3
+	// 1 3-4
+	// 1    3-4
+	fields := strings.Split(s, " ")
 	for _, field := range fields {
+		field = strings.TrimSpace(field)
+		if field == "" {
+			continue
+		}
 		numbers := strings.Split(field, "-")
 		var r [2]int
-		first, err := strconv.Atoi(strings.TrimSpace(numbers[0]))
+		first, err := strconv.Atoi(numbers[0])
 		if err != nil {
 			return ranges, err
 		}
 		r[0] = first
 		if len(numbers) > 1 {
-			second, err := strconv.Atoi(strings.TrimSpace(numbers[1]))
+			second, err := strconv.Atoi(numbers[1])
 			if err != nil {
 				return ranges, err
 			}
@@ -398,5 +391,3 @@ func hlLinesToRanges(s string) ([][2]int, error) {
 	return ranges, nil
 
 }
-
-//[][2]int
