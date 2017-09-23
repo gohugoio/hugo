@@ -21,34 +21,34 @@
 			"revisionTime": "2017-03-24T14:02:28Z"
 		},
 		{
-			"checksumSHA1": "Vp/BAwPP7RTRe403dNGEV2vbc48=",
+			"checksumSHA1": "GGqHwlZHBsEdvDmxbXbUcePUGTM=",
 			"path": "github.com/alecthomas/chroma",
-			"revision": "8170d52c25fa9aa7755c046db37cd703543180eb",
-			"revisionTime": "2017-09-22T13:00:03Z"
+			"revision": "1af7e1a0bc5c04ec39b8e6d25d70de8eafcf76ab",
+			"revisionTime": "2017-09-23T12:45:05Z"
 		},
 		{
-			"checksumSHA1": "iFlzOSi+1yLzwU5B0tJ2XeTfRTU=",
+			"checksumSHA1": "Q/9AbXGrFHtlZB6tyoYUq1ipvqU=",
 			"path": "github.com/alecthomas/chroma/formatters",
-			"revision": "8170d52c25fa9aa7755c046db37cd703543180eb",
-			"revisionTime": "2017-09-22T13:00:03Z"
+			"revision": "1af7e1a0bc5c04ec39b8e6d25d70de8eafcf76ab",
+			"revisionTime": "2017-09-23T12:45:05Z"
 		},
 		{
-			"checksumSHA1": "YPWKgkDhpc2JprxeknUfxCvSHtw=",
+			"checksumSHA1": "71axHDJmgqaJ1X85wVeRQCucrOw=",
 			"path": "github.com/alecthomas/chroma/formatters/html",
-			"revision": "8170d52c25fa9aa7755c046db37cd703543180eb",
-			"revisionTime": "2017-09-22T13:00:03Z"
+			"revision": "1af7e1a0bc5c04ec39b8e6d25d70de8eafcf76ab",
+			"revisionTime": "2017-09-23T12:45:05Z"
 		},
 		{
-			"checksumSHA1": "9o5ulmb7yCaNKitfoHqY9l6XqTw=",
+			"checksumSHA1": "ANyNTHVz5LdPPADsExM5WpBJe4c=",
 			"path": "github.com/alecthomas/chroma/lexers",
-			"revision": "e5e7b57c46d6290a92e7b9d3c4048bdf90d6a2b2",
-			"revisionTime": "2017-09-21T02:54:18Z"
+			"revision": "1af7e1a0bc5c04ec39b8e6d25d70de8eafcf76ab",
+			"revisionTime": "2017-09-23T12:45:05Z"
 		},
 		{
-			"checksumSHA1": "SE8tmZQOJRdN7uJHeMh/aEsMD48=",
+			"checksumSHA1": "7dMvGjWuhO0QdDagaDIWyrEL6RI=",
 			"path": "github.com/alecthomas/chroma/styles",
-			"revision": "e5e7b57c46d6290a92e7b9d3c4048bdf90d6a2b2",
-			"revisionTime": "2017-09-21T02:54:18Z"
+			"revision": "1af7e1a0bc5c04ec39b8e6d25d70de8eafcf76ab",
+			"revisionTime": "2017-09-23T12:45:05Z"
 		},
 		{
 			"checksumSHA1": "7yrV1Gzr1ajco1xJ1gsyqRDTY2U=",
