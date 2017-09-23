@@ -354,7 +354,7 @@ func hlLinesToRanges(s string) ([][2]int, error) {
 	if s == "" {
 		return ranges, nil
 	}
-
+	// TODO(bep) hightlight check vs pygmentsOptions (comma separated)
 	// Variants:
 	// 1 2 3 4
 	// 1, 2, 3, 4
