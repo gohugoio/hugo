@@ -113,11 +113,11 @@ func (t *templateHandler) Lookup(name string) *tpl.TemplateAdapter {
 		// The templates are stored without the prefix identificator.
 		name = strings.TrimPrefix(name, textTmplNamePrefix)
 
-		if te := t.text.Lookup(name); te != nil {
+		te := t.text.Lookup(name)
+		if te != nil {
 			te.Metrics = t.Deps.Metrics
 		}
-
-		return nil
+		return te
 	}
 
 	// Look in both
@@ -126,12 +126,11 @@ func (t *templateHandler) Lookup(name string) *tpl.TemplateAdapter {
 		return te
 	}
 
-	if te := t.text.Lookup(name); te != nil {
+	te := t.text.Lookup(name)
+	if te != nil {
 		te.Metrics = t.Deps.Metrics
-		return te
 	}
-
-	return nil
+	return te
 }
 
 func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
