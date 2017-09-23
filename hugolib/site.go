@@ -1727,11 +1727,12 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 // Stats prints Hugo builds stats to the console.
 // This is what you see after a successful hugo build.
 func (s *Site) Stats() {
-	if s.Cfg.GetBool("templateMetrics") {
+	s.Log.FEEDBACK.Println()
+
+	if s.Metrics.IsEnabled() {
 		var b bytes.Buffer
 		s.Metrics.WriteMetrics(&b)
 
-		s.Log.FEEDBACK.Println()
 		s.Log.FEEDBACK.Printf("Template Metrics:\n\n")
 		s.Log.FEEDBACK.Print(b.String())
 		s.Log.FEEDBACK.Println()
@@ -1907,10 +1908,6 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 	templ = s.findFirstTemplate(layouts...)
 	if templ == nil {
 		return fmt.Errorf("[%s] Unable to locate layout for %q: %s\n", s.Language.Lang, name, layouts)
-	}
-
-	if s.Cfg.GetBool("templateMetrics") {
-		defer s.Metrics.MeasureSince(templ.Name(), time.Now())
 	}
 
 	if err = templ.Execute(w, d); err != nil {

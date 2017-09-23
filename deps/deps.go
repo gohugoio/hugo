@@ -127,7 +127,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		ContentSpec:         helpers.NewContentSpec(cfg.Language),
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
-		Metrics:             metrics.NewStore(),
+		Metrics:             metrics.New(cfg.Cfg.GetBool("templateMetrics")),
 	}
 
 	return d, nil

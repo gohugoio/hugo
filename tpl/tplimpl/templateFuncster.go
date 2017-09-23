@@ -18,7 +18,6 @@ import (
 	"html/template"
 	"strings"
 	texttemplate "text/template"
-	"time"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
@@ -61,9 +60,7 @@ func (t *templateFuncster) partial(name string, contextList ...interface{}) (int
 			b := bp.GetBuffer()
 			defer bp.PutBuffer(b)
 
-			if t.Cfg.GetBool("templateMetrics") {
-				defer t.Deps.Metrics.MeasureSince(templ.Name(), time.Now())
-			}
+			templ.Metrics = t.Deps.Metrics
 
 			if err := templ.Execute(b, context); err != nil {
 				return "", err

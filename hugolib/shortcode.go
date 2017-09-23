@@ -23,7 +23,6 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/gohugoio/hugo/output"
 
@@ -338,10 +337,7 @@ func renderShortcode(
 
 	}
 
-	if p.s.Cfg.GetBool("templateMetrics") {
-		defer p.s.Metrics.MeasureSince(tmpl.Name(), time.Now())
-	}
-
+	tmpl.Metrics = p.s.Metrics
 	return renderShortcodeWithPage(tmpl, data)
 }
 

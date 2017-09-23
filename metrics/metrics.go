@@ -24,6 +24,7 @@ import (
 
 // The MetricsProvider interface provides metric measuring features.
 type MetricsProvider interface {
+	IsEnabled() bool
 	MeasureSince(key string, start time.Time)
 	WriteMetrics(w io.Writer)
 	Reset()
@@ -35,13 +36,19 @@ type Store struct {
 	mu      *sync.Mutex
 }
 
-// NewStore returns a new instance of a metric store.
-func NewStore() *Store {
+// New returns a new instance of a metric store.
+func New(enabled bool) MetricsProvider {
+	if !enabled {
+		return &Noop{}
+	}
+
 	return &Store{
 		metrics: make(map[string][]time.Duration),
 		mu:      &sync.Mutex{},
 	}
 }
+
+func (s *Store) IsEnabled() bool { return true }
 
 // Reset clears the metrics store.
 func (s *Store) Reset() {
