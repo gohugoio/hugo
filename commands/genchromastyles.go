@@ -16,16 +16,20 @@ package commands
 import (
 	"os"
 
+	"github.com/alecthomas/chroma"
 	"github.com/alecthomas/chroma/formatters/html"
 	"github.com/alecthomas/chroma/styles"
 	"github.com/spf13/cobra"
 )
 
 type genChromaStyles struct {
-	style string
-	cmd   *cobra.Command
+	style          string
+	highlightStyle string
+	linesStyle     string
+	cmd            *cobra.Command
 }
 
+// TODO(bep) highlight
 func createGenChromaStyles() *genChromaStyles {
 	g := &genChromaStyles{
 		cmd: &cobra.Command{
@@ -41,13 +45,25 @@ See https://help.farbox.com/pygments.html for preview of available styles`,
 		return g.generate()
 	}
 
-	g.cmd.PersistentFlags().StringVarP(&g.style, "style", "", "default", "highlighter style (see https://help.farbox.com/pygments.html)")
+	g.cmd.PersistentFlags().StringVar(&g.style, "style", "friendly", "highlighter style (see https://help.farbox.com/pygments.html)")
+	g.cmd.PersistentFlags().StringVar(&g.highlightStyle, "highlightStyle", "bg:#ffffcc", "style used for highlighting lines (see https://github.com/alecthomas/chroma)")
+	g.cmd.PersistentFlags().StringVar(&g.linesStyle, "linesStyle", "", "style used for line numbers (see https://github.com/alecthomas/chroma)")
 
 	return g
 }
 
 func (g *genChromaStyles) generate() error {
-	style := styles.Get(g.style)
+	builder := styles.Get(g.style).Builder()
+	if g.highlightStyle != "" {
+		builder.Add(chroma.LineHighlight, g.highlightStyle)
+	}
+	if g.linesStyle != "" {
+		builder.Add(chroma.LineNumbers, g.linesStyle)
+	}
+	style, err := builder.Build()
+	if err != nil {
+		return err
+	}
 	formatter := html.New(html.WithClasses())
 	formatter.WriteCSS(os.Stdout, style)
 	return nil
