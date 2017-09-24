@@ -26,6 +26,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -79,8 +80,8 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 
 func TestShortcodeHighlight(t *testing.T) {
 	t.Parallel()
-
-	if !helpers.HasPygments() {
+	v := viper.New()
+	if !helpers.HasPygments(v) {
 		t.Skip("Skip test as Pygments is not installed")
 	}
 

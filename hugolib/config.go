@@ -117,6 +117,7 @@ func loadDefaultSettingsFor(v *viper.Viper) {
 	v.SetDefault("taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	v.SetDefault("permalinks", make(PermalinkOverrides, 0))
 	v.SetDefault("sitemap", Sitemap{Priority: -1, Filename: "sitemap.xml"})
+	v.SetDefault("pygmentsPath", "pygments")
 	v.SetDefault("pygmentsStyle", "monokai")
 	v.SetDefault("pygmentsUseClasses", false)
 	v.SetDefault("pygmentsCodeFences", false)
