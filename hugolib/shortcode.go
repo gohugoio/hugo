@@ -337,7 +337,6 @@ func renderShortcode(
 
 	}
 
-	tmpl.Metrics = p.s.Metrics
 	return renderShortcodeWithPage(tmpl, data)
 }
 

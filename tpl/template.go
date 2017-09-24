@@ -75,7 +75,7 @@ type TemplateAdapter struct {
 // by the embedded text or html template, but we add an implementation here so
 // we can add a timer for some metrics.
 func (t *TemplateAdapter) Execute(w io.Writer, data interface{}) error {
-	if t != nil && t.Metrics != nil {
+	if t.Metrics != nil {
 		defer t.Metrics.MeasureSince(t.Name(), time.Now())
 	}
 	return t.Template.Execute(w, data)

@@ -80,10 +80,6 @@ func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (i
 		page,
 	}
 
-	if page != nil {
-		templ.Metrics = page.s.Metrics
-	}
-
 	buffer := new(bytes.Buffer)
 	err := templ.Execute(buffer, data)
 	if err != nil {

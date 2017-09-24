@@ -60,8 +60,6 @@ func (t *templateFuncster) partial(name string, contextList ...interface{}) (int
 			b := bp.GetBuffer()
 			defer bp.PutBuffer(b)
 
-			templ.Metrics = t.Deps.Metrics
-
 			if err := templ.Execute(b, context); err != nil {
 				return "", err
 			}
