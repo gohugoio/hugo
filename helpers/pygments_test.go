@@ -123,7 +123,24 @@ func formatterChromaInfo(f *html.Formatter) chromaInfo {
 	return c
 }
 
-func TestChromaFormatterFromOptions(t *testing.T) {
+func TestChromaHTMLHighlight(t *testing.T) {
+	assert := require.New(t)
+
+	v := viper.New()
+	v.Set("pygmentsUseClasses", true)
+	spec, err := NewContentSpec(v)
+	assert.NoError(err)
+
+	result, err := spec.Highlight(`echo "Hello"`, "bash", "")
+	assert.NoError(err)
+
+	assert.Contains(result, `<code class="language-bash" data-lang="bash"><span class="s7d2">echo</span> <span class="sc1c">&#34;Hello&#34;</span></code>`)
+
+}
+
+// hugo gen chromastyles --style=monokai > syntax.css
+
+func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 	assert := require.New(t)
 
 	for i, this := range []struct {

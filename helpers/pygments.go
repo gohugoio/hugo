@@ -168,7 +168,8 @@ func (h highlighters) pygmentsHighlight(code, lang, optsStr string) (string, err
 	return str, nil
 }
 
-var preRe = regexp.MustCompile(`(?s)(.*?<pre.*?>)(.*?)(</pre>)`)
+// TODO(bep) highlight the \n? after pre is a workaround for https://github.com/alecthomas/chroma/issues/29 and should be removed.
+var preRe = regexp.MustCompile(`(?s)(.*?<pre.*?>)\n?(.*?)(</pre>)`)
 
 func (h highlighters) injectCodeTag(code, lang string) string {
 	if lang == "" {
