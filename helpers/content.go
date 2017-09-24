@@ -48,7 +48,7 @@ type ContentSpec struct {
 	footnoteAnchorPrefix       string
 	footnoteReturnLinkContents string
 
-	Highlight            func(code, lang, optsStr string) string
+	Highlight            func(code, lang, optsStr string) (string, error)
 	defatultPygmentsOpts map[string]string
 
 	cfg config.Provider

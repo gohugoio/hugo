@@ -135,3 +135,46 @@ func TestHlLinesToRanges(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkChromaHighlight(b *testing.B) {
+	assert := require.New(b)
+	v := viper.New()
+
+	v.Set("pygmentsstyle", "trac")
+	v.Set("pygmentsuseclasses", false)
+	v.Set("pygmentsuseclassic", false)
+
+	code := `// GetTitleFunc returns a func that can be used to transform a string to
+// title case.
+//
+// The supported styles are
+//
+// - "Go" (strings.Title)
+// - "AP" (see https://www.apstylebook.com/)
+// - "Chicago" (see http://www.chicagomanualofstyle.org/home.html)
+//
+// If an unknown or empty style is provided, AP style is what you get.
+func GetTitleFunc(style string) func(s string) string {
+  switch strings.ToLower(style) {
+  case "go":
+    return strings.Title
+  case "chicago":
+    tc := transform.NewTitleConverter(transform.ChicagoStyle)
+    return tc.Title
+  default:
+    tc := transform.NewTitleConverter(transform.APStyle)
+    return tc.Title
+  }
+}
+`
+
+	spec, err := NewContentSpec(v)
+	assert.NoError(err)
+
+	for i := 0; i < b.N; i++ {
+		_, err := spec.Highlight(code, "go", "linenos=inline,hl_lines=8 15-17")
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}

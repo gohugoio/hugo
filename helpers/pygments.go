@@ -60,11 +60,11 @@ func newHiglighters(cs *ContentSpec) highlighters {
 	return highlighters{cs: cs, ignoreCache: cs.cfg.GetBool("ignoreCache"), cacheDir: cs.cfg.GetString("cacheDir")}
 }
 
-func (h highlighters) chromaHighlight(code, lang, optsStr string) string {
+func (h highlighters) chromaHighlight(code, lang, optsStr string) (string, error) {
 	opts, err := h.cs.parsePygmentsOpts(optsStr)
 	if err != nil {
 		jww.ERROR.Print(err.Error())
-		return code
+		return code, err
 	}
 
 	style, found := opts["style"]
@@ -75,7 +75,7 @@ func (h highlighters) chromaHighlight(code, lang, optsStr string) string {
 	f, err := h.cs.chromaFormatterFromOptions(opts)
 	if err != nil {
 		jww.ERROR.Print(err.Error())
-		return code
+		return code, err
 	}
 
 	b := bp.GetBuffer()
@@ -84,18 +84,18 @@ func (h highlighters) chromaHighlight(code, lang, optsStr string) string {
 	err = chromaHighlight(b, code, lang, style, f)
 	if err != nil {
 		jww.ERROR.Print(err.Error())
-		return code
+		return code, err
 	}
 
-	return h.injectCodeTag(`<div class="highlight">`+b.String()+"</div>", lang)
+	return h.injectCodeTag(`<div class="highlight">`+b.String()+"</div>", lang), nil
 }
 
-func (h highlighters) pygmentsHighlight(code, lang, optsStr string) string {
+func (h highlighters) pygmentsHighlight(code, lang, optsStr string) (string, error) {
 	options, err := h.cs.createPygmentsOptionsString(optsStr)
 
 	if err != nil {
 		jww.ERROR.Print(err.Error())
-		return code
+		return code, nil
 	}
 
 	// Try to read from cache first
@@ -114,22 +114,22 @@ func (h highlighters) pygmentsHighlight(code, lang, optsStr string) string {
 		exists, err := Exists(cachefile, fs)
 		if err != nil {
 			jww.ERROR.Print(err.Error())
-			return code
+			return code, nil
 		}
 		if exists {
 			f, err := fs.Open(cachefile)
 			if err != nil {
 				jww.ERROR.Print(err.Error())
-				return code
+				return code, nil
 			}
 
 			s, err := ioutil.ReadAll(f)
 			if err != nil {
 				jww.ERROR.Print(err.Error())
-				return code
+				return code, nil
 			}
 
-			return string(s)
+			return string(s), nil
 		}
 	}
 
@@ -151,7 +151,7 @@ func (h highlighters) pygmentsHighlight(code, lang, optsStr string) string {
 
 	if err := cmd.Run(); err != nil {
 		jww.ERROR.Print(stderr.String())
-		return code
+		return code, err
 	}
 
 	str := string(normalizeExternalHelperLineFeeds([]byte(out.String())))
@@ -165,13 +165,13 @@ func (h highlighters) pygmentsHighlight(code, lang, optsStr string) string {
 		}
 	}
 
-	return str
+	return str, nil
 }
 
 var preRe = regexp.MustCompile(`(?s)(.*?<pre.*?>)(.*?)(</pre>)`)
 
 func (h highlighters) injectCodeTag(code, lang string) string {
-	if lang == "" || !strings.Contains(code, "<pre") {
+	if lang == "" {
 		return code
 	}
 	codeTag := fmt.Sprintf(`<code class="language-%s" data-lang="%s">`, lang, lang)

@@ -36,7 +36,8 @@ func (r *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string
 	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
 		opts := r.Cfg.GetString("pygmentsOptions")
 		str := html.UnescapeString(string(text))
-		out.WriteString(r.cs.Highlight(str, lang, opts))
+		highlighted, _ := r.cs.Highlight(str, lang, opts)
+		out.WriteString(highlighted)
 	} else {
 		r.Renderer.BlockCode(out, text, lang)
 	}
@@ -99,7 +100,8 @@ type HugoMmarkHTMLRenderer struct {
 func (r *HugoMmarkHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string, caption []byte, subfigure bool, callouts bool) {
 	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
 		str := html.UnescapeString(string(text))
-		out.WriteString(r.cs.Highlight(str, lang, ""))
+		highlighted, _ := r.cs.Highlight(str, lang, "")
+		out.WriteString(highlighted)
 	} else {
 		r.Renderer.BlockCode(out, text, lang, caption, subfigure, callouts)
 	}
