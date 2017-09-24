@@ -111,6 +111,7 @@ type chromaInfo struct {
 	classes         bool
 	lineNumbers     bool
 	highlightRanges int
+	baseLineNumber  int
 }
 
 func formatterChromaInfo(f *html.Formatter) chromaInfo {
@@ -119,6 +120,7 @@ func formatterChromaInfo(f *html.Formatter) chromaInfo {
 	// Hack:
 	c.classes = v.FieldByName("classes").Bool()
 	c.lineNumbers = v.FieldByName("lineNumbers").Bool()
+	c.baseLineNumber = int(v.FieldByName("baseLineNumber").Int())
 	c.highlightRanges = v.FieldByName("highlightRanges").Len()
 	return c
 }
@@ -154,6 +156,7 @@ func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 			assert.True(c.classes)
 			assert.False(c.lineNumbers)
 			assert.Equal(0, c.highlightRanges)
+
 		}},
 		{"", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
 			assert.True(c.classes)
@@ -162,6 +165,13 @@ func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 			assert.True(c.classes)
 			assert.True(c.lineNumbers)
 			assert.Equal(3, c.highlightRanges)
+			assert.Equal(1, c.baseLineNumber)
+		}},
+		{"linenos=sure,hl_lines=5,linenostart=4", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
+			assert.True(c.classes)
+			assert.True(c.lineNumbers)
+			assert.Equal(1, c.highlightRanges)
+			assert.Equal(4, c.baseLineNumber)
 		}},
 		{"style=monokai,noclasses=false", nil, nil, "style=manni,noclasses=true", func(c chromaInfo) {
 			assert.True(c.classes)

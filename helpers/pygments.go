@@ -314,6 +314,14 @@ func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string
 		options = append(options, html.WithLineNumbers())
 	}
 
+	startLineStr := pygmentsOpts["linenostart"]
+	if startLineStr != "" {
+		startLine, err := strconv.Atoi(startLineStr)
+		if err == nil {
+			options = append(options, html.BaseLineNumber(startLine))
+		}
+	}
+
 	hlLines := pygmentsOpts["hl_lines"]
 
 	if hlLines != "" {
