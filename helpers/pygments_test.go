@@ -17,6 +17,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/alecthomas/chroma/formatters/html"
+
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
@@ -102,6 +104,81 @@ func TestParseDefaultPygmentsArgs(t *testing.T) {
 		if result != expect {
 			t.Errorf("[%d] parsePygmentArgs got %v but expected %v", i, result, expect)
 		}
+	}
+}
+
+type chromaInfo struct {
+	classes         bool
+	lineNumbers     bool
+	highlightRanges int
+}
+
+func formatterChromaInfo(f *html.Formatter) chromaInfo {
+	v := reflect.ValueOf(f).Elem()
+	c := chromaInfo{}
+	// Hack:
+	c.classes = v.FieldByName("classes").Bool()
+	c.lineNumbers = v.FieldByName("lineNumbers").Bool()
+	c.highlightRanges = v.FieldByName("highlightRanges").Len()
+	return c
+}
+
+func TestChromaFormatterFromOptions(t *testing.T) {
+	assert := require.New(t)
+
+	for i, this := range []struct {
+		in                 string
+		pygmentsStyle      interface{}
+		pygmentsUseClasses interface{}
+		pygmentsOptions    string
+		assert             func(c chromaInfo)
+	}{
+		{"", "monokai", true, "style=manni,noclasses=true", func(c chromaInfo) {
+			assert.True(c.classes)
+			assert.False(c.lineNumbers)
+			assert.Equal(0, c.highlightRanges)
+		}},
+		{"", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
+			assert.True(c.classes)
+		}},
+		{"linenos=sure,hl_lines=1 2 3", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
+			assert.True(c.classes)
+			assert.True(c.lineNumbers)
+			assert.Equal(3, c.highlightRanges)
+		}},
+		{"style=monokai,noclasses=false", nil, nil, "style=manni,noclasses=true", func(c chromaInfo) {
+			assert.True(c.classes)
+		}},
+		{"style=monokai,noclasses=true", "friendly", false, "style=manni,noclasses=false", func(c chromaInfo) {
+			assert.False(c.classes)
+		}},
+	} {
+		v := viper.New()
+
+		v.Set("pygmentsOptions", this.pygmentsOptions)
+
+		if s, ok := this.pygmentsStyle.(string); ok {
+			v.Set("pygmentsStyle", s)
+		}
+
+		if b, ok := this.pygmentsUseClasses.(bool); ok {
+			v.Set("pygmentsUseClasses", b)
+		}
+
+		spec, err := NewContentSpec(v)
+		assert.NoError(err)
+
+		opts, err := spec.parsePygmentsOpts(this.in)
+		if err != nil {
+			t.Fatalf("[%d] parsePygmentsOpts failed: %s", i, err)
+		}
+
+		chromaFormatter, err := spec.chromaFormatterFromOptions(opts)
+		if err != nil {
+			t.Fatalf("[%d] chromaFormatterFromOptions failed: %s", i, err)
+		}
+
+		this.assert(formatterChromaInfo(chromaFormatter.(*html.Formatter)))
 	}
 }
 

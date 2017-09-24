@@ -322,8 +322,6 @@ func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string
 		}
 	}
 
-	// [2]int{5, 8}
-
 	return html.New(options...), nil
 }
 
