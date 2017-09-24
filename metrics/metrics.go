@@ -22,11 +22,16 @@ import (
 	"time"
 )
 
-// The MetricsProvider interface provides metric measuring features.
-type MetricsProvider interface {
-	IsEnabled() bool
+// The Provider interface defines an interface for measuring metrics.
+type Provider interface {
+	// MeasureSince adds a measurement for key to the metric store.
+	// Used with defer and time.Now().
 	MeasureSince(key string, start time.Time)
+
+	// WriteMetrics will write a summary of the metrics to w.
 	WriteMetrics(w io.Writer)
+
+	// Reset clears the metric store.
 	Reset()
 }
 
@@ -36,8 +41,9 @@ type Store struct {
 	mu      *sync.Mutex
 }
 
-// New returns a new instance of a metric store.
-func New(enabled bool) MetricsProvider {
+// NewProvider returns a new instance of a metric store.  When enabled is false,
+// a no-op provider is returned.
+func NewProvider(enabled bool) Provider {
 	if !enabled {
 		return &Noop{}
 	}
@@ -47,8 +53,6 @@ func New(enabled bool) MetricsProvider {
 		mu:      &sync.Mutex{},
 	}
 }
-
-func (s *Store) IsEnabled() bool { return true }
 
 // Reset clears the metrics store.
 func (s *Store) Reset() {
@@ -64,7 +68,7 @@ func (s *Store) MeasureSince(key string, start time.Time) {
 	s.mu.Unlock()
 }
 
-// WriteMetrics writes metrics to w in a pretty format.
+// WriteMetrics writes a summary of the metrics to w.
 func (s *Store) WriteMetrics(w io.Writer) {
 	s.mu.Lock()
 

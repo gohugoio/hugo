@@ -49,7 +49,7 @@ type Deps struct {
 
 	translationProvider ResourceProvider
 
-	Metrics metrics.MetricsProvider
+	Metrics metrics.Provider
 }
 
 // ResourceProvider is used to create and refresh, and clone resources needed.
@@ -127,7 +127,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		ContentSpec:         helpers.NewContentSpec(cfg.Language),
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
-		Metrics:             metrics.New(cfg.Cfg.GetBool("templateMetrics")),
+		Metrics:             metrics.NewProvider(cfg.Cfg.GetBool("templateMetrics")),
 	}
 
 	return d, nil

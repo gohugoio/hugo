@@ -1729,7 +1729,7 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 func (s *Site) Stats() {
 	s.Log.FEEDBACK.Println()
 
-	if s.Metrics.IsEnabled() {
+	if s.Cfg.GetBool("templateMetrics") {
 		var b bytes.Buffer
 		s.Metrics.WriteMetrics(&b)
 

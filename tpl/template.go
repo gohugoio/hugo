@@ -68,7 +68,7 @@ type TemplateDebugger interface {
 // TemplateAdapter implements the TemplateExecutor interface.
 type TemplateAdapter struct {
 	Template
-	Metrics metrics.MetricsProvider
+	Metrics metrics.Provider
 }
 
 // Execute executes the current template. The actual execution is performed
