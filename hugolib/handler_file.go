@@ -14,14 +14,13 @@
 package hugolib
 
 import (
-	"bytes"
-
-	"github.com/dchest/cssmin"
 	"github.com/gohugoio/hugo/source"
+	"github.com/tdewolff/minify"
+	"github.com/tdewolff/minify/css"
 )
 
 func init() {
-	RegisterHandler(new(cssHandler))
+	RegisterHandler(newCSSHandler())
 	RegisterHandler(new(defaultHandler))
 }
 
@@ -46,12 +45,21 @@ func (h defaultHandler) FileConvert(f *source.File, s *Site) HandledResult {
 	return HandledResult{file: f}
 }
 
-type cssHandler struct{ basicFileHandler }
+type cssHandler struct {
+	basicFileHandler
+	minify *minify.M
+}
+
+func newCSSHandler() *cssHandler {
+	h := new(cssHandler)
+	h.minify = minify.New()
+	h.minify.AddFunc("text/css", css.Minify)
+	return h
+}
 
 func (h cssHandler) Extensions() []string { return []string{"css"} }
 func (h cssHandler) FileConvert(f *source.File, s *Site) HandledResult {
-	x := cssmin.Minify(f.Bytes())
-	err := s.publish(f.Path(), bytes.NewReader(x))
+	err := s.publish(f.Path(), h.minify.Reader("text/css", f.Contents))
 	if err != nil {
 		return HandledResult{err: err}
 	}
