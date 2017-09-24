@@ -75,8 +75,7 @@ func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 	// Use the Pygmentize on path if present
 	useClassic := false
 	h := newHiglighters(spec)
-	// TODO(bep) create a commmand ala chroma -s perldoc --html --html-styles > syntax-chroma.css
-	// TODO(bep) hightlight document
+
 	if cfg.GetBool("pygmentsUseClassic") {
 		if !hasPygments() {
 			jww.WARN.Println("Highlighting with pygmentsUseClassic set requires Pygments to be installed and in the path")
@@ -86,9 +85,9 @@ func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 	}
 
 	if useClassic {
-		spec.Highlight = h.pygmentsHighlighter
+		spec.Highlight = h.pygmentsHighlight
 	} else {
-		spec.Highlight = h.chromaHighlighter
+		spec.Highlight = h.chromaHighlight
 	}
 
 	return spec, nil

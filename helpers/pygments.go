@@ -60,12 +60,7 @@ func newHiglighters(cs *ContentSpec) highlighters {
 	return highlighters{cs: cs, ignoreCache: cs.cfg.GetBool("ignoreCache"), cacheDir: cs.cfg.GetString("cacheDir")}
 }
 
-func (h highlighters) chromaHighlighter(code, lang, optsStr string) string {
-	// TODO(bep) pygments options to html options, line numbers and hightlight etc.
-	// TODO(bep) highlight
-	// TODO(bep) err := s.Add(chroma.LineHighlight, "bg:#f48c42")
-	// Re above: default: background-color: #FFFF00 + config + command style gen OR: Wait for an update in Chroma!
-
+func (h highlighters) chromaHighlight(code, lang, optsStr string) string {
 	opts, err := h.cs.parsePygmentsOpts(optsStr)
 	if err != nil {
 		jww.ERROR.Print(err.Error())
@@ -95,7 +90,7 @@ func (h highlighters) chromaHighlighter(code, lang, optsStr string) string {
 	return h.injectCodeTag(`<div class="highlight">`+b.String()+"</div>", lang)
 }
 
-func (h highlighters) pygmentsHighlighter(code, lang, optsStr string) string {
+func (h highlighters) pygmentsHighlight(code, lang, optsStr string) string {
 	options, err := h.cs.createPygmentsOptionsString(optsStr)
 
 	if err != nil {
