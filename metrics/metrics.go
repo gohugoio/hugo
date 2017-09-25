@@ -41,13 +41,8 @@ type Store struct {
 	mu      *sync.Mutex
 }
 
-// NewProvider returns a new instance of a metric store.  When enabled is false,
-// a no-op provider is returned.
-func NewProvider(enabled bool) Provider {
-	if !enabled {
-		return &Noop{}
-	}
-
+// NewProvider returns a new instance of a metric store.
+func NewProvider() Provider {
 	return &Store{
 		metrics: make(map[string][]time.Duration),
 		mu:      &sync.Mutex{},
