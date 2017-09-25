@@ -16,11 +16,12 @@ package hugolib
 import (
 	"fmt"
 
+	"io"
+	"strings"
+
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
-	"io"
-	"strings"
 )
 
 // LoadConfig loads Hugo configuration into a new Viper and then adds
@@ -84,9 +85,12 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 	return v, nil
 }
 
-func loadDefaultSettingsFor(v *viper.Viper) {
+func loadDefaultSettingsFor(v *viper.Viper) error {
 
-	c := helpers.NewContentSpec(v)
+	c, err := helpers.NewContentSpec(v)
+	if err != nil {
+		return err
+	}
 
 	v.SetDefault("cleanDestinationDir", false)
 	v.SetDefault("watch", false)
@@ -120,6 +124,7 @@ func loadDefaultSettingsFor(v *viper.Viper) {
 	v.SetDefault("pygmentsStyle", "monokai")
 	v.SetDefault("pygmentsUseClasses", false)
 	v.SetDefault("pygmentsCodeFences", false)
+	v.SetDefault("pygmentsUseClassic", false)
 	v.SetDefault("pygmentsOptions", "")
 	v.SetDefault("disableLiveReload", false)
 	v.SetDefault("pluralizeListTitles", true)
@@ -146,4 +151,6 @@ func loadDefaultSettingsFor(v *viper.Viper) {
 	v.SetDefault("ignoreFiles", make([]string, 0))
 	v.SetDefault("disableAliases", false)
 	v.SetDefault("debug", false)
+
+	return nil
 }

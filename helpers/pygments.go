@@ -21,8 +21,17 @@ import (
 	"io/ioutil"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
+
+	"github.com/alecthomas/chroma"
+	"github.com/alecthomas/chroma/formatters"
+	"github.com/alecthomas/chroma/formatters/html"
+	"github.com/alecthomas/chroma/lexers"
+	"github.com/alecthomas/chroma/styles"
+	bp "github.com/gohugoio/hugo/bufferpool"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
@@ -31,27 +40,62 @@ import (
 
 const pygmentsBin = "pygmentize"
 
-// HasPygments checks to see if Pygments is installed and available
+// TODO(bep) document chroma -s perldoc --html --html-styles
+// hasPygments checks to see if Pygments is installed and available
 // on the system.
-func HasPygments() bool {
+func hasPygments() bool {
 	if _, err := exec.LookPath(pygmentsBin); err != nil {
 		return false
 	}
 	return true
 }
 
-// Highlight takes some code and returns highlighted code.
-func Highlight(cfg config.Provider, code, lang, optsStr string) string {
-	if !HasPygments() {
-		jww.WARN.Println("Highlighting requires Pygments to be installed and in the path")
-		return code
+type highlighters struct {
+	cs          *ContentSpec
+	ignoreCache bool
+	cacheDir    string
+}
+
+func newHiglighters(cs *ContentSpec) highlighters {
+	return highlighters{cs: cs, ignoreCache: cs.cfg.GetBool("ignoreCache"), cacheDir: cs.cfg.GetString("cacheDir")}
+}
+
+func (h highlighters) chromaHighlight(code, lang, optsStr string) (string, error) {
+	opts, err := h.cs.parsePygmentsOpts(optsStr)
+	if err != nil {
+		jww.ERROR.Print(err.Error())
+		return code, err
 	}
 
-	options, err := parsePygmentsOpts(cfg, optsStr)
+	style, found := opts["style"]
+	if !found || style == "" {
+		style = "friendly"
+	}
+
+	f, err := h.cs.chromaFormatterFromOptions(opts)
+	if err != nil {
+		jww.ERROR.Print(err.Error())
+		return code, err
+	}
+
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+
+	err = chromaHighlight(b, code, lang, style, f)
+	if err != nil {
+		jww.ERROR.Print(err.Error())
+		return code, err
+	}
+
+	return h.injectCodeTag(`<div class="highlight">`+b.String()+"</div>", lang), nil
+}
+
+func (h highlighters) pygmentsHighlight(code, lang, optsStr string) (string, error) {
+	options, err := h.cs.createPygmentsOptionsString(optsStr)
 
 	if err != nil {
 		jww.ERROR.Print(err.Error())
-		return code
+		return code, nil
 	}
 
 	// Try to read from cache first
@@ -62,32 +106,30 @@ func Highlight(cfg config.Provider, code, lang, optsStr string) string {
 
 	fs := hugofs.Os
 
-	ignoreCache := cfg.GetBool("ignoreCache")
-	cacheDir := cfg.GetString("cacheDir")
 	var cachefile string
 
-	if !ignoreCache && cacheDir != "" {
-		cachefile = filepath.Join(cacheDir, fmt.Sprintf("pygments-%x", hash.Sum(nil)))
+	if !h.ignoreCache && h.cacheDir != "" {
+		cachefile = filepath.Join(h.cacheDir, fmt.Sprintf("pygments-%x", hash.Sum(nil)))
 
 		exists, err := Exists(cachefile, fs)
 		if err != nil {
 			jww.ERROR.Print(err.Error())
-			return code
+			return code, nil
 		}
 		if exists {
 			f, err := fs.Open(cachefile)
 			if err != nil {
 				jww.ERROR.Print(err.Error())
-				return code
+				return code, nil
 			}
 
 			s, err := ioutil.ReadAll(f)
 			if err != nil {
 				jww.ERROR.Print(err.Error())
-				return code
+				return code, nil
 			}
 
-			return string(s)
+			return string(s), nil
 		}
 	}
 
@@ -109,26 +151,58 @@ func Highlight(cfg config.Provider, code, lang, optsStr string) string {
 
 	if err := cmd.Run(); err != nil {
 		jww.ERROR.Print(stderr.String())
-		return code
+		return code, err
 	}
 
 	str := string(normalizeExternalHelperLineFeeds([]byte(out.String())))
 
-	// inject code tag into Pygments output
-	if lang != "" && strings.Contains(str, "<pre>") {
-		codeTag := fmt.Sprintf(`<pre><code class="language-%s" data-lang="%s">`, lang, lang)
-		str = strings.Replace(str, "<pre>", codeTag, 1)
-		str = strings.Replace(str, "</pre>", "</code></pre>", 1)
-	}
+	str = h.injectCodeTag(str, lang)
 
-	if !ignoreCache && cachefile != "" {
+	if !h.ignoreCache && cachefile != "" {
 		// Write cache file
 		if err := WriteToDisk(cachefile, strings.NewReader(str), fs); err != nil {
 			jww.ERROR.Print(stderr.String())
 		}
 	}
 
-	return str
+	return str, nil
+}
+
+var preRe = regexp.MustCompile(`(?s)(.*?<pre.*?>)(.*?)(</pre>)`)
+
+func (h highlighters) injectCodeTag(code, lang string) string {
+	if lang == "" {
+		return code
+	}
+	codeTag := fmt.Sprintf(`<code class="language-%s" data-lang="%s">`, lang, lang)
+	return preRe.ReplaceAllString(code, fmt.Sprintf("$1%s$2</code>$3", codeTag))
+}
+
+func chromaHighlight(w io.Writer, source, lexer, style string, f chroma.Formatter) error {
+	l := lexers.Get(lexer)
+	if l == nil {
+		l = lexers.Analyse(source)
+	}
+	if l == nil {
+		l = lexers.Fallback
+	}
+	l = chroma.Coalesce(l)
+
+	if f == nil {
+		f = formatters.Fallback
+	}
+
+	s := styles.Get(style)
+	if s == nil {
+		s = styles.Fallback
+	}
+
+	it, err := l.Tokenise(nil, source)
+	if err != nil {
+		return err
+	}
+
+	return f.Format(w, s, it)
 }
 
 var pygmentsKeywords = make(map[string]bool)
@@ -158,23 +232,30 @@ func init() {
 	pygmentsKeywords["startinline"] = true
 }
 
-func parseOptions(options map[string]string, in string) error {
+func parseOptions(defaults map[string]string, in string) (map[string]string, error) {
 	in = strings.Trim(in, " ")
+	opts := make(map[string]string)
+
+	if defaults != nil {
+		for k, v := range defaults {
+			opts[k] = v
+		}
+	}
 
 	if in == "" {
-		return nil
+		return opts, nil
 	}
 
 	for _, v := range strings.Split(in, ",") {
 		keyVal := strings.Split(v, "=")
 		key := strings.ToLower(strings.Trim(keyVal[0], " "))
 		if len(keyVal) != 2 || !pygmentsKeywords[key] {
-			return fmt.Errorf("invalid Pygments option: %s", key)
+			return opts, fmt.Errorf("invalid Pygments option: %s", key)
 		}
-		options[key] = keyVal[1]
+		opts[key] = keyVal[1]
 	}
 
-	return nil
+	return opts, nil
 }
 
 func createOptionsString(options map[string]string) string {
@@ -196,8 +277,7 @@ func createOptionsString(options map[string]string) string {
 }
 
 func parseDefaultPygmentsOpts(cfg config.Provider) (map[string]string, error) {
-	options := make(map[string]string)
-	err := parseOptions(options, cfg.GetString("pygmentsOptions"))
+	options, err := parseOptions(nil, cfg.GetString("pygmentsOptions"))
 	if err != nil {
 		return nil, err
 	}
@@ -222,16 +302,100 @@ func parseDefaultPygmentsOpts(cfg config.Provider) (map[string]string, error) {
 	return options, nil
 }
 
-func parsePygmentsOpts(cfg config.Provider, in string) (string, error) {
-	options, err := parseDefaultPygmentsOpts(cfg)
+func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string) (chroma.Formatter, error) {
+	var options = []html.Option{html.TabWidth(4)}
+
+	if pygmentsOpts["noclasses"] == "false" {
+		options = append(options, html.WithClasses())
+	}
+
+	if pygmentsOpts["linenos"] != "" {
+		options = append(options, html.WithLineNumbers())
+	}
+
+	startLineStr := pygmentsOpts["linenostart"]
+	var startLine = 1
+	if startLineStr != "" {
+
+		line, err := strconv.Atoi(strings.TrimSpace(startLineStr))
+		if err == nil {
+			startLine = line
+			options = append(options, html.BaseLineNumber(startLine))
+		}
+	}
+
+	hlLines := pygmentsOpts["hl_lines"]
+
+	if hlLines != "" {
+		ranges, err := hlLinesToRanges(startLine, hlLines)
+
+		if err == nil {
+			options = append(options, html.HighlightLines(ranges))
+		}
+	}
+
+	return html.New(options...), nil
+}
+
+func (cs *ContentSpec) parsePygmentsOpts(in string) (map[string]string, error) {
+	opts, err := parseOptions(cs.defatultPygmentsOpts, in)
+	if err != nil {
+		return nil, err
+	}
+	return opts, nil
+
+}
+
+func (cs *ContentSpec) createPygmentsOptionsString(in string) (string, error) {
+	opts, err := cs.parsePygmentsOpts(in)
 	if err != nil {
 		return "", err
 	}
+	return createOptionsString(opts), nil
+}
 
-	err = parseOptions(options, in)
-	if err != nil {
-		return "", err
+// startLine compansates for https://github.com/alecthomas/chroma/issues/30
+func hlLinesToRanges(startLine int, s string) ([][2]int, error) {
+	var ranges [][2]int
+	s = strings.TrimSpace(s)
+
+	if s == "" {
+		return ranges, nil
 	}
 
-	return createOptionsString(options), nil
+	// Variants:
+	// 1 2 3 4
+	// 1-2 3-4
+	// 1-2 3
+	// 1 3-4
+	// 1    3-4
+	fields := strings.Split(s, " ")
+	for _, field := range fields {
+		field = strings.TrimSpace(field)
+		if field == "" {
+			continue
+		}
+		numbers := strings.Split(field, "-")
+		var r [2]int
+		first, err := strconv.Atoi(numbers[0])
+		if err != nil {
+			return ranges, err
+		}
+		first = first + startLine - 1
+		r[0] = first
+		if len(numbers) > 1 {
+			second, err := strconv.Atoi(numbers[1])
+			if err != nil {
+				return ranges, err
+			}
+			second = second + startLine - 1
+			r[1] = second
+		} else {
+			r[1] = first
+		}
+
+		ranges = append(ranges, r)
+	}
+	return ranges, nil
+
 }

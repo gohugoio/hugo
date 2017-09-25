@@ -291,7 +291,9 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 // Note: This is mainly used in single site tests.
 func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
 	v := viper.New()
-	loadDefaultSettingsFor(v)
+	if err := loadDefaultSettingsFor(v); err != nil {
+		return nil, err
+	}
 	return newSiteForLang(helpers.NewDefaultLanguage(v), withTemplate...)
 }
 
@@ -300,7 +302,9 @@ func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateHandler) error) (
 // Note: This is mainly used in single site tests.
 func NewEnglishSite(withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
 	v := viper.New()
-	loadDefaultSettingsFor(v)
+	if err := loadDefaultSettingsFor(v); err != nil {
+		return nil, err
+	}
 	return newSiteForLang(helpers.NewLanguage("en", v), withTemplate...)
 }
 

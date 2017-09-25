@@ -21,6 +21,36 @@
 			"revisionTime": "2017-03-24T14:02:28Z"
 		},
 		{
+			"checksumSHA1": "Aq9XVBGDFH92BXKVPK+rexqDkTo=",
+			"path": "github.com/alecthomas/chroma",
+			"revision": "b0295f66bdb7c61d54906003d7649185794e21b4",
+			"revisionTime": "2017-09-25T05:25:32Z"
+		},
+		{
+			"checksumSHA1": "Q/9AbXGrFHtlZB6tyoYUq1ipvqU=",
+			"path": "github.com/alecthomas/chroma/formatters",
+			"revision": "b0295f66bdb7c61d54906003d7649185794e21b4",
+			"revisionTime": "2017-09-25T05:25:32Z"
+		},
+		{
+			"checksumSHA1": "EbtkLGHGij3Q91njJQJeZRKD3OI=",
+			"path": "github.com/alecthomas/chroma/formatters/html",
+			"revision": "b0295f66bdb7c61d54906003d7649185794e21b4",
+			"revisionTime": "2017-09-25T05:25:32Z"
+		},
+		{
+			"checksumSHA1": "ANyNTHVz5LdPPADsExM5WpBJe4c=",
+			"path": "github.com/alecthomas/chroma/lexers",
+			"revision": "1af7e1a0bc5c04ec39b8e6d25d70de8eafcf76ab",
+			"revisionTime": "2017-09-23T12:45:05Z"
+		},
+		{
+			"checksumSHA1": "Nm8r5bmokRePD0D7WU+rXYxOO9A=",
+			"path": "github.com/alecthomas/chroma/styles",
+			"revision": "b0295f66bdb7c61d54906003d7649185794e21b4",
+			"revisionTime": "2017-09-25T05:25:32Z"
+		},
+		{
 			"checksumSHA1": "7yrV1Gzr1ajco1xJ1gsyqRDTY2U=",
 			"path": "github.com/bep/gitmap",
 			"revision": "de8030ebafb76c6e84d50ee6d143382637c00598",
@@ -39,6 +69,12 @@
 			"revisionTime": "2017-06-03T12:52:39Z"
 		},
 		{
+			"checksumSHA1": "d/czTNq3bacK85PFEKcHvW6aR80=",
+			"path": "github.com/danwakefield/fnmatch",
+			"revision": "cbb64ac3d964b81592e64f957ad53df015803288",
+			"revisionTime": "2016-04-03T17:12:40Z"
+		},
+		{
 			"checksumSHA1": "OFu4xJEIjiI8Suu+j/gabfp+y6Q=",
 			"origin": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
 			"path": "github.com/davecgh/go-spew/spew",
@@ -50,6 +86,18 @@
 			"path": "github.com/dchest/cssmin",
 			"revision": "fb8d9b44afdc258bfff6052d3667521babcb2239",
 			"revisionTime": "2015-12-10T17:00:30Z"
+		},
+		{
+			"checksumSHA1": "6y/Ht8J58EotTDBEIuE3+s4AnL8=",
+			"path": "github.com/dlclark/regexp2",
+			"revision": "487489b64fb796de2e55f4e8a4ad1e145f80e957",
+			"revisionTime": "2017-07-18T21:59:41Z"
+		},
+		{
+			"checksumSHA1": "k0JXX65FspyueQ8/1i50DGRiCUk=",
+			"path": "github.com/dlclark/regexp2/syntax",
+			"revision": "487489b64fb796de2e55f4e8a4ad1e145f80e957",
+			"revisionTime": "2017-07-18T21:59:41Z"
 		},
 		{
 			"checksumSHA1": "248k9rTfZ4kAknuomoKsdBG9zCU=",
@@ -218,12 +266,6 @@
 			"path": "github.com/nicksnyder/go-i18n/i18n/translation",
 			"revision": "3e70a1a463008cea6726380c908b1a6a8bdf7b24",
 			"revisionTime": "2017-05-12T15:20:54Z"
-		},
-		{
-			"checksumSHA1": "F1IYMLBLAZaTOWnmXsgaxTGvrWI=",
-			"path": "github.com/pelletier/go-buffruneio",
-			"revision": "c37440a7cf42ac63b919c752ca73a85067e05992",
-			"revisionTime": "2017-02-27T22:03:11Z"
 		},
 		{
 			"checksumSHA1": "zZg0J0MqvnqXVYo644QDvnUinrc=",
