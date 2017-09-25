@@ -22,6 +22,7 @@ parts:
       - git
       - make
     stage-packages:
+      - git
       - python-pygments
     prepare: |
       export GOPATH=$(dirname $SNAPCRAFT_PART_INSTALL)/go
