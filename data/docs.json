@@ -384,6 +384,23 @@
         }
       },
       "compare": {
+        "Conditional": {
+          "Description": "Conditional can be used as a ternary operator.\nIt returns a if condition, else b.",
+          "Args": [
+            "condition",
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "cond"
+          ],
+          "Examples": [
+            [
+              "{{ cond (eq (add 2 2) 4) \"2+2 is 4\" \"what?\" | safeHTML }}",
+              "2+2 is 4"
+            ]
+          ]
+        },
         "Default": {
           "Description": "Default checks whether a given value is set and returns a default value if it\nis not.  \"Set\" in this context means non-zero for numeric types and times;\nnon-zero length for strings, arrays, slices, and maps;\nany boolean or struct value; or non-nil for any other types.",
           "Args": [
@@ -603,6 +620,22 @@
             "isset"
           ],
           "Examples": []
+        },
+        "KeyVals": {
+          "Description": "KeyVals creates a key and values wrapper.",
+          "Args": [
+            "key",
+            "vals"
+          ],
+          "Aliases": [
+            "keyVals"
+          ],
+          "Examples": [
+            [
+              "{{ keyVals \"key\" \"a\" \"b\" }}",
+              "key: [a b]"
+            ]
+          ]
         },
         "Last": {
           "Description": "Last returns the last N items in a rangeable list.",
@@ -856,7 +889,7 @@
       },
       "fmt": {
         "Print": {
-          "Description": "",
+          "Description": "Print returns string representation of the passed arguments.",
           "Args": [
             "a"
           ],
@@ -871,7 +904,7 @@
           ]
         },
         "Printf": {
-          "Description": "",
+          "Description": "Printf returns a formatted string representation of the passed arguments.",
           "Args": [
             "format",
             "a"
@@ -887,7 +920,7 @@
           ]
         },
         "Println": {
-          "Description": "",
+          "Description": "Print returns string representation of the passed arguments ending with a newline.",
           "Args": [
             "a"
           ],
@@ -1020,7 +1053,7 @@
       },
       "math": {
         "Add": {
-          "Description": "",
+          "Description": "Add adds two numbers.",
           "Args": [
             "a",
             "b"
@@ -1036,7 +1069,7 @@
           ]
         },
         "Div": {
-          "Description": "",
+          "Description": "Div divides two numbers.",
           "Args": [
             "a",
             "b"
@@ -1052,7 +1085,7 @@
           ]
         },
         "Log": {
-          "Description": "",
+          "Description": "Log returns the natural logarithm of a number.",
           "Args": [
             "a"
           ],
@@ -1097,7 +1130,7 @@
           ]
         },
         "Mul": {
-          "Description": "",
+          "Description": "Mul multiplies two numbers.",
           "Args": [
             "a",
             "b"
@@ -1113,7 +1146,7 @@
           ]
         },
         "Sub": {
-          "Description": "",
+          "Description": "Sub subtracts two numbers.",
           "Args": [
             "a",
             "b"
@@ -1156,7 +1189,7 @@
           ]
         },
         "ReadFile": {
-          "Description": "ReadFilereads the file named by filename relative to the configured\nWorkingDir.  It returns the contents as a string.  There is a upper size\nlimit set at 1 megabytes.",
+          "Description": "ReadFile reads the file named by filename relative to the configured WorkingDir.\nIt returns the contents as a string.\nThere is an upper size limit set at 1 megabytes.",
           "Args": [
             "i"
           ],
@@ -1469,6 +1502,10 @@
             [
               "{{title \"Bat man\"}}",
               "Bat Man"
+            ],
+            [
+              "{{title \"somewhere over the rainbow\"}}",
+              "Somewhere Over the Rainbow"
             ]
           ]
         },
@@ -1518,20 +1555,72 @@
             ]
           ]
         },
-        "TrimPrefix": {
-          "Description": "",
-          "Args": null,
+        "TrimLeft": {
+          "Description": "TrimLeft returns a slice of the string s with all leading characters\ncontained in cutset removed.",
+          "Args": [
+            "cutset",
+            "s"
+          ],
           "Aliases": null,
-          "Examples": null
+          "Examples": [
+            [
+              "{{ \"aabbaa\" | strings.TrimLeft \"a\" }}",
+              "bbaa"
+            ]
+          ]
+        },
+        "TrimPrefix": {
+          "Description": "TrimPrefix returns s without the provided leading prefix string. If s doesn't\nstart with prefix, s is returned unchanged.",
+          "Args": [
+            "prefix",
+            "s"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"aabbaa\" | strings.TrimPrefix \"a\" }}",
+              "abbaa"
+            ],
+            [
+              "{{ \"aabbaa\" | strings.TrimPrefix \"aa\" }}",
+              "bbaa"
+            ]
+          ]
+        },
+        "TrimRight": {
+          "Description": "TrimRight returns a slice of the string s with all trailing characters\ncontained in cutset removed.",
+          "Args": [
+            "cutset",
+            "s"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"aabbaa\" | strings.TrimRight \"a\" }}",
+              "aabb"
+            ]
+          ]
         },
         "TrimSuffix": {
-          "Description": "",
-          "Args": null,
+          "Description": "TrimSuffix returns s without the provided trailing suffix string. If s\ndoesn't end with suffix, s is returned unchanged.",
+          "Args": [
+            "suffix",
+            "s"
+          ],
           "Aliases": null,
-          "Examples": null
+          "Examples": [
+            [
+              "{{ \"aabbaa\" | strings.TrimSuffix \"a\" }}",
+              "aabba"
+            ],
+            [
+              "{{ \"aabbaa\" | strings.TrimSuffix \"aa\" }}",
+              "aabb"
+            ]
+          ]
         },
         "Truncate": {
-          "Description": "",
+          "Description": "Truncate truncates a given string to the specified length.",
           "Args": [
             "a",
             "options"
@@ -1565,6 +1654,22 @@
             ]
           ]
         },
+        "Duration": {
+          "Description": "Duration converts the given number to a time.Duration.\nUnit is one of nanosecond/ns, microsecond/us/µs, millisecond/ms, second/s, minute/m or hour/h.",
+          "Args": [
+            "unit",
+            "number"
+          ],
+          "Aliases": [
+            "duration"
+          ],
+          "Examples": [
+            [
+              "{{ mul 60 60 | duration \"second\" }}",
+              "1h0m0s"
+            ]
+          ]
+        },
         "Format": {
           "Description": "Format converts the textual representation of the datetime string into\nthe other form or returns it of the time.Time value. These are formatted\nwith the layout string",
           "Args": [
@@ -1588,6 +1693,19 @@
             "now"
           ],
           "Examples": []
+        },
+        "ParseDuration": {
+          "Description": "ParseDuration parses a duration string.\nA duration string is a possibly signed sequence of\ndecimal numbers, each with optional fraction and a unit suffix,\nsuch as \"300ms\", \"-1.5h\" or \"2h45m\".\nValid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".\nSee https://golang.org/pkg/time/#ParseDuration",
+          "Args": [
+            "in"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"1h12m10s\" | time.ParseDuration }}",
+              "1h12m10s"
+            ]
+          ]
         }
       },
       "transform": {
@@ -1763,7 +1881,7 @@
           "Examples": []
         },
         "URLize": {
-          "Description": "",
+          "Description": "URLize returns the given argument formatted as URL.",
           "Args": [
             "a"
           ],
