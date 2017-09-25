@@ -21,6 +21,11 @@ disableAliases = true
 # It is (currently) not in use, but you can do ```go in a content file if you want to.
 pygmentsCodeFences = true
 
+pygmentsOptions = ""
+# Use the Chroma stylesheet
+pygmentsUseClasses = true
+pygmentsUseClassic = false
+
 # See https://help.farbox.com/pygments.html
 pygmentsStyle = "friendly"
 
