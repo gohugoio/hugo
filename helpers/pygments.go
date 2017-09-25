@@ -316,7 +316,8 @@ func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string
 
 	startLineStr := pygmentsOpts["linenostart"]
 	if startLineStr != "" {
-		startLine, err := strconv.Atoi(startLineStr)
+
+		startLine, err := strconv.Atoi(strings.TrimSpace(startLineStr))
 		if err == nil {
 			options = append(options, html.BaseLineNumber(startLine))
 		}
@@ -326,6 +327,7 @@ func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string
 
 	if hlLines != "" {
 		ranges, err := hlLinesToRanges(hlLines)
+
 		if err == nil {
 			options = append(options, html.HighlightLines(ranges))
 		}
