@@ -23,7 +23,7 @@ This section highlights some projects around Hugo that are independently develop
 Do you know or maintain a similar project around Hugo? Feel free to open a [pull request](https://github.com/gohugoio/hugo/pulls) on GitHub if you think it should be added.
 {{% /note %}}
 
-Take a look at this list of migration tools if you currently use other logging tools like Jekyll or WordPress but intend to switch to Hugo instead. They'll take care to export your content into Hugo-friendly formats.
+Take a look at this list of migration tools if you currently use other blogging tools like Jekyll or WordPress but intend to switch to Hugo instead. They'll take care to export your content into Hugo-friendly formats.
 
 ## Jekyll
 
