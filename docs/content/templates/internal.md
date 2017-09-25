@@ -129,3 +129,5 @@ You can then render your custom Disqus partial template as follows:
 * `_internal/schema.html`
 * `_internal/twitter_cards.html`
 
+[disqus]: https://disqus.com
+[disqussignup]: https://disqus.com/profile/signup/
