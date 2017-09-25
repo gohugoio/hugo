@@ -168,8 +168,7 @@ func (h highlighters) pygmentsHighlight(code, lang, optsStr string) (string, err
 	return str, nil
 }
 
-// TODO(bep) highlight the \n? after pre is a workaround for https://github.com/alecthomas/chroma/issues/29 and should be removed.
-var preRe = regexp.MustCompile(`(?s)(.*?<pre.*?>)\n?(.*?)(</pre>)`)
+var preRe = regexp.MustCompile(`(?s)(.*?<pre.*?>)(.*?)(</pre>)`)
 
 func (h highlighters) injectCodeTag(code, lang string) string {
 	if lang == "" {
@@ -315,10 +314,12 @@ func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string
 	}
 
 	startLineStr := pygmentsOpts["linenostart"]
+	var startLine = 1
 	if startLineStr != "" {
 
-		startLine, err := strconv.Atoi(strings.TrimSpace(startLineStr))
+		line, err := strconv.Atoi(strings.TrimSpace(startLineStr))
 		if err == nil {
+			startLine = line
 			options = append(options, html.BaseLineNumber(startLine))
 		}
 	}
@@ -326,7 +327,7 @@ func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string
 	hlLines := pygmentsOpts["hl_lines"]
 
 	if hlLines != "" {
-		ranges, err := hlLinesToRanges(hlLines)
+		ranges, err := hlLinesToRanges(startLine, hlLines)
 
 		if err == nil {
 			options = append(options, html.HighlightLines(ranges))
@@ -353,7 +354,8 @@ func (cs *ContentSpec) createPygmentsOptionsString(in string) (string, error) {
 	return createOptionsString(opts), nil
 }
 
-func hlLinesToRanges(s string) ([][2]int, error) {
+// startLine compansates for https://github.com/alecthomas/chroma/issues/30
+func hlLinesToRanges(startLine int, s string) ([][2]int, error) {
 	var ranges [][2]int
 	s = strings.TrimSpace(s)
 
@@ -379,12 +381,14 @@ func hlLinesToRanges(s string) ([][2]int, error) {
 		if err != nil {
 			return ranges, err
 		}
+		first = first + startLine - 1
 		r[0] = first
 		if len(numbers) > 1 {
 			second, err := strconv.Atoi(numbers[1])
 			if err != nil {
 				return ranges, err
 			}
+			second = second + startLine - 1
 			r[1] = second
 		} else {
 			r[1] = first

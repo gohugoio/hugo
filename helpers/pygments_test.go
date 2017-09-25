@@ -14,6 +14,7 @@
 package helpers
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -108,10 +109,11 @@ func TestParseDefaultPygmentsArgs(t *testing.T) {
 }
 
 type chromaInfo struct {
-	classes         bool
-	lineNumbers     bool
-	highlightRanges int
-	baseLineNumber  int
+	classes            bool
+	lineNumbers        bool
+	highlightRangesLen int
+	highlightRangesStr string
+	baseLineNumber     int
 }
 
 func formatterChromaInfo(f *html.Formatter) chromaInfo {
@@ -121,7 +123,10 @@ func formatterChromaInfo(f *html.Formatter) chromaInfo {
 	c.classes = v.FieldByName("classes").Bool()
 	c.lineNumbers = v.FieldByName("lineNumbers").Bool()
 	c.baseLineNumber = int(v.FieldByName("baseLineNumber").Int())
-	c.highlightRanges = v.FieldByName("highlightRanges").Len()
+	vv := v.FieldByName("highlightRanges")
+	c.highlightRangesLen = vv.Len()
+	c.highlightRangesStr = fmt.Sprint(vv)
+
 	return c
 }
 
@@ -140,8 +145,6 @@ func TestChromaHTMLHighlight(t *testing.T) {
 
 }
 
-// hugo gen chromastyles --style=monokai > syntax.css
-
 func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 	assert := require.New(t)
 
@@ -155,7 +158,7 @@ func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 		{"", "monokai", true, "style=manni,noclasses=true", func(c chromaInfo) {
 			assert.True(c.classes)
 			assert.False(c.lineNumbers)
-			assert.Equal(0, c.highlightRanges)
+			assert.Equal(0, c.highlightRangesLen)
 
 		}},
 		{"", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
@@ -164,13 +167,16 @@ func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 		{"linenos=sure,hl_lines=1 2 3", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
 			assert.True(c.classes)
 			assert.True(c.lineNumbers)
-			assert.Equal(3, c.highlightRanges)
+			assert.Equal(3, c.highlightRangesLen)
+			assert.Equal("[[1 1] [2 2] [3 3]]", c.highlightRangesStr)
 			assert.Equal(1, c.baseLineNumber)
 		}},
-		{"linenos=sure,hl_lines=5,linenostart=4", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
+		{"linenos=sure,hl_lines=1,linenostart=4", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
 			assert.True(c.classes)
 			assert.True(c.lineNumbers)
-			assert.Equal(1, c.highlightRanges)
+			assert.Equal(1, c.highlightRangesLen)
+			// This compansates for https://github.com/alecthomas/chroma/issues/30
+			assert.Equal("[[4 4]]", c.highlightRangesStr)
 			assert.Equal(4, c.baseLineNumber)
 		}},
 		{"style=monokai,noclasses=false", nil, nil, "style=manni,noclasses=true", func(c chromaInfo) {
@@ -213,20 +219,22 @@ func TestHlLinesToRanges(t *testing.T) {
 	var zero [][2]int
 
 	for _, this := range []struct {
-		in       string
-		expected interface{}
+		in        string
+		startLine int
+		expected  interface{}
 	}{
-		{"", zero},
-		{"1 4", [][2]int{[2]int{1, 1}, [2]int{4, 4}}},
-		{"1-4 5-8", [][2]int{[2]int{1, 4}, [2]int{5, 8}}},
-		{" 1   4 ", [][2]int{[2]int{1, 1}, [2]int{4, 4}}},
-		{"1-4    5-8 ", [][2]int{[2]int{1, 4}, [2]int{5, 8}}},
-		{"1-4 5", [][2]int{[2]int{1, 4}, [2]int{5, 5}}},
-		{"4 5-9", [][2]int{[2]int{4, 4}, [2]int{5, 9}}},
-		{" 1 -4 5 - 8  ", true},
-		{"a b", true},
+		{"", 1, zero},
+		{"1 4", 1, [][2]int{[2]int{1, 1}, [2]int{4, 4}}},
+		{"1 4", 2, [][2]int{[2]int{2, 2}, [2]int{5, 5}}},
+		{"1-4 5-8", 1, [][2]int{[2]int{1, 4}, [2]int{5, 8}}},
+		{" 1   4 ", 1, [][2]int{[2]int{1, 1}, [2]int{4, 4}}},
+		{"1-4    5-8 ", 1, [][2]int{[2]int{1, 4}, [2]int{5, 8}}},
+		{"1-4 5", 1, [][2]int{[2]int{1, 4}, [2]int{5, 5}}},
+		{"4 5-9", 1, [][2]int{[2]int{4, 4}, [2]int{5, 9}}},
+		{" 1 -4 5 - 8  ", 1, true},
+		{"a b", 1, true},
 	} {
-		got, err := hlLinesToRanges(this.in)
+		got, err := hlLinesToRanges(this.startLine, this.in)
 
 		if expectErr, ok := this.expected.(bool); ok && expectErr {
 			if err == nil {
