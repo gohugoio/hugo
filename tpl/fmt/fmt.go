@@ -37,7 +37,7 @@ func (ns *Namespace) Printf(format string, a ...interface{}) string {
 
 }
 
-// Print returns string representation of the passed arguments ending with a newline.
+// Println returns string representation of the passed arguments ending with a newline.
 func (ns *Namespace) Println(a ...interface{}) string {
 	return _fmt.Sprintln(a...)
 }
