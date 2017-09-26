@@ -65,6 +65,7 @@ const (
 	KindPage = "page"
 
 	// The rest are node types; home page, sections etc.
+
 	KindHome         = "home"
 	KindSection      = "section"
 	KindTaxonomy     = "taxonomy"
@@ -484,10 +485,10 @@ func traverse(keys []string, m map[string]interface{}) interface{} {
 	if len(rest) == 0 {
 		// That was the last key.
 		return result
-	} else {
-		// That was not the last key.
-		return traverse(rest, cast.ToStringMap(result))
 	}
+
+	// That was not the last key.
+	return traverse(rest, cast.ToStringMap(result))
 }
 
 func (p *Page) Author() Author {

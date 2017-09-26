@@ -158,14 +158,14 @@ func (f *Filesystem) avoid(filePath string) bool {
 	return false
 }
 
-func (s SourceSpec) isNonProcessablePath(filePath string) bool {
+func (sp SourceSpec) isNonProcessablePath(filePath string) bool {
 	base := filepath.Base(filePath)
 	if strings.HasPrefix(base, ".") ||
 		strings.HasPrefix(base, "#") ||
 		strings.HasSuffix(base, "~") {
 		return true
 	}
-	ignoreFiles := cast.ToStringSlice(s.Cfg.Get("ignoreFiles"))
+	ignoreFiles := cast.ToStringSlice(sp.Cfg.Get("ignoreFiles"))
 	if len(ignoreFiles) > 0 {
 		for _, ignorePattern := range ignoreFiles {
 			match, err := regexp.MatchString(ignorePattern, filePath)
