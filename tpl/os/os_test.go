@@ -64,7 +64,6 @@ func TestReadFile(t *testing.T) {
 	}
 }
 
-
 func TestFileExists(t *testing.T) {
 	t.Parallel()
 
@@ -85,13 +84,13 @@ func TestFileExists(t *testing.T) {
 		{filepath.FromSlash("/f/f1.txt"), true},
 		{filepath.FromSlash("f/f1.txt"), true},
 		{filepath.FromSlash("../f2.txt"), false},
-		{"", false},
 		{"b", false},
+		{"", nil},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 		result, err := ns.FileExists(test.filename)
 
-		if b, ok := test.expect.(bool); ok && !b {
+		if test.expect == nil {
 			require.Error(t, err, errMsg)
 			continue
 		}
