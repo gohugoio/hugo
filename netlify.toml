@@ -1,6 +1,6 @@
 [build]
   publish = "public"
-  command = "hugo"0.29
+  command = "hugo"
 
 [context.production.environment]
   HUGO_VERSION = "0.29"
