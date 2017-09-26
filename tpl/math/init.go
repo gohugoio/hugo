@@ -36,10 +36,24 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Ceil,
+			nil,
+			[][2]string{
+				{"{{math.Ceil 2.1}}", "3"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Div,
 			[]string{"div"},
 			[][2]string{
 				{"{{div 6 3}}", "2"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Floor,
+			nil,
+			[][2]string{
+				{"{{math.Floor 1.9}}", "1"},
 			},
 		)
 
@@ -68,6 +82,13 @@ func init() {
 			[]string{"mul"},
 			[][2]string{
 				{"{{mul 2 3}}", "6"},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Round,
+			nil,
+			[][2]string{
+				{"{{math.Round 1.5}}", "2"},
 			},
 		)
 
