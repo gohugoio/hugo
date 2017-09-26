@@ -113,24 +113,16 @@ func (t *templateHandler) Lookup(name string) *tpl.TemplateAdapter {
 		// The templates are stored without the prefix identificator.
 		name = strings.TrimPrefix(name, textTmplNamePrefix)
 
-		te := t.text.Lookup(name)
-		if te != nil {
-			te.Metrics = t.Deps.Metrics
-		}
-		return te
+		return t.text.Lookup(name)
 	}
 
 	// Look in both
 	if te := t.html.Lookup(name); te != nil {
-		te.Metrics = t.Deps.Metrics
 		return te
 	}
 
-	te := t.text.Lookup(name)
-	if te != nil {
-		te.Metrics = t.Deps.Metrics
-	}
-	return te
+	return t.text.Lookup(name)
+
 }
 
 func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
@@ -210,7 +202,7 @@ func (t *htmlTemplates) Lookup(name string) *tpl.TemplateAdapter {
 	if templ == nil {
 		return nil
 	}
-	return &tpl.TemplateAdapter{Template: templ}
+	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics}
 }
 
 func (t *htmlTemplates) lookup(name string) *template.Template {
@@ -250,7 +242,7 @@ func (t *textTemplates) Lookup(name string) *tpl.TemplateAdapter {
 	if templ == nil {
 		return nil
 	}
-	return &tpl.TemplateAdapter{Template: templ}
+	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics}
 }
 
 func (t *textTemplates) lookup(name string) *texttemplate.Template {
