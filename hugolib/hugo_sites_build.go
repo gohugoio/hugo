@@ -25,6 +25,10 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
+	if h.Metrics != nil {
+		h.Metrics.Reset()
+	}
+
 	t0 := time.Now()
 
 	// Need a pointer as this may be modified.
