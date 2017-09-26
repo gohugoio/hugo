@@ -1,17 +1,17 @@
 [build]
   publish = "public"
-  command = "hugo"
+  command = "hugo"0.29
 
 [context.production.environment]
-  HUGO_VERSION = "0.28"
+  HUGO_VERSION = "0.29"
   HUGO_ENV = "production"
   HUGO_ENABLEGITINFO = "true"
 
 [context.deploy-preview.environment]
-  HUGO_VERSION = "0.28"
+  HUGO_VERSION = "0.29"
 
 [context.branch-deploy.environment]
-  HUGO_VERSION = "0.28"
+  HUGO_VERSION = "0.29"
 
 [context.next.environment]
   HUGO_BASEURL = "https://next--gohugoio.netlify.com/"
