@@ -114,4 +114,4 @@ type bySum []result
 
 func (b bySum) Len() int           { return len(b) }
 func (b bySum) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
-func (b bySum) Less(i, j int) bool { return b[i].sum < b[j].sum }
+func (b bySum) Less(i, j int) bool { return b[i].sum > b[j].sum }
