@@ -89,7 +89,7 @@ func init() {
 	serverCmd.Flags().IntVar(&liveReloadPort, "liveReloadPort", -1, "port for live reloading (i.e. 443 in HTTPS proxy situations)")
 	serverCmd.Flags().StringVarP(&serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
-	serverCmd.Flags().BoolVar(&noHTTPCache, "noHTTPCache", true, "prevent HTTP caching")
+	serverCmd.Flags().BoolVar(&noHTTPCache, "noHTTPCache", false, "prevent HTTP caching")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseURL")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	serverCmd.Flags().BoolVar(&navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
