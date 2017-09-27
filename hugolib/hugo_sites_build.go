@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"bytes"
 	"time"
 
 	"errors"
@@ -64,6 +65,15 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 
 	if config.PrintStats {
 		h.Log.FEEDBACK.Printf("total in %v ms\n", int(1000*time.Since(t0).Seconds()))
+	}
+
+	if h.Metrics != nil {
+		var b bytes.Buffer
+		h.Metrics.WriteMetrics(&b)
+
+		h.Log.FEEDBACK.Printf("\nTemplate Metrics:\n\n")
+		h.Log.FEEDBACK.Print(b.String())
+		h.Log.FEEDBACK.Println()
 	}
 
 	return nil
