@@ -51,7 +51,7 @@ func init() {
 		ns.AddMethodMapping(ctx.FileExists,
 			[]string{"fileExists"},
 			[][2]string{
-				{`{{ fileExists "foo.txt" }}`, `true`},
+				{`{{ fileExists "foo.txt" }}`, `false`},
 			},
 		)
 
