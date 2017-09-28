@@ -14,6 +14,7 @@
 package partials
 
 import (
+	"crypto/sha1"
 	"fmt"
 	"html/template"
 	"strings"
@@ -76,12 +77,15 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 				return "", err
 			}
 
+			if ns.deps.Metrics != nil {
+				ns.deps.Metrics.RecordPartialChecksum(templ.Name(), fmt.Sprintf("%x", sha1.Sum(b.Bytes())))
+			}
+
 			if _, ok := templ.Template.(*texttemplate.Template); ok {
 				return b.String(), nil
 			}
 
 			return template.HTML(b.String()), nil
-
 		}
 	}
 

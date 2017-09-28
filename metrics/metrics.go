@@ -24,6 +24,9 @@ import (
 
 // The Provider interface defines an interface for measuring metrics.
 type Provider interface {
+	// RecordPartialChecksum records the checksum of a partial template's output.
+	RecordPartialChecksum(name, checksum string)
+
 	// MeasureSince adds a measurement for key to the metric store.
 	// Used with defer and time.Now().
 	MeasureSince(key string, start time.Time)
@@ -37,15 +40,17 @@ type Provider interface {
 
 // Store provides storage for a set of metrics.
 type Store struct {
-	metrics map[string][]time.Duration
-	mu      *sync.Mutex
+	partialChecksums map[string]map[string]int
+	metrics          map[string][]time.Duration
+	mu               *sync.Mutex
 }
 
 // NewProvider returns a new instance of a metric store.
 func NewProvider() Provider {
 	return &Store{
-		metrics: make(map[string][]time.Duration),
-		mu:      &sync.Mutex{},
+		partialChecksums: make(map[string]map[string]int),
+		metrics:          make(map[string][]time.Duration),
+		mu:               &sync.Mutex{},
 	}
 }
 
@@ -53,6 +58,20 @@ func NewProvider() Provider {
 func (s *Store) Reset() {
 	s.mu.Lock()
 	s.metrics = make(map[string][]time.Duration)
+	s.mu.Unlock()
+}
+
+// RecordPartialChecksum records the checksum of a partial template's output.
+func (s *Store) RecordPartialChecksum(name, checksum string) {
+	s.mu.Lock()
+
+	mm, ok := s.partialChecksums[name]
+	if !ok {
+		mm = make(map[string]int)
+		s.partialChecksums[name] = mm
+	}
+	mm[checksum]++
+
 	s.mu.Unlock()
 }
 
@@ -67,6 +86,19 @@ func (s *Store) MeasureSince(key string, start time.Time) {
 func (s *Store) WriteMetrics(w io.Writer) {
 	s.mu.Lock()
 
+	// Find partialCached candidates
+	candidates := make(map[string]bool)
+	for name, sumMap := range s.partialChecksums {
+		if len(sumMap) == 1 {
+			for _, v := range sumMap {
+				if v > 1 {
+					candidates[name] = true
+				}
+			}
+		}
+	}
+
+	// Calculate metric summary values
 	results := make([]result, len(s.metrics))
 
 	var i int
@@ -96,9 +128,14 @@ func (s *Store) WriteMetrics(w io.Writer) {
 
 	sort.Sort(bySum(results))
 	for _, v := range results {
-		fmt.Fprintf(w, "  %13s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
+		var rec string
+		if _, ok := candidates[v.key]; ok {
+			rec = "*"
+		}
+		fmt.Fprintf(w, "%1s %13s  %12s  %12s  %5d  %s\n", rec, v.sum, v.avg, v.max, v.count, v.key)
 	}
 
+	fmt.Fprintf(w, "\n* = this partial always generates the same output; consider using partialCached\n")
 }
 
 // A result represents the calculated results for a given metric.
