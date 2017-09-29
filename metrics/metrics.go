@@ -40,17 +40,17 @@ type Provider interface {
 
 // Store provides storage for a set of metrics.
 type Store struct {
-	partialChecksums map[string]map[string]int
-	metrics          map[string][]time.Duration
-	mu               *sync.Mutex
+	templateChecksums map[string]map[string]int
+	metrics           map[string][]time.Duration
+	mu                *sync.Mutex
 }
 
 // NewProvider returns a new instance of a metric store.
 func NewProvider() Provider {
 	return &Store{
-		partialChecksums: make(map[string]map[string]int),
-		metrics:          make(map[string][]time.Duration),
-		mu:               &sync.Mutex{},
+		templateChecksums: make(map[string]map[string]int),
+		metrics:           make(map[string][]time.Duration),
+		mu:                &sync.Mutex{},
 	}
 }
 
@@ -65,10 +65,10 @@ func (s *Store) Reset() {
 func (s *Store) AddTemplateChecksum(name, checksum string) {
 	s.mu.Lock()
 
-	mm, ok := s.partialChecksums[name]
+	mm, ok := s.templateChecksums[name]
 	if !ok {
 		mm = make(map[string]int)
-		s.partialChecksums[name] = mm
+		s.templateChecksums[name] = mm
 	}
 	mm[checksum]++
 
@@ -88,12 +88,14 @@ func (s *Store) WriteMetrics(w io.Writer) {
 
 	// Find partialCached candidates
 	candidates := make(map[string]bool)
-	for name, sumMap := range s.partialChecksums {
-		if len(sumMap) == 1 {
-			for _, v := range sumMap {
-				if v > 1 {
-					candidates[name] = true
-				}
+	for name, sumMap := range s.templateChecksums {
+		if len(sumMap) != 1 {
+			continue
+		}
+
+		for _, v := range sumMap {
+			if v > 1 {
+				candidates[name] = true
 			}
 		}
 	}
