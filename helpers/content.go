@@ -36,9 +36,6 @@ import (
 	"strings"
 )
 
-// SummaryLength is the length of the summary that Hugo extracts from a content.
-var SummaryLength = 70
-
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
 var SummaryDivider = []byte("<!--more-->")
 
@@ -47,6 +44,8 @@ type ContentSpec struct {
 	blackfriday                map[string]interface{}
 	footnoteAnchorPrefix       string
 	footnoteReturnLinkContents string
+	// SummaryLength is the length of the summary that Hugo extracts from a content.
+	summaryLength int
 
 	Highlight            func(code, lang, optsStr string) (string, error)
 	defatultPygmentsOpts map[string]string
@@ -61,6 +60,7 @@ func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 		blackfriday:                cfg.GetStringMap("blackfriday"),
 		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
 		footnoteReturnLinkContents: cfg.GetString("footnoteReturnLinkContents"),
+		summaryLength:              cfg.GetInt("summaryLength"),
 
 		cfg: cfg,
 	}
@@ -480,20 +480,20 @@ func totalWordsOld(s string) int {
 }
 
 // TruncateWordsByRune truncates words by runes.
-func TruncateWordsByRune(words []string, max int) (string, bool) {
+func (c *ContentSpec) TruncateWordsByRune(words []string) (string, bool) {
 	count := 0
 	for index, word := range words {
-		if count >= max {
+		if count >= c.summaryLength {
 			return strings.Join(words[:index], " "), true
 		}
 		runeCount := utf8.RuneCountInString(word)
 		if len(word) == runeCount {
 			count++
-		} else if count+runeCount < max {
+		} else if count+runeCount < c.summaryLength {
 			count += runeCount
 		} else {
 			for ri := range word {
-				if count >= max {
+				if count >= c.summaryLength {
 					truncatedWords := append(words[:index], word[:ri])
 					return strings.Join(truncatedWords, " "), true
 				}
@@ -507,8 +507,7 @@ func TruncateWordsByRune(words []string, max int) (string, bool) {
 
 // TruncateWordsToWholeSentence takes content and truncates to whole sentence
 // limited by max number of words. It also returns whether it is truncated.
-func TruncateWordsToWholeSentence(s string, max int) (string, bool) {
-
+func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 	var (
 		wordCount     = 0
 		lastWordIndex = -1
@@ -519,7 +518,7 @@ func TruncateWordsToWholeSentence(s string, max int) (string, bool) {
 			wordCount++
 			lastWordIndex = i
 
-			if wordCount >= max {
+			if wordCount >= c.summaryLength {
 				break
 			}
 
@@ -551,24 +550,24 @@ func isEndOfSentence(r rune) bool {
 }
 
 // Kept only for benchmark.
-func truncateWordsToWholeSentenceOld(content string, max int) (string, bool) {
+func (c *ContentSpec) truncateWordsToWholeSentenceOld(content string) (string, bool) {
 	words := strings.Fields(content)
 
-	if max >= len(words) {
+	if c.summaryLength >= len(words) {
 		return strings.Join(words, " "), false
 	}
 
-	for counter, word := range words[max:] {
+	for counter, word := range words[c.summaryLength:] {
 		if strings.HasSuffix(word, ".") ||
 			strings.HasSuffix(word, "?") ||
 			strings.HasSuffix(word, ".\"") ||
 			strings.HasSuffix(word, "!") {
-			upper := max + counter + 1
+			upper := c.summaryLength + counter + 1
 			return strings.Join(words[:upper], " "), (upper < len(words))
 		}
 	}
 
-	return strings.Join(words[:max], " "), true
+	return strings.Join(words[:c.summaryLength], " "), true
 }
 
 func getAsciidocExecPath() string {
