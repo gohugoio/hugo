@@ -135,7 +135,9 @@ func (s *Store) WriteMetrics(w io.Writer) {
 		fmt.Fprintf(w, "%1s %13s  %12s  %12s  %5d  %s\n", rec, v.sum, v.avg, v.max, v.count, v.key)
 	}
 
-	fmt.Fprintf(w, "\n* = this partial always generates the same output; consider using partialCached\n")
+	if len(candidates) > 0 {
+		fmt.Fprintf(w, "\n* = this partial always generates the same output; consider using partialCached\n")
+	}
 }
 
 // A result represents the calculated results for a given metric.
