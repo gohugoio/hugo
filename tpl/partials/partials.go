@@ -78,7 +78,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 			}
 
 			if ns.deps.Metrics != nil {
-				ns.deps.Metrics.RecordPartialChecksum(templ.Name(), fmt.Sprintf("%x", sha1.Sum(b.Bytes())))
+				ns.deps.Metrics.AddTemplateChecksum(templ.Name(), fmt.Sprintf("%x", sha1.Sum(b.Bytes())))
 			}
 
 			if _, ok := templ.Template.(*texttemplate.Template); ok {

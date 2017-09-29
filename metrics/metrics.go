@@ -24,8 +24,8 @@ import (
 
 // The Provider interface defines an interface for measuring metrics.
 type Provider interface {
-	// RecordPartialChecksum records the checksum of a partial template's output.
-	RecordPartialChecksum(name, checksum string)
+	// AddTemplateChecksum records the checksum of a partial template's output.
+	AddTemplateChecksum(name, checksum string)
 
 	// MeasureSince adds a measurement for key to the metric store.
 	// Used with defer and time.Now().
@@ -61,8 +61,8 @@ func (s *Store) Reset() {
 	s.mu.Unlock()
 }
 
-// RecordPartialChecksum records the checksum of a partial template's output.
-func (s *Store) RecordPartialChecksum(name, checksum string) {
+// AddTemplateChecksum records the checksum of a partial template's output.
+func (s *Store) AddTemplateChecksum(name, checksum string) {
 	s.mu.Lock()
 
 	mm, ok := s.partialChecksums[name]
