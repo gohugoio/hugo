@@ -143,8 +143,7 @@ This example HTML code block tells Hugo users the following:
 2. This snippet is complete enough to be downloaded and implemented in a Hugo project, as demonstrated by `download="single.html"`.
 
 ```
-{{%/* code file="layouts/_default/single.html" download="single.html" */%}}
-```
+{{</* code file="layouts/_default/single.html" download="single.html" */>}}
 {{ define "main" }}
 <main>
     <article>
@@ -162,14 +161,14 @@ This example HTML code block tells Hugo users the following:
     </article>
 </main>
 {{ end }}
-```
-{{%/* /code */%}}
+{{</* /code */>}}
 ```
 
 ##### Example 'code' Display
 
 The output of this example will render to the Hugo docs as follows:
 
+```html
 {{< code file="layouts/_default/single.html" download="single.html" >}}
 {{ define "main" }}
 <main>
@@ -189,6 +188,7 @@ The output of this example will render to the Hugo docs as follows:
 </main>
 {{ end }}
 {{< /code >}}
+```
 
 <!-- #### Output Code Block
 
