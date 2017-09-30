@@ -50,8 +50,14 @@ func init() {
 			},
 		)
 
-		return ns
+		ns.AddMethodMapping(ctx.Errorf,
+			[]string{"errorf"},
+			[][2]string{
+				{`{{ errorf "%s." "failed" }}`, `failed.`},
+			},
+		)
 
+		return ns
 	}
 
 	internal.AddTemplateFuncsNamespace(f)
