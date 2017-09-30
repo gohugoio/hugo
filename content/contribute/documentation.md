@@ -168,7 +168,6 @@ This example HTML code block tells Hugo users the following:
 
 The output of this example will render to the Hugo docs as follows:
 
-```html
 {{< code file="layouts/_default/single.html" download="single.html" >}}
 {{ define "main" }}
 <main>
@@ -188,7 +187,6 @@ The output of this example will render to the Hugo docs as follows:
 </main>
 {{ end }}
 {{< /code >}}
-```
 
 <!-- #### Output Code Block
 
