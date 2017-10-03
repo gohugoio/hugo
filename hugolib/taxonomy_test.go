@@ -53,20 +53,23 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 //
 func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
 	for _, uglyURLs := range []bool{false, true} {
-		for _, preserveTaxonomyNames := range []bool{false, true} {
-			t.Run(fmt.Sprintf("uglyURLs=%t,preserveTaxonomyNames=%t", uglyURLs, preserveTaxonomyNames), func(t *testing.T) {
-				doTestTaxonomiesWithAndWithoutContentFile(t, preserveTaxonomyNames, uglyURLs)
-			})
+		for _, trimTrailingSlash := range []bool{false, true} {
+			for _, preserveTaxonomyNames := range []bool{false, true} {
+				t.Run(fmt.Sprintf("uglyURLs=%t,trimTrailingSlash=%t,preserveTaxonomyNames=%t", uglyURLs, trimTrailingSlash, preserveTaxonomyNames), func(t *testing.T) {
+					doTestTaxonomiesWithAndWithoutContentFile(t, preserveTaxonomyNames, trimTrailingSlash, uglyURLs)
+				})
+			}
 		}
 	}
 }
 
-func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, preserveTaxonomyNames, uglyURLs bool) {
+func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, preserveTaxonomyNames bool, trimTrailingSlash bool, uglyURLs bool) {
 	t.Parallel()
 
 	siteConfig := `
 baseURL = "http://example.com/blog"
 preserveTaxonomyNames = %t
+trimTrailingSlash = %t
 uglyURLs = %t
 
 paginate = 1
@@ -91,7 +94,7 @@ others:
 # Doc
 `
 
-	siteConfig = fmt.Sprintf(siteConfig, preserveTaxonomyNames, uglyURLs)
+	siteConfig = fmt.Sprintf(siteConfig, preserveTaxonomyNames, trimTrailingSlash, uglyURLs)
 
 	th, h := newTestSitesFromConfigWithDefaultTemplates(t, siteConfig)
 	require.Len(t, h.Sites, 1)
@@ -122,7 +125,7 @@ others:
 	// 3. the "others" taxonomy with no content pages.
 
 	pathFunc := func(s string) string {
-		if uglyURLs {
+		if trimTrailingSlash || uglyURLs {
 			return strings.Replace(s, "/index.html", ".html", 1)
 		}
 		return s
@@ -164,7 +167,9 @@ others:
 
 	cat1 := s.getPage(KindTaxonomy, "categories", "cat1")
 	require.NotNil(t, cat1)
-	if uglyURLs {
+	if trimTrailingSlash {
+		require.Equal(t, "/blog/categories/cat1", cat1.RelPermalink())
+	} else if uglyURLs {
 		require.Equal(t, "/blog/categories/cat1.html", cat1.RelPermalink())
 	} else {
 		require.Equal(t, "/blog/categories/cat1/", cat1.RelPermalink())

@@ -26,6 +26,7 @@ type PathSpec struct {
 
 	disablePathToLower bool
 	removePathAccents  bool
+	trimTrailingSlash  bool
 	uglyURLs           bool
 	canonifyURLs       bool
 
@@ -77,6 +78,7 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		Cfg:                            cfg,
 		disablePathToLower:             cfg.GetBool("disablePathToLower"),
 		removePathAccents:              cfg.GetBool("removePathAccents"),
+		trimTrailingSlash:              cfg.GetBool("trimTrailingSlash"),
 		uglyURLs:                       cfg.GetBool("uglyURLs"),
 		canonifyURLs:                   cfg.GetBool("canonifyURLs"),
 		multilingual:                   cfg.GetBool("multilingual"),

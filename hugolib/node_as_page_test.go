@@ -38,13 +38,15 @@ import (
 func TestNodesAsPage(t *testing.T) {
 	t.Parallel()
 	for _, preserveTaxonomyNames := range []bool{false, true} {
-		for _, ugly := range []bool{true, false} {
-			doTestNodeAsPage(t, ugly, preserveTaxonomyNames)
+		for _, trimTrailingSlash := range []bool{true, false} {
+			for _, uglyURLs := range []bool{true, false} {
+				doTestNodeAsPage(t, uglyURLs, trimTrailingSlash, preserveTaxonomyNames)
+			}
 		}
 	}
 }
 
-func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
+func doTestNodeAsPage(t *testing.T, uglyURLs bool, trimTrailingSlash bool, preserveTaxonomyNames bool) {
 
 	/* Will have to decide what to name the node content files, but:
 
@@ -61,12 +63,15 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 		th      = testHelper{cfg, fs, t}
 	)
 
-	cfg.Set("uglyURLs", ugly)
+	cfg.Set("uglyURLs", uglyURLs)
+	cfg.Set("trimTrailingSlash", trimTrailingSlash)
 	cfg.Set("preserveTaxonomyNames", preserveTaxonomyNames)
 
 	cfg.Set("paginate", 1)
 	cfg.Set("title", "Hugo Rocks")
 	cfg.Set("rssURI", "customrss.xml")
+
+	isUgly := trimTrailingSlash || uglyURLs
 
 	writeLayoutsForNodeAsPageTests(t, fs)
 	writeNodePagesForNodeAsPageTests(t, fs, "")
@@ -90,7 +95,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 		"GetPage: Section1 ",
 	)
 
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect1", "regular1"), "Single Title: Page 01", "Content Page 01")
+	th.assertFileContent(expectedFilePath(isUgly, "public", "sect1", "regular1"), "Single Title: Page 01", "Content Page 01")
 
 	nodes := sites.findAllPagesByKindNotIn(KindPage)
 
@@ -116,24 +121,24 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	require.True(t, first.IsPage())
 
 	// Check Home paginator
-	th.assertFileContent(expectedFilePath(ugly, "public", "page", "2"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "page", "2"),
 		"Pag: Page 02")
 
 	// Check Sections
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect1"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "sect1"),
 		"Section Title: Section", "Section1 <strong>Content!</strong>",
 		"Date: 2009-01-04",
 		"Lastmod: 2009-01-05",
 	)
 
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect2"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "sect2"),
 		"Section Title: Section", "Section2 <strong>Content!</strong>",
 		"Date: 2009-01-06",
 		"Lastmod: 2009-01-07",
 	)
 
 	// Check Sections paginator
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect1", "page", "2"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "sect1", "page", "2"),
 		"Pag: Page 02")
 
 	sections := sites.findAllPagesByKind(KindSection)
@@ -141,13 +146,13 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	require.Len(t, sections, 2)
 
 	// Check taxonomy lists
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "categories", "hugo"),
 		"Taxonomy Title: Taxonomy Hugo", "Taxonomy Hugo <strong>Content!</strong>",
 		"Date: 2009-01-08",
 		"Lastmod: 2009-01-09",
 	)
 
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo-rocks"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "categories", "hugo-rocks"),
 		"Taxonomy Title: Taxonomy Hugo Rocks",
 	)
 
@@ -157,7 +162,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	require.NotNil(t, web)
 	require.Len(t, web.Data["Pages"].(Pages), 4)
 
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "web"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "categories", "web"),
 		"Taxonomy Title: Taxonomy Web",
 		"Taxonomy Web <strong>Content!</strong>",
 		"Date: 2009-01-10",
@@ -165,19 +170,19 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	)
 
 	// Check taxonomy list paginator
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo", "page", "2"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "categories", "hugo", "page", "2"),
 		"Taxonomy Title: Taxonomy Hugo",
 		"Pag: Page 02")
 
 	// Check taxonomy terms
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "categories"),
 		"Taxonomy Terms Title: Taxonomy Term Categories", "Taxonomy Term Categories <strong>Content!</strong>", "k/v: hugo",
 		"Date: 2009-01-14",
 		"Lastmod: 2009-01-15",
 	)
 
 	// Check taxonomy terms paginator
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "page", "2"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "categories", "page", "2"),
 		"Taxonomy Terms Title: Taxonomy Term Categories",
 		"Pag: Taxonomy Web")
 
@@ -193,22 +198,27 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 
 func TestNodesWithNoContentFile(t *testing.T) {
 	t.Parallel()
-	for _, ugly := range []bool{false, true} {
-		doTestNodesWithNoContentFile(t, ugly)
+	for _, trimTrailingSlash := range []bool{true, false} {
+		for _, uglyURLs := range []bool{false, true} {
+			doTestNodesWithNoContentFile(t, uglyURLs, trimTrailingSlash)
+		}
 	}
 }
 
-func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
+func doTestNodesWithNoContentFile(t *testing.T, uglyURLs bool, trimTrailingSlash bool) {
 
 	var (
 		cfg, fs = newTestCfg()
 		th      = testHelper{cfg, fs, t}
 	)
 
-	cfg.Set("uglyURLs", ugly)
+	cfg.Set("trimTrailingSlash", trimTrailingSlash)
+	cfg.Set("uglyURLs", uglyURLs)
 	cfg.Set("paginate", 1)
 	cfg.Set("title", "Hugo Rocks!")
 	cfg.Set("rssURI", "customrss.xml")
+
+	isUgly := trimTrailingSlash || uglyURLs
 
 	writeLayoutsForNodeAsPageTests(t, fs)
 	writeRegularPagesForNodeAsPageTests(t, fs)
@@ -237,21 +247,23 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 	)
 
 	// Taxonomy list
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories", "hugo"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "categories", "hugo"),
 		"Taxonomy Title: Hugo",
 		"Date: 2010-06-12",
 		"Lastmod: 2010-06-13",
 	)
 
 	// Taxonomy terms
-	th.assertFileContent(expectedFilePath(ugly, "public", "categories"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "categories"),
 		"Taxonomy Terms Title: Categories",
 	)
 
 	pages := s.findPagesByKind(KindTaxonomyTerm)
 	for _, p := range pages {
 		var want string
-		if ugly {
+		if trimTrailingSlash {
+			want = "/" + p.s.PathSpec.URLize(p.Title)
+		} else if uglyURLs {
 			want = "/" + p.s.PathSpec.URLize(p.Title) + ".html"
 		} else {
 			want = "/" + p.s.PathSpec.URLize(p.Title) + "/"
@@ -262,13 +274,13 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 	}
 
 	// Sections
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect1"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "sect1"),
 		"Section Title: Sect1s",
 		"Date: 2010-06-12",
 		"Lastmod: 2010-06-13",
 	)
 
-	th.assertFileContent(expectedFilePath(ugly, "public", "sect2"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "sect2"),
 		"Section Title: Sect2s",
 		"Date: 2008-07-06",
 		"Lastmod: 2008-07-09",
@@ -285,14 +297,16 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 
 func TestNodesAsPageMultilingual(t *testing.T) {
 	t.Parallel()
-	for _, ugly := range []bool{false, true} {
-		t.Run(fmt.Sprintf("ugly=%t", ugly), func(t *testing.T) {
-			doTestNodesAsPageMultilingual(t, ugly)
-		})
+	for _, trimTrailingSlash := range []bool{false, true} {
+		for _, uglyURLs := range []bool{false, true} {
+			t.Run(fmt.Sprintf("trimTrailingSlash=%t,uglyURLs=%t", trimTrailingSlash, uglyURLs), func(t *testing.T) {
+				doTestNodesAsPageMultilingual(t, uglyURLs, trimTrailingSlash)
+			})
+		}
 	}
 }
 
-func doTestNodesAsPageMultilingual(t *testing.T, ugly bool) {
+func doTestNodesAsPageMultilingual(t *testing.T, uglyURLs bool, trimTrailingSlash bool) {
 
 	mf := afero.NewMemMapFs()
 
@@ -325,7 +339,10 @@ title = "Deutsche Hugo"
 	cfg, err := LoadConfig(mf, "", "config.toml")
 	require.NoError(t, err)
 
-	cfg.Set("uglyURLs", ugly)
+	cfg.Set("trimTrailingSlash", trimTrailingSlash)
+	cfg.Set("uglyURLs", uglyURLs)
+
+	isUgly := trimTrailingSlash || uglyURLs
 
 	fs := hugofs.NewFrom(mf, cfg)
 
@@ -372,7 +389,7 @@ title = "Deutsche Hugo"
 	require.Equal(t, "en", deHome.Translations()[1].Language().Lang)
 	require.Equal(t, "nn", deHome.Translations()[0].Language().Lang)
 	// See issue #3179
-	require.Equal(t, expetedPermalink(false, "/de/"), deHome.Permalink())
+	require.Equal(t, expectedPermalink(false, false, "/de/"), deHome.Permalink())
 
 	enSect := sites.Sites[1].getPage("section", "sect1")
 	require.NotNil(t, enSect)
@@ -381,7 +398,7 @@ title = "Deutsche Hugo"
 	require.Equal(t, "de", enSect.Translations()[1].Language().Lang)
 	require.Equal(t, "nn", enSect.Translations()[0].Language().Lang)
 
-	require.Equal(t, expetedPermalink(ugly, "/en/sect1/"), enSect.Permalink())
+	require.Equal(t, expectedPermalink(uglyURLs, trimTrailingSlash, "/en/sect1/"), enSect.Permalink())
 
 	th.assertFileContent(filepath.Join("public", "nn", "index.html"),
 		"Index Title: Hugo på norsk")
@@ -391,31 +408,31 @@ title = "Deutsche Hugo"
 		"Index Title: Home Sweet Home!", "<strong>Content!</strong>")
 
 	// Taxonomy list
-	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "categories", "hugo"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "nn", "categories", "hugo"),
 		"Taxonomy Title: Hugo")
-	th.assertFileContent(expectedFilePath(ugly, "public", "en", "categories", "hugo"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "en", "categories", "hugo"),
 		"Taxonomy Title: Taxonomy Hugo")
 
 	// Taxonomy terms
-	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "categories"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "nn", "categories"),
 		"Taxonomy Terms Title: Categories")
-	th.assertFileContent(expectedFilePath(ugly, "public", "en", "categories"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "en", "categories"),
 		"Taxonomy Terms Title: Taxonomy Term Categories")
 
 	// Sections
-	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "sect1"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "nn", "sect1"),
 		"Section Title: Sect1s")
-	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "sect2"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "nn", "sect2"),
 		"Section Title: Sect2s")
-	th.assertFileContent(expectedFilePath(ugly, "public", "en", "sect1"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "en", "sect1"),
 		"Section Title: Section1")
-	th.assertFileContent(expectedFilePath(ugly, "public", "en", "sect2"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "en", "sect2"),
 		"Section Title: Section2")
 
 	// Regular pages
-	th.assertFileContent(expectedFilePath(ugly, "public", "en", "sect1", "regular1"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "en", "sect1", "regular1"),
 		"Single Title: Page 01")
-	th.assertFileContent(expectedFilePath(ugly, "public", "nn", "sect1", "regular2"),
+	th.assertFileContent(expectedFilePath(isUgly, "public", "nn", "sect1", "regular2"),
 		"Single Title: Page 02")
 
 	// RSS
@@ -816,15 +833,18 @@ Lastmod: {{ .Lastmod.Format "2006-01-02" }}
 `)
 }
 
-func expectedFilePath(ugly bool, path ...string) string {
-	if ugly {
+func expectedFilePath(isUgly bool, path ...string) string {
+	if isUgly {
 		return filepath.Join(append(path[0:len(path)-1], path[len(path)-1]+".html")...)
 	}
 	return filepath.Join(append(path, "index.html")...)
 }
 
-func expetedPermalink(ugly bool, path string) string {
-	if ugly {
+func expectedPermalink(uglyURLs bool, trimTrailingSlash bool, path string) string {
+	if trimTrailingSlash {
+		return strings.TrimSuffix(path, "/")
+	}
+	if uglyURLs {
 		return strings.TrimSuffix(path, "/") + ".html"
 	}
 	return path

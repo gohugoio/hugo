@@ -201,13 +201,15 @@ func TestPageWithUnderScoreIndexInFilename(t *testing.T) {
 func TestCrossrefs(t *testing.T) {
 	t.Parallel()
 	for _, uglyURLs := range []bool{true, false} {
-		for _, relative := range []bool{true, false} {
-			doTestCrossrefs(t, relative, uglyURLs)
+		for _, trimTrailingSlash := range []bool{true, false} {
+			for _, relative := range []bool{true, false} {
+				doTestCrossrefs(t, relative, trimTrailingSlash, uglyURLs)
+			}
 		}
 	}
 }
 
-func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
+func doTestCrossrefs(t *testing.T, relative bool, trimTrailingSlash bool, uglyURLs bool) {
 
 	baseURL := "http://foo/bar"
 
@@ -224,7 +226,10 @@ func doTestCrossrefs(t *testing.T, relative, uglyURLs bool) {
 		expectedBase = baseURL
 	}
 
-	if uglyURLs {
+	if trimTrailingSlash {
+		expectedURLSuffix = ""
+		expectedPathSuffix = ".html"
+	} else if uglyURLs {
 		expectedURLSuffix = ".html"
 		expectedPathSuffix = ".html"
 	} else {
@@ -263,6 +268,7 @@ THE END.`, refShortcode)),
 	cfg, fs := newTestCfg()
 
 	cfg.Set("baseURL", baseURL)
+	cfg.Set("trimTrailingSlash", trimTrailingSlash)
 	cfg.Set("uglyURLs", uglyURLs)
 	cfg.Set("verbose", true)
 
@@ -303,12 +309,14 @@ THE END.`, refShortcode)),
 // Issue #1923
 func TestShouldAlwaysHaveUglyURLs(t *testing.T) {
 	t.Parallel()
-	for _, uglyURLs := range []bool{true, false} {
-		doTestShouldAlwaysHaveUglyURLs(t, uglyURLs)
+	for _, trimTrailingSlash := range []bool{true, false} {
+		for _, uglyURLs := range []bool{true, false} {
+			doTestShouldAlwaysHaveUglyURLs(t, uglyURLs, trimTrailingSlash)
+		}
 	}
 }
 
-func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
+func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool, trimTrailingSlash bool) {
 
 	cfg, fs := newTestCfg()
 
@@ -321,6 +329,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 		map[string]interface{}{
 			"plainIDAnchors": true})
 
+	cfg.Set("trimTrailingSlash", trimTrailingSlash)
 	cfg.Set("uglyURLs", uglyURLs)
 
 	sources := []source.ByteSource{
@@ -341,7 +350,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	var expectedPagePath string
-	if uglyURLs {
+	if trimTrailingSlash || uglyURLs {
 		expectedPagePath = "public/sect/doc1.html"
 	} else {
 		expectedPagePath = "public/sect/doc1/index.html"
@@ -400,19 +409,21 @@ func TestShouldNotWriteZeroLengthFilesToDestination(t *testing.T) {
 func TestSectionNaming(t *testing.T) {
 	t.Parallel()
 	for _, canonify := range []bool{true, false} {
-		for _, uglify := range []bool{true, false} {
-			for _, pluralize := range []bool{true, false} {
-				doTestSectionNaming(t, canonify, uglify, pluralize)
+		for _, trimTrailingSlash := range []bool{true, false} {
+			for _, uglify := range []bool{true, false} {
+				for _, pluralize := range []bool{true, false} {
+					doTestSectionNaming(t, canonify, uglify, pluralize, trimTrailingSlash)
+				}
 			}
 		}
 	}
 }
 
-func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
+func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool, trimTrailingSlash bool) {
 
 	var expectedPathSuffix string
 
-	if uglify {
+	if trimTrailingSlash || uglify {
 		expectedPathSuffix = ".html"
 	} else {
 		expectedPathSuffix = "/index.html"
@@ -430,6 +441,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 	cfg.Set("baseURL", "http://auth/sub/")
 	cfg.Set("uglyURLs", uglify)
+	cfg.Set("trimTrailingSlash", trimTrailingSlash)
 	cfg.Set("pluralizeListTitles", pluralize)
 	cfg.Set("canonifyURLs", canonify)
 

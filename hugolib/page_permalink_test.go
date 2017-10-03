@@ -28,47 +28,139 @@ func TestPermalink(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		file         string
-		base         template.URL
-		slug         string
-		url          string
-		uglyURLs     bool
-		canonifyURLs bool
-		expectedAbs  string
-		expectedRel  string
+		file              string
+		base              template.URL
+		slug              string
+		url               string
+		uglyURLs          bool
+		canonifyURLs      bool
+		trimTrailingSlash bool
+		expectedAbs       string
+		expectedRel       string
 	}{
-		{"x/y/z/boofar.md", "", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
-		// Issue #1174
-		{"x/y/z/boofar.md", "http://gopher.com/", "", "", false, true, "http://gopher.com/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "http://gopher.com/", "", "", true, true, "http://gopher.com/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "", "boofar", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "http://barnew/", "", "", false, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", false, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "", "", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "", "", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "", "boofar", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "http://barnew/", "", "", true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", true, false, "http://barnew/boo/x/y/z/booslug.html", "/boo/x/y/z/booslug.html"},
-		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", false, true, "http://barnew/boo/x/y/z/booslug/", "/x/y/z/booslug/"},
-		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", false, false, "http://barnew/boo/x/y/z/booslug/", "/boo/x/y/z/booslug/"},
-		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", true, true, "http://barnew/boo/x/y/z/booslug.html", "/x/y/z/booslug.html"},
-		{"x/y/z/boofar.md", "http://barnew/boo", "booslug", "", true, true, "http://barnew/boo/x/y/z/booslug.html", "/x/y/z/booslug.html"},
+		// canonifyURLs=false, trimTrailingSlash=false, uglyURLs=false
+		{"x/y/z/boofar.md", "", "", "", false, false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "", false, false, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "", false, false, false, "http://barnew/boo/x/y/z/boofar/", "/boo/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "", "boofar", "", false, false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "", "", "/z/y/q/", false, false, false, "/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", false, false, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", false, false, false, "http://barnew/boo/x/y/z/booslug/", "/boo/x/y/z/booslug/"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "/z/y/q/", false, false, false, "http://barnew/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "/z/y/q/", false, false, false, "http://barnew/boo/z/y/q/", "/boo/z/y/q/"},
+		{"x/y/z/boofar.md", "", "boofar", "/z/y/q/", false, false, false, "/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "/z/y/q/", false, false, false, "http://barnew/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "/z/y/q/", false, false, false, "http://barnew/boo/z/y/q/", "/boo/z/y/q/"},
 
-		// test URL overrides
-		{"x/y/z/boofar.md", "", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
+		// canonifyURLs=true, trimTrailingSlash=false, uglyURLs=false
+		{"x/y/z/boofar.md", "", "", "", false, true, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "", false, true, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "", false, true, false, "http://barnew/boo/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "", "boofar", "", false, true, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "", "", "/z/y/q/", false, true, false, "/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", false, true, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", false, true, false, "http://barnew/boo/x/y/z/booslug/", "/x/y/z/booslug/"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "/z/y/q/", false, true, false, "http://barnew/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "/z/y/q/", false, true, false, "http://barnew/boo/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "", "boofar", "/z/y/q/", false, true, false, "/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "/z/y/q/", false, true, false, "http://barnew/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "/z/y/q/", false, true, false, "http://barnew/boo/z/y/q/", "/z/y/q/"},
+
+		// canonifyURLs=false, trimTrailingSlash=true, uglyURLs=false
+		{"x/y/z/boofar.md", "", "", "", false, false, true, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "", false, false, true, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "", false, false, true, "http://barnew/boo/x/y/z/boofar", "/boo/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "", "boofar", "", false, false, true, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "", "", "/z/y/q.html", false, false, true, "/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", false, false, true, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", false, false, true, "http://barnew/boo/x/y/z/booslug", "/boo/x/y/z/booslug"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "/z/y/q.html", false, false, true, "http://barnew/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "/z/y/q.html", false, false, true, "http://barnew/boo/z/y/q", "/boo/z/y/q"},
+		{"x/y/z/boofar.md", "", "boofar", "/z/y/q.html", false, false, true, "/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "/z/y/q.html", false, false, true, "http://barnew/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "/z/y/q.html", false, false, true, "http://barnew/boo/z/y/q", "/boo/z/y/q"},
+
+		// canonifyURLs=false, trimTrailingSlash=false, uglyURLs=true
+		{"x/y/z/boofar.md", "", "", "", true, false, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "", true, false, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "", true, false, false, "http://barnew/boo/x/y/z/boofar.html", "/boo/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "", "boofar", "", true, false, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "", "", "/z/y/q.html", true, false, false, "/z/y/q.html", "/z/y/q.html"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", true, false, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", true, false, false, "http://barnew/boo/x/y/z/booslug.html", "/boo/x/y/z/booslug.html"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "/z/y/q.html", true, false, false, "http://barnew/z/y/q.html", "/z/y/q.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "/z/y/q.html", true, false, false, "http://barnew/boo/z/y/q.html", "/boo/z/y/q.html"},
+		{"x/y/z/boofar.md", "", "boofar", "/z/y/q.html", true, false, false, "/z/y/q.html", "/z/y/q.html"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "/z/y/q.html", true, false, false, "http://barnew/z/y/q.html", "/z/y/q.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "/z/y/q.html", true, false, false, "http://barnew/boo/z/y/q.html", "/boo/z/y/q.html"},
+
+		// canonifyURLs=true, trimTrailingSlash=true, uglyURLs=false
+		{"x/y/z/boofar.md", "", "", "", false, true, true, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "", false, true, true, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "", false, true, true, "http://barnew/boo/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "", "boofar", "", false, true, true, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "", "", "/z/y/q.html", false, true, true, "/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", false, true, true, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", false, true, true, "http://barnew/boo/x/y/z/booslug", "/x/y/z/booslug"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "/z/y/q.html", false, true, true, "http://barnew/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "/z/y/q.html", false, true, true, "http://barnew/boo/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "", "boofar", "/z/y/q.html", false, true, true, "/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "/z/y/q.html", false, true, true, "http://barnew/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "/z/y/q.html", false, true, true, "http://barnew/boo/z/y/q", "/z/y/q"},
+
+		// canonifyURLs=true, trimTrailingSlash=false, uglyURLs=true
+		{"x/y/z/boofar.md", "", "", "", true, true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "", true, true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "", true, true, false, "http://barnew/boo/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "", "boofar", "", true, true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "", "", "/z/y/q.html", true, true, false, "/z/y/q.html", "/z/y/q.html"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", true, true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", true, true, false, "http://barnew/boo/x/y/z/booslug.html", "/x/y/z/booslug.html"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "/z/y/q.html", true, true, false, "http://barnew/z/y/q.html", "/z/y/q.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "/z/y/q.html", true, true, false, "http://barnew/boo/z/y/q.html", "/z/y/q.html"},
+		{"x/y/z/boofar.md", "", "boofar", "/z/y/q.html", true, true, false, "/z/y/q.html", "/z/y/q.html"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "/z/y/q.html", true, true, false, "http://barnew/z/y/q.html", "/z/y/q.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "/z/y/q.html", true, true, false, "http://barnew/boo/z/y/q.html", "/z/y/q.html"},
+
+		// canonifyURLs=false, trimTrailingSlash=true, uglyURLs=true
+		{"x/y/z/boofar.md", "", "", "", true, false, true, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "", true, false, true, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "", true, false, true, "http://barnew/boo/x/y/z/boofar", "/boo/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "", "boofar", "", true, false, true, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "", "", "/z/y/q.html", true, false, true, "/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", true, false, true, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", true, false, true, "http://barnew/boo/x/y/z/booslug", "/boo/x/y/z/booslug"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "/z/y/q.html", true, false, true, "http://barnew/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "/z/y/q.html", true, false, true, "http://barnew/boo/z/y/q", "/boo/z/y/q"},
+		{"x/y/z/boofar.md", "", "boofar", "/z/y/q.html", true, false, true, "/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "/z/y/q.html", true, false, true, "http://barnew/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "/z/y/q.html", true, false, true, "http://barnew/boo/z/y/q", "/boo/z/y/q"},
+
+		// canonifyURLs=true, trimTrailingSlash=true, uglyURLs=true
+		{"x/y/z/boofar.md", "", "", "", true, true, true, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "", true, true, true, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "", true, true, true, "http://barnew/boo/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "", "boofar", "", true, true, true, "/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "", "", "/z/y/q.html", true, true, true, "/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", true, true, true, "http://barnew/x/y/z/boofar", "/x/y/z/boofar"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", true, true, true, "http://barnew/boo/x/y/z/booslug", "/x/y/z/booslug"},
+		{"x/y/z/boofar.md", "http://barnew/", "", "/z/y/q.html", true, true, true, "http://barnew/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "", "/z/y/q.html", true, true, true, "http://barnew/boo/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "", "boofar", "/z/y/q.html", true, true, true, "/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/", "boofar", "/z/y/q.html", true, true, true, "http://barnew/z/y/q", "/z/y/q"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "/z/y/q.html", true, true, true, "http://barnew/boo/z/y/q", "/z/y/q"},
 	}
 
 	for i, test := range tests {
+		t.Run(fmt.Sprintf("uglyURLs=%t,canonifyURLs=%t,trimTrailingSlash=%t", test.uglyURLs, test.canonifyURLs, test.trimTrailingSlash), func(t *testing.T) {
+			cfg, fs := newTestCfg()
 
-		cfg, fs := newTestCfg()
+			cfg.Set("uglyURLs", test.uglyURLs)
+			cfg.Set("canonifyURLs", test.canonifyURLs)
+			cfg.Set("trimTrailingSlash", test.trimTrailingSlash)
+			cfg.Set("baseURL", test.base)
 
-		cfg.Set("uglyURLs", test.uglyURLs)
-		cfg.Set("canonifyURLs", test.canonifyURLs)
-		cfg.Set("baseURL", test.base)
-
-		pageContent := fmt.Sprintf(`---
+			pageContent := fmt.Sprintf(`---
 title: Page
 slug: %q
 url: %q
@@ -76,25 +168,26 @@ url: %q
 Content
 `, test.slug, test.url)
 
-		writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.file)), pageContent)
+			writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.file)), pageContent)
 
-		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
-		require.Len(t, s.RegularPages, 1)
+			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+			require.Len(t, s.RegularPages, 1)
 
-		p := s.RegularPages[0]
+			p := s.RegularPages[0]
 
-		u := p.Permalink()
+			u := p.Permalink()
 
-		expected := test.expectedAbs
-		if u != expected {
-			t.Fatalf("[%d] Expected abs url: %s, got: %s", i, expected, u)
-		}
+			expected := test.expectedAbs
+			if u != expected {
+				t.Fatalf("[%d] Expected abs url: %s, got: %s", i, expected, u)
+			}
 
-		u = p.RelPermalink()
+			u = p.RelPermalink()
 
-		expected = test.expectedRel
-		if u != expected {
-			t.Errorf("[%d] Expected rel url: %s, got: %s", i, expected, u)
-		}
+			expected = test.expectedRel
+			if u != expected {
+				t.Errorf("[%d] Expected rel url: %s, got: %s", i, expected, u)
+			}
+		})
 	}
 }

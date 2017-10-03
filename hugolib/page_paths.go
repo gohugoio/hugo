@@ -62,6 +62,9 @@ type targetPathDescriptor struct {
 	// The expanded permalink if defined for the section, ready to use.
 	ExpandedPermalink string
 
+	// Whether to trim the trailing slash from URLs
+	TrimTrailingSlash bool
+
 	// Some types cannot have uglyURLs, even if globally enabled, RSS being one example.
 	UglyURLs bool
 }
@@ -81,12 +84,13 @@ func (p *Page) createTargetPathDescriptor(t output.Format) (targetPathDescriptor
 func (p *Page) initTargetPathDescriptor() error {
 
 	d := &targetPathDescriptor{
-		PathSpec: p.s.PathSpec,
-		Kind:     p.Kind,
-		Sections: p.sections,
-		UglyURLs: p.s.Info.uglyURLs,
-		Dir:      filepath.ToSlash(p.Source.Dir()),
-		URL:      p.URLPath.URL,
+		PathSpec:          p.s.PathSpec,
+		Kind:              p.Kind,
+		Sections:          p.sections,
+		TrimTrailingSlash: p.s.Info.trimTrailingSlash,
+		UglyURLs:          p.s.Info.uglyURLs,
+		Dir:               filepath.ToSlash(p.Source.Dir()),
+		URL:               p.URLPath.URL,
 	}
 
 	if p.Slug != "" {
@@ -139,7 +143,7 @@ func createTargetPath(d targetPathDescriptor) string {
 	// the index base even when uglyURLs is enabled.
 	needsBase := true
 
-	isUgly := d.UglyURLs && !d.Type.NoUgly
+	isUgly := (d.UglyURLs || d.TrimTrailingSlash) && !d.Type.NoUgly
 
 	// If the page output format's base name is the same as the page base name,
 	// we treat it as an ugly path, i.e.
@@ -164,7 +168,11 @@ func createTargetPath(d targetPathDescriptor) string {
 		if d.URL != "" {
 			pagePath = filepath.Join(pagePath, d.URL)
 			if strings.HasSuffix(d.URL, "/") || !strings.Contains(d.URL, ".") {
-				pagePath = filepath.Join(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
+				if d.TrimTrailingSlash {
+					pagePath += d.Type.MediaType.Delimiter + d.Type.MediaType.Suffix
+				} else {
+					pagePath = filepath.Join(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
+				}
 			}
 		} else {
 			if d.ExpandedPermalink != "" {
@@ -244,6 +252,10 @@ func (p *Page) createRelativePermalinkForOutputFormat(f output.Format) string {
 	// For /index.json etc. we must  use the full path.
 	if strings.HasSuffix(f.BaseFilename(), "html") {
 		tp = strings.TrimSuffix(tp, f.BaseFilename())
+
+		if p.s.Info.trimTrailingSlash {
+			tp = strings.TrimSuffix(tp, ".html")
+		}
 	}
 
 	return p.s.PathSpec.URLizeFilename(tp)

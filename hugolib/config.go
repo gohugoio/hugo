@@ -116,6 +116,7 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("ignoreCache", false)
 	v.SetDefault("canonifyURLs", false)
 	v.SetDefault("relativeURLs", false)
+	v.SetDefault("trimTrailingSlash", false)
 	v.SetDefault("removePathAccents", false)
 	v.SetDefault("titleCaseStyle", "AP")
 	v.SetDefault("taxonomies", map[string]string{"tag": "tags", "category": "categories"})

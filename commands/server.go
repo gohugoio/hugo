@@ -220,6 +220,15 @@ func (c *commandeer) serve(port int) {
 				w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
 				w.Header().Set("Pragma", "no-cache")
 			}
+
+			if c.Cfg.GetBool("trimTrailingSlash") {
+				path := strings.Split(r.URL.Path, "/")
+
+				if !strings.Contains(path[len(path)-1], ".") && !strings.HasSuffix(r.URL.Path, "/") {
+					r.URL.Path += ".html"
+				}
+			}
+
 			h.ServeHTTP(w, r)
 		})
 	}

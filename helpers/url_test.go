@@ -241,19 +241,34 @@ func TestMakePermalink(t *testing.T) {
 
 func TestURLPrep(t *testing.T) {
 	type test struct {
-		ugly   bool
-		input  string
-		output string
+		trimTrailingSlash bool
+		uglyURLs          bool
+		input             string
+		output            string
 	}
 
 	data := []test{
-		{false, "/section/name.html", "/section/name/"},
-		{true, "/section/name/index.html", "/section/name.html"},
+		// trimTrailingSlash=false, uglyURLs=false
+		{false, false, "/section/name.html", "/section/name/"},
+		{false, false, "/section/name/index.html", "/section/name/"},
+
+		// trimTrailingSlash=false, uglyURLs=true
+		{false, true, "/section/name.html", "/section/name.html"},
+		{false, true, "/section/name/index.html", "/section/name.html"},
+
+		// trimTrailingSlash=true, uglyURLs=false
+		{true, false, "/section/name.html", "/section/name"},
+		{true, false, "/section/name/index.html", "/section/name"},
+
+		// trimTrailingSlash=true, uglyURLs=true
+		{true, true, "/section/name.html", "/section/name"},
+		{true, true, "/section/name/index.html", "/section/name"},
 	}
 
 	for i, d := range data {
 		v := viper.New()
-		v.Set("uglyURLs", d.ugly)
+		v.Set("trimTrailingSlash", d.trimTrailingSlash)
+		v.Set("uglyURLs", d.uglyURLs)
 		l := NewDefaultLanguage(v)
 		p, _ := NewPathSpec(hugofs.NewMem(v), l)
 

@@ -372,6 +372,7 @@ type SiteInfo struct {
 	canonifyURLs          bool
 	relativeURLs          bool
 	uglyURLs              bool
+	trimTrailingSlash     bool
 	preserveTaxonomyNames bool
 	Data                  *map[string]interface{}
 
@@ -1040,6 +1041,7 @@ func (s *Site) initializeSiteInfo() {
 		canonifyURLs:                   s.Cfg.GetBool("canonifyURLs"),
 		relativeURLs:                   s.Cfg.GetBool("relativeURLs"),
 		uglyURLs:                       s.Cfg.GetBool("uglyURLs"),
+		trimTrailingSlash:              s.Cfg.GetBool("trimTrailingSlash"),
 		preserveTaxonomyNames:          lang.GetBool("preserveTaxonomyNames"),
 		PageCollections:                s.PageCollections,
 		Files:                          &s.Files,
