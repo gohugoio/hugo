@@ -402,3 +402,32 @@ title: Shorty
 
 	}
 }
+
+func TestShortcodeEmail(t *testing.T) {
+	t.Parallel()
+
+	for _, this := range []struct {
+		in, expected string
+	}{
+		{
+			`{{< cloakemail "example@example.com" >}}`,
+			`(?s)^<style type="text\/css">\.cloaked-e-mail:before{content:attr\(data-domain\) "\\0040" attr\(data-user\);unicode-bidi:bidi-override;direction:rtl;}<\/style><span class="cloaked-e-mail" data-user="elpmaxe" data-domain="moc\.elpmaxe"><\/span><script id="id">var scriptTag = document.getElementById\("id"\);var link = document.createElement\("a"\);var mail = "elpmaxe".split\(''\).reverse\(\).join\(''\) \+ "@" \+ "moc.elpmaxe".split\(''\).reverse\(\).join\(''\);link.href = "mailto:" \+ mail;link.innerText = mail;scriptTag.parentElement.insertBefore\(link, scriptTag.previousElementSibling\);scriptTag.parentElement.removeChild\(scriptTag.previousElementSibling\)<\/script>`,
+		},
+	} {
+		var (
+			cfg, fs = newTestCfg()
+			th      = testHelper{cfg, fs, t}
+		)
+
+		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
+title: Shorty
+---
+%s`, this.in))
+		writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .Content }}`)
+
+		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
+
+	}
+}
