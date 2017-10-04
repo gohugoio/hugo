@@ -151,6 +151,8 @@ source:                     ""
 staticDir:                  "static"
 # display memory and timing of different steps of the program
 stepAnalysis:               false
+# display metrics about template executions
+templateMetrics:            false
 # theme to use (located by default in /themes/THEMENAME/)
 themesDir:                  "themes"
 theme:                      ""
