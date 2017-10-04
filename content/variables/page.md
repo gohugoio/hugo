@@ -79,7 +79,12 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 `config`.
 
 `.Lastmod`
-: the date the content was last modified; `.Lastmod` pulls from the `lastmod` field in a content's front matter. If `lastmod` is not set, Hugo will default to the `date` field. See also `.ExpiryDate`, `.Date`, and `.PublishDate`.
+: the date the content was last modified. `.Lastmod` pulls from the `lastmod` field in a content's front matter.
+
+ - If `lastmod` is not set, and `.GitInfo` feature is disabled, the front matter `date` field will be used.
+ - If `lastmod` is not set, and `.GitInfo` feature is enabled, `.GitInfo.AuthorDate` will be used instead.
+
+See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 
 `.LinkTitle`
 : access when creating links to the content. If set, Hugo will use the `linktitle` from the front matter before `title`.
@@ -266,3 +271,5 @@ The top-level key will be preferred. Therefore, the following method, when appli
 {{ $.Param "favorites.flavor" }}
 => vanilla
 ```
+
+[gitinfo]: /variables/git/
