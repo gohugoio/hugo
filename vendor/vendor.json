@@ -365,6 +365,12 @@
 			"revisionTime": "2017-07-05T02:17:15Z"
 		},
 		{
+			"checksumSHA1": "FhEv/8QRgvXJUTfdMLRh4eyG65s=",
+			"path": "github.com/tychoish/shimgo",
+			"revision": "27b443b1b1f88f7634b851a2a9e3da68463c9544",
+			"revisionTime": "2017-09-05T16:07:41Z"
+		},
+		{
 			"checksumSHA1": "U4bWGZ3c9p8FHrgU5l4l5i7A6bo=",
 			"path": "github.com/yosssi/ace",
 			"revision": "ea038f4770b6746c3f8f84f14fa60d9fe1205b56",
