@@ -135,7 +135,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 	}
 
 	if cfg.Cfg.GetBool("templateMetrics") {
-		d.Metrics = metrics.NewProvider()
+		d.Metrics = metrics.NewProvider(cfg.Cfg.GetBool("templateMetricsHints"))
 	}
 
 	return d, nil

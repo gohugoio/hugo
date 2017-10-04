@@ -77,10 +77,18 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 			}
 
 			if _, ok := templ.Template.(*texttemplate.Template); ok {
-				return b.String(), nil
+				s := b.String()
+				if ns.deps.Metrics != nil {
+					ns.deps.Metrics.TrackValue(n, s)
+				}
+				return s, nil
 			}
 
-			return template.HTML(b.String()), nil
+			s := b.String()
+			if ns.deps.Metrics != nil {
+				ns.deps.Metrics.TrackValue(n, s)
+			}
+			return template.HTML(s), nil
 
 		}
 	}
