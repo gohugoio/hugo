@@ -21,12 +21,12 @@ toc: true
 ## Use `ref` and `relref`
 
 ```
-{{</* ref "document" */>}}
+{{</* ref "document.md" */>}}
 {{</* ref "#anchor" */>}}
-{{</* ref "document#anchor" */>}}
-{{</* relref "document" */>}}
+{{</* ref "document.md#anchor" */>}}
+{{</* relref "document.md" */>}}
 {{</* relref "#anchor" */>}}
-{{</* relref "document#anchor" */>}}
+{{</* relref "document.md#anchor" */>}}
 ```
 
 The single parameter to `ref` is a string with a content `documentname` (e.g., `about.md`) with or without an appended in-document `anchor` (`#who`) without spaces.

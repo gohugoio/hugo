@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-keywords: []
+keywords: [performance]
 signature: ["partialCached LAYOUT INPUT [VARIANT...]"]
 workson: []
 hugoversion:

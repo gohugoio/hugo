@@ -1,6 +1,6 @@
 {{ $file := .Get "file" }}
 {{ $isHTML := strings.HasSuffix $file "html" }}
-<div class="code relative bg-primary-color" id="{{ $file | urlize}}">
+<div class="code relative" id="{{ $file | urlize}}">
 	{{- with $file -}}
 		<div class="filename san-serif f6 dib lh-solid pl2 pv2">{{.}}</div>
 	{{- end -}}

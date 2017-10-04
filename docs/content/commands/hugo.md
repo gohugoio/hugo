@@ -1,5 +1,5 @@
 ---
-date: 2017-09-26T21:11:49+02:00
+date: 2017-09-26T17:09:31-05:00
 title: "hugo"
 slug: hugo
 url: /commands/hugo/
@@ -67,7 +67,6 @@ hugo [flags]
 
 ### SEE ALSO
 * [hugo benchmark](/commands/hugo_benchmark/)	 - Benchmark Hugo by building a site a number of times.
-* [hugo check](/commands/hugo_check/)	 - Contains some verification checks
 * [hugo config](/commands/hugo_config/)	 - Print the site configuration
 * [hugo convert](/commands/hugo_convert/)	 - Convert your content to different formats
 * [hugo env](/commands/hugo_env/)	 - Print Hugo version and environment info
