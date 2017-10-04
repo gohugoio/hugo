@@ -242,6 +242,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
+	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")
 	cmd.Flags().Bool("pluralizeListTitles", true, "pluralize titles in lists using inflect")
 	cmd.Flags().Bool("preserveTaxonomyNames", false, `preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
 	cmd.Flags().BoolP("forceSyncStatic", "", false, "copy all files when static is changed.")
@@ -477,6 +478,7 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 		"noTimes",
 		"noChmod",
 		"templateMetrics",
+		"templateMetricsHints",
 	}
 
 	// Remove these in Hugo 0.23.
