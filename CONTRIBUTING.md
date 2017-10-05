@@ -145,11 +145,13 @@ started:
 
 ### Build Hugo with Your Changes
 
+**Note:** Hugo uses [mage](https://github.com/magefile/mage) to build.
+
 ```bash
 cd $HOME/go/src/github.com/gohugoio/hugo
-make hugo
+mage hugo
 # or to install in $HOME/go/bin:
-make install
+mage install
 ```
 
 ### Updating the Hugo Sources
@@ -160,6 +162,6 @@ well.
 
 ```
 git pull
-make vendor
+mage vendor
 ```
 
