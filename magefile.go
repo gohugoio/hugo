@@ -69,9 +69,9 @@ func flagEnv() map[string]string {
 }
 
 // Build hugo without git info
-func HugoNoGitInfo() {
+func HugoNoGitInfo() error {
 	ldflags = noGitLdflags
-	mg.Deps(Vendor, Hugo)
+	return Hugo()
 }
 
 var docker = sh.RunCmd("docker")
