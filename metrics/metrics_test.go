@@ -44,6 +44,7 @@ func BenchmarkHowSimilar(b *testing.B) {
 	s1 := "Hugo is cool and " + strings.Repeat("fun ", 10) + "!"
 	s2 := "Hugo is cool and " + strings.Repeat("cool ", 10) + "!"
 
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		howSimilar(s1, s2)
 	}
