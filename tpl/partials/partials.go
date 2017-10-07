@@ -88,11 +88,11 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 	return "", fmt.Errorf("Partial %q not found", name)
 }
 
-// getCached executes and caches partial templates.  An optional variant
+// IncludeCached executes and caches partial templates.  An optional variant
 // string parameter (a string slice actually, but be only use a variadic
 // argument to make it optional) can be passed so that a given partial can have
 // multiple uses. The cache is created with name+variant as the key.
-func (ns *Namespace) getCached(name string, context interface{}, variant ...string) (interface{}, error) {
+func (ns *Namespace) IncludeCached(name string, context interface{}, variant ...string) (interface{}, error) {
 	key := name
 	if len(variant) > 0 {
 		for i := 0; i < len(variant); i++ {
