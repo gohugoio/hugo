@@ -391,7 +391,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 		return nil, err
 	}
 
-	cfg.Logger.INFO.Println("Using config file:", viper.ConfigFileUsed())
+	cfg.Logger.INFO.Println("Using config file:", config.ConfigFileUsed())
 
 	themeDir := c.PathSpec().GetThemeDir()
 	if themeDir != "" {
