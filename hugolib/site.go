@@ -364,6 +364,7 @@ type SiteInfo struct {
 	LanguageCode          string
 	DisqusShortname       string
 	GoogleAnalytics       string
+	GoogleTagManager      string
 	Copyright             string
 	LastChange            time.Time
 	Permalinks            PermalinkOverrides
@@ -1036,6 +1037,7 @@ func (s *Site) initializeSiteInfo() {
 		defaultContentLanguageInSubdir: defaultContentInSubDir,
 		sectionPagesMenu:               lang.GetString("sectionPagesMenu"),
 		GoogleAnalytics:                lang.GetString("googleAnalytics"),
+		GoogleTagManager:               lang.GetString("googleTagManager"),
 		BuildDrafts:                    s.Cfg.GetBool("buildDrafts"),
 		canonifyURLs:                   s.Cfg.GetBool("canonifyURLs"),
 		relativeURLs:                   s.Cfg.GetBool("relativeURLs"),
