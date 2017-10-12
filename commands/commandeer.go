@@ -14,6 +14,7 @@
 package commands
 
 import (
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
@@ -21,8 +22,9 @@ import (
 
 type commandeer struct {
 	*deps.DepsCfg
-	pathSpec   *helpers.PathSpec
-	configured bool
+	pathSpec    *helpers.PathSpec
+	visitedURLs *types.EvictingStringQueue
+	configured  bool
 }
 
 func (c *commandeer) Set(key string, value interface{}) {
@@ -58,5 +60,6 @@ func newCommandeer(cfg *deps.DepsCfg) (*commandeer, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &commandeer{DepsCfg: cfg, pathSpec: ps}, nil
+
+	return &commandeer{DepsCfg: cfg, pathSpec: ps, visitedURLs: types.NewEvictingStringQueue(cfg.Cfg.GetInt("partialRenderHistory"))}, nil
 }

@@ -41,6 +41,9 @@ var (
 	liveReloadPort    int
 	serverWatch       bool
 	noHTTPCache       bool
+
+	partialRenderDisable bool
+	partialRenderHistory int
 )
 
 var serverCmd = &cobra.Command{
@@ -94,6 +97,9 @@ func init() {
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	serverCmd.Flags().BoolVar(&navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
 	serverCmd.Flags().BoolVar(&renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
+	serverCmd.Flags().BoolVar(&partialRenderDisable, "partialRenderDisable", false, "enables full re-renders on changes")
+	serverCmd.Flags().IntVar(&partialRenderHistory, "partialRenderHistory", 5, "browsing history size to consider in partial rendering")
+
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
 
@@ -118,6 +124,14 @@ func server(cmd *cobra.Command, args []string) error {
 
 	if cmd.Flags().Changed("navigateToChanged") {
 		c.Set("navigateToChanged", navigateToChanged)
+	}
+
+	if cmd.Flags().Changed("partialRenderDisable") {
+		c.Set("partialRenderDisable", partialRenderDisable)
+	}
+
+	if cmd.Flags().Changed("partialRenderHistory") {
+		c.Set("partialRenderHistory", partialRenderHistory)
 	}
 
 	if serverWatch {
@@ -219,6 +233,13 @@ func (c *commandeer) serve(port int) {
 			if noHTTPCache {
 				w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
 				w.Header().Set("Pragma", "no-cache")
+			}
+
+			if !c.Cfg.GetBool("partialRenderDisable") {
+				p := r.URL.Path
+				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
+					c.visitedURLs.Add(p)
+				}
 			}
 			h.ServeHTTP(w, r)
 		})

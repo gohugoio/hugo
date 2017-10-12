@@ -152,6 +152,8 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("ignoreFiles", make([]string, 0))
 	v.SetDefault("disableAliases", false)
 	v.SetDefault("debug", false)
+	v.SetDefault("partialRenderDisable", false)
+	v.SetDefault("partialRenderHistory", 5)
 
 	return nil
 }
