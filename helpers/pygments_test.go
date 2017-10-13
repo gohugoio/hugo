@@ -111,6 +111,7 @@ func TestParseDefaultPygmentsArgs(t *testing.T) {
 type chromaInfo struct {
 	classes            bool
 	lineNumbers        bool
+	lineNumbersInTable bool
 	highlightRangesLen int
 	highlightRangesStr string
 	baseLineNumber     int
@@ -120,8 +121,10 @@ func formatterChromaInfo(f *html.Formatter) chromaInfo {
 	v := reflect.ValueOf(f).Elem()
 	c := chromaInfo{}
 	// Hack:
-	c.classes = v.FieldByName("classes").Bool()
+
+	c.classes = f.Classes
 	c.lineNumbers = v.FieldByName("lineNumbers").Bool()
+	c.lineNumbersInTable = v.FieldByName("lineNumbersInTable").Bool()
 	c.baseLineNumber = int(v.FieldByName("baseLineNumber").Int())
 	vv := v.FieldByName("highlightRanges")
 	c.highlightRangesLen = vv.Len()
@@ -171,13 +174,18 @@ func TestChromaHTMLFormatterFromOptions(t *testing.T) {
 			assert.Equal("[[1 1] [2 2] [3 3]]", c.highlightRangesStr)
 			assert.Equal(1, c.baseLineNumber)
 		}},
-		{"linenos=sure,hl_lines=1,linenostart=4", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
+		{"linenos=inline,hl_lines=1,linenostart=4", nil, nil, "style=monokai,noclasses=false", func(c chromaInfo) {
 			assert.True(c.classes)
 			assert.True(c.lineNumbers)
+			assert.False(c.lineNumbersInTable)
 			assert.Equal(1, c.highlightRangesLen)
 			// This compansates for https://github.com/alecthomas/chroma/issues/30
 			assert.Equal("[[4 4]]", c.highlightRangesStr)
 			assert.Equal(4, c.baseLineNumber)
+		}},
+		{"linenos=table", nil, nil, "style=monokai", func(c chromaInfo) {
+			assert.True(c.lineNumbers)
+			assert.True(c.lineNumbersInTable)
 		}},
 		{"style=monokai,noclasses=false", nil, nil, "style=manni,noclasses=true", func(c chromaInfo) {
 			assert.True(c.classes)
