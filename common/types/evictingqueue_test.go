@@ -59,11 +59,11 @@ func TestEvictingStringQueueConcurrent(t *testing.T) {
 			queue.Add(val)
 			v := queue.Peek()
 			if v != val {
-				t.Fatal("wrong val")
+				t.Error("wrong val")
 			}
 			vals := queue.PeekAll()
 			if len(vals) != 1 || vals[0] != val {
-				t.Fatal("wrong val")
+				t.Error("wrong val")
 			}
 		}()
 	}
