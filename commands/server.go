@@ -42,8 +42,7 @@ var (
 	serverWatch       bool
 	noHTTPCache       bool
 
-	partialRenderDisable bool
-	partialRenderHistory int
+	disableFastRender bool
 )
 
 var serverCmd = &cobra.Command{
@@ -97,8 +96,7 @@ func init() {
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	serverCmd.Flags().BoolVar(&navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
 	serverCmd.Flags().BoolVar(&renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
-	serverCmd.Flags().BoolVar(&partialRenderDisable, "partialRenderDisable", false, "enables full re-renders on changes")
-	serverCmd.Flags().IntVar(&partialRenderHistory, "partialRenderHistory", 5, "browsing history size to consider in partial rendering")
+	serverCmd.Flags().BoolVar(&disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
 
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
@@ -126,12 +124,8 @@ func server(cmd *cobra.Command, args []string) error {
 		c.Set("navigateToChanged", navigateToChanged)
 	}
 
-	if cmd.Flags().Changed("partialRenderDisable") {
-		c.Set("partialRenderDisable", partialRenderDisable)
-	}
-
-	if cmd.Flags().Changed("partialRenderHistory") {
-		c.Set("partialRenderHistory", partialRenderHistory)
+	if cmd.Flags().Changed("disableFastRender") {
+		c.Set("disableFastRender", disableFastRender)
 	}
 
 	if serverWatch {
@@ -235,7 +229,7 @@ func (c *commandeer) serve(port int) {
 				w.Header().Set("Pragma", "no-cache")
 			}
 
-			if !c.Cfg.GetBool("partialRenderDisable") {
+			if !c.Cfg.GetBool("disableFastRender") {
 				p := r.URL.Path
 				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
 					c.visitedURLs.Add(p)

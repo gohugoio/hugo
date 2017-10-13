@@ -989,7 +989,7 @@ func (c *commandeer) newWatcher(port int) error {
 					doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
 					onePageName := pickOneWriteOrCreatePath(dynamicEvents)
 
-					if onePageName != "" && doLiveReload && !c.Cfg.GetBool("partialRenderDisable") {
+					if onePageName != "" && doLiveReload && !c.Cfg.GetBool("disableFastRender") {
 						p := Hugo.GetContentPage(onePageName)
 						if p != nil {
 							c.visitedURLs.Add(p.RelPermalink())

@@ -61,5 +61,5 @@ func newCommandeer(cfg *deps.DepsCfg) (*commandeer, error) {
 		return nil, err
 	}
 
-	return &commandeer{DepsCfg: cfg, pathSpec: ps, visitedURLs: types.NewEvictingStringQueue(cfg.Cfg.GetInt("partialRenderHistory"))}, nil
+	return &commandeer{DepsCfg: cfg, pathSpec: ps, visitedURLs: types.NewEvictingStringQueue(10)}, nil
 }
