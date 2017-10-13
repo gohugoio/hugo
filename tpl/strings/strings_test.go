@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/deps"
+	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -35,12 +36,12 @@ func TestChomp(t *testing.T) {
 		s      interface{}
 		expect interface{}
 	}{
-		{"\n a\n", template.HTML("\n a")},
-		{"\n a\n\n", template.HTML("\n a")},
-		{"\n a\r\n", template.HTML("\n a")},
-		{"\n a\n\r\n", template.HTML("\n a")},
-		{"\n a\r\r", template.HTML("\n a")},
-		{"\n a\r", template.HTML("\n a")},
+		{"\n a\n", "\n a"},
+		{"\n a\n\n", "\n a"},
+		{"\n a\r\n", "\n a"},
+		{"\n a\n\r\n", "\n a"},
+		{"\n a\r\r", "\n a"},
+		{"\n a\r", "\n a"},
 		// errors
 		{tstNoStringer{}, false},
 	} {
@@ -55,6 +56,11 @@ func TestChomp(t *testing.T) {
 
 		require.NoError(t, err, errMsg)
 		assert.Equal(t, test.expect, result, errMsg)
+
+		// repeat the check with template.HTML input
+		result, err = ns.Chomp(template.HTML(cast.ToString(test.s)))
+		require.NoError(t, err, errMsg)
+		assert.Equal(t, template.HTML(cast.ToString(test.expect)), result, errMsg)
 	}
 }
 

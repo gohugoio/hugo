@@ -78,13 +78,20 @@ func (ns *Namespace) CountWords(s interface{}) (int, error) {
 }
 
 // Chomp returns a copy of s with all trailing newline characters removed.
-func (ns *Namespace) Chomp(s interface{}) (template.HTML, error) {
+func (ns *Namespace) Chomp(s interface{}) (interface{}, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	return template.HTML(_strings.TrimRight(ss, "\r\n")), nil
+	res := _strings.TrimRight(ss, "\r\n")
+	switch s.(type) {
+	case template.HTML:
+		return template.HTML(res), nil
+	default:
+		return res, nil
+	}
+
 }
 
 // Contains reports whether substr is in s.
