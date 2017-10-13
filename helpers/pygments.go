@@ -40,7 +40,6 @@ import (
 
 const pygmentsBin = "pygmentize"
 
-// TODO(bep) document chroma -s perldoc --html --html-styles
 // hasPygments checks to see if Pygments is installed and available
 // on the system.
 func hasPygments() bool {
@@ -309,8 +308,12 @@ func (cs *ContentSpec) chromaFormatterFromOptions(pygmentsOpts map[string]string
 		options = append(options, html.WithClasses())
 	}
 
-	if pygmentsOpts["linenos"] != "" {
+	lineNumbers := pygmentsOpts["linenos"]
+	if lineNumbers != "" {
 		options = append(options, html.WithLineNumbers())
+		if lineNumbers != "inline" {
+			options = append(options, html.LineNumbersInTable())
+		}
 	}
 
 	startLineStr := pygmentsOpts["linenostart"]

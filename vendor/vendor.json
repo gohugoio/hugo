@@ -21,34 +21,34 @@
 			"revisionTime": "2017-08-10T14:37:23Z"
 		},
 		{
-			"checksumSHA1": "OZOPnvP9OY1ADgmcDttl3Zvytcs=",
+			"checksumSHA1": "/xPnkXIHTk3EtmQ9NbufTWUG15g=",
 			"path": "github.com/alecthomas/chroma",
-			"revision": "282a86e2a0ed1739095c404758b99402fe4f7045",
-			"revisionTime": "2017-10-03T14:35:07Z"
+			"revision": "02c4adc0664a104c4ea91c6c3a41a91b93bbd9ef",
+			"revisionTime": "2017-10-14T09:02:40Z"
 		},
 		{
 			"checksumSHA1": "pnWyHePZ2ZE/GEg2fBw/vyjYhmY=",
 			"path": "github.com/alecthomas/chroma/formatters",
-			"revision": "282a86e2a0ed1739095c404758b99402fe4f7045",
-			"revisionTime": "2017-10-03T14:35:07Z"
+			"revision": "02c4adc0664a104c4ea91c6c3a41a91b93bbd9ef",
+			"revisionTime": "2017-10-14T09:02:40Z"
 		},
 		{
-			"checksumSHA1": "cFa4bl6NeNIkSqOsKGY6SI5jprk=",
+			"checksumSHA1": "YgboNwoGG2Yc/rWKaIb00/+Ad5Y=",
 			"path": "github.com/alecthomas/chroma/formatters/html",
-			"revision": "282a86e2a0ed1739095c404758b99402fe4f7045",
-			"revisionTime": "2017-10-03T14:35:07Z"
+			"revision": "02c4adc0664a104c4ea91c6c3a41a91b93bbd9ef",
+			"revisionTime": "2017-10-14T09:02:40Z"
 		},
 		{
-			"checksumSHA1": "MwdDmbQQEpscTjcENv5yUFWIBS0=",
+			"checksumSHA1": "lSa/vZVJvB3+HngwkxBkPHw4EKg=",
 			"path": "github.com/alecthomas/chroma/lexers",
-			"revision": "282a86e2a0ed1739095c404758b99402fe4f7045",
-			"revisionTime": "2017-10-03T14:35:07Z"
+			"revision": "02c4adc0664a104c4ea91c6c3a41a91b93bbd9ef",
+			"revisionTime": "2017-10-14T09:02:40Z"
 		},
 		{
 			"checksumSHA1": "Wxv1e1MLoJGrZ33LgJqaoHcaBTs=",
 			"path": "github.com/alecthomas/chroma/styles",
-			"revision": "282a86e2a0ed1739095c404758b99402fe4f7045",
-			"revisionTime": "2017-10-03T14:35:07Z"
+			"revision": "02c4adc0664a104c4ea91c6c3a41a91b93bbd9ef",
+			"revisionTime": "2017-10-14T09:02:40Z"
 		},
 		{
 			"checksumSHA1": "7yrV1Gzr1ajco1xJ1gsyqRDTY2U=",
@@ -90,14 +90,14 @@
 		{
 			"checksumSHA1": "6y/Ht8J58EotTDBEIuE3+s4AnL8=",
 			"path": "github.com/dlclark/regexp2",
-			"revision": "487489b64fb796de2e55f4e8a4ad1e145f80e957",
-			"revisionTime": "2017-07-18T21:59:41Z"
+			"revision": "7632a260cbaf5e7594fc1544a503456ecd0827f1",
+			"revisionTime": "2017-10-09T02:06:23Z"
 		},
 		{
 			"checksumSHA1": "k0JXX65FspyueQ8/1i50DGRiCUk=",
 			"path": "github.com/dlclark/regexp2/syntax",
-			"revision": "487489b64fb796de2e55f4e8a4ad1e145f80e957",
-			"revisionTime": "2017-07-18T21:59:41Z"
+			"revision": "7632a260cbaf5e7594fc1544a503456ecd0827f1",
+			"revisionTime": "2017-10-09T02:06:23Z"
 		},
 		{
 			"checksumSHA1": "lTESeJAGIWm6b7Xytf9sP3Gjhj8=",
@@ -281,10 +281,10 @@
 			"revisionTime": "2017-07-05T02:17:15Z"
 		},
 		{
-			"checksumSHA1": "OZpv1QDSDG23bzSk/7auPQRB2Qg=",
+			"checksumSHA1": "1KVewmQICPa+IH1gYJUKDgNbKpY=",
 			"path": "github.com/russross/blackfriday",
-			"revision": "4048872b16cc0fc2c5fd9eacf0ed2c2fedaa0c8c",
-			"revisionTime": "2017-07-28T17:53:26Z"
+			"revision": "6d1ef893fcb01b4f50cb6e57ed7df3e2e627b6b2",
+			"revisionTime": "2017-10-11T18:22:19Z"
 		},
 		{
 			"checksumSHA1": "HkNUuhYSk5C2fTMa536jBiORq44=",
