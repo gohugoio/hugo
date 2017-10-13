@@ -768,7 +768,12 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 	if err := c.initSites(); err != nil {
 		return err
 	}
-	return Hugo.Build(hugolib.BuildCfg{PrintStats: !quiet, Watching: true, RecentlyVisited: c.visitedURLs.PeekAllSet()}, events...)
+	visited := c.visitedURLs.PeekAllSet()
+	if !c.Cfg.GetBool("disableFastRender") {
+		// Make sure we always render the home page
+		visited["/"] = true
+	}
+	return Hugo.Build(hugolib.BuildCfg{PrintStats: !quiet, Watching: true, RecentlyVisited: visited}, events...)
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
