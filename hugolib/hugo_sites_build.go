@@ -230,7 +230,7 @@ func (h *HugoSites) render(config *BuildCfg) error {
 			s.preparePagesForRender(config)
 
 			if !config.SkipRender {
-				if err := s.render(i); err != nil {
+				if err := s.render(config, i); err != nil {
 					return err
 				}
 			}

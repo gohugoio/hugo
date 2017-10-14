@@ -893,7 +893,7 @@ func (s *Site) setupSitePages() {
 	s.Info.LastChange = siteLastChange
 }
 
-func (s *Site) render(outFormatIdx int) (err error) {
+func (s *Site) render(config *BuildCfg, outFormatIdx int) (err error) {
 
 	if outFormatIdx == 0 {
 		if err = s.preparePages(); err != nil {
@@ -917,7 +917,7 @@ func (s *Site) render(outFormatIdx int) (err error) {
 
 	}
 
-	if err = s.renderPages(); err != nil {
+	if err = s.renderPages(config.RecentlyVisited); err != nil {
 		return
 	}
 

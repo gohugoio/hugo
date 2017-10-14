@@ -41,6 +41,8 @@ var (
 	liveReloadPort    int
 	serverWatch       bool
 	noHTTPCache       bool
+
+	disableFastRender bool
 )
 
 var serverCmd = &cobra.Command{
@@ -94,6 +96,8 @@ func init() {
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	serverCmd.Flags().BoolVar(&navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
 	serverCmd.Flags().BoolVar(&renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
+	serverCmd.Flags().BoolVar(&disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
+
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
 
@@ -118,6 +122,10 @@ func server(cmd *cobra.Command, args []string) error {
 
 	if cmd.Flags().Changed("navigateToChanged") {
 		c.Set("navigateToChanged", navigateToChanged)
+	}
+
+	if cmd.Flags().Changed("disableFastRender") {
+		c.Set("disableFastRender", disableFastRender)
 	}
 
 	if serverWatch {
@@ -214,11 +222,26 @@ func (c *commandeer) serve(port int) {
 
 	httpFs := afero.NewHttpFs(c.Fs.Destination)
 	fs := filesOnlyFs{httpFs.Dir(c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")))}
+
+	doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
+	fastRenderMode := doLiveReload && !c.Cfg.GetBool("disableFastRender")
+
+	if fastRenderMode {
+		jww.FEEDBACK.Println("Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender")
+	}
+
 	decorate := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if noHTTPCache {
 				w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
 				w.Header().Set("Pragma", "no-cache")
+			}
+
+			if fastRenderMode {
+				p := r.URL.Path
+				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
+					c.visitedURLs.Add(p)
+				}
 			}
 			h.ServeHTTP(w, r)
 		})

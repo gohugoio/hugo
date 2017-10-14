@@ -768,7 +768,12 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 	if err := c.initSites(); err != nil {
 		return err
 	}
-	return Hugo.Build(hugolib.BuildCfg{PrintStats: !quiet, Watching: true}, events...)
+	visited := c.visitedURLs.PeekAllSet()
+	if !c.Cfg.GetBool("disableFastRender") {
+		// Make sure we always render the home page
+		visited["/"] = true
+	}
+	return Hugo.Build(hugolib.BuildCfg{PrintStats: !quiet, Watching: true, RecentlyVisited: visited}, events...)
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
@@ -986,6 +991,16 @@ func (c *commandeer) newWatcher(port int) error {
 				}
 
 				if len(dynamicEvents) > 0 {
+					doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
+					onePageName := pickOneWriteOrCreatePath(dynamicEvents)
+
+					if onePageName != "" && doLiveReload && !c.Cfg.GetBool("disableFastRender") {
+						p := Hugo.GetContentPage(onePageName)
+						if p != nil {
+							c.visitedURLs.Add(p.RelPermalink())
+						}
+
+					}
 					c.Logger.FEEDBACK.Println("\nChange detected, rebuilding site")
 					const layout = "2006-01-02 15:04 -0700"
 					c.Logger.FEEDBACK.Println(time.Now().Format(layout))
@@ -994,21 +1009,15 @@ func (c *commandeer) newWatcher(port int) error {
 						c.Logger.ERROR.Println("Failed to rebuild site:", err)
 					}
 
-					if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
-
+					if doLiveReload {
 						navigate := c.Cfg.GetBool("navigateToChanged")
-
+						// We have fetched the same page above, but it may have
+						// changed.
 						var p *hugolib.Page
 
 						if navigate {
-
-							// It is probably more confusing than useful
-							// to navigate to a new URL on RENAME etc.
-							// so for now we use the WRITE and CREATE events only.
-							name := pickOneWriteOrCreatePath(dynamicEvents)
-
-							if name != "" {
-								p = Hugo.GetContentPage(name)
+							if onePageName != "" {
+								p = Hugo.GetContentPage(onePageName)
 							}
 						}
 

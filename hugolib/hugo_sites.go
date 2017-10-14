@@ -280,6 +280,8 @@ type BuildCfg struct {
 	SkipRender bool
 	// Use this to indicate what changed (for rebuilds).
 	whatChanged *whatChanged
+	// Recently visited URLs. This is used for partial re-rendering.
+	RecentlyVisited map[string]bool
 }
 
 func (h *HugoSites) renderCrossSitesArtifacts() error {
