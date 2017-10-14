@@ -222,6 +222,10 @@ func (c *commandeer) serve(port int) {
 
 	httpFs := afero.NewHttpFs(c.Fs.Destination)
 	fs := filesOnlyFs{httpFs.Dir(c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")))}
+
+	doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
+	fastRenderMode := doLiveReload && !c.Cfg.GetBool("disableFastRender")
+
 	decorate := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if noHTTPCache {
@@ -229,7 +233,7 @@ func (c *commandeer) serve(port int) {
 				w.Header().Set("Pragma", "no-cache")
 			}
 
-			if !c.Cfg.GetBool("disableFastRender") {
+			if fastRenderMode {
 				p := r.URL.Path
 				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
 					c.visitedURLs.Add(p)

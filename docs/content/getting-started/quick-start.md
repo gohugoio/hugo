@@ -1,7 +1,7 @@
 ---
 title: Quick Start
 linktitle: Quick Start
-description: Create a Hugo site using the beautiful Ananke theme.
+description: Create a new Hugo site using the beautiful Ananke theme.
 date: 2013-07-01
 publishdate: 2013-07-01
 categories: [getting started]
@@ -26,7 +26,7 @@ You also need [Git installed](https://git-scm.com/downloads) to run this tutoria
 
 
 
-## Step 1: Install Hugo
+## First!: Install Hugo
 
 {{% note %}}
 `Homebrew`, a package manager for `macOS`,  can be installed from [brew.sh](https://brew.sh/). See [install](/getting-started/installing) if you are running Windows etc.
