@@ -226,6 +226,10 @@ func (c *commandeer) serve(port int) {
 	doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
 	fastRenderMode := doLiveReload && !c.Cfg.GetBool("disableFastRender")
 
+	if fastRenderMode {
+		jww.FEEDBACK.Println("Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender")
+	}
+
 	decorate := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if noHTTPCache {
