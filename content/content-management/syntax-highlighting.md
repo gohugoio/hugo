@@ -106,7 +106,7 @@ The full set of supported options for Pygments is: `encoding`, `outencoding`, `n
 
 ## Generate Syntax Highlighter CSS
 
-If you run with `pygmentsUseClassic=true` in your site config, you need a style sheet.
+If you run with `pygmentsUseClasses=true` in your site config, you need a style sheet.
 
 You can generate one with Hugo:
 
