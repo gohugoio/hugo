@@ -22,21 +22,21 @@ If you want to continue to use Pygments (see below), set `pygmentsUseClassic=tru
 
 The example below shows a simple code snippet from the Hugo source highlighted with the `highlight` shortcode. Note that the gohugo.io site is generated with `pygmentsUseClasses=true` (see [Generate Syntax Highlighter CSS](#generate-syntax-highlighter-css)).
 
-* `linenos=inline` turns on line numbers. Note that the `inline` value only has an effect in Pygments.
+* `linenos=inline` or `linenos=table` (`table` will give copy-and-paste friendly code blocks) turns on line numbers.
 * `hl_lines` lists a set of line numbers or line number ranges to be highlighted. Note that the hyphen range syntax is only supported for Chroma.
 * `linenostart=199` starts the line number count from 199.
 
 With that, this:
 
 ```
-{{</* highlight go "linenos=inline,hl_lines=8 15-17,linenostart=199" */>}}
+{{</* highlight go "linenos=table,hl_lines=8 15-17,linenostart=199" */>}}
 // ... code
 {{</* / highlight */>}}
 ```
 
 Gives this:
 
-{{< highlight go "linenos=inline,hl_lines=8 15-17,linenostart=199" >}}
+{{< highlight go "linenos=table,hl_lines=8 15-17,linenostart=199" >}}
 // GetTitleFunc returns a func that can be used to transform a string to
 // title case.
 //
