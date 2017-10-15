@@ -15,11 +15,17 @@ package i18n
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/source"
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
+	"github.com/nicksnyder/go-i18n/i18n/language"
 )
+
+// Unfortunately this needs to be global, see
+// https://github.com/nicksnyder/go-i18n/issues/82
+var tpMu sync.Mutex
 
 // TranslationProvider provides translation handling, i.e. loading
 // of bundles etc.
@@ -34,6 +40,9 @@ func NewTranslationProvider() *TranslationProvider {
 
 // Update updates the i18n func in the provided Deps.
 func (tp *TranslationProvider) Update(d *deps.Deps) error {
+	tpMu.Lock()
+	defer tpMu.Unlock()
+
 	dir := d.PathSpec.AbsPathify(d.Cfg.GetString("i18nDir"))
 	sp := source.NewSourceSpec(d.Cfg, d.Fs)
 	sources := []source.Input{sp.NewFilesystem(dir)}
@@ -47,6 +56,17 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	d.Log.DEBUG.Printf("Load I18n from %q", sources)
 
 	i18nBundle := bundle.New()
+
+	langs := []string{}
+	for _, currentSource := range sources {
+		for _, r := range currentSource.Files() {
+			langs = append(langs, r.BaseFileName())
+		}
+	}
+	// We need to register all language codes as "plural spec" to prevent errors with unknown language codes.
+	// see https://github.com/gohugoio/hugo/issues/3564
+	ps := &language.PluralSpec{}
+	language.RegisterPluralSpec(langs, ps)
 
 	for _, currentSource := range sources {
 		for _, r := range currentSource.Files() {

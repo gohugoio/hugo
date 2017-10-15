@@ -23,9 +23,11 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
+	"github.com/nicksnyder/go-i18n/i18n/language"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
+	"strings"
 )
 
 var logger = jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
@@ -137,10 +139,29 @@ var i18nTests = []i18nTest{
 		expected:     "hello",
 		expectedFlag: "[i18n] hello",
 	},
+	// Non Unicode CLDR language code
+	{
+		data: map[string][]byte{
+			"dk.toml": []byte("[hello]\nother = \"hej\""),
+		},
+		args:         nil,
+		lang:         "dk",
+		id:           "hello",
+		expected:     "hej",
+		expectedFlag: "hej",
+	},
 }
 
 func doTestI18nTranslate(t *testing.T, test i18nTest, cfg config.Provider) string {
 	i18nBundle := bundle.New()
+	ids := []string{}
+
+	for file := range test.data {
+		id := strings.TrimSuffix(file, ".toml")
+		ids = append(ids, id)
+	}
+
+	language.RegisterPluralSpec(ids, &language.PluralSpec{})
 
 	for file, content := range test.data {
 		err := i18nBundle.ParseTranslationFileBytes(file, content)
