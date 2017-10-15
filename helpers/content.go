@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"html/template"
 	"os/exec"
+	"regexp"
 	"unicode"
 	"unicode/utf8"
 
@@ -187,6 +188,7 @@ func StripHTML(s string) string {
 		return s
 	}
 	s = stripHTMLReplacer.Replace(s)
+	s = stripHTMLContainers(s)
 
 	// Walk through the string removing all tags
 	b := bp.GetBuffer()
@@ -220,6 +222,22 @@ func StripHTML(s string) string {
 // stripEmptyNav strips out empty <nav> tags from content.
 func stripEmptyNav(in []byte) []byte {
 	return bytes.Replace(in, []byte("<nav>\n</nav>\n\n"), []byte(``), -1)
+}
+
+// stripHTMLContainers strips out script and style tags including
+// content contained within the element.
+func stripHTMLContainers(s string) string {
+	var tagsToStrip = []string{"script", "style"}
+
+	// Build a regular expression from tagsToStrip
+	var patternsToStrip = make([]string, len(tagsToStrip))
+	for i, tag := range tagsToStrip {
+		patternsToStrip[i] = "<" + tag + ">(.+?)</" + tag + ">"
+	}
+	rePattern := strings.Join(patternsToStrip, "|")
+
+	stripHTMLRegexp := regexp.MustCompile(rePattern)
+	return stripHTMLRegexp.ReplaceAllLiteralString(s, "")
 }
 
 // BytesToHTML converts bytes to type template.HTML.

@@ -206,6 +206,7 @@ func TestPlainify(t *testing.T) {
 		expect interface{}
 	}{
 		{"<em>Note:</em> blah <b>blah</b>", "Note: blah blah"},
+		{"style <style>body{font-size:1.1em;}</style> and script <script>console.log();</script> tags are removed", "style and script tags are removed"},
 		// errors
 		{tstNoStringer{}, false},
 	} {
