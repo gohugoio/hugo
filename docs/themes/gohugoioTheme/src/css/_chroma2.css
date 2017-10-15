@@ -1,6 +1,9 @@
 /* Background */ .chroma { background-color: #f0f0f0 }
 /* Error */ .chroma .err {  }
+/* LineTableTD */ .chroma .lntd { ; vertical-align: top; padding: 0; margin: 0; border: 0; }
+/* LineTable */ .chroma .lntable { ; border-spacing: 0; padding: 0; margin: 0; border: 0; width: 100%; overflow: auto; display: block; }
 /* LineHighlight */ .chroma .hl { background-color: #ffffcc; display: block; width: 100% }
+/* LineNumbersTable */ .chroma .lnt { ; margin-right: 0.4em; padding: 0 0.4em 0 0.4em; display: block; }
 /* LineNumbers */ .chroma .ln { ; margin-right: 0.4em; padding: 0 0.4em 0 0.4em; }
 /* Keyword */ .chroma .k { color: #007020; font-weight: bold }
 /* KeywordConstant */ .chroma .kc { color: #007020; font-weight: bold }

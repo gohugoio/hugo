@@ -18,7 +18,7 @@ toc: true
 ---
 
 {{% note "Lazy Blogger"%}}
-If all you want is a simple menu for your sections, see the ["Section Menu for Lazy Bloggers" in Menu Templates](/templates/menu-templates/#section-menu-for-lazy-blogger).
+If all you want is a simple menu for your sections, see the ["Section Menu for Lazy Bloggers" in Menu Templates](/templates/menu-templates/#section-menu-for-lazy-bloggers).
 {{% /note %}}
 
 You can do this:
