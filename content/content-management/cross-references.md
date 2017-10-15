@@ -1,5 +1,5 @@
 ---
-title: Cross References
+title: Links and Cross References
 description: Hugo makes it easy to link documents together.
 date: 2017-02-01
 publishdate: 2017-02-01

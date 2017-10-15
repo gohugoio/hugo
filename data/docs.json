@@ -352,6 +352,21 @@
   "tpl": {
     "funcs": {
       "cast": {
+        "ToFloat": {
+          "Description": "ToFloat converts the given value to a float.",
+          "Args": [
+            "v"
+          ],
+          "Aliases": [
+            "float"
+          ],
+          "Examples": [
+            [
+              "{{ \"1234\" | float | printf \"%T\" }}",
+              "float64"
+            ]
+          ]
+        },
         "ToInt": {
           "Description": "ToInt converts the given value to an int.",
           "Args": [
@@ -888,6 +903,22 @@
         }
       },
       "fmt": {
+        "Errorf": {
+          "Description": "",
+          "Args": [
+            "format",
+            "a"
+          ],
+          "Aliases": [
+            "errorf"
+          ],
+          "Examples": [
+            [
+              "{{ errorf \"%s.\" \"failed\" }}",
+              "failed."
+            ]
+          ]
+        },
         "Print": {
           "Description": "Print returns string representation of the passed arguments.",
           "Args": [
@@ -920,7 +951,7 @@
           ]
         },
         "Println": {
-          "Description": "Print returns string representation of the passed arguments ending with a newline.",
+          "Description": "Println returns string representation of the passed arguments ending with a newline.",
           "Args": [
             "a"
           ],
@@ -1068,6 +1099,19 @@
             ]
           ]
         },
+        "Ceil": {
+          "Description": "Ceil returns the least integer value greater than or equal to x.",
+          "Args": [
+            "x"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Ceil 2.1}}",
+              "3"
+            ]
+          ]
+        },
         "Div": {
           "Description": "Div divides two numbers.",
           "Args": [
@@ -1081,6 +1125,19 @@
             [
               "{{div 6 3}}",
               "2"
+            ]
+          ]
+        },
+        "Floor": {
+          "Description": "Floor returns the greatest integer value less than or equal to x.",
+          "Args": [
+            "x"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Floor 1.9}}",
+              "1"
             ]
           ]
         },
@@ -1145,6 +1202,19 @@
             ]
           ]
         },
+        "Round": {
+          "Description": "Round returns the nearest integer, rounding half away from zero.",
+          "Args": [
+            "x"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Round 1.5}}",
+              "2"
+            ]
+          ]
+        },
         "Sub": {
           "Description": "Sub subtracts two numbers.",
           "Args": [
@@ -1163,6 +1233,21 @@
         }
       },
       "os": {
+        "FileExists": {
+          "Description": "FileExists checks whether a file exists under the given path.",
+          "Args": [
+            "i"
+          ],
+          "Aliases": [
+            "fileExists"
+          ],
+          "Examples": [
+            [
+              "{{ fileExists \"foo.txt\" }}",
+              "false"
+            ]
+          ]
+        },
         "Getenv": {
           "Description": "Getenv retrieves the value of the environment variable named by the key.\nIt returns the value, which will be empty if the variable is not present.",
           "Args": [
@@ -1220,6 +1305,18 @@
               "\u003ctitle\u003eHugo Rocks!\u003c/title\u003e"
             ]
           ]
+        },
+        "IncludeCached": {
+          "Description": "IncludeCached executes and caches partial templates.  An optional variant\nstring parameter (a string slice actually, but be only use a variadic\nargument to make it optional) can be passed so that a given partial can have\nmultiple uses. The cache is created with name+variant as the key.",
+          "Args": [
+            "name",
+            "context",
+            "variant"
+          ],
+          "Aliases": [
+            "partialCached"
+          ],
+          "Examples": []
         }
       },
       "safe": {
@@ -1837,6 +1934,12 @@
             "absURL"
           ],
           "Examples": []
+        },
+        "Parse": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         },
         "Ref": {
           "Description": "Ref returns the absolute URL path to a given content item.",
