@@ -1241,6 +1241,23 @@ func TestDraftAndPublishedFrontMatterError(t *testing.T) {
 	}
 }
 
+var pageWithBrokenFrontMatter = `---
+title: broken
+published: false
+draft: true
+-
+some content
+`
+
+func TestBrokenFrontMatterLogMessage(t *testing.T) {
+	t.Parallel()
+	s := newTestSite(t)
+	var buf bytes.Buffer
+	s.Log.SetLogOutput(&buf)
+	s.NewPageFrom(strings.NewReader(pageWithBrokenFrontMatter), "content/post/broken.md")
+	require.Contains(t, buf.String(), "content/post/broken.md")
+}
+
 var pagesWithPublishedFalse = `---
 title: okay
 published: false
