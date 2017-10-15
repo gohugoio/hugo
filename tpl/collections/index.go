@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 // Index returns the result of indexing its first argument by the following
@@ -65,6 +66,13 @@ func (ns *Namespace) Index(item interface{}, indices ...interface{}) (interface{
 			}
 			if x := v.MapIndex(index); x.IsValid() {
 				v = x
+			} else if isDotNotation(index) {
+				args := split(index.String(), ".")
+				vi, err := ns.Index(v.Interface(), args...)
+				if err != nil {
+					return nil, err
+				}
+				v = reflect.ValueOf(vi)
 			} else {
 				v = reflect.Zero(v.Type().Elem())
 			}
@@ -104,4 +112,19 @@ func canBeNil(typ reflect.Type) bool {
 		return true
 	}
 	return false
+}
+
+// Checks that a var of type Value is a string that contains a dot (".").
+func isDotNotation(arg reflect.Value) bool {
+	return arg.Kind() == reflect.String && strings.Contains(arg.String(), ".")
+}
+
+// Similar to the strings.Split() func, but returns a slice of interface{} instead.
+func split(value string, del string) []interface{} {
+	strs := strings.Split(value, del)
+	values := make([]interface{}, len(strs))
+	for i, v := range strs {
+		values[i] = v
+	}
+	return values
 }
