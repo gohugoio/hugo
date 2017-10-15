@@ -45,6 +45,10 @@ Hugo will take this Markdown and create a table of contents from `## Introductio
 
 The built-in `.TableOfContents` variables outputs a `<nav id="TableOfContents">` element with a child `<ul>`, whose child `<li>` elements begin with any `<h1>`'s (i.e., `#` in markdown) inside your content.'
 
+{{% note "Table of contents not available for MMark" %}}
+Hugo documents created in the [MMark](/content-management/formats/#mmark) Markdown dialect do not currently display TOCs. TOCs are, however, compatible with all other supported Markdown formats.
+{{% /note %}}
+
 ## Template Example: Basic TOC
 
 The following is an example of a very basic [single page template][]:
