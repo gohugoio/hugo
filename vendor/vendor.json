@@ -21,7 +21,7 @@
 			"revisionTime": "2017-08-10T14:37:23Z"
 		},
 		{
-			"checksumSHA1": "/xPnkXIHTk3EtmQ9NbufTWUG15g=",
+			"checksumSHA1": "dI6UhhbLmEQ6ws0CJF8hjBM2y2E=",
 			"path": "github.com/alecthomas/chroma",
 			"revision": "02c4adc0664a104c4ea91c6c3a41a91b93bbd9ef",
 			"revisionTime": "2017-10-14T09:02:40Z"
@@ -347,7 +347,7 @@
 			"revisionTime": "2017-10-01T22:02:52Z"
 		},
 		{
-			"checksumSHA1": "rPUtxznPLr4ntYFscGL1L5/GeLQ=",
+			"checksumSHA1": "wG5M2KnVbZQCNT4HjqntdOnKyuY=",
 			"path": "github.com/spf13/viper",
 			"revision": "d9cca5ef33035202efb1586825bdbb15ff9ec3ba",
 			"revisionTime": "2017-09-29T21:06:42Z"
