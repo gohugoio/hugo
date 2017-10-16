@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"html/template"
 	"os/exec"
+	"regexp"
 	"unicode"
 	"unicode/utf8"
 
@@ -166,6 +167,8 @@ var blackfridayExtensionMap = map[string]int{
 
 var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
 
+var tagsToStrip = []string{"script", "style"}
+
 var mmarkExtensionMap = map[string]int{
 	"tables":                 mmark.EXTENSION_TABLES,
 	"fencedCode":             mmark.EXTENSION_FENCED_CODE,
@@ -188,11 +191,20 @@ func StripHTML(s string) string {
 	}
 	s = stripHTMLReplacer.Replace(s)
 
+	stripContent := false
+	for _, tag := range tagsToStrip {
+		if strings.Contains(s, "<"+tag+">") {
+			stripContent = true
+		}
+	}
+	if stripContent {
+		s = stripHTMLContainers(s)
+	}
+
 	// Walk through the string removing all tags
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	var inTag, isSpace, wasSpace, ignoreTagContent bool
-	var currTag string
+	var inTag, isSpace, wasSpace bool
 	for _, r := range s {
 		if !inTag {
 			isSpace = false
@@ -200,7 +212,6 @@ func StripHTML(s string) string {
 
 		switch {
 		case r == '<':
-			currTag = ""
 			inTag = true
 		case r == '>':
 			inTag = false
@@ -208,14 +219,7 @@ func StripHTML(s string) string {
 			isSpace = true
 			fallthrough
 		default:
-			if inTag {
-				currTag += string(r)
-				if currTag == "script" || currTag == "style" {
-					ignoreTagContent = true
-				} else if currTag == "/script" || currTag == "/style" {
-					ignoreTagContent = false
-				}
-			} else if !inTag && (!isSpace || (isSpace && !wasSpace)) && !ignoreTagContent {
+			if !inTag && (!isSpace || (isSpace && !wasSpace)) {
 				b.WriteRune(r)
 			}
 		}
@@ -229,6 +233,20 @@ func StripHTML(s string) string {
 // stripEmptyNav strips out empty <nav> tags from content.
 func stripEmptyNav(in []byte) []byte {
 	return bytes.Replace(in, []byte("<nav>\n</nav>\n\n"), []byte(``), -1)
+}
+
+// stripHTMLContainers strips out script and style tags including
+// content contained within the element.
+func stripHTMLContainers(s string) string {
+	// Build a regular expression from tagsToStrip
+	var patternsToStrip = make([]string, len(tagsToStrip))
+	for i, tag := range tagsToStrip {
+		patternsToStrip[i] = "<" + tag + ">(.+?)</" + tag + ">"
+	}
+	rePattern := strings.Join(patternsToStrip, "|")
+
+	stripHTMLRegexp := regexp.MustCompile(rePattern)
+	return stripHTMLRegexp.ReplaceAllLiteralString(s, "")
 }
 
 // BytesToHTML converts bytes to type template.HTML.
