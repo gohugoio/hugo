@@ -87,8 +87,8 @@ func (t *templateHandler) embedTemplates() {
   </channel>
 </rss>`)
 
-	t.addInternalTemplate("_default", "sitemap.xml", `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"{{ if .IsTranslated }}
-  xmlns:xhtml="http://www.w3.org/1999/xhtml"{{ end }}>
+	t.addInternalTemplate("_default", "sitemap.xml", `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
   {{ range .Data.Pages }}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
