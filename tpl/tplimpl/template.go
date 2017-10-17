@@ -447,9 +447,18 @@ func (t *templateHandler) loadTemplates(absPath string, prefix string) {
 				layoutDir = "layouts"
 			}
 
-			li := strings.LastIndex(path, layoutDir) + len(layoutDir) + 1
-			relPath := path[li:]
-			templateDir := path[:li-len(layoutDir)-1]
+			absLayoutDir, err := filepath.Abs(layoutDir)
+
+			if err != nil {
+				t.Log.ERROR.Printf("Cannot convert path '%s' to absolute", layoutDir)
+			}
+
+			templateDir := filepath.Dir(absLayoutDir)
+			relPath, err := filepath.Rel(absLayoutDir, path)
+
+			if err != nil {
+				t.Log.ERROR.Printf("Cannot find relative path to '%s' from '%s'", path, absLayoutDir)
+			}
 
 			descriptor := output.TemplateLookupDescriptor{
 				TemplateDir:   templateDir,
