@@ -94,7 +94,10 @@ func Docker() error {
 
 // Run tests and linters
 func Check() {
-	mg.Deps(TestRace, Test386, Fmt, Vet)
+	mg.Deps(Test386, Fmt, Vet)
+	// don't run two tests in parallel, they saturate the CPUs anyway, and running two
+	// causes memory issues in CI.
+	mg.Deps(TestRace)
 }
 
 // Run tests in 32-bit mode
