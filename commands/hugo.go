@@ -769,7 +769,8 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 		return err
 	}
 	visited := c.visitedURLs.PeekAllSet()
-	if !c.Cfg.GetBool("disableFastRender") {
+	doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
+	if doLiveReload && !c.Cfg.GetBool("disableFastRender") {
 		// Make sure we always render the home page
 		visited["/"] = true
 	}
