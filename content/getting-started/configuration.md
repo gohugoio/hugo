@@ -108,6 +108,8 @@ googleAnalytics:            ""
 # if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
 hasCJKLanguage:             false
 languageCode:               ""
+# the length of text to show in a .Summary
+summaryLength:              70
 layoutDir:                  "layouts"
 # Enable Logging
 log:                        false
@@ -249,6 +251,8 @@ googleAnalytics =             ""
 # if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
 hasCJKLanguage =              false
 languageCode =                ""
+# the length of text to show in a .Summary
+summaryLength:              70
 layoutDir =                   "layouts"
 # Enable Logging
 log =                         false
