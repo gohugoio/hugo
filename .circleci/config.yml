@@ -12,6 +12,7 @@ jobs:
           path: hugo
       - run:
             command: |
+                go get -d github.com/magefile/mage/...
                 git clone git@github.com:gohugoio/hugoDocs.git
                 cd hugo
                 mage vendor
