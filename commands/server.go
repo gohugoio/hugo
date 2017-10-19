@@ -238,7 +238,7 @@ func (c *commandeer) serve(port int) {
 			}
 
 			if fastRenderMode {
-				p := r.URL.Path
+				p := r.RequestURI
 				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
 					c.visitedURLs.Add(p)
 				}
