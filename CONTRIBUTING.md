@@ -90,29 +90,29 @@ Fixes #1949
 
 ### Vendored Dependencies
 
-Hugo uses [govendor](https://github.com/kardianos/govendor) to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository.
+Hugo uses [Go Dep](https://github.com/golang/dep) to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository.
 Therefore, a simple `go get` is not supported since `go get` is not vendor-aware.
-You **must use govendor** to fetch and manage Hugo's dependencies.
 
-### Fetch the Sources From GitHub
+You **must use Go Dep** to fetch and manage Hugo's dependencies.
 
-```
-go get -u github.com/kardianos/govendor
-govendor get github.com/gohugoio/hugo
-```
-
-### Using Git Remotes
+###  Fetch the Sources From GitHub
 
 Due to the way Go handles package imports, the best approach for working on a
 Hugo fork is to use Git Remotes.  Here's a simple walk-through for getting
 started:
 
-1. Fetch the Hugo sources as described above.
+1. Install Go Dep and get the Hugo source:
 
-1. Change to the Hugo source directory:
+    ```
+	go get -u -v github.com/golang/dep/cmd/dep
+	go get -u -v -d github.com/gohugoio/hugo
+	```
+
+1. Change to the Hugo source directory and fetch the dependencies:
 
     ```
     cd $HOME/go/src/github.com/gohugoio/hugo
+	dep ensure
     ```
 
 1. Create a new branch for your changes (the branch name is arbitrary):
