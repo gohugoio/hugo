@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -124,14 +125,28 @@ func Fmt() error {
 		return err
 	}
 	failed := false
+	first := true
 	for _, pkg := range pkgs {
 		files, err := filepath.Glob(filepath.Join(pkg, "*.go"))
 		if err != nil {
 			return nil
 		}
 		for _, f := range files {
-			if err := sh.Run("gofmt", "-l", f); err != nil {
-				failed = false
+			// gofmt doesn't exit with non-zero when it finds unformatted code
+			// so we have to explicitly look for output, and if we find any, we
+			// should fail this target.
+			s, err := sh.Output("gofmt", "-l", f)
+			if err != nil {
+				fmt.Printf("ERROR: running gofmt on %q: %v\n", f, err)
+				failed = true
+			}
+			if s != "" {
+				if first {
+					fmt.Println("The following files are not gofmt'ed:")
+					first = false
+				}
+				failed = true
+				fmt.Println(s)
 			}
 		}
 	}
@@ -164,12 +179,15 @@ func Lint() error {
 	}
 	failed := false
 	for _, pkg := range pkgs {
-		if _, err := sh.Exec(nil, os.Stderr, os.Stderr, "golint", "-set_exit_status", pkg); err != nil {
+		// We don't actually want to fail this target if we find golint errors,
+		// so we don't pass -set_exit_status, but we still print out any failures.
+		if _, err := sh.Exec(nil, os.Stderr, nil, "golint", pkg); err != nil {
+			fmt.Printf("ERROR: running go lint on %q: %v\n", pkg, err)
 			failed = true
 		}
 	}
 	if failed {
-		return errors.New("golint errors!")
+		return errors.New("errors running golint")
 	}
 	return nil
 }
@@ -178,7 +196,7 @@ func Lint() error {
 func Vet() error {
 	mg.Deps(govendor)
 	if err := sh.Run("govendor", "vet", "+local"); err != nil {
-		return errors.New("go vet errors!")
+		return fmt.Errorf("error running govendor: %v", err)
 	}
 	return nil
 }
