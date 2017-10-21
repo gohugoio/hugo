@@ -129,6 +129,9 @@ func Fmt() error {
 			return nil
 		}
 		for _, f := range files {
+			// gofmt doesn't exit with non-zero when it finds unformatted code
+			// so we have to explicitly look for output, and if we find any, we
+			// should fail this target.
 			s, err := sh.Output("gofmt", "-l", f)
 			if err != nil {
 				fmt.Printf("ERROR: running gofmt on %q: %v\n", f, err)
@@ -173,6 +176,8 @@ func Lint() error {
 	}
 	failed := false
 	for _, pkg := range pkgs {
+		// We don't actually want to fail this target if we find golint errors,
+		// so we don't pass -set_exit_status, but we still print out any failures.
 		if _, err := sh.Exec(nil, os.Stderr, nil, "golint", pkg); err != nil {
 			fmt.Printf("ERROR: running go lint on %q: %v\n", pkg, err)
 			failed = true
@@ -188,7 +193,7 @@ func Lint() error {
 func Vet() error {
 	mg.Deps(govendor)
 	if err := sh.Run("govendor", "vet", "+local"); err != nil {
-		return errors.New("go vet errors!")
+		return fmt.Errorf("error running govendor: %v", err)
 	}
 	return nil
 }
