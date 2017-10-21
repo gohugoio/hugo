@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -121,14 +122,25 @@ func Fmt() error {
 		return err
 	}
 	failed := false
+	first := true
 	for _, pkg := range pkgs {
 		files, err := filepath.Glob(filepath.Join(pkg, "*.go"))
 		if err != nil {
 			return nil
 		}
 		for _, f := range files {
-			if err := sh.Run("gofmt", "-l", f); err != nil {
-				failed = false
+			s, err := sh.Output("gofmt", "-l", f)
+			if err != nil {
+				fmt.Println("error running gofmt on %q: %v", f, err)
+				failed = true
+			}
+			if s != "" {
+				if first {
+					fmt.Println("The following files are not gofmt'ed:")
+					first = false
+				}
+				failed = true
+				fmt.Println(s)
 			}
 		}
 	}
