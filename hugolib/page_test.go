@@ -1474,41 +1474,52 @@ func TestShouldBuild(t *testing.T) {
 	var future = time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	var zero = time.Time{}
 
+	var yesterday = time.Now().AddDate(0, 0, -1)
+	var cutOffWeek = time.Now().AddDate(0, 0, -7)
+	var lastMonth = time.Now().AddDate(0, -1, -1)
+
 	var publishSettings = []struct {
 		buildFuture  bool
 		buildExpired bool
 		buildDrafts  bool
 		draft        bool
+		cutOff       bool
 		publishDate  time.Time
 		expiryDate   time.Time
+		cutOffDate   time.Time
 		out          bool
 	}{
+		// maxAge
+		{false, false, false, false, true, yesterday, zero, yesterday, true},
+		{false, false, false, false, true, yesterday, zero, cutOffWeek, true},
+		{false, false, false, false, true, lastMonth, zero, cutOffWeek, false},
+
 		// publishDate and expiryDate
-		{false, false, false, false, zero, zero, true},
-		{false, false, false, false, zero, future, true},
-		{false, false, false, false, past, zero, true},
-		{false, false, false, false, past, future, true},
-		{false, false, false, false, past, past, false},
-		{false, false, false, false, future, future, false},
-		{false, false, false, false, future, past, false},
+		{false, false, false, false, false, zero, zero, zero, true},
+		{false, false, false, false, false, zero, future, zero, true},
+		{false, false, false, false, false, past, zero, zero, true},
+		{false, false, false, false, false, past, future, zero, true},
+		{false, false, false, false, false, past, past, zero, false},
+		{false, false, false, false, false, future, future, zero, false},
+		{false, false, false, false, false, future, past, zero, false},
 
 		// buildFuture and buildExpired
-		{false, true, false, false, past, past, true},
-		{true, true, false, false, past, past, true},
-		{true, false, false, false, past, past, false},
-		{true, false, false, false, future, future, true},
-		{true, true, false, false, future, future, true},
-		{false, true, false, false, future, past, false},
+		{false, true, false, false, false, past, past, zero, true},
+		{true, true, false, false, false, past, past, zero, true},
+		{true, false, false, false, false, past, past, zero, false},
+		{true, false, false, false, false, future, future, zero, true},
+		{true, true, false, false, false, future, future, zero, true},
+		{false, true, false, false, false, future, past, zero, false},
 
 		// buildDrafts and draft
-		{true, true, false, true, past, future, false},
-		{true, true, true, true, past, future, true},
-		{true, true, true, true, past, future, true},
+		{true, true, false, true, false, past, future, zero, false},
+		{true, true, true, true, false, past, future, zero, true},
+		{true, true, true, true, false, past, future, zero, true},
 	}
 
 	for _, ps := range publishSettings {
 		s := shouldBuild(ps.buildFuture, ps.buildExpired, ps.buildDrafts, ps.draft,
-			ps.publishDate, ps.expiryDate)
+			ps.cutOff, ps.publishDate, ps.expiryDate, ps.cutOffDate)
 		if s != ps.out {
 			t.Errorf("AssertShouldBuild unexpected output with params: %+v", ps)
 		}
