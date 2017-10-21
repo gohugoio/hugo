@@ -32,14 +32,14 @@ func init() {
 	}
 }
 
-func govendor() error {
-	return sh.Run(goexe, "get", "github.com/kardianos/govendor")
+func getDep() error {
+	return sh.Run(goexe, "get", "-u", "github.com/golang/dep/cmd/dep")
 }
 
-// Install govendor and sync Hugo's vendored dependencies
+// Install Go Dep and sync Hugo's vendored dependencies
 func Vendor() error {
-	mg.Deps(govendor)
-	return sh.Run("govendor", "sync", packageName)
+	mg.Deps(getDep)
+	return sh.Run("dep", "ensure")
 }
 
 // Build hugo binary
@@ -103,19 +103,19 @@ func Check() {
 
 // Run tests in 32-bit mode
 func Test386() error {
-	return sh.RunWith(map[string]string{"GOARCH": "386"}, "govendor", "test", "+local")
+	return sh.RunWith(map[string]string{"GOARCH": "386"}, goexe, "test", "./...")
 }
 
 // Run tests
 func Test() error {
-	mg.Deps(govendor)
-	return sh.Run("govendor", "test", "+local")
+	mg.Deps(getDep)
+	return sh.Run(goexe, "test", "./...")
 }
 
 // Run tests with race detector
 func TestRace() error {
-	mg.Deps(govendor)
-	return sh.Run("govendor", "test", "-race", "+local")
+	mg.Deps(getDep)
+	return sh.Run(goexe, "test", "-race", "./...")
 }
 
 // Run gofmt linter
@@ -159,8 +159,8 @@ func Fmt() error {
 var pkgPrefixLen = len("github.com/gohugoio/hugo")
 
 func hugoPackages() ([]string, error) {
-	mg.Deps(govendor)
-	s, err := sh.Output("govendor", "list", "-no-status", "+local")
+	mg.Deps(getDep)
+	s, err := sh.Output(goexe, "list", "./...")
 	if err != nil {
 		return nil, err
 	}
@@ -194,8 +194,8 @@ func Lint() error {
 
 //  Run go vet linter
 func Vet() error {
-	mg.Deps(govendor)
-	if err := sh.Run("govendor", "vet", "+local"); err != nil {
+	mg.Deps(getDep)
+	if err := sh.Run(goexe, "vet", "./..."); err != nil {
 		return fmt.Errorf("error running govendor: %v", err)
 	}
 	return nil
@@ -203,7 +203,7 @@ func Vet() error {
 
 // Generate test coverage report
 func TestCoverHTML() error {
-	mg.Deps(govendor)
+	mg.Deps(getDep)
 	const (
 		coverAll = "coverage-all.out"
 		cover    = "coverage.out"
@@ -221,7 +221,7 @@ func TestCoverHTML() error {
 		return err
 	}
 	for _, pkg := range pkgs {
-		if err := sh.Run("govendor", "test", "-coverprofile="+cover, "-covermode=count", pkg); err != nil {
+		if err := sh.Run(goexe, "test", "-coverprofile="+cover, "-covermode=count", pkg); err != nil {
 			return err
 		}
 		b, err := ioutil.ReadFile(cover)
