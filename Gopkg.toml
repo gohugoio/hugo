@@ -31,15 +31,15 @@
 
 [[constraint]]
   name = "github.com/alecthomas/chroma"
-  version = "0.1.1"
+   branch = "master"
 
 [[constraint]]
   branch = "master"
   name = "github.com/bep/gitmap"
 
 [[constraint]]
-  name = "github.com/chaseadamsio/goorgeous"
-  version = "2.0.0"
+ name = "github.com/chaseadamsio/goorgeous"
+ revision = "7daffad08e0d467847663af3655dcc4cbcda48e8"
 
 [[constraint]]
   branch = "master"

@@ -20,10 +20,10 @@
   revision = "de5bf2ad457846296e2031421a34e2568e304e35"
 
 [[projects]]
+  branch = "master"
   name = "github.com/alecthomas/chroma"
   packages = [".","formatters","formatters/html","lexers","styles"]
-  revision = "bc2d6680e4f0f640898b2564c3d479d5cb9023f3"
-  version = "v0.1.1"
+  revision = "03b0c0d6bb7b9f7f8fd58fca6f1c6a2caffb9ca8"
 
 [[projects]]
   branch = "master"
@@ -34,8 +34,7 @@
 [[projects]]
   name = "github.com/chaseadamsio/goorgeous"
   packages = ["."]
-  revision = "e0b2cd6d4e7abdf9a33f017bcc97df2242e05572"
-  version = "v2.0.0"
+  revision = "7daffad08e0d467847663af3655dcc4cbcda48e8"
 
 [[projects]]
   name = "github.com/cpuguy83/go-md2man"
@@ -286,6 +285,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5a0f48bd1051399e5bbbfc06089a7a49527f88c1628c8a09373996ead58b8d1f"
+  inputs-digest = "9976dbdbbdc93a77efbf710fec19b50240c8cea185d20a7c3ed4579e4c06cb78"
   solver-name = "gps-cdcl"
   solver-version = 1
