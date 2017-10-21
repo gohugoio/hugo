@@ -131,7 +131,7 @@ func Fmt() error {
 		for _, f := range files {
 			s, err := sh.Output("gofmt", "-l", f)
 			if err != nil {
-				fmt.Println("error running gofmt on %q: %v", f, err)
+				fmt.Printf("ERROR: running gofmt on %q: %v\n", f, err)
 				failed = true
 			}
 			if s != "" {
@@ -173,12 +173,13 @@ func Lint() error {
 	}
 	failed := false
 	for _, pkg := range pkgs {
-		if _, err := sh.Exec(nil, os.Stderr, os.Stderr, "golint", "-set_exit_status", pkg); err != nil {
+		if _, err := sh.Exec(nil, os.Stderr, nil, "golint", pkg); err != nil {
+			fmt.Printf("ERROR: running go lint on %q: %v\n", pkg, err)
 			failed = true
 		}
 	}
 	if failed {
-		return errors.New("golint errors!")
+		return errors.New("errors running golint")
 	}
 	return nil
 }
