@@ -1,11 +1,10 @@
 FROM golang:1.9.0-alpine3.6 AS build
 
 RUN apk add --no-cache --virtual git musl-dev
-RUN go get github.com/kardianos/govendor
+RUN go get github.com/golang/dep/cmd/dep
 
-ADD vendor/vendor.json /go/src/github.com/gohugoio/hugo/vendor/vendor.json
 WORKDIR /go/src/github.com/gohugoio/hugo
-RUN govendor sync
+RUN dep ensure
 ADD . /go/src/github.com/gohugoio/hugo/
 RUN go install -ldflags '-s -w'
 
