@@ -34,13 +34,14 @@
 [[projects]]
   name = "github.com/chaseadamsio/goorgeous"
   packages = ["."]
-  revision = "7daffad08e0d467847663af3655dcc4cbcda48e8"
+  revision = "e0b2cd6d4e7abdf9a33f017bcc97df2242e05572"
+  version = "v2.0.0"
 
 [[projects]]
   name = "github.com/cpuguy83/go-md2man"
   packages = ["md2man"]
-  revision = "1d903dcb749992f3741d744c0f8376b4bd7eb3e1"
-  version = "v1.0.7"
+  revision = "a65d4d2de4d5f7c74868dfa9b202a3c8be315aaa"
+  version = "v1.0.6"
 
 [[projects]]
   branch = "master"
@@ -183,8 +184,8 @@
 [[projects]]
   name = "github.com/russross/blackfriday"
   packages = ["."]
-  revision = "4048872b16cc0fc2c5fd9eacf0ed2c2fedaa0c8c"
-  version = "v1.5"
+  revision = "cadec560ec52d93835bf2f15bd794700d3a2473b"
+  version = "v2.0.0"
 
 [[projects]]
   branch = "master"
@@ -285,6 +286,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d828d7645269ae1e20eeca6927d5aa7fbd53915df25a89179b7e04fb9993ac0a"
+  inputs-digest = "80c4f51b80d7cd38a6d0ba1aeb7eda1bba053e1041391c262dc848a8ca1a4cad"
   solver-name = "gps-cdcl"
   solver-version = 1

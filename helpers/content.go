@@ -144,24 +144,24 @@ func (c ContentSpec) NewBlackfriday() *Blackfriday {
 	return combinedConfig
 }
 
-var blackfridayExtensionMap = map[string]int{
-	"noIntraEmphasis":        blackfriday.EXTENSION_NO_INTRA_EMPHASIS,
-	"tables":                 blackfriday.EXTENSION_TABLES,
-	"fencedCode":             blackfriday.EXTENSION_FENCED_CODE,
-	"autolink":               blackfriday.EXTENSION_AUTOLINK,
-	"strikethrough":          blackfriday.EXTENSION_STRIKETHROUGH,
-	"laxHtmlBlocks":          blackfriday.EXTENSION_LAX_HTML_BLOCKS,
-	"spaceHeaders":           blackfriday.EXTENSION_SPACE_HEADERS,
-	"hardLineBreak":          blackfriday.EXTENSION_HARD_LINE_BREAK,
-	"tabSizeEight":           blackfriday.EXTENSION_TAB_SIZE_EIGHT,
-	"footnotes":              blackfriday.EXTENSION_FOOTNOTES,
-	"noEmptyLineBeforeBlock": blackfriday.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK,
-	"headerIds":              blackfriday.EXTENSION_HEADER_IDS,
-	"titleblock":             blackfriday.EXTENSION_TITLEBLOCK,
-	"autoHeaderIds":          blackfriday.EXTENSION_AUTO_HEADER_IDS,
-	"backslashLineBreak":     blackfriday.EXTENSION_BACKSLASH_LINE_BREAK,
-	"definitionLists":        blackfriday.EXTENSION_DEFINITION_LISTS,
-	"joinLines":              blackfriday.EXTENSION_JOIN_LINES,
+var blackfridayExtensionMap = map[string]blackfriday.Extensions{
+	"noIntraEmphasis":        blackfriday.NoIntraEmphasis,
+	"tables":                 blackfriday.Tables,
+	"fencedCode":             blackfriday.FencedCode,
+	"autolink":               blackfriday.Autolink,
+	"strikethrough":          blackfriday.Strikethrough,
+	"laxHtmlBlocks":          blackfriday.LaxHTMLBlocks,
+	"spaceHeaders":           blackfriday.SpaceHeadings,
+	"hardLineBreak":          blackfriday.HardLineBreak,
+	"tabSizeEight":           blackfriday.TabSizeEight,
+	"footnotes":              blackfriday.Footnotes,
+	"noEmptyLineBeforeBlock": blackfriday.NoEmptyLineBeforeBlock,
+	"headerIds":              blackfriday.HeadingIDs,
+	"titleblock":             blackfriday.Titleblock,
+	"autoHeaderIds":          blackfriday.AutoHeadingIDs,
+	"backslashLineBreak":     blackfriday.BackslashLineBreak,
+	"definitionLists":        blackfriday.DefinitionLists,
+	// TODO(bep) bf"joinLines":              blackfriday.EXTENSION_JOIN_LINES,
 }
 
 var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
@@ -228,8 +228,8 @@ func BytesToHTML(b []byte) template.HTML {
 }
 
 // getHTMLRenderer creates a new Blackfriday HTML Renderer with the given configuration.
-func (c *ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
-	renderParameters := blackfriday.HtmlRendererParameters{
+func (c *ContentSpec) getHTMLRenderer(defaultFlags blackfriday.HTMLFlags, ctx *RenderingContext) blackfriday.Renderer {
+	renderParameters := blackfriday.HTMLRendererParameters{
 		FootnoteAnchorPrefix:       c.footnoteAnchorPrefix,
 		FootnoteReturnLinkContents: c.footnoteReturnLinkContents,
 	}
@@ -246,35 +246,35 @@ func (c *ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) b
 	}
 
 	htmlFlags := defaultFlags
-	htmlFlags |= blackfriday.HTML_USE_XHTML
-	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
+	htmlFlags |= blackfriday.UseXHTML
+	htmlFlags |= blackfriday.FootnoteReturnLinks
 
 	if ctx.Config.Smartypants {
-		htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
+		htmlFlags |= blackfriday.Smartypants
 	}
 
 	if ctx.Config.SmartypantsQuotesNBSP {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_QUOTES_NBSP
+		htmlFlags |= blackfriday.SmartypantsQuotesNBSP
 	}
 
 	if ctx.Config.AngledQuotes {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
+		htmlFlags |= blackfriday.SmartypantsAngledQuotes
 	}
 
 	if ctx.Config.Fractions {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+		htmlFlags |= blackfriday.SmartypantsFractions
 	}
 
 	if ctx.Config.HrefTargetBlank {
-		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
+		htmlFlags |= blackfriday.HrefTargetBlank
 	}
 
 	if ctx.Config.SmartDashes {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_DASHES
+		htmlFlags |= blackfriday.SmartypantsDashes
 	}
 
 	if ctx.Config.LatexDashes {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+		htmlFlags |= blackfriday.SmartypantsLatexDashes
 	}
 
 	return &HugoHTMLRenderer{
