@@ -25,7 +25,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/chaseadamsio/goorgeous"
+	// TODO(bep) bf "github.com/chaseadamsio/goorgeous"
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
 	"github.com/miekg/mmark"
@@ -144,24 +144,24 @@ func (c ContentSpec) NewBlackfriday() *Blackfriday {
 	return combinedConfig
 }
 
-var blackfridayExtensionMap = map[string]int{
-	"noIntraEmphasis":        blackfriday.EXTENSION_NO_INTRA_EMPHASIS,
-	"tables":                 blackfriday.EXTENSION_TABLES,
-	"fencedCode":             blackfriday.EXTENSION_FENCED_CODE,
-	"autolink":               blackfriday.EXTENSION_AUTOLINK,
-	"strikethrough":          blackfriday.EXTENSION_STRIKETHROUGH,
-	"laxHtmlBlocks":          blackfriday.EXTENSION_LAX_HTML_BLOCKS,
-	"spaceHeaders":           blackfriday.EXTENSION_SPACE_HEADERS,
-	"hardLineBreak":          blackfriday.EXTENSION_HARD_LINE_BREAK,
-	"tabSizeEight":           blackfriday.EXTENSION_TAB_SIZE_EIGHT,
-	"footnotes":              blackfriday.EXTENSION_FOOTNOTES,
-	"noEmptyLineBeforeBlock": blackfriday.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK,
-	"headerIds":              blackfriday.EXTENSION_HEADER_IDS,
-	"titleblock":             blackfriday.EXTENSION_TITLEBLOCK,
-	"autoHeaderIds":          blackfriday.EXTENSION_AUTO_HEADER_IDS,
-	"backslashLineBreak":     blackfriday.EXTENSION_BACKSLASH_LINE_BREAK,
-	"definitionLists":        blackfriday.EXTENSION_DEFINITION_LISTS,
-	"joinLines":              blackfriday.EXTENSION_JOIN_LINES,
+var blackfridayExtensionMap = map[string]blackfriday.Extensions{
+	"noIntraEmphasis":        blackfriday.NoIntraEmphasis,
+	"tables":                 blackfriday.Tables,
+	"fencedCode":             blackfriday.FencedCode,
+	"autolink":               blackfriday.Autolink,
+	"strikethrough":          blackfriday.Strikethrough,
+	"laxHtmlBlocks":          blackfriday.LaxHTMLBlocks,
+	"spaceHeaders":           blackfriday.SpaceHeadings,
+	"hardLineBreak":          blackfriday.HardLineBreak,
+	"tabSizeEight":           blackfriday.TabSizeEight,
+	"footnotes":              blackfriday.Footnotes,
+	"noEmptyLineBeforeBlock": blackfriday.NoEmptyLineBeforeBlock,
+	"headerIds":              blackfriday.HeadingIDs,
+	"titleblock":             blackfriday.Titleblock,
+	"autoHeaderIds":          blackfriday.AutoHeadingIDs,
+	"backslashLineBreak":     blackfriday.BackslashLineBreak,
+	"definitionLists":        blackfriday.DefinitionLists,
+	// TODO(bep) bf"joinLines":              blackfriday.EXTENSION_JOIN_LINES,
 }
 
 var stripHTMLReplacer = strings.NewReplacer("\n", " ", "</p>", "\n", "<br>", "\n", "<br />", "\n")
@@ -228,8 +228,8 @@ func BytesToHTML(b []byte) template.HTML {
 }
 
 // getHTMLRenderer creates a new Blackfriday HTML Renderer with the given configuration.
-func (c *ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
-	renderParameters := blackfriday.HtmlRendererParameters{
+func (c *ContentSpec) getHTMLRenderer(defaultFlags blackfriday.HTMLFlags, ctx *RenderingContext) blackfriday.Renderer {
+	renderParameters := blackfriday.HTMLRendererParameters{
 		FootnoteAnchorPrefix:       c.footnoteAnchorPrefix,
 		FootnoteReturnLinkContents: c.footnoteReturnLinkContents,
 	}
@@ -242,65 +242,67 @@ func (c *ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) b
 
 	if b && !ctx.Config.PlainIDAnchors {
 		renderParameters.FootnoteAnchorPrefix = ctx.DocumentID + ":" + renderParameters.FootnoteAnchorPrefix
-		renderParameters.HeaderIDSuffix = ":" + ctx.DocumentID
+		renderParameters.HeadingIDSuffix = ":" + ctx.DocumentID
 	}
 
 	htmlFlags := defaultFlags
-	htmlFlags |= blackfriday.HTML_USE_XHTML
-	htmlFlags |= blackfriday.HTML_FOOTNOTE_RETURN_LINKS
+	htmlFlags |= blackfriday.UseXHTML
+	htmlFlags |= blackfriday.FootnoteReturnLinks
 
 	if ctx.Config.Smartypants {
-		htmlFlags |= blackfriday.HTML_USE_SMARTYPANTS
+		htmlFlags |= blackfriday.Smartypants
 	}
 
 	if ctx.Config.SmartypantsQuotesNBSP {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_QUOTES_NBSP
+		htmlFlags |= blackfriday.SmartypantsQuotesNBSP
 	}
 
 	if ctx.Config.AngledQuotes {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES
+		htmlFlags |= blackfriday.SmartypantsAngledQuotes
 	}
 
 	if ctx.Config.Fractions {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+		htmlFlags |= blackfriday.SmartypantsFractions
 	}
 
 	if ctx.Config.HrefTargetBlank {
-		htmlFlags |= blackfriday.HTML_HREF_TARGET_BLANK
+		htmlFlags |= blackfriday.HrefTargetBlank
 	}
 
 	if ctx.Config.SmartDashes {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_DASHES
+		htmlFlags |= blackfriday.SmartypantsDashes
 	}
 
 	if ctx.Config.LatexDashes {
-		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+		htmlFlags |= blackfriday.SmartypantsLatexDashes
 	}
+
+	renderParameters.Flags = htmlFlags
 
 	return &HugoHTMLRenderer{
 		cs:               c,
 		RenderingContext: ctx,
-		Renderer:         blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+		Renderer:         blackfriday.NewHTMLRenderer(renderParameters),
 	}
 }
 
-func getMarkdownExtensions(ctx *RenderingContext) int {
+func getMarkdownExtensions(ctx *RenderingContext) blackfriday.Extensions {
 	// Default Blackfriday common extensions
 	commonExtensions := 0 |
-		blackfriday.EXTENSION_NO_INTRA_EMPHASIS |
-		blackfriday.EXTENSION_TABLES |
-		blackfriday.EXTENSION_FENCED_CODE |
-		blackfriday.EXTENSION_AUTOLINK |
-		blackfriday.EXTENSION_STRIKETHROUGH |
-		blackfriday.EXTENSION_SPACE_HEADERS |
-		blackfriday.EXTENSION_HEADER_IDS |
-		blackfriday.EXTENSION_BACKSLASH_LINE_BREAK |
-		blackfriday.EXTENSION_DEFINITION_LISTS
+		blackfriday.NoIntraEmphasis |
+		blackfriday.Tables |
+		blackfriday.FencedCode |
+		blackfriday.Autolink |
+		blackfriday.Strikethrough |
+		blackfriday.SpaceHeadings |
+		blackfriday.HeadingIDs |
+		blackfriday.BackslashLineBreak |
+		blackfriday.DefinitionLists
 
 	// Extra Blackfriday extensions that Hugo enables by default
 	flags := commonExtensions |
-		blackfriday.EXTENSION_AUTO_HEADER_IDS |
-		blackfriday.EXTENSION_FOOTNOTES
+		blackfriday.AutoHeadingIDs |
+		blackfriday.Footnotes
 
 	if ctx.Config == nil {
 		panic(fmt.Sprintf("RenderingContext of %q doesn't have a config", ctx.DocumentID))
@@ -321,12 +323,12 @@ func getMarkdownExtensions(ctx *RenderingContext) int {
 
 func (c ContentSpec) markdownRender(ctx *RenderingContext) []byte {
 	if ctx.RenderTOC {
-		return blackfriday.Markdown(ctx.Content,
-			c.getHTMLRenderer(blackfriday.HTML_TOC, ctx),
-			getMarkdownExtensions(ctx))
+		return blackfriday.Run(ctx.Content,
+			blackfriday.WithRenderer(c.getHTMLRenderer(blackfriday.TOC, ctx)),
+			blackfriday.WithExtensions(getMarkdownExtensions(ctx)))
 	}
-	return blackfriday.Markdown(ctx.Content, c.getHTMLRenderer(0, ctx),
-		getMarkdownExtensions(ctx))
+	return blackfriday.Run(ctx.Content, blackfriday.WithRenderer(c.getHTMLRenderer(0, ctx)),
+		blackfriday.WithExtensions(getMarkdownExtensions(ctx)))
 }
 
 // getMmarkHTMLRenderer creates a new mmark HTML Renderer with the given configuration.
@@ -724,9 +726,14 @@ func getRstContent(ctx *RenderingContext) []byte {
 	return result[bodyStart+7 : bodyEnd]
 }
 
+// TODO(bep) bf
 func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
-	content := ctx.Content
-	cleanContent := bytes.Replace(content, []byte("# more"), []byte(""), 1)
-	return goorgeous.Org(cleanContent,
-		c.getHTMLRenderer(blackfriday.HTML_TOC, ctx))
+	return []byte("foo")
+
+	/*
+		content := ctx.Content
+		cleanContent := bytes.Replace(content, []byte("# more"), []byte(""), 1)
+		return goorgeous.Org(cleanContent,
+			c.getHTMLRenderer(blackfriday.TOC, ctx))
+	*/
 }

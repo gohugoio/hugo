@@ -18,7 +18,11 @@
 
 [[constraint]]
  name = "github.com/chaseadamsio/goorgeous"
- revision = "7daffad08e0d467847663af3655dcc4cbcda48e8"
+ version = "2.0.0"
+ 
+[[constraint]]
+  name = "github.com/cpuguy83/go-md2man"
+  version = "=v1.0.7"
 
 [[constraint]]
   branch = "master"
@@ -74,7 +78,7 @@
 
 [[constraint]]
   name = "github.com/russross/blackfriday"
-  version = "1.5.0"
+  version = "2.0.0"
 
 [[constraint]]
   branch = "master"
