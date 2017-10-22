@@ -16,6 +16,7 @@ package helpers
 import (
 	"bytes"
 	"html"
+	"io"
 	"strings"
 
 	"github.com/gohugoio/hugo/config"
@@ -31,9 +32,20 @@ type HugoHTMLRenderer struct {
 	blackfriday.Renderer
 }
 
+func (r *HugoHTMLRenderer) RenderNode(w io.Writer, node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
+	switch node.Type {
+	case blackfriday.CodeBlock:
+	case blackfriday.List:
+	case blackfriday.Item:
+
+	}
+
+	return r.Renderer.RenderNode(w, node, entering)
+}
+
 // BlockCode renders a given text as a block of code.
 // Pygments is used if it is setup to handle code fences.
-func (r *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
+/*func (r *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string) {
 	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
 		opts := r.Cfg.GetString("pygmentsOptions")
 		str := strings.Trim(html.UnescapeString(string(text)), "\n\r")
@@ -44,8 +56,10 @@ func (r *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string
 	}
 }
 
-// ListItem adds task list support to the Blackfriday renderer.
-func (r *HugoHTMLRenderer) ListItem(out *bytes.Buffer, text []byte, flags int) {
+
+
+//  adds task list support to the Blackfriday renderer.
+func (r *HugoHTMLRenderer) listItem(out *bytes.Buffer, text []byte, flags int) {
 	if !r.Config.TaskLists {
 		r.Renderer.ListItem(out, text, flags)
 		return
@@ -87,6 +101,7 @@ func (r *HugoHTMLRenderer) List(out *bytes.Buffer, text func() bool, flags int) 
 		}
 	}
 }
+*/
 
 // HugoMmarkHTMLRenderer wraps a mmark.Renderer, typically a mmark.html,
 // enabling Hugo to customise the rendering experience.
