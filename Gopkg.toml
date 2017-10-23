@@ -25,6 +25,10 @@
   name = "github.com/dchest/cssmin"
 
 [[constraint]]
+  name = "github.com/magefile/mage"
+  version = "v1"
+
+[[constraint]]
   branch = "master"
   name = "github.com/eknkc/amber"
 

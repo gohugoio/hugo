@@ -135,8 +135,8 @@
 [[projects]]
   name = "github.com/magefile/mage"
   packages = ["mg","sh"]
-  revision = "2060ed78534d0e013c04f3d53ec664c11df784fe"
-  version = "v2"
+  revision = "2f974307b636f59c13b88704cf350a4772fef271"
+  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -285,6 +285,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d828d7645269ae1e20eeca6927d5aa7fbd53915df25a89179b7e04fb9993ac0a"
+  inputs-digest = "71384ebc70488fec5f4b1f1d8c89659654dca57f40fd9d6d89b0891203b18ed9"
   solver-name = "gps-cdcl"
   solver-version = 1
