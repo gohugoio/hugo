@@ -2,10 +2,10 @@
 
 
 [[projects]]
+  branch = "master"
   name = "github.com/BurntSushi/toml"
   packages = ["."]
-  revision = "b26d9c308763d68093482582cea63d69be07a0f0"
-  version = "v0.3.0"
+  revision = "a368813c5e648fee92e5f6c30e3944ff9d5e8895"
 
 [[projects]]
   name = "github.com/PuerkitoBio/purell"
@@ -285,6 +285,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "71384ebc70488fec5f4b1f1d8c89659654dca57f40fd9d6d89b0891203b18ed9"
+  inputs-digest = "9046d783e19de319d8829a48dd75d8eee659c79b4b71215d34ab1a62c8210d79"
   solver-name = "gps-cdcl"
   solver-version = 1
