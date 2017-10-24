@@ -19,7 +19,7 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/source"
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
-	//"github.com/nicksnyder/go-i18n/i18n/language"
+	"github.com/nicksnyder/go-i18n/i18n/language"
 )
 
 // TranslationProvider provides translation handling, i.e. loading
@@ -38,9 +38,10 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	dir := d.PathSpec.AbsPathify(d.Cfg.GetString("i18nDir"))
 	sp := source.NewSourceSpec(d.Cfg, d.Fs)
 	sources := []source.Input{sp.NewFilesystem(dir)}
+	ps := &language.PluralSpec{}
+	langs := []string{}
 
 	themeI18nDir, err := d.PathSpec.GetThemeI18nDirPath()
-	//ps := &language.PluralSpec{}
 
 	if err == nil {
 		sources = []source.Input{sp.NewFilesystem(themeI18nDir), sources[0]}
@@ -52,7 +53,14 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 
 	for _, currentSource := range sources {
 		for _, r := range currentSource.Files() {
-			//language.RegisterPluralSpec([]string{r.BaseFileName()}, ps)
+			langs = append(langs, r.BaseFileName())
+		}
+	}
+
+	language.RegisterPluralSpec(langs, ps)
+
+	for _, currentSource := range sources {
+		for _, r := range currentSource.Files() {
 			err := i18nBundle.ParseTranslationFileBytes(r.LogicalName(), r.Bytes())
 			if err != nil {
 				return fmt.Errorf("Failed to load translations in file %q: %s", r.LogicalName(), err)
