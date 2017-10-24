@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [style,css,strings]
+keywords: [style,css,strings]
 signature: ["safeCSS INPUT"]
 workson: []
 hugoversion:

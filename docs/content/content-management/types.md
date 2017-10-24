@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [content management]
-#tags: [lists,sections,content types,types,organization]
+keywords: [lists,sections,content types,types,organization]
 menu:
   docs:
     parent: "content-management"

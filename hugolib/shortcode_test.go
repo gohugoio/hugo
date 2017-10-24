@@ -480,9 +480,9 @@ e`,
 ## {{% c %}}`,
 			filepath.FromSlash("public/sect/doc5/index.html"), "\n\n<h1 id=\"hahahugoshortcode-1hbhb\">b</h1>\n\n<h2 id=\"hahahugoshortcode-2hbhb\">c</h2>\n"},
 		// #2223 pygments
-		{"sect/doc6.md", "\n```bash\nb: {{< b >}} c: {{% c %}}\n```\n",
+		{"sect/doc6.md", "\n```bash\nb = {{< b >}} c = {{% c %}}\n```\n",
 			filepath.FromSlash("public/sect/doc6/index.html"),
-			"b: b c: c\n</code></pre></div>\n"},
+			`<span class="nv">b</span>`},
 		// #2249
 		{"sect/doc7.ad", `_Shortcodes:_ *b: {{< b >}} c: {{% c %}}*`,
 			filepath.FromSlash("public/sect/doc7/index.html"),
@@ -561,7 +561,7 @@ tags:
 		} else if strings.HasSuffix(test.contentPath, ".rst") && !helpers.HasRst() {
 			fmt.Println("Skip Rst test case as no rst2html present.")
 			continue
-		} else if strings.Contains(test.expected, "code") && !helpers.HasPygments() {
+		} else if strings.Contains(test.expected, "code") {
 			fmt.Println("Skip Pygments test case as no pygments present.")
 			continue
 		}

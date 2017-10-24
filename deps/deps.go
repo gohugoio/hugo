@@ -8,6 +8,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
@@ -47,6 +48,8 @@ type Deps struct {
 	WithTemplate     func(templ tpl.TemplateHandler) error `json:"-"`
 
 	translationProvider ResourceProvider
+
+	Metrics metrics.Provider
 }
 
 // ResourceProvider is used to create and refresh, and clone resources needed.
@@ -114,6 +117,11 @@ func New(cfg DepsCfg) (*Deps, error) {
 		return nil, err
 	}
 
+	contentSpec, err := helpers.NewContentSpec(cfg.Language)
+	if err != nil {
+		return nil, err
+	}
+
 	d := &Deps{
 		Fs:                  fs,
 		Log:                 logger,
@@ -121,9 +129,13 @@ func New(cfg DepsCfg) (*Deps, error) {
 		translationProvider: cfg.TranslationProvider,
 		WithTemplate:        cfg.WithTemplate,
 		PathSpec:            ps,
-		ContentSpec:         helpers.NewContentSpec(cfg.Language),
+		ContentSpec:         contentSpec,
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
+	}
+
+	if cfg.Cfg.GetBool("templateMetrics") {
+		d.Metrics = metrics.NewProvider(cfg.Cfg.GetBool("templateMetricsHints"))
 	}
 
 	return d, nil
@@ -139,7 +151,11 @@ func (d Deps) ForLanguage(l *helpers.Language) (*Deps, error) {
 		return nil, err
 	}
 
-	d.ContentSpec = helpers.NewContentSpec(l)
+	d.ContentSpec, err = helpers.NewContentSpec(l)
+	if err != nil {
+		return nil, err
+	}
+
 	d.Cfg = l
 	d.Language = l
 

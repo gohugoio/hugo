@@ -750,15 +750,6 @@ func TestGroupedPages(t *testing.T) {
 	if bydate[1].Key != "2012-01" {
 		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "2012-01", bydate[1].Key)
 	}
-	if bydate[2].Key != "2012-04" {
-		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "2012-04", bydate[2].Key)
-	}
-	if bydate[2].Pages[0].Title != "Three" {
-		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", bydate[2].Pages[0].Title)
-	}
-	if len(bydate[0].Pages) != 2 {
-		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(bydate[2].Pages))
-	}
 
 	bypubdate, err := s.RegularPages.GroupByPublishDate("2006")
 	if err != nil {

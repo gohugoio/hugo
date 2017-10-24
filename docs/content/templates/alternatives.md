@@ -7,7 +7,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-20
 categories: [templates]
-#tags: [amber,ace,templating languages]
+keywords: [amber,ace,templating languages]
 menu:
   docs:
     parent: "templates"

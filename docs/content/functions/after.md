@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [iteration]
+keywords: [iteration]
 signature: ["after INDEX COLLECTION"]
 workson: []
 hugoversion:

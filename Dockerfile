@@ -1,30 +1,20 @@
+FROM golang:1.9.0-alpine3.6 AS build
+
+RUN apk add --no-cache --virtual git musl-dev
+RUN go get github.com/kardianos/govendor
+
+ADD vendor/vendor.json /go/src/github.com/gohugoio/hugo/vendor/vendor.json
+WORKDIR /go/src/github.com/gohugoio/hugo
+RUN govendor sync
+ADD . /go/src/github.com/gohugoio/hugo/
+RUN go install -ldflags '-s -w'
+
 FROM alpine:3.6
-
-ENV GOPATH /go
-ENV PATH $GOPATH/bin:$PATH
-
 RUN \
   adduser -h /site -s /sbin/nologin -u 1000 -D hugo && \
   apk add --no-cache \
-    dumb-init && \
-  apk add --no-cache --virtual .build-deps \
-    gcc \
-    musl-dev \
-    go \
-    git && \
-  mkdir -p \
-    ${GOPATH}/bin \
-    ${GOPATH}/pkg \
-    ${GOPATH}/src && \
-  go get github.com/kardianos/govendor && \
-  govendor get github.com/gohugoio/hugo && \
-  cd $GOPATH/src/github.com/gohugoio/hugo && \
-  rm -f $GOPATH/bin/hugo && \
-  go install -ldflags '-s -w' && \
-  cd $GOPATH && \
-  rm -rf pkg src .cache bin/govendor && \
-  apk del .build-deps
-
+    dumb-init
+COPY --from=build /go/bin/hugo /bin/hugo
 USER    hugo
 WORKDIR /site
 VOLUME  /site

@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-11
 categories: [hosting and deployment]
-#tags: [netlify,hosting,deployment]
+keywords: [netlify,hosting,deployment]
 authors: [Ryan Watters, Seth MacLeod]
 menu:
   docs:

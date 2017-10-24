@@ -143,6 +143,72 @@ func TestDoArithmetic(t *testing.T) {
 	}
 }
 
+func TestCeil(t *testing.T) {
+	t.Parallel()
+
+	ns := New()
+
+	for i, test := range []struct {
+		x      interface{}
+		expect interface{}
+	}{
+		{0.1, 1.0},
+		{0.5, 1.0},
+		{1.1, 2.0},
+		{1.5, 2.0},
+		{-0.1, 0.0},
+		{-0.5, 0.0},
+		{-1.1, -1.0},
+		{-1.5, -1.0},
+		{"abc", false},
+	} {
+		errMsg := fmt.Sprintf("[%d] %v", i, test)
+
+		result, err := ns.Ceil(test.x)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			require.Error(t, err, errMsg)
+			continue
+		}
+
+		require.NoError(t, err, errMsg)
+		assert.Equal(t, test.expect, result, errMsg)
+	}
+}
+
+func TestFloor(t *testing.T) {
+	t.Parallel()
+
+	ns := New()
+
+	for i, test := range []struct {
+		x      interface{}
+		expect interface{}
+	}{
+		{0.1, 0.0},
+		{0.5, 0.0},
+		{1.1, 1.0},
+		{1.5, 1.0},
+		{-0.1, -1.0},
+		{-0.5, -1.0},
+		{-1.1, -2.0},
+		{-1.5, -2.0},
+		{"abc", false},
+	} {
+		errMsg := fmt.Sprintf("[%d] %v", i, test)
+
+		result, err := ns.Floor(test.x)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			require.Error(t, err, errMsg)
+			continue
+		}
+
+		require.NoError(t, err, errMsg)
+		assert.Equal(t, test.expect, result, errMsg)
+	}
+}
+
 func TestLog(t *testing.T) {
 	t.Parallel()
 
@@ -247,6 +313,39 @@ func TestModBool(t *testing.T) {
 		result, err := ns.ModBool(test.a, test.b)
 
 		if test.expect == nil {
+			require.Error(t, err, errMsg)
+			continue
+		}
+
+		require.NoError(t, err, errMsg)
+		assert.Equal(t, test.expect, result, errMsg)
+	}
+}
+
+func TestRound(t *testing.T) {
+	t.Parallel()
+
+	ns := New()
+
+	for i, test := range []struct {
+		x      interface{}
+		expect interface{}
+	}{
+		{0.1, 0.0},
+		{0.5, 1.0},
+		{1.1, 1.0},
+		{1.5, 2.0},
+		{-0.1, -0.0},
+		{-0.5, -1.0},
+		{-1.1, -1.0},
+		{-1.5, -2.0},
+		{"abc", false},
+	} {
+		errMsg := fmt.Sprintf("[%d] %v", i, test)
+
+		result, err := ns.Round(test.x)
+
+		if b, ok := test.expect.(bool); ok && !b {
 			require.Error(t, err, errMsg)
 			continue
 		}

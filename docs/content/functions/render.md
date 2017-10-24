@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [views]
+keywords: [views]
 signature: ["render LAYOUT"]
 workson: []
 hugoversion:

@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-26
 categories: [developer tools]
-#tags: [search,tools]
+keywords: [search,tools]
 menu:
   docs:
     parent: "tools"

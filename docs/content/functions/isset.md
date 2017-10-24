@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: []
+keywords: []
 signature: ["isset COLLECTION INDEX", "isset COLLECTION KEY"]
 workson: []
 hugoversion:

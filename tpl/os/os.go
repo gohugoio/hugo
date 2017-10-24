@@ -96,3 +96,22 @@ func (ns *Namespace) ReadDir(i interface{}) ([]_os.FileInfo, error) {
 
 	return list, nil
 }
+
+// FileExists checks whether a file exists under the given path.
+func (ns *Namespace) FileExists(i interface{}) (bool, error) {
+	path, err := cast.ToStringE(i)
+	if err != nil {
+		return false, err
+	}
+
+	if path == "" {
+		return false, errors.New("fileExists needs a path to a file")
+	}
+
+	status, err := afero.Exists(ns.deps.Fs.WorkingDir, path)
+	if err != nil {
+		return false, err
+	}
+
+	return status, nil
+}

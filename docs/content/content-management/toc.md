@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [content management]
-#tags: [table of contents, toc]
+keywords: [table of contents, toc]
 menu:
   docs:
     parent: "content-management"
@@ -44,6 +44,10 @@ A collection of textile samples lay spread out on the table - Samsa was a travel
 Hugo will take this Markdown and create a table of contents from `## Introduction`, `## My Heading`, and `### My Subheading` and then store it in the [page variable][pagevars]`.TableOfContents`.
 
 The built-in `.TableOfContents` variables outputs a `<nav id="TableOfContents">` element with a child `<ul>`, whose child `<li>` elements begin with any `<h1>`'s (i.e., `#` in markdown) inside your content.'
+
+{{% note "Table of contents not available for MMark" %}}
+Hugo documents created in the [MMark](/content-management/formats/#mmark) Markdown dialect do not currently display TOCs. TOCs are, however, compatible with all other supported Markdown formats.
+{{% /note %}}
 
 ## Template Example: Basic TOC
 

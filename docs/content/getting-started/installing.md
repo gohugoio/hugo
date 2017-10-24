@@ -7,7 +7,7 @@ publishdate: 2016-11-01
 lastmod: 2017-02-20
 categories: [getting started,fundamentals]
 authors: ["Michael Henderson"]
-#tags: [install,pc,windows,linux,macos,binary,tarball]
+keywords: [install,pc,windows,linux,macos,binary,tarball]
 menu:
   docs:
     parent: "getting-started"
@@ -120,6 +120,8 @@ Since building from source is appealing to more seasoned command line users, thi
 {{% /note %}}
 
 ### Install Hugo with Brew
+
+{{< youtube WvhCGlLcrF8 >}}
 
 #### Step 1: Install `brew` if you haven't already
 
@@ -298,6 +300,8 @@ Then place the `hugo` executable somewhere in your `$PATH`. You're now ready to 
 ## Windows
 
 The following aims to be a complete guide to installing Hugo on your Windows PC.
+
+{{< youtube G7umPCU-8xc >}}
 
 ### Assumptions
 

@@ -6,7 +6,7 @@ date: 2017-02-04
 publishdate: 2017-02-04
 lastmod: 2017-02-04
 categories: [hosting and deployment]
-#tags: [hosting,bitbucket,deployment,aerobatic]
+keywords: [hosting,bitbucket,deployment,aerobatic]
 authors: [Jason Gowans]
 menu:
   docs:

@@ -291,7 +291,9 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 // Note: This is mainly used in single site tests.
 func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
 	v := viper.New()
-	loadDefaultSettingsFor(v)
+	if err := loadDefaultSettingsFor(v); err != nil {
+		return nil, err
+	}
 	return newSiteForLang(helpers.NewDefaultLanguage(v), withTemplate...)
 }
 
@@ -300,7 +302,9 @@ func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateHandler) error) (
 // Note: This is mainly used in single site tests.
 func NewEnglishSite(withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
 	v := viper.New()
-	loadDefaultSettingsFor(v)
+	if err := loadDefaultSettingsFor(v); err != nil {
+		return nil, err
+	}
 	return newSiteForLang(helpers.NewLanguage("en", v), withTemplate...)
 }
 
@@ -889,7 +893,7 @@ func (s *Site) setupSitePages() {
 	s.Info.LastChange = siteLastChange
 }
 
-func (s *Site) render(outFormatIdx int) (err error) {
+func (s *Site) render(config *BuildCfg, outFormatIdx int) (err error) {
 
 	if outFormatIdx == 0 {
 		if err = s.preparePages(); err != nil {
@@ -913,7 +917,7 @@ func (s *Site) render(outFormatIdx int) (err error) {
 
 	}
 
-	if err = s.renderPages(); err != nil {
+	if err = s.renderPages(config.RecentlyVisited); err != nil {
 		return
 	}
 
@@ -1726,8 +1730,7 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 // Stats prints Hugo builds stats to the console.
 // This is what you see after a successful hugo build.
 func (s *Site) Stats() {
-
-	s.Log.FEEDBACK.Printf("Built site for language %s:\n", s.Language.Lang)
+	s.Log.FEEDBACK.Printf("\nBuilt site for language %s:\n", s.Language.Lang)
 	s.Log.FEEDBACK.Println(s.draftStats())
 	s.Log.FEEDBACK.Println(s.futureStats())
 	s.Log.FEEDBACK.Println(s.expiredStats())
@@ -1845,7 +1848,7 @@ func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layou
 		}
 
 		if s.running() && s.Cfg.GetBool("watch") && !s.Cfg.GetBool("disableLiveReload") {
-			transformLinks = append(transformLinks, transform.LiveReloadInject(s.Cfg.GetInt("port")))
+			transformLinks = append(transformLinks, transform.LiveReloadInject(s.Cfg.GetInt("liveReloadPort")))
 		}
 
 		// For performance reasons we only inject the Hugo generator tag on the home page.

@@ -57,7 +57,7 @@ To make the contribution process as seamless as possible, we ask for the followi
     * Run `go fmt`.
     * Add documentation if you are adding new features or changing functionality.  The docs site lives in `/docs`.
     * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request with `git push -f`.
-    * Ensure that `make check` succeeds. [Travis CI](https://travis-ci.org/gohugoio/hugo) (Linux and macOS) and [AppVeyor](https://ci.appveyor.com/project/gohugoio/hugo/branch/master) (Windows) will fail the build if `make check` fails.
+    * Ensure that `mage check` succeeds. [Travis CI](https://travis-ci.org/gohugoio/hugo) (Linux and macOS) and [AppVeyor](https://ci.appveyor.com/project/gohugoio/hugo/branch/master) (Windows) will fail the build if `mage check` fails.
     * Follow the **Git Commit Message Guidelines** below.
 
 ### Git Commit Message Guidelines
@@ -145,11 +145,19 @@ started:
 
 ### Build Hugo with Your Changes
 
+**Note:** Hugo uses [mage](https://github.com/magefile/mage) to build. To install `mage` run
+
+```bash
+go get github.com/magefile/mage
+```
+
+`mage -l` lists all available commands with the corresponding description. To build Hugo run
+
 ```bash
 cd $HOME/go/src/github.com/gohugoio/hugo
-make hugo
+mage hugo
 # or to install in $HOME/go/bin:
-make install
+mage install
 ```
 
 ### Updating the Hugo Sources
@@ -160,6 +168,6 @@ well.
 
 ```
 git pull
-make vendor
+mage vendor
 ```
 

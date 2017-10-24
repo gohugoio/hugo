@@ -5,7 +5,7 @@ description: Hugo ships with its own RSS 2.0 template that requires almost no co
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-#tags: [rss, xml]
+keywords: [rss, xml]
 categories: [templates]
 menu:
   docs:
@@ -31,7 +31,7 @@ You can use a single RSS template to generate all of your RSS feeds or create a 
 Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml). The embedded template will be sufficient for most use cases.
 {{% /note %}}
 
-RSS pages are of the type `Page` and have all the [page variables](/layout/variables/) available to use in the templates.
+RSS pages are of the type `Page` and have all the [page variables](/variables/page/) available to use in the templates.
 
 ### Section RSS
 

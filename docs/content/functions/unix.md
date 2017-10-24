@@ -6,7 +6,7 @@ godocref: https://golang.org/search?q=Unix#Functions
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-#tags: [dates,time]
+keywords: [dates,time]
 categories: [functions]
 menu:
   docs:

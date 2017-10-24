@@ -7,7 +7,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-08-21
 categories: [functions]
-#tags: [numbers]
+keywords: [numbers]
 menu:
   docs:
     parent: "functions"

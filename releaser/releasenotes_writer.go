@@ -281,15 +281,25 @@ func (r *ReleaseHandler) writeReleaseNotesToDocs(title, sourceFilename string) (
 	}
 	defer f.Close()
 
+	fmTail := ""
+	if strings.Count(title, ".") > 1 {
+		// Bug fix release
+		fmTail = `
+images:
+- images/blog/hugo-bug-poster.png
+`
+	}
+
 	if _, err := f.WriteString(fmt.Sprintf(`
 ---
 date: %s
 title: %q
 description: %q
-categories: ["Releases"]
+slug: %q
+categories: ["Releases"]%s
 ---
 
-	`, time.Now().Format("2006-01-02"), title, title)); err != nil {
+	`, time.Now().Format("2006-01-02"), title, title, title, fmTail)); err != nil {
 		return "", err
 	}
 
