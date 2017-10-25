@@ -124,7 +124,7 @@ You could then include the following as part of your shortcode templating:
 <img src="{{.Get "src" }}" alt="">
 {{ else }}
 <img src="{{.Get 0}}" alt="">
-{{ end }}.
+{{ end }}
 ```
 
 See the [example Vimeo shortcode][vimeoexample] below for `.IsNamedParams` in action.
