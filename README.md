@@ -110,3 +110,5 @@ For a complete guide to contributing code to Hugo, see the [Contribution Guide](
 
 [Go]: https://golang.org/
 [Hugo Documentation]: https://gohugo.io/overview/introduction/
+
+Participating in HacktoberFest Movement ! :)
