@@ -88,6 +88,7 @@ The `figure` shortcode can use the following named parameters:
 * `attr` (i.e., attribution)
 * `attrlink`
 * `alt`
+* `height`
 
 #### Example `figure` Input
 
