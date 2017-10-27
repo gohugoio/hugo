@@ -299,6 +299,16 @@ func TestFigureImgWidth(t *testing.T) {
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", nil)
 }
 
+func TestFigureImgHeight(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" height="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" height=\"100px\" />\n    \n    \n</figure>\n", nil)
+}
+
+func TestFigureImgWidthAndHeight(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="50" height="100" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"50\" height=\"100\" />\n    \n    \n</figure>\n", nil)
+}
+
 const testScPlaceholderRegexp = "HAHAHUGOSHORTCODE-\\d+HBHB"
 
 func TestExtractShortcodes(t *testing.T) {
