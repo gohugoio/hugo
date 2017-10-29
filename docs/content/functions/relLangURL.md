@@ -5,7 +5,7 @@ godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-#tags: [multilingual,i18n,urls]
+keywords: [multilingual,i18n,urls]
 categories: [functions]
 menu:
   docs:

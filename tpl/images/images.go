@@ -23,6 +23,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
+	// Import webp codec
 	_ "golang.org/x/image/webp"
 
 	"github.com/gohugoio/hugo/deps"

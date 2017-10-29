@@ -15,7 +15,9 @@ package urls
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
+	"net/url"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
@@ -41,6 +43,17 @@ func (ns *Namespace) AbsURL(a interface{}) (template.HTML, error) {
 	}
 
 	return template.HTML(ns.deps.PathSpec.AbsURL(s, false)), nil
+}
+
+// Parse parses rawurl into a URL structure. The rawurl may be relative or
+// absolute.
+func (ns *Namespace) Parse(rawurl interface{}) (*url.URL, error) {
+	s, err := cast.ToStringE(rawurl)
+	if err != nil {
+		return nil, fmt.Errorf("Error in Parse: %s", err)
+	}
+
+	return url.Parse(s)
 }
 
 // RelURL takes a given string and prepends the relative path according to a

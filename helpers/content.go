@@ -36,9 +36,6 @@ import (
 	"strings"
 )
 
-// SummaryLength is the length of the summary that Hugo extracts from a content.
-var SummaryLength = 70
-
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
 var SummaryDivider = []byte("<!--more-->")
 
@@ -47,20 +44,53 @@ type ContentSpec struct {
 	blackfriday                map[string]interface{}
 	footnoteAnchorPrefix       string
 	footnoteReturnLinkContents string
+	// SummaryLength is the length of the summary that Hugo extracts from a content.
+	summaryLength int
+
+	Highlight            func(code, lang, optsStr string) (string, error)
+	defatultPygmentsOpts map[string]string
 
 	cfg config.Provider
 }
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
-func NewContentSpec(cfg config.Provider) *ContentSpec {
-	return &ContentSpec{
+func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
+	spec := &ContentSpec{
 		blackfriday:                cfg.GetStringMap("blackfriday"),
 		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
 		footnoteReturnLinkContents: cfg.GetString("footnoteReturnLinkContents"),
+		summaryLength:              cfg.GetInt("summaryLength"),
 
 		cfg: cfg,
 	}
+
+	// Highlighting setup
+	options, err := parseDefaultPygmentsOpts(cfg)
+	if err != nil {
+		return nil, err
+	}
+	spec.defatultPygmentsOpts = options
+
+	// Use the Pygmentize on path if present
+	useClassic := false
+	h := newHiglighters(spec)
+
+	if cfg.GetBool("pygmentsUseClassic") {
+		if !hasPygments() {
+			jww.WARN.Println("Highlighting with pygmentsUseClassic set requires Pygments to be installed and in the path")
+		} else {
+			useClassic = true
+		}
+	}
+
+	if useClassic {
+		spec.Highlight = h.pygmentsHighlight
+	} else {
+		spec.Highlight = h.chromaHighlight
+	}
+
+	return spec, nil
 }
 
 // Blackfriday holds configuration values for Blackfriday rendering.
@@ -198,7 +228,7 @@ func BytesToHTML(b []byte) template.HTML {
 }
 
 // getHTMLRenderer creates a new Blackfriday HTML Renderer with the given configuration.
-func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
+func (c *ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) blackfriday.Renderer {
 	renderParameters := blackfriday.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       c.footnoteAnchorPrefix,
 		FootnoteReturnLinkContents: c.footnoteReturnLinkContents,
@@ -248,6 +278,7 @@ func (c ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) bl
 	}
 
 	return &HugoHTMLRenderer{
+		cs:               c,
 		RenderingContext: ctx,
 		Renderer:         blackfriday.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
 	}
@@ -299,7 +330,7 @@ func (c ContentSpec) markdownRender(ctx *RenderingContext) []byte {
 }
 
 // getMmarkHTMLRenderer creates a new mmark HTML Renderer with the given configuration.
-func (c ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
+func (c *ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContext) mmark.Renderer {
 	renderParameters := mmark.HtmlRendererParameters{
 		FootnoteAnchorPrefix:       c.footnoteAnchorPrefix,
 		FootnoteReturnLinkContents: c.footnoteReturnLinkContents,
@@ -320,8 +351,9 @@ func (c ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingContex
 	htmlFlags |= mmark.HTML_FOOTNOTE_RETURN_LINKS
 
 	return &HugoMmarkHTMLRenderer{
-		mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
-		c.cfg,
+		cs:       c,
+		Renderer: mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
+		Cfg:      c.cfg,
 	}
 }
 
@@ -448,20 +480,20 @@ func totalWordsOld(s string) int {
 }
 
 // TruncateWordsByRune truncates words by runes.
-func TruncateWordsByRune(words []string, max int) (string, bool) {
+func (c *ContentSpec) TruncateWordsByRune(words []string) (string, bool) {
 	count := 0
 	for index, word := range words {
-		if count >= max {
+		if count >= c.summaryLength {
 			return strings.Join(words[:index], " "), true
 		}
 		runeCount := utf8.RuneCountInString(word)
 		if len(word) == runeCount {
 			count++
-		} else if count+runeCount < max {
+		} else if count+runeCount < c.summaryLength {
 			count += runeCount
 		} else {
 			for ri := range word {
-				if count >= max {
+				if count >= c.summaryLength {
 					truncatedWords := append(words[:index], word[:ri])
 					return strings.Join(truncatedWords, " "), true
 				}
@@ -475,8 +507,7 @@ func TruncateWordsByRune(words []string, max int) (string, bool) {
 
 // TruncateWordsToWholeSentence takes content and truncates to whole sentence
 // limited by max number of words. It also returns whether it is truncated.
-func TruncateWordsToWholeSentence(s string, max int) (string, bool) {
-
+func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 	var (
 		wordCount     = 0
 		lastWordIndex = -1
@@ -487,7 +518,7 @@ func TruncateWordsToWholeSentence(s string, max int) (string, bool) {
 			wordCount++
 			lastWordIndex = i
 
-			if wordCount >= max {
+			if wordCount >= c.summaryLength {
 				break
 			}
 
@@ -519,24 +550,24 @@ func isEndOfSentence(r rune) bool {
 }
 
 // Kept only for benchmark.
-func truncateWordsToWholeSentenceOld(content string, max int) (string, bool) {
+func (c *ContentSpec) truncateWordsToWholeSentenceOld(content string) (string, bool) {
 	words := strings.Fields(content)
 
-	if max >= len(words) {
+	if c.summaryLength >= len(words) {
 		return strings.Join(words, " "), false
 	}
 
-	for counter, word := range words[max:] {
+	for counter, word := range words[c.summaryLength:] {
 		if strings.HasSuffix(word, ".") ||
 			strings.HasSuffix(word, "?") ||
 			strings.HasSuffix(word, ".\"") ||
 			strings.HasSuffix(word, "!") {
-			upper := max + counter + 1
+			upper := c.summaryLength + counter + 1
 			return strings.Join(words[:upper], " "), (upper < len(words))
 		}
 	}
 
-	return strings.Join(words[:max], " "), true
+	return strings.Join(words[:c.summaryLength], " "), true
 }
 
 func getAsciidocExecPath() string {

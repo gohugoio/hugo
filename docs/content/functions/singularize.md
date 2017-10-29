@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [strings,singular]
+keywords: [strings,singular]
 signature: ["singularize INPUT"]
 workson: []
 hugoversion:

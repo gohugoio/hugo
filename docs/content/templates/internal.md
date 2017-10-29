@@ -6,7 +6,7 @@ date: 2017-03-06
 publishdate: 2017-03-06
 lastmod: 2017-03-06
 categories: [templates]
-#tags: [internal, analytics,]
+keywords: [internal, analytics,]
 menu:
   docs:
     parent: "templates"
@@ -129,3 +129,5 @@ You can then render your custom Disqus partial template as follows:
 * `_internal/schema.html`
 * `_internal/twitter_cards.html`
 
+[disqus]: https://disqus.com
+[disqussignup]: https://disqus.com/profile/signup/

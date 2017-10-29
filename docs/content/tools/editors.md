@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [developer tools]
-#tags: [editor, plug-ins]
+keywords: [editor, plug-ins]
 menu:
   docs:
     parent: "tools"
@@ -31,6 +31,7 @@ The Hugo community uses a wide range of preferred tools and has developed plug-i
 ## Emacs
 
 * [hugo.el](https://github.com/yewton/hugo.el). Some helper functions for creating a Website with Hugo. Note that Hugo also supports [Org-mode][formats].
+* [ox-hugo.el](https://ox-hugo.scripter.co). Native Org-mode exporter that exports to Blackfriday Markdown with Hugo front-matter. `ox-hugo` supports two common Org blogging flows --- exporting multiple Org sub-trees in a single file to multiple Hugo posts, and exporting a single Org file to a single Hugo post. It also leverages the Org tag and property inheritance features. See [*Why ox-hugo?*](https://ox-hugo.scripter.co/doc/why-ox-hugo/) for more.
 
 ## Vim
 

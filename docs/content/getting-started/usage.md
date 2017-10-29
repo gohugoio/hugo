@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [getting started]
-#tags: [usage,livereload,command line,flags]
+keywords: [usage,livereload,command line,flags]
 menu:
   docs:
     parent: "getting-started"
@@ -44,7 +44,6 @@ Usage:
 
 Available Commands:
   benchmark   Benchmark Hugo by building a site a number of times.
-  check       Contains some verification checks
   config      Print the site configuration
   convert     Convert your content to different formats
   env         Print Hugo version and environment info
@@ -54,7 +53,7 @@ Available Commands:
   list        Listing out various types of content
   new         Create new content for your site
   server      A high performance webserver
-  undraft     Undraft changes the content's draft status from 'True' to 'False'
+  undraft     Undraft resets the content's draft status
   version     Print the version number of Hugo
 
 Flags:
@@ -67,6 +66,7 @@ Flags:
       --cleanDestinationDir        remove files from destination not found in static directories
       --config string              config file (default is path/config.yaml|json|toml)
   -c, --contentDir string          filesystem path to content directory
+      --debug                      debug output
   -d, --destination string         filesystem path to write files to
       --disable404                 do not render 404 page
       --disableKinds stringSlice   disable different kind of pages (home, RSS etc.)
@@ -88,12 +88,18 @@ Flags:
       --renderToMemory             render to memory (only useful for benchmark testing)
   -s, --source string              filesystem path to read files relative from
       --stepAnalysis               display memory and timing of different steps of the program
+      --templateMetrics            display metrics about template executions
   -t, --theme string               theme to use (located in /themes/THEMENAME/)
       --themesDir string           filesystem path to themes directory
       --uglyURLs                   if true, use /filename.html instead of /filename/
   -v, --verbose                    verbose output
       --verboseLog                 verbose logging
   -w, --watch                      watch filesystem for changes and recreate as needed
+
+Additional help topics:
+  hugo check     Contains some verification checks
+
+Use "hugo [command] --help" for more information about a command.
 ```
 
 ## The `hugo` Command

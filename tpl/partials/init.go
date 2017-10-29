@@ -36,7 +36,7 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.getCached,
+		ns.AddMethodMapping(ctx.IncludeCached,
 			[]string{"partialCached"},
 			[][2]string{},
 		)

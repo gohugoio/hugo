@@ -53,15 +53,11 @@ type ReleaseHandler struct {
 
 func (r ReleaseHandler) calculateVersions() (helpers.HugoVersion, helpers.HugoVersion) {
 	newVersion := helpers.MustParseHugoVersion(r.cliVersion)
-	finalVersion := newVersion
+	finalVersion := newVersion.Next()
 	finalVersion.PatchLevel = 0
 
 	if newVersion.Suffix != "-test" {
 		newVersion.Suffix = ""
-	}
-
-	if newVersion.PatchLevel == 0 {
-		finalVersion = finalVersion.Next()
 	}
 
 	finalVersion.Suffix = "-DEV"

@@ -16,7 +16,7 @@ package tplimpl
 func (t *templateHandler) embedShortcodes() {
 	t.addInternalShortcode("ref.html", `{{ if len .Params | eq 2 }}{{ ref .Page (.Get 0) (.Get 1) }}{{ else }}{{ ref .Page (.Get 0) }}{{ end }}`)
 	t.addInternalShortcode("relref.html", `{{ if len .Params | eq 2 }}{{ relref .Page (.Get 0) (.Get 1) }}{{ else }}{{ relref .Page (.Get 0) }}{{ end }}`)
-	t.addInternalShortcode("highlight.html", `{{ if len .Params | eq 2 }}{{ highlight .Inner (.Get 0) (.Get 1) }}{{ else }}{{ highlight .Inner (.Get 0) "" }}{{ end }}`)
+	t.addInternalShortcode("highlight.html", `{{ if len .Params | eq 2 }}{{ highlight (trim .Inner "\n\r") (.Get 0) (.Get 1) }}{{ else }}{{ highlight (trim .Inner "\n\r") (.Get 0) "" }}{{ end }}`)
 	t.addInternalShortcode("test.html", `This is a simple Test`)
 	t.addInternalShortcode("figure.html", `<!-- image -->
 <figure {{ with .Get "class" }}class="{{.}}"{{ end }}>

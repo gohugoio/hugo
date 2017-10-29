@@ -1,11 +1,11 @@
 ---
-title: Cross References
+title: Links and Cross References
 description: Hugo makes it easy to link documents together.
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-31
 categories: [content management]
-#tags: ["cross references","references", "anchors", "urls"]
+keywords: ["cross references","references", "anchors", "urls"]
 menu:
   docs:
     parent: "content-management"
@@ -21,12 +21,12 @@ toc: true
 ## Use `ref` and `relref`
 
 ```
-{{</* ref "document" */>}}
+{{</* ref "document.md" */>}}
 {{</* ref "#anchor" */>}}
-{{</* ref "document#anchor" */>}}
-{{</* relref "document" */>}}
+{{</* ref "document.md#anchor" */>}}
+{{</* relref "document.md" */>}}
 {{</* relref "#anchor" */>}}
-{{</* relref "document#anchor" */>}}
+{{</* relref "document.md#anchor" */>}}
 ```
 
 The single parameter to `ref` is a string with a content `documentname` (e.g., `about.md`) with or without an appended in-document `anchor` (`#who`) without spaces.

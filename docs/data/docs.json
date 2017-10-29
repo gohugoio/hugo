@@ -352,6 +352,21 @@
   "tpl": {
     "funcs": {
       "cast": {
+        "ToFloat": {
+          "Description": "ToFloat converts the given value to a float.",
+          "Args": [
+            "v"
+          ],
+          "Aliases": [
+            "float"
+          ],
+          "Examples": [
+            [
+              "{{ \"1234\" | float | printf \"%T\" }}",
+              "float64"
+            ]
+          ]
+        },
         "ToInt": {
           "Description": "ToInt converts the given value to an int.",
           "Args": [
@@ -384,6 +399,23 @@
         }
       },
       "compare": {
+        "Conditional": {
+          "Description": "Conditional can be used as a ternary operator.\nIt returns a if condition, else b.",
+          "Args": [
+            "condition",
+            "a",
+            "b"
+          ],
+          "Aliases": [
+            "cond"
+          ],
+          "Examples": [
+            [
+              "{{ cond (eq (add 2 2) 4) \"2+2 is 4\" \"what?\" | safeHTML }}",
+              "2+2 is 4"
+            ]
+          ]
+        },
         "Default": {
           "Description": "Default checks whether a given value is set and returns a default value if it\nis not.  \"Set\" in this context means non-zero for numeric types and times;\nnon-zero length for strings, arrays, slices, and maps;\nany boolean or struct value; or non-nil for any other types.",
           "Args": [
@@ -603,6 +635,22 @@
             "isset"
           ],
           "Examples": []
+        },
+        "KeyVals": {
+          "Description": "KeyVals creates a key and values wrapper.",
+          "Args": [
+            "key",
+            "vals"
+          ],
+          "Aliases": [
+            "keyVals"
+          ],
+          "Examples": [
+            [
+              "{{ keyVals \"key\" \"a\" \"b\" }}",
+              "key: [a b]"
+            ]
+          ]
         },
         "Last": {
           "Description": "Last returns the last N items in a rangeable list.",
@@ -855,8 +903,24 @@
         }
       },
       "fmt": {
-        "Print": {
+        "Errorf": {
           "Description": "",
+          "Args": [
+            "format",
+            "a"
+          ],
+          "Aliases": [
+            "errorf"
+          ],
+          "Examples": [
+            [
+              "{{ errorf \"%s.\" \"failed\" }}",
+              "failed."
+            ]
+          ]
+        },
+        "Print": {
+          "Description": "Print returns string representation of the passed arguments.",
           "Args": [
             "a"
           ],
@@ -871,7 +935,7 @@
           ]
         },
         "Printf": {
-          "Description": "",
+          "Description": "Printf returns a formatted string representation of the passed arguments.",
           "Args": [
             "format",
             "a"
@@ -887,7 +951,7 @@
           ]
         },
         "Println": {
-          "Description": "",
+          "Description": "Println returns string representation of the passed arguments ending with a newline.",
           "Args": [
             "a"
           ],
@@ -1020,7 +1084,7 @@
       },
       "math": {
         "Add": {
-          "Description": "",
+          "Description": "Add adds two numbers.",
           "Args": [
             "a",
             "b"
@@ -1035,8 +1099,21 @@
             ]
           ]
         },
+        "Ceil": {
+          "Description": "Ceil returns the least integer value greater than or equal to x.",
+          "Args": [
+            "x"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Ceil 2.1}}",
+              "3"
+            ]
+          ]
+        },
         "Div": {
-          "Description": "",
+          "Description": "Div divides two numbers.",
           "Args": [
             "a",
             "b"
@@ -1051,8 +1128,21 @@
             ]
           ]
         },
+        "Floor": {
+          "Description": "Floor returns the greatest integer value less than or equal to x.",
+          "Args": [
+            "x"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Floor 1.9}}",
+              "1"
+            ]
+          ]
+        },
         "Log": {
-          "Description": "",
+          "Description": "Log returns the natural logarithm of a number.",
           "Args": [
             "a"
           ],
@@ -1097,7 +1187,7 @@
           ]
         },
         "Mul": {
-          "Description": "",
+          "Description": "Mul multiplies two numbers.",
           "Args": [
             "a",
             "b"
@@ -1112,8 +1202,21 @@
             ]
           ]
         },
+        "Round": {
+          "Description": "Round returns the nearest integer, rounding half away from zero.",
+          "Args": [
+            "x"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{math.Round 1.5}}",
+              "2"
+            ]
+          ]
+        },
         "Sub": {
-          "Description": "",
+          "Description": "Sub subtracts two numbers.",
           "Args": [
             "a",
             "b"
@@ -1130,6 +1233,21 @@
         }
       },
       "os": {
+        "FileExists": {
+          "Description": "FileExists checks whether a file exists under the given path.",
+          "Args": [
+            "i"
+          ],
+          "Aliases": [
+            "fileExists"
+          ],
+          "Examples": [
+            [
+              "{{ fileExists \"foo.txt\" }}",
+              "false"
+            ]
+          ]
+        },
         "Getenv": {
           "Description": "Getenv retrieves the value of the environment variable named by the key.\nIt returns the value, which will be empty if the variable is not present.",
           "Args": [
@@ -1156,7 +1274,7 @@
           ]
         },
         "ReadFile": {
-          "Description": "ReadFilereads the file named by filename relative to the configured\nWorkingDir.  It returns the contents as a string.  There is a upper size\nlimit set at 1 megabytes.",
+          "Description": "ReadFile reads the file named by filename relative to the configured WorkingDir.\nIt returns the contents as a string.\nThere is an upper size limit set at 1 megabytes.",
           "Args": [
             "i"
           ],
@@ -1187,6 +1305,18 @@
               "\u003ctitle\u003eHugo Rocks!\u003c/title\u003e"
             ]
           ]
+        },
+        "IncludeCached": {
+          "Description": "IncludeCached executes and caches partial templates.  An optional variant\nstring parameter (a string slice actually, but be only use a variadic\nargument to make it optional) can be passed so that a given partial can have\nmultiple uses. The cache is created with name+variant as the key.",
+          "Args": [
+            "name",
+            "context",
+            "variant"
+          ],
+          "Aliases": [
+            "partialCached"
+          ],
+          "Examples": []
         }
       },
       "safe": {
@@ -1469,6 +1599,10 @@
             [
               "{{title \"Bat man\"}}",
               "Bat Man"
+            ],
+            [
+              "{{title \"somewhere over the rainbow\"}}",
+              "Somewhere Over the Rainbow"
             ]
           ]
         },
@@ -1518,20 +1652,72 @@
             ]
           ]
         },
-        "TrimPrefix": {
-          "Description": "",
-          "Args": null,
+        "TrimLeft": {
+          "Description": "TrimLeft returns a slice of the string s with all leading characters\ncontained in cutset removed.",
+          "Args": [
+            "cutset",
+            "s"
+          ],
           "Aliases": null,
-          "Examples": null
+          "Examples": [
+            [
+              "{{ \"aabbaa\" | strings.TrimLeft \"a\" }}",
+              "bbaa"
+            ]
+          ]
+        },
+        "TrimPrefix": {
+          "Description": "TrimPrefix returns s without the provided leading prefix string. If s doesn't\nstart with prefix, s is returned unchanged.",
+          "Args": [
+            "prefix",
+            "s"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"aabbaa\" | strings.TrimPrefix \"a\" }}",
+              "abbaa"
+            ],
+            [
+              "{{ \"aabbaa\" | strings.TrimPrefix \"aa\" }}",
+              "bbaa"
+            ]
+          ]
+        },
+        "TrimRight": {
+          "Description": "TrimRight returns a slice of the string s with all trailing characters\ncontained in cutset removed.",
+          "Args": [
+            "cutset",
+            "s"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"aabbaa\" | strings.TrimRight \"a\" }}",
+              "aabb"
+            ]
+          ]
         },
         "TrimSuffix": {
-          "Description": "",
-          "Args": null,
+          "Description": "TrimSuffix returns s without the provided trailing suffix string. If s\ndoesn't end with suffix, s is returned unchanged.",
+          "Args": [
+            "suffix",
+            "s"
+          ],
           "Aliases": null,
-          "Examples": null
+          "Examples": [
+            [
+              "{{ \"aabbaa\" | strings.TrimSuffix \"a\" }}",
+              "aabba"
+            ],
+            [
+              "{{ \"aabbaa\" | strings.TrimSuffix \"aa\" }}",
+              "aabb"
+            ]
+          ]
         },
         "Truncate": {
-          "Description": "",
+          "Description": "Truncate truncates a given string to the specified length.",
           "Args": [
             "a",
             "options"
@@ -1565,6 +1751,22 @@
             ]
           ]
         },
+        "Duration": {
+          "Description": "Duration converts the given number to a time.Duration.\nUnit is one of nanosecond/ns, microsecond/us/µs, millisecond/ms, second/s, minute/m or hour/h.",
+          "Args": [
+            "unit",
+            "number"
+          ],
+          "Aliases": [
+            "duration"
+          ],
+          "Examples": [
+            [
+              "{{ mul 60 60 | duration \"second\" }}",
+              "1h0m0s"
+            ]
+          ]
+        },
         "Format": {
           "Description": "Format converts the textual representation of the datetime string into\nthe other form or returns it of the time.Time value. These are formatted\nwith the layout string",
           "Args": [
@@ -1588,6 +1790,19 @@
             "now"
           ],
           "Examples": []
+        },
+        "ParseDuration": {
+          "Description": "ParseDuration parses a duration string.\nA duration string is a possibly signed sequence of\ndecimal numbers, each with optional fraction and a unit suffix,\nsuch as \"300ms\", \"-1.5h\" or \"2h45m\".\nValid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".\nSee https://golang.org/pkg/time/#ParseDuration",
+          "Args": [
+            "in"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"1h12m10s\" | time.ParseDuration }}",
+              "1h12m10s"
+            ]
+          ]
         }
       },
       "transform": {
@@ -1720,6 +1935,12 @@
           ],
           "Examples": []
         },
+        "Parse": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Ref": {
           "Description": "Ref returns the absolute URL path to a given content item.",
           "Args": [
@@ -1763,7 +1984,7 @@
           "Examples": []
         },
         "URLize": {
-          "Description": "",
+          "Description": "URLize returns the given argument formatted as URL.",
           "Args": [
             "a"
           ],

@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [content management,fundamentals]
-#tags: [sections,content,organization]
+keywords: [sections,content,organization]
 menu:
   docs:
     parent: "content-management"
@@ -23,6 +23,8 @@ This section is not updated with the new nested sections support in Hugo 0.24, s
 {{% todo %}}
 See above
 {{% /todo %}}
+
+{{< youtube 0GZxidrlaRM >}}
 
 ## Organization of Content Source
 

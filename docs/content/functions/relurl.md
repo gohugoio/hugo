@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [urls]
+keywords: [urls]
 signature: ["relURL INPUT"]
 workson: []
 hugoversion:
