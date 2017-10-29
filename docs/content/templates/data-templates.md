@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-03-12
 categories: [templates]
-#tags: [data,dynamic,csv,json,toml,yaml]
+keywords: [data,dynamic,csv,json,toml,yaml]
 menu:
   docs:
     parent: "templates"
@@ -21,6 +21,8 @@ toc: true
 <!-- begin data files -->
 
 Hugo supports loading data from YAML, JSON, and TOML files located in the `data` directory in the root of your Hugo project.
+
+{{< youtube FyPgSuwIMWQ >}}
 
 ## The Data Folder
 

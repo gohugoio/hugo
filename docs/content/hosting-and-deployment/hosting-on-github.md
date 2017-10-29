@@ -6,7 +6,7 @@ date: 2014-03-21
 publishdate: 2014-03-21
 lastmod: 2017-03-30
 categories: [hosting and deployment]
-#tags: [github,git,deployment,hosting]
+keywords: [github,git,deployment,hosting]
 authors: [Spencer Lyon, Gunnar Morling]
 menu:
   docs:

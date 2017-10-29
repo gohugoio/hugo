@@ -5,7 +5,7 @@ description: Create a Hugo site using the beautiful Ananke theme.
 date: 2013-07-01
 publishdate: 2013-07-01
 categories: [getting started]
-#tags: [quick start,usage]
+keywords: [quick start,usage]
 authors: [Shekhar Gulati, Ryan Watters]
 menu:
   docs:

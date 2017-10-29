@@ -6,7 +6,7 @@ date: 2017-03-12
 publishdate: 2017-03-12
 lastmod: 2017-03-12
 categories: [variables and params]
-#tags: [git]
+keywords: [git]
 draft: false
 menu:
   docs:
@@ -50,5 +50,9 @@ The `GitInfo` object contains the following fields:
 
 `.Subject`
 : commit message subject (e.g., `tpl: Add custom index function`)
+
+## `.Lastmod`
+
+If the `.GitInfo` feature is enabled, **and** if the `lastmod` field in the content's front matter is not set, `.Lastmod` (on `Page`) is fetched from Git i.e. `.GitInfo.AuthorDate`.
 
 [configuration]: /getting-started/configuration/

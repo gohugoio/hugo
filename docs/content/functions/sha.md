@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [sha,checksum]
+keywords: [sha,checksum]
 signature: ["sha1 INPUT", "sha256 INPUT"]
 workson: []
 hugoversion:

@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [sections,lists,indexes]
+keywords: [sections,lists,indexes]
 signature: [".GetPage TYPE PATH"]
 workson: []
 hugoversion:

@@ -34,5 +34,9 @@ func newTestCfg(fs *hugofs.Fs) *viper.Viper {
 
 func newTestContentSpec() *ContentSpec {
 	v := viper.New()
-	return NewContentSpec(v)
+	spec, err := NewContentSpec(v)
+	if err != nil {
+		panic(err)
+	}
+	return spec
 }

@@ -68,8 +68,8 @@ Content
 	assert.Equal("Page 3", result[1].Title)
 
 	result, err = s.RegularPages.RelatedTo(types.NewKeyValuesStrings("keywords", "bep", "rocks"))
+	assert.NoError(err)
 	assert.Len(result, 2)
 	assert.Equal("Page 2", result[0].Title)
 	assert.Equal("Page 3", result[1].Title)
-
 }

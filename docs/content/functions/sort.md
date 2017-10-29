@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [ordering,sorting,lists]
+keywords: [ordering,sorting,lists]
 signature: []
 workson: [lists,taxonomies,terms,groups]
 hugoversion:
@@ -23,7 +23,7 @@ A sorted array of map values will be returned with the keys eliminated. There ar
 
 ```
 +++
-#tags: [ "tag3", "tag1", "tag2" ]
+keywords: [ "tag3", "tag1", "tag2" ]
 +++
 
 // Site config

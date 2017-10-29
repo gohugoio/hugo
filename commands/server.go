@@ -38,7 +38,11 @@ var (
 	serverAppend      bool
 	serverInterface   string
 	serverPort        int
+	liveReloadPort    int
 	serverWatch       bool
+	noHTTPCache       bool
+
+	disableFastRender bool
 )
 
 var serverCmd = &cobra.Command{
@@ -84,12 +88,16 @@ func init() {
 	initHugoBuilderFlags(serverCmd)
 
 	serverCmd.Flags().IntVarP(&serverPort, "port", "p", 1313, "port on which the server will listen")
+	serverCmd.Flags().IntVar(&liveReloadPort, "liveReloadPort", -1, "port for live reloading (i.e. 443 in HTTPS proxy situations)")
 	serverCmd.Flags().StringVarP(&serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
 	serverCmd.Flags().BoolVarP(&serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
+	serverCmd.Flags().BoolVar(&noHTTPCache, "noHTTPCache", false, "prevent HTTP caching")
 	serverCmd.Flags().BoolVarP(&serverAppend, "appendPort", "", true, "append port to baseURL")
 	serverCmd.Flags().BoolVar(&disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
 	serverCmd.Flags().BoolVar(&navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
 	serverCmd.Flags().BoolVar(&renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
+	serverCmd.Flags().BoolVar(&disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
+
 	serverCmd.Flags().String("memstats", "", "log memory usage to this file")
 	serverCmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
 
@@ -114,6 +122,10 @@ func server(cmd *cobra.Command, args []string) error {
 
 	if cmd.Flags().Changed("navigateToChanged") {
 		c.Set("navigateToChanged", navigateToChanged)
+	}
+
+	if cmd.Flags().Changed("disableFastRender") {
+		c.Set("disableFastRender", disableFastRender)
 	}
 
 	if serverWatch {
@@ -142,6 +154,11 @@ func server(cmd *cobra.Command, args []string) error {
 	}
 
 	c.Set("port", serverPort)
+	if liveReloadPort != -1 {
+		c.Set("liveReloadPort", liveReloadPort)
+	} else {
+		c.Set("liveReloadPort", serverPort)
+	}
 
 	baseURL, err = fixURL(c.Cfg, baseURL)
 	if err != nil {
@@ -205,7 +222,32 @@ func (c *commandeer) serve(port int) {
 
 	httpFs := afero.NewHttpFs(c.Fs.Destination)
 	fs := filesOnlyFs{httpFs.Dir(c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")))}
-	fileserver := http.FileServer(fs)
+
+	doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
+	fastRenderMode := doLiveReload && !c.Cfg.GetBool("disableFastRender")
+
+	if fastRenderMode {
+		jww.FEEDBACK.Println("Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender")
+	}
+
+	decorate := func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if noHTTPCache {
+				w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+				w.Header().Set("Pragma", "no-cache")
+			}
+
+			if fastRenderMode {
+				p := r.RequestURI
+				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
+					c.visitedURLs.Add(p)
+				}
+			}
+			h.ServeHTTP(w, r)
+		})
+	}
+
+	fileserver := decorate(http.FileServer(fs))
 
 	// We're only interested in the path
 	u, err := url.Parse(c.Cfg.GetString("baseURL"))

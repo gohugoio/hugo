@@ -199,6 +199,7 @@ func AddCommands() {
 	genCmd.AddCommand(gendocCmd)
 	genCmd.AddCommand(genmanCmd)
 	genCmd.AddCommand(createGenDocsHelper().cmd)
+	genCmd.AddCommand(createGenChromaStyles().cmd)
 }
 
 // initHugoBuilderFlags initializes all common flags, typically used by the
@@ -240,6 +241,8 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date and author info to the pages")
 
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
+	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
+	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")
 	cmd.Flags().Bool("pluralizeListTitles", true, "pluralize titles in lists using inflect")
 	cmd.Flags().Bool("preserveTaxonomyNames", false, `preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")`)
 	cmd.Flags().BoolP("forceSyncStatic", "", false, "copy all files when static is changed.")
@@ -388,7 +391,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 		return nil, err
 	}
 
-	cfg.Logger.INFO.Println("Using config file:", viper.ConfigFileUsed())
+	cfg.Logger.INFO.Println("Using config file:", config.ConfigFileUsed())
 
 	themeDir := c.PathSpec().GetThemeDir()
 	if themeDir != "" {
@@ -474,6 +477,8 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 		"forceSyncStatic",
 		"noTimes",
 		"noChmod",
+		"templateMetrics",
+		"templateMetricsHints",
 	}
 
 	// Remove these in Hugo 0.23.
@@ -763,7 +768,14 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 	if err := c.initSites(); err != nil {
 		return err
 	}
-	return Hugo.Build(hugolib.BuildCfg{PrintStats: !quiet, Watching: true}, events...)
+	visited := c.visitedURLs.PeekAllSet()
+	doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
+	if doLiveReload && !c.Cfg.GetBool("disableFastRender") {
+		home := c.pathSpec.PrependBasePath("/")
+		// Make sure we always render the home page
+		visited[home] = true
+	}
+	return Hugo.Build(hugolib.BuildCfg{PrintStats: !quiet, Watching: true, RecentlyVisited: visited}, events...)
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
@@ -981,6 +993,16 @@ func (c *commandeer) newWatcher(port int) error {
 				}
 
 				if len(dynamicEvents) > 0 {
+					doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
+					onePageName := pickOneWriteOrCreatePath(dynamicEvents)
+
+					if onePageName != "" && doLiveReload && !c.Cfg.GetBool("disableFastRender") {
+						p := Hugo.GetContentPage(onePageName)
+						if p != nil {
+							c.visitedURLs.Add(p.RelPermalink())
+						}
+
+					}
 					c.Logger.FEEDBACK.Println("\nChange detected, rebuilding site")
 					const layout = "2006-01-02 15:04 -0700"
 					c.Logger.FEEDBACK.Println(time.Now().Format(layout))
@@ -989,21 +1011,15 @@ func (c *commandeer) newWatcher(port int) error {
 						c.Logger.ERROR.Println("Failed to rebuild site:", err)
 					}
 
-					if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
-
+					if doLiveReload {
 						navigate := c.Cfg.GetBool("navigateToChanged")
-
+						// We have fetched the same page above, but it may have
+						// changed.
 						var p *hugolib.Page
 
 						if navigate {
-
-							// It is probably more confusing than useful
-							// to navigate to a new URL on RENAME etc.
-							// so for now we use the WRITE and CREATE events only.
-							name := pickOneWriteOrCreatePath(dynamicEvents)
-
-							if name != "" {
-								p = Hugo.GetContentPage(name)
+							if onePageName != "" {
+								p = Hugo.GetContentPage(onePageName)
 							}
 						}
 

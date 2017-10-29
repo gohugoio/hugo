@@ -1,5 +1,4 @@
 init:
-  - copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
   - set PATH=%PATH%;C:\MinGW\bin;%GOPATH%\bin
   - go version
   - go env
@@ -10,8 +9,10 @@ clone_folder: C:\GOPATH\src\github.com\gohugoio\hugo
 install:
   - gem install asciidoctor
   - pip install docutils
+  - go get github.com/magefile/mage
 
 build_script:
-  - make hugo-race check
+  - mage hugoRace
+  - mage -v check
   - hugo -s docs/
   - hugo --renderToMemory -s docs/

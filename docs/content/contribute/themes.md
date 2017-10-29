@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-27
 categories: [contribute]
-#tags: [contribute,themes,design]
+keywords: [contribute,themes,design]
 authors: [digitalcraftsman]
 menu:
   docs:

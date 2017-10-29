@@ -34,7 +34,7 @@ type MetaHandler interface {
 	Handle() Handler
 }
 
-// HandledResults is a channel for HandledResult.
+// HandleResults is a channel for HandledResult.
 type HandleResults chan<- HandledResult
 
 // NewMetaHandler creates a MetaHandle for a given extensions.

@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [developer tools]
-#tags: [frontend,gui]
+keywords: [frontend,gui]
 menu:
   docs:
     parent: "tools"

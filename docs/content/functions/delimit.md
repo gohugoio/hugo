@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [iteration]
+keywords: [iteration]
 toc: false
 signature: ["delimit COLLECTION DELIMIT LAST"]
 workson: [lists,taxonomies,terms]
@@ -36,7 +36,7 @@ The examples of `delimit` that follow all use the same front matter:
 {{< code file="delimit-example-front-matter.toml" nocopy="true" >}}
 +++
 title: I love Delimit
-#tags: [ "tag1", "tag2", "tag3" ]
+keywords: [ "tag1", "tag2", "tag3" ]
 +++
 {{< /code >}}
 
