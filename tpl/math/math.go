@@ -72,21 +72,10 @@ func (ns *Namespace) Log(a interface{}) (float64, error) {
 
 // Mod returns a % b.
 func (ns *Namespace) Mod(a, b interface{}) (int64, error) {
-	av := reflect.ValueOf(a)
-	bv := reflect.ValueOf(b)
-	var ai, bi int64
+	ai, erra := cast.ToInt64E(a)
+	bi, errb := cast.ToInt64E(b)
 
-	switch av.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		ai = av.Int()
-	default:
-		return 0, errors.New("Modulo operator can't be used with non integer value")
-	}
-
-	switch bv.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		bi = bv.Int()
-	default:
+	if erra != nil || errb != nil {
 		return 0, errors.New("Modulo operator can't be used with non integer value")
 	}
 
