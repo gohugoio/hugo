@@ -4,6 +4,10 @@ RUN apk add --no-cache --virtual git musl-dev
 RUN go get github.com/golang/dep/cmd/dep
 
 WORKDIR /go/src/github.com/gohugoio/hugo
+
+
+
+
 RUN dep ensure
 ADD . /go/src/github.com/gohugoio/hugo/
 RUN go install -ldflags '-s -w'
