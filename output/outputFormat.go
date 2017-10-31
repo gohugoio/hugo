@@ -150,9 +150,9 @@ func init() {
 
 type Formats []Format
 
-func (f Formats) Len() int           { return len(f) }
-func (f Formats) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
-func (f Formats) Less(i, j int) bool { return f[i].Name < f[j].Name }
+func (formats Formats) Len() int           { return len(formats) }
+func (formats Formats) Swap(i, j int)      { formats[i], formats[j] = formats[j], formats[i] }
+func (formats Formats) Less(i, j int) bool { return formats[i].Name < formats[j].Name }
 
 // GetBySuffix gets a output format given as suffix, e.g. "html".
 // It will return false if no format could be found, or if the suffix given
@@ -312,17 +312,17 @@ func decode(mediaTypes media.Types, input, output interface{}) error {
 	return decoder.Decode(input)
 }
 
-func (f Format) BaseFilename() string {
-	return f.BaseName + "." + f.MediaType.Suffix
+func (formats Format) BaseFilename() string {
+	return formats.BaseName + "." + formats.MediaType.Suffix
 }
 
-func (f Format) MarshalJSON() ([]byte, error) {
+func (formats Format) MarshalJSON() ([]byte, error) {
 	type Alias Format
 	return json.Marshal(&struct {
 		MediaType string
 		Alias
 	}{
-		MediaType: f.MediaType.String(),
-		Alias:     (Alias)(f),
+		MediaType: formats.MediaType.String(),
+		Alias:     (Alias)(formats),
 	})
 }

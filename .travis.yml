@@ -2,8 +2,8 @@ language: go
 sudo: required
 dist: precise
 go:
-  - 1.8.3
-  - 1.9
+  - 1.8.4
+  - 1.9.1
   - tip
 os:
   - linux
@@ -13,9 +13,11 @@ matrix:
     - go: tip
   fast_finish: true
 install:
-  - make vendor
+  - go get github.com/magefile/mage
+  - mage vendor
 script:
-  - make hugo-race check
+  - mage hugoRace
+  - mage -v check
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
 before_install:

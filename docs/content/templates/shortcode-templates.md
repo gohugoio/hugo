@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
-#tags: [shortcodes]
+keywords: [shortcodes]
 menu:
   docs:
     parent: "templates"
@@ -27,6 +27,8 @@ Hugo also ships with built-in shortcodes for common use cases. (See [Content Man
 ## Create Custom Shortcodes
 
 Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, Hugo provides the ability to easily create custom shortcodes to meet your website's needs.
+
+{{< youtube Eu4zSaKOY4A >}}
 
 ### File Placement
 
@@ -105,7 +107,7 @@ The `.Params` variable in shortcodes contains the list parameters passed to shor
 `$.Page.Site.Params`
 : refers to global variables as defined in your [site's configuration file][config].
 
-#### `.IsNameParams`
+#### `.IsNamedParams`
 
 The `.IsNamedParams` variable checks whether the shortcode declaration uses named parameters and returns a boolean value.
 

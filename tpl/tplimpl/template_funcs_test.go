@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
+	"time"
 
 	"io/ioutil"
 	"log"
@@ -31,6 +32,7 @@ import (
 	"github.com/gohugoio/hugo/i18n"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/internal"
+	"github.com/gohugoio/hugo/tpl/partials"
 	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
@@ -112,117 +114,72 @@ func TestTemplateFuncsExamples(t *testing.T) {
 // we have some package cycle issues to solve first.
 func TestPartialCached(t *testing.T) {
 	t.Parallel()
-	testCases := []struct {
-		name    string
-		partial string
-		tmpl    string
-		variant string
-	}{
-		// name and partial should match between test cases.
-		{"test1", "{{ .Title }} seq: {{ shuffle (seq 1 20) }}", `{{ partialCached "test1" . }}`, ""},
-		{"test1", "{{ .Title }} seq: {{ shuffle (seq 1 20) }}", `{{ partialCached "test1" . "%s" }}`, "header"},
-		{"test1", "{{ .Title }} seq: {{ shuffle (seq 1 20) }}", `{{ partialCached "test1" . "%s" }}`, "footer"},
-		{"test1", "{{ .Title }} seq: {{ shuffle (seq 1 20) }}", `{{ partialCached "test1" . "%s" }}`, "header"},
-	}
+
+	assert := require.New(t)
+
+	partial := `Now: {{ now.UnixNano }}`
+	name := "testing"
 
 	var data struct {
-		Title   string
-		Section string
-		Params  map[string]interface{}
 	}
 
-	data.Title = "**BatMan**"
-	data.Section = "blog"
-	data.Params = map[string]interface{}{"langCode": "en"}
+	config := newDepsConfig(viper.New())
 
-	for i, tc := range testCases {
-		var tmp string
-		if tc.variant != "" {
-			tmp = fmt.Sprintf(tc.tmpl, tc.variant)
-		} else {
-			tmp = tc.tmpl
-		}
-
-		config := newDepsConfig(viper.New())
-
-		config.WithTemplate = func(templ tpl.TemplateHandler) error {
-			err := templ.AddTemplate("testroot", tmp)
-			if err != nil {
-				return err
-			}
-			err = templ.AddTemplate("partials/"+tc.name, tc.partial)
-			if err != nil {
-				return err
-			}
-
-			return nil
-		}
-
-		de, err := deps.New(config)
-		require.NoError(t, err)
-		require.NoError(t, de.LoadResources())
-
-		buf := new(bytes.Buffer)
-		templ := de.Tmpl.Lookup("testroot")
-		err = templ.Execute(buf, &data)
+	config.WithTemplate = func(templ tpl.TemplateHandler) error {
+		err := templ.AddTemplate("partials/"+name, partial)
 		if err != nil {
-			t.Fatalf("[%d] error executing template: %s", i, err)
+			return err
 		}
 
-		for j := 0; j < 10; j++ {
-			buf2 := new(bytes.Buffer)
-			err := templ.Execute(buf2, nil)
-			if err != nil {
-				t.Fatalf("[%d] error executing template 2nd time: %s", i, err)
-			}
+		return nil
+	}
 
-			if !reflect.DeepEqual(buf, buf2) {
-				t.Fatalf("[%d] cached results do not match:\nResult 1:\n%q\nResult 2:\n%q", i, buf, buf2)
-			}
+	de, err := deps.New(config)
+	assert.NoError(err)
+	assert.NoError(de.LoadResources())
+
+	ns := partials.New(de)
+
+	res1, err := ns.IncludeCached(name, &data)
+	assert.NoError(err)
+
+	for j := 0; j < 10; j++ {
+		time.Sleep(2 * time.Nanosecond)
+		res2, err := ns.IncludeCached(name, &data)
+		assert.NoError(err)
+
+		if !reflect.DeepEqual(res1, res2) {
+			t.Fatalf("cache mismatch")
+		}
+
+		res3, err := ns.IncludeCached(name, &data, fmt.Sprintf("variant%d", j))
+		assert.NoError(err)
+
+		if reflect.DeepEqual(res1, res3) {
+			t.Fatalf("cache mismatch")
 		}
 	}
+
 }
 
 func BenchmarkPartial(b *testing.B) {
-	config := newDepsConfig(viper.New())
-	config.WithTemplate = func(templ tpl.TemplateHandler) error {
-		err := templ.AddTemplate("testroot", `{{ partial "bench1" . }}`)
-		if err != nil {
-			return err
-		}
-		err = templ.AddTemplate("partials/bench1", `{{ shuffle (seq 1 10) }}`)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	de, err := deps.New(config)
-	require.NoError(b, err)
-	require.NoError(b, de.LoadResources())
-
-	buf := new(bytes.Buffer)
-	tmpl := de.Tmpl.Lookup("testroot")
-
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if err := tmpl.Execute(buf, nil); err != nil {
-			b.Fatalf("error executing template: %s", err)
-		}
-		buf.Reset()
-	}
+	doBenchmarkPartial(b, func(ns *partials.Namespace) error {
+		_, err := ns.Include("bench1")
+		return err
+	})
 }
 
 func BenchmarkPartialCached(b *testing.B) {
+	doBenchmarkPartial(b, func(ns *partials.Namespace) error {
+		_, err := ns.IncludeCached("bench1", nil)
+		return err
+	})
+}
+
+func doBenchmarkPartial(b *testing.B, f func(ns *partials.Namespace) error) {
 	config := newDepsConfig(viper.New())
 	config.WithTemplate = func(templ tpl.TemplateHandler) error {
-		err := templ.AddTemplate("testroot", `{{ partialCached "bench1" . }}`)
-		if err != nil {
-			return err
-		}
-		err = templ.AddTemplate("partials/bench1", `{{ shuffle (seq 1 10) }}`)
+		err := templ.AddTemplate("partials/bench1", `{{ shuffle (seq 1 10) }}`)
 		if err != nil {
 			return err
 		}
@@ -234,16 +191,13 @@ func BenchmarkPartialCached(b *testing.B) {
 	require.NoError(b, err)
 	require.NoError(b, de.LoadResources())
 
-	buf := new(bytes.Buffer)
-	tmpl := de.Tmpl.Lookup("testroot")
+	ns := partials.New(de)
 
-	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if err := tmpl.Execute(buf, nil); err != nil {
+		if err := f(ns); err != nil {
 			b.Fatalf("error executing template: %s", err)
 		}
-		buf.Reset()
 	}
 }
 

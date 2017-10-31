@@ -65,6 +65,7 @@ const (
 	KindPage = "page"
 
 	// The rest are node types; home page, sections etc.
+
 	KindHome         = "home"
 	KindSection      = "section"
 	KindTaxonomy     = "taxonomy"
@@ -484,10 +485,10 @@ func traverse(keys []string, m map[string]interface{}) interface{} {
 	if len(rest) == 0 {
 		// That was the last key.
 		return result
-	} else {
-		// That was not the last key.
-		return traverse(rest, cast.ToStringMap(result))
 	}
+
+	// That was not the last key.
+	return traverse(rest, cast.ToStringMap(result))
 }
 
 func (p *Page) Author() Author {
@@ -677,9 +678,9 @@ func (p *Page) setAutoSummary() error {
 	var summary string
 	var truncated bool
 	if p.isCJKLanguage {
-		summary, truncated = helpers.TruncateWordsByRune(p.PlainWords(), helpers.SummaryLength)
+		summary, truncated = p.s.ContentSpec.TruncateWordsByRune(p.PlainWords())
 	} else {
-		summary, truncated = helpers.TruncateWordsToWholeSentence(p.Plain(), helpers.SummaryLength)
+		summary, truncated = p.s.ContentSpec.TruncateWordsToWholeSentence(p.Plain())
 	}
 	p.Summary = template.HTML(summary)
 	p.Truncated = truncated
@@ -1145,6 +1146,14 @@ func (p *Page) update(f interface{}) error {
 		p.Draft = !*published
 	}
 	p.Params["draft"] = p.Draft
+
+	if p.Date.IsZero() {
+		p.Date = p.PublishDate
+	}
+
+	if p.PublishDate.IsZero() {
+		p.PublishDate = p.Date
+	}
 
 	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
 		fi, err := p.s.Fs.Source.Stat(filepath.Join(p.s.PathSpec.AbsPathify(p.s.Cfg.GetString("contentDir")), p.File.Path()))

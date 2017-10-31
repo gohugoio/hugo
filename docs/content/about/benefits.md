@@ -5,7 +5,7 @@ description: Improved performance, security and ease of use are just a few of th
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-#tags: [ssg,static,performance,security]
+keywords: [ssg,static,performance,security]
 menu:
   docs:
     parent: "about"

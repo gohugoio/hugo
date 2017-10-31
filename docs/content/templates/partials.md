@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
-#tags: [lists,sections,partials]
+keywords: [lists,sections,partials]
 menu:
   docs:
     parent: "templates"
@@ -17,6 +17,8 @@ draft: false
 aliases: [/templates/partial/,/layout/chrome/,/extras/analytics/]
 toc: true
 ---
+
+{{< youtube pjS4pOLyB7c >}}
 
 ## Partial Template Lookup Order
 

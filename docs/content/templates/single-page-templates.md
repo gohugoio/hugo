@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-06
 categories: [templates]
-#tags: [page]
+keywords: [page]
 menu:
   docs:
     parent: "templates"
@@ -34,6 +34,8 @@ Hugo assumes your content section and content type are the same unless you tell 
 8. `/themes/<THEME>/layouts/<TYPE>/single.html`
 9. `/themes/<THEME>/layouts/<SECTION>/single.html`
 10. `/themes/<THEME>/layouts/_default/single.html`
+
+{{< youtube ZYQ5k0RQzmo >}}
 
 ## Example Single Page Templates
 

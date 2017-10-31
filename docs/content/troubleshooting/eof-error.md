@@ -9,7 +9,7 @@ categories: [troubleshooting]
 menu:
   docs:
     parent: "troubleshooting"
-#tags: [eof, end of file, error, faqs]
+keywords: [eof, end of file, error, faqs]
 draft: false
 weight:
 aliases: [/troubleshooting/strange-eof-error/]

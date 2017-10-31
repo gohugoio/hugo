@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [operators,logic]
+keywords: [operators,logic]
 signature: ["ne ARG1 ARG2"]
 workson: []
 hugoversion:

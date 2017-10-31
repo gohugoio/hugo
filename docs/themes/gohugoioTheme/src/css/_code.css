@@ -1,3 +1,14 @@
+.chroma .lntable pre {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.chroma .lntable pre code  {
+  padding: 0;
+  margin: 0;
+}
+
 pre, .pre  {
   overflow-x: auto;
   overflow-y: hidden;

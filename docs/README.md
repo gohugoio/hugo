@@ -10,6 +10,10 @@ Note that this repository contains solely the documentation for Hugo. For contri
 
 *Pull requests shall **only** contain changes to the actual documentation. However, changes on the code base of Hugo **and** the documentation shall be a single, atomic pull request in the [hugo](https://github.com/gohugoio/hugo) repository.*
 
+## Branches
+
+* The `master` branch is where the site is automatically built from, and is the place to put changes relevant to the current Hugo version.
+* The `next` branch is where we store changes that is related to the next Hugo release. This can be previewed here: https://next--gohugoio.netlify.com/
 
 ## Build
 

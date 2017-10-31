@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [counting, word count]
+keywords: [counting, word count]
 signature: ["countrunes INPUT"]
 workson: []
 hugoversion:

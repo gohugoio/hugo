@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [strings, html]
+keywords: [strings, html]
 signature: ["htmlEscape INPUT"]
 workson: []
 hugoversion:

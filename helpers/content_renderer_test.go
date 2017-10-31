@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
 )
 
 // Renders a codeblock using Blackfriday
@@ -42,11 +43,7 @@ func (c ContentSpec) renderWithMmark(input string) string {
 }
 
 func TestCodeFence(t *testing.T) {
-
-	if !HasPygments() {
-		t.Skip("Skipping Pygments test as Pygments is not installed or available.")
-		return
-	}
+	assert := require.New(t)
 
 	type test struct {
 		enabled         bool
@@ -55,36 +52,39 @@ func TestCodeFence(t *testing.T) {
 
 	// Pygments 2.0 and 2.1 have slightly different outputs so only do partial matching
 	data := []test{
-		{true, "<html></html>", `(?s)^<div class="highlight"><pre><code class="language-html" data-lang="html">.*?</code></pre></div>\n$`},
-		{false, "<html></html>", `(?s)^<pre><code class="language-html">.*?</code></pre>\n$`},
+		{true, "<html></html>", `(?s)^<div class="highlight">\n?<pre.*><code class="language-html" data-lang="html">.*?</code></pre>\n?</div>\n?$`},
+		{false, "<html></html>", `(?s)^<pre.*><code class="language-html">.*?</code></pre>\n$`},
 	}
 
-	for i, d := range data {
-		v := viper.New()
+	for _, useClassic := range []bool{false, true} {
+		for i, d := range data {
+			v := viper.New()
+			v.Set("pygmentsStyle", "monokai")
+			v.Set("pygmentsUseClasses", true)
+			v.Set("pygmentsCodeFences", d.enabled)
+			v.Set("pygmentsUseClassic", useClassic)
 
-		v.Set("pygmentsStyle", "monokai")
-		v.Set("pygmentsUseClasses", true)
-		v.Set("pygmentsCodeFences", d.enabled)
+			c, err := NewContentSpec(v)
+			assert.NoError(err)
 
-		c := NewContentSpec(v)
+			result := c.render(d.input)
 
-		result := c.render(d.input)
+			expectedRe, err := regexp.Compile(d.expected)
 
-		expectedRe, err := regexp.Compile(d.expected)
+			if err != nil {
+				t.Fatal("Invalid regexp", err)
+			}
+			matched := expectedRe.MatchString(result)
 
-		if err != nil {
-			t.Fatal("Invalid regexp", err)
-		}
-		matched := expectedRe.MatchString(result)
+			if !matched {
+				t.Errorf("Test %d failed. BlackFriday enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
+			}
 
-		if !matched {
-			t.Errorf("Test %d failed. BlackFriday enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
-		}
-
-		result = c.renderWithMmark(d.input)
-		matched = expectedRe.MatchString(result)
-		if !matched {
-			t.Errorf("Test %d failed. Mmark enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
+			result = c.renderWithMmark(d.input)
+			matched = expectedRe.MatchString(result)
+			if !matched {
+				t.Errorf("Test %d failed. Mmark enabled:%t, Expected:\n%q got:\n%q", i, d.enabled, d.expected, result)
+			}
 		}
 	}
 }

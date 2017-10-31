@@ -6,7 +6,7 @@ date: 2017-03-22
 publishdate: 2017-03-22
 lastmod: 2017-03-22
 categories: [templates]
-#tags: ["amp","outputs","rss"]
+keywords: ["amp","outputs","rss"]
 menu:
   docs:
     parent: "templates"
@@ -138,7 +138,7 @@ outputs:
 
 The following is an example of `YAML` front matter in a content file that defines output formats for the rendered `Page`:
 
-```
+```yaml
 ---
 date: "2016-03-19"
 outputs:
@@ -152,7 +152,7 @@ outputs:
 
 Each `Page` has both an `.OutputFormats` (all formats, including the current) and an `.AlternativeOutputFormats` variable, the latter of which is useful for creating a `link rel` list in your site's `<head>`:
 
-```
+```html
 {{ range .AlternativeOutputFormats -}}
 <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
 {{ end -}}
@@ -162,7 +162,7 @@ Note that `.Permalink` and `.RelPermalink` on `Page` will return the first outpu
 
 This is how you link to a given output format:
 
-```
+```html
 {{ with  .OutputFormats.Get "json" -}}
 <a href="{{ .Permalink }}">{{ .Name }}</a>
 {{- end }}
@@ -170,7 +170,7 @@ This is how you link to a given output format:
 
 From content files, you can use the [`ref` or `relref` shortcodes](/content-management/shortcodes/#ref-and-relref):
 
-```
+```html
 [Neat]({{</* ref "blog/neat.md" "amp" */>}})
 [Who]({{</* relref "about.md#who" "amp" */>}})
 ```

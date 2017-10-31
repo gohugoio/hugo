@@ -714,6 +714,42 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 	}
 }
 
+// Issue #3854
+func TestPageWithDateFields(t *testing.T) {
+	assert := require.New(t)
+	pageWithDate := `---
+title: P%d
+weight: %d
+%s: 2017-10-13
+---
+Simple Page With Some Date`
+
+	hasBothDates := func(p *Page) bool {
+		return p.Date.Year() == 2017 && p.PublishDate.Year() == 2017
+	}
+
+	datePage := func(field string, weight int) string {
+		return fmt.Sprintf(pageWithDate, weight, weight, field)
+	}
+
+	t.Parallel()
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		assert.True(len(pages) > 0)
+		for _, p := range pages {
+			assert.True(hasBothDates(p))
+		}
+
+	}
+
+	fields := []string{"date", "publishdate", "pubdate", "published"}
+	pageContents := make([]string, len(fields))
+	for i, field := range fields {
+		pageContents[i] = datePage(field, i+1)
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, pageContents...)
+}
+
 // Issue #2601
 func TestPageRawContent(t *testing.T) {
 	t.Parallel()

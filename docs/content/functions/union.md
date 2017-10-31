@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [filtering,lists]
+keywords: [filtering,lists]
 signature: ["union SET1 SET2"]
 workson: []
 hugoversion: 0.20
