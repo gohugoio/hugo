@@ -38,8 +38,6 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	dir := d.PathSpec.AbsPathify(d.Cfg.GetString("i18nDir"))
 	sp := source.NewSourceSpec(d.Cfg, d.Fs)
 	sources := []source.Input{sp.NewFilesystem(dir)}
-	ps := &language.PluralSpec{}
-	langs := []string{}
 
 	themeI18nDir, err := d.PathSpec.GetThemeI18nDirPath()
 
@@ -51,12 +49,16 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 
 	i18nBundle := bundle.New()
 
+	langs := []string{}
 	for _, currentSource := range sources {
 		for _, r := range currentSource.Files() {
 			langs = append(langs, r.BaseFileName())
 		}
 	}
-
+	// we need to register all language codes as "plural spec" to prevent errors
+	// with unknown language codes
+	// see https://github.com/gohugoio/hugo/issues/3564
+	ps := &language.PluralSpec{}
 	language.RegisterPluralSpec(langs, ps)
 
 	for _, currentSource := range sources {

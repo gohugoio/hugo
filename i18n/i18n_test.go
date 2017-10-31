@@ -157,8 +157,8 @@ func doTestI18nTranslate(t *testing.T, test i18nTest, cfg config.Provider) strin
 	ids := []string{}
 
 	for file := range test.data {
-		id := strings.Split(file, ".toml")
-		ids = append(ids, id[0])
+		id := strings.TrimSuffix(file, ".toml")
+		ids = append(ids, id)
 	}
 
 	language.RegisterPluralSpec(ids, &language.PluralSpec{})
