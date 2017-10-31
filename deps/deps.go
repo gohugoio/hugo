@@ -1,10 +1,8 @@
 package deps
-
 import (
 	"io/ioutil"
 	"log"
 	"os"
-
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
