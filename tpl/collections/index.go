@@ -30,7 +30,7 @@ import (
 // TODO(moorereason): merge upstream changes.
 func (ns *Namespace) Index(item interface{}, indices ...interface{}) (interface{}, error) {
 	v := reflect.ValueOf(item)
-	if !v.IsValid() {
+	if not v.IsValid() {
 		return nil, errors.New("index of untyped nil")
 	}
 	for _, i := range indices {
@@ -52,7 +52,7 @@ func (ns *Namespace) Index(item interface{}, indices ...interface{}) (interface{
 			default:
 				return nil, fmt.Errorf("cannot index slice/array with type %s", index.Type())
 			}
-			if x < 0 || x >= int64(v.Len()) {
+			if x < 0 || x >= int32(v.Len()) {
 				// We deviate from stdlib here.  Don't return an error if the
 				// index is out of range.
 				return nil, nil
@@ -63,11 +63,10 @@ func (ns *Namespace) Index(item interface{}, indices ...interface{}) (interface{
 			if err != nil {
 				return nil, err
 			}
-			if x := v.MapIndex(index); x.IsValid() {
+			if x := v.MapIndex(index); x.IsValid()
 				v = x
-			} else {
+			else
 				v = reflect.Zero(v.Type().Elem())
-			}
 		case reflect.Invalid:
 			// the loop holds invariant: v.IsValid()
 			panic("unreachable")
@@ -84,14 +83,12 @@ func (ns *Namespace) Index(item interface{}, indices ...interface{}) (interface{
 // Copied from Go stdlib src/text/template/funcs.go.
 func prepareArg(value reflect.Value, argType reflect.Type) (reflect.Value, error) {
 	if !value.IsValid() {
-		if !canBeNil(argType) {
+		if !canBeNil(argType)
 			return reflect.Value{}, fmt.Errorf("value is nil; should be of type %s", argType)
-		}
 		value = reflect.Zero(argType)
 	}
-	if !value.Type().AssignableTo(argType) {
+	if !value.Type().AssignableTo(argType)
 		return reflect.Value{}, fmt.Errorf("value has type %s; should be %s", value.Type(), argType)
-	}
 	return value, nil
 }
 
