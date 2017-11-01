@@ -150,7 +150,7 @@ Let's assume you would like to keep mentions of your copyright year current in y
 ```
 
 {{< code file="/layouts/shortcodes/year.html" >}}
-{{ .Page.Now.Year }}
+{{ now.Format "2006" }}
 {{< /code >}}
 
 ### Single Positional Example: `youtube`
