@@ -27,9 +27,9 @@ type testDoc struct {
 	date     time.Time
 }
 
-func (k *testDoc) String() string {
+func (d *testDoc) String() string {
 	s := "\n"
-	for k, v := range k.keywords {
+	for k, v := range d.keywords {
 		s += k + ":\t\t"
 		for _, vv := range v {
 			s += "  " + vv.String()
@@ -49,7 +49,7 @@ func newTestDoc(name string, keywords ...string) *testDoc {
 	return kw
 }
 
-func (t *testDoc) addKeywords(name string, keywords ...string) *testDoc {
+func (d *testDoc) addKeywords(name string, keywords ...string) *testDoc {
 	keywordm := createTestKeywords(name, keywords...)
 
 	for k, v := range keywordm {
@@ -57,9 +57,9 @@ func (t *testDoc) addKeywords(name string, keywords ...string) *testDoc {
 		for i := 0; i < len(v); i++ {
 			keywords[i] = StringKeyword(v[i])
 		}
-		t.keywords[k] = keywords
+		d.keywords[k] = keywords
 	}
-	return t
+	return d
 }
 
 func createTestKeywords(name string, keywords ...string) map[string][]string {
@@ -68,12 +68,12 @@ func createTestKeywords(name string, keywords ...string) map[string][]string {
 	}
 }
 
-func (k *testDoc) SearchKeywords(cfg IndexConfig) ([]Keyword, error) {
-	return k.keywords[cfg.Name], nil
+func (d *testDoc) SearchKeywords(cfg IndexConfig) ([]Keyword, error) {
+	return d.keywords[cfg.Name], nil
 }
 
-func (k *testDoc) PubDate() time.Time {
-	return k.date
+func (d *testDoc) PubDate() time.Time {
+	return d.date
 }
 
 func TestSearch(t *testing.T) {

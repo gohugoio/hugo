@@ -34,9 +34,29 @@ func (ns *Namespace) Add(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '+')
 }
 
+// Ceil returns the least integer value greater than or equal to x.
+func (ns *Namespace) Ceil(x interface{}) (float64, error) {
+	xf, err := cast.ToFloat64E(x)
+	if err != nil {
+		return 0, errors.New("Ceil operator can't be used with non-float value")
+	}
+
+	return math.Ceil(xf), nil
+}
+
 // Div divides two numbers.
 func (ns *Namespace) Div(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '/')
+}
+
+// Floor returns the greatest integer value less than or equal to x.
+func (ns *Namespace) Floor(x interface{}) (float64, error) {
+	xf, err := cast.ToFloat64E(x)
+	if err != nil {
+		return 0, errors.New("Floor operator can't be used with non-float value")
+	}
+
+	return math.Floor(xf), nil
 }
 
 // Log returns the natural logarithm of a number.
@@ -52,21 +72,10 @@ func (ns *Namespace) Log(a interface{}) (float64, error) {
 
 // Mod returns a % b.
 func (ns *Namespace) Mod(a, b interface{}) (int64, error) {
-	av := reflect.ValueOf(a)
-	bv := reflect.ValueOf(b)
-	var ai, bi int64
+	ai, erra := cast.ToInt64E(a)
+	bi, errb := cast.ToInt64E(b)
 
-	switch av.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		ai = av.Int()
-	default:
-		return 0, errors.New("Modulo operator can't be used with non integer value")
-	}
-
-	switch bv.Kind() {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		bi = bv.Int()
-	default:
+	if erra != nil || errb != nil {
 		return 0, errors.New("Modulo operator can't be used with non integer value")
 	}
 
@@ -90,6 +99,16 @@ func (ns *Namespace) ModBool(a, b interface{}) (bool, error) {
 // Mul multiplies two numbers.
 func (ns *Namespace) Mul(a, b interface{}) (interface{}, error) {
 	return DoArithmetic(a, b, '*')
+}
+
+// Round returns the nearest integer, rounding half away from zero.
+func (ns *Namespace) Round(x interface{}) (float64, error) {
+	xf, err := cast.ToFloat64E(x)
+	if err != nil {
+		return 0, errors.New("Round operator can't be used with non-float value")
+	}
+
+	return _round(xf), nil
 }
 
 // Sub subtracts two numbers.

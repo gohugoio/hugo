@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: []
+keywords: []
 signature: ["intersect SET1 SET2"]
 workson: []
 hugoversion:

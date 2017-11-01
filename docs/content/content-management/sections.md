@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [content management]
-#tags: [lists,sections,content types,organization]
+keywords: [lists,sections,content types,organization]
 menu:
   docs:
     parent: "content-management"
@@ -43,12 +43,12 @@ The following example shows a content directory structure for a website that has
     |   ├── event-2.md    // <- example.com/events/event-2/
     |   └── event-3.md    // <- example.com/events/event-3/
     └── posts
-    |   ├── _index.md     // <- example.com/posts/
-    |   ├── event-1.md    // <- example.com/posts/event-1/
-    |   ├── event-2.md    // <- example.com/posts/event-2/
-    |   ├── event-3.md    // <- example.com/posts/event-3/
-    |   ├── event-4.md    // <- example.com/posts/event-4/
-    |   └── event-5.md    // <- example.com/posts/event-5/
+    |   ├── _index.md    // <- example.com/posts/
+    |   ├── post-1.md    // <- example.com/posts/post-1/
+    |   ├── post-2.md    // <- example.com/posts/post-2/
+    |   ├── post-3.md    // <- example.com/posts/post-3/
+    |   ├── post-4.md    // <- example.com/posts/post-4/
+    |   └── post-5.md    // <- example.com/posts/post-5/
 ```
 
 ## Content Section Lists

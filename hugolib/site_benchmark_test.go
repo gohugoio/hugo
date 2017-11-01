@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
 	"path/filepath"
@@ -64,20 +65,53 @@ func (s siteBuildingBenchmarkConfig) String() string {
 }
 
 func BenchmarkSiteBuilding(b *testing.B) {
+	var (
+		// The below represents the full matrix of benchmarks. Big!
+		allFrontmatters    = []string{"YAML", "TOML"}
+		allNumRootSections = []int{1, 5}
+		allNumTags         = []int{0, 1, 10, 20, 50, 100, 500, 1000, 5000}
+		allTagsPerPage     = []int{0, 1, 5, 20, 50, 80}
+		allNumPages        = []int{1, 10, 100, 500, 1000, 5000, 10000}
+		allDoRender        = []bool{false, true}
+		allDoShortCodes    = []bool{false, true}
+	)
+
+	var runDefault bool
+
+	visitor := func(a *flag.Flag) {
+		if a.Name == "test.bench" && len(a.Value.String()) < 40 {
+			// The full suite is too big, so fall back to some smaller default if no
+			// restriction is set.
+			runDefault = true
+		}
+	}
+
+	flag.Visit(visitor)
+
+	if runDefault {
+		allFrontmatters = allFrontmatters[1:]
+		allNumRootSections = allNumRootSections[0:2]
+		allNumTags = allNumTags[0:2]
+		allTagsPerPage = allTagsPerPage[2:3]
+		allNumPages = allNumPages[2:5]
+		allDoRender = allDoRender[1:2]
+		allDoShortCodes = allDoShortCodes[1:2]
+	}
+
 	var conf siteBuildingBenchmarkConfig
-	for _, frontmatter := range []string{"YAML", "TOML"} {
+	for _, frontmatter := range allFrontmatters {
 		conf.Frontmatter = frontmatter
-		for _, rootSections := range []int{1, 5} {
+		for _, rootSections := range allNumRootSections {
 			conf.RootSections = rootSections
-			for _, numTags := range []int{0, 1, 10, 20, 50, 100, 500, 1000, 5000} {
+			for _, numTags := range allNumTags {
 				conf.NumTags = numTags
-				for _, tagsPerPage := range []int{0, 1, 5, 20, 50, 80} {
+				for _, tagsPerPage := range allTagsPerPage {
 					conf.TagsPerPage = tagsPerPage
-					for _, numPages := range []int{1, 10, 100, 500, 1000, 5000, 10000} {
+					for _, numPages := range allNumPages {
 						conf.NumPages = numPages
-						for _, render := range []bool{false, true} {
+						for _, render := range allDoRender {
 							conf.Render = render
-							for _, shortcodes := range []bool{false, true} {
+							for _, shortcodes := range allDoShortCodes {
 								conf.Shortcodes = shortcodes
 								doBenchMarkSiteBuilding(conf, b)
 							}
@@ -207,8 +241,9 @@ category = "categories"
 		// Maybe consider reusing the Source fs
 		mf := afero.NewMemMapFs()
 		th, h := newTestSitesFromConfig(b, mf, siteConfig,
-			"layouts/_default/single.html", `Single HTML|{{ .Title }}|{{ .Content }}`,
+			"layouts/_default/single.html", `Single HTML|{{ .Title }}|{{ .Content }}|{{ partial "myPartial" . }} `,
 			"layouts/_default/list.html", `List HTML|{{ .Title }}|{{ .Content }}`,
+			"layouts/partials/myPartial.html", `Partial: {{ "Hello **world**!" | markdownify }}`,
 			"layouts/shortcodes/myShortcode.html", `<p>MyShortcode</p>`)
 
 		fs := th.Fs

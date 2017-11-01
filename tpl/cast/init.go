@@ -43,6 +43,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.ToFloat,
+			[]string{"float"},
+			[][2]string{
+				{`{{ "1234" | float | printf "%T" }}`, `float64`},
+			},
+		)
+
 		return ns
 
 	}

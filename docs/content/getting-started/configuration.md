@@ -6,7 +6,7 @@ date: 2013-07-01
 publishdate: 2017-01-02
 lastmod: 2017-03-05
 categories: [getting started,fundamentals]
-#tags: [configuration,toml,yaml,json]
+keywords: [configuration,toml,yaml,json]
 menu:
   docs:
     parent: "getting-started"
@@ -34,10 +34,9 @@ In your `config` file, you can direct Hugo as to how you want your website rende
 
 ## YAML Configuration
 
-The following is a typical example of a YAML configuration file. Note the document opens with 3 hyphens and closes with 3 periods. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
+The following is a typical example of a YAML configuration file. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
 
 {{< code file="config.yml">}}
----
 baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
 footnoteReturnLinkContents: "↩"
@@ -51,7 +50,6 @@ params:
     - "foo1"
     - "foo2"
   SidebarRecentLimit: 5
-...
 {{< /code >}}
 
 ### All Variables, YAML
@@ -59,7 +57,6 @@ params:
 The following is the full list of Hugo-defined variables in an example YAML file. The values provided in this example represent the default values used by Hugo.
 
 {{< code file="config.yml" download="config.yml" >}}
----
 archetypeDir:               "archetypes"
 # hostname (and path) to the root, e.g. http://spf13.com/
 baseURL:                    ""
@@ -111,6 +108,8 @@ googleAnalytics:            ""
 # if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
 hasCJKLanguage:             false
 languageCode:               ""
+# the length of text to show in a .Summary
+summaryLength:              70
 layoutDir:                  "layouts"
 # Enable Logging
 log:                        false
@@ -151,6 +150,8 @@ source:                     ""
 staticDir:                  "static"
 # display memory and timing of different steps of the program
 stepAnalysis:               false
+# display metrics about template executions
+templateMetrics:            false
 # theme to use (located by default in /themes/THEMENAME/)
 themesDir:                  "themes"
 theme:                      ""
@@ -170,14 +171,13 @@ watch:                      true
 taxonomies:
   - category:               "categories"
   - tag:                    "tags"
----
 {{< /code >}}
 
 ## TOML Configuration
 
 The following is an example of a TOML configuration file. The values under `[params]` will populate the `.Site.Params` variable for use in [templates][]:
 
-```
+{{< code file="config.toml">}}
 contentDir = "content"
 layoutDir = "layouts"
 publishDir = "public"
@@ -193,14 +193,13 @@ title = "My Hugo Site"
 [params]
   subtitle = "Hugo is Absurdly Fast!"
   author = "John Doe"
-```
+{{< /code >}}
 
 ### All Variables, TOML
 
 The following is the full list of Hugo-defined variables in an example TOML file. The values provided in this example represent the default values used by Hugo.
 
 {{< code file="config.toml" download="config.toml">}}
-+++
 archetypeDir =                "archetypes"
 # hostname (and path) to the root, e.g. http://spf13.com/
 baseURL =                     ""
@@ -252,6 +251,8 @@ googleAnalytics =             ""
 # if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
 hasCJKLanguage =              false
 languageCode =                ""
+# the length of text to show in a .Summary
+summaryLength:              70
 layoutDir =                   "layouts"
 # Enable Logging
 log =                         false
@@ -307,14 +308,18 @@ watch =                       true
 [taxonomies]
   category = "categories"
   tag = "tags"
-+++
 {{< /code >}}
 
 {{% note %}}
 If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
 ```
-~/sites/yourhugosite
+cd ~/sites/yourhugosite
 hugo config | grep emoji
+```
+
+which shows output like
+
+```
 enableemoji: true
 ```
 {{% /note %}}

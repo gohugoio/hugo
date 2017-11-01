@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [trim]
+keywords: [trim]
 signature: ["chomp INPUT"]
 workson: []
 hugoversion:

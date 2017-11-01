@@ -10,8 +10,8 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [highlighting,pygments,code blocks,syntax]
-signature: ["highlight INPUT"]
+keywords: [highlighting,pygments,code blocks,syntax]
+signature: ["highlight INPUT LANG OPTIONS"]
 workson: []
 hugoversion:
 relatedfuncs: []
@@ -25,4 +25,4 @@ See [Installing Hugo][installpygments] for more information on Pygments or [Synt
 
 [highlight]: /content-management/shortcodes/#highlight
 [installpygments]: /getting-started/installing/#installing-pygments-optional
-[syntax]: /tools/syntax-highlighting/
+[syntax]: /content-management/syntax-highlighting/

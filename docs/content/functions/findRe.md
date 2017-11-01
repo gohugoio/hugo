@@ -9,7 +9,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [regex]
+keywords: [regex]
 signature: ["findRE PATTERN INPUT [LIMIT]"]
 workson: []
 hugoversion:

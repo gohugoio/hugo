@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-#tags: [iteration]
+keywords: [iteration]
 signature: ["first LIMIT COLLECTION"]
 workson: [lists,taxonomies,terms,groups]
 hugoversion:

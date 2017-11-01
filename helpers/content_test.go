@@ -76,20 +76,23 @@ func TestBytesToHTML(t *testing.T) {
 var benchmarkTruncateString = strings.Repeat("This is a sentence about nothing.", 20)
 
 func BenchmarkTestTruncateWordsToWholeSentence(b *testing.B) {
+	c := newTestContentSpec()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		TruncateWordsToWholeSentence(benchmarkTruncateString, SummaryLength)
+		c.TruncateWordsToWholeSentence(benchmarkTruncateString)
 	}
 }
 
 func BenchmarkTestTruncateWordsToWholeSentenceOld(b *testing.B) {
+	c := newTestContentSpec()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		truncateWordsToWholeSentenceOld(benchmarkTruncateString, SummaryLength)
+		c.truncateWordsToWholeSentenceOld(benchmarkTruncateString)
 	}
 }
 
 func TestTruncateWordsToWholeSentence(t *testing.T) {
+	c := newTestContentSpec()
 	type test struct {
 		input, expected string
 		max             int
@@ -104,9 +107,11 @@ func TestTruncateWordsToWholeSentence(t *testing.T) {
 		{"To be. Or not to be. That's the question.", "To be.", 1, true},
 		{" \nThis is not a sentence\nAnd this is another", "This is not a sentence", 4, true},
 		{"", "", 10, false},
+		{"This... is a more difficult test?", "This... is a more difficult test?", 1, false},
 	}
 	for i, d := range data {
-		output, truncated := TruncateWordsToWholeSentence(d.input, d.max)
+		c.summaryLength = d.max
+		output, truncated := c.TruncateWordsToWholeSentence(d.input)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -118,6 +123,7 @@ func TestTruncateWordsToWholeSentence(t *testing.T) {
 }
 
 func TestTruncateWordsByRune(t *testing.T) {
+	c := newTestContentSpec()
 	type test struct {
 		input, expected string
 		max             int
@@ -139,7 +145,8 @@ func TestTruncateWordsByRune(t *testing.T) {
 		{" \nThis is    not a sentence\n ", "This is not", 3, true},
 	}
 	for i, d := range data {
-		output, truncated := TruncateWordsByRune(strings.Fields(d.input), d.max)
+		c.summaryLength = d.max
+		output, truncated := c.TruncateWordsByRune(strings.Fields(d.input))
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}

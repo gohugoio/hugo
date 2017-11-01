@@ -418,7 +418,7 @@ func DecodeConfig(in interface{}) (Config, error) {
 	}
 
 	if c.ToLower {
-		for i, _ := range c.Indices {
+		for i := range c.Indices {
 			c.Indices[i].ToLower = true
 		}
 	}

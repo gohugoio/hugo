@@ -5,7 +5,7 @@ description: Hugo includes support for user-defined taxonomies to help you  demo
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-#tags: [taxonomies,metadata,front matter,terms]
+keywords: [taxonomies,metadata,front matter,terms]
 categories: [content management]
 menu:
   docs:
@@ -32,7 +32,7 @@ Term
 Value
 : a piece of content assigned to a term
 
-{{< youtube "-np9GX6cL38" >}}
+{{< youtube pCPCQgqC8RA >}}
 
 ## Example Taxonomy: Movie Website
 

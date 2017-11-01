@@ -125,6 +125,9 @@ outputs: %s
 # Doc
 
 {{< myShort >}}
+
+{{< myOtherShort >}}
+
 `
 
 	mf := afero.NewMemMapFs()
@@ -144,6 +147,7 @@ other = "Olboge"
 		"layouts/partials/GoHugo.html", `Go Hugo Partial`,
 		"layouts/_default/baseof.json", `START JSON:{{block "main" .}}default content{{ end }}:END JSON`,
 		"layouts/_default/baseof.html", `START HTML:{{block "main" .}}default content{{ end }}:END HTML`,
+		"layouts/shortcodes/myOtherShort.html", `OtherShort: {{ "<h1>Hi!</h1>" | safeHTML }}`,
 		"layouts/shortcodes/myShort.html", `ShortHTML`,
 		"layouts/shortcodes/myShort.json", `ShortJSON`,
 
@@ -210,6 +214,7 @@ Content: {{ .Content }}
 			"Output/Rel: HTML/canonical|",
 			"en: Elbow",
 			"ShortJSON",
+			"OtherShort: <h1>Hi!</h1>",
 		)
 
 		th.assertFileContent("public/index.html",
@@ -218,6 +223,7 @@ Content: {{ .Content }}
 			`List HTML|JSON Home|<atom:link href=http://example.com/blog/ rel="self" type="text/html&#43;html" />`,
 			"en: Elbow",
 			"ShortHTML",
+			"OtherShort: <h1>Hi!</h1>",
 		)
 		th.assertFileContent("public/nn/index.html",
 			"List HTML|JSON Nynorsk Heim|",
@@ -228,6 +234,7 @@ Content: {{ .Content }}
 			// JSON is plain text, so no need to safeHTML this and that
 			`<atom:link href=http://example.com/blog/index.json rel="self" type="application/json+json" />`,
 			"ShortJSON",
+			"OtherShort: <h1>Hi!</h1>",
 		)
 		th.assertFileContent("public/nn/index.json",
 			"List JSON|JSON Nynorsk Heim|",

@@ -6,7 +6,7 @@ date: 2017-01-10
 publishdate: 2017-01-10
 lastmod: 2017-04-06
 categories: [content management]
-#tags: [markdown,asciidoc,mmark,content format]
+keywords: [markdown,asciidoc,mmark,content format]
 menu:
   docs:
     parent: "content-management"
