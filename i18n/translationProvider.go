@@ -55,8 +55,7 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 			langs = append(langs, r.BaseFileName())
 		}
 	}
-	// we need to register all language codes as "plural spec" to prevent errors
-	// with unknown language codes
+	// We need to register all language codes as "plural spec" to prevent errors with unknown language codes.
 	// see https://github.com/gohugoio/hugo/issues/3564
 	ps := &language.PluralSpec{}
 	language.RegisterPluralSpec(langs, ps)
