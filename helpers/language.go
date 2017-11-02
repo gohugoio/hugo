@@ -102,6 +102,17 @@ func (l *Language) Params() map[string]interface{} {
 	return l.params
 }
 
+// IsMultihost returns whether the languages has baseURL specificed on the
+// language level.
+func (l Languages) IsMultihost() bool {
+	for _, lang := range l {
+		if lang.GetLocal("baseURL") != nil {
+			return true
+		}
+	}
+	return false
+}
+
 // SetParam sets param with the given key and value.
 // SetParam is case-insensitive.
 func (l *Language) SetParam(k string, v interface{}) {
@@ -132,6 +143,17 @@ func (l *Language) GetStringMapString(key string) map[string]string {
 //
 // Get returns an interface. For a specific value use one of the Get____ methods.
 func (l *Language) Get(key string) interface{} {
+	local := l.GetLocal(key)
+	if local != nil {
+		return local
+	}
+	return l.Cfg.Get(key)
+}
+
+// GetLocal gets a configuration value set on language level. It will
+// not fall back to any global value.
+// It will return nil if a value with the given key cannot be found.
+func (l *Language) GetLocal(key string) interface{} {
 	if l == nil {
 		panic("language not set")
 	}
@@ -141,7 +163,7 @@ func (l *Language) Get(key string) interface{} {
 			return v
 		}
 	}
-	return l.Cfg.Get(key)
+	return nil
 }
 
 // Set sets the value for the key in the language's params.

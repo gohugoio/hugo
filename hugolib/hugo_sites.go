@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"sync"
 
@@ -37,7 +36,14 @@ type HugoSites struct {
 
 	multilingual *Multilingual
 
+	// Multihost is set if multilingual and baseURL set on the language level.
+	multihost bool
+
 	*deps.Deps
+}
+
+func (h *HugoSites) IsMultihost() bool {
+	return h != nil && h.multihost
 }
 
 // GetContentPage finds a Page with content given the absolute filename.
@@ -91,6 +97,31 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 	}
 
 	h.Deps = sites[0].Deps
+
+	// The baseURL may be provided at the language level. If that is true,
+	// then every language must have a baseURL. In this case we always render
+	// to a language sub folder, which is then stripped from all the Permalink URLs etc.
+	var baseURLFromLang bool
+
+	for _, s := range sites {
+		burl := s.Language.GetLocal("baseURL")
+		if baseURLFromLang && burl == nil {
+			return h, errors.New("baseURL must be set on all or none of the languages")
+		}
+
+		if burl != nil {
+			baseURLFromLang = true
+		}
+	}
+
+	if baseURLFromLang {
+		for _, s := range sites {
+			// TODO(bep) multihost check
+			s.Info.defaultContentLanguageInSubdir = true
+			s.Cfg.Set("defaultContentLanguageInSubdir", true)
+		}
+		h.multihost = true
+	}
 
 	return h, nil
 }
@@ -180,39 +211,19 @@ func createSitesFromConfig(cfg deps.DepsCfg) ([]*Site, error) {
 		sites []*Site
 	)
 
-	multilingual := cfg.Cfg.GetStringMap("languages")
+	languages := getLanguages(cfg.Cfg)
 
-	if len(multilingual) == 0 {
-		l := helpers.NewDefaultLanguage(cfg.Cfg)
-		cfg.Language = l
-		s, err := newSite(cfg)
+	for _, lang := range languages {
+		var s *Site
+		var err error
+		cfg.Language = lang
+		s, err = newSite(cfg)
+
 		if err != nil {
 			return nil, err
 		}
+
 		sites = append(sites, s)
-	}
-
-	if len(multilingual) > 0 {
-		var err error
-
-		languages, err := toSortedLanguages(cfg.Cfg, multilingual)
-
-		if err != nil {
-			return nil, fmt.Errorf("Failed to parse multilingual config: %s", err)
-		}
-
-		for _, lang := range languages {
-			var s *Site
-			var err error
-			cfg.Language = lang
-			s, err = newSite(cfg)
-
-			if err != nil {
-				return nil, err
-			}
-
-			sites = append(sites, s)
-		}
 	}
 
 	return sites, nil
@@ -227,7 +238,12 @@ func (h *HugoSites) reset() {
 
 func (h *HugoSites) createSitesFromConfig() error {
 
+	if err := loadLanguageSettings(h.Cfg); err != nil {
+		return err
+	}
+
 	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: h.Cfg}
+
 	sites, err := createSitesFromConfig(depsCfg)
 
 	if err != nil {
@@ -286,7 +302,7 @@ type BuildCfg struct {
 
 func (h *HugoSites) renderCrossSitesArtifacts() error {
 
-	if !h.multilingual.enabled() {
+	if !h.multilingual.enabled() || h.IsMultihost() {
 		return nil
 	}
 

@@ -1269,7 +1269,7 @@ lag:
 		t.Fatalf("Failed to create sites: %s", err)
 	}
 
-	if len(sites.Sites) != 4 {
+	if len(sites.Sites) == 0 {
 		t.Fatalf("Got %d sites", len(sites.Sites))
 	}
 

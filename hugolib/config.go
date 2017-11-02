@@ -19,6 +19,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
@@ -80,9 +81,32 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 		helpers.Deprecated("site config", "disableRobotsTXT", "Use disableKinds= [\"robotsTXT\"]", false)
 	}
 
-	loadDefaultSettingsFor(v)
+	if err := loadDefaultSettingsFor(v); err != nil {
+		return v, err
+	}
 
 	return v, nil
+}
+
+func loadLanguageSettings(cfg config.Provider) error {
+	multilingual := cfg.GetStringMap("languages")
+	var (
+		langs helpers.Languages
+		err   error
+	)
+
+	if len(multilingual) == 0 {
+		langs = append(langs, helpers.NewDefaultLanguage(cfg))
+	} else {
+		langs, err = toSortedLanguages(cfg, multilingual)
+		if err != nil {
+			return fmt.Errorf("Failed to parse multilingual config: %s", err)
+		}
+	}
+
+	cfg.Set("languagesSorted", langs)
+
+	return nil
 }
 
 func loadDefaultSettingsFor(v *viper.Viper) error {
@@ -154,5 +178,5 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("debug", false)
 	v.SetDefault("disableFastRender", false)
 
-	return nil
+	return loadLanguageSettings(v)
 }
