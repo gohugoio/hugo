@@ -35,7 +35,7 @@ hugo [flags]
       --config string           config file (default is path/config.yaml|json|toml)
   -c, --contentDir string       filesystem path to content directory
       --debug                   debug output
-  -d, --destination string      filesystem path to write files to
+  -d, --destination string      filesystem or sftp path to write files to
       --disable404              do not render 404 page
       --disableKinds strings    disable different kind of pages (home, RSS etc.)
       --disableRSS              do not build RSS files

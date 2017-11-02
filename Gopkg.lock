@@ -127,6 +127,12 @@
   revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/kr/fs"
+  packages = ["."]
+  revision = "2788f0dbd16903de03cb8186e5c7d97b69ad387b"
+
+[[projects]]
   name = "github.com/kyokomi/emoji"
   packages = ["."]
   revision = "7e06b236c489543f53868841f188a294e3383eab"
@@ -175,6 +181,18 @@
   version = "v1.0.1"
 
 [[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
+  name = "github.com/pkg/sftp"
+  packages = ["."]
+  revision = "98203f5a8333288eb3163b7c667d4260fe1333e9"
+  version = "1.0.0"
+
+[[projects]]
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
@@ -195,7 +213,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/spf13/afero"
-  packages = [".","mem"]
+  packages = [".","mem","sftpfs"]
   revision = "5660eeed305fe5f69c8fc6cf899132a459a97064"
 
 [[projects]]
@@ -254,6 +272,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["curve25519","ed25519","ed25519/internal/edwards25519","ssh","ssh/knownhosts"]
+  revision = "bd6f299fb381e4c3393d1c4b1f0b94f5e77650c8"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/image"
   packages = ["riff","vp8","vp8l","webp"]
   revision = "f7e31b4ea2e3413ab91b4e7d2dc83e5f8d19a44c"
@@ -285,6 +309,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9046d783e19de319d8829a48dd75d8eee659c79b4b71215d34ab1a62c8210d79"
+  inputs-digest = "f42bf33dea8bfeb46931e75e918354e80f29b885cd7a10e44c01577596235199"
   solver-name = "gps-cdcl"
   solver-version = 1
