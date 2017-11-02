@@ -19,12 +19,14 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -137,34 +139,58 @@ func server(cmd *cobra.Command, args []string) error {
 		c.watchConfig()
 	}
 
-	l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(serverPort)))
-	if err == nil {
-		l.Close()
-	} else {
-		if serverCmd.Flags().Changed("port") {
-			// port set explicitly by user -- he/she probably meant it!
-			return newSystemErrorF("Server startup failed: %s", err)
+	languages := c.languages()
+	serverPorts := make([]int, 1)
+
+	if languages.IsMultihost() {
+		serverPorts = make([]int, len(languages))
+	}
+
+	currentServerPort := serverPort
+
+	for i := 0; i < len(serverPorts); i++ {
+		l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(currentServerPort)))
+		if err == nil {
+			l.Close()
+			serverPorts[i] = currentServerPort
+		} else {
+			if i == 0 && serverCmd.Flags().Changed("port") {
+				// port set explicitly by user -- he/she probably meant it!
+				return newSystemErrorF("Server startup failed: %s", err)
+			}
+			jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
+			sp, err := helpers.FindAvailablePort()
+			if err != nil {
+				return newSystemError("Unable to find alternative port to use:", err)
+			}
+			serverPorts[i] = sp.Port
 		}
-		jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
-		sp, err := helpers.FindAvailablePort()
-		if err != nil {
-			return newSystemError("Unable to find alternative port to use:", err)
-		}
-		serverPort = sp.Port
+
+		currentServerPort = serverPorts[i] + 1
 	}
 
 	c.Set("port", serverPort)
 	if liveReloadPort != -1 {
 		c.Set("liveReloadPort", liveReloadPort)
 	} else {
-		c.Set("liveReloadPort", serverPort)
+		c.Set("liveReloadPort", serverPorts[0])
 	}
 
-	baseURL, err = fixURL(c.Cfg, baseURL)
-	if err != nil {
-		return err
+	if languages.IsMultihost() {
+		for i, language := range languages {
+			baseURL, err = fixURL(language, baseURL, serverPorts[i])
+			if err != nil {
+				return err
+			}
+			language.Set("baseURL", baseURL)
+		}
+	} else {
+		baseURL, err = fixURL(c.Cfg, baseURL, serverPorts[0])
+		if err != nil {
+			return err
+		}
+		c.Cfg.Set("baseURL", baseURL)
 	}
-	c.Set("baseURL", baseURL)
 
 	if err := memStats(); err != nil {
 		jww.ERROR.Println("memstats error:", err)
@@ -208,26 +234,50 @@ func server(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	c.serve(serverPort)
-
 	return nil
 }
 
-func (c *commandeer) serve(port int) {
+type fileServer struct {
+	basePort int
+	baseURLs []string
+	roots    []string
+	c        *commandeer
+}
+
+func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, error) {
+	baseURL := f.baseURLs[i]
+	root := f.roots[i]
+	port := f.basePort + i
+
+	publishDir := f.c.Cfg.GetString("publishDir")
+
+	if root != "" {
+		publishDir = filepath.Join(publishDir, root)
+	}
+
+	absPublishDir := f.c.PathSpec().AbsPathify(publishDir)
+
+	// TODO(bep) multihost unify feedback
 	if renderToDisk {
-		jww.FEEDBACK.Println("Serving pages from " + c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")))
+		jww.FEEDBACK.Println("Serving pages from " + absPublishDir)
 	} else {
 		jww.FEEDBACK.Println("Serving pages from memory")
 	}
 
-	httpFs := afero.NewHttpFs(c.Fs.Destination)
-	fs := filesOnlyFs{httpFs.Dir(c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")))}
+	httpFs := afero.NewHttpFs(f.c.Fs.Destination)
+	fs := filesOnlyFs{httpFs.Dir(absPublishDir)}
 
-	doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
-	fastRenderMode := doLiveReload && !c.Cfg.GetBool("disableFastRender")
+	doLiveReload := !buildWatch && !f.c.Cfg.GetBool("disableLiveReload")
+	fastRenderMode := doLiveReload && !f.c.Cfg.GetBool("disableFastRender")
 
 	if fastRenderMode {
 		jww.FEEDBACK.Println("Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender")
+	}
+
+	// We're only interested in the path
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, "", fmt.Errorf("Invalid baseURL: %s", err)
 	}
 
 	decorate := func(h http.Handler) http.Handler {
@@ -240,7 +290,7 @@ func (c *commandeer) serve(port int) {
 			if fastRenderMode {
 				p := r.RequestURI
 				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
-					c.visitedURLs.Add(p)
+					f.c.visitedURLs.Add(p)
 				}
 			}
 			h.ServeHTTP(w, r)
@@ -248,32 +298,78 @@ func (c *commandeer) serve(port int) {
 	}
 
 	fileserver := decorate(http.FileServer(fs))
+	mu := http.NewServeMux()
 
-	// We're only interested in the path
-	u, err := url.Parse(c.Cfg.GetString("baseURL"))
-	if err != nil {
-		jww.ERROR.Fatalf("Invalid baseURL: %s", err)
-	}
 	if u.Path == "" || u.Path == "/" {
-		http.Handle("/", fileserver)
+		mu.Handle("/", fileserver)
 	} else {
-		http.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
+		mu.Handle(u.Path, http.StripPrefix(u.Path, fileserver))
 	}
-
-	jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", u.String(), serverInterface)
-	jww.FEEDBACK.Println("Press Ctrl+C to stop")
 
 	endpoint := net.JoinHostPort(serverInterface, strconv.Itoa(port))
-	err = http.ListenAndServe(endpoint, nil)
-	if err != nil {
-		jww.ERROR.Printf("Error: %s\n", err.Error())
-		os.Exit(1)
+
+	return mu, endpoint, nil
+}
+
+func (c *commandeer) roots() []string {
+	var roots []string
+	languages := c.languages()
+	isMultiHost := languages.IsMultihost()
+	if !isMultiHost {
+		return roots
 	}
+
+	for _, l := range languages {
+		roots = append(roots, l.Lang)
+	}
+	return roots
+}
+
+func (c *commandeer) serve(port int) {
+	// TODO(bep) multihost
+	isMultiHost := Hugo.IsMultihost()
+
+	var (
+		baseURLs []string
+		roots    []string
+	)
+
+	if isMultiHost {
+		for _, s := range Hugo.Sites {
+			baseURLs = append(baseURLs, s.BaseURL.String())
+			roots = append(roots, s.Language.Lang)
+		}
+	} else {
+		baseURLs = []string{Hugo.Sites[0].BaseURL.String()}
+		roots = []string{""}
+	}
+
+	srv := &fileServer{
+		basePort: port,
+		baseURLs: baseURLs,
+		roots:    roots,
+		c:        c,
+	}
+
+	for i, _ := range baseURLs {
+		mu, endpoint, err := srv.createEndpoint(i)
+
+		go func() {
+			err = http.ListenAndServe(endpoint, mu)
+			if err != nil {
+				jww.ERROR.Printf("Error: %s\n", err.Error())
+				os.Exit(1)
+			}
+		}()
+	}
+
+	// TODO(bep) multihost		jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", u.String(), serverInterface)
+	jww.FEEDBACK.Println("Press Ctrl+C to stop")
 }
 
 // fixURL massages the baseURL into a form needed for serving
 // all pages correctly.
-func fixURL(cfg config.Provider, s string) (string, error) {
+func fixURL(cfg config.Provider, s string, port int) (string, error) {
 	useLocalhost := false
 	if s == "" {
 		s = cfg.GetString("baseURL")
@@ -315,7 +411,7 @@ func fixURL(cfg config.Provider, s string) (string, error) {
 				return "", fmt.Errorf("Failed to split baseURL hostpost: %s", err)
 			}
 		}
-		u.Host += fmt.Sprintf(":%d", serverPort)
+		u.Host += fmt.Sprintf(":%d", port)
 	}
 
 	return u.String(), nil

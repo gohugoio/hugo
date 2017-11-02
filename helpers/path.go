@@ -158,7 +158,6 @@ func (p *PathSpec) AbsPathify(inPath string) string {
 		return filepath.Clean(inPath)
 	}
 
-	// TODO(bep): Consider moving workingDir to argument list
 	return filepath.Join(p.workingDir, inPath)
 }
 

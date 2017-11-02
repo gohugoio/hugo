@@ -387,7 +387,7 @@ func (s *Site) renderAliases() error {
 		}
 	}
 
-	if s.owner.multilingual.enabled() {
+	if s.owner.multilingual.enabled() && !s.owner.IsMultihost() {
 		mainLang := s.owner.multilingual.DefaultLang
 		if s.Info.defaultContentLanguageInSubdir {
 			mainLangURL := s.PathSpec.AbsURL(mainLang.Lang, false)

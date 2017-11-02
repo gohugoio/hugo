@@ -47,7 +47,7 @@ func TestFixURL(t *testing.T) {
 		v.Set("baseURL", test.CfgBaseURL)
 		serverAppend = test.AppendPort
 		serverPort = test.Port
-		result, err := fixURL(v, baseURL)
+		result, err := fixURL(v, baseURL, serverPort)
 		if err != nil {
 			t.Errorf("Test #%d %s: unexpected error %s", i, test.TestName, err)
 		}

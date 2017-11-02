@@ -526,6 +526,7 @@ func (c *commandeer) watchConfig() {
 
 func (c *commandeer) build(watches ...bool) error {
 	if err := c.copyStatic(); err != nil {
+		// TODO(bep) multihost
 		return fmt.Errorf("Error copying static files to %s: %s", c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")), err)
 	}
 	watch := false
@@ -593,6 +594,24 @@ func (c *commandeer) getStaticSourceFs() afero.Fs {
 
 func (c *commandeer) copyStatic() error {
 	publishDir := c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")) + helpers.FilePathSeparator
+	roots := c.roots()
+
+	if len(roots) == 0 {
+		return c.copyStaticTo(publishDir)
+	}
+
+	for _, root := range roots {
+		dir := filepath.Join(publishDir, root)
+		if err := c.copyStaticTo(dir); err != nil {
+			return err
+		}
+	}
+
+	return nil
+
+}
+
+func (c *commandeer) copyStaticTo(publishDir string) error {
 
 	// If root, remove the second '/'
 	if publishDir == "//" {
@@ -893,6 +912,7 @@ func (c *commandeer) newWatcher(port int) error {
 
 					if c.Cfg.GetBool("forceSyncStatic") {
 						c.Logger.FEEDBACK.Printf("Syncing all static files\n")
+						// TODO(bep) multihost
 						err := c.copyStatic()
 						if err != nil {
 							utils.StopOnErr(c.Logger, err, fmt.Sprintf("Error copying static files to %s", publishDir))

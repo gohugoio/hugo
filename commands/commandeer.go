@@ -41,6 +41,10 @@ func (c *commandeer) PathSpec() *helpers.PathSpec {
 	return c.pathSpec
 }
 
+func (c *commandeer) languages() helpers.Languages {
+	return c.Cfg.Get("languagesSorted").(helpers.Languages)
+}
+
 func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	c.DepsCfg.Fs = fs
 	ps, err := helpers.NewPathSpec(fs, c.Cfg)

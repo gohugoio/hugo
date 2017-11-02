@@ -257,6 +257,10 @@ func (p *Page) createRelativePermalinkForOutputFormat(f output.Format) string {
 		tp = strings.TrimSuffix(tp, f.BaseFilename())
 	}
 
+	if p.s.owner.IsMultihost() {
+		tp = strings.TrimPrefix(tp, helpers.FilePathSeparator+p.s.Info.Language.Lang)
+	}
+
 	return p.s.PathSpec.URLizeFilename(tp)
 }
 

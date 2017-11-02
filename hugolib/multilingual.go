@@ -47,6 +47,14 @@ func (ml *Multilingual) Language(lang string) *helpers.Language {
 	return ml.langMap[lang]
 }
 
+func getLanguages(cfg config.Provider) helpers.Languages {
+	if cfg.IsSet("languagesSorted") {
+		return cfg.Get("languagesSorted").(helpers.Languages)
+	}
+
+	return helpers.Languages{helpers.NewDefaultLanguage(cfg)}
+}
+
 func newMultiLingualFromSites(cfg config.Provider, sites ...*Site) (*Multilingual, error) {
 	languages := make(helpers.Languages, len(sites))
 
