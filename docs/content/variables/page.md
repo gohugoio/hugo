@@ -4,7 +4,7 @@ linktitle:
 description: Page-level variables are defined in a content file's front matter, derived from the content's file location, or extracted from the content body itself.
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-02-01
+lastmod: 2017-11-03
 categories: [variables and params]
 keywords: [pages]
 draft: false
@@ -40,6 +40,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 
 `.Description`
 : the description for the page.
+
+`.Dir`
+: the path of the folder containing this content file. The path is relative to the `content` folder.
 
 `.Draft`
 : a boolean, `true` if the content is marked as a draft in the front matter.
