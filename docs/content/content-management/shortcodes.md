@@ -107,6 +107,49 @@ The `figure` shortcode can use the following named parameters:
 </figure>
 {{< /output >}}
 
+### `table`
+
+`table` allows specifying `class` and `style` attributes to a Markdown table. This is useful for the cases where you do not want to apply styling for all tables globally.
+
+The `table` shortcode can use the following named parameters:
+
+- `class`
+- `style`
+
+If named parameters are not used, the *first* parameter is assigned to the
+`table` tag's `class` attribute, and the *second* parameter is assigned to the
+`style`. Both parameters are optional.
+
+#### Example `table` Input
+
+{{< code file="table-input-example.md" >}}
+{{%/* table class="toto" style="width:50%" */%}}
+| a | b |
+|---|---|
+| c | d |
+{{%/* /table */%}}
+{{< /code >}}
+
+#### Example `table` Output
+
+{{< output file="table-output-example.html" >}}
+<table class="toto" style="width:50%">
+<thead>
+<tr>
+<th>a</th>
+<th>b</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td>c</td>
+<td>d</td>
+</tr>
+</tbody>
+</table>
+{{< /output >}}
+
 ### `gist`
 
 Bloggers often want to include GitHub gists when writing posts. Let's suppose we want to use the [gist at the following url][examplegist]:

@@ -36,6 +36,24 @@ func (t *templateHandler) embedShortcodes() {
     {{ end }}
 </figure>
 <!-- image -->`)
+	t.addInternalShortcode("table.html", `{{ $.Scratch.Set "__table.class" "" }}
+{{ $.Scratch.Set "__table.style" "" }}
+{{ if .IsNamedParams }}
+    {{ with .Get "class" }}
+        {{ $.Scratch.Set "__table.class" (printf "%s%s%s" " class=\"" . "\"") }}
+    {{ end }}
+    {{ with .Get "style" }}
+        {{ $.Scratch.Set "__table.style" (printf "%s%s%s" " style=\"" . "\"") }}
+    {{ end }}
+{{ else }}
+    {{ if len .Params | le 1 }}
+        {{ $.Scratch.Set "__table.class" (printf "%s%s%s" " class=\"" (.Get 0) "\"") }}
+    {{ end }}
+    {{ if len .Params | eq 2 }}
+        {{ $.Scratch.Set "__table.style" (printf "%s%s%s" " style=\"" (.Get 1) "\"") }}
+    {{ end }}
+{{ end }}
+{{ replace .Inner "<table>" (printf "%s%s%s%s" "<table" ($.Scratch.Get "__table.class") ($.Scratch.Get "__table.style") ">") | markdownify }}`)
 	t.addInternalShortcode("speakerdeck.html", "<script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='//speakerdeck.com/assets/embed.js'></script>")
 	t.addInternalShortcode("youtube.html", `{{ if .IsNamedParams }}
 <div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
