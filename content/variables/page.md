@@ -41,6 +41,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 `.Description`
 : the description for the page.
 
+`.Dir`
+: the path of the folder containing this content file. The path is relative to the `content` folder.
+
 `.Draft`
 : a boolean, `true` if the content is marked as a draft in the front matter.
 
