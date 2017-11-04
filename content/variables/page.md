@@ -53,6 +53,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 `.ExpiryDate`
 : the date on which the content is scheduled to expire; `.ExpiryDate` pulls from the `expirydate` field in a content's front matter. See also `.PublishDate`, `.Date`, and `.Lastmod`.
 
+`.File`
+: filesystem-related data for this content file. See also [File Variables][].
+
 `.FuzzyWordCount`
 : the approximate number of words in the content.
 
@@ -282,3 +285,4 @@ The top-level key will be preferred. Therefore, the following method, when appli
 ```
 
 [gitinfo]: /variables/git/
+[File Variables]: /variables/files/
