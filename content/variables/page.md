@@ -32,6 +32,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 `.Content`
 : the content itself, defined below the front matter.
 
+`.CurrentSection`
+: the page's current section. The value can be the page itself if it is a section or the homepage.
+
 `.Data`
 : the data specific to this type of page.
 
@@ -144,6 +147,9 @@ http://remarkjs.com)
 
 `.Section`
 : the [section](/content-management/sections/) this content belongs to.
+
+`.Sections`
+: the [sections](/content-management/sections/) below this content.
 
 `.Site`
 : see [Site Variables](/variables/site/).
