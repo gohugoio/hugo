@@ -68,7 +68,9 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 		currentLang := lang
 
 		t.translateFuncs[currentLang] = func(translationID string, args ...interface{}) string {
+			tpMu.RLock()
 			tFunc, err := bndl.Tfunc(currentLang)
+			tpMu.RUnlock()
 			if err != nil {
 				jww.WARN.Printf("could not load translations for language %q (%s), will use default content language.\n", lang, err)
 			}
