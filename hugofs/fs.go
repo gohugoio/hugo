@@ -62,6 +62,15 @@ func NewFrom(fs afero.Fs, cfg config.Provider) *Fs {
 	return newFs(fs, cfg)
 }
 
+func NewFromSrcDst(src, dst afero.Fs, cfg config.Provider) *Fs {
+	return &Fs{
+		Source:      src,
+		Destination: dst,
+		Os:          &afero.OsFs{},
+		WorkingDir:  getWorkingDirFs(src, cfg),
+	}
+}
+
 func newFs(base afero.Fs, cfg config.Provider) *Fs {
 	return &Fs{
 		Source:      base,

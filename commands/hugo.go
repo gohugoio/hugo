@@ -23,6 +23,7 @@ import (
 
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -50,6 +51,7 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
+	// "github.com/spf13/afero/sftpfs"
 )
 
 // Hugo represents the Hugo sites to build. This variable is exported as it
@@ -129,6 +131,18 @@ Complete documentation is available at http://gohugo.io/.`,
 			cfg.Cfg.Set("disableLiveReload", true)
 			c.watchConfig()
 		}
+
+		// this doesn't work as sftpfs.Fs doesnt
+		// export any functions to close the
+		// server connection ..
+		//
+		// switch cfg.Fs.Destination.(type) {
+		// case sftpfs.Fs : {
+		//   cfg.Logger.INFO.Println("closing sftp connection...")
+		//   cfg.Fs.Destination.(sftpfs.Fs).client.Disconnect()
+		// }
+		// default:
+		// }
 
 		return c.build()
 	},
@@ -349,7 +363,28 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 	}
 	config.Set("workingDir", dir)
 
-	fs := hugofs.NewFrom(osFs, config)
+	var fs *hugofs.Fs
+
+	if url, err := url.Parse(destination); err == nil && url.Scheme == "sftp" && !renderToMemory {
+
+		destination = url.Path
+		config.Set("publishDir", destination)
+
+		sftpFs, err := hugofs.NewSftpFs(url)
+
+		if err != nil {
+			return cfg, newSystemError("Error setting up the sftp connection: ", err.Error())
+		}
+
+		fs = hugofs.NewFromSrcDst(
+			osFs,
+			sftpFs,
+			config,
+		)
+
+	} else {
+		fs = hugofs.NewFrom(osFs, config)
+	}
 
 	// Hugo writes the output to memory instead of the disk.
 	// This is only used for benchmark testing. Cause the content is only visible
