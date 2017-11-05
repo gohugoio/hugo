@@ -73,6 +73,9 @@ The following is a list of values that can be used in a `permalink` definition i
 `:section`
 : the content's section
 
+`:sections`
+: the content's sections hierarchy
+
 `:title`
 : the content's title
 
