@@ -41,7 +41,7 @@ copyright = "Tout est à moi"
 title = "Mon blog"
 weight = 2
 linkedin = "lien-francais"
-[Languages.fr.navigation]
+[Languages.fr.params.navigation]
 help  = "Aide"
 {{< /code >}}
 
