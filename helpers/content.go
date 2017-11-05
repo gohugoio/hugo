@@ -46,6 +46,9 @@ type ContentSpec struct {
 	footnoteReturnLinkContents string
 	// SummaryLength is the length of the summary that Hugo extracts from a content.
 	summaryLength int
+	// map of format to executable name and following args, as either a string
+	// parsed as a list of whitespace-separated tokens or as list of strings
+	externalFormats map[string]interface{}
 
 	Highlight            func(code, lang, optsStr string) (string, error)
 	defatultPygmentsOpts map[string]string
@@ -61,6 +64,7 @@ func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
 		footnoteReturnLinkContents: cfg.GetString("footnoteReturnLinkContents"),
 		summaryLength:              cfg.GetInt("summaryLength"),
+		externalFormats:            cfg.GetStringMap("externalFormats"),
 
 		cfg: cfg,
 	}
@@ -441,6 +445,18 @@ type RenderingContext struct {
 
 // RenderBytes renders a []byte.
 func (c ContentSpec) RenderBytes(ctx *RenderingContext) []byte {
+	external := c.externalFormats[ctx.PageFmt]
+	if external != nil {
+		switch external.(type) {
+		case []string:
+			return externallyRenderContent(ctx, external.([]string))
+		case string:
+			return externallyRenderContent(ctx, strings.Fields(external.(string)))
+		default:
+			jww.ERROR.Printf("Could not understand external format for %s", ctx.PageFmt)
+			jww.ERROR.Println("Falling back to normal rendering methods")
+		}
+	}
 	switch ctx.PageFmt {
 	default:
 		return c.markdownRender(ctx)
@@ -729,4 +745,41 @@ func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
 	cleanContent := bytes.Replace(content, []byte("# more"), []byte(""), 1)
 	return goorgeous.Org(cleanContent,
 		c.getHTMLRenderer(blackfriday.HTML_TOC, ctx))
+}
+
+func externallyRenderContent(ctx *RenderingContext, externalFields []string) []byte {
+	content := ctx.Content
+	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
+
+	externalProgram := externalFields[0]
+	externalArgs := externalFields[1:]
+
+	path, err := exec.LookPath(externalProgram)
+
+	if err != nil {
+		jww.ERROR.Println(externalProgram, "not found in $PATH. Leaving content unrendered.")
+		return content
+	}
+
+	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
+	cmd := exec.Command(path, externalArgs...)
+	cmd.Stdin = bytes.NewReader(cleanContent)
+	var out, cmderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &cmderr
+	err = cmd.Run()
+	// like in rst2html and AsciiDoc, log stderr output regardless of state of err
+	for _, item := range strings.Split(string(cmderr.Bytes()), "\n") {
+		item := strings.TrimSpace(item)
+		if item != "" {
+			jww.ERROR.Printf("%s:%s", ctx.DocumentName, item)
+		}
+	}
+	if err != nil {
+		jww.ERROR.Printf("%s rendering %s: %v", path, ctx.DocumentName, err)
+	}
+
+	result := normalizeExternalHelperLineFeeds(out.Bytes())
+
+	return result
 }
