@@ -25,7 +25,7 @@ import (
 
 // Unfortunately this needs to be global, see
 // https://github.com/nicksnyder/go-i18n/issues/82
-var tpMu sync.RWMutex
+var tpMu sync.Mutex
 
 // TranslationProvider provides translation handling, i.e. loading
 // of bundles etc.
