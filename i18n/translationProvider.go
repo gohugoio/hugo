@@ -14,11 +14,13 @@
 package i18n
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/source"
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
+	"github.com/nicksnyder/go-i18n/i18n/language"
 )
 
 // TranslationProvider provides translation handling, i.e. loading
@@ -47,6 +49,27 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	d.Log.DEBUG.Printf("Load I18n from %q", sources)
 
 	i18nBundle := bundle.New()
+
+	en := language.GetPluralSpec("en")
+	if en == nil {
+		return errors.New("The English language has vanished like an old oak table!")
+	}
+	var newLangs []string
+
+	for _, currentSource := range sources {
+		for _, r := range currentSource.Files() {
+			currentSpec := language.GetPluralSpec(r.BaseFileName())
+			if currentSpec == nil {
+				// This may is a language code not supported by go-i18n, it may be
+				// Klingon or ... not even a fake language. Make sure it works.
+				newLangs = append(newLangs, r.BaseFileName())
+			}
+		}
+	}
+
+	if len(newLangs) > 0 {
+		language.RegisterPluralSpec(newLangs, en)
+	}
 
 	for _, currentSource := range sources {
 		for _, r := range currentSource.Files() {
