@@ -201,6 +201,20 @@ For example, for Asciidoc files, Hugo will try to call the `asciidoctor` or `asc
 
 To use these formats, just use the standard extension and the front matter exactly as you would do with natively supported `.md` files.
 
+You can also specify entirely custom external helpers for a particular format, possibly overriding the built-in renderers, by adding entries under the `externalFormats` variable in your [site configuration][config]. For example, if you wanted to use `pandoc` to render your markup with the flag `--strip-comments`, you might put the following in `config.toml`:
+
+```
+[externalFormats]
+  markdown: pandoc --strip-comments
+```
+
+Or in `config.yaml`:
+
+```
+externalFormats:
+  markdown: pandoc --strip-comments
+```
+
 {{% warning "Performance of External Helpers" %}}
 Because additional formats are external commands generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.
 {{% /warning %}}
