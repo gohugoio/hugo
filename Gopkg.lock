@@ -165,8 +165,8 @@
 [[projects]]
   name = "github.com/nicksnyder/go-i18n"
   packages = ["i18n/bundle","i18n/language","i18n/translation"]
-  revision = "ca33e78c8a430e2df435b02f63a3944fa8e9ea11"
-  version = "v1.9.0"
+  revision = "0dc1626d56435e9d605a29875701721c54bc9bbd"
+  version = "v1.10.0"
 
 [[projects]]
   name = "github.com/pelletier/go-toml"
@@ -285,6 +285,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9046d783e19de319d8829a48dd75d8eee659c79b4b71215d34ab1a62c8210d79"
+  inputs-digest = "33c84c969035fb47615e91a42f471f0511db159783f291c99498d546b4db7976"
   solver-name = "gps-cdcl"
   solver-version = 1
