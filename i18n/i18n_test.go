@@ -14,15 +14,24 @@
 package i18n
 
 import (
+	"path/filepath"
 	"testing"
+
+	"github.com/gohugoio/hugo/tpl/tplimpl"
+
+	"github.com/spf13/afero"
+
+	"github.com/gohugoio/hugo/deps"
 
 	"io/ioutil"
 	"os"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	"log"
 
 	"github.com/gohugoio/hugo/config"
-	"github.com/nicksnyder/go-i18n/i18n/bundle"
+	"github.com/gohugoio/hugo/hugofs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -137,22 +146,54 @@ var i18nTests = []i18nTest{
 		expected:     "hello",
 		expectedFlag: "[i18n] hello",
 	},
+	// Unknown language code should get its plural spec from en
+	{
+		data: map[string][]byte{
+			"en.toml": []byte(`[readingTime]
+one ="one minute read"
+other = "{{.Count}} minutes read"`),
+			"klingon.toml": []byte(`[readingTime]
+one =  "eitt minutt med lesing"
+other = "{{ .Count }} minuttar lesing"`),
+		},
+		args:         3,
+		lang:         "klingon",
+		id:           "readingTime",
+		expected:     "3 minuttar lesing",
+		expectedFlag: "3 minuttar lesing",
+	},
 }
 
 func doTestI18nTranslate(t *testing.T, test i18nTest, cfg config.Provider) string {
-	i18nBundle := bundle.New()
+	assert := require.New(t)
+	fs := hugofs.NewMem(cfg)
+	tp := NewTranslationProvider()
+	depsCfg := newDepsConfig(tp, cfg, fs)
+	d, err := deps.New(depsCfg)
+	assert.NoError(err)
 
 	for file, content := range test.data {
-		err := i18nBundle.ParseTranslationFileBytes(file, content)
-		if err != nil {
-			t.Errorf("Error parsing translation file: %s", err)
-		}
+		err := afero.WriteFile(fs.Source, filepath.Join("i18n", file), []byte(content), 0755)
+		assert.NoError(err)
 	}
 
-	translator := NewTranslator(i18nBundle, cfg, logger)
-	f := translator.Func(test.lang)
-	translated := f(test.id, test.args)
-	return translated
+	assert.NoError(d.LoadResources())
+	f := tp.t.Func(test.lang)
+	return f(test.id, test.args)
+
+}
+
+func newDepsConfig(tp *TranslationProvider, cfg config.Provider, fs *hugofs.Fs) deps.DepsCfg {
+	l := helpers.NewLanguage("en", cfg)
+	l.Set("i18nDir", "i18n")
+	return deps.DepsCfg{
+		Language:            l,
+		Cfg:                 cfg,
+		Fs:                  fs,
+		Logger:              logger,
+		TemplateProvider:    tplimpl.DefaultTemplateProvider,
+		TranslationProvider: tp,
+	}
 }
 
 func TestI18nTranslate(t *testing.T) {
