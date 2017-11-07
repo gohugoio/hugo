@@ -37,4 +37,4 @@ parts:
       strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
     after: [go]
   go:
-    source-tag: go1.9.1
+    source-tag: go1.9.2
