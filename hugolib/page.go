@@ -758,7 +758,7 @@ func (p *Page) Type() string {
 // since Hugo 0.22 we support nested sections, but this will always be the first
 // element of any nested path.
 func (p *Page) Section() string {
-	if p.Kind == KindSection {
+	if p.Kind == KindSection || p.Kind == KindTaxonomy || p.Kind == KindTaxonomyTerm {
 		return p.sections[0]
 	}
 	return p.Source.Section()
