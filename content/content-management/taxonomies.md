@@ -132,7 +132,7 @@ Note that if you use `preserveTaxonomyNames` and intend to manually construct UR
 {{% note %}}
 You can add content and front matter to your taxonomy list and taxonomy terms pages. See [Content Organization](/content-management/organization/) for more information on how to add an `_index.md` for this purpose.
 
-Note also that taxonomy [permalinks](/content-management/urls/) are *not* configurable.
+Much like regular pages, taxonomy list [permalinks](/content-management/urls/) are configurable, but taxonomy term page permalinks are not.
 {{% /note %}}
 
 ## Add Taxonomies to Content

@@ -45,6 +45,8 @@ permalinks:
 
 Only the content under `post/` will have the new URL structure. For example, the file `content/post/sample-entry.md` with `date: 2017-02-27T19:20:00-05:00` in its front matter will render to `public/2017/02/sample-entry/index.html` at build time and therefore be reachable at `https://example.com/2013/11/sample-entry/`.
 
+You can also configure permalinks of taxonomies with the same syntax, by using the plural form of the taxonomy instead of the section. You will probably only want to use the configuration values `:slug` or `:title`.
+
 ### Permalink Configuration Values
 
 The following is a list of values that can be used in a `permalink` definition in your site `config` file. All references to time are dependent on the content's date.
