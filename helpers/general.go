@@ -78,6 +78,8 @@ func GuessType(in string) string {
 		return "mmark"
 	case "rst":
 		return "rst"
+	case "pandoc", "pdc":
+		return "pandoc"
 	case "html", "htm":
 		return "html"
 	case "org":
