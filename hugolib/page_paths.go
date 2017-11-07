@@ -99,15 +99,22 @@ func (p *Page) initTargetPathDescriptor() error {
 		d.LangPrefix = p.Lang()
 	}
 
-	if override, ok := p.Site.Permalinks[p.Section()]; ok {
-		opath, err := override.Expand(p)
-		if err != nil {
-			return err
-		}
+	// Expand only KindPage and KindTaxonomy; don't expand other Kinds of Pages
+	// like KindSection or KindTaxonomyTerm because they are "shallower" and
+	// the permalink configuration values are likely to be redundant, e.g.
+	// naively expanding /category/:slug/ would give /category/categories/ for
+	// the "categories" KindTaxonomyTerm.
+	if p.Kind == KindPage || p.Kind == KindTaxonomy {
+		if override, ok := p.Site.Permalinks[p.Section()]; ok {
+			opath, err := override.Expand(p)
+			if err != nil {
+				return err
+			}
 
-		opath, _ = url.QueryUnescape(opath)
-		opath = filepath.FromSlash(opath)
-		d.ExpandedPermalink = opath
+			opath, _ = url.QueryUnescape(opath)
+			opath = filepath.FromSlash(opath)
+			d.ExpandedPermalink = opath
+		}
 	}
 
 	p.targetPathDescriptorPrototype = d
@@ -151,7 +158,11 @@ func createTargetPath(d targetPathDescriptor) string {
 	}
 
 	if d.Kind != KindPage && len(d.Sections) > 0 {
-		pagePath = filepath.Join(d.Sections...)
+		if d.ExpandedPermalink != "" {
+			pagePath = filepath.Join(pagePath, d.ExpandedPermalink)
+		} else {
+			pagePath = filepath.Join(d.Sections...)
+		}
 		needsBase = false
 	}
 
