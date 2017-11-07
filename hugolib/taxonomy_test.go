@@ -126,6 +126,7 @@ permalinkeds:
 	// 1. categories with terms content page, but no content page for the only c1 category
 	// 2. tags with no terms content page, but content page for one of 2 tags (tag1)
 	// 3. the "others" taxonomy with no content pages.
+	// 4. the "permalinkeds" taxonomy with permalinks configuration.
 
 	pathFunc := func(s string) string {
 		if uglyURLs {
@@ -146,6 +147,12 @@ permalinkeds:
 	// 3.
 	th.assertFileContent(pathFunc("public/others/o1/index.html"), "List", "O1")
 	th.assertFileContent(pathFunc("public/others/index.html"), "Terms List", "Others")
+
+	// 4.
+	th.assertFileContent(pathFunc("public/perma/pl1/index.html"), "List", "Pl1")
+	// This looks kind of funky, but the taxonomy terms do not have a permalinks definition,
+	// for good reasons.
+	th.assertFileContent(pathFunc("public/permalinkeds/index.html"), "Terms List", "Permalinkeds")
 
 	s := h.Sites[0]
 
@@ -178,11 +185,15 @@ permalinkeds:
 	}
 
 	pl1 := s.getPage(KindTaxonomy, "permalinkeds", "pl1")
+	permalinkeds := s.getPage(KindTaxonomyTerm, "permalinkeds")
 	require.NotNil(t, pl1)
+	require.NotNil(t, permalinkeds)
 	if uglyURLs {
 		require.Equal(t, "/blog/perma/pl1.html", pl1.RelPermalink())
+		require.Equal(t, "/blog/permalinkeds.html", permalinkeds.RelPermalink())
 	} else {
 		require.Equal(t, "/blog/perma/pl1/", pl1.RelPermalink())
+		require.Equal(t, "/blog/permalinkeds/", permalinkeds.RelPermalink())
 	}
 
 	// Issue #3070 preserveTaxonomyNames
