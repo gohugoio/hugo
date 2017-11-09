@@ -23,7 +23,7 @@
   branch = "master"
   name = "github.com/alecthomas/chroma"
   packages = [".","formatters","formatters/html","lexers","styles"]
-  revision = "03b0c0d6bb7b9f7f8fd58fca6f1c6a2caffb9ca8"
+  revision = "75ce88603c8d7c681c867f460ed68e5d11bc602d"
 
 [[projects]]
   branch = "master"
@@ -285,6 +285,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "33c84c969035fb47615e91a42f471f0511db159783f291c99498d546b4db7976"
+  inputs-digest = "271e5ca84d4f9c63392ca282b940207c0c96995efb3a0a9fbc43114b0669bfa0"
   solver-name = "gps-cdcl"
   solver-version = 1
