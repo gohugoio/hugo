@@ -76,10 +76,10 @@ func (c *PageCollections) refreshPageCaches() {
 		}
 	}
 
-	var partitions []cache.Partition
+	partitions := make([]cache.Partition, len(allKindsInPages))
 
-	for _, kind := range allKindsInPages {
-		partitions = append(partitions, cache.Partition{Key: kind, Load: cacheLoader(kind)})
+	for i, kind := range allKindsInPages {
+		partitions[i] = cache.Partition{Key: kind, Load: cacheLoader(kind)}
 	}
 
 	c.pageCache = cache.NewPartitionedLazyCache(partitions...)

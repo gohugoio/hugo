@@ -142,9 +142,10 @@ func (p Pages) GroupBy(key string, order ...string) (PagesGroup, error) {
 		tmp.SetMapIndex(fv, reflect.Append(tmp.MapIndex(fv), ppv))
 	}
 
-	var r []PageGroup
-	for _, k := range sortKeys(tmp.MapKeys(), direction) {
-		r = append(r, PageGroup{Key: k.Interface(), Pages: tmp.MapIndex(k).Interface().([]*Page)})
+	sortedKeys := sortKeys(tmp.MapKeys(), direction)
+	r := make([]PageGroup, len(sortedKeys))
+	for i, k := range sortedKeys {
+		r[i] = PageGroup{Key: k.Interface(), Pages: tmp.MapIndex(k).Interface().([]*Page)}
 	}
 
 	return r, nil
