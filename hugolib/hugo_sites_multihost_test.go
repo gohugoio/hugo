@@ -69,4 +69,10 @@ languageName = "Nynorsk"
 	th.assertFileContentStraight("public/fr/index.html", "French Home Page")
 	th.assertFileContentStraight("public/en/index.html", "Default Home Page")
 
+	// Check paginators
+	th.assertFileContent("public/en/page/1/index.html", `refresh" content="0; url=https://example.com/"`)
+	th.assertFileContent("public/nn/page/1/index.html", `refresh" content="0; url=https://example.no/"`)
+	th.assertFileContent("public/en/sect/page/2/index.html", "List Page 2", "Hello", "https://example.com/sect/", "\"/sect/page/3/")
+	th.assertFileContent("public/fr/sect/page/2/index.html", "List Page 2", "Bonjour", "https://example.fr/sect/")
+
 }

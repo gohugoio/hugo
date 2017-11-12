@@ -41,7 +41,7 @@ type PageOutput struct {
 }
 
 func (p *PageOutput) targetPath(addends ...string) (string, error) {
-	tp, err := p.createTargetPath(p.outputFormat, addends...)
+	tp, err := p.createTargetPath(p.outputFormat, false, addends...)
 	if err != nil {
 		return "", err
 	}

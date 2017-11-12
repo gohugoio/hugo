@@ -25,6 +25,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/livereload"
+
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -189,7 +191,7 @@ func server(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		c.Cfg.Set("baseURL", baseURL)
+		c.Set("baseURL", baseURL)
 	}
 
 	if err := memStats(); err != nil {
@@ -218,16 +220,22 @@ func server(cmd *cobra.Command, args []string) error {
 
 	// Watch runs its own server as part of the routine
 	if serverWatch {
-		watchDirs := c.getDirList()
-		baseWatchDir := c.Cfg.GetString("workingDir")
-		for i, dir := range watchDirs {
-			watchDirs[i], _ = helpers.GetRelativePath(dir, baseWatchDir)
+
+		watchDirs, err := c.getDirList()
+		if err != nil {
+			return err
 		}
 
-		rootWatchDirs := strings.Join(helpers.UniqueStrings(helpers.ExtractRootPaths(watchDirs)), ",")
+		baseWatchDir := c.Cfg.GetString("workingDir")
+		relWatchDirs := make([]string, len(watchDirs))
+		for i, dir := range watchDirs {
+			relWatchDirs[i], _ = helpers.GetRelativePath(dir, baseWatchDir)
+		}
+
+		rootWatchDirs := strings.Join(helpers.UniqueStrings(helpers.ExtractRootPaths(relWatchDirs)), ",")
 
 		jww.FEEDBACK.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
-		err := c.newWatcher(serverPort)
+		err = c.newWatcher(true, watchDirs...)
 
 		if err != nil {
 			return err
@@ -238,7 +246,7 @@ func server(cmd *cobra.Command, args []string) error {
 }
 
 type fileServer struct {
-	basePort int
+	ports    []int
 	baseURLs []string
 	roots    []string
 	c        *commandeer
@@ -247,7 +255,7 @@ type fileServer struct {
 func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, error) {
 	baseURL := f.baseURLs[i]
 	root := f.roots[i]
-	port := f.basePort + i
+	port := f.ports[i]
 
 	publishDir := f.c.Cfg.GetString("publishDir")
 
@@ -257,11 +265,12 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, error) {
 
 	absPublishDir := f.c.PathSpec().AbsPathify(publishDir)
 
-	// TODO(bep) multihost unify feedback
-	if renderToDisk {
-		jww.FEEDBACK.Println("Serving pages from " + absPublishDir)
-	} else {
-		jww.FEEDBACK.Println("Serving pages from memory")
+	if i == 0 {
+		if renderToDisk {
+			jww.FEEDBACK.Println("Serving pages from " + absPublishDir)
+		} else {
+			jww.FEEDBACK.Println("Serving pages from memory")
+		}
 	}
 
 	httpFs := afero.NewHttpFs(f.c.Fs.Destination)
@@ -270,7 +279,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, error) {
 	doLiveReload := !buildWatch && !f.c.Cfg.GetBool("disableLiveReload")
 	fastRenderMode := doLiveReload && !f.c.Cfg.GetBool("disableFastRender")
 
-	if fastRenderMode {
+	if i == 0 && fastRenderMode {
 		jww.FEEDBACK.Println("Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender")
 	}
 
@@ -311,49 +320,50 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, error) {
 	return mu, endpoint, nil
 }
 
-func (c *commandeer) roots() []string {
-	var roots []string
-	languages := c.languages()
-	isMultiHost := languages.IsMultihost()
-	if !isMultiHost {
-		return roots
-	}
+func (c *commandeer) serve() {
 
-	for _, l := range languages {
-		roots = append(roots, l.Lang)
-	}
-	return roots
-}
-
-func (c *commandeer) serve(port int) {
-	// TODO(bep) multihost
 	isMultiHost := Hugo.IsMultihost()
 
 	var (
 		baseURLs []string
 		roots    []string
+		ports    []int
 	)
 
 	if isMultiHost {
 		for _, s := range Hugo.Sites {
 			baseURLs = append(baseURLs, s.BaseURL.String())
 			roots = append(roots, s.Language.Lang)
+			ports = append(ports, s.Info.ServerPort())
 		}
 	} else {
-		baseURLs = []string{Hugo.Sites[0].BaseURL.String()}
+		s := Hugo.Sites[0]
+		baseURLs = []string{s.BaseURL.String()}
 		roots = []string{""}
+		ports = append(ports, s.Info.ServerPort())
 	}
 
 	srv := &fileServer{
-		basePort: port,
+		ports:    ports,
 		baseURLs: baseURLs,
 		roots:    roots,
 		c:        c,
 	}
 
+	doLiveReload := !c.Cfg.GetBool("disableLiveReload")
+
+	if doLiveReload {
+		livereload.Initialize()
+	}
+
 	for i, _ := range baseURLs {
 		mu, endpoint, err := srv.createEndpoint(i)
 
+		if doLiveReload {
+			mu.HandleFunc("/livereload.js", livereload.ServeJS)
+			mu.HandleFunc("/livereload", livereload.Handler)
+		}
+		jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", endpoint, serverInterface)
 		go func() {
 			err = http.ListenAndServe(endpoint, mu)
 			if err != nil {
@@ -363,7 +373,6 @@ func (c *commandeer) serve(port int) {
 		}()
 	}
 
-	// TODO(bep) multihost		jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", u.String(), serverInterface)
 	jww.FEEDBACK.Println("Press Ctrl+C to stop")
 }
 

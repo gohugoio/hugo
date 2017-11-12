@@ -59,7 +59,8 @@ func TestMakePath(t *testing.T) {
 		v := viper.New()
 		l := NewDefaultLanguage(v)
 		v.Set("removePathAccents", test.removeAccents)
-		p, _ := NewPathSpec(hugofs.NewMem(v), l)
+		p, err := NewPathSpec(hugofs.NewMem(v), l)
+		require.NoError(t, err)
 
 		output := p.MakePath(test.input)
 		if output != test.expected {

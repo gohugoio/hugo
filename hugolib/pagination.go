@@ -285,7 +285,11 @@ func (p *PageOutput) Paginator(options ...interface{}) (*Pager, error) {
 			return
 		}
 
-		pagers, err := paginatePages(p.targetPathDescriptor, p.Data["Pages"], pagerSize)
+		pathDescriptor := p.targetPathDescriptor
+		if p.s.owner.IsMultihost() {
+			pathDescriptor.LangPrefix = ""
+		}
+		pagers, err := paginatePages(pathDescriptor, p.Data["Pages"], pagerSize)
 
 		if err != nil {
 			initError = err
@@ -333,7 +337,12 @@ func (p *PageOutput) Paginate(seq interface{}, options ...interface{}) (*Pager, 
 		if p.paginator != nil {
 			return
 		}
-		pagers, err := paginatePages(p.targetPathDescriptor, seq, pagerSize)
+
+		pathDescriptor := p.targetPathDescriptor
+		if p.s.owner.IsMultihost() {
+			pathDescriptor.LangPrefix = ""
+		}
+		pagers, err := paginatePages(pathDescriptor, seq, pagerSize)
 
 		if err != nil {
 			initError = err
@@ -528,7 +537,6 @@ func newPaginationURLFactory(d targetPathDescriptor) paginationURLFactory {
 		targetPath := createTargetPath(pathDescriptor)
 		targetPath = strings.TrimSuffix(targetPath, d.Type.BaseFilename())
 		link := d.PathSpec.PrependBasePath(targetPath)
-
 		// Note: The targetPath is massaged with MakePathSanitized
 		return d.PathSpec.URLizeFilename(link)
 	}

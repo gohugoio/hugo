@@ -38,7 +38,9 @@ package livereload
 
 import (
 	"fmt"
+	"net"
 	"net/http"
+	"net/url"
 	"path/filepath"
 
 	"github.com/gorilla/websocket"
@@ -47,7 +49,31 @@ import (
 // Prefix to signal to LiveReload that we need to navigate to another path.
 const hugoNavigatePrefix = "__hugo_navigate"
 
-var upgrader = &websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
+var upgrader = &websocket.Upgrader{
+	// Hugo may potentially spin up multiple HTTP servers, so we need to exclude the
+	// port when checking the origin.
+	CheckOrigin: func(r *http.Request) bool {
+		origin := r.Header["Origin"]
+		if len(origin) == 0 {
+			return true
+		}
+		u, err := url.Parse(origin[0])
+		if err != nil {
+			return false
+		}
+
+		h1, _, err := net.SplitHostPort(u.Host)
+		if err != nil {
+			return false
+		}
+		h2, _, err := net.SplitHostPort(r.Host)
+		if err != nil {
+			return false
+		}
+
+		return h1 == h2
+	},
+	ReadBufferSize: 1024, WriteBufferSize: 1024}
 
 // Handler is a HandlerFunc handling the livereload
 // Websocket interaction.
@@ -79,13 +105,28 @@ func NavigateToPath(path string) {
 	RefreshPath(hugoNavigatePrefix + path)
 }
 
+// NavigateToPathForPort is similar to NavigateToPath but will also
+// set window.location.port to the given port value.
+func NavigateToPathForPort(path string, port int) {
+	refreshPathForPort(hugoNavigatePrefix+path, port)
+}
+
 // RefreshPath tells livereload to refresh only the given path.
 // If that path points to a CSS stylesheet or an image, only the changes
 // will be updated in the browser, not the entire page.
 func RefreshPath(s string) {
+	refreshPathForPort(s, -1)
+}
+
+func refreshPathForPort(s string, port int) {
 	// Tell livereload a file has changed - will force a hard refresh if not CSS or an image
 	urlPath := filepath.ToSlash(s)
-	wsHub.broadcast <- []byte(`{"command":"reload","path":"` + urlPath + `","originalPath":"","liveCSS":true,"liveImg":true}`)
+	portStr := ""
+	if port > 0 {
+		portStr = fmt.Sprintf(`, "overrideURL": %d`, port)
+	}
+	msg := fmt.Sprintf(`{"command":"reload","path":%q,"originalPath":"","liveCSS":true,"liveImg":true%s}`, urlPath, portStr)
+	wsHub.broadcast <- []byte(msg)
 }
 
 // ServeJS serves the liverreload.js who's reference is injected into the page.
@@ -120,13 +161,17 @@ HugoReload.prototype.reload = function(path, options) {
 	if (path.lastIndexOf(prefix, 0) !== 0) {
 		return false
 	}
-
+	
 	path = path.substring(prefix.length);
-
-	if (window.location.pathname === path) {
+	
+	if (!options.overrideURL && window.location.pathname === path) {
 		window.location.reload();
 	} else {
-		window.location.href = path;
+		if (options.overrideURL) {
+			window.location = location.protocol + "//" + location.hostname + ":" + options.overrideURL + path;
+		} else {
+			window.location.pathname = path;
+		}
 	}
 
 	return true;

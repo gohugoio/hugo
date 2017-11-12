@@ -22,13 +22,14 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
 	"time"
+
+	src "github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -526,8 +527,7 @@ func (c *commandeer) watchConfig() {
 
 func (c *commandeer) build(watches ...bool) error {
 	if err := c.copyStatic(); err != nil {
-		// TODO(bep) multihost
-		return fmt.Errorf("Error copying static files to %s: %s", c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")), err)
+		return fmt.Errorf("Error copying static files: %s", err)
 	}
 	watch := false
 	if len(watches) > 0 && watches[0] {
@@ -538,88 +538,64 @@ func (c *commandeer) build(watches ...bool) error {
 	}
 
 	if buildWatch {
+		watchDirs, err := c.getDirList()
+		if err != nil {
+			return err
+		}
 		c.Logger.FEEDBACK.Println("Watching for changes in", c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")))
 		c.Logger.FEEDBACK.Println("Press Ctrl+C to stop")
-		utils.CheckErr(c.Logger, c.newWatcher(0))
+		utils.CheckErr(c.Logger, c.newWatcher(false, watchDirs...))
 	}
 
 	return nil
 }
 
-func (c *commandeer) getStaticSourceFs() afero.Fs {
-	source := c.Fs.Source
-	themeDir, err := c.PathSpec().GetThemeStaticDirPath()
-	staticDir := c.PathSpec().GetStaticDirPath() + helpers.FilePathSeparator
-	useTheme := true
-	useStatic := true
-
-	if err != nil {
-		if err != helpers.ErrThemeUndefined {
-			c.Logger.WARN.Println(err)
-		}
-		useTheme = false
-	} else {
-		if _, err := source.Stat(themeDir); os.IsNotExist(err) {
-			c.Logger.WARN.Println("Unable to find Theme Static Directory:", themeDir)
-			useTheme = false
-		}
-	}
-
-	if _, err := source.Stat(staticDir); os.IsNotExist(err) {
-		c.Logger.WARN.Println("Unable to find Static Directory:", staticDir)
-		useStatic = false
-	}
-
-	if !useStatic && !useTheme {
-		return nil
-	}
-
-	if !useStatic {
-		c.Logger.INFO.Println(themeDir, "is the only static directory available to sync from")
-		return afero.NewReadOnlyFs(afero.NewBasePathFs(source, themeDir))
-	}
-
-	if !useTheme {
-		c.Logger.INFO.Println(staticDir, "is the only static directory available to sync from")
-		return afero.NewReadOnlyFs(afero.NewBasePathFs(source, staticDir))
-	}
-
-	c.Logger.INFO.Println("using a UnionFS for static directory comprised of:")
-	c.Logger.INFO.Println("Base:", themeDir)
-	c.Logger.INFO.Println("Overlay:", staticDir)
-	base := afero.NewReadOnlyFs(afero.NewBasePathFs(source, themeDir))
-	overlay := afero.NewReadOnlyFs(afero.NewBasePathFs(source, staticDir))
-	return afero.NewCopyOnWriteFs(base, overlay)
+func (c *commandeer) copyStatic() error {
+	return c.doWithPublishDirs(c.copyStaticTo)
 }
 
-func (c *commandeer) copyStatic() error {
+func (c *commandeer) doWithPublishDirs(f func(dirs *src.Dirs, publishDir string) error) error {
 	publishDir := c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")) + helpers.FilePathSeparator
-	roots := c.roots()
-
-	if len(roots) == 0 {
-		return c.copyStaticTo(publishDir)
+	// If root, remove the second '/'
+	if publishDir == "//" {
+		publishDir = helpers.FilePathSeparator
 	}
 
-	for _, root := range roots {
-		dir := filepath.Join(publishDir, root)
-		if err := c.copyStaticTo(dir); err != nil {
+	languages := c.languages()
+
+	if !languages.IsMultihost() {
+		dirs, err := src.NewDirs(c.Fs, c.Cfg, c.DepsCfg.Logger)
+		if err != nil {
+			return err
+		}
+		return f(dirs, publishDir)
+	}
+
+	for _, l := range languages {
+		dir := filepath.Join(publishDir, l.Lang)
+		dirs, err := src.NewDirs(c.Fs, l, c.DepsCfg.Logger)
+		if err != nil {
+			return err
+		}
+		if err := f(dirs, dir); err != nil {
 			return err
 		}
 	}
 
 	return nil
-
 }
 
-func (c *commandeer) copyStaticTo(publishDir string) error {
+func (c *commandeer) copyStaticTo(dirs *src.Dirs, publishDir string) error {
 
 	// If root, remove the second '/'
 	if publishDir == "//" {
 		publishDir = helpers.FilePathSeparator
 	}
 
-	// Includes both theme/static & /static
-	staticSourceFs := c.getStaticSourceFs()
+	staticSourceFs, err := dirs.CreateStaticFs()
+	if err != nil {
+		return err
+	}
 
 	if staticSourceFs == nil {
 		c.Logger.WARN.Println("No static directories found to sync")
@@ -650,12 +626,17 @@ func (c *commandeer) copyStaticTo(publishDir string) error {
 }
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
-func (c *commandeer) getDirList() []string {
+func (c *commandeer) getDirList() ([]string, error) {
 	var a []string
 	dataDir := c.PathSpec().AbsPathify(c.Cfg.GetString("dataDir"))
 	i18nDir := c.PathSpec().AbsPathify(c.Cfg.GetString("i18nDir"))
+	staticSyncer, err := newStaticSyncer(c)
+	if err != nil {
+		return nil, err
+	}
+
 	layoutDir := c.PathSpec().GetLayoutDirPath()
-	staticDir := c.PathSpec().GetStaticDirPath()
+	staticDirs := staticSyncer.d.AbsStaticDirs
 
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
@@ -674,12 +655,12 @@ func (c *commandeer) getDirList() []string {
 				return nil
 			}
 
-			if path == staticDir && os.IsNotExist(err) {
-				c.Logger.WARN.Println("Skip staticDir:", err)
-				return nil
-			}
-
 			if os.IsNotExist(err) {
+				for _, staticDir := range staticDirs {
+					if path == staticDir && os.IsNotExist(err) {
+						c.Logger.WARN.Println("Skip staticDir:", err)
+					}
+				}
 				// Ignore.
 				return nil
 			}
@@ -726,17 +707,18 @@ func (c *commandeer) getDirList() []string {
 	_ = helpers.SymbolicWalk(c.Fs.Source, c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")), walker)
 	_ = helpers.SymbolicWalk(c.Fs.Source, i18nDir, walker)
 	_ = helpers.SymbolicWalk(c.Fs.Source, layoutDir, walker)
-	_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, walker)
+	for _, staticDir := range staticDirs {
+		_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, walker)
+	}
 
 	if c.PathSpec().ThemeSet() {
 		themesDir := c.PathSpec().GetThemeDir()
 		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "layouts"), walker)
-		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "static"), walker)
 		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "i18n"), walker)
 		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "data"), walker)
 	}
 
-	return a
+	return a, nil
 }
 
 func (c *commandeer) recreateAndBuildSites(watching bool) (err error) {
@@ -798,9 +780,16 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
-func (c *commandeer) newWatcher(port int) error {
+// if serve is set it will also start one or more HTTP servers to serve those
+// files.
+func (c *commandeer) newWatcher(serve bool, dirList ...string) error {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
+	}
+
+	staticSyncer, err := newStaticSyncer(c)
+	if err != nil {
+		return err
 	}
 
 	watcher, err := watcher.New(1 * time.Second)
@@ -814,7 +803,7 @@ func (c *commandeer) newWatcher(port int) error {
 
 	wg.Add(1)
 
-	for _, d := range c.getDirList() {
+	for _, d := range dirList {
 		if d != "" {
 			_ = watcher.Add(d)
 		}
@@ -874,7 +863,7 @@ func (c *commandeer) newWatcher(port int) error {
 							if err := watcher.Add(path); err != nil {
 								return err
 							}
-						} else if !c.isStatic(path) {
+						} else if !staticSyncer.isStatic(path) {
 							// Hugo's rebuilding logic is entirely file based. When you drop a new folder into
 							// /content on OSX, the above logic will handle future watching of those files,
 							// but the initial CREATE is lost.
@@ -891,7 +880,7 @@ func (c *commandeer) newWatcher(port int) error {
 						}
 					}
 
-					if c.isStatic(ev.Name) {
+					if staticSyncer.isStatic(ev.Name) {
 						staticEvents = append(staticEvents, ev)
 					} else {
 						dynamicEvents = append(dynamicEvents, ev)
@@ -899,100 +888,20 @@ func (c *commandeer) newWatcher(port int) error {
 				}
 
 				if len(staticEvents) > 0 {
-					publishDir := c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")) + helpers.FilePathSeparator
-
-					// If root, remove the second '/'
-					if publishDir == "//" {
-						publishDir = helpers.FilePathSeparator
-					}
-
 					c.Logger.FEEDBACK.Println("\nStatic file changes detected")
 					const layout = "2006-01-02 15:04:05.000 -0700"
 					c.Logger.FEEDBACK.Println(time.Now().Format(layout))
 
 					if c.Cfg.GetBool("forceSyncStatic") {
 						c.Logger.FEEDBACK.Printf("Syncing all static files\n")
-						// TODO(bep) multihost
 						err := c.copyStatic()
 						if err != nil {
-							utils.StopOnErr(c.Logger, err, fmt.Sprintf("Error copying static files to %s", publishDir))
+							utils.StopOnErr(c.Logger, err, "Error copying static files to publish dir")
 						}
 					} else {
-						staticSourceFs := c.getStaticSourceFs()
-
-						if staticSourceFs == nil {
-							c.Logger.WARN.Println("No static directories found to sync")
-							return
-						}
-
-						syncer := fsync.NewSyncer()
-						syncer.NoTimes = c.Cfg.GetBool("noTimes")
-						syncer.NoChmod = c.Cfg.GetBool("noChmod")
-						syncer.SrcFs = staticSourceFs
-						syncer.DestFs = c.Fs.Destination
-
-						// prevent spamming the log on changes
-						logger := helpers.NewDistinctFeedbackLogger()
-
-						for _, ev := range staticEvents {
-							// Due to our approach of layering both directories and the content's rendered output
-							// into one we can't accurately remove a file not in one of the source directories.
-							// If a file is in the local static dir and also in the theme static dir and we remove
-							// it from one of those locations we expect it to still exist in the destination
-							//
-							// If Hugo generates a file (from the content dir) over a static file
-							// the content generated file should take precedence.
-							//
-							// Because we are now watching and handling individual events it is possible that a static
-							// event that occupies the same path as a content generated file will take precedence
-							// until a regeneration of the content takes places.
-							//
-							// Hugo assumes that these cases are very rare and will permit this bad behavior
-							// The alternative is to track every single file and which pipeline rendered it
-							// and then to handle conflict resolution on every event.
-
-							fromPath := ev.Name
-
-							// If we are here we already know the event took place in a static dir
-							relPath, err := c.PathSpec().MakeStaticPathRelative(fromPath)
-							if err != nil {
-								c.Logger.ERROR.Println(err)
-								continue
-							}
-
-							// Remove || rename is harder and will require an assumption.
-							// Hugo takes the following approach:
-							// If the static file exists in any of the static source directories after this event
-							// Hugo will re-sync it.
-							// If it does not exist in all of the static directories Hugo will remove it.
-							//
-							// This assumes that Hugo has not generated content on top of a static file and then removed
-							// the source of that static file. In this case Hugo will incorrectly remove that file
-							// from the published directory.
-							if ev.Op&fsnotify.Rename == fsnotify.Rename || ev.Op&fsnotify.Remove == fsnotify.Remove {
-								if _, err := staticSourceFs.Stat(relPath); os.IsNotExist(err) {
-									// If file doesn't exist in any static dir, remove it
-									toRemove := filepath.Join(publishDir, relPath)
-									logger.Println("File no longer exists in static dir, removing", toRemove)
-									_ = c.Fs.Destination.RemoveAll(toRemove)
-								} else if err == nil {
-									// If file still exists, sync it
-									logger.Println("Syncing", relPath, "to", publishDir)
-									if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-										c.Logger.ERROR.Println(err)
-									}
-								} else {
-									c.Logger.ERROR.Println(err)
-								}
-
-								continue
-							}
-
-							// For all other event operations Hugo will sync static.
-							logger.Println("Syncing", relPath, "to", publishDir)
-							if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-								c.Logger.ERROR.Println(err)
-							}
+						if err := staticSyncer.syncsStaticEvents(staticEvents); err != nil {
+							c.Logger.ERROR.Println(err)
+							continue
 						}
 					}
 
@@ -1002,7 +911,7 @@ func (c *commandeer) newWatcher(port int) error {
 						// force refresh when more than one file
 						if len(staticEvents) > 0 {
 							for _, ev := range staticEvents {
-								path, _ := c.PathSpec().MakeStaticPathRelative(ev.Name)
+								path := staticSyncer.d.MakeStaticPathRelative(ev.Name)
 								livereload.RefreshPath(path)
 							}
 
@@ -1044,7 +953,7 @@ func (c *commandeer) newWatcher(port int) error {
 						}
 
 						if p != nil {
-							livereload.NavigateToPath(p.RelPermalink())
+							livereload.NavigateToPathForPort(p.RelPermalink(), p.Site.ServerPort())
 						} else {
 							livereload.ForceRefresh()
 						}
@@ -1058,14 +967,8 @@ func (c *commandeer) newWatcher(port int) error {
 		}
 	}()
 
-	if port > 0 {
-		if !c.Cfg.GetBool("disableLiveReload") {
-			livereload.Initialize()
-			http.HandleFunc("/livereload.js", livereload.ServeJS)
-			http.HandleFunc("/livereload", livereload.Handler)
-		}
-
-		go c.serve(port)
+	if serve {
+		go c.serve()
 	}
 
 	wg.Wait()
@@ -1082,10 +985,6 @@ func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 	}
 
 	return name
-}
-
-func (c *commandeer) isStatic(path string) bool {
-	return strings.HasPrefix(path, c.PathSpec().GetStaticDirPath()) || (len(c.PathSpec().GetThemesDirPath()) > 0 && strings.HasPrefix(path, c.PathSpec().GetThemesDirPath()))
 }
 
 // isThemeVsHugoVersionMismatch returns whether the current Hugo version is

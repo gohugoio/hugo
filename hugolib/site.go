@@ -393,6 +393,19 @@ func (s *SiteInfo) BaseURL() template.URL {
 	return template.URL(s.s.PathSpec.BaseURL.String())
 }
 
+// ServerPort returns the port part of the BaseURL, 0 if none found.
+func (s *SiteInfo) ServerPort() int {
+	ps := s.s.PathSpec.BaseURL.URL().Port()
+	if ps == "" {
+		return 0
+	}
+	p, err := strconv.Atoi(ps)
+	if err != nil {
+		return 0
+	}
+	return p
+}
+
 // Used in tests.
 
 type siteBuilderCfg struct {
@@ -1806,7 +1819,7 @@ func (s *Site) renderAndWriteXML(name string, dest string, d interface{}, layout
 	if s.Info.relativeURLs {
 		path = []byte(helpers.GetDottedRelativePath(dest))
 	} else {
-		s := s.Cfg.GetString("baseURL")
+		s := s.PathSpec.BaseURL.String()
 		if !strings.HasSuffix(s, "/") {
 			s += "/"
 		}
@@ -1864,7 +1877,7 @@ func (s *Site) renderAndWritePage(name string, dest string, p *PageOutput, layou
 	if s.Info.relativeURLs {
 		path = []byte(helpers.GetDottedRelativePath(dest))
 	} else if s.Info.canonifyURLs {
-		url := s.Cfg.GetString("baseURL")
+		url := s.PathSpec.BaseURL.String()
 		if !strings.HasSuffix(url, "/") {
 			url += "/"
 		}
