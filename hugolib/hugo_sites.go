@@ -83,45 +83,18 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 
 	h := &HugoSites{
 		multilingual: langConfig,
+		multihost:    cfg.Cfg.GetBool("multihost"),
 		Sites:        sites}
 
 	for _, s := range sites {
 		s.owner = h
 	}
 
-	// TODO(bep)
-	cfg.Cfg.Set("multilingual", sites[0].multilingualEnabled())
-
 	if err := applyDepsIfNeeded(cfg, sites...); err != nil {
 		return nil, err
 	}
 
 	h.Deps = sites[0].Deps
-
-	// The baseURL may be provided at the language level. If that is true,
-	// then every language must have a baseURL. In this case we always render
-	// to a language sub folder, which is then stripped from all the Permalink URLs etc.
-	var baseURLFromLang bool
-
-	for _, s := range sites {
-		burl := s.Language.GetLocal("baseURL")
-		if baseURLFromLang && burl == nil {
-			return h, errors.New("baseURL must be set on all or none of the languages")
-		}
-
-		if burl != nil {
-			baseURLFromLang = true
-		}
-	}
-
-	if baseURLFromLang {
-		for _, s := range sites {
-			// TODO(bep) multihost check
-			s.Info.defaultContentLanguageInSubdir = true
-			s.Cfg.Set("defaultContentLanguageInSubdir", true)
-		}
-		h.multihost = true
-	}
 
 	return h, nil
 }
@@ -237,8 +210,9 @@ func (h *HugoSites) reset() {
 }
 
 func (h *HugoSites) createSitesFromConfig() error {
+	oldLangs, _ := h.Cfg.Get("languagesSorted").(helpers.Languages)
 
-	if err := loadLanguageSettings(h.Cfg); err != nil {
+	if err := loadLanguageSettings(h.Cfg, oldLangs); err != nil {
 		return err
 	}
 
@@ -269,6 +243,7 @@ func (h *HugoSites) createSitesFromConfig() error {
 	h.Deps = sites[0].Deps
 
 	h.multilingual = langConfig
+	h.multihost = h.Deps.Cfg.GetBool("multihost")
 
 	return nil
 }

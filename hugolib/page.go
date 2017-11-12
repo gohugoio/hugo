@@ -1755,7 +1755,6 @@ func (p *Page) shouldAddLanguagePrefix() bool {
 	}
 
 	if p.s.owner.IsMultihost() {
-		// TODO(bep) multihost check vs lang below
 		return true
 	}
 

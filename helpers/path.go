@@ -170,7 +170,7 @@ func (p *PathSpec) GetLayoutDirPath() string {
 // GetStaticDirPath returns the absolute path to the static file dir
 // for the current Hugo project.
 func (p *PathSpec) GetStaticDirPath() string {
-	return p.AbsPathify(p.staticDir)
+	return p.AbsPathify(p.StaticDir())
 }
 
 // GetThemeDir gets the root directory of the current theme, if there is one.

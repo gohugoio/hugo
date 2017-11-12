@@ -18,6 +18,7 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl/internal"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -26,7 +27,7 @@ func TestInit(t *testing.T) {
 	var ns *internal.TemplateFuncsNamespace
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
-		ns = nsf(&deps.Deps{})
+		ns = nsf(&deps.Deps{Cfg: viper.New()})
 		if ns.Name == name {
 			found = true
 			break

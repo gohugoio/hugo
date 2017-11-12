@@ -193,10 +193,10 @@
   revision = "86672fcb3f950f35f2e675df2240550f2a50762f"
 
 [[projects]]
-  branch = "master"
   name = "github.com/spf13/afero"
   packages = [".","mem"]
-  revision = "5660eeed305fe5f69c8fc6cf899132a459a97064"
+  revision = "8d919cbe7e2627e417f3e45c3c0e489a5b7e2536"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/spf13/cast"
@@ -285,6 +285,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "271e5ca84d4f9c63392ca282b940207c0c96995efb3a0a9fbc43114b0669bfa0"
+  inputs-digest = "a7cec7b1df49f84fdd4073cc70139d56c62c5fffcc7e3fcea5ca29615d4b9568"
   solver-name = "gps-cdcl"
   solver-version = 1

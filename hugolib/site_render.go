@@ -147,7 +147,7 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 
 		// write alias for page 1
 		addend := fmt.Sprintf("/%s/%d", paginatePath, 1)
-		target, err := p.createTargetPath(p.outputFormat, addend)
+		target, err := p.createTargetPath(p.outputFormat, false, addend)
 		if err != nil {
 			return err
 		}

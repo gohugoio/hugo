@@ -81,8 +81,8 @@
   version = "1.5.0"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/spf13/afero"
+  version = "1.0.0"
 
 [[constraint]]
   name = "github.com/spf13/cast"

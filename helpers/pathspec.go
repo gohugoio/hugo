@@ -40,7 +40,7 @@ type PathSpec struct {
 	themesDir  string
 	layoutDir  string
 	workingDir string
-	staticDir  string
+	staticDirs []string
 
 	// The PathSpec looks up its config settings in both the current language
 	// and then in the global Viper config.
@@ -72,6 +72,12 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		return nil, fmt.Errorf("Failed to create baseURL from %q: %s", baseURLstr, err)
 	}
 
+	var staticDirs []string
+
+	for i := -1; i <= 10; i++ {
+		staticDirs = append(staticDirs, getStringOrStringSlice(cfg, "staticDir", i)...)
+	}
+
 	ps := &PathSpec{
 		Fs:                             fs,
 		Cfg:                            cfg,
@@ -87,7 +93,7 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		themesDir:                      cfg.GetString("themesDir"),
 		layoutDir:                      cfg.GetString("layoutDir"),
 		workingDir:                     cfg.GetString("workingDir"),
-		staticDir:                      cfg.GetString("staticDir"),
+		staticDirs:                     staticDirs,
 		theme:                          cfg.GetString("theme"),
 	}
 
@@ -96,6 +102,25 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 	}
 
 	return ps, nil
+}
+
+func getStringOrStringSlice(cfg config.Provider, key string, id int) []string {
+
+	if id > 0 {
+		key = fmt.Sprintf("%s%d", key, id)
+	}
+
+	var out []string
+
+	sd := cfg.Get(key)
+
+	if sds, ok := sd.(string); ok {
+		out = []string{sds}
+	} else if sdsl, ok := sd.([]string); ok {
+		out = sdsl
+	}
+
+	return out
 }
 
 // PaginatePath returns the configured root path used for paginator pages.
@@ -108,7 +133,17 @@ func (p *PathSpec) WorkingDir() string {
 	return p.workingDir
 }
 
-// LayoutDir returns the relative layout dir in the currenct Hugo project.
+// StaticDir returns the relative static dir in the current configuration.
+func (p *PathSpec) StaticDir() string {
+	return p.staticDirs[len(p.staticDirs)-1]
+}
+
+// StaticDirs returns the relative static dirs for the current configuration.
+func (p *PathSpec) StaticDirs() []string {
+	return p.staticDirs
+}
+
+// LayoutDir returns the relative layout dir in the current configuration.
 func (p *PathSpec) LayoutDir() string {
 	return p.layoutDir
 }
@@ -116,4 +151,9 @@ func (p *PathSpec) LayoutDir() string {
 // Theme returns the theme name if set.
 func (p *PathSpec) Theme() string {
 	return p.theme
+}
+
+// Theme returns the theme relative theme dir.
+func (p *PathSpec) ThemesDir() string {
+	return p.themesDir
 }

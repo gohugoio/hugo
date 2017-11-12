@@ -125,10 +125,14 @@ func (p *Page) initTargetPathDescriptor() error {
 // createTargetPath creates the target filename for this Page for the given
 // output.Format. Some additional URL parts can also be provided, the typical
 // use case being pagination.
-func (p *Page) createTargetPath(t output.Format, addends ...string) (string, error) {
+func (p *Page) createTargetPath(t output.Format, noLangPrefix bool, addends ...string) (string, error) {
 	d, err := p.createTargetPathDescriptor(t)
 	if err != nil {
 		return "", nil
+	}
+
+	if noLangPrefix {
+		d.LangPrefix = ""
 	}
 
 	if len(addends) > 0 {
@@ -246,7 +250,7 @@ func (p *Page) createRelativePermalink() string {
 }
 
 func (p *Page) createRelativePermalinkForOutputFormat(f output.Format) string {
-	tp, err := p.createTargetPath(f)
+	tp, err := p.createTargetPath(f, p.s.owner.IsMultihost())
 
 	if err != nil {
 		p.s.Log.ERROR.Printf("Failed to create permalink for page %q: %s", p.FullFilePath(), err)
@@ -255,10 +259,6 @@ func (p *Page) createRelativePermalinkForOutputFormat(f output.Format) string {
 	// For /index.json etc. we must  use the full path.
 	if strings.HasSuffix(f.BaseFilename(), "html") {
 		tp = strings.TrimSuffix(tp, f.BaseFilename())
-	}
-
-	if p.s.owner.IsMultihost() {
-		tp = strings.TrimPrefix(tp, helpers.FilePathSeparator+p.s.Info.Language.Lang)
 	}
 
 	return p.s.PathSpec.URLizeFilename(tp)

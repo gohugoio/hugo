@@ -24,7 +24,8 @@ type commandeer struct {
 	*deps.DepsCfg
 	pathSpec    *helpers.PathSpec
 	visitedURLs *types.EvictingStringQueue
-	configured  bool
+
+	configured bool
 }
 
 func (c *commandeer) Set(key string, value interface{}) {
