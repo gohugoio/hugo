@@ -888,7 +888,7 @@ func (c *commandeer) newWatcher(port int) error {
 					}
 
 					c.Logger.FEEDBACK.Println("\nStatic file changes detected")
-					const layout = "2006-01-02 15:04 -0700"
+					const layout = "2006-01-02 15:04:05.000 -0700"
 					c.Logger.FEEDBACK.Println(time.Now().Format(layout))
 
 					if c.Cfg.GetBool("forceSyncStatic") {
