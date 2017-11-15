@@ -455,11 +455,9 @@ sudo pacman -Sy hugo
 
 ### Fedora, CentOS, and Red Hat
 
-* <https://copr.fedorainfracloud.org/coprs/spf13/Hugo/> (updated to Hugo v0.16)
-* <https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/> (updated to Hugo v0.22); usually released a few days after the official Hugo release.
+* <https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/>
 
 See the [related discussion in the Hugo forums][redhatforum].
-
 
 ## Upgrade Hugo
 
