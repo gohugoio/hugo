@@ -63,7 +63,7 @@ func NewContent(
 		return err
 	}
 
-	contentPath := s.PathSpec.AbsPathify(filepath.Join(s.Cfg.GetString("contentDir"), targetPath))
+	contentPath := s.PathSpec.AbsPathify(filepath.Join(s.Cfg.GetString("source"), s.Cfg.GetString("contentDir"), targetPath))
 
 	if err := helpers.SafeWriteToDisk(contentPath, bytes.NewReader(content), s.Fs.Source); err != nil {
 		return err
