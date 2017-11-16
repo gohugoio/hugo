@@ -18,9 +18,15 @@ import (
 	"fmt"
 	"html/template"
 	"net/url"
+	"strings"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
+)
+
+var (
+	// This replacer is used in calls to UrlizeSegment.
+	SegmentReplacer = strings.NewReplacer("/", "-", "#", "-")
 )
 
 // New returns a new instance of the urls-namespaced template functions.
@@ -74,6 +80,15 @@ func (ns *Namespace) URLize(a interface{}) (string, error) {
 		return "", nil
 	}
 	return ns.deps.PathSpec.URLize(s), nil
+}
+
+// URLizeSegment is a URLize + slashes and pound signs become hyphens.
+func (ns *Namespace) URLizeSegment(a interface{}) (string, error) {
+	s, err := cast.ToStringE(a)
+	if err != nil {
+		return "", nil
+	}
+	return ns.deps.PathSpec.URLize(SegmentReplacer.Replace(s)), nil
 }
 
 type reflinker interface {

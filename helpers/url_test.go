@@ -38,12 +38,40 @@ func TestURLize(t *testing.T) {
 		{"foo.bar/foo_bar-foo", "foo.bar/foo_bar-foo"},
 		{"foo,bar:foobar", "foobarfoobar"},
 		{"foo/bar.html", "foo/bar.html"},
+		{"foo#bar", "foo#bar"},
 		{"трям/трям", "%D1%82%D1%80%D1%8F%D0%BC/%D1%82%D1%80%D1%8F%D0%BC"},
 		{"100%-google", "100-google"},
 	}
 
 	for _, test := range tests {
 		output := p.URLize(test.input)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
+func TestURLizeSegment(t *testing.T) {
+
+	v := viper.New()
+	l := NewDefaultLanguage(v)
+	p, _ := NewPathSpec(hugofs.NewMem(v), l)
+
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"  foo bar  ", "foo-bar"},
+		{"foo.bar/foo_bar-foo", "foo.bar-foo_bar-foo"},
+		{"foo,bar:foobar", "foobarfoobar"},
+		{"foo/bar.html", "foo-bar.html"},
+		{"foo#bar", "foo-bar"},
+		{"трям/трям", "%D1%82%D1%80%D1%8F%D0%BC-%D1%82%D1%80%D1%8F%D0%BC"},
+		{"100%-google", "100-google"},
+	}
+
+	for _, test := range tests {
+		output := p.URLizeSegment(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
