@@ -110,27 +110,30 @@ func (ns *Namespace) IncludeCached(name string, context interface{}, variant ...
 	return ns.getOrCreate(key, name, context)
 }
 
-func (ns *Namespace) getOrCreate(key, name string, context interface{}) (p interface{}, err error) {
-	var ok bool
+func (ns *Namespace) getOrCreate(key, name string, context interface{}) (interface{}, error) {
 
 	ns.cachedPartials.RLock()
-	p, ok = ns.cachedPartials.p[key]
+	p, ok := ns.cachedPartials.p[key]
 	ns.cachedPartials.RUnlock()
 
 	if ok {
-		return
+		return p, nil
 	}
 
 	ns.cachedPartials.Lock()
-	if p, ok = ns.cachedPartials.p[key]; !ok {
-		ns.cachedPartials.Unlock()
-		p, err = ns.Include(name, context)
+	defer ns.cachedPartials.Unlock()
 
-		ns.cachedPartials.Lock()
-		ns.cachedPartials.p[key] = p
-
+	// Double-check.
+	if p, ok = ns.cachedPartials.p[key]; ok {
+		return p, nil
 	}
-	ns.cachedPartials.Unlock()
 
-	return
+	p, err := ns.Include(name, context)
+	if err != nil {
+		return nil, err
+	}
+
+	ns.cachedPartials.p[key] = p
+
+	return p, nil
 }
