@@ -4,7 +4,7 @@ linktitle: Host on GitLab
 description: GitLab makes it incredibly easy to build, deploy, and host your Hugo website via their free GitLab Pages service, which provides native support for Hugo.
 date: 2016-06-23
 publishdate: 2016-06-23
-lastmod: 2016-06-23
+lastmod: 2017-11-16
 categories: [hosting and deployment]
 keywords: [hosting,deployment,git,gitlab]
 authors: [Riku-Pekka Silvola]
@@ -40,9 +40,8 @@ In the root directory of your Hugo site, create a `.gitlab-ci.yml` file. The `.g
 {{< code file="gitlab-ci.yml" >}}
 image: monachus/hugo
 
-before_script:
-  - git submodule init
-  - git submodule update --force
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
 
 pages:
   script:
