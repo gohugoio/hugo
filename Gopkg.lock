@@ -23,7 +23,7 @@
   branch = "master"
   name = "github.com/alecthomas/chroma"
   packages = [".","formatters","formatters/html","lexers","styles"]
-  revision = "75ce88603c8d7c681c867f460ed68e5d11bc602d"
+  revision = "9c81d25368bedda10b71f4cde071d6bae7312008"
 
 [[projects]]
   branch = "master"
