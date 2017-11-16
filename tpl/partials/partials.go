@@ -120,19 +120,17 @@ func (ns *Namespace) getOrCreate(key, name string, context interface{}) (interfa
 		return p, nil
 	}
 
-	ns.cachedPartials.Lock()
-	defer ns.cachedPartials.Unlock()
-
-	// Double-check.
-	if p, ok = ns.cachedPartials.p[key]; ok {
-		return p, nil
-	}
-
 	p, err := ns.Include(name, context)
 	if err != nil {
 		return nil, err
 	}
 
+	ns.cachedPartials.Lock()
+	defer ns.cachedPartials.Unlock()
+	// Double-check.
+	if p2, ok := ns.cachedPartials.p[key]; ok {
+		return p2, nil
+	}
 	ns.cachedPartials.p[key] = p
 
 	return p, nil
