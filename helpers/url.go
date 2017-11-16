@@ -103,7 +103,14 @@ func SanitizeURLKeepTrailingSlash(in string) string {
 //     urlize: vim-text-editor
 func (p *PathSpec) URLize(uri string) string {
 	return p.URLEscape(p.MakePathSanitized(uri))
+}
 
+// URLizeSegment is URLize + slashes and pound signs become hyphens
+// Example:
+//     uri: Vi/Vim (text editor)
+//     urlizeSegment: vi-vim-text-editor
+func (p *PathSpec) URLizeSegment(uri string) string {
+	return p.URLEscape(p.MakePathSegmentSanitized(uri))
 }
 
 // URLizeFilename creates an URL from a filename by esacaping unicode letters

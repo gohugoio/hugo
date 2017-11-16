@@ -81,12 +81,39 @@ func TestMakePathSanitized(t *testing.T) {
 		{"Foo.Bar/fOO_bAr-Foo", "foo.bar/foo_bar-foo"},
 		{"FOO,bar:FooBar", "foobarfoobar"},
 		{"foo/BAR.HTML", "foo/bar.html"},
+		{"foo#BAR", "foo#bar"},
 		{"трям/трям", "трям/трям"},
 		{"은행", "은행"},
 	}
 
 	for _, test := range tests {
 		output := p.MakePathSanitized(test.input)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
+}
+
+func TestMakePathSegmentSanitized(t *testing.T) {
+	v := viper.New()
+	l := NewDefaultLanguage(v)
+	p, _ := NewPathSpec(hugofs.NewMem(v), l)
+
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"  FOO bar  ", "foo-bar"},
+		{"Foo.Bar/fOO_bAr-Foo", "foo.bar-foo_bar-foo"},
+		{"FOO,bar:FooBar", "foobarfoobar"},
+		{"foo/BAR.HTML", "foo-bar.html"},
+		{"foo#BAR", "foo-bar"},
+		{"трям/трям", "трям-трям"},
+		{"은행", "은행"},
+	}
+
+	for _, test := range tests {
+		output := p.MakePathSegmentSanitized(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
 		}
