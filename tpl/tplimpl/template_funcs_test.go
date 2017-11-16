@@ -194,11 +194,13 @@ func doBenchmarkPartial(b *testing.B, f func(ns *partials.Namespace) error) {
 	ns := partials.New(de)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if err := f(ns); err != nil {
-			b.Fatalf("error executing template: %s", err)
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			if err := f(ns); err != nil {
+				b.Fatalf("error executing template: %s", err)
+			}
 		}
-	}
+	})
 }
 
 func newTestFuncster() *templateFuncster {
