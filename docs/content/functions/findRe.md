@@ -45,3 +45,4 @@ If you are just learning RegEx, or at least Golang's flavor, you can practice pa
 [`plainify`]: /functions/plainify/
 [toc]: /content-management/toc/
 [`urlize`]: /functions/urlize
+[`urlizeSegment`]: /functions/urlizeSegment
