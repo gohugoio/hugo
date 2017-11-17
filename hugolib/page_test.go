@@ -1440,6 +1440,29 @@ func TestKind(t *testing.T) {
 
 }
 
+func TestTranslationKey(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+	cfg, fs := newTestCfg()
+
+	writeSource(t, fs, filepath.Join("content", filepath.FromSlash("sect/simple.no.md")), "---\ntitle: \"A1\"\ntranslationKey: \"k1\"\n---\nContent\n")
+	writeSource(t, fs, filepath.Join("content", filepath.FromSlash("sect/simple.en.md")), "---\ntitle: \"A2\"\n---\nContent\n")
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 2)
+
+	home, _ := s.Info.Home()
+	assert.NotNil(home)
+	assert.Equal("home", home.TranslationKey())
+	assert.Equal("page/k1", s.RegularPages[0].TranslationKey())
+	p2 := s.RegularPages[1]
+
+	// This is a single language setup
+	assert.Equal("page/sect/simple.en", p2.TranslationKey())
+
+}
+
 func TestChompBOM(t *testing.T) {
 	t.Parallel()
 	const utf8BOM = "\xef\xbb\xbf"
