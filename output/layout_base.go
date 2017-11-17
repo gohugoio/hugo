@@ -174,12 +174,18 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 		// Also note that the <current-path> may be both the project's layout folder and the theme's.
 		pairsToCheck := createPairsToCheck(baseTemplatedDir, baseFilename, currBaseFilename)
 
-		if strings.Contains(currBaseFilename, ".terms.") {
-			// We need to get from baseof.terms.html to baseof.html etc.
-			// See #3856
-			currBaseFilename = strings.Replace(currBaseFilename, ".terms", "", 1)
-			baseFilename = strings.Replace(baseFilename, ".terms", "", 1)
-			pairsToCheck = append(pairsToCheck, createPairsToCheck(baseTemplatedDir, baseFilename, currBaseFilename)...)
+		// We may have language code and/or "terms" in the template name. We want the most specific,
+		// but need to fall back to the baseof.html or baseof.ace if needed.
+		// E.g. list-baseof.en.html and list-baseof.terms.en.html
+		// See #3893, #3856.
+		baseBaseFilename, currBaseBaseFilename := helpers.Filename(baseFilename), helpers.Filename(currBaseFilename)
+		p1, p2 := strings.Split(baseBaseFilename, "."), strings.Split(currBaseBaseFilename, ".")
+		if len(p1) > 0 && len(p1) == len(p2) {
+			for i := len(p1); i > 0; i-- {
+				v1, v2 := strings.Join(p1[:i], ".")+"."+ext, strings.Join(p2[:i], ".")+"."+ext
+				pairsToCheck = append(pairsToCheck, createPairsToCheck(baseTemplatedDir, v1, v2)...)
+
+			}
 		}
 
 	Loop:
