@@ -43,7 +43,7 @@ permalinks:
   post = "/:year/:month/:title/"
 {{< /code >}}
 
-Only the content under `post/` will have the new URL structure. For example, the file `content/post/sample-entry.md` with `date: 2017-02-27T19:20:00-05:00` in its front matter will render to `public/2017/02/sample-entry/index.html` at build time and therefore be reachable at `https://example.com/2013/11/sample-entry/`.
+Only the content under `post/` will have the new URL structure. For example, the file `content/post/sample-entry.md` with `date: 2017-02-27T19:20:00-05:00` in its front matter will render to `public/2017/02/sample-entry/index.html` at build time and therefore be reachable at `https://example.com/2017/02/sample-entry/`.
 
 ### Permalink Configuration Values
 
@@ -72,6 +72,9 @@ The following is a list of values that can be used in a `permalink` definition i
 
 `:section`
 : the content's section
+
+`:sections`
+: the content's sections hierarchy
 
 `:title`
 : the content's title

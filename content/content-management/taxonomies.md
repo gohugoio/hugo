@@ -54,26 +54,26 @@ To continue with the example of a movie site, the following demonstrates content
 ```
 Actor                    <- Taxonomy
     Bruce Willis         <- Term
-        The Sixth Sense    <- Content
-        Unbreakable      <- Content
-        Moonrise Kingdom <- Content
+        The Sixth Sense  <- Value
+        Unbreakable      <- Value
+        Moonrise Kingdom <- Value
     Samuel L. Jackson    <- Term
-        Unbreakable      <- Content
-        The Avengers     <- Content
-        xXx              <- Content
+        Unbreakable      <- Value
+        The Avengers     <- Value
+        xXx              <- Value
 ```
 
 From the perspective of the content, the relationships would appear differently, although the data and labels used are the same:
 
 ```
-Unbreakable                 <- Content
+Unbreakable                 <- Value
     Actors                  <- Taxonomy
         Bruce Willis        <- Term
         Samuel L. Jackson   <- Term
     Director                <- Taxonomy
         M. Night Shyamalan  <- Term
     ...
-Moonrise Kingdom            <- Content
+Moonrise Kingdom            <- Value
     Actors                  <- Taxonomy
         Bruce Willis        <- Term
         Bill Murray         <- Term

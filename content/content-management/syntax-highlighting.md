@@ -101,7 +101,7 @@ hl_lines
 : Highlight a space separated list of line numbers. For Chroma, you can provide a list of ranges, i.e. "3-8 10-20".
 
 
-The full set of supported options for Pygments is: `encoding`, `outencoding`, `nowrap`, `full`, `title`, `style`, `noclasses`, `classprefix`, `cssclass`, `cssstyles`, `prestyles`, `linenos`, `hl_lines`, `linenostart`, `linenostep`, `linenospecial`, `nobackground`, `lineseparator`, `lineanchors`, `linespans`, `anchorlinenos`, `startinline`. See the [Pygments Documentation](http://pygments.org/) for details.
+The full set of supported options for Pygments is: `encoding`, `outencoding`, `nowrap`, `full`, `title`, `style`, `noclasses`, `classprefix`, `cssclass`, `cssstyles`, `prestyles`, `linenos`, `hl_lines`, `linenostart`, `linenostep`, `linenospecial`, `nobackground`, `lineseparator`, `lineanchors`, `linespans`, `anchorlinenos`, `startinline`. See the [Pygments HTML Formatter Documentation](http://pygments.org/docs/formatters/#HtmlFormatter) for details.
 
 
 ## Generate Syntax Highlighter CSS

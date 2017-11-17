@@ -105,7 +105,7 @@ min_version = 0.13
 
 {{% note %}}
 1. This is different from the `theme.toml` file created by `hugo new theme` in Hugo versions before v0.14.
-2. Only `theme.toml` is accepted; ie. not `theme.yaml` andnot `theme.json`.
+2. Only `theme.toml` is accepted; ie. not `theme.yaml` and `theme.json`.
 {{% /note %}}
 
 ### Images
