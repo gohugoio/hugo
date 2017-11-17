@@ -124,7 +124,7 @@ You could then include the following as part of your shortcode templating:
 <img src="{{.Get "src" }}" alt="">
 {{ else }}
 <img src="{{.Get 0}}" alt="">
-{{ end }}.
+{{ end }}
 ```
 
 See the [example Vimeo shortcode][vimeoexample] below for `.IsNamedParams` in action.
@@ -150,7 +150,7 @@ Let's assume you would like to keep mentions of your copyright year current in y
 ```
 
 {{< code file="/layouts/shortcodes/year.html" >}}
-{{ .Page.Now.Year }}
+{{ now.Format "2006" }}
 {{< /code >}}
 
 ### Single Positional Example: `youtube`

@@ -21,8 +21,6 @@ toc: true
 
 ![hugo with nanobox](/images/hosting-and-deployment/deployment-with-nanobox/hugo-with-nanobox.png)
 
-## Before You Begin
-
 Nanobox provides an entire end-to-end workflow for developing and deploying applications. Using Nanobox to deploy also means you'll use it to develop your application.
 
 {{% note %}}
@@ -39,14 +37,15 @@ To get started you'll just need the following three items:
 * [A Nanobox Account](https://nanobox.io) - Signup is free
 * [Nanobox Desktop](https://dashboard.nanobox.io/download) - The free desktop development tool
 * An account with a hosting provider such as:
-  - [AWS](https://aws.amazon.com/)
-  - [DigitalOcean](https://www.digitalocean.com/)
-  - [Linode](https://www.linode.com/)
-  - Azure (coming)
-  - Google (coming)
+  - [AWS](https://docs.nanobox.io/providers/hosting-accounts/aws/)
+  - [Google](https://docs.nanobox.io/providers/hosting-accounts/gcp/)
+  - [Azure](https://docs.nanobox.io/providers/hosting-accounts/azure/)
+  - [DigitalOcean](https://docs.nanobox.io/providers/hosting-accounts/digitalocean/)
+  - [Linode](https://docs.nanobox.io/providers/hosting-accounts/linode/)
+  - [More...](https://docs.nanobox.io/providers/hosting-accounts/)
   - [Roll Your Own](https://docs.nanobox.io/providers/create/)
 
-### Before We Begin
+### Before You Begin
 
 There are a few things to get out of the way before diving into the guide. To deploy, you'll need to make sure you have connected a host account to your Nanobox account, and launched a new application.
 
@@ -56,7 +55,7 @@ Nanobox lets you choose where to host your application (AWS, DigitalOcean, Googl
 
 #### Launch a New Application on Nanobox
 
-[Launching a new app on Nanobox](https://docs.nanobox.io/workflow/launch-app/) is very simple. Navigate to [Launch New App](https://dashboard.nanobox.io/apps/new) in the dashboard, and follow the steps there. You'll be asked to name your app, and select a host and region.
+[Launching a new app on Nanobox](https://docs.nanobox.io/workflow/launch-app/) is very simple. Navigate to [Launch New App](https://dashboard.nanobox.io/apps/new) in the dashboard, and follow the steps there. You'll be asked to name your app, and to select a host and region.
 
 With those out of the way you're ready to get started!
 
@@ -67,7 +66,7 @@ With those out of the way you're ready to get started!
 If you already have a functioning Hugo app, you can skip to [Configure Hugo to run with Nanobox](#configure-hugo-to-run-with-nanobox)
 {{% /note %}}
 
-To get started, all you'll need an empty project directory. Create a directory wherever you want your application to live and `cd` into it:
+To get started, all you'll need is an empty project directory. Create a directory wherever you want your application to live and `cd` into it:
 
 `mkdir path/to/project && cd path/to/project`
 
@@ -101,14 +100,14 @@ deploy.config:
 {{< /code >}}
 
 {{% note %}}
-If you already have a functioning Hugo app, which should now be configured, you can skip to [Deploying Hugo with Nanobox](#deploying-hugo-with-nanobox).
+If you already have a functioning Hugo app, after adding the boxfile, you can skip to [Deploying Hugo with Nanobox](#deploying-hugo-with-nanobox).
 {{% /note %}}
 
 ### Installing Hugo
 
 Nanobox uses Docker to create instant, isolated, development environments. Because of this, you'll need to make sure that during development you have Hugo available.
 
-Do this by add a custom install script at the root of your project that will install Hugo automatically for you:
+Do this by adding a custom install script at the root of your project that will install Hugo automatically for you:
 
 {{< code file="install.sh" >}}
 
@@ -131,7 +130,7 @@ If the install script fails during `nanobox run` you may need to make it executa
 
 ### Generating a New Hugo App
 
-You'll generate your new application from inside a Nanobox console (this is why you don't need to worry about having Golang or Hugo installed).
+You'll generate your new application from inside the Nanobox VM (this is why you don't need to worry about having Golang or Hugo installed).
 
 Run the following command to drop into a Nanobox console (inside the VM) where your codebase is mounted:
 
@@ -141,7 +140,7 @@ nanobox run
 
 ![nanobox run](/images/hosting-and-deployment/deployment-with-nanobox/nanobox-run.png)
 
-Once inside here use the following steps to create a new Hugo application:
+Once inside the console use the following steps to create a new Hugo application:
 
 ```
 # cd into the /tmp dir to create an app

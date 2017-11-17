@@ -252,7 +252,7 @@ googleAnalytics =             ""
 hasCJKLanguage =              false
 languageCode =                ""
 # the length of text to show in a .Summary
-summaryLength:              70
+summaryLength =              70
 layoutDir =                   "layouts"
 # Enable Logging
 log =                         false

@@ -32,6 +32,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 `.Content`
 : the content itself, defined below the front matter.
 
+`.CurrentSection`
+: the page's current section. The value can be the page itself if it is a section or the homepage.
+
 `.Data`
 : the data specific to this type of page.
 
@@ -41,11 +44,17 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 `.Description`
 : the description for the page.
 
+`.Dir`
+: the path of the folder containing this content file. The path is relative to the `content` folder.
+
 `.Draft`
 : a boolean, `true` if the content is marked as a draft in the front matter.
 
 `.ExpiryDate`
 : the date on which the content is scheduled to expire; `.ExpiryDate` pulls from the `expirydate` field in a content's front matter. See also `.PublishDate`, `.Date`, and `.Lastmod`.
+
+`.File`
+: filesystem-related data for this content file. See also [File Variables][].
 
 `.FuzzyWordCount`
 : the approximate number of words in the content.
@@ -141,6 +150,9 @@ http://remarkjs.com)
 
 `.Section`
 : the [section](/content-management/sections/) this content belongs to.
+
+`.Sections`
+: the [sections](/content-management/sections/) below this content.
 
 `.Site`
 : see [Site Variables](/variables/site/).
@@ -273,3 +285,4 @@ The top-level key will be preferred. Therefore, the following method, when appli
 ```
 
 [gitinfo]: /variables/git/
+[File Variables]: /variables/files/
