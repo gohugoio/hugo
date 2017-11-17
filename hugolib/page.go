@@ -105,6 +105,10 @@ type Page struct {
 	// if available.
 	translations Pages
 
+	// A key that maps to translation(s) of this page. This value is fetched
+	// from the page front matter.
+	translationKey string
+
 	// Params contains configuration defined in the params section of page frontmatter.
 	Params map[string]interface{}
 
@@ -880,6 +884,22 @@ func (p *Page) Translations() Pages {
 	return translations
 }
 
+// TranslationKey returns the key used to map language translations of this page.
+// It will use the translationKey set in front matter if set, or the content path and
+// filename (excluding any language code and extension), e.g. "about/index".
+// The Page Kind is always prepended.
+func (p *Page) TranslationKey() string {
+	if p.translationKey != "" {
+		return p.Kind + "/" + p.translationKey
+	}
+
+	if p.IsNode() {
+		return path.Join(p.Kind, path.Join(p.sections...), p.TranslationBaseName())
+	}
+
+	return path.Join(p.Kind, filepath.ToSlash(p.Dir()), p.TranslationBaseName())
+}
+
 func (p *Page) LinkTitle() string {
 	if len(p.linkTitle) > 0 {
 		return p.linkTitle
@@ -1094,6 +1114,9 @@ func (p *Page) update(f interface{}) error {
 		case "iscjklanguage":
 			isCJKLanguage = new(bool)
 			*isCJKLanguage = cast.ToBool(v)
+		case "translationkey":
+			p.translationKey = cast.ToString(v)
+			p.Params[loki] = p.translationKey
 		default:
 			// If not one of the explicit values, store in Params
 			switch vv := v.(type) {
