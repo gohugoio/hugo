@@ -50,6 +50,19 @@ func TestLayoutBase(t *testing.T) {
 				OverlayFilename: "/sites/mysite/layouts/_default/single.html",
 				MasterFilename:  "/sites/mysite/layouts/_default/single-baseof.html",
 			}},
+		// Issue #3893
+		{"Base Lang, Default Base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: "layouts", RelPath: "_default/list.en.html"}, true, "_default/baseof.html",
+			TemplateNames{
+				Name:            "_default/list.en.html",
+				OverlayFilename: "/sites/mysite/layouts/_default/list.en.html",
+				MasterFilename:  "/sites/mysite/layouts/_default/baseof.html",
+			}},
+		{"Base Lang, Lang Base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: "layouts", RelPath: "_default/list.en.html"}, true, "_default/baseof.html|_default/baseof.en.html",
+			TemplateNames{
+				Name:            "_default/list.en.html",
+				OverlayFilename: "/sites/mysite/layouts/_default/list.en.html",
+				MasterFilename:  "/sites/mysite/layouts/_default/baseof.en.html",
+			}},
 		// Issue #3856
 		{"Base Taxonomy Term", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: "taxonomy/tag.terms.html"}, true, "_default/baseof.html",
 			TemplateNames{
@@ -116,12 +129,11 @@ func TestLayoutBase(t *testing.T) {
 				OverlayFilename: "/sites/mysite/layouts/_default/single.amp.html",
 				MasterFilename:  "/sites/mysite/layouts/_default/single-baseof.amp.html",
 			}},
-		{"AMP with no match in base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPathAmp}, true, "single-baseof.html",
+		{"AMP with no AMP base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPathAmp}, true, "single-baseof.html",
 			TemplateNames{
 				Name:            "_default/single.amp.html",
 				OverlayFilename: "/sites/mysite/layouts/_default/single.amp.html",
-				// There is a single-baseof.html, but that makes no sense.
-				MasterFilename: "",
+				MasterFilename:  "/sites/mysite/layouts/_default/single-baseof.html",
 			}},
 
 		{"JSON with base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPathJSON}, true, "single-baseof.json",
