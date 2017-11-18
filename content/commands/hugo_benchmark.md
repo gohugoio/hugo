@@ -1,5 +1,5 @@
 ---
-date: 2017-10-15T10:19:48+02:00
+date: 2017-11-18T10:28:35+01:00
 title: "hugo benchmark"
 slug: hugo_benchmark
 url: /commands/hugo_benchmark/
@@ -21,40 +21,40 @@ hugo benchmark [flags]
 ### Options
 
 ```
-  -b, --baseURL string          hostname (and path) to the root, e.g. http://spf13.com/
-  -D, --buildDrafts             include content marked as draft
-  -E, --buildExpired            include expired content
-  -F, --buildFuture             include content with publishdate in the future
-      --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-      --canonifyURLs            if true, all relative URLs will be canonicalized using baseURL
-      --cleanDestinationDir     remove files from destination not found in static directories
-  -c, --contentDir string       filesystem path to content directory
-  -n, --count int               number of times to build the site (default 13)
-      --cpuprofile string       path/filename for the CPU profile file
-  -d, --destination string      filesystem path to write files to
-      --disable404              do not render 404 page
-      --disableKinds strings    disable different kind of pages (home, RSS etc.)
-      --disableRSS              do not build RSS files
-      --disableSitemap          do not build Sitemap file
-      --enableGitInfo           add Git revision, date and author info to the pages
-      --forceSyncStatic         copy all files when static is changed.
-  -h, --help                    help for benchmark
-      --i18n-warnings           print missing translations
-      --ignoreCache             ignores the cache directory
-  -l, --layoutDir string        filesystem path to layout directory
-      --memprofile string       path/filename for the memory profile file
-      --noChmod                 don't sync permission mode of files
-      --noTimes                 don't sync modification time of files
-      --pluralizeListTitles     pluralize titles in lists using inflect (default true)
-      --preserveTaxonomyNames   preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
-      --renderToMemory          render to memory (only useful for benchmark testing)
-  -s, --source string           filesystem path to read files relative from
-      --stepAnalysis            display memory and timing of different steps of the program
-      --templateMetrics         display metrics about template executions
-      --templateMetricsHints    calculate some improvement hints when combined with --templateMetrics
-  -t, --theme string            theme to use (located in /themes/THEMENAME/)
-      --themesDir string        filesystem path to themes directory
-      --uglyURLs                if true, use /filename.html instead of /filename/
+  -b, --baseURL string             hostname (and path) to the root, e.g. http://spf13.com/
+  -D, --buildDrafts                include content marked as draft
+  -E, --buildExpired               include expired content
+  -F, --buildFuture                include content with publishdate in the future
+      --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --canonifyURLs               if true, all relative URLs will be canonicalized using baseURL
+      --cleanDestinationDir        remove files from destination not found in static directories
+  -c, --contentDir string          filesystem path to content directory
+  -n, --count int                  number of times to build the site (default 13)
+      --cpuprofile string          path/filename for the CPU profile file
+  -d, --destination string         filesystem path to write files to
+      --disable404                 do not render 404 page
+      --disableKinds stringSlice   disable different kind of pages (home, RSS etc.)
+      --disableRSS                 do not build RSS files
+      --disableSitemap             do not build Sitemap file
+      --enableGitInfo              add Git revision, date and author info to the pages
+      --forceSyncStatic            copy all files when static is changed.
+  -h, --help                       help for benchmark
+      --i18n-warnings              print missing translations
+      --ignoreCache                ignores the cache directory
+  -l, --layoutDir string           filesystem path to layout directory
+      --memprofile string          path/filename for the memory profile file
+      --noChmod                    don't sync permission mode of files
+      --noTimes                    don't sync modification time of files
+      --pluralizeListTitles        pluralize titles in lists using inflect (default true)
+      --preserveTaxonomyNames      preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
+      --renderToMemory             render to memory (only useful for benchmark testing)
+  -s, --source string              filesystem path to read files relative from
+      --stepAnalysis               display memory and timing of different steps of the program
+      --templateMetrics            display metrics about template executions
+      --templateMetricsHints       calculate some improvement hints when combined with --templateMetrics
+  -t, --theme string               theme to use (located in /themes/THEMENAME/)
+      --themesDir string           filesystem path to themes directory
+      --uglyURLs                   if true, use /filename.html instead of /filename/
 ```
 
 ### Options inherited from parent commands
@@ -72,4 +72,4 @@ hugo benchmark [flags]
 ### SEE ALSO
 * [hugo](/commands/hugo/)	 - hugo builds your site
 
-###### Auto generated by spf13/cobra on 15-Oct-2017
+###### Auto generated by spf13/cobra on 18-Nov-2017
