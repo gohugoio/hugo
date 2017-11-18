@@ -14,6 +14,7 @@
 package tplimpl
 
 import (
+	"html/template"
 	"path/filepath"
 
 	"strings"
@@ -24,7 +25,8 @@ import (
 func (t *templateHandler) addAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error {
 	t.checkState()
 	var base, inner *ace.File
-	name = name[:len(name)-len(filepath.Ext(innerPath))] + ".html"
+	withoutExt := name[:len(name)-len(filepath.Ext(innerPath))]
+	name = withoutExt + ".html"
 
 	// Fixes issue #1178
 	basePath = strings.Replace(basePath, "\\", "/", -1)
@@ -37,15 +39,29 @@ func (t *templateHandler) addAceTemplate(name, basePath, innerPath string, baseC
 		base = ace.NewFile(innerPath, innerContent)
 		inner = ace.NewFile("", []byte{})
 	}
+
 	parsed, err := ace.ParseSource(ace.NewSource(base, inner, []*ace.File{}), nil)
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
 		return err
 	}
+
 	templ, err := ace.CompileResultWithTemplate(t.html.t.New(name), parsed, nil)
 	if err != nil {
 		t.errors = append(t.errors, &templateErr{name: name, err: err})
 		return err
 	}
-	return applyTemplateTransformersToHMLTTemplate(templ)
+
+	if err := applyTemplateTransformersToHMLTTemplate(templ); err != nil {
+		return err
+	}
+
+	if strings.Contains(name, "shortcodes") {
+		// We need to keep track of one ot the output format's shortcode template
+		// without knowing the rendering context.
+		clone := template.Must(templ.Clone())
+		t.html.t.AddParseTree(withoutExt, clone.Tree)
+	}
+
+	return nil
 }

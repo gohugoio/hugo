@@ -32,6 +32,7 @@ func TestAllTemplateEngines(t *testing.T) {
 	amberFixer := func(s string) string {
 		fixed := strings.Replace(s, "{{ .Title", "{{ Title", -1)
 		fixed = strings.Replace(fixed, ".Content", "Content", -1)
+		fixed = strings.Replace(fixed, ".IsNamedParams", "IsNamedParams", -1)
 		fixed = strings.Replace(fixed, "{{", "#{", -1)
 		fixed = strings.Replace(fixed, "}}", "}", -1)
 		fixed = strings.Replace(fixed, `title "hello world"`, `title("hello world")`, -1)
@@ -47,8 +48,10 @@ func TestAllTemplateEngines(t *testing.T) {
 		{"html", noOp},
 		{"ace", noOp},
 	} {
-		doTestTemplateEngine(t, config.suffix, config.templateFixer)
-
+		t.Run(config.suffix,
+			func(t *testing.T) {
+				doTestTemplateEngine(t, config.suffix, config.templateFixer)
+			})
 	}
 
 }
@@ -56,13 +59,6 @@ func TestAllTemplateEngines(t *testing.T) {
 func doTestTemplateEngine(t *testing.T, suffix string, templateFixer func(s string) string) {
 
 	cfg, fs := newTestCfg()
-
-	writeSource(t, fs, filepath.Join("content", "p.md"), `
----
-title: My Title 
----
-My Content
-`)
 
 	t.Log("Testing", suffix)
 
@@ -77,11 +73,27 @@ p
 
 `
 
-	templ := templateFixer(templTemplate)
+	templShortcodeTemplate := `
+p
+	|
+	| Shortcode: {{ .IsNamedParams }}
+`
 
-	t.Log(templ)
+	templ := templateFixer(templTemplate)
+	shortcodeTempl := templateFixer(templShortcodeTemplate)
+
+	writeSource(t, fs, filepath.Join("content", "p.md"), `
+---
+title: My Title 
+---
+My Content
+
+Shortcode: {{< myShort >}}
+
+`)
 
 	writeSource(t, fs, filepath.Join("layouts", "_default", fmt.Sprintf("single.%s", suffix)), templ)
+	writeSource(t, fs, filepath.Join("layouts", "shortcodes", fmt.Sprintf("myShort.%s", suffix)), shortcodeTempl)
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 	th := testHelper{s.Cfg, s.Fs, t}
@@ -90,6 +102,7 @@ p
 		"Page Title: My Title",
 		"My Content",
 		"Hello World",
+		"Shortcode: false",
 	)
 
 }
