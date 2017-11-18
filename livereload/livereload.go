@@ -163,11 +163,13 @@ HugoReload.prototype.reload = function(path, options) {
 	}
 	
 	path = path.substring(prefix.length);
+
+	var portChanged = options.overrideURL && options.overrideURL != window.location.port
 	
-	if (!options.overrideURL && window.location.pathname === path) {
+	if (!portChanged && window.location.pathname === path) {
 		window.location.reload();
 	} else {
-		if (options.overrideURL) {
+		if (portChanged) {
 			window.location = location.protocol + "//" + location.hostname + ":" + options.overrideURL + path;
 		} else {
 			window.location.pathname = path;
