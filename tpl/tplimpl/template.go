@@ -622,7 +622,8 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 	switch ext {
 	case ".amber":
 		//	Only HTML support for Amber
-		templateName := strings.TrimSuffix(name, filepath.Ext(name)) + ".html"
+		withoutExt := strings.TrimSuffix(name, filepath.Ext(name))
+		templateName := withoutExt + ".html"
 		b, err := afero.ReadFile(t.Fs.Source, path)
 
 		if err != nil {
@@ -636,7 +637,19 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 			return err
 		}
 
-		return applyTemplateTransformersToHMLTTemplate(templ)
+		if err := applyTemplateTransformersToHMLTTemplate(templ); err != nil {
+			return err
+		}
+
+		if strings.Contains(templateName, "shortcodes") {
+			// We need to keep track of one ot the output format's shortcode template
+			// without knowing the rendering context.
+			clone := template.Must(templ.Clone())
+			t.html.t.AddParseTree(withoutExt, clone.Tree)
+		}
+
+		return nil
+
 	case ".ace":
 		//	Only HTML support for Ace
 		var innerContent, baseContent []byte
