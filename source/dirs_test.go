@@ -76,6 +76,14 @@ func TestStaticDirs(t *testing.T) {
 
 		}, []string{"s1", "l1s1", "l1s2"}},
 		{func(cfg config.Provider, fs *hugofs.Fs) config.Provider {
+			cfg.Set("staticDir", []string{"s1", "s2"})
+
+			l1 := helpers.NewLanguage("en", cfg)
+			l1.Set("staticDir2", []string{"l1s1", "l1s2"})
+			return l1
+
+		}, []string{"s1", "s2", "l1s1", "l1s2"}},
+		{func(cfg config.Provider, fs *hugofs.Fs) config.Provider {
 			cfg.Set("staticDir", "s1")
 
 			l1 := helpers.NewLanguage("en", cfg)
@@ -91,9 +99,6 @@ func TestStaticDirs(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		if i != 0 {
-			break
-		}
 		msg := fmt.Sprintf("Test %d", i)
 		v := viper.New()
 		fs := hugofs.NewMem(v)
