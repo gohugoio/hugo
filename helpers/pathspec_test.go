@@ -57,6 +57,5 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	require.Equal(t, "thethemes", p.themesDir)
 	require.Equal(t, "thelayouts", p.layoutDir)
 	require.Equal(t, "thework", p.workingDir)
-	require.Equal(t, "thestatic", p.StaticDir())
 	require.Equal(t, "thetheme", p.theme)
 }

@@ -167,12 +167,6 @@ func (p *PathSpec) GetLayoutDirPath() string {
 	return p.AbsPathify(p.layoutDir)
 }
 
-// GetStaticDirPath returns the absolute path to the static file dir
-// for the current Hugo project.
-func (p *PathSpec) GetStaticDirPath() string {
-	return p.AbsPathify(p.StaticDir())
-}
-
 // GetThemeDir gets the root directory of the current theme, if there is one.
 // If there is no theme, returns the empty string.
 func (p *PathSpec) GetThemeDir() string {
@@ -228,16 +222,6 @@ func (p *PathSpec) getThemeDirPath(path string) (string, error) {
 func (p *PathSpec) GetThemesDirPath() string {
 	dir, _ := p.getThemeDirPath("static")
 	return dir
-}
-
-// MakeStaticPathRelative makes a relative path to the static files directory.
-// It does so by taking either the project's static path or the theme's static
-// path into consideration.
-func (p *PathSpec) MakeStaticPathRelative(inPath string) (string, error) {
-	staticDir := p.GetStaticDirPath()
-	themeStaticDir := p.GetThemesDirPath()
-
-	return makePathRelative(inPath, staticDir, themeStaticDir)
 }
 
 func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
