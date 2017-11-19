@@ -15,6 +15,7 @@ paginate = 1
 disablePathToLower = true
 defaultContentLanguage = "{{ .DefaultContentLanguage }}"
 defaultContentLanguageInSubdir = {{ .DefaultContentLanguageInSubdir }}
+staticDir = ["s1", "s2"]
 
 [permalinks]
 other = "/somewhere/else/:filename"
@@ -24,18 +25,21 @@ tag = "tags"
 
 [Languages]
 [Languages.en]
+staticDir2 = ["ens1", "ens2"]
 baseURL = "https://example.com"
 weight = 10
 title = "In English"
 languageName = "English"
 
 [Languages.fr]
+staticDir2 = ["frs1", "frs2"]
 baseURL = "https://example.fr"
 weight = 20
 title = "Le Français"
 languageName = "Français"
 
 [Languages.nn]
+staticDir2 = ["nns1", "nns2"]
 baseURL = "https://example.no"
 weight = 30
 title = "På nynorsk"
@@ -57,12 +61,16 @@ languageName = "Nynorsk"
 
 	s1 := sites.Sites[0]
 
+	assert.Equal([]string{"s1", "s2", "ens1", "ens2"}, s1.StaticDirs())
+
 	s1h := s1.getPage(KindHome)
 	assert.True(s1h.IsTranslated())
 	assert.Len(s1h.Translations(), 2)
 	assert.Equal("https://example.com/", s1h.Permalink())
 
 	s2 := sites.Sites[1]
+	assert.Equal([]string{"s1", "s2", "frs1", "frs2"}, s2.StaticDirs())
+
 	s2h := s2.getPage(KindHome)
 	assert.Equal("https://example.fr/", s2h.Permalink())
 

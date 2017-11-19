@@ -18,6 +18,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/spf13/cast"
 )
 
 // PathSpec holds methods that decides how paths in URLs and files in Hugo should look like.
@@ -106,7 +107,7 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 
 func getStringOrStringSlice(cfg config.Provider, key string, id int) []string {
 
-	if id > 0 {
+	if id >= 0 {
 		key = fmt.Sprintf("%s%d", key, id)
 	}
 
@@ -116,8 +117,8 @@ func getStringOrStringSlice(cfg config.Provider, key string, id int) []string {
 
 	if sds, ok := sd.(string); ok {
 		out = []string{sds}
-	} else if sdsl, ok := sd.([]string); ok {
-		out = sdsl
+	} else if sd != nil {
+		out = cast.ToStringSlice(sd)
 	}
 
 	return out
