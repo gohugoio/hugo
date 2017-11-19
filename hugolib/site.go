@@ -977,10 +977,8 @@ func (s *Site) initialize() (err error) {
 		return err
 	}
 
-	staticDir := s.PathSpec.GetStaticDirPath() + "/"
-
 	sp := source.NewSourceSpec(s.Cfg, s.Fs)
-	s.Source = sp.NewFilesystem(s.absContentDir(), staticDir)
+	s.Source = sp.NewFilesystem(s.absContentDir())
 
 	return
 }

@@ -133,11 +133,6 @@ func (p *PathSpec) WorkingDir() string {
 	return p.workingDir
 }
 
-// StaticDir returns the relative static dir in the current configuration.
-func (p *PathSpec) StaticDir() string {
-	return p.staticDirs[len(p.staticDirs)-1]
-}
-
 // StaticDirs returns the relative static dirs for the current configuration.
 func (p *PathSpec) StaticDirs() []string {
 	return p.staticDirs
