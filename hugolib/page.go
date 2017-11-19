@@ -908,12 +908,16 @@ func (p *Page) LinkTitle() string {
 }
 
 func (p *Page) shouldBuild() bool {
+	useFilter := 0 < p.s.Cfg.GetInt("maxAge")
+	cutOff := time.Now().AddDate(0, 0, -p.s.Cfg.GetInt("maxAge"))
+
 	return shouldBuild(p.s.Cfg.GetBool("buildFuture"), p.s.Cfg.GetBool("buildExpired"),
-		p.s.Cfg.GetBool("buildDrafts"), p.Draft, p.PublishDate, p.ExpiryDate)
+		p.s.Cfg.GetBool("buildDrafts"), p.Draft, useFilter,
+		p.PublishDate, p.ExpiryDate, cutOff)
 }
 
 func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
-	publishDate time.Time, expiryDate time.Time) bool {
+	ageFilter bool, publishDate time.Time, expiryDate time.Time, cutOff time.Time) bool {
 	if !(buildDrafts || !Draft) {
 		return false
 	}
@@ -921,6 +925,9 @@ func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bo
 		return false
 	}
 	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(time.Now()) {
+		return false
+	}
+	if ageFilter && publishDate.Before(cutOff) {
 		return false
 	}
 	return true

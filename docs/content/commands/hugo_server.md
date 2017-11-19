@@ -40,6 +40,7 @@ hugo server [flags]
       --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
       --canonifyURLs            if true, all relative URLs will be canonicalized using baseURL
       --cleanDestinationDir     remove files from destination not found in static directories
+      --maxAge N                do not generate older content then N days
   -c, --contentDir string       filesystem path to content directory
   -d, --destination string      filesystem path to write files to
       --disable404              do not render 404 page

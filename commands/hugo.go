@@ -240,7 +240,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
 	cmd.Flags().StringVarP(&baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date and author info to the pages")
-
+	cmd.Flags().Int("maxAge", 0, "max age in days for content to generate")
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
 	cmd.Flags().Bool("templateMetricsHints", false, "calculate some improvement hints when combined with --templateMetrics")
@@ -480,6 +480,7 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 		"noChmod",
 		"templateMetrics",
 		"templateMetricsHints",
+		"maxAge",
 	}
 
 	// Remove these in Hugo 0.23.
