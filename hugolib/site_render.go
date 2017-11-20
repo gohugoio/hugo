@@ -16,6 +16,7 @@ package hugolib
 import (
 	"fmt"
 	"path"
+	"strings"
 	"sync"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -378,6 +379,13 @@ func (s *Site) renderAliases() error {
 				if f.Path != "" {
 					// Make sure AMP and similar doesn't clash with regular aliases.
 					a = path.Join(a, f.Path)
+				}
+
+				lang := p.Lang()
+
+				if s.owner.multihost && !strings.HasPrefix(a, "/"+lang) {
+					// These need to be in its language root.
+					a = path.Join(lang, a)
 				}
 
 				if err := s.writeDestAlias(a, plink, p); err != nil {
