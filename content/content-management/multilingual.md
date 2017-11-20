@@ -63,7 +63,7 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 From **Hugo 0.31** we support multiple languages in a multihost configuration. See [this issue](https://github.com/gohugoio/hugo/issues/4027) for details.
 
-This means that you can now confugre a `baseURL` per `language`:
+This means that you can now configure a `baseURL` per `language`:
 
 
 > If a `baseURL` is set on the `language` level, then all languages must have one and they must all be different.
