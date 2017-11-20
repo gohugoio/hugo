@@ -53,6 +53,9 @@ type targetPathDescriptor struct {
 	// language subdir.
 	LangPrefix string
 
+	// Whether this is a multihost multilingual setup.
+	IsMultihost bool
+
 	// Page.URLPath.URL. Will override any Slug etc. for regular pages.
 	URL string
 
@@ -81,12 +84,13 @@ func (p *Page) createTargetPathDescriptor(t output.Format) (targetPathDescriptor
 func (p *Page) initTargetPathDescriptor() error {
 
 	d := &targetPathDescriptor{
-		PathSpec: p.s.PathSpec,
-		Kind:     p.Kind,
-		Sections: p.sections,
-		UglyURLs: p.s.Info.uglyURLs,
-		Dir:      filepath.ToSlash(p.Source.Dir()),
-		URL:      p.URLPath.URL,
+		PathSpec:    p.s.PathSpec,
+		Kind:        p.Kind,
+		Sections:    p.sections,
+		UglyURLs:    p.s.Info.uglyURLs,
+		Dir:         filepath.ToSlash(p.Source.Dir()),
+		URL:         p.URLPath.URL,
+		IsMultihost: p.s.owner.IsMultihost(),
 	}
 
 	if p.Slug != "" {
@@ -177,7 +181,11 @@ func createTargetPath(d targetPathDescriptor) string {
 	if d.Kind == KindPage {
 		// Always use URL if it's specified
 		if d.URL != "" {
-			pagePath = filepath.Join(pagePath, d.URL)
+			if d.IsMultihost && d.LangPrefix != "" && !strings.HasPrefix(d.URL, "/"+d.LangPrefix) {
+				pagePath = filepath.Join(d.LangPrefix, pagePath, d.URL)
+			} else {
+				pagePath = filepath.Join(pagePath, d.URL)
+			}
 			if strings.HasSuffix(d.URL, "/") || !strings.Contains(d.URL, ".") {
 				pagePath = filepath.Join(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
 			}

@@ -68,6 +68,22 @@ languageName = "Nynorsk"
 	assert.Len(s1h.Translations(), 2)
 	assert.Equal("https://example.com/", s1h.Permalink())
 
+	// For “regular multilingual” we kept the aliases pages with url in front matter
+	// as a literal value that we use as is.
+	// There is an ambiguity in the guessing.
+	// For multihost, we never want any content in the root.
+	//
+	// check url in front matter:
+	pageWithURLInFrontMatter := s1.getPage(KindPage, "sect/doc3.en.md")
+	assert.NotNil(pageWithURLInFrontMatter)
+	assert.Equal("/superbob", pageWithURLInFrontMatter.URL())
+	assert.Equal("/superbob/", pageWithURLInFrontMatter.RelPermalink())
+	th.assertFileContent("public/en/superbob/index.html", "doc3|Hello|en")
+
+	// check alias:
+	th.assertFileContent("public/en/al/alias1/index.html", `content="0; url=https://example.com/superbob/"`)
+	th.assertFileContent("public/en/al/alias2/index.html", `content="0; url=https://example.com/superbob/"`)
+
 	s2 := sites.Sites[1]
 	assert.Equal([]string{"s1", "s2", "frs1", "frs2"}, s2.StaticDirs())
 

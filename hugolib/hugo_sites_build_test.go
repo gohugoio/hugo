@@ -254,7 +254,6 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	doc3 := enSite.RegularPages[2]
 	permalink = doc3.Permalink()
-	require.NoError(t, err, "permalink call failed")
 	// Note that /superbob is a custom URL set in frontmatter.
 	// We respect that URL literally (it can be /search.json)
 	// and do no not do any language code prefixing.
@@ -1155,6 +1154,7 @@ NOTE: without slug, "doc2" should be used, without ".en" as URL
 title: doc3
 weight: 3
 publishdate: "2000-01-03"
+aliases: [/en/al/alias1,/al/alias2/]
 tags:
  - tag2
  - tag1
