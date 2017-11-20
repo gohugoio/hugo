@@ -59,6 +59,52 @@ If you want all of the languages to be put below their respective language code,
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `baseURL`, `buildDrafts`, etc.
 
+## Configure Multilingual Multihost
+
+From **Hugo 0.31** we support multiple languages in a multihost configuration. See [this issue](https://github.com/gohugoio/hugo/issues/4027) for details.
+
+This means that you can now confugre a `baseURL` per `language`:
+
+
+> If a `baseURL` is set on the `language` level, then all languages must have one and they must all be different.
+
+Example:
+
+```bash
+[languages]
+[languages.no]
+baseURL = "https://example.no"
+languageName = "Norsk"
+weight = 1
+title = "På norsk"
+
+[languages.en]
+baseURL = "https://example.com"
+languageName = "English"
+weight = 2
+title = "In English"
+```
+
+With the above, the two sites will be generated into `public` with their own root:
+
+```bash
+public
+├── en
+└── no
+```
+
+**All URLs (i.e `.Permalink` etc.) will be generated from that root. So the English home page above will have its `.Permalink` set to `https://example.com/`.**
+
+When you run `hugo server` we will start multiple HTTP servers. You will typlically see something like this in the console:
+
+```bash
+Web Server is available at 127.0.0.1:1313 (bind address 127.0.0.1)
+Web Server is available at 127.0.0.1:1314 (bind address 127.0.0.1)
+Press Ctrl+C to stop
+```
+
+Live reload and `--navigateToChanged` between the servers work as expected.
+
 ## Taxonomies and Blackfriday
 
 Taxonomies and [Blackfriday configuration][config] can also be set per language:
@@ -102,22 +148,28 @@ In this example, the `about.md` will be assigned the configured `defaultContentL
 
 This way, you can slowly start to translate your current content without having to rename everything. If left unspecified, the default value for `defaultContentLanguage` is `en`.
 
-By having the same *base filename*, the content pieces are linked together as translated pieces.
+By having the same **directory and base filename**, the content pieces are linked together as translated pieces.
+
+You can also set the key used to link the translations explicitly in front matter:
+
+```yaml
+translationKey: "my-story"
+```
+
+
+{{% note %}}
+**Before Hugo 0.31**, the file's directory was not considered when looking for translations. This did not work when you named all of your content files, say, `index.md`. Now we use the full content path.
+{{% /note %}}
 
 If you need distinct URLs per language, you can set the slug in the non-default language file. For example, you can define a custom slug for a French translation in the front matter of `content/about.fr.md` as follows:
 
-```
+```yaml
 slug: "a-propos"
 
 ```
 
 At render, Hugo will build both `/about/` and `/a-propos/` as properly linked translated pages.
 
-{{%note %}}
-Hugo currently uses the base filename as the translation key, which can be an issue with identical filenames in different sections.
-We will fix this in https://github.com/gohugoio/hugo/issues/2699
-{{% /note %}}
-{{< todo >}}Rewrite/remove the above one issue is fixed.{{< /todo >}}
 
 ## Link to Translated Content
 
@@ -145,6 +197,13 @@ The above also uses the [`i18n` function][i18func] described in the next section
 Hugo uses [go-i18n][] to support string translations. [See the project's source repository][go-i18n-source] to find tools that will help you manage your translation workflows.
 
 Translations are collected from the `themes/<THEME>/i18n/` folder (built into the theme), as well as translations present in `i18n/` at the root of your project. In the `i18n`, the translations will be merged and take precedence over what is in the theme folder. Language files should be named according to [RFC 5646][] with names such as `en-US.toml`, `fr.toml`, etc.
+
+{{% note %}}
+From **Hugo 0.31** you no longer need to use a valid language code. It _can be_ anything.
+
+See https://github.com/gohugoio/hugo/issues/3564
+
+{{% /note %}}
 
 From within your templates, use the `i18n` function like this:
 
