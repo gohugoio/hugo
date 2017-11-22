@@ -48,25 +48,20 @@ With the available [section variables and methods](#section-page-variables-and-m
 
 
 {{< code file="layouts/partials/breadcrumb.html" download="breadcrumb.html" >}}
-<ul>
+<ol  class="nav navbar-nav">
   {{ template "breadcrumbnav" (dict "p1" . "p2" .) }}
-</ul>
+</ol>
 {{ define "breadcrumbnav" }}
 {{ if .p1.Parent }}
 {{ template "breadcrumbnav" (dict "p1" .p1.Parent "p2" .p2 )  }}
 {{ else if not .p1.IsHome }}
 {{ template "breadcrumbnav" (dict "p1" .p1.Site.Home "p2" .p2 )  }}
 {{ end }}
-<li>
-  {{ if eq .p1 .p2 }}
-  {{ .p1.Title }}
-  {{ else }}
+<li{{ if eq .p1 .p2 }} class="active"{{ end }}>
   <a href="{{ .p1.Permalink }}">{{ .p1.Title }}</a>
-  {{ end }}
 </li>
 {{ end }}
 {{< /code >}}
-
 
 ## Section Page Variables and Methods
 
