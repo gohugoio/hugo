@@ -32,9 +32,6 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 `.Content`
 : the content itself, defined below the front matter.
 
-`.CurrentSection`
-: the page's current section. The value can be the page itself if it is a section or the homepage.
-
 `.Data`
 : the data specific to this type of page.
 
@@ -148,12 +145,6 @@ http://remarkjs.com)
 : returns the relative permalink for a given reference (e.g., `RelRef
 "sample.md"`). `.RelRef` does *not* handle in-page fragments correctly. See [Cross References](/content-management/cross-references/).
 
-`.Section`
-: the [section](/content-management/sections/) this content belongs to.
-
-`.Sections`
-: the [sections](/content-management/sections/) below this content.
-
 `.Site`
 : see [Site Variables](/variables/site/).
 
@@ -186,6 +177,12 @@ http://remarkjs.com)
 
 `.WordCount`
 : the number of words in the content.
+
+## Section Variables and Methods
+
+Also see [Sections](/content-management/sections/).
+
+{{< readfile file="/content/readfiles/sectionvars.md" markdown="true" >}}
 
 ## Page-level Params
 
