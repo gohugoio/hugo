@@ -47,7 +47,7 @@ It is currently not possible to add a specific layout for one of the sub-section
 With the available [section variables and methods](#section-page-variables-and-methods) you can build powerful navigation. One common example would be a partial to show Breadcrumb navigation:
 
 
-```html
+{{< code file="layouts/partials/breadcrumb.html" download="breadcrumb.html" >}}
 <ul>
   {{ template "breadcrumbnav" (dict "p1" . "p2" .) }}
 </ul>
@@ -65,7 +65,7 @@ With the available [section variables and methods](#section-page-variables-and-m
   {{ end }}
 </li>
 {{ end }}
-```
+{{< /code >}}
 
 
 ## Section Page Variables and Methods
