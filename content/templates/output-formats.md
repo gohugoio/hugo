@@ -55,6 +55,7 @@ The above example adds one new media type, `text/enriched`, and changes the suff
 suffix = "htm"
 
 # Redefine HTML to update its media type.
+[outputFormats]
 [outputFormats.HTML]
 mediaType = "text/html"
 ```
