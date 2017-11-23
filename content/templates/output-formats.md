@@ -59,6 +59,8 @@ suffix = "htm"
 mediaType = "text/html"
 ```
 
+**Note** that for the above to work, you also need to add an`outputs` definition in your site config.
+
 ## Output Formats
 
 Given a media type and some additional configuration, you get an `Output Format`:
