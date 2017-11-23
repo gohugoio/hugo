@@ -37,8 +37,6 @@ This is the full set of built-in media types in Hugo:
 
 To add or modify a media type, define it in a `mediaTypes` section in your [site configuration][config], either for all sites or for a given language.
 
-Example in `config.toml`:
-
 ```
 [mediaTypes]
   [mediaTypes."text/enriched"]
@@ -48,6 +46,18 @@ Example in `config.toml`:
 ```
 
 The above example adds one new media type, `text/enriched`, and changes the suffix for the built-in `text/html` media type.
+
+**Note:** these media types are configured for **your output formats**. If you want to redefine one of Hugo's default output formats (e.g. `HTML`), you also need to redefine the output format. So, if you want to change the suffix of the `HTML` output format from `html` (default) to `htm`:
+
+```toml
+[mediaTypes]
+[mediaTypes."text/html"]
+suffix = "htm"
+
+# Redefine HTML to update its media type.
+[outputFormats.HTML]
+mediaType = "text/html"
+```
 
 ## Output Formats
 
