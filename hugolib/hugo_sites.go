@@ -386,7 +386,7 @@ func (h *HugoSites) createMissingPages() error {
 						origKey := key
 
 						if s.Info.preserveTaxonomyNames {
-							key = s.PathSpec.MakePathSanitized(key)
+							key = s.PathSpec.MakePathSegmentSanitized(key)
 						}
 						for _, p := range taxonomyPages {
 							if p.sections[0] == plural && p.sections[1] == key {

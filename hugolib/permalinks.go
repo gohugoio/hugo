@@ -151,7 +151,7 @@ func pageToPermalinkDate(p *Page, dateField string) (string, error) {
 func pageToPermalinkTitle(p *Page, _ string) (string, error) {
 	// Page contains Node which has Title
 	// (also contains URLPath which has Slug, sometimes)
-	return p.s.PathSpec.URLize(p.Title), nil
+	return p.s.PathSpec.URLizeSegment(p.Title), nil
 }
 
 // pageToPermalinkFilename returns the URL-safe form of the filename

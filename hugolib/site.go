@@ -1579,7 +1579,7 @@ func (s *Site) getTaxonomyKey(key string) string {
 		// Keep as is
 		return key
 	}
-	return s.PathSpec.MakePathSanitized(key)
+	return s.PathSpec.MakePathSegmentSanitized(key)
 }
 
 // We need to create the top level taxonomy early in the build process
@@ -1616,7 +1616,7 @@ func (s *Site) assembleTaxonomies() {
 						s.Taxonomies[plural].add(s.getTaxonomyKey(idx), x)
 						if s.Info.preserveTaxonomyNames {
 							// Need to track the original
-							s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, s.PathSpec.MakePathSanitized(idx))] = idx
+							s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, s.PathSpec.MakePathSegmentSanitized(idx))] = idx
 						}
 					}
 				} else if v, ok := vals.(string); ok {
@@ -1624,7 +1624,7 @@ func (s *Site) assembleTaxonomies() {
 					s.Taxonomies[plural].add(s.getTaxonomyKey(v), x)
 					if s.Info.preserveTaxonomyNames {
 						// Need to track the original
-						s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, s.PathSpec.MakePathSanitized(v))] = v
+						s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, s.PathSpec.MakePathSegmentSanitized(v))] = v
 					}
 				} else {
 					s.Log.ERROR.Printf("Invalid %s in %s\n", plural, p.File.Path())
@@ -2041,7 +2041,7 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 		// We make the first character upper case, mostly because
 		// it is easier to reason about in the tests.
 		p.Title = helpers.FirstUpper(key)
-		key = s.PathSpec.MakePathSanitized(key)
+		key = s.PathSpec.MakePathSegmentSanitized(key)
 	} else {
 		p.Title = strings.Replace(s.titleFunc(key), "-", " ", -1)
 	}

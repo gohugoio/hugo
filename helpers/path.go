@@ -34,6 +34,9 @@ var (
 
 	// ErrWalkRootTooShort is returned when the root specified for a file walk is shorter than 4 characters.
 	ErrWalkRootTooShort = errors.New("Path too short. Stop walking.")
+
+	// This replacer is used in calls to MakePathSegmentSanitized.
+	SegmentReplacer = strings.NewReplacer("/", "-", "#", "-")
 )
 
 // filepathPathBridge is a bridge for common functionality in filepath vs path
@@ -90,6 +93,12 @@ func (p *PathSpec) MakePathSanitized(s string) string {
 		return p.MakePath(s)
 	}
 	return strings.ToLower(p.MakePath(s))
+}
+
+// MakePathSegmentSanitized, in addition to MakePathSanitized,
+// replaces slashes and pound signs with hyphens.
+func (p *PathSpec) MakePathSegmentSanitized(s string) string {
+	return p.MakePathSanitized(SegmentReplacer.Replace(s))
 }
 
 // MakeTitle converts the path given to a suitable title, trimming whitespace

@@ -58,6 +58,10 @@ func init() {
 			[]string{"urlize"},
 			[][2]string{},
 		)
+		ns.AddMethodMapping(ctx.URLizeSegment,
+			[]string{"urlizeSegment"},
+			[][2]string{},
+		)
 
 		return ns
 
