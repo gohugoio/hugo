@@ -25,6 +25,8 @@ type commandeer struct {
 	pathSpec    *helpers.PathSpec
 	visitedURLs *types.EvictingStringQueue
 
+	serverPorts []int
+
 	configured bool
 }
 
