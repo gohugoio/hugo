@@ -133,8 +133,16 @@ func TestGetPage(t *testing.T) {
 		errorMsg := fmt.Sprintf("Test %d", i)
 		page := s.getPage(test.kind, test.path...)
 		assert.NotNil(page, errorMsg)
-		assert.Equal(test.kind, page.Kind)
-		assert.Equal(test.expectedTitle, page.Title)
+		assert.Equal(test.kind, page.Kind, errorMsg)
+		assert.Equal(test.expectedTitle, page.Title, errorMsg)
+
+		if page.Title != "" {
+			// Try retrieving the page by Title as well.
+			pageByTitle := s.getPage(test.kind, page.Title)
+			assert.NotNil(pageByTitle, errorMsg)
+			assert.Equal(test.kind, pageByTitle.Kind, errorMsg)
+			assert.Equal(test.expectedTitle, pageByTitle.Title, errorMsg)
+		}
 	}
 
 }
