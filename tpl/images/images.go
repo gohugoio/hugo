@@ -71,6 +71,7 @@ func (ns *Namespace) Config(path interface{}) (image.Config, error) {
 	if err != nil {
 		return image.Config{}, err
 	}
+	defer f.Close()
 
 	config, _, err = image.DecodeConfig(f)
 	if err != nil {
