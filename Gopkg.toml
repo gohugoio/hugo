@@ -18,7 +18,7 @@
 
 [[constraint]]
  name = "github.com/chaseadamsio/goorgeous"
- revision = "7daffad08e0d467847663af3655dcc4cbcda48e8"
+ revision = "v1.1.0"
 
 [[constraint]]
   branch = "master"
