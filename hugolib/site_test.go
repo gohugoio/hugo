@@ -963,3 +963,66 @@ func TestRefLinking(t *testing.T) {
 
 	// TODO: and then the failure cases.
 }
+
+var simpleTagPage = []byte(`+++
+title = "SimpleTag"
++++`)
+
+var complexTagPage = []byte(`+++
+title = "Complex Tag: Tag Harder"
++++`)
+
+var taggedPost = []byte(`+++
+tags = ["SimpleTag", "Complex Tag: Tag Harder", "Tag Without Content"]
+title = "Test Post Don't Ignore"
+date = 2017-11-25T00:00:00Z
++++
+This test post has multiple tags, some of which have associated content pages, and some of which don't.`)
+
+func setupTaxonomyTermsMockSite(t *testing.T) *Site {
+	sources := []source.ByteSource{
+		{Name: filepath.FromSlash("tags/simpletag/_index.md"), Content: simpleTagPage},
+		{Name: filepath.FromSlash("tags/complex-tag-tag-harder/_index.md"), Content: complexTagPage},
+		{Name: filepath.FromSlash("post/testpost.md"), Content: taggedPost},
+	}
+
+	taxonomies := make(map[string]string)
+	taxonomies["tag"] = "tags"
+
+	cfg, fs := newTestCfg()
+
+	cfg.Set("baseURL", "http://auth/")
+	cfg.Set("taxonomies", taxonomies)
+	cfg.Set("preserveTaxonomyNames", true)
+
+	writeSourcesToSource(t, "content", fs, sources...)
+	return buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+}
+
+func TestGetPageByTaxonomyTerm(t *testing.T) {
+	t.Parallel()
+	site := setupTaxonomyTermsMockSite(t)
+
+	for i, test := range []struct {
+		pageKind          string
+		taxonomyName      string
+		taxonomyTerm      string
+		expectedPermalink string
+	}{
+		{KindTaxonomyTerm, "tags", "SimpleTag", "http://auth/tags/simpletag/"},
+		{KindTaxonomyTerm, "tags", "Complex Tag: Tag Harder", "http://auth/tags/complex-tag-tag-harder/"},
+		{KindTaxonomyTerm, "tags", "Tag Without Content", "http://auth/tags/tag-without-content/"},
+	} {
+		// This call to GetPage simulates a template invocation such as:
+		// $.Site.GetPage "pageKind" "taxonomyName" "taxonomyTerm"
+		p, err := site.Info.GetPage(test.pageKind, test.taxonomyName, test.taxonomyTerm)
+
+		if err != nil {
+			t.Errorf("[%d] Expected GetPage(\"%s\", \"%s\", \"%s\") to complete, got error (%s)", i, test.pageKind, test.taxonomyName, test.taxonomyTerm, err)
+		} else if p == nil {
+			t.Errorf("[%d] Expected GetPage(\"%s\", \"%s\", \"%s\") to retrieve a valid page, got nil", i, test.pageKind, test.taxonomyName, test.taxonomyTerm)
+		} else if p.Permalink() != test.expectedPermalink {
+			t.Errorf("[%d] Expected GetPage(\"%s\", \"%s\", \"%s\") to retrieve a page with Permalink %s, got %s", i, test.pageKind, test.taxonomyName, test.taxonomyTerm, test.expectedPermalink, p.Permalink())
+		}
+	}
+}
