@@ -34,7 +34,7 @@
 [[projects]]
   name = "github.com/chaseadamsio/goorgeous"
   packages = ["."]
-  revision = "7daffad08e0d467847663af3655dcc4cbcda48e8"
+  revision = "v1.1.0"
 
 [[projects]]
   name = "github.com/cpuguy83/go-md2man"
@@ -285,6 +285,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a7cec7b1df49f84fdd4073cc70139d56c62c5fffcc7e3fcea5ca29615d4b9568"
+  inputs-digest = "b7c30d3b163877a01549fcaec71945d9a6dc74b198d05d438a599d793f9e31d3"
   solver-name = "gps-cdcl"
   solver-version = 1
