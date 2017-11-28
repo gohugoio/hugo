@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/tpl/compare"
 	"github.com/spf13/cast"
 )
 
@@ -500,10 +501,23 @@ type intersector struct {
 func (i *intersector) appendIfNotSeen(v reflect.Value) {
 
 	vi := v.Interface()
-	if !i.seen[vi] {
-		i.r = reflect.Append(i.r, v)
-		i.seen[vi] = true
+
+	if v.Type().Comparable() {
+		if !i.seen[vi] {
+			i.r = reflect.Append(i.r, v)
+			i.seen[vi] = true
+		}
+
+		return
 	}
+
+	for j := 0; j < i.r.Len(); j++ {
+		if compare.Eq(vi, i.r.Index(j).Interface()) {
+			return
+		}
+	}
+
+	i.r = reflect.Append(i.r, v)
 }
 
 func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
@@ -525,6 +539,10 @@ func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
 		}
 	case kind == reflect.Interface:
 		i.handleValuePair(reflect.ValueOf(l1vv.Interface()), l2vv)
+	case kind == reflect.Map, kind == reflect.Slice, kind == reflect.Array:
+		if compare.Eq(l1vv.Interface(), l2vv.Interface()) {
+			i.appendIfNotSeen(l1vv)
+		}
 	}
 }
 
@@ -593,9 +611,8 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 					if err == nil {
 						ins.appendIfNotSeen(l2vv)
 					}
-				case kind == reflect.Interface, kind == reflect.Struct, kind == reflect.Ptr:
+				default:
 					ins.appendIfNotSeen(l2vv)
-
 				}
 			}
 

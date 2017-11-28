@@ -348,6 +348,10 @@ func TestIntersect(t *testing.T) {
 		{pagesVals{}, pagesVals{p1v, p3v, p3v}, pagesVals{}},
 		{[]interface{}{p1, p4, p2, p3}, []interface{}{}, []interface{}{}},
 		{[]interface{}{}, []interface{}{p1v, p3v, p3v}, []interface{}{}},
+
+		// #3820 - slices of uncomparable types
+		{[][]int{{1, 1}, {1, 2}}, [][]int{{1, 2}, {1, 2}, {1, 3}}, [][]int{{1, 2}}},
+		{[]map[int]int{{1: 1}, {2: 2}}, []map[int]int{{2: 2}, {3: 3}}, []map[int]int{{2: 2}}},
 	} {
 
 		errMsg := fmt.Sprintf("[%d]", test)
@@ -371,6 +375,20 @@ func BenchmarkIntersect(b *testing.B) {
 
 	l1 := []interface{}{"a", "b", "c", "c", "c", "x", "o", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "k", "l", "q", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z"}
 	l2 := []string{"a", "b", "d", "x", "x", "x", "z", "z", "z"}
+
+	for i := 0; i < b.N; i++ {
+		_, err := ns.Intersect(l1, l2)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkIntersectSlices(b *testing.B) {
+	ns := New(&deps.Deps{})
+
+	l1 := [][]int{{1, 1}, {1, 2}, {1, 2}, {1, 2, 3}, {1}, {1, 3, 5, 7, 11}, {2}, {10, 11}, {1, 2}, {22, 22}}
+	l2 := [][]int{{1, 2}, {1, 3}, {3, 3}, {1, 2}, {1, 2, 3}, {1, 3, 5, 7, 11}, {2}, {9, 10}, {10, 11}, {22, 22}, {22, 22}, {99}}
 
 	for i := 0; i < b.N; i++ {
 		_, err := ns.Intersect(l1, l2)
@@ -692,6 +710,10 @@ func TestUnion(t *testing.T) {
 		{pagesPtr{}, pagesPtr{p1}, pagesPtr{p1}, false},
 		{pagesVals{}, pagesVals{p1v}, pagesVals{p1v}, false},
 
+		// #3820 - uncomparable types
+		{[]map[string]int{{"K1": 1}}, []map[string]int{{"K2": 2}, {"K2": 2}}, []map[string]int{{"K1": 1}, {"K2": 2}}, false},
+		{[][]int{{1, 1}, {1, 2}}, [][]int{{2, 1}, {2, 2}}, [][]int{{1, 1}, {1, 2}, {2, 1}, {2, 2}}, false},
+
 		// errors
 		{"not array or slice", []string{"a"}, false, true},
 		{[]string{"a"}, "not array or slice", false, true},
@@ -717,6 +739,20 @@ func BenchmarkUnion(b *testing.B) {
 
 	l1 := []interface{}{"a", "b", "c", "c", "c", "x", "o", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "k", "l", "q", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z"}
 	l2 := []string{"a", "b", "d", "x", "x", "x", "z", "z", "z"}
+
+	for i := 0; i < b.N; i++ {
+		_, err := ns.Union(l1, l2)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkUnionSlices(b *testing.B) {
+	ns := New(&deps.Deps{})
+
+	l1 := [][]int{{1, 1}, {1, 2}, {1, 2}, {1, 2, 3}, {1}, {1, 3, 5, 7, 11}, {2}, {10, 11}, {1, 2}, {22, 22}}
+	l2 := [][]int{{1, 2}, {1, 3}, {3, 3}, {1, 2}, {1, 2, 3}, {1, 3, 5, 7, 11}, {2}, {9, 10}, {10, 11}, {22, 22}, {22, 22}, {99}}
 
 	for i := 0; i < b.N; i++ {
 		_, err := ns.Union(l1, l2)
