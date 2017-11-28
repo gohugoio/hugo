@@ -366,6 +366,20 @@ func TestIntersect(t *testing.T) {
 	}
 }
 
+func BenchmarkIntersect(b *testing.B) {
+	ns := New(&deps.Deps{})
+
+	l1 := []interface{}{"a", "b", "c", "c", "c", "x", "o", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "k", "l", "q", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z"}
+	l2 := []string{"a", "b", "d", "x", "x", "x", "z", "z", "z"}
+
+	for i := 0; i < b.N; i++ {
+		_, err := ns.Intersect(l1, l2)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 func TestIsSet(t *testing.T) {
 	t.Parallel()
 
@@ -694,6 +708,20 @@ func TestUnion(t *testing.T) {
 		assert.NoError(t, err, errMsg)
 		if !reflect.DeepEqual(result, test.expect) {
 			t.Fatalf("[%d] Got\n%v expected\n%v", i, result, test.expect)
+		}
+	}
+}
+
+func BenchmarkUnion(b *testing.B) {
+	ns := New(&deps.Deps{})
+
+	l1 := []interface{}{"a", "b", "c", "c", "c", "x", "o", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "k", "l", "q", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z", "a", "b", "c", "c", "c", "x", "y", "z"}
+	l2 := []string{"a", "b", "d", "x", "x", "x", "z", "z", "z"}
+
+	for i := 0; i < b.N; i++ {
+		_, err := ns.Union(l1, l2)
+		if err != nil {
+			b.Fatal(err)
 		}
 	}
 }
