@@ -147,7 +147,7 @@
   branch = "master"
   name = "github.com/markbates/inflect"
   packages = ["."]
-  revision = "ea17041f342f81e8849284b87bc3db1a6fc596bb"
+  revision = "54ffb37507cd7d2ccd4768855e84f9ff6c4352b6"
 
 [[projects]]
   name = "github.com/miekg/mmark"

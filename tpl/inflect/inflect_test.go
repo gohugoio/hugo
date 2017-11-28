@@ -19,6 +19,7 @@ func TestInflect(t *testing.T) {
 		expect interface{}
 	}{
 		{ns.Humanize, "MyCamel", "My camel"},
+		{ns.Humanize, "óbito", "Óbito"},
 		{ns.Humanize, "", ""},
 		{ns.Humanize, "103", "103rd"},
 		{ns.Humanize, "41", "41st"},
