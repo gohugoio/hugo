@@ -76,6 +76,9 @@ The following logical operators are vailable with `where`:
 `not in`
 : `true` if a given field value isn't included in a matching value; a matching value must be an array or a slice
 
+`contains`
+: `true` if a given field value contains a matching value; a matching value must be an array or a slice
+
 `intersect`
 : `true` if a given field value that is a slice/array of strings or integers contains elements in common with the matching value; it follows the same rules as the [`intersect` function][intersect].
 

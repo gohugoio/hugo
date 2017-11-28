@@ -188,15 +188,27 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 		} else if svp != nil && smvp != nil {
 			return *svp < *smvp, nil
 		}
-	case "in", "not in":
+	case "in", "not in", "contains":
 		var r bool
 		if ivp != nil && len(ima) > 0 {
-			r = ns.In(ima, *ivp)
+			if op == "contains" {
+				r = ns.In(*ivp, ima)
+			} else {
+				r = ns.In(ima, *ivp)
+			}
 		} else if svp != nil {
 			if len(sma) > 0 {
-				r = ns.In(sma, *svp)
+				if op == "contains" {
+					r = ns.In(*svp, sma)
+				} else {
+					r = ns.In(sma, *svp)
+				}
 			} else if smvp != nil {
-				r = ns.In(*smvp, *svp)
+				if op == "contains" {
+					r = ns.In(*svp, *smvp)
+				} else {
+					r = ns.In(*smvp, *svp)
+				}
 			}
 		} else {
 			return false, nil
