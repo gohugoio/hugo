@@ -208,12 +208,30 @@ func TestWhere(t *testing.T) {
 			},
 		},
 		{
+			seq: []map[string][]string{
+				{"a": []string{"A", "B", "C"}, "b": []string{"A1", "B1", "C1"}}, {"a": []string{"D", "E", "F"}, "b": []string{"A2", "B2", "C2"}}, {"a": []string{"G", "H", "I"}, "b": []string{"A2", "B3", "C2"}},
+			},
+			key: "b", op: "contains", match: []string{"A2", "C2"},
+			expect: []map[string][]string{
+				{"a": []string{"D", "E", "F"}, "b": []string{"A2", "B2", "C2"}}, {"a": []string{"G", "H", "I"}, "b": []string{"A2", "B3", "C2"}},
+			},
+		},
+		{
 			seq: []map[string][]int{
 				{"a": []int{1, 2, 3}, "b": []int{4, 5, 6}}, {"a": []int{7, 8, 9}, "b": []int{10, 11, 12}}, {"a": []int{13, 14, 15}, "b": []int{16, 17, 18}},
 			},
 			key: "b", op: "intersect", match: []int{4, 10, 12},
 			expect: []map[string][]int{
 				{"a": []int{1, 2, 3}, "b": []int{4, 5, 6}}, {"a": []int{7, 8, 9}, "b": []int{10, 11, 12}},
+			},
+		},
+		{
+			seq: []map[string][]int{
+				{"a": []int{1, 2, 3}, "b": []int{10, 20, 30}}, {"a": []int{4, 5, 6}, "b": []int{40, 50, 60}}, {"a": []int{7, 8, 9}, "b": []int{10, 80, 30}},
+			},
+			key: "b", op: "contains", match: []int{10, 30},
+			expect: []map[string][]int{
+				{"a": []int{1, 2, 3}, "b": []int{10, 20, 30}}, {"a": []int{7, 8, 9}, "b": []int{10, 80, 30}},
 			},
 		},
 		{
@@ -226,12 +244,30 @@ func TestWhere(t *testing.T) {
 			},
 		},
 		{
+			seq: []map[string][]int8{
+				{"a": []int8{1, 2, 3}, "b": []int8{10, 20, 30}}, {"a": []int8{4, 5, 6}, "b": []int8{40, 50, 60}}, {"a": []int8{7, 8, 9}, "b": []int8{10, 80, 30}},
+			},
+			key: "b", op: "contains", match: []int8{10, 30},
+			expect: []map[string][]int8{
+				{"a": []int8{1, 2, 3}, "b": []int8{10, 20, 30}}, {"a": []int8{7, 8, 9}, "b": []int8{10, 80, 30}},
+			},
+		},
+		{
 			seq: []map[string][]int16{
 				{"a": []int16{1, 2, 3}, "b": []int16{4, 5, 6}}, {"a": []int16{7, 8, 9}, "b": []int16{10, 11, 12}}, {"a": []int16{13, 14, 15}, "b": []int16{16, 17, 18}},
 			},
 			key: "b", op: "intersect", match: []int16{4, 10, 12},
 			expect: []map[string][]int16{
 				{"a": []int16{1, 2, 3}, "b": []int16{4, 5, 6}}, {"a": []int16{7, 8, 9}, "b": []int16{10, 11, 12}},
+			},
+		},
+		{
+			seq: []map[string][]int16{
+				{"a": []int16{1, 2, 3}, "b": []int16{10, 20, 30}}, {"a": []int16{4, 5, 6}, "b": []int16{40, 50, 60}}, {"a": []int16{7, 8, 9}, "b": []int16{10, 80, 30}},
+			},
+			key: "b", op: "contains", match: []int16{10, 30},
+			expect: []map[string][]int16{
+				{"a": []int16{1, 2, 3}, "b": []int16{10, 20, 30}}, {"a": []int16{7, 8, 9}, "b": []int16{10, 80, 30}},
 			},
 		},
 		{
@@ -244,12 +280,39 @@ func TestWhere(t *testing.T) {
 			},
 		},
 		{
+			seq: []map[string][]int32{
+				{"a": []int32{1, 2, 3}, "b": []int32{10, 20, 30}}, {"a": []int32{4, 5, 6}, "b": []int32{40, 50, 60}}, {"a": []int32{7, 8, 9}, "b": []int32{10, 80, 30}},
+			},
+			key: "b", op: "contains", match: []int32{10, 30},
+			expect: []map[string][]int32{
+				{"a": []int32{1, 2, 3}, "b": []int32{10, 20, 30}}, {"a": []int32{7, 8, 9}, "b": []int32{10, 80, 30}},
+			},
+		},
+		{
 			seq: []map[string][]int64{
 				{"a": []int64{1, 2, 3}, "b": []int64{4, 5, 6}}, {"a": []int64{7, 8, 9}, "b": []int64{10, 11, 12}}, {"a": []int64{13, 14, 15}, "b": []int64{16, 17, 18}},
 			},
 			key: "b", op: "intersect", match: []int64{4, 10, 12},
 			expect: []map[string][]int64{
 				{"a": []int64{1, 2, 3}, "b": []int64{4, 5, 6}}, {"a": []int64{7, 8, 9}, "b": []int64{10, 11, 12}},
+			},
+		},
+		{
+			seq: []map[string][]int64{
+				{"a": []int64{1, 2, 3}, "b": []int64{10, 20, 30}}, {"a": []int64{4, 5, 6}, "b": []int64{40, 50, 60}}, {"a": []int64{7, 8, 9}, "b": []int64{10, 80, 30}},
+			},
+			key: "b", op: "contains", match: []int64{10, 30},
+			expect: []map[string][]int64{
+				{"a": []int64{1, 2, 3}, "b": []int64{10, 20, 30}}, {"a": []int64{7, 8, 9}, "b": []int64{10, 80, 30}},
+			},
+		},
+		{
+			seq: []map[string][]time.Time{
+				{"a": []time.Time{d1, d2}, "b": []time.Time{d1, d2, d3}}, {"a": []time.Time{d3, d4}, "b": []time.Time{d2, d3, d4}}, {"a": []time.Time{d5, d6}, "b": []time.Time{d3, d4, d5}},
+			},
+			key: "b", op: "contains", match: []time.Time{d3, d4},
+			expect: []map[string][]time.Time{
+				{"a": []time.Time{d3, d4}, "b": []time.Time{d2, d3, d4}}, {"a": []time.Time{d5, d6}, "b": []time.Time{d3, d4, d5}},
 			},
 		},
 		{
@@ -499,7 +562,9 @@ func TestCheckCondition(t *testing.T) {
 			expect{true, false},
 		},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{123, 45, 678}), "in", expect{true, false}},
+		{reflect.ValueOf([]int{123, 45, 678}), reflect.ValueOf(123), "contains", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf([]string{"foo", "bar", "baz"}), "in", expect{true, false}},
+		{reflect.ValueOf([]string{"foo", "bar", "baz"}), reflect.ValueOf("foo"), "contains", expect{true, false}},
 		{
 			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
 			reflect.ValueOf([]time.Time{
@@ -508,6 +573,16 @@ func TestCheckCondition(t *testing.T) {
 				time.Date(2015, time.June, 26, 19, 18, 56, 12345, time.UTC),
 			}),
 			"in",
+			expect{true, false},
+		},
+		{
+			reflect.ValueOf([]time.Time{
+				time.Date(2015, time.April, 26, 19, 18, 56, 12345, time.UTC),
+				time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC),
+				time.Date(2015, time.June, 26, 19, 18, 56, 12345, time.UTC),
+			}),
+			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
+			"contains",
 			expect{true, false},
 		},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{45, 678}), "not in", expect{true, false}},
@@ -523,6 +598,7 @@ func TestCheckCondition(t *testing.T) {
 			expect{true, false},
 		},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar-foo-baz"), "in", expect{true, false}},
+		{reflect.ValueOf("bar-foo-baz"), reflect.ValueOf("foo"), "contains", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("bar--baz"), "not in", expect{true, false}},
 		{reflect.Value{}, reflect.ValueOf("foo"), "", expect{false, false}},
 		{reflect.ValueOf("foo"), reflect.Value{}, "", expect{false, false}},
@@ -535,12 +611,16 @@ func TestCheckCondition(t *testing.T) {
 		{reflect.ValueOf((*TstX)(nil)), reflect.ValueOf((*TstX)(nil)), ">", expect{false, false}},
 		{reflect.ValueOf(true), reflect.ValueOf(false), ">", expect{false, false}},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{}), "in", expect{false, false}},
+		{reflect.ValueOf([]int{}), reflect.ValueOf(123), "contains", expect{false, false}},
 		{reflect.ValueOf(123), reflect.ValueOf(123), "op", expect{false, true}},
 
 		// Issue #3718
 		{reflect.ValueOf([]interface{}{"a"}), reflect.ValueOf([]string{"a", "b"}), "intersect", expect{true, false}},
+		{reflect.ValueOf([]string{"a", "b"}), reflect.ValueOf([]interface{}{"a"}), "contains", expect{true, false}},
 		{reflect.ValueOf([]string{"a"}), reflect.ValueOf([]interface{}{"a", "b"}), "intersect", expect{true, false}},
+		{reflect.ValueOf([]interface{}{"a", "b"}), reflect.ValueOf([]string{"a"}), "contains", expect{true, false}},
 		{reflect.ValueOf([]interface{}{1, 2}), reflect.ValueOf([]int{1}), "intersect", expect{true, false}},
+		{reflect.ValueOf([]interface{}{1, 2}), reflect.ValueOf([]int{1}), "contains", expect{true, false}},
 		{reflect.ValueOf([]int{1}), reflect.ValueOf([]interface{}{1, 2}), "intersect", expect{true, false}},
 	} {
 		result, err := ns.checkCondition(test.value, test.match, test.op)
