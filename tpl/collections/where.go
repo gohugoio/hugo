@@ -156,7 +156,6 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			if len(sva) > 0 {
 				r = ns.In(sva, *smvp)
 			} else if svp != nil {
-				fmt.Println("check string", *svp, *smvp)
 				r = ns.In(*svp, *smvp)
 			}
 		} else if slmv != nil && slv != nil {
