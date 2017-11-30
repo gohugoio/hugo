@@ -561,7 +561,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 	}{
 		{"md", func() bool { return true }},
 		{"mmark", func() bool { return true }},
-		{"ad", func() bool { return helpers.HasAsciidoctor() || helpers.HasAsciidoc() }},
+		{"ad", func() bool { return helpers.HasAsciidoc() }},
 		// TODO(bep) figure a way to include this without too much work.{"html", func() bool { return true }},
 		{"rst", func() bool { return helpers.HasRst() }},
 	}

@@ -25,6 +25,7 @@ func init() {
 	RegisterHandler(new(htmlHandler))
 	RegisterHandler(new(asciidocHandler))
 	RegisterHandler(new(rstHandler))
+	RegisterHandler(new(pandocHandler))
 	RegisterHandler(new(mmarkHandler))
 	RegisterHandler(new(orgHandler))
 }
@@ -101,6 +102,15 @@ type rstHandler struct {
 
 func (h rstHandler) Extensions() []string { return []string{"rest", "rst"} }
 func (h rstHandler) PageConvert(p *Page) HandledResult {
+	return commonConvert(p)
+}
+
+type pandocHandler struct {
+	basicPageHandler
+}
+
+func (h pandocHandler) Extensions() []string { return []string{"pandoc", "pdc"} }
+func (h pandocHandler) PageConvert(p *Page) HandledResult {
 	return commonConvert(p)
 }
 
