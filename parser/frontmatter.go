@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 
@@ -201,7 +202,43 @@ func removeTOMLIdentifier(datum []byte) []byte {
 func HandleYAMLMetaData(datum []byte) (map[string]interface{}, error) {
 	m := map[string]interface{}{}
 	err := yaml.Unmarshal(datum, &m)
+
+	// To support boolean keys, the `yaml` package unmarshals maps to
+	// map[interface{}]interface{}. Here we recurse through the result
+	// and change all maps to map[string]interface{} like we would've
+	// gotten from `json`.
+	if err == nil {
+		for k, v := range m {
+			m[k] = stringifyYAMLMapKeys(v)
+		}
+	}
+
 	return m, err
+}
+
+// stringifyKeysMapValue recurses into in and changes all instances of
+// map[interface{}]interface{} to map[string]interface{}. This is useful to
+// work around the impedence mismatch between JSON and YAML unmarshaling that's
+// described here: https://github.com/go-yaml/yaml/issues/139
+//
+// Inspired by https://github.com/stripe/stripe-mock, MIT licensed
+func stringifyYAMLMapKeys(in interface{}) interface{} {
+	switch in := in.(type) {
+	case []interface{}:
+		res := make([]interface{}, len(in))
+		for i, v := range in {
+			res[i] = stringifyYAMLMapKeys(v)
+		}
+		return res
+	case map[interface{}]interface{}:
+		res := make(map[string]interface{})
+		for k, v := range in {
+			res[fmt.Sprintf("%v", k)] = stringifyYAMLMapKeys(v)
+		}
+		return res
+	default:
+		return in
+	}
 }
 
 // HandleJSONMetaData unmarshals JSON-encoded datum and returns a Go interface
