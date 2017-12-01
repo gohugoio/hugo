@@ -169,7 +169,8 @@ func TestHandleYAMLMetaData(t *testing.T) {
 	}{
 		{nil, map[string]interface{}{}, false},
 		{[]byte("title: test 1"), map[string]interface{}{"title": "test 1"}, false},
-		{[]byte("a: Easy!\nb:\n  c: 2\n  d: [3, 4]"), map[string]interface{}{"a": "Easy!", "b": map[interface{}]interface{}{"c": 2, "d": []interface{}{3, 4}}}, false},
+		{[]byte("a: Easy!\nb:\n  c: 2\n  d: [3, 4]"), map[string]interface{}{"a": "Easy!", "b": map[string]interface{}{"c": 2, "d": []interface{}{3, 4}}}, false},
+		{[]byte("a:\n  true: 1\n  false: 2"), map[string]interface{}{"a": map[string]interface{}{"true": 1, "false": 2}}, false},
 		// errors
 		{[]byte("z = not toml"), nil, true},
 	}
@@ -315,6 +316,41 @@ func TestRemoveTOMLIdentifier(t *testing.T) {
 	for i, c := range cases {
 		res := removeTOMLIdentifier([]byte(c.input))
 		if string(res) != c.want {
+			t.Errorf("[%d] given %q\nwant: %q\n got: %q", i, c.input, c.want, res)
+		}
+	}
+}
+
+func TestStringifyYAMLMapKeys(t *testing.T) {
+	cases := []struct {
+		input map[interface{}]interface{}
+		want  map[string]interface{}
+	}{
+		{
+			map[interface{}]interface{}{"a": 1, "b": 2},
+			map[string]interface{}{"a": 1, "b": 2},
+		},
+		{
+			map[interface{}]interface{}{"a": []interface{}{1, map[interface{}]interface{}{"b": 2}}},
+			map[string]interface{}{"a": []interface{}{1, map[string]interface{}{"b": 2}}},
+		},
+		{
+			map[interface{}]interface{}{true: 1, "b": false},
+			map[string]interface{}{"true": 1, "b": false},
+		},
+		{
+			map[interface{}]interface{}{1: "a", 2: "b"},
+			map[string]interface{}{"1": "a", "2": "b"},
+		},
+		{
+			map[interface{}]interface{}{"a": map[interface{}]interface{}{"b": 1}},
+			map[string]interface{}{"a": map[string]interface{}{"b": 1}},
+		},
+	}
+
+	for i, c := range cases {
+		res := stringifyYAMLMapKeys(c.input)
+		if !reflect.DeepEqual(res, c.want) {
 			t.Errorf("[%d] given %q\nwant: %q\n got: %q", i, c.input, c.want, res)
 		}
 	}
