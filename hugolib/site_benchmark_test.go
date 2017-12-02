@@ -207,6 +207,13 @@ baseURL = "http://example.com/blog"
 paginate = 10
 defaultContentLanguage = "en"
 
+[outputs]
+home = [ "HTML" ]
+section = [ "HTML" ]
+taxonomy = [ "HTML" ]
+taxonomyTerm = [ "HTML" ]
+page = [ "HTML" ]
+
 [languages]
 %s
 
