@@ -27,6 +27,7 @@ import (
 type siteBuildingBenchmarkConfig struct {
 	Frontmatter  string
 	NumPages     int
+	NumLangs     int
 	RootSections int
 	Render       bool
 	Shortcodes   bool
@@ -39,6 +40,8 @@ func (s siteBuildingBenchmarkConfig) String() string {
 	// To make it a short as possible, we only shows bools when enabled and ints when >= 0 (RootSections > 1)
 	sep := ","
 	id := s.Frontmatter + sep
+	id += fmt.Sprintf("num_langs=%d%s", s.NumLangs, sep)
+
 	if s.RootSections > 1 {
 		id += fmt.Sprintf("num_root_sections=%d%s", s.RootSections, sep)
 	}
@@ -61,8 +64,9 @@ func (s siteBuildingBenchmarkConfig) String() string {
 	}
 
 	return strings.TrimSuffix(id, sep)
-
 }
+
+var someLangs = []string{"en", "fr", "nn"}
 
 func BenchmarkSiteBuilding(b *testing.B) {
 	var (
@@ -74,6 +78,7 @@ func BenchmarkSiteBuilding(b *testing.B) {
 		allNumPages        = []int{1, 10, 100, 500, 1000, 5000, 10000}
 		allDoRender        = []bool{false, true}
 		allDoShortCodes    = []bool{false, true}
+		allNumLangs        = []int{1, 3}
 	)
 
 	var runDefault bool
@@ -99,21 +104,24 @@ func BenchmarkSiteBuilding(b *testing.B) {
 	}
 
 	var conf siteBuildingBenchmarkConfig
-	for _, frontmatter := range allFrontmatters {
-		conf.Frontmatter = frontmatter
-		for _, rootSections := range allNumRootSections {
-			conf.RootSections = rootSections
-			for _, numTags := range allNumTags {
-				conf.NumTags = numTags
-				for _, tagsPerPage := range allTagsPerPage {
-					conf.TagsPerPage = tagsPerPage
-					for _, numPages := range allNumPages {
-						conf.NumPages = numPages
-						for _, render := range allDoRender {
-							conf.Render = render
-							for _, shortcodes := range allDoShortCodes {
-								conf.Shortcodes = shortcodes
-								doBenchMarkSiteBuilding(conf, b)
+	for _, numLangs := range allNumLangs {
+		conf.NumLangs = numLangs
+		for _, frontmatter := range allFrontmatters {
+			conf.Frontmatter = frontmatter
+			for _, rootSections := range allNumRootSections {
+				conf.RootSections = rootSections
+				for _, numTags := range allNumTags {
+					conf.NumTags = numTags
+					for _, tagsPerPage := range allTagsPerPage {
+						conf.TagsPerPage = tagsPerPage
+						for _, numPages := range allNumPages {
+							conf.NumPages = numPages
+							for _, render := range allDoRender {
+								conf.Render = render
+								for _, shortcodes := range allDoShortCodes {
+									conf.Shortcodes = shortcodes
+									doBenchMarkSiteBuilding(conf, b)
+								}
 							}
 						}
 					}
@@ -199,10 +207,28 @@ baseURL = "http://example.com/blog"
 paginate = 10
 defaultContentLanguage = "en"
 
+[languages]
+%s
+
 [Taxonomies]
 tag = "tags"
 category = "categories"
 `
+
+	langConfigTemplate := `
+[languages.%s]
+languageName = "Lang %s"
+weight = %d
+`
+
+	langConfig := ""
+
+	for i := 0; i < cfg.NumLangs; i++ {
+		langCode := someLangs[i]
+		langConfig += fmt.Sprintf(langConfigTemplate, langCode, langCode, i+1)
+	}
+
+	siteConfig = fmt.Sprintf(siteConfig, langConfig)
 
 	numTags := cfg.NumTags
 
@@ -248,37 +274,49 @@ category = "categories"
 
 		fs := th.Fs
 
-		pagesPerSection := cfg.NumPages / cfg.RootSections
+		pagesPerSection := cfg.NumPages / cfg.RootSections / cfg.NumLangs
+		for li := 0; li < cfg.NumLangs; li++ {
+			fileLangCodeID := ""
+			if li > 0 {
+				fileLangCodeID = "." + someLangs[li] + "."
+			}
 
-		for i := 0; i < cfg.RootSections; i++ {
-			for j := 0; j < pagesPerSection; j++ {
-				var tagsSlice []string
+			for i := 0; i < cfg.RootSections; i++ {
+				for j := 0; j < pagesPerSection; j++ {
+					var tagsSlice []string
 
-				if numTags > 0 {
-					tagsStart := rand.Intn(numTags) - cfg.TagsPerPage
-					if tagsStart < 0 {
-						tagsStart = 0
+					if numTags > 0 {
+						tagsStart := rand.Intn(numTags) - cfg.TagsPerPage
+						if tagsStart < 0 {
+							tagsStart = 0
+						}
+						tagsSlice = tags[tagsStart : tagsStart+cfg.TagsPerPage]
 					}
-					tagsSlice = tags[tagsStart : tagsStart+cfg.TagsPerPage]
+
+					if cfg.Frontmatter == "TOML" {
+						pageTemplate = pageTemplateTOML
+						tagsStr = "[]"
+						if cfg.TagsPerPage > 0 {
+							tagsStr = strings.Replace(fmt.Sprintf("%q", tagsSlice), " ", ", ", -1)
+						}
+					} else {
+						// YAML
+						pageTemplate = pageTemplateYAML
+						for _, tag := range tagsSlice {
+							tagsStr += "\n- " + tag
+						}
+					}
+
+					content := fmt.Sprintf(pageTemplate, fmt.Sprintf("Title%d_%d", i, j), tagsStr, contentPagesContent[rand.Intn(3)])
+
+					contentFilename := fmt.Sprintf("page%d%s.md", j, fileLangCodeID)
+
+					writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), contentFilename), content)
 				}
 
-				if cfg.Frontmatter == "TOML" {
-					pageTemplate = pageTemplateTOML
-					tagsStr = "[]"
-					if cfg.TagsPerPage > 0 {
-						tagsStr = strings.Replace(fmt.Sprintf("%q", tagsSlice), " ", ", ", -1)
-					}
-				} else {
-					// YAML
-					pageTemplate = pageTemplateYAML
-					for _, tag := range tagsSlice {
-						tagsStr += "\n- " + tag
-					}
-				}
-
-				content := fmt.Sprintf(pageTemplate, fmt.Sprintf("Title%d_%d", i, j), tagsStr, contentPagesContent[rand.Intn(3)])
-
-				writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", j)), content)
+				content := fmt.Sprintf(pageTemplate, fmt.Sprintf("Section %d", i), "[]", contentPagesContent[rand.Intn(3)])
+				indexContentFilename := fmt.Sprintf("_index%s.md", fileLangCodeID)
+				writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), indexContentFilename), content)
 			}
 		}
 
