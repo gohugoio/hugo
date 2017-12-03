@@ -192,6 +192,19 @@ The above can be put in a `partial` (i.e., inside `layouts/partials/`) and inclu
 
 The above also uses the [`i18n` function][i18func] described in the next section.
 
+## List All Available Languages
+
+`.AllTranslations` on a `Page` can be used to list all translation including itself. Called on the home page it can be used to build a language navigator:
+
+
+{{< code file="layouts/partials/allLanguages.html" >}}
+<ul>
+{{ range $.Site.Home.AllTranslations }}
+<li><a href="{{ .}}">{{ .Language.LanguageName }}</a></li>
+{{ end }}
+</ul>
+{{< /code >}}
+
 ## Translation of Strings
 
 Hugo uses [go-i18n][] to support string translations. [See the project's source repository][go-i18n-source] to find tools that will help you manage your translation workflows.
