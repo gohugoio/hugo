@@ -144,7 +144,8 @@ func TestChromaHTMLHighlight(t *testing.T) {
 	result, err := spec.Highlight(`echo "Hello"`, "bash", "")
 	assert.NoError(err)
 
-	assert.Contains(result, `<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hello&#34;</span></code></pre></div>`)
+	assert.Contains(result, `<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Hello&#34;</span>
+</code></pre></div>`)
 
 }
 
