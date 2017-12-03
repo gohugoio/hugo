@@ -196,6 +196,8 @@ func chromaHighlight(w io.Writer, source, lexer, style string, f chroma.Formatte
 		s = styles.Fallback
 	}
 
+	source += "\n"
+
 	it, err := l.Tokenise(nil, source)
 	if err != nil {
 		return err
