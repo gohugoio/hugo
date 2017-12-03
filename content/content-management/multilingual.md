@@ -194,7 +194,7 @@ The above also uses the [`i18n` function][i18func] described in the next section
 
 ## List All Available Languages
 
-`.AllTranslations` on a `Page` can be used to list all translation including itself. Called on the home page it can be used to build a language navigator:
+`.AllTranslations` on a `Page` can be used to list all translations, including itself. Called on the home page it can be used to build a language navigator:
 
 
 {{< code file="layouts/partials/allLanguages.html" >}}
