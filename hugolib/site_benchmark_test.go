@@ -133,8 +133,9 @@ func BenchmarkSiteBuilding(b *testing.B) {
 
 func doBenchMarkSiteBuilding(conf siteBuildingBenchmarkConfig, b *testing.B) {
 	b.Run(conf.String(), func(b *testing.B) {
+		b.StopTimer()
 		sites := createHugoBenchmarkSites(b, b.N, conf)
-		b.ResetTimer()
+		b.StartTimer()
 		for i := 0; i < b.N; i++ {
 			h := sites[0]
 
