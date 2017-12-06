@@ -46,6 +46,11 @@ func (ns *Namespace) Getenv(key interface{}) (string, error) {
 	return _os.Getenv(skey), nil
 }
 
+// PathSeparator returns the OS-specific path separator.
+func (ns *Namespace) PathSeparator() string {
+	return string(_os.PathSeparator)
+}
+
 // readFile reads the file named by filename relative to the given basepath
 // and returns the contents as a string.
 // There is a upper size limit set at 1 megabytes.
