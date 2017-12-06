@@ -16,6 +16,7 @@ package os
 import (
 	"fmt"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/gohugoio/hugo/deps"
@@ -25,6 +26,23 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestPathSeparator(t *testing.T) {
+	t.Parallel()
+
+	ns := New(&deps.Deps{})
+
+	var expect string
+
+	switch runtime.GOOS {
+	case "windows":
+		expect = `\`
+	default:
+		expect = `/`
+	}
+
+	assert.Equal(t, expect, ns.PathSeparator())
+}
 
 func TestReadFile(t *testing.T) {
 	t.Parallel()
