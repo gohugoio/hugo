@@ -74,7 +74,7 @@ This is the full set of Hugo's built-in output formats:
 * The `MediaType` must match the `Type` of an already defined media type.
 * You can define new output formats or redefine built-in output formats; e.g., if you want to put `AMP` pages in a different path.
 
-To add or modify an output format, define it in an `outputFormats` section in your site's [configuration file](/templates/configuration/), either for all sites or for a given language.
+To add or modify an output format, define it in an `outputFormats` section in your site's [configuration file](/getting-started/configuration/), either for all sites or for a given language.
 
 ```
 [outputFormats.MyEnrichedFormat]
