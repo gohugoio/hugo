@@ -127,6 +127,9 @@ func TestRace() error {
 
 // Run gofmt linter
 func Fmt() error {
+	if isGoTip() {
+		return nil
+	}
 	pkgs, err := hugoPackages()
 	if err != nil {
 		return err
@@ -255,4 +258,8 @@ func CheckVendor() error {
 		return errors.New("check-vendor target failed: vendored packages out of sync")
 	}
 	return nil
+}
+
+func isGoTip() bool {
+	return strings.Contains(runtime.Version(), "devel")
 }
