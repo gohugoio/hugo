@@ -28,6 +28,7 @@ type MenuEntry struct {
 	Name       string
 	Menu       string
 	Identifier string
+	Title      string
 	Pre        template.HTML
 	Post       template.HTML
 	Weight     int
@@ -95,6 +96,8 @@ func (m *MenuEntry) marshallMap(ime map[string]interface{}) {
 			m.Weight = cast.ToInt(v)
 		case "name":
 			m.Name = cast.ToString(v)
+		case "title":
+			m.Title = cast.ToString(v)
 		case "pre":
 			m.Pre = template.HTML(cast.ToString(v))
 		case "post":
