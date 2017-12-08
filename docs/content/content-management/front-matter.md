@@ -136,6 +136,9 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 `title`
 : the title for the content.
 
+`translationKey`
+: used to match the translated versions of the same content.
+
 `type`
 : the type of the content; this value will be automatically derived from the directory (i.e., the [section][]) if not specified in front matter.
 

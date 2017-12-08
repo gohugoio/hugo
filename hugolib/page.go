@@ -161,6 +161,9 @@ type Page struct {
 	// whether the content is in a CJK language.
 	isCJKLanguage bool
 
+	// used to identify translated versions of the same content
+	translationKey string
+
 	shortcodeState *shortcodeHandler
 
 	// the content stripped for HTML
@@ -1823,6 +1826,18 @@ func (p *Page) initLanguage() {
 
 func (p *Page) LanguagePrefix() string {
 	return p.Site.LanguagePrefix
+}
+
+func (p *Page) TranslationKey() string {
+	if p.translationKey != "" {
+		return p.translationKey
+	} else if p.IsNode() {
+		// TODO(bep) see https://github.com/gohugoio/hugo/issues/2699
+		// Must prepend the section and kind to the key to make it unique
+		return fmt.Sprintf("%s/%s/%s", p.Kind, p.sections, p.TranslationBaseName())
+	} else {
+		return p.TranslationBaseName()
+	}
 }
 
 func (p *Page) addLangPathPrefix(outfile string) string {
