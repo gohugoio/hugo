@@ -368,6 +368,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 	if layoutDir != "" {
 		config.Set("layoutDir", layoutDir)
 	}
+	config.Set("layoutDir", filepath.Clean(config.GetString("layoutDir")))
 
 	if cacheDir != "" {
 		config.Set("cacheDir", cacheDir)
