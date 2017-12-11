@@ -9,16 +9,21 @@ FROM golang:1.10-rc-alpine3.7 AS build
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 
+WORKDIR /go/src/github.com/gohugoio/hugo
+
 RUN \
   apk add --no-cache \
     git \
     musl-dev && \
-  go get github.com/golang/dep/cmd/dep && \
-  go get github.com/kardianos/govendor && \
-  govendor get github.com/gohugoio/hugo && \
-  cd /go/src/github.com/gohugoio/hugo && \
-  dep ensure && \
-  go install -ldflags '-s -w'
+  go get github.com/golang/dep/cmd/dep
+
+COPY Gopkg.lock Gopkg.toml /go/src/github.com/gohugoio/hugo/
+
+RUN dep ensure -vendor-only
+
+COPY . /go/src/github.com/gohugoio/hugo/
+
+RUN go install -ldflags '-s -w'
 
 # ---
 
