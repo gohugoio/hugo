@@ -11,7 +11,7 @@ menu:
   docs:
     parent: "functions"
 keywords: [cross references, anchors]
-signature: ["ref CONTENT"]
+signature: ["ref . CONTENT"]
 workson: []
 hugoversion:
 relatedfuncs: [relref]
@@ -19,11 +19,15 @@ deprecated: false
 aliases: []
 ---
 
-`ref` and `relRef` look up a content page by relative path (`relref`) or logical name (`ref`) to return the permalink:
+`ref` and `relref` look up a content page by logical name (`ref`) or relative path (`relref`) to return the permalink:
 
 ```
-{{ ref "about.md" }}
+{{ ref . "about.md" }}
 ```
+
+{{% note "Usage Note" %}}
+`ref` looks up Hugo "Regular Pages" only. It can't be used for the homepage, section pages, etc.
+{{% /note %}}
 
 These functions are used in two of Hugo's built-in shortcodes. You can see basic usage examples of both `ref` and `relref` in the [shortcode documentation](/content-management/shortcodes/#ref-and-relref).
 
