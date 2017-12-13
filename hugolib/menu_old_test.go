@@ -397,7 +397,7 @@ func TestMenuWithTitle(t *testing.T) {
 	s := setupMenuTests(t, menuPageSources)
 	titled := findTestMenuEntryByID(s, "with_title", "titled")
 	expected := "a menuentry title"
-	assert.Equal(t, expected, titled.Title)
+	assert.Equal(t, expected, titled.Title())
 }
 
 // Issue #1114

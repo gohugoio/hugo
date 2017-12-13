@@ -25,10 +25,11 @@ import (
 // or in the site config.
 type MenuEntry struct {
 	URL        string
+	Page       *Page // probably only set when called from Page front matter
 	Name       string
 	Menu       string
 	Identifier string
-	Title      string
+	title      string
 	Pre        template.HTML
 	Post       template.HTML
 	Weight     int
@@ -97,7 +98,7 @@ func (m *MenuEntry) marshallMap(ime map[string]interface{}) {
 		case "name":
 			m.Name = cast.ToString(v)
 		case "title":
-			m.Title = cast.ToString(v)
+			m.title = cast.ToString(v)
 		case "pre":
 			m.Pre = template.HTML(cast.ToString(v))
 		case "post":
@@ -215,4 +216,13 @@ func (m Menu) Reverse() Menu {
 	}
 
 	return m
+}
+
+func (m *MenuEntry) Title() string {
+	if m.title == "" {
+		if m.Page != nil {
+			return m.Page.LinkTitle()
+		}
+	}
+	return m.title
 }
