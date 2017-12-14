@@ -4,10 +4,14 @@ description: ""
 godocref: ""
 publishdate: ""
 lastmod: ""
-categories: []
+categories: [functions]
 tags: []
-weight: 00
-slug: ""
+ns: ""
+signature: []
+workson: []
+hugoversion: ""
 aliases: []
+relatedfuncs: []
 toc: false
+deprecated: false
 ---
