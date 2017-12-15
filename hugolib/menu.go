@@ -25,7 +25,7 @@ import (
 // or in the site config.
 type MenuEntry struct {
 	URL        string
-	Page       *Page // probably only set when called from Page front matter
+	Page       *Page
 	Name       string
 	Menu       string
 	Identifier string
@@ -219,10 +219,13 @@ func (m Menu) Reverse() Menu {
 }
 
 func (m *MenuEntry) Title() string {
-	if m.title == "" {
-		if m.Page != nil {
-			return m.Page.LinkTitle()
-		}
+	if m.title != "" {
+		return m.title
 	}
-	return m.title
+
+	if m.Page != nil {
+		return m.Page.LinkTitle()
+	}
+
+	return ""
 }
