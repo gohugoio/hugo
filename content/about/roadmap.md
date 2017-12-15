@@ -18,17 +18,11 @@ aliases: [/meta/roadmap]
 toc: false
 ---
 
-To track Hugo's progress, see our [GitHub Milestones][milestones].
+Se the Hugo [GitHub Milestones][milestones].
 
-In no particular order, here are some other features currently being worked on:
+We are not too far away from Hugo 1.0.
 
-* Even easier deployment to S3, SSH, GitHub, rsync. Give the [hosting and deployment][] section a shot.
-* Import from other website systems. There are already [existing migration tools][migrate], but they don’t cover all major platforms.
-* An interactive web-based editor (See the [related forum thread][])
-* Additional [themes][], which are always ongoing and [contributions are welcome][themescontrib]!
-* Dynamic image resizing via shortcodes ({{< gh 1014 >}})
-* Native support for additional content formats (AsciiDoc {{< gh 1435>}}, reST {{< gh 1436 >}})
-* And, last but not least, [***your*** best ideas!][]
+[bep](https://github.com/bep/) currantly leads the Hugo development. The roadmap is in his head.
 
 ## Contributions Welcome
 
