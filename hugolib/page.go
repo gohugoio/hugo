@@ -1291,7 +1291,7 @@ func (p *Page) HasMenuCurrent(menuID string, me *MenuEntry) bool {
 
 	// The following logic is kept from back when Hugo had both Page and Node types.
 	// TODO(bep) consolidate / clean
-	nme := MenuEntry{Name: p.Title, URL: p.URL()}
+	nme := MenuEntry{Page: p, Name: p.Title, URL: p.URL()}
 
 	for _, child := range me.Children {
 		if nme.IsSameResource(child) {
@@ -1322,7 +1322,7 @@ func (p *Page) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 
 	// The following logic is kept from back when Hugo had both Page and Node types.
 	// TODO(bep) consolidate / clean
-	me := MenuEntry{Name: p.Title, URL: p.URL()}
+	me := MenuEntry{Page: p, Name: p.Title, URL: p.URL()}
 
 	if !me.IsSameResource(inme) {
 		return false
@@ -1369,7 +1369,7 @@ func (p *Page) Menus() PageMenus {
 		if ms, ok := p.Params["menu"]; ok {
 			link := p.RelPermalink()
 
-			me := MenuEntry{Name: p.LinkTitle(), Weight: p.Weight, URL: link}
+			me := MenuEntry{Page: p, Name: p.LinkTitle(), Weight: p.Weight, URL: link}
 
 			// Could be the name of the menu to attach it to
 			mname, err := cast.ToStringE(ms)
@@ -1399,7 +1399,7 @@ func (p *Page) Menus() PageMenus {
 			}
 
 			for name, menu := range menus {
-				menuEntry := MenuEntry{Name: p.LinkTitle(), URL: link, Weight: p.Weight, Menu: name}
+				menuEntry := MenuEntry{Page: p, Name: p.LinkTitle(), URL: link, Weight: p.Weight, Menu: name}
 				if menu != nil {
 					p.s.Log.DEBUG.Printf("found menu: %q, in %q\n", name, p.Title)
 					ime, err := cast.ToStringMapE(menu)

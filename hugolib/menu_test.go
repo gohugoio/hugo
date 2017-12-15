@@ -29,6 +29,7 @@ title: %q
 weight: %d
 menu:
   %s:
+    title: %s
     weight: %d
 ---
 # Doc Menu
@@ -44,11 +45,15 @@ title = "Section Menu"
 sectionPagesMenu = "sect"
 `
 
-	th, h := newTestSitesFromConfig(t, afero.NewMemMapFs(), siteConfig,
-		"layouts/partials/menu.html", `{{- $p := .page -}}
+	th, h := newTestSitesFromConfig(
+		t,
+		afero.NewMemMapFs(),
+		siteConfig,
+		"layouts/partials/menu.html",
+		`{{- $p := .page -}}
 {{- $m := .menu -}}
 {{ range (index $p.Site.Menus $m) -}}
-{{- .URL }}|{{ .Name }}|{{ .Weight -}}|
+{{- .URL }}|{{ .Name }}|{{ .Title }}|{{ .Weight -}}|
 {{- if $p.IsMenuCurrent $m . }}IsMenuCurrent{{ else }}-{{ end -}}|
 {{- if $p.HasMenuCurrent $m . }}HasMenuCurrent{{ else }}-{{ end -}}|
 {{- end -}}
@@ -63,11 +68,11 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 
 	fs := th.Fs
 
-	writeSource(t, fs, "content/sect1/p1.md", fmt.Sprintf(menuPageTemplate, "p1", 1, "main", 40))
-	writeSource(t, fs, "content/sect1/p2.md", fmt.Sprintf(menuPageTemplate, "p2", 2, "main", 30))
-	writeSource(t, fs, "content/sect2/p3.md", fmt.Sprintf(menuPageTemplate, "p3", 3, "main", 20))
-	writeSource(t, fs, "content/sect2/p4.md", fmt.Sprintf(menuPageTemplate, "p4", 4, "main", 10))
-	writeSource(t, fs, "content/sect3/p5.md", fmt.Sprintf(menuPageTemplate, "p5", 5, "main", 5))
+	writeSource(t, fs, "content/sect1/p1.md", fmt.Sprintf(menuPageTemplate, "p1", 1, "main", "atitle1", 40))
+	writeSource(t, fs, "content/sect1/p2.md", fmt.Sprintf(menuPageTemplate, "p2", 2, "main", "atitle2", 30))
+	writeSource(t, fs, "content/sect2/p3.md", fmt.Sprintf(menuPageTemplate, "p3", 3, "main", "atitle3", 20))
+	writeSource(t, fs, "content/sect2/p4.md", fmt.Sprintf(menuPageTemplate, "p4", 4, "main", "atitle4", 10))
+	writeSource(t, fs, "content/sect3/p5.md", fmt.Sprintf(menuPageTemplate, "p5", 5, "main", "atitle5", 5))
 
 	writeNewContentFile(t, fs, "Section One", "2017-01-01", "content/sect1/_index.md", 100)
 	writeNewContentFile(t, fs, "Section Five", "2017-01-01", "content/sect5/_index.md", 10)
@@ -86,11 +91,24 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 	require.Len(t, p1, 1)
 
 	th.assertFileContent("public/sect1/p1/index.html", "Single",
-		"Menu Sect:  /sect5/|Section Five|10|-|-|/sect1/|Section One|100|-|HasMenuCurrent|/sect2/|Sect2s|0|-|-|/sect3/|Sect3s|0|-|-|",
-		"Menu Main:  /sect3/p5/|p5|5|-|-|/sect2/p4/|p4|10|-|-|/sect2/p3/|p3|20|-|-|/sect1/p2/|p2|30|-|-|/sect1/p1/|p1|40|IsMenuCurrent|-|",
+		"Menu Sect:  "+
+			"/sect5/|Section Five||10|-|-|"+
+			"/sect1/|Section One||100|-|HasMenuCurrent|"+
+			"/sect2/|Sect2s||0|-|-|"+
+			"/sect3/|Sect3s||0|-|-|",
+		"Menu Main:  "+
+			"/sect3/p5/|p5|atitle5|5|-|-|"+
+			"/sect2/p4/|p4|atitle4|10|-|-|"+
+			"/sect2/p3/|p3|atitle3|20|-|-|"+
+			"/sect1/p2/|p2|atitle2|30|-|-|"+
+			"/sect1/p1/|p1|atitle1|40|IsMenuCurrent|-|",
 	)
 
 	th.assertFileContent("public/sect2/p3/index.html", "Single",
-		"Menu Sect:  /sect5/|Section Five|10|-|-|/sect1/|Section One|100|-|-|/sect2/|Sect2s|0|-|HasMenuCurrent|/sect3/|Sect3s|0|-|-|")
+		"Menu Sect:  "+
+			"/sect5/|Section Five||10|-|-|"+
+			"/sect1/|Section One||100|-|-|"+
+			"/sect2/|Sect2s||0|-|HasMenuCurrent|"+
+			"/sect3/|Sect3s||0|-|-|")
 
 }

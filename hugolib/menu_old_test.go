@@ -83,7 +83,12 @@ const (
 [[menu.unicode]]
    name = "Unicode Russian"
    identifier = "unicode-russian"
-   url = "/новости-проекта"` // Russian => "news-project"
+   url = "/новости-проекта" # Russian => "news-project"
+[[menu.with_title]]
+  name="entry with title"
+  title="a menuentry title"
+  url="/title"
+  identifier="titled"`
 )
 
 var menuPage1 = []byte(`+++
@@ -386,6 +391,13 @@ func doTestMenuWithUnicodeURLs(t *testing.T, canonifyURLs bool) {
 	}
 
 	assert.Equal(t, expected, unicodeRussian.URL)
+}
+
+func TestMenuWithTitle(t *testing.T) {
+	s := setupMenuTests(t, menuPageSources)
+	titled := findTestMenuEntryByID(s, "with_title", "titled")
+	expected := "a menuentry title"
+	assert.Equal(t, expected, titled.Title())
 }
 
 // Issue #1114
