@@ -22,7 +22,7 @@ Se the Hugo [GitHub Milestones][milestones].
 
 We are not too far away from Hugo 1.0.
 
-[bep](https://github.com/bep/) currantly leads the Hugo development. The roadmap is in his head.
+[bep](https://github.com/bep/) currently leads the Hugo development. The roadmap is in his head.
 
 ## Contributions Welcome
 
