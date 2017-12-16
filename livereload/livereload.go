@@ -62,6 +62,10 @@ var upgrader = &websocket.Upgrader{
 			return false
 		}
 
+		if u.Host == r.Host {
+			return true
+		}
+
 		h1, _, err := net.SplitHostPort(u.Host)
 		if err != nil {
 			return false
