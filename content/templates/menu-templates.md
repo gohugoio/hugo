@@ -47,7 +47,7 @@ The following is an example:
             </ul>
           {{else}}
             <li>
-            <a href="{{.URL}}">
+            <a href="{{ .URL }}" title="{{ .Title }}">
                 {{ .Pre }}
                 <span>{{ .Name }}</span>
             </a>
@@ -83,18 +83,22 @@ This will create a menu with all the sections as menu items and all the sections
 <nav class="sidebar-nav">
     {{ $currentPage := . }}
     {{ range .Site.Menus.main }}
-    <a class="sidebar-nav-item{{if or ($currentPage.IsMenuCurrent "main" .) ($currentPage.HasMenuCurrent "main" .) }} active{{end}}" href="{{.URL}}">{{ .Name }}</a>
+    <a class="sidebar-nav-item{{if or ($currentPage.IsMenuCurrent "main" .) ($currentPage.HasMenuCurrent "main" .) }} active{{end}}" href="{{ .URL }}" title="{{ .Title }}">{{ .Name }}</a>
     {{ end }}
 </nav>
 ```
 
 In the above, the menu item is marked as active if on the current section's list page or on a page in that section.
 
-The above is all that's needed. But if you want custom menu items, e.g. changing weight or name, you can define them manually in the site config, i.e. `config.toml`:
+
+## Site Config menus
+
+The above is all that's needed. But if you want custom menu items, e.g. changing weight, name, or link title attribute, you can define them manually in the site config, i.e. `config.toml`:
 
 ```
 [[menu.main]]
     name = "This is the blog section"
+    title = "blog section"
     weight = -110
     identifier = "blog"
     url = "/blog/"
@@ -103,3 +107,55 @@ The above is all that's needed. But if you want custom menu items, e.g. changing
 {{% note %}}
 The `identifier` *must* match the section name.
 {{% /note %}}
+
+## Menu Entries from the Page's front matter
+
+It's also possible to create menu entries from the page (i.e. the `.md`-file).
+
+Here is a `yaml` example:
+
+```
+---
+title: Menu Templates
+linktitle: Menu Templates
+menu:
+  docs:
+    title: "how to use menus in templates"
+    parent: "templates"
+    weight: 130
+---
+...
+```
+
+{{% note %}}
+You can define more than one menu. It also doesn't have to be a complex value,
+`menu` can also be a string, an array of strings, or an array of complex values
+like in the example above.
+{{% /note %}}
+
+### Using .Page in Menues
+
+If you use the front matter method of defining menu entries, you'll get access to the .Page variable.
+This allows to use every variable that's reachable from the [page variable](/variables/page/).
+
+This variable is only set when the menu entry is defined in the page's front matter.
+Menu entries from the site config don't know anything about `.Page`.
+
+That's why you have to use the go template's `with` keyword or something similar in your templating language.
+
+Here's an example:
+
+```
+<nav class="sidebar-nav">
+  {{ range .Site.Menus.main }}
+    <a href="{{ .URL }}" title="{{ .Title }}">
+      {{- .Name -}}
+      {{- with .Page -}}
+        <span class="date">
+        {{- dateFormat " (2006-01-02)" .Date -}}
+        </span>
+      {{- end -}}
+    </a>
+  {{ end }}
+</nav>
+```
