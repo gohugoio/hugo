@@ -10,6 +10,7 @@ keywords: [menus]
 draft: false
 menu:
   docs:
+    title: "variables defined by a menu entry"
     parent: "variables"
     weight: 50
 weight: 50

@@ -9,6 +9,7 @@ categories: [templates]
 keywords: [lists,sections,menus]
 menu:
   docs:
+    title: "how to use menus in templates"
     parent: "templates"
     weight: 130
 weight: 130
