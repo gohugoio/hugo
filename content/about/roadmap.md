@@ -18,7 +18,7 @@ aliases: [/meta/roadmap]
 toc: false
 ---
 
-Se the Hugo [GitHub Milestones][milestones].
+See the Hugo [GitHub Milestones][milestones].
 
 We are not too far away from Hugo 1.0.
 
