@@ -31,37 +31,27 @@ func init() {
 
 		ns.AddMethodMapping(ctx.Base,
 			nil,
-			[][2]string{
-				{`{{ filepath.Base "layouts/shortcodes/foo.html" }}`, "foo.html"},
-			},
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.Dir,
 			nil,
-			[][2]string{
-				{`{{ filepath.Dir "layouts/shortcodes/foo.html" }}`, "layouts/shortcodes"},
-			},
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.Ext,
 			nil,
-			[][2]string{
-				{`{{ filepath.Ext "layouts/shortcodes/foo.html" }}`, ".html"},
-			},
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.FromSlash,
 			nil,
-			[][2]string{
-				{`{{ filepath.FromSlash "layouts/shortcodes/foo.html" }}`, "layouts/shortcodes/foo.html"},
-			},
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.Separator,
 			nil,
-			[][2]string{
-				{`{{ filepath.Separator }}`, "/"},
-			},
+			[][2]string{},
 		)
 
 		ns.AddMethodMapping(ctx.Split,
@@ -71,9 +61,7 @@ func init() {
 
 		ns.AddMethodMapping(ctx.ToSlash,
 			nil,
-			[][2]string{
-				{`{{ filepath.ToSlash "layouts/shortcodes/foo.html" }}`, "layouts/shortcodes/foo.html"},
-			},
+			[][2]string{},
 		)
 
 		return ns
