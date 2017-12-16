@@ -41,7 +41,7 @@ var SummaryDivider = []byte("<!--more-->")
 
 // ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
-	blackfriday                map[string]interface{}
+	BlackFriday                *BlackFriday
 	footnoteAnchorPrefix       string
 	footnoteReturnLinkContents string
 	// SummaryLength is the length of the summary that Hugo extracts from a content.
@@ -56,8 +56,9 @@ type ContentSpec struct {
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
 func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
+	bf := newBlackfriday(cfg.GetStringMap("blackfriday"))
 	spec := &ContentSpec{
-		blackfriday:                cfg.GetStringMap("blackfriday"),
+		BlackFriday:                bf,
 		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
 		footnoteReturnLinkContents: cfg.GetString("footnoteReturnLinkContents"),
 		summaryLength:              cfg.GetInt("summaryLength"),
@@ -93,8 +94,8 @@ func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 	return spec, nil
 }
 
-// Blackfriday holds configuration values for Blackfriday rendering.
-type Blackfriday struct {
+// BlackFriday holds configuration values for BlackFriday rendering.
+type BlackFriday struct {
 	Smartypants           bool
 	SmartypantsQuotesNBSP bool
 	AngledQuotes          bool
@@ -109,7 +110,7 @@ type Blackfriday struct {
 }
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
-func (c ContentSpec) NewBlackfriday() *Blackfriday {
+func newBlackfriday(config map[string]interface{}) *BlackFriday {
 	defaultParam := map[string]interface{}{
 		"smartypants":           true,
 		"angledQuotes":          false,
@@ -130,13 +131,13 @@ func (c ContentSpec) NewBlackfriday() *Blackfriday {
 		siteConfig[k] = v
 	}
 
-	if c.blackfriday != nil {
-		for k, v := range c.blackfriday {
+	if config != nil {
+		for k, v := range config {
 			siteConfig[k] = v
 		}
 	}
 
-	combinedConfig := &Blackfriday{}
+	combinedConfig := &BlackFriday{}
 	if err := mapstructure.Decode(siteConfig, combinedConfig); err != nil {
 		jww.FATAL.Printf("Failed to get site rendering config\n%s", err.Error())
 	}
@@ -434,7 +435,7 @@ type RenderingContext struct {
 	PageFmt      string
 	DocumentID   string
 	DocumentName string
-	Config       *Blackfriday
+	Config       *BlackFriday
 	RenderTOC    bool
 	Cfg          config.Provider
 }
