@@ -98,7 +98,7 @@ func (ns *Namespace) Markdownify(s interface{}) (template.HTML, error) {
 			Cfg:     ns.deps.Cfg,
 			Content: []byte(ss),
 			PageFmt: "markdown",
-			Config:  ns.deps.ContentSpec.NewBlackfriday(),
+			Config:  ns.deps.ContentSpec.BlackFriday,
 		},
 	)
 

@@ -168,7 +168,7 @@ type Page struct {
 	plainWords []string
 
 	// rendering configuration
-	renderingConfig *helpers.Blackfriday
+	renderingConfig *helpers.BlackFriday
 
 	// menus
 	pageMenus PageMenus
@@ -700,17 +700,19 @@ func (p *Page) renderContent(content []byte) []byte {
 		Config: p.getRenderingConfig()})
 }
 
-func (p *Page) getRenderingConfig() *helpers.Blackfriday {
+func (p *Page) getRenderingConfig() *helpers.BlackFriday {
 	p.renderingConfigInit.Do(func() {
-		p.renderingConfig = p.s.ContentSpec.NewBlackfriday()
+		bfParam := p.GetParam("blackfriday")
+		if bfParam == nil {
+			p.renderingConfig = p.s.ContentSpec.BlackFriday
+			return
+		}
+		// Create a copy so we can modify it.
+		bf := *p.s.ContentSpec.BlackFriday
+		p.renderingConfig = &bf
 
 		if p.Language() == nil {
 			panic(fmt.Sprintf("nil language for %s with source lang %s", p.BaseFileName(), p.lang))
-		}
-
-		bfParam := p.GetParam("blackfriday")
-		if bfParam == nil {
-			return
 		}
 
 		pageParam := cast.ToStringMap(bfParam)

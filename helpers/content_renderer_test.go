@@ -24,7 +24,7 @@ import (
 
 // Renders a codeblock using Blackfriday
 func (c ContentSpec) render(input string) string {
-	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.BlackFriday}
 	render := c.getHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
@@ -34,7 +34,7 @@ func (c ContentSpec) render(input string) string {
 
 // Renders a codeblock using Mmark
 func (c ContentSpec) renderWithMmark(input string) string {
-	ctx := &RenderingContext{Cfg: c.cfg, Config: c.NewBlackfriday()}
+	ctx := &RenderingContext{Cfg: c.cfg, Config: c.BlackFriday}
 	render := c.getMmarkHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
@@ -128,7 +128,7 @@ END`, true, `<ul class="task-list">
 <p>END</p>
 `},
 	} {
-		blackFridayConfig := c.NewBlackfriday()
+		blackFridayConfig := c.BlackFriday
 		blackFridayConfig.TaskLists = this.taskListEnabled
 		ctx := &RenderingContext{Content: []byte(this.markdown), PageFmt: "markdown", Config: blackFridayConfig}
 
