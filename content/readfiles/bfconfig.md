@@ -52,7 +52,7 @@
 `extensions`
 : default: **`[]`** <br>
     Purpose: Enable one or more Blackfriday's Markdown extensions (**`EXTENSION_*`**). <br>
-    Example: Include `hardLineBreak` in the list to enable Blackfriday's `EXTENSION_HARD_LINK_BREAK`. <br>
+    Example: Include `hardLineBreak` in the list to enable Blackfriday's `EXTENSION_HARD_LINE_BREAK`. <br>
     *See [Blackfriday extensions](#blackfriday-extensions) section for information on all extensions.*
 
 `extensionsmask`
