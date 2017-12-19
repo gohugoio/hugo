@@ -134,9 +134,9 @@ You can define more than one menu. It also doesn't have to be a complex value,
 like in the example above.
 {{% /note %}}
 
-### Using .Page in Menues
+### Using .Page in Menus
 
-If you use the front matter method of defining menu entries, you'll get access to the .Page variable.
+If you use the front matter method of defining menu entries, you'll get access to the `.Page` variable.
 This allows to use every variable that's reachable from the [page variable](/variables/page/).
 
 This variable is only set when the menu entry is defined in the page's front matter.
