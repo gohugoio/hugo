@@ -15,7 +15,6 @@ package resource
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -52,9 +51,6 @@ func TestParseImageConfig(t *testing.T) {
 }
 
 func TestImageTransform(t *testing.T) {
-	fiModTimeFunc = func(fi os.FileInfo) int64 {
-		return int64(10111213)
-	}
 
 	assert := require.New(t)
 
@@ -86,13 +82,13 @@ func TestImageTransform(t *testing.T) {
 	assert.Equal(200, resizedAndRotated.Height())
 	assertFileCache(assert, image.spec.Fs, resizedAndRotated.RelPermalink(), 125, 200)
 
-	assert.Equal("/a/sunset_S90587_T10111213_300x200_resize_q75_box_center.jpg", resized.RelPermalink())
+	assert.Equal("/a/sunset_H47566bb0ca0462db92c65f4033d77175_90587_300x200_resize_q75_box_center.jpg", resized.RelPermalink())
 	assert.Equal(300, resized.Width())
 	assert.Equal(200, resized.Height())
 
 	fitted, err := resized.Fit("50x50")
 	assert.NoError(err)
-	assert.Equal("/a/sunset_S90587_T10111213_300x200_resize_q75_box_center_50x50_fit_q75_box_center.jpg", fitted.RelPermalink())
+	assert.Equal("/a/sunset_H47566bb0ca0462db92c65f4033d77175_90587_9b37eba4e4e6ea0cc56a59bb5aa98143.jpg", fitted.RelPermalink())
 	assert.Equal(50, fitted.Width())
 	assert.Equal(31, fitted.Height())
 
@@ -100,13 +96,13 @@ func TestImageTransform(t *testing.T) {
 	fittedAgain, _ := fitted.Fit("10x20")
 	fittedAgain, err = fittedAgain.Fit("10x20")
 	assert.NoError(err)
-	assert.Equal("/a/sunset_f1fb715a17c42d5d4602a1870424d590.jpg", fittedAgain.RelPermalink())
+	assert.Equal("/a/sunset_H47566bb0ca0462db92c65f4033d77175_90587_9a8be1402216c385e0dfd73e267c6827.jpg", fittedAgain.RelPermalink())
 	assert.Equal(10, fittedAgain.Width())
 	assert.Equal(6, fittedAgain.Height())
 
 	filled, err := image.Fill("200x100 bottomLeft")
 	assert.NoError(err)
-	assert.Equal("/a/sunset_S90587_T10111213_200x100_fill_q75_box_bottomleft.jpg", filled.RelPermalink())
+	assert.Equal("/a/sunset_H47566bb0ca0462db92c65f4033d77175_90587_200x100_fill_q75_box_bottomleft.jpg", filled.RelPermalink())
 	assert.Equal(200, filled.Width())
 	assert.Equal(100, filled.Height())
 	assertFileCache(assert, image.spec.Fs, filled.RelPermalink(), 200, 100)

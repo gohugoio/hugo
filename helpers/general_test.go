@@ -14,10 +14,12 @@
 package helpers
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -269,4 +271,92 @@ func TestToLowerMap(t *testing.T) {
 			t.Errorf("[%d] Expected\n%#v, got\n%#v\n", i, test.expected, test.input)
 		}
 	}
+}
+
+func TestFastMD5FromFile(t *testing.T) {
+	fs := afero.NewMemMapFs()
+
+	if err := afero.WriteFile(fs, "small.txt", []byte("abc"), 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := afero.WriteFile(fs, "small2.txt", []byte("abd"), 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := afero.WriteFile(fs, "bigger.txt", []byte(strings.Repeat("a bc d e", 100)), 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := afero.WriteFile(fs, "bigger2.txt", []byte(strings.Repeat("c d e f g", 100)), 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	req := require.New(t)
+
+	sf1, err := fs.Open("small.txt")
+	req.NoError(err)
+	sf2, err := fs.Open("small2.txt")
+	req.NoError(err)
+
+	bf1, err := fs.Open("bigger.txt")
+	req.NoError(err)
+	bf2, err := fs.Open("bigger2.txt")
+	req.NoError(err)
+
+	defer sf1.Close()
+	defer sf2.Close()
+	defer bf1.Close()
+	defer bf2.Close()
+
+	m1, err := MD5FromFileFast(sf1)
+	req.NoError(err)
+	req.Equal("308d8a1127b46524b51507424071c22c", m1)
+
+	m2, err := MD5FromFileFast(sf2)
+	req.NoError(err)
+	req.NotEqual(m1, m2)
+
+	m3, err := MD5FromFileFast(bf1)
+	req.NoError(err)
+	req.NotEqual(m2, m3)
+
+	m4, err := MD5FromFileFast(bf2)
+	req.NoError(err)
+	req.NotEqual(m3, m4)
+
+	m5, err := MD5FromFile(bf2)
+	req.NoError(err)
+	req.NotEqual(m4, m5)
+}
+
+func BenchmarkMD5FromFileFast(b *testing.B) {
+	fs := afero.NewMemMapFs()
+
+	for _, full := range []bool{false, true} {
+		b.Run(fmt.Sprintf("full=%t", full), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				b.StopTimer()
+				if err := afero.WriteFile(fs, "file.txt", []byte(strings.Repeat("1234567890", 2000)), 0777); err != nil {
+					b.Fatal(err)
+				}
+				f, err := fs.Open("file.txt")
+				if err != nil {
+					b.Fatal(err)
+				}
+				b.StartTimer()
+				if full {
+					if _, err := MD5FromFile(f); err != nil {
+						b.Fatal(err)
+					}
+				} else {
+					if _, err := MD5FromFileFast(f); err != nil {
+						b.Fatal(err)
+					}
+				}
+				f.Close()
+			}
+		})
+	}
+
 }

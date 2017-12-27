@@ -153,7 +153,19 @@ func (r *Spec) newResource(
 	gr := r.newGenericResource(linker, fi, absPublishDir, absSourceFilename, filepath.ToSlash(relTargetFilename), mimeType)
 
 	if mimeType == "image" {
+		f, err := r.Fs.Source.Open(absSourceFilename)
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+
+		hash, err := helpers.MD5FromFileFast(f)
+		if err != nil {
+			return nil, err
+		}
+
 		return &Image{
+			hash:            hash,
 			imaging:         r.imaging,
 			genericResource: gr}, nil
 	}
