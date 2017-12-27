@@ -82,7 +82,7 @@
 
 [[constraint]]
   name = "github.com/spf13/afero"
-  version = "1.0.0"
+  version = "1.0.1"
 
 [[constraint]]
   name = "github.com/spf13/cast"

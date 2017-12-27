@@ -112,6 +112,8 @@ type Image struct {
 
 	imaging *Imaging
 
+	hash string
+
 	*genericResource
 }
 
@@ -129,6 +131,7 @@ func (i *Image) Height() int {
 func (i *Image) WithNewBase(base string) Resource {
 	return &Image{
 		imaging:         i.imaging,
+		hash:            i.hash,
 		genericResource: i.genericResource.WithNewBase(base).(*genericResource)}
 }
 
@@ -490,6 +493,7 @@ func (i *Image) clone() *Image {
 
 	return &Image{
 		imaging:         i.imaging,
+		hash:            i.hash,
 		genericResource: &g}
 }
 
@@ -497,20 +501,11 @@ func (i *Image) setBasePath(conf imageConfig) {
 	i.rel = i.filenameFromConfig(conf)
 }
 
-// We need to set this to something static during tests.
-var fiModTimeFunc = func(fi os.FileInfo) int64 {
-	return fi.ModTime().Unix()
-}
-
 func (i *Image) filenameFromConfig(conf imageConfig) string {
 	p1, p2 := helpers.FileAndExt(i.rel)
-	sizeModeStr := fmt.Sprintf("_S%d_T%d", i.osFileInfo.Size(), fiModTimeFunc(i.osFileInfo))
-	// On scaling an already scaled image, we get the file info from the original.
-	// Repeating the same info in the filename makes it stuttery for no good reason.
-	if strings.Contains(p1, sizeModeStr) {
-		sizeModeStr = ""
-	}
+	idStr := fmt.Sprintf("_H%s_%d", i.hash, i.osFileInfo.Size())
 
+	// Do not change for no good reason.
 	const md5Threshold = 100
 
 	key := conf.key()
@@ -518,12 +513,16 @@ func (i *Image) filenameFromConfig(conf imageConfig) string {
 	// It is useful to have the key in clear text, but when nesting transforms, it
 	// can easily be too long to read, and maybe even too long
 	// for the different OSes to handle.
-	if len(p1)+len(sizeModeStr)+len(p2) > md5Threshold {
+	if len(p1)+len(idStr)+len(p2) > md5Threshold {
 		key = helpers.MD5String(p1 + key + p2)
-		p1 = p1[:strings.Index(p1, "_S")]
+		p1 = p1[:strings.Index(p1, "_H")]
+	} else if strings.Contains(p1, idStr) {
+		// On scaling an already scaled image, we get the file info from the original.
+		// Repeating the same info in the filename makes it stuttery for no good reason.
+		idStr = ""
 	}
 
-	return fmt.Sprintf("%s%s_%s%s", p1, sizeModeStr, key, p2)
+	return fmt.Sprintf("%s%s_%s%s", p1, idStr, key, p2)
 }
 
 func decodeImaging(m map[string]interface{}) (Imaging, error) {

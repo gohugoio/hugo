@@ -26,6 +26,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/spf13/afero"
+
 	"github.com/jdkato/prose/transform"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
@@ -370,6 +372,57 @@ func MD5String(f string) string {
 	h := md5.New()
 	h.Write([]byte(f))
 	return hex.EncodeToString(h.Sum([]byte{}))
+}
+
+// MD5FromFileFast creates a MD5 hash from the given file. It only reads parts of
+// the file for speed, so don't use it if the files are very subtly different.
+// It will not close the file.
+func MD5FromFileFast(f afero.File) (string, error) {
+	const (
+		// Do not change once set in stone!
+		maxChunks = 8
+		peekSize  = 64
+		seek      = 2048
+	)
+
+	h := md5.New()
+	buff := make([]byte, peekSize)
+
+	for i := 0; i < maxChunks; i++ {
+		if i > 0 {
+			_, err := f.Seek(seek, 0)
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+				return "", err
+			}
+		}
+
+		_, err := io.ReadAtLeast(f, buff, peekSize)
+		if err != nil {
+			if err == io.EOF || err == io.ErrUnexpectedEOF {
+				h.Write(buff)
+				break
+			}
+			return "", err
+		}
+		h.Write(buff)
+	}
+
+	h.Write(buff)
+
+	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// MD5FromFile creates a MD5 hash from the given file.
+// It will not close the file.
+func MD5FromFile(f afero.File) (string, error) {
+	h := md5.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", nil
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
 // IsWhitespace determines if the given rune is whitespace.
