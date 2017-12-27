@@ -47,13 +47,12 @@ languageName = "Nynorsk"
 
 `
 
-	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: false}
+	siteConfig := testSiteConfig{Running: true, Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: false}
 	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
 	fs := sites.Fs
-	cfg := BuildCfg{Watching: true}
 	th := testHelper{sites.Cfg, fs, t}
 	assert := require.New(t)
-
+	cfg := BuildCfg{}
 	err := sites.Build(cfg)
 	assert.NoError(err)
 

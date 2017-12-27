@@ -44,15 +44,20 @@ func (s *staticSyncer) isStatic(path string) bool {
 func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 	c := s.c
 
-	syncFn := func(dirs *src.Dirs, publishDir string) error {
+	syncFn := func(dirs *src.Dirs, publishDir string) (uint64, error) {
 		staticSourceFs, err := dirs.CreateStaticFs()
 		if err != nil {
-			return err
+			return 0, err
+		}
+
+		if dirs.Language != nil {
+			// Multihost setup
+			publishDir = filepath.Join(publishDir, dirs.Language.Lang)
 		}
 
 		if staticSourceFs == nil {
 			c.Logger.WARN.Println("No static directories found to sync")
-			return nil
+			return 0, nil
 		}
 
 		syncer := fsync.NewSyncer()
@@ -127,9 +132,10 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			}
 		}
 
-		return nil
+		return 0, nil
 	}
 
-	return c.doWithPublishDirs(syncFn)
+	_, err := c.doWithPublishDirs(syncFn)
+	return err
 
 }

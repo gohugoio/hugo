@@ -18,6 +18,10 @@ package commands
 import (
 	"fmt"
 	"io/ioutil"
+	"sort"
+	"sync/atomic"
+
+	"golang.org/x/sync/errgroup"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -57,6 +61,13 @@ import (
 // is used by at least one external library (the Hugo caddy plugin). We should
 // provide a cleaner external API, but until then, this is it.
 var Hugo *hugolib.HugoSites
+
+const (
+	ansiEsc    = "\u001B"
+	clearLine  = "\r\033[K"
+	hideCursor = ansiEsc + "[?25l"
+	showCursor = ansiEsc + "[?25h"
+)
 
 // Reset resets Hugo ready for a new full build. This is mainly only useful
 // for benchmark testing etc. via the CLI commands.
@@ -116,18 +127,20 @@ built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io/.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := InitializeConfig()
-		if err != nil {
-			return err
+
+		cfgInit := func(c *commandeer) error {
+			if buildWatch {
+				c.Set("disableLiveReload", true)
+			}
+			return nil
 		}
 
-		c, err := newCommandeer(cfg)
+		c, err := InitializeConfig(buildWatch, cfgInit)
 		if err != nil {
 			return err
 		}
 
 		if buildWatch {
-			cfg.Cfg.Set("disableLiveReload", true)
 			c.watchConfig()
 		}
 
@@ -149,6 +162,7 @@ var (
 )
 
 var (
+	gc              bool
 	baseURL         string
 	cacheDir        string
 	contentDir      string
@@ -201,6 +215,7 @@ func AddCommands() {
 	genCmd.AddCommand(genmanCmd)
 	genCmd.AddCommand(createGenDocsHelper().cmd)
 	genCmd.AddCommand(createGenChromaStyles().cmd)
+
 }
 
 // initHugoBuilderFlags initializes all common flags, typically used by the
@@ -240,6 +255,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("canonifyURLs", false, "if true, all relative URLs will be canonicalized using baseURL")
 	cmd.Flags().StringVarP(&baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date and author info to the pages")
+	cmd.Flags().BoolVar(&gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
 
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
@@ -285,7 +301,7 @@ func init() {
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
-func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
+func InitializeConfig(running bool, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
 
 	var cfg *deps.DepsCfg = &deps.DepsCfg{}
 
@@ -294,13 +310,13 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 
 	config, err := hugolib.LoadConfig(osFs, source, cfgFile)
 	if err != nil {
-		return cfg, err
+		return nil, err
 	}
 
 	// Init file systems. This may be changed at a later point.
 	cfg.Cfg = config
 
-	c, err := newCommandeer(cfg)
+	c, err := newCommandeer(cfg, running)
 	if err != nil {
 		return nil, err
 	}
@@ -309,22 +325,28 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 		c.initializeFlags(cmdV)
 	}
 
+	if baseURL != "" {
+		config.Set("baseURL", baseURL)
+	}
+
+	if doWithCommandeer != nil {
+		if err := doWithCommandeer(c); err != nil {
+			return nil, err
+		}
+	}
+
 	if len(disableKinds) > 0 {
 		c.Set("disableKinds", disableKinds)
 	}
 
 	logger, err := createLogger(cfg.Cfg)
 	if err != nil {
-		return cfg, err
+		return nil, err
 	}
 
 	cfg.Logger = logger
 
 	config.Set("logI18nWarnings", logI18nWarnings)
-
-	if baseURL != "" {
-		config.Set("baseURL", baseURL)
-	}
 
 	if !config.GetBool("relativeURLs") && config.GetString("baseURL") == "" {
 		cfg.Logger.ERROR.Println("No 'baseURL' set in configuration or as a flag. Features like page menus will not work without one.")
@@ -350,17 +372,6 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 	}
 	config.Set("workingDir", dir)
 
-	fs := hugofs.NewFrom(osFs, config)
-
-	// Hugo writes the output to memory instead of the disk.
-	// This is only used for benchmark testing. Cause the content is only visible
-	// in memory.
-	if renderToMemory {
-		fs.Destination = new(afero.MemMapFs)
-		// Rendering to memoryFS, publish to Root regardless of publishDir.
-		c.Set("publishDir", "/")
-	}
-
 	if contentDir != "" {
 		config.Set("contentDir", contentDir)
 	}
@@ -371,6 +382,17 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 
 	if cacheDir != "" {
 		config.Set("cacheDir", cacheDir)
+	}
+
+	fs := hugofs.NewFrom(osFs, config)
+
+	// Hugo writes the output to memory instead of the disk.
+	// This is only used for benchmark testing. Cause the content is only visible
+	// in memory.
+	if config.GetBool("renderToMemory") {
+		fs.Destination = new(afero.MemMapFs)
+		// Rendering to memoryFS, publish to Root regardless of publishDir.
+		config.Set("publishDir", "/")
 	}
 
 	cacheDir = config.GetString("cacheDir")
@@ -397,7 +419,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 	themeDir := c.PathSpec().GetThemeDir()
 	if themeDir != "" {
 		if _, err := cfg.Fs.Source.Stat(themeDir); os.IsNotExist(err) {
-			return cfg, newSystemError("Unable to find theme Directory:", themeDir)
+			return nil, newSystemError("Unable to find theme Directory:", themeDir)
 		}
 	}
 
@@ -408,7 +430,7 @@ func InitializeConfig(subCmdVs ...*cobra.Command) (*deps.DepsCfg, error) {
 			helpers.CurrentHugoVersion.ReleaseVersion(), minVersion)
 	}
 
-	return cfg, nil
+	return c, nil
 
 }
 
@@ -482,17 +504,17 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 		"templateMetricsHints",
 	}
 
-	// Remove these in Hugo 0.23.
+	// Remove these in Hugo 0.33.
 	if cmd.Flags().Changed("disable404") {
-		helpers.Deprecated("command line", "--disable404", "Use --disableKinds=404", false)
+		helpers.Deprecated("command line", "--disable404", "Use --disableKinds=404", true)
 	}
 
 	if cmd.Flags().Changed("disableRSS") {
-		helpers.Deprecated("command line", "--disableRSS", "Use --disableKinds=RSS", false)
+		helpers.Deprecated("command line", "--disableRSS", "Use --disableKinds=RSS", true)
 	}
 
 	if cmd.Flags().Changed("disableSitemap") {
-		helpers.Deprecated("command line", "--disableSitemap", "Use --disableKinds=sitemap", false)
+		helpers.Deprecated("command line", "--disableSitemap", "Use --disableKinds=sitemap", true)
 	}
 
 	for _, key := range persFlagKeys {
@@ -525,16 +547,71 @@ func (c *commandeer) watchConfig() {
 	})
 }
 
+func (c *commandeer) fullBuild(watches ...bool) error {
+	var (
+		g         errgroup.Group
+		langCount map[string]uint64
+	)
+
+	if !quiet {
+		fmt.Print(hideCursor + "Building sites … ")
+		defer func() {
+			fmt.Print(showCursor + clearLine)
+		}()
+	}
+
+	g.Go(func() error {
+		cnt, err := c.copyStatic()
+		if err != nil {
+			return fmt.Errorf("Error copying static files: %s", err)
+		}
+		langCount = cnt
+		return nil
+	})
+
+	g.Go(func() error {
+		if err := c.buildSites(); err != nil {
+			return fmt.Errorf("Error building site: %s", err)
+		}
+
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return err
+	}
+
+	for _, s := range Hugo.Sites {
+		s.ProcessingStats.Static = langCount[s.Language.Lang]
+	}
+
+	if gc {
+		count, err := Hugo.GC()
+		if err != nil {
+			return err
+		}
+		for _, s := range Hugo.Sites {
+			// We have no way of knowing what site the garbage belonged to.
+			s.ProcessingStats.Cleaned = uint64(count)
+		}
+	}
+
+	return nil
+
+}
+
 func (c *commandeer) build(watches ...bool) error {
-	if err := c.copyStatic(); err != nil {
-		return fmt.Errorf("Error copying static files: %s", err)
+	defer c.timeTrack(time.Now(), "Total")
+
+	if err := c.fullBuild(watches...); err != nil {
+		return err
 	}
-	watch := false
-	if len(watches) > 0 && watches[0] {
-		watch = true
-	}
-	if err := c.buildSites(buildWatch || watch); err != nil {
-		return fmt.Errorf("Error building site: %s", err)
+
+	// TODO(bep) Feedback?
+	if !quiet {
+		fmt.Println()
+		Hugo.PrintProcessingStats(os.Stdout)
+		fmt.Println()
 	}
 
 	if buildWatch {
@@ -550,62 +627,101 @@ func (c *commandeer) build(watches ...bool) error {
 	return nil
 }
 
-func (c *commandeer) copyStatic() error {
+func (c *commandeer) copyStatic() (map[string]uint64, error) {
 	return c.doWithPublishDirs(c.copyStaticTo)
 }
 
-func (c *commandeer) doWithPublishDirs(f func(dirs *src.Dirs, publishDir string) error) error {
-	publishDir := c.PathSpec().AbsPathify(c.Cfg.GetString("publishDir")) + helpers.FilePathSeparator
-	// If root, remove the second '/'
-	if publishDir == "//" {
-		publishDir = helpers.FilePathSeparator
-	}
+func (c *commandeer) createStaticDirsConfig() ([]*src.Dirs, error) {
+	var dirsConfig []*src.Dirs
 
-	languages := c.languages()
-
-	if !languages.IsMultihost() {
+	if !c.languages.IsMultihost() {
 		dirs, err := src.NewDirs(c.Fs, c.Cfg, c.DepsCfg.Logger)
 		if err != nil {
-			return err
+			return nil, err
 		}
-		return f(dirs, publishDir)
-	}
-
-	for _, l := range languages {
-		dir := filepath.Join(publishDir, l.Lang)
-		dirs, err := src.NewDirs(c.Fs, l, c.DepsCfg.Logger)
-		if err != nil {
-			return err
-		}
-		if err := f(dirs, dir); err != nil {
-			return err
+		dirsConfig = append(dirsConfig, dirs)
+	} else {
+		for _, l := range c.languages {
+			dirs, err := src.NewDirs(c.Fs, l, c.DepsCfg.Logger)
+			if err != nil {
+				return nil, err
+			}
+			dirsConfig = append(dirsConfig, dirs)
 		}
 	}
 
-	return nil
+	return dirsConfig, nil
+
 }
 
-func (c *commandeer) copyStaticTo(dirs *src.Dirs, publishDir string) error {
+func (c *commandeer) doWithPublishDirs(f func(dirs *src.Dirs, publishDir string) (uint64, error)) (map[string]uint64, error) {
+
+	langCount := make(map[string]uint64)
+
+	for _, dirs := range c.staticDirsConfig {
+
+		cnt, err := f(dirs, c.pathSpec.PublishDir)
+		if err != nil {
+			return langCount, err
+		}
+
+		if dirs.Language == nil {
+			// Not multihost
+			for _, l := range c.languages {
+				langCount[l.Lang] = cnt
+			}
+		} else {
+			langCount[dirs.Language.Lang] = cnt
+		}
+
+	}
+
+	return langCount, nil
+}
+
+type countingStatFs struct {
+	afero.Fs
+	statCounter uint64
+}
+
+func (fs *countingStatFs) Stat(name string) (os.FileInfo, error) {
+	f, err := fs.Fs.Stat(name)
+	if err == nil {
+		if !f.IsDir() {
+			atomic.AddUint64(&fs.statCounter, 1)
+		}
+	}
+	return f, err
+}
+
+func (c *commandeer) copyStaticTo(dirs *src.Dirs, publishDir string) (uint64, error) {
 
 	// If root, remove the second '/'
 	if publishDir == "//" {
 		publishDir = helpers.FilePathSeparator
+	}
+
+	if dirs.Language != nil {
+		// Multihost setup.
+		publishDir = filepath.Join(publishDir, dirs.Language.Lang)
 	}
 
 	staticSourceFs, err := dirs.CreateStaticFs()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if staticSourceFs == nil {
 		c.Logger.WARN.Println("No static directories found to sync")
-		return nil
+		return 0, nil
 	}
+
+	fs := &countingStatFs{Fs: staticSourceFs}
 
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = c.Cfg.GetBool("noTimes")
 	syncer.NoChmod = c.Cfg.GetBool("noChmod")
-	syncer.SrcFs = staticSourceFs
+	syncer.SrcFs = fs
 	syncer.DestFs = c.Fs.Destination
 	// Now that we are using a unionFs for the static directories
 	// We can effectively clean the publishDir on initial sync
@@ -622,12 +738,30 @@ func (c *commandeer) copyStaticTo(dirs *src.Dirs, publishDir string) error {
 
 	// because we are using a baseFs (to get the union right).
 	// set sync src to root
-	return syncer.Sync(publishDir, helpers.FilePathSeparator)
+	err = syncer.Sync(publishDir, helpers.FilePathSeparator)
+	if err != nil {
+		return 0, err
+	}
+
+	// Sync runs Stat 3 times for every source file (which sounds much)
+	numFiles := fs.statCounter / 3
+
+	return numFiles, err
+}
+
+func (c *commandeer) timeTrack(start time.Time, name string) {
+	elapsed := time.Since(start)
+	c.Logger.FEEDBACK.Printf("%s in %v ms", name, int(1000*elapsed.Seconds()))
 }
 
 // getDirList provides NewWatcher() with a list of directories to watch for changes.
 func (c *commandeer) getDirList() ([]string, error) {
 	var a []string
+
+	// To handle nested symlinked content dirs
+	var seen = make(map[string]bool)
+	var nested []string
+
 	dataDir := c.PathSpec().AbsPathify(c.Cfg.GetString("dataDir"))
 	i18nDir := c.PathSpec().AbsPathify(c.Cfg.GetString("i18nDir"))
 	staticSyncer, err := newStaticSyncer(c)
@@ -638,85 +772,120 @@ func (c *commandeer) getDirList() ([]string, error) {
 	layoutDir := c.PathSpec().GetLayoutDirPath()
 	staticDirs := staticSyncer.d.AbsStaticDirs
 
-	walker := func(path string, fi os.FileInfo, err error) error {
-		if err != nil {
-			if path == dataDir && os.IsNotExist(err) {
-				c.Logger.WARN.Println("Skip dataDir:", err)
-				return nil
-			}
-
-			if path == i18nDir && os.IsNotExist(err) {
-				c.Logger.WARN.Println("Skip i18nDir:", err)
-				return nil
-			}
-
-			if path == layoutDir && os.IsNotExist(err) {
-				c.Logger.WARN.Println("Skip layoutDir:", err)
-				return nil
-			}
-
-			if os.IsNotExist(err) {
-				for _, staticDir := range staticDirs {
-					if path == staticDir && os.IsNotExist(err) {
-						c.Logger.WARN.Println("Skip staticDir:", err)
-					}
+	newWalker := func(allowSymbolicDirs bool) func(path string, fi os.FileInfo, err error) error {
+		return func(path string, fi os.FileInfo, err error) error {
+			if err != nil {
+				if path == dataDir && os.IsNotExist(err) {
+					c.Logger.WARN.Println("Skip dataDir:", err)
+					return nil
 				}
-				// Ignore.
+
+				if path == i18nDir && os.IsNotExist(err) {
+					c.Logger.WARN.Println("Skip i18nDir:", err)
+					return nil
+				}
+
+				if path == layoutDir && os.IsNotExist(err) {
+					c.Logger.WARN.Println("Skip layoutDir:", err)
+					return nil
+				}
+
+				if os.IsNotExist(err) {
+					for _, staticDir := range staticDirs {
+						if path == staticDir && os.IsNotExist(err) {
+							c.Logger.WARN.Println("Skip staticDir:", err)
+						}
+					}
+					// Ignore.
+					return nil
+				}
+
+				c.Logger.ERROR.Println("Walker: ", err)
 				return nil
 			}
 
-			c.Logger.ERROR.Println("Walker: ", err)
-			return nil
-		}
-
-		// Skip .git directories.
-		// Related to https://github.com/gohugoio/hugo/issues/3468.
-		if fi.Name() == ".git" {
-			return nil
-		}
-
-		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-			link, err := filepath.EvalSymlinks(path)
-			if err != nil {
-				c.Logger.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", path, err)
+			// Skip .git directories.
+			// Related to https://github.com/gohugoio/hugo/issues/3468.
+			if fi.Name() == ".git" {
 				return nil
 			}
-			linkfi, err := c.Fs.Source.Stat(link)
-			if err != nil {
-				c.Logger.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
-				return nil
+
+			if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
+				link, err := filepath.EvalSymlinks(path)
+				if err != nil {
+					c.Logger.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", path, err)
+					return nil
+				}
+				linkfi, err := helpers.LstatIfOs(c.Fs.Source, link)
+				if err != nil {
+					c.Logger.ERROR.Printf("Cannot stat %q: %s", link, err)
+					return nil
+				}
+				if !allowSymbolicDirs && !linkfi.Mode().IsRegular() {
+					c.Logger.ERROR.Printf("Symbolic links for directories not supported, skipping %q", path)
+					return nil
+				}
+
+				if allowSymbolicDirs && linkfi.IsDir() {
+					// afero.Walk will not walk symbolic links, so wee need to do it.
+					if !seen[path] {
+						seen[path] = true
+						nested = append(nested, path)
+					}
+					return nil
+				}
+
+				fi = linkfi
 			}
-			if !linkfi.Mode().IsRegular() {
-				c.Logger.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", path)
+
+			if fi.IsDir() {
+				if fi.Name() == ".git" ||
+					fi.Name() == "node_modules" || fi.Name() == "bower_components" {
+					return filepath.SkipDir
+				}
+				a = append(a, path)
 			}
 			return nil
 		}
-
-		if fi.IsDir() {
-			if fi.Name() == ".git" ||
-				fi.Name() == "node_modules" || fi.Name() == "bower_components" {
-				return filepath.SkipDir
-			}
-			a = append(a, path)
-		}
-		return nil
 	}
 
+	symLinkWalker := newWalker(true)
+	regularWalker := newWalker(false)
+
 	// SymbolicWalk will log anny ERRORs
-	_ = helpers.SymbolicWalk(c.Fs.Source, dataDir, walker)
-	_ = helpers.SymbolicWalk(c.Fs.Source, c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")), walker)
-	_ = helpers.SymbolicWalk(c.Fs.Source, i18nDir, walker)
-	_ = helpers.SymbolicWalk(c.Fs.Source, layoutDir, walker)
+	_ = helpers.SymbolicWalk(c.Fs.Source, dataDir, regularWalker)
+	_ = helpers.SymbolicWalk(c.Fs.Source, c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")), symLinkWalker)
+	_ = helpers.SymbolicWalk(c.Fs.Source, i18nDir, regularWalker)
+	_ = helpers.SymbolicWalk(c.Fs.Source, layoutDir, regularWalker)
 	for _, staticDir := range staticDirs {
-		_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, walker)
+		_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, regularWalker)
 	}
 
 	if c.PathSpec().ThemeSet() {
 		themesDir := c.PathSpec().GetThemeDir()
-		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "layouts"), walker)
-		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "i18n"), walker)
-		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "data"), walker)
+		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "layouts"), regularWalker)
+		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "i18n"), regularWalker)
+		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "data"), regularWalker)
 	}
+
+	if len(nested) > 0 {
+		for {
+
+			toWalk := nested
+			nested = nested[:0]
+
+			for _, d := range toWalk {
+				_ = helpers.SymbolicWalk(c.Fs.Source, d, symLinkWalker)
+			}
+
+			if len(nested) == 0 {
+				break
+			}
+		}
+	}
+
+	a = helpers.UniqueStrings(a)
+	sort.Strings(a)
 
 	return a, nil
 }
@@ -728,17 +897,17 @@ func (c *commandeer) recreateAndBuildSites(watching bool) (err error) {
 	if !quiet {
 		c.Logger.FEEDBACK.Println("Started building sites ...")
 	}
-	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true, Watching: watching, PrintStats: !quiet})
+	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true})
 }
 
-func (c *commandeer) resetAndBuildSites(watching bool) (err error) {
+func (c *commandeer) resetAndBuildSites() (err error) {
 	if err = c.initSites(); err != nil {
 		return
 	}
 	if !quiet {
 		c.Logger.FEEDBACK.Println("Started building sites ...")
 	}
-	return Hugo.Build(hugolib.BuildCfg{ResetState: true, Watching: watching, PrintStats: !quiet})
+	return Hugo.Build(hugolib.BuildCfg{ResetState: true})
 }
 
 func (c *commandeer) initSites() error {
@@ -755,17 +924,16 @@ func (c *commandeer) initSites() error {
 	return nil
 }
 
-func (c *commandeer) buildSites(watching bool) (err error) {
+func (c *commandeer) buildSites() (err error) {
 	if err := c.initSites(); err != nil {
 		return err
 	}
-	if !quiet {
-		c.Logger.FEEDBACK.Println("Started building sites ...")
-	}
-	return Hugo.Build(hugolib.BuildCfg{Watching: watching, PrintStats: !quiet})
+	return Hugo.Build(hugolib.BuildCfg{})
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
+	defer c.timeTrack(time.Now(), "Total")
+
 	if err := c.initSites(); err != nil {
 		return err
 	}
@@ -776,7 +944,7 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 		// Make sure we always render the home page
 		visited[home] = true
 	}
-	return Hugo.Build(hugolib.BuildCfg{PrintStats: !quiet, Watching: true, RecentlyVisited: visited}, events...)
+	return Hugo.Build(hugolib.BuildCfg{RecentlyVisited: visited}, events...)
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
@@ -817,6 +985,37 @@ func (c *commandeer) newWatcher(serve bool, dirList ...string) error {
 
 				staticEvents := []fsnotify.Event{}
 				dynamicEvents := []fsnotify.Event{}
+
+				// Special handling for symbolic links inside /content.
+				filtered := []fsnotify.Event{}
+				for _, ev := range evs {
+					// Check the most specific first, i.e. files.
+					contentMapped := Hugo.ContentChanges.GetSymbolicLinkMappings(ev.Name)
+					if len(contentMapped) > 0 {
+						for _, mapped := range contentMapped {
+							filtered = append(filtered, fsnotify.Event{Name: mapped, Op: ev.Op})
+						}
+						continue
+					}
+
+					// Check for any symbolic directory mapping.
+
+					dir, name := filepath.Split(ev.Name)
+
+					contentMapped = Hugo.ContentChanges.GetSymbolicLinkMappings(dir)
+
+					if len(contentMapped) == 0 {
+						filtered = append(filtered, ev)
+						continue
+					}
+
+					for _, mapped := range contentMapped {
+						mappedFilename := filepath.Join(mapped, name)
+						filtered = append(filtered, fsnotify.Event{Name: mappedFilename, Op: ev.Op})
+					}
+				}
+
+				evs = filtered
 
 				for _, ev := range evs {
 					ext := filepath.Ext(ev.Name)
@@ -894,7 +1093,7 @@ func (c *commandeer) newWatcher(serve bool, dirList ...string) error {
 
 					if c.Cfg.GetBool("forceSyncStatic") {
 						c.Logger.FEEDBACK.Printf("Syncing all static files\n")
-						err := c.copyStatic()
+						_, err := c.copyStatic()
 						if err != nil {
 							utils.StopOnErr(c.Logger, err, "Error copying static files to publish dir")
 						}
@@ -932,8 +1131,9 @@ func (c *commandeer) newWatcher(serve bool, dirList ...string) error {
 						}
 
 					}
+
 					c.Logger.FEEDBACK.Println("\nChange detected, rebuilding site")
-					const layout = "2006-01-02 15:04 -0700"
+					const layout = "2006-01-02 15:04:05.000 -0700"
 					c.Logger.FEEDBACK.Println(time.Now().Format(layout))
 
 					if err := c.rebuildSites(dynamicEvents); err != nil {
@@ -950,6 +1150,7 @@ func (c *commandeer) newWatcher(serve bool, dirList ...string) error {
 							if onePageName != "" {
 								p = Hugo.GetContentPage(onePageName)
 							}
+
 						}
 
 						if p != nil {
@@ -978,6 +1179,9 @@ func (c *commandeer) newWatcher(serve bool, dirList ...string) error {
 func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 	name := ""
 
+	// Some editors (for example notepad.exe on Windows) triggers a change
+	// both for directory and file. So we pick the longest path, which should
+	// be the file itself.
 	for _, ev := range events {
 		if (ev.Op&fsnotify.Write == fsnotify.Write || ev.Op&fsnotify.Create == fsnotify.Create) && len(ev.Name) > len(name) {
 			name = ev.Name

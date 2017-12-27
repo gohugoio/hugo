@@ -86,19 +86,17 @@ as you see fit.`,
 
 // NewContent adds new content to a Hugo site.
 func NewContent(cmd *cobra.Command, args []string) error {
-	cfg, err := InitializeConfig()
+	cfgInit := func(c *commandeer) error {
+		if cmd.Flags().Changed("editor") {
+			c.Set("newContentEditor", contentEditor)
+		}
+		return nil
+	}
+
+	c, err := InitializeConfig(false, cfgInit)
 
 	if err != nil {
 		return err
-	}
-
-	c, err := newCommandeer(cfg)
-	if err != nil {
-		return err
-	}
-
-	if cmd.Flags().Changed("editor") {
-		c.Set("newContentEditor", contentEditor)
 	}
 
 	if len(args) < 1 {
@@ -115,6 +113,8 @@ func NewContent(cmd *cobra.Command, args []string) error {
 		kind = contentType
 	}
 
+	cfg := c.DepsCfg
+
 	ps, err := helpers.NewPathSpec(cfg.Fs, cfg.Cfg)
 	if err != nil {
 		return err
@@ -130,7 +130,7 @@ func NewContent(cmd *cobra.Command, args []string) error {
 			return nil, err
 		}
 
-		if err := Hugo.Build(hugolib.BuildCfg{SkipRender: true, PrintStats: false}); err != nil {
+		if err := Hugo.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
 			return nil, err
 		}
 
@@ -240,7 +240,7 @@ func NewSite(cmd *cobra.Command, args []string) error {
 
 // NewTheme creates a new Hugo theme.
 func NewTheme(cmd *cobra.Command, args []string) error {
-	cfg, err := InitializeConfig()
+	c, err := InitializeConfig(false, nil)
 
 	if err != nil {
 		return err
@@ -250,13 +250,10 @@ func NewTheme(cmd *cobra.Command, args []string) error {
 		return newUserError("theme name needs to be provided")
 	}
 
-	c, err := newCommandeer(cfg)
-	if err != nil {
-		return err
-	}
-
 	createpath := c.PathSpec().AbsPathify(filepath.Join(c.Cfg.GetString("themesDir"), args[0]))
 	jww.INFO.Println("creating theme at", createpath)
+
+	cfg := c.DepsCfg
 
 	if x, _ := helpers.Exists(createpath, cfg.Fs.Source); x {
 		return newUserError(createpath, "already exists")
@@ -375,7 +372,11 @@ func newContentPathSection(path string) (string, string) {
 	var section string
 	// assume the first directory is the section (kind)
 	if strings.Contains(createpath[1:], helpers.FilePathSeparator) {
-		section = helpers.GuessSection(createpath)
+		parts := strings.Split(strings.TrimPrefix(createpath, helpers.FilePathSeparator), helpers.FilePathSeparator)
+		if len(parts) > 0 {
+			section = parts[0]
+		}
+
 	}
 
 	return createpath, section

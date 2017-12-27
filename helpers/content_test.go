@@ -19,9 +19,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/viper"
+
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const tstHTMLContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p></body></html>"
@@ -71,6 +74,25 @@ func TestStripEmptyNav(t *testing.T) {
 
 func TestBytesToHTML(t *testing.T) {
 	assert.Equal(t, template.HTML("dobedobedo"), BytesToHTML([]byte("dobedobedo")))
+}
+
+func TestNewContentSpec(t *testing.T) {
+	cfg := viper.New()
+	assert := require.New(t)
+
+	cfg.Set("summaryLength", 32)
+	cfg.Set("buildFuture", true)
+	cfg.Set("buildExpired", true)
+	cfg.Set("buildDrafts", true)
+
+	spec, err := NewContentSpec(cfg)
+
+	assert.NoError(err)
+	assert.Equal(32, spec.summaryLength)
+	assert.True(spec.BuildFuture)
+	assert.True(spec.BuildExpired)
+	assert.True(spec.BuildDrafts)
+
 }
 
 var benchmarkTruncateString = strings.Repeat("This is a sentence about nothing.", 20)

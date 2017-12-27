@@ -110,109 +110,94 @@ func init() {
 }
 
 func server(cmd *cobra.Command, args []string) error {
-	cfg, err := InitializeConfig(serverCmd)
-	if err != nil {
-		return err
+	// If a Destination is provided via flag write to disk
+	if destination != "" {
+		renderToDisk = true
 	}
 
-	c, err := newCommandeer(cfg)
-	if err != nil {
-		return err
-	}
-
-	if cmd.Flags().Changed("disableLiveReload") {
-		c.Set("disableLiveReload", disableLiveReload)
-	}
-
-	if cmd.Flags().Changed("navigateToChanged") {
-		c.Set("navigateToChanged", navigateToChanged)
-	}
-
-	if cmd.Flags().Changed("disableFastRender") {
-		c.Set("disableFastRender", disableFastRender)
-	}
-
-	if serverWatch {
-		c.Set("watch", true)
-	}
-
-	if c.Cfg.GetBool("watch") {
-		serverWatch = true
-		c.watchConfig()
-	}
-
-	languages := c.languages()
-	serverPorts := make([]int, 1)
-
-	if languages.IsMultihost() {
-		if !serverAppend {
-			return newSystemError("--appendPort=false not supported when in multihost mode")
+	cfgInit := func(c *commandeer) error {
+		c.Set("renderToMemory", !renderToDisk)
+		if cmd.Flags().Changed("navigateToChanged") {
+			c.Set("navigateToChanged", navigateToChanged)
 		}
-		serverPorts = make([]int, len(languages))
-	}
+		if cmd.Flags().Changed("disableLiveReload") {
+			c.Set("disableLiveReload", disableLiveReload)
+		}
+		if cmd.Flags().Changed("disableFastRender") {
+			c.Set("disableFastRender", disableFastRender)
+		}
+		if serverWatch {
+			c.Set("watch", true)
+		}
 
-	currentServerPort := serverPort
+		serverPorts := make([]int, 1)
 
-	for i := 0; i < len(serverPorts); i++ {
-		l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(currentServerPort)))
-		if err == nil {
-			l.Close()
-			serverPorts[i] = currentServerPort
+		if c.languages.IsMultihost() {
+			if !serverAppend {
+				return newSystemError("--appendPort=false not supported when in multihost mode")
+			}
+			serverPorts = make([]int, len(c.languages))
+		}
+
+		currentServerPort := serverPort
+
+		for i := 0; i < len(serverPorts); i++ {
+			l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(currentServerPort)))
+			if err == nil {
+				l.Close()
+				serverPorts[i] = currentServerPort
+			} else {
+				if i == 0 && serverCmd.Flags().Changed("port") {
+					// port set explicitly by user -- he/she probably meant it!
+					return newSystemErrorF("Server startup failed: %s", err)
+				}
+				jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
+				sp, err := helpers.FindAvailablePort()
+				if err != nil {
+					return newSystemError("Unable to find alternative port to use:", err)
+				}
+				serverPorts[i] = sp.Port
+			}
+
+			currentServerPort = serverPorts[i] + 1
+		}
+
+		c.serverPorts = serverPorts
+
+		c.Set("port", serverPort)
+		if liveReloadPort != -1 {
+			c.Set("liveReloadPort", liveReloadPort)
 		} else {
-			if i == 0 && serverCmd.Flags().Changed("port") {
-				// port set explicitly by user -- he/she probably meant it!
-				return newSystemErrorF("Server startup failed: %s", err)
-			}
-			jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
-			sp, err := helpers.FindAvailablePort()
-			if err != nil {
-				return newSystemError("Unable to find alternative port to use:", err)
-			}
-			serverPorts[i] = sp.Port
+			c.Set("liveReloadPort", serverPorts[0])
 		}
 
-		currentServerPort = serverPorts[i] + 1
-	}
-
-	c.serverPorts = serverPorts
-
-	c.Set("port", serverPort)
-	if liveReloadPort != -1 {
-		c.Set("liveReloadPort", liveReloadPort)
-	} else {
-		c.Set("liveReloadPort", serverPorts[0])
-	}
-
-	if languages.IsMultihost() {
-		for i, language := range languages {
-			baseURL, err = fixURL(language, baseURL, serverPorts[i])
+		if c.languages.IsMultihost() {
+			for i, language := range c.languages {
+				baseURL, err := fixURL(language, baseURL, serverPorts[i])
+				if err != nil {
+					return err
+				}
+				language.Set("baseURL", baseURL)
+			}
+		} else {
+			baseURL, err := fixURL(c.Cfg, baseURL, serverPorts[0])
 			if err != nil {
 				return err
 			}
-			language.Set("baseURL", baseURL)
+			c.Set("baseURL", baseURL)
 		}
-	} else {
-		baseURL, err = fixURL(c.Cfg, baseURL, serverPorts[0])
-		if err != nil {
-			return err
-		}
-		c.Set("baseURL", baseURL)
+
+		return nil
+
 	}
 
 	if err := memStats(); err != nil {
 		jww.ERROR.Println("memstats error:", err)
 	}
 
-	// If a Destination is provided via flag write to disk
-	if destination != "" {
-		renderToDisk = true
-	}
-
-	// Hugo writes the output to memory instead of the disk
-	if !renderToDisk {
-		cfg.Fs.Destination = new(afero.MemMapFs)
-		// Rendering to memoryFS, publish to Root regardless of publishDir.
-		c.Set("publishDir", "/")
+	c, err := InitializeConfig(true, cfgInit, serverCmd)
+	if err != nil {
+		return err
 	}
 
 	if err := c.build(serverWatch); err != nil {
@@ -221,6 +206,10 @@ func server(cmd *cobra.Command, args []string) error {
 
 	for _, s := range Hugo.Sites {
 		s.RegisterMediaTypes()
+	}
+
+	if serverWatch {
+		c.watchConfig()
 	}
 
 	// Watch runs its own server as part of the routine

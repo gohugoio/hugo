@@ -14,6 +14,7 @@
 package source
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -41,21 +42,21 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 		{"foobar/bar~foo.md", false, nil},
 		{"foobar/foo.md", true, []string{"\\.md$", "\\.boo$"}},
 		{"foobar/foo.html", false, []string{"\\.md$", "\\.boo$"}},
-		{"foobar/foo.md", true, []string{"^foo"}},
-		{"foobar/foo.md", false, []string{"*", "\\.md$", "\\.boo$"}},
+		{"foobar/foo.md", true, []string{"foo.md$"}},
+		{"foobar/foo.md", true, []string{"*", "\\.md$", "\\.boo$"}},
 		{"foobar/.#content.md", true, []string{"/\\.#"}},
 		{".#foobar.md", true, []string{"^\\.#"}},
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 
 		v := viper.New()
 		v.Set("ignoreFiles", test.ignoreFilesRegexpes)
 
 		s := NewSourceSpec(v, hugofs.NewMem(v))
 
-		if ignored := s.isNonProcessablePath(test.path); test.ignore != ignored {
-			t.Errorf("File not ignored.  Expected: %t, got: %t", test.ignore, ignored)
+		if ignored := s.IgnoreFile(filepath.FromSlash(test.path)); test.ignore != ignored {
+			t.Errorf("[%d] File not ignored", i)
 		}
 	}
 }

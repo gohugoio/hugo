@@ -365,8 +365,8 @@ func SliceToLower(s []string) []string {
 	return l
 }
 
-// Md5String takes a string and returns its MD5 hash.
-func Md5String(f string) string {
+// MD5String takes a string and returns its MD5 hash.
+func MD5String(f string) string {
 	h := md5.New()
 	h.Write([]byte(f))
 	return hex.EncodeToString(h.Sum([]byte{}))
