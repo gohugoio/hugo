@@ -30,7 +30,7 @@ func TestFileInfo(t *testing.T) {
 		filename string
 		assert   func(f *FileInfo)
 	}{
-		{"/a/", filepath.FromSlash("/a/b/page.md"), func(f *FileInfo) {
+		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/page.md"), func(f *FileInfo) {
 			assert.Equal(filepath.FromSlash("/a/b/page.md"), f.Filename())
 			assert.Equal(filepath.FromSlash("b/"), f.Dir())
 			assert.Equal(filepath.FromSlash("b/page.md"), f.Path())
