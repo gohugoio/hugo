@@ -410,8 +410,6 @@ func MD5FromFileFast(f afero.File) (string, error) {
 		h.Write(buff)
 	}
 
-	h.Write(buff)
-
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 

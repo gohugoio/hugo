@@ -311,7 +311,7 @@ func TestFastMD5FromFile(t *testing.T) {
 
 	m1, err := MD5FromFileFast(sf1)
 	req.NoError(err)
-	req.Equal("308d8a1127b46524b51507424071c22c", m1)
+	req.Equal("e9c8989b64b71a88b4efb66ad05eea96", m1)
 
 	m2, err := MD5FromFileFast(sf2)
 	req.NoError(err)
