@@ -134,7 +134,6 @@ func TestPageBundlerSite(t *testing.T) {
 					th.assertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug/cindex.html"), "TheContent")
 
 					assert.Equal("/a/b/", leafBundle2.RelPermalink())
-
 				}
 
 			})

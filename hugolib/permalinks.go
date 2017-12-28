@@ -21,6 +21,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/gohugoio/hugo/helpers"
 )
 
 // pathPattern represents a string which builds up a URL from attributes
@@ -160,7 +162,8 @@ func pageToPermalinkFilename(p *Page, _ string) (string, error) {
 	name := p.File.TranslationBaseName()
 	if name == "index" {
 		// Page bundles; the directory name will hopefully have a better name.
-		_, name = filepath.Split(p.File.Dir())
+		dir := strings.TrimSuffix(p.File.Dir(), helpers.FilePathSeparator)
+		_, name = filepath.Split(dir)
 	}
 
 	return p.s.PathSpec.URLize(name), nil

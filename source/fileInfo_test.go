@@ -14,9 +14,31 @@
 package source
 
 import (
+	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestFileInfo(t *testing.T) {
+	assert := require.New(t)
+
+	s := newTestSourceSpec()
+
+	for _, this := range []struct {
+		base     string
+		filename string
+		assert   func(f *FileInfo)
+	}{
+		{"/a/", filepath.FromSlash("/a/b/page.md"), func(f *FileInfo) {
+			assert.Equal(filepath.FromSlash("/a/b/page.md"), f.Filename())
+			assert.Equal(filepath.FromSlash("b/"), f.Dir())
+			assert.Equal(filepath.FromSlash("b/page.md"), f.Path())
+
+		}},
+	} {
+		f := s.NewFileInfo(this.base, this.filename, nil)
+		this.assert(f)
+	}
 
 }

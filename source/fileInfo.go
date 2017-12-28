@@ -162,9 +162,12 @@ func (fi *FileInfo) init() {
 }
 
 func (sp *SourceSpec) NewFileInfo(baseDir, filename string, fi os.FileInfo) *FileInfo {
-	dir, name := filepath.Split(filename)
 
-	dir = strings.TrimSuffix(dir, helpers.FilePathSeparator)
+	dir, name := filepath.Split(filename)
+	if !strings.HasSuffix(dir, helpers.FilePathSeparator) {
+		dir = dir + helpers.FilePathSeparator
+	}
+
 	baseDir = strings.TrimSuffix(baseDir, helpers.FilePathSeparator)
 
 	relDir := ""

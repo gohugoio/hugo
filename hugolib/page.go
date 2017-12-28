@@ -1940,18 +1940,11 @@ func (p *Page) addLangPathPrefixIfFlagSet(outfile string, should bool) string {
 }
 
 func sectionsFromDir(dirname string) []string {
-	sections := strings.Split(dirname, helpers.FilePathSeparator)
-	if len(sections) == 1 {
-		if sections[0] == "" {
-			return nil
-		}
-		return sections
+	dirname = strings.Trim(dirname, helpers.FilePathSeparator)
+	if dirname == "" {
+		return nil
 	}
-	if len(sections) > 1 && sections[0] == "" {
-		return sections[1:]
-	}
-
-	return sections
+	return strings.Split(dirname, helpers.FilePathSeparator)
 }
 
 const (
