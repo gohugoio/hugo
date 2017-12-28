@@ -503,7 +503,7 @@ func (i *Image) setBasePath(conf imageConfig) {
 
 func (i *Image) filenameFromConfig(conf imageConfig) string {
 	p1, p2 := helpers.FileAndExt(i.rel)
-	idStr := fmt.Sprintf("_H%s_%d", i.hash, i.osFileInfo.Size())
+	idStr := fmt.Sprintf("_hu%s_%d", i.hash, i.osFileInfo.Size())
 
 	// Do not change for no good reason.
 	const md5Threshold = 100
@@ -515,7 +515,7 @@ func (i *Image) filenameFromConfig(conf imageConfig) string {
 	// for the different OSes to handle.
 	if len(p1)+len(idStr)+len(p2) > md5Threshold {
 		key = helpers.MD5String(p1 + key + p2)
-		p1 = p1[:strings.Index(p1, "_H")]
+		p1 = p1[:strings.Index(p1, "_hu")]
 	} else if strings.Contains(p1, idStr) {
 		// On scaling an already scaled image, we get the file info from the original.
 		// Repeating the same info in the filename makes it stuttery for no good reason.

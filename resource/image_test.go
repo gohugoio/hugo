@@ -82,13 +82,13 @@ func TestImageTransform(t *testing.T) {
 	assert.Equal(200, resizedAndRotated.Height())
 	assertFileCache(assert, image.spec.Fs, resizedAndRotated.RelPermalink(), 125, 200)
 
-	assert.Equal("/a/sunset_H59e56ffff1bc1d8d122b1403d34e039f_90587_300x200_resize_q75_box_center.jpg", resized.RelPermalink())
+	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_300x200_resize_q75_box_center.jpg", resized.RelPermalink())
 	assert.Equal(300, resized.Width())
 	assert.Equal(200, resized.Height())
 
 	fitted, err := resized.Fit("50x50")
 	assert.NoError(err)
-	assert.Equal("/a/sunset_H59e56ffff1bc1d8d122b1403d34e039f_90587_e71d3649737587d41fe50793bf366f6f.jpg", fitted.RelPermalink())
+	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_0bda5208a94b50a6e643ad139e0dfa2f.jpg", fitted.RelPermalink())
 	assert.Equal(50, fitted.Width())
 	assert.Equal(31, fitted.Height())
 
@@ -96,13 +96,13 @@ func TestImageTransform(t *testing.T) {
 	fittedAgain, _ := fitted.Fit("10x20")
 	fittedAgain, err = fittedAgain.Fit("10x20")
 	assert.NoError(err)
-	assert.Equal("/a/sunset_H59e56ffff1bc1d8d122b1403d34e039f_90587_8731035e4934a6e6e09cd10d6f04db93.jpg", fittedAgain.RelPermalink())
+	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_6b3034f4ca91823700bd9ff7a12acf2e.jpg", fittedAgain.RelPermalink())
 	assert.Equal(10, fittedAgain.Width())
 	assert.Equal(6, fittedAgain.Height())
 
 	filled, err := image.Fill("200x100 bottomLeft")
 	assert.NoError(err)
-	assert.Equal("/a/sunset_H59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q75_box_bottomleft.jpg", filled.RelPermalink())
+	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q75_box_bottomleft.jpg", filled.RelPermalink())
 	assert.Equal(200, filled.Width())
 	assert.Equal(100, filled.Height())
 	assertFileCache(assert, image.spec.Fs, filled.RelPermalink(), 200, 100)
