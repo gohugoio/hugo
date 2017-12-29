@@ -31,8 +31,8 @@ type PathSpec struct {
 	uglyURLs           bool
 	canonifyURLs       bool
 
-	language *Language
-	//StatsCounter *siteSta
+	language  *Language
+	languages Languages
 
 	// pagination path handling
 	paginatePath string
@@ -85,9 +85,20 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		staticDirs = append(staticDirs, getStringOrStringSlice(cfg, "staticDir", i)...)
 	}
 
-	var lang string
+	var (
+		lang      string
+		language  *Language
+		languages Languages
+	)
+
 	if l, ok := cfg.(*Language); ok {
+		language = l
 		lang = l.Lang
+
+	}
+
+	if l, ok := cfg.Get("languagesSorted").(Languages); ok {
+		languages = l
 	}
 
 	ps := &PathSpec{
@@ -98,6 +109,8 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		uglyURLs:                       cfg.GetBool("uglyURLs"),
 		canonifyURLs:                   cfg.GetBool("canonifyURLs"),
 		multilingual:                   cfg.GetBool("multilingual"),
+		language:                       language,
+		languages:                      languages,
 		defaultContentLanguageInSubdir: cfg.GetBool("defaultContentLanguageInSubdir"),
 		defaultContentLanguage:         cfg.GetString("defaultContentLanguage"),
 		paginatePath:                   cfg.GetString("paginatePath"),
@@ -118,10 +131,6 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 	}
 
 	ps.PublishDir = publishDir
-
-	if language, ok := cfg.(*Language); ok {
-		ps.language = language
-	}
 
 	return ps, nil
 }

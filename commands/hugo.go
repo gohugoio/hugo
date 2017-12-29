@@ -940,9 +940,17 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 	visited := c.visitedURLs.PeekAllSet()
 	doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
 	if doLiveReload && !c.Cfg.GetBool("disableFastRender") {
-		home := c.pathSpec.PrependBasePath("/")
-		// Make sure we always render the home page
-		visited[home] = true
+
+		// Make sure we always render the home pages
+		for _, l := range c.languages {
+			langPath := c.PathSpec().GetLangSubDir(l.Lang)
+			if langPath != "" {
+				langPath = langPath + "/"
+			}
+			home := c.pathSpec.PrependBasePath("/" + langPath)
+			visited[home] = true
+		}
+
 	}
 	return Hugo.Build(hugolib.BuildCfg{RecentlyVisited: visited}, events...)
 }

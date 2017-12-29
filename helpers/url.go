@@ -215,6 +215,23 @@ func (p *PathSpec) getLanguagePrefix() string {
 	return currentLang
 }
 
+// GetLangSubDir returns the given language's subdir if needed.
+func (p *PathSpec) GetLangSubDir(lang string) string {
+	if !p.multilingual {
+		return ""
+	}
+
+	if p.languages.IsMultihost() {
+		return ""
+	}
+
+	if lang == "" || (lang == p.defaultContentLanguage && !p.defaultContentLanguageInSubdir) {
+		return ""
+	}
+
+	return lang
+}
+
 // IsAbsURL determines whether the given path points to an absolute URL.
 func IsAbsURL(path string) bool {
 	url, err := url.Parse(path)
