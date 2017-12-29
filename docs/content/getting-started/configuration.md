@@ -73,7 +73,6 @@ canonifyURLs:               false
 config:                     "config.toml"
 contentDir:                 "content"
 dataDir:                    "data"
-defaultExtension:           "html"
 defaultLayout:              "post"
 # Missing translations will default to this content language
 defaultContentLanguage:     "en"
@@ -216,7 +215,6 @@ canonifyURLs =                false
 config =                     "config.toml"
 contentDir =                  "content"
 dataDir =                     "data"
-defaultExtension =            "html"
 defaultLayout =               "post"
 # Missing translations will default to this content language
 defaultContentLanguage =      "en"
