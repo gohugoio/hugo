@@ -35,6 +35,7 @@ import (
 var emptyPage = ""
 
 const (
+	homePage                             = "---\ntitle: Home\n---\nHome Page Content\n"
 	simplePage                           = "---\ntitle: Simple\n---\nSimple Page\n"
 	invalidFrontMatterMissing            = "This is a test"
 	renderNoFrontmatter                  = "<!doctype><html><head></head><body>This is a test</body></html>"
@@ -595,11 +596,21 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 			writeSource(t, fs, filepath.Join(contentDir, fileSourcePairs[i]), fileSourcePairs[i+1])
 		}
 
+		// Add a content page for the home page
+		homePath := fmt.Sprintf("_index.%s", e.ext)
+		writeSource(t, fs, filepath.Join(contentDir, homePath), homePage)
+
 		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 		require.Len(t, s.RegularPages, len(pageSources))
 
 		assertFunc(t, e.ext, s.RegularPages)
+
+		home, err := s.Info.Home()
+		require.NoError(t, err)
+		require.NotNil(t, home)
+		require.Equal(t, homePath, home.Path())
+		require.Contains(t, home.Content, "Home Page Content")
 
 	}
 
