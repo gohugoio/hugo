@@ -50,6 +50,9 @@ import (
 var (
 	cjk = regexp.MustCompile(`\p{Han}|\p{Hangul}|\p{Hiragana}|\p{Katakana}`)
 
+	// date expression used to find iso date in filename
+	dateExp = regexp.MustCompile("(?P<year>\\d{4})\\-(?P<month>\\d{2})\\-(?P<day>\\d{2})-(?P<slug>.*)\\..*")
+
 	// This is all the kinds we can expect to find in .Site.Pages.
 	allKindsInPages = []string{KindPage, KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm}
 
@@ -1076,7 +1079,9 @@ func (p *Page) prepareForRender(cfg *BuildCfg) error {
 
 var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
 
-func (p *Page) update(f interface{}) error {
+// should just read metadata - should not handle any default fallback that
+// is done in updateMetadata
+func (p *Page) readMetadata(f interface{}) error {
 	if f == nil {
 		return errors.New("no metadata found")
 	}
@@ -1271,9 +1276,22 @@ func (p *Page) update(f interface{}) error {
 	}
 
 	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
+
 		fi, err := p.s.Fs.Source.Stat(filepath.Join(p.s.PathSpec.AbsPathify(p.s.Cfg.GetString("contentDir")), p.File.Path()))
 		if err == nil {
+			p.s.Log.DEBUG.Printf("using file modification time as fallback for page %s", p.File.Path())
 			p.Date = fi.ModTime()
+			p.Params["date"] = p.Date
+		}
+	}
+
+	if p.Date.IsZero() && p.s.Cfg.GetString("filenameDateFallbackPattern") != "" {
+		dateExp := regexp.MustCompile(p.s.Cfg.GetString("filenameDateFallbackPattern"))
+		dateString := dateExp.FindString(p.File.Path())
+		filenameDate, err := time.Parse(p.s.Cfg.GetString("filenameDateFallbackFormat"), dateString)
+		if err == nil {
+			p.s.Log.DEBUG.Printf("using filename date as fallback for page %s", p.File.Path())
+			p.Date = filenameDate
 			p.Params["date"] = p.Date
 		}
 	}
@@ -1301,6 +1319,74 @@ func (p *Page) update(f interface{}) error {
 	}
 	p.Params["iscjklanguage"] = p.isCJKLanguage
 
+	return nil
+
+}
+
+func (p *Page) updateMetadata() error {
+
+	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
+
+		fi, err := p.s.Fs.Source.Stat(filepath.Join(p.s.PathSpec.AbsPathify(p.s.Cfg.GetString("contentDir")), p.File.Path()))
+		if err == nil {
+			p.s.Log.DEBUG.Printf("using file modification time as fallback for page %s", p.File.Path())
+			p.Date = fi.ModTime()
+			p.Params["date"] = p.Date
+		}
+	}
+
+	if p.Date.IsZero() && p.s.Cfg.GetBool("useFilenameDateAsFallback") {
+		match := dateExp.FindStringSubmatch(p.File.Path())
+
+		if match != nil {
+			year := match[1]
+			month := match[2]
+			day := match[3]
+			slug := match[4]
+
+			filenameDate, err := time.Parse("2006-01-02", year+"-"+month+"-"+day)
+
+			if err == nil {
+				p.Date = filenameDate
+				p.Params["date"] = p.Date
+				if p.Slug == "" {
+					p.Slug = slug
+					p.s.Log.DEBUG.Printf("Using filename date (%s) and slug (%s) as fallback for page %s", p.Date, p.Slug, p.File.Path())
+
+				} else {
+					p.s.Log.DEBUG.Printf("Using filename date (%s) as fallback for page %s", p.Date, p.File.Path())
+
+				}
+			} else {
+				p.s.Log.WARN.Printf("File has what looks like a date, but the date is invalid for page %s.", p.File.Path())
+			}
+		}
+	}
+
+	if p.Lastmod.IsZero() {
+		p.Lastmod = p.Date
+	}
+	p.Params["lastmod"] = p.Lastmod
+
+	if p.Title == "" {
+		var rawpath = p.Slug
+		if rawpath == "" {
+			rawpath = p.File.BaseFileName()
+
+		}
+		// replace common separators with space
+		rawpath = strings.Replace(rawpath, "-", " ", -1)
+		rawpath = strings.Replace(rawpath, "_", " ", -1)
+		rawpath = strings.Replace(rawpath, ".", " ", -1)
+
+		if rawpath != "" {
+			p.Title = p.s.titleFunc(rawpath)
+			p.s.Log.DEBUG.Printf("Using slug/filename as title (%s) fallback for page %s", p.Title, p.File.Path())
+		} else {
+			// todo: is no path even ever possible to happen ?
+			p.Title = "Untitled " + p.Lastmod.Format("2006-01-02 15:04")
+		}
+	}
 	return nil
 
 }
@@ -1547,10 +1633,11 @@ func (p *Page) parse(reader io.Reader) error {
 	}
 
 	if meta != nil {
-		if err = p.update(meta); err != nil {
+		if err = p.readMetadata(meta); err != nil {
 			return err
 		}
 	}
+	p.updateMetadata()
 
 	return nil
 }
