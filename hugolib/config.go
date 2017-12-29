@@ -219,6 +219,7 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("enableEmoji", false)
 	v.SetDefault("pygmentsCodeFencesGuessSyntax", false)
 	v.SetDefault("useModTimeAsFallback", false)
+	v.SetDefault("useFilenameDateAsFallback", true)
 	v.SetDefault("defaultContentLanguage", "en")
 	v.SetDefault("defaultContentLanguageInSubdir", false)
 	v.SetDefault("enableMissingTranslationPlaceholders", false)

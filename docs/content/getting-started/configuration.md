@@ -299,6 +299,8 @@ theme =                       ""
 title =                       ""
 # if true, use /filename.html instead of /filename/
 uglyURLs =                    false
+# use dates in filenames e.g. 2017-01-31-mypostname.md
+useFilenameDateAsFallback =  true
 # verbose output
 verbose =                     false
 # verbose logging
