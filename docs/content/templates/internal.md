@@ -54,6 +54,34 @@ You can then include the Google Analytics internal template:
 {{ template "_internal/google_analytics_async.html" . }}
 ```
 
+## Google Tag Manager
+
+Hugo also ships with internal templates for Google Tag Manager providing code for the `head` and `body` sections.
+
+### Configure Google Tag Manager
+
+Provide your id in your configuration file:
+
+```
+googleTagManager = "GTM-XXXX"
+```
+
+### Use the Google Tag Manager Template
+
+You can include the Google Tag Manager internal template:
+
+* `head` section
+```
+{{ template "_internal/google_tagmanager_head.html" . }}
+```
+
+* `body` section
+```
+{{ template "_internal/google_tagmanager_body.html" . }}
+```
+
+
+
 ## Disqus
 
 Hugo also ships with an internal template for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites. In order to effectively use Disqus, you will need to secure a Disqus "shortname" by [signing up for the free service][disqussignup].
