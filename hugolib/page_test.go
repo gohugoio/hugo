@@ -1067,22 +1067,22 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
 	_, _ = page.ReadFrom(strings.NewReader(pageWithVariousFrontmatterTypes))
 
 	dateval, _ := time.Parse(time.RFC3339, "1979-05-27T07:32:00Z")
-	if page.GetParam("a_string") != "bar" {
-		t.Errorf("frontmatter not handling strings correctly should be %s, got: %s", "bar", page.GetParam("a_string"))
+	if page.getParamToLower("a_string") != "bar" {
+		t.Errorf("frontmatter not handling strings correctly should be %s, got: %s", "bar", page.getParamToLower("a_string"))
 	}
-	if page.GetParam("an_integer") != 1 {
-		t.Errorf("frontmatter not handling ints correctly should be %s, got: %s", "1", page.GetParam("an_integer"))
+	if page.getParamToLower("an_integer") != 1 {
+		t.Errorf("frontmatter not handling ints correctly should be %s, got: %s", "1", page.getParamToLower("an_integer"))
 	}
-	if page.GetParam("a_float") != 1.3 {
-		t.Errorf("frontmatter not handling floats correctly should be %f, got: %s", 1.3, page.GetParam("a_float"))
+	if page.getParamToLower("a_float") != 1.3 {
+		t.Errorf("frontmatter not handling floats correctly should be %f, got: %s", 1.3, page.getParamToLower("a_float"))
 	}
-	if page.GetParam("a_bool") != false {
-		t.Errorf("frontmatter not handling bools correctly should be %t, got: %s", false, page.GetParam("a_bool"))
+	if page.getParamToLower("a_bool") != false {
+		t.Errorf("frontmatter not handling bools correctly should be %t, got: %s", false, page.getParamToLower("a_bool"))
 	}
-	if page.GetParam("a_date") != dateval {
-		t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.GetParam("a_date"))
+	if page.getParamToLower("a_date") != dateval {
+		t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.getParamToLower("a_date"))
 	}
-	param := page.GetParam("a_table")
+	param := page.getParamToLower("a_table")
 	if param == nil {
 		t.Errorf("frontmatter not handling tables correctly should be type of %v, got: type of %v", reflect.TypeOf(page.Params["a_table"]), reflect.TypeOf(param))
 	}

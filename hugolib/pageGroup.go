@@ -167,7 +167,7 @@ func (p Pages) GroupByParam(key string, order ...string) (PagesGroup, error) {
 	var tmp reflect.Value
 	var keyt reflect.Type
 	for _, e := range p {
-		param := e.GetParam(key)
+		param := e.getParamToLower(key)
 		if param != nil {
 			if _, ok := param.([]string); !ok {
 				keyt = reflect.TypeOf(param)
@@ -278,7 +278,7 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 	sorter := func(p Pages) Pages {
 		var r Pages
 		for _, e := range p {
-			param := e.GetParam(key)
+			param := e.getParamToLower(key)
 			if param != nil {
 				if _, ok := param.(time.Time); ok {
 					r = append(r, e)
@@ -286,13 +286,13 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 			}
 		}
 		pdate := func(p1, p2 *Page) bool {
-			return p1.GetParam(key).(time.Time).Unix() < p2.GetParam(key).(time.Time).Unix()
+			return p1.getParamToLower(key).(time.Time).Unix() < p2.getParamToLower(key).(time.Time).Unix()
 		}
 		pageBy(pdate).Sort(r)
 		return r
 	}
 	formatter := func(p *Page) string {
-		return p.GetParam(key).(time.Time).Format(format)
+		return p.getParamToLower(key).(time.Time).Format(format)
 	}
 	return p.groupByDateField(sorter, formatter, order...)
 }

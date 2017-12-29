@@ -72,7 +72,7 @@ func TestParseTaxonomies(t *testing.T) {
 			t.Fatalf("Failed parsing %q: %s", test, err)
 		}
 
-		param := p.GetParam("tags")
+		param := p.getParamToLower("tags")
 
 		if params, ok := param.([]string); ok {
 			expected := []string{"a", "b", "c"}
@@ -86,7 +86,7 @@ func TestParseTaxonomies(t *testing.T) {
 			}
 		}
 
-		param = p.GetParam("categories")
+		param = p.getParamToLower("categories")
 		singleparam := param.(string)
 
 		if singleparam != "d" {

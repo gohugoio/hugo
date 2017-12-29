@@ -714,7 +714,7 @@ func (p *Page) renderContent(content []byte) []byte {
 
 func (p *Page) getRenderingConfig() *helpers.BlackFriday {
 	p.renderingConfigInit.Do(func() {
-		bfParam := p.GetParam("blackfriday")
+		bfParam := p.getParamToLower("blackfriday")
 		if bfParam == nil {
 			p.renderingConfig = p.s.ContentSpec.BlackFriday
 			return
@@ -1306,6 +1306,10 @@ func (p *Page) update(f interface{}) error {
 }
 
 func (p *Page) GetParam(key string) interface{} {
+	return p.getParam(key, false)
+}
+
+func (p *Page) getParamToLower(key string) interface{} {
 	return p.getParam(key, true)
 }
 

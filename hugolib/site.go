@@ -1451,7 +1451,7 @@ func (s *Site) assembleTaxonomies() {
 
 		for _, p := range s.Pages {
 			vals := p.getParam(plural, !s.Info.preserveTaxonomyNames)
-			weight := p.GetParam(plural + "_weight")
+			weight := p.getParamToLower(plural + "_weight")
 			if weight == nil {
 				weight = 0
 			}
