@@ -69,6 +69,8 @@ func TestHighlight(t *testing.T) {
 		expect interface{}
 	}{
 		{"func boo() {}", "go", "", "boo"},
+		// Issue #4179
+		{`<Foo attr=" &lt; "></Foo>`, "xml", "", `&amp;lt;`},
 		{tstNoStringer{}, "go", "", false},
 	} {
 		errMsg := fmt.Sprintf("[%d]", i)
@@ -81,7 +83,7 @@ func TestHighlight(t *testing.T) {
 		}
 
 		require.NoError(t, err, errMsg)
-		assert.Contains(t, result, "boo", errMsg)
+		assert.Contains(t, result, test.expect.(string), errMsg)
 	}
 }
 
