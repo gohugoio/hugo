@@ -148,7 +148,7 @@ started:
 **Note:** Hugo uses [mage](https://github.com/magefile/mage) to build. To install `mage` run
 
 ```bash
-go get github.com/magefile/mage
+go get -u github.com/magefile/mage
 ```
 
 `mage -l` lists all available commands with the corresponding description. To build Hugo run
