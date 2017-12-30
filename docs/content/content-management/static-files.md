@@ -42,4 +42,7 @@ In the above, with no theme used:
 * The English site will get its static files as a union of "static1", "static2" and "static_en". On file duplicates, the right-most version will win.
 * The Norwegian site will get its static files as a union of "staticDir_override" and "static_no".
 
+**Note:** The `2` `static2` (can be a number between 0 and 10) is added to tell Hugo that you want to **add** this directory to the global set of static directories. Using `staticDir` on the language level would replace the global value.
+
+
 **Note:** The example above is a [multihost setup](/content-management/multilingual/#configure-multilingual-multihost). In a regular setup, all the static directories will be available to all sites.

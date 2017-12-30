@@ -33,22 +33,22 @@ Hugo's Git integrations should be fairly performant but *can* increase your buil
 
 The `GitInfo` object contains the following fields:
 
-`.AbbreviatedHash`
+.AbbreviatedHash
 : the abbreviated commit hash (e.g., `866cbcc`)
 
-`.AuthorName`
+.AuthorName
 : the author's name, respecting `.mailmap`
 
-`.AuthorEmail`
+.AuthorEmail
 : the author's email address, respecting `.mailmap`
 
-`.AuthorDate`
+.AuthorDate
 : the author date
 
-`.Hash`
+.Hash
 : the commit hash (e.g., `866cbccdab588b9908887ffd3b4f2667e94090c3`)
 
-`.Subject`
+.Subject
 : commit message subject (e.g., `tpl: Add custom index function`)
 
 ## `.Lastmod`
