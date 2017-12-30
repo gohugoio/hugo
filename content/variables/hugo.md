@@ -21,16 +21,16 @@ wip: false
 
 It contains the following fields:
 
-`.Hugo.Generator`
+.Hugo.Generator
 : `<meta>` tag for the version of Hugo that generated the site. `.Hugo.Generator` outputs a *complete* HTML tag; e.g. `<meta name="generator" content="Hugo 0.18" />`
 
-`.Hugo.Version`
+.Hugo.Version
 : the current version of the Hugo binary you are using e.g. `0.13-DEV`<br>
 
-`.Hugo.CommitHash`
+.Hugo.CommitHash
 : the git commit hash of the current Hugo binary e.g. `0e8bed9ccffba0df554728b46c5bbf6d78ae5247`
 
-`.Hugo.BuildDate`
+.Hugo.BuildDate
 : the compile date of the current Hugo binary formatted with RFC 3339 e.g. `2002-10-02T10:00:00-05:00`<br>
 
 {{% note "Use the Hugo Generator Tag" %}}

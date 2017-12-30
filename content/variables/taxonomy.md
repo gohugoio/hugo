@@ -24,22 +24,22 @@ toc: true
 
 For example, the following fields would be available in `layouts/_defaults/terms.html`, depending on how you organize your [taxonomy templates][taxonomytemplates]:
 
-`.Data.Singular`
+.Data.Singular
 : The singular name of the taxonomy (e.g., `tags => `tag`)
 
-`.Data.Plural`
+.Data.Plural
 : The plural name of the taxonomy (e.g., `tags => tags`)
 
-`.Data.Pages`
+.Data.Pages
 : The list of pages in the taxonomy
 
-`.Data.Terms`
+.Data.Terms
 : The taxonomy itself
 
-`.Data.Terms.Alphabetical`
+.Data.Terms.Alphabetical
 : The taxonomy terms alphabetized
 
-`.Data.Terms.ByCount`
+.Data.Terms.ByCount
 : The Terms ordered by popularity
 
 Note that `.Data.Terms.Alphabetical` and `.Data.Terms.ByCount` can also be reversed:

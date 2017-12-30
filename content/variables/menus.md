@@ -20,31 +20,31 @@ toc: false
 
 The [menu template][] has the following properties:
 
-`.URL`
+.URL
 : string
 
-`.Name`
+.Name
 : string
 
-`.Menu`
+.Menu
 : string
 
-`.Identifier`
+.Identifier
 : string
 
-`.Pre`
+.Pre
 : template.HTML
 
-`.Post`
+.Post
 : template.HTML
 
-`.Weight`
+.Weight
 : int
 
-`.Parent`
+.Parent
 : string
 
-`.Children`
+.Children
 : Menu
 
 [menu template]: /templates/menu-templates/

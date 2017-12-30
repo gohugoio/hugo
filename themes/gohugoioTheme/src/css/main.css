@@ -26,7 +26,6 @@
 
 @import '_svg';
 @import '_chroma';
-@import '_chroma2';
 @import '_variables';
 
 .nested-blockquote blockquote {

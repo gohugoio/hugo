@@ -20,13 +20,13 @@ toc: false
 
 A sitemap is a `Page` and therefore has all the [page variables][pagevars] available to use sitemap templates. They also have the following sitemap-specific variables available to them:
 
-`.Sitemap.ChangeFreq`
+.Sitemap.ChangeFreq
 : the page change frequency
 
-`.Sitemap.Priority`
+.Sitemap.Priority
 : the priority of the page
 
-`.Sitemap.Filename`
+.Sitemap.Filename
 : the sitemap filename
 
 [pagevars]: /variables/page/
