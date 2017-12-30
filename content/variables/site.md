@@ -22,82 +22,82 @@ The following is a list of site-level (aka "global") variables. Many of these va
 
 ## Site Variables List
 
-`.Site.AllPages`
+.Site.AllPages
 : array of all pages, regardless of their translation.
 
-`.Site.Author`
+.Site.Author
 : a map of the authors as defined in the site configuration.
 
-`.Site.BaseURL`
+.Site.BaseURL
 : the base URL for the site as defined in the site configuration.
 
-`.Site.BuildDrafts`
+.Site.BuildDrafts
 : a boolean (default: `false`) to indicate whether to build drafts as defined in the site configuration.
 
-`.Site.Copyright`
+.Site.Copyright
 : a string representing the copyright of your website as defined in the site configuration.
 
-`.Site.Data`
+.Site.Data
 : custom data, see [Data Templates](/templates/data-templates/).
 
-`.Site.DisqusShortname`
+.Site.DisqusShortname
 : a string representing the shortname of the Disqus shortcode as defined in the site configuration.
 
-`.Site.Files`
+.Site.Files
 : all source files for the Hugo website.
 
-`.Site.GoogleAnalytics`
+.Site.GoogleAnalytics
 : a string representing your tracking code for Google Analytics as defined in the site configuration.
 
-`.Site.IsMultiLingual`
+.Site.IsMultiLingual
 : whether there are more than one language in this site. See [Multilingual](/content-management/multilingual/) for more information.
 
-`.Site.Language.Lang`
+.Site.Language.Lang
 : the language code of the current locale (e.g., `en`).
 
-`.Site.Language.LanguageName`
+.Site.Language.LanguageName
 : the full language name (e.g. `English`).
 
-`.Site.Language.Weight`
+.Site.Language.Weight
 : the weight that defines the order in the `.Site.Languages` list.
 
-`.Site.Language`
+.Site.Language
 : indicates the language currently being used to render the website. This object's attributes are set in site configurations' language definition.
 
-`.Site.LanguageCode`
+.Site.LanguageCode
 : a string representing the language as defined in the site configuration. This is mostly used to populate the RSS feeds with the right language code.
 
-`.Site.LanguagePrefix`
+.Site.LanguagePrefix
 : this can be used to prefix URLs to point to the correct language. It will even work when only one defined language. See also the functions [absLangURL](/functions/abslangurl/) and [relLangURL](/functions/rellangurl).
 
-`.Site.Languages`
+.Site.Languages
 : an ordered list (ordered by defined weight) of languages.
 
-`.Site.LastChange`
+.Site.LastChange
 : a string representing the date/time of the most recent change to your site. This string is based on the [`date` variable in the front matter](/content-management/front-matter) of your content pages.
 
-`.Site.Menus`
+.Site.Menus
 : all of the menus in the site.
 
-`.Site.Pages`
+.Site.Pages
 : array of all content ordered by Date with the newest first. This array contains only the pages in the current language.
 
-`.Site.Permalinks`
+.Site.Permalinks
 : a string to override the default [permalink](/content-management/urls/) format as defined in the site configuration.
 
-`.Site.RegularPages`
+.Site.RegularPages
 : a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`.
 
-`.Site.RSSLink`
+.Site.RSSLink
 : the URL for the site RSS.
 
-`.Site.Sections`
+.Site.Sections
 : top-level directories of the site.
 
-`.Site.Taxonomies`
+.Site.Taxonomies
 : the [taxonomies](/taxonomies/usage/) for the entire site.  Replaces the now-obsolete `.Site.Indexes` since v0.11. Also see section [Taxonomies elsewhere](#taxonomies-elsewhere).
 
-`.Site.Title`
+.Site.Title
 : a string representing the title of the site.
 
 ## The `.Site.Params` Variable

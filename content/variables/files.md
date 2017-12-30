@@ -24,25 +24,25 @@ For information on creating shortcodes and templates that tap into Hugo's file-r
 
 The `.File` object contains the following fields:
 
-`.File.Path`
+.File.Path
 : the original relative path of the page (e.g., `content/posts/foo.en.md`)
 
-`.File.LogicalName`
+.File.LogicalName
 : the name of the content file that represents a page (e.g., `foo.en.md`)
 
-`.File.TranslationBaseName`
+.File.TranslationBaseName
 : the filename without extension or optional language identifier (e.g., `foo`)
 
-`.File.BaseFileName`
+.File.BaseFileName
 : the filename without extension (e.g., `foo.en`)
 
-`.File.Ext`
+.File.Ext
 : the file extension of the content file (e.g., `md`); this can also be called using `.File.Extension` as well. Note that it is *only* the extension without `.`.
 
-`.File.Lang`
+.File.Lang
 : the language associated with the given file if Hugo's [Multilingual features][multilingual] are enabled (e.g., `en`)
 
-`.File.Dir`
+.File.Dir
 : given the path `content/posts/dir1/dir2/`, the relative directory path of the content file will be returned (e.g., `posts/dir1/dir2/`)
 
 [Multilingual]: /content-management/multilingual/

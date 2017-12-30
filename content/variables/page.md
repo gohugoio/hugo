@@ -26,68 +26,65 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 
 ## Page Variables
 
-`.AlternativeOutputFormats`
+.AlternativeOutputFormats
 : contains all alternative formats for a given page; this variable is especially useful `link rel` list in your site's `<head>`. (See [Output Formats](/templates/output-formats/).)
 
-`.Content`
+.Content
 : the content itself, defined below the front matter.
 
-`.CurrentSection`
-: the page's current section. The value can be the page itself if it is a section or the homepage.
-
-`.Data`
+.Data
 : the data specific to this type of page.
 
-`.Date`
+.Date
 : the date associated with the page; `.Date` pulls from the `date` field in a content's front matter. See also `.ExpiryDate`, `.PublishDate`, and `.Lastmod`.
 
-`.Description`
+.Description
 : the description for the page.
 
-`.Dir`
+.Dir
 : the path of the folder containing this content file. The path is relative to the `content` folder.
 
-`.Draft`
+.Draft
 : a boolean, `true` if the content is marked as a draft in the front matter.
 
-`.ExpiryDate`
+.ExpiryDate
 : the date on which the content is scheduled to expire; `.ExpiryDate` pulls from the `expirydate` field in a content's front matter. See also `.PublishDate`, `.Date`, and `.Lastmod`.
 
-`.File`
+.File
 : filesystem-related data for this content file. See also [File Variables][].
 
-`.FuzzyWordCount`
+.FuzzyWordCount
 : the approximate number of words in the content.
 
-`.Hugo`
+.Hugo
 : see [Hugo Variables](/variables/hugo/).
 
-`.IsHome`
+.IsHome
 : `true` in the context of the [homepage](/templates/homepage/).
 
-`.IsNode`
+.IsNode
 : always `false` for regular content pages.
 
-`.IsPage`
+.IsPage
 : always `true` for regular content pages.
 
-`.IsTranslated`
+.IsTranslated
 : `true` if there are translations to display.
 
-`.Keywords`
+.Keywords
 : the meta keywords for the content.
 
-`.Kind`
+.Kind
 : the page's *kind*. Possible return values are `page`, `home`, `section`, `taxonomy`, or `taxonomyTerm`. Note that there are also `RSS`, `sitemap`, `robotsTXT`, and `404` kinds, but these are only available during the rendering of each of these respective page's kind and therefore *not* available in any of the `Pages` collections.
 
-`.Lang`
+.Lang
 : language taken from the language extension notation.
 
-`.Language`
+.Language
 : a language object that points to the language's definition in the site
 `config`.
 
-`.Lastmod`
+.Lastmod
 : the date the content was last modified. `.Lastmod` pulls from the `lastmod` field in a content's front matter.
 
  - If `lastmod` is not set, and `.GitInfo` feature is disabled, the front matter `date` field will be used.
@@ -95,97 +92,97 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 
 See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 
-`.LinkTitle`
+.LinkTitle
 : access when creating links to the content. If set, Hugo will use the `linktitle` from the front matter before `title`.
 
-`.Next`
+.Next
 : pointer to the following content (based on the `publishdate` field in front matter).
 
-`.NextInSection`
+.NextInSection
 : pointer to the following content within the same section (based on `publishdate` field in front matter).
 
-`.OutputFormats`
+.OutputFormats
 : contains all formats, including the current format, for a given page. Can be combined the with [`.Get` function](/functions/get/) to grab a specific format. (See [Output Formats](/templates/output-formats/).)
 
-`.Pages`
+.Pages
 : a collection of associated pages. This value will be `nil` for regular content pages. `.Pages` is an alias for `.Data.Pages`.
 
-`.Permalink`
+.Permalink
 : the Permanent link for this page; see [Permalinks](/content-management/urls/)
 
-`.Plain`
+.Plain
 : the Page content stripped of HTML tags and presented as a string.
 
-`.PlainWords`
+.PlainWords
 : the Page content stripped of HTML as a `[]string` using Go's [`strings.Fields`](https://golang.org/pkg/strings/#Fields) to split `.Plain` into a slice.
 
-`.Prev`
+.Prev
 : Pointer to the previous content (based on `publishdate` in front matter).
 
-`.PrevInSection`
+.PrevInSection
 : Pointer to the previous content within the same section (based on `publishdate` in front matter). For example, `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.
 
-`.PublishDate`
+.PublishDate
 : the date on which the content was or will be published; `.Publishdate` pulls from the `publishdate` field in a content's front matter. See also `.ExpiryDate`, `.Date`, and `.Lastmod`.
 
-`.RSSLink`
+.RSSLink
 : link to the taxonomies' RSS link.
 
-`.RawContent`
+.RawContent
 : raw markdown content without the front matter. Useful with [remarkjs.com](
 http://remarkjs.com)
 
-`.ReadingTime`
+.ReadingTime
 : the estimated time, in minutes, it takes to read the content.
 
-`.Ref`
+.Ref
 : returns the permalink for a given reference (e.g., `.Ref "sample.md"`).  `.Ref` does *not* handle in-page fragments correctly. See [Cross References](/content-management/cross-references/).
 
-`.RelPermalink`
+.RelPermalink
 : the relative permanent link for this page.
 
-`.RelRef`
+.RelRef
 : returns the relative permalink for a given reference (e.g., `RelRef
 "sample.md"`). `.RelRef` does *not* handle in-page fragments correctly. See [Cross References](/content-management/cross-references/).
 
-`.Section`
-: the [section](/content-management/sections/) this content belongs to.
-
-`.Sections`
-: the [sections](/content-management/sections/) below this content.
-
-`.Site`
+.Site
 : see [Site Variables](/variables/site/).
 
-`.Summary`
+.Summary
 : a generated summary of the content for easily showing a snippet in a summary view. The breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page. See [Content Summaries](/content-management/summaries/) for more details.
 
-`.TableOfContents`
+.TableOfContents
 : the rendered [table of contents](/content-management/toc/) for the page.
 
-`.Title`
+.Title
 : the title for this page.
 
-`.Translations`
+.Translations
 : a list of translated versions of the current page. See [Multilingual Mode](/content-management/multilingual/) for more information.
 
-`.Truncated`
+.Truncated
 : a boolean, `true` if the `.Summary` is truncated. Useful for showing a "Read more..." link only when necessary.  See [Summaries](/content-management/summaries/) for more information.
 
-`.Type`
+.Type
 : the [content type](/content-management/types/) of the content (e.g., `post`).
 
-`.URL`
+.URL
 : the URL for the page relative to the web root. Note that a `url` set directly in front matter overrides the default relative URL for the rendered page.
 
-`.UniqueID`
+.UniqueID
 : the MD5-checksum of the content file's path.
 
-`.Weight`
+.Weight
 : assigned weight (in the front matter) to this content, used in sorting.
 
-`.WordCount`
+.WordCount
 : the number of words in the content.
+
+## Section Variables and Methods
+
+Also see [Sections](/content-management/sections/).
+
+{{< readfile file="/content/readfiles/sectionvars.md" markdown="true" >}}
 
 ## Page-level Params
 

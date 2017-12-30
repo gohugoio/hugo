@@ -63,7 +63,7 @@ Only the obvious non-global options can be overridden per language. Examples of 
 
 From **Hugo 0.31** we support multiple languages in a multihost configuration. See [this issue](https://github.com/gohugoio/hugo/issues/4027) for details.
 
-This means that you can now confugre a `baseURL` per `language`:
+This means that you can now configure a `baseURL` per `language`:
 
 
 > If a `baseURL` is set on the `language` level, then all languages must have one and they must all be different.
@@ -191,6 +191,19 @@ To create a list of links to translated content, use a template similar to the f
 The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template, be it for a [single content page][contenttemplate] or the [homepage][]. It will not print anything if there are no translations for a given page, or if there are translations---in the case of the homepage, section listing, etc.---a site with only render one language.
 
 The above also uses the [`i18n` function][i18func] described in the next section.
+
+## List All Available Languages
+
+`.AllTranslations` on a `Page` can be used to list all translations, including itself. Called on the home page it can be used to build a language navigator:
+
+
+{{< code file="layouts/partials/allLanguages.html" >}}
+<ul>
+{{ range $.Site.Home.AllTranslations }}
+<li><a href="{{ .}}">{{ .Language.LanguageName }}</a></li>
+{{ end }}
+</ul>
+{{< /code >}}
 
 ## Translation of Strings
 

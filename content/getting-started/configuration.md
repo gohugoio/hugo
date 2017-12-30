@@ -288,8 +288,7 @@ pygmentsUseClasses =          false
 SectionPagesMenu =
 # default sitemap configuration map
 sitemap =
-# filesystem path to read files relative from
-source =                      ""
+# filesystem path to read static files relative from
 staticDir =                   "static"
 # display memory and timing of different steps of the program
 stepAnalysis =                false

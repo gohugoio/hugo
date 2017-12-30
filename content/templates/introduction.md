@@ -101,7 +101,7 @@ Go templates only ship with a few basic functions but also provide a mechanism f
 => true (i.e., since 1 is less than 2)
 ```
 
-Note that both examples make us of Go template's [math functions][].
+Note that both examples make use of Go template's [math functions][].
 
 {{% note "Additional Boolean Operators" %}}
 There are more boolean operators than those listed in the Hugo docs in the [Golang template documentation](http://golang.org/pkg/text/template/#hdr-Functions).

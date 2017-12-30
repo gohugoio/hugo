@@ -24,12 +24,12 @@ This theme uses the [Tachyons CSS Library](http://tachyons.io/). It's about 15kb
 
 You'll find the commands to run in `src/package.json`.
 
-For development, you'll need Node and Yarn installed:
+For development, you'll need Node with NPM installed:
 
 ```
 $ cd themes/gohugo-theme/src/
 
-$ yarn install
+$ npm install
 
 $ npm start
 
@@ -37,13 +37,3 @@ $ npm start
 This will process both the postcss and scripts.
 
 For production, instead of `npm start`, run `npm run build:production,` which will output minified versions of your files.
-
-
----
-To run the NPM "critical" from package.json, you first must run `hugo` from the root of the project to generate a `public` folder.
-
-Make critical better:
-
-- [ ] run for a wider variety of pages. It currently runs off the new Hugo home page, but should run for docs/themes. There's much shared between them though.
-
-- [ ] Minify the CSS. The critical script seems only to minify when running inline, which we don't want to do (because it would change the build process)
