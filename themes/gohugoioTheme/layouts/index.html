@@ -14,6 +14,9 @@
   <section class="w-100 ph4 ph5-ns pv4 pv6-ns mid-gray bg-white bb bt b--light-gray">
     {{- partial "home-page-sections/installation" . -}}
   </section>
+
+  {{ partial "home-page-sections/sponsors.html" (dict "cx" . ) }}
+
   <section class="w-100 ph4 ph5-ns pv4 pv6-ns mid-gray bg-accent-color-dark">
     {{- partial "home-page-sections/tweets" . -}}
   </section>

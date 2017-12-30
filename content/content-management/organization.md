@@ -17,20 +17,15 @@ aliases: [/content/sections/]
 toc: true
 ---
 
-{{% note %}}
-This section is not updated with the new nested sections support in Hugo 0.24, see https://github.com/gohugoio/hugoDocs/issues/36
-{{% /note %}}
-{{% todo %}}
-See above
-{{% /todo %}}
-
 {{< youtube 0GZxidrlaRM >}}
 
 ## Organization of Content Source
 
 In Hugo, your content should be organized in a manner that reflects the rendered website.
 
-While Hugo supports content nested at any level, the top levels (i.e. `content/<DIRECTORIES>`) are special in Hugo and are considered the content [sections][]. Without any additional configuration, the following will just work:
+While Hugo supports content nested at any level, the top levels (i.e. `content/<DIRECTORIES>`) are special in Hugo and are considered the content type used to determine layouts etc. To read more about sections, including how to nest them, see [sections][]. 
+
+Without any additional configuration, the following will just work:
 
 ```
 .
@@ -49,11 +44,16 @@ While Hugo supports content nested at any level, the top levels (i.e. `content/<
 
 ## Path Breakdown in Hugo
 
+
 The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "https://example.com"` in your [site's configuration file][config].
 
 ### Index Pages: `_index.md`
 
-`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists] as of v0.18. These templates include those for [section templates][], [taxonomy templates][], [taxonomy terms templates][], and your [homepage template][]. In your templates, you can grab information from `_index.md` using the [`.Site.GetPage` function][getpage].
+`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists]. These templates include those for [section templates][], [taxonomy templates][], [taxonomy terms templates][], and your [homepage template][]. 
+
+{{% note %}}
+**Tip:** You can get a reference to the content and metadata in `_index.md` using the [`.Site.GetPage` function](/functions/getpage/).
+{{% /note %}}
 
 You can keep one `_index.md` for your homepage and one in each of your content sections, taxonomies, and taxonomy terms. The following shows typical placement of an `_index.md` that would contain content and front matter for a `posts` section list page on a Hugo website:
 
@@ -81,6 +81,9 @@ At build, this will output to the following destination with the associated valu
 https://example.com/posts/index.html
 ```
 
+The [sections][] can be nested as deeply as you need. The important part to understand is, that to make the section tree fully navigational, at least the lower-most section needs a content file. (i.e. `_index.md`).
+
+
 ### Single Pages in Sections
 
 Single content files in each of your sections are going to be rendered as [single page templates][singles]. Here is an example of a single `post` within `posts`:
@@ -107,27 +110,6 @@ At the time Hugo builds your site, the content will be output to the following d
 https://example.com/posts/my-first-hugo-post/index.html
 ```
 
-### Section with Nested Directories
-
-To continue the example, the following demonstrates destination paths for a file located at `content/events/chicago/lollapalooza.md` in the same site:
-
-
-```
-                    section
-                    ⊢--^--⊣
-                               url
-                    ⊢-------------^------------⊣
-
-      baseURL             path        slug
-⊢--------^--------⊣ ⊢------^-----⊣⊢----^------⊣
-                  permalink
-⊢----------------------^-----------------------⊣
-https://example.com/events/chicago/lollapalooza/
-```
-
-{{% note %}}
-As of v0.20, Hugo does not recognize nested sections. While you can nest as many content *directories* as you'd like, any child directory of a section will still be considered the same section as that of its parents. Therefore, in the above example, `{{.Section}}` for `lollapalooza.md` is `events` and *not* `chicago`. See the [related issue on GitHub](https://github.com/gohugoio/hugo/issues/465).
-{{% /note %}}
 
 ## Paths Explained
 

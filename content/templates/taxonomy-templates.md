@@ -78,6 +78,9 @@ A Taxonomy is a `map[string]WeightedPages`.
 .ByCount
 : Returns an OrderedTaxonomy (slice) ordered by number of entries.
 
+.Reverse
+: Returns an OrderedTaxonomy (slice) in reverse order. Must be used with an OrderedTaxonomy.
+
 ### OrderedTaxonomy
 
 Since Maps are unordered, an OrderedTaxonomy is a special structure that has a defined order.
@@ -155,6 +158,17 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 <ul>
   {{ $data := .Data }}
   {{ range $key, $value := .Data.Terms.ByCount }}
+  <li><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+  {{ end }}
+</ul>
+```
+
+### Order by Least Popular Example
+
+```
+<ul>
+  {{ $data := .Data }}
+  {{ range $key, $value := .Data.Terms.ByCount.Reverse }}
   <li><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
   {{ end }}
 </ul>

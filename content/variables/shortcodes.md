@@ -20,13 +20,13 @@ toc: false
 
 [Shortcodes][shortcodes] have access to parameters delimited in the shortcode declaration via [`.Get`][getfunction], page- and site-level variables, and also the following shortcode-specific fields:
 
-`.Parent`
+.Parent
 : provides access to the parent shortcode context in nested shortcodes. This can be very useful for inheritance of common shortcode parameters from the root.
 
-`.IsNamedParams`
+.IsNamedParams
 : boolean that returns `true` when the shortcode in question uses [named rather than positional parameters][shortcodes]
 
-`.Inner`
+.Inner
 : represents the content between the opening and closing shortcode tags when a [closing shortcode][markdownshortcode] is used
 
 [getfunction]: /functions/get/
