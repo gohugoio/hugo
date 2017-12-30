@@ -23,6 +23,7 @@ A static website with a dynamic search function? Yes. As alternatives to embedda
 * [Hugoidx](https://github.com/blevesearch/hugoidx) is an experimental application to create a search index. It's built on top of [Bleve](http://www.blevesearch.com/).
 * [GitHub Gist for Hugo Workflow](https://gist.github.com/sebz/efddfc8fdcb6b480f567). This gist contains a simple workflow to create a search index for your static website. It uses a simple Grunt script to index all your content files and [lunr.js](http://lunrjs.com/) to serve the search results.
 * [hugo-lunr](https://www.npmjs.com/package/hugo-lunr). A simple way to add site search to your static Hugo site using [lunr.js](http://lunrjs.com/). Hugo-lunr will create an index file of any html and markdown documents in your Hugo project.
+* [hugo-lunr-zh](https://www.npmjs.com/package/hugo-lunr-zh). A bit like Hugo-lunr, but Hugo-lunr-zh can help you seperate the Chinese keywords.
 
 ## Commercial Search Services
 
