@@ -102,6 +102,13 @@ Type here is `page` for pages, else the main type in the MIME type, so `image`, 
 
 ## Image Processing
 
+{{% note %}}
+There is a known issue with image processing in shortcodes. See https://github.com/gohugoio/hugo/issues/4202
+
+
+We will fix in a day or two.
+{{% /note %}}
+
 The `image` resource implements the methods `Resize`, `Fit` and `Fill`:
 
 Resize
