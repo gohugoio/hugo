@@ -411,7 +411,19 @@ func (i *Image) copyToDestination(src string) error {
 		defer in.Close()
 
 		out, err := i.spec.Fs.Destination.Create(target)
-		if err != nil {
+		if err != nil && os.IsNotExist(err) {
+			// When called from shortcodes, the target directory may not exist yet.
+			// See https://github.com/gohugoio/hugo/issues/4202
+			if err = i.spec.Fs.Source.MkdirAll(filepath.Dir(target), os.FileMode(0755)); err != nil {
+				res = err
+				return
+			}
+			out, err = i.spec.Fs.Destination.Create(target)
+			if err != nil {
+				res = err
+				return
+			}
+		} else if err != nil {
 			res = err
 			return
 		}
