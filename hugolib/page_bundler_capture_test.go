@@ -143,7 +143,7 @@ F:
 D:
 __bundle/en/work/base/_index.md/resources/en/work/base/_1.png
 __bundle/en/work/base/a/b/index.md/resources/en/work/base/a/b/ab1.md
-__bundle/en/work/base/b/index.md/resources/en/work/base/b/1.md|en/work/base/b/2.md|en/work/base/b/c/logo.png|en/work/base/b/custom-mime.bep
+__bundle/en/work/base/b/index.md/resources/en/work/base/b/1.md|en/work/base/b/2.md|en/work/base/b/c/logo.png|en/work/base/b/custom-mime.bep|en/work/base/b/sunset1.jpg|en/work/base/b/sunset2.jpg
 C:
 /work/base/assets/pic1.png
 /work/base/assets/pic2.png

@@ -20,6 +20,8 @@ import (
 	"strings"
 	"testing"
 
+	"io"
+
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/media"
@@ -104,10 +106,10 @@ func TestPageBundlerSite(t *testing.T) {
 				secondPage := pageResources[1].(*Page)
 				assert.Equal(filepath.FromSlash("b/1.md"), firstPage.pathOrTitle(), secondPage.pathOrTitle())
 				assert.Contains(firstPage.Content, "TheContent")
-				assert.Len(leafBundle1.Resources, 4) // 2 pages 1 image 1 custom mime type
+				assert.Len(leafBundle1.Resources, 6) // 2 pages 3 images 1 custom mime type
 
 				imageResources := leafBundle1.Resources.ByType("image")
-				assert.Len(imageResources, 1)
+				assert.Len(imageResources, 3)
 				image := imageResources[0]
 
 				altFormat := leafBundle1.OutputFormats().Get("CUSTOMO")
@@ -123,7 +125,13 @@ func TestPageBundlerSite(t *testing.T) {
 
 				if ugly {
 					assert.Equal("/2017/pageslug.html", leafBundle1.RelPermalink())
-					th.assertFileContent(filepath.FromSlash("/work/public/2017/pageslug.html"), "TheContent")
+					th.assertFileContent(filepath.FromSlash("/work/public/2017/pageslug.html"),
+						"TheContent",
+						"Sunset RelPermalink: /2017/pageslug/sunset1.jpg",
+						"Thumb Width: 123",
+						"Short Sunset RelPermalink: /2017/pageslug/sunset2.jpg",
+						"Short Thumb Width: 56",
+					)
 					th.assertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug.html"), "TheContent")
 
 					assert.Equal("/a/b.html", leafBundle2.RelPermalink())
@@ -163,6 +171,7 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 
 func newTestBundleSources(t *testing.T) (*viper.Viper, *hugofs.Fs) {
 	cfg, fs := newTestCfg()
+	assert := require.New(t)
 
 	workDir := "/work"
 	cfg.Set("workingDir", workDir)
@@ -183,6 +192,17 @@ date: 2017-10-09
 TheContent.
 `
 
+	pageWithImageShortcodeContent := `---
+title: "Bundle Galore"
+slug: pageslug
+date: 2017-10-09
+---
+
+TheContent.
+
+{{< myShort >}}
+`
+
 	pageContentNoSlug := `---
 title: "Bundle Galore #2"
 date: 2017-10-09
@@ -191,10 +211,32 @@ date: 2017-10-09
 TheContent.
 `
 
-	layout := `{{ .Title }}|{{ .Content }}`
+	singleLayout := `
+Title: {{ .Title }}
+Content: {{ .Content }}
+{{ $sunset := .Resources.GetByPrefix "sunset1" }}
+{{ with $sunset }}
+Sunset RelPermalink: {{ .RelPermalink }}
+{{ $thumb := .Fill "123x123" }}
+Thumb Width: {{ $thumb.Width }}
+{{ end }}
 
-	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "single.html"), layout)
-	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "list.html"), layout)
+`
+
+	myShort := `
+{{ $sunset := .Page.Resources.GetByPrefix "sunset2" }}
+{{ with $sunset }}
+Short Sunset RelPermalink: {{ .RelPermalink }}
+{{ $thumb := .Fill "56x56" }}
+Short Thumb Width: {{ $thumb.Width }}
+{{ end }}
+`
+
+	listLayout := `{{ .Title }}|{{ .Content }}`
+
+	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "single.html"), singleLayout)
+	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "list.html"), listLayout)
+	writeSource(t, fs, filepath.Join(workDir, "layouts", "shortcodes", "myShort.html"), myShort)
 
 	writeSource(t, fs, filepath.Join(workDir, "base", "_index.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "_1.md"), pageContent)
@@ -213,11 +255,29 @@ TheContent.
 	writeSource(t, fs, filepath.Join(workDir, "base", "assets", "pages", "mypage.md"), pageContent)
 
 	// Bundle
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "index.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "index.md"), pageWithImageShortcodeContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "1.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "2.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "custom-mime.bep"), "bepsays")
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "c", "logo.png"), "content")
+
+	// Write a real image into one of the bundle above.
+	src, err := os.Open("testdata/sunset.jpg")
+	assert.NoError(err)
+
+	// We need 2 to test https://github.com/gohugoio/hugo/issues/4202
+	out, err := fs.Source.Create(filepath.Join(workDir, "base", "b", "sunset1.jpg"))
+	assert.NoError(err)
+	out2, err := fs.Source.Create(filepath.Join(workDir, "base", "b", "sunset2.jpg"))
+	assert.NoError(err)
+
+	_, err = io.Copy(out, src)
+	out.Close()
+	src.Seek(0, 0)
+	_, err = io.Copy(out2, src)
+	out2.Close()
+	src.Close()
+	assert.NoError(err)
 
 	return cfg, fs
 }
@@ -355,6 +415,10 @@ TheContent.
 	writeSource(t, fs, filepath.Join(workDir, "symcontent3", "s1.png"), "image")
 	writeSource(t, fs, filepath.Join(workDir, "symcontent3", "s2.png"), "image")
 
+	wd, _ := os.Getwd()
+	defer func() {
+		os.Chdir(wd)
+	}()
 	// Symlinked sections inside content.
 	os.Chdir(filepath.Join(workDir, contentDir))
 	for i := 1; i <= 3; i++ {
