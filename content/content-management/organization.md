@@ -22,7 +22,10 @@ toc: true
 ## Content Bundles and Image Processing
 
 See [This Page](/about/new-in-032/). We will get the relevant parts of the rest of the Hugo docs updated. Eventually.
+
 {{< todo >}}
+Remove the above when done.
+{{< /todo >}}
 
 ## Organization of Content Source
 
