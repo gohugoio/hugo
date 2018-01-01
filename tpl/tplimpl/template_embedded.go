@@ -289,5 +289,16 @@ ga('send', 'pageview');
 <script async src='//www.google-analytics.com/analytics.js'></script>
 {{ end }}`)
 
+	t.addInternalTemplate("", "google_analytics_gtag.html", `{{ with .Site.GoogleAnalytics }}
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{{ . }}');
+</script>
+{{ end }}`)
+
 	t.addInternalTemplate("_default", "robots.txt", "User-agent: *")
 }

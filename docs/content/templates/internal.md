@@ -27,7 +27,7 @@ While the following internal templates are called similar to partials, they do *
 
 ## Google Analytics
 
-Hugo ships with internal templates for Google Analytics tracking, including both synchronous and asynchronous tracking codes.
+Hugo ships with internal templates for Google Analytics tracking, including both [analytics.js](https://developers.google.com/analytics/devguides/collection/analyticsjs/) and [gtag.js](https://developers.google.com/analytics/devguides/collection/gtagjs/) tracking codes.
 
 ### Configure Google Analytics
 
@@ -45,6 +45,7 @@ googleAnalytics: "UA-123-45"
 
 You can then include the Google Analytics internal template:
 
+#### analytics.js
 ```
 {{ template "_internal/google_analytics.html" . }}
 ```
@@ -52,6 +53,11 @@ You can then include the Google Analytics internal template:
 
 ```
 {{ template "_internal/google_analytics_async.html" . }}
+```
+
+#### gtag.js
+```
+{{ template "_internal/google_analytics_gtag.html" . }}
 ```
 
 ## Disqus
