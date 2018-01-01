@@ -414,7 +414,7 @@ func (i *Image) copyToDestination(src string) error {
 		if err != nil && os.IsNotExist(err) {
 			// When called from shortcodes, the target directory may not exist yet.
 			// See https://github.com/gohugoio/hugo/issues/4202
-			if err = i.spec.Fs.Source.MkdirAll(filepath.Dir(target), os.FileMode(0755)); err != nil {
+			if err = i.spec.Fs.Destination.MkdirAll(filepath.Dir(target), os.FileMode(0755)); err != nil {
 				res = err
 				return
 			}
