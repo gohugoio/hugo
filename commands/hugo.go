@@ -132,6 +132,7 @@ Complete documentation is available at http://gohugo.io/.`,
 			if buildWatch {
 				c.Set("disableLiveReload", true)
 			}
+			c.Set("renderToMemory", renderToMemory)
 			return nil
 		}
 
