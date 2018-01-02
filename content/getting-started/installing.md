@@ -4,7 +4,7 @@ linktitle: Install Hugo
 description: Install Hugo on macOS, Windows, Linux, FreeBSD, and on any machine where the Go compiler tool chain can run.
 date: 2016-11-01
 publishdate: 2016-11-01
-lastmod: 2017-02-20
+lastmod: 2018-01-02
 categories: [getting started,fundamentals]
 authors: ["Michael Henderson"]
 keywords: [install,pc,windows,linux,macos,binary,tarball]
@@ -453,7 +453,15 @@ You can also install Hugo from the Arch Linux [community](https://www.archlinux.
 sudo pacman -Sy hugo
 ```
 
-### Fedora, CentOS, and Red Hat
+### Fedora
+
+Fedora provides a package for Hugo. The installation is done with the command :
+
+```
+sudo dnf install hugo
+```
+
+### CentOS, and Red Hat
 
 * <https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/>
 
