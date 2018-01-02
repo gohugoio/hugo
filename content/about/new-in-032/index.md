@@ -12,6 +12,8 @@ sections_weight: 10
 draft: false
 aliases: []
 toc: true
+images:
+- images/blog/sunset.jpg
 ---
 
 
