@@ -8,7 +8,7 @@
 {{ else if eq $command "Fill"}}
 {{ .Scratch.Set "image" ($original.Fill $options) }}
 {{ else }}
-{{ errorf "Invalid image processing command: Must be one of fit, fill or resize."}}
+{{ errorf "Invalid image processing command: Must be one of Fit, Fill or Resize."}}
 {{ end }}
 {{ $image := .Scratch.Get "image" }}
 <figure style="width: {{ add $image.Width 3 }}px; padding: 3px; background-color: #cccc">
