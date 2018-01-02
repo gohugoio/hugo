@@ -71,7 +71,7 @@ twitter = "GoHugoIO"
 [params]
   description = "The world’s fastest framework for building websites"
   ## Used for views in rendered HTML (i.e., rather than using the .Hugo variable)
-  release = "0.33-DEV"
+  release = "0.32.1"
   ## Setting this to true will add a "noindex" to *EVERY* page on the site
   removefromexternalsearch = false
   ## Gh repo for site footer (include trailing slash)
