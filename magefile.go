@@ -45,19 +45,16 @@ func Vendor() error {
 
 // Build hugo binary
 func Hugo() error {
-	mg.Deps(Vendor)
 	return sh.RunWith(flagEnv(), goexe, "build", "-ldflags", ldflags, packageName)
 }
 
 // Build hugo binary with race detector enabled
 func HugoRace() error {
-	mg.Deps(Vendor)
 	return sh.RunWith(flagEnv(), goexe, "build", "-race", "-ldflags", ldflags, packageName)
 }
 
 // Install hugo binary
 func Install() error {
-	mg.Deps(Vendor)
 	return sh.RunWith(flagEnv(), goexe, "install", "-ldflags", ldflags, packageName)
 }
 
@@ -115,13 +112,11 @@ func Test386() error {
 
 // Run tests
 func Test() error {
-	mg.Deps(getDep)
 	return sh.Run(goexe, "test", "./...")
 }
 
 // Run tests with race detector
 func TestRace() error {
-	mg.Deps(getDep)
 	return sh.Run(goexe, "test", "-race", "./...")
 }
 

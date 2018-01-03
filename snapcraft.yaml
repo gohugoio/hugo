@@ -29,8 +29,7 @@ parts:
       export PATH=$GOPATH/bin:$PATH
       cd $GOPATH/src/github.com/gohugoio/hugo
       go get github.com/magefile/mage
-      mage vendor
-      mage test
+      mage vendor test
       rm -f $GOPATH/bin/dep
       rm -f $GOPATH/bin/mage
     install: |

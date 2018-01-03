@@ -12,7 +12,7 @@ install:
   - go get github.com/magefile/mage
 
 build_script:
-  - mage hugoRace
+  - mage vendor hugoRace
   - mage -v check
   - hugo -s docs/
   - hugo --renderToMemory -s docs/
