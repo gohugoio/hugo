@@ -12,6 +12,8 @@ sections_weight: 10
 draft: false
 aliases: []
 toc: true
+images:
+- images/blog/sunset.jpg
 ---
 
 
@@ -118,6 +120,35 @@ Fill
 Image operations in Hugo currently **do not preserve EXIF data** as this is not supported by Go's [image package](https://github.com/golang/go/search?q=exif&type=Issues&utf8=%E2%9C%93). This will be improved on in the future.
 {{% /note %}}
 
+
+### Image Processing Examples
+
+_The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pedersen](https://commons.wikimedia.org/wiki/User:Bep) (Creative Commons Attribution-Share Alike 4.0 International license)_
+
+
+{{< imgproc sunset Resize "300x" >}}
+
+{{< imgproc sunset Fill "90x120 left" >}}
+
+{{< imgproc sunset Fill "90x120 right" >}}
+
+{{< imgproc sunset Fit "90x90" >}}
+
+{{< imgproc sunset Resize "300x q10" >}}
+
+
+This is the shortcode used in the examples above:
+
+
+{{< code file="layouts/shortcodes/imgproc.html" >}}
+{{< readfile file="layouts/shortcodes/imgproc.html" >}}   
+{{< /code >}}
+
+And it is used like this:
+
+```html
+{{</* imgproc sunset Resize "300x" */>}}
+```
 
 ### Image Processing Options
 

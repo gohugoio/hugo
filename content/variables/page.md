@@ -191,7 +191,7 @@ Any other value defined in the front matter in a content file, including taxonom
 ```
 ---
 title: My First Post
-date: date: 2017-02-20T15:26:23-06:00
+date: 2017-02-20T15:26:23-06:00
 categories: [one]
 tags: [two,three,four]
 ```
