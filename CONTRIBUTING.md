@@ -88,42 +88,42 @@ new default function more useful for Hugo users.
 Fixes #1949
 ```
 
-### Vendored Dependencies
-
-Hugo uses [Go Dep](https://github.com/golang/dep) to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository.
-Therefore, a simple `go get` is not supported since `go get` is not vendor-aware.
-
-You **must use Go Dep** to fetch and manage Hugo's dependencies.
-
-###  Fetch the Sources From GitHub
+###  Fetching the Sources From GitHub
 
 Due to the way Go handles package imports, the best approach for working on a
 Hugo fork is to use Git Remotes.  Here's a simple walk-through for getting
 started:
 
-1. Install Go Dep and get the Hugo source:
+1. Get the Hugo source:
 
+    ```bash
+    go get -u -v -d github.com/gohugoio/hugo
     ```
-	go get -u -v github.com/golang/dep/cmd/dep
-	go get -u -v -d github.com/gohugoio/hugo
-	```
+
+1. Install Mage:
+
+    ```bash
+    go get github.com/magefile/mage
+    ```
 
 1. Change to the Hugo source directory and fetch the dependencies:
 
-    ```
+    ```bash
     cd $HOME/go/src/github.com/gohugoio/hugo
-	dep ensure
+    mage vendor
     ```
+
+    Note that Hugo uses [Go Dep](https://github.com/golang/dep) to vendor dependencies, rather than a a simple `go get`. We don't commit the vendored packages themselves to the Hugo git repository. The call to `mage vendor` takes care of all this for you.
 
 1. Create a new branch for your changes (the branch name is arbitrary):
 
-    ```
+    ```bash
     git checkout -b iss1234
     ```
 
 1. After making your changes, commit them to your new branch:
 
-    ```
+    ```bash
     git commit -a -v
     ```
 
@@ -131,33 +131,49 @@ started:
 
 1. Add your fork as a new remote (the remote name, "fork" in this example, is arbitrary):
 
-    ```
+    ```bash
     git remote add fork git://github.com/USERNAME/hugo.git
     ```
 
 1. Push the changes to your new remote:
 
-    ```
+    ```bash
     git push --set-upstream fork iss1234
     ```
 
 1. You're now ready to submit a PR based upon the new branch in your forked repository.
 
-### Build Hugo with Your Changes
+### Building Hugo with Your Changes
 
-**Note:** Hugo uses [mage](https://github.com/magefile/mage) to build. To install `mage` run
-
-```bash
-go get github.com/magefile/mage
-```
-
-`mage -l` lists all available commands with the corresponding description. To build Hugo run
+Hugo uses [mage](https://github.com/magefile/mage) to sync vendor dependencies, build Hugo, run the test suite and other things. You must run mage from the Hugo directory.
 
 ```bash
 cd $HOME/go/src/github.com/gohugoio/hugo
+```
+
+To build Hugo: 
+
+```bash
 mage hugo
-# or to install in $HOME/go/bin:
+```
+
+To install hugo in `$HOME/go/bin`:
+
+```bash
 mage install
+```
+
+To run the tests:
+
+```bash
+mage hugoRace
+mage -v check
+```
+
+To list all available commands along with descriptions:
+
+```bash
+mage -l
 ```
 
 ### Updating the Hugo Sources
@@ -166,7 +182,7 @@ If you want to stay in sync with the Hugo repository, you can easily pull down
 the source changes, but you'll need to keep the vendored packages up-to-date as
 well.
 
-```
+```bash
 git pull
 mage vendor
 ```
