@@ -50,7 +50,7 @@ type TemplateLookupDescriptor struct {
 	// Main project layout dir, defaults to "layouts"
 	LayoutDir string
 
-	// The path to the template relative the the base.
+	// The path to the template relative to the base.
 	//  I.e. shortcodes/youtube.html
 	RelPath string
 
