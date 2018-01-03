@@ -450,9 +450,20 @@ func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resource
 	target := filepath.Join(i.absPublishDir, filename)
 
 	file1, err := i.spec.Fs.Destination.Create(target)
-	if err != nil {
+	if err != nil && os.IsNotExist(err) {
+		// When called from shortcodes, the target directory may not exist yet.
+		// See https://github.com/gohugoio/hugo/issues/4202
+		if err = i.spec.Fs.Destination.MkdirAll(filepath.Dir(target), os.FileMode(0755)); err != nil {
+			return err
+		}
+		file1, err = i.spec.Fs.Destination.Create(target)
+		if err != nil {
+			return err
+		}
+	} else if err != nil {
 		return err
 	}
+
 	defer file1.Close()
 
 	var w io.Writer
