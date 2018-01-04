@@ -402,3 +402,32 @@ title: Shorty
 
 	}
 }
+
+func TestShortcodeTelegram(t *testing.T) {
+	t.Parallel()
+
+	for _, this := range []struct {
+		in, expected string
+	}{
+		{
+			"{{< telegram telegram 83 >}}",
+			`(?s)^<script async src="https://telegram.org/js/telegram-widget.js\?1" data-telegram-post="telegram/83" data-width="100%"></script>`,
+		},
+	} {
+		var (
+			cfg, fs = newTestCfg()
+			th      = testHelper{cfg, fs, t}
+		)
+
+		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
+title: Shorty
+---
+%s`, this.in))
+		writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .Content }}`)
+
+		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
+
+	}
+}

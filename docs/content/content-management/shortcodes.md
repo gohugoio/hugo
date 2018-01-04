@@ -300,6 +300,36 @@ Using the preceding `tweet` example, the following simulates the displayed exper
 
 {{< tweet 877500564405444608 >}}
 
+### `telegram`
+
+To embed a post from Telegram channel or public group you need just its URL:
+
+```
+https://t.me/telegram/83
+```
+
+#### Example `telegram` Input
+
+Pass channel handle and post number as parameters to the `telegram` shortcode:
+
+{{< code file="example-telegram-input.md" >}}
+{{</* telegram telegram 83 */>}}
+{{< /code >}}
+
+#### Example `telegram` Output
+
+The example markup above will be transformed to a following markup:
+
+{{< code file="example-telegram-output.md" >}}
+{{< telegram telegram 83 >}}
+{{< /code >}}
+
+#### Example `telegram` Display
+
+And this is how it will look like on your website:
+
+{{< telegram telegram 83 >}}
+
 ### `vimeo`
 
 Adding a video from [Vimeo][] is equivalent to the YouTube shortcode above.
