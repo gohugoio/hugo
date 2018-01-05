@@ -273,7 +273,11 @@ func (l *genericResource) Publish() error {
 }
 
 func (l *genericResource) target() string {
-	return l.relPermalinkForRel(l.rel, false)
+	target := l.relPermalinkForRel(l.rel, false)
+	if l.spec.PathSpec.Languages.IsMultihost() {
+		target = path.Join(l.spec.PathSpec.Language.Lang, target)
+	}
+	return target
 }
 
 func (r *Spec) newGenericResource(

@@ -208,7 +208,7 @@ func (p *PathSpec) getLanguagePrefix() string {
 	defaultLang := p.defaultContentLanguage
 	defaultInSubDir := p.defaultContentLanguageInSubdir
 
-	currentLang := p.language.Lang
+	currentLang := p.Language.Lang
 	if currentLang == "" || (currentLang == defaultLang && !defaultInSubDir) {
 		return ""
 	}
@@ -221,7 +221,7 @@ func (p *PathSpec) GetLangSubDir(lang string) string {
 		return ""
 	}
 
-	if p.languages.IsMultihost() {
+	if p.Languages.IsMultihost() {
 		return ""
 	}
 

@@ -394,7 +394,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	}
 
 	// Check bundles
-	bundleFr := enSite.getPage(KindPage, "bundles/b1/index.md")
+	bundleFr := frSite.getPage(KindPage, "bundles/b1/index.md")
 	require.NotNil(t, bundleFr)
 	require.Equal(t, "/blog/fr/bundles/b1/", bundleFr.RelPermalink())
 	require.Equal(t, 1, len(bundleFr.Resources))

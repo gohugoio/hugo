@@ -50,7 +50,7 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	require.True(t, p.removePathAccents)
 	require.True(t, p.uglyURLs)
 	require.Equal(t, "no", p.defaultContentLanguage)
-	require.Equal(t, "no", p.language.Lang)
+	require.Equal(t, "no", p.Language.Lang)
 	require.Equal(t, "side", p.paginatePath)
 
 	require.Equal(t, "http://base.com", p.BaseURL.String())
