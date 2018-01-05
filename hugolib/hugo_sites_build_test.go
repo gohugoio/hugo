@@ -235,10 +235,11 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	require.Equal(t, "en", enSite.Language.Lang)
 
-	if len(enSite.RegularPages) != 4 {
-		t.Fatal("Expected 4 english pages")
+	if len(enSite.RegularPages) != 5 {
+		t.Fatal("Expected 5 english pages")
 	}
-	require.Len(t, enSite.AllPages, 28, "should have 28 total pages (including translations and index types)")
+
+	require.Len(t, enSite.AllPages, 32, "should have 32 total pages (including translations and index types)")
 
 	doc1en := enSite.RegularPages[0]
 	permalink := doc1en.Permalink()
@@ -291,8 +292,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	frSite := sites.Sites[1]
 
 	require.Equal(t, "fr", frSite.Language.Lang)
-	require.Len(t, frSite.RegularPages, 3, "should have 3 pages")
-	require.Len(t, frSite.AllPages, 28, "should have 28 total pages (including translations and nodes)")
+	require.Len(t, frSite.RegularPages, 4, "should have 3 pages")
+	require.Len(t, frSite.AllPages, 32, "should have 32 total pages (including translations and nodes)")
 
 	for _, frenchPage := range frSite.RegularPages {
 		require.Equal(t, "fr", frenchPage.Lang())
@@ -392,6 +393,25 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 		next = next.Next
 	}
 
+	// Check bundles
+	bundleFr := enSite.getPage(KindPage, "bundles/b1/index.md")
+	require.NotNil(t, bundleFr)
+	require.Equal(t, "/blog/fr/bundles/b1/", bundleFr.RelPermalink())
+	require.Equal(t, 1, len(bundleFr.Resources))
+	logoFr := bundleFr.Resources.GetByPrefix("logo")
+	require.NotNil(t, logoFr)
+	require.Equal(t, "/blog/fr/bundles/b1/logo.png", logoFr.RelPermalink())
+	require.Contains(t, readFileFromFs(t, fs.Destination, filepath.FromSlash("public/fr/bundles/b1/logo.png")), "PNG Data")
+
+	bundleEn := enSite.getPage(KindPage, "bundles/b1/index.en.md")
+	require.NotNil(t, bundleEn)
+	require.Equal(t, "/blog/en/bundles/b1/", bundleEn.RelPermalink())
+	require.Equal(t, 1, len(bundleEn.Resources))
+	logoEn := bundleEn.Resources.GetByPrefix("logo")
+	require.NotNil(t, logoEn)
+	require.Equal(t, "/blog/en/bundles/b1/logo.png", logoEn.RelPermalink())
+	require.Contains(t, readFileFromFs(t, fs.Destination, filepath.FromSlash("public/en/bundles/b1/logo.png")), "PNG Data")
+
 }
 
 func TestMultiSitesRebuild(t *testing.T) {
@@ -420,8 +440,8 @@ func TestMultiSitesRebuild(t *testing.T) {
 	enSite := sites.Sites[0]
 	frSite := sites.Sites[1]
 
-	require.Len(t, enSite.RegularPages, 4)
-	require.Len(t, frSite.RegularPages, 3)
+	require.Len(t, enSite.RegularPages, 5)
+	require.Len(t, frSite.RegularPages, 4)
 
 	// Verify translations
 	th.assertFileContent("public/en/sect/doc1-slug/index.html", "Hello")
@@ -449,7 +469,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: filepath.FromSlash("content/sect/doc2.en.md"), Op: fsnotify.Remove}},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 3, "1 en removed")
+				require.Len(t, enSite.RegularPages, 4, "1 en removed")
 
 				// Check build stats
 				require.Equal(t, 1, enSite.draftCount, "Draft")
@@ -472,9 +492,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 				{Name: filepath.FromSlash("content/new1.fr.md"), Op: fsnotify.Create},
 			},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 5)
-				require.Len(t, enSite.AllPages, 30)
-				require.Len(t, frSite.RegularPages, 4)
+				require.Len(t, enSite.RegularPages, 6)
+				require.Len(t, enSite.AllPages, 34)
+				require.Len(t, frSite.RegularPages, 5)
 				require.Equal(t, "new_fr_1", frSite.RegularPages[3].Title)
 				require.Equal(t, "new_en_2", enSite.RegularPages[0].Title)
 				require.Equal(t, "new_en_1", enSite.RegularPages[1].Title)
@@ -492,7 +512,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: filepath.FromSlash("content/sect/doc1.en.md"), Op: fsnotify.Write}},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 5)
+				require.Len(t, enSite.RegularPages, 6)
 				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
 				require.True(t, strings.Contains(doc1, "CHANGED"), doc1)
 
@@ -510,7 +530,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				{Name: filepath.FromSlash("content/new1.en.md"), Op: fsnotify.Rename},
 			},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 5, "Rename")
+				require.Len(t, enSite.RegularPages, 6, "Rename")
 				require.Equal(t, "new_en_1", enSite.RegularPages[1].Title)
 				rendered := readDestination(t, fs, "public/en/new1renamed/index.html")
 				require.True(t, strings.Contains(rendered, "new_en_1"), rendered)
@@ -525,9 +545,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: filepath.FromSlash("layouts/_default/single.html"), Op: fsnotify.Write}},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 5)
-				require.Len(t, enSite.AllPages, 30)
-				require.Len(t, frSite.RegularPages, 4)
+				require.Len(t, enSite.RegularPages, 6)
+				require.Len(t, enSite.AllPages, 34)
+				require.Len(t, frSite.RegularPages, 5)
 				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
 				require.True(t, strings.Contains(doc1, "Template Changed"), doc1)
 			},
@@ -542,9 +562,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: filepath.FromSlash("i18n/fr.yaml"), Op: fsnotify.Write}},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 5)
-				require.Len(t, enSite.AllPages, 30)
-				require.Len(t, frSite.RegularPages, 4)
+				require.Len(t, enSite.RegularPages, 6)
+				require.Len(t, enSite.AllPages, 34)
+				require.Len(t, frSite.RegularPages, 5)
 				docEn := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
 				require.True(t, strings.Contains(docEn, "Hello"), "No Hello")
 				docFr := readDestination(t, fs, "public/fr/sect/doc1/index.html")
@@ -566,9 +586,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 				{Name: filepath.FromSlash("layouts/shortcodes/shortcode.html"), Op: fsnotify.Write},
 			},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 5)
-				require.Len(t, enSite.AllPages, 30)
-				require.Len(t, frSite.RegularPages, 4)
+				require.Len(t, enSite.RegularPages, 6)
+				require.Len(t, enSite.AllPages, 34)
+				require.Len(t, frSite.RegularPages, 5)
 				th.assertFileContent("public/fr/sect/doc1/index.html", "Single", "Modified Shortcode: Salut")
 				th.assertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Modified Shortcode: Hello")
 			},
@@ -657,8 +677,8 @@ title = "Svenska"
 	require.Len(t, homeEn.Translations(), 4)
 	require.Equal(t, "sv", homeEn.Translations()[0].Lang())
 
-	require.Len(t, enSite.RegularPages, 4)
-	require.Len(t, frSite.RegularPages, 3)
+	require.Len(t, enSite.RegularPages, 5)
+	require.Len(t, frSite.RegularPages, 4)
 
 	// Veriy Swedish site
 	require.Len(t, svSite.RegularPages, 1)
@@ -1242,6 +1262,24 @@ lag:
 ---
 # Tax NB
 `},
+		// Bundle
+		{filepath.FromSlash("bundles/b1/index.en.md"), `---
+title: Bundle EN
+publishdate: "2000-01-06"
+weight: 2001
+---
+# Bundle Content EN
+`},
+		{filepath.FromSlash("bundles/b1/index.md"), `---
+title: Bundle Default
+publishdate: "2000-01-06"
+weight: 2002
+---
+# Bundle Content Default
+`},
+		{filepath.FromSlash("bundles/b1/logo.png"), `
+PNG Data
+`},
 	}
 
 	configFile := "multilangconfig." + configSuffix
@@ -1309,7 +1347,7 @@ func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
 		// Print some debug info
-		root := "/" //strings.Split(filename, helpers.FilePathSeparator)[0]
+		root := "" //strings.Split(filename, helpers.FilePathSeparator)[0]
 		afero.Walk(fs, root, func(path string, info os.FileInfo, err error) error {
 			if info != nil && !info.IsDir() {
 				fmt.Println("    ", path)

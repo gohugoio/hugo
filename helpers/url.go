@@ -319,12 +319,11 @@ func AddContextRoot(baseURL, relativePath string) string {
 // If canonifyURLs is set, we will globally prepend the absURL with any sub-folder,
 // so avoid doing anything here to avoid getting double paths.
 func (p *PathSpec) PrependBasePath(rel string) string {
-	basePath := p.BaseURL.url.Path
-	if !p.canonifyURLs && basePath != "" && basePath != "/" {
+	if p.BasePath != "" {
 		rel = filepath.ToSlash(rel)
 		// Need to prepend any path from the baseURL
 		hadSlash := strings.HasSuffix(rel, "/")
-		rel = path.Join(basePath, rel)
+		rel = path.Join(p.BasePath, rel)
 		if hadSlash {
 			rel += "/"
 		}

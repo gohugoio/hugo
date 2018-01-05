@@ -28,7 +28,7 @@ func TestGenericResource(t *testing.T) {
 	r := spec.newGenericResource(nil, nil, "/public", "/a/foo.css", "foo.css", "css")
 
 	assert.Equal("https://example.com/foo.css", r.Permalink())
-	assert.Equal("foo.css", r.RelPermalink())
+	assert.Equal("/foo.css", r.RelPermalink())
 	assert.Equal("css", r.ResourceType())
 
 }
@@ -60,7 +60,7 @@ func TestNewResourceFromFilename(t *testing.T) {
 	assert.NoError(err)
 	assert.NotNil(r)
 	assert.Equal("image", r.ResourceType())
-	assert.Equal("a/b/logo.png", r.RelPermalink())
+	assert.Equal("/a/b/logo.png", r.RelPermalink())
 	assert.Equal("https://example.com/a/b/logo.png", r.Permalink())
 
 	r, err = spec.NewResourceFromFilename(nil, "/public", "/root/a/b/data.json", "a/b/data.json")
@@ -72,6 +72,25 @@ func TestNewResourceFromFilename(t *testing.T) {
 	cloned := r.(Cloner).WithNewBase("aceof")
 	assert.Equal(r.ResourceType(), cloned.ResourceType())
 	assert.Equal("/aceof/a/b/data.json", cloned.RelPermalink())
+}
+
+func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
+	assert := require.New(t)
+	spec := newTestResourceSpecForBaseURL(assert, "https://example.com/docs")
+
+	writeSource(t, spec.Fs, "/project/a/b/logo.png", "image")
+
+	r, err := spec.NewResourceFromFilename(nil, "/public",
+		filepath.FromSlash("/project/a/b/logo.png"), filepath.FromSlash("a/b/logo.png"))
+
+	assert.NoError(err)
+	assert.NotNil(r)
+	assert.Equal("image", r.ResourceType())
+	assert.Equal("/docs/a/b/logo.png", r.RelPermalink())
+	assert.Equal("https://example.com/docs/a/b/logo.png", r.Permalink())
+	img := r.(*Image)
+	assert.Equal("/a/b/logo.png", img.target())
+
 }
 
 func TestResourcesByType(t *testing.T) {
@@ -99,10 +118,10 @@ func TestResourcesGetByPrefix(t *testing.T) {
 		spec.newGenericResource(nil, nil, "/public", "/b/foo3.css", "foo3.css", "css")}
 
 	assert.Nil(resources.GetByPrefix("asdf"))
-	assert.Equal("logo1.png", resources.GetByPrefix("logo").RelPermalink())
-	assert.Equal("foo2.css", resources.GetByPrefix("foo2").RelPermalink())
-	assert.Equal("foo1.css", resources.GetByPrefix("foo1").RelPermalink())
-	assert.Equal("foo1.css", resources.GetByPrefix("foo1").RelPermalink())
+	assert.Equal("/logo1.png", resources.GetByPrefix("logo").RelPermalink())
+	assert.Equal("/foo2.css", resources.GetByPrefix("foo2").RelPermalink())
+	assert.Equal("/foo1.css", resources.GetByPrefix("foo1").RelPermalink())
+	assert.Equal("/foo1.css", resources.GetByPrefix("foo1").RelPermalink())
 	assert.Nil(resources.GetByPrefix("asdfasdf"))
 
 }
