@@ -26,6 +26,10 @@ import (
 type PathSpec struct {
 	BaseURL
 
+	// If the baseURL contains a base path, e.g. https://example.com/docs, then "/docs" will be the BasePath.
+	// This will not be set if canonifyURLs is enabled.
+	BasePath string
+
 	disablePathToLower bool
 	removePathAccents  bool
 	uglyURLs           bool
@@ -122,6 +126,13 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		staticDirs:                     staticDirs,
 		theme:                          cfg.GetString("theme"),
 		ProcessingStats:                NewProcessingStats(lang),
+	}
+
+	if !ps.canonifyURLs {
+		basePath := ps.BaseURL.url.Path
+		if basePath != "" && basePath != "/" {
+			ps.BasePath = basePath
+		}
 	}
 
 	publishDir := ps.AbsPathify(cfg.GetString("publishDir")) + FilePathSeparator

@@ -108,7 +108,7 @@ type Image struct {
 	configInit   sync.Once
 	configLoaded bool
 
-	copiedToDestinationInit sync.Once
+	copyToDestinationInit sync.Once
 
 	imaging *Imaging
 
@@ -206,7 +206,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 		conf.Filter = imageFilters[conf.FilterStr]
 	}
 
-	key := i.relPermalinkForRel(i.filenameFromConfig(conf))
+	key := i.relPermalinkForRel(i.filenameFromConfig(conf), false)
 
 	return i.spec.imageCache.getOrCreate(i.spec, key, func(resourceCacheFilename string) (*Image, error) {
 		ci := i.clone()
@@ -232,7 +232,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 		ci.config = image.Config{Width: b.Max.X, Height: b.Max.Y}
 		ci.configLoaded = true
 
-		return ci, i.encodeToDestinations(converted, conf, resourceCacheFilename, ci.RelPermalink())
+		return ci, i.encodeToDestinations(converted, conf, resourceCacheFilename, ci.target())
 	})
 
 }
@@ -392,8 +392,8 @@ func (i *Image) decodeSource() (image.Image, error) {
 func (i *Image) copyToDestination(src string) error {
 	var res error
 
-	i.copiedToDestinationInit.Do(func() {
-		target := filepath.Join(i.absPublishDir, i.RelPermalink())
+	i.copyToDestinationInit.Do(func() {
+		target := filepath.Join(i.absPublishDir, i.target())
 
 		// Fast path:
 		// This is a processed version of the original.

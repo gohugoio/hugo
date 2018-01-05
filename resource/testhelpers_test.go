@@ -18,12 +18,17 @@ import (
 )
 
 func newTestResourceSpec(assert *require.Assertions) *Spec {
+	return newTestResourceSpecForBaseURL(assert, "https://example.com/")
+}
+
+func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *Spec {
 	cfg := viper.New()
-	cfg.Set("baseURL", "https://example.com/")
+	cfg.Set("baseURL", baseURL)
 	cfg.Set("resourceDir", "/res")
 	fs := hugofs.NewMem(cfg)
 
 	s, err := helpers.NewPathSpec(fs, cfg)
+
 	assert.NoError(err)
 
 	spec, err := NewSpec(s, media.DefaultTypes)

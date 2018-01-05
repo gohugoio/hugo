@@ -137,9 +137,9 @@ func (p *Page) initURLs() error {
 	if err != nil {
 		return err
 	}
-	rel = p.s.PathSpec.PrependBasePath(rel)
-	p.relPermalink = rel
+
 	p.relPermalinkBase = strings.TrimSuffix(rel, f.MediaType.FullSuffix())
+	p.relPermalink = p.s.PathSpec.PrependBasePath(rel)
 	p.layoutDescriptor = p.createLayoutDescriptor()
 	return nil
 }

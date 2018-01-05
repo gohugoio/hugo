@@ -225,9 +225,12 @@ type Page struct {
 	Sitemap Sitemap
 
 	URLPath
-	permalink        string
-	relPermalink     string
-	relPermalinkBase string // relPermalink without extension
+	permalink    string
+	relPermalink string
+
+	// relPermalink without extension and any base path element from the baseURL.
+	// This is used to construct paths in the page resources.
+	relPermalinkBase string
 
 	layoutDescriptor output.LayoutDescriptor
 

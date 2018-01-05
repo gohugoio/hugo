@@ -219,11 +219,11 @@ type genericResource struct {
 }
 
 func (l *genericResource) Permalink() string {
-	return l.spec.PermalinkForBaseURL(l.RelPermalink(), l.spec.BaseURL.String())
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.rel, false), l.spec.BaseURL.String())
 }
 
 func (l *genericResource) RelPermalink() string {
-	return l.relPermalinkForRel(l.rel)
+	return l.relPermalinkForRel(l.rel, true)
 }
 
 // Implement the Cloner interface.
@@ -232,16 +232,21 @@ func (l genericResource) WithNewBase(base string) Resource {
 	return &l
 }
 
-func (l *genericResource) relPermalinkForRel(rel string) string {
+func (l *genericResource) relPermalinkForRel(rel string, addBasePath bool) string {
 	if l.link != nil {
 		rel = l.link(rel)
 	}
 
 	if l.base != "" {
 		rel = path.Join(l.base, rel)
-		if rel[0] != '/' {
-			rel = "/" + rel
-		}
+	}
+
+	if addBasePath && l.spec.PathSpec.BasePath != "" {
+		rel = path.Join(l.spec.PathSpec.BasePath, rel)
+	}
+
+	if rel[0] != '/' {
+		rel = "/" + rel
 	}
 
 	return l.spec.PathSpec.URLizeFilename(rel)
@@ -262,9 +267,13 @@ func (l *genericResource) Publish() error {
 	}
 	defer f.Close()
 
-	target := filepath.Join(l.absPublishDir, l.RelPermalink())
+	target := filepath.Join(l.absPublishDir, l.target())
 
 	return helpers.WriteToDisk(target, f, l.spec.Fs.Destination)
+}
+
+func (l *genericResource) target() string {
+	return l.relPermalinkForRel(l.rel, false)
 }
 
 func (r *Spec) newGenericResource(
