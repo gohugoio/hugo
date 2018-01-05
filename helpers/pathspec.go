@@ -35,8 +35,8 @@ type PathSpec struct {
 	uglyURLs           bool
 	canonifyURLs       bool
 
-	language  *Language
-	languages Languages
+	Language  *Language
+	Languages Languages
 
 	// pagination path handling
 	paginatePath string
@@ -70,7 +70,7 @@ type PathSpec struct {
 }
 
 func (p PathSpec) String() string {
-	return fmt.Sprintf("PathSpec, language %q, prefix %q, multilingual: %T", p.language.Lang, p.getLanguagePrefix(), p.multilingual)
+	return fmt.Sprintf("PathSpec, language %q, prefix %q, multilingual: %T", p.Language.Lang, p.getLanguagePrefix(), p.multilingual)
 }
 
 // NewPathSpec creats a new PathSpec from the given filesystems and Language.
@@ -113,8 +113,8 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		uglyURLs:                       cfg.GetBool("uglyURLs"),
 		canonifyURLs:                   cfg.GetBool("canonifyURLs"),
 		multilingual:                   cfg.GetBool("multilingual"),
-		language:                       language,
-		languages:                      languages,
+		Language:                       language,
+		Languages:                      languages,
 		defaultContentLanguageInSubdir: cfg.GetBool("defaultContentLanguageInSubdir"),
 		defaultContentLanguage:         cfg.GetString("defaultContentLanguage"),
 		paginatePath:                   cfg.GetString("paginatePath"),
