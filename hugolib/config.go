@@ -134,25 +134,24 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 	cfg.Set("languagesSorted", langs)
 	cfg.Set("multilingual", len(langs) > 1)
 
-	// The baseURL may be provided at the language level. If that is true,
-	// then every language must have a baseURL. In this case we always render
-	// to a language sub folder, which is then stripped from all the Permalink URLs etc.
-	var baseURLFromLang bool
+	multihost := langs.IsMultihost()
 
-	for _, l := range langs {
-		burl := l.GetLocal("baseURL")
-		if baseURLFromLang && burl == nil {
-			return errors.New("baseURL must be set on all or none of the languages")
-		}
-
-		if burl != nil {
-			baseURLFromLang = true
-		}
-	}
-
-	if baseURLFromLang {
+	if multihost {
 		cfg.Set("defaultContentLanguageInSubdir", true)
 		cfg.Set("multihost", true)
+	}
+
+	if multihost {
+		// The baseURL may be provided at the language level. If that is true,
+		// then every language must have a baseURL. In this case we always render
+		// to a language sub folder, which is then stripped from all the Permalink URLs etc.
+		for _, l := range langs {
+			burl := l.GetLocal("baseURL")
+			if burl == nil {
+				return errors.New("baseURL must be set on all or none of the languages")
+			}
+		}
+
 	}
 
 	return nil

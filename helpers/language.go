@@ -100,9 +100,13 @@ func (l *Language) Params() map[string]interface{} {
 	return l.params
 }
 
-// IsMultihost returns whether the languages has baseURL specificed on the
-// language level.
+// IsMultihost returns whether there are more than one language and at least one of
+// the languages has baseURL specificed on the language level.
 func (l Languages) IsMultihost() bool {
+	if len(l) <= 1 {
+		return false
+	}
+
 	for _, lang := range l {
 		if lang.GetLocal("baseURL") != nil {
 			return true
