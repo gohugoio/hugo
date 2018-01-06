@@ -380,6 +380,7 @@ func InitializeConfig(running bool, doWithCommandeer func(c *commandeer) error, 
 	if layoutDir != "" {
 		config.Set("layoutDir", layoutDir)
 	}
+	config.Set("layoutDir", filepath.Clean(config.GetString("layoutDir")))
 
 	if cacheDir != "" {
 		config.Set("cacheDir", cacheDir)
