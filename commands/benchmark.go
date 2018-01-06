@@ -48,7 +48,11 @@ func init() {
 }
 
 func benchmark(cmd *cobra.Command, args []string) error {
-	c, err := InitializeConfig(false, nil, benchmarkCmd)
+	cfgInit := func(c *commandeer) error {
+		c.Set("renderToMemory", renderToMemory)
+		return nil
+	}
+	c, err := InitializeConfig(false, cfgInit, benchmarkCmd)
 	if err != nil {
 		return err
 	}
