@@ -892,6 +892,7 @@ func (c *commandeer) getDirList() ([]string, error) {
 }
 
 func (c *commandeer) recreateAndBuildSites(watching bool) (err error) {
+	defer c.timeTrack(time.Now(), "Total")
 	if err := c.initSites(); err != nil {
 		return err
 	}
