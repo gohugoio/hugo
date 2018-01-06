@@ -27,6 +27,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/crypto"
 	_ "github.com/gohugoio/hugo/tpl/data"
 	_ "github.com/gohugoio/hugo/tpl/encoding"
+	_ "github.com/gohugoio/hugo/tpl/filepath"
 	_ "github.com/gohugoio/hugo/tpl/fmt"
 	_ "github.com/gohugoio/hugo/tpl/images"
 	_ "github.com/gohugoio/hugo/tpl/inflect"
