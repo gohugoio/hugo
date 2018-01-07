@@ -219,7 +219,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 		}
 
 		if conf.Rotate != 0 {
-			// Rotate it befor any scaling to get the dimensions correct.
+			// Rotate it before any scaling to get the dimensions correct.
 			src = imaging.Rotate(src, float64(conf.Rotate), color.Transparent)
 		}
 
