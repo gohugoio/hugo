@@ -55,8 +55,8 @@ type Resource interface {
 // I.e. both pages and images etc.
 type Resources []Resource
 
-func (r Resources) ByType(tp string) []Resource {
-	var filtered []Resource
+func (r Resources) ByType(tp string) Resources {
+	var filtered Resources
 
 	for _, resource := range r {
 		if resource.ResourceType() == tp {
