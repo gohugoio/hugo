@@ -51,6 +51,15 @@ func (c *imageCache) deleteByPrefix(prefix string) {
 
 func (c *imageCache) getOrCreate(
 	spec *Spec, key string, create func(resourceCacheFilename string) (*Image, error)) (*Image, error) {
+
+	relTargetFilename := key
+
+	if c.pathSpec.Language != nil {
+		// Avoid do and store more work than needed. The language versions will in
+		// most cases be duplicates of the same image files.
+		key = strings.TrimPrefix(key, "/"+c.pathSpec.Language.Lang)
+	}
+
 	// First check the in-memory store, then the disk.
 	c.mu.RLock()
 	img, found := c.store[key]
@@ -68,7 +77,7 @@ func (c *imageCache) getOrCreate(
 	//  but the count of processed image variations for this site.
 	c.pathSpec.ProcessingStats.Incr(&c.pathSpec.ProcessingStats.ProcessedImages)
 
-	r, err := spec.NewResourceFromFilename(nil, c.absPublishDir, cacheFilename, key)
+	r, err := spec.NewResourceFromFilename(nil, c.absPublishDir, cacheFilename, relTargetFilename)
 	notFound := err != nil && os.IsNotExist(err)
 	if err != nil && !os.IsNotExist(err) {
 		return nil, err
