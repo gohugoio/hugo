@@ -440,7 +440,11 @@ func (h *HugoSites) createMissingPages() error {
 							key = s.PathSpec.MakePathSanitized(key)
 						}
 						for _, p := range taxonomyPages {
-							if p.sections[0] == plural && p.sections[1] == key {
+							// Some people may have /authors/MaxMustermann etc. as paths.
+							// p.sections contains the raw values from the file system.
+							// See https://github.com/gohugoio/hugo/issues/4238
+							singularKey := s.PathSpec.MakePathSanitized(p.sections[1])
+							if p.sections[0] == plural && singularKey == key {
 								foundTaxonomyPage = true
 								break
 							}
