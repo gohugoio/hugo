@@ -112,15 +112,16 @@ func NewSpec(s *helpers.PathSpec, mimeTypes media.Types) (*Spec, error) {
 }
 
 func (r *Spec) NewResourceFromFile(
-	linker func(base string) string,
+	targetPathBuilder func(base string) string,
 	absPublishDir string,
 	file source.File, relTargetFilename string) (Resource, error) {
 
-	return r.newResource(linker, absPublishDir, file.Filename(), file.FileInfo(), relTargetFilename)
+	return r.newResource(targetPathBuilder, absPublishDir, file.Filename(), file.FileInfo(), relTargetFilename)
 }
 
+//  p.s.PathSpec.URLizeFilename
 func (r *Spec) NewResourceFromFilename(
-	linker func(base string) string,
+	targetPathBuilder func(base string) string,
 	absPublishDir,
 	absSourceFilename, relTargetFilename string) (Resource, error) {
 
@@ -128,11 +129,11 @@ func (r *Spec) NewResourceFromFilename(
 	if err != nil {
 		return nil, err
 	}
-	return r.newResource(linker, absPublishDir, absSourceFilename, fi, relTargetFilename)
+	return r.newResource(targetPathBuilder, absPublishDir, absSourceFilename, fi, relTargetFilename)
 }
 
 func (r *Spec) newResource(
-	linker func(base string) string,
+	targetPathBuilder func(base string) string,
 	absPublishDir,
 	absSourceFilename string, fi os.FileInfo, relTargetFilename string) (Resource, error) {
 
@@ -150,7 +151,7 @@ func (r *Spec) newResource(
 		}
 	}
 
-	gr := r.newGenericResource(linker, fi, absPublishDir, absSourceFilename, filepath.ToSlash(relTargetFilename), mimeType)
+	gr := r.newGenericResource(targetPathBuilder, fi, absPublishDir, absSourceFilename, filepath.ToSlash(relTargetFilename), mimeType)
 
 	if mimeType == "image" {
 		f, err := r.Fs.Source.Open(absSourceFilename)
@@ -203,7 +204,7 @@ func (r *Spec) CacheStats() string {
 // genericResource represents a generic linkable resource.
 type genericResource struct {
 	// The relative path to this resource.
-	rel string
+	relTargetPath string
 
 	// Base is set when the output format's path has a offset, e.g. for AMP.
 	base string
@@ -214,16 +215,16 @@ type genericResource struct {
 	resourceType      string
 	osFileInfo        os.FileInfo
 
-	spec *Spec
-	link func(rel string) string
+	spec              *Spec
+	targetPathBuilder func(rel string) string
 }
 
 func (l *genericResource) Permalink() string {
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.rel, false), l.spec.BaseURL.String())
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetPath, false), l.spec.BaseURL.String())
 }
 
 func (l *genericResource) RelPermalink() string {
-	return l.relPermalinkForRel(l.rel, true)
+	return l.relPermalinkForRel(l.relTargetPath, true)
 }
 
 // Implement the Cloner interface.
@@ -233,8 +234,12 @@ func (l genericResource) WithNewBase(base string) Resource {
 }
 
 func (l *genericResource) relPermalinkForRel(rel string, addBasePath bool) string {
-	if l.link != nil {
-		rel = l.link(rel)
+	return l.spec.PathSpec.URLizeFilename(l.relTargetPathForRel(rel, addBasePath))
+}
+
+func (l *genericResource) relTargetPathForRel(rel string, addBasePath bool) string {
+	if l.targetPathBuilder != nil {
+		rel = l.targetPathBuilder(rel)
 	}
 
 	if l.base != "" {
@@ -249,7 +254,7 @@ func (l *genericResource) relPermalinkForRel(rel string, addBasePath bool) strin
 		rel = "/" + rel
 	}
 
-	return l.spec.PathSpec.URLizeFilename(rel)
+	return rel
 }
 
 func (l *genericResource) ResourceType() string {
@@ -273,7 +278,7 @@ func (l *genericResource) Publish() error {
 }
 
 func (l *genericResource) target() string {
-	target := l.relPermalinkForRel(l.rel, false)
+	target := l.relTargetPathForRel(l.relTargetPath, false)
 	if l.spec.PathSpec.Languages.IsMultihost() {
 		target = path.Join(l.spec.PathSpec.Language.Lang, target)
 	}
@@ -281,7 +286,7 @@ func (l *genericResource) target() string {
 }
 
 func (r *Spec) newGenericResource(
-	linker func(base string) string,
+	targetPathBuilder func(base string) string,
 	osFileInfo os.FileInfo,
 	absPublishDir,
 	absSourceFilename,
@@ -289,11 +294,11 @@ func (r *Spec) newGenericResource(
 	resourceType string) *genericResource {
 
 	return &genericResource{
-		link:              linker,
+		targetPathBuilder: targetPathBuilder,
 		osFileInfo:        osFileInfo,
 		absPublishDir:     absPublishDir,
 		absSourceFilename: absSourceFilename,
-		rel:               baseFilename,
+		relTargetPath:     baseFilename,
 		resourceType:      resourceType,
 		spec:              r,
 	}

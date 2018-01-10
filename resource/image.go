@@ -185,7 +185,7 @@ type imageConfig struct {
 }
 
 func (i *Image) isJPEG() bool {
-	name := strings.ToLower(i.rel)
+	name := strings.ToLower(i.relTargetPath)
 	return strings.HasSuffix(name, ".jpg") || strings.HasSuffix(name, ".jpeg")
 }
 
@@ -206,7 +206,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 		conf.Filter = imageFilters[conf.FilterStr]
 	}
 
-	key := i.relPermalinkForRel(i.filenameFromConfig(conf), false)
+	key := i.relTargetPathForRel(i.filenameFromConfig(conf), false)
 
 	return i.spec.imageCache.getOrCreate(i.spec, key, func(resourceCacheFilename string) (*Image, error) {
 		ci := i.clone()
@@ -521,11 +521,11 @@ func (i *Image) clone() *Image {
 }
 
 func (i *Image) setBasePath(conf imageConfig) {
-	i.rel = i.filenameFromConfig(conf)
+	i.relTargetPath = i.filenameFromConfig(conf)
 }
 
 func (i *Image) filenameFromConfig(conf imageConfig) string {
-	p1, p2 := helpers.FileAndExt(i.rel)
+	p1, p2 := helpers.FileAndExt(i.relTargetPath)
 	idStr := fmt.Sprintf("_hu%s_%d", i.hash, i.osFileInfo.Size())
 
 	// Do not change for no good reason.

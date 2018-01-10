@@ -51,6 +51,7 @@ func TestPageBundlerSite(t *testing.T) {
 				cfg.Set("permalinks", map[string]string{
 					"a": ":sections/:filename",
 					"b": ":year/:slug/",
+					"c": ":sections/:slug",
 				})
 
 				cfg.Set("outputFormats", map[string]interface{}{
@@ -74,7 +75,7 @@ func TestPageBundlerSite(t *testing.T) {
 				th := testHelper{s.Cfg, s.Fs, t}
 
 				// Singles (2), Below home (1), Bundle (1)
-				assert.Len(s.RegularPages, 6)
+				assert.Len(s.RegularPages, 7)
 
 				singlePage := s.getPage(KindPage, "a/1.md")
 
@@ -99,6 +100,8 @@ func TestPageBundlerSite(t *testing.T) {
 				assert.NotNil(leafBundle1)
 				leafBundle2 := s.getPage(KindPage, "a/b/index.md")
 				assert.NotNil(leafBundle2)
+				unicodeBundle := s.getPage(KindPage, "c/index.md")
+				assert.NotNil(unicodeBundle)
 
 				pageResources := leafBundle1.Resources.ByType(pageResourceType)
 				assert.Len(pageResources, 2)
@@ -136,12 +139,18 @@ func TestPageBundlerSite(t *testing.T) {
 
 					assert.Equal("/a/b.html", leafBundle2.RelPermalink())
 
+					// 은행
+					assert.Equal("/c/%EC%9D%80%ED%96%89.html", unicodeBundle.RelPermalink())
+					th.assertFileContent(filepath.FromSlash("/work/public/c/은행.html"), "Content for 은행")
+					th.assertFileContent(filepath.FromSlash("/work/public/c/은행/logo-은행.png"), "은행 PNG")
+
 				} else {
 					assert.Equal("/2017/pageslug/", leafBundle1.RelPermalink())
 					th.assertFileContent(filepath.FromSlash("/work/public/2017/pageslug/index.html"), "TheContent")
 					th.assertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug/cindex.html"), "TheContent")
 
 					assert.Equal("/a/b/", leafBundle2.RelPermalink())
+
 				}
 
 			})
@@ -260,6 +269,18 @@ Short Thumb Width: {{ $thumb.Width }}
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "2.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "custom-mime.bep"), "bepsays")
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "c", "logo.png"), "content")
+
+	// Bundle with 은행 slug
+	// See https://github.com/gohugoio/hugo/issues/4241
+	writeSource(t, fs, filepath.Join(workDir, "base", "c", "index.md"), `---
+title: "은행 은행"
+slug: 은행
+date: 2017-10-09
+---
+
+Content for 은행.
+`)
+	writeSource(t, fs, filepath.Join(workDir, "base", "c", "logo-은행.png"), "은행 PNG")
 
 	// Write a real image into one of the bundle above.
 	src, err := os.Open("testdata/sunset.jpg")

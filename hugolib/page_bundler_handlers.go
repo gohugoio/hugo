@@ -319,7 +319,7 @@ func (c *contentHandlers) createResource() contentHandler {
 		}
 
 		resource, err := c.s.resourceSpec.NewResourceFromFilename(
-			ctx.parentPage.subResourceLinkFactory,
+			ctx.parentPage.subResourceTargetPathFactory,
 			c.s.absPublishDir(),
 			ctx.source.Filename(), ctx.target)
 
