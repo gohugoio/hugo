@@ -561,25 +561,36 @@ func (c *commandeer) fullBuild(watches ...bool) error {
 		}()
 	}
 
-	g.Go(func() error {
+	copyStaticFunc := func() error {
 		cnt, err := c.copyStatic()
 		if err != nil {
 			return fmt.Errorf("Error copying static files: %s", err)
 		}
 		langCount = cnt
 		return nil
-	})
-
-	g.Go(func() error {
+	}
+	buildSitesFunc := func() error {
 		if err := c.buildSites(); err != nil {
 			return fmt.Errorf("Error building site: %s", err)
 		}
-
 		return nil
-	})
-
-	if err := g.Wait(); err != nil {
-		return err
+	}
+	// Do not copy static files and build sites in parallel if cleanDestinationDir is enabled.
+	// This flag deletes all static resources in /public folder that are missing in /static,
+	// and it does so at the end of copyStatic() call.
+	if c.Cfg.GetBool("cleanDestinationDir") {
+		if err := copyStaticFunc(); err != nil {
+			return err
+		}
+		if err := buildSitesFunc(); err != nil {
+			return err
+		}
+	} else {
+		g.Go(copyStaticFunc)
+		g.Go(buildSitesFunc)
+		if err := g.Wait(); err != nil {
+			return err
+		}
 	}
 
 	for _, s := range Hugo.Sites {
