@@ -228,9 +228,9 @@ type Page struct {
 	permalink    string
 	relPermalink string
 
-	// relPermalink without extension and any base path element from the baseURL.
+	// relative target path without extension and any base path element from the baseURL.
 	// This is used to construct paths in the page resources.
-	relPermalinkBase string
+	relTargetPathBase string
 
 	layoutDescriptor output.LayoutDescriptor
 
@@ -989,8 +989,8 @@ func (p *Page) RelPermalink() string {
 	return p.relPermalink
 }
 
-func (p *Page) subResourceLinkFactory(base string) string {
-	return path.Join(p.relPermalinkBase, base)
+func (p *Page) subResourceTargetPathFactory(base string) string {
+	return path.Join(p.relTargetPathBase, base)
 }
 
 func (p *Page) prepareForRender(cfg *BuildCfg) error {

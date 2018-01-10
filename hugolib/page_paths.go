@@ -129,7 +129,8 @@ func (p *Page) initURLs() error {
 	if len(p.outputFormats) == 0 {
 		p.outputFormats = p.s.outputFormats[p.Kind]
 	}
-	rel := p.createRelativePermalink()
+	target := filepath.ToSlash(p.createRelativeTargetPath())
+	rel := p.s.PathSpec.URLizeFilename(target)
 
 	var err error
 	f := p.outputFormats[0]
@@ -138,7 +139,7 @@ func (p *Page) initURLs() error {
 		return err
 	}
 
-	p.relPermalinkBase = strings.TrimSuffix(rel, f.MediaType.FullSuffix())
+	p.relTargetPathBase = strings.TrimSuffix(target, f.MediaType.FullSuffix())
 	p.relPermalink = p.s.PathSpec.PrependBasePath(rel)
 	p.layoutDescriptor = p.createLayoutDescriptor()
 	return nil
@@ -267,7 +268,7 @@ func createTargetPath(d targetPathDescriptor) string {
 	return d.PathSpec.MakePathSanitized(pagePath)
 }
 
-func (p *Page) createRelativePermalink() string {
+func (p *Page) createRelativeTargetPath() string {
 
 	if len(p.outputFormats) == 0 {
 		if p.Kind == kindUnknown {
@@ -279,11 +280,15 @@ func (p *Page) createRelativePermalink() string {
 	// Choose the main output format. In most cases, this will be HTML.
 	f := p.outputFormats[0]
 
-	return p.createRelativePermalinkForOutputFormat(f)
+	return p.createRelativeTargetPathForOutputFormat(f)
 
 }
 
 func (p *Page) createRelativePermalinkForOutputFormat(f output.Format) string {
+	return p.s.PathSpec.URLizeFilename(p.createRelativeTargetPathForOutputFormat(f))
+}
+
+func (p *Page) createRelativeTargetPathForOutputFormat(f output.Format) string {
 	tp, err := p.createTargetPath(f, p.s.owner.IsMultihost())
 
 	if err != nil {
@@ -296,7 +301,7 @@ func (p *Page) createRelativePermalinkForOutputFormat(f output.Format) string {
 		tp = strings.TrimSuffix(tp, f.BaseFilename())
 	}
 
-	return p.s.PathSpec.URLizeFilename(tp)
+	return tp
 }
 
 func (p *Page) TargetPath() (outfile string) {
