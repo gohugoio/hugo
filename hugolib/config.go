@@ -164,7 +164,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 		return err
 	}
 
-	v.SetDefault("cleanDestinationDir", false)
 	v.SetDefault("watch", false)
 	v.SetDefault("metaDataFormat", "toml")
 	v.SetDefault("disable404", false)

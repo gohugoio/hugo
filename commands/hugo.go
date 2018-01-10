@@ -237,7 +237,6 @@ func initRootPersistentFlags() {
 // initHugoBuildCommonFlags initialize common flags related to the Hugo build.
 // Called by initHugoBuilderFlags.
 func initHugoBuildCommonFlags(cmd *cobra.Command) {
-	cmd.Flags().Bool("cleanDestinationDir", false, "remove files from destination not found in static directories")
 	cmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
@@ -484,7 +483,6 @@ func createLogger(cfg config.Provider) (*jww.Notepad, error) {
 func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 	persFlagKeys := []string{"debug", "verbose", "logFile"}
 	flagKeys := []string{
-		"cleanDestinationDir",
 		"buildDrafts",
 		"buildFuture",
 		"buildExpired",
@@ -724,9 +722,6 @@ func (c *commandeer) copyStaticTo(dirs *src.Dirs, publishDir string) (uint64, er
 	syncer.NoChmod = c.Cfg.GetBool("noChmod")
 	syncer.SrcFs = fs
 	syncer.DestFs = c.Fs.Destination
-	// Now that we are using a unionFs for the static directories
-	// We can effectively clean the publishDir on initial sync
-	syncer.Delete = c.Cfg.GetBool("cleanDestinationDir")
 
 	if syncer.Delete {
 		c.Logger.INFO.Println("removing all files from destination that don't exist in static dirs")
