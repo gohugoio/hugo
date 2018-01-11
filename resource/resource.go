@@ -119,7 +119,6 @@ func (r *Spec) NewResourceFromFile(
 	return r.newResource(targetPathBuilder, absPublishDir, file.Filename(), file.FileInfo(), relTargetFilename)
 }
 
-//  p.s.PathSpec.URLizeFilename
 func (r *Spec) NewResourceFromFilename(
 	targetPathBuilder func(base string) string,
 	absPublishDir,
