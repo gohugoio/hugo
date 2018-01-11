@@ -51,9 +51,9 @@ func TestConvertJekyllMetadata(t *testing.T) {
 		expect   string
 	}{
 		{map[interface{}]interface{}{}, "testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
-			`{"date":"2015-10-01T00:00:00Z","url":"/2015/10/01/testPost/"}`},
+			`{"date":"2015-10-01T00:00:00Z"}`},
 		{map[interface{}]interface{}{}, "testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), true,
-			`{"date":"2015-10-01T00:00:00Z","draft":true,"url":"/2015/10/01/testPost/"}`},
+			`{"date":"2015-10-01T00:00:00Z","draft":true}`},
 		{map[interface{}]interface{}{"Permalink": "/permalink.html", "layout": "post"},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
 			`{"date":"2015-10-01T00:00:00Z","url":"/permalink.html"}`},
@@ -62,13 +62,13 @@ func TestConvertJekyllMetadata(t *testing.T) {
 			`{"date":"2015-10-01T00:00:00Z","url":"/permalink.html"}`},
 		{map[interface{}]interface{}{"category": nil, "permalink": 123},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
-			`{"date":"2015-10-01T00:00:00Z","url":"/2015/10/01/testPost/"}`},
+			`{"date":"2015-10-01T00:00:00Z"}`},
 		{map[interface{}]interface{}{"Excerpt_Separator": "sep"},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
-			`{"date":"2015-10-01T00:00:00Z","excerpt_separator":"sep","url":"/2015/10/01/testPost/"}`},
+			`{"date":"2015-10-01T00:00:00Z","excerpt_separator":"sep"}`},
 		{map[interface{}]interface{}{"category": "book", "layout": "post", "Others": "Goods", "Date": "2015-10-01 12:13:11"},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
-			`{"Others":"Goods","categories":["book"],"date":"2015-10-01T12:13:11Z","url":"/2015/10/01/testPost/"}`},
+			`{"Others":"Goods","categories":["book"],"date":"2015-10-01T12:13:11Z"}`},
 	}
 
 	for _, data := range testDataList {
