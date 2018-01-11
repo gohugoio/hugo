@@ -357,7 +357,7 @@ type SiteInfo struct {
 	BuildDrafts           bool
 	canonifyURLs          bool
 	relativeURLs          bool
-	uglyURLs              bool
+	uglyURLs              func(p *Page) bool
 	preserveTaxonomyNames bool
 	Data                  *map[string]interface{}
 
@@ -413,6 +413,9 @@ func newSiteInfo(cfg siteBuilderCfg) SiteInfo {
 		multilingual:    newMultiLingualForLanguage(cfg.language),
 		PageCollections: cfg.pageCollections,
 		Params:          make(map[string]interface{}),
+		uglyURLs: func(p *Page) bool {
+			return false
+		},
 	}
 }
 
@@ -1035,6 +1038,24 @@ func (s *Site) initializeSiteInfo() {
 		multilingual = s.owner.multilingual
 	}
 
+	var uglyURLs = func(p *Page) bool {
+		return false
+	}
+
+	v := s.Cfg.Get("uglyURLs")
+	if v != nil {
+		if vv, ok := v.(bool); ok {
+			uglyURLs = func(p *Page) bool {
+				return vv
+			}
+		} else {
+			m := cast.ToStringMapBool(v)
+			uglyURLs = func(p *Page) bool {
+				return m[p.Section()]
+			}
+		}
+	}
+
 	s.Info = SiteInfo{
 		Title:                          lang.GetString("title"),
 		Author:                         lang.GetStringMap("author"),
@@ -1052,7 +1073,7 @@ func (s *Site) initializeSiteInfo() {
 		BuildDrafts:                    s.Cfg.GetBool("buildDrafts"),
 		canonifyURLs:                   s.Cfg.GetBool("canonifyURLs"),
 		relativeURLs:                   s.Cfg.GetBool("relativeURLs"),
-		uglyURLs:                       s.Cfg.GetBool("uglyURLs"),
+		uglyURLs:                       uglyURLs,
 		preserveTaxonomyNames:          lang.GetBool("preserveTaxonomyNames"),
 		PageCollections:                s.PageCollections,
 		Menus:                          &s.Menus,

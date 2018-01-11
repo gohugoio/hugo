@@ -87,3 +87,40 @@ func TestPageCount(t *testing.T) {
 		}
 	}
 }
+
+func TestUglyURLsPerSection(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	const dt = `---
+title: Do not go gentle into that good night
+---
+
+Wild men who caught and sang the sun in flight,
+And learn, too late, they grieved it on its way,
+Do not go gentle into that good night.
+
+`
+
+	cfg, fs := newTestCfg()
+
+	cfg.Set("uglyURLs", map[string]bool{
+		"sect2": true,
+	})
+
+	writeSource(t, fs, filepath.Join("content", "sect1", "p1.md"), dt)
+	writeSource(t, fs, filepath.Join("content", "sect2", "p2.md"), dt)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	assert.Len(s.RegularPages, 2)
+
+	notUgly := s.getPage(KindPage, "sect1/p1.md")
+	assert.NotNil(notUgly)
+	assert.Equal("/sect1/p1/", notUgly.RelPermalink())
+
+	ugly := s.getPage(KindPage, "sect2/p2.md")
+	assert.NotNil(ugly)
+	assert.Equal("/sect2/p2.html", ugly.RelPermalink())
+}
