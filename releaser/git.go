@@ -227,13 +227,22 @@ func getGitInfosBefore(ref, tag, repo, repoPath string, remote bool) (gitInfos, 
 
 	for _, entry := range entries {
 		items := strings.Split(entry, "\x1f")
-		gi := gitInfo{
-			Hash:    items[0],
-			Author:  items[1],
-			Subject: items[2],
-			Body:    items[3],
+		gi := gitInfo{}
+
+		if len(items) > 0 {
+			gi.Hash = items[0]
 		}
-		if remote {
+		if len(items) > 1 {
+			gi.Author = items[1]
+		}
+		if len(items) > 2 {
+			gi.Subject = items[2]
+		}
+		if len(items) > 3 {
+			gi.Body = items[3]
+		}
+
+		if remote && gi.Hash != "" {
 			gc, err := client.fetchCommit(gi.Hash)
 			if err == nil {
 				gi.GitHubCommit = &gc
