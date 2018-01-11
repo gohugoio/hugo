@@ -144,11 +144,6 @@ func importFromJekyll(cmd *cobra.Command, args []string) error {
 		"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
 	jww.FEEDBACK.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
 
-	jww.FEEDBACK.Println("Congratulations!", fileCount, "post(s) imported!")
-	jww.FEEDBACK.Println("Now, start Hugo by yourself:\n" +
-		"$ git clone https://github.com/spf13/herring-cove.git " + args[1] + "/themes/herring-cove")
-	jww.FEEDBACK.Println("$ cd " + args[1] + "\n$ hugo server --theme=herring-cove")
-
 	return nil
 }
 
@@ -478,8 +473,6 @@ func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft b
 }
 
 func convertJekyllMetaData(m interface{}, postName string, postDate time.Time, draft bool) (interface{}, error) {
-	url := postDate.Format("/2006/01/02/") + postName + "/"
-
 	metadata, err := cast.ToStringMapE(m)
 	if err != nil {
 		return nil, err
@@ -497,7 +490,7 @@ func convertJekyllMetaData(m interface{}, postName string, postDate time.Time, d
 			delete(metadata, key)
 		case "permalink":
 			if str, ok := value.(string); ok {
-				url = str
+				metadata["url"] = str
 			}
 			delete(metadata, key)
 		case "category":
@@ -526,7 +519,6 @@ func convertJekyllMetaData(m interface{}, postName string, postDate time.Time, d
 
 	}
 
-	metadata["url"] = url
 	metadata["date"] = postDate.Format(time.RFC3339)
 
 	return metadata, nil
