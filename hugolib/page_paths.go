@@ -86,7 +86,7 @@ func (p *Page) initTargetPathDescriptor() error {
 		PathSpec:    p.s.PathSpec,
 		Kind:        p.Kind,
 		Sections:    p.sections,
-		UglyURLs:    p.s.Info.uglyURLs,
+		UglyURLs:    p.s.Info.uglyURLs(p),
 		Dir:         filepath.ToSlash(p.Source.Dir()),
 		URL:         p.URLPath.URL,
 		IsMultihost: p.s.owner.IsMultihost(),
