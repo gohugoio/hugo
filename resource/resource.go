@@ -70,8 +70,10 @@ func (r Resources) ByType(tp string) Resources {
 // "logo" will match logo.png. It returns nil of none found.
 // In potential ambiguous situations, combine it with ByType.
 func (r Resources) GetByPrefix(prefix string) Resource {
+	prefix = strings.ToLower(prefix)
 	for _, resource := range r {
 		_, name := filepath.Split(resource.RelPermalink())
+		name = strings.ToLower(name)
 		if strings.HasPrefix(name, prefix) {
 			return resource
 		}

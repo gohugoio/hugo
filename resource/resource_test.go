@@ -113,12 +113,14 @@ func TestResourcesGetByPrefix(t *testing.T) {
 	resources := Resources{
 		spec.newGenericResource(nil, nil, "/public", "/a/foo1.css", "foo1.css", "css"),
 		spec.newGenericResource(nil, nil, "/public", "/a/logo1.png", "logo1.png", "image"),
-		spec.newGenericResource(nil, nil, "/public", "/b/logo2.png", "logo2.png", "image"),
+		spec.newGenericResource(nil, nil, "/public", "/b/Logo2.png", "Logo2.png", "image"),
 		spec.newGenericResource(nil, nil, "/public", "/b/foo2.css", "foo2.css", "css"),
 		spec.newGenericResource(nil, nil, "/public", "/b/foo3.css", "foo3.css", "css")}
 
 	assert.Nil(resources.GetByPrefix("asdf"))
 	assert.Equal("/logo1.png", resources.GetByPrefix("logo").RelPermalink())
+	assert.Equal("/logo1.png", resources.GetByPrefix("loGo").RelPermalink())
+	assert.Equal("/Logo2.png", resources.GetByPrefix("logo2").RelPermalink())
 	assert.Equal("/foo2.css", resources.GetByPrefix("foo2").RelPermalink())
 	assert.Equal("/foo1.css", resources.GetByPrefix("foo1").RelPermalink())
 	assert.Equal("/foo1.css", resources.GetByPrefix("foo1").RelPermalink())
