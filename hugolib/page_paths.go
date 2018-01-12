@@ -56,7 +56,7 @@ type targetPathDescriptor struct {
 	// Whether this is a multihost multilingual setup.
 	IsMultihost bool
 
-	// Page.URLPath.URL. Will override any Slug etc. for regular pages.
+	// URL from front matter if set. Will override any Slug etc.
 	URL string
 
 	// Used to create paginator links.
@@ -88,7 +88,7 @@ func (p *Page) initTargetPathDescriptor() error {
 		Sections:    p.sections,
 		UglyURLs:    p.s.Info.uglyURLs(p),
 		Dir:         filepath.ToSlash(p.Source.Dir()),
-		URL:         p.URLPath.URL,
+		URL:         p.URLPath.frontMatterURL,
 		IsMultihost: p.s.owner.IsMultihost(),
 	}
 
@@ -189,7 +189,7 @@ func createTargetPath(d targetPathDescriptor) string {
 		isUgly = true
 	}
 
-	if d.Kind != KindPage && len(d.Sections) > 0 {
+	if d.Kind != KindPage && d.URL == "" && len(d.Sections) > 0 {
 		if d.ExpandedPermalink != "" {
 			pagePath = filepath.Join(pagePath, d.ExpandedPermalink)
 		} else {
@@ -202,43 +202,42 @@ func createTargetPath(d targetPathDescriptor) string {
 		pagePath = filepath.Join(pagePath, d.Type.Path)
 	}
 
-	if d.Kind == KindPage {
-		// Always use URL if it's specified
-		if d.URL != "" {
-			if d.IsMultihost && d.LangPrefix != "" && !strings.HasPrefix(d.URL, "/"+d.LangPrefix) {
-				pagePath = filepath.Join(d.LangPrefix, pagePath, d.URL)
-			} else {
-				pagePath = filepath.Join(pagePath, d.URL)
-			}
-			if strings.HasSuffix(d.URL, "/") || !strings.Contains(d.URL, ".") {
-				pagePath = filepath.Join(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
-			}
+	if d.Kind != KindHome && d.URL != "" {
+		if d.IsMultihost && d.LangPrefix != "" && !strings.HasPrefix(d.URL, "/"+d.LangPrefix) {
+			pagePath = filepath.Join(d.LangPrefix, pagePath, d.URL)
 		} else {
-			if d.ExpandedPermalink != "" {
-				pagePath = filepath.Join(pagePath, d.ExpandedPermalink)
+			pagePath = filepath.Join(pagePath, d.URL)
+		}
+		if d.Addends != "" {
+			pagePath = filepath.Join(pagePath, d.Addends)
+		} else if strings.HasSuffix(d.URL, "/") || !strings.Contains(d.URL, ".") {
+			pagePath = filepath.Join(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
+		}
+	} else if d.Kind == KindPage {
+		if d.ExpandedPermalink != "" {
+			pagePath = filepath.Join(pagePath, d.ExpandedPermalink)
 
-			} else {
-				if d.Dir != "" {
-					pagePath = filepath.Join(pagePath, d.Dir)
-				}
-				if d.BaseName != "" {
-					pagePath = filepath.Join(pagePath, d.BaseName)
-				}
+		} else {
+			if d.Dir != "" {
+				pagePath = filepath.Join(pagePath, d.Dir)
 			}
+			if d.BaseName != "" {
+				pagePath = filepath.Join(pagePath, d.BaseName)
+			}
+		}
 
-			if d.Addends != "" {
-				pagePath = filepath.Join(pagePath, d.Addends)
-			}
+		if d.Addends != "" {
+			pagePath = filepath.Join(pagePath, d.Addends)
+		}
 
-			if isUgly {
-				pagePath += d.Type.MediaType.Delimiter + d.Type.MediaType.Suffix
-			} else {
-				pagePath = filepath.Join(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
-			}
+		if isUgly {
+			pagePath += d.Type.MediaType.Delimiter + d.Type.MediaType.Suffix
+		} else {
+			pagePath = filepath.Join(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
+		}
 
-			if d.LangPrefix != "" {
-				pagePath = filepath.Join(d.LangPrefix, pagePath)
-			}
+		if d.LangPrefix != "" {
+			pagePath = filepath.Join(d.LangPrefix, pagePath)
 		}
 	} else {
 		if d.Addends != "" {

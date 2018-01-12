@@ -223,7 +223,6 @@ type Page struct {
 	Lastmod time.Time
 
 	Sitemap Sitemap
-
 	URLPath
 	permalink    string
 	relPermalink string
@@ -1111,6 +1110,7 @@ func (p *Page) update(f interface{}) error {
 				return fmt.Errorf("Only relative URLs are supported, %v provided", url)
 			}
 			p.URLPath.URL = cast.ToString(v)
+			p.URLPath.frontMatterURL = p.URLPath.URL
 			p.Params[loki] = p.URLPath.URL
 		case "type":
 			p.contentType = cast.ToString(v)
@@ -1809,10 +1809,11 @@ func (p *Page) String() string {
 }
 
 type URLPath struct {
-	URL       string
-	Permalink string
-	Slug      string
-	Section   string
+	URL            string
+	frontMatterURL string
+	Permalink      string
+	Slug           string
+	Section        string
 }
 
 // Scratch returns the writable context associated with this Page.
@@ -1991,7 +1992,9 @@ func (p *Page) setValuesForKind(s *Site) {
 		p.URLPath.URL = "/"
 	case KindPage:
 	default:
-		p.URLPath.URL = "/" + path.Join(p.sections...) + "/"
+		if p.URLPath.URL == "" {
+			p.URLPath.URL = "/" + path.Join(p.sections...) + "/"
+		}
 	}
 }
 
