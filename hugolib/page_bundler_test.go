@@ -111,6 +111,10 @@ func TestPageBundlerSite(t *testing.T) {
 				assert.Contains(firstPage.Content, "TheContent")
 				assert.Len(leafBundle1.Resources, 6) // 2 pages 3 images 1 custom mime type
 
+				assert.Equal(firstPage, pageResources.GetByPrefix("1"))
+				assert.Equal(secondPage, pageResources.GetByPrefix("2"))
+				assert.Nil(pageResources.GetByPrefix("doesnotexist"))
+
 				imageResources := leafBundle1.Resources.ByType("image")
 				assert.Len(imageResources, 3)
 				image := imageResources[0]

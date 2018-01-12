@@ -72,8 +72,15 @@ func (r Resources) ByType(tp string) Resources {
 func (r Resources) GetByPrefix(prefix string) Resource {
 	prefix = strings.ToLower(prefix)
 	for _, resource := range r {
-		_, name := filepath.Split(resource.RelPermalink())
+		var name string
+		f, ok := resource.(source.File)
+		if ok {
+			name = f.BaseFileName()
+		} else {
+			_, name = filepath.Split(resource.RelPermalink())
+		}
 		name = strings.ToLower(name)
+
 		if strings.HasPrefix(name, prefix) {
 			return resource
 		}
