@@ -126,4 +126,7 @@ func TestResourcesGetByPrefix(t *testing.T) {
 	assert.Equal("/foo1.css", resources.GetByPrefix("foo1").RelPermalink())
 	assert.Nil(resources.GetByPrefix("asdfasdf"))
 
+	assert.Equal(2, len(resources.ByPrefix("logo")))
+	assert.Equal(1, len(resources.ByPrefix("logo2")))
+
 }

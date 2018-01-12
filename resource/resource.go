@@ -72,20 +72,37 @@ func (r Resources) ByType(tp string) Resources {
 func (r Resources) GetByPrefix(prefix string) Resource {
 	prefix = strings.ToLower(prefix)
 	for _, resource := range r {
-		var name string
-		f, ok := resource.(source.File)
-		if ok {
-			name = f.BaseFileName()
-		} else {
-			_, name = filepath.Split(resource.RelPermalink())
-		}
-		name = strings.ToLower(name)
-
-		if strings.HasPrefix(name, prefix) {
+		if matchesPrefix(resource, prefix) {
 			return resource
 		}
 	}
 	return nil
+}
+
+// ByPrefix gets all resources matching the given base filename prefix, e.g
+// "logo" will match logo.png.
+func (r Resources) ByPrefix(prefix string) Resources {
+	var matches Resources
+	prefix = strings.ToLower(prefix)
+	for _, resource := range r {
+		if matchesPrefix(resource, prefix) {
+			matches = append(matches, resource)
+		}
+	}
+	return matches
+}
+
+func matchesPrefix(r Resource, prefix string) bool {
+	var name string
+	f, ok := r.(source.File)
+	if ok {
+		name = f.BaseFileName()
+	} else {
+		_, name = filepath.Split(r.RelPermalink())
+	}
+	name = strings.ToLower(name)
+
+	return strings.HasPrefix(name, prefix)
 }
 
 type Spec struct {
