@@ -35,11 +35,15 @@ var (
 
 const DefaultResourceType = "unknown"
 
+// Source is an internal template and not meant for use in the templates. It
+// may change without notice.
 type Source interface {
 	AbsSourceFilename() string
 	Publish() error
 }
 
+// Cloner is an internal template and not meant for use in the templates. It
+// may change without notice.
 type Cloner interface {
 	WithNewBase(base string) Resource
 }
