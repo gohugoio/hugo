@@ -464,6 +464,8 @@ func (c ContentSpec) RenderBytes(ctx *RenderingContext) []byte {
 		return orgRender(ctx, c)
 	case "pandoc":
 		return getPandocContent(ctx)
+	case "jupyter":
+		return jupyterRender(ctx, c)
 	}
 }
 
@@ -704,6 +706,23 @@ func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
 	cleanContent := bytes.Replace(content, []byte("# more"), []byte(""), 1)
 	return goorgeous.Org(cleanContent,
 		c.getHTMLRenderer(blackfriday.HTML_TOC, ctx))
+}
+
+func jupyterRender(ctx *RenderingContext, c ContentSpec) []byte {
+	jupyter, err := exec.LookPath("jupyter")
+	if err != nil {
+		jww.ERROR.Println("jupyter not found in $PATH.\n",
+			"                 Leaving notebook content unrendered.")
+		return ctx.Content
+	}
+	// TODO not sure how to structure SummaryDivider yet, leave it for later
+	// cleanContent := bytes.Replace(ctx.Content, SummaryDivider, []byte(""), 1)
+	args := []string{"nbconvert", "--to", "markdown", "--stdin", "--stdout",
+		"--log-level=ERROR"}
+	markdownContent := externallyRenderContent(ctx, jupyter, args)
+	ctx.Content = markdownContent
+	ctx.RenderTOC = false
+	return c.markdownRender(ctx)
 }
 
 func externallyRenderContent(ctx *RenderingContext, path string, args []string) []byte {

@@ -86,6 +86,8 @@ func GuessType(in string) string {
 		return "html"
 	case "org":
 		return "org"
+	case "ipynb":
+		return "jupyter"
 	}
 
 	return "unknown"

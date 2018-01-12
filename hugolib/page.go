@@ -709,10 +709,13 @@ func (p *Page) setAutoSummary() error {
 
 func (p *Page) renderContent(content []byte) []byte {
 	return p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
-		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
-		Cfg:        p.Language(),
-		DocumentID: p.UniqueID(), DocumentName: p.Path(),
-		Config: p.getRenderingConfig()})
+		Content:      content,
+		RenderTOC:    true,
+		PageFmt:      p.determineMarkupType(),
+		Cfg:          p.Language(),
+		DocumentID:   p.UniqueID(),
+		DocumentName: p.Path(),
+		Config:       p.getRenderingConfig()})
 }
 
 func (p *Page) getRenderingConfig() *helpers.BlackFriday {
@@ -1534,7 +1537,14 @@ func (p *Page) determineMarkupType() string {
 }
 
 func (p *Page) parse(reader io.Reader) error {
-	psr, err := parser.ReadFrom(reader)
+	var psr parser.Page
+	var err error
+	if p.Source.Extension() == "ipynb" {
+		psr, err = parser.ReadFromNotebook(reader)
+	} else {
+		psr, err = parser.ReadFrom(reader)
+	}
+
 	if err != nil {
 		return err
 	}
