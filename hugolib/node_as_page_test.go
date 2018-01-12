@@ -591,7 +591,7 @@ func TestNodesWithURLs(t *testing.T) {
 
 	writeSource(t, fs, filepath.Join("content", "sect", "_index.md"), `---
 title: MySection
-url: foo.html
+url: /my-section/
 ---
 My Section Content
 `)
@@ -602,7 +602,8 @@ My Section Content
 
 	require.NoError(t, h.Build(BuildCfg{}))
 
-	th.assertFileContent(filepath.Join("public", "sect", "index.html"), "My Section")
+	th.assertFileContent(filepath.Join("public", "my-section", "index.html"), "My Section")
+	th.assertFileContent(filepath.Join("public", "my-section", "page", "1", "index.html"), `content="0; url=http://bep.is/base/my-section/"`)
 
 	s := h.Sites[0]
 
@@ -610,11 +611,11 @@ My Section Content
 
 	require.Equal(t, "/base/sect1/regular1/", p.URL())
 
-	// Section with front matter and url set (which should not be used)
+	// Section with front matter and url set
 	sect := s.getPage(KindSection, "sect")
-	require.Equal(t, "/base/sect/", sect.URL())
-	require.Equal(t, "http://bep.is/base/sect/", sect.Permalink())
-	require.Equal(t, "/base/sect/", sect.RelPermalink())
+	require.Equal(t, "/base/my-section/", sect.URL())
+	require.Equal(t, "http://bep.is/base/my-section/", sect.Permalink())
+	require.Equal(t, "/base/my-section/", sect.RelPermalink())
 
 	// Home page without front matter
 	require.Equal(t, "/base/", s.getPage(KindHome).URL())
