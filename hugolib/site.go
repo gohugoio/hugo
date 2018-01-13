@@ -1541,7 +1541,7 @@ func (s *Site) kindFromSections(sections []string) string {
 }
 
 func (s *Site) layouts(p *PageOutput) ([]string, error) {
-	return s.layoutHandler.For(p.layoutDescriptor, "", p.outputFormat)
+	return s.layoutHandler.For(p.layoutDescriptor, p.outputFormat)
 }
 
 func (s *Site) preparePages() error {

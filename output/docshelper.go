@@ -37,27 +37,26 @@ func createLayoutExamples() interface{} {
 	)
 
 	for _, example := range []struct {
-		name           string
-		d              LayoutDescriptor
-		hasTheme       bool
-		layoutOverride string
-		f              Format
+		name     string
+		d        LayoutDescriptor
+		hasTheme bool
+		f        Format
 	}{
-		{`AMP home, with theme "demoTheme".`, LayoutDescriptor{Kind: "home"}, true, "", AMPFormat},
-		{`AMP home, French language".`, LayoutDescriptor{Kind: "home", Lang: "fr"}, false, "", AMPFormat},
-		{"RSS home, no theme.", LayoutDescriptor{Kind: "home"}, false, "", RSSFormat},
-		{"JSON home, no theme.", LayoutDescriptor{Kind: "home"}, false, "", JSONFormat},
-		{fmt.Sprintf(`CSV regular, "layout: %s" in front matter.`, demoLayout), LayoutDescriptor{Kind: "page", Layout: demoLayout}, false, "", CSVFormat},
-		{fmt.Sprintf(`JSON regular, "type: %s" in front matter.`, demoType), LayoutDescriptor{Kind: "page", Type: demoType}, false, "", JSONFormat},
-		{"HTML regular.", LayoutDescriptor{Kind: "page"}, false, "", HTMLFormat},
-		{"AMP regular.", LayoutDescriptor{Kind: "page"}, false, "", AMPFormat},
-		{"Calendar blog section.", LayoutDescriptor{Kind: "section", Section: "blog"}, false, "", CalendarFormat},
-		{"Calendar taxonomy list.", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, false, "", CalendarFormat},
-		{"Calendar taxonomy term.", LayoutDescriptor{Kind: "taxonomyTerm", Section: "tag"}, false, "", CalendarFormat},
+		{`AMP home, with theme "demoTheme".`, LayoutDescriptor{Kind: "home"}, true, AMPFormat},
+		{`AMP home, French language".`, LayoutDescriptor{Kind: "home", Lang: "fr"}, false, AMPFormat},
+		{"RSS home, no theme.", LayoutDescriptor{Kind: "home"}, false, RSSFormat},
+		{"JSON home, no theme.", LayoutDescriptor{Kind: "home"}, false, JSONFormat},
+		{fmt.Sprintf(`CSV regular, "layout: %s" in front matter.`, demoLayout), LayoutDescriptor{Kind: "page", Layout: demoLayout}, false, CSVFormat},
+		{fmt.Sprintf(`JSON regular, "type: %s" in front matter.`, demoType), LayoutDescriptor{Kind: "page", Type: demoType}, false, JSONFormat},
+		{"HTML regular.", LayoutDescriptor{Kind: "page"}, false, HTMLFormat},
+		{"AMP regular.", LayoutDescriptor{Kind: "page"}, false, AMPFormat},
+		{"Calendar blog section.", LayoutDescriptor{Kind: "section", Section: "blog"}, false, CalendarFormat},
+		{"Calendar taxonomy list.", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, false, CalendarFormat},
+		{"Calendar taxonomy term.", LayoutDescriptor{Kind: "taxonomyTerm", Section: "tag"}, false, CalendarFormat},
 	} {
 
 		l := NewLayoutHandler(example.hasTheme)
-		layouts, _ := l.For(example.d, example.layoutOverride, example.f)
+		layouts, _ := l.For(example.d, example.f)
 
 		basicExamples = append(basicExamples, Example{
 			Example:      example.name,
