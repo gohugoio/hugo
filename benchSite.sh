@@ -9,4 +9,4 @@ GOEXE="${GOEXE-go}"
 
 echo "Running with BenchmarkSiteBuilding/${1}"
 
-"${GOEXE}" test -run="NONE" -bench="BenchmarkSiteBuilding/${1}" -test.benchmem=true ./hugolib -memprofile mem.prof -cpuprofile cpu.prof
+"${GOEXE}" test -run="NONE" -bench="BenchmarkSiteBuilding/${1}" -test.benchmem=true ./hugolib -memprofile mem.prof -count 3 -cpuprofile cpu.prof
