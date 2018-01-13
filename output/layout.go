@@ -15,10 +15,15 @@ package output
 
 import (
 	"fmt"
-	"path"
 	"strings"
 	"sync"
 )
+
+// These may be used as content sections with potential conflicts. Avoid that.
+var reservedSections = map[string]bool{
+	"shortcodes": true,
+	"partials":   true,
+}
 
 // LayoutDescriptor describes how a layout should be chosen. This is
 // typically built from a Page.
@@ -28,6 +33,8 @@ type LayoutDescriptor struct {
 	Kind    string
 	Lang    string
 	Layout  string
+	// LayoutOverride indicates what we should only look for the above layout.
+	LayoutOverride bool
 }
 
 // LayoutHandler calculates the layout template to use to render a given output type.
@@ -39,9 +46,8 @@ type LayoutHandler struct {
 }
 
 type layoutCacheKey struct {
-	d              LayoutDescriptor
-	layoutOverride string
-	f              Format
+	d LayoutDescriptor
+	f Format
 }
 
 // NewLayoutHandler creates a new LayoutHandler.
@@ -49,50 +55,12 @@ func NewLayoutHandler(hasTheme bool) *LayoutHandler {
 	return &LayoutHandler{hasTheme: hasTheme, cache: make(map[layoutCacheKey][]string)}
 }
 
-// RSS:
-// Home:"rss.xml", "_default/rss.xml", "_internal/_default/rss.xml"
-// Section: "section/" + section + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"
-// Taxonomy "taxonomy/" + singular + ".rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"
-// Tax term: taxonomy/" + singular + ".terms.rss.xml", "_default/rss.xml", "rss.xml", "_internal/_default/rss.xml"
-
-const (
-
-	// TODO(bep) variations reduce to 1 "."
-
-	// The RSS templates doesn't map easily into the regular pages.
-	layoutsRSSHome         = `VARIATIONS _default/VARIATIONS _internal/_default/rss.xml`
-	layoutsRSSSection      = `section/SECTION.VARIATIONS _default/VARIATIONS VARIATIONS _internal/_default/rss.xml`
-	layoutsRSSTaxonomy     = `taxonomy/SECTION.VARIATIONS _default/VARIATIONS VARIATIONS _internal/_default/rss.xml`
-	layoutsRSSTaxonomyTerm = `taxonomy/SECTION.terms.VARIATIONS _default/VARIATIONS VARIATIONS _internal/_default/rss.xml`
-
-	layoutsHome    = "index.VARIATIONS _default/list.VARIATIONS"
-	layoutsSection = `
-section/SECTION.VARIATIONS
-SECTION/list.VARIATIONS
-_default/section.VARIATIONS
-_default/list.VARIATIONS
-indexes/SECTION.VARIATIONS
-_default/indexes.VARIATIONS
-`
-	layoutsTaxonomy = `
-taxonomy/SECTION.VARIATIONS
-indexes/SECTION.VARIATIONS
-_default/taxonomy.VARIATIONS
-_default/list.VARIATIONS
-`
-	layoutsTaxonomyTerm = `
-taxonomy/SECTION.terms.VARIATIONS
-_default/terms.VARIATIONS
-indexes/indexes.VARIATIONS
-`
-)
-
 // For returns a layout for the given LayoutDescriptor and options.
 // Layouts are rendered and cached internally.
-func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format) ([]string, error) {
+func (l *LayoutHandler) For(d LayoutDescriptor, f Format) ([]string, error) {
 
 	// We will get lots of requests for the same layouts, so avoid recalculations.
-	key := layoutCacheKey{d, layoutOverride, f}
+	key := layoutCacheKey{d, f}
 	l.mu.RLock()
 	if cacheVal, found := l.cache[key]; found {
 		l.mu.RUnlock()
@@ -100,53 +68,18 @@ func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format)
 	}
 	l.mu.RUnlock()
 
-	var layouts []string
-
-	if layoutOverride != "" && d.Kind != "page" {
-		return layouts, fmt.Errorf("Custom layout (%q) only supported for regular pages, not kind %q", layoutOverride, d.Kind)
-	}
-
-	layout := d.Layout
-
-	if layoutOverride != "" {
-		layout = layoutOverride
-	}
-
-	isRSS := f.Name == RSSFormat.Name
-
-	if d.Kind == "page" {
-		if isRSS {
-			return []string{}, nil
-		}
-		layouts = regularPageLayouts(d.Type, layout, f)
-	} else {
-		if isRSS {
-			layouts = resolveListTemplate(d, f,
-				layoutsRSSHome,
-				layoutsRSSSection,
-				layoutsRSSTaxonomy,
-				layoutsRSSTaxonomyTerm)
-		} else {
-			layouts = resolveListTemplate(d, f,
-				layoutsHome,
-				layoutsSection,
-				layoutsTaxonomy,
-				layoutsTaxonomyTerm)
-		}
-	}
+	layouts := resolvePageTemplate(d, f)
 
 	if l.hasTheme {
+		// From Hugo 0.33 we interleave the project/theme templates. This was kind of a fundamental change, but the
+		// previous behaviour was surprising.
+		// As an example, an `index.html` in theme for the home page will now win over a `_default/list.html` in the project.
 		layoutsWithThemeLayouts := []string{}
+
 		// First place all non internal templates
 		for _, t := range layouts {
 			if !strings.HasPrefix(t, "_internal/") {
 				layoutsWithThemeLayouts = append(layoutsWithThemeLayouts, t)
-			}
-		}
-
-		// Then place theme templates with the same names
-		for _, t := range layouts {
-			if !strings.HasPrefix(t, "_internal/") {
 				layoutsWithThemeLayouts = append(layoutsWithThemeLayouts, "theme/"+t)
 			}
 		}
@@ -170,70 +103,167 @@ func (l *LayoutHandler) For(d LayoutDescriptor, layoutOverride string, f Format)
 	return layouts, nil
 }
 
-func resolveListTemplate(d LayoutDescriptor, f Format,
-	homeLayouts,
-	sectionLayouts,
-	taxonomyLayouts,
-	taxonomyTermLayouts string) []string {
-	var layouts []string
-
-	switch d.Kind {
-	case "home":
-		layouts = resolveTemplate(homeLayouts, d, f)
-	case "section":
-		layouts = resolveTemplate(sectionLayouts, d, f)
-	case "taxonomy":
-		layouts = resolveTemplate(taxonomyLayouts, d, f)
-	case "taxonomyTerm":
-		layouts = resolveTemplate(taxonomyTermLayouts, d, f)
-	}
-	return layouts
+type layoutBuilder struct {
+	layoutVariations []string
+	typeVariations   []string
+	d                LayoutDescriptor
+	f                Format
 }
 
-func resolveTemplate(templ string, d LayoutDescriptor, f Format) []string {
+func (l *layoutBuilder) addLayoutVariations(vars ...string) {
+	for _, layoutVar := range vars {
+		if l.d.LayoutOverride && layoutVar != l.d.Layout {
+			continue
+		}
+		l.layoutVariations = append(l.layoutVariations, layoutVar)
+	}
+}
 
-	// VARIATIONS will be replaced with
-	// .lang.name.suffix
-	// .name.suffix
-	// .lang.suffix
-	// .suffix
-	var replacementValues []string
+func (l *layoutBuilder) addTypeVariations(vars ...string) {
+	for _, typeVar := range vars {
+		if !reservedSections[typeVar] {
+			l.typeVariations = append(l.typeVariations, typeVar)
+		}
+	}
+}
 
-	name := strings.ToLower(f.Name)
+func (l *layoutBuilder) addSectionType() {
+	if l.d.Section != "" {
+		l.addTypeVariations(l.d.Section)
+	}
+}
 
-	if d.Lang != "" {
-		replacementValues = append(replacementValues, fmt.Sprintf("%s.%s.%s", d.Lang, name, f.MediaType.Suffix))
+func (l *layoutBuilder) addKind() {
+	l.addLayoutVariations(l.d.Kind)
+	l.addTypeVariations(l.d.Kind)
+}
+
+func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
+
+	b := &layoutBuilder{d: d, f: f}
+
+	if d.Layout != "" {
+		b.addLayoutVariations(d.Layout)
 	}
 
-	replacementValues = append(replacementValues, fmt.Sprintf("%s.%s", name, f.MediaType.Suffix))
+	if d.Type != "" {
+		b.addTypeVariations(d.Type)
+	}
 
-	if d.Lang != "" {
-		replacementValues = append(replacementValues, fmt.Sprintf("%s.%s", d.Lang, f.MediaType.Suffix))
+	switch d.Kind {
+	case "page":
+		b.addLayoutVariations("single")
+		b.addSectionType()
+	case "home":
+		b.addLayoutVariations("index", "home")
+		// Also look in the root
+		b.addTypeVariations("")
+	case "section":
+		if d.Section != "" {
+			b.addLayoutVariations(d.Section)
+		}
+		b.addSectionType()
+		b.addKind()
+	case "taxonomy":
+		if d.Section != "" {
+			b.addLayoutVariations(d.Section)
+		}
+		b.addKind()
+		b.addSectionType()
+
+	case "taxonomyTerm":
+		if d.Section != "" {
+			b.addLayoutVariations(d.Section + ".terms")
+		}
+		b.addTypeVariations("taxonomy")
+		b.addSectionType()
+		b.addLayoutVariations("terms")
+
 	}
 
 	isRSS := f.Name == RSSFormat.Name
-
-	if !isRSS {
-		replacementValues = append(replacementValues, f.MediaType.Suffix)
+	if isRSS {
+		// The historic and common rss.xml case
+		b.addLayoutVariations("")
 	}
+
+	// All have _default in their lookup path
+	b.addTypeVariations("_default")
+
+	if d.Kind != "page" {
+		// Add the common list type
+		b.addLayoutVariations("list")
+	}
+
+	layouts := b.resolveVariations()
+
+	if isRSS {
+		layouts = append(layouts, "_internal/_default/rss.xml")
+	}
+
+	return layouts
+
+}
+
+func (l *layoutBuilder) resolveVariations() []string {
 
 	var layouts []string
 
-	templFields := strings.Fields(templ)
+	var variations []string
+	name := strings.ToLower(l.f.Name)
 
-	for _, field := range templFields {
-		for _, replacements := range replacementValues {
-			layouts = append(layouts, replaceKeyValues(field, "VARIATIONS", replacements, "SECTION", d.Section))
+	if l.d.Lang != "" {
+		// We prefer the most specific type before language.
+		variations = append(variations, []string{fmt.Sprintf("%s.%s", l.d.Lang, name), name, l.d.Lang}...)
+	} else {
+		variations = append(variations, name)
+	}
+
+	variations = append(variations, "")
+
+	for _, typeVar := range l.typeVariations {
+		for _, variation := range variations {
+			for _, layoutVar := range l.layoutVariations {
+				if variation == "" && layoutVar == "" {
+					continue
+				}
+				template := layoutTemplate(typeVar, layoutVar)
+				layouts = append(layouts, replaceKeyValues(template,
+					"TYPE", typeVar,
+					"LAYOUT", layoutVar,
+					"VARIATIONS", variation,
+					"EXTENSION", l.f.MediaType.Suffix,
+				))
+			}
 		}
+
 	}
 
 	return filterDotLess(layouts)
+}
+
+func layoutTemplate(typeVar, layoutVar string) string {
+
+	var l string
+
+	if typeVar != "" {
+		l = "TYPE/"
+	}
+
+	if layoutVar != "" {
+		l += "LAYOUT.VARIATIONS.EXTENSION"
+	} else {
+		l += "VARIATIONS.EXTENSION"
+	}
+
+	return l
 }
 
 func filterDotLess(layouts []string) []string {
 	var filteredLayouts []string
 
 	for _, l := range layouts {
+		l = strings.Replace(l, "..", ".", -1)
 		l = strings.Trim(l, ".")
 		// If media type has no suffix, we have "index" type of layouts in this list, which
 		// doesn't make much sense.
@@ -262,38 +292,4 @@ func prependTextPrefixIfNeeded(f Format, layouts ...string) []string {
 func replaceKeyValues(s string, oldNew ...string) string {
 	replacer := strings.NewReplacer(oldNew...)
 	return replacer.Replace(s)
-}
-
-func regularPageLayouts(types string, layout string, f Format) []string {
-	var layouts []string
-
-	if layout == "" {
-		layout = "single"
-	}
-
-	delimiter := "."
-	if f.MediaType.Delimiter == "" {
-		delimiter = ""
-	}
-
-	suffix := delimiter + f.MediaType.Suffix
-	name := strings.ToLower(f.Name)
-
-	if types != "" {
-		t := strings.Split(types, "/")
-
-		// Add type/layout.html
-		for i := range t {
-			search := t[:len(t)-i]
-			layouts = append(layouts, fmt.Sprintf("%s/%s.%s%s", strings.ToLower(path.Join(search...)), layout, name, suffix))
-			layouts = append(layouts, fmt.Sprintf("%s/%s%s", strings.ToLower(path.Join(search...)), layout, suffix))
-
-		}
-	}
-
-	// Add _default/layout.html
-	layouts = append(layouts, fmt.Sprintf("_default/%s.%s%s", layout, name, suffix))
-	layouts = append(layouts, fmt.Sprintf("_default/%s%s", layout, suffix))
-
-	return filterDotLess(layouts)
 }

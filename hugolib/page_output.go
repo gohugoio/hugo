@@ -100,22 +100,19 @@ func (p *PageOutput) layouts(layouts ...string) ([]string, error) {
 		return []string{p.selfLayout}, nil
 	}
 
-	layoutOverride := ""
+	layoutDescriptor := p.layoutDescriptor
+
 	if len(layouts) > 0 {
-		layoutOverride = layouts[0]
+		layoutDescriptor.Layout = layouts[0]
+		layoutDescriptor.LayoutOverride = true
 	}
 
 	return p.s.layoutHandler.For(
-		p.layoutDescriptor,
-		layoutOverride,
+		layoutDescriptor,
 		p.outputFormat)
 }
 
 func (p *PageOutput) Render(layout ...string) template.HTML {
-	if !p.checkRender() {
-		return ""
-	}
-
 	l, err := p.layouts(layout...)
 	if err != nil {
 		helpers.DistinctErrorLog.Printf("in .Render: Failed to resolve layout %q for page %q", layout, p.pathOrTitle())
@@ -145,10 +142,6 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 }
 
 func (p *Page) Render(layout ...string) template.HTML {
-	if !p.checkRender() {
-		return ""
-	}
-
 	p.pageOutputInit.Do(func() {
 		if p.mainPageOutput != nil {
 			return
@@ -168,16 +161,6 @@ func (p *Page) Render(layout ...string) template.HTML {
 	})
 
 	return p.mainPageOutput.Render(layout...)
-}
-
-// We may fix this in the future, but the layout handling in Render isn't built
-// for list pages.
-func (p *Page) checkRender() bool {
-	if p.Kind != KindPage {
-		helpers.DistinctWarnLog.Printf(".Render only available for regular pages, not for of kind %q. You probably meant .Site.RegularPages and not.Site.Pages.", p.Kind)
-		return false
-	}
-	return true
 }
 
 // OutputFormats holds a list of the relevant output formats for a given resource.

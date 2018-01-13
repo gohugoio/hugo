@@ -242,7 +242,6 @@ func (s *Site) renderRSS(p *PageOutput) error {
 
 	layouts, err := s.layoutHandler.For(
 		p.layoutDescriptor,
-		"",
 		p.outputFormat)
 	if err != nil {
 		return err
