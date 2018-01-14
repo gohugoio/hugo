@@ -65,6 +65,7 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 ## Blogger
 
 - [blogimport](https://github.com/natefinch/blogimport) - A tool to import from Blogger posts to Hugo.
+- [blogger-to-hugo](https://bitbucket.org/petraszd/blogger-to-hugo) - Another tool to import Blogger posts to Hugo. It also downloads embedded images so they will be stored locally.
 
 ## Contentful
 
