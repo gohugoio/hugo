@@ -28,7 +28,8 @@
     "lexers",
     "styles"
   ]
-  revision = "v0.2.0"
+  revision = "e0f32fbcb59bc99c521910291b7ba8ecdb17ca34"
+  version = "v0.2.1"
 
 [[projects]]
   branch = "master"
@@ -39,7 +40,8 @@
 [[projects]]
   name = "github.com/chaseadamsio/goorgeous"
   packages = ["."]
-  revision = "v1.1.0"
+  revision = "dcf1ef873b8987bf12596fe6951c48347986eb2f"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/cpuguy83/go-md2man"
@@ -62,7 +64,8 @@
 [[projects]]
   name = "github.com/disintegration/imaging"
   packages = ["."]
-  revision = "v1.2.4"
+  revision = "dd50a3ee9985ccd313a2f03c398fcaedc96dc707"
+  version = "v1.2.4"
 
 [[projects]]
   name = "github.com/dlclark/regexp2"
@@ -91,8 +94,8 @@
 [[projects]]
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
-  revision = "629574ca2a5df945712d3079857300b5e4da0236"
-  version = "v1.4.2"
+  revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
+  version = "v1.4.7"
 
 [[projects]]
   name = "github.com/gorilla/websocket"
@@ -161,14 +164,14 @@
 [[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
-  revision = "be5ece7dd465ab0765a9682137865547526d1dfb"
-  version = "v1.7.3"
+  revision = "d419a98cdbed11a922bf76f257b7c4be79b50e73"
+  version = "v1.7.4"
 
 [[projects]]
   branch = "master"
   name = "github.com/markbates/inflect"
   packages = ["."]
-  revision = "54ffb37507cd7d2ccd4768855e84f9ff6c4352b6"
+  revision = "a12c3aec81a6a938bf584a4bac567afed9256586"
 
 [[projects]]
   name = "github.com/mattn/go-runewidth"
@@ -186,7 +189,7 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "06020f85339e21b2478f756a78e295255ffa4d6a"
+  revision = "b4575eea38cca1123ec2dc90c26529b5c5acfcff"
 
 [[projects]]
   name = "github.com/nicksnyder/go-i18n"
@@ -202,7 +205,7 @@
   branch = "master"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
-  revision = "65fec0d89a572b4367094e2058d3ebe667de3b60"
+  revision = "96aac992fc8b1a4c83841a6c3e7178d20d989625"
 
 [[projects]]
   name = "github.com/pelletier/go-toml"
@@ -250,7 +253,7 @@
     ".",
     "doc"
   ]
-  revision = "7b2c5ac9fc04fc5efafb60700713d4fa609b777b"
+  revision = "b95ab734e27d33e0d8fbabf71ca990568d4e2020"
 
 [[projects]]
   branch = "master"
@@ -262,7 +265,7 @@
   branch = "master"
   name = "github.com/spf13/jwalterweatherman"
   packages = ["."]
-  revision = "12bd96e66386c1960ab0f74ced1362f66f552f7b"
+  revision = "7c0cea34c8ece3fbeb2b27ab9b59511d360fb394"
 
 [[projects]]
   branch = "master"
@@ -288,8 +291,8 @@
     "assert",
     "require"
   ]
-  revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
-  version = "v1.1.4"
+  revision = "b91bfb9ebec76498946beb6af7c0230c7cc7ba6c"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/yosssi/ace"
@@ -309,7 +312,7 @@
     "vp8l",
     "webp"
   ]
-  revision = "f7e31b4ea2e3413ab91b4e7d2dc83e5f8d19a44c"
+  revision = "12117c17ca67ffa1ce22e9409f3b0b0a93ac08c7"
 
 [[projects]]
   branch = "master"
@@ -318,7 +321,7 @@
     "context",
     "idna"
   ]
-  revision = "cd69bc3fc700721b709c3a59e16e24c67b58f6ff"
+  revision = "5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec"
 
 [[projects]]
   branch = "master"
@@ -330,7 +333,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "8dbc5d05d6edcc104950cc299a1ce6641235bc86"
+  revision = "810d7000345868fc619eb81f46307107118f4ae1"
 
 [[projects]]
   branch = "master"
@@ -352,17 +355,17 @@
     "unicode/rangetable",
     "width"
   ]
-  revision = "c01e4764d870b77f8abe5096ee19ad20d80e8075"
+  revision = "e19ae1496984b1c655b8044a65c0300a3c878dd3"
 
 [[projects]]
   branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "eb3733d160e74a9c7e442f435eb3bea458e1d19f"
+  revision = "d670f9405373e636a5a2765eea47fac0c9bc91a4"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "823d540219fd336b3a959879fa0018af2a047bd9ffd7d17e44dab15cf76cdc72"
+  inputs-digest = "398d769bcbce6e8fa04f7afab14eb64d25aed5b581d7bd39294014351a459890"
   solver-name = "gps-cdcl"
   solver-version = 1

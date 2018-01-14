@@ -10,7 +10,7 @@
 
 [[constraint]]
   name = "github.com/alecthomas/chroma"
-  revision = "v0.2.0"
+  version = "^0.2.0"
 
 [[constraint]]
   branch = "master"
@@ -18,11 +18,11 @@
 
 [[constraint]]
  name = "github.com/chaseadamsio/goorgeous"
- revision = "v1.1.0"
+ version = "^1.1.0"
 
 [[constraint]]
  name = "github.com/disintegration/imaging"
- revision = "v1.2.4"
+ version = "~v1.2.4"
 
 [[constraint]]
   name = "github.com/magefile/mage"
@@ -38,7 +38,7 @@
 
 [[constraint]]
   name = "github.com/fsnotify/fsnotify"
-  version = "1.4.2"
+  version = "^1.4.0"
 
 [[constraint]]
   name = "github.com/gorilla/websocket"
@@ -62,7 +62,7 @@
 
 [[constraint]]
   name = "github.com/miekg/mmark"
-  version = "1.3.6"
+  version = "^1.3.6"
 
 [[constraint]]
   branch = "master"
@@ -70,19 +70,19 @@
 
 [[constraint]]
   name = "github.com/nicksnyder/go-i18n"
-  version = "1.10.0"
+  version = "^1.10.0"
 
 [[constraint]]
   name = "github.com/russross/blackfriday"
-  version = "1.5.0"
+  version = "^1.5.0"
 
 [[constraint]]
   name = "github.com/spf13/afero"
-  version = "1.0.1"
+  version = "^1.0.1"
 
 [[constraint]]
   name = "github.com/spf13/cast"
-  version = "1.1.0"
+  version = "^1.1.0"
 
 [[constraint]]
   branch = "master"
@@ -118,7 +118,7 @@
 
 [[constraint]]
   name = "github.com/yosssi/ace"
-  version = "0.0.5"
+  version = "^0.0.5"
 
 [[constraint]]
   branch = "master"
