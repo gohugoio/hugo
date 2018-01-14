@@ -144,12 +144,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/kardianos/osext"
-  packages = ["."]
-  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
-
-[[projects]]
   name = "github.com/kyokomi/emoji"
   packages = ["."]
   revision = "7e06b236c489543f53868841f188a294e3383eab"
@@ -369,6 +363,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7259b4caf8e75db0b809f06d4897dc870261252e3aecd68ea1348c87a5da9d50"
+  inputs-digest = "823d540219fd336b3a959879fa0018af2a047bd9ffd7d17e44dab15cf76cdc72"
   solver-name = "gps-cdcl"
   solver-version = 1
