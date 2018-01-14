@@ -19,10 +19,12 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/gohugoio/hugo/livereload"
@@ -229,14 +231,16 @@ func server(cmd *cobra.Command, args []string) error {
 		rootWatchDirs := strings.Join(helpers.UniqueStrings(helpers.ExtractRootPaths(relWatchDirs)), ",")
 
 		jww.FEEDBACK.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
-		err = c.newWatcher(true, watchDirs...)
+		err = c.newWatcher(watchDirs...)
 
 		if err != nil {
 			return err
 		}
+
 	}
 
-	return nil
+	return c.serve()
+
 }
 
 type fileServer struct {
@@ -313,7 +317,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 	return mu, u.String(), endpoint, nil
 }
 
-func (c *commandeer) serve() {
+func (c *commandeer) serve() error {
 
 	isMultiHost := Hugo.IsMultihost()
 
@@ -345,6 +349,9 @@ func (c *commandeer) serve() {
 		livereload.Initialize()
 	}
 
+	var sigs = make(chan os.Signal)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
 	for i, _ := range baseURLs {
 		mu, serverURL, endpoint, err := srv.createEndpoint(i)
 
@@ -363,6 +370,10 @@ func (c *commandeer) serve() {
 	}
 
 	jww.FEEDBACK.Println("Press Ctrl+C to stop")
+
+	<-sigs
+
+	return nil
 }
 
 // fixURL massages the baseURL into a form needed for serving

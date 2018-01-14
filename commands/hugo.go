@@ -30,7 +30,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 	"time"
 
 	src "github.com/gohugoio/hugo/source"
@@ -633,7 +632,7 @@ func (c *commandeer) build(watches ...bool) error {
 		}
 		c.Logger.FEEDBACK.Println("Watching for changes in", c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")))
 		c.Logger.FEEDBACK.Println("Press Ctrl+C to stop")
-		utils.CheckErr(c.Logger, c.newWatcher(false, watchDirs...))
+		utils.CheckErr(c.Logger, c.newWatcher(watchDirs...))
 	}
 
 	return nil
@@ -969,9 +968,7 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
-// if serve is set it will also start one or more HTTP servers to serve those
-// files.
-func (c *commandeer) newWatcher(serve bool, dirList ...string) error {
+func (c *commandeer) newWatcher(dirList ...string) error {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
 	}
@@ -982,15 +979,12 @@ func (c *commandeer) newWatcher(serve bool, dirList ...string) error {
 	}
 
 	watcher, err := watcher.New(1 * time.Second)
-	var wg sync.WaitGroup
 
 	if err != nil {
 		return err
 	}
 
 	defer watcher.Close()
-
-	wg.Add(1)
 
 	for _, d := range dirList {
 		if d != "" {
@@ -1189,11 +1183,6 @@ func (c *commandeer) newWatcher(serve bool, dirList ...string) error {
 		}
 	}()
 
-	if serve {
-		go c.serve()
-	}
-
-	wg.Wait()
 	return nil
 }
 
