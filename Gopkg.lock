@@ -237,8 +237,8 @@
     ".",
     "mem"
   ]
-  revision = "ec3a3111d1e1bdff38a61e09d5a5f5e974905611"
-  version = "v1.0.1"
+  revision = "bb8f1927f2a9d3ab41c9340aa034f6b803f4359c"
+  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/spf13/cast"
