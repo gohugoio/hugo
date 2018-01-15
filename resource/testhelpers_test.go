@@ -37,12 +37,16 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 }
 
 func fetchSunset(assert *require.Assertions) *Image {
-	src, err := os.Open("testdata/sunset.jpg")
+	return fetchImage(assert, "sunset.jpg")
+}
+
+func fetchImage(assert *require.Assertions, name string) *Image {
+	src, err := os.Open("testdata/" + name)
 	assert.NoError(err)
 
 	spec := newTestResourceSpec(assert)
 
-	out, err := spec.Fs.Source.Create("/b/sunset.jpg")
+	out, err := spec.Fs.Source.Create("/b/" + name)
 	assert.NoError(err)
 	_, err = io.Copy(out, src)
 	out.Close()
@@ -53,7 +57,7 @@ func fetchSunset(assert *require.Assertions) *Image {
 		return path.Join("/a", s)
 	}
 
-	r, err := spec.NewResourceFromFilename(factory, "/public", "/b/sunset.jpg", "sunset.jpg")
+	r, err := spec.NewResourceFromFilename(factory, "/public", "/b/"+name, name)
 	assert.NoError(err)
 	assert.IsType(&Image{}, r)
 	return r.(*Image)

@@ -538,7 +538,14 @@ func (i *Image) filenameFromConfig(conf imageConfig) string {
 	// for the different OSes to handle.
 	if len(p1)+len(idStr)+len(p2) > md5Threshold {
 		key = helpers.MD5String(p1 + key + p2)
-		p1 = p1[:strings.Index(p1, "_hu")]
+		huIdx := strings.Index(p1, "_hu")
+		if huIdx != -1 {
+			p1 = p1[:huIdx]
+		} else {
+			// This started out as a very long file name. Making it even longer
+			// could melt ice in the Arctic.
+			p1 = ""
+		}
 	} else if strings.Contains(p1, idStr) {
 		// On scaling an already scaled image, we get the file info from the original.
 		// Repeating the same info in the filename makes it stuttery for no good reason.

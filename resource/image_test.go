@@ -115,6 +115,25 @@ func TestImageTransform(t *testing.T) {
 
 }
 
+// https://github.com/gohugoio/hugo/issues/4261
+func TestImageTransformLongFilename(t *testing.T) {
+	assert := require.New(t)
+
+	image := fetchImage(assert, "1234567890qwertyuiopasdfghjklzxcvbnm5to6eeeeee7via8eleph.jpg")
+	assert.NotNil(image)
+
+	resized, err := image.Resize("200x")
+	assert.NoError(err)
+	assert.NotNil(resized)
+	assert.Equal(200, resized.Width())
+	assert.Equal("/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_fd0f8b23902abcf4092b68783834f7fe.jpg", resized.RelPermalink())
+	resized, err = resized.Resize("100x")
+	assert.NoError(err)
+	assert.NotNil(resized)
+	assert.Equal(100, resized.Width())
+	assert.Equal("/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_5f399e62910070692b3034a925f1b2d7.jpg", resized.RelPermalink())
+}
+
 func TestDecodeImaging(t *testing.T) {
 	assert := require.New(t)
 	m := map[string]interface{}{
