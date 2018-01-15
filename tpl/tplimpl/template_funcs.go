@@ -36,6 +36,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/partials"
 	_ "github.com/gohugoio/hugo/tpl/safe"
 	_ "github.com/gohugoio/hugo/tpl/strings"
+	_ "github.com/gohugoio/hugo/tpl/tags"
 	_ "github.com/gohugoio/hugo/tpl/time"
 	_ "github.com/gohugoio/hugo/tpl/transform"
 	_ "github.com/gohugoio/hugo/tpl/urls"
@@ -50,6 +51,7 @@ func (t *templateFuncster) initFuncMap() {
 		if _, exists := funcMap[ns.Name]; exists {
 			panic(ns.Name + " is a duplicate template func")
 		}
+
 		funcMap[ns.Name] = ns.Context
 		for _, mm := range ns.MethodMappings {
 			for _, alias := range mm.Aliases {

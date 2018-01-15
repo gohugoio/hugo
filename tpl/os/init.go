@@ -37,7 +37,7 @@ func init() {
 		ns.AddMethodMapping(ctx.ReadDir,
 			[]string{"readDir"},
 			[][2]string{
-				{`{{ range (readDir ".") }}{{ .Name }}{{ end }}`, "README.txt"},
+				{`{{ range (readDir ".") }}{{ .Name }},{{ end }}`, "README.txt,bootstrap.css,bootstrap.js,"},
 			},
 		)
 
