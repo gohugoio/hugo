@@ -202,7 +202,7 @@ func server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.build(serverWatch); err != nil {
+	if err := c.serverBuild(); err != nil {
 		return err
 	}
 
@@ -231,11 +231,13 @@ func server(cmd *cobra.Command, args []string) error {
 		rootWatchDirs := strings.Join(helpers.UniqueStrings(helpers.ExtractRootPaths(relWatchDirs)), ",")
 
 		jww.FEEDBACK.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
-		err = c.newWatcher(watchDirs...)
+		watcher, err := c.newWatcher(watchDirs...)
 
 		if err != nil {
 			return err
 		}
+
+		defer watcher.Close()
 
 	}
 

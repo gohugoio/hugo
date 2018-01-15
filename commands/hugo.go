@@ -18,8 +18,10 @@ package commands
 import (
 	"fmt"
 	"io/ioutil"
+	"os/signal"
 	"sort"
 	"sync/atomic"
+	"syscall"
 
 	"golang.org/x/sync/errgroup"
 
@@ -547,7 +549,7 @@ func (c *commandeer) watchConfig() {
 	})
 }
 
-func (c *commandeer) fullBuild(watches ...bool) error {
+func (c *commandeer) fullBuild() error {
 	var (
 		g         errgroup.Group
 		langCount map[string]uint64
@@ -611,10 +613,10 @@ func (c *commandeer) fullBuild(watches ...bool) error {
 
 }
 
-func (c *commandeer) build(watches ...bool) error {
+func (c *commandeer) build() error {
 	defer c.timeTrack(time.Now(), "Total")
 
-	if err := c.fullBuild(watches...); err != nil {
+	if err := c.fullBuild(); err != nil {
 		return err
 	}
 
@@ -632,7 +634,31 @@ func (c *commandeer) build(watches ...bool) error {
 		}
 		c.Logger.FEEDBACK.Println("Watching for changes in", c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")))
 		c.Logger.FEEDBACK.Println("Press Ctrl+C to stop")
-		utils.CheckErr(c.Logger, c.newWatcher(watchDirs...))
+		watcher, err := c.newWatcher(watchDirs...)
+		utils.CheckErr(c.Logger, err)
+		defer watcher.Close()
+
+		var sigs = make(chan os.Signal)
+		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+		<-sigs
+	}
+
+	return nil
+}
+
+func (c *commandeer) serverBuild() error {
+	defer c.timeTrack(time.Now(), "Total")
+
+	if err := c.fullBuild(); err != nil {
+		return err
+	}
+
+	// TODO(bep) Feedback?
+	if !quiet {
+		fmt.Println()
+		Hugo.PrintProcessingStats(os.Stdout)
+		fmt.Println()
 	}
 
 	return nil
@@ -968,23 +994,21 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 }
 
 // newWatcher creates a new watcher to watch filesystem events.
-func (c *commandeer) newWatcher(dirList ...string) error {
+func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 	if runtime.GOOS == "darwin" {
 		tweakLimit()
 	}
 
 	staticSyncer, err := newStaticSyncer(c)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	watcher, err := watcher.New(1 * time.Second)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	defer watcher.Close()
 
 	for _, d := range dirList {
 		if d != "" {
@@ -1183,7 +1207,7 @@ func (c *commandeer) newWatcher(dirList ...string) error {
 		}
 	}()
 
-	return nil
+	return watcher, nil
 }
 
 func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
