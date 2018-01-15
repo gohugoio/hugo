@@ -136,8 +136,14 @@ func TestPageBundlerSite(t *testing.T) {
 						"TheContent",
 						"Sunset RelPermalink: /2017/pageslug/sunset1.jpg",
 						"Thumb Width: 123",
+						"Thumb Name: my-sunset-1",
 						"Short Sunset RelPermalink: /2017/pageslug/sunset2.jpg",
 						"Short Thumb Width: 56",
+						"1: Image Title: Sunset Galore 1",
+						"1: Image Params: map[myparam:My Sunny Param]",
+						"2: Image Title: Sunset Galore 2",
+						"2: Image Params: map[myparam:My Sunny Param]",
+						"1: Image myParam: Lower: My Sunny Param Caps: My Sunny Param",
 					)
 					th.assertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug.html"), "TheContent")
 
@@ -205,10 +211,16 @@ date: 2017-10-09
 TheContent.
 `
 
-	pageWithImageShortcodeContent := `---
+	pageWithImageShortcodeAndResourceMetadataContent := `---
 title: "Bundle Galore"
 slug: pageslug
 date: 2017-10-09
+resources:
+- src: "*.jpg"
+  name: "my-sunset-:counter"
+  title: "Sunset Galore :counter"
+  params:
+    myParam: "My Sunny Param"
 ---
 
 TheContent.
@@ -227,17 +239,25 @@ TheContent.
 	singleLayout := `
 Title: {{ .Title }}
 Content: {{ .Content }}
-{{ $sunset := .Resources.GetByPrefix "sunset1" }}
+{{ $sunset := .Resources.GetByPrefix "my-sunset-1" }}
 {{ with $sunset }}
 Sunset RelPermalink: {{ .RelPermalink }}
 {{ $thumb := .Fill "123x123" }}
 Thumb Width: {{ $thumb.Width }}
+Thumb Name: {{ $thumb.Name }}
+Thumb Title: {{ $thumb.Title }}
+Thumb RelPermalink: {{ $thumb.RelPermalink }}
 {{ end }}
-
+{{ range $i, $e := .Resources.ByType "image" }}
+{{ $i }}: Image Title: {{ .Title }}
+{{ $i }}: Image Name: {{ .Name }}
+{{ $i }}: Image Params: {{ printf "%v" .Params }}
+{{ $i }}: Image myParam: Lower: {{ .Params.myparam }} Caps: {{ .Params.MYPARAM }}
+{{ end }}
 `
 
 	myShort := `
-{{ $sunset := .Page.Resources.GetByPrefix "sunset2" }}
+{{ $sunset := .Page.Resources.GetByPrefix "my-sunset-2" }}
 {{ with $sunset }}
 Short Sunset RelPermalink: {{ .RelPermalink }}
 {{ $thumb := .Fill "56x56" }}
@@ -268,7 +288,7 @@ Short Thumb Width: {{ $thumb.Width }}
 	writeSource(t, fs, filepath.Join(workDir, "base", "assets", "pages", "mypage.md"), pageContent)
 
 	// Bundle
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "index.md"), pageWithImageShortcodeContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "index.md"), pageWithImageShortcodeAndResourceMetadataContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "1.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "2.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "custom-mime.bep"), "bepsays")

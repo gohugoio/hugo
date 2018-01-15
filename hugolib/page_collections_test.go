@@ -134,7 +134,7 @@ func TestGetPage(t *testing.T) {
 		page := s.getPage(test.kind, test.path...)
 		assert.NotNil(page, errorMsg)
 		assert.Equal(test.kind, page.Kind, errorMsg)
-		assert.Equal(test.expectedTitle, page.Title)
+		assert.Equal(test.expectedTitle, page.title)
 	}
 
 }

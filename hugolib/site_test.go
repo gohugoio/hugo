@@ -160,7 +160,7 @@ func TestFutureExpirationRender(t *testing.T) {
 		}
 	}
 
-	if s.AllPages[0].Title == "doc2" {
+	if s.AllPages[0].title == "doc2" {
 		t.Fatal("Expired content published unexpectedly")
 	}
 }
@@ -642,40 +642,40 @@ func TestOrderedPages(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	if s.getPage(KindSection, "sect").Pages[1].Title != "Three" || s.getPage(KindSection, "sect").Pages[2].Title != "Four" {
+	if s.getPage(KindSection, "sect").Pages[1].title != "Three" || s.getPage(KindSection, "sect").Pages[2].title != "Four" {
 		t.Error("Pages in unexpected order.")
 	}
 
 	bydate := s.RegularPages.ByDate()
 
-	if bydate[0].Title != "One" {
-		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bydate[0].Title)
+	if bydate[0].title != "One" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bydate[0].title)
 	}
 
 	rev := bydate.Reverse()
-	if rev[0].Title != "Three" {
-		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rev[0].Title)
+	if rev[0].title != "Three" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rev[0].title)
 	}
 
 	bypubdate := s.RegularPages.ByPublishDate()
 
-	if bypubdate[0].Title != "One" {
-		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bypubdate[0].Title)
+	if bypubdate[0].title != "One" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bypubdate[0].title)
 	}
 
 	rbypubdate := bypubdate.Reverse()
-	if rbypubdate[0].Title != "Three" {
-		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rbypubdate[0].Title)
+	if rbypubdate[0].title != "Three" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Three", rbypubdate[0].title)
 	}
 
 	bylength := s.RegularPages.ByLength()
-	if bylength[0].Title != "One" {
-		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bylength[0].Title)
+	if bylength[0].title != "One" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "One", bylength[0].title)
 	}
 
 	rbylength := bylength.Reverse()
-	if rbylength[0].Title != "Four" {
-		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Four", rbylength[0].Title)
+	if rbylength[0].title != "Four" {
+		t.Errorf("Pages in unexpected order. First should be '%s', got '%s'", "Four", rbylength[0].title)
 	}
 }
 
@@ -714,8 +714,8 @@ func TestGroupedPages(t *testing.T) {
 	if rbysection[2].Key != "sect1" {
 		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "sect1", rbysection[2].Key)
 	}
-	if rbysection[0].Pages[0].Title != "Four" {
-		t.Errorf("PageGroup has an unexpected page. First group's pages should have '%s', got '%s'", "Four", rbysection[0].Pages[0].Title)
+	if rbysection[0].Pages[0].title != "Four" {
+		t.Errorf("PageGroup has an unexpected page. First group's pages should have '%s', got '%s'", "Four", rbysection[0].Pages[0].title)
 	}
 	if len(rbysection[2].Pages) != 2 {
 		t.Errorf("PageGroup has unexpected number of pages. Third group should have '%d' pages, got '%d' pages", 2, len(rbysection[2].Pages))
@@ -734,8 +734,8 @@ func TestGroupedPages(t *testing.T) {
 	if bytype[2].Key != "sect3" {
 		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "sect3", bytype[2].Key)
 	}
-	if bytype[2].Pages[0].Title != "Four" {
-		t.Errorf("PageGroup has an unexpected page. Third group's data should have '%s', got '%s'", "Four", bytype[0].Pages[0].Title)
+	if bytype[2].Pages[0].title != "Four" {
+		t.Errorf("PageGroup has an unexpected page. Third group's data should have '%s', got '%s'", "Four", bytype[0].Pages[0].title)
 	}
 	if len(bytype[0].Pages) != 2 {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(bytype[2].Pages))
@@ -762,8 +762,8 @@ func TestGroupedPages(t *testing.T) {
 	if bypubdate[1].Key != "0001" {
 		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "0001", bypubdate[1].Key)
 	}
-	if bypubdate[0].Pages[0].Title != "Three" {
-		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", bypubdate[0].Pages[0].Title)
+	if bypubdate[0].Pages[0].title != "Three" {
+		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", bypubdate[0].Pages[0].title)
 	}
 	if len(bypubdate[0].Pages) != 3 {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 3, len(bypubdate[0].Pages))
@@ -782,8 +782,8 @@ func TestGroupedPages(t *testing.T) {
 	if byparam[2].Key != "bar" {
 		t.Errorf("PageGroup array in unexpected order. Third group key should be '%s', got '%s'", "bar", byparam[2].Key)
 	}
-	if byparam[2].Pages[0].Title != "Three" {
-		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", byparam[2].Pages[0].Title)
+	if byparam[2].Pages[0].title != "Three" {
+		t.Errorf("PageGroup has an unexpected page. Third group's pages should have '%s', got '%s'", "Three", byparam[2].Pages[0].title)
 	}
 	if len(byparam[0].Pages) != 2 {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(byparam[0].Pages))
@@ -815,8 +815,8 @@ func TestGroupedPages(t *testing.T) {
 	if byParamDate[1].Key != "1979-05" {
 		t.Errorf("PageGroup array in unexpected order. Second group key should be '%s', got '%s'", "1979-05", byParamDate[1].Key)
 	}
-	if byParamDate[1].Pages[0].Title != "One" {
-		t.Errorf("PageGroup has an unexpected page. Second group's pages should have '%s', got '%s'", "One", byParamDate[1].Pages[0].Title)
+	if byParamDate[1].Pages[0].title != "One" {
+		t.Errorf("PageGroup has an unexpected page. Second group's pages should have '%s', got '%s'", "One", byParamDate[1].Pages[0].title)
 	}
 	if len(byParamDate[0].Pages) != 2 {
 		t.Errorf("PageGroup has unexpected number of pages. First group should have '%d' pages, got '%d' pages", 2, len(byParamDate[2].Pages))
@@ -872,16 +872,16 @@ func TestWeightedTaxonomies(t *testing.T) {
 	writeSourcesToSource(t, "content", fs, sources...)
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	if s.Taxonomies["tags"]["a"][0].Page.Title != "foo" {
-		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Taxonomies["tags"]["a"][0].Page.Title)
+	if s.Taxonomies["tags"]["a"][0].Page.title != "foo" {
+		t.Errorf("Pages in unexpected order, 'foo' expected first, got '%v'", s.Taxonomies["tags"]["a"][0].Page.title)
 	}
 
-	if s.Taxonomies["categories"]["d"][0].Page.Title != "bar" {
-		t.Errorf("Pages in unexpected order, 'bar' expected first, got '%v'", s.Taxonomies["categories"]["d"][0].Page.Title)
+	if s.Taxonomies["categories"]["d"][0].Page.title != "bar" {
+		t.Errorf("Pages in unexpected order, 'bar' expected first, got '%v'", s.Taxonomies["categories"]["d"][0].Page.title)
 	}
 
-	if s.Taxonomies["categories"]["e"][0].Page.Title != "bza" {
-		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Taxonomies["categories"]["e"][0].Page.Title)
+	if s.Taxonomies["categories"]["e"][0].Page.title != "bza" {
+		t.Errorf("Pages in unexpected order, 'bza' expected first, got '%v'", s.Taxonomies["categories"]["e"][0].Page.title)
 	}
 }
 

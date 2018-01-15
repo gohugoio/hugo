@@ -54,22 +54,22 @@ Content
 
 	assert.NoError(err)
 	assert.Len(result, 2)
-	assert.Equal("Page 2", result[0].Title)
-	assert.Equal("Page 1", result[1].Title)
+	assert.Equal("Page 2", result[0].title)
+	assert.Equal("Page 1", result[1].title)
 
 	result, err = s.RegularPages.Related(s.RegularPages[0])
 	assert.Len(result, 2)
-	assert.Equal("Page 2", result[0].Title)
-	assert.Equal("Page 3", result[1].Title)
+	assert.Equal("Page 2", result[0].title)
+	assert.Equal("Page 3", result[1].title)
 
 	result, err = s.RegularPages.RelatedIndices(s.RegularPages[0], "keywords")
 	assert.Len(result, 2)
-	assert.Equal("Page 2", result[0].Title)
-	assert.Equal("Page 3", result[1].Title)
+	assert.Equal("Page 2", result[0].title)
+	assert.Equal("Page 3", result[1].title)
 
 	result, err = s.RegularPages.RelatedTo(types.NewKeyValuesStrings("keywords", "bep", "rocks"))
 	assert.NoError(err)
 	assert.Len(result, 2)
-	assert.Equal("Page 2", result[0].Title)
-	assert.Equal("Page 3", result[1].Title)
+	assert.Equal("Page 2", result[0].title)
+	assert.Equal("Page 3", result[1].title)
 }
