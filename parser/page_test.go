@@ -127,4 +127,64 @@ social:
 	This is a sample comment.
 -->
 `
+	notebookJSONFile = `
+{
+	"cells":[],
+	"metadata":{
+		"frontmatter":{
+			"title": "Jupyter Test 1",
+			"social": [
+				["a", "#"],
+				["b", "#"]
+			]
+		}
+	}
+}`
+	notebookJSONFileNoFrontmatter = `{
+		"title": "Jupyter Test 1",
+		"social": [
+			["a", "#"],
+			["b", "#"]
+		]
+	}`
 )
+
+func TestNotebookPage(t *testing.T) {
+	cases := []struct {
+		raw string
+
+		content     string
+		frontmatter string
+		renderable  bool
+		metadata    map[string]interface{}
+	}{
+		{
+			notebookJSONFile,
+
+			notebookJSONFile,
+			notebookJSONFileNoFrontmatter,
+			true,
+			map[string]interface{}{
+				"title": "Jupyter Test 1",
+				"social": []interface{}{
+					[]interface{}{"a", "#"},
+					[]interface{}{"b", "#"},
+				},
+			},
+		},
+	}
+
+	for i, c := range cases {
+		p := pageMust(ReadFromNotebook(strings.NewReader(c.raw)))
+		meta, err := p.Metadata()
+
+		mesg := fmt.Sprintf("[%d]", i)
+
+		require.Nil(t, err, mesg)
+		assert.Equal(t, c.content, string(p.Content()), mesg+" content")
+		// skip this check due to whitespace in the JSON, rely on test of Metadata instead
+		// assert.Equal(t, c.frontmatter, string(p.FrontMatter()), mesg+" frontmatter")
+		assert.Equal(t, c.renderable, p.IsRenderable(), mesg+" renderable")
+		assert.Equal(t, c.metadata, meta, mesg+" metadata")
+	}
+}

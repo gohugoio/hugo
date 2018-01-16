@@ -438,6 +438,45 @@ activity = "exam"
 Hi.
 `
 
+const contentJupyterNotebook = `
+{
+	"cells": [
+		{
+			"cell_type": "markdown",
+			"metadata": {},
+			"source": [
+				"Jupyter notebook\n"
+			]
+		}
+	],
+	"metadata": {
+		"frontmatter": {
+			"title": "Fixture for Hugo"
+		},
+		"kernelspec": {
+			"display_name": "Python 3",
+			"language": "python",
+			"name": "python3"
+		},
+		"language_info": {
+			"codemirror_mode": {
+				"name": "ipython",
+				"version": 3
+			},
+			"file_extension": ".py",
+			"mimetype": "text/x-python",
+			"name": "python",
+			"nbconvert_exporter": "python",
+			"pygments_lexer": "ipython3",
+			"version": "3.5.2"
+		}
+	},
+	"nbformat": 4,
+	"nbformat_minor": 2
+}
+
+`
+
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil.  Expected: %s", expected)
@@ -1040,6 +1079,7 @@ func TestShouldRenderContent(t *testing.T) {
 		{contentWithCommentedTextFrontmatter, true},
 		{contentWithCommentedLongFrontmatter, false},
 		{contentWithCommentedLong2Frontmatter, true},
+		{contentJupyterNotebook, true},
 	}
 
 	for _, test := range tests {
