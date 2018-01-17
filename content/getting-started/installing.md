@@ -66,7 +66,7 @@ choco install hugo -confirm
 #### Prerequisite Tools
 
 * [Git][installgit]
-* [Go 1.5+][installgo]
+* [Go (latest or previous version)][installgo]
 * [govendor][]
 
 #### Vendored Dependencies
