@@ -299,6 +299,20 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 		require.Equal(t, "fr", frenchPage.Lang())
 	}
 
+	// See https://github.com/gohugoio/hugo/issues/4285
+	// Before Hugo 0.33 you had to be explicit with the content path to get the correct Page, which
+	// isn't ideal in a multilingual setup. You want a way to get the current language version if available.
+	// Now you can do lookups with translation base name to get that behaviour.
+	// Let us test all the regular page variants:
+	getPageDoc1En := enSite.getPage(KindPage, filepath.ToSlash(doc1en.Path()))
+	getPageDoc1EnBase := enSite.getPage(KindPage, "sect/doc1")
+	getPageDoc1Fr := frSite.getPage(KindPage, filepath.ToSlash(doc1fr.Path()))
+	getPageDoc1FrBase := frSite.getPage(KindPage, "sect/doc1")
+	require.Equal(t, doc1en, getPageDoc1En)
+	require.Equal(t, doc1fr, getPageDoc1Fr)
+	require.Equal(t, doc1en, getPageDoc1EnBase)
+	require.Equal(t, doc1fr, getPageDoc1FrBase)
+
 	// Check redirect to main language, French
 	languageRedirect := readDestination(t, fs, "public/index.html")
 	require.True(t, strings.Contains(languageRedirect, "0; url=http://example.com/blog/fr"), languageRedirect)
@@ -683,6 +697,7 @@ title = "Svenska"
 	// Veriy Swedish site
 	require.Len(t, svSite.RegularPages, 1)
 	svPage := svSite.RegularPages[0]
+
 	require.Equal(t, "Swedish Contentfile", svPage.title)
 	require.Equal(t, "sv", svPage.Lang())
 	require.Len(t, svPage.Translations(), 2)

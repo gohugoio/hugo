@@ -51,6 +51,12 @@ func (c *PageCollections) refreshPageCaches() {
 	c.RegularPages = c.findPagesByKindIn(KindPage, c.Pages)
 	c.AllRegularPages = c.findPagesByKindIn(KindPage, c.AllPages)
 
+	var s *Site
+
+	if len(c.Pages) > 0 {
+		s = c.Pages[0].s
+	}
+
 	cacheLoader := func(kind string) func() (map[string]interface{}, error) {
 		return func() (map[string]interface{}, error) {
 			cache := make(map[string]interface{})
@@ -64,6 +70,13 @@ func (c *PageCollections) refreshPageCaches() {
 					cache[filepath.ToSlash(p.Source.Path())] = p
 					// Ref/Relref supports this potentially ambiguous lookup.
 					cache[p.Source.LogicalName()] = p
+
+					if s != nil && p.s == s {
+						// We need a way to get to the current language version.
+						pathWithNoExtensions := path.Join(filepath.ToSlash(p.Source.Dir()), p.Source.TranslationBaseName())
+						cache[pathWithNoExtensions] = p
+					}
+
 				}
 			default:
 				for _, p := range c.indexPages {
