@@ -360,7 +360,7 @@ func (l *genericResource) Publish() error {
 // and matching by wildcard given in `src` using `filepath.Match` with lower cased values.
 // This assignment is additive, but the most specific match needs to be first.
 // The `name` and `title` metadata field support shell-matched collection it got a match in.
-// See https://golang.org/pkg/path/filepath/#Match
+// See https://golang.org/pkg/path/#Match
 func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) error {
 
 	counters := make(map[string]int)
@@ -390,7 +390,7 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 
 			srcKey := strings.ToLower(cast.ToString(src))
 
-			match, err := filepath.Match(srcKey, resourceSrcKey)
+			match, err := path.Match(srcKey, resourceSrcKey)
 			if err != nil {
 				return fmt.Errorf("failed to match resource with metadata: %s", err)
 			}
