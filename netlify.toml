@@ -3,15 +3,15 @@
   command = "hugo"
 
 [context.production.environment]
-  HUGO_VERSION = "0.32.1"
+  HUGO_VERSION = "0.32.4"
   HUGO_ENV = "production"
   HUGO_ENABLEGITINFO = "true"
 
 [context.deploy-preview.environment]
-  HUGO_VERSION = "0.32.1"
+  HUGO_VERSION = "0.32.4"
 
 [context.branch-deploy.environment]
-  HUGO_VERSION = "0.32.1"
+  HUGO_VERSION = "0.32.4"
 
 [context.next.environment]
   HUGO_BASEURL = "https://next--gohugoio.netlify.com/"
