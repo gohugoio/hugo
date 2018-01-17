@@ -111,6 +111,10 @@ type Page struct {
 	// provided by the Resource object.
 	Resources resource.Resources
 
+	// This is the raw front matter metadata that is going to be assigned to
+	// the Resources above.
+	resourcesMetadata []map[string]interface{}
+
 	// translations will contain references to this page in other language
 	// if available.
 	translations Pages
@@ -120,7 +124,7 @@ type Page struct {
 	translationKey string
 
 	// Params contains configuration defined in the params section of page frontmatter.
-	Params map[string]interface{}
+	params map[string]interface{}
 
 	// Content sections
 	Content         template.HTML
@@ -214,7 +218,7 @@ type Page struct {
 
 	Site *SiteInfo `json:"-"`
 
-	Title       string
+	title       string
 	Description string
 	Keywords    []string
 	Data        map[string]interface{}
@@ -468,7 +472,7 @@ func (p *Page) Param(key interface{}) (interface{}, error) {
 
 func (p *Page) traverseDirect(key string) (interface{}, error) {
 	keyStr := strings.ToLower(key)
-	if val, ok := p.Params[keyStr]; ok {
+	if val, ok := p.params[keyStr]; ok {
 		return val, nil
 	}
 
@@ -476,7 +480,7 @@ func (p *Page) traverseDirect(key string) (interface{}, error) {
 }
 
 func (p *Page) traverseNested(keySegments []string) (interface{}, error) {
-	result := traverse(keySegments, p.Params)
+	result := traverse(keySegments, p.params)
 	if result != nil {
 		return result, nil
 	}
@@ -519,7 +523,7 @@ func (p *Page) Author() Author {
 }
 
 func (p *Page) Authors() AuthorList {
-	authorKeys, ok := p.Params["authors"]
+	authorKeys, ok := p.params["authors"]
 	if !ok {
 		return AuthorList{}
 	}
@@ -757,7 +761,7 @@ func (s *Site) newPageFromFile(fi *fileInfo) *Page {
 		contentType: "",
 		Source:      Source{File: fi},
 		Keywords:    []string{}, Sitemap: Sitemap{Priority: -1},
-		Params:       make(map[string]interface{}),
+		params:       make(map[string]interface{}),
 		translations: make(Pages, 0),
 		sections:     sectionsFromDir(fi.Dir()),
 		Site:         &s.Info,
@@ -927,7 +931,7 @@ func (p *Page) LinkTitle() string {
 	if len(p.linkTitle) > 0 {
 		return p.linkTitle
 	}
-	return p.Title
+	return p.title
 }
 
 func (p *Page) shouldBuild() bool {
@@ -986,6 +990,22 @@ func (p *Page) Permalink() string {
 // RelPermalink gets a URL to the resource relative to the host.
 func (p *Page) RelPermalink() string {
 	return p.relPermalink
+}
+
+// See resource.Resource
+func (p *Page) Name() string {
+	if p.File != nil {
+		return p.File.BaseFileName()
+	}
+	return p.title
+}
+
+func (p *Page) Title() string {
+	return p.title
+}
+
+func (p *Page) Params() map[string]interface{} {
+	return p.params
 }
 
 func (p *Page) subResourceTargetPathFactory(base string) string {
@@ -1094,39 +1114,39 @@ func (p *Page) update(f interface{}) error {
 		loki := strings.ToLower(k)
 		switch loki {
 		case "title":
-			p.Title = cast.ToString(v)
-			p.Params[loki] = p.Title
+			p.title = cast.ToString(v)
+			p.params[loki] = p.title
 		case "linktitle":
 			p.linkTitle = cast.ToString(v)
-			p.Params[loki] = p.linkTitle
+			p.params[loki] = p.linkTitle
 		case "description":
 			p.Description = cast.ToString(v)
-			p.Params[loki] = p.Description
+			p.params[loki] = p.Description
 		case "slug":
 			p.Slug = cast.ToString(v)
-			p.Params[loki] = p.Slug
+			p.params[loki] = p.Slug
 		case "url":
 			if url := cast.ToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
 				return fmt.Errorf("Only relative URLs are supported, %v provided", url)
 			}
 			p.URLPath.URL = cast.ToString(v)
 			p.URLPath.frontMatterURL = p.URLPath.URL
-			p.Params[loki] = p.URLPath.URL
+			p.params[loki] = p.URLPath.URL
 		case "type":
 			p.contentType = cast.ToString(v)
-			p.Params[loki] = p.contentType
+			p.params[loki] = p.contentType
 		case "extension", "ext":
 			p.extension = cast.ToString(v)
-			p.Params[loki] = p.extension
+			p.params[loki] = p.extension
 		case "keywords":
 			p.Keywords = cast.ToStringSlice(v)
-			p.Params[loki] = p.Keywords
+			p.params[loki] = p.Keywords
 		case "date":
 			p.Date, err = cast.ToTimeE(v)
 			if err != nil {
 				p.s.Log.ERROR.Printf("Failed to parse date '%v' in page %s", v, p.File.Path())
 			}
-			p.Params[loki] = p.Date
+			p.params[loki] = p.Date
 		case "lastmod":
 			p.Lastmod, err = cast.ToTimeE(v)
 			if err != nil {
@@ -1135,10 +1155,10 @@ func (p *Page) update(f interface{}) error {
 		case "modified":
 			vv, err := cast.ToTimeE(v)
 			if err == nil {
-				p.Params[loki] = vv
+				p.params[loki] = vv
 				modified = vv
 			} else {
-				p.Params[loki] = cast.ToString(v)
+				p.params[loki] = cast.ToString(v)
 			}
 		case "outputs":
 			o := cast.ToStringSlice(v)
@@ -1150,17 +1170,16 @@ func (p *Page) update(f interface{}) error {
 					p.s.Log.ERROR.Printf("Failed to resolve output formats: %s", err)
 				} else {
 					p.outputFormats = outFormats
-					p.Params[loki] = outFormats
+					p.params[loki] = outFormats
 				}
 
 			}
-			//p.Params[loki] = p.Keywords
 		case "publishdate", "pubdate":
 			p.PublishDate, err = cast.ToTimeE(v)
 			if err != nil {
 				p.s.Log.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
 			}
-			p.Params[loki] = p.PublishDate
+			p.params[loki] = p.PublishDate
 		case "expirydate", "unpublishdate":
 			p.ExpiryDate, err = cast.ToTimeE(v)
 			if err != nil {
@@ -1178,20 +1197,20 @@ func (p *Page) update(f interface{}) error {
 				vv, err := cast.ToTimeE(v)
 				if err == nil {
 					p.PublishDate = vv
-					p.Params[loki] = p.PublishDate
+					p.params[loki] = p.PublishDate
 				} else {
-					p.Params[loki] = cast.ToString(v)
+					p.params[loki] = cast.ToString(v)
 				}
 			}
 		case "layout":
 			p.Layout = cast.ToString(v)
-			p.Params[loki] = p.Layout
+			p.params[loki] = p.Layout
 		case "markup":
 			p.Markup = cast.ToString(v)
-			p.Params[loki] = p.Markup
+			p.params[loki] = p.Markup
 		case "weight":
 			p.Weight = cast.ToInt(v)
-			p.Params[loki] = p.Weight
+			p.params[loki] = p.Weight
 		case "aliases":
 			p.Aliases = cast.ToStringSlice(v)
 			for _, alias := range p.Aliases {
@@ -1199,56 +1218,89 @@ func (p *Page) update(f interface{}) error {
 					return fmt.Errorf("Only relative aliases are supported, %v provided", alias)
 				}
 			}
-			p.Params[loki] = p.Aliases
+			p.params[loki] = p.Aliases
 		case "status":
 			p.Status = cast.ToString(v)
-			p.Params[loki] = p.Status
+			p.params[loki] = p.Status
 		case "sitemap":
 			p.Sitemap = parseSitemap(cast.ToStringMap(v))
-			p.Params[loki] = p.Sitemap
+			p.params[loki] = p.Sitemap
 		case "iscjklanguage":
 			isCJKLanguage = new(bool)
 			*isCJKLanguage = cast.ToBool(v)
 		case "translationkey":
 			p.translationKey = cast.ToString(v)
-			p.Params[loki] = p.translationKey
+			p.params[loki] = p.translationKey
+		case "resources":
+			var resources []map[string]interface{}
+			handled := true
+
+			switch vv := v.(type) {
+			case []map[interface{}]interface{}:
+				for _, vvv := range vv {
+					resources = append(resources, cast.ToStringMap(vvv))
+				}
+			case []map[string]interface{}:
+				for _, vvv := range vv {
+					resources = append(resources, vvv)
+				}
+			case []interface{}:
+				for _, vvv := range vv {
+					switch vvvv := vvv.(type) {
+					case map[interface{}]interface{}:
+						resources = append(resources, cast.ToStringMap(vvvv))
+					case map[string]interface{}:
+						resources = append(resources, vvvv)
+					}
+				}
+			default:
+				handled = false
+			}
+
+			if handled {
+				p.params[loki] = resources
+				p.resourcesMetadata = resources
+				break
+			}
+			fallthrough
+
 		default:
 			// If not one of the explicit values, store in Params
 			switch vv := v.(type) {
 			case bool:
-				p.Params[loki] = vv
+				p.params[loki] = vv
 			case string:
-				p.Params[loki] = vv
+				p.params[loki] = vv
 			case int64, int32, int16, int8, int:
-				p.Params[loki] = vv
+				p.params[loki] = vv
 			case float64, float32:
-				p.Params[loki] = vv
+				p.params[loki] = vv
 			case time.Time:
-				p.Params[loki] = vv
+				p.params[loki] = vv
 			default: // handle array of strings as well
 				switch vvv := vv.(type) {
 				case []interface{}:
 					if len(vvv) > 0 {
 						switch vvv[0].(type) {
 						case map[interface{}]interface{}: // Proper parsing structured array from YAML based FrontMatter
-							p.Params[loki] = vvv
+							p.params[loki] = vvv
 						case map[string]interface{}: // Proper parsing structured array from JSON based FrontMatter
-							p.Params[loki] = vvv
+							p.params[loki] = vvv
 						case []interface{}:
-							p.Params[loki] = vvv
+							p.params[loki] = vvv
 						default:
 							a := make([]string, len(vvv))
 							for i, u := range vvv {
 								a[i] = cast.ToString(u)
 							}
 
-							p.Params[loki] = a
+							p.params[loki] = a
 						}
 					} else {
-						p.Params[loki] = []string{}
+						p.params[loki] = []string{}
 					}
 				default:
-					p.Params[loki] = vv
+					p.params[loki] = vv
 				}
 			}
 		}
@@ -1263,7 +1315,7 @@ func (p *Page) update(f interface{}) error {
 	} else if published != nil {
 		p.Draft = !*published
 	}
-	p.Params["draft"] = p.Draft
+	p.params["draft"] = p.Draft
 
 	if p.Date.IsZero() {
 		p.Date = p.PublishDate
@@ -1277,7 +1329,7 @@ func (p *Page) update(f interface{}) error {
 		fi, err := p.s.Fs.Source.Stat(filepath.Join(p.s.PathSpec.AbsPathify(p.s.Cfg.GetString("contentDir")), p.File.Path()))
 		if err == nil {
 			p.Date = fi.ModTime()
-			p.Params["date"] = p.Date
+			p.params["date"] = p.Date
 		}
 	}
 
@@ -1289,9 +1341,9 @@ func (p *Page) update(f interface{}) error {
 		}
 
 	}
-	p.Params["lastmod"] = p.Lastmod
-	p.Params["publishdate"] = p.PublishDate
-	p.Params["expirydate"] = p.ExpiryDate
+	p.params["lastmod"] = p.Lastmod
+	p.params["publishdate"] = p.PublishDate
+	p.params["expirydate"] = p.ExpiryDate
 
 	if isCJKLanguage != nil {
 		p.isCJKLanguage = *isCJKLanguage
@@ -1302,7 +1354,7 @@ func (p *Page) update(f interface{}) error {
 			p.isCJKLanguage = false
 		}
 	}
-	p.Params["iscjklanguage"] = p.isCJKLanguage
+	p.params["iscjklanguage"] = p.isCJKLanguage
 
 	return nil
 
@@ -1317,7 +1369,7 @@ func (p *Page) getParamToLower(key string) interface{} {
 }
 
 func (p *Page) getParam(key string, stringToLower bool) interface{} {
-	v := p.Params[strings.ToLower(key)]
+	v := p.params[strings.ToLower(key)]
 
 	if v == nil {
 		return nil
@@ -1390,7 +1442,7 @@ func (p *Page) HasMenuCurrent(menuID string, me *MenuEntry) bool {
 
 	// The following logic is kept from back when Hugo had both Page and Node types.
 	// TODO(bep) consolidate / clean
-	nme := MenuEntry{Page: p, Name: p.Title, URL: p.URL()}
+	nme := MenuEntry{Page: p, Name: p.title, URL: p.URL()}
 
 	for _, child := range me.Children {
 		if nme.IsSameResource(child) {
@@ -1421,7 +1473,7 @@ func (p *Page) IsMenuCurrent(menuID string, inme *MenuEntry) bool {
 
 	// The following logic is kept from back when Hugo had both Page and Node types.
 	// TODO(bep) consolidate / clean
-	me := MenuEntry{Page: p, Name: p.Title, URL: p.URL()}
+	me := MenuEntry{Page: p, Name: p.title, URL: p.URL()}
 
 	if !me.IsSameResource(inme) {
 		return false
@@ -1465,7 +1517,7 @@ func (p *Page) Menus() PageMenus {
 	p.pageMenusInit.Do(func() {
 		p.pageMenus = PageMenus{}
 
-		if ms, ok := p.Params["menu"]; ok {
+		if ms, ok := p.params["menu"]; ok {
 			link := p.RelPermalink()
 
 			me := MenuEntry{Page: p, Name: p.LinkTitle(), Weight: p.Weight, URL: link}
@@ -1494,16 +1546,16 @@ func (p *Page) Menus() PageMenus {
 			menus, err := cast.ToStringMapE(ms)
 
 			if err != nil {
-				p.s.Log.ERROR.Printf("unable to process menus for %q\n", p.Title)
+				p.s.Log.ERROR.Printf("unable to process menus for %q\n", p.title)
 			}
 
 			for name, menu := range menus {
 				menuEntry := MenuEntry{Page: p, Name: p.LinkTitle(), URL: link, Weight: p.Weight, Menu: name}
 				if menu != nil {
-					p.s.Log.DEBUG.Printf("found menu: %q, in %q\n", name, p.Title)
+					p.s.Log.DEBUG.Printf("found menu: %q, in %q\n", name, p.title)
 					ime, err := cast.ToStringMapE(menu)
 					if err != nil {
-						p.s.Log.ERROR.Printf("unable to process menus for %q: %s", p.Title, err)
+						p.s.Log.ERROR.Printf("unable to process menus for %q: %s", p.title, err)
 					}
 
 					menuEntry.marshallMap(ime)
@@ -1805,7 +1857,7 @@ func (p *Page) RelRef(refs ...string) (string, error) {
 }
 
 func (p *Page) String() string {
-	return fmt.Sprintf("Page(%q)", p.Title)
+	return fmt.Sprintf("Page(%q)", p.title)
 }
 
 type URLPath struct {
@@ -2003,5 +2055,5 @@ func (p *Page) pathOrTitle() string {
 	if p.Path() != "" {
 		return p.Path()
 	}
-	return p.Title
+	return p.title
 }

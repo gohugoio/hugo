@@ -270,7 +270,7 @@ func (p *Page) Paginator(options ...interface{}) (*Pager, error) {
 // If it's not, one will be created with all pages in Data["Pages"].
 func (p *PageOutput) Paginator(options ...interface{}) (*Pager, error) {
 	if !p.IsNode() {
-		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind, p.Title)
+		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind, p.title)
 	}
 	pagerSize, err := resolvePagerSize(p.s.Cfg, options...)
 
@@ -321,7 +321,7 @@ func (p *Page) Paginate(seq interface{}, options ...interface{}) (*Pager, error)
 // Note that repeated calls will return the same result, even if the sequence is different.
 func (p *PageOutput) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 	if !p.IsNode() {
-		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind, p.Title)
+		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind, p.title)
 	}
 
 	pagerSize, err := resolvePagerSize(p.s.Cfg, options...)

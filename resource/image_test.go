@@ -147,3 +147,25 @@ func TestDecodeImaging(t *testing.T) {
 	assert.Equal(42, imaging.Quality)
 	assert.Equal("nearestneighbor", imaging.ResampleFilter)
 }
+
+func TestImageWithMetadata(t *testing.T) {
+	assert := require.New(t)
+
+	image := fetchSunset(assert)
+
+	var meta = []map[string]interface{}{
+		map[string]interface{}{
+			"title": "My Sunset",
+			"name":  "Sunset #:counter",
+			"src":   "*.jpg",
+		},
+	}
+
+	assert.NoError(AssignMetadata(meta, image))
+	assert.Equal("Sunset #1", image.Name())
+
+	resized, err := image.Resize("200x")
+	assert.NoError(err)
+	assert.Equal("Sunset #1", resized.Name())
+
+}

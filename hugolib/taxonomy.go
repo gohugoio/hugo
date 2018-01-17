@@ -43,7 +43,7 @@ type WeightedPage struct {
 }
 
 func (w WeightedPage) String() string {
-	return fmt.Sprintf("WeightedPage(%d,%q)", w.Weight, w.Page.Title)
+	return fmt.Sprintf("WeightedPage(%d,%q)", w.Weight, w.Page.title)
 }
 
 // OrderedTaxonomy is another representation of an Taxonomy using an array rather than a map.
@@ -214,7 +214,7 @@ func (wp WeightedPages) Count() int { return len(wp) }
 func (wp WeightedPages) Less(i, j int) bool {
 	if wp[i].Weight == wp[j].Weight {
 		if wp[i].Page.Date.Equal(wp[j].Page.Date) {
-			return wp[i].Page.Title < wp[j].Page.Title
+			return wp[i].Page.title < wp[j].Page.title
 		}
 		return wp[i].Page.Date.After(wp[i].Page.Date)
 	}

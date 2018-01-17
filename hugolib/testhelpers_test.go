@@ -217,7 +217,7 @@ func dumpPages(pages ...*Page) {
 	for i, p := range pages {
 		fmt.Printf("%d: Kind: %s Title: %-10s RelPermalink: %-10s Path: %-10s sections: %s Len Sections(): %d\n",
 			i+1,
-			p.Kind, p.Title, p.RelPermalink(), p.Path(), p.sections, len(p.Sections()))
+			p.Kind, p.title, p.RelPermalink(), p.Path(), p.sections, len(p.Sections()))
 	}
 }
 

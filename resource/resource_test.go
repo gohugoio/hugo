@@ -14,6 +14,7 @@
 package resource
 
 import (
+	"fmt"
 	"path"
 	"path/filepath"
 	"testing"
@@ -128,5 +129,196 @@ func TestResourcesGetByPrefix(t *testing.T) {
 
 	assert.Equal(2, len(resources.ByPrefix("logo")))
 	assert.Equal(1, len(resources.ByPrefix("logo2")))
+
+	logo := resources.GetByPrefix("logo")
+	assert.NotNil(logo.Params())
+	assert.Equal("logo1.png", logo.Name())
+	assert.Equal("logo1.png", logo.Title())
+
+}
+
+func TestAssignMetadata(t *testing.T) {
+	assert := require.New(t)
+	spec := newTestResourceSpec(assert)
+
+	var foo1, foo2, foo3, logo1, logo2, logo3 Resource
+	var resources Resources
+
+	for _, this := range []struct {
+		metaData   []map[string]interface{}
+		assertFunc func(err error)
+	}{
+		{[]map[string]interface{}{
+			map[string]interface{}{
+				"title": "My Resource",
+				"name":  "My Name",
+				"src":   "*",
+			},
+		}, func(err error) {
+			assert.Equal("My Resource", logo1.Title())
+			assert.Equal("My Name", logo1.Name())
+			assert.Equal("My Name", foo2.Name())
+
+		}},
+		{[]map[string]interface{}{
+			map[string]interface{}{
+				"title": "My Logo",
+				"src":   "*loGo*",
+			},
+			map[string]interface{}{
+				"title": "My Resource",
+				"name":  "My Name",
+				"src":   "*",
+			},
+		}, func(err error) {
+			assert.Equal("My Logo", logo1.Title())
+			assert.Equal("My Logo", logo2.Title())
+			assert.Equal("My Name", logo1.Name())
+			assert.Equal("My Name", foo2.Name())
+			assert.Equal("My Name", foo3.Name())
+			assert.Equal("My Resource", foo3.Title())
+
+		}},
+		{[]map[string]interface{}{
+			map[string]interface{}{
+				"title": "My Logo",
+				"src":   "*loGo*",
+				"params": map[string]interface{}{
+					"Param1": true,
+				},
+			},
+			map[string]interface{}{
+				"title": "My Resource",
+				"src":   "*",
+				"params": map[string]interface{}{
+					"Param2": true,
+				},
+			},
+		}, func(err error) {
+			assert.NoError(err)
+			assert.Equal("My Logo", logo1.Title())
+			assert.Equal("My Resource", foo3.Title())
+			_, p1 := logo2.Params()["param1"]
+			_, p2 := foo2.Params()["param2"]
+			assert.True(p1)
+			assert.True(p2)
+
+		}},
+		{[]map[string]interface{}{
+			map[string]interface{}{
+				"name": "Logo Name #:counter",
+				"src":  "*logo*",
+			},
+			map[string]interface{}{
+				"title": "Resource #:counter",
+				"name":  "Name #:counter",
+				"src":   "*",
+			},
+		}, func(err error) {
+			assert.NoError(err)
+			assert.Equal("Resource #1", logo2.Title())
+			assert.Equal("Logo Name #1", logo2.Name())
+			assert.Equal("Resource #2", logo1.Title())
+			assert.Equal("Logo Name #2", logo1.Name())
+			assert.Equal("Resource #1", foo2.Title())
+			assert.Equal("Resource #2", foo1.Title())
+			assert.Equal("Name #2", foo1.Name())
+			assert.Equal("Resource #3", foo3.Title())
+
+			assert.Equal(logo2, resources.GetByPrefix("logo name #1"))
+
+		}},
+		{[]map[string]interface{}{
+			map[string]interface{}{
+				"title": "Third Logo #:counter",
+				"src":   "logo3.png",
+			},
+			map[string]interface{}{
+				"title": "Other Logo #:counter",
+				"name":  "Name #:counter",
+				"src":   "logo*",
+			},
+		}, func(err error) {
+			assert.NoError(err)
+			assert.Equal("Third Logo #1", logo3.Title())
+			assert.Equal("Name #1", logo3.Name())
+			assert.Equal("Other Logo #1", logo2.Title())
+			assert.Equal("Name #1", logo2.Name())
+			assert.Equal("Other Logo #2", logo1.Title())
+			assert.Equal("Name #2", logo1.Name())
+
+		}},
+		{[]map[string]interface{}{
+			map[string]interface{}{
+				"title": "Third Logo #:counter",
+			},
+		}, func(err error) {
+			// Missing src
+			assert.Error(err)
+
+		}},
+		{[]map[string]interface{}{
+			map[string]interface{}{
+				"title": "Title",
+				"src":   "[]",
+			},
+		}, func(err error) {
+			// Invalid pattern
+			assert.Error(err)
+
+		}},
+	} {
+
+		foo2 = spec.newGenericResource(nil, nil, "/public", "/b/foo2.css", "foo2.css", "css")
+		logo2 = spec.newGenericResource(nil, nil, "/public", "/b/Logo2.png", "Logo2.png", "image")
+		foo1 = spec.newGenericResource(nil, nil, "/public", "/a/foo1.css", "foo1.css", "css")
+		logo1 = spec.newGenericResource(nil, nil, "/public", "/a/logo1.png", "logo1.png", "image")
+		foo3 = spec.newGenericResource(nil, nil, "/public", "/b/foo3.css", "foo3.css", "css")
+		logo3 = spec.newGenericResource(nil, nil, "/public", "/b/logo3.png", "logo3.png", "image")
+
+		resources = Resources{
+			foo2,
+			logo2,
+			foo1,
+			logo1,
+			foo3,
+			logo3,
+		}
+
+		this.assertFunc(AssignMetadata(this.metaData, resources...))
+	}
+
+}
+
+func BenchmarkAssignMetadata(b *testing.B) {
+	assert := require.New(b)
+	spec := newTestResourceSpec(assert)
+
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		var resources Resources
+		var meta = []map[string]interface{}{
+			map[string]interface{}{
+				"title": "Foo #:counter",
+				"name":  "Foo Name #:counter",
+				"src":   "foo1*",
+			},
+			map[string]interface{}{
+				"title": "Rest #:counter",
+				"name":  "Rest Name #:counter",
+				"src":   "*",
+			},
+		}
+		for i := 0; i < 20; i++ {
+			name := fmt.Sprintf("foo%d_%d.css", i%5, i)
+			resources = append(resources, spec.newGenericResource(nil, nil, "/public", "/a/"+name, name, "css"))
+		}
+		b.StartTimer()
+
+		if err := AssignMetadata(meta, resources...); err != nil {
+			b.Fatal(err)
+		}
+
+	}
 
 }

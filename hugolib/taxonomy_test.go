@@ -200,11 +200,11 @@ permalinkeds:
 	if preserveTaxonomyNames {
 		helloWorld := s.getPage(KindTaxonomy, "others", "Hello Hugo world")
 		require.NotNil(t, helloWorld)
-		require.Equal(t, "Hello Hugo world", helloWorld.Title)
+		require.Equal(t, "Hello Hugo world", helloWorld.title)
 	} else {
 		helloWorld := s.getPage(KindTaxonomy, "others", "hello-hugo-world")
 		require.NotNil(t, helloWorld)
-		require.Equal(t, "Hello Hugo World", helloWorld.Title)
+		require.Equal(t, "Hello Hugo World", helloWorld.title)
 	}
 
 	// Issue #2977

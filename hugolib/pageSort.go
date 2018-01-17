@@ -129,7 +129,7 @@ func (p Pages) ByTitle() Pages {
 	key := "pageSort.ByTitle"
 
 	title := func(p1, p2 *Page) bool {
-		return p1.Title < p2.Title
+		return p1.title < p2.title
 	}
 
 	pages, _ := spc.get(key, p, pageBy(title).Sort)

@@ -104,7 +104,7 @@ func doTestNodeAsPage(t *testing.T, ugly, preserveTaxonomyNames bool) {
 	require.True(t, home.Path() != "")
 
 	section2 := nodes[5]
-	require.Equal(t, "Section2", section2.Title)
+	require.Equal(t, "Section2", section2.title)
 
 	pages := sites.findAllPagesByKind(KindPage)
 	require.Len(t, pages, 4)
@@ -252,9 +252,9 @@ func doTestNodesWithNoContentFile(t *testing.T, ugly bool) {
 	for _, p := range pages {
 		var want string
 		if ugly {
-			want = "/" + p.s.PathSpec.URLize(p.Title) + ".html"
+			want = "/" + p.s.PathSpec.URLize(p.title) + ".html"
 		} else {
-			want = "/" + p.s.PathSpec.URLize(p.Title) + "/"
+			want = "/" + p.s.PathSpec.URLize(p.title) + "/"
 		}
 		if p.URL() != want {
 			t.Errorf("Taxonomy term URL mismatch: want %q, got %q", want, p.URL())

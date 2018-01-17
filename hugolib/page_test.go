@@ -468,8 +468,8 @@ func TestDegenerateEmptyPage(t *testing.T) {
 }
 
 func checkPageTitle(t *testing.T, page *Page, title string) {
-	if page.Title != title {
-		t.Fatalf("Page title is: %s.  Expected %s", page.Title, title)
+	if page.title != title {
+		t.Fatalf("Page title is: %s.  Expected %s", page.title, title)
 	}
 }
 
@@ -1066,8 +1066,8 @@ func TestCalendarParamsVariants(t *testing.T) {
 	pageTOML, _ := s.NewPage("test/fileTOML.md")
 	_, _ = pageTOML.ReadFrom(strings.NewReader(pageWithCalendarTOMLFrontmatter))
 
-	assert.True(t, compareObjects(pageJSON.Params, pageYAML.Params))
-	assert.True(t, compareObjects(pageJSON.Params, pageTOML.Params))
+	assert.True(t, compareObjects(pageJSON.params, pageYAML.params))
+	assert.True(t, compareObjects(pageJSON.params, pageTOML.params))
 
 }
 
@@ -1095,10 +1095,10 @@ func TestDifferentFrontMatterVarTypes(t *testing.T) {
 	}
 	param := page.getParamToLower("a_table")
 	if param == nil {
-		t.Errorf("frontmatter not handling tables correctly should be type of %v, got: type of %v", reflect.TypeOf(page.Params["a_table"]), reflect.TypeOf(param))
+		t.Errorf("frontmatter not handling tables correctly should be type of %v, got: type of %v", reflect.TypeOf(page.params["a_table"]), reflect.TypeOf(param))
 	}
 	if cast.ToStringMap(param)["a_key"] != "a_value" {
-		t.Errorf("frontmatter not handling values inside a table correctly should be %s, got: %s", "a_value", cast.ToStringMap(page.Params["a_table"])["a_key"])
+		t.Errorf("frontmatter not handling values inside a table correctly should be %s, got: %s", "a_value", cast.ToStringMap(page.params["a_table"])["a_key"])
 	}
 }
 
@@ -1370,7 +1370,7 @@ func TestPageParams(t *testing.T) {
 		p, err := s.NewPageFrom(strings.NewReader(c), "content/post/params.md")
 		require.NoError(t, err, "err during parse", "#%d", i)
 		for key := range wantedMap {
-			assert.Equal(t, wantedMap[key], p.Params[key], "#%d", key)
+			assert.Equal(t, wantedMap[key], p.params[key], "#%d", key)
 		}
 	}
 }

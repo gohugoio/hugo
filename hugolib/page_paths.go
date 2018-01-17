@@ -74,7 +74,7 @@ type targetPathDescriptor struct {
 // and URLs for this Page.
 func (p *Page) createTargetPathDescriptor(t output.Format) (targetPathDescriptor, error) {
 	if p.targetPathDescriptorPrototype == nil {
-		panic(fmt.Sprintf("Must run initTargetPathDescriptor() for page %q, kind %q", p.Title, p.Kind))
+		panic(fmt.Sprintf("Must run initTargetPathDescriptor() for page %q, kind %q", p.title, p.Kind))
 	}
 	d := *p.targetPathDescriptorPrototype
 	d.Type = t
@@ -271,9 +271,9 @@ func (p *Page) createRelativeTargetPath() string {
 
 	if len(p.outputFormats) == 0 {
 		if p.Kind == kindUnknown {
-			panic(fmt.Sprintf("Page %q has unknown kind", p.Title))
+			panic(fmt.Sprintf("Page %q has unknown kind", p.title))
 		}
-		panic(fmt.Sprintf("Page %q missing output format(s)", p.Title))
+		panic(fmt.Sprintf("Page %q missing output format(s)", p.title))
 	}
 
 	// Choose the main output format. In most cases, this will be HTML.

@@ -231,6 +231,9 @@ func TestCoverHTML() error {
 		}
 		b, err := ioutil.ReadFile(cover)
 		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
 			return err
 		}
 		idx := bytes.Index(b, []byte{'\n'})

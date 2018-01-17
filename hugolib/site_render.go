@@ -212,7 +212,7 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 
 			if err := s.renderAndWritePage(
 				&s.PathSpec.ProcessingStats.PaginatorPages,
-				pagerNode.Title,
+				pagerNode.title,
 				targetPath, pagerNode, layouts...); err != nil {
 				return err
 			}
@@ -252,7 +252,7 @@ func (s *Site) renderRSS(p *PageOutput) error {
 		return err
 	}
 
-	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Pages, p.Title,
+	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Pages, p.title,
 		targetPath, p, layouts...)
 }
 
@@ -267,7 +267,7 @@ func (s *Site) render404() error {
 
 	p := s.newNodePage(kind404)
 
-	p.Title = "404 Page not found"
+	p.title = "404 Page not found"
 	p.Data["Pages"] = s.Pages
 	p.Pages = s.Pages
 	p.URLPath.URL = "404.html"

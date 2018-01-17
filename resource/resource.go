@@ -19,7 +19,10 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
+
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/source"
@@ -28,9 +31,10 @@ import (
 )
 
 var (
-	_ Resource = (*genericResource)(nil)
-	_ Source   = (*genericResource)(nil)
-	_ Cloner   = (*genericResource)(nil)
+	_ Resource     = (*genericResource)(nil)
+	_ metaAssigner = (*genericResource)(nil)
+	_ Source       = (*genericResource)(nil)
+	_ Cloner       = (*genericResource)(nil)
 )
 
 const DefaultResourceType = "unknown"
@@ -48,11 +52,38 @@ type Cloner interface {
 	WithNewBase(base string) Resource
 }
 
+type metaAssigner interface {
+	setTitle(title string)
+	setName(name string)
+	setParams(params map[string]interface{})
+}
+
 // Resource represents a linkable resource, i.e. a content page, image etc.
 type Resource interface {
+	// Permalink represents the absolute link to this resource.
 	Permalink() string
+
+	// RelPermalink represents the host relative link to this resource.
 	RelPermalink() string
+
+	// ResourceType is the resource type. For most file types, this is the main
+	// part of the MIME type, e.g. "image", "application", "text" etc.
+	// For content pages, this value is "page".
 	ResourceType() string
+
+	// Name is the logical name of this resource. This can be set in the front matter
+	// metadata for this resource. If not set, Hugo will assign a value.
+	// This will in most cases be the base filename.
+	// So, for the image "/some/path/sunset.jpg" this will be "sunset.jpg".
+	// The value returned by this method will be used in the GetByPrefix and ByPrefix methods
+	// on Resources.
+	Name() string
+
+	// Title returns the title if set in front matter. For content pages, this will be the expected value.
+	Title() string
+
+	// Params set in front matter for this resource.
+	Params() map[string]interface{}
 }
 
 // Resources represents a slice of resources, which can be a mix of different types.
@@ -97,16 +128,7 @@ func (r Resources) ByPrefix(prefix string) Resources {
 }
 
 func matchesPrefix(r Resource, prefix string) bool {
-	var name string
-	f, ok := r.(source.File)
-	if ok {
-		name = f.BaseFileName()
-	} else {
-		_, name = filepath.Split(r.RelPermalink())
-	}
-	name = strings.ToLower(name)
-
-	return strings.HasPrefix(name, prefix)
+	return strings.HasPrefix(strings.ToLower(r.Name()), prefix)
 }
 
 type Spec struct {
@@ -238,6 +260,10 @@ type genericResource struct {
 	// Base is set when the output format's path has a offset, e.g. for AMP.
 	base string
 
+	title  string
+	name   string
+	params map[string]interface{}
+
 	// Absolute filename to the source, including any content folder path.
 	absSourceFilename string
 	absPublishDir     string
@@ -254,6 +280,30 @@ func (l *genericResource) Permalink() string {
 
 func (l *genericResource) RelPermalink() string {
 	return l.relPermalinkForRel(l.relTargetPath, true)
+}
+
+func (l *genericResource) Name() string {
+	return l.name
+}
+
+func (l *genericResource) Title() string {
+	return l.title
+}
+
+func (l *genericResource) Params() map[string]interface{} {
+	return l.params
+}
+
+func (l *genericResource) setTitle(title string) {
+	l.title = title
+}
+
+func (l *genericResource) setName(name string) {
+	l.name = name
+}
+
+func (l *genericResource) setParams(params map[string]interface{}) {
+	l.params = params
 }
 
 // Implement the Cloner interface.
@@ -306,6 +356,98 @@ func (l *genericResource) Publish() error {
 	return helpers.WriteToDisk(target, f, l.spec.Fs.Destination)
 }
 
+// AssignMetadata assigns the given metadata to those resources that supports updates
+// and matching by wildcard given in `src` using `filepath.Match` with lower cased values.
+// This assignment is additive, but the most specific match needs to be first.
+// The `name` and `title` metadata field support shell-matched collection it got a match in.
+// See https://golang.org/pkg/path/filepath/#Match
+func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) error {
+
+	counters := make(map[string]int)
+
+	for _, r := range resources {
+		if _, ok := r.(metaAssigner); !ok {
+			continue
+		}
+
+		var (
+			nameSet, titleSet, paramsSet bool
+			currentCounter               = 0
+			resourceSrcKey               = strings.ToLower(r.Name())
+		)
+
+		ma := r.(metaAssigner)
+		for _, meta := range metadata {
+			if nameSet && titleSet && paramsSet {
+				// No need to look further
+				break
+			}
+
+			src, found := meta["src"]
+			if !found {
+				return fmt.Errorf("missing 'src' in metadata for resource")
+			}
+
+			srcKey := strings.ToLower(cast.ToString(src))
+
+			match, err := filepath.Match(srcKey, resourceSrcKey)
+			if err != nil {
+				return fmt.Errorf("failed to match resource with metadata: %s", err)
+			}
+
+			if match {
+				if !nameSet {
+					name, found := meta["name"]
+					if found {
+						if currentCounter == 0 {
+							currentCounter = counters[srcKey] + 1
+							counters[srcKey] = currentCounter
+						}
+
+						ma.setName(replaceResourcePlaceholders(cast.ToString(name), currentCounter))
+						nameSet = true
+					}
+				}
+
+				if !titleSet {
+					title, found := meta["title"]
+					if found {
+						if currentCounter == 0 {
+							currentCounter = counters[srcKey] + 1
+							counters[srcKey] = currentCounter
+						}
+						ma.setTitle((replaceResourcePlaceholders(cast.ToString(title), currentCounter)))
+						titleSet = true
+					}
+				}
+
+				if !paramsSet {
+					params, found := meta["params"]
+					if found {
+						m := cast.ToStringMap(params)
+						// Needed for case insensitive fetching of params values
+						helpers.ToLowerMap(m)
+						ma.setParams(m)
+
+						if currentCounter == 0 {
+							currentCounter = counters[srcKey] + 1
+							counters[srcKey] = currentCounter
+						}
+
+						paramsSet = true
+					}
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
+func replaceResourcePlaceholders(in string, counter int) string {
+	return strings.Replace(in, ":counter", strconv.Itoa(counter), -1)
+}
+
 func (l *genericResource) target() string {
 	target := l.relTargetPathForRel(l.relTargetPath, false)
 	if l.spec.PathSpec.Languages.IsMultihost() {
@@ -330,5 +472,8 @@ func (r *Spec) newGenericResource(
 		relTargetPath:     baseFilename,
 		resourceType:      resourceType,
 		spec:              r,
+		params:            make(map[string]interface{}),
+		name:              baseFilename,
+		title:             baseFilename,
 	}
 }

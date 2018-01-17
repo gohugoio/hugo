@@ -1877,7 +1877,7 @@ func (s *Site) newNodePage(typ string, sections ...string) *Page {
 
 func (s *Site) newHomePage() *Page {
 	p := s.newNodePage(KindHome)
-	p.Title = s.Info.Title
+	p.title = s.Info.Title
 	pages := Pages{}
 	p.Data["Pages"] = pages
 	p.Pages = pages
@@ -1892,10 +1892,10 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 		// Keep (mostly) as is in the title
 		// We make the first character upper case, mostly because
 		// it is easier to reason about in the tests.
-		p.Title = helpers.FirstUpper(key)
+		p.title = helpers.FirstUpper(key)
 		key = s.PathSpec.MakePathSanitized(key)
 	} else {
-		p.Title = strings.Replace(s.titleFunc(key), "-", " ", -1)
+		p.title = strings.Replace(s.titleFunc(key), "-", " ", -1)
 	}
 
 	return p
@@ -1906,15 +1906,15 @@ func (s *Site) newSectionPage(name string) *Page {
 
 	sectionName := helpers.FirstUpper(name)
 	if s.Cfg.GetBool("pluralizeListTitles") {
-		p.Title = inflect.Pluralize(sectionName)
+		p.title = inflect.Pluralize(sectionName)
 	} else {
-		p.Title = sectionName
+		p.title = sectionName
 	}
 	return p
 }
 
 func (s *Site) newTaxonomyTermsPage(plural string) *Page {
 	p := s.newNodePage(KindTaxonomyTerm, plural)
-	p.Title = s.titleFunc(plural)
+	p.title = s.titleFunc(plural)
 	return p
 }

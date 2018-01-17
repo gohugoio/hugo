@@ -225,7 +225,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	gp1 := sites.GetContentPage(filepath.FromSlash("content/sect/doc1.en.md"))
 	require.NotNil(t, gp1)
-	require.Equal(t, "doc1", gp1.Title)
+	require.Equal(t, "doc1", gp1.title)
 	gp2 := sites.GetContentPage(filepath.FromSlash("content/dummysect/notfound.md"))
 	require.Nil(t, gp2)
 
@@ -317,9 +317,9 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Len(t, homeEn.Translations(), 3)
 	require.Equal(t, "fr", homeEn.Translations()[0].Lang())
 	require.Equal(t, "nn", homeEn.Translations()[1].Lang())
-	require.Equal(t, "På nynorsk", homeEn.Translations()[1].Title)
+	require.Equal(t, "På nynorsk", homeEn.Translations()[1].title)
 	require.Equal(t, "nb", homeEn.Translations()[2].Lang())
-	require.Equal(t, "På bokmål", homeEn.Translations()[2].Title, configSuffix)
+	require.Equal(t, "På bokmål", homeEn.Translations()[2].title, configSuffix)
 	require.Equal(t, "Bokmål", homeEn.Translations()[2].Language().LanguageName, configSuffix)
 
 	sectFr := frSite.getPage(KindSection, "sect")
@@ -328,7 +328,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, "fr", sectFr.Lang())
 	require.Len(t, sectFr.Translations(), 1)
 	require.Equal(t, "en", sectFr.Translations()[0].Lang())
-	require.Equal(t, "Sects", sectFr.Translations()[0].Title)
+	require.Equal(t, "Sects", sectFr.Translations()[0].title)
 
 	nnSite := sites.Sites[2]
 	require.Equal(t, "nn", nnSite.Language.Lang)
@@ -495,9 +495,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 6)
 				require.Len(t, enSite.AllPages, 34)
 				require.Len(t, frSite.RegularPages, 5)
-				require.Equal(t, "new_fr_1", frSite.RegularPages[3].Title)
-				require.Equal(t, "new_en_2", enSite.RegularPages[0].Title)
-				require.Equal(t, "new_en_1", enSite.RegularPages[1].Title)
+				require.Equal(t, "new_fr_1", frSite.RegularPages[3].title)
+				require.Equal(t, "new_en_2", enSite.RegularPages[0].title)
+				require.Equal(t, "new_en_1", enSite.RegularPages[1].title)
 
 				rendered := readDestination(t, fs, "public/en/new1/index.html")
 				require.True(t, strings.Contains(rendered, "new_en_1"), rendered)
@@ -531,7 +531,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			func(t *testing.T) {
 				require.Len(t, enSite.RegularPages, 6, "Rename")
-				require.Equal(t, "new_en_1", enSite.RegularPages[1].Title)
+				require.Equal(t, "new_en_1", enSite.RegularPages[1].title)
 				rendered := readDestination(t, fs, "public/en/new1renamed/index.html")
 				require.True(t, strings.Contains(rendered, "new_en_1"), rendered)
 			}},
@@ -683,7 +683,7 @@ title = "Svenska"
 	// Veriy Swedish site
 	require.Len(t, svSite.RegularPages, 1)
 	svPage := svSite.RegularPages[0]
-	require.Equal(t, "Swedish Contentfile", svPage.Title)
+	require.Equal(t, "Swedish Contentfile", svPage.title)
 	require.Equal(t, "sv", svPage.Lang())
 	require.Len(t, svPage.Translations(), 2)
 	require.Len(t, svPage.AllTranslations(), 3)

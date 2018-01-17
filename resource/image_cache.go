@@ -15,7 +15,6 @@ package resource
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -50,7 +49,7 @@ func (c *imageCache) deleteByPrefix(prefix string) {
 }
 
 func (c *imageCache) getOrCreate(
-	spec *Spec, key string, create func(resourceCacheFilename string) (*Image, error)) (*Image, error) {
+	parent *Image, key string, create func(resourceCacheFilename string) (*Image, error)) (*Image, error) {
 
 	relTargetFilename := key
 
@@ -77,19 +76,20 @@ func (c *imageCache) getOrCreate(
 	//  but the count of processed image variations for this site.
 	c.pathSpec.ProcessingStats.Incr(&c.pathSpec.ProcessingStats.ProcessedImages)
 
-	r, err := spec.NewResourceFromFilename(nil, c.absPublishDir, cacheFilename, relTargetFilename)
-	notFound := err != nil && os.IsNotExist(err)
-	if err != nil && !os.IsNotExist(err) {
+	exists, err := helpers.Exists(cacheFilename, c.pathSpec.Fs.Source)
+	if err != nil {
 		return nil, err
 	}
 
-	if notFound {
+	if exists {
+		img = parent.clone()
+		img.relTargetPath = relTargetFilename
+		img.absSourceFilename = cacheFilename
+	} else {
 		img, err = create(cacheFilename)
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		img = r.(*Image)
 	}
 
 	c.mu.Lock()
@@ -102,7 +102,7 @@ func (c *imageCache) getOrCreate(
 
 	c.mu.Unlock()
 
-	if notFound {
+	if !exists {
 		// File already written to destination
 		return img, nil
 	}

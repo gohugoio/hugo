@@ -254,6 +254,12 @@ func (c *contentHandlers) parsePage(h contentHandler) contentHandler {
 
 				return p.Resources[i].RelPermalink() < p.Resources[j].RelPermalink()
 			})
+
+			// Assign metadata from front matter if set
+			if len(p.resourcesMetadata) > 0 {
+				resource.AssignMetadata(p.resourcesMetadata, p.Resources...)
+			}
+
 		}
 
 		return h(ctx)
