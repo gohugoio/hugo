@@ -13,7 +13,7 @@ menu:
     weight: 150
 weight: 150	#rem
 draft: false
-aliases: [/content/multilingual/,/content-management/multilingual/]
+aliases: [/content/multilingual/,/content-management/multilingual/,/tutorials/create-a-multilingual-site/]
 toc: true
 ---
 
@@ -34,14 +34,12 @@ help  = "Help"
 [Languages.en]
 title = "My blog"
 weight = 1
-[Languages.en.params]
 linkedin = "english-link"
 
 [Languages.fr]
 copyright = "Tout est à moi"
 title = "Mon blog"
 weight = 2
-[Languages.fr.params]
 linkedin = "lien-francais"
 [Languages.fr.navigation]
 help  = "Aide"
