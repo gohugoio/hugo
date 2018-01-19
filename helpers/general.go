@@ -465,3 +465,13 @@ func DiffStringSlices(slice1 []string, slice2 []string) []string {
 
 	return diffStr
 }
+
+// StringContainedInValues checks whether the give string is contained in the trailing arguments
+func StringContainedInValues(k string, values ...string) bool {
+	for _, v := range values {
+		if k == v {
+			return true
+		}
+	}
+	return false
+}

@@ -580,6 +580,66 @@ func (c *ContentSpec) truncateWordsToWholeSentenceOld(content string) (string, b
 	return strings.Join(words[:c.summaryLength], " "), true
 }
 
+type externalRendererConfig struct {
+	path string
+	args []string
+}
+
+func getExternalRendererConfig(renderer string, cfg config.Provider) (rendererCfg externalRendererConfig, err error) {
+	path := cfg.GetString(fmt.Sprintf("%s.path", renderer))
+	args := cfg.GetStringSlice(fmt.Sprintf("%s.args", renderer))
+
+	switch renderer {
+	case "asciidoc":
+		path = ensurePath(path, getAsciidoctorExecPath)
+		args = ensureArgs(args, "--no-header-footer", "--safe")
+		if path == "" {
+			path = ensurePath(path, getAsciidocExecPath)
+		}
+		if strings.Contains(path, "asciidoctor") {
+			args = ensureArgs(args, "--trace")
+		}
+		args = ensureArgs(args, "-")
+	case "pandoc":
+		path = ensurePath(path, getPandocExecPath)
+		args = ensureArgs(args, "--mathjax")
+	case "rst":
+		path = ensurePath(path, getRstExecPath)
+		pythonPath := GetPythonExecPath()
+		args = ensureArgs(args, "--leave-comments", "--initial-header-level=2")
+		args = append([]string{pythonPath}, args...)
+	}
+
+	rendererCfg = externalRendererConfig{
+		path: path,
+		args: args,
+	}
+
+	if path == "" {
+		err = fmt.Errorf("%q not found in $PATH: Please install. Leaving %q content unrendered", renderer, renderer)
+	}
+
+	return
+}
+
+func ensurePath(configuredPath string, defaultPathFunc func() string) string {
+	path := configuredPath
+	if path == "" {
+		path = defaultPathFunc()
+	}
+	return path
+}
+
+func ensureArgs(originalArgs []string, argsToEnsure ...string) []string {
+	args := originalArgs
+	for _, arg := range argsToEnsure {
+		if !StringContainedInValues(arg, originalArgs...) {
+			args = append(args, arg)
+		}
+	}
+	return args
+}
+
 func getAsciidocExecPath() string {
 	path, err := exec.LookPath("asciidoc")
 	if err != nil {
@@ -605,27 +665,13 @@ func HasAsciidoc() bool {
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
 // to convert AsciiDoc content to HTML.
 func getAsciidocContent(ctx *RenderingContext) []byte {
-	var isAsciidoctor bool
-	path := getAsciidoctorExecPath()
-	if path == "" {
-		path = getAsciidocExecPath()
-		if path == "" {
-			jww.ERROR.Println("asciidoctor / asciidoc not found in $PATH: Please install.\n",
-				"                 Leaving AsciiDoc content unrendered.")
-			return ctx.Content
-		}
-	} else {
-		isAsciidoctor = true
+	rendererConfig, err := getExternalRendererConfig("asciidoc", ctx.Cfg)
+	if err != nil {
+		jww.ERROR.Println(err)
+		return ctx.Content
 	}
 
-	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	args := []string{"--no-header-footer", "--safe"}
-	if isAsciidoctor {
-		// asciidoctor-specific arg to show stack traces on errors
-		args = append(args, "--trace")
-	}
-	args = append(args, "-")
-	return externallyRenderContent(ctx, path, args)
+	return externallyRenderContent(ctx, &rendererConfig)
 }
 
 // HasRst returns whether rst2html is installed on this computer.
@@ -644,7 +690,7 @@ func getRstExecPath() string {
 	return path
 }
 
-func getPythonExecPath() string {
+func GetPythonExecPath() string {
 	path, err := exec.LookPath("python")
 	if err != nil {
 		path, err = exec.LookPath("python.exe")
@@ -658,18 +704,13 @@ func getPythonExecPath() string {
 // getRstContent calls the Python script rst2html as an external helper
 // to convert reStructuredText content to HTML.
 func getRstContent(ctx *RenderingContext) []byte {
-	python := getPythonExecPath()
-	path := getRstExecPath()
-
-	if path == "" {
-		jww.ERROR.Println("rst2html / rst2html.py not found in $PATH: Please install.\n",
-			"                 Leaving reStructuredText content unrendered.")
+	rendererConfig, err := getExternalRendererConfig("rst", ctx.Cfg)
+	if err != nil {
+		jww.ERROR.Println(err)
 		return ctx.Content
-
 	}
-	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	args := []string{path, "--leave-comments", "--initial-header-level=2"}
-	result := externallyRenderContent(ctx, python, args)
+
+	result := externallyRenderContent(ctx, &rendererConfig)
 	// TODO(bep) check if rst2html has a body only option.
 	bodyStart := bytes.Index(result, []byte("<body>\n"))
 	if bodyStart < 0 {
@@ -687,16 +728,23 @@ func getRstContent(ctx *RenderingContext) []byte {
 	return result[bodyStart+7 : bodyEnd]
 }
 
-// getPandocContent calls pandoc as an external helper to convert pandoc markdown to HTML.
-func getPandocContent(ctx *RenderingContext) []byte {
+func getPandocExecPath() string {
 	path, err := exec.LookPath("pandoc")
 	if err != nil {
-		jww.ERROR.Println("pandoc not found in $PATH: Please install.\n",
-			"                 Leaving pandoc content unrendered.")
+		return ""
+	}
+	return path
+}
+
+// getPandocContent calls pandoc as an external helper to convert pandoc markdown to HTML.
+func getPandocContent(ctx *RenderingContext) []byte {
+	rendererConfig, err := getExternalRendererConfig("pandoc", ctx.Cfg)
+	if err != nil {
+		jww.ERROR.Println(err)
 		return ctx.Content
 	}
-	args := []string{"--mathjax"}
-	return externallyRenderContent(ctx, path, args)
+
+	return externallyRenderContent(ctx, &rendererConfig)
 }
 
 func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
@@ -706,11 +754,13 @@ func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
 		c.getHTMLRenderer(blackfriday.HTML_TOC, ctx))
 }
 
-func externallyRenderContent(ctx *RenderingContext, path string, args []string) []byte {
+func externallyRenderContent(ctx *RenderingContext, rendererConfig *externalRendererConfig) []byte {
+	jww.INFO.Printf("Rendering %s with '%s %s' ...", ctx.DocumentName, rendererConfig.path, strings.Join(rendererConfig.args, " "))
+
 	content := ctx.Content
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
-	cmd := exec.Command(path, args...)
+	cmd := exec.Command(rendererConfig.path, rendererConfig.args...)
 	cmd.Stdin = bytes.NewReader(cleanContent)
 	var out, cmderr bytes.Buffer
 	cmd.Stdout = &out
@@ -725,7 +775,7 @@ func externallyRenderContent(ctx *RenderingContext, path string, args []string) 
 		}
 	}
 	if err != nil {
-		jww.ERROR.Printf("%s rendering %s: %v", path, ctx.DocumentName, err)
+		jww.ERROR.Printf("%s rendering %s: %v", rendererConfig.path, ctx.DocumentName, err)
 	}
 
 	return normalizeExternalHelperLineFeeds(out.Bytes())
