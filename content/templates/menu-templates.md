@@ -27,40 +27,35 @@ The following is an example:
 {{< code file="layouts/partials/sidebar.html" download="sidebar.html" >}}
 <!-- sidebar start -->
 <aside>
-    <div id="sidebar" class="nav-collapse">
-        <!-- sidebar menu start-->
-        <ul class="sidebar-menu">
-          {{ $currentPage := . }}
-          {{ range .Site.Menus.main }}
-              {{ if .HasChildren }}
-
-            <li class="sub-menu{{if $currentPage.HasMenuCurrent "main" . }} active{{end}}">
-            <a href="javascript:;" class="">
-                {{ .Pre }}
-                <span>{{ .Name }}</span>
-                <span class="menu-arrow arrow_carrot-right"></span>
-            </a>
-            <ul class="sub">
-                {{ range .Children }}
-                <li{{if $currentPage.IsMenuCurrent "main" . }} class="active"{{end}}><a href="{{.URL}}"> {{ .Name }} </a> </li>
-                {{ end }}
-            </ul>
-          {{else}}
-            <li>
-            <a href="{{.URL}}">
-                {{ .Pre }}
-                <span>{{ .Name }}</span>
-            </a>
-          {{end}}
-          </li>
-          {{end}}
-            <li> <a href="https://github.com/gohugoio/hugo/issues" target="blank">Questions and Issues</a> </li>
-            <li> <a href="#" target="blank">Edit this Page</a> </li>
-        </ul>
-        <!-- sidebar menu end-->
-    </div>
+  <ul>
+    {{ $currentPage := . }}
+    {{ range .Site.Menus.main }}
+      {{ if .HasChildren }}
+        <li class="{{ if $currentPage.HasMenuCurrent "main" . }}active{{ end }}">
+          <a href="#">
+            {{ .Pre }}
+            <span>{{ .Name }}</span>
+          </a>
+          <ul class="sub-menu">
+            {{ range .Children }}
+              <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
+                <a href="{{ .URL }}">{{ .Name }}</a>
+            {{ end }}
+          </ul>
+      {{else}}
+        <li>
+          <a href="{{.URL}}">
+            {{ .Pre }}
+            <span>{{ .Name }}</span>
+          </a>
+      {{end}}
+    {{end}}
+    <li>
+      <a href="#" target="blank">Hardcoded Link 1</a>
+    <li>
+      <a href="#" target="blank">Hardcoded Link 2</a>
+  </ul>
 </aside>
-<!--sidebar end-->
 {{< /code >}}
 
 {{% note "`absLangURL` and `relLangURL`" %}}
