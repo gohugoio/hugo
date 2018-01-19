@@ -131,6 +131,22 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 		}
 	}
 
+	defaultLang := cfg.GetString("defaultContentLanguage")
+
+	// The defaultContentLanguage is something the user has to decide, but it needs
+	// to match a language in the language definition list.
+	langExists := false
+	for _, lang := range langs {
+		if lang.Lang == defaultLang {
+			langExists = true
+			break
+		}
+	}
+
+	if !langExists {
+		return fmt.Errorf("site config value %q for defaultContentLanguage does not match any language definition", defaultLang)
+	}
+
 	cfg.Set("languagesSorted", langs)
 	cfg.Set("multilingual", len(langs) > 1)
 
