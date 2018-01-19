@@ -46,7 +46,9 @@ func createLayoutExamples() interface{} {
 		// Taxonomy output.LayoutDescriptor={categories category taxonomy en  false Type Section
 		{"Single page in \"posts\" section", LayoutDescriptor{Kind: "page", Type: "posts"}, false, HTMLFormat},
 		{"Single page in \"posts\" section with layout set", LayoutDescriptor{Kind: "page", Type: "posts", Layout: demoLayout}, false, HTMLFormat},
+		{"Single page in \"posts\" section with theme", LayoutDescriptor{Kind: "page", Type: "posts"}, true, HTMLFormat},
 		{"AMP single page", LayoutDescriptor{Kind: "page", Type: "posts"}, false, AMPFormat},
+		{"AMP single page, French language", LayoutDescriptor{Kind: "page", Type: "posts", Lang: "fr"}, false, AMPFormat},
 		// All section or typeless pages gets "page" as type
 		{"Home page", LayoutDescriptor{Kind: "home", Type: "page"}, false, HTMLFormat},
 		{"Home page with type set", LayoutDescriptor{Kind: "home", Type: demoType}, false, HTMLFormat},
