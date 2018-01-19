@@ -10,6 +10,7 @@ keywords: [menus]
 draft: false
 menu:
   docs:
+    title: "variables defined by a menu entry"
     parent: "variables"
     weight: 50
 weight: 50
@@ -25,6 +26,22 @@ The [menu template][] has the following properties:
 
 .Name
 : string
+
+.Title
+: string
+
+This is a link title, meant to be used in `title`-Attributes of the menu's `<a>`-tags.
+By default it returns `.Page.LinkTitle`, as long as the menu entry was created
+through the page's front matter and not through the site config.
+Setting it explicitly in the site config or the page's front matter overrides this behaviour.
+
+.Page
+: [Page Object](/variables/page/)
+
+The `.Page` variable holds a reference to the page.
+It's only set when the menu entry is created from the page's front matter,
+not when it's created from the site config.
+
 
 .Menu
 : string
