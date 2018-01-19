@@ -20,22 +20,7 @@ toc: true
 
 ## Single Page Template Lookup Order
 
-You can specify a [content's `type`][content type] and `layout` in a single content file's [front matter][]. However, you cannot specify `section` because this is determined based on file location (see [content section][section]).
-
-Hugo assumes your content section and content type are the same unless you tell Hugo otherwise by providing a `type` directly in the front matter of a content file. This is why #1 and #3 come before #2 and #4, respectively, in the following lookup order. Values in angle brackets (`<>`) are variable.
-
-1. `/layouts/<TYPE>/<LAYOUT>.html`
-2. `/layouts/<SECTION>/<LAYOUT>.html`
-3. `/layouts/<TYPE>/single.html`
-4. `/layouts/<SECTION>/single.html`
-5. `/layouts/_default/single.html`
-6. `/themes/<THEME>/layouts/<TYPE>/<LAYOUT>.html`
-7. `/themes/<THEME>/layouts/<SECTION>/<LAYOUT>.html`
-8. `/themes/<THEME>/layouts/<TYPE>/single.html`
-9. `/themes/<THEME>/layouts/<SECTION>/single.html`
-10. `/themes/<THEME>/layouts/_default/single.html`
-
-{{< youtube ZYQ5k0RQzmo >}}
+See [Template Lookup](/templates/lookup-order/).
 
 ## Example Single Page Templates
 
