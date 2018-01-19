@@ -248,6 +248,22 @@
         ]
       },
       {
+        "Example": "Single page in \"posts\" section with theme",
+        "Kind": "page",
+        "OutputFormat": "HTML",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/posts/single.html.html",
+          "demoTheme/layouts/posts/single.html.html",
+          "layouts/posts/single.html",
+          "demoTheme/layouts/posts/single.html",
+          "layouts/_default/single.html.html",
+          "demoTheme/layouts/_default/single.html.html",
+          "layouts/_default/single.html",
+          "demoTheme/layouts/_default/single.html"
+        ]
+      },
+      {
         "Example": "AMP single page",
         "Kind": "page",
         "OutputFormat": "AMP",
@@ -256,6 +272,22 @@
           "layouts/posts/single.amp.html",
           "layouts/posts/single.html",
           "layouts/_default/single.amp.html",
+          "layouts/_default/single.html"
+        ]
+      },
+      {
+        "Example": "AMP single page, French language",
+        "Kind": "page",
+        "OutputFormat": "AMP",
+        "Suffix": "html",
+        "Template Lookup Order": [
+          "layouts/posts/single.fr.amp.html",
+          "layouts/posts/single.amp.html",
+          "layouts/posts/single.fr.html",
+          "layouts/posts/single.html",
+          "layouts/_default/single.fr.amp.html",
+          "layouts/_default/single.amp.html",
+          "layouts/_default/single.fr.html",
           "layouts/_default/single.html"
         ]
       },
