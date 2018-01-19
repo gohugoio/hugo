@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-04-06
 categories: [templates]
-keywords: [page]
+keywords: [page,templates]
 menu:
   docs:
     parent: "templates"
