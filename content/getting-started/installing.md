@@ -66,7 +66,7 @@ choco install hugo -confirm
 #### Prerequisite Tools
 
 * [Git][installgit]
-* [Go 1.5+][installgo]
+* [Go (latest or previous version)][installgo]
 * [govendor][]
 
 #### Vendored Dependencies
@@ -424,10 +424,6 @@ In any of the [Linux distributions that support snaps][snaps]:
 snap install hugo
 ```
 
-{{% note %}}
-Hugo-as-a-snap can write only inside the user’s `$HOME` directory---and gvfs-mounted directories owned by the user---because of Snaps’ confinement and security model. More information is also available [in this related GitHub issue](https://github.com/gohugoio/hugo/issues/3143).
-{{% /note %}}
-
 ### Debian and Ubuntu
 
 Debian and Ubuntu provide a `hugo` version via `apt-get`:
@@ -444,6 +440,10 @@ sudo apt-get install hugo
 #### Cons
 
 * Might not be the latest version, especially if you are using an older, stable version (e.g., Ubuntu 16.04 LTS). Until backports and PPA are available, you may consider installing the Hugo snap package to get the latest version of Hugo.
+
+{{% note %}}
+Hugo-as-a-snap can write only inside the user’s `$HOME` directory---and gvfs-mounted directories owned by the user---because of Snaps’ confinement and security model. More information is also available [in this related GitHub issue](https://github.com/gohugoio/hugo/issues/3143). Use ```sudo apt-get install hugo --classic``` to disable the default security model if you want hugo to be able to have write access in other paths besides the user’s `$HOME` directory.
+{{% /note %}}
 
 ### Arch Linux
 
