@@ -234,6 +234,8 @@ type Page struct {
 	// relative target path without extension and any base path element from the baseURL.
 	// This is used to construct paths in the page resources.
 	relTargetPathBase string
+	// Is set to a forward slashed path if this is a Page resources living in a folder below its owner.
+	resourcePath string
 
 	layoutDescriptor output.LayoutDescriptor
 
@@ -993,9 +995,10 @@ func (p *Page) RelPermalink() string {
 }
 
 // See resource.Resource
+// This value is used, by default, in Resources.ByPrefix etc.
 func (p *Page) Name() string {
-	if p.File != nil {
-		return p.File.BaseFileName()
+	if p.resourcePath != "" {
+		return p.resourcePath
 	}
 	return p.title
 }

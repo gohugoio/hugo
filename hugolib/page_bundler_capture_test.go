@@ -186,7 +186,7 @@ D:
 __bundle/en/work/base/bb/_index.md/resources/en/work/base/bb/a.png|en/work/base/bb/b.png|nn/work/base/bb/c.nn.png
 __bundle/en/work/base/bc/_index.md/resources/en/work/base/bc/logo-bc.png
 __bundle/en/work/base/bd/index.md/resources/en/work/base/bd/page.md
-__bundle/en/work/base/lb/index.md/resources/en/work/base/lb/1.md|en/work/base/lb/2.md|en/work/base/lb/c/d/deep.png|en/work/base/lb/c/logo.png|en/work/base/lb/c/one.png
+__bundle/en/work/base/lb/index.md/resources/en/work/base/lb/1.md|en/work/base/lb/2.md|en/work/base/lb/c/d/deep.png|en/work/base/lb/c/logo.png|en/work/base/lb/c/one.png|en/work/base/lb/c/page.md
 __bundle/nn/work/base/bb/_index.nn.md/resources/en/work/base/bb/a.png|nn/work/base/bb/b.nn.png|nn/work/base/bb/c.nn.png
 __bundle/nn/work/base/bd/index.md/resources/nn/work/base/bd/page.nn.md
 __bundle/nn/work/base/lb/index.nn.md/resources/en/work/base/lb/c/d/deep.png|en/work/base/lb/c/one.png|nn/work/base/lb/2.nn.md|nn/work/base/lb/c/logo.nn.png

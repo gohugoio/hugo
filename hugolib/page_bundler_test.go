@@ -168,6 +168,42 @@ func TestPageBundlerSite(t *testing.T) {
 
 }
 
+func TestPageBundlerSiteMultilingual(t *testing.T) {
+	t.Parallel()
+
+	for _, ugly := range []bool{false, true} {
+		t.Run(fmt.Sprintf("ugly=%t", ugly),
+			func(t *testing.T) {
+
+				assert := require.New(t)
+				cfg, fs := newTestBundleSourcesMultilingual(t)
+
+				cfg.Set("uglyURLs", ugly)
+
+				assert.NoError(loadDefaultSettingsFor(cfg))
+				sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
+				assert.NoError(err)
+				assert.Equal(2, len(sites.Sites))
+
+				assert.NoError(sites.Build(BuildCfg{}))
+
+				s := sites.Sites[0]
+
+				bundleWithSubPath := s.getPage(KindPage, "lb/index")
+				assert.NotNil(bundleWithSubPath)
+
+				// See https://github.com/gohugoio/hugo/issues/4295
+				// Every resource should have its Name prefixed with its base folder.
+				cBundleResources := bundleWithSubPath.Resources.ByPrefix("c/")
+				assert.Equal(4, len(cBundleResources))
+				bundlePage := bundleWithSubPath.Resources.GetByPrefix("c/page")
+				assert.NotNil(bundlePage)
+				assert.IsType(&Page{}, bundlePage)
+
+			})
+	}
+}
+
 func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	assert := require.New(t)
 	cfg, fs, workDir := newTestBundleSymbolicSources(t)
@@ -395,6 +431,7 @@ TheContent.
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "1.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "2.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "2.nn.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "c", "page.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "c", "logo.png"), "content")
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "c", "logo.nn.png"), "content")
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "c", "one.png"), "content")
