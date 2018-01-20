@@ -15,9 +15,12 @@ package resource
 
 import (
 	"fmt"
+	"math/rand"
 	"path"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -134,6 +137,52 @@ func TestResourcesGetByPrefix(t *testing.T) {
 	assert.NotNil(logo.Params())
 	assert.Equal("logo1.png", logo.Name())
 	assert.Equal("logo1.png", logo.Title())
+
+}
+
+func TestResourcesGetMatch(t *testing.T) {
+	assert := require.New(t)
+	spec := newTestResourceSpec(assert)
+	resources := Resources{
+		spec.newGenericResource(nil, nil, "/public", "/a/foo1.css", "foo1.css", "css"),
+		spec.newGenericResource(nil, nil, "/public", "/a/logo1.png", "logo1.png", "image"),
+		spec.newGenericResource(nil, nil, "/public", "/b/Logo2.png", "Logo2.png", "image"),
+		spec.newGenericResource(nil, nil, "/public", "/b/foo2.css", "foo2.css", "css"),
+		spec.newGenericResource(nil, nil, "/public", "/b/foo3.css", "foo3.css", "css"),
+		spec.newGenericResource(nil, nil, "/public", "/b/c/foo4.css", "c/foo4.css", "css"),
+		spec.newGenericResource(nil, nil, "/public", "/b/c/foo5.css", "c/foo5.css", "css"),
+		spec.newGenericResource(nil, nil, "/public", "/b/c/d/foo6.css", "c/d/foo6.css", "css"),
+	}
+
+	assert.Equal("/logo1.png", resources.GetMatch("logo*").RelPermalink())
+	assert.Equal("/logo1.png", resources.GetMatch("loGo*").RelPermalink())
+	assert.Equal("/Logo2.png", resources.GetMatch("logo2*").RelPermalink())
+	assert.Equal("/foo2.css", resources.GetMatch("foo2*").RelPermalink())
+	assert.Equal("/foo1.css", resources.GetMatch("foo1*").RelPermalink())
+	assert.Equal("/foo1.css", resources.GetMatch("foo1*").RelPermalink())
+	assert.Equal("/c/foo4.css", resources.GetMatch("*/foo*").RelPermalink())
+
+	assert.Nil(resources.GetMatch("asdfasdf"))
+
+	assert.Equal(2, len(resources.Match("Logo*")))
+	assert.Equal(1, len(resources.Match("logo2*")))
+	assert.Equal(2, len(resources.Match("c/*")))
+
+	assert.Equal(6, len(resources.Match("**.css")))
+	assert.Equal(3, len(resources.Match("**/*.css")))
+	assert.Equal(1, len(resources.Match("c/**/*.css")))
+
+	// Matches only CSS files in c/
+	assert.Equal(3, len(resources.Match("c/**.css")))
+
+	// Matches all CSS files below c/ (including in c/d/)
+	assert.Equal(3, len(resources.Match("c/**.css")))
+
+	// Patterns beginning with a slash will not match anything.
+	// We could maybe consider trimming that slash, but let's be explicit about this.
+	// (it is possible for users to do a rename)
+	// This is analogous to standing in a directory and doing "ls *.*".
+	assert.Equal(0, len(resources.Match("/c/**.css")))
 
 }
 
@@ -290,6 +339,73 @@ func TestAssignMetadata(t *testing.T) {
 
 }
 
+func BenchmarkResourcesByPrefix(b *testing.B) {
+	resources := benchResources(b)
+	prefixes := []string{"abc", "jkl", "nomatch", "sub/"}
+	rnd := rand.New(rand.NewSource(time.Now().Unix()))
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			resources.ByPrefix(prefixes[rnd.Intn(len(prefixes))])
+		}
+	})
+}
+
+func BenchmarkResourcesMatch(b *testing.B) {
+	resources := benchResources(b)
+	prefixes := []string{"abc*", "jkl*", "nomatch*", "sub/*"}
+	rnd := rand.New(rand.NewSource(time.Now().Unix()))
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			resources.Match(prefixes[rnd.Intn(len(prefixes))])
+		}
+	})
+}
+
+// This adds a benchmark for the a100 test case as described by Russ Cox here:
+// https://research.swtch.com/glob (really interesting article)
+// I don't expect Hugo users to "stumble upon" this problem, so this is more to satisfy
+// my own curiosity.
+func BenchmarkResourcesMatchA100(b *testing.B) {
+	assert := require.New(b)
+	spec := newTestResourceSpec(assert)
+	a100 := strings.Repeat("a", 100)
+	pattern := "a*a*a*a*a*a*a*a*b"
+
+	resources := Resources{spec.newGenericResource(nil, nil, "/public", "/a/"+a100, a100, "css")}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		resources.Match(pattern)
+	}
+
+}
+
+func benchResources(b *testing.B) Resources {
+	assert := require.New(b)
+	spec := newTestResourceSpec(assert)
+	var resources Resources
+
+	for i := 0; i < 30; i++ {
+		name := fmt.Sprintf("abcde%d_%d.css", i%5, i)
+		resources = append(resources, spec.newGenericResource(nil, nil, "/public", "/a/"+name, name, "css"))
+	}
+
+	for i := 0; i < 30; i++ {
+		name := fmt.Sprintf("efghi%d_%d.css", i%5, i)
+		resources = append(resources, spec.newGenericResource(nil, nil, "/public", "/a/"+name, name, "css"))
+	}
+
+	for i := 0; i < 30; i++ {
+		name := fmt.Sprintf("jklmn%d_%d.css", i%5, i)
+		resources = append(resources, spec.newGenericResource(nil, nil, "/public", "/b/sub/"+name, "sub/"+name, "css"))
+	}
+
+	return resources
+
+}
+
 func BenchmarkAssignMetadata(b *testing.B) {
 	assert := require.New(b)
 	spec := newTestResourceSpec(assert)
@@ -320,5 +436,4 @@ func BenchmarkAssignMetadata(b *testing.B) {
 		}
 
 	}
-
 }

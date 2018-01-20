@@ -21,13 +21,14 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/spf13/cast"
 
+	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/source"
-
-	"github.com/gohugoio/hugo/helpers"
 )
 
 var (
@@ -101,10 +102,21 @@ func (r Resources) ByType(tp string) Resources {
 	return filtered
 }
 
+const prefixDeprecatedMsg = `We have added the more flexible Resources.GetMatch (find one) and Resources.Match (many) to replace the "prefix" methods. 
+
+These matches by a given globbing pattern, e.g. "*.jpg".
+
+Some examples:
+
+* To find all resources by its prefix in the root dir of the bundle: .Match image*
+* To find one resource by its prefix in the root dir of the bundle: .GetMatch image*
+* To find all JPEG images anywhere in the bundle: .Match **.jpg`
+
 // GetBySuffix gets the first resource matching the given filename prefix, e.g
 // "logo" will match logo.png. It returns nil of none found.
 // In potential ambiguous situations, combine it with ByType.
 func (r Resources) GetByPrefix(prefix string) Resource {
+	helpers.Deprecated("Resources", "GetByPrefix", prefixDeprecatedMsg, false)
 	prefix = strings.ToLower(prefix)
 	for _, resource := range r {
 		if matchesPrefix(resource, prefix) {
@@ -117,6 +129,7 @@ func (r Resources) GetByPrefix(prefix string) Resource {
 // ByPrefix gets all resources matching the given base filename prefix, e.g
 // "logo" will match logo.png.
 func (r Resources) ByPrefix(prefix string) Resources {
+	helpers.Deprecated("Resources", "ByPrefix", prefixDeprecatedMsg, false)
 	var matches Resources
 	prefix = strings.ToLower(prefix)
 	for _, resource := range r {
@@ -127,8 +140,78 @@ func (r Resources) ByPrefix(prefix string) Resources {
 	return matches
 }
 
+// GetMatch finds the first Resource matching the given pattern, or nil if none found.
+// See Match for a more complete explanation about the rules used.
+func (r Resources) GetMatch(pattern string) Resource {
+	g, err := getGlob(pattern)
+	if err != nil {
+		return nil
+	}
+
+	for _, resource := range r {
+		if g.Match(strings.ToLower(resource.Name())) {
+			return resource
+		}
+	}
+
+	return nil
+}
+
+// Match gets all resources matching the given base filename prefix, e.g
+// "*.png" will match all png files. The "*" does not match path delimiters (/),
+// so if you organize your resources in sub-folders, you need to be explicit about it, e.g.:
+// "images/*.png". To match any PNG image anywhere in the bundle you can do "**.png", and
+// to match all PNG images below the images folder, use "images/**.jpg".
+// The matching is case insensitive.
+// Match matches by using the value of Resource.Name, which, by default, is a filename with
+// path relative to the bundle root with Unix style slashes (/) and no leading slash, e.g. "images/logo.png".
+// See https://github.com/gobwas/glob for the full rules set.
+func (r Resources) Match(pattern string) Resources {
+	g, err := getGlob(pattern)
+	if err != nil {
+		return nil
+	}
+
+	var matches Resources
+	for _, resource := range r {
+		if g.Match(strings.ToLower(resource.Name())) {
+			matches = append(matches, resource)
+		}
+	}
+	return matches
+}
+
 func matchesPrefix(r Resource, prefix string) bool {
 	return strings.HasPrefix(strings.ToLower(r.Name()), prefix)
+}
+
+var (
+	globCache = make(map[string]glob.Glob)
+	globMu    sync.RWMutex
+)
+
+func getGlob(pattern string) (glob.Glob, error) {
+	pattern = strings.ToLower(pattern)
+
+	var g glob.Glob
+
+	globMu.RLock()
+	g, found := globCache[pattern]
+	globMu.RUnlock()
+	if !found {
+		var err error
+		g, err = glob.Compile(pattern, '/')
+		if err != nil {
+			return nil, err
+		}
+
+		globMu.Lock()
+		globCache[pattern] = g
+		globMu.Unlock()
+	}
+
+	return g, nil
+
 }
 
 type Spec struct {
@@ -390,10 +473,12 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 
 			srcKey := strings.ToLower(cast.ToString(src))
 
-			match, err := path.Match(srcKey, resourceSrcKey)
+			glob, err := getGlob(srcKey)
 			if err != nil {
 				return fmt.Errorf("failed to match resource with metadata: %s", err)
 			}
+
+			match := glob.Match(resourceSrcKey)
 
 			if match {
 				if !nameSet {

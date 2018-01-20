@@ -98,6 +98,21 @@
   version = "v1.4.7"
 
 [[projects]]
+  name = "github.com/gobwas/glob"
+  packages = [
+    ".",
+    "compiler",
+    "match",
+    "syntax",
+    "syntax/ast",
+    "syntax/lexer",
+    "util/runes",
+    "util/strings"
+  ]
+  revision = "bea32b9cd2d6f55753d94a28e959b13f0244797a"
+  version = "v0.2.2"
+
+[[projects]]
   name = "github.com/gorilla/websocket"
   packages = ["."]
   revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
@@ -366,6 +381,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "398d769bcbce6e8fa04f7afab14eb64d25aed5b581d7bd39294014351a459890"
+  inputs-digest = "3bd32a09fb219b2cddf0e5a91110430a05bfd2d3a28215c69b8013ff2b6b89dc"
   solver-name = "gps-cdcl"
   solver-version = 1
