@@ -112,7 +112,7 @@ Some examples:
 * To find one resource by its prefix in the root dir of the bundle: .GetMatch image*
 * To find all JPEG images anywhere in the bundle: .Match **.jpg`
 
-// GetBySuffix gets the first resource matching the given filename prefix, e.g
+// GetByPrefix gets the first resource matching the given filename prefix, e.g
 // "logo" will match logo.png. It returns nil of none found.
 // In potential ambiguous situations, combine it with ByType.
 func (r Resources) GetByPrefix(prefix string) Resource {
