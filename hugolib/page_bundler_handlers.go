@@ -16,6 +16,7 @@ package hugolib
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"sort"
 
 	"strings"
@@ -232,6 +233,9 @@ func (c *contentHandlers) parsePage(h contentHandler) contentHandler {
 					return res
 				}
 				if res.resource != nil {
+					if pageResource, ok := res.resource.(*Page); ok {
+						pageResource.resourcePath = filepath.ToSlash(childCtx.target)
+					}
 					p.Resources = append(p.Resources, res.resource)
 				}
 			}
