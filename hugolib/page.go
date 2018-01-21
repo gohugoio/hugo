@@ -759,7 +759,7 @@ func (s *Site) newPage(filename string) *Page {
 func (s *Site) newPageFromFile(fi *fileInfo) *Page {
 	return &Page{
 		pageInit:    &pageInit{},
-		Kind:        kindFromFilename(fi.Path()),
+		Kind:        kindFromFileInfo(fi),
 		contentType: "",
 		Source:      Source{File: fi},
 		Keywords:    []string{}, Sitemap: Sitemap{Priority: -1},
@@ -2010,24 +2010,16 @@ func sectionsFromDir(dirname string) []string {
 	return strings.Split(dirname, helpers.FilePathSeparator)
 }
 
-const (
-	regularPageFileNameDoesNotStartWith = "_index"
-
-	// There can be "my_regular_index_page.md but not /_index_file.md
-	regularPageFileNameDoesNotContain = helpers.FilePathSeparator + regularPageFileNameDoesNotStartWith
-)
-
-func kindFromFilename(filename string) string {
-	if !strings.HasPrefix(filename, regularPageFileNameDoesNotStartWith) && !strings.Contains(filename, regularPageFileNameDoesNotContain) {
-		return KindPage
+func kindFromFileInfo(fi *fileInfo) string {
+	if fi.TranslationBaseName() == "_index" {
+		if fi.Dir() == "" {
+			return KindHome
+		}
+		// Could be index for section, taxonomy, taxonomy term
+		// We don't know enough yet to determine which
+		return kindUnknown
 	}
-
-	if strings.HasPrefix(filename, "_index") {
-		return KindHome
-	}
-
-	// We don't know enough yet to determine the type.
-	return kindUnknown
+	return KindPage
 }
 
 func (p *Page) setValuesForKind(s *Site) {
