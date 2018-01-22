@@ -529,7 +529,7 @@ func (s *Site) running() bool {
 }
 
 func init() {
-	defaultTimer = nitro.Initalize()
+	defaultTimer = nitro.Initialize()
 }
 
 func (s *Site) timerStep(step string) {
@@ -1612,7 +1612,7 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 //    {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
 //
 // This will return nil when no page could be found, and will return the
-// first page found if the key is ambigous.
+// first page found if the key is ambiguous.
 func (s *SiteInfo) GetPage(typ string, path ...string) (*Page, error) {
 	return s.getPage(typ, path...), nil
 }

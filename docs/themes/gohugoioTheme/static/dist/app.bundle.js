@@ -2027,7 +2027,7 @@ function defaultClearTimeout () {
 } ())
 function runTimeout(fun) {
     if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
+        //normal environments in sane situations
         return setTimeout(fun, 0);
     }
     // if setTimeout wasn't available but was latter defined
@@ -2052,7 +2052,7 @@ function runTimeout(fun) {
 }
 function runClearTimeout(marker) {
     if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
+        //normal environments in sane situations
         return clearTimeout(marker);
     }
     // if clearTimeout wasn't available but was latter defined
@@ -4125,7 +4125,7 @@ AlgoliaSearchCore.prototype._jsonRequest = function(initialOpts) {
         return client._promise.reject(err);
       }
 
-      // When a timeout occured, retry by raising timeout
+      // When a timeout occurred, retry by raising timeout
       if (err instanceof errors.RequestTimeout) {
         return retryRequestWithHigherTimeout();
       }
@@ -4836,7 +4836,7 @@ IndexCore.prototype._search = function(params, url, callback, additionalUA) {
 * @param attrs (optional) if set, contains the array of attribute names to retrieve
 * @param callback (optional) the result callback called with two arguments
 *  error: null or Error('message')
-*  content: the object to retrieve or the error message if a failure occured
+*  content: the object to retrieve or the error message if a failure occurred
 */
 IndexCore.prototype.getObject = function(objectID, attrs, callback) {
   var indexObj = this;
@@ -5371,7 +5371,7 @@ module.exports = function deprecatedMessage(previousUsage, newUsage) {
 /***/ (function(module, exports) {
 
 // Parse cloud does not supports setTimeout
-// We do not store a setTimeout reference in the client everytime
+// We do not store a setTimeout reference in the client every time
 // We only fallback to a fake setTimeout when not available
 // setTimeout cannot be override globally sadly
 module.exports = function exitPromise(fn, _setTimeout) {
@@ -6645,7 +6645,7 @@ function Typeahead(o) {
     if (_.isMsie() && ($menu[0] === active || $menu[0].contains(active))) {
       $e.preventDefault();
       // stop immediate in order to prevent Input#_onBlur from
-      // getting exectued
+      // getting executed
       $e.stopImmediatePropagation();
       _.defer(function() { $input.focus(); });
     }

@@ -57,7 +57,7 @@ func (t *templateHandler) addAceTemplate(name, basePath, innerPath string, baseC
 	}
 
 	if strings.Contains(name, "shortcodes") {
-		// We need to keep track of one ot the output format's shortcode template
+		// We need to keep track of one of the output format's shortcode template
 		// without knowing the rendering context.
 		clone := template.Must(templ.Clone())
 		t.html.t.AddParseTree(withoutExt, clone.Tree)
