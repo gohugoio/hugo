@@ -529,7 +529,7 @@ func (s *Site) running() bool {
 }
 
 func init() {
-	defaultTimer = nitro.Initalize()
+	defaultTimer = nitro.Initialize()
 }
 
 func (s *Site) timerStep(step string) {
