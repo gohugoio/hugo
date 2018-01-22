@@ -304,7 +304,7 @@ func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) e
 	}
 
 	if strings.Contains(name, "shortcodes") {
-		// We need to keep track of one ot the output format's shortcode template
+		// We need to keep track of one of the output format's shortcode template
 		// without knowing the rendering context.
 		withoutExt := strings.TrimSuffix(name, path.Ext(name))
 		clone := template.Must(templ.Clone())
@@ -334,7 +334,7 @@ func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl strin
 	}
 
 	if strings.Contains(name, "shortcodes") {
-		// We need to keep track of one ot the output format's shortcode template
+		// We need to keep track of one of the output format's shortcode template
 		// without knowing the rendering context.
 		withoutExt := strings.TrimSuffix(name, path.Ext(name))
 		clone := texttemplate.Must(templ.Clone())
@@ -642,7 +642,7 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 		}
 
 		if strings.Contains(templateName, "shortcodes") {
-			// We need to keep track of one ot the output format's shortcode template
+			// We need to keep track of one of the output format's shortcode template
 			// without knowing the rendering context.
 			clone := template.Must(templ.Clone())
 			t.html.t.AddParseTree(withoutExt, clone.Tree)

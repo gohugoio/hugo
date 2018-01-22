@@ -251,7 +251,7 @@ type Page struct {
 	outputFormats output.Formats
 
 	// This is the PageOutput that represents the first item in outputFormats.
-	// Use with care, as there are potential for inifinite loops.
+	// Use with care, as there are potential for infinite loops.
 	mainPageOutput *PageOutput
 
 	targetPathDescriptorPrototype *targetPathDescriptor

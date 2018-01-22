@@ -153,7 +153,7 @@ menu:
 {{< /code >}}
 
 {{% note %}}
-The URLs must be relative to the context root. If the `baseURL` is `https://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will overide the baseURL. If the value used for `URL` in the above example is `https://subdomain.example.com/`, the output will be `https://subdomain.example.com`.
+The URLs must be relative to the context root. If the `baseURL` is `https://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will override the baseURL. If the value used for `URL` in the above example is `https://subdomain.example.com/`, the output will be `https://subdomain.example.com`.
 {{% /note %}}
 
 ## Nesting
