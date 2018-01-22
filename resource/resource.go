@@ -191,8 +191,6 @@ var (
 )
 
 func getGlob(pattern string) (glob.Glob, error) {
-	pattern = strings.ToLower(pattern)
-
 	var g glob.Glob
 
 	globMu.RLock()
@@ -200,7 +198,7 @@ func getGlob(pattern string) (glob.Glob, error) {
 	globMu.RUnlock()
 	if !found {
 		var err error
-		g, err = glob.Compile(pattern, '/')
+		g, err = glob.Compile(strings.ToLower(pattern), '/')
 		if err != nil {
 			return nil, err
 		}
