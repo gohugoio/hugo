@@ -43,6 +43,9 @@ type PageCollections struct {
 	// Includes absolute all pages (of all types), including drafts etc.
 	rawAllPages Pages
 
+	// Includes headless bundles, i.e. bundles that produce no output for its content page.
+	headlessPages Pages
+
 	pageCache *cache.PartitionedLazyCache
 }
 
@@ -66,15 +69,17 @@ func (c *PageCollections) refreshPageCaches() {
 				// in this cache, as we intend to use this in the ref and relref
 				// shortcodes. If the user says "sect/doc1.en.md", he/she knows
 				// what he/she is looking for.
-				for _, p := range c.AllRegularPages {
-					cache[filepath.ToSlash(p.Source.Path())] = p
-					// Ref/Relref supports this potentially ambiguous lookup.
-					cache[p.Source.LogicalName()] = p
+				for _, pageCollection := range []Pages{c.AllRegularPages, c.headlessPages} {
+					for _, p := range pageCollection {
+						cache[filepath.ToSlash(p.Source.Path())] = p
+						// Ref/Relref supports this potentially ambiguous lookup.
+						cache[p.Source.LogicalName()] = p
 
-					if s != nil && p.s == s {
-						// We need a way to get to the current language version.
-						pathWithNoExtensions := path.Join(filepath.ToSlash(p.Source.Dir()), p.Source.TranslationBaseName())
-						cache[pathWithNoExtensions] = p
+						if s != nil && p.s == s {
+							// We need a way to get to the current language version.
+							pathWithNoExtensions := path.Join(filepath.ToSlash(p.Source.Dir()), p.Source.TranslationBaseName())
+							cache[pathWithNoExtensions] = p
+						}
 					}
 
 				}

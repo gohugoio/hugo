@@ -508,7 +508,11 @@ func (h *HugoSites) setupTranslations() {
 			shouldBuild := p.shouldBuild()
 			s.updateBuildStats(p)
 			if shouldBuild {
-				s.Pages = append(s.Pages, p)
+				if p.headless {
+					s.headlessPages = append(s.headlessPages, p)
+				} else {
+					s.Pages = append(s.Pages, p)
+				}
 			}
 		}
 	}
@@ -557,6 +561,10 @@ func (s *Site) preparePagesForRender(cfg *BuildCfg) {
 	}
 
 	for _, p := range s.Pages {
+		pageChan <- p
+	}
+
+	for _, p := range s.headlessPages {
 		pageChan <- p
 	}
 

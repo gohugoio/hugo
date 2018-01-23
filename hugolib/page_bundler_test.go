@@ -224,6 +224,87 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 
 }
 
+func TestPageBundlerHeadless(t *testing.T) {
+	t.Parallel()
+
+	cfg, fs := newTestCfg()
+	assert := require.New(t)
+
+	workDir := "/work"
+	cfg.Set("workingDir", workDir)
+	cfg.Set("contentDir", "base")
+	cfg.Set("baseURL", "https://example.com")
+
+	pageContent := `---
+title: "Bundle Galore"
+slug: s1
+date: 2017-01-23
+---
+
+TheContent.
+
+{{< myShort >}}
+`
+
+	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "single.html"), "single {{ .Content }}")
+	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "list.html"), "list")
+	writeSource(t, fs, filepath.Join(workDir, "layouts", "shortcodes", "myShort.html"), "SHORTCODE")
+
+	writeSource(t, fs, filepath.Join(workDir, "base", "a", "index.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "a", "l1.png"), "PNG image")
+	writeSource(t, fs, filepath.Join(workDir, "base", "a", "l2.png"), "PNG image")
+
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "index.md"), `---
+title: "Headless Bundle in Topless Bar"
+slug: s2
+headless: true
+date: 2017-01-23
+---
+
+TheContent.
+HEADLESS {{< myShort >}}
+`)
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "l1.png"), "PNG image")
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "l2.png"), "PNG image")
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "p1.md"), pageContent)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+	assert.Equal(1, len(s.RegularPages))
+	assert.Equal(1, len(s.headlessPages))
+
+	regular := s.getPage(KindPage, "a/index")
+	assert.Equal("/a/s1/", regular.RelPermalink())
+
+	headless := s.getPage(KindPage, "b/index")
+	assert.NotNil(headless)
+	assert.True(headless.headless)
+	assert.Equal("Headless Bundle in Topless Bar", headless.Title())
+	assert.Equal("", headless.RelPermalink())
+	assert.Equal("", headless.Permalink())
+	assert.Contains(headless.Content, "HEADLESS SHORTCODE")
+
+	headlessResources := headless.Resources
+	assert.Equal(3, len(headlessResources))
+	assert.Equal(2, len(headlessResources.Match("l*")))
+	pageResource := headlessResources.GetMatch("p*")
+	assert.NotNil(pageResource)
+	assert.IsType(&Page{}, pageResource)
+	p := pageResource.(*Page)
+	assert.Contains(p.Content, "SHORTCODE")
+	assert.Equal("p1.md", p.Name())
+
+	th := testHelper{s.Cfg, s.Fs, t}
+
+	th.assertFileContent(filepath.FromSlash(workDir+"/public/a/s1/index.html"), "TheContent")
+	th.assertFileContent(filepath.FromSlash(workDir+"/public/a/s1/l1.png"), "PNG")
+
+	th.assertFileNotExist(workDir + "/public/b/s2/index.html")
+	// But the bundled resources needs to be published
+	th.assertFileContent(filepath.FromSlash(workDir+"/public/b/s2/l1.png"), "PNG")
+
+}
+
 func newTestBundleSources(t *testing.T) (*viper.Viper, *hugofs.Fs) {
 	cfg, fs := newTestCfg()
 	assert := require.New(t)
