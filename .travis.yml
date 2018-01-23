@@ -7,7 +7,6 @@ go:
   - tip
 os:
   - linux
-  - osx
 matrix:
   allow_failures:
     - go: tip
