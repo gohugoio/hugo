@@ -36,6 +36,23 @@ the GitHub [issue tracker](https://github.com/gohugoio/hugo/issues) to report th
 If you're not sure if it's a bug or not, start by asking in the [discussion forum](https://discourse.gohugo.io).
 When reporting the issue, please provide the version of Hugo in use (`hugo version`) and your operating system.
 
+## Code Contribution
+
+Hugo has become a fully featured static site generator, so any new functionality must meet these criterias:
+
+* It must be useful to many.
+* It must fit natural into _what Hugo does best._
+* It must strive not to break existing sites.
+* It must close ur update an open [Hugo issue](https://github.com/gohugoio/hugo/issues)
+* If it is of some complexity, the contributor is expected to maintain and support the new future (answer questions on the forum, fix any bugs etc.).
+
+So, to avoid doing unneeded work, it is recommended to open up a discussion on the [Hugo Forum](https://discourse.gohugo.io/) to get some acceptance that this is a good idea. Also, if this is a complex feature, create a small design proposal on the [Hugo issue tracker](https://github.com/gohugoio/hugo/issues) before you start coding.
+
+
+**Bug fixes are, of course, always welcome.**
+
+
+
 ## Submitting Patches
 
 The Hugo project welcomes all contributors and contributions regardless of skill or experience level.
