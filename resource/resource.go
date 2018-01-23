@@ -56,7 +56,7 @@ type Cloner interface {
 type metaAssigner interface {
 	setTitle(title string)
 	setName(name string)
-	setParams(params map[string]interface{})
+	updateParams(params map[string]interface{})
 }
 
 // Resource represents a linkable resource, i.e. a content page, image etc.
@@ -383,8 +383,18 @@ func (l *genericResource) setName(name string) {
 	l.name = name
 }
 
-func (l *genericResource) setParams(params map[string]interface{}) {
-	l.params = params
+func (l *genericResource) updateParams(params map[string]interface{}) {
+	if l.params == nil {
+		l.params = params
+		return
+	}
+
+	// Sets the params not already set
+	for k, v := range params {
+		if _, found := l.params[k]; !found {
+			l.params[k] = v
+		}
+	}
 }
 
 // Implement the Cloner interface.
@@ -452,18 +462,13 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 		}
 
 		var (
-			nameSet, titleSet, paramsSet bool
-			currentCounter               = 0
-			resourceSrcKey               = strings.ToLower(r.Name())
+			nameSet, titleSet bool
+			currentCounter    = 0
+			resourceSrcKey    = strings.ToLower(r.Name())
 		)
 
 		ma := r.(metaAssigner)
 		for _, meta := range metadata {
-			if nameSet && titleSet && paramsSet {
-				// No need to look further
-				break
-			}
-
 			src, found := meta["src"]
 			if !found {
 				return fmt.Errorf("missing 'src' in metadata for resource")
@@ -504,21 +509,12 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 					}
 				}
 
-				if !paramsSet {
-					params, found := meta["params"]
-					if found {
-						m := cast.ToStringMap(params)
-						// Needed for case insensitive fetching of params values
-						helpers.ToLowerMap(m)
-						ma.setParams(m)
-
-						if currentCounter == 0 {
-							currentCounter = counters[srcKey] + 1
-							counters[srcKey] = currentCounter
-						}
-
-						paramsSet = true
-					}
+				params, found := meta["params"]
+				if found {
+					m := cast.ToStringMap(params)
+					// Needed for case insensitive fetching of params values
+					helpers.ToLowerMap(m)
+					ma.updateParams(m)
 				}
 			}
 		}

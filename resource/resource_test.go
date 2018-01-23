@@ -234,6 +234,7 @@ func TestAssignMetadata(t *testing.T) {
 				"src":   "*loGo*",
 				"params": map[string]interface{}{
 					"Param1": true,
+					"icon":   "logo",
 				},
 			},
 			map[string]interface{}{
@@ -241,6 +242,7 @@ func TestAssignMetadata(t *testing.T) {
 				"src":   "*",
 				"params": map[string]interface{}{
 					"Param2": true,
+					"icon":   "resource",
 				},
 			},
 		}, func(err error) {
@@ -249,8 +251,21 @@ func TestAssignMetadata(t *testing.T) {
 			assert.Equal("My Resource", foo3.Title())
 			_, p1 := logo2.Params()["param1"]
 			_, p2 := foo2.Params()["param2"]
+			_, p1_2 := foo2.Params()["param1"]
+			_, p2_2 := logo2.Params()["param2"]
+
+			icon1, _ := logo2.Params()["icon"]
+			icon2, _ := foo2.Params()["icon"]
+
 			assert.True(p1)
 			assert.True(p2)
+
+			// Check merge
+			assert.True(p2_2)
+			assert.False(p1_2)
+
+			assert.Equal("logo", icon1)
+			assert.Equal("resource", icon2)
 
 		}},
 		{[]map[string]interface{}{
