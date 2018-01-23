@@ -45,6 +45,12 @@ func (s *Site) renderPages(filter map[string]bool) error {
 		go pageRenderer(s, pages, results, wg)
 	}
 
+	if len(s.headlessPages) > 0 {
+		wg.Add(1)
+		go headlessPagesPublisher(s, wg)
+
+	}
+
 	hasFilter := filter != nil && len(filter) > 0
 
 	for _, page := range s.Pages {
@@ -65,6 +71,22 @@ func (s *Site) renderPages(filter map[string]bool) error {
 		return fmt.Errorf("Error(s) rendering pages: %s", err)
 	}
 	return nil
+}
+
+func headlessPagesPublisher(s *Site, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for _, page := range s.headlessPages {
+		outFormat := page.outputFormats[0] // There is only one
+		pageOutput, err := newPageOutput(page, false, outFormat)
+		if err == nil {
+			page.mainPageOutput = pageOutput
+			err = pageOutput.renderResources()
+		}
+
+		if err != nil {
+			s.Log.ERROR.Printf("Failed to render resources for headless page %q: %s", page, err)
+		}
+	}
 }
 
 func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.WaitGroup) {

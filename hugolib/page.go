@@ -237,6 +237,13 @@ type Page struct {
 	// Is set to a forward slashed path if this is a Page resources living in a folder below its owner.
 	resourcePath string
 
+	// This is enabled if it is a leaf bundle (the "index.md" type) and it is marked as headless in front matter.
+	// Being headless means that
+	// 1. The page itself is not rendered to disk
+	// 2. It is not available in .Site.Pages etc.
+	// 3. But you can get it via .Site.GetPage
+	headless bool
+
 	layoutDescriptor output.LayoutDescriptor
 
 	scratch *Scratch
@@ -986,11 +993,17 @@ func (p *Page) URL() string {
 
 // Permalink returns the absolute URL to this Page.
 func (p *Page) Permalink() string {
+	if p.headless {
+		return ""
+	}
 	return p.permalink
 }
 
 // RelPermalink gets a URL to the resource relative to the host.
 func (p *Page) RelPermalink() string {
+	if p.headless {
+		return ""
+	}
 	return p.relPermalink
 }
 
@@ -1150,6 +1163,13 @@ func (p *Page) update(f interface{}) error {
 				p.s.Log.ERROR.Printf("Failed to parse date '%v' in page %s", v, p.File.Path())
 			}
 			p.params[loki] = p.Date
+		case "headless":
+			// For now, only the leaf bundles ("index.md") can be headless (i.e. produce no output).
+			// We may expand on this in the future, but that gets more complex pretty fast.
+			if p.TranslationBaseName() == "index" {
+				p.headless = cast.ToBool(v)
+			}
+			p.params[loki] = p.headless
 		case "lastmod":
 			p.Lastmod, err = cast.ToTimeE(v)
 			if err != nil {
