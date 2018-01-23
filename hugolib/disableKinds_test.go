@@ -190,12 +190,12 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 }
 
 func assertDisabledKind(th testHelper, kindAssert func(bool) bool, disabled []string, kind, path, matcher string) {
-	isDisabled := stringSliceContains(kind, disabled...)
+	isDisabled := helpers.StringContainedInValues(kind, disabled...)
 	require.True(th.T, kindAssert(isDisabled), fmt.Sprintf("%s: %t", kind, isDisabled))
 
 	if kind == kindRSS && !isDisabled {
 		// If the home page is also disabled, there is not RSS to look for.
-		if stringSliceContains(KindHome, disabled...) {
+		if helpers.StringContainedInValues(KindHome, disabled...) {
 			isDisabled = true
 		}
 	}
@@ -209,13 +209,4 @@ func assertDisabledKind(th testHelper, kindAssert func(bool) bool, disabled []st
 	} else {
 		th.assertFileContent(path, matcher)
 	}
-}
-
-func stringSliceContains(k string, values ...string) bool {
-	for _, v := range values {
-		if k == v {
-			return true
-		}
-	}
-	return false
 }

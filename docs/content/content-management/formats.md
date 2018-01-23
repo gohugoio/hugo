@@ -201,12 +201,26 @@ For example, for Asciidoc files, Hugo will try to call the `asciidoctor` or `asc
 
 To use these formats, just use the standard extension and the front matter exactly as you would do with natively supported `.md` files.
 
-Hugo passes reasonable default arguments to these external helpers by default:
+By default, Hugo searches external renderers on the `PATH` and passes reasonable default arguments to these external helpers by default:
 
 - `asciidoc`: `--no-header-footer --safe -`
 - `asciidoctor`: `--no-header-footer --safe --trace -`
 - `rst2html`: `--leave-comments --initial-header-level=2`
 - `pandoc`: `--mathjax`
+
+It is possible to adjust this default configuration. Path and arguments for the external helpers may be configured under `asciidoc`, `pandoc`, and `rst` as follows:
+
+{{< code file="config.yml">}}
+asciidoc:
+  path: /path/to/asciidoc(tor)
+  args:
+    - -r
+    - asciidoctor-diagram
+{{< /code >}}
+
+{{% note "Default Arguments" %}}
+Note, that the above-listed default arguments for each renderer type are always added if not configured.
+{{% /note %}}
 
 {{% warning "Performance of External Helpers" %}}
 Because additional formats are external commands generation performance will rely heavily on the performance of the external tool you are using. As this feature is still in its infancy, feedback is welcome.

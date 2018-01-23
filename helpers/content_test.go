@@ -25,6 +25,7 @@ import (
 	"github.com/russross/blackfriday"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"reflect"
 )
 
 const tstHTMLContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p></body></html>"
@@ -488,5 +489,59 @@ func BenchmarkTotalWordsOld(b *testing.B) {
 		if wordCount != 400 {
 			b.Fatal("Wordcount error")
 		}
+	}
+}
+
+func TestAsciidocWithoutConfig(t *testing.T) {
+	rendererCfg, err := getExternalRendererConfig("asciidoc", viper.New())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	actualPath := rendererCfg.path
+	if !strings.Contains(actualPath, "asciidoc") {
+		t.Errorf("Actual path (%s) did not contain 'asciidoc'", actualPath)
+	}
+}
+
+func TestGetAsciidocConfig(t *testing.T) {
+	testExternalRendererConfig(t, "asciidoc: {path: /path/to/asciidoc}", "asciidoc",
+		"/path/to/asciidoc", []string{"--no-header-footer", "--safe", "-"})
+}
+
+func TestGetAsciidoctorConfig(t *testing.T) {
+	testExternalRendererConfig(t, "asciidoc: {path: /path/to/asciidoctor, args: [-r, asciidoctor-diagram]}", "asciidoc",
+		"/path/to/asciidoctor", []string{"-r", "asciidoctor-diagram", "--no-header-footer", "--safe", "--trace", "-"})
+}
+
+func TestGetPandocConfig(t *testing.T) {
+	testExternalRendererConfig(t, "pandoc: {path: /path/to/pandoc, args: [--foo]}", "pandoc",
+		"/path/to/pandoc", []string{"--foo", "--mathjax"})
+}
+
+func TestGetRstConfig(t *testing.T) {
+	testExternalRendererConfig(t, "rst: {path: /path/to/rst2html}", "rst",
+		"/path/to/rst2html", []string{GetPythonExecPath(), "--leave-comments", "--initial-header-level=2"})
+}
+
+func testExternalRendererConfig(t *testing.T, yaml string, renderer string, expectedPath string, expectedArgs []string) {
+	v := viper.New()
+	v.SetConfigType("yaml")
+	var yamlBytes = []byte(yaml)
+	v.ReadConfig(bytes.NewBuffer(yamlBytes))
+
+	rendererCfg, err := getExternalRendererConfig(renderer, v)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	actualPath := rendererCfg.path
+	if actualPath != expectedPath {
+		t.Errorf("Actual path (%s) did not equal expected path (%s)", actualPath, expectedPath)
+	}
+
+	actualArgs := rendererCfg.args
+	if !reflect.DeepEqual(actualArgs, expectedArgs) {
+		t.Errorf("Actual args (%s) did not equal expected args (%s)", actualArgs, expectedArgs)
 	}
 }
