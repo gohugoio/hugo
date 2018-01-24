@@ -27,6 +27,8 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/source"
 	"github.com/spf13/cast"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -37,8 +39,8 @@ var emptyPage = ""
 const (
 	homePage                             = "---\ntitle: Home\n---\nHome Page Content\n"
 	simplePage                           = "---\ntitle: Simple\n---\nSimple Page\n"
-	invalidFrontMatterMissing            = "This is a test"
 	renderNoFrontmatter                  = "<!doctype><html><head></head><body>This is a test</body></html>"
+	contentNoFrontmatter                 = "Page without front matter.\n"
 	contentWithCommentedFrontmatter      = "<!--\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n-->\n\n# Network configuration\n\n##\nSummary"
 	contentWithCommentedTextFrontmatter  = "<!--[metaData]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
 	contentWithCommentedLongFrontmatter  = "<!--[metaData123456789012345678901234567890]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
@@ -903,6 +905,161 @@ func TestPageWithDate(t *testing.T) {
 	checkPageDate(t, p, d)
 }
 
+const (
+	s = "fs mod timestamp" // signifies filesystem's modification timestamp
+	P = "1969-01-10T09:17:42Z"
+	D = "2013-10-15T06:16:13Z"
+	L = "2017-09-03T22:22:22Z"
+	M = "2018-01-24T12:21:39Z"
+	E = "2025-12-31T23:59:59Z"
+	o = "0001-01-01T00:00:00Z"
+	x = ""
+
+	p_D____ = `---
+title: Simple
+date: '2013-10-15T06:16:13'
+---
+Page With Date only`
+
+	p__P___ = `---
+title: Simple
+publishdate: '1969-01-10T09:17:42'
+---
+Page With PublishDate only`
+
+	p_DP___ = `---
+title: Simple
+date: '2013-10-15T06:16:13'
+publishdate: '1969-01-10T09:17:42'
+---
+Page With Date and PublishDate`
+
+	p__PL__ = `---
+title: Simple
+publishdate: '1969-01-10T09:17:42'
+lastmod: '2017-09-03T22:22:22'
+---
+Page With Date and PublishDate`
+
+	p_DPL__ = `---
+title: Simple
+date: '2013-10-15T06:16:13'
+publishdate: '1969-01-10T09:17:42'
+lastmod: '2017-09-03T22:22:22'
+---
+Page With Date, PublishDate and LastMod`
+
+	p_DPL_E = `---
+title: Simple
+date: '2013-10-15T06:16:13'
+publishdate: '1969-01-10T09:17:42'
+lastmod: '2017-09-03T22:22:22'
+expirydate: '2025-12-31T23:59:59'
+---
+Page With Date, PublishDate and LastMod`
+
+	p_DP_ME = `---
+title: Simple
+date: '2013-10-15T06:16:13'
+publishdate: '1969-01-10T09:17:42'
+modified: '2018-01-24T12:21:39'
+expirydate: '2025-12-31T23:59:59'
+---
+Page With Date, PublishDate and LastMod`
+
+	p_DPLME = `---
+title: Simple
+date: '2013-10-15T06:16:13'
+publishdate: '1969-01-10T09:17:42'
+lastmod: '2017-09-03T22:22:22'
+modified: '2018-01-24T12:21:39'
+expirydate: '2025-12-31T23:59:59'
+---
+Page With Date, PublishDate and LastMod`
+
+	emptyFM = `---
+
+---
+Page With empty front matter`
+)
+
+func TestMetadataDates(t *testing.T) {
+	t.Parallel()
+	var tests = []struct {
+		text     string
+		filename string
+		fallback bool
+		expDate  string
+		expPub   string
+		expLast  string
+		expMod   string
+		expExp   string
+	}{ //                           D  P  L  M  E
+		{p_D____, "test.md", false, D, D, D, x, x}, // date copied across
+		{p_D____, "testy.md", true, D, D, D, x, x},
+		{p__P___, "test.md", false, P, P, P, x, x}, // pubdate copied across
+		{p__P___, "testy.md", true, P, P, P, x, x},
+		{p_DP___, "test.md", false, D, P, D, x, x}, // date -> lastMod
+		{p_DP___, "testy.md", true, D, P, D, x, x},
+		{p__PL__, "test.md", false, P, P, L, x, x}, // pub -> date overrides lastMod -> date code (inconsistent?)
+		{p__PL__, "testy.md", true, P, P, L, x, x},
+		{p_DPL__, "test.md", false, D, P, L, x, x}, // three dates
+		{p_DPL__, "testy.md", true, D, P, L, x, x},
+		{p_DPL_E, "testy.md", true, D, P, L, x, E}, // lastMod NOT copied to mod (inconsistent?)
+		{p_DP_ME, "testy.md", true, D, P, M, M, E}, // mod copied to lastMod
+		{p_DPLME, "testy.md", true, D, P, L, M, E}, // all dates
+
+		{emptyFM, "test.md", false, o, o, o, x, x}, // 3 year-one dates, 2 empty dates
+		{emptyFM, "testy.md", true, s, o, s, x, x}, // 2 filesys, 1 year-one, 2 empty
+	}
+
+	for i, test := range tests {
+		s := newTestSite(t)
+		s.Cfg.Set("useModTimeAsFallback", test.fallback)
+		fs := hugofs.NewMem(s.Cfg)
+
+		writeToFs(t, fs.Source, test.filename, test.text)
+		file, err := fs.Source.Open(test.filename)
+		if err != nil {
+			t.Fatal("failed to write test file to test filesystem")
+		}
+		fi, _ := fs.Source.Stat(test.filename)
+
+		sp := source.NewSourceSpec(s.Cfg, fs)
+		p := s.newPageFromFile(newFileInfo(sp, "", test.filename, fi, bundleNot))
+		p.ReadFrom(file)
+
+		modified := cast.ToTime(p.params["modified"])
+
+		checkDate(t, i+1, "Date", p.Date, test.expDate, fi)
+		checkDate(t, i+1, "PubDate", p.PublishDate, test.expPub, fi)
+		checkDate(t, i+1, "LastMod", p.Lastmod, test.expLast, fi)
+		checkDate(t, i+1, "LastMod", modified, test.expMod, fi)
+		checkDate(t, i+1, "LastMod", p.ExpiryDate, test.expExp, fi)
+	}
+}
+
+func checkDate(t *testing.T, testId int, dateType string, given time.Time, expected string, fi os.FileInfo) {
+	var expectedTime time.Time
+	if expected == s {
+		expectedTime = fi.ModTime()
+	} else if expected != x {
+		expectedTime = parseTime(expected, t)
+	}
+
+	if given != expectedTime {
+		t.Errorf("test %d, %s is: %s. Expected: %s", testId, dateType, given, expectedTime)
+	}
+}
+
+func parseTime(s string, t *testing.T) time.Time {
+	time, err := time.Parse(time.RFC3339, s)
+	if err != nil {
+		t.Fatalf("bad test data: failed to parse date: '%s'", s)
+	}
+	return time
+}
+
 func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
@@ -1086,7 +1243,7 @@ func TestShouldRenderContent(t *testing.T) {
 		text   string
 		render bool
 	}{
-		{invalidFrontMatterMissing, true},
+		{contentNoFrontmatter, true},
 		// TODO how to deal with malformed frontmatter.  In this case it'll be rendered as markdown.
 		{invalidFrontmatterShortDelim, true},
 		{renderNoFrontmatter, false},

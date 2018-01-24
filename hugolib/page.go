@@ -1343,11 +1343,8 @@ func (p *Page) update(f interface{}) error {
 	}
 
 	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
-		fi, err := p.s.Fs.Source.Stat(filepath.Join(p.s.PathSpec.AbsPathify(p.s.Cfg.GetString("contentDir")), p.File.Path()))
-		if err == nil {
-			p.Date = fi.ModTime()
-			p.params["date"] = p.Date
-		}
+		p.Date = p.Source.FileInfo().ModTime()
+		p.params["date"] = p.Date
 	}
 
 	if p.Lastmod.IsZero() {
