@@ -192,6 +192,32 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				bundleWithSubPath := s.getPage(KindPage, "lb/index")
 				assert.NotNil(bundleWithSubPath)
 
+				// See https://github.com/gohugoio/hugo/issues/4312
+				// Before that issue:
+				// A bundle in a/b/index.en.md
+				// a/b/index.en.md => OK
+				// a/b/index => OK
+				// index.en.md => ambigous, but OK.
+				// With bundles, the file name has little meaning, the folder it lives in does. So this should also work:
+				// a/b
+				// and probably also just b (aka "my-bundle")
+				// These may also be translated, so we also need to test that.
+				//  "bf", "my-bf-bundle", "index.md + nn
+				bfBundle := s.getPage(KindPage, "bf/my-bf-bundle/index")
+				assert.NotNil(bfBundle)
+				assert.Equal("en", bfBundle.Lang())
+				assert.Equal(bfBundle, s.getPage(KindPage, "bf/my-bf-bundle/index.md"))
+				assert.Equal(bfBundle, s.getPage(KindPage, "bf/my-bf-bundle"))
+				assert.Equal(bfBundle, s.getPage(KindPage, "my-bf-bundle"))
+
+				nnSite := sites.Sites[1]
+				bfBundleNN := nnSite.getPage(KindPage, "bf/my-bf-bundle/index")
+				assert.NotNil(bfBundleNN)
+				assert.Equal("nn", bfBundleNN.Lang())
+				assert.Equal(bfBundleNN, nnSite.getPage(KindPage, "bf/my-bf-bundle/index.nn.md"))
+				assert.Equal(bfBundleNN, nnSite.getPage(KindPage, "bf/my-bf-bundle"))
+				assert.Equal(bfBundleNN, nnSite.getPage(KindPage, "my-bf-bundle"))
+
 				// See https://github.com/gohugoio/hugo/issues/4295
 				// Every resource should have its Name prefixed with its base folder.
 				cBundleResources := bundleWithSubPath.Resources.ByPrefix("c/")
@@ -517,6 +543,11 @@ TheContent.
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "c", "logo.nn.png"), "content")
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "c", "one.png"), "content")
 	writeSource(t, fs, filepath.Join(workDir, "base", "lb", "c", "d", "deep.png"), "content")
+
+	//Translated bundle in some sensible sub path.
+	writeSource(t, fs, filepath.Join(workDir, "base", "bf", "my-bf-bundle", "index.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "bf", "my-bf-bundle", "index.nn.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "bf", "my-bf-bundle", "page.md"), pageContent)
 
 	return cfg, fs
 }
