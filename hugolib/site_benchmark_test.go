@@ -275,8 +275,8 @@ weight = %d
 		// Maybe consider reusing the Source fs
 		mf := afero.NewMemMapFs()
 		th, h := newTestSitesFromConfig(b, mf, siteConfig,
-			"layouts/_default/single.html", `Single HTML|{{ .Title }}|{{ .Content }}|{{ partial "myPartial" . }} `,
-			"layouts/_default/list.html", `List HTML|{{ .Title }}|{{ .Content }}`,
+			"layouts/_default/single.html", `Single HTML|{{ .Title }}|{{ .Content }}|{{ partial "myPartial" . }}`,
+			"layouts/_default/list.html", `List HTML|{{ .Title }}|{{ .Content }}|GetPage: {{ with .Site.GetPage "page" "sect3/page3.md" }}{{ .Title }}{{ end }}`,
 			"layouts/partials/myPartial.html", `Partial: {{ "Hello **world**!" | markdownify }}`,
 			"layouts/shortcodes/myShortcode.html", `<p>MyShortcode</p>`)
 
