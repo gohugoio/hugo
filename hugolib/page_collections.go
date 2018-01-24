@@ -16,8 +16,10 @@ package hugolib
 import (
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/gohugoio/hugo/cache"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 // PageCollections contains the page collections for a site.
@@ -72,12 +74,22 @@ func (c *PageCollections) refreshPageCaches() {
 				for _, pageCollection := range []Pages{c.AllRegularPages, c.headlessPages} {
 					for _, p := range pageCollection {
 						cache[filepath.ToSlash(p.Source.Path())] = p
-						// Ref/Relref supports this potentially ambiguous lookup.
-						cache[p.Source.LogicalName()] = p
 
 						if s != nil && p.s == s {
+							// Ref/Relref supports this potentially ambiguous lookup.
+							cache[p.Source.LogicalName()] = p
+
+							translasionBaseName := p.Source.TranslationBaseName()
+							dir := filepath.ToSlash(strings.TrimSuffix(p.Dir(), helpers.FilePathSeparator))
+
+							if translasionBaseName == "index" {
+								_, name := path.Split(dir)
+								cache[name] = p
+								cache[dir] = p
+							}
+
 							// We need a way to get to the current language version.
-							pathWithNoExtensions := path.Join(filepath.ToSlash(p.Source.Dir()), p.Source.TranslationBaseName())
+							pathWithNoExtensions := path.Join(dir, translasionBaseName)
 							cache[pathWithNoExtensions] = p
 						}
 					}
