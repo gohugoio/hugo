@@ -80,6 +80,9 @@ func TestPageBundlerSite(t *testing.T) {
 				singlePage := s.getPage(KindPage, "a/1.md")
 
 				assert.NotNil(singlePage)
+				assert.Equal(singlePage, s.getPage("page", "a/1"))
+				assert.Equal(singlePage, s.getPage("page", "1"))
+
 				assert.Contains(singlePage.Content, "TheContent")
 
 				if ugly {

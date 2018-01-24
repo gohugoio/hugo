@@ -86,6 +86,9 @@ func (c *PageCollections) refreshPageCaches() {
 								_, name := path.Split(dir)
 								cache[name] = p
 								cache[dir] = p
+							} else {
+								// Again, ambigous
+								cache[translasionBaseName] = p
 							}
 
 							// We need a way to get to the current language version.
