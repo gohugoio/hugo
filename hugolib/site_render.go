@@ -19,11 +19,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/helpers"
-
 	"github.com/gohugoio/hugo/output"
-
-	bp "github.com/gohugoio/hugo/bufferpool"
 )
 
 // renderPages renders pages each corresponding to a markdown file.
@@ -368,26 +364,27 @@ func (s *Site) renderRobotsTXT() error {
 		return nil
 	}
 
-	n := s.newNodePage(kindRobotsTXT)
-	if err := n.initTargetPathDescriptor(); err != nil {
+	p := s.newNodePage(kindRobotsTXT)
+	if err := p.initTargetPathDescriptor(); err != nil {
 		return err
 	}
-	n.Data["Pages"] = s.Pages
-	n.Pages = s.Pages
+	p.Data["Pages"] = s.Pages
+	p.Pages = s.Pages
 
 	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
-	outBuffer := bp.GetBuffer()
-	defer bp.PutBuffer(outBuffer)
-	if err := s.renderForLayouts("robots", n, outBuffer, s.appendThemeTemplates(rLayouts)...); err != nil {
-		helpers.DistinctWarnLog.Println(err)
-		return nil
+
+	pageOutput, err := newPageOutput(p, false, output.RobotsTxtFormat)
+	if err != nil {
+		return err
 	}
 
-	if outBuffer.Len() == 0 {
-		return nil
+	targetPath, err := pageOutput.targetPath()
+	if err != nil {
+		s.Log.ERROR.Printf("Failed to create target path for page %q: %s", p, err)
 	}
 
-	return s.publish(&s.PathSpec.ProcessingStats.Pages, "robots.txt", outBuffer)
+	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "Robots Txt", targetPath, pageOutput, s.appendThemeTemplates(rLayouts)...)
+
 }
 
 // renderAliases renders shell pages that simply have a redirect in the header.

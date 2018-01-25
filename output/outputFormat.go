@@ -125,6 +125,14 @@ var (
 		Rel:         "alternate",
 	}
 
+	RobotsTxtFormat = Format{
+		Name:        "ROBOTS",
+		MediaType:   media.TextType,
+		BaseName:    "robots",
+		IsPlainText: true,
+		Rel:         "alternate",
+	}
+
 	RSSFormat = Format{
 		Name:      "RSS",
 		MediaType: media.RSSType,
