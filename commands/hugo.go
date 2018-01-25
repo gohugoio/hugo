@@ -242,9 +242,6 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
-	cmd.Flags().Bool("disable404", false, "do not render 404 page")
-	cmd.Flags().Bool("disableRSS", false, "do not build RSS files")
-	cmd.Flags().Bool("disableSitemap", false, "do not build Sitemap file")
 	cmd.Flags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	cmd.Flags().StringVarP(&contentDir, "contentDir", "c", "", "filesystem path to content directory")
 	cmd.Flags().StringVarP(&layoutDir, "layoutDir", "l", "", "filesystem path to layout directory")
@@ -491,9 +488,6 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 		"buildExpired",
 		"uglyURLs",
 		"canonifyURLs",
-		"disable404",
-		"disableRSS",
-		"disableSitemap",
 		"enableRobotsTXT",
 		"enableGitInfo",
 		"pluralizeListTitles",
@@ -504,19 +498,6 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 		"noChmod",
 		"templateMetrics",
 		"templateMetricsHints",
-	}
-
-	// Remove these in Hugo 0.33.
-	if cmd.Flags().Changed("disable404") {
-		helpers.Deprecated("command line", "--disable404", "Use --disableKinds=404", true)
-	}
-
-	if cmd.Flags().Changed("disableRSS") {
-		helpers.Deprecated("command line", "--disableRSS", "Use --disableKinds=RSS", true)
-	}
-
-	if cmd.Flags().Changed("disableSitemap") {
-		helpers.Deprecated("command line", "--disableSitemap", "Use --disableKinds=sitemap", true)
 	}
 
 	for _, key := range persFlagKeys {

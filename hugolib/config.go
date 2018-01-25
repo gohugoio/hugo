@@ -64,23 +64,6 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 
 	v.RegisterAlias("indexes", "taxonomies")
 
-	// Remove these in Hugo 0.33.
-	if v.IsSet("disable404") {
-		helpers.Deprecated("site config", "disable404", "Use disableKinds=[\"404\"]", true)
-	}
-
-	if v.IsSet("disableRSS") {
-		helpers.Deprecated("site config", "disableRSS", "Use disableKinds=[\"RSS\"]", true)
-	}
-
-	if v.IsSet("disableSitemap") {
-		helpers.Deprecated("site config", "disableSitemap", "Use disableKinds= [\"sitemap\"]", true)
-	}
-
-	if v.IsSet("disableRobotsTXT") {
-		helpers.Deprecated("site config", "disableRobotsTXT", "Use disableKinds= [\"robotsTXT\"]", true)
-	}
-
 	if err := loadDefaultSettingsFor(v); err != nil {
 		return v, err
 	}
@@ -183,10 +166,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("cleanDestinationDir", false)
 	v.SetDefault("watch", false)
 	v.SetDefault("metaDataFormat", "toml")
-	v.SetDefault("disable404", false)
-	v.SetDefault("disableRSS", false)
-	v.SetDefault("disableSitemap", false)
-	v.SetDefault("disableRobotsTXT", false)
 	v.SetDefault("contentDir", "content")
 	v.SetDefault("layoutDir", "layouts")
 	v.SetDefault("staticDir", "static")

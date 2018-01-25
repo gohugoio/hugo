@@ -1483,7 +1483,6 @@ func TestIndexPageSimpleMethods(t *testing.T) {
 		{func(n *Page) bool { return !n.IsPage() }},
 		{func(n *Page) bool { return n.Scratch() != nil }},
 		{func(n *Page) bool { return n.Hugo() != nil }},
-		{func(n *Page) bool { return n.Now().Unix() == time.Now().Unix() }},
 	} {
 
 		n := s.newHomePage()

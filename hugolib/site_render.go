@@ -250,10 +250,6 @@ func (s *Site) renderRSS(p *PageOutput) error {
 		return nil
 	}
 
-	if s.Cfg.GetBool("disableRSS") {
-		return nil
-	}
-
 	p.Kind = kindRSS
 
 	limit := s.Cfg.GetInt("rssLimit")
@@ -280,10 +276,6 @@ func (s *Site) renderRSS(p *PageOutput) error {
 
 func (s *Site) render404() error {
 	if !s.isEnabled(kind404) {
-		return nil
-	}
-
-	if s.Cfg.GetBool("disable404") {
 		return nil
 	}
 
@@ -318,10 +310,6 @@ func (s *Site) render404() error {
 
 func (s *Site) renderSitemap() error {
 	if !s.isEnabled(kindSitemap) {
-		return nil
-	}
-
-	if s.Cfg.GetBool("disableSitemap") {
 		return nil
 	}
 

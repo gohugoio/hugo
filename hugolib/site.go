@@ -371,11 +371,6 @@ type SiteInfo struct {
 	sectionPagesMenu               string
 }
 
-func (s *SiteInfo) Files() []source.File {
-	helpers.Deprecated(".Site", "Files", "", true)
-	return nil
-}
-
 func (s *SiteInfo) String() string {
 	return fmt.Sprintf("Site(%q)", s.Title)
 }

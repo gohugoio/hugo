@@ -881,12 +881,6 @@ func (p *Page) analyzePage() {
 	})
 }
 
-func (p *Page) Extension() string {
-	// Remove in Hugo 0.22.
-	helpers.Deprecated("Page", "Extension", "See OutputFormats with its MediaType", true)
-	return p.extension
-}
-
 // HasShortcode return whether the page has a shortcode with the given name.
 // This method is mainly motivated with the Hugo Docs site's need for a list
 // of pages with the `todo` shortcode in it.
@@ -1847,12 +1841,6 @@ func (p *Page) copy() *Page {
 	c := *p
 	c.pageInit = &pageInit{}
 	return &c
-}
-
-func (p *Page) Now() time.Time {
-	// Delete in Hugo 0.22
-	helpers.Deprecated("Page", "Now", "Use now (the template func)", true)
-	return time.Now()
 }
 
 func (p *Page) Hugo() *HugoInfo {

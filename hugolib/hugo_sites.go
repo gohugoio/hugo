@@ -331,10 +331,6 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 		return nil
 	}
 
-	if h.Cfg.GetBool("disableSitemap") {
-		return nil
-	}
-
 	sitemapEnabled := false
 	for _, s := range h.Sites {
 		if s.isEnabled(kindSitemap) {

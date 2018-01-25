@@ -302,9 +302,3 @@ func (p *Page) createRelativeTargetPathForOutputFormat(f output.Format) string {
 
 	return tp
 }
-
-func (p *Page) TargetPath() (outfile string) {
-	// Delete in Hugo 0.22
-	helpers.Deprecated("Page", "TargetPath", "This method does not make sanse any more.", true)
-	return ""
-}
