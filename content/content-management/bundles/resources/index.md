@@ -14,10 +14,10 @@ linktitle : "Resources"
 ## Properties
 
 ResourceType
-: The main type of the resource. For exemple a file of MIME type `image/jpg` has for type `image`.
+: The main type of the resource. For exemple a file of MIME type `image/jpg` has for ResourceType `image`.
 
 Name
-: The filename. (relative path to the bundle) It can be overwritten with the resource's Front Matter metadata.
+: The filename (relative path to the bundle). It can be overwritten with the resource's Front Matter metadata.
 
 Title
 : Same as filename. It can be overwritten with the resource's Front Matter metadata.
@@ -28,7 +28,7 @@ Permalink
 RelPermalink
 : The relative URL of the resource.
 
-## Methods / Functions
+## Methods
 ByType
 : Retrieve the page resources of the passed type.
 
@@ -74,34 +74,35 @@ resources:
    params: 
      credits: Hugo Doe
      license:CC BY
- - src: "*/tokyo-sunset.jpg"
+ - src: "*/japan-sunset.jpg"
    params: 
-     credits: Jiro Ashima
+     credits: 森山大道
 ~~~ 
 
-In the exemple above, we use glob to target several files and groups of file.
+In the example above:
 
-- `sunset.jpg` will receive a distinct Title
-- `sunrise.jpg` will receive a distinct Title and Name and won't be retrieved by `.Match "*/sunrise.jpg"` anymore but something like `.Match "sunrise-*"`.
+- `sunset.jpg` will receive a distinct `Title`
+- `sunrise.jpg` will receive a distinct `Title` and `Name` and won't be retrieved by `.Match "*/sunrise.jpg"` anymore but something like `.Match "sunrise-*"`.
 - Every jpg in the bundle will receive the same `credits` and `license` parameter.
-- `tokyo-sunset.jpg` will receive a distinct `credits`
+- `japan-sunset.jpg` will receive a distinct `credits`
 
-The __order matters__, each rule overwriting the params assigned by the previous one on their shared target. The rule for `*/tokyo-sunset.jpg` has to be declared after the more generic `*/*.jpg`.
+The __order matters__, each rule overwriting the params assigned by the previous one on their shared target. The specific rule for `*/japan-sunset.jpg` has to be declared after the more generic `*/*.jpg`.
 
 ## Available metadata
 
 name
 : Will overwrite Name
 
-{{< warning >}}
+{{% warning %}}
 The methods Match and GetMatch use Name to match the resource. Overwrite wisely.
-{{</ warning >}}
+{{%/ warning %}}
 
 title
 : Will overwrite Title
 
 params
-: An array of custom params to be retrieve much like page params <br> `{{ .Params.credits }}`
+: An array of custom params to be retrieve much like page params
+`{{ .Params.credits }}`
 
 
 
