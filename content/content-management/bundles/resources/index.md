@@ -61,32 +61,72 @@ GetMatch
 
 Resources metadata management is possible from the Front Matter's array `resources`. Batch assign is made possible using glob pattern matching.
 
+
+
 ~~~yaml
-title: "Sunflare 101"
-date: 2018-01-09T13:03:53-05:00
-resources:
- - src: "*/sunset.jpg"
-   title: "Beautiful Sunset"
- - src: "*/sunrise.jpg"
-   title: "Beautiful Sunrise"
-   name: "sunrise-1"
- - src: "*/*.jpg"
-   params: 
-     credits: Hugo Doe
-     license:CC BY
- - src: "*/japan-sunset.jpg"
-   params: 
-     credits: 森山大道
+title: Application
+date : 2018-01-25
+resources :
+- src : "images/header.*"
+  name : "header"
+- src : "documents/photo_specs.pdf"
+  title : "Photo Specifications"
+  params:
+    icon : "image"
+- src : "documents/*.pdf"
+  params :
+    icon : "pdf"
+- src : "documents/*.docx"
+  params :
+    icon : "word"
+- src : "documents/guide.pdf"
+  title : "Instruction Guide"
+- src : "documents/checklist.pdf"
+  title : "Document Checklist"
+- src : "documents/payment.docx"
+  title : "Proof of Payment"
 ~~~ 
 
+~~~toml
+title = Application
+date : 2018-01-25
+[[resources]]
+  src = "images/header.*"
+  name = "header"
+[[resources]]
+  src = "documents/photo_specs.pdf"
+  title = "Photo Specifications"
+[resources.params]
+  icon = "photo"
+[[resources]]
+  src = "documents/*.pdf"
+  [resources.params]
+    icon = "pdf"
+[[resources]]
+  src = "documents/*.docx"
+  [resources.params]
+    icon = "word"
+[[resources]]
+  src = "documents/guide.pdf"
+  title = "Instruction Guide"
+[[resources]]
+  src = "documents/checklist.pdf"
+  title = "Document Checklist"
+[[resources]]
+  src = "documents/payment.docx"
+  title = "Proof of Payment"
+ ~~~
+
 In the example above:
+In the above `TOML` example, `photo_specs.pdf` will get the `photo` icon, the other pdf files will get the default `pdf` icon.
 
-- `sunset.jpg` will receive a distinct `Title`
-- `sunrise.jpg` will receive a distinct `Title` and `Name` and won't be retrieved by `.Match "*/sunrise.jpg"` anymore but something like `.Match "sunrise-*"`.
-- Every jpg in the bundle will receive the same `credits` and `license` parameter.
-- `japan-sunset.jpg` will receive a distinct `credits`
+- `header.jpg"` will receive a new `Name` and won't be retrieved by `.Match "*/header.jpg"` anymore but something like `.Match "header"`.
+- Every pdf in the bundle will receive the same `pdf` icon
+- Except for `photo_specs.pdf` which will get the `image` icon
 
-The __order matters__, each rule overwriting the params assigned by the previous one on their shared target. The specific rule for `*/japan-sunset.jpg` has to be declared after the more generic `*/*.jpg`.
+The __order matters__, the specific rule for `*/photo_specs.jpg` has to be declared before the more generic `documents/*.pdf`.
+
+The __order matters__,.
 
 ## Available metadata
 
