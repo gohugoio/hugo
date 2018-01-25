@@ -478,12 +478,6 @@ func (h *HugoSites) createMissingPages() error {
 	return nil
 }
 
-func (h *HugoSites) removePageByPathPrefix(path string) {
-	for _, s := range h.Sites {
-		s.removePageByPathPrefix(path)
-	}
-}
-
 func (h *HugoSites) removePageByPath(path string) {
 	for _, s := range h.Sites {
 		s.removePageByPath(path)

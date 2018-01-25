@@ -510,9 +510,6 @@ func (c *capturer) newFileInfo(filename string, fi os.FileInfo, tp bundleDirType
 	return newFileInfo(c.sourceSpec, c.baseDir, filename, fi, tp)
 }
 
-type singlesHandler func(fis ...*fileInfo)
-type bundlesHandler func(b *bundleDirs)
-
 type fileInfoName struct {
 	os.FileInfo
 	filename string

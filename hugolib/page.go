@@ -1988,10 +1988,6 @@ func (p *Page) LanguagePrefix() string {
 	return p.Site.LanguagePrefix
 }
 
-func (p *Page) addLangPathPrefix(outfile string) string {
-	return p.addLangPathPrefixIfFlagSet(outfile, p.shouldAddLanguagePrefix())
-}
-
 func (p *Page) addLangPathPrefixIfFlagSet(outfile string, should bool) string {
 	if helpers.IsAbsURL(outfile) {
 		return outfile

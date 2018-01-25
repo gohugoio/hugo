@@ -398,7 +398,6 @@ type siteBuilderCfg struct {
 	language        *helpers.Language
 	s               *Site
 	pageCollections *PageCollections
-	baseURL         string
 }
 
 // TODO(bep) get rid of this
@@ -1785,63 +1784,6 @@ func (s *Site) publish(statCounter *uint64, path string, r io.Reader) (err error
 	path = filepath.Join(s.absPublishDir(), path)
 
 	return helpers.WriteToDisk(path, r, s.Fs.Destination)
-}
-
-func (s *Site) draftStats() string {
-	var msg string
-
-	switch s.draftCount {
-	case 0:
-		return "0 draft content"
-	case 1:
-		msg = "1 draft rendered"
-	default:
-		msg = fmt.Sprintf("%d drafts rendered", s.draftCount)
-	}
-
-	if s.Cfg.GetBool("buildDrafts") {
-		return fmt.Sprintf("%d of ", s.draftCount) + msg
-	}
-
-	return "0 of " + msg
-}
-
-func (s *Site) futureStats() string {
-	var msg string
-
-	switch s.futureCount {
-	case 0:
-		return "0 future content"
-	case 1:
-		msg = "1 future rendered"
-	default:
-		msg = fmt.Sprintf("%d futures rendered", s.futureCount)
-	}
-
-	if s.Cfg.GetBool("buildFuture") {
-		return fmt.Sprintf("%d of ", s.futureCount) + msg
-	}
-
-	return "0 of " + msg
-}
-
-func (s *Site) expiredStats() string {
-	var msg string
-
-	switch s.expiredCount {
-	case 0:
-		return "0 expired content"
-	case 1:
-		msg = "1 expired rendered"
-	default:
-		msg = fmt.Sprintf("%d expired rendered", s.expiredCount)
-	}
-
-	if s.Cfg.GetBool("buildExpired") {
-		return fmt.Sprintf("%d of ", s.expiredCount) + msg
-	}
-
-	return "0 of " + msg
 }
 
 func getGoMaxProcs() int {

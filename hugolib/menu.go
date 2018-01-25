@@ -46,13 +46,6 @@ type Menus map[string]*Menu
 // PageMenus is a dictionary of menus defined in the Pages.
 type PageMenus map[string]*MenuEntry
 
-// addChild adds a new child to this menu entry.
-// The default sort order will then be applied.
-func (m *MenuEntry) addChild(child *MenuEntry) {
-	m.Children = append(m.Children, child)
-	m.Children.Sort()
-}
-
 // HasChildren returns whether this menu item has any children.
 func (m *MenuEntry) HasChildren() bool {
 	return m.Children != nil

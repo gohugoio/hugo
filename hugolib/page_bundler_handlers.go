@@ -182,15 +182,11 @@ type (
 		resource resource.Resource
 	}
 
-	contentHandlerChain func(h contentHandler) contentHandler
-	contentHandler      func(ctx *handlerContext) handlerResult
+	contentHandler func(ctx *handlerContext) handlerResult
 )
 
 var (
-	notHandled        handlerResult
-	noOpContenHandler = func(ctx *handlerContext) handlerResult {
-		return handlerResult{handled: true}
-	}
+	notHandled handlerResult
 )
 
 func (c *contentHandlers) parsePage(h contentHandler) contentHandler {

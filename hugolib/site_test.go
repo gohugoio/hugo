@@ -31,11 +31,6 @@ import (
 )
 
 const (
-	pageSimpleTitle = `---
-title: simple template
----
-content`
-
 	templateMissingFunc = "{{ .Title | funcdoesnotexists }}"
 	templateWithURLAbs  = "<a href=\"/foobar.jpg\">Going</a>"
 )

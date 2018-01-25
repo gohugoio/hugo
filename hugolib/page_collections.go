@@ -170,18 +170,6 @@ func (c *PageCollections) addPage(page *Page) {
 	c.rawAllPages = append(c.rawAllPages, page)
 }
 
-// When we get a REMOVE event we're not always getting all the individual files,
-// so we need to remove all below a given path.
-func (c *PageCollections) removePageByPathPrefix(path string) {
-	for {
-		i := c.rawAllPages.findFirstPagePosByFilePathPrefix(path)
-		if i == -1 {
-			break
-		}
-		c.rawAllPages = append(c.rawAllPages[:i], c.rawAllPages[i+1:]...)
-	}
-}
-
 func (c *PageCollections) removePageByPath(path string) {
 	if i := c.rawAllPages.findPagePosByFilePath(path); i >= 0 {
 		c.clearResourceCacheForPage(c.rawAllPages[i])

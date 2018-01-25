@@ -103,7 +103,3 @@ func (b bundleDirType) String() string {
 
 	return ""
 }
-
-func (b bundleDirType) isBundle() bool {
-	return b > bundleNot
-}
