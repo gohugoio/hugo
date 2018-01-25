@@ -1,7 +1,8 @@
 ---
 title : "Page Bundles"
 description : "Organization of individual pages as bundles"
-lastmod : 2018-01-25T16:38:34-05:00
+date : 2018-01-25T16:45:00-05:00
+lastmod : 2018-01-25T16:45:54-05:00
 linktitle : "Page Bundles"
 keywords : ["page", "bundles"]
 categories : ["content management", "bundles"]
@@ -55,4 +56,6 @@ as long as it's not inside another **page** bundle.
 {{% /note %}}
 
 
-## <span class="todo TODO_">TODO </span> Headless Page Bundle {#headless-page-bundle}
+## Headless Page Bundle {#headless-page-bundle}
+
+**TODO**

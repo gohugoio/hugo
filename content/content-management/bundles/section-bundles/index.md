@@ -1,7 +1,8 @@
 ---
 title : "Section Bundles"
 description : "Organization of sections as bundles"
-lastmod : 2018-01-25T16:39:52-05:00
+date : 2018-01-25T16:44:00-05:00
+lastmod : 2018-01-25T16:45:06-05:00
 linktitle : "Section Bundles"
 keywords : ["section", "bundles"]
 categories : ["content management", "bundles"]
