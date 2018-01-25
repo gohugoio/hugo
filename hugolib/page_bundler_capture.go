@@ -149,8 +149,10 @@ func (c *capturer) capturePartial(filenames ...string) error {
 			// create the proper mapping for it.
 			c.getRealFileInfo(dir)
 
-			f := c.newFileInfo(resolvedFilename, fi, tp)
-			c.copyOrHandleSingle(f)
+			f, active := c.newFileInfo(resolvedFilename, fi, tp)
+			if active {
+				c.copyOrHandleSingle(f)
+			}
 		}
 	}
 
@@ -228,7 +230,10 @@ func (c *capturer) handleBranchDir(dirname string) error {
 
 		tp, isContent := classifyBundledFile(fi.Name())
 
-		f := c.newFileInfo(fi.filename, fi.FileInfo, tp)
+		f, active := c.newFileInfo(fi.filename, fi.FileInfo, tp)
+		if !active {
+			continue
+		}
 		if f.isOwner() {
 			dirs.addBundleHeader(f)
 		} else if !isContent {
@@ -309,7 +314,7 @@ func (c *capturer) handleDir(dirname string) error {
 		return c.handleNonBundle(dirname, files, state == dirStateSinglesOnly)
 	}
 
-	var fileInfos = make([]*fileInfo, len(files))
+	var fileInfos = make([]*fileInfo, 0, len(files))
 
 	for i, fi := range files {
 		currentType := bundleNot
@@ -324,8 +329,12 @@ func (c *capturer) handleDir(dirname string) error {
 		if bundleType == bundleNot && currentType != bundleNot {
 			bundleType = currentType
 		}
+		f, active := c.newFileInfo(fi.filename, fi.FileInfo, currentType)
+		if !active {
+			continue
+		}
 
-		fileInfos[i] = c.newFileInfo(fi.filename, fi.FileInfo, currentType)
+		fileInfos = append(fileInfos, f)
 	}
 
 	var todo []*fileInfo
@@ -377,8 +386,11 @@ func (c *capturer) handleNonBundle(
 			}
 		} else {
 			if singlesOnly {
-				file := c.newFileInfo(fi.filename, fi, bundleNot)
-				c.handler.handleSingles(file)
+				f, active := c.newFileInfo(fi.filename, fi, bundleNot)
+				if !active {
+					continue
+				}
+				c.handler.handleSingles(f)
 			} else {
 				c.handler.handleCopyFiles(fi.filename)
 			}
@@ -462,7 +474,10 @@ func (c *capturer) collectFiles(dirname string, handleFiles func(fis ...*fileInf
 				return err
 			}
 		} else {
-			handleFiles(c.newFileInfo(fi.filename, fi.FileInfo, bundleNot))
+			f, active := c.newFileInfo(fi.filename, fi.FileInfo, bundleNot)
+			if active {
+				handleFiles(f)
+			}
 		}
 	}
 
@@ -506,8 +521,9 @@ func (c *capturer) readDir(dirname string) ([]fileInfoName, error) {
 	return fis, nil
 }
 
-func (c *capturer) newFileInfo(filename string, fi os.FileInfo, tp bundleDirType) *fileInfo {
-	return newFileInfo(c.sourceSpec, c.baseDir, filename, fi, tp)
+func (c *capturer) newFileInfo(filename string, fi os.FileInfo, tp bundleDirType) (*fileInfo, bool) {
+	f := newFileInfo(c.sourceSpec, c.baseDir, filename, fi, tp)
+	return f, !f.disabled
 }
 
 type fileInfoName struct {

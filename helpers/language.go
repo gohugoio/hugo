@@ -140,6 +140,11 @@ func (l *Language) GetStringMapString(key string) map[string]string {
 	return cast.ToStringMapString(l.Get(key))
 }
 
+//  returns the value associated with the key as a slice of strings.
+func (l *Language) GetStringSlice(key string) []string {
+	return cast.ToStringSlice(l.Get(key))
+}
+
 // Get returns a value associated with the key relying on specified language.
 // Get is case-insensitive for a key.
 //

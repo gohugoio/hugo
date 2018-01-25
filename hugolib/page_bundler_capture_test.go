@@ -174,6 +174,7 @@ func TestPageBundlerCaptureMultilingual(t *testing.T) {
 	expected := `
 F:
 /work/base/1s/mypage.md
+/work/base/1s/mypage.nn.md
 /work/base/bb/_1.md
 /work/base/bb/_1.nn.md
 /work/base/bb/en.md

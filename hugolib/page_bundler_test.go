@@ -192,6 +192,10 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 
 				s := sites.Sites[0]
 
+				assert.Equal(8, len(s.RegularPages))
+				assert.Equal(18, len(s.Pages))
+				assert.Equal(35, len(s.AllPages))
+
 				bundleWithSubPath := s.getPage(KindPage, "lb/index")
 				assert.NotNil(bundleWithSubPath)
 
@@ -214,6 +218,8 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				assert.Equal(bfBundle, s.getPage(KindPage, "my-bf-bundle"))
 
 				nnSite := sites.Sites[1]
+				assert.Equal(7, len(nnSite.RegularPages))
+
 				bfBundleNN := nnSite.getPage(KindPage, "bf/my-bf-bundle/index")
 				assert.NotNil(bfBundleNN)
 				assert.Equal("nn", bfBundleNN.Lang())
@@ -231,6 +237,48 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 
 			})
 	}
+}
+
+func TestMultilingualDisableDefaultLanguage(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+	cfg, _ := newTestBundleSourcesMultilingual(t)
+
+	cfg.Set("disableLanguages", []string{"en"})
+
+	err := loadDefaultSettingsFor(cfg)
+	assert.Error(err)
+	assert.Contains(err.Error(), "cannot disable default language")
+}
+
+func TestMultilingualDisableLanguage(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+	cfg, fs := newTestBundleSourcesMultilingual(t)
+	cfg.Set("disableLanguages", []string{"nn"})
+
+	assert.NoError(loadDefaultSettingsFor(cfg))
+	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
+	assert.NoError(err)
+	assert.Equal(1, len(sites.Sites))
+
+	assert.NoError(sites.Build(BuildCfg{}))
+
+	s := sites.Sites[0]
+
+	assert.Equal(8, len(s.RegularPages))
+	assert.Equal(18, len(s.Pages))
+	// No nn pages
+	assert.Equal(18, len(s.AllPages))
+	for _, p := range s.rawAllPages {
+		assert.True(p.Lang() != "nn")
+	}
+	for _, p := range s.AllPages {
+		assert.True(p.Lang() != "nn")
+	}
+
 }
 
 func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
@@ -509,6 +557,7 @@ TheContent.
 	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "list.html"), layout)
 
 	writeSource(t, fs, filepath.Join(workDir, "base", "1s", "mypage.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "1s", "mypage.nn.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "1s", "mylogo.png"), "content")
 
 	writeSource(t, fs, filepath.Join(workDir, "base", "bb", "_index.md"), pageContent)

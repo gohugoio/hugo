@@ -72,16 +72,46 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 }
 
 func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error {
-	multilingual := cfg.GetStringMap("languages")
+
+	defaultLang := cfg.GetString("defaultContentLanguage")
+
+	var languages map[string]interface{}
+
+	languagesFromConfig := cfg.GetStringMap("languages")
+	disableLanguages := cfg.GetStringSlice("disableLanguages")
+
+	if len(disableLanguages) == 0 {
+		languages = languagesFromConfig
+	} else {
+		languages = make(map[string]interface{})
+		for k, v := range languagesFromConfig {
+			isDisabled := false
+			for _, disabled := range disableLanguages {
+				if disabled == defaultLang {
+					return fmt.Errorf("cannot disable default language %q", defaultLang)
+				}
+
+				if strings.EqualFold(k, disabled) {
+					isDisabled = true
+					break
+				}
+			}
+			if !isDisabled {
+				languages[k] = v
+			}
+
+		}
+	}
+
 	var (
 		langs helpers.Languages
 		err   error
 	)
 
-	if len(multilingual) == 0 {
+	if len(languages) == 0 {
 		langs = append(langs, helpers.NewDefaultLanguage(cfg))
 	} else {
-		langs, err = toSortedLanguages(cfg, multilingual)
+		langs, err = toSortedLanguages(cfg, languages)
 		if err != nil {
 			return fmt.Errorf("Failed to parse multilingual config: %s", err)
 		}
@@ -113,8 +143,6 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 			}
 		}
 	}
-
-	defaultLang := cfg.GetString("defaultContentLanguage")
 
 	// The defaultContentLanguage is something the user has to decide, but it needs
 	// to match a language in the language definition list.
