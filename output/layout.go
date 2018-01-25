@@ -17,6 +17,8 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+
+	"github.com/gohugoio/hugo/helpers"
 )
 
 // These may be used as content sections with potential conflicts. Avoid that.
@@ -95,6 +97,7 @@ func (l *LayoutHandler) For(d LayoutDescriptor, f Format) ([]string, error) {
 	}
 
 	layouts = prependTextPrefixIfNeeded(f, layouts...)
+	layouts = helpers.UniqueStrings(layouts)
 
 	l.mu.Lock()
 	l.cache[key] = layouts
