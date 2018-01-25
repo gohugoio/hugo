@@ -35,12 +35,19 @@ type SourceSpec struct {
 
 	Languages              map[string]interface{}
 	DefaultContentLanguage string
+	DisabledLanguages      map[string]bool
 }
 
 // NewSourceSpec initializes SourceSpec using languages from a given configuration.
 func NewSourceSpec(cfg config.Provider, fs *hugofs.Fs) *SourceSpec {
 	defaultLang := cfg.GetString("defaultContentLanguage")
 	languages := cfg.GetStringMap("languages")
+
+	disabledLangsSet := make(map[string]bool)
+
+	for _, disabledLang := range cfg.GetStringSlice("disableLanguages") {
+		disabledLangsSet[disabledLang] = true
+	}
 
 	if len(languages) == 0 {
 		l := helpers.NewDefaultLanguage(cfg)
@@ -62,7 +69,7 @@ func NewSourceSpec(cfg config.Provider, fs *hugofs.Fs) *SourceSpec {
 		}
 	}
 
-	return &SourceSpec{ignoreFilesRe: regexps, Cfg: cfg, Fs: fs, Languages: languages, DefaultContentLanguage: defaultLang}
+	return &SourceSpec{ignoreFilesRe: regexps, Cfg: cfg, Fs: fs, Languages: languages, DefaultContentLanguage: defaultLang, DisabledLanguages: disabledLangsSet}
 }
 
 func (s *SourceSpec) IgnoreFile(filename string) bool {

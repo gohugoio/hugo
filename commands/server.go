@@ -173,20 +173,23 @@ func server(cmd *cobra.Command, args []string) error {
 			c.Set("liveReloadPort", serverPorts[0])
 		}
 
-		if c.languages.IsMultihost() {
-			for i, language := range c.languages {
-				baseURL, err := fixURL(language, baseURL, serverPorts[i])
-				if err != nil {
-					return err
-				}
-				language.Set("baseURL", baseURL)
+		isMultiHost := c.languages.IsMultihost()
+		for i, language := range c.languages {
+			var serverPort int
+			if isMultiHost {
+				serverPort = serverPorts[i]
+			} else {
+				serverPort = serverPorts[0]
 			}
-		} else {
-			baseURL, err := fixURL(c.Cfg, baseURL, serverPorts[0])
+
+			baseURL, err := fixURL(language, baseURL, serverPort)
 			if err != nil {
 				return err
 			}
-			c.Set("baseURL", baseURL)
+			language.Set("baseURL", baseURL)
+			if i == 0 {
+				c.Set("baseURL", baseURL)
+			}
 		}
 
 		return nil

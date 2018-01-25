@@ -31,6 +31,9 @@ type fileInfo struct {
 	bundleTp bundleDirType
 	source.ReadableFile
 	overriddenLang string
+
+	// Set if the content language for this file is disabled.
+	disabled bool
 }
 
 func (fi *fileInfo) Lang() string {
@@ -59,6 +62,9 @@ func newFileInfo(sp *source.SourceSpec, baseDir, filename string, fi os.FileInfo
 		bundleTp:     tp,
 		ReadableFile: baseFi,
 	}
+
+	lang := f.Lang()
+	f.disabled = lang != "" && sp.DisabledLanguages[lang]
 
 	return f
 

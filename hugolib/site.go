@@ -1207,30 +1207,28 @@ func (s *Site) checkDirectories() (err error) {
 }
 
 type contentCaptureResultHandler struct {
-	contentProcessors map[string]*siteContentProcessor
+	defaultContentProcessor *siteContentProcessor
+	contentProcessors       map[string]*siteContentProcessor
+}
+
+func (c *contentCaptureResultHandler) getContentProcessor(lang string) *siteContentProcessor {
+	proc, found := c.contentProcessors[lang]
+	if found {
+		return proc
+	}
+	return c.defaultContentProcessor
 }
 
 func (c *contentCaptureResultHandler) handleSingles(fis ...*fileInfo) {
 	for _, fi := range fis {
-		// May be connected to a language (content files)
-		proc, found := c.contentProcessors[fi.Lang()]
-		if !found {
-			panic("proc not found")
-		}
+		proc := c.getContentProcessor(fi.Lang())
 		proc.fileSinglesChan <- fi
-
 	}
 }
 func (c *contentCaptureResultHandler) handleBundles(d *bundleDirs) {
 	for _, b := range d.bundles {
-		lang := b.fi.Lang()
-
-		proc, found := c.contentProcessors[lang]
-		if !found {
-			panic("proc not found")
-		}
+		proc := c.getContentProcessor(b.fi.Lang())
 		proc.fileBundlesChan <- b
-
 	}
 }
 
@@ -1247,13 +1245,17 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 
 	sourceSpec := source.NewSourceSpec(s.owner.Cfg, s.Fs)
 	baseDir := s.absContentDir()
+	defaultContentLanguage := s.SourceSpec.DefaultContentLanguage
 
 	contentProcessors := make(map[string]*siteContentProcessor)
+	var defaultContentProcessor *siteContentProcessor
 	sites := s.owner.langSite()
 	for k, v := range sites {
 		proc := newSiteContentProcessor(baseDir, len(filenames) > 0, v)
 		contentProcessors[k] = proc
-
+		if k == defaultContentLanguage {
+			defaultContentProcessor = proc
+		}
 		g.Go(func() error {
 			return proc.process(ctx)
 		})
@@ -1264,7 +1266,7 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 		bundleMap *contentChangeMap
 	)
 
-	mainHandler := &contentCaptureResultHandler{contentProcessors: contentProcessors}
+	mainHandler := &contentCaptureResultHandler{contentProcessors: contentProcessors, defaultContentProcessor: defaultContentProcessor}
 
 	if s.running() {
 		// Need to track changes.
