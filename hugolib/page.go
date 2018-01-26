@@ -1343,7 +1343,6 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 
 	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
 		p.Date = p.Source.FileInfo().ModTime()
-		p.params["date"] = p.Date
 	}
 
 	if p.Lastmod.IsZero() {
@@ -1354,6 +1353,8 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		}
 
 	}
+
+	p.params["date"] = p.Date
 	p.params["lastmod"] = p.Lastmod
 	p.params["publishdate"] = p.PublishDate
 	p.params["expirydate"] = p.ExpiryDate

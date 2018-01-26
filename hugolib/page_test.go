@@ -1033,7 +1033,7 @@ func TestMetadataDates(t *testing.T) {
 		{emptyFM, "test.md", false, o, o, o, x, x}, // 3 year-one dates, 2 empty dates
 		{zero_FM, "test.md", false, o, o, o, x, x},
 		{emptyFM, "testy.md", true, s, o, s, x, x}, // 2 filesys, 1 year-one, 2 empty
-		{zero_FM, "testy.md", true, s, o, s, x, x}, // Issue #4320
+		{zero_FM, "testy.md", true, s, o, s, x, x},
 	}
 
 	for i, test := range tests {
@@ -1052,13 +1052,17 @@ func TestMetadataDates(t *testing.T) {
 		p := s.newPageFromFile(newFileInfo(sp, "", test.filename, fi, bundleNot))
 		p.ReadFrom(file)
 
-		modified := cast.ToTime(p.params["modified"])
-
+		// check Page Variables
 		checkDate(t, i+1, "Date", p.Date, test.expDate, fi)
 		checkDate(t, i+1, "PubDate", p.PublishDate, test.expPub, fi)
 		checkDate(t, i+1, "LastMod", p.Lastmod, test.expLast, fi)
-		checkDate(t, i+1, "LastMod", modified, test.expMod, fi)
 		checkDate(t, i+1, "LastMod", p.ExpiryDate, test.expExp, fi)
+
+		// check Page Params
+		checkDate(t, i+1, "param date", cast.ToTime(p.params["date"]), test.expDate, fi)
+		checkDate(t, i+1, "param publishdate", cast.ToTime(p.params["publishdate"]), test.expPub, fi)
+		checkDate(t, i+1, "param modified", cast.ToTime(p.params["modified"]), test.expMod, fi)
+		checkDate(t, i+1, "param expirydate", cast.ToTime(p.params["expirydate"]), test.expExp, fi)
 	}
 }
 
