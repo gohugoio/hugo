@@ -2,8 +2,8 @@ language: go
 sudo: required
 dist: precise
 go:
-  - 1.8.5
-  - 1.9.2
+  - 1.8.6
+  - 1.9.3
   - tip
 os:
   - linux
