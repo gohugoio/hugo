@@ -1,15 +1,18 @@
 ---
-title : "Resources"
-description : "Resources allows one to access content and meta-data from page, section and branch bundles, including images."
+title : "Page Resources"
+description : "Page Resources are files included in a page bundle. You can use them in your template and add metadata"
 date : 2018-01-24T13:10:00-05:00
-lastmod : 2018-01-24T13:45:08-05:00
-categories : ["content management", "bundles"]
+lastmod : 2018-01-26T13:45:08-05:00
+categories : ["content management"]
 weight : 4003
 draft : false
 toc : true
-linktitle : "Resources"
+linktitle : "Page Resources"
+menu :
+  docs:
+    parent : "content-management"
+    weight : 31
 ---
-
 
 ## Properties
 
@@ -45,6 +48,7 @@ Match
 GetMatch
 : Same as Match but will only retrieve the first matching resource.
 
+### Pattern Matching
 ```go
 //Using Match/GetMatch to find this images/sunset.jpg ?
 .Resources.Match "images/sun*" ✅ 
@@ -59,76 +63,9 @@ GetMatch
 
 ## Metadata
 
-Resources metadata management is possible from the Front Matter's array `resources`. Batch assign is made possible using glob pattern matching.
+Page Resources metadata is managed from their page's Front Matter with an array named `resources`. Batch assign is made possible using glob pattern matching.
 
-
-
-~~~yaml
-title: Application
-date : 2018-01-25
-resources :
-- src : "images/header.*"
-  name : "header"
-- src : "documents/photo_specs.pdf"
-  title : "Photo Specifications"
-  params:
-    icon : "image"
-- src : "documents/*.pdf"
-  params :
-    icon : "pdf"
-- src : "documents/*.docx"
-  params :
-    icon : "word"
-- src : "documents/guide.pdf"
-  title : "Instruction Guide"
-- src : "documents/checklist.pdf"
-  title : "Document Checklist"
-- src : "documents/payment.docx"
-  title : "Proof of Payment"
-~~~ 
-
-~~~toml
-title = Application
-date : 2018-01-25
-[[resources]]
-  src = "images/header.*"
-  name = "header"
-[[resources]]
-  src = "documents/photo_specs.pdf"
-  title = "Photo Specifications"
-[resources.params]
-  icon = "photo"
-[[resources]]
-  src = "documents/*.pdf"
-  [resources.params]
-    icon = "pdf"
-[[resources]]
-  src = "documents/*.docx"
-  [resources.params]
-    icon = "word"
-[[resources]]
-  src = "documents/guide.pdf"
-  title = "Instruction Guide"
-[[resources]]
-  src = "documents/checklist.pdf"
-  title = "Document Checklist"
-[[resources]]
-  src = "documents/payment.docx"
-  title = "Proof of Payment"
- ~~~
-
-In the example above:
-In the above `TOML` example, `photo_specs.pdf` will get the `photo` icon, the other pdf files will get the default `pdf` icon.
-
-- `header.jpg"` will receive a new `Name` and won't be retrieved by `.Match "*/header.jpg"` anymore but something like `.Match "header"`.
-- Every pdf in the bundle will receive the same `pdf` icon
-- Except for `photo_specs.pdf` which will get the `image` icon
-
-The __order matters__, the specific rule for `*/photo_specs.jpg` has to be declared before the more generic `documents/*.pdf`.
-
-The __order matters__,.
-
-## Available metadata
+### Available metadata
 
 name
 : Will overwrite Name
@@ -144,5 +81,76 @@ params
 : An array of custom params to be retrieve much like page params
 `{{ .Params.credits }}`
 
+### Example
+~~~yaml
+title: Application
+date : 2018-01-25
+resources :
+- src : "images/header.*"
+  name : "header"
+- src : "**.pdf"
+  title = "PDF file #:counter"
+  params :
+    icon : "pdf"
+- src : "**.docx"
+  title : "Word file #:counter"
+  params :
+    icon : "word"
+- src : "documents/photo_specs.pdf"
+  title : "Photo Specifications"
+  params:
+    icon : "image"
+- src : "documents/guide.pdf"
+  title : "Instruction Guide"
+- src : "documents/checklist.pdf"
+  title : "Document Checklist"
+- src : "documents/payment.docx"
+  title : "Proof of Payment"
+~~~ 
+
+~~~toml
+title = Application
+date : 2018-01-25
+[[resources]]
+  src = "images/header.*"
+  name = "header"
+[[resources]]
+  src = "**.pdf"
+  title = "PDF file #:counter"
+  [resources.params]
+    icon = "pdf"
+[[resources]]
+  src = "**.docx"
+  title = "Word file #:counter"
+  [resources.params]
+    icon = "word"
+[[resources]]
+  src = "documents/photo_specs.pdf"
+  title = "Photo Specifications"
+[resources.params]
+  icon = "photo"
+[[resources]]
+  src = "documents/guide.pdf"
+  title = "Instruction Guide"
+[[resources]]
+  src = "documents/checklist.pdf"
+  title = "Document Checklist"
+[[resources]]
+  src = "documents/payment.docx"
+  title = "Proof of Payment"
+ ~~~
+
+
+From the metadata example above:
+
+- `header.jpg` will receive a new `Name` and won't be retrieved by `.Match "*/header.jpg"` anymore but something like `.Match "header"`.
+- `documents/photo_specs.pdf` will get the `image` icon
+- `documents/checklist.pdf`, `documents/guide.pdf` and `documents/payment.docx` will receive a unique Title
+- Every pdf in the bundle exepct documents/photo_specs.pdf` will receive the `pdf` icon along with a Title using the keyword `:counter`
+- Every docx in the bundle will receive the `word` icon along with a Title using the keyword `:counter`
+
+{{% warning %}}
+The __order matters__, every metadata key/value pair assigned overwrites any previous ones assigned to the same `src` target. As in the example above broad targets rules will usually be defined before the narrower ones.
+{{%/ warning %}}
 
 

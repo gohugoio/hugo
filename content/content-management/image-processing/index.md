@@ -1,16 +1,18 @@
 ---
 title : "Image Processing"
-description : "Hugo API for processing images that are part of page or section bundles"
+description : "For images part of a page resources or bundle, Hugo allow image processing"
 date : 2018-01-24T13:10:00-05:00
-lastmod : 2018-01-25T15:59:07-05:00
+lastmod : 2018-01-26T15:59:07-05:00
 linktitle : "Image Processing"
-categories : ["content management", "bundles"]
+categories : ["content management"]
 weight : 4004
 draft : false
 toc : true
+menu :
+  docs:
+    parent : "content-management"
+    weight : 32
 ---
-
-Image processing is available on Page Resources. 
 
 ## Methods
 
