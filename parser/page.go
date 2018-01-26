@@ -74,7 +74,7 @@ type Page interface {
 	IsRenderable() bool
 
 	// Metadata returns the unmarshalled frontmatter data.
-	Metadata() (interface{}, error)
+	Metadata() (map[string]interface{}, error)
 }
 
 // page implements the Page interface.
@@ -100,16 +100,13 @@ func (p *page) IsRenderable() bool {
 }
 
 // Metadata returns the unmarshalled frontmatter data.
-func (p *page) Metadata() (meta interface{}, err error) {
+func (p *page) Metadata() (meta map[string]interface{}, err error) {
 	frontmatter := p.FrontMatter()
 
 	if len(frontmatter) != 0 {
 		fm := DetectFrontMatter(rune(frontmatter[0]))
 		if fm != nil {
 			meta, err = fm.Parse(frontmatter)
-			if err != nil {
-				return
-			}
 		}
 	}
 	return

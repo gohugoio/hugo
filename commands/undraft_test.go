@@ -69,7 +69,7 @@ func TestUndraftContent(t *testing.T) {
 				t.Errorf("[%d] unexpected error %q", i, err)
 				continue
 			}
-			for k, v := range meta.(map[string]interface{}) {
+			for k, v := range meta {
 				if k == "draft" {
 					if v.(bool) {
 						t.Errorf("[%d] Expected %q to be \"false\", got \"true\"", i, k)
