@@ -1108,19 +1108,18 @@ func (p *Page) prepareForRender(cfg *BuildCfg) error {
 
 var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
 
-func (p *Page) update(f interface{}) error {
-	if f == nil {
-		return errors.New("no metadata found")
+func (p *Page) update(frontmatter map[string]interface{}) error {
+	if frontmatter == nil {
+		return errors.New("missing frontmatter data")
 	}
-	m := f.(map[string]interface{})
 	// Needed for case insensitive fetching of params values
-	helpers.ToLowerMap(m)
+	helpers.ToLowerMap(frontmatter)
 
 	var modified time.Time
 
 	var err error
 	var draft, published, isCJKLanguage *bool
-	for k, v := range m {
+	for k, v := range frontmatter {
 		loki := strings.ToLower(k)
 		switch loki {
 		case "title":
@@ -1371,7 +1370,6 @@ func (p *Page) update(f interface{}) error {
 	p.params["iscjklanguage"] = p.isCJKLanguage
 
 	return nil
-
 }
 
 func (p *Page) GetParam(key string) interface{} {
@@ -1614,14 +1612,12 @@ func (p *Page) parse(reader io.Reader) error {
 	if err != nil {
 		return fmt.Errorf("failed to parse page metadata for %q: %s", p.File.Path(), err)
 	}
-
-	if meta != nil {
-		if err = p.update(meta); err != nil {
-			return err
-		}
+	if meta == nil {
+		// missing frontmatter equivalent to empty frontmatter
+		meta = map[string]interface{}{}
 	}
 
-	return nil
+	return p.update(meta)
 }
 
 func (p *Page) RawContent() string {

@@ -99,7 +99,7 @@ func undraftContent(p parser.Page) (bytes.Buffer, error) {
 	var isDraft, gotDate bool
 	var date string
 L:
-	for k, v := range meta.(map[string]interface{}) {
+	for k, v := range meta {
 		switch k {
 		case "draft":
 			if !v.(bool) {

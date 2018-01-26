@@ -912,8 +912,8 @@ const (
 	L = "2017-09-03T22:22:22Z"
 	M = "2018-01-24T12:21:39Z"
 	E = "2025-12-31T23:59:59Z"
-	o = "0001-01-01T00:00:00Z"
-	x = ""
+	o = "0001-01-01T00:00:00Z" // zero value of type Time, default for some date fields
+	x = ""                     // nil date value, default for some date fields
 
 	p_D____ = `---
 title: Simple
@@ -981,20 +981,41 @@ Page With Date, PublishDate and LastMod`
 
 ---
 Page With empty front matter`
+
+	zero_FM = "Page With empty front matter"
 )
 
 func TestMetadataDates(t *testing.T) {
 	t.Parallel()
 	var tests = []struct {
-		text     string
-		filename string
-		fallback bool
-		expDate  string
-		expPub   string
-		expLast  string
-		expMod   string
-		expExp   string
-	}{ //                           D  P  L  M  E
+		text        string
+		filename    string
+		modFallback bool
+		expDate     string
+		expPub      string
+		expLast     string
+		expMod      string
+		expExp      string
+	}{
+		// The three columns on the left are the test case inputs:
+		//   page content: The name indicates which dates are set in the front matter,
+		//                 (D)ate, (P)ublishDate, (L)astModified
+		//                 (M)odified, (E)xpiryDate. So, for example,
+		//                 p__PL__ is content with PublishDate and LastModified
+		//                 specified in the front matter.
+		//   file path:    For when we start deriving metadata from it
+		//   modFallback:  Whether or not useModTimeAsFallback is enabled.
+		//
+		// The single character columns on the right are the expected outputs
+		// for each metadata date given by the column heading.
+		// Since each date type (D/P/L/M/E) in the input is always set
+		// to the same value (the constants referenced in these columns), it
+		// is easy to visualize and test which input date gets copied to which
+		// output date fields. "s" signifies the file's filesystem time stamp,
+		// "x" signifies a nil value, and "o" the "zero date".
+		//
+		// ------- inputs --------|--- outputs ---|
+		//content  filename  modfb? D  P  L  M  E
 		{p_D____, "test.md", false, D, D, D, x, x}, // date copied across
 		{p_D____, "testy.md", true, D, D, D, x, x},
 		{p__P___, "test.md", false, P, P, P, x, x}, // pubdate copied across
@@ -1010,12 +1031,14 @@ func TestMetadataDates(t *testing.T) {
 		{p_DPLME, "testy.md", true, D, P, L, M, E}, // all dates
 
 		{emptyFM, "test.md", false, o, o, o, x, x}, // 3 year-one dates, 2 empty dates
+		{zero_FM, "test.md", false, o, o, o, x, x},
 		{emptyFM, "testy.md", true, s, o, s, x, x}, // 2 filesys, 1 year-one, 2 empty
+		{zero_FM, "testy.md", true, s, o, s, x, x}, // Issue #4320
 	}
 
 	for i, test := range tests {
 		s := newTestSite(t)
-		s.Cfg.Set("useModTimeAsFallback", test.fallback)
+		s.Cfg.Set("useModTimeAsFallback", test.modFallback)
 		fs := hugofs.NewMem(s.Cfg)
 
 		writeToFs(t, fs.Source, test.filename, test.text)

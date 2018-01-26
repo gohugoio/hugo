@@ -255,7 +255,7 @@ func loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]interface{} {
 		return nil
 	}
 
-	return c.(map[string]interface{})
+	return c
 }
 
 func createConfigFromJekyll(fs afero.Fs, inpath string, kind string, jekyllConfig map[string]interface{}) (err error) {

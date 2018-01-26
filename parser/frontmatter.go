@@ -31,7 +31,7 @@ import (
 // FrontmatterType represents a type of frontmatter.
 type FrontmatterType struct {
 	// Parse decodes content into a Go interface.
-	Parse func([]byte) (interface{}, error)
+	Parse func([]byte) (map[string]interface{}, error)
 
 	markstart, markend []byte // starting and ending delimiters
 	includeMark        bool   // include start and end mark in output
@@ -168,7 +168,7 @@ func DetectFrontMatter(mark rune) (f *FrontmatterType) {
 
 // HandleTOMLMetaData unmarshals TOML-encoded datum and returns a Go interface
 // representing the encoded data structure.
-func HandleTOMLMetaData(datum []byte) (interface{}, error) {
+func HandleTOMLMetaData(datum []byte) (map[string]interface{}, error) {
 	m := map[string]interface{}{}
 	datum = removeTOMLIdentifier(datum)
 
@@ -198,7 +198,7 @@ func removeTOMLIdentifier(datum []byte) []byte {
 
 // HandleYAMLMetaData unmarshals YAML-encoded datum and returns a Go interface
 // representing the encoded data structure.
-func HandleYAMLMetaData(datum []byte) (interface{}, error) {
+func HandleYAMLMetaData(datum []byte) (map[string]interface{}, error) {
 	m := map[string]interface{}{}
 	err := yaml.Unmarshal(datum, &m)
 	return m, err
@@ -206,7 +206,7 @@ func HandleYAMLMetaData(datum []byte) (interface{}, error) {
 
 // HandleJSONMetaData unmarshals JSON-encoded datum and returns a Go interface
 // representing the encoded data structure.
-func HandleJSONMetaData(datum []byte) (interface{}, error) {
+func HandleJSONMetaData(datum []byte) (map[string]interface{}, error) {
 	if datum == nil {
 		// Package json returns on error on nil input.
 		// Return an empty map to be consistent with our other supported
@@ -214,13 +214,13 @@ func HandleJSONMetaData(datum []byte) (interface{}, error) {
 		return make(map[string]interface{}), nil
 	}
 
-	var f interface{}
+	var f map[string]interface{}
 	err := json.Unmarshal(datum, &f)
 	return f, err
 }
 
 // HandleOrgMetaData unmarshals org-mode encoded datum and returns a Go
 // interface representing the encoded data structure.
-func HandleOrgMetaData(datum []byte) (interface{}, error) {
+func HandleOrgMetaData(datum []byte) (map[string]interface{}, error) {
 	return goorgeous.OrgHeaders(datum)
 }
