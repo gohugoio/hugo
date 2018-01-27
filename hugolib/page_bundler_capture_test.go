@@ -143,8 +143,9 @@ F:
 D:
 __bundle/en/work/base/_index.md/resources/en/work/base/_1.png
 __bundle/en/work/base/a/b/index.md/resources/en/work/base/a/b/ab1.md
-__bundle/en/work/base/b/index.md/resources/en/work/base/b/1.md|en/work/base/b/2.md|en/work/base/b/c/logo.png|en/work/base/b/custom-mime.bep|en/work/base/b/sunset1.jpg|en/work/base/b/sunset2.jpg
-__bundle/en/work/base/c/index.md/resources/en/work/base/c/logo-은행.png
+__bundle/en/work/base/b/my-bundle/index.md/resources/en/work/base/b/my-bundle/1.md|en/work/base/b/my-bundle/2.md|en/work/base/b/my-bundle/c/logo.png|en/work/base/b/my-bundle/custom-mime.bep|en/work/base/b/my-bundle/sunset1.jpg|en/work/base/b/my-bundle/sunset2.jpg
+__bundle/en/work/base/c/bundle/index.md/resources/en/work/base/c/bundle/logo-은행.png
+__bundle/en/work/base/root/index.md/resources/en/work/base/root/1.md|en/work/base/root/c/logo.png
 C:
 /work/base/assets/pic1.png
 /work/base/assets/pic2.png

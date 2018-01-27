@@ -82,7 +82,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 	)
 
 	sp := source.NewSourceSpec(s.Deps.Cfg, s.Deps.Fs)
-	f := sp.NewFileInfo("", targetPath, nil)
+	f := sp.NewFileInfo("", targetPath, false, nil)
 
 	data := ArchetypeFileData{
 		Type: kind,

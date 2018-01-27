@@ -52,6 +52,7 @@ func TestPageBundlerSite(t *testing.T) {
 					"a": ":sections/:filename",
 					"b": ":year/:slug/",
 					"c": ":sections/:slug",
+					"":  ":filename/",
 				})
 
 				cfg.Set("outputFormats", map[string]interface{}{
@@ -74,8 +75,7 @@ func TestPageBundlerSite(t *testing.T) {
 
 				th := testHelper{s.Cfg, s.Fs, t}
 
-				// Singles (2), Below home (1), Bundle (1)
-				assert.Len(s.RegularPages, 7)
+				assert.Len(s.RegularPages, 8)
 
 				singlePage := s.getPage(KindPage, "a/1.md")
 
@@ -99,33 +99,47 @@ func TestPageBundlerSite(t *testing.T) {
 				// This should be just copied to destination.
 				th.assertFileContent(filepath.FromSlash("/work/public/assets/pic1.png"), "content")
 
-				leafBundle1 := s.getPage(KindPage, "b/index.md")
+				leafBundle1 := s.getPage(KindPage, "b/my-bundle/index.md")
 				assert.NotNil(leafBundle1)
+				assert.Equal("b", leafBundle1.Section())
+				assert.NotNil(s.getPage(KindSection, "b"))
+
+				// This is a root bundle and should live in the "home section"
+				// See https://github.com/gohugoio/hugo/issues/4332
+				rootBundle := s.getPage(KindPage, "root")
+				assert.NotNil(rootBundle)
+				assert.True(rootBundle.Parent().IsHome())
+				if ugly {
+					assert.Equal("/root.html", rootBundle.RelPermalink())
+				} else {
+					assert.Equal("/root/", rootBundle.RelPermalink())
+				}
+
 				leafBundle2 := s.getPage(KindPage, "a/b/index.md")
 				assert.NotNil(leafBundle2)
-				unicodeBundle := s.getPage(KindPage, "c/index.md")
+				unicodeBundle := s.getPage(KindPage, "c/bundle/index.md")
 				assert.NotNil(unicodeBundle)
 
 				pageResources := leafBundle1.Resources.ByType(pageResourceType)
 				assert.Len(pageResources, 2)
 				firstPage := pageResources[0].(*Page)
 				secondPage := pageResources[1].(*Page)
-				assert.Equal(filepath.FromSlash("b/1.md"), firstPage.pathOrTitle(), secondPage.pathOrTitle())
+				assert.Equal(filepath.FromSlash("b/my-bundle/1.md"), firstPage.pathOrTitle(), secondPage.pathOrTitle())
 				assert.Contains(firstPage.Content, "TheContent")
-				assert.Len(leafBundle1.Resources, 6) // 2 pages 3 images 1 custom mime type
+				assert.Equal(6, len(leafBundle1.Resources))
 
 				assert.Equal(firstPage, pageResources.GetByPrefix("1"))
 				assert.Equal(secondPage, pageResources.GetByPrefix("2"))
 				assert.Nil(pageResources.GetByPrefix("doesnotexist"))
 
 				imageResources := leafBundle1.Resources.ByType("image")
-				assert.Len(imageResources, 3)
+				assert.Equal(3, len(imageResources))
 				image := imageResources[0]
 
 				altFormat := leafBundle1.OutputFormats().Get("CUSTOMO")
 				assert.NotNil(altFormat)
 
-				assert.Equal(filepath.FromSlash("/work/base/b/c/logo.png"), image.(resource.Source).AbsSourceFilename())
+				assert.Equal(filepath.FromSlash("/work/base/b/my-bundle/c/logo.png"), image.(resource.Source).AbsSourceFilename())
 				assert.Equal("https://example.com/2017/pageslug/c/logo.png", image.Permalink())
 				th.assertFileContent(filepath.FromSlash("/work/public/2017/pageslug/c/logo.png"), "content")
 				th.assertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug/c/logo.png"), "content")
@@ -161,6 +175,8 @@ func TestPageBundlerSite(t *testing.T) {
 					assert.Equal("/2017/pageslug/", leafBundle1.RelPermalink())
 					th.assertFileContent(filepath.FromSlash("/work/public/2017/pageslug/index.html"), "TheContent")
 					th.assertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug/cindex.html"), "TheContent")
+					th.assertFileContent(filepath.FromSlash("/work/public/2017/pageslug/index.html"), "Single Title")
+					th.assertFileContent(filepath.FromSlash("/work/public/root/index.html"), "Single Title")
 
 					assert.Equal("/a/b/", leafBundle2.RelPermalink())
 
@@ -193,8 +209,8 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				s := sites.Sites[0]
 
 				assert.Equal(8, len(s.RegularPages))
-				assert.Equal(18, len(s.Pages))
-				assert.Equal(35, len(s.AllPages))
+				assert.Equal(16, len(s.Pages))
+				assert.Equal(31, len(s.AllPages))
 
 				bundleWithSubPath := s.getPage(KindPage, "lb/index")
 				assert.NotNil(bundleWithSubPath)
@@ -269,9 +285,9 @@ func TestMultilingualDisableLanguage(t *testing.T) {
 	s := sites.Sites[0]
 
 	assert.Equal(8, len(s.RegularPages))
-	assert.Equal(18, len(s.Pages))
+	assert.Equal(16, len(s.Pages))
 	// No nn pages
-	assert.Equal(18, len(s.AllPages))
+	assert.Equal(16, len(s.AllPages))
 	for _, p := range s.rawAllPages {
 		assert.True(p.Lang() != "nn")
 	}
@@ -431,7 +447,7 @@ TheContent.
 `
 
 	singleLayout := `
-Title: {{ .Title }}
+Single Title: {{ .Title }}
 Content: {{ .Content }}
 {{ $sunset := .Resources.GetByPrefix "my-sunset-1" }}
 {{ with $sunset }}
@@ -482,15 +498,15 @@ Short Thumb Width: {{ $thumb.Width }}
 	writeSource(t, fs, filepath.Join(workDir, "base", "assets", "pages", "mypage.md"), pageContent)
 
 	// Bundle
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "index.md"), pageWithImageShortcodeAndResourceMetadataContent)
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "1.md"), pageContent)
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "2.md"), pageContent)
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "custom-mime.bep"), "bepsays")
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "c", "logo.png"), "content")
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "index.md"), pageWithImageShortcodeAndResourceMetadataContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "1.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "2.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "custom-mime.bep"), "bepsays")
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "c", "logo.png"), "content")
 
 	// Bundle with 은행 slug
 	// See https://github.com/gohugoio/hugo/issues/4241
-	writeSource(t, fs, filepath.Join(workDir, "base", "c", "index.md"), `---
+	writeSource(t, fs, filepath.Join(workDir, "base", "c", "bundle", "index.md"), `---
 title: "은행 은행"
 slug: 은행
 date: 2017-10-09
@@ -498,16 +514,22 @@ date: 2017-10-09
 
 Content for 은행.
 `)
-	writeSource(t, fs, filepath.Join(workDir, "base", "c", "logo-은행.png"), "은행 PNG")
+
+	// Bundle in root
+	writeSource(t, fs, filepath.Join(workDir, "base", "root", "index.md"), pageWithImageShortcodeAndResourceMetadataContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "root", "1.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "root", "c", "logo.png"), "content")
+
+	writeSource(t, fs, filepath.Join(workDir, "base", "c", "bundle", "logo-은행.png"), "은행 PNG")
 
 	// Write a real image into one of the bundle above.
 	src, err := os.Open("testdata/sunset.jpg")
 	assert.NoError(err)
 
 	// We need 2 to test https://github.com/gohugoio/hugo/issues/4202
-	out, err := fs.Source.Create(filepath.Join(workDir, "base", "b", "sunset1.jpg"))
+	out, err := fs.Source.Create(filepath.Join(workDir, "base", "b", "my-bundle", "sunset1.jpg"))
 	assert.NoError(err)
-	out2, err := fs.Source.Create(filepath.Join(workDir, "base", "b", "sunset2.jpg"))
+	out2, err := fs.Source.Create(filepath.Join(workDir, "base", "b", "my-bundle", "sunset2.jpg"))
 	assert.NoError(err)
 
 	_, err = io.Copy(out, src)

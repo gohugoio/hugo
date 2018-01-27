@@ -54,6 +54,7 @@ type File interface {
 	LogicalName() string
 
 	// Section is first directory below the content root.
+	// For page bundles in root, the Section will be empty.
 	Section() string
 
 	// BaseFileName is a filename without extension.
@@ -99,6 +100,7 @@ type FileInfo struct {
 	baseName            string
 	translationBaseName string
 	section             string
+	isLeafBundle        bool
 
 	uniqueID string
 
@@ -142,16 +144,12 @@ func (fi *FileInfo) String() string { return fi.BaseFileName() }
 // in some cases that is slightly expensive to construct.
 func (fi *FileInfo) init() {
 	fi.lazyInit.Do(func() {
-		parts := strings.Split(fi.relDir, helpers.FilePathSeparator)
+		relDir := strings.Trim(fi.relDir, helpers.FilePathSeparator)
+		parts := strings.Split(relDir, helpers.FilePathSeparator)
+
 		var section string
-		if len(parts) == 1 {
+		if (!fi.isLeafBundle && len(parts) == 1) || len(parts) > 1 {
 			section = parts[0]
-		} else if len(parts) > 1 {
-			if parts[0] == "" {
-				section = parts[1]
-			} else {
-				section = parts[0]
-			}
 		}
 
 		fi.section = section
@@ -161,7 +159,7 @@ func (fi *FileInfo) init() {
 	})
 }
 
-func (sp *SourceSpec) NewFileInfo(baseDir, filename string, fi os.FileInfo) *FileInfo {
+func (sp *SourceSpec) NewFileInfo(baseDir, filename string, isLeafBundle bool, fi os.FileInfo) *FileInfo {
 
 	dir, name := filepath.Split(filename)
 	if !strings.HasSuffix(dir, helpers.FilePathSeparator) {
@@ -204,6 +202,7 @@ func (sp *SourceSpec) NewFileInfo(baseDir, filename string, fi os.FileInfo) *Fil
 		name:                name,
 		baseName:            baseName,
 		translationBaseName: translationBaseName,
+		isLeafBundle:        isLeafBundle,
 	}
 
 	return f
