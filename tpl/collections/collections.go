@@ -29,6 +29,10 @@ import (
 	"github.com/spf13/cast"
 )
 
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
+
 // New returns a new instance of the collections-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
 	return &Namespace{
@@ -474,7 +478,6 @@ func (ns *Namespace) Shuffle(seq interface{}) (interface{}, error) {
 
 	shuffled := reflect.MakeSlice(reflect.TypeOf(seq), seqv.Len(), seqv.Len())
 
-	rand.Seed(time.Now().UTC().UnixNano())
 	randomIndices := rand.Perm(seqv.Len())
 
 	for index, value := range randomIndices {
