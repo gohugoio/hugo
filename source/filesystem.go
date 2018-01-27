@@ -57,7 +57,7 @@ func (f *Filesystem) add(name string, fi os.FileInfo) (err error) {
 		name = norm.NFC.String(name)
 	}
 
-	file = f.SourceSpec.NewFileInfo(f.Base, name, fi)
+	file = f.SourceSpec.NewFileInfo(f.Base, name, false, fi)
 	f.files = append(f.files, file)
 
 	return err

@@ -57,7 +57,7 @@ func (fi *fileInfo) isContentFile() bool {
 
 func newFileInfo(sp *source.SourceSpec, baseDir, filename string, fi os.FileInfo, tp bundleDirType) *fileInfo {
 
-	baseFi := sp.NewFileInfo(baseDir, filename, fi)
+	baseFi := sp.NewFileInfo(baseDir, filename, tp == bundleLeaf, fi)
 	f := &fileInfo{
 		bundleTp:     tp,
 		ReadableFile: baseFi,

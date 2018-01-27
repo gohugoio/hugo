@@ -772,7 +772,7 @@ func (s *Site) newPageFromFile(fi *fileInfo) *Page {
 		Keywords:    []string{}, Sitemap: Sitemap{Priority: -1},
 		params:       make(map[string]interface{}),
 		translations: make(Pages, 0),
-		sections:     sectionsFromDir(fi.Dir()),
+		sections:     sectionsFromFile(fi),
 		Site:         &s.Info,
 		s:            s,
 	}
@@ -2000,12 +2000,20 @@ func (p *Page) addLangPathPrefixIfFlagSet(outfile string, should bool) string {
 	return outfile
 }
 
-func sectionsFromDir(dirname string) []string {
+func sectionsFromFile(fi *fileInfo) []string {
+	dirname := fi.Dir()
 	dirname = strings.Trim(dirname, helpers.FilePathSeparator)
 	if dirname == "" {
 		return nil
 	}
-	return strings.Split(dirname, helpers.FilePathSeparator)
+	parts := strings.Split(dirname, helpers.FilePathSeparator)
+
+	if fi.bundleTp == bundleLeaf && len(parts) > 0 {
+		// my-section/mybundle/index.md => my-section
+		return parts[:len(parts)-1]
+	}
+
+	return parts
 }
 
 func kindFromFileInfo(fi *fileInfo) string {

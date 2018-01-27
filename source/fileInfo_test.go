@@ -34,10 +34,15 @@ func TestFileInfo(t *testing.T) {
 			assert.Equal(filepath.FromSlash("/a/b/page.md"), f.Filename())
 			assert.Equal(filepath.FromSlash("b/"), f.Dir())
 			assert.Equal(filepath.FromSlash("b/page.md"), f.Path())
+			assert.Equal("b", f.Section())
+
+		}},
+		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/c/d/page.md"), func(f *FileInfo) {
+			assert.Equal("b", f.Section())
 
 		}},
 	} {
-		f := s.NewFileInfo(this.base, this.filename, nil)
+		f := s.NewFileInfo(this.base, this.filename, false, nil)
 		this.assert(f)
 	}
 
