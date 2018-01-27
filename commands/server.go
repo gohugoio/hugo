@@ -186,7 +186,9 @@ func server(cmd *cobra.Command, args []string) error {
 			if err != nil {
 				return err
 			}
-			language.Set("baseURL", baseURL)
+			if isMultiHost {
+				language.Set("baseURL", baseURL)
+			}
 			if i == 0 {
 				c.Set("baseURL", baseURL)
 			}
