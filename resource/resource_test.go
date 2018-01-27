@@ -312,6 +312,48 @@ func TestAssignMetadata(t *testing.T) {
 			assert.Equal("Name #2", logo1.Name())
 
 		}},
+		// Start counting first time :counter is used
+		// See https://github.com/gohugoio/hugo/issues/4335
+		{[]map[string]interface{}{
+			map[string]interface{}{
+				"title": "Third Logo",
+				"src":   "logo3.png",
+			},
+			map[string]interface{}{
+				"title": "Other Logo #:counter",
+				"name":  "Name #:counter",
+				"src":   "logo*",
+			},
+		}, func(err error) {
+			assert.NoError(err)
+			assert.Equal("Third Logo", logo3.Title())
+			assert.Equal("Name #3", logo3.Name())
+			assert.Equal("Other Logo #1", logo2.Title())
+			assert.Equal("Name #1", logo2.Name())
+			assert.Equal("Other Logo #2", logo1.Title())
+			assert.Equal("Name #2", logo1.Name())
+
+		}},
+		{[]map[string]interface{}{
+			map[string]interface{}{
+				"name": "third-logo",
+				"src":  "logo3.png",
+			},
+			map[string]interface{}{
+				"title": "Logo #:counter",
+				"name":  "Name #:counter",
+				"src":   "logo*",
+			},
+		}, func(err error) {
+			assert.NoError(err)
+			assert.Equal("Logo #3", logo3.Title())
+			assert.Equal("third-logo", logo3.Name())
+			assert.Equal("Logo #1", logo2.Title())
+			assert.Equal("Name #1", logo2.Name())
+			assert.Equal("Logo #2", logo1.Title())
+			assert.Equal("Name #2", logo1.Name())
+
+		}},
 		{[]map[string]interface{}{
 			map[string]interface{}{
 				"title": "Third Logo #:counter",

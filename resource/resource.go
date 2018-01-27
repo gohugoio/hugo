@@ -447,6 +447,8 @@ func (l *genericResource) Publish() error {
 	return helpers.WriteToDisk(target, f, l.spec.Fs.Destination)
 }
 
+const counterPlaceHolder = ":counter"
+
 // AssignMetadata assigns the given metadata to those resources that supports updates
 // and matching by wildcard given in `src` using `filepath.Match` with lower cased values.
 // This assignment is additive, but the most specific match needs to be first.
@@ -464,6 +466,7 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 		var (
 			nameSet, titleSet bool
 			currentCounter    = 0
+			counterFound      bool
 			resourceSrcKey    = strings.ToLower(r.Name())
 		)
 
@@ -487,12 +490,16 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 				if !nameSet {
 					name, found := meta["name"]
 					if found {
-						if currentCounter == 0 {
+						name := cast.ToString(name)
+						if !counterFound {
+							counterFound = strings.Contains(name, counterPlaceHolder)
+						}
+						if counterFound && currentCounter == 0 {
 							currentCounter = counters[srcKey] + 1
 							counters[srcKey] = currentCounter
 						}
 
-						ma.setName(replaceResourcePlaceholders(cast.ToString(name), currentCounter))
+						ma.setName(replaceResourcePlaceholders(name, currentCounter))
 						nameSet = true
 					}
 				}
@@ -500,11 +507,15 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 				if !titleSet {
 					title, found := meta["title"]
 					if found {
-						if currentCounter == 0 {
+						title := cast.ToString(title)
+						if !counterFound {
+							counterFound = strings.Contains(title, counterPlaceHolder)
+						}
+						if counterFound && currentCounter == 0 {
 							currentCounter = counters[srcKey] + 1
 							counters[srcKey] = currentCounter
 						}
-						ma.setTitle((replaceResourcePlaceholders(cast.ToString(title), currentCounter)))
+						ma.setTitle((replaceResourcePlaceholders(title, currentCounter)))
 						titleSet = true
 					}
 				}
@@ -524,7 +535,7 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 }
 
 func replaceResourcePlaceholders(in string, counter int) string {
-	return strings.Replace(in, ":counter", strconv.Itoa(counter), -1)
+	return strings.Replace(in, counterPlaceHolder, strconv.Itoa(counter), -1)
 }
 
 func (l *genericResource) target() string {
