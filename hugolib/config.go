@@ -146,9 +146,10 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 
 	// The defaultContentLanguage is something the user has to decide, but it needs
 	// to match a language in the language definition list.
+	lowerDefaultLang := strings.ToLower(defaultLang)
 	langExists := false
 	for _, lang := range langs {
-		if lang.Lang == defaultLang {
+		if lang.Lang == lowerDefaultLang {
 			langExists = true
 			break
 		}
