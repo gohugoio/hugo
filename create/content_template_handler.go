@@ -16,6 +16,7 @@ package create
 import (
 	"bytes"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -43,6 +44,12 @@ type ArchetypeFileData struct {
 	// on the presence of language code in the filename.
 	Site *hugolib.Site
 
+	// Name will in most cases be the same as TranslationBaseName, e.g. "my-post".
+	// But if that value is "index" (bundles), the Name is instead the owning folder.
+	// This is the value you in most cases would want to use to construct the title in your
+	// archetype template.
+	Name string
+
 	// The target content file. Note that the .Content will be empty, as that
 	// has not been created yet.
 	source.File
@@ -51,7 +58,7 @@ type ArchetypeFileData struct {
 const (
 	// ArchetypeTemplateTemplate is used as initial template when adding an archetype template.
 	ArchetypeTemplateTemplate = `---
-title: "{{ replace .TranslationBaseName "-" " " | title }}"
+title: "{{ replace .Name "-" " " | title }}"
 date: {{ .Date }}
 draft: true
 ---
@@ -84,9 +91,17 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 	sp := source.NewSourceSpec(s.Deps.Cfg, s.Deps.Fs)
 	f := sp.NewFileInfo("", targetPath, false, nil)
 
+	name := f.TranslationBaseName()
+	if name == "index" || name == "_index" {
+		// Page bundles; the directory name will hopefully have a better name.
+		dir := strings.TrimSuffix(f.Dir(), helpers.FilePathSeparator)
+		_, name = filepath.Split(dir)
+	}
+
 	data := ArchetypeFileData{
 		Type: kind,
 		Date: time.Now().Format(time.RFC3339),
+		Name: name,
 		File: f,
 		Site: s,
 	}
