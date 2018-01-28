@@ -1038,11 +1038,18 @@ func (s *Site) initializeSiteInfo() {
 
 	v := s.Cfg.Get("uglyURLs")
 	if v != nil {
-		if vv, ok := v.(bool); ok {
+		switch vv := v.(type) {
+		case bool:
 			uglyURLs = func(p *Page) bool {
 				return vv
 			}
-		} else {
+		case string:
+			// Is what be get from CLI (--uglyURLs)
+			vvv := cast.ToBool(vv)
+			uglyURLs = func(p *Page) bool {
+				return vvv
+			}
+		default:
 			m := cast.ToStringMapBool(v)
 			uglyURLs = func(p *Page) bool {
 				return m[p.Section()]
