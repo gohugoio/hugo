@@ -103,6 +103,9 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 `expiryDate`
 : the datetime at which the content should no longer be published by Hugo; expired content will not be rendered unless the `--buildExpired` flag is passed to the `hugo` command.
 
+`headless`
+: if `true`, sets a leaf bundle to be [headless][headless-bundle].
+
 `isCJKLanguage`
 : if `true`, Hugo will explicitly treat the content as a CJK language; both `.Summary` and `.WordCount` work properly in CJK languages.
 
@@ -189,6 +192,7 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [content type]: /content-management/types/
 [contentorg]: /content-management/organization/
 [definetype]: /content-management/types/#defining-a-content-type "Learn how to specify a type and a layout in a content's front matter"
+[headless-bundle]: /content-management/page-bundles/#headless-bundle
 [json]: https://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf "Specification for JSON, JavaScript Object Notation"
 [lists]: /templates/lists/#ordering-content "See how to order content in list pages; for example, templates that look to specific _index.md for content and front matter."
 [lookup]: /templates/lookup-order/ "Hugo traverses your templates in a specific order when rendering content to allow for DRYer templating."

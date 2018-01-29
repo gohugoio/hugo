@@ -2,7 +2,7 @@
 title : "Page Bundles"
 description : "Content organization using Page Bundles"
 date : 2018-01-24T13:09:00-05:00
-lastmod : 2018-01-26T10:58:36-05:00
+lastmod : 2018-01-28T22:26:40-05:00
 linktitle : "Page Bundles"
 keywords : ["page", "bundle", "leaf", "branch"]
 categories : ["content management", "bundle"]
@@ -30,12 +30,13 @@ A Page Bundle can be one of two types:
 | Usage           | Collection of content and attachments for single pages | Collection of content and attachments for section pages |
 | Index file name | `index.md` [^fn:1]                                     | `_index.md` [^fn:1]                                     |
 | Layout type     | `single`                                               | `list`                                                  |
+| Nesting         | Doesn't allow nesting of more bundles under it         | Allows nesting of leaf/branch bundles under it          |
 | Example         | `content/posts/my-post/index.md`                       | `content/posts/_index.md`                               |
 
 
 ## Leaf Bundles {#leaf-bundles}
 
-A _Leaf Bundle_ is a directory at any hierarchy within a [Section](/content-management/sections/)
+A _Leaf Bundle_ is a directory at any hierarchy within the `content/`
 directory, that contains at least an **`index.md`** file.
 
 {{% note %}}
@@ -50,6 +51,8 @@ get exotic, you can define your own media type.
 
 ```text
 content/
+├── about
+│   ├── index.md
 ├── posts
 │   ├── my-post
 │   │   ├── content1.md
@@ -68,8 +71,12 @@ content/
             └── index.md
 ```
 
-In the above example `content/` directory, there are three leaf
+In the above example `content/` directory, there are four leaf
 bundles:
+
+about
+: This leaf bundle is at the root level (directly under
+    `content` directory) and has only the `index.md`.
 
 my-post
 : This leaf bundle has the `index.md`, two other content
@@ -84,14 +91,45 @@ another-leaf-bundle
 
 {{% note %}}
 The hierarchy depth at which a leaf bundle is created does not matter,
-as long as (1) it's not inside another **leaf** bundle (2) it's not
-directly under the `content/` directory.
+as long as it is not inside another **leaf** bundle.
 {{% /note %}}
 
 
-### Headless Leaf Bundle {#headless-leaf-bundle}
+### Headless Bundle {#headless-bundle}
 
-**TODO**
+A headless bundle is a bundle that is configured to not get published
+anywhere:
+
+-   It will have no `Permalink` and no rendered HTML in `public/`.
+-   It will not be part of `.Site.RegularPages`, etc.
+
+But you can get it by `.Site.GetPage`. Here is an example:
+
+```html
+{{ $headless := .Site.GetPage "page" "some-headless-bundle" }}
+{{ $reusablePages := $headless.Resources.Match "author*" }}
+<h2>Authors</h2>
+{{ range $reusablePages }}
+    <h3>{{ .Title }}</h3>
+    {{ .Content }}
+{{ end }}
+```
+
+A leaf bundle can be made headless by adding below in the Front Matter
+(in the `index.md`):
+
+```toml
+headless = true
+```
+
+{{% note %}}
+Only leaf bundles can be made headless.
+{{% /note %}}
+
+There are many use cases of such headless page bundles:
+
+-   Shared media galleries
+-   Reusable page content "snippets"
 
 
 ## Branch Bundles {#branch-bundles}
@@ -137,7 +175,8 @@ bundles (and a leaf bundle):
     nested leaf bundle.
 
 {{% note %}}
-The hierarchy depth at which a branch bundle is created does not matter.
+The hierarchy depth at which a branch bundle is created does not
+matter.
 {{% /note %}}
 
 [^fn:1]: The `.md` extension is just an example. The extension can be `.html`, `.json` or any of any valid MIME type.
