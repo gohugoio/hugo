@@ -464,10 +464,10 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 		}
 
 		var (
-			nameSet, titleSet bool
-			currentCounter    = 0
-			counterFound      bool
-			resourceSrcKey    = strings.ToLower(r.Name())
+			nameSet, titleSet                   bool
+			nameCounter, titleCounter           = 0, 0
+			nameCounterFound, titleCounterFound bool
+			resourceSrcKey                      = strings.ToLower(r.Name())
 		)
 
 		ma := r.(metaAssigner)
@@ -491,15 +491,16 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 					name, found := meta["name"]
 					if found {
 						name := cast.ToString(name)
-						if !counterFound {
-							counterFound = strings.Contains(name, counterPlaceHolder)
+						if !nameCounterFound {
+							nameCounterFound = strings.Contains(name, counterPlaceHolder)
 						}
-						if counterFound && currentCounter == 0 {
-							currentCounter = counters[srcKey] + 1
-							counters[srcKey] = currentCounter
+						if nameCounterFound && nameCounter == 0 {
+							counterKey := "name_" + srcKey
+							nameCounter = counters[counterKey] + 1
+							counters[counterKey] = nameCounter
 						}
 
-						ma.setName(replaceResourcePlaceholders(name, currentCounter))
+						ma.setName(replaceResourcePlaceholders(name, nameCounter))
 						nameSet = true
 					}
 				}
@@ -508,14 +509,15 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 					title, found := meta["title"]
 					if found {
 						title := cast.ToString(title)
-						if !counterFound {
-							counterFound = strings.Contains(title, counterPlaceHolder)
+						if !titleCounterFound {
+							titleCounterFound = strings.Contains(title, counterPlaceHolder)
 						}
-						if counterFound && currentCounter == 0 {
-							currentCounter = counters[srcKey] + 1
-							counters[srcKey] = currentCounter
+						if titleCounterFound && titleCounter == 0 {
+							counterKey := "title_" + srcKey
+							titleCounter = counters[counterKey] + 1
+							counters[counterKey] = titleCounter
 						}
-						ma.setTitle((replaceResourcePlaceholders(title, currentCounter)))
+						ma.setTitle((replaceResourcePlaceholders(title, titleCounter)))
 						titleSet = true
 					}
 				}

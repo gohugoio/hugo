@@ -280,14 +280,14 @@ func TestAssignMetadata(t *testing.T) {
 			},
 		}, func(err error) {
 			assert.NoError(err)
-			assert.Equal("Resource #1", logo2.Title())
+			assert.Equal("Resource #2", logo2.Title())
 			assert.Equal("Logo Name #1", logo2.Name())
-			assert.Equal("Resource #2", logo1.Title())
+			assert.Equal("Resource #4", logo1.Title())
 			assert.Equal("Logo Name #2", logo1.Name())
 			assert.Equal("Resource #1", foo2.Title())
-			assert.Equal("Resource #2", foo1.Title())
+			assert.Equal("Resource #3", foo1.Title())
 			assert.Equal("Name #2", foo1.Name())
-			assert.Equal("Resource #3", foo3.Title())
+			assert.Equal("Resource #5", foo3.Title())
 
 			assert.Equal(logo2, resources.GetByPrefix("logo name #1"))
 
@@ -305,15 +305,13 @@ func TestAssignMetadata(t *testing.T) {
 		}, func(err error) {
 			assert.NoError(err)
 			assert.Equal("Third Logo #1", logo3.Title())
-			assert.Equal("Name #1", logo3.Name())
+			assert.Equal("Name #3", logo3.Name())
 			assert.Equal("Other Logo #1", logo2.Title())
 			assert.Equal("Name #1", logo2.Name())
 			assert.Equal("Other Logo #2", logo1.Title())
 			assert.Equal("Name #2", logo1.Name())
 
 		}},
-		// Start counting first time :counter is used
-		// See https://github.com/gohugoio/hugo/issues/4335
 		{[]map[string]interface{}{
 			map[string]interface{}{
 				"title": "Third Logo",
