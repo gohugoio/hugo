@@ -127,6 +127,9 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 `publishDate`
 : if in the future, content will not be rendered unless the `--buildFuture` flag is passed to `hugo`.
 
+`resources`
+: used for configuring page bundle resources. See [Page Resources][page-resources].
+
 `slug`
 : appears as the tail of the output URL. A value specified in front matter will override the segment of the URL based on the filename.
 
@@ -191,6 +194,7 @@ It's possible to set some options for Markdown rendering in a content's front ma
 [lookup]: /templates/lookup-order/ "Hugo traverses your templates in a specific order when rendering content to allow for DRYer templating."
 [ordering]: /templates/lists/ "Hugo provides multiple ways to sort and order your content in list templates"
 [outputs]: /templates/output-formats/ "With the release of v22, you can output your content to any text format using Hugo's familiar templating"
+[page-resources]: /content-management/page-resources/
 [pagevars]: /variables/page/
 [section]: /content-management/sections/
 [taxweight]: /content-management/taxonomies/
