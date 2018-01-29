@@ -1,17 +1,16 @@
 ---
 title : "Page Resources"
-description : "Page Resources are files included in a page bundle. You can use them in your template and add metadata."
-date : 2018-01-24T13:10:00-05:00
-lastmod : 2018-01-26T13:45:08-05:00
-categories : ["content management"]
-weight : 4003
-draft : false
-toc : true
-linktitle : "Page Resources"
-menu :
+description : "Page Resources -- images, other pages etc. -- have page-relative URLs and their own metadata."
+date: 2018-01-24
+categories: ["content management"]
+weight: 4003
+draft: false
+toc: true
+linktitle: "Page Resources"
+menu:
   docs:
-    parent : "content-management"
-    weight : 31
+    parent: "content-management"
+    weight: 31
 ---
 
 ## Properties
@@ -20,33 +19,33 @@ ResourceType
 : The main type of the resource. For example, a file of MIME type `image/jpg` has for ResourceType `image`.
 
 Name
-: The filename (relative path to the bundle). It can be overwritten with the resource's Front Matter metadata.
+: Default value is the filename (relative to the owning page). Can be set in front matter.
 
 Title
-: Same as filename. It can be overwritten with the resource's Front Matter metadata.
+: Default blank. Can be set in front matter.
 
 Permalink
-: The absolute URL of the resource. This gets a value only where the _ResourceType_ is **not** `page`.
+: The absolute URL to the resource. Resources of type `page` will have no value.
 
 RelPermalink
-: The relative URL of the resource. This gets a value only where the _ResourceType_ is **not** `page`.
+: The relative URL to the resource. Resources of type `page` will have no value.
 
 ## Methods
 ByType
-: Retrieve the page resources of the passed type.
+: Returns the page resources of the given type.
 
 ```go
 {{ .Resources.ByType "image" }}
 ```
 Match
-: Retrieve all the page resources (as a slice) whose `Name` matches the Glob pattern ([examples](https://github.com/gobwas/glob/blob/master/readme.md)) passed as parameter. The matching is case-insensitive.
+: Returns all the page resources (as a slice) whose `Name` matches the given Glob pattern ([examples](https://github.com/gobwas/glob/blob/master/readme.md)). The matching is case-insensitive.
 
 ```go
 {{ .Resources.Match "images/*" }}
 ```
 
 GetMatch
-: Same as `Match` but will only retrieve the first matching resource.
+: Same as `Match` but will return the first match.
 
 ### Pattern Matching
 ```go
@@ -61,33 +60,34 @@ GetMatch
 
 ```
 
-## Metadata
+## Page Resources Metadata
 
-Page Resources metadata is managed from their page's Front Matter with an array/table parameter named `resources`. Batch assign is made possible using glob pattern matching.
+Page Resources' metadata is managed from their page's front matter with an array/table parameter named `resources`. You can batch assign values using a glob pattern.
 
-### Available metadata
+{{% note %}}
+Resources of type `page` get `Title` etc. from their own front matter.
+{{% /note %}}
 
 name
-: Will overwrite Name
+: Sets the value returned in `Name`.
 
 {{% warning %}}
-The methods Match and GetMatch use Name to match the resource. Overwrite wisely.
+The methods `Match` and `GetMatch` use `Name` to match the resources.
 {{%/ warning %}}
 
 title
-: Will overwrite Title
+: Sets the value returned in `Title`
 
 params
-: An array of custom params to be retrieve much like page params
-`{{ .Params.credits }}`
+: A map of custom key/values.
 
-### Example
-#### `resources` parameter in YAML
+
+###  Resources metadata: YAML Example
 ~~~yaml
 title: Application
 date : 2018-01-25
 resources :
-- src : "images/header.*"
+- src : "images/sunset.jpg"
   name : "header"
 - src : "documents/photo_specs.pdf"
   title : "Photo Specifications"
@@ -108,12 +108,13 @@ resources :
     icon : "word"
 ~~~
 
-#### `resources` parameter in TOML
+###  Resources metadata: TOML Example
+
 ~~~toml
 title = Application
 date : 2018-01-25
 [[resources]]
-  src = "images/header.*"
+  src = "images/sunset.jpg"
   name = "header"
 [[resources]]
   src = "documents/photo_specs.pdf"
@@ -141,13 +142,13 @@ date : 2018-01-25
 ~~~
 
 
-From the metadata example above:
+From the example above:
 
-- `header.jpg` will receive a new `Name` and won't be retrieved by `.Match "*/header.jpg"` anymore, but something like `.Match "header"`.
+- `sunset.jpg` will receive a new `Name` and can now be found with `.GetMatch "header"`.
 - `documents/photo_specs.pdf` will get the `photo` icon.
 - `documents/checklist.pdf`, `documents/guide.pdf` and `documents/payment.docx` will receive `Title` as set by `title`.
-- Every pdf in the bundle except `documents/photo_specs.pdf` will receive the `pdf` icon.
-- All pdf files will get a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#counter). That will cause the retrieved pdf files to have names `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
+- Every `PDF` in the bundle except `documents/photo_specs.pdf` will receive the `pdf` icon.
+- All `PDF` files will get a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#counter), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
 - Every docx in the bundle will receive the `word` icon.
 
 {{% warning %}}
@@ -156,11 +157,11 @@ The __order matters__ --- Only the **first set** values of the `title`, `name` a
 
 ### `:counter` placeholder in `name` and `title` {#counter}
 
-The `:counter` is a special placeholder recognized in `name` and `title` parameters in the `resources` Front Matter.
+The `:counter` is a special placeholder recognized in `name` and `title` parameters in the `resources` front matter.
 
 If the `name` value contains the `":counter"` string, a "name-counter" is initialized to 1, and if the `title` value contains the same string, a separate "title-counter" is initialized to 1 as well.
 
-For example, if a bundle has the resources `photo_specs.pdf`, `other_specs.pdf`, `guide.pdf` and `checklist.pdf`, and the Front Matter has specified the `resources` as:
+For example, if a bundle has the resources `photo_specs.pdf`, `other_specs.pdf`, `guide.pdf` and `checklist.pdf`, and the front matter has specified the `resources` as:
 
 ~~~toml
 [[resources]]
