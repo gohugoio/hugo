@@ -208,7 +208,6 @@ func AddCommands() {
 	HugoCmd.AddCommand(convertCmd)
 	HugoCmd.AddCommand(newCmd)
 	HugoCmd.AddCommand(listCmd)
-	HugoCmd.AddCommand(undraftCmd)
 	HugoCmd.AddCommand(importCmd)
 
 	HugoCmd.AddCommand(genCmd)

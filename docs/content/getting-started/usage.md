@@ -53,7 +53,6 @@ Available Commands:
   list        Listing out various types of content
   new         Create new content for your site
   server      A high performance webserver
-  undraft     Undraft resets the content's draft status
   version     Print the version number of Hugo
 
 Flags:
