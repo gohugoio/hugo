@@ -250,5 +250,11 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("debug", false)
 	v.SetDefault("disableFastRender", false)
 
+	// Remove in Hugo 0.37
+	if v.GetBool("useModTimeAsFallback") {
+		helpers.Deprecated("Site config", "useModTimeAsFallback", "Try --enableGitInfo or set lastMod in front matter", false)
+
+	}
+
 	return loadLanguageSettings(v, nil)
 }
