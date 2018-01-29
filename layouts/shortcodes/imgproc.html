@@ -1,4 +1,4 @@
-{{ $original := .Page.Resources.GetByPrefix (.Get 0) }}
+{{ $original := .Page.Resources.GetMatch (printf "%s*" (.Get 0)) }}
 {{ $command := .Get 1 }}
 {{ $options := .Get 2 }}
 {{ if eq $command "Fit"}}
