@@ -536,6 +536,7 @@ func (s *Site) timerStep(step string) {
 type whatChanged struct {
 	source bool
 	other  bool
+	files  map[string]bool
 }
 
 // RegisterMediaTypes will register the Site's media types in the mime
@@ -640,6 +641,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 		dataChanged         = []fsnotify.Event{}
 		i18nChanged         = []fsnotify.Event{}
 		shortcodesChanged   = make(map[string]bool)
+		sourceFilesChanged  = make(map[string]bool)
 
 		// prevent spamming the log on changes
 		logger = helpers.NewDistinctFeedbackLogger()
@@ -723,7 +725,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 		}
 
 		sourceReallyChanged = append(sourceReallyChanged, ev)
-
+		sourceFilesChanged[ev.Name] = true
 	}
 
 	for shortcode := range shortcodesChanged {
@@ -758,6 +760,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 	changed := whatChanged{
 		source: len(sourceChanged) > 0,
 		other:  len(tmplChanged) > 0 || len(i18nChanged) > 0 || len(dataChanged) > 0,
+		files:  sourceFilesChanged,
 	}
 
 	return changed, nil
@@ -938,7 +941,7 @@ func (s *Site) render(config *BuildCfg, outFormatIdx int) (err error) {
 
 	}
 
-	if err = s.renderPages(config.RecentlyVisited); err != nil {
+	if err = s.renderPages(config.RecentlyVisited, config.whatChanged.files); err != nil {
 		return
 	}
 
@@ -1246,7 +1249,6 @@ func (c *contentCaptureResultHandler) handleCopyFiles(filenames ...string) {
 }
 
 func (s *Site) readAndProcessContent(filenames ...string) error {
-
 	ctx := context.Background()
 	g, ctx := errgroup.WithContext(ctx)
 
