@@ -141,6 +141,9 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 
 func TestMultiSitesWithTwoLanguages(t *testing.T) {
 	t.Parallel()
+
+	assert := require.New(t)
+
 	mm := afero.NewMemMapFs()
 
 	writeToFs(t, mm, "config.toml", `
@@ -152,11 +155,15 @@ defaultContentLanguage = "nn"
 languageName = "Nynorsk"
 weight = 1
 title = "Tittel på Nynorsk"
+[languages.nn.params]
+p1 = "p1nn"
 
 [languages.en]
 title = "Title in English"
 languageName = "English"
 weight = 2
+[languages.en.params]
+p1 = "p1en"
 `,
 	)
 
@@ -176,15 +183,24 @@ weight = 2
 	// Add some data
 	writeSource(t, fs, filepath.Join("data", "hugo.toml"), "slogan = \"Hugo Rocks!\"")
 
-	require.NoError(t, sites.Build(BuildCfg{}))
-	require.Len(t, sites.Sites, 2)
+	assert.NoError(sites.Build(BuildCfg{}))
+	assert.Len(sites.Sites, 2)
 
 	nnSite := sites.Sites[0]
-	nnSiteHome := nnSite.getPage(KindHome)
-	require.Len(t, nnSiteHome.AllTranslations(), 2)
-	require.Len(t, nnSiteHome.Translations(), 1)
-	require.True(t, nnSiteHome.IsTranslated())
+	nnHome := nnSite.getPage(KindHome)
+	assert.Len(nnHome.AllTranslations(), 2)
+	assert.Len(nnHome.Translations(), 1)
+	assert.True(nnHome.IsTranslated())
 
+	enHome := sites.Sites[1].getPage(KindHome)
+
+	p1, err := enHome.Param("p1")
+	assert.NoError(err)
+	assert.Equal("p1en", p1)
+
+	p1, err = nnHome.Param("p1")
+	assert.NoError(err)
+	assert.Equal("p1nn", p1)
 }
 
 //
