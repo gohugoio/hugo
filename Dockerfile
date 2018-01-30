@@ -1,23 +1,35 @@
-FROM golang:1.9.0-alpine3.6 AS build
+# GitHub:  https://github.com/gohugoio/
+# Docker:  https://hub.docker.com/r/gohugoio/
+# Twitter: https://twitter.com/gohugoio
 
-RUN apk add --no-cache --virtual git musl-dev
-RUN go get github.com/golang/dep/cmd/dep
+FROM golang:1.10-rc-alpine3.7 AS build
 
-WORKDIR /go/src/github.com/gohugoio/hugo
-RUN dep ensure
-ADD . /go/src/github.com/gohugoio/hugo/
-RUN go install -ldflags '-s -w'
+RUN \
+  apk add --no-cache \
+    git \
+    musl-dev && \
+  go get github.com/golang/dep/cmd/dep && \
+  go get github.com/kardianos/govendor && \
+  govendor get github.com/gohugoio/hugo && \
+  cd /go/src/github.com/gohugoio/hugo && \
+  dep ensure && \
+  go install -ldflags '-s -w'
 
-FROM alpine:3.6
+# ---
+
+FROM alpine:3.7
+
+COPY --from=build /go/bin/hugo /bin/hugo
+
 RUN \
   adduser -h /site -s /sbin/nologin -u 1000 -D hugo && \
-  apk add --no-cache \
-    dumb-init
-COPY --from=build /go/bin/hugo /bin/hugo
+  apk add --no-cache dumb-init
+
 USER    hugo
 WORKDIR /site
 VOLUME  /site
 EXPOSE  1313
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--", "hugo"]
+ENTRYPOINT [ "/usr/bin/dumb-init", "--", "hugo" ]
 CMD [ "--help" ]
+
