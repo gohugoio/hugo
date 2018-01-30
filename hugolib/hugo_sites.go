@@ -325,6 +325,26 @@ type BuildCfg struct {
 	RecentlyVisited map[string]bool
 }
 
+// shouldRender is used in the Fast Render Mode to determine if we need to re-render
+// a Page: If it is recently visited (the home pages will always be in this set) or changed.
+// Note that a page does not have to have a content page / file.
+// For regular builds, this will allways return true.
+func (cfg *BuildCfg) shouldRender(p *Page) bool {
+	if len(cfg.RecentlyVisited) == 0 {
+		return true
+	}
+
+	if cfg.RecentlyVisited[p.RelPermalink()] {
+		return true
+	}
+
+	if cfg.whatChanged != nil && p.File != nil && cfg.whatChanged.files[p.File.Filename()] {
+		return true
+	}
+
+	return false
+}
+
 func (h *HugoSites) renderCrossSitesArtifacts() error {
 
 	if !h.multilingual.enabled() || h.IsMultihost() {

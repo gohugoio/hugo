@@ -24,7 +24,7 @@ import (
 
 // renderPages renders pages each corresponding to a markdown file.
 // TODO(bep np doc
-func (s *Site) renderPages(filter map[string]bool, files map[string]bool) error {
+func (s *Site) renderPages(cfg *BuildCfg) error {
 
 	results := make(chan error)
 	pages := make(chan *Page)
@@ -47,13 +47,10 @@ func (s *Site) renderPages(filter map[string]bool, files map[string]bool) error 
 
 	}
 
-	hasFilter := filter != nil && len(filter) > 0
-
 	for _, page := range s.Pages {
-		if hasFilter && !filter[page.RelPermalink()] && !files[page.Source.Filename()] {
-			continue
+		if cfg.shouldRender(page) {
+			pages <- page
 		}
-		pages <- page
 	}
 
 	close(pages)

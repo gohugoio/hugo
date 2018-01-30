@@ -941,7 +941,7 @@ func (s *Site) render(config *BuildCfg, outFormatIdx int) (err error) {
 
 	}
 
-	if err = s.renderPages(config.RecentlyVisited, config.whatChanged.files); err != nil {
+	if err = s.renderPages(config); err != nil {
 		return
 	}
 
