@@ -111,10 +111,20 @@ func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (helpers.L
 				language.LanguageName = cast.ToString(v)
 			case "weight":
 				language.Weight = cast.ToInt(v)
+			case "params":
+				m := cast.ToStringMap(v)
+				// Needed for case insensitive fetching of params values
+				helpers.ToLowerMap(m)
+				for k, vv := range m {
+					language.SetParam(k, vv)
+				}
 			}
 
 			// Put all into the Params map
 			language.SetParam(loki, v)
+
+			// Also set it in the configuration map (for baseURL etc.)
+			language.Set(loki, v)
 		}
 
 		langs[i] = language

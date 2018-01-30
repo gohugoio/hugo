@@ -16,7 +16,6 @@ package helpers
 import (
 	"sort"
 	"strings"
-	"sync"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/cast"
@@ -42,9 +41,16 @@ type Language struct {
 	Title        string
 	Weight       int
 
-	Cfg        config.Provider
-	params     map[string]interface{}
-	paramsInit sync.Once
+	Cfg config.Provider
+
+	// These are params declared in the [params] section of the language merged with the
+	// site's params, the most specific (language) wins on duplicate keys.
+	params map[string]interface{}
+
+	// These are config values, i.e. the settings declared outside of the [params] section of the language.
+	// This is the map Hugo looks in when looking for configuration values (baseURL etc.).
+	// Values in this map can also be fetched from the params map above.
+	settings map[string]interface{}
 }
 
 func (l *Language) String() string {
@@ -53,15 +59,14 @@ func (l *Language) String() string {
 
 // NewLanguage creates a new language.
 func NewLanguage(lang string, cfg config.Provider) *Language {
+	// Note that language specific params will be overridden later.
+	// We should improve that, but we need to make a copy:
 	params := make(map[string]interface{})
-	// Merge with global config.
-	globalParams := cfg.GetStringMap("params")
-	for k, v := range globalParams {
-		if _, ok := params[k]; !ok {
-			params[k] = v
-		}
+	for k, v := range cfg.GetStringMap("params") {
+		params[k] = v
 	}
-	l := &Language{Lang: lang, Cfg: cfg, params: params}
+	ToLowerMap(params)
+	l := &Language{Lang: lang, Cfg: cfg, params: params, settings: make(map[string]interface{})}
 	return l
 }
 
@@ -115,7 +120,7 @@ func (l Languages) IsMultihost() bool {
 	return false
 }
 
-// SetParam sets param with the given key and value.
+// SetParam sets a param with the given key and value.
 // SetParam is case-insensitive.
 func (l *Language) SetParam(k string, v interface{}) {
 	l.params[strings.ToLower(k)] = v
@@ -166,7 +171,7 @@ func (l *Language) GetLocal(key string) interface{} {
 	}
 	key = strings.ToLower(key)
 	if !globalOnlySettings[key] {
-		if v, ok := l.params[key]; ok {
+		if v, ok := l.settings[key]; ok {
 			return v
 		}
 	}
@@ -179,7 +184,7 @@ func (l *Language) Set(key string, value interface{}) {
 		panic("language not set")
 	}
 	key = strings.ToLower(key)
-	l.params[key] = value
+	l.settings[key] = value
 }
 
 // IsSet checks whether the key is set in the language or the related config store.
@@ -188,7 +193,7 @@ func (l *Language) IsSet(key string) bool {
 
 	key = strings.ToLower(key)
 	if !globalOnlySettings[key] {
-		if _, ok := l.params[key]; ok {
+		if _, ok := l.settings[key]; ok {
 			return true
 		}
 	}
