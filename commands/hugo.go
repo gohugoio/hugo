@@ -1156,14 +1156,6 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 					doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
 					onePageName := pickOneWriteOrCreatePath(dynamicEvents)
 
-					if onePageName != "" && doLiveReload && !c.Cfg.GetBool("disableFastRender") {
-						p := Hugo.GetContentPage(onePageName)
-						if p != nil {
-							c.visitedURLs.Add(p.RelPermalink())
-						}
-
-					}
-
 					c.Logger.FEEDBACK.Println("\nChange detected, rebuilding site")
 					const layout = "2006-01-02 15:04:05.000 -0700"
 					c.Logger.FEEDBACK.Println(time.Now().Format(layout))
