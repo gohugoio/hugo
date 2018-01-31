@@ -47,8 +47,13 @@
       <div class="fn pl5-l pt3 mid-gray w-100 w-two-third-l sans-serif nested-copy-line-height no-underline nested-links nested-img nested-copy-seperator nested-blockquote measure-wide-l"><!-- TODO: Can the content top and the description top line up more precisely, or is just winging it with padding the best we've got? -->
         {{ with .Params.featured_image_path }}
           <img src="{{ . }}" alt="Featured Image for {{ $.Title }}" class="mw-100">
-        {{ end }}
-
+        {{ else }}
+          {{ $featured := (.Resources.ByType "image").GetMatch "*featured*" }}
+          {{ with $featured }}
+          {{ $featured := .Resize "480x" }}
+          <img src="{{ $featured.RelPermalink }}" alt="Featured Image for {{ $.Title }}" class="mw-100">
+          {{ end }}
+          {{ end }}
         {{ .Content }}
       </div>
     </div>
