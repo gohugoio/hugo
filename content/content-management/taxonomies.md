@@ -240,7 +240,7 @@ If you need to add custom metadata to your taxonomy terms, you will need to crea
   ---
 {{< /code >}}
 
-You can later use your custom metadata as shown in the [Taxonomy Terms Templates documentation](/templates/taxonomy-templates/#displaying-custom-meta-data-in-taxonomy-terms-templates).
+You can later use your custom metadata as shown in the [Taxonomy Terms Templates documentation](/templates/taxonomy-templates/#displaying-custom-metadata-in-taxonomy-terms-templates).
 
 [`urlize` template function]: /functions/urlize/
 [content section]: /content-management/sections/

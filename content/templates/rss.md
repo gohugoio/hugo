@@ -5,7 +5,7 @@ description: Hugo ships with its own RSS 2.0 template that requires almost no co
 date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
-keywords: [rss, xml]
+keywords: [rss, xml, templates]
 categories: [templates]
 menu:
   docs:
@@ -20,12 +20,7 @@ toc: true
 
 ## RSS Template Lookup Order
 
-You can use a single RSS template to generate all of your RSS feeds or create a specific template for each individual feed.
-
-1. `/layouts/section/<section>.rss.xml`
-2. `/layouts/_default/rss.xml`
-3. `/themes/<theme>/layouts/section/<section>.rss.xml`
-4. `/themes/<theme>/layouts/_default/rss.xml`
+See [Template Lookup](/templates/lookup-order/).
 
 {{% note "Hugo Ships with an RSS Template" %}}
 Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml). The embedded template will be sufficient for most use cases.
