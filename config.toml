@@ -98,7 +98,8 @@ twitter = "GoHugoIO"
 ## Configuration for BlackFriday markdown parser: https://github.com/russross/blackfriday
 [blackfriday]
 	plainIDAnchors = true
-	hrefTargetBlank = true
+  # See https://github.com/gohugoio/hugo/issues/2424
+	hrefTargetBlank = false
   angledQuotes = false
   latexDashes = true
 

@@ -1,11 +1,11 @@
 ---
 title: "Image Processing"
-description: "For images part of a page resources or bundle, Hugo allow image processing"
+description: "Image Page resources can be resized and cropped."
 date: 2018-01-24T13:10:00-05:00
 lastmod: 2018-01-26T15:59:07-05:00
 linktitle: "Image Processing"
 categories: ["content management"]
-keywords: [bundle,content,resources]
+keywords: [bundle,content,resources,images]
 weight: 4004
 draft: false
 toc: true
@@ -15,9 +15,24 @@ menu:
     weight: 32
 ---
 
-## Methods
+## The Image Page Resource
 
-The `image` resource implements the methods `Resize`, `Fit` and `Fill`, each returning the transformed image using the specified dimensions and processing options. They take one parameter.
+The `image` is a [Page Resource]({{< relref "content-management/page-resources" >}}), and the processing methods listed below does not work on images inside your `/static` folder.
+
+
+To get all images in a [Page Bundle]({{< relref "content-management/organization#page-bundles" >}}):
+
+
+```html
+{{ with .Resources.ByType "image" }}
+{{ end }}
+
+```
+
+## Image Processing Methods
+
+
+The `image` resource implements the methods `Resize`, `Fit` and `Fill`, each returning the transformed image using the specified dimensions and processing options.
 
 Resize
 : Resizes the image to the specified width and height.
@@ -53,7 +68,7 @@ Image operations in Hugo currently **do not preserve EXIF data** as this is not 
 {{% /note %}}
 
 
-## Options
+## Image Processing Options
 
 In addition to the dimensions (e.g. `600x400`), Hugo supports a set of additional image options.
 
@@ -82,9 +97,41 @@ Valid are `Center`, `TopLeft`, `Top`, `TopRight`, `Left`, `Right`, `BottomLeft`,
 
 Resample Filter
 : Filter used in resizing. Default is `Box`, a simple and fast resampling filter appropriate for downscaling. 
-Among them: `Box`, `NearestNeighbor`, `Linear`, `Gaussian`.
+
+Examples are: `Box`, `NearestNeighbor`, `Linear`, `Gaussian`.
+
 See https://github.com/disintegration/imaging for more. If you want to trade quality for faster processing, this may be a option to test. 
 
 ```go
 {{ $image.Resize "600x400 Gaussian" }}
 ```
+
+### Image Processing Examples
+
+_The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pedersen](https://commons.wikimedia.org/wiki/User:Bep) (Creative Commons Attribution-Share Alike 4.0 International license)_
+
+
+{{< imgproc sunset Resize "300x" >}}
+
+{{< imgproc sunset Fill "90x120 left" >}}
+
+{{< imgproc sunset Fill "90x120 right" >}}
+
+{{< imgproc sunset Fit "90x90" >}}
+
+{{< imgproc sunset Resize "300x q10" >}}
+
+
+This is the shortcode used in the examples above:
+
+
+{{< code file="layouts/shortcodes/imgproc.html" >}}
+{{< readfile file="layouts/shortcodes/imgproc.html" >}}   
+{{< /code >}}
+
+And it is used like this:
+
+```html
+{{</* imgproc sunset Resize "300x" */>}}
+```
+

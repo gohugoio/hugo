@@ -19,7 +19,7 @@ toc: true
 
 {{< youtube 0GZxidrlaRM >}}
 
-## Content Bundles and Image Processing
+## Page Bundles
 
 See [This Page](/about/new-in-032/). We will get the relevant parts of the rest of the Hugo docs updated. Eventually.
 
