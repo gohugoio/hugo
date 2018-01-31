@@ -2,11 +2,7 @@
 ---
 date: 2018-01-22
 title: "Hugo 0.34: Pattern matching to filter images and other resources"
-description: "Hugo 0.34 adds full glob with super-asterisk support, for example `*.jpg`."
-slug: "0.34-relnotes"
-categories: ["Releases"]
-images:
-- images/blog/hugo-34-poster.png
+description: "Hugo 0.34 acategories: ["Releases"]
 ---
 
 	
