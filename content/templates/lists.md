@@ -31,6 +31,8 @@ Hugo uses the term *list* in its truest sense; i.e. a sequential arrangement of 
 * [Section list pages][sectiontemps]
 * [RSS][rss]
 
+For template lookup order, see [Template Lookup](/templates/lookup-order/).
+
 The idea of a list page comes from the [hierarchical mental model of the web][mentalmodel] and is best demonstrated visually:
 
 ![Image demonstrating a hierarchical website sitemap.](/images/site-hierarchy.svg)

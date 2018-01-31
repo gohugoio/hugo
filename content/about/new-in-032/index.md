@@ -126,15 +126,15 @@ Image operations in Hugo currently **do not preserve EXIF data** as this is not 
 _The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pedersen](https://commons.wikimedia.org/wiki/User:Bep) (Creative Commons Attribution-Share Alike 4.0 International license)_
 
 
-{{< imgproc sunset Resize "300x" >}}
+{{< imgproc sunset Resize "300x" />}}
 
-{{< imgproc sunset Fill "90x120 left" >}}
+{{< imgproc sunset Fill "90x120 left" />}}
 
-{{< imgproc sunset Fill "90x120 right" >}}
+{{< imgproc sunset Fill "90x120 right" />}}
 
-{{< imgproc sunset Fit "90x90" >}}
+{{< imgproc sunset Fit "90x90" />}}
 
-{{< imgproc sunset Resize "300x q10" >}}
+{{< imgproc sunset Resize "300x q10" />}}
 
 
 This is the shortcode used in the examples above:
