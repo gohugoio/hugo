@@ -724,7 +724,18 @@ func (p *Page) renderContent(content []byte) []byte {
 		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
 		Cfg:        p.Language(),
 		DocumentID: p.UniqueID(), DocumentName: p.Path(),
-		Config: p.getRenderingConfig()})
+		HandleTitle: p.getTitleHandler(),
+		Config:      p.getRenderingConfig()})
+}
+
+//The title handler sets the default Page title to the content of the first level 1 Markdown header
+func (p *Page) getTitleHandler() func(title string) bool {
+	return func(title string) bool {
+		if p.title == "" {
+			p.title = title
+		}
+		return false
+	}
 }
 
 func (p *Page) getRenderingConfig() *helpers.BlackFriday {

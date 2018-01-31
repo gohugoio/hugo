@@ -445,6 +445,9 @@ type RenderingContext struct {
 	Config       *BlackFriday
 	RenderTOC    bool
 	Cfg          config.Provider
+	// handle the first level-one header,
+	// return whether or not to remove it from the page body
+	HandleTitle func(title string) bool
 }
 
 // RenderBytes renders a []byte.
