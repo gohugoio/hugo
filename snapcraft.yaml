@@ -11,7 +11,7 @@ grade: devel # "devel" or "stable"
 apps:
   hugo:
     command: bin/hugo
-    plugs: [home, network-bind]
+    plugs: [home, network-bind, removable-media]
 
 parts:
   hugo:
