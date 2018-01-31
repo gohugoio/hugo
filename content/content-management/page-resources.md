@@ -1,8 +1,9 @@
 ---
 title : "Page Resources"
-description : "Page Resources -- images, other pages etc. -- have page-relative URLs and their own metadata."
+description : "Page Resources -- images, other pages, documents etc. -- have page-relative URLs and their own metadata."
 date: 2018-01-24
 categories: ["content management"]
+keywords: [bundle,content,resources]
 weight: 4003
 draft: false
 toc: true
@@ -62,7 +63,7 @@ GetMatch
 
 ## Page Resources Metadata
 
-Page Resources' metadata is managed from their page's front matter with an array/table parameter named `resources`. You can batch assign values using a glob pattern.
+Page Resources' metadata is managed from their page's front matter with an array/table parameter named `resources`. You can batch assign values using a [wildcards](http://tldp.org/LDP/GNU-Linux-Tools-Summary/html/x11655.htm).
 
 {{% note %}}
 Resources of type `page` get `Title` etc. from their own front matter.
@@ -83,6 +84,7 @@ params
 
 
 ###  Resources metadata: YAML Example
+
 ~~~yaml
 title: Application
 date : 2018-01-25
@@ -146,8 +148,8 @@ From the example above:
 
 - `sunset.jpg` will receive a new `Name` and can now be found with `.GetMatch "header"`.
 - `documents/photo_specs.pdf` will get the `photo` icon.
-- `documents/checklist.pdf`, `documents/guide.pdf` and `documents/payment.docx` will receive `Title` as set by `title`.
-- Every `PDF` in the bundle except `documents/photo_specs.pdf` will receive the `pdf` icon.
+- `documents/checklist.pdf`, `documents/guide.pdf` and `documents/payment.docx` will get `Title` as set by `title`.
+- Every `PDF` in the bundle except `documents/photo_specs.pdf` will get the `pdf` icon.
 - All `PDF` files will get a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#counter), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
 - Every docx in the bundle will receive the `word` icon.
 
@@ -155,18 +157,18 @@ From the example above:
 The __order matters__ --- Only the **first set** values of the `title`, `name` and `params`-**keys** will be used. Consecutive parameters will be set only for the ones not already set. For example, in the above example, `.Params.icon` is already first set to `"photo"` in `src = "documents/photo_specs.pdf"`. So that would not get overridden to `"pdf"` by the later set `src = "**.pdf"` rule.
 {{%/ warning %}}
 
-### `:counter` placeholder in `name` and `title` {#counter}
+### The `:counter` placeholder in `name` and `title`
 
-The `:counter` is a special placeholder recognized in `name` and `title` parameters in the `resources` front matter.
+The `:counter` is a special placeholder recognized in `name` and `title` parameters `resources`.
 
-If the `name` value contains the `":counter"` string, a "name-counter" is initialized to 1, and if the `title` value contains the same string, a separate "title-counter" is initialized to 1 as well.
+The counter starts at 1 the first time they are used in either `name` or `title`.
 
 For example, if a bundle has the resources `photo_specs.pdf`, `other_specs.pdf`, `guide.pdf` and `checklist.pdf`, and the front matter has specified the `resources` as:
 
 ~~~toml
 [[resources]]
   src = "*specs.pdf"
-  title = "Specifications #:counter"
+  title = "Specification #:counter"
 [[resources]]
   src = "**.pdf"
   name = "pdf-file-:counter"
@@ -178,5 +180,5 @@ the `Name` and `Title` will be assigned to the resource files as follows:
 |-------------------|-------------------|-----------------------|
 | checklist.pdf     | `"pdf-file-1.pdf` | `"checklist.pdf"`     |
 | guide.pdf         | `"pdf-file-2.pdf` | `"guide.pdf"`         |
-| other\_specs.pdf  | `"pdf-file-3.pdf` | `"Specifications #1"` |
-| photo\_specs.pdf  | `"pdf-file-4.pdf` | `"Specifications #2"` |
+| other\_specs.pdf  | `"pdf-file-3.pdf` | `"Specification #1"` |
+| photo\_specs.pdf  | `"pdf-file-4.pdf` | `"Specification #2"` |

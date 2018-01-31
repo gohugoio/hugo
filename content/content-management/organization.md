@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [content management,fundamentals]
-keywords: [sections,content,organization]
+keywords: [sections,content,organization,bundle,resources]
 menu:
   docs:
     parent: "content-management"
