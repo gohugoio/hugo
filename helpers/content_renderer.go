@@ -28,6 +28,7 @@ type HugoHTMLRenderer struct {
 	cs *ContentSpec
 	*RenderingContext
 	blackfriday.Renderer
+	titleHandled bool
 }
 
 // BlockCode renders a given text as a block of code.
@@ -40,6 +41,26 @@ func (r *HugoHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string
 		out.WriteString(highlighted)
 	} else {
 		r.Renderer.BlockCode(out, text, lang)
+	}
+}
+
+// Header adds special treatment for first level-one headers to the Blackfriday renderer.
+func (r *HugoHTMLRenderer) Header(out *bytes.Buffer, text func() bool, level int, id string) {
+	if !r.titleHandled && level == 1 && r.RenderingContext.HandleTitle != nil {
+		r.titleHandled = true
+		marker := out.Len()
+		if text() {
+			header := out.Bytes()[marker:]
+			out.Truncate(marker)
+			extract := r.RenderingContext.HandleTitle(string(header))
+			if !extract {
+				r.Renderer.Header(out, text, level, id)
+			}
+		} else {
+			out.Truncate(marker)
+		}
+	} else {
+		r.Renderer.Header(out, text, level, id)
 	}
 }
 
