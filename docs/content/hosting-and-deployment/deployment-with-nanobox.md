@@ -115,8 +115,8 @@ Do this by adding a custom install script at the root of your project that will 
 
 if [[ ! -f /data/bin/hugo ]]; then
   cd /tmp
-  wget https://github.com/gohugoio/hugo/releases/download/v0.25.1/hugo_0.25.1_Linux-64bit.tar.gz
-  tar -xzf hugo_0.25.1_Linux-64bit.tar.gz
+  wget https://github.com/gohugoio/hugo/releases/download/v0.31.1/hugo_0.31.1_Linux-64bit.tar.gz
+  tar -xzf hugo_0.31.1_Linux-64bit.tar.gz
   mv hugo /data/bin/hugo
   cd -
   rm -rf /tmp/*
@@ -126,6 +126,9 @@ fi
 
 {{% note %}}
 If the install script fails during `nanobox run` you may need to make it executable with `chmod +x install.sh`
+{{% /note %}}
+{{% note %}}
+Make sure to check the version of Hugo you have installed and update the install script to match.
 {{% /note %}}
 
 ### Generating a New Hugo App

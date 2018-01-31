@@ -17,7 +17,7 @@ aliases: [/content/multilingual/,/content-management/multilingual/,/tutorials/cr
 toc: true
 ---
 
-You should define the available languages in a `Languages` section in your site configuration.
+You should define the available languages in a `languages` section in your site configuration.
 
 ## Configure Languages
 
@@ -30,22 +30,24 @@ copyright = "Everything is mine"
 [params.navigation]
 help  = "Help"
 
-[Languages]
-[Languages.en]
+[languages]
+[languages.en]
 title = "My blog"
 weight = 1
 linkedin = "english-link"
 
-[Languages.fr]
+[languages.fr]
 copyright = "Tout est à moi"
 title = "Mon blog"
 weight = 2
 linkedin = "lien-francais"
-[Languages.fr.navigation]
+
+# skip params key for front matter
+[languages.fr.navigation]
 help  = "Aide"
 {{< /code >}}
 
-Anything not defined in a `[Languages]` block will fall back to the global
+Anything not defined in a `[languages]` block will fall back to the global
 value for that key (e.g., `copyright` for the English [`en`] language).
 
 With the configuration above, all content, sitemap, RSS feeds, paginations,
@@ -116,17 +118,17 @@ tag = "tags"
 angledQuotes = true
 hrefTargetBlank = true
 
-[Languages]
-[Languages.en]
+[languages]
+[languages.en]
 weight = 1
 title = "English"
-[Languages.en.blackfriday]
+[languages.en.blackfriday]
 angledQuotes = false
 
-[Languages.fr]
+[languages.fr]
 weight = 2
 title = "Français"
-[Languages.fr.Taxonomies]
+[languages.fr.Taxonomies]
 plaque = "plaques"
 {{< /code >}}
 
@@ -186,7 +188,7 @@ To create a list of links to translated content, use a template similar to the f
 {{ end }}
 {{< /code >}}
 
-The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template, be it for a [single content page][contenttemplate] or the [homepage][]. It will not print anything if there are no translations for a given page, or if there are translations---in the case of the homepage, section listing, etc.---a site with only render one language.
+The above can be put in a `partial` (i.e., inside `layouts/partials/`) and included in any template, be it for a [single content page][contenttemplate] or the [homepage][]. It will not print anything if there are no translations for a given page.
 
 The above also uses the [`i18n` function][i18func] described in the next section.
 

@@ -46,10 +46,10 @@ Once you have cloned the Hugo repository, you can create a new function via the 
 hugo new functions/newfunction.md
 ```
 
-The archetype for `functions` according to the Hugo theme is as follows:
+The archetype for `functions` according to the Hugo docs is as follows:
 
 {{< code file="archetypes/functions.md" >}}
-{{< readfile file="/themes/gohugoioTheme/archetypes/functions.md">}}
+{{< readfile file="/archetypes/functions.md">}}
 {{< /code >}}
 
 #### New Function Required Fields

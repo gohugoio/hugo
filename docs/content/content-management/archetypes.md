@@ -173,7 +173,7 @@ title = "post from custom archetype"
 As an example of archetypes in practice, the following is the `functions` archetype from the Hugo docs:
 
 {{< code file="archetypes/functions.md" >}}
-{{< readfile file="/themes/gohugoioTheme/archetypes/functions.md" >}}
+{{< readfile file="/archetypes/functions.md" >}}
 {{< /code >}}
 
 {{% note %}}

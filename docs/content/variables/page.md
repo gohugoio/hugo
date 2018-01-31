@@ -10,6 +10,7 @@ keywords: [pages]
 draft: false
 menu:
   docs:
+    title: "variables defined by a page"
     parent: "variables"
     weight: 20
 weight: 20
