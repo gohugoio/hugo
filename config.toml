@@ -71,7 +71,7 @@ twitter = "GoHugoIO"
 [params]
   description = "The world’s fastest framework for building websites"
   ## Used for views in rendered HTML (i.e., rather than using the .Hugo variable)
-  release = "0.32.4"
+  release = "0.34"
   ## Setting this to true will add a "noindex" to *EVERY* page on the site
   removefromexternalsearch = false
   ## Gh repo for site footer (include trailing slash)
@@ -98,7 +98,8 @@ twitter = "GoHugoIO"
 ## Configuration for BlackFriday markdown parser: https://github.com/russross/blackfriday
 [blackfriday]
 	plainIDAnchors = true
-	hrefTargetBlank = true
+  # See https://github.com/gohugoio/hugo/issues/2424
+	hrefTargetBlank = false
   angledQuotes = false
   latexDashes = true
 

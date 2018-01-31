@@ -55,7 +55,6 @@ toc: true
 * Support for [Go][], [Amber], and [Ace][] HTML templates
 * [Syntax highlighting][] powered by [Pygments][]
 
-See what's coming next in the [Hugo roadmap][].
 
 [Ace]: /templates/alternatives/
 [aliases]: /content-management/urls/#aliases
@@ -71,7 +70,6 @@ See what's coming next in the [Hugo roadmap][].
 [Google Analytics]: https://google-analytics.com/
 [homepage]: /templates/homepage/
 [hostanywhere]: /hosting-and-deployment/
-[Hugo roadmap]: /about/roadmap
 [install]: /getting-started/installing/
 [LiveReload]: /getting-started/usage/
 [organization for your projects]: /getting-started/directory-structure/

@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
-keywords: [shortcodes]
+keywords: [shortcodes,templates]
 menu:
   docs:
     parent: "templates"
@@ -136,6 +136,10 @@ While you can create shortcode templates that accept both positional and named p
 You can also use the variable `.Page` to access all the normal [page variables][pagevars].
 
 A shortcodes can also be nested. In a nested shortcode, you can access the parent shortcode context with [`.Parent` variable][shortcodesvars]. This can be very useful for inheritance of common shortcode parameters from the root.
+
+### Checking for Existence
+
+You can check if a specific shortcode is used on a page by calling `.HasShortcode` in that page template, providing the name of the shortcode. This is sometimes useful when you want to include specific scripts or styles in the header that are only used by that shortcode.
 
 ## Custom Shortcode Examples
 

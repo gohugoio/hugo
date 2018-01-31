@@ -6,7 +6,7 @@ date: 2017-02-01
 publishdate: 2017-02-01
 lastmod: 2017-02-01
 categories: [templates]
-keywords: [lists,sections]
+keywords: [lists,sections,templates]
 menu:
   docs:
     parent: "templates"
@@ -24,18 +24,7 @@ To effectively leverage section page templates, you should first understand Hugo
 
 ## Section Template Lookup Order
 
-The [lookup order][lookup] for section templates is as follows:
-
-1. `/layouts/section/<SECTION>.html`
-2. `/layouts/<SECTION>/list.html`
-3. `/layouts/_default/section.html`
-4. `/layouts/_default/list.html`
-5. `/themes/<THEME>/layouts/section/<SECTION>.html`
-6. `/themes/<THEME>/layouts/<SECTION>/list.html`
-7. `/themes/<THEME>/layouts/_default/section.html`
-8. `/themes/<THEME>/layouts/_default/list.html`
-
-{{< youtube jrMClsB3VsY >}}
+See [Template Lookup](/templates/lookup-order/).
 
 ## `.Site.GetPage` with Sections
 
