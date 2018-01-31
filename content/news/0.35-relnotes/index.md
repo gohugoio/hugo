@@ -1,9 +1,8 @@
 
 ---
 date: 2018-01-31
-title: "0.35"
-description: "0.35"
-slug: "0.35"
+title: "Hugo 0.35: Headless Bundless!"
+description: "Headless Bundles, disable languages, improve fast render mode, and much more."
 categories: ["Releases"]
 ---
 
