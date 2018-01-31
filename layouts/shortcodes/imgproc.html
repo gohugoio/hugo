@@ -14,6 +14,12 @@
 <figure style="width: {{ add $image.Width 3 }}px; padding: 3px; background-color: #cccc">
 	<img src="{{ $image.RelPermalink }}" width="{{ $image.Width }}" height="{{ $image.Height }}">
 	<figcaption>
-	<small>.{{ $command }} "{{ $options }}"</small>
+	<small>
+	{{ with .Inner }}
+	{{ . }}
+	{{ else }}
+	.{{ $command }} "{{ $options }}"
+	{{ end }}
+	</small>
 	</figcaption>
 </figure>

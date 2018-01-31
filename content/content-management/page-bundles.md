@@ -5,7 +5,7 @@ date : 2018-01-24T13:09:00-05:00
 lastmod : 2018-01-28T22:26:40-05:00
 linktitle : "Page Bundles"
 keywords : ["page", "bundle", "leaf", "branch"]
-categories : ["content management", "bundle"]
+categories : ["content management"]
 draft : true
 toc : true
 menu :

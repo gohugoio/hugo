@@ -17,17 +17,24 @@ aliases: [/content/sections/]
 toc: true
 ---
 
-{{< youtube 0GZxidrlaRM >}}
-
 ## Page Bundles
 
-See [This Page](/about/new-in-032/). We will get the relevant parts of the rest of the Hugo docs updated. Eventually.
+Hugo `0.32` announced page-relative images and other resources packaged into `Page Bundles`. 
 
-{{< todo >}}
-Remove the above when done.
-{{< /todo >}}
+These terms are connected, and you also need to read about [Page Resources]({{< relref "content-management/page-resources" >}}) and [Image Processing]({{< relref "content-management/image-processing" >}}) to get the full picture.
 
-## Organization of Content Source
+{{% imgproc 1-featured Resize "300x" %}}
+The illustration shows 3 bundles. Note that the home page bundle cannot contain other content pages, but other files (images etc.) are fine.
+{{% /imgproc %}}
+
+
+{{% note %}}
+The bundle docuementation is **work in progress**. We will publish more comprehensive docs about this soon.
+{{% /note %}}
+
+
+# Organization of Content Source
+
 
 In Hugo, your content should be organized in a manner that reflects the rendered website.
 
