@@ -4,8 +4,8 @@ RUN apk add --no-cache --virtual git musl-dev
 RUN go get github.com/golang/dep/cmd/dep
 
 WORKDIR /go/src/github.com/gohugoio/hugo
-RUN dep ensure
 ADD . /go/src/github.com/gohugoio/hugo/
+RUN dep ensure
 RUN go install -ldflags '-s -w'
 
 FROM alpine:3.6
