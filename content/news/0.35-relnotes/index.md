@@ -6,7 +6,7 @@ description: "Headless Bundles, disable languages, improves fast render mode, an
 categories: ["Releases"]
 ---
 
-	The most notable new feature in Hugo `0.35` is perhaps **Headless Bundles**.
+The most notable new feature in Hugo `0.35` is perhaps **Headless Bundles**.
 
 This means that you in your `index.md` front matter can say:
 
@@ -14,6 +14,7 @@ This means that you in your `index.md` front matter can say:
 headless: true
 ```
 And
+
 * it will have no `Permalink` and no rendered HTML in `/public`
 * it will not be part of `.Site.RegularPages` etc.
 
