@@ -1,0 +1,71 @@
+{{ define "main" }}
+  <article class="cf ph3 ph4-ns pv3 pv5-ns">
+    <!-- header spans the full width -->
+    <header class="flex-none pb4 w-100">
+      <h1 class="fw9 lh-title mb7 mv0 pt3">
+        <a href="{{ .URL }}" class="dim link primary-color">
+          {{ .Title }}
+        </a>
+      </h1>
+    </header>
+    <div class="flex-l">
+      <div class="mw8 w-75-l">
+        {{ with .Params.images }}
+          <img src="{{ index . 0 }}" alt="Featured Image for {{ $.Title }}" class="img">
+        {{ end }}
+        {{with .Content}}
+          <div class="nested-copy-line-height nested-img nested-links">
+            {{- . -}}
+          </div>
+        {{end}}
+      </div>
+      <aside class="fn mid-gray w-100 w-25-l">
+        <div class="mt4 nested-links ph4-l">
+          {{with .Params.sitelink}}
+            <a href="{{.}}" class="db f3-ns f4 mb1">
+              {{- . | replaceRE "^https?://([^/]+).*" "$1" -}}
+            </a>
+          {{end}}
+          {{with .Params.repo}}
+            <a href="{{.}}" class="mb4">Source</a>
+          {{end}}
+
+          {{with .Params.description}}
+            <div class="f5 lh-title mv4">
+              {{- . | markdownify -}}
+            </div>
+          {{end}}
+          {{/* Because we want to allow for the creator array to be present in an item's front matter it will always show as set, so we see if the first item's name field is not null, then show the created by fields. Better way? */}}
+          {{$creator := (index .Params.creator 0).name }}
+          {{if ne $creator nil}}
+            <div class="mb4">
+                Created by:<br />
+              <ul>
+                {{range .Params.creator}}
+                  <li>
+                    {{if .link}}
+                      <a href="{{.link}}" class="link"/>
+                        {{- .name -}}
+                      </a>
+                    {{else}}
+                      {{.name}}
+                    {{end}}
+                  </li>
+                {{end}}
+              </ul>
+            </div>
+          {{end}}
+          <div class="b--light-gray bt pt3 ">
+            <div class="f6 gray mb2">Previous/Next</div>
+            {{- partial "previous-next-links-in-section-with-title.html" . -}}
+          </div>
+        </div>
+      </aside>
+    </div>
+    {{/* bottom row */}}
+    <div class="f6 gray mv6">
+      Last Update: {{ .Lastmod.Format "January 2, 2006" }} <br>
+      {{ partial "page-edit.html" . }}
+    </div>
+  </article>
+{{ end }}

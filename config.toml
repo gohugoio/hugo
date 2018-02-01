@@ -238,6 +238,12 @@ twitter = "GoHugoIO"
     identifier = "themes"
     url = "https://themes.gohugo.io/"
 
+    [[menu.global]]
+      name = "Showcase"
+      weight = 20
+      identifier = "showcase"
+      url = "/showcase/"
+
   # Anything with a weight > 100 gets an external icon
   [[menu.global]]
     name = "Community"

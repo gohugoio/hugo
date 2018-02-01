@@ -1,0 +1,23 @@
+{{ define "main" }}
+<div class="w-100 ph4 ph5-ns pb5 pb6-ns pt1 pt3-ns ">
+  <article class="cf pa3 pa4-m pa4-l nested-copy-line-height nested-img">
+    <h1 class="primary-color-dark">
+      {{ .Title }}
+    </h1>
+    <div class="nested-copy-line-height">
+      {{ .Content }}
+    </div>
+  </article>
+  <div class="flex flex-wrap">
+    <section class="flex-ns flex-wrap justify-between w-100 v-top">
+      {{ range (.Paginator 20).Pages  }}
+        {{ partial "boxes-showcase-items.html" . }}
+      {{ end }}
+    </section>
+  </div>
+  <div class="nested-list-reset nested-links">
+    {{/* pagination.html: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/template_embedded.go#L117 */}}
+    {{ template "_internal/pagination.html" . }}
+  </div>
+</div>
+{{ end }}
