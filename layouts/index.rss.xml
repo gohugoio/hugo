@@ -1,0 +1,38 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ .Site.Title }} – {{ .Title }}</title>
+    <link>{{ .Permalink }}</link>
+    <description>Recent Hugo news from gohugo.io</description>
+    <generator>Hugo -- gohugo.io</generator>{{ with .Site.LanguageCode }}
+    <language>{{.}}</language>{{end}}{{ with .Site.Author.email }}
+    <managingEditor>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</managingEditor>{{end}}{{ with .Site.Author.email }}
+    <webMaster>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</webMaster>{{end}}{{ with .Site.Copyright }}
+    <copyright>{{.}}</copyright>{{end}}{{ if not .Date.IsZero }}
+    <lastBuildDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
+    <image>
+      <url>{{ "img/hugo.png" | absURL }}</url>
+      <title>GoHugo.io</title>
+      <link>{{ .Permalink }}</link>
+    </image>
+    {{ with .OutputFormats.Get "RSS" }}
+	{{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
+    {{ end }}
+    {{ range first 50 (where .Site.RegularPages "Type" "in" (slice "news" "showcase")) }}
+    <item>
+      <title>{{ .Section | title }}: {{ .Title }}</title>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
+      <guid>{{ .Permalink }}</guid>
+      <description>
+        {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
+        {{ with $img }}
+        {{ $img := .Resize "640x" }}
+        {{ printf "<![CDATA[<img src=\"%s\" width=\"%d\" height=\"%d\"/>]]>" $img.Permalink $img.Width $img.Height | safeHTML }}
+        {{ end }}
+        {{ .Content | html }}
+      </description>
+    </item>
+    {{ end }}
+  </channel>
+</rss>
