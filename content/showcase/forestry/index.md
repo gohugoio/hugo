@@ -6,6 +6,4 @@ repo: https://github.com/forestryio
 creator:
   - name:
     link:
-images:
- - /images/showcase/forestry.png
 ---

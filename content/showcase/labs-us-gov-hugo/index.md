@@ -8,6 +8,4 @@ repo:
 creator:
   - name:
     link:
-images:
- - /images/showcase/labs-us-gov-hugo.jpg
 ---

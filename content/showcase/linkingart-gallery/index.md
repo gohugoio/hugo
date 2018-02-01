@@ -6,6 +6,4 @@ repo:
 creator:
   - name: Cantiere Creativo
     link: https://www.cantierecreativo.net/
-images:
- - /images/showcase/linking-art-middleman-datocms.jpg
 ---

@@ -6,6 +6,4 @@ repo: https://github.com/upframe/upframe.co
 creator:
   - name:
     link:
-images:
- - /images/showcase/upframe.png
 ---

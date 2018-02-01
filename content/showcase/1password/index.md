@@ -7,6 +7,4 @@ repo:
 creator:
   - name:
     link:
-images:
- - /images/showcase/showcase-1password.png
 ---

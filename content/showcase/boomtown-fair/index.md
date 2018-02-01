@@ -6,6 +6,4 @@ repo:
 creator:
   - name:
     link:
-images:
- - /images/showcase/screenshot-hugo-datocms-boomtown.jpg
 ---

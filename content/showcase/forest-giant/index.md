@@ -6,8 +6,6 @@ repo:
 creator:
   - name:
     link:
-images:
- - /images/showcase/hugo-forestgiant.jpg
 ---
 
 

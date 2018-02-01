@@ -7,6 +7,4 @@ repo:
 creator:
   - name:
     link:
-images:
- - /images/showcase/letsencrypt.jpg
 ---

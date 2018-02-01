@@ -10,9 +10,11 @@
     </header>
     <div class="flex-l">
       <div class="mw8 w-75-l">
-        {{ with .Params.images }}
-          <img src="{{ index . 0 }}" alt="Featured Image for {{ $.Title }}" class="img">
-        {{ end }}
+      {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
+      {{ with $img }}
+      {{ $img := .Resize "640x" }}
+      <img src="{{ $img.RelPermalink }}" alt="{{ $img.Title }}" width="{{ $img.Width }}" height="{{ $img.Height }}" class="mw-100">
+      {{ end }}
         {{with .Content}}
           <div class="nested-copy-line-height nested-img nested-links">
             {{- . -}}
