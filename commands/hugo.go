@@ -226,7 +226,7 @@ func initHugoBuilderFlags(cmd *cobra.Command) {
 }
 
 func initRootPersistentFlags() {
-	HugoCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	HugoCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file(s), multiple files (a.toml,b.toml.c.toml) will be merged (default is path/config.yaml|json|toml)")
 	HugoCmd.PersistentFlags().BoolVar(&quiet, "quiet", false, "build in quiet mode")
 
 	// Set bash-completion
