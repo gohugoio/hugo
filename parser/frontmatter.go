@@ -207,6 +207,22 @@ func HandleYAMLMetaData(datum []byte) (map[string]interface{}, error) {
 // HandleJSONMetaData unmarshals JSON-encoded datum and returns a Go interface
 // representing the encoded data structure.
 func HandleJSONMetaData(datum []byte) (map[string]interface{}, error) {
+	m := make(map[string]interface{})
+
+	if datum == nil {
+		// Package json returns on error on nil input.
+		// Return an empty map to be consistent with our other supported
+		// formats.
+		return m, nil
+	}
+
+	err := json.Unmarshal(datum, &m)
+	return m, err
+}
+
+// HandleJSONData unmarshals JSON-encoded datum and returns a Go interface
+// representing the encoded data structure.
+func HandleJSONData(datum []byte) (interface{}, error) {
 	if datum == nil {
 		// Package json returns on error on nil input.
 		// Return an empty map to be consistent with our other supported
@@ -214,7 +230,7 @@ func HandleJSONMetaData(datum []byte) (map[string]interface{}, error) {
 		return make(map[string]interface{}), nil
 	}
 
-	var f map[string]interface{}
+	var f interface{}
 	err := json.Unmarshal(datum, &f)
 	return f, err
 }

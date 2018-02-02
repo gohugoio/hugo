@@ -804,7 +804,7 @@ func (s *Site) handleDataFile(r source.ReadableFile) error {
 
 	data, err := s.readData(r)
 	if err != nil {
-		s.Log.WARN.Printf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
+		s.Log.ERROR.Printf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
 		return nil
 	}
 
@@ -846,7 +846,7 @@ func (s *Site) readData(f source.ReadableFile) (interface{}, error) {
 	case "yaml", "yml":
 		return parser.HandleYAMLMetaData(content)
 	case "json":
-		return parser.HandleJSONMetaData(content)
+		return parser.HandleJSONData(content)
 	case "toml":
 		return parser.HandleTOMLMetaData(content)
 	default:
