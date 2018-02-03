@@ -35,7 +35,6 @@ import (
 	_ "image/png"
 
 	"github.com/disintegration/imaging"
-
 	// Import webp codec
 	"sync"
 
@@ -56,6 +55,9 @@ type Imaging struct {
 
 	// Resample filter used. See https://github.com/disintegration/imaging
 	ResampleFilter string
+
+	// The anchor used in Fill. Default is "smart", i.e. Smart Crop.
+	Anchor string
 }
 
 const (
@@ -157,6 +159,9 @@ func (i *Image) Fit(spec string) (*Image, error) {
 // Space delimited config: 200x300 TopLeft
 func (i *Image) Fill(spec string) (*Image, error) {
 	return i.doWithImageConfig("fill", spec, func(src image.Image, conf imageConfig) (image.Image, error) {
+		if conf.AnchorStr == smartCropIdentifier {
+			return smartCrop(src, conf.Width, conf.Height, conf.Anchor, conf.Filter)
+		}
 		return imaging.Fill(src, conf.Width, conf.Height, conf.Anchor, conf.Filter), nil
 	})
 }
@@ -206,6 +211,13 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 		conf.Filter = imageFilters[conf.FilterStr]
 	}
 
+	if conf.AnchorStr == "" {
+		conf.AnchorStr = i.imaging.Anchor
+		if !strings.EqualFold(conf.AnchorStr, smartCropIdentifier) {
+			conf.Anchor = anchorPositions[conf.AnchorStr]
+		}
+	}
+
 	key := i.relTargetPathForRel(i.filenameFromConfig(conf), false)
 
 	return i.spec.imageCache.getOrCreate(i, key, func(resourceCacheFilename string) (*Image, error) {
@@ -248,18 +260,22 @@ func (i imageConfig) key() string {
 	if i.Rotate != 0 {
 		k += "_r" + strconv.Itoa(i.Rotate)
 	}
-	k += "_" + i.FilterStr + "_" + i.AnchorStr
+	anchor := i.AnchorStr
+	if anchor == smartCropIdentifier {
+		anchor = anchor + strconv.Itoa(smartCropVersionNumber)
+	}
+
+	k += "_" + i.FilterStr
+
+	if strings.EqualFold(i.Action, "fill") {
+		k += "_" + anchor
+	}
+
 	return k
 }
 
-var defaultImageConfig = imageConfig{
-	Action:    "",
-	Anchor:    imaging.Center,
-	AnchorStr: strings.ToLower("Center"),
-}
-
 func newImageConfig(width, height, quality, rotate int, filter, anchor string) imageConfig {
-	c := defaultImageConfig
+	var c imageConfig
 
 	c.Width = width
 	c.Height = height
@@ -287,7 +303,7 @@ func newImageConfig(width, height, quality, rotate int, filter, anchor string) i
 
 func parseImageConfig(config string) (imageConfig, error) {
 	var (
-		c   = defaultImageConfig
+		c   imageConfig
 		err error
 	)
 
@@ -299,7 +315,9 @@ func parseImageConfig(config string) (imageConfig, error) {
 	for _, part := range parts {
 		part = strings.ToLower(part)
 
-		if pos, ok := anchorPositions[part]; ok {
+		if part == smartCropIdentifier {
+			c.AnchorStr = smartCropIdentifier
+		} else if pos, ok := anchorPositions[part]; ok {
 			c.Anchor = pos
 			c.AnchorStr = part
 		} else if filter, ok := imageFilters[part]; ok {
@@ -561,8 +579,19 @@ func decodeImaging(m map[string]interface{}) (Imaging, error) {
 		return i, err
 	}
 
-	if i.Quality <= 0 || i.Quality > 100 {
+	if i.Quality == 0 {
 		i.Quality = defaultJPEGQuality
+	} else if i.Quality < 0 || i.Quality > 100 {
+		return i, errors.New("JPEG quality must be a number between 1 and 100")
+	}
+
+	if i.Anchor == "" || strings.EqualFold(i.Anchor, smartCropIdentifier) {
+		i.Anchor = smartCropIdentifier
+	} else {
+		i.Anchor = strings.ToLower(i.Anchor)
+		if _, found := anchorPositions[i.Anchor]; !found {
+			return i, errors.New("invalid anchor value in imaging config")
+		}
 	}
 
 	if i.ResampleFilter == "" {

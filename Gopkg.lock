@@ -207,6 +207,15 @@
   revision = "b4575eea38cca1123ec2dc90c26529b5c5acfcff"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/muesli/smartcrop"
+  packages = [
+    ".",
+    "options"
+  ]
+  revision = "1db484956b9ef929344e51701299a017beefdaaa"
+
+[[projects]]
   name = "github.com/nicksnyder/go-i18n"
   packages = [
     "i18n/bundle",
@@ -320,6 +329,8 @@
   name = "golang.org/x/image"
   packages = [
     "bmp",
+    "draw",
+    "math/f64",
     "riff",
     "tiff",
     "tiff/lzw",
@@ -381,6 +392,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c80ffe69d34005d8d72a87cc491ce1d9c91272e4b7f8fbd22d4fda8973fa8556"
+  inputs-digest = "ce63da7f660e0ba60a8ae81f5808f8e685b2055169838fbc3c4d5c418e58b3d1"
   solver-name = "gps-cdcl"
   solver-version = 1

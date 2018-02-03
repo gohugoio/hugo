@@ -25,6 +25,15 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 	cfg := viper.New()
 	cfg.Set("baseURL", baseURL)
 	cfg.Set("resourceDir", "/res")
+
+	imagingCfg := map[string]interface{}{
+		"resampleFilter": "linear",
+		"quality":        68,
+		"anchor":         "left",
+	}
+
+	cfg.Set("imaging", imagingCfg)
+
 	fs := hugofs.NewMem(cfg)
 
 	s, err := helpers.NewPathSpec(fs, cfg)

@@ -15,7 +15,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/bep/gitmap"
-
+  
 [[constraint]]
  name = "github.com/chaseadamsio/goorgeous"
  version = "^1.1.0"
@@ -135,3 +135,9 @@
 [[constraint]]
   name = "github.com/gobwas/glob"
   version = "0.2.2"
+
+
+[[constraint]]
+  name = "github.com/muesli/smartcrop"
+  branch = "master"
+

@@ -82,13 +82,13 @@ func TestImageTransform(t *testing.T) {
 	assert.Equal(200, resizedAndRotated.Height())
 	assertFileCache(assert, image.spec.Fs, resizedAndRotated.RelPermalink(), 125, 200)
 
-	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_300x200_resize_q75_box_center.jpg", resized.RelPermalink())
+	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_300x200_resize_q68_linear.jpg", resized.RelPermalink())
 	assert.Equal(300, resized.Width())
 	assert.Equal(200, resized.Height())
 
 	fitted, err := resized.Fit("50x50")
 	assert.NoError(err)
-	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_0bda5208a94b50a6e643ad139e0dfa2f.jpg", fitted.RelPermalink())
+	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_625708021e2bb281c9f1002f88e4753f.jpg", fitted.RelPermalink())
 	assert.Equal(50, fitted.Width())
 	assert.Equal(31, fitted.Height())
 
@@ -96,16 +96,23 @@ func TestImageTransform(t *testing.T) {
 	fittedAgain, _ := fitted.Fit("10x20")
 	fittedAgain, err = fittedAgain.Fit("10x20")
 	assert.NoError(err)
-	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_6b3034f4ca91823700bd9ff7a12acf2e.jpg", fittedAgain.RelPermalink())
+	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_3f65ba24dc2b7fba0f56d7f104519157.jpg", fittedAgain.RelPermalink())
 	assert.Equal(10, fittedAgain.Width())
 	assert.Equal(6, fittedAgain.Height())
 
 	filled, err := image.Fill("200x100 bottomLeft")
 	assert.NoError(err)
-	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q75_box_bottomleft.jpg", filled.RelPermalink())
+	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q68_linear_bottomleft.jpg", filled.RelPermalink())
 	assert.Equal(200, filled.Width())
 	assert.Equal(100, filled.Height())
 	assertFileCache(assert, image.spec.Fs, filled.RelPermalink(), 200, 100)
+
+	smart, err := image.Fill("200x100 smart")
+	assert.NoError(err)
+	assert.Equal(fmt.Sprintf("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q68_linear_smart%d.jpg", smartCropVersionNumber), smart.RelPermalink())
+	assert.Equal(200, smart.Width())
+	assert.Equal(100, smart.Height())
+	assertFileCache(assert, image.spec.Fs, smart.RelPermalink(), 200, 100)
 
 	// Check cache
 	filledAgain, err := image.Fill("200x100 bottomLeft")
@@ -126,12 +133,12 @@ func TestImageTransformLongFilename(t *testing.T) {
 	assert.NoError(err)
 	assert.NotNil(resized)
 	assert.Equal(200, resized.Width())
-	assert.Equal("/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_fd0f8b23902abcf4092b68783834f7fe.jpg", resized.RelPermalink())
+	assert.Equal("/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_65b757a6e14debeae720fe8831f0a9bc.jpg", resized.RelPermalink())
 	resized, err = resized.Resize("100x")
 	assert.NoError(err)
 	assert.NotNil(resized)
 	assert.Equal(100, resized.Width())
-	assert.Equal("/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_5f399e62910070692b3034a925f1b2d7.jpg", resized.RelPermalink())
+	assert.Equal("/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg", resized.RelPermalink())
 }
 
 func TestDecodeImaging(t *testing.T) {
@@ -139,6 +146,7 @@ func TestDecodeImaging(t *testing.T) {
 	m := map[string]interface{}{
 		"quality":        42,
 		"resampleFilter": "NearestNeighbor",
+		"anchor":         "topLeft",
 	}
 
 	imaging, err := decodeImaging(m)
@@ -146,6 +154,37 @@ func TestDecodeImaging(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(42, imaging.Quality)
 	assert.Equal("nearestneighbor", imaging.ResampleFilter)
+	assert.Equal("topleft", imaging.Anchor)
+
+	m = map[string]interface{}{}
+
+	imaging, err = decodeImaging(m)
+	assert.NoError(err)
+	assert.Equal(defaultJPEGQuality, imaging.Quality)
+	assert.Equal("box", imaging.ResampleFilter)
+	assert.Equal("smart", imaging.Anchor)
+
+	_, err = decodeImaging(map[string]interface{}{
+		"quality": 123,
+	})
+	assert.Error(err)
+
+	_, err = decodeImaging(map[string]interface{}{
+		"resampleFilter": "asdf",
+	})
+	assert.Error(err)
+
+	_, err = decodeImaging(map[string]interface{}{
+		"anchor": "asdf",
+	})
+	assert.Error(err)
+
+	imaging, err = decodeImaging(map[string]interface{}{
+		"anchor": "Smart",
+	})
+	assert.NoError(err)
+	assert.Equal("smart", imaging.Anchor)
+
 }
 
 func TestImageWithMetadata(t *testing.T) {
