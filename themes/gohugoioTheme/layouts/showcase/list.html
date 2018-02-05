@@ -8,13 +8,11 @@
       {{ .Content }}
     </div>
   </article>
-  <div class="flex flex-wrap">
     <section class="flex-ns flex-wrap justify-between w-100 v-top">
       {{ range (.Paginator 20).Pages  }}
         {{ partial "boxes-showcase-items.html" . }}
       {{ end }}
     </section>
-  </div>
   <div class="nested-list-reset nested-links">
     {{/* pagination.html: https://github.com/gohugoio/hugo/blob/master/tpl/tplimpl/template_embedded.go#L117 */}}
     {{ template "_internal/pagination.html" . }}
