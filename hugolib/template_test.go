@@ -37,12 +37,13 @@ func TestTemplateLookupOrder(t *testing.T) {
 	//   2. <current-path>/baseof.<suffix>
 	//   3. _default/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
 	//   4. _default/baseof.<suffix>
-	for i, this := range []struct {
+	for _, this := range []struct {
+		name   string
 		setup  func(t *testing.T)
 		assert func(t *testing.T)
 	}{
 		{
-			// Variant 1
+			"Variant 1",
 			func(t *testing.T) {
 				writeSource(t, fs, filepath.Join("layouts", "section", "sect1-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("layouts", "section", "sect1.html"), `{{define "main"}}sect{{ end }}`)
@@ -53,7 +54,7 @@ func TestTemplateLookupOrder(t *testing.T) {
 			},
 		},
 		{
-			// Variant 2
+			"Variant 2",
 			func(t *testing.T) {
 				writeSource(t, fs, filepath.Join("layouts", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("layouts", "index.html"), `{{define "main"}}index{{ end }}`)
@@ -64,7 +65,7 @@ func TestTemplateLookupOrder(t *testing.T) {
 			},
 		},
 		{
-			// Variant 3
+			"Variant 3",
 			func(t *testing.T) {
 				writeSource(t, fs, filepath.Join("layouts", "_default", "list-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
@@ -75,7 +76,7 @@ func TestTemplateLookupOrder(t *testing.T) {
 			},
 		},
 		{
-			// Variant 4
+			"Variant 4",
 			func(t *testing.T) {
 				writeSource(t, fs, filepath.Join("layouts", "_default", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
@@ -86,7 +87,7 @@ func TestTemplateLookupOrder(t *testing.T) {
 			},
 		},
 		{
-			// Variant 1, theme,  use project's base
+			"Variant 1, theme, use site base",
 			func(t *testing.T) {
 				cfg.Set("theme", "mytheme")
 				writeSource(t, fs, filepath.Join("layouts", "section", "sect1-baseof.html"), `Base: {{block "main" .}}block{{end}}`)
@@ -99,7 +100,7 @@ func TestTemplateLookupOrder(t *testing.T) {
 			},
 		},
 		{
-			// Variant 1, theme,  use theme's base
+			"Variant 1, theme, use theme base",
 			func(t *testing.T) {
 				cfg.Set("theme", "mytheme")
 				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "section", "sect1-baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
@@ -111,20 +112,22 @@ func TestTemplateLookupOrder(t *testing.T) {
 			},
 		},
 		{
-			// Variant 4, theme, use project's base
+			"Variant 4, theme, use site base",
 			func(t *testing.T) {
 				cfg.Set("theme", "mytheme")
 				writeSource(t, fs, filepath.Join("layouts", "_default", "baseof.html"), `Base: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
 				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "list.html"), `{{define "main"}}list{{ end }}`)
+				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "index.html"), `{{define "main"}}index{{ end }}`)
 
 			},
 			func(t *testing.T) {
 				th.assertFileContent(filepath.Join("public", "sect1", "index.html"), "Base: list")
+				th.assertFileContent(filepath.Join("public", "index.html"), "Base: index") // Issue #3505
 			},
 		},
 		{
-			// Variant 4, theme, use themes's base
+			"Variant 4, theme, use themes base",
 			func(t *testing.T) {
 				cfg.Set("theme", "mytheme")
 				writeSource(t, fs, filepath.Join("themes", "mytheme", "layouts", "_default", "baseof.html"), `Base Theme: {{block "main" .}}block{{end}}`)
@@ -136,8 +139,8 @@ func TestTemplateLookupOrder(t *testing.T) {
 			},
 		},
 		{
-			// Test section list and single template selection.
 			// Issue #3116
+			"Test section list and single template selection",
 			func(t *testing.T) {
 				cfg.Set("theme", "mytheme")
 
@@ -160,8 +163,8 @@ func TestTemplateLookupOrder(t *testing.T) {
 			},
 		},
 		{
-			// Test section list and single template selection with base template.
 			// Issue #2995
+			"Test section list and single template selection with base template",
 			func(t *testing.T) {
 
 				writeSource(t, fs, filepath.Join("layouts", "_default", "baseof.html"), `Base Default: {{block "main" .}}block{{end}}`)
@@ -204,7 +207,7 @@ Some content
 		this.setup(t)
 
 		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-		t.Log("Template Lookup test", i)
+		t.Log(this.name)
 		this.assert(t)
 
 	}
