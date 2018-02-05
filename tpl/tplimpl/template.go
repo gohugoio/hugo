@@ -443,7 +443,6 @@ func (t *templateHandler) loadTemplates(absPath string, prefix string) {
 			)
 
 			if themeDir != "" && strings.HasPrefix(absPath, themeDir) {
-				workingDir = themeDir
 				layoutDir = "layouts"
 			}
 
