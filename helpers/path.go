@@ -36,6 +36,9 @@ var (
 	ErrWalkRootTooShort = errors.New("Path too short. Stop walking.")
 )
 
+// Regexp used by MakePath() to remove multiple spaces and -
+var makePathRegex = regexp.MustCompile("[\\s-]+")
+
 // filepathPathBridge is a bridge for common functionality in filepath vs path
 type filepathPathBridge interface {
 	Base(in string) string
@@ -81,7 +84,7 @@ var fpb filepathBridge
 // whilst preserving the original casing of the string.
 // E.g. Social Media -> Social-Media
 func (p *PathSpec) MakePath(s string) string {
-	return p.UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
+	return strings.Trim(makePathRegex.ReplaceAllString(p.UnicodeSanitize(s), "-"), "-")
 }
 
 // MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced
@@ -122,7 +125,7 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 	for i, r := range source {
 		if r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]) {
 			target = append(target, r)
-		} else if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' || r == '+' || r == '~' {
+		} else if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' || r == '+' || r == '~' || r == ' ' {
 			target = append(target, r)
 		}
 	}

@@ -47,6 +47,8 @@ func TestMakePath(t *testing.T) {
 		{"трям/трям", "трям/трям", true},
 		{"은행", "은행", true},
 		{"Банковский кассир", "Банковскии-кассир", true},
+		{"♪ Short musical interlude ♬ ", "Short-musical-interlude", true},
+		{"Foo & bar", "Foo-bar", true},
 		// Issue #1488
 		{"संस्कृत", "संस्कृत", false},
 		{"a%C3%B1ame", "a%C3%B1ame", false},         // Issue #1292
