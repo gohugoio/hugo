@@ -51,6 +51,8 @@ func TestStripHTML(t *testing.T) {
 More text here.</p>
 
 <p>Some more text</p>`, "Summary Next Line.  . More text here.\nSome more text\n"},
+		{"<style>.red {color:red;}</style>strip <span>style</span> tag", "strip style tag"},
+		{"<script>alert('1');</script>strip script tags<script>alert('2');</script>", "strip script tags"},
 	}
 	for i, d := range data {
 		output := StripHTML(d.input)
