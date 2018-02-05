@@ -190,10 +190,6 @@ func TestTemplateLookupOrder(t *testing.T) {
 		},
 	} {
 
-		if i != 9 {
-			continue
-		}
-
 		cfg, fs = newTestCfg()
 		th = testHelper{cfg, fs, t}
 
