@@ -75,13 +75,9 @@ hugo new about.md
 The preceding example for the about page leverages archetypes to scaffold a new content file with preconfigured front matter. [Find out more about Hugo's archetypes](/content-management/archetypes/).
 {{% /note %}}
 
-Now you can edit `contents/about.md` in your text editor of choice, but this is not necessary for the purposes of this guide. Running the following command will build your Hugo site into the `public` directory. We have added `undraft` to ensure that the example page is no longer in draft mode:
+Now you can edit `contents/about.md` in your text editor of choice, but this is not necessary for the purposes of this guide. Running the following command will build your Hugo site into the `public` directory.
 
-{{< code file="hugo-build-undraft.sh" >}}
-hugo undraft content/about.md
-{{< /code >}}
-
-Once the website is build, t's a good idea to run the following command to start a local server and ensure you're changes have been implemented:
+Once the website is build, it's a good idea to run the following command to start a local server and ensure you're changes have been implemented:
 
 ```
 hugo server --theme=herring-cove

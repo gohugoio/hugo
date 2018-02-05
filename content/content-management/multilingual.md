@@ -200,7 +200,7 @@ The above also uses the [`i18n` function][i18func] described in the next section
 {{< code file="layouts/partials/allLanguages.html" >}}
 <ul>
 {{ range $.Site.Home.AllTranslations }}
-<li><a href="{{ .}}">{{ .Language.LanguageName }}</a></li>
+<li><a href="{{ .Permalink }}">{{ .Language.LanguageName }}</a></li>
 {{ end }}
 </ul>
 {{< /code >}}
