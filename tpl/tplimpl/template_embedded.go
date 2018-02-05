@@ -19,8 +19,8 @@ func (t *templateHandler) embedShortcodes() {
 	t.addInternalShortcode("highlight.html", `{{ if len .Params | eq 2 }}{{ highlight (trim .Inner "\n\r") (.Get 0) (.Get 1) }}{{ else }}{{ highlight (trim .Inner "\n\r") (.Get 0) "" }}{{ end }}`)
 	t.addInternalShortcode("test.html", `This is a simple Test`)
 	t.addInternalShortcode("figure.html", `<!-- image -->
-<figure {{ with .Get "class" }}class="{{.}}"{{ end }}>
-    {{ with .Get "link"}}<a href="{{.}}">{{ end }}
+<figure{{ with .Get "class" }} class="{{.}}"{{ end }}>
+    {{ if .Get "link"}}<a href="{{ .Get "link" }}"{{ with .Get "target" }} target="{{ . }}"{{ end }}{{ with .Get "rel" }} rel="{{ . }}"{{ end }}>{{ end }}
         <img src="{{ .Get "src" }}" {{ if or (.Get "alt") (.Get "caption") }}alt="{{ with .Get "alt"}}{{.}}{{else}}{{ .Get "caption" }}{{ end }}" {{ end }}{{ with .Get "width" }}width="{{.}}" {{ end }}{{ with .Get "height" }}height="{{.}}" {{ end }}/>
     {{ if .Get "link"}}</a>{{ end }}
     {{ if or (or (.Get "title") (.Get "caption")) (.Get "attr")}}

@@ -218,7 +218,7 @@ You have created the shortcode at `/layouts/shortcodes/img.html`, which loads th
 Would be rendered as:
 
 {{< code file="img-output.html" copy="false" >}}
-<figure >
+<figure>
     <img src="/media/spf13.jpg"  />
     <figcaption>
         <h4>Steve Francia</h4>

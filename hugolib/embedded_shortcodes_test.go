@@ -123,22 +123,22 @@ func TestShortcodeFigure(t *testing.T) {
 	}{
 		{
 			`{{< figure src="/img/hugo-logo.png" >}}`,
-			"(?s)\n<figure >.*?<img src=\"/img/hugo-logo.png\" />.*?</figure>\n",
+			"(?s)\n<figure>.*?<img src=\"/img/hugo-logo.png\" />.*?</figure>\n",
 		},
 		{
 			// set alt
 			`{{< figure src="/img/hugo-logo.png" alt="Hugo logo" >}}`,
-			"(?s)\n<figure >.*?<img src=\"/img/hugo-logo.png\" alt=\"Hugo logo\" />.*?</figure>\n",
+			"(?s)\n<figure>.*?<img src=\"/img/hugo-logo.png\" alt=\"Hugo logo\" />.*?</figure>\n",
 		},
 		// set title
 		{
 			`{{< figure src="/img/hugo-logo.png" title="Hugo logo" >}}`,
-			"(?s)\n<figure >.*?<img src=\"/img/hugo-logo.png\" />.*?<figcaption>.*?<h4>Hugo logo</h4>.*?</figcaption>.*?</figure>\n",
+			"(?s)\n<figure>.*?<img src=\"/img/hugo-logo.png\" />.*?<figcaption>.*?<h4>Hugo logo</h4>.*?</figcaption>.*?</figure>\n",
 		},
 		// set attr and attrlink
 		{
 			`{{< figure src="/img/hugo-logo.png" attr="Hugo logo" attrlink="/img/hugo-logo.png" >}}`,
-			"(?s)\n<figure >.*?<img src=\"/img/hugo-logo.png\" />.*?<figcaption>.*?<p>.*?<a href=\"/img/hugo-logo.png\">.*?Hugo logo.*?</a>.*?</p>.*?</figcaption>.*?</figure>\n",
+			"(?s)\n<figure>.*?<img src=\"/img/hugo-logo.png\" />.*?<figcaption>.*?<p>.*?<a href=\"/img/hugo-logo.png\">.*?Hugo logo.*?</a>.*?</p>.*?</figcaption>.*?</figure>\n",
 		},
 	} {
 
