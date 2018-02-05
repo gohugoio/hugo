@@ -1,13 +1,12 @@
 
 ---
 date: 2018-02-05
-title: "0.36"
-description: "0.36"
-slug: "0.36"
+title: "Hugo 0.36: Smart Image Cropping!"
+description: "Hugo 0.36 announces smart image cropping and some important bug fixes."
 categories: ["Releases"]
 ---
 
-	Hugo `0.36` announces **smart cropping** of images, using the [library](https://github.com/muesli/smartcrop) created by [muesli](https://github.com/muesli). We will work with him to improve this even more in the future, but this is now the default used when cropping images in Hugo.
+Hugo `0.36` announces **smart cropping** of images, using the [library](https://github.com/muesli/smartcrop) created by [muesli](https://github.com/muesli). We will work with him to improve this even more in the future, but this is now the default used when cropping images in Hugo.
 
 Go [here](http://hugotest.bep.is/resourcemeta/smartcrop/) for a list of examples.
 
