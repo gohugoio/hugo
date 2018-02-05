@@ -43,10 +43,10 @@
         {{end}}
       </div>
       <aside class="fn mid-gray w-100 w-30-ns">
-        <div class="mt4 mt0-ns nested-links mh3-m mh4-l">
+        <div class="mt4 mt0-ns nested-links ml3-m ml4-l">
           {{/* Put the site details in a box. Use Sitelink as min level of content to show the box, because if other details are present, the site link should be. */}}
           {{if .Params.sitelink}}
-            <div class="ba b--moon-gray bg-white pa3 pa4-l">
+            <div class="ba b--moon-gray bg-white pa3">
               {{with .Params.sitelink}}
                 <a href="{{.}}" class="db pre f4 mb1">{{ . | replaceRE "^https?://([^/]+).*" "$1"}} {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
               {{end}}
@@ -54,7 +54,7 @@
                 <a href="{{.}}" class="db mb4">source {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
               {{end}}
               {{with .Params.description}}
-                <div class="f5 lh-title mv4">
+                <div class="f6 f5-l lh-title mv4">
                   {{- . | markdownify -}}
                 </div>
               {{end}}
