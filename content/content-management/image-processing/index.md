@@ -106,7 +106,7 @@ See https://github.com/disintegration/imaging for more. If you want to trade qua
 {{ $image.Resize "600x400 Gaussian" }}
 ```
 
-### Image Processing Examples
+## Image Processing Examples
 
 _The photo of the sunset used in the examples below is Copyright [Bjørn Erik Pedersen](https://commons.wikimedia.org/wiki/User:Bep) (Creative Commons Attribution-Share Alike 4.0 International license)_
 

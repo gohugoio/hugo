@@ -38,7 +38,7 @@ Running the `hugo new site` generator from the command line will create a direct
 
 ## Directory Structure Explained
 
-The following is a high-level overview of each of the directories with links to each of their respective sections with in the Hugo docs.
+The following is a high-level overview of each of the directories with links to each of their respective sections within the Hugo docs.
 
 [`archetypes`](/content-management/archetypes/)
 : You can create new content files in Hugo using the `hugo new` command.
