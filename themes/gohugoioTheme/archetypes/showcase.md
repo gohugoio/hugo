@@ -1,11 +1,7 @@
 ---
-title: "{{ replace .TranslationBaseName "-" " " | title }}"
+title: "{{ replace .Name "-" " " | title }}"
 date: {{ .Date }}
 description:
-sitelink:
-repo:
-creator:
-  - name:
-    link:
-images: []
+siteURL:
+siteSource:
 ---
