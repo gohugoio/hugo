@@ -1,12 +1,11 @@
 {{ define "main" }}
   {{$section := where .Site.RegularPages "Section" .Section}}
   {{$number_of_entries := $section | len}}
-  {{$currentPageUrl := $.URL }}
   <article class="center ph3 ph4-ns pv3 pv5-ns mw9">
     <!-- header spans the full width -->
     <header class="flex-none pb4 w-100">
       <h1 class="fw9 lh-title mb7 mv0 pt3">
-        <a href="{{ .URL }}" class="dim link primary-color">
+        <a href="{{ .RelPermalink }}" class="dim link primary-color">
           {{ .Title }}
         </a>
       </h1>
@@ -16,7 +15,7 @@
         <ul class="pa0 list mr3">
           {{range first 20 $section}}
             <li class="hover-bg-light-gray hover-accent-color-light">
-              <a href="{{.Permalink}}" class="db link w-100 pv1 ph1 {{ if eq $currentPageUrl .URL }} b bg-light-gray primary-color{{else}} mid-gray {{end}}">
+              <a href="{{.RelPermalink}}" class="db link w-100 pv1 ph1 {{ if eq $ . }} b bg-light-gray primary-color{{else}} mid-gray {{end}}">
                 {{- .Title -}}
               </a>
             </li>
