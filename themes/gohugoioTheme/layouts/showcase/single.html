@@ -1,71 +1,90 @@
 {{ define "main" }}
-  {{$section := where .Site.RegularPages "Section" .Section}}
-  {{$number_of_entries := $section | len}}
   <article class="center ph3 ph4-ns pv3 pv5-ns mw9">
+
     <!-- header spans the full width -->
-    <header class="flex-none pb4 w-100">
-      <h1 class="fw9 lh-title mb7 mv0 pt3">
-        <a href="{{ .RelPermalink }}" class="dim link primary-color">
-          {{ .Title }}
-        </a>
-      </h1>
-    </header>
-    <div class="flex-ns">
-      <div class="dn db-l w-20-l">
-        <ul class="pa0 list mr3">
-          {{range first 20 $section}}
-            <li class="hover-bg-light-gray hover-accent-color-light">
-              <a href="{{.RelPermalink}}" class="db link w-100 pv1 ph1 {{ if eq $ . }} b bg-light-gray primary-color{{else}} mid-gray {{end}}">
-                {{- .Title -}}
-              </a>
-            </li>
-          {{end}}
-          {{if ge $number_of_entries 20}}
-            <li class="mt3">
-              <a href="/showcase/page/2/" class="link blue">
-                See More &raquo;
-              </a>
-            </li>
-          {{end}}
-        </ul>
+    <div class="flex flex-wrap">
+
+      <div class="w-100 w-20-l order-1 order-0-l">
+        {{template "details" .}}
       </div>
-      <div class="mw8 w-70-m w-50-ns">
-        {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
-        {{ with $img }}
-          {{ $img := .Resize "940x" }}
-            <img src="{{ $img.RelPermalink }}" alt="{{ $img.Title }}" width="{{ $img.Width }}"  class="mw-100">
-        {{ end }}
-        {{with .Content}}
-          <div class="mid-gray nested-copy-line-height nested-img nested-links">
-            {{- . -}}
-          </div>
-        {{end}}
+
+      <div class="w-100 w-60-l order-0 order-1-l">
+        {{template "main-column" .}}
       </div>
-      <aside class="fn mid-gray w-100 w-30-ns">
-        <div class="mt4 mt0-ns nested-links ml3-m ml4-l">
-          <div class="ba b--moon-gray bg-white pa3">
-            {{ with .Params.siteURL }}
-            <a href="{{ . }}" class="db pre f4 mb1">{{ . | replaceRE "^https?://([^/]+).*" "$1"}} {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
-            {{ end }}
-            {{ with .Params.siteSource }}
-            <a href="{{ . }}" class="db mb4">source {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
-            {{ end }}
-            {{ $bio := (.Resources.ByType "page").GetMatch "bio*" }}
-            {{ with $bio }}
-            {{ .Content }}
-            {{ end }}
-          </div>
-          <div class="b--light-gray bt dn-l pt3">
-            <div class="f6 gray mb2">Previous/Next</div>
-            {{- partial "previous-next-links-in-section-with-title.html" . -}}
-          </div>
-        </div>
+
+      <aside class="dn mid-gray w-100 w-20-ns flex-l justify-center order-2">
+        {{template "navigation" .}}
       </aside>
+
     </div>
-    {{/* bottom row */}}
-    <div class="f6 gray mv6">
+
+    <div class="f6 gray mv6">{{/* bottom row */}}
       Last Update: {{ .Lastmod.Format "January 2, 2006" }} <br>
       {{ partial "page-edit.html" . }}
     </div>
+
   </article>
 {{ end }}
+
+
+
+{{define "main-column"}}
+  {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
+  {{ with $img }}
+    {{ $img := .Resize "940x" }}
+      <img src="{{ $img.RelPermalink }}" alt="{{ $img.Title }}" width="{{ $img.Width }}"  class="mw-100 b--light-gray ba">
+  {{ end }}
+  {{with .Content}}
+    <div class="mid-gray nested-copy-line-height nested-img nested-links">
+      {{- . -}}
+    </div>
+  {{end}}
+{{end}}
+
+{{define "details"}}
+  <div class="mt4 mt0-ns nested-links mr3-m mr4-l">
+    <div class="ba b--light-gray bg-white pa3">
+      <h1 class="f3 mt0">{{.Title}}</h1>
+      {{ with .Params.siteURL }}
+      <a href="{{ . }}" class="db pre f5 mb1">{{ . | replaceRE "^https?://([^/]+).*" "$1"}} {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
+      {{ end }}
+      {{ with .Params.siteSource }}
+      <a href="{{ . }}" class="db mb4">source {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
+      {{ end }}
+      {{ $bio := (.Resources.ByType "page").GetMatch "bio*" }}
+      {{ with $bio }}
+        <div class="f6 mid-gray nested-copy-line-height nested-links">
+          {{- .Content -}}
+        </div>
+      {{ end }}
+    </div>
+    <div class="b--light-gray bt dn-l pt3">
+      <div class="f6 gray mb2">Previous/Next</div>
+      {{- partial "previous-next-links-in-section-with-title.html" . -}}
+    </div>
+  </div>
+{{end}}
+
+{{define "navigation"}}
+  {{$section := where .Site.RegularPages "Section" .Section}}
+  {{$number_of_entries := $section | len}}
+  <ul class="pa0 list">
+  <li class="b f5 blTK b--light-gray pb2 pl2">
+      More Sites
+  </li>
+    {{range first 20 $section}}
+      <li class="bl b--light-gray pl2 f6 hover-bg-light-gray hover-accent-color-light {{if eq $ .}} bg-light-gray{{end}}">
+        <a href="{{.RelPermalink}}" class="db link w-100 pv1 ph1 {{ if eq $ . }} b  primary-color{{else}} mid-gray {{end}}">
+          {{- .Title -}}
+        </a>
+      </li>
+    {{end}}
+    {{if ge $number_of_entries 20}}
+      <li class="mt3">
+        <a href="/showcase/page/2/" class="link blue">
+          See More &raquo;
+        </a>
+      </li>
+    {{end}}
+  </ul>
+{{end}}

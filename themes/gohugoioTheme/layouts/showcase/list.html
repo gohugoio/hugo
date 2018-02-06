@@ -9,7 +9,7 @@
     </div>
   </article>
     <section class="flex-ns flex-wrap justify-between w-100 v-top">
-      {{ range (.Paginator 20).Pages  }}        
+      {{ range (.Paginator 20).Pages  }}
         {{template "showcase_items" .}}
       {{ end }}
     </section>
@@ -22,7 +22,7 @@
 
 
 {{define "showcase_items"}}
-  <a href="{{.Permalink}}" class="b--moon-gray ba bg-animate bg-white db flex-auto-ns hover-bg-near-white mb3 mr3 w-100 w-40-l">
+  <a href="{{.Permalink}}" class="b--moon-gray ba bg-animate bg-white db flex-auto-ns hover-bg-near-white mb3 mr3 w-100 w-30-l">
     <div class="flex flex-column black h-100 mb2 pa3 pa4-l">
       {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
       {{ with $img }}
