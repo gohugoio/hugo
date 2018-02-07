@@ -38,11 +38,14 @@ Showcase: {{ .Title }}
     {{ $img := .Resize "940x" }}
       <img src="{{ $img.RelPermalink }}" alt="{{ $img.Title }}" width="{{ $img.Width }}"  class="mw-100 b--light-gray ba">
   {{ end }}
+   <div class="mid-gray nested-copy-line-height nested-img nested-links">
+  {{with .Params.byline }}
+     <div style="margin-top: 20px; font-style: italic;">By {{ . | markdownify -}}</div>
+  {{ end }}
   {{with .Content}}
-    <div class="mid-gray nested-copy-line-height nested-img nested-links">
       {{- . -}}
-    </div>
   {{end}}
+  </div>
 {{end}}
 
 {{define "details"}}
