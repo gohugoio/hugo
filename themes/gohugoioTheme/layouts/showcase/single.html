@@ -35,8 +35,9 @@ Showcase: {{ .Title }}
 {{define "main-column"}}
   {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
   {{ with $img }}
-    {{ $img := .Resize "940x" }}
-      <img src="{{ $img.RelPermalink }}" alt="{{ $img.Title }}" width="{{ $img.Width }}"  class="mw-100 b--light-gray ba">
+     {{ $big := .Fill "1024x512 top" }}
+     {{ $small := $big.Resize "512x" }}
+      <img srcset="{{ $small.RelPermalink }} 1x, {{ $big.RelPermalink }} 2x" alt="{{ $img.Title }}" width="{{ $big.Width }}"  class="mw-100 b--light-gray ba">
   {{ end }}
    <div class="mid-gray nested-copy-line-height nested-img nested-links">
   {{with .Params.byline }}
