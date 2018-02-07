@@ -508,6 +508,14 @@ func checkPageSummary(t *testing.T, page *Page, summary string, msg ...interface
 	}
 }
 
+func checkPageContentAfterSummary(t *testing.T, page *Page, contentAfterSummary string, msg ...interface{}) {
+	a := normalizeContent(string(page.ContentAfterSummary))
+	b := normalizeContent(contentAfterSummary)
+	if a != b {
+		t.Fatalf("Page content after summary is:\n%q.\nExpected\n%q (%q)", a, b, msg)
+	}
+}
+
 func checkPageType(t *testing.T, page *Page, pageType string) {
 	if page.Type() != pageType {
 		t.Fatalf("Page type is: %s.  Expected: %s", page.Type(), pageType)
@@ -629,6 +637,7 @@ func TestCreateNewPage(t *testing.T) {
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
 		checkPageSummary(t, p, "Simple Page")
+		checkPageContentAfterSummary(t, p, "")
 		checkPageType(t, p, "page")
 		checkTruncation(t, p, false, "simple short page")
 	}
@@ -698,6 +707,7 @@ func TestPageWithDelimiter(t *testing.T) {
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>\n\n<p>Some more text</p>\n"), ext)
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>"), ext)
+		checkPageContentAfterSummary(t, p, normalizeExpected(ext, "<p>Some more text</p>"), ext)
 		checkPageType(t, p, "page")
 		checkTruncation(t, p, true, "page with summary delimiter")
 	}
@@ -791,6 +801,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. \n<figure >\n    \n        <img src=\"/not/real\" />\n    \n    \n</figure>\n.\nMore text here.</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, "Summary Next Line.  . More text here. Some more text")
+		checkPageContentAfterSummary(t, p, "")
 		checkPageType(t, p, "page")
 	}
 
@@ -849,6 +860,7 @@ func TestPageWithMoreTag(t *testing.T) {
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>"))
+		checkPageContentAfterSummary(t, p, normalizeExpected(ext, "<p>Some more text</p>"))
 		checkPageType(t, p, "page")
 
 	}
