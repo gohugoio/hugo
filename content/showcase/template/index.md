@@ -46,4 +46,4 @@ featured-template.png
 
 
 
-[^1]: We want this to show Hugo in its best light, so this is not for the average Hugo blog. In most case the answer to "Is my site [notabable](http://www.dictionary.com/browse/notable)?" will be obvious, but if in doubt, create and [issue](https://github.com/gohugoio/hugoDocs/issues) with a link and some words, and we can discuss it. But if you have a site with an interesting Hugo story or a company site where the company itself is notable, you are most welcome.
+[^1]: We want this to show Hugo in its best light, so this is not for the average Hugo blog. In most case the answer to "Is my site [notabable](http://www.dictionary.com/browse/notable)?" will be obvious, but if in doubt, create an [issue](https://github.com/gohugoio/hugoDocs/issues) with a link and some words, and we can discuss it. But if you have a site with an interesting Hugo story or a company site where the company itself is notable, you are most welcome.
