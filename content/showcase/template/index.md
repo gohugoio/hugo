@@ -29,7 +29,7 @@ We would really appreciate if you could:
 2. Adjust the [files](#files) and write a story about your site
 3. Create a new pull request in https://github.com/gohugoio/hugoDocs/pulls
 
-**Note:** The Showcase section uses the latest bells and whistles from Hugo, [resources](/content-management/page-resources/) with [image processing](/content-management/image-processing/), so you need a reasonable up-to-date [Hugo version](https://github.com/gohugoio/hugo/releases). 
+**Note:** The Showcase section uses the latest bells and whistles from Hugo, [resources](/content-management/page-resources/) with [image processing](/content-management/image-processing/), so you need a reasonable up-to-date [Hugo version](https://github.com/gohugoio/hugo/releases).
 
 ## Files
 
