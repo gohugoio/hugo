@@ -26,7 +26,7 @@ Showcase: {{ .Title }}
       Last Update: {{ .Lastmod.Format "January 2, 2006" }} <br>
       {{ partial "page-edit.html" . }}
     </div>
-
+    <div class="b">The Showcase articles are copyright the content authors. Any open source license will be attached.</div>
   </article>
 {{ end }}
 
@@ -47,6 +47,7 @@ Showcase: {{ .Title }}
       {{- . -}}
   {{end}}
   </div>
+
 {{end}}
 
 {{define "details"}}
