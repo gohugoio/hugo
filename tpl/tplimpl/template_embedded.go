@@ -233,18 +233,18 @@ func (t *templateHandler) embedTemplates() {
 
 	t.addInternalTemplate("", "twitter_cards.html", `{{- with $.Params.images -}}
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image:src" content="{{ index . 0 | absURL }}"/>
+<meta name="twitter:image" content="{{ index . 0 | absURL }}"/>
 {{ else -}}
 {{- $images := $.Resources.ByType "image" -}}
 {{- $featured := $images.GetMatch "*feature*" -}}
 {{- $featured := cond (ne $featured nil) $featured ($images.GetMatch "{*cover*,*thumbnail*}") -}}
 {{- with $featured -}}
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image:src" content="{{ $featured.Permalink }}"/>
+<meta name="twitter:image" content="{{ $featured.Permalink }}"/>
 {{- else -}}
 {{- with $.Site.Params.images -}}
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image:src" content="{{ index . 0 | absURL }}"/>
+<meta name="twitter:image" content="{{ index . 0 | absURL }}"/>
 {{ else -}}
 <meta name="twitter:card" content="summary"/>
 {{- end -}}
