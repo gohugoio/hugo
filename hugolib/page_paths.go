@@ -197,7 +197,13 @@ func createTargetPath(d targetPathDescriptor) string {
 		if d.ExpandedPermalink != "" {
 			pagePath = filepath.Join(pagePath, d.ExpandedPermalink)
 		} else {
-			pagePath = filepath.Join(d.Sections...)
+			pagePath = ""
+			for i, section := range d.Sections {
+				if i > 0 {
+					pagePath += helpers.FilePathSeparator
+				}
+				pagePath += d.PathSpec.MakeSegment(section)
+			}
 		}
 		needsBase = false
 	}
