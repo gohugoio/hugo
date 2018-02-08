@@ -25,7 +25,7 @@ Have a **notable Hugo site[^1]**? We would love to feature it in this **Showcase
 We would really appreciate if you could:
 
 1. Fork https://github.com/gohugoio/hugoDocs and create a branch
-1. Create a copy of the `content/showcase/template` directory with a suitable name. If you now run `hugo server`, your site should show up in [http://localhost:1313/showcase/](http://localhost:1313/showcase/) and on the front page.
+1. Create a copy of the [content/showcase/template](https://github.com/gohugoio/hugoDocs/tree/master/content/showcase/template) directory with a suitable name. If you now run `hugo server`, your site should show up in [http://localhost:1313/showcase/](http://localhost:1313/showcase/) and on the front page.
 2. Adjust the [files](#files) and write a story about your site
 3. Create a new pull request in https://github.com/gohugoio/hugoDocs/pulls
 
@@ -33,7 +33,7 @@ We would really appreciate if you could:
 
 ## Files
 
-The content of the `content/showcase/template` directory explained:
+The content of the [content/showcase/template](https://github.com/gohugoio/hugoDocs/tree/master/content/showcase/template) directory explained:
 
 index.md
 : The main content file. Fill in required front matter metadata and write your story. I does not have to be a novel. It can even be self-promotional, but it should include Hugo in some form.
