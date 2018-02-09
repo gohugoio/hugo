@@ -105,7 +105,7 @@ permalinkeds:
 
 	fs := th.Fs
 
-	writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- Tag1", "- cAt1\n- \"cAt/dOg\"", "- o1", "- pl1"))
+	writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- Tag1", "- cat1\n- \"cAt/dOg\"", "- o1", "- pl1"))
 	writeSource(t, fs, "content/p2.md", fmt.Sprintf(pageTemplate, "t2/c1", "- tag2", "- cat1", "- o1", "- pl1"))
 	writeSource(t, fs, "content/p3.md", fmt.Sprintf(pageTemplate, "t2/c12", "- tag2", "- cat2", "- o1", "- pl1"))
 	writeSource(t, fs, "content/p4.md", fmt.Sprintf(pageTemplate, "Hello World", "", "", "- \"Hello Hugo world\"", "- pl1"))
@@ -169,12 +169,7 @@ permalinkeds:
 	for taxonomy, count := range taxonomyTermPageCounts {
 		term := s.getPage(KindTaxonomyTerm, taxonomy)
 		require.NotNil(t, term)
-		if preserveTaxonomyNames && taxonomy == "categories" {
-			// "cAt1" and "cat1" are distinct
-			require.Len(t, term.Pages, count+1, taxonomy)
-		} else {
-			require.Len(t, term.Pages, count, taxonomy)
-		}
+		require.Len(t, term.Pages, count, taxonomy)
 
 		for _, page := range term.Pages {
 			require.Equal(t, KindTaxonomy, page.Kind)
@@ -195,7 +190,7 @@ permalinkeds:
 		return s
 	}
 
-	cat1 := s.getPage(KindTaxonomy, "categories", fixTerm("cAt1"))
+	cat1 := s.getPage(KindTaxonomy, "categories", "cat1")
 	require.NotNil(t, cat1)
 	require.Equal(t, fixURL("/blog/categories/cat1/"), cat1.RelPermalink())
 
