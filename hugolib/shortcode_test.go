@@ -308,6 +308,60 @@ func TestFigureImgWidthAndHeight(t *testing.T) {
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="50" height="100" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"50\" height=\"100\" />\n    \n    \n</figure>\n", nil)
 }
 
+func TestTableNoArgs(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{% table %}}
+| a | b |
+|---|---|
+| c | d |
+{{% /table %}}`, "<table>\n<thead>\n<tr>\n<th>a</th>\n<th>b</th>\n</tr>\n</thead>\n\n<tbody>\n<tr>\n<td>c</td>\n<td>d</td>\n</tr>\n</tbody>\n</table>", nil)
+}
+
+func TestTableNamedStyleArg(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{% table style="width:50%" %}}
+| a | b |
+|---|---|
+| c | d |
+{{% /table %}}`, "<table style=\"width:50%\">\n<thead>\n<tr>\n<th>a</th>\n<th>b</th>\n</tr>\n</thead>\n\n<tbody>\n<tr>\n<td>c</td>\n<td>d</td>\n</tr>\n</tbody>\n</table>", nil)
+}
+
+func TestTableNamedClassArg(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{% table class="toto" %}}
+| a | b |
+|---|---|
+| c | d |
+{{% /table %}}`, "<table class=\"toto\">\n<thead>\n<tr>\n<th>a</th>\n<th>b</th>\n</tr>\n</thead>\n\n<tbody>\n<tr>\n<td>c</td>\n<td>d</td>\n</tr>\n</tbody>\n</table>", nil)
+}
+
+func TestTableNamedClassAndStyleArgs(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{% table class="toto" style="width:50%" %}}
+| a | b |
+|---|---|
+| c | d |
+{{% /table %}}`, "<table class=\"toto\" style=\"width:50%\">\n<thead>\n<tr>\n<th>a</th>\n<th>b</th>\n</tr>\n</thead>\n\n<tbody>\n<tr>\n<td>c</td>\n<td>d</td>\n</tr>\n</tbody>\n</table>", nil)
+}
+
+func TestTablePositionClassArg(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{% table "zuzu" %}}
+| a | b |
+|---|---|
+| c | d |
+{{% /table %}}`, "<table class=\"zuzu\">\n<thead>\n<tr>\n<th>a</th>\n<th>b</th>\n</tr>\n</thead>\n\n<tbody>\n<tr>\n<td>c</td>\n<td>d</td>\n</tr>\n</tbody>\n</table>", nil)
+}
+
+func TestTablePositionClassAndStyleArgs(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{% table "lala" "border:3px dashed red;" %}}
+| a | b |
+|---|---|
+| c | d |
+{{% /table %}}`, "<table class=\"lala\" style=\"border:3px dashed red;\">\n<thead>\n<tr>\n<th>a</th>\n<th>b</th>\n</tr>\n</thead>\n\n<tbody>\n<tr>\n<td>c</td>\n<td>d</td>\n</tr>\n</tbody>\n</table>", nil)
+}
+
 const testScPlaceholderRegexp = "HAHAHUGOSHORTCODE-\\d+HBHB"
 
 func TestExtractShortcodes(t *testing.T) {
