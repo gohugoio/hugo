@@ -465,3 +465,9 @@ func DiffStringSlices(slice1 []string, slice2 []string) []string {
 
 	return diffStr
 }
+
+// DiffString splits the strings into fields and runs it into DiffStringSlices.
+// Useful for tests.
+func DiffStrings(s1, s2 string) []string {
+	return DiffStringSlices(strings.Fields(s1), strings.Fields(s2))
+}

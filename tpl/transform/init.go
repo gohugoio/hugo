@@ -88,6 +88,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Remarshal,
+			nil,
+			[][2]string{
+				{`{{ "title = \"Hello World\"" | transform.Remarshal "json" | safeHTML }}`, "{\n   \"title\": \"Hello World\"\n}\n"},
+			},
+		)
+
 		return ns
 
 	}
