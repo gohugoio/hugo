@@ -139,3 +139,57 @@ And it is used like this:
 {{% note %}}
 **Tip:** Note the self-closing shortcode syntax above. The `imgproc` shortcode can be called both with and without **inner content**.
 {{% /note %}}
+
+## Image Processing Config
+
+You can configure an `imaging` section in `config.toml` with default image processing options:
+
+```toml
+[imaging]
+# Default resample filter used for resizing. Default is Box,
+# a simple and fast averaging filter appropriate for downscaling.
+# See https://github.com/disintegration/imaging
+resampleFilter = "box"
+
+# Defatult JPEG quality setting. Default is 75.
+quality = 75
+
+# Anchor used when cropping pictures.
+# Default is "smart" which does Smart Cropping, using https://github.com/muesli/smartcrop
+# Smart Cropping is content aware and tries to find the best crop for each image.
+# Valid values are Smart, Center, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight
+anchor = "smart"
+
+```
+
+All of the above settings can also be set per image procecssing.
+
+## Smart Cropping of Images
+
+By default, Hugo will use the [Smartcrop](https://github.com/muesli/smartcrop), a library created by [muesli](https://github.com/muesli), when cropping images with `.Fill`. You can set the anchor point manually, but in most cases the smart option will make a good choice. And we will work with the libray author to improve this in the future.
+
+An example using the sunset image from above:
+
+
+{{< imgproc sunset Fill "200x200 smart" />}}
+
+
+## Image Processing Performance Consideration
+
+Processed images are stored below `<project-dir>/resources` (can be set with `resourceDir` config setting). This folder is deliberately placed in the project, as it is recommended to check these into source control as part of the project. These images are not "Hugo fast" to generate, but once generated they can be reused.
+
+If you change your image settings (e.g. size), remove or rename images etc., you will end up with unused images taking up space and cluttering your project. 
+
+To clean up, run:
+
+```bash
+hugo --gc
+```
+
+
+{{% note %}}
+**GC** is short for **Garbage Collection**.
+{{% /note %}}
+
+
+

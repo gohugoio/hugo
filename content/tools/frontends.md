@@ -21,6 +21,7 @@ toc: false
 * [enwrite](https://github.com/zzamboni/enwrite). Enwrite enables evernote-powered, statically generated blogs and websites. Now posting to your blog or updating your website is as easy as writing a new note in Evernote!
 * [caddy-hugo](https://github.com/hacdias/caddy-hugo). `caddy-hugo` is an add-on for [Caddy](https://caddyserver.com/) that delivers a good UI to edit the content of your Hugo website.
 * [Lipi](https://github.com/SohanChy/Lipi). Lipi is a native GUI frontend written in Java to manage your Hugo websites.
+* [Netlify CMS](https://netlifycms.org). Netlify CMS is an open source, serverless solution for managing Git based content in static sites, and it works on any platform that can host static sites. A [Hugo/Netlify CMS starter](https://github.com/netlify-templates/one-click-hugo-cms) is available to get new projects running quickly.
 
 
 ## Commercial Services
