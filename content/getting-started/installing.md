@@ -67,21 +67,22 @@ choco install hugo -confirm
 
 * [Git][installgit]
 * [Go (latest or previous version)][installgo]
-* [govendor][]
 
 #### Vendored Dependencies
 
-Hugo uses [govendor][] to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository. Therefore, a simple `go get` is *not* supported because the command is not vendor aware. *You must use `govendor` to fetch Hugo's dependencies.*
+Hugo uses [dep][] to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository. Therefore, a simple `go get` is *not* supported because the command is not vendor aware. 
+
+The simplest way is to use [mage][] (a Make alternative for Go projects.)
 
 #### Fetch from GitHub
 
 {{< code file="from-gh.sh" >}}
-go get github.com/kardianos/govendor
-govendor get github.com/gohugoio/hugo
-go install github.com/gohugoio/hugo
+go get github.com/magefile/mage
+go get -d github.com/gohugoio/hugo
+cd $HOME/go/src/github.com/gohugoio/hugo
+mage vendor
+mage install
 {{< /code >}}
-
-`govendor get` will fetch Hugo and all its dependent libraries to `$GOPATH/src/github.com/gohugoio/hugo`, and `go install` compiles everything into a final `hugo` (or `hugo.exe`) executable inside `$GOPATH/bin/`.
 
 {{% note %}}
 If you are a Windows user, substitute the `$HOME` environment variable above with `%USERPROFILE%`.
@@ -486,7 +487,8 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [content]: /content-management/
 [@dhersam]: https://github.com/dhersam
 [forum]: https://discourse.gohugo.io
-[govendor]: https://github.com/kardianos/govendor
+[mage]: https://github.com/magefile/mage
+[dep]: https://github.com/golang/dep
 [highlight shortcode]: /content-management/shortcodes/#highlight
 [installgit]: http://git-scm.com/
 [installgo]: https://golang.org/dl/
