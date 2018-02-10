@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "build:production": "rm -rf ../static/dist && webpack -p",
-    "build": "webpack --progress --colors --watch",    
+    "build": "webpack --progress --colors --watch",
     "start": "npm run build"
   },
   "devDependencies": {

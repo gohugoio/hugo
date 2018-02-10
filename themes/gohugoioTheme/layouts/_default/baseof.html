@@ -22,6 +22,10 @@
         <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
       {{ end }}
 
+    {{ range .AlternativeOutputFormats -}}
+    <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
+    {{ end -}}
+
      <link href='{{ "dist/main.css" | relURL }}' rel='stylesheet' type="text/css" />
       {{- partial "head-additions.html" . -}}
       {{- template "_internal/opengraph.html" . -}}

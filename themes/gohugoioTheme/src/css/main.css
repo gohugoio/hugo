@@ -11,6 +11,7 @@
 @import '_documentation-styles';
 
 @import '_algolia';
+@import '_carousel';
 @import '_code';
 @import '_color-scheme';
 @import '_columns';

@@ -7,7 +7,7 @@ publishdate: 2017-02-01
 lastmod: 2017-02-01
 layout: single
 menu:
-  main:
+  docs:
     parent: "about"
     weight: 10
 weight: 10
