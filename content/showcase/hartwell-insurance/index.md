@@ -1,17 +1,13 @@
 ---
 
-# A suitable title for this article.
 title: Hartwell Insurance
 
-# Set this to the current date.
 date: 2018-02-09
 
 description: "Showcase: \"Hugo + Netlify + PWA makes for a rapid website.\""
 
-# The URL to the site on the internet.
 siteURL: https://www.hartwell-insurance.com/
 
-# Add credit to the article author. Leave blank or remove if not needed/wanted.
 byline: "[Trys Mudford](http://www.trysmudford.com), Lead Developer, Tomango"
 
 ---
