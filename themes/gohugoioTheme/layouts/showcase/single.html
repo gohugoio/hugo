@@ -55,7 +55,7 @@ Showcase: {{ .Title }}
     <div class="ba b--light-gray bg-white pa3">
       <h1 class="f3 mt0">{{.Title}}</h1>
       {{ with .Params.siteURL }}
-      <a href="{{ . }}" class="db f5 mb1">{{ . | replaceRE "^https?://([^/]+).*" "$1"}} {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
+      <a href="{{ . }}" class="db f5 mb1">{{ . | replaceRE "^https?://(www\\.)?([^/]+).*" "$2"}} {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
       {{ end }}
       {{ with .Params.siteSource }}
       <a href="{{ . }}" class="db mb4">source {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
