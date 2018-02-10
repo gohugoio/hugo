@@ -103,6 +103,18 @@ twitter = "GoHugoIO"
   angledQuotes = false
   latexDashes = true
 
+[imaging]
+# See https://github.com/disintegration/imaging
+# CatmullRom is a sharp bicubic filter which should fit the docs site well with its many screenshots.
+# Note that you can also set this per image processing.
+resampleFilter = "CatmullRom"
+
+# Defatult JPEG quality setting. Default is 75.
+quality = 75
+
+anchor = "smart"
+
+
 ## As of v0.20, all content files include a default "categories" value that's the same as the section. This was a cheap future-proofing method and should/could be changed accordingly.
 [taxonomies]
   category = "categories"
@@ -237,6 +249,12 @@ twitter = "GoHugoIO"
     weight = 10
     identifier = "themes"
     url = "https://themes.gohugo.io/"
+
+    [[menu.global]]
+      name = "Showcase"
+      weight = 20
+      identifier = "showcase"
+      url = "/showcase/"
 
   # Anything with a weight > 100 gets an external icon
   [[menu.global]]

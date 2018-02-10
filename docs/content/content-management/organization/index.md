@@ -29,7 +29,7 @@ The illustration shows 3 bundles. Note that the home page bundle cannot contain 
 
 
 {{% note %}}
-The bundle docuementation is **work in progress**. We will publish more comprehensive docs about this soon.
+The bundle documentation is **work in progress**. We will publish more comprehensive docs about this soon.
 {{% /note %}}
 
 

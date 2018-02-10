@@ -1,0 +1,25 @@
+/* These styles enhance the home page carousel, located here: themes/gohugoioTheme/layouts/partials/home-page-sections/showcase.html */
+.overflow-x-scroll{
+  -webkit-overflow-scrolling: touch;
+}
+.row {
+  transition: 450ms transform;
+  font-size: 0;
+}
+.tile {
+  transition: 450ms all;
+}
+.details {
+  background: -webkit-gradient(linear, left bottom, left top, from(rgba(0,0,0,0.9)), to(rgba(0,0,0,0)));
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+  transition: 450ms opacity;
+}
+.tile:hover .details {
+  opacity: 1;
+}
+.row:hover .tile {
+  opacity: 0.3;
+}
+.row:hover .tile:hover {
+  opacity: 1;
+}
