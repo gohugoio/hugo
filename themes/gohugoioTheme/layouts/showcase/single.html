@@ -9,15 +9,15 @@ Showcase: {{ .Title }}
     <div class="flex flex-wrap">
 
       <div class="w-100 w-20-l order-1 order-0-l">
-        {{template "details" .}}
+        {{template "sc-details" .}}
       </div>
 
       <div class="w-100 w-60-l order-0 order-1-l">
-        {{template "main-column" .}}
+        {{template "sc-main-column" .}}
       </div>
 
       <aside class="dn mid-gray w-100 w-20-ns flex-l justify-center order-2">
-        {{template "navigation" .}}
+        {{template "sc-navigation" .}}
       </aside>
 
     </div>
@@ -32,7 +32,7 @@ Showcase: {{ .Title }}
 
 
 
-{{define "main-column"}}
+{{define "sc-main-column"}}
   {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
   {{ with $img }}
      {{ $big := .Fill "1024x512 top" }}
@@ -50,7 +50,7 @@ Showcase: {{ .Title }}
 
 {{end}}
 
-{{define "details"}}
+{{define "sc-details"}}
   <div class="mt4 mt0-ns nested-links mr3-m mr4-l">
     <div class="ba b--light-gray bg-white pa3">
       <h1 class="f3 mt0">{{.Title}}</h1>
@@ -74,7 +74,7 @@ Showcase: {{ .Title }}
   </div>
 {{end}}
 
-{{define "navigation"}}
+{{define "sc-navigation"}}
   {{$section := where .Site.RegularPages "Section" .Section}}
   {{$number_of_entries := $section | len}}
   <ul class="pa0 list">
