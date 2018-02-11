@@ -36,6 +36,69 @@ func TestDataDirJSON(t *testing.T) {
 	t.Parallel()
 
 	sources := [][2]string{
+		{filepath.FromSlash("data/test/a.json"), `{ "b" : { "c1": "red" , "c2": "blue" } }`},
+	}
+
+	expected := map[string]interface{}{
+		"test": map[string]interface{}{
+			"a": map[string]interface{}{
+				"b": map[string]interface{}{
+					"c1": "red",
+					"c2": "blue",
+				},
+			},
+		},
+	}
+
+	doTestDataDir(t, expected, sources)
+}
+
+func TestDataDirYAML(t *testing.T) {
+	t.Parallel()
+
+	sources := [][2]string{
+		{"data/test/a.yaml", "b:\n  c1: red\n  c2: blue"},
+	}
+
+	expected := map[string]interface{}{
+		"test": map[string]interface{}{
+			"a": map[string]interface{}{
+				"b": map[string]interface{}{
+					"c1": "red",
+					"c2": "blue",
+				},
+			},
+		},
+	}
+
+	doTestDataDir(t, expected, sources)
+}
+
+func TestDataDirToml(t *testing.T) {
+	t.Parallel()
+
+	sources := [][2]string{
+		{"data/test/a.toml", "[b]\nc1 = \"red\"\nc2 = \"blue\"\n"},
+	}
+
+	expected := map[string]interface{}{
+		"test": map[string]interface{}{
+			"a": map[string]interface{}{
+				"b": map[string]interface{}{
+					"c1": "red",
+					"c2": "blue",
+				},
+			},
+		},
+	}
+
+	doTestDataDir(t, expected, sources)
+}
+
+func TestDataDirJSON2(t *testing.T) {
+	t.Parallel()
+
+	sources := [][2]string{
 		{filepath.FromSlash("data/test/foo.json"), `{ "bar": "foofoo"  }`},
 		{filepath.FromSlash("data/test.json"), `{ "hello": [ { "world": "foo" } ] }`},
 	}
@@ -55,52 +118,7 @@ func TestDataDirJSON(t *testing.T) {
 	doTestDataDir(t, expected, sources)
 }
 
-// Enable / adjust in https://github.com/gohugoio/hugo/issues/4393
-func _TestDataDirYAML(t *testing.T) {
-	t.Parallel()
-
-	sources := [][2]string{
-		{"data/test/a.yaml", "b:\n  c1: 1\n  c2: 2"},
-	}
-
-	expected :=
-		map[string]interface{}{
-			"test": map[string]interface{}{
-				"a": map[string]interface{}{
-					"b": map[interface{}]interface{}{
-						"c1": 1,
-						"c2": 2,
-					},
-				},
-			},
-		}
-
-	doTestDataDir(t, expected, sources)
-}
-
-func TestDataDirToml(t *testing.T) {
-	t.Parallel()
-
-	sources := [][2]string{
-		{"data/test/kung.toml", "[foo]\nbar = 1"},
-	}
-
-	expected :=
-		map[string]interface{}{
-			"test": map[string]interface{}{
-				"kung": map[string]interface{}{
-					"foo": map[string]interface{}{
-						"bar": 1,
-					},
-				},
-			},
-		}
-
-	doTestDataDir(t, expected, sources)
-}
-
-// Enable / adjust in https://github.com/gohugoio/hugo/issues/4393
-func _TestDataDirYAML2(t *testing.T) {
+func TestDataDirYAML2(t *testing.T) {
 	t.Parallel()
 
 	sources := [][2]string{
@@ -122,21 +140,7 @@ func _TestDataDirYAML2(t *testing.T) {
 			},
 		}
 
-	// what we are actually getting as of v0.34
-	expectedV0_34 :=
-		map[string]interface{}{
-			"test": map[string]interface{}{
-				"hello": []interface{}{
-					map[interface{}]interface{}{"world": "foo"},
-				},
-				"foo": map[string]interface{}{
-					"bar": "foofoo",
-				},
-			},
-		}
-	_ = expected
-
-	doTestDataDir(t, expectedV0_34, sources)
+	doTestDataDir(t, expected, sources)
 }
 
 func TestDataDirToml2(t *testing.T) {
