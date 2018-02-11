@@ -13,11 +13,11 @@
 			<td class="pv2 ph3">
 				<a href="{{ .Permalink }}">{{ .Title }}</a>
 			</td>
-			<td class="pv2 ph3"><a href="{{.Site.Params.ghrepo}}blob/master/content/{{.Path}}">
-				{{ with .GitInfo }}
-				GI: {{ .Subject }}
-				{{ else }}
-			Source{{ end }}</a></td>
+			<td class="pv2 ph3">
+				<a href="{{.Site.Params.ghrepo}}blob/master/content/{{.Path}}">
+					{{ with .GitInfo }}{{ .Subject }}{{ else }}Source{{ end }}
+				</a>
+			</td>
 		</tr>
 		{{ end }}
 	</tbody>
