@@ -7,17 +7,29 @@
                 <ul>
                     <li><a href="#last-updated">Last Updated</a></li>
                     <li><a href="#least-recently-updated">Least Recently Updated</a></li>
+                     <li><a href="#todos">Pages marked with TODO</a></li>
                 </ul>
             </aside>
         </div>
         <div class="w-100">
             {{ $byLastMod :=  .Site.RegularPages.ByLastmod  }}
             {{ $recent := ($byLastMod | last 10).Reverse }}
-            {{ $leastRecent := $byLastMod | first 10 }}
+            {{ $leastRecent := $byLastMod | first 10 }}            
             <h2 id="last-updated">Last Updated</h2>
             {{ partial "maintenance-pages-table" $recent }}
             <h2 id="least-recently-updated">Least Recently Updated</h2>
             {{ partial "maintenance-pages-table" $leastRecent }}
+
+            {{/* Don't think this is possible with where directly. Should investigate. */}}
+            {{ .Scratch.Set "todos" slice }}
+            {{ range .Site.RegularPages }}
+                 {{ if .HasShortcode "todo" }}
+                 {{ $.Scratch.Add "todos" . }}
+                 {{ end }}
+            {{ end }}
+            <h2 id="todos">Pages marked with TODO</h2>
+            {{ partial "maintenance-pages-table" (.Scratch.Get "todos") }}
+
         </div>
     </div>
 </div>
