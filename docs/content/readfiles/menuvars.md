@@ -25,6 +25,9 @@
 `.Children`
 : Menu
 
+`.Target`
+: string
+
 Note that menus also have the following functions available as well:
 
 [`.HasChildren`](/functions/haschildren/)

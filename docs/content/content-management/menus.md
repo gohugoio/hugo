@@ -65,6 +65,9 @@ A menu entry has the following properties (i.e., variables) available to it:
 `.Children`
 : Menu
 
+`.Target`
+: string
+
 Note that menus also have the following functions available as well:
 
 `.HasChildren`
