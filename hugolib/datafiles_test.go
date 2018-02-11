@@ -32,13 +32,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDataDirJSON(t *testing.T) {
+func TestDataDir(t *testing.T) {
 	t.Parallel()
-
-	sources := [][2]string{
-		{filepath.FromSlash("data/test/a.json"), `{ "b" : { "c1": "red" , "c2": "blue" } }`},
-	}
-
+	equivDataDirs := make([]dataDir, 3)
+	equivDataDirs[0].addSource("data/test/a.json", `{ "b" : { "c1": "red" , "c2": "blue" } }`)
+	equivDataDirs[1].addSource("data/test/a.yaml", "b:\n  c1: red\n  c2: blue")
+	equivDataDirs[2].addSource("data/test/a.toml", "[b]\nc1 = \"red\"\nc2 = \"blue\"\n")
 	expected := map[string]interface{}{
 		"test": map[string]interface{}{
 			"a": map[string]interface{}{
@@ -49,59 +48,66 @@ func TestDataDirJSON(t *testing.T) {
 			},
 		},
 	}
-
-	doTestDataDir(t, expected, sources)
+	doTestEquivalentDataDirs(t, equivDataDirs, expected)
 }
 
-func TestDataDirYAML(t *testing.T) {
+// Unable to enforce equivalency for int values as
+// the JSON, YAML and TOML parsers return
+// float64, int, int64 respectively. They all return
+// float64 for float values though:
+func TestDataDirNumeric(t *testing.T) {
 	t.Parallel()
-
-	sources := [][2]string{
-		{"data/test/a.yaml", "b:\n  c1: red\n  c2: blue"},
-	}
-
+	equivDataDirs := make([]dataDir, 3)
+	equivDataDirs[0].addSource("data/test/a.json", `{ "b" : { "c1": 1.7 , "c2": 2.9 } }`)
+	equivDataDirs[1].addSource("data/test/a.yaml", "b:\n  c1: 1.7\n  c2: 2.9")
+	equivDataDirs[2].addSource("data/test/a.toml", "[b]\nc1 = 1.7\nc2 = 2.9\n")
 	expected := map[string]interface{}{
 		"test": map[string]interface{}{
 			"a": map[string]interface{}{
 				"b": map[string]interface{}{
-					"c1": "red",
-					"c2": "blue",
+					"c1": 1.7,
+					"c2": 2.9,
 				},
 			},
 		},
 	}
-
-	doTestDataDir(t, expected, sources)
+	doTestEquivalentDataDirs(t, equivDataDirs, expected)
 }
 
-func TestDataDirToml(t *testing.T) {
+func TestDataDirBoolean(t *testing.T) {
 	t.Parallel()
-
-	sources := [][2]string{
-		{"data/test/a.toml", "[b]\nc1 = \"red\"\nc2 = \"blue\"\n"},
-	}
-
+	equivDataDirs := make([]dataDir, 3)
+	equivDataDirs[0].addSource("data/test/a.json", `{ "b" : { "c1": true , "c2": false } }`)
+	equivDataDirs[1].addSource("data/test/a.yaml", "b:\n  c1: true\n  c2: false")
+	equivDataDirs[2].addSource("data/test/a.toml", "[b]\nc1 = true\nc2 = false\n")
 	expected := map[string]interface{}{
 		"test": map[string]interface{}{
 			"a": map[string]interface{}{
 				"b": map[string]interface{}{
-					"c1": "red",
-					"c2": "blue",
+					"c1": true,
+					"c2": false,
 				},
 			},
 		},
 	}
-
-	doTestDataDir(t, expected, sources)
+	doTestEquivalentDataDirs(t, equivDataDirs, expected)
 }
 
-func TestDataDirJSON2(t *testing.T) {
+func TestDataDirTwoFiles(t *testing.T) {
 	t.Parallel()
+	equivDataDirs := make([]dataDir, 2)
 
-	sources := [][2]string{
-		{filepath.FromSlash("data/test/foo.json"), `{ "bar": "foofoo"  }`},
-		{filepath.FromSlash("data/test.json"), `{ "hello": [ { "world": "foo" } ] }`},
-	}
+	equivDataDirs[0].addSource("data/test/foo.json", `{ "bar": "foofoo"  }`)
+	equivDataDirs[0].addSource("data/test.json", `{ "hello": [ { "world": "foo" } ] }`)
+
+	equivDataDirs[1].addSource("data/test/foo.yaml", "bar: foofoo")
+	equivDataDirs[1].addSource("data/test.yaml", "hello:\n- world: foo")
+
+	// TODO Unresolved Issue #3890
+	/*
+		equivDataDirs[2].addSource("data/test/foo.toml", "bar = \"foofoo\"")
+		equivDataDirs[2].addSource("data/test.toml", "[[hello]]\nworld = \"foo\"")
+	*/
 
 	expected :=
 		map[string]interface{}{
@@ -115,67 +121,28 @@ func TestDataDirJSON2(t *testing.T) {
 			},
 		}
 
-	doTestDataDir(t, expected, sources)
+	doTestEquivalentDataDirs(t, equivDataDirs, expected)
 }
 
-func TestDataDirYAML2(t *testing.T) {
+func TestDataDirOverriddenValue(t *testing.T) {
 	t.Parallel()
+	equivDataDirs := make([]dataDir, 3)
 
-	sources := [][2]string{
-		{filepath.FromSlash("data/test/foo.yaml"), "bar: foofoo"},
-		{filepath.FromSlash("data/test.yaml"), "hello:\n- world: foo"},
-	}
+	// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
+	equivDataDirs[0].addSource("data/a.json", `{"a": "1"}`)
+	equivDataDirs[0].addSource("data/test/v1.json", `{"v1-2": "2"}`)
+	equivDataDirs[0].addSource("data/test/v2.json", `{"v2": ["2", "3"]}`)
+	equivDataDirs[0].addSource("data/test.json", `{"v1": "1"}`)
 
-	//This is what we want: consistent use of map[string]interface{} for nested YAML maps
-	// the same as TestDataDirJSON
-	expected :=
-		map[string]interface{}{
-			"test": map[string]interface{}{
-				"hello": []interface{}{
-					map[string]interface{}{"world": "foo"},
-				},
-				"foo": map[string]interface{}{
-					"bar": "foofoo",
-				},
-			},
-		}
+	equivDataDirs[1].addSource("data/a.yaml", "a: \"1\"")
+	equivDataDirs[1].addSource("data/test/v1.yaml", "v1-2: \"2\"")
+	equivDataDirs[1].addSource("data/test/v2.yaml", "v2:\n- \"2\"\n- \"3\"")
+	equivDataDirs[1].addSource("data/test.yaml", "v1: \"1\"")
 
-	doTestDataDir(t, expected, sources)
-}
-
-func TestDataDirToml2(t *testing.T) {
-	t.Parallel()
-
-	sources := [][2]string{
-		{filepath.FromSlash("data/test/foo.toml"), "bar = \"foofoo\""},
-		{filepath.FromSlash("data/test.toml"), "[[hello]]\nworld = \"foo\""},
-	}
-
-	expected :=
-		map[string]interface{}{
-			"test": map[string]interface{}{
-				"hello": []map[string]interface{}{
-					map[string]interface{}{"world": "foo"},
-				},
-				"foo": map[string]interface{}{
-					"bar": "foofoo",
-				},
-			},
-		}
-
-	doTestDataDir(t, expected, sources)
-}
-
-func TestDataDirJSONWithOverriddenValue(t *testing.T) {
-	t.Parallel()
-
-	sources := [][2]string{
-		// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
-		{filepath.FromSlash("data/a.json"), `{"a": "1"}`},
-		{filepath.FromSlash("data/test/v1.json"), `{"v1-2": "2"}`},
-		{filepath.FromSlash("data/test/v2.json"), `{"v2": ["2", "3"]}`},
-		{filepath.FromSlash("data/test.json"), `{"v1": "1"}`},
-	}
+	equivDataDirs[2].addSource("data/a.toml", "a = \"1\"")
+	equivDataDirs[2].addSource("data/test/v1.toml", "v1-2 = \"2\"")
+	equivDataDirs[2].addSource("data/test/v2.toml", "v2 = [\"2\", \"3\"]")
+	equivDataDirs[2].addSource("data/test.toml", "v1 = \"1\"")
 
 	expected :=
 		map[string]interface{}{
@@ -186,39 +153,15 @@ func TestDataDirJSONWithOverriddenValue(t *testing.T) {
 			},
 		}
 
-	doTestDataDir(t, expected, sources)
-}
-
-func TestDataDirYAMLWithOverridenValue(t *testing.T) {
-	t.Parallel()
-
-	sources := [][2]string{
-		// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
-		{filepath.FromSlash("data/a.yaml"), "a: 1"},
-		{filepath.FromSlash("data/test/v1.yaml"), "v1-2: 2"},
-		{filepath.FromSlash("data/test/v2.yaml"), "v2:\n- 2\n- 3"},
-		{filepath.FromSlash("data/test.yaml"), "v1: 1"},
-	}
-
-	expected :=
-		map[string]interface{}{
-			"a": map[string]interface{}{"a": 1},
-			"test": map[string]interface{}{
-				"v1": map[string]interface{}{"v1-2": 2},
-				"v2": map[string]interface{}{"v2": []interface{}{2, 3}},
-			},
-		}
-
-	doTestDataDir(t, expected, sources)
+	doTestEquivalentDataDirs(t, equivDataDirs, expected)
 }
 
 // Issue #4361
 func TestDataDirJSONArrayAtTopLevelOfFile(t *testing.T) {
 	t.Parallel()
 
-	sources := [][2]string{
-		{filepath.FromSlash("data/test.json"), `[ { "hello": "world" }, { "what": "time" }, { "is": "lunch?" } ]`},
-	}
+	var dd dataDir
+	dd.addSource("data/test.json", `[ { "hello": "world" }, { "what": "time" }, { "is": "lunch?" } ]`)
 
 	expected :=
 		map[string]interface{}{
@@ -229,20 +172,19 @@ func TestDataDirJSONArrayAtTopLevelOfFile(t *testing.T) {
 			},
 		}
 
-	doTestDataDir(t, expected, sources)
+	doTestDataDir(t, dd, expected)
 }
 
 // TODO Issue #3890 unresolved
 func TestDataDirYAMLArrayAtTopLevelOfFile(t *testing.T) {
 	t.Parallel()
 
-	sources := [][2]string{
-		{filepath.FromSlash("data/test.yaml"), `
+	var dd dataDir
+	dd.addSource("data/test.yaml", `
 - hello: world
 - what: time
 - is: lunch?
-`},
-	}
+`)
 
 	//TODO decide whether desired structure map[interface {}]interface{} as shown
 	// and as the YAML parser produces, or should it be map[string]interface{}
@@ -261,18 +203,17 @@ func TestDataDirYAMLArrayAtTopLevelOfFile(t *testing.T) {
 		map[string]interface{}{}
 	_ = expected
 
-	doTestDataDir(t, expectedV0_34, sources)
+	doTestDataDir(t, dd, expectedV0_34)
 }
 
 // Issue #892
 func TestDataDirMultipleSources(t *testing.T) {
 	t.Parallel()
 
-	sources := [][2]string{
-		{filepath.FromSlash("data/test/first.yaml"), "bar: 1"},
-		{filepath.FromSlash("themes/mytheme/data/test/first.yaml"), "bar: 2"},
-		{filepath.FromSlash("data/test/second.yaml"), "tender: 2"},
-	}
+	var dd dataDir
+	dd.addSource("data/test/first.yaml", "bar: 1")
+	dd.addSource("themes/mytheme/data/test/first.yaml", "bar: 2")
+	dd.addSource("data/test/second.yaml", "tender: 2")
 
 	expected :=
 		map[string]interface{}{
@@ -286,21 +227,21 @@ func TestDataDirMultipleSources(t *testing.T) {
 			},
 		}
 
-	doTestDataDir(t, expected, sources,
+	doTestDataDir(t, dd, expected,
 		"theme", "mytheme")
 
 }
 
-// test (and show) the way values from four different sources commingle and override
+// test (and show) the way values from four different sources,
+// including theme data, commingle and override
 func TestDataDirMultipleSourcesCommingled(t *testing.T) {
 	t.Parallel()
 
-	sources := [][2]string{
-		{filepath.FromSlash("data/a.json"), `{ "b1" : { "c1": "data/a" }, "b2": "data/a", "b3": ["x", "y", "z"] }`},
-		{filepath.FromSlash("themes/mytheme/data/a.json"), `{ "b1": "mytheme/data/a",  "b2": "mytheme/data/a", "b3": "mytheme/data/a" }`},
-		{filepath.FromSlash("themes/mytheme/data/a/b1.json"), `{ "c1": "mytheme/data/a/b1", "c2": "mytheme/data/a/b1" }`},
-		{filepath.FromSlash("data/a/b1.json"), `{ "c1": "data/a/b1" }`},
-	}
+	var dd dataDir
+	dd.addSource("data/a.json", `{ "b1" : { "c1": "data/a" }, "b2": "data/a", "b3": ["x", "y", "z"] }`)
+	dd.addSource("themes/mytheme/data/a.json", `{ "b1": "mytheme/data/a",  "b2": "mytheme/data/a", "b3": "mytheme/data/a" }`)
+	dd.addSource("themes/mytheme/data/a/b1.json", `{ "c1": "mytheme/data/a/b1", "c2": "mytheme/data/a/b1" }`)
+	dd.addSource("data/a/b1.json", `{ "c1": "data/a/b1" }`)
 
 	// Per handleDataFile() comment:
 	// 1. A theme uses the same key; the main data folder wins
@@ -317,17 +258,17 @@ func TestDataDirMultipleSourcesCommingled(t *testing.T) {
 			},
 		}
 
-	doTestDataDir(t, expected, sources,
-		"theme", "mytheme")
+	doTestDataDir(t, dd, expected, "theme", "mytheme")
 }
 
-func TestDataDirMultipleSourcesCollidingChildArrays(t *testing.T) {
+// TODO Issue #4366 unresolved
+func _TestDataDirMultipleSourcesCollidingChildArrays(t *testing.T) {
 	t.Parallel()
 
-	sources := [][2]string{
-		{filepath.FromSlash("data/a.json"), `{ "b1" : "data/a", "b2" : ["x", "y", "z"] }`},
-		{filepath.FromSlash("data/a/b2.json"), `["1", "2", "3"]`},
-	}
+	var dd dataDir
+	dd.addSource("themes/mytheme/data/a/b2.json", `["Q", "R", "S"]`)
+	dd.addSource("data/a.json", `{ "b1" : "data/a", "b2" : ["x", "y", "z"] }`)
+	dd.addSource("data/a/b2.json", `["1", "2", "3"]`)
 
 	// Per handleDataFile() comment:
 	// 1. A theme uses the same key; the main data folder wins
@@ -340,18 +281,16 @@ func TestDataDirMultipleSourcesCollidingChildArrays(t *testing.T) {
 			},
 		}
 
-	doTestDataDir(t, expected, sources,
-		"theme", "mytheme")
+	doTestDataDir(t, dd, expected, "theme", "mytheme")
 }
 
 // TODO Issue #4366 unresolved
-func TestDataDirMultipleSourcesCollidingTopLevelArrays(t *testing.T) {
+func _TestDataDirMultipleSourcesCollidingTopLevelArrays(t *testing.T) {
 	t.Parallel()
 
-	sources := [][2]string{
-		{filepath.FromSlash("themes/mytheme/data/a/b1.json"), `["x", "y", "z"]`},
-		{filepath.FromSlash("data/a/b1.json"), `["1", "2", "3"]`},
-	}
+	var dd dataDir
+	dd.addSource("themes/mytheme/data/a/b1.json", `["x", "y", "z"]`)
+	dd.addSource("data/a/b1.json", `["1", "2", "3"]`)
 
 	expected :=
 		map[string]interface{}{
@@ -360,16 +299,34 @@ func TestDataDirMultipleSourcesCollidingTopLevelArrays(t *testing.T) {
 			},
 		}
 
-	// as of v0.34 this test results in a go Panic
-	_ = sources
-	_ = expected
-	/*
-		doTestDataDir(t, expectedV0_35, sources,
-			"theme", "mytheme")
-	*/
+	doTestDataDir(t, dd, expected, "theme", "mytheme")
 }
 
-func doTestDataDir(t *testing.T, expected interface{}, sources [][2]string, configKeyValues ...interface{}) {
+type dataDir struct {
+	sources [][2]string
+}
+
+func (d *dataDir) addSource(path, content string) {
+	d.sources = append(d.sources, [2]string{path, content})
+}
+
+func doTestEquivalentDataDirs(t *testing.T, equivDataDirs []dataDir, expected interface{}, configKeyValues ...interface{}) {
+	for i, dd := range equivDataDirs {
+		err := doTestDataDirImpl(t, dd, expected, configKeyValues...)
+		if err != "" {
+			t.Errorf("equivDataDirs[%d]: %s", i, err)
+		}
+	}
+}
+
+func doTestDataDir(t *testing.T, dd dataDir, expected interface{}, configKeyValues ...interface{}) {
+	err := doTestDataDirImpl(t, dd, expected, configKeyValues...)
+	if err != "" {
+		t.Error(err)
+	}
+}
+
+func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKeyValues ...interface{}) (err string) {
 	var (
 		cfg, fs = newTestCfg()
 	)
@@ -384,7 +341,7 @@ func doTestDataDir(t *testing.T, expected interface{}, sources [][2]string, conf
 	)
 
 	writeSource(t, fs, filepath.Join("content", "dummy.md"), "content")
-	writeSourcesToSource(t, "", fs, sources...)
+	writeSourcesToSource(t, "", fs, dd.sources...)
 
 	expectBuildError := false
 
@@ -405,17 +362,26 @@ func doTestDataDir(t *testing.T, expected interface{}, sources [][2]string, conf
 	s := buildSingleSiteExpected(t, expectBuildError, depsCfg, BuildCfg{SkipRender: true})
 
 	if !expectBuildError && !reflect.DeepEqual(expected, s.Data) {
-		exp := fmt.Sprintf("%#v", expected)
-		got := fmt.Sprintf("%#v", s.Data)
-		if exp == got { //TODO: This workaround seems to be triggered only by the TOML tests
-			t.Logf("WARNING: reflect.DeepEqual returned FALSE for values that appear equal.\n"+
-				"Treating as equal for the purpose of the test, but this maybe should be investigated.\n"+
-				"Expected data:\n%v got\n%v\n\nExpected type structure:\n%#[1]v got\n%#[2]v", expected, s.Data)
-			return
-		}
+		// This disabled code detects the situation described in the WARNING message below.
+		// The situation seems to only occur for TOML data with integer values.
+		// Perhaps the TOML parser returns ints in another type.
+		// Re-enable temporarily to debug fails that should be passing.
+		// Re-enable permanently if reflect.DeepEqual is simply too strict.
+		/*
+			exp := fmt.Sprintf("%#v", expected)
+			got := fmt.Sprintf("%#v", s.Data)
+			if exp == got {
+				t.Logf("WARNING: reflect.DeepEqual returned FALSE for values that appear equal.\n"+
+					"Treating as equal for the purpose of the test, but this maybe should be investigated.\n"+
+					"Expected data:\n%v got\n%v\n\nExpected type structure:\n%#[1]v got\n%#[2]v", expected, s.Data)
+				return
+			}
+		*/
 
-		t.Errorf("Expected data:\n%v got\n%v\n\nExpected type structure:\n%#[1]v got\n%#[2]v", expected, s.Data)
+		return fmt.Sprintf("Expected data:\n%v got\n%v\n\nExpected type structure:\n%#[1]v got\n%#[2]v", expected, s.Data)
 	}
+
+	return
 }
 
 func TestDataFromShortcode(t *testing.T) {
