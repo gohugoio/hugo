@@ -8,7 +8,7 @@ menu:
   docs:
     parent: "troubleshooting"
 keywords: [faqs]
-weight: 1
+weight: 2
 toc: true
 aliases: [/faq/]
 ---
