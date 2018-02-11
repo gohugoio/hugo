@@ -812,24 +812,50 @@ func (s *Site) handleDataFile(r source.ReadableFile) error {
 		return nil
 	}
 
-	// Copy content from current to data when needed
-	if _, ok := current[r.BaseFileName()]; ok {
-		data := data.(map[string]interface{})
+	// filepath.Walk walks the files in lexical order, '/' comes before '.'
+	// this warning could happen if
+	// 1. A theme uses the same key; the main data folder wins
+	// 2. A sub folder uses the same key: the sub folder wins
+	higherPrecedentData := current[r.BaseFileName()]
 
-		for key, value := range current[r.BaseFileName()].(map[string]interface{}) {
-			if _, override := data[key]; override {
-				// filepath.Walk walks the files in lexical order, '/' comes before '.'
-				// this warning could happen if
-				// 1. A theme uses the same key; the main data folder wins
-				// 2. A sub folder uses the same key: the sub folder wins
-				s.Log.WARN.Printf("Data for key '%s' in path '%s' is overridden in subfolder", key, r.Path())
+	switch data.(type) {
+	case nil:
+		// hear the crickets?
+
+	case map[string]interface{}:
+
+		switch higherPrecedentData.(type) {
+		case nil:
+			current[r.BaseFileName()] = data
+		case map[string]interface{}:
+			// merge maps: insert entries from data for keys that
+			// don't already exist in higherPrecedentData
+			higherPrecedentMap := higherPrecedentData.(map[string]interface{})
+			for key, value := range data.(map[string]interface{}) {
+				if _, exists := higherPrecedentMap[key]; exists {
+					s.Log.WARN.Printf("Data for key '%s' in path '%s' is overridden higher precedence data already in the data tree", key, r.Path())
+				} else {
+					higherPrecedentMap[key] = value
+				}
 			}
-			data[key] = value
+		default:
+			// can't merge: higherPrecedentData is not a map
+			s.Log.WARN.Printf("The %T data from '%s' overridden by "+
+				"higher precedence %T data already in the data tree", data, r.Path(), higherPrecedentData)
 		}
-	}
 
-	// Insert data
-	current[r.BaseFileName()] = data
+	case []interface{}:
+		if higherPrecedentData == nil {
+			current[r.BaseFileName()] = data
+		} else {
+			// we don't merge array data
+			s.Log.WARN.Printf("The %T data from '%s' overridden by "+
+				"higher precedence %T data already in the data tree", data, r.Path(), higherPrecedentData)
+		}
+
+	default:
+		s.Log.ERROR.Printf("unexpected data type %T in file %s", data, r.LogicalName())
+	}
 
 	return nil
 }

@@ -261,8 +261,7 @@ func TestDataDirMultipleSourcesCommingled(t *testing.T) {
 	doTestDataDir(t, dd, expected, "theme", "mytheme")
 }
 
-// TODO Issue #4366 unresolved
-func _TestDataDirMultipleSourcesCollidingChildArrays(t *testing.T) {
+func TestDataDirCollidingChildArrays(t *testing.T) {
 	t.Parallel()
 
 	var dd dataDir
@@ -284,8 +283,7 @@ func _TestDataDirMultipleSourcesCollidingChildArrays(t *testing.T) {
 	doTestDataDir(t, dd, expected, "theme", "mytheme")
 }
 
-// TODO Issue #4366 unresolved
-func _TestDataDirMultipleSourcesCollidingTopLevelArrays(t *testing.T) {
+func TestDataDirCollidingTopLevelArrays(t *testing.T) {
 	t.Parallel()
 
 	var dd dataDir
@@ -297,6 +295,27 @@ func _TestDataDirMultipleSourcesCollidingTopLevelArrays(t *testing.T) {
 			"a": map[string]interface{}{
 				"b1": []interface{}{"1", "2", "3"},
 			},
+		}
+
+	doTestDataDir(t, dd, expected, "theme", "mytheme")
+}
+
+func TestDataDirCollidingMapsAndArrays(t *testing.T) {
+	t.Parallel()
+
+	var dd dataDir
+	// on
+	dd.addSource("themes/mytheme/data/a.json", `["1", "2", "3"]`)
+	dd.addSource("themes/mytheme/data/b.json", `{ "film" : "Logan Lucky" }`)
+	dd.addSource("data/a.json", `{ "music" : "Queen's Rebuke" }`)
+	dd.addSource("data/b.json", `["x", "y", "z"]`)
+
+	expected :=
+		map[string]interface{}{
+			"a": map[string]interface{}{
+				"music": "Queen's Rebuke",
+			},
+			"b": []interface{}{"x", "y", "z"},
 		}
 
 	doTestDataDir(t, dd, expected, "theme", "mytheme")
