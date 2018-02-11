@@ -2,7 +2,7 @@
 <div class="w-100 ph4 pb5 pb6-ns pt1 mt4 pt3-ns">
     {{ $byLastMod :=  .Site.RegularPages.ByLastmod  }}
     {{ $recent := $byLastMod | last 10 }}
-    {{ $leastRecent := $byLastMod.Reverse | last 10 }}
+    {{ $leastRecent := $byLastMod | first 10 }}
     
     <h2>Last Updated</h2>
     {{ partial "maintenance-pages-table" $recent }}

@@ -9,7 +9,7 @@
 	<tbody>
 		{{ range  . }}
 		<tr class="striped--light-gray">
-			<td class="pv2 ph3">{{ .Lastmod.Format "Jan, 02 2006" }}</td>
+			<td class="pv2 ph3">{{ .Lastmod.Format "2006-01-02" }}</td>
 			<td class="pv2 ph3">
 				<a href="{{ .Permalink }}">{{ .Title }}</a>
 			</td>
