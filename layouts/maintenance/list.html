@@ -1,14 +1,24 @@
 {{ define "main" }}
 <div class="w-100 ph4 pb5 pb6-ns pt1 mt4 pt3-ns">
-    {{ $byLastMod :=  .Site.RegularPages.ByLastmod  }}
-    {{ $recent := $byLastMod | last 10 }}
-    {{ $leastRecent := $byLastMod | first 10 }}
-    
-    <h2>Last Updated</h2>
-    {{ partial "maintenance-pages-table" $recent }}
-
-      <h2>Least Recently Updated</h2>
-    {{ partial "maintenance-pages-table" $leastRecent }}
-   
+    <div class="flex-l">
+        <div class="order-2 w-100 w-20-l ph5-m ph0-l mb4 sticky">
+            <aside class="fixed-lTK mw5-l right-0 f6 bl-l b--moon-gray pv4 pv0-ns ph4-l nested-list-reset nested-links nested-copy-line-height">
+                <p class="b">What's on this Page</p>
+                <ul>
+                    <li><a href="#last-updated">Last Updated</a></li>
+                    <li><a href="#least-recently-updated">Least Recently Updated</a></li>
+                </ul>
+            </aside>
+        </div>
+        <div class="w-100">
+            {{ $byLastMod :=  .Site.RegularPages.ByLastmod  }}
+            {{ $recent := $byLastMod | last 10 }}
+            {{ $leastRecent := $byLastMod | first 10 }}
+            <h2 id="last-updated">Last Updated</h2>
+            {{ partial "maintenance-pages-table" $recent }}
+            <h2 id="least-recently-updated">Least Recently Updated</h2>
+            {{ partial "maintenance-pages-table" $leastRecent }}
+        </div>
+    </div>
 </div>
 {{ end }}
