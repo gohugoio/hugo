@@ -353,7 +353,7 @@ func TestStringifyYAMLMapKeys(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		res := stringifyYAMLMapKeys(c.input)
+		res := stringifyMapKeys(c.input)
 		if !reflect.DeepEqual(res, c.want) {
 			t.Errorf("[%d] given %q\nwant: %q\n got: %q", i, c.input, c.want, res)
 		}
@@ -387,7 +387,7 @@ func BenchmarkStringifyMapKeysStringsOnlyInterfaceMaps(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		stringifyYAMLMapKeys(maps[i])
+		stringifyMapKeys(maps[i])
 	}
 }
 
@@ -429,7 +429,7 @@ func BenchmarkStringifyMapKeysIntegers(b *testing.B) {
 	}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		stringifyYAMLMapKeys(maps[i])
+		stringifyMapKeys(maps[i])
 	}
 }
 func doBenchmarkFrontmatter(b *testing.B, fileformat string, numTags int) {

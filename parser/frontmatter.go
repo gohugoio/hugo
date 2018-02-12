@@ -209,7 +209,7 @@ func HandleYAMLMetaData(datum []byte) (map[string]interface{}, error) {
 	// gotten from `json`.
 	if err == nil {
 		for k, v := range m {
-			m[k] = stringifyYAMLMapKeys(v)
+			m[k] = stringifyMapKeys(v)
 		}
 	}
 
@@ -227,30 +227,30 @@ func HandleYAMLData(datum []byte) (interface{}, error) {
 	// and change all maps to map[string]interface{} like we would've
 	// gotten from `json`.
 	if err == nil {
-		m = stringifyYAMLMapKeys(m)
+		m = stringifyMapKeys(m)
 	}
 
 	return m, err
 }
 
-// stringifyKeysMapValue recurses into in and changes all instances of
+// stringifyMapKeys recurses into in and changes all instances of
 // map[interface{}]interface{} to map[string]interface{}. This is useful to
 // work around the impedence mismatch between JSON and YAML unmarshaling that's
 // described here: https://github.com/go-yaml/yaml/issues/139
 //
 // Inspired by https://github.com/stripe/stripe-mock, MIT licensed
-func stringifyYAMLMapKeys(in interface{}) interface{} {
+func stringifyMapKeys(in interface{}) interface{} {
 	switch in := in.(type) {
 	case []interface{}:
 		res := make([]interface{}, len(in))
 		for i, v := range in {
-			res[i] = stringifyYAMLMapKeys(v)
+			res[i] = stringifyMapKeys(v)
 		}
 		return res
 	case map[interface{}]interface{}:
 		res := make(map[string]interface{})
 		for k, v := range in {
-			res[fmt.Sprintf("%v", k)] = stringifyYAMLMapKeys(v)
+			res[fmt.Sprintf("%v", k)] = stringifyMapKeys(v)
 		}
 		return res
 	default:
