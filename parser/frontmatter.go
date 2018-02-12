@@ -23,6 +23,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/spf13/cast"
+
 	"github.com/BurntSushi/toml"
 	"github.com/chaseadamsio/goorgeous"
 
@@ -209,7 +211,9 @@ func HandleYAMLMetaData(datum []byte) (map[string]interface{}, error) {
 	// gotten from `json`.
 	if err == nil {
 		for k, v := range m {
-			m[k] = stringifyMapKeys(v)
+			if vv, changed := stringifyMapKeys(v); changed {
+				m[k] = vv
+			}
 		}
 	}
 
@@ -221,16 +225,19 @@ func HandleYAMLMetaData(datum []byte) (map[string]interface{}, error) {
 func HandleYAMLData(datum []byte) (interface{}, error) {
 	var m interface{}
 	err := yaml.Unmarshal(datum, &m)
+	if err != nil {
+		return nil, err
+	}
 
 	// To support boolean keys, the `yaml` package unmarshals maps to
 	// map[interface{}]interface{}. Here we recurse through the result
 	// and change all maps to map[string]interface{} like we would've
 	// gotten from `json`.
-	if err == nil {
-		m = stringifyMapKeys(m)
+	if mm, changed := stringifyMapKeys(m); changed {
+		return mm, nil
 	}
 
-	return m, err
+	return m, nil
 }
 
 // stringifyMapKeys recurses into in and changes all instances of
@@ -239,23 +246,31 @@ func HandleYAMLData(datum []byte) (interface{}, error) {
 // described here: https://github.com/go-yaml/yaml/issues/139
 //
 // Inspired by https://github.com/stripe/stripe-mock, MIT licensed
-func stringifyMapKeys(in interface{}) interface{} {
+func stringifyMapKeys(in interface{}) (interface{}, bool) {
 	switch in := in.(type) {
 	case []interface{}:
-		res := make([]interface{}, len(in))
 		for i, v := range in {
-			res[i] = stringifyMapKeys(v)
+			if vv, replaced := stringifyMapKeys(v); replaced {
+				in[i] = vv
+			}
 		}
-		return res
 	case map[interface{}]interface{}:
 		res := make(map[string]interface{})
 		for k, v := range in {
-			res[fmt.Sprintf("%v", k)] = stringifyMapKeys(v)
+			ks, err := cast.ToStringE(k)
+			if err != nil {
+				ks = fmt.Sprintf("%v", k)
+			}
+			if vv, replaced := stringifyMapKeys(v); replaced {
+				res[ks] = vv
+			} else {
+				res[ks] = v
+			}
 		}
-		return res
-	default:
-		return in
+		return res, true
 	}
+
+	return nil, false
 }
 
 // HandleJSONMetaData unmarshals JSON-encoded datum and returns a Go interface

@@ -323,37 +323,56 @@ func TestRemoveTOMLIdentifier(t *testing.T) {
 
 func TestStringifyYAMLMapKeys(t *testing.T) {
 	cases := []struct {
-		input interface{}
-		want  map[string]interface{}
+		input    interface{}
+		want     interface{}
+		replaced bool
 	}{
 		{
 			map[interface{}]interface{}{"a": 1, "b": 2},
 			map[string]interface{}{"a": 1, "b": 2},
+			true,
 		},
 		{
 			map[interface{}]interface{}{"a": []interface{}{1, map[interface{}]interface{}{"b": 2}}},
 			map[string]interface{}{"a": []interface{}{1, map[string]interface{}{"b": 2}}},
+			true,
 		},
 		{
 			map[interface{}]interface{}{true: 1, "b": false},
 			map[string]interface{}{"true": 1, "b": false},
+			true,
 		},
 		{
 			map[interface{}]interface{}{1: "a", 2: "b"},
 			map[string]interface{}{"1": "a", "2": "b"},
+			true,
 		},
 		{
 			map[interface{}]interface{}{"a": map[interface{}]interface{}{"b": 1}},
 			map[string]interface{}{"a": map[string]interface{}{"b": 1}},
+			true,
 		},
 		{
 			map[string]interface{}{"a": map[string]interface{}{"b": 1}},
 			map[string]interface{}{"a": map[string]interface{}{"b": 1}},
+			false,
+		},
+		{
+			[]interface{}{map[interface{}]interface{}{1: "a", 2: "b"}},
+			[]interface{}{map[string]interface{}{"1": "a", "2": "b"}},
+			false,
 		},
 	}
 
 	for i, c := range cases {
-		res := stringifyMapKeys(c.input)
+		res, replaced := stringifyMapKeys(c.input)
+
+		if c.replaced != replaced {
+			t.Fatalf("[%d] Replaced mismatch: %t", i, replaced)
+		}
+		if !c.replaced {
+			res = c.input
+		}
 		if !reflect.DeepEqual(res, c.want) {
 			t.Errorf("[%d] given %q\nwant: %q\n got: %q", i, c.input, c.want, res)
 		}
@@ -407,7 +426,7 @@ func BenchmarkStringifyMapKeysStringsOnlyStringMaps(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		stringifyYAMLMapKeys(m)
+		stringifyMapKeys(m)
 	}
 }
 
