@@ -870,7 +870,7 @@ func (s *Site) readData(f source.ReadableFile) (interface{}, error) {
 
 	switch f.Extension() {
 	case "yaml", "yml":
-		return parser.HandleYAMLMetaData(content)
+		return parser.HandleYAMLData(content)
 	case "json":
 		return parser.HandleJSONData(content)
 	case "toml":

@@ -216,6 +216,23 @@ func HandleYAMLMetaData(datum []byte) (map[string]interface{}, error) {
 	return m, err
 }
 
+// HandleYAMLData unmarshals YAML-encoded datum and returns a Go interface
+// representing the encoded data structure.
+func HandleYAMLData(datum []byte) (interface{}, error) {
+	var m interface{}
+	err := yaml.Unmarshal(datum, &m)
+
+	// To support boolean keys, the `yaml` package unmarshals maps to
+	// map[interface{}]interface{}. Here we recurse through the result
+	// and change all maps to map[string]interface{} like we would've
+	// gotten from `json`.
+	if err == nil {
+		m = stringifyYAMLMapKeys(m)
+	}
+
+	return m, err
+}
+
 // stringifyKeysMapValue recurses into in and changes all instances of
 // map[interface{}]interface{} to map[string]interface{}. This is useful to
 // work around the impedence mismatch between JSON and YAML unmarshaling that's
