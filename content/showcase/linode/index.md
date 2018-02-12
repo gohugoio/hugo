@@ -1,8 +1,8 @@
 ---
 
-title: Linode
+title: Linode Docs
 
-date: 2018-02-09
+date: 2018-02-12
 
 description: "Showcase: \"Hugo allows us to build thousands of pages in seconds.\""
 
