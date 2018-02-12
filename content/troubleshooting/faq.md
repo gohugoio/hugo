@@ -33,5 +33,5 @@ Also see this Twitter thread:
 
 ## Can I use the latest Hugo version on Netlify?
 
-Yes you can! Read [this](/hosting-and-deployment/hosting-on-netlify/#build-with-a-specific-hugo-version).
+Yes you can! Read [this](/hosting-and-deployment/hosting-on-netlify/#configure-hugo-version-in-netlify).
 

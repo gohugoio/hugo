@@ -59,21 +59,9 @@ Select the repo you want to use for continuous deployment. If you have a large n
 
 Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you wanted published, your [build command][], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration][config], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
 
-## Build with a Specific Hugo Version
+## Configure Hugo Version in Netlify 
 
-Setting the build command to `hugo` will build your site according to the current default Hugo version used by Netlify.
-
-If you want to tell Netlify to build with a specific version (hugo <= 0.20), you can append an underscore followed by the version number to the build command:
-
-```
-hugo_0.19
-```
-
-Your simple configuration should now look similar to the following:
-
-![Screenshot of 3-step, basic continuous deployment setup with a new Hugo site on Netlify](/images/hosting-and-deployment/hosting-on-netlify/netlify-create-new-site-step-3.jpg)
-
-For version hugo > 0.20 you have to [specify version hugo for testing and production](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) in `netlify.toml` file or set `HUGO_VERSION` as a build environment variable in the Netlify console.
+You can [set Hugo version](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) testing and production in `netlify.toml` file or set `HUGO_VERSION` as a build environment variable in the Netlify console.
 
 For production:
 
@@ -89,13 +77,15 @@ For testing:
   HUGO_VERSION = "0.36"
 ```
 
-The Netlify configuration file can be a little hard to understand and get right for the different, and you may get some inspiration and tips from this site's `netlify.toml`:
+The Netlify configuration file can be a little hard to understand and get right for the different environment, and you may get some inspiration and tips from this site's `netlify.toml`:
 
 {{< code file="netlify.toml" nocode="true" >}}
 {{< readfile file="netlify.toml" highlight="toml" >}}   
 {{< /code >}}
 
-Selecting "Deploy site" will immediately take you to a terminal for your build:.
+## Build and Deploy Site
+
+In the Netlify console, selecting "Deploy site" will immediately take you to a terminal for your build:.
 
 ![Animated gif of deploying a site to Netlify, including the terminal read out for the build.](/images/hosting-and-deployment/hosting-on-netlify/netlify-deploying-site.gif)
 
