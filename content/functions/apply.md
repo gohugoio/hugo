@@ -10,7 +10,7 @@ menu:
   docs:
     parent: "functions"
 keywords: [advanced]
-signature: ["apply COLLETION FUNCTION [PARAM...]"]
+signature: ["apply COLLECTION FUNCTION [PARAM...]"]
 workson: []
 hugoversion:
 relatedfuncs: []
@@ -25,11 +25,11 @@ POTENTIAL NEW CONTENT: see apply/sequence discussion: https://discourse.gohugo.i
 
 `apply` expects at least three parameters, depending on the function being applied.
 
-1. The first parameter is the sequence to operate on
+1. The first parameter is the sequence to operate on.
 2. The second parameter is the name of the function as a string, which must be the name of a valid [Hugo function][functions].
 3. After that, the parameters to the applied function are provided, with the string `"."` standing in for each element of the sequence the function is to be applied against.
 
-Here is an example of a content file with `name:` as a front matter field:
+Here is an example of a content file with `names:` as a front matter field:
 
 ```
 +++
@@ -43,19 +43,19 @@ You can then use `apply` as follows:
 {{ apply .Params.names "urlize" "." }}
 ```
 
-Which will result as follows:
+Which will result in the following:
 
 ```
 "derek-perkins", "joe-bergevin", "tanner-linsley"
 ```
 
-This is *roughly* equivalent to using the following with [range][]
+This is *roughly* equivalent to using the following with [range][]:
 
 ```
 {{ range .Params.names }}{{ . | urlize }}{{ end }}
 ```
 
-However, it isn’t possible to provide the output of a range to the [`delimit` function][delimit], so you need to `apply` it.
+However, it is not possible to provide the output of a range to the [`delimit` function][delimit], so you need to `apply` it.
 
 If you have `post-tag-list.html` and `post-tag-link.html` as [partials][], you *could* use the following snippets, respectively:
 
