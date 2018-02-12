@@ -20,7 +20,7 @@ aliases: []
 ---
 
 {{< todo >}}
-<!-- POTENTIAL NEW CONTENT: see apply/sequence discussion: https://discourse.gohugo.io/t/apply-printf-on-a-sequence/5722; -->
+POTENTIAL NEW CONTENT: see apply/sequence discussion: https://discourse.gohugo.io/t/apply-printf-on-a-sequence/5722;
 {{< /todo >}}
 
 `apply` expects at least three parameters, depending on the function being applied.
