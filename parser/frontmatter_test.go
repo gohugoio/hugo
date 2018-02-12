@@ -323,7 +323,7 @@ func TestRemoveTOMLIdentifier(t *testing.T) {
 
 func TestStringifyYAMLMapKeys(t *testing.T) {
 	cases := []struct {
-		input map[interface{}]interface{}
+		input interface{}
 		want  map[string]interface{}
 	}{
 		{
@@ -346,6 +346,10 @@ func TestStringifyYAMLMapKeys(t *testing.T) {
 			map[interface{}]interface{}{"a": map[interface{}]interface{}{"b": 1}},
 			map[string]interface{}{"a": map[string]interface{}{"b": 1}},
 		},
+		{
+			map[string]interface{}{"a": map[string]interface{}{"b": 1}},
+			map[string]interface{}{"a": map[string]interface{}{"b": 1}},
+		},
 	}
 
 	for i, c := range cases {
@@ -365,6 +369,69 @@ func BenchmarkFrontmatterTags(b *testing.B) {
 	}
 }
 
+func BenchmarkStringifyMapKeysStringsOnlyInterfaceMaps(b *testing.B) {
+	maps := make([]map[interface{}]interface{}, b.N)
+	for i := 0; i < b.N; i++ {
+		maps[i] = map[interface{}]interface{}{
+			"a": map[interface{}]interface{}{
+				"b": 32,
+				"c": 43,
+				"d": map[interface{}]interface{}{
+					"b": 32,
+					"c": 43,
+				},
+			},
+			"b": []interface{}{"a", "b"},
+			"c": "d",
+		}
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		stringifyYAMLMapKeys(maps[i])
+	}
+}
+
+func BenchmarkStringifyMapKeysStringsOnlyStringMaps(b *testing.B) {
+	m := map[string]interface{}{
+		"a": map[string]interface{}{
+			"b": 32,
+			"c": 43,
+			"d": map[string]interface{}{
+				"b": 32,
+				"c": 43,
+			},
+		},
+		"b": []interface{}{"a", "b"},
+		"c": "d",
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		stringifyYAMLMapKeys(m)
+	}
+}
+
+func BenchmarkStringifyMapKeysIntegers(b *testing.B) {
+	maps := make([]map[interface{}]interface{}, b.N)
+	for i := 0; i < b.N; i++ {
+		maps[i] = map[interface{}]interface{}{
+			1: map[interface{}]interface{}{
+				4: 32,
+				5: 43,
+				6: map[interface{}]interface{}{
+					7: 32,
+					8: 43,
+				},
+			},
+			2: []interface{}{"a", "b"},
+			3: "d",
+		}
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		stringifyYAMLMapKeys(maps[i])
+	}
+}
 func doBenchmarkFrontmatter(b *testing.B, fileformat string, numTags int) {
 	yamlTemplate := `---
 name: "Tags"
