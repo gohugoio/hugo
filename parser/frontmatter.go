@@ -23,6 +23,8 @@ import (
 	"io"
 	"strings"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	"github.com/spf13/cast"
 
 	"github.com/BurntSushi/toml"
@@ -256,10 +258,20 @@ func stringifyMapKeys(in interface{}) (interface{}, bool) {
 		}
 	case map[interface{}]interface{}:
 		res := make(map[string]interface{})
+		var (
+			ok  bool
+			err error
+		)
 		for k, v := range in {
-			ks, err := cast.ToStringE(k)
-			if err != nil {
-				ks = fmt.Sprintf("%v", k)
+			var ks string
+
+			if ks, ok = k.(string); !ok {
+				ks, err = cast.ToStringE(k)
+				if err != nil {
+					ks = fmt.Sprintf("%v", k)
+				}
+				// TODO(bep) added in Hugo 0.37, remove some time in the future.
+				helpers.DistinctFeedbackLog.Printf("WARNING: YAML data/frontmatter with keys of type %T is since Hugo 0.37 converted to strings", k)
 			}
 			if vv, replaced := stringifyMapKeys(v); replaced {
 				res[ks] = vv
