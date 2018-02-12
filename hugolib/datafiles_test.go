@@ -95,25 +95,23 @@ func TestDataDirBoolean(t *testing.T) {
 
 func TestDataDirTwoFiles(t *testing.T) {
 	t.Parallel()
-	equivDataDirs := make([]dataDir, 2)
+	equivDataDirs := make([]dataDir, 3)
 
 	equivDataDirs[0].addSource("data/test/foo.json", `{ "bar": "foofoo"  }`)
-	equivDataDirs[0].addSource("data/test.json", `{ "hello": [ { "world": "foo" } ] }`)
+	equivDataDirs[0].addSource("data/test.json", `{ "hello": [ "world", "foo" ] }`)
 
 	equivDataDirs[1].addSource("data/test/foo.yaml", "bar: foofoo")
-	equivDataDirs[1].addSource("data/test.yaml", "hello:\n- world: foo")
+	equivDataDirs[1].addSource("data/test.yaml", "hello:\n- world\n- foo")
 
-	// TODO Unresolved Issue #3890
-	/*
-		equivDataDirs[2].addSource("data/test/foo.toml", "bar = \"foofoo\"")
-		equivDataDirs[2].addSource("data/test.toml", "[[hello]]\nworld = \"foo\"")
-	*/
+	equivDataDirs[2].addSource("data/test/foo.toml", "bar = \"foofoo\"")
+	equivDataDirs[2].addSource("data/test.toml", "hello = [\"world\", \"foo\"]")
 
 	expected :=
 		map[string]interface{}{
 			"test": map[string]interface{}{
 				"hello": []interface{}{
-					map[string]interface{}{"world": "foo"},
+					"world",
+					"foo",
 				},
 				"foo": map[string]interface{}{
 					"bar": "foofoo",
@@ -156,12 +154,17 @@ func TestDataDirOverriddenValue(t *testing.T) {
 	doTestEquivalentDataDirs(t, equivDataDirs, expected)
 }
 
-// Issue #4361
-func TestDataDirJSONArrayAtTopLevelOfFile(t *testing.T) {
+// Issue #4361, #3890
+func TestDataDirArrayAtTopLevelOfFile(t *testing.T) {
 	t.Parallel()
+	equivDataDirs := make([]dataDir, 2)
 
-	var dd dataDir
-	dd.addSource("data/test.json", `[ { "hello": "world" }, { "what": "time" }, { "is": "lunch?" } ]`)
+	equivDataDirs[0].addSource("data/test.json", `[ { "hello": "world" }, { "what": "time" }, { "is": "lunch?" } ]`)
+	equivDataDirs[1].addSource("data/test.yaml", `
+- hello: world
+- what: time
+- is: lunch?
+`)
 
 	expected :=
 		map[string]interface{}{
@@ -172,38 +175,7 @@ func TestDataDirJSONArrayAtTopLevelOfFile(t *testing.T) {
 			},
 		}
 
-	doTestDataDir(t, dd, expected)
-}
-
-// TODO Issue #3890 unresolved
-func TestDataDirYAMLArrayAtTopLevelOfFile(t *testing.T) {
-	t.Parallel()
-
-	var dd dataDir
-	dd.addSource("data/test.yaml", `
-- hello: world
-- what: time
-- is: lunch?
-`)
-
-	//TODO decide whether desired structure map[interface {}]interface{} as shown
-	// and as the YAML parser produces, or should it be map[string]interface{}
-	// all the way down per Issue #4138
-	expected :=
-		map[string]interface{}{
-			"test": []interface{}{
-				map[interface{}]interface{}{"hello": "world"},
-				map[interface{}]interface{}{"what": "time"},
-				map[interface{}]interface{}{"is": "lunch?"},
-			},
-		}
-
-	// what we are actually getting as of v0.34
-	expectedV0_34 :=
-		map[string]interface{}{}
-	_ = expected
-
-	doTestDataDir(t, dd, expectedV0_34)
+	doTestEquivalentDataDirs(t, equivDataDirs, expected)
 }
 
 // Issue #892
