@@ -61,7 +61,7 @@ Once selected, you'll be brought to a screen for basic setup. Here you can selec
 
 ## Configure Hugo Version in Netlify 
 
-You can [set Hugo version](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) testing and production in `netlify.toml` file or set `HUGO_VERSION` as a build environment variable in the Netlify console.
+You can [set Hugo version](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) for your environments in `netlify.toml` file or set `HUGO_VERSION` as a build environment variable in the Netlify console.
 
 For production:
 
