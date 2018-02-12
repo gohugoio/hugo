@@ -59,7 +59,7 @@ Select the repo you want to use for continuous deployment. If you have a large n
 
 Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you wanted published, your [build command][], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration][config], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
 
-### Build with a Specific Hugo Version
+## Build with a Specific Hugo Version
 
 Setting the build command to `hugo` will build your site according to the current default Hugo version used by Netlify.
 
@@ -79,15 +79,21 @@ For production:
 
 ```
 [context.production.environment]
-  HUGO_VERSION = "0.26"
+  HUGO_VERSION = "0.36"
 ```
 
 For testing:
 
 ```
 [context.deploy-preview.environment]
-  HUGO_VERSION = "0.26"
-```  
+  HUGO_VERSION = "0.36"
+```
+
+The Netlify configuration file can be a little hard to understand and get right for the different, and you may get some inspiration and tips from this site's `netlify.toml`:
+
+{{< code file="netlify.toml" nocode="true" >}}
+{{< readfile file="netlify.toml" highlight="toml" >}}   
+{{< /code >}}
 
 Selecting "Deploy site" will immediately take you to a terminal for your build:.
 

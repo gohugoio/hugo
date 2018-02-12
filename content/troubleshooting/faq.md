@@ -30,3 +30,8 @@ How automate the "publish at intervals" part depends on your situation:
 Also see this Twitter thread:
 
 {{< tweet 962380712027590657 >}}
+
+## Can I use the latest Hugo version on Netlify?
+
+Yes you can! Read [this](/hosting-and-deployment/hosting-on-netlify/#build-with-a-specific-hugo-version).
+
