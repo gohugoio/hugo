@@ -311,7 +311,14 @@ func (s *Site) renderSitemap() error {
 	n := s.newNodePage(kindSitemap)
 
 	// Include all pages (regular, home page, taxonomies etc.)
-	pages := s.Pages
+	// but filter the empty taxonomies
+	var pages Pages
+	for _, p := range s.Pages {
+		if p.Kind == KindTaxonomyTerm && len(p.Pages) == 0 {
+			continue
+		}
+		pages = append(pages, p)
+	}
 
 	page := s.newNodePage(kindSitemap)
 	page.URLPath.URL = ""
