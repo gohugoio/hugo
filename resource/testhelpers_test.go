@@ -6,8 +6,11 @@ import (
 
 	"image"
 	"io"
+	"io/ioutil"
 	"os"
 	"path"
+	"runtime"
+	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
@@ -45,17 +48,53 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 	return spec
 }
 
+func newTestResourceOsFs(assert *require.Assertions) *Spec {
+	cfg := viper.New()
+	cfg.Set("baseURL", "https://example.com")
+
+	workDir, err := ioutil.TempDir("", "hugores")
+
+	if runtime.GOOS == "darwin" && !strings.HasPrefix(workDir, "/private") {
+		// To get the entry folder in line with the rest. This its a little bit
+		// mysterious, but so be it.
+		workDir = "/private" + workDir
+	}
+
+	contentDir := "base"
+	cfg.Set("workingDir", workDir)
+	cfg.Set("contentDir", contentDir)
+	cfg.Set("resourceDir", filepath.Join(workDir, "res"))
+
+	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	fs.Destination = &afero.MemMapFs{}
+
+	s, err := helpers.NewPathSpec(fs, cfg)
+
+	assert.NoError(err)
+
+	spec, err := NewSpec(s, media.DefaultTypes)
+	assert.NoError(err)
+	return spec
+
+}
+
 func fetchSunset(assert *require.Assertions) *Image {
 	return fetchImage(assert, "sunset.jpg")
 }
 
 func fetchImage(assert *require.Assertions, name string) *Image {
+	spec := newTestResourceSpec(assert)
+	return fetchImageForSpec(spec, assert, name)
+}
+
+func fetchImageForSpec(spec *Spec, assert *require.Assertions, name string) *Image {
 	src, err := os.Open("testdata/" + name)
 	assert.NoError(err)
 
-	spec := newTestResourceSpec(assert)
+	workingDir := spec.Cfg.GetString("workingDir")
+	f := filepath.Join(workingDir, name)
 
-	out, err := spec.Fs.Source.Create("/b/" + name)
+	out, err := spec.Fs.Source.Create(f)
 	assert.NoError(err)
 	_, err = io.Copy(out, src)
 	out.Close()
@@ -66,11 +105,10 @@ func fetchImage(assert *require.Assertions, name string) *Image {
 		return path.Join("/a", s)
 	}
 
-	r, err := spec.NewResourceFromFilename(factory, "/public", "/b/"+name, name)
+	r, err := spec.NewResourceFromFilename(factory, "/public", f, name)
 	assert.NoError(err)
 	assert.IsType(&Image{}, r)
 	return r.(*Image)
-
 }
 
 func assertFileCache(assert *require.Assertions, fs *hugofs.Fs, filename string, width, height int) {
