@@ -28,7 +28,8 @@ type imageCache struct {
 	absCacheDir   string
 	pathSpec      *helpers.PathSpec
 	mu            sync.RWMutex
-	store         map[string]*Image
+
+	store map[string]*Image
 }
 
 func (c *imageCache) isInCache(key string) bool {
@@ -69,6 +70,11 @@ func (c *imageCache) getOrCreate(
 	}
 
 	// Now look in the file cache.
+	// Multiple Go routines can invoke same operation on the same image, so
+	// we need to make sure this is serialized per source image.
+	parent.createMu.Lock()
+	defer parent.createMu.Unlock()
+
 	cacheFilename := filepath.Join(c.absCacheDir, key)
 
 	// The definition of this counter is not that we have processed that amount

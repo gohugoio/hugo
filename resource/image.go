@@ -112,6 +112,9 @@ type Image struct {
 
 	copyToDestinationInit sync.Once
 
+	// Lock used when creating alternate versions of this image.
+	createMu sync.Mutex
+
 	imaging *Imaging
 
 	hash string

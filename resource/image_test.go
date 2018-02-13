@@ -15,7 +15,11 @@ package resource
 
 import (
 	"fmt"
+	"math/rand"
+	"strconv"
 	"testing"
+
+	"sync"
 
 	"github.com/stretchr/testify/require"
 )
@@ -141,6 +145,51 @@ func TestImageTransformLongFilename(t *testing.T) {
 	assert.Equal("/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg", resized.RelPermalink())
 }
 
+func TestImageTransformConcurrent(t *testing.T) {
+
+	var wg sync.WaitGroup
+
+	assert := require.New(t)
+
+	spec := newTestResourceOsFs(assert)
+
+	image := fetchImageForSpec(spec, assert, "sunset.jpg")
+
+	for i := 0; i < 4; i++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			for j := 0; j < 5; j++ {
+				img := image
+				for k := 0; k < 2; k++ {
+					r1, err := img.Resize(fmt.Sprintf("%dx", id-k))
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					if r1.Width() != id-k {
+						t.Fatalf("Width: %d:%d", r1.Width(), j)
+					}
+
+					r2, err := r1.Resize(fmt.Sprintf("%dx", id-k-1))
+					if err != nil {
+						t.Fatal(err)
+					}
+
+					_, err = r2.decodeSource()
+					if err != nil {
+						t.Fatal("Err decode:", err)
+					}
+
+					img = r1
+				}
+			}
+		}(i + 20)
+	}
+
+	wg.Wait()
+}
+
 func TestDecodeImaging(t *testing.T) {
 	assert := require.New(t)
 	m := map[string]interface{}{
@@ -207,4 +256,23 @@ func TestImageWithMetadata(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal("Sunset #1", resized.Name())
 
+}
+
+func BenchmarkResizeParallel(b *testing.B) {
+	assert := require.New(b)
+	img := fetchSunset(assert)
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			w := rand.Intn(10) + 10
+			resized, err := img.Resize(strconv.Itoa(w) + "x")
+			if err != nil {
+				b.Fatal(err)
+			}
+			_, err = resized.Resize(strconv.Itoa(w-1) + "x")
+			if err != nil {
+				b.Fatal(err)
+			}
+		}
+	})
 }
