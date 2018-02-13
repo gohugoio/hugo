@@ -6,7 +6,7 @@ title: Quiply Employee Communications App
 # Set this to the current date.
 date: 2018-02-13
 
-description: "Quiply is an employee communications app enabling mobile collaboration across an entire organization."
+description: "It became immediately clear that we'd use Hugo going forward as it compiles super-fast, is intuitive to use and offers all the features we need."
 
 # The URL to the site on the internet.
 siteURL: https://www.quiply.com
