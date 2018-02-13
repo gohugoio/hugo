@@ -130,7 +130,7 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 		if templ != nil {
 			res, err := templ.ExecuteToString(p)
 			if err != nil {
-				helpers.DistinctErrorLog.Printf("in .Render: Failed to execute template %q for page %q", layout, p.pathOrTitle())
+				helpers.DistinctErrorLog.Printf("in .Render: Failed to execute template %q: %s", layout, err)
 				return template.HTML("")
 			}
 			return template.HTML(res)
