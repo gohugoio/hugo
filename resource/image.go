@@ -223,11 +223,14 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 	return i.spec.imageCache.getOrCreate(i, key, func(resourceCacheFilename string) (*Image, error) {
 		ci := i.clone()
 
+		errOp := action
+		errPath := i.AbsSourceFilename()
+
 		ci.setBasePath(conf)
 
 		src, err := i.decodeSource()
 		if err != nil {
-			return nil, err
+			return nil, &os.PathError{Op: errOp, Path: errPath, Err: err}
 		}
 
 		if conf.Rotate != 0 {
@@ -237,7 +240,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 
 		converted, err := f(src, conf)
 		if err != nil {
-			return ci, err
+			return ci, &os.PathError{Op: errOp, Path: errPath, Err: err}
 		}
 
 		b := converted.Bounds()
