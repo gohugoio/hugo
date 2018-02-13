@@ -4,7 +4,7 @@
   <div class="w-100">
     <div class="w-100 overflow-x-scroll">
       <div class="row nowrap mv2 pb1">
-        {{ range $p := first 10 (where .Site.RegularPages "Section" "showcase") }}
+        {{ range $p := first 10 (where .Site.RegularPages "Section" "showcase" | shuffle) }}
         {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
         {{ with $img }}
         {{ $big := .Fill "1024x512 top" }}
