@@ -12,7 +12,7 @@ Showcase: {{ .Title }}
         {{template "sc-details" .}}
       </div>
 
-      <div class="w-100 w-60-l order-0 order-1-l">
+      <div class="w-100 w-60-l order-0 order-1-l ph4-l">
         {{template "sc-main-column" .}}
       </div>
 
@@ -51,7 +51,7 @@ Showcase: {{ .Title }}
 {{end}}
 
 {{define "sc-details"}}
-  <div class="mt4 mt0-ns nested-links mr3-m mr4-l">
+  <div class="mt4 mt0-ns nested-links">
     <div class="ba b--light-gray bg-white pa3">
       <h1 class="f3 mt0">{{.Title}}</h1>
       {{ with .Params.siteURL }}
