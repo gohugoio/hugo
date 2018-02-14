@@ -1,4 +1,5 @@
 ![Hugo](https://raw.githubusercontent.com/gohugoio/hugoDocs/master/static/img/hugo-logo.png)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgohugoio%2Fhugo.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgohugoio%2Fhugo?ref=badge_shield)
 
 A Fast and Flexible Static Site Generator built with love by [bep](https://github.com/bep), [spf13](http://spf13.com/) and [friends](https://github.com/gohugoio/hugo/graphs/contributors) in [Go][].
 
@@ -111,3 +112,7 @@ For a complete guide to contributing code to Hugo, see the [Contribution Guide](
 
 [Go]: https://golang.org/
 [Hugo Documentation]: https://gohugo.io/overview/introduction/
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgohugoio%2Fhugo.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgohugoio%2Fhugo?ref=badge_large)
