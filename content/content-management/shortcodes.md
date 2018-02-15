@@ -80,15 +80,41 @@ Hugo ships with a set of predefined shortcodes that represent very common usage.
 
 The `figure` shortcode can use the following named parameters:
 
-* `src`
-* `link`
-* `title`
-* `caption`
-* `class`
-* `attr` (i.e., attribution)
-* `attrlink`
-* `alt`
-* `width`
+src
+: URL of the image to be displayed.
+
+link
+: If the image needs to be hyperlinked, URL of the destination.
+
+target
+: Optional `target` attribute for the URL if `link` parameter is set.
+
+rel
+: Optional `rel` attribute for the URL if `link` parameter is set.
+
+alt
+: Alternate text for the image if the image cannot be displayed.
+
+title
+: Image title.
+
+caption
+: Image caption.
+
+class
+: `class` attribute of the HTML `figure` tag.
+
+height
+: `height` attribute of the image.
+
+width
+: `width` attribute of the image.
+
+attr
+: Image attribution text.
+
+attrlink
+: If the attribution text needs to be hyperlinked, URL of the destination.
 
 #### Example `figure` Input
 
