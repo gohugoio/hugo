@@ -1,5 +1,5 @@
 name: hugo
-version: "0.36"
+version: "0.36.1"
 summary: Fast and Flexible Static Site Generator
 description: |
   Hugo is a static HTML and CSS website generator written in Go. It is
