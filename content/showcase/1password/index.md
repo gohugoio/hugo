@@ -4,7 +4,7 @@ title: 1password.com
 
 date: 2018-02-16
 
-description: "Showcase: \"1Password** is my favourite piece of boring software, and I was happy to see that they built their website with Hugo\""
+description: "Showcase: \"1Password is my favourite piece of boring software, and I was happy to see that they built their website with Hugo\""
 
 siteURL: https://1password.com/
 
