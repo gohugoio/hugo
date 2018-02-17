@@ -259,5 +259,5 @@ func CheckVendor() error {
 }
 
 func isGoTip() bool {
-	return strings.Contains(runtime.Version(), "devel")
+	return strings.Contains(runtime.Version(), "devel") || strings.Contains(runtime.Version(), "1.10")
 }
