@@ -26,10 +26,35 @@
     "formatters",
     "formatters/html",
     "lexers",
+    "lexers/a",
+    "lexers/b",
+    "lexers/c",
+    "lexers/d",
+    "lexers/e",
+    "lexers/f",
+    "lexers/g",
+    "lexers/h",
+    "lexers/i",
+    "lexers/internal",
+    "lexers/j",
+    "lexers/k",
+    "lexers/l",
+    "lexers/m",
+    "lexers/n",
+    "lexers/o",
+    "lexers/p",
+    "lexers/q",
+    "lexers/r",
+    "lexers/s",
+    "lexers/t",
+    "lexers/v",
+    "lexers/w",
+    "lexers/x",
+    "lexers/y",
     "styles"
   ]
-  revision = "e0f32fbcb59bc99c521910291b7ba8ecdb17ca34"
-  version = "v0.2.1"
+  revision = "563aadc53c53292c4c1def1b0a547be498bba83e"
+  version = "v0.3.0"
 
 [[projects]]
   branch = "master"
@@ -46,8 +71,8 @@
 [[projects]]
   name = "github.com/cpuguy83/go-md2man"
   packages = ["md2man"]
-  revision = "1d903dcb749992f3741d744c0f8376b4bd7eb3e1"
-  version = "v1.0.7"
+  revision = "20f5889cbdc3c73dbd2862796665e7c465ade7d1"
+  version = "v1.0.8"
 
 [[projects]]
   branch = "master"
@@ -109,8 +134,8 @@
     "util/runes",
     "util/strings"
   ]
-  revision = "bea32b9cd2d6f55753d94a28e959b13f0244797a"
-  version = "v0.2.2"
+  revision = "5ccd90ef52e1e632236f7326478d4faa74f99438"
+  version = "v0.2.3"
 
 [[projects]]
   name = "github.com/gorilla/websocket"
@@ -122,13 +147,13 @@
   branch = "master"
   name = "github.com/hashicorp/go-immutable-radix"
   packages = ["."]
-  revision = "8aac2701530899b64bdea735a1de8da899815220"
+  revision = "7f3cd4390caab3250a57f30efdb2a65dd7649ecf"
 
 [[projects]]
   branch = "master"
   name = "github.com/hashicorp/golang-lru"
   packages = ["simplelru"]
-  revision = "0a025b7e63adc15a622f29b0b2c4c3848243bbf6"
+  revision = "0fb14efe8c47ae851c0034ed7a448854d3d34cf3"
 
 [[projects]]
   branch = "master"
@@ -179,11 +204,10 @@
 [[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
-  revision = "d419a98cdbed11a922bf76f257b7c4be79b50e73"
-  version = "v1.7.4"
+  revision = "c3beff4c2358b44d0493c7dda585e7db7ff28ae6"
+  version = "v1.7.6"
 
 [[projects]]
-  branch = "master"
   name = "github.com/markbates/inflect"
   packages = ["."]
   revision = "a12c3aec81a6a938bf584a4bac567afed9256586"
@@ -204,7 +228,7 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "b4575eea38cca1123ec2dc90c26529b5c5acfcff"
+  revision = "a4e142e9c047c904fa2f1e144d9a84e6133024bc"
 
 [[projects]]
   branch = "master"
@@ -229,13 +253,13 @@
   branch = "master"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
-  revision = "96aac992fc8b1a4c83841a6c3e7178d20d989625"
+  revision = "b8a9be070da40449e501c3c4730a889e42d87a9e"
 
 [[projects]]
   name = "github.com/pelletier/go-toml"
   packages = ["."]
-  revision = "16398bac157da96aa88f98a2df640c7f32af1da2"
-  version = "v1.0.1"
+  revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -267,8 +291,8 @@
 [[projects]]
   name = "github.com/spf13/cast"
   packages = ["."]
-  revision = "acbeb36b902d72a7a4c18e8f3241075e7ab763e4"
-  version = "v1.1.0"
+  revision = "8965335b8c7107321228e3e3702cab9832751bac"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -277,7 +301,7 @@
     ".",
     "doc"
   ]
-  revision = "b95ab734e27d33e0d8fbabf71ca990568d4e2020"
+  revision = "be77323fc05148ef091e83b3866c0d47c8e74a8b"
 
 [[projects]]
   branch = "master"
@@ -315,8 +339,8 @@
     "assert",
     "require"
   ]
-  revision = "b91bfb9ebec76498946beb6af7c0230c7cc7ba6c"
-  version = "v1.2.0"
+  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
+  version = "v1.2.1"
 
 [[projects]]
   name = "github.com/yosssi/ace"
@@ -347,7 +371,7 @@
     "context",
     "idna"
   ]
-  revision = "5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec"
+  revision = "136a25c244d3019482a795d728110278d6ba09a4"
 
 [[projects]]
   branch = "master"
@@ -359,7 +383,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "810d7000345868fc619eb81f46307107118f4ae1"
+  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
 
 [[projects]]
   branch = "master"
@@ -381,7 +405,7 @@
     "unicode/rangetable",
     "width"
   ]
-  revision = "e19ae1496984b1c655b8044a65c0300a3c878dd3"
+  revision = "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1"
 
 [[projects]]
   branch = "v2"
@@ -392,6 +416,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ce63da7f660e0ba60a8ae81f5808f8e685b2055169838fbc3c4d5c418e58b3d1"
+  inputs-digest = "75cef5adf13c1799109c29a126d966f6e72999947c0f17c69e6aeba7e54fec09"
   solver-name = "gps-cdcl"
   solver-version = 1

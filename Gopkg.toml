@@ -10,7 +10,7 @@
 
 [[constraint]]
   name = "github.com/alecthomas/chroma"
-  version = "^0.2.0"
+  version = "0.3.0"
 
 [[constraint]]
   branch = "master"
@@ -57,8 +57,8 @@
   version = "1.5.0"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/markbates/inflect"
+  revision = "a12c3aec81a6a938bf584a4bac567afed9256586"
 
 [[constraint]]
   name = "github.com/miekg/mmark"
