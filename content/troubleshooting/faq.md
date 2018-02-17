@@ -22,7 +22,7 @@ aliases: [/faq/]
 1. Set `publishDate` in the page [Front Matter](/content-management/front-matter/) to a date in the future.
 2. Build and publish at intervals.
 
-How automate the "publish at intervals" part depends on your situation:
+How to automate the "publish at intervals" part depends on your situation:
 
 * If you deploy from your own PC/server, you can automate with [Cron](https://en.wikipedia.org/wiki/Cron) or similar.
 * If your site is hosted on a service similar to [Netlify](https://www.netlify.com/) you can use a service such as [ifttt](https://ifttt.com/date_and_time) to schedule the updates.
