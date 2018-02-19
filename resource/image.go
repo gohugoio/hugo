@@ -30,6 +30,7 @@ import (
 
 	// Importing image codecs for image.DecodeConfig
 	"image"
+	"image/draw"
 	_ "image/gif"
 	"image/jpeg"
 	_ "image/png"
@@ -65,15 +66,27 @@ const (
 	defaultResampleFilter = "box"
 )
 
-var imageFormats = map[string]imaging.Format{
-	".jpg":  imaging.JPEG,
-	".jpeg": imaging.JPEG,
-	".png":  imaging.PNG,
-	".tif":  imaging.TIFF,
-	".tiff": imaging.TIFF,
-	".bmp":  imaging.BMP,
-	".gif":  imaging.GIF,
-}
+var (
+	imageFormats = map[string]imaging.Format{
+		".jpg":  imaging.JPEG,
+		".jpeg": imaging.JPEG,
+		".png":  imaging.PNG,
+		".tif":  imaging.TIFF,
+		".tiff": imaging.TIFF,
+		".bmp":  imaging.BMP,
+		".gif":  imaging.GIF,
+	}
+
+	// Add or increment if changes to an image format's processing requires
+	// re-generation.
+	imageFormatsVersions = map[imaging.Format]int{
+		imaging.PNG: 1, // 1: Add proper palette handling
+	}
+
+	// Increment to mark all processed images as stale. Only use when absolutely needed.
+	// See the finer grained smartCropVersionNumber and imageFormatsVersions.
+	mainImageVersionNumber = 0
+)
 
 var anchorPositions = map[string]imaging.Anchor{
 	strings.ToLower("Center"):      imaging.Center,
@@ -117,6 +130,8 @@ type Image struct {
 
 	imaging *Imaging
 
+	format imaging.Format
+
 	hash string
 
 	*genericResource
@@ -137,6 +152,7 @@ func (i *Image) WithNewBase(base string) Resource {
 	return &Image{
 		imaging:         i.imaging,
 		hash:            i.hash,
+		format:          i.format,
 		genericResource: i.genericResource.WithNewBase(base).(*genericResource)}
 }
 
@@ -246,6 +262,15 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 			return ci, &os.PathError{Op: errOp, Path: errPath, Err: err}
 		}
 
+		if i.format == imaging.PNG {
+			// Apply the colour palette from the source
+			if paletted, ok := src.(*image.Paletted); ok {
+				tmp := image.NewPaletted(converted.Bounds(), paletted.Palette)
+				draw.Src.Draw(tmp, tmp.Bounds(), converted, converted.Bounds().Min)
+				converted = tmp
+			}
+		}
+
 		b := converted.Bounds()
 		ci.config = image.Config{Width: b.Max.X, Height: b.Max.Y}
 		ci.configLoaded = true
@@ -255,7 +280,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 
 }
 
-func (i imageConfig) key() string {
+func (i imageConfig) key(format imaging.Format) string {
 	k := strconv.Itoa(i.Width) + "x" + strconv.Itoa(i.Height)
 	if i.Action != "" {
 		k += "_" + i.Action
@@ -275,6 +300,14 @@ func (i imageConfig) key() string {
 
 	if strings.EqualFold(i.Action, "fill") {
 		k += "_" + anchor
+	}
+
+	if v, ok := imageFormatsVersions[format]; ok {
+		k += "_" + strconv.Itoa(v)
+	}
+
+	if mainImageVersionNumber > 0 {
+		k += "_" + strconv.Itoa(mainImageVersionNumber)
 	}
 
 	return k
@@ -410,7 +443,8 @@ func (i *Image) decodeSource() (image.Image, error) {
 		return nil, err
 	}
 	defer file.Close()
-	return imaging.Decode(file)
+	img, _, err := image.Decode(file)
+	return img, err
 }
 
 func (i *Image) copyToDestination(src string) error {
@@ -464,12 +498,6 @@ func (i *Image) copyToDestination(src string) error {
 }
 
 func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resourceCacheFilename, filename string) error {
-	ext := strings.ToLower(helpers.Ext(filename))
-
-	imgFormat, ok := imageFormats[ext]
-	if !ok {
-		return imaging.ErrUnsupportedFormat
-	}
 
 	target := filepath.Join(i.absPublishDir, filename)
 
@@ -509,7 +537,7 @@ func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resource
 		w = file1
 	}
 
-	switch imgFormat {
+	switch i.format {
 	case imaging.JPEG:
 
 		var rgba *image.RGBA
@@ -530,7 +558,7 @@ func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resource
 			return jpeg.Encode(w, img, &jpeg.Options{Quality: quality})
 		}
 	default:
-		return imaging.Encode(w, img, imgFormat)
+		return imaging.Encode(w, img, i.format)
 	}
 
 }
@@ -541,6 +569,7 @@ func (i *Image) clone() *Image {
 	return &Image{
 		imaging:         i.imaging,
 		hash:            i.hash,
+		format:          i.format,
 		genericResource: &g}
 }
 
@@ -555,7 +584,7 @@ func (i *Image) filenameFromConfig(conf imageConfig) string {
 	// Do not change for no good reason.
 	const md5Threshold = 100
 
-	key := conf.key()
+	key := conf.key(i.format)
 
 	// It is useful to have the key in clear text, but when nesting transforms, it
 	// can easily be too long to read, and maybe even too long
