@@ -23,6 +23,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/disintegration/imaging"
+
 	"github.com/spf13/cast"
 
 	"github.com/gobwas/glob"
@@ -297,8 +299,16 @@ func (r *Spec) newResource(
 			return nil, err
 		}
 
+		ext := strings.ToLower(helpers.Ext(absSourceFilename))
+
+		imgFormat, ok := imageFormats[ext]
+		if !ok {
+			return nil, imaging.ErrUnsupportedFormat
+		}
+
 		return &Image{
 			hash:            hash,
+			format:          imgFormat,
 			imaging:         r.imaging,
 			genericResource: gr}, nil
 	}

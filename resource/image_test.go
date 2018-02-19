@@ -19,6 +19,8 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/disintegration/imaging"
+
 	"sync"
 
 	"github.com/stretchr/testify/require"
@@ -255,6 +257,24 @@ func TestImageWithMetadata(t *testing.T) {
 	resized, err := image.Resize("200x")
 	assert.NoError(err)
 	assert.Equal("Sunset #1", resized.Name())
+
+}
+
+func TestImageResize8BitPNG(t *testing.T) {
+
+	assert := require.New(t)
+
+	image := fetchImage(assert, "gohugoio.png")
+
+	assert.Equal(imaging.PNG, image.format)
+	assert.Equal("/a/gohugoio.png", image.RelPermalink())
+	assert.Equal("image", image.ResourceType())
+
+	resized, err := image.Resize("800x")
+	assert.NoError(err)
+	assert.Equal(imaging.PNG, resized.format)
+	assert.Equal("/a/gohugoio_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_800x0_resize_linear_1.png", resized.RelPermalink())
+	assert.Equal(800, resized.Width())
 
 }
 
