@@ -222,7 +222,7 @@ Here's the same organization run with `hugo --uglyURLs`:
 .
 └── content
     └── about
-    |   └── _index.md  // <- https://example.com/about/index.html
+    |   └── _index.md  // <- https://example.com/about.html
     ├── post
     |   ├── firstpost.md   // <- https://example.com/post/firstpost.html
     |   ├── happy
