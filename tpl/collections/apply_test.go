@@ -25,8 +25,8 @@ import (
 
 type templateFinder int
 
-func (templateFinder) Lookup(name string) *tpl.TemplateAdapter {
-	return nil
+func (templateFinder) Lookup(name string) (tpl.Template, bool) {
+	return nil, false
 }
 
 func (templateFinder) GetFuncs() map[string]interface{} {

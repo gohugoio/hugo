@@ -63,12 +63,13 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 	}
 
 	for _, n := range []string{"partials/" + name, "theme/partials/" + name} {
-		templ := ns.deps.Tmpl.Lookup(n)
-		if templ == nil {
+		templ, found := ns.deps.Tmpl.Lookup(n)
+
+		if !found {
 			// For legacy reasons.
-			templ = ns.deps.Tmpl.Lookup(n + ".html")
+			templ, found = ns.deps.Tmpl.Lookup(n + ".html")
 		}
-		if templ != nil {
+		if found {
 			b := bp.GetBuffer()
 			defer bp.PutBuffer(b)
 
@@ -76,7 +77,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 				return "", err
 			}
 
-			if _, ok := templ.Template.(*texttemplate.Template); ok {
+			if _, ok := templ.(*texttemplate.Template); ok {
 				s := b.String()
 				if ns.deps.Metrics != nil {
 					ns.deps.Metrics.TrackValue(n, s)

@@ -91,7 +91,7 @@ func TestPageBundlerCaptureSymlinks(t *testing.T) {
 
 	assert := require.New(t)
 	ps, workDir := newTestBundleSymbolicSources(t)
-	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.ContentFs)
+	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.Content.Fs)
 
 	fileStore := &storeFilenames{}
 	logger := loggers.NewErrorLogger()
@@ -137,7 +137,7 @@ func TestPageBundlerCaptureBasic(t *testing.T) {
 	ps, err := helpers.NewPathSpec(fs, cfg)
 	assert.NoError(err)
 
-	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.ContentFs)
+	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.Content.Fs)
 
 	fileStore := &storeFilenames{}
 
@@ -183,7 +183,7 @@ func TestPageBundlerCaptureMultilingual(t *testing.T) {
 	ps, err := helpers.NewPathSpec(fs, cfg)
 	assert.NoError(err)
 
-	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.ContentFs)
+	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.Content.Fs)
 	fileStore := &storeFilenames{}
 	c := newCapturer(loggers.NewErrorLogger(), sourceSpec, fileStore, nil)
 

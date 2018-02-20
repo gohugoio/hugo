@@ -220,6 +220,6 @@ func (c *PageCollections) clearResourceCacheForPage(page *Page) {
 		dir := path.Dir(first.RelPermalink())
 		dir = strings.TrimPrefix(dir, page.LanguagePrefix())
 		// This is done to keep the memory usage in check when doing live reloads.
-		page.s.resourceSpec.DeleteCacheByPrefix(dir)
+		page.s.ResourceSpec.DeleteCacheByPrefix(dir)
 	}
 }

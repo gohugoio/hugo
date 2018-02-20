@@ -50,7 +50,8 @@ func FromString(t string) (Type, error) {
 	mainType := parts[0]
 	subParts := strings.Split(parts[1], "+")
 
-	subType := subParts[0]
+	subType := strings.Split(subParts[0], ";")[0]
+
 	var suffix string
 
 	if len(subParts) == 1 {
@@ -85,25 +86,38 @@ func (m Type) FullSuffix() string {
 var (
 	CalendarType   = Type{"text", "calendar", "ics", defaultDelimiter}
 	CSSType        = Type{"text", "css", "css", defaultDelimiter}
+	SCSSType       = Type{"text", "x-scss", "scss", defaultDelimiter}
+	SASSType       = Type{"text", "x-sass", "sass", defaultDelimiter}
 	CSVType        = Type{"text", "csv", "csv", defaultDelimiter}
 	HTMLType       = Type{"text", "html", "html", defaultDelimiter}
 	JavascriptType = Type{"application", "javascript", "js", defaultDelimiter}
 	JSONType       = Type{"application", "json", "json", defaultDelimiter}
 	RSSType        = Type{"application", "rss", "xml", defaultDelimiter}
 	XMLType        = Type{"application", "xml", "xml", defaultDelimiter}
-	TextType       = Type{"text", "plain", "txt", defaultDelimiter}
+	// The official MIME type of SVG is image/svg+xml. We currently only support one extension
+	// per mime type. The workaround in projects is to create multiple media type definitions,
+	// but we need to improve this to take other known suffixes into account.
+	// But until then, svg has an svg extension, which is very common. TODO(bep)
+	SVGType  = Type{"image", "svg", "svg", defaultDelimiter}
+	TextType = Type{"text", "plain", "txt", defaultDelimiter}
+
+	OctetType = Type{"application", "octet-stream", "", ""}
 )
 
 var DefaultTypes = Types{
 	CalendarType,
 	CSSType,
 	CSVType,
+	SCSSType,
+	SASSType,
 	HTMLType,
 	JavascriptType,
 	JSONType,
 	RSSType,
 	XMLType,
+	SVGType,
 	TextType,
+	OctetType,
 }
 
 func init() {
@@ -119,6 +133,16 @@ func (t Types) Less(i, j int) bool { return t[i].Type() < t[j].Type() }
 func (t Types) GetByType(tp string) (Type, bool) {
 	for _, tt := range t {
 		if strings.EqualFold(tt.Type(), tp) {
+			return tt, true
+		}
+	}
+	return Type{}, false
+}
+
+// GetFirstBySuffix will return the first media type matching the given suffix.
+func (t Types) GetFirstBySuffix(suffix string) (Type, bool) {
+	for _, tt := range t {
+		if strings.EqualFold(suffix, tt.Suffix) {
 			return tt, true
 		}
 	}

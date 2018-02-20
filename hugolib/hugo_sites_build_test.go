@@ -461,7 +461,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 	b.AssertFileContent("public/fr/sect/doc1/index.html", "Single", "Shortcode: Bonjour")
 	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Shortcode: Hello")
 
-	contentFs := b.H.BaseFs.ContentFs
+	contentFs := b.H.BaseFs.Content.Fs
 
 	for i, this := range []struct {
 		preFunc    func(t *testing.T)
@@ -698,7 +698,7 @@ title = "Svenska"
 
 	// Regular pages have no children
 	require.Len(t, svPage.Pages, 0)
-	require.Len(t, svPage.Data["Pages"], 0)
+	require.Len(t, svPage.data["Pages"], 0)
 
 }
 

@@ -18,6 +18,7 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/tpl"
 	"github.com/stretchr/testify/require"
 )
 
@@ -43,20 +44,22 @@ func TestHTMLEscape(t *testing.T) {
 	d, err := deps.New(depsCfg)
 	assert.NoError(err)
 
-	tpl := `{{ "<h1>Hi!</h1>" | safeHTML }}`
+	templ := `{{ "<h1>Hi!</h1>" | safeHTML }}`
 
 	provider := DefaultTemplateProvider
 	provider.Update(d)
 
 	h := d.Tmpl.(handler)
 
-	assert.NoError(h.addTemplate("shortcodes/myShort.html", tpl))
+	assert.NoError(h.addTemplate("shortcodes/myShort.html", templ))
 
-	s, err := d.Tmpl.Lookup("shortcodes/myShort.html").ExecuteToString(data)
+	tt, _ := d.Tmpl.Lookup("shortcodes/myShort.html")
+	s, err := tt.(tpl.TemplateExecutor).ExecuteToString(data)
 	assert.NoError(err)
 	assert.Contains(s, "<h1>Hi!</h1>")
 
-	s, err = d.Tmpl.Lookup("shortcodes/myShort").ExecuteToString(data)
+	tt, _ = d.Tmpl.Lookup("shortcodes/myShort")
+	s, err = tt.(tpl.TemplateExecutor).ExecuteToString(data)
 	assert.NoError(err)
 	assert.Contains(s, "<h1>Hi!</h1>")
 

@@ -192,6 +192,12 @@ To list all available commands along with descriptions:
 mage -l
 ```
 
+**Note:** From Hugo 0.43 we have added a build tag, `extended` that adds **SCSS support**. This needs a C compiler installed to build. You can enable this when building by:
+
+```bash
+HUGO_BUILD_TAGS=extended mage install
+````
+
 ### Updating the Hugo Sources
 
 If you want to stay in sync with the Hugo repository, you can easily pull down

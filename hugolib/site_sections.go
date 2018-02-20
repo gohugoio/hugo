@@ -357,6 +357,6 @@ func (s *Site) assembleSections() Pages {
 func (p *Page) setPagePages(pages Pages) {
 	pages.Sort()
 	p.Pages = pages
-	p.Data = make(map[string]interface{})
-	p.Data["Pages"] = pages
+	p.data = make(map[string]interface{})
+	p.data["Pages"] = pages
 }

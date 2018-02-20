@@ -19,23 +19,29 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	"github.com/spf13/afero"
 )
 
 // GC requires a build first.
 func (h *HugoSites) GC() (int, error) {
 	s := h.Sites[0]
-	fs := h.PathSpec.BaseFs.ResourcesFs
+	fs := h.PathSpec.BaseFs.Resources.Fs
 
-	imageCacheDir := s.resourceSpec.GenImagePath
+	imageCacheDir := s.ResourceSpec.GenImagePath
 	if len(imageCacheDir) < 10 {
 		panic("invalid image cache")
 	}
+	assetsCacheDir := s.ResourceSpec.GenAssetsPath
+	if len(assetsCacheDir) < 10 {
+		panic("invalid assets cache")
+	}
 
-	isInUse := func(filename string) bool {
+	isImageInUse := func(filename string) bool {
 		key := strings.TrimPrefix(filename, imageCacheDir)
 		for _, site := range h.Sites {
-			if site.resourceSpec.IsInCache(key) {
+			if site.ResourceSpec.IsInImageCache(key) {
 				return true
 			}
 		}
@@ -43,44 +49,68 @@ func (h *HugoSites) GC() (int, error) {
 		return false
 	}
 
-	counter := 0
-
-	err := afero.Walk(fs, imageCacheDir, func(path string, info os.FileInfo, err error) error {
-		if info == nil {
-			return nil
+	isAssetInUse := func(filename string) bool {
+		key := strings.TrimPrefix(filename, assetsCacheDir)
+		// These assets are stored in tuplets with an added extension to the key.
+		key = strings.TrimSuffix(key, helpers.Ext(key))
+		for _, site := range h.Sites {
+			if site.ResourceSpec.ResourceCache.Contains(key) {
+				return true
+			}
 		}
 
-		if !strings.HasPrefix(path, imageCacheDir) {
-			return fmt.Errorf("Invalid state, walk outside of resource dir: %q", path)
-		}
+		return false
+	}
 
-		if info.IsDir() {
-			f, err := fs.Open(path)
-			if err != nil {
+	walker := func(dirname string, inUse func(filename string) bool) (int, error) {
+		counter := 0
+		err := afero.Walk(fs, dirname, func(path string, info os.FileInfo, err error) error {
+			if info == nil {
 				return nil
 			}
-			defer f.Close()
-			_, err = f.Readdirnames(1)
-			if err == io.EOF {
-				// Empty dir.
-				s.Fs.Source.Remove(path)
+
+			if !strings.HasPrefix(path, dirname) {
+				return fmt.Errorf("Invalid state, walk outside of resource dir: %q", path)
 			}
 
+			if info.IsDir() {
+				f, err := fs.Open(path)
+				if err != nil {
+					return nil
+				}
+				defer f.Close()
+				_, err = f.Readdirnames(1)
+				if err == io.EOF {
+					// Empty dir.
+					s.Fs.Source.Remove(path)
+				}
+
+				return nil
+			}
+
+			inUse := inUse(path)
+			if !inUse {
+				err := fs.Remove(path)
+				if err != nil && !os.IsNotExist(err) {
+					s.Log.ERROR.Printf("Failed to remove %q: %s", path, err)
+				} else {
+					counter++
+				}
+			}
 			return nil
-		}
+		})
 
-		inUse := isInUse(path)
-		if !inUse {
-			err := fs.Remove(path)
-			if err != nil && !os.IsNotExist(err) {
-				s.Log.ERROR.Printf("Failed to remove %q: %s", path, err)
-			} else {
-				counter++
-			}
-		}
-		return nil
-	})
+		return counter, err
+	}
 
-	return counter, err
+	imageCounter, err1 := walker(imageCacheDir, isImageInUse)
+	assetsCounter, err2 := walker(assetsCacheDir, isAssetInUse)
+	totalCount := imageCounter + assetsCounter
+
+	if err1 != nil {
+		return totalCount, err1
+	}
+
+	return totalCount, err2
 
 }

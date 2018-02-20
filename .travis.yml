@@ -1,6 +1,8 @@
 language: go
 sudo: false
 dist: trusty
+env:
+  HUGO_BUILD_TAGS="extended"
 git:
   depth: false
 go:
@@ -18,8 +20,9 @@ install:
   - go get github.com/magefile/mage
   - mage -v vendor
 script:
-  - mage -v hugoRace
+  - mage -v test
   - mage -v check
+  - mage -v hugo
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
 before_install:

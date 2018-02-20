@@ -326,9 +326,14 @@ func (c *contentHandlers) createResource() contentHandler {
 			return notHandled
 		}
 
-		resource, err := c.s.resourceSpec.NewResourceFromFilename(
-			ctx.parentPage.subResourceTargetPathFactory,
-			ctx.source.Filename(), ctx.target)
+		resource, err := c.s.ResourceSpec.New(
+			resource.ResourceSourceDescriptor{
+				TargetPathBuilder: ctx.parentPage.subResourceTargetPathFactory,
+				SourceFile:        ctx.source,
+				RelTargetFilename: ctx.target,
+				URLBase:           c.s.GetURLLanguageBasePath(),
+				TargetPathBase:    c.s.GetTargetLanguageBasePath(),
+			})
 
 		return handlerResult{err: err, handled: true, resource: resource}
 	}
@@ -336,7 +341,7 @@ func (c *contentHandlers) createResource() contentHandler {
 
 func (c *contentHandlers) copyFile() contentHandler {
 	return func(ctx *handlerContext) handlerResult {
-		f, err := c.s.BaseFs.ContentFs.Open(ctx.source.Filename())
+		f, err := c.s.BaseFs.Content.Fs.Open(ctx.source.Filename())
 		if err != nil {
 			err := fmt.Errorf("failed to open file in copyFile: %s", err)
 			return handlerResult{err: err}

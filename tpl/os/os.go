@@ -34,7 +34,7 @@ func New(deps *deps.Deps) *Namespace {
 	if deps.Fs != nil {
 		rfs = deps.Fs.WorkingDir
 		if deps.PathSpec != nil && deps.PathSpec.BaseFs != nil {
-			rfs = afero.NewReadOnlyFs(afero.NewCopyOnWriteFs(deps.PathSpec.BaseFs.ContentFs, deps.Fs.WorkingDir))
+			rfs = afero.NewReadOnlyFs(afero.NewCopyOnWriteFs(deps.PathSpec.BaseFs.Content.Fs, deps.Fs.WorkingDir))
 		}
 	}
 

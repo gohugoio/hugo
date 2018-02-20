@@ -59,13 +59,14 @@ func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (i
 		t = "alias-xhtml"
 	}
 
-	var templ *tpl.TemplateAdapter
+	var templ tpl.Template
+	var found bool
 
 	if a.t != nil {
-		templ = a.t.Lookup("alias.html")
+		templ, found = a.t.Lookup("alias.html")
 	}
 
-	if templ == nil {
+	if !found {
 		def := defaultAliasTemplates.Lookup(t)
 		if def != nil {
 			templ = &tpl.TemplateAdapter{Template: def}

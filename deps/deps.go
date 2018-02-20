@@ -1,17 +1,18 @@
 package deps
 
 import (
-	"io/ioutil"
-	"log"
-	"os"
 	"time"
+
+	"github.com/gohugoio/hugo/common/loggers"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resource"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
@@ -30,6 +31,9 @@ type Deps struct {
 	// The templates to use. This will usually implement the full tpl.TemplateHandler.
 	Tmpl tpl.TemplateFinder `json:"-"`
 
+	// We use this to parse and execute ad-hoc text templates.
+	TextTmpl tpl.TemplateParseFinder `json:"-"`
+
 	// The file systems to use.
 	Fs *hugofs.Fs `json:"-"`
 
@@ -41,6 +45,9 @@ type Deps struct {
 
 	// The SourceSpec to use
 	SourceSpec *source.SourceSpec `json:"-"`
+
+	// The Resource Spec to use
+	ResourceSpec *resource.Spec
 
 	// The configuration to use
 	Cfg config.Provider `json:"-"`
@@ -115,7 +122,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 	}
 
 	if logger == nil {
-		logger = jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+		logger = loggers.NewErrorLogger()
 	}
 
 	if fs == nil {
@@ -125,6 +132,11 @@ func New(cfg DepsCfg) (*Deps, error) {
 
 	ps, err := helpers.NewPathSpec(fs, cfg.Language)
 
+	if err != nil {
+		return nil, err
+	}
+
+	resourceSpec, err := resource.NewSpec(ps, logger, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -153,6 +165,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		PathSpec:            ps,
 		ContentSpec:         contentSpec,
 		SourceSpec:          sp,
+		ResourceSpec:        resourceSpec,
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
 		Timeout:             time.Duration(timeoutms) * time.Millisecond,
@@ -167,7 +180,8 @@ func New(cfg DepsCfg) (*Deps, error) {
 
 // ForLanguage creates a copy of the Deps with the language dependent
 // parts switched out.
-func (d Deps) ForLanguage(l *langs.Language) (*Deps, error) {
+func (d Deps) ForLanguage(cfg DepsCfg) (*Deps, error) {
+	l := cfg.Language
 	var err error
 
 	d.PathSpec, err = helpers.NewPathSpecWithBaseBaseFsProvided(d.Fs, l, d.BaseFs)
@@ -176,6 +190,11 @@ func (d Deps) ForLanguage(l *langs.Language) (*Deps, error) {
 	}
 
 	d.ContentSpec, err = helpers.NewContentSpec(l)
+	if err != nil {
+		return nil, err
+	}
+
+	d.ResourceSpec, err = resource.NewSpec(d.PathSpec, d.Log, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -211,6 +230,9 @@ type DepsCfg struct {
 
 	// The configuration to use.
 	Cfg config.Provider
+
+	// The media types configured.
+	MediaTypes media.Types
 
 	// Template handling.
 	TemplateProvider ResourceProvider

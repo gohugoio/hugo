@@ -411,6 +411,7 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("metaDataFormat", "toml")
 	v.SetDefault("contentDir", "content")
 	v.SetDefault("layoutDir", "layouts")
+	v.SetDefault("assetDir", "assets")
 	v.SetDefault("staticDir", "static")
 	v.SetDefault("resourceDir", "resources")
 	v.SetDefault("archetypeDir", "archetypes")

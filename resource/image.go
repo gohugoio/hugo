@@ -19,14 +19,12 @@ import (
 	"image/color"
 	"io"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/spf13/afero"
 
 	// Importing image codecs for image.DecodeConfig
 	"image"
@@ -132,8 +130,6 @@ type Image struct {
 
 	format imaging.Format
 
-	hash string
-
 	*genericResource
 }
 
@@ -151,7 +147,6 @@ func (i *Image) Height() int {
 func (i *Image) WithNewBase(base string) Resource {
 	return &Image{
 		imaging:         i.imaging,
-		hash:            i.hash,
 		format:          i.format,
 		genericResource: i.genericResource.WithNewBase(base).(*genericResource)}
 }
@@ -209,7 +204,7 @@ type imageConfig struct {
 }
 
 func (i *Image) isJPEG() bool {
-	name := strings.ToLower(i.relTargetPath.file)
+	name := strings.ToLower(i.relTargetDirFile.file)
 	return strings.HasSuffix(name, ".jpg") || strings.HasSuffix(name, ".jpeg")
 }
 
@@ -241,7 +236,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 		ci := i.clone()
 
 		errOp := action
-		errPath := i.AbsSourceFilename()
+		errPath := i.sourceFilename
 
 		ci.setBasePath(conf)
 
@@ -273,7 +268,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 		ci.config = image.Config{Width: b.Max.X, Height: b.Max.Y}
 		ci.configLoaded = true
 
-		return ci, i.encodeToDestinations(converted, conf, resourceCacheFilename, ci.target())
+		return ci, i.encodeToDestinations(converted, conf, resourceCacheFilename, ci.targetFilename())
 	})
 
 }
@@ -415,11 +410,11 @@ func (i *Image) initConfig() error {
 		}
 
 		var (
-			f      afero.File
+			f      ReadSeekCloser
 			config image.Config
 		)
 
-		f, err = i.sourceFs().Open(i.AbsSourceFilename())
+		f, err = i.ReadSeekCloser()
 		if err != nil {
 			return
 		}
@@ -440,19 +435,19 @@ func (i *Image) initConfig() error {
 }
 
 func (i *Image) decodeSource() (image.Image, error) {
-	file, err := i.sourceFs().Open(i.AbsSourceFilename())
+	f, err := i.ReadSeekCloser()
 	if err != nil {
 		return nil, fmt.Errorf("failed to open image for decode: %s", err)
 	}
-	defer file.Close()
-	img, _, err := image.Decode(file)
+	defer f.Close()
+	img, _, err := image.Decode(f)
 	return img, err
 }
 
 func (i *Image) copyToDestination(src string) error {
 	var res error
 	i.copyToDestinationInit.Do(func() {
-		target := i.target()
+		target := i.targetFilename()
 
 		// Fast path:
 		// This is a processed version of the original.
@@ -469,20 +464,9 @@ func (i *Image) copyToDestination(src string) error {
 		}
 		defer in.Close()
 
-		out, err := i.spec.BaseFs.PublishFs.Create(target)
-		if err != nil && os.IsNotExist(err) {
-			// When called from shortcodes, the target directory may not exist yet.
-			// See https://github.com/gohugoio/hugo/issues/4202
-			if err = i.spec.BaseFs.PublishFs.MkdirAll(filepath.Dir(target), os.FileMode(0755)); err != nil {
-				res = err
-				return
-			}
-			out, err = i.spec.BaseFs.PublishFs.Create(target)
-			if err != nil {
-				res = err
-				return
-			}
-		} else if err != nil {
+		out, err := openFileForWriting(i.spec.BaseFs.PublishFs, target)
+
+		if err != nil {
 			res = err
 			return
 		}
@@ -501,21 +485,10 @@ func (i *Image) copyToDestination(src string) error {
 	return nil
 }
 
-func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resourceCacheFilename, filename string) error {
-	target := filepath.Clean(filename)
+func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resourceCacheFilename, targetFilename string) error {
 
-	file1, err := i.spec.BaseFs.PublishFs.Create(target)
-	if err != nil && os.IsNotExist(err) {
-		// When called from shortcodes, the target directory may not exist yet.
-		// See https://github.com/gohugoio/hugo/issues/4202
-		if err = i.spec.BaseFs.PublishFs.MkdirAll(filepath.Dir(target), os.FileMode(0755)); err != nil {
-			return err
-		}
-		file1, err = i.spec.BaseFs.PublishFs.Create(target)
-		if err != nil {
-			return err
-		}
-	} else if err != nil {
+	file1, err := openFileForWriting(i.spec.BaseFs.PublishFs, targetFilename)
+	if err != nil {
 		return err
 	}
 
@@ -525,11 +498,7 @@ func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resource
 
 	if resourceCacheFilename != "" {
 		// Also save it to the image resource cache for later reuse.
-		if err = i.spec.BaseFs.ResourcesFs.MkdirAll(filepath.Dir(resourceCacheFilename), os.FileMode(0755)); err != nil {
-			return err
-		}
-
-		file2, err := i.spec.BaseFs.ResourcesFs.Create(resourceCacheFilename)
+		file2, err := openFileForWriting(i.spec.BaseFs.Resources.Fs, resourceCacheFilename)
 		if err != nil {
 			return err
 		}
@@ -572,17 +541,16 @@ func (i *Image) clone() *Image {
 
 	return &Image{
 		imaging:         i.imaging,
-		hash:            i.hash,
 		format:          i.format,
 		genericResource: &g}
 }
 
 func (i *Image) setBasePath(conf imageConfig) {
-	i.relTargetPath = i.relTargetPathFromConfig(conf)
+	i.relTargetDirFile = i.relTargetPathFromConfig(conf)
 }
 
 func (i *Image) relTargetPathFromConfig(conf imageConfig) dirFile {
-	p1, p2 := helpers.FileAndExt(i.relTargetPath.file)
+	p1, p2 := helpers.FileAndExt(i.relTargetDirFile.file)
 
 	idStr := fmt.Sprintf("_hu%s_%d", i.hash, i.osFileInfo.Size())
 
@@ -611,7 +579,7 @@ func (i *Image) relTargetPathFromConfig(conf imageConfig) dirFile {
 	}
 
 	return dirFile{
-		dir:  i.relTargetPath.dir,
+		dir:  i.relTargetDirFile.dir,
 		file: fmt.Sprintf("%s%s_%s%s", p1, idStr, key, p2),
 	}
 

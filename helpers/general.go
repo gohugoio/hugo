@@ -356,7 +356,7 @@ func MD5String(f string) string {
 // MD5FromFileFast creates a MD5 hash from the given file. It only reads parts of
 // the file for speed, so don't use it if the files are very subtly different.
 // It will not close the file.
-func MD5FromFileFast(f afero.File) (string, error) {
+func MD5FromFileFast(r io.ReadSeeker) (string, error) {
 	const (
 		// Do not change once set in stone!
 		maxChunks = 8
@@ -369,7 +369,7 @@ func MD5FromFileFast(f afero.File) (string, error) {
 
 	for i := 0; i < maxChunks; i++ {
 		if i > 0 {
-			_, err := f.Seek(seek, 0)
+			_, err := r.Seek(seek, 0)
 			if err != nil {
 				if err == io.EOF {
 					break
@@ -378,7 +378,7 @@ func MD5FromFileFast(f afero.File) (string, error) {
 			}
 		}
 
-		_, err := io.ReadAtLeast(f, buff, peekSize)
+		_, err := io.ReadAtLeast(r, buff, peekSize)
 		if err != nil {
 			if err == io.EOF || err == io.ErrUnexpectedEOF {
 				h.Write(buff)

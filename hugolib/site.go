@@ -27,11 +27,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/resource"
+
 	"github.com/gohugoio/hugo/langs"
 
 	src "github.com/gohugoio/hugo/source"
-
-	"github.com/gohugoio/hugo/resource"
 
 	"golang.org/x/sync/errgroup"
 
@@ -140,8 +140,7 @@ type Site struct {
 	renderFormats output.Formats
 
 	// Logger etc.
-	*deps.Deps   `json:"-"`
-	resourceSpec *resource.Spec
+	*deps.Deps `json:"-"`
 
 	// The func used to title case titles.
 	titleFunc func(s string) string
@@ -188,7 +187,6 @@ func (s *Site) reset() *Site {
 		outputFormatsConfig: s.outputFormatsConfig,
 		frontmatterHandler:  s.frontmatterHandler,
 		mediaTypesConfig:    s.mediaTypesConfig,
-		resourceSpec:        s.resourceSpec,
 		Language:            s.Language,
 		owner:               s.owner,
 		PageCollections:     newPageCollections()}
@@ -691,7 +689,11 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 		logger = helpers.NewDistinctFeedbackLogger()
 	)
 
-	for _, ev := range events {
+	cachePartitions := make([]string, len(events))
+
+	for i, ev := range events {
+		cachePartitions[i] = resource.ResourceKeyPartition(ev.Name)
+
 		if s.isContentDirEvent(ev) {
 			logger.Println("Source changed", ev)
 			sourceChanged = append(sourceChanged, ev)
@@ -717,6 +719,11 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 		}
 	}
 
+	// These in memory resource caches will be rebuilt on demand.
+	for _, s := range s.owner.Sites {
+		s.ResourceSpec.ResourceCache.DeletePartitions(cachePartitions...)
+	}
+
 	if len(tmplChanged) > 0 || len(i18nChanged) > 0 {
 		sites := s.owner.Sites
 		first := sites[0]
@@ -731,7 +738,11 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 		for i := 1; i < len(sites); i++ {
 			site := sites[i]
 			var err error
-			site.Deps, err = first.Deps.ForLanguage(site.Language)
+			depsCfg := deps.DepsCfg{
+				Language:   site.Language,
+				MediaTypes: site.mediaTypesConfig,
+			}
+			site.Deps, err = first.Deps.ForLanguage(depsCfg)
 			if err != nil {
 				return whatChanged{}, err
 			}
@@ -797,6 +808,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 		if err := s.readAndProcessContent(filenamesChanged...); err != nil {
 			return whatChanged{}, err
 		}
+
 	}
 
 	changed := whatChanged{
@@ -1240,7 +1252,7 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 
 	mainHandler := &contentCaptureResultHandler{contentProcessors: contentProcessors, defaultContentProcessor: defaultContentProcessor}
 
-	sourceSpec := source.NewSourceSpec(s.PathSpec, s.BaseFs.ContentFs)
+	sourceSpec := source.NewSourceSpec(s.PathSpec, s.BaseFs.Content.Fs)
 
 	if s.running() {
 		// Need to track changes.
@@ -1717,6 +1729,8 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 				templName = templ.Name()
 			}
 			s.DistinctErrorLog.Printf("Failed to render %q: %s", templName, r)
+			s.DistinctErrorLog.Printf("Stack Trace:\n%s", stackTrace(1200))
+
 			// TOD(bep) we really need to fix this. Also see below.
 			if !s.running() && !testMode {
 				os.Exit(-1)
@@ -1753,7 +1767,7 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 
 func (s *Site) findFirstTemplate(layouts ...string) tpl.Template {
 	for _, layout := range layouts {
-		if templ := s.Tmpl.Lookup(layout); templ != nil {
+		if templ, found := s.Tmpl.Lookup(layout); found {
 			return templ
 		}
 	}
@@ -1782,7 +1796,7 @@ func (s *Site) newNodePage(typ string, sections ...string) *Page {
 		pageContentInit: &pageContentInit{},
 		Kind:            typ,
 		Source:          Source{File: &source.FileInfo{}},
-		Data:            make(map[string]interface{}),
+		data:            make(map[string]interface{}),
 		Site:            &s.Info,
 		sections:        sections,
 		s:               s}
@@ -1797,7 +1811,7 @@ func (s *Site) newHomePage() *Page {
 	p := s.newNodePage(KindHome)
 	p.title = s.Info.Title
 	pages := Pages{}
-	p.Data["Pages"] = pages
+	p.data["Pages"] = pages
 	p.Pages = pages
 	return p
 }

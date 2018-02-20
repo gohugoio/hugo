@@ -30,6 +30,10 @@ func TestNewPaths(t *testing.T) {
 	v.Set("defaultContentLanguageInSubdir", true)
 	v.Set("defaultContentLanguage", "no")
 	v.Set("multilingual", true)
+	v.Set("contentDir", "content")
+	v.Set("workingDir", "work")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
 
 	p, err := New(fs, v)
 	assert.NoError(err)

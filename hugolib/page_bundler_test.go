@@ -37,7 +37,6 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/resource"
 	"github.com/spf13/viper"
 
 	"github.com/stretchr/testify/require"
@@ -158,7 +157,6 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				altFormat := leafBundle1.OutputFormats().Get("CUSTOMO")
 				assert.NotNil(altFormat)
 
-				assert.Equal(filepath.FromSlash("/work/base/b/my-bundle/c/logo.png"), image.(resource.Source).AbsSourceFilename())
 				assert.Equal("https://example.com/2017/pageslug/c/logo.png", image.Permalink())
 
 				th.assertFileContent(filepath.FromSlash("/work/public/2017/pageslug/c/logo.png"), "content")

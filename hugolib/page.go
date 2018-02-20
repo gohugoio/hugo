@@ -21,6 +21,8 @@ import (
 	"reflect"
 	"unicode"
 
+	"github.com/gohugoio/hugo/media"
+
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/langs"
@@ -228,7 +230,7 @@ type Page struct {
 	title       string
 	Description string
 	Keywords    []string
-	Data        map[string]interface{}
+	data        map[string]interface{}
 
 	pagemeta.PageDates
 
@@ -239,7 +241,8 @@ type Page struct {
 	permalink    string
 	relPermalink string
 
-	// relative target path without extension and any base path element from the baseURL.
+	// relative target path without extension and any base path element
+	// from the baseURL or the language code.
 	// This is used to construct paths in the page resources.
 	relTargetPathBase string
 	// Is set to a forward slashed path if this is a Page resources living in a folder below its owner.
@@ -272,10 +275,14 @@ type Page struct {
 	targetPathDescriptorPrototype *targetPathDescriptor
 }
 
-func stackTrace() string {
-	trace := make([]byte, 2000)
+func stackTrace(lenght int) string {
+	trace := make([]byte, lenght)
 	runtime.Stack(trace, true)
 	return string(trace)
+}
+
+func (p *Page) Data() interface{} {
+	return p.data
 }
 
 func (p *Page) initContent() {
@@ -490,6 +497,10 @@ func (p *Page) BundleType() string {
 	}
 
 	return ""
+}
+
+func (p *Page) MediaType() media.Type {
+	return media.OctetType
 }
 
 type Source struct {
@@ -1900,7 +1911,7 @@ func (p *Page) prepareLayouts() error {
 func (p *Page) prepareData(s *Site) error {
 	if p.Kind != KindSection {
 		var pages Pages
-		p.Data = make(map[string]interface{})
+		p.data = make(map[string]interface{})
 
 		switch p.Kind {
 		case KindPage:
@@ -1919,21 +1930,21 @@ func (p *Page) prepareData(s *Site) error {
 			singular := s.taxonomiesPluralSingular[plural]
 			taxonomy := s.Taxonomies[plural].Get(term)
 
-			p.Data[singular] = taxonomy
-			p.Data["Singular"] = singular
-			p.Data["Plural"] = plural
-			p.Data["Term"] = term
+			p.data[singular] = taxonomy
+			p.data["Singular"] = singular
+			p.data["Plural"] = plural
+			p.data["Term"] = term
 			pages = taxonomy.Pages()
 		case KindTaxonomyTerm:
 			plural := p.sections[0]
 			singular := s.taxonomiesPluralSingular[plural]
 
-			p.Data["Singular"] = singular
-			p.Data["Plural"] = plural
-			p.Data["Terms"] = s.Taxonomies[plural]
+			p.data["Singular"] = singular
+			p.data["Plural"] = plural
+			p.data["Terms"] = s.Taxonomies[plural]
 			// keep the following just for legacy reasons
-			p.Data["OrderedIndex"] = p.Data["Terms"]
-			p.Data["Index"] = p.Data["Terms"]
+			p.data["OrderedIndex"] = p.data["Terms"]
+			p.data["Index"] = p.data["Terms"]
 
 			// A list of all KindTaxonomy pages with matching plural
 			for _, p := range s.findPagesByKind(KindTaxonomy) {
@@ -1943,7 +1954,7 @@ func (p *Page) prepareData(s *Site) error {
 			}
 		}
 
-		p.Data["Pages"] = pages
+		p.data["Pages"] = pages
 		p.Pages = pages
 	}
 

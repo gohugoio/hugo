@@ -30,12 +30,15 @@ func TestDefaultTypes(t *testing.T) {
 	}{
 		{CalendarType, "text", "calendar", "ics", "text/calendar", "text/calendar+ics"},
 		{CSSType, "text", "css", "css", "text/css", "text/css+css"},
+		{SCSSType, "text", "x-scss", "scss", "text/x-scss", "text/x-scss+scss"},
 		{CSVType, "text", "csv", "csv", "text/csv", "text/csv+csv"},
 		{HTMLType, "text", "html", "html", "text/html", "text/html+html"},
 		{JavascriptType, "application", "javascript", "js", "application/javascript", "application/javascript+js"},
 		{JSONType, "application", "json", "json", "application/json", "application/json+json"},
 		{RSSType, "application", "rss", "xml", "application/rss", "application/rss+xml"},
+		{SVGType, "image", "svg", "svg", "image/svg", "image/svg+svg"},
 		{TextType, "text", "plain", "txt", "text/plain", "text/plain+txt"},
+		{XMLType, "application", "xml", "xml", "application/xml", "application/xml+xml"},
 	} {
 		require.Equal(t, test.expectedMainType, test.tp.MainType)
 		require.Equal(t, test.expectedSubType, test.tp.SubType)
@@ -60,6 +63,13 @@ func TestGetByType(t *testing.T) {
 	require.False(t, found)
 }
 
+func TestGetFirstBySuffix(t *testing.T) {
+	assert := require.New(t)
+	f, found := DefaultTypes.GetFirstBySuffix("xml")
+	assert.True(found)
+	assert.Equal(Type{MainType: "application", SubType: "rss", Suffix: "xml", Delimiter: "."}, f)
+}
+
 func TestFromTypeString(t *testing.T) {
 	f, err := FromString("text/html")
 	require.NoError(t, err)
@@ -75,6 +85,10 @@ func TestFromTypeString(t *testing.T) {
 
 	_, err = FromString("noslash")
 	require.Error(t, err)
+
+	f, err = FromString("text/xml; charset=utf-8")
+	require.NoError(t, err)
+	require.Equal(t, Type{MainType: "text", SubType: "xml", Suffix: "xml", Delimiter: "."}, f)
 
 }
 

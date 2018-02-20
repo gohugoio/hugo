@@ -38,6 +38,9 @@ func newTestCfg() *viper.Viper {
 	v.Set("dataDir", "data")
 	v.Set("i18nDir", "i18n")
 	v.Set("layoutDir", "layouts")
+	v.Set("assetDir", "assets")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
 	v.Set("archetypeDir", "archetypes")
 	return v
 }

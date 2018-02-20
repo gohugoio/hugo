@@ -51,6 +51,9 @@ func newTestConfig() config.Provider {
 	v.Set("i18nDir", "i18n")
 	v.Set("layoutDir", "layouts")
 	v.Set("archetypeDir", "archetypes")
+	v.Set("assetDir", "assets")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
 	return v
 }
 
@@ -76,12 +79,13 @@ func TestTemplateFuncsExamples(t *testing.T) {
 	v.Set("workingDir", workingDir)
 	v.Set("multilingual", true)
 	v.Set("contentDir", "content")
+	v.Set("assetDir", "assets")
 	v.Set("baseURL", "http://mysite.com/hugo/")
 	v.Set("CurrentContentLanguage", langs.NewLanguage("en", v))
 
 	fs := hugofs.NewMem(v)
 
-	afero.WriteFile(fs.Source, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)
+	afero.WriteFile(fs.Source, filepath.Join(workingDir, "files", "README.txt"), []byte("Hugo Rocks!"), 0755)
 
 	depsCfg := newDepsConfig(v)
 	depsCfg.Fs = fs
@@ -113,7 +117,8 @@ func TestTemplateFuncsExamples(t *testing.T) {
 				require.NoError(t, d.LoadResources())
 
 				var b bytes.Buffer
-				require.NoError(t, d.Tmpl.Lookup("test").Execute(&b, &data))
+				templ, _ := d.Tmpl.Lookup("test")
+				require.NoError(t, templ.Execute(&b, &data))
 				if b.String() != expected {
 					t.Fatalf("%s[%d]: got %q expected %q", ns.Name, i, b.String(), expected)
 				}

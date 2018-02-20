@@ -1,7 +1,13 @@
+image: Visual Studio 2015
+
 init:
-  - set PATH=%PATH%;C:\MinGW\bin;%GOPATH%\bin
+  - set PATH=%PATH%;C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin;%GOPATH%\bin
   - go version
   - go env
+
+environment:
+  GOPATH: C:\GOPATH\
+  HUGO_BUILD_TAGS: extended
 
 # clones and cd's to path
 clone_folder: C:\GOPATH\src\github.com\gohugoio\hugo

@@ -3,6 +3,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/BurntSushi/locker"
+  packages = ["."]
+  revision = "a6e239ea1c69bff1cfdb20c4b73dadf52f784b6a"
+
+[[projects]]
+  branch = "master"
   name = "github.com/BurntSushi/toml"
   packages = ["."]
   revision = "a368813c5e648fee92e5f6c30e3944ff9d5e8895"
@@ -69,6 +75,16 @@
   revision = "012701e8669671499fc43e9792335a1dcbfe2afb"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/bep/go-tocss"
+  packages = [
+    "scss",
+    "scss/libsass",
+    "tocss"
+  ]
+  revision = "2abb118dc8688b6c7df44e12f4152c2bded9b19c"
+
+[[projects]]
   name = "github.com/chaseadamsio/goorgeous"
   packages = ["."]
   revision = "dcf1ef873b8987bf12596fe6951c48347986eb2f"
@@ -106,6 +122,12 @@
   ]
   revision = "487489b64fb796de2e55f4e8a4ad1e145f80e957"
   version = "v1.1.6"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/dsnet/golib"
+  packages = ["memfile"]
+  revision = "1ea1667757804fdcccc5a1810e09aba618885ac2"
 
 [[projects]]
   branch = "master"
@@ -233,6 +255,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/mitchellh/hashstructure"
+  packages = ["."]
+  revision = "2bca23e0e452137f789efbc8610126fd8b94f73b"
+
+[[projects]]
+  branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
@@ -356,6 +384,42 @@
   version = "v1.2.1"
 
 [[projects]]
+  name = "github.com/tdewolff/minify"
+  packages = [
+    ".",
+    "css",
+    "html",
+    "js",
+    "json",
+    "svg",
+    "xml"
+  ]
+  revision = "8d72a4127ae33b755e95bffede9b92e396267ce2"
+  version = "v2.3.5"
+
+[[projects]]
+  name = "github.com/tdewolff/parse"
+  packages = [
+    ".",
+    "buffer",
+    "css",
+    "html",
+    "js",
+    "json",
+    "strconv",
+    "svg",
+    "xml"
+  ]
+  revision = "d739d6fccb0971177e06352fea02d3552625efb1"
+  version = "v2.3.3"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/wellington/go-libsass"
+  packages = ["libs"]
+  revision = "615eaa47ef794d037c1906a0eb7bf85375a5decf"
+
+[[projects]]
   name = "github.com/yosssi/ace"
   packages = ["."]
   revision = "ea038f4770b6746c3f8f84f14fa60d9fe1205b56"
@@ -431,6 +495,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "78b19539f7321429f217fc482de9e7cb4e2edd9b054ba8ec36b1e62bc4281b4f"
+  inputs-digest = "aaf909f54ae33c5a70f692e19e59834106bcbbe5d16724ff3998907734e32c0b"
   solver-name = "gps-cdcl"
   solver-version = 1

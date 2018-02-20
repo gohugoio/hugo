@@ -15,5 +15,7 @@ vendor/*/
 *.debug
 coverage*.out
 
+dock.sh
+
 GoBuilds
 dist

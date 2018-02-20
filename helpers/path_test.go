@@ -78,6 +78,9 @@ func TestMakePathSanitized(t *testing.T) {
 	v.Set("dataDir", "data")
 	v.Set("i18nDir", "i18n")
 	v.Set("layoutDir", "layouts")
+	v.Set("assetDir", "assets")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
 	v.Set("archetypeDir", "archetypes")
 
 	l := langs.NewDefaultLanguage(v)
@@ -475,6 +478,7 @@ func createTempDirWithNonZeroLengthFiles() (string, error) {
 		return "", fileErr
 	}
 	byteString := []byte("byteString")
+
 	fileErr = ioutil.WriteFile(f.Name(), byteString, 0644)
 	if fileErr != nil {
 		// delete the file
@@ -583,6 +587,11 @@ func TestAbsPathify(t *testing.T) {
 		}
 	}
 
+}
+
+func TestExtNoDelimiter(t *testing.T) {
+	assert := require.New(t)
+	assert.Equal("json", ExtNoDelimiter(filepath.FromSlash("/my/data.json")))
 }
 
 func TestFilename(t *testing.T) {

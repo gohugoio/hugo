@@ -252,7 +252,7 @@ func (s *Site) renderRSS(p *PageOutput) error {
 	limit := s.Cfg.GetInt("rssLimit")
 	if limit >= 0 && len(p.Pages) > limit {
 		p.Pages = p.Pages[:limit]
-		p.Data["Pages"] = p.Pages
+		p.data["Pages"] = p.Pages
 	}
 
 	layouts, err := s.layoutHandler.For(
@@ -279,7 +279,7 @@ func (s *Site) render404() error {
 	p := s.newNodePage(kind404)
 
 	p.title = "404 Page not found"
-	p.Data["Pages"] = s.Pages
+	p.data["Pages"] = s.Pages
 	p.Pages = s.Pages
 	p.URLPath.URL = "404.html"
 
@@ -326,7 +326,7 @@ func (s *Site) renderSitemap() error {
 	page.Sitemap.Priority = sitemapDefault.Priority
 	page.Sitemap.Filename = sitemapDefault.Filename
 
-	n.Data["Pages"] = pages
+	n.data["Pages"] = pages
 	n.Pages = pages
 
 	// TODO(bep) we have several of these
@@ -369,7 +369,7 @@ func (s *Site) renderRobotsTXT() error {
 	if err := p.initTargetPathDescriptor(); err != nil {
 		return err
 	}
-	p.Data["Pages"] = s.Pages
+	p.data["Pages"] = s.Pages
 	p.Pages = s.Pages
 
 	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}

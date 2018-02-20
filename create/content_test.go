@@ -88,6 +88,8 @@ func initViper(v *viper.Viper) {
 	v.Set("i18nDir", "i18n")
 	v.Set("theme", "sample")
 	v.Set("archetypeDir", "archetypes")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
 }
 
 func initFs(fs *hugofs.Fs) error {
@@ -191,6 +193,7 @@ func newTestCfg() (*viper.Viper, *hugofs.Fs) {
 	v.Set("i18nDir", "i18n")
 	v.Set("layoutDir", "layouts")
 	v.Set("archetypeDir", "archetypes")
+	v.Set("assetDir", "assets")
 
 	fs := hugofs.NewMem(v)
 

@@ -18,6 +18,8 @@ package tplimpl
 import (
 	"html/template"
 
+	"github.com/gohugoio/hugo/deps"
+
 	"github.com/gohugoio/hugo/tpl/internal"
 
 	// Init the namespaces
@@ -35,6 +37,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/os"
 	_ "github.com/gohugoio/hugo/tpl/partials"
 	_ "github.com/gohugoio/hugo/tpl/path"
+	_ "github.com/gohugoio/hugo/tpl/resources"
 	_ "github.com/gohugoio/hugo/tpl/safe"
 	_ "github.com/gohugoio/hugo/tpl/strings"
 	_ "github.com/gohugoio/hugo/tpl/time"
@@ -42,12 +45,12 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/urls"
 )
 
-func (t *templateFuncster) initFuncMap() {
+func createFuncMap(d *deps.Deps) map[string]interface{} {
 	funcMap := template.FuncMap{}
 
 	// Merge the namespace funcs
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
-		ns := nsf(t.Deps)
+		ns := nsf(d)
 		if _, exists := funcMap[ns.Name]; exists {
 			panic(ns.Name + " is a duplicate template func")
 		}
@@ -61,8 +64,13 @@ func (t *templateFuncster) initFuncMap() {
 			}
 
 		}
+
 	}
 
+	return funcMap
+
+}
+func (t *templateFuncster) initFuncMap(funcMap template.FuncMap) {
 	t.funcMap = funcMap
 	t.Tmpl.(*templateHandler).setFuncs(funcMap)
 }

@@ -17,6 +17,14 @@
   name = "github.com/bep/gitmap"
   
 [[constraint]]
+   branch = "master"
+   name = "github.com/bep/go-tocss"
+
+[[override]]
+   branch = "master"
+   name = "github.com/wellington/go-libsass"
+ 
+[[constraint]]
  name = "github.com/chaseadamsio/goorgeous"
  version = "^1.1.0"
 
@@ -149,3 +157,15 @@
 [[constraint]]
   name = "github.com/bep/debounce"
   version = "^1.1.0"
+
+[[constraint]]
+  name = "github.com/tdewolff/minify"
+  version = "^2.3.5"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/BurntSushi/locker"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/mitchellh/hashstructure"

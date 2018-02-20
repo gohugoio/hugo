@@ -20,6 +20,10 @@ import (
 	"strings"
 	"sync"
 
+	bp "github.com/gohugoio/hugo/bufferpool"
+
+	"github.com/gohugoio/hugo/tpl"
+
 	"github.com/gohugoio/hugo/resource"
 
 	"github.com/gohugoio/hugo/media"
@@ -119,15 +123,15 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 	}
 
 	for _, layout := range l {
-		templ := p.s.Tmpl.Lookup(layout)
-		if templ == nil {
+		templ, found := p.s.Tmpl.Lookup(layout)
+		if !found {
 			// This is legacy from when we had only one output format and
 			// HTML templates only. Some have references to layouts without suffix.
 			// We default to good old HTML.
-			templ = p.s.Tmpl.Lookup(layout + ".html")
+			templ, found = p.s.Tmpl.Lookup(layout + ".html")
 		}
 		if templ != nil {
-			res, err := templ.ExecuteToString(p)
+			res, err := executeToString(templ, p)
 			if err != nil {
 				p.s.DistinctErrorLog.Printf("in .Render: Failed to execute template %q: %s", layout, err)
 				return template.HTML("")
@@ -137,6 +141,16 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 	}
 
 	return ""
+
+}
+
+func executeToString(templ tpl.Template, data interface{}) (string, error) {
+	b := bp.GetBuffer()
+	defer bp.PutBuffer(b)
+	if err := templ.Execute(b, data); err != nil {
+		return "", err
+	}
+	return b.String(), nil
 
 }
 
@@ -265,7 +279,7 @@ func (p *PageOutput) renderResources() error {
 				// mode when the same resource is member of different page bundles.
 				p.deleteResource(i)
 			} else {
-				p.s.Log.ERROR.Printf("Failed to publish %q for page %q: %s", src.AbsSourceFilename(), p.pathOrTitle(), err)
+				p.s.Log.ERROR.Printf("Failed to publish Resource for page %q: %s", p.pathOrTitle(), err)
 			}
 		} else {
 			p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Files)

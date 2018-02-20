@@ -75,12 +75,18 @@ func newTestConfig() *viper.Viper {
 	v.Set("i18nDir", "i18n")
 	v.Set("layoutDir", "layouts")
 	v.Set("archetypeDir", "archetypes")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
+	v.Set("assetDir", "assets")
 	return v
 }
 
 func newTestSourceSpec() *SourceSpec {
 	v := newTestConfig()
 	fs := hugofs.NewMem(v)
-	ps, _ := helpers.NewPathSpec(fs, v)
+	ps, err := helpers.NewPathSpec(fs, v)
+	if err != nil {
+		panic(err)
+	}
 	return NewSourceSpec(ps, fs.Source)
 }

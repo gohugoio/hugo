@@ -144,7 +144,7 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 						return nil
 					}
 					for _, file := range files {
-						f, err := s.site.BaseFs.ContentFs.Open(file.Filename())
+						f, err := s.site.BaseFs.Content.Fs.Open(file.Filename())
 						if err != nil {
 							return fmt.Errorf("failed to open assets file: %s", err)
 						}

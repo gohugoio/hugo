@@ -16,6 +16,7 @@ package commands
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"sync"
 	"time"
 
@@ -45,6 +46,10 @@ type commandeerHugoState struct {
 
 type commandeer struct {
 	*commandeerHugoState
+
+	// Currently only set when in "fast render mode". But it seems to
+	// be fast enough that we could maybe just add it for all server modes.
+	changeDetector *fileChangeDetector
 
 	// We need to reuse this on server rebuilds.
 	destinationFs afero.Fs
@@ -103,6 +108,68 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 	}
 
 	return c, c.loadConfig(mustHaveConfigFile, running)
+}
+
+type fileChangeDetector struct {
+	sync.Mutex
+	current map[string]string
+	prev    map[string]string
+
+	irrelevantRe *regexp.Regexp
+}
+
+func (f *fileChangeDetector) OnFileClose(name, md5sum string) {
+	f.Lock()
+	defer f.Unlock()
+	f.current[name] = md5sum
+}
+
+func (f *fileChangeDetector) changed() []string {
+	if f == nil {
+		return nil
+	}
+	f.Lock()
+	defer f.Unlock()
+	var c []string
+	for k, v := range f.current {
+		vv, found := f.prev[k]
+		if !found || v != vv {
+			c = append(c, k)
+		}
+	}
+
+	return f.filterIrrelevant(c)
+}
+
+func (f *fileChangeDetector) filterIrrelevant(in []string) []string {
+	var filtered []string
+	for _, v := range in {
+		if !f.irrelevantRe.MatchString(v) {
+			filtered = append(filtered, v)
+		}
+	}
+	return filtered
+}
+
+func (f *fileChangeDetector) PrepareNew() {
+	if f == nil {
+		return
+	}
+
+	f.Lock()
+	defer f.Unlock()
+
+	if f.current == nil {
+		f.current = make(map[string]string)
+		f.prev = make(map[string]string)
+		return
+	}
+
+	f.prev = make(map[string]string)
+	for k, v := range f.current {
+		f.prev[k] = v
+	}
+	f.current = make(map[string]string)
 }
 
 func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
@@ -200,6 +267,23 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		} else if createMemFs {
 			// Hugo writes the output to memory instead of the disk.
 			fs.Destination = new(afero.MemMapFs)
+		}
+
+		doLiveReload := !c.h.buildWatch && !config.GetBool("disableLiveReload")
+		fastRenderMode := doLiveReload && !config.GetBool("disableFastRender")
+
+		if fastRenderMode {
+			// For now, fast render mode only. It should, however, be fast enough
+			// for the full variant, too.
+			changeDetector := &fileChangeDetector{
+				// We use this detector to decide to do a Hot reload of a single path or not.
+				// We need to filter out source maps and possibly some other to be able
+				// to make that decision.
+				irrelevantRe: regexp.MustCompile(`\.map$`),
+			}
+			changeDetector.PrepareNew()
+			fs.Destination = hugofs.NewHashingFs(fs.Destination, changeDetector)
+			c.changeDetector = changeDetector
 		}
 
 		err = c.initFs(fs)

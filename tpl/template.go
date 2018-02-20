@@ -38,19 +38,32 @@ type TemplateHandler interface {
 	LoadTemplates(prefix string)
 	PrintErrors()
 
+	NewTextTemplate() TemplateParseFinder
+
 	MarkReady()
 	RebuildClone()
 }
 
 // TemplateFinder finds templates.
 type TemplateFinder interface {
-	Lookup(name string) *TemplateAdapter
+	Lookup(name string) (Template, bool)
 }
 
 // Template is the common interface between text/template and html/template.
 type Template interface {
 	Execute(wr io.Writer, data interface{}) error
 	Name() string
+}
+
+// TemplateParser is used to parse ad-hoc templates, e.g. in the Resource chain.
+type TemplateParser interface {
+	Parse(name, tpl string) (Template, error)
+}
+
+// TemplateParseFinder provides both parsing and finding.
+type TemplateParseFinder interface {
+	TemplateParser
+	TemplateFinder
 }
 
 // TemplateExecutor adds some extras to Template.

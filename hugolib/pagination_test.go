@@ -281,7 +281,7 @@ func doTestPaginator(t *testing.T, useViper bool) {
 	pages := createTestPages(s, 12)
 	n1, _ := newPageOutput(s.newHomePage(), false, false, output.HTMLFormat)
 	n2, _ := newPageOutput(s.newHomePage(), false, false, output.HTMLFormat)
-	n1.Data["Pages"] = pages
+	n1.data["Pages"] = pages
 
 	var paginator1 *Pager
 
@@ -301,7 +301,7 @@ func doTestPaginator(t *testing.T, useViper bool) {
 	require.Nil(t, err)
 	require.Equal(t, paginator2, paginator1.Next())
 
-	n1.Data["Pages"] = createTestPages(s, 1)
+	n1.data["Pages"] = createTestPages(s, 1)
 	samePaginator, _ := n1.Paginator()
 	require.Equal(t, paginator1, samePaginator)
 

@@ -134,7 +134,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 		return nil, fmt.Errorf("Failed to parse archetype file %q: %s", archetypeFilename, err)
 	}
 
-	templ := templateHandler.Lookup(templateName)
+	templ, _ := templateHandler.Lookup(templateName)
 
 	var buff bytes.Buffer
 	if err := templ.Execute(&buff, data); err != nil {

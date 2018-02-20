@@ -545,7 +545,7 @@ Loop:
 			}
 
 			var err error
-			isInner, err = isInnerShortcode(tmpl)
+			isInner, err = isInnerShortcode(tmpl.(tpl.TemplateExecutor))
 			if err != nil {
 				return sc, fmt.Errorf("Failed to handle template for shortcode %q for page %q: %s", sc.name, p.Path(), err)
 			}
@@ -709,7 +709,7 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 	return source, nil
 }
 
-func getShortcodeTemplateForTemplateKey(key scKey, shortcodeName string, t tpl.TemplateFinder) *tpl.TemplateAdapter {
+func getShortcodeTemplateForTemplateKey(key scKey, shortcodeName string, t tpl.TemplateFinder) tpl.Template {
 	isInnerShortcodeCache.RLock()
 	defer isInnerShortcodeCache.RUnlock()
 
@@ -737,13 +737,13 @@ func getShortcodeTemplateForTemplateKey(key scKey, shortcodeName string, t tpl.T
 
 	for _, name := range names {
 
-		if x := t.Lookup("shortcodes/" + name); x != nil {
+		if x, found := t.Lookup("shortcodes/" + name); found {
 			return x
 		}
-		if x := t.Lookup("theme/shortcodes/" + name); x != nil {
+		if x, found := t.Lookup("theme/shortcodes/" + name); found {
 			return x
 		}
-		if x := t.Lookup("_internal/shortcodes/" + name); x != nil {
+		if x, found := t.Lookup("_internal/shortcodes/" + name); found {
 			return x
 		}
 	}

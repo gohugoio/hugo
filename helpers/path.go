@@ -90,6 +90,11 @@ func (p *PathSpec) MakePathSanitized(s string) string {
 	return strings.ToLower(p.MakePath(s))
 }
 
+// ToSlashTrimLeading is just a filepath.ToSlaas with an added / prefix trimmer.
+func ToSlashTrimLeading(s string) string {
+	return strings.TrimPrefix(filepath.ToSlash(s), "/")
+}
+
 // MakeTitle converts the path given to a suitable title, trimming whitespace
 // and replacing hyphens with whitespace.
 func MakeTitle(inpath string) string {
@@ -222,10 +227,20 @@ func GetDottedRelativePath(inPath string) string {
 	return dottedPath
 }
 
+// ExtNoDelimiter takes a path and returns the extension, excluding the delmiter, i.e. "md".
+func ExtNoDelimiter(in string) string {
+	return strings.TrimPrefix(Ext(in), ".")
+}
+
 // Ext takes a path and returns the extension, including the delmiter, i.e. ".md".
 func Ext(in string) string {
 	_, ext := fileAndExt(in, fpb)
 	return ext
+}
+
+// PathAndExt is the same as FileAndExt, but it uses the path package.
+func PathAndExt(in string) (string, string) {
+	return fileAndExt(in, pb)
 }
 
 // FileAndExt takes a path and returns the file and extension separated,

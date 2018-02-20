@@ -27,7 +27,7 @@ import (
 
 func TestPageTargetPath(t *testing.T) {
 
-	pathSpec := newTestDefaultPathSpec()
+	pathSpec := newTestDefaultPathSpec(t)
 
 	noExtNoDelimMediaType := media.TextType
 	noExtNoDelimMediaType.Suffix = ""

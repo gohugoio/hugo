@@ -46,17 +46,17 @@ func Vendor() error {
 
 // Build hugo binary
 func Hugo() error {
-	return sh.RunWith(flagEnv(), goexe, "build", "-ldflags", ldflags, packageName)
+	return sh.RunWith(flagEnv(), goexe, "build", "-ldflags", ldflags, "-tags", buildTags(), packageName)
 }
 
 // Build hugo binary with race detector enabled
 func HugoRace() error {
-	return sh.RunWith(flagEnv(), goexe, "build", "-race", "-ldflags", ldflags, packageName)
+	return sh.RunWith(flagEnv(), goexe, "build", "-race", "-ldflags", ldflags, "-tags", buildTags(), packageName)
 }
 
 // Install hugo binary
 func Install() error {
-	return sh.RunWith(flagEnv(), goexe, "install", "-ldflags", ldflags, packageName)
+	return sh.RunWith(flagEnv(), goexe, "install", "-ldflags", ldflags, "-tags", buildTags(), packageName)
 }
 
 func flagEnv() map[string]string {
@@ -111,18 +111,19 @@ func Check() {
 }
 
 // Run tests in 32-bit mode
+// Note that we don't run with the extended tag. Currently not supported in 32 bit.
 func Test386() error {
 	return sh.RunWith(map[string]string{"GOARCH": "386"}, goexe, "test", "./...")
 }
 
 // Run tests
 func Test() error {
-	return sh.Run(goexe, "test", "./...")
+	return sh.Run(goexe, "test", "./...", "-tags", buildTags())
 }
 
 // Run tests with race detector
 func TestRace() error {
-	return sh.Run(goexe, "test", "-race", "./...")
+	return sh.Run(goexe, "test", "-race", "./...", "-tags", buildTags())
 }
 
 // Run gofmt linter
@@ -265,4 +266,14 @@ func CheckVendor() error {
 
 func isGoLatest() bool {
 	return strings.Contains(runtime.Version(), "1.10")
+}
+
+func buildTags() string {
+	// To build the extended Hugo SCSS/SASS enabled version, build with
+	// HUGO_BUILD_TAGS=extended mage install etc.
+	if envtags := os.Getenv("HUGO_BUILD_TAGS"); envtags != "" {
+		return envtags
+	}
+	return "none"
+
 }

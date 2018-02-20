@@ -30,6 +30,8 @@ func (*TemplateProvider) Update(deps *deps.Deps) error {
 	newTmpl := newTemplateAdapter(deps)
 	deps.Tmpl = newTmpl
 
+	deps.TextTmpl = newTmpl.NewTextTemplate()
+
 	newTmpl.initFuncs()
 	newTmpl.loadEmbedded()
 

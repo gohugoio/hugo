@@ -55,7 +55,7 @@ var (
 	_ templateFuncsterTemplater = (*textTemplates)(nil)
 )
 
-// Protecting global map access (Amber)
+// Protecting  global map access (Amber)
 var amberMu sync.Mutex
 
 type templateErr struct {
@@ -70,17 +70,25 @@ type templateLoader interface {
 }
 
 type templateFuncsterTemplater interface {
+	templateFuncsterSetter
 	tpl.TemplateFinder
 	setFuncs(funcMap map[string]interface{})
+}
+
+type templateFuncsterSetter interface {
 	setTemplateFuncster(f *templateFuncster)
 }
 
 // templateHandler holds the templates in play.
 // It implements the templateLoader and tpl.TemplateHandler interfaces.
 type templateHandler struct {
+	mu sync.Mutex
+
 	// text holds all the pure text templates.
 	text *textTemplates
 	html *htmlTemplates
+
+	extTextTemplates []*textTemplate
 
 	amberFuncMap template.FuncMap
 
@@ -91,6 +99,19 @@ type templateHandler struct {
 	layoutsFs afero.Fs
 
 	*deps.Deps
+}
+
+// NewTextTemplate provides a text template parser that has all the Hugo
+// template funcs etc. built-in.
+func (t *templateHandler) NewTextTemplate() tpl.TemplateParseFinder {
+	t.mu.Lock()
+	t.mu.Unlock()
+
+	tt := &textTemplate{t: texttemplate.New("")}
+	t.extTextTemplates = append(t.extTextTemplates, tt)
+
+	return tt
+
 }
 
 func (t *templateHandler) addError(name string, err error) {
@@ -111,7 +132,7 @@ func (t *templateHandler) PrintErrors() {
 
 // Lookup tries to find a template with the given name in both template
 // collections: First HTML, then the plain text template collection.
-func (t *templateHandler) Lookup(name string) *tpl.TemplateAdapter {
+func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
 
 	if strings.HasPrefix(name, textTmplNamePrefix) {
 		// The caller has explicitly asked for a text template, so only look
@@ -123,8 +144,8 @@ func (t *templateHandler) Lookup(name string) *tpl.TemplateAdapter {
 	}
 
 	// Look in both
-	if te := t.html.Lookup(name); te != nil {
-		return te
+	if te, found := t.html.Lookup(name); found {
+		return te, true
 	}
 
 	return t.text.Lookup(name)
@@ -136,7 +157,7 @@ func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
 		Deps:      d,
 		layoutsFs: d.BaseFs.Layouts.Fs,
 		html:      &htmlTemplates{t: template.Must(t.html.t.Clone()), overlays: make(map[string]*template.Template)},
-		text:      &textTemplates{t: texttemplate.Must(t.text.t.Clone()), overlays: make(map[string]*texttemplate.Template)},
+		text:      &textTemplates{textTemplate: &textTemplate{t: texttemplate.Must(t.text.t.Clone())}, overlays: make(map[string]*texttemplate.Template)},
 		errors:    make([]*templateErr, 0),
 	}
 
@@ -171,8 +192,8 @@ func newTemplateAdapter(deps *deps.Deps) *templateHandler {
 		overlays: make(map[string]*template.Template),
 	}
 	textT := &textTemplates{
-		t:        texttemplate.New(""),
-		overlays: make(map[string]*texttemplate.Template),
+		textTemplate: &textTemplate{t: texttemplate.New("")},
+		overlays:     make(map[string]*texttemplate.Template),
 	}
 	return &templateHandler{
 		Deps:      deps,
@@ -205,12 +226,12 @@ func (t *htmlTemplates) setTemplateFuncster(f *templateFuncster) {
 	t.funcster = f
 }
 
-func (t *htmlTemplates) Lookup(name string) *tpl.TemplateAdapter {
+func (t *htmlTemplates) Lookup(name string) (tpl.Template, bool) {
 	templ := t.lookup(name)
 	if templ == nil {
-		return nil
+		return nil, false
 	}
-	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics}
+	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics}, true
 }
 
 func (t *htmlTemplates) lookup(name string) *template.Template {
@@ -233,27 +254,25 @@ func (t *htmlTemplates) lookup(name string) *template.Template {
 	return nil
 }
 
+func (t *textTemplates) setTemplateFuncster(f *templateFuncster) {
+	t.funcster = f
+}
+
 type textTemplates struct {
-	funcster *templateFuncster
-
-	t *texttemplate.Template
-
+	*textTemplate
+	funcster   *templateFuncster
 	clone      *texttemplate.Template
 	cloneClone *texttemplate.Template
 
 	overlays map[string]*texttemplate.Template
 }
 
-func (t *textTemplates) setTemplateFuncster(f *templateFuncster) {
-	t.funcster = f
-}
-
-func (t *textTemplates) Lookup(name string) *tpl.TemplateAdapter {
+func (t *textTemplates) Lookup(name string) (tpl.Template, bool) {
 	templ := t.lookup(name)
 	if templ == nil {
-		return nil
+		return nil, false
 	}
-	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics}
+	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics}, true
 }
 
 func (t *textTemplates) lookup(name string) *texttemplate.Template {
@@ -336,9 +355,34 @@ func (t *htmlTemplates) addLateTemplate(name, tpl string) error {
 	return t.addTemplateIn(t.clone, name, tpl)
 }
 
+type textTemplate struct {
+	t *texttemplate.Template
+}
+
+func (t *textTemplate) Parse(name, tpl string) (tpl.Template, error) {
+	return t.parSeIn(t.t, name, tpl)
+}
+
+func (t *textTemplate) Lookup(name string) (tpl.Template, bool) {
+	tpl := t.t.Lookup(name)
+	return tpl, tpl != nil
+}
+
+func (t *textTemplate) parSeIn(tt *texttemplate.Template, name, tpl string) (*texttemplate.Template, error) {
+	templ, err := tt.New(name).Parse(tpl)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := applyTemplateTransformersToTextTemplate(templ); err != nil {
+		return nil, err
+	}
+	return templ, nil
+}
+
 func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl string) error {
 	name = strings.TrimPrefix(name, textTmplNamePrefix)
-	templ, err := tt.New(name).Parse(tpl)
+	templ, err := t.parSeIn(tt, name, tpl)
 	if err != nil {
 		return err
 	}
@@ -467,15 +511,20 @@ func (t *templateHandler) initFuncs() {
 
 	// Both template types will get their own funcster instance, which
 	// in the current case contains the same set of funcs.
-	for _, funcsterHolder := range []templateFuncsterTemplater{t.html, t.text} {
+	funcMap := createFuncMap(t.Deps)
+	for _, funcsterHolder := range []templateFuncsterSetter{t.html, t.text} {
 		funcster := newTemplateFuncster(t.Deps)
 
 		// The URL funcs in the funcMap is somewhat language dependent,
 		// so we need to wait until the language and site config is loaded.
-		funcster.initFuncMap()
+		funcster.initFuncMap(funcMap)
 
 		funcsterHolder.setTemplateFuncster(funcster)
 
+	}
+
+	for _, extText := range t.extTextTemplates {
+		extText.t.Funcs(funcMap)
 	}
 
 	// Amber is HTML only.

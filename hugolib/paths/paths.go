@@ -39,11 +39,14 @@ type Paths struct {
 	// Directories
 	// TODO(bep) when we have trimmed down mos of the dirs usage outside of this package, make
 	// these into an interface.
-	ContentDir      string
-	ThemesDir       string
-	WorkingDir      string
+	ContentDir string
+	ThemesDir  string
+	WorkingDir string
+
+	// Directories to store Resource related artifacts.
 	AbsResourcesDir string
-	AbsPublishDir   string
+
+	AbsPublishDir string
 
 	// pagination path handling
 	PaginatePath string
@@ -79,11 +82,20 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 		return nil, fmt.Errorf("Failed to create baseURL from %q: %s", baseURLstr, err)
 	}
 
-	// TODO(bep)
 	contentDir := cfg.GetString("contentDir")
 	workingDir := cfg.GetString("workingDir")
 	resourceDir := cfg.GetString("resourceDir")
 	publishDir := cfg.GetString("publishDir")
+
+	if contentDir == "" {
+		return nil, fmt.Errorf("contentDir not set")
+	}
+	if resourceDir == "" {
+		return nil, fmt.Errorf("resourceDir not set")
+	}
+	if publishDir == "" {
+		return nil, fmt.Errorf("publishDir not set")
+	}
 
 	defaultContentLanguage := cfg.GetString("defaultContentLanguage")
 
@@ -181,6 +193,21 @@ func (p *Paths) ThemeSet() bool {
 
 func (p *Paths) Themes() []string {
 	return p.themes
+}
+
+func (p *Paths) GetTargetLanguageBasePath() string {
+	if p.Languages.IsMultihost() {
+		// In a multihost configuration all assets will be published below the language code.
+		return p.Lang()
+	}
+	return p.GetLanguagePrefix()
+}
+
+func (p *Paths) GetURLLanguageBasePath() string {
+	if p.Languages.IsMultihost() {
+		return ""
+	}
+	return p.GetLanguagePrefix()
 }
 
 func (p *Paths) GetLanguagePrefix() string {

@@ -58,4 +58,9 @@ func TestBaseURL(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "", b.String())
 
+	// BaseURL with sub path
+	b, err = newBaseURLFromString("http://example.com/sub")
+	require.NoError(t, err)
+	require.Equal(t, "http://example.com/sub", b.String())
+	require.Equal(t, "http://example.com", b.HostURL())
 }

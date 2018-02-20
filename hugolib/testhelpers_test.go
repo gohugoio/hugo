@@ -441,7 +441,7 @@ func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
 	content := readDestination(s.T, s.Fs, filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
-			s.Fatalf("No match for %q in content for %s\n%s", match, filename, content)
+			s.Fatalf("No match for %q in content for %s\n%s\n%q", match, filename, content, content)
 		}
 	}
 }
@@ -519,7 +519,7 @@ func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *helpers.PathSpec {
 	return ps
 }
 
-func newTestDefaultPathSpec() *helpers.PathSpec {
+func newTestDefaultPathSpec(t *testing.T) *helpers.PathSpec {
 	v := viper.New()
 	// Easier to reason about in tests.
 	v.Set("disablePathToLower", true)
@@ -528,8 +528,14 @@ func newTestDefaultPathSpec() *helpers.PathSpec {
 	v.Set("i18nDir", "i18n")
 	v.Set("layoutDir", "layouts")
 	v.Set("archetypeDir", "archetypes")
+	v.Set("assetDir", "assets")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
 	fs := hugofs.NewDefault(v)
-	ps, _ := helpers.NewPathSpec(fs, v)
+	ps, err := helpers.NewPathSpec(fs, v)
+	if err != nil {
+		t.Fatal(err)
+	}
 	return ps
 }
 

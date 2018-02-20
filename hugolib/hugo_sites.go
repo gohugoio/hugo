@@ -21,8 +21,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/resource"
-
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/langs"
@@ -182,8 +180,10 @@ func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 			continue
 		}
 
+		cfg.Language = s.Language
+		cfg.MediaTypes = s.mediaTypesConfig
+
 		if d == nil {
-			cfg.Language = s.Language
 			cfg.WithTemplate = s.withSiteTemplates(cfg.WithTemplate)
 
 			var err error
@@ -200,17 +200,12 @@ func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 			}
 
 		} else {
-			d, err = d.ForLanguage(s.Language)
+			d, err = d.ForLanguage(cfg)
 			if err != nil {
 				return err
 			}
 			d.OutputFormatsConfig = s.outputFormatsConfig
 			s.Deps = d
-		}
-
-		s.resourceSpec, err = resource.NewSpec(s.Deps.PathSpec, s.mediaTypesConfig)
-		if err != nil {
-			return err
 		}
 
 	}
@@ -701,7 +696,7 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bu
 	defer m.mu.RUnlock()
 
 	// Bundles share resources, so we need to start from the virtual root.
-	relPath, _ := m.pathSpec.RelContentDir(filename)
+	relPath := m.pathSpec.RelContentDir(filename)
 	dir, name := filepath.Split(relPath)
 	if !strings.HasSuffix(dir, helpers.FilePathSeparator) {
 		dir += helpers.FilePathSeparator

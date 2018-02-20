@@ -27,11 +27,19 @@ type BaseURL struct {
 }
 
 func (b BaseURL) String() string {
-	return b.urlStr
+	if b.urlStr != "" {
+		return b.urlStr
+	}
+	return b.url.String()
 }
 
 func (b BaseURL) Path() string {
 	return b.url.Path
+}
+
+// HostURL returns the URL to the host root without any path elements.
+func (b BaseURL) HostURL() string {
+	return strings.TrimSuffix(b.String(), b.Path())
 }
 
 // WithProtocol returns the BaseURL prefixed with the given protocol.

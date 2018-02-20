@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,20 +14,24 @@
 package resource
 
 import (
+	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"mime"
 	"os"
 	"path"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/tpl"
+
+	"github.com/gohugoio/hugo/common/loggers"
+
+	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/spf13/afero"
-
-	"github.com/spf13/cast"
 
 	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/helpers"
@@ -36,32 +40,37 @@ import (
 )
 
 var (
+	_ ContentResource         = (*genericResource)(nil)
+	_ ReadSeekCloserResource  = (*genericResource)(nil)
 	_ Resource                = (*genericResource)(nil)
-	_ metaAssigner            = (*genericResource)(nil)
 	_ Source                  = (*genericResource)(nil)
 	_ Cloner                  = (*genericResource)(nil)
 	_ ResourcesLanguageMerger = (*Resources)(nil)
+	_ permalinker             = (*genericResource)(nil)
 )
 
 const DefaultResourceType = "unknown"
 
+var noData = make(map[string]interface{})
+
 // Source is an internal template and not meant for use in the templates. It
 // may change without notice.
 type Source interface {
-	AbsSourceFilename() string
 	Publish() error
+}
+
+type permalinker interface {
+	relPermalinkFor(target string) string
+	permalinkFor(target string) string
+	relTargetPathFor(target string) string
+	relTargetPath() string
+	targetPath() string
 }
 
 // Cloner is an internal template and not meant for use in the templates. It
 // may change without notice.
 type Cloner interface {
 	WithNewBase(base string) Resource
-}
-
-type metaAssigner interface {
-	setTitle(title string)
-	setName(name string)
-	updateParams(params map[string]interface{})
 }
 
 // Resource represents a linkable resource, i.e. a content page, image etc.
@@ -77,6 +86,9 @@ type Resource interface {
 	// For content pages, this value is "page".
 	ResourceType() string
 
+	// MediaType is this resource's MIME type.
+	MediaType() media.Type
+
 	// Name is the logical name of this resource. This can be set in the front matter
 	// metadata for this resource. If not set, Hugo will assign a value.
 	// This will in most cases be the base filename.
@@ -88,16 +100,12 @@ type Resource interface {
 	// Title returns the title if set in front matter. For content pages, this will be the expected value.
 	Title() string
 
+	// Resource specific data set by Hugo.
+	// One example would be.Data.Digest for fingerprinted resources.
+	Data() interface{}
+
 	// Params set in front matter for this resource.
 	Params() map[string]interface{}
-
-	// Content returns this resource's content. It will be equivalent to reading the content
-	// that RelPermalink points to in the published folder.
-	// The return type will be contextual, and should be what you would expect:
-	// * Page: template.HTML
-	// * JSON: String
-	// * Etc.
-	Content() (interface{}, error)
 }
 
 type ResourcesLanguageMerger interface {
@@ -108,6 +116,40 @@ type ResourcesLanguageMerger interface {
 
 type translatedResource interface {
 	TranslationKey() string
+}
+
+// ContentResource represents a Resource that provides a way to get to its content.
+// Most Resource types in Hugo implements this interface, including Page.
+// This should be used with care, as it will read the file content into memory, but it
+// should be cached as effectively as possible by the implementation.
+type ContentResource interface {
+	Resource
+
+	// Content returns this resource's content. It will be equivalent to reading the content
+	// that RelPermalink points to in the published folder.
+	// The return type will be contextual, and should be what you would expect:
+	// * Page: template.HTML
+	// * JSON: String
+	// * Etc.
+	Content() (interface{}, error)
+}
+
+// ReadSeekCloser is implemented by afero.File. We use this as the common type for
+// content in Resource objects, even for strings.
+type ReadSeekCloser interface {
+	io.Reader
+	io.Seeker
+	io.Closer
+}
+
+// OpenReadSeekeCloser allows setting some other way (than reading from a filesystem)
+// to open or create a ReadSeekCloser.
+type OpenReadSeekCloser func() (ReadSeekCloser, error)
+
+// ReadSeekCloserResource is a Resource that supports loading its content.
+type ReadSeekCloserResource interface {
+	Resource
+	ReadSeekCloser() (ReadSeekCloser, error)
 }
 
 // Resources represents a slice of resources, which can be a mix of different types.
@@ -123,44 +165,6 @@ func (r Resources) ByType(tp string) Resources {
 		}
 	}
 	return filtered
-}
-
-const prefixDeprecatedMsg = `We have added the more flexible Resources.GetMatch (find one) and Resources.Match (many) to replace the "prefix" methods. 
-
-These matches by a given globbing pattern, e.g. "*.jpg".
-
-Some examples:
-
-* To find all resources by its prefix in the root dir of the bundle: .Match image*
-* To find one resource by its prefix in the root dir of the bundle: .GetMatch image*
-* To find all JPEG images anywhere in the bundle: .Match **.jpg`
-
-// GetByPrefix gets the first resource matching the given filename prefix, e.g
-// "logo" will match logo.png. It returns nil of none found.
-// In potential ambiguous situations, combine it with ByType.
-func (r Resources) GetByPrefix(prefix string) Resource {
-	helpers.Deprecated("Resources", "GetByPrefix", prefixDeprecatedMsg, true)
-	prefix = strings.ToLower(prefix)
-	for _, resource := range r {
-		if matchesPrefix(resource, prefix) {
-			return resource
-		}
-	}
-	return nil
-}
-
-// ByPrefix gets all resources matching the given base filename prefix, e.g
-// "logo" will match logo.png.
-func (r Resources) ByPrefix(prefix string) Resources {
-	helpers.Deprecated("Resources", "ByPrefix", prefixDeprecatedMsg, true)
-	var matches Resources
-	prefix = strings.ToLower(prefix)
-	for _, resource := range r {
-		if matchesPrefix(resource, prefix) {
-			matches = append(matches, resource)
-		}
-	}
-	return matches
 }
 
 // GetMatch finds the first Resource matching the given pattern, or nil if none found.
@@ -202,10 +206,6 @@ func (r Resources) Match(pattern string) Resources {
 		}
 	}
 	return matches
-}
-
-func matchesPrefix(r Resource, prefix string) bool {
-	return strings.HasPrefix(strings.ToLower(r.Name()), prefix)
 }
 
 var (
@@ -268,81 +268,180 @@ func (r1 Resources) MergeByLanguageInterface(in interface{}) (interface{}, error
 type Spec struct {
 	*helpers.PathSpec
 
-	mimeTypes media.Types
+	MediaTypes media.Types
+
+	Logger *jww.Notepad
+
+	TextTemplates tpl.TemplateParseFinder
 
 	// Holds default filter settings etc.
 	imaging *Imaging
 
-	imageCache *imageCache
+	imageCache    *imageCache
+	ResourceCache *ResourceCache
 
-	GenImagePath string
+	GenImagePath  string
+	GenAssetsPath string
 }
 
-func NewSpec(s *helpers.PathSpec, mimeTypes media.Types) (*Spec, error) {
+func NewSpec(s *helpers.PathSpec, logger *jww.Notepad, mimeTypes media.Types) (*Spec, error) {
 
 	imaging, err := decodeImaging(s.Cfg.GetStringMap("imaging"))
 	if err != nil {
 		return nil, err
 	}
 
-	genImagePath := filepath.FromSlash("_gen/images")
+	if logger == nil {
+		logger = loggers.NewErrorLogger()
+	}
 
-	return &Spec{PathSpec: s,
-		GenImagePath: genImagePath,
-		imaging:      &imaging, mimeTypes: mimeTypes, imageCache: newImageCache(
+	genImagePath := filepath.FromSlash("_gen/images")
+	// The transformed assets (CSS etc.)
+	genAssetsPath := filepath.FromSlash("_gen/assets")
+
+	rs := &Spec{PathSpec: s,
+		Logger:        logger,
+		GenImagePath:  genImagePath,
+		GenAssetsPath: genAssetsPath,
+		imaging:       &imaging,
+		MediaTypes:    mimeTypes,
+		imageCache: newImageCache(
 			s,
 			// We're going to write a cache pruning routine later, so make it extremely
 			// unlikely that the user shoots him or herself in the foot
 			// and this is set to a value that represents data he/she
 			// cares about. This should be set in stone once released.
 			genImagePath,
-		)}, nil
+		)}
+
+	rs.ResourceCache = newResourceCache(rs)
+
+	return rs, nil
+
 }
 
-func (r *Spec) NewResourceFromFile(
-	targetPathBuilder func(base string) string,
-	file source.File, relTargetFilename string) (Resource, error) {
+type ResourceSourceDescriptor struct {
+	// TargetPathBuilder is a callback to create target paths's relative to its owner.
+	TargetPathBuilder func(base string) string
 
-	return r.newResource(targetPathBuilder, file.Filename(), file.FileInfo(), relTargetFilename)
+	// Need one of these to load the resource content.
+	SourceFile         source.File
+	OpenReadSeekCloser OpenReadSeekCloser
+
+	// If OpenReadSeekerCloser is not set, we use this to open the file.
+	SourceFilename string
+
+	// The relative target filename without any language code.
+	RelTargetFilename string
+
+	// Any base path prepeneded to the permalink.
+	// Typically the language code if this resource should be published to its sub-folder.
+	URLBase string
+
+	// Any base path prepended to the target path. This will also typically be the
+	// language code, but setting it here means that it should not have any effect on
+	// the permalink.
+	TargetPathBase string
+
+	// Delay publishing until either Permalink or RelPermalink is called. Maybe never.
+	LazyPublish bool
 }
 
-func (r *Spec) NewResourceFromFilename(
-	targetPathBuilder func(base string) string,
-	absSourceFilename, relTargetFilename string) (Resource, error) {
-
-	fi, err := r.sourceFs().Stat(absSourceFilename)
-	if err != nil {
-		return nil, err
+func (r ResourceSourceDescriptor) Filename() string {
+	if r.SourceFile != nil {
+		return r.SourceFile.Filename()
 	}
-	return r.newResource(targetPathBuilder, absSourceFilename, fi, relTargetFilename)
+	return r.SourceFilename
 }
 
 func (r *Spec) sourceFs() afero.Fs {
-	return r.PathSpec.BaseFs.ContentFs
+	return r.PathSpec.BaseFs.Content.Fs
 }
 
-func (r *Spec) newResource(
-	targetPathBuilder func(base string) string,
-	absSourceFilename string, fi os.FileInfo, relTargetFilename string) (Resource, error) {
+func (r *Spec) New(fd ResourceSourceDescriptor) (Resource, error) {
+	return r.newResourceForFs(r.sourceFs(), fd)
+}
 
-	var mimeType string
-	ext := filepath.Ext(relTargetFilename)
-	m, found := r.mimeTypes.GetBySuffix(strings.TrimPrefix(ext, "."))
-	if found {
-		mimeType = m.SubType
-	} else {
-		mimeType = mime.TypeByExtension(ext)
-		if mimeType == "" {
-			mimeType = DefaultResourceType
-		} else {
-			mimeType = mimeType[:strings.Index(mimeType, "/")]
+func (r *Spec) NewForFs(sourceFs afero.Fs, fd ResourceSourceDescriptor) (Resource, error) {
+	return r.newResourceForFs(sourceFs, fd)
+}
+
+func (r *Spec) newResourceForFs(sourceFs afero.Fs, fd ResourceSourceDescriptor) (Resource, error) {
+	if fd.OpenReadSeekCloser == nil {
+		if fd.SourceFile != nil && fd.SourceFilename != "" {
+			return nil, errors.New("both SourceFile and AbsSourceFilename provided")
+		} else if fd.SourceFile == nil && fd.SourceFilename == "" {
+			return nil, errors.New("either SourceFile or AbsSourceFilename must be provided")
 		}
 	}
 
-	gr := r.newGenericResource(targetPathBuilder, fi, absSourceFilename, relTargetFilename, mimeType)
+	if fd.URLBase == "" {
+		fd.URLBase = r.GetURLLanguageBasePath()
+	}
 
-	if mimeType == "image" {
-		ext := strings.ToLower(helpers.Ext(absSourceFilename))
+	if fd.TargetPathBase == "" {
+		fd.TargetPathBase = r.GetTargetLanguageBasePath()
+	}
+
+	if fd.RelTargetFilename == "" {
+		fd.RelTargetFilename = fd.Filename()
+	}
+
+	return r.newResource(sourceFs, fd)
+}
+
+func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (Resource, error) {
+	var fi os.FileInfo
+	var sourceFilename string
+
+	if fd.OpenReadSeekCloser != nil {
+
+	} else if fd.SourceFilename != "" {
+		var err error
+		fi, err = sourceFs.Stat(fd.SourceFilename)
+		if err != nil {
+			return nil, err
+		}
+		sourceFilename = fd.SourceFilename
+	} else {
+		fi = fd.SourceFile.FileInfo()
+		sourceFilename = fd.SourceFile.Filename()
+	}
+
+	if fd.RelTargetFilename == "" {
+		fd.RelTargetFilename = sourceFilename
+	}
+
+	ext := filepath.Ext(fd.RelTargetFilename)
+	mimeType, found := r.MediaTypes.GetFirstBySuffix(strings.TrimPrefix(ext, "."))
+	// TODO(bep) we need to handle these ambigous types better, but in this context
+	// we most likely want the application/xml type.
+	if mimeType.Suffix == "xml" && mimeType.SubType == "rss" {
+		mimeType, found = r.MediaTypes.GetByType("application/xml")
+	}
+
+	if !found {
+		mimeStr := mime.TypeByExtension(ext)
+		if mimeStr != "" {
+			mimeType, _ = media.FromString(mimeStr)
+		}
+
+	}
+
+	gr := r.newGenericResourceWithBase(
+		sourceFs,
+		fd.LazyPublish,
+		fd.OpenReadSeekCloser,
+		fd.URLBase,
+		fd.TargetPathBase,
+		fd.TargetPathBuilder,
+		fi,
+		sourceFilename,
+		fd.RelTargetFilename,
+		mimeType)
+
+	if mimeType.MainType == "image" {
+		ext := strings.ToLower(helpers.Ext(sourceFilename))
 
 		imgFormat, ok := imageFormats[ext]
 		if !ok {
@@ -351,27 +450,21 @@ func (r *Spec) newResource(
 			return gr, nil
 		}
 
-		f, err := gr.sourceFs().Open(absSourceFilename)
-		if err != nil {
-			return nil, fmt.Errorf("failed to open image source file: %s", err)
-		}
-		defer f.Close()
-
-		hash, err := helpers.MD5FromFileFast(f)
-		if err != nil {
+		if err := gr.initHash(); err != nil {
 			return nil, err
 		}
 
 		return &Image{
-			hash:            hash,
 			format:          imgFormat,
 			imaging:         r.imaging,
 			genericResource: gr}, nil
 	}
 	return gr, nil
+
 }
 
-func (r *Spec) IsInCache(key string) bool {
+// TODO(bep) unify
+func (r *Spec) IsInImageCache(key string) bool {
 	// This is used for cache pruning. We currently only have images, but we could
 	// imagine expanding on this.
 	return r.imageCache.isInCache(key)
@@ -379,6 +472,11 @@ func (r *Spec) IsInCache(key string) bool {
 
 func (r *Spec) DeleteCacheByPrefix(prefix string) {
 	r.imageCache.deleteByPrefix(prefix)
+}
+
+func (r *Spec) ClearCaches() {
+	r.imageCache.clear()
+	r.ResourceCache.clear()
 }
 
 func (r *Spec) CacheStats() string {
@@ -410,18 +508,54 @@ func (d dirFile) path() string {
 	return path.Join(d.dir, d.file)
 }
 
+type resourcePathDescriptor struct {
+	// The relative target directory and filename.
+	relTargetDirFile dirFile
+
+	// Callback used to construct a target path relative to its owner.
+	targetPathBuilder func(rel string) string
+
+	// baseURLDir is the fixed sub-folder for a resource in permalinks. This will typically
+	// be the language code if we publish to the language's sub-folder.
+	baseURLDir string
+
+	// This will normally be the same as above, but this will only apply to publishing
+	// of resources.
+	baseTargetPathDir string
+
+	// baseOffset is set when the output format's path has a offset, e.g. for AMP.
+	baseOffset string
+}
+
 type resourceContent struct {
 	content     string
 	contentInit sync.Once
 }
 
+type resourceHash struct {
+	hash     string
+	hashInit sync.Once
+}
+
+type publishOnce struct {
+	publisherInit sync.Once
+	publisherErr  error
+	logger        *jww.Notepad
+}
+
+func (l *publishOnce) publish(s Source) error {
+	l.publisherInit.Do(func() {
+		l.publisherErr = s.Publish()
+		if l.publisherErr != nil {
+			l.logger.ERROR.Printf("failed to publish Resource: %s", l.publisherErr)
+		}
+	})
+	return l.publisherErr
+}
+
 // genericResource represents a generic linkable resource.
 type genericResource struct {
-	// The relative path to this resource.
-	relTargetPath dirFile
-
-	// Base is set when the output format's path has a offset, e.g. for AMP.
-	base string
+	resourcePathDescriptor
 
 	title  string
 	name   string
@@ -433,6 +567,12 @@ type genericResource struct {
 	// the path to the file on the real filesystem.
 	sourceFilename string
 
+	// Will be set if this resource is backed by something other than a file.
+	openReadSeekerCloser OpenReadSeekCloser
+
+	// A hash of the source content. Is only calculated in caching situations.
+	*resourceHash
+
 	// This may be set to tell us to look in another filesystem for this resource.
 	// We, by default, use the sourceFs filesystem in the spec below.
 	overriddenSourceFs afero.Fs
@@ -440,20 +580,87 @@ type genericResource struct {
 	spec *Spec
 
 	resourceType string
-	osFileInfo   os.FileInfo
+	mediaType    media.Type
 
-	targetPathBuilder func(rel string) string
+	osFileInfo os.FileInfo
 
 	// We create copies of this struct, so this needs to be a pointer.
 	*resourceContent
+
+	// May be set to signal lazy/delayed publishing.
+	*publishOnce
+}
+
+func (l *genericResource) Data() interface{} {
+	return noData
 }
 
 func (l *genericResource) Content() (interface{}, error) {
+	if err := l.initContent(); err != nil {
+		return nil, err
+	}
+
+	return l.content, nil
+}
+
+func (l *genericResource) ReadSeekCloser() (ReadSeekCloser, error) {
+	if l.openReadSeekerCloser != nil {
+		return l.openReadSeekerCloser()
+	}
+	f, err := l.sourceFs().Open(l.sourceFilename)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
+
+}
+
+func (l *genericResource) MediaType() media.Type {
+	return l.mediaType
+}
+
+// Implement the Cloner interface.
+func (l genericResource) WithNewBase(base string) Resource {
+	l.baseOffset = base
+	l.resourceContent = &resourceContent{}
+	return &l
+}
+
+func (l *genericResource) initHash() error {
+	var err error
+	l.hashInit.Do(func() {
+		var hash string
+		var f ReadSeekCloser
+		f, err = l.ReadSeekCloser()
+		if err != nil {
+			err = fmt.Errorf("failed to open source file: %s", err)
+			return
+		}
+		defer f.Close()
+
+		hash, err = helpers.MD5FromFileFast(f)
+		if err != nil {
+			return
+		}
+		l.hash = hash
+
+	})
+
+	return err
+}
+
+func (l *genericResource) initContent() error {
 	var err error
 	l.contentInit.Do(func() {
-		var b []byte
+		var r ReadSeekCloser
+		r, err = l.ReadSeekCloser()
+		if err != nil {
+			return
+		}
+		defer r.Close()
 
-		b, err := afero.ReadFile(l.sourceFs(), l.AbsSourceFilename())
+		var b []byte
+		b, err = ioutil.ReadAll(r)
 		if err != nil {
 			return
 		}
@@ -462,7 +669,7 @@ func (l *genericResource) Content() (interface{}, error) {
 
 	})
 
-	return l.content, err
+	return err
 }
 
 func (l *genericResource) sourceFs() afero.Fs {
@@ -472,12 +679,36 @@ func (l *genericResource) sourceFs() afero.Fs {
 	return l.spec.sourceFs()
 }
 
+func (l *genericResource) publishIfNeeded() {
+	if l.publishOnce != nil {
+		l.publishOnce.publish(l)
+	}
+}
+
 func (l *genericResource) Permalink() string {
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetPath.path(), false), l.spec.BaseURL.String())
+	l.publishIfNeeded()
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetDirFile.path()), l.spec.BaseURL.HostURL())
 }
 
 func (l *genericResource) RelPermalink() string {
-	return l.relPermalinkForRel(l.relTargetPath.path(), true)
+	l.publishIfNeeded()
+	return l.relPermalinkFor(l.relTargetDirFile.path())
+}
+
+func (l *genericResource) relPermalinkFor(target string) string {
+	return l.relPermalinkForRel(target)
+
+}
+func (l *genericResource) permalinkFor(target string) string {
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target), l.spec.BaseURL.HostURL())
+
+}
+func (l *genericResource) relTargetPathFor(target string) string {
+	return l.relTargetPathForRel(target, false)
+}
+
+func (l *genericResource) relTargetPath() string {
+	return l.relTargetPathForRel(l.targetPath(), false)
 }
 
 func (l *genericResource) Name() string {
@@ -514,31 +745,33 @@ func (l *genericResource) updateParams(params map[string]interface{}) {
 	}
 }
 
-// Implement the Cloner interface.
-func (l genericResource) WithNewBase(base string) Resource {
-	l.base = base
-	l.resourceContent = &resourceContent{}
-	return &l
+func (l *genericResource) relPermalinkForRel(rel string) string {
+	return l.spec.PathSpec.URLizeFilename(l.relTargetPathForRel(rel, true))
 }
 
-func (l *genericResource) relPermalinkForRel(rel string, addBasePath bool) string {
-	return l.spec.PathSpec.URLizeFilename(l.relTargetPathForRel(rel, addBasePath))
-}
+func (l *genericResource) relTargetPathForRel(rel string, isURL bool) string {
 
-func (l *genericResource) relTargetPathForRel(rel string, addBasePath bool) string {
 	if l.targetPathBuilder != nil {
 		rel = l.targetPathBuilder(rel)
 	}
 
-	if l.base != "" {
-		rel = path.Join(l.base, rel)
+	if isURL && l.baseURLDir != "" {
+		rel = path.Join(l.baseURLDir, rel)
 	}
 
-	if addBasePath && l.spec.PathSpec.BasePath != "" {
+	if !isURL && l.baseTargetPathDir != "" {
+		rel = path.Join(l.baseTargetPathDir, rel)
+	}
+
+	if l.baseOffset != "" {
+		rel = path.Join(l.baseOffset, rel)
+	}
+
+	if isURL && l.spec.PathSpec.BasePath != "" {
 		rel = path.Join(l.spec.PathSpec.BasePath, rel)
 	}
 
-	if rel[0] != '/' {
+	if len(rel) == 0 || rel[0] != '/' {
 		rel = "/" + rel
 	}
 
@@ -549,146 +782,100 @@ func (l *genericResource) ResourceType() string {
 	return l.resourceType
 }
 
-func (l *genericResource) AbsSourceFilename() string {
-	return l.sourceFilename
-}
-
 func (l *genericResource) String() string {
 	return fmt.Sprintf("Resource(%s: %s)", l.resourceType, l.name)
 }
 
 func (l *genericResource) Publish() error {
-	f, err := l.sourceFs().Open(l.AbsSourceFilename())
+	f, err := l.ReadSeekCloser()
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	return helpers.WriteToDisk(l.target(), f, l.spec.BaseFs.PublishFs)
+	return helpers.WriteToDisk(l.targetFilename(), f, l.spec.BaseFs.PublishFs)
 }
 
-const counterPlaceHolder = ":counter"
-
-// AssignMetadata assigns the given metadata to those resources that supports updates
-// and matching by wildcard given in `src` using `filepath.Match` with lower cased values.
-// This assignment is additive, but the most specific match needs to be first.
-// The `name` and `title` metadata field support shell-matched collection it got a match in.
-// See https://golang.org/pkg/path/#Match
-func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) error {
-
-	counters := make(map[string]int)
-
-	for _, r := range resources {
-		if _, ok := r.(metaAssigner); !ok {
-			continue
-		}
-
-		var (
-			nameSet, titleSet                   bool
-			nameCounter, titleCounter           = 0, 0
-			nameCounterFound, titleCounterFound bool
-			resourceSrcKey                      = strings.ToLower(r.Name())
-		)
-
-		ma := r.(metaAssigner)
-		for _, meta := range metadata {
-			src, found := meta["src"]
-			if !found {
-				return fmt.Errorf("missing 'src' in metadata for resource")
-			}
-
-			srcKey := strings.ToLower(cast.ToString(src))
-
-			glob, err := getGlob(srcKey)
-			if err != nil {
-				return fmt.Errorf("failed to match resource with metadata: %s", err)
-			}
-
-			match := glob.Match(resourceSrcKey)
-
-			if match {
-				if !nameSet {
-					name, found := meta["name"]
-					if found {
-						name := cast.ToString(name)
-						if !nameCounterFound {
-							nameCounterFound = strings.Contains(name, counterPlaceHolder)
-						}
-						if nameCounterFound && nameCounter == 0 {
-							counterKey := "name_" + srcKey
-							nameCounter = counters[counterKey] + 1
-							counters[counterKey] = nameCounter
-						}
-
-						ma.setName(replaceResourcePlaceholders(name, nameCounter))
-						nameSet = true
-					}
-				}
-
-				if !titleSet {
-					title, found := meta["title"]
-					if found {
-						title := cast.ToString(title)
-						if !titleCounterFound {
-							titleCounterFound = strings.Contains(title, counterPlaceHolder)
-						}
-						if titleCounterFound && titleCounter == 0 {
-							counterKey := "title_" + srcKey
-							titleCounter = counters[counterKey] + 1
-							counters[counterKey] = titleCounter
-						}
-						ma.setTitle((replaceResourcePlaceholders(title, titleCounter)))
-						titleSet = true
-					}
-				}
-
-				params, found := meta["params"]
-				if found {
-					m := cast.ToStringMap(params)
-					// Needed for case insensitive fetching of params values
-					maps.ToLower(m)
-					ma.updateParams(m)
-				}
-			}
-		}
-	}
-
-	return nil
+// Path is stored with Unix style slashes.
+func (l *genericResource) targetPath() string {
+	return l.relTargetDirFile.path()
 }
 
-func replaceResourcePlaceholders(in string, counter int) string {
-	return strings.Replace(in, counterPlaceHolder, strconv.Itoa(counter), -1)
+func (l *genericResource) targetFilename() string {
+	return filepath.Clean(l.relTargetPath())
 }
 
-func (l *genericResource) target() string {
-	target := l.relTargetPathForRel(l.relTargetPath.path(), false)
-	if l.spec.PathSpec.Languages.IsMultihost() {
-		target = path.Join(l.spec.PathSpec.Language.Lang, target)
-	}
-	return filepath.Clean(target)
-}
-
-func (r *Spec) newGenericResource(
+// TODO(bep) clean up below
+func (r *Spec) newGenericResource(sourceFs afero.Fs,
 	targetPathBuilder func(base string) string,
 	osFileInfo os.FileInfo,
 	sourceFilename,
-	baseFilename,
-	resourceType string) *genericResource {
+	baseFilename string,
+	mediaType media.Type) *genericResource {
+	return r.newGenericResourceWithBase(
+		sourceFs,
+		false,
+		nil,
+		"",
+		"",
+		targetPathBuilder,
+		osFileInfo,
+		sourceFilename,
+		baseFilename,
+		mediaType,
+	)
+
+}
+
+func (r *Spec) newGenericResourceWithBase(
+	sourceFs afero.Fs,
+	lazyPublish bool,
+	openReadSeekerCloser OpenReadSeekCloser,
+	urlBaseDir string,
+	targetPathBaseDir string,
+	targetPathBuilder func(base string) string,
+	osFileInfo os.FileInfo,
+	sourceFilename,
+	baseFilename string,
+	mediaType media.Type) *genericResource {
 
 	// This value is used both to construct URLs and file paths, but start
 	// with a Unix-styled path.
-	baseFilename = filepath.ToSlash(baseFilename)
+	baseFilename = helpers.ToSlashTrimLeading(baseFilename)
 	fpath, fname := path.Split(baseFilename)
 
-	return &genericResource{
+	var resourceType string
+	if mediaType.MainType == "image" {
+		resourceType = mediaType.MainType
+	} else {
+		resourceType = mediaType.SubType
+	}
+
+	pathDescriptor := resourcePathDescriptor{
+		baseURLDir:        urlBaseDir,
+		baseTargetPathDir: targetPathBaseDir,
 		targetPathBuilder: targetPathBuilder,
-		osFileInfo:        osFileInfo,
-		sourceFilename:    sourceFilename,
-		relTargetPath:     dirFile{dir: fpath, file: fname},
-		resourceType:      resourceType,
-		spec:              r,
-		params:            make(map[string]interface{}),
-		name:              baseFilename,
-		title:             baseFilename,
-		resourceContent:   &resourceContent{},
+		relTargetDirFile:  dirFile{dir: fpath, file: fname},
+	}
+
+	var po *publishOnce
+	if lazyPublish {
+		po = &publishOnce{logger: r.Logger}
+	}
+
+	return &genericResource{
+		openReadSeekerCloser:   openReadSeekerCloser,
+		publishOnce:            po,
+		resourcePathDescriptor: pathDescriptor,
+		overriddenSourceFs:     sourceFs,
+		osFileInfo:             osFileInfo,
+		sourceFilename:         sourceFilename,
+		mediaType:              mediaType,
+		resourceType:           resourceType,
+		spec:                   r,
+		params:                 make(map[string]interface{}),
+		name:                   baseFilename,
+		title:                  baseFilename,
+		resourceContent:        &resourceContent{},
+		resourceHash:           &resourceHash{},
 	}
 }

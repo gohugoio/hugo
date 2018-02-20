@@ -205,6 +205,9 @@ func TestI18nTranslate(t *testing.T) {
 	v.Set("i18nDir", "i18n")
 	v.Set("layoutDir", "layouts")
 	v.Set("archetypeDir", "archetypes")
+	v.Set("assetDir", "assets")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
 
 	// Test without and with placeholders
 	for _, enablePlaceholders := range []bool{false, true} {

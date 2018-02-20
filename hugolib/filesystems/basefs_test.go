@@ -60,6 +60,10 @@ theme = ["atheme"]
 	setConfigAndWriteSomeFilesTo(fs.Source, v, "staticDir", "mystatic", 6)
 	setConfigAndWriteSomeFilesTo(fs.Source, v, "dataDir", "mydata", 7)
 	setConfigAndWriteSomeFilesTo(fs.Source, v, "archetypeDir", "myarchetypes", 8)
+	setConfigAndWriteSomeFilesTo(fs.Source, v, "assetDir", "myassets", 9)
+	setConfigAndWriteSomeFilesTo(fs.Source, v, "resourceDir", "myrsesource", 10)
+
+	v.Set("publishDir", "public")
 
 	p, err := paths.New(fs, v)
 	assert.NoError(err)
@@ -88,12 +92,15 @@ theme = ["atheme"]
 	_, err = ff.Readdirnames(-1)
 	assert.NoError(err)
 
-	checkFileCount(bfs.ContentFs, "", assert, 3)
+	checkFileCount(bfs.Content.Fs, "", assert, 3)
 	checkFileCount(bfs.I18n.Fs, "", assert, 6) // 4 + 2 themes
 	checkFileCount(bfs.Layouts.Fs, "", assert, 5)
 	checkFileCount(bfs.Static[""].Fs, "", assert, 6)
 	checkFileCount(bfs.Data.Fs, "", assert, 9) // 7 + 2 themes
 	checkFileCount(bfs.Archetypes.Fs, "", assert, 8)
+	checkFileCount(bfs.Assets.Fs, "", assert, 9)
+	checkFileCount(bfs.Resources.Fs, "", assert, 10)
+	checkFileCount(bfs.Work.Fs, "", assert, 57)
 
 	assert.Equal([]string{filepath.FromSlash("/my/work/mydata"), filepath.FromSlash("/my/work/themes/btheme/data"), filepath.FromSlash("/my/work/themes/atheme/data")}, bfs.Data.Dirnames)
 
@@ -101,15 +108,16 @@ theme = ["atheme"]
 	assert.True(bfs.IsI18n(filepath.Join(workingDir, "myi18n", "file1.txt")))
 	assert.True(bfs.IsLayout(filepath.Join(workingDir, "mylayouts", "file1.txt")))
 	assert.True(bfs.IsStatic(filepath.Join(workingDir, "mystatic", "file1.txt")))
+	assert.True(bfs.IsAsset(filepath.Join(workingDir, "myassets", "file1.txt")))
+
 	contentFilename := filepath.Join(workingDir, "mycontent", "file1.txt")
 	assert.True(bfs.IsContent(contentFilename))
-	rel, _ := bfs.RelContentDir(contentFilename)
+	rel := bfs.RelContentDir(contentFilename)
 	assert.Equal("file1.txt", rel)
 
 }
 
-func TestNewBaseFsEmpty(t *testing.T) {
-	assert := require.New(t)
+func createConfig() *viper.Viper {
 	v := viper.New()
 	v.Set("contentDir", "mycontent")
 	v.Set("i18nDir", "myi18n")
@@ -117,18 +125,90 @@ func TestNewBaseFsEmpty(t *testing.T) {
 	v.Set("dataDir", "mydata")
 	v.Set("layoutDir", "mylayouts")
 	v.Set("archetypeDir", "myarchetypes")
+	v.Set("assetDir", "myassets")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
 
+	return v
+}
+
+func TestNewBaseFsEmpty(t *testing.T) {
+	assert := require.New(t)
+	v := createConfig()
 	fs := hugofs.NewMem(v)
 	p, err := paths.New(fs, v)
+	assert.NoError(err)
 	bfs, err := NewBase(p)
 	assert.NoError(err)
 	assert.NotNil(bfs)
 	assert.Equal(hugofs.NoOpFs, bfs.Archetypes.Fs)
 	assert.Equal(hugofs.NoOpFs, bfs.Layouts.Fs)
 	assert.Equal(hugofs.NoOpFs, bfs.Data.Fs)
+	assert.Equal(hugofs.NoOpFs, bfs.Assets.Fs)
 	assert.Equal(hugofs.NoOpFs, bfs.I18n.Fs)
-	assert.NotNil(hugofs.NoOpFs, bfs.ContentFs)
-	assert.NotNil(hugofs.NoOpFs, bfs.Static)
+	assert.NotNil(bfs.Work.Fs)
+	assert.NotNil(bfs.Content.Fs)
+	assert.NotNil(bfs.Static)
+}
+
+func TestRealDirs(t *testing.T) {
+	assert := require.New(t)
+	v := createConfig()
+	fs := hugofs.NewDefault(v)
+	sfs := fs.Source
+
+	root, err := afero.TempDir(sfs, "", "realdir")
+	assert.NoError(err)
+	themesDir, err := afero.TempDir(sfs, "", "themesDir")
+	assert.NoError(err)
+	defer func() {
+		os.RemoveAll(root)
+		os.RemoveAll(themesDir)
+	}()
+
+	v.Set("workingDir", root)
+	v.Set("contentDir", "content")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
+	v.Set("themesDir", themesDir)
+	v.Set("theme", "mytheme")
+
+	assert.NoError(sfs.MkdirAll(filepath.Join(root, "myassets", "scss", "sf1"), 0755))
+	assert.NoError(sfs.MkdirAll(filepath.Join(root, "myassets", "scss", "sf2"), 0755))
+	assert.NoError(sfs.MkdirAll(filepath.Join(themesDir, "mytheme", "assets", "scss", "sf2"), 0755))
+	assert.NoError(sfs.MkdirAll(filepath.Join(themesDir, "mytheme", "assets", "scss", "sf3"), 0755))
+	assert.NoError(sfs.MkdirAll(filepath.Join(root, "resources"), 0755))
+	assert.NoError(sfs.MkdirAll(filepath.Join(themesDir, "mytheme", "resources"), 0755))
+
+	assert.NoError(sfs.MkdirAll(filepath.Join(root, "myassets", "js", "f2"), 0755))
+
+	afero.WriteFile(sfs, filepath.Join(filepath.Join(root, "myassets", "scss", "sf1", "a1.scss")), []byte("content"), 0755)
+	afero.WriteFile(sfs, filepath.Join(filepath.Join(root, "myassets", "scss", "sf2", "a3.scss")), []byte("content"), 0755)
+	afero.WriteFile(sfs, filepath.Join(filepath.Join(root, "myassets", "scss", "a2.scss")), []byte("content"), 0755)
+	afero.WriteFile(sfs, filepath.Join(filepath.Join(themesDir, "mytheme", "assets", "scss", "sf2", "a3.scss")), []byte("content"), 0755)
+	afero.WriteFile(sfs, filepath.Join(filepath.Join(themesDir, "mytheme", "assets", "scss", "sf3", "a4.scss")), []byte("content"), 0755)
+
+	afero.WriteFile(sfs, filepath.Join(filepath.Join(themesDir, "mytheme", "resources", "t1.txt")), []byte("content"), 0755)
+	afero.WriteFile(sfs, filepath.Join(filepath.Join(root, "resources", "p1.txt")), []byte("content"), 0755)
+	afero.WriteFile(sfs, filepath.Join(filepath.Join(root, "resources", "p2.txt")), []byte("content"), 0755)
+
+	afero.WriteFile(sfs, filepath.Join(filepath.Join(root, "myassets", "js", "f2", "a1.js")), []byte("content"), 0755)
+	afero.WriteFile(sfs, filepath.Join(filepath.Join(root, "myassets", "js", "a2.js")), []byte("content"), 0755)
+
+	p, err := paths.New(fs, v)
+	assert.NoError(err)
+	bfs, err := NewBase(p)
+	assert.NoError(err)
+	assert.NotNil(bfs)
+	checkFileCount(bfs.Assets.Fs, "", assert, 6)
+
+	realDirs := bfs.Assets.RealDirs("scss")
+	assert.Equal(2, len(realDirs))
+	assert.Equal(filepath.Join(root, "myassets/scss"), realDirs[0])
+	assert.Equal(filepath.Join(themesDir, "mytheme/assets/scss"), realDirs[len(realDirs)-1])
+
+	checkFileCount(bfs.Resources.Fs, "", assert, 3)
+
 }
 
 func checkFileCount(fs afero.Fs, dirname string, assert *require.Assertions, expected int) {

@@ -33,7 +33,9 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 	cfg.Set("dataDir", "data")
 	cfg.Set("i18nDir", "i18n")
 	cfg.Set("layoutDir", "layouts")
+	cfg.Set("assetDir", "assets")
 	cfg.Set("archetypeDir", "archetypes")
+	cfg.Set("publishDir", "public")
 
 	imagingCfg := map[string]interface{}{
 		"resampleFilter": "linear",
@@ -49,7 +51,7 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 
 	assert.NoError(err)
 
-	spec, err := NewSpec(s, media.DefaultTypes)
+	spec, err := NewSpec(s, nil, media.DefaultTypes)
 	assert.NoError(err)
 	return spec
 }
@@ -72,7 +74,9 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 	cfg.Set("dataDir", "data")
 	cfg.Set("i18nDir", "i18n")
 	cfg.Set("layoutDir", "layouts")
+	cfg.Set("assetDir", "assets")
 	cfg.Set("archetypeDir", "archetypes")
+	cfg.Set("publishDir", "public")
 
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 	fs.Destination = &afero.MemMapFs{}
@@ -81,7 +85,7 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 
 	assert.NoError(err)
 
-	spec, err := NewSpec(s, media.DefaultTypes)
+	spec, err := NewSpec(s, nil, media.DefaultTypes)
 	assert.NoError(err)
 	return spec
 
@@ -102,12 +106,11 @@ func fetchImageForSpec(spec *Spec, assert *require.Assertions, name string) *Ima
 	return r.(*Image)
 }
 
-func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) Resource {
+func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) ContentResource {
 	src, err := os.Open(filepath.FromSlash("testdata/" + name))
 	assert.NoError(err)
 
-	assert.NoError(spec.BaseFs.ContentFs.MkdirAll(filepath.Dir(name), 0755))
-	out, err := spec.BaseFs.ContentFs.Create(name)
+	out, err := openFileForWriting(spec.BaseFs.Content.Fs, name)
 	assert.NoError(err)
 	_, err = io.Copy(out, src)
 	out.Close()
@@ -118,10 +121,10 @@ func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) R
 		return path.Join("/a", s)
 	}
 
-	r, err := spec.NewResourceFromFilename(factory, name, name)
+	r, err := spec.New(ResourceSourceDescriptor{TargetPathBuilder: factory, SourceFilename: name})
 	assert.NoError(err)
 
-	return r
+	return r.(ContentResource)
 }
 
 func assertImageFile(assert *require.Assertions, fs afero.Fs, filename string, width, height int) {
