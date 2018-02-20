@@ -4,13 +4,13 @@ title: StackImpact
 
 date: 2018-02-20
 
-description: "Hugo is a perfect choice for a product website."
+description: "\"Hugo is a perfect choice for a product website.\""
 
 siteURL: https://stackimpact.com/
 
 ---
 
-After gradually handing over the control of our website to WordPress plugins, we realized that we need to act.
+After gradually handing over the control of our website to WordPress plugins, we realized that we needed to act.
 
 Static web sites have natural advantages such as security, performance and content versioning (e.g. with Git). Static site generators such as Hugo made static websites cool again. Importantly, the best practices of software development (e.g. peer reviews, multi-stage deployments, rollbacks) can now be easily applied to websites.
 
