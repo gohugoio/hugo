@@ -70,7 +70,7 @@ choco install hugo -confirm
 
 #### Vendored Dependencies
 
-Hugo uses [dep][] to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository. Therefore, a simple `go get` is *not* supported because the command is not vendor aware. 
+Hugo uses [dep][] to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository. Therefore, a simple `go get` is *not* supported because the command is not vendor aware.
 
 The simplest way is to use [mage][] (a Make alternative for Go projects.)
 
@@ -79,7 +79,7 @@ The simplest way is to use [mage][] (a Make alternative for Go projects.)
 {{< code file="from-gh.sh" >}}
 go get github.com/magefile/mage
 go get -d github.com/gohugoio/hugo
-cd $HOME/go/src/github.com/gohugoio/hugo
+cd ${GOPATH:-$HOME/go}/src/github.com/gohugoio/hugo
 mage vendor
 mage install
 {{< /code >}}

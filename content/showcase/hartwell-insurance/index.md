@@ -12,15 +12,15 @@ byline: "[Trys Mudford](http://www.trysmudford.com), Lead Developer, Tomango"
 
 ---
 
-We’ve just launched a shiny new website for [Hartwell Insurance](https://www.hartwell-insurance.com/) – I’m really proud of it. It was tackled it in a different way to most previous Tomango site builds, using some fancy new tools and some vintage web standards.
+We’ve just launched a shiny new website for [Hartwell Insurance](https://www.hartwell-insurance.com/) – I’m really proud of it. It was tackled in a different way to most previous Tomango site builds, using some fancy new tools and some vintage web standards.
 
-It’s multi-page, single-page (!) website written in Hugo, a static site generator built with performance as a first-class feature. _I’ve outlined a load of benefits to Hugo & static sites [here](https://why-static.netlify.com/), in case you’re interested._
+It’s a multi-page, single-page (!) website written in Hugo, a static site generator built with performance as a first-class feature. _I’ve outlined a load of benefits to Hugo & static sites [here](https://why-static.netlify.com/), in case you’re interested._
 
 > **In essence, a static site generator pre-renders the whole site into HTML files and serves them like it’s 1995.**
 
 There’s no Apache or Node backend that does compilation at runtime, it’s all done at the build step. This means the server; Netlify in this case, only has to do one thing – serve files. Unsurprisingly, serving simple files is VERY quick.
 
-The starter point was the [victor-hugo](https://github.com/netlify/victor-hugo) repository that Netlify have created. It let me dive in with Hugo, PostCSS, BrowserSync and ES6 without setting up any tooling myself – always a win!
+The starter point was the [Victor Hugo](https://github.com/netlify/victor-hugo) repository that Netlify have created. It let me dive in with Hugo, PostCSS, BrowserSync and ES6 without setting up any tooling myself – always a win!
 
 I then took all the content from the design file and moved it into Markdown, putting shortcodes in where necessary. This site did need a number of custom shortcodes for the presentational elements like the expanding circles and full width backgrounds. But mostly it was just clean, semantic HTML with some CSS and JS enhancement thrown in.
 

@@ -20,6 +20,14 @@ wip: false
 aliases: [/tutorials/hosting-on-gitlab/]
 ---
 
+{{% warning %}}
+GitLab has temporarily turned off custom domains support because of a security issue. The plan is to re-enable it after the 20th of February.
+For more information:
+https://about.gitlab.com/2018/02/05/gitlab-pages-custom-domain-validation/
+{{% /warning %}}
+
+{{< todo >}}Remove the above when fixed.{{< /todo >}}
+
 [GitLab](https://gitlab.com/) makes it incredibly easy to build, deploy, and host your Hugo website via their free GitLab Pages service, which provides [native support for Hugo, as well as numerous other static site generators](https://gitlab.com/pages/hugo).
 
 ## Assumptions

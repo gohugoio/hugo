@@ -11,7 +11,7 @@
 		{{/* Functionality located within filesaver.js The copy here is located in the css with .copy class so it can be replaced with JS on success */}}
 	{{end}}
 	<div class="code-copy-content nt3" {{with .Get "download"}}id="{{.}}"{{end}}>
-		{{ if $isHTML }}{{- highlight .Inner  "html" "" | -}}{{ else }}<pre><code>{{- .Inner | string -}}</code></pre>{{ end }}
+	  	{{ if  .Get "nocode" }}{{ .Inner }}{{ else }}{{ if $isHTML }}{{- highlight .Inner  "html" "" | -}}{{ else }}<pre><code>{{- .Inner | string -}}</code></pre>{{ end }}{{ end }}
 	</div>
 
 </div>
