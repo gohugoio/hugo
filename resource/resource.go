@@ -332,7 +332,7 @@ func (r *Spec) CacheStats() string {
 	s := fmt.Sprintf("Cache entries: %d", len(r.imageCache.store))
 
 	count := 0
-	for k, _ := range r.imageCache.store {
+	for k := range r.imageCache.store {
 		if count > 5 {
 			break
 		}

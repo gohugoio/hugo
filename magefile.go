@@ -122,7 +122,7 @@ func TestRace() error {
 
 // Run gofmt linter
 func Fmt() error {
-	if isGoTip() {
+	if !isGoLatest() {
 		return nil
 	}
 	pkgs, err := hugoPackages()
@@ -258,6 +258,6 @@ func CheckVendor() error {
 	return nil
 }
 
-func isGoTip() bool {
-	return strings.Contains(runtime.Version(), "devel") || strings.Contains(runtime.Version(), "1.10")
+func isGoLatest() bool {
+	return strings.Contains(runtime.Version(), "1.10")
 }

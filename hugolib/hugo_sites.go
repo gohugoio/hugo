@@ -739,7 +739,7 @@ func (m *contentChangeMap) GetSymbolicLinkMappings(dir string) []string {
 	}
 	dirs := make([]string, len(mm))
 	i := 0
-	for dir, _ := range mm {
+	for dir := range mm {
 		dirs[i] = dir
 		i++
 	}

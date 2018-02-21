@@ -41,14 +41,14 @@ type processingStatsTitleVal struct {
 
 func (s *ProcessingStats) toVals() []processingStatsTitleVal {
 	return []processingStatsTitleVal{
-		processingStatsTitleVal{"Pages", s.Pages},
-		processingStatsTitleVal{"Paginator pages", s.PaginatorPages},
-		processingStatsTitleVal{"Non-page files", s.Files},
-		processingStatsTitleVal{"Static files", s.Static},
-		processingStatsTitleVal{"Processed images", s.ProcessedImages},
-		processingStatsTitleVal{"Aliases", s.Aliases},
-		processingStatsTitleVal{"Sitemaps", s.Sitemaps},
-		processingStatsTitleVal{"Cleaned", s.Cleaned},
+		{"Pages", s.Pages},
+		{"Paginator pages", s.PaginatorPages},
+		{"Non-page files", s.Files},
+		{"Static files", s.Static},
+		{"Processed images", s.ProcessedImages},
+		{"Aliases", s.Aliases},
+		{"Sitemaps", s.Sitemaps},
+		{"Cleaned", s.Cleaned},
 	}
 }
 

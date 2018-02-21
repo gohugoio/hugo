@@ -198,7 +198,7 @@ func TestAssignMetadata(t *testing.T) {
 		assertFunc func(err error)
 	}{
 		{[]map[string]interface{}{
-			map[string]interface{}{
+			{
 				"title": "My Resource",
 				"name":  "My Name",
 				"src":   "*",
@@ -210,11 +210,11 @@ func TestAssignMetadata(t *testing.T) {
 
 		}},
 		{[]map[string]interface{}{
-			map[string]interface{}{
+			{
 				"title": "My Logo",
 				"src":   "*loGo*",
 			},
-			map[string]interface{}{
+			{
 				"title": "My Resource",
 				"name":  "My Name",
 				"src":   "*",
@@ -229,7 +229,7 @@ func TestAssignMetadata(t *testing.T) {
 
 		}},
 		{[]map[string]interface{}{
-			map[string]interface{}{
+			{
 				"title": "My Logo",
 				"src":   "*loGo*",
 				"params": map[string]interface{}{
@@ -237,7 +237,7 @@ func TestAssignMetadata(t *testing.T) {
 					"icon":   "logo",
 				},
 			},
-			map[string]interface{}{
+			{
 				"title": "My Resource",
 				"src":   "*",
 				"params": map[string]interface{}{
@@ -269,11 +269,11 @@ func TestAssignMetadata(t *testing.T) {
 
 		}},
 		{[]map[string]interface{}{
-			map[string]interface{}{
+			{
 				"name": "Logo Name #:counter",
 				"src":  "*logo*",
 			},
-			map[string]interface{}{
+			{
 				"title": "Resource #:counter",
 				"name":  "Name #:counter",
 				"src":   "*",
@@ -293,11 +293,11 @@ func TestAssignMetadata(t *testing.T) {
 
 		}},
 		{[]map[string]interface{}{
-			map[string]interface{}{
+			{
 				"title": "Third Logo #:counter",
 				"src":   "logo3.png",
 			},
-			map[string]interface{}{
+			{
 				"title": "Other Logo #:counter",
 				"name":  "Name #:counter",
 				"src":   "logo*",
@@ -313,11 +313,11 @@ func TestAssignMetadata(t *testing.T) {
 
 		}},
 		{[]map[string]interface{}{
-			map[string]interface{}{
+			{
 				"title": "Third Logo",
 				"src":   "logo3.png",
 			},
-			map[string]interface{}{
+			{
 				"title": "Other Logo #:counter",
 				"name":  "Name #:counter",
 				"src":   "logo*",
@@ -333,11 +333,11 @@ func TestAssignMetadata(t *testing.T) {
 
 		}},
 		{[]map[string]interface{}{
-			map[string]interface{}{
+			{
 				"name": "third-logo",
 				"src":  "logo3.png",
 			},
-			map[string]interface{}{
+			{
 				"title": "Logo #:counter",
 				"name":  "Name #:counter",
 				"src":   "logo*",
@@ -353,7 +353,7 @@ func TestAssignMetadata(t *testing.T) {
 
 		}},
 		{[]map[string]interface{}{
-			map[string]interface{}{
+			{
 				"title": "Third Logo #:counter",
 			},
 		}, func(err error) {
@@ -362,7 +362,7 @@ func TestAssignMetadata(t *testing.T) {
 
 		}},
 		{[]map[string]interface{}{
-			map[string]interface{}{
+			{
 				"title": "Title",
 				"src":   "[]",
 			},
@@ -469,12 +469,12 @@ func BenchmarkAssignMetadata(b *testing.B) {
 		b.StopTimer()
 		var resources Resources
 		var meta = []map[string]interface{}{
-			map[string]interface{}{
+			{
 				"title": "Foo #:counter",
 				"name":  "Foo Name #:counter",
 				"src":   "foo1*",
 			},
-			map[string]interface{}{
+			{
 				"title": "Rest #:counter",
 				"name":  "Rest Name #:counter",
 				"src":   "*",
