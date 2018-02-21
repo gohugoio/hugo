@@ -74,7 +74,7 @@
 
 [[constraint]]
   name = "github.com/russross/blackfriday"
-  version = "^1.5.0"
+  branch = "master"
 
 [[constraint]]
   name = "github.com/spf13/afero"
