@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -985,6 +985,25 @@ Page With empty front matter`
 	zero_FM = "Page With empty front matter"
 )
 
+/*func TestPageWithFilenameDateAsFallback(t *testing.T) {
+	t.Parallel()
+	cfg, fs := newTestCfg()
+
+	var tests = []struct {
+	}{}
+
+	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageRFC3339Date)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 1)
+
+	p := s.RegularPages[0]
+	d, _ := time.Parse(time.RFC3339, "2013-05-17T16:59:30Z")
+
+	checkPageDate(t, p, d)
+}
+*/
 func TestMetadataDates(t *testing.T) {
 	t.Parallel()
 	var tests = []struct {
@@ -1870,6 +1889,43 @@ tags:
 
 			})
 		}
+	}
+}
+
+func TestDateAndSlugFromBaseFilename(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	tests := []struct {
+		name string
+		date string
+		slug string
+	}{
+		{"page.md", "0001-01-01", ""},
+		{"2012-09-12-page.md", "2012-09-12", "page"},
+		{"2018-02-28-page.md", "2018-02-28", "page"},
+		{"2018-02-28_page.md", "2018-02-28", "page"},
+		{"2018-02-28 page.md", "2018-02-28", "page"},
+		{"2018-02-28page.md", "2018-02-28", "page"},
+		{"2018-02-28-.md", "2018-02-28", ""},
+		{"2018-02-28-.md", "2018-02-28", ""},
+		{"2018-02-28.md", "2018-02-28", ""},
+		{"2018-02-28-page", "2018-02-28", "page"},
+		{"2012-9-12-page.md", "0001-01-01", ""},
+		{"asdfasdf.md", "0001-01-01", ""},
+	}
+
+	for i, test := range tests {
+		expectedDate, err := time.Parse("2006-01-02", test.date)
+		assert.NoError(err)
+
+		errMsg := fmt.Sprintf("Test %d", i)
+		gotDate, gotSlug := dateAndSlugFromBaseFilename(test.name)
+
+		assert.Equal(expectedDate, gotDate, errMsg)
+		assert.Equal(test.slug, gotSlug, errMsg)
+
 	}
 }
 

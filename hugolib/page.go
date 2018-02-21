@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1115,6 +1115,9 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 	// Needed for case insensitive fetching of params values
 	helpers.ToLowerMap(frontmatter)
 
+	// Handle the date separately
+	p.s.frontmatterConfig.handleDate(frontmatter, p)
+
 	var modified time.Time
 
 	var err error
@@ -1151,11 +1154,7 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 			p.Keywords = cast.ToStringSlice(v)
 			p.params[loki] = p.Keywords
 		case "date":
-			p.Date, err = cast.ToTimeE(v)
-			if err != nil {
-				p.s.Log.ERROR.Printf("Failed to parse date '%v' in page %s", v, p.File.Path())
-			}
-			p.params[loki] = p.Date
+			// Handled separately.
 		case "headless":
 			// For now, only the leaf bundles ("index.md") can be headless (i.e. produce no output).
 			// We may expand on this in the future, but that gets more complex pretty fast.
@@ -1371,6 +1370,30 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 	p.params["iscjklanguage"] = p.isCJKLanguage
 
 	return nil
+}
+
+// A Zero date is a signal that the name can not be parsed.
+// This follows the format as outlined in Jekyll, https://jekyllrb.com/docs/posts/:
+// "Where YEAR is a four-digit number, MONTH and DAY are both two-digit numbers"
+func dateAndSlugFromBaseFilename(name string) (time.Time, string) {
+	withoutExt, _ := helpers.FileAndExt(name)
+
+	if len(withoutExt) < 10 {
+		// This can not be a date.
+		return time.Time{}, ""
+	}
+
+	// Note: Hugo currently have no custom timezone support.
+	// We will have to revisit this when that is in place.
+	d, err := time.Parse("2006-01-02", withoutExt[:10])
+	if err != nil {
+		return time.Time{}, ""
+	}
+
+	// Be a little lenient with the format here.
+	slug := strings.Trim(withoutExt[10:], " -_")
+
+	return d, slug
 }
 
 func (p *Page) GetParam(key string) interface{} {

@@ -121,6 +121,9 @@ type Site struct {
 	outputFormatsConfig output.Formats
 	mediaTypesConfig    media.Types
 
+	// How to handle page front matter.
+	frontmatterConfig frontmatterConfig
+
 	// We render each site for all the relevant output formats in serial with
 	// this rendering context pointing to the current one.
 	rc *siteRenderingContext
@@ -177,6 +180,7 @@ func (s *Site) reset() *Site {
 		relatedDocsHandler:  newSearchIndexHandler(s.relatedDocsHandler.cfg),
 		outputFormats:       s.outputFormats,
 		outputFormatsConfig: s.outputFormatsConfig,
+		frontmatterConfig:   s.frontmatterConfig,
 		mediaTypesConfig:    s.mediaTypesConfig,
 		resourceSpec:        s.resourceSpec,
 		Language:            s.Language,
@@ -248,6 +252,11 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 
 	titleFunc := helpers.GetTitleFunc(cfg.Language.GetString("titleCaseStyle"))
 
+	fmConfig, err := newFrontmatterConfig(cfg.Logger, cfg.Cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	s := &Site{
 		PageCollections:     c,
 		layoutHandler:       output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""),
@@ -258,6 +267,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		outputFormats:       outputFormats,
 		outputFormatsConfig: siteOutputFormatsConfig,
 		mediaTypesConfig:    siteMediaTypesConfig,
+		frontmatterConfig:   fmConfig,
 	}
 
 	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
