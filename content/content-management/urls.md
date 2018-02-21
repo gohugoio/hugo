@@ -118,7 +118,7 @@ aliases:
 ---
 {{< /code >}}
 
-Now when you visit any of the locations specified in aliases---i.e., *assuming the same site domain*---you'll be redirected to the page they are specified on. For example, a visitor to `example.com/posts/my-original-url/` will be immediately redirected to `example.com/posts/my-awesome-blog-post/`.
+Now when you visit any of the locations specified in aliases---i.e., *assuming the same site domain*---you'll be redirected to the page they are specified on. For example, a visitor to `example.com/posts/my-original-url/` will be immediately redirected to `example.com/posts/my-awesome-post/`.
 
 ### Example: Aliases in Multilingual
 
@@ -222,7 +222,7 @@ Here's the same organization run with `hugo --uglyURLs`:
 .
 └── content
     └── about
-    |   └── _index.md  // <- https://example.com/about/index.html
+    |   └── _index.md  // <- https://example.com/about.html
     ├── post
     |   ├── firstpost.md   // <- https://example.com/post/firstpost.html
     |   ├── happy

@@ -18,6 +18,7 @@
 @import '_content';
 @import '_content-tables';
 @import '_definition-lists';
+@import '_fluid-type';
 @import '_font-family';
 /*@import '_hljs';*/
 @import '_hugo-internal-template-styling';

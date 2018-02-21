@@ -44,6 +44,7 @@ Usage:
 
 Available Commands:
   benchmark   Benchmark Hugo by building a site a number of times.
+  check       Contains some verification checks
   config      Print the site configuration
   convert     Convert your content to different formats
   env         Print Hugo version and environment info
@@ -61,18 +62,16 @@ Flags:
   -E, --buildExpired               include expired content
   -F, --buildFuture                include content with publishdate in the future
       --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-      --canonifyURLs               if true, all relative URLs will be canonicalized using baseURL
+      --canonifyURLs               (deprecated) if true, all relative URLs will be canonicalized using baseURL
       --cleanDestinationDir        remove files from destination not found in static directories
       --config string              config file (default is path/config.yaml|json|toml)
   -c, --contentDir string          filesystem path to content directory
       --debug                      debug output
   -d, --destination string         filesystem path to write files to
-      --disable404                 do not render 404 page
       --disableKinds stringSlice   disable different kind of pages (home, RSS etc.)
-      --disableRSS                 do not build RSS files
-      --disableSitemap             do not build Sitemap file
       --enableGitInfo              add Git revision, date and author info to the pages
       --forceSyncStatic            copy all files when static is changed.
+      --gc                         enable to run some cleanup tasks (remove unused cache files) after the build
   -h, --help                       help for hugo
       --i18n-warnings              print missing translations
       --ignoreCache                ignores the cache directory
@@ -81,22 +80,20 @@ Flags:
       --logFile string             log File path (if set, logging enabled automatically)
       --noChmod                    don't sync permission mode of files
       --noTimes                    don't sync modification time of files
-      --pluralizeListTitles        pluralize titles in lists using inflect (default true)
-      --preserveTaxonomyNames      preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
+      --pluralizeListTitles        (deprecated) pluralize titles in lists using inflect (default true)
+      --preserveTaxonomyNames      (deprecated) preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
       --quiet                      build in quiet mode
       --renderToMemory             render to memory (only useful for benchmark testing)
   -s, --source string              filesystem path to read files relative from
       --stepAnalysis               display memory and timing of different steps of the program
       --templateMetrics            display metrics about template executions
+      --templateMetricsHints       calculate some improvement hints when combined with --templateMetrics
   -t, --theme string               theme to use (located in /themes/THEMENAME/)
       --themesDir string           filesystem path to themes directory
-      --uglyURLs                   if true, use /filename.html instead of /filename/
+      --uglyURLs                   (deprecated) if true, use /filename.html instead of /filename/
   -v, --verbose                    verbose output
       --verboseLog                 verbose logging
   -w, --watch                      watch filesystem for changes and recreate as needed
-
-Additional help topics:
-  hugo check     Contains some verification checks
 
 Use "hugo [command] --help" for more information about a command.
 ```
