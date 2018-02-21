@@ -14,7 +14,9 @@
 package hugolib
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -36,4 +38,45 @@ func TestNewFrontmatterConfig(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(2, len(fc.dateHandlers))
 
+}
+
+func TestDateAndSlugFromBaseFilename(t *testing.T) {
+
+	t.Parallel()
+
+	assert := require.New(t)
+
+	fc, err := newFrontmatterConfig(newWarningLogger(), viper.New())
+	assert.NoError(err)
+
+	tests := []struct {
+		name string
+		date string
+		slug string
+	}{
+		{"page.md", "0001-01-01", ""},
+		{"2012-09-12-page.md", "2012-09-12", "page"},
+		{"2018-02-28-page.md", "2018-02-28", "page"},
+		{"2018-02-28_page.md", "2018-02-28", "page"},
+		{"2018-02-28 page.md", "2018-02-28", "page"},
+		{"2018-02-28page.md", "2018-02-28", "page"},
+		{"2018-02-28-.md", "2018-02-28", ""},
+		{"2018-02-28-.md", "2018-02-28", ""},
+		{"2018-02-28.md", "2018-02-28", ""},
+		{"2018-02-28-page", "2018-02-28", "page"},
+		{"2012-9-12-page.md", "0001-01-01", ""},
+		{"asdfasdf.md", "0001-01-01", ""},
+	}
+
+	for i, test := range tests {
+		expectedDate, err := time.Parse("2006-01-02", test.date)
+		assert.NoError(err)
+
+		errMsg := fmt.Sprintf("Test %d", i)
+		gotDate, gotSlug := fc.dateAndSlugFromBaseFilename(test.name)
+
+		assert.Equal(expectedDate, gotDate, errMsg)
+		assert.Equal(test.slug, gotSlug, errMsg)
+
+	}
 }

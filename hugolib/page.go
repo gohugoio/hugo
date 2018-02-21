@@ -140,9 +140,6 @@ type Page struct {
 	Draft     bool
 	Status    string
 
-	PublishDate time.Time
-	ExpiryDate  time.Time
-
 	// PageMeta contains page stats such as word count etc.
 	PageMeta
 
@@ -223,8 +220,7 @@ type Page struct {
 	Keywords    []string
 	Data        map[string]interface{}
 
-	Date    time.Time
-	Lastmod time.Time
+	PageDates
 
 	Sitemap Sitemap
 	URLPath
@@ -262,6 +258,13 @@ type Page struct {
 	mainPageOutput *PageOutput
 
 	targetPathDescriptorPrototype *targetPathDescriptor
+}
+
+type PageDates struct {
+	Date        time.Time
+	Lastmod     time.Time
+	PublishDate time.Time
+	ExpiryDate  time.Time
 }
 
 // SearchKeywords implements the related.Document interface needed for fast page searches.
@@ -1115,15 +1118,33 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 	// Needed for case insensitive fetching of params values
 	helpers.ToLowerMap(frontmatter)
 
+	descriptor := frontMatterDescriptor{frontmatter: frontmatter, params: p.params, baseFilename: p.BaseFileName()}
+
 	// Handle the date separately
-	p.s.frontmatterConfig.handleDate(frontmatter, p)
+	dates, err := p.s.frontmatterConfig.handleDates(descriptor)
+	if err != nil {
+		p.s.Log.ERROR.Printf("Failed to handle dates for page %q: %s", p.Path(), err)
+	} else {
+		p.PageDates = dates
+	}
 
-	var modified time.Time
-
-	var err error
 	var draft, published, isCJKLanguage *bool
 	for k, v := range frontmatter {
 		loki := strings.ToLower(k)
+
+		if loki == "published" { // Intentionally undocumented
+			vv, err := cast.ToBoolE(v)
+			if err == nil {
+				published = &vv
+			}
+			// published may also be a date
+			continue
+		}
+
+		if p.s.frontmatterConfig.isDateKey(loki) {
+			continue
+		}
+
 		switch loki {
 		case "title":
 			p.title = cast.ToString(v)
@@ -1153,8 +1174,6 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		case "keywords":
 			p.Keywords = cast.ToStringSlice(v)
 			p.params[loki] = p.Keywords
-		case "date":
-			// Handled separately.
 		case "headless":
 			// For now, only the leaf bundles ("index.md") can be headless (i.e. produce no output).
 			// We may expand on this in the future, but that gets more complex pretty fast.
@@ -1162,19 +1181,6 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 				p.headless = cast.ToBool(v)
 			}
 			p.params[loki] = p.headless
-		case "lastmod":
-			p.Lastmod, err = cast.ToTimeE(v)
-			if err != nil {
-				p.s.Log.ERROR.Printf("Failed to parse lastmod '%v' in page %s", v, p.File.Path())
-			}
-		case "modified":
-			vv, err := cast.ToTimeE(v)
-			if err == nil {
-				p.params[loki] = vv
-				modified = vv
-			} else {
-				p.params[loki] = cast.ToString(v)
-			}
 		case "outputs":
 			o := cast.ToStringSlice(v)
 			if len(o) > 0 {
@@ -1189,34 +1195,9 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 				}
 
 			}
-		case "publishdate", "pubdate":
-			p.PublishDate, err = cast.ToTimeE(v)
-			if err != nil {
-				p.s.Log.ERROR.Printf("Failed to parse publishdate '%v' in page %s", v, p.File.Path())
-			}
-			p.params[loki] = p.PublishDate
-		case "expirydate", "unpublishdate":
-			p.ExpiryDate, err = cast.ToTimeE(v)
-			if err != nil {
-				p.s.Log.ERROR.Printf("Failed to parse expirydate '%v' in page %s", v, p.File.Path())
-			}
 		case "draft":
 			draft = new(bool)
 			*draft = cast.ToBool(v)
-		case "published": // Intentionally undocumented
-			vv, err := cast.ToBoolE(v)
-			if err == nil {
-				published = &vv
-			} else {
-				// Some sites use this as the publishdate
-				vv, err := cast.ToTimeE(v)
-				if err == nil {
-					p.PublishDate = vv
-					p.params[loki] = p.PublishDate
-				} else {
-					p.params[loki] = cast.ToString(v)
-				}
-			}
 		case "layout":
 			p.Layout = cast.ToString(v)
 			p.params[loki] = p.Layout
@@ -1332,31 +1313,9 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 	}
 	p.params["draft"] = p.Draft
 
-	if p.Date.IsZero() {
-		p.Date = p.PublishDate
-	}
-
-	if p.PublishDate.IsZero() {
-		p.PublishDate = p.Date
-	}
-
 	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
 		p.Date = p.Source.FileInfo().ModTime()
 	}
-
-	if p.Lastmod.IsZero() {
-		if !modified.IsZero() {
-			p.Lastmod = modified
-		} else {
-			p.Lastmod = p.Date
-		}
-
-	}
-
-	p.params["date"] = p.Date
-	p.params["lastmod"] = p.Lastmod
-	p.params["publishdate"] = p.PublishDate
-	p.params["expirydate"] = p.ExpiryDate
 
 	if isCJKLanguage != nil {
 		p.isCJKLanguage = *isCJKLanguage
@@ -1370,30 +1329,6 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 	p.params["iscjklanguage"] = p.isCJKLanguage
 
 	return nil
-}
-
-// A Zero date is a signal that the name can not be parsed.
-// This follows the format as outlined in Jekyll, https://jekyllrb.com/docs/posts/:
-// "Where YEAR is a four-digit number, MONTH and DAY are both two-digit numbers"
-func dateAndSlugFromBaseFilename(name string) (time.Time, string) {
-	withoutExt, _ := helpers.FileAndExt(name)
-
-	if len(withoutExt) < 10 {
-		// This can not be a date.
-		return time.Time{}, ""
-	}
-
-	// Note: Hugo currently have no custom timezone support.
-	// We will have to revisit this when that is in place.
-	d, err := time.Parse("2006-01-02", withoutExt[:10])
-	if err != nil {
-		return time.Time{}, ""
-	}
-
-	// Be a little lenient with the format here.
-	slug := strings.Trim(withoutExt[10:], " -_")
-
-	return d, slug
 }
 
 func (p *Page) GetParam(key string) interface{} {
