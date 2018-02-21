@@ -42,7 +42,7 @@ func (c *imageCache) isInCache(key string) bool {
 func (c *imageCache) deleteByPrefix(prefix string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	for k, _ := range c.store {
+	for k := range c.store {
 		if strings.HasPrefix(k, prefix) {
 			delete(c.store, k)
 		}

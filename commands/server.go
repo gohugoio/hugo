@@ -359,7 +359,7 @@ func (c *commandeer) serve() error {
 	var sigs = make(chan os.Signal)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-	for i, _ := range baseURLs {
+	for i := range baseURLs {
 		mu, serverURL, endpoint, err := srv.createEndpoint(i)
 
 		if doLiveReload {

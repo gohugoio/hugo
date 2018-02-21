@@ -244,7 +244,7 @@ func TestImageWithMetadata(t *testing.T) {
 	image := fetchSunset(assert)
 
 	var meta = []map[string]interface{}{
-		map[string]interface{}{
+		{
 			"title": "My Sunset",
 			"name":  "Sunset #:counter",
 			"src":   "*.jpg",
