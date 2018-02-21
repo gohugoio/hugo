@@ -9,7 +9,7 @@
     </div>
   </article>
     <section class="flex-ns flex-wrap justify-between w-100 v-top">
-      {{ range (.Paginator 20).Pages  }}
+      {{ range (.Paginate (.Pages | shuffle ) 20).Pages  }}
         {{template "showcase_items" .}}
       {{ end }}
     </section>

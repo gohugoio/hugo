@@ -10,7 +10,7 @@ categories: [troubleshooting]
 menu:
   docs:
     parent: "troubleshooting"
-weight:
+weight: 3
 slug:
 aliases: []
 toc: true
