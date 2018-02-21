@@ -260,15 +260,19 @@ func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infosMain, info
 }
 
 func (r *ReleaseHandler) writeReleaseNotesToDocs(title, sourceFilename string) (string, error) {
-	targetFilename := filepath.Base(sourceFilename)
-	contentDir := hugoFilepath("docs/content/news")
+	targetFilename := "index.md"
+	bundleDir := strings.TrimSuffix(filepath.Base(sourceFilename), "-ready.md")
+	contentDir := hugoFilepath("docs/content/news/" + bundleDir)
 	targetFullFilename := filepath.Join(contentDir, targetFilename)
 
 	if r.try {
+		fmt.Printf("Write release notes to /docs: Bundle %q Dir: %q\n", bundleDir, contentDir)
 		return targetFullFilename, nil
 	}
 
-	os.Mkdir(contentDir, os.ModePerm)
+	if err := os.MkdirAll(contentDir, os.ModePerm); err != nil {
+		return "", nil
+	}
 
 	b, err := ioutil.ReadFile(sourceFilename)
 	if err != nil {
