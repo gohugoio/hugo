@@ -346,10 +346,6 @@ func InitializeConfig(running bool, doWithCommandeer func(c *commandeer) error, 
 
 	config.Set("logI18nWarnings", logI18nWarnings)
 
-	if !config.GetBool("relativeURLs") && config.GetString("baseURL") == "" {
-		cfg.Logger.ERROR.Println("No 'baseURL' set in configuration or as a flag. Features like page menus will not work without one.")
-	}
-
 	if theme != "" {
 		config.Set("theme", theme)
 	}
