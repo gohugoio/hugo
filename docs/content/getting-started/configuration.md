@@ -79,16 +79,10 @@ defaultContentLanguage:     "en"
 # Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/
 defaultContentLanguageInSubdir: false
 disableLiveReload:          false
-# Do not build RSS files
-disableRSS:                 false
-# Do not build Sitemap file
-disableSitemap:             false
 # Enable GitInfo feature
 enableGitInfo:              false
 # Build robots.txt file
 enableRobotsTXT:            false
-# Do not render 404 page
-disable404:                 false
 # Do not inject generator meta tag on homepage
 disableHugoGeneratorInject: false
 # Allows you to disable all page types and will render nothing related to 'kind';
@@ -221,16 +215,10 @@ defaultContentLanguage =      "en"
 # Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/
 defaultContentLanguageInSubdir =  false
 disableLiveReload =           false
-# Do not build RSS files
-disableRSS =                  false
-# Do not build Sitemap file
-disableSitemap =              false
 # Enable GitInfo feature
 enableGitInfo =               false
 # Build robots.txt file
 enableRobotsTXT =             false
-# Do not render 404 page
-disable404 =                  false
 # Do not inject generator meta tag on homepage
 disableHugoGeneratorInject =  false
 # Allows you to disable all page types and will render nothing related to 'kind';

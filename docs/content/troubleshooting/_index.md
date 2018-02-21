@@ -8,8 +8,8 @@ lastmod: 2017-02-01
 menu:
   docs:
     parent: "troubleshooting"
-    weight: 01
-weight: 01	#rem
+    weight: 1
+weight: 1	
 draft: false
 hidesectioncontents: false
 slug:

@@ -61,13 +61,6 @@ To be sure to get the correct reference in this case, use the full path:
 {{</* relref "events/my-birthday.md" */>}} => /events/my-birthday/
 {{< /code >}}
 
-{{< todo >}}Remove this warning when https://github.com/gohugoio/hugo/issues/3703 is released.{{< /todo >}}
-
-A relative document name must *not* begin with a slash (`/`).
-```
-{{</* relref "/events/my-birthday.md" */>}} => ""
-```
-
 ### With Multiple Output Formats
 
 If the page exists in multiple [output formats][], `ref` or `relref` can be used with a output format name:
