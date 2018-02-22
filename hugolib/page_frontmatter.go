@@ -190,7 +190,7 @@ func (f frontmatterHandler) newChainedFrontMatterFieldHandler(handlers ...frontM
 	}
 }
 
-func newFrontmatterConfig(logger *jww.Notepad, cfg config.Provider) (frontmatterHandler, error) {
+func newFrontmatterHandler(logger *jww.Notepad, cfg config.Provider) (frontmatterHandler, error) {
 
 	if logger == nil {
 		logger = jww.NewNotepad(jww.LevelWarn, jww.LevelWarn, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)

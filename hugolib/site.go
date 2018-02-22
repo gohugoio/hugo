@@ -252,7 +252,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 
 	titleFunc := helpers.GetTitleFunc(cfg.Language.GetString("titleCaseStyle"))
 
-	fmConfig, err := newFrontmatterConfig(cfg.Logger, cfg.Cfg)
+	frontMatterHandler, err := newFrontmatterHandler(cfg.Logger, cfg.Cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -267,7 +267,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		outputFormats:       outputFormats,
 		outputFormatsConfig: siteOutputFormatsConfig,
 		mediaTypesConfig:    siteMediaTypesConfig,
-		frontmatterHandler:  fmConfig,
+		frontmatterHandler:  frontMatterHandler,
 	}
 
 	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
