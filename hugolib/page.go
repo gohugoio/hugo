@@ -1127,6 +1127,7 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		frontmatter:  frontmatter,
 		params:       p.params,
 		dates:        &p.PageDates,
+		pageURLs:     &p.URLPath,
 		baseFilename: p.BaseFileName(), modTime: mtime}
 
 	// Handle the date separately

@@ -55,6 +55,9 @@ type frontMatterDescriptor struct {
 
 	// This is the Page's dates.
 	dates *PageDates
+
+	// This is the Page's Slug etc.
+	pageURLs *URLPath
 }
 
 func (f frontmatterHandler) handleDate(d frontMatterDescriptor) (time.Time, error) {
@@ -156,7 +159,7 @@ func (f frontmatterHandler) setParamsAndReturnFirstDate(d frontMatterDescriptor,
 // A Zero date is a signal that the name can not be parsed.
 // This follows the format as outlined in Jekyll, https://jekyllrb.com/docs/posts/:
 // "Where YEAR is a four-digit number, MONTH and DAY are both two-digit numbers"
-func (f frontmatterHandler) dateAndSlugFromBaseFilename(name string) (time.Time, string) {
+func (f frontmatterFieldHandlers) dateAndSlugFromBaseFilename(name string) (time.Time, string) {
 	withoutExt, _ := helpers.FileAndExt(name)
 
 	if len(withoutExt) < 10 {
@@ -253,6 +256,19 @@ func (f *frontmatterFieldHandlers) defaultDateHandler(d frontMatterDescriptor) (
 }
 
 func (f *frontmatterFieldHandlers) defaultDateFilenameHandler(d frontMatterDescriptor) (interface{}, error) {
+
+	date, slug := f.dateAndSlugFromBaseFilename(d.baseFilename)
+	if date.IsZero() {
+		return nil, nil
+	}
+
+	d.dates.Date = date
+
+	if _, found := d.frontmatter["slug"]; !found {
+		// Use slug from filename
+		d.pageURLs.Slug = slug
+	}
+
 	return true, nil
 }
 
