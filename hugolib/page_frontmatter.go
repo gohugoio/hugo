@@ -60,15 +60,9 @@ type frontMatterDescriptor struct {
 	pageURLs *URLPath
 }
 
-func (f frontmatterHandler) handleDate(d frontMatterDescriptor) (time.Time, error) {
-	v, err := f.dateHandlers(d)
-	if err == nil {
-		if d, ok := v.(time.Time); ok {
-			return d, nil
-		}
-	}
-
-	return time.Time{}, err
+func (f frontmatterHandler) handleDate(d frontMatterDescriptor) error {
+	_, err := f.dateHandlers(d)
+	return err
 }
 
 var (
@@ -94,11 +88,10 @@ func init() {
 
 func (f frontmatterHandler) handleDates(d frontMatterDescriptor) error {
 
-	date, err := f.handleDate(d)
+	err := f.handleDate(d)
 	if err != nil {
 		return err
 	}
-	d.dates.Date = date
 	d.dates.Lastmod = f.setParamsAndReturnFirstDate(d, lastModFrontMatterKeys)
 	d.dates.PublishDate = f.setParamsAndReturnFirstDate(d, publishDateFrontMatterKeys)
 	d.dates.ExpiryDate = f.setParamsAndReturnFirstDate(d, expiryDateFrontMatterKeys)
@@ -159,7 +152,7 @@ func (f frontmatterHandler) setParamsAndReturnFirstDate(d frontMatterDescriptor,
 // A Zero date is a signal that the name can not be parsed.
 // This follows the format as outlined in Jekyll, https://jekyllrb.com/docs/posts/:
 // "Where YEAR is a four-digit number, MONTH and DAY are both two-digit numbers"
-func (f frontmatterFieldHandlers) dateAndSlugFromBaseFilename(name string) (time.Time, string) {
+func dateAndSlugFromBaseFilename(name string) (time.Time, string) {
 	withoutExt, _ := helpers.FileAndExt(name)
 
 	if len(withoutExt) < 10 {
@@ -180,22 +173,21 @@ func (f frontmatterFieldHandlers) dateAndSlugFromBaseFilename(name string) (time
 	return d, slug
 }
 
-type frontMatterFieldHandler func(d frontMatterDescriptor) (interface{}, error)
+type frontMatterFieldHandler func(d frontMatterDescriptor) (bool, error)
 
 func (f frontmatterHandler) newChainedFrontMatterFieldHandler(handlers ...frontMatterFieldHandler) frontMatterFieldHandler {
-	return func(d frontMatterDescriptor) (interface{}, error) {
+	return func(d frontMatterDescriptor) (bool, error) {
 		for _, h := range handlers {
-			// First non-nil value wins.
-			val, err := h(d)
+			// First successful handler wins.
+			success, err := h(d)
 			if err != nil {
 				f.logger.ERROR.Println(err)
-			} else if val != nil {
-				return val, nil
+			} else if success {
+				return true, nil
 			}
 		}
-		return nil, nil
+		return false, nil
 	}
-
 }
 
 func newFrontmatterConfig(logger *jww.Notepad, cfg config.Provider) (frontmatterHandler, error) {
@@ -241,25 +233,26 @@ type frontmatterFieldHandlers struct {
 	logger *jww.Notepad
 }
 
-func (f *frontmatterFieldHandlers) defaultDateHandler(d frontMatterDescriptor) (interface{}, error) {
+func (f *frontmatterFieldHandlers) defaultDateHandler(d frontMatterDescriptor) (bool, error) {
 	v, found := d.frontmatter["date"]
 	if !found {
-		return nil, nil
+		return false, nil
 	}
 
 	date, err := cast.ToTimeE(v)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	return date, nil
+	d.dates.Date = date
+
+	return true, nil
 }
 
-func (f *frontmatterFieldHandlers) defaultDateFilenameHandler(d frontMatterDescriptor) (interface{}, error) {
-
-	date, slug := f.dateAndSlugFromBaseFilename(d.baseFilename)
+func (f *frontmatterFieldHandlers) defaultDateFilenameHandler(d frontMatterDescriptor) (bool, error) {
+	date, slug := dateAndSlugFromBaseFilename(d.baseFilename)
 	if date.IsZero() {
-		return nil, nil
+		return false, nil
 	}
 
 	d.dates.Date = date
@@ -272,9 +265,10 @@ func (f *frontmatterFieldHandlers) defaultDateFilenameHandler(d frontMatterDescr
 	return true, nil
 }
 
-func (f *frontmatterFieldHandlers) defaultDateModTimeHandler(d frontMatterDescriptor) (interface{}, error) {
+func (f *frontmatterFieldHandlers) defaultDateModTimeHandler(d frontMatterDescriptor) (bool, error) {
 	if !d.modTime.IsZero() {
-		return d.modTime, nil
+		d.dates.Date = d.modTime
+		return true, nil
 	}
-	return nil, nil
+	return false, nil
 }

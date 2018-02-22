@@ -1006,8 +1006,8 @@ Content
 				})
 			}
 
-			writeSource(t, fs, filepath.Join("content", "2012-02-21-noslug.md"), fmt.Sprintf(pageTemplate, 1, ""))
-			writeSource(t, fs, filepath.Join("content", "2012-02-22-slug.md"), fmt.Sprintf(pageTemplate, 2, "slug: aslug"))
+			writeSource(t, fs, filepath.Join("content", "section", "2012-02-21-noslug.md"), fmt.Sprintf(pageTemplate, 1, ""))
+			writeSource(t, fs, filepath.Join("content", "section", "2012-02-22-slug.md"), fmt.Sprintf(pageTemplate, 2, "slug: aslug"))
 
 			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 

@@ -18,7 +18,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,9 +26,6 @@ func TestDateAndSlugFromBaseFilename(t *testing.T) {
 	t.Parallel()
 
 	assert := require.New(t)
-
-	fc, err := newFrontmatterConfig(newWarningLogger(), viper.New())
-	assert.NoError(err)
 
 	tests := []struct {
 		name string
@@ -55,7 +51,7 @@ func TestDateAndSlugFromBaseFilename(t *testing.T) {
 		assert.NoError(err)
 
 		errMsg := fmt.Sprintf("Test %d", i)
-		gotDate, gotSlug := fc.dateAndSlugFromBaseFilename(test.name)
+		gotDate, gotSlug := dateAndSlugFromBaseFilename(test.name)
 
 		assert.Equal(expectedDate, gotDate, errMsg)
 		assert.Equal(test.slug, gotSlug, errMsg)

@@ -180,7 +180,7 @@ func (s *Site) reset() *Site {
 		relatedDocsHandler:  newSearchIndexHandler(s.relatedDocsHandler.cfg),
 		outputFormats:       s.outputFormats,
 		outputFormatsConfig: s.outputFormatsConfig,
-		frontmatterHandler:   s.frontmatterHandler,
+		frontmatterHandler:  s.frontmatterHandler,
 		mediaTypesConfig:    s.mediaTypesConfig,
 		resourceSpec:        s.resourceSpec,
 		Language:            s.Language,
@@ -267,7 +267,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		outputFormats:       outputFormats,
 		outputFormatsConfig: siteOutputFormatsConfig,
 		mediaTypesConfig:    siteMediaTypesConfig,
-		frontmatterHandler:   fmConfig,
+		frontmatterHandler:  fmConfig,
 	}
 
 	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
