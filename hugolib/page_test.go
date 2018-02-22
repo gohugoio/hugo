@@ -983,25 +983,59 @@ Page With empty front matter`
 	zero_FM = "Page With empty front matter"
 )
 
-/*func TestPageWithFilenameDateAsFallback(t *testing.T) {
+func TestPageWithFilenameDateAsFallback(t *testing.T) {
 	t.Parallel()
-	cfg, fs := newTestCfg()
 
-	var tests = []struct {
-	}{}
+	for _, useFilename := range []bool{false, true} {
+		t.Run(fmt.Sprintf("useFilename=%t", useFilename), func(t *testing.T) {
+			ass := require.New(t)
+			cfg, fs := newTestCfg()
 
-	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageRFC3339Date)
+			pageTemplate := `
+---
+title: Page
+weight: %d
+%s
+---
+Content
+`
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+			if useFilename {
+				cfg.Set("frontmatter", map[string]interface{}{
+					"defaultDate": []string{"filename"},
+				})
+			}
 
-	require.Len(t, s.RegularPages, 1)
+			writeSource(t, fs, filepath.Join("content", "2012-02-21-noslug.md"), fmt.Sprintf(pageTemplate, 1, ""))
+			writeSource(t, fs, filepath.Join("content", "2012-02-22-slug.md"), fmt.Sprintf(pageTemplate, 2, "slug: aslug"))
 
-	p := s.RegularPages[0]
-	d, _ := time.Parse(time.RFC3339, "2013-05-17T16:59:30Z")
+			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	checkPageDate(t, p, d)
+			ass.Len(s.RegularPages, 2)
+
+			noSlug := s.RegularPages[0]
+			slug := s.RegularPages[1]
+
+			if useFilename {
+				ass.False(noSlug.Date.IsZero())
+				ass.False(slug.Date.IsZero())
+				ass.Equal(2012, noSlug.Date.Year())
+				ass.Equal(2012, slug.Date.Year())
+				ass.Equal("noslug", noSlug.Slug)
+				ass.Equal("aslug", slug.Slug)
+
+			} else {
+				ass.True(noSlug.Date.IsZero())
+				ass.True(slug.Date.IsZero())
+				ass.Equal("", noSlug.Slug)
+				ass.Equal("aslug", slug.Slug)
+			}
+
+		})
+	}
+
 }
-*/
+
 func TestMetadataDates(t *testing.T) {
 	t.Parallel()
 

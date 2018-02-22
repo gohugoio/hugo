@@ -59,10 +59,13 @@ type frontMatterDescriptor struct {
 
 func (f frontmatterHandler) handleDate(d frontMatterDescriptor) (time.Time, error) {
 	v, err := f.dateHandlers(d)
-	if err != nil || v == nil {
-		return time.Time{}, err
+	if err == nil {
+		if d, ok := v.(time.Time); ok {
+			return d, nil
+		}
 	}
-	return v.(time.Time), nil
+
+	return time.Time{}, err
 }
 
 var (
@@ -214,7 +217,7 @@ func newFrontmatterConfig(logger *jww.Notepad, cfg config.Provider) (frontmatter
 
 		for _, v := range slice {
 			if strings.EqualFold(v, "filename") {
-				dateHandlers = append(dateHandlers, handlers.defaultDateDateFilenameHandler)
+				dateHandlers = append(dateHandlers, handlers.defaultDateFilenameHandler)
 				// No more for now.
 				break
 			}
@@ -223,7 +226,7 @@ func newFrontmatterConfig(logger *jww.Notepad, cfg config.Provider) (frontmatter
 
 	// This is deprecated
 	if cfg.GetBool("useModTimeAsFallback") {
-		dateHandlers = append(dateHandlers, handlers.defaultDateDateModTimeHandler)
+		dateHandlers = append(dateHandlers, handlers.defaultDateModTimeHandler)
 	}
 
 	f.dateHandlers = f.newChainedFrontMatterFieldHandler(dateHandlers...)
@@ -249,11 +252,11 @@ func (f *frontmatterFieldHandlers) defaultDateHandler(d frontMatterDescriptor) (
 	return date, nil
 }
 
-func (f *frontmatterFieldHandlers) defaultDateDateFilenameHandler(d frontMatterDescriptor) (interface{}, error) {
+func (f *frontmatterFieldHandlers) defaultDateFilenameHandler(d frontMatterDescriptor) (interface{}, error) {
 	return true, nil
 }
 
-func (f *frontmatterFieldHandlers) defaultDateDateModTimeHandler(d frontMatterDescriptor) (interface{}, error) {
+func (f *frontmatterFieldHandlers) defaultDateModTimeHandler(d frontMatterDescriptor) (interface{}, error) {
 	if !d.modTime.IsZero() {
 		return d.modTime, nil
 	}
