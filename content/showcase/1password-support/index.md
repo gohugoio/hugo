@@ -1,21 +1,11 @@
 ---
 
-# A suitable title for this article.
 title: 1Password Support
-
-# Set this to the current date.
-date: 2018-02-07
-
-description: "1Password and Hugo."
-
-# The URL to the site on the internet.
+date: 2018-02-22
+description: "Showcase: \"Compiles 400 pages in five languages in the blink of an eye.\""
 siteURL: https://support.1password.com/
-
-# Link to the site's Hugo source code if public and you can/want to share.
-# Remove or leave blank if not needed/wanted.
-
-# Add credit to the article author. Leave blank or remove if not needed/wanted.
 byline: "[Mitch Cohen](https://github.com/mitchchn), Documentation Team Lead"
+aliases: [/showcase/1password/]
 
 ---
 
@@ -35,7 +25,7 @@ Finding a tool that will make your customers, writers, designers, _and_ DevOps t
 
 **Hugo is great for writers**. Our documentation team was already comfortable with Markdown and Git and could start creating content for Hugo with zero downtime. Once we added shortcodes, our writers were able to dress up articles with features like  [platform boxes](https://support.1password.com/get-the-apps/) with just a bit of new syntax.
 
-**Hugo has an amazing developer community**. Hugo updates are frequent and filled to the brim with features and fixes. As we developed the multilingual version of our site, we submitted PRs for features we needed and were helped through the process by @bep and others.
+**Hugo has an amazing developer community**. Hugo updates are frequent and filled to the brim with features and fixes. As we developed the multilingual version of our site, we submitted PRs for features we needed and were helped through the process by [@bep](https://github.com/bep) and others.
 
 **Hugo is simple to deploy**. Hugo has just the right amount of configuration options to fit into our build system without being too complicated.
 
