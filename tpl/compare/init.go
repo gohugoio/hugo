@@ -46,7 +46,9 @@ func init() {
 
 		ns.AddMethodMapping(ctx.Ge,
 			[]string{"ge"},
-			[][2]string{},
+			[][2]string{
+				{`{{ if ge .Hugo.Version "0.36" }}Reasonable new Hugo version!{{ end }}`, `Reasonable new Hugo version!`},
+			},
 		)
 
 		ns.AddMethodMapping(ctx.Gt,

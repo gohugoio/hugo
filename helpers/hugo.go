@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gohugoio/hugo/compare"
 	"github.com/spf13/cast"
 )
 
@@ -34,8 +35,38 @@ type HugoVersion struct {
 	Suffix string
 }
 
+var (
+	_ compare.Eqer     = (*HugoVersionString)(nil)
+	_ compare.Comparer = (*HugoVersionString)(nil)
+)
+
+type HugoVersionString string
+
 func (v HugoVersion) String() string {
 	return hugoVersion(v.Number, v.PatchLevel, v.Suffix)
+}
+
+func (v HugoVersion) Version() HugoVersionString {
+	return HugoVersionString(v.String())
+}
+
+func (h HugoVersionString) String() string {
+	return string(h)
+}
+
+// Implements compare.Comparer
+func (h HugoVersionString) Compare(other interface{}) int {
+	v := MustParseHugoVersion(h.String())
+	return compareVersions(v.Number, v.PatchLevel, other)
+}
+
+// Implements compare.Eqer
+func (h HugoVersionString) Eq(other interface{}) bool {
+	s, err := cast.ToStringE(other)
+	if err != nil {
+		return false
+	}
+	return s == h.String()
 }
 
 // ParseHugoVersion parses a version string.

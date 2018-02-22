@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,11 +11,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package compare
+package hugolib
 
-// Eqer can be used to determine if this value is equal to the other.
-// The semantics of equals is that the two value are interchangeable
-// in the Hugo templates.
-type Eqer interface {
-	Eq(other interface{}) bool
+import (
+	"fmt"
+	"testing"
+
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/stretchr/testify/require"
+)
+
+func TestHugoInfo(t *testing.T) {
+	assert := require.New(t)
+
+	assert.Equal(helpers.CurrentHugoVersion.Version(), hugoInfo.Version)
+	assert.IsType(helpers.HugoVersionString(""), hugoInfo.Version)
+	assert.Equal(CommitHash, hugoInfo.CommitHash)
+	assert.Equal(BuildDate, hugoInfo.BuildDate)
+	assert.Contains(hugoInfo.Generator, fmt.Sprintf("Hugo %s", hugoInfo.Version))
+
 }

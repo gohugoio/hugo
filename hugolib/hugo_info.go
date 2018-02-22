@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ var hugoInfo *HugoInfo
 
 // HugoInfo contains information about the current Hugo environment
 type HugoInfo struct {
-	Version    string
+	Version    helpers.HugoVersionString
 	Generator  template.HTML
 	CommitHash string
 	BuildDate  string
@@ -41,7 +41,7 @@ type HugoInfo struct {
 
 func init() {
 	hugoInfo = &HugoInfo{
-		Version:    helpers.CurrentHugoVersion.String(),
+		Version:    helpers.CurrentHugoVersion.Version(),
 		CommitHash: CommitHash,
 		BuildDate:  BuildDate,
 		Generator:  template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, helpers.CurrentHugoVersion.String())),

@@ -29,6 +29,11 @@ func TestHugoVersion(t *testing.T) {
 	require.Equal(t, v.ReleaseVersion().String(), "0.21")
 	require.Equal(t, "0.21-DEV", v.String())
 	require.Equal(t, "0.22", v.Next().String())
+	nextVersionString := v.Next().Version()
+	require.Equal(t, "0.22", nextVersionString.String())
+	require.True(t, nextVersionString.Eq("0.22"))
+	require.False(t, nextVersionString.Eq("0.21"))
+	require.True(t, nextVersionString.Eq(nextVersionString))
 	require.Equal(t, "0.20.3", v.NextPatchLevel(3).String())
 }
 

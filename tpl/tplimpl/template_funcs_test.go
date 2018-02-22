@@ -80,12 +80,14 @@ func TestTemplateFuncsExamples(t *testing.T) {
 	var data struct {
 		Title   string
 		Section string
+		Hugo    map[string]interface{}
 		Params  map[string]interface{}
 	}
 
 	data.Title = "**BatMan**"
 	data.Section = "blog"
 	data.Params = map[string]interface{}{"langCode": "en"}
+	data.Hugo = map[string]interface{}{"Version": helpers.MustParseHugoVersion("0.36.1").Version()}
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 		ns := nsf(d)
