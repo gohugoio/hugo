@@ -22,24 +22,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewFrontmatterConfig(t *testing.T) {
-	t.Parallel()
-
-	v := viper.New()
-
-	v.Set("frontmatter", map[string]interface{}{
-		"defaultDate": []string{"filename"},
-	})
-
-	assert := require.New(t)
-
-	fc, err := newFrontmatterConfig(newWarningLogger(), v)
-
-	assert.NoError(err)
-	assert.Equal(2, len(fc.dateHandlers))
-
-}
-
 func TestDateAndSlugFromBaseFilename(t *testing.T) {
 
 	t.Parallel()

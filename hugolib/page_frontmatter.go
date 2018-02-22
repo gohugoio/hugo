@@ -30,9 +30,9 @@ import (
 
 // TODO(bep) should probably make the date handling chain complete to give people the flexibility they want.
 
-type frontmatterConfig struct {
+type frontmatterHandler struct {
 	// Ordered chain.
-	dateHandlers []frontmatterFieldHandler
+	dateHandlers frontMatterFieldHandler
 
 	logger *jww.Notepad
 }
@@ -42,32 +42,23 @@ type frontMatterDescriptor struct {
 	// This the Page's front matter.
 	frontmatter map[string]interface{}
 
-	// This is the Page's params.
-	params map[string]interface{}
-
 	// This is the Page's base filename, e.g. page.md.
 	baseFilename string
 
 	// The content file's mod time.
 	modTime time.Time
+
+	// The below are pointers to values on Page and will be updated.
+
+	// This is the Page's params.
+	params map[string]interface{}
+
+	// This is the Page's dates.
+	dates *PageDates
 }
 
-func (f frontmatterConfig) handleField(handlers []frontmatterFieldHandler, d frontMatterDescriptor) (interface{}, error) {
-	for _, h := range handlers {
-		// First non-nil value wins.
-		val, err := h(d)
-		if err != nil {
-			f.logger.ERROR.Println(err)
-		} else if val != nil {
-			return val, nil
-		}
-	}
-
-	return nil, nil
-}
-
-func (f frontmatterConfig) handleDate(d frontMatterDescriptor) (time.Time, error) {
-	v, err := f.handleField(f.dateHandlers, d)
+func (f frontmatterHandler) handleDate(d frontMatterDescriptor) (time.Time, error) {
+	v, err := f.dateHandlers(d)
 	if err != nil || v == nil {
 		return time.Time{}, err
 	}
@@ -95,51 +86,50 @@ func init() {
 	allDateFrontMatterKeys["date"] = true
 }
 
-func (f frontmatterConfig) handleDates(d frontMatterDescriptor) (PageDates, error) {
-	pd := &PageDates{}
+func (f frontmatterHandler) handleDates(d frontMatterDescriptor) error {
 
 	date, err := f.handleDate(d)
 	if err != nil {
-		return *pd, err
+		return err
 	}
-	pd.Date = date
-	pd.Lastmod = f.setParamsAndReturnFirstDate(d, lastModFrontMatterKeys)
-	pd.PublishDate = f.setParamsAndReturnFirstDate(d, publishDateFrontMatterKeys)
-	pd.ExpiryDate = f.setParamsAndReturnFirstDate(d, expiryDateFrontMatterKeys)
+	d.dates.Date = date
+	d.dates.Lastmod = f.setParamsAndReturnFirstDate(d, lastModFrontMatterKeys)
+	d.dates.PublishDate = f.setParamsAndReturnFirstDate(d, publishDateFrontMatterKeys)
+	d.dates.ExpiryDate = f.setParamsAndReturnFirstDate(d, expiryDateFrontMatterKeys)
 
 	// Hugo really needs a date!
-	if pd.Date.IsZero() {
-		pd.Date = pd.PublishDate
+	if d.dates.Date.IsZero() {
+		d.dates.Date = d.dates.PublishDate
 	}
 
-	if pd.PublishDate.IsZero() {
-		pd.PublishDate = pd.Date
+	if d.dates.PublishDate.IsZero() {
+		d.dates.PublishDate = d.dates.Date
 	}
 
-	if pd.Lastmod.IsZero() {
-		pd.Lastmod = pd.Date
+	if d.dates.Lastmod.IsZero() {
+		d.dates.Lastmod = d.dates.Date
 	}
 
-	f.setParamIfNotZero("date", d.params, pd.Date)
-	f.setParamIfNotZero("lastmod", d.params, pd.Lastmod)
-	f.setParamIfNotZero("publishdate", d.params, pd.PublishDate)
-	f.setParamIfNotZero("expirydate", d.params, pd.ExpiryDate)
+	f.setParamIfNotZero("date", d.params, d.dates.Date)
+	f.setParamIfNotZero("lastmod", d.params, d.dates.Lastmod)
+	f.setParamIfNotZero("publishdate", d.params, d.dates.PublishDate)
+	f.setParamIfNotZero("expirydate", d.params, d.dates.ExpiryDate)
 
-	return *pd, nil
+	return nil
 }
 
-func (f frontmatterConfig) isDateKey(key string) bool {
+func (f frontmatterHandler) isDateKey(key string) bool {
 	return allDateFrontMatterKeys[key]
 }
 
-func (f frontmatterConfig) setParamIfNotZero(name string, params map[string]interface{}, date time.Time) {
+func (f frontmatterHandler) setParamIfNotZero(name string, params map[string]interface{}, date time.Time) {
 	if date.IsZero() {
 		return
 	}
 	params[name] = date
 }
 
-func (f frontmatterConfig) setParamsAndReturnFirstDate(d frontMatterDescriptor, keys []string) time.Time {
+func (f frontmatterHandler) setParamsAndReturnFirstDate(d frontMatterDescriptor, keys []string) time.Time {
 	var date time.Time
 
 	for _, key := range keys {
@@ -163,7 +153,7 @@ func (f frontmatterConfig) setParamsAndReturnFirstDate(d frontMatterDescriptor, 
 // A Zero date is a signal that the name can not be parsed.
 // This follows the format as outlined in Jekyll, https://jekyllrb.com/docs/posts/:
 // "Where YEAR is a four-digit number, MONTH and DAY are both two-digit numbers"
-func (f frontmatterConfig) dateAndSlugFromBaseFilename(name string) (time.Time, string) {
+func (f frontmatterHandler) dateAndSlugFromBaseFilename(name string) (time.Time, string) {
 	withoutExt, _ := helpers.FileAndExt(name)
 
 	if len(withoutExt) < 10 {
@@ -184,19 +174,35 @@ func (f frontmatterConfig) dateAndSlugFromBaseFilename(name string) (time.Time, 
 	return d, slug
 }
 
-type frontmatterFieldHandler func(d frontMatterDescriptor) (interface{}, error)
+type frontMatterFieldHandler func(d frontMatterDescriptor) (interface{}, error)
 
-func newFrontmatterConfig(logger *jww.Notepad, cfg config.Provider) (frontmatterConfig, error) {
+func (f frontmatterHandler) newChainedFrontMatterFieldHandler(handlers ...frontMatterFieldHandler) frontMatterFieldHandler {
+	return func(d frontMatterDescriptor) (interface{}, error) {
+		for _, h := range handlers {
+			// First non-nil value wins.
+			val, err := h(d)
+			if err != nil {
+				f.logger.ERROR.Println(err)
+			} else if val != nil {
+				return val, nil
+			}
+		}
+		return nil, nil
+	}
+
+}
+
+func newFrontmatterConfig(logger *jww.Notepad, cfg config.Provider) (frontmatterHandler, error) {
 
 	if logger == nil {
 		logger = jww.NewNotepad(jww.LevelWarn, jww.LevelWarn, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 	}
 
-	f := frontmatterConfig{logger: logger}
+	f := frontmatterHandler{logger: logger}
 
 	handlers := &frontmatterFieldHandlers{logger: logger}
 
-	f.dateHandlers = []frontmatterFieldHandler{handlers.defaultDateHandler}
+	dateHandlers := []frontMatterFieldHandler{handlers.defaultDateHandler}
 
 	defaultDate := cfg.Get("frontmatter.defaultdate")
 
@@ -208,18 +214,19 @@ func newFrontmatterConfig(logger *jww.Notepad, cfg config.Provider) (frontmatter
 
 		for _, v := range slice {
 			if strings.EqualFold(v, "filename") {
-				f.dateHandlers = append(f.dateHandlers, handlers.defaultDateDateFilenameHandler)
+				dateHandlers = append(dateHandlers, handlers.defaultDateDateFilenameHandler)
 				// No more for now.
 				break
 			}
 		}
-
 	}
 
 	// This is deprecated
 	if cfg.GetBool("useModTimeAsFallback") {
-		f.dateHandlers = append(f.dateHandlers, handlers.defaultDateDateModTimeHandler)
+		dateHandlers = append(dateHandlers, handlers.defaultDateDateModTimeHandler)
 	}
+
+	f.dateHandlers = f.newChainedFrontMatterFieldHandler(dateHandlers...)
 
 	return f, nil
 }
@@ -227,8 +234,6 @@ func newFrontmatterConfig(logger *jww.Notepad, cfg config.Provider) (frontmatter
 type frontmatterFieldHandlers struct {
 	logger *jww.Notepad
 }
-
-// TODO(bep) modtime
 
 func (f *frontmatterFieldHandlers) defaultDateHandler(d frontMatterDescriptor) (interface{}, error) {
 	v, found := d.frontmatter["date"]

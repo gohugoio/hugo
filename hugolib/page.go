@@ -1123,14 +1123,18 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		mtime = p.Source.FileInfo().ModTime()
 	}
 
-	descriptor := frontMatterDescriptor{frontmatter: frontmatter, params: p.params, baseFilename: p.BaseFileName(), modTime: mtime}
+	descriptor := frontMatterDescriptor{
+		frontmatter:  frontmatter,
+		params:       p.params,
+		dates:        &p.PageDates,
+		baseFilename: p.BaseFileName(), modTime: mtime}
 
 	// Handle the date separately
-	dates, err := p.s.frontmatterConfig.handleDates(descriptor)
+	// TODO(bep) we need to "do more" in this area so this can be split up and
+	// more easily tested without the Page, but the coupling is strong.
+	err := p.s.frontmatterHandler.handleDates(descriptor)
 	if err != nil {
 		p.s.Log.ERROR.Printf("Failed to handle dates for page %q: %s", p.Path(), err)
-	} else {
-		p.PageDates = dates
 	}
 
 	var draft, published, isCJKLanguage *bool
@@ -1146,7 +1150,7 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 			continue
 		}
 
-		if p.s.frontmatterConfig.isDateKey(loki) {
+		if p.s.frontmatterHandler.isDateKey(loki) {
 			continue
 		}
 
