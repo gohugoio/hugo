@@ -53,12 +53,18 @@ func TestCompareVersions(t *testing.T) {
 	require.Equal(t, 1, compareVersions(0.20, 0, "0.20.1"))
 	require.Equal(t, 1, compareVersions(0.20, 1, "0.20.2"))
 	require.Equal(t, 1, compareVersions(0.21, 1, "0.22.1"))
+	require.Equal(t, -1, compareVersions(0.22, 0, "0.22-DEV"))
+	require.Equal(t, 1, compareVersions(0.22, 0, "0.22.1-DEV"))
+	require.Equal(t, 1, compareVersionsWithSuffix(0.22, 0, "-DEV", "0.22"))
+	require.Equal(t, -1, compareVersionsWithSuffix(0.22, 1, "-DEV", "0.22"))
+	require.Equal(t, 0, compareVersionsWithSuffix(0.22, 1, "-DEV", "0.22.1-DEV"))
+
 }
 
 func TestParseHugoVersion(t *testing.T) {
 	require.Equal(t, "0.25", MustParseHugoVersion("0.25").String())
 	require.Equal(t, "0.25.2", MustParseHugoVersion("0.25.2").String())
 	require.Equal(t, "0.25-test", MustParseHugoVersion("0.25-test").String())
-	_, err := ParseHugoVersion("0.25-DEV")
-	require.Error(t, err)
+	require.Equal(t, "0.25-DEV", MustParseHugoVersion("0.25-DEV").String())
+
 }

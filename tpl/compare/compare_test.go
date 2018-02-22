@@ -180,6 +180,10 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 		{helpers.MustParseHugoVersion("0.32").Version(), "0.36", -1},
 		{"0.36", helpers.MustParseHugoVersion("0.32").Version(), 1},
 		{"0.36", helpers.MustParseHugoVersion("0.36").Version(), 0},
+		{"0.37", helpers.MustParseHugoVersion("0.37-DEV").Version(), 1},
+		{"0.37-DEV", helpers.MustParseHugoVersion("0.37").Version(), -1},
+		{"0.36", helpers.MustParseHugoVersion("0.37-DEV").Version(), -1},
+		{"0.37-DEV", helpers.MustParseHugoVersion("0.37-DEV").Version(), 0},
 	} {
 		result := funcUnderTest(test.left, test.right)
 		success := false

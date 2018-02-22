@@ -14,7 +14,6 @@
 package helpers
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -57,7 +56,7 @@ func (h HugoVersionString) String() string {
 // Implements compare.Comparer
 func (h HugoVersionString) Compare(other interface{}) int {
 	v := MustParseHugoVersion(h.String())
-	return compareVersions(v.Number, v.PatchLevel, other)
+	return compareVersionsWithSuffix(v.Number, v.PatchLevel, v.Suffix, other)
 }
 
 // Implements compare.Eqer
@@ -69,16 +68,16 @@ func (h HugoVersionString) Eq(other interface{}) bool {
 	return s == h.String()
 }
 
+var versionSuffixes = []string{"-test", "-DEV"}
+
 // ParseHugoVersion parses a version string.
 func ParseHugoVersion(s string) (HugoVersion, error) {
 	var vv HugoVersion
-	if strings.HasSuffix(s, "-test") {
-		vv.Suffix = "-test"
-		s = strings.TrimSuffix(s, "-test")
-	}
-
-	if strings.Contains(s, "DEV") {
-		return vv, errors.New("DEV versions not supported by parse")
+	for _, suffix := range versionSuffixes {
+		if strings.HasSuffix(s, suffix) {
+			vv.Suffix = suffix
+			s = strings.TrimSuffix(s, suffix)
+		}
 	}
 
 	v, p := parseVersion(s)
@@ -141,39 +140,53 @@ func hugoVersion(version float32, patchVersion int, suffix string) string {
 // It returns -1 if the given version is less than, 0 if equal and 1 if greater than
 // the running version.
 func CompareVersion(version interface{}) int {
-	return compareVersions(CurrentHugoVersion.Number, CurrentHugoVersion.PatchLevel, version)
+	return compareVersionsWithSuffix(CurrentHugoVersion.Number, CurrentHugoVersion.PatchLevel, CurrentHugoVersion.Suffix, version)
 }
 
 func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int {
+	return compareVersionsWithSuffix(inVersion, inPatchVersion, "", in)
+}
+
+func compareVersionsWithSuffix(inVersion float32, inPatchVersion int, suffix string, in interface{}) int {
+	var c int
 	switch d := in.(type) {
 	case float64:
-		return compareFloatVersions(inVersion, float32(d))
+		c = compareFloatVersions(inVersion, float32(d))
 	case float32:
-		return compareFloatVersions(inVersion, d)
+		c = compareFloatVersions(inVersion, d)
 	case int:
-		return compareFloatVersions(inVersion, float32(d))
+		c = compareFloatVersions(inVersion, float32(d))
 	case int32:
-		return compareFloatVersions(inVersion, float32(d))
+		c = compareFloatVersions(inVersion, float32(d))
 	case int64:
-		return compareFloatVersions(inVersion, float32(d))
+		c = compareFloatVersions(inVersion, float32(d))
 	default:
 		s, err := cast.ToStringE(in)
 		if err != nil {
 			return -1
 		}
 
-		v, p := parseVersion(s)
-
-		if v == inVersion && p == inPatchVersion {
-			return 0
+		v, err := ParseHugoVersion(s)
+		if err != nil {
+			return -1
 		}
 
-		if v < inVersion || (v == inVersion && p < inPatchVersion) {
+		if v.Number == inVersion && v.PatchLevel == inPatchVersion {
+			return strings.Compare(suffix, v.Suffix)
+		}
+
+		if v.Number < inVersion || (v.Number == inVersion && v.PatchLevel < inPatchVersion) {
 			return -1
 		}
 
 		return 1
 	}
+
+	if c == 0 && suffix != "" {
+		return 1
+	}
+
+	return c
 }
 
 func parseVersion(s string) (float32, int) {
