@@ -59,7 +59,7 @@ func (h *HugoSites) assembleGitInfo() {
 		g, ok := gitMap[filename]
 		if !ok {
 			h.Log.WARN.Printf("Failed to find GitInfo for %q", filename)
-			return
+			continue
 		}
 
 		p.GitInfo = g
