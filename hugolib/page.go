@@ -1118,7 +1118,12 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 	// Needed for case insensitive fetching of params values
 	helpers.ToLowerMap(frontmatter)
 
-	descriptor := frontMatterDescriptor{frontmatter: frontmatter, params: p.params, baseFilename: p.BaseFileName()}
+	var mtime time.Time
+	if p.Source.FileInfo() != nil {
+		mtime = p.Source.FileInfo().ModTime()
+	}
+
+	descriptor := frontMatterDescriptor{frontmatter: frontmatter, params: p.params, baseFilename: p.BaseFileName(), modTime: mtime}
 
 	// Handle the date separately
 	dates, err := p.s.frontmatterConfig.handleDates(descriptor)
@@ -1312,10 +1317,6 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		p.Draft = !*published
 	}
 	p.params["draft"] = p.Draft
-
-	if p.Date.IsZero() && p.s.Cfg.GetBool("useModTimeAsFallback") {
-		p.Date = p.Source.FileInfo().ModTime()
-	}
 
 	if isCJKLanguage != nil {
 		p.isCJKLanguage = *isCJKLanguage

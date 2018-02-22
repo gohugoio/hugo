@@ -47,6 +47,9 @@ type frontMatterDescriptor struct {
 
 	// This is the Page's base filename, e.g. page.md.
 	baseFilename string
+
+	// The content file's mod time.
+	modTime time.Time
 }
 
 func (f frontmatterConfig) handleField(handlers []frontmatterFieldHandler, d frontMatterDescriptor) (interface{}, error) {
@@ -99,7 +102,6 @@ func (f frontmatterConfig) handleDates(d frontMatterDescriptor) (PageDates, erro
 	if err != nil {
 		return *pd, err
 	}
-
 	pd.Date = date
 	pd.Lastmod = f.setParamsAndReturnFirstDate(d, lastModFrontMatterKeys)
 	pd.PublishDate = f.setParamsAndReturnFirstDate(d, publishDateFrontMatterKeys)
@@ -206,12 +208,17 @@ func newFrontmatterConfig(logger *jww.Notepad, cfg config.Provider) (frontmatter
 
 		for _, v := range slice {
 			if strings.EqualFold(v, "filename") {
-				f.dateHandlers = append(f.dateHandlers, handlers.filenameFallbackDateHandler)
+				f.dateHandlers = append(f.dateHandlers, handlers.defaultDateDateFilenameHandler)
 				// No more for now.
 				break
 			}
 		}
 
+	}
+
+	// This is deprecated
+	if cfg.GetBool("useModTimeAsFallback") {
+		f.dateHandlers = append(f.dateHandlers, handlers.defaultDateDateModTimeHandler)
 	}
 
 	return f, nil
@@ -237,6 +244,13 @@ func (f *frontmatterFieldHandlers) defaultDateHandler(d frontMatterDescriptor) (
 	return date, nil
 }
 
-func (f *frontmatterFieldHandlers) filenameFallbackDateHandler(d frontMatterDescriptor) (interface{}, error) {
+func (f *frontmatterFieldHandlers) defaultDateDateFilenameHandler(d frontMatterDescriptor) (interface{}, error) {
 	return true, nil
+}
+
+func (f *frontmatterFieldHandlers) defaultDateDateModTimeHandler(d frontMatterDescriptor) (interface{}, error) {
+	if !d.modTime.IsZero() {
+		return d.modTime, nil
+	}
+	return nil, nil
 }

@@ -27,8 +27,6 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/source"
 	"github.com/spf13/cast"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -1006,6 +1004,9 @@ Page With empty front matter`
 */
 func TestMetadataDates(t *testing.T) {
 	t.Parallel()
+
+	assert := require.New(t)
+
 	var tests = []struct {
 		text        string
 		filename    string
@@ -1038,9 +1039,9 @@ func TestMetadataDates(t *testing.T) {
 		{p_D____, "test.md", false, D, D, D, x, x}, // date copied across
 		{p_D____, "testy.md", true, D, D, D, x, x},
 		{p__P___, "test.md", false, P, P, P, x, x}, // pubdate copied across
-		{p__P___, "testy.md", true, P, P, P, x, x},
+		{p__P___, "testy.md", true, P, P, P, x, x}, // TODO(bep) date from modTime
 		{p_DP___, "test.md", false, D, P, D, x, x}, // date -> lastMod
-		{p_DP___, "testy.md", true, D, P, D, x, x},
+		{p_DP___, "testy.md", true, D, P, D, x, x}, // TODO(bep) date from modTime
 		{p__PL__, "test.md", false, P, P, L, x, x}, // pub -> date overrides lastMod -> date code (inconsistent?)
 		{p__PL__, "testy.md", true, P, P, L, x, x},
 		{p_DPL__, "test.md", false, D, P, L, x, x}, // three dates
@@ -1048,29 +1049,27 @@ func TestMetadataDates(t *testing.T) {
 		{p_DPL_E, "testy.md", true, D, P, L, x, E}, // lastMod NOT copied to mod (inconsistent?)
 		{p_DP_ME, "testy.md", true, D, P, M, M, E}, // mod copied to lastMod
 		{p_DPLME, "testy.md", true, D, P, L, M, E}, // all dates
-
-		// TODO(bep) dates
-		//{emptyFM, "test.md", false, o, o, o, x, x}, // 3 year-one dates, 2 empty dates
-		//{zero_FM, "test.md", false, o, o, o, x, x},
-		//	{emptyFM, "testy.md", true, s, o, s, x, x}, // 2 filesys, 1 year-one, 2 empty
-		//{zero_FM, "testy.md", true, s, o, s, x, x},
+		{emptyFM, "test.md", false, o, o, o, x, x}, // 3 year-one dates, 2 empty dates
+		{zero_FM, "test.md", false, o, o, o, x, x},
+		{emptyFM, "testy.md", true, s, o, s, x, x}, // 2 filesys, 1 year-one, 2 empty  TODO(bep) date from modTime
+		{zero_FM, "testy.md", true, s, o, s, x, x}, // TODO(bep) date from modTime
 	}
 
 	for i, test := range tests {
-		s := newTestSite(t)
-		s.Cfg.Set("useModTimeAsFallback", test.modFallback)
-		fs := hugofs.NewMem(s.Cfg)
 
-		writeToFs(t, fs.Source, test.filename, test.text)
-		file, err := fs.Source.Open(test.filename)
-		if err != nil {
-			t.Fatal("failed to write test file to test filesystem")
-		}
-		fi, _ := fs.Source.Stat(test.filename)
+		var (
+			cfg, fs = newTestCfg()
+		)
 
-		sp := source.NewSourceSpec(s.Cfg, fs)
-		p := s.newPageFromFile(newFileInfo(sp, "", test.filename, fi, bundleNot))
-		p.ReadFrom(file)
+		writeToFs(t, fs.Source, filepath.Join("content", test.filename), test.text)
+
+		cfg.Set("useModTimeAsFallback", test.modFallback)
+
+		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+		assert.Equal(1, len(s.RegularPages))
+		p := s.RegularPages[0]
+		fi := p.Source.FileInfo()
 
 		// check Page Variables
 		checkDate(t, i+1, "Date", p.Date, test.expDate, fi)
