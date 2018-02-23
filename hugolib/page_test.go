@@ -726,6 +726,7 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 }
 
 // Issue #3854
+// Also see https://github.com/gohugoio/hugo/issues/3977
 func TestPageWithDateFields(t *testing.T) {
 	assert := require.New(t)
 	pageWithDate := `---
@@ -735,8 +736,8 @@ weight: %d
 ---
 Simple Page With Some Date`
 
-	hasBothDates := func(p *Page) bool {
-		return p.Date.Year() == 2017 && p.PublishDate.Year() == 2017
+	hasDate := func(p *Page) bool {
+		return p.Date.Year() == 2017
 	}
 
 	datePage := func(field string, weight int) string {
@@ -747,7 +748,7 @@ Simple Page With Some Date`
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		assert.True(len(pages) > 0)
 		for _, p := range pages {
-			assert.True(hasBothDates(p))
+			assert.True(hasDate(p))
 		}
 
 	}
@@ -1070,8 +1071,8 @@ func TestMetadataDates(t *testing.T) {
 		//
 		// ------- inputs --------|--- outputs ---|
 		//content  filename  modfb? D  P  L  M  E
-		{p_D____, "test.md", false, D, D, D, x, x}, // date copied across
-		{p_D____, "testy.md", true, D, D, D, x, x},
+		{p_D____, "test.md", false, D, o, D, x, x},
+		{p_D____, "testy.md", true, D, o, D, x, x},
 		{p__P___, "test.md", false, P, P, P, x, x}, // pubdate copied across
 		//{p__P___, "testy.md", true, P, P, P, x, x}, // TODO(bep) date from modTime
 		{p_DP___, "test.md", false, D, P, D, x, x}, // date -> lastMod
@@ -1112,6 +1113,9 @@ func TestMetadataDates(t *testing.T) {
 		checkDate(t, i+1, "LastMod", p.ExpiryDate, test.expExp, fi)
 
 		// check Page Params
+		// TODO(bep) we need to rewrite these date tests to more unit style.
+		// The params checks below are currently flawed, as they don't check for the
+		// absense (nil) of a date.
 		checkDate(t, i+1, "param date", cast.ToTime(p.params["date"]), test.expDate, fi)
 		checkDate(t, i+1, "param publishdate", cast.ToTime(p.params["publishdate"]), test.expPub, fi)
 		checkDate(t, i+1, "param modified", cast.ToTime(p.params["modified"]), test.expMod, fi)

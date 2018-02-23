@@ -101,12 +101,12 @@ func (f frontmatterHandler) handleDates(d frontMatterDescriptor) error {
 		d.dates.Date = d.dates.PublishDate
 	}
 
-	if d.dates.PublishDate.IsZero() {
-		d.dates.PublishDate = d.dates.Date
-	}
-
 	if d.dates.Lastmod.IsZero() {
 		d.dates.Lastmod = d.dates.Date
+	}
+
+	if d.dates.Date.IsZero() {
+		d.dates.Date = d.dates.Lastmod
 	}
 
 	f.setParamIfNotZero("date", d.params, d.dates.Date)
