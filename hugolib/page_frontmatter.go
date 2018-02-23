@@ -87,6 +87,9 @@ func init() {
 }
 
 func (f frontmatterHandler) handleDates(d frontMatterDescriptor) error {
+	if d.dates == nil {
+		panic("missing dates")
+	}
 
 	err := f.handleDate(d)
 	if err != nil {
