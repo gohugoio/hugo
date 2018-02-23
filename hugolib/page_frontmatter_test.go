@@ -93,15 +93,20 @@ func doTestFrontMatterDates(t *testing.T, defaultDateSetting string) {
 
 	// See http://www.imdb.com/title/tt0133093/
 	for _, lastModKey := range []string{"lastmod", "modified"} {
+		testDate = testDate.Add(24 * time.Hour)
+		t.Log(lastModKey, testDate)
 		for _, lastModDate := range []time.Time{testDate, sentinel} {
 			for _, dateKey := range []string{"date"} {
 				testDate = testDate.Add(24 * time.Hour)
+				t.Log(dateKey, testDate)
 				for _, dateDate := range []time.Time{testDate, sentinel} {
 					for _, pubDateKey := range []string{"publishdate", "pubdate", "published"} {
 						testDate = testDate.Add(24 * time.Hour)
+						t.Log(pubDateKey, testDate)
 						for _, pubDateDate := range []time.Time{testDate, sentinel} {
 							for _, expiryDateKey := range []string{"expirydate", "unpublishdate"} {
 								testDate = testDate.Add(24 * time.Hour)
+								t.Log(expiryDateKey, testDate)
 								for _, expiryDateDate := range []time.Time{testDate, sentinel} {
 									d := frontMatterDescriptor{
 										frontmatter: make(map[string]interface{}),
@@ -110,16 +115,7 @@ func doTestFrontMatterDates(t *testing.T, defaultDateSetting string) {
 										pageURLs:    &URLPath{},
 									}
 
-									var (
-										//	expLastModP, expDateP, expPubDateP, expExiryDateP = sentinel, sentinel, sentinel, sentinel
-										expLastMod, expDate, expPubDate, expExiryDate = zero, zero, zero, zero
-									)
-
-									if lastModDate != sentinel {
-										d.frontmatter[lastModKey] = lastModDate
-										expLastMod = lastModDate
-										expDate = lastModDate
-									}
+									var expLastMod, expDate, expPubDate, expExiryDate = zero, zero, zero, zero
 
 									if dateDate != sentinel {
 										d.frontmatter[dateKey] = dateDate
@@ -129,11 +125,27 @@ func doTestFrontMatterDates(t *testing.T, defaultDateSetting string) {
 									if pubDateDate != sentinel {
 										d.frontmatter[pubDateKey] = pubDateDate
 										expPubDate = pubDateDate
+										if expDate.IsZero() {
+											expDate = expPubDate
+										}
+									}
+
+									if lastModDate != sentinel {
+										d.frontmatter[lastModKey] = lastModDate
+										expLastMod = lastModDate
+
+										if expDate.IsZero() {
+											expDate = lastModDate
+										}
 									}
 
 									if expiryDateDate != sentinel {
 										d.frontmatter[expiryDateKey] = expiryDateDate
 										expExiryDate = expiryDateDate
+									}
+
+									if expLastMod.IsZero() {
+										expLastMod = expDate
 									}
 
 									assert.NoError(handler.handleDates(d))
@@ -142,7 +154,6 @@ func doTestFrontMatterDates(t *testing.T, defaultDateSetting string) {
 									assertFrontMatterDate(assert, d, expLastMod, "lastmod")
 									assertFrontMatterDate(assert, d, expPubDate, "publishdate")
 									assertFrontMatterDate(assert, d, expExiryDate, "expirydate")
-
 								}
 							}
 						}
@@ -165,7 +176,12 @@ func assertFrontMatterDate(assert *require.Assertions, d frontMatterDescriptor, 
 
 	param, found := d.params[dateField]
 
-	message := fmt.Sprintf("[%s] Found: %t Expected: %v Params: %v Front matter: %v", dateField, found, expected, d.params, d.frontmatter)
+	if found && param.(time.Time).IsZero() {
+		assert.Fail("Zero time in params", dateField)
+	}
+
+	message := fmt.Sprintf("[%s] Found: %t Expected: %v (%t) Param: %v Params: %v Front matter: %v",
+		dateField, found, expected, expected.IsZero(), param, d.params, d.frontmatter)
 
 	assert.True(found != expected.IsZero(), message)
 
@@ -173,8 +189,6 @@ func assertFrontMatterDate(assert *require.Assertions, d frontMatterDescriptor, 
 		if expected != param {
 			assert.Fail("Params check failed", "[%s] Expected:\n%q\nGot:\n%q", dateField, expected, param)
 		}
-		assert.Equal(expected, param)
-
 	}
 }
 

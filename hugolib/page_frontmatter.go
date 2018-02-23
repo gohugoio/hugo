@@ -108,6 +108,11 @@ func (f frontmatterHandler) handleDates(d frontMatterDescriptor) error {
 		d.dates.Lastmod = d.dates.Date
 	}
 
+	// TODO(bep) date decide vs https://github.com/gohugoio/hugo/issues/3977
+	if d.dates.PublishDate.IsZero() {
+		//d.dates.PublishDate = d.dates.Date
+	}
+
 	if d.dates.Date.IsZero() {
 		d.dates.Date = d.dates.Lastmod
 	}
