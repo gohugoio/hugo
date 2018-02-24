@@ -21,6 +21,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mitchellh/mapstructure"
+
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/config"
@@ -198,6 +200,64 @@ func (f frontmatterHandler) newChainedFrontMatterFieldHandler(handlers ...frontM
 	}
 }
 
+type frontmatterConfig struct {
+	date        []string
+	lastMod     []string
+	publishDate []string
+	expiryDate  []string
+}
+
+const (
+	fmDate       = "date"
+	fmPubDate    = "publishdate"
+	fmLastMod    = "lastmod"
+	fmExpiryDate = "expirydate"
+)
+
+func newDefaultFrontmatterConfig() frontmatterConfig {
+	return frontmatterConfig{
+		date:        []string{fmDate, fmPubDate, fmLastMod},
+		lastMod:     []string{fmLastMod, fmDate},
+		publishDate: []string{fmPubDate, fmDate},
+		expiryDate:  []string{fmExpiryDate},
+	}
+}
+
+func newFrontmatterConfig(cfg config.Provider) (frontmatterConfig, error) {
+	c := newDefaultFrontmatterConfig()
+
+	if cfg.IsSet("frontmatter") {
+		fm := cfg.GetStringMap("frontmatter")
+		if fm != nil {
+			for k, v := range fm {
+				loki := strings.ToLower(k)
+				switch loki {
+				case fmDate:
+					c.date = toLowerSlice(v)
+				case fmPubDate:
+					c.publishDate = toLowerSlice(v)
+				case fmLastMod:
+					c.lastMod = toLowerSlice(v)
+				case fmExpiryDate:
+					c.expiryDate = toLowerSlice(v)
+				}
+			}
+		}
+		err := mapstructure.WeakDecode(fm, &c)
+		return c, err
+	}
+	return c, nil
+}
+
+func toLowerSlice(in interface{}) []string {
+	out := cast.ToStringSlice(in)
+	for i := 0; i < len(out); i++ {
+		out[i] = strings.ToLower(out[i])
+	}
+
+	return out
+}
+
 func newFrontmatterHandler(logger *jww.Notepad, cfg config.Provider) (frontmatterHandler, error) {
 
 	if logger == nil {
@@ -207,6 +267,16 @@ func newFrontmatterHandler(logger *jww.Notepad, cfg config.Provider) (frontmatte
 	f := frontmatterHandler{logger: logger}
 
 	handlers := &frontmatterFieldHandlers{logger: logger}
+
+	/*
+
+		[frontmatter]
+		date = ["date", "publishDate", "lastMod"]
+		lastMod = ["lastMod", "date"]
+		publishDate  = ["publishDate", "date"]
+		expiryDate = ["expiryDate"]
+
+	*/
 
 	dateHandlers := []frontMatterFieldHandler{handlers.defaultDateHandler}
 

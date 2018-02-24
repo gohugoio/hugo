@@ -61,26 +61,52 @@ func TestDateAndSlugFromBaseFilename(t *testing.T) {
 	}
 }
 
-func TestFrontMatterDates(t *testing.T) {
-	t.Parallel()
-
-	defaultDateSettings := []string{"none", "file"}
-
-	for _, defaultDateSetting := range defaultDateSettings {
-		t.Run(fmt.Sprintf("defaultDate=%s", defaultDateSetting), func(t *testing.T) {
-			doTestFrontMatterDates(t, defaultDateSetting)
-		})
-	}
-}
-
-func doTestFrontMatterDates(t *testing.T, defaultDateSetting string) {
+func TestFrontMatterNewConfig(t *testing.T) {
 	assert := require.New(t)
 
 	cfg := viper.New()
 
 	cfg.Set("frontmatter", map[string]interface{}{
-		"defaultDate": []string{defaultDateSetting},
+		"date":        []string{"publishDate", "LastMod"},
+		"Lastmod":     []string{"publishDate"},
+		"expiryDate":  []string{"lastMod"},
+		"publishDate": []string{"date"},
 	})
+
+	fc, err := newFrontmatterConfig(cfg)
+	assert.NoError(err)
+	assert.Equal([]string{"publishdate", "lastmod"}, fc.date)
+	assert.Equal([]string{"publishdate"}, fc.lastMod)
+	assert.Equal([]string{"lastmod"}, fc.expiryDate)
+	assert.Equal([]string{"date"}, fc.publishDate)
+
+	// Default
+	cfg = viper.New()
+	fc, err = newFrontmatterConfig(cfg)
+	assert.NoError(err)
+	assert.Equal(3, len(fc.date))
+	assert.Equal(2, len(fc.lastMod))
+	assert.Equal(2, len(fc.publishDate))
+	assert.Equal(1, len(fc.expiryDate))
+
+}
+
+func TestFrontMatterDatesConfigVariations(t *testing.T) {
+	cfg := viper.New()
+
+	cfg.Set("frontmatter", map[string]interface{}{
+		"defaultDate": []string{"date"},
+	})
+
+	fmt.Println(">>", cfg)
+}
+
+func TestFrontMatterDates(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	cfg := viper.New()
 
 	handler, err := newFrontmatterHandler(newWarningLogger(), cfg)
 	assert.NoError(err)
