@@ -54,6 +54,8 @@ func TestMakeSegment(t *testing.T) {
 		{"Say What??", "say-what"},
 		{"Your #1 Fan", "your-1-fan"},
 		{"Red & Blue", "red-blue"},
+		{"double//slash", "double-slash"},
+		{"My // Taxonomy", "my-taxonomy"},
 	}
 
 	for _, test := range tests {
