@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package pagemeta
 
 import (
 	"fmt"
@@ -32,37 +32,37 @@ import (
 
 // TODO(bep) should probably make the date handling chain complete to give people the flexibility they want.
 
-type frontmatterHandler struct {
+type FrontmatterHandler struct {
 	// Ordered chain.
 	dateHandlers frontMatterFieldHandler
 
 	logger *jww.Notepad
 }
 
-type frontMatterDescriptor struct {
+type FrontMatterDescriptor struct {
 
 	// This the Page's front matter.
-	frontmatter map[string]interface{}
+	Frontmatter map[string]interface{}
 
 	// This is the Page's base filename, e.g. page.md.
-	baseFilename string
+	BaseFilename string
 
 	// The content file's mod time.
-	modTime time.Time
+	ModTime time.Time
 
 	// The below are pointers to values on Page and will be updated.
 
 	// This is the Page's params.
-	params map[string]interface{}
+	Params map[string]interface{}
 
 	// This is the Page's dates.
-	dates *PageDates
+	Dates *PageDates
 
 	// This is the Page's Slug etc.
-	pageURLs *URLPath
+	PageURLs *URLPath
 }
 
-func (f frontmatterHandler) handleDate(d frontMatterDescriptor) error {
+func (f FrontmatterHandler) handleDate(d FrontMatterDescriptor) error {
 	_, err := f.dateHandlers(d)
 	return err
 }
@@ -88,8 +88,8 @@ func init() {
 	allDateFrontMatterKeys["date"] = true
 }
 
-func (f frontmatterHandler) handleDates(d frontMatterDescriptor) error {
-	if d.dates == nil {
+func (f FrontmatterHandler) HandleDates(d FrontMatterDescriptor) error {
+	if d.Dates == nil {
 		panic("missing dates")
 	}
 
@@ -97,61 +97,61 @@ func (f frontmatterHandler) handleDates(d frontMatterDescriptor) error {
 	if err != nil {
 		return err
 	}
-	d.dates.Lastmod = f.setParamsAndReturnFirstDate(d, lastModFrontMatterKeys)
-	d.dates.PublishDate = f.setParamsAndReturnFirstDate(d, publishDateFrontMatterKeys)
-	d.dates.ExpiryDate = f.setParamsAndReturnFirstDate(d, expiryDateFrontMatterKeys)
+	d.Dates.Lastmod = f.setParamsAndReturnFirstDate(d, lastModFrontMatterKeys)
+	d.Dates.PublishDate = f.setParamsAndReturnFirstDate(d, publishDateFrontMatterKeys)
+	d.Dates.ExpiryDate = f.setParamsAndReturnFirstDate(d, expiryDateFrontMatterKeys)
 
 	// Hugo really needs a date!
-	if d.dates.Date.IsZero() {
-		d.dates.Date = d.dates.PublishDate
+	if d.Dates.Date.IsZero() {
+		d.Dates.Date = d.Dates.PublishDate
 	}
 
-	if d.dates.Lastmod.IsZero() {
-		d.dates.Lastmod = d.dates.Date
+	if d.Dates.Lastmod.IsZero() {
+		d.Dates.Lastmod = d.Dates.Date
 	}
 
 	// TODO(bep) date decide vs https://github.com/gohugoio/hugo/issues/3977
-	if d.dates.PublishDate.IsZero() {
+	if d.Dates.PublishDate.IsZero() {
 		//d.dates.PublishDate = d.dates.Date
 	}
 
-	if d.dates.Date.IsZero() {
-		d.dates.Date = d.dates.Lastmod
+	if d.Dates.Date.IsZero() {
+		d.Dates.Date = d.Dates.Lastmod
 	}
 
-	f.setParamIfNotZero("date", d.params, d.dates.Date)
-	f.setParamIfNotZero("lastmod", d.params, d.dates.Lastmod)
-	f.setParamIfNotZero("publishdate", d.params, d.dates.PublishDate)
-	f.setParamIfNotZero("expirydate", d.params, d.dates.ExpiryDate)
+	f.setParamIfNotZero("date", d.Params, d.Dates.Date)
+	f.setParamIfNotZero("lastmod", d.Params, d.Dates.Lastmod)
+	f.setParamIfNotZero("publishdate", d.Params, d.Dates.PublishDate)
+	f.setParamIfNotZero("expirydate", d.Params, d.Dates.ExpiryDate)
 
 	return nil
 }
 
-func (f frontmatterHandler) isDateKey(key string) bool {
+func (f FrontmatterHandler) IsDateKey(key string) bool {
 	return allDateFrontMatterKeys[key]
 }
 
-func (f frontmatterHandler) setParamIfNotZero(name string, params map[string]interface{}, date time.Time) {
+func (f FrontmatterHandler) setParamIfNotZero(name string, params map[string]interface{}, date time.Time) {
 	if date.IsZero() {
 		return
 	}
 	params[name] = date
 }
 
-func (f frontmatterHandler) setParamsAndReturnFirstDate(d frontMatterDescriptor, keys []string) time.Time {
+func (f FrontmatterHandler) setParamsAndReturnFirstDate(d FrontMatterDescriptor, keys []string) time.Time {
 	var date time.Time
 
 	for _, key := range keys {
-		v, found := d.frontmatter[key]
+		v, found := d.Frontmatter[key]
 		if found {
 			currentDate, err := cast.ToTimeE(v)
 			if err == nil {
-				d.params[key] = currentDate
+				d.Params[key] = currentDate
 				if date.IsZero() {
 					date = currentDate
 				}
 			} else {
-				d.params[key] = v
+				d.Params[key] = v
 			}
 		}
 	}
@@ -183,10 +183,10 @@ func dateAndSlugFromBaseFilename(name string) (time.Time, string) {
 	return d, slug
 }
 
-type frontMatterFieldHandler func(d frontMatterDescriptor) (bool, error)
+type frontMatterFieldHandler func(d FrontMatterDescriptor) (bool, error)
 
-func (f frontmatterHandler) newChainedFrontMatterFieldHandler(handlers ...frontMatterFieldHandler) frontMatterFieldHandler {
-	return func(d frontMatterDescriptor) (bool, error) {
+func (f FrontmatterHandler) newChainedFrontMatterFieldHandler(handlers ...frontMatterFieldHandler) frontMatterFieldHandler {
+	return func(d FrontMatterDescriptor) (bool, error) {
 		for _, h := range handlers {
 			// First successful handler wins.
 			success, err := h(d)
@@ -258,15 +258,15 @@ func toLowerSlice(in interface{}) []string {
 	return out
 }
 
-func newFrontmatterHandler(logger *jww.Notepad, cfg config.Provider) (frontmatterHandler, error) {
+func NewFrontmatterHandler(logger *jww.Notepad, cfg config.Provider) (FrontmatterHandler, error) {
 
 	if logger == nil {
 		logger = jww.NewNotepad(jww.LevelWarn, jww.LevelWarn, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 	}
 
-	f := frontmatterHandler{logger: logger}
+	f := FrontmatterHandler{logger: logger}
 
-	handlers := &frontmatterFieldHandlers{logger: logger}
+	handlers := &frontmatterFieldHandlers{}
 
 	/*
 
@@ -308,11 +308,10 @@ func newFrontmatterHandler(logger *jww.Notepad, cfg config.Provider) (frontmatte
 }
 
 type frontmatterFieldHandlers struct {
-	logger *jww.Notepad
 }
 
-func (f *frontmatterFieldHandlers) defaultDateHandler(d frontMatterDescriptor) (bool, error) {
-	v, found := d.frontmatter["date"]
+func (f *frontmatterFieldHandlers) defaultDateHandler(d FrontMatterDescriptor) (bool, error) {
+	v, found := d.Frontmatter["date"]
 	if !found {
 		return false, nil
 	}
@@ -322,30 +321,30 @@ func (f *frontmatterFieldHandlers) defaultDateHandler(d frontMatterDescriptor) (
 		return false, err
 	}
 
-	d.dates.Date = date
+	d.Dates.Date = date
 
 	return true, nil
 }
 
-func (f *frontmatterFieldHandlers) defaultDateFilenameHandler(d frontMatterDescriptor) (bool, error) {
-	date, slug := dateAndSlugFromBaseFilename(d.baseFilename)
+func (f *frontmatterFieldHandlers) defaultDateFilenameHandler(d FrontMatterDescriptor) (bool, error) {
+	date, slug := dateAndSlugFromBaseFilename(d.BaseFilename)
 	if date.IsZero() {
 		return false, nil
 	}
 
-	d.dates.Date = date
+	d.Dates.Date = date
 
-	if _, found := d.frontmatter["slug"]; !found {
+	if _, found := d.Frontmatter["slug"]; !found {
 		// Use slug from filename
-		d.pageURLs.Slug = slug
+		d.PageURLs.Slug = slug
 	}
 
 	return true, nil
 }
 
-func (f *frontmatterFieldHandlers) defaultDateModTimeHandler(d frontMatterDescriptor) (bool, error) {
-	if !d.modTime.IsZero() {
-		d.dates.Date = d.modTime
+func (f *frontmatterFieldHandlers) defaultDateModTimeHandler(d FrontMatterDescriptor) (bool, error) {
+	if !d.ModTime.IsZero() {
+		d.Dates.Date = d.ModTime
 		return true, nil
 	}
 	return false, nil

@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package pagemeta
 
 import (
 	"fmt"
@@ -108,7 +108,7 @@ func TestFrontMatterDates(t *testing.T) {
 
 	cfg := viper.New()
 
-	handler, err := newFrontmatterHandler(newWarningLogger(), cfg)
+	handler, err := NewFrontmatterHandler(nil, cfg)
 	assert.NoError(err)
 
 	testDate, err := time.Parse("2006-01-02", "2018-02-01")
@@ -134,22 +134,22 @@ func TestFrontMatterDates(t *testing.T) {
 								testDate = testDate.Add(24 * time.Hour)
 								t.Log(expiryDateKey, testDate)
 								for _, expiryDateDate := range []time.Time{testDate, sentinel} {
-									d := frontMatterDescriptor{
-										frontmatter: make(map[string]interface{}),
-										params:      make(map[string]interface{}),
-										dates:       &PageDates{},
-										pageURLs:    &URLPath{},
+									d := FrontMatterDescriptor{
+										Frontmatter: make(map[string]interface{}),
+										Params:      make(map[string]interface{}),
+										Dates:       &PageDates{},
+										PageURLs:    &URLPath{},
 									}
 
 									var expLastMod, expDate, expPubDate, expExiryDate = zero, zero, zero, zero
 
 									if dateDate != sentinel {
-										d.frontmatter[dateKey] = dateDate
+										d.Frontmatter[dateKey] = dateDate
 										expDate = dateDate
 									}
 
 									if pubDateDate != sentinel {
-										d.frontmatter[pubDateKey] = pubDateDate
+										d.Frontmatter[pubDateKey] = pubDateDate
 										expPubDate = pubDateDate
 										if expDate.IsZero() {
 											expDate = expPubDate
@@ -157,7 +157,7 @@ func TestFrontMatterDates(t *testing.T) {
 									}
 
 									if lastModDate != sentinel {
-										d.frontmatter[lastModKey] = lastModDate
+										d.Frontmatter[lastModKey] = lastModDate
 										expLastMod = lastModDate
 
 										if expDate.IsZero() {
@@ -166,7 +166,7 @@ func TestFrontMatterDates(t *testing.T) {
 									}
 
 									if expiryDateDate != sentinel {
-										d.frontmatter[expiryDateKey] = expiryDateDate
+										d.Frontmatter[expiryDateKey] = expiryDateDate
 										expExiryDate = expiryDateDate
 									}
 
@@ -174,7 +174,7 @@ func TestFrontMatterDates(t *testing.T) {
 										expLastMod = expDate
 									}
 
-									assert.NoError(handler.handleDates(d))
+									assert.NoError(handler.HandleDates(d))
 
 									assertFrontMatterDate(assert, d, expDate, "date")
 									assertFrontMatterDate(assert, d, expLastMod, "lastmod")
@@ -190,7 +190,7 @@ func TestFrontMatterDates(t *testing.T) {
 	}
 }
 
-func assertFrontMatterDate(assert *require.Assertions, d frontMatterDescriptor, expected time.Time, dateField string) {
+func assertFrontMatterDate(assert *require.Assertions, d FrontMatterDescriptor, expected time.Time, dateField string) {
 	switch dateField {
 	case "date":
 	case "lastmod":
@@ -200,14 +200,14 @@ func assertFrontMatterDate(assert *require.Assertions, d frontMatterDescriptor, 
 		assert.Failf("Unknown datefield %s", dateField)
 	}
 
-	param, found := d.params[dateField]
+	param, found := d.Params[dateField]
 
 	if found && param.(time.Time).IsZero() {
 		assert.Fail("Zero time in params", dateField)
 	}
 
 	message := fmt.Sprintf("[%s] Found: %t Expected: %v (%t) Param: %v Params: %v Front matter: %v",
-		dateField, found, expected, expected.IsZero(), param, d.params, d.frontmatter)
+		dateField, found, expected, expected.IsZero(), param, d.Params, d.Frontmatter)
 
 	assert.True(found != expected.IsZero(), message)
 
@@ -218,16 +218,7 @@ func assertFrontMatterDate(assert *require.Assertions, d frontMatterDescriptor, 
 	}
 }
 
-type dateTestHelper struct {
-	name string
-
-	dates PageDates
-}
-
-func (d dateTestHelper) descriptor() frontMatterDescriptor {
-	return frontMatterDescriptor{dates: &d.dates}
-}
-
-func (d dateTestHelper) assert(t *testing.T) {
+func TestFrontMatterFieldHandlers(t *testing.T) {
+	//handlers := &frontmatterFieldHandlers{}
 
 }

@@ -42,6 +42,7 @@ import (
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugolib/pagemeta"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/related"
@@ -122,7 +123,7 @@ type Site struct {
 	mediaTypesConfig    media.Types
 
 	// How to handle page front matter.
-	frontmatterHandler frontmatterHandler
+	frontmatterHandler pagemeta.FrontmatterHandler
 
 	// We render each site for all the relevant output formats in serial with
 	// this rendering context pointing to the current one.
@@ -252,7 +253,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 
 	titleFunc := helpers.GetTitleFunc(cfg.Language.GetString("titleCaseStyle"))
 
-	frontMatterHandler, err := newFrontmatterHandler(cfg.Logger, cfg.Cfg)
+	frontMatterHandler, err := pagemeta.NewFrontmatterHandler(cfg.Logger, cfg.Cfg)
 	if err != nil {
 		return nil, err
 	}

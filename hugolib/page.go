@@ -25,6 +25,7 @@ import (
 	"github.com/bep/gitmap"
 
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugolib/pagemeta"
 	"github.com/gohugoio/hugo/resource"
 
 	"github.com/gohugoio/hugo/output"
@@ -220,10 +221,12 @@ type Page struct {
 	Keywords    []string
 	Data        map[string]interface{}
 
-	PageDates
+	pagemeta.PageDates
 
 	Sitemap Sitemap
-	URLPath
+	pagemeta.URLPath
+	frontMatterURL string
+
 	permalink    string
 	relPermalink string
 
@@ -258,13 +261,6 @@ type Page struct {
 	mainPageOutput *PageOutput
 
 	targetPathDescriptorPrototype *targetPathDescriptor
-}
-
-type PageDates struct {
-	Date        time.Time
-	Lastmod     time.Time
-	PublishDate time.Time
-	ExpiryDate  time.Time
 }
 
 // SearchKeywords implements the related.Document interface needed for fast page searches.
@@ -1123,17 +1119,18 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		mtime = p.Source.FileInfo().ModTime()
 	}
 
-	descriptor := frontMatterDescriptor{
-		frontmatter:  frontmatter,
-		params:       p.params,
-		dates:        &p.PageDates,
-		pageURLs:     &p.URLPath,
-		baseFilename: p.BaseFileName(), modTime: mtime}
+	descriptor := pagemeta.FrontMatterDescriptor{
+		Frontmatter:  frontmatter,
+		Params:       p.params,
+		Dates:        &p.PageDates,
+		PageURLs:     &p.URLPath,
+		BaseFilename: p.BaseFileName(),
+		ModTime:      mtime}
 
 	// Handle the date separately
 	// TODO(bep) we need to "do more" in this area so this can be split up and
 	// more easily tested without the Page, but the coupling is strong.
-	err := p.s.frontmatterHandler.handleDates(descriptor)
+	err := p.s.frontmatterHandler.HandleDates(descriptor)
 	if err != nil {
 		p.s.Log.ERROR.Printf("Failed to handle dates for page %q: %s", p.Path(), err)
 	}
@@ -1151,7 +1148,7 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 			continue
 		}
 
-		if p.s.frontmatterHandler.isDateKey(loki) {
+		if p.s.frontmatterHandler.IsDateKey(loki) {
 			continue
 		}
 
@@ -1173,7 +1170,7 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 				return fmt.Errorf("Only relative URLs are supported, %v provided", url)
 			}
 			p.URLPath.URL = cast.ToString(v)
-			p.URLPath.frontMatterURL = p.URLPath.URL
+			p.frontMatterURL = p.URLPath.URL
 			p.params[loki] = p.URLPath.URL
 		case "type":
 			p.contentType = cast.ToString(v)
@@ -1827,14 +1824,6 @@ func (p *Page) RelRef(refs ...string) (string, error) {
 
 func (p *Page) String() string {
 	return fmt.Sprintf("Page(%q)", p.title)
-}
-
-type URLPath struct {
-	URL            string
-	frontMatterURL string
-	Permalink      string
-	Slug           string
-	Section        string
 }
 
 // Scratch returns the writable context associated with this Page.
