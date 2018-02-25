@@ -161,18 +161,12 @@ func (s *Site) assembleSections() Pages {
 	)
 
 	var (
-		home       *Page
 		inPages    = radix.New().Txn()
 		inSections = radix.New().Txn()
 		undecided  Pages
 	)
 
-	homes := s.findPagesByKind(KindHome)
-	if len(homes) == 1 {
-		home = homes[0]
-	} else if len(homes) > 1 {
-		panic("Too many homes")
-	}
+	home := s.findFirstPageByKindIn(KindHome, s.Pages)
 
 	for i, p := range s.Pages {
 		if p.Kind != KindPage {

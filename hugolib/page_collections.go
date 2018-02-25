@@ -152,6 +152,15 @@ func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {
 	return pages
 }
 
+func (*PageCollections) findFirstPageByKindIn(kind string, inPages Pages) *Page {
+	for _, p := range inPages {
+		if p.Kind == kind {
+			return p
+		}
+	}
+	return nil
+}
+
 func (*PageCollections) findPagesByKindNotIn(kind string, inPages Pages) Pages {
 	var pages Pages
 	for _, p := range inPages {
