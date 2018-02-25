@@ -167,11 +167,15 @@ func (s *Site) assembleSections() Pages {
 		undecided  Pages
 	)
 
+	homes := s.findPagesByKind(KindHome)
+	if len(homes) == 1 {
+		home = homes[0]
+	} else if len(homes) > 1 {
+		panic("Too many homes")
+	}
+
 	for i, p := range s.Pages {
 		if p.Kind != KindPage {
-			if p.Kind == KindHome {
-				home = p
-			}
 			continue
 		}
 
