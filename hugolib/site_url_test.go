@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -123,4 +124,59 @@ Do not go gentle into that good night.
 	ugly := s.getPage(KindPage, "sect2/p2.md")
 	assert.NotNil(ugly)
 	assert.Equal("/sect2/p2.html", ugly.RelPermalink())
+}
+
+func TestSectionWithURLInFrontMatter(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	const st = `---
+title: Do not go gentle into that good night
+url: %s
+---
+
+Wild men who caught and sang the sun in flight,
+And learn, too late, they grieved it on its way,
+Do not go gentle into that good night.
+
+`
+
+	const pt = `---
+title: Wild men who caught and sang the sun in flight
+---
+
+Wild men who caught and sang the sun in flight,
+And learn, too late, they grieved it on its way,
+Do not go gentle into that good night.
+
+`
+
+	cfg, fs := newTestCfg()
+	th := testHelper{cfg, fs, t}
+
+	cfg.Set("paginate", 1)
+
+	writeSource(t, fs, filepath.Join("content", "sect1", "_index.md"), fmt.Sprintf(st, "/ss1/"))
+	writeSource(t, fs, filepath.Join("content", "sect2", "_index.md"), fmt.Sprintf(st, "/ss2/"))
+
+	for i := 0; i < 5; i++ {
+		writeSource(t, fs, filepath.Join("content", "sect1", fmt.Sprintf("p%d.md", i+1)), pt)
+		writeSource(t, fs, filepath.Join("content", "sect2", fmt.Sprintf("p%d.md", i+1)), pt)
+	}
+
+	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), "<html><body>{{.Content}}</body></html>")
+	writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"),
+		"<html><body>P{{.Paginator.PageNumber}}|URL: {{.Paginator.URL}}|{{ if .Paginator.HasNext }}Next: {{.Paginator.Next.URL }}{{ end }}</body></html>")
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+	assert.Len(s.RegularPages, 10)
+
+	sect1 := s.getPage(KindSection, "sect1")
+	assert.NotNil(sect1)
+	assert.Equal("/ss1/", sect1.RelPermalink())
+	th.assertFileContent(filepath.Join("public", "ss1", "index.html"), "P1|URL: /ss1/|Next: /ss1/page/2/")
+	th.assertFileContent(filepath.Join("public", "ss1", "page", "2", "index.html"), "P2|URL: /ss1/page/2/|Next: /ss1/page/3/")
+
 }
