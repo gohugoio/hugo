@@ -273,7 +273,7 @@ func TestImageResize8BitPNG(t *testing.T) {
 	resized, err := image.Resize("800x")
 	assert.NoError(err)
 	assert.Equal(imaging.PNG, resized.format)
-	assert.Equal("/a/gohugoio_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_800x0_resize_linear_1.png", resized.RelPermalink())
+	assert.Equal("/a/gohugoio_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_800x0_resize_linear_2.png", resized.RelPermalink())
 	assert.Equal(800, resized.Width())
 
 }

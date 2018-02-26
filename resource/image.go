@@ -80,7 +80,7 @@ var (
 	// Add or increment if changes to an image format's processing requires
 	// re-generation.
 	imageFormatsVersions = map[imaging.Format]int{
-		imaging.PNG: 1, // 1: Add proper palette handling
+		imaging.PNG: 2, // Floyd Steinberg dithering
 	}
 
 	// Increment to mark all processed images as stale. Only use when absolutely needed.
@@ -266,7 +266,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 			// Apply the colour palette from the source
 			if paletted, ok := src.(*image.Paletted); ok {
 				tmp := image.NewPaletted(converted.Bounds(), paletted.Palette)
-				draw.Src.Draw(tmp, tmp.Bounds(), converted, converted.Bounds().Min)
+				draw.FloydSteinberg.Draw(tmp, tmp.Bounds(), converted, converted.Bounds().Min)
 				converted = tmp
 			}
 		}
