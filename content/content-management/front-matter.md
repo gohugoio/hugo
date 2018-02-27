@@ -167,8 +167,6 @@ include_toc: true
 show_comments: false
 ```
 
-These two user-defined fields can then be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables][variables] section provides more information on using Hugo's page- and site-level variables in your templates.
-
 
 ## Order Content Through Front Matter
 
