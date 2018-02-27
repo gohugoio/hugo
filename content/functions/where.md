@@ -134,4 +134,21 @@ Only the following operators are available for `nil`
 {{ end }}
 ```
 
+## Portable `where` filters
+
+This is especially important for themes, but to list the most relevant pages on the front page or similar, you can use `.Site.Params.mainSections` list.
+
+This will, by default, list pages from the _section with the most pages_.
+
+```html
+{{ $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections }}
+```
+
+The user can override the default in `config.toml`:
+
+```toml
+[params]
+mainSections = ["blog", "docs"]
+```
+
 [intersect]: /functions/intersect/

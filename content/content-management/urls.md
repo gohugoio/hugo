@@ -146,7 +146,7 @@ aliases: [/posts/my-old-url/]
 ---
 ```
 
-Assuming a `baseURL` of `example.com`, the contents of the auto-generated alias `.html` found at `https://example.com/posts/my-old-url/ will contain the following:`
+Assuming a `baseURL` of `example.com`, the contents of the auto-generated alias `.html` found at `https://example.com/posts/my-old-url/` will contain the following:
 
 ```
 <!DOCTYPE html>
