@@ -274,7 +274,7 @@ Stuff Here
 {{ end }}
 ```
 
-### Example 4: Internet Explorer Conditional Comments
+### Example 4: Internet Explorer Conditional Comments {#ie-conditional-comments}
 
 By default, Go Templates remove HTML comments from output. This has the unfortunate side effect of removing Internet Explorer conditional comments. As a workaround, use something like this:
 
@@ -373,6 +373,45 @@ Go considers the following characters whitespace:
 * horizontal <kbd>tab</kbd>
 * carriage <kbd>return</kbd>
 * newline
+
+## Comments
+
+In order to keep your templates organized and share information throughout your team, you may want to add comments to your templates. There are two ways to do that with Hugo.
+
+### Go templates comments
+
+Go templates support `{{/*` and `*/}}` to open and close a comment block. Nothing within that block will be rendered.
+
+For example:
+
+```
+Bonsoir, {{/* {{ add 0 + 2 }} */}}Eliott.
+```
+
+Will render `Bonsoir, Eliott.`, and not care about the syntax error (`add 0 + 2`) in the comment block.
+
+### HTML comments
+
+If you need to produce HTML comments from your templates, take a look at the [Internet Explorer conditional comments](#ie-conditional-comments) example. If you need variables to construct such HTML comments, just pipe `printf` to `safeHTML`. For example:
+
+```
+{{ printf "<!-- Our website is named: %s -->" .Site.Title | safeHTML }}
+```
+
+#### HTML comments containing Go templates
+
+HTML comments are by default stripped, but their content is still evaluated. That means that although the HTML comment will never render any content to the final HTML pages, code contained within the comment may fail the build process.
+
+{{% note %}}
+Do **not** try to comment out Go template code using HTML comments.
+{{% /note %}}
+
+```
+<!-- {{ $author := "Emma Goldman" }} was a great woman. -->
+{{ $author }}
+```
+
+The templating engine will strip the content within the HTML comment, but will first evaluate any Go template code if present within. So the above example will render `Emma Goldman`, as the `$author` variable got evaluated in the HTML comment. But the build would have failed if that code in the HTML comment had an error.
 
 ## Hugo Parameters
 
