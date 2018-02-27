@@ -309,7 +309,7 @@ enableemoji: true
 ```
 {{% /note %}}
 
-## Environmental Variables
+## Configure with Environment Variables
 
 In addition to the 3 config options already mentioned, configuration key-values can be defined through operating system environment variables.
 
@@ -319,9 +319,15 @@ For example, the following command will effectively set a website's title on Uni
 $ env HUGO_TITLE="Some Title" hugo
 ```
 
+This is really useful if you use a service such as Netlify to deploy your site. Look at the Hugo docs [Netlify configuration file](https://github.com/gohugoio/hugoDocs/blob/master/netlify.toml) for an example.
+
 {{% note "Setting Environment Variables" %}}
 Names must be prefixed with `HUGO_` and the configuration key must be set in uppercase when setting operating system environment variables.
 {{% /note %}}
+
+{{< todo >}}
+Test and document setting params via JSON env var.
+{{< /todo >}}
 
 ## Ignore Files When Rendering
 
