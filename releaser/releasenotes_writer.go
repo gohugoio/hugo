@@ -299,11 +299,10 @@ images:
 date: %s
 title: %q
 description: %q
-slug: %q
 categories: ["Releases"]%s
 ---
 
-	`, time.Now().Format("2006-01-02"), title, title, title, fmTail)); err != nil {
+	`, time.Now().Format("2006-01-02"), title, title, fmTail)); err != nil {
 		return "", err
 	}
 
