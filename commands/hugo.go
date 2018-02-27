@@ -776,6 +776,9 @@ func (c *commandeer) copyStaticTo(dirs *src.Dirs, publishDir string) (uint64, er
 }
 
 func (c *commandeer) timeTrack(start time.Time, name string) {
+	if quiet {
+		return
+	}
 	elapsed := time.Since(start)
 	c.Logger.FEEDBACK.Printf("%s in %v ms", name, int(1000*elapsed.Seconds()))
 }
