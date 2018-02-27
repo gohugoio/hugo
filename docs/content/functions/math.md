@@ -20,14 +20,19 @@ draft: false
 aliases: []
 ---
 
-| Function       | Description                                                                   | Example                          |
-|----------------|-------------------------------------------------------------------------------|----------------------------------|
-| `add`          | Adds two integers.                                                            | `{{add 1 2}}` &rarr; 3           |
-| `div`          | Divides two integers.                                                         | `{{div 6 3}}` &rarr; 2           |
-| `mod`          | Modulus of two integers.                                                      | `{{mod 15 3}}` &rarr; 0          |
-| `modBool`      | Boolean of modulus of two integers. Evaluates to `true` if result equals 0.   | `{{modBool 15 3}}` &rarr; true   |
-| `mul`          | Multiplies two integers.                                                      | `{{mul 2 3}}` &rarr; 6           |
-| `sub`          | Subtracts two integers.                                                       | `{{sub 3 2}}` &rarr; 1           |
-| `math.Ceil`    | Returns the least integer value greater than or equal to the given number.    | `{{math.Ceil 2.1}}` &rarr; 3     |
-| `math.Floor`   | Returns the greatest integer value less than or equal to the given number.    | `{{math.Floor 1.9}}` &rarr; 1    |
-| `math.Round`   | Returns the nearest integer, rounding half away from zero.                    | `{{math.Round 1.5}}` &rarr; 2    |
+| Function     | Description                                                                 | Example                          |
+|--------------|-----------------------------------------------------------------------------|----------------------------------|
+| `add`        | Adds two numbers.                                                           | `{{add 1 2}}` &rarr; `3`         |
+|              | *If one of the numbers is a float, the result is a float.*                  | `{{add 1.1 2}}` &rarr; `3.1`     |
+| `sub`        | Subtracts two numbers.                                                      | `{{sub 3 2}}` &rarr; `1`         |
+|              | *If one of the numbers is a float, the result is a float.*                  | `{{sub 3 2.5}}` &rarr; `0.5`     |
+| `mul`        | Multiplies two numbers.                                                     | `{{mul 2 3}}` &rarr; `6`         |
+|              | *If one of the numbers is a float, the result is a float.*                  | `{{mul 2 3.1}}` &rarr; `6.2`     |
+| `div`        | Divides two numbers.                                                        | `{{div 6 3}}` &rarr; `2`         |
+|              |                                                                             | `{{div 6 4}}` &rarr; `1`         |
+|              | *If one of the numbers is a float, the result is a float.*                  | `{{div 6 4.0}}` &rarr; `1.5`     |
+| `mod`        | Modulus of two integers.                                                    | `{{mod 15 3}}` &rarr; `0`        |
+| `modBool`    | Boolean of modulus of two integers. Evaluates to `true` if result equals 0. | `{{modBool 15 3}}` &rarr; `true` |
+| `math.Ceil`  | Returns the least integer value greater than or equal to the given number.  | `{{math.Ceil 2.1}}` &rarr; `3`   |
+| `math.Floor` | Returns the greatest integer value less than or equal to the given number.  | `{{math.Floor 1.9}}` &rarr; `1`  |
+| `math.Round` | Returns the nearest integer, rounding half away from zero.                  | `{{math.Round 1.5}}` &rarr; `2`  |

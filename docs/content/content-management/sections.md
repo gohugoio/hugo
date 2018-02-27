@@ -38,7 +38,7 @@ blog
 {{% note %}}
 When we talk about a **section** in correlation with template selection, it is currently always the root section only (`/blog/funny/mypost/ => blog`). 
 
-It is currently not possible to add a specific layout for one of the sub-sections.
+If you need a specific template for a sub-section, you need to adjust either the `type` or `layout` in front matter.
 {{% /note %}}
 
 
