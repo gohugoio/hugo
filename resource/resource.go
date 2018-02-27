@@ -23,8 +23,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/disintegration/imaging"
-
 	"github.com/spf13/cast"
 
 	"github.com/gobwas/glob"
@@ -288,6 +286,15 @@ func (r *Spec) newResource(
 	gr := r.newGenericResource(targetPathBuilder, fi, absPublishDir, absSourceFilename, filepath.ToSlash(relTargetFilename), mimeType)
 
 	if mimeType == "image" {
+		ext := strings.ToLower(helpers.Ext(absSourceFilename))
+
+		imgFormat, ok := imageFormats[ext]
+		if !ok {
+			// This allows SVG etc. to be used as resources. They will not have the methods of the Image, but
+			// that would not (currently) have worked.
+			return gr, nil
+		}
+
 		f, err := r.Fs.Source.Open(absSourceFilename)
 		if err != nil {
 			return nil, err
@@ -297,13 +304,6 @@ func (r *Spec) newResource(
 		hash, err := helpers.MD5FromFileFast(f)
 		if err != nil {
 			return nil, err
-		}
-
-		ext := strings.ToLower(helpers.Ext(absSourceFilename))
-
-		imgFormat, ok := imageFormats[ext]
-		if !ok {
-			return nil, imaging.ErrUnsupportedFormat
 		}
 
 		return &Image{

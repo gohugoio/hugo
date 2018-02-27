@@ -88,6 +88,12 @@ func fetchImage(assert *require.Assertions, name string) *Image {
 }
 
 func fetchImageForSpec(spec *Spec, assert *require.Assertions, name string) *Image {
+	r := fetchResourceForSpec(spec, assert, name)
+	assert.IsType(&Image{}, r)
+	return r.(*Image)
+}
+
+func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) Resource {
 	src, err := os.Open("testdata/" + name)
 	assert.NoError(err)
 
@@ -107,10 +113,9 @@ func fetchImageForSpec(spec *Spec, assert *require.Assertions, name string) *Ima
 
 	r, err := spec.NewResourceFromFilename(factory, "/public", f, name)
 	assert.NoError(err)
-	assert.IsType(&Image{}, r)
-	return r.(*Image)
-}
 
+	return r
+}
 func assertFileCache(assert *require.Assertions, fs *hugofs.Fs, filename string, width, height int) {
 	f, err := fs.Source.Open(filepath.Join("/res/_gen/images", filename))
 	assert.NoError(err)
