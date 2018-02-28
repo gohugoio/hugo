@@ -1,19 +1,10 @@
 ---
 
-# A suitable title for this article.
 title: Small Multiples 
-
-# Set this to the current date.
 date: 2018-02-28
-
-description: "Website for the Small Multiples agency."
-
-# The URL to the site on the internet.
+description: "\"Hugo has excellent support and integration with Netlify and we were immediately blown away by how fast it was.\""
 siteURL: https://smallmultiples.com.au/
-
-# Add credit to the article author. Leave blank or remove if not needed/wanted.
 byline: "[Small Multiples](https://smallmultiples.com.au/)"
-
 ---
 
 Previously we had built and hosted our website with SquareSpace. Although SquareSpace was adequate for quickly showcasing our work, we felt it didn’t reflect our technical capabilities and the types of products we build for our clients.
