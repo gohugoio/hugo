@@ -5,6 +5,7 @@ date: 2018-02-28
 description: "\"Hugo has excellent support and integration with Netlify and we were immediately blown away by how fast it was.\""
 siteURL: https://smallmultiples.com.au/
 byline: "[Small Multiples](https://smallmultiples.com.au/)"
+draft: true
 ---
 
 Previously we had built and hosted our website with SquareSpace. Although SquareSpace was adequate for quickly showcasing our work, we felt it didn’t reflect our technical capabilities and the types of products we build for our clients.
