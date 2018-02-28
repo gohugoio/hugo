@@ -5,7 +5,7 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', '{{ . }}');
+  gtag('config', '{{ . }}', {'branch': '{{ getenv "BRANCH" }}'});
 
 /**
 * Function that tracks a click on an outbound link in Analytics.
