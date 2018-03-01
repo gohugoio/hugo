@@ -114,26 +114,24 @@ Hugo will automatically add the following header line to this file on render. Pl
 
 ## Reference your RSS Feed in `<head>`
 
-In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag like this:
+In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag using Hugo's [Output Formats][Output Formats] like this:
 
 ```
-{{ if .RSSLink }}
-  <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
-  <link href="{{ .RSSLink }}" rel="feed" type="application/rss+xml" title="{{ .Site.Title }}" />
-{{ end }}
+{{ range .AlternativeOutputFormats -}}
+  <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ $.Site.Title }}">
+{{ end -}}
 ```
 
-...with the auto-discovery link specified by the line with `rel="alternate"`.
-
-The `.RSSLink` will render the appropriate RSS feed URL for the section, whether it's everything, posts in a section, or a taxonomy.
-
-If you reference your RSS link, be sure to specify the MIME type with `type="application/rss+xml"`.
+If you only want the RSS link, you can query the formats: 
 
 ```
-<a href="{{ .URL }}" type="application/rss+xml" target="_blank">{{ .SomeText }}</a>
+{{ with .OutputFormats.Get "rss" -}}
+  <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ $.Site.Title }}">
+{{ end -}
 ```
-
+ 
 [config]: /getting-started/configuration/
 [embedded]: #the-embedded-rss-xml
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
 [section]: /content-management/sections/
+[Output Formats]: /templates/output-formats/#link-to-output-formats
