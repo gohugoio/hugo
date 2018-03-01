@@ -6,7 +6,7 @@
   gtag('js', new Date());
 
   {{ $site := $.Site.BaseURL | replaceRE "^https?://(www\\.)?([^/]+).*" "$2" }}
-  gtag('config', '{{ . }}', {'site': '{{ $site }}', 'branch': '{{ getenv "BRANCH" }}'});
+  gtag('config', '{{ . }}', {'dimension1': '{{ $site }}', 'dimension2': '{{ getenv "BRANCH" }}'});
 
 /**
 * Function that tracks a click on an outbound link in Analytics.
