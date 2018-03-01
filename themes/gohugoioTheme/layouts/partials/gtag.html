@@ -5,7 +5,7 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  {{ $site := .Site.BaseURL | replaceRE "^https?://(www\\.)?([^/]+).*" "$2" }}
+  {{ $site := $.Site.BaseURL | replaceRE "^https?://(www\\.)?([^/]+).*" "$2" }}
   gtag('config', '{{ . }}', {'site': '{{ $site }}', 'branch': '{{ getenv "BRANCH" }}'});
 
 /**
