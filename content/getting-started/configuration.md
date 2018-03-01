@@ -23,7 +23,6 @@ toc: true
 
 The following is the full list of Hugo-defined variables with its default value in parens.
 
-
 archetypeDir ("archetypes")
 : The directory where Hugo finds archetype files (content templates).
 
@@ -33,14 +32,11 @@ baseURL
 buildDrafts (false)
 : Include drafts when building.
 
-buildFuture (false)
-: Include content with publishdate in the future.
-
 buildExpired  (false)
 : Include content already expired.
 
-relativeURLs (false)
-: Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+buildFuture (false)
+: Include content with publishdate in the future.
 
 canonifyURLs (false)
 : Enable to turn relative URLs into absolute.
@@ -60,20 +56,14 @@ defaultContentLanguage ("en")
 defaultContentLanguageInSubdir (false)
 : Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/.
 
-disableLiveReload (false)
-: Turn off automatic live reloading of browser window.
-
-enableGitInfo (false)
-: If the Hugo site is versioned by Git, you will then get a `.GitInfo` object per page, and `Lastmod` will get updated by the last commit date for content.	
-
-enableRobotsTXT (false)
-: When enabled, Hugo will generate a `robots.txt` file.
-
 disableHugoGeneratorInject (false)
 : Hugo will, by default, inject a generator meta tag in the HTML head on the _home page only_. You can turn it off, but we would really appreciate if you don't, as this is a good way to watch Hugo's popularity on the rise.
 
 disableKinds ([])
 : Allows you to disable all page types and will render nothing related to 'kind'. Allowed values are "page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404".
+
+disableLiveReload (false)
+: Turn off automatic live reloading of browser window.
 
 disablePathToLower (false)
 : Do not make the url/path to lowercase.
@@ -81,8 +71,14 @@ disablePathToLower (false)
 enableEmoji (false)
 : Enable Emoji emoticons support for page content; see emoji-cheat-sheet.com.
 
+enableGitInfo (false)
+: If the Hugo site is versioned by Git, you will then get a `.GitInfo` object per page, and `Lastmod` will get updated by the last commit date for content.	
+
 enableMissingTranslationPlaceholders (false)
 : Show a placeholder instead of the default value or an empty string if a translation is missing
+
+enableRobotsTXT (false)
+: When enabled, Hugo will generate a `robots.txt` file.
 
 footnoteAnchorPrefix ("")
 : A prefix for your footnote anchors.
@@ -99,9 +95,6 @@ hasCJKLanguage (false)
 languageCode ("")
 : The site's language code.
 
-summaryLength (70)
-: The length of text to show in a `.Summary`.
-
 layoutDir ("layouts")
 : The directory from where Hugo reads layouts (templates).
 
@@ -110,9 +103,6 @@ log (false)
 
 logFile ("")
 : Log File path (if set, logging enabled automatically).
-
-rssLimit (15)
-: Maximum number of items in the RSS feed.
 
 metaDataFormat ("toml")
 : "toml","yaml", or "json"
@@ -153,6 +143,12 @@ pygmentsStyle ("monokai")
 pygmentsUseClasses (false)
 : Enable to use external CSS for code highlighting.
 
+relativeURLs (false)
+: Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+
+rssLimit (15)
+: Maximum number of items in the RSS feed.
+
 sectionPagesMenu ("")(
 : See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-for-lazy-bloggers).
 
@@ -165,11 +161,17 @@ staticDir ("static")
 stepAnalysis (false)
 : Display memory and timing of different steps of the program.
 
-themesDir ("themes")
-: The directory where Hugo reads the themes from.
+summaryLength (70)
+: The length of text to show in a `.Summary`.
+
+taxonomies
+: See [Configure Taxonomies](content-management/taxonomies#configure-taxonomies)
 
 theme ("")
 : Theme to use (located by default in /themes/THEMENAME/)
+
+themesDir ("themes")
+: The directory where Hugo reads the themes from.
 
 title ("")
 : Site title.
@@ -185,10 +187,6 @@ verboseLog (false)
 
 watch (false)
 : Watch filesystem for changes and recreate as needed.
-
-taxonomies
-: See [Configure Taxonomies](content-management/taxonomies#configure-taxonomies)
-
 
 {{% note %}}
 If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
