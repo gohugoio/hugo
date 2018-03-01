@@ -1,4 +1,4 @@
-// Copyright 2016-present The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,12 +11,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package helpers
+package langs
 
 import (
 	"sort"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/cast"
 )
@@ -73,7 +74,7 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 	for k, v := range cfg.GetStringMap("params") {
 		params[k] = v
 	}
-	ToLowerMap(params)
+	maps.ToLower(params)
 
 	defaultContentDir := cfg.GetString("contentDir")
 	if defaultContentDir == "" {

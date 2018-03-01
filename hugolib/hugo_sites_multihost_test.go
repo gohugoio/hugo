@@ -55,8 +55,6 @@ languageName = "Nynorsk"
 
 	s1 := b.H.Sites[0]
 
-	assert.Equal([]string{"s1", "s2", "ens1", "ens2"}, s1.StaticDirs())
-
 	s1h := s1.getPage(KindHome)
 	assert.True(s1h.IsTranslated())
 	assert.Len(s1h.Translations(), 2)
@@ -79,7 +77,6 @@ languageName = "Nynorsk"
 	b.AssertFileContent("public/en/al/alias2/index.html", `content="0; url=https://example.com/docs/superbob/"`)
 
 	s2 := b.H.Sites[1]
-	assert.Equal([]string{"s1", "s2", "frs1", "frs2"}, s2.StaticDirs())
 
 	s2h := s2.getPage(KindHome)
 	assert.Equal("https://example.fr/", s2h.Permalink())

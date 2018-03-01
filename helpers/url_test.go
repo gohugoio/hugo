@@ -19,16 +19,15 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestURLize(t *testing.T) {
 
-	v := viper.New()
-	v.Set("contentDir", "content")
-	l := NewDefaultLanguage(v)
+	v := newTestCfg()
+	l := langs.NewDefaultLanguage(v)
 	p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
 	tests := []struct {
@@ -64,7 +63,7 @@ func TestAbsURL(t *testing.T) {
 }
 
 func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
-	v := viper.New()
+	v := newTestCfg()
 	v.Set("multilingual", multilingual)
 	v.Set("defaultContentLanguage", "en")
 	v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
@@ -90,7 +89,7 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 	for _, test := range tests {
 		v.Set("baseURL", test.baseURL)
 		v.Set("contentDir", "content")
-		l := NewLanguage(lang, v)
+		l := langs.NewLanguage(lang, v)
 		p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
 		output := p.AbsURL(test.input, addLanguage)
@@ -140,7 +139,7 @@ func TestRelURL(t *testing.T) {
 }
 
 func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool, lang string) {
-	v := viper.New()
+	v := newTestCfg()
 	v.Set("multilingual", multilingual)
 	v.Set("defaultContentLanguage", "en")
 	v.Set("defaultContentLanguageInSubdir", defaultInSubDir)
@@ -168,8 +167,7 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 	for i, test := range tests {
 		v.Set("baseURL", test.baseURL)
 		v.Set("canonifyURLs", test.canonify)
-		v.Set("contentDir", "content")
-		l := NewLanguage(lang, v)
+		l := langs.NewLanguage(lang, v)
 		p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
 		output := p.RelURL(test.input, addLanguage)
@@ -255,10 +253,9 @@ func TestURLPrep(t *testing.T) {
 	}
 
 	for i, d := range data {
-		v := viper.New()
+		v := newTestCfg()
 		v.Set("uglyURLs", d.ugly)
-		v.Set("contentDir", "content")
-		l := NewDefaultLanguage(v)
+		l := langs.NewDefaultLanguage(v)
 		p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
 		output := p.URLPrep(d.input)

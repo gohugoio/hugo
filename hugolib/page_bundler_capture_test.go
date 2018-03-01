@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"sort"
 
+	"github.com/gohugoio/hugo/common/loggers"
+
 	jww "github.com/spf13/jwalterweatherman"
 
 	"runtime"
@@ -92,7 +94,7 @@ func TestPageBundlerCaptureSymlinks(t *testing.T) {
 	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.ContentFs)
 
 	fileStore := &storeFilenames{}
-	logger := newErrorLogger()
+	logger := loggers.NewErrorLogger()
 	c := newCapturer(logger, sourceSpec, fileStore, nil)
 
 	assert.NoError(c.capture())
@@ -139,11 +141,9 @@ func TestPageBundlerCaptureBasic(t *testing.T) {
 
 	fileStore := &storeFilenames{}
 
-	c := newCapturer(newErrorLogger(), sourceSpec, fileStore, nil)
+	c := newCapturer(loggers.NewErrorLogger(), sourceSpec, fileStore, nil)
 
 	assert.NoError(c.capture())
-
-	printFs(fs.Source, "", os.Stdout)
 
 	expected := `
 F:
@@ -185,7 +185,7 @@ func TestPageBundlerCaptureMultilingual(t *testing.T) {
 
 	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.ContentFs)
 	fileStore := &storeFilenames{}
-	c := newCapturer(newErrorLogger(), sourceSpec, fileStore, nil)
+	c := newCapturer(loggers.NewErrorLogger(), sourceSpec, fileStore, nil)
 
 	assert.NoError(c.capture())
 
@@ -265,7 +265,7 @@ func BenchmarkPageBundlerCapture(b *testing.B) {
 			writeSource(b, fs, filepath.Join(base, "contentonly", fmt.Sprintf("c%d.md", i)), "content")
 		}
 
-		capturers[i] = newCapturer(newErrorLogger(), sourceSpec, new(noOpFileStore), nil, base)
+		capturers[i] = newCapturer(loggers.NewErrorLogger(), sourceSpec, new(noOpFileStore), nil, base)
 	}
 
 	b.ResetTimer()

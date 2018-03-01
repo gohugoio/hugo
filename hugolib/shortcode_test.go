@@ -34,7 +34,9 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -46,7 +48,7 @@ func pageFromString(in, filename string, withTemplate ...func(templ tpl.Template
 		var err error
 		cfg, fs := newTestCfg()
 
-		d := deps.DepsCfg{Language: helpers.NewLanguage("en", cfg), Cfg: cfg, Fs: fs, WithTemplate: withTemplate[0]}
+		d := deps.DepsCfg{Language: langs.NewLanguage("en", cfg), Cfg: cfg, Fs: fs, WithTemplate: withTemplate[0]}
 
 		s, err = NewSiteForCfg(d)
 		if err != nil {

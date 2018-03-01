@@ -220,7 +220,7 @@ func (sp *SourceSpec) NewFileInfo(baseDir, filename string, isLeafBundle bool, f
 
 // Open implements ReadableFile.
 func (fi *FileInfo) Open() (io.ReadCloser, error) {
-	f, err := fi.sp.PathSpec.Fs.Source.Open(fi.Filename())
+	f, err := fi.sp.SourceFs.Open(fi.Filename())
 	return f, err
 }
 

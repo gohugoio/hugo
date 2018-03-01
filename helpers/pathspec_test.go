@@ -1,4 +1,4 @@
-// Copyright 2016-present The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,20 +18,16 @@ import (
 
 	"github.com/gohugoio/hugo/hugofs"
 
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewPathSpecFromConfig(t *testing.T) {
-	v := viper.New()
-	v.Set("contentDir", "content")
-	l := NewLanguage("no", v)
+	v := newTestCfg()
+	l := langs.NewLanguage("no", v)
 	v.Set("disablePathToLower", true)
 	v.Set("removePathAccents", true)
 	v.Set("uglyURLs", true)
-	v.Set("multilingual", true)
-	v.Set("defaultContentLanguageInSubdir", true)
-	v.Set("defaultContentLanguage", "no")
 	v.Set("canonifyURLs", true)
 	v.Set("paginatePath", "side")
 	v.Set("baseURL", "http://base.com")
@@ -44,19 +40,15 @@ func TestNewPathSpecFromConfig(t *testing.T) {
 	p, err := NewPathSpec(hugofs.NewMem(v), l)
 
 	require.NoError(t, err)
-	require.True(t, p.canonifyURLs)
-	require.True(t, p.defaultContentLanguageInSubdir)
-	require.True(t, p.disablePathToLower)
-	require.True(t, p.multilingual)
-	require.True(t, p.removePathAccents)
-	require.True(t, p.uglyURLs)
-	require.Equal(t, "no", p.defaultContentLanguage)
+	require.True(t, p.CanonifyURLs)
+	require.True(t, p.DisablePathToLower)
+	require.True(t, p.RemovePathAccents)
+	require.True(t, p.UglyURLs)
 	require.Equal(t, "no", p.Language.Lang)
-	require.Equal(t, "side", p.paginatePath)
+	require.Equal(t, "side", p.PaginatePath)
 
 	require.Equal(t, "http://base.com", p.BaseURL.String())
-	require.Equal(t, "thethemes", p.themesDir)
-	require.Equal(t, "thelayouts", p.layoutDir)
-	require.Equal(t, "thework", p.workingDir)
-	require.Equal(t, "thetheme", p.theme)
+	require.Equal(t, "thethemes", p.ThemesDir)
+	require.Equal(t, "thework", p.WorkingDir)
+	require.Equal(t, []string{"thetheme"}, p.Themes())
 }

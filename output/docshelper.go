@@ -68,7 +68,7 @@ func createLayoutExamples() interface{} {
 		{"Taxonomy term in categories", LayoutDescriptor{Kind: "taxonomyTerm", Type: "categories", Section: "category"}, false, HTMLFormat},
 	} {
 
-		l := NewLayoutHandler(example.hasTheme)
+		l := NewLayoutHandler()
 		layouts, _ := l.For(example.d, example.f)
 
 		basicExamples = append(basicExamples, Example{

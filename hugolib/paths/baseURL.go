@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package helpers
+package paths
 
 import (
 	"fmt"
@@ -28,6 +28,10 @@ type BaseURL struct {
 
 func (b BaseURL) String() string {
 	return b.urlStr
+}
+
+func (b BaseURL) Path() string {
+	return b.url.Path
 }
 
 // WithProtocol returns the BaseURL prefixed with the given protocol.

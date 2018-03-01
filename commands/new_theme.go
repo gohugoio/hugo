@@ -54,7 +54,7 @@ as you see fit.`,
 }
 
 func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
-	c, err := initializeConfig(false, &n.hugoBuilderCommon, n, nil)
+	c, err := initializeConfig(false, false, &n.hugoBuilderCommon, n, nil)
 
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 		return newUserError("theme name needs to be provided")
 	}
 
-	createpath := c.PathSpec().AbsPathify(filepath.Join(c.Cfg.GetString("themesDir"), args[0]))
+	createpath := c.hugo.PathSpec.AbsPathify(filepath.Join(c.Cfg.GetString("themesDir"), args[0]))
 	jww.INFO.Println("creating theme at", createpath)
 
 	cfg := c.DepsCfg
@@ -140,7 +140,7 @@ description = ""
 homepage = "http://example.com/"
 tags = []
 features = []
-min_version = "0.38"
+min_version = "0.41"
 
 [author]
   name = ""

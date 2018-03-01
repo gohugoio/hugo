@@ -27,6 +27,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/langs"
+
+	src "github.com/gohugoio/hugo/source"
+
 	"github.com/gohugoio/hugo/resource"
 
 	"golang.org/x/sync/errgroup"
@@ -107,7 +111,7 @@ type Site struct {
 	expiredCount int
 
 	Data     map[string]interface{}
-	Language *helpers.Language
+	Language *langs.Language
 
 	disabledKinds map[string]bool
 
@@ -175,7 +179,7 @@ func (s *Site) isEnabled(kind string) bool {
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
 	return &Site{Deps: s.Deps,
-		layoutHandler:       output.NewLayoutHandler(s.PathSpec.ThemeSet()),
+		layoutHandler:       output.NewLayoutHandler(),
 		disabledKinds:       s.disabledKinds,
 		titleFunc:           s.titleFunc,
 		relatedDocsHandler:  newSearchIndexHandler(s.relatedDocsHandler.cfg),
@@ -195,7 +199,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 	c := newPageCollections()
 
 	if cfg.Language == nil {
-		cfg.Language = helpers.NewDefaultLanguage(cfg.Cfg)
+		cfg.Language = langs.NewDefaultLanguage(cfg.Cfg)
 	}
 
 	disabledKinds := make(map[string]bool)
@@ -261,7 +265,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 
 	s := &Site{
 		PageCollections:     c,
-		layoutHandler:       output.NewLayoutHandler(cfg.Cfg.GetString("themesDir") != ""),
+		layoutHandler:       output.NewLayoutHandler(),
 		Language:            cfg.Language,
 		disabledKinds:       disabledKinds,
 		titleFunc:           titleFunc,
@@ -304,7 +308,7 @@ func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateHandler) error) (
 	if err := loadDefaultSettingsFor(v); err != nil {
 		return nil, err
 	}
-	return newSiteForLang(helpers.NewDefaultLanguage(v), withTemplate...)
+	return newSiteForLang(langs.NewDefaultLanguage(v), withTemplate...)
 }
 
 // NewEnglishSite creates a new site in English language.
@@ -316,11 +320,11 @@ func NewEnglishSite(withTemplate ...func(templ tpl.TemplateHandler) error) (*Sit
 	if err := loadDefaultSettingsFor(v); err != nil {
 		return nil, err
 	}
-	return newSiteForLang(helpers.NewLanguage("en", v), withTemplate...)
+	return newSiteForLang(langs.NewLanguage("en", v), withTemplate...)
 }
 
 // newSiteForLang creates a new site in the given language.
-func newSiteForLang(lang *helpers.Language, withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
+func newSiteForLang(lang *langs.Language, withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
 	withTemplates := func(templ tpl.TemplateHandler) error {
 		for _, wt := range withTemplate {
 			if err := wt(templ); err != nil {
@@ -389,9 +393,9 @@ type SiteInfo struct {
 	owner                          *HugoSites
 	s                              *Site
 	multilingual                   *Multilingual
-	Language                       *helpers.Language
+	Language                       *langs.Language
 	LanguagePrefix                 string
-	Languages                      helpers.Languages
+	Languages                      langs.Languages
 	defaultContentLanguageInSubdir bool
 	sectionPagesMenu               string
 }
@@ -431,7 +435,7 @@ func (s *SiteInfo) DisqusShortname() string {
 // Used in tests.
 
 type siteBuilderCfg struct {
-	language        *helpers.Language
+	language        *langs.Language
 	s               *Site
 	pageCollections *PageCollections
 }
@@ -805,15 +809,13 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 
 }
 
-func (s *Site) loadData(sourceDirs []string) (err error) {
-	s.Log.DEBUG.Printf("Load Data from %d source(s)", len(sourceDirs))
+func (s *Site) loadData(fs afero.Fs) (err error) {
+	spec := src.NewSourceSpec(s.PathSpec, fs)
+	fileSystem := spec.NewFilesystem("")
 	s.Data = make(map[string]interface{})
-	for _, sourceDir := range sourceDirs {
-		fs := s.SourceSpec.NewFilesystem(sourceDir)
-		for _, r := range fs.Files() {
-			if err := s.handleDataFile(r); err != nil {
-				return err
-			}
+	for _, r := range fileSystem.Files() {
+		if err := s.handleDataFile(r); err != nil {
+			return err
 		}
 	}
 
@@ -831,12 +833,17 @@ func (s *Site) handleDataFile(r source.ReadableFile) error {
 
 	// Crawl in data tree to insert data
 	current = s.Data
-	for _, key := range strings.Split(r.Dir(), helpers.FilePathSeparator) {
-		if key != "" {
-			if _, ok := current[key]; !ok {
-				current[key] = make(map[string]interface{})
+	keyParts := strings.Split(r.Dir(), helpers.FilePathSeparator)
+	// The first path element is the virtual folder (typically theme name), which is
+	// not part of the key.
+	if len(keyParts) > 1 {
+		for _, key := range keyParts[1:] {
+			if key != "" {
+				if _, ok := current[key]; !ok {
+					current[key] = make(map[string]interface{})
+				}
+				current = current[key].(map[string]interface{})
 			}
-			current = current[key].(map[string]interface{})
 		}
 	}
 
@@ -919,18 +926,7 @@ func (s *Site) readData(f source.ReadableFile) (interface{}, error) {
 }
 
 func (s *Site) readDataFromSourceFS() error {
-	var dataSourceDirs []string
-
-	// have to be last - duplicate keys in earlier entries will win
-	themeDataDir, err := s.PathSpec.GetThemeDataDirPath()
-	if err == nil {
-		dataSourceDirs = []string{s.absDataDir(), themeDataDir}
-	} else {
-		dataSourceDirs = []string{s.absDataDir()}
-
-	}
-
-	err = s.loadData(dataSourceDirs)
+	err := s.loadData(s.PathSpec.BaseFs.Data.Fs)
 	s.timerStep("load data")
 	return err
 }
@@ -1041,10 +1037,6 @@ func (s *Site) Initialise() (err error) {
 func (s *Site) initialize() (err error) {
 	s.Menus = Menus{}
 
-	if err = s.checkDirectories(); err != nil {
-		return err
-	}
-
 	return s.initializeSiteInfo()
 }
 
@@ -1071,7 +1063,7 @@ func (s *SiteInfo) SitemapAbsURL() string {
 func (s *Site) initializeSiteInfo() error {
 	var (
 		lang      = s.Language
-		languages helpers.Languages
+		languages langs.Languages
 	)
 
 	if s.owner != nil && s.owner.multilingual != nil {
@@ -1166,126 +1158,24 @@ func (s *Site) initializeSiteInfo() error {
 	return nil
 }
 
-func (s *Site) dataDir() string {
-	return s.Cfg.GetString("dataDir")
-}
-
-func (s *Site) absDataDir() string {
-	return s.PathSpec.AbsPathify(s.dataDir())
-}
-
-func (s *Site) i18nDir() string {
-	return s.Cfg.GetString("i18nDir")
-}
-
-func (s *Site) absI18nDir() string {
-	return s.PathSpec.AbsPathify(s.i18nDir())
-}
-
 func (s *Site) isI18nEvent(e fsnotify.Event) bool {
-	if s.getI18nDir(e.Name) != "" {
-		return true
-	}
-	return s.getThemeI18nDir(e.Name) != ""
-}
-
-func (s *Site) getI18nDir(path string) string {
-	return s.getRealDir(s.absI18nDir(), path)
-}
-
-func (s *Site) getThemeI18nDir(path string) string {
-	if !s.PathSpec.ThemeSet() {
-		return ""
-	}
-	return s.getRealDir(filepath.Join(s.PathSpec.GetThemeDir(), s.i18nDir()), path)
+	return s.BaseFs.SourceFilesystems.IsI18n(e.Name)
 }
 
 func (s *Site) isDataDirEvent(e fsnotify.Event) bool {
-	if s.getDataDir(e.Name) != "" {
-		return true
-	}
-	return s.getThemeDataDir(e.Name) != ""
-}
-
-func (s *Site) getDataDir(path string) string {
-	return s.getRealDir(s.absDataDir(), path)
-}
-
-func (s *Site) getThemeDataDir(path string) string {
-	if !s.PathSpec.ThemeSet() {
-		return ""
-	}
-	return s.getRealDir(filepath.Join(s.PathSpec.GetThemeDir(), s.dataDir()), path)
-}
-
-func (s *Site) layoutDir() string {
-	return s.Cfg.GetString("layoutDir")
+	return s.BaseFs.SourceFilesystems.IsData(e.Name)
 }
 
 func (s *Site) isLayoutDirEvent(e fsnotify.Event) bool {
-	if s.getLayoutDir(e.Name) != "" {
-		return true
-	}
-	return s.getThemeLayoutDir(e.Name) != ""
-}
-
-func (s *Site) getLayoutDir(path string) string {
-	return s.getRealDir(s.PathSpec.GetLayoutDirPath(), path)
-}
-
-func (s *Site) getThemeLayoutDir(path string) string {
-	if !s.PathSpec.ThemeSet() {
-		return ""
-	}
-	return s.getRealDir(filepath.Join(s.PathSpec.GetThemeDir(), s.layoutDir()), path)
+	return s.BaseFs.SourceFilesystems.IsLayout(e.Name)
 }
 
 func (s *Site) absContentDir() string {
-	return s.PathSpec.AbsPathify(s.PathSpec.ContentDir())
+	return s.PathSpec.AbsPathify(s.PathSpec.ContentDir)
 }
 
 func (s *Site) isContentDirEvent(e fsnotify.Event) bool {
-	relDir, _ := s.PathSpec.RelContentDir(e.Name)
-	return relDir != e.Name
-}
-
-func (s *Site) getContentDir(path string) string {
-	return s.getRealDir(s.absContentDir(), path)
-}
-
-// getRealDir gets the base path of the given path, also handling the case where
-// base is a symlinked folder.
-func (s *Site) getRealDir(base, path string) string {
-
-	if strings.HasPrefix(path, base) {
-		return base
-	}
-
-	realDir, err := helpers.GetRealPath(s.Fs.Source, base)
-
-	if err != nil {
-		if !os.IsNotExist(err) {
-			s.Log.ERROR.Printf("Failed to get real path for %s: %s", path, err)
-		}
-		return ""
-	}
-
-	if strings.HasPrefix(path, realDir) {
-		return realDir
-	}
-
-	return ""
-}
-
-func (s *Site) absPublishDir() string {
-	return s.PathSpec.AbsPathify(s.Cfg.GetString("publishDir"))
-}
-
-func (s *Site) checkDirectories() (err error) {
-	if b, _ := helpers.DirExists(s.absContentDir(), s.Fs.Source); !b {
-		return errors.New("No source directory found, expecting to find it at " + s.absContentDir())
-	}
-	return
+	return s.BaseFs.IsContent(e.Name)
 }
 
 type contentCaptureResultHandler struct {
@@ -1871,9 +1761,7 @@ func (s *Site) findFirstTemplate(layouts ...string) tpl.Template {
 func (s *Site) publish(statCounter *uint64, path string, r io.Reader) (err error) {
 	s.PathSpec.ProcessingStats.Incr(statCounter)
 
-	path = filepath.Join(s.absPublishDir(), path)
-
-	return helpers.WriteToDisk(path, r, s.Fs.Destination)
+	return helpers.WriteToDisk(filepath.Clean(path), r, s.BaseFs.PublishFs)
 }
 
 func getGoMaxProcs() int {

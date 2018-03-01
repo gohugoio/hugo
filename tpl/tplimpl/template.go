@@ -86,6 +86,10 @@ type templateHandler struct {
 
 	errors []*templateErr
 
+	// This is the filesystem to load the templates from. All the templates are
+	// stored in the root of this filesystem.
+	layoutsFs afero.Fs
+
 	*deps.Deps
 }
 
@@ -129,10 +133,11 @@ func (t *templateHandler) Lookup(name string) *tpl.TemplateAdapter {
 
 func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
 	c := &templateHandler{
-		Deps:   d,
-		html:   &htmlTemplates{t: template.Must(t.html.t.Clone()), overlays: make(map[string]*template.Template)},
-		text:   &textTemplates{t: texttemplate.Must(t.text.t.Clone()), overlays: make(map[string]*texttemplate.Template)},
-		errors: make([]*templateErr, 0),
+		Deps:      d,
+		layoutsFs: d.BaseFs.Layouts.Fs,
+		html:      &htmlTemplates{t: template.Must(t.html.t.Clone()), overlays: make(map[string]*template.Template)},
+		text:      &textTemplates{t: texttemplate.Must(t.text.t.Clone()), overlays: make(map[string]*texttemplate.Template)},
+		errors:    make([]*templateErr, 0),
 	}
 
 	d.Tmpl = c
@@ -170,10 +175,11 @@ func newTemplateAdapter(deps *deps.Deps) *templateHandler {
 		overlays: make(map[string]*texttemplate.Template),
 	}
 	return &templateHandler{
-		Deps:   deps,
-		html:   htmlT,
-		text:   textT,
-		errors: make([]*templateErr, 0),
+		Deps:      deps,
+		layoutsFs: deps.BaseFs.Layouts.Fs,
+		html:      htmlT,
+		text:      textT,
+		errors:    make([]*templateErr, 0),
 	}
 
 }
@@ -208,13 +214,16 @@ func (t *htmlTemplates) Lookup(name string) *tpl.TemplateAdapter {
 }
 
 func (t *htmlTemplates) lookup(name string) *template.Template {
-	if templ := t.t.Lookup(name); templ != nil {
-		return templ
-	}
+
+	// Need to check in the overlay registry first as it will also be found below.
 	if t.overlays != nil {
 		if templ, ok := t.overlays[name]; ok {
 			return templ
 		}
+	}
+
+	if templ := t.t.Lookup(name); templ != nil {
+		return templ
 	}
 
 	if t.clone != nil {
@@ -248,13 +257,16 @@ func (t *textTemplates) Lookup(name string) *tpl.TemplateAdapter {
 }
 
 func (t *textTemplates) lookup(name string) *texttemplate.Template {
-	if templ := t.t.Lookup(name); templ != nil {
-		return templ
-	}
+
+	// Need to check in the overlay registry first as it will also be found below.
 	if t.overlays != nil {
 		if templ, ok := t.overlays[name]; ok {
 			return templ
 		}
+	}
+
+	if templ := t.t.Lookup(name); templ != nil {
+		return templ
 	}
 
 	if t.clone != nil {
@@ -287,11 +299,11 @@ func (t *textTemplates) setFuncs(funcMap map[string]interface{}) {
 	t.t.Funcs(funcMap)
 }
 
-// LoadTemplates loads the templates, starting from the given absolute path.
+// LoadTemplates loads the templates from the layouts filesystem.
 // A prefix can be given to indicate a template namespace to load the templates
 // into, i.e. "_internal" etc.
-func (t *templateHandler) LoadTemplates(absPath, prefix string) {
-	t.loadTemplates(absPath, prefix)
+func (t *templateHandler) LoadTemplates(prefix string) {
+	t.loadTemplates(prefix)
 
 }
 
@@ -406,85 +418,49 @@ func (t *templateHandler) RebuildClone() {
 	t.text.clone = texttemplate.Must(t.text.cloneClone.Clone())
 }
 
-func (t *templateHandler) loadTemplates(absPath string, prefix string) {
-	t.Log.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
+func (t *templateHandler) loadTemplates(prefix string) {
 	walker := func(path string, fi os.FileInfo, err error) error {
+		if err != nil || fi.IsDir() {
+			return nil
+		}
+
+		if isDotFile(path) || isBackupFile(path) || isBaseTemplate(path) {
+			return nil
+		}
+
+		workingDir := t.PathSpec.WorkingDir
+
+		descriptor := output.TemplateLookupDescriptor{
+			WorkingDir:    workingDir,
+			RelPath:       path,
+			Prefix:        prefix,
+			OutputFormats: t.OutputFormatsConfig,
+			FileExists: func(filename string) (bool, error) {
+				return helpers.Exists(filename, t.Layouts.Fs)
+			},
+			ContainsAny: func(filename string, subslices [][]byte) (bool, error) {
+				return helpers.FileContainsAny(filename, subslices, t.Layouts.Fs)
+			},
+		}
+
+		tplID, err := output.CreateTemplateNames(descriptor)
 		if err != nil {
+			t.Log.ERROR.Printf("Failed to resolve template in path %q: %s", path, err)
+
 			return nil
 		}
 
-		t.Log.DEBUG.Println("Template path", path)
-		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-			link, err := filepath.EvalSymlinks(absPath)
-			if err != nil {
-				t.Log.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
-				return nil
-			}
-
-			linkfi, err := t.Fs.Source.Stat(link)
-			if err != nil {
-				t.Log.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
-				return nil
-			}
-
-			if !linkfi.Mode().IsRegular() {
-				t.Log.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
-			}
-			return nil
+		if err := t.addTemplateFile(tplID.Name, tplID.MasterFilename, tplID.OverlayFilename); err != nil {
+			t.Log.ERROR.Printf("Failed to add template %q in path %q: %s", tplID.Name, path, err)
 		}
 
-		if !fi.IsDir() {
-			if isDotFile(path) || isBackupFile(path) || isBaseTemplate(path) {
-				return nil
-			}
-
-			var (
-				workingDir = t.PathSpec.WorkingDir()
-				themeDir   = t.PathSpec.GetThemeDir()
-				layoutDir  = t.PathSpec.LayoutDir()
-			)
-
-			if themeDir != "" && strings.HasPrefix(absPath, themeDir) {
-				layoutDir = "layouts"
-			}
-
-			li := strings.LastIndex(path, layoutDir) + len(layoutDir) + 1
-			relPath := path[li:]
-			templateDir := path[:li-len(layoutDir)-1]
-
-			descriptor := output.TemplateLookupDescriptor{
-				TemplateDir:   templateDir,
-				WorkingDir:    workingDir,
-				LayoutDir:     layoutDir,
-				RelPath:       relPath,
-				Prefix:        prefix,
-				ThemeDir:      themeDir,
-				OutputFormats: t.OutputFormatsConfig,
-				FileExists: func(filename string) (bool, error) {
-					return helpers.Exists(filename, t.Fs.Source)
-				},
-				ContainsAny: func(filename string, subslices [][]byte) (bool, error) {
-					return helpers.FileContainsAny(filename, subslices, t.Fs.Source)
-				},
-			}
-
-			tplID, err := output.CreateTemplateNames(descriptor)
-			if err != nil {
-				t.Log.ERROR.Printf("Failed to resolve template in path %q: %s", path, err)
-
-				return nil
-			}
-
-			if err := t.addTemplateFile(tplID.Name, tplID.MasterFilename, tplID.OverlayFilename); err != nil {
-				t.Log.ERROR.Printf("Failed to add template %q in path %q: %s", tplID.Name, path, err)
-			}
-
-		}
 		return nil
 	}
-	if err := helpers.SymbolicWalk(t.Fs.Source, absPath, walker); err != nil {
+
+	if err := helpers.SymbolicWalk(t.Layouts.Fs, "", walker); err != nil {
 		t.Log.ERROR.Printf("Failed to load templates: %s", err)
 	}
+
 }
 
 func (t *templateHandler) initFuncs() {
@@ -534,6 +510,7 @@ func (t *templateHandler) handleMaster(name, overlayFilename, masterFilename str
 }
 
 func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (string, error)) error {
+
 	masterTpl := t.lookup(masterFilename)
 
 	if masterTpl == nil {
@@ -565,6 +542,7 @@ func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename strin
 	if err := applyTemplateTransformersToHMLTTemplate(overlayTpl); err != nil {
 		return err
 	}
+
 	t.overlays[name] = overlayTpl
 
 	return err
@@ -572,6 +550,7 @@ func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename strin
 }
 
 func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (string, error)) error {
+
 	name = strings.TrimPrefix(name, textTmplNamePrefix)
 	masterTpl := t.lookup(masterFilename)
 
@@ -610,12 +589,16 @@ func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename strin
 func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) error {
 	t.checkState()
 
+	t.Log.DEBUG.Printf("Add template file: name %q, baseTemplatePath %q, path %q", name, baseTemplatePath, path)
+
 	getTemplate := func(filename string) (string, error) {
-		b, err := afero.ReadFile(t.Fs.Source, filename)
+		b, err := afero.ReadFile(t.Layouts.Fs, filename)
 		if err != nil {
 			return "", err
 		}
-		return string(b), nil
+		s := string(b)
+
+		return s, nil
 	}
 
 	// get the suffix and switch on that
@@ -625,7 +608,7 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 		//	Only HTML support for Amber
 		withoutExt := strings.TrimSuffix(name, filepath.Ext(name))
 		templateName := withoutExt + ".html"
-		b, err := afero.ReadFile(t.Fs.Source, path)
+		b, err := afero.ReadFile(t.Layouts.Fs, path)
 
 		if err != nil {
 			return err
@@ -654,14 +637,14 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 	case ".ace":
 		//	Only HTML support for Ace
 		var innerContent, baseContent []byte
-		innerContent, err := afero.ReadFile(t.Fs.Source, path)
+		innerContent, err := afero.ReadFile(t.Layouts.Fs, path)
 
 		if err != nil {
 			return err
 		}
 
 		if baseTemplatePath != "" {
-			baseContent, err = afero.ReadFile(t.Fs.Source, baseTemplatePath)
+			baseContent, err = afero.ReadFile(t.Layouts.Fs, baseTemplatePath)
 			if err != nil {
 				return err
 			}
@@ -679,8 +662,6 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 		if err != nil {
 			return err
 		}
-
-		t.Log.DEBUG.Printf("Add template file from path %s", path)
 
 		return t.AddTemplate(name, templ)
 	}

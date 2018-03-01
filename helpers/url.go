@@ -177,7 +177,7 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 	}
 
 	if addLanguage {
-		prefix := p.getLanguagePrefix()
+		prefix := p.GetLanguagePrefix()
 		if prefix != "" {
 			hasPrefix := false
 			// avoid adding language prefix if already present
@@ -200,38 +200,6 @@ func (p *PathSpec) AbsURL(in string, addLanguage bool) string {
 	return MakePermalink(baseURL, in).String()
 }
 
-func (p *PathSpec) getLanguagePrefix() string {
-	if !p.multilingual {
-		return ""
-	}
-
-	defaultLang := p.defaultContentLanguage
-	defaultInSubDir := p.defaultContentLanguageInSubdir
-
-	currentLang := p.Language.Lang
-	if currentLang == "" || (currentLang == defaultLang && !defaultInSubDir) {
-		return ""
-	}
-	return currentLang
-}
-
-// GetLangSubDir returns the given language's subdir if needed.
-func (p *PathSpec) GetLangSubDir(lang string) string {
-	if !p.multilingual {
-		return ""
-	}
-
-	if p.Languages.IsMultihost() {
-		return ""
-	}
-
-	if lang == "" || (lang == p.defaultContentLanguage && !p.defaultContentLanguageInSubdir) {
-		return ""
-	}
-
-	return lang
-}
-
 // IsAbsURL determines whether the given path points to an absolute URL.
 func IsAbsURL(path string) bool {
 	url, err := url.Parse(path)
@@ -246,7 +214,7 @@ func IsAbsURL(path string) bool {
 // Note: The result URL will not include the context root if canonifyURLs is enabled.
 func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 	baseURL := p.BaseURL.String()
-	canonifyURLs := p.canonifyURLs
+	canonifyURLs := p.CanonifyURLs
 	if (!strings.HasPrefix(in, baseURL) && strings.HasPrefix(in, "http")) || strings.HasPrefix(in, "//") {
 		return in
 	}
@@ -258,7 +226,7 @@ func (p *PathSpec) RelURL(in string, addLanguage bool) string {
 	}
 
 	if addLanguage {
-		prefix := p.getLanguagePrefix()
+		prefix := p.GetLanguagePrefix()
 		if prefix != "" {
 			hasPrefix := false
 			// avoid adding language prefix if already present
@@ -339,7 +307,7 @@ func (p *PathSpec) URLizeAndPrep(in string) string {
 
 // URLPrep applies misc sanitation to the given URL.
 func (p *PathSpec) URLPrep(in string) string {
-	if p.uglyURLs {
+	if p.UglyURLs {
 		return Uglify(SanitizeURL(in))
 	}
 	pretty := PrettifyURL(SanitizeURL(in))

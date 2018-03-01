@@ -27,6 +27,7 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -164,7 +165,7 @@ func TestScpGetRemoteParallel(t *testing.T) {
 }
 
 func newDeps(cfg config.Provider) *deps.Deps {
-	l := helpers.NewLanguage("en", cfg)
+	l := langs.NewLanguage("en", cfg)
 	l.Set("i18nDir", "i18n")
 	cs, err := helpers.NewContentSpec(l)
 	if err != nil {

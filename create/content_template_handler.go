@@ -89,10 +89,11 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 	)
 
 	ps, err := helpers.NewPathSpec(s.Deps.Fs, s.Deps.Cfg)
-	sp := source.NewSourceSpec(ps, ps.Fs.Source)
 	if err != nil {
 		return nil, err
 	}
+	sp := source.NewSourceSpec(ps, ps.Fs.Source)
+
 	f := sp.NewFileInfo("", targetPath, false, nil)
 
 	name := f.TranslationBaseName()
@@ -115,9 +116,9 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 		// TODO(bep) archetype revive the issue about wrong tpl funcs arg order
 		archetypeTemplate = []byte(ArchetypeTemplateTemplate)
 	} else {
-		archetypeTemplate, err = afero.ReadFile(s.Fs.Source, archetypeFilename)
+		archetypeTemplate, err = afero.ReadFile(s.BaseFs.Archetypes.Fs, archetypeFilename)
 		if err != nil {
-			return nil, fmt.Errorf("Failed to read archetype file %q: %s", archetypeFilename, err)
+			return nil, fmt.Errorf("failed to read archetype file %s", err)
 		}
 
 	}

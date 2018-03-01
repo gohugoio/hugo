@@ -25,6 +25,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/chaseadamsio/goorgeous"
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
@@ -134,7 +136,7 @@ func newBlackfriday(config map[string]interface{}) *BlackFriday {
 		"taskLists":             true,
 	}
 
-	ToLowerMap(defaultParam)
+	maps.ToLower(defaultParam)
 
 	siteConfig := make(map[string]interface{})
 

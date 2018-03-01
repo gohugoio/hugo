@@ -35,7 +35,7 @@ type TemplateHandler interface {
 	TemplateFinder
 	AddTemplate(name, tpl string) error
 	AddLateTemplate(name, tpl string) error
-	LoadTemplates(absPath, prefix string)
+	LoadTemplates(prefix string)
 	PrintErrors()
 
 	MarkReady()

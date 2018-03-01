@@ -19,14 +19,13 @@ import (
 
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
+	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/deps"
 
 	"io/ioutil"
 	"os"
-
-	"github.com/gohugoio/hugo/helpers"
 
 	"log"
 
@@ -168,14 +167,15 @@ func doTestI18nTranslate(t *testing.T, test i18nTest, cfg config.Provider) strin
 	assert := require.New(t)
 	fs := hugofs.NewMem(cfg)
 	tp := NewTranslationProvider()
-	depsCfg := newDepsConfig(tp, cfg, fs)
-	d, err := deps.New(depsCfg)
-	assert.NoError(err)
 
 	for file, content := range test.data {
 		err := afero.WriteFile(fs.Source, filepath.Join("i18n", file), []byte(content), 0755)
 		assert.NoError(err)
 	}
+
+	depsCfg := newDepsConfig(tp, cfg, fs)
+	d, err := deps.New(depsCfg)
+	assert.NoError(err)
 
 	assert.NoError(d.LoadResources())
 	f := tp.t.Func(test.lang)
@@ -184,7 +184,7 @@ func doTestI18nTranslate(t *testing.T, test i18nTest, cfg config.Provider) strin
 }
 
 func newDepsConfig(tp *TranslationProvider, cfg config.Provider, fs *hugofs.Fs) deps.DepsCfg {
-	l := helpers.NewLanguage("en", cfg)
+	l := langs.NewLanguage("en", cfg)
 	l.Set("i18nDir", "i18n")
 	return deps.DepsCfg{
 		Language:            l,
@@ -201,6 +201,10 @@ func TestI18nTranslate(t *testing.T) {
 	v := viper.New()
 	v.SetDefault("defaultContentLanguage", "en")
 	v.Set("contentDir", "content")
+	v.Set("dataDir", "data")
+	v.Set("i18nDir", "i18n")
+	v.Set("layoutDir", "layouts")
+	v.Set("archetypeDir", "archetypes")
 
 	// Test without and with placeholders
 	for _, enablePlaceholders := range []bool{false, true} {

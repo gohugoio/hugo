@@ -19,8 +19,6 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/spf13/viper"
-
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
@@ -72,14 +70,13 @@ func TestFileInfoLanguage(t *testing.T) {
 
 	m := afero.NewMemMapFs()
 	lfs := hugofs.NewLanguageFs("sv", langs, m)
-	v := viper.New()
-	v.Set("contentDir", "content")
+	v := newTestConfig()
 
 	fs := hugofs.NewFrom(m, v)
 
 	ps, err := helpers.NewPathSpec(fs, v)
 	assert.NoError(err)
-	s := SourceSpec{Fs: lfs, PathSpec: ps}
+	s := SourceSpec{SourceFs: lfs, PathSpec: ps}
 	s.Languages = map[string]interface{}{
 		"en": true,
 	}

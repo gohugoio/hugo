@@ -30,6 +30,10 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 	cfg.Set("baseURL", baseURL)
 	cfg.Set("resourceDir", "resources")
 	cfg.Set("contentDir", "content")
+	cfg.Set("dataDir", "data")
+	cfg.Set("i18nDir", "i18n")
+	cfg.Set("layoutDir", "layouts")
+	cfg.Set("archetypeDir", "archetypes")
 
 	imagingCfg := map[string]interface{}{
 		"resampleFilter": "linear",
@@ -63,8 +67,12 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 	}
 
 	cfg.Set("workingDir", workDir)
-	cfg.Set("contentDir", filepath.Join(workDir, "content"))
 	cfg.Set("resourceDir", filepath.Join(workDir, "res"))
+	cfg.Set("contentDir", "content")
+	cfg.Set("dataDir", "data")
+	cfg.Set("i18nDir", "i18n")
+	cfg.Set("layoutDir", "layouts")
+	cfg.Set("archetypeDir", "archetypes")
 
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 	fs.Destination = &afero.MemMapFs{}

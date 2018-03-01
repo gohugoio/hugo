@@ -50,7 +50,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 					c.Set("buildDrafts", true)
 					return nil
 				}
-				c, err := initializeConfig(false, &cc.hugoBuilderCommon, cc, cfgInit)
+				c, err := initializeConfig(true, false, &cc.hugoBuilderCommon, cc, cfgInit)
 				if err != nil {
 					return err
 				}
@@ -86,7 +86,7 @@ posted in the future.`,
 					c.Set("buildFuture", true)
 					return nil
 				}
-				c, err := initializeConfig(false, &cc.hugoBuilderCommon, cc, cfgInit)
+				c, err := initializeConfig(true, false, &cc.hugoBuilderCommon, cc, cfgInit)
 				if err != nil {
 					return err
 				}
@@ -122,7 +122,7 @@ expired.`,
 					c.Set("buildExpired", true)
 					return nil
 				}
-				c, err := initializeConfig(false, &cc.hugoBuilderCommon, cc, cfgInit)
+				c, err := initializeConfig(true, false, &cc.hugoBuilderCommon, cc, cfgInit)
 				if err != nil {
 					return err
 				}

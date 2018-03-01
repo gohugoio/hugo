@@ -18,7 +18,6 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -34,8 +33,7 @@ func TestHTMLEscape(t *testing.T) {
 		"html":  "<h1>Hi!</h1>",
 		"other": "<h1>Hi!</h1>",
 	}
-	v := viper.New()
-	v.Set("contentDir", "content")
+	v := newTestConfig()
 	fs := hugofs.NewMem(v)
 
 	//afero.WriteFile(fs.Source, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)

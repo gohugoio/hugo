@@ -58,17 +58,15 @@ func TestNewContent(t *testing.T) {
 
 	for _, c := range cases {
 		cfg, fs := newTestCfg()
-		ps, err := helpers.NewPathSpec(fs, cfg)
-		require.NoError(t, err)
+		require.NoError(t, initFs(fs))
 		h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
 		require.NoError(t, err)
-		require.NoError(t, initFs(fs))
 
 		siteFactory := func(filename string, siteUsed bool) (*hugolib.Site, error) {
 			return h.Sites[0], nil
 		}
 
-		require.NoError(t, create.NewContent(ps, siteFactory, c.kind, c.path))
+		require.NoError(t, create.NewContent(h.PathSpec, siteFactory, c.kind, c.path))
 
 		fname := filepath.Join("content", filepath.FromSlash(c.path))
 		content := readFileFromFs(t, fs.Source, fname)
@@ -89,6 +87,7 @@ func initViper(v *viper.Viper) {
 	v.Set("layoutDir", "layouts")
 	v.Set("i18nDir", "i18n")
 	v.Set("theme", "sample")
+	v.Set("archetypeDir", "archetypes")
 }
 
 func initFs(fs *hugofs.Fs) error {
@@ -187,6 +186,12 @@ func readFileFromFs(t *testing.T, fs afero.Fs, filename string) string {
 func newTestCfg() (*viper.Viper, *hugofs.Fs) {
 
 	v := viper.New()
+	v.Set("contentDir", "content")
+	v.Set("dataDir", "data")
+	v.Set("i18nDir", "i18n")
+	v.Set("layoutDir", "layouts")
+	v.Set("archetypeDir", "archetypes")
+
 	fs := hugofs.NewMem(v)
 
 	v.SetFs(fs.Source)

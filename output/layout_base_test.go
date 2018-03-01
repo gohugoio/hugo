@@ -25,8 +25,6 @@ func TestLayoutBase(t *testing.T) {
 
 	var (
 		workingDir     = "/sites/mysite/"
-		themeDir       = "/themes/mytheme/"
-		layoutBase1    = "layouts"
 		layoutPath1    = "_default/single.html"
 		layoutPathAmp  = "_default/single.amp.html"
 		layoutPathJSON = "_default/single.json"
@@ -39,108 +37,72 @@ func TestLayoutBase(t *testing.T) {
 		basePathMatchStrings string
 		expect               TemplateNames
 	}{
-		{"No base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPath1}, false, "",
+		{"No base", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: layoutPath1}, false, "",
 			TemplateNames{
 				Name:            "_default/single.html",
-				OverlayFilename: "/sites/mysite/layouts/_default/single.html",
+				OverlayFilename: "_default/single.html",
 			}},
-		{"Base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPath1}, true, "",
+		{"Base", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: layoutPath1}, true, "",
 			TemplateNames{
 				Name:            "_default/single.html",
-				OverlayFilename: "/sites/mysite/layouts/_default/single.html",
-				MasterFilename:  "/sites/mysite/layouts/_default/single-baseof.html",
+				OverlayFilename: "_default/single.html",
+				MasterFilename:  "_default/single-baseof.html",
 			}},
 		// Issue #3893
-		{"Base Lang, Default Base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: "layouts", RelPath: "_default/list.en.html"}, true, "_default/baseof.html",
+		{"Base Lang, Default Base", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: "_default/list.en.html"}, true, "_default/baseof.html",
 			TemplateNames{
 				Name:            "_default/list.en.html",
-				OverlayFilename: "/sites/mysite/layouts/_default/list.en.html",
-				MasterFilename:  "/sites/mysite/layouts/_default/baseof.html",
+				OverlayFilename: "_default/list.en.html",
+				MasterFilename:  "_default/baseof.html",
 			}},
-		{"Base Lang, Lang Base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: "layouts", RelPath: "_default/list.en.html"}, true, "_default/baseof.html|_default/baseof.en.html",
+		{"Base Lang, Lang Base", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: "_default/list.en.html"}, true, "_default/baseof.html|_default/baseof.en.html",
 			TemplateNames{
 				Name:            "_default/list.en.html",
-				OverlayFilename: "/sites/mysite/layouts/_default/list.en.html",
-				MasterFilename:  "/sites/mysite/layouts/_default/baseof.en.html",
+				OverlayFilename: "_default/list.en.html",
+				MasterFilename:  "_default/baseof.en.html",
 			}},
 		// Issue #3856
-		{"Base Taxonomy Term", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: "taxonomy/tag.terms.html"}, true, "_default/baseof.html",
+		{"Base Taxonomy Term", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: "taxonomy/tag.terms.html"}, true, "_default/baseof.html",
 			TemplateNames{
 				Name:            "taxonomy/tag.terms.html",
-				OverlayFilename: "/sites/mysite/layouts/taxonomy/tag.terms.html",
-				MasterFilename:  "/sites/mysite/layouts/_default/baseof.html",
+				OverlayFilename: "taxonomy/tag.terms.html",
+				MasterFilename:  "_default/baseof.html",
 			}},
 
-		{"Base in theme", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPath1, ThemeDir: themeDir}, true,
-			"mytheme/layouts/_default/baseof.html",
-			TemplateNames{
-				Name:            "_default/single.html",
-				OverlayFilename: "/sites/mysite/layouts/_default/single.html",
-				MasterFilename:  "/themes/mytheme/layouts/_default/baseof.html",
-			}},
-		{"Template in theme, base in theme", TemplateLookupDescriptor{TemplateDir: themeDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPath1, ThemeDir: themeDir}, true,
-			"mytheme/layouts/_default/baseof.html",
-			TemplateNames{
-				Name:            "_default/single.html",
-				OverlayFilename: "/themes/mytheme/layouts/_default/single.html",
-				MasterFilename:  "/themes/mytheme/layouts/_default/baseof.html",
-			}},
-		{"Template in theme, base in site", TemplateLookupDescriptor{TemplateDir: themeDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPath1, ThemeDir: themeDir}, true,
-			"/sites/mysite/layouts/_default/baseof.html",
-			TemplateNames{
-				Name:            "_default/single.html",
-				OverlayFilename: "/themes/mytheme/layouts/_default/single.html",
-				MasterFilename:  "/sites/mysite/layouts/_default/baseof.html",
-			}},
-		{"Template in site, base in theme", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPath1, ThemeDir: themeDir}, true,
-			"/themes/mytheme",
-			TemplateNames{
-				Name:            "_default/single.html",
-				OverlayFilename: "/sites/mysite/layouts/_default/single.html",
-				MasterFilename:  "/themes/mytheme/layouts/_default/single-baseof.html",
-			}},
-		{"With prefix, base in theme", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPath1,
-			ThemeDir: themeDir, Prefix: "someprefix"}, true,
-			"mytheme/layouts/_default/baseof.html",
-			TemplateNames{
-				Name:            "someprefix/_default/single.html",
-				OverlayFilename: "/sites/mysite/layouts/_default/single.html",
-				MasterFilename:  "/themes/mytheme/layouts/_default/baseof.html",
-			}},
-		{"Partial", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: "partials/menu.html"}, true,
+		{"Partial", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: "partials/menu.html"}, true,
 			"mytheme/layouts/_default/baseof.html",
 			TemplateNames{
 				Name:            "partials/menu.html",
-				OverlayFilename: "/sites/mysite/layouts/partials/menu.html",
+				OverlayFilename: "partials/menu.html",
 			}},
-		{"AMP, no base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPathAmp}, false, "",
+		{"AMP, no base", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: layoutPathAmp}, false, "",
 			TemplateNames{
 				Name:            "_default/single.amp.html",
-				OverlayFilename: "/sites/mysite/layouts/_default/single.amp.html",
+				OverlayFilename: "_default/single.amp.html",
 			}},
-		{"JSON, no base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPathJSON}, false, "",
+		{"JSON, no base", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: layoutPathJSON}, false, "",
 			TemplateNames{
 				Name:            "_default/single.json",
-				OverlayFilename: "/sites/mysite/layouts/_default/single.json",
+				OverlayFilename: "_default/single.json",
 			}},
-		{"AMP with base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPathAmp}, true, "single-baseof.html|single-baseof.amp.html",
+		{"AMP with base", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: layoutPathAmp}, true, "single-baseof.html|single-baseof.amp.html",
 			TemplateNames{
 				Name:            "_default/single.amp.html",
-				OverlayFilename: "/sites/mysite/layouts/_default/single.amp.html",
-				MasterFilename:  "/sites/mysite/layouts/_default/single-baseof.amp.html",
+				OverlayFilename: "_default/single.amp.html",
+				MasterFilename:  "_default/single-baseof.amp.html",
 			}},
-		{"AMP with no AMP base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPathAmp}, true, "single-baseof.html",
+		{"AMP with no AMP base", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: layoutPathAmp}, true, "single-baseof.html",
 			TemplateNames{
 				Name:            "_default/single.amp.html",
-				OverlayFilename: "/sites/mysite/layouts/_default/single.amp.html",
-				MasterFilename:  "/sites/mysite/layouts/_default/single-baseof.html",
+				OverlayFilename: "_default/single.amp.html",
+				MasterFilename:  "_default/single-baseof.html",
 			}},
 
-		{"JSON with base", TemplateLookupDescriptor{TemplateDir: workingDir, WorkingDir: workingDir, LayoutDir: layoutBase1, RelPath: layoutPathJSON}, true, "single-baseof.json",
+		{"JSON with base", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: layoutPathJSON}, true, "single-baseof.json",
 			TemplateNames{
 				Name:            "_default/single.json",
-				OverlayFilename: "/sites/mysite/layouts/_default/single.json",
-				MasterFilename:  "/sites/mysite/layouts/_default/single-baseof.json",
+				OverlayFilename: "_default/single.json",
+				MasterFilename:  "_default/single-baseof.json",
 			}},
 	} {
 		t.Run(this.name, func(t *testing.T) {
@@ -164,7 +126,6 @@ func TestLayoutBase(t *testing.T) {
 
 			this.d.OutputFormats = Formats{AMPFormat, HTMLFormat, RSSFormat, JSONFormat}
 			this.d.WorkingDir = filepath.FromSlash(this.d.WorkingDir)
-			this.d.LayoutDir = filepath.FromSlash(this.d.LayoutDir)
 			this.d.RelPath = filepath.FromSlash(this.d.RelPath)
 			this.d.ContainsAny = needsBase
 			this.d.FileExists = fileExists

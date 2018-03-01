@@ -21,6 +21,10 @@ import (
 	"reflect"
 	"unicode"
 
+	"github.com/gohugoio/hugo/common/maps"
+
+	"github.com/gohugoio/hugo/langs"
+
 	"github.com/gohugoio/hugo/related"
 
 	"github.com/bep/gitmap"
@@ -254,7 +258,7 @@ type Page struct {
 
 	// It would be tempting to use the language set on the Site, but in they way we do
 	// multi-site processing, these values may differ during the initial page processing.
-	language *helpers.Language
+	language *langs.Language
 
 	lang string
 
@@ -1281,7 +1285,7 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		return errors.New("missing frontmatter data")
 	}
 	// Needed for case insensitive fetching of params values
-	helpers.ToLowerMap(frontmatter)
+	maps.ToLower(frontmatter)
 
 	var mtime time.Time
 	if p.Source.FileInfo() != nil {
@@ -2028,7 +2032,7 @@ func (p *Page) Scratch() *Scratch {
 	return p.scratch
 }
 
-func (p *Page) Language() *helpers.Language {
+func (p *Page) Language() *langs.Language {
 	p.initLanguage()
 	return p.language
 }

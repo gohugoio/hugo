@@ -23,6 +23,8 @@ import (
 	"sync/atomic"
 	"syscall"
 
+	"github.com/gohugoio/hugo/hugolib/filesystems"
+
 	"golang.org/x/sync/errgroup"
 
 	"log"
@@ -31,8 +33,6 @@ import (
 	"runtime"
 	"strings"
 	"time"
-
-	src "github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -103,12 +103,12 @@ func Execute(args []string) Response {
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
-func initializeConfig(running bool,
+func initializeConfig(mustHaveConfigFile, running bool,
 	h *hugoBuilderCommon,
 	f flagsToConfigHandler,
 	doWithCommandeer func(c *commandeer) error) (*commandeer, error) {
 
-	c, err := newCommandeer(running, h, f, doWithCommandeer)
+	c, err := newCommandeer(mustHaveConfigFile, running, h, f, doWithCommandeer)
 	if err != nil {
 		return nil, err
 	}
@@ -280,6 +280,7 @@ func (c *commandeer) fullBuild() error {
 			return fmt.Errorf("Error copying static files: %s", err)
 		}
 		langCount = cnt
+		langCount = cnt
 		return nil
 	}
 	buildSitesFunc := func() error {
@@ -344,7 +345,7 @@ func (c *commandeer) build() error {
 		if err != nil {
 			return err
 		}
-		c.Logger.FEEDBACK.Println("Watching for changes in", c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")))
+		c.Logger.FEEDBACK.Println("Watching for changes in", c.hugo.PathSpec.AbsPathify(c.Cfg.GetString("contentDir")))
 		c.Logger.FEEDBACK.Println("Press Ctrl+C to stop")
 		watcher, err := c.newWatcher(watchDirs...)
 		utils.CheckErr(c.Logger, err)
@@ -380,49 +381,30 @@ func (c *commandeer) copyStatic() (map[string]uint64, error) {
 	return c.doWithPublishDirs(c.copyStaticTo)
 }
 
-func (c *commandeer) createStaticDirsConfig() ([]*src.Dirs, error) {
-	var dirsConfig []*src.Dirs
-
-	if !c.languages.IsMultihost() {
-		dirs, err := src.NewDirs(c.Fs, c.Cfg, c.DepsCfg.Logger)
-		if err != nil {
-			return nil, err
-		}
-		dirsConfig = append(dirsConfig, dirs)
-	} else {
-		for _, l := range c.languages {
-			dirs, err := src.NewDirs(c.Fs, l, c.DepsCfg.Logger)
-			if err != nil {
-				return nil, err
-			}
-			dirsConfig = append(dirsConfig, dirs)
-		}
-	}
-
-	return dirsConfig, nil
-
-}
-
-func (c *commandeer) doWithPublishDirs(f func(dirs *src.Dirs, publishDir string) (uint64, error)) (map[string]uint64, error) {
+func (c *commandeer) doWithPublishDirs(f func(sourceFs *filesystems.SourceFilesystem) (uint64, error)) (map[string]uint64, error) {
 
 	langCount := make(map[string]uint64)
 
-	for _, dirs := range c.staticDirsConfig {
+	staticFilesystems := c.hugo.BaseFs.SourceFilesystems.Static
 
-		cnt, err := f(dirs, c.pathSpec.PublishDir)
+	if len(staticFilesystems) == 0 {
+		c.Logger.WARN.Println("No static directories found to sync")
+		return langCount, nil
+	}
+
+	for lang, fs := range staticFilesystems {
+		cnt, err := f(fs)
 		if err != nil {
 			return langCount, err
 		}
-
-		if dirs.Language == nil {
+		if lang == "" {
 			// Not multihost
 			for _, l := range c.languages {
 				langCount[l.Lang] = cnt
 			}
 		} else {
-			langCount[dirs.Language.Lang] = cnt
+			langCount[lang] = cnt
 		}
-
 	}
 
 	return langCount, nil
@@ -443,29 +425,18 @@ func (fs *countingStatFs) Stat(name string) (os.FileInfo, error) {
 	return f, err
 }
 
-func (c *commandeer) copyStaticTo(dirs *src.Dirs, publishDir string) (uint64, error) {
-
+func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
+	publishDir := c.hugo.PathSpec.PublishDir
 	// If root, remove the second '/'
 	if publishDir == "//" {
 		publishDir = helpers.FilePathSeparator
 	}
 
-	if dirs.Language != nil {
-		// Multihost setup.
-		publishDir = filepath.Join(publishDir, dirs.Language.Lang)
+	if sourceFs.PublishFolder != "" {
+		publishDir = filepath.Join(publishDir, sourceFs.PublishFolder)
 	}
 
-	staticSourceFs, err := dirs.CreateStaticFs()
-	if err != nil {
-		return 0, err
-	}
-
-	if staticSourceFs == nil {
-		c.Logger.WARN.Println("No static directories found to sync")
-		return 0, nil
-	}
-
-	fs := &countingStatFs{Fs: staticSourceFs}
+	fs := &countingStatFs{Fs: sourceFs.Fs}
 
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = c.Cfg.GetBool("noTimes")
@@ -484,6 +455,8 @@ func (c *commandeer) copyStaticTo(dirs *src.Dirs, publishDir string) (uint64, er
 		}
 	}
 	c.Logger.INFO.Println("syncing static files to", publishDir)
+
+	var err error
 
 	// because we are using a baseFs (to get the union right).
 	// set sync src to root
@@ -514,41 +487,10 @@ func (c *commandeer) getDirList() ([]string, error) {
 	var seen = make(map[string]bool)
 	var nested []string
 
-	dataDir := c.PathSpec().AbsPathify(c.Cfg.GetString("dataDir"))
-	i18nDir := c.PathSpec().AbsPathify(c.Cfg.GetString("i18nDir"))
-	staticSyncer, err := newStaticSyncer(c)
-	if err != nil {
-		return nil, err
-	}
-
-	layoutDir := c.PathSpec().GetLayoutDirPath()
-	staticDirs := staticSyncer.d.AbsStaticDirs
-
 	newWalker := func(allowSymbolicDirs bool) func(path string, fi os.FileInfo, err error) error {
 		return func(path string, fi os.FileInfo, err error) error {
 			if err != nil {
-				if path == dataDir && os.IsNotExist(err) {
-					c.Logger.WARN.Println("Skip dataDir:", err)
-					return nil
-				}
-
-				if path == i18nDir && os.IsNotExist(err) {
-					c.Logger.WARN.Println("Skip i18nDir:", err)
-					return nil
-				}
-
-				if path == layoutDir && os.IsNotExist(err) {
-					c.Logger.WARN.Println("Skip layoutDir:", err)
-					return nil
-				}
-
 				if os.IsNotExist(err) {
-					for _, staticDir := range staticDirs {
-						if path == staticDir && os.IsNotExist(err) {
-							c.Logger.WARN.Println("Skip staticDir:", err)
-						}
-					}
-					// Ignore.
 					return nil
 				}
 
@@ -605,23 +547,28 @@ func (c *commandeer) getDirList() ([]string, error) {
 	regularWalker := newWalker(false)
 
 	// SymbolicWalk will log anny ERRORs
-	_ = helpers.SymbolicWalk(c.Fs.Source, dataDir, regularWalker)
-	_ = helpers.SymbolicWalk(c.Fs.Source, i18nDir, regularWalker)
-	_ = helpers.SymbolicWalk(c.Fs.Source, layoutDir, regularWalker)
-
-	for _, contentDir := range c.PathSpec().ContentDirs() {
+	// Also note that the Dirnames fetched below will contain any relevant theme
+	// directories.
+	for _, contentDir := range c.hugo.PathSpec.BaseFs.AbsContentDirs {
 		_ = helpers.SymbolicWalk(c.Fs.Source, contentDir.Value, symLinkWalker)
 	}
 
-	for _, staticDir := range staticDirs {
+	for _, staticDir := range c.hugo.PathSpec.BaseFs.Data.Dirnames {
 		_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, regularWalker)
 	}
 
-	if c.PathSpec().ThemeSet() {
-		themesDir := c.PathSpec().GetThemeDir()
-		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "layouts"), regularWalker)
-		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "i18n"), regularWalker)
-		_ = helpers.SymbolicWalk(c.Fs.Source, filepath.Join(themesDir, "data"), regularWalker)
+	for _, staticDir := range c.hugo.PathSpec.BaseFs.I18n.Dirnames {
+		_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, regularWalker)
+	}
+
+	for _, staticDir := range c.hugo.PathSpec.BaseFs.Layouts.Dirnames {
+		_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, regularWalker)
+	}
+
+	for _, staticFilesystem := range c.hugo.PathSpec.BaseFs.Static {
+		for _, staticDir := range staticFilesystem.Dirnames {
+			_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, regularWalker)
+		}
 	}
 
 	if len(nested) > 0 {
@@ -648,9 +595,6 @@ func (c *commandeer) getDirList() ([]string, error) {
 
 func (c *commandeer) recreateAndBuildSites(watching bool) (err error) {
 	defer c.timeTrack(time.Now(), "Total")
-	if err := c.initSites(); err != nil {
-		return err
-	}
 	if !c.h.quiet {
 		c.Logger.FEEDBACK.Println("Started building sites ...")
 	}
@@ -658,56 +602,30 @@ func (c *commandeer) recreateAndBuildSites(watching bool) (err error) {
 }
 
 func (c *commandeer) resetAndBuildSites() (err error) {
-	if err = c.initSites(); err != nil {
-		return
-	}
 	if !c.h.quiet {
 		c.Logger.FEEDBACK.Println("Started building sites ...")
 	}
 	return c.hugo.Build(hugolib.BuildCfg{ResetState: true})
 }
 
-func (c *commandeer) initSites() error {
-	if c.hugo != nil {
-		c.hugo.Cfg = c.Cfg
-		return nil
-	}
-
-	h, err := hugolib.NewHugoSites(*c.DepsCfg)
-
-	if err != nil {
-		return err
-	}
-
-	c.hugo = h
-
-	return nil
-}
-
 func (c *commandeer) buildSites() (err error) {
-	if err := c.initSites(); err != nil {
-		return err
-	}
 	return c.hugo.Build(hugolib.BuildCfg{})
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 	defer c.timeTrack(time.Now(), "Total")
 
-	if err := c.initSites(); err != nil {
-		return err
-	}
 	visited := c.visitedURLs.PeekAllSet()
 	doLiveReload := !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload")
 	if doLiveReload && !c.Cfg.GetBool("disableFastRender") {
 
 		// Make sure we always render the home pages
 		for _, l := range c.languages {
-			langPath := c.PathSpec().GetLangSubDir(l.Lang)
+			langPath := c.hugo.PathSpec.GetLangSubDir(l.Lang)
 			if langPath != "" {
 				langPath = langPath + "/"
 			}
-			home := c.pathSpec.PrependBasePath("/" + langPath)
+			home := c.hugo.PathSpec.PrependBasePath("/" + langPath)
 			visited[home] = true
 		}
 
@@ -716,7 +634,7 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 }
 
 func (c *commandeer) fullRebuild() {
-	if err := c.loadConfig(true); err != nil {
+	if err := c.loadConfig(true, true); err != nil {
 		jww.ERROR.Println("Failed to reload config:", err)
 	} else if err := c.recreateAndBuildSites(true); err != nil {
 		jww.ERROR.Println(err)
@@ -906,7 +824,8 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 						// force refresh when more than one file
 						if len(staticEvents) > 0 {
 							for _, ev := range staticEvents {
-								path := staticSyncer.d.MakeStaticPathRelative(ev.Name)
+
+								path := c.hugo.BaseFs.SourceFilesystems.MakeStaticPathRelative(ev.Name)
 								livereload.RefreshPath(path)
 							}
 
@@ -975,32 +894,36 @@ func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 }
 
 // isThemeVsHugoVersionMismatch returns whether the current Hugo version is
-// less than the theme's min_version.
+// less than any of the themes' min_version.
 func (c *commandeer) isThemeVsHugoVersionMismatch(fs afero.Fs) (mismatch bool, requiredMinVersion string) {
-	if !c.PathSpec().ThemeSet() {
+	if !c.hugo.PathSpec.ThemeSet() {
 		return
 	}
 
-	themeDir := c.PathSpec().GetThemeDir()
+	for _, absThemeDir := range c.hugo.BaseFs.AbsThemeDirs {
 
-	path := filepath.Join(themeDir, "theme.toml")
+		path := filepath.Join(absThemeDir, "theme.toml")
 
-	exists, err := helpers.Exists(path, fs)
+		exists, err := helpers.Exists(path, fs)
 
-	if err != nil || !exists {
-		return
-	}
+		if err != nil || !exists {
+			continue
+		}
 
-	b, err := afero.ReadFile(fs, path)
+		b, err := afero.ReadFile(fs, path)
 
-	tomlMeta, err := parser.HandleTOMLMetaData(b)
+		tomlMeta, err := parser.HandleTOMLMetaData(b)
 
-	if err != nil {
-		return
-	}
+		if err != nil {
+			continue
+		}
 
-	if minVersion, ok := tomlMeta["min_version"]; ok {
-		return helpers.CompareVersion(minVersion) > 0, fmt.Sprint(minVersion)
+		if minVersion, ok := tomlMeta["min_version"]; ok {
+			if helpers.CompareVersion(minVersion) > 0 {
+				return true, fmt.Sprint(minVersion)
+			}
+		}
+
 	}
 
 	return

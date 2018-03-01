@@ -75,7 +75,7 @@ func newCapturer(
 		sem:            make(chan bool, numWorkers),
 		handler:        handler,
 		sourceSpec:     sourceSpec,
-		fs:             sourceSpec.Fs,
+		fs:             sourceSpec.SourceFs,
 		logger:         logger,
 		contentChanges: contentChanges,
 		seen:           make(map[string]bool),

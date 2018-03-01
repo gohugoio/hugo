@@ -30,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/i18n"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/gohugoio/hugo/tpl/partials"
@@ -43,9 +44,18 @@ var (
 	logger = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
 )
 
+func newTestConfig() config.Provider {
+	v := viper.New()
+	v.Set("contentDir", "content")
+	v.Set("dataDir", "data")
+	v.Set("i18nDir", "i18n")
+	v.Set("layoutDir", "layouts")
+	v.Set("archetypeDir", "archetypes")
+	return v
+}
+
 func newDepsConfig(cfg config.Provider) deps.DepsCfg {
-	l := helpers.NewLanguage("en", cfg)
-	l.Set("i18nDir", "i18n")
+	l := langs.NewLanguage("en", cfg)
 	return deps.DepsCfg{
 		Language:            l,
 		Cfg:                 cfg,
@@ -61,13 +71,13 @@ func TestTemplateFuncsExamples(t *testing.T) {
 
 	workingDir := "/home/hugo"
 
-	v := viper.New()
+	v := newTestConfig()
 
 	v.Set("workingDir", workingDir)
 	v.Set("multilingual", true)
 	v.Set("contentDir", "content")
 	v.Set("baseURL", "http://mysite.com/hugo/")
-	v.Set("CurrentContentLanguage", helpers.NewLanguage("en", v))
+	v.Set("CurrentContentLanguage", langs.NewLanguage("en", v))
 
 	fs := hugofs.NewMem(v)
 
@@ -126,8 +136,7 @@ func TestPartialCached(t *testing.T) {
 	var data struct {
 	}
 
-	v := viper.New()
-	v.Set("contentDir", "content")
+	v := newTestConfig()
 
 	config := newDepsConfig(v)
 

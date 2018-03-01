@@ -57,62 +57,61 @@ func TestLayout(t *testing.T) {
 	for _, this := range []struct {
 		name           string
 		d              LayoutDescriptor
-		hasTheme       bool
 		layoutOverride string
 		tp             Format
 		expect         []string
 		expectCount    int
 	}{
-		{"Home", LayoutDescriptor{Kind: "home"}, true, "", ampType,
-			[]string{"index.amp.html", "theme/index.amp.html", "home.amp.html", "theme/home.amp.html", "list.amp.html", "theme/list.amp.html", "index.html", "theme/index.html", "home.html", "theme/home.html", "list.html", "theme/list.html", "_default/index.amp.html"}, 24},
-		{"Home, HTML", LayoutDescriptor{Kind: "home"}, true, "", htmlFormat,
+		{"Home", LayoutDescriptor{Kind: "home"}, "", ampType,
+			[]string{"index.amp.html", "home.amp.html", "list.amp.html", "index.html", "home.html", "list.html", "_default/index.amp.html"}, 12},
+		{"Home, HTML", LayoutDescriptor{Kind: "home"}, "", htmlFormat,
 			// We will eventually get to index.html. This looks stuttery, but makes the lookup logic easy to understand.
-			[]string{"index.html.html", "theme/index.html.html", "home.html.html"}, 24},
-		{"Home, french language", LayoutDescriptor{Kind: "home", Lang: "fr"}, true, "", ampType,
-			[]string{"index.fr.amp.html", "theme/index.fr.amp.html"},
-			48},
-		{"Home, no ext or delim", LayoutDescriptor{Kind: "home"}, true, "", noExtDelimFormat,
-			[]string{"index.nem", "theme/index.nem", "home.nem", "theme/home.nem", "list.nem"}, 12},
-		{"Home, no ext", LayoutDescriptor{Kind: "home"}, true, "", noExt,
-			[]string{"index.nex", "theme/index.nex", "home.nex", "theme/home.nex", "list.nex"}, 12},
-		{"Page, no ext or delim", LayoutDescriptor{Kind: "page"}, true, "", noExtDelimFormat,
-			[]string{"_default/single.nem", "theme/_default/single.nem"}, 2},
-		{"Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, false, "", ampType,
+			[]string{"index.html.html", "home.html.html"}, 12},
+		{"Home, french language", LayoutDescriptor{Kind: "home", Lang: "fr"}, "", ampType,
+			[]string{"index.fr.amp.html"},
+			24},
+		{"Home, no ext or delim", LayoutDescriptor{Kind: "home"}, "", noExtDelimFormat,
+			[]string{"index.nem", "home.nem", "list.nem"}, 6},
+		{"Home, no ext", LayoutDescriptor{Kind: "home"}, "", noExt,
+			[]string{"index.nex", "home.nex", "list.nex"}, 6},
+		{"Page, no ext or delim", LayoutDescriptor{Kind: "page"}, "", noExtDelimFormat,
+			[]string{"_default/single.nem"}, 1},
+		{"Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, "", ampType,
 			[]string{"sect1/sect1.amp.html", "sect1/section.amp.html", "sect1/list.amp.html", "sect1/sect1.html", "sect1/section.html", "sect1/list.html", "section/sect1.amp.html", "section/section.amp.html"}, 18},
-		{"Section with layout", LayoutDescriptor{Kind: "section", Section: "sect1", Layout: "mylayout"}, false, "", ampType,
+		{"Section with layout", LayoutDescriptor{Kind: "section", Section: "sect1", Layout: "mylayout"}, "", ampType,
 			[]string{"sect1/mylayout.amp.html", "sect1/sect1.amp.html", "sect1/section.amp.html", "sect1/list.amp.html", "sect1/mylayout.html", "sect1/sect1.html"}, 24},
-		{"Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, false, "", ampType,
+		{"Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, "", ampType,
 			[]string{"taxonomy/tag.amp.html", "taxonomy/taxonomy.amp.html", "taxonomy/list.amp.html", "taxonomy/tag.html", "taxonomy/taxonomy.html"}, 18},
-		{"Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "categories"}, false, "", ampType,
+		{"Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "categories"}, "", ampType,
 			[]string{"taxonomy/categories.terms.amp.html", "taxonomy/terms.amp.html", "taxonomy/list.amp.html", "taxonomy/categories.terms.html", "taxonomy/terms.html"}, 18},
-		{"Page", LayoutDescriptor{Kind: "page"}, true, "", ampType,
-			[]string{"_default/single.amp.html", "theme/_default/single.amp.html", "_default/single.html", "theme/_default/single.html"}, 4},
-		{"Page with layout", LayoutDescriptor{Kind: "page", Layout: "mylayout"}, false, "", ampType,
+		{"Page", LayoutDescriptor{Kind: "page"}, "", ampType,
+			[]string{"_default/single.amp.html", "_default/single.html"}, 2},
+		{"Page with layout", LayoutDescriptor{Kind: "page", Layout: "mylayout"}, "", ampType,
 			[]string{"_default/mylayout.amp.html", "_default/single.amp.html", "_default/mylayout.html", "_default/single.html"}, 4},
-		{"Page with layout and type", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype"}, false, "", ampType,
+		{"Page with layout and type", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype"}, "", ampType,
 			[]string{"myttype/mylayout.amp.html", "myttype/single.amp.html", "myttype/mylayout.html"}, 8},
-		{"Page with layout and type with subtype", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype/mysubtype"}, false, "", ampType,
+		{"Page with layout and type with subtype", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype/mysubtype"}, "", ampType,
 			[]string{"myttype/mysubtype/mylayout.amp.html", "myttype/mysubtype/single.amp.html", "myttype/mysubtype/mylayout.html"}, 8},
 		// RSS
-		{"RSS Home with theme", LayoutDescriptor{Kind: "home"}, true, "", RSSFormat,
-			[]string{"index.rss.xml", "theme/index.rss.xml", "home.rss.xml", "theme/home.rss.xml", "rss.xml"}, 29},
-		{"RSS Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, false, "", RSSFormat,
+		{"RSS Home", LayoutDescriptor{Kind: "home"}, "", RSSFormat,
+			[]string{"index.rss.xml", "home.rss.xml", "rss.xml"}, 15},
+		{"RSS Section", LayoutDescriptor{Kind: "section", Section: "sect1"}, "", RSSFormat,
 			[]string{"sect1/sect1.rss.xml", "sect1/section.rss.xml", "sect1/rss.xml", "sect1/list.rss.xml", "sect1/sect1.xml", "sect1/section.xml"}, 22},
-		{"RSS Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, false, "", RSSFormat,
+		{"RSS Taxonomy", LayoutDescriptor{Kind: "taxonomy", Section: "tag"}, "", RSSFormat,
 			[]string{"taxonomy/tag.rss.xml", "taxonomy/taxonomy.rss.xml", "taxonomy/rss.xml", "taxonomy/list.rss.xml", "taxonomy/tag.xml", "taxonomy/taxonomy.xml"}, 22},
-		{"RSS Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "tag"}, false, "", RSSFormat,
+		{"RSS Taxonomy term", LayoutDescriptor{Kind: "taxonomyTerm", Section: "tag"}, "", RSSFormat,
 			[]string{"taxonomy/tag.terms.rss.xml", "taxonomy/terms.rss.xml", "taxonomy/rss.xml", "taxonomy/list.rss.xml", "taxonomy/tag.terms.xml"}, 22},
-		{"Home plain text", LayoutDescriptor{Kind: "home"}, true, "", JSONFormat,
-			[]string{"_text/index.json.json", "_text/theme/index.json.json", "_text/home.json.json", "_text/theme/home.json.json"}, 24},
-		{"Page plain text", LayoutDescriptor{Kind: "page"}, true, "", JSONFormat,
-			[]string{"_text/_default/single.json.json", "_text/theme/_default/single.json.json", "_text/_default/single.json", "_text/theme/_default/single.json"}, 4},
-		{"Reserved section, shortcodes", LayoutDescriptor{Kind: "section", Section: "shortcodes", Type: "shortcodes"}, true, "", ampType,
-			[]string{"section/shortcodes.amp.html", "theme/section/shortcodes.amp.html"}, 24},
-		{"Reserved section, partials", LayoutDescriptor{Kind: "section", Section: "partials", Type: "partials"}, true, "", ampType,
-			[]string{"section/partials.amp.html", "theme/section/partials.amp.html"}, 24},
+		{"Home plain text", LayoutDescriptor{Kind: "home"}, "", JSONFormat,
+			[]string{"_text/index.json.json", "_text/home.json.json"}, 12},
+		{"Page plain text", LayoutDescriptor{Kind: "page"}, "", JSONFormat,
+			[]string{"_text/_default/single.json.json", "_text/_default/single.json"}, 2},
+		{"Reserved section, shortcodes", LayoutDescriptor{Kind: "section", Section: "shortcodes", Type: "shortcodes"}, "", ampType,
+			[]string{"section/shortcodes.amp.html"}, 12},
+		{"Reserved section, partials", LayoutDescriptor{Kind: "section", Section: "partials", Type: "partials"}, "", ampType,
+			[]string{"section/partials.amp.html"}, 12},
 	} {
 		t.Run(this.name, func(t *testing.T) {
-			l := NewLayoutHandler(this.hasTheme)
+			l := NewLayoutHandler()
 
 			layouts, err := l.For(this.d, this.tp)
 
@@ -130,11 +129,6 @@ func TestLayout(t *testing.T) {
 
 			}
 
-			if !this.hasTheme {
-				for _, layout := range layouts {
-					require.NotContains(t, layout, "theme")
-				}
-			}
 		})
 	}
 
@@ -142,7 +136,7 @@ func TestLayout(t *testing.T) {
 
 func BenchmarkLayout(b *testing.B) {
 	descriptor := LayoutDescriptor{Kind: "taxonomyTerm", Section: "categories"}
-	l := NewLayoutHandler(false)
+	l := NewLayoutHandler()
 
 	for i := 0; i < b.N; i++ {
 		layouts, err := l.For(descriptor, HTMLFormat)

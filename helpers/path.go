@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode"
 
@@ -31,9 +32,6 @@ import (
 var (
 	// ErrThemeUndefined is returned when a theme has not be defined by the user.
 	ErrThemeUndefined = errors.New("no theme set")
-
-	// ErrWalkRootTooShort is returned when the root specified for a file walk is shorter than 4 characters.
-	ErrPathTooShort = errors.New("file path is too short")
 )
 
 // filepathPathBridge is a bridge for common functionality in filepath vs path
@@ -86,7 +84,7 @@ func (p *PathSpec) MakePath(s string) string {
 
 // MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced
 func (p *PathSpec) MakePathSanitized(s string) string {
-	if p.disablePathToLower {
+	if p.DisablePathToLower {
 		return p.MakePath(s)
 	}
 	return strings.ToLower(p.MakePath(s))
@@ -129,7 +127,7 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 
 	var result string
 
-	if p.removePathAccents {
+	if p.RemovePathAccents {
 		// remove accents - see https://blog.golang.org/normalization
 		t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
 		result, _, _ = transform.String(t, string(target))
@@ -151,32 +149,19 @@ func ReplaceExtension(path string, newExt string) string {
 	return f + "." + newExt
 }
 
-// AbsPathify creates an absolute path if given a relative path. If already
-// absolute, the path is just cleaned.
-func (p *PathSpec) AbsPathify(inPath string) string {
-	return AbsPathify(p.workingDir, inPath)
-}
-
-// AbsPathify creates an absolute path if given a working dir and arelative path.
-// If already absolute, the path is just cleaned.
-func AbsPathify(workingDir, inPath string) string {
-	if filepath.IsAbs(inPath) {
-		return filepath.Clean(inPath)
-	}
-	return filepath.Join(workingDir, inPath)
-}
-
-// GetLayoutDirPath returns the absolute path to the layout file dir
-// for the current Hugo project.
-func (p *PathSpec) GetLayoutDirPath() string {
-	return p.AbsPathify(p.layoutDir)
-}
-
-// GetThemeDir gets the root directory of the current theme, if there is one.
+// GetFirstThemeDir gets the root directory of the first theme, if there is one.
 // If there is no theme, returns the empty string.
-func (p *PathSpec) GetThemeDir() string {
+func (p *PathSpec) GetFirstThemeDir() string {
 	if p.ThemeSet() {
-		return p.AbsPathify(filepath.Join(p.themesDir, p.theme))
+		return p.AbsPathify(filepath.Join(p.ThemesDir, p.Themes()[0]))
+	}
+	return ""
+}
+
+// GetThemesDir gets the absolute root theme dir path.
+func (p *PathSpec) GetThemesDir() string {
+	if p.ThemeSet() {
+		return p.AbsPathify(p.ThemesDir)
 	}
 	return ""
 }
@@ -185,48 +170,9 @@ func (p *PathSpec) GetThemeDir() string {
 // If there is no theme, returns the empty string.
 func (p *PathSpec) GetRelativeThemeDir() string {
 	if p.ThemeSet() {
-		return strings.TrimPrefix(filepath.Join(p.themesDir, p.theme), FilePathSeparator)
+		return strings.TrimPrefix(filepath.Join(p.ThemesDir, p.Themes()[0]), FilePathSeparator)
 	}
 	return ""
-}
-
-// GetThemeStaticDirPath returns the theme's static dir path if theme is set.
-// If theme is set and the static dir doesn't exist, an error is returned.
-func (p *PathSpec) GetThemeStaticDirPath() (string, error) {
-	return p.getThemeDirPath("static")
-}
-
-// GetThemeDataDirPath returns the theme's data dir path if theme is set.
-// If theme is set and the data dir doesn't exist, an error is returned.
-func (p *PathSpec) GetThemeDataDirPath() (string, error) {
-	return p.getThemeDirPath("data")
-}
-
-// GetThemeI18nDirPath returns the theme's i18n dir path if theme is set.
-// If theme is set and the i18n dir doesn't exist, an error is returned.
-func (p *PathSpec) GetThemeI18nDirPath() (string, error) {
-	return p.getThemeDirPath("i18n")
-}
-
-func (p *PathSpec) getThemeDirPath(path string) (string, error) {
-	if !p.ThemeSet() {
-		return "", ErrThemeUndefined
-	}
-
-	themeDir := filepath.Join(p.GetThemeDir(), path)
-	if _, err := p.Fs.Source.Stat(themeDir); os.IsNotExist(err) {
-		return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, p.theme, themeDir)
-	}
-
-	return themeDir, nil
-}
-
-// GetThemesDirPath gets the static files directory of the current theme, if there is one.
-// Ignores underlying errors.
-// TODO(bep) Candidate for deprecation?
-func (p *PathSpec) GetThemesDirPath() string {
-	dir, _ := p.getThemeDirPath("static")
-	return dir
 }
 
 func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
@@ -445,8 +391,8 @@ func FindCWD() (string, error) {
 func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
 	// Sanity check
-	if len(root) < 4 {
-		return ErrPathTooShort
+	if root != "" && len(root) < 4 {
+		return errors.New("Path is too short")
 	}
 
 	// Handle the root first
@@ -464,7 +410,10 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 		return err
 	}
 
-	rootContent, err := afero.ReadDir(fs, root)
+	// Some of Hugo's filesystems represents an ordered root folder, i.e. project first, then theme folders.
+	// Make sure that order is preserved. afero.Walk will sort the directories down in the file tree,
+	// but we don't care about that.
+	rootContent, err := readDir(fs, root, false)
 
 	if err != nil {
 		return walker(root, nil, err)
@@ -478,6 +427,22 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
 	return nil
 
+}
+
+func readDir(fs afero.Fs, dirname string, doSort bool) ([]os.FileInfo, error) {
+	f, err := fs.Open(dirname)
+	if err != nil {
+		return nil, err
+	}
+	list, err := f.Readdir(-1)
+	f.Close()
+	if err != nil {
+		return nil, err
+	}
+	if doSort {
+		sort.Slice(list, func(i, j int) bool { return list[i].Name() < list[j].Name() })
+	}
+	return list, nil
 }
 
 func getRealFileInfo(fs afero.Fs, path string) (os.FileInfo, string, error) {

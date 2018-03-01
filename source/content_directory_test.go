@@ -20,7 +20,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
@@ -52,9 +51,7 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 	}
 
 	for i, test := range tests {
-
-		v := viper.New()
-		v.Set("contentDir", "content")
+		v := newTestConfig()
 		v.Set("ignoreFiles", test.ignoreFilesRegexpes)
 		fs := hugofs.NewMem(v)
 		ps, err := helpers.NewPathSpec(fs, v)

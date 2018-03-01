@@ -38,17 +38,8 @@ func NewTranslationProvider() *TranslationProvider {
 
 // Update updates the i18n func in the provided Deps.
 func (tp *TranslationProvider) Update(d *deps.Deps) error {
-	dir := d.PathSpec.AbsPathify(d.Cfg.GetString("i18nDir"))
-	sp := source.NewSourceSpec(d.PathSpec, d.Fs.Source)
-	sources := []source.Input{sp.NewFilesystem(dir)}
-
-	themeI18nDir, err := d.PathSpec.GetThemeI18nDirPath()
-
-	if err == nil {
-		sources = []source.Input{sp.NewFilesystem(themeI18nDir), sources[0]}
-	}
-
-	d.Log.DEBUG.Printf("Load I18n from %q", sources)
+	sp := source.NewSourceSpec(d.PathSpec, d.BaseFs.SourceFilesystems.I18n.Fs)
+	src := sp.NewFilesystem("")
 
 	i18nBundle := bundle.New()
 
@@ -58,14 +49,12 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	}
 	var newLangs []string
 
-	for _, currentSource := range sources {
-		for _, r := range currentSource.Files() {
-			currentSpec := language.GetPluralSpec(r.BaseFileName())
-			if currentSpec == nil {
-				// This may is a language code not supported by go-i18n, it may be
-				// Klingon or ... not even a fake language. Make sure it works.
-				newLangs = append(newLangs, r.BaseFileName())
-			}
+	for _, r := range src.Files() {
+		currentSpec := language.GetPluralSpec(r.BaseFileName())
+		if currentSpec == nil {
+			// This may is a language code not supported by go-i18n, it may be
+			// Klingon or ... not even a fake language. Make sure it works.
+			newLangs = append(newLangs, r.BaseFileName())
 		}
 	}
 
@@ -73,11 +62,12 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 		language.RegisterPluralSpec(newLangs, en)
 	}
 
-	for _, currentSource := range sources {
-		for _, r := range currentSource.Files() {
-			if err := addTranslationFile(i18nBundle, r); err != nil {
-				return err
-			}
+	// The source files are ordered so the most important comes first. Since this is a
+	// last key win situation, we have to reverse the iteration order.
+	files := src.Files()
+	for i := len(files) - 1; i >= 0; i-- {
+		if err := addTranslationFile(i18nBundle, files[i]); err != nil {
+			return err
 		}
 	}
 

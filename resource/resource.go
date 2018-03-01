@@ -23,6 +23,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/spf13/afero"
 
 	"github.com/spf13/cast"
@@ -282,7 +284,6 @@ func NewSpec(s *helpers.PathSpec, mimeTypes media.Types) (*Spec, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.GetLayoutDirPath()
 
 	genImagePath := filepath.FromSlash("_gen/images")
 
@@ -644,7 +645,7 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 				if found {
 					m := cast.ToStringMap(params)
 					// Needed for case insensitive fetching of params values
-					helpers.ToLowerMap(m)
+					maps.ToLower(m)
 					ma.updateParams(m)
 				}
 			}

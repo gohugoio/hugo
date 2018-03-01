@@ -15,6 +15,9 @@ package hugolib
 
 import (
 	"io/ioutil"
+
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"os"
 	"runtime"
 	"strings"
@@ -75,7 +78,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 				cfg.Set("uglyURLs", ugly)
 
-				s := buildSingleSite(t, deps.DepsCfg{Logger: newWarningLogger(), Fs: fs, Cfg: cfg}, BuildCfg{})
+				s := buildSingleSite(t, deps.DepsCfg{Logger: loggers.NewWarningLogger(), Fs: fs, Cfg: cfg}, BuildCfg{})
 
 				th := testHelper{s.Cfg, s.Fs, t}
 
@@ -158,7 +161,6 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				assert.Equal(filepath.FromSlash("/work/base/b/my-bundle/c/logo.png"), image.(resource.Source).AbsSourceFilename())
 				assert.Equal("https://example.com/2017/pageslug/c/logo.png", image.Permalink())
 
-				printFs(th.Fs.Destination, "", os.Stdout)
 				th.assertFileContent(filepath.FromSlash("/work/public/2017/pageslug/c/logo.png"), "content")
 				th.assertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug/c/logo.png"), "content")
 
@@ -329,7 +331,7 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	cfg := ps.Cfg
 	fs := ps.Fs
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, Logger: newErrorLogger()}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, Logger: loggers.NewErrorLogger()}, BuildCfg{})
 
 	th := testHelper{s.Cfg, s.Fs, t}
 

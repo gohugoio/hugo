@@ -34,7 +34,7 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-	src "github.com/gohugoio/hugo/source"
+	"github.com/gohugoio/hugo/langs"
 )
 
 type commandeer struct {
@@ -45,10 +45,7 @@ type commandeer struct {
 	h    *hugoBuilderCommon
 	ftch flagsToConfigHandler
 
-	pathSpec    *helpers.PathSpec
 	visitedURLs *types.EvictingStringQueue
-
-	staticDirsConfig []*src.Dirs
 
 	// We watch these for changes.
 	configFiles []string
@@ -63,7 +60,7 @@ type commandeer struct {
 
 	serverPorts         []int
 	languagesConfigured bool
-	languages           helpers.Languages
+	languages           langs.Languages
 
 	configured bool
 }
@@ -75,31 +72,13 @@ func (c *commandeer) Set(key string, value interface{}) {
 	c.Cfg.Set(key, value)
 }
 
-// PathSpec lazily creates a new PathSpec, as all the paths must
-// be configured before it is created.
-func (c *commandeer) PathSpec() *helpers.PathSpec {
-	c.configured = true
-	return c.pathSpec
-}
-
 func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	c.DepsCfg.Fs = fs
-	ps, err := helpers.NewPathSpec(fs, c.Cfg)
-	if err != nil {
-		return err
-	}
-	c.pathSpec = ps
-
-	dirsConfig, err := c.createStaticDirsConfig()
-	if err != nil {
-		return err
-	}
-	c.staticDirsConfig = dirsConfig
 
 	return nil
 }
 
-func newCommandeer(running bool, h *hugoBuilderCommon, f flagsToConfigHandler, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
+func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f flagsToConfigHandler, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
 
 	var rebuildDebouncer func(f func())
 	if running {
@@ -117,10 +96,10 @@ func newCommandeer(running bool, h *hugoBuilderCommon, f flagsToConfigHandler, d
 		debounce:         rebuildDebouncer,
 	}
 
-	return c, c.loadConfig(running)
+	return c, c.loadConfig(mustHaveConfigFile, running)
 }
 
-func (c *commandeer) loadConfig(running bool) error {
+func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 	if c.DepsCfg == nil {
 		c.DepsCfg = &deps.DepsCfg{}
@@ -168,12 +147,18 @@ func (c *commandeer) loadConfig(running bool) error {
 		doWithConfig)
 
 	if err != nil {
-		return err
+		if mustHaveConfigFile {
+			return err
+		}
+		if err != hugolib.ErrNoConfigFile {
+			return err
+		}
+
 	}
 
 	c.configFiles = configFiles
 
-	if l, ok := c.Cfg.Get("languagesSorted").(helpers.Languages); ok {
+	if l, ok := c.Cfg.Get("languagesSorted").(langs.Languages); ok {
 		c.languagesConfigured = true
 		c.languages = l
 	}
@@ -209,6 +194,15 @@ func (c *commandeer) loadConfig(running bool) error {
 		}
 
 		err = c.initFs(fs)
+		if err != nil {
+			return
+		}
+
+		var h *hugolib.HugoSites
+
+		h, err = hugolib.NewHugoSites(*c.DepsCfg)
+		c.hugo = h
+
 	})
 
 	if err != nil {
@@ -232,7 +226,7 @@ func (c *commandeer) loadConfig(running bool) error {
 
 	cfg.Logger.INFO.Println("Using config file:", config.ConfigFileUsed())
 
-	themeDir := c.PathSpec().GetThemeDir()
+	themeDir := c.hugo.PathSpec.GetFirstThemeDir()
 	if themeDir != "" {
 		if _, err := sourceFs.Stat(themeDir); os.IsNotExist(err) {
 			return newSystemError("Unable to find theme Directory:", themeDir)

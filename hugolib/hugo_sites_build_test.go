@@ -3,7 +3,6 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"strings"
 	"testing"
 
@@ -11,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/fortytw2/leaktest"
 	"github.com/fsnotify/fsnotify"
@@ -660,7 +661,7 @@ title = "Svenska"
 	sites := b.H
 
 	// Watching does not work with in-memory fs, so we trigger a reload manually
-	assert.NoError(sites.Cfg.(*helpers.Language).Cfg.(*viper.Viper).ReadInConfig())
+	assert.NoError(sites.Cfg.(*langs.Language).Cfg.(*viper.Viper).ReadInConfig())
 	err := b.H.Build(BuildCfg{CreateSitesFromConfig: true})
 
 	if err != nil {
@@ -723,7 +724,7 @@ func TestChangeDefaultLanguage(t *testing.T) {
 
 	// Watching does not work with in-memory fs, so we trigger a reload manually
 	// This does not look pretty, so we should think of something else.
-	assert.NoError(b.H.Cfg.(*helpers.Language).Cfg.(*viper.Viper).ReadInConfig())
+	assert.NoError(b.H.Cfg.(*langs.Language).Cfg.(*viper.Viper).ReadInConfig())
 	err := b.H.Build(BuildCfg{CreateSitesFromConfig: true})
 	if err != nil {
 		t.Fatalf("Failed to rebuild sites: %s", err)
@@ -1177,29 +1178,10 @@ func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
 	if err != nil {
 		// Print some debug info
 		root := strings.Split(filename, helpers.FilePathSeparator)[0]
-		printFs(fs, root, os.Stdout)
+		helpers.PrintFs(fs, root, os.Stdout)
 		Fatalf(t, "Failed to read file: %s", err)
 	}
 	return string(b)
-}
-
-func printFs(fs afero.Fs, path string, w io.Writer) {
-	if fs == nil {
-		return
-	}
-	afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
-		if info != nil && !info.IsDir() {
-			s := path
-			if lang, ok := info.(hugofs.LanguageAnnouncer); ok {
-				s = s + "\tLANG: " + lang.Lang()
-			}
-			if fp, ok := info.(hugofs.FilePather); ok {
-				s = s + "\tRF: " + fp.Filename() + "\tBP: " + fp.BaseDir()
-			}
-			fmt.Fprintln(w, "    ", s)
-		}
-		return nil
-	})
 }
 
 const testPageTemplate = `---

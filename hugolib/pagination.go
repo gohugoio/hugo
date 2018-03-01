@@ -532,7 +532,7 @@ func newPaginationURLFactory(d targetPathDescriptor) paginationURLFactory {
 		pathDescriptor := d
 		var rel string
 		if page > 1 {
-			rel = fmt.Sprintf("/%s/%d/", d.PathSpec.PaginatePath(), page)
+			rel = fmt.Sprintf("/%s/%d/", d.PathSpec.PaginatePath, page)
 			pathDescriptor.Addends = rel
 		}
 

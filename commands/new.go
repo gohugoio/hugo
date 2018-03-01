@@ -71,7 +71,7 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	c, err := initializeConfig(false, &n.hugoBuilderCommon, n, cfgInit)
+	c, err := initializeConfig(true, false, &n.hugoBuilderCommon, n, cfgInit)
 
 	if err != nil {
 		return err
@@ -104,9 +104,6 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 			return hugolib.NewSite(*cfg)
 		}
 		var s *hugolib.Site
-		if err := c.initSites(); err != nil {
-			return nil, err
-		}
 
 		if err := c.hugo.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
 			return nil, err

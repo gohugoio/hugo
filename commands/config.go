@@ -44,7 +44,7 @@ func newConfigCmd() *configCmd {
 }
 
 func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
-	cfg, err := initializeConfig(false, &c.hugoBuilderCommon, c, nil)
+	cfg, err := initializeConfig(true, false, &c.hugoBuilderCommon, c, nil)
 
 	if err != nil {
 		return err

@@ -9,6 +9,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/source"
@@ -47,7 +48,7 @@ type Deps struct {
 	// The translation func to use
 	Translate func(translationID string, args ...interface{}) string `json:"-"`
 
-	Language *helpers.Language
+	Language *langs.Language
 
 	// All the output formats available for the current site.
 	OutputFormatsConfig output.Formats
@@ -166,10 +167,10 @@ func New(cfg DepsCfg) (*Deps, error) {
 
 // ForLanguage creates a copy of the Deps with the language dependent
 // parts switched out.
-func (d Deps) ForLanguage(l *helpers.Language) (*Deps, error) {
+func (d Deps) ForLanguage(l *langs.Language) (*Deps, error) {
 	var err error
 
-	d.PathSpec, err = helpers.NewPathSpec(d.Fs, l)
+	d.PathSpec, err = helpers.NewPathSpecWithBaseBaseFsProvided(d.Fs, l, d.BaseFs)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +207,7 @@ type DepsCfg struct {
 	Fs *hugofs.Fs
 
 	// The language to use.
-	Language *helpers.Language
+	Language *langs.Language
 
 	// The configuration to use.
 	Cfg config.Provider

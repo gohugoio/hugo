@@ -19,6 +19,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/gohugoio/hugo/deps"
 
 	"fmt"
@@ -322,7 +324,7 @@ func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKey
 	}
 
 	var (
-		logger  = newErrorLogger()
+		logger  = loggers.NewErrorLogger()
 		depsCfg = deps.DepsCfg{Fs: fs, Cfg: cfg, Logger: logger}
 	)
 

@@ -16,6 +16,7 @@ package create
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -31,6 +32,7 @@ func NewContent(
 	ps *helpers.PathSpec,
 	siteFactory func(filename string, siteUsed bool) (*hugolib.Site, error), kind, targetPath string) error {
 	ext := helpers.Ext(targetPath)
+	fs := ps.BaseFs.SourceFilesystems.Archetypes.Fs
 
 	jww.INFO.Printf("attempting to create %q of %q of ext %q", targetPath, kind, ext)
 
@@ -40,9 +42,9 @@ func NewContent(
 	siteUsed := false
 
 	if archetypeFilename != "" {
-		f, err := ps.Fs.Source.Open(archetypeFilename)
+		f, err := fs.Open(archetypeFilename)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to open archetype file: %s", err)
 		}
 		defer f.Close()
 
@@ -71,7 +73,7 @@ func NewContent(
 	targetDir := filepath.Dir(targetPath)
 
 	if targetDir != "" && targetDir != "." {
-		exists, _ = helpers.Exists(targetDir, ps.Fs.Source)
+		exists, _ = helpers.Exists(targetDir, fs)
 	}
 
 	if exists {
@@ -101,42 +103,27 @@ func NewContent(
 	return nil
 }
 
-// FindArchetype takes a given kind/archetype of content and returns an output
-// path for that archetype.  If no archetype is found, an empty string is
-// returned.
+// FindArchetype takes a given kind/archetype of content and returns the path
+// to the archetype in the archetype filesystem, blank if none found.
 func findArchetype(ps *helpers.PathSpec, kind, ext string) (outpath string) {
-	search := []string{ps.AbsPathify(ps.Cfg.GetString("archetypeDir"))}
+	fs := ps.BaseFs.Archetypes.Fs
 
-	if ps.Cfg.GetString("theme") != "" {
-		themeDir := filepath.Join(ps.AbsPathify(ps.Cfg.GetString("themesDir")+"/"+ps.Cfg.GetString("theme")), "/archetypes/")
-		if _, err := ps.Fs.Source.Stat(themeDir); os.IsNotExist(err) {
-			jww.ERROR.Printf("Unable to find archetypes directory for theme %q at %q", ps.Cfg.GetString("theme"), themeDir)
+	// If the new content isn't in a subdirectory, kind == "".
+	// Therefore it should be excluded otherwise `is a directory`
+	// error will occur. github.com/gohugoio/hugo/issues/411
+	var pathsToCheck = []string{"default"}
+
+	if ext != "" {
+		if kind != "" {
+			pathsToCheck = append([]string{kind + ext, "default" + ext}, pathsToCheck...)
 		} else {
-			search = append(search, themeDir)
+			pathsToCheck = append([]string{"default" + ext}, pathsToCheck...)
 		}
 	}
 
-	for _, x := range search {
-		// If the new content isn't in a subdirectory, kind == "".
-		// Therefore it should be excluded otherwise `is a directory`
-		// error will occur. github.com/gohugoio/hugo/issues/411
-		var pathsToCheck = []string{"default"}
-
-		if ext != "" {
-			if kind != "" {
-				pathsToCheck = append([]string{kind + ext, "default" + ext}, pathsToCheck...)
-			} else {
-				pathsToCheck = append([]string{"default" + ext}, pathsToCheck...)
-			}
-		}
-
-		for _, p := range pathsToCheck {
-			curpath := filepath.Join(x, p)
-			jww.DEBUG.Println("checking", curpath, "for archetypes")
-			if exists, _ := helpers.Exists(curpath, ps.Fs.Source); exists {
-				jww.INFO.Println("curpath: " + curpath)
-				return curpath
-			}
+	for _, p := range pathsToCheck {
+		if exists, _ := helpers.Exists(p, fs); exists {
+			return p
 		}
 	}
 

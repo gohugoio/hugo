@@ -79,16 +79,13 @@ func (f *Filesystem) captureFiles() {
 		return err
 	}
 
-	if f.Fs == nil {
+	if f.SourceFs == nil {
 		panic("Must have a fs")
 	}
-	err := helpers.SymbolicWalk(f.Fs, f.Base, walker)
+	err := helpers.SymbolicWalk(f.SourceFs, f.Base, walker)
 
 	if err != nil {
 		jww.ERROR.Println(err)
-		if err == helpers.ErrPathTooShort {
-			panic("The root path is too short. If this is a test, make sure to init the content paths.")
-		}
 	}
 
 }
@@ -100,7 +97,7 @@ func (f *Filesystem) shouldRead(filename string, fi os.FileInfo) (bool, error) {
 			jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", filename, err)
 			return false, nil
 		}
-		linkfi, err := f.Fs.Stat(link)
+		linkfi, err := f.SourceFs.Stat(link)
 		if err != nil {
 			jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 			return false, nil

@@ -16,10 +16,13 @@ package hugolib
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
+
+	"github.com/gohugoio/hugo/hugolib/paths"
 
 	"io"
 	"strings"
+
+	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/privacy"
@@ -81,6 +84,8 @@ func LoadConfigDefault(fs afero.Fs) (*viper.Viper, error) {
 	return v, err
 }
 
+var ErrNoConfigFile = errors.New("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details.\n")
+
 // LoadConfig loads Hugo configuration into a new Viper and then adds
 // a set of defaults.
 func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provider) error) (*viper.Viper, []string, error) {
@@ -100,41 +105,50 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	v.SetConfigFile(configFilenames[0])
 	v.AddConfigPath(d.Path)
 
+	var configFileErr error
+
 	err := v.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigParseError); ok {
 			return nil, configFiles, err
 		}
-		return nil, configFiles, fmt.Errorf("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
+		configFileErr = ErrNoConfigFile
 	}
 
-	if cf := v.ConfigFileUsed(); cf != "" {
-		configFiles = append(configFiles, cf)
-	}
+	if configFileErr == nil {
 
-	for _, configFile := range configFilenames[1:] {
-		var r io.Reader
-		var err error
-		if r, err = fs.Open(configFile); err != nil {
-			return nil, configFiles, fmt.Errorf("Unable to open Config file.\n (%s)\n", err)
+		if cf := v.ConfigFileUsed(); cf != "" {
+			configFiles = append(configFiles, cf)
 		}
-		if err = v.MergeConfig(r); err != nil {
-			return nil, configFiles, fmt.Errorf("Unable to parse/merge Config file (%s).\n (%s)\n", configFile, err)
+
+		for _, configFile := range configFilenames[1:] {
+			var r io.Reader
+			var err error
+			if r, err = fs.Open(configFile); err != nil {
+				return nil, configFiles, fmt.Errorf("Unable to open Config file.\n (%s)\n", err)
+			}
+			if err = v.MergeConfig(r); err != nil {
+				return nil, configFiles, fmt.Errorf("Unable to parse/merge Config file (%s).\n (%s)\n", configFile, err)
+			}
+			configFiles = append(configFiles, configFile)
 		}
-		configFiles = append(configFiles, configFile)
+
 	}
 
 	if err := loadDefaultSettingsFor(v); err != nil {
 		return v, configFiles, err
 	}
 
-	themeConfigFile, err := loadThemeConfig(d, v)
-	if err != nil {
-		return v, configFiles, err
-	}
+	if configFileErr == nil {
 
-	if themeConfigFile != "" {
-		configFiles = append(configFiles, themeConfigFile)
+		themeConfigFiles, err := loadThemeConfig(d, v)
+		if err != nil {
+			return v, configFiles, err
+		}
+
+		if len(themeConfigFiles) > 0 {
+			configFiles = append(configFiles, themeConfigFiles...)
+		}
 	}
 
 	// We create languages based on the settings, so we need to make sure that
@@ -149,11 +163,11 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 		return v, configFiles, err
 	}
 
-	return v, configFiles, nil
+	return v, configFiles, configFileErr
 
 }
 
-func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error {
+func loadLanguageSettings(cfg config.Provider, oldLangs langs.Languages) error {
 
 	defaultLang := cfg.GetString("defaultContentLanguage")
 
@@ -182,14 +196,14 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 	}
 
 	var (
-		langs helpers.Languages
-		err   error
+		languages2 langs.Languages
+		err        error
 	)
 
 	if len(languages) == 0 {
-		langs = append(langs, helpers.NewDefaultLanguage(cfg))
+		languages2 = append(languages2, langs.NewDefaultLanguage(cfg))
 	} else {
-		langs, err = toSortedLanguages(cfg, languages)
+		languages2, err = toSortedLanguages(cfg, languages)
 		if err != nil {
 			return fmt.Errorf("Failed to parse multilingual config: %s", err)
 		}
@@ -201,10 +215,10 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 		// The validation below isn't complete, but should cover the most
 		// important cases.
 		var invalid bool
-		if langs.IsMultihost() != oldLangs.IsMultihost() {
+		if languages2.IsMultihost() != oldLangs.IsMultihost() {
 			invalid = true
 		} else {
-			if langs.IsMultihost() && len(langs) != len(oldLangs) {
+			if languages2.IsMultihost() && len(languages2) != len(oldLangs) {
 				invalid = true
 			}
 		}
@@ -213,10 +227,10 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 			return errors.New("language change needing a server restart detected")
 		}
 
-		if langs.IsMultihost() {
+		if languages2.IsMultihost() {
 			// We need to transfer any server baseURL to the new language
 			for i, ol := range oldLangs {
-				nl := langs[i]
+				nl := languages2[i]
 				nl.Set("baseURL", ol.GetString("baseURL"))
 			}
 		}
@@ -225,7 +239,7 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 	// The defaultContentLanguage is something the user has to decide, but it needs
 	// to match a language in the language definition list.
 	langExists := false
-	for _, lang := range langs {
+	for _, lang := range languages2 {
 		if lang.Lang == defaultLang {
 			langExists = true
 			break
@@ -236,10 +250,10 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 		return fmt.Errorf("site config value %q for defaultContentLanguage does not match any language definition", defaultLang)
 	}
 
-	cfg.Set("languagesSorted", langs)
-	cfg.Set("multilingual", len(langs) > 1)
+	cfg.Set("languagesSorted", languages2)
+	cfg.Set("multilingual", len(languages2) > 1)
 
-	multihost := langs.IsMultihost()
+	multihost := languages2.IsMultihost()
 
 	if multihost {
 		cfg.Set("defaultContentLanguageInSubdir", true)
@@ -250,7 +264,7 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 		// The baseURL may be provided at the language level. If that is true,
 		// then every language must have a baseURL. In this case we always render
 		// to a language sub folder, which is then stripped from all the Permalink URLs etc.
-		for _, l := range langs {
+		for _, l := range languages2 {
 			burl := l.GetLocal("baseURL")
 			if burl == nil {
 				return errors.New("baseURL must be set on all or none of the languages")
@@ -262,49 +276,32 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 	return nil
 }
 
-func loadThemeConfig(d ConfigSourceDescriptor, v1 *viper.Viper) (string, error) {
+func loadThemeConfig(d ConfigSourceDescriptor, v1 *viper.Viper) ([]string, error) {
+	themesDir := paths.AbsPathify(d.WorkingDir, v1.GetString("themesDir"))
+	themes := config.GetStringSlicePreserveString(v1, "theme")
 
-	theme := v1.GetString("theme")
-	if theme == "" {
-		return "", nil
-	}
-
-	themesDir := helpers.AbsPathify(d.WorkingDir, v1.GetString("themesDir"))
-	configDir := filepath.Join(themesDir, theme)
-
-	var (
-		configPath string
-		exists     bool
-		err        error
-	)
-
-	// Viper supports more, but this is the sub-set supported by Hugo.
-	for _, configFormats := range []string{"toml", "yaml", "yml", "json"} {
-		configPath = filepath.Join(configDir, "config."+configFormats)
-		exists, err = helpers.Exists(configPath, d.Fs)
-		if err != nil {
-			return "", err
-		}
-		if exists {
-			break
-		}
-	}
-
-	if !exists {
-		// No theme config set.
-		return "", nil
-	}
-
-	v2 := viper.New()
-	v2.SetFs(d.Fs)
-	v2.AutomaticEnv()
-	v2.SetEnvPrefix("hugo")
-	v2.SetConfigFile(configPath)
-
-	err = v2.ReadInConfig()
+	//  CollectThemes(fs afero.Fs, themesDir string, themes []strin
+	themeConfigs, err := paths.CollectThemes(d.Fs, themesDir, themes)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+	v1.Set("allThemes", themeConfigs)
+
+	var configFilenames []string
+	for _, tc := range themeConfigs {
+		if tc.ConfigFilename != "" {
+			configFilenames = append(configFilenames, tc.ConfigFilename)
+			if err := applyThemeConfig(v1, tc); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return configFilenames, nil
+
+}
+
+func applyThemeConfig(v1 *viper.Viper, theme paths.ThemeConfig) error {
 
 	const (
 		paramsKey    = "params"
@@ -312,11 +309,13 @@ func loadThemeConfig(d ConfigSourceDescriptor, v1 *viper.Viper) (string, error) 
 		menuKey      = "menu"
 	)
 
+	v2 := theme.Cfg
+
 	for _, key := range []string{paramsKey, "outputformats", "mediatypes"} {
 		mergeStringMapKeepLeft("", key, v1, v2)
 	}
 
-	themeLower := strings.ToLower(theme)
+	themeLower := strings.ToLower(theme.Name)
 	themeParamsNamespace := paramsKey + "." + themeLower
 
 	// Set namespaced params
@@ -371,11 +370,11 @@ func loadThemeConfig(d ConfigSourceDescriptor, v1 *viper.Viper) (string, error) 
 		}
 	}
 
-	return v2.ConfigFileUsed(), nil
+	return nil
 
 }
 
-func mergeStringMapKeepLeft(rootKey, key string, v1, v2 *viper.Viper) {
+func mergeStringMapKeepLeft(rootKey, key string, v1, v2 config.Provider) {
 	if !v2.IsSet(key) {
 		return
 	}

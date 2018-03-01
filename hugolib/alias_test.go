@@ -18,6 +18,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -97,7 +99,7 @@ func TestAliasTemplate(t *testing.T) {
 }
 
 func TestTargetPathHTMLRedirectAlias(t *testing.T) {
-	h := newAliasHandler(nil, newErrorLogger(), false)
+	h := newAliasHandler(nil, loggers.NewErrorLogger(), false)
 
 	errIsNilForThisOS := runtime.GOOS != "windows"
 

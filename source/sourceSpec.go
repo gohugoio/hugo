@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -29,7 +30,7 @@ import (
 type SourceSpec struct {
 	*helpers.PathSpec
 
-	Fs afero.Fs
+	SourceFs afero.Fs
 
 	// This is set if the ignoreFiles config is set.
 	ignoreFilesRe []*regexp.Regexp
@@ -52,7 +53,7 @@ func NewSourceSpec(ps *helpers.PathSpec, fs afero.Fs) *SourceSpec {
 	}
 
 	if len(languages) == 0 {
-		l := helpers.NewDefaultLanguage(cfg)
+		l := langs.NewDefaultLanguage(cfg)
 		languages[l.Lang] = l
 		defaultLang = l.Lang
 	}
@@ -71,12 +72,13 @@ func NewSourceSpec(ps *helpers.PathSpec, fs afero.Fs) *SourceSpec {
 		}
 	}
 
-	return &SourceSpec{ignoreFilesRe: regexps, PathSpec: ps, Fs: fs, Languages: languages, DefaultContentLanguage: defaultLang, DisabledLanguages: disabledLangsSet}
+	return &SourceSpec{ignoreFilesRe: regexps, PathSpec: ps, SourceFs: fs, Languages: languages, DefaultContentLanguage: defaultLang, DisabledLanguages: disabledLangsSet}
+
 }
 
 func (s *SourceSpec) IgnoreFile(filename string) bool {
 	if filename == "" {
-		if _, ok := s.Fs.(*afero.OsFs); ok {
+		if _, ok := s.SourceFs.(*afero.OsFs); ok {
 			return true
 		}
 		return false
@@ -108,7 +110,7 @@ func (s *SourceSpec) IgnoreFile(filename string) bool {
 }
 
 func (s *SourceSpec) IsRegularSourceFile(filename string) (bool, error) {
-	fi, err := helpers.LstatIfPossible(s.Fs, filename)
+	fi, err := helpers.LstatIfPossible(s.SourceFs, filename)
 	if err != nil {
 		return false, err
 	}
@@ -119,7 +121,7 @@ func (s *SourceSpec) IsRegularSourceFile(filename string) (bool, error) {
 
 	if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 		link, err := filepath.EvalSymlinks(filename)
-		fi, err = helpers.LstatIfPossible(s.Fs, link)
+		fi, err = helpers.LstatIfPossible(s.SourceFs, link)
 		if err != nil {
 			return false, err
 		}

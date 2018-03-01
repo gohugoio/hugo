@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/langs"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -774,7 +775,7 @@ type TstX struct {
 }
 
 func newDeps(cfg config.Provider) *deps.Deps {
-	l := helpers.NewLanguage("en", cfg)
+	l := langs.NewLanguage("en", cfg)
 	l.Set("i18nDir", "i18n")
 	cs, err := helpers.NewContentSpec(l)
 	if err != nil {

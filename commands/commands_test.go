@@ -237,6 +237,11 @@ List: {{ .Title }}
 
 `)
 
+	writeFile(t, filepath.Join(d, "static", "my.txt"), `
+MyMy
+
+`)
+
 	return d, nil
 
 }

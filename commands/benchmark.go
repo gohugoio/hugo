@@ -56,7 +56,7 @@ func (c *benchmarkCmd) benchmark(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	comm, err := initializeConfig(false, &c.hugoBuilderCommon, c, cfgInit)
+	comm, err := initializeConfig(true, false, &c.hugoBuilderCommon, c, cfgInit)
 	if err != nil {
 		return err
 	}

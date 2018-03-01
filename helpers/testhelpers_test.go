@@ -4,10 +4,11 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/langs"
 )
 
 func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *PathSpec {
-	l := NewDefaultLanguage(v)
+	l := langs.NewDefaultLanguage(v)
 	ps, _ := NewPathSpec(fs, l)
 	return ps
 }
@@ -15,7 +16,7 @@ func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *PathSpec {
 func newTestDefaultPathSpec(configKeyValues ...interface{}) *PathSpec {
 	v := viper.New()
 	fs := hugofs.NewMem(v)
-	cfg := newTestCfg(fs)
+	cfg := newTestCfgFor(fs)
 
 	for i := 0; i < len(configKeyValues); i += 2 {
 		cfg.Set(configKeyValues[i].(string), configKeyValues[i+1])
@@ -23,14 +24,22 @@ func newTestDefaultPathSpec(configKeyValues ...interface{}) *PathSpec {
 	return newTestPathSpec(fs, cfg)
 }
 
-func newTestCfg(fs *hugofs.Fs) *viper.Viper {
-	v := viper.New()
-	v.Set("contentDir", "content")
-
+func newTestCfgFor(fs *hugofs.Fs) *viper.Viper {
+	v := newTestCfg()
 	v.SetFs(fs.Source)
 
 	return v
 
+}
+
+func newTestCfg() *viper.Viper {
+	v := viper.New()
+	v.Set("contentDir", "content")
+	v.Set("dataDir", "data")
+	v.Set("i18nDir", "i18n")
+	v.Set("layoutDir", "layouts")
+	v.Set("archetypeDir", "archetypes")
+	return v
 }
 
 func newTestContentSpec() *ContentSpec {
