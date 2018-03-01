@@ -5,7 +5,8 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', '{{ . }}', {'branch': '{{ getenv "BRANCH" }}'});
+  {{ $site := .Site.BaseURL | replaceRE "^https?://(www\\.)?([^/]+).*" "$2" }}
+  gtag('config', '{{ . }}', {'site': '{{ $site }}', 'branch': '{{ getenv "BRANCH" }}'});
 
 /**
 * Function that tracks a click on an outbound link in Analytics.
