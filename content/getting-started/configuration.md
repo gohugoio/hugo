@@ -1,7 +1,7 @@
 ---
 title: Configure Hugo
 linktitle: Configuration
-description: Often the default settings are good enough, but the config file can provide highly granular control over how your site is rendered.
+description: How to configure your Hugo site.
 date: 2013-07-01
 publishdate: 2017-01-02
 lastmod: 2017-03-05
@@ -18,9 +18,191 @@ aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
 
-The [directory structure][] of a Hugo website&mdash;or more precisely, the source organization of files containing the website's content and templates&mdash;provides most of the configuration information that Hugo needs in order to generate a finished website.
 
-Because of Hugo's sensible defaults, many websites may not need a configuration file. Hugo is designed to recognize certain typical usage patterns.
+## All Configuration Settings
+
+The following is the full list of Hugo-defined variables with its default value in parens.
+
+
+archetypeDir ("archetypes")
+: The directory where Hugo finds archetype files (content templates).
+
+baseURL
+: Hostname (and path) to the root, e.g. http://bep.is/
+
+buildDrafts (false)
+: Include drafts when building.
+
+buildFuture (false)
+: Include content with publishdate in the future.
+
+buildExpired  (false)
+: Include content already expired.
+
+relativeURLs (false)
+: Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
+
+canonifyURLs (false)
+: Enable to turn relative URLs into absolute.
+
+config ("config.toml")
+: Config file (default is path/config.yaml|json|toml).
+
+contentDir ("content")
+: The directory from where Hugo reads content files.
+
+dataDir ("data")
+: The directory from where Hugo reads data files.
+
+defaultContentLanguage ("en")
+: Content without language indicator will default to this language.
+
+defaultContentLanguageInSubdir (false)
+: Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/.
+
+disableLiveReload (false)
+: Turn off automatic live reloading of browser window.
+
+enableGitInfo (false)
+: If the Hugo site is versioned by Git, you will then get a `.GitInfo` object per page, and `Lastmod` will get updated by the last commit date for content.	
+
+enableRobotsTXT (false)
+: When enabled, Hugo will generate a `robots.txt` file.
+
+disableHugoGeneratorInject (false)
+: Hugo will, by default, inject a generator meta tag in the HTML head on the _home page only_. You can turn it off, but we would really appreciate if you don't, as this is a good way to watch Hugo's popularity on the rise.
+
+disableKinds ([])
+: Allows you to disable all page types and will render nothing related to 'kind'. Allowed values are "page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404".
+
+disablePathToLower (false)
+: Do not make the url/path to lowercase.
+
+enableEmoji (false)
+: Enable Emoji emoticons support for page content; see emoji-cheat-sheet.com.
+
+enableMissingTranslationPlaceholders (false)
+: Show a placeholder instead of the default value or an empty string if a translation is missing
+
+footnoteAnchorPrefix ("")
+: A prefix for your footnote anchors.
+
+footnoteReturnLinkContents ("")
+: A return link for your footnote.
+
+googleAnalytics ("")
+: google analytics tracking id
+
+hasCJKLanguage (false)
+: If true, auto-detect Chinese/Japanese/Korean Languages in the content. This will make `.Summary` and `.WordCount` behave correctly in CJK languages.
+
+languageCode ("")
+: The site's language code.
+
+summaryLength (70)
+: The length of text to show in a `.Summary`.
+
+layoutDir ("layouts")
+: The directory from where Hugo reads layouts (templates).
+
+log (false)
+: Enable logging.
+
+logFile ("")
+: Log File path (if set, logging enabled automatically).
+
+rssLimit (15)
+: Maximum number of items in the RSS feed.
+
+metaDataFormat ("toml")
+: "toml","yaml", or "json"
+
+newContentEditor ("")
+: The editor to use when creating new content.
+
+noChmod (false)
+: Don't sync permission mode of files.
+
+noTimes (false)
+: Don't sync modification time of files
+
+paginate (10)
+: Default number of pages per page in pagination.
+
+paginatePath ("page")
+: The path element used during pagination (http://example.com/page/2).
+
+permalinks
+: See [Content Management](/content-management/urls/#permalinks)
+
+pluralizeListTitles (true)
+: Pluralize titles in lists using inflect.
+
+preserveTaxonomyNames (false)
+: Preserve special characters in taxonomy names ("Gérard Depardieu" vs "Gerard Depardieu").
+
+publishDir ("public")
+: The directory to where Hugo will write the final static site (the HTML files etc.).
+
+pygmentsCodeFencesGuessSyntax (false)
+: Enables syntax guessing for code fences without specified language.
+
+pygmentsStyle ("monokai")
+: Color-codes for highlighting derived from this style. See https://help.farbox.com/pygments.html
+
+pygmentsUseClasses (false)
+: Enable to use external CSS for code highlighting.
+
+sectionPagesMenu ("")(
+: See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-for-lazy-bloggers).
+
+sitemap
+: Default sitemap configuration.
+
+staticDir ("static")
+: Relative directory from where Hugo reads static files.
+
+stepAnalysis (false)
+: Display memory and timing of different steps of the program.
+
+themesDir ("themes")
+: The directory where Hugo reads the themes from.
+
+theme ("")
+: Theme to use (located by default in /themes/THEMENAME/)
+
+title ("")
+: Site title.
+
+uglyURLs (false)
+: When enabled creates URL on the form `/filename.html` instead of `/filename/`
+
+verbose (false)
+: Enable verbose output.
+
+verboseLog (false)
+: Enable verbose logging.
+
+watch (false)
+: Watch filesystem for changes and recreate as needed.
+
+taxonomies
+: See [Configure Taxonomies](content-management/taxonomies#configure-taxonomies)
+
+
+{{% note %}}
+If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
+```
+cd ~/sites/yourhugosite
+hugo config | grep emoji
+```
+
+which shows output like
+
+```
+enableemoji: true
+```
+{{% /note %}}
 
 ## Configuration Lookup Order
 
@@ -52,120 +234,6 @@ params:
   SidebarRecentLimit: 5
 {{< /code >}}
 
-### All Variables, YAML
-
-The following is the full list of Hugo-defined variables in an example YAML file. The values provided in this example represent the default values used by Hugo.
-
-{{< code file="config.yml" download="config.yml" >}}
-archetypeDir:               "archetypes"
-# hostname (and path) to the root, e.g. http://spf13.com/
-baseURL:                    ""
-# include content marked as draft
-buildDrafts:                false
-# include content with publishdate in the future
-buildFuture:                false
-# include content already expired
-buildExpired:               false
-# enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs. See the "URL Management" page
-relativeURLs:               false
-canonifyURLs:               false
-# config file (default is path/config.yaml|json|toml)
-config:                     "config.toml"
-contentDir:                 "content"
-dataDir:                    "data"
-defaultLayout:              "post"
-# Missing translations will default to this content language
-defaultContentLanguage:     "en"
-# Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/
-defaultContentLanguageInSubdir: false
-disableLiveReload:          false
-# Enable GitInfo feature
-enableGitInfo:              false
-# Build robots.txt file
-enableRobotsTXT:            false
-# Do not inject generator meta tag on homepage
-disableHugoGeneratorInject: false
-# Allows you to disable all page types and will render nothing related to 'kind';
-# values = "page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"
-disableKinds: []
-# Do not make the url/path to lowercase
-disablePathToLower:         false                   ""
-# Enable Emoji emoticons support for page content; see emoji-cheat-sheet.com
-enableEmoji:                false
-# Show a placeholder instead of the default value or an empty string if a translation is missing
-enableMissingTranslationPlaceholders: false
-footnoteAnchorPrefix:       ""
-footnoteReturnLinkContents: ""
-# google analytics tracking id
-googleAnalytics:            ""
-# if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
-hasCJKLanguage:             false
-languageCode:               ""
-# the length of text to show in a .Summary
-summaryLength:              70
-layoutDir:                  "layouts"
-# Enable Logging
-log:                        false
-# Log File path (if set, logging enabled automatically)
-logFile:                    ""
-# "toml","yaml", or "json"
-metaDataFormat:             "toml"
-newContentEditor:           ""
-# Don't sync permission mode of files
-noChmod:                    false
-# Don't sync modification time of files
-noTimes:                    false
-# Pagination
-paginate:                   10
-paginatePath:               "page"
-# See "content-management/permalinks"
-permalinks:
-# Pluralize titles in lists using inflect
-pluralizeListTitles:        true
-# Preserve special characters in taxonomy names ("Gérard Depardieu" vs "Gerard Depardieu")
-preserveTaxonomyNames:      false
-# filesystem path to write files to
-publishDir:                 "public"
-# enables syntax guessing for code fences without specified language
-pygmentsCodeFencesGuessSyntax: false
-# color-codes for highlighting derived from this style
-pygmentsStyle:              "monokai"
-# true use pygments-css or false will color code directly
-pygmentsUseClasses:         false
-# maximum number of items in the RSS feed
-rssLimit:                   15
-# see "Section Menu for Lazy Bloggers", /templates/menu-templates for more info
-SectionPagesMenu:           ""
-# default sitemap configuration map
-sitemap:
-# filesystem path to read files relative from
-source:                     ""
-staticDir:                  "static"
-# display memory and timing of different steps of the program
-stepAnalysis:               false
-# display metrics about template executions
-templateMetrics:            false
-# theme to use (located by default in /themes/THEMENAME/)
-themesDir:                  "themes"
-theme:                      ""
-title:                      ""
-# Title Case style guide for the title func and other automatic title casing in Hugo.
-// Valid values are "AP" (default), "Chicago" and "Go" (which was what you had in Hugo <= 0.25.1).
-// See https://www.apstylebook.com/ and http://www.chicagomanualofstyle.org/home.html
-titleCaseStyle:             "AP"
-# if true, use /filename.html instead of /filename/
-uglyURLs:                   false
-# verbose output
-verbose:                    false
-# verbose logging
-verboseLog:                 false
-# watch filesystem for changes and recreate as needed
-watch:                      true
-taxonomies:
-  - category:               "categories"
-  - tag:                    "tags"
-{{< /code >}}
-
 ## TOML Configuration
 
 The following is an example of a TOML configuration file. The values under `[params]` will populate the `.Site.Params` variable for use in [templates][]:
@@ -188,126 +256,8 @@ title = "My Hugo Site"
   author = "John Doe"
 {{< /code >}}
 
-### All Variables, TOML
 
-The following is the full list of Hugo-defined variables in an example TOML file. The values provided in this example represent the default values used by Hugo.
 
-{{< code file="config.toml" download="config.toml">}}
-archetypeDir =                "archetypes"
-# hostname (and path) to the root, e.g. http://spf13.com/
-baseURL =                     ""
-# include content marked as draft
-buildDrafts =                 false
-# include content with publishdate in the future
-buildFuture =                 false
-# include content already expired
-buildExpired =                false
-# enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
-relativeURLs =                false
-canonifyURLs =                false
-# config file (default is path/config.yaml|json|toml)
-config =                     "config.toml"
-contentDir =                  "content"
-dataDir =                     "data"
-defaultLayout =               "post"
-# Missing translations will default to this content language
-defaultContentLanguage =      "en"
-# Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/
-defaultContentLanguageInSubdir =  false
-disableLiveReload =           false
-# Enable GitInfo feature
-enableGitInfo =               false
-# Build robots.txt file
-enableRobotsTXT =             false
-# Do not inject generator meta tag on homepage
-disableHugoGeneratorInject =  false
-# Allows you to disable all page types and will render nothing related to 'kind';
-# values = "page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"
-disableKinds = []
-# Do not make the url/path to lowercase
-disablePathToLower =          false
-# Enable Emoji emoticons support for page content; see emoji-cheat-sheet.com
-enableEmoji =                 false
-# Show a placeholder instead of the default value or an empty string if a translation is missing
-enableMissingTranslationPlaceholders = false
-footnoteAnchorPrefix =        ""
-footnoteReturnLinkContents =  ""
-# google analytics tracking id
-googleAnalytics =             ""
-# if true, auto-detect Chinese/Japanese/Korean Languages in the content. (.Summary and .WordCount can work properly in CJKLanguage)
-hasCJKLanguage =              false
-languageCode =                ""
-# the length of text to show in a .Summary
-summaryLength =              70
-layoutDir =                   "layouts"
-# Enable Logging
-log =                         false
-# Log File path (if set, logging enabled automatically)
-logFile =
-# maximum number of items in the RSS feed
-rssLimit =                    15
-# "toml","yaml", or "json"
-metaDataFormat =              "toml"
-newContentEditor =            ""
-# Don't sync permission mode of files
-noChmod =                     false
-# Don't sync modification time of files
-noTimes =                     false
-# Pagination
-paginate =                    10
-paginatePath =                "page"
-# See "content-management/permalinks"
-permalinks =
-# Pluralize titles in lists using inflect
-pluralizeListTitles =         true
-# Preserve special characters in taxonomy names ("Gérard Depardieu" vs "Gerard Depardieu")
-preserveTaxonomyNames =       false
-# filesystem path to write files to
-publishDir =                  "public"
-# enables syntax guessing for code fences without specified language
-pygmentsCodeFencesGuessSyntax = false
-# color-codes for highlighting derived from this style
-pygmentsStyle =               "monokai"
-# true: use pygments-css or false: color-codes directly
-pygmentsUseClasses =          false
-# see "Section Menu for Lazy Bloggers", /templates/menu-templates for more info
-SectionPagesMenu =
-# default sitemap configuration map
-sitemap =
-# filesystem path to read static files relative from
-staticDir =                   "static"
-# display memory and timing of different steps of the program
-stepAnalysis =                false
-# theme to use (located by default in /themes/THEMENAME/)
-themesDir =                   "themes"
-theme =                       ""
-title =                       ""
-# if true, use /filename.html instead of /filename/
-uglyURLs =                    false
-# verbose output
-verbose =                     false
-# verbose logging
-verboseLog =                  false
-# watch filesystem for changes and recreate as needed
-watch =                       true
-[taxonomies]
-  category = "categories"
-  tag = "tags"
-{{< /code >}}
-
-{{% note %}}
-If you are developing your site on a \*nix machine, here is a handy shortcut for finding a configuration option from the command line:
-```
-cd ~/sites/yourhugosite
-hugo config | grep emoji
-```
-
-which shows output like
-
-```
-enableemoji: true
-```
-{{% /note %}}
 
 ## Configure with Environment Variables
 
