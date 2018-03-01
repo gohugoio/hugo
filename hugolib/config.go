@@ -203,7 +203,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("dataDir", "data")
 	v.SetDefault("i18nDir", "i18n")
 	v.SetDefault("themesDir", "themes")
-	v.SetDefault("defaultLayout", "post")
 	v.SetDefault("buildDrafts", false)
 	v.SetDefault("buildFuture", false)
 	v.SetDefault("buildExpired", false)
