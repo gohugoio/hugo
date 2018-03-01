@@ -92,6 +92,12 @@ googleAnalytics ("")
 hasCJKLanguage (false)
 : If true, auto-detect Chinese/Japanese/Korean Languages in the content. This will make `.Summary` and `.WordCount` behave correctly in CJK languages.
 
+imaging
+: See [Image Processing Config](/content-management/image-processing/#image-processing-config).
+
+languages
+: See [Configure Languages](/content-management/multilingual/#configure-languages).
+
 languageCode ("")
 : The site's language code.
 
@@ -103,6 +109,9 @@ log (false)
 
 logFile ("")
 : Log File path (if set, logging enabled automatically).
+
+menu
+: See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
 
 metaDataFormat ("toml")
 : "toml","yaml", or "json"
@@ -142,6 +151,9 @@ pygmentsStyle ("monokai")
 
 pygmentsUseClasses (false)
 : Enable to use external CSS for code highlighting.
+
+related
+: See [Related Content](/content-management/related/#configure-related-content).
 
 relativeURLs (false)
 : Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
