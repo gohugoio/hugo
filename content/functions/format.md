@@ -1,6 +1,6 @@
 ---
 title: .Format
-description: Formats built-in Hugo dates---`.Date`, `.PublishDate`, and `.LastMod`---according to Go's layout string.
+description: Formats built-in Hugo dates---`.Date`, `.PublishDate`, and `.Lastmod`---according to Go's layout string.
 godocref: https://golang.org/pkg/time/#example_Time_Format
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -23,7 +23,7 @@ toc: true
 
 * `.PublishDate`
 * `.Date`
-* `.LastMod`
+* `.Lastmod`
 
 Assuming a key-value of `date: 2017-03-03` in a content file's front matter, your can run the date through `.Format` followed by a layout string for your desired output at build time:
 
