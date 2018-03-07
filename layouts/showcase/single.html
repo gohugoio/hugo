@@ -9,15 +9,15 @@ Showcase: {{ .Title }}
     <div class="flex flex-wrap">
 
       <div class="w-100 w-20-l order-1 order-0-l">
-        {{template "details" .}}
+        {{template "sc-details" .}}
       </div>
 
-      <div class="w-100 w-60-l order-0 order-1-l">
-        {{template "main-column" .}}
+      <div class="w-100 w-60-l order-0 order-1-l ph4-l">
+        {{template "sc-main-column" .}}
       </div>
 
       <aside class="dn mid-gray w-100 w-20-ns flex-l justify-center order-2">
-        {{template "navigation" .}}
+        {{template "sc-navigation" .}}
       </aside>
 
     </div>
@@ -26,13 +26,13 @@ Showcase: {{ .Title }}
       Last Update: {{ .Lastmod.Format "January 2, 2006" }} <br>
       {{ partial "page-edit.html" . }}
     </div>
-
+    <div class="b">The Showcase articles are copyright the content authors. Any open source license will be attached.</div>
   </article>
 {{ end }}
 
 
 
-{{define "main-column"}}
+{{define "sc-main-column"}}
   {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
   {{ with $img }}
      {{ $big := .Fill "1024x512 top" }}
@@ -47,14 +47,15 @@ Showcase: {{ .Title }}
       {{- . -}}
   {{end}}
   </div>
+
 {{end}}
 
-{{define "details"}}
-  <div class="mt4 mt0-ns nested-links mr3-m mr4-l">
+{{define "sc-details"}}
+  <div class="mt4 mt0-ns nested-links">
     <div class="ba b--light-gray bg-white pa3">
-      <h1 class="f3 mt0">{{.Title}}</h1>
+      <h1 class="f2-fluid mt0">{{.Title}}</h1>
       {{ with .Params.siteURL }}
-      <a href="{{ . }}" class="db f5 mb1">{{ . | replaceRE "^https?://([^/]+).*" "$1"}} {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
+      <a href="{{ . }}" class="db f5 mb1">{{ . | replaceRE "^https?://(www\\.)?([^/]+).*" "$2"}} {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
       {{ end }}
       {{ with .Params.siteSource }}
       <a href="{{ . }}" class="db mb4">source {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
@@ -73,7 +74,7 @@ Showcase: {{ .Title }}
   </div>
 {{end}}
 
-{{define "navigation"}}
+{{define "sc-navigation"}}
   {{$section := where .Site.RegularPages "Section" .Section}}
   {{$number_of_entries := $section | len}}
   <ul class="pa0 list">
