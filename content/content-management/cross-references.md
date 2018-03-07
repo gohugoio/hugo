@@ -127,4 +127,4 @@ Few examples:
 [lists]: /templates/lists/
 [output formats]: /templates/output-formats/
 [shortcode]: /content-management/shortcodes/
-[bfext]: /formats/#blackfriday-extensions
+[bfext]: /content-management/formats/#blackfriday-extensions
