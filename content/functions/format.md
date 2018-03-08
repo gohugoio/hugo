@@ -69,9 +69,6 @@ date: 2017-03-03T14:15:59-06:00
 `"Mon Jan 2 2006"`
 : **Returns**: `Fri Mar 3 2017`
 
-`"January 2nd"`
-: **Returns**: `March 3rd`
-
 `"January 2006"`
 : **Returns**: `March 2017`
 
