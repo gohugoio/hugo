@@ -28,7 +28,7 @@ Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml). The embedded 
 
 RSS pages are of the type `Page` and have all the [page variables](/variables/page/) available to use in the templates.
 
-### Section RSS!
+### Section RSS
 
 A [section’s][section] RSS will be rendered at `/<SECTION>/index.xml` (e.g., http://spf13.com/project/index.xml).
 
