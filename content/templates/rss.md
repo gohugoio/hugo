@@ -20,7 +20,7 @@ toc: true
 
 ## RSS Template Lookup Order
 
-See [Template Lookup](/templates/lookup-order/).
+See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
 
 {{% note "Hugo Ships with an RSS Template" %}}
 Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml). The embedded template will be sufficient for most use cases.
@@ -28,7 +28,7 @@ Hugo ships with its own [RSS 2.0 template](#the-embedded-rss-xml). The embedded 
 
 RSS pages are of the type `Page` and have all the [page variables](/variables/page/) available to use in the templates.
 
-### Section RSS
+### Section RSS!
 
 A [section’s][section] RSS will be rendered at `/<SECTION>/index.xml` (e.g., http://spf13.com/project/index.xml).
 
@@ -36,27 +36,9 @@ Hugo provides the ability for you to define any RSS type you wish and can have d
 
 ## Lookup Order for RSS Templates
 
-### Main RSS
+The table below shows the RSS template lookup order for the different page kinds. The first listing shows the lookup order when running with a theme (`demoTheme`).
 
-1. `/layouts/rss.xml`
-2. `/layouts/_default/rss.xml`
-3.  Embedded rss.xml
-
-### Section RSS
-
-1. `/layouts/section/<SECTION>.rss.xml`
-2. `/layouts/_default/rss.xml`
-3. `/themes/<THEME>/layouts/section/<SECTION>.rss.xml`
-4. `/themes/<THEME>/layouts/_default/rss.xml`
-5. Embedded rss.xml
-
-### Taxonomy RSS
-
-1. `/layouts/taxonomy/<SINGULAR>.rss.xml`
-2. `/layouts/_default/rss.xml`
-3. `/themes/<THEME>/layouts/taxonomy/<SINGULAR>.rss.xml`
-4. `/themes/<THEME>/layouts/_default/rss.xml`
-5. Embedded rss.xml
+{{< datatable-filtered "output" "layouts" "OutputFormat == RSS" "Example" "OutputFormat" "Suffix" "Template Lookup Order" >}}
 
 ## Configure RSS
 
@@ -64,7 +46,7 @@ By default, Hugo will create an unlimited number of RSS entries. You can limit t
 
 The following values will also be included in the RSS output if specified in your site’s configuration:
 
-```
+```toml
 languageCode = "en-us"
 copyright = "This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License."
 
@@ -76,7 +58,7 @@ copyright = "This work is licensed under a Creative Commons Attribution-ShareAli
 
 This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.0 Specification][RSS 2.0].
 
-```
+```xml
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{{ if eq  .Title  .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}{{ end }}</title>

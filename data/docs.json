@@ -297,12 +297,6 @@
         "OutputFormat": "HTML",
         "Suffix": "html",
         "Template Lookup Order": [
-          "layouts/page/index.html.html",
-          "layouts/page/home.html.html",
-          "layouts/page/list.html.html",
-          "layouts/page/index.html",
-          "layouts/page/home.html",
-          "layouts/page/list.html",
           "layouts/index.html.html",
           "layouts/home.html.html",
           "layouts/list.html.html",
@@ -349,14 +343,6 @@
         "OutputFormat": "HTML",
         "Suffix": "html",
         "Template Lookup Order": [
-          "layouts/page/demolayout.html.html",
-          "layouts/page/index.html.html",
-          "layouts/page/home.html.html",
-          "layouts/page/list.html.html",
-          "layouts/page/demolayout.html",
-          "layouts/page/index.html",
-          "layouts/page/home.html",
-          "layouts/page/list.html",
           "layouts/demolayout.html.html",
           "layouts/index.html.html",
           "layouts/home.html.html",
@@ -381,18 +367,6 @@
         "OutputFormat": "HTML",
         "Suffix": "html",
         "Template Lookup Order": [
-          "layouts/page/index.html.html",
-          "demoTheme/layouts/page/index.html.html",
-          "layouts/page/home.html.html",
-          "demoTheme/layouts/page/home.html.html",
-          "layouts/page/list.html.html",
-          "demoTheme/layouts/page/list.html.html",
-          "layouts/page/index.html",
-          "demoTheme/layouts/page/index.html",
-          "layouts/page/home.html",
-          "demoTheme/layouts/page/home.html",
-          "layouts/page/list.html",
-          "demoTheme/layouts/page/list.html",
           "layouts/index.html.html",
           "demoTheme/layouts/index.html.html",
           "layouts/home.html.html",
@@ -425,18 +399,6 @@
         "OutputFormat": "AMP",
         "Suffix": "html",
         "Template Lookup Order": [
-          "layouts/page/index.fr.amp.html",
-          "layouts/page/home.fr.amp.html",
-          "layouts/page/list.fr.amp.html",
-          "layouts/page/index.amp.html",
-          "layouts/page/home.amp.html",
-          "layouts/page/list.amp.html",
-          "layouts/page/index.fr.html",
-          "layouts/page/home.fr.html",
-          "layouts/page/list.fr.html",
-          "layouts/page/index.html",
-          "layouts/page/home.html",
-          "layouts/page/list.html",
           "layouts/index.fr.amp.html",
           "layouts/home.fr.amp.html",
           "layouts/list.fr.amp.html",
@@ -469,12 +431,6 @@
         "OutputFormat": "JSON",
         "Suffix": "json",
         "Template Lookup Order": [
-          "layouts/page/index.json.json",
-          "layouts/page/home.json.json",
-          "layouts/page/list.json.json",
-          "layouts/page/index.json",
-          "layouts/page/home.json",
-          "layouts/page/list.json",
           "layouts/index.json.json",
           "layouts/home.json.json",
           "layouts/list.json.json",
@@ -490,31 +446,136 @@
         ]
       },
       {
-        "Example": "RSS home",
+        "Example": "RSS home with theme",
         "Kind": "home",
         "OutputFormat": "RSS",
         "Suffix": "xml",
         "Template Lookup Order": [
-          "layouts/page/index.rss.xml",
-          "layouts/page/home.rss.xml",
-          "layouts/page/rss.xml",
-          "layouts/page/list.rss.xml",
-          "layouts/page/index.xml",
-          "layouts/page/home.xml",
-          "layouts/page/list.xml",
           "layouts/index.rss.xml",
+          "demoTheme/layouts/index.rss.xml",
           "layouts/home.rss.xml",
+          "demoTheme/layouts/home.rss.xml",
           "layouts/rss.xml",
+          "demoTheme/layouts/rss.xml",
           "layouts/list.rss.xml",
+          "demoTheme/layouts/list.rss.xml",
           "layouts/index.xml",
+          "demoTheme/layouts/index.xml",
           "layouts/home.xml",
+          "demoTheme/layouts/home.xml",
           "layouts/list.xml",
+          "demoTheme/layouts/list.xml",
           "layouts/_default/index.rss.xml",
+          "demoTheme/layouts/_default/index.rss.xml",
           "layouts/_default/home.rss.xml",
+          "demoTheme/layouts/_default/home.rss.xml",
+          "layouts/_default/rss.xml",
+          "demoTheme/layouts/_default/rss.xml",
+          "layouts/_default/list.rss.xml",
+          "demoTheme/layouts/_default/list.rss.xml",
+          "layouts/_default/index.xml",
+          "demoTheme/layouts/_default/index.xml",
+          "layouts/_default/home.xml",
+          "demoTheme/layouts/_default/home.xml",
+          "layouts/_default/list.xml",
+          "demoTheme/layouts/_default/list.xml",
+          "layouts/_internal/_default/rss.xml"
+        ]
+      },
+      {
+        "Example": "RSS section posts",
+        "Kind": "section",
+        "OutputFormat": "RSS",
+        "Suffix": "xml",
+        "Template Lookup Order": [
+          "layouts/posts/section.rss.xml",
+          "layouts/posts/rss.xml",
+          "layouts/posts/list.rss.xml",
+          "layouts/posts/section.xml",
+          "layouts/posts/list.xml",
+          "layouts/section/section.rss.xml",
+          "layouts/section/rss.xml",
+          "layouts/section/list.rss.xml",
+          "layouts/section/section.xml",
+          "layouts/section/list.xml",
+          "layouts/_default/section.rss.xml",
           "layouts/_default/rss.xml",
           "layouts/_default/list.rss.xml",
-          "layouts/_default/index.xml",
-          "layouts/_default/home.xml",
+          "layouts/_default/section.xml",
+          "layouts/_default/list.xml",
+          "layouts/_internal/_default/rss.xml"
+        ]
+      },
+      {
+        "Example": "Taxonomy list in categories",
+        "Kind": "taxonomy",
+        "OutputFormat": "RSS",
+        "Suffix": "xml",
+        "Template Lookup Order": [
+          "layouts/categories/category.rss.xml",
+          "layouts/categories/taxonomy.rss.xml",
+          "layouts/categories/rss.xml",
+          "layouts/categories/list.rss.xml",
+          "layouts/categories/category.xml",
+          "layouts/categories/taxonomy.xml",
+          "layouts/categories/list.xml",
+          "layouts/taxonomy/category.rss.xml",
+          "layouts/taxonomy/taxonomy.rss.xml",
+          "layouts/taxonomy/rss.xml",
+          "layouts/taxonomy/list.rss.xml",
+          "layouts/taxonomy/category.xml",
+          "layouts/taxonomy/taxonomy.xml",
+          "layouts/taxonomy/list.xml",
+          "layouts/category/category.rss.xml",
+          "layouts/category/taxonomy.rss.xml",
+          "layouts/category/rss.xml",
+          "layouts/category/list.rss.xml",
+          "layouts/category/category.xml",
+          "layouts/category/taxonomy.xml",
+          "layouts/category/list.xml",
+          "layouts/_default/category.rss.xml",
+          "layouts/_default/taxonomy.rss.xml",
+          "layouts/_default/rss.xml",
+          "layouts/_default/list.rss.xml",
+          "layouts/_default/category.xml",
+          "layouts/_default/taxonomy.xml",
+          "layouts/_default/list.xml",
+          "layouts/_internal/_default/rss.xml"
+        ]
+      },
+      {
+        "Example": "Taxonomy terms in categories",
+        "Kind": "taxonomyTerm",
+        "OutputFormat": "RSS",
+        "Suffix": "xml",
+        "Template Lookup Order": [
+          "layouts/categories/category.terms.rss.xml",
+          "layouts/categories/terms.rss.xml",
+          "layouts/categories/rss.xml",
+          "layouts/categories/list.rss.xml",
+          "layouts/categories/category.terms.xml",
+          "layouts/categories/terms.xml",
+          "layouts/categories/list.xml",
+          "layouts/taxonomy/category.terms.rss.xml",
+          "layouts/taxonomy/terms.rss.xml",
+          "layouts/taxonomy/rss.xml",
+          "layouts/taxonomy/list.rss.xml",
+          "layouts/taxonomy/category.terms.xml",
+          "layouts/taxonomy/terms.xml",
+          "layouts/taxonomy/list.xml",
+          "layouts/category/category.terms.rss.xml",
+          "layouts/category/terms.rss.xml",
+          "layouts/category/rss.xml",
+          "layouts/category/list.rss.xml",
+          "layouts/category/category.terms.xml",
+          "layouts/category/terms.xml",
+          "layouts/category/list.xml",
+          "layouts/_default/category.terms.rss.xml",
+          "layouts/_default/terms.rss.xml",
+          "layouts/_default/rss.xml",
+          "layouts/_default/list.rss.xml",
+          "layouts/_default/category.terms.xml",
+          "layouts/_default/terms.xml",
           "layouts/_default/list.xml",
           "layouts/_internal/_default/rss.xml"
         ]
@@ -787,7 +848,12 @@
           "Aliases": [
             "ge"
           ],
-          "Examples": []
+          "Examples": [
+            [
+              "{{ if ge .Hugo.Version \"0.36\" }}Reasonable new Hugo version!{{ end }}",
+              "Reasonable new Hugo version!"
+            ]
+          ]
         },
         "Gt": {
           "Description": "Gt returns the boolean truth of arg1 \u003e arg2.",
@@ -2236,6 +2302,20 @@
             [
               "{{ plainify  \"Hello \u003cstrong\u003eworld\u003c/strong\u003e, gophers!\" }}",
               "Hello world, gophers!"
+            ]
+          ]
+        },
+        "Remarshal": {
+          "Description": "Remarshal is used in the Hugo documentation to convert configuration\nexamples from YAML to JSON, TOML (and possibly the other way around).\nThe is primarily a helper for the Hugo docs site.\nIt is not a general purpose YAML to TOML converter etc., and may\nchange without notice if it serves a purpose in the docs.\nFormat is one of json, yaml or toml.",
+          "Args": [
+            "format",
+            "data"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"title = \\\"Hello World\\\"\" | transform.Remarshal \"json\" | safeHTML }}",
+              "{\n   \"title\": \"Hello World\"\n}\n"
             ]
           ]
         }
