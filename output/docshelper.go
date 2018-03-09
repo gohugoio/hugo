@@ -1,6 +1,7 @@
 package output
 
 import (
+	"fmt"
 	"strings"
 
 	//	"fmt"
@@ -56,8 +57,10 @@ func createLayoutExamples() interface{} {
 		{`Home page with theme`, LayoutDescriptor{Kind: "home", Type: "page"}, true, HTMLFormat},
 		{`AMP home, French language"`, LayoutDescriptor{Kind: "home", Type: "page", Lang: "fr"}, false, AMPFormat},
 		{"JSON home", LayoutDescriptor{Kind: "home", Type: "page"}, false, JSONFormat},
-		{"RSS home", LayoutDescriptor{Kind: "home", Type: "page"}, false, RSSFormat},
-
+		{"RSS home with theme", LayoutDescriptor{Kind: "home", Type: "page"}, true, RSSFormat},
+		{"RSS section posts", LayoutDescriptor{Kind: "section", Type: "posts"}, false, RSSFormat},
+		{"Taxonomy list in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, false, RSSFormat},
+		{"Taxonomy terms in categories", LayoutDescriptor{Kind: "taxonomyTerm", Type: "categories", Section: "category"}, false, RSSFormat},
 		{"Section list for \"posts\" section", LayoutDescriptor{Kind: "section", Type: "posts", Section: "posts"}, false, HTMLFormat},
 		{"Section list for \"posts\" section with type set to \"blog\"", LayoutDescriptor{Kind: "section", Type: "blog", Section: "posts"}, false, HTMLFormat},
 		{"Section list for \"posts\" section with layout set to \"demoLayout\"", LayoutDescriptor{Kind: "section", Layout: demoLayout, Section: "posts"}, false, HTMLFormat},
@@ -84,6 +87,10 @@ func createLayoutExamples() interface{} {
 func makeLayoutsPresentable(l []string) []string {
 	var filtered []string
 	for _, ll := range l {
+		if strings.Contains(ll, "page/") {
+			// This is a valid lookup, but it's more confusing than useful.
+			continue
+		}
 		ll = strings.TrimPrefix(ll, "_text/")
 		if strings.Contains(ll, "theme/") {
 			ll = strings.Replace(ll, "theme/", "demoTheme/layouts/", -1)
