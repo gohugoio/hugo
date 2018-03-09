@@ -109,22 +109,35 @@ There are more boolean operators than those listed in the Hugo docs in the [Gola
 
 ## Includes
 
-When including another template, you will pass to it the data it will be
-able to access. To pass along the current context, please remember to
-include a trailing dot. The templates location will always be starting at
-the `/layouts/` directory within Hugo.
+When including another template, you will need to pass it the data that it would
+need to access.
 
-### Template and Partial Examples
+{{% note %}}
+To pass along the current context, please remember to include a trailing **dot**.
+{{% /note %}}
 
-```
-{{ template "partials/header.html" . }}
-```
+The templates location will always be starting at the `layouts/` directory
+within Hugo.
 
-Starting with Hugo v0.12, you may also use the `partial` call
-for [partial templates][partials]:
+### Partial
+
+The [`partial`][partials] function is used to include *partial* templates using
+the syntax `{{ partial "<PATH>/<PARTIAL>.<EXTENSION>" . }}`.
+
+Example:
 
 ```
 {{ partial "header.html" . }}
+```
+
+### Template
+
+The `template` function was used to include *partial* templates in much older
+Hugo versions. Now it is still useful for calling [*internal*
+templates][internal_templates]:
+
+```
+{{ template "_internal/opengraph.html" . }}
 ```
 
 ## Logic
@@ -479,6 +492,7 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 [index]: /functions/index/
 [math functions]: /functions/math/
 [partials]: /templates/partials/ "Link to the partial templates page inside of the templating section of the Hugo docs"
+[internal_templates]: /templates/internal/
 [relpermalink]: /variables/page/
 [safehtml]: /functions/safehtml/
 [sitevars]: /variables/site/
