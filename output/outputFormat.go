@@ -140,6 +140,14 @@ var (
 		NoUgly:    true,
 		Rel:       "alternate",
 	}
+
+	SitemapFormat = Format{
+		Name:      "Sitemap",
+		MediaType: media.XMLType,
+		BaseName:  "sitemap",
+		NoUgly:    true,
+		Rel:       "sitemap",
+	}
 )
 
 var DefaultFormats = Formats{
@@ -149,7 +157,9 @@ var DefaultFormats = Formats{
 	CSVFormat,
 	HTMLFormat,
 	JSONFormat,
+	RobotsTxtFormat,
 	RSSFormat,
+	SitemapFormat,
 }
 
 func init() {

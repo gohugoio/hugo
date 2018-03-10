@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"reflect"
 	"strings"
 	"testing"
 
@@ -28,54 +27,6 @@ import (
 	"github.com/gohugoio/hugo/output"
 	"github.com/spf13/viper"
 )
-
-func TestDefaultOutputFormats(t *testing.T) {
-	t.Parallel()
-	defs, err := createDefaultOutputFormats(output.DefaultFormats, viper.New())
-
-	require.NoError(t, err)
-
-	tests := []struct {
-		name string
-		kind string
-		want output.Formats
-	}{
-		{"RSS not for regular pages", KindPage, output.Formats{output.HTMLFormat}},
-		{"Home Sweet Home", KindHome, output.Formats{output.HTMLFormat, output.RSSFormat}},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := defs[tt.kind]; !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("createDefaultOutputFormats(%v) = %v, want %v", tt.kind, got, tt.want)
-			}
-		})
-	}
-}
-
-func TestDefaultOutputFormatsWithOverrides(t *testing.T) {
-	t.Parallel()
-
-	htmlOut := output.HTMLFormat
-	htmlOut.BaseName = "htmlindex"
-	rssOut := output.RSSFormat
-	rssOut.BaseName = "feed"
-
-	defs, err := createDefaultOutputFormats(output.Formats{htmlOut, rssOut}, viper.New())
-
-	homeDefs := defs[KindHome]
-
-	rss, found := homeDefs.GetByName("RSS")
-	require.True(t, found)
-	require.Equal(t, rss.BaseName, "feed")
-
-	html, found := homeDefs.GetByName("HTML")
-	require.True(t, found)
-	require.Equal(t, html.BaseName, "htmlindex")
-
-	require.NoError(t, err)
-
-}
 
 func TestSiteWithPageOutputs(t *testing.T) {
 	for _, outputs := range [][]string{{"html", "json", "calendar"}, {"json"}} {
@@ -372,4 +323,84 @@ baseName = "customdelimbase"
 	require.Equal(t, "/blog/nosuffixbase.", outputs.Get("NOS").RelPermalink())
 	require.Equal(t, "/blog/customdelimbase_del", outputs.Get("CUS").RelPermalink())
 
+}
+
+func TestCreateSiteOutputFormats(t *testing.T) {
+	assert := require.New(t)
+
+	outputsConfig := map[string]interface{}{
+		KindHome:    []string{"HTML", "JSON"},
+		KindSection: []string{"JSON"},
+	}
+
+	cfg := viper.New()
+	cfg.Set("outputs", outputsConfig)
+
+	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
+	assert.NoError(err)
+	assert.Equal(output.Formats{output.JSONFormat}, outputs[KindSection])
+	assert.Equal(output.Formats{output.HTMLFormat, output.JSONFormat}, outputs[KindHome])
+
+	// Defaults
+	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[KindTaxonomy])
+	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[KindTaxonomyTerm])
+	assert.Equal(output.Formats{output.HTMLFormat}, outputs[KindPage])
+
+	// These aren't (currently) in use when rendering in Hugo,
+	// but the pages needs to be assigned an output format,
+	// so these should also be correct/sensible.
+	assert.Equal(output.Formats{output.RSSFormat}, outputs[kindRSS])
+	assert.Equal(output.Formats{output.SitemapFormat}, outputs[kindSitemap])
+	assert.Equal(output.Formats{output.RobotsTxtFormat}, outputs[kindRobotsTXT])
+	assert.Equal(output.Formats{output.HTMLFormat}, outputs[kind404])
+
+}
+
+func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
+	assert := require.New(t)
+
+	outputsConfig := map[string]interface{}{
+		KindHome: []string{"FOO", "JSON"},
+	}
+
+	cfg := viper.New()
+	cfg.Set("outputs", outputsConfig)
+
+	_, err := createSiteOutputFormats(output.DefaultFormats, cfg)
+	assert.Error(err)
+}
+
+func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
+	assert := require.New(t)
+
+	outputsConfig := map[string]interface{}{
+		KindHome: []string{},
+	}
+
+	cfg := viper.New()
+	cfg.Set("outputs", outputsConfig)
+
+	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
+	assert.NoError(err)
+	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[KindHome])
+}
+
+func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
+	assert := require.New(t)
+
+	outputsConfig := map[string]interface{}{
+		KindHome: []string{},
+	}
+
+	cfg := viper.New()
+	cfg.Set("outputs", outputsConfig)
+
+	var (
+		customRSS  = output.Format{Name: "RSS", BaseName: "customRSS"}
+		customHTML = output.Format{Name: "HTML", BaseName: "customHTML"}
+	)
+
+	outputs, err := createSiteOutputFormats(output.Formats{customRSS, customHTML}, cfg)
+	assert.NoError(err)
+	assert.Equal(output.Formats{customHTML, customRSS}, outputs[KindHome])
 }
