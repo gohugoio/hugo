@@ -24,9 +24,46 @@ import (
 	"github.com/spf13/cast"
 )
 
+func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) map[string]output.Formats {
+	rssOut, _ := allFormats.GetByName(output.RSSFormat.Name)
+	htmlOut, _ := allFormats.GetByName(output.HTMLFormat.Name)
+	robotsOut, _ := allFormats.GetByName(output.RobotsTxtFormat.Name)
+	sitemapOut, _ := allFormats.GetByName(output.SitemapFormat.Name)
+
+	// TODO(bep) this mumbo jumbo is deprecated and should be removed, but there are tests that
+	// depends on this, so that will have to wait.
+	rssBase := cfg.GetString("rssURI")
+	if rssBase == "" || rssBase == "index.xml" {
+		rssBase = rssOut.BaseName
+	} else {
+		// Remove in Hugo 0.36.
+		helpers.Deprecated("Site config", "rssURI", "Set baseName in outputFormats.RSS", true)
+		// RSS has now a well defined media type, so strip any suffix provided
+		rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
+	}
+
+	rssOut.BaseName = rssBase
+
+	return map[string]output.Formats{
+		KindPage:         output.Formats{htmlOut},
+		KindHome:         output.Formats{htmlOut, rssOut},
+		KindSection:      output.Formats{htmlOut, rssOut},
+		KindTaxonomy:     output.Formats{htmlOut, rssOut},
+		KindTaxonomyTerm: output.Formats{htmlOut, rssOut},
+		// Below are for conistency. They are currently not used during rendering.
+		kindRSS:       output.Formats{rssOut},
+		kindSitemap:   output.Formats{sitemapOut},
+		kindRobotsTXT: output.Formats{robotsOut},
+		kind404:       output.Formats{htmlOut},
+	}
+
+}
+
 func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (map[string]output.Formats, error) {
+	defaultOutputFormats := createDefaultOutputFormats(allFormats, cfg)
+
 	if !cfg.IsSet("outputs") {
-		return createDefaultOutputFormats(allFormats, cfg)
+		return defaultOutputFormats, nil
 	}
 
 	outFormats := make(map[string]output.Formats)
@@ -36,6 +73,8 @@ func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (ma
 	if outputs == nil || len(outputs) == 0 {
 		return outFormats, nil
 	}
+
+	seen := make(map[string]bool)
 
 	for k, v := range outputs {
 		var formats output.Formats
@@ -48,52 +87,21 @@ func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (ma
 			formats = append(formats, f)
 		}
 
+		// This effectively prevents empty outputs entries for a given Kind.
+		// We need at least one.
 		if len(formats) > 0 {
+			seen[k] = true
 			outFormats[k] = formats
 		}
 	}
 
-	// Make sure every kind has at least one output format
-	for _, kind := range allKinds {
-		if _, found := outFormats[kind]; !found {
-			outFormats[kind] = output.Formats{output.HTMLFormat}
+	// Add defaults for the entries not provided by the user.
+	for k, v := range defaultOutputFormats {
+		if !seen[k] {
+			outFormats[k] = v
 		}
 	}
 
 	return outFormats, nil
 
-}
-
-func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) (map[string]output.Formats, error) {
-	outFormats := make(map[string]output.Formats)
-	rssOut, _ := allFormats.GetByName(output.RSSFormat.Name)
-	htmlOut, _ := allFormats.GetByName(output.HTMLFormat.Name)
-
-	for _, kind := range allKinds {
-		var formats output.Formats
-		// All have HTML
-		formats = append(formats, htmlOut)
-
-		// All but page have RSS
-		if kind != KindPage {
-
-			rssBase := cfg.GetString("rssURI")
-			if rssBase == "" || rssBase == "index.xml" {
-				rssBase = rssOut.BaseName
-			} else {
-				// Remove in Hugo 0.36.
-				helpers.Deprecated("Site config", "rssURI", "Set baseName in outputFormats.RSS", true)
-				// RSS has now a well defined media type, so strip any suffix provided
-				rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
-			}
-
-			rssOut.BaseName = rssBase
-			formats = append(formats, rssOut)
-
-		}
-
-		outFormats[kind] = formats
-	}
-
-	return outFormats, nil
 }
