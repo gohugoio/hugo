@@ -84,7 +84,7 @@ See [Shortcodes][sc] for usage, particularly for the built-in shortcodes that sh
 
 ### Code Blocks
 
-Hugo supports GitHub-flavored markdown's use of triple back ticks, as well as provides a special [`highlight` nested shortcode][hlsc] to render syntax highlighting via [Pygments][]. For usage examples and a complete explanation, see the [syntax highlighting documentation][hl] in [developer tools][].
+Hugo supports GitHub-flavored markdown's use of triple back ticks, as well as provides a special [`highlight` shortcode][hlsc], and syntax highlights those code blocks natively using *Chroma*. Users also have an option to use *Pygments* instead. See the [Syntax Highlighting][hl] section for details.
 
 ## Mmark
 
@@ -231,7 +231,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [fireball]: https://daringfireball.net/projects/markdown/
 [gfmtasks]: https://guides.github.com/features/mastering-markdown/#syntax
 [helperssource]: https://github.com/gohugoio/hugo/blob/77c60a3440806067109347d04eb5368b65ea0fe8/helpers/general.go#L65
-[hl]: /tools/syntax-highlighting/
+[hl]: /content-management/syntax-highlighting/
 [hlsc]: /content-management/shortcodes/#highlight
 [hugocss]: /css/style.css
 [ietf]: https://tools.ietf.org/html/

@@ -90,7 +90,7 @@ Git is a [version control system](https://en.wikipedia.org/wiki/Version_control)
 
 Go ships with a sub-command called `get` that will download these packages for us when we setup our working environment. The source code of the packages is tracked with Git. `get` will interact with the Git servers of the package hosters in order to fetch all dependencies.
 
-Move back to the terminal and check if Git is already installed. Type in `git version` and press enter. You can skip the rest of this section if the command returned a version number. Otherwise [download](https://git-scm.com/downloads) the lastest version of Git and follow this [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
+Move back to the terminal and check if Git is already installed. Type in `git version` and press enter. You can skip the rest of this section if the command returned a version number. Otherwise [download](https://git-scm.com/downloads) the latest version of Git and follow this [installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
 
 Finally, check again with `git version` if Git was installed successfully.
 
@@ -147,7 +147,7 @@ go get github.com/stretchr/testify
 
 ### Fork the repository
 
-If you're not fimiliar with this term, GitHub's [help pages](https://help.github.com/articles/fork-a-repo/) provide again a simple explanation:
+If you're not familiar with this term, GitHub's [help pages](https://help.github.com/articles/fork-a-repo/) provide again a simple explanation:
 
 > A fork is a copy of a repository. Forking a repository allows you to freely experiment with changes without affecting the original project.
 
@@ -219,7 +219,7 @@ Now we can create a new branch for your additions:
 git checkout -b <BRANCH-NAME>
 ```
 
-You can check on which branch your are with `git branch`. You should see a list of all local branches. The current branch is indicated with a little asterisk.
+You can check on which branch you are with `git branch`. You should see a list of all local branches. The current branch is indicated with a little asterisk.
 
 ### Contribute to Documentation
 
@@ -243,7 +243,7 @@ Sometimes changes on the codebase can cause unintended side effects. Or they don
 Make sure the commands `go test ./...` passes, and `go build` completes.
 
 ### Formatting 
-The Go code styleguide maybe is opiniated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our addtions:
+The Go code styleguide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our addtions:
 
 ```
 go fmt ./...
@@ -280,7 +280,7 @@ git log
 # Exit with q
 ```
 
-After making the last commit you may forgot something. There is no need to create a new commit. Just add the latest changes and merge them into the intended commit:
+After making the last commit you may have forgot something. There is no need to create a new commit. Just add the latest changes and merge them into the intended commit:
 
 ```
 git add --all
@@ -348,7 +348,7 @@ Check the commit log if everything looks as expected. Should an error occur you 
 
 ### Push commits
 
-To push our commits to the fork on GitHub we need to speficy a destination. A destination is defined by the remote and a branch name. Earlier, the defined that the remote url of our fork is the same as our GitHub handle, in my case `digitalcraftsman`. The branch should have the same as our local one. This makes it easy to identify corresponding branches.
+To push our commits to the fork on GitHub we need to specify a destination. A destination is defined by the remote and a branch name. Earlier, the defined that the remote url of our fork is the same as our GitHub handle, in my case `digitalcraftsman`. The branch should have the same as our local one. This makes it easy to identify corresponding branches.
 
 ```
 git push --set-upstream <YOUR-GITHUB-USERNAME> <BRANCHNAME>
@@ -362,7 +362,7 @@ If you modified your commit history in the last step GitHub will reject your try
 
 We made a lot of progress. Good work. In this step we finally open a pull request to submit our additions. Open the [Hugo master repository](https://github.com/gohugoio/hugo/) on GitHub in your browser.
 
-You should find a green button labeld with "New pull request". But GitHub is clever and probably suggests you a pull request like in the beige box below:
+You should find a green button labeled with "New pull request". But GitHub is clever and probably suggests you a pull request like in the beige box below:
 
 ![Open a pull request](/images/contribute/development/open-pull-request.png)
 
