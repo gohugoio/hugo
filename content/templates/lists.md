@@ -43,15 +43,7 @@ The idea of a list page comes from the [hierarchical mental model of the web][me
 
 Since section lists and taxonomy lists (N.B., *not* [taxonomy terms lists][taxterms]) are both *lists* with regards to their templates, both have the same terminating default of `_default/list.html` or `themes/<THEME>/layouts/_default/list.html` in their lookup order. In addition, both [section lists][sectiontemps] and [taxonomy lists][taxlists] have their own default list templates in `_default`:
 
-#### Default Section Templates
-
-1. `layouts/_default/section.html`
-2. `layouts/_default/list.html`
-
-#### Default Taxonomy List Templates
-
-1. `layouts/_default/taxonomy.html`
-2. `themes/<THEME>/layouts/_default/taxonomy.html`
+See [Template Lookup Order](/templates/lookup-order/) for the complete reference.
 
 ## Add Content and Front Matter to List Pages
 

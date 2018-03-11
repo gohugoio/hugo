@@ -5,9 +5,9 @@ logo = "/images/sponsors/forestry-logotype.svg"
 copy = ""
 
 [[banners]]
-name = ""
-link = ""
-logo = ""
+name = "Linode"
+link = "https://www.linode.com/"
+logo = "/images/sponsors/linode-logo_standard_light_medium.png"
 copy = ""
 
 [[banners]]

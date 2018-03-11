@@ -109,8 +109,22 @@ Ensuring heading uniqueness across the site is accomplished with a unique identi
 /content-management/cross-references/#hugo-heading-anchors:77cd9ea530577debf4ce0f28c8dca242
 ```
 
+### Manually Specifying Anchors
+
+For Markdown content files, if the `headerIds` [Blackfriday extension][bfext] is
+enabled (which it is by default), user can manually specify the anchor for any
+heading.
+
+Few examples:
+
+```
+## Alpha 101 {#alpha}
+
+## Version 1.0 {#version-1-dot-0}
+```
 
 [built-in Hugo shortcodes]: /content-management/shortcodes/#using-the-built-in-shortcodes
 [lists]: /templates/lists/
 [output formats]: /templates/output-formats/
 [shortcode]: /content-management/shortcodes/
+[bfext]: /content-management/formats/#blackfriday-extensions

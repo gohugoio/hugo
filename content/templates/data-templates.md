@@ -81,7 +81,7 @@ You can now render the list of recordings for all the bass players in a template
 {{ end }}
 ```
 
-And then in the `partial/artist.html`:
+And then in the `partials/artist.html`:
 
 ```
 <ul>
