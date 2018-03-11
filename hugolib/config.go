@@ -249,9 +249,16 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("debug", false)
 	v.SetDefault("disableFastRender", false)
 
-	// Remove in Hugo 0.37
+	// Remove in Hugo 0.39
+
 	if v.GetBool("useModTimeAsFallback") {
-		helpers.Deprecated("Site config", "useModTimeAsFallback", "Try --enableGitInfo or set lastMod in front matter", false)
+
+		helpers.Deprecated("Site config", "useModTimeAsFallback", `Replace with this in your config.toml:
+    
+[frontmatter]
+date = [ "date",":fileModTime", ":default"]
+lastmod = ["lastmod" ,":fileModTime", ":default"]
+`, false)
 
 	}
 

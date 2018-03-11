@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,8 +27,6 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/source"
 	"github.com/spf13/cast"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -728,6 +726,7 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 }
 
 // Issue #3854
+// Also see https://github.com/gohugoio/hugo/issues/3977
 func TestPageWithDateFields(t *testing.T) {
 	assert := require.New(t)
 	pageWithDate := `---
@@ -737,8 +736,8 @@ weight: %d
 ---
 Simple Page With Some Date`
 
-	hasBothDates := func(p *Page) bool {
-		return p.Date.Year() == 2017 && p.PublishDate.Year() == 2017
+	hasDate := func(p *Page) bool {
+		return p.Date.Year() == 2017
 	}
 
 	datePage := func(field string, weight int) string {
@@ -749,7 +748,7 @@ Simple Page With Some Date`
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		assert.True(len(pages) > 0)
 		for _, p := range pages {
-			assert.True(hasBothDates(p))
+			assert.True(hasDate(p))
 		}
 
 	}
@@ -905,186 +904,68 @@ func TestPageWithDate(t *testing.T) {
 	checkPageDate(t, p, d)
 }
 
-const (
-	s = "fs mod timestamp" // signifies filesystem's modification timestamp
-	P = "1969-01-10T09:17:42Z"
-	D = "2013-10-15T06:16:13Z"
-	L = "2017-09-03T22:22:22Z"
-	M = "2018-01-24T12:21:39Z"
-	E = "2025-12-31T23:59:59Z"
-	o = "0001-01-01T00:00:00Z" // zero value of type Time, default for some date fields
-	x = ""                     // nil date value, default for some date fields
-
-	p_D____ = `---
-title: Simple
-date: '2013-10-15T06:16:13'
----
-Page With Date only`
-
-	p__P___ = `---
-title: Simple
-publishdate: '1969-01-10T09:17:42'
----
-Page With PublishDate only`
-
-	p_DP___ = `---
-title: Simple
-date: '2013-10-15T06:16:13'
-publishdate: '1969-01-10T09:17:42'
----
-Page With Date and PublishDate`
-
-	p__PL__ = `---
-title: Simple
-publishdate: '1969-01-10T09:17:42'
-lastmod: '2017-09-03T22:22:22'
----
-Page With Date and PublishDate`
-
-	p_DPL__ = `---
-title: Simple
-date: '2013-10-15T06:16:13'
-publishdate: '1969-01-10T09:17:42'
-lastmod: '2017-09-03T22:22:22'
----
-Page With Date, PublishDate and LastMod`
-
-	p_DPL_E = `---
-title: Simple
-date: '2013-10-15T06:16:13'
-publishdate: '1969-01-10T09:17:42'
-lastmod: '2017-09-03T22:22:22'
-expirydate: '2025-12-31T23:59:59'
----
-Page With Date, PublishDate and LastMod`
-
-	p_DP_ME = `---
-title: Simple
-date: '2013-10-15T06:16:13'
-publishdate: '1969-01-10T09:17:42'
-modified: '2018-01-24T12:21:39'
-expirydate: '2025-12-31T23:59:59'
----
-Page With Date, PublishDate and LastMod`
-
-	p_DPLME = `---
-title: Simple
-date: '2013-10-15T06:16:13'
-publishdate: '1969-01-10T09:17:42'
-lastmod: '2017-09-03T22:22:22'
-modified: '2018-01-24T12:21:39'
-expirydate: '2025-12-31T23:59:59'
----
-Page With Date, PublishDate and LastMod`
-
-	emptyFM = `---
-
----
-Page With empty front matter`
-
-	zero_FM = "Page With empty front matter"
-)
-
-func TestMetadataDates(t *testing.T) {
+func TestPageWithFrontMatterConfig(t *testing.T) {
 	t.Parallel()
-	var tests = []struct {
-		text        string
-		filename    string
-		modFallback bool
-		expDate     string
-		expPub      string
-		expLast     string
-		expMod      string
-		expExp      string
-	}{
-		// The three columns on the left are the test case inputs:
-		//   page content: The name indicates which dates are set in the front matter,
-		//                 (D)ate, (P)ublishDate, (L)astModified
-		//                 (M)odified, (E)xpiryDate. So, for example,
-		//                 p__PL__ is content with PublishDate and LastModified
-		//                 specified in the front matter.
-		//   file path:    For when we start deriving metadata from it
-		//   modFallback:  Whether or not useModTimeAsFallback is enabled.
-		//
-		// The single character columns on the right are the expected outputs
-		// for each metadata date given by the column heading.
-		// Since each date type (D/P/L/M/E) in the input is always set
-		// to the same value (the constants referenced in these columns), it
-		// is easy to visualize and test which input date gets copied to which
-		// output date fields. "s" signifies the file's filesystem time stamp,
-		// "x" signifies a nil value, and "o" the "zero date".
-		//
-		// ------- inputs --------|--- outputs ---|
-		//content  filename  modfb? D  P  L  M  E
-		{p_D____, "test.md", false, D, D, D, x, x}, // date copied across
-		{p_D____, "testy.md", true, D, D, D, x, x},
-		{p__P___, "test.md", false, P, P, P, x, x}, // pubdate copied across
-		{p__P___, "testy.md", true, P, P, P, x, x},
-		{p_DP___, "test.md", false, D, P, D, x, x}, // date -> lastMod
-		{p_DP___, "testy.md", true, D, P, D, x, x},
-		{p__PL__, "test.md", false, P, P, L, x, x}, // pub -> date overrides lastMod -> date code (inconsistent?)
-		{p__PL__, "testy.md", true, P, P, L, x, x},
-		{p_DPL__, "test.md", false, D, P, L, x, x}, // three dates
-		{p_DPL__, "testy.md", true, D, P, L, x, x},
-		{p_DPL_E, "testy.md", true, D, P, L, x, E}, // lastMod NOT copied to mod (inconsistent?)
-		{p_DP_ME, "testy.md", true, D, P, M, M, E}, // mod copied to lastMod
-		{p_DPLME, "testy.md", true, D, P, L, M, E}, // all dates
 
-		{emptyFM, "test.md", false, o, o, o, x, x}, // 3 year-one dates, 2 empty dates
-		{zero_FM, "test.md", false, o, o, o, x, x},
-		{emptyFM, "testy.md", true, s, o, s, x, x}, // 2 filesys, 1 year-one, 2 empty
-		{zero_FM, "testy.md", true, s, o, s, x, x},
+	for _, dateHandler := range []string{":filename", ":fileModTime"} {
+		t.Run(fmt.Sprintf("dateHandler=%q", dateHandler), func(t *testing.T) {
+			assrt := require.New(t)
+			cfg, fs := newTestCfg()
+
+			pageTemplate := `
+---
+title: Page
+weight: %d
+lastMod: 2018-02-28
+%s
+---
+Content
+`
+
+			cfg.Set("frontmatter", map[string]interface{}{
+				"date": []string{dateHandler, "date"},
+			})
+
+			c1 := filepath.Join("content", "section", "2012-02-21-noslug.md")
+			c2 := filepath.Join("content", "section", "2012-02-22-slug.md")
+
+			writeSource(t, fs, c1, fmt.Sprintf(pageTemplate, 1, ""))
+			writeSource(t, fs, c2, fmt.Sprintf(pageTemplate, 2, "slug: aslug"))
+
+			c1fi, err := fs.Source.Stat(c1)
+			assrt.NoError(err)
+			c2fi, err := fs.Source.Stat(c2)
+			assrt.NoError(err)
+
+			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+			assrt.Len(s.RegularPages, 2)
+
+			noSlug := s.RegularPages[0]
+			slug := s.RegularPages[1]
+
+			assrt.Equal(28, noSlug.Lastmod.Day())
+
+			switch strings.ToLower(dateHandler) {
+			case ":filename":
+				assrt.False(noSlug.Date.IsZero())
+				assrt.False(slug.Date.IsZero())
+				assrt.Equal(2012, noSlug.Date.Year())
+				assrt.Equal(2012, slug.Date.Year())
+				assrt.Equal("noslug", noSlug.Slug)
+				assrt.Equal("aslug", slug.Slug)
+			case ":filemodtime":
+				assrt.Equal(c1fi.ModTime().Year(), noSlug.Date.Year())
+				assrt.Equal(c2fi.ModTime().Year(), slug.Date.Year())
+				fallthrough
+			default:
+				assrt.Equal("", noSlug.Slug)
+				assrt.Equal("aslug", slug.Slug)
+
+			}
+		})
 	}
 
-	for i, test := range tests {
-		s := newTestSite(t)
-		s.Cfg.Set("useModTimeAsFallback", test.modFallback)
-		fs := hugofs.NewMem(s.Cfg)
-
-		writeToFs(t, fs.Source, test.filename, test.text)
-		file, err := fs.Source.Open(test.filename)
-		if err != nil {
-			t.Fatal("failed to write test file to test filesystem")
-		}
-		fi, _ := fs.Source.Stat(test.filename)
-
-		sp := source.NewSourceSpec(s.Cfg, fs)
-		p := s.newPageFromFile(newFileInfo(sp, "", test.filename, fi, bundleNot))
-		p.ReadFrom(file)
-
-		// check Page Variables
-		checkDate(t, i+1, "Date", p.Date, test.expDate, fi)
-		checkDate(t, i+1, "PubDate", p.PublishDate, test.expPub, fi)
-		checkDate(t, i+1, "LastMod", p.Lastmod, test.expLast, fi)
-		checkDate(t, i+1, "LastMod", p.ExpiryDate, test.expExp, fi)
-
-		// check Page Params
-		checkDate(t, i+1, "param date", cast.ToTime(p.params["date"]), test.expDate, fi)
-		checkDate(t, i+1, "param publishdate", cast.ToTime(p.params["publishdate"]), test.expPub, fi)
-		checkDate(t, i+1, "param modified", cast.ToTime(p.params["modified"]), test.expMod, fi)
-		checkDate(t, i+1, "param expirydate", cast.ToTime(p.params["expirydate"]), test.expExp, fi)
-	}
-}
-
-func checkDate(t *testing.T, testId int, dateType string, given time.Time, expected string, fi os.FileInfo) {
-	var expectedTime time.Time
-	if expected == s {
-		expectedTime = fi.ModTime()
-	} else if expected != x {
-		expectedTime = parseTime(expected, t)
-	}
-
-	if given != expectedTime {
-		t.Errorf("test %d, %s is: %s. Expected: %s", testId, dateType, given, expectedTime)
-	}
-}
-
-func parseTime(s string, t *testing.T) time.Time {
-	time, err := time.Parse(time.RFC3339, s)
-	if err != nil {
-		t.Fatalf("bad test data: failed to parse date: '%s'", s)
-	}
-	return time
 }
 
 func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
