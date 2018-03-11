@@ -6,7 +6,6 @@ lastmod : 2018-01-28T22:26:40-05:00
 linktitle : "Page Bundles"
 keywords : ["page", "bundle", "leaf", "branch"]
 categories : ["content management"]
-draft : true
 toc : true
 menu :
   docs:
@@ -15,19 +14,16 @@ menu :
     weight : 11
 ---
 
-Page Bundles are a way to organize the content files. It's useful for
-cases where a page or section's content needs to be split into
-multiple content pages for convenience or has associated attachments
-like documents or images.
+Page Bundles are a way to group [Page Resources](/content-management/page-resources/).
 
-A Page Bundle can be one of two types:
+A Page Bundle can be one of:
 
--   Leaf Bundle
--   Branch Bundle
+-   Leaf Bundle (leaf means it has no children)
+-   Branch Bundle (home page, section, taxonomy terms, taxonomy list)
 
 |                 | Leaf Bundle                                            | Branch Bundle                                           |
 |-----------------|--------------------------------------------------------|---------------------------------------------------------|
-| Usage           | Collection of content and attachments for single pages | Collection of content and attachments for section pages |
+| Usage           | Collection of resources (pages, images etc.) for single pages    | Collection of non-page resources (images etc.)for list pages |
 | Index file name | `index.md` [^fn:1]                                     | `_index.md` [^fn:1]                                     |
 | Layout type     | `single`                                               | `list`                                                  |
 | Nesting         | Doesn't allow nesting of more bundles under it         | Allows nesting of leaf/branch bundles under it          |
@@ -37,15 +33,7 @@ A Page Bundle can be one of two types:
 ## Leaf Bundles {#leaf-bundles}
 
 A _Leaf Bundle_ is a directory at any hierarchy within the `content/`
-directory, that contains at least an **`index.md`** file.
-
-{{% note %}}
-Here `md` (markdown) is used just as an example. You can use any file
-type as a content resource as long as it is a MIME type recognized by
-Hugo (`json` files will, as one example, work fine). If you want to
-get exotic, you can define your own media type.
-{{% /note %}}
-
+directory, that contains an **`index.md`** file.
 
 ### Examples of Leaf Bundle organization {#examples-of-leaf-bundle-organization}
 

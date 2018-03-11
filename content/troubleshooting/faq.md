@@ -17,6 +17,10 @@ aliases: [/faq/]
 **Note:** The answers/solutions presented below are short, and may not be note be enough to solve your problem. Visit [Hugo Discourse](https://discourse.gohugo.io/) and use the search. It that does not help, start a new topic and ask your questions.
 {{% /note %}}
 
+## Can I set configuration variables via OS environment?
+
+Yes you can! See [Configure with Environment Variables](/getting-started/configuration/#configure-with-environment-variables).
+
 ## How do I schedule posts?
 
 1. Set `publishDate` in the page [Front Matter](/content-management/front-matter/) to a date in the future.
@@ -34,4 +38,3 @@ Also see this Twitter thread:
 ## Can I use the latest Hugo version on Netlify?
 
 Yes you can! Read [this](/hosting-and-deployment/hosting-on-netlify/#configure-hugo-version-in-netlify).
-
