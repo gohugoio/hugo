@@ -933,7 +933,9 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	assrt.Len(s.RegularPages, 1)
-	assrt.Equal("2018-02-28", s.RegularPages[0].Lastmod.Format("2006-01-02"))
+
+	// 2018-03-11 is the Git author date for testsite/content/first-post.md
+	assrt.Equal("2018-03-11", s.RegularPages[0].Lastmod.Format("2006-01-02"))
 }
 
 func TestPageWithFrontMatterConfig(t *testing.T) {
