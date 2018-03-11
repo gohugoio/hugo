@@ -18,12 +18,18 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+
 	"path/filepath"
 	"reflect"
 	"sort"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/spf13/afero"
+
+	"github.com/spf13/viper"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -902,6 +908,32 @@ func TestPageWithDate(t *testing.T) {
 	d, _ := time.Parse(time.RFC3339, "2013-05-17T16:59:30Z")
 
 	checkPageDate(t, p, d)
+}
+
+func TestPageWithLastmodFromGitInfo(t *testing.T) {
+	assrt := require.New(t)
+
+	// We need to use the OS fs for this.
+	cfg := viper.New()
+	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	fs.Destination = &afero.MemMapFs{}
+
+	cfg.Set("frontmatter", map[string]interface{}{
+		"lastmod": []string{":git", "lastmod"},
+	})
+
+	cfg.Set("enableGitInfo", true)
+
+	assrt.NoError(loadDefaultSettingsFor(cfg))
+
+	wd, err := os.Getwd()
+	assrt.NoError(err)
+	cfg.Set("workingDir", filepath.Join(wd, "testsite"))
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	assrt.Len(s.RegularPages, 1)
+	assrt.Equal("2018-02-28", s.RegularPages[0].Lastmod.Format("2006-01-02"))
 }
 
 func TestPageWithFrontMatterConfig(t *testing.T) {

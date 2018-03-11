@@ -15,6 +15,7 @@ package pagemeta
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -94,7 +95,7 @@ func TestFrontMatterNewConfig(t *testing.T) {
 	fc, err = newFrontmatterConfig(cfg)
 	assert.NoError(err)
 	assert.Equal([]string{"date", "publishdate", "pubdate", "published", "lastmod", "modified"}, fc.date)
-	assert.Equal([]string{"lastmod", "modified", "date", "publishdate", "pubdate", "published"}, fc.lastmod)
+	assert.Equal([]string{":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"}, fc.lastmod)
 	assert.Equal([]string{"expirydate", "unpublishdate"}, fc.expiryDate)
 	assert.Equal([]string{"publishdate", "pubdate", "published", "date"}, fc.publishDate)
 
@@ -108,69 +109,50 @@ func TestFrontMatterNewConfig(t *testing.T) {
 	fc, err = newFrontmatterConfig(cfg)
 	assert.NoError(err)
 	assert.Equal([]string{"d1", "date", "publishdate", "pubdate", "published", "lastmod", "modified"}, fc.date)
-	assert.Equal([]string{"d2", "lastmod", "modified", "date", "publishdate", "pubdate", "published"}, fc.lastmod)
+	assert.Equal([]string{"d2", ":git", "lastmod", "modified", "date", "publishdate", "pubdate", "published"}, fc.lastmod)
 	assert.Equal([]string{"d3", "expirydate", "unpublishdate"}, fc.expiryDate)
 	assert.Equal([]string{"d4", "publishdate", "pubdate", "published", "date"}, fc.publishDate)
 
 }
 
-func TestFrontMatterDatesFilenameModTime(t *testing.T) {
+func TestFrontMatterDatesHandlers(t *testing.T) {
 	assert := require.New(t)
 
-	cfg := viper.New()
+	for _, handlerID := range []string{":filename", ":fileModTime", ":git"} {
 
-	cfg.Set("frontmatter", map[string]interface{}{
-		"date": []string{":fileModTime", "date"},
-	})
+		cfg := viper.New()
 
-	handler, err := NewFrontmatterHandler(nil, cfg)
-	assert.NoError(err)
+		cfg.Set("frontmatter", map[string]interface{}{
+			"date": []string{handlerID, "date"},
+		})
 
-	d1, _ := time.Parse("2006-01-02", "2018-02-01")
-	d2, _ := time.Parse("2006-01-02", "2018-02-02")
+		handler, err := NewFrontmatterHandler(nil, cfg)
+		assert.NoError(err)
 
-	d := newTestFd()
-	d.ModTime = d1
-	d.Frontmatter["date"] = d2
-	assert.NoError(handler.HandleDates(d))
-	assert.Equal(d1, d.Dates.Date)
-	assert.Equal(d2, d.Params["date"])
+		d1, _ := time.Parse("2006-01-02", "2018-02-01")
+		d2, _ := time.Parse("2006-01-02", "2018-02-02")
 
-	d = newTestFd()
-	d.Frontmatter["date"] = d2
-	assert.NoError(handler.HandleDates(d))
-	assert.Equal(d2, d.Dates.Date)
-	assert.Equal(d2, d.Params["date"])
+		d := newTestFd()
+		switch strings.ToLower(handlerID) {
+		case ":filename":
+			d.BaseFilename = "2018-02-01-page.md"
+		case ":filemodtime":
+			d.ModTime = d1
+		case ":git":
+			d.GitAuthorDate = d1
+		}
+		d.Frontmatter["date"] = d2
+		assert.NoError(handler.HandleDates(d))
+		assert.Equal(d1, d.Dates.Date)
+		assert.Equal(d2, d.Params["date"])
 
-}
+		d = newTestFd()
+		d.Frontmatter["date"] = d2
+		assert.NoError(handler.HandleDates(d))
+		assert.Equal(d2, d.Dates.Date)
+		assert.Equal(d2, d.Params["date"])
 
-func TestFrontMatterDatesFilename(t *testing.T) {
-	assert := require.New(t)
-
-	cfg := viper.New()
-
-	cfg.Set("frontmatter", map[string]interface{}{
-		"date": []string{":filename", "date"},
-	})
-
-	handler, err := NewFrontmatterHandler(nil, cfg)
-	assert.NoError(err)
-
-	d1, _ := time.Parse("2006-01-02", "2018-02-01")
-	d2, _ := time.Parse("2006-01-02", "2018-02-02")
-
-	d := newTestFd()
-	d.BaseFilename = "2018-02-01-page.md"
-	d.Frontmatter["date"] = d2
-	assert.NoError(handler.HandleDates(d))
-	assert.Equal(d1, d.Dates.Date)
-	assert.Equal(d2, d.Params["date"])
-
-	d = newTestFd()
-	d.Frontmatter["date"] = d2
-	assert.NoError(handler.HandleDates(d))
-	assert.Equal(d2, d.Dates.Date)
-	assert.Equal(d2, d.Params["date"])
+	}
 }
 
 func TestFrontMatterDatesCustomConfig(t *testing.T) {

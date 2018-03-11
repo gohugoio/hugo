@@ -165,8 +165,6 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 	}
 
 	if config.whatChanged.source {
-		h.assembleGitInfo()
-
 		for _, s := range h.Sites {
 			if err := s.buildSiteMeta(); err != nil {
 				return err

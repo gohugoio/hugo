@@ -1119,13 +1119,20 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		mtime = p.Source.FileInfo().ModTime()
 	}
 
+	var gitAuthorDate time.Time
+	if p.GitInfo != nil {
+		gitAuthorDate = p.GitInfo.AuthorDate
+	}
+
 	descriptor := &pagemeta.FrontMatterDescriptor{
-		Frontmatter:  frontmatter,
-		Params:       p.params,
-		Dates:        &p.PageDates,
-		PageURLs:     &p.URLPath,
-		BaseFilename: p.BaseFileName(),
-		ModTime:      mtime}
+		Frontmatter:   frontmatter,
+		Params:        p.params,
+		Dates:         &p.PageDates,
+		PageURLs:      &p.URLPath,
+		BaseFilename:  p.BaseFileName(),
+		ModTime:       mtime,
+		GitAuthorDate: gitAuthorDate,
+	}
 
 	// Handle the date separately
 	// TODO(bep) we need to "do more" in this area so this can be split up and
@@ -1577,6 +1584,15 @@ func (p *Page) parse(reader io.Reader) error {
 	if meta == nil {
 		// missing frontmatter equivalent to empty frontmatter
 		meta = map[string]interface{}{}
+	}
+
+	if p.s != nil && p.s.owner != nil {
+		gi, enabled := p.s.owner.gitInfo.forPage(p)
+		if gi != nil {
+			p.GitInfo = gi
+		} else if enabled {
+			p.s.Log.WARN.Printf("Failed to find GitInfo for page %q", p.Path())
+		}
 	}
 
 	return p.update(meta)

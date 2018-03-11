@@ -56,6 +56,9 @@ type FrontMatterDescriptor struct {
 	// The content file's mod time.
 	ModTime time.Time
 
+	// May be set from the author date in Git.
+	GitAuthorDate time.Time
+
 	// The below are pointers to values on Page and will be modified.
 
 	// This is the Page's params.
@@ -175,13 +178,16 @@ const (
 
 	// Gets date from file OS mod time.
 	fmModTime = ":filemodtime"
+
+	// Gets date from Git
+	fmGitAuthorDate = ":git"
 )
 
 // This is the config you get when doing nothing.
 func newDefaultFrontmatterConfig() frontmatterConfig {
 	return frontmatterConfig{
 		date:        []string{fmDate, fmPubDate, fmLastmod},
-		lastmod:     []string{fmLastmod, fmDate, fmPubDate},
+		lastmod:     []string{fmGitAuthorDate, fmLastmod, fmDate, fmPubDate},
 		publishDate: []string{fmPubDate, fmDate},
 		expiryDate:  []string{fmExpiryDate},
 	}
@@ -348,6 +354,8 @@ func (f FrontMatterHandler) createDateHandler(identifiers []string, setter func(
 			handlers = append(handlers, h.newDateFilenameHandler(setter))
 		case fmModTime:
 			handlers = append(handlers, h.newDateModTimeHandler(setter))
+		case fmGitAuthorDate:
+			handlers = append(handlers, h.newDateGitAuthorDateHandler(setter))
 		default:
 			handlers = append(handlers, h.newDateFieldHandler(identifier, setter))
 		}
@@ -407,6 +415,16 @@ func (f *frontmatterFieldHandlers) newDateModTimeHandler(setter func(d *FrontMat
 			return false, nil
 		}
 		setter(d, d.ModTime)
+		return true, nil
+	}
+}
+
+func (f *frontmatterFieldHandlers) newDateGitAuthorDateHandler(setter func(d *FrontMatterDescriptor, t time.Time)) frontMatterFieldHandler {
+	return func(d *FrontMatterDescriptor) (bool, error) {
+		if d.GitAuthorDate.IsZero() {
+			return false, nil
+		}
+		setter(d, d.GitAuthorDate)
 		return true, nil
 	}
 }

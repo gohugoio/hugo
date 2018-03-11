@@ -47,6 +47,9 @@ type HugoSites struct {
 
 	// Keeps track of bundle directories and symlinks to enable partial rebuilding.
 	ContentChanges *contentChangeMap
+
+	// If enabled, keeps a revision map for all content.
+	gitInfo *gitInfo
 }
 
 func (h *HugoSites) IsMultihost() bool {
@@ -146,7 +149,23 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 
 	h.Deps = sites[0].Deps
 
+	if err := h.initGitInfo(); err != nil {
+		return nil, err
+	}
+
 	return h, nil
+}
+
+func (h *HugoSites) initGitInfo() error {
+	if h.Cfg.GetBool("enableGitInfo") {
+		gi, err := newGitInfo(h.Cfg)
+		if err != nil {
+			h.Log.ERROR.Println("Failed to read Git log:", err)
+		} else {
+			h.gitInfo = gi
+		}
+	}
+	return nil
 }
 
 func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
