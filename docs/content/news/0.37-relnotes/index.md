@@ -1,13 +1,12 @@
 
 ---
 date: 2018-02-27
-title: "0.37"
-description: "0.37"
-slug: "0.37"
+title: "Hugo 0.37: Preserve PNG Colour Palette"
+description: "Reduces processed PNG file sizes. And 0.37 is built with Go 1.10!"
 categories: ["Releases"]
 ---
 
-	The main item in Hugo `0.37` is that we now properly preserve the colour palette when processing `PNG` images. We got reports from users experiencing their `PNG` images getting bigger in file size when scaled down.   Now, if you, as an example, start out with a carefully chosen 8 bit colour palette (i.e. `PNG-8`), this is now what you will end up with. A special thanks to [@aitva](https://github.com/aitva) for doing the investigative work finding a proper fix for this issue.
+The main item in Hugo `0.37` is that we now properly preserve the colour palette when processing `PNG` images. We got reports from users experiencing their `PNG` images getting bigger in file size when scaled down.   Now, if you, as an example, start out with a carefully chosen 8 bit colour palette (i.e. `PNG-8`), this is now what you will end up with. A special thanks to [@aitva](https://github.com/aitva) for doing the investigative work finding a proper fix for this issue.
 
 This release represents **40 contributions by 5 contributors** to the main Hugo code base.
 

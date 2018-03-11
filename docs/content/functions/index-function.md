@@ -50,7 +50,7 @@ pop_city = 658390
 pop_metro = 1717900
 ```
 
-The example we will use will be an article on Oslo, which front matter should set to exactly the same name as the corresponding file name in `data/locations/`:
+The example we will use will be an article on Oslo, whose front matter should be set to exactly the same name as the corresponding file name in `data/locations/`:
 
 ```
 title = "My Norwegian Vacation"

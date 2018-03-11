@@ -137,19 +137,17 @@ Here’s an example snippet pulled from a `config.toml`:
 Here's the equivalent snippet in a `config.yaml`:
 
 {{< code file="config.yml" >}}
----
 menu:
-  docs:
-      - Name: "about hugo"
-        Pre: "<i class='fa fa-heart'></i>"
-        Weight: -110
-        Identifier: "about"
-        URL: "/about/"
-      - Name: "getting started"
-        Pre: "<i class='fa fa-road'></i>"
-        Weight: -100
-        URL: "/getting-started/"
----
+  main:
+      - name: "about hugo"
+        pre: "<i class='fa fa-heart'></i>"
+        weight: -110
+        identifier: "about"
+        url: "/about/"
+      - name: "getting started"
+        pre: "<i class='fa fa-road'></i>"
+        weight: -100
+        url: "/getting-started/"
 {{< /code >}}
 
 {{% note %}}

@@ -1,15 +1,13 @@
 
 ---
 date: 2018-03-07
-title: "0.37.1"
-description: "0.37.1"
+title: "Hugo 0.37.1: One Bugfix"
+description: "Fixes SVG (and similar) handling as page resources."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
 
 ---
-
-	
 
 This is a bug-fix release with a one important fix:
 

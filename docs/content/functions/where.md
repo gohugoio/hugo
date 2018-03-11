@@ -50,7 +50,7 @@ It can also be used with the logical operators `!=`, `>=`, `in`, etc. Without an
 {{ end }}
 ```
 
-The following logical operators are vailable with `where`:
+The following logical operators are available with `where`:
 
 `=`, `==`, `eq`
 : `true` if a given field value equals a matching value
