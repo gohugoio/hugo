@@ -237,7 +237,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 		}
 	}
 
-	key := i.relTargetPathForRel(i.filenameFromConfig(conf), false)
+	key := i.filenameFromConfig(conf)
 
 	return i.spec.imageCache.getOrCreate(i, key, func(resourceCacheFilename string) (*Image, error) {
 		ci := i.clone()
