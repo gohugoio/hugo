@@ -24,8 +24,9 @@ By default, all the **first-level** directories under `content/` form their own
 sections (**root sections**).
 
 If a user needs to define a section `foo` at a deeper level, they need to create
-a directory named `foo` with an `_index.md` file (see [Branch Bundles][branch
-bundles] for more information).
+a directory named `foo` with an `_index.md` file (see [Branch Bundles][branch bundles]
+for more information).
+
 
 {{% note %}}
 A **section** cannot be defined or overridden by a front matter parameter -- it
