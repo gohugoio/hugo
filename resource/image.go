@@ -579,6 +579,7 @@ func (i *Image) setBasePath(conf imageConfig) {
 
 func (i *Image) filenameFromConfig(conf imageConfig) string {
 	p1, p2 := helpers.FileAndExt(i.relTargetPath)
+	path := i.relTargetPath[0:strings.LastIndex(i.relTargetPath, p1)]
 	idStr := fmt.Sprintf("_hu%s_%d", i.hash, i.osFileInfo.Size())
 
 	// Do not change for no good reason.
@@ -605,7 +606,7 @@ func (i *Image) filenameFromConfig(conf imageConfig) string {
 		idStr = ""
 	}
 
-	return fmt.Sprintf("%s%s_%s%s", p1, idStr, key, p2)
+	return fmt.Sprintf("%s%s%s_%s%s", path, p1, idStr, key, p2)
 }
 
 func decodeImaging(m map[string]interface{}) (Imaging, error) {
