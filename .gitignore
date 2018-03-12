@@ -12,6 +12,7 @@ cover.out
 *~
 vendor/*/
 *.bench
+*.debug
 coverage*.out
 
 GoBuilds
