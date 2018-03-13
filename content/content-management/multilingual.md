@@ -59,6 +59,28 @@ If you want all of the languages to be put below their respective language code,
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `baseURL`, `buildDrafts`, etc.
 
+## Disable a Language
+
+You can disable one or more languages. This can be useful when working on a new translation.
+
+```toml
+disableLanguages = ["fr", "jp"]
+```
+
+Note that you cannot disable the default content language.
+
+We kept this as a standalone setting to make it easier to set via [OS environment](/getting-started/configuration/#configure-with-environment-variables:
+
+```bash
+HUGO_DISABLELANGUAGES="fr jp" hugo
+```
+If you have already a list of disabled languages in `config.toml`, you can enable them in development like this:
+
+```bash
+HUGO_DISABLELANGUAGES=" " hugo server
+```
+
+
 ## Configure Multilingual Multihost
 
 From **Hugo 0.31** we support multiple languages in a multihost configuration. See [this issue](https://github.com/gohugoio/hugo/issues/4027) for details.
