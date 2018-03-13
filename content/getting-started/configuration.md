@@ -29,6 +29,9 @@ archetypeDir ("archetypes")
 baseURL
 : Hostname (and path) to the root, e.g. http://bep.is/
 
+blackfriday
+: See [Configure Blackfriday](/getting-started/configuration/#configure-blackfriday)
+
 buildDrafts (false)
 : Include drafts when building.
 
@@ -100,6 +103,9 @@ languages
 
 languageCode ("")
 : The site's language code.
+
+disableLanguages
+: See [Disable a Language](/content-management/multilingual/#disable-a-language)
 
 layoutDir ("layouts")
 : The directory from where Hugo reads layouts (templates).
