@@ -69,7 +69,7 @@ disableLanguages = ["fr", "jp"]
 
 Note that you cannot disable the default content language.
 
-We kept this as a standalone setting to make it easier to set via [OS environment](/getting-started/configuration/#configure-with-environment-variables:
+We kept this as a standalone setting to make it easier to set via [OS environment](/getting-started/configuration/#configure-with-environment-variables):
 
 ```bash
 HUGO_DISABLELANGUAGES="fr jp" hugo
