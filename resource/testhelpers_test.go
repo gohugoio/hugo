@@ -117,7 +117,8 @@ func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) R
 	return r
 }
 func assertFileCache(assert *require.Assertions, fs *hugofs.Fs, filename string, width, height int) {
-	f, err := fs.Source.Open(filepath.Join("/res/_gen/images", filename))
+	p := filepath.Join("/res/_gen/images", path.Base(filename))
+	f, err := fs.Source.Open(p)
 	assert.NoError(err)
 	defer f.Close()
 
