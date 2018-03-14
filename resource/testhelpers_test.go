@@ -94,7 +94,7 @@ func fetchImageForSpec(spec *Spec, assert *require.Assertions, name string) *Ima
 }
 
 func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) Resource {
-	src, err := os.Open("testdata/" + name)
+	src, err := os.Open(filepath.FromSlash("testdata/" + name))
 	assert.NoError(err)
 
 	workingDir := spec.Cfg.GetString("workingDir")
@@ -116,8 +116,9 @@ func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) R
 
 	return r
 }
-func assertFileCache(assert *require.Assertions, fs *hugofs.Fs, filename string, width, height int) {
-	f, err := fs.Source.Open(filepath.Join("/res/_gen/images", filename))
+
+func assertImageFile(assert *require.Assertions, fs *hugofs.Fs, filename string, width, height int) {
+	f, err := fs.Source.Open(filename)
 	assert.NoError(err)
 	defer f.Close()
 
@@ -126,6 +127,10 @@ func assertFileCache(assert *require.Assertions, fs *hugofs.Fs, filename string,
 
 	assert.Equal(width, config.Width)
 	assert.Equal(height, config.Height)
+}
+
+func assertFileCache(assert *require.Assertions, fs *hugofs.Fs, filename string, width, height int) {
+	assertImageFile(assert, fs, filepath.Join("/res/_gen/images", filename), width, height)
 }
 
 func writeSource(t testing.TB, fs *hugofs.Fs, filename, content string) {

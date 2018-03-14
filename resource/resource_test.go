@@ -93,7 +93,7 @@ func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
 	assert.Equal("/docs/a/b/logo.png", r.RelPermalink())
 	assert.Equal("https://example.com/docs/a/b/logo.png", r.Permalink())
 	img := r.(*Image)
-	assert.Equal("/a/b/logo.png", img.target())
+	assert.Equal(filepath.FromSlash("/a/b/logo.png"), img.target())
 
 }
 

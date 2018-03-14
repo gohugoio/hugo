@@ -16,6 +16,7 @@ package resource
 import (
 	"fmt"
 	"math/rand"
+	"path/filepath"
 	"strconv"
 	"testing"
 
@@ -275,6 +276,39 @@ func TestImageResize8BitPNG(t *testing.T) {
 	assert.Equal(imaging.PNG, resized.format)
 	assert.Equal("/a/gohugoio_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_800x0_resize_linear_2.png", resized.RelPermalink())
 	assert.Equal(800, resized.Width())
+
+}
+
+func TestImageResizeInSubPath(t *testing.T) {
+
+	assert := require.New(t)
+
+	image := fetchImage(assert, "sub/gohugoio2.png")
+
+	assert.Equal(imaging.PNG, image.format)
+	assert.Equal("/a/sub/gohugoio2.png", image.RelPermalink())
+	assert.Equal("image", image.ResourceType())
+
+	resized, err := image.Resize("101x101")
+	assert.NoError(err)
+	assert.Equal(imaging.PNG, resized.format)
+	assert.Equal("/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_2.png", resized.RelPermalink())
+	assert.Equal(101, resized.Width())
+
+	assertFileCache(assert, image.spec.Fs, resized.RelPermalink(), 101, 101)
+	publishedImageFilename := filepath.Join("/public", resized.RelPermalink())
+	assertImageFile(assert, image.spec.Fs, publishedImageFilename, 101, 101)
+	assert.NoError(image.spec.Fs.Destination.Remove(publishedImageFilename))
+
+	// Cleare mem cache to simulate reading from the file cache.
+	resized.spec.imageCache.clear()
+
+	resizedAgain, err := image.Resize("101x101")
+	assert.NoError(err)
+	assert.Equal("/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_2.png", resizedAgain.RelPermalink())
+	assert.Equal(101, resizedAgain.Width())
+	assertFileCache(assert, image.spec.Fs, resizedAgain.RelPermalink(), 101, 101)
+	assertImageFile(assert, image.spec.Fs, publishedImageFilename, 101, 101)
 
 }
 

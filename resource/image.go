@@ -209,7 +209,7 @@ type imageConfig struct {
 }
 
 func (i *Image) isJPEG() bool {
-	name := strings.ToLower(i.relTargetPath)
+	name := strings.ToLower(i.relTargetPath.file)
 	return strings.HasSuffix(name, ".jpg") || strings.HasSuffix(name, ".jpeg")
 }
 
@@ -237,9 +237,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 		}
 	}
 
-	key := i.relTargetPathForRel(i.filenameFromConfig(conf), false)
-
-	return i.spec.imageCache.getOrCreate(i, key, func(resourceCacheFilename string) (*Image, error) {
+	return i.spec.imageCache.getOrCreate(i, conf, func(resourceCacheFilename string) (*Image, error) {
 		ci := i.clone()
 
 		errOp := action
@@ -449,7 +447,6 @@ func (i *Image) decodeSource() (image.Image, error) {
 
 func (i *Image) copyToDestination(src string) error {
 	var res error
-
 	i.copyToDestinationInit.Do(func() {
 		target := filepath.Join(i.absPublishDir, i.target())
 
@@ -498,7 +495,6 @@ func (i *Image) copyToDestination(src string) error {
 }
 
 func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resourceCacheFilename, filename string) error {
-
 	target := filepath.Join(i.absPublishDir, filename)
 
 	file1, err := i.spec.Fs.Destination.Create(target)
@@ -574,11 +570,12 @@ func (i *Image) clone() *Image {
 }
 
 func (i *Image) setBasePath(conf imageConfig) {
-	i.relTargetPath = i.filenameFromConfig(conf)
+	i.relTargetPath = i.relTargetPathFromConfig(conf)
 }
 
-func (i *Image) filenameFromConfig(conf imageConfig) string {
-	p1, p2 := helpers.FileAndExt(i.relTargetPath)
+func (i *Image) relTargetPathFromConfig(conf imageConfig) dirFile {
+	p1, p2 := helpers.FileAndExt(i.relTargetPath.file)
+
 	idStr := fmt.Sprintf("_hu%s_%d", i.hash, i.osFileInfo.Size())
 
 	// Do not change for no good reason.
@@ -605,7 +602,11 @@ func (i *Image) filenameFromConfig(conf imageConfig) string {
 		idStr = ""
 	}
 
-	return fmt.Sprintf("%s%s_%s%s", p1, idStr, key, p2)
+	return dirFile{
+		dir:  i.relTargetPath.dir,
+		file: fmt.Sprintf("%s%s_%s%s", p1, idStr, key, p2),
+	}
+
 }
 
 func decodeImaging(m map[string]interface{}) (Imaging, error) {

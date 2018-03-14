@@ -49,10 +49,17 @@ func (c *imageCache) deleteByPrefix(prefix string) {
 	}
 }
 
-func (c *imageCache) getOrCreate(
-	parent *Image, key string, create func(resourceCacheFilename string) (*Image, error)) (*Image, error) {
+func (c *imageCache) clear() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.store = make(map[string]*Image)
+}
 
-	relTargetFilename := key
+func (c *imageCache) getOrCreate(
+	parent *Image, conf imageConfig, create func(resourceCacheFilename string) (*Image, error)) (*Image, error) {
+
+	relTarget := parent.relTargetPathFromConfig(conf)
+	key := parent.relTargetPathForRel(relTarget.path(), false)
 
 	if c.pathSpec.Language != nil {
 		// Avoid do and store more work than needed. The language versions will in
@@ -89,7 +96,7 @@ func (c *imageCache) getOrCreate(
 
 	if exists {
 		img = parent.clone()
-		img.relTargetPath = relTargetFilename
+		img.relTargetPath.file = relTarget.file
 		img.absSourceFilename = cacheFilename
 	} else {
 		img, err = create(cacheFilename)

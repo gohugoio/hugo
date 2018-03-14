@@ -283,7 +283,7 @@ func (r *Spec) newResource(
 		}
 	}
 
-	gr := r.newGenericResource(targetPathBuilder, fi, absPublishDir, absSourceFilename, filepath.ToSlash(relTargetFilename), mimeType)
+	gr := r.newGenericResource(targetPathBuilder, fi, absPublishDir, absSourceFilename, relTargetFilename, mimeType)
 
 	if mimeType == "image" {
 		ext := strings.ToLower(helpers.Ext(absSourceFilename))
@@ -343,10 +343,23 @@ func (r *Spec) CacheStats() string {
 	return s
 }
 
+type dirFile struct {
+	// This is the directory component with Unix-style slashes.
+	dir string
+	// This is the file component.
+	file string
+}
+
+func (d dirFile) path() string {
+	return path.Join(d.dir, d.file)
+}
+
 // genericResource represents a generic linkable resource.
 type genericResource struct {
 	// The relative path to this resource.
-	relTargetPath string
+	relTargetPath dirFile
+
+	file string
 
 	// Base is set when the output format's path has a offset, e.g. for AMP.
 	base string
@@ -366,11 +379,11 @@ type genericResource struct {
 }
 
 func (l *genericResource) Permalink() string {
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetPath, false), l.spec.BaseURL.String())
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetPath.path(), false), l.spec.BaseURL.String())
 }
 
 func (l *genericResource) RelPermalink() string {
-	return l.relPermalinkForRel(l.relTargetPath, true)
+	return l.relPermalinkForRel(l.relTargetPath.path(), true)
 }
 
 func (l *genericResource) Name() string {
@@ -551,11 +564,11 @@ func replaceResourcePlaceholders(in string, counter int) string {
 }
 
 func (l *genericResource) target() string {
-	target := l.relTargetPathForRel(l.relTargetPath, false)
+	target := l.relTargetPathForRel(l.relTargetPath.path(), false)
 	if l.spec.PathSpec.Languages.IsMultihost() {
 		target = path.Join(l.spec.PathSpec.Language.Lang, target)
 	}
-	return target
+	return filepath.Clean(target)
 }
 
 func (r *Spec) newGenericResource(
@@ -566,12 +579,17 @@ func (r *Spec) newGenericResource(
 	baseFilename,
 	resourceType string) *genericResource {
 
+	// This value is used both to construct URLs and file paths, but start
+	// with a Unix-styled path.
+	baseFilename = filepath.ToSlash(baseFilename)
+	fpath, fname := path.Split(baseFilename)
+
 	return &genericResource{
 		targetPathBuilder: targetPathBuilder,
 		osFileInfo:        osFileInfo,
 		absPublishDir:     absPublishDir,
 		absSourceFilename: absSourceFilename,
-		relTargetPath:     baseFilename,
+		relTargetPath:     dirFile{dir: fpath, file: fname},
 		resourceType:      resourceType,
 		spec:              r,
 		params:            make(map[string]interface{}),
