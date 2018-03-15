@@ -164,7 +164,7 @@ related
 relativeURLs (false)
 : Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
 
-rssLimit (15)
+rssLimit (unlimited)
 : Maximum number of items in the RSS feed.
 
 sectionPagesMenu ("")(
