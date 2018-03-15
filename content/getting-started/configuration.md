@@ -18,10 +18,28 @@ aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
 
+Hugo uses the `config.toml`, `config.yaml`, or `config.json` (if found in the
+site root) as the default site config file.
+
+The user can choose to override that default with one or more site config files
+using the command line `--config` switch.
+
+Examples:
+
+```
+hugo --config debugconfig.toml
+hugo --config a.toml,b.toml,c.toml
+```
+
+{{% note %}}
+Multiple site config files can be specified as a comma-separated string to the `--config` switch.
+{{% /note %}}
 
 ## All Configuration Settings
 
-The following is the full list of Hugo-defined variables with its default value in parens.
+The following is the full list of Hugo-defined variables with their default
+value in parentheses. Users may choose to override those values in their site
+config file(s).
 
 archetypeDir ("archetypes")
 : The directory where Hugo finds archetype files (content templates).
@@ -43,9 +61,6 @@ buildFuture (false)
 
 canonifyURLs (false)
 : Enable to turn relative URLs into absolute.
-
-config ("config.toml")
-: Site config file.
 
 contentDir ("content")
 : The directory from where Hugo reads content files.
