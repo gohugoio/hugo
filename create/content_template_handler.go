@@ -137,15 +137,6 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 
 	archetypeContent = []byte(archetypeShortcodeReplacementsPost.Replace(buff.String()))
 
-	if !bytes.Contains(archetypeContent, []byte("date")) || !bytes.Contains(archetypeContent, []byte("title")) {
-		// TODO(bep) remove some time in the future.
-		s.Log.FEEDBACK.Println(fmt.Sprintf(`WARNING: date and/or title missing from archetype file %q.
-From Hugo 0.24 this must be provided in the archetype file itself, if needed. Example:
-%s
-`, archetypeFilename, ArchetypeTemplateTemplate))
-
-	}
-
 	return archetypeContent, nil
 
 }
