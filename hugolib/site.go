@@ -348,6 +348,16 @@ func NewSiteForCfg(cfg deps.DepsCfg) (*Site, error) {
 	return s, nil
 }
 
+type SiteInfos []*SiteInfo
+
+// First is a convenience method to get the first Site, i.e. the main language.
+func (s SiteInfos) First() *SiteInfo {
+	if len(s) == 0 {
+		return nil
+	}
+	return s[0]
+}
+
 type SiteInfo struct {
 	Taxonomies TaxonomyList
 	Authors    AuthorList

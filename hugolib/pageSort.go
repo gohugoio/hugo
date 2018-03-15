@@ -14,8 +14,9 @@
 package hugolib
 
 import (
-	"github.com/spf13/cast"
 	"sort"
+
+	"github.com/spf13/cast"
 )
 
 var spc = newPageCache()
@@ -115,7 +116,7 @@ func (p Pages) Limit(n int) Pages {
 // This may safely be executed  in parallel.
 func (p Pages) ByWeight() Pages {
 	key := "pageSort.ByWeight"
-	pages, _ := spc.get(key, p, pageBy(defaultPageSort).Sort)
+	pages, _ := spc.get(key, pageBy(defaultPageSort).Sort, p)
 	return pages
 }
 
@@ -132,7 +133,7 @@ func (p Pages) ByTitle() Pages {
 		return p1.title < p2.title
 	}
 
-	pages, _ := spc.get(key, p, pageBy(title).Sort)
+	pages, _ := spc.get(key, pageBy(title).Sort, p)
 	return pages
 }
 
@@ -149,7 +150,7 @@ func (p Pages) ByLinkTitle() Pages {
 		return p1.linkTitle < p2.linkTitle
 	}
 
-	pages, _ := spc.get(key, p, pageBy(linkTitle).Sort)
+	pages, _ := spc.get(key, pageBy(linkTitle).Sort, p)
 
 	return pages
 }
@@ -167,7 +168,7 @@ func (p Pages) ByDate() Pages {
 		return p1.Date.Unix() < p2.Date.Unix()
 	}
 
-	pages, _ := spc.get(key, p, pageBy(date).Sort)
+	pages, _ := spc.get(key, pageBy(date).Sort, p)
 
 	return pages
 }
@@ -185,7 +186,7 @@ func (p Pages) ByPublishDate() Pages {
 		return p1.PublishDate.Unix() < p2.PublishDate.Unix()
 	}
 
-	pages, _ := spc.get(key, p, pageBy(pubDate).Sort)
+	pages, _ := spc.get(key, pageBy(pubDate).Sort, p)
 
 	return pages
 }
@@ -203,7 +204,7 @@ func (p Pages) ByExpiryDate() Pages {
 		return p1.ExpiryDate.Unix() < p2.ExpiryDate.Unix()
 	}
 
-	pages, _ := spc.get(key, p, pageBy(expDate).Sort)
+	pages, _ := spc.get(key, pageBy(expDate).Sort, p)
 
 	return pages
 }
@@ -221,7 +222,7 @@ func (p Pages) ByLastmod() Pages {
 		return p1.Lastmod.Unix() < p2.Lastmod.Unix()
 	}
 
-	pages, _ := spc.get(key, p, pageBy(date).Sort)
+	pages, _ := spc.get(key, pageBy(date).Sort, p)
 
 	return pages
 }
@@ -239,7 +240,7 @@ func (p Pages) ByLength() Pages {
 		return len(p1.Content) < len(p2.Content)
 	}
 
-	pages, _ := spc.get(key, p, pageBy(length).Sort)
+	pages, _ := spc.get(key, pageBy(length).Sort, p)
 
 	return pages
 }
@@ -253,7 +254,7 @@ func (p Pages) ByLanguage() Pages {
 
 	key := "pageSort.ByLanguage"
 
-	pages, _ := spc.get(key, p, pageBy(languagePageSort).Sort)
+	pages, _ := spc.get(key, pageBy(languagePageSort).Sort, p)
 
 	return pages
 }
@@ -272,7 +273,7 @@ func (p Pages) Reverse() Pages {
 		}
 	}
 
-	pages, _ := spc.get(key, p, reverseFunc)
+	pages, _ := spc.get(key, reverseFunc, p)
 
 	return pages
 }
@@ -297,7 +298,7 @@ func (p Pages) ByParam(paramsKey interface{}) Pages {
 		return s1 < s2
 	}
 
-	pages, _ := spc.get(key, p, pageBy(paramsKeyComparator).Sort)
+	pages, _ := spc.get(key, pageBy(paramsKeyComparator).Sort, p)
 
 	return pages
 }

@@ -1069,6 +1069,7 @@ func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, conf
 
 	mf := siteConfig.Fs
 
+	// TODO(bep) cleanup/remove duplication, use the new testBuilder in testhelpers_test
 	// Add some layouts
 	if err := afero.WriteFile(mf,
 		filepath.Join("layouts", "_default/single.html"),
@@ -1368,7 +1369,7 @@ func readSource(t *testing.T, fs *hugofs.Fs, filename string) string {
 }
 
 func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
-	filename = filepath.FromSlash(filename)
+	filename = filepath.Clean(filename)
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
 		// Print some debug info

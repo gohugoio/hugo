@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/markbates/inflect"
-	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -54,16 +53,8 @@ func TestRenderWithInvalidTemplate(t *testing.T) {
 
 	withTemplate := createWithTemplateFromNameValues("missing", templateMissingFunc)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
+	buildSingleSiteExpected(t, true, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
 
-	errCount := s.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)
-
-	// TODO(bep) clean up the template error handling
-	// The template errors are stored in a slice etc. so we get 4 log entries
-	// When we should get only 1
-	if errCount == 0 {
-		t.Fatalf("Expecting the template to log 1 ERROR, got %d", errCount)
-	}
 }
 
 func TestDraftAndFutureRender(t *testing.T) {

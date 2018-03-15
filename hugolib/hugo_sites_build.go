@@ -15,8 +15,11 @@ package hugolib
 
 import (
 	"bytes"
+	"fmt"
 
 	"errors"
+
+	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/helpers"
@@ -69,6 +72,11 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		h.Log.FEEDBACK.Printf("\nTemplate Metrics:\n\n")
 		h.Log.FEEDBACK.Print(b.String())
 		h.Log.FEEDBACK.Println()
+	}
+
+	errorCount := h.Log.LogCountForLevel(jww.LevelError)
+	if errorCount > 0 {
+		return fmt.Errorf("logged %d error(s)", errorCount)
 	}
 
 	return nil

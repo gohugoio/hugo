@@ -673,7 +673,8 @@ NotFound: {{< thisDoesNotExist >}}
 	writeSource(t, fs, "content/sect/mycsvpage.md", fmt.Sprintf(pageTemplateCSVOnly, "Single CSV"))
 	writeSource(t, fs, "content/sect/notfound.md", fmt.Sprintf(pageTemplateShortcodeNotFound, "Single CSV"))
 
-	require.NoError(t, h.Build(BuildCfg{}))
+	err := h.Build(BuildCfg{})
+	require.Equal(t, "logged 1 error(s)", err.Error())
 	require.Len(t, h.Sites, 1)
 
 	s := h.Sites[0]

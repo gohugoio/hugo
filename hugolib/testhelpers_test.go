@@ -4,10 +4,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"regexp"
-
 	"fmt"
+	"regexp"
 	"strings"
+
+	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
@@ -23,9 +24,243 @@ import (
 	"log"
 
 	"github.com/gohugoio/hugo/hugofs"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/stretchr/testify/require"
 )
+
+const ()
+
+type sitesBuilder struct {
+	Cfg config.Provider
+	Fs  *hugofs.Fs
+	T   testing.TB
+
+	H *HugoSites
+
+	// We will add some default if not set.
+	templatesAdded bool
+	i18nAdded      bool
+	dataAdded      bool
+	contentAdded   bool
+}
+
+func newTestSitesBuilder(t testing.TB) *sitesBuilder {
+	v := viper.New()
+	fs := hugofs.NewMem(v)
+
+	return &sitesBuilder{T: t, Fs: fs}
+}
+
+func (s *sitesBuilder) WithTOMLConfig(conf string) *sitesBuilder {
+	writeSource(s.T, s.Fs, "config.toml", conf)
+	return s
+}
+
+func (s *sitesBuilder) WithDefaultMultiSiteConfig() *sitesBuilder {
+	var defaultMultiSiteConfig = `
+baseURL = "http://example.com/blog"
+
+paginate = 1
+disablePathToLower = true
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+
+[permalinks]
+other = "/somewhere/else/:filename"
+
+[blackfriday]
+angledQuotes = true
+
+[Taxonomies]
+tag = "tags"
+
+[Languages]
+[Languages.en]
+weight = 10
+title = "In English"
+languageName = "English"
+[Languages.en.blackfriday]
+angledQuotes = false
+[[Languages.en.menu.main]]
+url    = "/"
+name   = "Home"
+weight = 0
+
+[Languages.fr]
+weight = 20
+title = "Le Français"
+languageName = "Français"
+[Languages.fr.Taxonomies]
+plaque = "plaques"
+
+[Languages.nn]
+weight = 30
+title = "På nynorsk"
+languageName = "Nynorsk"
+paginatePath = "side"
+[Languages.nn.Taxonomies]
+lag = "lag"
+[[Languages.nn.menu.main]]
+url    = "/"
+name   = "Heim"
+weight = 1
+
+[Languages.nb]
+weight = 40
+title = "På bokmål"
+languageName = "Bokmål"
+paginatePath = "side"
+[Languages.nb.Taxonomies]
+lag = "lag"
+`
+
+	return s.WithTOMLConfig(defaultMultiSiteConfig)
+
+}
+
+func (s *sitesBuilder) WithContent(filenameContent ...string) *sitesBuilder {
+	s.contentAdded = true
+	for i := 0; i < len(filenameContent); i += 2 {
+		filename, content := filenameContent[i], filenameContent[i+1]
+		writeSource(s.T, s.Fs, filepath.Join("content", filename), content)
+	}
+	return s
+}
+
+func (s *sitesBuilder) WithTemplates(filenameContent ...string) *sitesBuilder {
+	s.templatesAdded = true
+	for i := 0; i < len(filenameContent); i += 2 {
+		filename, content := filenameContent[i], filenameContent[i+1]
+		writeSource(s.T, s.Fs, filepath.Join("layouts", filename), content)
+	}
+	return s
+}
+
+func (s *sitesBuilder) CreateSites() *sitesBuilder {
+	if !s.templatesAdded {
+		s.addDefaultTemplates()
+	}
+	if !s.i18nAdded {
+		s.addDefaultI18n()
+	}
+	if !s.dataAdded {
+		s.addDefaultData()
+	}
+	if !s.contentAdded {
+		s.addDefaultContent()
+	}
+
+	if s.Cfg == nil {
+		cfg, err := LoadConfig(s.Fs.Source, "", "config.toml")
+		if err != nil {
+			s.T.Fatalf("Failed to load config: %s", err)
+		}
+		s.Cfg = cfg
+	}
+
+	sites, err := NewHugoSites(deps.DepsCfg{Fs: s.Fs, Cfg: s.Cfg})
+	if err != nil {
+		s.T.Fatalf("Failed to create sites: %s", err)
+	}
+	s.H = sites
+
+	return s
+}
+
+func (s *sitesBuilder) Build(cfg BuildCfg) *sitesBuilder {
+	if s.H == nil {
+		s.T.Fatal("Need to run builder.CreateSites first")
+	}
+	err := s.H.Build(cfg)
+	if err != nil {
+		s.T.Fatalf("Build failed: %s", err)
+	}
+
+	return s
+}
+
+func (s *sitesBuilder) addDefaultTemplates() {
+	fs := s.Fs
+	t := s.T
+
+	// Layouts
+
+	writeSource(t, fs, filepath.Join("layouts", "_default/single.html"), "Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Lang}}|{{ .Content }}")
+	writeSource(t, fs, filepath.Join("layouts", "_default/list.html"), "{{ $p := .Paginator }}List Page {{ $p.PageNumber }}: {{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}|Pager: {{ template \"_internal/pagination.html\" . }}")
+	writeSource(t, fs, filepath.Join("layouts", "index.html"), "{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}")
+	writeSource(t, fs, filepath.Join("layouts", "index.fr.html"), "{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}")
+
+	// Shortcodes
+	writeSource(t, fs, filepath.Join("layouts", "shortcodes", "shortcode.html"), "Shortcode: {{ i18n \"hello\" }}")
+	// A shortcode in multiple languages
+	writeSource(t, fs, filepath.Join("layouts", "shortcodes", "lingo.html"), "LingoDefault")
+	writeSource(t, fs, filepath.Join("layouts", "shortcodes", "lingo.fr.html"), "LingoFrench")
+}
+
+func (s *sitesBuilder) addDefaultI18n() {
+	fs := s.Fs
+	t := s.T
+
+	writeSource(t, fs, filepath.Join("i18n", "en.yaml"), `
+hello:
+  other: "Hello"
+`)
+	writeSource(t, fs, filepath.Join("i18n", "fr.yaml"), `
+hello:
+  other: "Bonjour"
+`)
+
+}
+
+func (s *sitesBuilder) addDefaultData() {
+	fs := s.Fs
+	t := s.T
+
+	writeSource(t, fs, filepath.FromSlash("data/hugo.toml"), "slogan = \"Hugo Rocks!\"")
+}
+
+func (s *sitesBuilder) addDefaultContent() {
+	fs := s.Fs
+	t := s.T
+
+	contentTemplate := `---
+title: doc1
+weight: 1
+tags:
+ - tag1
+date: "2018-02-28"
+---
+# doc1
+*some "content"*
+
+{{< shortcode >}}
+
+{{< lingo >}}
+`
+
+	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.en.md"), contentTemplate)
+	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.fr.md"), contentTemplate)
+	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.nb.md"), contentTemplate)
+	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.nn.md"), contentTemplate)
+}
+
+func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
+	content := readDestination(s.T, s.Fs, filename)
+	for _, match := range matches {
+		if !strings.Contains(content, match) {
+			s.T.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
+		}
+	}
+}
+
+func (s *sitesBuilder) AssertFileContentRe(filename string, matches ...string) {
+	content := readDestination(s.T, s.Fs, filename)
+	for _, match := range matches {
+		r := regexp.MustCompile(match)
+		if !r.MatchString(content) {
+			s.T.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
+		}
+	}
+}
 
 type testHelper struct {
 	Cfg config.Provider

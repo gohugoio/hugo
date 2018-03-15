@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -51,17 +52,17 @@ func TestPageCache(t *testing.T) {
 			defer wg.Done()
 			for k, pages := range testPageSets {
 				l1.Lock()
-				p, c := c1.get("k1", pages, nil)
+				p, c := c1.get("k1", nil, pages)
 				assert.Equal(t, !atomic.CompareAndSwapUint64(&o1, uint64(k), uint64(k+1)), c)
 				l1.Unlock()
-				p2, c2 := c1.get("k1", p, nil)
+				p2, c2 := c1.get("k1", nil, p)
 				assert.True(t, c2)
 				assert.True(t, fastEqualPages(p, p2))
 				assert.True(t, fastEqualPages(p, pages))
 				assert.NotNil(t, p)
 
 				l2.Lock()
-				p3, c3 := c1.get("k2", pages, changeFirst)
+				p3, c3 := c1.get("k2", changeFirst, pages)
 				assert.Equal(t, !atomic.CompareAndSwapUint64(&o2, uint64(k), uint64(k+1)), c3)
 				l2.Unlock()
 				assert.NotNil(t, p3)
@@ -70,4 +71,18 @@ func TestPageCache(t *testing.T) {
 		}()
 	}
 	wg.Wait()
+}
+
+func BenchmarkPageCache(b *testing.B) {
+	cache := newPageCache()
+	pages := make(Pages, 30)
+	for i := 0; i < 30; i++ {
+		pages[i] = &Page{title: "p" + strconv.Itoa(i)}
+	}
+	key := "key"
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		cache.getP(key, nil, pages)
+	}
 }
