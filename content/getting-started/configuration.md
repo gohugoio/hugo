@@ -45,7 +45,7 @@ canonifyURLs (false)
 : Enable to turn relative URLs into absolute.
 
 config ("config.toml")
-: Config file (default is path/config.yaml|json|toml).
+: Site config file.
 
 contentDir ("content")
 : The directory from where Hugo reads content files.
@@ -57,43 +57,43 @@ defaultContentLanguage ("en")
 : Content without language indicator will default to this language.
 
 defaultContentLanguageInSubdir (false)
-: Renders the default content language in subdir, e.g. /en/. The root directory / will redirect to /en/.
+: Render the default content language in subdir, e.g. `content/en/`. The site root `/` will then redirect to `/en/`.
 
 disableHugoGeneratorInject (false)
 : Hugo will, by default, inject a generator meta tag in the HTML head on the _home page only_. You can turn it off, but we would really appreciate if you don't, as this is a good way to watch Hugo's popularity on the rise.
 
 disableKinds ([])
-: Allows you to disable all page types and will render nothing related to 'kind'. Allowed values are "page", "home", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404".
+: Enable disabling of all pages of the specified *Kinds*. Allowed values in this list: `"page"`, `"home"`, `"section"`, `"taxonomy"`, `"taxonomyTerm"`, `"RSS"`, `"sitemap"`, `"robotsTXT"`, `"404"`.
 
 disableLiveReload (false)
-: Turn off automatic live reloading of browser window.
+: Disable automatic live reloading of browser window.
 
 disablePathToLower (false)
-: Do not make the url/path to lowercase.
+: Do not convert the url/path to lowercase.
 
 enableEmoji (false)
-: Enable Emoji emoticons support for page content; see emoji-cheat-sheet.com.
+: Enable Emoji emoticons support for page content; see the [Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet/).
 
 enableGitInfo (false)
-: If the Hugo site is versioned by Git, you will then get a `.GitInfo` object per page, and `Lastmod` will get updated by the last commit date for content.	
+: Enable `.GitInfo` object for each page (if the Hugo site is versioned by Git). This will then update the `Lastmod` parameter for each page using the last git commit date for that content file.
 
 enableMissingTranslationPlaceholders (false)
-: Show a placeholder instead of the default value or an empty string if a translation is missing
+: Show a placeholder instead of the default value or an empty string if a translation is missing.
 
 enableRobotsTXT (false)
-: When enabled, Hugo will generate a `robots.txt` file.
+: Enable generation of `robots.txt` file.
 
 footnoteAnchorPrefix ("")
-: A prefix for your footnote anchors.
+: Prefix for footnote anchors.
 
 footnoteReturnLinkContents ("")
-: A return link for your footnote.
+: Text to display for footnote return links.
 
 googleAnalytics ("")
-: google analytics tracking id
+: Google Analytics tracking ID.
 
 hasCJKLanguage (false)
-: If true, auto-detect Chinese/Japanese/Korean Languages in the content. This will make `.Summary` and `.WordCount` behave correctly in CJK languages.
+: If true, auto-detect Chinese/Japanese/Korean Languages in the content. This will make `.Summary` and `.WordCount` behave correctly for CJK languages.
 
 imaging
 : See [Image Processing Config](/content-management/image-processing/#image-processing-config).
@@ -120,7 +120,7 @@ menu
 : See [Add Non-content Entries to a Menu](/content-management/menus/#add-non-content-entries-to-a-menu).
 
 metaDataFormat ("toml")
-: "toml","yaml", or "json"
+: Front matter meta-data format. Valid values: `"toml"`, `"yaml"`, or `"json"`.
 
 newContentEditor ("")
 : The editor to use when creating new content.
@@ -129,19 +129,19 @@ noChmod (false)
 : Don't sync permission mode of files.
 
 noTimes (false)
-: Don't sync modification time of files
+: Don't sync modification time of files.
 
 paginate (10)
-: Default number of pages per page in pagination.
+: Default number of pages per page in [pagination](/templates/pagination/).
 
 paginatePath ("page")
-: The path element used during pagination (http://example.com/page/2).
+: The path element used during pagination (https://example.com/page/2).
 
 permalinks
-: See [Content Management](/content-management/urls/#permalinks)
+: See [Content Management](/content-management/urls/#permalinks).
 
 pluralizeListTitles (true)
-: Pluralize titles in lists using inflect.
+: Pluralize titles in lists.
 
 preserveTaxonomyNames (false)
 : Preserve special characters in taxonomy names ("Gérard Depardieu" vs "Gerard Depardieu").
@@ -150,13 +150,13 @@ publishDir ("public")
 : The directory to where Hugo will write the final static site (the HTML files etc.).
 
 pygmentsCodeFencesGuessSyntax (false)
-: Enables syntax guessing for code fences without specified language.
+: Enable syntax guessing for code fences without specified language.
 
 pygmentsStyle ("monokai")
-: Color-codes for highlighting derived from this style. See https://help.farbox.com/pygments.html
+: Color-theme or style for syntax highlighting. See [Pygments Color Themes](https://help.farbox.com/pygments.html).
 
 pygmentsUseClasses (false)
-: Enable to use external CSS for code highlighting.
+: Enable using external CSS for syntax highlighting.
 
 related
 : See [Related Content](/content-management/related/#configure-related-content).
@@ -167,11 +167,11 @@ relativeURLs (false)
 rssLimit (unlimited)
 : Maximum number of items in the RSS feed.
 
-sectionPagesMenu ("")(
+sectionPagesMenu ("")
 : See ["Section Menu for Lazy Bloggers"](/templates/menu-templates/#section-menu-for-lazy-bloggers).
 
 sitemap
-: Default sitemap configuration.
+: Default [sitemap configuration](/templates/sitemap-template/#configure-sitemap-xml).
 
 staticDir ("static")
 : Relative directory from where Hugo reads static files.
@@ -180,13 +180,13 @@ stepAnalysis (false)
 : Display memory and timing of different steps of the program.
 
 summaryLength (70)
-: The length of text to show in a `.Summary`.
+: The length of text to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
 
 taxonomies
-: See [Configure Taxonomies](content-management/taxonomies#configure-taxonomies)
+: See [Configure Taxonomies](content-management/taxonomies#configure-taxonomies).
 
 theme ("")
-: Theme to use (located by default in /themes/THEMENAME/)
+: Theme to use (located by default in `/themes/THEMENAME/`).
 
 themesDir ("themes")
 : The directory where Hugo reads the themes from.
@@ -195,7 +195,7 @@ title ("")
 : Site title.
 
 uglyURLs (false)
-: When enabled creates URL on the form `/filename.html` instead of `/filename/`
+: When enabled, creates URL on the form `/filename.html` instead of `/filename/`.
 
 verbose (false)
 : Enable verbose output.
