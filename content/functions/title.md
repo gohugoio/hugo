@@ -24,7 +24,7 @@ aliases: []
 {{title "BatMan"}}` → "Batman"
 ```
 
-Can be combined in pipes. In the following snippet, the link text is cleaned up using `humanize` to remove dashes and `title` to convert the value of `$name` to Intial Caps.
+Can be combined in pipes. In the following snippet, the link text is cleaned up using `humanize` to remove dashes and `title` to convert the value of `$name` to Initial Caps.
 
 ```
 {{ range $name, $items := .Site.Taxonomies.categories }}
