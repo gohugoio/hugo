@@ -19,12 +19,7 @@ import (
 	"strings"
 	"testing"
 
-	"io/ioutil"
-	"log"
-	"os"
-
 	"github.com/gohugoio/hugo/deps"
-	jww "github.com/spf13/jwalterweatherman"
 
 	"fmt"
 	"runtime"
@@ -327,7 +322,7 @@ func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKey
 	}
 
 	var (
-		logger  = jww.NewNotepad(jww.LevelWarn, jww.LevelWarn, os.Stdout, ioutil.Discard, t.Name(), log.Ldate|log.Ltime)
+		logger  = newErrorLogger()
 		depsCfg = deps.DepsCfg{Fs: fs, Cfg: cfg, Logger: logger}
 	)
 

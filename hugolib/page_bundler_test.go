@@ -301,7 +301,7 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	assert := require.New(t)
 	cfg, fs, workDir := newTestBundleSymbolicSources(t)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, Logger: newWarningLogger()}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, Logger: newErrorLogger()}, BuildCfg{})
 
 	th := testHelper{s.Cfg, s.Fs, t}
 

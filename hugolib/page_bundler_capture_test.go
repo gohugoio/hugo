@@ -88,7 +88,7 @@ func TestPageBundlerCaptureSymlinks(t *testing.T) {
 	sourceSpec := source.NewSourceSpec(cfg, fs)
 
 	fileStore := &storeFilenames{}
-	logger := newWarningLogger()
+	logger := newErrorLogger()
 	c := newCapturer(logger, sourceSpec, fileStore, nil, filepath.Join(workDir, contentDir))
 
 	assert.NoError(c.capture())
