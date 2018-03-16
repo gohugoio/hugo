@@ -73,6 +73,14 @@ func (c *Scratch) Set(key string, value interface{}) string {
 	return ""
 }
 
+// Reset deletes the given key
+func (c *Scratch) Reset (key string) string {
+	c.mu.Lock()
+	delete(c.values, key)
+	c.mu.Unlock()
+	return ""
+}
+
 // Get returns a value previously set by Add or Set
 func (c *Scratch) Get(key string) interface{} {
 	c.mu.RLock()
