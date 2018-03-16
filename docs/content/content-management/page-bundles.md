@@ -129,9 +129,7 @@ This `_index.md` can also be directly under the `content/` directory.
 
 {{% note %}}
 Here `md` (markdown) is used just as an example. You can use any file
-type as a content resource as long as it is a MIME type recognized by
-Hugo (`json` files will, as one example, work fine). If you want to
-get exotic, you can define your own media type.
+type as a content resource as long as it is a content type recognized by Hugo.
 {{% /note %}}
 
 

@@ -96,11 +96,11 @@ If you want to build custom navigation, you can do so using the `.Paginator` obj
 `PageNumber`
 : The current page's number in the pager sequence
 
-`URL`:
-The relative URL to the current pager
+`URL`
+: The relative URL to the current pager
 
-`Pages`:
-The pages in the current pager
+`Pages`
+: The pages in the current pager
 
 `NumberOfElements`
 : The number of elements on this page

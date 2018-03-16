@@ -32,7 +32,7 @@ Hugo now has:
 * 197+ [themes](http://themes.gohugo.io/)
 
 ## Notes
-* `Resources.GetByPrefix` and  `Resources.ByPrefix` are depracated. They still work, but will eventually be removed.  Use `Resources.Match` (many) and `Resources.GetMatch`  (one).
+* `Resources.GetByPrefix` and  `Resources.ByPrefix` are deprecated. They still work, but will eventually be removed.  Use `Resources.Match` (many) and `Resources.GetMatch`  (one).
 * When filtering bundles pages in sub-folders, you need to include the sub-folder when matching. This was a bug introduced in `0.33` and gets it in line with images and other resources.
 
 ## Enhancements
