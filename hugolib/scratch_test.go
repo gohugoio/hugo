@@ -87,11 +87,11 @@ func TestScratchSet(t *testing.T) {
 	assert.Equal(t, "val", scratch.Get("key"))
 }
 
-func TestScratchReset(t *testing.T) {
+func TestScratchDelete(t *testing.T) {
 	t.Parallel()
 	scratch := newScratch()
 	scratch.Set("key", "val")
-	scratch.Reset("key")
+	scratch.Delete("key")
 	scratch.Add("key", "Lucy Parsons")
 	assert.Equal(t, "Lucy Parsons", scratch.Get("key"))
 }
