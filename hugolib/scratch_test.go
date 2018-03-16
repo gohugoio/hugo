@@ -88,12 +88,12 @@ func TestScratchSet(t *testing.T) {
 }
 
 func TestScratchReset(t *testing.T) {
-    t.Parallel()
-    scratch := newScratch()
-    scratch.Set("key", "val")
-    scratch.Reset("key")
-    scratch.Add("key", "Lucy Parsons")
-    assert.Equal(t, "Lucy Parsons", scratch.Get("key"))
+	t.Parallel()
+	scratch := newScratch()
+	scratch.Set("key", "val")
+	scratch.Reset("key")
+	scratch.Add("key", "Lucy Parsons")
+	assert.Equal(t, "Lucy Parsons", scratch.Get("key"))
 }
 
 // Issue #2005
