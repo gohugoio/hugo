@@ -26,25 +26,31 @@ To effectively leverage section page templates, you should first understand Hugo
 
 See [Template Lookup](/templates/lookup-order/).
 
+## Page Kinds
+
+Every `Page` in Hugo has a `.Kind` attribute.
+
+| Kind           | Description                                                        | Example                                                                       |
+|----------------|--------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| `home`         | The home page                                                      | `/index.html`                                                                 |
+| `page`         | A page showing a _regular page_                                    | `my-post` page (`/posts/my-post/index.html`)                                  |
+| `section`      | A page listing _regular pages_ from a given [_section_][sections]  | `posts` section (`/posts/index.html`)                                         |
+| `taxonomy`     | A page listing _regular pages_ from a given _taxonomy term_        | page for the term `awesome` from `tags` taxonomy (`/tags/awesome/index.html`) |
+| `taxonomyTerm` | A page listing terms from a given _taxonomy_                       | page for the `tags` taxonomy (`/tags/index.html`)                             |
+
 ## `.Site.GetPage` with Sections
 
-Every `Page` in Hugo has a `.Kind` attribute. `Kind` can easily be combined with the [`where` function][where] in your templates to create kind-specific lists of content. This method is ideal for creating lists, but there are times where you may want to fetch just the index page of a single section via the section's path.
+`Kind` can easily be combined with the [`where` function][where] in your templates to create kind-specific lists of content. This method is ideal for creating lists, but there are times where you may want to fetch just the index page of a single section via the section's path.
 
 The [`.GetPage` function][getpage] looks up an index page of a given `Kind` and `path`.
 
-{{% note %}}
-`.GetPage` is not currently supported to grab single content files but *may* be supported in the future.
-{{% /note %}}
+You can call `.Site.GetPage` with two arguments: `kind` (one of the valid values
+of `Kind` from above) and `kind value`.
 
-You can call `.Site.GetPage` with two arguments: `kind` and `kind value`.
+Examples:
 
-These are the valid values for 'kind':
-
-1. `home`
-2. `section`
-3. `taxonomy`
-4. `taxonomyTerm`
-
+- `{{ .Site.GetPage "section" "posts" }}`
+- `{{ .Site.GetPage "page" "search" }}`
 
 ## Example: Creating a Default Section Template
 
@@ -113,3 +119,4 @@ Which then returns the following:
 [lists]: /templates/lists/
 [lookup]: /templates/lookup-order/
 [where]: /functions/where/
+[sections]: /content-management/sections/
