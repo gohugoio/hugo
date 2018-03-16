@@ -87,6 +87,15 @@ func TestScratchSet(t *testing.T) {
 	assert.Equal(t, "val", scratch.Get("key"))
 }
 
+func TestScratchDelete(t *testing.T) {
+	t.Parallel()
+	scratch := newScratch()
+	scratch.Set("key", "val")
+	scratch.Delete("key")
+	scratch.Add("key", "Lucy Parsons")
+	assert.Equal(t, "Lucy Parsons", scratch.Get("key"))
+}
+
 // Issue #2005
 func TestScratchInParallel(t *testing.T) {
 	var wg sync.WaitGroup

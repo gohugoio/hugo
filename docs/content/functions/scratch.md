@@ -32,6 +32,7 @@ See [this Go issue](https://github.com/golang/go/issues/10608) for the main moti
 * `Get` returns the `value` for the `key` given.
 * `SetInMap` takes a `key`, `mapKey` and `value`
 * `GetSortedMapValues` returns array of values from `key` sorted by `mapKey`
+* `Delete` takes a `key` to remove
 
 `Set` and `SetInMap` can store values of any type.
 
@@ -69,6 +70,11 @@ The usage is best illustrated with some samples:
 {{ $.Scratch.SetInMap "a3" "c" "CC" }}
 {{ $.Scratch.SetInMap "a3" "b" "BB" }}
 {{ $.Scratch.GetSortedMapValues "a3" }} {{/* => []interface {}{"AA", "BB", "CC"} */}}
+
+{{ $.Scratch.Add "a" 1 }}
+{{ $.Scratch.Delete "a" }}
+{{ $.Scratch.Add "a" 2 }}
+{{ $.Scratch.Get "a" }} {{/* => 2 */}}
 ```
 
 {{% note %}}
