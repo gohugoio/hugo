@@ -1,7 +1,7 @@
 ---
 title: Forestry.io
 date: 2018-03-16
-description: "A Git-backed CMS (content management system) for websites and web products built using static site generators."
+description: "Showcase: \"Seeing Hugo in action is a whole different world of awesome.\""
 siteURL: https://forestry.io/
 siteSource: https://github.com/forestryio/forestry.io
 ---
