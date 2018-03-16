@@ -178,11 +178,6 @@ You can also set the key used to link the translations explicitly in front matte
 translationKey: "my-story"
 ```
 
-
-{{% note %}}
-**Before Hugo 0.31**, the file's directory was not considered when looking for translations. This did not work when you named all of your content files, say, `index.md`. Now we use the full content path.
-{{% /note %}}
-
 If you need distinct URLs per language, you can set the slug in the non-default language file. For example, you can define a custom slug for a French translation in the front matter of `content/about.fr.md` as follows:
 
 ```yaml
@@ -192,6 +187,7 @@ slug: "a-propos"
 
 At render, Hugo will build both `/about/` and `/a-propos/` as properly linked translated pages.
 
+For merging of content from other languages (i.e. missing content translations), see [lang.Merge](/functions/lang.merge/).
 
 ## Link to Translated Content
 
@@ -354,7 +350,7 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 
 ```
 
-## Missing translations
+## Missing Translations
 
 If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
 
@@ -363,6 +359,8 @@ While translating a Hugo website, it can be handy to have a visual indicator of 
 {{% note %}}
 Hugo will generate your website with these missing translation placeholders. It might not be suited for production environments.
 {{% /note %}}
+
+For merging of content from other languages (i.e. missing content translations), see [lang.Merge](/functions/lang.merge/).
 
 ## Multilingual Themes support
 
