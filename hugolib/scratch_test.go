@@ -93,7 +93,7 @@ func TestScratchReset(t *testing.T) {
     scratch.Set("key", "val")
     scratch.Reset("key")
     scratch.Add("key", "Lucy Parsons")
-    asset.Equal(t, "Lucy Parsons", scratch.Get("key"))
+    assert.Equal(t, "Lucy Parsons", scratch.Get("key"))
 }
 
 // Issue #2005
