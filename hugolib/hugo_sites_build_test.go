@@ -13,7 +13,6 @@ import (
 
 	"github.com/fortytw2/leaktest"
 	"github.com/fsnotify/fsnotify"
-	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
@@ -21,132 +20,144 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type testSiteConfig struct {
-	DefaultContentLanguage         string
-	DefaultContentLanguageInSubdir bool
-	Fs                             afero.Fs
-	Running                        bool
-}
-
 func TestMultiSitesMainLangInRoot(t *testing.T) {
 	t.Parallel()
-	for _, b := range []bool{true, false} {
+	for _, b := range []bool{false} {
 		doTestMultiSitesMainLangInRoot(t, b)
 	}
 }
 
 func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
+	assert := require.New(t)
 
-	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: defaultInSubDir}
-
-	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
-	fs := sites.Fs
-	th := testHelper{sites.Cfg, fs, t}
-
-	err := sites.Build(BuildCfg{})
-
-	if err != nil {
-		t.Fatalf("Failed to build sites: %s", err)
+	siteConfig := map[string]interface{}{
+		"DefaultContentLanguage":         "fr",
+		"DefaultContentLanguageInSubdir": defaultInSubDir,
 	}
 
-	require.Len(t, sites.Sites, 4)
+	b := newMultiSiteTestBuilder(t, "toml", multiSiteTOMLConfigTemplate, siteConfig)
 
-	enSite := sites.Sites[0]
-	frSite := sites.Sites[1]
+	pathMod := func(s string) string {
+		return s
+	}
 
-	require.Equal(t, "/en", enSite.Info.LanguagePrefix)
+	if !defaultInSubDir {
+		pathMod = func(s string) string {
+			return strings.Replace(s, "/fr/", "/", -1)
+		}
+	}
+
+	b.CreateSites()
+	b.Build(BuildCfg{})
+
+	sites := b.H.Sites
+
+	require.Len(t, sites, 4)
+
+	enSite := sites[0]
+	frSite := sites[1]
+
+	assert.Equal("/en", enSite.Info.LanguagePrefix)
 
 	if defaultInSubDir {
-		require.Equal(t, "/fr", frSite.Info.LanguagePrefix)
+		assert.Equal("/fr", frSite.Info.LanguagePrefix)
 	} else {
-		require.Equal(t, "", frSite.Info.LanguagePrefix)
+		assert.Equal("", frSite.Info.LanguagePrefix)
 	}
 
-	require.Equal(t, "/blog/en/foo", enSite.PathSpec.RelURL("foo", true))
+	assert.Equal("/blog/en/foo", enSite.PathSpec.RelURL("foo", true))
 
 	doc1en := enSite.RegularPages[0]
 	doc1fr := frSite.RegularPages[0]
 
 	enPerm := doc1en.Permalink()
 	enRelPerm := doc1en.RelPermalink()
-	require.Equal(t, "http://example.com/blog/en/sect/doc1-slug/", enPerm)
-	require.Equal(t, "/blog/en/sect/doc1-slug/", enRelPerm)
+	assert.Equal("http://example.com/blog/en/sect/doc1-slug/", enPerm)
+	assert.Equal("/blog/en/sect/doc1-slug/", enRelPerm)
 
 	frPerm := doc1fr.Permalink()
 	frRelPerm := doc1fr.RelPermalink()
-	// Main language in root
-	require.Equal(t, th.replaceDefaultContentLanguageValue("http://example.com/blog/fr/sect/doc1/"), frPerm)
-	require.Equal(t, th.replaceDefaultContentLanguageValue("/blog/fr/sect/doc1/"), frRelPerm)
 
-	th.assertFileContent("public/fr/sect/doc1/index.html", "Single", "Bonjour")
-	th.assertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Hello")
+	b.AssertFileContent(pathMod("public/fr/sect/doc1/index.html"), "Single", "Bonjour")
+	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Hello")
 
-	// Check home
 	if defaultInSubDir {
+		assert.Equal("http://example.com/blog/fr/sect/doc1/", frPerm)
+		assert.Equal("/blog/fr/sect/doc1/", frRelPerm)
+
 		// should have a redirect on top level.
-		th.assertFileContentStraight("public/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr" />`)
+		b.AssertFileContent("public/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog/fr" />`)
 	} else {
+		// Main language in root
+		assert.Equal("http://example.com/blog/sect/doc1/", frPerm)
+		assert.Equal("/blog/sect/doc1/", frRelPerm)
+
 		// should have redirect back to root
-		th.assertFileContentStraight("public/fr/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog" />`)
+		b.AssertFileContent("public/fr/index.html", `<meta http-equiv="refresh" content="0; url=http://example.com/blog" />`)
 	}
-	th.assertFileContent("public/fr/index.html", "Home", "Bonjour")
-	th.assertFileContent("public/en/index.html", "Home", "Hello")
+	b.AssertFileContent(pathMod("public/fr/index.html"), "Home", "Bonjour")
+	b.AssertFileContent("public/en/index.html", "Home", "Hello")
 
 	// Check list pages
-	th.assertFileContent("public/fr/sect/index.html", "List", "Bonjour")
-	th.assertFileContent("public/en/sect/index.html", "List", "Hello")
-	th.assertFileContent("public/fr/plaques/frtag1/index.html", "List", "Bonjour")
-	th.assertFileContent("public/en/tags/tag1/index.html", "List", "Hello")
+	b.AssertFileContent(pathMod("public/fr/sect/index.html"), "List", "Bonjour")
+	b.AssertFileContent("public/en/sect/index.html", "List", "Hello")
+	b.AssertFileContent(pathMod("public/fr/plaques/frtag1/index.html"), "List", "Bonjour")
+	b.AssertFileContent("public/en/tags/tag1/index.html", "List", "Hello")
 
 	// Check sitemaps
 	// Sitemaps behaves different: In a multilanguage setup there will always be a index file and
 	// one sitemap in each lang folder.
-	th.assertFileContentStraight("public/sitemap.xml",
+	b.AssertFileContent("public/sitemap.xml",
 		"<loc>http://example.com/blog/en/sitemap.xml</loc>",
 		"<loc>http://example.com/blog/fr/sitemap.xml</loc>")
 
 	if defaultInSubDir {
-		th.assertFileContentStraight("public/fr/sitemap.xml", "<loc>http://example.com/blog/fr/</loc>")
+		b.AssertFileContent("public/fr/sitemap.xml", "<loc>http://example.com/blog/fr/</loc>")
 	} else {
-		th.assertFileContentStraight("public/fr/sitemap.xml", "<loc>http://example.com/blog/</loc>")
+		b.AssertFileContent("public/fr/sitemap.xml", "<loc>http://example.com/blog/</loc>")
 	}
-	th.assertFileContent("public/en/sitemap.xml", "<loc>http://example.com/blog/en/</loc>")
+	b.AssertFileContent("public/en/sitemap.xml", "<loc>http://example.com/blog/en/</loc>")
 
 	// Check rss
-	th.assertFileContent("public/fr/index.xml", `<atom:link href="http://example.com/blog/fr/index.xml"`,
+	b.AssertFileContent(pathMod("public/fr/index.xml"), pathMod(`<atom:link href="http://example.com/blog/fr/index.xml"`),
 		`rel="self" type="application/rss+xml"`)
-	th.assertFileContent("public/en/index.xml", `<atom:link href="http://example.com/blog/en/index.xml"`)
-	th.assertFileContent("public/fr/sect/index.xml", `<atom:link href="http://example.com/blog/fr/sect/index.xml"`)
-	th.assertFileContent("public/en/sect/index.xml", `<atom:link href="http://example.com/blog/en/sect/index.xml"`)
-	th.assertFileContent("public/fr/plaques/frtag1/index.xml", `<atom:link href="http://example.com/blog/fr/plaques/frtag1/index.xml"`)
-	th.assertFileContent("public/en/tags/tag1/index.xml", `<atom:link href="http://example.com/blog/en/tags/tag1/index.xml"`)
+	b.AssertFileContent("public/en/index.xml", `<atom:link href="http://example.com/blog/en/index.xml"`)
+	b.AssertFileContent(
+		pathMod("public/fr/sect/index.xml"),
+		pathMod(`<atom:link href="http://example.com/blog/fr/sect/index.xml"`))
+	b.AssertFileContent("public/en/sect/index.xml", `<atom:link href="http://example.com/blog/en/sect/index.xml"`)
+	b.AssertFileContent(
+		pathMod("public/fr/plaques/frtag1/index.xml"),
+		pathMod(`<atom:link href="http://example.com/blog/fr/plaques/frtag1/index.xml"`))
+	b.AssertFileContent("public/en/tags/tag1/index.xml", `<atom:link href="http://example.com/blog/en/tags/tag1/index.xml"`)
 
 	// Check paginators
-	th.assertFileContent("public/fr/page/1/index.html", `refresh" content="0; url=http://example.com/blog/fr/"`)
-	th.assertFileContent("public/en/page/1/index.html", `refresh" content="0; url=http://example.com/blog/en/"`)
-	th.assertFileContent("public/fr/page/2/index.html", "Home Page 2", "Bonjour", "http://example.com/blog/fr/")
-	th.assertFileContent("public/en/page/2/index.html", "Home Page 2", "Hello", "http://example.com/blog/en/")
-	th.assertFileContent("public/fr/sect/page/1/index.html", `refresh" content="0; url=http://example.com/blog/fr/sect/"`)
-	th.assertFileContent("public/en/sect/page/1/index.html", `refresh" content="0; url=http://example.com/blog/en/sect/"`)
-	th.assertFileContent("public/fr/sect/page/2/index.html", "List Page 2", "Bonjour", "http://example.com/blog/fr/sect/")
-	th.assertFileContent("public/en/sect/page/2/index.html", "List Page 2", "Hello", "http://example.com/blog/en/sect/")
-	th.assertFileContent("public/fr/plaques/frtag1/page/1/index.html", `refresh" content="0; url=http://example.com/blog/fr/plaques/frtag1/"`)
-	th.assertFileContent("public/en/tags/tag1/page/1/index.html", `refresh" content="0; url=http://example.com/blog/en/tags/tag1/"`)
-	th.assertFileContent("public/fr/plaques/frtag1/page/2/index.html", "List Page 2", "Bonjour", "http://example.com/blog/fr/plaques/frtag1/")
-	th.assertFileContent("public/en/tags/tag1/page/2/index.html", "List Page 2", "Hello", "http://example.com/blog/en/tags/tag1/")
+	b.AssertFileContent(pathMod("public/fr/page/1/index.html"), pathMod(`refresh" content="0; url=http://example.com/blog/fr/"`))
+	b.AssertFileContent("public/en/page/1/index.html", `refresh" content="0; url=http://example.com/blog/en/"`)
+	b.AssertFileContent(pathMod("public/fr/page/2/index.html"), "Home Page 2", "Bonjour", pathMod("http://example.com/blog/fr/"))
+	b.AssertFileContent("public/en/page/2/index.html", "Home Page 2", "Hello", "http://example.com/blog/en/")
+	b.AssertFileContent(pathMod("public/fr/sect/page/1/index.html"), pathMod(`refresh" content="0; url=http://example.com/blog/fr/sect/"`))
+	b.AssertFileContent("public/en/sect/page/1/index.html", `refresh" content="0; url=http://example.com/blog/en/sect/"`)
+	b.AssertFileContent(pathMod("public/fr/sect/page/2/index.html"), "List Page 2", "Bonjour", pathMod("http://example.com/blog/fr/sect/"))
+	b.AssertFileContent("public/en/sect/page/2/index.html", "List Page 2", "Hello", "http://example.com/blog/en/sect/")
+	b.AssertFileContent(
+		pathMod("public/fr/plaques/frtag1/page/1/index.html"),
+		pathMod(`refresh" content="0; url=http://example.com/blog/fr/plaques/frtag1/"`))
+	b.AssertFileContent("public/en/tags/tag1/page/1/index.html", `refresh" content="0; url=http://example.com/blog/en/tags/tag1/"`)
+	b.AssertFileContent(
+		pathMod("public/fr/plaques/frtag1/page/2/index.html"), "List Page 2", "Bonjour",
+		pathMod("http://example.com/blog/fr/plaques/frtag1/"))
+	b.AssertFileContent("public/en/tags/tag1/page/2/index.html", "List Page 2", "Hello", "http://example.com/blog/en/tags/tag1/")
 	// nn (Nynorsk) and nb (Bokmål) have custom pagePath: side ("page" in Norwegian)
-	th.assertFileContent("public/nn/side/1/index.html", `refresh" content="0; url=http://example.com/blog/nn/"`)
-	th.assertFileContent("public/nb/side/1/index.html", `refresh" content="0; url=http://example.com/blog/nb/"`)
+	b.AssertFileContent("public/nn/side/1/index.html", `refresh" content="0; url=http://example.com/blog/nn/"`)
+	b.AssertFileContent("public/nb/side/1/index.html", `refresh" content="0; url=http://example.com/blog/nb/"`)
 }
 
 func TestMultiSitesWithTwoLanguages(t *testing.T) {
 	t.Parallel()
 
 	assert := require.New(t)
-
-	mm := afero.NewMemMapFs()
-
-	writeToFs(t, mm, "config.toml", `
+	b := newTestSitesBuilder(t).WithConfig("toml", `
 
 defaultContentLanguage = "nn"
 
@@ -164,35 +175,21 @@ languageName = "English"
 weight = 2
 [languages.en.params]
 p1 = "p1en"
-`,
-	)
+`)
 
-	cfg, err := LoadConfig(mm, "", "config.toml")
-	require.NoError(t, err)
+	b.CreateSites()
+	b.Build(BuildCfg{SkipRender: true})
+	sites := b.H.Sites
 
-	fs := hugofs.NewFrom(mm, cfg)
+	assert.Len(sites, 2)
 
-	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
-
-	if err != nil {
-		t.Fatalf("Failed to create sites: %s", err)
-	}
-
-	writeSource(t, fs, filepath.Join("content", "foo.md"), "foo")
-
-	// Add some data
-	writeSource(t, fs, filepath.Join("data", "hugo.toml"), "slogan = \"Hugo Rocks!\"")
-
-	assert.NoError(sites.Build(BuildCfg{}))
-	assert.Len(sites.Sites, 2)
-
-	nnSite := sites.Sites[0]
+	nnSite := sites[0]
 	nnHome := nnSite.getPage(KindHome)
 	assert.Len(nnHome.AllTranslations(), 2)
 	assert.Len(nnHome.Translations(), 1)
 	assert.True(nnHome.IsTranslated())
 
-	enHome := sites.Sites[1].getPage(KindHome)
+	enHome := sites[1].getPage(KindHome)
 
 	p1, err := enHome.Param("p1")
 	assert.NoError(err)
@@ -220,52 +217,44 @@ func TestMultiSitesBuild(t *testing.T) {
 }
 
 func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
-	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: true}
-	sites := createMultiTestSitesForConfig(t, siteConfig, configTemplate, configSuffix)
+	assert := require.New(t)
 
-	require.Len(t, sites.Sites, 4)
+	b := newMultiSiteTestBuilder(t, configSuffix, configTemplate, nil)
+	b.CreateSites()
 
-	fs := sites.Fs
-	th := testHelper{sites.Cfg, fs, t}
-	err := sites.Build(BuildCfg{})
+	sites := b.H.Sites
+	assert.Equal(4, len(sites))
 
-	if err != nil {
-		t.Fatalf("Failed to build sites: %s", err)
-	}
+	b.Build(BuildCfg{})
 
 	// Check site config
-	for _, s := range sites.Sites {
+	for _, s := range sites {
 		require.True(t, s.Info.defaultContentLanguageInSubdir, s.Info.Title)
 		require.NotNil(t, s.disabledKinds)
 	}
 
-	gp1 := sites.GetContentPage(filepath.FromSlash("content/sect/doc1.en.md"))
+	gp1 := b.H.GetContentPage(filepath.FromSlash("content/sect/doc1.en.md"))
 	require.NotNil(t, gp1)
 	require.Equal(t, "doc1", gp1.title)
-	gp2 := sites.GetContentPage(filepath.FromSlash("content/dummysect/notfound.md"))
+	gp2 := b.H.GetContentPage(filepath.FromSlash("content/dummysect/notfound.md"))
 	require.Nil(t, gp2)
 
-	enSite := sites.Sites[0]
+	enSite := sites[0]
 	enSiteHome := enSite.getPage(KindHome)
 	require.True(t, enSiteHome.IsTranslated())
 
 	require.Equal(t, "en", enSite.Language.Lang)
 
-	if len(enSite.RegularPages) != 5 {
-		t.Fatal("Expected 5 english pages")
-	}
-
-	require.Len(t, enSite.AllPages, 32, "should have 32 total pages (including translations and index types)")
+	assert.Equal(5, len(enSite.RegularPages))
+	assert.Equal(32, len(enSite.AllPages))
 
 	doc1en := enSite.RegularPages[0]
 	permalink := doc1en.Permalink()
-	require.NoError(t, err, "permalink call failed")
 	require.Equal(t, "http://example.com/blog/en/sect/doc1-slug/", permalink, "invalid doc1.en permalink")
 	require.Len(t, doc1en.Translations(), 1, "doc1-en should have one translation, excluding itself")
 
 	doc2 := enSite.RegularPages[1]
 	permalink = doc2.Permalink()
-	require.NoError(t, err, "permalink call failed")
 	require.Equal(t, "http://example.com/blog/en/sect/doc2/", permalink, "invalid doc2 permalink")
 
 	doc3 := enSite.RegularPages[2]
@@ -276,12 +265,11 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, "http://example.com/blog/superbob/", permalink, "invalid doc3 permalink")
 
 	require.Equal(t, "/superbob", doc3.URL(), "invalid url, was specified on doc3")
-	th.assertFileContent("public/superbob/index.html", "doc3|Hello|en")
+	b.AssertFileContent("public/superbob/index.html", "doc3|Hello|en")
 	require.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
 
 	doc1fr := doc1en.Translations()[0]
 	permalink = doc1fr.Permalink()
-	require.NoError(t, err, "permalink call failed")
 	require.Equal(t, "http://example.com/blog/fr/sect/doc1/", permalink, "invalid doc1fr permalink")
 
 	require.Equal(t, doc1en.Translations()[0], doc1fr, "doc1-en should have doc1-fr as translation")
@@ -305,7 +293,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Len(t, tags, 2, "should have 2 different tags")
 	require.Equal(t, tags["tag1"][0].Page, doc1en, "first tag1 page should be doc1")
 
-	frSite := sites.Sites[1]
+	frSite := sites[1]
 
 	require.Equal(t, "fr", frSite.Language.Lang)
 	require.Len(t, frSite.RegularPages, 4, "should have 3 pages")
@@ -330,16 +318,15 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, doc1fr, getPageDoc1FrBase)
 
 	// Check redirect to main language, French
-	languageRedirect := readDestination(t, fs, "public/index.html")
-	require.True(t, strings.Contains(languageRedirect, "0; url=http://example.com/blog/fr"), languageRedirect)
+	b.AssertFileContent("public/index.html", "0; url=http://example.com/blog/fr")
 
 	// check home page content (including data files rendering)
-	th.assertFileContent("public/en/index.html", "Default Home Page 1", "Hello", "Hugo Rocks!")
-	th.assertFileContent("public/fr/index.html", "French Home Page 1", "Bonjour", "Hugo Rocks!")
+	b.AssertFileContent("public/en/index.html", "Default Home Page 1", "Hello", "Hugo Rocks!")
+	b.AssertFileContent("public/fr/index.html", "French Home Page 1", "Bonjour", "Hugo Rocks!")
 
 	// check single page content
-	th.assertFileContent("public/fr/sect/doc1/index.html", "Single", "Shortcode: Bonjour", "LingoFrench")
-	th.assertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Shortcode: Hello", "LingoDefault")
+	b.AssertFileContent("public/fr/sect/doc1/index.html", "Single", "Shortcode: Bonjour", "LingoFrench")
+	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Shortcode: Hello", "LingoDefault")
 
 	// Check node translations
 	homeEn := enSite.getPage(KindHome)
@@ -360,7 +347,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, "en", sectFr.Translations()[0].Lang())
 	require.Equal(t, "Sects", sectFr.Translations()[0].title)
 
-	nnSite := sites.Sites[2]
+	nnSite := sites[2]
 	require.Equal(t, "nn", nnSite.Language.Lang)
 	taxNn := nnSite.getPage(KindTaxonomyTerm, "lag")
 	require.NotNil(t, taxNn)
@@ -373,13 +360,11 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, "nb", taxTermNn.Translations()[0].Lang())
 
 	// Check sitemap(s)
-	sitemapIndex := readDestination(t, fs, "public/sitemap.xml")
-	require.True(t, strings.Contains(sitemapIndex, "<loc>http://example.com/blog/en/sitemap.xml</loc>"), sitemapIndex)
-	require.True(t, strings.Contains(sitemapIndex, "<loc>http://example.com/blog/fr/sitemap.xml</loc>"), sitemapIndex)
-	sitemapEn := readDestination(t, fs, "public/en/sitemap.xml")
-	sitemapFr := readDestination(t, fs, "public/fr/sitemap.xml")
-	require.True(t, strings.Contains(sitemapEn, "http://example.com/blog/en/sect/doc2/"), sitemapEn)
-	require.True(t, strings.Contains(sitemapFr, "http://example.com/blog/fr/sect/doc1/"), sitemapFr)
+	b.AssertFileContent("public/sitemap.xml",
+		"<loc>http://example.com/blog/en/sitemap.xml</loc>",
+		"<loc>http://example.com/blog/fr/sitemap.xml</loc>")
+	b.AssertFileContent("public/en/sitemap.xml", "http://example.com/blog/en/sect/doc2/")
+	b.AssertFileContent("public/fr/sitemap.xml", "http://example.com/blog/fr/sect/doc1/")
 
 	// Check taxonomies
 	enTags := enSite.Taxonomies["tags"]
@@ -388,8 +373,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Len(t, frTags, 2, fmt.Sprintf("Tags in fr: %v", frTags))
 	require.NotNil(t, enTags["tag1"])
 	require.NotNil(t, frTags["frtag1"])
-	readDestination(t, fs, "public/fr/plaques/frtag1/index.html")
-	readDestination(t, fs, "public/en/tags/tag1/index.html")
+	b.AssertFileContent("public/fr/plaques/frtag1/index.html", "Frtag1|Bonjour|http://example.com/blog/fr/plaques/frtag1/")
+	b.AssertFileContent("public/en/tags/tag1/index.html", "Tag1|Hello|http://example.com/blog/en/tags/tag1/")
 
 	// Check Blackfriday config
 	require.True(t, strings.Contains(string(doc1fr.Content), "&laquo;"), string(doc1fr.Content))
@@ -397,7 +382,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.True(t, strings.Contains(string(doc1en.Content), "&ldquo;"), string(doc1en.Content))
 
 	// Check that the drafts etc. are not built/processed/rendered.
-	assertShouldNotBuild(t, sites)
+	assertShouldNotBuild(t, b.H)
 
 	// en and nn have custom site menus
 	require.Len(t, frSite.Menus, 0, "fr: "+configSuffix)
@@ -431,7 +416,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	logoFr := bundleFr.Resources.GetByPrefix("logo")
 	require.NotNil(t, logoFr)
 	require.Equal(t, "/blog/fr/bundles/b1/logo.png", logoFr.RelPermalink())
-	require.Contains(t, readFileFromFs(t, fs.Destination, filepath.FromSlash("public/fr/bundles/b1/logo.png")), "PNG Data")
+	b.AssertFileContent("public/fr/bundles/b1/logo.png", "PNG Data")
 
 	bundleEn := enSite.getPage(KindPage, "bundles/b1/index.en.md")
 	require.NotNil(t, bundleEn)
@@ -440,7 +425,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	logoEn := bundleEn.Resources.GetByPrefix("logo")
 	require.NotNil(t, logoEn)
 	require.Equal(t, "/blog/en/bundles/b1/logo.png", logoEn.RelPermalink())
-	require.Contains(t, readFileFromFs(t, fs.Destination, filepath.FromSlash("public/en/bundles/b1/logo.png")), "PNG Data")
+	b.AssertFileContent("public/en/bundles/b1/logo.png", "PNG Data")
 
 }
 
@@ -450,36 +435,29 @@ func TestMultiSitesRebuild(t *testing.T) {
 	if !isCI() {
 		defer leaktest.CheckTimeout(t, 30*time.Second)()
 	}
-	siteConfig := testSiteConfig{Running: true, Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: true}
-	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
-	fs := sites.Fs
-	th := testHelper{sites.Cfg, fs, t}
-	cfg := BuildCfg{}
-	err := sites.Build(cfg)
 
-	if err != nil {
-		t.Fatalf("Failed to build sites: %s", err)
-	}
+	assert := require.New(t)
 
-	_, err = fs.Destination.Open("public/en/sect/doc2/index.html")
+	b := newMultiSiteTestDefaultBuilder(t).Running().CreateSites().Build(BuildCfg{})
 
-	if err != nil {
-		t.Fatalf("Unable to locate file")
-	}
+	sites := b.H.Sites
+	fs := b.Fs
 
-	enSite := sites.Sites[0]
-	frSite := sites.Sites[1]
+	b.AssertFileContent("public/en/sect/doc2/index.html", "Single: doc2|Hello|en|\n\n<h1 id=\"doc2\">doc2</h1>\n\n<p><em>some content</em>")
 
-	require.Len(t, enSite.RegularPages, 5)
-	require.Len(t, frSite.RegularPages, 4)
+	enSite := sites[0]
+	frSite := sites[1]
+
+	assert.Len(enSite.RegularPages, 5)
+	assert.Len(frSite.RegularPages, 4)
 
 	// Verify translations
-	th.assertFileContent("public/en/sect/doc1-slug/index.html", "Hello")
-	th.assertFileContent("public/fr/sect/doc1/index.html", "Bonjour")
+	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Hello")
+	b.AssertFileContent("public/fr/sect/doc1/index.html", "Bonjour")
 
 	// check single page content
-	th.assertFileContent("public/fr/sect/doc1/index.html", "Single", "Shortcode: Bonjour")
-	th.assertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Shortcode: Hello")
+	b.AssertFileContent("public/fr/sect/doc1/index.html", "Single", "Shortcode: Bonjour")
+	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Shortcode: Hello")
 
 	for i, this := range []struct {
 		preFunc    func(t *testing.T)
@@ -499,7 +477,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: filepath.FromSlash("content/sect/doc2.en.md"), Op: fsnotify.Remove}},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 4, "1 en removed")
+				assert.Len(enSite.RegularPages, 4, "1 en removed")
 
 				// Check build stats
 				require.Equal(t, 1, enSite.draftCount, "Draft")
@@ -522,9 +500,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 				{Name: filepath.FromSlash("content/new1.fr.md"), Op: fsnotify.Create},
 			},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 6)
-				require.Len(t, enSite.AllPages, 34)
-				require.Len(t, frSite.RegularPages, 5)
+				assert.Len(enSite.RegularPages, 6)
+				assert.Len(enSite.AllPages, 34)
+				assert.Len(frSite.RegularPages, 5)
 				require.Equal(t, "new_fr_1", frSite.RegularPages[3].title)
 				require.Equal(t, "new_en_2", enSite.RegularPages[0].title)
 				require.Equal(t, "new_en_1", enSite.RegularPages[1].title)
@@ -542,7 +520,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: filepath.FromSlash("content/sect/doc1.en.md"), Op: fsnotify.Write}},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 6)
+				assert.Len(enSite.RegularPages, 6)
 				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
 				require.True(t, strings.Contains(doc1, "CHANGED"), doc1)
 
@@ -560,7 +538,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				{Name: filepath.FromSlash("content/new1.en.md"), Op: fsnotify.Rename},
 			},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 6, "Rename")
+				assert.Len(enSite.RegularPages, 6, "Rename")
 				require.Equal(t, "new_en_1", enSite.RegularPages[1].title)
 				rendered := readDestination(t, fs, "public/en/new1renamed/index.html")
 				require.True(t, strings.Contains(rendered, "new_en_1"), rendered)
@@ -575,9 +553,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: filepath.FromSlash("layouts/_default/single.html"), Op: fsnotify.Write}},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 6)
-				require.Len(t, enSite.AllPages, 34)
-				require.Len(t, frSite.RegularPages, 5)
+				assert.Len(enSite.RegularPages, 6)
+				assert.Len(enSite.AllPages, 34)
+				assert.Len(frSite.RegularPages, 5)
 				doc1 := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
 				require.True(t, strings.Contains(doc1, "Template Changed"), doc1)
 			},
@@ -592,9 +570,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			[]fsnotify.Event{{Name: filepath.FromSlash("i18n/fr.yaml"), Op: fsnotify.Write}},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 6)
-				require.Len(t, enSite.AllPages, 34)
-				require.Len(t, frSite.RegularPages, 5)
+				assert.Len(enSite.RegularPages, 6)
+				assert.Len(enSite.AllPages, 34)
+				assert.Len(frSite.RegularPages, 5)
 				docEn := readDestination(t, fs, "public/en/sect/doc1-slug/index.html")
 				require.True(t, strings.Contains(docEn, "Hello"), "No Hello")
 				docFr := readDestination(t, fs, "public/fr/sect/doc1/index.html")
@@ -602,7 +580,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 
 				homeEn := enSite.getPage(KindHome)
 				require.NotNil(t, homeEn)
-				require.Len(t, homeEn.Translations(), 3)
+				assert.Len(homeEn.Translations(), 3)
 				require.Equal(t, "fr", homeEn.Translations()[0].Lang())
 
 			},
@@ -616,11 +594,11 @@ func TestMultiSitesRebuild(t *testing.T) {
 				{Name: filepath.FromSlash("layouts/shortcodes/shortcode.html"), Op: fsnotify.Write},
 			},
 			func(t *testing.T) {
-				require.Len(t, enSite.RegularPages, 6)
-				require.Len(t, enSite.AllPages, 34)
-				require.Len(t, frSite.RegularPages, 5)
-				th.assertFileContent("public/fr/sect/doc1/index.html", "Single", "Modified Shortcode: Salut")
-				th.assertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Modified Shortcode: Hello")
+				assert.Len(enSite.RegularPages, 6)
+				assert.Len(enSite.AllPages, 34)
+				assert.Len(frSite.RegularPages, 5)
+				b.AssertFileContent("public/fr/sect/doc1/index.html", "Single", "Modified Shortcode: Salut")
+				b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Modified Shortcode: Hello")
 			},
 		},
 	} {
@@ -629,7 +607,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			this.preFunc(t)
 		}
 
-		err = sites.Build(cfg, this.events...)
+		err := b.H.Build(BuildCfg{}, this.events...)
 
 		if err != nil {
 			t.Fatalf("[%d] Failed to rebuild sites: %s", i, err)
@@ -639,7 +617,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 	}
 
 	// Check that the drafts etc. are not built/processed/rendered.
-	assertShouldNotBuild(t, sites)
+	assertShouldNotBuild(t, b.H)
 
 }
 
@@ -658,18 +636,12 @@ func assertShouldNotBuild(t *testing.T, sites *HugoSites) {
 
 func TestAddNewLanguage(t *testing.T) {
 	t.Parallel()
-	siteConfig := testSiteConfig{Fs: afero.NewMemMapFs(), DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: true}
+	assert := require.New(t)
 
-	sites := createMultiTestSites(t, siteConfig, multiSiteTOMLConfigTemplate)
-	cfg := BuildCfg{}
+	b := newMultiSiteTestDefaultBuilder(t)
+	b.CreateSites().Build(BuildCfg{})
 
-	err := sites.Build(cfg)
-
-	if err != nil {
-		t.Fatalf("Failed to build sites: %s", err)
-	}
-
-	fs := sites.Fs
+	fs := b.Fs
 
 	newConfig := multiSiteTOMLConfigTemplate + `
 
@@ -678,15 +650,15 @@ weight = 15
 title = "Svenska"
 `
 
-	newConfig = createConfig(t, siteConfig, newConfig)
-
 	writeNewContentFile(t, fs, "Swedish Contentfile", "2016-01-01", "content/sect/doc1.sv.md", 10)
 	// replace the config
-	writeSource(t, fs, "multilangconfig.toml", newConfig)
+	b.WithNewConfig(newConfig)
+
+	sites := b.H
 
 	// Watching does not work with in-memory fs, so we trigger a reload manually
-	require.NoError(t, sites.Cfg.(*helpers.Language).Cfg.(*viper.Viper).ReadInConfig())
-	err = sites.Build(BuildCfg{CreateSitesFromConfig: true})
+	assert.NoError(sites.Cfg.(*helpers.Language).Cfg.(*viper.Viper).ReadInConfig())
+	err := b.H.Build(BuildCfg{CreateSitesFromConfig: true})
 
 	if err != nil {
 		t.Fatalf("Failed to rebuild sites: %s", err)
@@ -728,67 +700,50 @@ title = "Svenska"
 
 func TestChangeDefaultLanguage(t *testing.T) {
 	t.Parallel()
-	mf := afero.NewMemMapFs()
 
-	sites := createMultiTestSites(t, testSiteConfig{Fs: mf, DefaultContentLanguage: "fr", DefaultContentLanguageInSubdir: false}, multiSiteTOMLConfigTemplate)
+	assert := require.New(t)
 
-	require.Equal(t, mf, sites.Fs.Source)
+	b := newMultiSiteTestBuilder(t, "", "", map[string]interface{}{
+		"DefaultContentLanguage":         "fr",
+		"DefaultContentLanguageInSubdir": false,
+	})
+	b.CreateSites().Build(BuildCfg{})
 
-	cfg := BuildCfg{}
-	fs := sites.Fs
-	th := testHelper{sites.Cfg, fs, t}
+	b.AssertFileContent("public/sect/doc1/index.html", "Single", "Bonjour")
+	b.AssertFileContent("public/en/sect/doc2/index.html", "Single", "Hello")
 
-	err := sites.Build(cfg)
-
-	if err != nil {
-		t.Fatalf("Failed to build sites: %s", err)
-	}
-
-	th.assertFileContent("public/sect/doc1/index.html", "Single", "Bonjour")
-	th.assertFileContent("public/en/sect/doc2/index.html", "Single", "Hello")
-
-	newConfig := createConfig(t, testSiteConfig{Fs: mf, DefaultContentLanguage: "en", DefaultContentLanguageInSubdir: false}, multiSiteTOMLConfigTemplate)
-
-	// replace the config
-	writeSource(t, fs, "multilangconfig.toml", newConfig)
+	// Switch language
+	b.WithNewConfigData(map[string]interface{}{
+		"DefaultContentLanguage":         "en",
+		"DefaultContentLanguageInSubdir": false,
+	})
 
 	// Watching does not work with in-memory fs, so we trigger a reload manually
 	// This does not look pretty, so we should think of something else.
-	require.NoError(t, th.Cfg.(*helpers.Language).Cfg.(*viper.Viper).ReadInConfig())
-	err = sites.Build(BuildCfg{CreateSitesFromConfig: true})
-
+	assert.NoError(b.H.Cfg.(*helpers.Language).Cfg.(*viper.Viper).ReadInConfig())
+	err := b.H.Build(BuildCfg{CreateSitesFromConfig: true})
 	if err != nil {
 		t.Fatalf("Failed to rebuild sites: %s", err)
 	}
 
 	// Default language is now en, so that should now be the "root" language
-	th.assertFileContent("public/fr/sect/doc1/index.html", "Single", "Bonjour")
-	th.assertFileContent("public/sect/doc2/index.html", "Single", "Hello")
+	b.AssertFileContent("public/fr/sect/doc1/index.html", "Single", "Bonjour")
+	b.AssertFileContent("public/sect/doc2/index.html", "Single", "Hello")
 }
 
 func TestTableOfContentsInShortcodes(t *testing.T) {
 	t.Parallel()
-	mf := afero.NewMemMapFs()
 
-	writeToFs(t, mf, "layouts/shortcodes/toc.html", tocShortcode)
-	writeToFs(t, mf, "content/post/simple.en.md", tocPageSimple)
-	writeToFs(t, mf, "content/post/withSCInHeading.en.md", tocPageWithShortcodesInHeadings)
+	b := newMultiSiteTestDefaultBuilder(t)
 
-	sites := createMultiTestSites(t, testSiteConfig{Fs: mf, DefaultContentLanguage: "en", DefaultContentLanguageInSubdir: true}, multiSiteTOMLConfigTemplate)
+	b.WithTemplatesAdded("layouts/shortcodes/toc.html", tocShortcode)
+	b.WithContent("post/simple.en.md", tocPageSimple)
+	b.WithContent("post/withSCInHeading.en.md", tocPageWithShortcodesInHeadings)
 
-	cfg := BuildCfg{}
+	b.CreateSites().Build(BuildCfg{})
 
-	err := sites.Build(cfg)
-
-	if err != nil {
-		t.Fatalf("Failed to build sites: %s", err)
-	}
-
-	fs := sites.Fs
-	th := testHelper{sites.Cfg, fs, t}
-
-	th.assertFileContent("public/en/post/simple/index.html", tocPageSimpleExpected)
-	th.assertFileContent("public/en/post/withSCInHeading/index.html", tocPageWithShortcodesInHeadingsExpected)
+	b.AssertFileContent("public/en/post/simple/index.html", tocPageSimpleExpected)
+	b.AssertFileContent("public/en/post/withSCInHeading/index.html", tocPageWithShortcodesInHeadingsExpected)
 }
 
 var tocShortcode = `
@@ -799,23 +754,14 @@ var tocPageSimple = `---
 title: tocTest
 publishdate: "2000-01-01"
 ---
-
 {{< toc >}}
-
 # Heading 1 {#1}
-
 Some text.
-
 ## Subheading 1.1 {#1-1}
-
 Some more text.
-
 # Heading 2 {#2}
-
 Even more text.
-
 ## Subheading 2.1 {#2-1}
-
 Lorem ipsum...
 `
 
@@ -985,6 +931,7 @@ Languages:
 
 `
 
+// TODO(bep) clean move
 var multiSiteJSONConfigTemplate = `
 {
   "baseURL": "http://example.com/blog",
@@ -1059,289 +1006,6 @@ var multiSiteJSONConfigTemplate = `
 }
 `
 
-func createMultiTestSites(t *testing.T, siteConfig testSiteConfig, tomlConfigTemplate string) *HugoSites {
-	return createMultiTestSitesForConfig(t, siteConfig, tomlConfigTemplate, "toml")
-}
-
-func createMultiTestSitesForConfig(t *testing.T, siteConfig testSiteConfig, configTemplate, configSuffix string) *HugoSites {
-
-	configContent := createConfig(t, siteConfig, configTemplate)
-
-	mf := siteConfig.Fs
-
-	// TODO(bep) cleanup/remove duplication, use the new testBuilder in testhelpers_test
-	// Add some layouts
-	if err := afero.WriteFile(mf,
-		filepath.Join("layouts", "_default/single.html"),
-		[]byte("Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Lang}}|{{ .Content }}"),
-		0755); err != nil {
-		t.Fatalf("Failed to write layout file: %s", err)
-	}
-
-	if err := afero.WriteFile(mf,
-		filepath.Join("layouts", "_default/list.html"),
-		[]byte("{{ $p := .Paginator }}List Page {{ $p.PageNumber }}: {{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}|Pager: {{ template \"_internal/pagination.html\" . }}"),
-		0755); err != nil {
-		t.Fatalf("Failed to write layout file: %s", err)
-	}
-
-	if err := afero.WriteFile(mf,
-		filepath.Join("layouts", "index.html"),
-		[]byte("{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}"),
-		0755); err != nil {
-		t.Fatalf("Failed to write layout file: %s", err)
-	}
-
-	if err := afero.WriteFile(mf,
-		filepath.Join("layouts", "index.fr.html"),
-		[]byte("{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}"),
-		0755); err != nil {
-		t.Fatalf("Failed to write layout file: %s", err)
-	}
-
-	// Add a shortcode
-	if err := afero.WriteFile(mf,
-		filepath.Join("layouts", "shortcodes", "shortcode.html"),
-		[]byte("Shortcode: {{ i18n \"hello\" }}"),
-		0755); err != nil {
-		t.Fatalf("Failed to write layout file: %s", err)
-	}
-
-	// A shortcode in multiple languages
-	if err := afero.WriteFile(mf,
-		filepath.Join("layouts", "shortcodes", "lingo.html"),
-		[]byte("LingoDefault"),
-		0755); err != nil {
-		t.Fatalf("Failed to write layout file: %s", err)
-	}
-
-	if err := afero.WriteFile(mf,
-		filepath.Join("layouts", "shortcodes", "lingo.fr.html"),
-		[]byte("LingoFrench"),
-		0755); err != nil {
-		t.Fatalf("Failed to write layout file: %s", err)
-	}
-
-	// Add some language files
-	if err := afero.WriteFile(mf,
-		filepath.Join("i18n", "en.yaml"),
-		[]byte(`
-hello:
-  other: "Hello"
-`),
-		0755); err != nil {
-		t.Fatalf("Failed to write language file: %s", err)
-	}
-	if err := afero.WriteFile(mf,
-		filepath.Join("i18n", "fr.yaml"),
-		[]byte(`
-hello:
-  other: "Bonjour"
-`),
-		0755); err != nil {
-		t.Fatalf("Failed to write language file: %s", err)
-	}
-
-	// Sources
-	sources := [][2]string{
-		{filepath.FromSlash("root.en.md"), `---
-title: root
-weight: 10000
-slug: root
-publishdate: "2000-01-01"
----
-# root
-`},
-		{filepath.FromSlash("sect/doc1.en.md"), `---
-title: doc1
-weight: 1
-slug: doc1-slug
-tags:
- - tag1
-publishdate: "2000-01-01"
----
-# doc1
-*some "content"*
-
-{{< shortcode >}}
-
-{{< lingo >}}
-
-NOTE: slug should be used as URL
-`},
-		{filepath.FromSlash("sect/doc1.fr.md"), `---
-title: doc1
-weight: 1
-plaques:
- - frtag1
- - frtag2
-publishdate: "2000-01-04"
----
-# doc1
-*quelque "contenu"*
-
-{{< shortcode >}}
-
-{{< lingo >}}
-
-NOTE: should be in the 'en' Page's 'Translations' field.
-NOTE: date is after "doc3"
-`},
-		{filepath.FromSlash("sect/doc2.en.md"), `---
-title: doc2
-weight: 2
-publishdate: "2000-01-02"
----
-# doc2
-*some content*
-NOTE: without slug, "doc2" should be used, without ".en" as URL
-`},
-		{filepath.FromSlash("sect/doc3.en.md"), `---
-title: doc3
-weight: 3
-publishdate: "2000-01-03"
-aliases: [/en/al/alias1,/al/alias2/]
-tags:
- - tag2
- - tag1
-url: /superbob
----
-# doc3
-*some content*
-NOTE: third 'en' doc, should trigger pagination on home page.
-`},
-		{filepath.FromSlash("sect/doc4.md"), `---
-title: doc4
-weight: 4
-plaques:
- - frtag1
-publishdate: "2000-01-05"
----
-# doc4
-*du contenu francophone*
-NOTE: should use the defaultContentLanguage and mark this doc as 'fr'.
-NOTE: doesn't have any corresponding translation in 'en'
-`},
-		{filepath.FromSlash("other/doc5.fr.md"), `---
-title: doc5
-weight: 5
-publishdate: "2000-01-06"
----
-# doc5
-*autre contenu francophone*
-NOTE: should use the "permalinks" configuration with :filename
-`},
-		// Add some for the stats
-		{filepath.FromSlash("stats/expired.fr.md"), `---
-title: expired
-publishdate: "2000-01-06"
-expiryDate: "2001-01-06"
----
-# Expired
-`},
-		{filepath.FromSlash("stats/future.fr.md"), `---
-title: future
-weight: 6
-publishdate: "2100-01-06"
----
-# Future
-`},
-		{filepath.FromSlash("stats/expired.en.md"), `---
-title: expired
-weight: 7
-publishdate: "2000-01-06"
-expiryDate: "2001-01-06"
----
-# Expired
-`},
-		{filepath.FromSlash("stats/future.en.md"), `---
-title: future
-weight: 6
-publishdate: "2100-01-06"
----
-# Future
-`},
-		{filepath.FromSlash("stats/draft.en.md"), `---
-title: expired
-publishdate: "2000-01-06"
-draft: true
----
-# Draft
-`},
-		{filepath.FromSlash("stats/tax.nn.md"), `---
-title: Tax NN
-weight: 8
-publishdate: "2000-01-06"
-weight: 1001
-lag:
-- Sogndal
----
-# Tax NN
-`},
-		{filepath.FromSlash("stats/tax.nb.md"), `---
-title: Tax NB
-weight: 8
-publishdate: "2000-01-06"
-weight: 1002
-lag:
-- Sogndal
----
-# Tax NB
-`},
-		// Bundle
-		{filepath.FromSlash("bundles/b1/index.en.md"), `---
-title: Bundle EN
-publishdate: "2000-01-06"
-weight: 2001
----
-# Bundle Content EN
-`},
-		{filepath.FromSlash("bundles/b1/index.md"), `---
-title: Bundle Default
-publishdate: "2000-01-06"
-weight: 2002
----
-# Bundle Content Default
-`},
-		{filepath.FromSlash("bundles/b1/logo.png"), `
-PNG Data
-`},
-	}
-
-	configFile := "multilangconfig." + configSuffix
-	writeToFs(t, mf, configFile, configContent)
-
-	cfg, err := LoadConfig(mf, "", configFile)
-	require.NoError(t, err)
-
-	fs := hugofs.NewFrom(mf, cfg)
-
-	for _, s := range sources {
-		if err := afero.WriteFile(mf, filepath.Join("content", s[0]), []byte(s[1]), 0755); err != nil {
-			t.Fatalf("Failed to write file: %s", err)
-		}
-	}
-
-	// Add some data
-	writeSource(t, fs, "data/hugo.toml", "slogan = \"Hugo Rocks!\"")
-
-	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg, Running: siteConfig.Running}) //, Logger: newDebugLogger()})
-
-	if err != nil {
-		t.Fatalf("Failed to create sites: %s", err)
-	}
-
-	if len(sites.Sites) == 0 {
-		t.Fatalf("Got %d sites", len(sites.Sites))
-	}
-
-	if sites.Fs.Source != mf {
-		t.Fatal("FS mismatch")
-	}
-
-	return sites
-}
-
 func writeSource(t testing.TB, fs *hugofs.Fs, filename, content string) {
 	writeToFs(t, fs.Source, filename, content)
 }
@@ -1373,7 +1037,7 @@ func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
 		// Print some debug info
-		root := "" //strings.Split(filename, helpers.FilePathSeparator)[0]
+		root := strings.Split(filename, helpers.FilePathSeparator)[0]
 		afero.Walk(fs, root, func(path string, info os.FileInfo, err error) error {
 			if info != nil && !info.IsDir() {
 				fmt.Println("    ", path)
@@ -1381,7 +1045,7 @@ func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
 
 			return nil
 		})
-		t.Fatalf("Failed to read file: %s", err)
+		Fatalf(t, "Failed to read file: %s", err)
 	}
 	return string(b)
 }
@@ -1403,12 +1067,207 @@ func writeNewContentFile(t *testing.T, fs *hugofs.Fs, title, date, filename stri
 	writeSource(t, fs, filename, content)
 }
 
-func createConfig(t *testing.T, config testSiteConfig, configTemplate string) string {
-	templ, err := template.New("test").Parse(configTemplate)
-	if err != nil {
-		t.Fatal("Template parse failed:", err)
+type multiSiteTestBuilder struct {
+	configData   interface{}
+	config       string
+	configFormat string
+
+	*sitesBuilder
+}
+
+func newMultiSiteTestDefaultBuilder(t testing.TB) *multiSiteTestBuilder {
+	return newMultiSiteTestBuilder(t, "", "", nil)
+}
+
+func (b *multiSiteTestBuilder) WithNewConfig(config string) *multiSiteTestBuilder {
+	b.WithConfigTemplate(b.configData, b.configFormat, config)
+	return b
+}
+
+func (b *multiSiteTestBuilder) WithNewConfigData(data interface{}) *multiSiteTestBuilder {
+	b.WithConfigTemplate(data, b.configFormat, b.config)
+	return b
+}
+
+func newMultiSiteTestBuilder(t testing.TB, configFormat, config string, configData interface{}) *multiSiteTestBuilder {
+	if configData == nil {
+		configData = map[string]interface{}{
+			"DefaultContentLanguage":         "fr",
+			"DefaultContentLanguageInSubdir": true,
+		}
 	}
-	var b bytes.Buffer
-	templ.Execute(&b, config)
-	return b.String()
+
+	if config == "" {
+		config = multiSiteTOMLConfigTemplate
+	}
+
+	if configFormat == "" {
+		configFormat = "toml"
+	}
+
+	b := newTestSitesBuilder(t).WithConfigTemplate(configData, configFormat, config)
+	b.WithContent("root.en.md", `---
+title: root
+weight: 10000
+slug: root
+publishdate: "2000-01-01"
+---
+# root
+`,
+		"sect/doc1.en.md", `---
+title: doc1
+weight: 1
+slug: doc1-slug
+tags:
+ - tag1
+publishdate: "2000-01-01"
+---
+# doc1
+*some "content"*
+
+{{< shortcode >}}
+
+{{< lingo >}}
+
+NOTE: slug should be used as URL
+`,
+		"sect/doc1.fr.md", `---
+title: doc1
+weight: 1
+plaques:
+ - frtag1
+ - frtag2
+publishdate: "2000-01-04"
+---
+# doc1
+*quelque "contenu"*
+
+{{< shortcode >}}
+
+{{< lingo >}}
+
+NOTE: should be in the 'en' Page's 'Translations' field.
+NOTE: date is after "doc3"
+`,
+		"sect/doc2.en.md", `---
+title: doc2
+weight: 2
+publishdate: "2000-01-02"
+---
+# doc2
+*some content*
+NOTE: without slug, "doc2" should be used, without ".en" as URL
+`,
+		"sect/doc3.en.md", `---
+title: doc3
+weight: 3
+publishdate: "2000-01-03"
+aliases: [/en/al/alias1,/al/alias2/]
+tags:
+ - tag2
+ - tag1
+url: /superbob
+---
+# doc3
+*some content*
+NOTE: third 'en' doc, should trigger pagination on home page.
+`,
+		"sect/doc4.md", `---
+title: doc4
+weight: 4
+plaques:
+ - frtag1
+publishdate: "2000-01-05"
+---
+# doc4
+*du contenu francophone*
+NOTE: should use the defaultContentLanguage and mark this doc as 'fr'.
+NOTE: doesn't have any corresponding translation in 'en'
+`,
+		"other/doc5.fr.md", `---
+title: doc5
+weight: 5
+publishdate: "2000-01-06"
+---
+# doc5
+*autre contenu francophone*
+NOTE: should use the "permalinks" configuration with :filename
+`,
+		// Add some for the stats
+		"stats/expired.fr.md", `---
+title: expired
+publishdate: "2000-01-06"
+expiryDate: "2001-01-06"
+---
+# Expired
+`,
+		"stats/future.fr.md", `---
+title: future
+weight: 6
+publishdate: "2100-01-06"
+---
+# Future
+`,
+		"stats/expired.en.md", `---
+title: expired
+weight: 7
+publishdate: "2000-01-06"
+expiryDate: "2001-01-06"
+---
+# Expired
+`,
+		"stats/future.en.md", `---
+title: future
+weight: 6
+publishdate: "2100-01-06"
+---
+# Future
+`,
+		"stats/draft.en.md", `---
+title: expired
+publishdate: "2000-01-06"
+draft: true
+---
+# Draft
+`,
+		"stats/tax.nn.md", `---
+title: Tax NN
+weight: 8
+publishdate: "2000-01-06"
+weight: 1001
+lag:
+- Sogndal
+---
+# Tax NN
+`,
+		"stats/tax.nb.md", `---
+title: Tax NB
+weight: 8
+publishdate: "2000-01-06"
+weight: 1002
+lag:
+- Sogndal
+---
+# Tax NB
+`,
+		// Bundle
+		"bundles/b1/index.en.md", `---
+title: Bundle EN
+publishdate: "2000-01-06"
+weight: 2001
+---
+# Bundle Content EN
+`,
+		"bundles/b1/index.md", `---
+title: Bundle Default
+publishdate: "2000-01-06"
+weight: 2002
+---
+# Bundle Content Default
+`,
+		"bundles/b1/logo.png", `
+PNG Data
+`)
+
+	return &multiSiteTestBuilder{sitesBuilder: b, configFormat: configFormat, config: config, configData: configData}
 }

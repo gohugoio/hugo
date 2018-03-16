@@ -4,9 +4,11 @@ import (
 	"path/filepath"
 	"testing"
 
+	"bytes"
 	"fmt"
 	"regexp"
 	"strings"
+	"text/template"
 
 	jww "github.com/spf13/jwalterweatherman"
 
@@ -24,6 +26,7 @@ import (
 	"log"
 
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -34,7 +37,13 @@ type sitesBuilder struct {
 	Fs  *hugofs.Fs
 	T   testing.TB
 
+	// Aka the Hugo server mode.
+	running bool
+
 	H *HugoSites
+
+	// Default toml
+	configFormat string
 
 	// We will add some default if not set.
 	templatesAdded bool
@@ -47,11 +56,31 @@ func newTestSitesBuilder(t testing.TB) *sitesBuilder {
 	v := viper.New()
 	fs := hugofs.NewMem(v)
 
-	return &sitesBuilder{T: t, Fs: fs}
+	return &sitesBuilder{T: t, Fs: fs, configFormat: "toml"}
 }
 
-func (s *sitesBuilder) WithTOMLConfig(conf string) *sitesBuilder {
-	writeSource(s.T, s.Fs, "config.toml", conf)
+func (s *sitesBuilder) Running() *sitesBuilder {
+	s.running = true
+	return s
+}
+
+func (s *sitesBuilder) WithConfigTemplate(data interface{}, format, configTemplate string) *sitesBuilder {
+	if format == "" {
+		format = "toml"
+	}
+
+	templ, err := template.New("test").Parse(configTemplate)
+	if err != nil {
+		s.T.Fatal("Template parse failed:", err)
+	}
+	var b bytes.Buffer
+	templ.Execute(&b, data)
+	return s.WithConfig(format, b.String())
+}
+
+func (s *sitesBuilder) WithConfig(format, conf string) *sitesBuilder {
+	writeSource(s.T, s.Fs, "config."+format, conf)
+	s.configFormat = format
 	return s
 }
 
@@ -113,12 +142,19 @@ paginatePath = "side"
 lag = "lag"
 `
 
-	return s.WithTOMLConfig(defaultMultiSiteConfig)
+	return s.WithConfig("toml", defaultMultiSiteConfig)
 
 }
 
 func (s *sitesBuilder) WithContent(filenameContent ...string) *sitesBuilder {
 	s.contentAdded = true
+	return s.WithContentAdded(filenameContent...)
+}
+
+func (s *sitesBuilder) WithContentAdded(filenameContent ...string) *sitesBuilder {
+	if len(filenameContent)%2 != 0 {
+		s.Fatalf("expect filenameContent in pairs")
+	}
 	for i := 0; i < len(filenameContent); i += 2 {
 		filename, content := filenameContent[i], filenameContent[i+1]
 		writeSource(s.T, s.Fs, filepath.Join("content", filename), content)
@@ -127,7 +163,14 @@ func (s *sitesBuilder) WithContent(filenameContent ...string) *sitesBuilder {
 }
 
 func (s *sitesBuilder) WithTemplates(filenameContent ...string) *sitesBuilder {
+	if len(filenameContent)%2 != 0 {
+		s.Fatalf("expect filenameContent in pairs")
+	}
 	s.templatesAdded = true
+	return s.WithTemplatesAdded(filenameContent...)
+}
+
+func (s *sitesBuilder) WithTemplatesAdded(filenameContent ...string) *sitesBuilder {
 	for i := 0; i < len(filenameContent); i += 2 {
 		filename, content := filenameContent[i], filenameContent[i+1]
 		writeSource(s.T, s.Fs, filepath.Join("layouts", filename), content)
@@ -150,14 +193,14 @@ func (s *sitesBuilder) CreateSites() *sitesBuilder {
 	}
 
 	if s.Cfg == nil {
-		cfg, err := LoadConfig(s.Fs.Source, "", "config.toml")
+		cfg, err := LoadConfig(s.Fs.Source, "", "config."+s.configFormat)
 		if err != nil {
 			s.T.Fatalf("Failed to load config: %s", err)
 		}
 		s.Cfg = cfg
 	}
 
-	sites, err := NewHugoSites(deps.DepsCfg{Fs: s.Fs, Cfg: s.Cfg})
+	sites, err := NewHugoSites(deps.DepsCfg{Fs: s.Fs, Cfg: s.Cfg, Running: s.running})
 	if err != nil {
 		s.T.Fatalf("Failed to create sites: %s", err)
 	}
@@ -243,11 +286,22 @@ date: "2018-02-28"
 	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.nn.md"), contentTemplate)
 }
 
+func (s *sitesBuilder) Fatalf(format string, args ...interface{}) {
+	Fatalf(s.T, format, args...)
+}
+
+func Fatalf(t testing.TB, format string, args ...interface{}) {
+	trace := strings.Join(assert.CallerInfo(), "\n\r\t\t\t")
+	format = format + "\n%s"
+	args = append(args, trace)
+	t.Fatalf(format, args...)
+}
+
 func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
 	content := readDestination(s.T, s.Fs, filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
-			s.T.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
+			s.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
 		}
 	}
 }
@@ -257,7 +311,7 @@ func (s *sitesBuilder) AssertFileContentRe(filename string, matches ...string) {
 	for _, match := range matches {
 		r := regexp.MustCompile(match)
 		if !r.MatchString(content) {
-			s.T.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
+			s.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
 		}
 	}
 }
@@ -273,14 +327,6 @@ func (th testHelper) assertFileContent(filename string, matches ...string) {
 	content := readDestination(th.T, th.Fs, filename)
 	for _, match := range matches {
 		match = th.replaceDefaultContentLanguageValue(match)
-		require.True(th.T, strings.Contains(content, match), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
-	}
-}
-
-// TODO(bep) better name for this. It does no magic replacements depending on defaultontentLanguageInSubDir.
-func (th testHelper) assertFileContentStraight(filename string, matches ...string) {
-	content := readDestination(th.T, th.Fs, filename)
-	for _, match := range matches {
 		require.True(th.T, strings.Contains(content, match), fmt.Sprintf("File no match for\n%q in\n%q:\n%s", strings.Replace(match, "%", "%%", -1), filename, strings.Replace(content, "%", "%%", -1)))
 	}
 }
@@ -359,14 +405,14 @@ func newTestSite(t testing.TB, configKeyValues ...interface{}) *Site {
 	s, err := NewSiteForCfg(d)
 
 	if err != nil {
-		t.Fatalf("Failed to create Site: %s", err)
+		Fatalf(t, "Failed to create Site: %s", err)
 	}
 	return s
 }
 
 func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layoutPathContentPairs ...string) (testHelper, *HugoSites) {
 	if len(layoutPathContentPairs)%2 != 0 {
-		t.Fatalf("Layouts must be provided in pairs")
+		Fatalf(t, "Layouts must be provided in pairs")
 	}
 
 	writeToFs(t, afs, "config.toml", tomlConfig)
