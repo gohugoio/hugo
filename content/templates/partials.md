@@ -67,10 +67,6 @@ As shown in the above example directory structure, you can nest your directories
 {{ partial "footer/scripts.html" . }}
 ```
 
-{{% note %}}
-Before v0.12, Hugo used the `template` call to include partial templates. When using Hugo v0.12 and newer, be sure to use the `{{ partial "<PATH>/<PARTIAL>.html" . }}` syntax. The old approach will still work but has fewer benefits.
-{{% /note %}}
-
 ### Variable Scoping
 
 The second argument in a partial call is the variable being passed down. The above examples are passing the `.`, which tells the template receiving the partial to apply the current [context][context].
