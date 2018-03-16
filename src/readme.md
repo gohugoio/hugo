@@ -6,7 +6,7 @@ The contents of this folder are used to generate CSS and javascript. You may nev
 
 ### NPM
 
-We use [NPM](https://www.npmjs.com/) for package managment The theme's `.gitignore` file should be kept intact to make sure that all files in the `node_modules` folder are not pushed to the repository.
+We use [NPM](https://www.npmjs.com/) for package management The theme's `.gitignore` file should be kept intact to make sure that all files in the `node_modules` folder are not pushed to the repository.
 
 ### Webpack
 
