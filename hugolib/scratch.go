@@ -74,7 +74,7 @@ func (c *Scratch) Set(key string, value interface{}) string {
 }
 
 // Reset deletes the given key
-func (c *Scratch) Delete (key string) string {
+func (c *Scratch) Delete(key string) string {
 	c.mu.Lock()
 	delete(c.values, key)
 	c.mu.Unlock()
