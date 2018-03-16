@@ -1,23 +1,9 @@
 ---
-
-# A suitable title for this article.
 title: Forestry.io
-
-# Set this to the current date.
-date: 2018-03-13
-
+date: 2018-03-16
 description: "A Git-backed CMS (content management system) for websites and web products built using static site generators."
-
-# The URL to the site on the internet.
 siteURL: https://forestry.io/
-
-# Link to the site's Hugo source code if public and you can/want to share.
-# Remove or leave blank if not needed/wanted.
 siteSource: https://github.com/forestryio/forestry.io
-
-# Add credit to the article author. Leave blank or remove if not needed/wanted.
-byline: 
-
 ---
 
 It was clear from the get-go that we had to go with a static site generator. Static sites are secure, performant, and give you 100% flexibility. At [Forestry.io](https://forestry.io/) we provide Content Management Solutions for websites built with static site generators, so we might be a little biased. The only question: Which static site generator was the right choice for us?
@@ -28,7 +14,7 @@ In our early research we looked at Ionic’s [site](https://github.com/ionic-tea
 
 We knew Hugo was fast but we did [some additional benchmarking](https://forestry.io/blog/hugo-vs-jekyll-benchmark/) before making our decision. Seeing Hugo in action is a whole different world of awesome. Hugo takes less than one second to build our 150-page site! Take a look:
 
-```
+```bash
                    | EN   
 +------------------+-----+
   Pages            | 141  
@@ -51,7 +37,7 @@ Lastly, we want to take the opportunity to give some love to other amazing tools
 
 * Our Norwegian designer Nichlas is in love with [**Sketch**](https://www.sketchapp.com/). From what we hear it’s a designer’s dream come true.
 * Some say our main graphic is [mesmerizing](https://twitter.com/hmncllctv/status/968907474664284160). Nichlas created it using [**3DS Max**](https://www.autodesk.com/products/3ds-max/overview).
-* [**Hugo**](https://gohugo.io/) - of course.
+* [**Hugo**](https://gohugo.io/) -- of course.
 * Chris can’t think of modern web development without [**Gulp**](https://gulpjs.com/) & [**Webpack**](https://webpack.js.org/). We used them to add additional build steps such as Browsersync, CSS, JS and SVG optimization.
 * Speaking about adding steps to our build, our lives would be much harder without [**CircleCI**](https://circleci.com/) for continuous deployment and automated testing purposes.
 * We can’t stop raving about [**Algolia**](https://www.algolia.com/). Chris loves it and even wrote a tutorial on [how to implement Algolia]([https://forestry.io/blog/search-with-algolia-in-hugo/) into static sites using Hugo’s [Custom Outputs](https://gohugo.io/templates/output-formats/).
