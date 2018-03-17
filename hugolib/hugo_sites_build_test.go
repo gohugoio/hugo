@@ -157,7 +157,7 @@ func TestMultiSitesWithTwoLanguages(t *testing.T) {
 	t.Parallel()
 
 	assert := require.New(t)
-	b := newTestSitesBuilder(t).WithConfig("toml", `
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
 
 defaultContentLanguage = "nn"
 

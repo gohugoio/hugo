@@ -18,7 +18,6 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/gohugoio/hugo/deps"
 	"github.com/stretchr/testify/require"
 )
 
@@ -42,73 +41,59 @@ const aliasTemplate = "<html><body>ALIASTEMPLATE</body></html>"
 
 func TestAlias(t *testing.T) {
 	t.Parallel()
+	assert := require.New(t)
 
-	var (
-		cfg, fs = newTestCfg()
-		th      = testHelper{cfg, fs, t}
-	)
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithContent("page.md", pageWithAlias)
+	b.CreateSites().Build(BuildCfg{})
 
-	writeSource(t, fs, filepath.Join("content", "page.md"), pageWithAlias)
-	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
-
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-
-	require.Len(t, s.rawAllPages, 1)
+	assert.Equal(1, len(b.H.Sites))
+	require.Len(t, b.H.Sites[0].RegularPages, 1)
 
 	// the real page
-	th.assertFileContent(filepath.Join("public", "page", "index.html"), "For some moments the old man")
+	b.AssertFileContent("public/page/index.html", "For some moments the old man")
 	// the alias redirector
-	th.assertFileContent(filepath.Join("public", "foo", "bar", "index.html"), "<meta http-equiv=\"refresh\" content=\"0; ")
+	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
 }
 
 func TestAliasMultipleOutputFormats(t *testing.T) {
 	t.Parallel()
 
-	var (
-		cfg, fs = newTestCfg()
-		th      = testHelper{cfg, fs, t}
-	)
+	assert := require.New(t)
 
-	writeSource(t, fs, filepath.Join("content", "page.md"), pageWithAliasMultipleOutputs)
-	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
-	writeSource(t, fs, filepath.Join("layouts", "_default", "single.amp.html"), basicTemplate)
-	writeSource(t, fs, filepath.Join("layouts", "_default", "single.json"), basicTemplate)
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithContent("page.md", pageWithAliasMultipleOutputs)
 
-	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	b.WithTemplates(
+		"_default/single.html", basicTemplate,
+		"_default/single.amp.html", basicTemplate,
+		"_default/single.json", basicTemplate)
+
+	b.CreateSites().Build(BuildCfg{})
 
 	// the real pages
-	th.assertFileContent(filepath.Join("public", "page", "index.html"), "For some moments the old man")
-	th.assertFileContent(filepath.Join("public", "amp", "page", "index.html"), "For some moments the old man")
-	th.assertFileContent(filepath.Join("public", "page", "index.json"), "For some moments the old man")
+	b.AssertFileContent("public/page/index.html", "For some moments the old man")
+	b.AssertFileContent("public/amp/page/index.html", "For some moments the old man")
+	b.AssertFileContent("public/page/index.json", "For some moments the old man")
 
 	// the alias redirectors
-	th.assertFileContent(filepath.Join("public", "foo", "bar", "index.html"), "<meta http-equiv=\"refresh\" content=\"0; ")
-	th.assertFileContent(filepath.Join("public", "foo", "bar", "amp", "index.html"), "<meta http-equiv=\"refresh\" content=\"0; ")
-	require.False(t, destinationExists(th.Fs, filepath.Join("public", "foo", "bar", "index.json")))
+	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
+	b.AssertFileContent("public/foo/bar/amp/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
+	assert.False(b.CheckExists("public/foo/bar/index.json"))
 }
 
 func TestAliasTemplate(t *testing.T) {
 	t.Parallel()
 
-	var (
-		cfg, fs = newTestCfg()
-		th      = testHelper{cfg, fs, t}
-	)
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithContent("page.md", pageWithAlias).WithTemplatesAdded("alias.html", aliasTemplate)
 
-	writeSource(t, fs, filepath.Join("content", "page.md"), pageWithAlias)
-	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
-	writeSource(t, fs, filepath.Join("layouts", "alias.html"), aliasTemplate)
-
-	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
-
-	require.NoError(t, err)
-
-	require.NoError(t, sites.Build(BuildCfg{}))
+	b.CreateSites().Build(BuildCfg{})
 
 	// the real page
-	th.assertFileContent(filepath.Join("public", "page", "index.html"), "For some moments the old man")
+	b.AssertFileContent("public/page/index.html", "For some moments the old man")
 	// the alias redirector
-	th.assertFileContent(filepath.Join("public", "foo", "bar", "index.html"), "ALIASTEMPLATE")
+	b.AssertFileContent("public/foo/bar/index.html", "ALIASTEMPLATE")
 }
 
 func TestTargetPathHTMLRedirectAlias(t *testing.T) {

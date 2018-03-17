@@ -48,7 +48,7 @@ languageName = "Nynorsk"
 
 `
 
-	b := newMultiSiteTestDefaultBuilder(t).WithConfig("toml", configTemplate)
+	b := newMultiSiteTestDefaultBuilder(t).WithConfigFile("toml", configTemplate)
 	b.CreateSites().Build(BuildCfg{})
 
 	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Hello")

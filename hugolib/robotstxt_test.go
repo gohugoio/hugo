@@ -14,10 +14,9 @@
 package hugolib
 
 import (
-	"path/filepath"
 	"testing"
 
-	"github.com/gohugoio/hugo/deps"
+	"github.com/spf13/viper"
 )
 
 const robotTxtTemplate = `User-agent: Googlebot
@@ -28,19 +27,16 @@ const robotTxtTemplate = `User-agent: Googlebot
 
 func TestRobotsTXTOutput(t *testing.T) {
 	t.Parallel()
-	var (
-		cfg, fs = newTestCfg()
-		th      = testHelper{cfg, fs, t}
-	)
 
+	cfg := viper.New()
 	cfg.Set("baseURL", "http://auth/bub/")
 	cfg.Set("enableRobotsTXT", true)
 
-	writeSource(t, fs, filepath.Join("layouts", "robots.txt"), robotTxtTemplate)
-	writeSourcesToSource(t, "content", fs, weightedSources...)
+	b := newTestSitesBuilder(t).WithViper(cfg)
+	b.WithTemplatesAdded("layouts/robots.txt", robotTxtTemplate)
 
-	buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	b.Build(BuildCfg{})
 
-	th.assertFileContent("public/robots.txt", "User-agent: Googlebot")
+	b.AssertFileContent("public/robots.txt", "User-agent: Googlebot")
 
 }

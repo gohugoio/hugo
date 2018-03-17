@@ -45,11 +45,18 @@ type sitesBuilder struct {
 	// Default toml
 	configFormat string
 
-	// We will add some default if not set.
-	templatesAdded bool
-	i18nAdded      bool
-	dataAdded      bool
-	contentAdded   bool
+	// Base data/content
+	contentFilePairs  []string
+	templateFilePairs []string
+	i18nFilePairs     []string
+	dataFilePairs     []string
+
+	// Additional data/content.
+	// As in "use the base, but add these on top".
+	contentFilePairsAdded  []string
+	templateFilePairsAdded []string
+	i18nFilePairsAdded     []string
+	dataFilePairsAdded     []string
 }
 
 func newTestSitesBuilder(t testing.TB) *sitesBuilder {
@@ -71,17 +78,30 @@ func (s *sitesBuilder) WithConfigTemplate(data interface{}, format, configTempla
 
 	templ, err := template.New("test").Parse(configTemplate)
 	if err != nil {
-		s.T.Fatal("Template parse failed:", err)
+		s.Fatalf("Template parse failed: %s", err)
 	}
 	var b bytes.Buffer
 	templ.Execute(&b, data)
-	return s.WithConfig(format, b.String())
+	return s.WithConfigFile(format, b.String())
 }
 
-func (s *sitesBuilder) WithConfig(format, conf string) *sitesBuilder {
+func (s *sitesBuilder) WithViper(v *viper.Viper) *sitesBuilder {
+	loadDefaultSettingsFor(v)
+	s.Cfg = v
+	return s
+}
+
+func (s *sitesBuilder) WithConfigFile(format, conf string) *sitesBuilder {
 	writeSource(s.T, s.Fs, "config."+format, conf)
 	s.configFormat = format
 	return s
+}
+
+func (s *sitesBuilder) WithSimpleConfigFile() *sitesBuilder {
+	var config = `
+baseURL = "http://example.com/"
+`
+	return s.WithConfigFile("toml", config)
 }
 
 func (s *sitesBuilder) WithDefaultMultiSiteConfig() *sitesBuilder {
@@ -142,67 +162,83 @@ paginatePath = "side"
 lag = "lag"
 `
 
-	return s.WithConfig("toml", defaultMultiSiteConfig)
+	return s.WithConfigFile("toml", defaultMultiSiteConfig)
 
 }
 
 func (s *sitesBuilder) WithContent(filenameContent ...string) *sitesBuilder {
-	s.contentAdded = true
-	return s.WithContentAdded(filenameContent...)
+	s.contentFilePairs = append(s.contentFilePairs, filenameContent...)
+	return s
 }
 
 func (s *sitesBuilder) WithContentAdded(filenameContent ...string) *sitesBuilder {
-	if len(filenameContent)%2 != 0 {
-		s.Fatalf("expect filenameContent in pairs")
-	}
-	for i := 0; i < len(filenameContent); i += 2 {
-		filename, content := filenameContent[i], filenameContent[i+1]
-		writeSource(s.T, s.Fs, filepath.Join("content", filename), content)
-	}
+	s.contentFilePairsAdded = append(s.contentFilePairsAdded, filenameContent...)
 	return s
 }
 
 func (s *sitesBuilder) WithTemplates(filenameContent ...string) *sitesBuilder {
-	if len(filenameContent)%2 != 0 {
-		s.Fatalf("expect filenameContent in pairs")
-	}
-	s.templatesAdded = true
-	return s.WithTemplatesAdded(filenameContent...)
+	s.templateFilePairs = append(s.templateFilePairs, filenameContent...)
+	return s
 }
 
 func (s *sitesBuilder) WithTemplatesAdded(filenameContent ...string) *sitesBuilder {
+	s.templateFilePairsAdded = append(s.templateFilePairsAdded, filenameContent...)
+	return s
+}
+
+func (s *sitesBuilder) WithData(filenameContent ...string) *sitesBuilder {
+	s.dataFilePairs = append(s.dataFilePairs, filenameContent...)
+	return s
+}
+
+func (s *sitesBuilder) WithDataAdded(filenameContent ...string) *sitesBuilder {
+	s.dataFilePairsAdded = append(s.dataFilePairsAdded, filenameContent...)
+	return s
+}
+
+func (s *sitesBuilder) WithI18n(filenameContent ...string) *sitesBuilder {
+	s.i18nFilePairs = append(s.i18nFilePairs, filenameContent...)
+	return s
+}
+
+func (s *sitesBuilder) WithI18nAdded(filenameContent ...string) *sitesBuilder {
+	s.i18nFilePairsAdded = append(s.i18nFilePairsAdded, filenameContent...)
+	return s
+}
+
+func (s *sitesBuilder) writeFilePairs(folder string, filenameContent []string) *sitesBuilder {
+	if len(filenameContent)%2 != 0 {
+		s.Fatalf("expect filenameContent for %q in pairs (%d)", folder, len(filenameContent))
+	}
 	for i := 0; i < len(filenameContent); i += 2 {
 		filename, content := filenameContent[i], filenameContent[i+1]
-		writeSource(s.T, s.Fs, filepath.Join("layouts", filename), content)
+		writeSource(s.T, s.Fs, filepath.Join(folder, filename), content)
 	}
 	return s
 }
 
 func (s *sitesBuilder) CreateSites() *sitesBuilder {
-	if !s.templatesAdded {
-		s.addDefaultTemplates()
-	}
-	if !s.i18nAdded {
-		s.addDefaultI18n()
-	}
-	if !s.dataAdded {
-		s.addDefaultData()
-	}
-	if !s.contentAdded {
-		s.addDefaultContent()
-	}
+	s.addDefaults()
+	s.writeFilePairs("content", s.contentFilePairs)
+	s.writeFilePairs("content", s.contentFilePairsAdded)
+	s.writeFilePairs("layouts", s.templateFilePairs)
+	s.writeFilePairs("layouts", s.templateFilePairsAdded)
+	s.writeFilePairs("data", s.dataFilePairs)
+	s.writeFilePairs("data", s.dataFilePairsAdded)
+	s.writeFilePairs("i18n", s.i18nFilePairs)
+	s.writeFilePairs("i18n", s.i18nFilePairsAdded)
 
 	if s.Cfg == nil {
 		cfg, err := LoadConfig(s.Fs.Source, "", "config."+s.configFormat)
 		if err != nil {
-			s.T.Fatalf("Failed to load config: %s", err)
+			s.Fatalf("Failed to load config: %s", err)
 		}
 		s.Cfg = cfg
 	}
 
 	sites, err := NewHugoSites(deps.DepsCfg{Fs: s.Fs, Cfg: s.Cfg, Running: s.running})
 	if err != nil {
-		s.T.Fatalf("Failed to create sites: %s", err)
+		s.Fatalf("Failed to create sites: %s", err)
 	}
 	s.H = sites
 
@@ -211,61 +247,20 @@ func (s *sitesBuilder) CreateSites() *sitesBuilder {
 
 func (s *sitesBuilder) Build(cfg BuildCfg) *sitesBuilder {
 	if s.H == nil {
-		s.T.Fatal("Need to run builder.CreateSites first")
+		s.CreateSites()
 	}
 	err := s.H.Build(cfg)
 	if err != nil {
-		s.T.Fatalf("Build failed: %s", err)
+		s.Fatalf("Build failed: %s", err)
 	}
 
 	return s
 }
 
-func (s *sitesBuilder) addDefaultTemplates() {
-	fs := s.Fs
-	t := s.T
+func (s *sitesBuilder) addDefaults() {
 
-	// Layouts
-
-	writeSource(t, fs, filepath.Join("layouts", "_default/single.html"), "Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Lang}}|{{ .Content }}")
-	writeSource(t, fs, filepath.Join("layouts", "_default/list.html"), "{{ $p := .Paginator }}List Page {{ $p.PageNumber }}: {{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}|Pager: {{ template \"_internal/pagination.html\" . }}")
-	writeSource(t, fs, filepath.Join("layouts", "index.html"), "{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}")
-	writeSource(t, fs, filepath.Join("layouts", "index.fr.html"), "{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}")
-
-	// Shortcodes
-	writeSource(t, fs, filepath.Join("layouts", "shortcodes", "shortcode.html"), "Shortcode: {{ i18n \"hello\" }}")
-	// A shortcode in multiple languages
-	writeSource(t, fs, filepath.Join("layouts", "shortcodes", "lingo.html"), "LingoDefault")
-	writeSource(t, fs, filepath.Join("layouts", "shortcodes", "lingo.fr.html"), "LingoFrench")
-}
-
-func (s *sitesBuilder) addDefaultI18n() {
-	fs := s.Fs
-	t := s.T
-
-	writeSource(t, fs, filepath.Join("i18n", "en.yaml"), `
-hello:
-  other: "Hello"
-`)
-	writeSource(t, fs, filepath.Join("i18n", "fr.yaml"), `
-hello:
-  other: "Bonjour"
-`)
-
-}
-
-func (s *sitesBuilder) addDefaultData() {
-	fs := s.Fs
-	t := s.T
-
-	writeSource(t, fs, filepath.FromSlash("data/hugo.toml"), "slogan = \"Hugo Rocks!\"")
-}
-
-func (s *sitesBuilder) addDefaultContent() {
-	fs := s.Fs
-	t := s.T
-
-	contentTemplate := `---
+	var (
+		contentTemplate = `---
 title: doc1
 weight: 1
 tags:
@@ -280,10 +275,54 @@ date: "2018-02-28"
 {{< lingo >}}
 `
 
-	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.en.md"), contentTemplate)
-	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.fr.md"), contentTemplate)
-	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.nb.md"), contentTemplate)
-	writeSource(t, fs, filepath.FromSlash("content/sect/doc1.nn.md"), contentTemplate)
+		defaultContent = []string{
+			"content/sect/doc1.en.md", contentTemplate,
+			"content/sect/doc1.fr.md", contentTemplate,
+			"content/sect/doc1.nb.md", contentTemplate,
+			"content/sect/doc1.nn.md", contentTemplate,
+		}
+
+		defaultTemplates = []string{
+			"_default/single.html", "Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Lang}}|{{ .Content }}",
+			"_default/list.html", "{{ $p := .Paginator }}List Page {{ $p.PageNumber }}: {{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}|Pager: {{ template \"_internal/pagination.html\" . }}",
+			"index.html", "{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}",
+			"index.fr.html", "{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}",
+
+			// Shortcodes
+			"shortcodes/shortcode.html", "Shortcode: {{ i18n \"hello\" }}",
+			// A shortcode in multiple languages
+			"shortcodes/lingo.html", "LingoDefault",
+			"shortcodes/lingo.fr.html", "LingoFrench",
+		}
+
+		defaultI18n = []string{
+			"en.yaml", `
+hello:
+  other: "Hello"
+`,
+			"fr.yaml", `
+hello:
+  other: "Bonjour"
+`,
+		}
+
+		defaultData = []string{
+			"hugo.toml", "slogan = \"Hugo Rocks!\"",
+		}
+	)
+
+	if len(s.contentFilePairs) == 0 {
+		s.writeFilePairs("content", defaultContent)
+	}
+	if len(s.templateFilePairs) == 0 {
+		s.writeFilePairs("layouts", defaultTemplates)
+	}
+	if len(s.dataFilePairs) == 0 {
+		s.writeFilePairs("data", defaultData)
+	}
+	if len(s.i18nFilePairs) == 0 {
+		s.writeFilePairs("i18n", defaultI18n)
+	}
 }
 
 func (s *sitesBuilder) Fatalf(format string, args ...interface{}) {
@@ -314,6 +353,10 @@ func (s *sitesBuilder) AssertFileContentRe(filename string, matches ...string) {
 			s.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
 		}
 	}
+}
+
+func (s *sitesBuilder) CheckExists(filename string) bool {
+	return destinationExists(s.Fs, filepath.Clean(filename))
 }
 
 type testHelper struct {
