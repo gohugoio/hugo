@@ -90,7 +90,7 @@ categories:
 	siteConfig := fmt.Sprintf(siteConfigTemplate, disabledStr)
 	writeToFs(t, mf, "config.toml", siteConfig)
 
-	cfg, err := LoadConfig(mf, "", "config.toml")
+	cfg, err := LoadConfigDefault(mf)
 	require.NoError(t, err)
 
 	fs := hugofs.NewFrom(mf, cfg)

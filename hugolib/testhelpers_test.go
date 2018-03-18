@@ -229,7 +229,7 @@ func (s *sitesBuilder) CreateSites() *sitesBuilder {
 	s.writeFilePairs("i18n", s.i18nFilePairsAdded)
 
 	if s.Cfg == nil {
-		cfg, err := LoadConfig(s.Fs.Source, "", "config."+s.configFormat)
+		cfg, err := LoadConfig(ConfigSourceDescriptor{Fs: s.Fs.Source, Name: "config." + s.configFormat})
 		if err != nil {
 			s.Fatalf("Failed to load config: %s", err)
 		}
@@ -460,7 +460,7 @@ func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layou
 
 	writeToFs(t, afs, "config.toml", tomlConfig)
 
-	cfg, err := LoadConfig(afs, "", "config.toml")
+	cfg, err := LoadConfigDefault(afs)
 	require.NoError(t, err)
 
 	fs := hugofs.NewFrom(afs, cfg)

@@ -149,7 +149,7 @@ func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
 
 	caseMixingTestsWriteCommonSources(t, mm)
 
-	cfg, err := LoadConfig(mm, "", "config.toml")
+	cfg, err := LoadConfig(ConfigSourceDescriptor{Fs: mm})
 	require.NoError(t, err)
 
 	fs := hugofs.NewFrom(mm, cfg)
@@ -260,7 +260,7 @@ func doTestCaseInsensitiveConfigurationForTemplateEngine(t *testing.T, suffix st
 
 	caseMixingTestsWriteCommonSources(t, mm)
 
-	cfg, err := LoadConfig(mm, "", "config.toml")
+	cfg, err := LoadConfigDefault(mm)
 	require.NoError(t, err)
 
 	fs := hugofs.NewFrom(mm, cfg)

@@ -306,7 +306,7 @@ func InitializeConfig(running bool, doWithCommandeer func(c *commandeer) error, 
 	// Init file systems. This may be changed at a later point.
 	osFs := hugofs.Os
 
-	config, err := hugolib.LoadConfig(osFs, source, cfgFile)
+	config, err := hugolib.LoadConfig(hugolib.ConfigSourceDescriptor{Fs: osFs, Src: source, Name: cfgFile})
 	if err != nil {
 		return nil, err
 	}

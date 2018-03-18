@@ -34,7 +34,7 @@ func TestLoadConfig(t *testing.T) {
 
 	writeToFs(t, mm, "hugo.toml", configContent)
 
-	cfg, err := LoadConfig(mm, "", "hugo.toml")
+	cfg, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Name: "hugo.toml"})
 	require.NoError(t, err)
 
 	assert.Equal(t, "side", cfg.GetString("paginatePath"))
@@ -59,7 +59,7 @@ func TestLoadMultiConfig(t *testing.T) {
 
 	writeToFs(t, mm, "override.toml", configContentSub)
 
-	cfg, err := LoadConfig(mm, "", "base.toml,override.toml")
+	cfg, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Name: "base.toml,override.toml"})
 	require.NoError(t, err)
 
 	assert.Equal(t, "top", cfg.GetString("paginatePath"))

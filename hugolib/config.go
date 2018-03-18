@@ -26,24 +26,43 @@ import (
 	"github.com/spf13/viper"
 )
 
+// ConfigSourceDescriptor describes where to find the config (e.g. config.toml etc.).
+type ConfigSourceDescriptor struct {
+	Fs   afero.Fs
+	Src  string
+	Name string
+}
+
+func (d ConfigSourceDescriptor) configFilenames() []string {
+	return strings.Split(d.Name, ",")
+}
+
+// LoadConfigDefault is a convenience method to load the default "config.toml" config.
+func LoadConfigDefault(fs afero.Fs) (*viper.Viper, error) {
+	return LoadConfig(ConfigSourceDescriptor{Fs: fs, Name: "config.toml"})
+}
+
 // LoadConfig loads Hugo configuration into a new Viper and then adds
 // a set of defaults.
-func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.Viper, error) {
+func LoadConfig(d ConfigSourceDescriptor) (*viper.Viper, error) {
+	fs := d.Fs
 	v := viper.New()
 	v.SetFs(fs)
-	if relativeSourcePath == "" {
-		relativeSourcePath = "."
+
+	if d.Name == "" {
+		d.Name = "config.toml"
 	}
-	configFilenames := strings.Split(configFilename, ",")
+
+	if d.Src == "" {
+		d.Src = "."
+	}
+
+	configFilenames := d.configFilenames()
 	v.AutomaticEnv()
 	v.SetEnvPrefix("hugo")
 	v.SetConfigFile(configFilenames[0])
-	// See https://github.com/spf13/viper/issues/73#issuecomment-126970794
-	if relativeSourcePath == "" {
-		v.AddConfigPath(".")
-	} else {
-		v.AddConfigPath(relativeSourcePath)
-	}
+	v.AddConfigPath(d.Src)
+
 	err := v.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigParseError); ok {
@@ -61,8 +80,6 @@ func LoadConfig(fs afero.Fs, relativeSourcePath, configFilename string) (*viper.
 			return nil, fmt.Errorf("Unable to parse/merge Config file (%s).\n (%s)\n", configFile, err)
 		}
 	}
-
-	v.RegisterAlias("indexes", "taxonomies")
 
 	if err := loadDefaultSettingsFor(v); err != nil {
 		return v, err
@@ -190,6 +207,8 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	if err != nil {
 		return err
 	}
+
+	v.RegisterAlias("indexes", "taxonomies")
 
 	v.SetDefault("cleanDestinationDir", false)
 	v.SetDefault("watch", false)
