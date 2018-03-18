@@ -34,12 +34,14 @@ help  = "Help"
 [languages.en]
 title = "My blog"
 weight = 1
+[languages.en.params]
 linkedin = "english-link"
 
 [languages.fr]
 copyright = "Tout est à moi"
 title = "Mon blog"
 weight = 2
+[languages.fr.params]
 linkedin = "lien-francais"
 
 # skip params key for front matter
