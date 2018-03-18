@@ -14,6 +14,18 @@
 package commands
 
 import (
+	"os"
+	"path/filepath"
+	"sync"
+
+	"github.com/spf13/cobra"
+
+	"github.com/gohugoio/hugo/utils"
+
+	"github.com/spf13/afero"
+
+	"github.com/gohugoio/hugo/hugolib"
+
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -23,10 +35,21 @@ import (
 
 type commandeer struct {
 	*deps.DepsCfg
+
+	subCmdVs []*cobra.Command
+
 	pathSpec    *helpers.PathSpec
 	visitedURLs *types.EvictingStringQueue
 
 	staticDirsConfig []*src.Dirs
+
+	// We watch these for changes.
+	configFiles []string
+
+	doWithCommandeer func(c *commandeer) error
+
+	// We can do this only once.
+	fsCreate sync.Once
 
 	serverPorts []int
 	languages   helpers.Languages
@@ -65,16 +88,158 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	return nil
 }
 
-func newCommandeer(cfg *deps.DepsCfg, running bool) (*commandeer, error) {
-	cfg.Running = running
+func newCommandeer(running bool, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
 
-	var languages helpers.Languages
+	c := &commandeer{
+		doWithCommandeer: doWithCommandeer,
+		subCmdVs:         append([]*cobra.Command{hugoCmdV}, subCmdVs...),
+		visitedURLs:      types.NewEvictingStringQueue(10)}
 
-	if l, ok := cfg.Cfg.Get("languagesSorted").(helpers.Languages); ok {
-		languages = l
+	return c, c.loadConfig(running)
+}
+
+func (c *commandeer) loadConfig(running bool) error {
+
+	if c.DepsCfg == nil {
+		c.DepsCfg = &deps.DepsCfg{}
 	}
 
-	c := &commandeer{DepsCfg: cfg, languages: languages, visitedURLs: types.NewEvictingStringQueue(10)}
+	cfg := c.DepsCfg
+	c.configured = false
+	cfg.Running = running
 
-	return c, nil
+	var dir string
+	if source != "" {
+		dir, _ = filepath.Abs(source)
+	} else {
+		dir, _ = os.Getwd()
+	}
+
+	var sourceFs afero.Fs = hugofs.Os
+	if c.DepsCfg.Fs != nil {
+		sourceFs = c.DepsCfg.Fs.Source
+	}
+
+	config, configFiles, err := hugolib.LoadConfig(hugolib.ConfigSourceDescriptor{Fs: sourceFs, Path: source, WorkingDir: dir, Filename: cfgFile})
+	if err != nil {
+		return err
+	}
+
+	c.Cfg = config
+	c.configFiles = configFiles
+
+	for _, cmdV := range c.subCmdVs {
+		c.initializeFlags(cmdV)
+	}
+
+	if l, ok := c.Cfg.Get("languagesSorted").(helpers.Languages); ok {
+		c.languages = l
+	}
+
+	if baseURL != "" {
+		config.Set("baseURL", baseURL)
+	}
+
+	if c.doWithCommandeer != nil {
+		err = c.doWithCommandeer(c)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if len(disableKinds) > 0 {
+		c.Set("disableKinds", disableKinds)
+	}
+
+	logger, err := createLogger(cfg.Cfg)
+	if err != nil {
+		return err
+	}
+
+	cfg.Logger = logger
+
+	config.Set("logI18nWarnings", logI18nWarnings)
+
+	if theme != "" {
+		config.Set("theme", theme)
+	}
+
+	if themesDir != "" {
+		config.Set("themesDir", themesDir)
+	}
+
+	if destination != "" {
+		config.Set("publishDir", destination)
+	}
+
+	config.Set("workingDir", dir)
+
+	if contentDir != "" {
+		config.Set("contentDir", contentDir)
+	}
+
+	if layoutDir != "" {
+		config.Set("layoutDir", layoutDir)
+	}
+
+	if cacheDir != "" {
+		config.Set("cacheDir", cacheDir)
+	}
+
+	createMemFs := config.GetBool("renderToMemory")
+
+	if createMemFs {
+		// Rendering to memoryFS, publish to Root regardless of publishDir.
+		config.Set("publishDir", "/")
+	}
+
+	c.fsCreate.Do(func() {
+		fs := hugofs.NewFrom(sourceFs, config)
+
+		// Hugo writes the output to memory instead of the disk.
+		if createMemFs {
+			fs.Destination = new(afero.MemMapFs)
+		}
+
+		err = c.initFs(fs)
+	})
+
+	if err != nil {
+		return err
+	}
+
+	cacheDir = config.GetString("cacheDir")
+	if cacheDir != "" {
+		if helpers.FilePathSeparator != cacheDir[len(cacheDir)-1:] {
+			cacheDir = cacheDir + helpers.FilePathSeparator
+		}
+		isDir, err := helpers.DirExists(cacheDir, sourceFs)
+		utils.CheckErr(cfg.Logger, err)
+		if !isDir {
+			mkdir(cacheDir)
+		}
+		config.Set("cacheDir", cacheDir)
+	} else {
+		config.Set("cacheDir", helpers.GetTempDir("hugo_cache", sourceFs))
+	}
+
+	cfg.Logger.INFO.Println("Using config file:", config.ConfigFileUsed())
+
+	themeDir := c.PathSpec().GetThemeDir()
+	if themeDir != "" {
+		if _, err := sourceFs.Stat(themeDir); os.IsNotExist(err) {
+			return newSystemError("Unable to find theme Directory:", themeDir)
+		}
+	}
+
+	themeVersionMismatch, minVersion := c.isThemeVsHugoVersionMismatch(sourceFs)
+
+	if themeVersionMismatch {
+		cfg.Logger.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
+			helpers.CurrentHugoVersion.ReleaseVersion(), minVersion)
+	}
+
+	return nil
+
 }

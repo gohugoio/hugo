@@ -10,6 +10,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/sanity-io/litter"
+
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/config"
@@ -37,10 +39,14 @@ type sitesBuilder struct {
 	Fs  *hugofs.Fs
 	T   testing.TB
 
+	dumper litter.Options
+
 	// Aka the Hugo server mode.
 	running bool
 
 	H *HugoSites
+
+	theme string
 
 	// Default toml
 	configFormat string
@@ -63,7 +69,13 @@ func newTestSitesBuilder(t testing.TB) *sitesBuilder {
 	v := viper.New()
 	fs := hugofs.NewMem(v)
 
-	return &sitesBuilder{T: t, Fs: fs, configFormat: "toml"}
+	litterOptions := litter.Options{
+		HidePrivateFields: true,
+		StripPackageNames: true,
+		Separator:         " ",
+	}
+
+	return &sitesBuilder{T: t, Fs: fs, configFormat: "toml", dumper: litterOptions}
 }
 
 func (s *sitesBuilder) Running() *sitesBuilder {
@@ -94,6 +106,15 @@ func (s *sitesBuilder) WithViper(v *viper.Viper) *sitesBuilder {
 func (s *sitesBuilder) WithConfigFile(format, conf string) *sitesBuilder {
 	writeSource(s.T, s.Fs, "config."+format, conf)
 	s.configFormat = format
+	return s
+}
+
+func (s *sitesBuilder) WithThemeConfigFile(format, conf string) *sitesBuilder {
+	if s.theme == "" {
+		s.theme = "test-theme"
+	}
+	filename := filepath.Join("themes", s.theme, "config."+format)
+	writeSource(s.T, s.Fs, filename, conf)
 	return s
 }
 
@@ -229,10 +250,15 @@ func (s *sitesBuilder) CreateSites() *sitesBuilder {
 	s.writeFilePairs("i18n", s.i18nFilePairsAdded)
 
 	if s.Cfg == nil {
-		cfg, err := LoadConfig(ConfigSourceDescriptor{Fs: s.Fs.Source, Name: "config." + s.configFormat})
+		cfg, configFiles, err := LoadConfig(ConfigSourceDescriptor{Fs: s.Fs.Source, Filename: "config." + s.configFormat})
 		if err != nil {
 			s.Fatalf("Failed to load config: %s", err)
 		}
+		expectedConfigs := 1
+		if s.theme != "" {
+			expectedConfigs = 2
+		}
+		require.Equal(s.T, expectedConfigs, len(configFiles), fmt.Sprintf("Configs: %v", configFiles))
 		s.Cfg = cfg
 	}
 
@@ -342,6 +368,17 @@ func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
 		if !strings.Contains(content, match) {
 			s.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
 		}
+	}
+}
+
+func (s *sitesBuilder) AssertObject(expected string, object interface{}) {
+	got := s.dumper.Sdump(object)
+	expected = strings.TrimSpace(expected)
+
+	if expected != got {
+		fmt.Println(got)
+		diff := helpers.DiffStrings(expected, got)
+		s.Fatalf("diff:\n%s\nexpected\n%s\ngot\n%s", diff, expected, got)
 	}
 }
 

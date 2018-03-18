@@ -200,6 +200,7 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 				cfg.Set("uglyURLs", ugly)
 
 				assert.NoError(loadDefaultSettingsFor(cfg))
+				assert.NoError(loadLanguageSettings(cfg, nil))
 				sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 				assert.NoError(err)
 				assert.Equal(2, len(sites.Sites))
@@ -264,6 +265,8 @@ func TestMultilingualDisableDefaultLanguage(t *testing.T) {
 	cfg.Set("disableLanguages", []string{"en"})
 
 	err := loadDefaultSettingsFor(cfg)
+	assert.NoError(err)
+	err = loadLanguageSettings(cfg, nil)
 	assert.Error(err)
 	assert.Contains(err.Error(), "cannot disable default language")
 }

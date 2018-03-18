@@ -17,12 +17,14 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
-	"github.com/stretchr/testify/assert"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
 func TestLoadConfig(t *testing.T) {
 	t.Parallel()
+
+	assert := require.New(t)
 
 	// Add a random config variable for testing.
 	// side = page in Norwegian.
@@ -34,15 +36,18 @@ func TestLoadConfig(t *testing.T) {
 
 	writeToFs(t, mm, "hugo.toml", configContent)
 
-	cfg, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Name: "hugo.toml"})
+	cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Filename: "hugo.toml"})
 	require.NoError(t, err)
 
-	assert.Equal(t, "side", cfg.GetString("paginatePath"))
+	assert.Equal("side", cfg.GetString("paginatePath"))
 	// default
-	assert.Equal(t, "layouts", cfg.GetString("layoutDir"))
+	assert.Equal("layouts", cfg.GetString("layoutDir"))
 }
+
 func TestLoadMultiConfig(t *testing.T) {
 	t.Parallel()
+
+	assert := require.New(t)
 
 	// Add a random config variable for testing.
 	// side = page in Norwegian.
@@ -59,9 +64,304 @@ func TestLoadMultiConfig(t *testing.T) {
 
 	writeToFs(t, mm, "override.toml", configContentSub)
 
-	cfg, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Name: "base.toml,override.toml"})
+	cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Filename: "base.toml,override.toml"})
 	require.NoError(t, err)
 
-	assert.Equal(t, "top", cfg.GetString("paginatePath"))
-	assert.Equal(t, "same", cfg.GetString("DontChange"))
+	assert.Equal("top", cfg.GetString("paginatePath"))
+	assert.Equal("same", cfg.GetString("DontChange"))
+}
+
+func TestLoadConfigFromTheme(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	mainConfigBasic := `
+theme = "test-theme"
+baseURL = "https://example.com/"
+
+`
+	mainConfig := `
+theme = "test-theme"
+baseURL = "https://example.com/"
+
+[frontmatter]
+date = ["date","publishDate"]
+
+[params]
+p1 = "p1 main"
+p2 = "p2 main"
+top = "top"
+
+[mediaTypes]
+[mediaTypes."text/m1"]
+suffix = "m1main"
+
+[outputFormats.o1]
+mediaType = "text/m1"
+baseName = "o1main"
+
+[languages]
+[languages.en]
+languageName = "English"
+[languages.en.params]
+pl1 = "p1-en-main"
+[languages.nb]
+languageName = "Norsk"
+[languages.nb.params]
+pl1 = "p1-nb-main"
+
+[[menu.main]]
+name = "menu-main-main"
+
+[[menu.top]]
+name = "menu-top-main"
+
+`
+
+	themeConfig := `
+baseURL = "http://bep.is/"
+
+# Can not be set in theme.
+[frontmatter]
+expiryDate = ["date"]
+
+[params]
+p1 = "p1 theme"
+p2 = "p2 theme"
+p3 = "p3 theme"
+
+[mediaTypes]
+[mediaTypes."text/m1"]
+suffix = "m1theme"
+[mediaTypes."text/m2"]
+suffix = "m2theme"
+
+[outputFormats.o1]
+mediaType = "text/m1"
+baseName = "o1theme"
+[outputFormats.o2]
+mediaType = "text/m2"
+baseName = "o2theme"
+
+[languages]
+[languages.en]
+languageName = "English2"
+[languages.en.params]
+pl1 = "p1-en-theme"
+pl2 = "p2-en-theme"
+[[languages.en.menu.main]]
+name   = "menu-lang-en-main"
+[[languages.en.menu.theme]]
+name   = "menu-lang-en-theme"
+[languages.nb]
+languageName = "Norsk2"
+[languages.nb.params]
+pl1 = "p1-nb-theme"
+pl2 = "p2-nb-theme"
+top = "top-nb-theme"
+[[languages.nb.menu.main]]
+name   = "menu-lang-nb-main"
+[[languages.nb.menu.theme]]
+name   = "menu-lang-nb-theme"
+[[languages.nb.menu.top]]
+name   = "menu-lang-nb-top"
+
+[[menu.main]]
+name = "menu-main-theme"
+
+[[menu.thememenu]]
+name = "menu-theme"
+
+`
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", mainConfig).WithThemeConfigFile("toml", themeConfig)
+	b.CreateSites().Build(BuildCfg{})
+
+	got := b.Cfg.(*viper.Viper).AllSettings()
+
+	b.AssertObject(`
+map[string]interface {}{
+  "p1": "p1 main",
+  "p2": "p2 main",
+  "p3": "p3 theme",
+  "test-theme": map[string]interface {}{
+    "p1": "p1 theme",
+    "p2": "p2 theme",
+    "p3": "p3 theme",
+  },
+  "top": "top",
+}`, got["params"])
+
+	b.AssertObject(`
+map[string]interface {}{
+  "date": []interface {}{
+    "date",
+    "publishDate",
+  },
+}`, got["frontmatter"])
+
+	b.AssertObject(`
+map[string]interface {}{
+  "text/m1": map[string]interface {}{
+    "suffix": "m1main",
+  },
+  "text/m2": map[string]interface {}{
+    "suffix": "m2theme",
+  },
+}`, got["mediatypes"])
+
+	b.AssertObject(`
+map[string]interface {}{
+  "o1": map[string]interface {}{
+    "basename": "o1main",
+    "mediatype": Type{
+      MainType: "text",
+      SubType: "m1",
+      Suffix: "m1main",
+      Delimiter: ".",
+    },
+  },
+  "o2": map[string]interface {}{
+    "basename": "o2theme",
+    "mediatype": Type{
+      MainType: "text",
+      SubType: "m2",
+      Suffix: "m2theme",
+      Delimiter: ".",
+    },
+  },
+}`, got["outputformats"])
+
+	b.AssertObject(`map[string]interface {}{
+  "en": map[string]interface {}{
+    "languagename": "English",
+    "menu": map[string]interface {}{
+      "theme": []interface {}{
+        map[string]interface {}{
+          "name": "menu-lang-en-theme",
+        },
+      },
+    },
+    "params": map[string]interface {}{
+      "pl1": "p1-en-main",
+      "pl2": "p2-en-theme",
+      "test-theme": map[string]interface {}{
+        "pl1": "p1-en-theme",
+        "pl2": "p2-en-theme",
+      },
+    },
+  },
+  "nb": map[string]interface {}{
+    "languagename": "Norsk",
+    "menu": map[string]interface {}{
+      "theme": []interface {}{
+        map[string]interface {}{
+          "name": "menu-lang-nb-theme",
+        },
+      },
+    },
+    "params": map[string]interface {}{
+      "pl1": "p1-nb-main",
+      "pl2": "p2-nb-theme",
+      "test-theme": map[string]interface {}{
+        "pl1": "p1-nb-theme",
+        "pl2": "p2-nb-theme",
+        "top": "top-nb-theme",
+      },
+    },
+  },
+}
+`, got["languages"])
+
+	b.AssertObject(`
+map[string]interface {}{
+  "main": []interface {}{
+    map[string]interface {}{
+      "name": "menu-main-main",
+    },
+  },
+  "thememenu": []interface {}{
+    map[string]interface {}{
+      "name": "menu-theme",
+    },
+  },
+  "top": []interface {}{
+    map[string]interface {}{
+      "name": "menu-top-main",
+    },
+  },
+}
+`, got["menu"])
+
+	assert.Equal("https://example.com/", got["baseurl"])
+
+	if true {
+		return
+	}
+	// Test variants with only values from theme
+	b = newTestSitesBuilder(t)
+	b.WithConfigFile("toml", mainConfigBasic).WithThemeConfigFile("toml", themeConfig)
+	b.CreateSites().Build(BuildCfg{})
+
+	got = b.Cfg.(*viper.Viper).AllSettings()
+
+	b.AssertObject(`map[string]interface {}{
+  "p1": "p1 theme",
+  "p2": "p2 theme",
+  "p3": "p3 theme",
+  "test-theme": map[string]interface {}{
+    "p1": "p1 theme",
+    "p2": "p2 theme",
+    "p3": "p3 theme",
+  },
+}`, got["params"])
+
+	assert.Nil(got["languages"])
+	b.AssertObject(`
+map[string]interface {}{
+  "text/m1": map[string]interface {}{
+    "suffix": "m1theme",
+  },
+  "text/m2": map[string]interface {}{
+    "suffix": "m2theme",
+  },
+}`, got["mediatypes"])
+
+	b.AssertObject(`
+map[string]interface {}{
+  "o1": map[string]interface {}{
+    "basename": "o1theme",
+    "mediatype": Type{
+      MainType: "text",
+      SubType: "m1",
+      Suffix: "m1theme",
+      Delimiter: ".",
+    },
+  },
+  "o2": map[string]interface {}{
+    "basename": "o2theme",
+    "mediatype": Type{
+      MainType: "text",
+      SubType: "m2",
+      Suffix: "m2theme",
+      Delimiter: ".",
+    },
+  },
+}`, got["outputformats"])
+	b.AssertObject(`
+map[string]interface {}{
+  "main": []interface {}{
+    map[string]interface {}{
+      "name": "menu-main-theme",
+    },
+  },
+  "thememenu": []interface {}{
+    map[string]interface {}{
+      "name": "menu-theme",
+    },
+  },
+}`, got["menu"])
+
 }

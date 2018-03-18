@@ -24,6 +24,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -111,11 +112,15 @@ func init() {
 
 }
 
+var serverPorts []int
+
 func server(cmd *cobra.Command, args []string) error {
 	// If a Destination is provided via flag write to disk
 	if destination != "" {
 		renderToDisk = true
 	}
+
+	var serverCfgInit sync.Once
 
 	cfgInit := func(c *commandeer) error {
 		c.Set("renderToMemory", !renderToDisk)
@@ -132,37 +137,42 @@ func server(cmd *cobra.Command, args []string) error {
 			c.Set("watch", true)
 		}
 
-		serverPorts := make([]int, 1)
+		var err error
 
-		if c.languages.IsMultihost() {
-			if !serverAppend {
-				return newSystemError("--appendPort=false not supported when in multihost mode")
-			}
-			serverPorts = make([]int, len(c.languages))
-		}
+		// We can only do this once.
+		serverCfgInit.Do(func() {
+			serverPorts = make([]int, 1)
 
-		currentServerPort := serverPort
-
-		for i := 0; i < len(serverPorts); i++ {
-			l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(currentServerPort)))
-			if err == nil {
-				l.Close()
-				serverPorts[i] = currentServerPort
-			} else {
-				if i == 0 && serverCmd.Flags().Changed("port") {
-					// port set explicitly by user -- he/she probably meant it!
-					return newSystemErrorF("Server startup failed: %s", err)
+			if c.languages.IsMultihost() {
+				if !serverAppend {
+					err = newSystemError("--appendPort=false not supported when in multihost mode")
 				}
-				jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
-				sp, err := helpers.FindAvailablePort()
-				if err != nil {
-					return newSystemError("Unable to find alternative port to use:", err)
-				}
-				serverPorts[i] = sp.Port
+				serverPorts = make([]int, len(c.languages))
 			}
 
-			currentServerPort = serverPorts[i] + 1
-		}
+			currentServerPort := serverPort
+
+			for i := 0; i < len(serverPorts); i++ {
+				l, err := net.Listen("tcp", net.JoinHostPort(serverInterface, strconv.Itoa(currentServerPort)))
+				if err == nil {
+					l.Close()
+					serverPorts[i] = currentServerPort
+				} else {
+					if i == 0 && serverCmd.Flags().Changed("port") {
+						// port set explicitly by user -- he/she probably meant it!
+						err = newSystemErrorF("Server startup failed: %s", err)
+					}
+					jww.ERROR.Println("port", serverPort, "already in use, attempting to use an available port")
+					sp, err := helpers.FindAvailablePort()
+					if err != nil {
+						err = newSystemError("Unable to find alternative port to use:", err)
+					}
+					serverPorts[i] = sp.Port
+				}
+
+				currentServerPort = serverPorts[i] + 1
+			}
+		})
 
 		c.serverPorts = serverPorts
 
@@ -184,7 +194,7 @@ func server(cmd *cobra.Command, args []string) error {
 
 			baseURL, err := fixURL(language, baseURL, serverPort)
 			if err != nil {
-				return err
+				return nil
 			}
 			if isMultiHost {
 				language.Set("baseURL", baseURL)
@@ -194,7 +204,7 @@ func server(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		return nil
+		return err
 
 	}
 
@@ -213,10 +223,6 @@ func server(cmd *cobra.Command, args []string) error {
 
 	for _, s := range Hugo.Sites {
 		s.RegisterMediaTypes()
-	}
-
-	if serverWatch {
-		c.watchConfig()
 	}
 
 	// Watch runs its own server as part of the routine

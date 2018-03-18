@@ -16,6 +16,7 @@ package hugolib
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 
 	"io"
 	"strings"
@@ -28,64 +29,91 @@ import (
 
 // ConfigSourceDescriptor describes where to find the config (e.g. config.toml etc.).
 type ConfigSourceDescriptor struct {
-	Fs   afero.Fs
-	Src  string
-	Name string
+	Fs afero.Fs
+
+	// Full path to the config file to use, i.e. /my/project/config.toml
+	Filename string
+
+	// The path to the directory to look for configuration. Is used if Filename is not
+	// set.
+	Path string
+
+	// The project's working dir. Is used to look for additional theme config.
+	WorkingDir string
 }
 
 func (d ConfigSourceDescriptor) configFilenames() []string {
-	return strings.Split(d.Name, ",")
+	return strings.Split(d.Filename, ",")
 }
 
 // LoadConfigDefault is a convenience method to load the default "config.toml" config.
 func LoadConfigDefault(fs afero.Fs) (*viper.Viper, error) {
-	return LoadConfig(ConfigSourceDescriptor{Fs: fs, Name: "config.toml"})
+	v, _, err := LoadConfig(ConfigSourceDescriptor{Fs: fs, Filename: "config.toml"})
+	return v, err
 }
 
 // LoadConfig loads Hugo configuration into a new Viper and then adds
 // a set of defaults.
-func LoadConfig(d ConfigSourceDescriptor) (*viper.Viper, error) {
+func LoadConfig(d ConfigSourceDescriptor) (*viper.Viper, []string, error) {
+	var configFiles []string
+
 	fs := d.Fs
 	v := viper.New()
 	v.SetFs(fs)
 
-	if d.Name == "" {
-		d.Name = "config.toml"
-	}
-
-	if d.Src == "" {
-		d.Src = "."
+	if d.Path == "" {
+		d.Path = "."
 	}
 
 	configFilenames := d.configFilenames()
 	v.AutomaticEnv()
 	v.SetEnvPrefix("hugo")
 	v.SetConfigFile(configFilenames[0])
-	v.AddConfigPath(d.Src)
+	v.AddConfigPath(d.Path)
 
 	err := v.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigParseError); ok {
-			return nil, err
+			return nil, configFiles, err
 		}
-		return nil, fmt.Errorf("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
+		return nil, configFiles, fmt.Errorf("Unable to locate Config file. Perhaps you need to create a new site.\n       Run `hugo help new` for details. (%s)\n", err)
 	}
+
+	if cf := v.ConfigFileUsed(); cf != "" {
+		configFiles = append(configFiles, cf)
+	}
+
 	for _, configFile := range configFilenames[1:] {
 		var r io.Reader
 		var err error
 		if r, err = fs.Open(configFile); err != nil {
-			return nil, fmt.Errorf("Unable to open Config file.\n (%s)\n", err)
+			return nil, configFiles, fmt.Errorf("Unable to open Config file.\n (%s)\n", err)
 		}
 		if err = v.MergeConfig(r); err != nil {
-			return nil, fmt.Errorf("Unable to parse/merge Config file (%s).\n (%s)\n", configFile, err)
+			return nil, configFiles, fmt.Errorf("Unable to parse/merge Config file (%s).\n (%s)\n", configFile, err)
 		}
+		configFiles = append(configFiles, configFile)
 	}
 
 	if err := loadDefaultSettingsFor(v); err != nil {
-		return v, err
+		return v, configFiles, err
 	}
 
-	return v, nil
+	themeConfigFile, err := loadThemeConfig(d, v)
+	if err != nil {
+		return v, configFiles, err
+	}
+
+	if themeConfigFile != "" {
+		configFiles = append(configFiles, themeConfigFile)
+	}
+
+	if err := loadLanguageSettings(v, nil); err != nil {
+		return v, configFiles, err
+	}
+
+	return v, configFiles, nil
+
 }
 
 func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error {
@@ -201,6 +229,142 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 	return nil
 }
 
+func loadThemeConfig(d ConfigSourceDescriptor, v1 *viper.Viper) (string, error) {
+
+	theme := v1.GetString("theme")
+	if theme == "" {
+		return "", nil
+	}
+
+	themesDir := helpers.AbsPathify(d.WorkingDir, v1.GetString("themesDir"))
+	configDir := filepath.Join(themesDir, theme)
+
+	var (
+		configPath string
+		exists     bool
+		err        error
+	)
+
+	// Viper supports more, but this is the sub-set supported by Hugo.
+	for _, configFormats := range []string{"toml", "yaml", "yml", "json"} {
+		configPath = filepath.Join(configDir, "config."+configFormats)
+		exists, err = helpers.Exists(configPath, d.Fs)
+		if err != nil {
+			return "", err
+		}
+		if exists {
+			break
+		}
+	}
+
+	if !exists {
+		// No theme config set.
+		return "", nil
+	}
+
+	v2 := viper.New()
+	v2.SetFs(d.Fs)
+	v2.AutomaticEnv()
+	v2.SetEnvPrefix("hugo")
+	v2.SetConfigFile(configPath)
+
+	err = v2.ReadInConfig()
+	if err != nil {
+		return "", err
+	}
+
+	const (
+		paramsKey    = "params"
+		languagesKey = "languages"
+		menuKey      = "menu"
+	)
+
+	for _, key := range []string{paramsKey, "outputformats", "mediatypes"} {
+		mergeStringMapKeepLeft("", key, v1, v2)
+	}
+
+	themeLower := strings.ToLower(theme)
+	themeParamsNamespace := paramsKey + "." + themeLower
+
+	// Set namespaced params
+	if v2.IsSet(paramsKey) && !v1.IsSet(themeParamsNamespace) {
+		// Set it in the default store to make sure it gets in the same or
+		// behind the others.
+		v1.SetDefault(themeParamsNamespace, v2.Get(paramsKey))
+	}
+
+	// Only add params and new menu entries, we do not add language definitions.
+	if v1.IsSet(languagesKey) && v2.IsSet(languagesKey) {
+		v1Langs := v1.GetStringMap(languagesKey)
+		for k, _ := range v1Langs {
+			langParamsKey := languagesKey + "." + k + "." + paramsKey
+			mergeStringMapKeepLeft(paramsKey, langParamsKey, v1, v2)
+		}
+		v2Langs := v2.GetStringMap(languagesKey)
+		for k, _ := range v2Langs {
+			if k == "" {
+				continue
+			}
+			langParamsKey := languagesKey + "." + k + "." + paramsKey
+			langParamsThemeNamespace := langParamsKey + "." + themeLower
+			// Set namespaced params
+			if v2.IsSet(langParamsKey) && !v1.IsSet(langParamsThemeNamespace) {
+				v1.SetDefault(langParamsThemeNamespace, v2.Get(langParamsKey))
+			}
+
+			langMenuKey := languagesKey + "." + k + "." + menuKey
+			if v2.IsSet(langMenuKey) {
+				// Only add if not in the main config.
+				v2menus := v2.GetStringMap(langMenuKey)
+				for k, v := range v2menus {
+					menuEntry := menuKey + "." + k
+					menuLangEntry := langMenuKey + "." + k
+					if !v1.IsSet(menuEntry) && !v1.IsSet(menuLangEntry) {
+						v1.Set(menuLangEntry, v)
+					}
+				}
+			}
+		}
+	}
+
+	// Add menu definitions from theme not found in project
+	if v2.IsSet("menu") {
+		v2menus := v2.GetStringMap(menuKey)
+		for k, v := range v2menus {
+			menuEntry := menuKey + "." + k
+			if !v1.IsSet(menuEntry) {
+				v1.SetDefault(menuEntry, v)
+			}
+		}
+	}
+
+	return v2.ConfigFileUsed(), nil
+
+}
+
+func mergeStringMapKeepLeft(rootKey, key string, v1, v2 *viper.Viper) {
+	if !v2.IsSet(key) {
+		return
+	}
+
+	if !v1.IsSet(key) && !(rootKey != "" && rootKey != key && v1.IsSet(rootKey)) {
+		v1.Set(key, v2.Get(key))
+		return
+	}
+
+	m1 := v1.GetStringMap(key)
+	m2 := v2.GetStringMap(key)
+
+	for k, v := range m2 {
+		if _, found := m1[k]; !found {
+			if rootKey != "" && v1.IsSet(rootKey+"."+k) {
+				continue
+			}
+			m1[k] = v
+		}
+	}
+}
+
 func loadDefaultSettingsFor(v *viper.Viper) error {
 
 	c, err := helpers.NewContentSpec(v)
@@ -281,5 +445,5 @@ lastmod = ["lastmod" ,":fileModTime", ":default"]
 
 	}
 
-	return loadLanguageSettings(v, nil)
+	return nil
 }

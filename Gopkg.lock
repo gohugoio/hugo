@@ -163,6 +163,7 @@
     ".",
     "hcl/ast",
     "hcl/parser",
+    "hcl/printer",
     "hcl/scanner",
     "hcl/strconv",
     "hcl/token",
@@ -275,6 +276,12 @@
   revision = "55d61fa8aa702f59229e6cff85793c22e580eaf5"
 
 [[projects]]
+  name = "github.com/sanity-io/litter"
+  packages = ["."]
+  revision = "ae543b7ba8fd6af63e4976198f146e1348ae53c1"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/shurcooL/sanitized_anchor_name"
   packages = ["."]
@@ -331,8 +338,8 @@
 [[projects]]
   name = "github.com/spf13/viper"
   packages = ["."]
-  revision = "25b30aa063fc18e48662b86996252eabdcf2f0c7"
-  version = "v1.0.0"
+  revision = "b5e8006cbee93ec955a89ab31e0e3ce3204f3736"
+  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/stretchr/testify"
@@ -417,6 +424,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4657586103d844434bda6db23d03f30e2ae0db16dc48746b9559ce742902535a"
+  inputs-digest = "13ab39f8bfafadc12c05726e565ee3f3d94bf7d6c0e8adf04056de0691bf2dd6"
   solver-name = "gps-cdcl"
   solver-version = 1

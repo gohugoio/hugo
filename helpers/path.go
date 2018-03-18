@@ -154,11 +154,16 @@ func ReplaceExtension(path string, newExt string) string {
 // AbsPathify creates an absolute path if given a relative path. If already
 // absolute, the path is just cleaned.
 func (p *PathSpec) AbsPathify(inPath string) string {
+	return AbsPathify(p.workingDir, inPath)
+}
+
+// AbsPathify creates an absolute path if given a working dir and arelative path.
+// If already absolute, the path is just cleaned.
+func AbsPathify(workingDir, inPath string) string {
 	if filepath.IsAbs(inPath) {
 		return filepath.Clean(inPath)
 	}
-
-	return filepath.Join(p.workingDir, inPath)
+	return filepath.Join(workingDir, inPath)
 }
 
 // GetLayoutDirPath returns the absolute path to the layout file dir

@@ -149,7 +149,7 @@ func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
 
 	caseMixingTestsWriteCommonSources(t, mm)
 
-	cfg, err := LoadConfig(ConfigSourceDescriptor{Fs: mm})
+	cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: mm, Filename: "config.toml"})
 	require.NoError(t, err)
 
 	fs := hugofs.NewFrom(mm, cfg)

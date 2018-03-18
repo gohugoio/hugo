@@ -296,6 +296,7 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 // NewSiteDefaultLang creates a new site in the default language.
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
+// TODO(bep) test refactor -- remove
 func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
 	v := viper.New()
 	if err := loadDefaultSettingsFor(v); err != nil {
@@ -307,6 +308,7 @@ func NewSiteDefaultLang(withTemplate ...func(templ tpl.TemplateHandler) error) (
 // NewEnglishSite creates a new site in English language.
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
+// TODO(bep) test refactor -- remove
 func NewEnglishSite(withTemplate ...func(templ tpl.TemplateHandler) error) (*Site, error) {
 	v := viper.New()
 	if err := loadDefaultSettingsFor(v); err != nil {

@@ -25,8 +25,6 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/gohugoio/hugo/hugofs"
-
 	"log"
 	"os"
 	"path/filepath"
@@ -44,7 +42,6 @@ import (
 	"regexp"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/livereload"
@@ -55,7 +52,6 @@ import (
 	"github.com/spf13/fsync"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/nitro"
-	"github.com/spf13/viper"
 )
 
 // Hugo represents the Hugo sites to build. This variable is exported as it
@@ -140,10 +136,6 @@ Complete documentation is available at http://gohugo.io/.`,
 		c, err := InitializeConfig(buildWatch, cfgInit)
 		if err != nil {
 			return err
-		}
-
-		if buildWatch {
-			c.watchConfig()
 		}
 
 		return c.build()
@@ -301,127 +293,9 @@ func init() {
 // InitializeConfig initializes a config file with sensible default configuration flags.
 func InitializeConfig(running bool, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
 
-	var cfg *deps.DepsCfg = &deps.DepsCfg{}
-
-	// Init file systems. This may be changed at a later point.
-	osFs := hugofs.Os
-
-	config, err := hugolib.LoadConfig(hugolib.ConfigSourceDescriptor{Fs: osFs, Src: source, Name: cfgFile})
+	c, err := newCommandeer(running, doWithCommandeer, subCmdVs...)
 	if err != nil {
 		return nil, err
-	}
-
-	// Init file systems. This may be changed at a later point.
-	cfg.Cfg = config
-
-	c, err := newCommandeer(cfg, running)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, cmdV := range append([]*cobra.Command{hugoCmdV}, subCmdVs...) {
-		c.initializeFlags(cmdV)
-	}
-
-	if baseURL != "" {
-		config.Set("baseURL", baseURL)
-	}
-
-	if doWithCommandeer != nil {
-		if err := doWithCommandeer(c); err != nil {
-			return nil, err
-		}
-	}
-
-	if len(disableKinds) > 0 {
-		c.Set("disableKinds", disableKinds)
-	}
-
-	logger, err := createLogger(cfg.Cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	cfg.Logger = logger
-
-	config.Set("logI18nWarnings", logI18nWarnings)
-
-	if theme != "" {
-		config.Set("theme", theme)
-	}
-
-	if themesDir != "" {
-		config.Set("themesDir", themesDir)
-	}
-
-	if destination != "" {
-		config.Set("publishDir", destination)
-	}
-
-	var dir string
-	if source != "" {
-		dir, _ = filepath.Abs(source)
-	} else {
-		dir, _ = os.Getwd()
-	}
-	config.Set("workingDir", dir)
-
-	if contentDir != "" {
-		config.Set("contentDir", contentDir)
-	}
-
-	if layoutDir != "" {
-		config.Set("layoutDir", layoutDir)
-	}
-
-	if cacheDir != "" {
-		config.Set("cacheDir", cacheDir)
-	}
-
-	fs := hugofs.NewFrom(osFs, config)
-
-	// Hugo writes the output to memory instead of the disk.
-	// This is only used for benchmark testing. Cause the content is only visible
-	// in memory.
-	if config.GetBool("renderToMemory") {
-		fs.Destination = new(afero.MemMapFs)
-		// Rendering to memoryFS, publish to Root regardless of publishDir.
-		config.Set("publishDir", "/")
-	}
-
-	cacheDir = config.GetString("cacheDir")
-	if cacheDir != "" {
-		if helpers.FilePathSeparator != cacheDir[len(cacheDir)-1:] {
-			cacheDir = cacheDir + helpers.FilePathSeparator
-		}
-		isDir, err := helpers.DirExists(cacheDir, fs.Source)
-		utils.CheckErr(cfg.Logger, err)
-		if !isDir {
-			mkdir(cacheDir)
-		}
-		config.Set("cacheDir", cacheDir)
-	} else {
-		config.Set("cacheDir", helpers.GetTempDir("hugo_cache", fs.Source))
-	}
-
-	if err := c.initFs(fs); err != nil {
-		return nil, err
-	}
-
-	cfg.Logger.INFO.Println("Using config file:", config.ConfigFileUsed())
-
-	themeDir := c.PathSpec().GetThemeDir()
-	if themeDir != "" {
-		if _, err := cfg.Fs.Source.Stat(themeDir); os.IsNotExist(err) {
-			return nil, newSystemError("Unable to find theme Directory:", themeDir)
-		}
-	}
-
-	themeVersionMismatch, minVersion := c.isThemeVsHugoVersionMismatch()
-
-	if themeVersionMismatch {
-		cfg.Logger.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
-			helpers.CurrentHugoVersion.ReleaseVersion(), minVersion)
 	}
 
 	return c, nil
@@ -522,20 +396,6 @@ If you need to set this configuration value from the command line, set it via an
 		f := flags.Lookup(key)
 		c.Set(key, f.Value.String())
 	}
-}
-
-func (c *commandeer) watchConfig() {
-	v := c.Cfg.(*viper.Viper)
-	v.WatchConfig()
-	v.OnConfigChange(func(e fsnotify.Event) {
-		c.Logger.FEEDBACK.Println("Config file changed:", e.Name)
-		// Force a full rebuild
-		utils.CheckErr(c.Logger, c.recreateAndBuildSites(true))
-		if !c.Cfg.GetBool("disableLiveReload") {
-			// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
-			livereload.ForceRefresh()
-		}
-	})
 }
 
 func (c *commandeer) fullBuild() error {
@@ -942,6 +802,7 @@ func (c *commandeer) resetAndBuildSites() (err error) {
 
 func (c *commandeer) initSites() error {
 	if Hugo != nil {
+		Hugo.Cfg = c.Cfg
 		Hugo.Log.ResetLogCounters()
 		return nil
 	}
@@ -1009,6 +870,15 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 		}
 	}
 
+	// Identifies changes to config (config.toml) files.
+	configSet := make(map[string]bool)
+
+	for _, configFile := range c.configFiles {
+		c.Logger.FEEDBACK.Println("Watching for config changes in", configFile)
+		watcher.Add(configFile)
+		configSet[configFile] = true
+	}
+
 	go func() {
 		for {
 			select {
@@ -1021,6 +891,21 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 				// Special handling for symbolic links inside /content.
 				filtered := []fsnotify.Event{}
 				for _, ev := range evs {
+					if configSet[ev.Name] {
+						if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
+							continue
+						}
+						// Config file changed. Need full rebuild.
+						if err := c.loadConfig(true); err != nil {
+							jww.ERROR.Println("Failed to reload config:", err)
+						} else if err := c.recreateAndBuildSites(true); err != nil {
+							jww.ERROR.Println(err)
+						} else if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
+							livereload.ForceRefresh()
+						}
+						break
+					}
+
 					// Check the most specific first, i.e. files.
 					contentMapped := Hugo.ContentChanges.GetSymbolicLinkMappings(ev.Name)
 					if len(contentMapped) > 0 {
@@ -1212,7 +1097,7 @@ func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 
 // isThemeVsHugoVersionMismatch returns whether the current Hugo version is
 // less than the theme's min_version.
-func (c *commandeer) isThemeVsHugoVersionMismatch() (mismatch bool, requiredMinVersion string) {
+func (c *commandeer) isThemeVsHugoVersionMismatch(fs afero.Fs) (mismatch bool, requiredMinVersion string) {
 	if !c.PathSpec().ThemeSet() {
 		return
 	}
@@ -1221,13 +1106,13 @@ func (c *commandeer) isThemeVsHugoVersionMismatch() (mismatch bool, requiredMinV
 
 	path := filepath.Join(themeDir, "theme.toml")
 
-	exists, err := helpers.Exists(path, c.Fs.Source)
+	exists, err := helpers.Exists(path, fs)
 
 	if err != nil || !exists {
 		return
 	}
 
-	b, err := afero.ReadFile(c.Fs.Source, path)
+	b, err := afero.ReadFile(fs, path)
 
 	tomlMeta, err := parser.HandleTOMLMetaData(b)
 
