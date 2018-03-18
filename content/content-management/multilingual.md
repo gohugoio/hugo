@@ -43,9 +43,7 @@ title = "Mon blog"
 weight = 2
 [languages.fr.params]
 linkedin = "lien-francais"
-
-# skip params key for front matter
-[languages.fr.navigation]
+[languages.fr.params.navigation]
 help  = "Aide"
 {{< /code >}}
 
