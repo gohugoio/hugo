@@ -942,6 +942,7 @@ func (c *commandeer) resetAndBuildSites() (err error) {
 
 func (c *commandeer) initSites() error {
 	if Hugo != nil {
+		Hugo.Log.ResetLogCounters()
 		return nil
 	}
 	h, err := hugolib.NewHugoSites(*c.DepsCfg)
