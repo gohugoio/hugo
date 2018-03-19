@@ -20,6 +20,7 @@
   revision = "de5bf2ad457846296e2031421a34e2568e304e35"
 
 [[projects]]
+  branch = "master"
   name = "github.com/alecthomas/chroma"
   packages = [
     ".",
@@ -29,6 +30,7 @@
     "lexers/a",
     "lexers/b",
     "lexers/c",
+    "lexers/circular",
     "lexers/d",
     "lexers/e",
     "lexers/f",
@@ -53,8 +55,7 @@
     "lexers/y",
     "styles"
   ]
-  revision = "563aadc53c53292c4c1def1b0a547be498bba83e"
-  version = "v0.3.0"
+  revision = "5640f893f2d523db790586eac7baeef34752e1ad"
 
 [[projects]]
   branch = "master"
@@ -416,6 +417,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "960c7cc0b7d1739f5c1f116cc7fa31056b76cf16e63d865f31be875b8e674da7"
+  inputs-digest = "4657586103d844434bda6db23d03f30e2ae0db16dc48746b9559ce742902535a"
   solver-name = "gps-cdcl"
   solver-version = 1
