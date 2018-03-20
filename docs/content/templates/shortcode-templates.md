@@ -301,9 +301,9 @@ The following example is contrived but demonstrates the concept. Assume you have
 </div>
 {{< /code >}}
 
-You also have an `image` shortcode with a single named `src` parameter that you want to call inside of `gallery` and other shortcodes so that the parent defines the context of each `image`:
+You also have an `img` shortcode with a single named `src` parameter that you want to call inside of `gallery` and other shortcodes, so that the parent defines the context of each `img`:
 
-{{< code file="layouts/shortcodes/image.html" >}}
+{{< code file="layouts/shortcodes/img.html" >}}
 {{- $src := .Get "src" -}}
 {{- with .Parent -}}
   <img src="{{$src}}" class="{{.Get "class"}}-image">
@@ -322,7 +322,7 @@ You can then call your shortcode in your content as follows:
 {{</* img src="/images/three.jpg" */>}}
 ```
 
-This will output the following HTML. Note how the first two `image` shortcodes inherit the `class` value of `content-gallery` set with the call to the parent `gallery`, whereas the third `image` only uses `src`:
+This will output the following HTML. Note how the first two `img` shortcodes inherit the `class` value of `content-gallery` set with the call to the parent `gallery`, whereas the third `img` only uses `src`:
 
 ```
 <div class="content-gallery">
