@@ -38,7 +38,7 @@ Layout
 : Can be set in page front matter.
 
 Type
-: Is value of `type` if set in front matter, else it is the name of the root section (e.g. "blog"). If will always have a value, so if not set, the value is "page". 
+: Is value of `type` if set in front matter, else it is the name of the root section (e.g. "blog"). It will always have a value, so if not set, the value is "page". 
 
 Section
 : Is relevant for `section`, `taxonomy` and `taxonomyTerm` types.
