@@ -133,8 +133,8 @@ func (fi *FileInfo) FileInfo() os.FileInfo {
 }
 
 func (fi *FileInfo) Bytes() []byte {
-	// Remove in Hugo 0.34
-	helpers.Deprecated("File", "Bytes", "", false)
+	// Remove in Hugo 0.38
+	helpers.Deprecated("File", "Bytes", "", true)
 	return []byte("")
 }
 

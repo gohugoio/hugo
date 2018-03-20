@@ -116,7 +116,7 @@ Some examples:
 // "logo" will match logo.png. It returns nil of none found.
 // In potential ambiguous situations, combine it with ByType.
 func (r Resources) GetByPrefix(prefix string) Resource {
-	helpers.Deprecated("Resources", "GetByPrefix", prefixDeprecatedMsg, false)
+	helpers.Deprecated("Resources", "GetByPrefix", prefixDeprecatedMsg, true)
 	prefix = strings.ToLower(prefix)
 	for _, resource := range r {
 		if matchesPrefix(resource, prefix) {
@@ -129,7 +129,7 @@ func (r Resources) GetByPrefix(prefix string) Resource {
 // ByPrefix gets all resources matching the given base filename prefix, e.g
 // "logo" will match logo.png.
 func (r Resources) ByPrefix(prefix string) Resources {
-	helpers.Deprecated("Resources", "ByPrefix", prefixDeprecatedMsg, false)
+	helpers.Deprecated("Resources", "ByPrefix", prefixDeprecatedMsg, true)
 	var matches Resources
 	prefix = strings.ToLower(prefix)
 	for _, resource := range r {

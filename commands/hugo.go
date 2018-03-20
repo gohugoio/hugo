@@ -516,8 +516,8 @@ func (c *commandeer) setValueFromFlag(flags *flag.FlagSet, key string) {
 		if _, deprecated := deprecatedFlags[strings.ToLower(key)]; deprecated {
 			msg := fmt.Sprintf(`Set "%s = true" in your config.toml.
 If you need to set this configuration value from the command line, set it via an OS environment variable: "HUGO_%s=true hugo"`, key, strings.ToUpper(key))
-			// Remove in Hugo 0.37
-			helpers.Deprecated("hugo", "--"+key+" flag", msg, false)
+			// Remove in Hugo 0.38
+			helpers.Deprecated("hugo", "--"+key+" flag", msg, true)
 		}
 		f := flags.Lookup(key)
 		c.Set(key, f.Value.String())
