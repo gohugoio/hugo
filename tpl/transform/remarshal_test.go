@@ -108,6 +108,48 @@ title: Test Metadata
 
 }
 
+func TestRemarshalComments(t *testing.T) {
+	t.Parallel()
+
+	ns := New(newDeps(viper.New()))
+	assert := require.New(t)
+
+	input := `
+Hugo = "Rules"
+		
+# It really does!
+
+[m]
+# A comment
+a = "b"
+
+`
+
+	expected := `
+Hugo = "Rules"
+		
+[m]
+  a = "b"
+`
+
+	for _, format := range []string{"json", "yaml", "toml"} {
+		fromTo := fmt.Sprintf("%s => %s", "toml", format)
+
+		converted := input
+		var err error
+		// Do a round-trip conversion
+		for _, toFormat := range []string{format, "toml"} {
+			converted, err = ns.Remarshal(toFormat, converted)
+			assert.NoError(err, fromTo)
+		}
+
+		diff := helpers.DiffStrings(expected, converted)
+		if len(diff) > 0 {
+			t.Fatalf("[%s] Expected \n%v\ngot\n%v\ndiff:\n%v\n", fromTo, expected, converted, diff)
+		}
+	}
+}
+
 func TestTestRemarshalError(t *testing.T) {
 	t.Parallel()
 
