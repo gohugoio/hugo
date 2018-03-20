@@ -25,7 +25,7 @@ A collection of all themes created by the Hugo community, including screenshots 
 ## tl;dr
 
 1. Create your theme using `hugo new theme <THEMENAME>`;
-2. Test your theme against <https://github.com/spf13/HugoBasicExample> \*
+2. Test your theme against <https://github.com/gohugoio/hugoBasicExample> \*
 3. Add a `theme.toml` file to the root of the theme with all required metadata
 4. Add a descriptive `README.md` to the root of the theme source
 5. Add `/images/screenshot.png` and `/images/tn.png`
