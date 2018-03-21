@@ -25,7 +25,9 @@ import (
 // GC requires a build first.
 func (h *HugoSites) GC() (int, error) {
 	s := h.Sites[0]
-	imageCacheDir := s.resourceSpec.AbsGenImagePath
+	fs := h.PathSpec.BaseFs.ResourcesFs
+
+	imageCacheDir := s.resourceSpec.GenImagePath
 	if len(imageCacheDir) < 10 {
 		panic("invalid image cache")
 	}
@@ -43,7 +45,7 @@ func (h *HugoSites) GC() (int, error) {
 
 	counter := 0
 
-	err := afero.Walk(s.Fs.Source, imageCacheDir, func(path string, info os.FileInfo, err error) error {
+	err := afero.Walk(fs, imageCacheDir, func(path string, info os.FileInfo, err error) error {
 		if info == nil {
 			return nil
 		}
@@ -53,7 +55,7 @@ func (h *HugoSites) GC() (int, error) {
 		}
 
 		if info.IsDir() {
-			f, err := s.Fs.Source.Open(path)
+			f, err := fs.Open(path)
 			if err != nil {
 				return nil
 			}
@@ -69,7 +71,7 @@ func (h *HugoSites) GC() (int, error) {
 
 		inUse := isInUse(path)
 		if !inUse {
-			err := s.Fs.Source.Remove(path)
+			err := fs.Remove(path)
 			if err != nil && !os.IsNotExist(err) {
 				s.Log.ERROR.Printf("Failed to remove %q: %s", path, err)
 			} else {

@@ -200,6 +200,7 @@ func TestI18nTranslate(t *testing.T) {
 	var actual, expected string
 	v := viper.New()
 	v.SetDefault("defaultContentLanguage", "en")
+	v.Set("contentDir", "content")
 
 	// Test without and with placeholders
 	for _, enablePlaceholders := range []bool{false, true} {

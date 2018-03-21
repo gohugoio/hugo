@@ -57,8 +57,10 @@ func TestMakePath(t *testing.T) {
 
 	for _, test := range tests {
 		v := viper.New()
-		l := NewDefaultLanguage(v)
+		v.Set("contentDir", "content")
 		v.Set("removePathAccents", test.removeAccents)
+
+		l := NewDefaultLanguage(v)
 		p, err := NewPathSpec(hugofs.NewMem(v), l)
 		require.NoError(t, err)
 
@@ -71,6 +73,8 @@ func TestMakePath(t *testing.T) {
 
 func TestMakePathSanitized(t *testing.T) {
 	v := viper.New()
+	v.Set("contentDir", "content")
+
 	l := NewDefaultLanguage(v)
 	p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
@@ -98,6 +102,7 @@ func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
 	v := viper.New()
 
 	v.Set("disablePathToLower", true)
+	v.Set("contentDir", "content")
 
 	l := NewDefaultLanguage(v)
 	p, _ := NewPathSpec(hugofs.NewMem(v), l)

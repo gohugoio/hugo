@@ -101,6 +101,8 @@ func TestStaticDirs(t *testing.T) {
 	for i, test := range tests {
 		msg := fmt.Sprintf("Test %d", i)
 		v := viper.New()
+		v.Set("contentDir", "content")
+
 		fs := hugofs.NewMem(v)
 		cfg := test.setup(v, fs)
 		cfg.Set("workingDir", filepath.FromSlash("/work"))
@@ -134,6 +136,7 @@ func TestStaticDirsFs(t *testing.T) {
 	v.Set("workingDir", filepath.FromSlash("/work"))
 	v.Set("theme", "mytheme")
 	v.Set("themesDir", "themes")
+	v.Set("contentDir", "content")
 	v.Set("staticDir", []string{"s1", "s2"})
 	v.Set("languagesSorted", helpers.Languages{helpers.NewDefaultLanguage(v)})
 

@@ -65,6 +65,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 
 	v.Set("workingDir", workingDir)
 	v.Set("multilingual", true)
+	v.Set("contentDir", "content")
 	v.Set("baseURL", "http://mysite.com/hugo/")
 	v.Set("CurrentContentLanguage", helpers.NewLanguage("en", v))
 
@@ -125,7 +126,10 @@ func TestPartialCached(t *testing.T) {
 	var data struct {
 	}
 
-	config := newDepsConfig(viper.New())
+	v := viper.New()
+	v.Set("contentDir", "content")
+
+	config := newDepsConfig(v)
 
 	config.WithTemplate = func(templ tpl.TemplateHandler) error {
 		err := templ.AddTemplate("partials/"+name, partial)

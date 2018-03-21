@@ -126,7 +126,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		return nil, err
 	}
 
-	sp := source.NewSourceSpec(cfg.Language, fs)
+	sp := source.NewSourceSpec(ps, fs.Source)
 
 	d := &Deps{
 		Fs:                  fs,

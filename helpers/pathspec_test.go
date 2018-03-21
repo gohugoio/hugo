@@ -24,6 +24,7 @@ import (
 
 func TestNewPathSpecFromConfig(t *testing.T) {
 	v := viper.New()
+	v.Set("contentDir", "content")
 	l := NewLanguage("no", v)
 	v.Set("disablePathToLower", true)
 	v.Set("removePathAccents", true)

@@ -75,7 +75,7 @@ func TestNewContent(t *testing.T) {
 		for i, v := range c.expected {
 			found := strings.Contains(content, v)
 			if !found {
-				t.Errorf("[%d] %q missing from output:\n%q", i, v, content)
+				t.Fatalf("[%d] %q missing from output:\n%q", i, v, content)
 			}
 		}
 	}

@@ -75,19 +75,8 @@ func (h *HugoSites) langSite() map[string]*Site {
 // GetContentPage finds a Page with content given the absolute filename.
 // Returns nil if none found.
 func (h *HugoSites) GetContentPage(filename string) *Page {
-	s := h.Sites[0]
-	contendDir := filepath.Join(s.PathSpec.AbsPathify(s.Cfg.GetString("contentDir")))
-	if !strings.HasPrefix(filename, contendDir) {
-		return nil
-	}
-
-	rel := strings.TrimPrefix(filename, contendDir)
-	rel = strings.TrimPrefix(rel, helpers.FilePathSeparator)
-
 	for _, s := range h.Sites {
-
-		pos := s.rawAllPages.findPagePosByFilePath(rel)
-
+		pos := s.rawAllPages.findPagePosByFilename(filename)
 		if pos == -1 {
 			continue
 		}
@@ -95,19 +84,16 @@ func (h *HugoSites) GetContentPage(filename string) *Page {
 	}
 
 	// If not found already, this may be bundled in another content file.
-	rel = filepath.Dir(rel)
+	dir := filepath.Dir(filename)
+
 	for _, s := range h.Sites {
-
-		pos := s.rawAllPages.findFirstPagePosByFilePathPrefix(rel)
-
+		pos := s.rawAllPages.findPagePosByFilnamePrefix(dir)
 		if pos == -1 {
 			continue
 		}
 		return s.rawAllPages[pos]
 	}
-
 	return nil
-
 }
 
 // NewHugoSites creates a new collection of sites given the input sites, building
@@ -126,18 +112,11 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 
 	var contentChangeTracker *contentChangeMap
 
-	// Only needed in server mode.
-	// TODO(bep) clean up the running vs watching terms
-	if cfg.Running {
-		contentChangeTracker = &contentChangeMap{symContent: make(map[string]map[string]bool)}
-	}
-
 	h := &HugoSites{
-		running:        cfg.Running,
-		multilingual:   langConfig,
-		multihost:      cfg.Cfg.GetBool("multihost"),
-		ContentChanges: contentChangeTracker,
-		Sites:          sites}
+		running:      cfg.Running,
+		multilingual: langConfig,
+		multihost:    cfg.Cfg.GetBool("multihost"),
+		Sites:        sites}
 
 	for _, s := range sites {
 		s.owner = h
@@ -148,6 +127,13 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 	}
 
 	h.Deps = sites[0].Deps
+
+	// Only needed in server mode.
+	// TODO(bep) clean up the running vs watching terms
+	if cfg.Running {
+		contentChangeTracker = &contentChangeMap{pathSpec: h.PathSpec, symContent: make(map[string]map[string]bool)}
+		h.ContentChanges = contentChangeTracker
+	}
 
 	if err := h.initGitInfo(); err != nil {
 		return nil, err
@@ -212,6 +198,7 @@ func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 			d.OutputFormatsConfig = s.outputFormatsConfig
 			s.Deps = d
 		}
+
 		s.resourceSpec, err = resource.NewSpec(s.Deps.PathSpec, s.mediaTypesConfig)
 		if err != nil {
 			return err
@@ -260,6 +247,9 @@ func createSitesFromConfig(cfg deps.DepsCfg) ([]*Site, error) {
 	languages := getLanguages(cfg.Cfg)
 
 	for _, lang := range languages {
+		if lang.Disabled {
+			continue
+		}
 		var s *Site
 		var err error
 		cfg.Language = lang
@@ -517,9 +507,9 @@ func (h *HugoSites) createMissingPages() error {
 	return nil
 }
 
-func (h *HugoSites) removePageByPath(path string) {
+func (h *HugoSites) removePageByFilename(filename string) {
 	for _, s := range h.Sites {
-		s.removePageByPath(path)
+		s.removePageFilename(filename)
 	}
 }
 
@@ -671,6 +661,8 @@ type contentChangeMap struct {
 	branches []string
 	leafs    []string
 
+	pathSpec *helpers.PathSpec
+
 	// Hugo supports symlinked content (both directories and files). This
 	// can lead to situations where the same file can be referenced from several
 	// locations in /content -- which is really cool, but also means we have to
@@ -683,7 +675,7 @@ type contentChangeMap struct {
 
 func (m *contentChangeMap) add(filename string, tp bundleDirType) {
 	m.mu.Lock()
-	dir := filepath.Dir(filename)
+	dir := filepath.Dir(filename) + helpers.FilePathSeparator
 	switch tp {
 	case bundleBranch:
 		m.branches = append(m.branches, dir)
@@ -698,7 +690,7 @@ func (m *contentChangeMap) add(filename string, tp bundleDirType) {
 // Track the addition of bundle dirs.
 func (m *contentChangeMap) handleBundles(b *bundleDirs) {
 	for _, bd := range b.bundles {
-		m.add(bd.fi.Filename(), bd.tp)
+		m.add(bd.fi.Path(), bd.tp)
 	}
 }
 
@@ -709,21 +701,21 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bu
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	dir, name := filepath.Split(filename)
-	dir = strings.TrimSuffix(dir, helpers.FilePathSeparator)
-	fileTp, isContent := classifyBundledFile(name)
-
-	// If the file itself is a bundle, no need to look further:
-	if fileTp > bundleNot {
-		return dir, dir, fileTp
+	// Bundles share resources, so we need to start from the virtual root.
+	relPath, _ := m.pathSpec.RelContentDir(filename)
+	dir, name := filepath.Split(relPath)
+	if !strings.HasSuffix(dir, helpers.FilePathSeparator) {
+		dir += helpers.FilePathSeparator
 	}
 
+	fileTp, _ := classifyBundledFile(name)
+
 	// This may be a member of a bundle. Start with branch bundles, the most specific.
-	if !isContent {
+	if fileTp != bundleLeaf {
 		for i, b := range m.branches {
 			if b == dir {
 				m.branches = append(m.branches[:i], m.branches[i+1:]...)
-				return dir, dir, bundleBranch
+				return dir, b, bundleBranch
 			}
 		}
 	}
@@ -732,7 +724,7 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bu
 	for i, l := range m.leafs {
 		if strings.HasPrefix(dir, l) {
 			m.leafs = append(m.leafs[:i], m.leafs[i+1:]...)
-			return dir, dir, bundleLeaf
+			return dir, l, bundleLeaf
 		}
 	}
 

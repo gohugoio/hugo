@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"os"
 	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -25,11 +24,22 @@ import (
 var (
 	_ source.File         = (*fileInfo)(nil)
 	_ source.ReadableFile = (*fileInfo)(nil)
+	_ pathLangFile        = (*fileInfo)(nil)
 )
+
+// A partial interface to prevent ambigous compiler error.
+type basePather interface {
+	Filename() string
+	RealName() string
+	BaseDir() string
+}
 
 type fileInfo struct {
 	bundleTp bundleDirType
+
 	source.ReadableFile
+	basePather
+
 	overriddenLang string
 
 	// Set if the content language for this file is disabled.
@@ -41,6 +51,10 @@ func (fi *fileInfo) Lang() string {
 		return fi.overriddenLang
 	}
 	return fi.ReadableFile.Lang()
+}
+
+func (fi *fileInfo) Filename() string {
+	return fi.basePather.Filename()
 }
 
 func (fi *fileInfo) isOwner() bool {
@@ -55,12 +69,13 @@ func (fi *fileInfo) isContentFile() bool {
 	return contentFileExtensionsSet[fi.Ext()]
 }
 
-func newFileInfo(sp *source.SourceSpec, baseDir, filename string, fi os.FileInfo, tp bundleDirType) *fileInfo {
+func newFileInfo(sp *source.SourceSpec, baseDir, filename string, fi pathLangFileFi, tp bundleDirType) *fileInfo {
 
 	baseFi := sp.NewFileInfo(baseDir, filename, tp == bundleLeaf, fi)
 	f := &fileInfo{
 		bundleTp:     tp,
 		ReadableFile: baseFi,
+		basePather:   fi,
 	}
 
 	lang := f.Lang()

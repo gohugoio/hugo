@@ -88,10 +88,15 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 		err               error
 	)
 
-	sp := source.NewSourceSpec(s.Deps.Cfg, s.Deps.Fs)
+	ps, err := helpers.NewPathSpec(s.Deps.Fs, s.Deps.Cfg)
+	sp := source.NewSourceSpec(ps, ps.Fs.Source)
+	if err != nil {
+		return nil, err
+	}
 	f := sp.NewFileInfo("", targetPath, false, nil)
 
 	name := f.TranslationBaseName()
+
 	if name == "index" || name == "_index" {
 		// Page bundles; the directory name will hopefully have a better name.
 		dir := strings.TrimSuffix(f.Dir(), helpers.FilePathSeparator)

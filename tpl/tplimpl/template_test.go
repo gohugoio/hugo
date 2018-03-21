@@ -35,6 +35,7 @@ func TestHTMLEscape(t *testing.T) {
 		"other": "<h1>Hi!</h1>",
 	}
 	v := viper.New()
+	v.Set("contentDir", "content")
 	fs := hugofs.NewMem(v)
 
 	//afero.WriteFile(fs.Source, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)

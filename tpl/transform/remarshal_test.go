@@ -25,7 +25,9 @@ import (
 func TestRemarshal(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
 	assert := require.New(t)
 
 	tomlExample := `title = "Test Metadata"
@@ -111,7 +113,10 @@ title: Test Metadata
 func TestRemarshalComments(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
+
 	assert := require.New(t)
 
 	input := `
@@ -153,7 +158,9 @@ Hugo = "Rules"
 func TestTestRemarshalError(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
 	assert := require.New(t)
 
 	_, err := ns.Remarshal("asdf", "asdf")

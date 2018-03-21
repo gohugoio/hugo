@@ -127,7 +127,7 @@ func TestScpGetRemote(t *testing.T) {
 func TestScpGetRemoteParallel(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	ns := newTestNs()
 
 	content := []byte(`T€st Content 123`)
 	srv, cl := getTestServer(func(w http.ResponseWriter, r *http.Request) {
@@ -175,4 +175,10 @@ func newDeps(cfg config.Provider) *deps.Deps {
 		Fs:          hugofs.NewMem(l),
 		ContentSpec: cs,
 	}
+}
+
+func newTestNs() *Namespace {
+	v := viper.New()
+	v.Set("contentDir", "content")
+	return New(newDeps(v))
 }

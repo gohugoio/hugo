@@ -51,6 +51,11 @@ type sitesBuilder struct {
 	// Default toml
 	configFormat string
 
+	// Default is empty.
+	// TODO(bep) revisit this and consider always setting it to something.
+	// Consider this in relation to using the BaseFs.PublishFs to all publishing.
+	workingDir string
+
 	// Base data/content
 	contentFilePairs  []string
 	templateFilePairs []string
@@ -80,6 +85,11 @@ func newTestSitesBuilder(t testing.TB) *sitesBuilder {
 
 func (s *sitesBuilder) Running() *sitesBuilder {
 	s.running = true
+	return s
+}
+
+func (s *sitesBuilder) WithWorkingDir(dir string) *sitesBuilder {
+	s.workingDir = dir
 	return s
 }
 
@@ -233,7 +243,17 @@ func (s *sitesBuilder) writeFilePairs(folder string, filenameContent []string) *
 	}
 	for i := 0; i < len(filenameContent); i += 2 {
 		filename, content := filenameContent[i], filenameContent[i+1]
-		writeSource(s.T, s.Fs, filepath.Join(folder, filename), content)
+		target := folder
+		// TODO(bep) clean  up this magic.
+		if strings.HasPrefix(filename, folder) {
+			target = ""
+		}
+
+		if s.workingDir != "" {
+			target = filepath.Join(s.workingDir, target)
+		}
+
+		writeSource(s.T, s.Fs, filepath.Join(target, filename), content)
 	}
 	return s
 }
@@ -458,6 +478,7 @@ func newTestDefaultPathSpec() *helpers.PathSpec {
 	v := viper.New()
 	// Easier to reason about in tests.
 	v.Set("disablePathToLower", true)
+	v.Set("contentDir", "content")
 	fs := hugofs.NewDefault(v)
 	ps, _ := helpers.NewPathSpec(fs, v)
 	return ps

@@ -21,7 +21,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -29,7 +28,7 @@ import (
 func TestGetCSV(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	ns := newTestNs()
 
 	for i, test := range []struct {
 		sep     string
@@ -123,7 +122,7 @@ func TestGetCSV(t *testing.T) {
 func TestGetJSON(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	ns := newTestNs()
 
 	for i, test := range []struct {
 		url     string

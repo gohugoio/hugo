@@ -74,8 +74,8 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 	writeSource(t, fs, "content/sect2/p4.md", fmt.Sprintf(menuPageTemplate, "p4", 4, "main", "atitle4", 10))
 	writeSource(t, fs, "content/sect3/p5.md", fmt.Sprintf(menuPageTemplate, "p5", 5, "main", "atitle5", 5))
 
-	writeNewContentFile(t, fs, "Section One", "2017-01-01", "content/sect1/_index.md", 100)
-	writeNewContentFile(t, fs, "Section Five", "2017-01-01", "content/sect5/_index.md", 10)
+	writeNewContentFile(t, fs.Source, "Section One", "2017-01-01", "content/sect1/_index.md", 100)
+	writeNewContentFile(t, fs.Source, "Section Five", "2017-01-01", "content/sect5/_index.md", 10)
 
 	err := h.Build(BuildCfg{})
 

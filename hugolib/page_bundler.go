@@ -17,7 +17,6 @@ import (
 	"fmt"
 	"math"
 	"runtime"
-	"strings"
 
 	// Use this until errgroup gets ported to context
 	// See https://github.com/golang/go/issues/19781
@@ -26,8 +25,6 @@ import (
 )
 
 type siteContentProcessor struct {
-	baseDir string
-
 	site *Site
 
 	handleContent contentHandler
@@ -41,7 +38,7 @@ type siteContentProcessor struct {
 	fileSinglesChan chan *fileInfo
 
 	// These assets should be just copied to destination.
-	fileAssetsChan chan []string
+	fileAssetsChan chan []pathLangFile
 
 	numWorkers int
 
@@ -67,14 +64,14 @@ func (s *siteContentProcessor) processSingle(fi *fileInfo) {
 	}
 }
 
-func (s *siteContentProcessor) processAssets(assets []string) {
+func (s *siteContentProcessor) processAssets(assets []pathLangFile) {
 	select {
 	case s.fileAssetsChan <- assets:
 	case <-s.ctx.Done():
 	}
 }
 
-func newSiteContentProcessor(ctx context.Context, baseDir string, partialBuild bool, s *Site) *siteContentProcessor {
+func newSiteContentProcessor(ctx context.Context, partialBuild bool, s *Site) *siteContentProcessor {
 	numWorkers := 12
 	if n := runtime.NumCPU() * 3; n > numWorkers {
 		numWorkers = n
@@ -85,12 +82,11 @@ func newSiteContentProcessor(ctx context.Context, baseDir string, partialBuild b
 	return &siteContentProcessor{
 		ctx:             ctx,
 		partialBuild:    partialBuild,
-		baseDir:         baseDir,
 		site:            s,
 		handleContent:   newHandlerChain(s),
 		fileBundlesChan: make(chan *bundleDir, numWorkers),
 		fileSinglesChan: make(chan *fileInfo, numWorkers),
-		fileAssetsChan:  make(chan []string, numWorkers),
+		fileAssetsChan:  make(chan []pathLangFile, numWorkers),
 		numWorkers:      numWorkers,
 		pagesChan:       make(chan *Page, numWorkers),
 	}
@@ -143,18 +139,16 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 		g2.Go(func() error {
 			for {
 				select {
-				case filenames, ok := <-s.fileAssetsChan:
+				case files, ok := <-s.fileAssetsChan:
 					if !ok {
 						return nil
 					}
-					for _, filename := range filenames {
-						name := strings.TrimPrefix(filename, s.baseDir)
-						f, err := s.site.Fs.Source.Open(filename)
+					for _, file := range files {
+						f, err := s.site.BaseFs.ContentFs.Open(file.Filename())
 						if err != nil {
-							return err
+							return fmt.Errorf("failed to open assets file: %s", err)
 						}
-
-						err = s.site.publish(&s.site.PathSpec.ProcessingStats.Files, name, f)
+						err = s.site.publish(&s.site.PathSpec.ProcessingStats.Files, file.Path(), f)
 						f.Close()
 						if err != nil {
 							return err
@@ -204,11 +198,11 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 }
 
 func (s *siteContentProcessor) readAndConvertContentFile(file *fileInfo) error {
-	ctx := &handlerContext{source: file, baseDir: s.baseDir, pages: s.pagesChan}
+	ctx := &handlerContext{source: file, pages: s.pagesChan}
 	return s.handleContent(ctx).err
 }
 
 func (s *siteContentProcessor) readAndConvertContentBundle(bundle *bundleDir) error {
-	ctx := &handlerContext{bundle: bundle, baseDir: s.baseDir, pages: s.pagesChan}
+	ctx := &handlerContext{bundle: bundle, pages: s.pagesChan}
 	return s.handleContent(ctx).err
 }

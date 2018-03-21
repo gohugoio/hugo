@@ -17,6 +17,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/afero"
+
+	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/cast"
@@ -44,11 +47,13 @@ type PathSpec struct {
 	theme string
 
 	// Directories
-	contentDir string
-	themesDir  string
-	layoutDir  string
-	workingDir string
-	staticDirs []string
+	contentDir     string
+	themesDir      string
+	layoutDir      string
+	workingDir     string
+	staticDirs     []string
+	absContentDirs []types.KeyValueStr
+
 	PublishDir string
 
 	// The PathSpec looks up its config settings in both the current language
@@ -64,6 +69,9 @@ type PathSpec struct {
 
 	// The file systems to use
 	Fs *hugofs.Fs
+
+	// The fine grained filesystems in play (resources, content etc.).
+	BaseFs *hugofs.BaseFs
 
 	// The config provider to use
 	Cfg config.Provider
@@ -105,8 +113,65 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		languages = l
 	}
 
+	defaultContentLanguage := cfg.GetString("defaultContentLanguage")
+
+	// We will eventually pull out this badly placed path logic.
+	contentDir := cfg.GetString("contentDir")
+	workingDir := cfg.GetString("workingDir")
+	resourceDir := cfg.GetString("resourceDir")
+	publishDir := cfg.GetString("publishDir")
+
+	if len(languages) == 0 {
+		// We have some old tests that does not test the entire chain, hence
+		// they have no languages. So create one so we get the proper filesystem.
+		languages = Languages{&Language{Lang: "en", ContentDir: contentDir}}
+	}
+
+	absPuslishDir := AbsPathify(workingDir, publishDir)
+	if !strings.HasSuffix(absPuslishDir, FilePathSeparator) {
+		absPuslishDir += FilePathSeparator
+	}
+	// If root, remove the second '/'
+	if absPuslishDir == "//" {
+		absPuslishDir = FilePathSeparator
+	}
+	absResourcesDir := AbsPathify(workingDir, resourceDir)
+	if !strings.HasSuffix(absResourcesDir, FilePathSeparator) {
+		absResourcesDir += FilePathSeparator
+	}
+	if absResourcesDir == "//" {
+		absResourcesDir = FilePathSeparator
+	}
+
+	contentFs, absContentDirs, err := createContentFs(fs.Source, workingDir, defaultContentLanguage, languages)
+	if err != nil {
+		return nil, err
+	}
+
+	// Make sure we don't have any overlapping content dirs. That will never work.
+	for i, d1 := range absContentDirs {
+		for j, d2 := range absContentDirs {
+			if i == j {
+				continue
+			}
+			if strings.HasPrefix(d1.Value, d2.Value) || strings.HasPrefix(d2.Value, d1.Value) {
+				return nil, fmt.Errorf("found overlapping content dirs (%q and %q)", d1, d2)
+			}
+		}
+	}
+
+	resourcesFs := afero.NewBasePathFs(fs.Source, absResourcesDir)
+	publishFs := afero.NewBasePathFs(fs.Destination, absPuslishDir)
+
+	baseFs := &hugofs.BaseFs{
+		ContentFs:   contentFs,
+		ResourcesFs: resourcesFs,
+		PublishFs:   publishFs,
+	}
+
 	ps := &PathSpec{
 		Fs:                             fs,
+		BaseFs:                         baseFs,
 		Cfg:                            cfg,
 		disablePathToLower:             cfg.GetBool("disablePathToLower"),
 		removePathAccents:              cfg.GetBool("removePathAccents"),
@@ -116,14 +181,15 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		Language:                       language,
 		Languages:                      languages,
 		defaultContentLanguageInSubdir: cfg.GetBool("defaultContentLanguageInSubdir"),
-		defaultContentLanguage:         cfg.GetString("defaultContentLanguage"),
+		defaultContentLanguage:         defaultContentLanguage,
 		paginatePath:                   cfg.GetString("paginatePath"),
 		BaseURL:                        baseURL,
-		contentDir:                     cfg.GetString("contentDir"),
+		contentDir:                     contentDir,
 		themesDir:                      cfg.GetString("themesDir"),
 		layoutDir:                      cfg.GetString("layoutDir"),
-		workingDir:                     cfg.GetString("workingDir"),
+		workingDir:                     workingDir,
 		staticDirs:                     staticDirs,
+		absContentDirs:                 absContentDirs,
 		theme:                          cfg.GetString("theme"),
 		ProcessingStats:                NewProcessingStats(lang),
 	}
@@ -135,13 +201,8 @@ func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
 		}
 	}
 
-	publishDir := ps.AbsPathify(cfg.GetString("publishDir")) + FilePathSeparator
-	// If root, remove the second '/'
-	if publishDir == "//" {
-		publishDir = FilePathSeparator
-	}
-
-	ps.PublishDir = publishDir
+	// TODO(bep) remove this, eventually
+	ps.PublishDir = absPuslishDir
 
 	return ps, nil
 }
@@ -163,6 +224,107 @@ func getStringOrStringSlice(cfg config.Provider, key string, id int) []string {
 	}
 
 	return out
+}
+
+func createContentFs(fs afero.Fs,
+	workingDir,
+	defaultContentLanguage string,
+	languages Languages) (afero.Fs, []types.KeyValueStr, error) {
+
+	var contentLanguages Languages
+	var contentDirSeen = make(map[string]bool)
+	languageSet := make(map[string]bool)
+
+	// The default content language needs to be first.
+	for _, language := range languages {
+		if language.Lang == defaultContentLanguage {
+			contentLanguages = append(contentLanguages, language)
+			contentDirSeen[language.ContentDir] = true
+		}
+		languageSet[language.Lang] = true
+	}
+
+	for _, language := range languages {
+		if contentDirSeen[language.ContentDir] {
+			continue
+		}
+		if language.ContentDir == "" {
+			language.ContentDir = defaultContentLanguage
+		}
+		contentDirSeen[language.ContentDir] = true
+		contentLanguages = append(contentLanguages, language)
+
+	}
+
+	var absContentDirs []types.KeyValueStr
+
+	fs, err := createContentOverlayFs(fs, workingDir, contentLanguages, languageSet, &absContentDirs)
+	return fs, absContentDirs, err
+
+}
+
+func createContentOverlayFs(source afero.Fs,
+	workingDir string,
+	languages Languages,
+	languageSet map[string]bool,
+	absContentDirs *[]types.KeyValueStr) (afero.Fs, error) {
+	if len(languages) == 0 {
+		return source, nil
+	}
+
+	language := languages[0]
+
+	contentDir := language.ContentDir
+	if contentDir == "" {
+		panic("missing contentDir")
+	}
+
+	absContentDir := AbsPathify(workingDir, language.ContentDir)
+	if !strings.HasSuffix(absContentDir, FilePathSeparator) {
+		absContentDir += FilePathSeparator
+	}
+
+	// If root, remove the second '/'
+	if absContentDir == "//" {
+		absContentDir = FilePathSeparator
+	}
+
+	if len(absContentDir) < 6 {
+		return nil, fmt.Errorf("invalid content dir %q: %s", absContentDir, ErrPathTooShort)
+	}
+
+	*absContentDirs = append(*absContentDirs, types.KeyValueStr{Key: language.Lang, Value: absContentDir})
+
+	overlay := hugofs.NewLanguageFs(language.Lang, languageSet, afero.NewBasePathFs(source, absContentDir))
+	if len(languages) == 1 {
+		return overlay, nil
+	}
+
+	base, err := createContentOverlayFs(source, workingDir, languages[1:], languageSet, absContentDirs)
+	if err != nil {
+		return nil, err
+	}
+
+	return hugofs.NewLanguageCompositeFs(base, overlay), nil
+
+}
+
+// RelContentDir tries to create a path relative to the content root from
+// the given filename. The return value is the path and language code.
+func (p *PathSpec) RelContentDir(filename string) (string, string) {
+	for _, dir := range p.absContentDirs {
+		if strings.HasPrefix(filename, dir.Value) {
+			rel := strings.TrimPrefix(filename, dir.Value)
+			return strings.TrimPrefix(rel, FilePathSeparator), dir.Key
+		}
+	}
+	// Either not a content dir or already relative.
+	return filename, ""
+}
+
+// ContentDirs returns all the content dirs (absolute paths).
+func (p *PathSpec) ContentDirs() []types.KeyValueStr {
+	return p.absContentDirs
 }
 
 // PaginatePath returns the configured root path used for paginator pages.

@@ -3,6 +3,7 @@ package hugolib
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"strings"
 	"testing"
 
@@ -433,7 +434,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 	// t.Parallel() not supported, see https://github.com/fortytw2/leaktest/issues/4
 	// This leaktest seems to be a little bit shaky on Travis.
 	if !isCI() {
-		defer leaktest.CheckTimeout(t, 30*time.Second)()
+		defer leaktest.CheckTimeout(t, 10*time.Second)()
 	}
 
 	assert := require.New(t)
@@ -458,6 +459,8 @@ func TestMultiSitesRebuild(t *testing.T) {
 	// check single page content
 	b.AssertFileContent("public/fr/sect/doc1/index.html", "Single", "Shortcode: Bonjour")
 	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Shortcode: Hello")
+
+	contentFs := b.H.BaseFs.ContentFs
 
 	for i, this := range []struct {
 		preFunc    func(t *testing.T)
@@ -490,9 +493,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 		},
 		{
 			func(t *testing.T) {
-				writeNewContentFile(t, fs, "new_en_1", "2016-07-31", "content/new1.en.md", -5)
-				writeNewContentFile(t, fs, "new_en_2", "1989-07-30", "content/new2.en.md", -10)
-				writeNewContentFile(t, fs, "new_fr_1", "2016-07-30", "content/new1.fr.md", 10)
+				writeNewContentFile(t, contentFs, "new_en_1", "2016-07-31", "new1.en.md", -5)
+				writeNewContentFile(t, contentFs, "new_en_2", "1989-07-30", "new2.en.md", -10)
+				writeNewContentFile(t, contentFs, "new_fr_1", "2016-07-30", "new1.fr.md", 10)
 			},
 			[]fsnotify.Event{
 				{Name: filepath.FromSlash("content/new1.en.md"), Op: fsnotify.Create},
@@ -513,10 +516,10 @@ func TestMultiSitesRebuild(t *testing.T) {
 		},
 		{
 			func(t *testing.T) {
-				p := "content/sect/doc1.en.md"
-				doc1 := readSource(t, fs, p)
+				p := "sect/doc1.en.md"
+				doc1 := readFileFromFs(t, contentFs, p)
 				doc1 += "CHANGED"
-				writeSource(t, fs, p, doc1)
+				writeToFs(t, contentFs, p, doc1)
 			},
 			[]fsnotify.Event{{Name: filepath.FromSlash("content/sect/doc1.en.md"), Op: fsnotify.Write}},
 			func(t *testing.T) {
@@ -529,7 +532,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 		// Rename a file
 		{
 			func(t *testing.T) {
-				if err := fs.Source.Rename("content/new1.en.md", "content/new1renamed.en.md"); err != nil {
+				if err := contentFs.Rename("new1.en.md", "new1renamed.en.md"); err != nil {
 					t.Fatalf("Rename failed: %s", err)
 				}
 			},
@@ -650,7 +653,7 @@ weight = 15
 title = "Svenska"
 `
 
-	writeNewContentFile(t, fs, "Swedish Contentfile", "2016-01-01", "content/sect/doc1.sv.md", 10)
+	writeNewContentFile(t, fs.Source, "Swedish Contentfile", "2016-01-01", "content/sect/doc1.sv.md", 10)
 	// replace the config
 	b.WithNewConfig(newConfig)
 
@@ -1038,16 +1041,29 @@ func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
 	if err != nil {
 		// Print some debug info
 		root := strings.Split(filename, helpers.FilePathSeparator)[0]
-		afero.Walk(fs, root, func(path string, info os.FileInfo, err error) error {
-			if info != nil && !info.IsDir() {
-				fmt.Println("    ", path)
-			}
-
-			return nil
-		})
+		printFs(fs, root, os.Stdout)
 		Fatalf(t, "Failed to read file: %s", err)
 	}
 	return string(b)
+}
+
+func printFs(fs afero.Fs, path string, w io.Writer) {
+	if fs == nil {
+		return
+	}
+	afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
+		if info != nil && !info.IsDir() {
+			s := path
+			if lang, ok := info.(hugofs.LanguageAnnouncer); ok {
+				s = s + "\tLANG: " + lang.Lang()
+			}
+			if fp, ok := info.(hugofs.FilePather); ok {
+				s = s + "\tRF: " + fp.Filename() + "\tBP: " + fp.BaseDir()
+			}
+			fmt.Fprintln(w, "    ", s)
+		}
+		return nil
+	})
 }
 
 const testPageTemplate = `---
@@ -1062,9 +1078,9 @@ func newTestPage(title, date string, weight int) string {
 	return fmt.Sprintf(testPageTemplate, title, date, weight, title)
 }
 
-func writeNewContentFile(t *testing.T, fs *hugofs.Fs, title, date, filename string, weight int) {
+func writeNewContentFile(t *testing.T, fs afero.Fs, title, date, filename string, weight int) {
 	content := newTestPage(title, date, weight)
-	writeSource(t, fs, filename, content)
+	writeToFs(t, fs, filename, content)
 }
 
 type multiSiteTestBuilder struct {

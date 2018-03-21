@@ -130,21 +130,17 @@ func loadLanguageSettings(cfg config.Provider, oldLangs helpers.Languages) error
 	} else {
 		languages = make(map[string]interface{})
 		for k, v := range languagesFromConfig {
-			isDisabled := false
 			for _, disabled := range disableLanguages {
 				if disabled == defaultLang {
 					return fmt.Errorf("cannot disable default language %q", defaultLang)
 				}
 
 				if strings.EqualFold(k, disabled) {
-					isDisabled = true
+					v.(map[string]interface{})["disabled"] = true
 					break
 				}
 			}
-			if !isDisabled {
-				languages[k] = v
-			}
-
+			languages[k] = v
 		}
 	}
 

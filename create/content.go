@@ -63,7 +63,22 @@ func NewContent(
 		return err
 	}
 
-	contentPath := s.PathSpec.AbsPathify(filepath.Join(s.Cfg.GetString("contentDir"), targetPath))
+	// The site may have multiple content dirs, and we currently do not know which contentDir the
+	// user wants to create this content in. We should improve on this, but we start by testing if the
+	// provided path points to an existing dir. If so, use it as is.
+	var contentPath string
+	var exists bool
+	targetDir := filepath.Dir(targetPath)
+
+	if targetDir != "" && targetDir != "." {
+		exists, _ = helpers.Exists(targetDir, ps.Fs.Source)
+	}
+
+	if exists {
+		contentPath = targetPath
+	} else {
+		contentPath = s.PathSpec.AbsPathify(filepath.Join(s.Cfg.GetString("contentDir"), targetPath))
+	}
 
 	if err := helpers.SafeWriteToDisk(contentPath, bytes.NewReader(content), s.Fs.Source); err != nil {
 		return err

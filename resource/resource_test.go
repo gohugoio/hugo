@@ -29,7 +29,7 @@ func TestGenericResource(t *testing.T) {
 	assert := require.New(t)
 	spec := newTestResourceSpec(assert)
 
-	r := spec.newGenericResource(nil, nil, "/public", "/a/foo.css", "foo.css", "css")
+	r := spec.newGenericResource(nil, nil, "/a/foo.css", "foo.css", "css")
 
 	assert.Equal("https://example.com/foo.css", r.Permalink())
 	assert.Equal("/foo.css", r.RelPermalink())
@@ -44,7 +44,7 @@ func TestGenericResourceWithLinkFacory(t *testing.T) {
 	factory := func(s string) string {
 		return path.Join("/foo", s)
 	}
-	r := spec.newGenericResource(factory, nil, "/public", "/a/foo.css", "foo.css", "css")
+	r := spec.newGenericResource(factory, nil, "/a/foo.css", "foo.css", "css")
 
 	assert.Equal("https://example.com/foo/foo.css", r.Permalink())
 	assert.Equal("/foo/foo.css", r.RelPermalink())
@@ -55,11 +55,11 @@ func TestNewResourceFromFilename(t *testing.T) {
 	assert := require.New(t)
 	spec := newTestResourceSpec(assert)
 
-	writeSource(t, spec.Fs, "/project/a/b/logo.png", "image")
-	writeSource(t, spec.Fs, "/root/a/b/data.json", "json")
+	writeSource(t, spec.Fs, "content/a/b/logo.png", "image")
+	writeSource(t, spec.Fs, "content/a/b/data.json", "json")
 
-	r, err := spec.NewResourceFromFilename(nil, "/public",
-		filepath.FromSlash("/project/a/b/logo.png"), filepath.FromSlash("a/b/logo.png"))
+	r, err := spec.NewResourceFromFilename(nil,
+		filepath.FromSlash("a/b/logo.png"), filepath.FromSlash("a/b/logo.png"))
 
 	assert.NoError(err)
 	assert.NotNil(r)
@@ -67,7 +67,7 @@ func TestNewResourceFromFilename(t *testing.T) {
 	assert.Equal("/a/b/logo.png", r.RelPermalink())
 	assert.Equal("https://example.com/a/b/logo.png", r.Permalink())
 
-	r, err = spec.NewResourceFromFilename(nil, "/public", "/root/a/b/data.json", "a/b/data.json")
+	r, err = spec.NewResourceFromFilename(nil, "a/b/data.json", "a/b/data.json")
 
 	assert.NoError(err)
 	assert.NotNil(r)
@@ -82,10 +82,10 @@ func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
 	assert := require.New(t)
 	spec := newTestResourceSpecForBaseURL(assert, "https://example.com/docs")
 
-	writeSource(t, spec.Fs, "/project/a/b/logo.png", "image")
+	writeSource(t, spec.Fs, "content/a/b/logo.png", "image")
 
-	r, err := spec.NewResourceFromFilename(nil, "/public",
-		filepath.FromSlash("/project/a/b/logo.png"), filepath.FromSlash("a/b/logo.png"))
+	r, err := spec.NewResourceFromFilename(nil,
+		filepath.FromSlash("a/b/logo.png"), filepath.FromSlash("a/b/logo.png"))
 
 	assert.NoError(err)
 	assert.NotNil(r)
@@ -101,10 +101,10 @@ func TestResourcesByType(t *testing.T) {
 	assert := require.New(t)
 	spec := newTestResourceSpec(assert)
 	resources := Resources{
-		spec.newGenericResource(nil, nil, "/public", "/a/foo1.css", "foo1.css", "css"),
-		spec.newGenericResource(nil, nil, "/public", "/a/logo.png", "logo.css", "image"),
-		spec.newGenericResource(nil, nil, "/public", "/a/foo2.css", "foo2.css", "css"),
-		spec.newGenericResource(nil, nil, "/public", "/a/foo3.css", "foo3.css", "css")}
+		spec.newGenericResource(nil, nil, "/a/foo1.css", "foo1.css", "css"),
+		spec.newGenericResource(nil, nil, "/a/logo.png", "logo.css", "image"),
+		spec.newGenericResource(nil, nil, "/a/foo2.css", "foo2.css", "css"),
+		spec.newGenericResource(nil, nil, "/a/foo3.css", "foo3.css", "css")}
 
 	assert.Len(resources.ByType("css"), 3)
 	assert.Len(resources.ByType("image"), 1)
@@ -115,11 +115,11 @@ func TestResourcesGetByPrefix(t *testing.T) {
 	assert := require.New(t)
 	spec := newTestResourceSpec(assert)
 	resources := Resources{
-		spec.newGenericResource(nil, nil, "/public", "/a/foo1.css", "foo1.css", "css"),
-		spec.newGenericResource(nil, nil, "/public", "/a/logo1.png", "logo1.png", "image"),
-		spec.newGenericResource(nil, nil, "/public", "/b/Logo2.png", "Logo2.png", "image"),
-		spec.newGenericResource(nil, nil, "/public", "/b/foo2.css", "foo2.css", "css"),
-		spec.newGenericResource(nil, nil, "/public", "/b/foo3.css", "foo3.css", "css")}
+		spec.newGenericResource(nil, nil, "/a/foo1.css", "foo1.css", "css"),
+		spec.newGenericResource(nil, nil, "/a/logo1.png", "logo1.png", "image"),
+		spec.newGenericResource(nil, nil, "/b/Logo2.png", "Logo2.png", "image"),
+		spec.newGenericResource(nil, nil, "/b/foo2.css", "foo2.css", "css"),
+		spec.newGenericResource(nil, nil, "/b/foo3.css", "foo3.css", "css")}
 
 	assert.Nil(resources.GetByPrefix("asdf"))
 	assert.Equal("/logo1.png", resources.GetByPrefix("logo").RelPermalink())
@@ -144,14 +144,14 @@ func TestResourcesGetMatch(t *testing.T) {
 	assert := require.New(t)
 	spec := newTestResourceSpec(assert)
 	resources := Resources{
-		spec.newGenericResource(nil, nil, "/public", "/a/foo1.css", "foo1.css", "css"),
-		spec.newGenericResource(nil, nil, "/public", "/a/logo1.png", "logo1.png", "image"),
-		spec.newGenericResource(nil, nil, "/public", "/b/Logo2.png", "Logo2.png", "image"),
-		spec.newGenericResource(nil, nil, "/public", "/b/foo2.css", "foo2.css", "css"),
-		spec.newGenericResource(nil, nil, "/public", "/b/foo3.css", "foo3.css", "css"),
-		spec.newGenericResource(nil, nil, "/public", "/b/c/foo4.css", "c/foo4.css", "css"),
-		spec.newGenericResource(nil, nil, "/public", "/b/c/foo5.css", "c/foo5.css", "css"),
-		spec.newGenericResource(nil, nil, "/public", "/b/c/d/foo6.css", "c/d/foo6.css", "css"),
+		spec.newGenericResource(nil, nil, "/a/foo1.css", "foo1.css", "css"),
+		spec.newGenericResource(nil, nil, "/a/logo1.png", "logo1.png", "image"),
+		spec.newGenericResource(nil, nil, "/b/Logo2.png", "Logo2.png", "image"),
+		spec.newGenericResource(nil, nil, "/b/foo2.css", "foo2.css", "css"),
+		spec.newGenericResource(nil, nil, "/b/foo3.css", "foo3.css", "css"),
+		spec.newGenericResource(nil, nil, "/b/c/foo4.css", "c/foo4.css", "css"),
+		spec.newGenericResource(nil, nil, "/b/c/foo5.css", "c/foo5.css", "css"),
+		spec.newGenericResource(nil, nil, "/b/c/d/foo6.css", "c/d/foo6.css", "css"),
 	}
 
 	assert.Equal("/logo1.png", resources.GetMatch("logo*").RelPermalink())
@@ -373,12 +373,12 @@ func TestAssignMetadata(t *testing.T) {
 		}},
 	} {
 
-		foo2 = spec.newGenericResource(nil, nil, "/public", "/b/foo2.css", "foo2.css", "css")
-		logo2 = spec.newGenericResource(nil, nil, "/public", "/b/Logo2.png", "Logo2.png", "image")
-		foo1 = spec.newGenericResource(nil, nil, "/public", "/a/foo1.css", "foo1.css", "css")
-		logo1 = spec.newGenericResource(nil, nil, "/public", "/a/logo1.png", "logo1.png", "image")
-		foo3 = spec.newGenericResource(nil, nil, "/public", "/b/foo3.css", "foo3.css", "css")
-		logo3 = spec.newGenericResource(nil, nil, "/public", "/b/logo3.png", "logo3.png", "image")
+		foo2 = spec.newGenericResource(nil, nil, "/b/foo2.css", "foo2.css", "css")
+		logo2 = spec.newGenericResource(nil, nil, "/b/Logo2.png", "Logo2.png", "image")
+		foo1 = spec.newGenericResource(nil, nil, "/a/foo1.css", "foo1.css", "css")
+		logo1 = spec.newGenericResource(nil, nil, "/a/logo1.png", "logo1.png", "image")
+		foo3 = spec.newGenericResource(nil, nil, "/b/foo3.css", "foo3.css", "css")
+		logo3 = spec.newGenericResource(nil, nil, "/b/logo3.png", "logo3.png", "image")
 
 		resources = Resources{
 			foo2,
@@ -428,7 +428,7 @@ func BenchmarkResourcesMatchA100(b *testing.B) {
 	a100 := strings.Repeat("a", 100)
 	pattern := "a*a*a*a*a*a*a*a*b"
 
-	resources := Resources{spec.newGenericResource(nil, nil, "/public", "/a/"+a100, a100, "css")}
+	resources := Resources{spec.newGenericResource(nil, nil, "/a/"+a100, a100, "css")}
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -444,17 +444,17 @@ func benchResources(b *testing.B) Resources {
 
 	for i := 0; i < 30; i++ {
 		name := fmt.Sprintf("abcde%d_%d.css", i%5, i)
-		resources = append(resources, spec.newGenericResource(nil, nil, "/public", "/a/"+name, name, "css"))
+		resources = append(resources, spec.newGenericResource(nil, nil, "/a/"+name, name, "css"))
 	}
 
 	for i := 0; i < 30; i++ {
 		name := fmt.Sprintf("efghi%d_%d.css", i%5, i)
-		resources = append(resources, spec.newGenericResource(nil, nil, "/public", "/a/"+name, name, "css"))
+		resources = append(resources, spec.newGenericResource(nil, nil, "/a/"+name, name, "css"))
 	}
 
 	for i := 0; i < 30; i++ {
 		name := fmt.Sprintf("jklmn%d_%d.css", i%5, i)
-		resources = append(resources, spec.newGenericResource(nil, nil, "/public", "/b/sub/"+name, "sub/"+name, "css"))
+		resources = append(resources, spec.newGenericResource(nil, nil, "/b/sub/"+name, "sub/"+name, "css"))
 	}
 
 	return resources
@@ -482,7 +482,7 @@ func BenchmarkAssignMetadata(b *testing.B) {
 		}
 		for i := 0; i < 20; i++ {
 			name := fmt.Sprintf("foo%d_%d.css", i%5, i)
-			resources = append(resources, spec.newGenericResource(nil, nil, "/public", "/a/"+name, name, "css"))
+			resources = append(resources, spec.newGenericResource(nil, nil, "/a/"+name, name, "css"))
 		}
 		b.StartTimer()
 

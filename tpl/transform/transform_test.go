@@ -32,7 +32,9 @@ type tstNoStringer struct{}
 func TestEmojify(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
 
 	for i, test := range []struct {
 		s      interface{}
@@ -60,7 +62,9 @@ func TestEmojify(t *testing.T) {
 func TestHighlight(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
 
 	for i, test := range []struct {
 		s      interface{}
@@ -90,7 +94,9 @@ func TestHighlight(t *testing.T) {
 func TestHTMLEscape(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
 
 	for i, test := range []struct {
 		s      interface{}
@@ -118,7 +124,9 @@ func TestHTMLEscape(t *testing.T) {
 func TestHTMLUnescape(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
 
 	for i, test := range []struct {
 		s      interface{}
@@ -146,7 +154,9 @@ func TestHTMLUnescape(t *testing.T) {
 func TestMarkdownify(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
 
 	for i, test := range []struct {
 		s      interface{}
@@ -176,7 +186,9 @@ func TestMarkdownifyBlocksOfText(t *testing.T) {
 
 	assert := require.New(t)
 
-	ns := New(newDeps(viper.New()))
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
 
 	text := `
 #First 
@@ -201,7 +213,9 @@ And then some.
 func TestPlainify(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
 
 	for i, test := range []struct {
 		s      interface{}

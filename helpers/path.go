@@ -33,7 +33,7 @@ var (
 	ErrThemeUndefined = errors.New("no theme set")
 
 	// ErrWalkRootTooShort is returned when the root specified for a file walk is shorter than 4 characters.
-	ErrWalkRootTooShort = errors.New("Path too short. Stop walking.")
+	ErrPathTooShort = errors.New("file path is too short")
 )
 
 // filepathPathBridge is a bridge for common functionality in filepath vs path
@@ -446,7 +446,7 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
 	// Sanity check
 	if len(root) < 4 {
-		return ErrWalkRootTooShort
+		return ErrPathTooShort
 	}
 
 	// Handle the root first
@@ -481,7 +481,7 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 }
 
 func getRealFileInfo(fs afero.Fs, path string) (os.FileInfo, string, error) {
-	fileInfo, err := LstatIfOs(fs, path)
+	fileInfo, err := LstatIfPossible(fs, path)
 	realPath := path
 
 	if err != nil {
@@ -493,7 +493,7 @@ func getRealFileInfo(fs afero.Fs, path string) (os.FileInfo, string, error) {
 		if err != nil {
 			return nil, "", fmt.Errorf("Cannot read symbolic link '%s', error was: %s", path, err)
 		}
-		fileInfo, err = LstatIfOs(fs, link)
+		fileInfo, err = LstatIfPossible(fs, link)
 		if err != nil {
 			return nil, "", fmt.Errorf("Cannot stat '%s', error was: %s", link, err)
 		}
@@ -514,16 +514,14 @@ func GetRealPath(fs afero.Fs, path string) (string, error) {
 	return realPath, nil
 }
 
-// Code copied from Afero's path.go
-// if the filesystem is OsFs use Lstat, else use fs.Stat
-func LstatIfOs(fs afero.Fs, path string) (info os.FileInfo, err error) {
-	_, ok := fs.(*afero.OsFs)
-	if ok {
-		info, err = os.Lstat(path)
-	} else {
-		info, err = fs.Stat(path)
+// LstatIfPossible can be used to call Lstat if possible, else Stat.
+func LstatIfPossible(fs afero.Fs, path string) (os.FileInfo, error) {
+	if lstater, ok := fs.(afero.Lstater); ok {
+		fi, _, err := lstater.LstatIfPossible(path)
+		return fi, err
 	}
-	return
+
+	return fs.Stat(path)
 }
 
 // SafeWriteToDisk is the same as WriteToDisk

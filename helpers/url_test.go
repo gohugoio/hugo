@@ -27,6 +27,7 @@ import (
 func TestURLize(t *testing.T) {
 
 	v := viper.New()
+	v.Set("contentDir", "content")
 	l := NewDefaultLanguage(v)
 	p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
@@ -88,6 +89,7 @@ func doTestAbsURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 
 	for _, test := range tests {
 		v.Set("baseURL", test.baseURL)
+		v.Set("contentDir", "content")
 		l := NewLanguage(lang, v)
 		p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
@@ -166,6 +168,7 @@ func doTestRelURL(t *testing.T, defaultInSubDir, addLanguage, multilingual bool,
 	for i, test := range tests {
 		v.Set("baseURL", test.baseURL)
 		v.Set("canonifyURLs", test.canonify)
+		v.Set("contentDir", "content")
 		l := NewLanguage(lang, v)
 		p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
@@ -254,6 +257,7 @@ func TestURLPrep(t *testing.T) {
 	for i, d := range data {
 		v := viper.New()
 		v.Set("uglyURLs", d.ugly)
+		v.Set("contentDir", "content")
 		l := NewDefaultLanguage(v)
 		p, _ := NewPathSpec(hugofs.NewMem(v), l)
 

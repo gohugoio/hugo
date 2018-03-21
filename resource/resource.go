@@ -23,6 +23,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/spf13/afero"
+
 	"github.com/spf13/cast"
 
 	"github.com/gobwas/glob"
@@ -214,6 +216,7 @@ func getGlob(pattern string) (glob.Glob, error) {
 
 type Spec struct {
 	*helpers.PathSpec
+
 	mimeTypes media.Types
 
 	// Holds default filter settings etc.
@@ -221,7 +224,7 @@ type Spec struct {
 
 	imageCache *imageCache
 
-	AbsGenImagePath string
+	GenImagePath string
 }
 
 func NewSpec(s *helpers.PathSpec, mimeTypes media.Types) (*Spec, error) {
@@ -232,41 +235,44 @@ func NewSpec(s *helpers.PathSpec, mimeTypes media.Types) (*Spec, error) {
 	}
 	s.GetLayoutDirPath()
 
-	genImagePath := s.AbsPathify(filepath.Join(s.Cfg.GetString("resourceDir"), "_gen", "images"))
+	genImagePath := filepath.FromSlash("_gen/images")
 
-	return &Spec{AbsGenImagePath: genImagePath, PathSpec: s, imaging: &imaging, mimeTypes: mimeTypes, imageCache: newImageCache(
-		s,
-		// We're going to write a cache pruning routine later, so make it extremely
-		// unlikely that the user shoots him or herself in the foot
-		// and this is set to a value that represents data he/she
-		// cares about. This should be set in stone once released.
-		genImagePath,
-		s.AbsPathify(s.Cfg.GetString("publishDir")))}, nil
+	return &Spec{PathSpec: s,
+		GenImagePath: genImagePath,
+		imaging:      &imaging, mimeTypes: mimeTypes, imageCache: newImageCache(
+			s,
+			// We're going to write a cache pruning routine later, so make it extremely
+			// unlikely that the user shoots him or herself in the foot
+			// and this is set to a value that represents data he/she
+			// cares about. This should be set in stone once released.
+			genImagePath,
+		)}, nil
 }
 
 func (r *Spec) NewResourceFromFile(
 	targetPathBuilder func(base string) string,
-	absPublishDir string,
 	file source.File, relTargetFilename string) (Resource, error) {
 
-	return r.newResource(targetPathBuilder, absPublishDir, file.Filename(), file.FileInfo(), relTargetFilename)
+	return r.newResource(targetPathBuilder, file.Filename(), file.FileInfo(), relTargetFilename)
 }
 
 func (r *Spec) NewResourceFromFilename(
 	targetPathBuilder func(base string) string,
-	absPublishDir,
 	absSourceFilename, relTargetFilename string) (Resource, error) {
 
-	fi, err := r.Fs.Source.Stat(absSourceFilename)
+	fi, err := r.sourceFs().Stat(absSourceFilename)
 	if err != nil {
 		return nil, err
 	}
-	return r.newResource(targetPathBuilder, absPublishDir, absSourceFilename, fi, relTargetFilename)
+	return r.newResource(targetPathBuilder, absSourceFilename, fi, relTargetFilename)
+}
+
+func (r *Spec) sourceFs() afero.Fs {
+	return r.PathSpec.BaseFs.ContentFs
 }
 
 func (r *Spec) newResource(
 	targetPathBuilder func(base string) string,
-	absPublishDir,
 	absSourceFilename string, fi os.FileInfo, relTargetFilename string) (Resource, error) {
 
 	var mimeType string
@@ -283,7 +289,7 @@ func (r *Spec) newResource(
 		}
 	}
 
-	gr := r.newGenericResource(targetPathBuilder, fi, absPublishDir, absSourceFilename, relTargetFilename, mimeType)
+	gr := r.newGenericResource(targetPathBuilder, fi, absSourceFilename, relTargetFilename, mimeType)
 
 	if mimeType == "image" {
 		ext := strings.ToLower(helpers.Ext(absSourceFilename))
@@ -295,9 +301,9 @@ func (r *Spec) newResource(
 			return gr, nil
 		}
 
-		f, err := r.Fs.Source.Open(absSourceFilename)
+		f, err := gr.sourceFs().Open(absSourceFilename)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to open image source file: %s", err)
 		}
 		defer f.Close()
 
@@ -369,13 +375,28 @@ type genericResource struct {
 	params map[string]interface{}
 
 	// Absolute filename to the source, including any content folder path.
-	absSourceFilename string
-	absPublishDir     string
-	resourceType      string
-	osFileInfo        os.FileInfo
+	// Note that this is absolute in relation to the filesystem it is stored in.
+	// It can be a base path filesystem, and then this filename will not match
+	// the path to the file on the real filesystem.
+	sourceFilename string
 
-	spec              *Spec
+	// This may be set to tell us to look in another filesystem for this resource.
+	// We, by default, use the sourceFs filesystem in the spec below.
+	overriddenSourceFs afero.Fs
+
+	spec *Spec
+
+	resourceType string
+	osFileInfo   os.FileInfo
+
 	targetPathBuilder func(rel string) string
+}
+
+func (l *genericResource) sourceFs() afero.Fs {
+	if l.overriddenSourceFs != nil {
+		return l.overriddenSourceFs
+	}
+	return l.spec.sourceFs()
 }
 
 func (l *genericResource) Permalink() string {
@@ -455,19 +476,16 @@ func (l *genericResource) ResourceType() string {
 }
 
 func (l *genericResource) AbsSourceFilename() string {
-	return l.absSourceFilename
+	return l.sourceFilename
 }
 
 func (l *genericResource) Publish() error {
-	f, err := l.spec.Fs.Source.Open(l.AbsSourceFilename())
+	f, err := l.sourceFs().Open(l.AbsSourceFilename())
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-
-	target := filepath.Join(l.absPublishDir, l.target())
-
-	return helpers.WriteToDisk(target, f, l.spec.Fs.Destination)
+	return helpers.WriteToDisk(l.target(), f, l.spec.BaseFs.PublishFs)
 }
 
 const counterPlaceHolder = ":counter"
@@ -574,8 +592,7 @@ func (l *genericResource) target() string {
 func (r *Spec) newGenericResource(
 	targetPathBuilder func(base string) string,
 	osFileInfo os.FileInfo,
-	absPublishDir,
-	absSourceFilename,
+	sourceFilename,
 	baseFilename,
 	resourceType string) *genericResource {
 
@@ -587,8 +604,7 @@ func (r *Spec) newGenericResource(
 	return &genericResource{
 		targetPathBuilder: targetPathBuilder,
 		osFileInfo:        osFileInfo,
-		absPublishDir:     absPublishDir,
-		absSourceFilename: absSourceFilename,
+		sourceFilename:    sourceFilename,
 		relTargetPath:     dirFile{dir: fpath, file: fname},
 		resourceType:      resourceType,
 		spec:              r,

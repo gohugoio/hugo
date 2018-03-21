@@ -746,9 +746,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 			}
 		}
 		if removed && isContentFile(ev.Name) {
-			path, _ := helpers.GetRelativePath(ev.Name, s.getContentDir(ev.Name))
-
-			h.removePageByPath(path)
+			h.removePageByFilename(ev.Name)
 		}
 
 		sourceReallyChanged = append(sourceReallyChanged, ev)
@@ -890,7 +888,7 @@ func (s *Site) handleDataFile(r source.ReadableFile) error {
 func (s *Site) readData(f source.ReadableFile) (interface{}, error) {
 	file, err := f.Open()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("readData: failed to open data file: %s", err)
 	}
 	defer file.Close()
 	content := helpers.ReaderToBytes(file)
@@ -1295,9 +1293,9 @@ func (c *contentCaptureResultHandler) handleBundles(d *bundleDirs) {
 	}
 }
 
-func (c *contentCaptureResultHandler) handleCopyFiles(filenames ...string) {
+func (c *contentCaptureResultHandler) handleCopyFiles(files ...pathLangFile) {
 	for _, proc := range c.contentProcessors {
-		proc.processAssets(filenames)
+		proc.processAssets(files)
 	}
 }
 
@@ -1305,15 +1303,16 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 	ctx := context.Background()
 	g, ctx := errgroup.WithContext(ctx)
 
-	sourceSpec := source.NewSourceSpec(s.owner.Cfg, s.Fs)
-	baseDir := s.absContentDir()
 	defaultContentLanguage := s.SourceSpec.DefaultContentLanguage
 
 	contentProcessors := make(map[string]*siteContentProcessor)
 	var defaultContentProcessor *siteContentProcessor
 	sites := s.owner.langSite()
 	for k, v := range sites {
-		proc := newSiteContentProcessor(ctx, baseDir, len(filenames) > 0, v)
+		if v.Language.Disabled {
+			continue
+		}
+		proc := newSiteContentProcessor(ctx, len(filenames) > 0, v)
 		contentProcessors[k] = proc
 		if k == defaultContentLanguage {
 			defaultContentProcessor = proc
@@ -1330,6 +1329,8 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 
 	mainHandler := &contentCaptureResultHandler{contentProcessors: contentProcessors, defaultContentProcessor: defaultContentProcessor}
 
+	sourceSpec := source.NewSourceSpec(s.PathSpec, s.BaseFs.ContentFs)
+
 	if s.running() {
 		// Need to track changes.
 		bundleMap = s.owner.ContentChanges
@@ -1339,7 +1340,7 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 		handler = mainHandler
 	}
 
-	c := newCapturer(s.Log, sourceSpec, handler, bundleMap, baseDir, filenames...)
+	c := newCapturer(s.Log, sourceSpec, handler, bundleMap, filenames...)
 
 	err1 := c.capture()
 

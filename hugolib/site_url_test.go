@@ -119,10 +119,12 @@ Do not go gentle into that good night.
 
 	notUgly := s.getPage(KindPage, "sect1/p1.md")
 	assert.NotNil(notUgly)
+	assert.Equal("sect1", notUgly.Section())
 	assert.Equal("/sect1/p1/", notUgly.RelPermalink())
 
 	ugly := s.getPage(KindPage, "sect2/p2.md")
 	assert.NotNil(ugly)
+	assert.Equal("sect2", ugly.Section())
 	assert.Equal("/sect2/p2.html", ugly.RelPermalink())
 }
 

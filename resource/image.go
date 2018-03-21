@@ -419,7 +419,7 @@ func (i *Image) initConfig() error {
 			config image.Config
 		)
 
-		f, err = i.spec.Fs.Source.Open(i.AbsSourceFilename())
+		f, err = i.sourceFs().Open(i.AbsSourceFilename())
 		if err != nil {
 			return
 		}
@@ -432,13 +432,17 @@ func (i *Image) initConfig() error {
 		i.config = config
 	})
 
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to load image config: %s", err)
+	}
+
+	return nil
 }
 
 func (i *Image) decodeSource() (image.Image, error) {
-	file, err := i.spec.Fs.Source.Open(i.AbsSourceFilename())
+	file, err := i.sourceFs().Open(i.AbsSourceFilename())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open image for decode: %s", err)
 	}
 	defer file.Close()
 	img, _, err := image.Decode(file)
@@ -448,32 +452,32 @@ func (i *Image) decodeSource() (image.Image, error) {
 func (i *Image) copyToDestination(src string) error {
 	var res error
 	i.copyToDestinationInit.Do(func() {
-		target := filepath.Join(i.absPublishDir, i.target())
+		target := i.target()
 
 		// Fast path:
 		// This is a processed version of the original.
 		// If it exists on destination with the same filename and file size, it is
 		// the same file, so no need to transfer it again.
-		if fi, err := i.spec.Fs.Destination.Stat(target); err == nil && fi.Size() == i.osFileInfo.Size() {
+		if fi, err := i.spec.BaseFs.PublishFs.Stat(target); err == nil && fi.Size() == i.osFileInfo.Size() {
 			return
 		}
 
-		in, err := i.spec.Fs.Source.Open(src)
+		in, err := i.sourceFs().Open(src)
 		if err != nil {
 			res = err
 			return
 		}
 		defer in.Close()
 
-		out, err := i.spec.Fs.Destination.Create(target)
+		out, err := i.spec.BaseFs.PublishFs.Create(target)
 		if err != nil && os.IsNotExist(err) {
 			// When called from shortcodes, the target directory may not exist yet.
 			// See https://github.com/gohugoio/hugo/issues/4202
-			if err = i.spec.Fs.Destination.MkdirAll(filepath.Dir(target), os.FileMode(0755)); err != nil {
+			if err = i.spec.BaseFs.PublishFs.MkdirAll(filepath.Dir(target), os.FileMode(0755)); err != nil {
 				res = err
 				return
 			}
-			out, err = i.spec.Fs.Destination.Create(target)
+			out, err = i.spec.BaseFs.PublishFs.Create(target)
 			if err != nil {
 				res = err
 				return
@@ -491,20 +495,23 @@ func (i *Image) copyToDestination(src string) error {
 		}
 	})
 
-	return res
+	if res != nil {
+		return fmt.Errorf("failed to copy image to destination: %s", res)
+	}
+	return nil
 }
 
 func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resourceCacheFilename, filename string) error {
-	target := filepath.Join(i.absPublishDir, filename)
+	target := filepath.Clean(filename)
 
-	file1, err := i.spec.Fs.Destination.Create(target)
+	file1, err := i.spec.BaseFs.PublishFs.Create(target)
 	if err != nil && os.IsNotExist(err) {
 		// When called from shortcodes, the target directory may not exist yet.
 		// See https://github.com/gohugoio/hugo/issues/4202
-		if err = i.spec.Fs.Destination.MkdirAll(filepath.Dir(target), os.FileMode(0755)); err != nil {
+		if err = i.spec.BaseFs.PublishFs.MkdirAll(filepath.Dir(target), os.FileMode(0755)); err != nil {
 			return err
 		}
-		file1, err = i.spec.Fs.Destination.Create(target)
+		file1, err = i.spec.BaseFs.PublishFs.Create(target)
 		if err != nil {
 			return err
 		}
@@ -518,11 +525,11 @@ func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resource
 
 	if resourceCacheFilename != "" {
 		// Also save it to the image resource cache for later reuse.
-		if err = i.spec.Fs.Source.MkdirAll(filepath.Dir(resourceCacheFilename), os.FileMode(0755)); err != nil {
+		if err = i.spec.BaseFs.ResourcesFs.MkdirAll(filepath.Dir(resourceCacheFilename), os.FileMode(0755)); err != nil {
 			return err
 		}
 
-		file2, err := i.spec.Fs.Source.Create(resourceCacheFilename)
+		file2, err := i.spec.BaseFs.ResourcesFs.Create(resourceCacheFilename)
 		if err != nil {
 			return err
 		}

@@ -25,14 +25,29 @@ import (
 
 // New returns a new instance of the os-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
+
+	// Since Hugo 0.38 we can have multiple content dirs. This can make it hard to
+	// reason about where the file is placed relative to the project root.
+	// To make the {{ readFile .Filename }} variant just work, we create a composite
+	// filesystem that first checks the work dir fs and then the content fs.
+	var rfs afero.Fs
+	if deps.Fs != nil {
+		rfs = deps.Fs.WorkingDir
+		if deps.PathSpec != nil && deps.PathSpec.BaseFs != nil {
+			rfs = afero.NewReadOnlyFs(afero.NewCopyOnWriteFs(deps.PathSpec.BaseFs.ContentFs, deps.Fs.WorkingDir))
+		}
+	}
+
 	return &Namespace{
-		deps: deps,
+		readFileFs: rfs,
+		deps:       deps,
 	}
 }
 
 // Namespace provides template functions for the "os" namespace.
 type Namespace struct {
-	deps *deps.Deps
+	readFileFs afero.Fs
+	deps       *deps.Deps
 }
 
 // Getenv retrieves the value of the environment variable named by the key.
@@ -46,10 +61,10 @@ func (ns *Namespace) Getenv(key interface{}) (string, error) {
 	return _os.Getenv(skey), nil
 }
 
-// readFile reads the file named by filename relative to the given basepath
+// readFile reads the file named by filename in the given filesystem
 // and returns the contents as a string.
 // There is a upper size limit set at 1 megabytes.
-func readFile(fs *afero.BasePathFs, filename string) (string, error) {
+func readFile(fs afero.Fs, filename string) (string, error) {
 	if filename == "" {
 		return "", errors.New("readFile needs a filename")
 	}
@@ -79,7 +94,7 @@ func (ns *Namespace) ReadFile(i interface{}) (string, error) {
 		return "", err
 	}
 
-	return readFile(ns.deps.Fs.WorkingDir, s)
+	return readFile(ns.readFileFs, s)
 }
 
 // ReadDir lists the directory contents relative to the configured WorkingDir.

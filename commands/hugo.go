@@ -705,7 +705,7 @@ func (c *commandeer) getDirList() ([]string, error) {
 					c.Logger.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", path, err)
 					return nil
 				}
-				linkfi, err := helpers.LstatIfOs(c.Fs.Source, link)
+				linkfi, err := helpers.LstatIfPossible(c.Fs.Source, link)
 				if err != nil {
 					c.Logger.ERROR.Printf("Cannot stat %q: %s", link, err)
 					return nil
@@ -743,9 +743,13 @@ func (c *commandeer) getDirList() ([]string, error) {
 
 	// SymbolicWalk will log anny ERRORs
 	_ = helpers.SymbolicWalk(c.Fs.Source, dataDir, regularWalker)
-	_ = helpers.SymbolicWalk(c.Fs.Source, c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")), symLinkWalker)
 	_ = helpers.SymbolicWalk(c.Fs.Source, i18nDir, regularWalker)
 	_ = helpers.SymbolicWalk(c.Fs.Source, layoutDir, regularWalker)
+
+	for _, contentDir := range c.PathSpec().ContentDirs() {
+		_ = helpers.SymbolicWalk(c.Fs.Source, contentDir.Value, symLinkWalker)
+	}
+
 	for _, staticDir := range staticDirs {
 		_ = helpers.SymbolicWalk(c.Fs.Source, staticDir, regularWalker)
 	}

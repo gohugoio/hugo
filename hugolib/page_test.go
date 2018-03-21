@@ -1109,60 +1109,6 @@ func TestCreatePage(t *testing.T) {
 	}
 }
 
-func TestPageKind(t *testing.T) {
-	t.Parallel()
-	const sep = helpers.FilePathSeparator
-	var tests = []struct {
-		file string
-		kind string
-	}{
-		{"_index.md", KindHome},
-		{"about.md", KindPage},
-		{"sectionA" + sep + "_index.md", KindSection},
-		{"sectionA" + sep + "about.md", KindPage},
-		{"categories" + sep + "_index.md", KindTaxonomyTerm},
-		{"categories" + sep + "categoryA" + sep + "_index.md", KindTaxonomy},
-		{"tags" + sep + "_index.md", KindTaxonomyTerm},
-		{"tags" + sep + "tagA" + sep + "_index.md", KindTaxonomy},
-
-		// nn is configured as a language
-		{"_index.nn.md", KindHome},
-		{"about.nn.md", KindPage},
-		{"sectionA" + sep + "_index.nn.md", KindSection},
-		{"sectionA" + sep + "about.nn.md", KindPage},
-
-		// should NOT be categorized as KindHome
-		{"_indexNOT.md", KindPage},
-
-		// To be consistent with FileInfo.TranslationBaseName(),
-		// language codes not explicitly configured for the site
-		// are not treated as such. "fr" is not configured as
-		// a language in the test site, so ALL of the
-		// following should be KindPage
-		{"_index.fr.md", KindPage}, //not KindHome
-		{"about.fr.md", KindPage},
-		{"sectionA" + sep + "_index.fr.md", KindPage}, // KindSection
-		{"sectionA" + sep + "about.fr.md", KindPage},
-	}
-
-	for _, test := range tests {
-		s := newTestSite(t, "languages.nn.languageName", "Nynorsk")
-		taxonomies := make(map[string]string)
-		taxonomies["tag"] = "tags"
-		taxonomies["category"] = "categories"
-		s.Taxonomies = make(TaxonomyList)
-		for _, plural := range taxonomies {
-			s.Taxonomies[plural] = make(Taxonomy)
-		}
-
-		p, _ := s.NewPage(test.file)
-		p.setValuesForKind(s)
-		if p.Kind != test.kind {
-			t.Errorf("for %s expected p.Kind == %s, got %s", test.file, test.kind, p.Kind)
-		}
-	}
-}
-
 func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 	t.Parallel()
 	var tests = []struct {

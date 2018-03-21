@@ -369,7 +369,7 @@ func TestIntersect(t *testing.T) {
 func TestIsSet(t *testing.T) {
 	t.Parallel()
 
-	ns := New(newDeps(viper.New()))
+	ns := newTestNs()
 
 	for i, test := range []struct {
 		a      interface{}
@@ -786,4 +786,10 @@ func newDeps(cfg config.Provider) *deps.Deps {
 		ContentSpec: cs,
 		Log:         jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime),
 	}
+}
+
+func newTestNs() *Namespace {
+	v := viper.New()
+	v.Set("contentDir", "content")
+	return New(newDeps(v))
 }

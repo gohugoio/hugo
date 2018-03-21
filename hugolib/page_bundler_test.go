@@ -20,6 +20,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	"io"
 
 	"github.com/spf13/afero"
@@ -38,7 +40,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPageBundlerSite(t *testing.T) {
+func TestPageBundlerSiteRegular(t *testing.T) {
 	t.Parallel()
 
 	for _, ugly := range []bool{false, true} {
@@ -46,7 +48,9 @@ func TestPageBundlerSite(t *testing.T) {
 			func(t *testing.T) {
 
 				assert := require.New(t)
-				cfg, fs := newTestBundleSources(t)
+				fs, cfg := newTestBundleSources(t)
+				assert.NoError(loadDefaultSettingsFor(cfg))
+				assert.NoError(loadLanguageSettings(cfg, nil))
 
 				cfg.Set("permalinks", map[string]string{
 					"a": ":sections/:filename",
@@ -141,6 +145,8 @@ func TestPageBundlerSite(t *testing.T) {
 
 				assert.Equal(filepath.FromSlash("/work/base/b/my-bundle/c/logo.png"), image.(resource.Source).AbsSourceFilename())
 				assert.Equal("https://example.com/2017/pageslug/c/logo.png", image.Permalink())
+
+				printFs(th.Fs.Destination, "", os.Stdout)
 				th.assertFileContent(filepath.FromSlash("/work/public/2017/pageslug/c/logo.png"), "content")
 				th.assertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug/c/logo.png"), "content")
 
@@ -195,8 +201,7 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 			func(t *testing.T) {
 
 				assert := require.New(t)
-				cfg, fs := newTestBundleSourcesMultilingual(t)
-
+				fs, cfg := newTestBundleSourcesMultilingual(t)
 				cfg.Set("uglyURLs", ugly)
 
 				assert.NoError(loadDefaultSettingsFor(cfg))
@@ -260,7 +265,7 @@ func TestMultilingualDisableDefaultLanguage(t *testing.T) {
 	t.Parallel()
 
 	assert := require.New(t)
-	cfg, _ := newTestBundleSourcesMultilingual(t)
+	_, cfg := newTestBundleSourcesMultilingual(t)
 
 	cfg.Set("disableLanguages", []string{"en"})
 
@@ -275,10 +280,12 @@ func TestMultilingualDisableLanguage(t *testing.T) {
 	t.Parallel()
 
 	assert := require.New(t)
-	cfg, fs := newTestBundleSourcesMultilingual(t)
+	fs, cfg := newTestBundleSourcesMultilingual(t)
 	cfg.Set("disableLanguages", []string{"nn"})
 
 	assert.NoError(loadDefaultSettingsFor(cfg))
+	assert.NoError(loadLanguageSettings(cfg, nil))
+
 	sites, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 	assert.NoError(err)
 	assert.Equal(1, len(sites.Sites))
@@ -302,7 +309,9 @@ func TestMultilingualDisableLanguage(t *testing.T) {
 
 func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	assert := require.New(t)
-	cfg, fs, workDir := newTestBundleSymbolicSources(t)
+	ps, workDir := newTestBundleSymbolicSources(t)
+	cfg := ps.Cfg
+	fs := ps.Fs
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg, Logger: newErrorLogger()}, BuildCfg{})
 
@@ -401,7 +410,7 @@ HEADLESS {{< myShort >}}
 
 }
 
-func newTestBundleSources(t *testing.T) (*viper.Viper, *hugofs.Fs) {
+func newTestBundleSources(t *testing.T) (*hugofs.Fs, *viper.Viper) {
 	cfg, fs := newTestCfg()
 	assert := require.New(t)
 
@@ -543,10 +552,11 @@ Content for 은행.
 	src.Close()
 	assert.NoError(err)
 
-	return cfg, fs
+	return fs, cfg
+
 }
 
-func newTestBundleSourcesMultilingual(t *testing.T) (*viper.Viper, *hugofs.Fs) {
+func newTestBundleSourcesMultilingual(t *testing.T) (*hugofs.Fs, *viper.Viper) {
 	cfg, fs := newTestCfg()
 
 	workDir := "/work"
@@ -626,10 +636,10 @@ TheContent.
 	writeSource(t, fs, filepath.Join(workDir, "base", "bf", "my-bf-bundle", "index.nn.md"), pageContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "bf", "my-bf-bundle", "page.md"), pageContent)
 
-	return cfg, fs
+	return fs, cfg
 }
 
-func newTestBundleSymbolicSources(t *testing.T) (*viper.Viper, *hugofs.Fs, string) {
+func newTestBundleSymbolicSources(t *testing.T) (*helpers.PathSpec, string) {
 	assert := require.New(t)
 	// We need to use the OS fs for this.
 	cfg := viper.New()
@@ -649,6 +659,10 @@ func newTestBundleSymbolicSources(t *testing.T) (*viper.Viper, *hugofs.Fs, strin
 	cfg.Set("workingDir", workDir)
 	cfg.Set("contentDir", contentDir)
 	cfg.Set("baseURL", "https://example.com")
+
+	if err := loadLanguageSettings(cfg, nil); err != nil {
+		t.Fatal(err)
+	}
 
 	layout := `{{ .Title }}|{{ .Content }}`
 	pageContent := `---
@@ -709,5 +723,7 @@ TheContent.
 	os.Chdir(workDir)
 	assert.NoError(err)
 
-	return cfg, fs, workDir
+	ps, _ := helpers.NewPathSpec(fs, cfg)
+
+	return ps, workDir
 }

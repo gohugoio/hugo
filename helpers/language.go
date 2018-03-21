@@ -41,6 +41,14 @@ type Language struct {
 	Title        string
 	Weight       int
 
+	Disabled bool
+
+	// If set per language, this tells Hugo that all content files without any
+	// language indicator (e.g. my-page.en.md) is in this language.
+	// This is usually a path relative to the working dir, but it can be an
+	// absolute directory referenece. It is what we get.
+	ContentDir string
+
 	Cfg config.Provider
 
 	// These are params declared in the [params] section of the language merged with the
@@ -66,7 +74,13 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 		params[k] = v
 	}
 	ToLowerMap(params)
-	l := &Language{Lang: lang, Cfg: cfg, params: params, settings: make(map[string]interface{})}
+
+	defaultContentDir := cfg.GetString("contentDir")
+	if defaultContentDir == "" {
+		panic("contentDir not set")
+	}
+
+	l := &Language{Lang: lang, ContentDir: defaultContentDir, Cfg: cfg, params: params, settings: make(map[string]interface{})}
 	return l
 }
 

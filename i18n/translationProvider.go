@@ -39,7 +39,7 @@ func NewTranslationProvider() *TranslationProvider {
 // Update updates the i18n func in the provided Deps.
 func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	dir := d.PathSpec.AbsPathify(d.Cfg.GetString("i18nDir"))
-	sp := source.NewSourceSpec(d.Cfg, d.Fs)
+	sp := source.NewSourceSpec(d.PathSpec, d.Fs.Source)
 	sources := []source.Input{sp.NewFilesystem(dir)}
 
 	themeI18nDir, err := d.PathSpec.GetThemeI18nDirPath()

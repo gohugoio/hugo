@@ -25,6 +25,7 @@ func newTestDefaultPathSpec(configKeyValues ...interface{}) *PathSpec {
 
 func newTestCfg(fs *hugofs.Fs) *viper.Viper {
 	v := viper.New()
+	v.Set("contentDir", "content")
 
 	v.SetFs(fs.Source)
 

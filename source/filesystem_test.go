@@ -18,6 +18,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/spf13/viper"
@@ -69,5 +71,7 @@ func TestUnicodeNorm(t *testing.T) {
 
 func newTestSourceSpec() SourceSpec {
 	v := viper.New()
-	return SourceSpec{Fs: hugofs.NewMem(v), Cfg: v}
+	v.Set("contentDir", "content")
+	ps, _ := helpers.NewPathSpec(hugofs.NewMem(v), v)
+	return SourceSpec{Fs: hugofs.NewMem(v).Source, PathSpec: ps}
 }

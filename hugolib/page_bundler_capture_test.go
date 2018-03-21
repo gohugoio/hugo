@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"path/filepath"
 	"sort"
@@ -62,13 +63,12 @@ func (s *storeFilenames) handleBundles(d *bundleDirs) {
 	s.dirKeys = append(s.dirKeys, keys...)
 }
 
-func (s *storeFilenames) handleCopyFiles(names ...string) {
+func (s *storeFilenames) handleCopyFiles(files ...pathLangFile) {
 	s.Lock()
 	defer s.Unlock()
-	for _, name := range names {
-		s.copyNames = append(s.copyNames, filepath.ToSlash(name))
+	for _, file := range files {
+		s.copyNames = append(s.copyNames, filepath.ToSlash(file.Filename()))
 	}
-
 }
 
 func (s *storeFilenames) sortedStr() string {
@@ -83,13 +83,12 @@ func (s *storeFilenames) sortedStr() string {
 
 func TestPageBundlerCaptureSymlinks(t *testing.T) {
 	assert := require.New(t)
-	cfg, fs, workDir := newTestBundleSymbolicSources(t)
-	contentDir := "base"
-	sourceSpec := source.NewSourceSpec(cfg, fs)
+	ps, workDir := newTestBundleSymbolicSources(t)
+	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.ContentFs)
 
 	fileStore := &storeFilenames{}
 	logger := newErrorLogger()
-	c := newCapturer(logger, sourceSpec, fileStore, nil, filepath.Join(workDir, contentDir))
+	c := newCapturer(logger, sourceSpec, fileStore, nil)
 
 	assert.NoError(c.capture())
 
@@ -110,6 +109,7 @@ C:
 /base/symbolic3/s1.png
 /base/symbolic3/s2.png
 `
+
 	got := strings.Replace(fileStore.sortedStr(), filepath.ToSlash(workDir), "", -1)
 	got = strings.Replace(got, "//", "/", -1)
 
@@ -120,19 +120,25 @@ C:
 	}
 }
 
-func TestPageBundlerCapture(t *testing.T) {
+func TestPageBundlerCaptureBasic(t *testing.T) {
 	t.Parallel()
 
 	assert := require.New(t)
-	cfg, fs := newTestBundleSources(t)
+	fs, cfg := newTestBundleSources(t)
+	assert.NoError(loadDefaultSettingsFor(cfg))
+	assert.NoError(loadLanguageSettings(cfg, nil))
+	ps, err := helpers.NewPathSpec(fs, cfg)
+	assert.NoError(err)
 
-	sourceSpec := source.NewSourceSpec(cfg, fs)
+	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.ContentFs)
 
 	fileStore := &storeFilenames{}
 
-	c := newCapturer(newErrorLogger(), sourceSpec, fileStore, nil, filepath.FromSlash("/work/base"))
+	c := newCapturer(newErrorLogger(), sourceSpec, fileStore, nil)
 
 	assert.NoError(c.capture())
+
+	printFs(fs.Source, "", os.Stdout)
 
 	expected := `
 F:
@@ -165,10 +171,16 @@ func TestPageBundlerCaptureMultilingual(t *testing.T) {
 	t.Parallel()
 
 	assert := require.New(t)
-	cfg, fs := newTestBundleSourcesMultilingual(t)
-	sourceSpec := source.NewSourceSpec(cfg, fs)
+	fs, cfg := newTestBundleSourcesMultilingual(t)
+	assert.NoError(loadDefaultSettingsFor(cfg))
+	assert.NoError(loadLanguageSettings(cfg, nil))
+
+	ps, err := helpers.NewPathSpec(fs, cfg)
+	assert.NoError(err)
+
+	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.ContentFs)
 	fileStore := &storeFilenames{}
-	c := newCapturer(newErrorLogger(), sourceSpec, fileStore, nil, filepath.FromSlash("/work/base"))
+	c := newCapturer(newErrorLogger(), sourceSpec, fileStore, nil)
 
 	assert.NoError(c.capture())
 
@@ -204,23 +216,24 @@ C:
 	if expected != got {
 		diff := helpers.DiffStringSlices(strings.Fields(expected), strings.Fields(got))
 		t.Log(got)
-		t.Fatalf("Failed:\n%s", diff)
+		t.Fatalf("Failed:\n%s", strings.Join(diff, "\n"))
 	}
 
 }
 
 type noOpFileStore int
 
-func (noOpFileStore) handleSingles(fis ...*fileInfo)  {}
-func (noOpFileStore) handleBundles(b *bundleDirs)     {}
-func (noOpFileStore) handleCopyFiles(names ...string) {}
+func (noOpFileStore) handleSingles(fis ...*fileInfo)        {}
+func (noOpFileStore) handleBundles(b *bundleDirs)           {}
+func (noOpFileStore) handleCopyFiles(files ...pathLangFile) {}
 
 func BenchmarkPageBundlerCapture(b *testing.B) {
 	capturers := make([]*capturer, b.N)
 
 	for i := 0; i < b.N; i++ {
 		cfg, fs := newTestCfg()
-		sourceSpec := source.NewSourceSpec(cfg, fs)
+		ps, _ := helpers.NewPathSpec(fs, cfg)
+		sourceSpec := source.NewSourceSpec(ps, fs.Source)
 
 		base := fmt.Sprintf("base%d", i)
 		for j := 1; j <= 5; j++ {

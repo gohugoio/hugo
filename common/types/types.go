@@ -20,6 +20,12 @@ import (
 	"github.com/spf13/cast"
 )
 
+// KeyValueStr is a string tuple.
+type KeyValueStr struct {
+	Key   string
+	Value string
+}
+
 // KeyValues holds an key and a slice of values.
 type KeyValues struct {
 	Key    interface{}

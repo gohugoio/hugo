@@ -101,9 +101,6 @@ type handlerContext struct {
 
 	bundle *bundleDir
 
-	// The source baseDir, e.g. "/myproject/content/"
-	baseDir string
-
 	source *fileInfo
 
 	// Relative path to the target.
@@ -130,7 +127,7 @@ func (c *handlerContext) targetPath() string {
 		return c.target
 	}
 
-	return strings.TrimPrefix(c.source.Filename(), c.baseDir)
+	return c.source.Filename()
 }
 
 func (c *handlerContext) file() *fileInfo {
@@ -326,7 +323,6 @@ func (c *contentHandlers) createResource() contentHandler {
 
 		resource, err := c.s.resourceSpec.NewResourceFromFilename(
 			ctx.parentPage.subResourceTargetPathFactory,
-			c.s.absPublishDir(),
 			ctx.source.Filename(), ctx.target)
 
 		return handlerResult{err: err, handled: true, resource: resource}
@@ -335,8 +331,9 @@ func (c *contentHandlers) createResource() contentHandler {
 
 func (c *contentHandlers) copyFile() contentHandler {
 	return func(ctx *handlerContext) handlerResult {
-		f, err := c.s.Fs.Source.Open(ctx.source.Filename())
+		f, err := c.s.BaseFs.ContentFs.Open(ctx.source.Filename())
 		if err != nil {
+			err := fmt.Errorf("failed to open file in copyFile: %s", err)
 			return handlerResult{err: err}
 		}
 
