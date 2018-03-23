@@ -54,15 +54,28 @@ Use the [installation instructions in the Hugo documentation](https://gohugo.io/
 
 ### Build and Install the Binaries from Source (Advanced Install)
 
-Add Hugo and its package dependencies to your go `src` directory.
+#### Prerequisite Tools
 
-    go get -v github.com/gohugoio/hugo
+* [Git](http://git-scm.com/)
+* [Go (latest or previous version)](https://golang.org/dl/)
 
-Once the `get` completes, you should find your new `hugo` (or `hugo.exe`) executable sitting inside `$GOPATH/bin/`.
+#### Vendored Dependencies
 
-To update Hugo’s dependencies, use `go get` with the `-u` option.
+Hugo uses [dep](https://github.com/golang/dep) to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository. Therefore, a simple `go get` is _not_ supported because the command is not vendor aware.
 
-    go get -u -v github.com/gohugoio/hugo
+The simplest way is to use [mage](https://github.com/magefile/mage) (a Make alternative for Go projects.)
+
+#### Fetch from GitHub
+
+```bash
+go get github.com/magefile/mage
+go get -d github.com/gohugoio/hugo
+cd ${GOPATH:-$HOME/go}/src/github.com/gohugoio/hugo
+mage vendor
+mage install
+```
+
+**If you are a Windows user, substitute the `$HOME` environment variable above with `%USERPROFILE%`.**
 	
 ## The Hugo Documentation
 
