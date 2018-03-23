@@ -22,6 +22,7 @@ import (
 
 	jww "github.com/spf13/jwalterweatherman"
 
+	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -82,6 +83,10 @@ func (s *storeFilenames) sortedStr() string {
 }
 
 func TestPageBundlerCaptureSymlinks(t *testing.T) {
+	if runtime.GOOS == "windows" && os.Getenv("CI") == "" {
+		t.Skip("Skip TestPageBundlerCaptureSymlinks as os.Symlink needs administrator rights on Windows")
+	}
+
 	assert := require.New(t)
 	ps, workDir := newTestBundleSymbolicSources(t)
 	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.ContentFs)
@@ -92,7 +97,7 @@ func TestPageBundlerCaptureSymlinks(t *testing.T) {
 
 	assert.NoError(c.capture())
 
-	// Symlik back to content skipped to prevent infinite recursion.
+	// Symlink back to content skipped to prevent infinite recursion.
 	assert.Equal(uint64(3), logger.LogCountForLevelsGreaterThanorEqualTo(jww.LevelWarn))
 
 	expected := `
