@@ -1281,19 +1281,19 @@ func (c *contentCaptureResultHandler) getContentProcessor(lang string) *siteCont
 func (c *contentCaptureResultHandler) handleSingles(fis ...*fileInfo) {
 	for _, fi := range fis {
 		proc := c.getContentProcessor(fi.Lang())
-		proc.fileSinglesChan <- fi
+		proc.processSingle(fi)
 	}
 }
 func (c *contentCaptureResultHandler) handleBundles(d *bundleDirs) {
 	for _, b := range d.bundles {
 		proc := c.getContentProcessor(b.fi.Lang())
-		proc.fileBundlesChan <- b
+		proc.processBundle(b)
 	}
 }
 
 func (c *contentCaptureResultHandler) handleCopyFiles(filenames ...string) {
 	for _, proc := range c.contentProcessors {
-		proc.fileAssetsChan <- filenames
+		proc.processAssets(filenames)
 	}
 }
 
@@ -1309,7 +1309,7 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 	var defaultContentProcessor *siteContentProcessor
 	sites := s.owner.langSite()
 	for k, v := range sites {
-		proc := newSiteContentProcessor(baseDir, len(filenames) > 0, v)
+		proc := newSiteContentProcessor(ctx, baseDir, len(filenames) > 0, v)
 		contentProcessors[k] = proc
 		if k == defaultContentLanguage {
 			defaultContentProcessor = proc
@@ -1337,15 +1337,18 @@ func (s *Site) readAndProcessContent(filenames ...string) error {
 
 	c := newCapturer(s.Log, sourceSpec, handler, bundleMap, baseDir, filenames...)
 
-	if err := c.capture(); err != nil {
-		return err
-	}
+	err1 := c.capture()
 
 	for _, proc := range contentProcessors {
 		proc.closeInput()
 	}
 
-	return g.Wait()
+	err2 := g.Wait()
+
+	if err1 != nil {
+		return err1
+	}
+	return err2
 }
 
 func (s *Site) buildSiteMeta() (err error) {

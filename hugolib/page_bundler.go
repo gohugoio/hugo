@@ -32,6 +32,8 @@ type siteContentProcessor struct {
 
 	handleContent contentHandler
 
+	ctx context.Context
+
 	// The input file bundles.
 	fileBundlesChan chan *bundleDir
 
@@ -51,7 +53,28 @@ type siteContentProcessor struct {
 	partialBuild bool
 }
 
-func newSiteContentProcessor(baseDir string, partialBuild bool, s *Site) *siteContentProcessor {
+func (s *siteContentProcessor) processBundle(b *bundleDir) {
+	select {
+	case s.fileBundlesChan <- b:
+	case <-s.ctx.Done():
+	}
+}
+
+func (s *siteContentProcessor) processSingle(fi *fileInfo) {
+	select {
+	case s.fileSinglesChan <- fi:
+	case <-s.ctx.Done():
+	}
+}
+
+func (s *siteContentProcessor) processAssets(assets []string) {
+	select {
+	case s.fileAssetsChan <- assets:
+	case <-s.ctx.Done():
+	}
+}
+
+func newSiteContentProcessor(ctx context.Context, baseDir string, partialBuild bool, s *Site) *siteContentProcessor {
 	numWorkers := 12
 	if n := runtime.NumCPU() * 3; n > numWorkers {
 		numWorkers = n
@@ -60,6 +83,7 @@ func newSiteContentProcessor(baseDir string, partialBuild bool, s *Site) *siteCo
 	numWorkers = int(math.Ceil(float64(numWorkers) / float64(len(s.owner.Sites))))
 
 	return &siteContentProcessor{
+		ctx:             ctx,
 		partialBuild:    partialBuild,
 		baseDir:         baseDir,
 		site:            s,
@@ -80,7 +104,7 @@ func (s *siteContentProcessor) closeInput() {
 
 func (s *siteContentProcessor) process(ctx context.Context) error {
 	g1, ctx := errgroup.WithContext(ctx)
-	g2, _ := errgroup.WithContext(ctx)
+	g2, ctx := errgroup.WithContext(ctx)
 
 	// There can be only one of these per site.
 	g1.Go(func() error {
@@ -161,11 +185,13 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 		})
 	}
 
-	if err := g2.Wait(); err != nil {
-		return err
-	}
+	err := g2.Wait()
 
 	close(s.pagesChan)
+
+	if err != nil {
+		return err
+	}
 
 	if err := g1.Wait(); err != nil {
 		return err

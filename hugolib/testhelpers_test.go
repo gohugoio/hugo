@@ -272,12 +272,22 @@ func (s *sitesBuilder) CreateSites() *sitesBuilder {
 }
 
 func (s *sitesBuilder) Build(cfg BuildCfg) *sitesBuilder {
+	return s.build(cfg, false)
+}
+
+func (s *sitesBuilder) BuildFail(cfg BuildCfg) *sitesBuilder {
+	return s.build(cfg, true)
+}
+
+func (s *sitesBuilder) build(cfg BuildCfg, shouldFail bool) *sitesBuilder {
 	if s.H == nil {
 		s.CreateSites()
 	}
 	err := s.H.Build(cfg)
-	if err != nil {
+	if err != nil && !shouldFail {
 		s.Fatalf("Build failed: %s", err)
+	} else if err == nil && shouldFail {
+		s.Fatalf("Expected error")
 	}
 
 	return s
