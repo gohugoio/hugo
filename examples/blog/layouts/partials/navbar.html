@@ -12,9 +12,12 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse">
                 <ul class="nav navbar-nav">
                     <li><a href="/post/">Post Index</a></li>
+                    {{ range where .Site.RegularPages "Section" "page" }}
+                    <li><a href="{{ .Permalink }}">{{ .Title }}</a></li>
+                    {{ end }}
                     <!--
                     And here is where you'd add more links to sections, or anywhere you like.
-                    <li><a href="#">About Me</a></li>
+                    <li><a href="#">My url title</a></li>
                     -->
                 </ul>
             </div>

@@ -11,6 +11,7 @@ Features
 - Recent Posts at main index
 - Indexes for `tags` and `categories`
 - Post information block, with links for all `tags` and `categories` post belongs to
+- Custom page support and dynamic menu with content/page
 - [Bootstrap 3](http://getbootstrap.com/) ready
   - Currently using the [Yeti](http://bootswatch.com/yeti/) theme from http://bootswatch.com/
 
@@ -18,7 +19,6 @@ Common things that should be added in the near future *(pull requests are welcom
 
 - Disqus integration
 - More content types to demonstrate different layout methods
-  - About Me
   - Contact
 
 Getting Started
