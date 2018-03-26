@@ -20,7 +20,6 @@ parts:
     go-importpath: github.com/gohugoio/hugo
     build-packages:
       - git
-      - make
     stage-packages:
       - git
       - python-pygments
