@@ -380,6 +380,7 @@ type SiteInfo struct {
 	BuildDrafts           bool
 	canonifyURLs          bool
 	relativeURLs          bool
+	IsServer              bool
 	uglyURLs              func(p *Page) bool
 	preserveTaxonomyNames bool
 	Data                  *map[string]interface{}
