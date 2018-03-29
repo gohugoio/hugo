@@ -210,7 +210,7 @@ title ("")
 : Site title.
 
 uglyURLs (false)
-: When enabled, creates URL on the form `/filename.html` instead of `/filename/`.
+: When enabled, creates URL of the form `/filename.html` instead of `/filename/`.
 
 verbose (false)
 : Enable verbose output.
