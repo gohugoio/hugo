@@ -343,11 +343,9 @@ func (c *commandeer) serve() error {
 		for _, s := range Hugo.Sites {
 			baseURLs = append(baseURLs, s.BaseURL.String())
 			roots = append(roots, s.Language.Lang)
-			s.Info.IsServer = true
 		}
 	} else {
 		s := Hugo.Sites[0]
-		s.Info.IsServer = true
 		baseURLs = []string{s.BaseURL.String()}
 		roots = []string{""}
 	}
