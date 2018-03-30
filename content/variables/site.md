@@ -52,6 +52,9 @@ The following is a list of site-level (aka "global") variables. Many of these va
 .Site.IsMultiLingual
 : whether there are more than one language in this site. See [Multilingual](/content-management/multilingual/) for more information.
 
+.Site.IsServer
+: a boolean to indicate if the site is being served with Hugo's built-in server. See [`hugo server`](/commands/hugo_server/) for more information.
+
 .Site.Language.Lang
 : the language code of the current locale (e.g., `en`).
 
