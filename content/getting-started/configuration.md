@@ -198,7 +198,7 @@ summaryLength (70)
 : The length of text to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
 
 taxonomies
-: See [Configure Taxonomies](content-management/taxonomies#configure-taxonomies).
+: See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
 
 theme ("")
 : Theme to use (located by default in `/themes/THEMENAME/`).
