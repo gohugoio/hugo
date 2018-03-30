@@ -467,6 +467,10 @@ func (s *SiteInfo) IsMultiLingual() bool {
 	return len(s.Languages) > 1
 }
 
+func (s *SiteInfo) IsServer() bool {
+	return s.owner.running
+}
+
 func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat string) (string, error) {
 	var refURL *url.URL
 	var err error
