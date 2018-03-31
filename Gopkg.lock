@@ -55,7 +55,7 @@
     "lexers/y",
     "styles"
   ]
-  revision = "5640f893f2d523db790586eac7baeef34752e1ad"
+  revision = "85c342e3e3d715ad780edd0ba8728161e99cce24"
 
 [[projects]]
   branch = "master"
