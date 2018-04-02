@@ -147,7 +147,7 @@ See [Highlight](/functions/highlight/).
 It is also possible to add syntax highlighting with GitHub flavored code fences. To enable this, set the `pygmentsCodeFences` to `true` in Hugo's [configuration file](/getting-started/configuration/);
 
 ````
-```html
+```go-html-template
 <section id="main">
   <div>
     <h1 id="title">{{ .Title }}</h1>

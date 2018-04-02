@@ -140,7 +140,7 @@ This is especially important for themes, but to list the most relevant pages on 
 
 This will, by default, list pages from the _section with the most pages_.
 
-```html
+```go-html-template
 {{ $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections }}
 ```
 
