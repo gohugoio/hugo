@@ -118,7 +118,7 @@ Note the use of the [`markdownify` template function][markdownify]. This will se
 
 ## Data-Driven Content
 
-In addition to the [data files](/extras/datafiles/) feature, Hugo also a "data-driven content" feature, which lets you load any [JSON](http://www.json.org/) or [CSV](http://en.wikipedia.org/wiki/Comma-separated_values) file from nearly any resource.
+In addition to the [data files](/extras/datafiles/) feature, Hugo also has a "data-driven content" feature, which lets you load any [JSON](http://www.json.org/) or [CSV](http://en.wikipedia.org/wiki/Comma-separated_values) file from nearly any resource.
 
 Data-driven content currently consists of two functions, `getJSON` and `getCSV`, which are available in all template files.
 

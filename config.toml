@@ -22,8 +22,7 @@ pygmentsCodeFences = true
 
 pygmentsOptions = ""
 # Use the Chroma stylesheet
-# TODO(bep) build new CSS when we have picked a new style.
-pygmentsUseClasses = false
+pygmentsUseClasses = true
 pygmentsUseClassic = false
 
 # See https://help.farbox.com/pygments.html
