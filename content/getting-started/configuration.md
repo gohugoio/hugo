@@ -202,7 +202,7 @@ summaryLength (70)
 : The length of text to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
 
 taxonomies
-: See [Configure Taxonomies](content-management/taxonomies#configure-taxonomies).
+: See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
 
 theme ("")
 : Theme to use (located by default in `/themes/THEMENAME/`).
@@ -214,7 +214,7 @@ title ("")
 : Site title.
 
 uglyURLs (false)
-: When enabled, creates URL on the form `/filename.html` instead of `/filename/`.
+: When enabled, creates URL of the form `/filename.html` instead of `/filename/`.
 
 verbose (false)
 : Enable verbose output.
@@ -249,7 +249,24 @@ Similar to the template [lookup order][], Hugo has a default set of rules for se
 
 In your `config` file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
 
+
 ## YAML Configuration
+
+{{< code file="config.yml">}}
+baseURL: "https://yoursite.example.com/"
+title: "My Hugo Site"
+footnoteReturnLinkContents: "↩"
+permalinks:
+  post: /:year/:month/:title/
+params:
+  Subtitle: "Hugo is Absurdly Fast!"
+  AuthorName: "Jon Doe"
+  GitHubUser: "spf13"
+  ListOfFoo:
+    - "foo1"
+    - "foo2"
+  SidebarRecentLimit: 5
+{{< /code >}}
 
 The following is a typical example of a YAML configuration file. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
 

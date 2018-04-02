@@ -8,7 +8,7 @@ import './lazysizes.js'
 import './menutoggle.js'
 import './scrolldir.js'
 import './smoothscroll.js'
-
+import './tabs.js'
 import './nojs.js'
 
 

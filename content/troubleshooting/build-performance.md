@@ -17,7 +17,7 @@ toc: true
 ---
 
 {{% note %}}
-The example site used below is from https://github.com/gohugoio/hugo/examples/blog
+The example site used below is from https://github.com/gohugoio/hugo/tree/master/examples/blog
 {{% /note %}}
 
 ## Template Metrics

@@ -103,6 +103,20 @@ But you can get it by `.Site.GetPage`. Here is an example:
 {{ end }}
 ```
 
+_In this example, we are assuming the `some-headless-bundle` to be a headless
+   bundle containing one or more **page** resources whose `.Name` matches
+   `"author*"`._
+
+Explanation of the above example:
+
+1. Get the `some-headless-bundle` Page "object".
+2. Collect a *slice* of resources in this *Page Bundle* that matches
+   `"author*"` using `.Resources.Match`.
+3. Loop through that *slice* of nested pages, and output their `.Title` and
+   `.Content`.
+
+---
+
 A leaf bundle can be made headless by adding below in the Front Matter
 (in the `index.md`):
 
