@@ -84,7 +84,6 @@
       {
         "Name": "Base Makefile",
         "Aliases": [
-          "*",
           "bsdmake",
           "mak",
           "make",
@@ -97,7 +96,6 @@
         "Name": "Bash",
         "Aliases": [
           "bash",
-          "bash_*",
           "bashrc",
           "ebuild",
           "eclass",
