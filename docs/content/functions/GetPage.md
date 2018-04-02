@@ -10,7 +10,7 @@ menu:
   docs:
     parent: "functions"
 keywords: [sections,lists,indexes]
-signature: [".GetPage TYPE PATH"]
+signature: [".GetPage KIND PATH"]
 workson: []
 hugoversion:
 relatedfuncs: []
@@ -18,29 +18,33 @@ deprecated: false
 aliases: []
 ---
 
-Every `Page` has a `Kind` attribute that shows what kind of page it is. While this attribute can be used to list pages of a certain `kind` using `where`, often it can be useful to fetch a single page by its path.
+Every `Page` has a [`Kind` attribute][page_kinds] that shows what kind of page it is. While this attribute can be used to list pages of a certain `kind` using `where`, often it can be useful to fetch a single page by its path.
 
-`.GetPage` looks up a page of a given `Kind` and `path`.
+`.GetPage` returns a page of a given `Kind` and `path`.
+
+{{% note %}}
+If the `path` is `"foo/bar.md"`, it can be written as exactly that, or broken up
+into multiple strings as `"foo" "bar.md"`.
+{{% /note %}}
 
 ```
 {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
 ```
 
-This method wil return `nil` when no page could be found, so the above will not print anything if the blog section isn't found.
+This method wil return `nil` when no page could be found, so the above will not print anything if the blog section is not found.
 
-For a regular page:
-
-```
-{{ with .Site.GetPage "page" "blog" "my-post.md" }}{{ .Title }}{{ end }}
-```
-
-Note that the path can also be supplied like this:
+For a regular page (whose `Kind` is `page`):
 
 ```
 {{ with .Site.GetPage "page" "blog/my-post.md" }}{{ .Title }}{{ end }}
 ```
 
-The valid page kinds are: *page, home, section, taxonomy and taxonomyTerm.*
+Note that the `path` can also be supplied like this, where the slash-separated
+path elements are added as separate strings:
+
+```
+{{ with .Site.GetPage "page" "blog" "my-post.md" }}{{ .Title }}{{ end }}
+```
 
 ## `.GetPage` Example
 
@@ -53,13 +57,26 @@ This code snippet---in the form of a [partial template][partials]---allows you t
 
 {{< code file="grab-top-two-tags.html" >}}
 <ul class="most-popular-tags">
-{{ $t := $.Site.GetPage "taxonomyTerm" "tags" }}
+{{ $t := .Site.GetPage "taxonomyTerm" "tags" }}
 {{ range first 2 $t.Data.Terms.ByCount }}
-    <li>{{.}}</li>
+    <li>{{ . }}</li>
 {{ end }}
 </ul>
 {{< /code >}}
 
+## `.GetPage` on Page Bundles
+
+If the page retrieved by `.GetPage` is a [Leaf Bundle][leaf_bundle], and you
+need to get the nested _**page** resources_ in that, you will need to use the
+methods in `.Resources` as explained in the [Page Resources][page_resources]
+section.
+
+See the [Headless Bundle][headless_bundle] documentation for an example.
+
 
 [partials]: /templates/partials/
 [taxonomy]: /content-management/taxonomies/
+[page_kinds]: /templates/section-templates/#page-kinds
+[leaf_bundle]: /content-management/page-bundles/#leaf-bundles
+[headless_bundle]: /content-management/page-bundles/#headless-bundle
+[page_resources]: /content-management/page-resources/

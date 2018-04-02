@@ -62,7 +62,7 @@ func GetTitleFunc(style string) func(s string) string {
 {{< / highlight >}}
 
 
-## Configure Syntax Hightlighter
+## Configure Syntax Highlighter
 To make the transition from Pygments to Chroma seamless, they share a common set of configuration options:
 
 pygmentsOptions
