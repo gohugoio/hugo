@@ -1,4 +1,1224 @@
 {
+  "chroma": {
+    "lexers": [
+      {
+        "Name": "ABNF",
+        "Aliases": [
+          "abnf"
+        ]
+      },
+      {
+        "Name": "ANTLR",
+        "Aliases": [
+          "antlr"
+        ]
+      },
+      {
+        "Name": "APL",
+        "Aliases": [
+          "apl"
+        ]
+      },
+      {
+        "Name": "ActionScript",
+        "Aliases": [
+          "actionscript",
+          "as"
+        ]
+      },
+      {
+        "Name": "ActionScript 3",
+        "Aliases": [
+          "actionscript3",
+          "as",
+          "as3"
+        ]
+      },
+      {
+        "Name": "Ada",
+        "Aliases": [
+          "ada",
+          "ada2005",
+          "ada95",
+          "adb",
+          "ads"
+        ]
+      },
+      {
+        "Name": "Angular2",
+        "Aliases": [
+          "ng2"
+        ]
+      },
+      {
+        "Name": "ApacheConf",
+        "Aliases": [
+          "aconf",
+          "apache",
+          "apacheconf",
+          "conf",
+          "htaccess"
+        ]
+      },
+      {
+        "Name": "AppleScript",
+        "Aliases": [
+          "applescript"
+        ]
+      },
+      {
+        "Name": "Awk",
+        "Aliases": [
+          "awk",
+          "gawk",
+          "mawk",
+          "nawk"
+        ]
+      },
+      {
+        "Name": "BNF",
+        "Aliases": [
+          "bnf"
+        ]
+      },
+      {
+        "Name": "Base Makefile",
+        "Aliases": [
+          "*",
+          "bsdmake",
+          "mak",
+          "make",
+          "makefile",
+          "mf",
+          "mk"
+        ]
+      },
+      {
+        "Name": "Bash",
+        "Aliases": [
+          "bash",
+          "bash_*",
+          "bashrc",
+          "ebuild",
+          "eclass",
+          "exheres-0",
+          "exlib",
+          "ksh",
+          "sh",
+          "shell",
+          "zsh",
+          "zshrc"
+        ]
+      },
+      {
+        "Name": "Batchfile",
+        "Aliases": [
+          "bat",
+          "batch",
+          "cmd",
+          "dosbatch",
+          "winbatch"
+        ]
+      },
+      {
+        "Name": "BlitzBasic",
+        "Aliases": [
+          "b3d",
+          "bb",
+          "blitzbasic",
+          "bplus",
+          "decls"
+        ]
+      },
+      {
+        "Name": "Brainfuck",
+        "Aliases": [
+          "b",
+          "bf",
+          "brainfuck"
+        ]
+      },
+      {
+        "Name": "C",
+        "Aliases": [
+          "c",
+          "h",
+          "idc"
+        ]
+      },
+      {
+        "Name": "C#",
+        "Aliases": [
+          "c#",
+          "cs",
+          "csharp"
+        ]
+      },
+      {
+        "Name": "C++",
+        "Aliases": [
+          "C",
+          "CPP",
+          "H",
+          "c++",
+          "cc",
+          "cp",
+          "cpp",
+          "cxx",
+          "h++",
+          "hh",
+          "hpp",
+          "hxx"
+        ]
+      },
+      {
+        "Name": "CFEngine3",
+        "Aliases": [
+          "cf",
+          "cf3",
+          "cfengine3"
+        ]
+      },
+      {
+        "Name": "CMake",
+        "Aliases": [
+          "cmake",
+          "txt"
+        ]
+      },
+      {
+        "Name": "COBOL",
+        "Aliases": [
+          "COB",
+          "CPY",
+          "cob",
+          "cobol",
+          "cpy"
+        ]
+      },
+      {
+        "Name": "CSS",
+        "Aliases": [
+          "css"
+        ]
+      },
+      {
+        "Name": "Cap'n Proto",
+        "Aliases": [
+          "capnp"
+        ]
+      },
+      {
+        "Name": "Ceylon",
+        "Aliases": [
+          "ceylon"
+        ]
+      },
+      {
+        "Name": "ChaiScript",
+        "Aliases": [
+          "chai",
+          "chaiscript"
+        ]
+      },
+      {
+        "Name": "Cheetah",
+        "Aliases": [
+          "cheetah",
+          "spitfire",
+          "spt",
+          "tmpl"
+        ]
+      },
+      {
+        "Name": "Clojure",
+        "Aliases": [
+          "clj",
+          "clojure"
+        ]
+      },
+      {
+        "Name": "CoffeeScript",
+        "Aliases": [
+          "coffee",
+          "coffee-script",
+          "coffeescript"
+        ]
+      },
+      {
+        "Name": "Common Lisp",
+        "Aliases": [
+          "cl",
+          "common-lisp",
+          "lisp"
+        ]
+      },
+      {
+        "Name": "Coq",
+        "Aliases": [
+          "coq",
+          "v"
+        ]
+      },
+      {
+        "Name": "Crystal",
+        "Aliases": [
+          "cr",
+          "crystal"
+        ]
+      },
+      {
+        "Name": "Cython",
+        "Aliases": [
+          "cython",
+          "pxd",
+          "pxi",
+          "pyrex",
+          "pyx"
+        ]
+      },
+      {
+        "Name": "DTD",
+        "Aliases": [
+          "dtd"
+        ]
+      },
+      {
+        "Name": "Dart",
+        "Aliases": [
+          "dart"
+        ]
+      },
+      {
+        "Name": "Diff",
+        "Aliases": [
+          "diff",
+          "patch",
+          "udiff"
+        ]
+      },
+      {
+        "Name": "Django/Jinja",
+        "Aliases": [
+          "django",
+          "jinja"
+        ]
+      },
+      {
+        "Name": "Docker",
+        "Aliases": [
+          "docker",
+          "dockerfile"
+        ]
+      },
+      {
+        "Name": "EBNF",
+        "Aliases": [
+          "ebnf"
+        ]
+      },
+      {
+        "Name": "Elixir",
+        "Aliases": [
+          "elixir",
+          "ex",
+          "exs"
+        ]
+      },
+      {
+        "Name": "Elm",
+        "Aliases": [
+          "elm"
+        ]
+      },
+      {
+        "Name": "EmacsLisp",
+        "Aliases": [
+          "el",
+          "elisp",
+          "emacs",
+          "emacs-lisp"
+        ]
+      },
+      {
+        "Name": "Erlang",
+        "Aliases": [
+          "erl",
+          "erlang",
+          "es",
+          "escript",
+          "hrl"
+        ]
+      },
+      {
+        "Name": "FSharp",
+        "Aliases": [
+          "fs",
+          "fsharp",
+          "fsi"
+        ]
+      },
+      {
+        "Name": "Factor",
+        "Aliases": [
+          "factor"
+        ]
+      },
+      {
+        "Name": "Fish",
+        "Aliases": [
+          "fish",
+          "fishshell",
+          "load"
+        ]
+      },
+      {
+        "Name": "Forth",
+        "Aliases": [
+          "forth",
+          "frt",
+          "fs"
+        ]
+      },
+      {
+        "Name": "Fortran",
+        "Aliases": [
+          "F03",
+          "F90",
+          "f03",
+          "f90",
+          "fortran"
+        ]
+      },
+      {
+        "Name": "GAS",
+        "Aliases": [
+          "S",
+          "asm",
+          "gas",
+          "s"
+        ]
+      },
+      {
+        "Name": "GDScript",
+        "Aliases": [
+          "gd",
+          "gdscript"
+        ]
+      },
+      {
+        "Name": "GLSL",
+        "Aliases": [
+          "frag",
+          "geo",
+          "glsl",
+          "vert"
+        ]
+      },
+      {
+        "Name": "Genshi",
+        "Aliases": [
+          "genshi",
+          "kid",
+          "xml+genshi",
+          "xml+kid"
+        ]
+      },
+      {
+        "Name": "Genshi HTML",
+        "Aliases": [
+          "html+genshi",
+          "html+kid"
+        ]
+      },
+      {
+        "Name": "Genshi Text",
+        "Aliases": [
+          "genshitext"
+        ]
+      },
+      {
+        "Name": "Gnuplot",
+        "Aliases": [
+          "gnuplot",
+          "plot",
+          "plt"
+        ]
+      },
+      {
+        "Name": "Go",
+        "Aliases": [
+          "go",
+          "golang"
+        ]
+      },
+      {
+        "Name": "Go HTML Template",
+        "Aliases": [
+          "go-html-template"
+        ]
+      },
+      {
+        "Name": "Go Text Template",
+        "Aliases": [
+          "go-text-template"
+        ]
+      },
+      {
+        "Name": "Groovy",
+        "Aliases": [
+          "gradle",
+          "groovy"
+        ]
+      },
+      {
+        "Name": "HTML",
+        "Aliases": [
+          "htm",
+          "html",
+          "xhtml",
+          "xslt"
+        ]
+      },
+      {
+        "Name": "HTTP",
+        "Aliases": [
+          "http"
+        ]
+      },
+      {
+        "Name": "Handlebars",
+        "Aliases": [
+          "handlebars"
+        ]
+      },
+      {
+        "Name": "Haskell",
+        "Aliases": [
+          "haskell",
+          "hs"
+        ]
+      },
+      {
+        "Name": "Haxe",
+        "Aliases": [
+          "haxe",
+          "hx",
+          "hxsl"
+        ]
+      },
+      {
+        "Name": "Hexdump",
+        "Aliases": [
+          "hexdump"
+        ]
+      },
+      {
+        "Name": "Hy",
+        "Aliases": [
+          "hy",
+          "hylang"
+        ]
+      },
+      {
+        "Name": "INI",
+        "Aliases": [
+          "cfg",
+          "dosini",
+          "inf",
+          "ini"
+        ]
+      },
+      {
+        "Name": "Idris",
+        "Aliases": [
+          "idr",
+          "idris"
+        ]
+      },
+      {
+        "Name": "Io",
+        "Aliases": [
+          "io"
+        ]
+      },
+      {
+        "Name": "JSON",
+        "Aliases": [
+          "json"
+        ]
+      },
+      {
+        "Name": "JSX",
+        "Aliases": [
+          "jsx",
+          "react"
+        ]
+      },
+      {
+        "Name": "Java",
+        "Aliases": [
+          "java"
+        ]
+      },
+      {
+        "Name": "JavaScript",
+        "Aliases": [
+          "javascript",
+          "js",
+          "jsm"
+        ]
+      },
+      {
+        "Name": "Julia",
+        "Aliases": [
+          "jl",
+          "julia"
+        ]
+      },
+      {
+        "Name": "Kotlin",
+        "Aliases": [
+          "kotlin",
+          "kt"
+        ]
+      },
+      {
+        "Name": "LLVM",
+        "Aliases": [
+          "ll",
+          "llvm"
+        ]
+      },
+      {
+        "Name": "Lighttpd configuration file",
+        "Aliases": [
+          "lighttpd",
+          "lighty"
+        ]
+      },
+      {
+        "Name": "Lua",
+        "Aliases": [
+          "lua",
+          "wlua"
+        ]
+      },
+      {
+        "Name": "Mako",
+        "Aliases": [
+          "mako",
+          "mao"
+        ]
+      },
+      {
+        "Name": "Mason",
+        "Aliases": [
+          "m",
+          "mason",
+          "mc",
+          "mhtml",
+          "mi"
+        ]
+      },
+      {
+        "Name": "Mathematica",
+        "Aliases": [
+          "cdf",
+          "ma",
+          "mathematica",
+          "mma",
+          "nb",
+          "nbp"
+        ]
+      },
+      {
+        "Name": "MiniZinc",
+        "Aliases": [
+          "MZN",
+          "dzn",
+          "fzn",
+          "minizinc",
+          "mzn"
+        ]
+      },
+      {
+        "Name": "Modula-2",
+        "Aliases": [
+          "def",
+          "m2",
+          "mod",
+          "modula2"
+        ]
+      },
+      {
+        "Name": "MorrowindScript",
+        "Aliases": [
+          "morrowind",
+          "mwscript"
+        ]
+      },
+      {
+        "Name": "MySQL",
+        "Aliases": [
+          "mysql",
+          "sql"
+        ]
+      },
+      {
+        "Name": "Myghty",
+        "Aliases": [
+          "myghty",
+          "myt"
+        ]
+      },
+      {
+        "Name": "NASM",
+        "Aliases": [
+          "ASM",
+          "asm",
+          "nasm"
+        ]
+      },
+      {
+        "Name": "Newspeak",
+        "Aliases": [
+          "newspeak",
+          "ns2"
+        ]
+      },
+      {
+        "Name": "Nginx configuration file",
+        "Aliases": [
+          "conf",
+          "nginx"
+        ]
+      },
+      {
+        "Name": "Nim",
+        "Aliases": [
+          "nim",
+          "nimrod"
+        ]
+      },
+      {
+        "Name": "Nix",
+        "Aliases": [
+          "nix",
+          "nixos"
+        ]
+      },
+      {
+        "Name": "OCaml",
+        "Aliases": [
+          "ml",
+          "mli",
+          "mll",
+          "mly",
+          "ocaml"
+        ]
+      },
+      {
+        "Name": "Objective-C",
+        "Aliases": [
+          "h",
+          "m",
+          "obj-c",
+          "objc",
+          "objective-c",
+          "objectivec"
+        ]
+      },
+      {
+        "Name": "Octave",
+        "Aliases": [
+          "m",
+          "octave"
+        ]
+      },
+      {
+        "Name": "PHP",
+        "Aliases": [
+          "inc",
+          "php",
+          "php3",
+          "php4",
+          "php5",
+          "php[345]"
+        ]
+      },
+      {
+        "Name": "PL/pgSQL",
+        "Aliases": [
+          "plpgsql"
+        ]
+      },
+      {
+        "Name": "POVRay",
+        "Aliases": [
+          "inc",
+          "pov"
+        ]
+      },
+      {
+        "Name": "PacmanConf",
+        "Aliases": [
+          "conf",
+          "pacmanconf"
+        ]
+      },
+      {
+        "Name": "Perl",
+        "Aliases": [
+          "perl",
+          "pl",
+          "pm",
+          "t"
+        ]
+      },
+      {
+        "Name": "Pig",
+        "Aliases": [
+          "pig"
+        ]
+      },
+      {
+        "Name": "PkgConfig",
+        "Aliases": [
+          "pc",
+          "pkgconfig"
+        ]
+      },
+      {
+        "Name": "PostScript",
+        "Aliases": [
+          "eps",
+          "postscr",
+          "postscript",
+          "ps"
+        ]
+      },
+      {
+        "Name": "PostgreSQL SQL dialect",
+        "Aliases": [
+          "postgres",
+          "postgresql"
+        ]
+      },
+      {
+        "Name": "PowerShell",
+        "Aliases": [
+          "posh",
+          "powershell",
+          "ps1",
+          "psm1"
+        ]
+      },
+      {
+        "Name": "Prolog",
+        "Aliases": [
+          "ecl",
+          "pl",
+          "pro",
+          "prolog"
+        ]
+      },
+      {
+        "Name": "Protocol Buffer",
+        "Aliases": [
+          "proto",
+          "protobuf"
+        ]
+      },
+      {
+        "Name": "Puppet",
+        "Aliases": [
+          "pp",
+          "puppet"
+        ]
+      },
+      {
+        "Name": "Python",
+        "Aliases": [
+          "py",
+          "python",
+          "pyw",
+          "sage",
+          "sc",
+          "tac"
+        ]
+      },
+      {
+        "Name": "Python 3",
+        "Aliases": [
+          "py3",
+          "python3"
+        ]
+      },
+      {
+        "Name": "QBasic",
+        "Aliases": [
+          "BAS",
+          "bas",
+          "basic",
+          "qbasic"
+        ]
+      },
+      {
+        "Name": "R",
+        "Aliases": [
+          "R",
+          "Renviron",
+          "Rhistory",
+          "Rprofile",
+          "S",
+          "r",
+          "s",
+          "splus"
+        ]
+      },
+      {
+        "Name": "Racket",
+        "Aliases": [
+          "racket",
+          "rkt",
+          "rktd",
+          "rktl"
+        ]
+      },
+      {
+        "Name": "Ragel",
+        "Aliases": [
+          "ragel"
+        ]
+      },
+      {
+        "Name": "Rexx",
+        "Aliases": [
+          "arexx",
+          "rex",
+          "rexx",
+          "rx"
+        ]
+      },
+      {
+        "Name": "Ruby",
+        "Aliases": [
+          "duby",
+          "gemspec",
+          "rake",
+          "rb",
+          "rbw",
+          "rbx",
+          "ruby"
+        ]
+      },
+      {
+        "Name": "Rust",
+        "Aliases": [
+          "in",
+          "rs",
+          "rust"
+        ]
+      },
+      {
+        "Name": "SCSS",
+        "Aliases": [
+          "scss"
+        ]
+      },
+      {
+        "Name": "SPARQL",
+        "Aliases": [
+          "rq",
+          "sparql"
+        ]
+      },
+      {
+        "Name": "SQL",
+        "Aliases": [
+          "sql"
+        ]
+      },
+      {
+        "Name": "Sass",
+        "Aliases": [
+          "sass"
+        ]
+      },
+      {
+        "Name": "Scala",
+        "Aliases": [
+          "scala"
+        ]
+      },
+      {
+        "Name": "Scheme",
+        "Aliases": [
+          "scheme",
+          "scm",
+          "ss"
+        ]
+      },
+      {
+        "Name": "Scilab",
+        "Aliases": [
+          "sce",
+          "sci",
+          "scilab",
+          "tst"
+        ]
+      },
+      {
+        "Name": "Smalltalk",
+        "Aliases": [
+          "smalltalk",
+          "squeak",
+          "st"
+        ]
+      },
+      {
+        "Name": "Smarty",
+        "Aliases": [
+          "smarty",
+          "tpl"
+        ]
+      },
+      {
+        "Name": "Snobol",
+        "Aliases": [
+          "snobol"
+        ]
+      },
+      {
+        "Name": "Solidity",
+        "Aliases": [
+          "sol",
+          "solidity"
+        ]
+      },
+      {
+        "Name": "SquidConf",
+        "Aliases": [
+          "conf",
+          "squid",
+          "squid.conf",
+          "squidconf"
+        ]
+      },
+      {
+        "Name": "Swift",
+        "Aliases": [
+          "swift"
+        ]
+      },
+      {
+        "Name": "TASM",
+        "Aliases": [
+          "ASM",
+          "asm",
+          "tasm"
+        ]
+      },
+      {
+        "Name": "TOML",
+        "Aliases": [
+          "toml"
+        ]
+      },
+      {
+        "Name": "Tcl",
+        "Aliases": [
+          "rvt",
+          "tcl"
+        ]
+      },
+      {
+        "Name": "Tcsh",
+        "Aliases": [
+          "csh",
+          "tcsh"
+        ]
+      },
+      {
+        "Name": "TeX",
+        "Aliases": [
+          "aux",
+          "latex",
+          "tex",
+          "toc"
+        ]
+      },
+      {
+        "Name": "Termcap",
+        "Aliases": [
+          "src",
+          "termcap"
+        ]
+      },
+      {
+        "Name": "Terminfo",
+        "Aliases": [
+          "src",
+          "terminfo"
+        ]
+      },
+      {
+        "Name": "Terraform",
+        "Aliases": [
+          "terraform",
+          "tf"
+        ]
+      },
+      {
+        "Name": "Thrift",
+        "Aliases": [
+          "thrift"
+        ]
+      },
+      {
+        "Name": "Transact-SQL",
+        "Aliases": [
+          "t-sql",
+          "tsql"
+        ]
+      },
+      {
+        "Name": "Turtle",
+        "Aliases": [
+          "ttl",
+          "turtle"
+        ]
+      },
+      {
+        "Name": "Twig",
+        "Aliases": [
+          "twig"
+        ]
+      },
+      {
+        "Name": "TypeScript",
+        "Aliases": [
+          "ts",
+          "tsx",
+          "typescript"
+        ]
+      },
+      {
+        "Name": "TypoScript",
+        "Aliases": [
+          "ts",
+          "txt",
+          "typoscript"
+        ]
+      },
+      {
+        "Name": "TypoScriptCssData",
+        "Aliases": [
+          "typoscriptcssdata"
+        ]
+      },
+      {
+        "Name": "TypoScriptHtmlData",
+        "Aliases": [
+          "typoscripthtmldata"
+        ]
+      },
+      {
+        "Name": "VHDL",
+        "Aliases": [
+          "vhd",
+          "vhdl"
+        ]
+      },
+      {
+        "Name": "VimL",
+        "Aliases": [
+          "exrc",
+          "gvimrc",
+          "vim",
+          "vimrc"
+        ]
+      },
+      {
+        "Name": "WDTE",
+        "Aliases": [
+          "wdte"
+        ]
+      },
+      {
+        "Name": "XML",
+        "Aliases": [
+          "rss",
+          "svg",
+          "wsdl",
+          "wsf",
+          "xml",
+          "xsd",
+          "xsl",
+          "xslt"
+        ]
+      },
+      {
+        "Name": "Xorg",
+        "Aliases": [
+          "conf",
+          "xorg.conf"
+        ]
+      },
+      {
+        "Name": "YAML",
+        "Aliases": [
+          "yaml",
+          "yml"
+        ]
+      },
+      {
+        "Name": "cfstatement",
+        "Aliases": [
+          "cfs"
+        ]
+      },
+      {
+        "Name": "markdown",
+        "Aliases": [
+          "markdown",
+          "md",
+          "mkd"
+        ]
+      },
+      {
+        "Name": "reStructuredText",
+        "Aliases": [
+          "rest",
+          "restructuredtext",
+          "rst"
+        ]
+      },
+      {
+        "Name": "reg",
+        "Aliases": [
+          "reg",
+          "registry"
+        ]
+      },
+      {
+        "Name": "systemverilog",
+        "Aliases": [
+          "sv",
+          "svh",
+          "systemverilog"
+        ]
+      },
+      {
+        "Name": "verilog",
+        "Aliases": [
+          "v",
+          "verilog"
+        ]
+      }
+    ]
+  },
   "media": {
     "types": [
       {
@@ -198,6 +1418,26 @@
         "notAlternative": false
       },
       {
+        "MediaType": "text/plain+txt",
+        "name": "ROBOTS",
+        "mediaType": {
+          "type": "text/plain",
+          "string": "text/plain+txt",
+          "mainType": "text",
+          "subType": "plain",
+          "suffix": "txt",
+          "delimiter": "."
+        },
+        "path": "",
+        "baseName": "robots",
+        "rel": "alternate",
+        "protocol": "",
+        "isPlainText": true,
+        "isHTML": false,
+        "noUgly": false,
+        "notAlternative": false
+      },
+      {
         "MediaType": "application/rss+xml",
         "name": "RSS",
         "mediaType": {
@@ -211,6 +1451,26 @@
         "path": "",
         "baseName": "index",
         "rel": "alternate",
+        "protocol": "",
+        "isPlainText": false,
+        "isHTML": false,
+        "noUgly": true,
+        "notAlternative": false
+      },
+      {
+        "MediaType": "application/xml+xml",
+        "name": "Sitemap",
+        "mediaType": {
+          "type": "application/xml",
+          "string": "application/xml+xml",
+          "mainType": "application",
+          "subType": "xml",
+          "suffix": "xml",
+          "delimiter": "."
+        },
+        "path": "",
+        "baseName": "sitemap",
+        "rel": "sitemap",
         "protocol": "",
         "isPlainText": false,
         "isHTML": false,
@@ -1430,6 +2690,12 @@
         }
       },
       "lang": {
+        "Merge": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "NumFmt": {
           "Description": "NumFmt formats a number with the given precision using the\nnegative, decimal, and grouping options.  The `options`\nparameter is a string consisting of `\u003cnegative\u003e \u003cdecimal\u003e \u003cgrouping\u003e`.  The\ndefault `options` value is `- . ,`.\n\nNote that numbers are rounded up at 5 or greater.\nSo, with precision set to 0, 1.5 becomes `2`, and 1.4 becomes `1`.",
           "Args": [
