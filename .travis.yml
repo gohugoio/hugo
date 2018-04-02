@@ -14,14 +14,12 @@ matrix:
   fast_finish: true
 install:
   - go get github.com/magefile/mage
-  - mage vendor
+  - mage -v vendor
 script:
-  - mage hugoRace
+  - mage -v hugoRace
   - mage -v check
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
 before_install:
-  - which asciidoctor || true
   - gem install asciidoctor
-  - which asciidoctor || true
-  - type asciidoctor || true
+  - type asciidoctor
