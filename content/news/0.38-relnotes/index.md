@@ -1,13 +1,10 @@
 
 ---
 date: 2018-04-02
-title: "0.38"
-description: "0.38"
+title: "The Easter Egg Edition"
+description: "Hugo 0.38: Date and slug from filenames, multiple content dirs, config from themes, language merge func …"
 categories: ["Releases"]
 ---
-
-	
-
 
 Hugo `0.38` is an **Easter egg** filled with good stuff. We now support fetching **date and slug from the content filename**, making the move from Jekyll even easier. And you can now set `contentDir` per language with intelligent merging, and themes can now provide configuration ...  Also worth mentioning is several improvements in the [Chroma](https://github.com/alecthomas/chroma) highlighter, most notable support for Go templates.
 
