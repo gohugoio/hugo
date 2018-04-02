@@ -1,5 +1,5 @@
 language: go
-sudo: required
+sudo: false
 dist: trusty
 go:
   - 1.9.4
@@ -21,5 +21,7 @@ script:
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
 before_install:
-  # gem install must be run with sudo on OSX
-  - sudo gem install asciidoctor | gem install asciidoctor
+  - which asciidoctor || true
+  - gem install asciidoctor
+  - which asciidoctor || true
+  - type asciidoctor || true
