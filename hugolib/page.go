@@ -1594,7 +1594,11 @@ func (p *Page) parse(reader io.Reader) error {
 
 	p.renderable = psr.IsRenderable()
 	p.frontmatter = psr.FrontMatter()
-	p.rawContent = psr.Content()
+	// replace for mermaid
+	p.rawContent, err = replaceMermaidTokens(psr.Content())
+	if err != nil {
+		return fmt.Errorf("failed to replaceMermaidTokens for %q: %s", p.File.Path(), err)
+	}
 	p.lang = p.Source.File.Lang()
 
 	meta, err := psr.Metadata()
@@ -1616,6 +1620,49 @@ func (p *Page) parse(reader io.Reader) error {
 	}
 
 	return p.update(meta)
+}
+
+// Replace prefixed mermaid tokens
+// Note: This function will rewrite the input slice.
+// fork from func replaceShortcodeTokens(source []byte, prefix string, replacements map[string]string) ([]byte, error)
+func replaceMermaidTokens(source []byte) ([]byte, error) {
+
+	start := 0
+
+	// TODO softcoded
+	pre := []byte("\n```mermaid\n")
+	post := []byte("\n```\n")
+	preReplace := "\n<div class=\"mermaid\">\n"
+	postReplace := "\n</div>\n"
+
+	k := bytes.Index(source[start:], pre)
+
+	for k != -1 {
+		// replace pre
+		j := start + k
+
+		postIdx := bytes.Index(source[j:], post)
+		if postIdx < 0 {
+			// this should never happen, but let the caller decide to panic or not
+			return nil, errors.New("illegal state in content; MermaidTokens token missing end delim")
+		}
+
+		end := j + len(pre)
+		// This and other cool slice tricks: https://github.com/golang/go/wiki/SliceTricks
+		source = append(source[:j], append([]byte(preReplace), source[end:]...)...)
+
+		// replace post
+		// reindex j
+		j = j + postIdx + len(preReplace) - len(pre)
+		end = j + len(post)
+		// This and other cool slice tricks: https://github.com/golang/go/wiki/SliceTricks
+		source = append(source[:j], append([]byte(postReplace), source[end:]...)...)
+
+		start = end
+		k = bytes.Index(source[start:], pre)
+	}
+
+	return source, nil
 }
 
 func (p *Page) RawContent() string {
