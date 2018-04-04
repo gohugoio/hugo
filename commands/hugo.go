@@ -851,6 +851,16 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 	return Hugo.Build(hugolib.BuildCfg{RecentlyVisited: visited}, events...)
 }
 
+func (c *commandeer) fullRebuild() {
+	if err := c.loadConfig(true); err != nil {
+		jww.ERROR.Println("Failed to reload config:", err)
+	} else if err := c.recreateAndBuildSites(true); err != nil {
+		jww.ERROR.Println(err)
+	} else if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
+		livereload.ForceRefresh()
+	}
+}
+
 // newWatcher creates a new watcher to watch filesystem events.
 func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 	if runtime.GOOS == "darwin" {
@@ -887,6 +897,13 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 		for {
 			select {
 			case evs := <-watcher.Events:
+				if len(evs) > 50 {
+					// This is probably a mass edit of the content dir.
+					// Schedule a full rebuild for when it slows down.
+					c.debounce(c.fullRebuild)
+					continue
+				}
+
 				c.Logger.INFO.Println("Received System Events:", evs)
 
 				staticEvents := []fsnotify.Event{}
@@ -900,13 +917,7 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 							continue
 						}
 						// Config file changed. Need full rebuild.
-						if err := c.loadConfig(true); err != nil {
-							jww.ERROR.Println("Failed to reload config:", err)
-						} else if err := c.recreateAndBuildSites(true); err != nil {
-							jww.ERROR.Println(err)
-						} else if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
-							livereload.ForceRefresh()
-						}
+						c.fullRebuild()
 						break
 					}
 

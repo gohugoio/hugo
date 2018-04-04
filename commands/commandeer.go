@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -26,6 +27,7 @@ import (
 
 	"github.com/gohugoio/hugo/hugolib"
 
+	"github.com/bep/debounce"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -50,6 +52,9 @@ type commandeer struct {
 
 	// We can do this only once.
 	fsCreate sync.Once
+
+	// Used in cases where we get flooded with events in server mode.
+	debounce func(f func())
 
 	serverPorts []int
 	languages   helpers.Languages
@@ -90,10 +95,20 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 
 func newCommandeer(running bool, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
 
+	var rebuildDebouncer func(f func())
+	if running {
+		// The time value used is tested with mass content replacements in a fairly big Hugo site.
+		// It is better to wait for some seconds in those cases rather than get flooded
+		// with rebuilds.
+		rebuildDebouncer, _ = debounce.New(4 * time.Second)
+	}
+
 	c := &commandeer{
 		doWithCommandeer: doWithCommandeer,
 		subCmdVs:         append([]*cobra.Command{hugoCmdV}, subCmdVs...),
-		visitedURLs:      types.NewEvictingStringQueue(10)}
+		visitedURLs:      types.NewEvictingStringQueue(10),
+		debounce:         rebuildDebouncer,
+	}
 
 	return c, c.loadConfig(running)
 }

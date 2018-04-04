@@ -145,3 +145,7 @@
 [[constraint]]
   name = "github.com/sanity-io/litter"
   version = "1.1.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/bep/debounce"
