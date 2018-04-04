@@ -36,7 +36,7 @@ series: golang
 +++
 ```
 
-```
+```go-html-template
 {{ range where .Site.Pages "Params.series" "golang" }}
    {{ .Content }}
 {{ end }}
