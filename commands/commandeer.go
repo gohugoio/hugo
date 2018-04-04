@@ -51,6 +51,12 @@ type commandeer struct {
 	// We can do this only once.
 	fsCreate sync.Once
 
+	// Routines send to abort to say "stop operation"
+	// A top-level watcher monitors stop to check for early termination
+	abort   chan error
+	stop    chan error
+	stoperr error
+
 	serverPorts []int
 	languages   helpers.Languages
 
@@ -86,6 +92,29 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	c.staticDirsConfig = dirsConfig
 
 	return nil
+}
+
+// enableAbort allows deep calls to abort program execution.
+// If we have a command that is persistant (e.g. "hugo --watch" or "hugo server"),
+// we set up a channel that callers can use to request that execution be
+// aborted. A deep caller does "c.abort <- err" to send an abort request;
+// the error is received by the high-level caller by either polling c.stoperr
+// or selecting on c.stop (only one receiver can do that, of course).
+func (c *commandeer) enableAbort() {
+	c.abort = make(chan error)
+	c.stop = make(chan error)
+
+	// Gather any async errors - the first one results in a stop-operation
+	go func(c *commandeer) {
+		var didstop bool
+		for err := range c.abort {
+			if !didstop {
+				c.stoperr = err // Maybe we should save all the errors together?
+				c.stop <- err
+				didstop = true
+			}
+		}
+	}(c)
 }
 
 func newCommandeer(running bool, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {

@@ -14,8 +14,6 @@
 package utils
 
 import (
-	"os"
-
 	jww "github.com/spf13/jwalterweatherman"
 )
 
@@ -33,27 +31,4 @@ func CheckErr(logger *jww.Notepad, err error, s ...string) {
 		logger.ERROR.Println(message)
 	}
 	logger.ERROR.Println(err)
-}
-
-// StopOnErr exits on any error after logging it.
-func StopOnErr(logger *jww.Notepad, err error, s ...string) {
-	if err == nil {
-		return
-	}
-
-	defer os.Exit(-1)
-
-	if len(s) == 0 {
-		newMessage := err.Error()
-		// Printing an empty string results in a error with
-		// no message, no bueno.
-		if newMessage != "" {
-			logger.CRITICAL.Println(newMessage)
-		}
-	}
-	for _, message := range s {
-		if message != "" {
-			logger.CRITICAL.Println(message)
-		}
-	}
 }

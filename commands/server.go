@@ -356,8 +356,10 @@ func (c *commandeer) serve() error {
 		c:        c,
 	}
 
-	doLiveReload := !c.Cfg.GetBool("disableLiveReload")
+	c.enableAbort()
+	Hugo.Abort = c.abort
 
+	doLiveReload := !c.Cfg.GetBool("disableLiveReload")
 	if doLiveReload {
 		livereload.Initialize()
 	}
@@ -375,18 +377,23 @@ func (c *commandeer) serve() error {
 		jww.FEEDBACK.Printf("Web Server is available at %s (bind address %s)\n", serverURL, serverInterface)
 		go func() {
 			err = http.ListenAndServe(endpoint, mu)
-			if err != nil {
+			if err != nil && err != http.ErrServerClosed {
 				jww.ERROR.Printf("Error: %s\n", err.Error())
-				os.Exit(1)
+				c.abort <- fmt.Errorf("http.ListenAndServe error: %s\n", err.Error())
 			}
 		}()
 	}
 
 	jww.FEEDBACK.Println("Press Ctrl+C to stop")
 
-	<-sigs
+	// Wait for either ctrl-C, process terminate, or internal stop request
+	var srverror error
+	select {
+	case <-sigs:
+	case srverror = <-c.stop:
+	}
 
-	return nil
+	return srverror
 }
 
 // fixURL massages the baseURL into a form needed for serving
