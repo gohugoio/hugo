@@ -29,6 +29,10 @@ var configCmd = &cobra.Command{
 }
 
 func init() {
+	configCmd.Flags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
+	configCmd.Flags().StringVarP(&theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
+	configCmd.Flags().StringVar(&themesDir, "themesDir", "", "filesystem path to themes directory")
+
 	configCmd.RunE = printConfig
 }
 
