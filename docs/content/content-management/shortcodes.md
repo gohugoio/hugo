@@ -163,7 +163,7 @@ If the gist contains several files and you want to quote just one of them, you c
 
 #### Example `gist` Display
 
-To demonstrate the remarkably efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page. The following simulates the experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+To demonstrate the remarkable efficiency of Hugo's shortcode feature, we have embedded the `spf13` `gist` example in this page. The following simulates the experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
 
 {{< gist spf13 7896402 >}}
 
