@@ -8,6 +8,8 @@ categories: ["Releases"]
 
 Hugo `0.38` is an **Easter egg** filled with good stuff. We now support fetching **date and slug from the content filename**, making the move from Jekyll even easier. And you can now set `contentDir` per language with intelligent merging, and themes can now provide configuration ...  Also worth mentioning is several improvements in the [Chroma](https://github.com/alecthomas/chroma) highlighter, most notable support for Go templates.
 
+We are working hard to get the documentation up-to-date with the new features, but you can also see them in action with the full source at [hugotest.bep.is](http://hugotest.bep.is/).
+
 This release represents **39 contributions by 4 contributors** to the main Hugo code base.
 [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@felicianotech](https://github.com/felicianotech), and [@paulcmal](https://github.com/paulcmal) for their ongoing contributions.
 
