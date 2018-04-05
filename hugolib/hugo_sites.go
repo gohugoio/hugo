@@ -347,8 +347,8 @@ func (cfg *BuildCfg) shouldRender(p *Page) bool {
 		return true
 	}
 
-	if cfg.whatChanged != nil && p.File != nil && cfg.whatChanged.files[p.File.Filename()] {
-		return true
+	if cfg.whatChanged != nil && p.File != nil {
+		return cfg.whatChanged.files[p.File.Filename()]
 	}
 
 	return false
@@ -708,10 +708,15 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bu
 		dir += helpers.FilePathSeparator
 	}
 
-	fileTp, _ := classifyBundledFile(name)
+	fileTp, isContent := classifyBundledFile(name)
 
 	// This may be a member of a bundle. Start with branch bundles, the most specific.
 	if fileTp != bundleLeaf {
+		if fileTp == bundleNot && isContent {
+			// Branch bundles does not contain content pages as resources.
+			return dir, filename, bundleNot
+		}
+
 		for i, b := range m.branches {
 			if b == dir {
 				m.branches = append(m.branches[:i], m.branches[i+1:]...)

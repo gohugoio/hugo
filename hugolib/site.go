@@ -1225,7 +1225,8 @@ func (s *Site) absContentDir() string {
 }
 
 func (s *Site) isContentDirEvent(e fsnotify.Event) bool {
-	return s.getContentDir(e.Name) != ""
+	relDir, _ := s.PathSpec.RelContentDir(e.Name)
+	return relDir != e.Name
 }
 
 func (s *Site) getContentDir(path string) string {

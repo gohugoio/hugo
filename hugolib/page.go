@@ -438,7 +438,7 @@ func (ps Pages) findPagePosByFilnamePrefix(prefix string) int {
 // will return -1 if not found
 func (ps Pages) findPagePos(page *Page) int {
 	for i, x := range ps {
-		if x.Source.Path() == page.Source.Path() {
+		if x.Source.Filename() == page.Source.Filename() {
 			return i
 		}
 	}
