@@ -167,6 +167,15 @@ func newTemplateAdapter(deps *deps.Deps) *templateHandler {
 		t:        texttemplate.New(""),
 		overlays: make(map[string]*texttemplate.Template),
 	}
+
+	if deps.Cfg.IsSet("templateDelims") {
+		delims := deps.Cfg.GetStringSlice("templateDelims")
+		if len(delims) == 2 {
+			htmlT.t.Delims(delims[0], delims[1])
+			textT.t.Delims(delims[0], delims[1])
+		}
+	}
+
 	return &templateHandler{
 		Deps:   deps,
 		html:   htmlT,
