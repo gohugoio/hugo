@@ -29,7 +29,7 @@ parts:
       export PATH=$GOPATH/bin:$PATH
       cd $GOPATH/src/github.com/gohugoio/hugo
       go get github.com/magefile/mage
-      mage -v vendor check
+      mage -v vendor test
     build: |
       export GOPATH=$(dirname $SNAPCRAFT_PART_INSTALL)/go
       export PATH=$GOPATH/bin:$PATH
