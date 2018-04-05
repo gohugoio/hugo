@@ -28,10 +28,15 @@ parts:
       export PATH=$GOPATH/bin:$PATH
       cd $GOPATH/src/github.com/gohugoio/hugo
       go get github.com/magefile/mage
-      mage -v vendor test
-      rm -f $GOPATH/bin/dep
-      rm -f $GOPATH/bin/mage
+      mage -v vendor check
+    build: |
+      export GOPATH=$(dirname $SNAPCRAFT_PART_INSTALL)/go
+      export PATH=$GOPATH/bin:$PATH
+      [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage hugoNoGitInfo || mage hugo
+      ./hugo version
     install: |
+      install -d $SNAPCRAFT_PART_INSTALL/bin
+      cp -a hugo $SNAPCRAFT_PART_INSTALL/bin/hugo
       strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
     after: [go]
   go:
