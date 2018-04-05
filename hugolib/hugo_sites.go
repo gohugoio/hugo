@@ -676,6 +676,7 @@ type contentChangeMap struct {
 func (m *contentChangeMap) add(filename string, tp bundleDirType) {
 	m.mu.Lock()
 	dir := filepath.Dir(filename) + helpers.FilePathSeparator
+	dir = strings.TrimPrefix(dir, ".")
 	switch tp {
 	case bundleBranch:
 		m.branches = append(m.branches, dir)
