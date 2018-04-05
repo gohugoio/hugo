@@ -318,6 +318,9 @@ func (ns *Namespace) IsSet(a interface{}, key interface{}) (bool, error) {
 
 	switch av.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Slice:
+		if kv.Kind() != reflect.Int {
+			return false, nil
+		}
 		if int64(av.Len()) > kv.Int() {
 			return true, nil
 		}
