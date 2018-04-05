@@ -67,7 +67,7 @@
   branch = "master"
   name = "github.com/bep/gitmap"
   packages = ["."]
-  revision = "de8030ebafb76c6e84d50ee6d143382637c00598"
+  revision = "012701e8669671499fc43e9792335a1dcbfe2afb"
 
 [[projects]]
   name = "github.com/chaseadamsio/goorgeous"
@@ -430,6 +430,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "49464f23053ef206ad23f65c511943ef50f188a1d0023db3ac5223051a3bba78"
+  inputs-digest = "1efe78ed474a36581013cbcdcd65e285d77eb7ff243fb9730fa70ccfe9cd9050"
   solver-name = "gps-cdcl"
   solver-version = 1
