@@ -228,6 +228,7 @@ func (c *contentHandlers) parsePage(h contentHandler) contentHandler {
 				if res.resource != nil {
 					if pageResource, ok := res.resource.(*Page); ok {
 						pageResource.resourcePath = filepath.ToSlash(childCtx.target)
+						pageResource.parent = p
 					}
 					p.Resources = append(p.Resources, res.resource)
 				}

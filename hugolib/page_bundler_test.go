@@ -132,6 +132,10 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				assert.Contains(firstPage.Content, "TheContent")
 				assert.Equal(6, len(leafBundle1.Resources))
 
+				// https://github.com/gohugoio/hugo/issues/4582
+				assert.Equal(leafBundle1, firstPage.Parent())
+				assert.Equal(leafBundle1, secondPage.Parent())
+
 				assert.Equal(firstPage, pageResources.GetByPrefix("1"))
 				assert.Equal(secondPage, pageResources.GetByPrefix("2"))
 				assert.Nil(pageResources.GetByPrefix("doesnotexist"))
