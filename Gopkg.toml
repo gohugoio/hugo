@@ -13,7 +13,7 @@
   branch = "master"
 
 [[constraint]]
-  revision = "de8030ebafb76c6e84d50ee6d143382637c00598"
+  branch = "master"
   name = "github.com/bep/gitmap"
   
 [[constraint]]
