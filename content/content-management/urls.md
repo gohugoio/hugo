@@ -29,19 +29,12 @@ These examples use the default values for `publishDir` and `contentDir`; i.e., `
 
 For example, if one of your [sections][] is called `post` and you want to adjust the canonical path to be hierarchical based on the year, month, and post title, you could set up the following configurations in YAML and TOML, respectively.
 
-### YAML Permalinks Configuration Example
+### Permalinks Configuration Example
 
-{{< code file="config.yml" copy="false" >}}
+{{< code-toggle file="config" copy="false" >}}
 permalinks:
   post: /:year/:month/:title/
-{{< /code >}}
-
-### TOML Permalinks Configuration Example
-
-{{< code file="config.toml" copy="false" >}}
-[permalinks]
-  post = "/:year/:month/:title/"
-{{< /code >}}
+{{< /code-toggle >}}
 
 Only the content under `post/` will have the new URL structure. For example, the file `content/post/sample-entry.md` with `date: 2017-02-27T19:20:00-05:00` in its front matter will render to `public/2017/02/sample-entry/index.html` at build time and therefore be reachable at `https://example.com/2017/02/sample-entry/`.
 

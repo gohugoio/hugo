@@ -83,9 +83,9 @@ params
 : A map of custom key/values.
 
 
-###  Resources metadata: YAML Example
+###  Resources metadata example
 
-~~~yaml
+{{< code-toggle copy="false">}}
 title: Application
 date : 2018-01-25
 resources :
@@ -108,41 +108,7 @@ resources :
 - src : "**.docx"
   params :
     icon : "word"
-~~~
-
-###  Resources metadata: TOML Example
-
-~~~toml
-title = Application
-date : 2018-01-25
-[[resources]]
-  src = "images/sunset.jpg"
-  name = "header"
-[[resources]]
-  src = "documents/photo_specs.pdf"
-  title = "Photo Specifications"
-  [resources.params]
-    icon = "photo"
-[[resources]]
-  src = "documents/guide.pdf"
-  title = "Instruction Guide"
-[[resources]]
-  src = "documents/checklist.pdf"
-  title = "Document Checklist"
-[[resources]]
-  src = "documents/payment.docx"
-  title = "Proof of Payment"
-[[resources]]
-  src = "**.pdf"
-  name = "pdf-file-:counter"
-  [resources.params]
-    icon = "pdf"
-[[resources]]
-  src = "**.docx"
-  [resources.params]
-    icon = "word"
-~~~
-
+{{</ code-toggle >}}
 
 From the example above:
 
@@ -165,14 +131,14 @@ The counter starts at 1 the first time they are used in either `name` or `title`
 
 For example, if a bundle has the resources `photo_specs.pdf`, `other_specs.pdf`, `guide.pdf` and `checklist.pdf`, and the front matter has specified the `resources` as:
 
-~~~toml
+{{< code-toggle copy="false">}}
 [[resources]]
   src = "*specs.pdf"
   title = "Specification #:counter"
 [[resources]]
   src = "**.pdf"
   name = "pdf-file-:counter"
-~~~
+{{</ code-toggle >}}
 
 the `Name` and `Title` will be assigned to the resource files as follows:
 

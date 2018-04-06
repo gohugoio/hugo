@@ -103,23 +103,14 @@ When taxonomies are used---and [taxonomy templates][] are provided---Hugo will a
 
 Taxonomies must be defined in your [website configuration][config] before they can be used throughout the site. You need to provide both the plural and singular labels for each taxonomy. For example, `singular key = "plural value"` for TOML and `singular key: "plural value"` for YAML.
 
-### Example: TOML Taxonomy Configuration
+### Example: Taxonomy Configuration
 
-```
+{{< code-toggle copy="false" >}}
 [taxonomies]
   tag = "tags"
   category = "categories"
   series = "series"
-```
-
-### Example: YAML Taxonomy Configuration
-
-```
-taxonomies:
-  tag: "tags"
-  category: "categories"
-  series: "series"
-```
+{{</ code-toggle >}}
 
 ### Preserve Taxonomy Values
 
@@ -145,53 +136,16 @@ Assigning content to a taxonomy is done in the [front matter][]. Simply create a
 If you would like the ability to quickly generate content files with preconfigured taxonomies or terms, read the docs on [Hugo archetypes](/content-management/archetypes/).
 {{% /note %}}
 
-### Example: TOML Front Matter with Taxonomies
+### Example: Front Matter with Taxonomies
 
-```
-+++
+{{< code-toggle copy="false">}}
 title = "Hugo: A fast and flexible static site generator"
 tags = [ "Development", "Go", "fast", "Blogging" ]
 categories = [ "Development" ]
 series = [ "Go Web Dev" ]
 slug = "hugo"
 project_url = "https://github.com/gohugoio/hugo"
-+++
-```
-
-### Example: YAML Front Matter with Taxonomies
-
-```
----
-title: "Hugo: A fast and flexible static site generator"
-tags: ["Development", "Go", "fast", "Blogging"]
-categories: ["Development"]
-series: ["Go Web Dev"]
-slug: "hugo"
-project_url: "https://github.com/gohugoio/hugo"
----
-```
-
-### Example: JSON Front Matter with Taxonomies
-
-```
-{
-    "title": "Hugo: A fast and flexible static site generator",
-    "tags": [
-        "Development",
-        "Go",
-        "fast",
-        "Blogging"
-    ],
-    "categories" : [
-        "Development"
-    ],
-    "series" : [
-        "Go Web Dev"
-    ],
-    "slug": "hugo",
-    "project_url": "https://github.com/gohugoio/hugo"
-}
-```
+{{</ code-toggle >}}
 
 ## Order Taxonomies
 
@@ -199,29 +153,15 @@ A content file can assign weight for each of its associate taxonomies. Taxonomic
 
 The following TOML and YAML examples show a piece of content that has a weight of 22, which can be used for ordering purposes when rendering the pages assigned to the "a", "b" and "c" values of the `tags` taxonomy. It has also been assigned the weight of 44 when rendering the "d" category page.
 
-### Example: TOML Taxonomic `weight`
+### Example: Taxonomic `weight`
 
-```
-+++
+{{< code-toggle copy="false" >}}
 title = "foo"
 tags = [ "a", "b", "c" ]
 tags_weight = 22
 categories = ["d"]
 categories_weight = 44
-+++
-```
-
-### Example: YAML Taxonomic `weight`
-
-```
----
-title: foo
-tags: [ "a", "b", "c" ]
-tags_weight: 22
-categories: ["d"]
-categories_weight: 44
----
-```
+{{</ code-toggle >}}
 
 By using taxonomic weight, the same piece of content can appear in different positions in different taxonomies.
 

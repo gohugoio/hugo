@@ -34,9 +34,9 @@ YAML
 JSON
 : a single JSON object surrounded by '`{`' and '`}`', followed by a new line.
 
-### TOML Example
+### Example
 
-```
+{{< code-toggle >}}
 +++
 title = "spf13-vim 3.0 release and new website"
 description = "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
@@ -48,39 +48,7 @@ categories = [
 ]
 slug = "spf13-vim-3-0-release-and-new-website"
 +++
-```
-
-### YAML Example
-
-```
----
-title: "spf13-vim 3.0 release and new website"
-description: "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-tags: [ ".vimrc", "plugins", "spf13-vim", "vim" ]
-lastmod: 2015-12-23
-date: "2012-04-06"
-categories:
-  - "Development"
-  - "VIM"
-slug: "spf13-vim-3-0-release-and-new-website"
----
-```
-
-### JSON Example
-
-```
-{
-    "title": "spf13-vim 3.0 release and new website",
-    "description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim.",
-    "tags": [ ".vimrc", "plugins", "spf13-vim", "vim" ],
-    "date": "2012-04-06",
-    "categories": [
-        "Development",
-        "VIM"
-    ],
-    "slug": "spf13-vim-3-0-release-and-new-website"
-}
-```
+{{</ code-toggle >}}
 
 ## Front Matter Variables
 
