@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+	"runtime"
 
 	"path/filepath"
 	"reflect"
@@ -911,6 +912,9 @@ func TestPageWithDate(t *testing.T) {
 }
 
 func TestPageWithLastmodFromGitInfo(t *testing.T) {
+	if runtime.GOOS != "windows" && os.Getenv("CI") == "" {
+		t.Skip()
+	}
 	assrt := require.New(t)
 
 	// We need to use the OS fs for this.
