@@ -912,7 +912,7 @@ func TestPageWithDate(t *testing.T) {
 }
 
 func TestPageWithLastmodFromGitInfo(t *testing.T) {
-	if runtime.GOOS != "windows" && os.Getenv("CI") == "" {
+	if runtime.GOOS != "windows" && os.Getenv("CI") != "" {
 		t.Skip()
 	}
 	assrt := require.New(t)
