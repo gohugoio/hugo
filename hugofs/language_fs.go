@@ -292,9 +292,8 @@ func (fs *LanguageFs) newLanguageFileInfo(filename string, fi os.FileInfo) (*Lan
 
 		if fs.languages[fileLang] {
 			lang = fileLang
+			baseNameNoExt = strings.TrimSuffix(baseNameNoExt, fileLangExt)
 		}
-
-		baseNameNoExt = strings.TrimSuffix(baseNameNoExt, fileLangExt)
 
 		// This connects the filename to the filesystem, not the language.
 		virtualName = baseNameNoExt + "." + lang + ext

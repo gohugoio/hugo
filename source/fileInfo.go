@@ -204,9 +204,8 @@ func (sp *SourceSpec) NewFileInfo(baseDir, filename string, isLeafBundle bool, f
 		// This is usyally provided by the filesystem. But this FileInfo is also
 		// created in a standalone context when doing "hugo new". This is
 		// an approximate implementation, which is "good enough" in that case.
-		translationBaseName = strings.TrimSuffix(baseName, ext)
-		fileLangExt := filepath.Ext(translationBaseName)
-		translationBaseName = strings.TrimSuffix(translationBaseName, fileLangExt)
+		fileLangExt := filepath.Ext(baseName)
+		translationBaseName = strings.TrimSuffix(baseName, fileLangExt)
 	}
 
 	f := &FileInfo{

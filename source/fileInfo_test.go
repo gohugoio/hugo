@@ -49,6 +49,13 @@ func TestFileInfo(t *testing.T) {
 			assert.Equal("b", f.Section())
 
 		}},
+		{filepath.FromSlash("/a/"), filepath.FromSlash("/a/b/page.en.MD"), func(f *FileInfo) {
+			assert.Equal("b", f.Section())
+			assert.Equal(filepath.FromSlash("b/page.en.MD"), f.Path())
+			assert.Equal(filepath.FromSlash("page"), f.TranslationBaseName())
+			assert.Equal(filepath.FromSlash("page.en"), f.BaseFileName())
+
+		}},
 	} {
 		f := s.NewFileInfo(this.base, this.filename, false, nil)
 		this.assert(f)
