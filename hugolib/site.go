@@ -1733,7 +1733,6 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, dest string, 
 	}
 
 	return s.publish(statCounter, dest, outBuffer)
-
 }
 
 func (s *Site) renderAndWritePage(statCounter *uint64, name string, dest string, p *PageOutput, layouts ...string) error {
@@ -1806,7 +1805,14 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 			helpers.DistinctErrorLog.Printf("Failed to render %q: %s", templName, r)
 			// TOD(bep) we really need to fix this. Also see below.
 			if !s.running() && !testMode {
-				os.Exit(-1)
+				// This is a fatal error, so ask for abort
+				if err == nil {
+					// We panic'd without an error, so set one for the upstream code
+					err = fmt.Errorf("Failed to render %q: %s", templName, r)
+				}
+				if s.owner.Abort != nil {
+					s.owner.Abort <- err
+				}
 			}
 		}
 	}()
@@ -1829,7 +1835,9 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 		}
 		if !s.running() && !testMode {
 			// TODO(bep) check if this can be propagated
-			os.Exit(-1)
+			if s.owner.Abort != nil {
+				s.owner.Abort <- err
+			}
 		} else if testMode {
 			return
 		}

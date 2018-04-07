@@ -50,6 +50,9 @@ type HugoSites struct {
 
 	// If enabled, keeps a revision map for all content.
 	gitInfo *gitInfo
+
+	// If non-nil, can send on it to request program abort
+	Abort chan error
 }
 
 func (h *HugoSites) IsMultihost() bool {

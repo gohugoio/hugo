@@ -476,6 +476,7 @@ func (c *commandeer) build() error {
 		fmt.Println()
 	}
 
+	var builderr error
 	if buildWatch {
 		watchDirs, err := c.getDirList()
 		if err != nil {
@@ -483,6 +484,10 @@ func (c *commandeer) build() error {
 		}
 		c.Logger.FEEDBACK.Println("Watching for changes in", c.PathSpec().AbsPathify(c.Cfg.GetString("contentDir")))
 		c.Logger.FEEDBACK.Println("Press Ctrl+C to stop")
+
+		c.enableAbort()
+		Hugo.Abort = c.abort
+
 		watcher, err := c.newWatcher(watchDirs...)
 		utils.CheckErr(c.Logger, err)
 		defer watcher.Close()
@@ -490,10 +495,14 @@ func (c *commandeer) build() error {
 		var sigs = make(chan os.Signal)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-		<-sigs
+		// Wait for either ctrl-C, process terminate, or stop request
+		select {
+		case <-sigs:
+		case builderr = <-c.stop:
+		}
 	}
 
-	return nil
+	return builderr
 }
 
 func (c *commandeer) serverBuild() error {
@@ -1027,7 +1036,12 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 						c.Logger.FEEDBACK.Printf("Syncing all static files\n")
 						_, err := c.copyStatic()
 						if err != nil {
-							utils.StopOnErr(c.Logger, err, "Error copying static files to publish dir")
+							c.Logger.CRITICAL.Println("Error copying static files to publish dir", err.Error())
+							// the original call to StopOnErr didn't print the error value - why?
+
+							// Signal to the top level that we want to stop
+							c.abort <- fmt.Errorf("copyStatic failed: %s\n", err.Error())
+							return
 						}
 					} else {
 						if err := staticSyncer.syncsStaticEvents(staticEvents); err != nil {
