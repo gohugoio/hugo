@@ -58,11 +58,14 @@ Add Hugo and its package dependencies to your go `src` directory.
 
     go get -v github.com/gohugoio/hugo
 
-Once the `get` completes, you should find your new `hugo` (or `hugo.exe`) executable sitting inside `$GOPATH/bin/`.
+Use `dep` to install the dependencies:
 
-To update Hugo’s dependencies, use `go get` with the `-u` option.
+    dep ensure -v
 
-    go get -u -v github.com/gohugoio/hugo
+Generate the binary:
+
+    go build
+
 	
 ## The Hugo Documentation
 
