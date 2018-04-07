@@ -19,6 +19,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/spf13/cobra"
 
 	"github.com/gohugoio/hugo/utils"
@@ -56,8 +58,9 @@ type commandeer struct {
 	// Used in cases where we get flooded with events in server mode.
 	debounce func(f func())
 
-	serverPorts []int
-	languages   helpers.Languages
+	serverPorts         []int
+	languagesConfigured bool
+	languages           helpers.Languages
 
 	configured bool
 }
@@ -135,72 +138,89 @@ func (c *commandeer) loadConfig(running bool) error {
 		sourceFs = c.DepsCfg.Fs.Source
 	}
 
-	config, configFiles, err := hugolib.LoadConfig(hugolib.ConfigSourceDescriptor{Fs: sourceFs, Path: source, WorkingDir: dir, Filename: cfgFile})
+	doWithConfig := func(cfg config.Provider) error {
+		for _, cmdV := range c.subCmdVs {
+			initializeFlags(cmdV, cfg)
+		}
+
+		if baseURL != "" {
+			cfg.Set("baseURL", baseURL)
+		}
+
+		if len(disableKinds) > 0 {
+			cfg.Set("disableKinds", disableKinds)
+		}
+
+		cfg.Set("logI18nWarnings", logI18nWarnings)
+
+		if theme != "" {
+			cfg.Set("theme", theme)
+		}
+
+		if themesDir != "" {
+			cfg.Set("themesDir", themesDir)
+		}
+
+		if destination != "" {
+			cfg.Set("publishDir", destination)
+		}
+
+		cfg.Set("workingDir", dir)
+
+		if contentDir != "" {
+			cfg.Set("contentDir", contentDir)
+		}
+
+		if layoutDir != "" {
+			cfg.Set("layoutDir", layoutDir)
+		}
+
+		if cacheDir != "" {
+			cfg.Set("cacheDir", cacheDir)
+		}
+
+		return nil
+	}
+
+	doWithCommandeer := func(cfg config.Provider) error {
+		c.Cfg = cfg
+		if c.doWithCommandeer == nil {
+			return nil
+		}
+		err := c.doWithCommandeer(c)
+		return err
+	}
+
+	config, configFiles, err := hugolib.LoadConfig(
+		hugolib.ConfigSourceDescriptor{Fs: sourceFs, Path: source, WorkingDir: dir, Filename: cfgFile},
+		doWithCommandeer,
+		doWithConfig)
+
 	if err != nil {
 		return err
 	}
 
-	c.Cfg = config
 	c.configFiles = configFiles
 
-	for _, cmdV := range c.subCmdVs {
-		c.initializeFlags(cmdV)
-	}
-
 	if l, ok := c.Cfg.Get("languagesSorted").(helpers.Languages); ok {
+		c.languagesConfigured = true
 		c.languages = l
 	}
 
-	if baseURL != "" {
-		config.Set("baseURL", baseURL)
-	}
-
+	// This is potentially double work, but we need to do this one more time now
+	// that all the languages have been configured.
 	if c.doWithCommandeer != nil {
-		err = c.doWithCommandeer(c)
+		if err := c.doWithCommandeer(c); err != nil {
+			return err
+		}
 	}
 
-	if err != nil {
-		return err
-	}
-
-	if len(disableKinds) > 0 {
-		c.Set("disableKinds", disableKinds)
-	}
-
-	logger, err := createLogger(cfg.Cfg)
+	logger, err := createLogger(config)
 	if err != nil {
 		return err
 	}
 
 	cfg.Logger = logger
-
-	config.Set("logI18nWarnings", logI18nWarnings)
-
-	if theme != "" {
-		config.Set("theme", theme)
-	}
-
-	if themesDir != "" {
-		config.Set("themesDir", themesDir)
-	}
-
-	if destination != "" {
-		config.Set("publishDir", destination)
-	}
-
-	config.Set("workingDir", dir)
-
-	if contentDir != "" {
-		config.Set("contentDir", contentDir)
-	}
-
-	if layoutDir != "" {
-		config.Set("layoutDir", layoutDir)
-	}
-
-	if cacheDir != "" {
-		config.Set("cacheDir", cacheDir)
-	}
 
 	createMemFs := config.GetBool("renderToMemory")
 

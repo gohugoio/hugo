@@ -348,7 +348,7 @@ func createLogger(cfg config.Provider) (*jww.Notepad, error) {
 	return jww.NewNotepad(stdoutThreshold, logThreshold, outHandle, logHandle, "", log.Ldate|log.Ltime), nil
 }
 
-func (c *commandeer) initializeFlags(cmd *cobra.Command) {
+func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 	persFlagKeys := []string{"debug", "verbose", "logFile"}
 	flagKeys := []string{
 		"cleanDestinationDir",
@@ -370,10 +370,10 @@ func (c *commandeer) initializeFlags(cmd *cobra.Command) {
 	}
 
 	for _, key := range persFlagKeys {
-		c.setValueFromFlag(cmd.PersistentFlags(), key)
+		setValueFromFlag(cmd.PersistentFlags(), key, cfg)
 	}
 	for _, key := range flagKeys {
-		c.setValueFromFlag(cmd.Flags(), key)
+		setValueFromFlag(cmd.Flags(), key, cfg)
 	}
 
 }
@@ -385,7 +385,7 @@ var deprecatedFlags = map[string]bool{
 	strings.ToLower("canonifyURLs"):          true,
 }
 
-func (c *commandeer) setValueFromFlag(flags *flag.FlagSet, key string) {
+func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider) {
 	if flags.Changed(key) {
 		if _, deprecated := deprecatedFlags[strings.ToLower(key)]; deprecated {
 			msg := fmt.Sprintf(`Set "%s = true" in your config.toml.
@@ -394,7 +394,7 @@ If you need to set this configuration value from the command line, set it via an
 			helpers.Deprecated("hugo", "--"+key+" flag", msg, true)
 		}
 		f := flags.Lookup(key)
-		c.Set(key, f.Value.String())
+		cfg.Set(key, f.Value.String())
 	}
 }
 

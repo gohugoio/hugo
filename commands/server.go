@@ -137,6 +137,11 @@ func server(cmd *cobra.Command, args []string) error {
 			c.Set("watch", true)
 		}
 
+		// TODO(bep) yes, we should fix.
+		if !c.languagesConfigured {
+			return nil
+		}
+
 		var err error
 
 		// We can only do this once.

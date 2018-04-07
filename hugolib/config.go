@@ -54,7 +54,7 @@ func LoadConfigDefault(fs afero.Fs) (*viper.Viper, error) {
 
 // LoadConfig loads Hugo configuration into a new Viper and then adds
 // a set of defaults.
-func LoadConfig(d ConfigSourceDescriptor) (*viper.Viper, []string, error) {
+func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provider) error) (*viper.Viper, []string, error) {
 	var configFiles []string
 
 	fs := d.Fs
@@ -106,6 +106,14 @@ func LoadConfig(d ConfigSourceDescriptor) (*viper.Viper, []string, error) {
 
 	if themeConfigFile != "" {
 		configFiles = append(configFiles, themeConfigFile)
+	}
+
+	// We create languages based on the settings, so we need to make sure that
+	// all configuration is loaded/set before doing that.
+	for _, d := range doWithConfig {
+		if err := d(v); err != nil {
+			return v, configFiles, err
+		}
 	}
 
 	if err := loadLanguageSettings(v, nil); err != nil {
