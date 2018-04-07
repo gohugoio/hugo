@@ -1,6 +1,8 @@
 language: go
 sudo: false
 dist: trusty
+git:
+  depth: false
 go:
   - 1.9.4
   - "1.10"
