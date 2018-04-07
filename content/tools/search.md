@@ -24,6 +24,7 @@ A static website with a dynamic search function? Yes. As alternatives to embedda
 * [hugo-lunr](https://www.npmjs.com/package/hugo-lunr). A simple way to add site search to your static Hugo site using [lunr.js](http://lunrjs.com/). Hugo-lunr will create an index file of any html and markdown documents in your Hugo project.
 * [hugo-lunr-zh](https://www.npmjs.com/package/hugo-lunr-zh). A bit like Hugo-lunr, but Hugo-lunr-zh can help you separate the Chinese keywords.
 * [Github Gist for Fuse.js integration](https://gist.github.com/eddiewebb/735feb48f50f0ddd65ae5606a1cb41ae). This gist demonstrates how to leverage Hugo's existing build time processing to generate a searchable JSON index used by [Fuse.js](http://fusejs.io/) on the client side. Although this gist uses Fuse.js for fuzzy matching, any client side search tool capable of reading JSON indexes will work. Does not require npm, grunt or other build-time tools except Hugo!
+* [hugo-search-index](https://www.npmjs.com/package/hugo-search-index). A library containing Gulp tasks and a prebuilt browser script that implements search. Gulp generates a search index from project markdown files. 
 
 ## Commercial Search Services
 
