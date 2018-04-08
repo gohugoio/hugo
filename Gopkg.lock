@@ -60,8 +60,8 @@
 [[projects]]
   name = "github.com/bep/debounce"
   packages = ["."]
-  revision = "4d81ca71858e0119497d5d0a9972ea030c279c48"
-  version = "v1.0.0"
+  revision = "844797fa1dd9ba969d71b62797ff19d1e49d4eac"
+  version = "v1.1.0"
 
 [[projects]]
   branch = "master"
@@ -430,6 +430,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9dbe78252ae637a71ec335bde396053bcb59ea97da8de5ad2b0ae6f03b559729"
+  inputs-digest = "fd36c6a8d8a616d5a0932d67c87f863eb95c7d02aeeaa25f81fd063428587518"
   solver-name = "gps-cdcl"
   solver-version = 1
