@@ -344,7 +344,7 @@ description = ""
 homepage = "http://example.com/"
 tags = []
 features = []
-min_version = "0.38"
+min_version = "0.38.2"
 
 [author]
   name = ""
