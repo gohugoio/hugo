@@ -55,7 +55,7 @@
     "lexers/y",
     "styles"
   ]
-  revision = "85c342e3e3d715ad780edd0ba8728161e99cce24"
+  revision = "6b1131c0069211a7729895c26f8c51765a4baf25"
 
 [[projects]]
   name = "github.com/bep/debounce"
@@ -78,8 +78,8 @@
 [[projects]]
   name = "github.com/cpuguy83/go-md2man"
   packages = ["md2man"]
-  revision = "a65d4d2de4d5f7c74868dfa9b202a3c8be315aaa"
-  version = "v1.0.6"
+  revision = "20f5889cbdc3c73dbd2862796665e7c465ade7d1"
+  version = "v1.0.8"
 
 [[projects]]
   branch = "master"
@@ -120,8 +120,8 @@
 [[projects]]
   name = "github.com/fortytw2/leaktest"
   packages = ["."]
-  revision = "7dad53304f9614c1c365755c1176a8e876fee3e8"
-  version = "v1.1.0"
+  revision = "a5ef70473c97b71626b9abeda80ee92ba2a7de9e"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/fsnotify/fsnotify"
@@ -177,7 +177,7 @@
     "json/scanner",
     "json/token"
   ]
-  revision = "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
+  revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -236,7 +236,7 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "a4e142e9c047c904fa2f1e144d9a84e6133024bc"
+  revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
 
 [[projects]]
   branch = "master"
@@ -245,7 +245,7 @@
     ".",
     "options"
   ]
-  revision = "1db484956b9ef929344e51701299a017beefdaaa"
+  revision = "f6ebaa786a12a0fdb2d7c6dee72808e68c296464"
 
 [[projects]]
   name = "github.com/nicksnyder/go-i18n"
@@ -276,10 +276,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/russross/blackfriday"
   packages = ["."]
   revision = "55d61fa8aa702f59229e6cff85793c22e580eaf5"
+  version = "v1.5.1"
 
 [[projects]]
   name = "github.com/sanity-io/litter"
@@ -309,13 +309,13 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/spf13/cobra"
   packages = [
     ".",
     "doc"
   ]
-  revision = "be77323fc05148ef091e83b3866c0d47c8e74a8b"
+  revision = "a1f051bc3eba734da4772d60e2d677f47cf93ef4"
+  version = "v0.0.2"
 
 [[projects]]
   branch = "master"
@@ -376,7 +376,7 @@
     "vp8l",
     "webp"
   ]
-  revision = "12117c17ca67ffa1ce22e9409f3b0b0a93ac08c7"
+  revision = "f315e440302883054d0c2bd85486878cb4f8572c"
 
 [[projects]]
   branch = "master"
@@ -385,19 +385,19 @@
     "context",
     "idna"
   ]
-  revision = "136a25c244d3019482a795d728110278d6ba09a4"
+  revision = "61147c48b25b599e5b561d2e9c4f3e1ef489ca41"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sync"
   packages = ["errgroup"]
-  revision = "fd80eb99c8f653c847d294a001bdf2a3a6f768f5"
+  revision = "1d60e4601c6fd243af51cc01ddf169918a5407ca"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
+  revision = "3b87a42e500a6dc65dae1a55d0b641295971163e"
 
 [[projects]]
   branch = "master"
@@ -407,6 +407,8 @@
     "collate/build",
     "internal/colltab",
     "internal/gen",
+    "internal/language",
+    "internal/language/compact",
     "internal/tag",
     "internal/triegen",
     "internal/ucd",
@@ -419,17 +421,17 @@
     "unicode/rangetable",
     "width"
   ]
-  revision = "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1"
+  revision = "2cb43934f0eece38629746959acc633cba083fe4"
 
 [[projects]]
-  branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "d670f9405373e636a5a2765eea47fac0c9bc91a4"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fd36c6a8d8a616d5a0932d67c87f863eb95c7d02aeeaa25f81fd063428587518"
+  inputs-digest = "b9b38ece73fd6c0d0b20eb2ff85dfcc15a82841223b4403566712fd7b7ae7d59"
   solver-name = "gps-cdcl"
   solver-version = 1
