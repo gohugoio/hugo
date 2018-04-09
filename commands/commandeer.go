@@ -143,41 +143,7 @@ func (c *commandeer) loadConfig(running bool) error {
 			initializeFlags(cmdV, cfg)
 		}
 
-		if baseURL != "" {
-			cfg.Set("baseURL", baseURL)
-		}
-
-		if len(disableKinds) > 0 {
-			cfg.Set("disableKinds", disableKinds)
-		}
-
-		cfg.Set("logI18nWarnings", logI18nWarnings)
-
-		if theme != "" {
-			cfg.Set("theme", theme)
-		}
-
-		if themesDir != "" {
-			cfg.Set("themesDir", themesDir)
-		}
-
-		if destination != "" {
-			cfg.Set("publishDir", destination)
-		}
-
 		cfg.Set("workingDir", dir)
-
-		if contentDir != "" {
-			cfg.Set("contentDir", contentDir)
-		}
-
-		if layoutDir != "" {
-			cfg.Set("layoutDir", layoutDir)
-		}
-
-		if cacheDir != "" {
-			cfg.Set("cacheDir", cacheDir)
-		}
 
 		return nil
 	}
@@ -244,7 +210,7 @@ func (c *commandeer) loadConfig(running bool) error {
 		return err
 	}
 
-	cacheDir = config.GetString("cacheDir")
+	cacheDir := config.GetString("cacheDir")
 	if cacheDir != "" {
 		if helpers.FilePathSeparator != cacheDir[len(cacheDir)-1:] {
 			cacheDir = cacheDir + helpers.FilePathSeparator

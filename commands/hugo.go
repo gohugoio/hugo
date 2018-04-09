@@ -129,7 +129,6 @@ Complete documentation is available at http://gohugo.io/.`,
 			if buildWatch {
 				c.Set("disableLiveReload", true)
 			}
-			c.Set("renderToMemory", renderToMemory)
 			return nil
 		}
 
@@ -144,31 +143,34 @@ Complete documentation is available at http://gohugo.io/.`,
 
 var hugoCmdV *cobra.Command
 
+type flagVals struct {
+}
+
 // Flags that are to be added to commands.
 var (
-	buildWatch     bool
-	logging        bool
-	renderToMemory bool // for benchmark testing
-	verbose        bool
-	verboseLog     bool
-	debug          bool
-	quiet          bool
+	// TODO(bep) var vs string
+	buildWatch bool
+	logging    bool
+	verbose    bool
+	verboseLog bool
+	debug      bool
+	quiet      bool
 )
 
 var (
-	gc              bool
-	baseURL         string
-	cacheDir        string
-	contentDir      string
-	layoutDir       string
-	cfgFile         string
-	destination     string
-	logFile         string
-	theme           string
-	themesDir       string
-	source          string
-	logI18nWarnings bool
-	disableKinds    []string
+	gc      bool
+	baseURL string
+	//cacheDir        string
+	//contentDir      string
+	//layoutDir       string
+	cfgFile string
+	//destination     string
+	logFile string
+	//theme           string
+	//themesDir       string
+	source string
+	//logI18nWarnings bool
+	//disableKinds []string
 )
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
@@ -234,13 +236,13 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
 	cmd.Flags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
-	cmd.Flags().StringVarP(&contentDir, "contentDir", "c", "", "filesystem path to content directory")
-	cmd.Flags().StringVarP(&layoutDir, "layoutDir", "l", "", "filesystem path to layout directory")
-	cmd.Flags().StringVarP(&cacheDir, "cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
+	cmd.Flags().StringP("contentDir", "c", "", "filesystem path to content directory")
+	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
+	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
 	cmd.Flags().BoolP("ignoreCache", "", false, "ignores the cache directory")
-	cmd.Flags().StringVarP(&destination, "destination", "d", "", "filesystem path to write files to")
-	cmd.Flags().StringVarP(&theme, "theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
-	cmd.Flags().StringVarP(&themesDir, "themesDir", "", "", "filesystem path to themes directory")
+	cmd.Flags().StringP("destination", "d", "", "filesystem path to write files to")
+	cmd.Flags().StringP("theme", "t", "", "theme to use (located in /themes/THEMENAME/)")
+	cmd.Flags().StringP("themesDir", "", "", "filesystem path to themes directory")
 	cmd.Flags().Bool("uglyURLs", false, "(deprecated) if true, use /filename.html instead of /filename/")
 	cmd.Flags().Bool("canonifyURLs", false, "(deprecated) if true, all relative URLs will be canonicalized using baseURL")
 	cmd.Flags().StringVarP(&baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
@@ -255,9 +257,9 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("forceSyncStatic", "", false, "copy all files when static is changed.")
 	cmd.Flags().BoolP("noTimes", "", false, "don't sync modification time of files")
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
-	cmd.Flags().BoolVarP(&logI18nWarnings, "i18n-warnings", "", false, "print missing translations")
+	cmd.Flags().BoolP("i18n-warnings", "", false, "print missing translations")
 
-	cmd.Flags().StringSliceVar(&disableKinds, "disableKinds", []string{}, "disable different kind of pages (home, RSS etc.)")
+	cmd.Flags().StringSlice("disableKinds", []string{}, "disable different kind of pages (home, RSS etc.)")
 
 	// Set bash-completion.
 	// Each flag must first be defined before using the SetAnnotation() call.
@@ -268,7 +270,7 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 }
 
 func initBenchmarkBuildingFlags(cmd *cobra.Command) {
-	cmd.Flags().BoolVar(&renderToMemory, "renderToMemory", false, "render to memory (only useful for benchmark testing)")
+	cmd.Flags().Bool("renderToMemory", false, "render to memory (only useful for benchmark testing)")
 }
 
 // init initializes flags.
@@ -349,7 +351,12 @@ func createLogger(cfg config.Provider) (*jww.Notepad, error) {
 }
 
 func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
-	persFlagKeys := []string{"debug", "verbose", "logFile"}
+	persFlagKeys := []string{
+		"debug",
+		"verbose",
+		"logFile",
+		// Moved from vars
+	}
 	flagKeys := []string{
 		"cleanDestinationDir",
 		"buildDrafts",
@@ -367,6 +374,27 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"noChmod",
 		"templateMetrics",
 		"templateMetricsHints",
+
+		// Moved from vars.
+		"baseURL ",
+		"buildWatch",
+		"cacheDir",
+		"cfgFile",
+		"contentDir",
+		"debug",
+		"destination",
+		"disableKinds",
+		"gc",
+		"layoutDir",
+		"logFile",
+		"logI18nWarnings",
+		"quiet",
+		"renderToMemory",
+		"source",
+		"theme",
+		"themesDir",
+		"verbose",
+		"verboseLog",
 	}
 
 	for _, key := range persFlagKeys {

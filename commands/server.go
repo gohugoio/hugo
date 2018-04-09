@@ -116,6 +116,7 @@ var serverPorts []int
 
 func server(cmd *cobra.Command, args []string) error {
 	// If a Destination is provided via flag write to disk
+	destination, _ := cmd.Flags().GetString("destination")
 	if destination != "" {
 		renderToDisk = true
 	}
