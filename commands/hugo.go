@@ -202,7 +202,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(newConvertCmd().getCommand())
 	HugoCmd.AddCommand(newNewCmd().getCommand())
 	HugoCmd.AddCommand(listCmd)
-	HugoCmd.AddCommand(importCmd)
+	HugoCmd.AddCommand(newImportCmd().getCommand())
 
 	HugoCmd.AddCommand(genCmd)
 	genCmd.AddCommand(genautocompleteCmd)
