@@ -194,13 +194,13 @@ func Execute() {
 // AddCommands adds child commands to the root command HugoCmd.
 func AddCommands() {
 	HugoCmd.AddCommand(serverCmd)
-	HugoCmd.AddCommand(versionCmd)
-	HugoCmd.AddCommand(envCmd)
+	HugoCmd.AddCommand(newVersionCmd().getCommand())
+	HugoCmd.AddCommand(newEnvCmd().getCommand())
 	HugoCmd.AddCommand(configCmd)
 	HugoCmd.AddCommand(newCheckCmd().getCommand())
 	HugoCmd.AddCommand(newBenchmarkCmd().getCommand())
 	HugoCmd.AddCommand(newConvertCmd().getCommand())
-	HugoCmd.AddCommand(newCmd)
+	HugoCmd.AddCommand(newNewCmd().getCommand())
 	HugoCmd.AddCommand(listCmd)
 	HugoCmd.AddCommand(importCmd)
 

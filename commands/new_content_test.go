@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,10 +48,12 @@ func checkNewSiteInited(fs *hugofs.Fs, basepath string, t *testing.T) {
 }
 
 func TestDoNewSite(t *testing.T) {
+	// TODO(bep) cli refactor
+	n := newNewSiteCmd()
 	basepath := filepath.Join("base", "blog")
 	_, fs := newTestCfg()
 
-	require.NoError(t, doNewSite(fs, basepath, false))
+	require.NoError(t, n.doNewSite(fs, basepath, false))
 
 	checkNewSiteInited(fs, basepath, t)
 }
@@ -59,31 +61,34 @@ func TestDoNewSite(t *testing.T) {
 func TestDoNewSite_noerror_base_exists_but_empty(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
 	_, fs := newTestCfg()
+	n := newNewSiteCmd()
 
 	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
 
-	require.NoError(t, doNewSite(fs, basepath, false))
+	require.NoError(t, n.doNewSite(fs, basepath, false))
 }
 
 func TestDoNewSite_error_base_exists(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
 	_, fs := newTestCfg()
+	n := newNewSiteCmd()
 
 	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
 	_, err := fs.Source.Create(filepath.Join(basepath, "foo"))
 	require.NoError(t, err)
 	// Since the directory already exists and isn't empty, expect an error
-	require.Error(t, doNewSite(fs, basepath, false))
+	require.Error(t, n.doNewSite(fs, basepath, false))
 
 }
 
 func TestDoNewSite_force_empty_dir(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
 	_, fs := newTestCfg()
+	n := newNewSiteCmd()
 
 	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
 
-	require.NoError(t, doNewSite(fs, basepath, true))
+	require.NoError(t, n.doNewSite(fs, basepath, true))
 
 	checkNewSiteInited(fs, basepath, t)
 }
@@ -91,23 +96,25 @@ func TestDoNewSite_force_empty_dir(t *testing.T) {
 func TestDoNewSite_error_force_dir_inside_exists(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
 	_, fs := newTestCfg()
+	n := newNewSiteCmd()
 
 	contentPath := filepath.Join(basepath, "content")
 
 	require.NoError(t, fs.Source.MkdirAll(contentPath, 777))
-	require.Error(t, doNewSite(fs, basepath, true))
+	require.Error(t, n.doNewSite(fs, basepath, true))
 }
 
 func TestDoNewSite_error_force_config_inside_exists(t *testing.T) {
 	basepath := filepath.Join("base", "blog")
 	_, fs := newTestCfg()
+	n := newNewSiteCmd()
 
 	configPath := filepath.Join(basepath, "config.toml")
 	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
 	_, err := fs.Source.Create(configPath)
 	require.NoError(t, err)
 
-	require.Error(t, doNewSite(fs, basepath, true))
+	require.Error(t, n.doNewSite(fs, basepath, true))
 }
 
 func newTestCfg() (*viper.Viper, *hugofs.Fs) {

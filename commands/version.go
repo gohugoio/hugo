@@ -23,14 +23,28 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Print the version number of Hugo",
-	Long:  `All software has versions. This is Hugo's.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		printHugoVersion()
-		return nil
-	},
+var _ cmder = (*versionCmd)(nil)
+
+type versionCmd struct {
+	cmd *cobra.Command
+}
+
+func newVersionCmd() *versionCmd {
+	return &versionCmd{
+		&cobra.Command{
+			Use:   "version",
+			Short: "Print the version number of Hugo",
+			Long:  `All software has versions. This is Hugo's.`,
+			RunE: func(cmd *cobra.Command, args []string) error {
+				printHugoVersion()
+				return nil
+			},
+		},
+	}
+}
+
+func (c *versionCmd) getCommand() *cobra.Command {
+	return c.cmd
 }
 
 func printHugoVersion() {

@@ -20,16 +20,29 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var envCmd = &cobra.Command{
-	Use:   "env",
-	Short: "Print Hugo version and environment info",
-	Long:  `Print Hugo version and environment info. This is useful in Hugo bug reports.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		printHugoVersion()
-		jww.FEEDBACK.Printf("GOOS=%q\n", runtime.GOOS)
-		jww.FEEDBACK.Printf("GOARCH=%q\n", runtime.GOARCH)
-		jww.FEEDBACK.Printf("GOVERSION=%q\n", runtime.Version())
+var _ cmder = (*envCmd)(nil)
 
-		return nil
+type envCmd struct {
+	cmd *cobra.Command
+}
+
+func (c *envCmd) getCommand() *cobra.Command {
+	return c.cmd
+}
+
+func newEnvCmd() *envCmd {
+	return &envCmd{cmd: &cobra.Command{
+		Use:   "env",
+		Short: "Print Hugo version and environment info",
+		Long:  `Print Hugo version and environment info. This is useful in Hugo bug reports.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			printHugoVersion()
+			jww.FEEDBACK.Printf("GOOS=%q\n", runtime.GOOS)
+			jww.FEEDBACK.Printf("GOARCH=%q\n", runtime.GOARCH)
+			jww.FEEDBACK.Printf("GOVERSION=%q\n", runtime.Version())
+
+			return nil
+		},
 	},
+	}
 }
