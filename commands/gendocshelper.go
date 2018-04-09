@@ -23,9 +23,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	_ cmder = (*genDocsHelper)(nil)
+)
+
 type genDocsHelper struct {
 	target string
 	cmd    *cobra.Command
+}
+
+func (c *genDocsHelper) getCommand() *cobra.Command {
+	return c.cmd
 }
 
 func createGenDocsHelper() *genDocsHelper {

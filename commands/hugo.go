@@ -201,15 +201,15 @@ func AddCommands() {
 	HugoCmd.AddCommand(newBenchmarkCmd().getCommand())
 	HugoCmd.AddCommand(newConvertCmd().getCommand())
 	HugoCmd.AddCommand(newNewCmd().getCommand())
-	HugoCmd.AddCommand(listCmd)
+	HugoCmd.AddCommand(newListCmd().getCommand())
 	HugoCmd.AddCommand(newImportCmd().getCommand())
 
 	HugoCmd.AddCommand(genCmd)
 	genCmd.AddCommand(genautocompleteCmd)
 	genCmd.AddCommand(gendocCmd)
 	genCmd.AddCommand(genmanCmd)
-	genCmd.AddCommand(createGenDocsHelper().cmd)
-	genCmd.AddCommand(createGenChromaStyles().cmd)
+	genCmd.AddCommand(createGenDocsHelper().getCommand())
+	genCmd.AddCommand(createGenChromaStyles().getCommand())
 
 }
 

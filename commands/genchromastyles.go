@@ -22,11 +22,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	_ cmder = (*genChromaStyles)(nil)
+)
+
 type genChromaStyles struct {
 	style          string
 	highlightStyle string
 	linesStyle     string
 	cmd            *cobra.Command
+}
+
+func (c *genChromaStyles) getCommand() *cobra.Command {
+	return c.cmd
 }
 
 // TODO(bep) highlight

@@ -21,129 +21,140 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-func init() {
-	listCmd.AddCommand(listDraftsCmd)
-	listCmd.AddCommand(listFutureCmd)
-	listCmd.AddCommand(listExpiredCmd)
-	listCmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
-	listCmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+var _ cmder = (*listCmd)(nil)
+
+type listCmd struct {
+	cmd *cobra.Command
 }
 
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Listing out various types of content",
-	Long: `Listing out various types of content.
+func (c *listCmd) getCommand() *cobra.Command {
+	return c.cmd
+}
+
+func newListCmd() *listCmd {
+	cc := &listCmd{}
+
+	cc.cmd = &cobra.Command{
+		Use:   "list",
+		Short: "Listing out various types of content",
+		Long: `Listing out various types of content.
 
 List requires a subcommand, e.g. ` + "`hugo list drafts`.",
-	RunE: nil,
-}
+		RunE: nil,
+	}
 
-var listDraftsCmd = &cobra.Command{
-	Use:   "drafts",
-	Short: "List all drafts",
-	Long:  `List all of the drafts in your content directory.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgInit := func(c *commandeer) error {
-			c.Set("buildDrafts", true)
-			return nil
-		}
-		c, err := InitializeConfig(false, cfgInit)
-		if err != nil {
-			return err
-		}
+	cc.cmd.AddCommand(
+		&cobra.Command{
+			Use:   "drafts",
+			Short: "List all drafts",
+			Long:  `List all of the drafts in your content directory.`,
+			RunE: func(cmd *cobra.Command, args []string) error {
+				cfgInit := func(c *commandeer) error {
+					c.Set("buildDrafts", true)
+					return nil
+				}
+				c, err := InitializeConfig(false, cfgInit)
+				if err != nil {
+					return err
+				}
 
-		sites, err := hugolib.NewHugoSites(*c.DepsCfg)
+				sites, err := hugolib.NewHugoSites(*c.DepsCfg)
 
-		if err != nil {
-			return newSystemError("Error creating sites", err)
-		}
+				if err != nil {
+					return newSystemError("Error creating sites", err)
+				}
 
-		if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
-			return newSystemError("Error Processing Source Content", err)
-		}
+				if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
+					return newSystemError("Error Processing Source Content", err)
+				}
 
-		for _, p := range sites.Pages() {
-			if p.IsDraft() {
-				jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
-			}
+				for _, p := range sites.Pages() {
+					if p.IsDraft() {
+						jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+					}
 
-		}
+				}
 
-		return nil
+				return nil
 
-	},
-}
-
-var listFutureCmd = &cobra.Command{
-	Use:   "future",
-	Short: "List all posts dated in the future",
-	Long: `List all of the posts in your content directory which will be
+			},
+		},
+		&cobra.Command{
+			Use:   "future",
+			Short: "List all posts dated in the future",
+			Long: `List all of the posts in your content directory which will be
 posted in the future.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgInit := func(c *commandeer) error {
-			c.Set("buildFuture", true)
-			return nil
-		}
-		c, err := InitializeConfig(false, cfgInit)
-		if err != nil {
-			return err
-		}
+			RunE: func(cmd *cobra.Command, args []string) error {
+				cfgInit := func(c *commandeer) error {
+					c.Set("buildFuture", true)
+					return nil
+				}
+				c, err := InitializeConfig(false, cfgInit)
+				if err != nil {
+					return err
+				}
 
-		sites, err := hugolib.NewHugoSites(*c.DepsCfg)
+				sites, err := hugolib.NewHugoSites(*c.DepsCfg)
 
-		if err != nil {
-			return newSystemError("Error creating sites", err)
-		}
+				if err != nil {
+					return newSystemError("Error creating sites", err)
+				}
 
-		if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
-			return newSystemError("Error Processing Source Content", err)
-		}
+				if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
+					return newSystemError("Error Processing Source Content", err)
+				}
 
-		for _, p := range sites.Pages() {
-			if p.IsFuture() {
-				jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
-			}
+				for _, p := range sites.Pages() {
+					if p.IsFuture() {
+						jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+					}
 
-		}
+				}
 
-		return nil
+				return nil
 
-	},
-}
-
-var listExpiredCmd = &cobra.Command{
-	Use:   "expired",
-	Short: "List all posts already expired",
-	Long: `List all of the posts in your content directory which has already
+			},
+		},
+		&cobra.Command{
+			Use:   "expired",
+			Short: "List all posts already expired",
+			Long: `List all of the posts in your content directory which has already
 expired.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgInit := func(c *commandeer) error {
-			c.Set("buildExpired", true)
-			return nil
-		}
-		c, err := InitializeConfig(false, cfgInit)
-		if err != nil {
-			return err
-		}
+			RunE: func(cmd *cobra.Command, args []string) error {
+				cfgInit := func(c *commandeer) error {
+					c.Set("buildExpired", true)
+					return nil
+				}
+				c, err := InitializeConfig(false, cfgInit)
+				if err != nil {
+					return err
+				}
 
-		sites, err := hugolib.NewHugoSites(*c.DepsCfg)
+				sites, err := hugolib.NewHugoSites(*c.DepsCfg)
 
-		if err != nil {
-			return newSystemError("Error creating sites", err)
-		}
+				if err != nil {
+					return newSystemError("Error creating sites", err)
+				}
 
-		if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
-			return newSystemError("Error Processing Source Content", err)
-		}
+				if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
+					return newSystemError("Error Processing Source Content", err)
+				}
 
-		for _, p := range sites.Pages() {
-			if p.IsExpired() {
-				jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
-			}
+				for _, p := range sites.Pages() {
+					if p.IsExpired() {
+						jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+					}
 
-		}
+				}
 
-		return nil
+				return nil
 
-	},
+			},
+		},
+	)
+
+	cc.cmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
+	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+
+	return cc
 }
