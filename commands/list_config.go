@@ -22,18 +22,30 @@ import (
 	"github.com/spf13/viper"
 )
 
-var configCmd = &cobra.Command{
-	Use:   "config",
-	Short: "Print the site configuration",
-	Long:  `Print the site configuration, both default and custom settings.`,
+var _ cmder = (*configCmd)(nil)
+
+type configCmd struct {
+	cmd *cobra.Command
 }
 
-func init() {
-	configCmd.RunE = printConfig
+func (c *configCmd) getCommand() *cobra.Command {
+	return c.cmd
 }
 
-func printConfig(cmd *cobra.Command, args []string) error {
-	cfg, err := InitializeConfig(false, nil, configCmd)
+func newConfigCmd() *configCmd {
+	cc := &configCmd{}
+	cc.cmd = &cobra.Command{
+		Use:   "config",
+		Short: "Print the site configuration",
+		Long:  `Print the site configuration, both default and custom settings.`,
+		RunE:  cc.printConfig,
+	}
+
+	return cc
+}
+
+func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
+	cfg, err := InitializeConfig(false, nil, c.cmd)
 
 	if err != nil {
 		return err

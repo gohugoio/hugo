@@ -29,6 +29,10 @@ type versionCmd struct {
 	cmd *cobra.Command
 }
 
+func (c *versionCmd) getCommand() *cobra.Command {
+	return c.cmd
+}
+
 func newVersionCmd() *versionCmd {
 	return &versionCmd{
 		&cobra.Command{
@@ -41,10 +45,6 @@ func newVersionCmd() *versionCmd {
 			},
 		},
 	}
-}
-
-func (c *versionCmd) getCommand() *cobra.Command {
-	return c.cmd
 }
 
 func printHugoVersion() {
