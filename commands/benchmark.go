@@ -25,16 +25,16 @@ import (
 
 var _ cmder = (*benchmarkCmd)(nil)
 
-type cmder interface {
-	getCommand() *cobra.Command
-}
-
 type benchmarkCmd struct {
 	benchmarkTimes int
 	cpuProfileFile string
 	memProfileFile string
 
 	cmd *cobra.Command
+}
+
+type cmder interface {
+	getCommand() *cobra.Command
 }
 
 func (c *benchmarkCmd) getCommand() *cobra.Command {

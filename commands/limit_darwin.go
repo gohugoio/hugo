@@ -33,39 +33,54 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-func init() {
-	checkCmd.AddCommand(limit)
+var _ cmder = (*limitCmd)(nil)
+
+type limitCmd struct {
+	cmd *cobra.Command
 }
 
-var limit = &cobra.Command{
-	Use:   "ulimit",
-	Short: "Check system ulimit settings",
-	Long: `Hugo will inspect the current ulimit settings on the system.
+func newLimitCmd() *limitCmd {
+	ccmd := &cobra.Command{
+		Use:   "ulimit",
+		Short: "Check system ulimit settings",
+		Long: `Hugo will inspect the current ulimit settings on the system.
 This is primarily to ensure that Hugo can watch enough files on some OSs`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		var rLimit syscall.Rlimit
-		err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-		if err != nil {
-			return newSystemError("Error Getting Rlimit ", err)
-		}
+		RunE: func(cmd *cobra.Command, args []string) error {
+			var rLimit syscall.Rlimit
+			err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+			if err != nil {
+				return newSystemError("Error Getting Rlimit ", err)
+			}
 
-		jww.FEEDBACK.Println("Current rLimit:", rLimit)
+			jww.FEEDBACK.Println("Current rLimit:", rLimit)
 
-		jww.FEEDBACK.Println("Attempting to increase limit")
-		rLimit.Max = 999999
-		rLimit.Cur = 999999
-		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-		if err != nil {
-			return newSystemError("Error Setting rLimit ", err)
-		}
-		err = syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-		if err != nil {
-			return newSystemError("Error Getting rLimit ", err)
-		}
-		jww.FEEDBACK.Println("rLimit after change:", rLimit)
+			jww.FEEDBACK.Println("Attempting to increase limit")
+			rLimit.Max = 999999
+			rLimit.Cur = 999999
+			err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+			if err != nil {
+				return newSystemError("Error Setting rLimit ", err)
+			}
+			err = syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
+			if err != nil {
+				return newSystemError("Error Getting rLimit ", err)
+			}
+			jww.FEEDBACK.Println("rLimit after change:", rLimit)
 
-		return nil
-	},
+			return nil
+		},
+	}
+
+	return &limitCmd{cmd: ccmd}
+}
+
+func (c *limitCmd) getCommand() *cobra.Command {
+	return c.cmd
+}
+
+func init() {
+	// TODO(bep) cli refactor
+	//checkCmdOld.AddCommand(limit)
 }
 
 func tweakLimit() {

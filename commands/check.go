@@ -17,7 +17,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var checkCmd = &cobra.Command{
-	Use:   "check",
-	Short: "Contains some verification checks",
+var _ cmder = (*checkCmd)(nil)
+
+type checkCmd struct {
+	cmd *cobra.Command
+}
+
+func newCheckCmd() *checkCmd {
+	return &checkCmd{cmd: &cobra.Command{
+		Use:   "check",
+		Short: "Contains some verification checks",
+	},
+	}
+}
+
+func (c *checkCmd) getCommand() *cobra.Command {
+	return c.cmd
 }

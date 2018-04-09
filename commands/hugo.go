@@ -197,7 +197,7 @@ func AddCommands() {
 	HugoCmd.AddCommand(versionCmd)
 	HugoCmd.AddCommand(envCmd)
 	HugoCmd.AddCommand(configCmd)
-	HugoCmd.AddCommand(checkCmd)
+	HugoCmd.AddCommand(newCheckCmd().getCommand())
 	HugoCmd.AddCommand(newBenchmarkCmd().getCommand())
 	HugoCmd.AddCommand(convertCmd)
 	HugoCmd.AddCommand(newCmd)
