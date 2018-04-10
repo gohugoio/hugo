@@ -213,11 +213,15 @@ If you don't like caching at all, you can fully disable caching with the command
 
 Currently, you can only use those authentication methods that can be put into an URL. [OAuth][] and other authentication methods are not implemented.
 
-### Load Local files
+## Load Local files
 
 To load local files with `getJSON` and `getCSV`, the source files must reside within Hugo's working directory. The file extension does not matter, but the content does.
 
 It applies the same output logic as above in [Calling the Functions with a URL](#calling-the-functions-with-a-url).
+
+{{% note %}}
+The local CSV files to be loaded using `getCSV` must be located **outside** of the `data` directory.
+{{% /note %}}
 
 ## LiveReload with Data Files
 
