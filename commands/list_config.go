@@ -25,27 +25,23 @@ import (
 var _ cmder = (*configCmd)(nil)
 
 type configCmd struct {
-	cmd *cobra.Command
-}
-
-func (c *configCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newConfigCmd() *configCmd {
 	cc := &configCmd{}
-	cc.cmd = &cobra.Command{
+	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:   "config",
 		Short: "Print the site configuration",
 		Long:  `Print the site configuration, both default and custom settings.`,
 		RunE:  cc.printConfig,
-	}
+	})
 
 	return cc
 }
 
 func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
-	cfg, err := InitializeConfig(false, nil, c.cmd)
+	cfg, err := initializeConfig(false, nil, c, nil)
 
 	if err != nil {
 		return err

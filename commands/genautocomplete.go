@@ -26,17 +26,13 @@ type genautocompleteCmd struct {
 	// bash for now (zsh and others will come)
 	autocompleteType string
 
-	cmd *cobra.Command
-}
-
-func (c *genautocompleteCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newGenautocompleteCmd() *genautocompleteCmd {
 	cc := &genautocompleteCmd{}
 
-	cc.cmd = &cobra.Command{
+	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:   "autocomplete",
 		Short: "Generate shell autocompletion script for Hugo",
 		Long: `Generates a shell autocompletion script for Hugo.
@@ -72,7 +68,7 @@ or just source them in directly:
 
 			return nil
 		},
-	}
+	})
 
 	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteTarget, "completionfile", "", "/etc/bash_completion.d/hugo.sh", "autocompletion file")
 	cc.cmd.PersistentFlags().StringVarP(&cc.autocompleteType, "type", "", "bash", "autocompletion type (currently only bash supported)")

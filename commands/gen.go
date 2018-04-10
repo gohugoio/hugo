@@ -20,19 +20,15 @@ import (
 var _ cmder = (*genCmd)(nil)
 
 type genCmd struct {
-	cmd *cobra.Command
-}
-
-func (c *genCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newGenCmd() *genCmd {
 	cc := &genCmd{}
-	cc.cmd = &cobra.Command{
+	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:   "gen",
 		Short: "A collection of several useful generators.",
-	}
+	})
 
 	cc.cmd.AddCommand(
 		newGenautocompleteCmd().getCommand(),

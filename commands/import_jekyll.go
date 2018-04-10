@@ -35,27 +35,23 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var _ cmder = (*newThemeCmd)(nil)
+var _ cmder = (*importCmd)(nil)
 
 type importCmd struct {
-	cmd *cobra.Command
-}
-
-func (c *importCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newImportCmd() *importCmd {
 	cc := &importCmd{}
 
-	cc.cmd = &cobra.Command{
+	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:   "import",
 		Short: "Import your site from others.",
 		Long: `Import your site from other web site generators like Jekyll.
 
 Import requires a subcommand, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.",
 		RunE: nil,
-	}
+	})
 
 	importJekyllCmd := &cobra.Command{
 		Use:   "jekyll",
@@ -72,9 +68,6 @@ Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root
 
 	return cc
 
-}
-
-func init() {
 }
 
 func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {

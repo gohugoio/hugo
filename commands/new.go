@@ -33,15 +33,11 @@ type newCmd struct {
 	contentEditor string
 	contentType   string
 
-	cmd *cobra.Command
-}
-
-func (c *newCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newNewCmd() *newCmd {
-	ccmd := &newCmd{}
+	ccmd := &newCmd{baseCmd: newBaseCmd(nil)}
 	cmd := &cobra.Command{
 		Use:   "new [path]",
 		Short: "Create new content for your site",
@@ -57,7 +53,7 @@ If archetypes are provided in your theme or site, they will be used.`,
 
 	cmd.Flags().StringVarP(&ccmd.contentType, "kind", "k", "", "content type to create")
 	// TODO(bep) cli refactor
-	cmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
+	//	cmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 	cmd.Flags().StringVar(&ccmd.contentEditor, "editor", "", "edit new content with this editor, if provided")
 
@@ -77,7 +73,7 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	c, err := InitializeConfig(false, cfgInit)
+	c, err := initializeConfig(false, nil, n, cfgInit)
 
 	if err != nil {
 		return err

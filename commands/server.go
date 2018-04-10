@@ -38,9 +38,9 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var _ cmder = (*serverCmd)(nil)
-
 type serverCmd struct {
+	hugoBuilderCommon
+
 	disableLiveReload bool
 	navigateToChanged bool
 	renderToDisk      bool
@@ -53,17 +53,31 @@ type serverCmd struct {
 
 	disableFastRender bool
 
-	cmd *cobra.Command
+	*baseCmd
 }
 
-func (c *serverCmd) getCommand() *cobra.Command {
-	return c.cmd
+func (cc *serverCmd) handleFlags(cmd *cobra.Command) {
+	// TODO(bep) cli refactor fields vs strings
+	cc.cmd.Flags().IntVarP(&cc.serverPort, "port", "p", 1313, "port on which the server will listen")
+	cc.cmd.Flags().IntVar(&cc.liveReloadPort, "liveReloadPort", -1, "port for live reloading (i.e. 443 in HTTPS proxy situations)")
+	cc.cmd.Flags().StringVarP(&cc.serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
+	cc.cmd.Flags().BoolVarP(&cc.serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
+	cc.cmd.Flags().BoolVar(&cc.noHTTPCache, "noHTTPCache", false, "prevent HTTP caching")
+	cc.cmd.Flags().BoolVarP(&cc.serverAppend, "appendPort", "", true, "append port to baseURL")
+	cc.cmd.Flags().BoolVar(&cc.disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
+	cc.cmd.Flags().BoolVar(&cc.navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
+	cc.cmd.Flags().BoolVar(&cc.renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
+	cc.cmd.Flags().BoolVar(&cc.disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
+
+	cc.cmd.Flags().String("memstats", "", "log memory usage to this file")
+	cc.cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
+
 }
 
 func newServerCmd() *serverCmd {
 	cc := &serverCmd{}
 
-	cc.cmd = &cobra.Command{
+	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:     "server",
 		Aliases: []string{"serve"},
 		Short:   "A high performance webserver",
@@ -80,24 +94,7 @@ automatically rebuild the site. It will then live reload any open browser pages
 and push the latest content to them. As most Hugo sites are built in a fraction
 of a second, you will be able to save and see your changes nearly instantly.`,
 		RunE: cc.server,
-	}
-
-	initHugoBuilderFlags(cc.cmd)
-
-	// TODO(bep) cli refactor fields vs strings
-	cc.cmd.Flags().IntVarP(&cc.serverPort, "port", "p", 1313, "port on which the server will listen")
-	cc.cmd.Flags().IntVar(&cc.liveReloadPort, "liveReloadPort", -1, "port for live reloading (i.e. 443 in HTTPS proxy situations)")
-	cc.cmd.Flags().StringVarP(&cc.serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
-	cc.cmd.Flags().BoolVarP(&cc.serverWatch, "watch", "w", true, "watch filesystem for changes and recreate as needed")
-	cc.cmd.Flags().BoolVar(&cc.noHTTPCache, "noHTTPCache", false, "prevent HTTP caching")
-	cc.cmd.Flags().BoolVarP(&cc.serverAppend, "appendPort", "", true, "append port to baseURL")
-	cc.cmd.Flags().BoolVar(&cc.disableLiveReload, "disableLiveReload", false, "watch without enabling live browser reload on rebuild")
-	cc.cmd.Flags().BoolVar(&cc.navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
-	cc.cmd.Flags().BoolVar(&cc.renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
-	cc.cmd.Flags().BoolVar(&cc.disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
-
-	cc.cmd.Flags().String("memstats", "", "log memory usage to this file")
-	cc.cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
+	})
 
 	return cc
 }
@@ -120,10 +117,6 @@ func (fs filesOnlyFs) Open(name string) (http.File, error) {
 
 func (f noDirFile) Readdir(count int) ([]os.FileInfo, error) {
 	return nil, nil
-}
-
-func init() {
-
 }
 
 var serverPorts []int
@@ -212,7 +205,7 @@ func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
 				serverPort = serverPorts[0]
 			}
 
-			baseURL, err := s.fixURL(language, baseURL, serverPort)
+			baseURL, err := s.fixURL(language, s.baseURL, serverPort)
 			if err != nil {
 				return nil
 			}
@@ -232,7 +225,7 @@ func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
 		jww.ERROR.Println("memstats error:", err)
 	}
 
-	c, err := InitializeConfig(true, cfgInit, s.cmd)
+	c, err := initializeConfig(true, &s.hugoBuilderCommon, s, cfgInit)
 	// TODO(bep) cli refactor
 	if err != nil {
 		return err
@@ -308,7 +301,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 	httpFs := afero.NewHttpFs(f.c.Fs.Destination)
 	fs := filesOnlyFs{httpFs.Dir(absPublishDir)}
 
-	doLiveReload := !buildWatch && !f.c.Cfg.GetBool("disableLiveReload")
+	doLiveReload := !f.s.buildWatch && !f.c.Cfg.GetBool("disableLiveReload")
 	fastRenderMode := doLiveReload && !f.c.Cfg.GetBool("disableFastRender")
 
 	if i == 0 && fastRenderMode {

@@ -23,22 +23,12 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var _ cmder = (*benchmarkCmd)(nil)
-
 type benchmarkCmd struct {
 	benchmarkTimes int
 	cpuProfileFile string
 	memProfileFile string
 
-	cmd *cobra.Command
-}
-
-type cmder interface {
-	getCommand() *cobra.Command
-}
-
-func (c *benchmarkCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseBuilderCmd
 }
 
 func newBenchmarkCmd() *benchmarkCmd {
@@ -49,14 +39,13 @@ func newBenchmarkCmd() *benchmarkCmd {
 creating a benchmark.`,
 	}
 
-	initHugoBuilderFlags(cmd)
-	initBenchmarkBuildingFlags(cmd)
-
-	c := &benchmarkCmd{cmd: cmd}
+	c := &benchmarkCmd{baseBuilderCmd: newBuilderCmd(cmd)}
 
 	cmd.Flags().StringVar(&c.cpuProfileFile, "cpuprofile", "", "path/filename for the CPU profile file")
 	cmd.Flags().StringVar(&c.memProfileFile, "memprofile", "", "path/filename for the memory profile file")
 	cmd.Flags().IntVarP(&c.benchmarkTimes, "count", "n", 13, "number of times to build the site")
+
+	cmd.Flags().Bool("renderToMemory", false, "render to memory (only useful for benchmark testing)")
 
 	cmd.RunE = c.benchmark
 
@@ -67,7 +56,7 @@ func (c *benchmarkCmd) benchmark(cmd *cobra.Command, args []string) error {
 	cfgInit := func(c *commandeer) error {
 		return nil
 	}
-	comm, err := InitializeConfig(false, cfgInit, c.cmd)
+	comm, err := initializeConfig(false, &c.hugoBuilderCommon, c, cfgInit)
 	if err != nil {
 		return err
 	}

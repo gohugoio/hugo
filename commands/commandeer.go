@@ -40,7 +40,8 @@ import (
 type commandeer struct {
 	*deps.DepsCfg
 
-	subCmdVs []*cobra.Command
+	h             *hugoBuilderCommon
+	ftch flagsToConfigHandler
 
 	pathSpec    *helpers.PathSpec
 	visitedURLs *types.EvictingStringQueue
@@ -96,7 +97,7 @@ func (c *commandeer) initFs(fs *hugofs.Fs) error {
 	return nil
 }
 
-func newCommandeer(running bool, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
+func newCommandeer(running bool, h *hugoBuilderCommon, f flagsToConfigHandler, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
 
 	var rebuildDebouncer func(f func())
 	if running {
@@ -107,8 +108,9 @@ func newCommandeer(running bool, doWithCommandeer func(c *commandeer) error, sub
 	}
 
 	c := &commandeer{
+		h:                h,
+		ftch:    f,
 		doWithCommandeer: doWithCommandeer,
-		subCmdVs:         append([]*cobra.Command{hugoCmdV}, subCmdVs...),
 		visitedURLs:      types.NewEvictingStringQueue(10),
 		debounce:         rebuildDebouncer,
 	}
@@ -127,8 +129,8 @@ func (c *commandeer) loadConfig(running bool) error {
 	cfg.Running = running
 
 	var dir string
-	if source != "" {
-		dir, _ = filepath.Abs(source)
+	if c.h.source != "" {
+		dir, _ = filepath.Abs(c.h.source)
 	} else {
 		dir, _ = os.Getwd()
 	}
@@ -139,8 +141,9 @@ func (c *commandeer) loadConfig(running bool) error {
 	}
 
 	doWithConfig := func(cfg config.Provider) error {
-		for _, cmdV := range c.subCmdVs {
-			initializeFlags(cmdV, cfg)
+
+		if c.ftch != nil {
+			c.ftch.flagsToConfig(cfg)
 		}
 
 		cfg.Set("workingDir", dir)
@@ -158,7 +161,7 @@ func (c *commandeer) loadConfig(running bool) error {
 	}
 
 	config, configFiles, err := hugolib.LoadConfig(
-		hugolib.ConfigSourceDescriptor{Fs: sourceFs, Path: source, WorkingDir: dir, Filename: cfgFile},
+		hugolib.ConfigSourceDescriptor{Fs: sourceFs, Path: c.h.source, WorkingDir: dir, Filename: c.h.cfgFile},
 		doWithCommandeer,
 		doWithConfig)
 
@@ -181,7 +184,7 @@ func (c *commandeer) loadConfig(running bool) error {
 		}
 	}
 
-	logger, err := createLogger(config)
+	logger, err := c.createLogger(config)
 	if err != nil {
 		return err
 	}

@@ -23,15 +23,11 @@ import (
 var _ cmder = (*envCmd)(nil)
 
 type envCmd struct {
-	cmd *cobra.Command
-}
-
-func (c *envCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newEnvCmd() *envCmd {
-	return &envCmd{cmd: &cobra.Command{
+	return &envCmd{baseCmd: newBaseCmd(&cobra.Command{
 		Use:   "env",
 		Short: "Print Hugo version and environment info",
 		Long:  `Print Hugo version and environment info. This is useful in Hugo bug reports.`,
@@ -43,6 +39,6 @@ func newEnvCmd() *envCmd {
 
 			return nil
 		},
-	},
+	}),
 	}
 }

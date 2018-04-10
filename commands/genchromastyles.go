@@ -30,23 +30,19 @@ type genChromaStyles struct {
 	style          string
 	highlightStyle string
 	linesStyle     string
-	cmd            *cobra.Command
-}
-
-func (c *genChromaStyles) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 // TODO(bep) highlight
 func createGenChromaStyles() *genChromaStyles {
 	g := &genChromaStyles{
-		cmd: &cobra.Command{
+		baseCmd: newBaseCmd(&cobra.Command{
 			Use:   "chromastyles",
 			Short: "Generate CSS stylesheet for the Chroma code highlighter",
 			Long: `Generate CSS stylesheet for the Chroma code highlighter for a given style. This stylesheet is needed if pygmentsUseClasses is enabled in config.
 
 See https://help.farbox.com/pygments.html for preview of available styles`,
-		},
+		}),
 	}
 
 	g.cmd.RunE = func(cmd *cobra.Command, args []string) error {

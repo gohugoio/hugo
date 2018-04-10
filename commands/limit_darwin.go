@@ -23,7 +23,7 @@ import (
 var _ cmder = (*limitCmd)(nil)
 
 type limitCmd struct {
-	cmd *cobra.Command
+	*baseCmd
 }
 
 func newLimitCmd() *limitCmd {
@@ -58,11 +58,7 @@ This is primarily to ensure that Hugo can watch enough files on some OSs`,
 		},
 	}
 
-	return &limitCmd{cmd: ccmd}
-}
-
-func (c *limitCmd) getCommand() *cobra.Command {
-	return c.cmd
+	return &limitCmd{baseCmd: newBaseCmd(ccmd)}
 }
 
 func init() {

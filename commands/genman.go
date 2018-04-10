@@ -28,17 +28,13 @@ var _ cmder = (*genManCmd)(nil)
 
 type genManCmd struct {
 	genmandir string
-	cmd       *cobra.Command
-}
-
-func (c *genManCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newGenManCmd() *genManCmd {
 	cc := &genManCmd{}
 
-	cc.cmd = &cobra.Command{
+	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:   "man",
 		Short: "Generate man pages for the Hugo CLI",
 		Long: `This command automatically generates up-to-date man pages of Hugo's
@@ -69,7 +65,7 @@ in the "man" directory under the current directory.`,
 
 			return nil
 		},
-	}
+	})
 
 	cc.cmd.PersistentFlags().StringVar(&cc.genmandir, "dir", "man/", "the directory to write the man pages.")
 

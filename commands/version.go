@@ -26,16 +26,12 @@ import (
 var _ cmder = (*versionCmd)(nil)
 
 type versionCmd struct {
-	cmd *cobra.Command
-}
-
-func (c *versionCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newVersionCmd() *versionCmd {
 	return &versionCmd{
-		&cobra.Command{
+		newBaseCmd(&cobra.Command{
 			Use:   "version",
 			Short: "Print the version number of Hugo",
 			Long:  `All software has versions. This is Hugo's.`,
@@ -43,7 +39,7 @@ func newVersionCmd() *versionCmd {
 				printHugoVersion()
 				return nil
 			},
-		},
+		}),
 	}
 }
 

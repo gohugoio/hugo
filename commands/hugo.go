@@ -39,8 +39,6 @@ import (
 	"github.com/gohugoio/hugo/parser"
 	flag "github.com/spf13/pflag"
 
-	"regexp"
-
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib"
@@ -54,137 +52,123 @@ import (
 	"github.com/spf13/nitro"
 )
 
-// Hugo represents the Hugo sites to build. This variable is exported as it
-// is used by at least one external library (the Hugo caddy plugin). We should
-// provide a cleaner external API, but until then, this is it.
-var Hugo *hugolib.HugoSites
-
-// Reset resets Hugo ready for a new full build. This is mainly only useful
-// for benchmark testing etc. via the CLI commands.
-func Reset() error {
-	Hugo = nil
-	return nil
+type baseCmd struct {
+	cmd *cobra.Command
 }
 
-// HugoCmd is Hugo's root command.
-// Every other command attached to HugoCmd is a child command to it.
-var HugoCmd = &cobra.Command{
-	Use:   "hugo",
-	Short: "hugo builds your site",
-	Long: `hugo is the main command, used to build your Hugo site.
+type baseBuilderCmd struct {
+	hugoBuilderCommon
+	*baseCmd
+}
+
+func (c *baseCmd) getCommand() *cobra.Command {
+	return c.cmd
+}
+
+func newBaseCmd(cmd *cobra.Command) *baseCmd {
+	return &baseCmd{cmd: cmd}
+}
+
+func newBuilderCmd(cmd *cobra.Command) *baseBuilderCmd {
+	bcmd := &baseBuilderCmd{baseCmd: &baseCmd{cmd: cmd}}
+	bcmd.hugoBuilderCommon.handleFlags(cmd)
+	return bcmd
+}
+
+// TODO(bep) cli refactor need root?
+func (c *baseCmd) flagsToConfig(cfg config.Provider) {
+	initializeFlags(c.cmd, cfg)
+}
+
+type hugoCmd struct {
+
+	//cacheDir        string
+	//contentDir      string
+	//layoutDir       string
+	//destination     string
+	//theme           string
+	//themesDir       string
+	//logI18nWarnings bool
+	//disableKinds []string
+
+	*baseBuilderCmd
+}
+
+func newHugoCmd() *hugoCmd {
+	cc := &hugoCmd{}
+
+	cc.baseBuilderCmd = newBuilderCmd(&cobra.Command{
+		Use:   "hugo",
+		Short: "hugo builds your site",
+		Long: `hugo is the main command, used to build your Hugo site.
 
 Hugo is a Fast and Flexible Static Site Generator
 built with love by spf13 and friends in Go.
 
 Complete documentation is available at http://gohugo.io/.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-
-		cfgInit := func(c *commandeer) error {
-			if buildWatch {
-				c.Set("disableLiveReload", true)
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cfgInit := func(c *commandeer) error {
+				if cc.buildWatch {
+					c.Set("disableLiveReload", true)
+				}
+				return nil
 			}
-			return nil
-		}
 
-		c, err := InitializeConfig(buildWatch, cfgInit)
-		if err != nil {
-			return err
-		}
+			c, err := initializeConfig(cc.buildWatch, &cc.hugoBuilderCommon, cc, cfgInit)
+			if err != nil {
+				return err
+			}
 
-		return c.build()
-	},
+			return c.build()
+		},
+	})
+
+	cc.cmd.PersistentFlags().StringVar(&cc.cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	cc.cmd.PersistentFlags().BoolVar(&cc.quiet, "quiet", false, "build in quiet mode")
+
+	// Set bash-completion
+	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
+	_ = cc.cmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
+
+	cc.cmd.PersistentFlags().BoolVarP(&cc.verbose, "verbose", "v", false, "verbose output")
+	cc.cmd.PersistentFlags().BoolVarP(&cc.debug, "debug", "", false, "debug output")
+	cc.cmd.PersistentFlags().BoolVar(&cc.logging, "log", false, "enable Logging")
+	cc.cmd.PersistentFlags().StringVar(&cc.logFile, "logFile", "", "log File path (if set, logging enabled automatically)")
+	cc.cmd.PersistentFlags().BoolVar(&cc.verboseLog, "verboseLog", false, "verbose logging")
+
+	cc.cmd.Flags().BoolVarP(&cc.buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
+
+	// Set bash-completion
+	_ = cc.cmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
+
+	return cc
 }
 
-var hugoCmdV *cobra.Command
+type hugoBuilderCommon struct {
+	source  string
+	baseURL string
 
-type flagVals struct {
-}
-
-// Flags that are to be added to commands.
-var (
-	// TODO(bep) var vs string
 	buildWatch bool
+
+	gc bool
+
+	// TODO(bep) var vs string
 	logging    bool
 	verbose    bool
 	verboseLog bool
 	debug      bool
 	quiet      bool
-)
 
-var (
-	gc      bool
-	baseURL string
-	//cacheDir        string
-	//contentDir      string
-	//layoutDir       string
 	cfgFile string
-	//destination     string
 	logFile string
-	//theme           string
-	//themesDir       string
-	source string
-	//logI18nWarnings bool
-	//disableKinds []string
-)
-
-// Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
-func Execute() {
-	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
-
-	HugoCmd.SilenceUsage = true
-
-	AddCommands()
-
-	if c, err := HugoCmd.ExecuteC(); err != nil {
-		if isUserError(err) {
-			c.Println("")
-			c.Println(c.UsageString())
-		}
-
-		os.Exit(-1)
-	}
 }
 
-// AddCommands adds child commands to the root command HugoCmd.
-func AddCommands() {
-	HugoCmd.AddCommand(newServerCmd().getCommand())
-	HugoCmd.AddCommand(newVersionCmd().getCommand())
-	HugoCmd.AddCommand(newEnvCmd().getCommand())
-	HugoCmd.AddCommand(newConfigCmd().getCommand())
-	HugoCmd.AddCommand(newCheckCmd().getCommand())
-	HugoCmd.AddCommand(newBenchmarkCmd().getCommand())
-	HugoCmd.AddCommand(newConvertCmd().getCommand())
-	HugoCmd.AddCommand(newNewCmd().getCommand())
-	HugoCmd.AddCommand(newListCmd().getCommand())
-	HugoCmd.AddCommand(newImportCmd().getCommand())
-
-	HugoCmd.AddCommand(newGenCmd().getCommand())
-
-}
-
-// initHugoBuilderFlags initializes all common flags, typically used by the
-// core build commands, namely hugo itself, server, check and benchmark.
-func initHugoBuilderFlags(cmd *cobra.Command) {
-	initHugoBuildCommonFlags(cmd)
-}
-
-func initRootPersistentFlags() {
-	HugoCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
-	HugoCmd.PersistentFlags().BoolVar(&quiet, "quiet", false, "build in quiet mode")
-
-	// Set bash-completion
-	validConfigFilenames := []string{"json", "js", "yaml", "yml", "toml", "tml"}
-	_ = HugoCmd.PersistentFlags().SetAnnotation("config", cobra.BashCompFilenameExt, validConfigFilenames)
-}
-
-// initHugoBuildCommonFlags initialize common flags related to the Hugo build.
-// Called by initHugoBuilderFlags.
-func initHugoBuildCommonFlags(cmd *cobra.Command) {
+func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("cleanDestinationDir", false, "remove files from destination not found in static directories")
 	cmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
-	cmd.Flags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
+	cmd.Flags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
 	cmd.Flags().StringP("contentDir", "c", "", "filesystem path to content directory")
 	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
 	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
@@ -194,9 +178,9 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	cmd.Flags().StringP("themesDir", "", "", "filesystem path to themes directory")
 	cmd.Flags().Bool("uglyURLs", false, "(deprecated) if true, use /filename.html instead of /filename/")
 	cmd.Flags().Bool("canonifyURLs", false, "(deprecated) if true, all relative URLs will be canonicalized using baseURL")
-	cmd.Flags().StringVarP(&baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
+	cmd.Flags().StringVarP(&cc.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date and author info to the pages")
-	cmd.Flags().BoolVar(&gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
+	cmd.Flags().BoolVar(&cc.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")
 
 	cmd.Flags().BoolVar(&nitro.AnalysisOn, "stepAnalysis", false, "display memory and timing of different steps of the program")
 	cmd.Flags().Bool("templateMetrics", false, "display metrics about template executions")
@@ -218,33 +202,74 @@ func initHugoBuildCommonFlags(cmd *cobra.Command) {
 	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
 }
 
-func initBenchmarkBuildingFlags(cmd *cobra.Command) {
-	cmd.Flags().Bool("renderToMemory", false, "render to memory (only useful for benchmark testing)")
+// Hugo represents the Hugo sites to build. This variable is exported as it
+// is used by at least one external library (the Hugo caddy plugin). We should
+// provide a cleaner external API, but until then, this is it.
+var Hugo *hugolib.HugoSites
+
+// Reset resets Hugo ready for a new full build. This is mainly only useful
+// for benchmark testing etc. via the CLI commands.
+func Reset() error {
+	Hugo = nil
+	return nil
 }
 
-// init initializes flags.
-func init() {
-	HugoCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
-	HugoCmd.PersistentFlags().BoolVarP(&debug, "debug", "", false, "debug output")
-	HugoCmd.PersistentFlags().BoolVar(&logging, "log", false, "enable Logging")
-	HugoCmd.PersistentFlags().StringVar(&logFile, "logFile", "", "log File path (if set, logging enabled automatically)")
-	HugoCmd.PersistentFlags().BoolVar(&verboseLog, "verboseLog", false, "verbose logging")
+var (
+	hugoCommand = newHugoCmd()
 
-	initRootPersistentFlags()
-	initHugoBuilderFlags(HugoCmd)
-	initBenchmarkBuildingFlags(HugoCmd)
+	// HugoCmd is Hugo's root command.
+	// Every other command attached to HugoCmd is a child command to it.
+	HugoCmd = hugoCommand.getCommand()
+)
 
-	HugoCmd.Flags().BoolVarP(&buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
-	hugoCmdV = HugoCmd
+// Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
+func Execute() {
+	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
 
-	// Set bash-completion
-	_ = HugoCmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
+	HugoCmd.SilenceUsage = true
+
+	addAllCommands()
+
+	if c, err := HugoCmd.ExecuteC(); err != nil {
+		if isUserError(err) {
+			c.Println("")
+			c.Println(c.UsageString())
+		}
+
+		os.Exit(-1)
+	}
+}
+
+// addAllCommands adds child commands to the root command HugoCmd.
+func addAllCommands() {
+	addCommands(
+		newServerCmd(),
+		newVersionCmd(),
+		newEnvCmd(),
+		newConfigCmd(),
+		newCheckCmd(),
+		newBenchmarkCmd(),
+		newConvertCmd(),
+		newNewCmd(),
+		newListCmd(),
+		newImportCmd(),
+		newGenCmd(),
+	)
+}
+
+func addCommands(commands ...cmder) {
+	for _, command := range commands {
+		HugoCmd.AddCommand(command.getCommand())
+	}
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
-func InitializeConfig(running bool, doWithCommandeer func(c *commandeer) error, subCmdVs ...*cobra.Command) (*commandeer, error) {
+func initializeConfig(running bool,
+	h *hugoBuilderCommon,
+	f flagsToConfigHandler,
+	doWithCommandeer func(c *commandeer) error) (*commandeer, error) {
 
-	c, err := newCommandeer(running, doWithCommandeer, subCmdVs...)
+	c, err := newCommandeer(running, h, f, doWithCommandeer)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +278,7 @@ func InitializeConfig(running bool, doWithCommandeer func(c *commandeer) error, 
 
 }
 
-func createLogger(cfg config.Provider) (*jww.Notepad, error) {
+func (c *commandeer) createLogger(cfg config.Provider) (*jww.Notepad, error) {
 	var (
 		logHandle       = ioutil.Discard
 		logThreshold    = jww.LevelWarn
@@ -262,7 +287,7 @@ func createLogger(cfg config.Provider) (*jww.Notepad, error) {
 		stdoutThreshold = jww.LevelError
 	)
 
-	if verboseLog || logging || (logFile != "") {
+	if c.h.verboseLog || c.h.logging || (c.h.logFile != "") {
 		var err error
 		if logFile != "" {
 			logHandle, err = os.OpenFile(logFile, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
@@ -275,7 +300,7 @@ func createLogger(cfg config.Provider) (*jww.Notepad, error) {
 				return nil, newSystemError(err)
 			}
 		}
-	} else if !quiet && cfg.GetBool("verbose") {
+	} else if !c.h.quiet && cfg.GetBool("verbose") {
 		stdoutThreshold = jww.LevelInfo
 	}
 
@@ -283,7 +308,7 @@ func createLogger(cfg config.Provider) (*jww.Notepad, error) {
 		stdoutThreshold = jww.LevelDebug
 	}
 
-	if verboseLog {
+	if c.h.verboseLog {
 		logThreshold = jww.LevelInfo
 		if cfg.GetBool("debug") {
 			logThreshold = jww.LevelDebug
@@ -381,7 +406,7 @@ func (c *commandeer) fullBuild() error {
 		langCount map[string]uint64
 	)
 
-	if !quiet {
+	if !c.h.quiet {
 		fmt.Print(hideCursor + "Building sites … ")
 		defer func() {
 			fmt.Print(showCursor + clearLine)
@@ -424,7 +449,7 @@ func (c *commandeer) fullBuild() error {
 		s.ProcessingStats.Static = langCount[s.Language.Lang]
 	}
 
-	if gc {
+	if c.h.gc {
 		count, err := Hugo.GC()
 		if err != nil {
 			return err
@@ -447,13 +472,13 @@ func (c *commandeer) build() error {
 	}
 
 	// TODO(bep) Feedback?
-	if !quiet {
+	if !c.h.quiet {
 		fmt.Println()
 		Hugo.PrintProcessingStats(os.Stdout)
 		fmt.Println()
 	}
 
-	if buildWatch {
+	if c.h.buildWatch {
 		watchDirs, err := c.getDirList()
 		if err != nil {
 			return err
@@ -481,7 +506,7 @@ func (c *commandeer) serverBuild() error {
 	}
 
 	// TODO(bep) Feedback?
-	if !quiet {
+	if !c.h.quiet {
 		fmt.Println()
 		Hugo.PrintProcessingStats(os.Stdout)
 		fmt.Println()
@@ -613,7 +638,7 @@ func (c *commandeer) copyStaticTo(dirs *src.Dirs, publishDir string) (uint64, er
 }
 
 func (c *commandeer) timeTrack(start time.Time, name string) {
-	if quiet {
+	if c.h.quiet {
 		return
 	}
 	elapsed := time.Since(start)
@@ -765,7 +790,7 @@ func (c *commandeer) recreateAndBuildSites(watching bool) (err error) {
 	if err := c.initSites(); err != nil {
 		return err
 	}
-	if !quiet {
+	if !c.h.quiet {
 		c.Logger.FEEDBACK.Println("Started building sites ...")
 	}
 	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true})
@@ -775,7 +800,7 @@ func (c *commandeer) resetAndBuildSites() (err error) {
 	if err = c.initSites(); err != nil {
 		return
 	}
-	if !quiet {
+	if !c.h.quiet {
 		c.Logger.FEEDBACK.Println("Started building sites ...")
 	}
 	return Hugo.Build(hugolib.BuildCfg{ResetState: true})
@@ -811,7 +836,7 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 		return err
 	}
 	visited := c.visitedURLs.PeekAllSet()
-	doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
+	doLiveReload := !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload")
 	if doLiveReload && !c.Cfg.GetBool("disableFastRender") {
 
 		// Make sure we always render the home pages
@@ -833,7 +858,7 @@ func (c *commandeer) fullRebuild() {
 		jww.ERROR.Println("Failed to reload config:", err)
 	} else if err := c.recreateAndBuildSites(true); err != nil {
 		jww.ERROR.Println(err)
-	} else if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
+	} else if !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload") {
 		livereload.ForceRefresh()
 	}
 }
@@ -1013,7 +1038,7 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 						}
 					}
 
-					if !buildWatch && !c.Cfg.GetBool("disableLiveReload") {
+					if !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload") {
 						// Will block forever trying to write to a channel that nobody is reading if livereload isn't initialized
 
 						// force refresh when more than one file
@@ -1030,7 +1055,7 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 				}
 
 				if len(dynamicEvents) > 0 {
-					doLiveReload := !buildWatch && !c.Cfg.GetBool("disableLiveReload")
+					doLiveReload := !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload")
 					onePageName := pickOneWriteOrCreatePath(dynamicEvents)
 
 					c.Logger.FEEDBACK.Println("\nChange detected, rebuilding site")

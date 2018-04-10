@@ -23,7 +23,8 @@ import (
 )
 
 func init() {
-	HugoCmd.AddCommand(createReleaser().cmd)
+	// TODO(bep) cli refactor
+	//HugoCmd.AddCommand(createReleaser().cmd)
 }
 
 type releaseCommandeer struct {

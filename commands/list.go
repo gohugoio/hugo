@@ -24,24 +24,21 @@ import (
 var _ cmder = (*listCmd)(nil)
 
 type listCmd struct {
-	cmd *cobra.Command
-}
-
-func (c *listCmd) getCommand() *cobra.Command {
-	return c.cmd
+	hugoBuilderCommon
+	*baseCmd
 }
 
 func newListCmd() *listCmd {
 	cc := &listCmd{}
 
-	cc.cmd = &cobra.Command{
+	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:   "list",
 		Short: "Listing out various types of content",
 		Long: `Listing out various types of content.
 
 List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 		RunE: nil,
-	}
+	})
 
 	cc.cmd.AddCommand(
 		&cobra.Command{
@@ -53,7 +50,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 					c.Set("buildDrafts", true)
 					return nil
 				}
-				c, err := InitializeConfig(false, cfgInit)
+				c, err := initializeConfig(false, &cc.hugoBuilderCommon, cc, cfgInit)
 				if err != nil {
 					return err
 				}
@@ -89,7 +86,7 @@ posted in the future.`,
 					c.Set("buildFuture", true)
 					return nil
 				}
-				c, err := InitializeConfig(false, cfgInit)
+				c, err := initializeConfig(false, &cc.hugoBuilderCommon, cc, cfgInit)
 				if err != nil {
 					return err
 				}
@@ -125,7 +122,7 @@ expired.`,
 					c.Set("buildExpired", true)
 					return nil
 				}
-				c, err := InitializeConfig(false, cfgInit)
+				c, err := initializeConfig(false, &cc.hugoBuilderCommon, cc, cfgInit)
 				if err != nil {
 					return err
 				}
@@ -153,7 +150,8 @@ expired.`,
 		},
 	)
 
-	cc.cmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
+	// TODO(bep) cli refactor
+	//	cc.cmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
 	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 
 	return cc

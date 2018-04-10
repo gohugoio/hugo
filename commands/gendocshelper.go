@@ -29,20 +29,16 @@ var (
 
 type genDocsHelper struct {
 	target string
-	cmd    *cobra.Command
-}
-
-func (c *genDocsHelper) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func createGenDocsHelper() *genDocsHelper {
 	g := &genDocsHelper{
-		cmd: &cobra.Command{
+		baseCmd: newBaseCmd(&cobra.Command{
 			Use:    "docshelper",
 			Short:  "Generate some data files for the Hugo docs.",
 			Hidden: true,
-		},
+		}),
 	}
 
 	g.cmd.RunE = func(cmd *cobra.Command, args []string) error {

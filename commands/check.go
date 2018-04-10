@@ -20,17 +20,13 @@ import (
 var _ cmder = (*checkCmd)(nil)
 
 type checkCmd struct {
-	cmd *cobra.Command
+	*baseCmd
 }
 
 func newCheckCmd() *checkCmd {
-	return &checkCmd{cmd: &cobra.Command{
+	return &checkCmd{baseCmd: &baseCmd{cmd: &cobra.Command{
 		Use:   "check",
 		Short: "Contains some verification checks",
 	},
-	}
-}
-
-func (c *checkCmd) getCommand() *cobra.Command {
-	return c.cmd
+	}}
 }

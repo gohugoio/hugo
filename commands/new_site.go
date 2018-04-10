@@ -40,11 +40,7 @@ var _ cmder = (*newSiteCmd)(nil)
 type newSiteCmd struct {
 	configFormat string
 
-	cmd *cobra.Command
-}
-
-func (c *newSiteCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newNewSiteCmd() *newSiteCmd {
@@ -62,7 +58,7 @@ Use ` + "`hugo new [contentPath]`" + ` to create new content.`,
 	cmd.Flags().StringVarP(&ccmd.configFormat, "format", "f", "toml", "config & frontmatter format")
 	cmd.Flags().Bool("force", false, "init inside non-empty directory")
 
-	ccmd.cmd = cmd
+	ccmd.baseCmd = newBaseCmd(cmd)
 
 	return ccmd
 

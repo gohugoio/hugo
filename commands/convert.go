@@ -32,31 +32,34 @@ var (
 	_ cmder = (*convertCmd)(nil)
 )
 
+// TODO(bep) cli refactor
 var outputDir string
 var unsafe bool
 
 type convertCmd struct {
-	cmd *cobra.Command
+	*baseBuilderCmd
 }
 
 func newConvertCmd() *convertCmd {
-	cmd := &cobra.Command{
+	cc := &convertCmd{}
+
+	cc.baseBuilderCmd = newBuilderCmd(&cobra.Command{
 		Use:   "convert",
 		Short: "Convert your content to different formats",
 		Long: `Convert your content (e.g. front matter) to different formats.
 
 See convert's subcommands toJSON, toTOML and toYAML for more information.`,
 		RunE: nil,
-	}
+	})
 
-	cmd.AddCommand(
+	cc.cmd.AddCommand(
 		&cobra.Command{
 			Use:   "toJSON",
 			Short: "Convert front matter to JSON",
 			Long: `toJSON converts all front matter in the content directory
 to use JSON for the front matter.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				return convertContents(rune([]byte(parser.JSONLead)[0]))
+				return cc.convertContents(rune([]byte(parser.JSONLead)[0]))
 			},
 		},
 		&cobra.Command{
@@ -65,7 +68,7 @@ to use JSON for the front matter.`,
 			Long: `toTOML converts all front matter in the content directory
 to use TOML for the front matter.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				return convertContents(rune([]byte(parser.TOMLLead)[0]))
+				return cc.convertContents(rune([]byte(parser.TOMLLead)[0]))
 			},
 		},
 		&cobra.Command{
@@ -74,29 +77,26 @@ to use TOML for the front matter.`,
 			Long: `toYAML converts all front matter in the content directory
 to use YAML for the front matter.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				return convertContents(rune([]byte(parser.YAMLLead)[0]))
+				return cc.convertContents(rune([]byte(parser.YAMLLead)[0]))
 			},
 		},
 	)
 
-	cmd.PersistentFlags().StringVarP(&outputDir, "output", "o", "", "filesystem path to write files to")
-	cmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
-	cmd.PersistentFlags().BoolVar(&unsafe, "unsafe", false, "enable less safe operations, please backup first")
-	cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	// TODO(bep) cli refactor
+	//	cmd.PersistentFlags().StringVarP(&outputDir, "output", "o", "", "filesystem path to write files to")
+	//	cmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
+	//	cmd.PersistentFlags().BoolVar(&unsafe, "unsafe", false, "enable less safe operations, please backup first")
+	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 
-	return &convertCmd{cmd: cmd}
+	return cc
 }
 
-func (c *convertCmd) getCommand() *cobra.Command {
-	return c.cmd
-}
-
-func convertContents(mark rune) error {
+func (cc *convertCmd) convertContents(mark rune) error {
 	if outputDir == "" && !unsafe {
 		return newUserError("Unsafe operation not allowed, use --unsafe or set a different output path")
 	}
 
-	c, err := InitializeConfig(false, nil)
+	c, err := initializeConfig(false, &cc.hugoBuilderCommon, cc, nil)
 	if err != nil {
 		return err
 	}

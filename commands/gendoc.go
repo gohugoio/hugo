@@ -31,11 +31,7 @@ var _ cmder = (*genDocCmd)(nil)
 
 type genDocCmd struct {
 	gendocdir string
-	cmd       *cobra.Command
-}
-
-func (c *genDocCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newGenDocCmd() *genDocCmd {
@@ -49,7 +45,7 @@ url: %s
 
 	cc := &genDocCmd{}
 
-	cc.cmd = &cobra.Command{
+	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:   "doc",
 		Short: "Generate Markdown documentation for the Hugo CLI.",
 		Long: `Generate Markdown documentation for the Hugo CLI.
@@ -89,7 +85,7 @@ for rendering in Hugo.`,
 
 			return nil
 		},
-	}
+	})
 
 	cc.cmd.PersistentFlags().StringVar(&cc.gendocdir, "dir", "/tmp/hugodoc/", "the directory to write the doc.")
 

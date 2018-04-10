@@ -15,12 +15,29 @@
 // used by Hugo. Commands and flags are implemented using Cobra.
 package commands
 
+import (
+	"fmt"
+	"regexp"
+
+	"github.com/gohugoio/hugo/config"
+	"github.com/spf13/cobra"
+)
+
 const (
 	ansiEsc    = "\u001B"
 	clearLine  = "\r\033[K"
 	hideCursor = ansiEsc + "[?25l"
 	showCursor = ansiEsc + "[?25h"
 )
+
+type flagsToConfigHandler interface {
+	flagsToConfig(cfg config.Provider)
+}
+
+type cmder interface {
+	flagsToConfigHandler
+	getCommand() *cobra.Command
+}
 
 // commandError is an error used to signal different error situations in command handling.
 type commandError struct {

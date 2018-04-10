@@ -31,15 +31,11 @@ import (
 var _ cmder = (*newThemeCmd)(nil)
 
 type newThemeCmd struct {
-	cmd *cobra.Command
-}
-
-func (c *newThemeCmd) getCommand() *cobra.Command {
-	return c.cmd
+	*baseCmd
 }
 
 func newNewThemeCmd() *newThemeCmd {
-	ccmd := &newThemeCmd{}
+	ccmd := &newThemeCmd{newBaseCmd(nil)}
 
 	cmd := &cobra.Command{
 		Use:   "theme [name]",
@@ -57,7 +53,7 @@ as you see fit.`,
 }
 
 func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
-	c, err := InitializeConfig(false, nil)
+	c, err := initializeConfig(false, nil, n, nil)
 
 	if err != nil {
 		return err
