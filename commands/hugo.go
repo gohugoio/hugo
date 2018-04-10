@@ -141,6 +141,9 @@ Complete documentation is available at http://gohugo.io/.`,
 	// Set bash-completion
 	_ = cc.cmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 
+	cc.cmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
+	cc.cmd.SilenceUsage = true
+
 	return cc
 }
 
@@ -191,6 +194,7 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("noTimes", "", false, "don't sync modification time of files")
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
 	cmd.Flags().BoolP("i18n-warnings", "", false, "print missing translations")
+	cmd.Flags().Bool("renderToMemory", false, "render to memory (only useful for benchmark testing)")
 
 	cmd.Flags().StringSlice("disableKinds", []string{}, "disable different kind of pages (home, RSS etc.)")
 
@@ -214,23 +218,11 @@ func Reset() error {
 	return nil
 }
 
-var (
-	hugoCommand = newHugoCmd()
-
-	// HugoCmd is Hugo's root command.
-	// Every other command attached to HugoCmd is a child command to it.
-	HugoCmd = hugoCommand.getCommand()
-)
-
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
-	HugoCmd.SetGlobalNormalizationFunc(helpers.NormalizeHugoFlags)
+	hugoCmd := newHugoCompleteCmd()
 
-	HugoCmd.SilenceUsage = true
-
-	addAllCommands()
-
-	if c, err := HugoCmd.ExecuteC(); err != nil {
+	if c, err := hugoCmd.ExecuteC(); err != nil {
 		if isUserError(err) {
 			c.Println("")
 			c.Println(c.UsageString())
@@ -240,9 +232,16 @@ func Execute() {
 	}
 }
 
+func newHugoCompleteCmd() *cobra.Command {
+	hugoCmd := newHugoCmd().getCommand()
+	addAllCommands(hugoCmd)
+	return hugoCmd
+}
+
 // addAllCommands adds child commands to the root command HugoCmd.
-func addAllCommands() {
+func addAllCommands(root *cobra.Command) {
 	addCommands(
+		root,
 		newServerCmd(),
 		newVersionCmd(),
 		newEnvCmd(),
@@ -257,9 +256,9 @@ func addAllCommands() {
 	)
 }
 
-func addCommands(commands ...cmder) {
+func addCommands(root *cobra.Command, commands ...cmder) {
 	for _, command := range commands {
-		HugoCmd.AddCommand(command.getCommand())
+		root.AddCommand(command.getCommand())
 	}
 }
 

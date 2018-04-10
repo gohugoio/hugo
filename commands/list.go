@@ -151,7 +151,7 @@ expired.`,
 	)
 
 	// TODO(bep) cli refactor
-	//	cc.cmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
+	cc.cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
 	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 
 	return cc

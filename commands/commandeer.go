@@ -40,7 +40,7 @@ import (
 type commandeer struct {
 	*deps.DepsCfg
 
-	h             *hugoBuilderCommon
+	h    *hugoBuilderCommon
 	ftch flagsToConfigHandler
 
 	pathSpec    *helpers.PathSpec
@@ -109,7 +109,7 @@ func newCommandeer(running bool, h *hugoBuilderCommon, f flagsToConfigHandler, d
 
 	c := &commandeer{
 		h:                h,
-		ftch:    f,
+		ftch:             f,
 		doWithCommandeer: doWithCommandeer,
 		visitedURLs:      types.NewEvictingStringQueue(10),
 		debounce:         rebuildDebouncer,

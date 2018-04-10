@@ -23,6 +23,7 @@ import (
 )
 
 func main() {
+
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	commands.Execute()
 

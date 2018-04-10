@@ -32,17 +32,17 @@ var (
 	_ cmder = (*convertCmd)(nil)
 )
 
-// TODO(bep) cli refactor
-var outputDir string
-var unsafe bool
-
 type convertCmd struct {
+	outputDir string
+	unsafe    bool
+
 	*baseBuilderCmd
 }
 
 func newConvertCmd() *convertCmd {
 	cc := &convertCmd{}
 
+	// TODO(bep) cli refactor this is more than it had
 	cc.baseBuilderCmd = newBuilderCmd(&cobra.Command{
 		Use:   "convert",
 		Short: "Convert your content to different formats",
@@ -82,17 +82,16 @@ to use YAML for the front matter.`,
 		},
 	)
 
-	// TODO(bep) cli refactor
-	//	cmd.PersistentFlags().StringVarP(&outputDir, "output", "o", "", "filesystem path to write files to")
-	//	cmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
-	//	cmd.PersistentFlags().BoolVar(&unsafe, "unsafe", false, "enable less safe operations, please backup first")
+	cc.cmd.PersistentFlags().StringVarP(&cc.outputDir, "output", "o", "", "filesystem path to write files to")
+	cc.cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
+	cc.cmd.PersistentFlags().BoolVar(&cc.unsafe, "unsafe", false, "enable less safe operations, please backup first")
 	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 
 	return cc
 }
 
 func (cc *convertCmd) convertContents(mark rune) error {
-	if outputDir == "" && !unsafe {
+	if cc.outputDir == "" && !cc.unsafe {
 		return newUserError("Unsafe operation not allowed, use --unsafe or set a different output path")
 	}
 
@@ -114,17 +113,17 @@ func (cc *convertCmd) convertContents(mark rune) error {
 
 	site.Log.FEEDBACK.Println("processing", len(site.AllPages), "content files")
 	for _, p := range site.AllPages {
-		if err := convertAndSavePage(p, site, mark); err != nil {
+		if err := cc.convertAndSavePage(p, site, mark); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func convertAndSavePage(p *hugolib.Page, site *hugolib.Site, mark rune) error {
+func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, mark rune) error {
 	// The resources are not in .Site.AllPages.
 	for _, r := range p.Resources.ByType("page") {
-		if err := convertAndSavePage(r.(*hugolib.Page), site, mark); err != nil {
+		if err := cc.convertAndSavePage(r.(*hugolib.Page), site, mark); err != nil {
 			return err
 		}
 	}
@@ -182,8 +181,8 @@ func convertAndSavePage(p *hugolib.Page, site *hugolib.Site, mark rune) error {
 	}
 
 	newFilename := p.Filename()
-	if outputDir != "" {
-		newFilename = filepath.Join(outputDir, p.Dir(), newPage.LogicalName())
+	if cc.outputDir != "" {
+		newFilename = filepath.Join(cc.outputDir, p.Dir(), newPage.LogicalName())
 	}
 
 	if err = newPage.SaveSourceAs(newFilename); err != nil {

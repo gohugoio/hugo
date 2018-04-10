@@ -32,10 +32,11 @@ var _ cmder = (*newThemeCmd)(nil)
 
 type newThemeCmd struct {
 	*baseCmd
+	hugoBuilderCommon
 }
 
 func newNewThemeCmd() *newThemeCmd {
-	ccmd := &newThemeCmd{newBaseCmd(nil)}
+	ccmd := &newThemeCmd{baseCmd: newBaseCmd(nil)}
 
 	cmd := &cobra.Command{
 		Use:   "theme [name]",
@@ -53,7 +54,7 @@ as you see fit.`,
 }
 
 func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
-	c, err := initializeConfig(false, nil, n, nil)
+	c, err := initializeConfig(false, &n.hugoBuilderCommon, n, nil)
 
 	if err != nil {
 		return err

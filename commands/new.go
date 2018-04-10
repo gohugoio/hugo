@@ -30,6 +30,7 @@ import (
 var _ cmder = (*newCmd)(nil)
 
 type newCmd struct {
+	hugoBuilderCommon
 	contentEditor string
 	contentType   string
 
@@ -37,8 +38,8 @@ type newCmd struct {
 }
 
 func newNewCmd() *newCmd {
-	ccmd := &newCmd{baseCmd: newBaseCmd(nil)}
-	cmd := &cobra.Command{
+	cc := &newCmd{}
+	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:   "new [path]",
 		Short: "Create new content for your site",
 		Long: `Create a new content file and automatically set the date and title.
@@ -48,21 +49,19 @@ You can also specify the kind with ` + "`-k KIND`" + `.
 
 If archetypes are provided in your theme or site, they will be used.`,
 
-		RunE: ccmd.newContent,
-	}
+		RunE: cc.newContent,
+	})
 
-	cmd.Flags().StringVarP(&ccmd.contentType, "kind", "k", "", "content type to create")
+	cc.cmd.Flags().StringVarP(&cc.contentType, "kind", "k", "", "content type to create")
 	// TODO(bep) cli refactor
-	//	cmd.PersistentFlags().StringVarP(&source, "source", "s", "", "filesystem path to read files relative from")
-	cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
-	cmd.Flags().StringVar(&ccmd.contentEditor, "editor", "", "edit new content with this editor, if provided")
+	cc.cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
+	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	cc.cmd.Flags().StringVar(&cc.contentEditor, "editor", "", "edit new content with this editor, if provided")
 
-	cmd.AddCommand(newNewSiteCmd().getCommand())
-	cmd.AddCommand(newNewThemeCmd().getCommand())
+	cc.cmd.AddCommand(newNewSiteCmd().getCommand())
+	cc.cmd.AddCommand(newNewThemeCmd().getCommand())
 
-	ccmd.cmd = cmd
-
-	return ccmd
+	return cc
 }
 
 func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
@@ -73,7 +72,7 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	c, err := initializeConfig(false, nil, n, cfgInit)
+	c, err := initializeConfig(false, &n.hugoBuilderCommon, n, cfgInit)
 
 	if err != nil {
 		return err
