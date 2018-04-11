@@ -25,6 +25,7 @@ import (
 var _ cmder = (*configCmd)(nil)
 
 type configCmd struct {
+	hugoBuilderCommon
 	*baseCmd
 }
 
@@ -37,11 +38,13 @@ func newConfigCmd() *configCmd {
 		RunE:  cc.printConfig,
 	})
 
+	cc.cmd.Flags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
+
 	return cc
 }
 
 func (c *configCmd) printConfig(cmd *cobra.Command, args []string) error {
-	cfg, err := initializeConfig(false, nil, c, nil)
+	cfg, err := initializeConfig(false, &c.hugoBuilderCommon, c, nil)
 
 	if err != nil {
 		return err

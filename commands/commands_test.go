@@ -51,6 +51,7 @@ func TestCommands(t *testing.T) {
 		// no args = hugo build
 		{nil, []string{sourceFlag}, ""},
 		{nil, []string{sourceFlag, "--renderToMemory"}, ""},
+		{[]string{"config"}, []string{sourceFlag}, ""},
 		{[]string{"benchmark"}, []string{sourceFlag, "-n=1"}, ""},
 		{[]string{"convert", "toTOML"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "toml")}, ""},
 		{[]string{"convert", "toYAML"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "yaml")}, ""},
