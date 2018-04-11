@@ -39,6 +39,11 @@ import (
 )
 
 type serverCmd struct {
+	// Can be used to stop the server. Useful in tests
+	stop <-chan bool
+	// Can be used to receive notification about when the server is started. Useful in tests.
+	started chan<- bool
+
 	disableLiveReload bool
 	navigateToChanged bool
 	renderToDisk      bool
@@ -55,7 +60,11 @@ type serverCmd struct {
 }
 
 func newServerCmd() *serverCmd {
-	cc := &serverCmd{}
+	return newServerCmdSignaled(nil, nil)
+}
+
+func newServerCmdSignaled(stop <-chan bool, started chan<- bool) *serverCmd {
+	cc := &serverCmd{stop: stop, started: started}
 
 	cc.baseBuilderCmd = newBuilderCmd(&cobra.Command{
 		Use:     "server",
@@ -394,9 +403,20 @@ func (c *commandeer) serve(s *serverCmd) error {
 		}()
 	}
 
+	if s.started != nil {
+		s.started <- true
+	}
+
 	jww.FEEDBACK.Println("Press Ctrl+C to stop")
 
-	<-sigs
+	if s.stop != nil {
+		select {
+		case <-sigs:
+		case <-s.stop:
+		}
+	} else {
+		<-sigs
+	}
 
 	return nil
 }

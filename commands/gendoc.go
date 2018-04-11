@@ -66,7 +66,7 @@ for rendering in Hugo.`,
 					return err
 				}
 			}
-			now := time.Now().Format(time.RFC3339)
+			now := time.Now().Format("2006-01-02")
 			prepender := func(filename string) string {
 				name := filepath.Base(filename)
 				base := strings.TrimSuffix(name, path.Ext(name))

@@ -14,10 +14,59 @@
 package commands
 
 import (
+	"fmt"
+	"net/http"
+	"os"
 	"testing"
+	"time"
+
+	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
 )
+
+func TestServer(t *testing.T) {
+	assert := require.New(t)
+	dir, err := createSimpleTestSite(t)
+	assert.NoError(err)
+
+	// Let us hope that this port is available on all systems ...
+	port := 1331
+
+	defer func() {
+		os.RemoveAll(dir)
+	}()
+
+	stop, started := make(chan bool), make(chan bool)
+
+	scmd := newServerCmdSignaled(stop, started)
+
+	cmd := scmd.getCommand()
+	cmd.SetArgs([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port)})
+
+	go func() {
+		_, err = cmd.ExecuteC()
+		assert.NoError(err)
+	}()
+
+	select {
+	case <-started:
+	case <-time.After(2 * time.Second):
+		t.Fatal("server start took too long")
+	}
+
+	resp, err := http.Get("http://localhost:1331/")
+	assert.NoError(err)
+	defer resp.Body.Close()
+	homeContent := helpers.ReaderToString(resp.Body)
+
+	assert.Contains(homeContent, "List: Hugo Commands")
+
+	// Stop the server.
+	stop <- true
+
+}
 
 func TestFixURL(t *testing.T) {
 	type data struct {
