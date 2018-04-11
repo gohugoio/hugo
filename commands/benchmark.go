@@ -44,6 +44,7 @@ creating a benchmark.`,
 	cmd.Flags().StringVar(&c.cpuProfileFile, "cpuprofile", "", "path/filename for the CPU profile file")
 	cmd.Flags().StringVar(&c.memProfileFile, "memprofile", "", "path/filename for the memory profile file")
 	cmd.Flags().IntVarP(&c.benchmarkTimes, "count", "n", 13, "number of times to build the site")
+	cmd.Flags().Bool("renderToMemory", false, "render to memory (only useful for benchmark testing)")
 
 	cmd.RunE = c.benchmark
 

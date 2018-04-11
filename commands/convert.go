@@ -33,17 +33,18 @@ var (
 )
 
 type convertCmd struct {
+	hugoBuilderCommon
+
 	outputDir string
 	unsafe    bool
 
-	*baseBuilderCmd
+	*baseCmd
 }
 
 func newConvertCmd() *convertCmd {
 	cc := &convertCmd{}
 
-	// TODO(bep) cli refactor this is more than it had
-	cc.baseBuilderCmd = newBuilderCmd(&cobra.Command{
+	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:   "convert",
 		Short: "Convert your content to different formats",
 		Long: `Convert your content (e.g. front matter) to different formats.

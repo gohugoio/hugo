@@ -138,6 +138,8 @@ Complete documentation is available at http://gohugo.io/.`,
 
 	cc.cmd.Flags().BoolVarP(&cc.buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 
+	cc.cmd.Flags().Bool("renderToMemory", false, "render to memory (only useful for benchmark testing)")
+
 	// Set bash-completion
 	_ = cc.cmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
 
@@ -194,7 +196,6 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("noTimes", "", false, "don't sync modification time of files")
 	cmd.Flags().BoolP("noChmod", "", false, "don't sync permission mode of files")
 	cmd.Flags().BoolP("i18n-warnings", "", false, "print missing translations")
-	cmd.Flags().Bool("renderToMemory", false, "render to memory (only useful for benchmark testing)")
 
 	cmd.Flags().StringSlice("disableKinds", []string{}, "disable different kind of pages (home, RSS etc.)")
 
