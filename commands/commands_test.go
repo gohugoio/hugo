@@ -50,8 +50,7 @@ func TestCommands(t *testing.T) {
 		{[]string{"version"}, nil, ""},
 		// no args = hugo build
 		{nil, []string{sourceFlag}, ""},
-		// TODO(bep) cli refactor remove the HugoSites global and enable the below
-		//{nil, []string{sourceFlag, "--renderToMemory"},false},
+		{nil, []string{sourceFlag, "--renderToMemory"}, ""},
 		{[]string{"benchmark"}, []string{sourceFlag, "-n=1"}, ""},
 		{[]string{"convert", "toTOML"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "toml")}, ""},
 		{[]string{"convert", "toYAML"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "yaml")}, ""},

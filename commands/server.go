@@ -39,8 +39,6 @@ import (
 )
 
 type serverCmd struct {
-	hugoBuilderCommon
-
 	disableLiveReload bool
 	navigateToChanged bool
 	renderToDisk      bool
@@ -53,13 +51,13 @@ type serverCmd struct {
 
 	disableFastRender bool
 
-	*baseCmd
+	*baseBuilderCmd
 }
 
 func newServerCmd() *serverCmd {
 	cc := &serverCmd{}
 
-	cc.baseCmd = newBaseCmd(&cobra.Command{
+	cc.baseBuilderCmd = newBuilderCmd(&cobra.Command{
 		Use:     "server",
 		Aliases: []string{"serve"},
 		Short:   "A high performance webserver",
@@ -232,7 +230,7 @@ func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	for _, s := range Hugo.Sites {
+	for _, s := range c.hugo.Sites {
 		s.RegisterMediaTypes()
 	}
 
@@ -345,7 +343,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 // TODO(bep) cli refactor
 func (c *commandeer) serve(s *serverCmd) error {
 
-	isMultiHost := Hugo.IsMultihost()
+	isMultiHost := c.hugo.IsMultihost()
 
 	var (
 		baseURLs []string
@@ -353,12 +351,12 @@ func (c *commandeer) serve(s *serverCmd) error {
 	)
 
 	if isMultiHost {
-		for _, s := range Hugo.Sites {
+		for _, s := range c.hugo.Sites {
 			baseURLs = append(baseURLs, s.BaseURL.String())
 			roots = append(roots, s.Language.Lang)
 		}
 	} else {
-		s := Hugo.Sites[0]
+		s := c.hugo.Sites[0]
 		baseURLs = []string{s.BaseURL.String()}
 		roots = []string{""}
 	}

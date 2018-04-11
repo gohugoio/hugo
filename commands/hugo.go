@@ -51,15 +51,19 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
+// TODO(bep) cli refactor consider a exported Hugo() method to fix the API
+
 // Hugo represents the Hugo sites to build. This variable is exported as it
 // is used by at least one external library (the Hugo caddy plugin). We should
 // provide a cleaner external API, but until then, this is it.
-var Hugo *hugolib.HugoSites
+// TODO(bep)  cli refactor remove this
+//var Hugo *hugolib.HugoSites
 
 // Reset resets Hugo ready for a new full build. This is mainly only useful
 // for benchmark testing etc. via the CLI commands.
+// TODO(bep) cli refactor check usage
 func Reset() error {
-	Hugo = nil
+	//Hugo = nil
 	return nil
 }
 
@@ -259,16 +263,16 @@ func (c *commandeer) fullBuild() error {
 		}
 	}
 
-	for _, s := range Hugo.Sites {
+	for _, s := range c.hugo.Sites {
 		s.ProcessingStats.Static = langCount[s.Language.Lang]
 	}
 
 	if c.h.gc {
-		count, err := Hugo.GC()
+		count, err := c.hugo.GC()
 		if err != nil {
 			return err
 		}
-		for _, s := range Hugo.Sites {
+		for _, s := range c.hugo.Sites {
 			// We have no way of knowing what site the garbage belonged to.
 			s.ProcessingStats.Cleaned = uint64(count)
 		}
@@ -288,7 +292,7 @@ func (c *commandeer) build() error {
 	// TODO(bep) Feedback?
 	if !c.h.quiet {
 		fmt.Println()
-		Hugo.PrintProcessingStats(os.Stdout)
+		c.hugo.PrintProcessingStats(os.Stdout)
 		fmt.Println()
 	}
 
@@ -322,7 +326,7 @@ func (c *commandeer) serverBuild() error {
 	// TODO(bep) Feedback?
 	if !c.h.quiet {
 		fmt.Println()
-		Hugo.PrintProcessingStats(os.Stdout)
+		c.hugo.PrintProcessingStats(os.Stdout)
 		fmt.Println()
 	}
 
@@ -607,7 +611,7 @@ func (c *commandeer) recreateAndBuildSites(watching bool) (err error) {
 	if !c.h.quiet {
 		c.Logger.FEEDBACK.Println("Started building sites ...")
 	}
-	return Hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true})
+	return c.hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true})
 }
 
 func (c *commandeer) resetAndBuildSites() (err error) {
@@ -617,21 +621,24 @@ func (c *commandeer) resetAndBuildSites() (err error) {
 	if !c.h.quiet {
 		c.Logger.FEEDBACK.Println("Started building sites ...")
 	}
-	return Hugo.Build(hugolib.BuildCfg{ResetState: true})
+	return c.hugo.Build(hugolib.BuildCfg{ResetState: true})
 }
 
 func (c *commandeer) initSites() error {
-	if Hugo != nil {
-		Hugo.Cfg = c.Cfg
-		Hugo.Log.ResetLogCounters()
+	if c.hugo != nil {
+		// TODO(bep) cli refactor check
+		c.hugo.Cfg = c.Cfg
+		c.hugo.Log.ResetLogCounters()
 		return nil
 	}
+
 	h, err := hugolib.NewHugoSites(*c.DepsCfg)
 
 	if err != nil {
 		return err
 	}
-	Hugo = h
+
+	c.hugo = h
 
 	return nil
 }
@@ -640,7 +647,7 @@ func (c *commandeer) buildSites() (err error) {
 	if err := c.initSites(); err != nil {
 		return err
 	}
-	return Hugo.Build(hugolib.BuildCfg{})
+	return c.hugo.Build(hugolib.BuildCfg{})
 }
 
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
@@ -664,7 +671,7 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 		}
 
 	}
-	return Hugo.Build(hugolib.BuildCfg{RecentlyVisited: visited}, events...)
+	return c.hugo.Build(hugolib.BuildCfg{RecentlyVisited: visited}, events...)
 }
 
 func (c *commandeer) fullRebuild() {
@@ -738,7 +745,7 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 					}
 
 					// Check the most specific first, i.e. files.
-					contentMapped := Hugo.ContentChanges.GetSymbolicLinkMappings(ev.Name)
+					contentMapped := c.hugo.ContentChanges.GetSymbolicLinkMappings(ev.Name)
 					if len(contentMapped) > 0 {
 						for _, mapped := range contentMapped {
 							filtered = append(filtered, fsnotify.Event{Name: mapped, Op: ev.Op})
@@ -750,7 +757,7 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 
 					dir, name := filepath.Split(ev.Name)
 
-					contentMapped = Hugo.ContentChanges.GetSymbolicLinkMappings(dir)
+					contentMapped = c.hugo.ContentChanges.GetSymbolicLinkMappings(dir)
 
 					if len(contentMapped) == 0 {
 						filtered = append(filtered, ev)
@@ -888,7 +895,7 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 
 						if navigate {
 							if onePageName != "" {
-								p = Hugo.GetContentPage(onePageName)
+								p = c.hugo.GetContentPage(onePageName)
 							}
 
 						}

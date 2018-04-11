@@ -40,6 +40,8 @@ import (
 type commandeer struct {
 	*deps.DepsCfg
 
+	hugo *hugolib.HugoSites
+
 	h    *hugoBuilderCommon
 	ftch flagsToConfigHandler
 

@@ -31,9 +31,10 @@ func main() {
 		os.Exit(-1)
 	}
 
-	if commands.Hugo != nil {
+	// TODO(bep) cli refactor
+	/*if commands.Hugo != nil {
 		if commands.Hugo.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError) > 0 {
 			os.Exit(-1)
 		}
-	}
+	}*/
 }

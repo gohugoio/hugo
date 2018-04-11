@@ -109,15 +109,15 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 			return nil, err
 		}
 
-		if err := Hugo.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
+		if err := c.hugo.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
 			return nil, err
 		}
 
-		s = Hugo.Sites[0]
+		s = c.hugo.Sites[0]
 
-		if len(Hugo.Sites) > 1 {
+		if len(c.hugo.Sites) > 1 {
 			// Find the best match.
-			for _, ss := range Hugo.Sites {
+			for _, ss := range c.hugo.Sites {
 				if strings.Contains(createPath, "."+ss.Language.Lang) {
 					s = ss
 					break
