@@ -13,12 +13,13 @@
 
 package commands
 
-//	"testing"
+import (
+	"testing"
 
-//	"github.com/spf13/viper"
+	"github.com/spf13/viper"
+)
 
-// TODO(bep) cli refactor fix me
-/*func TestFixURL(t *testing.T) {
+func TestFixURL(t *testing.T) {
 	type data struct {
 		TestName   string
 		CLIBaseURL string
@@ -41,12 +42,13 @@ package commands
 	}
 
 	for i, test := range tests {
+		s := newServerCmd()
 		v := viper.New()
-		baseURL = test.CLIBaseURL
+		baseURL := test.CLIBaseURL
 		v.Set("baseURL", test.CfgBaseURL)
-		serverAppend = test.AppendPort
-		serverPort = test.Port
-		result, err := fixURL(v, baseURL, serverPort)
+		s.serverAppend = test.AppendPort
+		s.serverPort = test.Port
+		result, err := s.fixURL(v, baseURL, s.serverPort)
 		if err != nil {
 			t.Errorf("Test #%d %s: unexpected error %s", i, test.TestName, err)
 		}
@@ -55,4 +57,3 @@ package commands
 		}
 	}
 }
-*/
