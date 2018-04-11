@@ -51,20 +51,55 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-// TODO(bep) cli refactor consider a exported Hugo() method to fix the API
+// The Response value from Execute.
+type Response struct {
+	// The build Result will only be set in the hugo build command.
+	Result *hugolib.HugoSites
+
+	// Err is set when the command failed to execute.
+	Err error
+
+	// The command that was executed.
+	Cmd *cobra.Command
+}
+
+func (r Response) IsUserError() bool {
+	return r.Err != nil && isUserError(r.Err)
+}
 
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
-func Execute() {
+// The args are usually filled with os.Args[1:].
+func Execute(args []string) Response {
 	hugoCmd := newHugoCompleteCmd()
+	cmd := hugoCmd.getCommand()
+	cmd.SetArgs(args)
 
-	if c, err := hugoCmd.ExecuteC(); err != nil {
-		if isUserError(err) {
-			c.Println("")
-			c.Println(c.UsageString())
+	c, err := cmd.ExecuteC()
+
+	var resp Response
+
+	if c == cmd && hugoCmd.c != nil {
+		// Root command executed
+		resp.Result = hugoCmd.c.hugo
+	}
+
+	if err == nil {
+		errCount := jww.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)
+		if errCount > 0 {
+			err = fmt.Errorf("logged %d errors", errCount)
+		} else if resp.Result != nil {
+			errCount = resp.Result.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)
+			if errCount > 0 {
+				err = fmt.Errorf("logged %d errors", errCount)
+			}
 		}
 
-		os.Exit(-1)
 	}
+
+	resp.Err = err
+	resp.Cmd = c
+
+	return resp
 }
 
 // InitializeConfig initializes a config file with sensible default configuration flags.
@@ -612,7 +647,6 @@ func (c *commandeer) resetAndBuildSites() (err error) {
 
 func (c *commandeer) initSites() error {
 	if c.hugo != nil {
-		// TODO(bep) cli refactor check
 		c.hugo.Cfg = c.Cfg
 		c.hugo.Log.ResetLogCounters()
 		return nil

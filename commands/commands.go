@@ -22,10 +22,10 @@ import (
 )
 
 // newHugoCompleteCmd builds the complete set of Hugo CLI commands.
-func newHugoCompleteCmd() *cobra.Command {
-	hugoCmd := newHugoCmd().getCommand()
-	addAllCommands(hugoCmd)
-	return hugoCmd
+func newHugoCompleteCmd() *hugoCmd {
+	h := newHugoCmd()
+	addAllCommands(h.getCommand())
+	return h
 }
 
 // addAllCommands adds child commands to the root command HugoCmd.
@@ -81,6 +81,9 @@ func (c *baseCmd) flagsToConfig(cfg config.Provider) {
 
 type hugoCmd struct {
 	*baseBuilderCmd
+
+	// Need to get the sites once built.
+	c *commandeer
 }
 
 func newHugoCmd() *hugoCmd {
@@ -107,6 +110,7 @@ Complete documentation is available at http://gohugo.io/.`,
 			if err != nil {
 				return err
 			}
+			cc.c = c
 
 			return c.build()
 		},

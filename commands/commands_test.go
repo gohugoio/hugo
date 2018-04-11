@@ -23,6 +23,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestExecute(t *testing.T) {
+
+	assert := require.New(t)
+
+	dir, err := createSimpleTestSite(t)
+	assert.NoError(err)
+
+	defer func() {
+		os.RemoveAll(dir)
+	}()
+
+	resp := Execute([]string{"-s=" + dir})
+	assert.NoError(resp.Err)
+	result := resp.Result
+	assert.True(len(result.Sites) == 1)
+	assert.True(len(result.Sites[0].RegularPages) == 1)
+}
+
 func TestCommands(t *testing.T) {
 
 	assert := require.New(t)
@@ -72,7 +90,7 @@ func TestCommands(t *testing.T) {
 
 	for _, test := range tests {
 
-		hugoCmd := newHugoCompleteCmd()
+		hugoCmd := newHugoCompleteCmd().getCommand()
 		test.flags = append(test.flags, "--quiet")
 		hugoCmd.SetArgs(append(test.commands, test.flags...))
 
