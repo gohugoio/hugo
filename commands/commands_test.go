@@ -41,31 +41,33 @@ func TestCommands(t *testing.T) {
 	sourceFlag := fmt.Sprintf("-s=%s", dir)
 
 	tests := []struct {
-		commands []string
-		flags    []string
+		commands           []string
+		flags              []string
+		expectErrToContain string
 	}{
-		{[]string{"check", "ulimit"}, nil},
-		{[]string{"env"}, nil},
-		{[]string{"version"}, nil},
+		// TODO(bep) permission issue on my OSX? "operation not permitted" {[]string{"check", "ulimit"}, nil, false},
+		{[]string{"env"}, nil, ""},
+		{[]string{"version"}, nil, ""},
 		// no args = hugo build
-		{nil, []string{sourceFlag}},
+		{nil, []string{sourceFlag}, ""},
 		// TODO(bep) cli refactor remove the HugoSites global and enable the below
-		//{nil, []string{sourceFlag, "--renderToMemory"}},
-		{[]string{"benchmark"}, []string{sourceFlag, "-n=1"}},
-		{[]string{"convert", "toTOML"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "toml")}},
-		{[]string{"convert", "toYAML"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "yaml")}},
-		{[]string{"convert", "toJSON"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "json")}},
-		{[]string{"gen", "autocomplete"}, []string{"--completionfile=" + filepath.Join(dirOut, "autocomplete.txt")}},
-		{[]string{"gen", "chromastyles"}, []string{"--style=manni"}},
-		{[]string{"gen", "doc"}, []string{"--dir=" + filepath.Join(dirOut, "doc")}},
-		{[]string{"gen", "man"}, []string{"--dir=" + filepath.Join(dirOut, "man")}},
-		{[]string{"list", "drafts"}, []string{sourceFlag}},
-		{[]string{"list", "expired"}, []string{sourceFlag}},
-		{[]string{"list", "future"}, []string{sourceFlag}},
-		{[]string{"new", "new-page.md"}, []string{sourceFlag}},
-		{[]string{"new", "site", filepath.Join(dirOut, "new-site")}, nil},
+		//{nil, []string{sourceFlag, "--renderToMemory"},false},
+		{[]string{"benchmark"}, []string{sourceFlag, "-n=1"}, ""},
+		{[]string{"convert", "toTOML"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "toml")}, ""},
+		{[]string{"convert", "toYAML"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "yaml")}, ""},
+		{[]string{"convert", "toJSON"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "json")}, ""},
+		{[]string{"gen", "autocomplete"}, []string{"--completionfile=" + filepath.Join(dirOut, "autocomplete.txt")}, ""},
+		{[]string{"gen", "chromastyles"}, []string{"--style=manni"}, ""},
+		{[]string{"gen", "doc"}, []string{"--dir=" + filepath.Join(dirOut, "doc")}, ""},
+		{[]string{"gen", "man"}, []string{"--dir=" + filepath.Join(dirOut, "man")}, ""},
+		{[]string{"list", "drafts"}, []string{sourceFlag}, ""},
+		{[]string{"list", "expired"}, []string{sourceFlag}, ""},
+		{[]string{"list", "future"}, []string{sourceFlag}, ""},
+		{[]string{"new", "new-page.md"}, []string{sourceFlag}, ""},
+		{[]string{"new", "site", filepath.Join(dirOut, "new-site")}, nil, ""},
+		{[]string{"unknowncommand"}, nil, "unknown command"},
 		// TODO(bep) cli refactor fix https://github.com/gohugoio/hugo/issues/4450
-		//{[]string{"new", "theme", filepath.Join(dirOut, "new-theme")}, nil},
+		//{[]string{"new", "theme", filepath.Join(dirOut, "new-theme")}, nil,false},
 	}
 
 	for _, test := range tests {
@@ -75,8 +77,17 @@ func TestCommands(t *testing.T) {
 		hugoCmd.SetArgs(append(test.commands, test.flags...))
 
 		// TODO(bep) capture output and add some simple asserts
+		// TODO(bep) misspelled subcommands does not return an error. We should investigate this
+		// but before that, check for "Error: unknown command".
 
-		assert.NoError(hugoCmd.Execute(), fmt.Sprintf("%v", test.commands))
+		_, err := hugoCmd.ExecuteC()
+		if test.expectErrToContain != "" {
+			assert.Error(err, fmt.Sprintf("%v", test.commands))
+			assert.Contains(err.Error(), test.expectErrToContain)
+		} else {
+			assert.NoError(err, fmt.Sprintf("%v", test.commands))
+		}
+
 	}
 
 }

@@ -11,10 +11,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// +build !darwin
-
 package commands
 
-func tweakLimit() {
-	// nothing to do
+import (
+	"github.com/spf13/cobra"
+)
+
+var _ cmder = (*checkCmd)(nil)
+
+type checkCmd struct {
+	*baseCmd
+}
+
+func newCheckCmd() *checkCmd {
+	cc := &checkCmd{baseCmd: &baseCmd{cmd: &cobra.Command{
+		Use:   "check",
+		Short: "Contains some verification checks",
+	},
+	}}
+
+	cc.cmd.AddCommand(newLimitCmd().getCommand())
+
+	return cc
 }
