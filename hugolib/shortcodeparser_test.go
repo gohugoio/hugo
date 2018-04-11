@@ -145,10 +145,12 @@ var shortCodeLexerTests = []shortCodeLexerTest{
 		{tError, 0, "got named parameter 'param2'. Cannot mix named and positional parameters"}}},
 	{"commented out", `{{</* sc1 */>}}`, []item{
 		{tText, 0, "{{<"}, {tText, 0, " sc1 "}, {tText, 0, ">}}"}, tstEOF}},
+	{"commented out, with asterisk inside", `{{</* sc1 "**/*.pdf" */>}}`, []item{
+		{tText, 0, "{{<"}, {tText, 0, " sc1 \"**/*.pdf\" "}, {tText, 0, ">}}"}, tstEOF}},
 	{"commented out, missing close", `{{</* sc1 >}}`, []item{
 		{tError, 0, "comment must be closed"}}},
 	{"commented out, misplaced close", `{{</* sc1 >}}*/`, []item{
-		{tText, 0, "{{<"}, {tText, 0, " sc1 >}}"}, {tError, 0, "comment ends before the right shortcode delimiter"}}},
+		{tError, 0, "comment must be closed"}}},
 }
 
 func TestShortcodeLexer(t *testing.T) {

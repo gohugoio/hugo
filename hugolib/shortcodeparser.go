@@ -312,7 +312,7 @@ func lexShortcodeLeftDelim(l *pagelexer) stateFunc {
 }
 
 func lexShortcodeComment(l *pagelexer) stateFunc {
-	posRightComment := strings.Index(l.input[l.pos:], rightComment)
+	posRightComment := strings.Index(l.input[l.pos:], rightComment+l.currentRightShortcodeDelim())
 	if posRightComment <= 1 {
 		return l.errorf("comment must be closed")
 	}
@@ -324,9 +324,6 @@ func lexShortcodeComment(l *pagelexer) stateFunc {
 	l.emit(tText)
 	l.pos += pos(len(rightComment))
 	l.ignore()
-	if !strings.HasPrefix(l.input[l.pos:], l.currentRightShortcodeDelim()) {
-		return l.errorf("comment ends before the right shortcode delimiter")
-	}
 	l.pos += pos(len(l.currentRightShortcodeDelim()))
 	l.emit(tText)
 	return lexTextOutsideShortcodes
