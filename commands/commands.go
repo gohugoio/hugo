@@ -75,22 +75,11 @@ func newBuilderCmd(cmd *cobra.Command) *baseBuilderCmd {
 	return bcmd
 }
 
-// TODO(bep) cli refactor need root?
 func (c *baseCmd) flagsToConfig(cfg config.Provider) {
 	initializeFlags(c.cmd, cfg)
 }
 
 type hugoCmd struct {
-
-	//cacheDir        string
-	//contentDir      string
-	//layoutDir       string
-	//destination     string
-	//theme           string
-	//themesDir       string
-	//logI18nWarnings bool
-	//disableKinds []string
-
 	*baseBuilderCmd
 }
 

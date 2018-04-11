@@ -85,7 +85,6 @@ of a second, you will be able to save and see your changes nearly instantly.`,
 		RunE: cc.server,
 	})
 
-	// TODO(bep) cli refactor fields vs strings
 	cc.cmd.Flags().IntVarP(&cc.serverPort, "port", "p", 1313, "port on which the server will listen")
 	cc.cmd.Flags().IntVar(&cc.liveReloadPort, "liveReloadPort", -1, "port for live reloading (i.e. 443 in HTTPS proxy situations)")
 	cc.cmd.Flags().StringVarP(&cc.serverInterface, "bind", "", "127.0.0.1", "interface to which the server will bind")
@@ -230,7 +229,6 @@ func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
 	}
 
 	c, err := initializeConfig(true, &s.hugoBuilderCommon, s, cfgInit)
-	// TODO(bep) cli refactor
 	if err != nil {
 		return err
 	}
@@ -349,7 +347,6 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 	return mu, u.String(), endpoint, nil
 }
 
-// TODO(bep) cli refactor
 func (c *commandeer) serve(s *serverCmd) error {
 
 	isMultiHost := c.hugo.IsMultihost()

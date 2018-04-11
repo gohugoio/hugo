@@ -53,20 +53,6 @@ import (
 
 // TODO(bep) cli refactor consider a exported Hugo() method to fix the API
 
-// Hugo represents the Hugo sites to build. This variable is exported as it
-// is used by at least one external library (the Hugo caddy plugin). We should
-// provide a cleaner external API, but until then, this is it.
-// TODO(bep)  cli refactor remove this
-//var Hugo *hugolib.HugoSites
-
-// Reset resets Hugo ready for a new full build. This is mainly only useful
-// for benchmark testing etc. via the CLI commands.
-// TODO(bep) cli refactor check usage
-func Reset() error {
-	//Hugo = nil
-	return nil
-}
-
 // Execute adds all child commands to the root command HugoCmd and sets flags appropriately.
 func Execute() {
 	hugoCmd := newHugoCompleteCmd()

@@ -53,7 +53,6 @@ If archetypes are provided in your theme or site, they will be used.`,
 	})
 
 	cc.cmd.Flags().StringVarP(&cc.contentType, "kind", "k", "", "content type to create")
-	// TODO(bep) cli refactor
 	cc.cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
 	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 	cc.cmd.Flags().StringVar(&cc.contentEditor, "editor", "", "edit new content with this editor, if provided")
@@ -169,7 +168,6 @@ func touchFile(fs afero.Fs, x ...string) {
 	}
 }
 
-// TODO(bep) cli refactor => method
 func newContentPathSection(path string) (string, string) {
 	// Forward slashes is used in all examples. Convert if needed.
 	// Issue #1133

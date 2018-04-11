@@ -48,7 +48,6 @@ func checkNewSiteInited(fs *hugofs.Fs, basepath string, t *testing.T) {
 }
 
 func TestDoNewSite(t *testing.T) {
-	// TODO(bep) cli refactor
 	n := newNewSiteCmd()
 	basepath := filepath.Join("base", "blog")
 	_, fs := newTestCfg()
