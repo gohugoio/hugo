@@ -61,11 +61,6 @@ This is primarily to ensure that Hugo can watch enough files on some OSs`,
 	return &limitCmd{baseCmd: newBaseCmd(ccmd)}
 }
 
-func init() {
-	// TODO(bep) cli refactor
-	//checkCmdOld.AddCommand(limit)
-}
-
 func tweakLimit() {
 	var rLimit syscall.Rlimit
 	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
