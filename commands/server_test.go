@@ -38,9 +38,9 @@ func TestServer(t *testing.T) {
 		os.RemoveAll(dir)
 	}()
 
-	stop, started := make(chan bool), make(chan bool)
+	stop := make(chan bool)
 
-	scmd := newServerCmdSignaled(stop, started)
+	scmd := newServerCmdSignaled(stop)
 
 	cmd := scmd.getCommand()
 	cmd.SetArgs([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port)})
@@ -50,11 +50,10 @@ func TestServer(t *testing.T) {
 		assert.NoError(err)
 	}()
 
-	select {
-	case <-started:
-	case <-time.After(2 * time.Second):
-		t.Fatal("server start took too long")
-	}
+	// There is no way to know exactly when the server is ready for connections.
+	// We could improve by something like https://golang.org/pkg/net/http/httptest/#Server
+	// But for now, let us sleep and pray!
+	time.Sleep(2 * time.Second)
 
 	resp, err := http.Get("http://localhost:1331/")
 	assert.NoError(err)
