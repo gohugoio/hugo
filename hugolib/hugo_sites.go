@@ -712,12 +712,7 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bu
 	fileTp, isContent := classifyBundledFile(name)
 
 	// This may be a member of a bundle. Start with branch bundles, the most specific.
-	if fileTp != bundleLeaf {
-		if fileTp == bundleNot && isContent {
-			// Branch bundles does not contain content pages as resources.
-			return dir, filename, bundleNot
-		}
-
+	if fileTp == bundleBranch || (fileTp == bundleNot && !isContent) {
 		for i, b := range m.branches {
 			if b == dir {
 				m.branches = append(m.branches[:i], m.branches[i+1:]...)
