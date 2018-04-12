@@ -109,15 +109,15 @@ The following is a list of site-level (aka "global") variables. Many of these va
 
 ### Example: `.Site.Params`
 
-The following `config.toml` defines a site-wide param for `description`:
+The following `config.[yaml|toml|json]` defines a site-wide param for `description`:
 
-```
+{{< code-toggle file="config" >}}
 baseURL = "https://yoursite.example.com/"
 
 [params]
   description = "Tesla's Awesome Hugo Site"
   author = "Nikola Tesla"
-```
+{{</ code-toggle >}}
 
 You can use `.Site.Params` in a [partial template](/templates/partials/) to call the default site description:
 

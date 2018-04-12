@@ -94,16 +94,16 @@ In the above, the menu item is marked as active if on the current section's list
 
 ## Site Config menus
 
-The above is all that's needed. But if you want custom menu items, e.g. changing weight, name, or link title attribute, you can define them manually in the site config, i.e. `config.toml`:
+The above is all that's needed. But if you want custom menu items, e.g. changing weight, name, or link title attribute, you can define them manually in the site config file:
 
-```
+{{< code-toggle file="config" >}}
 [[menu.main]]
     name = "This is the blog section"
     title = "blog section"
     weight = -110
     identifier = "blog"
     url = "/blog/"
-```
+{{</ code-toggle >}}
 
 {{% note %}}
 The `identifier` *must* match the section name.

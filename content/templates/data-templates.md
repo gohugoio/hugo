@@ -95,16 +95,16 @@ Discover a new favorite bass player? Just add another `.toml` file in the same d
 
 ## Example: Accessing Named Values in a Data File
 
-Assume you have the following YAML structure in your `User0123.yml` data file located directly in `data/`:
+Assume you have the following data structure in your `User0123.[yml|toml|json]` data file located directly in `data/`:
 
-```
+{{< code-toggle file="User0123" >}}
 Name: User0123
 "Short Description": "He is a **jolly good** fellow."
 Achievements:
   - "Can create a Key, Value list from Data File"
   - "Learns Hugo"
   - "Reads documentation"
-```
+{{</ code-toggle >}}
 
 You can use the following code to render the `Short Description` in your layout::
 

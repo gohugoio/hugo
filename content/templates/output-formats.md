@@ -37,13 +37,13 @@ This is the full set of built-in media types in Hugo:
 
 To add or modify a media type, define it in a `mediaTypes` section in your [site configuration][config], either for all sites or for a given language.
 
-```
+{{< code-toggle file="config" >}}
 [mediaTypes]
   [mediaTypes."text/enriched"]
   suffix = "enr"
   [mediaTypes."text/html"]
   suffix = "asp"
-```
+{{</ code-toggle >}}
 
 The above example adds one new media type, `text/enriched`, and changes the suffix for the built-in `text/html` media type.
 
@@ -76,13 +76,13 @@ This is the full set of Hugo's built-in output formats:
 
 To add or modify an output format, define it in an `outputFormats` section in your site's [configuration file](/getting-started/configuration/), either for all sites or for a given language.
 
-```
+{{< code-toggle file="config" >}}
 [outputFormats.MyEnrichedFormat]
 mediaType = "text/enriched"
 baseName = "myindex"
 isPlainText = true
 protocol = "bep://"
-```
+{{</ code-toggle >}}
 
 The above example is fictional, but if used for the homepage on a site with `baseURL` `https://example.org`, it will produce a plain text homepage with the URL `bep://example.org/myindex.enr`.
 
@@ -143,21 +143,14 @@ This can be changed by defining an `outputs` list of output formats in either
 the `Page` front matter or in the site configuration (either for all sites or
 per language).
 
-Example from site `config.toml`:
+Example from site config file`:
 
-```
+{{< code-toggle file="config" >}}
 [outputs]
   home = ["HTML", "AMP", "RSS"]
   page = ["HTML"]
-```
+{{</ code-toggle >}}
 
-Example from site `config.yml`:
-
-```
-outputs:
-  home: ["HTML", "AMP", "RSS"]
-  page: ["HTML"]
-```
 
 Note that in the above examples, the *output formats* for `section`,
 `taxonomyTerm` and `taxonomy` will stay at their default value `["HTML",

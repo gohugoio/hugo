@@ -458,7 +458,7 @@ You can arbitrarily define as many site-level parameters as you want in your [si
 
 For instance, you might declare the following:
 
-{{< code file="config.yaml" >}}
+{{< code-toggle file="config" >}}
 params:
   copyrighthtml: "Copyright &#xA9; 2017 John Doe. All Rights Reserved."
   twitteruser: "spf13"
