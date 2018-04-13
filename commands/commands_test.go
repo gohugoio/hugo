@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/spf13/cobra"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -41,7 +43,44 @@ func TestExecute(t *testing.T) {
 	assert.True(len(result.Sites[0].RegularPages) == 1)
 }
 
-func TestCommands(t *testing.T) {
+func TestCommandsPersistentFlags(t *testing.T) {
+	assert := require.New(t)
+
+	noOpRunE := func(cmd *cobra.Command, args []string) error {
+		return nil
+	}
+
+	tests := []struct {
+		args  []string
+		check func(command []cmder)
+	}{{[]string{"server", "--config=myconfig.toml", "-b=https://example.com/b/", "--source=mysource"}, func(commands []cmder) {
+		for _, command := range commands {
+			if b, ok := command.(commandsBuilderGetter); ok {
+				v := b.getCmmandsBuilder().hugoBuilderCommon
+				assert.Equal("myconfig.toml", v.cfgFile)
+				assert.Equal("mysource", v.source)
+				assert.Equal("https://example.com/b/", v.baseURL)
+			}
+		}
+	}}}
+
+	for _, test := range tests {
+		b := newCommandsBuilder()
+		root := b.addAll().build()
+
+		for _, c := range b.commands {
+			// We are only intereseted in the flag handling here.
+			c.getCommand().RunE = noOpRunE
+		}
+		rootCmd := root.getCommand()
+		rootCmd.SetArgs(test.args)
+		assert.NoError(rootCmd.Execute())
+		test.check(b.commands)
+	}
+
+}
+
+func TestCommandsExecute(t *testing.T) {
 
 	assert := require.New(t)
 
@@ -90,7 +129,7 @@ func TestCommands(t *testing.T) {
 
 	for _, test := range tests {
 
-		hugoCmd := newHugoCompleteCmd().getCommand()
+		hugoCmd := newCommandsBuilder().addAll().build().getCommand()
 		test.flags = append(test.flags, "--quiet")
 		hugoCmd.SetArgs(append(test.commands, test.flags...))
 

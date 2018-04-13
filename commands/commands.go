@@ -21,29 +21,43 @@ import (
 	"github.com/spf13/nitro"
 )
 
-// newHugoCompleteCmd builds the complete set of Hugo CLI commands.
-func newHugoCompleteCmd() *hugoCmd {
-	h := newHugoCmd()
-	addAllCommands(h.getCommand())
-	return h
+type commandsBuilder struct {
+	hugoBuilderCommon
+
+	commands []cmder
 }
 
-// addAllCommands adds child commands to the root command HugoCmd.
-func addAllCommands(root *cobra.Command) {
-	addCommands(
-		root,
-		newServerCmd(),
+func newCommandsBuilder() *commandsBuilder {
+	return &commandsBuilder{}
+}
+
+func (b *commandsBuilder) addCommands(commands ...cmder) *commandsBuilder {
+	b.commands = append(b.commands, commands...)
+	return b
+}
+
+func (b *commandsBuilder) addAll() *commandsBuilder {
+	b.addCommands(
+		b.newServerCmd(),
 		newVersionCmd(),
 		newEnvCmd(),
 		newConfigCmd(),
 		newCheckCmd(),
-		newBenchmarkCmd(),
+		b.newBenchmarkCmd(),
 		newConvertCmd(),
 		newNewCmd(),
 		newListCmd(),
 		newImportCmd(),
 		newGenCmd(),
 	)
+
+	return b
+}
+
+func (b *commandsBuilder) build() *hugoCmd {
+	h := b.newHugoCmd()
+	addCommands(h.getCommand(), b.commands...)
+	return h
 }
 
 func addCommands(root *cobra.Command, commands ...cmder) {
@@ -56,9 +70,19 @@ type baseCmd struct {
 	cmd *cobra.Command
 }
 
+var _ commandsBuilderGetter = (*baseBuilderCmd)(nil)
+
+// Used in tests.
+type commandsBuilderGetter interface {
+	getCmmandsBuilder() *commandsBuilder
+}
 type baseBuilderCmd struct {
-	hugoBuilderCommon
 	*baseCmd
+	*commandsBuilder
+}
+
+func (b *baseBuilderCmd) getCmmandsBuilder() *commandsBuilder {
+	return b.commandsBuilder
 }
 
 func (c *baseCmd) getCommand() *cobra.Command {
@@ -69,8 +93,8 @@ func newBaseCmd(cmd *cobra.Command) *baseCmd {
 	return &baseCmd{cmd: cmd}
 }
 
-func newBuilderCmd(cmd *cobra.Command) *baseBuilderCmd {
-	bcmd := &baseBuilderCmd{baseCmd: &baseCmd{cmd: cmd}}
+func (b *commandsBuilder) newBuilderCmd(cmd *cobra.Command) *baseBuilderCmd {
+	bcmd := &baseBuilderCmd{commandsBuilder: b, baseCmd: &baseCmd{cmd: cmd}}
 	bcmd.hugoBuilderCommon.handleFlags(cmd)
 	return bcmd
 }
@@ -86,10 +110,10 @@ type hugoCmd struct {
 	c *commandeer
 }
 
-func newHugoCmd() *hugoCmd {
+func (b *commandsBuilder) newHugoCmd() *hugoCmd {
 	cc := &hugoCmd{}
 
-	cc.baseBuilderCmd = newBuilderCmd(&cobra.Command{
+	cc.baseBuilderCmd = b.newBuilderCmd(&cobra.Command{
 		Use:   "hugo",
 		Short: "hugo builds your site",
 		Long: `hugo is the main command, used to build your Hugo site.

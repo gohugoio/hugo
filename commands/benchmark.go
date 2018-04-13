@@ -31,7 +31,7 @@ type benchmarkCmd struct {
 	*baseBuilderCmd
 }
 
-func newBenchmarkCmd() *benchmarkCmd {
+func (b *commandsBuilder) newBenchmarkCmd() *benchmarkCmd {
 	cmd := &cobra.Command{
 		Use:   "benchmark",
 		Short: "Benchmark Hugo by building a site a number of times.",
@@ -39,7 +39,7 @@ func newBenchmarkCmd() *benchmarkCmd {
 creating a benchmark.`,
 	}
 
-	c := &benchmarkCmd{baseBuilderCmd: newBuilderCmd(cmd)}
+	c := &benchmarkCmd{baseBuilderCmd: b.newBuilderCmd(cmd)}
 
 	cmd.Flags().StringVar(&c.cpuProfileFile, "cpuprofile", "", "path/filename for the CPU profile file")
 	cmd.Flags().StringVar(&c.memProfileFile, "memprofile", "", "path/filename for the memory profile file")
