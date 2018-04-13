@@ -57,14 +57,14 @@ type serverCmd struct {
 	*baseBuilderCmd
 }
 
-func newServerCmd() *serverCmd {
-	return newServerCmdSignaled(nil)
+func (b *commandsBuilder) newServerCmd() *serverCmd {
+	return b.newServerCmdSignaled(nil)
 }
 
-func newServerCmdSignaled(stop <-chan bool) *serverCmd {
+func (b *commandsBuilder) newServerCmdSignaled(stop <-chan bool) *serverCmd {
 	cc := &serverCmd{stop: stop}
 
-	cc.baseBuilderCmd = newBuilderCmd(&cobra.Command{
+	cc.baseBuilderCmd = b.newBuilderCmd(&cobra.Command{
 		Use:     "server",
 		Aliases: []string{"serve"},
 		Short:   "A high performance webserver",
@@ -463,7 +463,8 @@ func (sc *serverCmd) fixURL(cfg config.Provider, s string, port int) (string, er
 }
 
 func memStats() error {
-	sc := newServerCmd().getCommand()
+	b := newCommandsBuilder()
+	sc := b.newServerCmd().getCommand()
 	memstats := sc.Flags().Lookup("memstats").Value.String()
 	if memstats != "" {
 		interval, err := time.ParseDuration(sc.Flags().Lookup("meminterval").Value.String())

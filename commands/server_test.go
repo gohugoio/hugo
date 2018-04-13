@@ -40,7 +40,8 @@ func TestServer(t *testing.T) {
 
 	stop := make(chan bool)
 
-	scmd := newServerCmdSignaled(stop)
+	b := newCommandsBuilder()
+	scmd := b.newServerCmdSignaled(stop)
 
 	cmd := scmd.getCommand()
 	cmd.SetArgs([]string{"-s=" + dir, fmt.Sprintf("-p=%d", port)})
@@ -90,7 +91,8 @@ func TestFixURL(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		s := newServerCmd()
+		b := newCommandsBuilder()
+		s := b.newServerCmd()
 		v := viper.New()
 		baseURL := test.CLIBaseURL
 		v.Set("baseURL", test.CfgBaseURL)
