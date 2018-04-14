@@ -200,7 +200,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"gc",
 		"layoutDir",
 		"logFile",
-		"logI18nWarnings",
+		"i18n-warnings",
 		"quiet",
 		"renderToMemory",
 		"source",
@@ -211,11 +211,15 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 	}
 
 	for _, key := range persFlagKeys {
-		setValueFromFlag(cmd.PersistentFlags(), key, cfg)
+		setValueFromFlag(cmd.PersistentFlags(), key, cfg, "")
 	}
 	for _, key := range flagKeys {
-		setValueFromFlag(cmd.Flags(), key, cfg)
+		setValueFromFlag(cmd.Flags(), key, cfg, "")
 	}
+
+	// Set some "config aliases"
+	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir")
+	setValueFromFlag(cmd.Flags(), "i18n-warnings", cfg, "logI18nWarnings")
 
 }
 
@@ -226,7 +230,7 @@ var deprecatedFlags = map[string]bool{
 	strings.ToLower("canonifyURLs"):          true,
 }
 
-func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider) {
+func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targetKey string) {
 	if flags.Changed(key) {
 		if _, deprecated := deprecatedFlags[strings.ToLower(key)]; deprecated {
 			msg := fmt.Sprintf(`Set "%s = true" in your config.toml.
@@ -235,7 +239,11 @@ If you need to set this configuration value from the command line, set it via an
 			helpers.Deprecated("hugo", "--"+key+" flag", msg, true)
 		}
 		f := flags.Lookup(key)
-		cfg.Set(key, f.Value.String())
+		configKey := key
+		if targetKey != "" {
+			configKey = targetKey
+		}
+		cfg.Set(configKey, f.Value.String())
 	}
 }
 
