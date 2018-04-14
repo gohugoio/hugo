@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/stretchr/testify/require"
 )
@@ -53,7 +54,24 @@ func TestCommandsPersistentFlags(t *testing.T) {
 	tests := []struct {
 		args  []string
 		check func(command []cmder)
-	}{{[]string{"server", "--config=myconfig.toml", "-b=https://example.com/b/", "--source=mysource"}, func(commands []cmder) {
+	}{{[]string{"server",
+		"--config=myconfig.toml",
+		"--contentDir=mycontent",
+		"--layoutDir=mylayouts",
+		"--theme=mytheme",
+		"--themesDir=mythemes",
+		"--cleanDestinationDir",
+		"--navigateToChanged",
+		"--disableLiveReload",
+		"--noHTTPCache",
+		"--i18n-warnings",
+		"--destination=/tmp/mydestination",
+		"-b=https://example.com/b/",
+		"--port=1366",
+		"--renderToDisk",
+		"--source=mysource",
+		"--uglyURLs"}, func(commands []cmder) {
+		var sc *serverCmd
 		for _, command := range commands {
 			if b, ok := command.(commandsBuilderGetter); ok {
 				v := b.getCmmandsBuilder().hugoBuilderCommon
@@ -61,7 +79,32 @@ func TestCommandsPersistentFlags(t *testing.T) {
 				assert.Equal("mysource", v.source)
 				assert.Equal("https://example.com/b/", v.baseURL)
 			}
+
+			if srvCmd, ok := command.(*serverCmd); ok {
+				sc = srvCmd
+			}
 		}
+
+		assert.NotNil(sc)
+		assert.True(sc.navigateToChanged)
+		assert.True(sc.disableLiveReload)
+		assert.True(sc.noHTTPCache)
+		assert.True(sc.renderToDisk)
+		assert.Equal(1366, sc.serverPort)
+
+		cfg := viper.New()
+		sc.flagsToConfig(cfg)
+		assert.Equal("/tmp/mydestination", cfg.GetString("publishDir"))
+		assert.Equal("mycontent", cfg.GetString("contentDir"))
+		assert.Equal("mylayouts", cfg.GetString("layoutDir"))
+		assert.Equal("mytheme", cfg.GetString("theme"))
+		assert.Equal("mythemes", cfg.GetString("themesDir"))
+
+		assert.True(cfg.GetBool("uglyURLs"))
+
+		// The flag is named i18n-warnings
+		assert.True(cfg.GetBool("logI18nWarnings"))
+
 	}}}
 
 	for _, test := range tests {
