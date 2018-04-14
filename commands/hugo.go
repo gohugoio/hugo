@@ -243,7 +243,20 @@ If you need to set this configuration value from the command line, set it via an
 		if targetKey != "" {
 			configKey = targetKey
 		}
-		cfg.Set(configKey, f.Value.String())
+		// Gotta love this API.
+		switch f.Value.Type() {
+		case "bool":
+			bv, _ := flags.GetBool(key)
+			cfg.Set(configKey, bv)
+		case "string":
+			cfg.Set(configKey, f.Value.String())
+		case "stringSlice":
+			bv, _ := flags.GetStringSlice(key)
+			cfg.Set(configKey, bv)
+		default:
+			panic(fmt.Sprintf("update switch with %s", f.Value.Type()))
+		}
+
 	}
 }
 
