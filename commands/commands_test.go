@@ -57,8 +57,10 @@ func TestCommandsPersistentFlags(t *testing.T) {
 	}{{[]string{"server",
 		"--config=myconfig.toml",
 		"--contentDir=mycontent",
+		"--disableKinds=page,home",
 		"--layoutDir=mylayouts",
 		"--theme=mytheme",
+		"--gc",
 		"--themesDir=mythemes",
 		"--cleanDestinationDir",
 		"--navigateToChanged",
@@ -100,7 +102,10 @@ func TestCommandsPersistentFlags(t *testing.T) {
 		assert.Equal("mytheme", cfg.GetString("theme"))
 		assert.Equal("mythemes", cfg.GetString("themesDir"))
 
+		assert.Equal([]string{"page", "home"}, cfg.Get("disableKinds"))
+
 		assert.True(cfg.GetBool("uglyURLs"))
+		assert.True(cfg.GetBool("gc"))
 
 		// The flag is named i18n-warnings
 		assert.True(cfg.GetBool("logI18nWarnings"))
