@@ -76,9 +76,6 @@ type File interface {
 	FileInfo() os.FileInfo
 
 	String() string
-
-	// Deprecated
-	Bytes() []byte
 }
 
 // A ReadableFile is a File that is readable.
@@ -136,12 +133,6 @@ func (fi *FileInfo) UniqueID() string {
 }
 func (fi *FileInfo) FileInfo() os.FileInfo {
 	return fi.fi
-}
-
-func (fi *FileInfo) Bytes() []byte {
-	// Remove in Hugo 0.38
-	helpers.Deprecated("File", "Bytes", "", true)
-	return []byte("")
 }
 
 func (fi *FileInfo) String() string { return fi.BaseFileName() }
