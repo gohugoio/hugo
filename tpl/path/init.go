@@ -14,7 +14,11 @@
 package path
 
 import (
+	"fmt"
+	"path/filepath"
+
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
@@ -33,6 +37,15 @@ func init() {
 			nil,
 			[][2]string{
 				{`{{ "/my/path/filename.txt" | path.Split }}`, `/my/path/|filename.txt`},
+				{fmt.Sprintf(`{{ %q | path.Split }}`, filepath.FromSlash("/my/path/filename.txt")), `/my/path/|filename.txt`},
+			},
+		)
+
+		ns.AddMethodMapping(ctx.Join,
+			nil,
+			[][2]string{
+				{fmt.Sprintf(`{{ slice %q "filename.txt" | path.Join  }}`, "my"+helpers.FilePathSeparator+"path"), `my/path/filename.txt`},
+				{`{{  path.Join "my" "path" "filename.txt" }}`, `my/path/filename.txt`},
 			},
 		)
 
