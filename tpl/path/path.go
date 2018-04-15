@@ -16,6 +16,7 @@ package path
 import (
 	"fmt"
 	_path "path"
+	"path/filepath"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
@@ -48,13 +49,45 @@ func (df DirFile) String() string {
 // separating it into a directory and file name component.
 // If there is no slash in path, Split returns an empty dir and
 // file set to path.
+// The input path is passed into filepath.ToSlash converting any Windows slashes
+// to forward slashes.
 // The returned values have the property that path = dir+file.
 func (ns *Namespace) Split(path interface{}) (DirFile, error) {
 	spath, err := cast.ToStringE(path)
 	if err != nil {
 		return DirFile{}, err
 	}
+	spath = filepath.ToSlash(spath)
 	dir, file := _path.Split(spath)
 
 	return DirFile{Dir: dir, File: file}, nil
+}
+
+// Join joins any number of path elements into a single path, adding a
+// separating slash if necessary. All the input
+// path elements are passed into filepath.ToSlash converting any Windows slashes
+// to forward slashes.
+// The result is Cleaned; in particular,
+// all empty strings are ignored.
+func (ns *Namespace) Join(elements ...interface{}) (string, error) {
+	var pathElements []string
+	for _, elem := range elements {
+		switch v := elem.(type) {
+		case []interface{}:
+			for _, e := range v {
+				elemStr, err := cast.ToStringE(e)
+				if err != nil {
+					return "", err
+				}
+				pathElements = append(pathElements, filepath.ToSlash(elemStr))
+			}
+		default:
+			elemStr, err := cast.ToStringE(elem)
+			if err != nil {
+				return "", err
+			}
+			pathElements = append(pathElements, filepath.ToSlash(elemStr))
+		}
+	}
+	return _path.Join(pathElements...), nil
 }
