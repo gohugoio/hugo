@@ -1583,7 +1583,6 @@ func (s *Site) resetBuildState() {
 	s.expiredCount = 0
 
 	for _, p := range s.rawAllPages {
-		p.scratch = newScratch()
 		p.subSections = Pages{}
 		p.parent = nil
 	}
