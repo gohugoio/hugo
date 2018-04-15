@@ -128,9 +128,10 @@ type Page struct {
 	params map[string]interface{}
 
 	// Content sections
-	Content         template.HTML
-	Summary         template.HTML
-	TableOfContents template.HTML
+	Content             template.HTML
+	Summary             template.HTML
+	ContentAfterSummary template.HTML
+	TableOfContents     template.HTML
 
 	Aliases []string
 
@@ -638,14 +639,16 @@ func (p *Page) setUserDefinedSummaryIfProvided(rawContentCopy []byte) (*summaryC
 	}
 
 	p.Summary = helpers.BytesToHTML(sc.summary)
+	p.ContentAfterSummary = helpers.BytesToHTML(sc.contentAfterSummary)
 
 	return sc, nil
 }
 
 // Make this explicit so there is no doubt about what is what.
 type summaryContent struct {
-	summary []byte
-	content []byte
+	summary             []byte
+	content             []byte
+	contentAfterSummary []byte
 }
 
 func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryContent, err error) {
@@ -700,16 +703,19 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryCont
 
 	withoutDivider := bytes.TrimSpace(append(c[:startDivider], c[endDivider:]...))
 	var (
-		summary []byte
+		summary             []byte
+		contentAfterSummary []byte
 	)
 
 	if len(withoutDivider) > 0 {
 		summary = bytes.TrimSpace(withoutDivider[:endSummary])
+		contentAfterSummary = bytes.TrimSpace(withoutDivider[endSummary:])
 	}
 
 	if addDiv {
 		// For the rst
 		summary = append(append([]byte(nil), summary...), []byte("</div>")...)
+		contentAfterSummary = append([]byte("<div class=\"document\"> ")[:], contentAfterSummary...)
 	}
 
 	if err != nil {
@@ -717,8 +723,9 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryCont
 	}
 
 	sc = &summaryContent{
-		summary: summary,
-		content: withoutDivider,
+		summary:             summary,
+		content:             withoutDivider,
+		contentAfterSummary: contentAfterSummary,
 	}
 
 	return
