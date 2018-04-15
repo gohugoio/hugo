@@ -128,7 +128,7 @@ type Page struct {
 	params map[string]interface{}
 
 	// Content sections
-	Content         template.HTML
+	content         template.HTML
 	Summary         template.HTML
 	TableOfContents template.HTML
 
@@ -261,6 +261,10 @@ type Page struct {
 	mainPageOutput *PageOutput
 
 	targetPathDescriptorPrototype *targetPathDescriptor
+}
+
+func (p *Page) Content() (interface{}, error) {
+	return p.content, nil
 }
 
 // Sites is a convenience method to get all the Hugo sites/languages configured.
@@ -462,7 +466,7 @@ func (p *Page) PlainWords() []string {
 
 func (p *Page) initPlain() {
 	p.plainInit.Do(func() {
-		p.plain = helpers.StripHTML(string(p.Content))
+		p.plain = helpers.StripHTML(string(p.content))
 		return
 	})
 }
@@ -1098,7 +1102,7 @@ func (p *Page) prepareForRender(cfg *BuildCfg) error {
 			workContentCopy = summaryContent.content
 		}
 
-		p.Content = helpers.BytesToHTML(workContentCopy)
+		p.content = helpers.BytesToHTML(workContentCopy)
 
 		if summaryContent == nil {
 			if err := p.setAutoSummary(); err != nil {
@@ -1107,7 +1111,7 @@ func (p *Page) prepareForRender(cfg *BuildCfg) error {
 		}
 
 	} else {
-		p.Content = helpers.BytesToHTML(workContentCopy)
+		p.content = helpers.BytesToHTML(workContentCopy)
 	}
 
 	//analyze for raw stats
@@ -1720,7 +1724,7 @@ func (p *Page) prepareLayouts() error {
 	if p.Kind == KindPage {
 		if !p.IsRenderable() {
 			self := "__" + p.UniqueID()
-			err := p.s.TemplateHandler().AddLateTemplate(self, string(p.Content))
+			err := p.s.TemplateHandler().AddLateTemplate(self, string(p.content))
 			if err != nil {
 				return err
 			}

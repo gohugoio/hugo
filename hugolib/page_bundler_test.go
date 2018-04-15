@@ -87,7 +87,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				assert.Equal(singlePage, s.getPage("page", "a/1"))
 				assert.Equal(singlePage, s.getPage("page", "1"))
 
-				assert.Contains(singlePage.Content, "TheContent")
+				assert.Contains(singlePage.content, "TheContent")
 
 				if ugly {
 					assert.Equal("/a/1.html", singlePage.RelPermalink())
@@ -129,7 +129,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				firstPage := pageResources[0].(*Page)
 				secondPage := pageResources[1].(*Page)
 				assert.Equal(filepath.FromSlash("b/my-bundle/1.md"), firstPage.pathOrTitle(), secondPage.pathOrTitle())
-				assert.Contains(firstPage.Content, "TheContent")
+				assert.Contains(firstPage.content, "TheContent")
 				assert.Equal(6, len(leafBundle1.Resources))
 
 				// https://github.com/gohugoio/hugo/issues/4582
@@ -395,7 +395,7 @@ HEADLESS {{< myShort >}}
 	assert.Equal("Headless Bundle in Topless Bar", headless.Title())
 	assert.Equal("", headless.RelPermalink())
 	assert.Equal("", headless.Permalink())
-	assert.Contains(headless.Content, "HEADLESS SHORTCODE")
+	assert.Contains(headless.content, "HEADLESS SHORTCODE")
 
 	headlessResources := headless.Resources
 	assert.Equal(3, len(headlessResources))
@@ -404,7 +404,7 @@ HEADLESS {{< myShort >}}
 	assert.NotNil(pageResource)
 	assert.IsType(&Page{}, pageResource)
 	p := pageResource.(*Page)
-	assert.Contains(p.Content, "SHORTCODE")
+	assert.Contains(p.content, "SHORTCODE")
 	assert.Equal("p1.md", p.Name())
 
 	th := testHelper{s.Cfg, s.Fs, t}
