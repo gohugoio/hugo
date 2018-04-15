@@ -64,4 +64,7 @@ not when it's created from the site config.
 .Children
 : Menu
 
+.Target
+: Menu
+
 [menu template]: /templates/menu-templates/

@@ -45,7 +45,7 @@ The following is an example:
           </ul>
       {{else}}
         <li>
-          <a href="{{.URL}}">
+          <a href="{{.URL}}" {{ if .Target }} target="{{ .Target }}" {{ end }} >
             {{ .Pre }}
             <span>{{ .Name }}</span>
           </a>
