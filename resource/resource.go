@@ -87,6 +87,14 @@ type Resource interface {
 
 	// Params set in front matter for this resource.
 	Params() map[string]interface{}
+
+	// Content returns this resource's content. It will be equivalent to reading the content
+	// that RelPermalink points to in the published folder.
+	// The return type will be contextual, and should be what you would expect:
+	// * Page: template.HTML
+	// * JSON: String
+	// * Etc.
+	Content() (interface{}, error)
 }
 
 // Resources represents a slice of resources, which can be a mix of different types.
@@ -360,6 +368,11 @@ func (d dirFile) path() string {
 	return path.Join(d.dir, d.file)
 }
 
+type resourceContent struct {
+	content     string
+	contentInit sync.Once
+}
+
 // genericResource represents a generic linkable resource.
 type genericResource struct {
 	// The relative path to this resource.
@@ -390,6 +403,26 @@ type genericResource struct {
 	osFileInfo   os.FileInfo
 
 	targetPathBuilder func(rel string) string
+
+	// We create copies of this struct, so this needs to be a pointer.
+	*resourceContent
+}
+
+func (l *genericResource) Content() (interface{}, error) {
+	var err error
+	l.contentInit.Do(func() {
+		var b []byte
+
+		b, err := afero.ReadFile(l.sourceFs(), l.AbsSourceFilename())
+		if err != nil {
+			return
+		}
+
+		l.content = string(b)
+
+	})
+
+	return l.content, err
 }
 
 func (l *genericResource) sourceFs() afero.Fs {
@@ -444,6 +477,7 @@ func (l *genericResource) updateParams(params map[string]interface{}) {
 // Implement the Cloner interface.
 func (l genericResource) WithNewBase(base string) Resource {
 	l.base = base
+	l.resourceContent = &resourceContent{}
 	return &l
 }
 
@@ -611,5 +645,6 @@ func (r *Spec) newGenericResource(
 		params:            make(map[string]interface{}),
 		name:              baseFilename,
 		title:             baseFilename,
+		resourceContent:   &resourceContent{},
 	}
 }

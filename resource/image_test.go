@@ -322,6 +322,18 @@ func TestSVGImage(t *testing.T) {
 	assert.NotNil(svg)
 }
 
+func TestSVGImageContent(t *testing.T) {
+	assert := require.New(t)
+	spec := newTestResourceSpec(assert)
+	svg := fetchResourceForSpec(spec, assert, "circle.svg")
+	assert.NotNil(svg)
+
+	content, err := svg.Content()
+	assert.NoError(err)
+	assert.IsType("", content)
+	assert.Contains(content.(string), `<svg height="100" width="100">`)
+}
+
 func BenchmarkResizeParallel(b *testing.B) {
 	assert := require.New(b)
 	img := fetchSunset(assert)

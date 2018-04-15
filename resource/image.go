@@ -568,6 +568,7 @@ func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resource
 
 func (i *Image) clone() *Image {
 	g := *i.genericResource
+	g.resourceContent = &resourceContent{}
 
 	return &Image{
 		imaging:         i.imaging,
