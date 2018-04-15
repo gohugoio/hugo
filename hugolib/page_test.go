@@ -481,7 +481,7 @@ func checkPageTitle(t *testing.T, page *Page, title string) {
 
 func checkPageContent(t *testing.T, page *Page, content string, msg ...interface{}) {
 	a := normalizeContent(content)
-	b := normalizeContent(string(page.Content))
+	b := normalizeContent(string(page.content))
 	if a != b {
 		t.Fatalf("Page content is:\n%q\nExpected:\n%q (%q)", b, a, msg)
 	}
@@ -616,7 +616,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 		require.NoError(t, err)
 		require.NotNil(t, home)
 		require.Equal(t, homePath, home.Path())
-		require.Contains(t, home.Content, "Home Page Content")
+		require.Contains(t, home.content, "Home Page Content")
 
 	}
 
@@ -726,8 +726,8 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 		t.Fatalf("Got summary:\n%q", p.Summary)
 	}
 
-	if p.Content != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>") {
-		t.Fatalf("Got content:\n%q", p.Content)
+	if p.content != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>") {
+		t.Fatalf("Got content:\n%q", p.content)
 	}
 }
 
@@ -1511,7 +1511,7 @@ func TestPageSimpleMethods(t *testing.T) {
 	} {
 
 		p, _ := s.NewPage("Test")
-		p.Content = "<h1>Do Be Do Be Do</h1>"
+		p.content = "<h1>Do Be Do Be Do</h1>"
 		if !this.assertFunc(p) {
 			t.Errorf("[%d] Page method error", i)
 		}
