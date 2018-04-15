@@ -189,7 +189,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"templateMetricsHints",
 
 		// Moved from vars.
-		"baseURL ",
+		"baseURL",
 		"buildWatch",
 		"cacheDir",
 		"cfgFile",
@@ -231,6 +231,7 @@ var deprecatedFlags = map[string]bool{
 }
 
 func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targetKey string) {
+	key = strings.TrimSpace(key)
 	if flags.Changed(key) {
 		if _, deprecated := deprecatedFlags[strings.ToLower(key)]; deprecated {
 			msg := fmt.Sprintf(`Set "%s = true" in your config.toml.
