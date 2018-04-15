@@ -16,6 +16,9 @@ package urls
 import (
 	"errors"
 	"fmt"
+
+	"github.com/russross/blackfriday"
+
 	"html/template"
 	"net/url"
 
@@ -76,6 +79,15 @@ func (ns *Namespace) URLize(a interface{}) (string, error) {
 		return "", nil
 	}
 	return ns.deps.PathSpec.URLize(s), nil
+}
+
+// Anchorize creates sanitized anchor names that are compatible with Blackfriday.
+func (ns *Namespace) Anchorize(a interface{}) (string, error) {
+	s, err := cast.ToStringE(a)
+	if err != nil {
+		return "", nil
+	}
+	return blackfriday.SanitizedAnchorName(s), nil
 }
 
 type reflinker interface {

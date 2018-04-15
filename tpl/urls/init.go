@@ -59,6 +59,13 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Anchorize,
+			[]string{"anchorize"},
+			[][2]string{
+				{`{{ "This is a title" | anchorize }}`, `this-is-a-title`},
+			},
+		)
+
 		return ns
 
 	}
