@@ -49,6 +49,7 @@ func (b *commandsBuilder) addAll() *commandsBuilder {
 		newListCmd(),
 		newImportCmd(),
 		newGenCmd(),
+		createReleaser(),
 	)
 
 	return b
@@ -62,7 +63,11 @@ func (b *commandsBuilder) build() *hugoCmd {
 
 func addCommands(root *cobra.Command, commands ...cmder) {
 	for _, command := range commands {
-		root.AddCommand(command.getCommand())
+		cmd := command.getCommand()
+		if cmd == nil {
+			continue
+		}
+		root.AddCommand(cmd)
 	}
 }
 
@@ -108,6 +113,19 @@ type hugoCmd struct {
 
 	// Need to get the sites once built.
 	c *commandeer
+}
+
+var _ cmder = (*nilCommand)(nil)
+
+type nilCommand struct {
+}
+
+func (c *nilCommand) getCommand() *cobra.Command {
+	return nil
+}
+
+func (c *nilCommand) flagsToConfig(cfg config.Provider) {
+
 }
 
 func (b *commandsBuilder) newHugoCmd() *hugoCmd {

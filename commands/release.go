@@ -18,9 +18,12 @@ package commands
 import (
 	"errors"
 
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/releaser"
 	"github.com/spf13/cobra"
 )
+
+var _ cmder = (*releaseCommandeer)(nil)
 
 type releaseCommandeer struct {
 	cmd *cobra.Command
@@ -31,7 +34,7 @@ type releaseCommandeer struct {
 	try         bool
 }
 
-func createReleaser() *releaseCommandeer {
+func createReleaser() cmder {
 	// Note: This is a command only meant for internal use and must be run
 	// via "go run -tags release main.go release" on the actual code base that is in the release.
 	r := &releaseCommandeer{
@@ -51,6 +54,14 @@ func createReleaser() *releaseCommandeer {
 	r.cmd.PersistentFlags().BoolVarP(&r.try, "try", "", false, "simulate a release, i.e. no changes")
 
 	return r
+}
+
+func (c *releaseCommandeer) getCommand() *cobra.Command {
+	return c.cmd
+}
+
+func (c *releaseCommandeer) flagsToConfig(cfg config.Provider) {
+
 }
 
 func (r *releaseCommandeer) release() error {

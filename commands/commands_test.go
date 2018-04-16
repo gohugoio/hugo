@@ -118,6 +118,9 @@ func TestCommandsPersistentFlags(t *testing.T) {
 		root := b.addAll().build()
 
 		for _, c := range b.commands {
+			if c.getCommand() == nil {
+				continue
+			}
 			// We are only intereseted in the flag handling here.
 			c.getCommand().RunE = noOpRunE
 		}
