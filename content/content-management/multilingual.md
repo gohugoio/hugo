@@ -21,9 +21,9 @@ You should define the available languages in a `languages` section in your site 
 
 ## Configure Languages
 
-The following is an example of a TOML site configuration for a multilingual Hugo project:
+The following is an example of a site configuration for a multilingual Hugo project:
 
-{{< code file="config.toml" download="config.toml" >}}
+{{< code-toggle file="config" >}}
 DefaultContentLanguage = "en"
 copyright = "Everything is mine"
 
@@ -45,7 +45,7 @@ weight = 2
 linkedin = "lien-francais"
 [languages.fr.params.navigation]
 help  = "Aide"
-{{< /code >}}
+{{< /code-toggle >}}
 
 Anything not defined in a `[languages]` block will fall back to the global
 value for that key (e.g., `copyright` for the English [`en`] language).
@@ -92,7 +92,7 @@ This means that you can now configure a `baseURL` per `language`:
 
 Example:
 
-```bash
+{{< code-toggle file="config" >}}
 [languages]
 [languages.no]
 baseURL = "https://example.no"
@@ -105,7 +105,7 @@ baseURL = "https://example.com"
 languageName = "English"
 weight = 2
 title = "In English"
-```
+{{</ code-toggle >}}
 
 With the above, the two sites will be generated into `public` with their own root:
 
@@ -132,7 +132,7 @@ Live reload and `--navigateToChanged` between the servers work as expected.
 Taxonomies and [Blackfriday configuration][config] can also be set per language:
 
 
-{{< code file="bf-config.toml" >}}
+{{< code-toggle file="config" >}}
 [Taxonomies]
 tag = "tags"
 
@@ -152,7 +152,7 @@ weight = 2
 title = "Français"
 [languages.fr.Taxonomies]
 plaque = "plaques"
-{{< /code >}}
+{{</ code-toggle >}}
 
 ## Translate Your Content
 
@@ -178,11 +178,6 @@ You can also set the key used to link the translations explicitly in front matte
 translationKey: "my-story"
 ```
 
-
-{{% note %}}
-**Before Hugo 0.31**, the file's directory was not considered when looking for translations. This did not work when you named all of your content files, say, `index.md`. Now we use the full content path.
-{{% /note %}}
-
 If you need distinct URLs per language, you can set the slug in the non-default language file. For example, you can define a custom slug for a French translation in the front matter of `content/about.fr.md` as follows:
 
 ```yaml
@@ -192,6 +187,7 @@ slug: "a-propos"
 
 At render, Hugo will build both `/about/` and `/a-propos/` as properly linked translated pages.
 
+For merging of content from other languages (i.e. missing content translations), see [lang.Merge](/functions/lang.merge/).
 
 ## Link to Translated Content
 
@@ -354,7 +350,7 @@ The rendering of the main navigation works as usual. `.Site.Menus` will just con
 
 ```
 
-## Missing translations
+## Missing Translations
 
 If a string does not have a translation for the current language, Hugo will use the value from the default language. If no default value is set, an empty string will be shown.
 
@@ -363,6 +359,8 @@ While translating a Hugo website, it can be handy to have a visual indicator of 
 {{% note %}}
 Hugo will generate your website with these missing translation placeholders. It might not be suited for production environments.
 {{% /note %}}
+
+For merging of content from other languages (i.e. missing content translations), see [lang.Merge](/functions/lang.merge/).
 
 ## Multilingual Themes support
 

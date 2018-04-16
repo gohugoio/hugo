@@ -15,7 +15,7 @@ toc: true
 This is an exemple for the Config Toggle shortcode. 
 Its purpose is to let users choose a Config language by clicking on its corresponding tab. Upon doing so, every Code toggler on the page will be switched to the target language. Also, target language will be saved in user's `localStorage` so when they go to a different pages, Code Toggler display their last "toggled" config language.
 
-## That Congig Toggler
+## That Config Toggler
 
 {{< code-toggle file="config">}}
 

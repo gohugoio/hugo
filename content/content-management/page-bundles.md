@@ -93,7 +93,7 @@ anywhere:
 
 But you can get it by `.Site.GetPage`. Here is an example:
 
-```html
+```go-html-template
 {{ $headless := .Site.GetPage "page" "some-headless-bundle" }}
 {{ $reusablePages := $headless.Resources.Match "author*" }}
 <h2>Authors</h2>

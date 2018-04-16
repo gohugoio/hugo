@@ -98,6 +98,10 @@ enableMissingTranslationPlaceholders (false)
 enableRobotsTXT (false)
 : Enable generation of `robots.txt` file.
 
+frontmatter
+
+: See [Front matter Configuration](#configure-front-matter).
+
 footnoteAnchorPrefix ("")
 : Prefix for footnote anchors.
 
@@ -246,9 +250,11 @@ Similar to the template [lookup order][], Hugo has a default set of rules for se
 In your `config` file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
 
 
-## YAML Configuration
+## Example Configuration
 
-{{< code file="config.yml">}}
+The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
+
+{{< code-toggle file="config">}}
 baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
 footnoteReturnLinkContents: "↩"
@@ -262,50 +268,7 @@ params:
     - "foo1"
     - "foo2"
   SidebarRecentLimit: 5
-{{< /code >}}
-
-The following is a typical example of a YAML configuration file. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
-
-{{< code file="config.yml">}}
-baseURL: "https://yoursite.example.com/"
-title: "My Hugo Site"
-footnoteReturnLinkContents: "↩"
-permalinks:
-  post: /:year/:month/:title/
-params:
-  Subtitle: "Hugo is Absurdly Fast!"
-  AuthorName: "Jon Doe"
-  GitHubUser: "spf13"
-  ListOfFoo:
-    - "foo1"
-    - "foo2"
-  SidebarRecentLimit: 5
-{{< /code >}}
-
-## TOML Configuration
-
-The following is an example of a TOML configuration file. The values under `[params]` will populate the `.Site.Params` variable for use in [templates][]:
-
-{{< code file="config.toml">}}
-contentDir = "content"
-layoutDir = "layouts"
-publishDir = "public"
-buildDrafts = false
-baseURL = "https://yoursite.example.com/"
-canonifyURLs = true
-title = "My Hugo Site"
-
-[taxonomies]
-  category = "categories"
-  tag = "tags"
-
-[params]
-  subtitle = "Hugo is Absurdly Fast!"
-  author = "John Doe"
-{{< /code >}}
-
-
-
+{{< /code-toggle >}}
 
 ## Configure with Environment Variables
 
@@ -337,6 +300,67 @@ ignoreFiles = [ "\\.foo$", "\\.boo$" ]
 
 The above is a list of regular expressions. Note that the backslash (`\`) character is escaped in this example to keep TOML happy.
 
+## Configure Front Matter
+
+### Configure Dates
+
+Dates are important in Hugo, and you can configure how Hugo assigns dates to your content pages. You do this by adding a `frontmatter` section to your `config.toml`.
+
+
+The default configuration is:
+
+```toml
+[frontmatter]
+date = ["date","publishDate", "lastmod"]
+lastmod = [":git" "lastmod", "date","publishDate"]
+publishDate = ["publishDate", "date"]
+expiryDate = ["expiryDate"]
+```
+
+If you, as an example, have a non-standard date parameter in some of your content, you can override the setting for `date`:
+
+ ```toml
+[frontmatter]
+date = [ "myDate", ":default"]
+```
+
+The `:default` is a shortcut to the default settings. The above will set `.Date` to the date value in `myDate` if present, if not we will look in `date`,`publishDate`, `lastmod` and pick the first valid date.
+
+In the list to the right, values starting with ":" are date handlers with a special meaning (see below). The others are just names of date parameters (case insensitive) in your front matter configuration.  Also note that Hugo have some built-in aliases to the above: `lastmod` => `modified`, `publishDate` => `pubdate`, `published` and `expiryDate` => `unpublishdate`. With that, as an example, using `pubDate` as a date in front matter, will, by default, be assigned to `.PublishDate`.
+
+The special date handlers are:
+
+
+`:fileModTime`
+: Fetches the date from the content file's last modification timestamp.
+
+An example:
+
+ ```toml
+[frontmatter]
+lastmod = ["lastmod" ,":fileModTime", ":default"]
+```
+
+
+The above will try first to extract the value for `.Lastmod` starting with the `lastmod` front matter parameter, then the content file's modification timestamp. The last, `:default` should not be needed here, but Hugo will finally look for a valid date in `:git`, `date` and then `publishDate`.
+
+
+`:filename`
+: Fetches the date from the content file's filename. For example, `218-02-22-mypage.md` will extract the date `218-02-22`. Also, if `slug is not set, `mypage` will be used as the value for `.Slug`.
+
+An example:
+
+```toml
+[frontmatter]
+date  = [":filename", ":default"]
+```
+
+The above will try first to extract the value for `.Date` from the filename, then it will look in front matter parameters `date`, `publishDate` and lastly `lastmod`.
+
+
+`:git`
+: This is the Git author date for the last revision of this content file. This will only be set if `--enableGitInfo` is set or `enableGitInfo = true` is set in site config.
+
 ## Configure Blackfriday
 
 [Blackfriday](https://github.com/russross/blackfriday) is Hugo's built-in Markdown rendering engine.
@@ -352,22 +376,13 @@ However, if you have specific needs with respect to Markdown, Hugo exposes some 
 2. Blackfriday flags must be grouped under the `blackfriday` key and can be set on both the site level *and* the page level. Any setting on a page will override its respective site setting.
 {{% /note %}}
 
-{{< code file="bf-config.toml" >}}
+{{< code-toggle file="config" >}}
 [blackfriday]
   angledQuotes = true
   fractions = false
   plainIDAnchors = true
   extensions = ["hardLineBreak"]
-{{< /code >}}
-
-{{< code file="bf-config.yml" >}}
-blackfriday:
-  angledQuotes: true
-  fractions: false
-  plainIDAnchors: true
-  extensions:
-    - hardLineBreak
-{{< /code >}}
+{{< /code-toggle >}}
 
 ## Configure Additional Output Formats
 

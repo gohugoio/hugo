@@ -34,6 +34,11 @@ To list up to 5 related pages is as simple as including something similar to thi
 {{ end }}
 {{< /code >}}
 
+
+{{% note %}}
+Read [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-relashionships-with-related-content/) for a great explanation more advanced usage of this feature.
+{{% /note %}}
+
 The full set of methods available on the page lists can bee seen in this Go interface:
 
 ```go

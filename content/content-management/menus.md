@@ -118,9 +118,9 @@ menu:
 
 You can also add entries to menus that aren’t attached to a piece of content. This takes place in your Hugo project's [`config` file][config].
 
-Here’s an example snippet pulled from a `config.toml`:
+Here’s an example snippet pulled from a configuration file:
 
-{{< code file="config.toml" >}}
+{{< code-toggle file="config.toml" >}}
 [[menu.main]]
     name = "about hugo"
     pre = "<i class='fa fa-heart'></i>"
@@ -132,23 +132,7 @@ Here’s an example snippet pulled from a `config.toml`:
     pre = "<i class='fa fa-road'></i>"
     weight = -100
     url = "/getting-started/"
-{{< /code >}}
-
-Here's the equivalent snippet in a `config.yaml`:
-
-{{< code file="config.yml" >}}
-menu:
-  main:
-      - name: "about hugo"
-        pre: "<i class='fa fa-heart'></i>"
-        weight: -110
-        identifier: "about"
-        url: "/about/"
-      - name: "getting started"
-        pre: "<i class='fa fa-road'></i>"
-        weight: -100
-        url: "/getting-started/"
-{{< /code >}}
+{{< /code-toggle >}}
 
 {{% note %}}
 The URLs must be relative to the context root. If the `baseURL` is `https://example.com/mysite/`, then the URLs in the menu must not include the context root `mysite`. Using an absolute URL will override the baseURL. If the value used for `URL` in the above example is `https://subdomain.example.com/`, the output will be `https://subdomain.example.com`.

@@ -63,12 +63,12 @@ on render. Please don't include this in the template as it's not valid HTML.
 
 Defaults for `<changefreq>`, `<priority>` and `filename` values can be set in the site's config file, e.g.:
 
-```
+{{< code-toggle file="config" >}}
 [sitemap]
   changefreq = "monthly"
   priority = 0.5
   filename = "sitemap.xml"
-```
+{{</ code-toggle >}}
 
 The same fields can be specified in an individual content file's front matter in order to override the value assigned to that piece of content at render time.
 

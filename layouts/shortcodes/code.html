@@ -5,6 +5,9 @@
 {{ $.Scratch.Set "codeLang" (index . 0 | strings.TrimPrefix ".") }}
 {{ end }}
 {{ with .Get "codeLang" }}{{ $.Scratch.Set "codeLang" . }}{{ end }}
+{{ if eq (.Scratch.Get "codeLang") "html"}}
+{{ $.Scratch.Set "codeLang" "go-html-template" }}
+{{ end }}
 <div class="code relative" id="{{ $file | urlize}}">
 	{{- with $file -}}
 		<div class="filename san-serif f6 dib lh-solid pl2 pv2">{{.}}</div>
