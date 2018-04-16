@@ -61,7 +61,7 @@ Note that changes to any resource inside the `content` folder will trigger a rel
 
 #### List all Resources
 
-```html
+```go-html-template
 {{ range .Resources }}
 <li><a href="{{ .RelPermalink }}">{{ .ResourceType | title }}</a></li>
 {{ end }}
@@ -73,7 +73,7 @@ For an absolute URL, use `.Permalink`.
 
 #### List All Resources by Type
 
-```html
+```go-html-template
 {{ with .Resources.ByType "image" }}
 {{ end }}
 
@@ -83,7 +83,7 @@ Type here is `page` for pages, else the main type in the MIME type, so `image`, 
 
 #### Get a Specific Resource
 
-```html
+```go-html-template
 {{ $logo := .Resources.GetByPrefix "logo" }}
 {{ with $logo }}
 {{ end }}
@@ -91,7 +91,7 @@ Type here is `page` for pages, else the main type in the MIME type, so `image`, 
 
 #### Include Page Resource Content
 
-```html
+```go-html-template
 {{ with .Resources.ByType "page" }}
 {{ range . }}
 <h3>{{ .Title }}</h3>
@@ -146,7 +146,7 @@ This is the shortcode used in the examples above:
 
 And it is used like this:
 
-```html
+```go-html-template
 {{</* imgproc sunset Resize "300x" */>}}
 ```
 

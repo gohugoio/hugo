@@ -250,9 +250,11 @@ Similar to the template [lookup order][], Hugo has a default set of rules for se
 In your `config` file, you can direct Hugo as to how you want your website rendered, control your website's menus, and arbitrarily define site-wide parameters specific to your project.
 
 
-## YAML Configuration
+## Example Configuration
 
-{{< code file="config.yml">}}
+The following is a typical example of a configuration file. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
+
+{{< code-toggle file="config">}}
 baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
 footnoteReturnLinkContents: "↩"
@@ -266,49 +268,7 @@ params:
     - "foo1"
     - "foo2"
   SidebarRecentLimit: 5
-{{< /code >}}
-
-The following is a typical example of a YAML configuration file. The values nested under `params:` will populate the [`.Site.Params`][] variable for use in [templates][]:
-
-{{< code file="config.yml">}}
-baseURL: "https://yoursite.example.com/"
-title: "My Hugo Site"
-footnoteReturnLinkContents: "↩"
-permalinks:
-  post: /:year/:month/:title/
-params:
-  Subtitle: "Hugo is Absurdly Fast!"
-  AuthorName: "Jon Doe"
-  GitHubUser: "spf13"
-  ListOfFoo:
-    - "foo1"
-    - "foo2"
-  SidebarRecentLimit: 5
-{{< /code >}}
-
-## TOML Configuration
-
-The following is an example of a TOML configuration file. The values under `[params]` will populate the `.Site.Params` variable for use in [templates][]:
-
-{{< code file="config.toml">}}
-contentDir = "content"
-layoutDir = "layouts"
-publishDir = "public"
-buildDrafts = false
-baseURL = "https://yoursite.example.com/"
-canonifyURLs = true
-title = "My Hugo Site"
-
-[taxonomies]
-  category = "categories"
-  tag = "tags"
-
-[params]
-  subtitle = "Hugo is Absurdly Fast!"
-  author = "John Doe"
-{{< /code >}}
-
-
+{{< /code-toggle >}}
 
 ## Configure with Environment Variables
 
@@ -416,22 +376,13 @@ However, if you have specific needs with respect to Markdown, Hugo exposes some 
 2. Blackfriday flags must be grouped under the `blackfriday` key and can be set on both the site level *and* the page level. Any setting on a page will override its respective site setting.
 {{% /note %}}
 
-{{< code file="bf-config.toml" >}}
+{{< code-toggle file="config" >}}
 [blackfriday]
   angledQuotes = true
   fractions = false
   plainIDAnchors = true
   extensions = ["hardLineBreak"]
-{{< /code >}}
-
-{{< code file="bf-config.yml" >}}
-blackfriday:
-  angledQuotes: true
-  fractions: false
-  plainIDAnchors: true
-  extensions:
-    - hardLineBreak
-{{< /code >}}
+{{< /code-toggle >}}
 
 ## Configure Additional Output Formats
 
