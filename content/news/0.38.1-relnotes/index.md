@@ -1,8 +1,8 @@
 
 ---
 date: 2018-04-05
-title: "0.38.1"
-description: "0.38.1"
+title: "Some Live Reload Fixes"
+description: "Hugo 0.38.1 fixes some live reload issues introduced in 0.38."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png

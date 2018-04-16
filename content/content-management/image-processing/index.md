@@ -23,7 +23,7 @@ The `image` is a [Page Resource]({{< relref "content-management/page-resources" 
 To get all images in a [Page Bundle]({{< relref "content-management/organization#page-bundles" >}}):
 
 
-```html
+```go-html-template
 {{ with .Resources.ByType "image" }}
 {{ end }}
 
@@ -131,7 +131,7 @@ This is the shortcode used in the examples above:
 
 And it is used like this:
 
-```html
+```go-html-template
 {{</* imgproc sunset Resize "300x" /*/>}}
 ```
 

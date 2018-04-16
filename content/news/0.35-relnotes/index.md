@@ -74,7 +74,7 @@ Hugo now has:
 * Only set `url` if permalink in metadata and remove duplicate confirm msg [3752348e](https://github.com/gohugoio/hugo/commit/3752348ef13ced8f6f528b42ee7d76a12a97ae5c) [@lildude](https://github.com/lildude) [#1887](https://github.com/gohugoio/hugo/issues/1887)
 * Start Resources :counter first time they're used [7b472e46](https://github.com/gohugoio/hugo/commit/7b472e46084b603045b87cea870ffc73ac1cf7e7) [@bep](https://github.com/bep) [#4335](https://github.com/gohugoio/hugo/issues/4335)
 * Update to Go 1.9.3 [a91aba1c](https://github.com/gohugoio/hugo/commit/a91aba1c1562259dffd321a608f38c38dd4d5aeb) [@bep](https://github.com/bep) [#4328](https://github.com/gohugoio/hugo/issues/4328)
-* Support pages without front matter [91bb774a](https://github.com/gohugoio/hugo/commit/91bb774ae4e129f7ed0624754b31479c960ef774) [@vassudanagunta](https://github.com/vassudanagunta) [#4320](https://github.com/gohugoio/hugo/issues/4320)[#4320](https://github.com/gohugoio/hugo/issues/4320)
+* Support pages without front matter [91bb774a](https://github.com/gohugoio/hugo/commit/91bb774ae4e129f7ed0624754b31479c960ef774) [@vassudanagunta](https://github.com/vassudanagunta) [#4320](https://github.com/gohugoio/hugo/issues/4320)
 * Add page metadata dates tests [3f0379ad](https://github.com/gohugoio/hugo/commit/3f0379adb72389954ca2be6a9f2ebfcd65c6c440) [@vassudanagunta](https://github.com/vassudanagunta) 
 * Re-generate CLI docs [1e27d058](https://github.com/gohugoio/hugo/commit/1e27d0589118a114e49c032e4bd68b4798e44a5b) [@bep](https://github.com/bep) 
 * Remove and update deprecation status [d418c2c2](https://github.com/gohugoio/hugo/commit/d418c2c2eacdc1dc6fffe839e0a90600867878ca) [@bep](https://github.com/bep) 

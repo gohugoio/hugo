@@ -21,9 +21,9 @@ You should define the available languages in a `languages` section in your site 
 
 ## Configure Languages
 
-The following is an example of a TOML site configuration for a multilingual Hugo project:
+The following is an example of a site configuration for a multilingual Hugo project:
 
-{{< code file="config.toml" download="config.toml" >}}
+{{< code-toggle file="config" >}}
 DefaultContentLanguage = "en"
 copyright = "Everything is mine"
 
@@ -45,7 +45,7 @@ weight = 2
 linkedin = "lien-francais"
 [languages.fr.params.navigation]
 help  = "Aide"
-{{< /code >}}
+{{< /code-toggle >}}
 
 Anything not defined in a `[languages]` block will fall back to the global
 value for that key (e.g., `copyright` for the English [`en`] language).
@@ -92,7 +92,7 @@ This means that you can now configure a `baseURL` per `language`:
 
 Example:
 
-```bash
+{{< code-toggle file="config" >}}
 [languages]
 [languages.no]
 baseURL = "https://example.no"
@@ -105,7 +105,7 @@ baseURL = "https://example.com"
 languageName = "English"
 weight = 2
 title = "In English"
-```
+{{</ code-toggle >}}
 
 With the above, the two sites will be generated into `public` with their own root:
 
@@ -132,7 +132,7 @@ Live reload and `--navigateToChanged` between the servers work as expected.
 Taxonomies and [Blackfriday configuration][config] can also be set per language:
 
 
-{{< code file="bf-config.toml" >}}
+{{< code-toggle file="config" >}}
 [Taxonomies]
 tag = "tags"
 
@@ -152,7 +152,7 @@ weight = 2
 title = "Français"
 [languages.fr.Taxonomies]
 plaque = "plaques"
-{{< /code >}}
+{{</ code-toggle >}}
 
 ## Translate Your Content
 

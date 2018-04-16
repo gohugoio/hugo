@@ -7,13 +7,17 @@
 	outline: none;
 	background-color:white;
 }
+.tab-pane code{
+	background:#f1f2f2;
+	border-radius:0;
+}
 .tab-pane .chroma{
 	background:none;
 	padding:0;
 }
 .tab-button.active{
-	border-bottom-color:#f3f4f4;
-	background-color: #f4f4f4;
+	border-bottom-color:#f1f2f2;
+	background-color: #f1f2f2;
 }
 .tab-content .tab-pane{
 	display: none;
