@@ -15,11 +15,11 @@ toc: true
 
 The `static` folder is where you place all your **static files**, e.g. stylesheets, JavaScript, images etc.
 
-You can set the name of the static folder to use in your configuration file, for example `config.toml`.  From **Hugo 0.31** you can configure as many static directories as you need. All the files in all the static directories will form a union filesystem.
+You can set the name of the static folder to use in your configuration file.  From **Hugo 0.31** you can configure as many static directories as you need. All the files in all the static directories will form a union filesystem.
 
 Example:
 
-```toml
+{{< code-toggle copy="false" file="config" >}}
 staticDir = ["static1", "static2"]
 [languages]
 [languages.no]
@@ -35,7 +35,7 @@ baseURL = "https://example.com"
 languageName = "English"
 weight = 2
 title = "In English"
-```
+{{</ code-toggle >}}
 
 In the above, with no theme used:
 

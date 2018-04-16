@@ -28,34 +28,39 @@ The following is an example:
 {{< code file="layouts/partials/sidebar.html" download="sidebar.html" >}}
 <!-- sidebar start -->
 <aside>
-  <ul>
-    {{ $currentPage := . }}
-    {{ range .Site.Menus.main }}
-      {{ if .HasChildren }}
-        <li class="{{ if $currentPage.HasMenuCurrent "main" . }}active{{ end }}">
-          <a href="#">
-            {{ .Pre }}
-            <span>{{ .Name }}</span>
-          </a>
-          <ul class="sub-menu">
-            {{ range .Children }}
-              <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
-                <a href="{{ .URL }}">{{ .Name }}</a>
+    <ul>
+        {{ $currentPage := . }}
+        {{ range .Site.Menus.main }}
+            {{ if .HasChildren }}
+                <li class="{{ if $currentPage.HasMenuCurrent "main" . }}active{{ end }}">
+                    <a href="#">
+                        {{ .Pre }}
+                        <span>{{ .Name }}</span>
+                    </a>
+                </li>
+                <ul class="sub-menu">
+                    {{ range .Children }}
+                        <li class="{{ if $currentPage.IsMenuCurrent "main" . }}active{{ end }}">
+                            <a href="{{ .URL }}">{{ .Name }}</a>
+                        </li>
+                    {{ end }}
+                </ul>
+            {{ else }}
+                <li>
+                    <a href="{{ .URL }}">
+                        {{ .Pre }}
+                        <span>{{ .Name }}</span>
+                    </a>
+                </li>
             {{ end }}
-          </ul>
-      {{else}}
+        {{ end }}
         <li>
-          <a href="{{.URL}}">
-            {{ .Pre }}
-            <span>{{ .Name }}</span>
-          </a>
-      {{end}}
-    {{end}}
-    <li>
-      <a href="#" target="blank">Hardcoded Link 1</a>
-    <li>
-      <a href="#" target="blank">Hardcoded Link 2</a>
-  </ul>
+            <a href="#" target="_blank">Hardcoded Link 1</a>
+        </li>
+        <li>
+            <a href="#" target="_blank">Hardcoded Link 2</a>
+        </li>
+    </ul>
 </aside>
 {{< /code >}}
 
@@ -89,16 +94,16 @@ In the above, the menu item is marked as active if on the current section's list
 
 ## Site Config menus
 
-The above is all that's needed. But if you want custom menu items, e.g. changing weight, name, or link title attribute, you can define them manually in the site config, i.e. `config.toml`:
+The above is all that's needed. But if you want custom menu items, e.g. changing weight, name, or link title attribute, you can define them manually in the site config file:
 
-```
+{{< code-toggle file="config" >}}
 [[menu.main]]
     name = "This is the blog section"
     title = "blog section"
     weight = -110
     identifier = "blog"
     url = "/blog/"
-```
+{{</ code-toggle >}}
 
 {{% note %}}
 The `identifier` *must* match the section name.

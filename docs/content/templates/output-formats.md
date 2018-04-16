@@ -1,7 +1,7 @@
 ---
 title: Custom Output Formats
 linktitle: Custom Output Formats
-description: Hugo can output content in multiple formats, including calendar events, e-book formats, Google AMP, and JSON search indexes, or any custom text format. 
+description: Hugo can output content in multiple formats, including calendar events, e-book formats, Google AMP, and JSON search indexes, or any custom text format.
 date: 2017-03-22
 publishdate: 2017-03-22
 lastmod: 2017-03-22
@@ -37,13 +37,13 @@ This is the full set of built-in media types in Hugo:
 
 To add or modify a media type, define it in a `mediaTypes` section in your [site configuration][config], either for all sites or for a given language.
 
-```
+{{< code-toggle file="config" >}}
 [mediaTypes]
   [mediaTypes."text/enriched"]
   suffix = "enr"
   [mediaTypes."text/html"]
   suffix = "asp"
-```
+{{</ code-toggle >}}
 
 The above example adds one new media type, `text/enriched`, and changes the suffix for the built-in `text/html` media type.
 
@@ -60,11 +60,11 @@ suffix = "htm"
 mediaType = "text/html"
 ```
 
-**Note** that for the above to work, you also need to add an`outputs` definition in your site config.
+**Note** that for the above to work, you also need to add an `outputs` definition in your site config.
 
-## Output Formats
+## Output Format Definitions
 
-Given a media type and some additional configuration, you get an `Output Format`:
+Given a media type and some additional configuration, you get an **Output Format**.
 
 This is the full set of Hugo's built-in output formats:
 
@@ -76,13 +76,13 @@ This is the full set of Hugo's built-in output formats:
 
 To add or modify an output format, define it in an `outputFormats` section in your site's [configuration file](/getting-started/configuration/), either for all sites or for a given language.
 
-```
+{{< code-toggle file="config" >}}
 [outputFormats.MyEnrichedFormat]
 mediaType = "text/enriched"
 baseName = "myindex"
 isPlainText = true
 protocol = "bep://"
-```
+{{</ code-toggle >}}
 
 The above example is fictional, but if used for the homepage on a site with `baseURL` `https://example.org`, it will produce a plain text homepage with the URL `bep://example.org/myindex.enr`.
 
@@ -122,32 +122,44 @@ The following is the full list of configuration options for output formats and t
 
 ## Output Formats for Pages
 
-A `Page` in Hugo can be rendered to multiple representations on the file system. By default, all pages will render as `HTML` with some of them also as `RSS` (homepage, sections, etc.).
+A `Page` in Hugo can be rendered to multiple *output formats* on the file
+system.
 
-This can be changed by defining an `outputs` list of output formats in either the `Page` front matter or in the site configuration (either for all sites or per language).
+### Default Output Formats
+Every `Page` has a [`Kind`][page_kinds] attribute, and the default Output
+Formats are set based on that.
 
-Example from site `config.toml`:
+| Kind           | Default Output Formats |
+|--------------- |----------------------- |
+| `page`         | HTML                   |
+| `home`         | HTML, RSS              |
+| `section`      | HTML, RSS              |
+| `taxonomyTerm` | HTML, RSS              |
+| `taxonomy`     | HTML, RSS              |
 
-```
+### Customizing Output Formats
+
+This can be changed by defining an `outputs` list of output formats in either
+the `Page` front matter or in the site configuration (either for all sites or
+per language).
+
+Example from site config file`:
+
+{{< code-toggle file="config" >}}
 [outputs]
   home = ["HTML", "AMP", "RSS"]
   page = ["HTML"]
-```
-
-Example from site `config.yml`:
-
-```
-outputs:
-  home: ["HTML", "AMP", "RSS"]
-  page: ["HTML"]
-```
+{{</ code-toggle >}}
 
 
-* The output definition is per `Page` `Kind` (i.e, `page`, `home`, `section`, `taxonomy`, or `taxonomyTerm`).
-* The names used must match the `Name` of a defined `Output Format`.
-* Any `Kind` without a definition will default to `HTML`.
+Note that in the above examples, the *output formats* for `section`,
+`taxonomyTerm` and `taxonomy` will stay at their default value `["HTML",
+"RSS"]`.
+
+* The `outputs` definition is per [`Page` `Kind`][page_kinds] (`page`, `home`, `section`, `taxonomy`, or `taxonomyTerm`).
+* The names (e.g. `HTML`, `AMP`) used must match the `Name` of a defined *Output Format*.
+  * These names are case insensitive.
 * These can be overridden per `Page` in the front matter of content files.
-* Output formats are case insensitive.
 
 The following is an example of `YAML` front matter in a content file that defines output formats for the rendered `Page`:
 
@@ -165,7 +177,7 @@ outputs:
 
 Each `Page` has both an `.OutputFormats` (all formats, including the current) and an `.AlternativeOutputFormats` variable, the latter of which is useful for creating a `link rel` list in your site's `<head>`:
 
-```html
+```go-html-template
 {{ range .AlternativeOutputFormats -}}
 <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
 {{ end -}}
@@ -175,7 +187,7 @@ Note that `.Permalink` and `.RelPermalink` on `Page` will return the first outpu
 
 This is how you link to a given output format:
 
-```html
+```go-html-template
 {{ with  .OutputFormats.Get "json" -}}
 <a href="{{ .Permalink }}">{{ .Name }}</a>
 {{- end }}
@@ -183,7 +195,7 @@ This is how you link to a given output format:
 
 From content files, you can use the [`ref` or `relref` shortcodes](/content-management/shortcodes/#ref-and-relref):
 
-```html
+```go-html-template
 [Neat]({{</* ref "blog/neat.md" "amp" */>}})
 [Who]({{</* relref "about.md#who" "amp" */>}})
 ```
@@ -222,3 +234,4 @@ The partial below is a plain text template (Outpuf Format is `CSV`, and since th
 [lookup order]: /templates/lookup/
 [media type]: https://en.wikipedia.org/wiki/Media_type
 [partials]: /templates/partials/
+[page_kinds]: /templates/section-templates/#page-kinds

@@ -95,16 +95,16 @@ Discover a new favorite bass player? Just add another `.toml` file in the same d
 
 ## Example: Accessing Named Values in a Data File
 
-Assume you have the following YAML structure in your `User0123.yml` data file located directly in `data/`:
+Assume you have the following data structure in your `User0123.[yml|toml|json]` data file located directly in `data/`:
 
-```
+{{< code-toggle file="User0123" >}}
 Name: User0123
 "Short Description": "He is a **jolly good** fellow."
 Achievements:
   - "Can create a Key, Value list from Data File"
   - "Learns Hugo"
   - "Reads documentation"
-```
+{{</ code-toggle >}}
 
 You can use the following code to render the `Short Description` in your layout::
 
@@ -213,11 +213,15 @@ If you don't like caching at all, you can fully disable caching with the command
 
 Currently, you can only use those authentication methods that can be put into an URL. [OAuth][] and other authentication methods are not implemented.
 
-### Load Local files
+## Load Local files
 
 To load local files with `getJSON` and `getCSV`, the source files must reside within Hugo's working directory. The file extension does not matter, but the content does.
 
 It applies the same output logic as above in [Calling the Functions with a URL](#calling-the-functions-with-a-url).
+
+{{% note %}}
+The local CSV files to be loaded using `getCSV` must be located **outside** of the `data` directory.
+{{% /note %}}
 
 ## LiveReload with Data Files
 
