@@ -50,6 +50,6 @@ archive:
     dragonfly: DragonFlyBSD
   files:
     - README.md
-    - LICENSE.md
+    - LICENSE
 release:
   draft: true
