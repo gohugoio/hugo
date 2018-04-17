@@ -853,7 +853,7 @@ func (s *Site) NewPage(name string) (*Page, error) {
 func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 	// Parse for metadata & body
 	if err := p.parse(buf); err != nil {
-		p.s.Log.ERROR.Print(err)
+		p.s.Log.ERROR.Printf("%s for %s", err, p.File.Path())
 		return 0, err
 	}
 
