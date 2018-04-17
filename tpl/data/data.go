@@ -59,7 +59,7 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 		var req *http.Request
 		req, err = http.NewRequest("GET", url, nil)
 		if err != nil {
-			jww.ERROR.Printf("Failed to create request for getJSON: %s", err)
+			jww.ERROR.Printf("Failed to create request for getCSV: %s", err)
 			return nil, err
 		}
 
