@@ -448,7 +448,7 @@ func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil.  Expected: %s", expected)
 	}
-	if err.Error() != expected {
+	if !strings.Contains(err.Error(), expected) {
 		t.Errorf("err.Error() returned: '%s'.  Expected: '%s'", err.Error(), expected)
 	}
 }
