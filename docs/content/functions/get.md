@@ -10,7 +10,7 @@ menu:
   docs:
     parent: "functions"
 keywords: [shortcodes]
-signature: ["Get INDEX", "Get KEY"]
+signature: [".Get INDEX", ".Get KEY"]
 workson: []
 hugoversion:
 relatedfuncs: []
