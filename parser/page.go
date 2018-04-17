@@ -308,7 +308,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 	// pre-reads beginning delimiter length - 1 bytes from Reader
 	for i := 0; i < len(left)-1; i++ {
 		if c, err = r.ReadByte(); err != nil {
-			return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+			return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s\n%.100s...", buf.Len(), err, buf.String())
 		}
 		if err = buf.WriteByte(c); err != nil {
 			return nil, err
@@ -323,7 +323,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 	// is expected that the delimiter only contains one character.
 	for {
 		if c, err = r.ReadByte(); err != nil {
-			return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+			return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s\n%.100s...", buf.Len(), err, buf.String())
 		}
 		if err = buf.WriteByte(c); err != nil {
 			return nil, err
@@ -344,7 +344,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 					if err != nil {
 						// It is ok that the end delimiter ends with EOF
 						if err != io.EOF || level != 1 {
-							return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+							return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s\n%.100s...", buf.Len(), err, buf.String())
 						}
 					} else {
 						switch c {
@@ -358,7 +358,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 								return nil, err
 							}
 							if c, err = r.ReadByte(); err != nil {
-								return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+								return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s\n%.100s...", buf.Len(), err, buf.String())
 							}
 							if c != '\n' {
 								return nil, fmt.Errorf("frontmatter delimiter must be followed by CR+LF or LF but those can't be found at filepos %d", buf.Len())
