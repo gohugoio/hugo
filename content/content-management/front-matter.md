@@ -104,9 +104,6 @@ resources
 slug
 : appears as the tail of the output URL. A value specified in front matter will override the segment of the URL based on the filename.
 
-\<taxonomies\>
-: these will use the field name of the *plural* form of the index; see the `tags` and `categories` in the above front matter examples.
-
 title
 : the title for the content.
 
@@ -120,6 +117,9 @@ the multilingual feature.
 weight
 : used for [ordering your content in lists][ordering].
 
+\<taxonomies\>
+: field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. _Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables._
+
 {{% note "Hugo's Default URL Destinations" %}}
 If neither `slug` nor `url` is present and [permalinks are not configured otherwise in your site `config` file](/content-management/urls/#permalinks), Hugo will use the filename of your content to create the output URL. See [Content Organization](/content-management/organization) for an explanation of paths in Hugo and [URL Management](/content-management/urls/) for ways to customize Hugo's default behaviors.
 {{% /note %}}
@@ -130,10 +130,10 @@ You can add fields to your front matter arbitrarily to meet your needs. These us
 
 The following fields can be accessed via `.Params.include_toc` and `.Params.show_comments`, respectively. The [Variables][] section provides more information on using Hugo's page- and site-level variables in your templates.
 
-```
+{{< code-toggle copy="false" >}}
 include_toc: true
 show_comments: false
-```
+{{</ code-toggle >}}
 
 
 ## Order Content Through Front Matter
