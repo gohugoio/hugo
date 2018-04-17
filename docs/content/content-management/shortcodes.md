@@ -239,6 +239,52 @@ Using the preceding `instagram` with hidecaption` example above, the following s
 
 {{< instagram BWNjjyYFxVx hidecaption >}}
 
+### `peertube`
+
+The `peertube` shortcode embeds a video player from Peertube, the revolutionary federated network based on Webtorrents and ActivityPub.
+
+### Example `peertube` Input
+
+Copy the full URL to your video, and pass it to the `peertube` shortcode. For example:
+
+```
+{{< peertube "https://video.hispagatos.org/videos/watch/67e6d38f-69da-47b9-8ed8-6f82d47fb259" >}}
+```
+
+You may also pass the server and video ID as separate argument. If the server part doesn't have a protocol specified, the current protocol will be used:
+
+```
+{{< peertube "video.hispagatos.org" "67e6d38f-69da-47b9-8ed8-6f82d47fb259" >}}
+```
+
+The `peertube` shortcode also takes named parameters:
+
+- _server_: the Peertube instance serving the video
+- _id_: the Peertube video identifier
+- _class_: a CSS class passed to a div around the iframe
+
+For example:
+
+```
+{{< peertube server="https://video.hispagatos.org" id="67e6d38f-69da-47b9-8ed8-6f82d47fb259" >}}
+```
+
+### Example `peertube` Output
+
+The first example used previously will produce:
+
+```
+<div>
+    <iframe allowfullscreen="allowfullscreen" frameborder="0" width="512" height="315" src="https://video.hispagatos.org/videos/watch/67e6d38f-69da-47b9-8ed8-6f82d47fb259">
+    </iframe>
+</div>
+```
+
+### Example `peertube` Display
+
+Using the preceding `peertube` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
+
+{{< peertube "https://video.hispagatos.org/videos/watch/67e6d38f-69da-47b9-8ed8-6f82d47fb259" >}}
 
 ### `ref` and `relref`
 
