@@ -144,10 +144,10 @@ func TestPositionalParamSC(t *testing.T) {
 func TestPositionalParamIndexOutOfBounds(t *testing.T) {
 	t.Parallel()
 	wt := func(tem tpl.TemplateHandler) error {
-		tem.AddTemplate("_internal/shortcodes/video.html", `Playing Video {{ .Get 1 }}`)
+		tem.AddTemplate("_internal/shortcodes/video.html", `Playing Video {{ with .Get 1 }}{{ . }}{{ else }}Missing{{ end }}`)
 		return nil
 	}
-	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video error: index out of range for positional param at position 1", wt)
+	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video Missing", wt)
 }
 
 // some repro issues for panics in Go Fuzz testing
