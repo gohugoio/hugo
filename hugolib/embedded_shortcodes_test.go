@@ -267,6 +267,50 @@ title: Shorty
 	}
 }
 
+func TestShortcodePeertube(t *testing.T) {
+	t.Parallel()
+
+	for _, this := range []struct {
+		in, expected string
+	}{
+		{
+			`{{< peertube "peertube.cpy.re" "d2a5ec78-5f85-4090-8ec5-dc1102e022ea" >}}`,
+			"(?s)\n<div>.*?<iframe allowfullscreen=\"allowfullscreen\" frameborder=\"0\" width=\"512\" height=\"315\" src=\"//peertube.cpy.re/videos/embed/d2a5ec78-5f85-4090-8ec5-dc1102e022ea\">.*?</iframe>.*?</div>\n",
+		},
+		// provide full url to video
+		{
+			`{{< peertube "https://tube.conferences-gesticulees.net/videos/watch/1ffc6a9a-20f8-4cb0-8753-35a88c69cc9e" >}}`,
+			"(?s)\n<div>.*?<iframe allowfullscreen=\"allowfullscreen\" frameborder=\"0\" width=\"512\" height=\"315\" src=\"https://tube.conferences-gesticulees.net/videos/embed/1ffc6a9a-20f8-4cb0-8753-35a88c69cc9e\">.*?</iframe>.*?</div>\n",
+		},
+		// set class and full server URI
+		{
+			`{{< peertube server="https://peertube.datagueule.tv" id="88d8a159-6905-46f6-9821-23929328f605" class="video" >}}`,
+			"(?s)\n<div class=\"video\">.*?<iframe allowfullscreen=\"allowfullscreen\" frameborder=\"0\" width=\"512\" height=\"315\" src=\"https://peertube.datagueule.tv/videos/embed/88d8a159-6905-46f6-9821-23929328f605\">.*?</iframe>.*?</div>",
+		},
+		// set server without protocol
+		{
+			`{{< peertube server="video.hispagatos.org" id="f5cbfd90-b14f-4de8-8c00-995f6fd4a746" >}}`,
+			"(?s)\n<div>.*?<iframe allowfullscreen=\"allowfullscreen\" frameborder=\"0\" width=\"512\" height=\"315\" src=\"https://peertube.datagueule.tv/videos/embed/f5cbfd90-b14f-4de8-8c00-995f6fd4a746\">.*?</iframe>.*?</div>",
+		},
+	} {
+		var (
+			cfg, fs = newTestCfg()
+			th      = testHelper{cfg, fs, t}
+		)
+
+		writeSource(t, fs, filepath.Join("content", "simple.md"), fmt.Sprintf(`---
+title: Shorty
+---
+%s`, this.in))
+		writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .Content }}`)
+
+		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+		th.assertFileContentRegexp(filepath.Join("public", "simple", "index.html"), this.expected)
+	}
+
+}
+
 func TestShortcodeGist(t *testing.T) {
 	t.Parallel()
 
