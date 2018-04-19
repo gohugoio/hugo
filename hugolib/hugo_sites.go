@@ -559,37 +559,82 @@ func (h *HugoSites) setupTranslations() {
 	}
 }
 
-func (s *Site) preparePagesForRender(cfg *BuildCfg) {
+type pagesRenderPreparer struct {
+	numWorkers int
+	s          *Site
+	cfg        *BuildCfg
+	wg         *sync.WaitGroup
+	pages      chan *Page
+}
 
-	pageChan := make(chan *Page)
-	wg := &sync.WaitGroup{}
-
+func newStartedRenderPreparator(s *Site, cfg *BuildCfg) *pagesRenderPreparer {
 	numWorkers := getGoMaxProcs() * 4
+	pp := &pagesRenderPreparer{
+		s:          s,
+		cfg:        cfg,
+		numWorkers: numWorkers,
+		wg:         &sync.WaitGroup{},
+		pages:      make(chan *Page),
+	}
 
-	for i := 0; i < numWorkers; i++ {
-		wg.Add(1)
-		go func(pages <-chan *Page, wg *sync.WaitGroup) {
-			defer wg.Done()
-			for p := range pages {
-				if err := p.prepareForRender(cfg); err != nil {
-					s.Log.ERROR.Printf("Failed to prepare page %q for render: %s", p.BaseFileName(), err)
+	pp.start()
+	return pp
+}
+
+func (pp *pagesRenderPreparer) start() {
+	for i := 0; i < pp.numWorkers; i++ {
+		pp.wg.Add(1)
+		go func() {
+			defer pp.wg.Done()
+			for p := range pp.pages {
+				if err := p.prepareForRender(pp.cfg); err != nil {
+					pp.s.Log.ERROR.Printf("Failed to prepare page %q for render: %s", p.BaseFileName(), err)
 
 				}
 			}
-		}(pageChan, wg)
+		}()
 	}
+}
 
-	for _, p := range s.Pages {
-		pageChan <- p
-	}
+func (pp *pagesRenderPreparer) add(p *Page) {
+	pp.pages <- p
+}
 
+func (pp *pagesRenderPreparer) done() {
+	close(pp.pages)
+	pp.wg.Wait()
+}
+
+func (s *Site) preparePagesForRender(cfg *BuildCfg) {
+
+	// For the content from other pages in shortcodes there are some chicken and
+	// egg dependencies that is hard to get around. But we can improve on this
+	// by preparing the pages in a certain order.
+	// So the headless pages goes first. These are page typically pages and images etc.
+	// collections used by others.
+	batch := newStartedRenderPreparator(s, cfg)
 	for _, p := range s.headlessPages {
-		pageChan <- p
+		batch.add(p)
 	}
 
-	close(pageChan)
+	batch.done()
 
-	wg.Wait()
+	// Then the rest in the following order:
+	order := []bundleDirType{bundleLeaf, bundleNot, bundleBranch}
+
+	for _, tp := range order {
+		batch = newStartedRenderPreparator(s, cfg)
+		for _, p := range s.Pages {
+			// sanity check
+			if p.bundleType < 0 || p.bundleType > bundleBranch {
+				panic("unknown bundle type")
+			}
+			if p.bundleType == tp {
+				batch.add(p)
+			}
+		}
+		batch.done()
+	}
 
 }
 
