@@ -224,6 +224,7 @@ func (h *HugoSites) render(config *BuildCfg) error {
 		s.initRenderFormats()
 		for i, rf := range s.renderFormats {
 			s.rc = &siteRenderingContext{Format: rf}
+
 			s.preparePagesForRender(config)
 
 			if !config.SkipRender {
