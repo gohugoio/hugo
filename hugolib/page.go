@@ -243,8 +243,6 @@ type Page struct {
 	// 3. But you can get it via .Site.GetPage
 	headless bool
 
-	bundleType bundleDirType
-
 	layoutDescriptor output.LayoutDescriptor
 
 	scratch *Scratch

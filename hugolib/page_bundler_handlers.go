@@ -218,8 +218,6 @@ func (c *contentHandlers) parsePage(h contentHandler) contentHandler {
 		ctx.currentPage = p
 
 		if ctx.bundle != nil {
-			p.bundleType = ctx.bundle.tp
-
 			// Add the bundled files
 			for _, fi := range ctx.bundle.resources {
 				childCtx := ctx.childCtx(fi)
