@@ -34,10 +34,11 @@ import (
 )
 
 var (
-	_ Resource     = (*genericResource)(nil)
-	_ metaAssigner = (*genericResource)(nil)
-	_ Source       = (*genericResource)(nil)
-	_ Cloner       = (*genericResource)(nil)
+	_ Resource                = (*genericResource)(nil)
+	_ metaAssigner            = (*genericResource)(nil)
+	_ Source                  = (*genericResource)(nil)
+	_ Cloner                  = (*genericResource)(nil)
+	_ ResourcesLanguageMerger = (*Resources)(nil)
 )
 
 const DefaultResourceType = "unknown"
@@ -95,6 +96,16 @@ type Resource interface {
 	// * JSON: String
 	// * Etc.
 	Content() (interface{}, error)
+}
+
+type ResourcesLanguageMerger interface {
+	MergeByLanguage(other Resources) Resources
+	// Needed for integration with the tpl package.
+	MergeByLanguageInterface(other interface{}) (interface{}, error)
+}
+
+type translatedResource interface {
+	TranslationKey() string
 }
 
 // Resources represents a slice of resources, which can be a mix of different types.
@@ -220,6 +231,36 @@ func getGlob(pattern string) (glob.Glob, error) {
 
 	return g, nil
 
+}
+
+// MergeByLanguage adds missing translations in r1 from r2.
+func (r1 Resources) MergeByLanguage(r2 Resources) Resources {
+	result := append(Resources(nil), r1...)
+	m := make(map[string]bool)
+	for _, r := range r1 {
+		if translated, ok := r.(translatedResource); ok {
+			m[translated.TranslationKey()] = true
+		}
+	}
+
+	for _, r := range r2 {
+		if translated, ok := r.(translatedResource); ok {
+			if _, found := m[translated.TranslationKey()]; !found {
+				result = append(result, r)
+			}
+		}
+	}
+	return result
+}
+
+// MergeByLanguageInterface is the generic version of MergeByLanguage. It
+// is here just so it can be called from the tpl package.
+func (r1 Resources) MergeByLanguageInterface(in interface{}) (interface{}, error) {
+	r2, ok := in.(Resources)
+	if !ok {
+		return nil, fmt.Errorf("%T cannot be merged by language", in)
+	}
+	return r1.MergeByLanguage(r2), nil
 }
 
 type Spec struct {
