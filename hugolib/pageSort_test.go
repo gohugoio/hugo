@@ -80,7 +80,7 @@ func TestSortByN(t *testing.T) {
 		{(Pages).ByPublishDate, func(p Pages) bool { return p[0].PublishDate == d4 }},
 		{(Pages).ByExpiryDate, func(p Pages) bool { return p[0].ExpiryDate == d4 }},
 		{(Pages).ByLastmod, func(p Pages) bool { return p[1].Lastmod == d3 }},
-		{(Pages).ByLength, func(p Pages) bool { return p[0].content == "b_content" }},
+		{(Pages).ByLength, func(p Pages) bool { return p[0].content() == "b_content" }},
 	} {
 		setSortVals([4]time.Time{d1, d2, d3, d4}, [4]string{"b", "ab", "cde", "fg"}, [4]int{0, 3, 2, 1}, p)
 
@@ -168,7 +168,7 @@ func setSortVals(dates [4]time.Time, titles [4]string, weights [4]int, pages Pag
 		pages[len(dates)-1-i].linkTitle = pages[i].title + "l"
 		pages[len(dates)-1-i].PublishDate = dates[i]
 		pages[len(dates)-1-i].ExpiryDate = dates[i]
-		pages[len(dates)-1-i].content = template.HTML(titles[i] + "_content")
+		pages[len(dates)-1-i].contentv = template.HTML(titles[i] + "_content")
 	}
 	lastLastMod := pages[2].Lastmod
 	pages[2].Lastmod = pages[1].Lastmod

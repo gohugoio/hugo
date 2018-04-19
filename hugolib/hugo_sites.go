@@ -560,36 +560,21 @@ func (h *HugoSites) setupTranslations() {
 }
 
 func (s *Site) preparePagesForRender(cfg *BuildCfg) {
-
-	pageChan := make(chan *Page)
-	wg := &sync.WaitGroup{}
-
-	numWorkers := getGoMaxProcs() * 4
-
-	for i := 0; i < numWorkers; i++ {
-		wg.Add(1)
-		go func(pages <-chan *Page, wg *sync.WaitGroup) {
-			defer wg.Done()
-			for p := range pages {
-				if err := p.prepareForRender(cfg); err != nil {
-					s.Log.ERROR.Printf("Failed to prepare page %q for render: %s", p.BaseFileName(), err)
-
-				}
-			}
-		}(pageChan, wg)
-	}
-
 	for _, p := range s.Pages {
-		pageChan <- p
+		p.setContentInit(cfg)
+		// The skip render flag is used in many tests. To make sure that they
+		// have access to the content, we need to manually initialize it here.
+		if cfg.SkipRender {
+			p.initContent()
+		}
 	}
 
 	for _, p := range s.headlessPages {
-		pageChan <- p
+		p.setContentInit(cfg)
+		if cfg.SkipRender {
+			p.initContent()
+		}
 	}
-
-	close(pageChan)
-
-	wg.Wait()
 
 }
 
@@ -598,7 +583,7 @@ func (h *HugoSites) Pages() Pages {
 	return h.Sites[0].AllPages
 }
 
-func handleShortcodes(p *Page, rawContentCopy []byte) ([]byte, error) {
+func handleShortcodes(p *PageWithoutContent, rawContentCopy []byte) ([]byte, error) {
 	if p.shortcodeState != nil && len(p.shortcodeState.contentShortcodes) > 0 {
 		p.s.Log.DEBUG.Printf("Replace %d shortcodes in %q", len(p.shortcodeState.contentShortcodes), p.BaseFileName())
 		err := p.shortcodeState.executeShortcodesForDelta(p)

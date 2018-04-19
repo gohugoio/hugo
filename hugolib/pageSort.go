@@ -237,7 +237,7 @@ func (p Pages) ByLength() Pages {
 	key := "pageSort.ByLength"
 
 	length := func(p1, p2 *Page) bool {
-		return len(p1.content) < len(p2.content)
+		return len(p1.content()) < len(p2.content())
 	}
 
 	pages, _ := spc.get(key, pageBy(length).Sort, p)

@@ -44,7 +44,6 @@ func (s *Site) renderPages(cfg *BuildCfg) error {
 	if len(s.headlessPages) > 0 {
 		wg.Add(1)
 		go headlessPagesPublisher(s, wg)
-
 	}
 
 	for _, page := range s.Pages {
@@ -70,6 +69,10 @@ func headlessPagesPublisher(s *Site, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for _, page := range s.headlessPages {
 		outFormat := page.outputFormats[0] // There is only one
+		if outFormat != s.rc.Format {
+			// Avoid double work.
+			continue
+		}
 		pageOutput, err := newPageOutput(page, false, outFormat)
 		if err == nil {
 			page.mainPageOutput = pageOutput

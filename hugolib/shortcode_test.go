@@ -87,7 +87,7 @@ title: "Title"
 
 	require.Len(t, h.Sites[0].RegularPages, 1)
 
-	output := strings.TrimSpace(string(h.Sites[0].RegularPages[0].content))
+	output := strings.TrimSpace(string(h.Sites[0].RegularPages[0].content()))
 	output = strings.TrimPrefix(output, "<p>")
 	output = strings.TrimSuffix(output, "</p>")
 
@@ -390,8 +390,16 @@ func TestExtractShortcodes(t *testing.T) {
 			return nil
 		})
 
+		counter := 0
+
 		s := newShortcodeHandler(p)
-		content, err := s.extractShortcodes(this.input, p)
+
+		s.placeholderFunc = func() string {
+			counter++
+			return fmt.Sprintf("HAHA%s-%dHBHB", shortcodePlaceholderPrefix, counter)
+		}
+
+		content, err := s.extractShortcodes(this.input, p.withoutContent())
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -446,7 +454,7 @@ func TestExtractShortcodes(t *testing.T) {
 		if this.expectShortCodes != "" {
 			shortCodesAsStr := fmt.Sprintf("map%q", collectAndSortShortcodes(shortCodes))
 			if !strings.Contains(shortCodesAsStr, this.expectShortCodes) {
-				t.Fatalf("[%d] %s: Shortcodes not as expected, got %s but expected %s", i, this.name, shortCodesAsStr, this.expectShortCodes)
+				t.Fatalf("[%d] %s: Shortcodes not as expected, got\n%s but expected\n%s", i, this.name, shortCodesAsStr, this.expectShortCodes)
 			}
 		}
 	}

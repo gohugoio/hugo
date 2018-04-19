@@ -481,7 +481,7 @@ func checkPageTitle(t *testing.T, page *Page, title string) {
 
 func checkPageContent(t *testing.T, page *Page, content string, msg ...interface{}) {
 	a := normalizeContent(content)
-	b := normalizeContent(string(page.content))
+	b := normalizeContent(string(page.content()))
 	if a != b {
 		t.Fatalf("Page content is:\n%q\nExpected:\n%q (%q)", b, a, msg)
 	}
@@ -505,7 +505,7 @@ func checkPageTOC(t *testing.T, page *Page, toc string) {
 }
 
 func checkPageSummary(t *testing.T, page *Page, summary string, msg ...interface{}) {
-	a := normalizeContent(string(page.Summary))
+	a := normalizeContent(string(page.summary))
 	b := normalizeContent(summary)
 	if a != b {
 		t.Fatalf("Page summary is:\n%q.\nExpected\n%q (%q)", a, b, msg)
@@ -525,10 +525,10 @@ func checkPageDate(t *testing.T, page *Page, time time.Time) {
 }
 
 func checkTruncation(t *testing.T, page *Page, shouldBe bool, msg string) {
-	if page.Summary == "" {
+	if page.summary == "" {
 		t.Fatal("page has no summary, can not check truncation")
 	}
-	if page.Truncated != shouldBe {
+	if page.truncated != shouldBe {
 		if shouldBe {
 			t.Fatalf("page wasn't truncated: %s", msg)
 		} else {
@@ -616,7 +616,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 		require.NoError(t, err)
 		require.NotNil(t, home)
 		require.Equal(t, homePath, home.Path())
-		require.Contains(t, home.content, "Home Page Content")
+		require.Contains(t, home.content(), "Home Page Content")
 
 	}
 
@@ -722,12 +722,12 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 
 	p := s.RegularPages[0]
 
-	if p.Summary != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>") {
-		t.Fatalf("Got summary:\n%q", p.Summary)
+	if p.summary != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>") {
+		t.Fatalf("Got summary:\n%q", p.summary)
 	}
 
-	if p.content != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>") {
-		t.Fatalf("Got content:\n%q", p.content)
+	if p.content() != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>") {
+		t.Fatalf("Got content:\n%q", p.content())
 	}
 }
 
@@ -876,8 +876,8 @@ func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
-		require.Contains(t, p.Summary, "Happy new year everyone!")
-		require.NotContains(t, p.Summary, "User interface")
+		require.Contains(t, p.summary, "Happy new year everyone!")
+		require.NotContains(t, p.summary, "User interface")
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, `---
@@ -1037,9 +1037,9 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount())
 		}
 
-		if p.Summary != simplePageWithMainEnglishWithCJKRunesSummary {
+		if p.summary != simplePageWithMainEnglishWithCJKRunesSummary {
 			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.plain,
-				simplePageWithMainEnglishWithCJKRunesSummary, p.Summary)
+				simplePageWithMainEnglishWithCJKRunesSummary, p.summary)
 		}
 	}
 
@@ -1058,9 +1058,9 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount())
 		}
 
-		if p.Summary != simplePageWithIsCJKLanguageFalseSummary {
+		if p.summary != simplePageWithIsCJKLanguageFalseSummary {
 			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.plain,
-				simplePageWithIsCJKLanguageFalseSummary, p.Summary)
+				simplePageWithIsCJKLanguageFalseSummary, p.summary)
 		}
 	}
 
@@ -1511,7 +1511,8 @@ func TestPageSimpleMethods(t *testing.T) {
 	} {
 
 		p, _ := s.NewPage("Test")
-		p.content = "<h1>Do Be Do Be Do</h1>"
+		p.contentv = "<h1>Do Be Do Be Do</h1>"
+		p.initContent()
 		if !this.assertFunc(p) {
 			t.Errorf("[%d] Page method error", i)
 		}

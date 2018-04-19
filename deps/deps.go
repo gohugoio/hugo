@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
@@ -54,6 +55,9 @@ type Deps struct {
 	translationProvider ResourceProvider
 
 	Metrics metrics.Provider
+
+	// Timeout is configurable in site config.
+	Timeout time.Duration
 }
 
 // ResourceProvider is used to create and refresh, and clone resources needed.
@@ -128,6 +132,11 @@ func New(cfg DepsCfg) (*Deps, error) {
 
 	sp := source.NewSourceSpec(ps, fs.Source)
 
+	timeoutms := cfg.Language.GetInt("timeout")
+	if timeoutms <= 0 {
+		timeoutms = 3000
+	}
+
 	d := &Deps{
 		Fs:                  fs,
 		Log:                 logger,
@@ -139,6 +148,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		SourceSpec:          sp,
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
+		Timeout:             time.Duration(timeoutms) * time.Millisecond,
 	}
 
 	if cfg.Cfg.GetBool("templateMetrics") {

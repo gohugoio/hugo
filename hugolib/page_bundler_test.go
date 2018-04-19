@@ -87,7 +87,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				assert.Equal(singlePage, s.getPage("page", "a/1"))
 				assert.Equal(singlePage, s.getPage("page", "1"))
 
-				assert.Contains(singlePage.content, "TheContent")
+				assert.Contains(singlePage.content(), "TheContent")
 
 				if ugly {
 					assert.Equal("/a/1.html", singlePage.RelPermalink())
@@ -129,8 +129,11 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				firstPage := pageResources[0].(*Page)
 				secondPage := pageResources[1].(*Page)
 				assert.Equal(filepath.FromSlash("b/my-bundle/1.md"), firstPage.pathOrTitle(), secondPage.pathOrTitle())
-				assert.Contains(firstPage.content, "TheContent")
+				assert.Contains(firstPage.content(), "TheContent")
 				assert.Equal(6, len(leafBundle1.Resources))
+
+				// Verify shortcode in bundled page
+				assert.Contains(secondPage.content(), filepath.FromSlash("MyShort in b/my-bundle/2.md"))
 
 				// https://github.com/gohugoio/hugo/issues/4582
 				assert.Equal(leafBundle1, firstPage.Parent())
@@ -395,7 +398,7 @@ HEADLESS {{< myShort >}}
 	assert.Equal("Headless Bundle in Topless Bar", headless.Title())
 	assert.Equal("", headless.RelPermalink())
 	assert.Equal("", headless.Permalink())
-	assert.Contains(headless.content, "HEADLESS SHORTCODE")
+	assert.Contains(headless.content(), "HEADLESS SHORTCODE")
 
 	headlessResources := headless.Resources
 	assert.Equal(3, len(headlessResources))
@@ -404,7 +407,7 @@ HEADLESS {{< myShort >}}
 	assert.NotNil(pageResource)
 	assert.IsType(&Page{}, pageResource)
 	p := pageResource.(*Page)
-	assert.Contains(p.content, "SHORTCODE")
+	assert.Contains(p.content(), "SHORTCODE")
 	assert.Equal("p1.md", p.Name())
 
 	th := testHelper{s.Cfg, s.Fs, t}
@@ -439,6 +442,17 @@ date: 2017-10-09
 ---
 
 TheContent.
+`
+
+	pageContentShortcode := `---
+title: "Bundle Galore"
+slug: pageslug
+date: 2017-10-09
+---
+
+TheContent.
+
+{{< myShort >}}
 `
 
 	pageWithImageShortcodeAndResourceMetadataContent := `---
@@ -487,6 +501,7 @@ Thumb RelPermalink: {{ $thumb.RelPermalink }}
 `
 
 	myShort := `
+MyShort in {{ .Page.Path }}:
 {{ $sunset := .Page.Resources.GetByPrefix "my-sunset-2" }}
 {{ with $sunset }}
 Short Sunset RelPermalink: {{ .RelPermalink }}
@@ -520,7 +535,7 @@ Short Thumb Width: {{ $thumb.Width }}
 	// Bundle
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "index.md"), pageWithImageShortcodeAndResourceMetadataContent)
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "1.md"), pageContent)
-	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "2.md"), pageContent)
+	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "2.md"), pageContentShortcode)
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "custom-mime.bep"), "bepsays")
 	writeSource(t, fs, filepath.Join(workDir, "base", "b", "my-bundle", "c", "logo.png"), "content")
 

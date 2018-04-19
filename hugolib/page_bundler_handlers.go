@@ -286,6 +286,10 @@ func (c *contentHandlers) handlePageContent() contentHandler {
 		p.workContent = p.replaceDivider(p.workContent)
 		p.workContent = p.renderContent(p.workContent)
 
+		tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.workContent)
+		p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
+		p.workContent = tmpContent
+
 		if !ctx.doNotAddToSiteCollections {
 			ctx.pages <- p
 		}

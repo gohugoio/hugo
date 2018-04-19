@@ -69,7 +69,7 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 
 	require.Len(t, s.RegularPages, 1)
 
-	output := string(s.RegularPages[0].content)
+	output := string(s.RegularPages[0].content())
 
 	if !strings.Contains(output, expected) {
 		t.Errorf("Got\n%q\nExpected\n%q", output, expected)

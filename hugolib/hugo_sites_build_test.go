@@ -378,9 +378,9 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	b.AssertFileContent("public/en/tags/tag1/index.html", "Tag1|Hello|http://example.com/blog/en/tags/tag1/")
 
 	// Check Blackfriday config
-	require.True(t, strings.Contains(string(doc1fr.content), "&laquo;"), string(doc1fr.content))
-	require.False(t, strings.Contains(string(doc1en.content), "&laquo;"), string(doc1en.content))
-	require.True(t, strings.Contains(string(doc1en.content), "&ldquo;"), string(doc1en.content))
+	require.True(t, strings.Contains(string(doc1fr.content()), "&laquo;"), string(doc1fr.content()))
+	require.False(t, strings.Contains(string(doc1en.content()), "&laquo;"), string(doc1en.content()))
+	require.True(t, strings.Contains(string(doc1en.content()), "&ldquo;"), string(doc1en.content()))
 
 	// Check that the drafts etc. are not built/processed/rendered.
 	assertShouldNotBuild(t, b.H)
@@ -630,9 +630,9 @@ func assertShouldNotBuild(t *testing.T, sites *HugoSites) {
 	for _, p := range s.rawAllPages {
 		// No HTML when not processed
 		require.Equal(t, p.shouldBuild(), bytes.Contains(p.workContent, []byte("</")), p.BaseFileName()+": "+string(p.workContent))
-		require.Equal(t, p.shouldBuild(), p.content != "", p.BaseFileName())
+		require.Equal(t, p.shouldBuild(), p.content() != "", p.BaseFileName())
 
-		require.Equal(t, p.shouldBuild(), p.content != "", p.BaseFileName())
+		require.Equal(t, p.shouldBuild(), p.content() != "", p.BaseFileName())
 
 	}
 }
@@ -752,6 +752,29 @@ func TestTableOfContentsInShortcodes(t *testing.T) {
 var tocShortcode = `
 {{ .Page.TableOfContents }}
 `
+
+func TestSelfReferencedContentInShortcode(t *testing.T) {
+	t.Parallel()
+
+	b := newMultiSiteTestDefaultBuilder(t)
+
+	var (
+		shortcode = `{{- .Page.Content -}}{{- .Page.Summary -}}{{- .Page.Plain -}}{{- .Page.PlainWords -}}{{- .Page.WordCount -}}{{- .Page.ReadingTime -}}`
+
+		page = `---
+title: sctest
+---
+Empty:{{< mycontent >}}:
+`
+	)
+
+	b.WithTemplatesAdded("layouts/shortcodes/mycontent.html", shortcode)
+	b.WithContent("post/simple.en.md", page)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/en/post/simple/index.html", "Empty:[]00:")
+}
 
 var tocPageSimple = `---
 title: tocTest

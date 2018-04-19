@@ -400,6 +400,9 @@ func (c ContentSpec) mmarkRender(ctx *RenderingContext) []byte {
 
 // ExtractTOC extracts Table of Contents from content.
 func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
+	if !bytes.Contains(content, []byte("<nav>")) {
+		return content, nil
+	}
 	origContent := make([]byte, len(content))
 	copy(origContent, content)
 	first := []byte(`<nav>
