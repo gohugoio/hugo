@@ -1865,14 +1865,15 @@ func getGoMaxProcs() int {
 
 func (s *Site) newNodePage(typ string, sections ...string) *Page {
 	p := &Page{
-		language: s.Language,
-		pageInit: &pageInit{},
-		Kind:     typ,
-		Source:   Source{File: &source.FileInfo{}},
-		Data:     make(map[string]interface{}),
-		Site:     &s.Info,
-		sections: sections,
-		s:        s}
+		bundleType: bundleBranch,
+		language:   s.Language,
+		pageInit:   &pageInit{},
+		Kind:       typ,
+		Source:     Source{File: &source.FileInfo{}},
+		Data:       make(map[string]interface{}),
+		Site:       &s.Info,
+		sections:   sections,
+		s:          s}
 
 	p.outputFormats = p.s.outputFormats[p.Kind]
 
