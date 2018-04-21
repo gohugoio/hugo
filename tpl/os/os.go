@@ -123,7 +123,7 @@ func (ns *Namespace) FileExists(i interface{}) (bool, error) {
 		return false, errors.New("fileExists needs a path to a file")
 	}
 
-	status, err := afero.Exists(ns.deps.Fs.WorkingDir, path)
+	status, err := afero.Exists(ns.readFileFs, path)
 	if err != nil {
 		return false, err
 	}
