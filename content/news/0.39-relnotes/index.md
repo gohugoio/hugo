@@ -1,8 +1,8 @@
 
 ---
 date: 2018-04-16
-title: "0.39"
-description: "0.39"
+title: "The Nat King Cole Stabilizer Edition"
+description: "Hugo 0.39: Rewrite of the /commands package, `Resource.Content`, several new template funcs, and more …"
 categories: ["Releases"]
 ---
 

@@ -2977,6 +2977,42 @@
           "Examples": []
         }
       },
+      "path": {
+        "Join": {
+          "Description": "Join joins any number of path elements into a single path, adding a\nseparating slash if necessary. All the input\npath elements are passed into filepath.ToSlash converting any Windows slashes\nto forward slashes.\nThe result is Cleaned; in particular,\nall empty strings are ignored.",
+          "Args": [
+            "elements"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ slice \"my/path\" \"filename.txt\" | path.Join  }}",
+              "my/path/filename.txt"
+            ],
+            [
+              "{{  path.Join \"my\" \"path\" \"filename.txt\" }}",
+              "my/path/filename.txt"
+            ]
+          ]
+        },
+        "Split": {
+          "Description": "Split splits path immediately following the final slash,\nseparating it into a directory and file name component.\nIf there is no slash in path, Split returns an empty dir and\nfile set to path.\nThe input path is passed into filepath.ToSlash converting any Windows slashes\nto forward slashes.\nThe returned values have the property that path = dir+file.",
+          "Args": [
+            "path"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"/my/path/filename.txt\" | path.Split }}",
+              "/my/path/|filename.txt"
+            ],
+            [
+              "{{ \"/my/path/filename.txt\" | path.Split }}",
+              "/my/path/|filename.txt"
+            ]
+          ]
+        }
+      },
       "safe": {
         "CSS": {
           "Description": "CSS returns a given string as html/template CSS content.",
@@ -3606,6 +3642,21 @@
             "absURL"
           ],
           "Examples": []
+        },
+        "Anchorize": {
+          "Description": "Anchorize creates sanitized anchor names that are compatible with Blackfriday.",
+          "Args": [
+            "a"
+          ],
+          "Aliases": [
+            "anchorize"
+          ],
+          "Examples": [
+            [
+              "{{ \"This is a title\" | anchorize }}",
+              "this-is-a-title"
+            ]
+          ]
         },
         "Parse": {
           "Description": "",
