@@ -20,66 +20,94 @@ draft: false
 aliases: [/extras/scratch/,/doc/scratch/]
 ---
 
-In most cases you can do well without `Scratch`, but there are some use cases that aren't solvable with Go's templates without `Scratch`'s help, due to scoping issues.
+In most cases you can do okay without `Scratch`, but due to scoping issues, there are many use cases that aren't solvable in Go Templates without `Scratch`'s help.
 
 {{% note %}}
 See [this Go issue](https://github.com/golang/go/issues/10608) for the main motivation behind Scratch.
 {{% /note %}}
 
+{{% note %}}
+For a detailed analysis of `.Scratch` and in context use cases, see this [post](https://regisphilibert.com/blog/2017/04/hugo-scratch-explained-variable/).
+{{% /note %}}
+
+## Methods
+
 `Scratch` is added to both `Page` and `Shortcode` -- with following methods:
 
-* `Set` and `Add` takes a `key` and the `value` to add.
-* `Get` returns the `value` for the `key` given.
-* `SetInMap` takes a `key`, `mapKey` and `value`
-* `GetSortedMapValues` returns array of values from `key` sorted by `mapKey`
-* `Delete` takes a `key` to remove
+#### .Set
+Set the given value to a given key
 
-`Set` and `SetInMap` can store values of any type.
+```go-html-template
+{{ .Scratch.Set "greeting" "Hello" }}
+```
+#### .Get
+Get the value of a given key
+
+```go-html-template
+{{ .Scratch.Set "greeting" "Hello" }}
+----
+{{ .Scratch.Get "greeting" }} > Hello
+```
+
+#### .Add
+Will add a given value to existing value of the given key. 
 
 For single values, `Add` accepts values that support Go's `+` operator. If the first `Add` for a key is an array or slice, the following adds will be appended to that list.
 
+```go-html-template
+{{ .Scratch.Add "greetings" "Hello" }}
+{{ .Scratch.Add "greetings" "Welcome" }}
+----
+{{ .Scratch.Get "greetings" }} > HelloWelcome
+```
+
+```go-html-template
+{{ .Scratch.Add "total" 3 }}
+{{ .Scratch.Add "total" 7 }}
+----
+{{ .Scratch.Get "total" }} > 10
+```
+
+
+```go-html-template
+{{ .Scratch.Add "greetings" (slice "Hello") }}
+{{ .Scratch.Add "greetings" (slice "Welcome" "Cheers") }}
+----
+{{ .Scratch.Get "greetings" }} > []interface {}{"Hello", "Welcome", "Cheers"}
+```
+
+#### .SetInMap
+Takes a `key`, `mapKey` and `value` and add a map of `mapKey` and `value` to the given `key`.
+
+```go-html-template
+{{ .Scratch.SetInMap "greetings" "english" "Hello" }}
+{{ .Scratch.SetInMap "greetings" "french" "Bonjour" }}
+----
+{{ .Scratch.Get "greetings" }} > map[french:Bonjour english:Hello]
+```
+
+#### .GetSortedMapValues
+Returns array of values from `key` sorted by `mapKey`
+
+```go-html-template
+{{ .Scratch.SetInMap "greetings" "english" "Hello" }}
+{{ .Scratch.SetInMap "greetings" "french" "Bonjour" }}
+----
+{{ .Scratch.GetSortedMapValues "greetings" }} > [Hello Bonjour]
+```
+#### .Delete
+Removes the given key
+
+```go-html-template
+{{ .Scratch.Delete "greetings" }}
+```
+
+## Scope
 The scope of the backing data is global for the given `Page` or `Shortcode`, and spans partial and shortcode includes.
 
-Note that `.Scratch` from a shortcode will return the shortcode's `Scratch`, which in most cases is what you want. If you want to store it in the page scroped Scratch, then use `.Page.Scratch`.
+Note that `.Scratch` from a shortcode will return the shortcode's `Scratch`, which in most cases is what you want. If you want to store it in the page scoped Scratch, then use `.Page.Scratch`.
 
-## Sample usage
 
-The usage is best illustrated with some samples:
-
-```
-{{ $.Scratch.Add "a1" 12 }}
-{{ $.Scratch.Get "a1" }} {{/* => 12 */}}
-{{ $.Scratch.Add "a1" 1 }}
-{{ $.Scratch.Get "a1" }} // {{/* => 13 */}}
-
-{{ $.Scratch.Add "a2" "AB" }}
-{{ $.Scratch.Get "a2" }} {{/* => AB */}}
-{{ $.Scratch.Add "a2" "CD" }}
-{{ $.Scratch.Get "a2" }} {{/* => ABCD */}}
-
-{{ $.Scratch.Add "l1" (slice "A" "B") }}
-{{ $.Scratch.Get "l1" }} {{/* => [A B]  */}}
-{{ $.Scratch.Add "l1" (slice "C" "D") }}
-{{ $.Scratch.Get "l1" }} {{/* => [A B C D] */}}
-
-{{ $.Scratch.Set "v1" 123 }}
-{{ $.Scratch.Get "v1" }}  {{/* => 123 */}}
-
-{{ $.Scratch.SetInMap "a3" "b" "XX" }}
-{{ $.Scratch.SetInMap "a3" "a" "AA" }}
-{{ $.Scratch.SetInMap "a3" "c" "CC" }}
-{{ $.Scratch.SetInMap "a3" "b" "BB" }}
-{{ $.Scratch.GetSortedMapValues "a3" }} {{/* => []interface {}{"AA", "BB", "CC"} */}}
-
-{{ $.Scratch.Add "a" 1 }}
-{{ $.Scratch.Delete "a" }}
-{{ $.Scratch.Add "a" 2 }}
-{{ $.Scratch.Get "a" }} {{/* => 2 */}}
-```
-
-{{% note %}}
-The examples above uses the special `$` variable, which refers to the top-level node. This is the behavior you most likely want, and will help remove some confusion when using `Scratch` inside page range loops -- and you start inadvertently calling the wrong `Scratch`. But there may be use cases for `{{ .Scratch.Add "key" "some value" }}`.
-{{% /note %}}
 
 
 [pagevars]: /variables/page/
