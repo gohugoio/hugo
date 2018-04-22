@@ -45,6 +45,54 @@ func (df DirFile) String() string {
 	return fmt.Sprintf("%s|%s", df.Dir, df.File)
 }
 
+// Ext returns the file name extension used by path.
+// The extension is the suffix beginning at the final dot
+// in the final slash-separated element of path;
+// it is empty if there is no dot.
+// The input path is passed into filepath.ToSlash converting any Windows slashes
+// to forward slashes.
+func (ns *Namespace) Ext(path interface{}) (string, error) {
+	spath, err := cast.ToStringE(path)
+	if err != nil {
+		return "", err
+	}
+	spath = filepath.ToSlash(spath)
+	return _path.Ext(spath), nil
+}
+
+// Dir returns all but the last element of path, typically the path's directory.
+// After dropping the final element using Split, the path is Cleaned and trailing
+// slashes are removed.
+// If the path is empty, Dir returns ".".
+// If the path consists entirely of slashes followed by non-slash bytes, Dir
+// returns a single slash. In any other case, the returned path does not end in a
+// slash.
+// The input path is passed into filepath.ToSlash converting any Windows slashes
+// to forward slashes.
+func (ns *Namespace) Dir(path interface{}) (string, error) {
+	spath, err := cast.ToStringE(path)
+	if err != nil {
+		return "", err
+	}
+	spath = filepath.ToSlash(spath)
+	return _path.Dir(spath), nil
+}
+
+// Base returns the last element of path.
+// Trailing slashes are removed before extracting the last element.
+// If the path is empty, Base returns ".".
+// If the path consists entirely of slashes, Base returns "/".
+// The input path is passed into filepath.ToSlash converting any Windows slashes
+// to forward slashes.
+func (ns *Namespace) Base(path interface{}) (string, error) {
+	spath, err := cast.ToStringE(path)
+	if err != nil {
+		return "", err
+	}
+	spath = filepath.ToSlash(spath)
+	return _path.Base(spath), nil
+}
+
 // Split splits path immediately following the final slash,
 // separating it into a directory and file name component.
 // If there is no slash in path, Split returns an empty dir and
