@@ -38,14 +38,13 @@ func newOrderedMapFromStringMapString(m map[string]string) *orderedMap {
 
 func (m *orderedMap) Add(k, v interface{}) {
 	m.Lock()
+	defer m.Unlock()
 	_, found := m.m[k]
 	if found {
 		panic(fmt.Sprintf("%v already added", v))
 	}
 	m.m[k] = v
 	m.keys = append(m.keys, k)
-	m.Unlock()
-
 }
 
 func (m *orderedMap) Get(k interface{}) (interface{}, bool) {
