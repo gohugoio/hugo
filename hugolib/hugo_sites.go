@@ -560,21 +560,39 @@ func (h *HugoSites) setupTranslations() {
 }
 
 func (s *Site) preparePagesForRender(cfg *BuildCfg) {
+
+	pageChan := make(chan *Page)
+	wg := &sync.WaitGroup{}
+
+	numWorkers := getGoMaxProcs() * 4
+
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go func(pages <-chan *Page, wg *sync.WaitGroup) {
+			defer wg.Done()
+			for p := range pages {
+				p.setContentInit(cfg)
+
+				// In most cases we could delay the content init until rendering time,
+				// but there could be use cases where the templates would depend
+				// on state set in the shortcodes (.Page.Scratch.Set), so we
+				// need to do this early. This will do the needed recursion.
+				p.initContent()
+			}
+		}(pageChan, wg)
+	}
+
 	for _, p := range s.Pages {
-		p.setContentInit(cfg)
-		// The skip render flag is used in many tests. To make sure that they
-		// have access to the content, we need to manually initialize it here.
-		if cfg.SkipRender {
-			p.initContent()
-		}
+		pageChan <- p
 	}
 
 	for _, p := range s.headlessPages {
-		p.setContentInit(cfg)
-		if cfg.SkipRender {
-			p.initContent()
-		}
+		pageChan <- p
 	}
+
+	close(pageChan)
+
+	wg.Wait()
 
 }
 
