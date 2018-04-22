@@ -433,16 +433,17 @@ func TestExtractShortcodes(t *testing.T) {
 			t.Fatalf("[%d] %s: Failed to compile regexp %q: %q", i, this.name, expected, err)
 		}
 
-		if strings.Count(content, shortcodePlaceholderPrefix) != len(shortCodes) {
-			t.Fatalf("[%d] %s: Not enough placeholders, found %d", i, this.name, len(shortCodes))
+		if strings.Count(content, shortcodePlaceholderPrefix) != shortCodes.Len() {
+			t.Fatalf("[%d] %s: Not enough placeholders, found %d", i, this.name, shortCodes.Len())
 		}
 
 		if !r.MatchString(content) {
 			t.Fatalf("[%d] %s: Shortcode extract didn't match. got %q but expected %q", i, this.name, content, expected)
 		}
 
-		for placeHolder, sc := range shortCodes {
-			if !strings.Contains(content, placeHolder) {
+		for _, placeHolder := range shortCodes.Keys() {
+			sc := shortCodes.getShortcode(placeHolder)
+			if !strings.Contains(content, placeHolder.(string)) {
 				t.Fatalf("[%d] %s: Output does not contain placeholder %q", i, this.name, placeHolder)
 			}
 
@@ -753,10 +754,11 @@ NotFound: {{< thisDoesNotExist >}}
 
 }
 
-func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
+func collectAndSortShortcodes(shortcodes *orderedMap) []string {
 	var asArray []string
 
-	for key, sc := range shortcodes {
+	for _, key := range shortcodes.Keys() {
+		sc := shortcodes.getShortcode(key)
 		asArray = append(asArray, fmt.Sprintf("%s:%s", key, sc))
 	}
 
@@ -879,5 +881,50 @@ func TestScKey(t *testing.T) {
 		newScKeyFromLangAndOutputFormat("en", output.AMPFormat, "EFGH"))
 	require.Equal(t, scKey{Suffix: "html", ShortcodePlaceholder: "IJKL"},
 		newDefaultScKey("IJKL"))
+
+}
+
+func TestPreserveShortcodeOrder(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	contentTemplate := `---
+title: doc%d
+weight: %d
+---
+# doc
+
+{{< increment >}}{{< s1 >}}{{< increment >}}{{< s2 >}}{{< increment >}}{{< s3 >}}{{< increment >}}{{< s4 >}}{{< increment >}}{{< s5 >}}
+
+
+`
+
+	shortCodeTemplate := `v%d: {{ .Page.Scratch.Get "v" }}|`
+
+	var shortcodes []string
+	var content []string
+
+	shortcodes = append(shortcodes, []string{"shortcodes/increment.html", `{{ .Page.Scratch.Add "v" 1}}`}...)
+
+	for i := 1; i <= 5; i++ {
+		shortcodes = append(shortcodes, []string{fmt.Sprintf("shortcodes/s%d.html", i), fmt.Sprintf(shortCodeTemplate, i)}...)
+	}
+
+	for i := 1; i <= 3; i++ {
+		content = append(content, []string{fmt.Sprintf("p%d.md", i), fmt.Sprintf(contentTemplate, i, i)}...)
+	}
+
+	builder := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
+
+	builder.WithContent(content...).WithTemplatesAdded(shortcodes...).CreateSites().Build(BuildCfg{})
+
+	s := builder.H.Sites[0]
+	assert.Equal(3, len(s.RegularPages))
+
+	p1 := s.RegularPages[0]
+
+	if !strings.Contains(string(p1.content()), `v1: 1|v2: 2|v3: 3|v4: 4|v5: 5`) {
+		t.Fatal(p1.content())
+	}
 
 }
