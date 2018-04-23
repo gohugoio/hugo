@@ -98,20 +98,28 @@ Hugo will automatically add the following header line to this file on render. Pl
 
 In your `header.html` template, you can specify your RSS feed in your `<head></head>` tag using Hugo's [Output Formats][Output Formats] like this:
 
-```
+```go-html-template
 {{ range .AlternativeOutputFormats -}}
-  <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ $.Site.Title }}">
+    {{ printf `<link rel="%s" type="%s+%s" href="%s" title="%s" />` .Rel .MediaType.Type .MediaType.Suffix .Permalink $.Site.Title | safeHTML }}
 {{ end -}}
 ```
 
-If you only want the RSS link, you can query the formats: 
+If you only want the RSS link, you can query the formats:
 
-```
+```go-html-template
 {{ with .OutputFormats.Get "rss" -}}
-  <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ $.Site.Title }}">
-{{ end -}
+    {{ printf `<link rel="%s" type="%s+%s" href="%s" title="%s" />` .Rel .MediaType.Type .MediaType.Suffix .Permalink $.Site.Title | safeHTML }}
+{{ end -}}
 ```
- 
+
+Either of the two snippets above will generate the below `link` tag on the site homepage for RSS output:
+
+```html
+<link rel="alternate" type="application/rss+xml" href="https://example.com/index.xml" title="Site Title">
+```
+
+_We are assuming `BaseURL` to be `https://example.com/` and `$.Site.Title` to be `"Site Title"` in this example._
+
 [config]: /getting-started/configuration/
 [embedded]: #the-embedded-rss-xml
 [RSS 2.0]: http://cyber.law.harvard.edu/rss/rss.html "RSS 2.0 Specification"
