@@ -1,12 +1,12 @@
 
 ---
 date: 2018-04-23
-title: "0.40"
-description: "0.40"
+title: "The Revival of the Shortcodes"
+description: "Hugo 0.40: Shortcodes with `.Content` (almost) always available, processed in order of appearance, several new template funcs …"
 categories: ["Releases"]
 ---
 
-	Hugo `0.40` is **The Revival of the Shortcodes**. Shortcodes is one of the prime features in Hugo. Really useful, but it has had some known shortcomings. [@bep](https://github.com/bep) has been really busy the last week to address those.
+Hugo `0.40` is **The Revival of the Shortcodes**. Shortcodes is one of the prime features in Hugo. Really useful, but it has had some known shortcomings. [@bep](https://github.com/bep) has been really busy the last week to address those.
 
 In summary:
 
