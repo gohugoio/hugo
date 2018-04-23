@@ -451,6 +451,26 @@ func (p *Page) IsPage() bool {
 	return p.Kind == KindPage
 }
 
+// BundleType returns the bundle type: "leaf", "branch" or an empty string if it is none.
+// See https://gohugo.io/content-management/page-bundles/
+func (p *Page) BundleType() string {
+	if p.IsNode() {
+		return "branch"
+	}
+
+	var source interface{} = p.Source.File
+	if fi, ok := source.(*fileInfo); ok {
+		switch fi.bundleTp {
+		case bundleBranch:
+			return "branch"
+		case bundleLeaf:
+			return "leaf"
+		}
+	}
+
+	return ""
+}
+
 type Source struct {
 	Frontmatter []byte
 	Content     []byte

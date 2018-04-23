@@ -82,6 +82,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				assert.Len(s.RegularPages, 8)
 
 				singlePage := s.getPage(KindPage, "a/1.md")
+				assert.Equal("", singlePage.BundleType())
 
 				assert.NotNil(singlePage)
 				assert.Equal(singlePage, s.getPage("page", "a/1"))
@@ -105,8 +106,12 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 				leafBundle1 := s.getPage(KindPage, "b/my-bundle/index.md")
 				assert.NotNil(leafBundle1)
+				assert.Equal("leaf", leafBundle1.BundleType())
 				assert.Equal("b", leafBundle1.Section())
-				assert.NotNil(s.getPage(KindSection, "b"))
+				sectionB := s.getPage(KindSection, "b")
+				assert.NotNil(sectionB)
+				home, _ := s.Info.Home()
+				assert.Equal("branch", home.BundleType())
 
 				// This is a root bundle and should live in the "home section"
 				// See https://github.com/gohugoio/hugo/issues/4332
