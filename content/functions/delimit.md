@@ -36,7 +36,7 @@ The examples of `delimit` that follow all use the same front matter:
 {{< code file="delimit-example-front-matter.toml" nocopy="true" >}}
 +++
 title: I love Delimit
-keywords: [ "tag1", "tag2", "tag3" ]
+tags: [ "tag1", "tag2", "tag3" ]
 +++
 {{< /code >}}
 
