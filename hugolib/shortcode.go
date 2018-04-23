@@ -40,7 +40,11 @@ type ShortcodeWithPage struct {
 	Page          *PageWithoutContent
 	Parent        *ShortcodeWithPage
 	IsNamedParams bool
-	scratch       *Scratch
+
+	// Zero-based oridinal in relation to its parent.
+	Ordinal int
+
+	scratch *Scratch
 }
 
 // Site returns information about the current site.
@@ -122,6 +126,7 @@ type shortcode struct {
 	name     string
 	inner    []interface{} // string or nested shortcode
 	params   interface{}   // map or array
+	ordinal  int
 	err      error
 	doMarkup bool
 }
@@ -287,7 +292,7 @@ func renderShortcode(
 		return ""
 	}
 
-	data := &ShortcodeWithPage{Params: sc.params, Page: p, Parent: parent}
+	data := &ShortcodeWithPage{Ordinal: sc.ordinal, Params: sc.params, Page: p, Parent: parent}
 	if sc.params != nil {
 		data.IsNamedParams = reflect.TypeOf(sc.params).Kind() == reflect.Map
 	}
@@ -449,12 +454,13 @@ var errShortCodeIllegalState = errors.New("Illegal shortcode state")
 // pageTokens state:
 // - before: positioned just before the shortcode start
 // - after: shortcode(s) consumed (plural when they are nested)
-func (s *shortcodeHandler) extractShortcode(pt *pageTokens, p *PageWithoutContent) (*shortcode, error) {
-	sc := &shortcode{}
+func (s *shortcodeHandler) extractShortcode(ordinal int, pt *pageTokens, p *PageWithoutContent) (*shortcode, error) {
+	sc := &shortcode{ordinal: ordinal}
 	var isInner = false
 
 	var currItem item
 	var cnt = 0
+	var nestedOrdinal = 0
 
 Loop:
 	for {
@@ -470,7 +476,8 @@ Loop:
 			if cnt > 0 {
 				// nested shortcode; append it to inner content
 				pt.backup3(currItem, next)
-				nested, err := s.extractShortcode(pt, p)
+				nested, err := s.extractShortcode(nestedOrdinal, pt, p)
+				nestedOrdinal++
 				if nested.name != "" {
 					s.nameSet[nested.name] = true
 				}
@@ -593,6 +600,7 @@ func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *PageWithou
 	// … it's safe to keep some "global" state
 	var currItem item
 	var currShortcode shortcode
+	var ordinal int
 
 Loop:
 	for {
@@ -605,7 +613,7 @@ Loop:
 			// let extractShortcode handle left delim (will do so recursively)
 			pt.backup()
 
-			currShortcode, err := s.extractShortcode(pt, p)
+			currShortcode, err := s.extractShortcode(ordinal, pt, p)
 
 			if currShortcode.name != "" {
 				s.nameSet[currShortcode.name] = true
@@ -621,6 +629,7 @@ Loop:
 
 			placeHolder := s.createShortcodePlaceholder()
 			result.WriteString(placeHolder)
+			ordinal++
 			s.shortcodes.Add(placeHolder, currShortcode)
 		case tEOF:
 			break Loop

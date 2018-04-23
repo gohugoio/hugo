@@ -894,17 +894,28 @@ weight: %d
 ---
 # doc
 
-{{< increment >}}{{< s1 >}}{{< increment >}}{{< s2 >}}{{< increment >}}{{< s3 >}}{{< increment >}}{{< s4 >}}{{< increment >}}{{< s5 >}}
+{{< s1 >}}{{< s2 >}}{{< s3 >}}{{< s4 >}}{{< s5 >}}
+
+{{< nested >}}
+{{< ordinal >}}
+{{< ordinal >}}
+{{< ordinal >}}
+{{< /nested >}}
 
 
 `
 
-	shortCodeTemplate := `v%d: {{ .Page.Scratch.Get "v" }}|`
+	ordinalShortcodeTemplate := `ordinal: {{ .Ordinal }}`
+
+	nestedShortcode := `outer ordinal: {{ .Ordinal }} inner: {{ .Inner }}`
+
+	shortCodeTemplate := `v%d: {{ .Ordinal }}|`
 
 	var shortcodes []string
 	var content []string
 
-	shortcodes = append(shortcodes, []string{"shortcodes/increment.html", `{{ .Page.Scratch.Add "v" 1}}`}...)
+	shortcodes = append(shortcodes, []string{"shortcodes/nested.html", nestedShortcode}...)
+	shortcodes = append(shortcodes, []string{"shortcodes/ordinal.html", ordinalShortcodeTemplate}...)
 
 	for i := 1; i <= 5; i++ {
 		shortcodes = append(shortcodes, []string{fmt.Sprintf("shortcodes/s%d.html", i), fmt.Sprintf(shortCodeTemplate, i)}...)
@@ -923,7 +934,15 @@ weight: %d
 
 	p1 := s.RegularPages[0]
 
-	if !strings.Contains(string(p1.content()), `v1: 1|v2: 2|v3: 3|v4: 4|v5: 5`) {
+	if !strings.Contains(string(p1.content()), `v1: 0|v2: 1|v3: 2|v4: 3|v5: 4|`) {
+		t.Fatal(p1.content())
+	}
+
+	// Check nested behaviour
+	if !strings.Contains(string(p1.content()), `outer ordinal: 5 inner: 
+ordinal: 0
+ordinal: 1
+ordinal: 2`) {
 		t.Fatal(p1.content())
 	}
 
