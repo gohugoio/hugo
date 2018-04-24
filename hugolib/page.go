@@ -38,6 +38,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -128,9 +129,6 @@ type Page struct {
 
 	// Params contains configuration defined in the params section of page frontmatter.
 	params map[string]interface{}
-
-	// Called when needed to init the content (render shortcodes etc.).
-	contentInitFn func(p *Page) func()
 
 	// Content sections
 	contentv        template.HTML
@@ -270,7 +268,14 @@ type Page struct {
 	targetPathDescriptorPrototype *targetPathDescriptor
 }
 
+func stackTrace() string {
+	trace := make([]byte, 2000)
+	runtime.Stack(trace, true)
+	return string(trace)
+}
+
 func (p *Page) initContent() {
+
 	p.contentInit.Do(func() {
 		// This careful dance is here to protect against circular loops in shortcode/content
 		// constructs.
@@ -284,9 +289,12 @@ func (p *Page) initContent() {
 			p.contentInitMu.Lock()
 			defer p.contentInitMu.Unlock()
 
-			if p.contentInitFn != nil {
-				p.contentInitFn(p)()
+			err = p.prepareForRender()
+			if err != nil {
+				p.s.Log.ERROR.Printf("Failed to prepare page %q for render: %s", p.Path(), err)
+				return
 			}
+
 			if len(p.summary) == 0 {
 				if err = p.setAutoSummary(); err != nil {
 					err = fmt.Errorf("Failed to set user auto summary for page %q: %s", p.pathOrTitle(), err)
@@ -297,7 +305,7 @@ func (p *Page) initContent() {
 
 		select {
 		case <-ctx.Done():
-			p.s.Log.WARN.Printf(`WARNING: Timed out creating content for page %q (.Content will be empty). This is most likely a circular shortcode content loop that should be fixed. If this is just a shortcode calling a slow remote service, try to set "timeout=20000" (or higher, value is in milliseconds) in config.toml.`, p.pathOrTitle())
+			p.s.Log.WARN.Printf(`WARNING: Timed out creating content for page %q (.Content will be empty). This is most likely a circular shortcode content loop that should be fixed. If this is just a shortcode calling a slow remote service, try to set "timeout=20000" (or higher, value is in milliseconds) in config.toml.\n`, p.pathOrTitle())
 		case err := <-c:
 			if err != nil {
 				p.s.Log.ERROR.Println(err)
@@ -420,14 +428,8 @@ type pageContentInit struct {
 	plainWordsInit sync.Once
 }
 
-func (p *Page) resetContent(init func(page *Page) func()) {
+func (p *Page) resetContent() {
 	p.pageContentInit = &pageContentInit{}
-	if init == nil {
-		init = func(page *Page) func() {
-			return func() {}
-		}
-	}
-	p.contentInitFn = init
 }
 
 // IsNode returns whether this is an item of one of the list types in Hugo,
@@ -1165,49 +1167,40 @@ func (p *Page) subResourceTargetPathFactory(base string) string {
 	return path.Join(p.relTargetPathBase, base)
 }
 
-func (p *Page) setContentInit(cfg *BuildCfg) error {
-	if !p.shouldRenderTo(p.s.rc.Format) {
-		// No need to prepare
-		return nil
-	}
+func (p *Page) setContentInit(start bool) error {
 
-	var shortcodeUpdate bool
+	if start {
+		// This is a new language.
+		p.shortcodeState.clearDelta()
+	}
+	updated := true
 	if p.shortcodeState != nil {
-		shortcodeUpdate = p.shortcodeState.updateDelta()
+		updated = p.shortcodeState.updateDelta()
 	}
 
-	resetFunc := func(page *Page) func() {
-		return func() {
-			err := page.prepareForRender(cfg)
-			if err != nil {
-				p.s.Log.ERROR.Printf("Failed to prepare page %q for render: %s", page.Path(), err)
-			}
-		}
+	if updated {
+		p.resetContent()
 	}
 
-	if shortcodeUpdate || cfg.whatChanged.other {
-		p.resetContent(resetFunc)
-	}
-
-	// Handle bundled pages.
 	for _, r := range p.Resources.ByType(pageResourceType) {
-		shortcodeUpdate = false
+		p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Pages)
 		bp := r.(*Page)
-
-		if bp.shortcodeState != nil {
-			shortcodeUpdate = bp.shortcodeState.updateDelta()
+		if start {
+			bp.shortcodeState.clearDelta()
 		}
-
-		if shortcodeUpdate || cfg.whatChanged.other {
-			p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Pages)
-			bp.resetContent(resetFunc)
+		if bp.shortcodeState != nil {
+			updated = bp.shortcodeState.updateDelta()
+		}
+		if updated {
+			bp.resetContent()
 		}
 	}
 
 	return nil
+
 }
 
-func (p *Page) prepareForRender(cfg *BuildCfg) error {
+func (p *Page) prepareForRender() error {
 	s := p.s
 
 	// If we got this far it means that this is either a new Page pointer
@@ -1217,7 +1210,7 @@ func (p *Page) prepareForRender(cfg *BuildCfg) error {
 	// If in watch mode or if we have multiple output formats,
 	// we need to keep the original so we can
 	// potentially repeat this process on rebuild.
-	needsACopy := p.s.running() || len(p.outputFormats) > 1
+	needsACopy := s.running() || len(p.outputFormats) > 1
 	var workContentCopy []byte
 	if needsACopy {
 		workContentCopy = make([]byte, len(p.workContent))

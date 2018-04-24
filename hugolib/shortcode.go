@@ -366,7 +366,12 @@ func (s *shortcodeHandler) updateDelta() bool {
 		s.contentShortcodes = createShortcodeRenderers(s.shortcodes, s.p.withoutContent())
 	})
 
-	contentShortcodes := s.contentShortcodesForOutputFormat(s.p.s.rc.Format)
+	if !s.p.shouldRenderTo(s.p.s.rc.Format) {
+		// TODO(bep) add test for this re translations
+		return false
+	}
+	of := s.p.s.rc.Format
+	contentShortcodes := s.contentShortcodesForOutputFormat(of)
 
 	if s.contentShortcodesDelta == nil || s.contentShortcodesDelta.Len() == 0 {
 		s.contentShortcodesDelta = contentShortcodes
@@ -387,13 +392,19 @@ func (s *shortcodeHandler) updateDelta() bool {
 	return delta.Len() > 0
 }
 
+func (s *shortcodeHandler) clearDelta() {
+	if s == nil {
+		return
+	}
+	s.contentShortcodesDelta = newOrderedMap()
+}
+
 func (s *shortcodeHandler) contentShortcodesForOutputFormat(f output.Format) *orderedMap {
 	contentShortcodesForOuputFormat := newOrderedMap()
 	lang := s.p.Lang()
 
 	for _, key := range s.shortcodes.Keys() {
 		shortcodePlaceholder := key.(string)
-		//	shortcodePlaceholder := s.shortcodes.getShortcode(key)
 
 		key := newScKeyFromLangAndOutputFormat(lang, f, shortcodePlaceholder)
 		renderFn, found := s.contentShortcodes.Get(key)

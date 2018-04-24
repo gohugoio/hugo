@@ -525,7 +525,7 @@ func checkPageDate(t *testing.T, page *Page, time time.Time) {
 }
 
 func checkTruncation(t *testing.T, page *Page, shouldBe bool, msg string) {
-	if page.summary == "" {
+	if page.Summary() == "" {
 		t.Fatal("page has no summary, can not check truncation")
 	}
 	if page.truncated != shouldBe {
@@ -722,8 +722,8 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 
 	p := s.RegularPages[0]
 
-	if p.summary != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>") {
-		t.Fatalf("Got summary:\n%q", p.summary)
+	if p.Summary() != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>") {
+		t.Fatalf("Got summary:\n%q", p.Summary())
 	}
 
 	if p.content() != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>") {
@@ -876,8 +876,8 @@ func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
-		require.Contains(t, p.summary, "Happy new year everyone!")
-		require.NotContains(t, p.summary, "User interface")
+		require.Contains(t, p.Summary(), "Happy new year everyone!")
+		require.NotContains(t, p.Summary(), "User interface")
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, `---
@@ -1511,8 +1511,8 @@ func TestPageSimpleMethods(t *testing.T) {
 	} {
 
 		p, _ := s.NewPage("Test")
-		p.contentv = "<h1>Do Be Do Be Do</h1>"
-		p.initContent()
+		p.workContent = []byte("<h1>Do Be Do Be Do</h1>")
+		p.resetContent()
 		if !this.assertFunc(p) {
 			t.Errorf("[%d] Page method error", i)
 		}

@@ -222,10 +222,21 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 func (h *HugoSites) render(config *BuildCfg) error {
 	for _, s := range h.Sites {
 		s.initRenderFormats()
-		for i, rf := range s.renderFormats {
-			s.rc = &siteRenderingContext{Format: rf}
+	}
 
-			s.preparePagesForRender(config)
+	for _, s := range h.Sites {
+		for i, rf := range s.renderFormats {
+			for _, s2 := range h.Sites {
+				// We render site by site, but since the content is lazily rendered
+				// and a site can "borrow" content from other sites, every site
+				// needs this set.
+				s2.rc = &siteRenderingContext{Format: rf}
+
+				isRenderingSite := s == s2
+
+				s2.preparePagesForRender(isRenderingSite && i == 0)
+
+			}
 
 			if !config.SkipRender {
 				if err := s.render(config, i); err != nil {

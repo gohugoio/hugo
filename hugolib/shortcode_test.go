@@ -22,6 +22,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/viper"
+
 	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/spf13/afero"
@@ -884,7 +886,83 @@ func TestScKey(t *testing.T) {
 
 }
 
-func TestPreserveShortcodeOrder(t *testing.T) {
+func TestShortcodeGetContent(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	contentShortcode := `
+{{- $t := .Get 0 -}}
+{{- $p := .Get 1 -}}
+{{- $k := .Get 2 -}}
+{{- $page := $.Page.Site.GetPage "page" $p -}}
+{{ if $page }}
+{{- if eq $t "bundle" -}}
+{{- .Scratch.Set "p" ($page.Resources.GetMatch (printf "%s*" $k)) -}}
+{{- else -}}
+{{- $.Scratch.Set "p" $page -}}
+{{- end -}}P1:{{ .Page.Content }}|P2:{{ $p := ($.Scratch.Get "p") }}{{ $p.Title }}/{{ $p.Content }}|
+{{- else -}}
+{{- errorf "Page %s is nil" $p -}}
+{{- end -}}
+`
+
+	var templates []string
+	var content []string
+
+	contentWithShortcodeTemplate := `---
+title: doc%s
+weight: %d
+---
+Logo:{{< c "bundle" "b1" "logo.png" >}}:P1: {{< c "page" "section1/p1" "" >}}:BP1:{{< c "bundle" "b1" "bp1" >}}`
+
+	simpleContentTemplate := `---
+title: doc%s
+weight: %d
+---
+C-%s`
+
+	v := viper.New()
+
+	v.Set("timeout", 500)
+
+	templates = append(templates, []string{"shortcodes/c.html", contentShortcode}...)
+	templates = append(templates, []string{"_default/single.html", "Single Content: {{ .Content }}"}...)
+	templates = append(templates, []string{"_default/list.html", "List Content: {{ .Content }}"}...)
+
+	content = append(content, []string{"b1/index.md", fmt.Sprintf(contentWithShortcodeTemplate, "b1", 1)}...)
+	content = append(content, []string{"b1/logo.png", "PNG logo"}...)
+	content = append(content, []string{"b1/bp1.md", fmt.Sprintf(simpleContentTemplate, "bp1", 1, "bp1")}...)
+
+	content = append(content, []string{"section1/_index.md", fmt.Sprintf(contentWithShortcodeTemplate, "s1", 2)}...)
+	content = append(content, []string{"section1/p1.md", fmt.Sprintf(simpleContentTemplate, "s1p1", 2, "s1p1")}...)
+
+	content = append(content, []string{"section2/_index.md", fmt.Sprintf(simpleContentTemplate, "b1", 1, "b1")}...)
+	content = append(content, []string{"section2/s2p1.md", fmt.Sprintf(contentWithShortcodeTemplate, "bp1", 1)}...)
+
+	builder := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
+
+	builder.WithViper(v).WithContent(content...).WithTemplates(templates...).CreateSites().Build(BuildCfg{})
+	s := builder.H.Sites[0]
+	assert.Equal(3, len(s.RegularPages))
+
+	builder.AssertFileContent("public/section1/index.html",
+		"List Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
+		"BP1:P1:|P2:docbp1/<p>C-bp1</p>",
+	)
+
+	builder.AssertFileContent("public/b1/index.html",
+		"Single Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
+		"P2:docbp1/<p>C-bp1</p>",
+	)
+
+	builder.AssertFileContent("public/section2/s2p1/index.html",
+		"Single Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
+		"P2:docbp1/<p>C-bp1</p>",
+	)
+
+}
+
+func TestShortcodePreserveOrder(t *testing.T) {
 	t.Parallel()
 	assert := require.New(t)
 
@@ -897,28 +975,30 @@ weight: %d
 {{< s1 >}}{{< s2 >}}{{< s3 >}}{{< s4 >}}{{< s5 >}}
 
 {{< nested >}}
-{{< ordinal >}}
-{{< ordinal >}}
-{{< ordinal >}}
+{{< ordinal >}} {{< scratch >}}
+{{< ordinal >}} {{< scratch >}}
+{{< ordinal >}} {{< scratch >}}
 {{< /nested >}}
-
 
 `
 
-	ordinalShortcodeTemplate := `ordinal: {{ .Ordinal }}`
+	ordinalShortcodeTemplate := `ordinal: {{ .Ordinal }}{{ .Page.Scratch.Set "ordinal" .Ordinal }}`
 
 	nestedShortcode := `outer ordinal: {{ .Ordinal }} inner: {{ .Inner }}`
-
-	shortCodeTemplate := `v%d: {{ .Ordinal }}|`
+	scratchGetShortcode := `scratch ordinal: {{ .Ordinal }} scratch get ordinal: {{ .Page.Scratch.Get "ordinal" }}`
+	shortcodeTemplate := `v%d: {{ .Ordinal }} sgo: {{ .Page.Scratch.Get "o2" }}{{ .Page.Scratch.Set "o2" .Ordinal }}|`
 
 	var shortcodes []string
 	var content []string
 
 	shortcodes = append(shortcodes, []string{"shortcodes/nested.html", nestedShortcode}...)
 	shortcodes = append(shortcodes, []string{"shortcodes/ordinal.html", ordinalShortcodeTemplate}...)
+	shortcodes = append(shortcodes, []string{"shortcodes/scratch.html", scratchGetShortcode}...)
 
 	for i := 1; i <= 5; i++ {
-		shortcodes = append(shortcodes, []string{fmt.Sprintf("shortcodes/s%d.html", i), fmt.Sprintf(shortCodeTemplate, i)}...)
+		sc := fmt.Sprintf(shortcodeTemplate, i)
+		sc = strings.Replace(sc, "%%", "%", -1)
+		shortcodes = append(shortcodes, []string{fmt.Sprintf("shortcodes/s%d.html", i), sc}...)
 	}
 
 	for i := 1; i <= 3; i++ {
@@ -932,18 +1012,10 @@ weight: %d
 	s := builder.H.Sites[0]
 	assert.Equal(3, len(s.RegularPages))
 
-	p1 := s.RegularPages[0]
-
-	if !strings.Contains(string(p1.content()), `v1: 0|v2: 1|v3: 2|v4: 3|v5: 4|`) {
-		t.Fatal(p1.content())
-	}
-
-	// Check nested behaviour
-	if !strings.Contains(string(p1.content()), `outer ordinal: 5 inner: 
-ordinal: 0
-ordinal: 1
-ordinal: 2`) {
-		t.Fatal(p1.content())
-	}
+	builder.AssertFileContent("public/en/p1/index.html", `v1: 0 sgo: |v2: 1 sgo: 0|v3: 2 sgo: 1|v4: 3 sgo: 2|v5: 4 sgo: 3`)
+	builder.AssertFileContent("public/en/p1/index.html", `outer ordinal: 5 inner: 
+ordinal: 0 scratch ordinal: 1 scratch get ordinal: 0
+ordinal: 2 scratch ordinal: 3 scratch get ordinal: 2
+ordinal: 4 scratch ordinal: 5 scratch get ordinal: 4`)
 
 }

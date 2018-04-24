@@ -559,41 +559,14 @@ func (h *HugoSites) setupTranslations() {
 	}
 }
 
-func (s *Site) preparePagesForRender(cfg *BuildCfg) {
-
-	pageChan := make(chan *Page)
-	wg := &sync.WaitGroup{}
-
-	numWorkers := getGoMaxProcs() * 4
-
-	for i := 0; i < numWorkers; i++ {
-		wg.Add(1)
-		go func(pages <-chan *Page, wg *sync.WaitGroup) {
-			defer wg.Done()
-			for p := range pages {
-				p.setContentInit(cfg)
-
-				// In most cases we could delay the content init until rendering time,
-				// but there could be use cases where the templates would depend
-				// on state set in the shortcodes (.Page.Scratch.Set), so we
-				// need to do this early. This will do the needed recursion.
-				p.initContent()
-			}
-		}(pageChan, wg)
-	}
-
+func (s *Site) preparePagesForRender(start bool) {
 	for _, p := range s.Pages {
-		pageChan <- p
+		p.setContentInit(start)
 	}
 
 	for _, p := range s.headlessPages {
-		pageChan <- p
+		p.setContentInit(start)
 	}
-
-	close(pageChan)
-
-	wg.Wait()
-
 }
 
 // Pages returns all pages for all sites.

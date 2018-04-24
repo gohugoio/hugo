@@ -180,6 +180,7 @@ func (s *Site) reset() *Site {
 		titleFunc:           s.titleFunc,
 		relatedDocsHandler:  newSearchIndexHandler(s.relatedDocsHandler.cfg),
 		outputFormats:       s.outputFormats,
+		rc:                  s.rc,
 		outputFormatsConfig: s.outputFormatsConfig,
 		frontmatterHandler:  s.frontmatterHandler,
 		mediaTypesConfig:    s.mediaTypesConfig,
@@ -266,6 +267,7 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		titleFunc:           titleFunc,
 		relatedDocsHandler:  newSearchIndexHandler(relatedContentConfig),
 		outputFormats:       outputFormats,
+		rc:                  &siteRenderingContext{output.HTMLFormat},
 		outputFormatsConfig: siteOutputFormatsConfig,
 		mediaTypesConfig:    siteMediaTypesConfig,
 		frontmatterHandler:  frontMatterHandler,
@@ -546,7 +548,7 @@ func (s *SiteInfo) RelRef(ref string, page *Page, options ...string) (string, er
 }
 
 func (s *Site) running() bool {
-	return s.owner.running
+	return s.owner != nil && s.owner.running
 }
 
 func init() {

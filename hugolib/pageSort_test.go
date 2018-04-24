@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"html/template"
 	"path/filepath"
 	"testing"
 	"time"
@@ -168,11 +167,16 @@ func setSortVals(dates [4]time.Time, titles [4]string, weights [4]int, pages Pag
 		pages[len(dates)-1-i].linkTitle = pages[i].title + "l"
 		pages[len(dates)-1-i].PublishDate = dates[i]
 		pages[len(dates)-1-i].ExpiryDate = dates[i]
-		pages[len(dates)-1-i].contentv = template.HTML(titles[i] + "_content")
+		pages[len(dates)-1-i].workContent = []byte(titles[i] + "_content")
 	}
 	lastLastMod := pages[2].Lastmod
 	pages[2].Lastmod = pages[1].Lastmod
 	pages[1].Lastmod = lastLastMod
+
+	for _, p := range pages {
+		p.resetContent()
+	}
+
 }
 
 func createSortTestPages(s *Site, num int) Pages {
