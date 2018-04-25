@@ -32,8 +32,8 @@ The above will create a new content file in `content/posts/my-first-post.md` usi
 
 1. `archetypes/posts.md`
 2. `archetypes/default.md`
-3. `themes/my-theme/posts.md`
-4. `themes/my-theme/default.md`
+3. `themes/my-theme/archetypes/posts.md`
+4. `themes/my-theme/archetypes/default.md`
 
 The last two list items is only applicable if you use a theme and it uses the `my-theme` theme name as an example.
 
