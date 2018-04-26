@@ -305,7 +305,7 @@ func (p *Page) initContent() {
 
 		select {
 		case <-ctx.Done():
-			p.s.Log.WARN.Printf(`WARNING: Timed out creating content for page %q (.Content will be empty). This is most likely a circular shortcode content loop that should be fixed. If this is just a shortcode calling a slow remote service, try to set "timeout=20000" (or higher, value is in milliseconds) in config.toml.\n`, p.pathOrTitle())
+			p.s.Log.WARN.Printf("WARNING: Timed out creating content for page %q (.Content will be empty). This is most likely a circular shortcode content loop that should be fixed. If this is just a shortcode calling a slow remote service, try to set \"timeout=20000\" (or higher, value is in milliseconds) in config.toml.\n", p.pathOrTitle())
 		case err := <-c:
 			if err != nil {
 				p.s.Log.ERROR.Println(err)
