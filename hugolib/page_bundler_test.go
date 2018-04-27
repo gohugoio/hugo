@@ -75,7 +75,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 
 				cfg.Set("uglyURLs", ugly)
 
-				s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+				s := buildSingleSite(t, deps.DepsCfg{Logger: newWarningLogger(), Fs: fs, Cfg: cfg}, BuildCfg{})
 
 				th := testHelper{s.Cfg, s.Fs, t}
 
