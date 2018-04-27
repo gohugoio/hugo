@@ -982,22 +982,33 @@ func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 }
 
 func (p *Page) WordCount() int {
-	p.analyzePage()
+	p.initContentPlainAndMeta()
 	return p.wordCount
 }
 
 func (p *Page) ReadingTime() int {
-	p.analyzePage()
+	p.initContentPlainAndMeta()
 	return p.readingTime
 }
 
 func (p *Page) FuzzyWordCount() int {
-	p.analyzePage()
+	p.initContentPlainAndMeta()
 	return p.fuzzyWordCount
 }
 
-func (p *Page) analyzePage() {
+func (p *Page) initContentPlainAndMeta() {
 	p.initContent()
+	p.initPlain(true)
+	p.initPlainWords(true)
+	p.initMeta()
+}
+
+func (p *Page) initContentAndMeta() {
+	p.initContent()
+	p.initMeta()
+}
+
+func (p *Page) initMeta() {
 	p.pageMetaInit.Do(func() {
 		if p.isCJKLanguage {
 			p.wordCount = 0
