@@ -2,7 +2,7 @@
 ---
 date: 2018-04-09
 title: "Hugo 0.38.2: Two Bugfixes"
-description: "0.38.2 fixes --contentDir flag handling and \".\" in content filenames."
+description: "0.38.2 fixes `--contentDir` flag handling and \".\" in content filenames."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
