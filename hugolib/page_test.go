@@ -1735,6 +1735,101 @@ tags:
 	}
 }
 
+// https://github.com/gohugoio/hugo/issues/4675
+func TestWordCountAndSimilarVsSummary(t *testing.T) {
+
+	t.Parallel()
+	assert := require.New(t)
+
+	single := []string{"_default/single.html", `
+WordCount: {{ .WordCount }}
+FuzzyWordCount: {{ .FuzzyWordCount }}
+ReadingTime: {{ .ReadingTime }}
+Len Plain: {{ len .Plain }}
+Len PlainWords: {{ len .PlainWords }}
+Truncated: {{ .Truncated }}
+Len Summary: {{ len .Summary }}
+Len Content: {{ len .Content }}
+`}
+
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithTemplatesAdded(single...).WithContent("p1.md", fmt.Sprintf(`---
+title: p1	
+---
+
+%s
+
+`, strings.Repeat("word ", 510)),
+
+		"p2.md", fmt.Sprintf(`---
+title: p2
+---
+This is a summary.
+
+<!--more-->
+
+%s
+
+`, strings.Repeat("word ", 310)),
+		"p3.md", fmt.Sprintf(`---
+title: p3
+isCJKLanguage: true
+---
+Summary: In Chinese, 好 means good.
+
+<!--more-->
+
+%s
+
+`, strings.Repeat("好", 200)),
+		"p4.md", fmt.Sprintf(`---
+title: p4
+isCJKLanguage: false
+---
+Summary: In Chinese, 好 means good.
+
+<!--more-->
+
+%s
+
+`, strings.Repeat("好", 200)),
+
+		"p5.md", fmt.Sprintf(`---
+title: p4
+isCJKLanguage: true
+---
+Summary: In Chinese, 好 means good.
+
+%s
+
+`, strings.Repeat("好", 200)),
+		"p6.md", fmt.Sprintf(`---
+title: p4
+isCJKLanguage: false
+---
+Summary: In Chinese, 好 means good.
+
+%s
+
+`, strings.Repeat("好", 200)),
+	)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	assert.Equal(1, len(b.H.Sites))
+	require.Len(t, b.H.Sites[0].RegularPages, 6)
+
+	b.AssertFileContent("public/p1/index.html", "WordCount: 510\nFuzzyWordCount: 600\nReadingTime: 3\nLen Plain: 2550\nLen PlainWords: 510\nTruncated: false\nLen Summary: 2549\nLen Content: 2557")
+
+	b.AssertFileContent("public/p2/index.html", "WordCount: 314\nFuzzyWordCount: 400\nReadingTime: 2\nLen Plain: 1570\nLen PlainWords: 314\nTruncated: true\nLen Summary: 34\nLen Content: 1592")
+
+	b.AssertFileContent("public/p3/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 639\nLen PlainWords: 7\nTruncated: true\nLen Summary: 52\nLen Content: 661")
+	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 639\nLen PlainWords: 7\nTruncated: true\nLen Summary: 52\nLen Content: 661")
+	b.AssertFileContent("public/p5/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 229\nLen Content: 653")
+	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 653")
+
+}
+
 func BenchmarkParsePage(b *testing.B) {
 	s := newTestSite(b)
 	f, _ := os.Open("testdata/redis.cn.md")

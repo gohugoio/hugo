@@ -493,7 +493,10 @@ func totalWordsOld(s string) int {
 }
 
 // TruncateWordsByRune truncates words by runes.
-func (c *ContentSpec) TruncateWordsByRune(words []string) (string, bool) {
+func (c *ContentSpec) TruncateWordsByRune(in []string) (string, bool) {
+	words := make([]string, len(in))
+	copy(words, in)
+
 	count := 0
 	for index, word := range words {
 		if count >= c.summaryLength {
