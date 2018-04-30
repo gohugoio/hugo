@@ -53,7 +53,7 @@ func (t *templateHandler) embedShortcodes() {
   <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
  </div>
 {{ end }}`)
-	t.addInternalShortcode("gist.html", `<script src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>`)
+	t.addInternalShortcode("gist.html", `<script async src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>`)
 	t.addInternalShortcode("tweet.html", `{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}`)
 	t.addInternalShortcode("instagram.html", `{{ if len .Params | eq 2 }}{{ if eq (.Get 1) "hidecaption" }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=1" }}{{ .html | safeHTML }}{{ end }}{{ end }}{{ else }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=0" }}{{ .html | safeHTML }}{{ end }}{{ end }}`)
 }
