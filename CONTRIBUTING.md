@@ -9,7 +9,7 @@ The Hugo community and maintainers are [very active](https://github.com/gohugoio
 
 *Note that this repository only contains the actual source code of Hugo. For **only** documentation-related pull requests / issues please refer to the [hugoDocs](https://github.com/gohugoio/hugoDocs) repository.*
 
-*Pull requests that contain changes on the code base **and** related documentation, e.g. for a new feature, shall remain a single, atomic one.*
+*Changes to the codebase **and** related documentation, e.g. for a new feature, should still use a single pull request.*
 
 ## Table of Contents
 
@@ -32,21 +32,24 @@ Please don't use the GitHub issue tracker to ask questions.
 ## Reporting Issues
 
 If you believe you have found a defect in Hugo or its documentation, use
-the GitHub [issue tracker](https://github.com/gohugoio/hugo/issues) to report the problem to the Hugo maintainers.
-If you're not sure if it's a bug or not, start by asking in the [discussion forum](https://discourse.gohugo.io).
-When reporting the issue, please provide the version of Hugo in use (`hugo version`) and your operating system.
+the GitHub [issue tracker](https://github.com/gohugoio/hugo/issues) to report
+the problem to the Hugo maintainers. If you're not sure if it's a bug or not,
+start by asking in the [discussion forum](https://discourse.gohugo.io).
+When reporting the issue, please provide the version of Hugo in use (`hugo
+version`) and your operating system.
 
 ## Code Contribution
 
-Hugo has become a fully featured static site generator, so any new functionality must meet these criterias:
+Hugo has become a fully featured static site generator, so any new functionality must:
 
-* It must be useful to many.
-* It must fit natural into _what Hugo does best._
-* It must strive not to break existing sites.
-* It must close ur update an open [Hugo issue](https://github.com/gohugoio/hugo/issues)
-* If it is of some complexity, the contributor is expected to maintain and support the new future (answer questions on the forum, fix any bugs etc.).
+* be useful to many.
+* fit naturally into _what Hugo does best._
+* strive not to break existing sites.
+* close or update an open [Hugo issue](https://github.com/gohugoio/hugo/issues)
 
-So, to avoid doing unneeded work, it is recommended to open up a discussion on the [Hugo Forum](https://discourse.gohugo.io/) to get some acceptance that this is a good idea. Also, if this is a complex feature, create a small design proposal on the [Hugo issue tracker](https://github.com/gohugoio/hugo/issues) before you start coding.
+If it is of some complexity, the contributor is expected to maintain and support the new future (answer questions on the forum, fix any bugs etc.).
+
+It is recommended to open up a discussion on the [Hugo Forum](https://discourse.gohugo.io/) to get feedback on your idea before you begin. If you are submitting a complex feature, create a small design proposal on the [Hugo issue tracker](https://github.com/gohugoio/hugo/issues) before you start.
 
 
 **Bug fixes are, of course, always welcome.**
@@ -55,15 +58,11 @@ So, to avoid doing unneeded work, it is recommended to open up a discussion on t
 
 ## Submitting Patches
 
-The Hugo project welcomes all contributors and contributions regardless of skill or experience level.
-If you are interested in helping with the project, we will help you with your contribution.
-Hugo is a very active project with many contributions happening daily.
-Because we want to create the best possible product for our users and the best contribution experience for our developers,
-we have a set of guidelines which ensure that all contributions are acceptable.
-The guidelines are not intended as a filter or barrier to participation.
-If you are unfamiliar with the contribution process, the Hugo team will help you and teach you how to bring your contribution in accordance with the guidelines.
+The Hugo project welcomes all contributors and contributions regardless of skill or experience level. If you are interested in helping with the project, we will help you with your contribution.
 
 ### Code Contribution Guidelines
+
+Because we want to create the best possible product for our users and the best contribution experience for our developers, we have a set of guidelines which ensure that all contributions are acceptable. The guidelines are not intended as a filter or barrier to participation. If you are unfamiliar with the contribution process, the Hugo team will help you and teach you how to bring your contribution in accordance with the guidelines.
 
 To make the contribution process as seamless as possible, we ask for the following:
 
@@ -86,11 +85,11 @@ the most important part being that each commit message should have a title/subje
 Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*.
 Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
 
-Sometimes it makes sense to prefix the commit message with the packagename (or docs folder) all lowercased ending with a colon.
+Sometimes it makes sense to prefix the commit message with the package name (or docs folder) all lowercased ending with a colon.
 That is fine, but the rest of the rules above apply.
 So it is "tpl: Add emojify template func", not "tpl: add emojify template func.", and "docs: Document emoji", not "doc: document emoji."
 
-Please consider to use a short and descriptive branch name, e.g. **NOT** "patch-1". It's very common but creates a naming conflict each time when a submission is pulled for a review.
+Please use a short and descriptive branch name, e.g. **NOT** "patch-1". It's very common but creates a naming conflict each time when a submission is pulled for a review.
 
 An example:
 
@@ -130,7 +129,7 @@ started:
     mage vendor
     ```
 
-    Note that Hugo uses [Go Dep](https://github.com/golang/dep) to vendor dependencies, rather than a a simple `go get`. We don't commit the vendored packages themselves to the Hugo git repository. The call to `mage vendor` takes care of all this for you.
+    Note that Hugo uses [Go Dep](https://github.com/golang/dep) to vendor dependencies, rather than a simple `go get`. We don't commit the vendored packages themselves to the Hugo git repository. The call to `mage vendor` takes care of all this for you.
 
 1. Create a new branch for your changes (the branch name is arbitrary):
 
