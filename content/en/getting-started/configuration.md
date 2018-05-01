@@ -369,7 +369,7 @@ Hugo typically configures Blackfriday with sane default values that should fit m
 
 However, if you have specific needs with respect to Markdown, Hugo exposes some of its Blackfriday behavior options for you to alter. The following table lists these Hugo options, paired with the corresponding flags from Blackfriday's source code ( [html.go](https://github.com/russross/blackfriday/blob/master/html.go) and [markdown.go](https://github.com/russross/blackfriday/blob/master/markdown.go)).
 
-{{< readfile file="/content/readfiles/bfconfig.md" markdown="true" >}}
+{{< readfile file="/content/en/readfiles/bfconfig.md" markdown="true" >}}
 
 {{% note %}}
 1. Blackfriday flags are *case sensitive* as of Hugo v0.15.

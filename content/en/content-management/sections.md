@@ -81,7 +81,7 @@ With the available [section variables and methods](#section-page-variables-and-m
 
 Also see [Page Variables](/variables/page/).
 
-{{< readfile file="/content/readfiles/sectionvars.md" markdown="true" >}}
+{{< readfile file="/content/en/readfiles/sectionvars.md" markdown="true" >}}
 
 ## Content Section Lists
 

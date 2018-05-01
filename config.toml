@@ -271,3 +271,10 @@ anchor = "smart"
     identifier = "github"
     post = "external"
     url = "https://github.com/gohugoio/hugo"
+
+
+[languages]
+  [languages.en]
+    contentDir = "content/en"
+    languageName = "English"
+    weight = 1

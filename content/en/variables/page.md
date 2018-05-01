@@ -183,7 +183,7 @@ http://remarkjs.com)
 
 Also see [Sections](/content-management/sections/).
 
-{{< readfile file="/content/readfiles/sectionvars.md" markdown="true" >}}
+{{< readfile file="/content/en/readfiles/sectionvars.md" markdown="true" >}}
 
 ## Page-level Params
 
