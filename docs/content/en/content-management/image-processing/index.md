@@ -29,6 +29,23 @@ To get all images in a [Page Bundle]({{< relref "content-management/organization
 
 ```
 
+## Image Exif Metadata
+
+Since Hugo `0.41`, JPEG and TIFF images gets additional [Exif](https://en.wikipedia.org/wiki/Exif) metadata in `.Data.Exif`. To enable it, toggle the `imaging.exif.hugo041ExperimentEnableExif` flag. See [Config](#image-processing-config). We have added this as an experiment to test how this works before we consider if we should enable it by default.
+
+Lat
+: The [latitude](https://en.wikipedia.org/wiki/Latitude) if provided. Combined with the longitude below it can be used to show where the photo was taken in services such as [Google Maps](https://www.google.com/maps).
+
+Long
+: The [longitude](https://en.wikipedia.org/wiki/Longitude) if provided.
+
+Date
+: Date and time for when this image was taken.
+
+Values
+: A map with raw Exif keys and values.
+
+
 ## Image Processing Methods
 
 
@@ -61,12 +78,6 @@ Fill
 ```go
 {{ $image := $resource.Fill "600x400" }} 
 ```
-
-
-{{% note %}}
-Image operations in Hugo currently **do not preserve EXIF data** as this is not supported by Go's [image package](https://github.com/golang/go/search?q=exif&type=Issues&utf8=%E2%9C%93). This will be improved on in the future.
-{{% /note %}}
-
 
 ## Image Processing Options
 
@@ -160,9 +171,34 @@ quality = 75
 # Valid values are Smart, Center, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight
 anchor = "smart"
 
+[imaging.exif]
+# Set this to enable Exif. We will consider making this the default later.
+hugo041ExperimentEnableExif = false
+
+# Regexp matching the fields you want to Exclude from the (massive) set of Exif info
+# available. As we cache this info to disk, this is for performance and
+# disk space reasons more than anything.
+# If you want it all, put ".*" in this config setting.
+# Note that if neither this or ExcludeFields is set, Hugo will return a small
+# default set.
+includeFields = ""
+
+# Regexp matching the Exif fields you want to exclude. This may be easier to use
+# than IncludeFields above, depending on what you want.
+excludeFields = ""
+
+# Hugo extracts the "photo taken" date/time into .Date by default.
+# Set this to true to turn it off.
+disableDate = false
+
+# Hugo extracts the "photo taken where" (GPS latitude and longitude) into
+# .Long and .Lat. Set this to true to turn it off.
+disableLatLong = false
+
+
 ```
 
-All of the above settings can also be set per image procecssing.
+Most of the above settings can also be set per image procecssing.
 
 ## Smart Cropping of Images
 

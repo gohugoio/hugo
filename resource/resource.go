@@ -15,6 +15,7 @@ package resource
 
 import (
 	"fmt"
+	"io"
 	"mime"
 	"os"
 	"path"
@@ -22,6 +23,10 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/gohugoio/hugo/resource/exif"
+
+	"github.com/gohugoio/hugo/cache/pcache"
 
 	"github.com/spf13/afero"
 
@@ -39,6 +44,8 @@ var (
 	_ Source                  = (*genericResource)(nil)
 	_ Cloner                  = (*genericResource)(nil)
 	_ ResourcesLanguageMerger = (*Resources)(nil)
+
+	noData = make(map[string]interface{})
 )
 
 const DefaultResourceType = "unknown"
@@ -88,6 +95,12 @@ type Resource interface {
 
 	// Params set in front matter for this resource.
 	Params() map[string]interface{}
+
+	// Resource specific data set by Hugo.
+	// One example would be .Data.Exif for JPGEG and TIFF images.
+	// Note that it is always safe to say check for this value in a template,
+	// so {{ with .Data.Exif }} ... {{ end }} will work for any resource type.
+	Data() interface{}
 
 	// Content returns this resource's content. It will be equivalent to reading the content
 	// that RelPermalink points to in the published folder.
@@ -266,6 +279,8 @@ func (r1 Resources) MergeByLanguageInterface(in interface{}) (interface{}, error
 type Spec struct {
 	*helpers.PathSpec
 
+	imageMetadataCache pcache.Cache
+
 	mimeTypes media.Types
 
 	// Holds default filter settings etc.
@@ -273,29 +288,61 @@ type Spec struct {
 
 	imageCache *imageCache
 
+	exifDecoder *exif.Decoder
+
 	GenImagePath string
 }
 
-func NewSpec(s *helpers.PathSpec, mimeTypes media.Types) (*Spec, error) {
+func WithImageMetadataCache(c pcache.Cache) func(*Spec) error {
+	return func(s *Spec) error {
+		s.imageMetadataCache = c
+		return nil
+	}
+}
+
+func NewSpec(s *helpers.PathSpec, mimeTypes media.Types, options ...func(*Spec) error) (*Spec, error) {
 
 	imaging, err := decodeImaging(s.Cfg.GetStringMap("imaging"))
 	if err != nil {
 		return nil, err
 	}
-	s.GetLayoutDirPath()
+
+	var exifDecoder *exif.Decoder
+
+	if imaging.Exif.Hugo041ExperimentEnableExif {
+		exifDecoder, err = exif.NewDecoder(
+			exif.IncludeFields(imaging.Exif.IncludeFields),
+			exif.ExcludeFields(imaging.Exif.ExcludeFields),
+			exif.WithDateDisabled(imaging.Exif.DisableDate),
+			exif.WithLatLongDisabled(imaging.Exif.DisableLatLong),
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	genImagePath := filepath.FromSlash("_gen/images")
 
-	return &Spec{PathSpec: s,
-		GenImagePath: genImagePath,
-		imaging:      &imaging, mimeTypes: mimeTypes, imageCache: newImageCache(
+	spec := &Spec{PathSpec: s,
+		imageMetadataCache: pcache.NoCache,
+		GenImagePath:       genImagePath,
+		exifDecoder:        exifDecoder,
+		imaging:            &imaging, mimeTypes: mimeTypes, imageCache: newImageCache(
 			s,
 			// We're going to write a cache pruning routine later, so make it extremely
 			// unlikely that the user shoots him or herself in the foot
 			// and this is set to a value that represents data he/she
 			// cares about. This should be set in stone once released.
 			genImagePath,
-		)}, nil
+		)}
+
+	for _, opt := range options {
+		if err := opt(spec); err != nil {
+			return nil, err
+		}
+	}
+
+	return spec, nil
 }
 
 func (r *Spec) NewResourceFromFile(
@@ -313,6 +360,7 @@ func (r *Spec) NewResourceFromFilename(
 	if err != nil {
 		return nil, err
 	}
+
 	return r.newResource(targetPathBuilder, absSourceFilename, fi, relTargetFilename)
 }
 
@@ -361,11 +409,19 @@ func (r *Spec) newResource(
 			return nil, err
 		}
 
-		return &Image{
+		i := &Image{
+			data:            make(imageData),
 			hash:            hash,
 			format:          imgFormat,
 			imaging:         r.imaging,
-			genericResource: gr}, nil
+			genericResource: gr}
+
+		// Load Exif etc.
+		if err := i.loadMetadata(); err != nil {
+			return nil, err
+		}
+
+		return i, nil
 	}
 	return gr, nil
 }
@@ -449,6 +505,14 @@ type genericResource struct {
 	*resourceContent
 }
 
+func (l *genericResource) openSourceFile() (io.ReadCloser, error) {
+	f, err := l.sourceFs().Open(l.AbsSourceFilename())
+	if err != nil {
+		return nil, fmt.Errorf("failed to open source file: %s", err)
+	}
+	return f, nil
+}
+
 func (l *genericResource) Content() (interface{}, error) {
 	var err error
 	l.contentInit.Do(func() {
@@ -464,6 +528,11 @@ func (l *genericResource) Content() (interface{}, error) {
 	})
 
 	return l.content, err
+}
+
+func (l *genericResource) Data() interface{} {
+	// For now this is only added to the image resources (Exif).
+	return noData
 }
 
 func (l *genericResource) sourceFs() afero.Fs {

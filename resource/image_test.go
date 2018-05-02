@@ -202,6 +202,9 @@ func TestDecodeImaging(t *testing.T) {
 		"quality":        42,
 		"resampleFilter": "NearestNeighbor",
 		"anchor":         "topLeft",
+		"exif": map[string]interface{}{
+			"hugo041ExperimentEnableExif": true,
+		},
 	}
 
 	imaging, err := decodeImaging(m)
@@ -210,6 +213,7 @@ func TestDecodeImaging(t *testing.T) {
 	assert.Equal(42, imaging.Quality)
 	assert.Equal("nearestneighbor", imaging.ResampleFilter)
 	assert.Equal("topleft", imaging.Anchor)
+	assert.True(imaging.Exif.Hugo041ExperimentEnableExif)
 
 	m = map[string]interface{}{}
 
@@ -218,6 +222,7 @@ func TestDecodeImaging(t *testing.T) {
 	assert.Equal(defaultJPEGQuality, imaging.Quality)
 	assert.Equal("box", imaging.ResampleFilter)
 	assert.Equal("smart", imaging.Anchor)
+	assert.False(imaging.Exif.Hugo041ExperimentEnableExif)
 
 	_, err = decodeImaging(map[string]interface{}{
 		"quality": 123,
@@ -261,6 +266,26 @@ func TestImageWithMetadata(t *testing.T) {
 	resized, err := image.Resize("200x")
 	assert.NoError(err)
 	assert.Equal("Sunset #1", resized.Name())
+
+}
+
+func TestImageWithEXIF(t *testing.T) {
+	assert := require.New(t)
+	image := fetchSunset(assert)
+
+	x := image.Data().(imageData).Exif()
+	assert.NotNil(x)
+
+	v, found := x.Values["LensModel"]
+
+	for k, v := range x.Values {
+		fmt.Println(">> K", k, v)
+	}
+
+	assert.True(found)
+	lensModel, ok := v.(string)
+	assert.True(ok)
+	assert.Equal("smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM", lensModel)
 
 }
 

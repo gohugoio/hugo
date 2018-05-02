@@ -35,6 +35,9 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 		"resampleFilter": "linear",
 		"quality":        68,
 		"anchor":         "left",
+		"exif": map[string]interface{}{
+			"hugo041ExperimentEnableExif": true,
+		},
 	}
 
 	cfg.Set("imaging", imagingCfg)

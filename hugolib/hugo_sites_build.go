@@ -28,6 +28,12 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
+	// Opens some shared resources that needs to be closed when done.
+	if err := h.openAll(); err != nil {
+		return err
+	}
+	defer h.closeAll()
+
 	if h.Metrics != nil {
 		h.Metrics.Reset()
 	}

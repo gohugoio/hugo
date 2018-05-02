@@ -23,6 +23,7 @@ import (
 )
 
 // GC requires a build first.
+// TODO(bep) create an GC interface/registry
 func (h *HugoSites) GC() (int, error) {
 	s := h.Sites[0]
 	fs := h.PathSpec.BaseFs.ResourcesFs

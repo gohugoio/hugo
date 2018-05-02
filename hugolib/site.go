@@ -1873,7 +1873,7 @@ func (s *Site) newNodePage(typ string, sections ...string) *Page {
 		pageContentInit: &pageContentInit{},
 		Kind:            typ,
 		Source:          Source{File: &source.FileInfo{}},
-		Data:            make(map[string]interface{}),
+		data:            make(map[string]interface{}),
 		Site:            &s.Info,
 		sections:        sections,
 		s:               s}
@@ -1888,7 +1888,7 @@ func (s *Site) newHomePage() *Page {
 	p := s.newNodePage(KindHome)
 	p.title = s.Info.Title
 	pages := Pages{}
-	p.Data["Pages"] = pages
+	p.data["Pages"] = pages
 	p.Pages = pages
 	return p
 }

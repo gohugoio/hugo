@@ -697,7 +697,7 @@ title = "Svenska"
 
 	// Regular pages have no children
 	require.Len(t, svPage.Pages, 0)
-	require.Len(t, svPage.Data["Pages"], 0)
+	require.Len(t, svPage.data["Pages"], 0)
 
 }
 

@@ -224,7 +224,7 @@ type Page struct {
 	title       string
 	Description string
 	Keywords    []string
-	Data        map[string]interface{}
+	data        map[string]interface{}
 
 	pagemeta.PageDates
 
@@ -1169,8 +1169,17 @@ func (p *Page) Title() string {
 	return p.title
 }
 
+// Params returns the data for this page provided by the user in front matter.
 func (p *Page) Params() map[string]interface{} {
 	return p.params
+}
+
+// Data returns contextual data for this page set by Hugo.
+// It is made into this unfriendly interface{} type to allow different resource
+// types to add their own implementation. From the templates you can use it as
+// it was a map[string]interface{}.
+func (p *Page) Data() interface{} {
+	return p.data
 }
 
 func (p *Page) subResourceTargetPathFactory(base string) string {
@@ -1885,7 +1894,7 @@ func (p *Page) prepareLayouts() error {
 func (p *Page) prepareData(s *Site) error {
 	if p.Kind != KindSection {
 		var pages Pages
-		p.Data = make(map[string]interface{})
+		p.data = make(map[string]interface{})
 
 		switch p.Kind {
 		case KindPage:
@@ -1904,21 +1913,21 @@ func (p *Page) prepareData(s *Site) error {
 			singular := s.taxonomiesPluralSingular[plural]
 			taxonomy := s.Taxonomies[plural].Get(term)
 
-			p.Data[singular] = taxonomy
-			p.Data["Singular"] = singular
-			p.Data["Plural"] = plural
-			p.Data["Term"] = term
+			p.data[singular] = taxonomy
+			p.data["Singular"] = singular
+			p.data["Plural"] = plural
+			p.data["Term"] = term
 			pages = taxonomy.Pages()
 		case KindTaxonomyTerm:
 			plural := p.sections[0]
 			singular := s.taxonomiesPluralSingular[plural]
 
-			p.Data["Singular"] = singular
-			p.Data["Plural"] = plural
-			p.Data["Terms"] = s.Taxonomies[plural]
+			p.data["Singular"] = singular
+			p.data["Plural"] = plural
+			p.data["Terms"] = s.Taxonomies[plural]
 			// keep the following just for legacy reasons
-			p.Data["OrderedIndex"] = p.Data["Terms"]
-			p.Data["Index"] = p.Data["Terms"]
+			p.data["OrderedIndex"] = p.data["Terms"]
+			p.data["Index"] = p.data["Terms"]
 
 			// A list of all KindTaxonomy pages with matching plural
 			for _, p := range s.findPagesByKind(KindTaxonomy) {
@@ -1928,7 +1937,7 @@ func (p *Page) prepareData(s *Site) error {
 			}
 		}
 
-		p.Data["Pages"] = pages
+		p.data["Pages"] = pages
 		p.Pages = pages
 	}
 

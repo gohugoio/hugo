@@ -179,6 +179,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 						"2: Image Title: Sunset Galore 2",
 						"2: Image Params: map[myparam:My Sunny Param]",
 						"1: Image myParam: Lower: My Sunny Param Caps: My Sunny Param",
+						"1: Image: Has Exif: -4.50846",
 					)
 					th.assertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug.html"), "TheContent")
 
@@ -439,6 +440,11 @@ func newTestBundleSources(t *testing.T) (*hugofs.Fs, *viper.Viper) {
 			"suffix": "bep",
 		},
 	})
+	cfg.Set("imaging", map[string]interface{}{
+		"exif": map[string]interface{}{
+			"hugo041ExperimentEnableExif": true,
+		},
+	})
 
 	pageContent := `---
 title: "Bundle Galore"
@@ -502,6 +508,7 @@ Thumb RelPermalink: {{ $thumb.RelPermalink }}
 {{ $i }}: Image Name: {{ .Name }}
 {{ $i }}: Image Params: {{ printf "%v" .Params }}
 {{ $i }}: Image myParam: Lower: {{ .Params.myparam }} Caps: {{ .Params.MYPARAM }}
+{{ $i }}: Image: {{ with .Data.Exif }}Has Exif: {{ .Long }}{{ else }}No Exif for you.{{ end }}
 {{ end }}
 `
 

@@ -21,6 +21,10 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/config"
+
+	"github.com/gohugoio/hugo/cache/pcache"
+
 	"github.com/gohugoio/hugo/resource"
 
 	"github.com/gohugoio/hugo/deps"
@@ -30,6 +34,12 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
+
+// Implemented by global resources that needs opened at start and closed at end-of-build.
+type openCloser interface {
+	Open() error
+	Close() error
+}
 
 // HugoSites represents the sites to build. Each site represents a language.
 type HugoSites struct {
@@ -48,8 +58,34 @@ type HugoSites struct {
 	// Keeps track of bundle directories and symlinks to enable partial rebuilding.
 	ContentChanges *contentChangeMap
 
+	// Stores metadata about images (Exif into etc.)
+	imageMetadataCache pcache.Cache
+
 	// If enabled, keeps a revision map for all content.
 	gitInfo *gitInfo
+
+	// A list of resources that needs to be closed before shutting down.
+	openClosers []openCloser
+}
+
+func (h *HugoSites) addOpenCloser(c openCloser) {
+	h.openClosers = append(h.openClosers, c)
+}
+
+func (h *HugoSites) openAll() error {
+	for _, c := range h.openClosers {
+		if err := c.Open(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (h *HugoSites) closeAll() (err error) {
+	for _, c := range h.openClosers {
+		err = c.Close()
+	}
+	return
 }
 
 func (h *HugoSites) IsMultihost() bool {
@@ -118,6 +154,10 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		multihost:    cfg.Cfg.GetBool("multihost"),
 		Sites:        sites}
 
+	if err := h.initDBCache(cfg.Cfg); err != nil {
+		return nil, err
+	}
+
 	for _, s := range sites {
 		s.owner = h
 	}
@@ -140,6 +180,22 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 	}
 
 	return h, nil
+}
+
+func (h *HugoSites) initDBCache(cfg config.Provider) error {
+	// TODO(bep) cache where?
+	workingDir := cfg.GetString("workingDir")
+
+	if workingDir == "" || !cfg.GetBool("imaging.exif.hugo041ExperimentEnableExif") {
+		h.imageMetadataCache = pcache.NoCache
+		return nil
+	}
+	cacheDir := filepath.Join(workingDir, cfg.GetString("resourceDir"))
+
+	c := resource.NewImageMetadataCache(filepath.Join(cacheDir, "_gen", "meta_image.json"))
+	h.imageMetadataCache = c
+	h.addOpenCloser(c)
+	return nil
 }
 
 func (h *HugoSites) initGitInfo() error {
@@ -199,7 +255,16 @@ func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 			s.Deps = d
 		}
 
-		s.resourceSpec, err = resource.NewSpec(s.Deps.PathSpec, s.mediaTypesConfig)
+		imageMetadataCache := pcache.NoCache
+		if s.owner != nil && s.owner.imageMetadataCache != nil {
+			imageMetadataCache = s.owner.imageMetadataCache
+		}
+
+		s.resourceSpec, err = resource.NewSpec(
+			s.Deps.PathSpec,
+			s.mediaTypesConfig,
+			resource.WithImageMetadataCache(imageMetadataCache))
+
 		if err != nil {
 			return err
 		}

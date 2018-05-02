@@ -289,7 +289,7 @@ func (p *PageOutput) Paginator(options ...interface{}) (*Pager, error) {
 		if p.s.owner.IsMultihost() {
 			pathDescriptor.LangPrefix = ""
 		}
-		pagers, err := paginatePages(pathDescriptor, p.Data["Pages"], pagerSize)
+		pagers, err := paginatePages(pathDescriptor, p.data["Pages"], pagerSize)
 
 		if err != nil {
 			initError = err

@@ -78,8 +78,8 @@
 [[projects]]
   name = "github.com/cpuguy83/go-md2man"
   packages = ["md2man"]
-  revision = "20f5889cbdc3c73dbd2862796665e7c465ade7d1"
-  version = "v1.0.8"
+  revision = "a65d4d2de4d5f7c74868dfa9b202a3c8be315aaa"
+  version = "v1.0.6"
 
 [[projects]]
   branch = "master"
@@ -276,10 +276,19 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/russross/blackfriday"
   packages = ["."]
-  revision = "55d61fa8aa702f59229e6cff85793c22e580eaf5"
-  version = "v1.5.1"
+  revision = "11635eb403ff09dbc3a6b5a007ab5ab09151c229"
+
+[[projects]]
+  branch = "go1"
+  name = "github.com/rwcarlsen/goexif"
+  packages = [
+    "exif",
+    "tiff"
+  ]
+  revision = "fb35d3c3290d09f3524b684b5d42d0063c227158"
 
 [[projects]]
   name = "github.com/sanity-io/litter"
@@ -432,6 +441,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b9b38ece73fd6c0d0b20eb2ff85dfcc15a82841223b4403566712fd7b7ae7d59"
+  inputs-digest = "1bdb94c4133a6966a9114d20871af53e8cc8d65ee1fbc4332c14895b08e3adf3"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -15,6 +15,10 @@ package resource
 
 import (
 	"errors"
+	"regexp"
+
+	"github.com/gohugoio/hugo/resource/exif"
+
 	"fmt"
 	"image/color"
 	"io"
@@ -22,6 +26,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/gohugoio/hugo/cache/pcache"
 
 	"github.com/mitchellh/mapstructure"
 
@@ -59,7 +65,40 @@ type Imaging struct {
 
 	// The anchor used in Fill. Default is "smart", i.e. Smart Crop.
 	Anchor string
+
+	// Exif configuration. Exif is disabled by default in Hugo 0.41. That may change.
+	Exif ExifConfig
 }
+
+type ExifConfig struct {
+	// Exif for JPEG and TIFF. We may consider making this the default, so
+	// create this temporary flag so we can test it out.
+	Hugo041ExperimentEnableExif bool
+
+	// Regexp matching the Exif fields you want from the (massive) set of Exif info
+	// available. As we cache this info to disk, this is for performance and
+	// disk space reasons more than anything.
+	// If you want it all, put ".*" in this config setting.
+	// Note that if neither this or ExcludeFields is set, Hugo will return a small
+	// default set.
+	IncludeFields string
+
+	// Regexp matching the Exif fields you want to exclude. This may be easier to use
+	// than IncludeFields above, depending on what you want.
+	ExcludeFields string
+
+	// Hugo extracts the "photo taken" date/time into .Date by default.
+	// Set this to true to turn it off.
+	DisableDate bool
+
+	// Hugo extracts the "photo taken where" (GPS latitude and longitude) into
+	// .Long and .Lat. Set this to true to turn it off.
+	DisableLatLong bool
+}
+
+// This is what the user gets in $img.Data. We make a type so we can attach methods
+// to it.
+type imageData map[string]interface{}
 
 const (
 	defaultJPEGQuality    = 75
@@ -77,7 +116,7 @@ var (
 		".gif":  imaging.GIF,
 	}
 
-	// Add or increment if changes to an image format's processing requires
+	// Add or increment if changes to an{ image format's processing requires
 	// re-generation.
 	imageFormatsVersions = map[imaging.Format]int{
 		imaging.PNG: 2, // Floyd Steinberg dithering
@@ -119,6 +158,9 @@ var imageFilters = map[string]imaging.ResampleFilter{
 }
 
 type Image struct {
+	// What we send to the user in .Data
+	data imageData
+
 	config       image.Config
 	configInit   sync.Once
 	configLoaded bool
@@ -137,6 +179,26 @@ type Image struct {
 	*genericResource
 }
 
+func supportsExif(f imaging.Format) bool {
+	return f == imaging.JPEG || f == imaging.TIFF
+}
+
+// Exif returns the lazily loaded Exif info if available for this resource.
+// This will return nil for non-image resources, images without Exif etc.
+func (d imageData) Exif() *exif.Exif {
+	exifFunc, found := d["Exif"]
+	if !found {
+		return nil
+	}
+
+	return exifFunc.(func() *exif.Exif)()
+
+}
+
+func (i *Image) Data() interface{} {
+	return i.data
+}
+
 func (i *Image) Width() int {
 	i.initConfig()
 	return i.config.Width
@@ -153,6 +215,7 @@ func (i *Image) WithNewBase(base string) Resource {
 		imaging:         i.imaging,
 		hash:            i.hash,
 		format:          i.format,
+		data:            i.data,
 		genericResource: i.genericResource.WithNewBase(base).(*genericResource)}
 }
 
@@ -574,11 +637,70 @@ func (i *Image) clone() *Image {
 		imaging:         i.imaging,
 		hash:            i.hash,
 		format:          i.format,
+		data:            i.data,
 		genericResource: &g}
 }
 
 func (i *Image) setBasePath(conf imageConfig) {
 	i.relTargetPath = i.relTargetPathFromConfig(conf)
+}
+
+// Increment this when making incompatible changes to the struct below.
+// Incompatible would be "alost anything".
+const imageMetadataVersionNumber = 1
+
+var imageMetadataVersionNumberStr = fmt.Sprintf("%03d", imageMetadataVersionNumber)
+
+type imageMetaDataCacheEntry struct {
+	pcache.VersionedID
+	Exif *exif.Exif
+}
+
+// TODO(bep) config + part of version
+// TODO(bep) json date + rat?
+var exifMatcher = regexp.MustCompile("LensModel|FNNumber|Exposure.*|Focal.*")
+
+func (i *Image) getExif() *exif.Exif {
+	vid := i.versionedMetadataID()
+
+	create := func() (pcache.Identifier, error) {
+		r, err := i.openSourceFile()
+		if err != nil {
+			return nil, err
+		}
+		defer r.Close()
+
+		x, _ := i.spec.exifDecoder.Decode(r)
+		return &imageMetaDataCacheEntry{VersionedID: vid, Exif: x}, nil
+	}
+
+	m, err := i.spec.imageMetadataCache.GetOrCreate(vid, create)
+	if err != nil {
+		// We ignore any errors for now. Let us see how this work with
+		// real data before we start to fill the log with warnings.
+		return nil
+	}
+
+	return m.(*imageMetaDataCacheEntry).Exif
+
+}
+
+func NewImageMetadataCache(filename string) pcache.OpenCloserCache {
+	return pcache.New(filename, &imageMetaDataCacheEntry{})
+}
+func (i *Image) versionedMetadataID() pcache.VersionedID {
+	return pcache.NewVersionedID(imageMetadataVersionNumberStr, fmt.Sprintf("%s/%s_%s_%d", i.relTargetPath.dir, i.relTargetPath.file, i.hash, i.osFileInfo.Size()))
+}
+
+func (i *Image) loadMetadata() error {
+	i.data["Exif"] = func() *exif.Exif {
+		var x *exif.Exif
+		if i.spec.exifDecoder != nil && supportsExif(i.format) {
+			x = i.getExif()
+		}
+		return x
+	}
+	return nil
 }
 
 func (i *Image) relTargetPathFromConfig(conf imageConfig) dirFile {
@@ -647,6 +769,11 @@ func decodeImaging(m map[string]interface{}) (Imaging, error) {
 			return i, fmt.Errorf("%q is not a valid resample filter", filter)
 		}
 		i.ResampleFilter = filter
+	}
+
+	if strings.TrimSpace(i.Exif.IncludeFields) == "" && strings.TrimSpace(i.Exif.ExcludeFields) == "" {
+		// Don't change this for no good reason. Please don't.
+		i.Exif.ExcludeFields = "GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance"
 	}
 
 	return i, nil

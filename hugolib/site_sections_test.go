@@ -273,7 +273,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		assert.NotNil(p, fmt.Sprint(sections))
 
 		if p.Pages != nil {
-			assert.Equal(p.Pages, p.Data["Pages"])
+			assert.Equal(p.Pages, p.data["Pages"])
 		}
 		assert.NotNil(p.Parent(), fmt.Sprintf("Parent nil: %q", test.sections))
 		test.verify(p)
