@@ -11,7 +11,7 @@ logo = "/images/sponsors/linode-logo_standard_light_medium.png"
 copy = ""
 
 [[banners]]
-name = ""
-link = ""
-logo = ""
+name = "eSolia"
+link = "https://esolia.com/"
+logo = "/images/sponsors/esolia-logo.svg"
 copy = ""
