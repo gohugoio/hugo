@@ -81,8 +81,106 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 	var ivp, imvp *int64
 	var svp, smvp *string
 	var slv, slmv interface{}
-	var ima []int64
-	var sma []string
+	var iva, ima []int64
+	var sva, sma []string
+
+	if op == "contains" {
+		switch v.Kind() {
+		case reflect.String:
+			sv := v.String()
+			svp = &sv
+		case reflect.Array, reflect.Slice:
+			slv = v.Interface()
+		default:
+			return false, errors.New("non supported given field value")
+		}
+
+		if v.Len() == 0 {
+			return false, nil
+		}
+
+		if v.Type() != mv.Type() {
+			if mv.Kind() != reflect.Interface && v.Type().Elem().Kind() != reflect.Interface && v.Type().Elem() != mv.Type() && mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
+				return false, nil
+			}
+		}
+
+		switch mv.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			imv := mv.Int()
+			imvp = &imv
+			for i := 0; i < v.Len(); i++ {
+				if anInt, err := toInt(v.Index(i)); err == nil {
+					iva = append(iva, anInt)
+				}
+			}
+		case reflect.String:
+			smv := mv.String()
+			smvp = &smv
+			for i := 0; i < v.Len(); i++ {
+				if aString, err := toString(v.Index(i)); err == nil {
+					sva = append(sva, aString)
+				}
+			}
+		case reflect.Struct:
+			switch mv.Type() {
+			case timeType:
+				imv := toTimeUnix(mv)
+				imvp = &imv
+				for i := 0; i < v.Len(); i++ {
+					iva = append(iva, toTimeUnix(v.Index(i)))
+				}
+			}
+		case reflect.Array, reflect.Slice:
+			slmv = mv.Interface()
+		}
+
+		// to support timeType, if mv is slice or array,
+		// need convert child item to int
+		if slv != nil && slmv != nil {
+			if v.Type().Elem() == timeType && mv.Type().Elem() == timeType {
+				for i := 0; i < mv.Len(); i++ {
+					ima = append(ima, toTimeUnix(mv.Index(i)))
+				}
+
+				for i := 0; i < v.Len(); i++ {
+					iva = append(iva, toTimeUnix(v.Index(i)))
+				}
+			}
+		}
+
+		var r bool
+		if imvp != nil && len(iva) > 0 {
+			r = ns.In(iva, *imvp)
+		} else if smvp != nil {
+			if len(sva) > 0 {
+				r = ns.In(sva, *smvp)
+			} else if svp != nil {
+				r = ns.In(*svp, *smvp)
+			}
+		} else if slmv != nil && slv != nil {
+			// timeType support in slice or array
+			if len(iva) > 0 {
+				for i := 0; i < len(ima); i++ {
+					if r = ns.In(iva, ima[i]); !r {
+						return false, nil
+					}
+				}
+				return true, nil
+			}
+
+			for i := 0; i < mv.Len(); i++ {
+				if r = ns.In(slv, mv.Index(i).Interface()); !r {
+					return false, nil
+				}
+			}
+		} else {
+			return false, nil
+		}
+
+		return r, nil
+	}
+
 	if mv.Type() == v.Type() {
 		switch v.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
