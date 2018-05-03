@@ -1,7 +1,7 @@
 
 ---
 date: 2018-04-02
-title: "The Easter Egg Edition"
+title: "Hugo 0.38: The Easter Egg Edition"
 description: "Hugo 0.38: Date and slug from filenames, multiple content dirs, config from themes, language merge func …"
 categories: ["Releases"]
 ---

@@ -1,7 +1,7 @@
 
 ---
 date: 2018-04-23
-title: "The Revival of the Shortcodes"
+title: "Hugo 0.40: The Revival of the Shortcodes"
 description: "Hugo 0.40: Shortcodes with `.Content` (almost) always available, processed in order of appearance, several new template funcs …"
 categories: ["Releases"]
 ---
