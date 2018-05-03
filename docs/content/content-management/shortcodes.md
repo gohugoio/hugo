@@ -402,6 +402,26 @@ Using the preceding `youtube` example (without `autoplay="true"`), the following
 
 {{< youtube w7Ft2ymGmfc >}}
 
+### `cloakemail`
+
+This shortcode obfuscate the given email address thereby hiding it from simpler bots. It works with and without Javascript. The email reversed in the output and is reversed by the javascript in order to display properly.
+
+#### Example `cloakemail` Input
+
+{{< code file="cloakemail-input.md" >}}
+{{</* cloakemail "example@example.com" */>}}
+{{< /code >}}
+
+#### Example `cloakemail` Output
+
+{{< output file="cloakemail-output.html" >}}
+{{< cloakemail "example@example.com" >}}
+{{< /output >}}
+
+#### Example `cloakemail` Display
+
+{{< cloakemail "example@example.com" >}}
+
 ## Create Custom Shortcodes
 
 To learn more about creating custom shortcodes, see the [shortcode template documentation][].
