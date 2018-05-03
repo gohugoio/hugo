@@ -21,13 +21,16 @@ A Page Bundle can be one of:
 -   Leaf Bundle (leaf means it has no children)
 -   Branch Bundle (home page, section, taxonomy terms, taxonomy list)
 
-|                 | Leaf Bundle                                            | Branch Bundle                                           |
-|-----------------|--------------------------------------------------------|---------------------------------------------------------|
-| Usage           | Collection of resources (pages, images etc.) for single pages    | Collection of non-page resources (images etc.)for list pages |
-| Index file name | `index.md` [^fn:1]                                     | `_index.md` [^fn:1]                                     |
-| Layout type     | `single`                                               | `list`                                                  |
-| Nesting         | Doesn't allow nesting of more bundles under it         | Allows nesting of leaf/branch bundles under it          |
-| Example         | `content/posts/my-post/index.md`                       | `content/posts/_index.md`                               |
+|                                     | Leaf Bundle                                              | Branch Bundle                                                                                                                                                                                                      |
+|-------------------------------------+----------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Usage                               | Collection of content and attachments for single pages   | Collection of attachments for section pages (home page, section, taxonomy terms, taxonomy list)                                                                                                                    |
+| Index file name                     | `index.md` [^fn:1]                                       | `_index.md` [^fn:1]                                                                                                                                                                                                |
+| Allowed Resources                   | Page and non-page (like images, pdf, etc.) types         | Only non-page (like images, pdf, etc.) types                                                                                                                                                                       |
+| Where can the Resources live?       | At any directory level within the leaf bundle directory. | Only in the directory level **of** the branch bundle directory i.e. the directory containing the `_index.md` ([ref](https://discourse.gohugo.io/t/question-about-content-folder-structure/11822/4?u=kaushalmodi)). |
+| Layout type                         | `single`                                                 | `list`                                                                                                                                                                                                             |
+| Nesting                             | Does not allow nesting of more bundles under it          | Allows nesting of leaf or branch bundles under it                                                                                                                                                                  |
+| Example                             | `content/posts/my-post/index.md`                         | `content/posts/_index.md`                                                                                                                                                                                          |
+| Content from non-index page files .. | Accessed only as page resources                          | Accessed only as regular pages                                                                                                                                                                                     |
 
 
 ## Leaf Bundles {#leaf-bundles}
