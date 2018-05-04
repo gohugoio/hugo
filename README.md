@@ -1,14 +1,20 @@
-![Hugo](https://raw.githubusercontent.com/gohugoio/hugoDocs/master/static/img/hugo-logo.png)
+<p align="center">
+	<img src="https://raw.githubusercontent.com/gohugoio/hugoDocs/master/static/img/hugo-logo.png" alr="HUGO logo">	
+</p>
 
-A Fast and Flexible Static Site Generator built with love by [bep](https://github.com/bep), [spf13](http://spf13.com/) and [friends](https://github.com/gohugoio/hugo/graphs/contributors) in [Go][].
+<p align="center">
+	A Fast and Flexible Static Site Generator built with love by [bep](https://github.com/bep), [spf13](http://spf13.com/) 			and [friends](https://github.com/gohugoio/hugo/graphs/contributors) in [Go][].	
+</p>
 
-[Website](https://gohugo.io) |
-[Forum](https://discourse.gohugo.io) |
-[Developer Chat (no support)](https://gitter.im/gohugoio/hugo) |
-[Documentation](https://gohugo.io/overview/introduction/) |
-[Installation Guide](https://gohugo.io/overview/installing/) |
-[Contribution Guide](CONTRIBUTING.md) |
-[Twitter](http://twitter.com/gohugoio)
+<p align="center">
+	<a href="https://gohugo.io" >Website</a> |
+	<a href="https://discourse.gohugo.io" >Forum</a> |
+	<a href="https://gitter.im/gohugoio/hugo" >Developer Chat (no support)</a> |
+	<a href="https://gohugo.io/overview/introduction/" >Documentation</a> |
+	<a href="https://gohugo.io/overview/installing/" >Installation Guide</a> |
+	<a href="CONTRIBUTING.md" >Contribution Guide</a> |
+	<a href="http://twitter.com/gohugoio" >Twitter</a>
+</p>
 
 [![GoDoc](https://godoc.org/github.com/gohugoio/hugo?status.svg)](https://godoc.org/github.com/gohugoio/hugo)
 [![Linux and macOS Build Status](https://api.travis-ci.org/gohugoio/hugo.svg?branch=master&label=Linux+and+macOS+build "Linux and macOS Build Status")](https://travis-ci.org/gohugoio/hugo)
