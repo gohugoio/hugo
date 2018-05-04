@@ -365,3 +365,25 @@ map[string]interface {}{
 }`, got["menu"])
 
 }
+
+func TestPrivacyConfig(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	tomlConfig := `
+
+someOtherValue = "foo"
+
+[privacy]
+[privacy.youtube]
+noCookie = true
+`
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", tomlConfig)
+	b.Build(BuildCfg{SkipRender: true})
+
+	assert.True(b.H.Sites[0].Info.PrivacyConfig.YouTube.NoCookie)
+
+}

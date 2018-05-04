@@ -27,6 +27,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/config/privacy"
+
 	"github.com/gohugoio/hugo/resource"
 
 	"golang.org/x/sync/errgroup"
@@ -385,6 +387,12 @@ type SiteInfo struct {
 	uglyURLs              func(p *Page) bool
 	preserveTaxonomyNames bool
 	Data                  *map[string]interface{}
+
+	// This contains all privacy related settings that can be used to
+	// make the YouTube template etc.GDPR compliant.
+	// It is mostly in use by Hugo's built-in, but is also available
+	// for end users with {{ .Site.PrivacyConfig.YouTube.NoCookie }} etc.
+	PrivacyConfig privacy.Config
 
 	owner                          *HugoSites
 	s                              *Site
@@ -1028,14 +1036,13 @@ func (s *Site) Initialise() (err error) {
 }
 
 func (s *Site) initialize() (err error) {
-	defer s.initializeSiteInfo()
 	s.Menus = Menus{}
 
 	if err = s.checkDirectories(); err != nil {
 		return err
 	}
 
-	return
+	return s.initializeSiteInfo()
 }
 
 // HomeAbsURL is a convenience method giving the absolute URL to the home page.
@@ -1058,7 +1065,7 @@ func (s *SiteInfo) SitemapAbsURL() string {
 	return p
 }
 
-func (s *Site) initializeSiteInfo() {
+func (s *Site) initializeSiteInfo() error {
 	var (
 		lang      = s.Language
 		languages helpers.Languages
@@ -1113,6 +1120,11 @@ func (s *Site) initializeSiteInfo() {
 		}
 	}
 
+	privacyConfig, err := privacy.DecodeConfig(lang)
+	if err != nil {
+		return err
+	}
+
 	s.Info = SiteInfo{
 		Title:                          lang.GetString("title"),
 		Author:                         lang.GetStringMap("author"),
@@ -1139,6 +1151,7 @@ func (s *Site) initializeSiteInfo() {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		s:                              s,
+		PrivacyConfig:                  privacyConfig,
 	}
 
 	rssOutputFormat, found := s.outputFormats[KindHome].GetByName(output.RSSFormat.Name)
@@ -1146,6 +1159,8 @@ func (s *Site) initializeSiteInfo() {
 	if found {
 		s.Info.RSSLink = s.permalink(rssOutputFormat.BaseFilename())
 	}
+
+	return nil
 }
 
 func (s *Site) dataDir() string {

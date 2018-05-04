@@ -55,7 +55,7 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 		d := deps.DepsCfg{Cfg: cfg, Fs: fs}
 		s, err := NewSiteForCfg(d)
 		require.NoError(t, err)
-		s.initializeSiteInfo()
+		require.NoError(t, s.initializeSiteInfo())
 
 		if s.Info.BaseURL() != template.URL(this.expected) {
 			t.Errorf("[%d] got %s expected %s", i, s.Info.BaseURL(), this.expected)
