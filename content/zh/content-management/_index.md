@@ -15,6 +15,7 @@ weight: 01	#rem
 draft: false
 aliases: [/content/,/content/organization]
 toc: false
+isCJKLanguage: true
 ---
 
-静态网站生成器需要扩展文件头和一些模板，使得具有伸缩性和可管理性。Hugo 不仅是给开发者设计的，也同样适用于内容管理员和写作的人。
+一个实用的静态网站生成器，需要超越“文件头” (front matter) 和模板的等基本功能，才能兼备可伸缩性和可管理性，满足用户所需。Hugo 不仅是给开发者设计的，也同样适用于内容管理员和写作人员。
