@@ -1,0 +1,184 @@
+@font-face {
+	font-family: 'hugo';
+	src:url('../fonts/hugo.eot');
+	src:url('../fonts/hugo.eot?#iefix') format('embedded-opentype'),
+		url('../fonts/hugo.woff') format('woff'),
+		url('../fonts/hugo.ttf') format('truetype'),
+		url('../fonts/hugo.svg#hugo') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'hugo';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-home:before {
+	content: "\21";
+}
+.icon-html5:before {
+	content: "\23";
+}
+.icon-css3:before {
+	content: "\24";
+}
+.icon-console:before {
+	content: "\25";
+}
+.icon-link:before {
+	content: "\26";
+}
+.icon-fire:before {
+	content: "\28";
+}
+.icon-check-alt:before {
+	content: "\29";
+}
+.icon-hugo_serif:before {
+	content: "\e600";
+}
+.icon-x-altx-alt:before {
+	content: "\2a";
+}
+.icon-circlestar:before {
+	content: "\2b";
+}
+.icon-file-css:before {
+	content: "\2c";
+}
+.icon-radio-checked:before {
+	content: "\2e";
+}
+.icon-quote:before {
+	content: "\44";
+}
+.icon-airplane2:before {
+	content: "\45";
+}
+.icon-heart:before {
+	content: "\46";
+}
+.icon-rocket:before {
+	content: "\47";
+}
+.icon-house:before {
+	content: "\48";
+}
+.icon-arrow-right:before {
+	content: "\e001";
+}
+.icon-arrow-left:before {
+	content: "\e002";
+}
+.icon-flow-branch:before {
+	content: "\e004";
+}
+.icon-pen:before {
+	content: "\e005";
+}
+.icon-idea:before {
+	content: "\3b";
+}
+.icon-gears:before {
+	content: "\3c";
+}
+.icon-talking:before {
+	content: "\3d";
+}
+.icon-tag:before {
+	content: "\3e";
+}
+.icon-rocket2:before {
+	content: "\3f";
+}
+.icon-octocat:before {
+	content: "\41";
+}
+.icon-announce:before {
+	content: "\42";
+}
+.icon-edit:before {
+	content: "\43";
+}
+.icon-power-cord:before {
+	content: "\50";
+}
+.icon-apple:before {
+	content: "\51";
+}
+.icon-windows8:before {
+	content: "\52";
+}
+.icon-tux:before {
+	content: "\53";
+}
+.icon-file-xml:before {
+	content: "\54";
+}
+.icon-fork:before {
+	content: "\55";
+}
+.icon-arrow-down:before {
+	content: "\56";
+}
+.icon-pacman:before {
+	content: "\e000";
+}
+.icon-embed:before {
+	content: "\2f";
+}
+.icon-code:before {
+	content: "\30";
+}
+.icon-cc:before {
+	content: "\31";
+}
+.icon-cc-by:before {
+	content: "\32";
+}
+.icon-cc-nc:before {
+	content: "\33";
+}
+.icon-beaker-alt:before {
+	content: "\39";
+}
+.icon-w3c:before {
+	content: "\3a";
+}
+.icon-bolt:before {
+	content: "\49";
+}
+.icon-flow-tree:before {
+	content: "\4a";
+}
+.icon-twitter:before {
+	content: "\4b";
+}
+.icon-beaker:before {
+	content: "\4c";
+}
+.icon-images:before {
+	content: "\4d";
+}
+.icon-bubbles:before {
+	content: "\4e";
+}
+.icon-meter2:before {
+	content: "\4f";
+}
+.icon-hugo_sans:before {
+	content: "\68";
+}
+.icon-spf13:before {
+	content: "\27";
+}
