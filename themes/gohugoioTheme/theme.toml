@@ -8,7 +8,7 @@ description = ""
 homepage = "https://github.com/budparr/gohugo.io"
 tags = ["website"]
 features = ["", ""]
-min_version = 0.18
+min_version = 0.38
 
 [author]
   name = "Bud Parr"

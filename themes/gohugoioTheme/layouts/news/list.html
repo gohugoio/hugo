@@ -28,7 +28,8 @@
 
     {{ $interior_classes := $.Site.Params.flex_box_interior_classes }}
     <section class="flex-ns flex-wrap justify-between w-100 w-80-nsTK v-top">
-      {{ range .Paginator.Pages }}
+      {{ $paginator := .Paginate (.Pages | lang.Merge (where .Sites.First.RegularPages "Section" .Section)) -}}
+      {{ range $paginator.Pages }}
         {{ partial "boxes-section-summaries" (dict "context" . "classes" $interior_classes "fullcontent" false) }}
       {{ end }}
     </section>

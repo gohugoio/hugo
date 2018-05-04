@@ -5,9 +5,11 @@
     <div class="w-100 overflow-x-scroll">
       <div class="row nowrap mv2 pb1">
         {{ $showcasePages := where .Site.RegularPages "Section" "showcase" }}
+        {{ if $showcasePages }}
         {{ template "home_showcase_item" (index $showcasePages 0) }}
         {{ range $p := first 10 ($showcasePages | after 1 | shuffle) }}
           {{template "home_showcase_item" $p }}
+        {{end}}
         {{end}}
       </div>
     </div>
