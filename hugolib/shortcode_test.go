@@ -249,7 +249,6 @@ This is **plain** text.
 
 func TestEmbeddedSC(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, "{{% test %}}", "This is a simple Test", nil)
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", nil)
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", nil)
 }

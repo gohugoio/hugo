@@ -20,6 +20,8 @@ import (
 	"strings"
 	texttemplate "text/template"
 
+	"github.com/gohugoio/hugo/tpl/tplimpl/embedded"
+
 	"github.com/eknkc/amber"
 
 	"os"
@@ -682,23 +684,18 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 
 		return t.AddTemplate(name, templ)
 	}
-
 }
 
 func (t *templateHandler) loadEmbedded() {
-	t.embedShortcodes()
-	t.embedTemplates()
-}
-
-func (t *templateHandler) addInternalTemplate(prefix, name, tpl string) error {
-	if prefix != "" {
-		return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
+	for _, kv := range embedded.EmbeddedTemplates {
+		// TODO(bep) error handling
+		t.addInternalTemplate(kv[0], kv[1])
 	}
-	return t.AddTemplate("_internal/"+name, tpl)
+
 }
 
-func (t *templateHandler) addInternalShortcode(name, content string) error {
-	return t.addInternalTemplate("shortcodes", name, content)
+func (t *templateHandler) addInternalTemplate(name, tpl string) error {
+	return t.AddTemplate("_internal/"+name, tpl)
 }
 
 func (t *templateHandler) checkState() {

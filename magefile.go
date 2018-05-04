@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -65,6 +66,10 @@ func flagEnv() map[string]string {
 		"COMMIT_HASH": hash,
 		"BUILD_DATE":  time.Now().Format("2006-01-02T15:04:05Z0700"),
 	}
+}
+
+func Generate() error {
+	return sh.RunWith(flagEnv(), goexe, "generate", path.Join(packageName, "tpl/tplimpl/embedded/generate"))
 }
 
 // Build hugo without git info
