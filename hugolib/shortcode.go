@@ -314,7 +314,8 @@ func renderShortcode(
 
 		if sc.doMarkup {
 			newInner := p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
-				Content: []byte(inner), PageFmt: p.determineMarkupType(),
+				Content:      []byte(inner),
+				PageFmt:      p.Markup,
 				Cfg:          p.Language(),
 				DocumentID:   p.UniqueID(),
 				DocumentName: p.Path(),
@@ -333,7 +334,7 @@ func renderShortcode(
 			//     substitutions in <div>HUGOSHORTCODE-1</div> which prevents the
 			//     generation, but means that you can’t use shortcodes inside of
 			//     markdown structures itself (e.g., `[foo]({{% ref foo.md %}})`).
-			switch p.determineMarkupType() {
+			switch p.Markup {
 			case "unknown", "markdown":
 				if match, _ := regexp.MatchString(innerNewlineRegexp, inner); !match {
 					cleaner, err := regexp.Compile(innerCleanupRegexp)
