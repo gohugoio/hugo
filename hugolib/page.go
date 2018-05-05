@@ -728,8 +728,7 @@ func replaceDivider(content, from, to []byte) ([]byte, bool) {
 // rendering engines.
 func (p *Page) replaceDivider(content []byte) []byte {
 	summaryDivider := helpers.SummaryDivider
-	// TODO(bep) handle better.
-	if p.Ext() == "org" || p.Markup == "org" {
+	if p.Markup == "org" {
 		summaryDivider = []byte("# more")
 	}
 
@@ -863,7 +862,7 @@ func (p *Page) setAutoSummary() error {
 
 func (p *Page) renderContent(content []byte) []byte {
 	return p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
-		Content: content, RenderTOC: true, PageFmt: p.determineMarkupType(),
+		Content: content, RenderTOC: true, PageFmt: p.Markup,
 		Cfg:        p.Language(),
 		DocumentID: p.UniqueID(), DocumentName: p.Path(),
 		Config: p.getRenderingConfig()})
@@ -1486,6 +1485,13 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		}
 	}
 
+	// Try markup explicitly set in the frontmatter
+	p.Markup = helpers.GuessType(p.Markup)
+	if p.Markup == "unknown" {
+		// Fall back to file extension (might also return "unknown")
+		p.Markup = helpers.GuessType(p.Source.Ext())
+	}
+
 	if draft != nil && published != nil {
 		p.Draft = *draft
 		p.s.Log.ERROR.Printf("page %s has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
@@ -1723,17 +1729,6 @@ func (p *Page) Menus() PageMenus {
 func (p *Page) shouldRenderTo(f output.Format) bool {
 	_, found := p.outputFormats.GetByName(f.Name)
 	return found
-}
-
-func (p *Page) determineMarkupType() string {
-	// Try markup explicitly set in the frontmatter
-	p.Markup = helpers.GuessType(p.Markup)
-	if p.Markup == "unknown" {
-		// Fall back to file extension (might also return "unknown")
-		p.Markup = helpers.GuessType(p.Source.Ext())
-	}
-
-	return p.Markup
 }
 
 func (p *Page) parse(reader io.Reader) error {
