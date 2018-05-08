@@ -183,7 +183,7 @@ This list template has been modified slightly from a template originally used in
 
 ### Taxonomy Template
 
-{{< code file="layouts/_default/taxonomies.html" download="taxonomies.html" >}}
+{{< code file="layouts/_default/taxonomy.html" download="taxonomy.html" >}}
 {{ define "main" }}
 <main>
   <div>
