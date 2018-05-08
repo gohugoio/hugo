@@ -559,14 +559,22 @@ func (h *HugoSites) setupTranslations() {
 	}
 }
 
-func (s *Site) preparePagesForRender(start bool) {
+func (s *Site) preparePagesForRender(start bool) error {
 	for _, p := range s.Pages {
 		p.setContentInit(start)
+		if err := p.initMainOutputFormat(); err != nil {
+			return err
+		}
 	}
 
 	for _, p := range s.headlessPages {
 		p.setContentInit(start)
+		if err := p.initMainOutputFormat(); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
 // Pages returns all pages for all sites.

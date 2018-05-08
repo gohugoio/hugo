@@ -73,7 +73,7 @@ func headlessPagesPublisher(s *Site, wg *sync.WaitGroup) {
 			// Avoid double work.
 			continue
 		}
-		pageOutput, err := newPageOutput(page, false, outFormat)
+		pageOutput, err := newPageOutput(page, false, false, outFormat)
 		if err == nil {
 			page.mainPageOutput = pageOutput
 			err = pageOutput.renderResources()
@@ -92,28 +92,29 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 
 		for i, outFormat := range page.outputFormats {
 
+			if outFormat != page.s.rc.Format {
+				// Will be rendered  ... later.
+				continue
+			}
+
 			var (
 				pageOutput *PageOutput
 				err        error
 			)
 
 			if i == 0 {
-				pageOutput, err = newPageOutput(page, false, outFormat)
-				page.mainPageOutput = pageOutput
-			}
-
-			if outFormat != page.s.rc.Format {
-				// Will be rendered  ... later.
-				continue
-			}
-
-			if pageOutput == nil {
-				pageOutput, err = page.mainPageOutput.copyWithFormat(outFormat)
+				pageOutput = page.mainPageOutput
+			} else {
+				pageOutput, err = page.mainPageOutput.copyWithFormat(outFormat, true)
 			}
 
 			if err != nil {
 				s.Log.ERROR.Printf("Failed to create output page for type %q for page %q: %s", outFormat.Name, page, err)
 				continue
+			}
+
+			if pageOutput == nil {
+				panic("no pageOutput")
 			}
 
 			// We only need to re-publish the resources if the output format is different
@@ -291,7 +292,7 @@ func (s *Site) render404() error {
 	htmlOut := output.HTMLFormat
 	htmlOut.BaseName = "404"
 
-	pageOutput, err := newPageOutput(p, false, htmlOut)
+	pageOutput, err := newPageOutput(p, false, false, htmlOut)
 	if err != nil {
 		return err
 	}
@@ -373,7 +374,7 @@ func (s *Site) renderRobotsTXT() error {
 
 	rLayouts := []string{"robots.txt", "_default/robots.txt", "_internal/_default/robots.txt"}
 
-	pageOutput, err := newPageOutput(p, false, output.RobotsTxtFormat)
+	pageOutput, err := newPageOutput(p, false, false, output.RobotsTxtFormat)
 	if err != nil {
 		return err
 	}

@@ -734,6 +734,119 @@ func TestChangeDefaultLanguage(t *testing.T) {
 	b.AssertFileContent("public/sect/doc2/index.html", "Single", "Hello")
 }
 
+// https://github.com/gohugoio/hugo/issues/4706
+func TestContentStressTest(t *testing.T) {
+	b := newTestSitesBuilder(t)
+
+	numPages := 500
+
+	contentTempl := `
+---
+%s
+title: %q
+weight: %d
+multioutput: %t
+---
+
+# Header
+
+CONTENT
+
+The End.
+`
+
+	contentTempl = strings.Replace(contentTempl, "CONTENT", strings.Repeat(`
+	
+## Another header
+
+Some text. Some more text.
+
+`, 100), -1)
+
+	var content []string
+	defaultOutputs := `outputs: ["html", "json", "rss" ]`
+
+	for i := 1; i <= numPages; i++ {
+		outputs := defaultOutputs
+		multioutput := true
+		if i%3 == 0 {
+			outputs = `outputs: ["json"]`
+			multioutput = false
+		}
+		section := "s1"
+		if i%10 == 0 {
+			section = "s2"
+		}
+		content = append(content, []string{fmt.Sprintf("%s/page%d.md", section, i), fmt.Sprintf(contentTempl, outputs, fmt.Sprintf("Title %d", i), i, multioutput)}...)
+	}
+
+	content = append(content, []string{"_index.md", fmt.Sprintf(contentTempl, defaultOutputs, fmt.Sprintf("Home %d", 0), 0, true)}...)
+	content = append(content, []string{"s1/_index.md", fmt.Sprintf(contentTempl, defaultOutputs, fmt.Sprintf("S %d", 1), 1, true)}...)
+	content = append(content, []string{"s2/_index.md", fmt.Sprintf(contentTempl, defaultOutputs, fmt.Sprintf("S %d", 2), 2, true)}...)
+
+	b.WithSimpleConfigFile()
+	b.WithTemplates("layouts/_default/single.html", `Single: {{ .Content }}`)
+	b.WithTemplates("layouts/_default/myview.html", `View: {{ len .Content }}`)
+	b.WithTemplates("layouts/_default/single.json", `Single JSON: {{ .Content }}`)
+	b.WithTemplates("layouts/_default/list.html", `
+Page: {{ .Paginator.PageNumber }}
+P: {{ path.Join .Path }}
+List: {{ len .Paginator.Pages }}|List Content: {{ len .Content }}
+{{ $shuffled :=  where .Site.RegularPages "Params.multioutput" true | shuffle }}
+{{ $first5 := $shuffled | first 5 }}
+L1: {{ len .Site.RegularPages }} L2: {{ len $first5 }}
+{{ range $i, $e := $first5 }}
+Render {{ $i }}: {{ .Render "myview" }}
+{{ end }}
+END
+`)
+
+	b.WithContent(content...)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	contentMatchers := []string{"<h2 id=\"another-header\">Another header</h2>", "<h2 id=\"another-header-99\">Another header</h2>", "<p>The End.</p>"}
+
+	for i := 1; i <= numPages; i++ {
+		if i%3 != 0 {
+			section := "s1"
+			if i%10 == 0 {
+				section = "s2"
+			}
+			checkContent(b, fmt.Sprintf("public/%s/page%d/index.html", section, i), 8343, contentMatchers...)
+		}
+	}
+
+	for i := 1; i <= numPages; i++ {
+		section := "s1"
+		if i%10 == 0 {
+			section = "s2"
+		}
+		checkContent(b, fmt.Sprintf("public/%s/page%d/index.json", section, i), 8348, contentMatchers...)
+	}
+
+	checkContent(b, "public/s1/index.html", 184, "P: s1/_index.md\nList: 10|List Content: 8335\n\n\nL1: 500 L2: 5\n\nRender 0: View: 8335\n\nRender 1: View: 8335\n\nRender 2: View: 8335\n\nRender 3: View: 8335\n\nRender 4: View: 8335\n\nEND\n")
+	checkContent(b, "public/s2/index.html", 184, "P: s2/_index.md\nList: 10|List Content: 8335", "Render 4: View: 8335\n\nEND")
+	checkContent(b, "public/index.html", 181, "P: _index.md\nList: 10|List Content: 8335", "4: View: 8335\n\nEND")
+
+	// Chek paginated pages
+	for i := 2; i <= 9; i++ {
+		checkContent(b, fmt.Sprintf("public/page/%d/index.html", i), 181, fmt.Sprintf("Page: %d", i), "Content: 8335\n\n\nL1: 500 L2: 5\n\nRender 0: View: 8335", "Render 4: View: 8335\n\nEND")
+	}
+}
+
+func checkContent(s *sitesBuilder, filename string, length int, matches ...string) {
+	content := readDestination(s.T, s.Fs, filename)
+	for _, match := range matches {
+		if !strings.Contains(content, match) {
+			s.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
+		}
+	}
+	if len(content) != length {
+		s.Fatalf("got %d expected %d", len(content), length)
+	}
+}
+
 func TestTableOfContentsInShortcodes(t *testing.T) {
 	t.Parallel()
 

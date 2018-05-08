@@ -39,6 +39,8 @@ type sitesBuilder struct {
 	Fs  *hugofs.Fs
 	T   testing.TB
 
+	logger *jww.Notepad
+
 	dumper litter.Options
 
 	// Aka the Hugo server mode.
@@ -85,6 +87,11 @@ func newTestSitesBuilder(t testing.TB) *sitesBuilder {
 
 func (s *sitesBuilder) Running() *sitesBuilder {
 	s.running = true
+	return s
+}
+
+func (s *sitesBuilder) WithLogger(logger *jww.Notepad) *sitesBuilder {
+	s.logger = logger
 	return s
 }
 
@@ -282,7 +289,7 @@ func (s *sitesBuilder) CreateSites() *sitesBuilder {
 		s.Cfg = cfg
 	}
 
-	sites, err := NewHugoSites(deps.DepsCfg{Fs: s.Fs, Cfg: s.Cfg, Running: s.running})
+	sites, err := NewHugoSites(deps.DepsCfg{Fs: s.Fs, Cfg: s.Cfg, Logger: s.logger, Running: s.running})
 	if err != nil {
 		s.Fatalf("Failed to create sites: %s", err)
 	}
