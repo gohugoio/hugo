@@ -416,7 +416,6 @@ type pageInit struct {
 	languageInit        sync.Once
 	pageMenusInit       sync.Once
 	pageMetaInit        sync.Once
-	pageOutputInit      sync.Once
 	renderingConfigInit sync.Once
 	withoutContentInit  sync.Once
 }
@@ -1176,6 +1175,24 @@ func (p *Page) Params() map[string]interface{} {
 
 func (p *Page) subResourceTargetPathFactory(base string) string {
 	return path.Join(p.relTargetPathBase, base)
+}
+
+func (p *Page) initMainOutputFormat() error {
+	if p.mainPageOutput != nil {
+		return nil
+	}
+
+	outFormat := p.outputFormats[0]
+	pageOutput, err := newPageOutput(p, false, false, outFormat)
+
+	if err != nil {
+		return fmt.Errorf("Failed to create output page for type %q for page %q: %s", outFormat.Name, p.pathOrTitle(), err)
+	}
+
+	p.mainPageOutput = pageOutput
+
+	return nil
+
 }
 
 func (p *Page) setContentInit(start bool) error {
@@ -1962,12 +1979,17 @@ func (p *Page) updatePageDates() {
 
 // copy creates a copy of this page with the lazy sync.Once vars reset
 // so they will be evaluated again, for word count calculations etc.
-func (p *Page) copy() *Page {
+func (p *Page) copy(initContent bool) *Page {
 	p.contentInitMu.Lock()
 	c := *p
 	p.contentInitMu.Unlock()
 	c.pageInit = &pageInit{}
-	c.pageContentInit = &pageContentInit{}
+	if initContent {
+		if len(p.outputFormats) < 2 {
+			panic(fmt.Sprintf("programming error: page %q should not need to rebuild content as it has only %d outputs", p.Path(), len(p.outputFormats)))
+		}
+		c.pageContentInit = &pageContentInit{}
+	}
 	return &c
 }
 

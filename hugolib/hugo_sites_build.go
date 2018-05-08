@@ -234,7 +234,9 @@ func (h *HugoSites) render(config *BuildCfg) error {
 
 				isRenderingSite := s == s2
 
-				s2.preparePagesForRender(isRenderingSite && i == 0)
+				if err := s2.preparePagesForRender(isRenderingSite && i == 0); err != nil {
+					return err
+				}
 
 			}
 
