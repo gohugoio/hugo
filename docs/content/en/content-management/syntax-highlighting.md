@@ -72,7 +72,7 @@ pygmentsCodefences
 : Set to true to enable syntax highlighting in code fences with a language tag in markdown (see below for an example).
 
 pygmentsStyle
-: The style of code highlighting. See https://help.farbox.com/pygments.html for a gallery. Note that this option is not relevant when `pygmentsUseClasses` is set.
+: The style of code highlighting. See https://xyproto.github.io/splash/docs/index.html for a gallery. Note that this option is not relevant when `pygmentsUseClasses` is set.
 
 pygmentsUseClasses
 : Set to `true` to use CSS classes to format your highlighted code. See [Generate Syntax Highlighter CSS](#generate-syntax-highlighter-css).
