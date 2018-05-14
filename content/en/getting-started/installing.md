@@ -452,7 +452,7 @@ Hugo-as-a-snap can write only inside the user’s `$HOME` directory---and gvfs-m
 You can also install Hugo from the Arch Linux [community](https://www.archlinux.org/packages/community/x86_64/hugo/) repository. Applies also for derivatives such as Manjaro.
 
 ```
-sudo pacman -Sy hugo
+sudo pacman -Syu hugo
 ```
 
 ### Fedora
