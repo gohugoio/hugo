@@ -14,6 +14,8 @@
 package pcache
 
 import (
+	"strings"
+
 	"github.com/mitchellh/mapstructure"
 
 	"bytes"
@@ -122,28 +124,53 @@ func (m *cacheEntries) UnmarshalJSON(value []byte) error {
 }
 
 func (c *cacheEntries) toMap() *cacheEntriesMap {
-	m := &cacheEntriesMap{Version: c.Version, Entries: make(map[string]Identifier), elemType: c.elemType}
+	m := &cacheEntriesMap{Version: c.Version, Entries: make(map[string]*flaggedIdentifier), elemType: c.elemType}
 	for _, e := range c.Entries {
 		eid := e.(Identifier)
-		m.Entries[eid._ID()] = eid
+		m.Entries[eid._ID()] = newFlaggedIdentifier(eid, false)
 	}
 	return m
+}
 
+// We use this to track cache entries no longer in use.
+type flaggedIdentifier struct {
+	Identifier
+
+	// Set if this item is used between Open and Close.
+	IsTouched bool
+
+	// Set for newly created items.
+	IsNew bool
+}
+
+func newFlaggedIdentifier(id Identifier, isNew bool) *flaggedIdentifier {
+	return &flaggedIdentifier{Identifier: id, IsTouched: isNew, IsNew: isNew}
 }
 
 // This is the variant used for lookups.
 type cacheEntriesMap struct {
 	elemType reflect.Type
 	Version  string
-	Entries  map[string]Identifier
+	Entries  map[string]*flaggedIdentifier
 }
 
-func (c *cacheEntriesMap) toSortedEntries() *cacheEntries {
-	ce := &cacheEntries{Version: c.Version, Entries: make([]Identifier, len(c.Entries)), elemType: c.elemType}
-	i := 0
+// isStale returns whether this map has changed since open; changed, added or removed
+// entries.
+func (c *cacheEntriesMap) isStale() bool {
 	for _, v := range c.Entries {
-		ce.Entries[i] = v
-		i++
+		if !v.IsTouched || v.IsNew {
+			return true
+		}
+	}
+	return false
+}
+
+func (c *cacheEntriesMap) getActiveEntriesSorted() *cacheEntries {
+	ce := &cacheEntries{Version: c.Version, Entries: make([]Identifier, 0), elemType: c.elemType}
+	for _, v := range c.Entries {
+		if v.IsTouched {
+			ce.Entries = append(ce.Entries, v.Identifier)
+		}
 	}
 
 	sort.Slice(ce.Entries, func(i, j int) bool {
@@ -151,6 +178,16 @@ func (c *cacheEntriesMap) toSortedEntries() *cacheEntries {
 	})
 
 	return ce
+}
+
+// Note that the caller must lock.
+func (c *cacheEntriesMap) getItem(ID string) (Identifier, bool) {
+	item, found := c.Entries[ID]
+	if !found {
+		return nil, false
+	}
+	item.IsTouched = true
+	return item.Identifier, true
 }
 
 // VersionedID identifies an entity in the cache.
@@ -183,9 +220,6 @@ type persistentCache struct {
 
 	typeHandlers typeConverters
 
-	// Flag set on any changes to this cache.
-	stale bool
-
 	openInit sync.Once
 	openErr  error
 	open     bool
@@ -203,7 +237,7 @@ func (c *persistentCache) newCacheEntries() *cacheEntries {
 }
 
 func (c *persistentCache) newCacheEntriesMap() *cacheEntriesMap {
-	return &cacheEntriesMap{elemType: c.elemType, Entries: make(map[string]Identifier)}
+	return &cacheEntriesMap{elemType: c.elemType, Entries: make(map[string]*flaggedIdentifier)}
 }
 
 func (c *persistentCache) Open() error {
@@ -248,11 +282,17 @@ func (c *persistentCache) unmarshal(b []byte, ce *cacheEntries) {
 	c.openErr = json.Unmarshal(b, ce)
 }
 
+var prettyJSONReplacer = strings.NewReplacer(
+	`"Entries":[`, "\"Entries\":[\n",
+	"},", "},\n",
+	"}]}", "}\n]}",
+)
+
 func (c *persistentCache) Close() error {
 	c.Lock()
 	defer c.Unlock()
 
-	if !c.open || !c.stale {
+	if !c.open || !c.data.isStale() {
 		return nil
 	}
 
@@ -275,12 +315,14 @@ func (c *persistentCache) Close() error {
 	}
 	defer f.Close()
 
-	b, err := json.MarshalIndent(c.data.toSortedEntries(), "", "  ")
+	b, err := json.Marshal(c.data.getActiveEntriesSorted())
 	if err != nil {
 		return err
 	}
 
-	_, err = f.Write(b)
+	s := prettyJSONReplacer.Replace(string(b))
+
+	_, err = f.WriteString(s)
 
 	return err
 }
@@ -300,21 +342,22 @@ func (c *persistentCache) GetOrCreate(ID VersionedID, create func() (Identifier,
 
 		c.Lock()
 		defer c.Unlock()
-		c.stale = true
 		c.data.Version = ID.Version
-		c.data.Entries = make(map[string]Identifier)
+		c.data.Entries = make(map[string]*flaggedIdentifier)
 		v, err := create()
 		if err != nil {
 			return nil, err
 		}
 
-		c.data.Entries[ID.ID] = v
+		fi := newFlaggedIdentifier(v, true)
+		fi.IsTouched = true
+		c.data.Entries[ID.ID] = fi
 
 		return v, nil
 
 	}
 
-	v, found := c.data.Entries[ID.ID]
+	v, found := c.data.getItem(ID.ID)
 	c.RUnlock()
 
 	if found {
@@ -323,20 +366,20 @@ func (c *persistentCache) GetOrCreate(ID VersionedID, create func() (Identifier,
 
 	c.Lock()
 	defer c.Unlock()
-	if v, found = c.data.Entries[ID.ID]; found {
+	if v, found = c.data.getItem(ID.ID); found {
 		return v, nil
 	}
 
-	var err error
-	v, err = create()
+	vc, err := create()
 	if err != nil {
 		return nil, err
 	}
 
-	c.stale = true
-	c.data.Entries[ID.ID] = v
+	fi := newFlaggedIdentifier(vc, true)
+	fi.IsTouched = true
+	c.data.Entries[ID.ID] = fi
 
-	return v, nil
+	return fi.Identifier, nil
 }
 
 type noCache struct {
