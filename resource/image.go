@@ -652,12 +652,13 @@ const imageMetadataVersionNumber = 1
 var imageMetadataVersionNumberStr = fmt.Sprintf("%03d", imageMetadataVersionNumber)
 
 type imageMetaDataCacheEntry struct {
-	pcache.VersionedID
-	Exif *exif.Exif
+	pcache.VersionedID `mapstructure:",squash"`
+	Exif               *exif.Exif
 }
 
 // TODO(bep) config + part of version
 // TODO(bep) json date + rat?
+// TODO(bep) test vs the the VersionID
 var exifMatcher = regexp.MustCompile("LensModel|FNNumber|Exposure.*|Focal.*")
 
 func (i *Image) getExif() *exif.Exif {

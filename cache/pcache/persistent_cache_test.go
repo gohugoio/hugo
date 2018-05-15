@@ -15,9 +15,11 @@ package pcache
 
 import (
 	"io/ioutil"
+	"math/big"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -30,15 +32,38 @@ func TestPersistentCache(t *testing.T) {
 	cache, _ := createCache(t)
 
 	vID := NewVersionedID("1", "ABC")
+	vID2 := NewVersionedID("1", "ABCD")
 
 	created := false
+	created2 := false
+
+	timestamp, _ := time.Parse(time.RFC3339, "2018-01-02T15:04:05Z07:00")
 	create := func() (Identifier, error) {
 		top := &testObject{
 			VersionedID: vID,
-			Data:        "hi",
+			MyString:    "hi",
+			MyRat:       big.NewRat(1, 100),
+			MyInt64:     int64(64),
+			MyFloat64:   float64(3.14159264),
+			MyDate:      timestamp,
 		}
 
 		created = true
+
+		return top, nil
+	}
+
+	create2 := func() (Identifier, error) {
+		top := &testObject{
+			VersionedID: vID2,
+			MyString:    "hi",
+			MyRat:       big.NewRat(1, 100),
+			MyInt64:     int64(64),
+			MyFloat64:   float64(3.14159264),
+			MyDate:      timestamp,
+		}
+
+		created2 = true
 
 		return top, nil
 	}
@@ -56,6 +81,12 @@ func TestPersistentCache(t *testing.T) {
 	assert.Equal(to1, to2)
 	assert.False(created)
 
+	to4, err := cache.GetOrCreate(vID2, create2)
+	assert.NoError(err)
+	assert.True(created2)
+	to4v := to4.(*testObject)
+	assert.Equal("ABCD", to4v.ID)
+
 	assert.NoError(cache.Close())
 
 	cache2, cleanup := createCacheFrom(t, cache)
@@ -65,6 +96,14 @@ func TestPersistentCache(t *testing.T) {
 	assert.NoError(err)
 	assert.False(created)
 	assert.Equal(to1, to3)
+
+	created2 = false
+	to4, err = cache2.GetOrCreate(vID2, create2)
+	assert.NoError(err)
+	assert.False(created2)
+	to4v = to4.(*testObject)
+	assert.Equal("ABCD", to4v._ID())
+
 }
 
 func createCacheFrom(t *testing.T, from *persistentCache) (*persistentCache, func()) {
@@ -80,6 +119,19 @@ func createCacheFrom(t *testing.T, from *persistentCache) (*persistentCache, fun
 		}
 		os.RemoveAll(filepath.Dir(from.filename))
 	}
+}
+
+type testObject struct {
+	VersionedID `mapstructure:",squash"`
+	MyString    string
+	MyRat       *big.Rat
+	MyInt64     int64
+	MyFloat64   float64
+	MyDate      time.Time
+}
+
+func (t *testObject) String() string {
+	return t.VersionedID.ID
 }
 
 func createCache(t *testing.T) (*persistentCache, func()) {

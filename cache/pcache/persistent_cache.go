@@ -14,6 +14,9 @@
 package pcache
 
 import (
+	"github.com/mitchellh/mapstructure"
+
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"os"
@@ -54,11 +57,6 @@ type cacheEntriesJSON struct {
 	Entries json.RawMessage
 }
 
-type testObject struct {
-	VersionedID
-	Data string
-}
-
 func (m *cacheEntries) UnmarshalJSON(value []byte) error {
 
 	mj := m.toCacheEntriesJSON()
@@ -67,22 +65,57 @@ func (m *cacheEntries) UnmarshalJSON(value []byte) error {
 		return err
 	}
 
-	slice := reflect.MakeSlice(reflect.SliceOf(m.elemType), 0, 0)
-	entries := reflect.New(slice.Type())
-	entries.Elem().Set(slice)
+	dec := json.NewDecoder(bytes.NewReader(mj.Entries))
+	dec.UseNumber()
 
-	if err := json.Unmarshal(mj.Entries, entries.Interface()); err != nil {
+	// We need to massage this later, and this is the best we can do with
+	// Go's JSON package.
+	var ms []map[string]interface{}
+
+	if err := dec.Decode(&ms); err != nil {
 		return err
+	}
+
+	slice := reflect.MakeSlice(reflect.SliceOf(m.elemType), 0, 0)
+
+	for _, msm := range ms {
+
+		n := reflect.New(m.elemType.Elem())
+		result := n.Interface()
+
+		hook := func(t1, t2 reflect.Type, v interface{}) (interface{}, error) {
+			// TODO(bep) defaultTypeConverters => struct
+			vv, _, err := defaultTypeConverters.ConvertTypes(v, t1, t2)
+
+			return vv, err
+
+		}
+
+		mdec, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+			DecodeHook:       hook,
+			Metadata:         nil,
+			Result:           result,
+			WeaklyTypedInput: true,
+		})
+		if err != nil {
+			return err
+		}
+
+		if err := mdec.Decode(msm); err != nil {
+			return err
+		}
+
+		slice = reflect.Append(slice, reflect.ValueOf(result))
+
 	}
 
 	m.Version = mj.Version
 
-	elem := entries.Elem()
-
-	m.Entries = make([]Identifier, elem.Len())
-	for i := 0; i < elem.Len(); i++ {
-		e := elem.Index(i).Interface()
-		m.Entries[i] = e.(Identifier)
+	m.Entries = make([]Identifier, slice.Len())
+	for i := 0; i < slice.Len(); i++ {
+		e := slice.Index(i).Interface()
+		id := e.(Identifier)
+		m.Entries[i] = id
 	}
 
 	return nil
@@ -148,6 +181,8 @@ type persistentCache struct {
 	elemType reflect.Type
 	data     *cacheEntriesMap
 
+	typeHandlers typeConverters
+
 	// Flag set on any changes to this cache.
 	stale bool
 
@@ -160,7 +195,7 @@ type persistentCache struct {
 }
 
 func New(filename string, entity interface{}) OpenCloserCache {
-	return &persistentCache{filename: filename, elemType: reflect.TypeOf(entity)}
+	return &persistentCache{filename: filename, elemType: reflect.TypeOf(entity), typeHandlers: defaultTypeConverters}
 }
 
 func (c *persistentCache) newCacheEntries() *cacheEntries {
