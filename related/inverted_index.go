@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bep/mapstructure"
 	"github.com/gohugoio/hugo/common/types"
-	"github.com/mitchellh/mapstructure"
 )
 
 var (

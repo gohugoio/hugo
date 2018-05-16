@@ -29,7 +29,7 @@ import (
 
 	"github.com/gohugoio/hugo/cache/pcache"
 
-	"github.com/mitchellh/mapstructure"
+	"github.com/bep/mapstructure"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"

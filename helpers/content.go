@@ -25,11 +25,11 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/bep/mapstructure"
 	"github.com/chaseadamsio/goorgeous"
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
 	"github.com/miekg/mmark"
-	"github.com/mitchellh/mapstructure"
 	"github.com/russross/blackfriday"
 	jww "github.com/spf13/jwalterweatherman"
 

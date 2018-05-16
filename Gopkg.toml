@@ -65,8 +65,8 @@
   version = "^1.3.6"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/mitchellh/mapstructure"
+  branch = "named-hook"
+  name = "github.com/bep/mapstructure"
 
 [[constraint]]
   name = "github.com/nicksnyder/go-i18n"

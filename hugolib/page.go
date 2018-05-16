@@ -29,9 +29,9 @@ import (
 	"github.com/gohugoio/hugo/hugolib/pagemeta"
 	"github.com/gohugoio/hugo/resource"
 
+	"github.com/bep/mapstructure"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/parser"
-	"github.com/mitchellh/mapstructure"
 
 	"html/template"
 	"io"

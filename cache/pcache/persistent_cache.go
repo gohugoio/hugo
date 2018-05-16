@@ -17,7 +17,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mitchellh/mapstructure"
+	"github.com/bep/mapstructure"
 
 	"bytes"
 	"encoding/json"

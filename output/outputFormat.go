@@ -21,7 +21,7 @@ import (
 
 	"reflect"
 
-	"github.com/mitchellh/mapstructure"
+	"github.com/bep/mapstructure"
 
 	"github.com/gohugoio/hugo/media"
 )
