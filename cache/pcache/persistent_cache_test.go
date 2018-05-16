@@ -29,7 +29,7 @@ func TestPersistentCache(t *testing.T) {
 
 	assert := require.New(t)
 
-	cache, _ := createCache(t, true)
+	cache, _ := createCache(t, &testObject{})
 
 	create1, state1 := createTestObjectCreate("1", "ABC", true)
 	create2, state2 := createTestObjectCreate("1", "CDE", true)
@@ -55,7 +55,7 @@ func TestPersistentCache(t *testing.T) {
 
 	assert.NoError(cache.Close())
 
-	cache2, cleanup := createCacheFrom(t, cache, true)
+	cache2, cleanup := createCacheFrom(t, cache, &testObject{})
 	defer cleanup()
 
 	state1.created = false
@@ -76,7 +76,7 @@ func TestPersistentCacheValueType(t *testing.T) {
 	t.Parallel()
 	assert := require.New(t)
 
-	cache, _ := createCache(t, false)
+	cache, _ := createCache(t, testObject{})
 
 	create1, state1 := createTestObjectCreate("1", "ABC", false)
 
@@ -89,7 +89,7 @@ func TestPersistentCacheValueType(t *testing.T) {
 
 	assert.NoError(cache.Close())
 
-	cache2, cleanup := createCacheFrom(t, cache, false)
+	cache2, cleanup := createCacheFrom(t, cache, testObject{})
 	defer cleanup()
 
 	state1.created = false
@@ -99,26 +99,41 @@ func TestPersistentCacheValueType(t *testing.T) {
 	assert.False(state1.created)
 }
 
-func createCacheFrom(t *testing.T, from *persistentCache, pointer bool) (*persistentCache, func()) {
-	var entity interface{}
-	if pointer {
-		entity = &testObject{}
-	} else {
-		entity = testObject{}
+func TestPersistentCacheMapEntry(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	cache, _ := createCache(t, &testMapObject{})
+
+	vID := NewVersionedID("1", "32")
+
+	created := false
+	create := func() (Identifier, error) {
+		entity := &testMapObject{ID: "32", Data: make(map[string]interface{})}
+		entity.Data["myRat"] = big.NewRat(1, 300)
+		created = true
+		return entity, nil
+
 	}
 
-	c := New(from.filename, entity)
-	err := c.Open()
-	if err != nil {
-		t.Fatal(err)
-	}
+	v1, err := cache.GetOrCreate(vID, create)
+	assert.NoError(err)
+	v1v := v1.(*testMapObject)
+	assert.Equal(big.NewRat(1, 300), v1v.Data["myRat"])
+	assert.True(created)
 
-	return c.(*persistentCache), func() {
-		if err := c.Close(); err != nil {
-			t.Fatal(err)
-		}
-		os.RemoveAll(filepath.Dir(from.filename))
-	}
+	assert.NoError(cache.Close())
+
+	cache2, cleanup := createCacheFrom(t, cache, &testMapObject{})
+	defer cleanup()
+
+	created = false
+	v12, err := cache2.GetOrCreate(vID, create)
+	assert.NoError(err)
+	v12v := v12.(*testMapObject)
+	assert.Equal(big.NewRat(1, 300), v12v.Data["myRat"])
+	assert.False(created)
 }
 
 func createTestObjectCreate(version, ID string, pointer bool) (func() (Identifier, error), *cacheTestsState) {
@@ -163,21 +178,19 @@ type testObject struct {
 	MyDate    time.Time
 }
 
+type testMapObject struct {
+	ID
+	Data map[string]interface{}
+}
+
 func (t *testObject) String() string {
 	return string(t.ID)
 }
 
-func createCache(t *testing.T, pointer bool) (*persistentCache, func()) {
+func createCache(t *testing.T, entity interface{}) (*persistentCache, func()) {
 	dir, err := ioutil.TempDir(os.TempDir(), "hugodbcache")
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	var entity interface{}
-	if pointer {
-		entity = &testObject{}
-	} else {
-		entity = testObject{}
 	}
 
 	c := New(filepath.Join(dir, "hugocache.json"), entity)
@@ -191,5 +204,20 @@ func createCache(t *testing.T, pointer bool) (*persistentCache, func()) {
 			t.Fatal(err)
 		}
 		os.RemoveAll(dir)
+	}
+}
+
+func createCacheFrom(t *testing.T, from *persistentCache, entity interface{}) (*persistentCache, func()) {
+	c := New(from.filename, entity)
+	err := c.Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return c.(*persistentCache), func() {
+		if err := c.Close(); err != nil {
+			t.Fatal(err)
+		}
+		os.RemoveAll(filepath.Dir(from.filename))
 	}
 }
