@@ -29,85 +29,85 @@ func TestPersistentCache(t *testing.T) {
 
 	assert := require.New(t)
 
-	cache, _ := createCache(t)
+	cache, _ := createCache(t, true)
 
-	vID := NewVersionedID("1", "ABC")
-	vID2 := NewVersionedID("1", "ABCD")
+	create1, state1 := createTestObjectCreate("1", "ABC", true)
+	create2, state2 := createTestObjectCreate("1", "CDE", true)
 
-	created := false
-	created2 := false
-
-	timestamp, _ := time.Parse(time.RFC3339, "2018-01-02T15:04:05Z07:00")
-	create := func() (Identifier, error) {
-		top := &testObject{
-			VersionedID: vID,
-			MyString:    "hi",
-			MyRat:       big.NewRat(1, 100),
-			MyInt64:     int64(64),
-			MyFloat64:   float64(3.14159264),
-			MyDate:      timestamp,
-		}
-
-		created = true
-
-		return top, nil
-	}
-
-	create2 := func() (Identifier, error) {
-		top := &testObject{
-			VersionedID: vID2,
-			MyString:    "hi",
-			MyRat:       big.NewRat(1, 100),
-			MyInt64:     int64(64),
-			MyFloat64:   float64(3.14159264),
-			MyDate:      timestamp,
-		}
-
-		created2 = true
-
-		return top, nil
-	}
-
-	to1v, err := cache.GetOrCreate(vID, create)
+	to1v, err := cache.GetOrCreate(state1.vID, create1)
 	assert.NoError(err)
 	to1 := to1v.(*testObject)
+	assert.Equal(state1.vID.ID, to1._ID())
+	assert.True(state1.created)
+	assert.IsType(&testObject{}, to1v)
 
-	assert.Equal("ABC", to1._ID())
-	assert.True(created)
-
-	created = false
-	to2, err := cache.GetOrCreate(vID, create)
+	state1.created = false
+	to1v_2, err := cache.GetOrCreate(state1.vID, create1)
 	assert.NoError(err)
-	assert.Equal(to1, to2)
-	assert.False(created)
+	assert.Equal(to1v, to1v_2)
+	assert.False(state1.created)
 
-	to4, err := cache.GetOrCreate(vID2, create2)
+	to2v, err := cache.GetOrCreate(state2.vID, create2)
 	assert.NoError(err)
-	assert.True(created2)
-	to4v := to4.(*testObject)
-	assert.Equal("ABCD", to4v.ID)
+	to2 := to2v.(*testObject)
+	assert.Equal(state2.vID.ID, to2._ID())
+	assert.True(state2.created)
 
 	assert.NoError(cache.Close())
 
-	cache2, cleanup := createCacheFrom(t, cache)
+	cache2, cleanup := createCacheFrom(t, cache, true)
 	defer cleanup()
 
-	to3, err := cache2.GetOrCreate(vID, create)
+	state1.created = false
+	to1v_3, err := cache2.GetOrCreate(state1.vID, create1)
 	assert.NoError(err)
-	assert.False(created)
-	assert.Equal(to1, to3)
+	assert.Equal(to1v, to1v_3)
+	assert.False(state1.created)
 
-	created2 = false
-	to4, err = cache2.GetOrCreate(vID2, create2)
+	state2.created = false
+	to2v_2, err := cache2.GetOrCreate(state2.vID, create1)
 	assert.NoError(err)
-	assert.False(created2)
-	to4v = to4.(*testObject)
-	assert.Equal("ABCD", to4v._ID())
+	assert.Equal(to2v, to2v_2)
+	assert.False(state2.created)
 
 }
 
-func createCacheFrom(t *testing.T, from *persistentCache) (*persistentCache, func()) {
-	c := New(from.filename, &testObject{})
+func TestPersistentCacheValueType(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	cache, _ := createCache(t, false)
+
+	create1, state1 := createTestObjectCreate("1", "ABC", false)
+
+	to1v, err := cache.GetOrCreate(state1.vID, create1)
+	assert.NoError(err)
+	to1 := to1v.(testObject)
+	assert.Equal(state1.vID.ID, to1._ID())
+	assert.True(state1.created)
+	assert.IsType(testObject{}, to1v)
+
+	assert.NoError(cache.Close())
+
+	cache2, cleanup := createCacheFrom(t, cache, false)
+	defer cleanup()
+
+	state1.created = false
+	to1v_2, err := cache2.GetOrCreate(state1.vID, create1)
+	assert.NoError(err)
+	assert.Equal(to1v, to1v_2)
+	assert.False(state1.created)
+}
+
+func createCacheFrom(t *testing.T, from *persistentCache, pointer bool) (*persistentCache, func()) {
+	var entity interface{}
+	if pointer {
+		entity = &testObject{}
+	} else {
+		entity = testObject{}
+	}
+
+	c := New(from.filename, entity)
 	err := c.Open()
 	if err != nil {
 		t.Fatal(err)
@@ -121,26 +121,66 @@ func createCacheFrom(t *testing.T, from *persistentCache) (*persistentCache, fun
 	}
 }
 
+func createTestObjectCreate(version, ID string, pointer bool) (func() (Identifier, error), *cacheTestsState) {
+	state := &cacheTestsState{}
+	state.vID = NewVersionedID(version, ID)
+
+	timestamp, _ := time.Parse(time.RFC3339, "2018-01-02T15:04:05Z07:00")
+
+	return func() (Identifier, error) {
+		// We do round-trip testing of Go struct => JSON => Go struct, so add
+		// any special types to this testObject.
+		top := testObject{
+			ID:        state.vID.ID,
+			MyString:  "hi",
+			MyRat:     big.NewRat(1, 100),
+			MyInt64:   int64(64),
+			MyFloat64: float64(3.14159264),
+			MyDate:    timestamp,
+		}
+
+		state.created = true
+
+		if pointer {
+			return &top, nil
+		}
+
+		return top, nil
+	}, state
+}
+
+type cacheTestsState struct {
+	vID     VersionedID
+	created bool
+}
+
 type testObject struct {
-	VersionedID `mapstructure:",squash"`
-	MyString    string
-	MyRat       *big.Rat
-	MyInt64     int64
-	MyFloat64   float64
-	MyDate      time.Time
+	ID
+	MyString  string
+	MyRat     *big.Rat
+	MyInt64   int64
+	MyFloat64 float64
+	MyDate    time.Time
 }
 
 func (t *testObject) String() string {
-	return t.VersionedID.ID
+	return string(t.ID)
 }
 
-func createCache(t *testing.T) (*persistentCache, func()) {
+func createCache(t *testing.T, pointer bool) (*persistentCache, func()) {
 	dir, err := ioutil.TempDir(os.TempDir(), "hugodbcache")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	c := New(filepath.Join(dir, "hugocache.json"), &testObject{})
+	var entity interface{}
+	if pointer {
+		entity = &testObject{}
+	} else {
+		entity = testObject{}
+	}
+
+	c := New(filepath.Join(dir, "hugocache.json"), entity)
 	err = c.Open()
 	if err != nil {
 		t.Fatal(err)

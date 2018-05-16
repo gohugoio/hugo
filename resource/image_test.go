@@ -278,10 +278,6 @@ func TestImageWithEXIF(t *testing.T) {
 
 	v, found := x.Values["LensModel"]
 
-	for k, v := range x.Values {
-		fmt.Println(">> K", k, v)
-	}
-
 	assert.True(found)
 	lensModel, ok := v.(string)
 	assert.True(ok)

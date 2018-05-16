@@ -14,6 +14,7 @@
 package pcache
 
 import (
+	"path/filepath"
 	"strings"
 
 	"github.com/mitchellh/mapstructure"
@@ -32,12 +33,13 @@ var (
 	_ OpenCloserCache = (*persistentCache)(nil)
 	_ Cache           = (*noCache)(nil)
 	_ Identifier      = (*VersionedID)(nil)
-	// Used in unit tests.
+	// NoCache is used in unit tests.
 	NoCache Cache = &noCache{}
 )
 
+// Identifier is the interface all cached items must implement.
 type Identifier interface {
-	_ID() string
+	_ID() ID
 }
 
 // This is persisted to one cache file. The semantics are simple: If a cache request
@@ -45,9 +47,10 @@ type Identifier interface {
 // we start fresh.
 // We sort this by ID before saving it to disk.
 type cacheEntries struct {
-	elemType reflect.Type
-	Version  string
-	Entries  []Identifier
+	c *persistentCache
+
+	Version string
+	Entries []Identifier
 }
 
 func (c *cacheEntries) toCacheEntriesJSON() *cacheEntriesJSON {
@@ -59,9 +62,9 @@ type cacheEntriesJSON struct {
 	Entries json.RawMessage
 }
 
-func (m *cacheEntries) UnmarshalJSON(value []byte) error {
+func (c *cacheEntries) UnmarshalJSON(value []byte) error {
 
-	mj := m.toCacheEntriesJSON()
+	mj := c.toCacheEntriesJSON()
 
 	if err := json.Unmarshal(value, mj); err != nil {
 		return err
@@ -78,25 +81,25 @@ func (m *cacheEntries) UnmarshalJSON(value []byte) error {
 		return err
 	}
 
-	slice := reflect.MakeSlice(reflect.SliceOf(m.elemType), 0, 0)
+	slice := reflect.MakeSlice(reflect.SliceOf(c.c.elemType), 0, 0)
 
 	for _, msm := range ms {
-
-		n := reflect.New(m.elemType.Elem())
-		result := n.Interface()
+		elemType := c.c.elemType
+		if c.c.isPtr {
+			elemType = elemType.Elem()
+		}
+		v := reflect.New(elemType)
+		resultp := v.Interface()
 
 		hook := func(t1, t2 reflect.Type, v interface{}) (interface{}, error) {
-			// TODO(bep) defaultTypeConverters => struct
-			vv, _, err := defaultTypeConverters.ConvertTypes(v, t1, t2)
-
+			vv, _, err := c.c.typeConverter.ConvertTypes(v, t1, t2)
 			return vv, err
-
 		}
 
 		mdec, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 			DecodeHook:       hook,
 			Metadata:         nil,
-			Result:           result,
+			Result:           resultp,
 			WeaklyTypedInput: true,
 		})
 		if err != nil {
@@ -107,24 +110,30 @@ func (m *cacheEntries) UnmarshalJSON(value []byte) error {
 			return err
 		}
 
-		slice = reflect.Append(slice, reflect.ValueOf(result))
+		var result reflect.Value
+		if c.c.isPtr {
+			result = reflect.ValueOf(resultp)
+		} else {
+			result = reflect.Indirect(reflect.ValueOf(resultp))
+		}
 
+		slice = reflect.Append(slice, result)
 	}
 
-	m.Version = mj.Version
+	c.Version = mj.Version
 
-	m.Entries = make([]Identifier, slice.Len())
+	c.Entries = make([]Identifier, slice.Len())
 	for i := 0; i < slice.Len(); i++ {
 		e := slice.Index(i).Interface()
 		id := e.(Identifier)
-		m.Entries[i] = id
+		c.Entries[i] = id
 	}
 
 	return nil
 }
 
 func (c *cacheEntries) toMap() *cacheEntriesMap {
-	m := &cacheEntriesMap{Version: c.Version, Entries: make(map[string]*flaggedIdentifier), elemType: c.elemType}
+	m := &cacheEntriesMap{Version: c.Version, Entries: make(map[ID]*flaggedIdentifier), c: c.c}
 	for _, e := range c.Entries {
 		eid := e.(Identifier)
 		m.Entries[eid._ID()] = newFlaggedIdentifier(eid, false)
@@ -149,9 +158,10 @@ func newFlaggedIdentifier(id Identifier, isNew bool) *flaggedIdentifier {
 
 // This is the variant used for lookups.
 type cacheEntriesMap struct {
-	elemType reflect.Type
-	Version  string
-	Entries  map[string]*flaggedIdentifier
+	c *persistentCache
+
+	Version string
+	Entries map[ID]*flaggedIdentifier
 }
 
 // isStale returns whether this map has changed since open; changed, added or removed
@@ -166,7 +176,7 @@ func (c *cacheEntriesMap) isStale() bool {
 }
 
 func (c *cacheEntriesMap) getActiveEntriesSorted() *cacheEntries {
-	ce := &cacheEntries{Version: c.Version, Entries: make([]Identifier, 0), elemType: c.elemType}
+	ce := &cacheEntries{Version: c.Version, Entries: make([]Identifier, 0), c: c.c}
 	for _, v := range c.Entries {
 		if v.IsTouched {
 			ce.Entries = append(ce.Entries, v.Identifier)
@@ -181,7 +191,7 @@ func (c *cacheEntriesMap) getActiveEntriesSorted() *cacheEntries {
 }
 
 // Note that the caller must lock.
-func (c *cacheEntriesMap) getItem(ID string) (Identifier, bool) {
+func (c *cacheEntriesMap) getItem(ID ID) (Identifier, bool) {
 	item, found := c.Entries[ID]
 	if !found {
 		return nil, false
@@ -193,21 +203,26 @@ func (c *cacheEntriesMap) getItem(ID string) (Identifier, bool) {
 // VersionedID identifies an entity in the cache.
 type VersionedID struct {
 	Version string
-	ID      string
+	ID
 }
 
-func (vid VersionedID) _ID() string {
-	return vid.ID
+type ID string
+
+func (ID ID) _ID() ID {
+	return ID
 }
 
-func NewVersionedID(version, ID string) VersionedID {
-	return VersionedID{Version: version, ID: ID}
+// NewVersionedID creates a new versioned ID.
+func NewVersionedID(version, id string) VersionedID {
+	return VersionedID{Version: version, ID: ID(id)}
 }
 
+// Cache interface.
 type Cache interface {
 	GetOrCreate(ID VersionedID, create func() (Identifier, error)) (Identifier, error)
 }
 
+// OpenCloserCache is a cache with a Open/Close lifecycle.
 type OpenCloserCache interface {
 	Cache
 	Open() error
@@ -216,9 +231,11 @@ type OpenCloserCache interface {
 
 type persistentCache struct {
 	elemType reflect.Type
-	data     *cacheEntriesMap
+	isPtr    bool
 
-	typeHandlers typeConverters
+	data *cacheEntriesMap
+
+	typeConverter typeConverters
 
 	openInit sync.Once
 	openErr  error
@@ -228,16 +245,24 @@ type persistentCache struct {
 	sync.RWMutex
 }
 
+// New creates a new Cache with the provided absolute filename and entity. Note
+// that the entity used must match exactly the type used when doing the actual saves.
 func New(filename string, entity interface{}) OpenCloserCache {
-	return &persistentCache{filename: filename, elemType: reflect.TypeOf(entity), typeHandlers: defaultTypeConverters}
+	elementType := reflect.TypeOf(entity)
+	isPtr := false
+	if elementType.Kind() == reflect.Ptr {
+		isPtr = true
+	}
+
+	return &persistentCache{filename: filename, elemType: elementType, isPtr: isPtr, typeConverter: defaultTypeConverters}
 }
 
 func (c *persistentCache) newCacheEntries() *cacheEntries {
-	return &cacheEntries{elemType: c.elemType}
+	return &cacheEntries{c: c}
 }
 
 func (c *persistentCache) newCacheEntriesMap() *cacheEntriesMap {
-	return &cacheEntriesMap{elemType: c.elemType, Entries: make(map[string]*flaggedIdentifier)}
+	return &cacheEntriesMap{c: c, Entries: make(map[ID]*flaggedIdentifier)}
 }
 
 func (c *persistentCache) Open() error {
@@ -257,10 +282,9 @@ func (c *persistentCache) lazyOpen() error {
 				c.data = c.newCacheEntriesMap()
 				c.open = true
 				return
-			} else {
-				c.openErr = e
-				return
 			}
+			c.openErr = e
+			return
 		}
 
 		data := c.newCacheEntries()
@@ -282,6 +306,8 @@ func (c *persistentCache) unmarshal(b []byte, ce *cacheEntries) {
 	c.openErr = json.Unmarshal(b, ce)
 }
 
+// We want the array entries separated nicely on each line to get easy diffing.
+// Go's JSON marshaler doesn't seem to support this.
 var prettyJSONReplacer = strings.NewReplacer(
 	`"Entries":[`, "\"Entries\":[\n",
 	"},", "},\n",
@@ -301,7 +327,10 @@ func (c *persistentCache) Close() error {
 		err error
 	)
 
-	// TODO(bep) mkdirall
+	if err = os.MkdirAll(filepath.Dir(c.filename), os.FileMode(0755)); err != nil {
+		return err
+	}
+
 	_, err = os.Stat(c.filename)
 
 	if os.IsNotExist(err) {
@@ -329,21 +358,21 @@ func (c *persistentCache) Close() error {
 
 // GetOrCreate fetches the value from the versioned data store. If not, found
 // it is created with the supplied create func and put there.
-func (c *persistentCache) GetOrCreate(ID VersionedID, create func() (Identifier, error)) (Identifier, error) {
+func (c *persistentCache) GetOrCreate(vID VersionedID, create func() (Identifier, error)) (Identifier, error) {
 	if err := c.lazyOpen(); err != nil {
 		return nil, err
 	}
 
 	c.RLock()
 
-	if c.data.Version != ID.Version {
+	if c.data.Version != vID.Version {
 		// Version upgrade.
 		c.RUnlock()
 
 		c.Lock()
 		defer c.Unlock()
-		c.data.Version = ID.Version
-		c.data.Entries = make(map[string]*flaggedIdentifier)
+		c.data.Version = vID.Version
+		c.data.Entries = make(map[ID]*flaggedIdentifier)
 		v, err := create()
 		if err != nil {
 			return nil, err
@@ -351,13 +380,13 @@ func (c *persistentCache) GetOrCreate(ID VersionedID, create func() (Identifier,
 
 		fi := newFlaggedIdentifier(v, true)
 		fi.IsTouched = true
-		c.data.Entries[ID.ID] = fi
+		c.data.Entries[vID.ID] = fi
 
 		return v, nil
 
 	}
 
-	v, found := c.data.getItem(ID.ID)
+	v, found := c.data.getItem(vID.ID)
 	c.RUnlock()
 
 	if found {
@@ -366,7 +395,7 @@ func (c *persistentCache) GetOrCreate(ID VersionedID, create func() (Identifier,
 
 	c.Lock()
 	defer c.Unlock()
-	if v, found = c.data.getItem(ID.ID); found {
+	if v, found = c.data.getItem(vID.ID); found {
 		return v, nil
 	}
 
@@ -377,7 +406,7 @@ func (c *persistentCache) GetOrCreate(ID VersionedID, create func() (Identifier,
 
 	fi := newFlaggedIdentifier(vc, true)
 	fi.IsTouched = true
-	c.data.Entries[ID.ID] = fi
+	c.data.Entries[vID.ID] = fi
 
 	return fi.Identifier, nil
 }

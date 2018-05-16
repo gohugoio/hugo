@@ -652,8 +652,8 @@ const imageMetadataVersionNumber = 1
 var imageMetadataVersionNumberStr = fmt.Sprintf("%03d", imageMetadataVersionNumber)
 
 type imageMetaDataCacheEntry struct {
-	pcache.VersionedID `mapstructure:",squash"`
-	Exif               *exif.Exif
+	pcache.ID
+	Exif *exif.Exif
 }
 
 // TODO(bep) config + part of version
@@ -662,7 +662,7 @@ type imageMetaDataCacheEntry struct {
 var exifMatcher = regexp.MustCompile("LensModel|FNNumber|Exposure.*|Focal.*")
 
 func (i *Image) getExif() *exif.Exif {
-	vid := i.versionedMetadataID()
+	vID := i.versionedMetadataID()
 
 	create := func() (pcache.Identifier, error) {
 		r, err := i.openSourceFile()
@@ -672,10 +672,10 @@ func (i *Image) getExif() *exif.Exif {
 		defer r.Close()
 
 		x, _ := i.spec.exifDecoder.Decode(r)
-		return &imageMetaDataCacheEntry{VersionedID: vid, Exif: x}, nil
+		return &imageMetaDataCacheEntry{ID: vID.ID, Exif: x}, nil
 	}
 
-	m, err := i.spec.imageMetadataCache.GetOrCreate(vid, create)
+	m, err := i.spec.imageMetadataCache.GetOrCreate(vID, create)
 	if err != nil {
 		// We ignore any errors for now. Let us see how this work with
 		// real data before we start to fill the log with warnings.

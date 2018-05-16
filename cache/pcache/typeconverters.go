@@ -22,6 +22,7 @@ import (
 	"time"
 )
 
+// TODO(bep) this may be general useful. But let us keep this inside this package for now.
 var defaultTypeConverters typeConverters = make(typeConverters)
 
 func init() {

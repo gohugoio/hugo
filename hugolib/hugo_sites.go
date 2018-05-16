@@ -192,7 +192,7 @@ func (h *HugoSites) initDBCache(cfg config.Provider) error {
 	}
 	cacheDir := filepath.Join(workingDir, cfg.GetString("resourceDir"))
 
-	c := resource.NewImageMetadataCache(filepath.Join(cacheDir, "_gen", "meta_image.json"))
+	c := resource.NewImageMetadataCache(filepath.Join(cacheDir, "_gen", "meta_images.json"))
 	h.imageMetadataCache = c
 	h.addOpenCloser(c)
 	return nil
