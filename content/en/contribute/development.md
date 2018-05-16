@@ -38,7 +38,7 @@ If you're struggling at any point in this contribution guide, reach out to the H
 
 The installation of Go should take only a few minutes. You have more than one option to get Go up and running on your machine.
 
-If you are having trouble following the installation guides for go, check out [Go Bootcamp, which contains setups for every platform][gobootcamp] or reach out to the Hugo community in the [Hugo Discussion Forums][forums].
+If you are having trouble following the installation guides for Go, check out [Go Bootcamp, which contains setups for every platform][gobootcamp] or reach out to the Hugo community in the [Hugo Discussion Forums][forums].
 
 ### Install Go From Source
 
@@ -58,7 +58,7 @@ go version go1.8 darwin/amd64
 
 Next, make sure that you set up your `GOPATH` [as described in the installation guide][setupgopath].
 
-You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace; .e.g.:
+You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty string containing a valid path to your Go workspace; for example:
 
 ```
 /Users/<yourusername>/Code/go
@@ -66,7 +66,7 @@ You can print the `GOPATH` with `echo $GOPATH`. You should see a non-empty strin
 
 ### Install Go with Homebrew
 
-If you are a macOS user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
+If you are a MacOS user and have [Homebrew](https://brew.sh/) installed on your machine, installing Go is as simple as the following command:
 
 {{< code file="install-go.sh" >}}
 brew install go
@@ -84,7 +84,7 @@ If you're going to contribute code, you'll need to have an account on GitHub. Go
 
 ## Install Git on Your System
 
-You will need to have Git installed on your computer to contribute to Hugo development. Teaching git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book][gitbook] if you are not sure where to begin. The used terminology will be explained with annotations.
+You will need to have Git installed on your computer to contribute to Hugo development. Teaching Git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book][gitbook] if you are not sure where to begin. We will include short explainations of the Git commands in this document.
 
 Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel.
 
@@ -96,7 +96,7 @@ Finally, check again with `git version` if Git was installed successfully.
 
 ### Git Graphical Front Ends
 
-There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Thus, so we will use the command line since the commands are everywhere the same.
+There are several [GUI clients](https://git-scm.com/downloads/guis) that help you to operate Git. Not all are available for all operating systems and maybe differ in their usage. Because of this we will document how to use the command line, since the commands are the same everywhere.
 
 ### Install Hub on Your System (Optional)
 
@@ -123,7 +123,7 @@ hub version 2.2.2
 
 ## Set up your working copy
 
-The working copy is set up locally on your computer. It's what you'll edit, compile, and end up pushing back to GitHub. The main steps are cloning the repository and creating your fork as a remote.
+You set up the working copy of the repository locally on your computer. Your local copy of the files is what you'll edit, compile, and end up pushing back to GitHub. The main steps are cloning the repository and creating your fork as a remote.
 
 ### Clone the repository
 
