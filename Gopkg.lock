@@ -70,6 +70,12 @@
   revision = "012701e8669671499fc43e9792335a1dcbfe2afb"
 
 [[projects]]
+  branch = "named-hook"
+  name = "github.com/bep/mapstructure"
+  packages = ["."]
+  revision = "ee7c735ad3ab92d7d0465fb383ea3dbdcec1fc10"
+
+[[projects]]
   name = "github.com/chaseadamsio/goorgeous"
   packages = ["."]
   revision = "dcf1ef873b8987bf12596fe6951c48347986eb2f"
@@ -441,6 +447,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6212b724ab545eb22f5ac49439854f9cda4310d48d9a84e5e81e28c715c762f4"
+  inputs-digest = "36c2472d473d2f0ee380962c92f6d896ef24d41b34644d1737025feac5762517"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/resource/exif"
 	"github.com/stretchr/testify/require"
 )
 
@@ -136,6 +137,53 @@ func TestPersistentCacheMapEntry(t *testing.T) {
 	assert.False(created)
 }
 
+func TestPersistentCacheExifEntry(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	cache, _ := createCache(t, &testExifObject{})
+
+	vID := NewVersionedID("1", "32")
+
+	created := false
+	create := func() (Identifier, error) {
+		entity := &testExifObject{ID: "32"}
+		f, err := os.Open(filepath.FromSlash("testdata/sunset.jpg"))
+		assert.NoError(err)
+		defer f.Close()
+
+		d, err := exif.NewDecoder(exif.IncludeFields("DateTimeDigitized|ExposureTime|FNumber|FocalL|Lens"))
+		assert.NoError(err)
+		x, err := d.Decode(f)
+		assert.NoError(err)
+		entity.Exif = x
+		created = true
+		return entity, nil
+
+	}
+
+	v1, err := cache.GetOrCreate(vID, create)
+	assert.NoError(err)
+	assert.True(created)
+
+	v1v := v1.(*testExifObject)
+	v1v.assertSelf(assert)
+
+	assert.NoError(cache.Close())
+
+	cache2, cleanup := createCacheFrom(t, cache, &testExifObject{})
+	defer cleanup()
+
+	created = false
+	v12, err := cache2.GetOrCreate(vID, create)
+	assert.NoError(err)
+	assert.False(created)
+	v12v := v12.(*testExifObject)
+	v12v.assertSelf(assert)
+
+}
+
 func createTestObjectCreate(version, ID string, pointer bool) (func() (Identifier, error), *cacheTestsState) {
 	state := &cacheTestsState{}
 	state.vID = NewVersionedID(version, ID)
@@ -185,6 +233,17 @@ type testMapObject struct {
 
 func (t *testObject) String() string {
 	return string(t.ID)
+}
+
+type testExifObject struct {
+	ID
+	Exif *exif.Exif
+}
+
+func (x *testExifObject) assertSelf(assert *require.Assertions) {
+	assert.Equal(6, len(x.Exif.Values))
+
+	assert.Equal(big.NewRat(1, 200), x.Exif.Values["ExposureTime"])
 }
 
 func createCache(t *testing.T, entity interface{}) (*persistentCache, func()) {

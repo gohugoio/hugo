@@ -22,20 +22,45 @@ import (
 	"time"
 )
 
+var (
+	stringToRatConverter  = new(stringToRatConverterTp)
+	stringToTimeConverter = new(stringToTimeConverterTp)
+)
+
 // TODO(bep) this may be general useful. But let us keep this inside this package for now.
 var defaultTypeConverters typeConverters = make(typeConverters)
 
 func init() {
-	defaultTypeConverters[typeConverterKey{reflect.TypeOf(""), reflect.TypeOf(big.NewRat(1, 2))}] = new(stringToRatConverter)
-	defaultTypeConverters[typeConverterKey{reflect.TypeOf(""), reflect.TypeOf(time.Now())}] = new(stringToTimeConverter)
+
+	defaultTypeConverters[typeConverterKey{strType, reflect.TypeOf(big.NewRat(1, 2))}] = stringToRatConverter
+	defaultTypeConverters[typeConverterKey{strType, reflect.TypeOf(time.Now())}] = stringToTimeConverter
+
+	// Add the named variants.
+	for _, v := range defaultTypeConverters {
+		defaultTypeConverters[v.Name()] = v
+	}
 
 }
 
 type typeConverter interface {
 	Convert(v interface{}) (interface{}, error)
+	Name() string
 }
 
-type typeConverters map[typeConverterKey]typeConverter
+// The key is either a string (named converter) or a typeConverterKey.
+type typeConverters map[interface{}]typeConverter
+
+// GetByTypes returns nil if no converter could be found for the given from/to.
+func (t typeConverters) GetByTypes(from, to reflect.Type) typeConverter {
+	converter, _ := t[typeConverterKey{from, to}]
+	return converter
+}
+
+// GetByTypes returns nil if no converter could be found for the given from/to.
+func (t typeConverters) GetByName(name string) typeConverter {
+	converter, _ := t[name]
+	return converter
+}
 
 func (t typeConverters) ConvertTypes(v interface{}, from, to reflect.Type) (interface{}, bool, error) {
 	converter, found := t[typeConverterKey{from, to}]
@@ -57,10 +82,14 @@ type typeConverterKey struct {
 	To   reflect.Type
 }
 
-type stringToRatConverter int
+type stringToRatConverterTp int
 
-func (s stringToRatConverter) Convert(v interface{}) (interface{}, error) {
-	vs := v.(string)
+func (s stringToRatConverterTp) Convert(v interface{}) (interface{}, error) {
+	vs, ok := v.(string)
+	if !ok {
+		return v, nil
+	}
+
 	parts := strings.Split(vs, "/")
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("does not look like a Rat: %v", v)
@@ -78,12 +107,108 @@ func (s stringToRatConverter) Convert(v interface{}) (interface{}, error) {
 
 }
 
-type stringToTimeConverter int
+func (s stringToRatConverterTp) Name() string {
+	return "stringToRatConverter"
+}
 
-func (s stringToTimeConverter) Convert(v interface{}) (interface{}, error) {
-	vs := v.(string)
+type stringToTimeConverterTp int
+
+func (s stringToTimeConverterTp) Convert(v interface{}) (interface{}, error) {
+	vs, ok := v.(string)
+	if !ok {
+		// TODO(bep)
+		return v, nil
+	}
 
 	t, err := time.Parse(time.RFC3339, vs)
 
 	return t, err
+}
+
+func (s stringToTimeConverterTp) Name() string {
+	return "stringToTimeConverter"
+}
+
+type typeMapper struct {
+	converters typeConverters
+	from       reflect.Type
+
+	// The result.
+	namedConverters map[string]string
+}
+
+func newDefaultTypeMapper() *typeMapper {
+	// This is the current JSON use case. We get strings and have some special
+	// converters to time.Time etc.
+	return &typeMapper{from: strType, converters: defaultTypeConverters, namedConverters: make(map[string]string)}
+}
+
+func (t *typeMapper) mapTypes(in interface{}) {
+	t.mapRecursive("", reflect.ValueOf(in))
+}
+
+func (t *typeMapper) mapRecursive(name string, v reflect.Value) {
+	switch v.Kind() {
+
+	case reflect.Ptr:
+		vv := v.Elem()
+		if !vv.IsValid() {
+			// Nil
+			return
+		}
+		// A Ptr type can have a mapping (*big.Rat)
+		t.checkMapping(name, v)
+		t.mapRecursive(name, vv)
+
+	case reflect.Interface:
+		vv := v.Elem()
+		t.mapRecursive(name, vv)
+
+	case reflect.Struct:
+		for i := 0; i < v.NumField(); i += 1 {
+			f := v.Field(i)
+			if f.CanSet() {
+				// Exported field.
+				fieldName := v.Type().Field(i).Name
+				if name != "" {
+					fieldName = name + "." + fieldName
+				}
+				t.mapRecursive(fieldName, f)
+			}
+		}
+		// A struct can have a type mapping (time.Time).
+		t.checkMapping(name, v)
+
+	case reflect.Slice:
+		for i := 0; i < v.Len(); i += 1 {
+			t.mapRecursive(name, v.Index(i))
+		}
+
+	case reflect.Map:
+		for _, key := range v.MapKeys() {
+			fieldName := key.Interface().(string)
+			if name != "" {
+				// This is the format mapstructure delivers
+				fieldName = fmt.Sprintf("%s[%s]", name, fieldName)
+			}
+
+			vv := v.MapIndex(key)
+
+			t.mapRecursive(fieldName, vv)
+		}
+
+	default:
+		// This should now be a non-container type with a potential type
+		// mapper.
+		t.checkMapping(name, v)
+
+	}
+
+}
+
+func (t *typeMapper) checkMapping(name string, v reflect.Value) {
+	converter := t.converters.GetByTypes(t.from, v.Type())
+	if converter != nil {
+		t.namedConverters[name] = converter.Name()
+	}
 }

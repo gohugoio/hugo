@@ -28,6 +28,8 @@ import (
 	"github.com/rwcarlsen/goexif/tiff"
 )
 
+const exifTimeLayout = "2006:01:02 15:04:05"
+
 type Exif struct {
 	Lat    float64
 	Long   float64
@@ -127,7 +129,7 @@ func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
 		lat, long, _ = x.LatLong()
 	}
 
-	walker := &exifWalker{vals: make(map[string]interface{}), includeMatcher: d.includeFieldsRe, excludeMatcher: d.excludeFieldsrRe}
+	walker := &exifWalker{x: x, vals: make(map[string]interface{}), includeMatcher: d.includeFieldsRe, excludeMatcher: d.excludeFieldsrRe}
 	if err = x.Walk(walker); err != nil {
 		return
 	}
@@ -137,10 +139,16 @@ func (d *Decoder) Decode(r io.Reader) (ex *Exif, err error) {
 	return
 }
 
-func decodeTag(t *tiff.Tag) (interface{}, error) {
+func decodeTag(x *_exif.Exif, f _exif.FieldName, t *tiff.Tag) (interface{}, error) {
 	switch t.Format() {
 	case tiff.StringVal, tiff.UndefVal:
-		return nullString(t.Val), nil
+		s := nullString(t.Val)
+		if strings.Contains(string(f), "DateTime") {
+			if d, err := tryParseDate(x, s); err == nil {
+				return d, nil
+			}
+		}
+		return s, nil
 	case tiff.OtherVal:
 		return "unknown", nil
 	}
@@ -178,7 +186,20 @@ func decodeTag(t *tiff.Tag) (interface{}, error) {
 
 }
 
+// Code borrowed from exif.DateTime and adjusted.
+func tryParseDate(x *_exif.Exif, s string) (time.Time, error) {
+	dateStr := strings.TrimRight(s, "\x00")
+	// TODO(bep): look for timezone offset, GPS time, etc.
+	timeZone := time.Local
+	if tz, _ := x.TimeZone(); tz != nil {
+		timeZone = tz
+	}
+	return time.ParseInLocation(exifTimeLayout, dateStr, timeZone)
+
+}
+
 type exifWalker struct {
+	x              *_exif.Exif
 	vals           map[string]interface{}
 	includeMatcher *regexp.Regexp
 	excludeMatcher *regexp.Regexp
@@ -192,7 +213,7 @@ func (e *exifWalker) Walk(f _exif.FieldName, tag *tiff.Tag) error {
 	if e.includeMatcher != nil && !e.includeMatcher.MatchString(name) {
 		return nil
 	}
-	val, err := decodeTag(tag)
+	val, err := decodeTag(e.x, f, tag)
 	if err != nil {
 		return err
 	}

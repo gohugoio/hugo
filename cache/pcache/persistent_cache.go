@@ -49,16 +49,20 @@ type Identifier interface {
 type cacheEntries struct {
 	c *persistentCache
 
+	FieldConverters map[string]string
+
 	Version string
 	Entries []Identifier
 }
 
 func (c *cacheEntries) toCacheEntriesJSON() *cacheEntriesJSON {
-	return &cacheEntriesJSON{Version: c.Version}
+	return &cacheEntriesJSON{Version: c.Version, FieldConverters: c.FieldConverters}
 }
 
 type cacheEntriesJSON struct {
-	Version string
+	Version         string
+	FieldConverters map[string]string
+
 	Entries json.RawMessage
 }
 
@@ -69,6 +73,9 @@ func (c *cacheEntries) UnmarshalJSON(value []byte) error {
 	if err := json.Unmarshal(value, mj); err != nil {
 		return err
 	}
+
+	c.Version = mj.Version
+	c.FieldConverters = mj.FieldConverters
 
 	dec := json.NewDecoder(bytes.NewReader(mj.Entries))
 	dec.UseNumber()
@@ -91,9 +98,24 @@ func (c *cacheEntries) UnmarshalJSON(value []byte) error {
 		v := reflect.New(elemType)
 		resultp := v.Interface()
 
-		hook := func(t1, t2 reflect.Type, v interface{}) (interface{}, error) {
-			vv, _, err := c.c.typeConverter.ConvertTypes(v, t1, t2)
-			return vv, err
+		hook := func(t1, t2 reflect.Type, v interface{}, ctx *mapstructure.DecodeContext) (interface{}, error) {
+			if ctx.IsKey {
+				return v, nil
+			}
+
+			converter := c.c.typec.GetByTypes(t1, t2)
+			if converter == nil {
+				convertorName, found := c.FieldConverters[ctx.Name]
+				if found {
+					converter = c.c.typec.GetByName(convertorName)
+				}
+			}
+
+			if converter != nil {
+				return converter.Convert(v)
+			}
+
+			return v, nil
 		}
 
 		mdec, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
@@ -120,8 +142,6 @@ func (c *cacheEntries) UnmarshalJSON(value []byte) error {
 		slice = reflect.Append(slice, result)
 	}
 
-	c.Version = mj.Version
-
 	c.Entries = make([]Identifier, slice.Len())
 	for i := 0; i < slice.Len(); i++ {
 		e := slice.Index(i).Interface()
@@ -133,7 +153,7 @@ func (c *cacheEntries) UnmarshalJSON(value []byte) error {
 }
 
 func (c *cacheEntries) toMap() *cacheEntriesMap {
-	m := &cacheEntriesMap{Version: c.Version, Entries: make(map[ID]*flaggedIdentifier), c: c.c}
+	m := &cacheEntriesMap{Version: c.Version, FieldConverters: c.FieldConverters, Entries: make(map[ID]*flaggedIdentifier), c: c.c}
 	for _, e := range c.Entries {
 		eid := e.(Identifier)
 		m.Entries[eid._ID()] = newFlaggedIdentifier(eid, false)
@@ -160,6 +180,8 @@ func newFlaggedIdentifier(id Identifier, isNew bool) *flaggedIdentifier {
 type cacheEntriesMap struct {
 	c *persistentCache
 
+	FieldConverters map[string]string
+
 	Version string
 	Entries map[ID]*flaggedIdentifier
 }
@@ -176,7 +198,7 @@ func (c *cacheEntriesMap) isStale() bool {
 }
 
 func (c *cacheEntriesMap) getActiveEntriesSorted() *cacheEntries {
-	ce := &cacheEntries{Version: c.Version, Entries: make([]Identifier, 0), c: c.c}
+	ce := &cacheEntries{Version: c.Version, FieldConverters: c.FieldConverters, Entries: make([]Identifier, 0), c: c.c}
 	for _, v := range c.Entries {
 		if v.IsTouched {
 			ce.Entries = append(ce.Entries, v.Identifier)
@@ -235,7 +257,8 @@ type persistentCache struct {
 
 	data *cacheEntriesMap
 
-	typeConverter typeConverters
+	typem *typeMapper
+	typec typeConverters
 
 	openInit sync.Once
 	openErr  error
@@ -254,7 +277,7 @@ func New(filename string, entity interface{}) OpenCloserCache {
 		isPtr = true
 	}
 
-	return &persistentCache{filename: filename, elemType: elementType, isPtr: isPtr, typeConverter: defaultTypeConverters}
+	return &persistentCache{filename: filename, elemType: elementType, isPtr: isPtr, typec: defaultTypeConverters, typem: newDefaultTypeMapper()}
 }
 
 func (c *persistentCache) newCacheEntries() *cacheEntries {
@@ -262,7 +285,7 @@ func (c *persistentCache) newCacheEntries() *cacheEntries {
 }
 
 func (c *persistentCache) newCacheEntriesMap() *cacheEntriesMap {
-	return &cacheEntriesMap{c: c, Entries: make(map[ID]*flaggedIdentifier)}
+	return &cacheEntriesMap{c: c, FieldConverters: make(map[string]string), Entries: make(map[ID]*flaggedIdentifier)}
 }
 
 func (c *persistentCache) Open() error {
@@ -288,6 +311,7 @@ func (c *persistentCache) lazyOpen() error {
 		}
 
 		data := c.newCacheEntries()
+
 		c.unmarshal(b, data)
 		if c.openErr != nil {
 			return
@@ -373,7 +397,7 @@ func (c *persistentCache) GetOrCreate(vID VersionedID, create func() (Identifier
 		defer c.Unlock()
 		c.data.Version = vID.Version
 		c.data.Entries = make(map[ID]*flaggedIdentifier)
-		v, err := create()
+		v, err := c.createIdentifier(create)
 		if err != nil {
 			return nil, err
 		}
@@ -399,7 +423,7 @@ func (c *persistentCache) GetOrCreate(vID VersionedID, create func() (Identifier
 		return v, nil
 	}
 
-	vc, err := create()
+	vc, err := c.createIdentifier(create)
 	if err != nil {
 		return nil, err
 	}
@@ -409,6 +433,34 @@ func (c *persistentCache) GetOrCreate(vID VersionedID, create func() (Identifier
 	c.data.Entries[vID.ID] = fi
 
 	return fi.Identifier, nil
+}
+
+type mapTypeWalker struct {
+	typeConverter typeConverters
+
+	keys []string
+
+	currFieldname    string
+	currMapFieldname string
+
+	// The result goes here.
+	namedConverters map[string]string
+}
+
+var strType = reflect.TypeOf("")
+
+func (c *persistentCache) createIdentifier(f func() (Identifier, error)) (Identifier, error) {
+	identifier, err := f()
+	if err != nil {
+		return nil, err
+	}
+
+	c.typem.mapTypes(identifier)
+	for k, v := range c.typem.namedConverters {
+		c.data.FieldConverters[k] = v
+	}
+
+	return identifier, nil
 }
 
 type noCache struct {

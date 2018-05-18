@@ -37,4 +37,48 @@ func TestTypeConverters(t *testing.T) {
 	assert.NoError(err)
 	assert.False(b)
 	assert.Equal(s, v)
+
+	assert.Equal(stringToRatConverter, defaultTypeConverters.GetByName(stringToRatConverter.Name()))
+	assert.Equal(stringToTimeConverter, defaultTypeConverters.GetByName(stringToTimeConverter.Name()))
+
+}
+
+type nestedObject struct {
+	TopRat      *big.Rat
+	TestObjectV testObject
+	TestObjectP *testObject
+	MyMap       map[string]interface{}
+}
+
+func TestTypeMapper(t *testing.T) {
+	assert := require.New(t)
+
+	top := testObject{
+		MyString:  "hi",
+		MyRat:     big.NewRat(1, 100),
+		MyInt64:   int64(64),
+		MyFloat64: float64(3.14159264),
+	}
+
+	no := &nestedObject{
+		TopRat:      big.NewRat(1, 100),
+		TestObjectV: top,
+		TestObjectP: &top,
+		MyMap: map[string]interface{}{
+			"MyString": "A string",
+			"MyRat":    big.NewRat(1, 100),
+		},
+	}
+
+	mapper := newDefaultTypeMapper()
+
+	mapper.mapTypes(no)
+
+	assert.Equal("stringToTimeConverter", mapper.namedConverters["TestObjectV.MyDate"])
+	assert.Equal("stringToTimeConverter", mapper.namedConverters["TestObjectP.MyDate"])
+	assert.Equal("stringToRatConverter", mapper.namedConverters["TopRat"])
+	assert.Equal("stringToRatConverter", mapper.namedConverters["TestObjectV.MyRat"])
+
+	assert.Equal("stringToRatConverter", mapper.namedConverters["MyMap[MyRat]"])
+
 }

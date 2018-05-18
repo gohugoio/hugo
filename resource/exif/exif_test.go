@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -28,7 +29,7 @@ func TestExif(t *testing.T) {
 	assert.NoError(err)
 	defer f.Close()
 
-	d, err := NewDecoder(IncludeFields("Lens.*"))
+	d, err := NewDecoder(IncludeFields("Lens|Date"))
 	assert.NoError(err)
 	x, err := d.Decode(f)
 	assert.NoError(err)
@@ -43,6 +44,10 @@ func TestExif(t *testing.T) {
 	lensModel, ok := v.(string)
 	assert.True(ok)
 	assert.Equal("smc PENTAX-DA* 16-50mm F2.8 ED AL [IF] SDM", lensModel)
+
+	v, found = x.Values["DateTime"]
+	assert.True(found)
+	assert.IsType(time.Time{}, v)
 
 }
 
