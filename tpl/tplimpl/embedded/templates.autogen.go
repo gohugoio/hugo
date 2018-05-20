@@ -76,7 +76,9 @@ var EmbeddedTemplates = [][2]string{
 	{{ end }}
 </sitemapindex>
 `},
-	{`disqus.html`, `{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
+	{`disqus.html`, `{{- $pc := .Page.Site.PrivacyConfig.Disqus -}}
+{{- if not $pc.Disable -}}
+{{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script>
     var disqus_config = function () {
     {{with .GetParam "disqus_identifier" }}this.page.identifier = '{{ . }}';{{end}}
@@ -95,8 +97,11 @@ var EmbeddedTemplates = [][2]string{
     })();
 </script>
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}`},
-	{`google_analytics.html`, `{{ with .Site.GoogleAnalytics }}
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}
+{{- end -}}`},
+	{`google_analytics.html`, `{{- $pc := .Page.Site.PrivacyConfig.GoogleAnalytics -}}
+{{- if not $pc.Disable -}}
+{{ with .Site.GoogleAnalytics }}
 <script>
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -106,15 +111,19 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 ga('create', '{{ . }}', 'auto');
 ga('send', 'pageview');
 </script>
-{{ end }}`},
-	{`google_analytics_async.html`, `{{ with .Site.GoogleAnalytics }}
+{{ end }}
+{{- end -}}`},
+	{`google_analytics_async.html`, `{{- $pc := .Page.Site.PrivacyConfig.GoogleAnalytics -}}
+{{- if not $pc.Disable -}}
+{{ with .Site.GoogleAnalytics }}
 <script>
 window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 ga('create', '{{ . }}', 'auto');
 ga('send', 'pageview');
 </script>
 <script async src='//www.google-analytics.com/analytics.js'></script>
-{{ end }}`},
+{{ end }}
+{{- end -}}`},
 	{`google_news.html`, `{{ if .IsPage }}{{ with .Params.news_keywords }}
   <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
 {{ end }}{{ end }}`},
@@ -238,19 +247,33 @@ ga('send', 'pageview');
 <!-- image -->`},
 	{`shortcodes/gist.html`, `<script src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>`},
 	{`shortcodes/highlight.html`, `{{ if len .Params | eq 2 }}{{ highlight (trim .Inner "\n\r") (.Get 0) (.Get 1) }}{{ else }}{{ highlight (trim .Inner "\n\r") (.Get 0) "" }}{{ end }}`},
-	{`shortcodes/instagram.html`, `{{ if len .Params | eq 2 }}{{ if eq (.Get 1) "hidecaption" }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=1" }}{{ .html | safeHTML }}{{ end }}{{ end }}{{ else }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=0" }}{{ .html | safeHTML }}{{ end }}{{ end }}`},
+	{`shortcodes/instagram.html`, `{{- $pc := .Page.Site.PrivacyConfig.Instagram -}}
+{{- if not $pc.Disable -}}
+{{ if len .Params | eq 2 }}{{ if eq (.Get 1) "hidecaption" }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=1" }}{{ .html | safeHTML }}{{ end }}{{ end }}{{ else }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=0" }}{{ .html | safeHTML }}{{ end }}{{ end }}
+{{- end -}}`},
 	{`shortcodes/ref.html`, `{{ if len .Params | eq 2 }}{{ ref .Page (.Get 0) (.Get 1) }}{{ else }}{{ ref .Page (.Get 0) }}{{ end }}`},
 	{`shortcodes/relref.html`, `{{ if len .Params | eq 2 }}{{ relref .Page (.Get 0) (.Get 1) }}{{ else }}{{ relref .Page (.Get 0) }}{{ end }}`},
-	{`shortcodes/speakerdeck.html`, `<script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='//speakerdeck.com/assets/embed.js'></script>`},
-	{`shortcodes/tweet.html`, `{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}`},
-	{`shortcodes/vimeo.html`, `{{ if .IsNamedParams }}<div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+	{`shortcodes/speakerdeck.html`, `{{- $pc := .Page.Site.PrivacyConfig.SpeakerDeck -}}
+{{- if not $pc.Disable -}}
+<script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='//speakerdeck.com/assets/embed.js'></script>
+{{- end -}}`},
+	{`shortcodes/tweet.html`, `{{- $pc := .Page.Site.PrivacyConfig.Tweet -}}
+{{- if not $pc.Disable -}}
+{{ (getJSON "https://api.twitter.com/1/statuses/oembed.json?id=" (index .Params 0)).html | safeHTML }}
+{{- end -}}`},
+	{`shortcodes/vimeo.html`, `{{- $pc := .Page.Site.PrivacyConfig.Vimeo -}}
+{{- if not $pc.Disable -}}
+{{ if .IsNamedParams }}<div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
   <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" {{ if not (.Get "class") }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
  </div>{{ else }}
 <div {{ if len .Params | eq 2 }}class="{{ .Get 1 }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
   <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
  </div>
-{{ end }}`},
-	{`shortcodes/youtube.html`, `{{ if .IsNamedParams }}
+{{ end }}
+{{- end -}}`},
+	{`shortcodes/youtube.html`, `{{- $pc := .Page.Site.PrivacyConfig.YouTube -}}
+{{- if not $pc.Disable -}}
+{{ if .IsNamedParams }}
 <div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
   <iframe src="//www.youtube.com/embed/{{ .Get "id" }}?{{ with .Get "autoplay" }}{{ if eq . "true" }}autoplay=1{{ end }}{{ end }}"
   {{ if not (.Get "class") }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0" title="YouTube Video"></iframe>
@@ -258,7 +281,8 @@ ga('send', 'pageview');
 <div {{ if len .Params | eq 2 }}class="{{ .Get 1 }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
   <iframe src="//www.youtube.com/embed/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0" title="YouTube Video"></iframe>
  </div>
-{{ end }}`},
+{{ end }}
+{{- end -}}`},
 	{`twitter_cards.html`, `{{- with $.Params.images -}}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="{{ index . 0 | absURL }}"/>

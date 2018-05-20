@@ -1,3 +1,5 @@
+{{- $pc := .Page.Site.PrivacyConfig.GoogleAnalytics -}}
+{{- if not $pc.Disable -}}
 {{ with .Site.GoogleAnalytics }}
 <script>
 window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
@@ -6,3 +8,4 @@ ga('send', 'pageview');
 </script>
 <script async src='//www.google-analytics.com/analytics.js'></script>
 {{ end }}
+{{- end -}}
