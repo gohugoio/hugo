@@ -14,6 +14,7 @@
 package pcache
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -103,11 +104,13 @@ func (c *cacheEntries) UnmarshalJSON(value []byte) error {
 				return v, nil
 			}
 
-			converter := c.c.typec.GetByTypes(t1, t2)
+			fmt.Println(ctx.Name, ": >>> t1:", t1, "t2:", t2, "v:", v)
+
+			converter := c.c.typem.converters.GetByTypes(t1, t2)
 			if converter == nil {
 				convertorName, found := c.FieldConverters[ctx.Name]
 				if found {
-					converter = c.c.typec.GetByName(convertorName)
+					converter = c.c.typem.converters.GetByName(convertorName)
 				}
 			}
 
@@ -119,10 +122,11 @@ func (c *cacheEntries) UnmarshalJSON(value []byte) error {
 		}
 
 		mdec, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-			DecodeHook:       hook,
-			Metadata:         nil,
-			Result:           resultp,
-			WeaklyTypedInput: true,
+			DecodeHook: hook,
+			Metadata:   nil,
+			Result:     resultp,
+			//WeaklyTypedInput: true,
+			//ZeroFields:       true,
 		})
 		if err != nil {
 			return err
@@ -258,7 +262,6 @@ type persistentCache struct {
 	data *cacheEntriesMap
 
 	typem *typeMapper
-	typec typeConverters
 
 	openInit sync.Once
 	openErr  error
@@ -277,7 +280,7 @@ func New(filename string, entity interface{}) OpenCloserCache {
 		isPtr = true
 	}
 
-	return &persistentCache{filename: filename, elemType: elementType, isPtr: isPtr, typec: defaultTypeConverters, typem: newDefaultTypeMapper()}
+	return &persistentCache{filename: filename, elemType: elementType, isPtr: isPtr, typem: newDefaultTypeMapper()}
 }
 
 func (c *persistentCache) newCacheEntries() *cacheEntries {
@@ -375,6 +378,7 @@ func (c *persistentCache) Close() error {
 
 	s := prettyJSONReplacer.Replace(string(b))
 
+	fmt.Println(">> S", s)
 	_, err = f.WriteString(s)
 
 	return err
@@ -446,8 +450,6 @@ type mapTypeWalker struct {
 	// The result goes here.
 	namedConverters map[string]string
 }
-
-var strType = reflect.TypeOf("")
 
 func (c *persistentCache) createIdentifier(f func() (Identifier, error)) (Identifier, error) {
 	identifier, err := f()

@@ -109,10 +109,18 @@ func TestPersistentCacheMapEntry(t *testing.T) {
 
 	vID := NewVersionedID("1", "32")
 
+	pi := float64(3.14159264)
+
 	created := false
 	create := func() (Identifier, error) {
 		entity := &testMapObject{ID: "32", Data: make(map[string]interface{})}
 		entity.Data["myRat"] = big.NewRat(1, 300)
+		entity.Data["myFloat"] = pi
+
+		nested := map[string]interface{}{
+			"myNestedRat": big.NewRat(2, 300),
+		}
+		entity.Data["nested"] = nested
 		created = true
 		return entity, nil
 
@@ -122,6 +130,9 @@ func TestPersistentCacheMapEntry(t *testing.T) {
 	assert.NoError(err)
 	v1v := v1.(*testMapObject)
 	assert.Equal(big.NewRat(1, 300), v1v.Data["myRat"])
+	assert.Equal(pi, v1v.Data["myFloat"])
+	nested := v1v.Data["nested"].(map[string]interface{})
+	assert.Equal(big.NewRat(2, 300), nested["myNestedRat"])
 	assert.True(created)
 
 	assert.NoError(cache.Close())
@@ -134,6 +145,10 @@ func TestPersistentCacheMapEntry(t *testing.T) {
 	assert.NoError(err)
 	v12v := v12.(*testMapObject)
 	assert.Equal(big.NewRat(1, 300), v12v.Data["myRat"])
+	assert.Equal(pi, v12v.Data["myFloat"])
+	nested = v12v.Data["nested"].(map[string]interface{})
+	assert.Equal(big.NewRat(2, 300), nested["myNestedRat"])
+
 	assert.False(created)
 }
 

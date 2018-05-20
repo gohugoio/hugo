@@ -15,7 +15,6 @@ package resource
 
 import (
 	"errors"
-	"regexp"
 
 	"github.com/gohugoio/hugo/resource/exif"
 
@@ -94,6 +93,12 @@ type ExifConfig struct {
 	// Hugo extracts the "photo taken where" (GPS latitude and longitude) into
 	// .Long and .Lat. Set this to true to turn it off.
 	DisableLatLong bool
+}
+
+// valuesString is used to detect changes in the Exif data structure stored in cache.
+// When the config changes, we need to rebuild the cache.
+func (e ExifConfig) valuesString() string {
+	return fmt.Sprintf("%s-%s-%t-%t", e.IncludeFields, e.ExcludeFields, e.DisableDate, e.DisableLatLong)
 }
 
 // This is what the user gets in $img.Data. We make a type so we can attach methods
@@ -646,7 +651,7 @@ func (i *Image) setBasePath(conf imageConfig) {
 }
 
 // Increment this when making incompatible changes to the struct below.
-// Incompatible would be "alost anything".
+// Incompatible would be "almost anything".
 const imageMetadataVersionNumber = 1
 
 var imageMetadataVersionNumberStr = fmt.Sprintf("%03d", imageMetadataVersionNumber)
@@ -655,11 +660,6 @@ type imageMetaDataCacheEntry struct {
 	pcache.ID
 	Exif *exif.Exif
 }
-
-// TODO(bep) config + part of version
-// TODO(bep) json date + rat?
-// TODO(bep) test vs the the VersionID
-var exifMatcher = regexp.MustCompile("LensModel|FNNumber|Exposure.*|Focal.*")
 
 func (i *Image) getExif() *exif.Exif {
 	vID := i.versionedMetadataID()
@@ -690,7 +690,8 @@ func NewImageMetadataCache(filename string) pcache.OpenCloserCache {
 	return pcache.New(filename, &imageMetaDataCacheEntry{})
 }
 func (i *Image) versionedMetadataID() pcache.VersionedID {
-	return pcache.NewVersionedID(imageMetadataVersionNumberStr, fmt.Sprintf("%s/%s_%s_%d", i.relTargetPath.dir, i.relTargetPath.file, i.hash, i.osFileInfo.Size()))
+	version := helpers.MD5String(imageMetadataVersionNumberStr + i.imaging.Exif.valuesString())
+	return pcache.NewVersionedID(version, fmt.Sprintf("%s/%s_%s_%d", i.relTargetPath.dir, i.relTargetPath.file, i.hash, i.osFileInfo.Size()))
 }
 
 func (i *Image) loadMetadata() error {

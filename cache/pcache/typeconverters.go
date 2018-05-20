@@ -14,6 +14,7 @@
 package pcache
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -23,8 +24,11 @@ import (
 )
 
 var (
-	stringToRatConverter  = new(stringToRatConverterTp)
-	stringToTimeConverter = new(stringToTimeConverterTp)
+	stringToRatConverter       = new(stringToRatConverterTp)
+	stringToTimeConverter      = new(stringToTimeConverterTp)
+	jsonNumberToFloatConverter = new(jsonNumberToFloatConverterTp)
+
+	strType = reflect.TypeOf("")
 )
 
 // TODO(bep) this may be general useful. But let us keep this inside this package for now.
@@ -34,6 +38,7 @@ func init() {
 
 	defaultTypeConverters[typeConverterKey{strType, reflect.TypeOf(big.NewRat(1, 2))}] = stringToRatConverter
 	defaultTypeConverters[typeConverterKey{strType, reflect.TypeOf(time.Now())}] = stringToTimeConverter
+	defaultTypeConverters[typeConverterKey{strType, reflect.TypeOf(float64(0))}] = jsonNumberToFloatConverter
 
 	// Add the named variants.
 	for _, v := range defaultTypeConverters {
@@ -129,6 +134,26 @@ func (s stringToTimeConverterTp) Name() string {
 	return "stringToTimeConverter"
 }
 
+type jsonNumberToFloatConverterTp int
+
+func (s jsonNumberToFloatConverterTp) Convert(v interface{}) (interface{}, error) {
+	vs, ok := v.(json.Number)
+	if !ok {
+		return v, nil
+	}
+
+	f, err := strconv.ParseFloat(string(vs), 64)
+	if err != nil {
+		return v, err
+	}
+
+	return f, nil
+}
+
+func (s jsonNumberToFloatConverterTp) Name() string {
+	return "jsonNumberToFloatConverter"
+}
+
 type typeMapper struct {
 	converters typeConverters
 	from       reflect.Type
@@ -207,6 +232,7 @@ func (t *typeMapper) mapRecursive(name string, v reflect.Value) {
 }
 
 func (t *typeMapper) checkMapping(name string, v reflect.Value) {
+	// TODO(bep) t.from vs json.Number
 	converter := t.converters.GetByTypes(t.from, v.Type())
 	if converter != nil {
 		t.namedConverters[name] = converter.Name()
