@@ -1,4 +1,4 @@
-{{- $pc := .Page.Site.PrivacyConfig.GoogleAnalytics -}}
+{{- $pc := .Site.PrivacyConfig.GoogleAnalytics -}}
 {{- if not $pc.Disable -}}
 {{ with .Site.GoogleAnalytics }}
 <script>

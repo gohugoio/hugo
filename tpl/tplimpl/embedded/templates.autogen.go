@@ -99,7 +99,7 @@ var EmbeddedTemplates = [][2]string{
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}
 {{- end -}}`},
-	{`google_analytics.html`, `{{- $pc := .Page.Site.PrivacyConfig.GoogleAnalytics -}}
+	{`google_analytics.html`, `{{- $pc := .Site.PrivacyConfig.GoogleAnalytics -}}
 {{- if not $pc.Disable -}}
 {{ with .Site.GoogleAnalytics }}
 <script>
@@ -113,7 +113,7 @@ ga('send', 'pageview');
 </script>
 {{ end }}
 {{- end -}}`},
-	{`google_analytics_async.html`, `{{- $pc := .Page.Site.PrivacyConfig.GoogleAnalytics -}}
+	{`google_analytics_async.html`, `{{- $pc := .Site.PrivacyConfig.GoogleAnalytics -}}
 {{- if not $pc.Disable -}}
 {{ with .Site.GoogleAnalytics }}
 <script>
