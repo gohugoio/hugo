@@ -185,17 +185,14 @@ func TestNestedNamedMissingParam(t *testing.T) {
 func TestIsNamedParamsSC(t *testing.T) {
 	t.Parallel()
 	wt := func(tem tpl.TemplateHandler) error {
-		tem.AddTemplate("_internal/shortcodes/byposition.html", `<div id="{{ .Get 0 }}">`)
-		tem.AddTemplate("_internal/shortcodes/byname.html", `<div id="{{ .Get "id" }}">`)
+		tem.AddTemplate("_internal/shortcodes/bynameorposition.html", `{{ with .Get "id" }}Named: {{ . }}{{ else }}Pos: {{ .Get 0 }}{{ end }}`)
 		tem.AddTemplate("_internal/shortcodes/ifnamedparams.html", `<div id="{{ if .IsNamedParams }}{{ .Get "id" }}{{ else }}{{ .Get 0 }}{{end}}">`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< ifnamedparams id="name" >}}`, `<div id="name">`, wt)
 	CheckShortCodeMatch(t, `{{< ifnamedparams position >}}`, `<div id="position">`, wt)
-	CheckShortCodeMatch(t, `{{< byname id="name" >}}`, `<div id="name">`, wt)
-	CheckShortCodeMatch(t, `{{< byname position >}}`, `<div id="error: cannot access positional params by string name">`, wt)
-	CheckShortCodeMatch(t, `{{< byposition position >}}`, `<div id="position">`, wt)
-	CheckShortCodeMatch(t, `{{< byposition id="name" >}}`, `<div id="error: cannot access named params by position">`, wt)
+	CheckShortCodeMatch(t, `{{< bynameorposition id="name" >}}`, `Named: name`, wt)
+	CheckShortCodeMatch(t, `{{< bynameorposition position >}}`, `Pos: position`, wt)
 }
 
 func TestInnerSC(t *testing.T) {
