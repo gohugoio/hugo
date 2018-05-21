@@ -377,13 +377,13 @@ someOtherValue = "foo"
 
 [privacy]
 [privacy.youtube]
-noCookie = true
+privacyEnhanced = true
 `
 
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", tomlConfig)
 	b.Build(BuildCfg{SkipRender: true})
 
-	assert.True(b.H.Sites[0].Info.PrivacyConfig.YouTube.NoCookie)
+	assert.True(b.H.Sites[0].Info.PrivacyConfig.YouTube.PrivacyEnhanced)
 
 }
