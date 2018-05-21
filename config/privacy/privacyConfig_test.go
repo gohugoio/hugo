@@ -33,6 +33,7 @@ someOtherValue = "foo"
 disable = true
 [privacy.googleAnalytics]
 disable = true
+respectDoNotTrack = true
 [privacy.instagram]
 disable = true
 [privacy.speakerDeck]
@@ -54,6 +55,7 @@ noCookie = true
 
 	assert.True(pc.Disqus.Disable)
 	assert.True(pc.GoogleAnalytics.Disable)
+	assert.True(pc.GoogleAnalytics.RespectDoNotTrack)
 	assert.True(pc.Instagram.Disable)
 	assert.True(pc.SpeakerDeck.Disable)
 	assert.True(pc.Tweet.Disable)

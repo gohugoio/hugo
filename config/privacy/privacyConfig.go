@@ -44,6 +44,10 @@ type Disqus struct {
 // GoogleAnalytics holds the privacy configuration settings related to the Google Analytics template.
 type GoogleAnalytics struct {
 	Service `mapstructure:",squash"`
+
+	// Enabling this will make the GA templates respect the
+	// "Do Not Track" HTTP header. See  https://www.paulfurley.com/google-analytics-dnt/.
+	RespectDoNotTrack bool
 }
 
 // Instagram holds the privacy configuration settings related to the Instagram shortcode.
