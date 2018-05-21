@@ -44,7 +44,7 @@ disable = true
 disable = true
 [privacy.youtube]
 disable = true
-noCookie = true
+privacyEnhanced = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	assert.NoError(err)
@@ -61,7 +61,7 @@ noCookie = true
 	assert.True(pc.Tweet.Disable)
 	assert.True(pc.Vimeo.Disable)
 
-	assert.True(pc.YouTube.NoCookie)
+	assert.True(pc.YouTube.PrivacyEnhanced)
 	assert.True(pc.YouTube.Disable)
 }
 
@@ -74,7 +74,7 @@ someOtherValue = "foo"
 
 [Privacy]
 [Privacy.YouTube]
-NoCOOKIE = true
+PrivacyENhanced = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	assert.NoError(err)
@@ -82,7 +82,7 @@ NoCOOKIE = true
 	pc, err := DecodeConfig(cfg)
 	assert.NoError(err)
 	assert.NotNil(pc)
-	assert.True(pc.YouTube.NoCookie)
+	assert.True(pc.YouTube.PrivacyEnhanced)
 }
 
 func TestDecodeConfigDefault(t *testing.T) {
@@ -91,5 +91,5 @@ func TestDecodeConfigDefault(t *testing.T) {
 	pc, err := DecodeConfig(viper.New())
 	assert.NoError(err)
 	assert.NotNil(pc)
-	assert.False(pc.YouTube.NoCookie)
+	assert.False(pc.YouTube.PrivacyEnhanced)
 }

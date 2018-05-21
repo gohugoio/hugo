@@ -72,8 +72,12 @@ type Vimeo struct {
 
 // YouTube holds the privacy configuration settingsrelated to the YouTube shortcode.
 type YouTube struct {
-	Service  `mapstructure:",squash"`
-	NoCookie bool
+	Service `mapstructure:",squash"`
+
+	// When you turn on privacy-enhanced mode,
+	// YouTube won’t store information about visitors on your website
+	// unless they play the video.
+	PrivacyEnhanced bool
 }
 
 func DecodeConfig(cfg config.Provider) (pc Config, err error) {
