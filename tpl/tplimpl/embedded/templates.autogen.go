@@ -241,6 +241,41 @@ if (!doNotTrack) {
 <!-- Output all taxonomies as schema.org keywords -->
 <meta itemprop="keywords" content="{{ if .IsPage}}{{ range $index, $tag := .Params.tags }}{{ $tag }},{{ end }}{{ else }}{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}{{ end }}" />
 {{ end }}`},
+	{`shortcodes/__h_simple_assets.html`, `{{ define "__h_simple_css" }}{{/* This is also used in other "simple" variants. These template definitions are global. */}}
+{{ if not (.Page.Scratch.Get "__h_simple_css") }}
+{{/* Only include once */}}
+{{  .Page.Scratch.Set "__h_simple_css" true }}
+<style>
+.__h_youtube {
+   position: relative;padding-bottom: 56.23%;height: 0;
+   overflow: hidden;
+   max-width: 100%;
+   background: #000;
+   margin: 5px;
+}
+.__h_youtube img {
+   min-width:100%;
+   height:auto;
+   color: #000;
+}
+.__h_youtube .play {
+   height: 72px;
+   width: 72px;
+   left: 50%;
+   top: 50%;
+   margin-left: -36px;
+   margin-top: -36px;
+   position: absolute;
+   cursor: pointer;
+}
+</style>
+{{ end }}
+{{ end }}
+
+{{- define "__h_simple_icon_play" -}}
+M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z
+{{- end -}}
+`},
 	{`shortcodes/figure.html`, `<!-- image -->
 <figure{{ with .Get "class" }} class="{{.}}"{{ end }}>
     {{ if .Get "link"}}<a href="{{ .Get "link" }}"{{ with .Get "target" }} target="{{ . }}"{{ end }}{{ with .Get "rel" }} rel="{{ . }}"{{ end }}>{{ end }}
@@ -287,17 +322,30 @@ if (!doNotTrack) {
 {{- end -}}`},
 	{`shortcodes/youtube.html`, `{{- $pc := .Page.Site.PrivacyConfig.YouTube -}}
 {{- if not $pc.Disable -}}
-{{ $ytHost := cond $pc.PrivacyEnhanced  "www.youtube-nocookie.com" "www.youtube.com" }}
-{{ if .IsNamedParams }}
-<div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
-  <iframe src="//{{ $ytHost }}/embed/{{ .Get "id" }}?{{ with .Get "autoplay" }}{{ if eq . "true" }}autoplay=1{{ end }}{{ end }}"
-  {{ if not (.Get "class") }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0" title="YouTube Video"></iframe>
-</div>{{ else }}
-<div {{ if len .Params | eq 2 }}class="{{ .Get 1 }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
-  <iframe src="//{{ $ytHost }}/embed/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0" title="YouTube Video"></iframe>
- </div>
+{{- $ytHost := cond $pc.PrivacyEnhanced  "www.youtube-nocookie.com" "www.youtube.com" -}}
+{{- if $pc.Simple -}}
+{{ template "_internal/shortcodes/youtube_simple.html" . }}
+{{- else -}}
+{{- $id := .Get "id" | default (.Get 0) -}}
+{{- $class := .Get "class" | default (.Get 1) }}
+<div {{ with $class }}class="{{ . }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
+  <iframe src="//{{ $ytHost }}/embed/{{ $id }}{{ with .Get "autoplay" }}{{ if eq . "true" }}?autoplay=1{{ end }}{{ end }}" {{ if not $class }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0" title="YouTube Video"></iframe>
+</div>
 {{ end }}
 {{- end -}}`},
+	{`shortcodes/youtube_simple.html`, `{{ $id := .Get "id" | default (.Get 0) }}
+{{ $class := .Get "class" | default (.Get 1) }}
+{{ $hasClass := $class }}
+{{ $class := $class | default "__h_youtube" }}
+{{ if not $hasClass }}
+{{/* If class is set, assume the user wants to provide his own styles. */}}
+{{ template "__h_simple_css" $ }}
+{{ end }}
+<div class="{{ $class }}">
+{{ $tb := printf "https://i.ytimg.com/vi/%s/" $id }}
+<a href="https://youtube.com/watch?v={{ $id | safeHTMLAttr }}" target="_blank">
+     <img src="{{ printf "%smaxresdefault.jpg" $tb }}" srcset="{{ printf "%shqdefault.jpg" $tb }} 1x {{ printf "%smaxresdefault.jpg" $tb }} 2x" alt="Video">
+<div class="play"><svg height="100%" version="1.1" viewBox="0 0 68 48" width="100%"><path class="ytp-large-play-button-bg" d="{{ template "__h_simple_icon_play" $ }}" fill="#212121" fill-opacity="0.8"></path><path d="M 45,24 27,14 27,34" fill="#fff"></path></svg></div></a></div>`},
 	{`twitter_cards.html`, `{{- with $.Params.images -}}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="{{ index . 0 | absURL }}"/>
