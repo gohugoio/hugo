@@ -341,7 +341,9 @@ M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.5
 {{/* If class is set, assume the user wants to provide his own styles. */}}
 {{ template "__h_simple_css" $ }}
 {{ end }}
-<div class="{{ $class }}">
+{{ $secondClass := "s_youtube_simple" }}
+{{ $divID := printf "%s_%d" $secondClass (add $.Ordinal 1) }}
+<div class="{{ $secondClass }} {{ $class }}" id="{{ $divID }}">
 {{ $tb := printf "//i.ytimg.com/vi/%s/" $id }}
 <a href="//youtube.com/watch?v={{ $id | safeHTMLAttr }}" target="_blank">
      <img src="{{ printf "%smaxresdefault.jpg" $tb }}" srcset="{{ printf "%shqdefault.jpg" $tb }} 1x {{ printf "%smaxresdefault.jpg" $tb }} 2x" alt="Video">
