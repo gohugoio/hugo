@@ -126,7 +126,7 @@ While adding custom taxonomies, you need to put in the default taxonomies too, _
 
 ### Example: Removing default taxonomies
 
-If you want to have just the default `tags` taxonomy, and remove the `categories` taxonomy for your site, you can do so my modifying the `taxonomies` value in your [site config][config].
+If you want to have just the default `tags` taxonomy, and remove the `categories` taxonomy for your site, you can do so by modifying the `taxonomies` value in your [site config][config].
 
 {{< code-toggle copy="false" >}}
 [taxonomies]
