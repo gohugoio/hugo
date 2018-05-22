@@ -384,6 +384,6 @@ privacyEnhanced = true
 	b.WithConfigFile("toml", tomlConfig)
 	b.Build(BuildCfg{SkipRender: true})
 
-	assert.True(b.H.Sites[0].Info.PrivacyConfig.YouTube.PrivacyEnhanced)
+	assert.True(b.H.Sites[0].Info.Config.Privacy.YouTube.PrivacyEnhanced)
 
 }

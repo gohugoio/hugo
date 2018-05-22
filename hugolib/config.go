@@ -22,10 +22,18 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/config/privacy"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )
+
+// SiteConfig represents the config in .Site.Config.
+type SiteConfig struct {
+	// This contains all privacy related settings that can be used to
+	// make the YouTube template etc. GDPR compliant.
+	Privacy privacy.Config
+}
 
 // ConfigSourceDescriptor describes where to find the config (e.g. config.toml etc.).
 type ConfigSourceDescriptor struct {
