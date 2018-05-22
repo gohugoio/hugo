@@ -23,13 +23,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	ansiEsc    = "\u001B"
-	clearLine  = "\r\033[K"
-	hideCursor = ansiEsc + "[?25l"
-	showCursor = ansiEsc + "[?25h"
-)
-
 type flagsToConfigHandler interface {
 	flagsToConfig(cfg config.Provider)
 }
