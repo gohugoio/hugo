@@ -18,7 +18,7 @@ toc: true
 
 From Hugo 0.28, the default syntax hightlighter in Hugo is [Chroma](https://github.com/alecthomas/chroma); it is built in Go and is really, really fast -- and for the most important parts compatible with Pygments.
 
-If you want to continue to use Pygments (see below), set `pygmentsUseClasses=true` in your site config.
+If you want to continue to use Pygments (see below), set `pygmentsUseClassic=true` in your site config.
 
 The example below shows a simple code snippet from the Hugo source highlighted with the `highlight` shortcode. Note that the gohugo.io site is generated with `pygmentsUseClasses=true` (see [Generate Syntax Highlighter CSS](#generate-syntax-highlighter-css)).
 
