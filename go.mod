@@ -22,13 +22,13 @@ require (
 	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
 	github.com/jdkato/prose v1.1.0
 	github.com/joho/godotenv v1.2.0
-	github.com/kyokomi/emoji v0.0.2
+	github.com/kyokomi/emoji v0.0.0-20171121010009-2e9a9507333f
 	github.com/magiconair/properties v1.8.0
 	github.com/markbates/inflect v0.0.0-20180514174915-dd7de90c06bc
 	github.com/mattn/go-runewidth v0.0.2
 	github.com/miekg/mmark v1.3.6
 	github.com/mitchellh/mapstructure v0.0.0-20180511142126-bb74f1db0675
-	github.com/muesli/smartcrop v0.2.0
+	github.com/muesli/smartcrop v0.0.0-20180228075044-f6ebaa786a12
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/nicksnyder/go-i18n v1.10.0
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
