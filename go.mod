@@ -1,0 +1,52 @@
+module github.com/gohugoio/hugo
+
+require (
+	github.com/BurntSushi/toml v0.3.0
+	github.com/PuerkitoBio/purell v1.1.0
+	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
+	github.com/alecthomas/chroma v0.4.0
+	github.com/bep/debounce v1.1.0
+	github.com/bep/gitmap v0.0.0-20180402191302-012701e86696
+	github.com/chaseadamsio/goorgeous v1.1.0
+	github.com/cpuguy83/go-md2man v1.0.8
+	github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964
+	github.com/disintegration/imaging v1.4.2
+	github.com/dlclark/regexp2 v1.1.6
+	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385
+	github.com/fsnotify/fsnotify v1.4.7
+	github.com/gobuffalo/envy v1.6.2
+	github.com/gobwas/glob v0.2.3
+	github.com/gorilla/websocket v1.2.0
+	github.com/hashicorp/go-immutable-radix v0.0.0-20180129170900-7f3cd4390caa
+	github.com/hashicorp/golang-lru v0.0.0-20180201235237-0fb14efe8c47
+	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce
+	github.com/jdkato/prose v1.1.0
+	github.com/joho/godotenv v1.2.0
+	github.com/kyokomi/emoji v0.0.2
+	github.com/magiconair/properties v1.8.0
+	github.com/markbates/inflect v0.0.0-20180514174915-dd7de90c06bc
+	github.com/mattn/go-runewidth v0.0.2
+	github.com/miekg/mmark v1.3.6
+	github.com/mitchellh/mapstructure v0.0.0-20180511142126-bb74f1db0675
+	github.com/muesli/smartcrop v0.2.0
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+	github.com/nicksnyder/go-i18n v1.10.0
+	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
+	github.com/pelletier/go-toml v1.1.0
+	github.com/russross/blackfriday v1.5.1
+	github.com/spf13/afero v1.1.0
+	github.com/spf13/cast v1.2.0
+	github.com/spf13/cobra v0.0.3
+	github.com/spf13/fsync v0.0.0-20170320142552-12a01e648f05
+	github.com/spf13/jwalterweatherman v0.0.0-20180109140146-7c0cea34c8ec
+	github.com/spf13/nitro v0.0.0-20131003134307-24d7ef30a12d
+	github.com/spf13/pflag v1.0.1
+	github.com/spf13/viper v1.0.2
+	github.com/yosssi/ace v0.0.5
+	golang.org/x/image v0.0.0-20180403161127-f315e4403028
+	golang.org/x/net v0.0.0-20180521201818-8e0cdda24ed4
+	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
+	golang.org/x/sys v0.0.0-20180522145951-7f59abf37be6
+	golang.org/x/text v0.3.0
+	gopkg.in/yaml.v2 v2.2.1
+)
