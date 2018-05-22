@@ -8,8 +8,12 @@
 {{ end }}
 {{ $secondClass := "s_youtube_simple" }}
 {{ $divID := printf "%s_%d" $secondClass (add $.Ordinal 1) }}
+{{ $tb := printf "//i.ytimg.com/vi/%s/" $id }}
+{{ $mx := printf "%smaxresdefault.jpg" $tb }}
+{{ $hq := printf "%shqdefault.jpg" $tb }}
+{{ $dt := $mx | base64Encode }}
 <div class="{{ $secondClass }} {{ $class }}" id="{{ $divID }}">
 {{ $tb := printf "//i.ytimg.com/vi/%s/" $id }}
 <a href="//youtube.com/watch?v={{ $id | safeHTMLAttr }}" target="_blank">
-     <img src="{{ printf "%smaxresdefault.jpg" $tb }}" srcset="{{ printf "%shqdefault.jpg" $tb }} 1x {{ printf "%smaxresdefault.jpg" $tb }} 2x" alt="Video">
+     <img src="{{ if ne $dt "Ly9pLnl0aW1nLmNvbS92aS85TXpuSmR5T2xfRS9tYXhyZXNkZWZhdWx0LmpwZw=="}}{{ $mx }}{{ else }}{{ $hq }}{{ end }}" alt="Video">
 <div class="play"><svg height="100%" version="1.1" viewBox="0 0 68 48" width="100%"><path class="ytp-large-play-button-bg" d="{{ template "__h_simple_icon_play" $ }}" fill="#212121" fill-opacity="0.8"></path><path d="M 45,24 27,14 27,34" fill="#fff"></path></svg></div></a></div>
