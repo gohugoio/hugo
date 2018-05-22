@@ -23,6 +23,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/config/privacy"
+	"github.com/gohugoio/hugo/config/services"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
@@ -33,6 +34,26 @@ type SiteConfig struct {
 	// This contains all privacy related settings that can be used to
 	// make the YouTube template etc. GDPR compliant.
 	Privacy privacy.Config
+
+	// Services contains config for services such as Google Analytics etc.
+	Services services.Config
+}
+
+func loadSiteConfig(cfg config.Provider) (scfg SiteConfig, err error) {
+	privacyConfig, err := privacy.DecodeConfig(cfg)
+	if err != nil {
+		return
+	}
+
+	servicesConfig, err := services.DecodeConfig(cfg)
+	if err != nil {
+		return
+	}
+
+	scfg.Privacy = privacyConfig
+	scfg.Services = servicesConfig
+
+	return
 }
 
 // ConfigSourceDescriptor describes where to find the config (e.g. config.toml etc.).

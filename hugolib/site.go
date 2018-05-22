@@ -27,8 +27,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gohugoio/hugo/config/privacy"
-
 	"github.com/gohugoio/hugo/resource"
 
 	"golang.org/x/sync/errgroup"
@@ -375,8 +373,6 @@ type SiteInfo struct {
 	RSSLink               string
 	Author                map[string]interface{}
 	LanguageCode          string
-	DisqusShortname       string
-	GoogleAnalytics       string
 	Copyright             string
 	LastChange            time.Time
 	Permalinks            PermalinkOverrides
@@ -419,6 +415,17 @@ func (s *SiteInfo) ServerPort() int {
 		return 0
 	}
 	return p
+}
+
+// GoogleAnalytics is kept here for historic reasons.
+func (s *SiteInfo) GoogleAnalytics() string {
+	return s.Config.Services.GoogleAnalytics.ID
+
+}
+
+// DisqusShortname is kept here for historic reasons.
+func (s *SiteInfo) DisqusShortname() string {
+	return s.Config.Services.Disqus.Shortname
 }
 
 // Used in tests.
@@ -1116,7 +1123,7 @@ func (s *Site) initializeSiteInfo() error {
 		}
 	}
 
-	privacyConfig, err := privacy.DecodeConfig(lang)
+	siteConfig, err := loadSiteConfig(lang)
 	if err != nil {
 		return err
 	}
@@ -1127,14 +1134,12 @@ func (s *Site) initializeSiteInfo() error {
 		Social:                         lang.GetStringMapString("social"),
 		LanguageCode:                   lang.GetString("languageCode"),
 		Copyright:                      lang.GetString("copyright"),
-		DisqusShortname:                lang.GetString("disqusShortname"),
 		multilingual:                   multilingual,
 		Language:                       lang,
 		LanguagePrefix:                 languagePrefix,
 		Languages:                      languages,
 		defaultContentLanguageInSubdir: defaultContentInSubDir,
 		sectionPagesMenu:               lang.GetString("sectionPagesMenu"),
-		GoogleAnalytics:                lang.GetString("googleAnalytics"),
 		BuildDrafts:                    s.Cfg.GetBool("buildDrafts"),
 		canonifyURLs:                   s.Cfg.GetBool("canonifyURLs"),
 		relativeURLs:                   s.Cfg.GetBool("relativeURLs"),
@@ -1147,7 +1152,7 @@ func (s *Site) initializeSiteInfo() error {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		s:                              s,
-		Config:                         SiteConfig{Privacy: privacyConfig},
+		Config:                         siteConfig,
 	}
 
 	rssOutputFormat, found := s.outputFormats[KindHome].GetByName(output.RSSFormat.Name)
