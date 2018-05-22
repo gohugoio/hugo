@@ -216,6 +216,8 @@ Hugo lists render the content based on metadata you provide in [front matter][].
 
 ### By Weight
 
+Lower weight gets higher precedence. So content with lower weight will come first.
+
 {{< code file="layouts/partials/by-weight.html" >}}
 <ul>
     {{ range .Data.Pages.ByWeight }}
