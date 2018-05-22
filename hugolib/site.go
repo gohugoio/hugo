@@ -388,11 +388,7 @@ type SiteInfo struct {
 	preserveTaxonomyNames bool
 	Data                  *map[string]interface{}
 
-	// This contains all privacy related settings that can be used to
-	// make the YouTube template etc.GDPR compliant.
-	// It is mostly in use by Hugo's built-in, but is also available
-	// for end users with {{ .Site.PrivacyConfig.YouTube.NoCookie }} etc.
-	PrivacyConfig privacy.Config
+	Config SiteConfig
 
 	owner                          *HugoSites
 	s                              *Site
@@ -1151,7 +1147,7 @@ func (s *Site) initializeSiteInfo() error {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		s:                              s,
-		PrivacyConfig:                  privacyConfig,
+		Config:                         SiteConfig{Privacy: privacyConfig},
 	}
 
 	rssOutputFormat, found := s.outputFormats[KindHome].GetByName(output.RSSFormat.Name)

@@ -1,4 +1,4 @@
-{{- $pc := .Page.Site.PrivacyConfig.YouTube -}}
+{{- $pc := .Page.Site.Config.Privacy.YouTube -}}
 {{- if not $pc.Disable -}}
 {{- $ytHost := cond $pc.PrivacyEnhanced  "www.youtube-nocookie.com" "www.youtube.com" -}}
 {{- if $pc.Simple -}}

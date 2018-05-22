@@ -1,4 +1,4 @@
-{{- $pc := .Page.Site.PrivacyConfig.SpeakerDeck -}}
+{{- $pc := .Page.Site.Config.Privacy.SpeakerDeck -}}
 {{- if not $pc.Disable -}}
 <script async class='speakerdeck-embed' data-id='{{ index .Params 0 }}' data-ratio='1.33333333333333' src='//speakerdeck.com/assets/embed.js'></script>
 {{- end -}}
