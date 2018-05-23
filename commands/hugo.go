@@ -84,11 +84,11 @@ func Execute(args []string) Response {
 	}
 
 	if err == nil {
-		errCount := jww.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)
+		errCount := int(jww.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError))
 		if errCount > 0 {
 			err = fmt.Errorf("logged %d errors", errCount)
 		} else if resp.Result != nil {
-			errCount = resp.Result.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)
+			errCount = resp.Result.NumLogErrors()
 			if errCount > 0 {
 				err = fmt.Errorf("logged %d errors", errCount)
 			}

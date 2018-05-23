@@ -260,7 +260,8 @@ func (p *PathSpec) ThemeSet() bool {
 	return p.theme != ""
 }
 
-type logPrinter interface {
+// LogPrinter is the common interface of the JWWs loggers.
+type LogPrinter interface {
 	// Println is the only common method that works in all of JWWs loggers.
 	Println(a ...interface{})
 }
@@ -268,7 +269,7 @@ type logPrinter interface {
 // DistinctLogger ignores duplicate log statements.
 type DistinctLogger struct {
 	sync.RWMutex
-	logger logPrinter
+	logger LogPrinter
 	m      map[string]bool
 }
 
@@ -307,6 +308,11 @@ func (l *DistinctLogger) print(logStatement string) {
 // NewDistinctErrorLogger creates a new DistinctLogger that logs ERRORs
 func NewDistinctErrorLogger() *DistinctLogger {
 	return &DistinctLogger{m: make(map[string]bool), logger: jww.ERROR}
+}
+
+// NewDistinctLogger creates a new DistinctLogger that logs to the provided logger.
+func NewDistinctLogger(logger LogPrinter) *DistinctLogger {
+	return &DistinctLogger{m: make(map[string]bool), logger: logger}
 }
 
 // NewDistinctWarnLogger creates a new DistinctLogger that logs WARNs

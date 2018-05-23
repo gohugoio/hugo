@@ -135,10 +135,21 @@ func (s *sitesBuilder) WithThemeConfigFile(format, conf string) *sitesBuilder {
 	return s
 }
 
+const commonConfigSections = `
+
+[services]
+[services.disqus]
+shortname = "disqus_shortname"
+[services.googleAnalytics]
+id = "ga_id"
+
+`
+
 func (s *sitesBuilder) WithSimpleConfigFile() *sitesBuilder {
 	var config = `
 baseURL = "http://example.com/"
-`
+
+` + commonConfigSections
 	return s.WithConfigFile("toml", config)
 }
 
@@ -198,7 +209,7 @@ languageName = "Bokmål"
 paginatePath = "side"
 [Languages.nb.Taxonomies]
 lag = "lag"
-`
+` + commonConfigSections
 
 	return s.WithConfigFile("toml", defaultMultiSiteConfig)
 
@@ -311,6 +322,12 @@ func (s *sitesBuilder) build(cfg BuildCfg, shouldFail bool) *sitesBuilder {
 		s.CreateSites()
 	}
 	err := s.H.Build(cfg)
+	if err == nil {
+		logErrorCount := s.H.NumLogErrors()
+		if logErrorCount > 0 {
+			err = fmt.Errorf("logged %d errors", logErrorCount)
+		}
+	}
 	if err != nil && !shouldFail {
 		s.Fatalf("Build failed: %s", err)
 	} else if err == nil && shouldFail {

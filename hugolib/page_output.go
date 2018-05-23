@@ -24,7 +24,6 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
 )
 
@@ -115,7 +114,7 @@ func (p *PageOutput) layouts(layouts ...string) ([]string, error) {
 func (p *PageOutput) Render(layout ...string) template.HTML {
 	l, err := p.layouts(layout...)
 	if err != nil {
-		helpers.DistinctErrorLog.Printf("in .Render: Failed to resolve layout %q for page %q", layout, p.pathOrTitle())
+		p.s.DistinctErrorLog.Printf("in .Render: Failed to resolve layout %q for page %q", layout, p.pathOrTitle())
 		return ""
 	}
 
@@ -130,7 +129,7 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 		if templ != nil {
 			res, err := templ.ExecuteToString(p)
 			if err != nil {
-				helpers.DistinctErrorLog.Printf("in .Render: Failed to execute template %q: %s", layout, err)
+				p.s.DistinctErrorLog.Printf("in .Render: Failed to execute template %q: %s", layout, err)
 				return template.HTML("")
 			}
 			return template.HTML(res)

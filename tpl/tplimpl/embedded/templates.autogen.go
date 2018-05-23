@@ -99,7 +99,7 @@ var EmbeddedTemplates = [][2]string{
 <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>{{end}}
 {{- end -}}`},
-	{`google_analytics.html`, `{{- $pc := .Site.PrivacyConfig.GoogleAnalytics -}}
+	{`google_analytics.html`, `{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.Disable -}}
 {{ with .Site.GoogleAnalytics }}
 <script>
@@ -116,7 +116,7 @@ if (!doNotTrack) {
 {{ end }}
 {{- end -}}
 {{- define "__ga_js_set_doNotTrack" -}}{{/* This is also used in the async version. */}}
-{{- $pc := .Site.PrivacyConfig.GoogleAnalytics -}}
+{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.RespectDoNotTrack -}}
 var doNotTrack = false;
 {{- else -}}
@@ -124,7 +124,7 @@ var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
 var doNotTrack = (dnt == "1" || dnt == "yes");
 {{- end -}}
 {{- end -}}`},
-	{`google_analytics_async.html`, `{{- $pc := .Site.PrivacyConfig.GoogleAnalytics -}}
+	{`google_analytics_async.html`, `{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.Disable -}}
 {{ with .Site.GoogleAnalytics }}
 <script>

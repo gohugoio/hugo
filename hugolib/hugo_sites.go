@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/i18n"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 // HugoSites represents the sites to build. Each site represents a language.
@@ -54,6 +55,13 @@ type HugoSites struct {
 
 func (h *HugoSites) IsMultihost() bool {
 	return h != nil && h.multihost
+}
+
+func (h *HugoSites) NumLogErrors() int {
+	if h == nil {
+		return 0
+	}
+	return int(h.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError))
 }
 
 func (h *HugoSites) PrintProcessingStats(w io.Writer) {

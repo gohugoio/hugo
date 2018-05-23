@@ -23,6 +23,9 @@ type Deps struct {
 	// The logger to use.
 	Log *jww.Notepad `json:"-"`
 
+	// Used to log errors that may repeat itself many times.
+	DistinctErrorLog *helpers.DistinctLogger
+
 	// The templates to use. This will usually implement the full tpl.TemplateHandler.
 	Tmpl tpl.TemplateFinder `json:"-"`
 
@@ -137,9 +140,12 @@ func New(cfg DepsCfg) (*Deps, error) {
 		timeoutms = 3000
 	}
 
+	distinctErrorLogger := helpers.NewDistinctLogger(logger.ERROR)
+
 	d := &Deps{
 		Fs:                  fs,
 		Log:                 logger,
+		DistinctErrorLog: distinctErrorLogger,
 		templateProvider:    cfg.TemplateProvider,
 		translationProvider: cfg.TranslationProvider,
 		WithTemplate:        cfg.WithTemplate,

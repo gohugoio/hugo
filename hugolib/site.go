@@ -1746,7 +1746,7 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, dest string, 
 	}
 	transformer := transform.NewChain(transform.AbsURLInXML)
 	if err := transformer.Apply(outBuffer, renderBuffer, path); err != nil {
-		helpers.DistinctErrorLog.Println(err)
+		s.DistinctErrorLog.Println(err)
 		return nil
 	}
 
@@ -1805,7 +1805,7 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, dest string,
 
 	transformer := transform.NewChain(transformLinks...)
 	if err := transformer.Apply(outBuffer, renderBuffer, path); err != nil {
-		helpers.DistinctErrorLog.Println(err)
+		s.DistinctErrorLog.Println(err)
 		return nil
 	}
 
@@ -1821,7 +1821,7 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 			if templ != nil {
 				templName = templ.Name()
 			}
-			helpers.DistinctErrorLog.Printf("Failed to render %q: %s", templName, r)
+			s.DistinctErrorLog.Printf("Failed to render %q: %s", templName, r)
 			// TOD(bep) we really need to fix this. Also see below.
 			if !s.running() && !testMode {
 				os.Exit(-1)
@@ -1838,12 +1838,12 @@ func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts
 		// Behavior here should be dependent on if running in server or watch mode.
 		if p, ok := d.(*PageOutput); ok {
 			if p.File != nil {
-				helpers.DistinctErrorLog.Printf("Error while rendering %q in %q: %s", name, p.File.Dir(), err)
+				s.DistinctErrorLog.Printf("Error while rendering %q in %q: %s", name, p.File.Dir(), err)
 			} else {
-				helpers.DistinctErrorLog.Printf("Error while rendering %q: %s", name, err)
+				s.DistinctErrorLog.Printf("Error while rendering %q: %s", name, err)
 			}
 		} else {
-			helpers.DistinctErrorLog.Printf("Error while rendering %q: %s", name, err)
+			s.DistinctErrorLog.Printf("Error while rendering %q: %s", name, err)
 		}
 		if !s.running() && !testMode {
 			// TODO(bep) check if this can be propagated

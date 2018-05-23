@@ -1,4 +1,4 @@
-{{- $pc := .Site.PrivacyConfig.GoogleAnalytics -}}
+{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.Disable -}}
 {{ with .Site.GoogleAnalytics }}
 <script>
@@ -15,7 +15,7 @@ if (!doNotTrack) {
 {{ end }}
 {{- end -}}
 {{- define "__ga_js_set_doNotTrack" -}}{{/* This is also used in the async version. */}}
-{{- $pc := .Site.PrivacyConfig.GoogleAnalytics -}}
+{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
 {{- if not $pc.RespectDoNotTrack -}}
 var doNotTrack = false;
 {{- else -}}
