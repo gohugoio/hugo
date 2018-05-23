@@ -145,7 +145,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 	d := &Deps{
 		Fs:                  fs,
 		Log:                 logger,
-		DistinctErrorLog: distinctErrorLogger,
+		DistinctErrorLog:    distinctErrorLogger,
 		templateProvider:    cfg.TemplateProvider,
 		translationProvider: cfg.TranslationProvider,
 		WithTemplate:        cfg.WithTemplate,
