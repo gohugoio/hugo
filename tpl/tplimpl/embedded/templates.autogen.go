@@ -241,7 +241,8 @@ if (!doNotTrack) {
 <!-- Output all taxonomies as schema.org keywords -->
 <meta itemprop="keywords" content="{{ if .IsPage}}{{ range $index, $tag := .Params.tags }}{{ $tag }},{{ end }}{{ else }}{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}{{ end }}" />
 {{ end }}`},
-	{`shortcodes/__h_simple_assets.html`, `{{ define "__h_simple_css" }}{{/* This is also used in other "simple" variants. These template definitions are global. */}}
+	{`shortcodes/__h_simple_assets.html`, `{{ define "__h_simple_css" }}{{/* These template definitions are global. */}}
+{{/* TODO(bep) rename this to Youtube something. We need to add these per service. */}}
 {{ if not (.Page.Scratch.Get "__h_simple_css") }}
 {{/* Only include once */}}
 {{  .Page.Scratch.Set "__h_simple_css" true }}
@@ -298,8 +299,62 @@ M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.5
 	{`shortcodes/highlight.html`, `{{ if len .Params | eq 2 }}{{ highlight (trim .Inner "\n\r") (.Get 0) (.Get 1) }}{{ else }}{{ highlight (trim .Inner "\n\r") (.Get 0) "" }}{{ end }}`},
 	{`shortcodes/instagram.html`, `{{- $pc := .Page.Site.Config.Privacy.Instagram -}}
 {{- if not $pc.Disable -}}
-{{ if len .Params | eq 2 }}{{ if eq (.Get 1) "hidecaption" }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=1" }}{{ .html | safeHTML }}{{ end }}{{ end }}{{ else }}{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" (index .Params 0) "/&hidecaption=0" }}{{ .html | safeHTML }}{{ end }}{{ end }}
+{{- if $pc.Simple -}}
+{{ template "_internal/shortcodes/instagram_simple.html" . }}
+{{- else -}}
+{{ $id := .Get 0 }}
+{{ $hideCaption := cond (eq (.Get 1) "hidecaption") "1" "0" }}
+{{ with getJSON "https://api.instagram.com/oembed/?url=https://instagram.com/p/" $id "/&hidecaption=" $hideCaption  }}{{ .html | safeHTML }}{{ end }}
+{{- end -}}
 {{- end -}}`},
+	{`shortcodes/instagram_simple.html`, `{{- $pc := .Page.Site.Config.Privacy.Instagram -}}
+{{- $sc := .Page.Site.Config.Services.Instagram -}}
+{{- if not $pc.Disable -}}
+{{- $id := .Get 0 -}}
+{{- $item := getJSON "https://api.instagram.com/oembed/?url=https://www.instagram.com/p/" $id "/&amp;maxwidth=640&amp;omitscript=true" -}}
+{{- $class1 := "__h_instagram" -}}
+{{- $class2 := "s_instagram_simple" -}}
+{{- $hideCaption := (eq (.Get 1) "hidecaption") -}}
+{{ with $item }}
+{{- $mediaURL := printf "https://instagram.com/p/%s/" $id | safeURL -}}
+{{- if not $sc.DisableInlineCSS -}}
+{{ template "__h_simple_instagram_css" $ }}
+{{- end -}}
+<div class="{{ $class1 }} {{ $class2 }} card" style="max-width: {{ $item.thumbnail_width }}px">
+	<div class="card-header">
+    <a href="{{ $item.author_url | safeURL }}" class="card-link">{{ $item.author_name }}</a>
+  </div>
+	<a href="{{ $mediaURL }}" target="_blank"><img class="card-img-top img-fluid" src="{{ $item.thumbnail_url }}" width="{{ $item.thumbnail_width }}"  height="{{ $item.thumbnail_height }}" alt="Instagram Image"></a>
+	<div class="card-body">
+		{{ if not $hideCaption }}<p class="card-text"><a href="{{ $item.author_url | safeURL }}" class="card-link">{{ $item.author_name }}</a> {{ $item.title}}</p>{{ end }}
+		<a href="{{ $item.author_url | safeURL }}" class="card-link">Vew More on Instagram</a>
+	</div>
+</div>
+{{ end }}
+{{- end -}}
+
+{{ define "__h_simple_instagram_css" }}
+{{ if not (.Page.Scratch.Get "__h_simple_instagram_css") }}
+{{/* Only include once */}}
+{{  .Page.Scratch.Set "__h_simple_instagram_css" true }}
+<style type="text/css">
+   .__h_instagram.card {
+   	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+   	font-size: 14px;
+      border: 1px solid rgb(219, 219, 219);
+      padding: 0;
+      margin: 0;
+   }
+   .__h_instagram.card .card-header, .__h_instagram.card .card-body {
+      padding: 10px 10px 10px;
+   }
+   .__h_instagram.card img {
+      width: 100%;
+    	height: auto;
+   }
+</style>
+{{ end }}
+{{ end }}`},
 	{`shortcodes/ref.html`, `{{ if len .Params | eq 2 }}{{ ref .Page (.Get 0) (.Get 1) }}{{ else }}{{ ref .Page (.Get 0) }}{{ end }}`},
 	{`shortcodes/relref.html`, `{{ if len .Params | eq 2 }}{{ relref .Page (.Get 0) (.Get 1) }}{{ else }}{{ relref .Page (.Get 0) }}{{ end }}`},
 	{`shortcodes/speakerdeck.html`, `{{- $pc := .Page.Site.Config.Privacy.SpeakerDeck -}}

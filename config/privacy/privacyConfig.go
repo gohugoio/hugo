@@ -53,6 +53,10 @@ type GoogleAnalytics struct {
 // Instagram holds the privacy configuration settings related to the Instagram shortcode.
 type Instagram struct {
 	Service `mapstructure:",squash"`
+
+	// If simple mode is enabled, a static and no-JS version of the Instagram
+	// image card will be built.
+	Simple bool
 }
 
 // SpeakerDeck holds the privacy configuration settings related to the SpeakerDeck shortcode.

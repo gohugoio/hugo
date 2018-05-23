@@ -1,4 +1,5 @@
-{{ define "__h_simple_css" }}{{/* This is also used in other "simple" variants. These template definitions are global. */}}
+{{ define "__h_simple_css" }}{{/* These template definitions are global. */}}
+{{/* TODO(bep) rename this to Youtube something. We need to add these per service. */}}
 {{ if not (.Page.Scratch.Get "__h_simple_css") }}
 {{/* Only include once */}}
 {{  .Page.Scratch.Set "__h_simple_css" true }}

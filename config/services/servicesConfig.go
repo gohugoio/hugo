@@ -29,6 +29,7 @@ const (
 type Config struct {
 	Disqus          Disqus
 	GoogleAnalytics GoogleAnalytics
+	Instagram       Instagram
 }
 
 // Disqus holds the functional configuration settings related to the Disqus template.
@@ -41,6 +42,14 @@ type Disqus struct {
 type GoogleAnalytics struct {
 	// The GA tracking ID.
 	ID string
+}
+
+// Instagram holds the functional configuration settings related to the Instagram shortcodes.
+type Instagram struct {
+	// The Simple variant of the Instagram is decorated with Bootstrap 4 card classes.
+	// This means that if you use Bootstrap 4 or want to provide your own CSS, you want
+	// to disable the inline CSS provided by Hugo.
+	DisableInlineCSS bool
 }
 
 func DecodeConfig(cfg config.Provider) (c Config, err error) {
