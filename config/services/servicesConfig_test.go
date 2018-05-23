@@ -33,6 +33,8 @@ someOtherValue = "foo"
 shortname = "DS"
 [services.googleAnalytics]
 id = "ga_id"
+[services.instagram]
+disableInlineCSS = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	assert.NoError(err)
@@ -44,6 +46,7 @@ id = "ga_id"
 	assert.Equal("DS", config.Disqus.Shortname)
 	assert.Equal("ga_id", config.GoogleAnalytics.ID)
 
+	assert.True(config.Instagram.DisableInlineCSS)
 }
 
 // Support old root-level GA settings etc.

@@ -36,6 +36,7 @@ disable = true
 respectDoNotTrack = true
 [privacy.instagram]
 disable = true
+simple = true
 [privacy.speakerDeck]
 disable = true
 [privacy.tweet]
@@ -45,6 +46,7 @@ disable = true
 [privacy.youtube]
 disable = true
 privacyEnhanced = true
+simple = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	assert.NoError(err)
@@ -57,12 +59,14 @@ privacyEnhanced = true
 	assert.True(pc.GoogleAnalytics.Disable)
 	assert.True(pc.GoogleAnalytics.RespectDoNotTrack)
 	assert.True(pc.Instagram.Disable)
+	assert.True(pc.Instagram.Simple)
 	assert.True(pc.SpeakerDeck.Disable)
 	assert.True(pc.Tweet.Disable)
 	assert.True(pc.Vimeo.Disable)
 
 	assert.True(pc.YouTube.PrivacyEnhanced)
 	assert.True(pc.YouTube.Disable)
+	assert.True(pc.YouTube.Simple)
 }
 
 func TestDecodeConfigFromTOMLCaseInsensitive(t *testing.T) {
