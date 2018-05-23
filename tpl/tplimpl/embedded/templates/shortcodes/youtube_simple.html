@@ -7,8 +7,7 @@
 {{ template "__h_simple_css" $ }}
 {{ end }}
 {{ $secondClass := "s_youtube_simple" }}
-{{ $divID := printf "%s_%d" $secondClass (add $.Ordinal 1) }}
-<div class="{{ $secondClass }} {{ $class }}" id="{{ $divID }}">
+<div class="{{ $secondClass }} {{ $class }}">
 {{ $tb := printf "//i.ytimg.com/vi/%s/" $id }}
 <a href="//youtube.com/watch?v={{ $id | safeHTMLAttr }}" target="_blank">
      <img src="{{ printf "%smaxresdefault.jpg" $tb }}" srcset="{{ printf "%shqdefault.jpg" $tb }} 1x {{ printf "%smaxresdefault.jpg" $tb }} 2x" alt="Video">
