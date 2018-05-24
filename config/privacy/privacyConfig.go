@@ -31,7 +31,7 @@ type Config struct {
 	GoogleAnalytics GoogleAnalytics
 	Instagram       Instagram
 	SpeakerDeck     SpeakerDeck
-	Tweet           Tweet
+	Twitter         Twitter
 	Vimeo           Vimeo
 	YouTube         YouTube
 }
@@ -64,8 +64,8 @@ type SpeakerDeck struct {
 	Service `mapstructure:",squash"`
 }
 
-// Tweet holds the privacy configuration settingsrelated to the Tweet shortcode.
-type Tweet struct {
+// Twitter holds the privacy configuration settingsrelated to the Twitter shortcode.
+type Twitter struct {
 	Service `mapstructure:",squash"`
 }
 

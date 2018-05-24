@@ -686,10 +686,21 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 	}
 }
 
+var embeddedTemplatesAliases = map[string][]string{
+	"shortcodes/twitter.html": []string{"shortcodes/tweet.html"},
+}
+
 func (t *templateHandler) loadEmbedded() {
 	for _, kv := range embedded.EmbeddedTemplates {
 		// TODO(bep) error handling
-		t.addInternalTemplate(kv[0], kv[1])
+		name, templ := kv[0], kv[1]
+		t.addInternalTemplate(name, templ)
+		if aliases, found := embeddedTemplatesAliases[name]; found {
+			for _, alias := range aliases {
+				t.addInternalTemplate(alias, templ)
+			}
+
+		}
 	}
 
 }

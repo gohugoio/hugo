@@ -39,7 +39,7 @@ disable = true
 simple = true
 [privacy.speakerDeck]
 disable = true
-[privacy.tweet]
+[privacy.twitter]
 disable = true
 [privacy.vimeo]
 disable = true
@@ -61,7 +61,7 @@ simple = true
 	assert.True(pc.Instagram.Disable)
 	assert.True(pc.Instagram.Simple)
 	assert.True(pc.SpeakerDeck.Disable)
-	assert.True(pc.Tweet.Disable)
+	assert.True(pc.Twitter.Disable)
 	assert.True(pc.Vimeo.Disable)
 
 	assert.True(pc.YouTube.PrivacyEnhanced)
