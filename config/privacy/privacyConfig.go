@@ -67,6 +67,10 @@ type SpeakerDeck struct {
 // Twitter holds the privacy configuration settingsrelated to the Twitter shortcode.
 type Twitter struct {
 	Service `mapstructure:",squash"`
+
+	// When set to true, the Tweet and its embedded page on your site are not used
+	// for purposes that include personalized suggestions and personalized ads.
+	EnableDNT bool
 }
 
 // Vimeo holds the privacy configuration settingsrelated to the Vimeo shortcode.
