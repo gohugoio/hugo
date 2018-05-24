@@ -365,8 +365,8 @@ M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.5
 {{- end -}}`},
 	{`shortcodes/twitter.html`, `{{- $pc := .Page.Site.Config.Privacy.Twitter -}}
 {{- if not $pc.Disable -}}
-{{ $url := printf "https://api.twitter.com/1/statuses/oembed.json?id=%s&dnt=%t" (index .Params 0) $pc.EnableDNT }}
-{{ $json := getJSON $url }}
+{{- $url := printf "https://api.twitter.com/1/statuses/oembed.json?id=%s&dnt=%t" (index .Params 0) $pc.EnableDNT -}}
+{{- $json := getJSON $url -}}
 {{ $json.html | safeHTML }}
 {{- end -}}`},
 	{`shortcodes/vimeo.html`, `{{- $pc := .Page.Site.Config.Privacy.Vimeo -}}
