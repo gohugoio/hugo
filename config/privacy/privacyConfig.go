@@ -89,11 +89,6 @@ type YouTube struct {
 	// YouTube won’t store information about visitors on your website
 	// unless the user plays the embedded video.
 	PrivacyEnhanced bool
-
-	// If simple mode is enabled, only a thumbnail is fetched from ytimg.com and
-	// shown with a play button overlaid. If a user clicks the button, he/she will
-	// be taken to the video page on youtube.com in a new browser tab.
-	Simple bool
 }
 
 func DecodeConfig(cfg config.Provider) (pc Config, err error) {

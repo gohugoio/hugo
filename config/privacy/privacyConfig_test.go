@@ -70,7 +70,6 @@ simple = true
 
 	assert.True(pc.YouTube.PrivacyEnhanced)
 	assert.True(pc.YouTube.Disable)
-	assert.True(pc.YouTube.Simple)
 }
 
 func TestDecodeConfigFromTOMLCaseInsensitive(t *testing.T) {

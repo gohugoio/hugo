@@ -384,30 +384,13 @@ M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.5
 	{`shortcodes/youtube.html`, `{{- $pc := .Page.Site.Config.Privacy.YouTube -}}
 {{- if not $pc.Disable -}}
 {{- $ytHost := cond $pc.PrivacyEnhanced  "www.youtube-nocookie.com" "www.youtube.com" -}}
-{{- if $pc.Simple -}}
-{{ template "_internal/shortcodes/youtube_simple.html" . }}
-{{- else -}}
 {{- $id := .Get "id" | default (.Get 0) -}}
 {{- $class := .Get "class" | default (.Get 1) }}
 <div {{ with $class }}class="{{ . }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
   <iframe src="//{{ $ytHost }}/embed/{{ $id }}{{ with .Get "autoplay" }}{{ if eq . "true" }}?autoplay=1{{ end }}{{ end }}" {{ if not $class }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}allowfullscreen frameborder="0" title="YouTube Video"></iframe>
 </div>
-{{ end }}
-{{- end -}}`},
-	{`shortcodes/youtube_simple.html`, `{{ $id := .Get "id" | default (.Get 0) }}
-{{ $class := .Get "class" | default (.Get 1) }}
-{{ $hasClass := $class }}
-{{ $class := $class | default "__h_youtube" }}
-{{ if not $hasClass }}
-{{/* If class is set, assume the user wants to provide his own styles. */}}
-{{ template "__h_simple_css" $ }}
-{{ end }}
-{{ $secondClass := "s_youtube_simple" }}
-<div class="{{ $secondClass }} {{ $class }}">
-{{ $tb := printf "//i.ytimg.com/vi/%s/" $id }}
-<a href="//youtube.com/watch?v={{ $id | safeHTMLAttr }}" target="_blank">
-     <img src="{{ printf "%smaxresdefault.jpg" $tb }}" srcset="{{ printf "%shqdefault.jpg" $tb }} 1x {{ printf "%smaxresdefault.jpg" $tb }} 2x" alt="Video">
-<div class="play"><svg height="100%" version="1.1" viewBox="0 0 68 48" width="100%"><path class="ytp-large-play-button-bg" d="{{ template "__h_simple_icon_play" $ }}" fill="#212121" fill-opacity="0.8"></path><path d="M 45,24 27,14 27,34" fill="#fff"></path></svg></div></a></div>`},
+{{ end -}}
+`},
 	{`twitter_cards.html`, `{{- with $.Params.images -}}
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="{{ index . 0 | absURL }}"/>
