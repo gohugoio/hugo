@@ -45,6 +45,9 @@ type Disqus struct {
 type GoogleAnalytics struct {
 	Service `mapstructure:",squash"`
 
+	// Enabling this will disable the use of Cookies and use Session Storage to Store the GA Client ID.
+	UseSessionStorage bool
+
 	// Enabling this will make the GA templates respect the
 	// "Do Not Track" HTTP header. See  https://www.paulfurley.com/google-analytics-dnt/.
 	RespectDoNotTrack bool
