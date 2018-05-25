@@ -2013,7 +2013,11 @@ func (p *Page) RelRef(refs ...string) (string, error) {
 }
 
 func (p *Page) String() string {
+	if p.Path() != "" {
+		return fmt.Sprintf("Page(%s)", p.Path())
+	}
 	return fmt.Sprintf("Page(%q)", p.title)
+
 }
 
 // Scratch returns the writable context associated with this Page.
