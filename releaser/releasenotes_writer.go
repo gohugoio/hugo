@@ -262,7 +262,7 @@ func (r *ReleaseHandler) writeReleaseNotesToTemp(version string, infosMain, info
 func (r *ReleaseHandler) writeReleaseNotesToDocs(title, sourceFilename string) (string, error) {
 	targetFilename := "index.md"
 	bundleDir := strings.TrimSuffix(filepath.Base(sourceFilename), "-ready.md")
-	contentDir := hugoFilepath("docs/content/news/" + bundleDir)
+	contentDir := hugoFilepath("docs/content/en/news/" + bundleDir)
 	targetFullFilename := filepath.Join(contentDir, targetFilename)
 
 	if r.try {
