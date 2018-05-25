@@ -115,7 +115,7 @@ url
 the multilingual feature.
 
 weight
-: used for [ordering your content in lists][ordering].
+: used for [ordering your content in lists][ordering]. Lower weight gets higher precedence. So content with lower weight will come first.
 
 \<taxonomies\>
 : field name of the *plural* form of the index. See `tags` and `categories` in the above front matter examples. _Note that the plural form of user-defined taxonomies cannot be the same as any of the predefined front matter variables._

@@ -70,3 +70,8 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 ## Contentful
 
 - [contentful2hugo](https://github.com/ArnoNuyts/contentful2hugo) - A tool to create content-files for Hugo from content on [Contentful](https://www.contentful.com/).
+
+
+## BlogML
+
+- [BlogML2Hugo](https://github.com/jijiechen/BlogML2Hugo) - A tool that helps you convert BlogML xml file to Hugo markdown files. Users need to take care of links to attachments and images by themselves. This helps the blogs that export BlogML files (e.g. BlogEngine.NET) tramsform to hugo sites easily.
