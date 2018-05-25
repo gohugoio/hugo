@@ -47,7 +47,10 @@ Disqus:
 	b.Build(BuildCfg{})
 
 	// Gheck GA regular and async
-	b.AssertFileContent("public/index.html", "'script','https://www.google-analytics.com/analytics.js','ga');\n\tga('create', 'ga_id', 'auto')", "<script async src='//www.google-analytics.com/analytics.js'>")
+	b.AssertFileContent("public/index.html",
+		"'anonymizeIp', true",
+		"'script','https://www.google-analytics.com/analytics.js','ga');\n\tga('create', 'ga_id', 'auto')",
+		"<script async src='//www.google-analytics.com/analytics.js'>")
 
 	// Disqus
 	b.AssertFileContent("public/index.html", "\"disqus_shortname\" + '.disqus.com/embed.js';")

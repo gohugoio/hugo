@@ -143,6 +143,23 @@ shortname = "disqus_shortname"
 [services.googleAnalytics]
 id = "ga_id"
 
+[privacy]
+[privacy.disqus]
+disable = false
+[privacy.googleAnalytics]
+respectDoNotTrack = true
+anonymizeIP = true
+[privacy.instagram]
+simple = true
+[privacy.speakerDeck]
+[privacy.twitter]
+enableDNT = true
+[privacy.vimeo]
+disable = false
+[privacy.youtube]
+disable = false
+privacyEnhanced = true
+
 `
 
 func (s *sitesBuilder) WithSimpleConfigFile() *sitesBuilder {

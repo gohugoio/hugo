@@ -34,6 +34,7 @@ disable = true
 [privacy.googleAnalytics]
 disable = true
 respectDoNotTrack = true
+anonymizeIP = true
 [privacy.instagram]
 disable = true
 simple = true
@@ -59,6 +60,7 @@ simple = true
 	assert.True(pc.Disqus.Disable)
 	assert.True(pc.GoogleAnalytics.Disable)
 	assert.True(pc.GoogleAnalytics.RespectDoNotTrack)
+	assert.True(pc.GoogleAnalytics.AnonymizeIP)
 	assert.True(pc.Instagram.Disable)
 	assert.True(pc.Instagram.Simple)
 	assert.True(pc.SpeakerDeck.Disable)

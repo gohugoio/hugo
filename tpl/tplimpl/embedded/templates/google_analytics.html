@@ -10,6 +10,7 @@ if (!doNotTrack) {
 	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 	ga('create', '{{ . }}', 'auto');
 	ga('send', 'pageview');
+	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end -}}
 }
 </script>
 {{ end }}

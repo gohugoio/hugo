@@ -48,6 +48,9 @@ type GoogleAnalytics struct {
 	// Enabling this will make the GA templates respect the
 	// "Do Not Track" HTTP header. See  https://www.paulfurley.com/google-analytics-dnt/.
 	RespectDoNotTrack bool
+
+	// Enabling this will make it so the users' IP addresses are anonymized within Google Analytics.
+	AnonymizeIP bool
 }
 
 // Instagram holds the privacy configuration settings related to the Instagram shortcode.

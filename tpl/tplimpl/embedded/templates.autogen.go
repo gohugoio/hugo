@@ -111,6 +111,7 @@ if (!doNotTrack) {
 	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 	ga('create', '{{ . }}', 'auto');
 	ga('send', 'pageview');
+	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end -}}
 }
 </script>
 {{ end }}
@@ -133,6 +134,7 @@ if (!doNotTrack) {
 	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
 	ga('create', '{{ . }}', 'auto');
 	ga('send', 'pageview');
+	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end -}}
 }
 </script>
 <script async src='//www.google-analytics.com/analytics.js'></script>
