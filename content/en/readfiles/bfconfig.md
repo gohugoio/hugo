@@ -41,7 +41,7 @@
 `hrefTargetBlank`
 : default: **`false`** <br>
     Blackfriday flag: **`HTML_HREF_TARGET_BLANK`** <br>
-    Purpose: `true` opens external links in a new window or tab.
+    Purpose: `true` opens <s>external links</s> **absolute** links in a new window or tab. While the `target="_blank"` attribute is typically used for external links, Blackfriday does that for _all_ absolute links ([ref](https://discourse.gohugo.io/t/internal-links-in-same-tab-external-links-in-new-tab/11048/8)). One needs to make note of this if they use absolute links throughout, for internal links too (for example, by setting `canonifyURLs` to `true` or via `absURL`).
 
 `plainIDAnchors`
 : default **`true`** <br>

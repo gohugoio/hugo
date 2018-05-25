@@ -116,7 +116,7 @@ From the example above:
 - `documents/photo_specs.pdf` will get the `photo` icon.
 - `documents/checklist.pdf`, `documents/guide.pdf` and `documents/payment.docx` will get `Title` as set by `title`.
 - Every `PDF` in the bundle except `documents/photo_specs.pdf` will get the `pdf` icon.
-- All `PDF` files will get a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#counter), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
+- All `PDF` files will get a new `Name`. The `name` parameter contains a special placeholder [`:counter`](#the-counter-placeholder-in-name-and-title), so the `Name` will be `pdf-file-1`, `pdf-file-2`, `pdf-file-3`.
 - Every docx in the bundle will receive the `word` icon.
 
 {{% warning %}}
