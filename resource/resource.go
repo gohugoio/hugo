@@ -419,8 +419,6 @@ type genericResource struct {
 	// The relative path to this resource.
 	relTargetPath dirFile
 
-	file string
-
 	// Base is set when the output format's path has a offset, e.g. for AMP.
 	base string
 
@@ -552,6 +550,10 @@ func (l *genericResource) ResourceType() string {
 
 func (l *genericResource) AbsSourceFilename() string {
 	return l.sourceFilename
+}
+
+func (l *genericResource) String() string {
+	return fmt.Sprintf("Resource(%s: %s)", l.resourceType, l.name)
 }
 
 func (l *genericResource) Publish() error {
