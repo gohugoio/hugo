@@ -183,7 +183,7 @@ This list template has been modified slightly from a template originally used in
 
 ### Taxonomy Template
 
-{{< code file="layouts/_default/taxonomies.html" download="taxonomies.html" >}}
+{{< code file="layouts/_default/taxonomy.html" download="taxonomy.html" >}}
 {{ define "main" }}
 <main>
   <div>
@@ -215,6 +215,8 @@ Hugo lists render the content based on metadata you provide in [front matter][].
 {{< /code >}}
 
 ### By Weight
+
+Lower weight gets higher precedence. So content with lower weight will come first.
 
 {{< code file="layouts/partials/by-weight.html" >}}
 <ul>

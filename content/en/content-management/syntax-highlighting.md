@@ -18,7 +18,7 @@ toc: true
 
 From Hugo 0.28, the default syntax hightlighter in Hugo is [Chroma](https://github.com/alecthomas/chroma); it is built in Go and is really, really fast -- and for the most important parts compatible with Pygments.
 
-If you want to continue to use Pygments (see below), set `pygmentsUseClasses=true` in your site config.
+If you want to continue to use Pygments (see below), set `pygmentsUseClassic=true` in your site config.
 
 The example below shows a simple code snippet from the Hugo source highlighted with the `highlight` shortcode. Note that the gohugo.io site is generated with `pygmentsUseClasses=true` (see [Generate Syntax Highlighter CSS](#generate-syntax-highlighter-css)).
 
@@ -94,7 +94,7 @@ linenos
 : For Chroma, any value in this setting will print line numbers. Pygments has some more fine grained control.
 
 linenostart
-: Start the line numbers from this value (default is 1). 
+: Start the line numbers from this value (default is 1).
 
 
 hl_lines
@@ -143,7 +143,7 @@ Highlighting is carried out via the [built-in shortcode](/content-management/sho
 See [Highlight](/functions/highlight/).
 
 ## Highlight in Code Fences
-  
+
 It is also possible to add syntax highlighting with GitHub flavored code fences. To enable this, set the `pygmentsCodeFences` to `true` in Hugo's [configuration file](/getting-started/configuration/);
 
 ````

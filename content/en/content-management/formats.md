@@ -219,6 +219,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 * [Daring Fireball: Markdown, John Gruber (Creator of Markdown)][fireball]
 * [Markdown Cheatsheet, Adam Pritchard][mdcheatsheet]
 * [Markdown Tutorial (Interactive), Garen Torikian][mdtutorial]
+* [The Markdown Guide, Matt Cone][mdguide]
 
 [`emojify` function]: /functions/emojify/
 [ascii]: http://asciidoctor.org/
@@ -237,6 +238,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [ietf]: https://tools.ietf.org/html/
 [mathjaxdocs]: https://docs.mathjax.org/en/latest/
 [mdcheatsheet]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
+[mdguide]: https://www.markdownguide.org/
 [mdtutorial]: http://www.markdowntutorial.com/
 [Miek Gieben's website]: https://miek.nl/2016/March/05/mmark-syntax-document/
 [mmark]: https://github.com/miekg/mmark
