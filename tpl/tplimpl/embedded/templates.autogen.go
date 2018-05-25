@@ -123,8 +123,8 @@ if (!doNotTrack) {
 	{{ else }}
 	ga('create', '{{ . }}', 'auto');
 	{{ end -}}
+	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end }}
 	ga('send', 'pageview');
-	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end -}}
 }
 </script>
 {{ end }}
@@ -159,8 +159,8 @@ if (!doNotTrack) {
 	{{ else }}
 	ga('create', '{{ . }}', 'auto');
 	{{ end -}}
+	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end }}
 	ga('send', 'pageview');
-	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end -}}
 }
 </script>
 <script async src='//www.google-analytics.com/analytics.js'></script>
