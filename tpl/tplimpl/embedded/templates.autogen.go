@@ -343,11 +343,11 @@ M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.5
 {{  .Page.Scratch.Set "__h_simple_instagram_css" true }}
 <style type="text/css">
    .__h_instagram.card {
-   	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-   	font-size: 14px;
+   	  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+   	  font-size: 14px;
       border: 1px solid rgb(219, 219, 219);
       padding: 0;
-      margin: 0;
+	  margin-top: 30px;
    }
    .__h_instagram.card .card-header, .__h_instagram.card .card-body {
       padding: 10px 10px 10px;
