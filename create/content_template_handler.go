@@ -42,7 +42,7 @@ type ArchetypeFileData struct {
 	// used in the archetype template. Also, if this is a multilingual setup,
 	// this site is the site that best matches the target content file, based
 	// on the presence of language code in the filename.
-	Site *hugolib.Site
+	Site *hugolib.SiteInfo
 
 	// Name will in most cases be the same as TranslationBaseName, e.g. "my-post".
 	// But if that value is "index" (bundles), the Name is instead the owning folder.
@@ -108,7 +108,7 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 		Date: time.Now().Format(time.RFC3339),
 		Name: name,
 		File: f,
-		Site: s,
+		Site: &s.Info,
 	}
 
 	if archetypeFilename == "" {
