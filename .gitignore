@@ -8,6 +8,7 @@ nohup.out
 cover.out
 *.swp
 *.swo
+/tags
 .DS_Store
 *~
 vendor/*/

@@ -71,7 +71,10 @@ func TestTemplateFuncsExamples(t *testing.T) {
 
 	fs := hugofs.NewMem(v)
 
-	afero.WriteFile(fs.Source, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)
+	// Something feels kinda dirty about this. Individual testcases should indicate the context they require...
+	err := afero.WriteFile(fs.Source, filepath.Join(workingDir, "README.txt"), []byte("Hugo Rocks!"), 0755)
+	afero.WriteFile(fs.Source, filepath.Join(workingDir, "bootstrap.css"), []byte("Hugo Rocks!"), 0755)
+	afero.WriteFile(fs.Source, filepath.Join(workingDir, "bootstrap.js"), []byte("Hugo Rocks!"), 0755)
 
 	depsCfg := newDepsConfig(v)
 	depsCfg.Fs = fs
@@ -92,7 +95,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 		ns := nsf(d)
-		for _, mm := range ns.MethodMappings {
+		for alias, mm := range ns.MethodMappings {
 			for i, example := range mm.Examples {
 				in, expected := example[0], example[1]
 				d.WithTemplate = func(templ tpl.TemplateHandler) error {
@@ -103,9 +106,9 @@ func TestTemplateFuncsExamples(t *testing.T) {
 				require.NoError(t, d.LoadResources())
 
 				var b bytes.Buffer
-				require.NoError(t, d.Tmpl.Lookup("test").Execute(&b, &data))
+				require.NoErrorf(t, d.Tmpl.Lookup("test").Execute(&b, &data), "%s.%s should parse without error, got %#v", ns.Name, alias, err)
 				if b.String() != expected {
-					t.Fatalf("%s[%d]: got %q expected %q", ns.Name, i, b.String(), expected)
+					t.Errorf("%s.%s[%d]: got %q expected %q", ns.Name, alias, i, b.String(), expected)
 				}
 			}
 		}
