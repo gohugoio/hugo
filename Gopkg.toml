@@ -10,7 +10,7 @@
 
 [[constraint]]
   name = "github.com/alecthomas/chroma"
-  branch = "master"
+  revision = "1b755a90bd109f170385cb3964f0abdfd3451145"
 
 [[constraint]]
   branch = "master"

@@ -20,7 +20,6 @@
   revision = "de5bf2ad457846296e2031421a34e2568e304e35"
 
 [[projects]]
-  branch = "master"
   name = "github.com/alecthomas/chroma"
   packages = [
     ".",
@@ -55,7 +54,7 @@
     "lexers/y",
     "styles"
   ]
-  revision = "6b1131c0069211a7729895c26f8c51765a4baf25"
+  revision = "1b755a90bd109f170385cb3964f0abdfd3451145"
 
 [[projects]]
   name = "github.com/bep/debounce"
@@ -78,8 +77,8 @@
 [[projects]]
   name = "github.com/cpuguy83/go-md2man"
   packages = ["md2man"]
-  revision = "20f5889cbdc3c73dbd2862796665e7c465ade7d1"
-  version = "v1.0.8"
+  revision = "a65d4d2de4d5f7c74868dfa9b202a3c8be315aaa"
+  version = "v1.0.6"
 
 [[projects]]
   branch = "master"
@@ -276,10 +275,10 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/russross/blackfriday"
   packages = ["."]
-  revision = "55d61fa8aa702f59229e6cff85793c22e580eaf5"
-  version = "v1.5.1"
+  revision = "11635eb403ff09dbc3a6b5a007ab5ab09151c229"
 
 [[projects]]
   name = "github.com/sanity-io/litter"
@@ -432,6 +431,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b9b38ece73fd6c0d0b20eb2ff85dfcc15a82841223b4403566712fd7b7ae7d59"
+  inputs-digest = "78b19539f7321429f217fc482de9e7cb4e2edd9b054ba8ec36b1e62bc4281b4f"
   solver-name = "gps-cdcl"
   solver-version = 1
