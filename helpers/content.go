@@ -109,6 +109,7 @@ type BlackFriday struct {
 	Fractions             bool
 	HrefTargetBlank       bool
 	NofollowLinks         bool
+	NoreferrerLinks       bool
 	SmartDashes           bool
 	LatexDashes           bool
 	TaskLists             bool
@@ -126,6 +127,7 @@ func newBlackfriday(config map[string]interface{}) *BlackFriday {
 		"fractions":             true,
 		"hrefTargetBlank":       false,
 		"nofollowLinks":         false,
+		"noreferrerLinks":       false,
 		"smartDashes":           true,
 		"latexDashes":           true,
 		"plainIDAnchors":        true,
@@ -281,6 +283,10 @@ func (c *ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) b
 
 	if ctx.Config.NofollowLinks {
 		htmlFlags |= blackfriday.HTML_NOFOLLOW_LINKS
+	}
+
+	if ctx.Config.NoreferrerLinks {
+		htmlFlags |= blackfriday.HTML_NOREFERRER_LINKS
 	}
 
 	if ctx.Config.SmartDashes {
