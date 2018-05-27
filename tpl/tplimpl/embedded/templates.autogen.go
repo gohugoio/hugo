@@ -319,7 +319,7 @@ if (!doNotTrack) {
 	<a href="{{ $mediaURL }}" target="_blank"><img class="card-img-top img-fluid" src="{{ $item.thumbnail_url }}" width="{{ $item.thumbnail_width }}"  height="{{ $item.thumbnail_height }}" alt="Instagram Image"></a>
 	<div class="card-body">
 		{{ if not $hideCaption }}<p class="card-text"><a href="{{ $item.author_url | safeURL }}" class="card-link">{{ $item.author_name }}</a> {{ $item.title}}</p>{{ end }}
-		<a href="{{ $item.author_url | safeURL }}" class="card-link">Vew More on Instagram</a>
+		<a href="{{ $item.author_url | safeURL }}" class="card-link">View More on Instagram</a>
 	</div>
 </div>
 {{ end }}
