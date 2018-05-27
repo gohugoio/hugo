@@ -41,7 +41,8 @@ type ShortcodeWithPage struct {
 	Parent        *ShortcodeWithPage
 	IsNamedParams bool
 
-	// Zero-based oridinal in relation to its parent.
+	// Zero-based ordinal in relation to its parent. If the parent is the page itself,
+	// this ordinal will represent the position of this shortcode in the page content.
 	Ordinal int
 
 	scratch *Scratch
