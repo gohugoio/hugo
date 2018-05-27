@@ -21,7 +21,7 @@ toc: false
 [Shortcodes][shortcodes] have access to parameters delimited in the shortcode declaration via [`.Get`][getfunction], page- and site-level variables, and also the following shortcode-specific fields:
 
 .Ordinal
-Zero-based ordinal in relation to its parent. If the parent is the page itself, this ordinal will represent the position of this shortcode in the page content.
+: Zero-based ordinal in relation to its parent. If the parent is the page itself, this ordinal will represent the position of this shortcode in the page content.
 
 .Parent
 : provides access to the parent shortcode context in nested shortcodes. This can be very useful for inheritance of common shortcode parameters from the root.
