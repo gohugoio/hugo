@@ -205,6 +205,7 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 		{blackfriday.HTML_SMARTYPANTS_FRACTIONS},
 		{blackfriday.HTML_HREF_TARGET_BLANK},
 		{blackfriday.HTML_NOFOLLOW_LINKS},
+		{blackfriday.HTML_NOREFERRER_LINKS},
 		{blackfriday.HTML_SMARTYPANTS_DASHES},
 		{blackfriday.HTML_SMARTYPANTS_LATEX_DASHES},
 	}
@@ -214,6 +215,7 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 	ctx.Config.Fractions = true
 	ctx.Config.HrefTargetBlank = true
 	ctx.Config.NofollowLinks = true
+	ctx.Config.NoreferrerLinks = true
 	ctx.Config.LatexDashes = true
 	ctx.Config.PlainIDAnchors = true
 	ctx.Config.SmartDashes = true
