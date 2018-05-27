@@ -269,6 +269,41 @@ if (!doNotTrack) {
 <!-- Output all taxonomies as schema.org keywords -->
 <meta itemprop="keywords" content="{{ if .IsPage}}{{ range $index, $tag := .Params.tags }}{{ $tag }},{{ end }}{{ else }}{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}{{ end }}" />
 {{ end }}`},
+	{`shortcodes/__h_simple_assets.html`, `{{ define "__h_simple_css" }}{{/* These template definitions are global. */}}
+{{/* (onedrawingperday) renamed the CSS classes to video something since everything here will be needed for both Vimeo and (hopefully) YouTube simple variants. */}}
+{{- if not (.Page.Scratch.Get "__h_simple_css") -}}
+{{/* Only include once */}}
+{{-  .Page.Scratch.Set "__h_simple_css" true -}}
+<style>
+.__h_video {
+   position: relative;
+   padding-bottom: 56.23%;
+   height: 0;
+   overflow: hidden;
+   width: 100%;
+   background: #000;
+}
+.__h_video img {
+   max-width: 100%;
+   height: auto;
+   color: #000;
+}
+.__h_video .play {
+   height: 72px;
+   width: 72px;
+   left: 50%;
+   top: 50%;
+   margin-left: -36px;
+   margin-top: -36px;
+   position: absolute;
+   cursor: pointer;
+}
+</style>
+{{- end -}}
+{{- end -}}
+{{- define "__h_simple_icon_play" -}}
+<svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 61 61"><circle cx="30.5" cy="30.5" r="30.5" opacity=".8" fill="#000"></circle><path d="M25.3 19.2c-2.1-1.2-3.8-.2-3.8 2.2v18.1c0 2.4 1.7 3.4 3.8 2.2l16.6-9.1c2.1-1.2 2.1-3.2 0-4.4l-16.6-9z" fill="#fff"></path></svg>
+{{- end -}}`},
 	{`shortcodes/figure.html`, `<!-- image -->
 <figure{{ with .Get "class" }} class="{{.}}"{{ end }}>
     {{ if .Get "link"}}<a href="{{ .Get "link" }}"{{ with .Get "target" }} target="{{ . }}"{{ end }}{{ with .Get "rel" }} rel="{{ . }}"{{ end }}>{{ end }}
@@ -361,13 +396,31 @@ if (!doNotTrack) {
 {{- end -}}`},
 	{`shortcodes/vimeo.html`, `{{- $pc := .Page.Site.Config.Privacy.Vimeo -}}
 {{- if not $pc.Disable -}}
-{{ if .IsNamedParams }}<div {{ if .Get "class" }}class="{{ .Get "class" }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
-  <iframe src="//player.vimeo.com/video/{{ .Get "id" }}" {{ if not (.Get "class") }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
- </div>{{ else }}
-<div {{ if len .Params | eq 2 }}class="{{ .Get 1 }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 30px; height: 0; overflow: hidden;"{{ end }}>
-  <iframe src="//player.vimeo.com/video/{{ .Get 0 }}" {{ if len .Params | eq 1 }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+{{- if $pc.Simple -}}
+{{ template "_internal/shortcodes/vimeo_simple.html" . }}
+{{- else -}}
+ {{- $id := .Get "id" | default (.Get 0) -}}
+ {{- $class := .Get "class" | default (.Get 1) }}
+ <div {{ with $class }}class="{{ . }}"{{ else }}style="position: relative; padding-bottom: 56.25%; padding-top: 0px; height: 0; overflow: hidden;"{{ end }}>
+   <iframe src="//player.vimeo.com/video/{{ $id }}" {{ if not $class }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" {{ end }}allowfullscreen title="Vimeo Video"></iframe>
  </div>
+{{- end -}}
+{{- end -}}`},
+	{`shortcodes/vimeo_simple.html`, `{{ $id := .Get "id" | default (.Get 0) }}
+{{- $item := getJSON "https://vimeo.com/api/oembed.json?url=https://vimeo.com/" $id -}}
+{{ $class := .Get "class" | default (.Get 1) }}
+{{ $hasClass := $class }}
+{{ $class := $class | default "__h_video" }}
+{{ if not $hasClass }}
+{{/* If class is set, assume the user wants to provide his own styles. */}}
+{{ template "__h_simple_css" $ }}
 {{ end }}
+{{ $secondClass := "s_video_simple" }}
+<div class="{{ $secondClass }} {{ $class }}">
+{{- with $item }}
+<a href="{{ $item }}" target="_blank">
+<img src="{{ .thumbnail_url }}" alt="{{ .title }}">
+<div class="play">{{ template "__h_simple_icon_play" $ }}</div></a></div>
 {{- end -}}`},
 	{`shortcodes/youtube.html`, `{{- $pc := .Page.Site.Config.Privacy.YouTube -}}
 {{- if not $pc.Disable -}}

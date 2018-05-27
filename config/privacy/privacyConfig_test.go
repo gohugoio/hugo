@@ -46,6 +46,7 @@ disable = true
 enableDNT = true
 [privacy.vimeo]
 disable = true
+simple = true
 [privacy.youtube]
 disable = true
 privacyEnhanced = true
@@ -69,7 +70,7 @@ simple = true
 	assert.True(pc.Twitter.Disable)
 	assert.True(pc.Twitter.EnableDNT)
 	assert.True(pc.Vimeo.Disable)
-
+    assert.True(pc.Vimeo.Simple)
 	assert.True(pc.YouTube.PrivacyEnhanced)
 	assert.True(pc.YouTube.Disable)
 }
