@@ -270,7 +270,6 @@ if (!doNotTrack) {
 <meta itemprop="keywords" content="{{ if .IsPage}}{{ range $index, $tag := .Params.tags }}{{ $tag }},{{ end }}{{ else }}{{ range $plural, $terms := .Site.Taxonomies }}{{ range $term, $val := $terms }}{{ printf "%s," $term }}{{ end }}{{ end }}{{ end }}" />
 {{ end }}`},
 	{`shortcodes/__h_simple_assets.html`, `{{ define "__h_simple_css" }}{{/* These template definitions are global. */}}
-{{/* (onedrawingperday) renamed the CSS classes to video something since everything here will be needed for both Vimeo and (hopefully) YouTube simple variants. */}}
 {{- if not (.Page.Scratch.Get "__h_simple_css") -}}
 {{/* Only include once */}}
 {{-  .Page.Scratch.Set "__h_simple_css" true -}}
@@ -419,7 +418,6 @@ if (!doNotTrack) {
 <div class="{{ $secondClass }} {{ $class }}">
 {{- with $item }}
 <a href="{{ .provider_url }}{{ .video_id | safeHTMLAttr }}" target="_blank">
-{{/* (onedrawingperday) Vimeo API adds an underscore and dimensions in the file name of low res thumbnails. So removing these with a bit of RegEx will give us the high resolution for use in a srcset*/}}
 {{ $thumb := .thumbnail_url }}
 {{ $original := $thumb | replaceRE "(_.*\\.)" "." }}
 <img src="{{ $thumb }}" srcset="{{ $thumb }} 1x, {{ $original }} 2x" alt="{{ .title }}">

@@ -11,7 +11,6 @@
 <div class="{{ $secondClass }} {{ $class }}">
 {{- with $item }}
 <a href="{{ .provider_url }}{{ .video_id | safeHTMLAttr }}" target="_blank">
-{{/* (onedrawingperday) Vimeo API adds an underscore and dimensions in the file name of low res thumbnails. So removing these with a bit of RegEx will give us the high resolution for use in a srcset*/}}
 {{ $thumb := .thumbnail_url }}
 {{ $original := $thumb | replaceRE "(_.*\\.)" "." }}
 <img src="{{ $thumb }}" srcset="{{ $thumb }} 1x, {{ $original }} 2x" alt="{{ .title }}">
