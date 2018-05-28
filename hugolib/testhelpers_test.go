@@ -156,6 +156,7 @@ simple = true
 enableDNT = true
 [privacy.vimeo]
 disable = false
+simple = true
 [privacy.youtube]
 disable = false
 privacyEnhanced = true
