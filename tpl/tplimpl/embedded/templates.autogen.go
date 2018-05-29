@@ -302,7 +302,8 @@ if (!doNotTrack) {
 {{- end -}}
 {{- define "__h_simple_icon_play" -}}
 <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 61 61"><circle cx="30.5" cy="30.5" r="30.5" opacity=".8" fill="#000"></circle><path d="M25.3 19.2c-2.1-1.2-3.8-.2-3.8 2.2v18.1c0 2.4 1.7 3.4 3.8 2.2l16.6-9.1c2.1-1.2 2.1-3.2 0-4.4l-16.6-9z" fill="#fff"></path></svg>
-{{- end -}}`},
+{{- end -}}
+`},
 	{`shortcodes/figure.html`, `<!-- image -->
 <figure{{ with .Get "class" }} class="{{.}}"{{ end }}>
     {{ if .Get "link"}}<a href="{{ .Get "link" }}"{{ with .Get "target" }} target="{{ . }}"{{ end }}{{ with .Get "rel" }} rel="{{ . }}"{{ end }}>{{ end }}
@@ -398,12 +399,12 @@ if (!doNotTrack) {
 {{- if $pc.Simple -}}
 {{ template "_internal/shortcodes/vimeo_simple.html" . }}
 {{- else -}}
- {{- $id := .Get "id" | default (.Get 0) -}}
- {{- $class := .Get "class" | default (.Get 1) }}
- <div {{ with $class }}class="{{ . }}"{{ else }}style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"{{ end }}>
- 	<iframe src="//player.vimeo.com/video/{{ $id }}" {{ if not $class }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
- </div>
-{{- end -}}
+{{- $id := .Get "id" | default (.Get 0) -}}
+{{- $class := .Get "class" | default (.Get 1) }}
+<div {{ with $class }}class="{{ . }}"{{ else }}style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;"{{ end }}>
+  <iframe src="//player.vimeo.com/video/{{ $id }}" {{ if not $class }}style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" {{ end }}webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+</div>
+{{ end -}}
 {{- end -}}`},
 	{`shortcodes/vimeo_simple.html`, `{{ $id := .Get "id" | default (.Get 0) }}
 {{- $item := getJSON "https://vimeo.com/api/oembed.json?url=https://vimeo.com/" $id -}}
@@ -422,7 +423,8 @@ if (!doNotTrack) {
 {{ $original := $thumb | replaceRE "(_.*\\.)" "." }}
 <img src="{{ $thumb }}" srcset="{{ $thumb }} 1x, {{ $original }} 2x" alt="{{ .title }}">
 <div class="play">{{ template "__h_simple_icon_play" $ }}</div></a></div>
-{{- end -}}`},
+{{- end -}}
+`},
 	{`shortcodes/youtube.html`, `{{- $pc := .Page.Site.Config.Privacy.YouTube -}}
 {{- if not $pc.Disable -}}
 {{- $ytHost := cond $pc.PrivacyEnhanced  "www.youtube-nocookie.com" "www.youtube.com" -}}
