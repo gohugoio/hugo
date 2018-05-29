@@ -246,7 +246,7 @@ func TestShortcodeVimeo(t *testing.T) {
 		// set class (using named params)
 		{
 			`{{< vimeo id="146022717" class="video" >}}`,
-			"(?s)^<div class=\"video\">.*?<iframe src=\"//player.vimeo.com/video/146022717\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>",
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"//player.vimeo.com/video/146022717\" webkitallowfullscreen mozallowfullscreen allowfullscreen>.*?</iframe>.*?</div>",
 		},
 	} {
 		var (

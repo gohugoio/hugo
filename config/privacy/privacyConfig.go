@@ -82,6 +82,11 @@ type Twitter struct {
 // Vimeo holds the privacy configuration settingsrelated to the Vimeo shortcode.
 type Vimeo struct {
 	Service `mapstructure:",squash"`
+
+	// If simple mode is enabled, only a thumbnail is fetched from i.vimeocdn.com and
+	// shown with a play button overlaid. If a user clicks the button, he/she will
+	// be taken to the video page on vimeo.com in a new browser tab.
+	Simple bool
 }
 
 // YouTube holds the privacy configuration settingsrelated to the YouTube shortcode.
