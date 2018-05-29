@@ -577,6 +577,9 @@ func (p *Page) initPlain(lock bool) {
 	})
 }
 
+// PreprocessedContent returns the content after shortcodes have executed and
+// Emojification has been performed, but the content has not otherwise been
+// converted to HTML.
 func (p *Page) PreprocessedContent() []byte {
 	p.initContent()
 	p.initPreproc(true)
