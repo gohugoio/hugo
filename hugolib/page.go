@@ -2029,6 +2029,15 @@ func (p *Page) Hugo() *HugoInfo {
 	return hugoInfo
 }
 
+// GetPage looks up a page for the given ref.
+//    {{ with .GetPage "blog" }}{{ .Title }}{{ end }}
+//
+// This will return nil when no page could be found, and will return
+// an error if the ref is ambiguous.
+func (p *Page) GetPage(ref string) (*Page, error) {
+	return p.s.getPage(p, ref)
+}
+
 func (p *Page) Ref(refs ...string) (string, error) {
 	if len(refs) == 0 {
 		return "", nil
