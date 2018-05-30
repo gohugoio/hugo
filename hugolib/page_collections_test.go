@@ -55,12 +55,12 @@ func BenchmarkGetPage(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		home := s.getPage(KindHome)
+		home, _ := s.getPage(nil, "/")
 		if home == nil {
 			b.Fatal("Home is nil")
 		}
 
-		p := s.getPage(KindSection, pagePaths[i])
+		p, _ := s.getPage(nil, pagePaths[i])
 		if p == nil {
 			b.Fatal("Section is nil")
 		}
@@ -91,7 +91,7 @@ func BenchmarkGetPageRegular(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		page := s.getPage(KindPage, pagePaths[i])
+		page, _ := s.getPage(nil, pagePaths[i])
 		require.NotNil(b, page)
 	}
 }
@@ -131,10 +131,27 @@ func TestGetPage(t *testing.T) {
 
 	for i, test := range tests {
 		errorMsg := fmt.Sprintf("Test %d", i)
-		page := s.getPage(test.kind, test.path...)
+
+		// test legacy public Site.GetPage
+		page, _ := s.Info.GetPage(test.kind, test.path...)
 		assert.NotNil(page, errorMsg)
 		assert.Equal(test.kind, page.Kind, errorMsg)
 		assert.Equal(test.expectedTitle, page.title)
+
+		// test new internal Site.getPage
+		var ref string
+		if len(test.path) == 1 {
+			ref = filepath.ToSlash(test.path[0])
+		} else {
+			ref = path.Join(test.path...)
+		}
+		page2, _ := s.getPage(nil, ref)
+		assert.NotNil(page2, errorMsg)
+		assert.Equal(test.kind, page2.Kind, errorMsg)
+		assert.Equal(test.expectedTitle, page2.title)
+
 	}
+
+	// vas(todo) add ambiguity detection tests
 
 }

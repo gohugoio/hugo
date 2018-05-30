@@ -21,6 +21,7 @@ import (
 	"mime"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -492,7 +493,6 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat s
 	var err error
 
 	ref = filepath.ToSlash(ref)
-	ref = strings.TrimPrefix(ref, "/")
 
 	refURL, err = url.Parse(ref)
 
@@ -504,7 +504,11 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat s
 	var link string
 
 	if refURL.Path != "" {
-		target := s.getPage(KindPage, refURL.Path)
+		target, err := s.getPage(page, refURL.Path)
+
+		if err != nil {
+			return "", err
+		}
 
 		if target == nil {
 			return "", fmt.Errorf("No page found with path or logical name \"%s\".\n", refURL.Path)
@@ -1598,13 +1602,20 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 
 }
 
-// GetPage looks up a page of a given type in the path given.
+// GetPage looks up a page of a given type for the given ref.
 //    {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
 //
-// This will return nil when no page could be found, and will return the
-// first page found if the key is ambigous.
-func (s *SiteInfo) GetPage(typ string, path ...string) (*Page, error) {
-	return s.getPage(typ, path...), nil
+// This will return nil when no page could be found, and will return an
+// error if the key is ambiguous.
+func (s *SiteInfo) GetPage(typ string, ref ...string) (*Page, error) {
+	var key string
+	if len(ref) == 1 {
+		key = filepath.ToSlash(ref[0])
+	} else {
+		key = path.Join(ref...)
+	}
+
+	return s.getPage(nil, key)
 }
 
 func (s *Site) permalinkForOutputFormat(link string, f output.Format) (string, error) {

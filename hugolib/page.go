@@ -1874,6 +1874,28 @@ func (p *Page) FullFilePath() string {
 	return filepath.Join(p.Dir(), p.LogicalName())
 }
 
+// Returns the canonical, absolute fully-qualifed logical reference used by
+// methods such as GetPage and ref/relref shortcodes to unambiguously refer to
+// this page. As an absolute path, it is prefixed with a "/".
+//
+// For pages that have a backing file in the content directory, it is returns
+// the path to this file as an absolute path rooted in the content dir. For
+// pages or nodes that do not, it returns the virtual path, consistent with
+// where you would add a backing content file.
+//
+// The "/" prefix and support for pages without backing files should be the
+// only difference with FullFilePath()
+func (p *Page) absoluteSourceRef() string {
+	sourcePath := p.Source.Path()
+	if sourcePath != "" {
+		return "/" + filepath.ToSlash(sourcePath)
+	} else if len(p.sections) > 0 {
+		// no backing file, return the virtual source path
+		return "/" + path.Join(p.sections...)
+	}
+	return ""
+}
+
 // Pre render prepare steps
 
 func (p *Page) prepareLayouts() error {
@@ -2007,14 +2029,23 @@ func (p *Page) Hugo() *HugoInfo {
 	return hugoInfo
 }
 
+// GetPage looks up a page for the given ref.
+//    {{ with .GetPage "blog" }}{{ .Title }}{{ end }}
+//
+// This will return nil when no page could be found, and will return
+// an error if the ref is ambiguous.
+func (p *Page) GetPage(ref string) (*Page, error) {
+	return p.s.getPage(p, ref)
+}
+
 func (p *Page) Ref(refs ...string) (string, error) {
 	if len(refs) == 0 {
 		return "", nil
 	}
 	if len(refs) > 1 {
-		return p.Site.Ref(refs[0], nil, refs[1])
+		return p.Site.Ref(refs[0], p, refs[1])
 	}
-	return p.Site.Ref(refs[0], nil)
+	return p.Site.Ref(refs[0], p)
 }
 
 func (p *Page) RelRef(refs ...string) (string, error) {
@@ -2022,17 +2053,16 @@ func (p *Page) RelRef(refs ...string) (string, error) {
 		return "", nil
 	}
 	if len(refs) > 1 {
-		return p.Site.RelRef(refs[0], nil, refs[1])
+		return p.Site.RelRef(refs[0], p, refs[1])
 	}
-	return p.Site.RelRef(refs[0], nil)
+	return p.Site.RelRef(refs[0], p)
 }
 
 func (p *Page) String() string {
-	if p.Path() != "" {
-		return fmt.Sprintf("Page(%s)", p.Path())
+	if p.absoluteSourceRef() != "" {
+		return fmt.Sprintf("Page(%s)", p.absoluteSourceRef())
 	}
 	return fmt.Sprintf("Page(%q)", p.title)
-
 }
 
 // Scratch returns the writable context associated with this Page.
