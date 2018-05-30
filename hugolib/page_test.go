@@ -794,7 +794,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
 		checkPageTitle(t, p, "Simple")
-		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. \n<figure>\n    \n        <img src=\"/not/real\" />\n    \n    \n</figure>\n.\nMore text here.</p>\n\n<p>Some more text</p>\n"))
+		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. \n<figure>\n    \n        <img src=\"/not/real\"/>\n    \n    \n</figure>\n.\nMore text here.</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, "Summary Next Line.  . More text here. Some more text")
 		checkPageType(t, p, "page")
 	}
@@ -1754,7 +1754,7 @@ Len Content: {{ len .Content }}
 
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile().WithTemplatesAdded(single...).WithContent("p1.md", fmt.Sprintf(`---
-title: p1	
+title: p1
 ---
 
 %s
