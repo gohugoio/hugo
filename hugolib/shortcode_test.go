@@ -687,7 +687,7 @@ NotFound: {{< thisDoesNotExist >}}
 	require.Len(t, h.Sites, 1)
 
 	s := h.Sites[0]
-	home, _ := s.getPage("/")
+	home, _ := s.getPage(nil, "/")
 	require.NotNil(t, home)
 	require.Len(t, home.outputFormats, 3)
 

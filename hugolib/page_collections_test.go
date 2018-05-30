@@ -55,12 +55,12 @@ func BenchmarkGetPage(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		home, _ := s.getPage("/")
+		home, _ := s.getPage(nil, "/")
 		if home == nil {
 			b.Fatal("Home is nil")
 		}
 
-		p, _ := s.getPage(pagePaths[i])
+		p, _ := s.getPage(nil, pagePaths[i])
 		if p == nil {
 			b.Fatal("Section is nil")
 		}
@@ -91,7 +91,7 @@ func BenchmarkGetPageRegular(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		page, _ := s.getPage(pagePaths[i])
+		page, _ := s.getPage(nil, pagePaths[i])
 		require.NotNil(b, page)
 	}
 }
@@ -145,11 +145,13 @@ func TestGetPage(t *testing.T) {
 		} else {
 			ref = path.Join(test.path...)
 		}
-		page2, _ := s.getPage(ref)
+		page2, _ := s.getPage(nil, ref)
 		assert.NotNil(page2, errorMsg)
 		assert.Equal(test.kind, page2.Kind, errorMsg)
 		assert.Equal(test.expectedTitle, page2.title)
 
 	}
+
+	// vas(todo) add ambiguity detection tests
 
 }

@@ -505,7 +505,7 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat s
 	var link string
 
 	if refURL.Path != "" {
-		target, err := s.getPage(refURL.Path)
+		target, err := s.getPage(nil, refURL.Path)
 
 		if err != nil {
 			return "", err
@@ -1616,7 +1616,7 @@ func (s *SiteInfo) GetPage(typ string, ref ...string) (*Page, error) {
 		key = path.Join(ref...)
 	}
 
-	return s.getPage(key)
+	return s.getPage(nil, key)
 }
 
 func (s *Site) permalinkForOutputFormat(link string, f output.Format) (string, error) {

@@ -55,7 +55,7 @@ languageName = "Nynorsk"
 
 	s1 := b.H.Sites[0]
 
-	s1h, _ := s1.getPage("/")
+	s1h, _ := s1.getPage(nil, "/")
 	assert.True(s1h.IsTranslated())
 	assert.Len(s1h.Translations(), 2)
 	assert.Equal("https://example.com/docs/", s1h.Permalink())
@@ -66,7 +66,7 @@ languageName = "Nynorsk"
 	// For multihost, we never want any content in the root.
 	//
 	// check url in front matter:
-	pageWithURLInFrontMatter, _ := s1.getPage("sect/doc3.en.md")
+	pageWithURLInFrontMatter, _ := s1.getPage(nil, "sect/doc3.en.md")
 	assert.NotNil(pageWithURLInFrontMatter)
 	assert.Equal("/superbob", pageWithURLInFrontMatter.URL())
 	assert.Equal("/docs/superbob/", pageWithURLInFrontMatter.RelPermalink())
@@ -78,7 +78,7 @@ languageName = "Nynorsk"
 
 	s2 := b.H.Sites[1]
 
-	s2h, _ := s2.getPage("/")
+	s2h, _ := s2.getPage(nil, "/")
 	assert.Equal("https://example.fr/", s2h.Permalink())
 
 	b.AssertFileContent("public/fr/index.html", "French Home Page")
@@ -92,7 +92,7 @@ languageName = "Nynorsk"
 
 	// Check bundles
 
-	bundleEn, _ := s1.getPage("bundles/b1/index.en.md")
+	bundleEn, _ := s1.getPage(nil, "bundles/b1/index.en.md")
 	require.NotNil(t, bundleEn)
 	require.Equal(t, "/docs/bundles/b1/", bundleEn.RelPermalink())
 	require.Equal(t, 1, len(bundleEn.Resources))
@@ -101,7 +101,7 @@ languageName = "Nynorsk"
 	require.Equal(t, "/docs/bundles/b1/logo.png", logoEn.RelPermalink())
 	b.AssertFileContent("public/en/bundles/b1/logo.png", "PNG Data")
 
-	bundleFr, _ := s2.getPage("bundles/b1/index.md")
+	bundleFr, _ := s2.getPage(nil, "bundles/b1/index.md")
 	require.NotNil(t, bundleFr)
 	require.Equal(t, "/bundles/b1/", bundleFr.RelPermalink())
 	require.Equal(t, 1, len(bundleFr.Resources))

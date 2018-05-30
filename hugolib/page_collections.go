@@ -133,9 +133,10 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 	return &PageCollections{rawAllPages: pages}
 }
 
-//Expects either unix-style paths (i.e. callers responsible for
+// context: page used to resolve relative paths
+// ref: either unix-style paths (i.e. callers responsible for
 // calling filepath.ToSlash as necessary) or shorthand refs.
-func (c *PageCollections) getPage(ref string) (*Page, error) {
+func (c *PageCollections) getPage(context *Page, ref string) (*Page, error) {
 	// todo(vas) this is temporary until absolute paths are added to index
 	// in a coming code change
 	ref = strings.TrimPrefix(ref, "/")

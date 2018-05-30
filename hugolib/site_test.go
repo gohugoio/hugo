@@ -628,7 +628,7 @@ func TestOrderedPages(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	sect, _ := s.getPage("sect")
+	sect, _ := s.getPage(nil, "sect")
 	if sect.Pages[1].title != "Three" || sect.Pages[2].title != "Four" {
 		t.Error("Pages in unexpected order.")
 	}
@@ -911,7 +911,7 @@ func TestRefLinking(t *testing.T) {
 	t.Parallel()
 	site := setupLinkingMockSite(t)
 
-	currentPage, _ := site.getPage("level2/level3/start.md")
+	currentPage, _ := site.getPage(nil, "level2/level3/start.md")
 	if currentPage == nil {
 		t.Fatalf("failed to find current page in site")
 	}

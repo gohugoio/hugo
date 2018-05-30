@@ -117,12 +117,12 @@ Do not go gentle into that good night.
 
 	assert.Len(s.RegularPages, 2)
 
-	notUgly, _ := s.getPage("sect1/p1.md")
+	notUgly, _ := s.getPage(nil, "sect1/p1.md")
 	assert.NotNil(notUgly)
 	assert.Equal("sect1", notUgly.Section())
 	assert.Equal("/sect1/p1/", notUgly.RelPermalink())
 
-	ugly, _ := s.getPage("sect2/p2.md")
+	ugly, _ := s.getPage(nil, "sect2/p2.md")
 	assert.NotNil(ugly)
 	assert.Equal("sect2", ugly.Section())
 	assert.Equal("/sect2/p2.html", ugly.RelPermalink())
@@ -175,7 +175,7 @@ Do not go gentle into that good night.
 
 	assert.Len(s.RegularPages, 10)
 
-	sect1, _ := s.getPage("sect1")
+	sect1, _ := s.getPage(nil, "sect1")
 	assert.NotNil(sect1)
 	assert.Equal("/ss1/", sect1.RelPermalink())
 	th.assertFileContent(filepath.Join("public", "ss1", "index.html"), "P1|URL: /ss1/|Next: /ss1/page/2/")
