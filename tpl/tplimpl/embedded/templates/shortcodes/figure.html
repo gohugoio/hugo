@@ -2,7 +2,9 @@
 {{ $image := .Get "src" }}
 <figure{{ with .Get "class" }} class="{{ . }}"{{ end }}>
     {{ if .Get "link"}}<a href="{{ .Get "link" }}"{{ with .Get "target" }} target="{{ . }}"{{ end }}{{ with .Get "rel" }} rel="{{ . }}"{{ end }}>{{ end }}
-        {{ if (findRE "^/" $image) -}} <!-- If image link has a leading slash -->
+        {{ if (findRE "(^|:)//" $image) -}} <!-- If image link is a URL with protocol or two leading slashes, use just that unmodified. -->
+            <img src="{{ $image }}"
+        {{- else if (findRE "^/" $image) -}} <!-- If image link has one leading slash -->
             {{- /* Cannot use absURL below because it doesn't work as expected if baseURL has a subdir. */ -}}
             {{- $baseurl_no_trailing_slash := $.Site.BaseURL | replaceRE "/$" "" -}}
             <img src="{{ (printf "%s%s" $baseurl_no_trailing_slash $image) }}"

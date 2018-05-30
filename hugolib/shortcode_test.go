@@ -354,12 +354,22 @@ func TestFigureWithAbsoluteSrc1BaseURLWithSubdir(t *testing.T) {
 
 func TestFigureWithAbsoluteSrc2BaseURLNoSubdir(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatchWithBaseURL(t, "https://example.com/", `{{< figure src="//example.com/image.png" >}}`, "\n<figure>\n    \n        <img src=\"//example.com/image.png\"/> </figure>\n", nil)
+	CheckShortCodeMatchWithBaseURL(t, "https://example.com/", `{{< figure src="//example.com/image.png" >}}`, "\n<figure>\n    \n        \n            <img src=\"//example.com/image.png\"/> </figure>\n", nil)
 }
 
 func TestFigureWithAbsoluteSrc2BaseURLWithSubdir(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatchWithBaseURL(t, "https://example.com/subdir/", `{{< figure src="//example.com/image.png" >}}`, "\n<figure>\n    \n        <img src=\"//example.com/image.png\"/> </figure>\n", nil)
+	CheckShortCodeMatchWithBaseURL(t, "https://example.com/subdir/", `{{< figure src="//example.com/image.png" >}}`, "\n<figure>\n    \n        \n            <img src=\"//example.com/image.png\"/> </figure>\n", nil)
+}
+
+func TestFigureWithAbsoluteSrc3BaseURLNoSubdir(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatchWithBaseURL(t, "https://example.com/", `{{< figure src="https://foo.bar/image.png" >}}`, "\n<figure>\n    \n        \n            <img src=\"https://foo.bar/image.png\"/> </figure>\n", nil)
+}
+
+func TestFigureWithAbsoluteSrc3BaseURLWithSubdir(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatchWithBaseURL(t, "http://example.com/subdir/", `{{< figure src="http://foo.bar/image.png" >}}`, "\n<figure>\n    \n        \n            <img src=\"http://foo.bar/image.png\"/> </figure>\n", nil)
 }
 
 const testScPlaceholderRegexp = "HAHAHUGOSHORTCODE-\\d+HBHB"
