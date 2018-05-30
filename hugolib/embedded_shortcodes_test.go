@@ -197,17 +197,17 @@ func TestShortcodeYoutube(t *testing.T) {
 	}{
 		{
 			`{{< youtube w7Ft2ymGmfc >}}`,
-			"(?s)\n<div style=\".*?\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen frameborder=\"0\" title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
+			"(?s)\n<div style=\".*?\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\" style=\".*?\" allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
 		},
 		// set class
 		{
 			`{{< youtube w7Ft2ymGmfc video>}}`,
-			"(?s)\n<div class=\"video\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\" allowfullscreen frameborder=\"0\" title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\" allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>\n",
 		},
 		// set class and autoplay (using named params)
 		{
 			`{{< youtube id="w7Ft2ymGmfc" class="video" autoplay="true" >}}`,
-			"(?s)\n<div class=\"video\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1\".*?allowfullscreen frameborder=\"0\" title=\"YouTube Video\">.*?</iframe>.*?</div>",
+			"(?s)\n<div class=\"video\">.*?<iframe src=\"//www.youtube.com/embed/w7Ft2ymGmfc\\?autoplay=1\".*?allowfullscreen title=\"YouTube Video\">.*?</iframe>.*?</div>",
 		},
 	} {
 		var (
