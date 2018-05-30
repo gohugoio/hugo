@@ -504,7 +504,7 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat s
 	var link string
 
 	if refURL.Path != "" {
-		target, err := s.getPage(nil, refURL.Path)
+		target, err := s.getPage(page, refURL.Path)
 
 		if err != nil {
 			return "", err

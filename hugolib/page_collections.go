@@ -174,11 +174,35 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 // ref: either unix-style paths (i.e. callers responsible for
 // calling filepath.ToSlash as necessary) or shorthand refs.
 func (c *PageCollections) getPage(context *Page, ref string) (*Page, error) {
-	p := c.pageIndex.Get(ref)
-	if p == ambiguityFlag {
-		return nil, fmt.Errorf("Error: the source ref for page \"%s\" resolves to more than one page. Replace with a fully qualified ref.", ref)
+
+	var result *Page
+
+	if len(ref) > 0 && ref[0:1] == "/" {
+
+		// it's an absolute path
+		result = c.pageIndex.Get(ref)
+
+	} else { // either relative path or other supported ref
+
+		// If there's a page context. relative ref interpretation takes precedence.
+		if context != nil {
+			// For relative refs `filepath.Join` will properly resolve ".." (parent dir)
+			// and other elements in the path
+			apath := path.Join("/", strings.Join(context.sections, "/"), ref)
+			result = c.pageIndex.Get(apath)
+		}
+
+		// finally, let's try it as-is for a match against all the alternate refs indexed for each page
+		if result == nil {
+			result = c.pageIndex.Get(ref)
+
+			if result == ambiguityFlag {
+				return nil, fmt.Errorf("The reference \"%s\" in %q resolves to more than one page. Use either an absolute path (begins with \"/\") or relative path to the content directory target.", ref, context.absoluteSourceRef())
+			}
+		}
 	}
-	return p, nil
+
+	return result, nil
 }
 
 func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {

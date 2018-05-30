@@ -2034,9 +2034,9 @@ func (p *Page) Ref(refs ...string) (string, error) {
 		return "", nil
 	}
 	if len(refs) > 1 {
-		return p.Site.Ref(refs[0], nil, refs[1])
+		return p.Site.Ref(refs[0], p, refs[1])
 	}
-	return p.Site.Ref(refs[0], nil)
+	return p.Site.Ref(refs[0], p)
 }
 
 func (p *Page) RelRef(refs ...string) (string, error) {
@@ -2044,9 +2044,9 @@ func (p *Page) RelRef(refs ...string) (string, error) {
 		return "", nil
 	}
 	if len(refs) > 1 {
-		return p.Site.RelRef(refs[0], nil, refs[1])
+		return p.Site.RelRef(refs[0], p, refs[1])
 	}
-	return p.Site.RelRef(refs[0], nil)
+	return p.Site.RelRef(refs[0], p)
 }
 
 func (p *Page) String() string {
