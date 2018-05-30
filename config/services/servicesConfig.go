@@ -30,6 +30,7 @@ type Config struct {
 	Disqus          Disqus
 	GoogleAnalytics GoogleAnalytics
 	Instagram       Instagram
+	Twitter         Twitter
 }
 
 // Disqus holds the functional configuration settings related to the Disqus template.
@@ -48,6 +49,14 @@ type GoogleAnalytics struct {
 type Instagram struct {
 	// The Simple variant of the Instagram is decorated with Bootstrap 4 card classes.
 	// This means that if you use Bootstrap 4 or want to provide your own CSS, you want
+	// to disable the inline CSS provided by Hugo.
+	DisableInlineCSS bool
+}
+
+// Twitter holds the functional configuration settings related to the Twitter shortcodes.
+type Twitter struct {
+	// The Simple variant of Twitter is decorated with a basic set of inline styles.
+	// This means that if you want to provide your own CSS, you want
 	// to disable the inline CSS provided by Hugo.
 	DisableInlineCSS bool
 }

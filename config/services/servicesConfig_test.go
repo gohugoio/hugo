@@ -35,6 +35,8 @@ shortname = "DS"
 id = "ga_id"
 [services.instagram]
 disableInlineCSS = true
+[services.twitter]
+disableInlineCSS = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	assert.NoError(err)
