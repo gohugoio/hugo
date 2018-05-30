@@ -283,7 +283,7 @@ if (!doNotTrack) {
    background: #000;
 }
 .__h_video img {
-   max-width: 100%;
+   width: 100%;
    height: auto;
    color: #000;
 }
