@@ -34,6 +34,7 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/stretchr/testify/require"
 )
@@ -56,13 +57,18 @@ func pageFromString(in, filename string, withTemplate ...func(templ tpl.Template
 	return s.NewPageFrom(strings.NewReader(in), filename)
 }
 
-func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error) {
-	CheckShortCodeMatchAndError(t, input, expected, withTemplate, false)
+func CheckShortCodeMatchWithBaseURL(t *testing.T, baseURL string, input, expected string, withTemplate func(templ tpl.TemplateHandler) error) {
+        cfg, fs := newTestCfg()
+        cfg.Set("baseURL", baseURL)
+        CheckShortCodeMatchAndError(t, input, expected, cfg, fs, withTemplate, false)
 }
 
-func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error, expectError bool) {
+func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error) {
+        cfg, fs := newTestCfg()
+        CheckShortCodeMatchAndError(t, input, expected, cfg, fs, withTemplate, false)
+}
 
-	cfg, fs := newTestCfg()
+func CheckShortCodeMatchAndError(t *testing.T, input, expected string, cfg *viper.Viper, fs *hugofs.Fs, withTemplate func(templ tpl.TemplateHandler) error, expectError bool) {
 
 	// Need some front matter, see https://github.com/gohugoio/hugo/issues/2337
 	contentFile := `---
@@ -328,32 +334,32 @@ func TestFigureLinkWithTargetAndRel(t *testing.T) {
 
 func TestFigureWithRelativeSrcBaseURLNoSubdir(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="image.png" >}}`,"\n<figure>\n    \n        <img src=\"/simple/image.png\"/> </figure>\n", nil)
+	CheckShortCodeMatchWithBaseURL(t, "https://example.com/", `{{< figure src="image.png" >}}`,"\n<figure>\n    \n        <img src=\"https://example.com/simple/image.png\"/> </figure>\n", nil)
 }
 
 func TestFigureWithRelativeSrcBaseURLWithSubdir(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="image.png" >}}`,"\n<figure>\n    \n        <img src=\"/simple/image.png\"/> </figure>\n", nil)
+	CheckShortCodeMatchWithBaseURL(t, "https://example.com/subdir/", `{{< figure src="image.png" >}}`,"\n<figure>\n    \n        <img src=\"https://example.com/subdir/simple/image.png\"/> </figure>\n", nil)
 }
 
 func TestFigureWithAbsoluteSrc1BaseURLNoSubdir(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="/image.png" >}}`, "\n<figure>\n    \n        <img src=\"/image.png\"/> </figure>\n", nil)
+	CheckShortCodeMatchWithBaseURL(t, "https://example.com/", `{{< figure src="/image.png" >}}`, "\n<figure>\n    \n        <img src=\"https://example.com/image.png\"/> </figure>\n", nil)
 }
 
 func TestFigureWithAbsoluteSrc1BaseURLWithSubdir(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="/image.png" >}}`, "\n<figure>\n    \n        <img src=\"/image.png\"/> </figure>\n", nil)
+	CheckShortCodeMatchWithBaseURL(t, "https://example.com/subdir/", `{{< figure src="/image.png" >}}`, "\n<figure>\n    \n        <img src=\"https://example.com/subdir/image.png\"/> </figure>\n", nil)
 }
 
 func TestFigureWithAbsoluteSrc2BaseURLNoSubdir(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="//example.com/image.png" >}}`, "\n<figure>\n    \n        <img src=\"//example.com/image.png\"/> </figure>\n", nil)
+	CheckShortCodeMatchWithBaseURL(t, "https://example.com/", `{{< figure src="//example.com/image.png" >}}`, "\n<figure>\n    \n        <img src=\"//example.com/image.png\"/> </figure>\n", nil)
 }
 
 func TestFigureWithAbsoluteSrc2BaseURLWithSubdir(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="//example.com/image.png" >}}`, "\n<figure>\n    \n        <img src=\"//example.com/image.png\"/> </figure>\n", nil)
+	CheckShortCodeMatchWithBaseURL(t, "https://example.com/subdir/", `{{< figure src="//example.com/image.png" >}}`, "\n<figure>\n    \n        <img src=\"//example.com/image.png\"/> </figure>\n", nil)
 }
 
 const testScPlaceholderRegexp = "HAHAHUGOSHORTCODE-\\d+HBHB"
