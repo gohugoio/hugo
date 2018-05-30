@@ -493,7 +493,6 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat s
 	var err error
 
 	ref = filepath.ToSlash(ref)
-	ref = strings.TrimPrefix(ref, "/")
 
 	refURL, err = url.Parse(ref)
 

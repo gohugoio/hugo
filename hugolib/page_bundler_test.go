@@ -113,7 +113,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				assert.NotNil(leafBundle1)
 				assert.Equal("leaf", leafBundle1.BundleType())
 				assert.Equal("b", leafBundle1.Section())
-				sectionB, _ := s.getPage(nil, "b")
+				sectionB, _ := s.getPage(nil, "/b")
 				assert.NotNil(sectionB)
 				home, _ := s.Info.Home()
 				assert.Equal("branch", home.BundleType())

@@ -156,9 +156,9 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.False(c.Eq("asdf"))
 
 		}},
-		{"empty3", func(p *Page) {
+		{"/empty3", func(p *Page) {
 			// b,c,d with regular page in b
-			b, _ := p.s.getPage(nil, "empty3/b")
+			b, _ := p.s.getPage(nil, "/empty3/b")
 			assert.NotNil(b)
 			assert.Len(b.Pages, 1)
 			assert.Equal("empty3.md", b.Pages[0].File.LogicalName())

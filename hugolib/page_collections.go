@@ -93,7 +93,17 @@ func (c *PageCollections) refreshPageCaches() {
 		// what he/she is looking for.
 		for _, pageCollection := range []Pages{c.AllRegularPages, c.headlessPages} {
 			for _, p := range pageCollection {
-				indexPage(index, filepath.ToSlash(p.Source.Path()), p)
+
+				sourceRef := p.absoluteSourceRef()
+				if sourceRef != "" {
+					// index the canonical, unambiguous ref
+					// e.g. /section/article.md
+					indexPage(index, sourceRef, p)
+
+					// also index the legacy canonical lookup (not guaranteed to be unambiguous)
+					// e.g. section/article.md
+					indexPage(index, sourceRef[1:], p)
+				}
 
 				if s != nil && p.s == s {
 					// Ref/Relref supports this potentially ambiguous lookup.
@@ -119,7 +129,22 @@ func (c *PageCollections) refreshPageCaches() {
 		}
 
 		for _, p := range c.indexPages {
+			// index the canonical, unambiguous ref for any backing file
+			// e.g. /section/_index.md
+			sourceRef := p.absoluteSourceRef()
+			if sourceRef != "" {
+				indexPage(index, sourceRef, p)
+			}
+
 			ref := path.Join(p.sections...)
+
+			// index the canonical, unambiguous virtual ref
+			// e.g. /section
+			// (this may already have been indexed above)
+			indexPage(index, "/"+ref, p)
+
+			// index the legacy canonical ref (not guaranteed to be unambiguous)
+			// e.g. section
 			indexPage(index, ref, p)
 		}
 		return index
@@ -149,10 +174,6 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 // ref: either unix-style paths (i.e. callers responsible for
 // calling filepath.ToSlash as necessary) or shorthand refs.
 func (c *PageCollections) getPage(context *Page, ref string) (*Page, error) {
-	// todo(vas) this is temporary until absolute paths are added to index
-	// in a coming code change
-	ref = strings.TrimPrefix(ref, "/")
-
 	p := c.pageIndex.Get(ref)
 	if p == ambiguityFlag {
 		return nil, fmt.Errorf("Error: the source ref for page \"%s\" resolves to more than one page. Replace with a fully qualified ref.", ref)
