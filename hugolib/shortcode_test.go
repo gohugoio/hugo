@@ -246,8 +246,8 @@ This is **plain** text.
 
 func TestEmbeddedSC(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", nil)
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\"/> </figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\"/> <figcaption>\n                \n                <p>\n                    This is a caption\n                    \n                        \n                        </p>\n                \n            </figcaption></figure>\n", nil)
 }
 
 func TestNestedSC(t *testing.T) {
@@ -293,37 +293,37 @@ func TestParentShortcode(t *testing.T) {
 
 func TestFigureOnlySrc(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="/found/here" >}}`, "\n<figure>\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" >}}`, "\n<figure>\n    \n        <img src=\"/found/here\"/> </figure>\n", nil)
 }
 
 func TestFigureImgWidth(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\"/> </figure>\n", nil)
 }
 
 func TestFigureImgHeight(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" height="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" height=\"100px\" />\n    \n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" height="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" height=\"100px\"/> </figure>\n", nil)
 }
 
 func TestFigureImgWidthAndHeight(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="50" height="100" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"50\" height=\"100\" />\n    \n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="50" height="100" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"50\" height=\"100\"/> </figure>\n", nil)
 }
 
 func TestFigureLinkNoTarget(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\">\n        <img src=\"/found/here\" />\n    </a>\n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\">\n        <img src=\"/found/here\"/> </a></figure>\n", nil)
 }
 
 func TestFigureLinkWithTarget(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_self" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\" target=\"_self\">\n        <img src=\"/found/here\" />\n    </a>\n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_self" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\" target=\"_self\">\n        <img src=\"/found/here\"/> </a></figure>\n", nil)
 }
 
 func TestFigureLinkWithTargetAndRel(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_blank" rel="noopener" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\" target=\"_blank\" rel=\"noopener\">\n        <img src=\"/found/here\" />\n    </a>\n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_blank" rel="noopener" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\" target=\"_blank\" rel=\"noopener\">\n        <img src=\"/found/here\"/> </a></figure>\n", nil)
 }
 
 const testScPlaceholderRegexp = "HAHAHUGOSHORTCODE-\\d+HBHB"
@@ -475,7 +475,7 @@ func TestShortcodesInSite(t *testing.T) {
 		// Deliberately forced to pass even if they maybe shouldn't.
 		{"sect/doc2.md", `a
 
-{{< b >}}		
+{{< b >}}
 {{< c >}}
 {{< d >}}
 
@@ -484,7 +484,7 @@ e`,
 			"<p>a</p>\n\n<p>b<br />\nc\nd</p>\n\n<p>e</p>\n"},
 		{"sect/doc3.md", `a
 
-{{< b >}}		
+{{< b >}}
 {{< c >}}
 
 {{< d >}}
@@ -512,7 +512,7 @@ e`,
 			filepath.FromSlash("public/sect/doc4/index.html"),
 			"<p>a\nb\nb\nb\nb\nb</p>\n"},
 		// #2192 #2209: Shortcodes in markdown headers
-		{"sect/doc5.md", `# {{< b >}}	
+		{"sect/doc5.md", `# {{< b >}}
 ## {{% c %}}`,
 			filepath.FromSlash("public/sect/doc5/index.html"), "\n\n<h1 id=\"hahahugoshortcode-1hbhb\">b</h1>\n\n<h2 id=\"hahahugoshortcode-2hbhb\">c</h2>\n"},
 		// #2223 pygments
@@ -1009,7 +1009,7 @@ weight: %d
 	assert.Equal(3, len(s.RegularPages))
 
 	builder.AssertFileContent("public/en/p1/index.html", `v1: 0 sgo: |v2: 1 sgo: 0|v3: 2 sgo: 1|v4: 3 sgo: 2|v5: 4 sgo: 3`)
-	builder.AssertFileContent("public/en/p1/index.html", `outer ordinal: 5 inner: 
+	builder.AssertFileContent("public/en/p1/index.html", `outer ordinal: 5 inner:
 ordinal: 0 scratch ordinal: 1 scratch get ordinal: 0
 ordinal: 2 scratch ordinal: 3 scratch get ordinal: 2
 ordinal: 4 scratch ordinal: 5 scratch get ordinal: 4`)

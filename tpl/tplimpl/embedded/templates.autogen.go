@@ -309,21 +309,21 @@ if (!doNotTrack) {
 <figure{{ with .Get "class" }} class="{{ . }}"{{ end }}>
     {{ if .Get "link"}}<a href="{{ .Get "link" }}"{{ with .Get "target" }} target="{{ . }}"{{ end }}{{ with .Get "rel" }} rel="{{ . }}"{{ end }}>{{ end }}
         {{ if (findRE "^/" $image) -}} <!-- If image link has a leading slash -->
-            <!-- Cannot use absURL below because it doesn't work as expected if baseURL has a subdir. -->
-            {{- $baseurl_no_trailing_slash := $.Site.BaseURL | replaceRE "/$" "" }}
+            {{- /* Cannot use absURL below because it doesn't work as expected if baseURL has a subdir. */ -}}
+            {{- $baseurl_no_trailing_slash := $.Site.BaseURL | replaceRE "/$" "" -}}
             <img src="{{ (printf "%s%s" $baseurl_no_trailing_slash $image) }}"
         {{- else -}}
-            <!-- Below variable will always have a trailing slash, even with uglyURLs enabled. -->
-            {{- $permalink_pretty := $.Page.Permalink | replaceRE "\\.html$" "/" }}
+            {{- /* Below variable will always have a trailing slash, even with uglyURLs enabled. */ -}}
+            {{- $permalink_pretty := $.Page.Permalink | replaceRE "\\.html$" "/" -}}
             <img src="{{ (printf "%s%s" $permalink_pretty $image) }}"
-        {{ end -}}
-            {{- if (or (.Get "alt") (.Get "caption")) }}
-                alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" }}{{ end }}"
-            {{ end }}
-            {{- with .Get "width" }}width="{{ . }}" {{ end -}}
-            {{- with .Get "height" }}height="{{ . }}" {{ end -}}/> <!-- Closing img tag -->
-        {{ if .Get "link" }}</a>{{ end }}
-        {{ if or (or (.Get "title") (.Get "caption")) (.Get "attr") }}
+        {{- end -}}
+            {{- with (or (.Get "alt") (.Get "caption")) -}}
+                {{- printf " alt=\"%s\"" . | safeHTMLAttr -}}
+            {{- end -}}
+            {{- with .Get "width" }} width="{{ . }}"{{ end -}}
+            {{- with .Get "height" }} height="{{ . }}"{{ end -}}/> <!-- Closing img tag -->
+        {{- if .Get "link" }}</a>{{ end -}}
+        {{- if or (or (.Get "title") (.Get "caption")) (.Get "attr") -}}
             <figcaption>
                 {{ if isset .Params "title" }}
                     <h4>{{ .Get "title" }}</h4>
@@ -335,7 +335,7 @@ if (!doNotTrack) {
                         {{ if .Get "attrlink" }}</a>{{ end }}</p>
                 {{ end }}
             </figcaption>
-        {{ end }}
+        {{- end -}}
 </figure>
 <!-- image -->
 `},
