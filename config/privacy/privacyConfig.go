@@ -77,6 +77,9 @@ type Twitter struct {
 	// When set to true, the Tweet and its embedded page on your site are not used
 	// for purposes that include personalized suggestions and personalized ads.
 	EnableDNT bool
+
+	// If simple mode is enabled, a static and no-JS version of the Tweet will be built.
+	Simple bool
 }
 
 // Vimeo holds the privacy configuration settingsrelated to the Vimeo shortcode.
