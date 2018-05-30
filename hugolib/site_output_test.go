@@ -150,7 +150,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	s := h.Sites[0]
 	require.Equal(t, "en", s.Language.Lang)
 
-	home := s.getPage(KindHome)
+	home, _ := s.getPage("/")
 
 	require.NotNil(t, home)
 
@@ -325,7 +325,7 @@ baseName = "customdelimbase"
 	th.assertFileContent("public/customdelimbase_del", "custom delim")
 
 	s := h.Sites[0]
-	home := s.getPage(KindHome)
+	home, _ := s.getPage("/")
 	require.NotNil(t, home)
 
 	outputs := home.OutputFormats()

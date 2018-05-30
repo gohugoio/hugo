@@ -17,8 +17,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 
-	"github.com/gohugoio/hugo/cache"
 	"github.com/gohugoio/hugo/helpers"
 )
 
@@ -48,7 +48,26 @@ type PageCollections struct {
 	// Includes headless bundles, i.e. bundles that produce no output for its content page.
 	headlessPages Pages
 
-	pageCache *cache.PartitionedLazyCache
+	pageIndex
+}
+
+type pageIndex struct {
+	initSync sync.Once
+	index    map[string]*Page
+	load     func() map[string]*Page
+}
+
+func (pi *pageIndex) init() {
+	pi.initSync.Do(func() {
+		pi.index = pi.load()
+	})
+}
+
+// Get initializes the index if not already done so, then
+// looks up the given page ref, returns nil if no value found.
+func (pi *pageIndex) Get(ref string) *Page {
+	pi.init()
+	return pi.index[ref]
 }
 
 func (c *PageCollections) refreshPageCaches() {
@@ -62,60 +81,48 @@ func (c *PageCollections) refreshPageCaches() {
 		s = c.Pages[0].s
 	}
 
-	cacheLoader := func(kind string) func() (map[string]interface{}, error) {
-		return func() (map[string]interface{}, error) {
-			cache := make(map[string]interface{})
-			switch kind {
-			case KindPage:
-				// Note that we deliberately use the pages from all sites
-				// in this cache, as we intend to use this in the ref and relref
-				// shortcodes. If the user says "sect/doc1.en.md", he/she knows
-				// what he/she is looking for.
-				for _, pageCollection := range []Pages{c.AllRegularPages, c.headlessPages} {
-					for _, p := range pageCollection {
-						cache[filepath.ToSlash(p.Source.Path())] = p
+	indexLoader := func() map[string]*Page {
+		index := make(map[string]*Page)
 
-						if s != nil && p.s == s {
-							// Ref/Relref supports this potentially ambiguous lookup.
-							cache[p.Source.LogicalName()] = p
+		// Note that we deliberately use the pages from all sites
+		// in this index, as we intend to use this in the ref and relref
+		// shortcodes. If the user says "sect/doc1.en.md", he/she knows
+		// what he/she is looking for.
+		for _, pageCollection := range []Pages{c.AllRegularPages, c.headlessPages} {
+			for _, p := range pageCollection {
+				index[filepath.ToSlash(p.Source.Path())] = p
 
-							translasionBaseName := p.Source.TranslationBaseName()
-							dir := filepath.ToSlash(strings.TrimSuffix(p.Dir(), helpers.FilePathSeparator))
+				if s != nil && p.s == s {
+					// Ref/Relref supports this potentially ambiguous lookup.
+					index[p.Source.LogicalName()] = p
 
-							if translasionBaseName == "index" {
-								_, name := path.Split(dir)
-								cache[name] = p
-								cache[dir] = p
-							} else {
-								// Again, ambigous
-								cache[translasionBaseName] = p
-							}
+					translationBaseName := p.Source.TranslationBaseName()
+					dir := filepath.ToSlash(strings.TrimSuffix(p.Dir(), helpers.FilePathSeparator))
 
-							// We need a way to get to the current language version.
-							pathWithNoExtensions := path.Join(dir, translasionBaseName)
-							cache[pathWithNoExtensions] = p
-						}
+					if translationBaseName == "index" {
+						_, name := path.Split(dir)
+						index[name] = p
+						index[dir] = p
+					} else {
+						// Again, ambiguous
+						index[translationBaseName] = p
 					}
 
-				}
-			default:
-				for _, p := range c.indexPages {
-					key := path.Join(p.sections...)
-					cache[key] = p
+					// We need a way to get to the current language version.
+					pathWithNoExtensions := path.Join(dir, translationBaseName)
+					index[pathWithNoExtensions] = p
 				}
 			}
-
-			return cache, nil
 		}
+
+		for _, p := range c.indexPages {
+			ref := path.Join(p.sections...)
+			index[ref] = p
+		}
+		return index
 	}
 
-	partitions := make([]cache.Partition, len(allKindsInPages))
-
-	for i, kind := range allKindsInPages {
-		partitions[i] = cache.Partition{Key: kind, Load: cacheLoader(kind)}
-	}
-
-	c.pageCache = cache.NewPartitionedLazyCache(partitions...)
+	c.pageIndex = pageIndex{load: indexLoader}
 }
 
 func newPageCollections() *PageCollections {
@@ -126,20 +133,15 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 	return &PageCollections{rawAllPages: pages}
 }
 
-func (c *PageCollections) getPage(typ string, sections ...string) *Page {
-	var key string
-	if len(sections) == 1 {
-		key = filepath.ToSlash(sections[0])
-	} else {
-		key = path.Join(sections...)
-	}
+//Expects either unix-style paths (i.e. callers responsible for
+// calling filepath.ToSlash as necessary) or shorthand refs.
+func (c *PageCollections) getPage(ref string) (*Page, error) {
+	// todo(vas) this is temporary until absolute paths are added to index
+	// in a coming code change
+	ref = strings.TrimPrefix(ref, "/")
 
-	p, _ := c.pageCache.Get(typ, key)
-	if p == nil {
-		return nil
-	}
-	return p.(*Page)
-
+	p := c.pageIndex.Get(ref)
+	return p, nil
 }
 
 func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {
