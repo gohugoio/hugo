@@ -455,6 +455,7 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 // for a given content rendering.
 // By creating you must set the Config, otherwise it will panic.
 type RenderingContext struct {
+	Frontmatter  map[string]interface{}
 	Content      []byte
 	PageFmt      string
 	DocumentID   string
@@ -715,7 +716,18 @@ func getPandocContent(ctx *RenderingContext) []byte {
 			"                 Leaving pandoc content unrendered.")
 		return ctx.Content
 	}
+
+	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
 	args := []string{"--mathjax"}
+
+	pathCiteproc, errCiteproc := exec.LookPath("pandoc-citeproc")
+	if errCiteproc == nil {
+		if bib, ok := ctx.Frontmatter["bibliography"].(string); ok {
+			args = append(args, "--bibliography", "content/"+bib)
+			jww.INFO.Println("Rendering bibliography ", bib, "with", pathCiteproc, "...")
+		}
+	}
+
 	return externallyRenderContent(ctx, path, args)
 }
 
