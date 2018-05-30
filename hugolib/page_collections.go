@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"fmt"
 	"path"
 	"path/filepath"
 	"strings"
@@ -70,6 +71,8 @@ func (pi *pageIndex) Get(ref string) *Page {
 	return pi.index[ref]
 }
 
+var ambiguityFlag = &Page{Kind: "dummy", title: "ambiguity flag"}
+
 func (c *PageCollections) refreshPageCaches() {
 	c.indexPages = c.findPagesByKindNotIn(KindPage, c.Pages)
 	c.RegularPages = c.findPagesByKindIn(KindPage, c.Pages)
@@ -90,39 +93,48 @@ func (c *PageCollections) refreshPageCaches() {
 		// what he/she is looking for.
 		for _, pageCollection := range []Pages{c.AllRegularPages, c.headlessPages} {
 			for _, p := range pageCollection {
-				index[filepath.ToSlash(p.Source.Path())] = p
+				indexPage(index, filepath.ToSlash(p.Source.Path()), p)
 
 				if s != nil && p.s == s {
 					// Ref/Relref supports this potentially ambiguous lookup.
-					index[p.Source.LogicalName()] = p
+					indexPage(index, p.Source.LogicalName(), p)
 
 					translationBaseName := p.Source.TranslationBaseName()
 					dir := filepath.ToSlash(strings.TrimSuffix(p.Dir(), helpers.FilePathSeparator))
 
 					if translationBaseName == "index" {
 						_, name := path.Split(dir)
-						index[name] = p
-						index[dir] = p
+						indexPage(index, name, p)
+						indexPage(index, dir, p)
 					} else {
 						// Again, ambiguous
-						index[translationBaseName] = p
+						indexPage(index, translationBaseName, p)
 					}
 
 					// We need a way to get to the current language version.
 					pathWithNoExtensions := path.Join(dir, translationBaseName)
-					index[pathWithNoExtensions] = p
+					indexPage(index, pathWithNoExtensions, p)
 				}
 			}
 		}
 
 		for _, p := range c.indexPages {
 			ref := path.Join(p.sections...)
-			index[ref] = p
+			indexPage(index, ref, p)
 		}
 		return index
 	}
 
 	c.pageIndex = pageIndex{load: indexLoader}
+}
+
+func indexPage(index map[string]*Page, ref string, p *Page) {
+	existing := index[ref]
+	if existing == nil {
+		index[ref] = p
+	} else if existing != ambiguityFlag && existing != p {
+		index[ref] = ambiguityFlag
+	}
 }
 
 func newPageCollections() *PageCollections {
@@ -142,6 +154,9 @@ func (c *PageCollections) getPage(context *Page, ref string) (*Page, error) {
 	ref = strings.TrimPrefix(ref, "/")
 
 	p := c.pageIndex.Get(ref)
+	if p == ambiguityFlag {
+		return nil, fmt.Errorf("Error: the source ref for page \"%s\" resolves to more than one page. Replace with a fully qualified ref.", ref)
+	}
 	return p, nil
 }
 

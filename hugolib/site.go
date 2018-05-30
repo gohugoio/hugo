@@ -1603,11 +1603,11 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 
 }
 
-// GetPage looks up a page of a given type in the path given.
+// GetPage looks up a page of a given type for the given ref.
 //    {{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
 //
-// This will return nil when no page could be found, and will return the
-// first page found if the key is ambiguous.
+// This will return nil when no page could be found, and will return an
+// error if the key is ambiguous.
 func (s *SiteInfo) GetPage(typ string, ref ...string) (*Page, error) {
 	var key string
 	if len(ref) == 1 {
