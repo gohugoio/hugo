@@ -130,7 +130,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 		}, disabled, KindPage, "public/sect/p1/index.html", "Single|P1")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindHome)
+			p, _ := s.getPage(nil, "/")
 			if isDisabled {
 				return p == nil
 			}
@@ -138,7 +138,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 		}, disabled, KindHome, "public/index.html", "Home")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindSection, "sect")
+			p, _ := s.getPage(nil, "sect")
 			if isDisabled {
 				return p == nil
 			}
@@ -146,7 +146,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 		}, disabled, KindSection, "public/sect/index.html", "Sects")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindTaxonomy, "tags", "tag1")
+			p, _ := s.getPage(nil, "tags/tag1")
 
 			if isDisabled {
 				return p == nil
@@ -156,7 +156,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 		}, disabled, KindTaxonomy, "public/tags/tag1/index.html", "Tag1")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindTaxonomyTerm, "tags")
+			p, _ := s.getPage(nil, "tags")
 			if isDisabled {
 				return p == nil
 			}
@@ -165,7 +165,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 		}, disabled, KindTaxonomyTerm, "public/tags/index.html", "Tags")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindTaxonomyTerm, "categories")
+			p, _ := s.getPage(nil, "categories")
 
 			if isDisabled {
 				return p == nil
@@ -175,7 +175,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 		}, disabled, KindTaxonomyTerm, "public/categories/index.html", "Category Terms")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindTaxonomy, "categories", "hugo")
+			p, _ := s.getPage(nil, "categories/hugo")
 			if isDisabled {
 				return p == nil
 			}

@@ -186,12 +186,12 @@ p1 = "p1en"
 	assert.Len(sites, 2)
 
 	nnSite := sites[0]
-	nnHome := nnSite.getPage(KindHome)
+	nnHome, _ := nnSite.getPage(nil, "/")
 	assert.Len(nnHome.AllTranslations(), 2)
 	assert.Len(nnHome.Translations(), 1)
 	assert.True(nnHome.IsTranslated())
 
-	enHome := sites[1].getPage(KindHome)
+	enHome, _ := sites[1].getPage(nil, "/")
 
 	p1, err := enHome.Param("p1")
 	assert.NoError(err)
@@ -242,7 +242,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Nil(t, gp2)
 
 	enSite := sites[0]
-	enSiteHome := enSite.getPage(KindHome)
+	enSiteHome, _ := enSite.getPage(nil, "/")
 	require.True(t, enSiteHome.IsTranslated())
 
 	require.Equal(t, "en", enSite.Language.Lang)
@@ -310,10 +310,10 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	// isn't ideal in a multilingual setup. You want a way to get the current language version if available.
 	// Now you can do lookups with translation base name to get that behaviour.
 	// Let us test all the regular page variants:
-	getPageDoc1En := enSite.getPage(KindPage, filepath.ToSlash(doc1en.Path()))
-	getPageDoc1EnBase := enSite.getPage(KindPage, "sect/doc1")
-	getPageDoc1Fr := frSite.getPage(KindPage, filepath.ToSlash(doc1fr.Path()))
-	getPageDoc1FrBase := frSite.getPage(KindPage, "sect/doc1")
+	getPageDoc1En, _ := enSite.getPage(nil, filepath.ToSlash(doc1en.Path()))
+	getPageDoc1EnBase, _ := enSite.getPage(nil, "sect/doc1")
+	getPageDoc1Fr, _ := frSite.getPage(nil, filepath.ToSlash(doc1fr.Path()))
+	getPageDoc1FrBase, _ := frSite.getPage(nil, "sect/doc1")
 	require.Equal(t, doc1en, getPageDoc1En)
 	require.Equal(t, doc1fr, getPageDoc1Fr)
 	require.Equal(t, doc1en, getPageDoc1EnBase)
@@ -331,7 +331,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	b.AssertFileContent("public/en/sect/doc1-slug/index.html", "Single", "Shortcode: Hello", "LingoDefault")
 
 	// Check node translations
-	homeEn := enSite.getPage(KindHome)
+	homeEn, _ := enSite.getPage(nil, "/")
 	require.NotNil(t, homeEn)
 	require.Len(t, homeEn.Translations(), 3)
 	require.Equal(t, "fr", homeEn.Translations()[0].Lang())
@@ -341,7 +341,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, "På bokmål", homeEn.Translations()[2].title, configSuffix)
 	require.Equal(t, "Bokmål", homeEn.Translations()[2].Language().LanguageName, configSuffix)
 
-	sectFr := frSite.getPage(KindSection, "sect")
+	sectFr, _ := frSite.getPage(nil, "sect")
 	require.NotNil(t, sectFr)
 
 	require.Equal(t, "fr", sectFr.Lang())
@@ -351,12 +351,12 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	nnSite := sites[2]
 	require.Equal(t, "nn", nnSite.Language.Lang)
-	taxNn := nnSite.getPage(KindTaxonomyTerm, "lag")
+	taxNn, _ := nnSite.getPage(nil, "lag")
 	require.NotNil(t, taxNn)
 	require.Len(t, taxNn.Translations(), 1)
 	require.Equal(t, "nb", taxNn.Translations()[0].Lang())
 
-	taxTermNn := nnSite.getPage(KindTaxonomy, "lag", "sogndal")
+	taxTermNn, _ := nnSite.getPage(nil, "lag/sogndal")
 	require.NotNil(t, taxTermNn)
 	require.Len(t, taxTermNn.Translations(), 1)
 	require.Equal(t, "nb", taxTermNn.Translations()[0].Lang())
@@ -411,7 +411,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	}
 
 	// Check bundles
-	bundleFr := frSite.getPage(KindPage, "bundles/b1/index.md")
+	bundleFr, _ := frSite.getPage(nil, "bundles/b1/index.md")
 	require.NotNil(t, bundleFr)
 	require.Equal(t, "/blog/fr/bundles/b1/", bundleFr.RelPermalink())
 	require.Equal(t, 1, len(bundleFr.Resources))
@@ -420,7 +420,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, "/blog/fr/bundles/b1/logo.png", logoFr.RelPermalink())
 	b.AssertFileContent("public/fr/bundles/b1/logo.png", "PNG Data")
 
-	bundleEn := enSite.getPage(KindPage, "bundles/b1/index.en.md")
+	bundleEn, _ := enSite.getPage(nil, "bundles/b1/index.en.md")
 	require.NotNil(t, bundleEn)
 	require.Equal(t, "/blog/en/bundles/b1/", bundleEn.RelPermalink())
 	require.Equal(t, 1, len(bundleEn.Resources))
@@ -582,7 +582,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				docFr := readDestination(t, fs, "public/fr/sect/doc1/index.html")
 				require.True(t, strings.Contains(docFr, "Salut"), "No Salut")
 
-				homeEn := enSite.getPage(KindHome)
+				homeEn, _ := enSite.getPage(nil, "/")
 				require.NotNil(t, homeEn)
 				assert.Len(homeEn.Translations(), 3)
 				require.Equal(t, "fr", homeEn.Translations()[0].Lang())
@@ -678,7 +678,7 @@ title = "Svenska"
 	require.True(t, svSite.Language.Lang == "sv", svSite.Language.Lang)
 	require.True(t, frSite.Language.Lang == "fr", frSite.Language.Lang)
 
-	homeEn := enSite.getPage(KindHome)
+	homeEn, _ := enSite.getPage(nil, "/")
 	require.NotNil(t, homeEn)
 	require.Len(t, homeEn.Translations(), 4)
 	require.Equal(t, "sv", homeEn.Translations()[0].Lang())
