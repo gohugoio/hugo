@@ -326,6 +326,36 @@ func TestFigureLinkWithTargetAndRel(t *testing.T) {
 	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_blank" rel="noopener" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\" target=\"_blank\" rel=\"noopener\">\n        <img src=\"/found/here\"/> </a></figure>\n", nil)
 }
 
+func TestFigureWithRelativeSrcBaseURLNoSubdir(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="image.png" >}}`,"\n<figure>\n    \n        <img src=\"/simple/image.png\"/> </figure>\n", nil)
+}
+
+func TestFigureWithRelativeSrcBaseURLWithSubdir(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="image.png" >}}`,"\n<figure>\n    \n        <img src=\"/simple/image.png\"/> </figure>\n", nil)
+}
+
+func TestFigureWithAbsoluteSrc1BaseURLNoSubdir(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="/image.png" >}}`, "\n<figure>\n    \n        <img src=\"/image.png\"/> </figure>\n", nil)
+}
+
+func TestFigureWithAbsoluteSrc1BaseURLWithSubdir(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="/image.png" >}}`, "\n<figure>\n    \n        <img src=\"/image.png\"/> </figure>\n", nil)
+}
+
+func TestFigureWithAbsoluteSrc2BaseURLNoSubdir(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="//example.com/image.png" >}}`, "\n<figure>\n    \n        <img src=\"//example.com/image.png\"/> </figure>\n", nil)
+}
+
+func TestFigureWithAbsoluteSrc2BaseURLWithSubdir(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="//example.com/image.png" >}}`, "\n<figure>\n    \n        <img src=\"//example.com/image.png\"/> </figure>\n", nil)
+}
+
 const testScPlaceholderRegexp = "HAHAHUGOSHORTCODE-\\d+HBHB"
 
 func TestExtractShortcodes(t *testing.T) {
