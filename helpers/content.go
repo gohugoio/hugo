@@ -455,14 +455,15 @@ func ExtractTOC(content []byte) (newcontent []byte, toc []byte) {
 // for a given content rendering.
 // By creating you must set the Config, otherwise it will panic.
 type RenderingContext struct {
-	Frontmatter  map[string]interface{}
-	Content      []byte
-	PageFmt      string
-	DocumentID   string
-	DocumentName string
-	Config       *BlackFriday
-	RenderTOC    bool
-	Cfg          config.Provider
+	Frontmatter    map[string]interface{}
+	FrontmatterRaw []byte
+	Content        []byte
+	PageFmt        string
+	DocumentID     string
+	DocumentName   string
+	Config         *BlackFriday
+	RenderTOC      bool
+	Cfg            config.Provider
 }
 
 // RenderBytes renders a []byte.
@@ -723,8 +724,8 @@ func getPandocContent(ctx *RenderingContext) []byte {
 	pathCiteproc, errCiteproc := exec.LookPath("pandoc-citeproc")
 	if errCiteproc == nil {
 		if bib, ok := ctx.Frontmatter["bibliography"].(string); ok {
-			args = append(args, "--bibliography", "content/"+bib)
-			jww.INFO.Println("Rendering bibliography ", bib, "with", pathCiteproc, "...")
+			args = append(args, "--filter", "pandoc-citeproc")
+			jww.INFO.Println("Rendering bibliography", bib, "with", pathCiteproc, "...")
 		}
 	}
 
@@ -739,7 +740,8 @@ func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
 }
 
 func externallyRenderContent(ctx *RenderingContext, path string, args []string) []byte {
-	content := ctx.Content
+	content := ctx.FrontmatterRaw
+	content = append(content, ctx.Content...)
 	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
 
 	cmd := exec.Command(path, args...)
