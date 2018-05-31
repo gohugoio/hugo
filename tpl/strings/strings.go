@@ -417,3 +417,18 @@ func (ns *Namespace) TrimSuffix(suffix, s interface{}) (string, error) {
 
 	return _strings.TrimSuffix(ss, sx), nil
 }
+
+// Repeat returns a new string consisting of count copies of the string s.
+func (ns *Namespace) Repeat(n, s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	sn, err := cast.ToIntE(n)
+	if err != nil {
+		return "", err
+	}
+
+	return _strings.Repeat(ss, sn), nil
+}

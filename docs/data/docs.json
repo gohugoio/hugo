@@ -3410,6 +3410,20 @@
             ]
           ]
         },
+        "Repeat": {
+          "Description": "Repeat returns a new string consisting of count copies of the string s.",
+          "Args": [
+            "s",
+            "n"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"yo\" | strings.Repeat 4 }}",
+              "yoyoyoyo"
+            ]
+          ]
+        },
         "Truncate": {
           "Description": "Truncate truncates a given string to the specified length.",
           "Args": [
