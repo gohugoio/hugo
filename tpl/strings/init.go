@@ -41,6 +41,11 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.RuneLength,
+			[]string{"runelen"},
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.CountWords,
 			[]string{"countwords"},
 			[][2]string{},

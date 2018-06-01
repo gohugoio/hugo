@@ -3148,6 +3148,16 @@
           ],
           "Examples": []
         },
+        "RuneLength": {
+          "Description": "RuneLength returns the number of runes in s",
+          "Args": [
+            "s"
+          ],
+          "Aliases": [
+            "runelen"
+          ],
+          "Examples": []
+        },
         "CountWords": {
           "Description": "CountWords returns the approximate word count in s.",
           "Args": [
