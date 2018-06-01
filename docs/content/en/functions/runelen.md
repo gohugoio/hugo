@@ -18,11 +18,11 @@ deprecated: false
 aliases: [/functions/runelen/]
 ---
 
-In contrast with `countrunes` function, which strips HTML and whitespace before counting runes, `runelen` simply counts all the runes in a string. It relies on the Go [`utf8.RuneCount`](https://golang.org/pkg/unicode/utf8/#RuneCount) function.
+In contrast with `countrunes` function, which strips HTML and whitespace before counting runes, `runelen` simply counts all the runes in a string. It relies on the Go [`utf8.RuneCount`] function.
 
 ```
 {{ "Hello, 世界" | runelen }}
 <!-- outputs a content length of 9 runes. -->
 ```
 
-[pagevars]: /variables/page/
+[`utf8.RuneCount`]: https://golang.org/pkg/unicode/utf8/#RuneCount
