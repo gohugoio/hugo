@@ -159,9 +159,9 @@ func init() {
 		)
 
 		ns.AddMethodMapping(ctx.Repeat,
-			[]string{"repeat"},
+			nil,
 			[][2]string{
-				{`{{ "yo" | strings.Repeat 4 }}`, `yoyoyoyo`},
+				{`{{ "yo" | strings.TrimRight.Repeat 4 }}`, `yoyoyoyo`},
 			},
 		)
 
