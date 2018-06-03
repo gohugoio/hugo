@@ -16,7 +16,6 @@ package strings
 import (
 	"fmt"
 	"html/template"
-	"math"
 	"testing"
 
 	"github.com/gohugoio/hugo/deps"
@@ -730,7 +729,7 @@ func TestRepeat(t *testing.T) {
 		// errors
 		{"", tstNoStringer{}, false},
 		{tstNoStringer{}, "", false},
-		{"ab", math.MaxInt64, false},
+		{"ab", -1, false},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 

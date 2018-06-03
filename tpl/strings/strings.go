@@ -432,8 +432,6 @@ func (ns *Namespace) Repeat(n, s interface{}) (string, error) {
 
 	if sn < 0 {
 		return "", errors.New("strings: negative Repeat count")
-	} else if sn > 0 && len(ss)*sn/sn != len(ss) {
-		return "", errors.New("strings: Repeat count causes overflow")
 	}
 
 	return _strings.Repeat(ss, sn), nil
