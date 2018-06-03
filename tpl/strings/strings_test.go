@@ -730,7 +730,7 @@ func TestRepeat(t *testing.T) {
 		// errors
 		{"", tstNoStringer{}, false},
 		{tstNoStringer{}, "", false},
-		{"hi", math.MaxInt16 + 1, false},
+		{"ab", math.MaxInt64, false},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
