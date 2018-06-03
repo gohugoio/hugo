@@ -726,5 +726,5 @@ func isBackupFile(path string) bool {
 const baseFileBase = "baseof"
 
 func isBaseTemplate(path string) bool {
-	return strings.Contains(path, baseFileBase)
+	return strings.Contains(filepath.Base(path), baseFileBase)
 }
