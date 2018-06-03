@@ -158,6 +158,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Repeat,
+			nil,
+			[][2]string{
+				{`{{ "yo" | strings.Repeat 4 }}`, `yoyoyoyo`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.ToUpper,
 			[]string{"upper"},
 			[][2]string{

@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math"
 	_strings "strings"
 	"unicode/utf8"
 
@@ -416,4 +417,24 @@ func (ns *Namespace) TrimSuffix(suffix, s interface{}) (string, error) {
 	}
 
 	return _strings.TrimSuffix(ss, sx), nil
+}
+
+// Repeat returns a new string consisting of count copies of the string s.
+// The count is limited to an in16 value (up to 32767).
+func (ns *Namespace) Repeat(n, s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	sn, err := cast.ToIntE(n)
+	if err != nil {
+		return "", err
+	}
+
+	if sn > math.MaxInt16 {
+		return "", fmt.Errorf("Cannot repeat string more than %d times", math.MaxInt16)
+	}
+
+	return _strings.Repeat(ss, sn), nil
 }
