@@ -10,7 +10,7 @@ menu:
   docs:
     parent: "functions"
 keywords: [counting, character count, length, rune length, rune count]
-signature: ["strings.CountRunes INPUT"]
+signature: ["strings.RuneCount INPUT"]
 workson: []
 hugoversion:
 relatedfuncs: ["len", "countrunes"]
@@ -18,7 +18,7 @@ deprecated: false
 aliases: []
 ---
 
-In contrast with `countrunes` function, which strips HTML and whitespace before counting runes, `RuneCount` simply counts all the runes in a string. It relies on the Go [`utf8.RuneCount`] function.
+In contrast with `strings.CountRunes` function, which strips HTML and whitespace before counting runes, `strings.RuneCount` simply counts all the runes in a string. It relies on the Go [`utf8.RuneCountInString`] function.
 
 ```
 {{ "Hello, 世界" | strings.RuneCount }}
