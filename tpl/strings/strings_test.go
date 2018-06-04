@@ -173,6 +173,33 @@ func TestCountRunes(t *testing.T) {
 	}
 }
 
+func TestRuneCount(t *testing.T) {
+	t.Parallel()
+
+	for i, test := range []struct {
+		s      interface{}
+		expect interface{}
+	}{
+		{"foo bar", 7},
+		{"旁边", 2},
+		{`<div class="test">旁边</div>`, 26},
+		// errors
+		{tstNoStringer{}, false},
+	} {
+		errMsg := fmt.Sprintf("[%d] %v", i, test.s)
+
+		result, err := ns.RuneCount(test.s)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			require.Error(t, err, errMsg)
+			continue
+		}
+
+		require.NoError(t, err, errMsg)
+		assert.Equal(t, test.expect, result, errMsg)
+	}
+}
+
 func TestCountWords(t *testing.T) {
 	t.Parallel()
 

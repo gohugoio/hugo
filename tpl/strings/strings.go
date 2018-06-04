@@ -57,6 +57,15 @@ func (ns *Namespace) CountRunes(s interface{}) (int, error) {
 	return counter, nil
 }
 
+// RuneCount returns the number of runes in s.
+func (ns *Namespace) RuneCount(s interface{}) (int, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return 0, fmt.Errorf("Failed to convert content to string: %s", err)
+	}
+	return utf8.RuneCountInString(ss), nil
+}
+
 // CountWords returns the approximate word count in s.
 func (ns *Namespace) CountWords(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)
