@@ -284,6 +284,8 @@ func (c *contentHandlers) handlePageContent() contentHandler {
 		}
 
 		p.workContent = p.replaceDivider(p.workContent)
+		p.preproc = make([]byte, len(p.workContent))
+		copy(p.preproc, p.workContent)
 		p.workContent = p.renderContent(p.workContent)
 
 		tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.workContent)

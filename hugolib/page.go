@@ -180,6 +180,7 @@ type Page struct {
 	// the content stripped for HTML
 	plain      string // TODO should be []byte
 	plainWords []string
+	preproc    []byte
 
 	// rendering configuration
 	renderingConfig *helpers.BlackFriday
@@ -424,6 +425,7 @@ type pageContentInit struct {
 	contentInitMu  sync.Mutex
 	contentInit    sync.Once
 	plainInit      sync.Once
+	preprocInit    sync.Once
 	plainWordsInit sync.Once
 }
 
@@ -572,6 +574,32 @@ func (p *Page) initPlain(lock bool) {
 			defer p.contentInitMu.Unlock()
 		}
 		p.plain = helpers.StripHTML(string(p.contentv))
+	})
+}
+
+// PreprocessedContent returns the content after shortcodes have executed and
+// Emojification has been performed, but the content has not otherwise been
+// converted to HTML.
+func (p *Page) PreprocessedContent() []byte {
+	p.initContent()
+	p.initPreproc(true)
+	return p.preproc
+}
+
+func (p *Page) initPreproc(lock bool) {
+	p.preprocInit.Do(func() {
+		if lock {
+			p.contentInitMu.Lock()
+			defer p.contentInitMu.Unlock()
+		}
+		var err error
+		// Note: The shortcodes in a page cannot access the page content it lives in,
+		// hence the withoutContent().
+		prep, err := handleShortcodes(p.withoutContent(), p.preproc)
+		if err != nil {
+			p.s.Log.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
+		}
+		p.preproc = prep
 	})
 }
 
@@ -1231,7 +1259,7 @@ func (p *Page) prepareForRender() error {
 	s := p.s
 
 	// If we got this far it means that this is either a new Page pointer
-	// or a template or similar has changed so wee need to do a rerendering
+	// or a template or similar has changed so we need to do a rerendering
 	// of the shortcodes etc.
 
 	// If in watch mode or if we have multiple output formats,

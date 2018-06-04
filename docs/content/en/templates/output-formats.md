@@ -68,7 +68,7 @@ Given a media type and some additional configuration, you get an **Output Format
 
 This is the full set of Hugo's built-in output formats:
 
-{{< datatable "output" "formats" "name" "mediaType" "path" "baseName" "rel" "protocol" "isPlainText" "isHTML" "noUgly">}}
+{{< datatable "output" "formats" "name" "mediaType" "path" "baseName" "rel" "protocol" "isPlainText" "isHTML" "noUgly" "noRender">}}
 
 * A page can be output in as many output formats as you want, and you can have an infinite amount of output formats defined **as long as they resolve to a unique path on the file system**. In the above table, the best example of this is `AMP` vs. `HTML`. `AMP` has the value `amp` for `Path` so it doesn't overwrite the `HTML` version; e.g. we can now have both `/index.html` and `/amp/index.html`.
 * The `MediaType` must match the `Type` of an already defined media type.
@@ -82,6 +82,7 @@ mediaType = "text/enriched"
 baseName = "myindex"
 isPlainText = true
 protocol = "bep://"
+parseMarkup = true
 {{</ code-toggle >}}
 
 The above example is fictional, but if used for the homepage on a site with `baseURL` `https://example.org`, it will produce a plain text homepage with the URL `bep://example.org/myindex.enr`.
@@ -119,6 +120,8 @@ The following is the full list of configuration options for output formats and t
 
 `notAlternative`
 : enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term *alternative* and not *alternate* here, as it does not necessarily replace the other format. **Default:** `false`.
+
+`noRender` : enable if the raw content  (Markdown, Emacs Org-Mode, Asciidoc, etc.) should not be rendered into HTML. 
 
 ## Output Formats for Pages
 

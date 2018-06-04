@@ -64,6 +64,13 @@ type Format struct {
 	// Enable to ignore the global uglyURLs setting.
 	NoUgly bool `json:"noUgly"`
 
+	// NoRender determines whether the content for this format should be
+	// rendered into HTML. If true, the markup of the raw document (Markdown,
+	// Emacs Org-Mode, Asciidoc, etc.) will not be rendered, but passed through
+	// as the text document. Shortcodes and Emojification will still be applied.
+	// Defaults to false.
+	NoRender bool `json:"noRender"`
+
 	// Enable if it doesn't make sense to include this format in an alternative
 	// format listing, CSS being one good example.
 	// Note that we use the term "alternative" and not "alternate" here, as it
