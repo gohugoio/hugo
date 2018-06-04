@@ -69,7 +69,7 @@ type Format struct {
 	// Emacs Org-Mode, Asciidoc, etc.) will not be rendered, but passed through
 	// as the text document. Shortcodes and Emojification will still be applied.
 	// Defaults to false.
-	NoRender bool `json:noRender`
+	NoRender bool `json:"noRender"`
 
 	// Enable if it doesn't make sense to include this format in an alternative
 	// format listing, CSS being one good example.
