@@ -28,6 +28,7 @@ func TestDefaultTypes(t *testing.T) {
 	require.Empty(t, CalendarFormat.Path)
 	require.True(t, CalendarFormat.IsPlainText)
 	require.False(t, CalendarFormat.IsHTML)
+	require.False(t, CalendarFormat.NoRender)
 
 	require.Equal(t, "CSS", CSSFormat.Name)
 	require.Equal(t, media.CSSType, CSSFormat.MediaType)
@@ -35,6 +36,7 @@ func TestDefaultTypes(t *testing.T) {
 	require.Empty(t, CSSFormat.Protocol) // Will inherit the BaseURL protocol.
 	require.True(t, CSSFormat.IsPlainText)
 	require.False(t, CSSFormat.IsHTML)
+	require.False(t, CSSFormat.NoRender)
 
 	require.Equal(t, "CSV", CSVFormat.Name)
 	require.Equal(t, media.CSVType, CSVFormat.MediaType)
@@ -42,6 +44,7 @@ func TestDefaultTypes(t *testing.T) {
 	require.Empty(t, CSVFormat.Protocol)
 	require.True(t, CSVFormat.IsPlainText)
 	require.False(t, CSVFormat.IsHTML)
+	require.False(t, CSVFormat.NoRender)
 
 	require.Equal(t, "HTML", HTMLFormat.Name)
 	require.Equal(t, media.HTMLType, HTMLFormat.MediaType)
@@ -49,6 +52,7 @@ func TestDefaultTypes(t *testing.T) {
 	require.Empty(t, HTMLFormat.Protocol)
 	require.False(t, HTMLFormat.IsPlainText)
 	require.True(t, HTMLFormat.IsHTML)
+	require.False(t, HTMLFormat.NoRender)
 
 	require.Equal(t, "AMP", AMPFormat.Name)
 	require.Equal(t, media.HTMLType, AMPFormat.MediaType)
@@ -56,14 +60,15 @@ func TestDefaultTypes(t *testing.T) {
 	require.Empty(t, AMPFormat.Protocol)
 	require.False(t, AMPFormat.IsPlainText)
 	require.True(t, AMPFormat.IsHTML)
+	require.False(t, AMPFormat.NoRender)
 
 	require.Equal(t, "RSS", RSSFormat.Name)
 	require.Equal(t, media.RSSType, RSSFormat.MediaType)
 	require.Empty(t, RSSFormat.Path)
 	require.False(t, RSSFormat.IsPlainText)
 	require.True(t, RSSFormat.NoUgly)
-	require.False(t, CalendarFormat.IsHTML)
-
+	require.False(t, RSSFormat.IsHTML)
+	require.False(t, RSSFormat.NoRender)
 }
 
 func TestGetFormatByName(t *testing.T) {

@@ -1259,7 +1259,7 @@ func (p *Page) prepareForRender() error {
 	s := p.s
 
 	// If we got this far it means that this is either a new Page pointer
-	// or a template or similar has changed so wee need to do a rerendering
+	// or a template or similar has changed so we need to do a rerendering
 	// of the shortcodes etc.
 
 	// If in watch mode or if we have multiple output formats,
