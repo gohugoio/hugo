@@ -173,7 +173,7 @@ func TestCountRunes(t *testing.T) {
 	}
 }
 
-func TestRuneLength(t *testing.T) {
+func TestRuneCount(t *testing.T) {
 	t.Parallel()
 
 	for i, test := range []struct {
@@ -188,7 +188,7 @@ func TestRuneLength(t *testing.T) {
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test.s)
 
-		result, err := ns.RuneLength(test.s)
+		result, err := ns.RuneCount(test.s)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			require.Error(t, err, errMsg)

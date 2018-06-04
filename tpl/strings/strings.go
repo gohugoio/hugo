@@ -57,8 +57,8 @@ func (ns *Namespace) CountRunes(s interface{}) (int, error) {
 	return counter, nil
 }
 
-// RuneLength returns the number of runes in s.
-func (ns *Namespace) RuneLength(s interface{}) (int, error) {
+// RuneCount returns the number of runes in s.
+func (ns *Namespace) RuneCount(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return 0, fmt.Errorf("Failed to convert content to string: %s", err)

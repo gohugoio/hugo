@@ -3146,17 +3146,25 @@
           "Aliases": [
             "countrunes"
           ],
-          "Examples": []
+          "Examples": [
+            [
+              "{{ \"Hello, 世界\" | countrunes }}",
+              "8"
+            ]
+          ]
         },
-        "RuneLength": {
-          "Description": "RuneLength returns the number of runes in s",
+        "RuneCount": {
+          "Description": "RuneCount returns the number of runes in s",
           "Args": [
             "s"
           ],
-          "Aliases": [
-            "runelen"
-          ],
-          "Examples": []
+          "Aliases": [],
+          "Examples": [
+            [
+              "{{ \"Hello, 世界\" | strings.RuneCount }}",
+              "9"
+            ]
+          ]
         },
         "CountWords": {
           "Description": "CountWords returns the approximate word count in s.",
