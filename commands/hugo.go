@@ -670,7 +670,6 @@ func (c *commandeer) resetAndBuildSites() (err error) {
 func (c *commandeer) initSites() error {
 	if c.hugo != nil {
 		c.hugo.Cfg = c.Cfg
-		c.hugo.Log.ResetLogCounters()
 		return nil
 	}
 

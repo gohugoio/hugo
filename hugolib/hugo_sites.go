@@ -280,6 +280,14 @@ func (h *HugoSites) reset() {
 	}
 }
 
+// resetLogs resets the log counters etc. Used to do a new build on the same sites.
+func (h *HugoSites) resetLogs() {
+	h.Log.ResetLogCounters()
+	for _, s := range h.Sites {
+		s.Deps.DistinctErrorLog = helpers.NewDistinctLogger(h.Log.ERROR)
+	}
+}
+
 func (h *HugoSites) createSitesFromConfig() error {
 	oldLangs, _ := h.Cfg.Get("languagesSorted").(helpers.Languages)
 
