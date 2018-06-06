@@ -86,7 +86,7 @@ someOtherValue = "foo"
 
 [Privacy]
 [Privacy.YouTube]
-PrivacyENhanced = true
+PrivacyEnhanced = true
 `
 	cfg, err := config.FromConfigString(tomlConfig, "toml")
 	assert.NoError(err)
