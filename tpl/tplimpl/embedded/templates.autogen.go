@@ -163,7 +163,7 @@ if (!doNotTrack) {
 	ga('send', 'pageview');
 }
 </script>
-<script async src='//www.google-analytics.com/analytics.js'></script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 {{ end }}
 {{- end -}}`},
 	{`google_news.html`, `{{ if .IsPage }}{{ with .Params.news_keywords }}
