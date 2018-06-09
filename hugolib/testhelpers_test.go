@@ -151,7 +151,6 @@ respectDoNotTrack = true
 anonymizeIP = true
 [privacy.instagram]
 simple = true
-[privacy.speakerDeck]
 [privacy.twitter]
 enableDNT = true
 [privacy.vimeo]

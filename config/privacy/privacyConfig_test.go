@@ -39,8 +39,6 @@ useSessionStorage = true
 [privacy.instagram]
 disable = true
 simple = true
-[privacy.speakerDeck]
-disable = true
 [privacy.twitter]
 disable = true
 enableDNT = true
@@ -67,7 +65,6 @@ simple = true
 	assert.True(pc.GoogleAnalytics.UseSessionStorage)
 	assert.True(pc.Instagram.Disable)
 	assert.True(pc.Instagram.Simple)
-	assert.True(pc.SpeakerDeck.Disable)
 	assert.True(pc.Twitter.Disable)
 	assert.True(pc.Twitter.EnableDNT)
 	assert.True(pc.Twitter.Simple)
