@@ -46,8 +46,6 @@ useSessionStorage = false
 [privacy.instagram]
 disable = false
 simple = false
-[privacy.speakerDeck]
-disable = false
 [privacy.twitter]
 disable = false
 enableDNT = false
@@ -70,8 +68,6 @@ disable = true
 [privacy.googleAnalytics]
 disable = true
 [privacy.instagram]
-disable = true
-[privacy.speakerDeck]
 disable = true
 [privacy.twitter]
 disable = true
