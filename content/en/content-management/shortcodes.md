@@ -268,34 +268,6 @@ Assuming that standard Hugo pretty URLs are turned on.
 <a href="/about/#who:c28654c202e73453784cfd2c5ab356c0">Who</a>
 ```
 
-### `speakerdeck`
-
-To embed slides from [Speaker Deck][], click on "&lt;&#8239;/&gt;&nbsp;Embed" (under Share right next to the template on Speaker Deck) and copy the URL:
-
-```
-<script async class="speakerdeck-embed" data-id="4e8126e72d853c0060001f97" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script>
-```
-
-#### `speakerdeck` Example Input
-
-Extract the value from the field `data-id` and pass it to the shortcode:
-
-{{< code file="speakerdeck-example-input.md" >}}
-{{</* speakerdeck 4e8126e72d853c0060001f97 */>}}
-{{< /code >}}
-
-#### `speakerdeck` Example Output
-
-{{< output file="speakerdeck-example-input.md" >}}
-{{< speakerdeck 4e8126e72d853c0060001f97 >}}
-{{< /output >}}
-
-#### `speakerdeck` Example Display
-
-For the preceding `speakerdeck` example, the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup.
-
-{{< speakerdeck 4e8126e72d853c0060001f97 >}}
-
 ### `tweet`
 
 You want to include a single tweet into your blog post? Everything you need is the URL of the tweet:
