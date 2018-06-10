@@ -27,6 +27,9 @@ type BaseURL struct {
 }
 
 func (b BaseURL) String() string {
+	if !strings.HasSuffix(b.urlStr, "/") {
+		return b.urlStr + "/"
+	}
 	return b.urlStr
 }
 
