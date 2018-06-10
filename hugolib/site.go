@@ -1153,6 +1153,8 @@ func (s *Site) initializeSiteInfo() error {
 		owner:                          s.owner,
 		s:                              s,
 		Config:                         siteConfig,
+		// TODO(bep) make this Menu and similar into delegate methods on SiteInfo
+		Taxonomies: s.Taxonomies,
 	}
 
 	rssOutputFormat, found := s.outputFormats[KindHome].GetByName(output.RSSFormat.Name)
