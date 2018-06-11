@@ -29,7 +29,7 @@ Go templates provide an extremely simple template language that adheres to the b
 
 ## Basic Syntax
 
-Golang templates are HTML files with the addition of [variables][variables] and [functions][functions]. Golang template variables and functions are accessible within `{{ }}`.
+Go templates are HTML files with the addition of [variables][variables] and [functions][functions]. Go template variables and functions are accessible within `{{ }}`.
 
 ### Access a Predefined Variable
 
@@ -104,7 +104,7 @@ Go templates only ship with a few basic functions but also provide a mechanism f
 Note that both examples make use of Go template's [math functions][].
 
 {{% note "Additional Boolean Operators" %}}
-There are more boolean operators than those listed in the Hugo docs in the [Golang template documentation](http://golang.org/pkg/text/template/#hdr-Functions).
+There are more boolean operators than those listed in the Hugo docs in the [Go template documentation](http://golang.org/pkg/text/template/#hdr-Functions).
 {{% /note %}}
 
 ## Includes
@@ -526,8 +526,8 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 [first]: /functions/first/
 [front matter]: /content-management/front-matter/
 [functions]: /functions/ "See the full list of Hugo's templating functions with a quick start reference guide and basic and advanced examples."
-[Go html/template]: http://golang.org/pkg/html/template/ "Godocs references for Golang's html templating"
-[gohtmltemplate]: http://golang.org/pkg/html/template/ "Godocs references for Golang's html templating"
+[Go html/template]: http://golang.org/pkg/html/template/ "Godocs references for Go's html templating"
+[gohtmltemplate]: http://golang.org/pkg/html/template/ "Godocs references for Go's html templating"
 [index]: /functions/index/
 [math functions]: /functions/math/
 [partials]: /templates/partials/ "Link to the partial templates page inside of the templating section of the Hugo docs"

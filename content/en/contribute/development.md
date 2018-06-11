@@ -42,7 +42,7 @@ If you are having trouble following the installation guides for Go, check out [G
 
 ### Install Go From Source
 
-[Download the latest stable version of Go][godl] and follow the official [Golang installation guide][goinstall].
+[Download the latest stable version of Go][godl] and follow the official [Go installation guide][goinstall].
 
 Once you're finished installing Go, let's confirm everything is working correctly. Open a terminal---or command line under Windows--and type the following:
 
@@ -390,7 +390,7 @@ Thank you for reading through this contribution guide. Hopefully, we will see yo
 
 Feel free to [open an issue][newissue] if you think you found a bug or you have a new idea to improve Hugo. We are happy to hear from you.
 
-## Additional References for Learning Git and Golang
+## Additional References for Learning Git and Go
 
 * [Codecademy's Free "Learn Git" Course][codecademy] (Free)
 * [Code School and GitHub's "Try Git" Tutorial][trygit] (Free)

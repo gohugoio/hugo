@@ -210,6 +210,9 @@ theme ("")
 themesDir ("themes")
 : The directory where Hugo reads the themes from.
 
+timeout (10000)
+: Timeout for generating page contents, in milliseconds (defaults to 10&nbsp;seconds). *Note:* this is used to bail out of recursive content generation, if your pages are slow to generate (e.g., because they require large image processing or depend on remote contents) you might need to raise this limit.
+
 title ("")
 : Site title.
 

@@ -30,7 +30,7 @@ If you're already using Nanobox and just need deployment instructions, you can s
 
 ## What You'll Need
 
-With Nanobox you don't need to worry about having Golang or Hugo installed. They'll be installed as part of the development environment created for you.
+With Nanobox you don't need to worry about having Go or Hugo installed. They'll be installed as part of the development environment created for you.
 
 To get started you'll just need the following three items:
 
@@ -133,7 +133,7 @@ Make sure to check the version of Hugo you have installed and update the install
 
 ### Generating a New Hugo App
 
-You'll generate your new application from inside the Nanobox VM (this is why you don't need to worry about having Golang or Hugo installed).
+You'll generate your new application from inside the Nanobox VM (this is why you don't need to worry about having Go or Hugo installed).
 
 Run the following command to drop into a Nanobox console (inside the VM) where your codebase is mounted:
 

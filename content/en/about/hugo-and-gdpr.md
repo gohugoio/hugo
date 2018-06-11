@@ -23,7 +23,7 @@ toc: true
 
  **Hugo is a static site generator. By using Hugo you are already standing on very solid ground. Static HTML files on disk are much easier to reason about compared to server and database driven web sites.**
 
- But even static websites can integrate with external services, so from version `0.41`, Hugo provides a `Privacy Config` that covers the relevant built-in templates.
+ But even static websites can integrate with external services, so from version `0.41`, Hugo provides a **Privacy Config** that covers the relevant built-in templates.
 
  Note that:
 
