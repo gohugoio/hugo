@@ -31,7 +31,7 @@ Assuming a key-value of `date: 2017-03-03` in a content file's front matter, you
 {{ .PublishDate.Format "January 2, 2006" }} => March 3, 2017
 ```
 
-For formatting *any* string representations of dates defined in your front matter, see the [`dateFormat` function][dateFormat], which will still leverage the Golang layout string explained below but uses a slightly different syntax.
+For formatting *any* string representations of dates defined in your front matter, see the [`dateFormat` function][dateFormat], which will still leverage the Go layout string explained below but uses a slightly different syntax.
 
 ## Go's Layout String
 

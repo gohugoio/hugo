@@ -35,9 +35,9 @@ You can limit the number of matches in the list with a third parameter. The foll
 ```
 
 {{% note %}}
-Hugo uses Golang's [Regular Expression package](https://golang.org/pkg/regexp/), which is the same general syntax used by Perl, Python, and other languages but with a few minor differences for those coming from a background in PCRE. For a full syntax listing, see the [GitHub wiki for re2](https://github.com/google/re2/wiki/Syntax).
+Hugo uses Go's [Regular Expression package](https://golang.org/pkg/regexp/), which is the same general syntax used by Perl, Python, and other languages but with a few minor differences for those coming from a background in PCRE. For a full syntax listing, see the [GitHub wiki for re2](https://github.com/google/re2/wiki/Syntax).
 
-If you are just learning RegEx, or at least Golang's flavor, you can practice pattern matching in the browser at <https://regex101.com/>.
+If you are just learning RegEx, or at least Go's flavor, you can practice pattern matching in the browser at <https://regex101.com/>.
 {{% /note %}}
 
 

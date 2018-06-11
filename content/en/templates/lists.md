@@ -77,12 +77,12 @@ Using the above example, let's assume you have the following in `content/post/_i
 
 {{< code file="content/post/_index.md" >}}
 ---
-title: My Golang Journey
+title: My Go Journey
 date: 2017-03-23
 publishdate: 2017-03-24
 ---
 
-I decided to start learning Golang in March 2017.
+I decided to start learning Go in March 2017.
 
 Follow my journey through this new blog.
 {{< /code >}}
@@ -118,9 +118,9 @@ This above will output the following HTML:
 <main>
     <article>
         <header>
-            <h1>My Golang Journey</h1>
+            <h1>My Go Journey</h1>
         </header>
-        <p>I decided to start learning Golang in March 2017.</p>
+        <p>I decided to start learning Go in March 2017.</p>
         <p>Follow my journey through this new blog.</p>
     </article>
     <ul>
@@ -457,7 +457,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 
 ### By Page Parameter in Date Format
 
-The following template takes grouping by `date` a step further and uses Golang's layout string. See the [`Format` function][] for more examples of how to use Golang's layout string to format dates in Hugo.
+The following template takes grouping by `date` a step further and uses Go's layout string. See the [`Format` function][] for more examples of how to use Go's layout string to format dates in Hugo.
 
 {{< code file="layouts/partials/by-page-param-as-date.html" >}}
 <!-- Groups content by month according to the "param_key" field in front matter -->

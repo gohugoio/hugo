@@ -1,13 +1,13 @@
 
 ---
 date: 2018-05-25
-title: "0.41"
-description: "0.41"
+title: "Hugo 0.41: Privacy Configuration for GDPR"
+description: "Hugo 0.41 adds a new site configuration section to meet the new General Data Protection Regulation (GDPR)."
 categories: ["Releases"]
 ---
 
 	
-In Hugo `0.41` we add a new **Privacy Configuration** section to meet the new regulations in the new **General Data Protection Regulation ([GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation))**. Many have contributed in the discussion about this, but a special thanks to [@onedrawingperday](https://github.com/onedrawingperday), [@jhabdas](https://github.com/jhabdas), and [@it-gro](https://github.com/it-gro).
+In Hugo `0.41` we add a new **Privacy Configuration** section to meet the new regulations in the new **General Data Protection Regulation ([GDPR](https://en.wikipedia.org/wiki/General_Data_Protection_Regulation))**. Many have contributed work on this project, but a special thanks to [@onedrawingperday](https://github.com/onedrawingperday), [@jhabdas](https://github.com/jhabdas), and [@it-gro](https://github.com/it-gro).
 
 > You can read more about the new Privacy Config [here](https://gohugo.io/about/hugo-and-gdpr/).
 
