@@ -282,7 +282,7 @@ i18n|MISSING_TRANSLATION|en|wordCount
 
 ## Customize Dates
 
-At the time of this writing, Golang does not yet have support for internationalized locales, but if you do some work, you can simulate it. For example, if you want to use French month names, you can add a data file like ``data/mois.yaml`` with this content:
+At the time of this writing, Go does not yet have support for internationalized locales, but if you do some work, you can simulate it. For example, if you want to use French month names, you can add a data file like ``data/mois.yaml`` with this content:
 
 ~~~yaml
 1: "janvier"

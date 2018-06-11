@@ -88,7 +88,7 @@ Luckily, redirects can be handled easily with **aliases** in Hugo.
 
 ### Example: Aliases
 
-Let's assume you create a new piece of content at `content/posts/my-awesome-blog-post.md`. The content is a revision of your previous post at `content/posts/my-original-url.md`. You can create an `aliases` field in the front matter of your new `my-awesome-blog-post.md` where you can add previous paths. The following examples show how to create this filed in TOML and YAML front matter, respectively.
+Let's assume you create a new piece of content at `content/posts/my-awesome-blog-post.md`. The content is a revision of your previous post at `content/posts/my-original-url.md`. You can create an `aliases` field in the front matter of your new `my-awesome-blog-post.md` where you can add previous paths. The following examples show how to create this field in TOML and YAML front matter, respectively.
 
 #### TOML Front Matter
 
@@ -188,7 +188,7 @@ content/posts/post-1.md
 
 ## Ugly URLs
 
-If you would like to have what are often referred to as "ugly URLs" (e.g., example.com/urls.html), set `uglyurls = true` or `uglyurls: true` in your site's `config.toml` or `config.yaml`, respectively. You can also use the `--uglyURLs=true` [flag from the command line][usage] with `hugo` or `hugo server`..
+If you would like to have what are often referred to as "ugly URLs" (e.g., example.com/urls.html), set `uglyurls = true` or `uglyurls: true` in your site's `config.toml` or `config.yaml`, respectively. You can also use the `--uglyURLs=true` [flag from the command line][usage] with `hugo` or `hugo server`.
 
 If you want a specific piece of content to have an exact URL, you can specify this in the [front matter][] under the `url` key. The following are examples of the same content directory and what the eventual URL structure will be when Hugo runs with its default behavior.
 
@@ -253,7 +253,7 @@ Or, if you are on Windows and do not have `grep` installed:
 hugo config | FINDSTR /I canon
 ```
 
-## Override URLS with Front Matter
+## Override URLs with Front Matter
 
 In addition to specifying permalink values in your site configuration for different content sections, Hugo provides even more granular control for individual pieces of content.
 

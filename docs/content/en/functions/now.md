@@ -37,7 +37,7 @@ would produce the following:
 </div>
 ```
 
-The above example uses the [`.Format` function](/functions/format), which page includes a full listing of date formatting using Golang's layout string.
+The above example uses the [`.Format` function](/functions/format), which page includes a full listing of date formatting using Go's layout string.
 
 {{% note %}}
 Older Hugo themes may still be using the obsolete Page’s `.Now` (uppercase with leading dot), which causes build error that looks like the following:
