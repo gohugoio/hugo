@@ -133,7 +133,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 `)
 
-	err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE.md"), bytes.NewReader(by), cfg.Fs.Source)
+	err = helpers.WriteToDisk(filepath.Join(createpath, "LICENSE"), bytes.NewReader(by), cfg.Fs.Source)
 	if err != nil {
 		return err
 	}
@@ -150,7 +150,7 @@ func (n *newThemeCmd) createThemeMD(fs *hugofs.Fs, inpath string) (err error) {
 
 name = "` + strings.Title(helpers.MakeTitle(filepath.Base(inpath))) + `"
 license = "MIT"
-licenselink = "https://github.com/yourname/yourtheme/blob/master/LICENSE.md"
+licenselink = "https://github.com/yourname/yourtheme/blob/master/LICENSE"
 description = ""
 homepage = "http://example.com/"
 tags = []
