@@ -35,7 +35,7 @@ The following examples use GitHub, but other git providers will follow a similar
 
 ![Screenshot of the homepage for app.netlify.com, containing links to the most popular hosted git solutions.](/images/hosting-and-deployment/hosting-on-netlify/netlify-signup.jpg)
 
-Selecting GitHub will bring up a typical modal you've seen through other application that use GitHub for authentication. Select "Authorize application."
+Selecting GitHub will bring up an authorization modal for authentication. Select "Authorize application."
 
 ![Screenshot of the authorization popup for Netlify and GitHub.](/images/hosting-and-deployment/hosting-on-netlify/netlify-first-authorize.jpg)
 

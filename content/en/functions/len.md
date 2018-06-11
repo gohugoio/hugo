@@ -17,7 +17,7 @@ toc: false
 aliases: []
 ---
 
-`len` is a built-in function in Golang that returns the length of a variable according to its type. From the Golang documentation:
+`len` is a built-in function in Go that returns the length of a variable according to its type. From the Go documentation:
 
 > Array: the number of elements in v.
 >
