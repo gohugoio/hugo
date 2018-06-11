@@ -15,24 +15,18 @@ package commands
 
 import (
 	"bytes"
-	"path/filepath"
-
-	"github.com/spf13/viper"
-
 	"errors"
-
-	"github.com/gohugoio/hugo/create"
-
 	"fmt"
-
+	"path/filepath"
 	"strings"
 
-	"github.com/gohugoio/hugo/parser"
-
+	"github.com/gohugoio/hugo/create"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
+	"github.com/spf13/viper"
 )
 
 var _ cmder = (*newSiteCmd)(nil)
@@ -104,7 +98,7 @@ func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error
 
 	createConfig(fs, basepath, n.configFormat)
 
-	// Create a defaul archetype file.
+	// Create a default archetype file.
 	helpers.SafeWriteToDisk(filepath.Join(archeTypePath, "default.md"),
 		strings.NewReader(create.ArchetypeTemplateTemplate), fs.Source)
 
@@ -145,4 +139,25 @@ func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {
 	}
 
 	return helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), &buf, fs.Source)
+}
+
+func nextStepsText() string {
+	var nextStepsText bytes.Buffer
+
+	nextStepsText.WriteString(`Just a few more steps and you're ready to go:
+
+1. Download a theme into the same-named folder.
+   Choose a theme from https://themes.gohugo.io/, or
+   create your own with the "hugo new theme <THEMENAME>" command.
+2. Perhaps you want to add some content. You can add single files
+   with "hugo new `)
+
+	nextStepsText.WriteString(filepath.Join("<SECTIONNAME>", "<FILENAME>.<FORMAT>"))
+
+	nextStepsText.WriteString(`".
+3. Start the built-in live server via "hugo server".
+
+Visit https://gohugo.io/ for quickstart guide and full documentation.`)
+
+	return nextStepsText.String()
 }
