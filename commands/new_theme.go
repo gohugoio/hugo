@@ -14,16 +14,14 @@
 package commands
 
 import (
-	"path/filepath"
-
 	"bytes"
-
+	"errors"
+	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/gohugoio/hugo/hugofs"
-
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -53,6 +51,7 @@ as you see fit.`,
 	return ccmd
 }
 
+// newTheme creates a new Hugo theme template
 func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 	c, err := initializeConfig(false, false, &n.hugoBuilderCommon, n, nil)
 
@@ -65,12 +64,12 @@ func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 	}
 
 	createpath := c.hugo.PathSpec.AbsPathify(filepath.Join(c.Cfg.GetString("themesDir"), args[0]))
-	jww.INFO.Println("creating theme at", createpath)
+	jww.FEEDBACK.Println("Creating theme at", createpath)
 
 	cfg := c.DepsCfg
 
 	if x, _ := helpers.Exists(createpath, cfg.Fs.Source); x {
-		return newUserError(createpath, "already exists")
+		return errors.New(createpath + " already exists")
 	}
 
 	mkdir(createpath, "layouts", "_default")
