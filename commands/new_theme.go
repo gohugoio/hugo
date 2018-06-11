@@ -80,6 +80,22 @@ func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 	touchFile(cfg.Fs.Source, createpath, "layouts", "_default", "list.html")
 	touchFile(cfg.Fs.Source, createpath, "layouts", "_default", "single.html")
 
+	baseofDefault := []byte(`<html>
+    {{- partial "head.html" . -}}
+    <body>
+        {{- partial "header.html" . -}}
+        <div id="content">
+        {{- block "main" . }}{{- end }}
+        </div>
+        {{- partial "footer.html" . -}}
+    </body>
+</html>
+`)
+	err = helpers.WriteToDisk(filepath.Join(createpath, "layouts", "_default", "baseof.html"), bytes.NewReader(baseofDefault), cfg.Fs.Source)
+	if err != nil {
+		return err
+	}
+
 	touchFile(cfg.Fs.Source, createpath, "layouts", "partials", "header.html")
 	touchFile(cfg.Fs.Source, createpath, "layouts", "partials", "footer.html")
 
