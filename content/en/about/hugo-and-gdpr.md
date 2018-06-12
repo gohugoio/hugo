@@ -109,6 +109,7 @@ disableInlineCSS = true
 
 enableDNT
 : Enabling this for the twitter/tweet shortcode, the tweet and its embedded page on your site are not used for purposes that include personalized suggestions and personalized ads.
+
 simple
 : If simple mode is enabled, a static and no-JS version of a tweet will be built.
 
