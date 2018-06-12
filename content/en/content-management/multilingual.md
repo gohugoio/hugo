@@ -366,7 +366,7 @@ For merging of content from other languages (i.e. missing content translations),
 
 To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there is more than one language, URLs must meet the following criteria:
 
-* Come from the built-in `.Permalink` or `.URL`
+* Come from the built-in `.Permalink` or `.RelPermalink`
 * Be constructed with
     * The [`relLangURL` template function][rellangurl] or the [`absLangURL` template function][abslangurl] **OR**
     * Prefixed with `{{ .LanguagePrefix }}`

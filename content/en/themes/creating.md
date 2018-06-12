@@ -29,59 +29,44 @@ Hugo can initialize a new blank theme directory within your existing `themes` us
 hugo new theme [name]
 ```
 
-## Theme Components
+## Theme Folders
 
-A theme consists of templates and static assets such as javascript and css files. Themes can also provide [archetypes][], which are archetypal content types used by the `hugo new` command to scaffold new content files with preconfigured front matter.
+A theme component can provide files in one or more of the following standard Hugo folders:
+
+layouts
+: Templates used to render content in Hugo. Also see [Templates Lookup Order](/templates/lookup-order/).
+
+static
+: Static files, such as logos, CSS and JavaScript.
+
+i18n
+: Language bundles.
+
+data
+: Data files.
+
+archetypes
+: Content templates used in `hugo new`.
+
+
+## Theme Configuration File
+
+A theme component can also provide its own [Configuration File](/getting-started/configuration/), e.g. `config.toml`. There are some restrictions to what can be configured in a theme component, and it is not possible to overwrite settings in the project.
+
+The following settings can be set:
+
+* `params` (global and per language)
+* `menu` (global and per language)
+* `outputformats` and `mediatypes`
+
+
+## Theme Description File
+
+In addition to the configuration file, a theme can also provide a `theme.toml` file that describes the theme, the author and origin etc. See [Add Your Hugo Theme to the Showcase](/contribute/themes/).
 
 
 {{% note "Use the Hugo Generator Tag" %}}
 The [`.Hugo.Generator`](/variables/hugo/) tag is included in all themes featured in the [Hugo Themes Showcase](http://themes.gohugo.io). We ask that you include the generator tag in all sites and themes you create with Hugo to help the core team track Hugo's usage and popularity.
 {{% /note %}}
 
-## Layouts
 
-Hugo is built around the concept that things should be as simple as possible.
-Fundamentally, website content is displayed in two different ways, a single
-piece of content and a list of content items. With Hugo, a theme layout starts
-with the defaults. As additional layouts are defined, they are used for the
-content type or section they apply to. This keeps layouts simple, but permits
-a large amount of flexibility.
-
-## Single Content
-
-The default single file layout is located at `layouts/_default/single.html`.
-
-## List of Contents
-
-The default list file layout is located at `layouts/_default/list.html`.
-
-## Partial Templates
-
-Theme creators should liberally use [partial templates](/templates/partials/)
-throughout their theme files. Not only is a good DRY practice to include shared
-code, but partials are a special template type that enables the themes end user
-to be able to overwrite just a small piece of a file or inject code into the
-theme from their local /layouts. These partial templates are perfect for easy
-injection into the theme with minimal maintenance to ensure future
-compatibility.
-
-## Static
-
-Everything in the static directory will be copied directly into the final site
-when rendered. No structure is provided here to enable complete freedom. It is
-common to organize the static content into:
-
-```
-/css
-/js
-/img
-```
-
-The actual structure is entirely up to you, the theme creator, on how you would like to organize your files.
-
-## Archetypes
-
-If your theme makes use of specific keys in the front matter, it is a good idea
-to provide an archetype for each content type you have. [Read more about archetypes][archetypes].
-
-[archetypes]: /content-management/archetypes/
