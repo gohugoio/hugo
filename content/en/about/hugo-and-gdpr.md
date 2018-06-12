@@ -129,5 +129,5 @@ privacyEnhanced
 ### Vimeo
 
 simple
-: If simple mode is enabled, the video thumbnail is fetched from Vimeo's servers and it is overlayed with a play button. If the user clicks play the video will open in a new tab directly on Vimeo's website.
+: If simple mode is enabled, the video thumbnail is fetched from Vimeo's servers and it is overlayed with a play button. If the user clicks to play the video, it will open in a new tab directly on Vimeo's website.
 
