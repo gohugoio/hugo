@@ -58,14 +58,7 @@ Section
 
 ## Hugo Layouts Lookup Rules With Theme
 
-In Hugo, layouts can live in either the project's or theme's layout folder, and the most specific layout will be chosen. Hugo will interleave the lookups:
-
-
-1. layouts/page/index.html 
-2. demoTheme/layouts/page/index.html 
-3. layouts/...
-
-This way it is possible to override specific templates from the theme.
+In Hugo, layouts can live in either the project's or the themes' layout folders, and the most specific layout will be chosen. Hugo will interleave the lookups listed below, finding the most specific one either in the project or themes.
 
 ## Examples: Layout Lookup for Regular Pages
 
