@@ -38,34 +38,31 @@ func createLayoutExamples() interface{} {
 	)
 
 	for _, example := range []struct {
-		name     string
-		d        LayoutDescriptor
-		hasTheme bool
-		f        Format
+		name string
+		d    LayoutDescriptor
+		f    Format
 	}{
 		// Taxonomy output.LayoutDescriptor={categories category taxonomy en  false Type Section
-		{"Single page in \"posts\" section", LayoutDescriptor{Kind: "page", Type: "posts"}, false, HTMLFormat},
-		{"Single page in \"posts\" section with layout set", LayoutDescriptor{Kind: "page", Type: "posts", Layout: demoLayout}, false, HTMLFormat},
-		{"Single page in \"posts\" section with theme", LayoutDescriptor{Kind: "page", Type: "posts"}, true, HTMLFormat},
-		{"AMP single page", LayoutDescriptor{Kind: "page", Type: "posts"}, false, AMPFormat},
-		{"AMP single page, French language", LayoutDescriptor{Kind: "page", Type: "posts", Lang: "fr"}, false, AMPFormat},
+		{"Single page in \"posts\" section", LayoutDescriptor{Kind: "page", Type: "posts"}, HTMLFormat},
+		{"Single page in \"posts\" section with layout set", LayoutDescriptor{Kind: "page", Type: "posts", Layout: demoLayout}, HTMLFormat},
+		{"AMP single page", LayoutDescriptor{Kind: "page", Type: "posts"}, AMPFormat},
+		{"AMP single page, French language", LayoutDescriptor{Kind: "page", Type: "posts", Lang: "fr"}, AMPFormat},
 		// All section or typeless pages gets "page" as type
-		{"Home page", LayoutDescriptor{Kind: "home", Type: "page"}, false, HTMLFormat},
-		{"Home page with type set", LayoutDescriptor{Kind: "home", Type: demoType}, false, HTMLFormat},
-		{"Home page with layout set", LayoutDescriptor{Kind: "home", Type: "page", Layout: demoLayout}, false, HTMLFormat},
-		{`Home page with theme`, LayoutDescriptor{Kind: "home", Type: "page"}, true, HTMLFormat},
-		{`AMP home, French language"`, LayoutDescriptor{Kind: "home", Type: "page", Lang: "fr"}, false, AMPFormat},
-		{"JSON home", LayoutDescriptor{Kind: "home", Type: "page"}, false, JSONFormat},
-		{"RSS home with theme", LayoutDescriptor{Kind: "home", Type: "page"}, true, RSSFormat},
-		{"RSS section posts", LayoutDescriptor{Kind: "section", Type: "posts"}, false, RSSFormat},
-		{"Taxonomy list in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, false, RSSFormat},
-		{"Taxonomy terms in categories", LayoutDescriptor{Kind: "taxonomyTerm", Type: "categories", Section: "category"}, false, RSSFormat},
-		{"Section list for \"posts\" section", LayoutDescriptor{Kind: "section", Type: "posts", Section: "posts"}, false, HTMLFormat},
-		{"Section list for \"posts\" section with type set to \"blog\"", LayoutDescriptor{Kind: "section", Type: "blog", Section: "posts"}, false, HTMLFormat},
-		{"Section list for \"posts\" section with layout set to \"demoLayout\"", LayoutDescriptor{Kind: "section", Layout: demoLayout, Section: "posts"}, false, HTMLFormat},
+		{"Home page", LayoutDescriptor{Kind: "home", Type: "page"}, HTMLFormat},
+		{"Home page with type set", LayoutDescriptor{Kind: "home", Type: demoType}, HTMLFormat},
+		{"Home page with layout set", LayoutDescriptor{Kind: "home", Type: "page", Layout: demoLayout}, HTMLFormat},
+		{`AMP home, French language"`, LayoutDescriptor{Kind: "home", Type: "page", Lang: "fr"}, AMPFormat},
+		{"JSON home", LayoutDescriptor{Kind: "home", Type: "page"}, JSONFormat},
+		{"RSS home", LayoutDescriptor{Kind: "home", Type: "page"}, RSSFormat},
+		{"RSS section posts", LayoutDescriptor{Kind: "section", Type: "posts"}, RSSFormat},
+		{"Taxonomy list in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, RSSFormat},
+		{"Taxonomy terms in categories", LayoutDescriptor{Kind: "taxonomyTerm", Type: "categories", Section: "category"}, RSSFormat},
+		{"Section list for \"posts\" section", LayoutDescriptor{Kind: "section", Type: "posts", Section: "posts"}, HTMLFormat},
+		{"Section list for \"posts\" section with type set to \"blog\"", LayoutDescriptor{Kind: "section", Type: "blog", Section: "posts"}, HTMLFormat},
+		{"Section list for \"posts\" section with layout set to \"demoLayout\"", LayoutDescriptor{Kind: "section", Layout: demoLayout, Section: "posts"}, HTMLFormat},
 
-		{"Taxonomy list in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, false, HTMLFormat},
-		{"Taxonomy term in categories", LayoutDescriptor{Kind: "taxonomyTerm", Type: "categories", Section: "category"}, false, HTMLFormat},
+		{"Taxonomy list in categories", LayoutDescriptor{Kind: "taxonomy", Type: "categories", Section: "category"}, HTMLFormat},
+		{"Taxonomy term in categories", LayoutDescriptor{Kind: "taxonomyTerm", Type: "categories", Section: "category"}, HTMLFormat},
 	} {
 
 		l := NewLayoutHandler()
@@ -90,12 +87,8 @@ func makeLayoutsPresentable(l []string) []string {
 			// This is a valid lookup, but it's more confusing than useful.
 			continue
 		}
-		ll = strings.TrimPrefix(ll, "_text/")
-		if strings.Contains(ll, "theme/") {
-			ll = strings.Replace(ll, "theme/", "demoTheme/layouts/", -1)
-		} else {
-			ll = "layouts/" + ll
-		}
+		ll = "layouts/" + strings.TrimPrefix(ll, "_text/")
+
 		if !strings.Contains(ll, "indexes") {
 			filtered = append(filtered, ll)
 		}
