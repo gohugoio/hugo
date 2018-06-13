@@ -141,6 +141,9 @@ func (p *PageOutput) Render(layout ...string) template.HTML {
 }
 
 func (p *Page) Render(layout ...string) template.HTML {
+	if p.mainPageOutput == nil {
+		panic(fmt.Sprintf("programming error: no mainPageOutput for %q", p.Path()))
+	}
 	return p.mainPageOutput.Render(layout...)
 }
 
