@@ -277,7 +277,10 @@ func (c *commandeer) fullBuild() error {
 	copyStaticFunc := func() error {
 		cnt, err := c.copyStatic()
 		if err != nil {
-			return fmt.Errorf("Error copying static files: %s", err)
+			if !os.IsNotExist(err) {
+				return fmt.Errorf("Error copying static files: %s", err)
+			}
+			c.Logger.WARN.Println("No Static directory found")
 		}
 		langCount = cnt
 		langCount = cnt
