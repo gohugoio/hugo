@@ -25,16 +25,16 @@ theme = ["my-shortcodes", "base-theme", "hyde"]
 
 You can even nest this, and have the theme component itself include theme components in its own `config.toml` (theme inheritance).[^1]
 
-The theme definition example above in `config.toml` creates a theme with 3 theme components with presedence from left to right.
+The theme definition example above in `config.toml` creates a theme with 3 theme components with precedence from left to right.
 
-So, Hugo will, for any given file, data entry etc., look first in the project, and then in `my-shortcode`, `base-theme` and lastly `hyde`.
+For any given file, data entry, etc., Hugo will look first in the project and then in `my-shortcode`, `base-theme`, and lastly `hyde`.
 
 Hugo uses two different algorithms to merge the filesystems, depending on the file type:
 
 * For `i18n` and `data` files, Hugo merges deeply using the translation id and data key inside the files.
-* For `static`, `layouts` (templates) and `archetypes` files, these are merged on file level. So the left-most file will be chosen.
+* For `static`, `layouts` (templates), and `archetypes` files, these are merged on file level. So the left-most file will be chosen.
 
-The name used in the `theme` definition above must match a folder in `/your-site/themes`, e.g. `/your-site/themes/my-shortcodes`. There are  plans to improve on this and get a URL scheme so this can be resolved automatically.
+The name used in the `theme` definition above must match a folder in `/your-site/themes`, e.g. `/your-site/themes/my-shortcodes`. There are plans to improve on this and get a URL scheme so this can be resolved automatically.
 
 Also note that a component that is part of a theme can have its own configuration file, e.g. `config.toml`. There are currently some restrictions to what a theme component can configure:
 
