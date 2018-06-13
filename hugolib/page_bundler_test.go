@@ -147,9 +147,9 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				assert.Equal(leafBundle1, firstPage.Parent())
 				assert.Equal(leafBundle1, secondPage.Parent())
 
-				assert.Equal(firstPage, pageResources.GetByPrefix("1"))
-				assert.Equal(secondPage, pageResources.GetByPrefix("2"))
-				assert.Nil(pageResources.GetByPrefix("doesnotexist"))
+				assert.Equal(firstPage, pageResources.GetMatch("1*"))
+				assert.Equal(secondPage, pageResources.GetMatch("2*"))
+				assert.Nil(pageResources.GetMatch("doesnotexist*"))
 
 				imageResources := leafBundle1.Resources.ByType("image")
 				assert.Equal(3, len(imageResources))
@@ -265,9 +265,9 @@ func TestPageBundlerSiteMultilingual(t *testing.T) {
 
 				// See https://github.com/gohugoio/hugo/issues/4295
 				// Every resource should have its Name prefixed with its base folder.
-				cBundleResources := bundleWithSubPath.Resources.ByPrefix("c/")
+				cBundleResources := bundleWithSubPath.Resources.Match("c/**")
 				assert.Equal(4, len(cBundleResources))
-				bundlePage := bundleWithSubPath.Resources.GetByPrefix("c/page")
+				bundlePage := bundleWithSubPath.Resources.GetMatch("c/page*")
 				assert.NotNil(bundlePage)
 				assert.IsType(&Page{}, bundlePage)
 
@@ -490,7 +490,7 @@ TheContent.
 	singleLayout := `
 Single Title: {{ .Title }}
 Content: {{ .Content }}
-{{ $sunset := .Resources.GetByPrefix "my-sunset-1" }}
+{{ $sunset := .Resources.GetMatch "my-sunset-1*" }}
 {{ with $sunset }}
 Sunset RelPermalink: {{ .RelPermalink }}
 {{ $thumb := .Fill "123x123" }}
@@ -509,7 +509,7 @@ Thumb RelPermalink: {{ $thumb.RelPermalink }}
 
 	myShort := `
 MyShort in {{ .Page.Path }}:
-{{ $sunset := .Page.Resources.GetByPrefix "my-sunset-2" }}
+{{ $sunset := .Page.Resources.GetMatch "my-sunset-2*" }}
 {{ with $sunset }}
 Short Sunset RelPermalink: {{ .RelPermalink }}
 {{ $thumb := .Fill "56x56" }}
