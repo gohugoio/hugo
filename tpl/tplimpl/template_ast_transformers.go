@@ -91,54 +91,6 @@ func applyTemplateTransformers(templ *parse.Tree, lookupFn func(name string) *pa
 	return nil
 }
 
-// paramsKeysToLower is made purposely non-generic to make it not so tempting
-// to do more of these hard-to-maintain AST transformations.
-func (c *templateContext) paramsKeysToLower(n parse.Node) {
-	switch x := n.(type) {
-	case *parse.ListNode:
-		if x != nil {
-			c.paramsKeysToLowerForNodes(x.Nodes...)
-		}
-	case *parse.ActionNode:
-		c.paramsKeysToLowerForNodes(x.Pipe)
-	case *parse.IfNode:
-		c.paramsKeysToLowerForNodes(x.Pipe, x.List, x.ElseList)
-	case *parse.WithNode:
-		c.paramsKeysToLowerForNodes(x.Pipe, x.List, x.ElseList)
-	case *parse.RangeNode:
-		c.paramsKeysToLowerForNodes(x.Pipe, x.List, x.ElseList)
-	case *parse.TemplateNode:
-		subTempl := c.getIfNotVisited(x.Name)
-		if subTempl != nil {
-			c.paramsKeysToLowerForNodes(subTempl.Root)
-		}
-	case *parse.PipeNode:
-		for i, elem := range x.Decl {
-			if len(x.Cmds) > i {
-				// maps $site => .Site etc.
-				c.decl[elem.Ident[0]] = x.Cmds[i].String()
-			}
-		}
-
-		for _, cmd := range x.Cmds {
-			c.paramsKeysToLower(cmd)
-		}
-
-	case *parse.CommandNode:
-		for _, elem := range x.Args {
-			switch an := elem.(type) {
-			case *parse.FieldNode:
-				c.updateIdentsIfNeeded(an.Ident)
-			case *parse.VariableNode:
-				c.updateIdentsIfNeeded(an.Ident)
-			case *parse.PipeNode:
-				c.paramsKeysToLower(an)
-			}
-
-		}
-	}
-}
-
 func (c *templateContext) paramsKeysToLowerForNodes(nodes ...parse.Node) {
 	for _, node := range nodes {
 		c.paramsKeysToLower(node)
