@@ -1492,6 +1492,8 @@ func (s *Site) resetBuildState() {
 
 	s.expiredCount = 0
 
+	spc = newPageCache()
+
 	for _, p := range s.rawAllPages {
 		p.subSections = Pages{}
 		p.parent = nil
