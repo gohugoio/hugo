@@ -2,7 +2,7 @@
 # Twitter:      https://twitter.com/gohugoio
 # Website:      https://gohugo.io/
 
-FROM golang:1.10.0-alpine3.7 AS build
+FROM golang:1.10.3-alpine3.7 AS build
 
 ENV CGO_ENABLED=0
 ENV GOOS=linux

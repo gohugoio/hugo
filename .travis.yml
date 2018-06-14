@@ -4,8 +4,8 @@ dist: trusty
 git:
   depth: false
 go:
-  - 1.9.5
-  - "1.10.1"
+  - 1.9.7
+  - "1.10.3"
   - tip
 os:
   - linux

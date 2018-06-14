@@ -43,4 +43,4 @@ parts:
       mv hugo-completion $SNAPCRAFT_PART_INSTALL/hugo-completion
     after: [go]
   go:
-    source-tag: go1.10.1
+    source-tag: go1.10.3
