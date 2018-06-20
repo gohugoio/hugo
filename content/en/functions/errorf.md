@@ -19,8 +19,11 @@ aliases: []
 ---
 
 `errorf` will evaluate a format string, then output the result to the ERROR log.
-This will also cause the build to fail.
+
+This will also cause the build to fail (the `hugo` command will `exit -1`).
 
 ```
-{{ errorf "Something went horribly wrong! %s" err }}
+{{ errorf "Failed to handle page %q" .Path }}
 ```
+
+Note that `errorf` supports all the formatting verbs of the [fmt](https://golang.org/pkg/fmt/) package.
