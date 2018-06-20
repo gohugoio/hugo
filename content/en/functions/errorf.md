@@ -1,7 +1,7 @@
 ---
 title: errorf
 linktitle: errorf
-description: Evaluates a format string and logs it to ERROR.
+description: Log ERROR and fail the build from the templates.
 date: 2017-09-30
 publishdate: 2017-09-30
 lastmod: 2017-09-30
