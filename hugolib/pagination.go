@@ -424,6 +424,8 @@ func toPages(seq interface{}) (Pages, error) {
 		return seq.(Pages), nil
 	case *Pages:
 		return *(seq.(*Pages)), nil
+	case []*Page:
+		return Pages(seq.([]*Page)), nil
 	case WeightedPages:
 		return (seq.(WeightedPages)).Pages(), nil
 	case PageGroup:
