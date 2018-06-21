@@ -391,7 +391,7 @@ func resolvePagerSize(cfg config.Provider, options ...interface{}) (int, error) 
 }
 
 func groupsFromDict(dict map[string]interface{}) (PagesGroup, error) {
-	var keys []string;
+	var keys []string
 
 	iikeys, haskey := dict["SortedKeys"]
 	if haskey {
