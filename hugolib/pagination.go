@@ -19,6 +19,7 @@ import (
 	"html/template"
 	"math"
 	"reflect"
+	"sort"
 	"strings"
 
 	"github.com/gohugoio/hugo/config"
@@ -389,6 +390,48 @@ func resolvePagerSize(cfg config.Provider, options ...interface{}) (int, error) 
 	return pas, nil
 }
 
+func groupsFromDict(dict map[string]interface{}) (PagesGroup, error) {
+	var keys []string;
+
+	iikeys, haskey := dict["SortedKeys"]
+	if haskey {
+		// 'SortedKeys' key available, using it to get the group names
+		ikeys, ok := iikeys.([]interface{})
+		if !ok {
+			return nil, fmt.Errorf("Dict to PagesGroup conversion error: key %s: unsupported type, expecting %T, got %T", "SortedKey", ikeys, iikeys)
+		}
+		keys = make([]string, len(ikeys))
+		for i, k := range ikeys {
+			keys[i], ok = k.(string)
+			if !ok {
+				return nil, fmt.Errorf("Dict to PagesGroup conversion error: key %s: unsupported type, expecting %T, got %T", "SortedKey", keys[i], k)
+			}
+		}
+	} else {
+		// no 'SortedKeys' key, using sorted Dict keys as group names
+		keys = make([]string, len(dict))
+		i := 0
+		for k := range dict {
+			keys[i] = k
+			i++
+		}
+		sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+	}
+	var pagesgroup PagesGroup
+	for _, k := range keys {
+		pages, ok := dict[k]
+		if ok {
+			p, err := toPages(pages)
+			if err != nil {
+				return nil, fmt.Errorf("Dict to PagesGroup conversion error: key %s: %s", k, err)
+			}
+			pg := PageGroup{k, p}
+			pagesgroup = append(pagesgroup, pg)
+		}
+	}
+	return pagesgroup, nil
+}
+
 func paginatePages(td targetPathDescriptor, seq interface{}, pagerSize int) (pagers, error) {
 
 	if pagerSize <= 0 {
@@ -400,6 +443,12 @@ func paginatePages(td targetPathDescriptor, seq interface{}, pagerSize int) (pag
 	var paginator *paginator
 
 	if groups, ok := seq.(PagesGroup); ok {
+		paginator, _ = newPaginatorFromPageGroups(groups, pagerSize, urlFactory)
+	} else if dict, ok := seq.(map[string]interface{}); ok {
+		groups, err := groupsFromDict(dict)
+		if err != nil {
+			return nil, err
+		}
 		paginator, _ = newPaginatorFromPageGroups(groups, pagerSize, urlFactory)
 	} else {
 		pages, err := toPages(seq)
