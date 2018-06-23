@@ -7,7 +7,7 @@ init:
 clone_folder: C:\GOPATH\src\github.com\gohugoio\hugo
 
 install:
-  - gem install asciidoctor
+#  - gem install asciidoctor
   - pip install docutils
   - go get github.com/magefile/mage
 
