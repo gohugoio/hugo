@@ -1,7 +1,7 @@
 ---
 title: Install Hugo
 linktitle: Install Hugo
-description: Install Hugo on macOS, Windows, Linux, FreeBSD, and on any machine where the Go compiler tool chain can run.
+description: Install Hugo on macOS, Windows, Linux, OpenBSD, FreeBSD, and on any machine where the Go compiler tool chain can run.
 date: 2016-11-01
 publishdate: 2016-11-01
 lastmod: 2018-01-02
@@ -31,6 +31,7 @@ Hugo currently provides pre-built binaries for the following:
 * macOS (Darwin) for x64, i386, and ARM architectures
 * Windows
 * Linux
+* OpenBSD
 * FreeBSD
 
 Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., on other operating systems such as DragonFly BSD, OpenBSD, Plan&nbsp;9, Solaris, and others. See <https://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
@@ -467,6 +468,14 @@ sudo dnf install hugo
 * <https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/>
 
 See the [related discussion in the Hugo forums][redhatforum].
+
+## OpenBSD
+
+OpenBSD provides a package for Hugo via `pkg_add`: 
+
+```
+doas pkg_add hugo
+```
 
 ## Upgrade Hugo
 
