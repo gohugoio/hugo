@@ -97,6 +97,7 @@ func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	touchFile(cfg.Fs.Source, createpath, "layouts", "partials", "head.html")
 	touchFile(cfg.Fs.Source, createpath, "layouts", "partials", "header.html")
 	touchFile(cfg.Fs.Source, createpath, "layouts", "partials", "footer.html")
 
