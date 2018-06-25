@@ -80,7 +80,8 @@ func (n *newThemeCmd) newTheme(cmd *cobra.Command, args []string) error {
 	touchFile(cfg.Fs.Source, createpath, "layouts", "_default", "list.html")
 	touchFile(cfg.Fs.Source, createpath, "layouts", "_default", "single.html")
 
-	baseofDefault := []byte(`<html>
+	baseofDefault := []byte(`<!DOCTYPE html>
+<html>
     {{- partial "head.html" . -}}
     <body>
         {{- partial "header.html" . -}}
