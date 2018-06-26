@@ -165,7 +165,8 @@ if (!doNotTrack) {
 </script>
 <script async src='https://www.google-analytics.com/analytics.js'></script>
 {{ end }}
-{{- end -}}`},
+{{- end -}}
+`},
 	{`google_news.html`, `{{ if .IsPage }}{{ with .Params.news_keywords }}
   <meta name="news_keywords" content="{{ range $i, $kw := first 10 . }}{{ if $i }},{{ end }}{{ $kw }}{{ end }}" />
 {{ end }}{{ end }}`},
@@ -214,15 +215,24 @@ if (!doNotTrack) {
 {{ with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}`},
 	{`pagination.html`, `{{ $pag := $.Paginator }}
 {{ if gt $pag.TotalPages 1 }}
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+    <li class="page-item"><a class="page-link" href="#">1</a></li>
+    <li class="page-item"><a class="page-link" href="#">2</a></li>
+    <li class="page-item"><a class="page-link" href="#">3</a></li>
+    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+  </ul>
+</nav>
+
 <ul class="pagination">
     {{ with $pag.First }}
-    <li>
-        <a href="{{ .URL }}" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
+    <li class="page-item">
+        <a href="{{ .URL }}" class="page-link" aria-label="First"><span aria-hidden="true">&laquo;&laquo;</span></a>
     </li>
     {{ end }}
-    <li
-    {{ if not $pag.HasPrev }}class="disabled"{{ end }}>
-    <a href="{{ if $pag.HasPrev }}{{ $pag.Prev.URL }}{{ end }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+    <li class="page-item{{ if not $pag.HasPrev }} disabled{{ end }}">
+    <a href="{{ if $pag.HasPrev }}{{ $pag.Prev.URL }}{{ end }}" class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
     </li>
     {{ $.Scratch.Set "__paginator.ellipsed" false }}
     {{ range $pag.Pagers }}
@@ -237,19 +247,17 @@ if (!doNotTrack) {
         {{ $.Scratch.Set "__paginator.ellipsed" true }}
     {{ end }}
     {{ if $showNumber }}
-    <li
-    {{ if eq . $pag }}class="active"{{ end }}><a href="{{ .URL }}">{{ .PageNumber }}</a></li>
+    <li class="page-item{{ if eq . $pag }} active{{ end }}"><a class="page-link" href="{{ .URL }}">{{ .PageNumber }}</a></li>
     {{ else if ($.Scratch.Get "__paginator.shouldEllipse") }}
-    <li class="disabled"><span aria-hidden="true">&hellip;</span></li>
+    <li class="page-item disabled"><span aria-hidden="true">&nbsp;&hellip;&nbsp;</span></li>
     {{ end }}
     {{ end }}
-    <li
-    {{ if not $pag.HasNext }}class="disabled"{{ end }}>
-    <a href="{{ if $pag.HasNext }}{{ $pag.Next.URL }}{{ end }}" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+    <li class="page-item{{ if not $pag.HasNext }} disabled{{ end }}">
+    <a href="{{ if $pag.HasNext }}{{ $pag.Next.URL }}{{ end }}" class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
     </li>
     {{ with $pag.Last }}
-    <li>
-        <a href="{{ .URL }}" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
+    <li class="page-item">
+        <a href="{{ .URL }}" class="page-link" aria-label="Last"><span aria-hidden="true">&raquo;&raquo;</span></a>
     </li>
     {{ end }}
 </ul>
