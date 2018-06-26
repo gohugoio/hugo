@@ -215,16 +215,6 @@ if (!doNotTrack) {
 {{ with .Site.Social.facebook_admin }}<meta property="fb:admins" content="{{ . }}" />{{ end }}`},
 	{`pagination.html`, `{{ $pag := $.Paginator }}
 {{ if gt $pag.TotalPages 1 }}
-<nav aria-label="Page navigation example">
-  <ul class="pagination">
-    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-    <li class="page-item"><a class="page-link" href="#">1</a></li>
-    <li class="page-item"><a class="page-link" href="#">2</a></li>
-    <li class="page-item"><a class="page-link" href="#">3</a></li>
-    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-  </ul>
-</nav>
-
 <ul class="pagination">
     {{ with $pag.First }}
     <li class="page-item">
