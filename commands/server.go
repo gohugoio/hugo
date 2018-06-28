@@ -298,7 +298,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 		}
 	}
 
-	httpFs := afero.NewHttpFs(f.c.Fs.Destination)
+	httpFs := afero.NewHttpFs(f.c.destinationFs)
 	fs := filesOnlyFs{httpFs.Dir(absPublishDir)}
 
 	doLiveReload := !f.s.buildWatch && !f.c.Cfg.GetBool("disableLiveReload")

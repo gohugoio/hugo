@@ -596,14 +596,6 @@ func (c *commandeer) getDirList() ([]string, error) {
 	return a, nil
 }
 
-func (c *commandeer) recreateAndBuildSites(watching bool) (err error) {
-	defer c.timeTrack(time.Now(), "Total")
-	if !c.h.quiet {
-		c.Logger.FEEDBACK.Println("Started building sites ...")
-	}
-	return c.hugo.Build(hugolib.BuildCfg{CreateSitesFromConfig: true})
-}
-
 func (c *commandeer) resetAndBuildSites() (err error) {
 	if !c.h.quiet {
 		c.Logger.FEEDBACK.Println("Started building sites ...")
@@ -637,9 +629,10 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 }
 
 func (c *commandeer) fullRebuild() {
+	c.commandeerHugoState = &commandeerHugoState{}
 	if err := c.loadConfig(true, true); err != nil {
 		jww.ERROR.Println("Failed to reload config:", err)
-	} else if err := c.recreateAndBuildSites(true); err != nil {
+	} else if err := c.buildSites(); err != nil {
 		jww.ERROR.Println(err)
 	} else if !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload") {
 		livereload.ForceRefresh()
