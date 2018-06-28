@@ -37,23 +37,27 @@ import (
 	"github.com/gohugoio/hugo/langs"
 )
 
-type commandeer struct {
+type commandeerHugoState struct {
 	*deps.DepsCfg
+	hugo     *hugolib.HugoSites
+	fsCreate sync.Once
+}
 
-	hugo *hugolib.HugoSites
+type commandeer struct {
+	*commandeerHugoState
+
+	// We need to reuse this on server rebuilds.
+	destinationFs afero.Fs
 
 	h    *hugoBuilderCommon
 	ftch flagsToConfigHandler
 
 	visitedURLs *types.EvictingStringQueue
 
-	// We watch these for changes.
-	configFiles []string
-
 	doWithCommandeer func(c *commandeer) error
 
-	// We can do this only once.
-	fsCreate sync.Once
+	// We watch these for changes.
+	configFiles []string
 
 	// Used in cases where we get flooded with events in server mode.
 	debounce func(f func())
@@ -73,6 +77,7 @@ func (c *commandeer) Set(key string, value interface{}) {
 }
 
 func (c *commandeer) initFs(fs *hugofs.Fs) error {
+	c.destinationFs = fs.Destination
 	c.DepsCfg.Fs = fs
 
 	return nil
@@ -89,11 +94,12 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 	}
 
 	c := &commandeer{
-		h:                h,
-		ftch:             f,
-		doWithCommandeer: doWithCommandeer,
-		visitedURLs:      types.NewEvictingStringQueue(10),
-		debounce:         rebuildDebouncer,
+		h:                   h,
+		ftch:                f,
+		commandeerHugoState: &commandeerHugoState{},
+		doWithCommandeer:    doWithCommandeer,
+		visitedURLs:         types.NewEvictingStringQueue(10),
+		debounce:            rebuildDebouncer,
 	}
 
 	return c, c.loadConfig(mustHaveConfigFile, running)
@@ -188,8 +194,11 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	c.fsCreate.Do(func() {
 		fs := hugofs.NewFrom(sourceFs, config)
 
-		// Hugo writes the output to memory instead of the disk.
-		if createMemFs {
+		if c.destinationFs != nil {
+			// Need to reuse the destination on server rebuilds.
+			fs.Destination = c.destinationFs
+		} else if createMemFs {
+			// Hugo writes the output to memory instead of the disk.
 			fs.Destination = new(afero.MemMapFs)
 		}
 
