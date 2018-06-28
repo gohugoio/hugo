@@ -464,6 +464,8 @@ Loop:
 	for {
 		switch r := l.next(); {
 		case isAlphaNumericOrHyphen(r):
+		// Allow forward slash inside names to make it possible to create namespaces.
+		case r == '/':
 		default:
 			l.backup()
 			word := l.input[l.start:l.pos]
