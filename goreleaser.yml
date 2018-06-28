@@ -1,5 +1,5 @@
-build:
-  main: main.go
+builds:
+- main: main.go
   binary: hugo
   ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
   env:
@@ -21,10 +21,9 @@ build:
     - goos: openbsd
       goarch: arm
       goarm: 6
-
-fpm:
+nfpm:
   formats:
-      - deb
+    - deb
   vendor: "gohugo.io"
   homepage: "https://gohugo.io/"
   maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
