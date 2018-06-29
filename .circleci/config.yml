@@ -1,7 +1,7 @@
 defaults: &defaults
   working_directory: /go/src/github.com/gohugoio
   docker:
-      - image: bepsays/ci-goreleaser:0.34.2-11
+      - image: bepsays/ci-goreleaser:0.79.0-1
     
 version: 2
 jobs:
