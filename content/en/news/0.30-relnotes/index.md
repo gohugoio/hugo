@@ -9,7 +9,7 @@ images:
 ---
 
 	
-Hugo `0.30` is the **Race Car Edition**. Hugo is already very very fast, but much wants more. So we added **Fast Render Mode**. It is hard to explain, so start the Hugo development server with `hugo server` and start editing. Live reloads just got so much faster! The "how and what" is discussed at length in [other places](https://github.com/gohugoio/hugo/pull/3959), but the short version is that we now re-render only the parts of the site that you are working on.
+Hugo `0.30` is the **Race Car Edition**. Hugo is already very very fast, but wants much more. So we added **Fast Render Mode**. It is hard to explain, so start the Hugo development server with `hugo server` and start editing. Live reloads just got so much faster! The "how and what" is discussed at length in [other places](https://github.com/gohugoio/hugo/pull/3959), but the short version is that we now re-render only the parts of the site that you are working on.
 
 The second performance-related feature is a follow-up to the Template Metrics added in Hugo `0.29`. Now, if you add the flag `--templateMetricsHints`, we will calculate a score for how your partials can be cached (with the `partialCached` template func).
 
