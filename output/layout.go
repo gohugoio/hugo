@@ -35,6 +35,12 @@ type LayoutDescriptor struct {
 	Kind    string
 	Lang    string
 	Layout  string
+
+	// Any potential type set in the page's current section and the root section
+	// it lives in.
+	TypeFirstSection    string
+	TypeCurrentSection string
+
 	// LayoutOverride indicates what we should only look for the above layout.
 	LayoutOverride bool
 }
@@ -125,6 +131,14 @@ func resolvePageTemplate(d LayoutDescriptor, f Format) []string {
 
 	if d.Type != "" {
 		b.addTypeVariations(d.Type)
+	}
+
+	if d.TypeCurrentSection != "" {
+		b.addTypeVariations(d.TypeCurrentSection)
+	}
+
+	if d.TypeFirstSection != "" {
+		b.addTypeVariations(d.TypeFirstSection)
 	}
 
 	switch d.Kind {

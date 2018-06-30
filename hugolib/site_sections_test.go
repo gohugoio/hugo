@@ -176,6 +176,8 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			active, err := home.InSection(home)
 			assert.NoError(err)
 			assert.True(active)
+			assert.Equal(p, p.FirstSection())
+
 		}},
 		{"l1", func(p *Page) {
 			assert.Equal("L1s", p.title)
@@ -249,6 +251,8 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			isAncestor, err = p.IsAncestor(l1)
 			assert.NoError(err)
 			assert.False(isAncestor)
+
+			assert.Equal(l1, p.FirstSection())
 
 		}},
 		{"perm a,link", func(p *Page) {

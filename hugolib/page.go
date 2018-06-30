@@ -405,12 +405,26 @@ func (p *Page) createLayoutDescriptor() output.LayoutDescriptor {
 	default:
 	}
 
+	var typeCurrentSection string
+	var typeRootSection string
+	curr := p.CurrentSection()
+	// Make sure we use the contentType only. This is the value from front matter.
+	if curr != nil {
+		typeCurrentSection = curr.contentType
+	}
+	first := p.FirstSection()
+	if first != nil {
+		typeRootSection = first.contentType
+	}
+
 	return output.LayoutDescriptor{
-		Kind:    p.Kind,
-		Type:    p.Type(),
-		Lang:    p.Lang(),
-		Layout:  p.Layout,
-		Section: section,
+		Kind:               p.Kind,
+		Type:               p.Type(),
+		Lang:               p.Lang(),
+		Layout:             p.Layout,
+		Section:            section,
+		TypeCurrentSection: typeCurrentSection,
+		TypeFirstSection:   typeRootSection,
 	}
 }
 

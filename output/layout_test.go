@@ -90,8 +90,13 @@ func TestLayout(t *testing.T) {
 			[]string{"_default/mylayout.amp.html", "_default/single.amp.html", "_default/mylayout.html", "_default/single.html"}, 4},
 		{"Page with layout and type", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype"}, "", ampType,
 			[]string{"myttype/mylayout.amp.html", "myttype/single.amp.html", "myttype/mylayout.html"}, 8},
-		{"Page with layout and type with subtype", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype/mysubtype"}, "", ampType,
-			[]string{"myttype/mysubtype/mylayout.amp.html", "myttype/mysubtype/single.amp.html", "myttype/mysubtype/mylayout.html"}, 8},
+		{"Page with layout and type with subtype", LayoutDescriptor{Kind: "page", Layout: "mylayout", Type: "myttype/mysubtype", TypeCurrentSection: "cst"}, "", ampType,
+			[]string{"myttype/mysubtype/mylayout.amp.html", "myttype/mysubtype/single.amp.html", "myttype/mysubtype/mylayout.html"}, 12},
+		{"Page with type in section", LayoutDescriptor{Kind: "page", TypeCurrentSection: "cst"}, "", ampType,
+			[]string{"cst/single.amp.html", "cst/single.html", "_default/single.amp.html", "_default/single.html"}, 4},
+		{"Page with type in root section", LayoutDescriptor{Kind: "page", TypeFirstSection: "cst"}, "", ampType,
+			[]string{"cst/single.amp.html", "cst/single.html", "_default/single.amp.html", "_default/single.html"}, 4},
+
 		// RSS
 		{"RSS Home", LayoutDescriptor{Kind: "home"}, "", RSSFormat,
 			[]string{"index.rss.xml", "home.rss.xml", "rss.xml"}, 15},
