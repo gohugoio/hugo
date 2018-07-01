@@ -74,7 +74,7 @@ func (ns *Namespace) After(index interface{}, seq interface{}) (interface{}, err
 	}
 
 	if indexv >= seqv.Len() {
-		return nil, errors.New("no items left")
+		return seqv.Slice(0, 0).Interface(), nil
 	}
 
 	return seqv.Slice(indexv, seqv.Len()).Interface(), nil
