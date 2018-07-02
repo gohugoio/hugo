@@ -75,6 +75,18 @@ func TestLayoutBase(t *testing.T) {
 				Name:            "partials/menu.html",
 				OverlayFilename: "partials/menu.html",
 			}},
+		{"Partial in subfolder", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: "/partials/sub/menu.html"}, true,
+			"_default/baseof.html",
+			TemplateNames{
+				Name:            "partials/sub/menu.html",
+				OverlayFilename: "/partials/sub/menu.html",
+			}},
+		{"Shortcode in subfolder", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: "shortcodes/sub/menu.html"}, true,
+			"_default/baseof.html",
+			TemplateNames{
+				Name:            "shortcodes/sub/menu.html",
+				OverlayFilename: "shortcodes/sub/menu.html",
+			}},
 		{"AMP, no base", TemplateLookupDescriptor{WorkingDir: workingDir, RelPath: layoutPathAmp}, false, "",
 			TemplateNames{
 				Name:            "_default/single.amp.html",

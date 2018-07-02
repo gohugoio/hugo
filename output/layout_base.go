@@ -58,6 +58,10 @@ type TemplateLookupDescriptor struct {
 	ContainsAny func(filename string, subslices [][]byte) (bool, error)
 }
 
+func isShorthCodeOrPartial(name string) bool {
+	return strings.HasPrefix(name, "shortcodes/") || strings.HasPrefix(name, "partials/")
+}
+
 func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 
 	name := filepath.ToSlash(d.RelPath)
@@ -104,12 +108,12 @@ func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 	}
 
 	// Ace and Go templates may have both a base and inner template.
-	pathDir := filepath.Dir(d.RelPath)
-
-	if ext == "amber" || strings.HasSuffix(pathDir, "partials") || strings.HasSuffix(pathDir, "shortcodes") {
+	if ext == "amber" || isShorthCodeOrPartial(name) {
 		// No base template support
 		return id, nil
 	}
+
+	pathDir := filepath.Dir(d.RelPath)
 
 	innerMarkers := goTemplateInnerMarkers
 
