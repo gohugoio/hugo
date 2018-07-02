@@ -38,7 +38,7 @@ type LayoutDescriptor struct {
 
 	// Any potential type set in the page's current section and the root section
 	// it lives in.
-	TypeFirstSection    string
+	TypeFirstSection   string
 	TypeCurrentSection string
 
 	// LayoutOverride indicates what we should only look for the above layout.
