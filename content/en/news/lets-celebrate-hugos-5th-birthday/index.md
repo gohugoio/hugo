@@ -48,7 +48,9 @@ More numbers:
 
 We're not finished with Hugo, but Hugo `0.43` very nicely wraps up the first five years. It started out as a small and fast static site generator. It is now [even faster](https://forestry.io/blog/hugo-vs-jekyll-benchmark/), and now so loaded with features that it has grown out of being just a "static site generator". It is a _framework for building websites_.
 
-My interest in this was first to get a static site generator that was easy to install and use. I was then taken by the simplicity and power of Go, the programming language, and started to implement lots of new features. My current goal is to get a single binary with native implementations of the stack I need for web development and content editing. Native implementations (Go and possibly CGO) means a potential for **very fast**, and the single binary takes most of the pain out of installation and upgrades (if you stick with the same binary, it will continue to just work for decades).
+My interest in Hugo started on the Sunday when I moved my blog, [bepsays.com](https://bepsays.com/en/), twice. The second static generator choice of that day, Hugo, was a good match. I remember Steve being very enthusiastic about getting patches with fixes and enhancements, and I was eventually taken over by the simplicity and power of Go, the programming language, and started to implement lots of new features.
+
+My goal with all of this, if there is one, is to get a single binary with native and really fast implementations of the complete stack I need for web development and content editing. The single binary takes most of the pain out of installation and upgrades (if you stick with the same binary, it will continue to just work for decades).
 
 **With 0.43, we are almost there.** With that release, it should be possible to set up a Hugo-only project without any additional tools (Gulp, WebPack) for all aspects of website building. There will still be situations where those tools will still be needed, of course, but we will continue to fill the gaps in the feature set. 
 
