@@ -40,7 +40,7 @@ More numbers:
 
 
 * 26800+ [stars](https://github.com/gohugoio/hugo/stargazers) on GitHub. 
-* 444+ [contributors](https://github.com/gohugoio/hugo/graphs/contributors). [@bep](https://github.com/bep) is the most active with around 70% of the current code base (line count).
+* 444+ [contributors](https://github.com/gohugoio/hugo/graphs/contributors) to the Hugo source repository, 654+ to [Hugo Docs](https://github.com/gohugoio/hugoDocs/graphs/contributors). [@bep](https://github.com/bep) is the most active with around 70% of the current code base (line count).
 * 235+ [themes](https://themes.gohugo.io/)
 * 50% increase in user session on the [gohugo.io](https://gohugo.io/) web sites the last 12 months.[^2]
 * Hugo build release binaries for [a myriad](https://github.com/gohugoio/hugo/releases/tag/v0.42.2) of platforms. And since it can also be installed from Chocolatey on Windows, Brew on MacOs, Snap on Linux and `apt-get` on Debian/Ubuntu, it is impossible to give accurate download numbers. But the number is not small.
