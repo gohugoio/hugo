@@ -115,6 +115,7 @@ type BlackFriday struct {
 	SmartDashes           bool
 	LatexDashes           bool
 	TaskLists             bool
+	TaskListsEditable     bool
 	PlainIDAnchors        bool
 	Extensions            []string
 	ExtensionsMask        []string

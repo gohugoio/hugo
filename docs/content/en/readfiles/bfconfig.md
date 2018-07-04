@@ -5,6 +5,11 @@
     Blackfriday flag: <br>
     Purpose: `false` turns off GitHub-style automatic task/TODO list generation.
 
+`TaskListsEditable`
+: default: **`false`**<br>
+    Blackfriday flag: <br>
+    Purpose: `true` turns on the ability to modify checkboxes in task lists.
+
 `smartypants`
 : default: **`true`** <br>
     Blackfriday flag: **`HTML_USE_SMARTYPANTS`** <br>
