@@ -11,7 +11,7 @@ _By Bjørn Erik Pedersen ([@bepsays](https://twitter.com/bepsays) / [@bep](https
 **Five years ago today, [Steve Francia](https://github.com/spf13/) made his [first commit](https://github.com/gohugoio/hugo/commit/50a1d6f3f155ab837310e00ffb309a9199773c73
 ) on the Hugo project: "Hugo: A Fast and Flexible Static Site Generator built with love by spf13 in GoLang".**
 
-Steve was writing this on a train commute to New York. I'm writing this article running Hugo `v0.43-DEV`, the preview version of the next Hugo release. The release is scheduled for Monday and adds a powerful [assets pipeline](https://github.com/gohugoio/hugo/issues/4854#issue-333062459), with SCSS/SASS support, assets minification, fingerprinting/subresource integrity, ad-hoc image processing and much more. 
+Steve was writing that on a train commute to New York. I'm writing this article running Hugo `v0.43-DEV`, the preview version of the next Hugo release. The release is scheduled for Monday and adds a powerful [assets pipeline](https://github.com/gohugoio/hugo/issues/4854#issue-333062459), with SCSS/SASS support, assets minification, fingerprinting/subresource integrity, ad-hoc image processing and much more. 
 
 **I cannot remember the last time I was this excited about a Hugo release. "Game changer" may be too strong, but it makes for a really nice integrated website design-workflow that, with Hugo's build speed, is hard to beat.**
 
@@ -67,7 +67,7 @@ Pages from "other data sources"
 Upgrade Blackfriday to v2
 : [Blackfriday](https://github.com/russross/blackfriday) is the main content renderer in Hugo. It has been rewritten to a more flexible architecture, which should allow us to fix some of the current shortcomings.
 
-We should be able to create a better and easier-to-use data structure from the rendered content: Summary, the content after the summary, being able to rang over the footnotes and the ToC. Having ToC as a proper data structure also open up a few other potential uses; using it as an index in [Related Content](https://gohugo.io/content-management/related/) would be one example.
+We should be able to create a better and easier-to-use data structure from the rendered content: Summary, the content after the summary, being able to range over the footnotes and the ToC. Having ToC as a proper data structure also open up a few other potential uses; using it as an index in [Related Content](https://gohugo.io/content-management/related/) would be one example.
 
 This should also enable us to _do more_ with [Custom Output Formats](/templates/output-formats). It is already very powerful. GettyPubs are using it in [Quire](https://github.com/gettypubs/quire) to build [beautiful multi-platform publications](http://www.getty.edu/publications/digital/digitalpubs.html). But it can be improved. For rendering of content files, you are currently restricted to HTML. It would be great if we could configure alternative renderers per output format, such as LaTeX and EPUB.
 
