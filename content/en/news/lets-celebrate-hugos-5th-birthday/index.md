@@ -11,7 +11,7 @@ _By Bjørn Erik Pedersen ([@bepsays](https://twitter.com/bepsays) / [@bep](https
 **Five years ago today, [Steve Francia](https://github.com/spf13/) made his [first commit](https://github.com/gohugoio/hugo/commit/50a1d6f3f155ab837310e00ffb309a9199773c73
 ) on the Hugo project: "Hugo: A Fast and Flexible Static Site Generator built with love by spf13 in GoLang".**
 
-Steve was writing this on a train commute to New York. I'm writing this article running Hugo `v0.43-DEV`, the preview version of the very existing next Hugo release. The release is scheduled for Monday and adds a powerful [assets pipeline](https://github.com/gohugoio/hugo/issues/4854#issue-333062459), with SCSS/SASS support, assets minification, fingerprinting/subresource integrity, ad-hoc image processing and much more. 
+Steve was writing this on a train commute to New York. I'm writing this article running Hugo `v0.43-DEV`, the preview version of the next Hugo release. The release is scheduled for Monday and adds a powerful [assets pipeline](https://github.com/gohugoio/hugo/issues/4854#issue-333062459), with SCSS/SASS support, assets minification, fingerprinting/subresource integrity, ad-hoc image processing and much more. 
 
 **I cannot remember the last time I was this excited about a Hugo release. "Game changer" may be too strong, but it makes for a really nice integrated website design-workflow that, with Hugo's build speed, is hard to beat.**
 
@@ -38,7 +38,6 @@ Number of GitHub stars in relation to the Hugo release dates.
 
 More numbers:
 
-
 * 26800+ [stars](https://github.com/gohugoio/hugo/stargazers) on GitHub. 
 * 444+ [contributors](https://github.com/gohugoio/hugo/graphs/contributors) to the Hugo source repository, 654+ to [Hugo Docs](https://github.com/gohugoio/hugoDocs/graphs/contributors). [@bep](https://github.com/bep) is the most active with around 70% of the current code base (line count).
 * 235+ [themes](https://themes.gohugo.io/)
@@ -58,7 +57,7 @@ Hugo has stuck with the sub-zero versions to signal active development, with a n
 
 ### The Road to 1.0
 
-There are a few other functional pieces that would be good to get done. The following roadmap is taken from memory, and may not be complete, but should be a good indication of what's ahead.
+We have some more technical tasks that needs to be done (there is ongoing work to get the page quries into a more consistent state, also a simpler `.GetPage` method), but also some cool new functionality. The following roadmap is taken from memory, and may not be complete, but should be a good indication of what's ahead.
 
 Pages from "other data sources"
 : Currently, in addition to Hugo's list pages, every URL must be backed by a content file (Markdown, HTML etc.). This covers most use cases, but we need a flexible way to generate pages from other data sources. Think product catalogues and similar.
