@@ -93,9 +93,10 @@ func TestBlackfridayTaskList(t *testing.T) {
 	c := newTestContentSpec()
 
 	for i, this := range []struct {
-		markdown        string
-		taskListEnabled bool
-		expect          string
+		markdown                string
+		taskListEnabled         bool
+		taskListEditableEnabled bool
+		expect                  string
 	}{
 		{`
 TODO:
@@ -105,7 +106,7 @@ TODO:
 - [ ] Off
 
 END
-`, true, `<p>TODO:</p>
+`, true, false, `<p>TODO:</p>
 
 <ul class="task-list">
 <li><label><input type="checkbox" checked disabled class="task-list-item"> On1</label></li>
@@ -115,13 +116,13 @@ END
 
 <p>END</p>
 `},
-		{`- [x] On1`, false, `<ul>
+		{`- [x] On1`, false, false, `<ul>
 <li>[x] On1</li>
 </ul>
 `},
 		{`* [ ] Off
 
-END`, true, `<ul class="task-list">
+END`, true, false, `<ul class="task-list">
 <li><label><input type="checkbox" disabled class="task-list-item"> Off</label></li>
 </ul>
 
@@ -130,6 +131,59 @@ END`, true, `<ul class="task-list">
 	} {
 		blackFridayConfig := c.BlackFriday
 		blackFridayConfig.TaskLists = this.taskListEnabled
+		ctx := &RenderingContext{Content: []byte(this.markdown), PageFmt: "markdown", Config: blackFridayConfig}
+
+		result := string(c.RenderBytes(ctx))
+
+		if result != this.expect {
+			t.Errorf("[%d] got \n%v but expected \n%v", i, result, this.expect)
+		}
+	}
+}
+
+func TestBlackfridayTaskListEditable(t *testing.T) {
+	c := newTestContentSpec()
+
+	for i, this := range []struct {
+		markdown                string
+		taskListEnabled         bool
+		taskListEditableEnabled bool
+		expect                  string
+	}{
+		{`
+TODO:
+
+- [x] On1
+- [X] On2
+- [ ] Off
+
+END
+`, true, true, `<p>TODO:</p>
+
+<ul class="task-list">
+<li><label><input type="checkbox" checked class="task-list-item"> On1</label></li>
+<li><label><input type="checkbox" checked class="task-list-item"> On2</label></li>
+<li><label><input type="checkbox" class="task-list-item"> Off</label></li>
+</ul>
+
+<p>END</p>
+`},
+		{`- [x] On1`, false, true, `<ul>
+<li>[x] On1</li>
+</ul>
+`},
+		{`* [ ] Off
+
+END`, true, true, `<ul class="task-list">
+<li><label><input type="checkbox" class="task-list-item"> Off</label></li>
+</ul>
+
+<p>END</p>
+`},
+	} {
+		blackFridayConfig := c.BlackFriday
+		blackFridayConfig.TaskLists = this.taskListEnabled
+		blackFridayConfig.TaskListsEditable = this.taskListEditableEnabled
 		ctx := &RenderingContext{Content: []byte(this.markdown), PageFmt: "markdown", Config: blackFridayConfig}
 
 		result := string(c.RenderBytes(ctx))

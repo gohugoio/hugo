@@ -50,13 +50,24 @@ func (r *HugoHTMLRenderer) ListItem(out *bytes.Buffer, text []byte, flags int) {
 		return
 	}
 
+	var checked []byte
+	var unchecked []byte
+
+	if r.Config.TaskListsEditable {
+		checked = []byte(`<label><input type="checkbox" checked class="task-list-item">`)
+		unchecked = []byte(`<label><input type="checkbox" class="task-list-item">`)
+	} else {
+		checked = []byte(`<label><input type="checkbox" checked disabled class="task-list-item">`)
+		unchecked = []byte(`<label><input type="checkbox" disabled class="task-list-item">`)
+	}
+
 	switch {
 	case bytes.HasPrefix(text, []byte("[ ] ")):
-		text = append([]byte(`<label><input type="checkbox" disabled class="task-list-item">`), text[3:]...)
+		text = append(unchecked, text[3:]...)
 		text = append(text, []byte(`</label>`)...)
 
 	case bytes.HasPrefix(text, []byte("[x] ")) || bytes.HasPrefix(text, []byte("[X] ")):
-		text = append([]byte(`<label><input type="checkbox" checked disabled class="task-list-item">`), text[3:]...)
+		text = append(checked, text[3:]...)
 		text = append(text, []byte(`</label>`)...)
 	}
 
