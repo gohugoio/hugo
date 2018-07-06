@@ -22,6 +22,9 @@ aliases: [/extras/scratch/,/doc/scratch/]
 
 In most cases you can do okay without `Scratch`, but due to scoping issues, there are many use cases that aren't solvable in Go Templates without `Scratch`'s help.
 
+`.Scratch` is available as methods on `Page` and `Shortcode`. Since Hugo 0.43 you can also create a locally scoped `Scratch` using the template func `newScratch`.
+
+
 {{% note %}}
 See [this Go issue](https://github.com/golang/go/issues/10608) for the main motivation behind Scratch.
 {{% /note %}}
