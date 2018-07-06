@@ -46,13 +46,13 @@ useSessionStorage = false
 [privacy.instagram]
 disable = false
 simple = false
-[privacy.speakerDeck]
-disable = false
 [privacy.twitter]
 disable = false
 enableDNT = false
+simple = false
 [privacy.vimeo]
 disable = false
+simple = false
 [privacy.youtube]
 disable = false
 privacyEnhanced = false
@@ -70,8 +70,6 @@ disable = true
 [privacy.googleAnalytics]
 disable = true
 [privacy.instagram]
-disable = true
-[privacy.speakerDeck]
 disable = true
 [privacy.twitter]
 disable = true
@@ -112,8 +110,25 @@ disableInlineCSS = true
 enableDNT
 : Enabling this for the twitter/tweet shortcode, the tweet and its embedded page on your site are not used for purposes that include personalized suggestions and personalized ads.
 
+simple
+: If simple mode is enabled, a static and no-JS version of a tweet will be built.
+
+
+**Note:** If you use the _simple mode_ for Twitter, you may want to disable the inlines styles provided by Hugo:
+
+ {{< code-toggle file="config">}}
+[services]
+[services.twitter]
+disableInlineCSS = true
+{{< /code-toggle >}}
+
 ### YouTube
 
 privacyEnhanced
 : When you turn on privacy-enhanced mode, YouTube won’t store information about visitors on your website unless the user plays the embedded video.
+
+### Vimeo
+
+simple
+: If simple mode is enabled, the video thumbnail is fetched from Vimeo's servers and it is overlayed with a play button. If the user clicks to play the video, it will open in a new tab directly on Vimeo's website.
 

@@ -1188,6 +1188,15 @@
         ]
       },
       {
+        "Name": "plaintext",
+        "Aliases": [
+          "no-highlight",
+          "plain",
+          "text",
+          "txt"
+        ]
+      },
+      {
         "Name": "reStructuredText",
         "Aliases": [
           "rest",
@@ -1508,22 +1517,6 @@
         ]
       },
       {
-        "Example": "Single page in \"posts\" section with theme",
-        "Kind": "page",
-        "OutputFormat": "HTML",
-        "Suffix": "html",
-        "Template Lookup Order": [
-          "layouts/posts/single.html.html",
-          "demoTheme/layouts/posts/single.html.html",
-          "layouts/posts/single.html",
-          "demoTheme/layouts/posts/single.html",
-          "layouts/_default/single.html.html",
-          "demoTheme/layouts/_default/single.html.html",
-          "layouts/_default/single.html",
-          "demoTheme/layouts/_default/single.html"
-        ]
-      },
-      {
         "Example": "AMP single page",
         "Kind": "page",
         "OutputFormat": "AMP",
@@ -1622,38 +1615,6 @@
         ]
       },
       {
-        "Example": "Home page with theme",
-        "Kind": "home",
-        "OutputFormat": "HTML",
-        "Suffix": "html",
-        "Template Lookup Order": [
-          "layouts/index.html.html",
-          "demoTheme/layouts/index.html.html",
-          "layouts/home.html.html",
-          "demoTheme/layouts/home.html.html",
-          "layouts/list.html.html",
-          "demoTheme/layouts/list.html.html",
-          "layouts/index.html",
-          "demoTheme/layouts/index.html",
-          "layouts/home.html",
-          "demoTheme/layouts/home.html",
-          "layouts/list.html",
-          "demoTheme/layouts/list.html",
-          "layouts/_default/index.html.html",
-          "demoTheme/layouts/_default/index.html.html",
-          "layouts/_default/home.html.html",
-          "demoTheme/layouts/_default/home.html.html",
-          "layouts/_default/list.html.html",
-          "demoTheme/layouts/_default/list.html.html",
-          "layouts/_default/index.html",
-          "demoTheme/layouts/_default/index.html",
-          "layouts/_default/home.html",
-          "demoTheme/layouts/_default/home.html",
-          "layouts/_default/list.html",
-          "demoTheme/layouts/_default/list.html"
-        ]
-      },
-      {
         "Example": "AMP home, French language\"",
         "Kind": "home",
         "OutputFormat": "AMP",
@@ -1706,39 +1667,25 @@
         ]
       },
       {
-        "Example": "RSS home with theme",
+        "Example": "RSS home",
         "Kind": "home",
         "OutputFormat": "RSS",
         "Suffix": "xml",
         "Template Lookup Order": [
           "layouts/index.rss.xml",
-          "demoTheme/layouts/index.rss.xml",
           "layouts/home.rss.xml",
-          "demoTheme/layouts/home.rss.xml",
           "layouts/rss.xml",
-          "demoTheme/layouts/rss.xml",
           "layouts/list.rss.xml",
-          "demoTheme/layouts/list.rss.xml",
           "layouts/index.xml",
-          "demoTheme/layouts/index.xml",
           "layouts/home.xml",
-          "demoTheme/layouts/home.xml",
           "layouts/list.xml",
-          "demoTheme/layouts/list.xml",
           "layouts/_default/index.rss.xml",
-          "demoTheme/layouts/_default/index.rss.xml",
           "layouts/_default/home.rss.xml",
-          "demoTheme/layouts/_default/home.rss.xml",
           "layouts/_default/rss.xml",
-          "demoTheme/layouts/_default/rss.xml",
           "layouts/_default/list.rss.xml",
-          "demoTheme/layouts/_default/list.rss.xml",
           "layouts/_default/index.xml",
-          "demoTheme/layouts/_default/index.xml",
           "layouts/_default/home.xml",
-          "demoTheme/layouts/_default/home.xml",
           "layouts/_default/list.xml",
-          "demoTheme/layouts/_default/list.xml",
           "layouts/_internal/_default/rss.xml"
         ]
       },
@@ -2978,6 +2925,24 @@
         }
       },
       "path": {
+        "Base": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Dir": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Ext": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Join": {
           "Description": "Join joins any number of path elements into a single path, adding a\nseparating slash if necessary. All the input\npath elements are passed into filepath.ToSlash converting any Windows slashes\nto forward slashes.\nThe result is Cleaned; in particular,\nall empty strings are ignored.",
           "Args": [
@@ -2992,6 +2957,18 @@
             [
               "{{  path.Join \"my\" \"path\" \"filename.txt\" }}",
               "my/path/filename.txt"
+            ],
+            [
+              "{{ \"my/path/filename.txt\" | path.Ext  }}",
+              ".txt"
+            ],
+            [
+              "{{ \"my/path/filename.txt\" | path.Base  }}",
+              "filename.txt"
+            ],
+            [
+              "{{ \"my/path/filename.txt\" | path.Dir  }}",
+              "my/path"
             ]
           ]
         },
@@ -3201,6 +3178,20 @@
           "Aliases": null,
           "Examples": null
         },
+        "Repeat": {
+          "Description": "Repeat returns a new string consisting of count copies of the string s.",
+          "Args": [
+            "n",
+            "s"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ \"yo\" | strings.Repeat 4 }}",
+              "yoyoyoyo"
+            ]
+          ]
+        },
         "Replace": {
           "Description": "Replace returns a copy of the string s with all occurrences of old replaced\nwith new.",
           "Args": [
@@ -3228,6 +3219,14 @@
           "Aliases": [
             "replaceRE"
           ],
+          "Examples": []
+        },
+        "RuneCount": {
+          "Description": "RuneCount returns the number of runes in s.",
+          "Args": [
+            "s"
+          ],
+          "Aliases": null,
           "Examples": []
         },
         "SliceString": {

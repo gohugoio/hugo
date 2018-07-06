@@ -104,7 +104,7 @@ The most common usage is probably to run `hugo` with your current directory bein
 
 This generates your website to the `public/` directory by default, although you can customize the output directory in your [site configuration][config] by changing the `publishDir` field.
 
-The site Hugo renders into `public/` is ready to be deployed to your web server:
+The command `hugo` renders your site into `public/` dir and is ready to be deployed to your web server:
 
 ```
 hugo

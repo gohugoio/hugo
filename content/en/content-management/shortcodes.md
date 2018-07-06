@@ -374,6 +374,10 @@ Using the preceding `youtube` example (without `autoplay="true"`), the following
 
 {{< youtube w7Ft2ymGmfc >}}
 
+## Privacy Config
+
+To learn how to configure your Hugo site to meet the new EU privacy regulation, see [Hugo and the GDPR][].
+
 ## Create Custom Shortcodes
 
 To learn more about creating custom shortcodes, see the [shortcode template documentation][].
@@ -382,6 +386,7 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [contentmanagementsection]: /content-management/formats/
 [examplegist]: https://gist.github.com/spf13/7896402
 [figureelement]: http://html5doctor.com/the-figure-figcaption-elements/ "An article from HTML5 doctor discussing the fig and figcaption elements."
+[Hugo and the GDPR]: /about/hugo-and-gdpr/
 [Instagram]: https://www.instagram.com/
 [pagevariables]: /variables/page/
 [partials]: /templates/partials/
@@ -390,7 +395,6 @@ To learn more about creating custom shortcodes, see the [shortcode template docu
 [sctemps]: /templates/shortcode-templates/
 [scvars]: /variables/shortcodes/
 [shortcode template documentation]: /templates/shortcode-templates/
-[Speaker Deck]: https://speakerdeck.com/
 [templatessection]: /templates/
 [Vimeo]: https://vimeo.com/
 [YouTube Videos]: https://www.youtube.com/

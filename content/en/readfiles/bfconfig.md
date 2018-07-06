@@ -43,6 +43,16 @@
     Blackfriday flag: **`HTML_HREF_TARGET_BLANK`** <br>
     Purpose: `true` opens <s>external links</s> **absolute** links in a new window or tab. While the `target="_blank"` attribute is typically used for external links, Blackfriday does that for _all_ absolute links ([ref](https://discourse.gohugo.io/t/internal-links-in-same-tab-external-links-in-new-tab/11048/8)). One needs to make note of this if they use absolute links throughout, for internal links too (for example, by setting `canonifyURLs` to `true` or via `absURL`).
 
+`nofollowLinks`
+: default: **`false`** <br>
+    Blackfriday flag: **`HTML_NOFOLLOW_LINKS`** <br>
+    Purpose: `true` creates <s>external links</s> **absolute** links with `nofollow` being added to their `rel` attribute. Thereby crawlers are advised to not follow the link. While the `rel="nofollow"` attribute is typically used for external links, Blackfriday does that for _all_ absolute links. One needs to make note of this if they use absolute links throughout, for internal links too (for example, by setting `canonifyURLs` to `true` or via `absURL`).
+
+`noreferrerLinks`
+: default: **`false`** <br>
+    Blackfriday flag: **`HTML_NOREFERRER_LINKS`** <br>
+    Purpose: `true` creates <s>external links</s> **absolute** links with `noreferrer` being added to their `rel` attribute. Thus when following the link no referrer information will be leaked. While the `rel="noreferrer"` attribute is typically used for external links, Blackfriday does that for _all_ absolute links. One needs to make note of this if they use absolute links throughout, for internal links too (for example, by setting `canonifyURLs` to `true` or via `absURL`).
+
 `plainIDAnchors`
 : default **`true`** <br>
     Blackfriday flag: **`FootnoteAnchorPrefix` and `HeaderIDSuffix`** <br>
