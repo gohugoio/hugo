@@ -1,8 +1,8 @@
 
 ---
 date: 2018-06-12
-title: "0.42"
-description: "0.42"
+title: "Hugo 0.42: Theme Composition and Inheritance!"
+description: "Hugo 0.42 adds Theme Components support, a new and powerful way of composing your Hugo sites."
 categories: ["Releases"]
 ---
 

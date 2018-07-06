@@ -35,14 +35,13 @@ help  = "Help"
 title = "My blog"
 weight = 1
 [languages.en.params]
-linkedin = "english-link"
+linkedin = "https://linkedin.com/whoever"
 
 [languages.fr]
-copyright = "Tout est à moi"
-title = "Mon blog"
+title = "Mon blogue"
 weight = 2
 [languages.fr.params]
-linkedin = "lien-francais"
+linkedin = "https://linkedin.com/fr/whoever"
 [languages.fr.params.navigation]
 help  = "Aide"
 {{< /code-toggle >}}
@@ -55,11 +54,13 @@ and taxonomy pages will be rendered below `/` in English (your default content l
 
 When working with front matter `Params` in [single page templates][singles], omit the `params` in the key for the translation.
 
-If you want all of the languages to be put below their respective language code, enable `defaultContentLanguageInSubdir: true`.
+`defaultContentLanguage` sets the project's default language. If not set, the default language will be `en`.
+
+If the default language needs to be rendererd below its own language code (`/en`) like the others, set `defaultContentLanguageInSubdir: true`.
 
 Only the obvious non-global options can be overridden per language. Examples of global options are `baseURL`, `buildDrafts`, etc.
 
-## Disable a Language
+### Disable a Language
 
 You can disable one or more languages. This can be useful when working on a new translation.
 
@@ -81,7 +82,7 @@ HUGO_DISABLELANGUAGES=" " hugo server
 ```
 
 
-## Configure Multilingual Multihost
+### Configure Multilingual Multihost
 
 From **Hugo 0.31** we support multiple languages in a multihost configuration. See [this issue](https://github.com/gohugoio/hugo/issues/4027) for details.
 
@@ -94,11 +95,11 @@ Example:
 
 {{< code-toggle file="config" >}}
 [languages]
-[languages.no]
-baseURL = "https://example.no"
-languageName = "Norsk"
+[languages.fr]
+baseURL = "https://example.fr"
+languageName = "Français"
 weight = 1
-title = "På norsk"
+title = "En Français"
 
 [languages.en]
 baseURL = "https://example.com"
@@ -127,7 +128,7 @@ Press Ctrl+C to stop
 
 Live reload and `--navigateToChanged` between the servers work as expected.
 
-## Taxonomies and Blackfriday
+### Taxonomies and Blackfriday
 
 Taxonomies and [Blackfriday configuration][config] can also be set per language:
 
@@ -156,40 +157,113 @@ plaque = "plaques"
 
 ## Translate Your Content
 
-Translated articles are identified by the name of the content file.
+There are two ways to manage your content translation, both ensures each page is assigned a language and linked to its translations.
 
-### Examples of Translated Articles
+### Translation by filename
+
+Considering the following example:
 
 1. `/content/about.en.md`
 2. `/content/about.fr.md`
 
-In this example, the `about.md` will be assigned the configured `defaultContentLanguage`. 
+The first file is assigned the english language and linked to the second.
+The second file is assigned the french language and linked to the first.
 
-1. `/content/about.md`
-2. `/content/about.fr.md`
+Their language is __assigned__ according to the language code added as __suffix to the filename__. 
 
-This way, you can slowly start to translate your current content without having to rename everything. If left unspecified, the default value for `defaultContentLanguage` is `en`.
+By having the same **path and base filename**, the content pieces are __linked__ together as translated pages.
+{{< note >}}
 
-By having the same **directory and base filename**, the content pieces are linked together as translated pieces.
+If a file is missing any language code, it will be assigned the default language.
 
-You can also set the key used to link the translations explicitly in front matter:
+{{</ note >}}
+### Translation by content directory
+
+This system uses different content directories for each of the languages. Each language's content directory is set using the `contentDir` param.
+
+{{< code-toggle file="config" >}}
+
+languages:
+  en:
+    weight: 10
+    languageName: "English"
+    contentDir: "content/english"
+  nn:
+    weight: 20
+    languageName: "Français"
+    contentDir: "content/french"
+
+{{< /code-toggle >}}
+
+The value of `contentDir` can be any valid path, even absolute path references. The only restriction is that the content directories cannot overlap.
+
+Considering the following example in conjunction with the configuration above: 
+
+1. `/content/english/about.md`
+2. `/content/french/about.md`
+
+The first file is assigned the english language and is linked to the second.
+<br>The second file is assigned the french language and is linked to the first.
+
+Their language is __assigned__ according to the content directory they are __placed__ in.
+
+By having the same **path and basename** (relative to their language content directory), the content pieces are __linked__ together as translated pages.
+
+### Bypassing default linking.
+
+Any pages sharing the same `translationKey`  set in front matter will be linked as translated pages regardless of basename or location.
+
+Considering the following example:
+
+1. `/content/about-us.en.md`
+2. `/content/om.nn.md`
+3. `/content/presentation/a-propos.fr.md`
 
 ```yaml
-translationKey: "my-story"
+# set in all three pages
+translationKey: "about"
 ```
 
-If you need distinct URLs per language, you can set the slug in the non-default language file. For example, you can define a custom slug for a French translation in the front matter of `content/about.fr.md` as follows:
+By setting the `translationKey` front matter param to `about` in all three pages, they will be __linked__ as translated pages.
 
-```yaml
+
+### Localizing permalinks
+
+Because paths and filenames are used to handle linking, all translated pages, except for the language part, will be sharing the same url.
+
+To localize the URLs, the [`slug`]({{< ref "content-management/organization/index.md#slug" >}}) or [`url`]({{< ref "content-management/organization/index.md#url" >}}) front matter param can be set in any of the non-default language file. 
+
+For example, a french translation (`content/about.fr.md`) can have its own localized slug.
+
+{{< code-toggle >}}
+Title: A Propos
 slug: "a-propos"
+{{< /code-toggle >}}
 
-```
 
-At render, Hugo will build both `/about/` and `/a-propos/` as properly linked translated pages.
+At render, Hugo will build both `/about/` and `fr/a-propos/` while maintaning their translation linking.
+{{% note %}}
+If using `url`, remember to include the language part as well: `fr/compagnie/a-propos/`.
+{{%/ note %}}
 
-For merging of content from other languages (i.e. missing content translations), see [lang.Merge](/functions/lang.merge/).
+### Page Bundles
 
-## Link to Translated Content
+To avoid the burden of having to duplicate files, each Page Bundle inherits the resources of its linked translated pages' bundles except for the content files (markdown files, html files etc...).
+
+Therefore, from within a template, the page will have access to the files from all linked pages' bundles.
+
+If, across the linked bundles, two or more files share the same basenname, only one will be included and chosen as follows:
+
+* File from current language Bundle, if present.
+* First file found across bundles by order of language `Weight`.
+
+{{% note %}}
+
+Page Bundle's resources follow the same language assignement logic as content files, be it by filename (`image.jpg`, `image.fr.jpg`) or by directory (`english/about/header.jpg`, `french/about/header.jpg`).
+
+{{%/ note %}}
+
+## Reference the Translated Content
 
 To create a list of links to translated content, use a template similar to the following:
 
@@ -210,7 +284,7 @@ The above can be put in a `partial` (i.e., inside `layouts/partials/`) and inclu
 
 The above also uses the [`i18n` function][i18func] described in the next section.
 
-## List All Available Languages
+### List All Available Languages
 
 `.AllTranslations` on a `Page` can be used to list all translations, including itself. Called on the home page it can be used to build a language navigator:
 
