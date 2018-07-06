@@ -144,6 +144,14 @@ func init() {
 				{`{{ seq 3 }}`, `[1 2 3]`},
 			},
 		)
+
+		ns.AddMethodMapping(ctx.NewScratch,
+			[]string{"newScratch"},
+			[][2]string{
+				{`{{ $scratch := newScratch }}{{ $scratch.Add "b" 2 }}{{ $scratch.Add "b" 2 }}{{ $scratch.Get "b" }}`, `4`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Uniq,
 			[]string{"uniq"},
 			[][2]string{

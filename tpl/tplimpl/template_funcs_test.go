@@ -125,7 +125,6 @@ func TestTemplateFuncsExamples(t *testing.T) {
 			}
 		}
 	}
-
 }
 
 // TODO(bep) it would be dandy to put this one into the partials package, but

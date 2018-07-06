@@ -257,7 +257,7 @@ type Page struct {
 
 	layoutDescriptor output.LayoutDescriptor
 
-	scratch *Scratch
+	scratch *maps.Scratch
 
 	// It would be tempting to use the language set on the Site, but in they way we do
 	// multi-site processing, these values may differ during the initial page processing.
@@ -2052,9 +2052,9 @@ func (p *Page) String() string {
 }
 
 // Scratch returns the writable context associated with this Page.
-func (p *Page) Scratch() *Scratch {
+func (p *Page) Scratch() *maps.Scratch {
 	if p.scratch == nil {
-		p.scratch = newScratch()
+		p.scratch = maps.NewScratch()
 	}
 	return p.scratch
 }

@@ -24,6 +24,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/output"
 
 	"github.com/gohugoio/hugo/media"
@@ -45,7 +46,7 @@ type ShortcodeWithPage struct {
 	// this ordinal will represent the position of this shortcode in the page content.
 	Ordinal int
 
-	scratch *Scratch
+	scratch *maps.Scratch
 }
 
 // Site returns information about the current site.
@@ -65,9 +66,9 @@ func (scp *ShortcodeWithPage) RelRef(ref string) (string, error) {
 
 // Scratch returns a scratch-pad scoped for this shortcode. This can be used
 // as a temporary storage for variables, counters etc.
-func (scp *ShortcodeWithPage) Scratch() *Scratch {
+func (scp *ShortcodeWithPage) Scratch() *maps.Scratch {
 	if scp.scratch == nil {
-		scp.scratch = newScratch()
+		scp.scratch = maps.NewScratch()
 	}
 	return scp.scratch
 }
