@@ -1,8 +1,8 @@
 
 ---
 date: 2018-06-13
-title: "0.42.1"
-description: "0.42.1"
+title: "Hugo 0.42.1: Two Bug Fixes"
+description: "Hugo 0.42.1 fixes two issues."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png

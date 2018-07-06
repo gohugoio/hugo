@@ -5,7 +5,7 @@ description: Hugo searches for the layout to use for a given page in a well defi
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
-lastmod: 2017-05-25
+lastmod: 2017-07-05
 categories: [templates,fundamentals]
 keywords: [templates]
 menu:
@@ -32,7 +32,7 @@ Output Format
 : See [Custom Output Formats](/templates/output-formats). An output format has both a `name` (e.g. `rss`, `amp`, `html`) and a `suffix` (e.g. `xml`, `html`). We prefer matches with both (e.g. `index.amp.html`, but look for less specific templates.
 
 Language
-: We will consider a language code in the template name. If the site language is `fr`, `index.fr.amp.html` will win over `index.amp.html`, but we will `index.amp.html` will be chosen before `index.fr.html`.
+: We will consider a language code in the template name. If the site language is `fr`, `index.fr.amp.html` will win over `index.amp.html`, but `index.amp.html` will be chosen before `index.fr.html`.
 
 Layout
 : Can be set in page front matter.
