@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os/signal"
+	"regexp"
 	"sort"
 	"sync/atomic"
 	"syscall"
@@ -46,6 +47,7 @@ import (
 	"github.com/gohugoio/hugo/utils"
 	"github.com/gohugoio/hugo/watcher"
 	"github.com/spf13/afero"
+	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/fsync"
 	jww "github.com/spf13/jwalterweatherman"
@@ -842,52 +844,63 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 						c.firstPathSpec().BaseFs.SourceFilesystems,
 						dynamicEvents)
 
+					c.Logger.FEEDBACK.Println("\nFiltering events...")
+					partitionedEvents = filterDynamicEvents(
+						c.firstPathSpec().BaseFs.SourceFilesystems,
+						partitionedEvents,
+						c.Cfg)
+
 					doLiveReload := !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload")
 					onePageName := pickOneWriteOrCreatePath(partitionedEvents.ContentEvents)
 
-					c.Logger.FEEDBACK.Println("\nChange detected, rebuilding site")
-					const layout = "2006-01-02 15:04:05.000 -0700"
-					c.Logger.FEEDBACK.Println(time.Now().Format(layout))
+					if len(partitionedEvents.ContentEvents) > 0 || len(partitionedEvents.AssetEvents) > 0 {
+						c.Logger.FEEDBACK.Println("\nChange was detected, rebuilding site")
+						const layout = "2006-01-02 15:04:05.000 -0700"
+						c.Logger.FEEDBACK.Println(time.Now().Format(layout))
 
-					c.changeDetector.PrepareNew()
-					if err := c.rebuildSites(dynamicEvents); err != nil {
-						c.Logger.ERROR.Println("Failed to rebuild site:", err)
-					}
-
-					if doLiveReload {
-						if len(partitionedEvents.ContentEvents) == 0 && len(partitionedEvents.AssetEvents) > 0 {
-							changed := c.changeDetector.changed()
-							if c.changeDetector != nil && len(changed) == 0 {
-								// Nothing has changed.
-								continue
-							} else if len(changed) == 1 {
-								pathToRefresh := c.firstPathSpec().RelURL(helpers.ToSlashTrimLeading(changed[0]), false)
-								livereload.RefreshPath(pathToRefresh)
-							} else {
-								livereload.ForceRefresh()
-							}
+						c.changeDetector.PrepareNew()
+						if err := c.rebuildSites(dynamicEvents); err != nil {
+							c.Logger.ERROR.Println("Failed to rebuild site:", err)
 						}
 
-						if len(partitionedEvents.ContentEvents) > 0 {
-
-							navigate := c.Cfg.GetBool("navigateToChanged")
-							// We have fetched the same page above, but it may have
-							// changed.
-							var p *hugolib.Page
-
-							if navigate {
-								if onePageName != "" {
-									p = c.hugo.GetContentPage(onePageName)
+						if doLiveReload {
+							if len(partitionedEvents.ContentEvents) == 0 && len(partitionedEvents.AssetEvents) > 0 {
+								changed := c.changeDetector.changed()
+								if c.changeDetector != nil && len(changed) == 0 {
+									// Nothing has changed.
+									continue
+								} else if len(changed) == 1 {
+									pathToRefresh := c.firstPathSpec().RelURL(helpers.ToSlashTrimLeading(changed[0]), false)
+									livereload.RefreshPath(pathToRefresh)
+								} else {
+									livereload.ForceRefresh()
 								}
 							}
 
-							if p != nil {
-								livereload.NavigateToPathForPort(p.RelPermalink(), p.Site.ServerPort())
-							} else {
-								livereload.ForceRefresh()
+							if len(partitionedEvents.ContentEvents) > 0 {
+
+								navigate := c.Cfg.GetBool("navigateToChanged")
+								// We have fetched the same page above, but it may have
+								// changed.
+								var p *hugolib.Page
+
+								if navigate {
+									if onePageName != "" {
+										p = c.hugo.GetContentPage(onePageName)
+									}
+								}
+
+								if p != nil {
+									livereload.NavigateToPathForPort(p.RelPermalink(), p.Site.ServerPort())
+								} else {
+									livereload.ForceRefresh()
+								}
 							}
 						}
+					} else {
+						c.Logger.FEEDBACK.Println("\nNo changes detected after filter, not rebuiding site.")
 					}
+
 				}
 			case err := <-watcher.Errors:
 				if err != nil {
@@ -898,6 +911,40 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 	}()
 
 	return watcher, nil
+}
+
+func filterDynamicEvents(sourceFs *filesystems.SourceFilesystems, de dynamicEvents, cfg config.Provider) dynamicEvents {
+	ignoreFiles := cast.ToStringSlice(cfg.Get("ignoreFiles"))
+	var regexps []*regexp.Regexp
+	if len(ignoreFiles) > 0 {
+		for _, ignorePattern := range ignoreFiles {
+			re, err := regexp.Compile(ignorePattern)
+			if err != nil {
+				helpers.DistinctErrorLog.Printf("Invalid regexp %q in ignoreFiles: %s", ignorePattern, err)
+			} else {
+				regexps = append(regexps, re)
+			}
+		}
+	}
+
+	var filteredEvents []fsnotify.Event
+
+	for _, e := range de.ContentEvents {
+		filtered := false
+		for _, re := range regexps {
+			if re.MatchString(e.Name) {
+				helpers.DistinctFeedbackLog.Printf("Ignoring %s as it matches ignoreFiles regex: %s", e.Name, re.String())
+				filtered = true
+			}
+		}
+		if !filtered {
+			filteredEvents = append(filteredEvents, e)
+		}
+	}
+
+	de.ContentEvents = filteredEvents
+
+	return de
 }
 
 // dynamicEvents contains events that is considered dynamic, as in "not static".
