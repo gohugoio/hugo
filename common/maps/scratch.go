@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,14 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package maps
 
 import (
 	"reflect"
 	"sort"
 	"sync"
 
-	"github.com/gohugoio/hugo/tpl/math"
+	"github.com/gohugoio/hugo/common/math"
 )
 
 // Scratch is a writable context used for stateful operations in Page/Node rendering.
@@ -130,6 +130,6 @@ func (c *Scratch) GetSortedMapValues(key string) interface{} {
 	return sortedArray
 }
 
-func newScratch() *Scratch {
+func NewScratch() *Scratch {
 	return &Scratch{values: make(map[string]interface{})}
 }

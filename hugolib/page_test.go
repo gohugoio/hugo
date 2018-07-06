@@ -1830,6 +1830,33 @@ Summary: In Chinese, 好 means good.
 
 }
 
+func TestScratchSite(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithTemplatesAdded("index.html", `
+{{ .Scratch.Set "b" "bv" }}
+B: {{ .Scratch.Get "b" }}
+`,
+		"shortcodes/scratch.html", `
+{{ .Scratch.Set "c" "cv" }}
+C: {{ .Scratch.Get "c" }}
+`,
+	)
+
+	b.WithContentAdded("scratchme.md", `
+---
+title: Scratch Me!
+---
+
+{{< scratch >}}
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "B: bv")
+	b.AssertFileContent("public/scratchme/index.html", "C: cv")
+}
+
 func BenchmarkParsePage(b *testing.B) {
 	s := newTestSite(b)
 	f, _ := os.Open("testdata/redis.cn.md")

@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package maps
 
 import (
 	"reflect"
@@ -23,7 +23,7 @@ import (
 
 func TestScratchAdd(t *testing.T) {
 	t.Parallel()
-	scratch := newScratch()
+	scratch := NewScratch()
 	scratch.Add("int1", 10)
 	scratch.Add("int1", 20)
 	scratch.Add("int2", 20)
@@ -53,7 +53,7 @@ func TestScratchAdd(t *testing.T) {
 
 func TestScratchAddSlice(t *testing.T) {
 	t.Parallel()
-	scratch := newScratch()
+	scratch := NewScratch()
 
 	_, err := scratch.Add("intSlice", []int{1, 2})
 	assert.Nil(t, err)
@@ -82,14 +82,14 @@ func TestScratchAddSlice(t *testing.T) {
 
 func TestScratchSet(t *testing.T) {
 	t.Parallel()
-	scratch := newScratch()
+	scratch := NewScratch()
 	scratch.Set("key", "val")
 	assert.Equal(t, "val", scratch.Get("key"))
 }
 
 func TestScratchDelete(t *testing.T) {
 	t.Parallel()
-	scratch := newScratch()
+	scratch := NewScratch()
 	scratch.Set("key", "val")
 	scratch.Delete("key")
 	scratch.Add("key", "Lucy Parsons")
@@ -99,7 +99,7 @@ func TestScratchDelete(t *testing.T) {
 // Issue #2005
 func TestScratchInParallel(t *testing.T) {
 	var wg sync.WaitGroup
-	scratch := newScratch()
+	scratch := NewScratch()
 	key := "counter"
 	scratch.Set(key, int64(1))
 	for i := 1; i <= 10; i++ {
@@ -133,7 +133,7 @@ func TestScratchInParallel(t *testing.T) {
 
 func TestScratchGet(t *testing.T) {
 	t.Parallel()
-	scratch := newScratch()
+	scratch := NewScratch()
 	nothing := scratch.Get("nothing")
 	if nothing != nil {
 		t.Errorf("Should not return anything, but got %v", nothing)
@@ -142,7 +142,7 @@ func TestScratchGet(t *testing.T) {
 
 func TestScratchSetInMap(t *testing.T) {
 	t.Parallel()
-	scratch := newScratch()
+	scratch := NewScratch()
 	scratch.SetInMap("key", "lux", "Lux")
 	scratch.SetInMap("key", "abc", "Abc")
 	scratch.SetInMap("key", "zyx", "Zyx")
@@ -153,7 +153,7 @@ func TestScratchSetInMap(t *testing.T) {
 
 func TestScratchGetSortedMapValues(t *testing.T) {
 	t.Parallel()
-	scratch := newScratch()
+	scratch := NewScratch()
 	nothing := scratch.GetSortedMapValues("nothing")
 	if nothing != nil {
 		t.Errorf("Should not return anything, but got %v", nothing)
@@ -161,7 +161,7 @@ func TestScratchGetSortedMapValues(t *testing.T) {
 }
 
 func BenchmarkScratchGet(b *testing.B) {
-	scratch := newScratch()
+	scratch := NewScratch()
 	scratch.Add("A", 1)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

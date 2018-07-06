@@ -27,6 +27,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/resource"
 
 	"github.com/gohugoio/hugo/langs"
@@ -1509,7 +1510,7 @@ func (s *Site) resetBuildState() {
 	for _, p := range s.rawAllPages {
 		p.subSections = Pages{}
 		p.parent = nil
-		p.scratch = newScratch()
+		p.scratch = maps.NewScratch()
 		p.mainPageOutput = nil
 	}
 }
