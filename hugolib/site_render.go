@@ -168,7 +168,8 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 					results <- err
 				}
 
-				if pageOutput.IsNode() {
+				// Only render paginators for the main output format
+				if i == 0 && pageOutput.IsNode() {
 					if err := s.renderPaginator(pageOutput); err != nil {
 						results <- err
 					}

@@ -47,13 +47,14 @@ baseURL = "http://example.com/blog"
 paginate = 1
 defaultContentLanguage = "en"
 
-disableKinds = ["page", "section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+disableKinds = ["section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
 
 [Taxonomies]
 tag = "tags"
 category = "categories"
 
 defaultContentLanguage = "en"
+
 
 [languages]
 
@@ -125,8 +126,10 @@ List HTML|{{.Title }}|
 Partial Hugo 1: {{ partial "GoHugo.html" . }}
 Partial Hugo 2: {{ partial "GoHugo" . -}}
 Content: {{ .Content }}
+Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.PageNumber }}
 {{ end }}
 `,
+		"layouts/_default/single.html", `{{ define "main" }}{{ .Content }}{{ end }}`,
 	)
 	require.Len(t, h.Sites, 2)
 
@@ -134,6 +137,11 @@ Content: {{ .Content }}
 
 	writeSource(t, fs, "content/_index.md", fmt.Sprintf(pageTemplate, "JSON Home", outputsStr))
 	writeSource(t, fs, "content/_index.nn.md", fmt.Sprintf(pageTemplate, "JSON Nynorsk Heim", outputsStr))
+
+	for i := 1; i <= 10; i++ {
+		writeSource(t, fs, fmt.Sprintf("content/p%d.md", i), fmt.Sprintf(pageTemplate, fmt.Sprintf("Page %d", i), outputsStr))
+
+	}
 
 	err := h.Build(BuildCfg{})
 
@@ -175,7 +183,11 @@ Content: {{ .Content }}
 			"en: Elbow",
 			"ShortHTML",
 			"OtherShort: <h1>Hi!</h1>",
+			"Len Pages: home 10",
 		)
+		th.assertFileContent("public/page/2/index.html", "Page Number: 2")
+		th.assertFileNotExist("public/page/2/index.json")
+
 		th.assertFileContent("public/nn/index.html",
 			"List HTML|JSON Nynorsk Heim|",
 			"nn: Olboge")
