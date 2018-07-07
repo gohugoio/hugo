@@ -66,7 +66,7 @@ func DecodeConfig(cfg config.Provider) (c Config, err error) {
 
 	err = mapstructure.WeakDecode(m, &c)
 
-	// Keep backwards compability.
+	// Keep backwards compatibility.
 	if c.GoogleAnalytics.ID == "" {
 		// Try the global config
 		c.GoogleAnalytics.ID = cfg.GetString(googleAnalyticsKey)

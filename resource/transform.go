@@ -481,7 +481,7 @@ func contentReadSeekerCloser(r Resource) (ReadSeekCloser, error) {
 		}
 		return rc, nil
 	default:
-		return nil, fmt.Errorf("cannot tranform content of Resource of type %T", r)
+		return nil, fmt.Errorf("cannot transform content of Resource of type %T", r)
 
 	}
 }

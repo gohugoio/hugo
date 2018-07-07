@@ -275,8 +275,8 @@ type Page struct {
 	targetPathDescriptorPrototype *targetPathDescriptor
 }
 
-func stackTrace(lenght int) string {
-	trace := make([]byte, lenght)
+func stackTrace(length int) string {
+	trace := make([]byte, length)
 	runtime.Stack(trace, true)
 	return string(trace)
 }
