@@ -25,7 +25,7 @@ You would experience errors of type:
 png: invalid format: not enough pixel data
 ```
 
-This commit fixes that by adding a mutex per image. This should also improve the performance, sligthly, as it avoids duplicate work.
+This commit fixes that by adding a mutex per image. This should also improve the performance, slightly, as it avoids duplicate work.
 
 The current workaround before this fix is to always operate on the original:
 
