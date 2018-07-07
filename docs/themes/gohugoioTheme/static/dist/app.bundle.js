@@ -399,7 +399,7 @@ function toggleTabs(event) {
 for (i = 0; i < allTabs.length; i++) {
 	allTabs[i].addEventListener("click", toggleTabs);
 }
-// Upon page load, if user has a prefered language in its localStorage, tabs are set to it.
+// Upon page load, if user has a preferred language in its localStorage, tabs are set to it.
 if (window.localStorage.getItem('configLangPref')) {
 	toggleTabs(window.localStorage.getItem('configLangPref'));
 }
@@ -2083,7 +2083,7 @@ function defaultClearTimeout () {
 } ())
 function runTimeout(fun) {
     if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
+        //normal environments in sane situations
         return setTimeout(fun, 0);
     }
     // if setTimeout wasn't available but was latter defined
@@ -2108,7 +2108,7 @@ function runTimeout(fun) {
 }
 function runClearTimeout(marker) {
     if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
+        //normal environments in sane situations
         return clearTimeout(marker);
     }
     // if clearTimeout wasn't available but was latter defined
@@ -2190,7 +2190,7 @@ process.nextTick = function (fun) {
     }
 };
 
-// v8 likes predictible objects
+// v8 likes predictable objects
 function Item(fun, array) {
     this.fun = fun;
     this.array = array;
@@ -4181,7 +4181,7 @@ AlgoliaSearchCore.prototype._jsonRequest = function(initialOpts) {
         return client._promise.reject(err);
       }
 
-      // When a timeout occured, retry by raising timeout
+      // When a timeout occurred, retry by raising timeout
       if (err instanceof errors.RequestTimeout) {
         return retryRequestWithHigherTimeout();
       }
@@ -4892,7 +4892,7 @@ IndexCore.prototype._search = function(params, url, callback, additionalUA) {
 * @param attrs (optional) if set, contains the array of attribute names to retrieve
 * @param callback (optional) the result callback called with two arguments
 *  error: null or Error('message')
-*  content: the object to retrieve or the error message if a failure occured
+*  content: the object to retrieve or the error message if a failure occurred
 */
 IndexCore.prototype.getObject = function(objectID, attrs, callback) {
   var indexObj = this;
@@ -6701,7 +6701,7 @@ function Typeahead(o) {
     if (_.isMsie() && ($menu[0] === active || $menu[0].contains(active))) {
       $e.preventDefault();
       // stop immediate in order to prevent Input#_onBlur from
-      // getting exectued
+      // getting executed
       $e.stopImmediatePropagation();
       _.defer(function() { $input.focus(); });
     }
@@ -10431,7 +10431,7 @@ while (++i < len) {
     break;
   }
 }
-// v8 likes predictible objects
+// v8 likes predictable objects
 function Item(fun, array) {
   this.fun = fun;
   this.array = array;

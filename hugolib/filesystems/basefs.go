@@ -238,7 +238,7 @@ func (d *SourceFilesystem) Contains(filename string) bool {
 	return false
 }
 
-// RealDirs gets a list of absolute paths to directorys starting from the given
+// RealDirs gets a list of absolute paths to directories starting from the given
 // path.
 func (d *SourceFilesystem) RealDirs(from string) []string {
 	var dirnames []string

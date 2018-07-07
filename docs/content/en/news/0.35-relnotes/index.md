@@ -82,7 +82,7 @@ Hugo now has:
 * Add a `GetPage` to the site benchmarks [a1956391](https://github.com/gohugoio/hugo/commit/a19563910eec5fed08f3b02563b9a7b38026183d) [@bep](https://github.com/bep) 
 * Add headless bundle support [0432c64d](https://github.com/gohugoio/hugo/commit/0432c64dd22e4610302162678bb93661ba68d758) [@bep](https://github.com/bep) [#4311](https://github.com/gohugoio/hugo/issues/4311)
 * Merge matching resources params maps [5a0819b9](https://github.com/gohugoio/hugo/commit/5a0819b9b5eb9e79826cfa0a65f235d9821b1ac4) [@bep](https://github.com/bep) [#4315](https://github.com/gohugoio/hugo/issues/4315)
-* Add some general code contribution criterias [78c86330](https://github.com/gohugoio/hugo/commit/78c863305f337ed4faf3cf0a23675f28b0ae5641) [@bep](https://github.com/bep) 
+* Add some general code contribution criteria [78c86330](https://github.com/gohugoio/hugo/commit/78c863305f337ed4faf3cf0a23675f28b0ae5641) [@bep](https://github.com/bep) 
 * Tighten page kind logic, introduce tests [8125b4b0](https://github.com/gohugoio/hugo/commit/8125b4b03d10eb73f8aea3f9ea41172aba8df082) [@vassudanagunta](https://github.com/vassudanagunta) 
 
 ## Fixes
