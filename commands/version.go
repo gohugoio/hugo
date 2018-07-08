@@ -19,6 +19,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/resource/tocss/scss"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -44,13 +45,24 @@ func newVersionCmd() *versionCmd {
 }
 
 func printHugoVersion() {
-	if hugolib.CommitHash == "" {
-		if hugolib.BuildDate == "" {
-			jww.FEEDBACK.Printf("Hugo Static Site Generator v%s %s/%s\n", helpers.CurrentHugoVersion, runtime.GOOS, runtime.GOARCH)
-		} else {
-			jww.FEEDBACK.Printf("Hugo Static Site Generator v%s %s/%s BuildDate: %s\n", helpers.CurrentHugoVersion, runtime.GOOS, runtime.GOARCH, hugolib.BuildDate)
-		}
-	} else {
-		jww.FEEDBACK.Printf("Hugo Static Site Generator v%s-%s %s/%s BuildDate: %s\n", helpers.CurrentHugoVersion, strings.ToUpper(hugolib.CommitHash), runtime.GOOS, runtime.GOARCH, hugolib.BuildDate)
+	program := "Hugo Static Site Generator"
+
+	version := "v" + helpers.CurrentHugoVersion.String()
+	if hugolib.CommitHash != "" {
+		version += "-" + strings.ToUpper(hugolib.CommitHash)
 	}
+	if scss.Supports() {
+		version += "/extended"
+	}
+
+	osArch := runtime.GOOS + "/" + runtime.GOARCH
+
+	var buildDate string
+	if hugolib.BuildDate != "" {
+		buildDate = hugolib.BuildDate
+	} else {
+		buildDate = "unknown"
+	}
+
+	jww.FEEDBACK.Println(program, version, osArch, "BuildDate:", buildDate)
 }
