@@ -1,6 +1,5 @@
 builds:
-- main: main.go
-  binary: hugo
+- binary: hugo
   ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
   env:
     - CGO_ENABLED=0
@@ -9,25 +8,63 @@ builds:
     - linux
     - windows
     - freebsd
-    - netbsd
-    - openbsd
-    - dragonfly
+  #    - netbsd
+  #    - openbsd
+  #    - dragonfly
   goarch:
     - amd64
-    - 386
-    - arm
-    - arm64
+  #    - 386
+  #    - arm
+  #    - arm64
   ignore:
     - goos: openbsd
       goarch: arm
       goarm: 6
+# Extended hugo for Windows (SCSS/Sass support)
+- binary: hugo_extended
+  ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
+  env:
+    - CGO_ENABLED=1
+    - CC=x86_64-w64-mingw32-gcc
+    - CXX=x86_64-w64-mingw32-g++
+  flags:
+    - -tags
+    - extended
+  goos:
+    - windows
+  goarch:
+    - amd64
+- binary: hugo_extended
+  ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
+  env:
+    - CGO_ENABLED=1
+    - CC=o64-clang
+    - CXX=o64-clang++
+  flags:
+    - -tags
+    - extended
+  goos:
+    - darwin
+  goarch:
+    - amd64
+- binary: hugo_extended
+  ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
+  env:
+    - CGO_ENABLED=1
+  flags:
+    - -tags
+    - extended
+  goos:
+    - linux
+  goarch:
+    - amd64
 nfpm:
   formats:
     - deb
   vendor: "gohugo.io"
   homepage: "https://gohugo.io/"
   maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
-  description: "A Fast and Flexible Static Site Generator built with love in GoLang."
+  description: "A Fast and Flexible Static Site Generator built with love in Go."
   license: "Apache 2.0"
 archive:
   format: tar.gz
@@ -50,5 +87,3 @@ archive:
   files:
     - README.md
     - LICENSE
-release:
-  draft: true
