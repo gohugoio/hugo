@@ -1,0 +1,2 @@
+# Temp script used to test new builds.
+ docker run --rm --mount type=bind,source="$(pwd)",target=/go/src/github.com/gohugoio/hugo -w /go/src/github.com/gohugoio/hugo  -i -t bepsays/ci-goreleaser:latest /bin/bash
