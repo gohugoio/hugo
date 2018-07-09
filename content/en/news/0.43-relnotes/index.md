@@ -1,8 +1,8 @@
 
 ---
 date: 2018-07-09
-title: "0.43"
-description: "0.43"
+title: "And Now: Hugo Pipes!"
+description: "Hugo 0.43 adds a powerful and simple to use assets pipeline with SASS/SCSS and much, much more …"
 categories: ["Releases"]
 ---
 
