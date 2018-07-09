@@ -13,10 +13,6 @@ apps:
     command: bin/hugo
     completer: hugo-completion
     plugs: [home, network-bind, removable-media]
-  extended:
-    command: bin/hugo_extended
-    completer: hugo-completion
-    plugs: [home, network-bind, removable-media]
 
 parts:
   hugo:
@@ -28,38 +24,23 @@ parts:
     stage-packages:
       - git
       - python-pygments
-    override-build: |
-      echo "\nStarting override-build:"
+    prepare: |
       export GOPATH=$(dirname $SNAPCRAFT_PART_INSTALL)/go
       export PATH=$GOPATH/bin:$PATH
       cd $GOPATH/src/github.com/gohugoio/hugo
-      echo ' * Running "go get -v github.com/magefile/mage"...'
-      go get -v github.com/magefile/mage
-      echo ' * Running "mage -v vendor"...'
-      mage -v vendor
-      echo ' * Running "mage -v test"...'
-      mage -v test
-      echo " * Building hugo_extended (with SCSS support)..."
-      export HUGO_BUILD_TAGS="extended"
-      [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage -v hugoNoGitInfo || mage -v hugo
-      mv -v hugo hugo_extended
-      ./hugo_extended version
-      ldd hugo_extended
-      echo ' * Building hugo (without SCSS support)...'
-      unset HUGO_BUILD_TAGS
-      [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage -v hugoNoGitInfo || mage -v hugo
+      go get github.com/magefile/mage
+      mage -v vendor test
+    build: |
+      export GOPATH=$(dirname $SNAPCRAFT_PART_INSTALL)/go
+      export PATH=$GOPATH/bin:$PATH
+      [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage hugoNoGitInfo || mage hugo
       ./hugo version
-      ldd hugo
-      echo " * Building completion..."
       ./hugo gen autocomplete --completionfile=hugo-completion
-      echo " * Installing to ${SNAPCRAFT_PART_INSTALL}..."
+    install: |
       install -d $SNAPCRAFT_PART_INSTALL/bin
-      cp -av hugo hugo_extended $SNAPCRAFT_PART_INSTALL/bin/
-      mv -v hugo-completion $SNAPCRAFT_PART_INSTALL/hugo-completion
-      echo " * Stripping binaries..."
-      ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo*
-      strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo*
-      ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo*
+      cp -a hugo $SNAPCRAFT_PART_INSTALL/bin/hugo
+      strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
+      mv hugo-completion $SNAPCRAFT_PART_INSTALL/hugo-completion
     after: [go]
   go:
     source-tag: go1.10.3
