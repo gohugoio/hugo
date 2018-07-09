@@ -1,11 +1,14 @@
 project_name: hugo_extended
 builds:
 - binary: hugo
-  ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
+  ldflags:
+    - -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
+    - "-extldflags '-static'"
   env:
     - CGO_ENABLED=1
     - CC=x86_64-w64-mingw32-gcc
     - CXX=x86_64-w64-mingw32-g++
+    - CGO_LDFLAGS="-static"
   flags:
     - -tags
     - extended
