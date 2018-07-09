@@ -26,6 +26,12 @@
   revision = "de5bf2ad457846296e2031421a34e2568e304e35"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/alecthomas/assert"
+  packages = ["."]
+  revision = "405dbfeb8e38effee6e723317226e93fff912d06"
+
+[[projects]]
   name = "github.com/alecthomas/chroma"
   packages = [
     ".",
@@ -61,6 +67,18 @@
     "styles"
   ]
   revision = "1b755a90bd109f170385cb3964f0abdfd3451145"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/alecthomas/colour"
+  packages = ["."]
+  revision = "60882d9e27213e8552dcff6328914fe4c2b44bc9"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/alecthomas/repr"
+  packages = ["."]
+  revision = "f49988b46e025398b9f834f7c726afe001ec481f"
 
 [[projects]]
   name = "github.com/bep/debounce"
@@ -242,6 +260,12 @@
   revision = "a12c3aec81a6a938bf584a4bac567afed9256586"
 
 [[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
+  version = "v0.0.3"
+
+[[projects]]
   name = "github.com/mattn/go-runewidth"
   packages = ["."]
   revision = "9e777a8366cce605130a531d2cd6363d07ad7317"
@@ -313,6 +337,12 @@
   packages = ["."]
   revision = "ae543b7ba8fd6af63e4976198f146e1348ae53c1"
   version = "v1.1.0"
+
+[[projects]]
+  name = "github.com/sergi/go-diff"
+  packages = ["diffmatchpatch"]
+  revision = "1744e2970ca51c86172c8190fadad617561ed6e7"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -487,14 +517,14 @@
   revision = "2cb43934f0eece38629746959acc633cba083fe4"
 
 [[projects]]
+  branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
-  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "aaf909f54ae33c5a70f692e19e59834106bcbbe5d16724ff3998907734e32c0b"
+  inputs-digest = "993acf46c3937e5cebef4f39a2733150aad7cbf96913a017e56cd03c8241a56e"
   solver-name = "gps-cdcl"
   solver-version = 1
