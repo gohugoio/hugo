@@ -1,5 +1,5 @@
-builds:
-- main: main.go
+build:
+  main: main.go
   binary: hugo
   ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
   env:
@@ -21,26 +21,15 @@ builds:
     - goos: openbsd
       goarch: arm
       goarm: 6
-nfpm:
+
+fpm:
   formats:
-    - deb
+      - deb
   vendor: "gohugo.io"
   homepage: "https://gohugo.io/"
   maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
   description: "A Fast and Flexible Static Site Generator built with love in GoLang."
   license: "Apache 2.0"
-  replacements:
-    amd64: 64bit
-    386: 32bit
-    arm: ARM
-    arm64: ARM64
-    darwin: macOS
-    linux: Linux
-    windows: Windows
-    openbsd: OpenBSD
-    netbsd: NetBSD
-    freebsd: FreeBSD
-    dragonfly: DragonFlyBSD
 archive:
   format: tar.gz
   format_overrides:
