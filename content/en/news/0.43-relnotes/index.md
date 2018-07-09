@@ -8,8 +8,6 @@ categories: ["Releases"]
 
 	Hugo `0.43` adds a powerful and very simple to use **Assets Pipeline** with **SASS and SCSS** with source map support, **PostCSS** and **minification** and **fingerprinting** and **Subresource Integrity** and ... much more. Oh, did we mention that you can now do **ad-hoc image processing** and execute text resources as Go templates?
 
-I, [@bep](https://github.com/bep), implemented this in [dea71670](https://github.com/gohugoio/hugo/commit/dea71670c059ab4d5a42bd22503f18c087dd22d4) [#4381]. We will work hard to get the documentation up to date, but follow the links above for details, and also see this [demo project](https://github.com/bep/hugo-sass-test).
-
 An example pipeline:
 
 ```go-html-template
@@ -18,6 +16,24 @@ An example pipeline:
 ```
 
 To me, the above is beautiful in its speed and simplicity. It could be printed on a t-shirt. I wrote in the [Hugo Birthday Post](https://gohugo.io/news/lets-celebrate-hugos-5th-birthday/) some days ago about the value of a single binary with native and fast implementations. I should have added _simplicity_ as a keyword. There seem to be a misconception that all of this needs to be hard and painful.
+
+New functions to create `Resource` objects:
+
+* `resources.Get`
+* `resources.FromString`: Create a Resource from a string.
+
+New `Resource` transformation funcs:
+
+* `resources.ToCSS`: Compile `SCSS` or `SASS` into `CSS`.
+* `resources.PostCSS`: Process your CSS with PostCSS. Config file support (project or theme or passed as an option).
+* `resources.Minify`: Currently supports `css`, `js`, `json`, `html`, `svg`, `xml`.
+* `resources.Fingerprint`: Creates a fingerprinted version of the given Resource with Subresource Integrity.
+* `resources.Concat`: Concatenates a list of Resource objects. Think of this as a poor man's bundler.
+* `resources.ExecuteAsTemplate`: Parses and executes the given Resource and data context (e.g. .Site) as a Go template.
+
+
+I, [@bep](https://github.com/bep), implemented this in [dea71670](https://github.com/gohugoio/hugo/commit/dea71670c059ab4d5a42bd22503f18c087dd22d4). We will work hard to get the documentation up to date, but follow the links above for details, and also see this [demo project](https://github.com/bep/hugo-sass-test).
+
 
 This release represents **35 contributions by 7 contributors** to the main Hugo code base.
 [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@anthonyfok](https://github.com/anthonyfok), [@openscript](https://github.com/openscript), and [@caarlos0](https://github.com/caarlos0) for their ongoing contributions.
