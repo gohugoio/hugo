@@ -30,7 +30,7 @@ func TestPageTargetPath(t *testing.T) {
 	pathSpec := newTestDefaultPathSpec(t)
 
 	noExtNoDelimMediaType := media.TextType
-	noExtNoDelimMediaType.Suffix = ""
+	noExtNoDelimMediaType.Suffixes = []string{}
 	noExtNoDelimMediaType.Delimiter = ""
 
 	// Netlify style _redirects
@@ -169,8 +169,8 @@ func TestPageTargetPath(t *testing.T) {
 							} else if test.d.Kind == KindHome && test.d.Type.Path != "" {
 							} else if (!strings.HasPrefix(expected, "/index") || test.d.Addends != "") && test.d.URL == "" && isUgly {
 								expected = strings.Replace(expected,
-									"/"+test.d.Type.BaseName+"."+test.d.Type.MediaType.Suffix,
-									"."+test.d.Type.MediaType.Suffix, -1)
+									"/"+test.d.Type.BaseName+"."+test.d.Type.MediaType.Suffix(),
+									"."+test.d.Type.MediaType.Suffix(), -1)
 							}
 
 							if test.d.LangPrefix != "" && !(test.d.Kind == KindPage && test.d.URL != "") {

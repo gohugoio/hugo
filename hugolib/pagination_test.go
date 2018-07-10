@@ -239,7 +239,7 @@ func TestPaginationURLFactory(t *testing.T) {
 					}
 
 					if uglyURLs {
-						expected = expected[:len(expected)-1] + "." + test.d.Type.MediaType.Suffix
+						expected = expected[:len(expected)-1] + "." + test.d.Type.MediaType.Suffix()
 					}
 
 					pathSpec := newTestPathSpec(fs, cfg)

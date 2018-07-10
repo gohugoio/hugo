@@ -178,7 +178,7 @@ func (formats Formats) Less(i, j int) bool { return formats[i].Name < formats[j]
 // The lookup is case insensitive.
 func (formats Formats) GetBySuffix(suffix string) (f Format, found bool) {
 	for _, ff := range formats {
-		if strings.EqualFold(suffix, ff.MediaType.Suffix) {
+		if strings.EqualFold(suffix, ff.MediaType.Suffix()) {
 			if found {
 				// ambiguous
 				found = false
@@ -331,7 +331,7 @@ func decode(mediaTypes media.Types, input, output interface{}) error {
 }
 
 func (formats Format) BaseFilename() string {
-	return formats.BaseName + "." + formats.MediaType.Suffix
+	return formats.BaseName + formats.MediaType.FullSuffix()
 }
 
 func (formats Format) MarshalJSON() ([]byte, error) {

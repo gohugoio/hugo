@@ -27,11 +27,11 @@ import (
 func TestLayout(t *testing.T) {
 
 	noExtNoDelimMediaType := media.TextType
-	noExtNoDelimMediaType.Suffix = ""
+	noExtNoDelimMediaType.Suffixes = nil
 	noExtNoDelimMediaType.Delimiter = ""
 
 	noExtMediaType := media.TextType
-	noExtMediaType.Suffix = ""
+	noExtMediaType.Suffixes = nil
 
 	var (
 		ampType = Format{
@@ -47,6 +47,7 @@ func TestLayout(t *testing.T) {
 			MediaType: noExtNoDelimMediaType,
 			BaseName:  "_redirects",
 		}
+
 		noExt = Format{
 			Name:      "NEX",
 			MediaType: noExtMediaType,

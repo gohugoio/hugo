@@ -72,7 +72,7 @@ func createLayoutExamples() interface{} {
 			Example:      example.name,
 			Kind:         example.d.Kind,
 			OutputFormat: example.f.Name,
-			Suffix:       example.f.MediaType.Suffix,
+			Suffix:       example.f.MediaType.Suffix(),
 			Layouts:      makeLayoutsPresentable(layouts)})
 	}
 

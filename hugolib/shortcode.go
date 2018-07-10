@@ -173,11 +173,11 @@ type scKey struct {
 }
 
 func newScKey(m media.Type, shortcodeplaceholder string) scKey {
-	return scKey{Suffix: m.Suffix, ShortcodePlaceholder: shortcodeplaceholder}
+	return scKey{Suffix: m.Suffix(), ShortcodePlaceholder: shortcodeplaceholder}
 }
 
 func newScKeyFromLangAndOutputFormat(lang string, o output.Format, shortcodeplaceholder string) scKey {
-	return scKey{Lang: lang, Suffix: o.MediaType.Suffix, OutputFormat: o.Name, ShortcodePlaceholder: shortcodeplaceholder}
+	return scKey{Lang: lang, Suffix: o.MediaType.Suffix(), OutputFormat: o.Name, ShortcodePlaceholder: shortcodeplaceholder}
 }
 
 func newDefaultScKey(shortcodeplaceholder string) scKey {

@@ -69,7 +69,7 @@ func headlessPagesPublisher(s *Site, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for _, page := range s.headlessPages {
 		outFormat := page.outputFormats[0] // There is only one
-		if outFormat != s.rc.Format {
+		if outFormat.Name != s.rc.Format.Name {
 			// Avoid double work.
 			continue
 		}
@@ -92,7 +92,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 
 		for i, outFormat := range page.outputFormats {
 
-			if outFormat != page.s.rc.Format {
+			if outFormat.Name != page.s.rc.Format.Name {
 				// Will be rendered  ... later.
 				continue
 			}
