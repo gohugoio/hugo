@@ -47,7 +47,7 @@ type LayoutHandler struct {
 
 type layoutCacheKey struct {
 	d LayoutDescriptor
-	f Format
+	f string
 }
 
 // NewLayoutHandler creates a new LayoutHandler.
@@ -60,7 +60,7 @@ func NewLayoutHandler() *LayoutHandler {
 func (l *LayoutHandler) For(d LayoutDescriptor, f Format) ([]string, error) {
 
 	// We will get lots of requests for the same layouts, so avoid recalculations.
-	key := layoutCacheKey{d, f}
+	key := layoutCacheKey{d, f.Name}
 	l.mu.RLock()
 	if cacheVal, found := l.cache[key]; found {
 		l.mu.RUnlock()
@@ -209,7 +209,7 @@ func (l *layoutBuilder) resolveVariations() []string {
 					"TYPE", typeVar,
 					"LAYOUT", layoutVar,
 					"VARIATIONS", variation,
-					"EXTENSION", l.f.MediaType.Suffix,
+					"EXTENSION", l.f.MediaType.Suffix(),
 				))
 			}
 		}

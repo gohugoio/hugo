@@ -219,8 +219,11 @@ map[string]interface {}{
     "mediatype": Type{
       MainType: "text",
       SubType: "m1",
-      Suffix: "m1main",
+      OldSuffix: "m1main",
       Delimiter: ".",
+      Suffixes: []string{
+        "m1main",
+      },
     },
   },
   "o2": map[string]interface {}{
@@ -228,8 +231,11 @@ map[string]interface {}{
     "mediatype": Type{
       MainType: "text",
       SubType: "m2",
-      Suffix: "m2theme",
+      OldSuffix: "m2theme",
       Delimiter: ".",
+      Suffixes: []string{
+        "m2theme",
+      },
     },
   },
 }`, got["outputformats"])

@@ -93,11 +93,11 @@ func TestGetFormatByExt(t *testing.T) {
 
 func TestGetFormatByFilename(t *testing.T) {
 	noExtNoDelimMediaType := media.TextType
-	noExtNoDelimMediaType.Suffix = ""
+	noExtNoDelimMediaType.OldSuffix = ""
 	noExtNoDelimMediaType.Delimiter = ""
 
 	noExtMediaType := media.TextType
-	noExtMediaType.Suffix = ""
+	noExtMediaType.OldSuffix = ""
 
 	var (
 		noExtDelimFormat = Format{

@@ -45,7 +45,7 @@ func New(rs *resource.Spec) *Client {
 	addMinifierFunc(m, mt, "text/html", "html", html.Minify)
 	addMinifierFunc(m, mt, "application/javascript", "js", js.Minify)
 	addMinifierFunc(m, mt, "application/json", "json", json.Minify)
-	addMinifierFunc(m, mt, "image/svg", "xml", svg.Minify)
+	addMinifierFunc(m, mt, "image/svg+xml", "svg", svg.Minify)
 	addMinifierFunc(m, mt, "application/xml", "xml", xml.Minify)
 	addMinifierFunc(m, mt, "application/rss", "xml", xml.Minify)
 

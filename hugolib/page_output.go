@@ -218,7 +218,7 @@ func newOutputFormat(p *Page, f output.Format) *OutputFormat {
 func (p *PageOutput) AlternativeOutputFormats() (OutputFormats, error) {
 	var o OutputFormats
 	for _, of := range p.OutputFormats() {
-		if of.f.NotAlternative || of.f == p.outputFormat {
+		if of.f.NotAlternative || of.f.Name == p.outputFormat.Name {
 			continue
 		}
 		o = append(o, of)

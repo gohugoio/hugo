@@ -97,7 +97,7 @@ func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
 
 }
 
-var pngType, _ = media.FromString("image/png")
+var pngType, _ = media.FromStringAndExt("image/png", "png")
 
 func TestResourcesByType(t *testing.T) {
 	assert := require.New(t)

@@ -586,8 +586,9 @@ type whatChanged struct {
 // package, so it will behave correctly with Hugo's built-in server.
 func (s *Site) RegisterMediaTypes() {
 	for _, mt := range s.mediaTypesConfig {
-		// The last one will win if there are any duplicates.
-		_ = mime.AddExtensionType("."+mt.Suffix, mt.Type()+"; charset=utf-8")
+		for _, suffix := range mt.Suffixes {
+			_ = mime.AddExtensionType(mt.Delimiter+suffix, mt.Type()+"; charset=utf-8")
+		}
 	}
 }
 

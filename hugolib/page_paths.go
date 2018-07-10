@@ -239,7 +239,7 @@ func createTargetPath(d targetPathDescriptor) string {
 		}
 
 		if isUgly {
-			pagePath += d.Type.MediaType.Delimiter + d.Type.MediaType.Suffix
+			pagePath += d.Type.MediaType.FullSuffix()
 		} else {
 			pagePath = filepath.Join(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
 		}
