@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -359,6 +360,7 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 
 func TestNewSiteDefaultLang(t *testing.T) {
 	t.Parallel()
+	defer os.Remove("resources")
 	s, err := NewSiteDefaultLang()
 	require.NoError(t, err)
 	require.Equal(t, hugofs.Os, s.Fs.Source)
