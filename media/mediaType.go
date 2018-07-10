@@ -314,7 +314,7 @@ func DecodeTypes(maps ...map[string]interface{}) (Types, error) {
 			_, delimiterSet := vm["delimiter"]
 			_, suffixSet := vm["suffix"]
 
-			if mediaType.OldSuffix != "" {
+			if suffixSet {
 				suffixIsDeprecated()
 			}
 
