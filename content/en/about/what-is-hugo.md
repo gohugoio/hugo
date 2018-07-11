@@ -46,7 +46,6 @@ Hugo is for people building a blog, a company site, a portfolio site, documentat
 [Amazon S3]: https://aws.amazon.com/s3/
 [Azure]: https://blogs.msdn.microsoft.com/acoat/2016/01/28/publish-a-static-web-site-using-azure-web-apps/
 [CloudFront]: https://aws.amazon.com/cloudfront/ "Amazon CloudFront"
-[contributing to it]: https://github.com/gohugoio/hugo
 [DreamHost]: https://www.dreamhost.com/
 [Firebase]: https://firebase.google.com/docs/hosting/ "Firebase static hosting"
 [GitHub Pages]: https://pages.github.com/
@@ -56,14 +55,11 @@ Hugo is for people building a blog, a company site, a portfolio site, documentat
 [Google Cloud Storage]: https://cloud.google.com/storage/
 [Heroku]: https://www.heroku.com/
 [Jekyll]: https://jekyllrb.com/
-[Jekyll]: https://jekyllrb.com/
 [Middleman]: https://middlemanapp.com/
-[Middleman]: https://middlemanapp.com/
-[Nanoc]: http://nanoc.ws/
 [Nanoc]: https://nanoc.ws/
 [Netlify]: https://netlify.com
+[Rackspace]: https://www.rackspace.com/cloud/files
+[Surge]: https://surge.sh
+[contributing to it]: https://github.com/gohugoio/hugo
 [rackspace]: https://www.rackspace.com/cloud/files
 [static site generator]: /about/benefits/
-[Rackspace]: https://www.rackspace.com/cloud/files
-[static site generator]: /about/benefits/
-[Surge]: https://surge.sh
