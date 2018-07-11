@@ -26,7 +26,9 @@ func TestInit(t *testing.T) {
 	var ns *internal.TemplateFuncsNamespace
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
-		ns = nsf(&deps.Deps{})
+		ns = nsf(&deps.Deps{
+			BuildStartListeners: &deps.Listeners{},
+		})
 		if ns.Name == name {
 			found = true
 			break
