@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"path"
 	"strconv"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/errors"
 	"github.com/gohugoio/hugo/helpers"
@@ -389,7 +390,7 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 				// If a prepared bundle for this transformation chain is available, use that.
 				f := r.tryTransformedFileCache(key)
 				if f == nil {
-					return fmt.Errorf("failed to transform %q (%s): %s", tctx.InPath, tctx.InMediaType.Type(), err)
+					return fmt.Errorf("%s: failed to transform %q (%s): %s", strings.ToUpper(tr.transformation.Key().name), tctx.InPath, tctx.InMediaType.Type(), err)
 				}
 				transformedContentr = f
 				defer f.Close()
