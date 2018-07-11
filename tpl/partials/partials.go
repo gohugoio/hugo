@@ -34,18 +34,30 @@ type partialCache struct {
 	p map[string]interface{}
 }
 
+func (p *partialCache) clear() {
+	p.Lock()
+	defer p.Unlock()
+	p.p = make(map[string]interface{})
+}
+
 // New returns a new instance of the templates-namespaced template functions.
 func New(deps *deps.Deps) *Namespace {
+	cache := &partialCache{p: make(map[string]interface{})}
+	deps.BuildStartListeners.Add(
+		func() {
+			cache.clear()
+		})
+
 	return &Namespace{
 		deps:           deps,
-		cachedPartials: partialCache{p: make(map[string]interface{})},
+		cachedPartials: cache,
 	}
 }
 
 // Namespace provides template functions for the "templates" namespace.
 type Namespace struct {
 	deps           *deps.Deps
-	cachedPartials partialCache
+	cachedPartials *partialCache
 }
 
 // Include executes the named partial and returns either a string,

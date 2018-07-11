@@ -1,6 +1,7 @@
 package deps
 
 import (
+	"sync"
 	"time"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -22,6 +23,7 @@ import (
 // There will be normally only one instance of deps in play
 // at a given time, i.e. one per Site built.
 type Deps struct {
+
 	// The logger to use.
 	Log *jww.Notepad `json:"-"`
 
@@ -69,6 +71,30 @@ type Deps struct {
 
 	// Timeout is configurable in site config.
 	Timeout time.Duration
+
+	// BuildStartListeners will be notified before a build starts.
+	BuildStartListeners *Listeners
+}
+
+type Listeners struct {
+	sync.Mutex
+
+	// A list of funcs to be notified about an event.
+	listeners []func()
+}
+
+func (b *Listeners) Add(f func()) {
+	b.Lock()
+	defer b.Unlock()
+	b.listeners = append(b.listeners, f)
+}
+
+func (b *Listeners) Notify() {
+	b.Lock()
+	defer b.Unlock()
+	for _, notify := range b.listeners {
+		notify()
+	}
 }
 
 // ResourceProvider is used to create and refresh, and clone resources needed.
@@ -168,6 +194,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		ResourceSpec:        resourceSpec,
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
+		BuildStartListeners: &Listeners{},
 		Timeout:             time.Duration(timeoutms) * time.Millisecond,
 	}
 
@@ -209,6 +236,8 @@ func (d Deps) ForLanguage(cfg DepsCfg) (*Deps, error) {
 	if err := d.templateProvider.Clone(&d); err != nil {
 		return nil, err
 	}
+
+	d.BuildStartListeners = &Listeners{}
 
 	return &d, nil
 

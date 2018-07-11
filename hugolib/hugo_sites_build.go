@@ -28,6 +28,7 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
+
 	if h.Metrics != nil {
 		h.Metrics.Reset()
 	}
@@ -40,6 +41,10 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	if conf.whatChanged == nil {
 		// Assume everything has changed
 		conf.whatChanged = &whatChanged{source: true, other: true}
+	}
+
+	for _, s := range h.Sites {
+		s.Deps.BuildStartListeners.Notify()
 	}
 
 	if len(events) > 0 {
