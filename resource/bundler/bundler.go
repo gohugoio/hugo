@@ -62,7 +62,7 @@ func (r *multiReadSeekCloser) Close() error {
 }
 
 // Concat concatenates the list of Resource objects.
-func (c *Client) Concat(targetPath string, resources []resource.Resource) (resource.Resource, error) {
+func (c *Client) Concat(targetPath string, resources resource.Resources) (resource.Resource, error) {
 	// The CACHE_OTHER will make sure this will be re-created and published on rebuilds.
 	return c.rs.ResourceCache.GetOrCreate(resource.CACHE_OTHER, targetPath, func() (resource.Resource, error) {
 		var resolvedm media.Type
