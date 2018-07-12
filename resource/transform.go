@@ -303,12 +303,6 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 
 	first := chain[0]
 
-	contentrc, err := contentReadSeekerCloser(first)
-	if err != nil {
-		return err
-	}
-	defer contentrc.Close()
-
 	// Files with a suffix will be stored in cache (both on disk and in memory)
 	// partitioned by their suffix. There will be other files below /other.
 	// This partition is also how we determine what to delete on server reloads.
@@ -347,6 +341,7 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 		r.cache.nlocker.Unlock(key)
 		return
 	}
+
 	defer r.cache.nlocker.Unlock(key)
 	defer r.cache.set(key, r)
 
@@ -362,6 +357,13 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 
 	tctx.InMediaType = first.MediaType()
 	tctx.OutMediaType = first.MediaType()
+
+	contentrc, err := contentReadSeekerCloser(first)
+	if err != nil {
+		return err
+	}
+	defer contentrc.Close()
+
 	tctx.From = contentrc
 	tctx.To = b1
 
