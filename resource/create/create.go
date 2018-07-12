@@ -16,12 +16,10 @@
 package create
 
 import (
-	"io"
 	"path/filepath"
 
 	"github.com/spf13/afero"
 
-	"github.com/dsnet/golib/memfile"
 	"github.com/gohugoio/hugo/resource"
 )
 
@@ -36,15 +34,6 @@ func New(rs *resource.Spec) *Client {
 	return &Client{rs: rs}
 }
 
-type memFileCloser struct {
-	*memfile.File
-	io.Closer
-}
-
-func (m *memFileCloser) Close() error {
-	return nil
-}
-
 // Get creates a new Resource by opening the given filename in the given filesystem.
 func (c *Client) Get(fs afero.Fs, filename string) (resource.Resource, error) {
 	filename = filepath.Clean(filename)
@@ -53,7 +42,6 @@ func (c *Client) Get(fs afero.Fs, filename string) (resource.Resource, error) {
 			resource.ResourceSourceDescriptor{
 				LazyPublish:    true,
 				SourceFilename: filename})
-
 	})
 
 }
@@ -66,9 +54,7 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 			resource.ResourceSourceDescriptor{
 				LazyPublish: true,
 				OpenReadSeekCloser: func() (resource.ReadSeekCloser, error) {
-					return &memFileCloser{
-						File: memfile.New([]byte(content)),
-					}, nil
+					return resource.NewReadSeekerNoOpCloserFromString(content), nil
 				},
 				RelTargetFilename: filepath.Clean(targetPath)})
 

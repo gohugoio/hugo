@@ -143,12 +143,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/dsnet/golib"
-  packages = ["memfile"]
-  revision = "1ea1667757804fdcccc5a1810e09aba618885ac2"
-
-[[projects]]
-  branch = "master"
   name = "github.com/eknkc/amber"
   packages = [
     ".",
@@ -525,6 +519,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "993acf46c3937e5cebef4f39a2733150aad7cbf96913a017e56cd03c8241a56e"
+  inputs-digest = "9990a6372a365db28e5c7f5bf96aaa6ea72ed217790ff3380e7b6f3c1cd19009"
   solver-name = "gps-cdcl"
   solver-version = 1

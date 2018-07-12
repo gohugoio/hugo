@@ -16,7 +16,6 @@ package resource
 import (
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"mime"
 	"os"
@@ -132,14 +131,6 @@ type ContentResource interface {
 	// * JSON: String
 	// * Etc.
 	Content() (interface{}, error)
-}
-
-// ReadSeekCloser is implemented by afero.File. We use this as the common type for
-// content in Resource objects, even for strings.
-type ReadSeekCloser interface {
-	io.Reader
-	io.Seeker
-	io.Closer
 }
 
 // OpenReadSeekeCloser allows setting some other way (than reading from a filesystem)
