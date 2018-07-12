@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/langs"
+
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -167,9 +169,6 @@ func TestRealDirs(t *testing.T) {
 	}()
 
 	v.Set("workingDir", root)
-	v.Set("contentDir", "content")
-	v.Set("resourceDir", "resources")
-	v.Set("publishDir", "public")
 	v.Set("themesDir", themesDir)
 	v.Set("theme", "mytheme")
 
@@ -211,10 +210,92 @@ func TestRealDirs(t *testing.T) {
 
 }
 
+func TestStaticFs(t *testing.T) {
+	assert := require.New(t)
+	v := createConfig()
+	workDir := "mywork"
+	v.Set("workingDir", workDir)
+	v.Set("themesDir", "themes")
+	v.Set("theme", "t1")
+
+	fs := hugofs.NewMem(v)
+
+	themeStaticDir := filepath.Join(workDir, "themes", "t1", "static")
+
+	afero.WriteFile(fs.Source, filepath.Join(workDir, "mystatic", "f1.txt"), []byte("Hugo Rocks!"), 0755)
+	afero.WriteFile(fs.Source, filepath.Join(themeStaticDir, "f1.txt"), []byte("Hugo Themes Rocks!"), 0755)
+	afero.WriteFile(fs.Source, filepath.Join(themeStaticDir, "f2.txt"), []byte("Hugo Themes Still Rocks!"), 0755)
+
+	p, err := paths.New(fs, v)
+	assert.NoError(err)
+	bfs, err := NewBase(p)
+	sfs := bfs.StaticFs("en")
+	checkFileContent(sfs, "f1.txt", assert, "Hugo Rocks!")
+	checkFileContent(sfs, "f2.txt", assert, "Hugo Themes Still Rocks!")
+
+}
+
+func TestStaticFsMultiHost(t *testing.T) {
+	assert := require.New(t)
+	v := createConfig()
+	workDir := "mywork"
+	v.Set("workingDir", workDir)
+	v.Set("themesDir", "themes")
+	v.Set("theme", "t1")
+	v.Set("multihost", true)
+
+	vn := viper.New()
+	vn.Set("staticDir", "nn_static")
+
+	en := langs.NewLanguage("en", v)
+	no := langs.NewLanguage("no", v)
+	no.Set("staticDir", "static_no")
+
+	languages := langs.Languages{
+		en,
+		no,
+	}
+
+	v.Set("languagesSorted", languages)
+
+	fs := hugofs.NewMem(v)
+
+	themeStaticDir := filepath.Join(workDir, "themes", "t1", "static")
+
+	afero.WriteFile(fs.Source, filepath.Join(workDir, "mystatic", "f1.txt"), []byte("Hugo Rocks!"), 0755)
+	afero.WriteFile(fs.Source, filepath.Join(workDir, "static_no", "f1.txt"), []byte("Hugo Rocks in Norway!"), 0755)
+
+	afero.WriteFile(fs.Source, filepath.Join(themeStaticDir, "f1.txt"), []byte("Hugo Themes Rocks!"), 0755)
+	afero.WriteFile(fs.Source, filepath.Join(themeStaticDir, "f2.txt"), []byte("Hugo Themes Still Rocks!"), 0755)
+
+	p, err := paths.New(fs, v)
+	assert.NoError(err)
+	bfs, err := NewBase(p)
+	enFs := bfs.StaticFs("en")
+	checkFileContent(enFs, "f1.txt", assert, "Hugo Rocks!")
+	checkFileContent(enFs, "f2.txt", assert, "Hugo Themes Still Rocks!")
+
+	noFs := bfs.StaticFs("no")
+	checkFileContent(noFs, "f1.txt", assert, "Hugo Rocks in Norway!")
+	checkFileContent(noFs, "f2.txt", assert, "Hugo Themes Still Rocks!")
+}
+
 func checkFileCount(fs afero.Fs, dirname string, assert *require.Assertions, expected int) {
 	count, _, err := countFileaAndGetDirs(fs, dirname)
 	assert.NoError(err)
 	assert.Equal(expected, count)
+}
+
+func checkFileContent(fs afero.Fs, filename string, assert *require.Assertions, expected ...string) {
+
+	b, err := afero.ReadFile(fs, filename)
+	assert.NoError(err)
+
+	content := string(b)
+
+	for _, e := range expected {
+		assert.Contains(content, e)
+	}
 }
 
 func countFileaAndGetDirs(fs afero.Fs, dirname string) (int, []string, error) {
