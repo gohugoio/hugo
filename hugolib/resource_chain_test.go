@@ -80,14 +80,21 @@ Min HTML: {{ ( resources.Get "mydata/html1.html" | resources.Minify ).Content | 
 {{ $a := "A" | resources.FromString "a.txt"}}
 {{ $b := "B" | resources.FromString "b.txt"}}
 {{ $c := "C" | resources.FromString "c.txt"}}
+{{ $textResources := .Resources.Match "*.txt" }}
 {{ $combined := slice $a $b $c | resources.Concat "bundle/concat.txt" }}
-T: Content: {{ $combined.Content }}|RelPermalink: {{ $combined.RelPermalink }}|Permalink: {{ $combined.Permalink }}|MediaType: {{ $combined.MediaType.Type }}
+T1: Content: {{ $combined.Content }}|RelPermalink: {{ $combined.RelPermalink }}|Permalink: {{ $combined.Permalink }}|MediaType: {{ $combined.MediaType.Type }}
+{{ with $textResources }}
+{{ $combinedText := . | resources.Concat "bundle/concattxt.txt" }}
+T2: Content: {{ $combinedText.Content }}|{{ $combinedText.RelPermalink }}
+{{ end }}
 `)
 		}, func(b *sitesBuilder) {
-			b.AssertFileContent("public/index.html", `T: Content: ABC|RelPermalink: /bundle/concat.txt|Permalink: http://example.com/bundle/concat.txt|MediaType: text/plain`)
+			b.AssertFileContent("public/index.html", `T1: Content: ABC|RelPermalink: /bundle/concat.txt|Permalink: http://example.com/bundle/concat.txt|MediaType: text/plain`)
 			b.AssertFileContent("public/bundle/concat.txt", "ABC")
-		}},
 
+			b.AssertFileContent("public/index.html", `T2: Content: t1t|t2t|`)
+			b.AssertFileContent("public/bundle/concattxt.txt", "t1t|t2t|")
+		}},
 		{"fromstring", func() bool { return true }, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", `
 {{ $r := "Hugo Rocks!" | resources.FromString "rocks/hugo.txt" }}
@@ -137,12 +144,31 @@ T3: {{ $resultMD5.Content }}|{{ $resultMD5.RelPermalink}}|{{$resultMD5.MediaType
 
 		b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
 		b.WithSimpleConfigFile()
-		b.WithContent("page.md", `
+		b.WithContent("_index.md", `
 ---
-title: Hello
+title: Home
 ---
 
-`)
+Home.
+
+`,
+			"page1.md", `
+---
+title: Hello1
+---
+
+Hello1
+`,
+			"page2.md", `
+---
+title: Hello2
+---
+
+Hello2
+`,
+			"t1.txt", "t1t|",
+			"t2.txt", "t2t|",
+		)
 
 		b.WithSourceFile(filepath.Join("assets", "css", "styles1.css"), `
 h1 {

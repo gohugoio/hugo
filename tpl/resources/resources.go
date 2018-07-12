@@ -79,19 +79,38 @@ func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
 
 // Concat concatenates a slice of Resource objects. These resources must
 // (currently) be of the same Media Type.
-func (ns *Namespace) Concat(targetPathIn interface{}, r []interface{}) (resource.Resource, error) {
+func (ns *Namespace) Concat(targetPathIn interface{}, r interface{}) (resource.Resource, error) {
 	targetPath, err := cast.ToStringE(targetPathIn)
 	if err != nil {
 		return nil, err
 	}
-	rr := make([]resource.Resource, len(r))
-	for i := 0; i < len(r); i++ {
-		rv, ok := r[i].(resource.Resource)
-		if !ok {
-			return nil, fmt.Errorf("cannot concat type %T", rv)
+
+	var rr resource.Resources
+
+	switch v := r.(type) {
+	// This is what we get from the slice func.
+	case []interface{}:
+		rr = make([]resource.Resource, len(v))
+		for i := 0; i < len(v); i++ {
+			rv, ok := v[i].(resource.Resource)
+			if !ok {
+				return nil, fmt.Errorf("cannot concat type %T", v[i])
+			}
+			rr[i] = rv
 		}
-		rr[i] = rv
+	// This is what we get from .Resources.Match etc.
+	case resource.Resources:
+		rr = v
+	default:
+		// We may support Page collections at one point, but we need to think about ...
+		// what to acutually concatenate.
+		return nil, fmt.Errorf("slice %T not supported in concat", r)
 	}
+
+	if len(rr) == 0 {
+		return nil, errors.New("must provide one or more Resource objects to concat")
+	}
+
 	return ns.bundlerClient.Concat(targetPath, rr)
 }
 
