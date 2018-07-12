@@ -36,12 +36,15 @@ func TestResourceChain(t *testing.T) {
 {{ $sass := resources.Get "sass/styles3.sass" | toCSS }}
 {{ $scssCustomTarget := resources.Get "scss/styles2.scss" | toCSS (dict "targetPath" "styles/main.css") }}
 {{ $scssCustomTargetString := resources.Get "scss/styles2.scss" | toCSS "styles/main.css" }}
-{{ $scssMin := resources.Get "scss/styles2.scss" | toCSS | minify }}
+{{ $scssMin := resources.Get "scss/styles2.scss" | toCSS | minify  }}
+{{  $scssFromTempl :=  ".{{ .Kind }} { color: blue; }" | resources.FromString "kindofblue.templ"  | resources.ExecuteAsTemplate "kindofblue.scss" . | toCSS (dict "targetPath" "styles/templ.css") | minify }}
+{{ $bundle1 := slice $scssFromTempl $scssMin  | resources.Concat "styles/bundle1.css" }}
 T1: Len Content: {{ len $scss.Content }}|RelPermalink: {{ $scss.RelPermalink }}|Permalink: {{ $scss.Permalink }}|MediaType: {{ $scss.MediaType.Type }}
 T2: Content: {{ $scssMin.Content }}|RelPermalink: {{ $scssMin.RelPermalink }}
 T3: Content: {{ len $scssCustomTarget.Content }}|RelPermalink: {{ $scssCustomTarget.RelPermalink }}|MediaType: {{ $scssCustomTarget.MediaType.Type }}
 T4: Content: {{ len $scssCustomTargetString.Content }}|RelPermalink: {{ $scssCustomTargetString.RelPermalink }}|MediaType: {{ $scssCustomTargetString.MediaType.Type }}
 T5: Content: {{ $sass.Content }}|T5 RelPermalink: {{ $sass.RelPermalink }}|
+T6: {{ $bundle1.Permalink }}
 `)
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `T1: Len Content: 24|RelPermalink: /scss/styles2.css|Permalink: http://example.com/scss/styles2.css|MediaType: text/css`)
@@ -50,6 +53,10 @@ T5: Content: {{ $sass.Content }}|T5 RelPermalink: {{ $sass.RelPermalink }}|
 			b.AssertFileContent("public/index.html", `T4: Content: 24|RelPermalink: /styles/main.css|MediaType: text/css`)
 			b.AssertFileContent("public/index.html", `T5: Content: .content-navigation {`)
 			b.AssertFileContent("public/index.html", `T5 RelPermalink: /sass/styles3.css|`)
+			b.AssertFileContent("public/index.html", `T6: http://example.com/styles/bundle1.css`)
+
+			b.AssertFileContent("public/styles/templ.min.css", `.home{color:blue}`)
+			b.AssertFileContent("public/styles/bundle1.css", `.home{color:blue}body{color:#333}`)
 
 		}},
 
