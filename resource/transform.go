@@ -188,25 +188,11 @@ type transformedResource struct {
 	Resource
 }
 
-type readSeeker struct {
-	io.Reader
-	io.Seeker
-	io.Closer
-}
-
-func (r *readSeeker) Close() error {
-	return nil
-}
-
-func (r *readSeeker) Seek(offset int64, whence int) (int64, error) {
-	panic("Seek is not supported by this io.Reader")
-}
-
 func (r *transformedResource) ReadSeekCloser() (ReadSeekCloser, error) {
 	if err := r.initContent(); err != nil {
 		return nil, err
 	}
-	return &readSeeker{Reader: strings.NewReader(r.content)}, nil
+	return NewReadSeekerNoOpCloserFromString(r.content), nil
 }
 
 func (r *transformedResource) transferTransformedValues(another *transformedResource) {
