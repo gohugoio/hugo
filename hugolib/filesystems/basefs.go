@@ -499,7 +499,6 @@ func (b *sourceFilesystemsBuilder) createRootMappingFs(dirKey, themeFolder strin
 	s.Fs = afero.NewReadOnlyFs(fs)
 
 	return s, nil
-
 }
 
 func (b *sourceFilesystemsBuilder) existsInSource(abspath string) bool {
@@ -534,6 +533,14 @@ func (b *sourceFilesystemsBuilder) createStaticFs() error {
 			fs, err := createOverlayFs(b.p.Fs.Source, s.Dirnames)
 			if err != nil {
 				return err
+			}
+
+			if b.hasTheme {
+				themeFolder := "static"
+				fs = afero.NewCopyOnWriteFs(newRealBase(afero.NewBasePathFs(b.themeFs, themeFolder)), fs)
+				for _, absThemeDir := range b.absThemeDirs {
+					s.Dirnames = append(s.Dirnames, filepath.Join(absThemeDir, themeFolder))
+				}
 			}
 
 			s.Fs = fs
