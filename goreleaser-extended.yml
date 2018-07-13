@@ -8,7 +8,6 @@ builds:
     - CGO_ENABLED=1
     - CC=x86_64-w64-mingw32-gcc
     - CXX=x86_64-w64-mingw32-g++
-    - CGO_LDFLAGS="-static"
   flags:
     - -tags
     - extended
