@@ -101,6 +101,5 @@ func integrity(algo string, sum []byte) string {
 
 func digest(h hash.Hash) ([]byte, error) {
 	sum := h.Sum(nil)
-	//enc := hex.EncodeToString(sum[:])
 	return sum, nil
 }
