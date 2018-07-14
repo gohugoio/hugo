@@ -187,6 +187,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"noChmod",
 		"templateMetrics",
 		"templateMetricsHints",
+		"outputNextChange",
 
 		// Moved from vars.
 		"baseURL",
@@ -341,6 +342,10 @@ func (c *commandeer) build() error {
 		fmt.Println()
 		c.hugo.PrintProcessingStats(os.Stdout)
 		fmt.Println()
+	}
+
+	if c.Cfg.GetBool("outputNextChange") {
+		fmt.Println(c.hugo.Sites[0].PathSpec.ProcessingStats.GetNextChange())
 	}
 
 	if c.h.buildWatch {

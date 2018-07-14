@@ -465,6 +465,7 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("debug", false)
 	v.SetDefault("disableFastRender", false)
 	v.SetDefault("timeout", 10000) // 10 seconds
+	v.SetDefault("outputNextChange", false)
 
 	// Remove in Hugo 0.39
 

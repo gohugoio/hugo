@@ -1639,7 +1639,7 @@ func TestShouldBuild(t *testing.T) {
 	}
 
 	for _, ps := range publishSettings {
-		s := shouldBuild(ps.buildFuture, ps.buildExpired, ps.buildDrafts, ps.draft,
+		s := shouldBuild(nil, ps.buildFuture, ps.buildExpired, ps.buildDrafts, ps.draft,
 			ps.publishDate, ps.expiryDate)
 		if s != ps.out {
 			t.Errorf("AssertShouldBuild unexpected output with params: %+v", ps)

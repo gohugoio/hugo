@@ -17,6 +17,7 @@ import (
 	"io"
 	"strconv"
 	"sync/atomic"
+	"time"
 
 	"github.com/olekukonko/tablewriter"
 )
@@ -32,6 +33,8 @@ type ProcessingStats struct {
 	Aliases         uint64
 	Sitemaps        uint64
 	Cleaned         uint64
+
+	NextChange time.Time
 }
 
 type processingStatsTitleVal struct {
@@ -50,6 +53,16 @@ func (s *ProcessingStats) toVals() []processingStatsTitleVal {
 		{"Sitemaps", s.Sitemaps},
 		{"Cleaned", s.Cleaned},
 	}
+}
+
+func (s *ProcessingStats) SetNextChange(ch time.Time) {
+	if ch.Before(s.NextChange) || s.NextChange.IsZero() {
+		s.NextChange = ch
+	}
+}
+
+func (s *ProcessingStats) GetNextChange() time.Time {
+	return s.NextChange
 }
 
 func NewProcessingStats(name string) *ProcessingStats {

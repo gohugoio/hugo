@@ -1107,20 +1107,28 @@ func (p *Page) LinkTitle() string {
 }
 
 func (p *Page) shouldBuild() bool {
-	return shouldBuild(p.s.BuildFuture, p.s.BuildExpired,
+	return shouldBuild(p, p.s.BuildFuture, p.s.BuildExpired,
 		p.s.BuildDrafts, p.Draft, p.PublishDate, p.ExpiryDate)
 }
 
-func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
+func shouldBuild(p *Page, buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
 	publishDate time.Time, expiryDate time.Time) bool {
 	if !(buildDrafts || !Draft) {
 		return false
 	}
 	if !buildFuture && !publishDate.IsZero() && publishDate.After(time.Now()) {
+		if p != nil {
+			p.s.PathSpec.ProcessingStats.SetNextChange(publishDate)
+		}
 		return false
 	}
 	if !buildExpired && !expiryDate.IsZero() && expiryDate.Before(time.Now()) {
 		return false
+	}
+	if !expiryDate.IsZero() {
+		if p != nil {
+			p.s.PathSpec.ProcessingStats.SetNextChange(expiryDate)
+		}
 	}
 	return true
 }
