@@ -42,6 +42,8 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal("side", cfg.GetString("paginatePath"))
 	// default
 	assert.Equal("layouts", cfg.GetString("layoutDir"))
+	// no themes
+	assert.False(cfg.IsSet("allThemes"))
 }
 
 func TestLoadMultiConfig(t *testing.T) {

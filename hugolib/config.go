@@ -285,6 +285,11 @@ func loadThemeConfig(d ConfigSourceDescriptor, v1 *viper.Viper) ([]string, error
 	if err != nil {
 		return nil, err
 	}
+
+	if len(themeConfigs) == 0 {
+		return nil, nil
+	}
+
 	v1.Set("allThemes", themeConfigs)
 
 	var configFilenames []string
