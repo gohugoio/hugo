@@ -628,7 +628,8 @@ func TestOrderedPages(t *testing.T) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	if s.getPage(KindSection, "sect").Pages[1].title != "Three" || s.getPage(KindSection, "sect").Pages[2].title != "Four" {
+	sect, _ := s.getPage(nil, "sect")
+	if sect.Pages[1].title != "Three" || sect.Pages[2].title != "Four" {
 		t.Error("Pages in unexpected order.")
 	}
 
@@ -874,8 +875,10 @@ func TestWeightedTaxonomies(t *testing.T) {
 func setupLinkingMockSite(t *testing.T) *Site {
 	sources := [][2]string{
 		{filepath.FromSlash("level2/unique.md"), ""},
+		{filepath.FromSlash("_index.md"), ""},
 		{filepath.FromSlash("rootfile.md"), ""},
 		{filepath.FromSlash("root-image.png"), ""},
+		{filepath.FromSlash("common.md"), ""},
 
 		{filepath.FromSlash("level2/2-root.md"), ""},
 		{filepath.FromSlash("level2/common.md"), ""},
@@ -883,7 +886,7 @@ func setupLinkingMockSite(t *testing.T) *Site {
 		{filepath.FromSlash("level2/2-image.png"), ""},
 		{filepath.FromSlash("level2/common.png"), ""},
 
-		{filepath.FromSlash("level2/level3/start.md"), ""},
+		{filepath.FromSlash("level2/level3/current.md"), ""},
 		{filepath.FromSlash("level2/level3/3-root.md"), ""},
 		{filepath.FromSlash("level2/level3/common.md"), ""},
 		{filepath.FromSlash("level2/level3/3-image.png"), ""},
@@ -910,7 +913,7 @@ func TestRefLinking(t *testing.T) {
 	t.Parallel()
 	site := setupLinkingMockSite(t)
 
-	currentPage := site.getPage(KindPage, "level2/level3/start.md")
+	currentPage, _ := site.getPage(nil, "level2/level3/current.md")
 	if currentPage == nil {
 		t.Fatalf("failed to find current page in site")
 	}
@@ -921,12 +924,16 @@ func TestRefLinking(t *testing.T) {
 		relative     bool
 		expected     string
 	}{
-		{"unique.md", "", true, "/level2/unique/"},
-		{"level2/common.md", "", true, "/level2/common/"},
+		{"/level2/unique.md", "", true, "/level2/unique/"},
+		{"../unique.md", "", true, "/level2/unique/"},
+		{"/level2/common.md", "", true, "/level2/common/"},
+		{"../common.md", "", true, "/level2/common/"},
+		{"common.md", "", true, "/level2/level3/common/"},
+		{"/common.md", "", true, "/common/"},
 		{"3-root.md", "", true, "/level2/level3/3-root/"},
 	} {
 		if out, err := site.Info.refLink(test.link, currentPage, test.relative, test.outputFormat); err != nil || out != test.expected {
-			t.Errorf("[%d] Expected %s to resolve to (%s), got (%s) - error: %s", i, test.link, test.expected, out, err)
+			t.Errorf("[%d] Expected %q from %q to resolve to %q, got %q - error: %s", i, test.link, currentPage.absoluteSourceRef(), test.expected, out, err)
 		}
 	}
 

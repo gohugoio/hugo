@@ -135,19 +135,19 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		}},
 		{"empty1", func(p *Page) {
 			// > b,c
-			assert.NotNil(p.s.getPage(KindSection, "empty1", "b"))
-			assert.NotNil(p.s.getPage(KindSection, "empty1", "b", "c"))
+			assert.NotNil(p.s.getPage(nil, "empty1/b"))
+			assert.NotNil(p.s.getPage(nil, "empty1/b/c"))
 
 		}},
 		{"empty2", func(p *Page) {
 			// > b,c,d where b and d have content files.
-			b := p.s.getPage(KindSection, "empty2", "b")
+			b, _ := p.s.getPage(nil, "empty2/b")
 			assert.NotNil(b)
 			assert.Equal("T40_-1", b.title)
-			c := p.s.getPage(KindSection, "empty2", "b", "c")
+			c, _ := p.s.getPage(nil, "empty2/b/c")
 			assert.NotNil(c)
 			assert.Equal("Cs", c.title)
-			d := p.s.getPage(KindSection, "empty2", "b", "c", "d")
+			d, _ := p.s.getPage(nil, "empty2/b/c/d")
 			assert.NotNil(d)
 			assert.Equal("T41_-1", d.title)
 
@@ -156,9 +156,9 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.False(c.Eq("asdf"))
 
 		}},
-		{"empty3", func(p *Page) {
+		{"/empty3", func(p *Page) {
 			// b,c,d with regular page in b
-			b := p.s.getPage(KindSection, "empty3", "b")
+			b, _ := p.s.getPage(nil, "/empty3/b")
 			assert.NotNil(b)
 			assert.Len(b.Pages, 1)
 			assert.Equal("empty3.md", b.Pages[0].File.LogicalName())
@@ -200,7 +200,8 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 				active, err = p.InSection(child)
 				assert.NoError(err)
 				assert.True(active)
-				active, err = p.InSection(p.s.getPage(KindHome))
+				homePage, _ := p.s.getPage(nil, "/")
+				active, err = p.InSection(homePage)
 				assert.NoError(err)
 				assert.False(active)
 
@@ -235,7 +236,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.Equal("T2_-1", p.Parent().title)
 			assert.Len(p.Sections(), 0)
 
-			l1 := p.s.getPage(KindSection, "l1")
+			l1, _ := p.s.getPage(nil, "l1")
 			isDescendant, err := l1.IsDescendant(p)
 			assert.NoError(err)
 			assert.False(isDescendant)
@@ -265,16 +266,18 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		}},
 	}
 
-	home := s.getPage(KindHome)
+	home, _ := s.getPage(nil, "/")
 
 	for _, test := range tests {
 		sections := strings.Split(test.sections, ",")
-		p := s.getPage(KindSection, sections...)
+		p, _ := s.Info.GetPage(KindSection, sections...)
 		assert.NotNil(p, fmt.Sprint(sections))
 
 		if p.Pages != nil {
 			assert.Equal(p.Pages, p.data["Pages"])
 		}
+
+		fmt.Println(p, test.sections)
 		assert.NotNil(p.Parent(), fmt.Sprintf("Parent nil: %q", test.sections))
 		test.verify(p)
 	}
@@ -284,7 +287,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	assert.Len(home.Sections(), 9)
 	assert.Equal(home.Sections(), s.Info.Sections())
 
-	rootPage := s.getPage(KindPage, "mypage.md")
+	rootPage, _ := s.getPage(nil, "mypage.md")
 	assert.NotNil(rootPage)
 	assert.True(rootPage.Parent().IsHome())
 
@@ -294,7 +297,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	// If we later decide to do something about this, we will have to do some normalization in
 	// getPage.
 	// TODO(bep)
-	sectionWithSpace := s.getPage(KindSection, "Spaces in Section")
+	sectionWithSpace, _ := s.getPage(nil, "Spaces in Section")
 	require.NotNil(t, sectionWithSpace)
 	require.Equal(t, "/spaces-in-section/", sectionWithSpace.RelPermalink())
 

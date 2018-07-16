@@ -244,7 +244,7 @@ Content.
 	b.AssertFileContent("/my/project/public/sv/sect/mybundle/logo.png", "PNG Data")
 	b.AssertFileContent("/my/project/public/nn/sect/mybundle/logo.png", "PNG Data")
 
-	nnSect := nnSite.getPage(KindSection, "sect")
+	nnSect, _ := nnSite.getPage(nil, "sect")
 	assert.NotNil(nnSect)
 	assert.Equal(12, len(nnSect.Pages))
 	nnHome, _ := nnSite.Info.Home()
