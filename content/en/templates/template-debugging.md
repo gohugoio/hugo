@@ -58,7 +58,7 @@ When developing a [homepage][], what does one of the pages you're looping throug
 ```
 
 {{% note "`.Pages` on the Homepage" %}}
-`.Pages` on the homepage is equivalent to `.Site.Pages`.
+`.Pages` on the homepage is equivalent to `.Site.RegularPages`.
 {{% /note %}}
 
 ## Why Am I Showing No Defined Variables?
