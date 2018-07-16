@@ -83,13 +83,13 @@ The following is a list of site-level (aka "global") variables. Many of these va
 : all of the menus in the site.
 
 .Site.Pages
-: array of all content ordered by Date with the newest first. This array contains only the pages in the current language.
+: array of all content ordered by Date with the newest first. This array contains only the pages in the current language. See [`.Site.Pages`](#site-pages).
 
 .Site.Permalinks
 : a string to override the default [permalink](/content-management/urls/) format as defined in the site configuration.
 
 .Site.RegularPages
-: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`.
+: a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`. See [`.Site.Pages`](#site-pages).
 
 .Site.RSSLink
 : the URL for the site RSS.
@@ -124,5 +124,14 @@ You can use `.Site.Params` in a [partial template](/templates/partials/) to call
 {{< code file="layouts/partials/head.html" >}}
 <meta name="description" content="{{if .IsHome}}{{ $.Site.Params.description }}{{else}}{{.Description}}{{end}}" />
 {{< /code >}}
+
+## The `.Site.Pages` Variable {#site-pages}
+
+### `.Site.Pages` compared to `.Pages`
+
+{{< readfile file="/content/en/readfiles/pages-vs-site-pages.md" markdown="true" >}}
+
+
+
 
 [config]: /getting-started/configuration/
