@@ -15,7 +15,6 @@
 package bundler
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -71,7 +70,7 @@ func (c *Client) Concat(targetPath string, resources resource.Resources) (resour
 		// We may improve on that in the future, but then we need to know more.
 		for i, r := range resources {
 			if i > 0 && r.MediaType().Type() != resolvedm.Type() {
-				return nil, errors.New("resources in Concat must be of the same Media Type")
+				return nil, fmt.Errorf("resources in Concat must be of the same Media Type, got %q and %q", r.MediaType().Type(), resolvedm.Type())
 			}
 			resolvedm = r.MediaType()
 		}
