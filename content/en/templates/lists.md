@@ -101,7 +101,7 @@ You can now access this `_index.md`'s' content in your list template:
     </article>
     <ul>
     <!-- Ranges through content/post/*.md -->
-    {{ range .Data.Pages }}
+    {{ range .Pages }}
         <li>
             <a href="{{.Permalink}}">{{.Date.Format "2006-01-02"}} | {{.Title}}</a>
         </li>
@@ -172,7 +172,7 @@ This list template has been modified slightly from a template originally used in
    <h1>{{ .Title }}</h1>
         <ul>
         <!-- Renders the li.html content view for each content/post/*.md -->
-            {{ range .Data.Pages }}
+            {{ range .Pages }}
                 {{ .Render "li"}}
             {{ end }}
         </ul>
@@ -189,7 +189,7 @@ This list template has been modified slightly from a template originally used in
   <div>
    <h1>{{ .Title }}</h1>
    <!-- ranges through each of the content files associated with a particular taxonomy term and renders the summary.html content view -->
-    {{ range .Data.Pages }}
+    {{ range .Pages }}
         {{ .Render "summary"}}
     {{ end }}
   </div>
@@ -205,7 +205,7 @@ Hugo lists render the content based on metadata you provide in [front matter][].
 
 {{< code file="layouts/partials/default-order.html" >}}
 <ul>
-    {{ range .Data.Pages }}
+    {{ range .Pages }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
             <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
@@ -220,7 +220,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 
 {{< code file="layouts/partials/by-weight.html" >}}
 <ul>
-    {{ range .Data.Pages.ByWeight }}
+    {{ range .Pages.ByWeight }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
             <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
@@ -234,7 +234,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 {{< code file="layouts/partials/by-date.html" >}}
 <ul>
     <!-- orders content according to the "date" field in front matter -->
-    {{ range .Data.Pages.ByDate }}
+    {{ range .Pages.ByDate }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
             <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
@@ -248,7 +248,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 {{< code file="layouts/partials/by-publish-date.html" >}}
 <ul>
     <!-- orders content according to the "publishdate" field in front matter -->
-    {{ range .Data.Pages.ByPublishDate }}
+    {{ range .Pages.ByPublishDate }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
             <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
@@ -261,7 +261,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 
 {{< code file="layouts/partials/by-expiry-date.html" >}}
 <ul>
-    {{ range .Data.Pages.ByExpiryDate }}
+    {{ range .Pages.ByExpiryDate }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
             <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
@@ -275,7 +275,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 {{< code file="layouts/partials/by-last-mod.html" >}}
 <ul>
     <!-- orders content according to the "lastmod" field in front matter -->
-    {{ range .Data.Pages.ByLastmod }}
+    {{ range .Pages.ByLastmod }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
             <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
@@ -289,7 +289,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 {{< code file="layouts/partials/by-length.html" >}}
 <ul>
     <!-- orders content according to content length in ascending order (i.e., the shortest content will be listed first) -->
-    {{ range .Data.Pages.ByLength }}
+    {{ range .Pages.ByLength }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
             <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
@@ -303,7 +303,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 {{< code file="layouts/partials/by-title.html" >}}
 <ul>
     <!-- ranges through content in ascending order according to the "title" field set in front matter -->
-    {{ range .Data.Pages.ByTitle }}
+    {{ range .Pages.ByTitle }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
             <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
@@ -317,7 +317,7 @@ Lower weight gets higher precedence. So content with lower weight will come firs
 {{< code file="layouts/partials/by-link-title.html" >}}
 <ul>
     <!-- ranges through content in ascending order according to the "linktitle" field in front matter. If a "linktitle" field is not set, the range will start with content that only has a "title" field and use that value for .LinkTitle -->
-    {{ range .Data.Pages.ByLinkTitle }}
+    {{ range .Pages.ByLinkTitle }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></h1>
             <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
@@ -332,7 +332,7 @@ Order based on the specified front matter parameter. Content that does not have 
 
 {{< code file="layouts/partials/by-rating.html" >}}
 <!-- Ranges through content according to the "rating" field set in front matter -->
-{{ range (.Data.Pages.ByParam "rating") }}
+{{ range (.Pages.ByParam "rating") }}
   <!-- ... -->
 {{ end }}
 {{< /code >}}
@@ -340,7 +340,7 @@ Order based on the specified front matter parameter. Content that does not have 
 If the targeted front matter field is nested beneath another field, you can access the field using dot notation.
 
 {{< code file="layouts/partials/by-nested-param.html" >}}
-{{ range (.Data.Pages.ByParam "author.last_name") }}
+{{ range (.Pages.ByParam "author.last_name") }}
   <!-- ... -->
 {{ end }}
 {{< /code >}}
@@ -351,7 +351,7 @@ Reversing order can be applied to any of the above methods. The following uses `
 
 {{< code file="layouts/partials/by-date-reverse.html" >}}
 <ul>
-    {{ range .Data.Pages.ByDate.Reverse }}
+    {{ range .Pages.ByDate.Reverse }}
         <li>
             <h1><a href="{{ .Permalink }}">{{ .Title }}</a></h1>
             <time>{{ .Date.Format "Mon, Jan 2, 2006" }}</time>
@@ -368,7 +368,7 @@ Hugo provides some functions for grouping pages by Section, Type, Date, etc.
 
 {{< code file="layouts/partials/by-page-field.html" >}}
 <!-- Groups content according to content section. The ".Key" in this instance will be the section's title. -->
-{{ range .Data.Pages.GroupBy "Section" }}
+{{ range .Pages.GroupBy "Section" }}
 <h3>{{ .Key }}</h3>
 <ul>
     {{ range .Pages }}
@@ -385,7 +385,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 
 {{< code file="layouts/partials/by-page-field.html" >}}
 <!-- Groups content according to content section.-->
-{{ range .Data.Pages.GroupBy "Section" }}
+{{ range .Pages.GroupBy "Section" }}
 <!-- Checks for existence of _index.md for a section; if available, pulls from "title" in front matter -->
 {{ with $.Site.GetPage "section" .Key }}
 <h3>{{.Title}}</h3>
@@ -408,7 +408,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 
 {{< code file="layouts/partials/by-page-date.html" >}}
 <!-- Groups content by month according to the "date" field in front matter -->
-{{ range .Data.Pages.GroupByDate "2006-01" }}
+{{ range .Pages.GroupByDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
     {{ range .Pages }}
@@ -425,7 +425,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 
 {{< code file="layouts/partials/by-page-publish-date.html" >}}
 <!-- Groups content by month according to the "publishdate" field in front matter -->
-{{ range .Data.Pages.GroupByPublishDate "2006-01" }}
+{{ range .Pages.GroupByPublishDate "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
     {{ range .Pages }}
@@ -442,7 +442,7 @@ In the above example, you may want `{{.Title}}` to point the `title` field you h
 
 {{< code file="layouts/partials/by-page-param.html" >}}
 <!-- Groups content according to the "param_key" field in front matter -->
-{{ range .Data.Pages.GroupByParam "param_key" }}
+{{ range .Pages.GroupByParam "param_key" }}
 <h3>{{ .Key }}</h3>
 <ul>
     {{ range .Pages }}
@@ -461,7 +461,7 @@ The following template takes grouping by `date` a step further and uses Go's lay
 
 {{< code file="layouts/partials/by-page-param-as-date.html" >}}
 <!-- Groups content by month according to the "param_key" field in front matter -->
-{{ range .Data.Pages.GroupByParamDate "param_key" "2006-01" }}
+{{ range .Pages.GroupByParamDate "param_key" "2006-01" }}
 <h3>{{ .Key }}</h3>
 <ul>
     {{ range .Pages }}
@@ -483,21 +483,21 @@ While these are logical defaults, they are not always the desired order. There a
 #### 1. Adding the Reverse Method
 
 ```
-{{ range (.Data.Pages.GroupBy "Section").Reverse }}
+{{ range (.Pages.GroupBy "Section").Reverse }}
 ```
 
 ```
-{{ range (.Data.Pages.GroupByDate "2006-01").Reverse }}
+{{ range (.Pages.GroupByDate "2006-01").Reverse }}
 ```
 
 #### 2. Providing the Alternate Direction
 
 ```
-{{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
+{{ range .Pages.GroupByDate "2006-01" "asc" }}
 ```
 
 ```
-{{ range .Data.Pages.GroupBy "Section" "desc" }}
+{{ range .Pages.GroupBy "Section" "desc" }}
 ```
 
 ### Order Within Groups
@@ -511,7 +511,7 @@ Here is the ordering for the example that follows:
 3. Pages within each respective group are ordered alphabetically according to the `title`.
 
 {{< code file="layouts/partials/by-group-by-page.html" >}}
-{{ range .Data.Pages.GroupByDate "2006-01" "asc" }}
+{{ range .Pages.GroupByDate "2006-01" "asc" }}
 <h3>{{ .Key }}</h3>
 <ul>
     {{ range .Pages.ByTitle }}
@@ -536,8 +536,8 @@ Sometimes you only want to list a subset of the available content. A common is t
 2. `key` *or* `field name`
 3. `match value`
 
-{{< code file="layouts/_default/.html" >}}
-{{ range where .Data.Pages "Section" "post" }}
+{{< code file="layouts/_default/index.html" >}}
+{{ range where .Pages "Section" "post" }}
    {{ .Content }}
 {{ end }}
 {{< /code >}}
@@ -552,7 +552,7 @@ You can see more examples in the [functions documentation for `where`][wherefunc
 2. `number of elements`
 
 {{< code file="layout/_default/section.html" >}}
-{{ range first 10 .Data.Pages }}
+{{ range first 10 .Pages }}
   {{ .Render "summary" }}
 {{ end }}
 {{< /code >}}
@@ -563,7 +563,7 @@ Using `first` and `where` together can be very powerful:
 
 {{< code file="first-and-where-together.html" >}}
 <!-- Orders the content inside the "posts" section by the "title" field and then ranges through only the first 5 posts -->
-{{ range first 5 (where .Data.Pages "Section" "post").ByTitle }}
+{{ range first 5 (where .Pages "Section" "post").ByTitle }}
    {{ .Content }}
 {{ end }}
 {{< /code >}}

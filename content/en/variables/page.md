@@ -106,7 +106,9 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 : contains all formats, including the current format, for a given page. Can be combined the with [`.Get` function](/functions/get/) to grab a specific format. (See [Output Formats](/templates/output-formats/).)
 
 .Pages
-: a collection of associated pages. This value will be `nil` for regular content pages. `.Pages` is an alias for `.Data.Pages`.
+: a collection of associated pages. `.Pages` is an alias for
+  `.Data.Pages`. This value will be `nil` within the context of
+  regular content pages.
 
 .Permalink
 : the Permanent link for this page; see [Permalinks](/content-management/urls/)

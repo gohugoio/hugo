@@ -90,7 +90,7 @@ From the above base template, you can define a [default list template][hugolists
 {{< code file="layouts/_default/list.html" download="list.html" >}}
 {{ define "main" }}
   <h1>Posts</h1>
-  {{ range .Data.Pages }}
+  {{ range .Pages }}
     <article>
       <h2>{{ .Title }}</h2>
       {{ .Content }}

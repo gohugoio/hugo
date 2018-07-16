@@ -73,7 +73,7 @@ In this example, `.Render` is passed into the template to call the [render funct
 <main id="main">
   <div>
   <h1 id="title">{{ .Title }}</h1>
-  {{ range .Data.Pages }}
+  {{ range .Pages }}
     {{ .Render "summary"}}
   {{ end }}
   </div>
