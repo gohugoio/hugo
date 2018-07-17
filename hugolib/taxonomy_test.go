@@ -167,7 +167,7 @@ permalinkeds:
 	}
 
 	for taxonomy, count := range taxonomyTermPageCounts {
-		term, _ := s.getPage(nil, taxonomy)
+		term := s.getPage(KindTaxonomyTerm, taxonomy)
 		require.NotNil(t, term)
 		require.Len(t, term.Pages, count)
 
@@ -176,7 +176,7 @@ permalinkeds:
 		}
 	}
 
-	cat1, _ := s.getPage(nil, "categories/cat1")
+	cat1 := s.getPage(KindTaxonomy, "categories", "cat1")
 	require.NotNil(t, cat1)
 	if uglyURLs {
 		require.Equal(t, "/blog/categories/cat1.html", cat1.RelPermalink())
@@ -184,8 +184,8 @@ permalinkeds:
 		require.Equal(t, "/blog/categories/cat1/", cat1.RelPermalink())
 	}
 
-	pl1, _ := s.getPage(nil, "permalinkeds/pl1")
-	permalinkeds, _ := s.getPage(nil, "permalinkeds")
+	pl1 := s.getPage(KindTaxonomy, "permalinkeds", "pl1")
+	permalinkeds := s.getPage(KindTaxonomyTerm, "permalinkeds")
 	require.NotNil(t, pl1)
 	require.NotNil(t, permalinkeds)
 	if uglyURLs {
@@ -198,11 +198,11 @@ permalinkeds:
 
 	// Issue #3070 preserveTaxonomyNames
 	if preserveTaxonomyNames {
-		helloWorld, _ := s.getPage(nil, "others/Hello Hugo world")
+		helloWorld := s.getPage(KindTaxonomy, "others", "Hello Hugo world")
 		require.NotNil(t, helloWorld)
 		require.Equal(t, "Hello Hugo world", helloWorld.title)
 	} else {
-		helloWorld, _ := s.getPage(nil, "others/hello-hugo-world")
+		helloWorld := s.getPage(KindTaxonomy, "others", "hello-hugo-world")
 		require.NotNil(t, helloWorld)
 		require.Equal(t, "Hello Hugo World", helloWorld.title)
 	}

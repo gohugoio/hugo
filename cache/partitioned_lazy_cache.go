@@ -24,34 +24,52 @@ type Partition struct {
 	Load func() (map[string]interface{}, error)
 }
 
-type lazyPartition struct {
+// Lazy represents a lazily loaded cache.
+type Lazy struct {
 	initSync sync.Once
+	initErr  error
 	cache    map[string]interface{}
 	load     func() (map[string]interface{}, error)
 }
 
-func (l *lazyPartition) init() error {
-	var err error
+// NewLazy creates a lazy cache with the given load func.
+func NewLazy(load func() (map[string]interface{}, error)) *Lazy {
+	return &Lazy{load: load}
+}
+
+func (l *Lazy) init() error {
 	l.initSync.Do(func() {
-		var c map[string]interface{}
-		c, err = l.load()
+		c, err := l.load()
 		l.cache = c
+		l.initErr = err
+
 	})
 
-	return err
+	return l.initErr
+}
+
+// Get initializes the cache if not already initialized, then looks up the
+// given key.
+func (l *Lazy) Get(key string) (interface{}, bool, error) {
+	l.init()
+	if l.initErr != nil {
+		return nil, false, l.initErr
+	}
+	v, found := l.cache[key]
+	return v, found, nil
 }
 
 // PartitionedLazyCache is a lazily loaded cache paritioned by a supplied string key.
 type PartitionedLazyCache struct {
-	partitions map[string]*lazyPartition
+	partitions map[string]*Lazy
 }
 
 // NewPartitionedLazyCache creates a new NewPartitionedLazyCache with the supplied
 // partitions.
 func NewPartitionedLazyCache(partitions ...Partition) *PartitionedLazyCache {
-	lazyPartitions := make(map[string]*lazyPartition, len(partitions))
+	lazyPartitions := make(map[string]*Lazy, len(partitions))
 	for _, partition := range partitions {
-		lazyPartitions[partition.Key] = &lazyPartition{load: partition.Load}
+		lazyPartitions[partition.Key] = NewLazy(partition.Load)
 	}
 	cache := &PartitionedLazyCache{partitions: lazyPartitions}
 
@@ -67,11 +85,12 @@ func (c *PartitionedLazyCache) Get(partition, key string) (interface{}, error) {
 		return nil, nil
 	}
 
-	if err := p.init(); err != nil {
+	v, found, err := p.Get(key)
+	if err != nil {
 		return nil, err
 	}
 
-	if v, found := p.cache[key]; found {
+	if found {
 		return v, nil
 	}
 
