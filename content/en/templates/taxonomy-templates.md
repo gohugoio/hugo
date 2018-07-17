@@ -126,9 +126,13 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 ```
 <ul>
-  {{ $data := .Data }}
+  {{ $type := .Type }}
   {{ range $key, $value := .Data.Terms.Alphabetical }}
-  <li><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+    {{ $name := .Name }}
+    {{ $count := .Count }}
+    {{ with $.Site.GetPage (printf "/%s/%s" $type $name) }}
+      <li><a href="{{ .Permalink }}"> {{ $name }} </a> {{ $count }} </li>
+    {{ end }}
   {{ end }}
 </ul>
 ```
@@ -137,9 +141,13 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 ```
 <ul>
-  {{ $data := .Data }}
+  {{ $type := .Type }}
   {{ range $key, $value := .Data.Terms.ByCount }}
-  <li><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+    {{ $name := .Name }}
+    {{ $count := .Count }}
+    {{ with $.Site.GetPage (printf "/%s/%s" $type $name) }}
+      <li><a href="{{ .Permalink }}"> {{ $name }} </a> {{ $count }} </li>
+    {{ end }}
   {{ end }}
 </ul>
 ```
@@ -148,9 +156,13 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 ```
 <ul>
-  {{ $data := .Data }}
+  {{ $type := .Type }}
   {{ range $key, $value := .Data.Terms.ByCount.Reverse }}
-  <li><a href="{{ $.Site.LanguagePrefix }}/{{ $data.Plural }}/{{ $value.Name | urlize }}"> {{ $value.Name }} </a> {{ $value.Count }} </li>
+    {{ $name := .Name }}
+    {{ $count := .Count }}
+    {{ with $.Site.GetPage (printf "/%s/%s" $type $name) }}
+      <li><a href="{{ .Permalink }}"> {{ $name }} </a> {{ $count }} </li>
+    {{ end }}
   {{ end }}
 </ul>
 ```
@@ -224,7 +236,10 @@ Because we are leveraging the front matter system to define taxonomies for conte
 ```
 <ul id="tags">
   {{ range .Params.tags }}
-    <li><a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }}</a> </li>
+    {{ $name := . }}
+    {{ with $.Site.GetPage (printf "/tags/%s" $name) }}
+      <li><a href="{{ .Permalink }}">{{ $name }}</a> </li>
+    {{ end }}
   {{ end }}
 </ul>
 ```
@@ -238,7 +253,12 @@ To list such taxonomies, use the following:
 ```
 {{ if .Params.directors }}
   <strong>Director{{ if gt (len .Params.directors) 1 }}s{{ end }}:</strong>
-  {{ range $index, $director := .Params.directors }}{{ if gt $index 0 }}, {{ end }}<a href="{{ "directors/" | relURL }}{{ . | urlize }}">{{ . }}</a>{{ end }}
+  {{ range $index, $director := .Params.directors }}
+    {{- if gt $index 0 }}, {{ end -}}
+    {{ with $.Site.GetPage (printf "/directors/%s" $director) -}}
+      <a href="{{ .Permalink }}">{{ $director }}</a>
+    {{- end -}}
+  {{ end -}}
 {{ end }}
 ```
 
@@ -292,7 +312,9 @@ The following example displays all terms in a site's tags taxonomy:
 ```
 <ul id="all-tags">
   {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
-    <li><a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}">{{ $name }}</a></li>
+    {{ with $.Site.GetPage (printf "/tags/%s" $name) }}
+      <li><a href="{{ .Permalink }}">{{ $name }}</a></li>
+    {{ end }}
   {{ end }}
 </ul>
 ```
@@ -305,18 +327,20 @@ This example will list all taxonomies and their terms, as well as all the conten
 <section>
   <ul id="all-taxonomies">
     {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
-      <li><a href="{{ "/" | relLangURL}}{{ $taxonomyname | urlize }}">{{ $taxonomyname }}</a>
-        <ul>
-          {{ range $key, $value := $taxonomy }}
-          <li> {{ $key }} </li>
-                <ul>
-                {{ range $value.Pages }}
-                    <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
-                {{ end }}
-                </ul>
-          {{ end }}
-        </ul>
-      </li>
+      {{ with $.Site.GetPage (printf "/%s" $taxonomyname) }}
+        <li><a href="{{ .Permalink }}">{{ $taxonomyname }}</a>
+          <ul>
+            {{ range $key, $value := $taxonomy }}
+              <li> {{ $key }} </li>
+              <ul>
+              {{ range $value.Pages }}
+                <li hugo-nav="{{ .RelPermalink}}"><a href="{{ .Permalink}}"> {{ .LinkTitle }} </a> </li>
+              {{ end }}
+              </ul>
+            {{ end }}
+          </ul>
+        </li>
+      {{ end }}
     {{ end }}
   </ul>
 </section>
