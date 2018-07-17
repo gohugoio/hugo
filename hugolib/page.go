@@ -2038,24 +2038,68 @@ func (p *Page) GetPage(ref string) (*Page, error) {
 	return p.s.getPageNew(p, ref)
 }
 
-func (p *Page) Ref(refs ...string) (string, error) {
-	if len(refs) == 0 {
-		return "", nil
-	}
-	if len(refs) > 1 {
-		return p.Site.Ref(refs[0], p, refs[1])
-	}
-	return p.Site.Ref(refs[0], p)
+type refArgs struct {
+	Path         string
+	Lang         string
+	OutputFormat string
 }
 
-func (p *Page) RelRef(refs ...string) (string, error) {
-	if len(refs) == 0 {
+func (p *Page) decodeRefArgs(args map[string]interface{}) (refArgs, *SiteInfo, error) {
+	var ra refArgs
+	err := mapstructure.WeakDecode(args, &ra)
+	if err != nil {
+		return ra, nil, nil
+	}
+	s := p.Site
+
+	if ra.Lang != "" && ra.Lang != p.Lang() {
+		// Find correct site
+		found := false
+		for _, ss := range p.s.owner.Sites {
+			if ss.Lang() == ra.Lang {
+				found = true
+				s = &ss.Info
+			}
+		}
+
+		if !found {
+			return ra, nil, fmt.Errorf("no site found with lang %q", ra.Lang)
+		}
+	}
+
+	return ra, s, nil
+}
+
+func (p *Page) Ref(argsm map[string]interface{}) (string, error) {
+	args, s, err := p.decodeRefArgs(argsm)
+	if err != nil {
+		return "", fmt.Errorf("invalid arguments to Ref: %s", err)
+	}
+
+	if args.Path == "" {
 		return "", nil
 	}
-	if len(refs) > 1 {
-		return p.Site.RelRef(refs[0], p, refs[1])
+
+	if args.OutputFormat != "" {
+		return s.Ref(args.Path, p, args.OutputFormat)
 	}
-	return p.Site.RelRef(refs[0], p)
+	return s.Ref(args.Path, p)
+}
+
+func (p *Page) RelRef(argsm map[string]interface{}) (string, error) {
+	args, s, err := p.decodeRefArgs(argsm)
+	if err != nil {
+		return "", fmt.Errorf("invalid arguments to Ref: %s", err)
+	}
+
+	if args.Path == "" {
+		return "", nil
+	}
+
+	if args.OutputFormat != "" {
+		return s.RelRef(args.Path, p, args.OutputFormat)
+	}
+	return s.RelRef(args.Path, p)
 }
 
 func (p *Page) String() string {

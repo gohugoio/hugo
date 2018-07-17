@@ -380,8 +380,8 @@ if (!doNotTrack) {
 </style>
 {{ end }}
 {{ end }}`},
-	{`shortcodes/ref.html`, `{{ if len .Params | eq 2 }}{{ ref .Page (.Get 0) (.Get 1) }}{{ else }}{{ ref .Page (.Get 0) }}{{ end }}`},
-	{`shortcodes/relref.html`, `{{ if len .Params | eq 2 }}{{ relref .Page (.Get 0) (.Get 1) }}{{ else }}{{ relref .Page (.Get 0) }}{{ end }}`},
+	{`shortcodes/ref.html`, `{{ ref .Page .Params }}`},
+	{`shortcodes/relref.html`, `{{ relref .Page .Params }}`},
 	{`shortcodes/twitter.html`, `{{- $pc := .Page.Site.Config.Privacy.Twitter -}}
 {{- if not $pc.Disable -}}
 {{- if $pc.Simple -}}
