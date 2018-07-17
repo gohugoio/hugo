@@ -54,7 +54,7 @@ func TestServer(t *testing.T) {
 	// There is no way to know exactly when the server is ready for connections.
 	// We could improve by something like https://golang.org/pkg/net/http/httptest/#Server
 	// But for now, let us sleep and pray!
-	time.Sleep(2 * time.Second)
+	time.Sleep(3 * time.Second)
 
 	resp, err := http.Get("http://localhost:1331/")
 	assert.NoError(err)
