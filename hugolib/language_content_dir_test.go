@@ -207,6 +207,29 @@ Content.
 
 	assert.Equal(10, len(svSite.RegularPages))
 
+	svP2, err := svSite.getPageNew(nil, "/sect/page2.md")
+	assert.NoError(err)
+	nnP2, err := nnSite.getPageNew(nil, "/sect/page2.md")
+	assert.NoError(err)
+	nnP2_2, err := svSite.getPageNew(nil, "/nn/sect/page2.md")
+	assert.NoError(err)
+	enP2_2, err := nnSite.getPageNew(nil, "/en/sect/page2.md")
+	assert.NoError(err)
+	svP2_2, err := enSite.getPageNew(nil, "/sv/sect/page2.md")
+	assert.NoError(err)
+
+	enP2, err := enSite.getPageNew(nil, "/sect/page2.md")
+	assert.NoError(err)
+	assert.NotNil(enP2)
+	assert.NotNil(svP2)
+	assert.NotNil(nnP2)
+	assert.Equal("sv", svP2.Lang())
+	assert.Equal("nn", nnP2.Lang())
+	assert.Equal("en", enP2.Lang())
+	assert.Equal(nnP2, nnP2_2)
+	assert.Equal(enP2, enP2_2)
+	assert.Equal(svP2, svP2_2)
+
 	for i, p := range enSite.RegularPages {
 		j := i + 1
 		msg := fmt.Sprintf("Test %d", j)
@@ -244,7 +267,7 @@ Content.
 	b.AssertFileContent("/my/project/public/sv/sect/mybundle/logo.png", "PNG Data")
 	b.AssertFileContent("/my/project/public/nn/sect/mybundle/logo.png", "PNG Data")
 
-	nnSect, _ := nnSite.getPage(nil, "sect")
+	nnSect := nnSite.getPage(KindSection, "sect")
 	assert.NotNil(nnSect)
 	assert.Equal(12, len(nnSect.Pages))
 	nnHome, _ := nnSite.Info.Home()

@@ -1875,24 +1875,24 @@ func (p *Page) FullFilePath() string {
 }
 
 // Returns the canonical, absolute fully-qualifed logical reference used by
-// methods such as GetPage and ref/relref shortcodes to unambiguously refer to
-// this page. As an absolute path, it is prefixed with a "/".
+// methods such as GetPage and ref/relref shortcodes to refer to
+// this page. It is prefixed with a "/".
 //
-// For pages that have a backing file in the content directory, it is returns
-// the path to this file as an absolute path rooted in the content dir. For
-// pages or nodes that do not, it returns the virtual path, consistent with
-// where you would add a backing content file.
-//
-// The "/" prefix and support for pages without backing files should be the
-// only difference with FullFilePath()
+// For pages that have a source file, it is returns the path to this file as an
+// absolute path rooted in this site's content dir.
+// For pages that do not (sections witout content page etc.), it returns the
+// virtual path, consistent with where you would add a source file.
 func (p *Page) absoluteSourceRef() string {
 	sourcePath := p.Source.Path()
 	if sourcePath != "" {
 		return "/" + filepath.ToSlash(sourcePath)
-	} else if len(p.sections) > 0 {
+	}
+
+	if len(p.sections) > 0 {
 		// no backing file, return the virtual source path
 		return "/" + path.Join(p.sections...)
 	}
+
 	return ""
 }
 
@@ -2035,7 +2035,7 @@ func (p *Page) Hugo() *HugoInfo {
 // This will return nil when no page could be found, and will return
 // an error if the ref is ambiguous.
 func (p *Page) GetPage(ref string) (*Page, error) {
-	return p.s.getPage(p, ref)
+	return p.s.getPageNew(p, ref)
 }
 
 func (p *Page) Ref(refs ...string) (string, error) {
@@ -2059,8 +2059,8 @@ func (p *Page) RelRef(refs ...string) (string, error) {
 }
 
 func (p *Page) String() string {
-	if p.absoluteSourceRef() != "" {
-		return fmt.Sprintf("Page(%s)", p.absoluteSourceRef())
+	if sourceRef := p.absoluteSourceRef(); sourceRef != "" {
+		return fmt.Sprintf("Page(%s)", sourceRef)
 	}
 	return fmt.Sprintf("Page(%q)", p.title)
 }

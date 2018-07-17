@@ -16,11 +16,9 @@ package hugolib
 import (
 	"fmt"
 	"path"
-	"path/filepath"
 	"strings"
-	"sync"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/cache"
 )
 
 // PageCollections contains the page collections for a site.
@@ -49,29 +47,29 @@ type PageCollections struct {
 	// Includes headless bundles, i.e. bundles that produce no output for its content page.
 	headlessPages Pages
 
-	pageIndex
-}
-
-type pageIndex struct {
-	initSync sync.Once
-	index    map[string]*Page
-	load     func() map[string]*Page
-}
-
-func (pi *pageIndex) init() {
-	pi.initSync.Do(func() {
-		pi.index = pi.load()
-	})
+	pageIndex *cache.Lazy
 }
 
 // Get initializes the index if not already done so, then
 // looks up the given page ref, returns nil if no value found.
-func (pi *pageIndex) Get(ref string) *Page {
-	pi.init()
-	return pi.index[ref]
+func (c *PageCollections) getFromCache(ref string) (*Page, error) {
+	v, found, err := c.pageIndex.Get(ref)
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		return nil, nil
+	}
+
+	p := v.(*Page)
+
+	if p != ambiguityFlag {
+		return p, nil
+	}
+	return nil, fmt.Errorf("page reference %q is ambiguous", ref)
 }
 
-var ambiguityFlag = &Page{Kind: "dummy", title: "ambiguity flag"}
+var ambiguityFlag = &Page{Kind: kindUnknown, title: "ambiguity flag"}
 
 func (c *PageCollections) refreshPageCaches() {
 	c.indexPages = c.findPagesByKindNotIn(KindPage, c.Pages)
@@ -84,46 +82,55 @@ func (c *PageCollections) refreshPageCaches() {
 		s = c.Pages[0].s
 	}
 
-	indexLoader := func() map[string]*Page {
-		index := make(map[string]*Page)
+	indexLoader := func() (map[string]interface{}, error) {
+		index := make(map[string]interface{})
+
+		add := func(ref string, p *Page) {
+			existing := index[ref]
+			if existing == nil {
+				index[ref] = p
+			} else if existing != ambiguityFlag && existing != p {
+				index[ref] = ambiguityFlag
+			}
+		}
 
 		// Note that we deliberately use the pages from all sites
 		// in this index, as we intend to use this in the ref and relref
-		// shortcodes. If the user says "sect/doc1.en.md", he/she knows
-		// what he/she is looking for.
+		// shortcodes.
 		for _, pageCollection := range []Pages{c.AllRegularPages, c.headlessPages} {
 			for _, p := range pageCollection {
-
 				sourceRef := p.absoluteSourceRef()
-				if sourceRef != "" {
-					// index the canonical, unambiguous ref
-					// e.g. /section/article.md
-					indexPage(index, sourceRef, p)
 
-					// also index the legacy canonical lookup (not guaranteed to be unambiguous)
-					// e.g. section/article.md
-					indexPage(index, sourceRef[1:], p)
-				}
+				// Allow cross language references by
+				// adding the language code as prefix.
+				add(path.Join("/"+p.Lang(), sourceRef), p)
 
+				// For pages in the current language.
 				if s != nil && p.s == s {
+					if sourceRef != "" {
+						// index the canonical ref
+						// e.g. /section/article.md
+						add(sourceRef, p)
+					}
+
 					// Ref/Relref supports this potentially ambiguous lookup.
-					indexPage(index, p.Source.LogicalName(), p)
+					add(p.Source.LogicalName(), p)
 
 					translationBaseName := p.Source.TranslationBaseName()
-					dir := filepath.ToSlash(strings.TrimSuffix(p.Dir(), helpers.FilePathSeparator))
+
+					dir, _ := path.Split(sourceRef)
+					dir = strings.TrimSuffix(dir, "/")
 
 					if translationBaseName == "index" {
-						_, name := path.Split(dir)
-						indexPage(index, name, p)
-						indexPage(index, dir, p)
+						add(dir, p)
+						add(path.Base(dir), p)
 					} else {
-						// Again, ambiguous
-						indexPage(index, translationBaseName, p)
+						add(translationBaseName, p)
 					}
 
 					// We need a way to get to the current language version.
 					pathWithNoExtensions := path.Join(dir, translationBaseName)
-					indexPage(index, pathWithNoExtensions, p)
+					add(pathWithNoExtensions, p)
 				}
 			}
 		}
@@ -133,7 +140,7 @@ func (c *PageCollections) refreshPageCaches() {
 			// e.g. /section/_index.md
 			sourceRef := p.absoluteSourceRef()
 			if sourceRef != "" {
-				indexPage(index, sourceRef, p)
+				add(sourceRef, p)
 			}
 
 			ref := path.Join(p.sections...)
@@ -141,25 +148,13 @@ func (c *PageCollections) refreshPageCaches() {
 			// index the canonical, unambiguous virtual ref
 			// e.g. /section
 			// (this may already have been indexed above)
-			indexPage(index, "/"+ref, p)
-
-			// index the legacy canonical ref (not guaranteed to be unambiguous)
-			// e.g. section
-			indexPage(index, ref, p)
+			add("/"+ref, p)
 		}
-		return index
+
+		return index, nil
 	}
 
-	c.pageIndex = pageIndex{load: indexLoader}
-}
-
-func indexPage(index map[string]*Page, ref string, p *Page) {
-	existing := index[ref]
-	if existing == nil {
-		index[ref] = p
-	} else if existing != ambiguityFlag && existing != p {
-		index[ref] = ambiguityFlag
-	}
+	c.pageIndex = cache.NewLazy(indexLoader)
 }
 
 func newPageCollections() *PageCollections {
@@ -170,39 +165,53 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 	return &PageCollections{rawAllPages: pages}
 }
 
-// context: page used to resolve relative paths
-// ref: either unix-style paths (i.e. callers responsible for
+// getPage is the "old style" get page. Deprecated in Hugo 0.45 in favour of
+// the "path only" syntax.
+// TODO(bep) remove this an rename below once this is all working.
+func (c *PageCollections) getPage(typ string, sections ...string) *Page {
+	p, _ := c.getPageNew(nil, "/"+path.Join(sections...))
+	return p
+
+}
+
+// Ref is either unix-style paths (i.e. callers responsible for
 // calling filepath.ToSlash as necessary) or shorthand refs.
-func (c *PageCollections) getPage(context *Page, ref string) (*Page, error) {
+func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 
-	var result *Page
-
-	if len(ref) > 0 && ref[0:1] == "/" {
-
-		// it's an absolute path
-		result = c.pageIndex.Get(ref)
-
-	} else { // either relative path or other supported ref
-
-		// If there's a page context. relative ref interpretation takes precedence.
-		if context != nil {
-			// For relative refs `filepath.Join` will properly resolve ".." (parent dir)
-			// and other elements in the path
-			apath := path.Join("/", strings.Join(context.sections, "/"), ref)
-			result = c.pageIndex.Get(apath)
-		}
-
-		// finally, let's try it as-is for a match against all the alternate refs indexed for each page
-		if result == nil {
-			result = c.pageIndex.Get(ref)
-
-			if result == ambiguityFlag {
-				return nil, fmt.Errorf("The reference \"%s\" in %q resolves to more than one page. Use either an absolute path (begins with \"/\") or relative path to the content directory target.", ref, context.absoluteSourceRef())
-			}
+	// Absolute (content root relative) reference.
+	if strings.HasPrefix(ref, "/") {
+		if p, err := c.getFromCache(ref); err == nil && p != nil {
+			return p, nil
 		}
 	}
 
-	return result, nil
+	// If there's a page context, try the page relative path.
+	if context != nil {
+		ppath := path.Join("/", strings.Join(context.sections, "/"), ref)
+		if p, err := c.getFromCache(ppath); err == nil && p != nil {
+			return p, nil
+		}
+	}
+
+	if !strings.HasPrefix(ref, "/") {
+		// Many people will have "post/foo.md" in their content files.
+		if p, err := c.getFromCache("/" + ref); err == nil && p != nil {
+			return p, nil
+		}
+	}
+
+	// Last try.
+	ref = strings.TrimPrefix(ref, "/")
+	context, err := c.getFromCache(ref)
+
+	if err != nil {
+		if context != nil {
+			return nil, fmt.Errorf("failed to resolve page relative to page %q: %s", context.absoluteSourceRef(), err)
+		}
+		return nil, fmt.Errorf("failed to resolve page: %s", err)
+	}
+
+	return context, nil
 }
 
 func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {

@@ -55,12 +55,12 @@ func BenchmarkGetPage(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		home, _ := s.getPage(nil, "/")
+		home, _ := s.getPageNew(nil, "/")
 		if home == nil {
 			b.Fatal("Home is nil")
 		}
 
-		p, _ := s.getPage(nil, pagePaths[i])
+		p, _ := s.getPageNew(nil, pagePaths[i])
 		if p == nil {
 			b.Fatal("Section is nil")
 		}
@@ -91,7 +91,7 @@ func BenchmarkGetPageRegular(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		page, _ := s.getPage(nil, pagePaths[i])
+		page, _ := s.getPageNew(nil, pagePaths[i])
 		require.NotNil(b, page)
 	}
 }
@@ -122,7 +122,7 @@ func TestGetPage(t *testing.T) {
 	}{
 		{KindHome, []string{}, ""},
 		{KindSection, []string{"sect3"}, "Sect3s"},
-		{KindPage, []string{"sect3", "page1.md"}, "Title3_1"},
+		{KindPage, []string{"sect3/page1.md"}, "Title3_1"},
 		{KindPage, []string{"sect4/page2.md"}, "Title4_2"},
 		{KindPage, []string{filepath.FromSlash("sect5/page3.md")}, "Title5_3"},
 		// Ref/Relref supports this potentially ambiguous lookup.
@@ -133,7 +133,9 @@ func TestGetPage(t *testing.T) {
 		errorMsg := fmt.Sprintf("Test %d", i)
 
 		// test legacy public Site.GetPage
-		page, _ := s.Info.GetPage(test.kind, test.path...)
+		args := append([]string{test.kind}, test.path...)
+		page, err := s.Info.GetPage(args...)
+		assert.NoError(err)
 		assert.NotNil(page, errorMsg)
 		assert.Equal(test.kind, page.Kind, errorMsg)
 		assert.Equal(test.expectedTitle, page.title)
@@ -145,7 +147,8 @@ func TestGetPage(t *testing.T) {
 		} else {
 			ref = path.Join(test.path...)
 		}
-		page2, _ := s.getPage(nil, ref)
+		page2, err := s.getPageNew(nil, ref)
+		assert.NoError(err)
 		assert.NotNil(page2, errorMsg)
 		assert.Equal(test.kind, page2.Kind, errorMsg)
 		assert.Equal(test.expectedTitle, page2.title)
