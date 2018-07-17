@@ -76,12 +76,6 @@ func (c *PageCollections) refreshPageCaches() {
 	c.RegularPages = c.findPagesByKindIn(KindPage, c.Pages)
 	c.AllRegularPages = c.findPagesByKindIn(KindPage, c.AllPages)
 
-	var s *Site
-
-	if len(c.Pages) > 0 {
-		s = c.Pages[0].s
-	}
-
 	indexLoader := func() (map[string]interface{}, error) {
 		index := make(map[string]interface{})
 
@@ -94,44 +88,34 @@ func (c *PageCollections) refreshPageCaches() {
 			}
 		}
 
-		// Note that we deliberately use the pages from all sites
-		// in this index, as we intend to use this in the ref and relref
-		// shortcodes.
-		for _, pageCollection := range []Pages{c.AllRegularPages, c.headlessPages} {
+		for _, pageCollection := range []Pages{c.RegularPages, c.headlessPages} {
 			for _, p := range pageCollection {
 				sourceRef := p.absoluteSourceRef()
 
-				// Allow cross language references by
-				// adding the language code as prefix.
-				add(path.Join("/"+p.Lang(), sourceRef), p)
-
-				// For pages in the current language.
-				if s != nil && p.s == s {
-					if sourceRef != "" {
-						// index the canonical ref
-						// e.g. /section/article.md
-						add(sourceRef, p)
-					}
-
-					// Ref/Relref supports this potentially ambiguous lookup.
-					add(p.Source.LogicalName(), p)
-
-					translationBaseName := p.Source.TranslationBaseName()
-
-					dir, _ := path.Split(sourceRef)
-					dir = strings.TrimSuffix(dir, "/")
-
-					if translationBaseName == "index" {
-						add(dir, p)
-						add(path.Base(dir), p)
-					} else {
-						add(translationBaseName, p)
-					}
-
-					// We need a way to get to the current language version.
-					pathWithNoExtensions := path.Join(dir, translationBaseName)
-					add(pathWithNoExtensions, p)
+				if sourceRef != "" {
+					// index the canonical ref
+					// e.g. /section/article.md
+					add(sourceRef, p)
 				}
+
+				// Ref/Relref supports this potentially ambiguous lookup.
+				add(p.Source.LogicalName(), p)
+
+				translationBaseName := p.Source.TranslationBaseName()
+
+				dir, _ := path.Split(sourceRef)
+				dir = strings.TrimSuffix(dir, "/")
+
+				if translationBaseName == "index" {
+					add(dir, p)
+					add(path.Base(dir), p)
+				} else {
+					add(translationBaseName, p)
+				}
+
+				// We need a way to get to the current language version.
+				pathWithNoExtensions := path.Join(dir, translationBaseName)
+				add(pathWithNoExtensions, p)
 			}
 		}
 

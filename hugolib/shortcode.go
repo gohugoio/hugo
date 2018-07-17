@@ -55,13 +55,13 @@ func (scp *ShortcodeWithPage) Site() *SiteInfo {
 }
 
 // Ref is a shortcut to the Ref method on Page.
-func (scp *ShortcodeWithPage) Ref(ref string) (string, error) {
-	return scp.Page.Ref(ref)
+func (scp *ShortcodeWithPage) Ref(args map[string]interface{}) (string, error) {
+	return scp.Page.Ref(args)
 }
 
 // RelRef is a shortcut to the RelRef method on Page.
-func (scp *ShortcodeWithPage) RelRef(ref string) (string, error) {
-	return scp.Page.RelRef(ref)
+func (scp *ShortcodeWithPage) RelRef(args map[string]interface{}) (string, error) {
+	return scp.Page.RelRef(args)
 }
 
 // Scratch returns a scratch-pad scoped for this shortcode. This can be used
