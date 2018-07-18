@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log"
 	"mime"
 	"net/url"
 	"os"
@@ -127,6 +128,8 @@ type Site struct {
 	outputFormatsConfig output.Formats
 	mediaTypesConfig    media.Types
 
+	siteConfig SiteConfig
+
 	// How to handle page front matter.
 	frontmatterHandler pagemeta.FrontMatterHandler
 
@@ -147,6 +150,7 @@ type Site struct {
 	titleFunc func(s string) string
 
 	relatedDocsHandler *relatedDocsHandler
+	siteRefLinker
 }
 
 type siteRenderingContext struct {
@@ -183,6 +187,7 @@ func (s *Site) reset() *Site {
 		disabledKinds:       s.disabledKinds,
 		titleFunc:           s.titleFunc,
 		relatedDocsHandler:  newSearchIndexHandler(s.relatedDocsHandler.cfg),
+		siteRefLinker:       s.siteRefLinker,
 		outputFormats:       s.outputFormats,
 		rc:                  s.rc,
 		outputFormatsConfig: s.outputFormatsConfig,
@@ -190,7 +195,9 @@ func (s *Site) reset() *Site {
 		mediaTypesConfig:    s.mediaTypesConfig,
 		Language:            s.Language,
 		owner:               s.owner,
+		siteConfig:          s.siteConfig,
 		PageCollections:     newPageCollections()}
+
 }
 
 // newSite creates a new site with the given configuration.
@@ -276,8 +283,6 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 		frontmatterHandler:  frontMatterHandler,
 	}
 
-	s.Info = newSiteInfo(siteBuilderCfg{s: s, pageCollections: c, language: s.Language})
-
 	return s, nil
 
 }
@@ -291,7 +296,7 @@ func NewSite(cfg deps.DepsCfg) (*Site, error) {
 		return nil, err
 	}
 
-	if err = applyDepsIfNeeded(cfg, s); err != nil {
+	if err = applyDeps(cfg, s); err != nil {
 		return nil, err
 	}
 
@@ -333,7 +338,7 @@ func newSiteForLang(lang *langs.Language, withTemplate ...func(templ tpl.Templat
 		return nil
 	}
 
-	cfg := deps.DepsCfg{WithTemplate: withTemplates, Language: lang, Cfg: lang}
+	cfg := deps.DepsCfg{WithTemplate: withTemplates, Cfg: lang}
 
 	return NewSiteForCfg(cfg)
 
@@ -343,16 +348,12 @@ func newSiteForLang(lang *langs.Language, withTemplate ...func(templ tpl.Templat
 // The site will have a template system loaded and ready to use.
 // Note: This is mainly used in single site tests.
 func NewSiteForCfg(cfg deps.DepsCfg) (*Site, error) {
-	s, err := newSite(cfg)
-
+	h, err := NewHugoSites(cfg)
 	if err != nil {
 		return nil, err
 	}
+	return h.Sites[0], nil
 
-	if err := applyDepsIfNeeded(cfg, s); err != nil {
-		return nil, err
-	}
-	return s, nil
 }
 
 type SiteInfos []*SiteInfo
@@ -370,33 +371,33 @@ type SiteInfo struct {
 	Authors    AuthorList
 	Social     SiteSocial
 	*PageCollections
-	Menus                 *Menus
-	Hugo                  *HugoInfo
-	Title                 string
-	RSSLink               string
-	Author                map[string]interface{}
-	LanguageCode          string
-	Copyright             string
-	LastChange            time.Time
-	Permalinks            PermalinkOverrides
-	Params                map[string]interface{}
-	BuildDrafts           bool
-	canonifyURLs          bool
-	relativeURLs          bool
-	uglyURLs              func(p *Page) bool
-	preserveTaxonomyNames bool
-	Data                  *map[string]interface{}
-
-	Config SiteConfig
-
+	Menus                          *Menus
+	Hugo                           *HugoInfo
+	Title                          string
+	RSSLink                        string
+	Author                         map[string]interface{}
+	LanguageCode                   string
+	Copyright                      string
+	LastChange                     time.Time
+	Permalinks                     PermalinkOverrides
+	Params                         map[string]interface{}
+	BuildDrafts                    bool
+	canonifyURLs                   bool
+	relativeURLs                   bool
+	uglyURLs                       func(p *Page) bool
+	preserveTaxonomyNames          bool
+	Data                           *map[string]interface{}
 	owner                          *HugoSites
 	s                              *Site
-	multilingual                   *Multilingual
 	Language                       *langs.Language
 	LanguagePrefix                 string
 	Languages                      langs.Languages
 	defaultContentLanguageInSubdir bool
 	sectionPagesMenu               string
+}
+
+func (s *SiteInfo) Config() SiteConfig {
+	return s.s.siteConfig
 }
 
 func (s *SiteInfo) String() string {
@@ -422,34 +423,13 @@ func (s *SiteInfo) ServerPort() int {
 
 // GoogleAnalytics is kept here for historic reasons.
 func (s *SiteInfo) GoogleAnalytics() string {
-	return s.Config.Services.GoogleAnalytics.ID
+	return s.Config().Services.GoogleAnalytics.ID
 
 }
 
 // DisqusShortname is kept here for historic reasons.
 func (s *SiteInfo) DisqusShortname() string {
-	return s.Config.Services.Disqus.Shortname
-}
-
-// Used in tests.
-
-type siteBuilderCfg struct {
-	language        *langs.Language
-	s               *Site
-	pageCollections *PageCollections
-}
-
-// TODO(bep) get rid of this
-func newSiteInfo(cfg siteBuilderCfg) SiteInfo {
-	return SiteInfo{
-		s:               cfg.s,
-		multilingual:    newMultiLingualForLanguage(cfg.language),
-		PageCollections: cfg.pageCollections,
-		Params:          make(map[string]interface{}),
-		uglyURLs: func(p *Page) bool {
-			return false
-		},
-	}
+	return s.Config().Services.Disqus.Shortname
 }
 
 // SiteSocial is a place to put social details on a site level. These are the
@@ -487,7 +467,35 @@ func (s *SiteInfo) IsServer() bool {
 	return s.owner.running
 }
 
-func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat string) (string, error) {
+type siteRefLinker struct {
+	s *Site
+
+	errorLogger *log.Logger
+	notFoundURL string
+}
+
+func newSiteRefLinker(cfg config.Provider, s *Site) (siteRefLinker, error) {
+	logger := s.Log.ERROR
+
+	notFoundURL := cfg.GetString("refLinksNotFoundURL")
+	errLevel := cfg.GetString("refLinksErrorLevel")
+	if strings.EqualFold(errLevel, "warning") {
+		logger = s.Log.WARN
+	}
+	return siteRefLinker{s: s, errorLogger: logger, notFoundURL: notFoundURL}, nil
+}
+
+func (s siteRefLinker) logNotFound(ref, what string, p *Page) {
+	if p != nil {
+		s.errorLogger.Printf("REF_NOT_FOUND: Ref %q: %s", ref, what)
+	} else {
+		s.errorLogger.Printf("REF_NOT_FOUND: Ref %q from page %q: %s", ref, p.absoluteSourceRef(), what)
+	}
+
+}
+
+func (s *siteRefLinker) refLink(ref string, page *Page, relative bool, outputFormat string) (string, error) {
+
 	var refURL *url.URL
 	var err error
 
@@ -496,21 +504,22 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat s
 	refURL, err = url.Parse(ref)
 
 	if err != nil {
-		return "", err
+		return s.notFoundURL, err
 	}
 
 	var target *Page
 	var link string
 
 	if refURL.Path != "" {
-		target, err := s.getPageNew(page, refURL.Path)
+		target, err := s.s.getPageNew(page, refURL.Path)
 
 		if err != nil {
 			return "", err
 		}
 
 		if target == nil {
-			return "", fmt.Errorf("No page found with path or logical name \"%s\".\n", refURL.Path)
+			s.logNotFound(refURL.Path, "page not found", page)
+			return s.notFoundURL, nil
 		}
 
 		var permalinker Permalinker = target
@@ -519,7 +528,8 @@ func (s *SiteInfo) refLink(ref string, page *Page, relative bool, outputFormat s
 			o := target.OutputFormats().Get(outputFormat)
 
 			if o == nil {
-				return "", fmt.Errorf("Output format %q not found for page %q", outputFormat, refURL.Path)
+				s.logNotFound(refURL.Path, fmt.Sprintf("output format %q", outputFormat), page)
+				return s.notFoundURL, nil
 			}
 			permalinker = o
 		}
@@ -551,7 +561,7 @@ func (s *SiteInfo) Ref(ref string, page *Page, options ...string) (string, error
 		outputFormat = options[0]
 	}
 
-	return s.refLink(ref, page, false, outputFormat)
+	return s.s.refLink(ref, page, false, outputFormat)
 }
 
 // RelRef will give an relative URL to ref in the given Page.
@@ -561,11 +571,15 @@ func (s *SiteInfo) RelRef(ref string, page *Page, options ...string) (string, er
 		outputFormat = options[0]
 	}
 
-	return s.refLink(ref, page, true, outputFormat)
+	return s.s.refLink(ref, page, true, outputFormat)
 }
 
 func (s *Site) running() bool {
 	return s.owner != nil && s.owner.running
+}
+
+func (s *Site) multilingual() *Multilingual {
+	return s.owner.multilingual
 }
 
 func init() {
@@ -1102,11 +1116,6 @@ func (s *Site) initializeSiteInfo() error {
 		languagePrefix = "/" + lang.Lang
 	}
 
-	var multilingual *Multilingual
-	if s.owner != nil {
-		multilingual = s.owner.multilingual
-	}
-
 	var uglyURLs = func(p *Page) bool {
 		return false
 	}
@@ -1132,18 +1141,12 @@ func (s *Site) initializeSiteInfo() error {
 		}
 	}
 
-	siteConfig, err := loadSiteConfig(lang)
-	if err != nil {
-		return err
-	}
-
 	s.Info = SiteInfo{
 		Title:                          lang.GetString("title"),
 		Author:                         lang.GetStringMap("author"),
 		Social:                         lang.GetStringMapString("social"),
 		LanguageCode:                   lang.GetString("languageCode"),
 		Copyright:                      lang.GetString("copyright"),
-		multilingual:                   multilingual,
 		Language:                       lang,
 		LanguagePrefix:                 languagePrefix,
 		Languages:                      languages,
@@ -1161,7 +1164,6 @@ func (s *Site) initializeSiteInfo() error {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		s:                              s,
-		Config:                         siteConfig,
 		// TODO(bep) make this Menu and similar into delegate methods on SiteInfo
 		Taxonomies: s.Taxonomies,
 	}

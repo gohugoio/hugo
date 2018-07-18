@@ -2063,7 +2063,8 @@ func (p *Page) decodeRefArgs(args map[string]interface{}) (refArgs, *SiteInfo, e
 		}
 
 		if !found {
-			return ra, nil, fmt.Errorf("no site found with lang %q", ra.Lang)
+			p.s.siteRefLinker.logNotFound(ra.Path, fmt.Sprintf("no site found with lang %q", ra.Lang), p)
+			return ra, nil, nil
 		}
 	}
 
@@ -2074,6 +2075,10 @@ func (p *Page) Ref(argsm map[string]interface{}) (string, error) {
 	args, s, err := p.decodeRefArgs(argsm)
 	if err != nil {
 		return "", fmt.Errorf("invalid arguments to Ref: %s", err)
+	}
+
+	if s == nil {
+		return p.s.siteRefLinker.notFoundURL, nil
 	}
 
 	if args.Path == "" {
@@ -2090,6 +2095,10 @@ func (p *Page) RelRef(argsm map[string]interface{}) (string, error) {
 	args, s, err := p.decodeRefArgs(argsm)
 	if err != nil {
 		return "", fmt.Errorf("invalid arguments to Ref: %s", err)
+	}
+
+	if s == nil {
+		return p.s.siteRefLinker.notFoundURL, nil
 	}
 
 	if args.Path == "" {
@@ -2178,7 +2187,7 @@ func (p *Page) shouldAddLanguagePrefix() bool {
 		return false
 	}
 
-	if !p.Site.defaultContentLanguageInSubdir && p.Lang() == p.Site.multilingual.DefaultLang.Lang {
+	if !p.Site.defaultContentLanguageInSubdir && p.Lang() == p.s.multilingual().DefaultLang.Lang {
 		return false
 	}
 
@@ -2191,7 +2200,7 @@ func (p *Page) initLanguage() {
 			return
 		}
 
-		ml := p.Site.multilingual
+		ml := p.s.multilingual()
 		if ml == nil {
 			panic("Multilanguage not set")
 		}

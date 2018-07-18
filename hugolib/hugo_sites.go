@@ -129,7 +129,7 @@ func newHugoSites(cfg deps.DepsCfg, sites ...*Site) (*HugoSites, error) {
 		s.owner = h
 	}
 
-	if err := applyDepsIfNeeded(cfg, sites...); err != nil {
+	if err := applyDeps(cfg, sites...); err != nil {
 		return nil, err
 	}
 
@@ -161,7 +161,7 @@ func (h *HugoSites) initGitInfo() error {
 	return nil
 }
 
-func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
+func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 	if cfg.TemplateProvider == nil {
 		cfg.TemplateProvider = tplimpl.DefaultTemplateProvider
 	}
@@ -208,6 +208,19 @@ func applyDepsIfNeeded(cfg deps.DepsCfg, sites ...*Site) error {
 			s.Deps = d
 		}
 
+		if err := s.initializeSiteInfo(); err != nil {
+			return err
+		}
+
+		siteConfig, err := loadSiteConfig(s.Language)
+		if err != nil {
+			return err
+		}
+		s.siteConfig = siteConfig
+		s.siteRefLinker, err = newSiteRefLinker(s.Language, s)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -308,7 +321,7 @@ func (h *HugoSites) createSitesFromConfig() error {
 		s.owner = h
 	}
 
-	if err := applyDepsIfNeeded(depsCfg, sites...); err != nil {
+	if err := applyDeps(depsCfg, sites...); err != nil {
 		return err
 	}
 
