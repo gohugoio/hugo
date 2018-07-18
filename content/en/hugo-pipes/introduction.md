@@ -18,36 +18,35 @@ aliases: [/assets/]
 
 ### Asset directory
 
-Asset files must be stored in the asset directory which defaults to `/assets` but can be configured via the configuration file's `assetDir` key.
+Asset files must be stored in the asset directory. This is `/assets` by default, but can be configured via the configuration file's `assetDir` key.
 
 ### From file to resource
 
-In order to process an asset with Hugo Pipes it must be retrieved as a resource using `resources.Get` which takes one argument, the filepath of the file relative to the asset directory.
+In order to process an asset with Hugo Pipes, it must be retrieved as a resource using `resources.Get`, which takes one argument: the filepath of the file relative to the asset directory.
 
 ```go-html-template
-{{ $style := resoursec.Get "sass/main.scss" }}
+{{ $style := resources.Get "sass/main.scss" }}
 ```
 
 ### Asset publishing
 
-Assets will only be published (to `/public`) if its `.Permalink` or `.RelPermalink` is used.
+Assets will only be published (to `/public`) if `.Permalink` or `.RelPermalink` is used.
 
 ### Go Pipes
 
-For improved readability the Hugo Pipes examples of this documentation will be written using [Go Pipes](/templates/introduction/#pipes):
+For improved readability, the Hugo Pipes examples of this documentation will be written using [Go Pipes](/templates/introduction/#pipes):
 ```go-html-template
-{{ $style := resoursec.Get "sass/main.scss" | resources.ToCSS | resources.Minify | resources.Fingerprint }}
+{{ $style := resources.Get "sass/main.scss" | resources.ToCSS | resources.Minify | resources.Fingerprint }}
 <link rel="stylesheet" href="{{ $style.Permalink }}">
 ```
 
 ### Method aliases
 
-Each Hugo Pipes' `resources` transformation methods uses a __camelCased__ alias (`toCSS` for `resources.ToCSS`).
+Each Hugo Pipes `resources` transformation method uses a __camelCased__ alias (`toCSS` for `resources.ToCSS`).
 Non-transformation methods deprived of such aliases are `resources.Get`, `resources.FromString` and `resources.ExecuteAsTemplate`.
 
-The example above can therefore also be written as follow
-:
+The example above can therefore also be written as follows:
 ```go-html-template
-{{ $style := resourses.Get "sass/main.scss" | toCSS | minify | fingerprint }}
+{{ $style := resources.Get "sass/main.scss" | toCSS | minify | fingerprint }}
 <link rel="stylesheet" href="{{ $style.Permalink }}">
 ```
