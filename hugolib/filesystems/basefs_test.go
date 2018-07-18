@@ -50,7 +50,13 @@ func TestNewBaseFs(t *testing.T) {
 			fs.Source.Mkdir(base, 0755)
 			afero.WriteFile(fs.Source, filepath.Join(base, fmt.Sprintf("theme-file-%s-%s.txt", theme, dir)), []byte(fmt.Sprintf("content:%s:%s", theme, dir)), 0755)
 		}
+		// Write some files to the root of the theme
+		base := filepath.Join(workingDir, "themes", theme)
+		afero.WriteFile(fs.Source, filepath.Join(base, fmt.Sprintf("theme-root-%s.txt", theme)), []byte(fmt.Sprintf("content:%s", theme)), 0755)
+		afero.WriteFile(fs.Source, filepath.Join(base, "file-root.txt"), []byte(fmt.Sprintf("content:%s", theme)), 0755)
 	}
+
+	afero.WriteFile(fs.Source, filepath.Join(workingDir, "file-root.txt"), []byte("content-project"), 0755)
 
 	afero.WriteFile(fs.Source, filepath.Join(workingDir, "themes", "btheme", "config.toml"), []byte(`
 theme = ["atheme"]
@@ -102,7 +108,7 @@ theme = ["atheme"]
 	checkFileCount(bfs.Archetypes.Fs, "", assert, 8)
 	checkFileCount(bfs.Assets.Fs, "", assert, 9)
 	checkFileCount(bfs.Resources.Fs, "", assert, 10)
-	checkFileCount(bfs.Work.Fs, "", assert, 57)
+	checkFileCount(bfs.Work.Fs, "", assert, 69)
 
 	assert.Equal([]string{filepath.FromSlash("/my/work/mydata"), filepath.FromSlash("/my/work/themes/btheme/data"), filepath.FromSlash("/my/work/themes/atheme/data")}, bfs.Data.Dirnames)
 
@@ -116,6 +122,10 @@ theme = ["atheme"]
 	assert.True(bfs.IsContent(contentFilename))
 	rel := bfs.RelContentDir(contentFilename)
 	assert.Equal("file1.txt", rel)
+
+	// Check Work fs vs theme
+	checkFileContent(bfs.Work.Fs, "file-root.txt", assert, "content-project")
+	checkFileContent(bfs.Work.Fs, "theme-root-atheme.txt", assert, "content:atheme")
 
 }
 
