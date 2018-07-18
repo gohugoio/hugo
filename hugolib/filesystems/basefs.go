@@ -407,6 +407,11 @@ func (b *sourceFilesystemsBuilder) createFs(
 	s := &SourceFilesystem{
 		SourceFs: b.p.Fs.Source,
 	}
+
+	if themeFolder == "" {
+		themeFolder = filePathSeparator
+	}
+
 	var dir string
 	if dirKey != "" {
 		dir = b.p.Cfg.GetString(dirKey)
