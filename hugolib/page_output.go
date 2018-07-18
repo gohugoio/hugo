@@ -156,7 +156,15 @@ func executeToString(templ tpl.Template, data interface{}) (string, error) {
 
 func (p *Page) Render(layout ...string) template.HTML {
 	if p.mainPageOutput == nil {
-		panic(fmt.Sprintf("programming error: no mainPageOutput for %q", p.Path()))
+		pageOutput, err := newPageOutput(p, false, false, p.OutputFormats().Get("html").f)
+		if err == nil {
+			p.mainPageOutput = pageOutput
+			err = pageOutput.renderResources()
+		}
+
+		if err != nil {
+			panic(fmt.Sprintf("Failed to render resources for page %q: %s", p.Path(), err))
+		}
 	}
 	return p.mainPageOutput.Render(layout...)
 }
