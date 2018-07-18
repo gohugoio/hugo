@@ -34,7 +34,6 @@ section = [ "HTML", "RSS"]
 
 [mediaTypes]
 [mediaTypes."text/netlify"]
-suffix = ""
 delimiter = ""
 
 [outputFormats]
@@ -70,7 +69,7 @@ twitter = "GoHugoIO"
 [params]
   description = "The world’s fastest framework for building websites"
   ## Used for views in rendered HTML (i.e., rather than using the .Hugo variable)
-  release = "0.42.2"
+  release = "0.44"
   ## Setting this to true will add a "noindex" to *EVERY* page on the site
   removefromexternalsearch = false
   ## Gh repo for site footer (include trailing slash)

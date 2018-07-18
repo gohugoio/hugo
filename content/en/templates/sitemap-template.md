@@ -41,7 +41,7 @@ This template respects the version 0.9 of the [Sitemap Protocol](http://www.site
 
 ```
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  {{ range .Data.Pages }}
+  {{ range .Pages }}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
     <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}

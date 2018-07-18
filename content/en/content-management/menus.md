@@ -36,47 +36,7 @@ A **menu** is a named array of menu entries accessible by name via the [`.Site.M
 If you make use of the [multilingual feature](/content-management/multilingual/), you can define language-independent menus.
 {{% /note %}}
 
-A menu entry has the following properties (i.e., variables) available to it:
-
-`.URL`
-: string
-
-`.Name`
-: string
-
-`.Menu`
-: string
-
-`.Identifier`
-: string
-
-`.Pre`
-: template.HTML
-
-`.Post`
-: template.HTML
-
-`.Weight`
-: int
-
-`.Parent`
-: string
-
-`.Children`
-: Menu
-
-Note that menus also have the following functions available as well:
-
-`.HasChildren`
-: boolean
-
-Additionally, there are some relevant functions available to menus on a page:
-
-`.IsMenuCurrent`
-: (menu string, menuEntry *MenuEntry ) boolean
-
-`.HasMenuCurrent`
-: (menu string, menuEntry *MenuEntry) boolean
+See the [Menu Entry Properties][me-props] for all the variables and functions related to a menu entry.
 
 ## Add content to menus
 
@@ -139,7 +99,7 @@ The URLs must be relative to the context root. If the `baseURL` is `https://exam
 {{% /note %}}
 
 ## Nesting
- 
+
 All nesting of content is done via the `parent` field.
 
 The parent of an entry should be the identifier of another entry. The identifier should be unique (within a menu).
@@ -159,3 +119,4 @@ See [Menu Templates](/templates/menu-templates/) for information on how to rende
 [config]: /getting-started/configuration/
 [multilingual]: /content-management/multilingual/
 [sitevars]: /variables/
+[me-props]: /variables/menus/

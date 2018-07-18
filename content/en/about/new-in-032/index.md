@@ -24,7 +24,7 @@ This documentation belongs in other places in this documentation site, but is pu
 
 Also see this demo project from [bep](https://github.com/bep/), the clever Norwegian behind these new features:
 
-* http://hugotest.bep.is/
+* https://temp.bep.is/hugotest/
 * https://github.com/bep/hugotest (source)
 
 ## Page Resources

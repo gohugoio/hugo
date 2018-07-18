@@ -178,7 +178,7 @@ This shortcode will convert the source code provided into syntax-highlighted HTM
 <section id="main">
   <div>
    <h1 id="title">{{ .Title }}</h1>
-    {{ range .Data.Pages }}
+    {{ range .Pages }}
         {{ .Render "summary"}}
     {{ end }}
   </div>
@@ -194,7 +194,7 @@ The `highlight` shortcode example above would produce the following HTML when th
 <span style="color: #f92672">&lt;section</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;main&quot;</span><span style="color: #f92672">&gt;</span>
   <span style="color: #f92672">&lt;div&gt;</span>
    <span style="color: #f92672">&lt;h1</span> <span style="color: #a6e22e">id=</span><span style="color: #e6db74">&quot;title&quot;</span><span style="color: #f92672">&gt;</span>{{ .Title }}<span style="color: #f92672">&lt;/h1&gt;</span>
-    {{ range .Data.Pages }}
+    {{ range .Pages }}
         {{ .Render &quot;summary&quot;}}
     {{ end }}
   <span style="color: #f92672">&lt;/div&gt;</span>

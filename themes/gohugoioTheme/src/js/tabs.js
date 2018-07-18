@@ -37,7 +37,7 @@ function toggleTabs(event) {
 for (i = 0; i < allTabs.length; i++) {
 	allTabs[i].addEventListener("click", toggleTabs)
 }
-// Upon page load, if user has a prefered language in its localStorage, tabs are set to it.
+// Upon page load, if user has a preferred language in its localStorage, tabs are set to it.
 if(window.localStorage.getItem('configLangPref')) {
 	toggleTabs(window.localStorage.getItem('configLangPref'))
 }
