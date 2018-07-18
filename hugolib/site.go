@@ -1511,11 +1511,18 @@ func (s *Site) resetBuildState() {
 
 	spc = newPageCache()
 
-	for _, p := range s.rawAllPages {
+	initPage := func(p *Page) {
 		p.subSections = Pages{}
 		p.parent = nil
 		p.scratch = maps.NewScratch()
 		p.mainPageOutput = nil
+	}
+
+	for _, p := range s.Pages {
+		initPage(p)
+	}
+	for _, p := range s.headlessPages {
+		initPage(p)
 	}
 }
 
