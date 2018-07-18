@@ -193,7 +193,7 @@ sitemap
 : Default [sitemap configuration](/templates/sitemap-template/#configure-sitemap-xml).
 
 staticDir ("static")
-: Relative directory from where Hugo reads static files.
+: A directory or a list of directories from where Hugo reads [static files][static-files].
 
 stepAnalysis (false)
 : Display memory and timing of different steps of the program.
@@ -405,3 +405,4 @@ Hugo v0.20 introduced the ability to render your content to multiple output form
 [templates]: /templates/
 [toml]: https://github.com/toml-lang/toml
 [yaml]: http://yaml.org/spec/
+[static-files]: /content-management/static-files/

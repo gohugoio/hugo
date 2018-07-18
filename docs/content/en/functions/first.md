@@ -21,8 +21,7 @@ aliases: []
 
 
 ```
-{{ range first 10 .Data.Pages }}
+{{ range first 10 .Pages }}
     {{ .Render "summary" }}
 {{ end }}
 ```
-

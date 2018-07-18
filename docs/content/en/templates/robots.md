@@ -42,7 +42,7 @@ The following is an example `robots.txt` layout:
 {{< code file="layouts/robots.txt" download="robots.txt" >}}
 User-agent: *
 
-{{range .Data.Pages}}
+{{range .Pages}}
 Disallow: {{.RelPermalink}}
 {{end}}
 {{< /code >}}

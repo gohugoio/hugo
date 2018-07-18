@@ -504,7 +504,7 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 {{< code file="layouts/partials/upcoming-events.html" download="upcoming-events.html" >}}
 <h4>Upcoming Events</h4>
 <ul class="upcoming-events">
-{{ range where .Data.Pages.ByDate "Section" "events" }}
+{{ range where .Pages.ByDate "Section" "events" }}
   {{ if ge .Date.Unix .Now.Unix }}
     <li>
     <!-- add span for event type -->

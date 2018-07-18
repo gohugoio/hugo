@@ -1,8 +1,8 @@
 
 ---
 date: 2018-07-13
-title: "0.44"
-description: "0.44"
+title: "Hugo 0.44: Friday the 13th Edition"
+description: "A sequel to the very popular Hugo Pipes Edition; bug-fixes and enhancements …"
 categories: ["Releases"]
 ---
 

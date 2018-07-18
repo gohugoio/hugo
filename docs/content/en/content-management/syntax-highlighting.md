@@ -134,7 +134,7 @@ Highlighting is carried out via the [built-in shortcode](/content-management/sho
 <section id="main">
   <div>
     <h1 id="title">{{ .Title }}</h1>
-    {{ range .Data.Pages }}
+    {{ range .Pages }}
       {{ .Render "summary"}}
     {{ end }}
   </div>
@@ -157,7 +157,7 @@ It is also possible to add syntax highlighting with GitHub flavored code fences.
 <section id="main">
   <div>
     <h1 id="title">{{ .Title }}</h1>
-    {{ range .Data.Pages }}
+    {{ range .Pages }}
       {{ .Render "summary"}}
     {{ end }}
   </div>

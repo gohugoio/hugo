@@ -43,19 +43,19 @@ Setting `Paginate` to a positive value will split the list pages for the homepag
 There are two ways to configure and use a `.Paginator`:
 
 1. The simplest way is just to call `.Paginator.Pages` from a template. It will contain the pages for *that page*.
-2. Select a subset of the pages with the available template functions and ordering options, and pass the slice to `.Paginate`, e.g. `{{ range (.Paginate ( first 50 .Data.Pages.ByTitle )).Pages }}`.
+2. Select a subset of the pages with the available template functions and ordering options, and pass the slice to `.Paginate`, e.g. `{{ range (.Paginate ( first 50 .Pages.ByTitle )).Pages }}`.
 
 For a given **Page**, it's one of the options above. The `.Paginator` is static and cannot change once created.
 
 The global page size setting (`Paginate`) can be overridden by providing a positive integer as the last argument. The examples below will give five items per page:
 
 * `{{ range (.Paginator 5).Pages }}`
-* `{{ $paginator := .Paginate (where .Data.Pages "Type" "post") 5 }}`
+* `{{ $paginator := .Paginate (where .Pages "Type" "post") 5 }}`
 
 It is also possible to use the `GroupBy` functions in combination with pagination:
 
 ```
-{{ range (.Paginate (.Data.Pages.GroupByDate "2006")).PageGroups  }}
+{{ range (.Paginate (.Pages.GroupByDate "2006")).PageGroups  }}
 ```
 
 ## Build the navigation
@@ -75,7 +75,7 @@ If you use any filters or ordering functions to create your `.Paginator` *and* y
 The following example shows how to create `.Paginator` before its used:
 
 ```
-{{ $paginator := .Paginate (where .Data.Pages "Type" "post") }}
+{{ $paginator := .Paginate (where .Pages "Type" "post") }}
 {{ template "_internal/pagination.html" . }}
 {{ range $paginator.Pages }}
    {{ .Title }}
