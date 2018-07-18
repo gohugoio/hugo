@@ -735,7 +735,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 
 		// TOD(bep) globals clean
 		if err := first.Deps.LoadResources(); err != nil {
-			s.Log.ERROR.Println(err)
+			return whatChanged{}, err
 		}
 
 		s.TemplateHandler().PrintErrors()
