@@ -1,7 +1,7 @@
 ---
-title: Menu Variables
-linktitle: Menu Variables
-description: A menu entry in a menu template has specific variables and functions to make menu management easier.
+title: Menu Entry Properties
+linktitle: Menu Entry Properties
+description: A menu entry in a menu-template has specific variables and functions to make menu management easier.
 date: 2017-03-12
 publishdate: 2017-03-12
 lastmod: 2017-03-12
@@ -19,49 +19,106 @@ aliases: [/variables/menu/]
 toc: false
 ---
 
-The [menu template][] has the following properties:
+A **menu entry** has the following properties available that can be used in a
+[menu template][menu-template].
 
-.URL
-: string
-
-.Name
-: string
-
-.Title
-: string
-
-This is a link title, meant to be used in `title`-Attributes of the menu's `<a>`-tags.
-By default it returns `.Page.LinkTitle`, as long as the menu entry was created
-through the page's front matter and not through the site config.
-Setting it explicitly in the site config or the page's front matter overrides this behaviour.
-
-.Page
-: [Page Object](/variables/page/)
-
-The `.Page` variable holds a reference to the page.
-It's only set when the menu entry is created from the page's front matter,
-not when it's created from the site config.
-
+## Menu Entry Variables
 
 .Menu
-: string
+: _string_ <br />
+Name of the **menu** that contains this **menu entry**.
+
+.URL
+: _string_ <br />
+URL that the menu entry points to. The `url` key, if set for the menu entry,
+sets this value. If that key is not set, and if the menu entry is set in a page
+front-matter, this value defaults to the page's `.RelPermalink`.
+
+.Page
+: _\*Page_ <br />
+Reference to the [page object][page-object] associated with the menu entry. This
+will be non-nil if the menu entry is set via a page's front-matter and not via
+the site config.
+
+.Name
+: _string_ <br />
+Name of the menu entry. The `name` key, if set for the menu entry, sets
+this value. If that key is not set, and if the menu entry is set in a page
+front-matter, this value defaults to the page's `.LinkTitle`.
 
 .Identifier
-: string
+: _string_ <br />
+Value of the `identifier` key if set for the menu entry. This value must be
+unique for each menu entry. **It is necessary to set a unique identifier
+manually if two or more menu entries have the same `.Name`.**
 
 .Pre
-: template.HTML
+: _template.HTML_ <br />
+Value of the `pre` key if set for the menu entry. This value typically contains
+a string representing HTML.
 
 .Post
-: template.HTML
+: _template.HTML_ <br />
+Value of the `post` key if set for the menu entry. This value typically contains
+a string representing HTML.
 
 .Weight
-: int
+: _int_ <br />
+Value of the `weight` key if set for the menu entry. If that key is not set,
+and if the menu entry is set in a page front-matter, this value defaults to the
+page's `.Weight`.
 
 .Parent
-: string
+: _string_ <br />
+Name (or Identifier if present) of this menu entry's parent **menu entry**. The
+`parent` key, if set for the menu entry, sets this value. If this key is set,
+this menu entry nests under that parent entry, else it nests directly under the
+`.Menu`.
 
 .Children
-: Menu
+: _Menu_ <br />
+This value is auto-populated by Hugo. It is a collection of children menu
+entries, if any, under the current menu entry.
 
-[menu template]: /templates/menu-templates/
+## Menu Entry Functions
+
+Menus also have the following functions available:
+
+[.HasChildren](/functions/haschildren/)
+: _boolean_ <br />
+Returns `true` if `.Children` is non-nil.
+
+.KeyName
+: _string_ <br />
+Returns the `.Identifier` if present, else returns the `.Name`.
+
+.IsEqual
+: _boolean_ <br />
+Returns `true` if the two compared menu entries represent the same menu entry.
+
+.IsSameResource
+: _boolean_ <br />
+Returns `true` if the two compared menu entries have the same `.URL`.
+
+.Title
+: _string_ <br />
+Link title, meant to be used in the `title` attribute of a menu entry's
+`<a>`-tags.  Returns the menu entry's `title` key if set. Else, if the menu
+entry was created through a page's front-matter, it returns the page's
+`.LinkTitle`. Else, it just returns an empty string.
+
+## Other Menu-related Functions
+
+Additionally, here are some relevant methods available to menus on a page:
+
+.IsMenuCurrent
+: _(menu string, menuEntry *MenuEntry ) boolean_ <br />
+See [`.IsMenuCurrent` method](/functions/ismenucurrent/).
+
+.HasMenuCurrent
+: _(menu string, menuEntry *MenuEntry) boolean_ <br />
+See [`.HasMenuCurrent` method](/functions/hasmenucurrent/).
+
+
+[menu-template]: /templates/menu-templates/
+[page-object]: /variables/page/

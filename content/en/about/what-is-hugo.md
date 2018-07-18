@@ -43,27 +43,23 @@ Hugo is for people building a blog, a company site, a portfolio site, documentat
 
 [@spf13]: https://twitter.com/@spf13
 [Aerobatic]: https://www.aerobatic.com/
-[Amazon S3]: http://aws.amazon.com/s3/
+[Amazon S3]: https://aws.amazon.com/s3/
 [Azure]: https://blogs.msdn.microsoft.com/acoat/2016/01/28/publish-a-static-web-site-using-azure-web-apps/
-[CloudFront]: http://aws.amazon.com/cloudfront/ "Amazon CloudFront"
-[contributing to it]: https://github.com/gohugoio/hugo
-[DreamHost]: http://www.dreamhost.com/
+[CloudFront]: https://aws.amazon.com/cloudfront/ "Amazon CloudFront"
+[DreamHost]: https://www.dreamhost.com/
 [Firebase]: https://firebase.google.com/docs/hosting/ "Firebase static hosting"
 [GitHub Pages]: https://pages.github.com/
 [GitLab Pages]: https://about.gitlab.com/features/pages/
 [Go language]: https://golang.org/
 [GoDaddy]: https://www.godaddy.com/ "Godaddy.com Hosting"
-[Google Cloud Storage]: http://cloud.google.com/storage/
+[Google Cloud Storage]: https://cloud.google.com/storage/
 [Heroku]: https://www.heroku.com/
-[Jekyll]: http://jekyllrb.com/
 [Jekyll]: https://jekyllrb.com/
 [Middleman]: https://middlemanapp.com/
-[Middleman]: https://middlemanapp.com/
-[Nanoc]: http://nanoc.ws/
 [Nanoc]: https://nanoc.ws/
 [Netlify]: https://netlify.com
+[Rackspace]: https://www.rackspace.com/cloud/files
+[Surge]: https://surge.sh
+[contributing to it]: https://github.com/gohugoio/hugo
 [rackspace]: https://www.rackspace.com/cloud/files
 [static site generator]: /about/benefits/
-[Rackspace]: https://www.rackspace.com/cloud/files
-[static site generator]: /about/benefits/
-[Surge]: https://surge.sh

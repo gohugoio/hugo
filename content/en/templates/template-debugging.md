@@ -51,14 +51,14 @@ This will print out a list of all the variables scoped to the current context
 When developing a [homepage][], what does one of the pages you're looping through look like?
 
 ```
-{{ range .Data.Pages }}
+{{ range .Pages }}
     {{/* The context, ".", is now each one of the pages as it goes through the loop */}}
     {{ printf "%#v" . }}
 {{ end }}
 ```
 
-{{% note "`.Data.Pages` on the Homepage" %}}
-`.Data.Pages` on the homepage is equivalent to `.Site.Pages`.
+{{% note "`.Pages` on the Homepage" %}}
+`.Pages` on the homepage is equivalent to `.Site.RegularPages`.
 {{% /note %}}
 
 ## Why Am I Showing No Defined Variables?

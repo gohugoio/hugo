@@ -170,7 +170,7 @@ Last but not least, we have to create the second list that contains all publicat
 The layout for this page can be defined in the template `layouts/taxonomy/author.html`.
 
 {{< code file="layouts/taxonomy/author.html" download="author.html" >}}
-{{ range .Data.Pages }}
+{{ range .Pages }}
     <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
     <span>written by {{ .Author.DisplayName }}</span>
     {{ .Summary }}

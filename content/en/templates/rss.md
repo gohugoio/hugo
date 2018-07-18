@@ -73,7 +73,7 @@ This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.
     {{ with .OutputFormats.Get "RSS" }}
         {{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
     {{ end }}
-    {{ range .Data.Pages }}
+    {{ range .Pages }}
     <item>
       <title>{{ .Title }}</title>
       <link>{{ .Permalink }}</link>

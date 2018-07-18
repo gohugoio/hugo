@@ -23,8 +23,7 @@ aliases: []
 
 
 ```
-{{ range last 10 .Data.Pages }}
+{{ range last 10 .Pages }}
     {{ .Render "summary" }}
 {{ end }}
 ```
-

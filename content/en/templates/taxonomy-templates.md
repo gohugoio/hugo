@@ -103,11 +103,11 @@ type WeightedPages []WeightedPage
 
 ## Displaying custom metadata in Taxonomy Terms Templates
 
-If you need to display custom metadata for each taxonomy term, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in it's front matter, [as explained in the taxonomies documentation](/content-management/taxonomies/#add-custom-meta-data-to-a-taxonomy-term). Based on the Actors taxonomy example shown there, within your taxonomy terms template, you may access your custom fields by iterating through the variable `.Data.Pages` as such:
+If you need to display custom metadata for each taxonomy term, you will need to create a page for that term at `/content/<TAXONOMY>/<TERM>/_index.md` and add your metadata in it's front matter, [as explained in the taxonomies documentation](/content-management/taxonomies/#add-custom-meta-data-to-a-taxonomy-term). Based on the Actors taxonomy example shown there, within your taxonomy terms template, you may access your custom fields by iterating through the variable `.Pages` as such:
 
 ```
 <ul>
-  {{ range .Data.Pages }}
+  {{ range .Pages }}
      <li>
        <a href="{{ .Permalink }}">{{ .Title }}</a>
        {{ .Params.wikipedia }}

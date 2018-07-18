@@ -39,7 +39,7 @@ You can use `after` in combination with the [`first` function][] and Hugo's [pow
 {{ define "main" }}
 <section class="row featured-article">
     <h2>Featured Article</h2>
-    {{ range first 1 .Data.Pages.ByPublishDate.Reverse }}
+    {{ range first 1 .Pages.ByPublishDate.Reverse }}
      <header>
         <h3><a href="{{.Permalink}}">{{.Title}}</a></h3>
     </header>
@@ -48,7 +48,7 @@ You can use `after` in combination with the [`first` function][] and Hugo's [pow
 </section>
 <div class="row recent-articles">
     <h2>Recent Articles</h2>
-    {{ range first 3 (after 1 .Data.Pages.ByPublishDate.Reverse) }}
+    {{ range first 3 (after 1 .Pages.ByPublishDate.Reverse) }}
         <section class="recent-article">
             <header>
                 <h3><a href="{{.Permalink}}">{{.Title}}</a></h3>
