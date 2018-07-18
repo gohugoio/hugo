@@ -98,11 +98,21 @@ func (t *postcssTransformation) Key() resource.ResourceTransformationKey {
 // npm install -g autoprefixer
 func (t *postcssTransformation) Transform(ctx *resource.ResourceTransformationCtx) error {
 
-	const binary = "postcss"
+	const localPostCSSPath = "node_modules/postcss-cli/bin/"
+	const binaryName = "postcss"
+
+	// Try first in the project's node_modules.
+	csiBinPath := filepath.Join(t.rs.WorkingDir, localPostCSSPath, binaryName)
+
+	binary := csiBinPath
 
 	if _, err := exec.LookPath(binary); err != nil {
-		// This may be on a CI server etc. Will fall back to pre-built assets.
-		return errors.FeatureNotAvailableErr
+		// Try PATH
+		binary = binaryName
+		if _, err := exec.LookPath(binary); err != nil {
+			// This may be on a CI server etc. Will fall back to pre-built assets.
+			return errors.FeatureNotAvailableErr
+		}
 	}
 
 	var configFile string
