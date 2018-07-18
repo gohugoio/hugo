@@ -34,7 +34,6 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/stretchr/testify/require"
@@ -42,19 +41,16 @@ import (
 
 // TODO(bep) remove
 func pageFromString(in, filename string, withTemplate ...func(templ tpl.TemplateHandler) error) (*Page, error) {
-	s := newTestSite(nil)
-	if len(withTemplate) > 0 {
-		// Have to create a new site
-		var err error
-		cfg, fs := newTestCfg()
+	var err error
+	cfg, fs := newTestCfg()
 
-		d := deps.DepsCfg{Language: langs.NewLanguage("en", cfg), Cfg: cfg, Fs: fs, WithTemplate: withTemplate[0]}
+	d := deps.DepsCfg{Cfg: cfg, Fs: fs, WithTemplate: withTemplate[0]}
 
-		s, err = NewSiteForCfg(d)
-		if err != nil {
-			return nil, err
-		}
+	s, err := NewSiteForCfg(d)
+	if err != nil {
+		return nil, err
 	}
+
 	return s.NewPageFrom(strings.NewReader(in), filename)
 }
 

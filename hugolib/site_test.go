@@ -925,7 +925,7 @@ func TestRefLinking(t *testing.T) {
 		{"level2/common.md", "", true, "/level2/common/"},
 		{"3-root.md", "", true, "/level2/level3/3-root/"},
 	} {
-		if out, err := site.Info.refLink(test.link, currentPage, test.relative, test.outputFormat); err != nil || out != test.expected {
+		if out, err := site.refLink(test.link, currentPage, test.relative, test.outputFormat); err != nil || out != test.expected {
 			t.Errorf("[%d] Expected %s to resolve to (%s), got (%s) - error: %s", i, test.link, test.expected, out, err)
 		}
 	}

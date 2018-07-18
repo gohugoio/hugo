@@ -566,7 +566,7 @@ func newTestSite(t testing.TB, configKeyValues ...interface{}) *Site {
 		cfg.Set(configKeyValues[i].(string), configKeyValues[i+1])
 	}
 
-	d := deps.DepsCfg{Language: langs.NewLanguage("en", cfg), Fs: fs, Cfg: cfg}
+	d := deps.DepsCfg{Fs: fs, Cfg: cfg}
 
 	s, err := NewSiteForCfg(d)
 
