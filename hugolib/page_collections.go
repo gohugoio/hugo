@@ -167,10 +167,8 @@ func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 		if p, err := c.getFromCache(ref); err == nil && p != nil {
 			return p, nil
 		}
-	}
-
-	// If there's a page context, try the page relative path.
-	if context != nil {
+	} else if context != nil {
+		// Try the page-relative path.
 		ppath := path.Join("/", strings.Join(context.sections, "/"), ref)
 		if p, err := c.getFromCache(ppath); err == nil && p != nil {
 			return p, nil
