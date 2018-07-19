@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/cache"
+	"github.com/gohugoio/hugo/helpers"
 )
 
 // PageCollections contains the page collections for a site.
@@ -215,6 +216,10 @@ func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 	if !strings.HasPrefix(ref, "/") {
 		// Many people will have "post/foo.md" in their content files.
 		if p, err := c.getFromCache("/" + ref); err == nil && p != nil {
+			if context != nil {
+				// TODO(bep) remove this case and the message below when the storm has passed
+				helpers.DistinctFeedbackLog.Printf(`WARNING: make non-relative ref/relref page reference(s) in page %q absolute, e.g. {{< ref "/blog/my-post.md" >}}`, context.absoluteSourceRef())
+			}
 			return p, nil
 		}
 	}
@@ -225,7 +230,7 @@ func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 
 	if err != nil {
 		if context != nil {
-			return nil, fmt.Errorf("failed to resolve page relative to page %q: %s", context.absoluteSourceRef(), err)
+			return nil, fmt.Errorf("failed to resolve path from page %q: %s", context.absoluteSourceRef(), err)
 		}
 		return nil, fmt.Errorf("failed to resolve page: %s", err)
 	}
