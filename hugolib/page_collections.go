@@ -221,7 +221,7 @@ func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 
 	// Last try.
 	ref = strings.TrimPrefix(ref, "/")
-	context, err := c.getFromCache(ref)
+	p, err := c.getFromCache(ref)
 
 	if err != nil {
 		if context != nil {
@@ -230,7 +230,7 @@ func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 		return nil, fmt.Errorf("failed to resolve page: %s", err)
 	}
 
-	return context, nil
+	return p, nil
 }
 
 func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {
