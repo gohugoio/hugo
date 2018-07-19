@@ -1883,9 +1883,11 @@ func (p *Page) FullFilePath() string {
 // For pages that do not (sections witout content page etc.), it returns the
 // virtual path, consistent with where you would add a source file.
 func (p *Page) absoluteSourceRef() string {
-	sourcePath := p.Source.Path()
-	if sourcePath != "" {
-		return "/" + filepath.ToSlash(sourcePath)
+	if p.Source.File != nil {
+		sourcePath := p.Source.Path()
+		if sourcePath != "" {
+			return "/" + filepath.ToSlash(sourcePath)
+		}
 	}
 
 	if len(p.sections) > 0 {
