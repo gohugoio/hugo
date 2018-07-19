@@ -215,7 +215,7 @@ func TestGetPage(t *testing.T) {
 		{KindPage, sec3, []string{"/about.md"}, "about page"},
 		{KindPage, sec3, []string{"/sect4/page2.md"}, "Title4_2"},
 		{KindPage, sec3, []string{"/sect3/subsect/deep.md"}, "deep page"}, //next test depends on this page existing
-		//{"NoPage", sec3, []string{"/subsect/deep.md"}, ""}, // ISSUE #4969: this absolute ref is resolving to /sect3/subsect/deep.md
+		{"NoPage", sec3, []string{"/subsect/deep.md"}, ""},
 	}
 
 	for _, test := range tests {
