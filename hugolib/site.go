@@ -514,7 +514,8 @@ func (s *siteRefLinker) refLink(ref string, page *Page, relative bool, outputFor
 		target, err := s.s.getPageNew(page, refURL.Path)
 
 		if err != nil {
-			return "", err
+			s.logNotFound(refURL.Path, err.Error(), page)
+			return s.notFoundURL, nil
 		}
 
 		if target == nil {
