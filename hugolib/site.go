@@ -817,7 +817,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 	}
 
 	changed := whatChanged{
-		source: len(sourceChanged) > 0,
+		source: len(sourceChanged) > 0 || len(shortcodesChanged) > 0,
 		other:  len(tmplChanged) > 0 || len(i18nChanged) > 0 || len(dataChanged) > 0,
 		files:  sourceFilesChanged,
 	}
