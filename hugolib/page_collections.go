@@ -16,6 +16,7 @@ package hugolib
 import (
 	"fmt"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/gohugoio/hugo/cache"
@@ -149,13 +150,49 @@ func newPageCollectionsFromPages(pages Pages) *PageCollections {
 	return &PageCollections{rawAllPages: pages}
 }
 
-// getPage is the "old style" get page. Deprecated in Hugo 0.45 in favour of
-// the "path only" syntax.
-// TODO(bep) remove this an rename below once this is all working.
-func (c *PageCollections) getPage(typ string, sections ...string) *Page {
-	p, _ := c.getPageNew(nil, "/"+path.Join(sections...))
-	return p
+// This is an adapter func for the old API with Kind as first argument.
+// This is invoked when you do .Site.GetPage. We drop the Kind and fails
+// if there are more than 2 arguments, which would be ambigous.
+func (c *PageCollections) getPageOldVersion(ref ...string) (*Page, error) {
+	var refs []string
+	for _, r := range ref {
+		// A common construct in the wild is
+		// .Site.GetPage "home" "" or
+		// .Site.GetPage "home" "/"
+		if r != "" && r != "/" {
+			refs = append(refs, r)
+		}
+	}
 
+	var key string
+
+	if len(refs) > 2 {
+		// This was allowed in Hugo <= 0.44, but we cannot support this with the
+		// new API. This should be the most unusual case.
+		return nil, fmt.Errorf(`too many arguments to .Site.GetPage: %v. Use lookups on the form {{ .Site.GetPage "/posts/mypage-md" }}`, ref)
+	}
+
+	if len(refs) == 0 || refs[0] == KindHome {
+		key = "/"
+	} else if len(refs) == 1 {
+		key = refs[0]
+	} else {
+		key = refs[1]
+	}
+
+	key = filepath.ToSlash(key)
+	if !strings.HasPrefix(key, "/") {
+		key = "/" + key
+	}
+
+	return c.getPageNew(nil, key)
+}
+
+// 	Only used in tests.
+func (c *PageCollections) getPage(typ string, sections ...string) *Page {
+	refs := append([]string{typ}, path.Join(sections...))
+	p, _ := c.getPageOldVersion(refs...)
+	return p
 }
 
 // Ref is either unix-style paths (i.e. callers responsible for

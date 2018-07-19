@@ -1612,38 +1612,7 @@ func (s *Site) appendThemeTemplates(in []string) []string {
 // as possible for existing sites. Most sites will use {{ .Site.GetPage "section" "my/section" }},
 // i.e. 2 arguments, so we test for that.
 func (s *SiteInfo) GetPage(ref ...string) (*Page, error) {
-	var refs []string
-	for _, r := range ref {
-		// A common construct in the wild is
-		// .Site.GetPage "home" "" or
-		// .Site.GetPage "home" "/"
-		if r != "" && r != "/" {
-			refs = append(refs, r)
-		}
-	}
-
-	var key string
-
-	if len(refs) > 2 {
-		// This was allowed in Hugo <= 0.44, but we cannot support this with the
-		// new API. This should be the most unusual case.
-		return nil, fmt.Errorf(`too many arguments to .Site.GetPage: %v. Use lookups on the form {{ .Site.GetPage "/posts/mypage-md" }}`, ref)
-	}
-
-	if len(refs) == 0 || refs[0] == KindHome {
-		key = "/"
-	} else if len(refs) == 1 {
-		key = refs[0]
-	} else {
-		key = refs[1]
-	}
-
-	key = filepath.ToSlash(key)
-	if !strings.HasPrefix(key, "/") {
-		key = "/" + key
-	}
-
-	return s.getPageNew(nil, key)
+	return s.getPageOldVersion(ref...)
 }
 
 func (s *Site) permalinkForOutputFormat(link string, f output.Format) (string, error) {
