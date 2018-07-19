@@ -123,6 +123,19 @@ Few examples:
 ## Version 1.0 {#version-1-dot-0}
 ```
 
+
+## Ref and RelRef Configuration
+
+The behaviour can, since Hugo 0.45, be configured in `config.toml`:
+
+
+refLinksErrorLevel ("ERROR") 
+: When using `ref` or `relref` to resolve page links and a link cannot resolved, it will be logged with this logg level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).
+
+refLinksNotFoundURL
+: URL to be used as a placeholder when a page reference cannot be found in `ref` or `relref`. Is used as-is.
+
+
 [built-in Hugo shortcodes]: /content-management/shortcodes/#using-the-built-in-shortcodes
 [lists]: /templates/lists/
 [output formats]: /templates/output-formats/
