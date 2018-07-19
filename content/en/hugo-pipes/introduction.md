@@ -43,7 +43,7 @@ For improved readability, the Hugo Pipes examples of this documentation will be 
 ### Method aliases
 
 Each Hugo Pipes `resources` transformation method uses a __camelCased__ alias (`toCSS` for `resources.ToCSS`).
-Non-transformation methods deprived of such aliases are `resources.Get`, `resources.FromString` and `resources.ExecuteAsTemplate`.
+Non-transformation methods deprived of such aliases are `resources.Get`, `resources.FromString`, `resources.ExecuteAsTemplate` and `resources.Concat`.
 
 The example above can therefore also be written as follows:
 ```go-html-template
