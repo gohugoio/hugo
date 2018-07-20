@@ -22,12 +22,13 @@ import (
 )
 
 type Client struct {
-	rs  *resource.Spec
-	sfs *filesystems.SourceFilesystem
+	rs     *resource.Spec
+	sfs    *filesystems.SourceFilesystem
+	workFs *filesystems.SourceFilesystem
 }
 
 func New(fs *filesystems.SourceFilesystem, rs *resource.Spec) (*Client, error) {
-	return &Client{sfs: fs, rs: rs}, nil
+	return &Client{sfs: fs, workFs: rs.BaseFs.Work, rs: rs}, nil
 }
 
 type Options struct {
@@ -37,6 +38,13 @@ type Options struct {
 	// control this by setting this, e.g. "styles/main.css" will create
 	// a Resource with that as a base for RelPermalink etc.
 	TargetPath string
+
+	// Hugo automatically adds the entry directories (where the main.scss lives)
+	// for project and themes to the list of include paths sent to LibSASS.
+	// Any paths set in this setting will be appended. Note that these will be
+	// treated as relative to the working dir, i.e. no include paths outside the
+	// project/themes.
+	IncludePaths []string
 
 	// Default is nested.
 	// One of nested, expanded, compact, compressed.

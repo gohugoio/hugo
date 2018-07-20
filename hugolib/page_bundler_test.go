@@ -14,13 +14,10 @@
 package hugolib
 
 import (
-	"io/ioutil"
-
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"os"
 	"runtime"
-	"strings"
 	"testing"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -325,7 +322,9 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 	}
 
 	assert := require.New(t)
-	ps, workDir := newTestBundleSymbolicSources(t)
+	ps, clean, workDir := newTestBundleSymbolicSources(t)
+	defer clean()
+
 	cfg := ps.Cfg
 	fs := ps.Fs
 
@@ -667,7 +666,7 @@ TheContent.
 	return fs, cfg
 }
 
-func newTestBundleSymbolicSources(t *testing.T) (*helpers.PathSpec, string) {
+func newTestBundleSymbolicSources(t *testing.T) (*helpers.PathSpec, func(), string) {
 	assert := require.New(t)
 	// We need to use the OS fs for this.
 	cfg := viper.New()
@@ -675,13 +674,8 @@ func newTestBundleSymbolicSources(t *testing.T) (*helpers.PathSpec, string) {
 	fs.Destination = &afero.MemMapFs{}
 	loadDefaultSettingsFor(cfg)
 
-	workDir, err := ioutil.TempDir("", "hugosym")
-
-	if runtime.GOOS == "darwin" && !strings.HasPrefix(workDir, "/private") {
-		// To get the entry folder in line with the rest. This its a little bit
-		// mysterious, but so be it.
-		workDir = "/private" + workDir
-	}
+	workDir, clean, err := createTempDir("hugosym")
+	assert.NoError(err)
 
 	contentDir := "base"
 	cfg.Set("workingDir", workDir)
@@ -753,5 +747,5 @@ TheContent.
 
 	ps, _ := helpers.NewPathSpec(fs, cfg)
 
-	return ps, workDir
+	return ps, clean, workDir
 }

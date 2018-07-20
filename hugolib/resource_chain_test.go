@@ -14,12 +14,70 @@
 package hugolib
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/spf13/viper"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/resource/tocss/scss"
 )
+
+func TestSCSSWithIncludePaths(t *testing.T) {
+	if !scss.Supports() {
+		t.Skip("Skip SCSS")
+	}
+	assert := require.New(t)
+	workDir, clean, err := createTempDir("hugo-scss-include")
+	assert.NoError(err)
+	defer clean()
+
+	v := viper.New()
+	v.Set("workingDir", workDir)
+	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+	b.WithViper(v)
+	b.WithWorkingDir(workDir)
+	// Need to use OS fs for this.
+	b.Fs = hugofs.NewDefault(v)
+
+	fooDir := filepath.Join(workDir, "node_modules", "foo")
+	scssDir := filepath.Join(workDir, "assets", "scss")
+	assert.NoError(os.MkdirAll(fooDir, 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(workDir, "data"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(scssDir), 0777))
+
+	b.WithSourceFile(filepath.Join(fooDir, "_moo.scss"), `
+$moolor: #fff;
+
+moo {
+  color: $moolor;
+}
+`)
+
+	b.WithSourceFile(filepath.Join(scssDir, "main.scss"), `
+@import "moo";
+
+`)
+
+	b.WithTemplatesAdded("index.html", `
+{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
+T1: {{ $r.Content }}
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#fff}`)
+
+}
 
 func TestResourceChain(t *testing.T) {
 	t.Parallel()
