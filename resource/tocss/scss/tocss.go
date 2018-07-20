@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/bep/go-tocss/scss"
@@ -83,6 +84,10 @@ func (t *toCSSTransformation) Transform(ctx *resource.ResourceTransformationCtx)
 		if strings.HasPrefix(sourcePath, t.c.rs.WorkingDir) {
 			sourcePath = strings.TrimPrefix(sourcePath, t.c.rs.WorkingDir+helpers.FilePathSeparator)
 		}
+
+		// This needs to be Unix-style slashes, even on Windows.
+		// See https://github.com/gohugoio/hugo/issues/4968
+		sourcePath = filepath.ToSlash(sourcePath)
 
 		// This is a workaround for what looks like a bug in Libsass. But
 		// getting this resolution correct in tools like Chrome Workspaces
