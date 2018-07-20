@@ -49,9 +49,12 @@ func (t *toCSSTransformation) Transform(ctx *resource.ResourceTransformationCtx)
 
 	options := t.options
 
-	// We may allow the end user to add IncludePaths later, if we find a use
-	// case for that.
 	options.to.IncludePaths = t.c.sfs.RealDirs(path.Dir(ctx.SourcePath))
+
+	// Append any workDir relative include paths
+	for _, ip := range options.from.IncludePaths {
+		options.to.IncludePaths = append(options.to.IncludePaths, t.c.workFs.RealDirs(filepath.Clean(ip))...)
+	}
 
 	if ctx.InMediaType.SubType == media.SASSType.SubType {
 		options.to.SassSyntax = true

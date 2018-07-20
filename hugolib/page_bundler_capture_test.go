@@ -90,8 +90,9 @@ func TestPageBundlerCaptureSymlinks(t *testing.T) {
 	}
 
 	assert := require.New(t)
-	ps, workDir := newTestBundleSymbolicSources(t)
+	ps, clean, workDir := newTestBundleSymbolicSources(t)
 	sourceSpec := source.NewSourceSpec(ps, ps.BaseFs.Content.Fs)
+	defer clean()
 
 	fileStore := &storeFilenames{}
 	logger := loggers.NewErrorLogger()

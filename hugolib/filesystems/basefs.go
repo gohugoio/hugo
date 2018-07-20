@@ -244,8 +244,7 @@ func (d *SourceFilesystem) RealDirs(from string) []string {
 	var dirnames []string
 	for _, dir := range d.Dirnames {
 		dirname := filepath.Join(dir, from)
-
-		if _, err := hugofs.Os.Stat(dirname); err == nil {
+		if _, err := d.SourceFs.Stat(dirname); err == nil {
 			dirnames = append(dirnames, dirname)
 		}
 	}
