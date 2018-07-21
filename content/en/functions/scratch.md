@@ -39,7 +39,7 @@ $scratch := newScratch
 $scratch.Set "greeting" "Hello"
 ```
 
-A `Scratch` is also added to both `Page` and `Shortcode`. `Sratch` have the following methods:
+A `Scratch` is also added to both `Page` and `Shortcode`. `Scratch` has the following methods:
 
 #### .Set
 
