@@ -14,9 +14,12 @@
 package commands
 
 import (
+	"os"
+
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cobra"
+	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/spf13/nitro"
 )
@@ -240,4 +243,40 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	_ = cmd.Flags().SetAnnotation("cacheDir", cobra.BashCompSubdirsInDir, []string{})
 	_ = cmd.Flags().SetAnnotation("destination", cobra.BashCompSubdirsInDir, []string{})
 	_ = cmd.Flags().SetAnnotation("theme", cobra.BashCompSubdirsInDir, []string{"themes"})
+}
+
+func checkErr(logger *jww.Notepad, err error, s ...string) {
+	if err == nil {
+		return
+	}
+	if len(s) == 0 {
+		logger.CRITICAL.Println(err)
+		return
+	}
+	for _, message := range s {
+		logger.ERROR.Println(message)
+	}
+	logger.ERROR.Println(err)
+}
+
+func stopOnErr(logger *jww.Notepad, err error, s ...string) {
+	if err == nil {
+		return
+	}
+
+	defer os.Exit(-1)
+
+	if len(s) == 0 {
+		newMessage := err.Error()
+		// Printing an empty string results in a error with
+		// no message, no bueno.
+		if newMessage != "" {
+			logger.CRITICAL.Println(newMessage)
+		}
+	}
+	for _, message := range s {
+		if message != "" {
+			logger.CRITICAL.Println(message)
+		}
+	}
 }

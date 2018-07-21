@@ -43,7 +43,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/livereload"
-	"github.com/gohugoio/hugo/utils"
 	"github.com/gohugoio/hugo/watcher"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -351,7 +350,7 @@ func (c *commandeer) build() error {
 		c.Logger.FEEDBACK.Println("Watching for changes in", c.hugo.PathSpec.AbsPathify(c.Cfg.GetString("contentDir")))
 		c.Logger.FEEDBACK.Println("Press Ctrl+C to stop")
 		watcher, err := c.newWatcher(watchDirs...)
-		utils.CheckErr(c.Logger, err)
+		checkErr(c.Logger, err)
 		defer watcher.Close()
 
 		var sigs = make(chan os.Signal)
@@ -813,7 +812,7 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 						c.Logger.FEEDBACK.Printf("Syncing all static files\n")
 						_, err := c.copyStatic()
 						if err != nil {
-							utils.StopOnErr(c.Logger, err, "Error copying static files to publish dir")
+							stopOnErr(c.Logger, err, "Error copying static files to publish dir")
 						}
 					} else {
 						if err := staticSyncer.syncsStaticEvents(staticEvents); err != nil {

@@ -24,8 +24,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/gohugoio/hugo/utils"
-
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -308,7 +306,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			cacheDir = cacheDir + helpers.FilePathSeparator
 		}
 		isDir, err := helpers.DirExists(cacheDir, sourceFs)
-		utils.CheckErr(cfg.Logger, err)
+		checkErr(cfg.Logger, err)
 		if !isDir {
 			mkdir(cacheDir)
 		}
