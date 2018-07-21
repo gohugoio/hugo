@@ -79,6 +79,11 @@ func TestMergeLanguages(t *testing.T) {
 	// This looks less ugly in the templates ...
 	mergedNNResources := ri.(resource.ResourcesLanguageMerger).MergeByLanguage(enBundle.Resources)
 	assert.Equal(6, len(mergedNNResources))
+
+	unchanged, err := nnSite.RegularPages.MergeByLanguageInterface(nil)
+	assert.NoError(err)
+	assert.Equal(nnSite.RegularPages, unchanged)
+
 }
 
 func TestMergeLanguagesTemplate(t *testing.T) {
