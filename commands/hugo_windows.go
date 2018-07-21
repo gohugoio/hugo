@@ -23,5 +23,5 @@ func init() {
 
   You need to open cmd.exe and run Hugo from there.
   
-  Visit http://gohugo.io/ for more information.`
+  Visit https://gohugo.io/ for more information.`
 }
