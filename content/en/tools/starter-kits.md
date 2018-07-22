@@ -30,7 +30,7 @@ The following starter kits are developed by active members of the Hugo community
 * [Atlas][]. Atlas is a Hugo boilerplate designed to speed up development with support for Netlify, Netlify CMS, Gulp, Linting, SCSS, ES6 & more. It's actively maintained and contributions are always welcome.
 
 
-[addkit]: https://github.com/gohugoio/hugo/edit/master/docs/content/tools/starter-kits.md
+[addkit]: https://github.com/gohugoio/hugo/edit/master/docs/content/en/tools/starter-kits.md
 [amp]: https://www.ampproject.org/
 [Blaupause]: https://github.com/fspoettel/blaupause
 [GOHUGO AMP]: https://github.com/wildhaber/gohugo-amp

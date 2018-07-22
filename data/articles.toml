@@ -107,7 +107,7 @@
 	date = "2016-10-22"
 
 [[article]]
-	title = "通过 Gitlab-cl 将 Hugo blog 自动部署至 GitHub <small>(Chinese, Continious integration)</small>"
+	title = "通过 Gitlab-cl 将 Hugo blog 自动部署至 GitHub <small>(Chinese, Continuous integration)</small>"
 	url = "https://zetaoyang.github.io/post/2016/10/17/gitlab-cl.html"
 	author = "Zetao Yang"
 	date = "2016-10-17"

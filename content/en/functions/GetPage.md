@@ -1,6 +1,6 @@
 ---
 title: .GetPage
-description: "Gets a `Page` of a given `Kind` and `path`."
+description: "Gets a `Page` of a given `path`."
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -10,7 +10,7 @@ menu:
   docs:
     parent: "functions"
 keywords: [sections,lists,indexes]
-signature: [".GetPage KIND PATH"]
+signature: [".GetPage PATH"]
 workson: []
 hugoversion:
 relatedfuncs: []
@@ -18,35 +18,42 @@ deprecated: false
 aliases: []
 ---
 
-Every `Page` has a [`Kind` attribute][page_kinds] that shows what kind of page it is. While this attribute can be used to list pages of a certain `kind` using `where`, often it can be useful to fetch a single page by its path.
-
-`.GetPage` returns a page of a given `Kind` and `path`.
+`.GetPage` returns a page of a given `path`. Both `Site` and `Page` implements this method. The `Page` variant will, if given a relative path -- i.e. a path without a leading `/` -- try look for the page relative to the current page.
 
 {{% note %}}
-If the `path` is `"foo/bar.md"`, it can be written as exactly that, or broken up
-into multiple strings as `"foo" "bar.md"`.
+**Note:** We overhauled and simplified the `.GetPage` API in Hugo 0.45. Before that you needed to provide a `Kind` attribute in addition to the path, e.g. `{{ .Site.GetPage "section" "blog" }}`. This will still work, but is now superflous.
 {{% /note %}}
 
-```
-{{ with .Site.GetPage "section" "blog" }}{{ .Title }}{{ end }}
+
+```go-html-template
+{{ with .Site.GetPage "/blog" }}{{ .Title }}{{ end }}
 ```
 
 This method wil return `nil` when no page could be found, so the above will not print anything if the blog section is not found.
 
-For a regular page (whose `Kind` is `page`):
+To fund a regular page in the blog section::
 
-```
-{{ with .Site.GetPage "page" "blog/my-post.md" }}{{ .Title }}{{ end }}
-```
-
-Note that the `path` can also be supplied like this, where the slash-separated
-path elements are added as separate strings:
-
-```
-{{ with .Site.GetPage "page" "blog" "my-post.md" }}{{ .Title }}{{ end }}
+```go-html-template
+{{ with .Site.GetPage "/blog/my-post.md" }}{{ .Title }}{{ end }}
 ```
 
-## `.GetPage` Example
+And since `Page` also provides a `.GetPage` method, the above is the same as:
+
+```go-html-template
+{{ with .Site.GetPage "/blog" }}
+{{ with .GetPage "my-post.md" }}{{ .Title }}{{ end }}
+{{ end }}
+```
+
+## .GetPage and Multilingual Sites
+
+The previous examples have used the full content filename to lookup the post. Depending on how you have organized your content (whether you have the language code in the file name or not, e.g. `my-post.en.md`), you may want to do the lookup without extension. This will get you the current language's version of the page:
+
+```go-html-template
+{{ with .Site.GetPage "/blog/my-post" }}{{ .Title }}{{ end }}
+```
+
+## .GetPage Example
 
 This code snippet---in the form of a [partial template][partials]---allows you to do the following:
 
@@ -57,7 +64,7 @@ This code snippet---in the form of a [partial template][partials]---allows you t
 
 {{< code file="grab-top-two-tags.html" >}}
 <ul class="most-popular-tags">
-{{ $t := .Site.GetPage "taxonomyTerm" "tags" }}
+{{ $t := .Site.GetPage "/tags" }}
 {{ range first 2 $t.Data.Terms.ByCount }}
     <li>{{ . }}</li>
 {{ end }}
