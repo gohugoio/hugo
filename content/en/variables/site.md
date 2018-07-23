@@ -49,6 +49,9 @@ The following is a list of site-level (aka "global") variables. Many of these va
 .Site.GoogleAnalytics
 : a string representing your tracking code for Google Analytics as defined in the site configuration.
 
+.Site.Home
+: reference to the homepage's [page object](https://gohugo.io/variables/page/)
+
 .Site.IsMultiLingual
 : whether there are more than one language in this site. See [Multilingual](/content-management/multilingual/) for more information.
 
