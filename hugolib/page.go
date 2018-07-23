@@ -1249,10 +1249,10 @@ func (p *Page) prepareForRender() error {
 	// or a template or similar has changed so wee need to do a rerendering
 	// of the shortcodes etc.
 
-	// If in watch mode or if we have multiple output formats,
+	// If in watch mode or if we have multiple sites or output formats,
 	// we need to keep the original so we can
 	// potentially repeat this process on rebuild.
-	needsACopy := s.running() || len(p.outputFormats) > 1
+	needsACopy := s.running() || len(s.owner.Sites) > 1 || len(p.outputFormats) > 1
 	var workContentCopy []byte
 	if needsACopy {
 		workContentCopy = make([]byte, len(p.workContent))
