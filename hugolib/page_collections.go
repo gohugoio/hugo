@@ -176,7 +176,14 @@ func (c *PageCollections) getPageOldVersion(ref ...string) (*Page, error) {
 	if len(refs) == 0 || refs[0] == KindHome {
 		key = "/"
 	} else if len(refs) == 1 {
-		key = refs[0]
+		if len(ref) == 2 && refs[0] == KindSection {
+			// This is an old style reference to the "Home Page section".
+			// Typically fetched via {{ .Site.GetPage "section" .Section }}
+			// See https://github.com/gohugoio/hugo/issues/4989
+			key = "/"
+		} else {
+			key = refs[0]
+		}
 	} else {
 		key = refs[1]
 	}
