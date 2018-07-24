@@ -109,6 +109,8 @@ Content
 {{ range .Paginator.Pages }}
 PAG|{{ .Title }}|{{ $sect.InSection . }}
 {{ end }}
+{{/* https://github.com/gohugoio/hugo/issues/4989 */}}
+{{ $sections := (.Site.GetPage "section" .Section).Sections.ByWeight }}
 </html>`)
 
 	cfg.Set("paginate", 2)
