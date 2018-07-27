@@ -45,7 +45,7 @@ For multilingual sites, we also create a Sitemap index. You can provide a custom
 
 This template respects the version 0.9 of the [Sitemap Protocol](http://www.sitemaps.org/protocol.html).
 
-```
+```xml
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {{ range .Pages }}
   <url>
@@ -64,6 +64,23 @@ on render. Please don't include this in the template as it's not valid HTML.
 
 `<?xml version="1.0" encoding="utf-8" standalone="yes" ?>`
 {{% /note %}}
+
+## Hugo's sitemapindex.xml
+
+This is used to create a Sitemap index in multilingual mode:
+
+```xml
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	{{ range . }}
+	<sitemap>
+	   	<loc>{{ .SitemapAbsURL }}</loc>
+		{{ if not .LastChange.IsZero }}
+	   	<lastmod>{{ .LastChange.Format "2006-01-02T15:04:05-07:00" | safeHTML }}</lastmod>
+		{{ end }}
+	</sitemap>
+	{{ end }}
+</sitemapindex>
+```
 
 ## Configure `sitemap.xml`
 
