@@ -35,6 +35,12 @@ A sitemap is a `Page` and therefore has all the [page variables][pagevars] avail
 
 If provided, Hugo will use `/layouts/sitemap.xml` instead of the internal `sitemap.xml` template that ships with Hugo.
 
+## Sitemap Templates
+
+Hugo has built-on Sitemap templates, but you can provide your own if needed, in either `layouts/sitemap.xml` or `layouts/_default/sitemap.xml`.
+
+For multilingual sites, we also create a Sitemap index. You can provide a custom layout for that in either `layouts/sitemapindex.xml` or `layouts/_default/sitemapindex.xml`.
+
 ## Hugo’s sitemap.xml
 
 This template respects the version 0.9 of the [Sitemap Protocol](http://www.sitemaps.org/protocol.html).
@@ -71,5 +77,7 @@ Defaults for `<changefreq>`, `<priority>` and `filename` values can be set in th
 {{</ code-toggle >}}
 
 The same fields can be specified in an individual content file's front matter in order to override the value assigned to that piece of content at render time.
+
+
 
 [pagevars]: /variables/page/
