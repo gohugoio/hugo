@@ -73,6 +73,7 @@ func TestImageTransformBasic(t *testing.T) {
 	assert.NoError(err)
 	assert.True(image != resized)
 	assert.True(image.genericResource != resized.genericResource)
+	assert.True(image.sourceFilename != resized.sourceFilename)
 
 	resized0x, err := image.Resize("x200")
 	assert.NoError(err)
@@ -128,6 +129,7 @@ func TestImageTransformBasic(t *testing.T) {
 	filledAgain, err := image.Fill("200x100 bottomLeft")
 	assert.NoError(err)
 	assert.True(filled == filledAgain)
+	assert.True(filled.sourceFilename == filledAgain.sourceFilename)
 	assertFileCache(assert, image.spec.BaseFs.Resources.Fs, filledAgain.RelPermalink(), 200, 100)
 
 }
