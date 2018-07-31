@@ -100,16 +100,16 @@ func (c *imageCache) getOrCreate(
 
 	if exists {
 		img = parent.clone()
-		img.relTargetDirFile.file = relTarget.file
-		img.sourceFilename = cacheFilename
-		// We have to look in the resources file system for this.
-		img.overriddenSourceFs = img.spec.BaseFs.Resources.Fs
 	} else {
 		img, err = create(cacheFilename)
 		if err != nil {
 			return nil, err
 		}
 	}
+	img.relTargetDirFile.file = relTarget.file
+	img.sourceFilename = cacheFilename
+	// We have to look in the resources file system for this.
+	img.overriddenSourceFs = img.spec.BaseFs.Resources.Fs
 
 	c.mu.Lock()
 	if img2, found := c.store[key]; found {

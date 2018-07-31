@@ -101,7 +101,7 @@ func TestImageTransformBasic(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_625708021e2bb281c9f1002f88e4753f.jpg", fitted.RelPermalink())
 	assert.Equal(50, fitted.Width())
-	assert.Equal(31, fitted.Height())
+	assert.Equal(33, fitted.Height())
 
 	// Check the MD5 key threshold
 	fittedAgain, _ := fitted.Fit("10x20")
