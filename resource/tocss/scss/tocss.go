@@ -26,6 +26,7 @@ import (
 	"github.com/bep/go-tocss/scss/libsass"
 	"github.com/bep/go-tocss/tocss"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resource"
 )
@@ -48,12 +49,62 @@ func (t *toCSSTransformation) Transform(ctx *resource.ResourceTransformationCtx)
 	outName = path.Base(ctx.OutPath)
 
 	options := t.options
-
-	options.to.IncludePaths = t.c.sfs.RealDirs(path.Dir(ctx.SourcePath))
+	baseDir := path.Dir(ctx.SourcePath)
+	options.to.IncludePaths = t.c.sfs.RealDirs(baseDir)
 
 	// Append any workDir relative include paths
 	for _, ip := range options.from.IncludePaths {
 		options.to.IncludePaths = append(options.to.IncludePaths, t.c.workFs.RealDirs(filepath.Clean(ip))...)
+	}
+
+	// To allow for overrides of SCSS files anywhere in the project/theme hierarchy, we need
+	// to help libsass revolve the filename by looking in the composite filesystem first.
+	// We add the entry directories for both project and themes to the include paths list, but
+	// that only work for overrides on the top level.
+	options.to.ImportResolver = func(url string, prev string) (newUrl string, body string, resolved bool) {
+		// We get URL paths from LibSASS, but we need file paths.
+		url = filepath.FromSlash(url)
+		prev = filepath.FromSlash(prev)
+
+		var basePath string
+		urlDir := filepath.Dir(url)
+		var prevDir string
+		if prev == "stdin" {
+			prevDir = baseDir
+		} else {
+			prevDir = t.c.sfs.MakePathRelative(filepath.Dir(prev))
+			if prevDir == "" {
+				// Not a member of this filesystem. Let LibSASS handle it.
+				return "", "", false
+			}
+		}
+
+		basePath = filepath.Join(prevDir, urlDir)
+		name := filepath.Base(url)
+
+		// Libsass throws an error in cases where you have several possible candidates.
+		// We make this simpler and pick the first match.
+		var namePatterns []string
+		if strings.Contains(name, ".") {
+			namePatterns = []string{"_%s", "%s"}
+		} else if strings.HasPrefix(name, "_") {
+			namePatterns = []string{"_%s.scss", "_%s.sass"}
+		} else {
+			namePatterns = []string{"_%s.scss", "%s.scss", "_%s.sass", "%s.sass"}
+		}
+
+		for _, namePattern := range namePatterns {
+			filenameToCheck := filepath.Join(basePath, fmt.Sprintf(namePattern, name))
+			fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
+			if err == nil {
+				if fir, ok := fi.(hugofs.RealFilenameInfo); ok {
+					return fir.RealFilename(), "", true
+				}
+			}
+		}
+
+		// Not found, let LibSASS handle it
+		return "", "", false
 	}
 
 	if ctx.InMediaType.SubType == media.SASSType.SubType {

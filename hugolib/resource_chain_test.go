@@ -79,6 +79,76 @@ T1: {{ $r.Content }}
 
 }
 
+func TestSCSSWithThemeOverrides(t *testing.T) {
+	if !scss.Supports() {
+		t.Skip("Skip SCSS")
+	}
+	assert := require.New(t)
+	workDir, clean, err := createTempDir("hugo-scss-include")
+	assert.NoError(err)
+	defer clean()
+
+	theme := "mytheme"
+	themesDir := filepath.Join(workDir, "themes")
+	themeDirs := filepath.Join(themesDir, theme)
+	v := viper.New()
+	v.Set("workingDir", workDir)
+	v.Set("theme", theme)
+	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+	b.WithViper(v)
+	b.WithWorkingDir(workDir)
+	// Need to use OS fs for this.
+	b.Fs = hugofs.NewDefault(v)
+
+	fooDir := filepath.Join(workDir, "node_modules", "foo")
+	scssDir := filepath.Join(workDir, "assets", "scss")
+	scssThemeDir := filepath.Join(themeDirs, "assets", "scss")
+	assert.NoError(os.MkdirAll(fooDir, 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(workDir, "content", "sect"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(workDir, "data"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(workDir, "i18n"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(workDir, "layouts", "shortcodes"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(workDir, "layouts", "_default"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(scssDir, "components"), 0777))
+	assert.NoError(os.MkdirAll(filepath.Join(scssThemeDir, "components"), 0777))
+
+	b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_imports.scss"), `
+@import "moo";
+
+`)
+
+	b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_moo.scss"), `
+$moolor: #fff;
+
+moo {
+  color: $moolor;
+}
+`)
+
+	b.WithSourceFile(filepath.Join(scssThemeDir, "main.scss"), `
+@import "components/imports";
+
+`)
+
+	b.WithSourceFile(filepath.Join(scssDir, "components", "_moo.scss"), `
+$moolor: #ccc;
+
+moo {
+  color: $moolor;
+}
+`)
+
+	b.WithTemplatesAdded("index.html", `
+{{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) ) }}
+{{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
+T1: {{ $r.Content }}
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#ccc}`)
+
+}
+
 func TestResourceChain(t *testing.T) {
 	t.Parallel()
 
