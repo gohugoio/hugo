@@ -366,14 +366,6 @@ func (r *Spec) newResourceForFs(sourceFs afero.Fs, fd ResourceSourceDescriptor) 
 		}
 	}
 
-	if fd.URLBase == "" {
-		fd.URLBase = r.GetURLLanguageBasePath()
-	}
-
-	if fd.TargetPathBase == "" {
-		fd.TargetPathBase = r.GetTargetLanguageBasePath()
-	}
-
 	if fd.RelTargetFilename == "" {
 		fd.RelTargetFilename = fd.Filename()
 	}

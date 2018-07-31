@@ -221,10 +221,14 @@ func (d Deps) ForLanguage(cfg DepsCfg) (*Deps, error) {
 		return nil, err
 	}
 
+	// The resource cache is global so reuse.
+	// TODO(bep) clean up these inits.
+	resourceCache := d.ResourceSpec.ResourceCache
 	d.ResourceSpec, err = resource.NewSpec(d.PathSpec, d.Log, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
+	d.ResourceSpec.ResourceCache = resourceCache
 
 	d.Cfg = l
 	d.Language = l
