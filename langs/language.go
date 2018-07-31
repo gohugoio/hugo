@@ -33,6 +33,8 @@ var globalOnlySettings = map[string]bool{
 	strings.ToLower("defaultContentLanguageInSubdir"): true,
 	strings.ToLower("defaultContentLanguage"):         true,
 	strings.ToLower("multilingual"):                   true,
+	strings.ToLower("assetDir"):                       true,
+	strings.ToLower("resourceDir"):                    true,
 }
 
 // Language manages specific-language configuration.
