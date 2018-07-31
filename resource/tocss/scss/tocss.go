@@ -93,6 +93,8 @@ func (t *toCSSTransformation) Transform(ctx *resource.ResourceTransformationCtx)
 			namePatterns = []string{"_%s.scss", "%s.scss", "_%s.sass", "%s.sass"}
 		}
 
+		name = strings.TrimPrefix(name, "_")
+
 		for _, namePattern := range namePatterns {
 			filenameToCheck := filepath.Join(basePath, fmt.Sprintf(namePattern, name))
 			fi, err := t.c.sfs.Fs.Stat(filenameToCheck)

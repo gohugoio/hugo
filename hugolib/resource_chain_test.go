@@ -114,7 +114,7 @@ func TestSCSSWithThemeOverrides(t *testing.T) {
 
 	b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_imports.scss"), `
 @import "moo";
-
+@import "_boo";
 `)
 
 	b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_moo.scss"), `
@@ -122,6 +122,14 @@ $moolor: #fff;
 
 moo {
   color: $moolor;
+}
+`)
+
+	b.WithSourceFile(filepath.Join(scssThemeDir, "components", "_boo.scss"), `
+$boolor: orange;
+
+boo {
+  color: $boolor;
 }
 `)
 
@@ -138,6 +146,14 @@ moo {
 }
 `)
 
+	b.WithSourceFile(filepath.Join(scssDir, "components", "_boo.scss"), `
+$boolor: green;
+
+boo {
+  color: $boolor;
+}
+`)
+
 	b.WithTemplatesAdded("index.html", `
 {{ $cssOpts := (dict "includePaths" (slice "node_modules/foo" ) ) }}
 {{ $r := resources.Get "scss/main.scss" |  toCSS $cssOpts  | minify  }}
@@ -145,7 +161,7 @@ T1: {{ $r.Content }}
 `)
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#ccc}`)
+	b.AssertFileContent(filepath.Join(workDir, "public/index.html"), `T1: moo{color:#ccc}boo{color:green}`)
 
 }
 
