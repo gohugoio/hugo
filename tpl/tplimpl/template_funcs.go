@@ -40,6 +40,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/resources"
 	_ "github.com/gohugoio/hugo/tpl/safe"
 	_ "github.com/gohugoio/hugo/tpl/strings"
+	_ "github.com/gohugoio/hugo/tpl/templates"
 	_ "github.com/gohugoio/hugo/tpl/time"
 	_ "github.com/gohugoio/hugo/tpl/transform"
 	_ "github.com/gohugoio/hugo/tpl/urls"
