@@ -44,7 +44,7 @@ Hugo is for people building a blog, a company site, a portfolio site, documentat
 [@spf13]: https://twitter.com/@spf13
 [Aerobatic]: https://www.aerobatic.com/
 [Amazon S3]: https://aws.amazon.com/s3/
-[Azure]: https://blogs.msdn.microsoft.com/acoat/2016/01/28/publish-a-static-web-site-using-azure-web-apps/
+[Azure]: https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-static-website
 [CloudFront]: https://aws.amazon.com/cloudfront/ "Amazon CloudFront"
 [DreamHost]: https://www.dreamhost.com/
 [Firebase]: https://firebase.google.com/docs/hosting/ "Firebase static hosting"

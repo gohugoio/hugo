@@ -183,6 +183,12 @@ related
 relativeURLs (false)
 : Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
 
+refLinksErrorLevel ("ERROR") 
+: When using `ref` or `relref` to resolve page links and a link cannot resolved, it will be logged with this logg level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).
+
+refLinksNotFoundURL
+: URL to be used as a placeholder when a page reference cannot be found in `ref` or `relref`. Is used as-is.
+
 rssLimit (unlimited)
 : Maximum number of items in the RSS feed.
 

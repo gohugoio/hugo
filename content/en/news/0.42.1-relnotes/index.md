@@ -9,6 +9,8 @@ images:
 
 ---
 
+	
+
 This is a bug-fix release with two fixes:
 
 * Reset the global pages cache on server rebuilds [128f14ef](https://github.com/gohugoio/hugo/commit/128f14efad90886ffef37c01ac1e20436a732f97) [@bep](https://github.com/bep) [#4845](https://github.com/gohugoio/hugo/issues/4845)

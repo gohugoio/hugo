@@ -53,12 +53,13 @@ toc: true
 * Integrated [Google Analytics][] support
 * Automatic [RSS][] creation
 * Support for [Go][], [Amber], and [Ace][] HTML templates
-* [Syntax highlighting][] powered by [Pygments][]
+* [Syntax highlighting][] powered by [Chroma][] (partly compatible with Pygments)
 
 
 [Ace]: /templates/alternatives/
 [aliases]: /content-management/urls/#aliases
 [Amber]: https://github.com/eknkc/amber
+[Chroma]: https://github.com/alecthomas/chroma
 [content summaries]: /content-management/summaries/
 [content types]: /content-management/types/
 [Disqus]: https://disqus.com/
@@ -77,7 +78,6 @@ toc: true
 [Permalink]: /content-management/urls/#permalinks
 [Powerful theming]: /themes/
 [Pretty URLs]: /content-management/urls/
-[Pygments]: http://pygments.org/
 [RSS]: /templates/rss/
 [Shortcodes]: /content-management/shortcodes/
 [sort content]: /templates/
