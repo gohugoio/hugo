@@ -47,6 +47,7 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 ## WordPress
 
 - [wordpress-to-hugo-exporter](https://github.com/SchumacherFM/wordpress-to-hugo-exporter) - A one-click WordPress plugin that converts all posts, pages, taxonomies, metadata, and settings to Markdown and YAML which can be dropped into Hugo. (Note: If you have trouble using this plugin, you can [export your site for Jekyll](https://wordpress.org/plugins/jekyll-exporter/) and use Hugo's built in Jekyll converter listed above.)
+- [blog2md](https://github.com/palaniraja/blog2md) - Works with [exported xml](https://www.wikihow.com/Export-and-Import-a-Wordpress-Blog) file of your free YOUR-TLD.wordpress.com website. It also saves approved comments to `YOUR-POST-NAME-comments.md` file along with posts. 
 
 ## Tumblr
 
@@ -66,6 +67,7 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 
 - [blogimport](https://github.com/natefinch/blogimport) - A tool to import from Blogger posts to Hugo.
 - [blogger-to-hugo](https://bitbucket.org/petraszd/blogger-to-hugo) - Another tool to import Blogger posts to Hugo. It also downloads embedded images so they will be stored locally.
+- [blog2md](https://github.com/palaniraja/blog2md) - Works with [exported xml](https://support.google.com/blogger/answer/41387?hl=en) file of your YOUR-TLD.blogspot.com website. It also saves comments to `YOUR-POST-NAME-comments.md` file along with posts. 
 
 ## Contentful
 
