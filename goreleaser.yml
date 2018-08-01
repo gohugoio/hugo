@@ -21,15 +21,15 @@ build:
     - goos: openbsd
       goarch: arm
       goarm: 6
-
-fpm:
+nfpm:
   formats:
-      - deb
+    - deb
   vendor: "gohugo.io"
   homepage: "https://gohugo.io/"
   maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
   description: "A Fast and Flexible Static Site Generator built with love in GoLang."
   license: "Apache 2.0"
+  name_template: "{{.Binary}}_{{.Version}}_{{.Os}}-{{.Arch}}"
 archive:
   format: tar.gz
   format_overrides:
