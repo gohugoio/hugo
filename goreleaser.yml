@@ -30,6 +30,18 @@ nfpm:
   description: "A Fast and Flexible Static Site Generator built with love in GoLang."
   license: "Apache 2.0"
   name_template: "{{.Binary}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+  replacements:
+    amd64: 64bit
+    386: 32bit
+    arm: ARM
+    arm64: ARM64
+    darwin: macOS
+    linux: Linux
+    windows: Windows
+    openbsd: OpenBSD
+    netbsd: NetBSD
+    freebsd: FreeBSD
+    dragonfly: DragonFlyBSD
 archive:
   format: tar.gz
   format_overrides:
