@@ -1,8 +1,8 @@
 
 ---
 date: 2018-07-25
-title: "0.45.1"
-description: "0.45.1"
+title: "Hugo 0.45.1: Two Bug Fixes"
+description: "Hugo 0.45.1 comes with two bug fixes ... and one enhancement."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png

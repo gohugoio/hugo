@@ -1,8 +1,8 @@
 
 ---
 date: 2018-07-22
-title: "0.45"
-description: "0.45"
+title: "Hugo 0.45: Revival of ref, relref and GetPage"
+description: "Hugo 0.45 adds relative page lookups, language support in ref/relref and several Hugo Pipes improvements."
 categories: ["Releases"]
 ---
 
@@ -15,7 +15,7 @@ Now you can simply do:
 {{ with .Site.GetPage "/blog/my-post.md" }}{{ .Title }}{{ end }}
 ```
 
-Or two get a section page:
+Or to get a section page:
 
 
 ```go-html-template
