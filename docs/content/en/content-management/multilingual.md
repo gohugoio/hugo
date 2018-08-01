@@ -231,7 +231,7 @@ By setting the `translationKey` front matter param to `about` in all three pages
 
 Because paths and filenames are used to handle linking, all translated pages, except for the language part, will be sharing the same url.
 
-To localize the URLs, the [`slug`]({{< ref "content-management/organization/index.md#slug" >}}) or [`url`]({{< ref "content-management/organization/index.md#url" >}}) front matter param can be set in any of the non-default language file. 
+To localize the URLs, the [`slug`]({{< ref "/content-management/organization/index.md#slug" >}}) or [`url`]({{< ref "/content-management/organization/index.md#url" >}}) front matter param can be set in any of the non-default language file. 
 
 For example, a french translation (`content/about.fr.md`) can have its own localized slug.
 

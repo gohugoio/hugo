@@ -34,7 +34,7 @@ Hugo currently provides pre-built binaries for the following:
 * OpenBSD
 * FreeBSD
 
-Hugo may also be compiled from source wherever the Go compiler tool chain can run; e.g., on other operating systems such as DragonFly BSD, OpenBSD, Plan&nbsp;9, Solaris, and others. See <https://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
+Hugo may also be compiled from source wherever the Go toolchain can run; e.g., on other operating systems such as DragonFly BSD, OpenBSD, Plan&nbsp;9, Solaris, and others. See <https://golang.org/doc/install/source> for the full set of supported combinations of target operating systems and compilation architectures.
 
 ## Quick Install
 
@@ -82,8 +82,10 @@ go get github.com/magefile/mage
 go get -d github.com/gohugoio/hugo
 cd ${GOPATH:-$HOME/go}/src/github.com/gohugoio/hugo
 mage vendor
-mage install
+HUGO_BUILD_TAGS=extended mage install
 {{< /code >}}
+
+Remove `HUGO_BUILD_TAGS=extended` if you do not want Sass/SCSS support.
 
 {{% note %}}
 If you are a Windows user, substitute the `$HOME` environment variable above with `%USERPROFILE%`.
@@ -420,50 +422,43 @@ Directory of C:\hugo\sites\example.com
 
 ### Snap Package
 
-In any of the [Linux distributions that support snaps][snaps]:
+In any of the [Linux distributions that support snaps][snaps], you may install install the "extended" Sass/SCSS version with this command:
 
-```
-snap install hugo
-```
+    snap install hugo --channel=extended
 
-### Debian and Ubuntu
+To install the non-extended version without Sass/SCSS support:
 
-Debian and Ubuntu provide a `hugo` version via `apt-get`:
+    snap install hugo
 
-```
-sudo apt-get install hugo
-```
-
-#### Pros
-
-* Native Debian/Ubuntu package maintained by Debian Developers
-* Pre-installed bash completion script and `man` pages
-
-#### Cons
-
-* Might not be the latest version, especially if you are using an older, stable version (e.g., Ubuntu 16.04 LTS). Until backports and PPA are available, you may consider installing the Hugo snap package to get the latest version of Hugo.
+To switch between the two, use either `snap refresh hugo --channel=extended` or `snap refresh hugo --channel=stable`.
 
 {{% note %}}
 Hugo-as-a-snap can write only inside the user’s `$HOME` directory---and gvfs-mounted directories owned by the user---because of Snaps’ confinement and security model. More information is also available [in this related GitHub issue](https://github.com/gohugoio/hugo/issues/3143). Use ```sudo snap install hugo --classic``` to disable the default security model if you want hugo to be able to have write access in other paths besides the user’s `$HOME` directory.
 {{% /note %}}
 
+### Debian and Ubuntu
+
+[@anthonyfok](https://github.com/anthonyfok) and friends in the [Debian Go Packaging Team](https://go-team.pages.debian.net/) maintains an official hugo [Debian package](https://packages.debian.org/hugo) which is shared with [Ubuntu](https://packages.ubuntu.com/hugo) and is installable via `apt-get`:
+
+    sudo apt-get install hugo
+
+This installs the "extended" Sass/SCSS version.
+
 ### Arch Linux
 
-You can also install Hugo from the Arch Linux [community](https://www.archlinux.org/packages/community/x86_64/hugo/) repository. Applies also for derivatives such as Manjaro.
+You can also install Hugo from the Arch Linux [community](https://www.archlinux.org/packages/community/x86_64/hugo/) repository. Applies also to derivatives such as Manjaro.
 
 ```
 sudo pacman -Syu hugo
 ```
 
-### Fedora
+### Fedora, Red Hat and CentOS
 
-Fedora provides a package for Hugo. The installation is done with the command :
+Fedora maintains an [official package for Hugo](https://apps.fedoraproject.org/packages/hugo) which may be installed with:
 
-```
-sudo dnf install hugo
-```
+    sudo dnf install hugo
 
-### CentOS, and Red Hat
+For the latest version, the Hugo package maintained by [@daftaupe](https://github.com/daftaupe) at Fedora Copr is recommended:
 
 * <https://copr.fedorainfracloud.org/coprs/daftaupe/hugo/>
 
@@ -471,11 +466,10 @@ See the [related discussion in the Hugo forums][redhatforum].
 
 ## OpenBSD
 
-OpenBSD provides a package for Hugo via `pkg_add`: 
+OpenBSD provides a package for Hugo via `pkg_add`:
 
-```
-doas pkg_add hugo
-```
+    doas pkg_add hugo
+
 
 ## Upgrade Hugo
 

@@ -41,7 +41,11 @@ For many websites, this is enough configuration. However, you also have the opti
 
 ### Render Hugo's Built-in Disqus Partial Template
 
-See [Partial Templates][partials] to learn how to add the Disqus partial to your Hugo website's templates.
+Disqus has its own [internal template](https://gohugo.io/templates/internal/#disqus) available, to render it add the following code where you want comments to appear:
+
+```
+{{ template "_internal/disqus.html" . }}
+```
 
 ## Comments Alternatives
 

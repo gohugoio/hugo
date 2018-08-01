@@ -108,4 +108,4 @@ the memory usage per step, and the total memory allocations per step.
 To enable *step analysis*, use the `--stepAnalysis` option when running Hugo.
 
 
-[partialCached]:{{< ref "functions/partialCached.md" >}}
+[partialCached]:{{< ref "/functions/partialCached.md" >}}
