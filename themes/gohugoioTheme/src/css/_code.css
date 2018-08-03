@@ -15,6 +15,10 @@ pre, .pre  {
   overflow:   scroll;
 }
 
+p > code {
+  background-color: rgba(27,31,35,0.05);
+}
+
 code {
     padding: 0.2em;
     margin: 0;
