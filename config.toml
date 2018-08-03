@@ -22,11 +22,11 @@ pygmentsCodeFences = true
 
 pygmentsOptions = ""
 # Use the Chroma stylesheet
-pygmentsUseClasses = true
+pygmentsUseClasses = false
 pygmentsUseClassic = false
 
 # See https://help.farbox.com/pygments.html
-pygmentsStyle = "trac"
+pygmentsStyle = "github"
 
 [outputs]
 home = [ "HTML", "RSS", "REDIR", "HEADERS" ]
