@@ -65,16 +65,15 @@ func (ft fromToBuffer) Content() []byte {
 }
 
 func (c *chain) Apply(w io.Writer, r io.Reader, p []byte) error {
+	if len(*c) == 0 {
+		_, err := io.Copy(w, r)
+		return err
+	}
 
 	b1 := bp.GetBuffer()
 	defer bp.PutBuffer(b1)
 
 	if _, err := b1.ReadFrom(r); err != nil {
-		return err
-	}
-
-	if len(*c) == 0 {
-		_, err := b1.WriteTo(w)
 		return err
 	}
 
