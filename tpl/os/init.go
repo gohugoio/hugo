@@ -55,13 +55,6 @@ func init() {
 			},
 		)
 
-		ns.AddMethodMapping(ctx.Stat,
-			[]string{"fileStat"},
-			[][2]string{
-				{`{{ (fileStat "files/README.txt").Size }}`, `11`},
-			},
-		)
-
 		return ns
 
 	}
