@@ -19,6 +19,7 @@ import (
 	"strings"
 	"testing"
 
+	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/stretchr/testify/assert"
 )
@@ -235,16 +236,24 @@ func TestNewEmptyTransforms(t *testing.T) {
 type errorf func(string, ...interface{})
 
 func applyWithPath(ef errorf, tr chain, tests []test, path string) {
+	out := bp.GetBuffer()
+	defer bp.PutBuffer(out)
+
+	in := bp.GetBuffer()
+	defer bp.PutBuffer(in)
+
 	for _, test := range tests {
-		out := new(bytes.Buffer)
 		var err error
-		err = tr.Apply(out, strings.NewReader(test.content), []byte(path))
+		in.WriteString(test.content)
+		err = tr.Apply(out, in, []byte(path))
 		if err != nil {
 			ef("Unexpected error: %s", err)
 		}
-		if test.expected != string(out.Bytes()) {
-			ef("Expected:\n%s\nGot:\n%s", test.expected, string(out.Bytes()))
+		if test.expected != out.String() {
+			ef("Expected:\n%s\nGot:\n%s", test.expected, out.String())
 		}
+		out.Reset()
+		in.Reset()
 	}
 }
 
