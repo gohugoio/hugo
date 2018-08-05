@@ -13,7 +13,7 @@ menu:
     weight: 130
 weight: 130	#rem
 draft: false
-aliases: [/extras/toc/,/content-management/toc/]
+aliases: [/extras/toc/]
 toc: true
 ---
 

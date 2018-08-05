@@ -15,7 +15,7 @@ menu:
 weight: 10
 sections_weight: 10
 draft: false
-aliases: [/templates/introduction/,/layouts/introduction/,/layout/introduction/, /templates/go-templates/]
+aliases: [/layouts/introduction/,/layout/introduction/, /templates/go-templates/]
 toc: true
 ---
 
