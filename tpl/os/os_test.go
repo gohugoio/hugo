@@ -100,7 +100,7 @@ func TestFileExists(t *testing.T) {
 	}
 }
 
-func TestFileStat(t *testing.T) {
+func TestStat(t *testing.T) {
 	t.Parallel()
 
 	workingDir := "/home/hugo"
@@ -122,7 +122,7 @@ func TestFileStat(t *testing.T) {
 		{"", nil},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
-		result, err := ns.FileStat(test.filename)
+		result, err := ns.Stat(test.filename)
 
 		if test.expect == nil {
 			require.Error(t, err, errMsg)
