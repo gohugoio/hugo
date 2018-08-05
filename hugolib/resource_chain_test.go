@@ -223,7 +223,7 @@ Min HTML: {{ ( resources.Get "mydata/html1.html" | resources.Minify ).Content | 
 			b.AssertFileContent("public/index.html", `Min XML: <hello><world>Hugo Rocks!</<world></hello>`)
 			b.AssertFileContent("public/index.html", `Min SVG: <svg height="100" width="100"><path d="M5 10 20 40z"/></svg>`)
 			b.AssertFileContent("public/index.html", `Min SVG again: <svg height="100" width="100"><path d="M5 10 20 40z"/></svg>`)
-			b.AssertFileContent("public/index.html", `Min HTML: <a href=#>Cool</a>`)
+			b.AssertFileContent("public/index.html", `Min HTML: <html><a href=#>Cool</a></html>`)
 		}},
 
 		{"concat", func() bool { return true }, func(b *sitesBuilder) {

@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/publisher"
 
 	"github.com/gohugoio/hugo/i18n"
 	"github.com/gohugoio/hugo/tpl"
@@ -182,6 +183,7 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 
 		cfg.Language = s.Language
 		cfg.MediaTypes = s.mediaTypesConfig
+		cfg.OutputFormats = s.outputFormatsConfig
 
 		if d == nil {
 			cfg.WithTemplate = s.withSiteTemplates(cfg.WithTemplate)
@@ -207,6 +209,9 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 			d.OutputFormatsConfig = s.outputFormatsConfig
 			s.Deps = d
 		}
+
+		// Set up the main publishing chain.
+		s.publisher = publisher.NewDestinationPublisher(d.PathSpec.BaseFs.PublishFs, s.outputFormatsConfig, s.mediaTypesConfig, cfg.Cfg.GetBool("minify"))
 
 		if err := s.initializeSiteInfo(); err != nil {
 			return err

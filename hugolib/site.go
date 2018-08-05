@@ -29,6 +29,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/resource"
 
 	"github.com/gohugoio/hugo/langs"
@@ -54,14 +55,11 @@ import (
 	"github.com/gohugoio/hugo/related"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
-	"github.com/gohugoio/hugo/transform"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"github.com/spf13/nitro"
 	"github.com/spf13/viper"
 )
-
-var _ = transform.AbsURL
 
 // used to indicate if run as a test.
 var testMode bool
@@ -151,6 +149,8 @@ type Site struct {
 
 	relatedDocsHandler *relatedDocsHandler
 	siteRefLinker
+
+	publisher publisher.Publisher
 }
 
 type siteRenderingContext struct {
@@ -195,6 +195,7 @@ func (s *Site) reset() *Site {
 		mediaTypesConfig:    s.mediaTypesConfig,
 		Language:            s.Language,
 		owner:               s.owner,
+		publisher:           s.publisher,
 		siteConfig:          s.siteConfig,
 		PageCollections:     newPageCollections()}
 
@@ -759,8 +760,9 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 			site := sites[i]
 			var err error
 			depsCfg := deps.DepsCfg{
-				Language:   site.Language,
-				MediaTypes: site.mediaTypesConfig,
+				Language:      site.Language,
+				MediaTypes:    site.mediaTypesConfig,
+				OutputFormats: site.outputFormatsConfig,
 			}
 			site.Deps, err = first.Deps.ForLanguage(depsCfg)
 			if err != nil {
@@ -1637,8 +1639,8 @@ func (s *Site) permalink(link string) string {
 
 }
 
-func (s *Site) renderAndWriteXML(statCounter *uint64, name string, dest string, d interface{}, layouts ...string) error {
-	s.Log.DEBUG.Printf("Render XML for %q to %q", name, dest)
+func (s *Site) renderAndWriteXML(statCounter *uint64, name string, targetPath string, d interface{}, layouts ...string) error {
+	s.Log.DEBUG.Printf("Render XML for %q to %q", name, targetPath)
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 	renderBuffer.WriteString("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n")
@@ -1648,30 +1650,32 @@ func (s *Site) renderAndWriteXML(statCounter *uint64, name string, dest string, 
 		return nil
 	}
 
-	outBuffer := bp.GetBuffer()
-	defer bp.PutBuffer(outBuffer)
-
-	var path []byte
+	var path string
 	if s.Info.relativeURLs {
-		path = []byte(helpers.GetDottedRelativePath(dest))
+		path = helpers.GetDottedRelativePath(targetPath)
 	} else {
 		s := s.PathSpec.BaseURL.String()
 		if !strings.HasSuffix(s, "/") {
 			s += "/"
 		}
-		path = []byte(s)
-	}
-	transformer := transform.NewChain(transform.AbsURLInXML)
-	if err := transformer.Apply(outBuffer, renderBuffer, path); err != nil {
-		s.DistinctErrorLog.Println(err)
-		return nil
+		path = s
 	}
 
-	return s.publish(statCounter, dest, outBuffer)
+	pd := publisher.Descriptor{
+		Src:         renderBuffer,
+		TargetPath:  targetPath,
+		StatCounter: statCounter,
+		// For the minification part of XML,
+		// we currently only use the MIME type.
+		OutputFormat: output.RSSFormat,
+		AbsURLPath:   path,
+	}
+
+	return s.publisher.Publish(pd)
 
 }
 
-func (s *Site) renderAndWritePage(statCounter *uint64, name string, dest string, p *PageOutput, layouts ...string) error {
+func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath string, p *PageOutput, layouts ...string) error {
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
@@ -1684,49 +1688,44 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, dest string,
 		return nil
 	}
 
-	outBuffer := bp.GetBuffer()
-	defer bp.PutBuffer(outBuffer)
-
-	transformLinks := transform.NewEmptyTransforms()
-
 	isHTML := p.outputFormat.IsHTML
 
-	if isHTML {
-		if s.Info.relativeURLs || s.Info.canonifyURLs {
-			transformLinks = append(transformLinks, transform.AbsURL)
-		}
-
-		if s.running() && s.Cfg.GetBool("watch") && !s.Cfg.GetBool("disableLiveReload") {
-			transformLinks = append(transformLinks, transform.LiveReloadInject(s.Cfg.GetInt("liveReloadPort")))
-		}
-
-		// For performance reasons we only inject the Hugo generator tag on the home page.
-		if p.IsHome() {
-			if !s.Cfg.GetBool("disableHugoGeneratorInject") {
-				transformLinks = append(transformLinks, transform.HugoGeneratorInject)
-			}
-		}
-	}
-
-	var path []byte
+	var path string
 
 	if s.Info.relativeURLs {
-		path = []byte(helpers.GetDottedRelativePath(dest))
+		path = helpers.GetDottedRelativePath(targetPath)
 	} else if s.Info.canonifyURLs {
 		url := s.PathSpec.BaseURL.String()
 		if !strings.HasSuffix(url, "/") {
 			url += "/"
 		}
-		path = []byte(url)
+		path = url
 	}
 
-	transformer := transform.NewChain(transformLinks...)
-	if err := transformer.Apply(outBuffer, renderBuffer, path); err != nil {
-		s.DistinctErrorLog.Println(err)
-		return nil
+	pd := publisher.Descriptor{
+		Src:          renderBuffer,
+		TargetPath:   targetPath,
+		StatCounter:  statCounter,
+		OutputFormat: p.outputFormat,
 	}
 
-	return s.publish(statCounter, dest, outBuffer)
+	if isHTML {
+		if s.Info.relativeURLs || s.Info.canonifyURLs {
+			pd.AbsURLPath = path
+		}
+
+		if s.running() && s.Cfg.GetBool("watch") && !s.Cfg.GetBool("disableLiveReload") {
+			pd.LiveReloadPort = s.Cfg.GetInt("liveReloadPort")
+		}
+
+		// For performance reasons we only inject the Hugo generator tag on the home page.
+		if p.IsHome() {
+			pd.AddHugoGeneratorTag = !s.Cfg.GetBool("disableHugoGeneratorInject")
+		}
+
+	}
+
+	return s.publisher.Publish(pd)
 }
 
 func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) (err error) {

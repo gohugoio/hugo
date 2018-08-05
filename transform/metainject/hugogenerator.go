@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package transform
+package metainject
 
 import (
 	"bytes"
@@ -19,32 +19,36 @@ import (
 	"regexp"
 
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/transform"
 )
 
 var metaTagsCheck = regexp.MustCompile(`(?i)<meta\s+name=['|"]?generator['|"]?`)
 var hugoGeneratorTag = fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, helpers.CurrentHugoVersion)
 
-// HugoGeneratorInject injects a meta generator tag for Hugo if none present.
-func HugoGeneratorInject(ct contentTransformer) {
-	if metaTagsCheck.Match(ct.Content()) {
-		if _, err := ct.Write(ct.Content()); err != nil {
+// HugoGenerator injects a meta generator tag for Hugo if none present.
+func HugoGenerator(ft transform.FromTo) error {
+	b := ft.From().Bytes()
+	if metaTagsCheck.Match(b) {
+		if _, err := ft.To().Write(b); err != nil {
 			helpers.DistinctWarnLog.Println("Failed to inject Hugo generator tag:", err)
 		}
-		return
+		return nil
 	}
 
 	head := "<head>"
 	replace := []byte(fmt.Sprintf("%s\n\t%s", head, hugoGeneratorTag))
-	newcontent := bytes.Replace(ct.Content(), []byte(head), replace, 1)
+	newcontent := bytes.Replace(b, []byte(head), replace, 1)
 
-	if len(newcontent) == len(ct.Content()) {
+	if len(newcontent) == len(b) {
 		head := "<HEAD>"
 		replace := []byte(fmt.Sprintf("%s\n\t%s", head, hugoGeneratorTag))
-		newcontent = bytes.Replace(ct.Content(), []byte(head), replace, 1)
+		newcontent = bytes.Replace(b, []byte(head), replace, 1)
 	}
 
-	if _, err := ct.Write(newcontent); err != nil {
+	if _, err := ft.To().Write(newcontent); err != nil {
 		helpers.DistinctWarnLog.Println("Failed to inject Hugo generator tag:", err)
 	}
+
+	return nil
 
 }

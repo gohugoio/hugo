@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,12 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package transform
+package metainject
 
 import (
 	"bytes"
 	"strings"
 	"testing"
+
+	"github.com/gohugoio/hugo/transform"
 )
 
 func TestHugoGeneratorInject(t *testing.T) {
@@ -48,8 +50,8 @@ func TestHugoGeneratorInject(t *testing.T) {
 		in := strings.NewReader(this.in)
 		out := new(bytes.Buffer)
 
-		tr := NewChain(HugoGeneratorInject)
-		tr.Apply(out, in, []byte(""))
+		tr := transform.New(HugoGenerator)
+		tr.Apply(out, in)
 
 		if out.String() != this.expect {
 			t.Errorf("[%d] Expected \n%q got \n%q", i, this.expect, out.String())

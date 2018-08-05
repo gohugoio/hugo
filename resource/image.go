@@ -464,7 +464,7 @@ func (i *Image) copyToDestination(src string) error {
 		}
 		defer in.Close()
 
-		out, err := openFileForWriting(i.spec.BaseFs.PublishFs, target)
+		out, err := helpers.OpenFileForWriting(i.spec.BaseFs.PublishFs, target)
 
 		if err != nil {
 			res = err
@@ -487,7 +487,7 @@ func (i *Image) copyToDestination(src string) error {
 
 func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resourceCacheFilename, targetFilename string) error {
 
-	file1, err := openFileForWriting(i.spec.BaseFs.PublishFs, targetFilename)
+	file1, err := helpers.OpenFileForWriting(i.spec.BaseFs.PublishFs, targetFilename)
 	if err != nil {
 		return err
 	}
@@ -498,7 +498,7 @@ func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resource
 
 	if resourceCacheFilename != "" {
 		// Also save it to the image resource cache for later reuse.
-		file2, err := openFileForWriting(i.spec.BaseFs.Resources.Fs, resourceCacheFilename)
+		file2, err := helpers.OpenFileForWriting(i.spec.BaseFs.Resources.Fs, resourceCacheFilename)
 		if err != nil {
 			return err
 		}

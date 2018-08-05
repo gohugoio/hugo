@@ -16,6 +16,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/output"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -51,7 +52,7 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 
 	assert.NoError(err)
 
-	spec, err := NewSpec(s, nil, media.DefaultTypes)
+	spec, err := NewSpec(s, nil, output.DefaultFormats, media.DefaultTypes)
 	assert.NoError(err)
 	return spec
 }
@@ -85,7 +86,7 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 
 	assert.NoError(err)
 
-	spec, err := NewSpec(s, nil, media.DefaultTypes)
+	spec, err := NewSpec(s, nil, output.DefaultFormats, media.DefaultTypes)
 	assert.NoError(err)
 	return spec
 
@@ -110,7 +111,7 @@ func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) C
 	src, err := os.Open(filepath.FromSlash("testdata/" + name))
 	assert.NoError(err)
 
-	out, err := openFileForWriting(spec.BaseFs.Content.Fs, name)
+	out, err := helpers.OpenFileForWriting(spec.BaseFs.Content.Fs, name)
 	assert.NoError(err)
 	_, err = io.Copy(out, src)
 	out.Close()

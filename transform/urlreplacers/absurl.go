@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,18 +11,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package transform
+package urlreplacers
+
+import "github.com/gohugoio/hugo/transform"
 
 var ar = newAbsURLReplacer()
 
-// AbsURL replaces relative URLs with absolute ones
+// NewAbsURLTransformer replaces relative URLs with absolute ones
 // in HTML files, using the baseURL setting.
-var AbsURL = func(ct contentTransformer) {
-	ar.replaceInHTML(ct)
+func NewAbsURLTransformer(path string) transform.Transformer {
+	return func(ft transform.FromTo) error {
+		ar.replaceInHTML(path, ft)
+		return nil
+	}
 }
 
-// AbsURLInXML replaces relative URLs with absolute ones
+// NewAbsURLInXMLTransformer replaces relative URLs with absolute ones
 // in XML files, using the baseURL setting.
-var AbsURLInXML = func(ct contentTransformer) {
-	ar.replaceInXML(ct)
+func NewAbsURLInXMLTransformer(path string) transform.Transformer {
+	return func(ft transform.FromTo) error {
+		ar.replaceInXML(path, ft)
+		return nil
+	}
 }

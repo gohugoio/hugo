@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,12 +11,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package transform
+package urlreplacers
 
 import (
 	"bytes"
 	"io"
 	"unicode/utf8"
+
+	"github.com/gohugoio/hugo/transform"
 )
 
 type matchState int
@@ -260,12 +262,12 @@ func (l *absurllexer) replace() {
 	}
 }
 
-func doReplace(ct contentTransformer, matchers []absURLMatcher) {
+func doReplace(path string, ct transform.FromTo, matchers []absURLMatcher) {
 
 	lexer := &absurllexer{
-		content:  ct.Content(),
-		w:        ct,
-		path:     ct.Path(),
+		content:  ct.From().Bytes(),
+		w:        ct.To(),
+		path:     []byte(path),
 		matchers: matchers}
 
 	lexer.replace()
@@ -303,10 +305,10 @@ func newAbsURLReplacer() *absURLReplacer {
 		}}
 }
 
-func (au *absURLReplacer) replaceInHTML(ct contentTransformer) {
-	doReplace(ct, au.htmlMatchers)
+func (au *absURLReplacer) replaceInHTML(path string, ct transform.FromTo) {
+	doReplace(path, ct, au.htmlMatchers)
 }
 
-func (au *absURLReplacer) replaceInXML(ct contentTransformer) {
-	doReplace(ct, au.xmlMatchers)
+func (au *absURLReplacer) replaceInXML(path string, ct transform.FromTo) {
+	doReplace(path, ct, au.xmlMatchers)
 }

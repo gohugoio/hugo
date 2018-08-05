@@ -22,6 +22,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/tpl"
 
 	jww "github.com/spf13/jwalterweatherman"
@@ -89,11 +91,11 @@ func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (i
 	return buffer, nil
 }
 
-func (s *Site) writeDestAlias(path, permalink string, p *Page) (err error) {
-	return s.publishDestAlias(false, path, permalink, p)
+func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format, p *Page) (err error) {
+	return s.publishDestAlias(false, path, permalink, outputFormat, p)
 }
 
-func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, p *Page) (err error) {
+func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p *Page) (err error) {
 	handler := newAliasHandler(s.Tmpl, s.Log, allowRoot)
 
 	isXHTML := strings.HasSuffix(path, ".xhtml")
@@ -110,7 +112,14 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, p *Page)
 		return err
 	}
 
-	return s.publish(&s.PathSpec.ProcessingStats.Aliases, targetPath, aliasContent)
+	pd := publisher.Descriptor{
+		Src:          aliasContent,
+		TargetPath:   targetPath,
+		StatCounter:  &s.PathSpec.ProcessingStats.Aliases,
+		OutputFormat: outputFormat,
+	}
+
+	return s.publisher.Publish(pd)
 
 }
 

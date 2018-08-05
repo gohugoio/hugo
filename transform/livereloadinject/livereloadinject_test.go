@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,13 +11,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package transform
+package livereloadinject
 
 import (
 	"bytes"
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/gohugoio/hugo/transform"
 )
 
 func TestLiveReloadInject(t *testing.T) {
@@ -29,8 +31,8 @@ func doTestLiveReloadInject(t *testing.T, bodyEndTag string) {
 	out := new(bytes.Buffer)
 	in := strings.NewReader(bodyEndTag)
 
-	tr := NewChain(LiveReloadInject(1313))
-	tr.Apply(out, in, []byte("path"))
+	tr := transform.New(New(1313))
+	tr.Apply(out, in)
 
 	expected := fmt.Sprintf(`<script data-no-instant>document.write('<script src="/livereload.js?port=1313&mindelay=10"></' + 'script>')</script>%s`, bodyEndTag)
 	if string(out.Bytes()) != expected {

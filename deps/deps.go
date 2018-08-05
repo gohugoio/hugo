@@ -162,7 +162,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		return nil, err
 	}
 
-	resourceSpec, err := resource.NewSpec(ps, logger, cfg.MediaTypes)
+	resourceSpec, err := resource.NewSpec(ps, logger, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +224,7 @@ func (d Deps) ForLanguage(cfg DepsCfg) (*Deps, error) {
 	// The resource cache is global so reuse.
 	// TODO(bep) clean up these inits.
 	resourceCache := d.ResourceSpec.ResourceCache
-	d.ResourceSpec, err = resource.NewSpec(d.PathSpec, d.Log, cfg.MediaTypes)
+	d.ResourceSpec, err = resource.NewSpec(d.PathSpec, d.Log, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -266,6 +266,9 @@ type DepsCfg struct {
 
 	// The media types configured.
 	MediaTypes media.Types
+
+	// The output formats configured.
+	OutputFormats output.Formats
 
 	// Template handling.
 	TemplateProvider ResourceProvider

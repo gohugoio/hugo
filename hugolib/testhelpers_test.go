@@ -130,6 +130,7 @@ func (s *sitesBuilder) WithConfigTemplate(data interface{}, format, configTempla
 func (s *sitesBuilder) WithViper(v *viper.Viper) *sitesBuilder {
 	loadDefaultSettingsFor(v)
 	s.Cfg = v
+
 	return s
 }
 

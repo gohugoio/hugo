@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,30 +11,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package transform
+package livereloadinject
 
 import (
 	"bytes"
 	"fmt"
+
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/transform"
 )
 
-// LiveReloadInject returns a function that can be used
+// New creates a function that can be used
 // to inject a script tag for the livereload JavaScript in a HTML document.
-func LiveReloadInject(port int) func(ct contentTransformer) {
-	return func(ct contentTransformer) {
+func New(port int) transform.Transformer {
+	return func(ft transform.FromTo) error {
+		b := ft.From().Bytes()
 		endBodyTag := "</body>"
 		match := []byte(endBodyTag)
 		replaceTemplate := `<script data-no-instant>document.write('<script src="/livereload.js?port=%d&mindelay=10"></' + 'script>')</script>%s`
 		replace := []byte(fmt.Sprintf(replaceTemplate, port, endBodyTag))
 
-		newcontent := bytes.Replace(ct.Content(), match, replace, 1)
-		if len(newcontent) == len(ct.Content()) {
+		newcontent := bytes.Replace(b, match, replace, 1)
+		if len(newcontent) == len(b) {
 			endBodyTag = "</BODY>"
 			replace := []byte(fmt.Sprintf(replaceTemplate, port, endBodyTag))
 			match := []byte(endBodyTag)
-			newcontent = bytes.Replace(ct.Content(), match, replace, 1)
+			newcontent = bytes.Replace(b, match, replace, 1)
 		}
 
-		ct.Write(newcontent)
+		if _, err := ft.To().Write(newcontent); err != nil {
+			helpers.DistinctWarnLog.Println("Failed to inject LiveReload script:", err)
+		}
+		return nil
 	}
 }

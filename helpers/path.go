@@ -515,6 +515,25 @@ func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	return afero.WriteReader(fs, inpath, r)
 }
 
+// OpenFileForWriting opens or creates the given file. If the target directory
+// does not exist, it gets created.
+func OpenFileForWriting(fs afero.Fs, filename string) (afero.File, error) {
+	filename = filepath.Clean(filename)
+	// Create will truncate if file already exists.
+	f, err := fs.Create(filename)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return nil, err
+		}
+		if err = fs.MkdirAll(filepath.Dir(filename), 0755); err != nil {
+			return nil, err
+		}
+		f, err = fs.Create(filename)
+	}
+
+	return f, err
+}
+
 // GetTempDir returns a temporary directory with the given sub path.
 func GetTempDir(subPath string, fs afero.Fs) string {
 	return afero.GetTempDir(fs, subPath)

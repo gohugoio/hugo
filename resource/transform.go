@@ -267,7 +267,7 @@ func (r *transformedResource) initContent() error {
 func (r *transformedResource) transform(setContent bool) (err error) {
 
 	openPublishFileForWriting := func(relTargetPath string) (io.WriteCloser, error) {
-		return openFileForWriting(r.cache.rs.PublishFs, r.linker.relTargetPathFor(relTargetPath))
+		return helpers.OpenFileForWriting(r.cache.rs.PublishFs, r.linker.relTargetPathFor(relTargetPath))
 	}
 
 	// This can be the last resource in a chain.

@@ -209,16 +209,25 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"verboseLog",
 	}
 
+	// Will set a value even if it is the default.
+	flagKeysForced := []string{
+		"minify",
+	}
+
 	for _, key := range persFlagKeys {
-		setValueFromFlag(cmd.PersistentFlags(), key, cfg, "")
+		setValueFromFlag(cmd.PersistentFlags(), key, cfg, "", false)
 	}
 	for _, key := range flagKeys {
-		setValueFromFlag(cmd.Flags(), key, cfg, "")
+		setValueFromFlag(cmd.Flags(), key, cfg, "", false)
+	}
+
+	for _, key := range flagKeysForced {
+		setValueFromFlag(cmd.Flags(), key, cfg, "", true)
 	}
 
 	// Set some "config aliases"
-	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir")
-	setValueFromFlag(cmd.Flags(), "i18n-warnings", cfg, "logI18nWarnings")
+	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir", false)
+	setValueFromFlag(cmd.Flags(), "i18n-warnings", cfg, "logI18nWarnings", false)
 
 }
 
@@ -229,9 +238,9 @@ var deprecatedFlags = map[string]bool{
 	strings.ToLower("canonifyURLs"):          true,
 }
 
-func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targetKey string) {
+func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targetKey string, force bool) {
 	key = strings.TrimSpace(key)
-	if flags.Changed(key) {
+	if (force && flags.Lookup(key) != nil) || flags.Changed(key) {
 		if _, deprecated := deprecatedFlags[strings.ToLower(key)]; deprecated {
 			msg := fmt.Sprintf(`Set "%s = true" in your config.toml.
 If you need to set this configuration value from the command line, set it via an OS environment variable: "HUGO_%s=true hugo"`, key, strings.ToUpper(key))

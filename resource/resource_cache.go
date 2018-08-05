@@ -16,12 +16,12 @@ package resource
 import (
 	"encoding/json"
 	"io/ioutil"
-	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 
 	"github.com/BurntSushi/locker"
@@ -176,26 +176,7 @@ func (c *ResourceCache) writeMeta(key string, meta transformedResourceMetadata) 
 }
 
 func (c *ResourceCache) openResourceFileForWriting(filename string) (afero.File, error) {
-	return openFileForWriting(c.rs.Resources.Fs, filename)
-}
-
-// openFileForWriting opens or creates the given file. If the target directory
-// does not exist, it gets created.
-func openFileForWriting(fs afero.Fs, filename string) (afero.File, error) {
-	filename = filepath.Clean(filename)
-	// Create will truncate if file already exists.
-	f, err := fs.Create(filename)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return nil, err
-		}
-		if err = fs.MkdirAll(filepath.Dir(filename), 0755); err != nil {
-			return nil, err
-		}
-		f, err = fs.Create(filename)
-	}
-
-	return f, err
+	return helpers.OpenFileForWriting(c.rs.Resources.Fs, filename)
 }
 
 func (c *ResourceCache) set(key string, r Resource) {

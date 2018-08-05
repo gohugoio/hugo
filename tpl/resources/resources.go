@@ -23,7 +23,7 @@ import (
 	"github.com/gohugoio/hugo/resource/bundler"
 	"github.com/gohugoio/hugo/resource/create"
 	"github.com/gohugoio/hugo/resource/integrity"
-	"github.com/gohugoio/hugo/resource/minifiers"
+	"github.com/gohugoio/hugo/resource/minifier"
 	"github.com/gohugoio/hugo/resource/postcss"
 	"github.com/gohugoio/hugo/resource/templates"
 	"github.com/gohugoio/hugo/resource/tocss/scss"
@@ -42,7 +42,7 @@ func New(deps *deps.Deps) (*Namespace, error) {
 		createClient:    create.New(deps.ResourceSpec),
 		bundlerClient:   bundler.New(deps.ResourceSpec),
 		integrityClient: integrity.New(deps.ResourceSpec),
-		minifyClient:    minifiers.New(deps.ResourceSpec),
+		minifyClient:    minifier.New(deps.ResourceSpec),
 		postcssClient:   postcss.New(deps.ResourceSpec),
 		templatesClient: templates.New(deps.ResourceSpec, deps.TextTmpl),
 	}, nil
@@ -56,7 +56,7 @@ type Namespace struct {
 	bundlerClient   *bundler.Client
 	scssClient      *scss.Client
 	integrityClient *integrity.Client
-	minifyClient    *minifiers.Client
+	minifyClient    *minifier.Client
 	postcssClient   *postcss.Client
 	templatesClient *templates.Client
 }

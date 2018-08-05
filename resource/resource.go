@@ -24,6 +24,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -259,7 +260,8 @@ func (r1 Resources) MergeByLanguageInterface(in interface{}) (interface{}, error
 type Spec struct {
 	*helpers.PathSpec
 
-	MediaTypes media.Types
+	MediaTypes    media.Types
+	OutputFormats output.Formats
 
 	Logger *jww.Notepad
 
@@ -275,7 +277,7 @@ type Spec struct {
 	GenAssetsPath string
 }
 
-func NewSpec(s *helpers.PathSpec, logger *jww.Notepad, mimeTypes media.Types) (*Spec, error) {
+func NewSpec(s *helpers.PathSpec, logger *jww.Notepad, outputFormats output.Formats, mimeTypes media.Types) (*Spec, error) {
 
 	imaging, err := decodeImaging(s.Cfg.GetStringMap("imaging"))
 	if err != nil {
@@ -296,6 +298,7 @@ func NewSpec(s *helpers.PathSpec, logger *jww.Notepad, mimeTypes media.Types) (*
 		GenAssetsPath: genAssetsPath,
 		imaging:       &imaging,
 		MediaTypes:    mimeTypes,
+		OutputFormats: outputFormats,
 		imageCache: newImageCache(
 			s,
 			// We're going to write a cache pruning routine later, so make it extremely

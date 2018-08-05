@@ -195,7 +195,7 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 
 		// TODO(bep) do better
 		link := newOutputFormat(p.Page, p.outputFormat).Permalink()
-		if err := s.writeDestAlias(target, link, nil); err != nil {
+		if err := s.writeDestAlias(target, link, p.outputFormat, nil); err != nil {
 			return err
 		}
 
@@ -417,7 +417,7 @@ func (s *Site) renderAliases() error {
 					a = path.Join(lang, a)
 				}
 
-				if err := s.writeDestAlias(a, plink, p); err != nil {
+				if err := s.writeDestAlias(a, plink, f, p); err != nil {
 					return err
 				}
 			}
@@ -425,18 +425,21 @@ func (s *Site) renderAliases() error {
 	}
 
 	if s.owner.multilingual.enabled() && !s.owner.IsMultihost() {
-		mainLang := s.owner.multilingual.DefaultLang
-		if s.Info.defaultContentLanguageInSubdir {
-			mainLangURL := s.PathSpec.AbsURL(mainLang.Lang, false)
-			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(true, "/", mainLangURL, nil); err != nil {
-				return err
-			}
-		} else {
-			mainLangURL := s.PathSpec.AbsURL("", false)
-			s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
-			if err := s.publishDestAlias(true, mainLang.Lang, mainLangURL, nil); err != nil {
-				return err
+		html, found := s.outputFormatsConfig.GetByName("HTML")
+		if found {
+			mainLang := s.owner.multilingual.DefaultLang
+			if s.Info.defaultContentLanguageInSubdir {
+				mainLangURL := s.PathSpec.AbsURL(mainLang.Lang, false)
+				s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+				if err := s.publishDestAlias(true, "/", mainLangURL, html, nil); err != nil {
+					return err
+				}
+			} else {
+				mainLangURL := s.PathSpec.AbsURL("", false)
+				s.Log.DEBUG.Printf("Write redirect to main language %s: %s", mainLang, mainLangURL)
+				if err := s.publishDestAlias(true, mainLang.Lang, mainLangURL, html, nil); err != nil {
+					return err
+				}
 			}
 		}
 	}
