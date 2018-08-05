@@ -130,3 +130,22 @@ func (ns *Namespace) FileExists(i interface{}) (bool, error) {
 
 	return status, nil
 }
+
+// FileStat Stat returns the os.FileInfo structure describing file.
+func (ns *Namespace) FileStat(i interface{}) (_os.FileInfo, error) {
+	path, err := cast.ToStringE(i)
+	if err != nil {
+		return nil, err
+	}
+
+	if path == "" {
+		return nil, errors.New("fileStat needs a path to a file")
+	}
+
+	r, err := ns.readFileFs.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return r, nil
+}
