@@ -131,8 +131,8 @@ func (ns *Namespace) FileExists(i interface{}) (bool, error) {
 	return status, nil
 }
 
-// FileStat Stat returns the os.FileInfo structure describing file.
-func (ns *Namespace) FileStat(i interface{}) (_os.FileInfo, error) {
+// Stat returns the os.FileInfo structure describing file.
+func (ns *Namespace) Stat(i interface{}) (_os.FileInfo, error) {
 	path, err := cast.ToStringE(i)
 	if err != nil {
 		return nil, err
