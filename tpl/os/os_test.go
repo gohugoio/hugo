@@ -99,3 +99,37 @@ func TestFileExists(t *testing.T) {
 		assert.Equal(t, test.expect, result, errMsg)
 	}
 }
+
+func TestFileStat(t *testing.T) {
+	t.Parallel()
+
+	workingDir := "/home/hugo"
+
+	v := viper.New()
+	v.Set("workingDir", workingDir)
+
+	ns := New(&deps.Deps{Fs: hugofs.NewMem(v)})
+
+	afero.WriteFile(ns.deps.Fs.Source, filepath.Join(workingDir, "/f/f1.txt"), []byte("f1-content"), 0755)
+
+	for i, test := range []struct {
+		filename string
+		expect   interface{}
+	}{
+		{filepath.FromSlash("/f/f1.txt"), int64(10)},
+		{filepath.FromSlash("f/f1.txt"), int64(10)},
+		{"b", nil},
+		{"", nil},
+	} {
+		errMsg := fmt.Sprintf("[%d] %v", i, test)
+		result, err := ns.FileStat(test.filename)
+
+		if test.expect == nil {
+			require.Error(t, err, errMsg)
+			continue
+		}
+
+		require.NoError(t, err, errMsg)
+		assert.Equal(t, test.expect, result.Size(), errMsg)
+	}
+}
