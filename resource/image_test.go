@@ -64,8 +64,6 @@ func TestImageTransformBasic(t *testing.T) {
 
 	image := fetchSunset(assert)
 
-	printFs(image.sourceFs(), "", os.Stdout)
-
 	assert.Equal("/a/sunset.jpg", image.RelPermalink())
 	assert.Equal("image", image.ResourceType())
 
