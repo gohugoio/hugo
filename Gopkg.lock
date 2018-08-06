@@ -79,7 +79,7 @@
   branch = "master"
   name = "github.com/alecthomas/repr"
   packages = ["."]
-  revision = "f49988b46e025398b9f834f7c726afe001ec481f"
+  revision = "ead21651dde39fea129e6e4a612c675693d0f4ff"
 
 [[projects]]
   name = "github.com/bep/debounce"
@@ -88,13 +88,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/bep/gitmap"
   packages = ["."]
-  revision = "012701e8669671499fc43e9792335a1dcbfe2afb"
+  revision = "ecb6fe06dbfd6bb4225e7fda7dc15612ecc8d960"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/bep/go-tocss"
   packages = [
     "scss",
@@ -102,6 +101,7 @@
     "tocss"
   ]
   revision = "2abb118dc8688b6c7df44e12f4152c2bded9b19c"
+  version = "v0.5.0"
 
 [[projects]]
   name = "github.com/chaseadamsio/goorgeous"
@@ -231,8 +231,8 @@
 [[projects]]
   name = "github.com/kyokomi/emoji"
   packages = ["."]
-  revision = "7e06b236c489543f53868841f188a294e3383eab"
-  version = "v1.5"
+  revision = "2e9a9507333f3ee28f3fab88c2c3aba34455d734"
+  version = "v1.5.1"
 
 [[projects]]
   name = "github.com/magefile/mage"
@@ -246,8 +246,8 @@
 [[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
-  revision = "c3beff4c2358b44d0493c7dda585e7db7ff28ae6"
-  version = "v1.7.6"
+  revision = "c2353362d570a7bfa228149c62842019201cfb71"
+  version = "v1.8.0"
 
 [[projects]]
   name = "github.com/markbates/inflect"
@@ -282,7 +282,7 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
+  revision = "f15292f7a699fcc1a38a80977f80a046874ba8ac"
 
 [[projects]]
   branch = "master"
@@ -307,13 +307,13 @@
   branch = "master"
   name = "github.com/olekukonko/tablewriter"
   packages = ["."]
-  revision = "b8a9be070da40449e501c3c4730a889e42d87a9e"
+  revision = "d4647c9c7a84d847478d890b816b7d8b62b0b279"
 
 [[projects]]
   name = "github.com/pelletier/go-toml"
   packages = ["."]
-  revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
-  version = "v1.1.0"
+  revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -325,7 +325,7 @@
   branch = "master"
   name = "github.com/russross/blackfriday"
   packages = ["."]
-  revision = "11635eb403ff09dbc3a6b5a007ab5ab09151c229"
+  revision = "46c73eb196baff5bb07288f245b223bd1a30fba6"
 
 [[projects]]
   name = "github.com/sanity-io/litter"
@@ -366,8 +366,8 @@
     ".",
     "doc"
   ]
-  revision = "a1f051bc3eba734da4772d60e2d677f47cf93ef4"
-  version = "v0.0.2"
+  revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
+  version = "v0.0.3"
 
 [[projects]]
   branch = "master"
@@ -390,14 +390,14 @@
 [[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
-  version = "v1.0.0"
+  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
+  version = "v1.0.1"
 
 [[projects]]
   name = "github.com/spf13/viper"
   packages = ["."]
-  revision = "b5e8006cbee93ec955a89ab31e0e3ce3204f3736"
-  version = "v1.0.2"
+  revision = "907c19d40d9a6c9bb55f040ff4ae45271a4754b9"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/stretchr/testify"
@@ -405,8 +405,8 @@
     "assert",
     "require"
   ]
-  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
-  version = "v1.2.1"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   name = "github.com/tdewolff/minify"
@@ -464,7 +464,7 @@
     "vp8l",
     "webp"
   ]
-  revision = "f315e440302883054d0c2bd85486878cb4f8572c"
+  revision = "c73c2afc3b812cdd6385de5a50616511c4a3d458"
 
 [[projects]]
   branch = "master"
@@ -473,7 +473,7 @@
     "context",
     "idna"
   ]
-  revision = "61147c48b25b599e5b561d2e9c4f3e1ef489ca41"
+  revision = "f4c29de78a2a91c00474a2e689954305c350adf9"
 
 [[projects]]
   branch = "master"
@@ -485,7 +485,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "3b87a42e500a6dc65dae1a55d0b641295971163e"
+  revision = "2be389f392cd91df245b41638f818a1c041f0c08"
 
 [[projects]]
   branch = "master"
@@ -509,17 +509,17 @@
     "unicode/rangetable",
     "width"
   ]
-  revision = "2cb43934f0eece38629746959acc633cba083fe4"
+  revision = "cb6730876b985e110843c1842a7a63a63677cf08"
 
 [[projects]]
-  branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d56fe7ce11fdbe4311022e2835861393816d2e8a8d0026d9d7e47e4a06c79adc"
+  inputs-digest = "c56eac0099a36c56ab8461f9b6c9f01bad21bfe344a1a84938b44345154c7788"
   solver-name = "gps-cdcl"
   solver-version = 1

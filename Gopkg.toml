@@ -13,12 +13,12 @@
   version = "^0.5.0"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/bep/gitmap"
+  version = "^1.0.0"
   
 [[constraint]]
-   branch = "master"
-   name = "github.com/bep/go-tocss"
+  version = "v0.5.0"
+  name = "github.com/bep/go-tocss"
 
 [[override]]
    branch = "master"
