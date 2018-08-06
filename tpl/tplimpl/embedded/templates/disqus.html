@@ -1,7 +1,7 @@
 {{- $pc := .Page.Site.Config.Privacy.Disqus -}}
 {{- if not $pc.Disable -}}
 {{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
-<script>
+<script type="application/javascript">
     var disqus_config = function () {
     {{with .GetParam "disqus_identifier" }}this.page.identifier = '{{ . }}';{{end}}
     {{with .GetParam "disqus_title" }}this.page.title = '{{ . }}';{{end}}
