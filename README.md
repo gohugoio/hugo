@@ -8,7 +8,7 @@ A Fast and Flexible Static Site Generator built with love by [bep](https://githu
 [Documentation](https://gohugo.io/overview/introduction/) |
 [Installation Guide](https://gohugo.io/overview/installing/) |
 [Contribution Guide](CONTRIBUTING.md) |
-[Twitter](http://twitter.com/gohugoio)
+[Twitter](https://twitter.com/gohugoio)
 
 [![GoDoc](https://godoc.org/github.com/gohugoio/hugo?status.svg)](https://godoc.org/github.com/gohugoio/hugo)
 [![Linux and macOS Build Status](https://api.travis-ci.org/gohugoio/hugo.svg?branch=master&label=Linux+and+macOS+build "Linux and macOS Build Status")](https://travis-ci.org/gohugoio/hugo)
@@ -56,7 +56,7 @@ Use the [installation instructions in the Hugo documentation](https://gohugo.io/
 
 #### Prerequisite Tools
 
-* [Git](http://git-scm.com/)
+* [Git](https://git-scm.com/)
 * [Go (latest or previous version)](https://golang.org/dl/)
 
 #### Vendored Dependencies
