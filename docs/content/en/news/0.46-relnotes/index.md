@@ -1,8 +1,8 @@
 
 ---
 date: 2018-08-01
-title: "0.46"
-description: "0.46"
+title: "The Summer of Hugo"
+description: "Hugo 0.46: Full SCSS/SASS import inheritance support, rework of Hugo Pipes vs. multilingual, and more …"
 categories: ["Releases"]
 ---
 

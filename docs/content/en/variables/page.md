@@ -15,7 +15,7 @@ menu:
     weight: 20
 weight: 20
 sections_weight: 20
-aliases: [/variables/page/]
+aliases: []
 toc: true
 ---
 

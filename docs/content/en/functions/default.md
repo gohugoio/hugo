@@ -18,7 +18,7 @@ hugoversion:
 relatedfuncs: []
 deprecated: false
 draft: false
-aliases: [/functions/default/]
+aliases: []
 needsexamples: false
 ---
 

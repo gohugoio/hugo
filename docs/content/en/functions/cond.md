@@ -7,7 +7,6 @@ menu:
   docs:
     parent: "functions"
 signature: ["cond CONTROL VAR1 VAR2"]
-aliases: [/functions/cond/]
 hugoversion: 0.27
 relatedfuncs: [default]
 toc: false

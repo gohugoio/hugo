@@ -15,7 +15,6 @@ workson: []
 hugoversion:
 relatedfuncs: []
 deprecated: false
-aliases: [/functions/countrunes/]
 ---
 
 In contrast with `countwords` function, which counts every word in a string, the `countrunes` function determines the number of runes in the content and excludes any whitespace. This has specific utility if you are dealing with CJK-like languages.
