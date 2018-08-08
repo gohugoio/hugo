@@ -44,6 +44,9 @@ config file(s).
 archetypeDir ("archetypes")
 : The directory where Hugo finds archetype files (content templates).
 
+assetDir ("assets")
+: The directory where Hugo finds asset files used in [Hugo Pipes](/hugo-pipes/).
+
 baseURL
 : Hostname (and path) to the root, e.g. http://bep.is/
 
