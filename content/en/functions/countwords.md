@@ -15,7 +15,6 @@ workson: []
 hugoversion:
 relatedfuncs: [countrunes]
 deprecated: false
-aliases: [/functions/countwords/]
 ---
 
 The template function works similar to the [.WordCount page variable][pagevars].
