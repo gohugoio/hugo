@@ -14,7 +14,6 @@ menu:
 weight: 150
 sections_weight: 150
 draft: false
-aliases: [/templates/rss/]
 toc: true
 ---
 
@@ -100,7 +99,7 @@ In your `header.html` template, you can specify your RSS feed in your `<head></h
 
 ```go-html-template
 {{ range .AlternativeOutputFormats -}}
-    {{ printf `<link rel="%s" type="%s+%s" href="%s" title="%s" />` .Rel .MediaType.Type .MediaType.Suffix .Permalink $.Site.Title | safeHTML }}
+    {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
 {{ end -}}
 ```
 
@@ -108,7 +107,7 @@ If you only want the RSS link, you can query the formats:
 
 ```go-html-template
 {{ with .OutputFormats.Get "rss" -}}
-    {{ printf `<link rel="%s" type="%s+%s" href="%s" title="%s" />` .Rel .MediaType.Type .MediaType.Suffix .Permalink $.Site.Title | safeHTML }}
+    {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
 {{ end -}}
 ```
 

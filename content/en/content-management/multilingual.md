@@ -13,7 +13,7 @@ menu:
     weight: 150
 weight: 150	#rem
 draft: false
-aliases: [/content/multilingual/,/content-management/multilingual/,/tutorials/create-a-multilingual-site/]
+aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
 toc: true
 ---
 
