@@ -66,9 +66,9 @@ choco install hugo -confirm
 
 If you are on a Windows machine and use [Scoop][] for package management, you can install Hugo with the following one-liner:
 
-{{< code file="install-with-scoop.ps1" >}}
-snoop install hugo
-{{< /code >}}
+```bash
+scoop install hugo
+```
 
 ### Source
 
