@@ -921,21 +921,50 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 	cfg.Set("frontmatter", map[string]interface{}{
 		"lastmod": []string{":git", "lastmod"},
 	})
+	cfg.Set("defaultContentLanguage", "en")
 
+	langConfig := map[string]interface{}{
+		"en": map[string]interface{}{
+			"weight":       1,
+			"languageName": "English",
+			"contentDir":   "content",
+		},
+		"nn": map[string]interface{}{
+			"weight":       2,
+			"languageName": "Nynorsk",
+			"contentDir":   "content_nn",
+		},
+	}
+
+	cfg.Set("languages", langConfig)
 	cfg.Set("enableGitInfo", true)
 
 	assrt.NoError(loadDefaultSettingsFor(cfg))
+	assrt.NoError(loadLanguageSettings(cfg, nil))
 
 	wd, err := os.Getwd()
 	assrt.NoError(err)
 	cfg.Set("workingDir", filepath.Join(wd, "testsite"))
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
 
-	assrt.Len(s.RegularPages, 1)
+	assrt.NoError(err)
+	assrt.Len(h.Sites, 2)
+
+	require.NoError(t, h.Build(BuildCfg{SkipRender: true}))
+
+	enSite := h.Sites[0]
+	assrt.Len(enSite.RegularPages, 1)
 
 	// 2018-03-11 is the Git author date for testsite/content/first-post.md
-	assrt.Equal("2018-03-11", s.RegularPages[0].Lastmod.Format("2006-01-02"))
+	assrt.Equal("2018-03-11", enSite.RegularPages[0].Lastmod.Format("2006-01-02"))
+
+	nnSite := h.Sites[1]
+	assrt.Len(nnSite.RegularPages, 1)
+
+	// 2018-08-11 is the Git author date for testsite/content_nn/first-post.md
+	assrt.Equal("2018-08-11", nnSite.RegularPages[0].Lastmod.Format("2006-01-02"))
+
 }
 
 func TestPageWithFrontMatterConfig(t *testing.T) {
