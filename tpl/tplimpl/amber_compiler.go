@@ -17,10 +17,12 @@ import (
 	"html/template"
 
 	"github.com/eknkc/amber"
+	"github.com/spf13/afero"
 )
 
 func (t *templateHandler) compileAmberWithTemplate(b []byte, path string, templ *template.Template) (*template.Template, error) {
 	c := amber.New()
+	c.Options.VirtualFilesystem = afero.NewHttpFs(t.layoutsFs)
 
 	if err := c.ParseData(b, path); err != nil {
 		return nil, err
