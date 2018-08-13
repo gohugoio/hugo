@@ -14,6 +14,7 @@ package tplimpl
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 
 	"html/template"
@@ -24,6 +25,11 @@ import (
 var (
 	testFuncs = map[string]interface{}{
 		"Echo": func(v interface{}) interface{} { return v },
+		"where": func(seq, key interface{}, args ...interface{}) (interface{}, error) {
+			return map[string]interface{}{
+				"ByWeight": fmt.Sprintf("%v:%v:%v", seq, key, args),
+			}, nil
+		},
 	}
 
 	paramsData = map[string]interface{}{
@@ -31,6 +37,15 @@ var (
 		"Slice":    []int{1, 3},
 		"Params": map[string]interface{}{
 			"lower": "P1L",
+			"slice": []int{1, 3},
+		},
+		"Pages": map[string]interface{}{
+			"ByWeight": []int{1, 3},
+		},
+		"CurrentSection": map[string]interface{}{
+			"Params": map[string]interface{}{
+				"lower": "pcurrentsection",
+			},
 		},
 		"Site": map[string]interface{}{
 			"Params": map[string]interface{}{
@@ -52,12 +67,14 @@ var (
 
 	paramsTempl = `
 {{ $page := . }}
+{{ $pages := .Pages }}
 {{ $pageParams := .Params }}
 {{ $site := .Site }}
 {{ $siteParams := .Site.Params }}
 {{ $data := .Site.Data }}
 {{ $notparam := .NotParam }}
 
+PCurrentSection: {{ .CurrentSection.Params.LOWER }}
 P1: {{ .Params.LOWER }}
 P1_2: {{ $.Params.LOWER }}
 P1_3: {{ $page.Params.LOWER }}
@@ -109,6 +126,15 @@ RANGE: {{ . }}: {{ $.Params.LOWER }}
 F1: {{ printf "themes/%s-theme" .Site.Params.LOWER }}
 F2: {{ Echo (printf "themes/%s-theme" $lower) }}
 F3: {{ Echo (printf "themes/%s-theme" .Site.Params.LOWER) }}
+
+PSLICE: {{ range .Params.SLICE }}PSLICE{{.}}|{{ end }}
+
+{{ $pages := "foo" }}
+{{ $pages := where $pages ".Params.toc_hide" "!=" true }}
+PARAMS STRING: {{ $pages.ByWeight }}
+PARAMS STRING2: {{ with $pages }}{{ .ByWeight }}{{ end }}
+{{ $pages3 := where ".Params.TOC_HIDE" "!=" .Params.LOWER }}
+PARAMS STRING3: {{ $pages3.ByWeight }}
 `
 )
 
@@ -164,6 +190,14 @@ func TestParamsKeysToLower(t *testing.T) {
 	require.Contains(t, result, "F2: themes/P2L-theme")
 	require.Contains(t, result, "F3: themes/P2L-theme")
 
+	require.Contains(t, result, "PSLICE: PSLICE1|PSLICE3|")
+	require.Contains(t, result, "PARAMS STRING: foo:.Params.toc_hide:[!= true]")
+	require.Contains(t, result, "PARAMS STRING2: foo:.Params.toc_hide:[!= true]")
+	require.Contains(t, result, "PARAMS STRING3: .Params.TOC_HIDE:!=:[P1L]")
+
+	// Issue #5068
+	require.Contains(t, result, "PCurrentSection: pcurrentsection")
+
 }
 
 func BenchmarkTemplateParamsKeysToLower(b *testing.B) {
@@ -197,6 +231,9 @@ func TestParamsKeysToLowerVars(t *testing.T) {
 			"Params": map[string]interface{}{
 				"colors": map[string]interface{}{
 					"blue": "Amber",
+					"pretty": map[string]interface{}{
+						"first": "Indigo",
+					},
 				},
 			},
 		}
@@ -205,8 +242,14 @@ func TestParamsKeysToLowerVars(t *testing.T) {
 		paramsTempl = `
 {{$__amber_1 := .Params.Colors}}
 {{$__amber_2 := $__amber_1.Blue}}
+{{$__amber_3 := $__amber_1.Pretty}}
+{{$__amber_4 := .Params}}
+
 Color: {{$__amber_2}}
 Blue: {{ $__amber_1.Blue}}
+Pretty First1: {{ $__amber_3.First}}
+Pretty First2: {{ $__amber_1.Pretty.First}}
+Pretty First3: {{ $__amber_4.COLORS.PRETTY.FIRST}}
 `
 	)
 
@@ -225,6 +268,10 @@ Blue: {{ $__amber_1.Blue}}
 	result := b.String()
 
 	require.Contains(t, result, "Color: Amber")
+	require.Contains(t, result, "Blue: Amber")
+	require.Contains(t, result, "Pretty First1: Indigo")
+	require.Contains(t, result, "Pretty First2: Indigo")
+	require.Contains(t, result, "Pretty First3: Indigo")
 
 }
 
