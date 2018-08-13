@@ -69,7 +69,7 @@ func (c *imageCache) getOrCreate(
 	parent *Image, conf imageConfig, create func(resourceCacheFilename string) (*Image, error)) (*Image, error) {
 
 	relTarget := parent.relTargetPathFromConfig(conf)
-	key := parent.relTargetPathForRel(relTarget.path(), false)
+	key := parent.relTargetPathForRel(relTarget.path(), false, false)
 
 	// First check the in-memory store, then the disk.
 	c.mu.RLock()

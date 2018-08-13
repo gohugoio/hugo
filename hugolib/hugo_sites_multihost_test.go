@@ -81,8 +81,10 @@ languageName = "Nynorsk"
 	s2h := s2.getPage(KindHome)
 	assert.Equal("https://example.fr/", s2h.Permalink())
 
-	b.AssertFileContent("public/fr/index.html", "French Home Page")
-	b.AssertFileContent("public/en/index.html", "Default Home Page")
+	b.AssertFileContent("public/fr/index.html", "French Home Page", "String Resource: /docs/text/pipes.txt")
+	b.AssertFileContent("public/fr/text/pipes.txt", "Hugo Pipes")
+	b.AssertFileContent("public/en/index.html", "Default Home Page", "String Resource: /docs/text/pipes.txt")
+	b.AssertFileContent("public/en/text/pipes.txt", "Hugo Pipes")
 
 	// Check paginators
 	b.AssertFileContent("public/en/page/1/index.html", `refresh" content="0; url=https://example.com/docs/"`)

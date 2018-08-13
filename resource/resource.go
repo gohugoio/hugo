@@ -16,6 +16,7 @@ package resource
 import (
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"mime"
 	"os"
@@ -62,8 +63,8 @@ type Source interface {
 type permalinker interface {
 	relPermalinkFor(target string) string
 	permalinkFor(target string) string
-	relTargetPathFor(target string) string
-	relTargetPath() string
+	relTargetPathsFor(target string) []string
+	relTargetPaths() []string
 	targetPath() string
 }
 
@@ -332,10 +333,12 @@ type ResourceSourceDescriptor struct {
 	// Typically the language code if this resource should be published to its sub-folder.
 	URLBase string
 
-	// Any base path prepended to the target path. This will also typically be the
+	// Any base paths prepended to the target path. This will also typically be the
 	// language code, but setting it here means that it should not have any effect on
 	// the permalink.
-	TargetPathBase string
+	// This may be several values. In multihost mode we may publish the same resources to
+	// multiple targets.
+	TargetBasePaths []string
 
 	// Delay publishing until either Permalink or RelPermalink is called. Maybe never.
 	LazyPublish bool
@@ -371,6 +374,11 @@ func (r *Spec) newResourceForFs(sourceFs afero.Fs, fd ResourceSourceDescriptor) 
 
 	if fd.RelTargetFilename == "" {
 		fd.RelTargetFilename = fd.Filename()
+	}
+
+	if len(fd.TargetBasePaths) == 0 {
+		// If not set, we publish the same resource to all hosts.
+		fd.TargetBasePaths = r.MultihostTargetBasePaths
 	}
 
 	return r.newResource(sourceFs, fd)
@@ -418,7 +426,7 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (Reso
 		fd.LazyPublish,
 		fd.OpenReadSeekCloser,
 		fd.URLBase,
-		fd.TargetPathBase,
+		fd.TargetBasePaths,
 		fd.TargetPathBuilder,
 		fi,
 		sourceFilename,
@@ -505,8 +513,8 @@ type resourcePathDescriptor struct {
 	baseURLDir string
 
 	// This will normally be the same as above, but this will only apply to publishing
-	// of resources.
-	baseTargetPathDir string
+	// of resources. It may be mulltiple values when in multihost mode.
+	baseTargetPathDirs []string
 
 	// baseOffset is set when the output format's path has a offset, e.g. for AMP.
 	baseOffset string
@@ -688,12 +696,12 @@ func (l *genericResource) permalinkFor(target string) string {
 	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target), l.spec.BaseURL.HostURL())
 
 }
-func (l *genericResource) relTargetPathFor(target string) string {
-	return l.relTargetPathForRel(target, false)
+func (l *genericResource) relTargetPathsFor(target string) []string {
+	return l.relTargetPathsForRel(target)
 }
 
-func (l *genericResource) relTargetPath() string {
-	return l.relTargetPathForRel(l.targetPath(), false)
+func (l *genericResource) relTargetPaths() []string {
+	return l.relTargetPathsForRel(l.targetPath())
 }
 
 func (l *genericResource) Name() string {
@@ -731,11 +739,34 @@ func (l *genericResource) updateParams(params map[string]interface{}) {
 }
 
 func (l *genericResource) relPermalinkForRel(rel string) string {
-	return l.spec.PathSpec.URLizeFilename(l.relTargetPathForRel(rel, true))
+	return l.spec.PathSpec.URLizeFilename(l.relTargetPathForRel(rel, false, true))
 }
 
-func (l *genericResource) relTargetPathForRel(rel string, isURL bool) string {
+func (l *genericResource) relTargetPathsForRel(rel string) []string {
+	if len(l.baseTargetPathDirs) == 0 {
+		return []string{l.relTargetPathForRelAndBasePath(rel, "", false)}
+	}
 
+	var targetPaths = make([]string, len(l.baseTargetPathDirs))
+	for i, dir := range l.baseTargetPathDirs {
+		targetPaths[i] = l.relTargetPathForRelAndBasePath(rel, dir, false)
+	}
+	return targetPaths
+}
+
+func (l *genericResource) relTargetPathForRel(rel string, addBaseTargetPath, isURL bool) string {
+	if addBaseTargetPath && len(l.baseTargetPathDirs) > 1 {
+		panic("multiple baseTargetPathDirs")
+	}
+	var basePath string
+	if addBaseTargetPath && len(l.baseTargetPathDirs) > 0 {
+		basePath = l.baseTargetPathDirs[0]
+	}
+
+	return l.relTargetPathForRelAndBasePath(rel, basePath, isURL)
+}
+
+func (l *genericResource) relTargetPathForRelAndBasePath(rel, basePath string, isURL bool) string {
 	if l.targetPathBuilder != nil {
 		rel = l.targetPathBuilder(rel)
 	}
@@ -744,8 +775,8 @@ func (l *genericResource) relTargetPathForRel(rel string, isURL bool) string {
 		rel = path.Join(l.baseURLDir, rel)
 	}
 
-	if !isURL && l.baseTargetPathDir != "" {
-		rel = path.Join(l.baseTargetPathDir, rel)
+	if basePath != "" {
+		rel = path.Join(basePath, rel)
 	}
 
 	if l.baseOffset != "" {
@@ -772,12 +803,19 @@ func (l *genericResource) String() string {
 }
 
 func (l *genericResource) Publish() error {
-	f, err := l.ReadSeekCloser()
+	fr, err := l.ReadSeekCloser()
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-	return helpers.WriteToDisk(l.targetFilename(), f, l.spec.BaseFs.PublishFs)
+	defer fr.Close()
+	fw, err := helpers.OpenFilesForWriting(l.spec.BaseFs.PublishFs, l.targetFilenames()...)
+	if err != nil {
+		return err
+	}
+	defer fw.Close()
+
+	_, err = io.Copy(fw, fr)
+	return err
 }
 
 // Path is stored with Unix style slashes.
@@ -785,8 +823,12 @@ func (l *genericResource) targetPath() string {
 	return l.relTargetDirFile.path()
 }
 
-func (l *genericResource) targetFilename() string {
-	return filepath.Clean(l.relTargetPath())
+func (l *genericResource) targetFilenames() []string {
+	paths := l.relTargetPaths()
+	for i, p := range paths {
+		paths[i] = filepath.Clean(p)
+	}
+	return paths
 }
 
 // TODO(bep) clean up below
@@ -801,7 +843,7 @@ func (r *Spec) newGenericResource(sourceFs afero.Fs,
 		false,
 		nil,
 		"",
-		"",
+		nil,
 		targetPathBuilder,
 		osFileInfo,
 		sourceFilename,
@@ -816,7 +858,7 @@ func (r *Spec) newGenericResourceWithBase(
 	lazyPublish bool,
 	openReadSeekerCloser OpenReadSeekCloser,
 	urlBaseDir string,
-	targetPathBaseDir string,
+	targetPathBaseDirs []string,
 	targetPathBuilder func(base string) string,
 	osFileInfo os.FileInfo,
 	sourceFilename,
@@ -836,10 +878,10 @@ func (r *Spec) newGenericResourceWithBase(
 	}
 
 	pathDescriptor := resourcePathDescriptor{
-		baseURLDir:        urlBaseDir,
-		baseTargetPathDir: targetPathBaseDir,
-		targetPathBuilder: targetPathBuilder,
-		relTargetDirFile:  dirFile{dir: fpath, file: fname},
+		baseURLDir:         urlBaseDir,
+		baseTargetPathDirs: targetPathBaseDirs,
+		targetPathBuilder:  targetPathBuilder,
+		relTargetDirFile:   dirFile{dir: fpath, file: fname},
 	}
 
 	var po *publishOnce

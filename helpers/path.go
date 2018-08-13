@@ -24,6 +24,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/spf13/afero"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -513,6 +514,24 @@ func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 // WriteToDisk writes content to disk.
 func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	return afero.WriteReader(fs, inpath, r)
+}
+
+// OpenFileForWriting opens all the given filenames for writing.
+func OpenFilesForWriting(fs afero.Fs, filenames ...string) (io.WriteCloser, error) {
+	var writeClosers []io.WriteCloser
+	for _, filename := range filenames {
+		f, err := OpenFileForWriting(fs, filename)
+		if err != nil {
+			for _, wc := range writeClosers {
+				wc.Close()
+			}
+			return nil, err
+		}
+		writeClosers = append(writeClosers, f)
+	}
+
+	return hugio.NewMultiWriteCloser(writeClosers...), nil
+
 }
 
 // OpenFileForWriting opens or creates the given file. If the target directory

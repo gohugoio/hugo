@@ -332,7 +332,7 @@ func (c *contentHandlers) createResource() contentHandler {
 				SourceFile:        ctx.source,
 				RelTargetFilename: ctx.target,
 				URLBase:           c.s.GetURLLanguageBasePath(),
-				TargetPathBase:    c.s.GetTargetLanguageBasePath(),
+				TargetBasePaths:   []string{c.s.GetTargetLanguageBasePath()},
 			})
 
 		return handlerResult{err: err, handled: true, resource: resource}
