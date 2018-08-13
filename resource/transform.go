@@ -267,7 +267,7 @@ func (r *transformedResource) initContent() error {
 func (r *transformedResource) transform(setContent bool) (err error) {
 
 	openPublishFileForWriting := func(relTargetPath string) (io.WriteCloser, error) {
-		return helpers.OpenFileForWriting(r.cache.rs.PublishFs, r.linker.relTargetPathFor(relTargetPath))
+		return helpers.OpenFilesForWriting(r.cache.rs.PublishFs, r.linker.relTargetPathsFor(relTargetPath)...)
 	}
 
 	// This can be the last resource in a chain.
@@ -299,7 +299,7 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 			key = key + "_" + v.transformation.Key().key()
 		case permalinker:
 			r.linker = v
-			p := v.relTargetPath()
+			p := v.targetPath()
 			if p == "" {
 				panic("target path needed for key creation")
 			}

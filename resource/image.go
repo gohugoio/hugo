@@ -268,7 +268,7 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 		ci.config = image.Config{Width: b.Max.X, Height: b.Max.Y}
 		ci.configLoaded = true
 
-		return ci, i.encodeToDestinations(converted, conf, resourceCacheFilename, ci.targetFilename())
+		return ci, i.encodeToDestinations(converted, conf, resourceCacheFilename, ci.targetFilenames()...)
 	})
 
 }
@@ -447,13 +447,21 @@ func (i *Image) decodeSource() (image.Image, error) {
 func (i *Image) copyToDestination(src string) error {
 	var res error
 	i.copyToDestinationInit.Do(func() {
-		target := i.targetFilename()
+		targetFilenames := i.targetFilenames()
+		var changedFilenames []string
 
 		// Fast path:
 		// This is a processed version of the original.
 		// If it exists on destination with the same filename and file size, it is
 		// the same file, so no need to transfer it again.
-		if fi, err := i.spec.BaseFs.PublishFs.Stat(target); err == nil && fi.Size() == i.osFileInfo.Size() {
+		for _, targetFilename := range targetFilenames {
+			if fi, err := i.spec.BaseFs.PublishFs.Stat(targetFilename); err == nil && fi.Size() == i.osFileInfo.Size() {
+				continue
+			}
+			changedFilenames = append(changedFilenames, targetFilename)
+		}
+
+		if len(changedFilenames) == 0 {
 			return
 		}
 
@@ -464,7 +472,7 @@ func (i *Image) copyToDestination(src string) error {
 		}
 		defer in.Close()
 
-		out, err := helpers.OpenFileForWriting(i.spec.BaseFs.PublishFs, target)
+		out, err := helpers.OpenFilesForWriting(i.spec.BaseFs.PublishFs, changedFilenames...)
 
 		if err != nil {
 			res = err
@@ -485,9 +493,9 @@ func (i *Image) copyToDestination(src string) error {
 	return nil
 }
 
-func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resourceCacheFilename, targetFilename string) error {
+func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resourceCacheFilename string, targetFilenames ...string) error {
 
-	file1, err := helpers.OpenFileForWriting(i.spec.BaseFs.PublishFs, targetFilename)
+	file1, err := helpers.OpenFilesForWriting(i.spec.BaseFs.PublishFs, targetFilenames...)
 	if err != nil {
 		return err
 	}

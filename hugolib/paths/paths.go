@@ -53,6 +53,10 @@ type Paths struct {
 
 	PublishDir string
 
+	// When in multihost mode, this returns a list of base paths below PublishDir
+	// for each language.
+	MultihostTargetBasePaths []string
+
 	DisablePathToLower bool
 	RemovePathAccents  bool
 	UglyURLs           bool
@@ -135,6 +139,15 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 		absResourcesDir = FilePathSeparator
 	}
 
+	multilingual := cfg.GetBool("multilingual")
+
+	var multihostTargetBasePaths []string
+	if multilingual {
+		for _, l := range languages {
+			multihostTargetBasePaths = append(multihostTargetBasePaths, l.Lang)
+		}
+	}
+
 	p := &Paths{
 		Fs:      fs,
 		Cfg:     cfg,
@@ -154,12 +167,13 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 
 		themes: config.GetStringSlicePreserveString(cfg, "theme"),
 
-		multilingual:                   cfg.GetBool("multilingual"),
+		multilingual:                   multilingual,
 		defaultContentLanguageInSubdir: cfg.GetBool("defaultContentLanguageInSubdir"),
 		DefaultContentLanguage:         defaultContentLanguage,
 
-		Language:  language,
-		Languages: languages,
+		Language:                 language,
+		Languages:                languages,
+		MultihostTargetBasePaths: multihostTargetBasePaths,
 
 		PaginatePath: cfg.GetString("paginatePath"),
 	}
