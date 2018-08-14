@@ -385,3 +385,20 @@ $color: #333;
 		test.verify(b)
 	}
 }
+
+func TestMultiSiteResource(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	b := newMultiSiteTestDefaultBuilder(t)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	// This build is multilingual, but not multihost. There should be only one pipes.txt
+	b.AssertFileContent("public/fr/index.html", "French Home Page", "String Resource: /blog/text/pipes.txt")
+	assert.False(b.CheckExists("public/fr/text/pipes.txt"))
+	assert.False(b.CheckExists("public/en/text/pipes.txt"))
+	b.AssertFileContent("public/en/index.html", "Default Home Page", "String Resource: /blog/text/pipes.txt")
+	b.AssertFileContent("public/text/pipes.txt", "Hugo Pipes")
+
+}

@@ -139,10 +139,8 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 		absResourcesDir = FilePathSeparator
 	}
 
-	multilingual := cfg.GetBool("multilingual")
-
 	var multihostTargetBasePaths []string
-	if multilingual {
+	if languages.IsMultihost() {
 		for _, l := range languages {
 			multihostTargetBasePaths = append(multihostTargetBasePaths, l.Lang)
 		}
@@ -167,7 +165,7 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 
 		themes: config.GetStringSlicePreserveString(cfg, "theme"),
 
-		multilingual:                   multilingual,
+		multilingual:                   cfg.GetBool("multilingual"),
 		defaultContentLanguageInSubdir: cfg.GetBool("defaultContentLanguageInSubdir"),
 		DefaultContentLanguage:         defaultContentLanguage,
 
