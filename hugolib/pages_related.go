@@ -73,7 +73,7 @@ func (p Pages) RelatedIndices(doc related.Document, indices ...interface{}) (Pag
 		return nil, err
 	}
 
-	result, err := p.searchDoc(page, indicesStr...)
+	result, err := p.searchDoc(doc, indicesStr...)
 	if err != nil {
 		return nil, err
 	}
