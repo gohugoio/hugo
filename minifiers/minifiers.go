@@ -18,6 +18,7 @@ package minifiers
 
 import (
 	"io"
+	"regexp"
 
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/transform"
@@ -70,6 +71,7 @@ func New(mediaTypes media.Types, outputFormats output.Formats) Client {
 	// We use the Type definition of the media types defined in the site if found.
 	addMinifierFunc(m, mediaTypes, "text/css", "css", css.Minify)
 	addMinifierFunc(m, mediaTypes, "application/javascript", "js", js.Minify)
+	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
 	addMinifierFunc(m, mediaTypes, "application/json", "json", json.Minify)
 	addMinifierFunc(m, mediaTypes, "image/svg+xml", "svg", svg.Minify)
 	addMinifierFunc(m, mediaTypes, "application/xml", "xml", xml.Minify)
