@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -324,11 +325,12 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		}
 	}
 
-	themeVersionMismatch, minVersion := c.isThemeVsHugoVersionMismatch(sourceFs)
+	dir, themeVersionMismatch, minVersion := c.isThemeVsHugoVersionMismatch(sourceFs)
 
 	if themeVersionMismatch {
-		cfg.Logger.ERROR.Printf("Current theme does not support Hugo version %s. Minimum version required is %s\n",
-			helpers.CurrentHugoVersion.ReleaseVersion(), minVersion)
+		name := filepath.Base(dir)
+		cfg.Logger.ERROR.Printf("%s theme does not support Hugo version %s. Minimum version required is %s\n",
+			strings.ToUpper(name), helpers.CurrentHugoVersion.ReleaseVersion(), minVersion)
 	}
 
 	return nil

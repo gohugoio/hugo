@@ -945,7 +945,7 @@ func pickOneWriteOrCreatePath(events []fsnotify.Event) string {
 
 // isThemeVsHugoVersionMismatch returns whether the current Hugo version is
 // less than any of the themes' min_version.
-func (c *commandeer) isThemeVsHugoVersionMismatch(fs afero.Fs) (mismatch bool, requiredMinVersion string) {
+func (c *commandeer) isThemeVsHugoVersionMismatch(fs afero.Fs) (dir string, mismatch bool, requiredMinVersion string) {
 	if !c.hugo.PathSpec.ThemeSet() {
 		return
 	}
@@ -970,7 +970,7 @@ func (c *commandeer) isThemeVsHugoVersionMismatch(fs afero.Fs) (mismatch bool, r
 
 		if minVersion, ok := tomlMeta["min_version"]; ok {
 			if helpers.CompareVersion(minVersion) > 0 {
-				return true, fmt.Sprint(minVersion)
+				return absThemeDir, true, fmt.Sprint(minVersion)
 			}
 		}
 
