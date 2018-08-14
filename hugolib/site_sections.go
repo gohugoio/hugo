@@ -145,15 +145,16 @@ func (p *Page) Eq(other interface{}) bool {
 }
 
 func unwrapPage(in interface{}) (*Page, error) {
-	if po, ok := in.(*PageOutput); ok {
-		in = po.Page
-	}
-
-	pp, ok := in.(*Page)
-	if !ok {
+	switch v := in.(type) {
+	case *Page:
+		return v, nil
+	case *PageOutput:
+		return v.Page, nil
+	case *PageWithoutContent:
+		return v.Page, nil
+	default:
 		return nil, fmt.Errorf("%T not supported", in)
 	}
-	return pp, nil
 }
 
 // Sections returns this section's subsections, if any.

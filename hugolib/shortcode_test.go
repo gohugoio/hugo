@@ -150,6 +150,17 @@ func TestPositionalParamIndexOutOfBounds(t *testing.T) {
 	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video Missing", wt)
 }
 
+// #5071
+func TestShortcodeRelated(t *testing.T) {
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/a.html", `{{ len (.Site.RegularPages.Related .Page) }}`)
+		return nil
+	}
+
+	CheckShortCodeMatch(t, "{{< a >}}", "0", wt)
+}
+
 // some repro issues for panics in Go Fuzz testing
 
 func TestNamedParamSC(t *testing.T) {
