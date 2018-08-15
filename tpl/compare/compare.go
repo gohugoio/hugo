@@ -87,7 +87,10 @@ func (*Namespace) Default(dflt interface{}, given ...interface{}) (interface{}, 
 
 // Eq returns the boolean truth of arg1 == arg2.
 func (*Namespace) Eq(x, y interface{}) bool {
+	return Eq(x, y)
+}
 
+func Eq(x, y interface{}) bool {
 	if e, ok := x.(compare.Eqer); ok {
 		return e.Eq(y)
 	}
