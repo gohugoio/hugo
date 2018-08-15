@@ -135,11 +135,17 @@ func (c *capturer) capturePartial(filenames ...string) error {
 		switch tp {
 		case bundleLeaf:
 			if err := c.handleDir(resolvedFilename); err != nil {
-				return err
+				// Directory may have been deleted.
+				if !os.IsNotExist(err) {
+					return err
+				}
 			}
 		case bundleBranch:
 			if err := c.handleBranchDir(resolvedFilename); err != nil {
-				return err
+				// Directory may have been deleted.
+				if !os.IsNotExist(err) {
+					return err
+				}
 			}
 		default:
 			fi, err := c.resolveRealPath(resolvedFilename)
@@ -510,7 +516,7 @@ func (c *capturer) readDir(dirname string) (pathLangFileFis, error) {
 
 	dir, err := c.fs.Open(dirname)
 	if err != nil {
-		return nil, fmt.Errorf("readDir: %s", err)
+		return nil, err
 	}
 	defer dir.Close()
 	fis, err := dir.Readdir(-1)
