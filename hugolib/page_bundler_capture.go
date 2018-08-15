@@ -20,6 +20,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 
@@ -70,6 +71,30 @@ func newCapturer(
 	if n := runtime.NumCPU(); n > numWorkers {
 		numWorkers = n
 	}
+
+	// TODO(bep) the "index" vs "_index" check/strings should be moved in one place.
+	isBundleHeader := func(filename string) bool {
+		base := filepath.Base(filename)
+		name := helpers.Filename(base)
+		return isContentFile(base) && (name == "index" || name == "_index")
+	}
+
+	// Make sure that any bundle header files are processed before the others. This makes
+	// sure that any bundle head is processed before its resources.
+	sort.Slice(filenames, func(i, j int) bool {
+		a, b := filenames[i], filenames[j]
+		ac, bc := isBundleHeader(a), isBundleHeader(b)
+
+		if ac {
+			return true
+		}
+
+		if bc {
+			return false
+		}
+
+		return a < b
+	})
 
 	c := &capturer{
 		sem:            make(chan bool, numWorkers),

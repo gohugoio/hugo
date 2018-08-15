@@ -740,6 +740,11 @@ func (m *contentChangeMap) resolveAndRemove(filename string) (string, string, bu
 		}
 	}
 
+	if isContent && fileTp != bundleNot {
+		// A new bundle.
+		return dir, dir, fileTp
+	}
+
 	// Not part of any bundle
 	return dir, filename, bundleNot
 }
