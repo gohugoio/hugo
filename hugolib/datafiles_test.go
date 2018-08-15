@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"runtime"
 
+	"encoding/json"
 	"github.com/stretchr/testify/require"
 )
 
@@ -226,6 +227,56 @@ func TestDataDirMultipleSourcesCommingled(t *testing.T) {
 				"b3": []interface{}{"x", "y", "z"},
 			},
 		}
+
+	doTestDataDir(t, dd, expected, "theme", "mytheme")
+}
+
+func TestDataDirGraftMergeAndOverrideDemo(t *testing.T) {
+	t.Parallel()
+
+	var dd dataDir
+	dd.addSource("themes/mytheme/data/music/genres.json", `{
+       "rock": {"icon": "rock.png", "palette": "metal.css"},
+       "jazz": {"icon": "jazz.png", "palette": "vibrant.css"},
+       "soul": {"icon": "soul.png", "palette": "fervent.css"},
+       "classical": {"icon": "classical.png", "palette": "elegant.css"}
+       }`)
+	dd.addSource("data/music/genres.json", `{
+       "rock": {"icon": "rock2.png"},
+       "funk": {"icon": "funk.png", "palette": "funky.css"},
+       "hip-hop": {"icon": "hip-hop.png", "palette": "hip.css"},
+       "blue-eyed-soul": {"icon": "soul.png", "palette": "fervent"}
+       }`)
+	dd.addSource("data/music/genres/blue-eyed-soul.json", `{
+       "parent genre": "soul"
+       }`)
+	dd.addSource("data/music.json", `{
+       "Mother": {"artist": "Pink Floyd", "genre": "rock"},
+       "Freddie's Dead": {"artist": "Curtis Mayfield", "genre": "funk"},
+       "Son of a Preacher Man": {"artist": "Dusty Springfield", "genre": "blue-eyed soul"}
+       }`)
+
+	expected :=
+		map[string]interface{}{
+			"music": map[string]interface{}{
+				"genres": map[string]interface{}{
+					"rock":           map[string]interface{}{"icon": "rock2.png"},
+					"jazz":           map[string]interface{}{"icon": "jazz.png", "palette": "vibrant.css"},
+					"soul":           map[string]interface{}{"icon": "soul.png", "palette": "fervent.css"},
+					"classical":      map[string]interface{}{"icon": "classical.png", "palette": "elegant.css"},
+					"funk":           map[string]interface{}{"icon": "funk.png", "palette": "funky.css"},
+					"hip-hop":        map[string]interface{}{"icon": "hip-hop.png", "palette": "hip.css"},
+					"blue-eyed-soul": map[string]interface{}{"parent genre": "soul"},
+				},
+				"Mother":                map[string]interface{}{"artist": "Pink Floyd", "genre": "rock"},
+				"Freddie's Dead":        map[string]interface{}{"artist": "Curtis Mayfield", "genre": "funk"},
+				"Son of a Preacher Man": map[string]interface{}{"artist": "Dusty Springfield", "genre": "blue-eyed soul"},
+			}}
+
+	expectedJSON, err := json.MarshalIndent(expected, "", "  ")
+	if err == nil {
+		fmt.Printf("\nTestDataDirGraftMergeAndOverrideDemo expected data tree as JSON:\n%s\n", expectedJSON)
+	}
 
 	doTestDataDir(t, dd, expected, "theme", "mytheme")
 }
