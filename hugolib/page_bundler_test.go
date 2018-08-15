@@ -344,6 +344,34 @@ func TestPageBundlerSiteWitSymbolicLinksInContent(t *testing.T) {
 
 }
 
+func TestPageBundlerRenderResource(t *testing.T) {
+	cfg, fs := newTestCfg()
+
+	assert := require.New(t)
+
+	workDir := "/work"
+	cfg.Set("workingDir", workDir)
+	cfg.Set("contentDir", "base")
+	cfg.Set("baseURL", "https://example.com")
+
+	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "single.html"), `
+single
+{{ range .Resources }}{{ .Render "resourcerender" }}{{ end }}`)
+	writeSource(t, fs, filepath.Join(workDir, "layouts", "_default", "resourcerender.html"), "resourcerender {{ .Title }}")
+	writeSource(t, fs, filepath.Join(workDir, "base", "a", "index.md"), `---
+title: "This is the page"
+---`)
+	writeSource(t, fs, filepath.Join(workDir, "base", "a", "resource.md"), `---
+title: "This is the resource"
+---`)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	assert.Equal(1, len(s.RegularPages))
+	fmt.Print()
+	th := testHelper{s.Cfg, s.Fs, t}
+	th.assertFileContent(filepath.FromSlash(workDir+"/public/a/index.html"), "resourcerender This is the resource")
+}
+
 func TestPageBundlerHeadless(t *testing.T) {
 	t.Parallel()
 
