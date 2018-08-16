@@ -366,6 +366,11 @@ type BuildCfg struct {
 // Note that a page does not have to have a content page / file.
 // For regular builds, this will allways return true.
 func (cfg *BuildCfg) shouldRender(p *Page) bool {
+	if p.forceRender {
+		p.forceRender = false
+		return true
+	}
+
 	if len(cfg.RecentlyVisited) == 0 {
 		return true
 	}

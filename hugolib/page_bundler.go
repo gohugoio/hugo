@@ -110,6 +110,7 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 			}
 
 			if s.partialBuild {
+				p.forceRender = true
 				s.site.replacePage(p)
 			} else {
 				s.site.addPage(p)
