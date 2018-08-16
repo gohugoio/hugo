@@ -705,6 +705,18 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 						if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
 							continue
 						}
+						if ev.Op&fsnotify.Remove == fsnotify.Remove {
+							for _, configFile := range c.configFiles {
+								counter := 0
+								for watcher.Add(configFile) != nil {
+									counter++
+									if counter >= 100 {
+										break
+									}
+									time.Sleep(100 * time.Millisecond)
+								}
+							}
+						}
 						// Config file changed. Need full rebuild.
 						c.fullRebuild()
 						break
