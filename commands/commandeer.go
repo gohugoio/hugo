@@ -71,6 +71,7 @@ type commandeer struct {
 	languages           langs.Languages
 
 	configured bool
+	paused     bool
 }
 
 func (c *commandeer) Set(key string, value interface{}) {

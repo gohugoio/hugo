@@ -646,12 +646,21 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 
 func (c *commandeer) fullRebuild() {
 	c.commandeerHugoState = &commandeerHugoState{}
-	if err := c.loadConfig(true, true); err != nil {
+	err := c.loadConfig(true, true)
+	if err != nil {
 		jww.ERROR.Println("Failed to reload config:", err)
-	} else if err := c.buildSites(); err != nil {
-		jww.ERROR.Println(err)
-	} else if !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload") {
-		livereload.ForceRefresh()
+		// Set the processing on pause until the state is recovered.
+		c.paused = true
+	} else {
+		c.paused = false
+	}
+
+	if !c.paused {
+		if err := c.buildSites(); err != nil {
+			jww.ERROR.Println(err)
+		} else if !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload") {
+			livereload.ForceRefresh()
+		}
 	}
 }
 
@@ -691,6 +700,23 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 		for {
 			select {
 			case evs := <-watcher.Events:
+				for _, ev := range evs {
+					if configSet[ev.Name] {
+						if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
+							continue
+						}
+						// Config file changed. Need full rebuild.
+						c.fullRebuild()
+						break
+					}
+				}
+
+				if c.paused {
+					// Wait for the server to get into a consistent state before
+					// we continue with processing.
+					continue
+				}
+
 				if len(evs) > 50 {
 					// This is probably a mass edit of the content dir.
 					// Schedule a full rebuild for when it slows down.
@@ -706,15 +732,6 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 				// Special handling for symbolic links inside /content.
 				filtered := []fsnotify.Event{}
 				for _, ev := range evs {
-					if configSet[ev.Name] {
-						if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
-							continue
-						}
-						// Config file changed. Need full rebuild.
-						c.fullRebuild()
-						break
-					}
-
 					// Check the most specific first, i.e. files.
 					contentMapped := c.hugo.ContentChanges.GetSymbolicLinkMappings(ev.Name)
 					if len(contentMapped) > 0 {
