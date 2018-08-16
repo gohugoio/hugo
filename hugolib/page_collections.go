@@ -319,10 +319,6 @@ func (c *PageCollections) replacePage(page *Page) {
 
 func (c *PageCollections) clearResourceCacheForPage(page *Page) {
 	if len(page.Resources) > 0 {
-		first := page.Resources[0]
-		dir := path.Dir(first.RelPermalink())
-		dir = strings.TrimPrefix(dir, page.LanguagePrefix())
-		dir = strings.TrimPrefix(dir, page.s.BaseURL.Path())
-		page.s.ResourceSpec.DeleteCacheByPrefix(dir)
+		page.s.ResourceSpec.DeleteCacheByPrefix(page.relTargetPathBase)
 	}
 }
