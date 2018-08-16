@@ -265,6 +265,11 @@ type Page struct {
 
 	lang string
 
+	// When in Fast Render Mode, we only render a sub set of the pages, i.e. the
+	// pages the user is working on. There are, however, situations where we need to
+	// signal other pages to be rendered.
+	forceRender bool
+
 	// The output formats this page will be rendered to.
 	outputFormats output.Formats
 
