@@ -670,7 +670,6 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 		return source, nil
 	}
 
-	sourceLen := len(source)
 	start := 0
 
 	pre := []byte("HAHA" + prefix)
@@ -694,7 +693,7 @@ func replaceShortcodeTokens(source []byte, prefix string, replacements map[strin
 
 		// Issue #1148: Check for wrapping p-tags <p>
 		if j >= 3 && bytes.Equal(source[j-3:j], pStart) {
-			if (k+4) < sourceLen && bytes.Equal(source[end:end+4], pEnd) {
+			if (k+4) < len(source) && bytes.Equal(source[end:end+4], pEnd) {
 				j -= 3
 				end += 4
 			}
