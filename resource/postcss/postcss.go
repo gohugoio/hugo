@@ -98,7 +98,7 @@ func (t *postcssTransformation) Key() resource.ResourceTransformationKey {
 // npm install -g autoprefixer
 func (t *postcssTransformation) Transform(ctx *resource.ResourceTransformationCtx) error {
 
-	const localPostCSSPath = "node_modules/postcss-cli/bin/"
+	const localPostCSSPath = "node_modules/.bin/"
 	const binaryName = "postcss"
 
 	// Try first in the project's node_modules.
