@@ -62,6 +62,14 @@ If you are on a Windows machine and use [Chocolatey][] for package management, y
 choco install hugo -confirm
 {{< /code >}}
 
+### Scoop (Windows)
+
+If you are on a Windows machine and use [Scoop][] for package management, you can install Hugo with the following one-liner:
+
+```bash
+scoop install hugo
+```
+
 ### Source
 
 #### Prerequisite Tools
@@ -500,6 +508,7 @@ Now that you've installed Hugo, read the [Quick Start guide][quickstart] and exp
 [quickstart]: /getting-started/quick-start/
 [redhatforum]: https://discourse.gohugo.io/t/solved-fedora-copr-repository-out-of-service/2491
 [releases]: https://github.com/gohugoio/hugo/releases
+[Scoop]: https://scoop.sh/
 [snaps]: http://snapcraft.io/docs/core/install
 [windowsarch]: https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx
 [Windows Environment Variables Editor]: http://eveditor.com/
