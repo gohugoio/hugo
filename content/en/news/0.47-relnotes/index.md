@@ -1,12 +1,12 @@
 
 ---
 date: 2018-08-17
-title: "0.47"
-description: "0.47"
+title: "Output Minification, Live-Reload Fixes and More"
+description: "Hugo 0.47: Adds minification of rendered output, but is mostly a massive bug fix release."
 categories: ["Releases"]
 ---
 
-	Hugo `0.47` is named **Hugo Reloaded**. It adds minification support for the final rendered output (run `hugo --minify`), but it is mostly a bug fix release. And most notably, it fixes a set of issues with live-reloading/partial rebuilds when running `hugo server`. Working with bundles should now be a more pleasant experience, to pick one example.
+Hugo `0.47` is named **Hugo Reloaded**. It adds minification support for the final rendered output (run `hugo --minify`), but it is mostly a bug fix release. And most notably, it fixes a set of issues with live-reloading/partial rebuilds when running `hugo server`. Working with bundles should now be a more pleasant experience, to pick one example.
 
 This release represents **35 contributions by 6 contributors** to the main Hugo code base.
 [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@satotake](https://github.com/satotake), [@anthonyfok](https://github.com/anthonyfok), and [@coliff](https://github.com/coliff) for their ongoing contributions.
