@@ -319,6 +319,10 @@ func (ns *Namespace) IsSet(a interface{}, key interface{}) (bool, error) {
 
 	switch av.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Slice:
+		if !isInt(kv.Kind()) && !isUint(kv.Kind()) {
+			helpers.DistinctFeedbackLog.Printf("WARNING: calling IsSet with with key of type %q will always return false for container of type %q (%T).\n", kv.Kind(), av.Kind(), a)
+			return false, nil
+		}
 		if int64(av.Len()) > kv.Int() {
 			return true, nil
 		}

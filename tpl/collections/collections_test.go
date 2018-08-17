@@ -382,6 +382,8 @@ func TestIsSet(t *testing.T) {
 	}{
 		{[]interface{}{1, 2, 3, 5}, 2, true, false, ""},
 		{[]interface{}{1, 2, 3, 5}, 22, false, false, ""},
+		{[]interface{}{1, 2, 3, 5}, "2", false, false, ""},
+		{[]interface{}{1, 2, 3, 5}, 2.0, false, false, ""},
 
 		{map[string]interface{}{"a": 1, "b": 2}, "b", true, false, ""},
 		{map[string]interface{}{"a": 1, "b": 2}, "bc", false, false, ""},
