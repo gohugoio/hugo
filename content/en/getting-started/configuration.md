@@ -323,8 +323,8 @@ The default configuration is:
 
 ```toml
 [frontmatter]
-date = ["date","publishDate", "lastmod"]
-lastmod = [":git" "lastmod", "date","publishDate"]
+date = ["date", "publishDate", "lastmod"]
+lastmod = [":git", "lastmod", "date", "publishDate"]
 publishDate = ["publishDate", "date"]
 expiryDate = ["expiryDate"]
 ```
@@ -333,7 +333,7 @@ If you, as an example, have a non-standard date parameter in some of your conten
 
  ```toml
 [frontmatter]
-date = [ "myDate", ":default"]
+date = ["myDate", ":default"]
 ```
 
 The `:default` is a shortcut to the default settings. The above will set `.Date` to the date value in `myDate` if present, if not we will look in `date`,`publishDate`, `lastmod` and pick the first valid date.
@@ -350,7 +350,7 @@ An example:
 
  ```toml
 [frontmatter]
-lastmod = ["lastmod" ,":fileModTime", ":default"]
+lastmod = ["lastmod", ":fileModTime", ":default"]
 ```
 
 
