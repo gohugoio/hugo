@@ -1,5 +1,5 @@
 ---
-date: 2018-04-16
+date: 2018-08-17
 title: "hugo"
 slug: hugo
 url: /commands/hugo/
@@ -24,43 +24,44 @@ hugo [flags]
 ### Options
 
 ```
-  -b, --baseURL string             hostname (and path) to the root, e.g. http://spf13.com/
-  -D, --buildDrafts                include content marked as draft
-  -E, --buildExpired               include expired content
-  -F, --buildFuture                include content with publishdate in the future
-      --cacheDir string            filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
-      --canonifyURLs               (deprecated) if true, all relative URLs will be canonicalized using baseURL
-      --cleanDestinationDir        remove files from destination not found in static directories
-      --config string              config file (default is path/config.yaml|json|toml)
-  -c, --contentDir string          filesystem path to content directory
-      --debug                      debug output
-  -d, --destination string         filesystem path to write files to
-      --disableKinds stringSlice   disable different kind of pages (home, RSS etc.)
-      --enableGitInfo              add Git revision, date and author info to the pages
-      --forceSyncStatic            copy all files when static is changed.
-      --gc                         enable to run some cleanup tasks (remove unused cache files) after the build
-  -h, --help                       help for hugo
-      --i18n-warnings              print missing translations
-      --ignoreCache                ignores the cache directory
-  -l, --layoutDir string           filesystem path to layout directory
-      --log                        enable Logging
-      --logFile string             log File path (if set, logging enabled automatically)
-      --noChmod                    don't sync permission mode of files
-      --noTimes                    don't sync modification time of files
-      --pluralizeListTitles        (deprecated) pluralize titles in lists using inflect (default true)
-      --preserveTaxonomyNames      (deprecated) preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
-      --quiet                      build in quiet mode
-      --renderToMemory             render to memory (only useful for benchmark testing)
-  -s, --source string              filesystem path to read files relative from
-      --stepAnalysis               display memory and timing of different steps of the program
-      --templateMetrics            display metrics about template executions
-      --templateMetricsHints       calculate some improvement hints when combined with --templateMetrics
-  -t, --theme string               theme to use (located in /themes/THEMENAME/)
-      --themesDir string           filesystem path to themes directory
-      --uglyURLs                   (deprecated) if true, use /filename.html instead of /filename/
-  -v, --verbose                    verbose output
-      --verboseLog                 verbose logging
-  -w, --watch                      watch filesystem for changes and recreate as needed
+  -b, --baseURL string          hostname (and path) to the root, e.g. http://spf13.com/
+  -D, --buildDrafts             include content marked as draft
+  -E, --buildExpired            include expired content
+  -F, --buildFuture             include content with publishdate in the future
+      --cacheDir string         filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/
+      --canonifyURLs            (deprecated) if true, all relative URLs will be canonicalized using baseURL
+      --cleanDestinationDir     remove files from destination not found in static directories
+      --config string           config file (default is path/config.yaml|json|toml)
+  -c, --contentDir string       filesystem path to content directory
+      --debug                   debug output
+  -d, --destination string      filesystem path to write files to
+      --disableKinds strings    disable different kind of pages (home, RSS etc.)
+      --enableGitInfo           add Git revision, date and author info to the pages
+      --forceSyncStatic         copy all files when static is changed.
+      --gc                      enable to run some cleanup tasks (remove unused cache files) after the build
+  -h, --help                    help for hugo
+      --i18n-warnings           print missing translations
+      --ignoreCache             ignores the cache directory
+  -l, --layoutDir string        filesystem path to layout directory
+      --log                     enable Logging
+      --logFile string          log File path (if set, logging enabled automatically)
+      --minify                  minify any supported output format (HTML, XML etc.)
+      --noChmod                 don't sync permission mode of files
+      --noTimes                 don't sync modification time of files
+      --pluralizeListTitles     (deprecated) pluralize titles in lists using inflect (default true)
+      --preserveTaxonomyNames   (deprecated) preserve taxonomy names as written ("Gérard Depardieu" vs "gerard-depardieu")
+      --quiet                   build in quiet mode
+      --renderToMemory          render to memory (only useful for benchmark testing)
+  -s, --source string           filesystem path to read files relative from
+      --stepAnalysis            display memory and timing of different steps of the program
+      --templateMetrics         display metrics about template executions
+      --templateMetricsHints    calculate some improvement hints when combined with --templateMetrics
+  -t, --theme string            theme to use (located in /themes/THEMENAME/)
+      --themesDir string        filesystem path to themes directory
+      --uglyURLs                (deprecated) if true, use /filename.html instead of /filename/
+  -v, --verbose                 verbose output
+      --verboseLog              verbose logging
+  -w, --watch                   watch filesystem for changes and recreate as needed
 ```
 
 ### SEE ALSO
@@ -77,4 +78,4 @@ hugo [flags]
 * [hugo server](/commands/hugo_server/)	 - A high performance webserver
 * [hugo version](/commands/hugo_version/)	 - Print the version number of Hugo
 
-###### Auto generated by spf13/cobra on 16-Apr-2018
+###### Auto generated by spf13/cobra on 17-Aug-2018
