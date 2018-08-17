@@ -245,7 +245,12 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 		return nil
 	}
 
-	cmd := exec.Command("goreleaser", "--rm-dist", "--release-notes", releaseNotesFile, "--skip-publish="+fmt.Sprint(r.skipPublish))
+	args := []string{"--rm-dist", "--release-notes", releaseNotesFile}
+	if r.skipPublish {
+		args = append(args, "--skip-publish")
+	}
+
+	cmd := exec.Command("goreleaser", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
