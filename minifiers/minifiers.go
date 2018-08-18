@@ -65,7 +65,8 @@ func (m Client) Minify(mediatype media.Type, dst io.Writer, src io.Reader) error
 func New(mediaTypes media.Types, outputFormats output.Formats) Client {
 	m := minify.New()
 	htmlMin := &html.Minifier{
-		KeepDocumentTags: true,
+		KeepDocumentTags:        true,
+		KeepConditionalComments: true,
 	}
 
 	// We use the Type definition of the media types defined in the site if found.
