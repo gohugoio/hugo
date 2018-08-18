@@ -50,6 +50,25 @@ parts:
       ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
       strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
       ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
+      echo " * Remove unneeded files..."
+      rm -rf $SNAPCRAFT_PART_INSTALL/etc
+      rm -f $SNAPCRAFT_PART_INSTALL/usr/bin/[^gp]*
+      rm -f $SNAPCRAFT_PART_INSTALL/usr/bin/git-*
+      rm -f $SNAPCRAFT_PART_INSTALL/usr/bin/p[^y]*
+      rm -f $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/git-[^lr]*
+      rm -f $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/git-ls-*
+      rm -f $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/git-re[^v]*
+      rm -f $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/git-revert
+      rm -f $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/git-rm
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/mergetools
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/*/perl
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/mime
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/python*/lib2to3
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/valgrind
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/sbin
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/share/[^p]*
+      rm -rf $SNAPCRAFT_PART_INSTALL/usr/share/p[^y]*
+      rm -rf $SNAPCRAFT_PART_INSTALL/var
     after: [go]
   go:
     source-tag: go1.10.3
