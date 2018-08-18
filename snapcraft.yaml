@@ -23,6 +23,7 @@ parts:
       - git
     stage-packages:
       - git
+      - nodejs
       - python-pygments
     override-build: |
       echo "\nStarting override-build:"
