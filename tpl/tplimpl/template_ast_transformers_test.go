@@ -24,7 +24,8 @@ import (
 
 var (
 	testFuncs = map[string]interface{}{
-		"Echo": func(v interface{}) interface{} { return v },
+		"First": func(v ...interface{}) interface{} { return v[0] },
+		"Echo":  func(v interface{}) interface{} { return v },
 		"where": func(seq, key interface{}, args ...interface{}) (interface{}, error) {
 			return map[string]interface{}{
 				"ByWeight": fmt.Sprintf("%v:%v:%v", seq, key, args),
@@ -55,6 +56,9 @@ var (
 			"Language": map[string]interface{}{
 				"Params": map[string]interface{}{
 					"lower": "P22L",
+					"nested": map[string]interface{}{
+						"lower": "P22L_nested",
+					},
 				},
 			},
 			"Data": map[string]interface{}{
@@ -84,6 +88,7 @@ P2_2: {{ $.Site.Params.LOWER }}
 P2_3: {{ $site.Params.LOWER }}
 P2_4: {{ $siteParams.LOWER }}
 P22: {{ .Site.Language.Params.LOWER }}
+P22_nested: {{ .Site.Language.Params.NESTED.LOWER }}
 P3: {{ .Site.Data.Params.NOLOW }}
 P3_2: {{ $.Site.Data.Params.NOLOW }}
 P3_3: {{ $site.Data.Params.NOLOW }}
@@ -135,6 +140,8 @@ PARAMS STRING: {{ $pages.ByWeight }}
 PARAMS STRING2: {{ with $pages }}{{ .ByWeight }}{{ end }}
 {{ $pages3 := where ".Params.TOC_HIDE" "!=" .Params.LOWER }}
 PARAMS STRING3: {{ $pages3.ByWeight }}
+{{ $first := First .Pages .Site.Params.LOWER }}
+PARAMS COMPOSITE: {{ $first.ByWeight }}
 `
 )
 
@@ -168,6 +175,7 @@ func TestParamsKeysToLower(t *testing.T) {
 	require.Contains(t, result, "P2_3: P2L")
 	require.Contains(t, result, "P2_4: P2L")
 	require.Contains(t, result, "P22: P22L")
+	require.Contains(t, result, "P22_nested: P22L_nested")
 	require.Contains(t, result, "P3: P3H")
 	require.Contains(t, result, "P3_2: P3H")
 	require.Contains(t, result, "P3_3: P3H")
@@ -194,6 +202,9 @@ func TestParamsKeysToLower(t *testing.T) {
 	require.Contains(t, result, "PARAMS STRING: foo:.Params.toc_hide:[!= true]")
 	require.Contains(t, result, "PARAMS STRING2: foo:.Params.toc_hide:[!= true]")
 	require.Contains(t, result, "PARAMS STRING3: .Params.TOC_HIDE:!=:[P1L]")
+
+	// Issue #5094
+	require.Contains(t, result, "PARAMS COMPOSITE: [1 3]")
 
 	// Issue #5068
 	require.Contains(t, result, "PCurrentSection: pcurrentsection")
