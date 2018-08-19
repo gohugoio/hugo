@@ -14,13 +14,18 @@ aliases: [/content/related/,/related/]
 toc: true
 ---
 
+
 {{% note %}}
 We currently do not index **Page content**. We thought we would release something that will make most people happy before we start solving [Sherlock's last case](https://github.com/joearms/sherlock).
 {{% /note %}}
 
 ## List Related Content
 
-To list up to 5 related pages is as simple as including something similar to this partial in your single page template:
+Hugo uses "indices" based on front matter parameters to identify related content. By default, it creates indices for the "**keywords**" and "**date**" parameters but you can create an index for any parameters you like (see below). Read the ["related" package documentation](https://godoc.org/github.com/gohugoio/hugo/related#pkg-variables) for more. The default behavior is to **exclude** related posts which are _newer_ than the current post. This can be configured via _includeNewer_ in your site-wide `config.toml` (see below).
+
+To use the default Related Content behaviour, please make sure these parameters are included (and match one another) in the front matter of your related posts e.g. include `keywords: [music]` to relate music posts.
+
+To list up to 5 related pages (which share the same _date_ or _keyword_ parameters) is as simple as including something similar to this partial in your single page template: 
 
 {{< code file="layouts/partials/related.html" >}}
 {{ $related := .Site.RegularPages.Related . | first 5 }}
