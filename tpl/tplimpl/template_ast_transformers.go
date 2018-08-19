@@ -213,16 +213,6 @@ func (d decl) indexOfReplacementStart(idents []string) int {
 					// .Data.Params.someKey
 					return -1
 				}
-				if !d.isKeyword(container) {
-					// where $pages ".Params.toc_hide" "!=" true
-					return -1
-				}
-			}
-			if i < len(resolvedIdents)-1 {
-				next := resolvedIdents[i+1]
-				if !d.isKeyword(next) {
-					return -1
-				}
 			}
 
 			paramFound = true
@@ -295,6 +285,11 @@ func (d decl) resolveVariables(idents []string) ([]string, bool) {
 
 		if !ok {
 			// Temporary range vars. We do not care about those.
+			return nil, false
+		}
+
+		if !d.isKeyword(replacement) {
+			// This can not be .Site.Params etc.
 			return nil, false
 		}
 
