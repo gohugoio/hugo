@@ -18,6 +18,8 @@ build:
     - 386
     - arm
     - arm64
+  goarm:
+    - 7
   ignore:
     - goos: openbsd
       goarch: arm
