@@ -20,10 +20,6 @@ build:
     - arm64
   goarm:
     - 7
-  ignore:
-    - goos: openbsd
-      goarch: arm
-      goarm: 6
 nfpm:
   formats:
     - deb
