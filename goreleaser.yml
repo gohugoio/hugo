@@ -18,10 +18,8 @@ build:
     - 386
     - arm
     - arm64
-  ignore:
-    - goos: openbsd
-      goarch: arm
-      goarm: 6
+  goarm:
+    - 7
 nfpm:
   formats:
     - deb
