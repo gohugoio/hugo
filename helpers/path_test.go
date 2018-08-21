@@ -37,10 +37,6 @@ import (
 )
 
 func TestMakeSegment(t *testing.T) {
-	v := viper.New()
-	l := NewDefaultLanguage(v)
-	p, _ := NewPathSpec(hugofs.NewMem(v), l)
-
 	tests := []struct {
 		input    string
 		expected string
@@ -59,6 +55,12 @@ func TestMakeSegment(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		v := newTestCfg()
+
+		l := langs.NewDefaultLanguage(v)
+		p, err := NewPathSpec(hugofs.NewMem(v), l)
+		require.NoError(t, err)
+
 		output := p.MakeSegment(test.input)
 		if output != test.expected {
 			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
