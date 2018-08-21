@@ -97,7 +97,7 @@ func (p *PathSpec) MakeSegment(s string) string {
 		pos++
 	}
 
-	if p.disablePathToLower {
+	if p.DisablePathToLower {
 		return string(b[:pos])
 	}
 	return strings.ToLower(string(b[:pos]))
