@@ -1834,7 +1834,6 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 		// We make the first character upper case, mostly because
 		// it is easier to reason about in the tests.
 		p.title = helpers.FirstUpper(key)
-		key = s.PathSpec.MakePathSanitized(key)
 	} else {
 		p.title = strings.Replace(s.titleFunc(key), "-", " ", -1)
 	}

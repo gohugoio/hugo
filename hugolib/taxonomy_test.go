@@ -45,8 +45,9 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 		st = append(st, t.Name)
 	}
 
-	if !reflect.DeepEqual(st, []string{"a", "b", "c"}) {
-		t.Fatalf("ordered taxonomies do not match [a, b, c].  Got: %s", st)
+	expect := []string{"a", "b", "c", "x/y"}
+	if !reflect.DeepEqual(st, expect) {
+		t.Fatalf("ordered taxonomies do not match %v.  Got: %s", expect, st)
 	}
 }
 
@@ -104,13 +105,7 @@ permalinkeds:
 
 	fs := th.Fs
 
-	if preserveTaxonomyNames {
-		writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- tag1", "- cat1", "- o1", "- pl1"))
-	} else {
-		// Check lower-casing of tags
-		writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- Tag1", "- cAt1", "- o1", "- pl1"))
-
-	}
+	writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- Tag1", "- cat1\n- \"cAt/dOg\"", "- o1", "- pl1"))
 	writeSource(t, fs, "content/p2.md", fmt.Sprintf(pageTemplate, "t2/c1", "- tag2", "- cat1", "- o1", "- pl1"))
 	writeSource(t, fs, "content/p3.md", fmt.Sprintf(pageTemplate, "t2/c12", "- tag2", "- cat2", "- o1", "- pl1"))
 	writeSource(t, fs, "content/p4.md", fmt.Sprintf(pageTemplate, "Hello World", "", "", "- \"Hello Hugo world\"", "- pl1"))
@@ -118,9 +113,7 @@ permalinkeds:
 	writeNewContentFile(t, fs.Source, "Category Terms", "2017-01-01", "content/categories/_index.md", 10)
 	writeNewContentFile(t, fs.Source, "Tag1 List", "2017-01-01", "content/tags/Tag1/_index.md", 10)
 
-	err := h.Build(BuildCfg{})
-
-	require.NoError(t, err)
+	require.NoError(t, h.Build(BuildCfg{}))
 
 	// So what we have now is:
 	// 1. categories with terms content page, but no content page for the only c1 category
@@ -137,6 +130,13 @@ permalinkeds:
 
 	// 1.
 	th.assertFileContent(pathFunc("public/categories/cat1/index.html"), "List", "Cat1")
+	if preserveTaxonomyNames {
+		// As of this writing, term titles are given a first upper.
+		// See hugolib.Site.newTaxonomyPage().
+		th.assertFileContent(pathFunc("public/categories/cat-dog/index.html"), "List", "CAt/dOg")
+	} else {
+		th.assertFileContent(pathFunc("public/categories/cat-dog/index.html"), "List", "Cat/Dog")
+	}
 	th.assertFileContent(pathFunc("public/categories/index.html"), "Terms List", "Category Terms")
 
 	// 2.
@@ -160,7 +160,7 @@ permalinkeds:
 	// of KindTaxonomy pages in its Pages slice.
 	taxonomyTermPageCounts := map[string]int{
 		"tags":         2,
-		"categories":   2,
+		"categories":   3,
 		"others":       2,
 		"empties":      0,
 		"permalinkeds": 1,
@@ -169,32 +169,42 @@ permalinkeds:
 	for taxonomy, count := range taxonomyTermPageCounts {
 		term := s.getPage(KindTaxonomyTerm, taxonomy)
 		require.NotNil(t, term)
-		require.Len(t, term.Pages, count)
+		require.Len(t, term.Pages, count, taxonomy)
 
 		for _, page := range term.Pages {
 			require.Equal(t, KindTaxonomy, page.Kind)
 		}
 	}
 
-	cat1 := s.getPage(KindTaxonomy, "categories", "cat1")
-	require.NotNil(t, cat1)
-	if uglyURLs {
-		require.Equal(t, "/blog/categories/cat1.html", cat1.RelPermalink())
-	} else {
-		require.Equal(t, "/blog/categories/cat1/", cat1.RelPermalink())
+	fixTerm := func(s string) string {
+		if preserveTaxonomyNames {
+			return s
+		}
+		return strings.ToLower(s)
 	}
 
-	pl1 := s.getPage(KindTaxonomy, "permalinkeds", "pl1")
-	permalinkeds := s.getPage(KindTaxonomyTerm, "permalinkeds")
-	require.NotNil(t, pl1)
-	require.NotNil(t, permalinkeds)
-	if uglyURLs {
-		require.Equal(t, "/blog/perma/pl1.html", pl1.RelPermalink())
-		require.Equal(t, "/blog/permalinkeds.html", permalinkeds.RelPermalink())
-	} else {
-		require.Equal(t, "/blog/perma/pl1/", pl1.RelPermalink())
-		require.Equal(t, "/blog/permalinkeds/", permalinkeds.RelPermalink())
+	fixURL := func(s string) string {
+		if uglyURLs {
+			return strings.TrimRight(s, "/") + ".html"
+		}
+		return s
 	}
+
+	cat1 := s.getPage(KindTaxonomy, "categories", "cat1")
+	require.NotNil(t, cat1)
+	require.Equal(t, fixURL("/blog/categories/cat1/"), cat1.RelPermalink())
+
+	catdog := s.getPage(KindTaxonomy, "categories", fixTerm("cAt/dOg"))
+	require.NotNil(t, catdog)
+	require.Equal(t, fixURL("/blog/categories/cat-dog/"), catdog.RelPermalink())
+
+	pl1 := s.getPage(KindTaxonomy, "permalinkeds", "pl1")
+	require.NotNil(t, pl1)
+	require.Equal(t, fixURL("/blog/perma/pl1/"), pl1.RelPermalink())
+
+	permalinkeds := s.getPage(KindTaxonomyTerm, "permalinkeds")
+	require.NotNil(t, permalinkeds)
+	require.Equal(t, fixURL("/blog/permalinkeds/"), permalinkeds.RelPermalink())
 
 	// Issue #3070 preserveTaxonomyNames
 	if preserveTaxonomyNames {
