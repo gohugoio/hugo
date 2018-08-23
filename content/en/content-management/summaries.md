@@ -30,8 +30,11 @@ It is natural to accompany the summary with links to the original content, and a
 
 By default, Hugo automatically takes the first 70 words of your content as its summary and stores it into the `.Summary` page variable for use in your templates. Taking the Hugo-defined approach to summaries may save time, but it has pros and cons:
 
-* **Pros:** Automatic, no additional work on your part.
-* **Cons:** All HTML tags are stripped from the summary, and the first 70 words, whether they belong to a heading or to different paragraphs, are all put into one paragraph.
+Pros
+: Automatic, no additional work on your part.
+
+Cons
+: All HTML tags are stripped from the summary, and the first 70 words, whether they belong to a heading or to different paragraphs, are all put into one paragraph.
 
 {{% note %}}
 The Hugo-defined summaries are set to use word count calculated by splitting the text by one or more consecutive white space characters. If you are creating content in a `CJK` language and want to use Hugo's automatic summary splitting, set `hasCJKLanguage` to `true` in you [site configuration](/getting-started/configuration/).
@@ -45,8 +48,11 @@ Alternatively, you may add the <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</co
 The concept of a *summary divider* is not unique to Hugo. It is also called the "more tag" or "excerpt separator" in other literature.
 {{% /note %}}
 
-* Pros: Freedom, precision, and improved rendering.  All HTML tags and formatting are preserved.
-* Cons: Extra work for content authors, since they need to remember to type <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> (or `# more` for [org content][org]) in each content file. This can be automated by adding the summary divider below the front matter of an [archetype](/content-management/archetypes/).
+Pros
+: Freedom, precision, and improved rendering.  All HTML tags and formatting are preserved.
+
+Cons
+: Extra work for content authors, since they need to remember to type <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> (or `# more` for [org content][org]) in each content file. This can be automated by adding the summary divider below the front matter of an [archetype](/content-management/archetypes/).
 
 {{% warning "Be Precise with the Summary Divider" %}}
 Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly; i.e., all lowercase and with no whitespace.
