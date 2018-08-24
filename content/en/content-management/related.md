@@ -15,15 +15,10 @@ toc: true
 ---
 
 
-{{% note %}}
-We currently do not index **Page content**. We thought we would release something that will make most people happy before we start solving [Sherlock's last case](https://github.com/joearms/sherlock).
-{{% /note %}}
+Hugo uses a set factors to identify a page's related content based on Front Matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content). 
 
 ## List Related Content
 
-Hugo uses "indices" based on front matter parameters to identify related content. By default, it creates indices for the "**keywords**" and "**date**" parameters but you can create an index for any parameters you like (see below). Read the ["related" package documentation](https://godoc.org/github.com/gohugoio/hugo/related#pkg-variables) for more. The default behavior is to **exclude** related posts which are _newer_ than the current post. This can be configured via _includeNewer_ in your site-wide `config.toml` (see below).
-
-To use the default Related Content behaviour, please make sure these parameters are included (and match one another) in the front matter of your related posts e.g. include `keywords: [music]` to relate music posts.
 
 To list up to 5 related pages (which share the same _date_ or _keyword_ parameters) is as simple as including something similar to this partial in your single page template: 
 
@@ -39,67 +34,62 @@ To list up to 5 related pages (which share the same _date_ or _keyword_ paramete
 {{ end }}
 {{< /code >}}
 
+### Methods
+
+Here is the list of "Related" methods available on a page collection such `.RegularPages`.
+
+#### .Related PAGE
+Returns a collection of pages related the given one.
+
+```
+{{ $related := .RegularPages.Related . }}
+```
+
+#### .RelatedIndices PAGE INDICE1 [INDICE2 ...]
+Returns a collection of pages related to a given one restricted to a list of indices.
+
+```
+{{ $related := .RegularPages.RelatedIndices . "tags" "date" }}
+```
+
+#### .RelatedTo KEYVALS [KEYVALS2 ...]
+Returns a collection of pages related together by a set of indices and their match. 
+
+In order to build those set and pass them as argument, one must use the `keyVals` function where the first agrument would be the `indice` and the consective ones its potential `matches`.
+
+```
+{{ $related := .RegularPages.RelatedTo ( keyVals "tags" "hugo" "rocks")  ( keyVals "date" .Date ) }}
+```
 
 {{% note %}}
 Read [this blog article](https://regisphilibert.com/blog/2018/04/hugo-optmized-relashionships-with-related-content/) for a great explanation of more advanced usage of this feature.
 {{% /note %}}
 
-The full set of methods available on the page lists can be seen in this Go interface:
-
-```go
-// A PageGenealogist finds related pages in a page collection. This interface is implemented
-// by Pages and PageGroup, which makes it available as `{{ .RegularPages.Related . }}` etc.
-type PageGenealogist interface {
-
-	// Template example:
-	// {{ $related := .RegularPages.Related . }}
-	Related(doc related.Document) (Pages, error)
-
-	// Template example:
-	// {{ $related := .RegularPages.RelatedIndices . "tags" "date" }}
-	RelatedIndices(doc related.Document, indices ...interface{}) (Pages, error)
-
-	// Template example:
-	// {{ $related := .RegularPages.RelatedTo ( keyVals "tags" "hugo" "rocks")  ( keyVals "date" .Date ) }}
-	RelatedTo(args ...types.KeyValues) (Pages, error)
-}
-```
 ## Configure Related Content
 Hugo provides a sensible default configuration of Related Content, but you can fine-tune this in your configuration, on the global or language level if needed.
+
+### Default configuration
+
+Without any `related` configuration set on the project, Hugo's Related Content methods will use the following.
+
+```yaml
+related:
+  threshold: 80
+  includeNewer: false
+  toLower: false
+  indices:
+  - name: keywords
+    weight: 100
+  - name: weight
+    weight: 10
+```
+
+Custom configuration should be set using the same syntax.
 
 {{% note %}}
 If you add a `related` config section, you need to add a complete configuration. It is not possible to just set, say, `includeNewer` and use the rest  from the Hugo defaults.
 {{% /note %}}
 
-Below is a sample `config.toml` section:
-
-```
-[related]
-
-# Only include matches with rank >= threshold. This is a normalized rank between 0 and 100.
-threshold = 80
-
-# To get stable "See also" sections we, by default, exclude newer related pages.
-includeNewer = false
-
-# Will lower case keywords in both queries and in the indexes.
-toLower = false
-
-[[related.indices]]
-name = "keywords"
-weight = 150
-[[related.indices]]
-name  = "author"
-toLower = true
-weight = 30
-[[related.indices]]
-name  = "tags"
-weight = 100
-[[related.indices]]
-name  = "date"
-weight = 10
-pattern = "2006"
-```
 ### Top Level Config Options
 
 threshold
@@ -140,9 +130,6 @@ He should now be able to add an improved version of that "Related Content" secti
 * If you don't use any of the `Related` methods, you will not use the Relate Content feature, and performance will be the same as before.
 * Calling `.RegularPages.Related` etc. will create one inverted index, also sometimes named posting list, that will be reused for any lookups in that same page collection. Doing that in addition to, as an example, calling `.Pages.Related` will work as expected, but will create one additional inverted index. This should still be very fast, but worth having in mind, especially for bigger sites.
 
-
-
-
-
-
-
+{{% note %}}
+We currently do not index **Page content**. We thought we would release something that will make most people happy before we start solving [Sherlock's last case](https://github.com/joearms/sherlock).
+{{% /note %}}
