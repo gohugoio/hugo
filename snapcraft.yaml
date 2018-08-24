@@ -21,10 +21,6 @@ parts:
     go-importpath: github.com/gohugoio/hugo
     build-packages:
       - git
-    stage-packages:
-      - git
-      - nodejs
-      - python-pygments
     override-build: |
       echo "\nStarting override-build:"
       export GOPATH=$(dirname $SNAPCRAFT_PART_INSTALL)/go
@@ -50,25 +46,41 @@ parts:
       ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
       strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
       ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
-      echo " * Remove unneeded files..."
-      rm -rf $SNAPCRAFT_PART_INSTALL/etc
-      rm -f $SNAPCRAFT_PART_INSTALL/usr/bin/[^gp]*
-      rm -f $SNAPCRAFT_PART_INSTALL/usr/bin/git-*
-      rm -f $SNAPCRAFT_PART_INSTALL/usr/bin/p[^y]*
-      rm -f $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/git-[^lr]*
-      rm -f $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/git-ls-*
-      rm -f $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/git-re[^v]*
-      rm -f $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/git-revert
-      rm -f $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/git-rm
-      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/git-core/mergetools
-      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/*/perl
-      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/mime
-      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/python*/lib2to3
-      rm -rf $SNAPCRAFT_PART_INSTALL/usr/lib/valgrind
-      rm -rf $SNAPCRAFT_PART_INSTALL/usr/sbin
-      rm -rf $SNAPCRAFT_PART_INSTALL/usr/share/[^p]*
-      rm -rf $SNAPCRAFT_PART_INSTALL/usr/share/p[^y]*
-      rm -rf $SNAPCRAFT_PART_INSTALL/var
     after: [go]
+
   go:
     source-tag: go1.10.3
+
+  git:
+    plugin: nil
+    stage-packages: [git]
+    prime: [usr/bin/git]
+
+  node:
+    plugin: nodejs
+    node-packages: [postcss-cli]
+    filesets:
+      node:
+        - bin/node
+      postcss:
+        - bin/postcss
+        - lib/node_modules/postcss-cli/*
+    prime:
+      - $node
+      - $postcss
+
+  pygments:
+    plugin: python
+    python-packages: [Pygments]
+    prime:
+      - bin/pygmentize
+      - lib/python*/site-packages/Pygments-*.dist-info/*
+      - lib/python*/site-packages/pygments/*
+      - usr/bin/python*
+      - -usr/bin/python*m
+      - usr/lib/python*/*
+      - -usr/lib/python*/distutils/*
+      - -usr/lib/python*/email/*
+      - -usr/lib/python*/lib2to3/*
+      - -usr/lib/python*/tkinter/*
+      - -usr/lib/python*/unittest/*
