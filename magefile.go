@@ -265,7 +265,7 @@ func CheckVendor() error {
 }
 
 func isGoLatest() bool {
-	return strings.Contains(runtime.Version(), "1.10")
+	return strings.Contains(runtime.Version(), "1.11")
 }
 
 func buildTags() string {
