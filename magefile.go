@@ -32,14 +32,26 @@ func init() {
 	if exe := os.Getenv("GOEXE"); exe != "" {
 		goexe = exe
 	}
+
+	// We want to use Go 1.11 modules even if the source lives inside GOPATH.
+	// The default is "auto".
+	os.Setenv("GO111MODULE", "on")
 }
 
 func getDep() error {
+	if !isWindows() {
+		// We only need this on Appveyor.
+		// TODO(bep) go11 clean up the vendor stuff once Appveyor gets Go 1.11.
+		return nil
+	}
 	return sh.Run(goexe, "get", "-u", "github.com/golang/dep/cmd/dep")
 }
 
 // Install Go Dep and sync Hugo's vendored dependencies
 func Vendor() error {
+	if !isWindows() {
+		return nil
+	}
 	mg.Deps(getDep)
 	return sh.Run("dep", "ensure")
 }
@@ -266,6 +278,10 @@ func CheckVendor() error {
 
 func isGoLatest() bool {
 	return strings.Contains(runtime.Version(), "1.11")
+}
+
+func isWindows() bool {
+	return runtime.GOOS == "windows"
 }
 
 func buildTags() string {
