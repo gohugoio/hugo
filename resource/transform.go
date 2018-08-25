@@ -391,7 +391,11 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 				// If a prepared bundle for this transformation chain is available, use that.
 				f := r.tryTransformedFileCache(key)
 				if f == nil {
-					return fmt.Errorf("%s: failed to transform %q (%s): %s", strings.ToUpper(tr.transformation.Key().name), tctx.InPath, tctx.InMediaType.Type(), err)
+					errMsg := err.Error()
+					if tr.transformation.Key().name == "postcss" {
+						errMsg = "PostCSS not found; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
+					}
+					return fmt.Errorf("%s: failed to transform %q (%s): %s", strings.ToUpper(tr.transformation.Key().name), tctx.InPath, tctx.InMediaType.Type(), errMsg)
 				}
 				transformedContentr = f
 				defer f.Close()
