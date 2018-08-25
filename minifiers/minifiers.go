@@ -67,6 +67,7 @@ func New(mediaTypes media.Types, outputFormats output.Formats) Client {
 	htmlMin := &html.Minifier{
 		KeepDocumentTags:        true,
 		KeepConditionalComments: true,
+		KeepEndTags:             true,
 	}
 
 	// We use the Type definition of the media types defined in the site if found.
