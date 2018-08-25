@@ -34,7 +34,7 @@
 
 [[constraint]]
   name = "github.com/magefile/mage"
-  version = "v1"
+  version = "^v2.2.0"
 
 [[constraint]]
   branch = "master"

@@ -43,7 +43,7 @@ func (s *Spec) Transform(r Resource, t ResourceTransformation) (Resource, error)
 		Resource:                    r,
 		transformation:              t,
 		transformedResourceMetadata: transformedResourceMetadata{MetaData: make(map[string]interface{})},
-		cache: s.ResourceCache}, nil
+		cache:                       s.ResourceCache}, nil
 }
 
 type ResourceTransformationCtx struct {
@@ -337,7 +337,7 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 	defer bp.PutBuffer(b2)
 
 	tctx := &ResourceTransformationCtx{
-		Data: r.transformedResourceMetadata.MetaData,
+		Data:                  r.transformedResourceMetadata.MetaData,
 		OpenResourcePublisher: openPublishFileForWriting,
 	}
 
