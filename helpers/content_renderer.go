@@ -18,7 +18,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/config"
-	"github.com/miekg/mmark"
+	"github.com/mmarkdown/mmark"
 	"github.com/russross/blackfriday"
 )
 
