@@ -393,7 +393,7 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 				if f == nil {
 					errMsg := err.Error()
 					if tr.transformation.Key().name == "postcss" {
-						errMsg = "PostCSS not found; install with \"npm install postcss-cli\". See https://gohugo.io/hugo-pipes/postcss/"
+						errMsg = "PostCSS not found; See https://gohugo.io/hugo-pipes/postcss/ for installation instructions"
 					}
 					return fmt.Errorf("%s: failed to transform %q (%s): %s", strings.ToUpper(tr.transformation.Key().name), tctx.InPath, tctx.InMediaType.Type(), errMsg)
 				}
