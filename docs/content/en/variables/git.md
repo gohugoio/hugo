@@ -51,6 +51,9 @@ The `GitInfo` object contains the following fields:
 .Subject
 : commit message subject (e.g., `tpl: Add custom index function`)
 
+.Commits
+: Commit history of the page
+
 ## `.Lastmod`
 
 If the `.GitInfo` feature is enabled, **and** if the `lastmod` field in the content's front matter is not set, `.Lastmod` (on `Page`) is fetched from Git i.e. `.GitInfo.AuthorDate`.

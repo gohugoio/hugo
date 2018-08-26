@@ -11,10 +11,6 @@
 [[constraint]]
   name = "github.com/alecthomas/chroma"
   version = "^0.5.0"
-
-[[constraint]]
-  name = "github.com/bep/gitmap"
-  version = "^1.0.0"
   
 [[constraint]]
   version = "v0.5.0"
@@ -169,3 +165,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/mitchellh/hashstructure"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/tsuyoshiwada/go-gitlog"

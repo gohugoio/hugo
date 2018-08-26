@@ -14,36 +14,67 @@
 package hugolib
 
 import (
+	"github.com/gohugoio/hugo/config"
+	"github.com/tsuyoshiwada/go-gitlog"
 	"path/filepath"
 	"strings"
-
-	"github.com/bep/gitmap"
-	"github.com/gohugoio/hugo/config"
+	"time"
 )
+
+// RevNumber alias for `-n <number>`
+type RevFile struct {
+	FileName string
+}
+
+// Args ...
+func (rev *RevFile) Args() []string {
+	return []string{"-p", rev.FileName}
+}
 
 type gitInfo struct {
 	contentDir string
-	repo       *gitmap.GitRepo
+	gitlog     gitlog.GitLog
 }
 
-func (g *gitInfo) forPage(p *Page) (*gitmap.GitInfo, bool) {
+type gitPageInfo struct {
+	AbbreviatedHash string
+	AuthorName      string
+	AuthorEmail     string
+	AuthorDate      time.Time
+	Hash            string
+	Subject         string
+	Commits         []*gitlog.Commit
+}
+
+func (g *gitInfo) forPage(p *Page) (*gitPageInfo, bool) {
 	if g == nil {
 		return nil, false
 	}
 
 	name := strings.TrimPrefix(filepath.ToSlash(p.Filename()), g.contentDir)
 	name = strings.TrimPrefix(name, "/")
-
-	return g.repo.Files[name], true
+	logs, err := g.gitlog.Log(&RevFile{FileName: name}, nil)
+	if err != nil {
+		return nil, false
+	}
+	if len(logs) == 0 {
+		return nil, false
+	}
+	return &gitPageInfo{
+		AbbreviatedHash: logs[0].Hash.Short,
+		AuthorName:      logs[0].Author.Name,
+		AuthorEmail:     logs[0].Author.Email,
+		AuthorDate:      logs[0].Author.Date,
+		Hash:            logs[0].Hash.Long,
+		Subject:         logs[0].Subject,
+		Commits:         logs,
+	}, true
 }
 
 func newGitInfo(cfg config.Provider) (*gitInfo, error) {
 	workingDir := cfg.GetString("workingDir")
-
-	gitRepo, err := gitmap.Map(workingDir, "")
-	if err != nil {
-		return nil, err
-	}
-
-	return &gitInfo{contentDir: gitRepo.TopLevelAbsPath, repo: gitRepo}, nil
+	git := gitlog.New(&gitlog.Config{
+		Path: workingDir,
+	})
+	return &gitInfo{contentDir: workingDir, gitlog: git}, nil
 }

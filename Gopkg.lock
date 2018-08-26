@@ -221,6 +221,87 @@
   version = "v0.2.3"
 
 [[projects]]
+  digest = "1:a5dfb7a0f99575ec8494ed97614e7aec5b7907ec2a8c76f074e64bde84357817"
+  name = "github.com/gohugoio/hugo"
+  packages = [
+    "bufferpool",
+    "cache",
+    "commands",
+    "common/errors",
+    "common/hugio",
+    "common/loggers",
+    "common/maps",
+    "common/math",
+    "common/types",
+    "compare",
+    "config",
+    "config/privacy",
+    "config/services",
+    "create",
+    "deps",
+    "docshelper",
+    "helpers",
+    "hugofs",
+    "hugolib",
+    "hugolib/filesystems",
+    "hugolib/pagemeta",
+    "hugolib/paths",
+    "i18n",
+    "langs",
+    "livereload",
+    "media",
+    "metrics",
+    "minifiers",
+    "output",
+    "parser",
+    "publisher",
+    "related",
+    "releaser",
+    "resource",
+    "resource/bundler",
+    "resource/create",
+    "resource/integrity",
+    "resource/minifier",
+    "resource/postcss",
+    "resource/templates",
+    "resource/tocss/scss",
+    "source",
+    "tpl",
+    "tpl/cast",
+    "tpl/collections",
+    "tpl/compare",
+    "tpl/crypto",
+    "tpl/data",
+    "tpl/encoding",
+    "tpl/fmt",
+    "tpl/images",
+    "tpl/inflect",
+    "tpl/internal",
+    "tpl/lang",
+    "tpl/math",
+    "tpl/os",
+    "tpl/partials",
+    "tpl/path",
+    "tpl/resources",
+    "tpl/safe",
+    "tpl/strings",
+    "tpl/templates",
+    "tpl/time",
+    "tpl/tplimpl",
+    "tpl/tplimpl/embedded",
+    "tpl/transform",
+    "tpl/urls",
+    "transform",
+    "transform/livereloadinject",
+    "transform/metainject",
+    "transform/urlreplacers",
+    "watcher",
+  ]
+  pruneopts = ""
+  revision = "7ef5096257e5208ebc99aa94ff0654c86b1487b3"
+  version = "v0.47.1"
+
+[[projects]]
   digest = "1:64d212c703a2b94054be0ce470303286b177ad260b2f89a307e3d1bb6c073ef6"
   name = "github.com/gorilla/websocket"
   packages = ["."]
@@ -291,15 +372,16 @@
   version = "v1.5.1"
 
 [[projects]]
-  digest = "1:901c7dc16a166e57e940dee1350511ba5cb5e61eeca858edb76d21b65f9b7cff"
+  digest = "1:fac7084297a740da7227f1d3a994c9a6c8bf409645888e650d2892db9f71bddb"
   name = "github.com/magefile/mage"
   packages = [
     "mg",
     "sh",
+    "types",
   ]
   pruneopts = ""
-  revision = "2f974307b636f59c13b88704cf350a4772fef271"
-  version = "v1.0.2"
+  revision = "198454a81e91598a7566fd7c87bf70ca9f6a7b13"
+  version = "v2.2.0"
 
 [[projects]]
   digest = "1:961dc3b1d11f969370533390fdf203813162980c858e1dabe827b60940c909a5"
@@ -551,6 +633,22 @@
   version = "v2.3.3"
 
 [[projects]]
+  digest = "1:1690f92e6a6a43812d0e166938ecda0873f8df18bef93649f44e47b53da24ab0"
+  name = "github.com/tsuyoshiwada/go-gitcmd"
+  packages = ["."]
+  pruneopts = ""
+  revision = "5f1f5f9475df211f8b48620d704284d7375229c3"
+  version = "0.0.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:0d9ceb2ebfe269d0a3c1300fd56ab885989f99d9e10b3bbf5617411cc0c0aa77"
+  name = "github.com/tsuyoshiwada/go-gitlog"
+  packages = ["."]
+  pruneopts = ""
+  revision = "6c79beb2287b141ea5983f337c02277d98c5d23a"
+
+[[projects]]
   branch = "master"
   digest = "1:be92e3574c94090ee4659d49a4ab156301fd62c2bdad831ca52ad7ce3ee91e2e"
   name = "github.com/wellington/go-libsass"
@@ -659,7 +757,6 @@
     "github.com/alecthomas/chroma/lexers",
     "github.com/alecthomas/chroma/styles",
     "github.com/bep/debounce",
-    "github.com/bep/gitmap",
     "github.com/bep/go-tocss/scss",
     "github.com/bep/go-tocss/scss/libsass",
     "github.com/bep/go-tocss/tocss",
@@ -669,6 +766,78 @@
     "github.com/fortytw2/leaktest",
     "github.com/fsnotify/fsnotify",
     "github.com/gobwas/glob",
+    "github.com/gohugoio/hugo/bufferpool",
+    "github.com/gohugoio/hugo/cache",
+    "github.com/gohugoio/hugo/commands",
+    "github.com/gohugoio/hugo/common/errors",
+    "github.com/gohugoio/hugo/common/hugio",
+    "github.com/gohugoio/hugo/common/loggers",
+    "github.com/gohugoio/hugo/common/maps",
+    "github.com/gohugoio/hugo/common/math",
+    "github.com/gohugoio/hugo/common/types",
+    "github.com/gohugoio/hugo/compare",
+    "github.com/gohugoio/hugo/config",
+    "github.com/gohugoio/hugo/config/privacy",
+    "github.com/gohugoio/hugo/config/services",
+    "github.com/gohugoio/hugo/create",
+    "github.com/gohugoio/hugo/deps",
+    "github.com/gohugoio/hugo/docshelper",
+    "github.com/gohugoio/hugo/helpers",
+    "github.com/gohugoio/hugo/hugofs",
+    "github.com/gohugoio/hugo/hugolib",
+    "github.com/gohugoio/hugo/hugolib/filesystems",
+    "github.com/gohugoio/hugo/hugolib/pagemeta",
+    "github.com/gohugoio/hugo/hugolib/paths",
+    "github.com/gohugoio/hugo/i18n",
+    "github.com/gohugoio/hugo/langs",
+    "github.com/gohugoio/hugo/livereload",
+    "github.com/gohugoio/hugo/media",
+    "github.com/gohugoio/hugo/metrics",
+    "github.com/gohugoio/hugo/minifiers",
+    "github.com/gohugoio/hugo/output",
+    "github.com/gohugoio/hugo/parser",
+    "github.com/gohugoio/hugo/publisher",
+    "github.com/gohugoio/hugo/related",
+    "github.com/gohugoio/hugo/releaser",
+    "github.com/gohugoio/hugo/resource",
+    "github.com/gohugoio/hugo/resource/bundler",
+    "github.com/gohugoio/hugo/resource/create",
+    "github.com/gohugoio/hugo/resource/integrity",
+    "github.com/gohugoio/hugo/resource/minifier",
+    "github.com/gohugoio/hugo/resource/postcss",
+    "github.com/gohugoio/hugo/resource/templates",
+    "github.com/gohugoio/hugo/resource/tocss/scss",
+    "github.com/gohugoio/hugo/source",
+    "github.com/gohugoio/hugo/tpl",
+    "github.com/gohugoio/hugo/tpl/cast",
+    "github.com/gohugoio/hugo/tpl/collections",
+    "github.com/gohugoio/hugo/tpl/compare",
+    "github.com/gohugoio/hugo/tpl/crypto",
+    "github.com/gohugoio/hugo/tpl/data",
+    "github.com/gohugoio/hugo/tpl/encoding",
+    "github.com/gohugoio/hugo/tpl/fmt",
+    "github.com/gohugoio/hugo/tpl/images",
+    "github.com/gohugoio/hugo/tpl/inflect",
+    "github.com/gohugoio/hugo/tpl/internal",
+    "github.com/gohugoio/hugo/tpl/lang",
+    "github.com/gohugoio/hugo/tpl/math",
+    "github.com/gohugoio/hugo/tpl/os",
+    "github.com/gohugoio/hugo/tpl/partials",
+    "github.com/gohugoio/hugo/tpl/path",
+    "github.com/gohugoio/hugo/tpl/resources",
+    "github.com/gohugoio/hugo/tpl/safe",
+    "github.com/gohugoio/hugo/tpl/strings",
+    "github.com/gohugoio/hugo/tpl/templates",
+    "github.com/gohugoio/hugo/tpl/time",
+    "github.com/gohugoio/hugo/tpl/tplimpl",
+    "github.com/gohugoio/hugo/tpl/tplimpl/embedded",
+    "github.com/gohugoio/hugo/tpl/transform",
+    "github.com/gohugoio/hugo/tpl/urls",
+    "github.com/gohugoio/hugo/transform",
+    "github.com/gohugoio/hugo/transform/livereloadinject",
+    "github.com/gohugoio/hugo/transform/metainject",
+    "github.com/gohugoio/hugo/transform/urlreplacers",
+    "github.com/gohugoio/hugo/watcher",
     "github.com/gorilla/websocket",
     "github.com/hashicorp/go-immutable-radix",
     "github.com/jdkato/prose/transform",
@@ -703,6 +872,7 @@
     "github.com/tdewolff/minify/json",
     "github.com/tdewolff/minify/svg",
     "github.com/tdewolff/minify/xml",
+    "github.com/tsuyoshiwada/go-gitlog",
     "github.com/yosssi/ace",
     "golang.org/x/image/webp",
     "golang.org/x/net/context",
