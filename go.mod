@@ -35,7 +35,7 @@ require (
 	github.com/markbates/inflect v0.0.0-20171215194931-a12c3aec81a6
 	github.com/mattn/go-isatty v0.0.3 // indirect
 	github.com/mattn/go-runewidth v0.0.2 // indirect
-	github.com/miekg/mmark v1.3.6
+	github.com/mmarkdown/mmark v1.9.980
 	github.com/mitchellh/hashstructure v0.0.0-20170609045927-2bca23e0e452
 	github.com/mitchellh/mapstructure v0.0.0-20180715050151-f15292f7a699
 	github.com/muesli/smartcrop v0.0.0-20180228075044-f6ebaa786a12

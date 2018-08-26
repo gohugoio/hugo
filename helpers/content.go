@@ -30,8 +30,8 @@ import (
 	"github.com/chaseadamsio/goorgeous"
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/config"
-	"github.com/miekg/mmark"
 	"github.com/mitchellh/mapstructure"
+	"github.com/mmarkdown/mmark"
 	"github.com/russross/blackfriday"
 	jww "github.com/spf13/jwalterweatherman"
 
