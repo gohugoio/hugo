@@ -259,13 +259,17 @@ T2: Content: {{ $combinedText.Content }}|{{ $combinedText.RelPermalink }}
 		}},
 		{"execute-as-template", func() bool { return true }, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", `
-
+{{ $var := "Hugo Page" }}
+{{ if .IsHome }}
+{{ $var = "Hugo Home" }}
+{{ end }}
+T1: {{ $var }}
 {{ $result := "{{ .Kind | upper }}" | resources.FromString "mytpl.txt" | resources.ExecuteAsTemplate "result.txt" . }}
-T1: {{ $result.Content }}|{{ $result.RelPermalink}}|{{$result.MediaType.Type }}
+T2: {{ $result.Content }}|{{ $result.RelPermalink}}|{{$result.MediaType.Type }}
 `)
 
 		}, func(b *sitesBuilder) {
-			b.AssertFileContent("public/index.html", `T1: HOME|/result.txt|text/plain`)
+			b.AssertFileContent("public/index.html", `T2: HOME|/result.txt|text/plain`, `T1: Hugo Home`)
 
 		}},
 		{"fingerprint", func() bool { return true }, func(b *sitesBuilder) {
