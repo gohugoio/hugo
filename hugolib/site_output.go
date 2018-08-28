@@ -70,7 +70,7 @@ func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (ma
 
 	outputs := cfg.GetStringMap("outputs")
 
-	if outputs == nil || len(outputs) == 0 {
+	if len(outputs) == 0 {
 		return outFormats, nil
 	}
 

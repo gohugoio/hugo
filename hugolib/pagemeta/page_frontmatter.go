@@ -199,19 +199,17 @@ func newFrontmatterConfig(cfg config.Provider) (frontmatterConfig, error) {
 
 	if cfg.IsSet("frontmatter") {
 		fm := cfg.GetStringMap("frontmatter")
-		if fm != nil {
-			for k, v := range fm {
-				loki := strings.ToLower(k)
-				switch loki {
-				case fmDate:
-					c.date = toLowerSlice(v)
-				case fmPubDate:
-					c.publishDate = toLowerSlice(v)
-				case fmLastmod:
-					c.lastmod = toLowerSlice(v)
-				case fmExpiryDate:
-					c.expiryDate = toLowerSlice(v)
-				}
+		for k, v := range fm {
+			loki := strings.ToLower(k)
+			switch loki {
+			case fmDate:
+				c.date = toLowerSlice(v)
+			case fmPubDate:
+				c.publishDate = toLowerSlice(v)
+			case fmLastmod:
+				c.lastmod = toLowerSlice(v)
+			case fmExpiryDate:
+				c.expiryDate = toLowerSlice(v)
 			}
 		}
 	}

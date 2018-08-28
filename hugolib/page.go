@@ -1440,9 +1440,7 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 					resources = append(resources, cast.ToStringMap(vvv))
 				}
 			case []map[string]interface{}:
-				for _, vvv := range vv {
-					resources = append(resources, vvv)
-				}
+				resources = append(resources, vv...)
 			case []interface{}:
 				for _, vvv := range vv {
 					switch vvvv := vvv.(type) {

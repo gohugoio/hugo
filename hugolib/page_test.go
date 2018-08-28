@@ -580,10 +580,8 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 
 		cfg, fs := newTestCfg()
 
-		if settings != nil {
-			for k, v := range settings {
-				cfg.Set(k, v)
-			}
+		for k, v := range settings {
+			cfg.Set(k, v)
 		}
 
 		contentDir := "content"
