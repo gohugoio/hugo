@@ -399,7 +399,11 @@ func paginatePages(td targetPathDescriptor, seq interface{}, pagerSize int) (pag
 
 	var paginator *paginator
 
-	if groups, ok := seq.(PagesGroup); ok {
+	groups, err := toPagesGroup(seq)
+	if err != nil {
+		return nil, err
+	}
+	if groups != nil {
 		paginator, _ = newPaginatorFromPageGroups(groups, pagerSize, urlFactory)
 	} else {
 		pages, err := toPages(seq)
@@ -412,6 +416,36 @@ func paginatePages(td targetPathDescriptor, seq interface{}, pagerSize int) (pag
 	pagers := paginator.Pagers()
 
 	return pagers, nil
+}
+
+func toPagesGroup(seq interface{}) (PagesGroup, error) {
+	switch v := seq.(type) {
+	case nil:
+		return nil, nil
+	case PagesGroup:
+		return v, nil
+	case []PageGroup:
+		return PagesGroup(v), nil
+	case []interface{}:
+		l := len(v)
+		if l == 0 {
+			break
+		}
+		switch v[0].(type) {
+		case PageGroup:
+			pagesGroup := make(PagesGroup, l)
+			for i, ipg := range v {
+				if pg, ok := ipg.(PageGroup); ok {
+					pagesGroup[i] = pg
+				} else {
+					return nil, fmt.Errorf("unsupported type in paginate from slice, got %T instead of PageGroup", ipg)
+				}
+			}
+			return PagesGroup(pagesGroup), nil
+		}
+	}
+
+	return nil, nil
 }
 
 func toPages(seq interface{}) (Pages, error) {
