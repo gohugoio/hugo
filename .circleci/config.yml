@@ -1,7 +1,7 @@
 defaults: &defaults
   working_directory: /go/src/github.com/gohugoio
   docker:
-      - image: bepsays/ci-goreleaser:0.79.0-2
+      - image: bepsays/ci-goreleaser:1.11-1
     
 version: 2
 jobs:
@@ -12,10 +12,9 @@ jobs:
           path: hugo
       - run:
             command: |
-                go get -d github.com/magefile/mage/...
+                env GO111MODULE=on go get github.com/magefile/mage
                 git clone git@github.com:gohugoio/hugoDocs.git
                 cd hugo
-                mage vendor
                 mage check
       - persist_to_workspace:
           root: .
