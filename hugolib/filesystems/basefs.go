@@ -383,8 +383,6 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 
 	b.result.Resources = sfs
 
-	err = b.createStaticFs()
-
 	sfs, err = b.createFs(false, true, "", "")
 	if err != nil {
 		return nil, err
