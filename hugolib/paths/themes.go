@@ -60,7 +60,7 @@ func (c *themesCollector) addAndRecurse(themes ...string) error {
 			if err != nil {
 				return err
 			}
-			if err := c.addTemeNamesFromTheme(tc); err != nil {
+			if err := c.addThemeNamesFromTheme(tc); err != nil {
 				return err
 			}
 		}
@@ -145,7 +145,7 @@ func (c *themesCollector) getConfigFileIfProvided(theme string) string {
 
 }
 
-func (c *themesCollector) addTemeNamesFromTheme(theme ThemeConfig) error {
+func (c *themesCollector) addThemeNamesFromTheme(theme ThemeConfig) error {
 	if theme.Cfg != nil && theme.Cfg.IsSet("theme") {
 		v := theme.Cfg.Get("theme")
 		switch vv := v.(type) {
