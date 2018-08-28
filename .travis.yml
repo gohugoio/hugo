@@ -16,9 +16,8 @@ matrix:
     - go: tip
   fast_finish: true
 install:
-  - go get github.com/magefile/mage
-  - mage -v vendor
-script:
+  - env GO111MODULE=on go get github.com/magefile/mage
+ script:
   - mage -v test
   - mage -v check
   - mage -v hugo
