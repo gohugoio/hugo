@@ -435,7 +435,7 @@ func newTestBundleSources(t *testing.T) (*hugofs.Fs, *viper.Viper) {
 	cfg.Set("baseURL", "https://example.com")
 	cfg.Set("mediaTypes", map[string]interface{}{
 		"text/bepsays": map[string]interface{}{
-			"suffix": "bep",
+			"suffixes": []string{"bep"},
 		},
 	})
 

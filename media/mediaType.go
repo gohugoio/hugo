@@ -15,11 +15,13 @@ package media
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/common/maps"
+
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -37,10 +39,9 @@ type Type struct {
 	MainType string `json:"mainType"` // i.e. text
 	SubType  string `json:"subType"`  // i.e. html
 
-	// Deprecated in Hugo 0.44. To be renamed and unexported.
-	// Was earlier used both to set file suffix and to augment the MIME type.
-	// This had its limitations and issues.
-	OldSuffix string `json:"-" mapstructure:"suffix"`
+	// This is the optional suffix after the "+" in the MIME type,
+	//  e.g. "xml" in "applicatiion/rss+xml".
+	mimeSuffix string
 
 	Delimiter string `json:"delimiter"` // e.g. "."
 
@@ -79,7 +80,7 @@ func fromString(t string) (Type, error) {
 		suffix = subParts[1]
 	}
 
-	return Type{MainType: mainType, SubType: subType, OldSuffix: suffix}, nil
+	return Type{MainType: mainType, SubType: subType, mimeSuffix: suffix}, nil
 }
 
 // Type returns a string representing the main- and sub-type of a media type, e.g. "text/css".
@@ -91,8 +92,8 @@ func (m Type) Type() string {
 	// Examples are
 	// image/svg+xml
 	// text/css
-	if m.OldSuffix != "" {
-		return fmt.Sprintf("%s/%s+%s", m.MainType, m.SubType, m.OldSuffix)
+	if m.mimeSuffix != "" {
+		return fmt.Sprintf("%s/%s+%s", m.MainType, m.SubType, m.mimeSuffix)
 	}
 	return fmt.Sprintf("%s/%s", m.MainType, m.SubType)
 
@@ -130,9 +131,9 @@ var (
 	HTMLType       = Type{MainType: "text", SubType: "html", Suffixes: []string{"html"}, Delimiter: defaultDelimiter}
 	JavascriptType = Type{MainType: "application", SubType: "javascript", Suffixes: []string{"js"}, Delimiter: defaultDelimiter}
 	JSONType       = Type{MainType: "application", SubType: "json", Suffixes: []string{"json"}, Delimiter: defaultDelimiter}
-	RSSType        = Type{MainType: "application", SubType: "rss", OldSuffix: "xml", Suffixes: []string{"xml"}, Delimiter: defaultDelimiter}
+	RSSType        = Type{MainType: "application", SubType: "rss", mimeSuffix: "xml", Suffixes: []string{"xml"}, Delimiter: defaultDelimiter}
 	XMLType        = Type{MainType: "application", SubType: "xml", Suffixes: []string{"xml"}, Delimiter: defaultDelimiter}
-	SVGType        = Type{MainType: "image", SubType: "svg", OldSuffix: "xml", Suffixes: []string{"svg"}, Delimiter: defaultDelimiter}
+	SVGType        = Type{MainType: "image", SubType: "svg", mimeSuffix: "xml", Suffixes: []string{"svg"}, Delimiter: defaultDelimiter}
 	TextType       = Type{MainType: "text", SubType: "plain", Suffixes: []string{"txt"}, Delimiter: defaultDelimiter}
 
 	OctetType = Type{MainType: "application", SubType: "octet-stream"}
@@ -182,6 +183,17 @@ func (t Types) GetByType(tp string) (Type, bool) {
 	return Type{}, false
 }
 
+// BySuffix will return all media types matching a suffix.
+func (t Types) BySuffix(suffix string) []Type {
+	var types []Type
+	for _, tt := range t {
+		if match := tt.matchSuffix(suffix); match != "" {
+			types = append(types, tt)
+		}
+	}
+	return types
+}
+
 // GetFirstBySuffix will return the first media type matching the given suffix.
 func (t Types) GetFirstBySuffix(suffix string) (Type, bool) {
 	for _, tt := range t {
@@ -214,9 +226,6 @@ func (t Types) GetBySuffix(suffix string) (tp Type, found bool) {
 }
 
 func (t Type) matchSuffix(suffix string) string {
-	if strings.EqualFold(suffix, t.OldSuffix) {
-		return t.OldSuffix
-	}
 	for _, s := range t.Suffixes {
 		if strings.EqualFold(suffix, s) {
 			return s
@@ -246,9 +255,8 @@ func (t Types) GetByMainSubType(mainType, subType string) (tp Type, found bool) 
 	return
 }
 
-func suffixIsDeprecated() {
-	helpers.Deprecated("MediaType", "Suffix in config.toml", `
-Before Hugo 0.44 this was used both to set a custom file suffix and as way
+func suffixIsRemoved() error {
+	return errors.New(`MediaType.Suffix is removed. Before Hugo 0.44 this was used both to set a custom file suffix and as way
 to augment the mediatype definition (what you see after the "+", e.g. "image/svg+xml").
 
 This had its limitations. For one, it was only possible with one file extension per MIME type.
@@ -272,16 +280,13 @@ To:
 [mediaTypes."my/custom-mediatype"]
 suffixes = ["txt"]
 
-Hugo will still respect values set in "suffix" if no value for "suffixes" is provided, but this will be removed
-in a future release.
-
 Note that you can still get the Media Type's suffix from a template: {{ $mediaType.Suffix }}. But this will now map to the MIME type filename.
-`, false)
+`)
 }
 
 // DecodeTypes takes a list of media type configurations and merges those,
 // in the order given, with the Hugo defaults as the last resort.
-func DecodeTypes(maps ...map[string]interface{}) (Types, error) {
+func DecodeTypes(mms ...map[string]interface{}) (Types, error) {
 	var m Types
 
 	// Maps type string to Type. Type string is the full application/svg+xml.
@@ -293,7 +298,7 @@ func DecodeTypes(maps ...map[string]interface{}) (Types, error) {
 		mmm[dt.Type()] = dt
 	}
 
-	for _, mm := range maps {
+	for _, mm := range mms {
 		for k, v := range mm {
 			var mediaType Type
 
@@ -311,23 +316,16 @@ func DecodeTypes(maps ...map[string]interface{}) (Types, error) {
 			}
 
 			vm := v.(map[string]interface{})
+			maps.ToLower(vm)
 			_, delimiterSet := vm["delimiter"]
 			_, suffixSet := vm["suffix"]
 
 			if suffixSet {
-				suffixIsDeprecated()
+				return Types{}, suffixIsRemoved()
 			}
 
-			// Before Hugo 0.44 we had a non-standard use of the Suffix
-			// attribute, and this is now deprecated (use Suffixes for file suffixes).
-			// But we need to keep old configurations working for a while.
-			if len(mediaType.Suffixes) == 0 && mediaType.OldSuffix != "" {
-				mediaType.Suffixes = []string{mediaType.OldSuffix}
-			}
 			// The user may set the delimiter as an empty string.
 			if !delimiterSet && len(mediaType.Suffixes) != 0 {
-				mediaType.Delimiter = defaultDelimiter
-			} else if suffixSet && !delimiterSet {
 				mediaType.Delimiter = defaultDelimiter
 			}
 

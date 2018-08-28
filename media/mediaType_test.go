@@ -80,11 +80,19 @@ func TestGetByMainSubType(t *testing.T) {
 	assert.False(found)
 }
 
+func TestBySuffix(t *testing.T) {
+	assert := require.New(t)
+	formats := DefaultTypes.BySuffix("xml")
+	assert.Equal(2, len(formats))
+	assert.Equal("rss", formats[0].SubType)
+	assert.Equal("xml", formats[1].SubType)
+}
+
 func TestGetFirstBySuffix(t *testing.T) {
 	assert := require.New(t)
 	f, found := DefaultTypes.GetFirstBySuffix("xml")
 	assert.True(found)
-	assert.Equal(Type{MainType: "application", SubType: "rss", OldSuffix: "xml", Delimiter: ".", Suffixes: []string{"xml"}, fileSuffix: "xml"}, f)
+	assert.Equal(Type{MainType: "application", SubType: "rss", mimeSuffix: "xml", Delimiter: ".", Suffixes: []string{"xml"}, fileSuffix: "xml"}, f)
 }
 
 func TestFromTypeString(t *testing.T) {
@@ -94,18 +102,18 @@ func TestFromTypeString(t *testing.T) {
 
 	f, err = fromString("application/custom")
 	require.NoError(t, err)
-	require.Equal(t, Type{MainType: "application", SubType: "custom", OldSuffix: "", fileSuffix: ""}, f)
+	require.Equal(t, Type{MainType: "application", SubType: "custom", mimeSuffix: "", fileSuffix: ""}, f)
 
 	f, err = fromString("application/custom+sfx")
 	require.NoError(t, err)
-	require.Equal(t, Type{MainType: "application", SubType: "custom", OldSuffix: "sfx"}, f)
+	require.Equal(t, Type{MainType: "application", SubType: "custom", mimeSuffix: "sfx"}, f)
 
 	_, err = fromString("noslash")
 	require.Error(t, err)
 
 	f, err = fromString("text/xml; charset=utf-8")
 	require.NoError(t, err)
-	require.Equal(t, Type{MainType: "text", SubType: "xml", OldSuffix: ""}, f)
+	require.Equal(t, Type{MainType: "text", SubType: "xml", mimeSuffix: ""}, f)
 	require.Equal(t, "", f.Suffix())
 }
 
@@ -146,28 +154,24 @@ func TestDecodeTypes(t *testing.T) {
 				json, found := tt.GetBySuffix("jasn")
 				require.True(t, found)
 				require.Equal(t, "application/json", json.String(), name)
+				require.Equal(t, ".jasn", json.FullSuffix())
 			}},
 		{
-			"Suffix from key, multiple file suffixes",
+			"MIME suffix in key, multiple file suffixes, custom delimiter",
 			[]map[string]interface{}{
 				{
 					"application/hugo+hg": map[string]interface{}{
-						"Suffixes": []string{"hg1", "hg2"},
+						"suffixes":  []string{"hg1", "hg2"},
+						"Delimiter": "_",
 					}}},
 			false,
 			func(t *testing.T, name string, tt Types) {
 				require.Len(t, tt, len(DefaultTypes)+1)
-				hg, found := tt.GetBySuffix("hg")
+				hg, found := tt.GetBySuffix("hg2")
 				require.True(t, found)
-				require.Equal(t, "hg", hg.OldSuffix)
-				require.Equal(t, "hg", hg.Suffix())
-				require.Equal(t, ".hg", hg.FullSuffix())
-				require.Equal(t, "application/hugo+hg", hg.String(), name)
-				hg, found = tt.GetBySuffix("hg2")
-				require.True(t, found)
-				require.Equal(t, "hg", hg.OldSuffix)
+				require.Equal(t, "hg", hg.mimeSuffix)
 				require.Equal(t, "hg2", hg.Suffix())
-				require.Equal(t, ".hg2", hg.FullSuffix())
+				require.Equal(t, "_hg2", hg.FullSuffix())
 				require.Equal(t, "application/hugo+hg", hg.String(), name)
 
 				hg, found = tt.GetByType("application/hugo+hg")
@@ -178,8 +182,8 @@ func TestDecodeTypes(t *testing.T) {
 			"Add custom media type",
 			[]map[string]interface{}{
 				{
-					"text/hugo": map[string]interface{}{
-						"suffix": "hgo"}}},
+					"text/hugo+hgo": map[string]interface{}{
+						"Suffixes": []string{"hgo2"}}}},
 			false,
 			func(t *testing.T, name string, tt Types) {
 				require.Len(t, tt, len(DefaultTypes)+1)
@@ -188,7 +192,7 @@ func TestDecodeTypes(t *testing.T) {
 				_, found := tt.GetBySuffix("json")
 				require.True(t, found)
 
-				hugo, found := tt.GetBySuffix("hgo")
+				hugo, found := tt.GetBySuffix("hgo2")
 				require.True(t, found)
 				require.Equal(t, "text/hugo+hgo", hugo.String(), name)
 			}},

@@ -32,4 +32,10 @@ func TestNew(t *testing.T) {
 
 	assert.NoError(m.Minify(media.CSSType, &b, strings.NewReader("body { color: blue; }")))
 	assert.Equal("body{color:blue}", b.String())
+
+	b.Reset()
+
+	// RSS should be handled as XML
+	assert.NoError(m.Minify(media.RSSType, &b, strings.NewReader("<hello>  Hugo!   </hello>  ")))
+	assert.Equal("<hello>Hugo!</hello>", b.String())
 }

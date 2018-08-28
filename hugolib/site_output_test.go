@@ -276,14 +276,12 @@ disableKinds = ["page", "section", "taxonomy", "taxonomyTerm", "sitemap", "robot
 
 [mediaTypes]
 [mediaTypes."text/nodot"]
-suffix = ""
 delimiter = ""
 [mediaTypes."text/defaultdelim"]
-suffix = "defd"
+suffixes = ["defd"]
 [mediaTypes."text/nosuffix"]
-suffix = ""
 [mediaTypes."text/customdelim"]
-suffix = "del"
+suffixes = ["del"]
 delimiter = "_"
 
 [outputs]
@@ -321,7 +319,7 @@ baseName = "customdelimbase"
 	th.assertFileContent("public/_redirects", "a dotless")
 	th.assertFileContent("public/defaultdelimbase.defd", "default delimim")
 	// This looks weird, but the user has chosen this definition.
-	th.assertFileContent("public/nosuffixbase.", "no suffix")
+	th.assertFileContent("public/nosuffixbase", "no suffix")
 	th.assertFileContent("public/customdelimbase_del", "custom delim")
 
 	s := h.Sites[0]
@@ -332,7 +330,7 @@ baseName = "customdelimbase"
 
 	require.Equal(t, "/blog/_redirects", outputs.Get("DOTLESS").RelPermalink())
 	require.Equal(t, "/blog/defaultdelimbase.defd", outputs.Get("DEF").RelPermalink())
-	require.Equal(t, "/blog/nosuffixbase.", outputs.Get("NOS").RelPermalink())
+	require.Equal(t, "/blog/nosuffixbase", outputs.Get("NOS").RelPermalink())
 	require.Equal(t, "/blog/customdelimbase_del", outputs.Get("CUS").RelPermalink())
 
 }
