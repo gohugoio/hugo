@@ -296,3 +296,10 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 	}
 	return p.groupByDateField(sorter, formatter, order...)
 }
+
+// Group creates a PageGroup from a key and a Pages object
+func (p *Page) Group(key interface{}, pages Pages) (PageGroup, error) {
+	pageGroup := PageGroup{Key: key, Pages: pages}
+
+	return pageGroup, nil
+}
