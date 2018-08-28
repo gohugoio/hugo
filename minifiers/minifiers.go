@@ -71,60 +71,35 @@ func New(mediaTypes media.Types, outputFormats output.Formats) Client {
 	}
 
 	// We use the Type definition of the media types defined in the site if found.
-	addMinifierFunc(m, mediaTypes, "text/css", "css", css.Minify)
-	addMinifierFunc(m, mediaTypes, "application/javascript", "js", js.Minify)
+	addMinifierFunc(m, mediaTypes, "css", css.Minify)
+	addMinifierFunc(m, mediaTypes, "js", js.Minify)
 	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
-	addMinifierFunc(m, mediaTypes, "application/json", "json", json.Minify)
-	addMinifierFunc(m, mediaTypes, "image/svg+xml", "svg", svg.Minify)
-	addMinifierFunc(m, mediaTypes, "application/xml", "xml", xml.Minify)
-	addMinifierFunc(m, mediaTypes, "application/rss", "xml", xml.Minify)
+	addMinifierFunc(m, mediaTypes, "json", json.Minify)
+	addMinifierFunc(m, mediaTypes, "svg", svg.Minify)
+	addMinifierFunc(m, mediaTypes, "xml", xml.Minify)
 
 	// HTML
-	addMinifier(m, mediaTypes, "text/html", "html", htmlMin)
+	addMinifier(m, mediaTypes, "html", htmlMin)
 	for _, of := range outputFormats {
 		if of.IsHTML {
-			addMinifier(m, mediaTypes, of.MediaType.Type(), "html", htmlMin)
+			m.Add(of.MediaType.Type(), htmlMin)
 		}
 	}
+
 	return Client{m: m}
 
 }
 
-func addMinifier(m *minify.M, mt media.Types, typeString, suffix string, min minify.Minifier) {
-	resolvedTypeStr := resolveMediaTypeString(mt, typeString, suffix)
-	m.Add(resolvedTypeStr, min)
-	if resolvedTypeStr != typeString {
-		m.Add(typeString, min)
+func addMinifier(m *minify.M, mt media.Types, suffix string, min minify.Minifier) {
+	types := mt.BySuffix(suffix)
+	for _, t := range types {
+		m.Add(t.Type(), min)
 	}
 }
 
-func addMinifierFunc(m *minify.M, mt media.Types, typeString, suffix string, fn minify.MinifierFunc) {
-	resolvedTypeStr := resolveMediaTypeString(mt, typeString, suffix)
-	m.AddFunc(resolvedTypeStr, fn)
-	if resolvedTypeStr != typeString {
-		m.AddFunc(typeString, fn)
+func addMinifierFunc(m *minify.M, mt media.Types, suffix string, min minify.MinifierFunc) {
+	types := mt.BySuffix(suffix)
+	for _, t := range types {
+		m.AddFunc(t.Type(), min)
 	}
-}
-
-func resolveMediaTypeString(types media.Types, typeStr, suffix string) string {
-	if m, found := resolveMediaType(types, typeStr, suffix); found {
-		return m.Type()
-	}
-	// Fall back to the default.
-	return typeStr
-}
-
-// Make sure we match the matching pattern with what the user have actually defined
-// in his or hers media types configuration.
-func resolveMediaType(types media.Types, typeStr, suffix string) (media.Type, bool) {
-	if m, found := types.GetByType(typeStr); found {
-		return m, true
-	}
-
-	if m, found := types.GetFirstBySuffix(suffix); found {
-		return m, true
-	}
-
-	return media.Type{}, false
-
 }

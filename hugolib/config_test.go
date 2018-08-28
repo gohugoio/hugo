@@ -97,7 +97,7 @@ top = "top"
 
 [mediaTypes]
 [mediaTypes."text/m1"]
-suffix = "m1main"
+suffixes = ["m1main"]
 
 [outputFormats.o1]
 mediaType = "text/m1"
@@ -135,9 +135,9 @@ p3 = "p3 theme"
 
 [mediaTypes]
 [mediaTypes."text/m1"]
-suffix = "m1theme"
+suffixes = ["m1theme"]
 [mediaTypes."text/m2"]
-suffix = "m2theme"
+suffixes = ["m2theme"]
 
 [outputFormats.o1]
 mediaType = "text/m1"
@@ -207,10 +207,14 @@ map[string]interface {}{
 	b.AssertObject(`
 map[string]interface {}{
   "text/m1": map[string]interface {}{
-    "suffix": "m1main",
+    "suffixes": []interface {}{
+      "m1main",
+    },
   },
   "text/m2": map[string]interface {}{
-    "suffix": "m2theme",
+    "suffixes": []interface {}{
+      "m2theme",
+    },
   },
 }`, got["mediatypes"])
 
@@ -221,7 +225,6 @@ map[string]interface {}{
     "mediatype": Type{
       MainType: "text",
       SubType: "m1",
-      OldSuffix: "m1main",
       Delimiter: ".",
       Suffixes: []string{
         "m1main",
@@ -233,7 +236,6 @@ map[string]interface {}{
     "mediatype": Type{
       MainType: "text",
       SubType: "m2",
-      OldSuffix: "m2theme",
       Delimiter: ".",
       Suffixes: []string{
         "m2theme",
