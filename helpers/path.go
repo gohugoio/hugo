@@ -573,7 +573,7 @@ func OpenFileForWriting(fs afero.Fs, filename string) (afero.File, error) {
 		if !os.IsNotExist(err) {
 			return nil, err
 		}
-		if err = fs.MkdirAll(filepath.Dir(filename), 0755); err != nil {
+		if err = fs.MkdirAll(filepath.Dir(filename), 0777); err != nil { // rwx, rw, r before umask
 			return nil, err
 		}
 		f, err = fs.Create(filename)
