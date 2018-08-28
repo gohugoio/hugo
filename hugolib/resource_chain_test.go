@@ -257,7 +257,10 @@ T2: Content: {{ $combinedText.Content }}|{{ $combinedText.RelPermalink }}
 			b.AssertFileContent("public/rocks/hugo.txt", "Hugo Rocks!")
 
 		}},
-		{"execute-as-template", func() bool { return true }, func(b *sitesBuilder) {
+		{"execute-as-template", func() bool {
+			// TODO(bep) eventually remove
+			return isGo111()
+		}, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", `
 {{ $var := "Hugo Page" }}
 {{ if .IsHome }}

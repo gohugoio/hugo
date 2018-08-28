@@ -676,3 +676,7 @@ func dumpPages(pages ...*Page) {
 func isCI() bool {
 	return os.Getenv("CI") != ""
 }
+
+func isGo111() bool {
+	return strings.Contains(runtime.Version(), "1.11")
+}
