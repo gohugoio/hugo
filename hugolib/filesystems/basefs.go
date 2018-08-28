@@ -183,7 +183,7 @@ func (s SourceFilesystems) IsData(filename string) bool {
 	return s.Data.Contains(filename)
 }
 
-// IsAsset returns true if the given filename is a member of the data filesystem.
+// IsAsset returns true if the given filename is a member of the asset filesystem.
 func (s SourceFilesystems) IsAsset(filename string) bool {
 	return s.Assets.Contains(filename)
 }
