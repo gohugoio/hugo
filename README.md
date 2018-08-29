@@ -57,22 +57,18 @@ Use the [installation instructions in the Hugo documentation](https://gohugo.io/
 #### Prerequisite Tools
 
 * [Git](https://git-scm.com/)
-* [Go (latest or previous version)](https://golang.org/dl/)
-
-#### Vendored Dependencies
-
-Hugo uses [dep](https://github.com/golang/dep) to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository. Therefore, a simple `go get` is _not_ supported because the command is not vendor aware.
-
-The simplest way is to use [mage](https://github.com/magefile/mage) (a Make alternative for Go projects.)
+* [Go (at least Go 1.11)](https://golang.org/dl/)
 
 #### Fetch from GitHub
 
+Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is is to clone Hugo in a directory outside of `GOPATH`, as in the following example:
+
 ```bash
-go get github.com/magefile/mage
-go get -d github.com/gohugoio/hugo
-cd ${GOPATH:-$HOME/go}/src/github.com/gohugoio/hugo
-mage vendor
-mage install
+mkdir $HOME/src
+cd $HOME/src
+git clone https://github.com/gohugoio/hugo.git
+cd hugo
+go install
 ```
 
 **If you are a Windows user, substitute the `$HOME` environment variable above with `%USERPROFILE%`.**
