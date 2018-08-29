@@ -80,7 +80,7 @@ related:
   indices:
   - name: keywords
     weight: 100
-  - name: weight
+  - name: date
     weight: 10
 ```
 
