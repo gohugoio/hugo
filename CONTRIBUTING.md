@@ -106,30 +106,23 @@ Fixes #1949
 
 ###  Fetching the Sources From GitHub
 
-Due to the way Go handles package imports, the best approach for working on a
-Hugo fork is to use Git Remotes.  Here's a simple walk-through for getting
-started:
+Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is is to clone Hugo in a directory outside of `GOPATH`, as in the following example:
 
-1. Get the Hugo source:
+```bash
+mkdir $HOME/src
+cd $HOME/src
+git clone https://github.com/gohugoio/hugo.git
+cd hugo
+go install
+```
 
-    ```bash
-    go get -u -v -d github.com/gohugoio/hugo
-    ```
+For some convenient build and test targets, you also will want to install Mage:
 
-1. Install Mage:
+```bash
+go get github.com/magefile/mage
+```
 
-    ```bash
-    go get github.com/magefile/mage
-    ```
-
-1. Change to the Hugo source directory and fetch the dependencies:
-
-    ```bash
-    cd $HOME/go/src/github.com/gohugoio/hugo
-    mage vendor
-    ```
-
-    Note that Hugo uses [Go Dep](https://github.com/golang/dep) to vendor dependencies, rather than a simple `go get`. We don't commit the vendored packages themselves to the Hugo git repository. The call to `mage vendor` takes care of all this for you.
+Now, to make a change to Hugos's source:
 
 1. Create a new branch for your changes (the branch name is arbitrary):
 
