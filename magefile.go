@@ -212,7 +212,7 @@ func Lint() error {
 //  Run go vet linter
 func Vet() error {
 	if err := sh.Run(goexe, "vet", "./..."); err != nil {
-		return fmt.Errorf("error running govendor: %v", err)
+		return fmt.Errorf("error running go vet: %v", err)
 	}
 	return nil
 }
