@@ -38,24 +38,6 @@ func init() {
 	os.Setenv("GO111MODULE", "on")
 }
 
-func getDep() error {
-	if !isWindows() {
-		// We only need this on Appveyor.
-		// TODO(bep) go11 clean up the vendor stuff once Appveyor gets Go 1.11.
-		return nil
-	}
-	return sh.Run(goexe, "get", "-u", "github.com/golang/dep/cmd/dep")
-}
-
-// Install Go Dep and sync Hugo's vendored dependencies
-func Vendor() error {
-	if !isWindows() {
-		return nil
-	}
-	mg.Deps(getDep)
-	return sh.Run("dep", "ensure")
-}
-
 // Build hugo binary
 func Hugo() error {
 	return sh.RunWith(flagEnv(), goexe, "build", "-ldflags", ldflags, "-tags", buildTags(), packageName)
@@ -182,7 +164,6 @@ func Fmt() error {
 var pkgPrefixLen = len("github.com/gohugoio/hugo")
 
 func hugoPackages() ([]string, error) {
-	mg.Deps(getDep)
 	s, err := sh.Output(goexe, "list", "./...")
 	if err != nil {
 		return nil, err
@@ -217,7 +198,6 @@ func Lint() error {
 
 //  Run go vet linter
 func Vet() error {
-	mg.Deps(getDep)
 	if err := sh.Run(goexe, "vet", "./..."); err != nil {
 		return fmt.Errorf("error running govendor: %v", err)
 	}
@@ -226,7 +206,6 @@ func Vet() error {
 
 // Generate test coverage report
 func TestCoverHTML() error {
-	mg.Deps(getDep)
 	const (
 		coverAll = "coverage-all.out"
 		cover    = "coverage.out"
@@ -266,22 +245,8 @@ func TestCoverHTML() error {
 	return sh.Run(goexe, "tool", "cover", "-html="+coverAll)
 }
 
-// Verify that vendored packages match git HEAD
-func CheckVendor() error {
-	if err := sh.Run("git", "diff-index", "--quiet", "HEAD", "vendor/"); err != nil {
-		// yes, ignore errors from this, not much we can do.
-		sh.Exec(nil, os.Stdout, os.Stderr, "git", "diff", "vendor/")
-		return errors.New("check-vendor target failed: vendored packages out of sync")
-	}
-	return nil
-}
-
 func isGoLatest() bool {
 	return strings.Contains(runtime.Version(), "1.11")
-}
-
-func isWindows() bool {
-	return runtime.GOOS == "windows"
 }
 
 func buildTags() string {
