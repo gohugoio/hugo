@@ -10,15 +10,15 @@ environment:
   HUGO_BUILD_TAGS: extended
 
 # clones and cd's to path
-clone_folder: C:\GOPATH\src\github.com\gohugoio\hugo
+clone_folder: C:\hugo
 
 install:
 #  - gem install asciidoctor
   - pip install docutils
-  - go get github.com/magefile/mage
+  - env GO111MODULE=off go get github.com/magefile/mage
 
 build_script:
-  - mage vendor hugoRace
+  - mage hugoRace
   - mage -v check
   - hugo -s docs/
   - hugo --renderToMemory -s docs/
