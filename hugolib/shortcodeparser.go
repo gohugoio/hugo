@@ -159,7 +159,7 @@ type pagelexer struct {
 	openShortcodes     map[string]bool // set of shortcodes in open state
 
 	// items delivered to client
-	items chan item
+	items []item
 }
 
 // note: the input position here is normally 0 (start), but
@@ -172,9 +172,9 @@ func newShortcodeLexer(name, input string, inputPosition pos) *pagelexer {
 		currRightDelimItem: tRightDelimScNoMarkup,
 		pos:                inputPosition,
 		openShortcodes:     make(map[string]bool),
-		items:              make(chan item),
+		items:              make([]item, 0, 5),
 	}
-	go lexer.runShortcodeLexer()
+	lexer.runShortcodeLexer()
 	return lexer
 }
 
@@ -184,8 +184,6 @@ func (l *pagelexer) runShortcodeLexer() {
 	for l.state = lexTextOutsideShortcodes; l.state != nil; {
 		l.state = l.state(l)
 	}
-
-	close(l.items)
 }
 
 // state functions
@@ -227,7 +225,7 @@ func (l *pagelexer) backup() {
 
 // sends an item back to the client.
 func (l *pagelexer) emit(t itemType) {
-	l.items <- item{t, l.start, l.input[l.start:l.pos]}
+	l.items = append(l.items, item{t, l.start, l.input[l.start:l.pos]})
 	l.start = l.pos
 }
 
@@ -239,7 +237,7 @@ func (l *pagelexer) ignoreEscapesAndEmit(t itemType) {
 		}
 		return r
 	}, l.input[l.start:l.pos])
-	l.items <- item{t, l.start, val}
+	l.items = append(l.items, item{t, l.start, val})
 	l.start = l.pos
 }
 
@@ -260,13 +258,14 @@ func (l *pagelexer) lineNum() int {
 
 // nil terminates the parser
 func (l *pagelexer) errorf(format string, args ...interface{}) stateFunc {
-	l.items <- item{tError, l.start, fmt.Sprintf(format, args...)}
+	l.items = append(l.items, item{tError, l.start, fmt.Sprintf(format, args...)})
 	return nil
 }
 
 // consumes and returns the next item
 func (l *pagelexer) nextItem() item {
-	item := <-l.items
+	item := l.items[0]
+	l.items = l.items[1:]
 	l.lastPos = item.pos
 	return item
 }
@@ -313,7 +312,7 @@ func lexShortcodeLeftDelim(l *pagelexer) stateFunc {
 }
 
 func lexShortcodeComment(l *pagelexer) stateFunc {
-	posRightComment := strings.Index(l.input[l.pos:], rightComment)
+	posRightComment := strings.Index(l.input[l.pos:], rightComment+l.currentRightShortcodeDelim())
 	if posRightComment <= 1 {
 		return l.errorf("comment must be closed")
 	}
@@ -325,9 +324,6 @@ func lexShortcodeComment(l *pagelexer) stateFunc {
 	l.emit(tText)
 	l.pos += pos(len(rightComment))
 	l.ignore()
-	if !strings.HasPrefix(l.input[l.pos:], l.currentRightShortcodeDelim()) {
-		return l.errorf("comment ends before the right shortcode delimiter")
-	}
 	l.pos += pos(len(l.currentRightShortcodeDelim()))
 	l.emit(tText)
 	return lexTextOutsideShortcodes
@@ -468,6 +464,8 @@ Loop:
 	for {
 		switch r := l.next(); {
 		case isAlphaNumericOrHyphen(r):
+		// Allow forward slash inside names to make it possible to create namespaces.
+		case r == '/':
 		default:
 			l.backup()
 			word := l.input[l.start:l.pos]

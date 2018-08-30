@@ -1,1 +1,4 @@
 /.idea
+/public
+nohup.out
+.DS_Store

@@ -17,31 +17,59 @@ import (
 	"sync"
 )
 
+type pageCacheEntry struct {
+	in  []Pages
+	out Pages
+}
+
+func (entry pageCacheEntry) matches(pageLists []Pages) bool {
+	if len(entry.in) != len(pageLists) {
+		return false
+	}
+	for i, p := range pageLists {
+		if !fastEqualPages(p, entry.in[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
 type pageCache struct {
 	sync.RWMutex
-	m map[string][][2]Pages
+	m map[string][]pageCacheEntry
 }
 
 func newPageCache() *pageCache {
-	return &pageCache{m: make(map[string][][2]Pages)}
+	return &pageCache{m: make(map[string][]pageCacheEntry)}
 }
 
-// get gets a Pages slice from the cache matching the given key and Pages slice.
-// If none found in cache, a copy of the supplied slice is created.
+// get/getP gets a Pages slice from the cache matching the given key and
+// all the provided Pages slices.
+// If none found in cache, a copy of the first slice is created.
 //
 // If an apply func is provided, that func is applied to the newly created copy.
 //
+// The getP variant' apply func takes a pointer to Pages.
+//
 // The cache and the execution of the apply func is protected by a RWMutex.
-func (c *pageCache) get(key string, p Pages, apply func(p Pages)) (Pages, bool) {
+func (c *pageCache) get(key string, apply func(p Pages), pageLists ...Pages) (Pages, bool) {
+	return c.getP(key, func(p *Pages) {
+		if apply != nil {
+			apply(*p)
+		}
+	}, pageLists...)
+}
+
+func (c *pageCache) getP(key string, apply func(p *Pages), pageLists ...Pages) (Pages, bool) {
 	c.RLock()
 	if cached, ok := c.m[key]; ok {
-		for _, ps := range cached {
-			if probablyEqualPages(p, ps[0]) {
+		for _, entry := range cached {
+			if entry.matches(pageLists) {
 				c.RUnlock()
-				return ps[1], true
+				return entry.out, true
 			}
 		}
-
 	}
 	c.RUnlock()
 
@@ -50,33 +78,35 @@ func (c *pageCache) get(key string, p Pages, apply func(p Pages)) (Pages, bool) 
 
 	// double-check
 	if cached, ok := c.m[key]; ok {
-		for _, ps := range cached {
-			if probablyEqualPages(p, ps[0]) {
-				return ps[1], true
+		for _, entry := range cached {
+			if entry.matches(pageLists) {
+				return entry.out, true
 			}
 		}
 	}
 
+	p := pageLists[0]
 	pagesCopy := append(Pages(nil), p...)
 
 	if apply != nil {
-		apply(pagesCopy)
+		apply(&pagesCopy)
 	}
 
+	entry := pageCacheEntry{in: pageLists, out: pagesCopy}
 	if v, ok := c.m[key]; ok {
-		c.m[key] = append(v, [2]Pages{p, pagesCopy})
+		c.m[key] = append(v, entry)
 	} else {
-		c.m[key] = [][2]Pages{{p, pagesCopy}}
+		c.m[key] = []pageCacheEntry{entry}
 	}
 
 	return pagesCopy, false
 
 }
 
-// "probably" as in: we do not compare every element for big slices, but that is
-// good enough for our use case.
+// "fast" as in: we do not compare every element for big slices, but that is
+// good enough for our use cases.
 // TODO(bep) there is a similar method in pagination.go. DRY.
-func probablyEqualPages(p1, p2 Pages) bool {
+func fastEqualPages(p1, p2 Pages) bool {
 	if p1 == nil && p2 == nil {
 		return true
 	}

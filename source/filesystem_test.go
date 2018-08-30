@@ -14,17 +14,19 @@
 package source
 
 import (
-	"bytes"
-	"path/filepath"
+	"os"
 	"runtime"
-	"strings"
 	"testing"
 
-	"github.com/spf13/hugo/hugofs"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
+
+	"github.com/spf13/viper"
 )
 
 func TestEmptySourceFilesystem(t *testing.T) {
-	src := NewFilesystem(hugofs.NewMem(), "Empty")
+	ss := newTestSourceSpec()
+	src := ss.NewFilesystem("Empty")
 	if len(src.Files()) != 0 {
 		t.Errorf("new filesystem should contain 0 files.")
 	}
@@ -36,54 +38,6 @@ type TestPath struct {
 	content  string
 	section  string
 	dir      string
-}
-
-func TestAddFile(t *testing.T) {
-	fs := hugofs.NewMem()
-	tests := platformPaths
-	for _, test := range tests {
-		base := platformBase
-		srcDefault := NewFilesystem(fs, "")
-		srcWithBase := NewFilesystem(fs, base)
-
-		for _, src := range []*Filesystem{srcDefault, srcWithBase} {
-
-			p := test.filename
-			if !filepath.IsAbs(test.filename) {
-				p = filepath.Join(src.Base, test.filename)
-			}
-
-			if err := src.add(p, bytes.NewReader([]byte(test.content))); err != nil {
-				if err.Error() == "source: missing base directory" {
-					continue
-				}
-				t.Fatalf("%s add returned an error: %s", p, err)
-			}
-
-			if len(src.Files()) != 1 {
-				t.Fatalf("%s Files() should return 1 file", p)
-			}
-
-			f := src.Files()[0]
-			if f.LogicalName() != test.logical {
-				t.Errorf("Filename (Base: %q) expected: %q, got: %q", src.Base, test.logical, f.LogicalName())
-			}
-
-			b := new(bytes.Buffer)
-			b.ReadFrom(f.Contents)
-			if b.String() != test.content {
-				t.Errorf("File (Base: %q) contents should be %q, got: %q", src.Base, test.content, b.String())
-			}
-
-			if f.Section() != test.section {
-				t.Errorf("File section (Base: %q) expected: %q, got: %q", src.Base, test.section, f.Section())
-			}
-
-			if f.Dir() != test.dir {
-				t.Errorf("Dir path (Base: %q) expected: %q, got: %q", src.Base, test.dir, f.Dir())
-			}
-		}
-	}
 }
 
 func TestUnicodeNorm(t *testing.T) {
@@ -100,15 +54,39 @@ func TestUnicodeNorm(t *testing.T) {
 		{NFC: "é", NFD: "\x65\xcc\x81"},
 	}
 
-	fs := hugofs.NewMem()
+	ss := newTestSourceSpec()
+	var fi os.FileInfo
 
 	for _, path := range paths {
-		src := NewFilesystem(fs, "")
-		_ = src.add(path.NFD, strings.NewReader(""))
+		src := ss.NewFilesystem("base")
+		_ = src.add(path.NFD, fi)
 		f := src.Files()[0]
 		if f.BaseFileName() != path.NFC {
 			t.Fatalf("file name in NFD form should be normalized (%s)", path.NFC)
 		}
 	}
 
+}
+
+func newTestConfig() *viper.Viper {
+	v := viper.New()
+	v.Set("contentDir", "content")
+	v.Set("dataDir", "data")
+	v.Set("i18nDir", "i18n")
+	v.Set("layoutDir", "layouts")
+	v.Set("archetypeDir", "archetypes")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
+	v.Set("assetDir", "assets")
+	return v
+}
+
+func newTestSourceSpec() *SourceSpec {
+	v := newTestConfig()
+	fs := hugofs.NewMem(v)
+	ps, err := helpers.NewPathSpec(fs, v)
+	if err != nil {
+		panic(err)
+	}
+	return NewSourceSpec(ps, fs.Source)
 }

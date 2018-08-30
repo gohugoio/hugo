@@ -25,24 +25,50 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/langs"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
-	"github.com/spf13/hugo/hugofs"
 	"github.com/spf13/viper"
 )
 
-func initCommonTestConfig() {
-	viper.Set("currentContentLanguage", NewLanguage("en"))
+func TestMakeSegment(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"  FOO bar  ", "foo-bar"},
+		{"Foo.Bar/fOO_bAr-Foo", "foo.bar-foo_bar-foo"},
+		{"FOO,bar:FooBar", "foobarfoobar"},
+		{"foo/BAR.HTML", "foo-bar.html"},
+		{"трям/трям", "трям-трям"},
+		{"은행", "은행"},
+		{"Say What??", "say-what"},
+		{"Your #1 Fan", "your-1-fan"},
+		{"Red & Blue", "red-blue"},
+		{"double//slash", "double-slash"},
+		{"My // Taxonomy", "my-taxonomy"},
+	}
+
+	for _, test := range tests {
+		v := newTestCfg()
+
+		l := langs.NewDefaultLanguage(v)
+		p, err := NewPathSpec(hugofs.NewMem(v), l)
+		require.NoError(t, err)
+
+		output := p.MakeSegment(test.input)
+		if output != test.expected {
+			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
+		}
+	}
 }
 
 func TestMakePath(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
-	initCommonTestConfig()
-
 	tests := []struct {
 		input         string
 		expected      string
@@ -64,8 +90,12 @@ func TestMakePath(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		viper.Set("removePathAccents", test.removeAccents)
-		p := NewPathSpec(hugofs.NewMem(), viper.GetViper())
+		v := newTestCfg()
+		v.Set("removePathAccents", test.removeAccents)
+
+		l := langs.NewDefaultLanguage(v)
+		p, err := NewPathSpec(hugofs.NewMem(v), l)
+		require.NoError(t, err)
 
 		output := p.MakePath(test.input)
 		if output != test.expected {
@@ -75,11 +105,18 @@ func TestMakePath(t *testing.T) {
 }
 
 func TestMakePathSanitized(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
-	initCommonTestConfig()
+	v := viper.New()
+	v.Set("contentDir", "content")
+	v.Set("dataDir", "data")
+	v.Set("i18nDir", "i18n")
+	v.Set("layoutDir", "layouts")
+	v.Set("assetDir", "assets")
+	v.Set("resourceDir", "resources")
+	v.Set("publishDir", "public")
+	v.Set("archetypeDir", "archetypes")
 
-	p := NewPathSpec(hugofs.NewMem(), viper.GetViper())
+	l := langs.NewDefaultLanguage(v)
+	p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
 	tests := []struct {
 		input    string
@@ -102,12 +139,12 @@ func TestMakePathSanitized(t *testing.T) {
 }
 
 func TestMakePathSanitizedDisablePathToLower(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	v := newTestCfg()
 
-	initCommonTestConfig()
-	viper.Set("disablePathToLower", true)
-	p := NewPathSpec(hugofs.NewMem(), viper.GetViper())
+	v.Set("disablePathToLower", true)
+
+	l := langs.NewDefaultLanguage(v)
+	p, _ := NewPathSpec(hugofs.NewMem(v), l)
 
 	tests := []struct {
 		input    string
@@ -277,7 +314,7 @@ func TestReplaceExtension(t *testing.T) {
 		input, newext, expected string
 	}
 	data := []test{
-		// These work according to the above defination
+		// These work according to the above definition
 		{"/some/random/path/file.xml", "html", "file.html"},
 		{"/banana.html", "xml", "banana.xml"},
 		{"./banana.html", "xml", "banana.xml"},
@@ -361,7 +398,7 @@ func TestIsEmpty(t *testing.T) {
 	nonEmptyNonZeroLengthFilesDirectory, _ := createTempDirWithNonZeroLengthFiles()
 	defer deleteTempDir(nonEmptyNonZeroLengthFilesDirectory)
 	nonExistentFile := os.TempDir() + "/this-file-does-not-exist.txt"
-	nonExistentDir := os.TempDir() + "/this/direcotry/does/not/exist/"
+	nonExistentDir := os.TempDir() + "/this/directory/does/not/exist/"
 
 	fileDoesNotExist := fmt.Errorf("%q path does not exist", nonExistentFile)
 	dirDoesNotExist := fmt.Errorf("%q path does not exist", nonExistentDir)
@@ -473,6 +510,7 @@ func createTempDirWithNonZeroLengthFiles() (string, error) {
 		return "", fileErr
 	}
 	byteString := []byte("byteString")
+
 	fileErr = ioutil.WriteFile(f.Name(), byteString, 0644)
 	if fileErr != nil {
 		// delete the file
@@ -502,7 +540,7 @@ func TestExists(t *testing.T) {
 	emptyDirectory, _ := createEmptyTempDir()
 	defer deleteTempDir(emptyDirectory)
 	nonExistentFile := os.TempDir() + "/this-file-does-not-exist.txt"
-	nonExistentDir := os.TempDir() + "/this/direcotry/does/not/exist/"
+	nonExistentDir := os.TempDir() + "/this/directory/does/not/exist/"
 
 	type test struct {
 		input          string
@@ -553,9 +591,9 @@ func TestAbsPathify(t *testing.T) {
 	for i, d := range data {
 		viper.Reset()
 		// todo see comment in AbsPathify
-		viper.Set("workingDir", d.workingDir)
+		ps := newTestDefaultPathSpec("workingDir", d.workingDir)
 
-		expected := AbsPathify(d.inPath)
+		expected := ps.AbsPathify(d.inPath)
 		if d.expected != expected {
 			t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
 		}
@@ -563,24 +601,29 @@ func TestAbsPathify(t *testing.T) {
 	t.Logf("Running platform specific path tests for %s", runtime.GOOS)
 	if runtime.GOOS == "windows" {
 		for i, d := range windowsData {
-			viper.Set("workingDir", d.workingDir)
+			ps := newTestDefaultPathSpec("workingDir", d.workingDir)
 
-			expected := AbsPathify(d.inPath)
+			expected := ps.AbsPathify(d.inPath)
 			if d.expected != expected {
 				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
 			}
 		}
 	} else {
 		for i, d := range unixData {
-			viper.Set("workingDir", d.workingDir)
+			ps := newTestDefaultPathSpec("workingDir", d.workingDir)
 
-			expected := AbsPathify(d.inPath)
+			expected := ps.AbsPathify(d.inPath)
 			if d.expected != expected {
 				t.Errorf("Test %d failed. Expected %q but got %q", i, d.expected, expected)
 			}
 		}
 	}
 
+}
+
+func TestExtNoDelimiter(t *testing.T) {
+	assert := require.New(t)
+	assert.Equal("json", ExtNoDelimiter(filepath.FromSlash("/my/data.json")))
 }
 
 func TestFilename(t *testing.T) {
@@ -596,7 +639,7 @@ func TestFilename(t *testing.T) {
 		{"./filename-no-ext", "filename-no-ext"},
 		{"/filename-no-ext", "filename-no-ext"},
 		{"filename-no-ext", "filename-no-ext"},
-		{"directoy/", ""}, // no filename case??
+		{"directory/", ""}, // no filename case??
 		{"directory/.hidden.ext", ".hidden"},
 		{"./directory/../~/banana/gold.fish", "gold"},
 		{"../directory/banana.man", "banana"},
@@ -625,7 +668,7 @@ func TestFileAndExt(t *testing.T) {
 		{"./filename-no-ext", "filename-no-ext", ""},
 		{"/filename-no-ext", "filename-no-ext", ""},
 		{"filename-no-ext", "filename-no-ext", ""},
-		{"directoy/", "", ""}, // no filename case??
+		{"directory/", "", ""}, // no filename case??
 		{"directory/.hidden.ext", ".hidden", ".ext"},
 		{"./directory/../~/banana/gold.fish", "gold", ".fish"},
 		{"../directory/banana.man", "banana", ".man"},
@@ -643,40 +686,6 @@ func TestFileAndExt(t *testing.T) {
 		}
 	}
 
-}
-
-func TestGuessSection(t *testing.T) {
-	type test struct {
-		input, expected string
-	}
-
-	data := []test{
-		{"/", ""},
-		{"", ""},
-		{"/content", ""},
-		{"content/", ""},
-		{"/content/", ""}, // /content/ is a special case. It will never be the section
-		{"/blog", ""},
-		{"/blog/", "blog"},
-		{"blog", ""},
-		{"content/blog", ""},
-		{"/content/blog/", "blog"},
-		{"/content/blog", ""}, // Lack of trailing slash indicates 'blog' is not a directory.
-		{"content/blog/", "blog"},
-		{"/contents/myblog/", "contents"},
-		{"/contents/yourblog", "contents"},
-		{"/contents/ourblog/", "contents"},
-		{"/content/myblog/", "myblog"},
-		{"/content/yourblog", ""},
-		{"/content/ourblog/", "ourblog"},
-	}
-
-	for i, d := range data {
-		expected := GuessSection(filepath.FromSlash(d.input))
-		if d.expected != expected {
-			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, expected)
-		}
-	}
 }
 
 func TestPathPrep(t *testing.T) {
@@ -711,10 +720,10 @@ func TestFindCWD(t *testing.T) {
 
 	//cwd, _ := os.Getwd()
 	data := []test{
-	//{cwd, nil},
-	// Commenting this out. It doesn't work properly.
-	// There's a good reason why we don't use os.Getwd(), it doesn't actually work the way we want it to.
-	// I really don't know a better way to test this function. - SPF 2014.11.04
+		//{cwd, nil},
+		// Commenting this out. It doesn't work properly.
+		// There's a good reason why we don't use os.Getwd(), it doesn't actually work the way we want it to.
+		// I really don't know a better way to test this function. - SPF 2014.11.04
 	}
 	for i, d := range data {
 		dir, err := FindCWD()

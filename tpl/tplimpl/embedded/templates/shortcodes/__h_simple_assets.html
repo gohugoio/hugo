@@ -1,0 +1,34 @@
+{{ define "__h_simple_css" }}{{/* These template definitions are global. */}}
+{{- if not (.Page.Scratch.Get "__h_simple_css") -}}
+{{/* Only include once */}}
+{{-  .Page.Scratch.Set "__h_simple_css" true -}}
+<style>
+.__h_video {
+   position: relative;
+   padding-bottom: 56.23%;
+   height: 0;
+   overflow: hidden;
+   width: 100%;
+   background: #000;
+}
+.__h_video img {
+   width: 100%;
+   height: auto;
+   color: #000;
+}
+.__h_video .play {
+   height: 72px;
+   width: 72px;
+   left: 50%;
+   top: 50%;
+   margin-left: -36px;
+   margin-top: -36px;
+   position: absolute;
+   cursor: pointer;
+}
+</style>
+{{- end -}}
+{{- end -}}
+{{- define "__h_simple_icon_play" -}}
+<svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 61 61"><circle cx="30.5" cy="30.5" r="30.5" opacity=".8" fill="#000"></circle><path d="M25.3 19.2c-2.1-1.2-3.8-.2-3.8 2.2v18.1c0 2.4 1.7 3.4 3.8 2.2l16.6-9.1c2.1-1.2 2.1-3.2 0-4.4l-16.6-9z" fill="#fff"></path></svg>
+{{- end -}}

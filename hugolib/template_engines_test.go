@@ -20,13 +20,11 @@ import (
 
 	"strings"
 
-	"github.com/spf13/viper"
-
-	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/hugofs"
+	"github.com/gohugoio/hugo/deps"
 )
 
 func TestAllTemplateEngines(t *testing.T) {
+	t.Parallel()
 	noOp := func(s string) string {
 		return s
 	}
@@ -34,6 +32,7 @@ func TestAllTemplateEngines(t *testing.T) {
 	amberFixer := func(s string) string {
 		fixed := strings.Replace(s, "{{ .Title", "{{ Title", -1)
 		fixed = strings.Replace(fixed, ".Content", "Content", -1)
+		fixed = strings.Replace(fixed, ".IsNamedParams", "IsNamedParams", -1)
 		fixed = strings.Replace(fixed, "{{", "#{", -1)
 		fixed = strings.Replace(fixed, "}}", "}", -1)
 		fixed = strings.Replace(fixed, `title "hello world"`, `title("hello world")`, -1)
@@ -49,25 +48,17 @@ func TestAllTemplateEngines(t *testing.T) {
 		{"html", noOp},
 		{"ace", noOp},
 	} {
-		doTestTemplateEngine(t, config.suffix, config.templateFixer)
-
+		t.Run(config.suffix,
+			func(t *testing.T) {
+				doTestTemplateEngine(t, config.suffix, config.templateFixer)
+			})
 	}
 
 }
 
 func doTestTemplateEngine(t *testing.T, suffix string, templateFixer func(s string) string) {
 
-	testCommonResetState()
-
-	fs := hugofs.NewMem()
-	viper.SetFs(fs.Source)
-
-	writeSource(t, fs, filepath.Join("content", "p.md"), `
----
-title: My Title 
----
-My Content
-`)
+	cfg, fs := newTestCfg()
 
 	t.Log("Testing", suffix)
 
@@ -82,18 +73,36 @@ p
 
 `
 
-	templ := templateFixer(templTemplate)
+	templShortcodeTemplate := `
+p
+	|
+	| Shortcode: {{ .IsNamedParams }}
+`
 
-	t.Log(templ)
+	templ := templateFixer(templTemplate)
+	shortcodeTempl := templateFixer(templShortcodeTemplate)
+
+	writeSource(t, fs, filepath.Join("content", "p.md"), `
+---
+title: My Title 
+---
+My Content
+
+Shortcode: {{< myShort >}}
+
+`)
 
 	writeSource(t, fs, filepath.Join("layouts", "_default", fmt.Sprintf("single.%s", suffix)), templ)
+	writeSource(t, fs, filepath.Join("layouts", "shortcodes", fmt.Sprintf("myShort.%s", suffix)), shortcodeTempl)
 
-	buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	th := testHelper{s.Cfg, s.Fs, t}
 
-	assertFileContent(t, fs, filepath.Join("public", "p", "index.html"), true,
+	th.assertFileContent(filepath.Join("public", "p", "index.html"),
 		"Page Title: My Title",
 		"My Content",
 		"Hello World",
+		"Shortcode: false",
 	)
 
 }

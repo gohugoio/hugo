@@ -18,8 +18,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/bufferpool"
 	"github.com/kyokomi/emoji"
-	"github.com/spf13/hugo/bufferpool"
 )
 
 func TestEmojiCustom(t *testing.T) {

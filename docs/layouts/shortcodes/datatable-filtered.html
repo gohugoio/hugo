@@ -1,0 +1,28 @@
+{{ $package := (index .Params 0) }}
+{{ $listname := (index .Params 1) }}
+{{ $filter := split (index .Params 2) " " }}
+{{ $filter1 := index $filter 0 }}
+{{ $filter2 := index $filter 1 }}
+{{ $filter3 := index $filter 2 }}
+
+{{ $list := (index (index .Site.Data.docs $package) $listname) }}
+{{ $fields := after 3 .Params }}
+{{ $list := where $list $filter1 $filter2 $filter3 }}
+
+<table class="table table-bordered">
+	<tr>
+		{{ range $fields }}
+		<th>{{ . }}</th>
+		{{ end }}
+	</tr>
+	{{ range $list }}
+	<tr>
+		{{ range $k, $v := . }}
+		{{ $.Scratch.Set $k $v }}
+		{{ end }}
+		{{ range $fields }}
+			<td>{{ $.Scratch.Get . }}</td>
+		{{ end }}
+	</tr>
+	{{ end }}
+</table>

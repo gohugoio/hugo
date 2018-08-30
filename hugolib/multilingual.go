@@ -16,27 +16,33 @@ package hugolib
 import (
 	"sync"
 
+	"github.com/gohugoio/hugo/common/maps"
+
 	"sort"
 
 	"errors"
 	"fmt"
 
+	"github.com/gohugoio/hugo/langs"
+
+	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/cast"
-	"github.com/spf13/hugo/helpers"
 )
 
+// Multilingual manages the all languages used in a multilingual site.
 type Multilingual struct {
-	Languages helpers.Languages
+	Languages langs.Languages
 
-	DefaultLang *helpers.Language
+	DefaultLang *langs.Language
 
-	langMap     map[string]*helpers.Language
+	langMap     map[string]*langs.Language
 	langMapInit sync.Once
 }
 
-func (ml *Multilingual) Language(lang string) *helpers.Language {
+// Language returns the Language associated with the given string.
+func (ml *Multilingual) Language(lang string) *langs.Language {
 	ml.langMapInit.Do(func() {
-		ml.langMap = make(map[string]*helpers.Language)
+		ml.langMap = make(map[string]*langs.Language)
 		for _, l := range ml.Languages {
 			ml.langMap[l.Lang] = l
 		}
@@ -44,8 +50,16 @@ func (ml *Multilingual) Language(lang string) *helpers.Language {
 	return ml.langMap[lang]
 }
 
-func newMultiLingualFromSites(sites ...*Site) (*Multilingual, error) {
-	languages := make(helpers.Languages, len(sites))
+func getLanguages(cfg config.Provider) langs.Languages {
+	if cfg.IsSet("languagesSorted") {
+		return cfg.Get("languagesSorted").(langs.Languages)
+	}
+
+	return langs.Languages{langs.NewDefaultLanguage(cfg)}
+}
+
+func newMultiLingualFromSites(cfg config.Provider, sites ...*Site) (*Multilingual, error) {
+	languages := make(langs.Languages, len(sites))
 
 	for i, s := range sites {
 		if s.Language == nil {
@@ -54,16 +68,18 @@ func newMultiLingualFromSites(sites ...*Site) (*Multilingual, error) {
 		languages[i] = s.Language
 	}
 
-	return &Multilingual{Languages: languages, DefaultLang: helpers.NewDefaultLanguage()}, nil
+	defaultLang := cfg.GetString("defaultContentLanguage")
+
+	if defaultLang == "" {
+		defaultLang = "en"
+	}
+
+	return &Multilingual{Languages: languages, DefaultLang: langs.NewLanguage(defaultLang, cfg)}, nil
 
 }
 
-func newMultiLingualDefaultLanguage() *Multilingual {
-	return newMultiLingualForLanguage(helpers.NewDefaultLanguage())
-}
-
-func newMultiLingualForLanguage(language *helpers.Language) *Multilingual {
-	languages := helpers.Languages{language}
+func newMultiLingualForLanguage(language *langs.Language) *Multilingual {
+	languages := langs.Languages{language}
 	return &Multilingual{Languages: languages, DefaultLang: language}
 }
 func (ml *Multilingual) enabled() bool {
@@ -77,8 +93,8 @@ func (s *Site) multilingualEnabled() bool {
 	return s.owner.multilingual != nil && s.owner.multilingual.enabled()
 }
 
-func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
-	langs := make(helpers.Languages, len(l))
+func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (langs.Languages, error) {
+	languages := make(langs.Languages, len(l))
 	i := 0
 
 	for lang, langConf := range l {
@@ -88,7 +104,7 @@ func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
 			return nil, fmt.Errorf("Language config is not a map: %T", langConf)
 		}
 
-		language := helpers.NewLanguage(lang)
+		language := langs.NewLanguage(lang, cfg)
 
 		for loki, v := range langsMap {
 			switch loki {
@@ -98,17 +114,31 @@ func toSortedLanguages(l map[string]interface{}) (helpers.Languages, error) {
 				language.LanguageName = cast.ToString(v)
 			case "weight":
 				language.Weight = cast.ToInt(v)
+			case "contentdir":
+				language.ContentDir = cast.ToString(v)
+			case "disabled":
+				language.Disabled = cast.ToBool(v)
+			case "params":
+				m := cast.ToStringMap(v)
+				// Needed for case insensitive fetching of params values
+				maps.ToLower(m)
+				for k, vv := range m {
+					language.SetParam(k, vv)
+				}
 			}
 
 			// Put all into the Params map
 			language.SetParam(loki, v)
+
+			// Also set it in the configuration map (for baseURL etc.)
+			language.Set(loki, v)
 		}
 
-		langs[i] = language
+		languages[i] = language
 		i++
 	}
 
-	sort.Sort(langs)
+	sort.Sort(languages)
 
-	return langs, nil
+	return languages, nil
 }

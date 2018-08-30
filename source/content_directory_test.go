@@ -14,13 +14,17 @@
 package source
 
 import (
-	"github.com/spf13/viper"
+	"path/filepath"
 	"testing"
+
+	"github.com/gohugoio/hugo/helpers"
+
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIgnoreDotFilesAndDirectories(t *testing.T) {
-	viper.Reset()
-	defer viper.Reset()
+	assert := require.New(t)
 
 	tests := []struct {
 		path                string
@@ -34,25 +38,29 @@ func TestIgnoreDotFilesAndDirectories(t *testing.T) {
 		{"foobar/.barfoo.md", true, nil},
 		{".barfoo.md", true, nil},
 		{".md", true, nil},
-		{"", true, nil},
 		{"foobar/barfoo.md~", true, nil},
 		{".foobar/barfoo.md~", true, nil},
 		{"foobar~/barfoo.md", false, nil},
 		{"foobar/bar~foo.md", false, nil},
 		{"foobar/foo.md", true, []string{"\\.md$", "\\.boo$"}},
 		{"foobar/foo.html", false, []string{"\\.md$", "\\.boo$"}},
-		{"foobar/foo.md", true, []string{"^foo"}},
-		{"foobar/foo.md", false, []string{"*", "\\.md$", "\\.boo$"}},
+		{"foobar/foo.md", true, []string{"foo.md$"}},
+		{"foobar/foo.md", true, []string{"*", "\\.md$", "\\.boo$"}},
 		{"foobar/.#content.md", true, []string{"/\\.#"}},
 		{".#foobar.md", true, []string{"^\\.#"}},
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
+		v := newTestConfig()
+		v.Set("ignoreFiles", test.ignoreFilesRegexpes)
+		fs := hugofs.NewMem(v)
+		ps, err := helpers.NewPathSpec(fs, v)
+		assert.NoError(err)
 
-		viper.Set("ignoreFiles", test.ignoreFilesRegexpes)
+		s := NewSourceSpec(ps, fs.Source)
 
-		if ignored := isNonProcessablePath(test.path); test.ignore != ignored {
-			t.Errorf("File not ignored.  Expected: %t, got: %t", test.ignore, ignored)
+		if ignored := s.IgnoreFile(filepath.FromSlash(test.path)); test.ignore != ignored {
+			t.Errorf("[%d] File not ignored", i)
 		}
 	}
 }

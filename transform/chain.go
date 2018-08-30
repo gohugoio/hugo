@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,71 +17,77 @@ import (
 	"bytes"
 	"io"
 
-	bp "github.com/spf13/hugo/bufferpool"
+	bp "github.com/gohugoio/hugo/bufferpool"
 )
 
-type trans func(rw contentTransformer)
+// Transformer is the func that needs to be implemented by a transformation step.
+type Transformer func(ft FromTo) error
 
-type link trans
+// BytesReader wraps the Bytes method, usually implemented by bytes.Buffer, and an
+// io.Reader.
+type BytesReader interface {
+	// The slice given by Bytes is valid for use only until the next buffer modification.
+	// That is, if you want to use this value outside of the current transformer step,
+	// you need to take a copy.
+	Bytes() []byte
 
-type chain []link
+	io.Reader
+}
 
-// NewChain creates a chained content transformer given the provided transforms.
-func NewChain(trs ...link) chain {
+// FromTo is sent to each transformation step in the chain.
+type FromTo interface {
+	From() BytesReader
+	To() io.Writer
+}
+
+// Chain is an ordered processing chain. The next transform operation will
+// receive the output from the previous.
+type Chain []Transformer
+
+// New creates a content transformer chain given the provided transform funcs.
+func New(trs ...Transformer) Chain {
 	return trs
 }
 
-// NewEmptyTransforms creates a new slice of transforms with a capacity of 20.
-func NewEmptyTransforms() []link {
-	return make([]link, 0, 20)
-}
-
-// contentTransformer is an interface that enables rotation  of pooled buffers
-// in the transformer chain.
-type contentTransformer interface {
-	Path() []byte
-	Content() []byte
-	io.Writer
+// NewEmpty creates a new slice of transformers with a capacity of 20.
+func NewEmpty() Chain {
+	return make(Chain, 0, 20)
 }
 
 // Implements contentTransformer
 // Content is read from the from-buffer and rewritten to to the to-buffer.
 type fromToBuffer struct {
-	path []byte
 	from *bytes.Buffer
 	to   *bytes.Buffer
 }
 
-func (ft fromToBuffer) Path() []byte {
-	return ft.path
+func (ft fromToBuffer) From() BytesReader {
+	return ft.from
 }
 
-func (ft fromToBuffer) Write(p []byte) (n int, err error) {
-	return ft.to.Write(p)
+func (ft fromToBuffer) To() io.Writer {
+	return ft.to
 }
 
-func (ft fromToBuffer) Content() []byte {
-	return ft.from.Bytes()
-}
-
-func (c *chain) Apply(w io.Writer, r io.Reader, p []byte) error {
+// Apply passes the given from io.Reader through the transformation chain.
+// The result is written to to.
+func (c *Chain) Apply(to io.Writer, from io.Reader) error {
+	if len(*c) == 0 {
+		_, err := io.Copy(to, from)
+		return err
+	}
 
 	b1 := bp.GetBuffer()
 	defer bp.PutBuffer(b1)
 
-	if _, err := b1.ReadFrom(r); err != nil {
-		return err
-	}
-
-	if len(*c) == 0 {
-		_, err := b1.WriteTo(w)
+	if _, err := b1.ReadFrom(from); err != nil {
 		return err
 	}
 
 	b2 := bp.GetBuffer()
 	defer bp.PutBuffer(b2)
 
-	fb := &fromToBuffer{path: p, from: b1, to: b2}
+	fb := &fromToBuffer{from: b1, to: b2}
 
 	for i, tr := range *c {
 		if i > 0 {
@@ -96,9 +102,11 @@ func (c *chain) Apply(w io.Writer, r io.Reader, p []byte) error {
 			}
 		}
 
-		tr(fb)
+		if err := tr(fb); err != nil {
+			return err
+		}
 	}
 
-	_, err := fb.to.WriteTo(w)
+	_, err := fb.to.WriteTo(to)
 	return err
 }

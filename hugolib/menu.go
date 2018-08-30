@@ -25,9 +25,11 @@ import (
 // or in the site config.
 type MenuEntry struct {
 	URL        string
+	Page       *Page
 	Name       string
 	Menu       string
 	Identifier string
+	title      string
 	Pre        template.HTML
 	Post       template.HTML
 	Weight     int
@@ -43,13 +45,6 @@ type Menus map[string]*Menu
 
 // PageMenus is a dictionary of menus defined in the Pages.
 type PageMenus map[string]*MenuEntry
-
-// addChild adds a new child to this menu entry.
-// The default sort order will then be applied.
-func (m *MenuEntry) addChild(child *MenuEntry) {
-	m.Children = append(m.Children, child)
-	m.Children.Sort()
-}
 
 // HasChildren returns whether this menu item has any children.
 func (m *MenuEntry) HasChildren() bool {
@@ -95,6 +90,8 @@ func (m *MenuEntry) marshallMap(ime map[string]interface{}) {
 			m.Weight = cast.ToInt(v)
 		case "name":
 			m.Name = cast.ToString(v)
+		case "title":
+			m.title = cast.ToString(v)
 		case "pre":
 			m.Pre = template.HTML(cast.ToString(v))
 		case "post":
@@ -157,6 +154,15 @@ var defaultMenuEntrySort = func(m1, m2 *MenuEntry) bool {
 		}
 		return m1.Name < m2.Name
 	}
+
+	if m2.Weight == 0 {
+		return true
+	}
+
+	if m1.Weight == 0 {
+		return false
+	}
+
 	return m1.Weight < m2.Weight
 }
 
@@ -203,4 +209,16 @@ func (m Menu) Reverse() Menu {
 	}
 
 	return m
+}
+
+func (m *MenuEntry) Title() string {
+	if m.title != "" {
+		return m.title
+	}
+
+	if m.Page != nil {
+		return m.Page.LinkTitle()
+	}
+
+	return ""
 }

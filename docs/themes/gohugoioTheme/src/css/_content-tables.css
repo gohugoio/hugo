@@ -1,0 +1,28 @@
+.prose table {
+    width: 100%;
+    margin-bottom: 3em;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 1em;
+    border: 1px solid var(--light-gray);
+     & th {
+       background-color: var(--primary-color);
+       border-bottom: 1px solid var(--primary-color);
+       color: white;
+       font-weight: 400;
+
+       text-align: left;
+       padding: .375em .5em;
+     }
+
+    & td, & tc {
+      padding: .75em .5em;
+      text-align: left;
+      border-right: 1px solid var(--light-gray);
+    }
+
+}
+
+.prose table tr:nth-child(even) {
+  background-color: var(--light-gray);
+}

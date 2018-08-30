@@ -1,8 +1,12 @@
 language: go
-sudo: required
+sudo: false
+dist: trusty
+env:
+  HUGO_BUILD_TAGS="extended"
+git:
+  depth: false
 go:
-  - 1.6.4
-  - 1.7.4
+  - 1.11
   - tip
 os:
   - linux
@@ -12,12 +16,13 @@ matrix:
     - go: tip
   fast_finish: true
 install:
-  - make vendor
-script:
-  - make hugo-race check
+  - env GO111MODULE=on go get github.com/magefile/mage
+ script:
+  - mage -v test
+  - mage -v check
+  - mage -v hugo
   - ./hugo -s docs/
   - ./hugo --renderToMemory -s docs/
 before_install:
-  # gem install must be run with sudo on OSX
-  - sudo gem install asciidoctor | gem install asciidoctor
-  - sudo pip install docutils
+  - gem install asciidoctor
+  - type asciidoctor

@@ -1,23 +1,24 @@
-image: WMF 5
-clone_folder: c:\GOPATH\src\github.com\spf13\hugo
+image: Visual Studio 2015
+
 init:
-- cmd: >-
-    set PATH=%PATH%;C:\MinGW\bin;C:\GOPATH\bin
+  - set PATH=%PATH%;C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin;%GOPATH%\bin
+  - go version
+  - go env
 
-    copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
 environment:
-  GOPATH: c:\GOPATH
+  GOPATH: C:\GOPATH\
+  HUGO_BUILD_TAGS: extended
+
+# clones and cd's to path
+clone_folder: C:\GOPATH\src\github.com\gohugoio\hugo
+
 install:
-- cmd: >-
-    gem install asciidoctor
+#  - gem install asciidoctor
+  - pip install docutils
+  - go get github.com/magefile/mage
 
-    pip install docutils
 build_script:
-- cmd: make vendor
-test_script:
-- cmd: >-
-    make hugo-race check
-
-    hugo -s docs/
-
-    hugo --renderToMemory -s docs/
+  - mage vendor hugoRace
+  - mage -v check
+  - hugo -s docs/
+  - hugo --renderToMemory -s docs/

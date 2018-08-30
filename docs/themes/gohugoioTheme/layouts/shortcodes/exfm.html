@@ -1,0 +1,13 @@
+<!-- Similar to exfile.html but *only* pulls the front matter from the example/content/*md -->
+{{ $file := .Get 0}}
+{{ $filepath := replace $file "static/" ""}}
+{{ $syntax := index (split $file ".") 1 }}
+{{ $syntaxoverride := eq (len .Params) 2 }}
+<div class="code-copy" id="{{$file | urlize}}">
+	<div class="code-copy-header examplesite"><div class="action-buttons"></div><span title="" class="filename">{{$filepath}}</span><i class="icon-{{$syntax}} input"></i></div>
+	<button class="copy-button" title="Copy to clipboard" data-clipboard-snippet>
+			<div class="copy-text"><i class="icon-clipboard"></i> COPY</div>
+	</button>
+	<pre><code class="language-{{if $syntaxoverride}}{{.Get 1}}{{else}}{{$syntax}}{{end}}">{{- readFile $file -}}</code></pre>
+	<a role="button" target="_blank" href="{{$.Site.Params.ghdocsrepo}}{{$file}}" title="See {{$filepath}} on GitHub" class="see-on-github">Source<i class="icon-github"></i></a>
+</div>

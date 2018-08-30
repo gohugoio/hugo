@@ -12,6 +12,10 @@ cover.out
 *~
 vendor/*/
 *.bench
+*.debug
 coverage*.out
 
+dock.sh
+
 GoBuilds
+dist

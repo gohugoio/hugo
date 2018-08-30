@@ -14,57 +14,36 @@
 package hugolib
 
 import (
-	"path"
 	"path/filepath"
 	"strings"
 
 	"github.com/bep/gitmap"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
 )
 
-func (h *HugoSites) assembleGitInfo() {
-	if !viper.GetBool("enableGitInfo") {
-		return
+type gitInfo struct {
+	contentDir string
+	repo       *gitmap.GitRepo
+}
+
+func (g *gitInfo) forPage(p *Page) (*gitmap.GitInfo, bool) {
+	if g == nil {
+		return nil, false
 	}
 
-	var (
-		workingDir = viper.GetString("workingDir")
-		contentDir = viper.GetString("contentDir")
-	)
+	name := strings.TrimPrefix(filepath.ToSlash(p.Filename()), g.contentDir)
+	name = strings.TrimPrefix(name, "/")
+
+	return g.repo.Files[name], true
+}
+
+func newGitInfo(cfg config.Provider) (*gitInfo, error) {
+	workingDir := cfg.GetString("workingDir")
 
 	gitRepo, err := gitmap.Map(workingDir, "")
 	if err != nil {
-		h.Log.ERROR.Printf("Got error reading Git log: %s", err)
-		return
+		return nil, err
 	}
 
-	gitMap := gitRepo.Files
-	repoPath := filepath.FromSlash(gitRepo.TopLevelAbsPath)
-
-	// The Hugo site may be placed in a sub folder in the Git repo,
-	// one example being the Hugo docs.
-	// We have to find the root folder to the Hugo site below the Git root.
-	contentRoot := strings.TrimPrefix(workingDir, repoPath)
-	contentRoot = strings.TrimPrefix(contentRoot, helpers.FilePathSeparator)
-
-	s := h.Sites[0]
-
-	for _, p := range s.AllPages {
-		if p.Path() == "" {
-			// Home page etc. with no content file.
-			continue
-		}
-		// Git normalizes file paths on this form:
-		filename := path.Join(filepath.ToSlash(contentRoot), contentDir, filepath.ToSlash(p.Path()))
-		g, ok := gitMap[filename]
-		if !ok {
-			h.Log.ERROR.Printf("Failed to find GitInfo for %q", filename)
-			return
-		}
-
-		p.GitInfo = g
-		p.Lastmod = p.GitInfo.AuthorDate
-	}
-
+	return &gitInfo{contentDir: gitRepo.TopLevelAbsPath, repo: gitRepo}, nil
 }

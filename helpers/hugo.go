@@ -15,49 +15,203 @@ package helpers
 
 import (
 	"fmt"
+	"strings"
+
+	"github.com/gohugoio/hugo/compare"
+	"github.com/spf13/cast"
 )
 
-// HugoVersionNumber represents the current build version.
-// This should be the only one
-const (
+// HugoVersion represents the Hugo build version.
+type HugoVersion struct {
 	// Major and minor version.
-	HugoVersionNumber = 0.19
+	Number float32
 
 	// Increment this for bug releases
-	HugoPatchVersion = 0
+	PatchLevel int
+
+	// HugoVersionSuffix is the suffix used in the Hugo version string.
+	// It will be blank for release versions.
+	Suffix string
+}
+
+var (
+	_ compare.Eqer     = (*HugoVersionString)(nil)
+	_ compare.Comparer = (*HugoVersionString)(nil)
 )
 
-// HugoVersionSuffix is the suffix used in the Hugo version string.
-// It will be blank for release versions.
-const HugoVersionSuffix = "-DEV" // use this when not doing a release
-//const HugoVersionSuffix = "" // use this line when doing a release
+type HugoVersionString string
 
-// HugoVersion returns the current Hugo version. It will include
-// a suffix, typically '-DEV', if it's development version.
-func HugoVersion() string {
-	return hugoVersion(HugoVersionNumber, HugoPatchVersion, HugoVersionSuffix)
+func (v HugoVersion) String() string {
+	return hugoVersion(v.Number, v.PatchLevel, v.Suffix)
 }
 
-// HugoReleaseVersion is same as HugoVersion, but no suffix.
-func HugoReleaseVersion() string {
-	return hugoVersionNoSuffix(HugoVersionNumber, HugoPatchVersion)
+func (v HugoVersion) Version() HugoVersionString {
+	return HugoVersionString(v.String())
 }
 
-// NextHugoReleaseVersion returns the next Hugo release version.
-func NextHugoReleaseVersion() string {
-	return hugoVersionNoSuffix(HugoVersionNumber+0.01, 0)
+func (h HugoVersionString) String() string {
+	return string(h)
+}
+
+// Implements compare.Comparer
+func (h HugoVersionString) Compare(other interface{}) int {
+	v := MustParseHugoVersion(h.String())
+	return compareVersionsWithSuffix(v.Number, v.PatchLevel, v.Suffix, other)
+}
+
+// Implements compare.Eqer
+func (h HugoVersionString) Eq(other interface{}) bool {
+	s, err := cast.ToStringE(other)
+	if err != nil {
+		return false
+	}
+	return s == h.String()
+}
+
+var versionSuffixes = []string{"-test", "-DEV"}
+
+// ParseHugoVersion parses a version string.
+func ParseHugoVersion(s string) (HugoVersion, error) {
+	var vv HugoVersion
+	for _, suffix := range versionSuffixes {
+		if strings.HasSuffix(s, suffix) {
+			vv.Suffix = suffix
+			s = strings.TrimSuffix(s, suffix)
+		}
+	}
+
+	v, p := parseVersion(s)
+
+	vv.Number = v
+	vv.PatchLevel = p
+
+	return vv, nil
+}
+
+// MustParseHugoVersion parses a version string
+// and panics if any error occurs.
+func MustParseHugoVersion(s string) HugoVersion {
+	vv, err := ParseHugoVersion(s)
+	if err != nil {
+		panic(err)
+	}
+	return vv
+}
+
+// ReleaseVersion represents the release version.
+func (v HugoVersion) ReleaseVersion() HugoVersion {
+	v.Suffix = ""
+	return v
+}
+
+// Next returns the next Hugo release version.
+func (v HugoVersion) Next() HugoVersion {
+	return HugoVersion{Number: v.Number + 0.01}
+}
+
+// Prev returns the previous Hugo release version.
+func (v HugoVersion) Prev() HugoVersion {
+	return HugoVersion{Number: v.Number - 0.01}
+}
+
+// NextPatchLevel returns the next patch/bugfix Hugo version.
+// This will be a patch increment on the previous Hugo version.
+func (v HugoVersion) NextPatchLevel(level int) HugoVersion {
+	return HugoVersion{Number: v.Number - 0.01, PatchLevel: level}
+}
+
+// CurrentHugoVersion represents the current build version.
+// This should be the only one.
+var CurrentHugoVersion = HugoVersion{
+	Number:     0.49,
+	PatchLevel: 0,
+	Suffix:     "-DEV",
 }
 
 func hugoVersion(version float32, patchVersion int, suffix string) string {
 	if patchVersion > 0 {
-		return fmt.Sprintf("%.2g.%d%s", version, patchVersion, suffix)
+		return fmt.Sprintf("%.2f.%d%s", version, patchVersion, suffix)
 	}
-	return fmt.Sprintf("%.2g%s", version, suffix)
+	return fmt.Sprintf("%.2f%s", version, suffix)
 }
 
-func hugoVersionNoSuffix(version float32, patchVersion int) string {
-	if patchVersion > 0 {
-		return fmt.Sprintf("%.2g.%d", version, patchVersion)
+// CompareVersion compares the given version string or number against the
+// running Hugo version.
+// It returns -1 if the given version is less than, 0 if equal and 1 if greater than
+// the running version.
+func CompareVersion(version interface{}) int {
+	return compareVersionsWithSuffix(CurrentHugoVersion.Number, CurrentHugoVersion.PatchLevel, CurrentHugoVersion.Suffix, version)
+}
+
+func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int {
+	return compareVersionsWithSuffix(inVersion, inPatchVersion, "", in)
+}
+
+func compareVersionsWithSuffix(inVersion float32, inPatchVersion int, suffix string, in interface{}) int {
+	var c int
+	switch d := in.(type) {
+	case float64:
+		c = compareFloatVersions(inVersion, float32(d))
+	case float32:
+		c = compareFloatVersions(inVersion, d)
+	case int:
+		c = compareFloatVersions(inVersion, float32(d))
+	case int32:
+		c = compareFloatVersions(inVersion, float32(d))
+	case int64:
+		c = compareFloatVersions(inVersion, float32(d))
+	default:
+		s, err := cast.ToStringE(in)
+		if err != nil {
+			return -1
+		}
+
+		v, err := ParseHugoVersion(s)
+		if err != nil {
+			return -1
+		}
+
+		if v.Number == inVersion && v.PatchLevel == inPatchVersion {
+			return strings.Compare(suffix, v.Suffix)
+		}
+
+		if v.Number < inVersion || (v.Number == inVersion && v.PatchLevel < inPatchVersion) {
+			return -1
+		}
+
+		return 1
 	}
-	return fmt.Sprintf("%.2g", version)
+
+	if c == 0 && suffix != "" {
+		return 1
+	}
+
+	return c
+}
+
+func parseVersion(s string) (float32, int) {
+	var (
+		v float32
+		p int
+	)
+
+	if strings.Count(s, ".") == 2 {
+		li := strings.LastIndex(s, ".")
+		p = cast.ToInt(s[li+1:])
+		s = s[:li]
+	}
+
+	v = float32(cast.ToFloat64(s))
+
+	return v, p
+}
+
+func compareFloatVersions(version float32, v float32) int {
+	if v == version {
+		return 0
+	}
+	if v < version {
+		return -1
+	}
+	return 1
 }

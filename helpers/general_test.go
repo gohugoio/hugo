@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
 package helpers
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGuessType(t *testing.T) {
@@ -33,9 +36,12 @@ func TestGuessType(t *testing.T) {
 		{"adoc", "asciidoc"},
 		{"ad", "asciidoc"},
 		{"rst", "rst"},
+		{"pandoc", "pandoc"},
+		{"pdc", "pandoc"},
 		{"mmark", "mmark"},
 		{"html", "html"},
 		{"htm", "html"},
+		{"org", "org"},
 		{"excel", "unknown"},
 	} {
 		result := GuessType(this.in)
@@ -59,6 +65,45 @@ func TestFirstUpper(t *testing.T) {
 		result := FirstUpper(this.in)
 		if result != this.expect {
 			t.Errorf("[%d] got %s but expected %s", i, result, this.expect)
+		}
+	}
+}
+
+func TestHasStringsPrefix(t *testing.T) {
+	for i, this := range []struct {
+		s      []string
+		prefix []string
+		expect bool
+	}{
+		{[]string{"a"}, []string{"a"}, true},
+		{[]string{}, []string{}, true},
+		{[]string{"a", "b", "c"}, []string{"a", "b"}, true},
+		{[]string{"d", "a", "b", "c"}, []string{"a", "b"}, false},
+		{[]string{"abra", "ca", "dabra"}, []string{"abra", "ca"}, true},
+		{[]string{"abra", "ca"}, []string{"abra", "ca", "dabra"}, false},
+	} {
+		result := HasStringsPrefix(this.s, this.prefix)
+		if result != this.expect {
+			t.Fatalf("[%d] got %t but expected %t", i, result, this.expect)
+		}
+	}
+}
+
+func TestHasStringsSuffix(t *testing.T) {
+	for i, this := range []struct {
+		s      []string
+		suffix []string
+		expect bool
+	}{
+		{[]string{"a"}, []string{"a"}, true},
+		{[]string{}, []string{}, true},
+		{[]string{"a", "b", "c"}, []string{"b", "c"}, true},
+		{[]string{"abra", "ca", "dabra"}, []string{"abra", "ca"}, false},
+		{[]string{"abra", "ca", "dabra"}, []string{"ca", "dabra"}, true},
+	} {
+		result := HasStringsSuffix(this.s, this.suffix)
+		if result != this.expect {
+			t.Fatalf("[%d] got %t but expected %t", i, result, this.expect)
 		}
 	}
 }
@@ -133,6 +178,20 @@ func TestReaderContains(t *testing.T) {
 	assert.False(t, ReaderContains(nil, nil))
 }
 
+func TestGetTitleFunc(t *testing.T) {
+	title := "somewhere over the rainbow"
+	assert := require.New(t)
+
+	assert.Equal("Somewhere Over The Rainbow", GetTitleFunc("go")(title))
+	assert.Equal("Somewhere over the Rainbow", GetTitleFunc("chicago")(title), "Chicago style")
+	assert.Equal("Somewhere over the Rainbow", GetTitleFunc("Chicago")(title), "Chicago style")
+	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("ap")(title), "AP style")
+	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("ap")(title), "AP style")
+	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("")(title), "AP style")
+	assert.Equal("Somewhere Over the Rainbow", GetTitleFunc("unknown")(title), "AP style")
+
+}
+
 func BenchmarkReaderContains(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -161,186 +220,90 @@ func TestFindAvailablePort(t *testing.T) {
 	assert.True(t, addr.Port > 0)
 }
 
-func TestSeq(t *testing.T) {
-	for i, this := range []struct {
-		in     []interface{}
-		expect interface{}
-	}{
-		{[]interface{}{-2, 5}, []int{-2, -1, 0, 1, 2, 3, 4, 5}},
-		{[]interface{}{1, 2, 4}, []int{1, 3}},
-		{[]interface{}{1}, []int{1}},
-		{[]interface{}{3}, []int{1, 2, 3}},
-		{[]interface{}{3.2}, []int{1, 2, 3}},
-		{[]interface{}{0}, []int{}},
-		{[]interface{}{-1}, []int{-1}},
-		{[]interface{}{-3}, []int{-1, -2, -3}},
-		{[]interface{}{3, -2}, []int{3, 2, 1, 0, -1, -2}},
-		{[]interface{}{6, -2, 2}, []int{6, 4, 2}},
-		{[]interface{}{1, 0, 2}, false},
-		{[]interface{}{1, -1, 2}, false},
-		{[]interface{}{2, 1, 1}, false},
-		{[]interface{}{2, 1, 1, 1}, false},
-		{[]interface{}{2001}, false},
-		{[]interface{}{}, false},
-		// TODO(bep) {[]interface{}{t}, false},
-		{nil, false},
-	} {
+func TestFastMD5FromFile(t *testing.T) {
+	fs := afero.NewMemMapFs()
 
-		result, err := Seq(this.in...)
-
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] TestSeq didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
-			}
-			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] TestSeq got %v but expected %v", i, result, this.expect)
-			}
-		}
+	if err := afero.WriteFile(fs, "small.txt", []byte("abc"), 0777); err != nil {
+		t.Fatal(err)
 	}
+
+	if err := afero.WriteFile(fs, "small2.txt", []byte("abd"), 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := afero.WriteFile(fs, "bigger.txt", []byte(strings.Repeat("a bc d e", 100)), 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := afero.WriteFile(fs, "bigger2.txt", []byte(strings.Repeat("c d e f g", 100)), 0777); err != nil {
+		t.Fatal(err)
+	}
+
+	req := require.New(t)
+
+	sf1, err := fs.Open("small.txt")
+	req.NoError(err)
+	sf2, err := fs.Open("small2.txt")
+	req.NoError(err)
+
+	bf1, err := fs.Open("bigger.txt")
+	req.NoError(err)
+	bf2, err := fs.Open("bigger2.txt")
+	req.NoError(err)
+
+	defer sf1.Close()
+	defer sf2.Close()
+	defer bf1.Close()
+	defer bf2.Close()
+
+	m1, err := MD5FromFileFast(sf1)
+	req.NoError(err)
+	req.Equal("e9c8989b64b71a88b4efb66ad05eea96", m1)
+
+	m2, err := MD5FromFileFast(sf2)
+	req.NoError(err)
+	req.NotEqual(m1, m2)
+
+	m3, err := MD5FromFileFast(bf1)
+	req.NoError(err)
+	req.NotEqual(m2, m3)
+
+	m4, err := MD5FromFileFast(bf2)
+	req.NoError(err)
+	req.NotEqual(m3, m4)
+
+	m5, err := MD5FromFile(bf2)
+	req.NoError(err)
+	req.NotEqual(m4, m5)
 }
 
-func TestDoArithmetic(t *testing.T) {
-	for i, this := range []struct {
-		a      interface{}
-		b      interface{}
-		op     rune
-		expect interface{}
-	}{
-		{3, 2, '+', int64(5)},
-		{3, 2, '-', int64(1)},
-		{3, 2, '*', int64(6)},
-		{3, 2, '/', int64(1)},
-		{3.0, 2, '+', float64(5)},
-		{3.0, 2, '-', float64(1)},
-		{3.0, 2, '*', float64(6)},
-		{3.0, 2, '/', float64(1.5)},
-		{3, 2.0, '+', float64(5)},
-		{3, 2.0, '-', float64(1)},
-		{3, 2.0, '*', float64(6)},
-		{3, 2.0, '/', float64(1.5)},
-		{3.0, 2.0, '+', float64(5)},
-		{3.0, 2.0, '-', float64(1)},
-		{3.0, 2.0, '*', float64(6)},
-		{3.0, 2.0, '/', float64(1.5)},
-		{uint(3), uint(2), '+', uint64(5)},
-		{uint(3), uint(2), '-', uint64(1)},
-		{uint(3), uint(2), '*', uint64(6)},
-		{uint(3), uint(2), '/', uint64(1)},
-		{uint(3), 2, '+', uint64(5)},
-		{uint(3), 2, '-', uint64(1)},
-		{uint(3), 2, '*', uint64(6)},
-		{uint(3), 2, '/', uint64(1)},
-		{3, uint(2), '+', uint64(5)},
-		{3, uint(2), '-', uint64(1)},
-		{3, uint(2), '*', uint64(6)},
-		{3, uint(2), '/', uint64(1)},
-		{uint(3), -2, '+', int64(1)},
-		{uint(3), -2, '-', int64(5)},
-		{uint(3), -2, '*', int64(-6)},
-		{uint(3), -2, '/', int64(-1)},
-		{-3, uint(2), '+', int64(-1)},
-		{-3, uint(2), '-', int64(-5)},
-		{-3, uint(2), '*', int64(-6)},
-		{-3, uint(2), '/', int64(-1)},
-		{uint(3), 2.0, '+', float64(5)},
-		{uint(3), 2.0, '-', float64(1)},
-		{uint(3), 2.0, '*', float64(6)},
-		{uint(3), 2.0, '/', float64(1.5)},
-		{3.0, uint(2), '+', float64(5)},
-		{3.0, uint(2), '-', float64(1)},
-		{3.0, uint(2), '*', float64(6)},
-		{3.0, uint(2), '/', float64(1.5)},
-		{0, 0, '+', 0},
-		{0, 0, '-', 0},
-		{0, 0, '*', 0},
-		{"foo", "bar", '+', "foobar"},
-		{3, 0, '/', false},
-		{3.0, 0, '/', false},
-		{3, 0.0, '/', false},
-		{uint(3), uint(0), '/', false},
-		{3, uint(0), '/', false},
-		{-3, uint(0), '/', false},
-		{uint(3), 0, '/', false},
-		{3.0, uint(0), '/', false},
-		{uint(3), 0.0, '/', false},
-		{3, "foo", '+', false},
-		{3.0, "foo", '+', false},
-		{uint(3), "foo", '+', false},
-		{"foo", 3, '+', false},
-		{"foo", "bar", '-', false},
-		{3, 2, '%', false},
-	} {
-		result, err := DoArithmetic(this.a, this.b, this.op)
-		if b, ok := this.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] doArithmetic didn't return an expected error", i)
-			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
-			}
-			if !reflect.DeepEqual(result, this.expect) {
-				t.Errorf("[%d] doArithmetic got %v but expected %v", i, result, this.expect)
-			}
-		}
-	}
-}
+func BenchmarkMD5FromFileFast(b *testing.B) {
+	fs := afero.NewMemMapFs()
 
-func TestToLowerMap(t *testing.T) {
-
-	tests := []struct {
-		input    map[string]interface{}
-		expected map[string]interface{}
-	}{
-		{
-			map[string]interface{}{
-				"abC": 32,
-			},
-			map[string]interface{}{
-				"abc": 32,
-			},
-		},
-		{
-			map[string]interface{}{
-				"abC": 32,
-				"deF": map[interface{}]interface{}{
-					23: "A value",
-					24: map[string]interface{}{
-						"AbCDe": "A value",
-						"eFgHi": "Another value",
-					},
-				},
-				"gHi": map[string]interface{}{
-					"J": 25,
-				},
-			},
-			map[string]interface{}{
-				"abc": 32,
-				"def": map[string]interface{}{
-					"23": "A value",
-					"24": map[string]interface{}{
-						"abcde": "A value",
-						"efghi": "Another value",
-					},
-				},
-				"ghi": map[string]interface{}{
-					"j": 25,
-				},
-			},
-		},
+	for _, full := range []bool{false, true} {
+		b.Run(fmt.Sprintf("full=%t", full), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				b.StopTimer()
+				if err := afero.WriteFile(fs, "file.txt", []byte(strings.Repeat("1234567890", 2000)), 0777); err != nil {
+					b.Fatal(err)
+				}
+				f, err := fs.Open("file.txt")
+				if err != nil {
+					b.Fatal(err)
+				}
+				b.StartTimer()
+				if full {
+					if _, err := MD5FromFile(f); err != nil {
+						b.Fatal(err)
+					}
+				} else {
+					if _, err := MD5FromFileFast(f); err != nil {
+						b.Fatal(err)
+					}
+				}
+				f.Close()
+			}
+		})
 	}
 
-	for i, test := range tests {
-		// ToLowerMap modifies input.
-		ToLowerMap(test.input)
-		if !reflect.DeepEqual(test.expected, test.input) {
-			t.Errorf("[%d] Expected\n%#v, got\n%#v\n", i, test.expected, test.input)
-		}
-	}
 }

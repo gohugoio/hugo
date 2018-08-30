@@ -33,6 +33,7 @@ var (
 	tstSC1       = item{tScName, 0, "sc1"}
 	tstSC2       = item{tScName, 0, "sc2"}
 	tstSC3       = item{tScName, 0, "sc3"}
+	tstSCSlash   = item{tScName, 0, "sc/sub"}
 	tstParam1    = item{tScParam, 0, "param1"}
 	tstParam2    = item{tScParam, 0, "param2"}
 	tstVal       = item{tScParamVal, 0, "Hello World"}
@@ -44,6 +45,8 @@ var shortCodeLexerTests = []shortCodeLexerTest{
 	{"text", `to be or not`, []item{{tText, 0, "to be or not"}, tstEOF}},
 	{"no markup", `{{< sc1 >}}`, []item{tstLeftNoMD, tstSC1, tstRightNoMD, tstEOF}},
 	{"with EOL", "{{< sc1 \n >}}", []item{tstLeftNoMD, tstSC1, tstRightNoMD, tstEOF}},
+
+	{"forward slash inside name", `{{< sc/sub >}}`, []item{tstLeftNoMD, tstSCSlash, tstRightNoMD, tstEOF}},
 
 	{"simple with markup", `{{% sc1 %}}`, []item{tstLeftMD, tstSC1, tstRightMD, tstEOF}},
 	{"with spaces", `{{<     sc1     >}}`, []item{tstLeftNoMD, tstSC1, tstRightNoMD, tstEOF}},
@@ -145,13 +148,16 @@ var shortCodeLexerTests = []shortCodeLexerTest{
 		{tError, 0, "got named parameter 'param2'. Cannot mix named and positional parameters"}}},
 	{"commented out", `{{</* sc1 */>}}`, []item{
 		{tText, 0, "{{<"}, {tText, 0, " sc1 "}, {tText, 0, ">}}"}, tstEOF}},
+	{"commented out, with asterisk inside", `{{</* sc1 "**/*.pdf" */>}}`, []item{
+		{tText, 0, "{{<"}, {tText, 0, " sc1 \"**/*.pdf\" "}, {tText, 0, ">}}"}, tstEOF}},
 	{"commented out, missing close", `{{</* sc1 >}}`, []item{
 		{tError, 0, "comment must be closed"}}},
 	{"commented out, misplaced close", `{{</* sc1 >}}*/`, []item{
-		{tText, 0, "{{<"}, {tText, 0, " sc1 >}}"}, {tError, 0, "comment ends before the right shortcode delimiter"}}},
+		{tError, 0, "comment must be closed"}}},
 }
 
 func TestShortcodeLexer(t *testing.T) {
+	t.Parallel()
 	for i, test := range shortCodeLexerTests {
 		items := collect(&test)
 		if !equal(items, test.items) {

@@ -14,76 +14,52 @@
 package source
 
 import (
-	"io"
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
-	"strings"
+	"sync"
 
-	"github.com/spf13/hugo/hugofs"
-	"golang.org/x/text/unicode/norm"
-
-	"github.com/spf13/viper"
-
-	"github.com/spf13/hugo/helpers"
+	"github.com/gohugoio/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
+	"golang.org/x/text/unicode/norm"
 )
 
-type Input interface {
-	Files() []*File
-}
-
 type Filesystem struct {
-	files      []*File
-	Base       string
-	AvoidPaths []string
+	files     []ReadableFile
+	filesInit sync.Once
 
-	fs *hugofs.Fs
+	Base string
+
+	SourceSpec
 }
 
-func NewFilesystem(fs *hugofs.Fs, base string, avoidPaths ...string) *Filesystem {
-	return &Filesystem{fs: fs, Base: base, AvoidPaths: avoidPaths}
+type Input interface {
+	Files() []ReadableFile
 }
 
-func (f *Filesystem) FilesByExts(exts ...string) []*File {
-	var newFiles []*File
-
-	if len(exts) == 0 {
-		return f.Files()
-	}
-
-	for _, x := range f.Files() {
-		for _, e := range exts {
-			if x.Ext() == strings.TrimPrefix(e, ".") {
-				newFiles = append(newFiles, x)
-			}
-		}
-	}
-	return newFiles
+func (sp SourceSpec) NewFilesystem(base string) *Filesystem {
+	return &Filesystem{SourceSpec: sp, Base: base}
 }
 
-func (f *Filesystem) Files() []*File {
-	if len(f.files) < 1 {
+func (f *Filesystem) Files() []ReadableFile {
+	f.filesInit.Do(func() {
 		f.captureFiles()
-	}
+	})
 	return f.files
 }
 
 // add populates a file in the Filesystem.files
-func (f *Filesystem) add(name string, reader io.Reader) (err error) {
-	var file *File
+func (f *Filesystem) add(name string, fi os.FileInfo) (err error) {
+	var file ReadableFile
 
 	if runtime.GOOS == "darwin" {
 		// When a file system is HFS+, its filepath is in NFD form.
 		name = norm.NFC.String(name)
 	}
 
-	file, err = NewFileFromAbs(f.Base, name, reader)
+	file = f.SourceSpec.NewFileInfo(f.Base, name, false, fi)
+	f.files = append(f.files, file)
 
-	if err == nil {
-		f.files = append(f.files, file)
-	}
 	return err
 }
 
@@ -98,87 +74,53 @@ func (f *Filesystem) captureFiles() {
 			return err
 		}
 		if b {
-			rd, err := NewLazyFileReader(f.fs.Source, filePath)
-			if err != nil {
-				return err
-			}
-			f.add(filePath, rd)
+			f.add(filePath, fi)
 		}
 		return err
 	}
 
-	if f.fs == nil {
+	if f.SourceFs == nil {
 		panic("Must have a fs")
 	}
-	err := helpers.SymbolicWalk(f.fs.Source, f.Base, walker)
+	err := helpers.SymbolicWalk(f.SourceFs, f.Base, walker)
 
 	if err != nil {
 		jww.ERROR.Println(err)
-		if err == helpers.ErrWalkRootTooShort {
-			panic("The root path is too short. If this is a test, make sure to init the content paths.")
-		}
 	}
 
 }
 
-func (f *Filesystem) shouldRead(filePath string, fi os.FileInfo) (bool, error) {
+func (f *Filesystem) shouldRead(filename string, fi os.FileInfo) (bool, error) {
 	if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-		link, err := filepath.EvalSymlinks(filePath)
+		link, err := filepath.EvalSymlinks(filename)
 		if err != nil {
-			jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", filePath, err)
+			jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", filename, err)
 			return false, nil
 		}
-		linkfi, err := f.fs.Source.Stat(link)
+		linkfi, err := f.SourceFs.Stat(link)
 		if err != nil {
 			jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
 			return false, nil
 		}
+
 		if !linkfi.Mode().IsRegular() {
-			jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", filePath)
+			jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", filename)
 		}
 		return false, nil
 	}
 
+	ignore := f.SourceSpec.IgnoreFile(filename)
+
 	if fi.IsDir() {
-		if f.avoid(filePath) || isNonProcessablePath(filePath) {
+		if ignore {
 			return false, filepath.SkipDir
 		}
 		return false, nil
 	}
 
-	if isNonProcessablePath(filePath) {
+	if ignore {
 		return false, nil
 	}
+
 	return true, nil
-}
-
-func (f *Filesystem) avoid(filePath string) bool {
-	for _, avoid := range f.AvoidPaths {
-		if avoid == filePath {
-			return true
-		}
-	}
-	return false
-}
-
-func isNonProcessablePath(filePath string) bool {
-	base := filepath.Base(filePath)
-	if strings.HasPrefix(base, ".") ||
-		strings.HasPrefix(base, "#") ||
-		strings.HasSuffix(base, "~") {
-		return true
-	}
-	ignoreFiles := viper.GetStringSlice("ignoreFiles")
-	if len(ignoreFiles) > 0 {
-		for _, ignorePattern := range ignoreFiles {
-			match, err := regexp.MatchString(ignorePattern, filePath)
-			if err != nil {
-				helpers.DistinctErrorLog.Printf("Invalid regexp '%s' in ignoreFiles: %s", ignorePattern, err)
-				return false
-			} else if match {
-				return true
-			}
-		}
-	}
-	return false
 }

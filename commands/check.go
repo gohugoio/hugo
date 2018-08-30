@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,13 +11,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// +build !darwin
+
 package commands
 
 import (
 	"github.com/spf13/cobra"
 )
 
-var checkCmd = &cobra.Command{
-	Use:   "check",
-	Short: "Contains some verification checks",
+var _ cmder = (*checkCmd)(nil)
+
+type checkCmd struct {
+	*baseCmd
+}
+
+func newCheckCmd() *checkCmd {
+	return &checkCmd{baseCmd: &baseCmd{cmd: &cobra.Command{
+		Use:   "check",
+		Short: "Contains some verification checks",
+	},
+	}}
 }

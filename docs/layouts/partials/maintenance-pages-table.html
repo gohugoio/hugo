@@ -1,0 +1,24 @@
+<table class="collapse ba br2 b--black-10 pv2 ph3">
+	<thead>
+		<tr>
+			<th class="pv2 ph3 tl f6 fw6 ttu">LastMod</th>
+			<th class="pv2 ph3 tl f6 fw6 ttu">Link</th>
+			<th class="pv2 ph3 tl f6 fw6 ttu">GitHub</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{ range  . }}
+		<tr class="striped--light-gray">
+			<td class="pv2 ph3">{{ .Lastmod.Format "2006-01-02" }}</td>
+			<td class="pv2 ph3">
+				<a href="{{ .Permalink }}">{{ .Title }}</a>
+			</td>
+			<td class="pv2 ph3">
+				<a href="{{.Site.Params.ghrepo}}blob/master/content/{{.Lang }}/{{.Path}}">
+					{{ with .GitInfo }}{{ .Subject }}{{ else }}Source{{ end }}
+				</a>
+			</td>
+		</tr>
+		{{ end }}
+	</tbody>
+</table>

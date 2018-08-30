@@ -1,0 +1,66 @@
+project_name: hugo
+build:
+  main: main.go
+  binary: hugo
+  ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
+  env:
+    - CGO_ENABLED=0
+  goos:
+    - darwin
+    - linux
+    - windows
+    - freebsd
+    - netbsd
+    - openbsd
+    - dragonfly
+  goarch:
+    - amd64
+    - 386
+    - arm
+    - arm64
+  goarm:
+    - 7
+nfpm:
+  formats:
+    - deb
+  vendor: "gohugo.io"
+  homepage: "https://gohugo.io/"
+  maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
+  description: "A Fast and Flexible Static Site Generator built with love in GoLang."
+  license: "Apache 2.0"
+  name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+  replacements:
+    amd64: 64bit
+    386: 32bit
+    arm: ARM
+    arm64: ARM64
+    darwin: macOS
+    linux: Linux
+    windows: Windows
+    openbsd: OpenBSD
+    netbsd: NetBSD
+    freebsd: FreeBSD
+    dragonfly: DragonFlyBSD
+archive:
+  format: tar.gz
+  format_overrides:
+    - goos: windows
+      format: zip
+  name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+  replacements:
+    amd64: 64bit
+    386: 32bit
+    arm: ARM
+    arm64: ARM64
+    darwin: macOS
+    linux: Linux
+    windows: Windows
+    openbsd: OpenBSD
+    netbsd: NetBSD
+    freebsd: FreeBSD
+    dragonfly: DragonFlyBSD
+  files:
+    - README.md
+    - LICENSE
+release:
+  draft: true

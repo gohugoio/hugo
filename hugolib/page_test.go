@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"html/template"
 	"os"
+
 	"path/filepath"
 	"reflect"
 	"sort"
@@ -25,11 +26,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/cast"
-	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/spf13/afero"
+
 	"github.com/spf13/viper"
+
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/spf13/cast"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -37,9 +41,10 @@ import (
 var emptyPage = ""
 
 const (
+	homePage                             = "---\ntitle: Home\n---\nHome Page Content\n"
 	simplePage                           = "---\ntitle: Simple\n---\nSimple Page\n"
-	invalidFrontMatterMissing            = "This is a test"
 	renderNoFrontmatter                  = "<!doctype><html><head></head><body>This is a test</body></html>"
+	contentNoFrontmatter                 = "Page without front matter.\n"
 	contentWithCommentedFrontmatter      = "<!--\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n-->\n\n# Network configuration\n\n##\nSummary"
 	contentWithCommentedTextFrontmatter  = "<!--[metaData]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
 	contentWithCommentedLongFrontmatter  = "<!--[metaData123456789012345678901234567890]>\n+++\ntitle = \"Network configuration\"\ndescription = \"Docker networking\"\nkeywords = [\"network\"]\n[menu.main]\nparent= \"smn_administrate\"\n+++\n<![end-metadata]-->\n\n# Network configuration\n\n##\nSummary"
@@ -81,21 +86,7 @@ Leading
 
 Content of the file goes Here
 `
-	simplePageJSONLoose = `
-{
-"title": "spf13-vim 3.0 release and new website"
-"description": "spf13-vim is a cross platform distribution of vim plugins and resources for Vim."
-"tags": [ ".vimrc", "plugins", "spf13-vim", "VIm" ]
-"date": "2012-04-06"
-"categories": [
-    "Development"
-    "VIM"
-],
-"slug": "spf13-vim-3-0-release-and-new-website"
-}
 
-Content of the file goes Here
-`
 	simplePageRFC3339Date  = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
 	simplePageJSONMultiple = `
 {
@@ -105,28 +96,6 @@ Content of the file goes Here
 }
 Some text
 `
-
-	simplePageNoLayout = `---
-title: simple_no_layout
----
-No Layout called out`
-
-	simplePageLayoutFoobar = `---
-title: simple layout foobar
-layout: foobar
----
-Layout foobar`
-
-	simplePageTypeFoobar = `---
-type: foobar
----
-type foobar`
-
-	simplePageTypeLayout = `---
-type: barfoo
-layout: buzfoo
----
-type and layout set`
 
 	simplePageWithSummaryDelimiter = `---
 title: Simple
@@ -166,6 +135,14 @@ title: Simple
 Summary Same Line<!--more-->
 
 Some more text
+`
+
+	simplePageWithSummaryDelimiterOnlySummary = `---
+title: Simple
+---
+Summary text
+
+<!--more-->
 `
 
 	simplePageWithAllCJKRunes = `---
@@ -467,25 +444,19 @@ activity = "exam"
 Hi.
 `
 
-func init() {
-	testCommonResetState()
-	pageTestSite, _ = NewSiteDefaultLang()
-}
-
-var pageTestSite *Site
-
 func checkError(t *testing.T, err error, expected string) {
 	if err == nil {
 		t.Fatalf("err is nil.  Expected: %s", expected)
 	}
-	if err.Error() != expected {
+	if !strings.Contains(err.Error(), expected) {
 		t.Errorf("err.Error() returned: '%s'.  Expected: '%s'", err.Error(), expected)
 	}
 }
 
 func TestDegenerateEmptyPageZeroLengthName(t *testing.T) {
-
-	_, err := pageTestSite.NewPage("")
+	t.Parallel()
+	s := newTestSite(t)
+	_, err := s.NewPage("")
 	if err == nil {
 		t.Fatalf("A zero length page name must return an error")
 	}
@@ -494,21 +465,23 @@ func TestDegenerateEmptyPageZeroLengthName(t *testing.T) {
 }
 
 func TestDegenerateEmptyPage(t *testing.T) {
-	_, err := pageTestSite.NewPageFrom(strings.NewReader(emptyPage), "test")
+	t.Parallel()
+	s := newTestSite(t)
+	_, err := s.NewPageFrom(strings.NewReader(emptyPage), "test")
 	if err != nil {
 		t.Fatalf("Empty files should not trigger an error. Should be able to touch a file while watching without erroring out.")
 	}
 }
 
 func checkPageTitle(t *testing.T, page *Page, title string) {
-	if page.Title != title {
-		t.Fatalf("Page title is: %s.  Expected %s", page.Title, title)
+	if page.title != title {
+		t.Fatalf("Page title is: %s.  Expected %s", page.title, title)
 	}
 }
 
 func checkPageContent(t *testing.T, page *Page, content string, msg ...interface{}) {
 	a := normalizeContent(content)
-	b := normalizeContent(string(page.Content))
+	b := normalizeContent(string(page.content()))
 	if a != b {
 		t.Fatalf("Page content is:\n%q\nExpected:\n%q (%q)", b, a, msg)
 	}
@@ -532,7 +505,7 @@ func checkPageTOC(t *testing.T, page *Page, toc string) {
 }
 
 func checkPageSummary(t *testing.T, page *Page, summary string, msg ...interface{}) {
-	a := normalizeContent(string(page.Summary))
+	a := normalizeContent(string(page.summary))
 	b := normalizeContent(summary)
 	if a != b {
 		t.Fatalf("Page summary is:\n%q.\nExpected\n%q (%q)", a, b, msg)
@@ -545,12 +518,6 @@ func checkPageType(t *testing.T, page *Page, pageType string) {
 	}
 }
 
-func checkPageLayout(t *testing.T, page *Page, layout ...string) {
-	if !listEqual(page.layouts(), layout) {
-		t.Fatalf("Page layout is:\n%s.  Expected:\n%s", page.layouts(), layout)
-	}
-}
-
 func checkPageDate(t *testing.T, page *Page, time time.Time) {
 	if page.Date != time {
 		t.Fatalf("Page date is: %s.  Expected: %s", page.Date, time)
@@ -558,10 +525,10 @@ func checkPageDate(t *testing.T, page *Page, time time.Time) {
 }
 
 func checkTruncation(t *testing.T, page *Page, shouldBe bool, msg string) {
-	if page.Summary == "" {
+	if page.Summary() == "" {
 		t.Fatal("page has no summary, can not check truncation")
 	}
-	if page.Truncated != shouldBe {
+	if page.truncated != shouldBe {
 		if shouldBe {
 			t.Fatalf("page wasn't truncated: %s", msg)
 		} else {
@@ -611,19 +578,17 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 			continue
 		}
 
-		testCommonResetState()
-
-		fs := hugofs.NewMem()
+		cfg, fs := newTestCfg()
 
 		if settings != nil {
 			for k, v := range settings {
-				viper.Set(k, v)
+				cfg.Set(k, v)
 			}
 		}
 
 		contentDir := "content"
 
-		if s := viper.GetString("contentDir"); s != "" {
+		if s := cfg.GetString("contentDir"); s != "" {
 			contentDir = s
 		}
 
@@ -637,18 +602,28 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 			writeSource(t, fs, filepath.Join(contentDir, fileSourcePairs[i]), fileSourcePairs[i+1])
 		}
 
-		s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+		// Add a content page for the home page
+		homePath := fmt.Sprintf("_index.%s", e.ext)
+		writeSource(t, fs, filepath.Join(contentDir, homePath), homePage)
+
+		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 		require.Len(t, s.RegularPages, len(pageSources))
 
 		assertFunc(t, e.ext, s.RegularPages)
+
+		home, err := s.Info.Home()
+		require.NoError(t, err)
+		require.NotNil(t, home)
+		require.Equal(t, homePath, home.Path())
+		require.Contains(t, home.content(), "Home Page Content")
 
 	}
 
 }
 
 func TestCreateNewPage(t *testing.T) {
-
+	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
 
@@ -659,7 +634,6 @@ func TestCreateNewPage(t *testing.T) {
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Simple Page</p>\n"))
 		checkPageSummary(t, p, "Simple Page")
 		checkPageType(t, p, "page")
-		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 		checkTruncation(t, p, false, "simple short page")
 	}
 
@@ -671,48 +645,44 @@ func TestCreateNewPage(t *testing.T) {
 }
 
 func TestSplitSummaryAndContent(t *testing.T) {
-
+	t.Parallel()
 	for i, this := range []struct {
-		markup                        string
-		content                       string
-		expectedSummary               string
-		expectedContent               string
-		expectedContentWithoutSummary string
+		markup          string
+		content         string
+		expectedSummary string
+		expectedContent string
 	}{
 		{"markdown", `<p>Summary Same LineHUGOMORE42</p>
 
-<p>Some more text</p>`, "<p>Summary Same Line</p>", "<p>Summary Same Line</p>\n\n<p>Some more text</p>", "<p>Some more text</p>"},
+<p>Some more text</p>`, "<p>Summary Same Line</p>", "<p>Summary Same Line</p>\n\n<p>Some more text</p>"},
 		{"asciidoc", `<div class="paragraph"><p>sn</p></div><div class="paragraph"><p>HUGOMORE42Some more text</p></div>`,
 			"<div class=\"paragraph\"><p>sn</p></div>",
-			"<div class=\"paragraph\"><p>sn</p></div><div class=\"paragraph\"><p>Some more text</p></div>",
-			"<div class=\"paragraph\"><p>Some more text</p></div>"},
+			"<div class=\"paragraph\"><p>sn</p></div><div class=\"paragraph\"><p>Some more text</p></div>"},
 		{"rst",
 			"<div class=\"document\"><p>Summary Next Line</p><p>HUGOMORE42Some more text</p></div>",
 			"<div class=\"document\"><p>Summary Next Line</p></div>",
-			"<div class=\"document\"><p>Summary Next Line</p><p>Some more text</p></div>",
-			"<div class=\"document\"><p>Some more text</p></div>"},
-		{"markdown", "<p>a</p><p>b</p><p>HUGOMORE42c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>", "<p>c</p>"},
-		{"markdown", "<p>a</p><p>b</p><p>cHUGOMORE42</p>", "<p>a</p><p>b</p><p>c</p>", "<p>a</p><p>b</p><p>c</p>", ""},
-		{"markdown", "<p>a</p><p>bHUGOMORE42</p><p>c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>", "<p>c</p>"},
-		{"markdown", "<p>aHUGOMORE42</p><p>b</p><p>c</p>", "<p>a</p>", "<p>a</p><p>b</p><p>c</p>", "<p>b</p><p>c</p>"},
-		{"markdown", "  HUGOMORE42 ", "", "", ""},
-		{"markdown", "HUGOMORE42", "", "", ""},
-		{"markdown", "<p>HUGOMORE42", "<p>", "<p>", ""},
-		{"markdown", "HUGOMORE42<p>", "", "<p>", "<p>"},
-		{"markdown", "\n\n<p>HUGOMORE42</p>\n", "<p></p>", "<p></p>", ""},
+			"<div class=\"document\"><p>Summary Next Line</p><p>Some more text</p></div>"},
+		{"markdown", "<p>a</p><p>b</p><p>HUGOMORE42c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>"},
+		{"markdown", "<p>a</p><p>b</p><p>cHUGOMORE42</p>", "<p>a</p><p>b</p><p>c</p>", "<p>a</p><p>b</p><p>c</p>"},
+		{"markdown", "<p>a</p><p>bHUGOMORE42</p><p>c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>"},
+		{"markdown", "<p>aHUGOMORE42</p><p>b</p><p>c</p>", "<p>a</p>", "<p>a</p><p>b</p><p>c</p>"},
+		{"markdown", "  HUGOMORE42 ", "", ""},
+		{"markdown", "HUGOMORE42", "", ""},
+		{"markdown", "<p>HUGOMORE42", "<p>", "<p>"},
+		{"markdown", "HUGOMORE42<p>", "", "<p>"},
+		{"markdown", "\n\n<p>HUGOMORE42</p>\n", "<p></p>", "<p></p>"},
 		// Issue #2586
 		// Note: Hugo will not split mid-sentence but will look for the closest
 		// paragraph end marker. This may be a change from Hugo 0.16, but it makes sense.
 		{"markdown", `<p>this is an example HUGOMORE42of the issue.</p>`,
 			"<p>this is an example of the issue.</p>",
-			"<p>this is an example of the issue.</p>", ""},
+			"<p>this is an example of the issue.</p>"},
 		// Issue: #2538
 		{"markdown", fmt.Sprintf(` <p class="lead">%s</p>HUGOMORE42<p>%s</p>
 `,
 			strings.Repeat("A", 10), strings.Repeat("B", 31)),
 			fmt.Sprintf(`<p class="lead">%s</p>`, strings.Repeat("A", 10)),
 			fmt.Sprintf(`<p class="lead">%s</p><p>%s</p>`, strings.Repeat("A", 10), strings.Repeat("B", 31)),
-			fmt.Sprintf(`<p>%s</p>`, strings.Repeat("B", 31)),
 		},
 	} {
 
@@ -722,19 +692,17 @@ func TestSplitSummaryAndContent(t *testing.T) {
 		require.NotNil(t, sc, fmt.Sprintf("[%d] Nil %s", i, this.markup))
 		require.Equal(t, this.expectedSummary, string(sc.summary), fmt.Sprintf("[%d] Summary markup %s", i, this.markup))
 		require.Equal(t, this.expectedContent, string(sc.content), fmt.Sprintf("[%d] Content markup %s", i, this.markup))
-		require.Equal(t, this.expectedContentWithoutSummary, string(sc.contentWithoutSummary), fmt.Sprintf("[%d] Content without summary, markup %s", i, this.markup))
 	}
 }
 
 func TestPageWithDelimiter(t *testing.T) {
-
+	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>\n\n<p>Some more text</p>\n"), ext)
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>"), ext)
 		checkPageType(t, p, "page")
-		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 		checkTruncation(t, p, true, "page with summary delimiter")
 	}
 
@@ -743,33 +711,67 @@ func TestPageWithDelimiter(t *testing.T) {
 
 // Issue #1076
 func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
-
-	testCommonResetState()
-
-	fs := hugofs.NewMem()
+	t.Parallel()
+	cfg, fs := newTestCfg()
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 
 	p := s.RegularPages[0]
 
-	if p.Summary != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a rel=\"footnote\" href=\"#fn:1\">1</a></sup>\n</p>") {
-		t.Fatalf("Got summary:\n%q", p.Summary)
+	if p.Summary() != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>") {
+		t.Fatalf("Got summary:\n%q", p.Summary())
 	}
 
-	if p.Content != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a rel=\"footnote\" href=\"#fn:1\">1</a></sup>\n</p>\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>") {
-		t.Fatalf("Got content:\n%q", p.Content)
+	if p.content() != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>") {
+		t.Fatalf("Got content:\n%q", p.content())
 	}
+}
+
+// Issue #3854
+// Also see https://github.com/gohugoio/hugo/issues/3977
+func TestPageWithDateFields(t *testing.T) {
+	assert := require.New(t)
+	pageWithDate := `---
+title: P%d
+weight: %d
+%s: 2017-10-13
+---
+Simple Page With Some Date`
+
+	hasDate := func(p *Page) bool {
+		return p.Date.Year() == 2017
+	}
+
+	datePage := func(field string, weight int) string {
+		return fmt.Sprintf(pageWithDate, weight, weight, field)
+	}
+
+	t.Parallel()
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		assert.True(len(pages) > 0)
+		for _, p := range pages {
+			assert.True(hasDate(p))
+		}
+
+	}
+
+	fields := []string{"date", "publishdate", "pubdate", "published"}
+	pageContents := make([]string, len(fields))
+	for i, field := range fields {
+		pageContents[i] = datePage(field, i+1)
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, pageContents...)
 }
 
 // Issue #2601
 func TestPageRawContent(t *testing.T) {
-	testCommonResetState()
-
-	fs := hugofs.NewMem()
+	t.Parallel()
+	cfg, fs := newTestCfg()
 
 	writeSource(t, fs, filepath.Join("content", "raw.md"), `---
 title: Raw
@@ -778,7 +780,7 @@ title: Raw
 
 	writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), `{{ .RawContent }}`)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 	p := s.RegularPages[0]
@@ -788,21 +790,20 @@ title: Raw
 }
 
 func TestPageWithShortCodeInSummary(t *testing.T) {
-
+	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
 		checkPageTitle(t, p, "Simple")
-		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. \n<figure >\n    \n        <img src=\"/not/real\" />\n    \n    \n</figure>\n.\nMore text here.</p>\n\n<p>Some more text</p>\n"))
+		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. \n<figure>\n    \n        <img src=\"/not/real\" />\n    \n    \n</figure>\n.\nMore text here.</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, "Summary Next Line.  . More text here. Some more text")
 		checkPageType(t, p, "page")
-		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithShortcodeInSummary)
 }
 
 func TestPageWithEmbeddedScriptTag(t *testing.T) {
-
+	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
 		if ext == "ad" || ext == "rst" {
@@ -816,12 +817,12 @@ func TestPageWithEmbeddedScriptTag(t *testing.T) {
 }
 
 func TestPageWithAdditionalExtension(t *testing.T) {
-
-	fs := hugofs.NewMem()
+	t.Parallel()
+	cfg, fs := newTestCfg()
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageWithAdditionalExtension)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 
@@ -832,11 +833,11 @@ func TestPageWithAdditionalExtension(t *testing.T) {
 
 func TestTableOfContents(t *testing.T) {
 
-	fs := hugofs.NewMem()
+	cfg, fs := newTestCfg()
 
 	writeSource(t, fs, filepath.Join("content", "tocpage.md"), pageWithToC)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 
@@ -847,26 +848,59 @@ func TestTableOfContents(t *testing.T) {
 }
 
 func TestPageWithMoreTag(t *testing.T) {
-
+	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>"))
 		checkPageType(t, p, "page")
-		checkPageLayout(t, p, "page/single.html", "_default/single.html", "theme/page/single.html", "theme/_default/single.html")
 
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiterSameLine)
 }
 
+func TestPageWithMoreTagOnlySummary(t *testing.T) {
+
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
+		checkTruncation(t, p, false, "page with summary delimiter at end")
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiterOnlySummary)
+}
+
+// #2973
+func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
+
+	assertFunc := func(t *testing.T, ext string, pages Pages) {
+		p := pages[0]
+		require.Contains(t, p.Summary(), "Happy new year everyone!")
+		require.NotContains(t, p.Summary(), "User interface")
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, `---
+title: Simple
+---
+Happy new year everyone!
+
+Here is the last report for commits in the year 2016. It covers hrev50718-hrev50829.
+
+<!--more-->
+
+<h3>User interface</h3>
+
+`)
+}
+
 func TestPageWithDate(t *testing.T) {
-	fs := hugofs.NewMem()
+	t.Parallel()
+	cfg, fs := newTestCfg()
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), simplePageRFC3339Date)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 
@@ -876,9 +910,129 @@ func TestPageWithDate(t *testing.T) {
 	checkPageDate(t, p, d)
 }
 
-func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
-	testCommonResetState()
+func TestPageWithLastmodFromGitInfo(t *testing.T) {
+	assrt := require.New(t)
 
+	// We need to use the OS fs for this.
+	cfg := viper.New()
+	fs := hugofs.NewFrom(hugofs.Os, cfg)
+	fs.Destination = &afero.MemMapFs{}
+
+	cfg.Set("frontmatter", map[string]interface{}{
+		"lastmod": []string{":git", "lastmod"},
+	})
+	cfg.Set("defaultContentLanguage", "en")
+
+	langConfig := map[string]interface{}{
+		"en": map[string]interface{}{
+			"weight":       1,
+			"languageName": "English",
+			"contentDir":   "content",
+		},
+		"nn": map[string]interface{}{
+			"weight":       2,
+			"languageName": "Nynorsk",
+			"contentDir":   "content_nn",
+		},
+	}
+
+	cfg.Set("languages", langConfig)
+	cfg.Set("enableGitInfo", true)
+
+	assrt.NoError(loadDefaultSettingsFor(cfg))
+	assrt.NoError(loadLanguageSettings(cfg, nil))
+
+	wd, err := os.Getwd()
+	assrt.NoError(err)
+	cfg.Set("workingDir", filepath.Join(wd, "testsite"))
+
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
+
+	assrt.NoError(err)
+	assrt.Len(h.Sites, 2)
+
+	require.NoError(t, h.Build(BuildCfg{SkipRender: true}))
+
+	enSite := h.Sites[0]
+	assrt.Len(enSite.RegularPages, 1)
+
+	// 2018-03-11 is the Git author date for testsite/content/first-post.md
+	assrt.Equal("2018-03-11", enSite.RegularPages[0].Lastmod.Format("2006-01-02"))
+
+	nnSite := h.Sites[1]
+	assrt.Len(nnSite.RegularPages, 1)
+
+	// 2018-08-11 is the Git author date for testsite/content_nn/first-post.md
+	assrt.Equal("2018-08-11", nnSite.RegularPages[0].Lastmod.Format("2006-01-02"))
+
+}
+
+func TestPageWithFrontMatterConfig(t *testing.T) {
+	t.Parallel()
+
+	for _, dateHandler := range []string{":filename", ":fileModTime"} {
+		t.Run(fmt.Sprintf("dateHandler=%q", dateHandler), func(t *testing.T) {
+			assrt := require.New(t)
+			cfg, fs := newTestCfg()
+
+			pageTemplate := `
+---
+title: Page
+weight: %d
+lastMod: 2018-02-28
+%s
+---
+Content
+`
+
+			cfg.Set("frontmatter", map[string]interface{}{
+				"date": []string{dateHandler, "date"},
+			})
+
+			c1 := filepath.Join("content", "section", "2012-02-21-noslug.md")
+			c2 := filepath.Join("content", "section", "2012-02-22-slug.md")
+
+			writeSource(t, fs, c1, fmt.Sprintf(pageTemplate, 1, ""))
+			writeSource(t, fs, c2, fmt.Sprintf(pageTemplate, 2, "slug: aslug"))
+
+			c1fi, err := fs.Source.Stat(c1)
+			assrt.NoError(err)
+			c2fi, err := fs.Source.Stat(c2)
+			assrt.NoError(err)
+
+			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+			assrt.Len(s.RegularPages, 2)
+
+			noSlug := s.RegularPages[0]
+			slug := s.RegularPages[1]
+
+			assrt.Equal(28, noSlug.Lastmod.Day())
+
+			switch strings.ToLower(dateHandler) {
+			case ":filename":
+				assrt.False(noSlug.Date.IsZero())
+				assrt.False(slug.Date.IsZero())
+				assrt.Equal(2012, noSlug.Date.Year())
+				assrt.Equal(2012, slug.Date.Year())
+				assrt.Equal("noslug", noSlug.Slug)
+				assrt.Equal("aslug", slug.Slug)
+			case ":filemodtime":
+				assrt.Equal(c1fi.ModTime().Year(), noSlug.Date.Year())
+				assrt.Equal(c2fi.ModTime().Year(), slug.Date.Year())
+				fallthrough
+			default:
+				assrt.Equal("", noSlug.Slug)
+				assrt.Equal("aslug", slug.Slug)
+
+			}
+		})
+	}
+
+}
+
+func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
+	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
 		if p.WordCount() != 8 {
@@ -890,6 +1044,7 @@ func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 }
 
 func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
+	t.Parallel()
 	settings := map[string]interface{}{"hasCJKLanguage": true}
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
@@ -902,6 +1057,7 @@ func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 }
 
 func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
+	t.Parallel()
 	settings := map[string]interface{}{"hasCJKLanguage": true}
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
@@ -910,9 +1066,9 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount())
 		}
 
-		if p.Summary != simplePageWithMainEnglishWithCJKRunesSummary {
+		if p.summary != simplePageWithMainEnglishWithCJKRunesSummary {
 			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.plain,
-				simplePageWithMainEnglishWithCJKRunesSummary, p.Summary)
+				simplePageWithMainEnglishWithCJKRunesSummary, p.summary)
 		}
 	}
 
@@ -920,8 +1076,10 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 }
 
 func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
-	testCommonResetState()
-	viper.Set("hasCJKLanguage", true)
+	t.Parallel()
+	settings := map[string]interface{}{
+		"hasCJKLanguage": true,
+	}
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
@@ -929,18 +1087,18 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount())
 		}
 
-		if p.Summary != simplePageWithIsCJKLanguageFalseSummary {
+		if p.summary != simplePageWithIsCJKLanguageFalseSummary {
 			t.Fatalf("[%s] incorrect Summary for content '%s'. expected %v, got %v", ext, p.plain,
-				simplePageWithIsCJKLanguageFalseSummary, p.Summary)
+				simplePageWithIsCJKLanguageFalseSummary, p.summary)
 		}
 	}
 
-	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithIsCJKLanguageFalse)
+	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePageWithIsCJKLanguageFalse)
 
 }
 
 func TestWordCount(t *testing.T) {
-
+	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		p := pages[0]
 		if p.WordCount() != 483 {
@@ -962,24 +1120,26 @@ func TestWordCount(t *testing.T) {
 }
 
 func TestCreatePage(t *testing.T) {
+	t.Parallel()
 	var tests = []struct {
 		r string
 	}{
 		{simplePageJSON},
-		{simplePageJSONLoose},
 		{simplePageJSONMultiple},
 		//{strings.NewReader(SIMPLE_PAGE_JSON_COMPACT)},
 	}
 
-	for _, test := range tests {
-		p, _ := pageTestSite.NewPage("page")
+	for i, test := range tests {
+		s := newTestSite(t)
+		p, _ := s.NewPage("page")
 		if _, err := p.ReadFrom(strings.NewReader(test.r)); err != nil {
-			t.Errorf("Unable to parse page: %s", err)
+			t.Fatalf("[%d] Unable to parse page: %s", i, err)
 		}
 	}
 }
 
 func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
+	t.Parallel()
 	var tests = []struct {
 		r   string
 		err string
@@ -987,19 +1147,20 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 		{invalidFrontmatterShortDelimEnding, "unable to read frontmatter at filepos 45: EOF"},
 	}
 	for _, test := range tests {
-
-		p, _ := pageTestSite.NewPage("invalid/front/matter/short/delim")
+		s := newTestSite(t)
+		p, _ := s.NewPage("invalid/front/matter/short/delim")
 		_, err := p.ReadFrom(strings.NewReader(test.r))
 		checkError(t, err, test.err)
 	}
 }
 
 func TestShouldRenderContent(t *testing.T) {
+	t.Parallel()
 	var tests = []struct {
 		text   string
 		render bool
 	}{
-		{invalidFrontMatterMissing, true},
+		{contentNoFrontmatter, true},
 		// TODO how to deal with malformed frontmatter.  In this case it'll be rendered as markdown.
 		{invalidFrontmatterShortDelim, true},
 		{renderNoFrontmatter, false},
@@ -1010,8 +1171,8 @@ func TestShouldRenderContent(t *testing.T) {
 	}
 
 	for _, test := range tests {
-
-		p, _ := pageTestSite.NewPage("render/front/matter")
+		s := newTestSite(t)
+		p, _ := s.NewPage("render/front/matter")
 		_, err := p.ReadFrom(strings.NewReader(test.text))
 		p = pageMust(p, err)
 		if p.IsRenderable() != test.render {
@@ -1022,51 +1183,57 @@ func TestShouldRenderContent(t *testing.T) {
 
 // Issue #768
 func TestCalendarParamsVariants(t *testing.T) {
-	pageJSON, _ := pageTestSite.NewPage("test/fileJSON.md")
+	t.Parallel()
+	s := newTestSite(t)
+	pageJSON, _ := s.NewPage("test/fileJSON.md")
 	_, _ = pageJSON.ReadFrom(strings.NewReader(pageWithCalendarJSONFrontmatter))
 
-	pageYAML, _ := pageTestSite.NewPage("test/fileYAML.md")
+	pageYAML, _ := s.NewPage("test/fileYAML.md")
 	_, _ = pageYAML.ReadFrom(strings.NewReader(pageWithCalendarYAMLFrontmatter))
 
-	pageTOML, _ := pageTestSite.NewPage("test/fileTOML.md")
+	pageTOML, _ := s.NewPage("test/fileTOML.md")
 	_, _ = pageTOML.ReadFrom(strings.NewReader(pageWithCalendarTOMLFrontmatter))
 
-	assert.True(t, compareObjects(pageJSON.Params, pageYAML.Params))
-	assert.True(t, compareObjects(pageJSON.Params, pageTOML.Params))
+	assert.True(t, compareObjects(pageJSON.params, pageYAML.params))
+	assert.True(t, compareObjects(pageJSON.params, pageTOML.params))
 
 }
 
 func TestDifferentFrontMatterVarTypes(t *testing.T) {
-	page, _ := pageTestSite.NewPage("test/file1.md")
+	t.Parallel()
+	s := newTestSite(t)
+	page, _ := s.NewPage("test/file1.md")
 	_, _ = page.ReadFrom(strings.NewReader(pageWithVariousFrontmatterTypes))
 
 	dateval, _ := time.Parse(time.RFC3339, "1979-05-27T07:32:00Z")
-	if page.GetParam("a_string") != "bar" {
-		t.Errorf("frontmatter not handling strings correctly should be %s, got: %s", "bar", page.GetParam("a_string"))
+	if page.getParamToLower("a_string") != "bar" {
+		t.Errorf("frontmatter not handling strings correctly should be %s, got: %s", "bar", page.getParamToLower("a_string"))
 	}
-	if page.GetParam("an_integer") != 1 {
-		t.Errorf("frontmatter not handling ints correctly should be %s, got: %s", "1", page.GetParam("an_integer"))
+	if page.getParamToLower("an_integer") != 1 {
+		t.Errorf("frontmatter not handling ints correctly should be %s, got: %s", "1", page.getParamToLower("an_integer"))
 	}
-	if page.GetParam("a_float") != 1.3 {
-		t.Errorf("frontmatter not handling floats correctly should be %f, got: %s", 1.3, page.GetParam("a_float"))
+	if page.getParamToLower("a_float") != 1.3 {
+		t.Errorf("frontmatter not handling floats correctly should be %f, got: %s", 1.3, page.getParamToLower("a_float"))
 	}
-	if page.GetParam("a_bool") != false {
-		t.Errorf("frontmatter not handling bools correctly should be %t, got: %s", false, page.GetParam("a_bool"))
+	if page.getParamToLower("a_bool") != false {
+		t.Errorf("frontmatter not handling bools correctly should be %t, got: %s", false, page.getParamToLower("a_bool"))
 	}
-	if page.GetParam("a_date") != dateval {
-		t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.GetParam("a_date"))
+	if page.getParamToLower("a_date") != dateval {
+		t.Errorf("frontmatter not handling dates correctly should be %s, got: %s", dateval, page.getParamToLower("a_date"))
 	}
-	param := page.GetParam("a_table")
+	param := page.getParamToLower("a_table")
 	if param == nil {
-		t.Errorf("frontmatter not handling tables correctly should be type of %v, got: type of %v", reflect.TypeOf(page.Params["a_table"]), reflect.TypeOf(param))
+		t.Errorf("frontmatter not handling tables correctly should be type of %v, got: type of %v", reflect.TypeOf(page.params["a_table"]), reflect.TypeOf(param))
 	}
 	if cast.ToStringMap(param)["a_key"] != "a_value" {
-		t.Errorf("frontmatter not handling values inside a table correctly should be %s, got: %s", "a_value", cast.ToStringMap(page.Params["a_table"])["a_key"])
+		t.Errorf("frontmatter not handling values inside a table correctly should be %s, got: %s", "a_value", cast.ToStringMap(page.params["a_table"])["a_key"])
 	}
 }
 
 func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
-	p, _ := pageTestSite.NewPage("invalid/front/matter/leading/ws")
+	t.Parallel()
+	s := newTestSite(t)
+	p, _ := s.NewPage("invalid/front/matter/leading/ws")
 	_, err := p.ReadFrom(strings.NewReader(invalidFrontmatterLadingWs))
 	if err != nil {
 		t.Fatalf("Unable to parse front matter given leading whitespace: %s", err)
@@ -1074,67 +1241,17 @@ func TestDegenerateInvalidFrontMatterLeadingWhitespace(t *testing.T) {
 }
 
 func TestSectionEvaluation(t *testing.T) {
-	page, _ := pageTestSite.NewPage(filepath.FromSlash("blue/file1.md"))
+	t.Parallel()
+	s := newTestSite(t)
+	page, _ := s.NewPage(filepath.FromSlash("blue/file1.md"))
 	page.ReadFrom(strings.NewReader(simplePage))
 	if page.Section() != "blue" {
 		t.Errorf("Section should be %s, got: %s", "blue", page.Section())
 	}
 }
 
-func L(s ...string) []string {
-	return s
-}
-
-func TestLayoutOverride(t *testing.T) {
-	var (
-		pathContentTwoDir = filepath.Join("content", "dub", "sub", "file1.md")
-		pathContentOneDir = filepath.Join("content", "gub", "file1.md")
-		pathContentNoDir  = filepath.Join("content", "file1")
-		pathOneDirectory  = filepath.Join("fub", "file1.md")
-		pathNoDirectory   = filepath.Join("file1.md")
-	)
-	tests := []struct {
-		content        string
-		path           string
-		expectedLayout []string
-	}{
-		{simplePageNoLayout, pathContentTwoDir, L("dub/single.html", "_default/single.html")},
-		{simplePageNoLayout, pathContentOneDir, L("gub/single.html", "_default/single.html")},
-		{simplePageNoLayout, pathContentNoDir, L("page/single.html", "_default/single.html")},
-		{simplePageNoLayout, pathOneDirectory, L("fub/single.html", "_default/single.html")},
-		{simplePageNoLayout, pathNoDirectory, L("page/single.html", "_default/single.html")},
-		{simplePageLayoutFoobar, pathContentTwoDir, L("dub/foobar.html", "_default/foobar.html")},
-		{simplePageLayoutFoobar, pathContentOneDir, L("gub/foobar.html", "_default/foobar.html")},
-		{simplePageLayoutFoobar, pathOneDirectory, L("fub/foobar.html", "_default/foobar.html")},
-		{simplePageLayoutFoobar, pathNoDirectory, L("page/foobar.html", "_default/foobar.html")},
-		{simplePageTypeFoobar, pathContentTwoDir, L("foobar/single.html", "_default/single.html")},
-		{simplePageTypeFoobar, pathContentOneDir, L("foobar/single.html", "_default/single.html")},
-		{simplePageTypeFoobar, pathContentNoDir, L("foobar/single.html", "_default/single.html")},
-		{simplePageTypeFoobar, pathOneDirectory, L("foobar/single.html", "_default/single.html")},
-		{simplePageTypeFoobar, pathNoDirectory, L("foobar/single.html", "_default/single.html")},
-		{simplePageTypeLayout, pathContentTwoDir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{simplePageTypeLayout, pathContentOneDir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{simplePageTypeLayout, pathContentNoDir, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{simplePageTypeLayout, pathOneDirectory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-		{simplePageTypeLayout, pathNoDirectory, L("barfoo/buzfoo.html", "_default/buzfoo.html")},
-	}
-	for _, test := range tests {
-		p, _ := pageTestSite.NewPage(test.path)
-		_, err := p.ReadFrom(strings.NewReader(test.content))
-		if err != nil {
-			t.Fatalf("Unable to parse content:\n%s\n", test.content)
-		}
-
-		for _, y := range test.expectedLayout {
-			test.expectedLayout = append(test.expectedLayout, "theme/"+y)
-		}
-		if !listEqual(p.layouts(), test.expectedLayout) {
-			t.Errorf("Layout mismatch. Expected: %s, got: %s", test.expectedLayout, p.layouts())
-		}
-	}
-}
-
 func TestSliceToLower(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		value    []string
 		expected []string
@@ -1154,11 +1271,64 @@ func TestSliceToLower(t *testing.T) {
 	}
 }
 
-func TestPagePaths(t *testing.T) {
-	testCommonResetState()
+func TestReplaceDivider(t *testing.T) {
+	t.Parallel()
 
-	viper.Set("defaultExtension", "html")
-	siteParmalinksSetting := PermalinkOverrides{
+	tests := []struct {
+		content           string
+		from              string
+		to                string
+		expectedContent   string
+		expectedTruncated bool
+	}{
+		{"none", "a", "b", "none", false},
+		{"summary <!--more--> content", "<!--more-->", "HUGO", "summary HUGO content", true},
+		{"summary\n\ndivider", "divider", "HUGO", "summary\n\nHUGO", false},
+		{"summary\n\ndivider\n\r", "divider", "HUGO", "summary\n\nHUGO\n\r", false},
+	}
+
+	for i, test := range tests {
+		replaced, truncated := replaceDivider([]byte(test.content), []byte(test.from), []byte(test.to))
+
+		if truncated != test.expectedTruncated {
+			t.Fatalf("[%d] Expected truncated to be %t, was %t", i, test.expectedTruncated, truncated)
+		}
+
+		if string(replaced) != test.expectedContent {
+			t.Fatalf("[%d] Expected content to be %q, was %q", i, test.expectedContent, replaced)
+		}
+	}
+}
+
+func BenchmarkReplaceDivider(b *testing.B) {
+	divider := "HUGO_DIVIDER"
+	from, to := []byte(divider), []byte("HUGO_REPLACED")
+
+	withDivider := make([][]byte, b.N)
+	noDivider := make([][]byte, b.N)
+
+	for i := 0; i < b.N; i++ {
+		withDivider[i] = []byte(strings.Repeat("Summary ", 5) + "\n" + divider + "\n" + strings.Repeat("Word ", 300))
+		noDivider[i] = []byte(strings.Repeat("Word ", 300))
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, t1 := replaceDivider(withDivider[i], from, to)
+		_, t2 := replaceDivider(noDivider[i], from, to)
+		if !t1 {
+			b.Fatal("Should be truncated")
+		}
+		if t2 {
+			b.Fatal("Should not be truncated")
+		}
+	}
+}
+
+func TestPagePaths(t *testing.T) {
+	t.Parallel()
+
+	siteParmalinksSetting := map[string]string{
 		"post": ":year/:month/:day/:title/",
 	}
 
@@ -1168,35 +1338,28 @@ func TestPagePaths(t *testing.T) {
 		hasPermalink bool
 		expected     string
 	}{
-		{simplePage, "content/post/x.md", false, "content/post/x.html"},
-		{simplePageWithURL, "content/post/x.md", false, "simple/url/index.html"},
-		{simplePageWithSlug, "content/post/x.md", false, "content/post/simple-slug.html"},
-		{simplePageWithDate, "content/post/x.md", true, "2013/10/15/simple/index.html"},
-		{UTF8Page, "content/post/x.md", false, "content/post/x.html"},
-		{UTF8PageWithURL, "content/post/x.md", false, "ラーメン/url/index.html"},
-		{UTF8PageWithSlug, "content/post/x.md", false, "content/post/ラーメン-slug.html"},
-		{UTF8PageWithDate, "content/post/x.md", true, "2013/10/15/ラーメン/index.html"},
+		{simplePage, "post/x.md", false, "post/x.html"},
+		{simplePageWithURL, "post/x.md", false, "simple/url/index.html"},
+		{simplePageWithSlug, "post/x.md", false, "post/simple-slug.html"},
+		{simplePageWithDate, "post/x.md", true, "2013/10/15/simple/index.html"},
+		{UTF8Page, "post/x.md", false, "post/x.html"},
+		{UTF8PageWithURL, "post/x.md", false, "ラーメン/url/index.html"},
+		{UTF8PageWithSlug, "post/x.md", false, "post/ラーメン-slug.html"},
+		{UTF8PageWithDate, "post/x.md", true, "2013/10/15/ラーメン/index.html"},
 	}
 
 	for _, test := range tests {
-		p, _ := pageTestSite.NewPageFrom(strings.NewReader(test.content), filepath.FromSlash(test.path))
-		info := newSiteInfo(siteBuilderCfg{language: helpers.NewDefaultLanguage()})
-		p.Site = &info
+		cfg, fs := newTestCfg()
 
 		if test.hasPermalink {
-			p.Site.Permalinks = siteParmalinksSetting
+			cfg.Set("permalinks", siteParmalinksSetting)
 		}
 
-		expectedTargetPath := filepath.FromSlash(test.expected)
-		expectedFullFilePath := filepath.FromSlash(test.path)
+		writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.path)), test.content)
 
-		if p.TargetPath() != expectedTargetPath {
-			t.Errorf("%s => TargetPath  expected: '%s', got: '%s'", test.content, expectedTargetPath, p.TargetPath())
-		}
+		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+		require.Len(t, s.RegularPages, 1)
 
-		if p.FullFilePath() != expectedFullFilePath {
-			t.Errorf("%s => FullFilePath  expected: '%s', got: '%s'", test.content, expectedFullFilePath, p.FullFilePath())
-		}
 	}
 }
 
@@ -1209,7 +1372,9 @@ some content
 `
 
 func TestDraftAndPublishedFrontMatterError(t *testing.T) {
-	_, err := pageTestSite.NewPageFrom(strings.NewReader(pageWithDraftAndPublished), "content/post/broken.md")
+	t.Parallel()
+	s := newTestSite(t)
+	_, err := s.NewPageFrom(strings.NewReader(pageWithDraftAndPublished), "content/post/broken.md")
 	if err != ErrHasDraftAndPublished {
 		t.Errorf("expected ErrHasDraftAndPublished, was %#v", err)
 	}
@@ -1229,14 +1394,16 @@ some content
 `
 
 func TestPublishedFrontMatter(t *testing.T) {
-	p, err := pageTestSite.NewPageFrom(strings.NewReader(pagesWithPublishedFalse), "content/post/broken.md")
+	t.Parallel()
+	s := newTestSite(t)
+	p, err := s.NewPageFrom(strings.NewReader(pagesWithPublishedFalse), "content/post/broken.md")
 	if err != nil {
 		t.Fatalf("err during parse: %s", err)
 	}
 	if !p.Draft {
 		t.Errorf("expected true, got %t", p.Draft)
 	}
-	p, err = pageTestSite.NewPageFrom(strings.NewReader(pageWithPublishedTrue), "content/post/broken.md")
+	p, err = s.NewPageFrom(strings.NewReader(pageWithPublishedTrue), "content/post/broken.md")
 	if err != nil {
 		t.Fatalf("err during parse: %s", err)
 	}
@@ -1261,10 +1428,12 @@ some content
 }
 
 func TestDraft(t *testing.T) {
+	t.Parallel()
+	s := newTestSite(t)
 	for _, draft := range []bool{true, false} {
 		for i, templ := range pagesDraftTemplate {
 			pageContent := fmt.Sprintf(templ, draft)
-			p, err := pageTestSite.NewPageFrom(strings.NewReader(pageContent), "content/post/broken.md")
+			p, err := s.NewPageFrom(strings.NewReader(pageContent), "content/post/broken.md")
 			if err != nil {
 				t.Fatalf("err during parse: %s", err)
 			}
@@ -1314,7 +1483,9 @@ some content
 }
 
 func TestPageParams(t *testing.T) {
-	want := map[string]interface{}{
+	t.Parallel()
+	s := newTestSite(t)
+	wantedMap := map[string]interface{}{
 		"tags": []string{"hugo", "web"},
 		// Issue #2752
 		"social": []interface{}{
@@ -1324,13 +1495,41 @@ func TestPageParams(t *testing.T) {
 	}
 
 	for i, c := range pagesParamsTemplate {
-		p, err := pageTestSite.NewPageFrom(strings.NewReader(c), "content/post/params.md")
+		p, err := s.NewPageFrom(strings.NewReader(c), "content/post/params.md")
 		require.NoError(t, err, "err during parse", "#%d", i)
-		assert.Equal(t, want, p.Params, "#%d", i)
+		for key := range wantedMap {
+			assert.Equal(t, wantedMap[key], p.params[key], "#%d", key)
+		}
 	}
 }
 
+func TestTraverse(t *testing.T) {
+	exampleParams := `---
+rating: "5 stars"
+tags:
+  - hugo
+  - web
+social:
+  twitter: "@jxxf"
+  facebook: "https://example.com"
+---`
+	t.Parallel()
+	s := newTestSite(t)
+	p, _ := s.NewPageFrom(strings.NewReader(exampleParams), "content/post/params.md")
+
+	topLevelKeyValue, _ := p.Param("rating")
+	assert.Equal(t, "5 stars", topLevelKeyValue)
+
+	nestedStringKeyValue, _ := p.Param("social.twitter")
+	assert.Equal(t, "@jxxf", nestedStringKeyValue)
+
+	nonexistentKeyValue, _ := p.Param("doesn't.exist")
+	assert.Nil(t, nonexistentKeyValue)
+}
+
 func TestPageSimpleMethods(t *testing.T) {
+	t.Parallel()
+	s := newTestSite(t)
 	for i, this := range []struct {
 		assertFunc func(p *Page) bool
 	}{
@@ -1340,8 +1539,9 @@ func TestPageSimpleMethods(t *testing.T) {
 		{func(p *Page) bool { return strings.Join(p.PlainWords(), " ") == "Do Be Do Be Do" }},
 	} {
 
-		p, _ := pageTestSite.NewPage("Test")
-		p.Content = "<h1>Do Be Do Be Do</h1>"
+		p, _ := s.NewPage("Test")
+		p.workContent = []byte("<h1>Do Be Do Be Do</h1>")
+		p.resetContent()
 		if !this.assertFunc(p) {
 			t.Errorf("[%d] Page method error", i)
 		}
@@ -1349,20 +1549,18 @@ func TestPageSimpleMethods(t *testing.T) {
 }
 
 func TestIndexPageSimpleMethods(t *testing.T) {
+	s := newTestSite(t)
+	t.Parallel()
 	for i, this := range []struct {
 		assertFunc func(n *Page) bool
 	}{
 		{func(n *Page) bool { return n.IsNode() }},
 		{func(n *Page) bool { return !n.IsPage() }},
-		{func(n *Page) bool { return n.RSSLink == "rssLink" }},
 		{func(n *Page) bool { return n.Scratch() != nil }},
 		{func(n *Page) bool { return n.Hugo() != nil }},
-		{func(n *Page) bool { return n.Now().Unix() == time.Now().Unix() }},
 	} {
 
-		n := &Page{pageInit: &pageInit{}, Kind: KindHome}
-
-		n.RSSLink = "rssLink"
+		n := s.newHomePage()
 
 		if !this.assertFunc(n) {
 			t.Errorf("[%d] Node method error", i)
@@ -1371,7 +1569,7 @@ func TestIndexPageSimpleMethods(t *testing.T) {
 }
 
 func TestKind(t *testing.T) {
-
+	t.Parallel()
 	// Add tests for these constants to make sure they don't change
 	require.Equal(t, "page", KindPage)
 	require.Equal(t, "home", KindHome)
@@ -1381,34 +1579,43 @@ func TestKind(t *testing.T) {
 
 }
 
+func TestTranslationKey(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+	cfg, fs := newTestCfg()
+
+	writeSource(t, fs, filepath.Join("content", filepath.FromSlash("sect/simple.no.md")), "---\ntitle: \"A1\"\ntranslationKey: \"k1\"\n---\nContent\n")
+	writeSource(t, fs, filepath.Join("content", filepath.FromSlash("sect/simple.en.md")), "---\ntitle: \"A2\"\n---\nContent\n")
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 2)
+
+	home, _ := s.Info.Home()
+	assert.NotNil(home)
+	assert.Equal("home", home.TranslationKey())
+	assert.Equal("page/k1", s.RegularPages[0].TranslationKey())
+	p2 := s.RegularPages[1]
+
+	assert.Equal("page/sect/simple", p2.TranslationKey())
+
+}
+
 func TestChompBOM(t *testing.T) {
+	t.Parallel()
 	const utf8BOM = "\xef\xbb\xbf"
 
-	fs := hugofs.NewMem()
+	cfg, fs := newTestCfg()
 
 	writeSource(t, fs, filepath.Join("content", "simple.md"), utf8BOM+simplePage)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs}, BuildCfg{SkipRender: true})
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
 
 	p := s.RegularPages[0]
 
 	checkPageTitle(t, p, "Simple")
-}
-
-func listEqual(left, right []string) bool {
-	if len(left) != len(right) {
-		return false
-	}
-
-	for i := range left {
-		if left[i] != right[i] {
-			return false
-		}
-	}
-
-	return true
 }
 
 // TODO(bep) this may be useful for other tests.
@@ -1423,6 +1630,7 @@ func compareObjects(a interface{}, b interface{}) bool {
 }
 
 func TestShouldBuild(t *testing.T) {
+	t.Parallel()
 	var past = time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	var future = time.Date(2037, 11, 17, 20, 34, 58, 651387237, time.UTC)
 	var zero = time.Time{}
@@ -1468,13 +1676,224 @@ func TestShouldBuild(t *testing.T) {
 	}
 }
 
+// "dot" in path: #1885 and #2110
+// disablePathToLower regression: #3374
+func TestPathIssues(t *testing.T) {
+	t.Parallel()
+	for _, disablePathToLower := range []bool{false, true} {
+		for _, uglyURLs := range []bool{false, true} {
+			t.Run(fmt.Sprintf("disablePathToLower=%t,uglyURLs=%t", disablePathToLower, uglyURLs), func(t *testing.T) {
+
+				cfg, fs := newTestCfg()
+				th := testHelper{cfg, fs, t}
+
+				cfg.Set("permalinks", map[string]string{
+					"post": ":section/:title",
+				})
+
+				cfg.Set("uglyURLs", uglyURLs)
+				cfg.Set("disablePathToLower", disablePathToLower)
+				cfg.Set("paginate", 1)
+
+				writeSource(t, fs, filepath.Join("layouts", "_default", "single.html"), "<html><body>{{.Content}}</body></html>")
+				writeSource(t, fs, filepath.Join("layouts", "_default", "list.html"),
+					"<html><body>P{{.Paginator.PageNumber}}|URL: {{.Paginator.URL}}|{{ if .Paginator.HasNext }}Next: {{.Paginator.Next.URL }}{{ end }}</body></html>")
+
+				for i := 0; i < 3; i++ {
+					writeSource(t, fs, filepath.Join("content", "post", fmt.Sprintf("doc%d.md", i)),
+						fmt.Sprintf(`---
+title: "test%d.dot"
+tags:
+- ".net"
+---
+# doc1
+*some content*`, i))
+				}
+
+				writeSource(t, fs, filepath.Join("content", "Blog", "Blog1.md"),
+					fmt.Sprintf(`---
+title: "testBlog"
+tags:
+- "Blog"
+---
+# doc1
+*some blog content*`))
+
+				s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+
+				require.Len(t, s.RegularPages, 4)
+
+				pathFunc := func(s string) string {
+					if uglyURLs {
+						return strings.Replace(s, "/index.html", ".html", 1)
+					}
+					return s
+				}
+
+				blog := "blog"
+
+				if disablePathToLower {
+					blog = "Blog"
+				}
+
+				th.assertFileContent(pathFunc("public/"+blog+"/"+blog+"1/index.html"), "some blog content")
+
+				th.assertFileContent(pathFunc("public/post/test0.dot/index.html"), "some content")
+
+				if uglyURLs {
+					th.assertFileContent("public/post/page/1.html", `canonical" href="/post.html"/`)
+					th.assertFileContent("public/post.html", `<body>P1|URL: /post.html|Next: /post/page/2.html</body>`)
+					th.assertFileContent("public/post/page/2.html", `<body>P2|URL: /post/page/2.html|Next: /post/page/3.html</body>`)
+				} else {
+					th.assertFileContent("public/post/page/1/index.html", `canonical" href="/post/"/`)
+					th.assertFileContent("public/post/index.html", `<body>P1|URL: /post/|Next: /post/page/2/</body>`)
+					th.assertFileContent("public/post/page/2/index.html", `<body>P2|URL: /post/page/2/|Next: /post/page/3/</body>`)
+					th.assertFileContent("public/tags/.net/index.html", `<body>P1|URL: /tags/.net/|Next: /tags/.net/page/2/</body>`)
+
+				}
+
+				p := s.RegularPages[0]
+				if uglyURLs {
+					require.Equal(t, "/post/test0.dot.html", p.RelPermalink())
+				} else {
+					require.Equal(t, "/post/test0.dot/", p.RelPermalink())
+				}
+
+			})
+		}
+	}
+}
+
+// https://github.com/gohugoio/hugo/issues/4675
+func TestWordCountAndSimilarVsSummary(t *testing.T) {
+
+	t.Parallel()
+	assert := require.New(t)
+
+	single := []string{"_default/single.html", `
+WordCount: {{ .WordCount }}
+FuzzyWordCount: {{ .FuzzyWordCount }}
+ReadingTime: {{ .ReadingTime }}
+Len Plain: {{ len .Plain }}
+Len PlainWords: {{ len .PlainWords }}
+Truncated: {{ .Truncated }}
+Len Summary: {{ len .Summary }}
+Len Content: {{ len .Content }}
+`}
+
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithTemplatesAdded(single...).WithContent("p1.md", fmt.Sprintf(`---
+title: p1	
+---
+
+%s
+
+`, strings.Repeat("word ", 510)),
+
+		"p2.md", fmt.Sprintf(`---
+title: p2
+---
+This is a summary.
+
+<!--more-->
+
+%s
+
+`, strings.Repeat("word ", 310)),
+		"p3.md", fmt.Sprintf(`---
+title: p3
+isCJKLanguage: true
+---
+Summary: In Chinese, 好 means good.
+
+<!--more-->
+
+%s
+
+`, strings.Repeat("好", 200)),
+		"p4.md", fmt.Sprintf(`---
+title: p4
+isCJKLanguage: false
+---
+Summary: In Chinese, 好 means good.
+
+<!--more-->
+
+%s
+
+`, strings.Repeat("好", 200)),
+
+		"p5.md", fmt.Sprintf(`---
+title: p4
+isCJKLanguage: true
+---
+Summary: In Chinese, 好 means good.
+
+%s
+
+`, strings.Repeat("好", 200)),
+		"p6.md", fmt.Sprintf(`---
+title: p4
+isCJKLanguage: false
+---
+Summary: In Chinese, 好 means good.
+
+%s
+
+`, strings.Repeat("好", 200)),
+	)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	assert.Equal(1, len(b.H.Sites))
+	require.Len(t, b.H.Sites[0].RegularPages, 6)
+
+	b.AssertFileContent("public/p1/index.html", "WordCount: 510\nFuzzyWordCount: 600\nReadingTime: 3\nLen Plain: 2550\nLen PlainWords: 510\nTruncated: false\nLen Summary: 2549\nLen Content: 2557")
+
+	b.AssertFileContent("public/p2/index.html", "WordCount: 314\nFuzzyWordCount: 400\nReadingTime: 2\nLen Plain: 1570\nLen PlainWords: 314\nTruncated: true\nLen Summary: 34\nLen Content: 1592")
+
+	b.AssertFileContent("public/p3/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 639\nLen PlainWords: 7\nTruncated: true\nLen Summary: 52\nLen Content: 661")
+	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 639\nLen PlainWords: 7\nTruncated: true\nLen Summary: 52\nLen Content: 661")
+	b.AssertFileContent("public/p5/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 229\nLen Content: 653")
+	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 653")
+
+}
+
+func TestScratchSite(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithTemplatesAdded("index.html", `
+{{ .Scratch.Set "b" "bv" }}
+B: {{ .Scratch.Get "b" }}
+`,
+		"shortcodes/scratch.html", `
+{{ .Scratch.Set "c" "cv" }}
+C: {{ .Scratch.Get "c" }}
+`,
+	)
+
+	b.WithContentAdded("scratchme.md", `
+---
+title: Scratch Me!
+---
+
+{{< scratch >}}
+`)
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "B: bv")
+	b.AssertFileContent("public/scratchme/index.html", "C: cv")
+}
+
 func BenchmarkParsePage(b *testing.B) {
+	s := newTestSite(b)
 	f, _ := os.Open("testdata/redis.cn.md")
 	var buf bytes.Buffer
 	buf.ReadFrom(f)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		page, _ := pageTestSite.NewPage("bench")
+		page, _ := s.NewPage("bench")
 		page.ReadFrom(bytes.NewReader(buf.Bytes()))
 	}
 }

@@ -1,0 +1,8 @@
+{{$file := .Get "file"}}
+{{$icon := index (split $file ".") 1 }}
+<div class="code" id="{{$file | urlize}}">
+	<div class="filename" title="{{$file}}">{{$file}}</div>
+	<div class="code-copy-content output-content">
+	<pre><code>{{- .Inner | string -}}</code></pre>
+	</div>
+</div>

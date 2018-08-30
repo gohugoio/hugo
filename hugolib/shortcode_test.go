@@ -22,39 +22,47 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/hugofs"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/hugo/tplapi"
 	"github.com/spf13/viper"
+
+	jww "github.com/spf13/jwalterweatherman"
+
+	"github.com/spf13/afero"
+
+	"github.com/gohugoio/hugo/output"
+
+	"github.com/gohugoio/hugo/media"
+
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/tpl"
+
 	"github.com/stretchr/testify/require"
 )
 
 // TODO(bep) remove
-func pageFromString(in, filename string, withTemplate ...func(templ tplapi.Template) error) (*Page, error) {
-	s := pageTestSite
-	if len(withTemplate) > 0 {
-		// Have to create a new site
-		var err error
-		s, err = NewSiteDefaultLang(withTemplate...)
-		if err != nil {
-			return nil, err
-		}
+func pageFromString(in, filename string, withTemplate ...func(templ tpl.TemplateHandler) error) (*Page, error) {
+	var err error
+	cfg, fs := newTestCfg()
+
+	d := deps.DepsCfg{Cfg: cfg, Fs: fs, WithTemplate: withTemplate[0]}
+
+	s, err := NewSiteForCfg(d)
+	if err != nil {
+		return nil, err
 	}
+
 	return s.NewPageFrom(strings.NewReader(in), filename)
 }
 
-func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tplapi.Template) error) {
+func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error) {
 	CheckShortCodeMatchAndError(t, input, expected, withTemplate, false)
 }
 
-func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tplapi.Template) error, expectError bool) {
-	testCommonResetState()
+func CheckShortCodeMatchAndError(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error, expectError bool) {
 
-	fs := hugofs.NewMem()
+	cfg, fs := newTestCfg()
 
-	// Need some front matter, see https://github.com/spf13/hugo/issues/2337
+	// Need some front matter, see https://github.com/gohugoio/hugo/issues/2337
 	contentFile := `---
 title: "Title"
 ---
@@ -62,7 +70,7 @@ title: "Title"
 
 	writeSource(t, fs, "content/simple.md", contentFile)
 
-	h, err := NewHugoSitesFromConfiguration(deps.DepsCfg{Fs: fs, WithTemplate: withTemplate})
+	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate})
 
 	require.NoError(t, err)
 	require.Len(t, h.Sites, 1)
@@ -79,7 +87,7 @@ title: "Title"
 
 	require.Len(t, h.Sites[0].RegularPages, 1)
 
-	output := strings.TrimSpace(string(h.Sites[0].RegularPages[0].Content))
+	output := strings.TrimSpace(string(h.Sites[0].RegularPages[0].content()))
 	output = strings.TrimPrefix(output, "<p>")
 	output = strings.TrimSuffix(output, "</p>")
 
@@ -90,45 +98,18 @@ title: "Title"
 	}
 }
 
-func TestShortcodeGoFuzzReports(t *testing.T) {
-
-	p, _ := pageFromString(simplePage, "simple.md", func(templ tplapi.Template) error {
-		return templ.AddInternalShortcode("sc.html", `foo`)
-	})
-
-	for i, this := range []struct {
-		data      string
-		expectErr bool
-	}{
-		{"{{</*/", true},
-	} {
-		output, err := HandleShortcodes(this.data, p)
-
-		if this.expectErr && err == nil {
-			t.Errorf("[%d] should have errored", i)
-		}
-
-		if !this.expectErr && err != nil {
-			t.Errorf("[%d] should not have errored: %s", i, err)
-		}
-
-		if !this.expectErr && err == nil && len(output) == 0 {
-			t.Errorf("[%d] empty result", i)
-		}
-	}
-
-}
-
 func TestNonSC(t *testing.T) {
-
+	t.Parallel()
 	// notice the syntax diff from 0.12, now comment delims must be added
 	CheckShortCodeMatch(t, "{{%/* movie 47238zzb */%}}", "{{% movie 47238zzb %}}", nil)
 }
 
 // Issue #929
 func TestHyphenatedSC(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+
+		tem.AddTemplate("_internal/shortcodes/hyphenated-video.html", `Playing Video {{ .Get 0 }}`)
 		return nil
 	}
 
@@ -137,8 +118,9 @@ func TestHyphenatedSC(t *testing.T) {
 
 // Issue #1753
 func TestNoTrailingNewline(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("a.html", `{{ .Get 0 }}`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/a.html", `{{ .Get 0 }}`)
 		return nil
 	}
 
@@ -146,8 +128,9 @@ func TestNoTrailingNewline(t *testing.T) {
 }
 
 func TestPositionalParamSC(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 0 }}`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/video.html", `Playing Video {{ .Get 0 }}`)
 		return nil
 	}
 
@@ -159,18 +142,31 @@ func TestPositionalParamSC(t *testing.T) {
 }
 
 func TestPositionalParamIndexOutOfBounds(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("video.html", `Playing Video {{ .Get 1 }}`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/video.html", `Playing Video {{ with .Get 1 }}{{ . }}{{ else }}Missing{{ end }}`)
 		return nil
 	}
-	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video error: index out of range for positional param at position 1", wt)
+	CheckShortCodeMatch(t, "{{< video 47238zzb >}}", "Playing Video Missing", wt)
+}
+
+// #5071
+func TestShortcodeRelated(t *testing.T) {
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/a.html", `{{ len (.Site.RegularPages.Related .Page) }}`)
+		return nil
+	}
+
+	CheckShortCodeMatch(t, "{{< a >}}", "0", wt)
 }
 
 // some repro issues for panics in Go Fuzz testing
 
 func TestNamedParamSC(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/img.html", `<img{{ with .Get "src" }} src="{{.}}"{{end}}{{with .Get "class"}} class="{{.}}"{{end}}>`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< img src="one" >}}`, `<img src="one">`, wt)
@@ -183,10 +179,11 @@ func TestNamedParamSC(t *testing.T) {
 
 // Issue #2294
 func TestNestedNamedMissingParam(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("acc.html", `<div class="acc">{{ .Inner }}</div>`)
-		tem.AddInternalShortcode("div.html", `<div {{with .Get "class"}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
-		tem.AddInternalShortcode("div2.html", `<div {{with .Get 0}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/acc.html", `<div class="acc">{{ .Inner }}</div>`)
+		tem.AddTemplate("_internal/shortcodes/div.html", `<div {{with .Get "class"}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
+		tem.AddTemplate("_internal/shortcodes/div2.html", `<div {{with .Get 0}} class="{{ . }}"{{ end }}>{{ .Inner }}</div>`)
 		return nil
 	}
 	CheckShortCodeMatch(t,
@@ -195,23 +192,22 @@ func TestNestedNamedMissingParam(t *testing.T) {
 }
 
 func TestIsNamedParamsSC(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("byposition.html", `<div id="{{ .Get 0 }}">`)
-		tem.AddInternalShortcode("byname.html", `<div id="{{ .Get "id" }}">`)
-		tem.AddInternalShortcode("ifnamedparams.html", `<div id="{{ if .IsNamedParams }}{{ .Get "id" }}{{ else }}{{ .Get 0 }}{{end}}">`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/bynameorposition.html", `{{ with .Get "id" }}Named: {{ . }}{{ else }}Pos: {{ .Get 0 }}{{ end }}`)
+		tem.AddTemplate("_internal/shortcodes/ifnamedparams.html", `<div id="{{ if .IsNamedParams }}{{ .Get "id" }}{{ else }}{{ .Get 0 }}{{end}}">`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< ifnamedparams id="name" >}}`, `<div id="name">`, wt)
 	CheckShortCodeMatch(t, `{{< ifnamedparams position >}}`, `<div id="position">`, wt)
-	CheckShortCodeMatch(t, `{{< byname id="name" >}}`, `<div id="name">`, wt)
-	CheckShortCodeMatch(t, `{{< byname position >}}`, `<div id="error: cannot access positional params by string name">`, wt)
-	CheckShortCodeMatch(t, `{{< byposition position >}}`, `<div id="position">`, wt)
-	CheckShortCodeMatch(t, `{{< byposition id="name" >}}`, `<div id="error: cannot access named params by position">`, wt)
+	CheckShortCodeMatch(t, `{{< bynameorposition id="name" >}}`, `Named: name`, wt)
+	CheckShortCodeMatch(t, `{{< bynameorposition position >}}`, `Pos: position`, wt)
 }
 
 func TestInnerSC(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< inside class="aspen" >}}`, `<div class="aspen"></div>`, wt)
@@ -220,8 +216,9 @@ func TestInnerSC(t *testing.T) {
 }
 
 func TestInnerSCWithMarkdown(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{% inside %}}
@@ -233,8 +230,9 @@ func TestInnerSCWithMarkdown(t *testing.T) {
 }
 
 func TestInnerSCWithAndWithoutMarkdown(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/inside.html", `<div{{with .Get "class"}} class="{{.}}"{{end}}>{{ .Inner }}</div>`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{% inside %}}
@@ -252,19 +250,20 @@ And then:
 This is **plain** text.
 
 {{< /inside >}}
-`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\n<p>And then:</p>\n\n<p><div>\n# More Here\n\nThis is **plain** text.\n\n</div>", wt)
+`, "<div><h1 id=\"more-here\">More Here</h1>\n\n<p><a href=\"http://spf13.com\">link</a> and text</p>\n</div>\n\n<p>And then:</p>\n\n<div>\n# More Here\n\nThis is **plain** text.\n\n</div>", wt)
 }
 
 func TestEmbeddedSC(t *testing.T) {
-	CheckShortCodeMatch(t, "{{% test %}}", "This is a simple Test", nil)
+	t.Parallel()
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", nil)
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", nil)
 }
 
 func TestNestedSC(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("scn1.html", `<div>Outer, inner is {{ .Inner }}</div>`)
-		tem.AddInternalShortcode("scn2.html", `<div>SC2</div>`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/scn1.html", `<div>Outer, inner is {{ .Inner }}</div>`)
+		tem.AddTemplate("_internal/shortcodes/scn2.html", `<div>SC2</div>`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{% scn1 %}}{{% scn2 %}}{{% /scn1 %}}`, "<div>Outer, inner is <div>SC2</div>\n</div>", wt)
@@ -273,10 +272,11 @@ func TestNestedSC(t *testing.T) {
 }
 
 func TestNestedComplexSC(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("row.html", `-row-{{ .Inner}}-rowStop-`)
-		tem.AddInternalShortcode("column.html", `-col-{{.Inner    }}-colStop-`)
-		tem.AddInternalShortcode("aside.html", `-aside-{{    .Inner  }}-asideStop-`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/row.html", `-row-{{ .Inner}}-rowStop-`)
+		tem.AddTemplate("_internal/shortcodes/column.html", `-col-{{.Inner    }}-colStop-`)
+		tem.AddTemplate("_internal/shortcodes/aside.html", `-aside-{{    .Inner  }}-asideStop-`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< row >}}1-s{{% column %}}2-**s**{{< aside >}}3-**s**{{< /aside >}}4-s{{% /column %}}5-s{{< /row >}}6-s`,
@@ -288,10 +288,11 @@ func TestNestedComplexSC(t *testing.T) {
 }
 
 func TestParentShortcode(t *testing.T) {
-	wt := func(tem tplapi.Template) error {
-		tem.AddInternalShortcode("r1.html", `1: {{ .Get "pr1" }} {{ .Inner }}`)
-		tem.AddInternalShortcode("r2.html", `2: {{ .Parent.Get "pr1" }}{{ .Get "pr2" }} {{ .Inner }}`)
-		tem.AddInternalShortcode("r3.html", `3: {{ .Parent.Parent.Get "pr1" }}{{ .Parent.Get "pr2" }}{{ .Get "pr3" }} {{ .Inner }}`)
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/r1.html", `1: {{ .Get "pr1" }} {{ .Inner }}`)
+		tem.AddTemplate("_internal/shortcodes/r2.html", `2: {{ .Parent.Get "pr1" }}{{ .Get "pr2" }} {{ .Inner }}`)
+		tem.AddTemplate("_internal/shortcodes/r3.html", `3: {{ .Parent.Parent.Get "pr1" }}{{ .Parent.Get "pr2" }}{{ .Get "pr3" }} {{ .Inner }}`)
 		return nil
 	}
 	CheckShortCodeMatch(t, `{{< r1 pr1="p1" >}}1: {{< r2 pr2="p2" >}}2: {{< r3 pr3="p3" >}}{{< /r3 >}}{{< /r2 >}}{{< /r1 >}}`,
@@ -299,44 +300,59 @@ func TestParentShortcode(t *testing.T) {
 
 }
 
+func TestFigureOnlySrc(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" >}}`, "\n<figure>\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", nil)
+}
+
 func TestFigureImgWidth(t *testing.T) {
+	t.Parallel()
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", nil)
 }
 
-func TestHighlight(t *testing.T) {
-	testCommonResetState()
+func TestFigureImgHeight(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" height="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" height=\"100px\" />\n    \n    \n</figure>\n", nil)
+}
 
-	if !helpers.HasPygments() {
-		t.Skip("Skip test as Pygments is not installed")
+func TestFigureImgWidthAndHeight(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="50" height="100" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"50\" height=\"100\" />\n    \n    \n</figure>\n", nil)
+}
+
+func TestFigureLinkNoTarget(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\">\n        <img src=\"/found/here\" />\n    </a>\n    \n</figure>\n", nil)
+}
+
+func TestFigureLinkWithTarget(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_self" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\" target=\"_self\">\n        <img src=\"/found/here\" />\n    </a>\n    \n</figure>\n", nil)
+}
+
+func TestFigureLinkWithTargetAndRel(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_blank" rel="noopener" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\" target=\"_blank\" rel=\"noopener\">\n        <img src=\"/found/here\" />\n    </a>\n    \n</figure>\n", nil)
+}
+
+// #1642
+func TestShortcodeWrappedInPIssue(t *testing.T) {
+	t.Parallel()
+	wt := func(tem tpl.TemplateHandler) error {
+		tem.AddTemplate("_internal/shortcodes/bug.html", `xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`)
+		return nil
 	}
-	viper.Set("pygmentsStyle", "bw")
-	viper.Set("pygmentsUseClasses", false)
+	CheckShortCodeMatch(t, `
+{{< bug >}}
 
-	code := `
-{{< highlight java >}}
-void do();
-{{< /highlight >}}`
-
-	p, _ := pageFromString(simplePage, "simple.md")
-	output, err := HandleShortcodes(code, p)
-
-	if err != nil {
-		t.Fatal("Handle shortcode error", err)
-	}
-	matched, err := regexp.MatchString("(?s)^\n<div class=\"highlight\" style=\"background: #ffffff\"><pre style=\"line-height: 125%\">.*?void</span> do().*?</pre></div>\n$", output)
-
-	if err != nil {
-		t.Fatal("Regexp error", err)
-	}
-
-	if !matched {
-		t.Errorf("Hightlight mismatch, got (escaped to see invisible chars)\n%+q", output)
-	}
+{{< bug >}}
+`, "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", wt)
 }
 
 const testScPlaceholderRegexp = "HAHAHUGOSHORTCODE-\\d+HBHB"
 
 func TestExtractShortcodes(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		name             string
 		input            string
@@ -345,11 +361,11 @@ func TestExtractShortcodes(t *testing.T) {
 		expectErrorMsg   string
 	}{
 		{"text", "Some text.", "map[]", "Some text.", ""},
-		{"invalid right delim", "{{< tag }}", "", false, "simple:4:.*unrecognized character.*}"},
-		{"invalid close", "\n{{< /tag >}}", "", false, "simple:5:.*got closing shortcode, but none is open"},
-		{"invalid close2", "\n\n{{< tag >}}{{< /anotherTag >}}", "", false, "simple:6: closing tag for shortcode 'anotherTag' does not match start tag"},
-		{"unterminated quote 1", `{{< figure src="im caption="S" >}}`, "", false, "simple:4:.got pos.*"},
-		{"unterminated quote 1", `{{< figure src="im" caption="S >}}`, "", false, "simple:4:.*unterm.*}"},
+		{"invalid right delim", "{{< tag }}", "", false, "simple.md:4:.*unrecognized character.*}"},
+		{"invalid close", "\n{{< /tag >}}", "", false, "simple.md:5:.*got closing shortcode, but none is open"},
+		{"invalid close2", "\n\n{{< tag >}}{{< /anotherTag >}}", "", false, "simple.md:6: closing tag for shortcode 'anotherTag' does not match start tag"},
+		{"unterminated quote 1", `{{< figure src="im caption="S" >}}`, "", false, "simple.md:4:.got pos.*"},
+		{"unterminated quote 1", `{{< figure src="im" caption="S >}}`, "", false, "simple.md:4:.*unterm.*}"},
 		{"one shortcode, no markup", "{{< tag >}}", "", testScPlaceholderRegexp, ""},
 		{"one shortcode, markup", "{{% tag %}}", "", testScPlaceholderRegexp, ""},
 		{"one pos param", "{{% tag param1 %}}", `tag([\"param1\"], true){[]}"]`, testScPlaceholderRegexp, ""},
@@ -385,17 +401,26 @@ func TestExtractShortcodes(t *testing.T) {
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
-		p, _ := pageFromString(simplePage, "simple.md", func(templ tplapi.Template) error {
-			templ.AddInternalShortcode("tag.html", `tag`)
-			templ.AddInternalShortcode("sc1.html", `sc1`)
-			templ.AddInternalShortcode("sc2.html", `sc2`)
-			templ.AddInternalShortcode("inner.html", `{{with .Inner }}{{ . }}{{ end }}`)
-			templ.AddInternalShortcode("inner2.html", `{{.Inner}}`)
-			templ.AddInternalShortcode("inner3.html", `{{.Inner}}`)
+		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.TemplateHandler) error {
+			templ.AddTemplate("_internal/shortcodes/tag.html", `tag`)
+			templ.AddTemplate("_internal/shortcodes/sc1.html", `sc1`)
+			templ.AddTemplate("_internal/shortcodes/sc2.html", `sc2`)
+			templ.AddTemplate("_internal/shortcodes/inner.html", `{{with .Inner }}{{ . }}{{ end }}`)
+			templ.AddTemplate("_internal/shortcodes/inner2.html", `{{.Inner}}`)
+			templ.AddTemplate("_internal/shortcodes/inner3.html", `{{.Inner}}`)
 			return nil
 		})
 
-		content, shortCodes, err := extractShortcodes(this.input, p)
+		counter := 0
+
+		s := newShortcodeHandler(p)
+
+		s.placeholderFunc = func() string {
+			counter++
+			return fmt.Sprintf("HAHA%s-%dHBHB", shortcodePlaceholderPrefix, counter)
+		}
+
+		content, err := s.extractShortcodes(this.input, p.withoutContent())
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -414,6 +439,8 @@ func TestExtractShortcodes(t *testing.T) {
 			}
 		}
 
+		shortCodes := s.shortcodes
+
 		var expected string
 		av := reflect.ValueOf(this.expect)
 		switch av.Kind() {
@@ -427,16 +454,17 @@ func TestExtractShortcodes(t *testing.T) {
 			t.Fatalf("[%d] %s: Failed to compile regexp %q: %q", i, this.name, expected, err)
 		}
 
-		if strings.Count(content, shortcodePlaceholderPrefix) != len(shortCodes) {
-			t.Fatalf("[%d] %s: Not enough placeholders, found %d", i, this.name, len(shortCodes))
+		if strings.Count(content, shortcodePlaceholderPrefix) != shortCodes.Len() {
+			t.Fatalf("[%d] %s: Not enough placeholders, found %d", i, this.name, shortCodes.Len())
 		}
 
 		if !r.MatchString(content) {
 			t.Fatalf("[%d] %s: Shortcode extract didn't match. got %q but expected %q", i, this.name, content, expected)
 		}
 
-		for placeHolder, sc := range shortCodes {
-			if !strings.Contains(content, placeHolder) {
+		for _, placeHolder := range shortCodes.Keys() {
+			sc := shortCodes.getShortcode(placeHolder)
+			if !strings.Contains(content, placeHolder.(string)) {
 				t.Fatalf("[%d] %s: Output does not contain placeholder %q", i, this.name, placeHolder)
 			}
 
@@ -448,24 +476,15 @@ func TestExtractShortcodes(t *testing.T) {
 		if this.expectShortCodes != "" {
 			shortCodesAsStr := fmt.Sprintf("map%q", collectAndSortShortcodes(shortCodes))
 			if !strings.Contains(shortCodesAsStr, this.expectShortCodes) {
-				t.Fatalf("[%d] %s: Shortcodes not as expected, got %s but expected %s", i, this.name, shortCodesAsStr, this.expectShortCodes)
+				t.Fatalf("[%d] %s: Shortcodes not as expected, got\n%s but expected\n%s", i, this.name, shortCodesAsStr, this.expectShortCodes)
 			}
 		}
 	}
 }
 
 func TestShortcodesInSite(t *testing.T) {
-	testCommonResetState()
-
+	t.Parallel()
 	baseURL := "http://foo/bar"
-	viper.Set("defaultExtension", "html")
-	viper.Set("defaultContentLanguage", "en")
-	viper.Set("baseURL", baseURL)
-	viper.Set("uglyURLs", false)
-	viper.Set("verbose", true)
-
-	viper.Set("pygmentsUseClasses", true)
-	viper.Set("pygmentsCodefences", true)
 
 	tests := []struct {
 		contentPath string
@@ -520,9 +539,9 @@ e`,
 ## {{% c %}}`,
 			filepath.FromSlash("public/sect/doc5/index.html"), "\n\n<h1 id=\"hahahugoshortcode-1hbhb\">b</h1>\n\n<h2 id=\"hahahugoshortcode-2hbhb\">c</h2>\n"},
 		// #2223 pygments
-		{"sect/doc6.md", "\n```bash\nb: {{< b >}} c: {{% c %}}\n```\n",
+		{"sect/doc6.md", "\n```bash\nb = {{< b >}} c = {{% c %}}\n```\n",
 			filepath.FromSlash("public/sect/doc6/index.html"),
-			"b: b c: c\n</code></pre></div>\n"},
+			`<span class="nv">b</span>`},
 		// #2249
 		{"sect/doc7.ad", `_Shortcodes:_ *b: {{< b >}} c: {{% c %}}*`,
 			filepath.FromSlash("public/sect/doc7/index.html"),
@@ -560,30 +579,39 @@ tags:
 			"<p><strong>Tags:</strong> 2</p>\n"},
 	}
 
-	sources := make([]source.ByteSource, len(tests))
+	sources := make([][2]string, len(tests))
 
 	for i, test := range tests {
-		sources[i] = source.ByteSource{Name: filepath.FromSlash(test.contentPath), Content: []byte(test.content)}
+		sources[i] = [2]string{filepath.FromSlash(test.contentPath), test.content}
 	}
 
-	addTemplates := func(templ tplapi.Template) error {
+	addTemplates := func(templ tpl.TemplateHandler) error {
 		templ.AddTemplate("_default/single.html", "{{.Content}}")
 
-		templ.AddInternalShortcode("b.html", `b`)
-		templ.AddInternalShortcode("c.html", `c`)
-		templ.AddInternalShortcode("d.html", `d`)
-		templ.AddInternalShortcode("menu.html", `{{ len (index .Page.Menus "main").Children }}`)
-		templ.AddInternalShortcode("tags.html", `{{ len .Page.Site.Taxonomies.tags }}`)
+		templ.AddTemplate("_internal/shortcodes/b.html", `b`)
+		templ.AddTemplate("_internal/shortcodes/c.html", `c`)
+		templ.AddTemplate("_internal/shortcodes/d.html", `d`)
+		templ.AddTemplate("_internal/shortcodes/menu.html", `{{ len (index .Page.Menus "main").Children }}`)
+		templ.AddTemplate("_internal/shortcodes/tags.html", `{{ len .Page.Site.Taxonomies.tags }}`)
 
 		return nil
 
 	}
 
-	fs := hugofs.NewMem()
+	cfg, fs := newTestCfg()
+
+	cfg.Set("defaultContentLanguage", "en")
+	cfg.Set("baseURL", baseURL)
+	cfg.Set("uglyURLs", false)
+	cfg.Set("verbose", true)
+
+	cfg.Set("pygmentsUseClasses", true)
+	cfg.Set("pygmentsCodefences", true)
 
 	writeSourcesToSource(t, "content", fs, sources...)
 
-	buildSingleSite(t, deps.DepsCfg{WithTemplate: addTemplates, Fs: fs}, BuildCfg{})
+	s := buildSingleSite(t, deps.DepsCfg{WithTemplate: addTemplates, Fs: fs, Cfg: cfg}, BuildCfg{})
+	th := testHelper{s.Cfg, s.Fs, t}
 
 	for _, test := range tests {
 		if strings.HasSuffix(test.contentPath, ".ad") && !helpers.HasAsciidoc() {
@@ -592,20 +620,166 @@ tags:
 		} else if strings.HasSuffix(test.contentPath, ".rst") && !helpers.HasRst() {
 			fmt.Println("Skip Rst test case as no rst2html present.")
 			continue
-		} else if strings.Contains(test.expected, "code") && !helpers.HasPygments() {
+		} else if strings.Contains(test.expected, "code") {
 			fmt.Println("Skip Pygments test case as no pygments present.")
 			continue
 		}
 
-		assertFileContent(t, fs, test.outFile, true, test.expected)
+		th.assertFileContent(test.outFile, test.expected)
 	}
 
 }
 
-func collectAndSortShortcodes(shortcodes map[string]shortcode) []string {
+func TestShortcodeMultipleOutputFormats(t *testing.T) {
+	t.Parallel()
+
+	siteConfig := `
+baseURL = "http://example.com/blog"
+
+paginate = 1
+
+disableKinds = ["section", "taxonomy", "taxonomyTerm", "RSS", "sitemap", "robotsTXT", "404"]
+
+[outputs]
+home = [ "HTML", "AMP", "Calendar" ]
+page =  [ "HTML", "AMP", "JSON" ]
+
+`
+
+	pageTemplate := `---
+title: "%s"
+---
+# Doc
+
+{{< myShort >}}
+{{< noExt >}}
+{{%% onlyHTML %%}}
+
+{{< myInner >}}{{< myShort >}}{{< /myInner >}}
+
+`
+
+	pageTemplateCSVOnly := `---
+title: "%s"
+outputs: ["CSV"]
+---
+# Doc
+
+CSV: {{< myShort >}}
+`
+
+	pageTemplateShortcodeNotFound := `---
+title: "%s"
+outputs: ["CSV"]
+---
+# Doc
+
+NotFound: {{< thisDoesNotExist >}}
+`
+
+	mf := afero.NewMemMapFs()
+
+	th, h := newTestSitesFromConfig(t, mf, siteConfig,
+		"layouts/_default/single.html", `Single HTML: {{ .Title }}|{{ .Content }}`,
+		"layouts/_default/single.json", `Single JSON: {{ .Title }}|{{ .Content }}`,
+		"layouts/_default/single.csv", `Single CSV: {{ .Title }}|{{ .Content }}`,
+		"layouts/index.html", `Home HTML: {{ .Title }}|{{ .Content }}`,
+		"layouts/index.amp.html", `Home AMP: {{ .Title }}|{{ .Content }}`,
+		"layouts/index.ics", `Home Calendar: {{ .Title }}|{{ .Content }}`,
+		"layouts/shortcodes/myShort.html", `ShortHTML`,
+		"layouts/shortcodes/myShort.amp.html", `ShortAMP`,
+		"layouts/shortcodes/myShort.csv", `ShortCSV`,
+		"layouts/shortcodes/myShort.ics", `ShortCalendar`,
+		"layouts/shortcodes/myShort.json", `ShortJSON`,
+		"layouts/shortcodes/noExt", `ShortNoExt`,
+		"layouts/shortcodes/onlyHTML.html", `ShortOnlyHTML`,
+		"layouts/shortcodes/myInner.html", `myInner:--{{- .Inner -}}--`,
+	)
+
+	fs := th.Fs
+
+	writeSource(t, fs, "content/_index.md", fmt.Sprintf(pageTemplate, "Home"))
+	writeSource(t, fs, "content/sect/mypage.md", fmt.Sprintf(pageTemplate, "Single"))
+	writeSource(t, fs, "content/sect/mycsvpage.md", fmt.Sprintf(pageTemplateCSVOnly, "Single CSV"))
+	writeSource(t, fs, "content/sect/notfound.md", fmt.Sprintf(pageTemplateShortcodeNotFound, "Single CSV"))
+
+	err := h.Build(BuildCfg{})
+	require.Equal(t, "logged 1 error(s)", err.Error())
+	require.Len(t, h.Sites, 1)
+
+	s := h.Sites[0]
+	home := s.getPage(KindHome)
+	require.NotNil(t, home)
+	require.Len(t, home.outputFormats, 3)
+
+	th.assertFileContent("public/index.html",
+		"Home HTML",
+		"ShortHTML",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortHTML--",
+	)
+
+	th.assertFileContent("public/amp/index.html",
+		"Home AMP",
+		"ShortAMP",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortAMP--",
+	)
+
+	th.assertFileContent("public/index.ics",
+		"Home Calendar",
+		"ShortCalendar",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortCalendar--",
+	)
+
+	th.assertFileContent("public/sect/mypage/index.html",
+		"Single HTML",
+		"ShortHTML",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortHTML--",
+	)
+
+	th.assertFileContent("public/sect/mypage/index.json",
+		"Single JSON",
+		"ShortJSON",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortJSON--",
+	)
+
+	th.assertFileContent("public/amp/sect/mypage/index.html",
+		// No special AMP template
+		"Single HTML",
+		"ShortAMP",
+		"ShortNoExt",
+		"ShortOnlyHTML",
+		"myInner:--ShortAMP--",
+	)
+
+	th.assertFileContent("public/sect/mycsvpage/index.csv",
+		"Single CSV",
+		"ShortCSV",
+	)
+
+	th.assertFileContent("public/sect/notfound/index.csv",
+		"NotFound:",
+		"thisDoesNotExist",
+	)
+
+	require.Equal(t, uint64(1), s.Log.LogCountForLevel(jww.LevelError))
+
+}
+
+func collectAndSortShortcodes(shortcodes *orderedMap) []string {
 	var asArray []string
 
-	for key, sc := range shortcodes {
+	for _, key := range shortcodes.Keys() {
+		sc := shortcodes.getShortcode(key)
 		asArray = append(asArray, fmt.Sprintf("%s:%s", key, sc))
 	}
 
@@ -665,6 +839,7 @@ func BenchmarkReplaceShortcodeTokens(b *testing.B) {
 }
 
 func TestReplaceShortcodeTokens(t *testing.T) {
+	t.Parallel()
 	for i, this := range []struct {
 		input        string
 		prefix       string
@@ -717,5 +892,149 @@ func TestReplaceShortcodeTokens(t *testing.T) {
 		}
 
 	}
+
+}
+
+func TestScKey(t *testing.T) {
+	require.Equal(t, scKey{Suffix: "xml", ShortcodePlaceholder: "ABCD"},
+		newScKey(media.XMLType, "ABCD"))
+	require.Equal(t, scKey{Lang: "en", Suffix: "html", OutputFormat: "AMP", ShortcodePlaceholder: "EFGH"},
+		newScKeyFromLangAndOutputFormat("en", output.AMPFormat, "EFGH"))
+	require.Equal(t, scKey{Suffix: "html", ShortcodePlaceholder: "IJKL"},
+		newDefaultScKey("IJKL"))
+
+}
+
+func TestShortcodeGetContent(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	contentShortcode := `
+{{- $t := .Get 0 -}}
+{{- $p := .Get 1 -}}
+{{- $k := .Get 2 -}}
+{{- $page := $.Page.Site.GetPage "page" $p -}}
+{{ if $page }}
+{{- if eq $t "bundle" -}}
+{{- .Scratch.Set "p" ($page.Resources.GetMatch (printf "%s*" $k)) -}}
+{{- else -}}
+{{- $.Scratch.Set "p" $page -}}
+{{- end -}}P1:{{ .Page.Content }}|P2:{{ $p := ($.Scratch.Get "p") }}{{ $p.Title }}/{{ $p.Content }}|
+{{- else -}}
+{{- errorf "Page %s is nil" $p -}}
+{{- end -}}
+`
+
+	var templates []string
+	var content []string
+
+	contentWithShortcodeTemplate := `---
+title: doc%s
+weight: %d
+---
+Logo:{{< c "bundle" "b1" "logo.png" >}}:P1: {{< c "page" "section1/p1" "" >}}:BP1:{{< c "bundle" "b1" "bp1" >}}`
+
+	simpleContentTemplate := `---
+title: doc%s
+weight: %d
+---
+C-%s`
+
+	v := viper.New()
+
+	v.Set("timeout", 500)
+
+	templates = append(templates, []string{"shortcodes/c.html", contentShortcode}...)
+	templates = append(templates, []string{"_default/single.html", "Single Content: {{ .Content }}"}...)
+	templates = append(templates, []string{"_default/list.html", "List Content: {{ .Content }}"}...)
+
+	content = append(content, []string{"b1/index.md", fmt.Sprintf(contentWithShortcodeTemplate, "b1", 1)}...)
+	content = append(content, []string{"b1/logo.png", "PNG logo"}...)
+	content = append(content, []string{"b1/bp1.md", fmt.Sprintf(simpleContentTemplate, "bp1", 1, "bp1")}...)
+
+	content = append(content, []string{"section1/_index.md", fmt.Sprintf(contentWithShortcodeTemplate, "s1", 2)}...)
+	content = append(content, []string{"section1/p1.md", fmt.Sprintf(simpleContentTemplate, "s1p1", 2, "s1p1")}...)
+
+	content = append(content, []string{"section2/_index.md", fmt.Sprintf(simpleContentTemplate, "b1", 1, "b1")}...)
+	content = append(content, []string{"section2/s2p1.md", fmt.Sprintf(contentWithShortcodeTemplate, "bp1", 1)}...)
+
+	builder := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
+
+	builder.WithViper(v).WithContent(content...).WithTemplates(templates...).CreateSites().Build(BuildCfg{})
+	s := builder.H.Sites[0]
+	assert.Equal(3, len(s.RegularPages))
+
+	builder.AssertFileContent("public/section1/index.html",
+		"List Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
+		"BP1:P1:|P2:docbp1/<p>C-bp1</p>",
+	)
+
+	builder.AssertFileContent("public/b1/index.html",
+		"Single Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
+		"P2:docbp1/<p>C-bp1</p>",
+	)
+
+	builder.AssertFileContent("public/section2/s2p1/index.html",
+		"Single Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
+		"P2:docbp1/<p>C-bp1</p>",
+	)
+
+}
+
+func TestShortcodePreserveOrder(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	contentTemplate := `---
+title: doc%d
+weight: %d
+---
+# doc
+
+{{< s1 >}}{{< s2 >}}{{< s3 >}}{{< s4 >}}{{< s5 >}}
+
+{{< nested >}}
+{{< ordinal >}} {{< scratch >}}
+{{< ordinal >}} {{< scratch >}}
+{{< ordinal >}} {{< scratch >}}
+{{< /nested >}}
+
+`
+
+	ordinalShortcodeTemplate := `ordinal: {{ .Ordinal }}{{ .Page.Scratch.Set "ordinal" .Ordinal }}`
+
+	nestedShortcode := `outer ordinal: {{ .Ordinal }} inner: {{ .Inner }}`
+	scratchGetShortcode := `scratch ordinal: {{ .Ordinal }} scratch get ordinal: {{ .Page.Scratch.Get "ordinal" }}`
+	shortcodeTemplate := `v%d: {{ .Ordinal }} sgo: {{ .Page.Scratch.Get "o2" }}{{ .Page.Scratch.Set "o2" .Ordinal }}|`
+
+	var shortcodes []string
+	var content []string
+
+	shortcodes = append(shortcodes, []string{"shortcodes/nested.html", nestedShortcode}...)
+	shortcodes = append(shortcodes, []string{"shortcodes/ordinal.html", ordinalShortcodeTemplate}...)
+	shortcodes = append(shortcodes, []string{"shortcodes/scratch.html", scratchGetShortcode}...)
+
+	for i := 1; i <= 5; i++ {
+		sc := fmt.Sprintf(shortcodeTemplate, i)
+		sc = strings.Replace(sc, "%%", "%", -1)
+		shortcodes = append(shortcodes, []string{fmt.Sprintf("shortcodes/s%d.html", i), sc}...)
+	}
+
+	for i := 1; i <= 3; i++ {
+		content = append(content, []string{fmt.Sprintf("p%d.md", i), fmt.Sprintf(contentTemplate, i, i)}...)
+	}
+
+	builder := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
+
+	builder.WithContent(content...).WithTemplatesAdded(shortcodes...).CreateSites().Build(BuildCfg{})
+
+	s := builder.H.Sites[0]
+	assert.Equal(3, len(s.RegularPages))
+
+	builder.AssertFileContent("public/en/p1/index.html", `v1: 0 sgo: |v2: 1 sgo: 0|v3: 2 sgo: 1|v4: 3 sgo: 2|v5: 4 sgo: 3`)
+	builder.AssertFileContent("public/en/p1/index.html", `outer ordinal: 5 inner: 
+ordinal: 0 scratch ordinal: 1 scratch get ordinal: 0
+ordinal: 2 scratch ordinal: 3 scratch get ordinal: 2
+ordinal: 4 scratch ordinal: 5 scratch get ordinal: 4`)
 
 }

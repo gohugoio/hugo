@@ -23,50 +23,55 @@ import (
 	jww "github.com/spf13/jwalterweatherman"
 )
 
-var (
+type benchmarkCmd struct {
 	benchmarkTimes int
 	cpuProfileFile string
 	memProfileFile string
-)
 
-var benchmarkCmd = &cobra.Command{
-	Use:   "benchmark",
-	Short: "Benchmark Hugo by building a site a number of times.",
-	Long: `Hugo can build a site many times over and analyze the running process
+	*baseBuilderCmd
+}
+
+func (b *commandsBuilder) newBenchmarkCmd() *benchmarkCmd {
+	cmd := &cobra.Command{
+		Use:   "benchmark",
+		Short: "Benchmark Hugo by building a site a number of times.",
+		Long: `Hugo can build a site many times over and analyze the running process
 creating a benchmark.`,
+	}
+
+	c := &benchmarkCmd{baseBuilderCmd: b.newBuilderCmd(cmd)}
+
+	cmd.Flags().StringVar(&c.cpuProfileFile, "cpuprofile", "", "path/filename for the CPU profile file")
+	cmd.Flags().StringVar(&c.memProfileFile, "memprofile", "", "path/filename for the memory profile file")
+	cmd.Flags().IntVarP(&c.benchmarkTimes, "count", "n", 13, "number of times to build the site")
+	cmd.Flags().Bool("renderToMemory", false, "render to memory (only useful for benchmark testing)")
+
+	cmd.RunE = c.benchmark
+
+	return c
 }
 
-func init() {
-	initHugoBuilderFlags(benchmarkCmd)
-	initBenchmarkBuildingFlags(benchmarkCmd)
+func (c *benchmarkCmd) benchmark(cmd *cobra.Command, args []string) error {
+	cfgInit := func(c *commandeer) error {
+		return nil
+	}
 
-	benchmarkCmd.Flags().StringVar(&cpuProfileFile, "cpuprofile", "", "path/filename for the CPU profile file")
-	benchmarkCmd.Flags().StringVar(&memProfileFile, "memprofile", "", "path/filename for the memory profile file")
-	benchmarkCmd.Flags().IntVarP(&benchmarkTimes, "count", "n", 13, "number of times to build the site")
-
-	benchmarkCmd.RunE = benchmark
-}
-
-func benchmark(cmd *cobra.Command, args []string) error {
-	cfg, err := InitializeConfig(benchmarkCmd)
-
+	comm, err := initializeConfig(true, false, &c.hugoBuilderCommon, c, cfgInit)
 	if err != nil {
 		return err
 	}
 
-	c := commandeer{cfg}
-
 	var memProf *os.File
-	if memProfileFile != "" {
-		memProf, err = os.Create(memProfileFile)
+	if c.memProfileFile != "" {
+		memProf, err = os.Create(c.memProfileFile)
 		if err != nil {
 			return err
 		}
 	}
 
 	var cpuProf *os.File
-	if cpuProfileFile != "" {
-		cpuProf, err = os.Create(cpuProfileFile)
+	if c.cpuProfileFile != "" {
+		cpuProf, err = os.Create(c.cpuProfileFile)
 		if err != nil {
 			return err
 		}
@@ -81,8 +86,8 @@ func benchmark(cmd *cobra.Command, args []string) error {
 	}
 
 	t := time.Now()
-	for i := 0; i < benchmarkTimes; i++ {
-		if err = c.resetAndBuildSites(false); err != nil {
+	for i := 0; i < c.benchmarkTimes; i++ {
+		if err = comm.resetAndBuildSites(); err != nil {
 			return err
 		}
 	}
@@ -102,9 +107,9 @@ func benchmark(cmd *cobra.Command, args []string) error {
 	totalMallocs := memStats.Mallocs - mallocs
 
 	jww.FEEDBACK.Println()
-	jww.FEEDBACK.Printf("Average time per operation: %vms\n", int(1000*totalTime.Seconds()/float64(benchmarkTimes)))
-	jww.FEEDBACK.Printf("Average memory allocated per operation: %vkB\n", totalMemAllocated/uint64(benchmarkTimes)/1024)
-	jww.FEEDBACK.Printf("Average allocations per operation: %v\n", totalMallocs/uint64(benchmarkTimes))
+	jww.FEEDBACK.Printf("Average time per operation: %vms\n", int(1000*totalTime.Seconds()/float64(c.benchmarkTimes)))
+	jww.FEEDBACK.Printf("Average memory allocated per operation: %vkB\n", totalMemAllocated/uint64(c.benchmarkTimes)/1024)
+	jww.FEEDBACK.Printf("Average allocations per operation: %v\n", totalMallocs/uint64(c.benchmarkTimes))
 
 	return nil
 }

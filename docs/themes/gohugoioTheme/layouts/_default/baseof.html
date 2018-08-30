@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html class="no-js" lang="{{ with $.Site.LanguageCode }}{{ . }}{{ else }}en-us{{ end }}">
+  <head>
+    <meta charset="utf-8">
+    {{/* https://www.zachleat.com/web/preload/ */}}
+    <link rel="preload" href="{{ "files/muli-latin-200.woff2" | absURL }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ "files/muli-latin-400.woff2" | absURL }}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{{ "files/muli-latin-800.woff2" | absURL }}" as="font" type="font/woff2" crossorigin>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+     {{/* NOTE: the Site's title, and if there is a page title, that is set too */}}
+    <title>{{ block "title" . }}{{ with .Title }}{{ . }} | {{ end }}{{ .Site.Title }}{{ end }}</title>
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+     {{ .Hugo.Generator }}
+
+      {{ if eq (getenv "HUGO_ENV") "production" | or (eq .Site.Params.env "production")  }}
+        <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
+      {{ else }}
+        <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+      {{ end }}
+
+    {{ range .AlternativeOutputFormats -}}
+    <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
+    {{ end -}}
+
+     <link href='{{ "dist/main.css" | relURL }}' rel='stylesheet' type="text/css" />
+      {{- partial "head-additions.html" . -}}
+      {{- template "_internal/opengraph.html" . -}}
+      {{- template "_internal/google_news.html" . -}}
+      {{- template "_internal/schema.html" . -}}
+      {{- template "_internal/twitter_cards.html" . -}}
+
+      {{ if eq (getenv "HUGO_ENV") "production" | or (eq .Site.Params.env "production")  }}
+        {{ partial "gtag" . }}
+      {{ end }}
+
+
+
+
+  </head>
+  <body class="ma0 sans-serif bg-primary-color-light{{ with getenv "HUGO_ENV" }} {{ . }}{{ end }}">
+    {{ block "nav" . }}{{ partial "site-nav.html" . }}{{ end }}
+    {{ block "header" . }}{{ end }}
+    <main role="main" class="content-with-sidebar min-vh-100 pb7 pb0-ns">
+      {{ block "main" . }}{{ end }}
+    </main>
+
+    {{ block "footer" . }}{{ partialCached "site-footer.html" . }}{{ end }}
+    {{ block "scripts" . }}{{- partial "site-scripts.html" . -}}{{ end }}
+
+  </body>
+</html>

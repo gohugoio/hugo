@@ -15,21 +15,24 @@
 package hugofs
 
 import (
+	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 )
 
 // Os points to an Os Afero file system.
 var Os = &afero.OsFs{}
 
+// Fs abstracts the file system to separate source and destination file systems
+// and allows both to be mocked for testing.
 type Fs struct {
 	// Source is Hugo's source file system.
 	Source afero.Fs
 
-	// Destination is Hugo's destionation file system.
+	// Destination is Hugo's destination file system.
 	Destination afero.Fs
 
 	// Os is an OS file system.
+	// NOTE: Field is currently unused.
 	Os afero.Fs
 
 	// WorkingDir is a read-only file system
@@ -39,30 +42,37 @@ type Fs struct {
 
 // NewDefault creates a new Fs with the OS file system
 // as source and destination file systems.
-func NewDefault() *Fs {
+func NewDefault(cfg config.Provider) *Fs {
 	fs := &afero.OsFs{}
-	return newFs(fs)
+	return newFs(fs, cfg)
 }
 
-// NewDefault creates a new Fs with the MemMapFs
+// NewMem creates a new Fs with the MemMapFs
 // as source and destination file systems.
 // Useful for testing.
-func NewMem() *Fs {
+func NewMem(cfg config.Provider) *Fs {
 	fs := &afero.MemMapFs{}
-	return newFs(fs)
+	return newFs(fs, cfg)
 }
 
-func newFs(base afero.Fs) *Fs {
+// NewFrom creates a new Fs based on the provided Afero Fs
+// as source and destination file systems.
+// Useful for testing.
+func NewFrom(fs afero.Fs, cfg config.Provider) *Fs {
+	return newFs(fs, cfg)
+}
+
+func newFs(base afero.Fs, cfg config.Provider) *Fs {
 	return &Fs{
 		Source:      base,
 		Destination: base,
 		Os:          &afero.OsFs{},
-		WorkingDir:  getWorkingDirFs(base),
+		WorkingDir:  getWorkingDirFs(base, cfg),
 	}
 }
 
-func getWorkingDirFs(base afero.Fs) *afero.BasePathFs {
-	workingDir := viper.GetString("workingDir")
+func getWorkingDirFs(base afero.Fs, cfg config.Provider) *afero.BasePathFs {
+	workingDir := cfg.GetString("workingDir")
 
 	if workingDir != "" {
 		return afero.NewBasePathFs(afero.NewReadOnlyFs(base), workingDir).(*afero.BasePathFs)

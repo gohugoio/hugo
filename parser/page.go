@@ -21,6 +21,8 @@ import (
 	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/chaseadamsio/goorgeous"
 )
 
 const (
@@ -62,38 +64,49 @@ var (
 
 // Page represents a parsed content page.
 type Page interface {
+	// FrontMatter contains the raw frontmatter with relevant delimiters.
 	FrontMatter() []byte
+
+	// Content contains the raw page content.
 	Content() []byte
+
+	// IsRenderable denotes that the page should be rendered.
 	IsRenderable() bool
-	Metadata() (interface{}, error)
+
+	// Metadata returns the unmarshalled frontmatter data.
+	Metadata() (map[string]interface{}, error)
 }
 
+// page implements the Page interface.
 type page struct {
 	render      bool
 	frontmatter []byte
 	content     []byte
 }
 
+// Content returns the raw page content.
 func (p *page) Content() []byte {
 	return p.content
 }
 
+// FrontMatter contains the raw frontmatter with relevant delimiters.
 func (p *page) FrontMatter() []byte {
 	return p.frontmatter
 }
 
+// IsRenderable denotes that the page should be rendered.
 func (p *page) IsRenderable() bool {
 	return p.render
 }
 
-func (p *page) Metadata() (meta interface{}, err error) {
+// Metadata returns the unmarshalled frontmatter data.
+func (p *page) Metadata() (meta map[string]interface{}, err error) {
 	frontmatter := p.FrontMatter()
 
 	if len(frontmatter) != 0 {
 		fm := DetectFrontMatter(rune(frontmatter[0]))
-		meta, err = fm.Parse(frontmatter)
-		if err != nil {
-			return
+		if fm != nil {
+			meta, err = fm.Parse(frontmatter)
 		}
 	}
 	return
@@ -129,6 +142,12 @@ func ReadFrom(r io.Reader) (p Page, err error) {
 			return nil, err
 		}
 		newp.frontmatter = fm
+	} else if newp.render && goorgeous.IsKeyword(firstLine) {
+		fm, err := goorgeous.ExtractOrgHeaders(reader)
+		if err != nil {
+			return nil, err
+		}
+		newp.frontmatter = fm
 	}
 
 	content, err := extractContent(reader)
@@ -141,6 +160,7 @@ func ReadFrom(r io.Reader) (p Page, err error) {
 	return newp, nil
 }
 
+// chompBOM scans any leading Unicode Byte Order Markers from r.
 func chompBOM(r io.RuneScanner) (err error) {
 	for {
 		c, _, err := r.ReadRune()
@@ -154,6 +174,7 @@ func chompBOM(r io.RuneScanner) (err error) {
 	}
 }
 
+// chompWhitespace scans any leading Unicode whitespace from r.
 func chompWhitespace(r io.RuneScanner) (err error) {
 	for {
 		c, _, err := r.ReadRune()
@@ -167,6 +188,9 @@ func chompWhitespace(r io.RuneScanner) (err error) {
 	}
 }
 
+// chompFrontmatterStartComment checks r for a leading HTML comment.  If a
+// comment is found, it is read from r and then whitespace is trimmed from the
+// beginning of r.
 func chompFrontmatterStartComment(r *bufio.Reader) (err error) {
 	candidate, err := r.Peek(32)
 	if err != nil {
@@ -196,6 +220,7 @@ func chompFrontmatterStartComment(r *bufio.Reader) (err error) {
 	return nil
 }
 
+// chompFrontmatterEndComment checks r for a trailing HTML comment.
 func chompFrontmatterEndComment(r *bufio.Reader) (err error) {
 	candidate, err := r.Peek(32)
 	if err != nil {
@@ -255,19 +280,12 @@ func isFrontMatterDelim(data []byte) bool {
 }
 
 func determineDelims(firstLine []byte) (left, right []byte) {
-	switch len(firstLine) {
-	case 5:
-		fallthrough
-	case 4:
-		if firstLine[0] == YAMLLead[0] {
-			return []byte(YAMLDelim), []byte(YAMLDelim)
-		}
+	switch firstLine[0] {
+	case YAMLLead[0]:
+		return []byte(YAMLDelim), []byte(YAMLDelim)
+	case TOMLLead[0]:
 		return []byte(TOMLDelim), []byte(TOMLDelim)
-	case 3:
-		fallthrough
-	case 2:
-		fallthrough
-	case 1:
+	case JSONLead[0]:
 		return []byte(JSONLead), []byte("}")
 	default:
 		panic(fmt.Sprintf("Unable to determine delims from %q", firstLine))
@@ -279,17 +297,18 @@ func determineDelims(firstLine []byte) (left, right []byte) {
 // function.
 func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, err error) {
 	var (
-		c         byte
-		buf       bytes.Buffer
-		level     int
-		sameDelim = bytes.Equal(left, right)
+		c           byte
+		buf         bytes.Buffer
+		level       int
+		sameDelim   = bytes.Equal(left, right)
+		inQuote     bool
+		escapeState int
 	)
-
 	// Frontmatter must start with a delimiter. To check it first,
 	// pre-reads beginning delimiter length - 1 bytes from Reader
 	for i := 0; i < len(left)-1; i++ {
 		if c, err = r.ReadByte(); err != nil {
-			return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+			return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s\n%.100s...", buf.Len(), err, buf.String())
 		}
 		if err = buf.WriteByte(c); err != nil {
 			return nil, err
@@ -304,13 +323,19 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 	// is expected that the delimiter only contains one character.
 	for {
 		if c, err = r.ReadByte(); err != nil {
-			return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+			return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s\n%.100s...", buf.Len(), err, buf.String())
 		}
 		if err = buf.WriteByte(c); err != nil {
 			return nil, err
 		}
 
 		switch c {
+		case '"':
+			if escapeState != 1 {
+				inQuote = !inQuote
+			}
+		case '\\':
+			escapeState++
 		case left[len(left)-1]:
 			if sameDelim { // YAML, TOML case
 				if bytes.HasSuffix(buf.Bytes(), left) && (buf.Len() == len(left) || buf.Bytes()[buf.Len()-len(left)-1] == '\n') {
@@ -319,7 +344,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 					if err != nil {
 						// It is ok that the end delimiter ends with EOF
 						if err != io.EOF || level != 1 {
-							return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+							return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s\n%.100s...", buf.Len(), err, buf.String())
 						}
 					} else {
 						switch c {
@@ -333,7 +358,7 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 								return nil, err
 							}
 							if c, err = r.ReadByte(); err != nil {
-								return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s", buf.Len(), err)
+								return nil, fmt.Errorf("unable to read frontmatter at filepos %d: %s\n%.100s...", buf.Len(), err, buf.String())
 							}
 							if c != '\n' {
 								return nil, fmt.Errorf("frontmatter delimiter must be followed by CR+LF or LF but those can't be found at filepos %d", buf.Len())
@@ -352,10 +377,14 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 					}
 				}
 			} else { // JSON case
-				level++
+				if !inQuote {
+					level++
+				}
 			}
 		case right[len(right)-1]: // JSON case only reaches here
-			level--
+			if !inQuote {
+				level--
+			}
 		}
 
 		if level == 0 {
@@ -369,6 +398,11 @@ func extractFrontMatterDelims(r *bufio.Reader, left, right []byte) (fm []byte, e
 
 			return buf.Bytes(), nil
 		}
+
+		if c != '\\' {
+			escapeState = 0
+		}
+
 	}
 }
 

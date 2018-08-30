@@ -17,12 +17,54 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestHugoVersion(t *testing.T) {
 	assert.Equal(t, "0.15-DEV", hugoVersion(0.15, 0, "-DEV"))
-	assert.Equal(t, "0.17", hugoVersionNoSuffix(0.16+0.01, 0))
-
 	assert.Equal(t, "0.15.2-DEV", hugoVersion(0.15, 2, "-DEV"))
-	assert.Equal(t, "0.17.3", hugoVersionNoSuffix(0.16+0.01, 3))
+
+	v := HugoVersion{Number: 0.21, PatchLevel: 0, Suffix: "-DEV"}
+
+	require.Equal(t, v.ReleaseVersion().String(), "0.21")
+	require.Equal(t, "0.21-DEV", v.String())
+	require.Equal(t, "0.22", v.Next().String())
+	nextVersionString := v.Next().Version()
+	require.Equal(t, "0.22", nextVersionString.String())
+	require.True(t, nextVersionString.Eq("0.22"))
+	require.False(t, nextVersionString.Eq("0.21"))
+	require.True(t, nextVersionString.Eq(nextVersionString))
+	require.Equal(t, "0.20.3", v.NextPatchLevel(3).String())
+}
+
+func TestCompareVersions(t *testing.T) {
+	require.Equal(t, 0, compareVersions(0.20, 0, 0.20))
+	require.Equal(t, 0, compareVersions(0.20, 0, float32(0.20)))
+	require.Equal(t, 0, compareVersions(0.20, 0, float64(0.20)))
+	require.Equal(t, 1, compareVersions(0.19, 1, 0.20))
+	require.Equal(t, 1, compareVersions(0.19, 3, "0.20.2"))
+	require.Equal(t, -1, compareVersions(0.19, 1, 0.01))
+	require.Equal(t, 1, compareVersions(0, 1, 3))
+	require.Equal(t, 1, compareVersions(0, 1, int32(3)))
+	require.Equal(t, 1, compareVersions(0, 1, int64(3)))
+	require.Equal(t, 0, compareVersions(0.20, 0, "0.20"))
+	require.Equal(t, 0, compareVersions(0.20, 1, "0.20.1"))
+	require.Equal(t, -1, compareVersions(0.20, 1, "0.20"))
+	require.Equal(t, 1, compareVersions(0.20, 0, "0.20.1"))
+	require.Equal(t, 1, compareVersions(0.20, 1, "0.20.2"))
+	require.Equal(t, 1, compareVersions(0.21, 1, "0.22.1"))
+	require.Equal(t, -1, compareVersions(0.22, 0, "0.22-DEV"))
+	require.Equal(t, 1, compareVersions(0.22, 0, "0.22.1-DEV"))
+	require.Equal(t, 1, compareVersionsWithSuffix(0.22, 0, "-DEV", "0.22"))
+	require.Equal(t, -1, compareVersionsWithSuffix(0.22, 1, "-DEV", "0.22"))
+	require.Equal(t, 0, compareVersionsWithSuffix(0.22, 1, "-DEV", "0.22.1-DEV"))
+
+}
+
+func TestParseHugoVersion(t *testing.T) {
+	require.Equal(t, "0.25", MustParseHugoVersion("0.25").String())
+	require.Equal(t, "0.25.2", MustParseHugoVersion("0.25.2").String())
+	require.Equal(t, "0.25-test", MustParseHugoVersion("0.25-test").String())
+	require.Equal(t, "0.25-DEV", MustParseHugoVersion("0.25-DEV").String())
+
 }

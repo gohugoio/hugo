@@ -51,9 +51,9 @@ func TestConvertJekyllMetadata(t *testing.T) {
 		expect   string
 	}{
 		{map[interface{}]interface{}{}, "testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
-			`{"date":"2015-10-01T00:00:00Z","url":"/2015/10/01/testPost/"}`},
+			`{"date":"2015-10-01T00:00:00Z"}`},
 		{map[interface{}]interface{}{}, "testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), true,
-			`{"date":"2015-10-01T00:00:00Z","draft":true,"url":"/2015/10/01/testPost/"}`},
+			`{"date":"2015-10-01T00:00:00Z","draft":true}`},
 		{map[interface{}]interface{}{"Permalink": "/permalink.html", "layout": "post"},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
 			`{"date":"2015-10-01T00:00:00Z","url":"/permalink.html"}`},
@@ -62,13 +62,13 @@ func TestConvertJekyllMetadata(t *testing.T) {
 			`{"date":"2015-10-01T00:00:00Z","url":"/permalink.html"}`},
 		{map[interface{}]interface{}{"category": nil, "permalink": 123},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
-			`{"date":"2015-10-01T00:00:00Z","url":"/2015/10/01/testPost/"}`},
+			`{"date":"2015-10-01T00:00:00Z"}`},
 		{map[interface{}]interface{}{"Excerpt_Separator": "sep"},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
-			`{"date":"2015-10-01T00:00:00Z","excerpt_separator":"sep","url":"/2015/10/01/testPost/"}`},
+			`{"date":"2015-10-01T00:00:00Z","excerpt_separator":"sep"}`},
 		{map[interface{}]interface{}{"category": "book", "layout": "post", "Others": "Goods", "Date": "2015-10-01 12:13:11"},
 			"testPost", time.Date(2015, 10, 1, 0, 0, 0, 0, time.UTC), false,
-			`{"Others":"Goods","categories":["book"],"date":"2015-10-01T12:13:11Z","url":"/2015/10/01/testPost/"}`},
+			`{"Others":"Goods","categories":["book"],"date":"2015-10-01T12:13:11Z"}`},
 	}
 
 	for _, data := range testDataList {
@@ -88,6 +88,8 @@ func TestConvertJekyllContent(t *testing.T) {
 	}{
 		{map[interface{}]interface{}{},
 			`Test content\n<!-- more -->\npart2 content`, `Test content\n<!--more-->\npart2 content`},
+		{map[interface{}]interface{}{},
+			`Test content\n<!-- More -->\npart2 content`, `Test content\n<!--more-->\npart2 content`},
 		{map[interface{}]interface{}{"excerpt_separator": "<!--sep-->"},
 			`Test content\n<!--sep-->\npart2 content`, `Test content\n<!--more-->\npart2 content`},
 		{map[interface{}]interface{}{}, "{% raw %}text{% endraw %}", "text"},
@@ -95,6 +97,26 @@ func TestConvertJekyllContent(t *testing.T) {
 		{map[interface{}]interface{}{},
 			"{% highlight go %}\nvar s int\n{% endhighlight %}",
 			"{{< highlight go >}}\nvar s int\n{{< / highlight >}}"},
+
+		// Octopress image tag
+		{map[interface{}]interface{}{},
+			"{% img http://placekitten.com/890/280 %}",
+			"{{< figure src=\"http://placekitten.com/890/280\" >}}"},
+		{map[interface{}]interface{}{},
+			"{% img left http://placekitten.com/320/250 Place Kitten #2 %}",
+			"{{< figure class=\"left\" src=\"http://placekitten.com/320/250\" title=\"Place Kitten #2\" >}}"},
+		{map[interface{}]interface{}{},
+			"{% img right http://placekitten.com/300/500 150 250 'Place Kitten #3' %}",
+			"{{< figure class=\"right\" src=\"http://placekitten.com/300/500\" width=\"150\" height=\"250\" title=\"Place Kitten #3\" >}}"},
+		{map[interface{}]interface{}{},
+			"{% img right http://placekitten.com/300/500 150 250 'Place Kitten #4' 'An image of a very cute kitten' %}",
+			"{{< figure class=\"right\" src=\"http://placekitten.com/300/500\" width=\"150\" height=\"250\" title=\"Place Kitten #4\" alt=\"An image of a very cute kitten\" >}}"},
+		{map[interface{}]interface{}{},
+			"{% img http://placekitten.com/300/500 150 250 'Place Kitten #4' 'An image of a very cute kitten' %}",
+			"{{< figure src=\"http://placekitten.com/300/500\" width=\"150\" height=\"250\" title=\"Place Kitten #4\" alt=\"An image of a very cute kitten\" >}}"},
+		{map[interface{}]interface{}{},
+			"{% img right /placekitten/300/500 'Place Kitten #4' 'An image of a very cute kitten' %}",
+			"{{< figure class=\"right\" src=\"/placekitten/300/500\" title=\"Place Kitten #4\" alt=\"An image of a very cute kitten\" >}}"},
 	}
 
 	for _, data := range testDataList {

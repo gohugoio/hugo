@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2017-present The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,544 +14,126 @@
 package tpl
 
 import (
-	"fmt"
-	"html/template"
 	"io"
-	"os"
-	"path/filepath"
-	"strings"
+	"time"
 
-	"github.com/eknkc/amber"
-	"github.com/spf13/afero"
-	bp "github.com/spf13/hugo/bufferpool"
-	"github.com/spf13/hugo/deps"
-	"github.com/spf13/hugo/helpers"
-	"github.com/yosssi/ace"
+	"text/template/parse"
+
+	"html/template"
+	texttemplate "text/template"
+
+	bp "github.com/gohugoio/hugo/bufferpool"
+	"github.com/gohugoio/hugo/metrics"
 )
 
-// TODO(bep) globals get rid of the rest of the jww.ERR etc.
+var (
+	_ TemplateExecutor = (*TemplateAdapter)(nil)
+)
 
-type templateErr struct {
-	name string
-	err  error
+// TemplateHandler manages the collection of templates.
+type TemplateHandler interface {
+	TemplateFinder
+	AddTemplate(name, tpl string) error
+	AddLateTemplate(name, tpl string) error
+	LoadTemplates(prefix string)
+	PrintErrors()
+
+	NewTextTemplate() TemplateParseFinder
+
+	MarkReady()
+	RebuildClone()
 }
 
-type GoHTMLTemplate struct {
-	*template.Template
-
-	clone *template.Template
-
-	// a separate storage for the overlays created from cloned master templates.
-	// note: No mutex protection, so we add these in one Go routine, then just read.
-	overlays map[string]*template.Template
-
-	errors []*templateErr
-
-	funcster *templateFuncster
-
-	amberFuncMap template.FuncMap
-
-	*deps.Deps
+// TemplateFinder finds templates.
+type TemplateFinder interface {
+	Lookup(name string) (Template, bool)
 }
 
-type TemplateProvider struct{}
-
-var DefaultTemplateProvider *TemplateProvider
-
-// Update updates the Hugo Template System in the provided Deps.
-// with all the additional features, templates & functions
-func (*TemplateProvider) Update(deps *deps.Deps) error {
-	// TODO(bep) check that this isn't called too many times.
-	tmpl := &GoHTMLTemplate{
-		Template: template.New(""),
-		overlays: make(map[string]*template.Template),
-		errors:   make([]*templateErr, 0),
-		Deps:     deps,
-	}
-
-	deps.Tmpl = tmpl
-
-	tmpl.initFuncs(deps)
-
-	tmpl.LoadEmbedded()
-
-	if deps.WithTemplate != nil {
-		err := deps.WithTemplate(tmpl)
-		if err != nil {
-			tmpl.errors = append(tmpl.errors, &templateErr{"init", err})
-		}
-
-	}
-
-	tmpl.MarkReady()
-
-	return nil
-
+// Template is the common interface between text/template and html/template.
+type Template interface {
+	Execute(wr io.Writer, data interface{}) error
+	Name() string
 }
 
-// Clone clones
-func (*TemplateProvider) Clone(d *deps.Deps) error {
-
-	t := d.Tmpl.(*GoHTMLTemplate)
-
-	// 1. Clone the clone with new template funcs
-	// 2. Clone any overlays with new template funcs
-
-	tmpl := &GoHTMLTemplate{
-		Template: template.Must(t.Template.Clone()),
-		overlays: make(map[string]*template.Template),
-		errors:   make([]*templateErr, 0),
-		Deps:     d,
-	}
-
-	d.Tmpl = tmpl
-	tmpl.initFuncs(d)
-
-	for k, v := range t.overlays {
-		vc := template.Must(v.Clone())
-		vc.Funcs(tmpl.funcster.funcMap)
-		tmpl.overlays[k] = vc
-	}
-
-	tmpl.MarkReady()
-
-	return nil
+// TemplateParser is used to parse ad-hoc templates, e.g. in the Resource chain.
+type TemplateParser interface {
+	Parse(name, tpl string) (Template, error)
 }
 
-func (t *GoHTMLTemplate) initFuncs(d *deps.Deps) {
-
-	t.funcster = newTemplateFuncster(d)
-
-	// The URL funcs in the funcMap is somewhat language dependent,
-	// so we need to wait until the language and site config is loaded.
-	t.funcster.initFuncMap()
-
-	t.amberFuncMap = template.FuncMap{}
-
-	for k, v := range amber.FuncMap {
-		t.amberFuncMap[k] = v
-	}
-
-	for k, v := range t.funcster.funcMap {
-		t.amberFuncMap[k] = v
-		// Hacky, but we need to make sure that the func names are in the global map.
-		amber.FuncMap[k] = func() string {
-			panic("should never be invoked")
-			return ""
-		}
-	}
-
+// TemplateParseFinder provides both parsing and finding.
+type TemplateParseFinder interface {
+	TemplateParser
+	TemplateFinder
 }
 
-func (t *GoHTMLTemplate) Funcs(funcMap template.FuncMap) {
-	t.Template.Funcs(funcMap)
+// TemplateExecutor adds some extras to Template.
+type TemplateExecutor interface {
+	Template
+	ExecuteToString(data interface{}) (string, error)
+	Tree() string
 }
 
-func (t *GoHTMLTemplate) Partial(name string, contextList ...interface{}) template.HTML {
-	if strings.HasPrefix("partials/", name) {
-		name = name[8:]
-	}
-	var context interface{}
-
-	if len(contextList) == 0 {
-		context = nil
-	} else {
-		context = contextList[0]
-	}
-	return t.ExecuteTemplateToHTML(context, "partials/"+name, "theme/partials/"+name)
+// TemplateDebugger prints some debug info to stdoud.
+type TemplateDebugger interface {
+	Debug()
 }
 
-func (t *GoHTMLTemplate) executeTemplate(context interface{}, w io.Writer, layouts ...string) {
-	var worked bool
-	for _, layout := range layouts {
-		templ := t.Lookup(layout)
-		if templ == nil {
-			layout += ".html"
-			templ = t.Lookup(layout)
-		}
-
-		if templ != nil {
-			if err := templ.Execute(w, context); err != nil {
-				helpers.DistinctErrorLog.Println(layout, err)
-			}
-			worked = true
-			break
-		}
-	}
-	if !worked {
-		t.Log.ERROR.Println("Unable to render", layouts)
-		t.Log.ERROR.Println("Expecting to find a template in either the theme/layouts or /layouts in one of the following relative locations", layouts)
-	}
+// TemplateAdapter implements the TemplateExecutor interface.
+type TemplateAdapter struct {
+	Template
+	Metrics metrics.Provider
 }
 
-func (t *GoHTMLTemplate) ExecuteTemplateToHTML(context interface{}, layouts ...string) template.HTML {
+// Execute executes the current template. The actual execution is performed
+// by the embedded text or html template, but we add an implementation here so
+// we can add a timer for some metrics.
+func (t *TemplateAdapter) Execute(w io.Writer, data interface{}) error {
+	if t.Metrics != nil {
+		defer t.Metrics.MeasureSince(t.Name(), time.Now())
+	}
+	return t.Template.Execute(w, data)
+}
+
+// ExecuteToString executes the current template and returns the result as a
+// string.
+func (t *TemplateAdapter) ExecuteToString(data interface{}) (string, error) {
 	b := bp.GetBuffer()
 	defer bp.PutBuffer(b)
-	t.executeTemplate(context, b, layouts...)
-	return template.HTML(b.String())
+	if err := t.Execute(b, data); err != nil {
+		return "", err
+	}
+	return b.String(), nil
 }
 
-func (t *GoHTMLTemplate) Lookup(name string) *template.Template {
-
-	if t.overlays != nil {
-		if templ, ok := t.overlays[name]; ok {
-			return templ
-		}
-	}
-
-	if t.clone != nil {
-		if templ := t.clone.Lookup(name); templ != nil {
-			return templ
-		}
-	}
-
-	return nil
-
-}
-
-func (t *GoHTMLTemplate) GetClone() *template.Template {
-	return t.clone
-}
-
-func (t *GoHTMLTemplate) LoadEmbedded() {
-	t.EmbedShortcodes()
-	t.EmbedTemplates()
-}
-
-// MarkReady marks the template as "ready for execution". No changes allowed
-// after this is set.
-func (t *GoHTMLTemplate) MarkReady() {
-	if t.clone == nil {
-		t.clone = template.Must(t.Template.Clone())
-	}
-}
-
-func (t *GoHTMLTemplate) checkState() {
-	if t.clone != nil {
-		panic("template is cloned and cannot be modfified")
-	}
-}
-
-func (t *GoHTMLTemplate) AddInternalTemplate(prefix, name, tpl string) error {
-	if prefix != "" {
-		return t.AddTemplate("_internal/"+prefix+"/"+name, tpl)
-	}
-	return t.AddTemplate("_internal/"+name, tpl)
-}
-
-func (t *GoHTMLTemplate) AddInternalShortcode(name, content string) error {
-	return t.AddInternalTemplate("shortcodes", name, content)
-}
-
-func (t *GoHTMLTemplate) AddTemplate(name, tpl string) error {
-	t.checkState()
-	templ, err := t.New(name).Parse(tpl)
-	if err != nil {
-		t.errors = append(t.errors, &templateErr{name: name, err: err})
-		return err
-	}
-	if err := applyTemplateTransformers(templ); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *GoHTMLTemplate) AddTemplateFileWithMaster(name, overlayFilename, masterFilename string) error {
-
-	// There is currently no known way to associate a cloned template with an existing one.
-	// This funky master/overlay design will hopefully improve in a future version of Go.
-	//
-	// Simplicity is hard.
-	//
-	// Until then we'll have to live with this hackery.
-	//
-	// See https://github.com/golang/go/issues/14285
-	//
-	// So, to do minimum amount of changes to get this to work:
-	//
-	// 1. Lookup or Parse the master
-	// 2. Parse and store the overlay in a separate map
-
-	masterTpl := t.Lookup(masterFilename)
-
-	if masterTpl == nil {
-		b, err := afero.ReadFile(t.Fs.Source, masterFilename)
-		if err != nil {
-			return err
-		}
-		masterTpl, err = t.New(masterFilename).Parse(string(b))
-
-		if err != nil {
-			// TODO(bep) Add a method that does this
-			t.errors = append(t.errors, &templateErr{name: name, err: err})
-			return err
-		}
-	}
-
-	b, err := afero.ReadFile(t.Fs.Source, overlayFilename)
-	if err != nil {
-		return err
-	}
-
-	overlayTpl, err := template.Must(masterTpl.Clone()).Parse(string(b))
-	if err != nil {
-		t.errors = append(t.errors, &templateErr{name: name, err: err})
-	} else {
-		// The extra lookup is a workaround, see
-		// * https://github.com/golang/go/issues/16101
-		// * https://github.com/spf13/hugo/issues/2549
-		overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
-		if err := applyTemplateTransformers(overlayTpl); err != nil {
-			return err
-		}
-		t.overlays[name] = overlayTpl
-	}
-
-	return err
-}
-
-func (t *GoHTMLTemplate) AddAceTemplate(name, basePath, innerPath string, baseContent, innerContent []byte) error {
-	t.checkState()
-	var base, inner *ace.File
-	name = name[:len(name)-len(filepath.Ext(innerPath))] + ".html"
-
-	// Fixes issue #1178
-	basePath = strings.Replace(basePath, "\\", "/", -1)
-	innerPath = strings.Replace(innerPath, "\\", "/", -1)
-
-	if basePath != "" {
-		base = ace.NewFile(basePath, baseContent)
-		inner = ace.NewFile(innerPath, innerContent)
-	} else {
-		base = ace.NewFile(innerPath, innerContent)
-		inner = ace.NewFile("", []byte{})
-	}
-	parsed, err := ace.ParseSource(ace.NewSource(base, inner, []*ace.File{}), nil)
-	if err != nil {
-		t.errors = append(t.errors, &templateErr{name: name, err: err})
-		return err
-	}
-	templ, err := ace.CompileResultWithTemplate(t.New(name), parsed, nil)
-	if err != nil {
-		t.errors = append(t.errors, &templateErr{name: name, err: err})
-		return err
-	}
-	return applyTemplateTransformers(templ)
-}
-
-func (t *GoHTMLTemplate) AddTemplateFile(name, baseTemplatePath, path string) error {
-	t.checkState()
-	// get the suffix and switch on that
-	ext := filepath.Ext(path)
-	switch ext {
-	case ".amber":
-		templateName := strings.TrimSuffix(name, filepath.Ext(name)) + ".html"
-		b, err := afero.ReadFile(t.Fs.Source, path)
-
-		if err != nil {
-			return err
-		}
-
-		templ, err := t.CompileAmberWithTemplate(b, path, t.New(templateName))
-		if err != nil {
-			return err
-		}
-
-		return applyTemplateTransformers(templ)
-	case ".ace":
-		var innerContent, baseContent []byte
-		innerContent, err := afero.ReadFile(t.Fs.Source, path)
-
-		if err != nil {
-			return err
-		}
-
-		if baseTemplatePath != "" {
-			baseContent, err = afero.ReadFile(t.Fs.Source, baseTemplatePath)
-			if err != nil {
-				return err
-			}
-		}
-
-		return t.AddAceTemplate(name, baseTemplatePath, path, baseContent, innerContent)
+// Tree returns the template Parse tree as a string.
+// Note: this isn't safe for parallel execution on the same template
+// vs Lookup and Execute.
+func (t *TemplateAdapter) Tree() string {
+	var tree *parse.Tree
+	switch tt := t.Template.(type) {
+	case *template.Template:
+		tree = tt.Tree
+	case *texttemplate.Template:
+		tree = tt.Tree
 	default:
-
-		if baseTemplatePath != "" {
-			return t.AddTemplateFileWithMaster(name, path, baseTemplatePath)
-		}
-
-		b, err := afero.ReadFile(t.Fs.Source, path)
-
-		if err != nil {
-			return err
-		}
-
-		t.Log.DEBUG.Printf("Add template file from path %s", path)
-
-		return t.AddTemplate(name, string(b))
+		panic("Unknown template")
 	}
 
-}
-
-func (t *GoHTMLTemplate) GenerateTemplateNameFrom(base, path string) string {
-	name, _ := filepath.Rel(base, path)
-	return filepath.ToSlash(name)
-}
-
-func isDotFile(path string) bool {
-	return filepath.Base(path)[0] == '.'
-}
-
-func isBackupFile(path string) bool {
-	return path[len(path)-1] == '~'
-}
-
-const baseFileBase = "baseof"
-
-var aceTemplateInnerMarkers = [][]byte{[]byte("= content")}
-var goTemplateInnerMarkers = [][]byte{[]byte("{{define"), []byte("{{ define")}
-
-func isBaseTemplate(path string) bool {
-	return strings.Contains(path, baseFileBase)
-}
-
-func (t *GoHTMLTemplate) loadTemplates(absPath string, prefix string) {
-	t.Log.DEBUG.Printf("Load templates from path %q prefix %q", absPath, prefix)
-	walker := func(path string, fi os.FileInfo, err error) error {
-		if err != nil {
-			return nil
-		}
-		t.Log.DEBUG.Println("Template path", path)
-		if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-			link, err := filepath.EvalSymlinks(absPath)
-			if err != nil {
-				t.Log.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", absPath, err)
-				return nil
-			}
-			linkfi, err := t.Fs.Source.Stat(link)
-			if err != nil {
-				t.Log.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
-				return nil
-			}
-			if !linkfi.Mode().IsRegular() {
-				t.Log.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", absPath)
-			}
-			return nil
-		}
-
-		if !fi.IsDir() {
-			if isDotFile(path) || isBackupFile(path) || isBaseTemplate(path) {
-				return nil
-			}
-
-			tplName := t.GenerateTemplateNameFrom(absPath, path)
-
-			if prefix != "" {
-				tplName = strings.Trim(prefix, "/") + "/" + tplName
-			}
-
-			var baseTemplatePath string
-
-			// Ace and Go templates may have both a base and inner template.
-			pathDir := filepath.Dir(path)
-			if filepath.Ext(path) != ".amber" && !strings.HasSuffix(pathDir, "partials") && !strings.HasSuffix(pathDir, "shortcodes") {
-
-				innerMarkers := goTemplateInnerMarkers
-				baseFileName := fmt.Sprintf("%s.html", baseFileBase)
-
-				if filepath.Ext(path) == ".ace" {
-					innerMarkers = aceTemplateInnerMarkers
-					baseFileName = fmt.Sprintf("%s.ace", baseFileBase)
-				}
-
-				// This may be a view that shouldn't have base template
-				// Have to look inside it to make sure
-				needsBase, err := helpers.FileContainsAny(path, innerMarkers, t.Fs.Source)
-				if err != nil {
-					return err
-				}
-				if needsBase {
-
-					layoutDir := helpers.GetLayoutDirPath()
-					currBaseFilename := fmt.Sprintf("%s-%s", helpers.Filename(path), baseFileName)
-					templateDir := filepath.Dir(path)
-					themeDir := filepath.Join(helpers.GetThemeDir())
-					relativeThemeLayoutsDir := filepath.Join(helpers.GetRelativeThemeDir(), "layouts")
-
-					var baseTemplatedDir string
-
-					if strings.HasPrefix(templateDir, relativeThemeLayoutsDir) {
-						baseTemplatedDir = strings.TrimPrefix(templateDir, relativeThemeLayoutsDir)
-					} else {
-						baseTemplatedDir = strings.TrimPrefix(templateDir, layoutDir)
-					}
-
-					baseTemplatedDir = strings.TrimPrefix(baseTemplatedDir, helpers.FilePathSeparator)
-
-					// Look for base template in the follwing order:
-					//   1. <current-path>/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
-					//   2. <current-path>/baseof.<suffix>
-					//   3. _default/<template-name>-baseof.<suffix>, e.g. list-baseof.<suffix>.
-					//   4. _default/baseof.<suffix>
-					// For each of the steps above, it will first look in the project, then, if theme is set,
-					// in the theme's layouts folder.
-
-					pairsToCheck := [][]string{
-						[]string{baseTemplatedDir, currBaseFilename},
-						[]string{baseTemplatedDir, baseFileName},
-						[]string{"_default", currBaseFilename},
-						[]string{"_default", baseFileName},
-					}
-
-				Loop:
-					for _, pair := range pairsToCheck {
-						pathsToCheck := basePathsToCheck(pair, layoutDir, themeDir)
-						for _, pathToCheck := range pathsToCheck {
-							if ok, err := helpers.Exists(pathToCheck, t.Fs.Source); err == nil && ok {
-								baseTemplatePath = pathToCheck
-								break Loop
-							}
-						}
-					}
-				}
-			}
-
-			if err := t.AddTemplateFile(tplName, baseTemplatePath, path); err != nil {
-				t.Log.ERROR.Printf("Failed to add template %s in path %s: %s", tplName, path, err)
-			}
-
-		}
-		return nil
+	if tree == nil || tree.Root == nil {
+		return ""
 	}
-	if err := helpers.SymbolicWalk(t.Fs.Source, absPath, walker); err != nil {
-		t.Log.ERROR.Printf("Failed to load templates: %s", err)
-	}
+	s := tree.Root.String()
+
+	return s
 }
 
-func basePathsToCheck(path []string, layoutDir, themeDir string) []string {
-	// Always look in the project.
-	pathsToCheck := []string{filepath.Join((append([]string{layoutDir}, path...))...)}
-
-	// May have a theme
-	if themeDir != "" {
-		pathsToCheck = append(pathsToCheck, filepath.Join((append([]string{themeDir, "layouts"}, path...))...))
-	}
-
-	return pathsToCheck
-
+// TemplateFuncsGetter allows to get a map of functions.
+type TemplateFuncsGetter interface {
+	GetFuncs() map[string]interface{}
 }
 
-func (t *GoHTMLTemplate) LoadTemplatesWithPrefix(absPath string, prefix string) {
-	t.loadTemplates(absPath, prefix)
-}
-
-func (t *GoHTMLTemplate) LoadTemplates(absPath string) {
-	t.loadTemplates(absPath, "")
-}
-
-func (t *GoHTMLTemplate) PrintErrors() {
-	for i, e := range t.errors {
-		t.Log.ERROR.Println(i, ":", e.err)
-	}
+// TemplateTestMocker adds a way to override some template funcs during tests.
+// The interface is named so it's not used in regular application code.
+type TemplateTestMocker interface {
+	SetFuncs(funcMap map[string]interface{})
 }

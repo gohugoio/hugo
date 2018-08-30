@@ -14,18 +14,18 @@
 package hugolib
 
 import (
+	"fmt"
 	"html/template"
 	"path/filepath"
 	"testing"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/viper"
+	"github.com/stretchr/testify/require"
+
+	"github.com/gohugoio/hugo/deps"
 )
 
-// TODO(bep) globals test siteinfo
-func _TestPermalink(t *testing.T) {
-	testCommonResetState()
+func TestPermalink(t *testing.T) {
+	t.Parallel()
 
 	tests := []struct {
 		file         string
@@ -50,51 +50,51 @@ func _TestPermalink(t *testing.T) {
 		{"x/y/z/boofar.md", "", "boofar", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "http://barnew/", "", "", true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "http://barnew/boo/", "boofar", "", true, false, "http://barnew/boo/x/y/z/boofar.html", "/boo/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "http://barnew/boo/", "boofar", "", false, true, "http://barnew/boo/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "http://barnew/boo/", "boofar", "", false, false, "http://barnew/boo/x/y/z/boofar/", "/boo/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "http://barnew/boo/", "boofar", "", true, true, "http://barnew/boo/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "http://barnew/boo", "boofar", "", true, true, "http://barnew/boo/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", true, false, "http://barnew/boo/x/y/z/booslug.html", "/boo/x/y/z/booslug.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", false, true, "http://barnew/boo/x/y/z/booslug/", "/x/y/z/booslug/"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", false, false, "http://barnew/boo/x/y/z/booslug/", "/boo/x/y/z/booslug/"},
+		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", true, true, "http://barnew/boo/x/y/z/booslug.html", "/x/y/z/booslug.html"},
+		{"x/y/z/boofar.md", "http://barnew/boo", "booslug", "", true, true, "http://barnew/boo/x/y/z/booslug.html", "/x/y/z/booslug.html"},
 
 		// test URL overrides
 		{"x/y/z/boofar.md", "", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
 	}
 
-	viper.Set("defaultExtension", "html")
 	for i, test := range tests {
-		viper.Set("uglyURLs", test.uglyURLs)
-		viper.Set("canonifyURLs", test.canonifyURLs)
-		info := newSiteInfo(siteBuilderCfg{baseURL: string(test.base), language: helpers.NewDefaultLanguage()})
 
-		p := &Page{
-			pageInit: &pageInit{},
-			Kind:     KindPage,
-			URLPath: URLPath{
-				Section: "z",
-				URL:     test.url,
-			},
-			Site:   &info,
-			Source: Source{File: *source.NewFile(filepath.FromSlash(test.file))},
-		}
+		cfg, fs := newTestCfg()
 
-		if test.slug != "" {
-			p.update(map[string]interface{}{
-				"slug": test.slug,
-			})
-		}
+		cfg.Set("uglyURLs", test.uglyURLs)
+		cfg.Set("canonifyURLs", test.canonifyURLs)
+		cfg.Set("baseURL", test.base)
+
+		pageContent := fmt.Sprintf(`---
+title: Page
+slug: %q
+url: %q
+---
+Content
+`, test.slug, test.url)
+
+		writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.file)), pageContent)
+
+		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+		require.Len(t, s.RegularPages, 1)
+
+		p := s.RegularPages[0]
 
 		u := p.Permalink()
 
 		expected := test.expectedAbs
 		if u != expected {
-			t.Errorf("Test %d: Expected abs url: %s, got: %s", i, expected, u)
+			t.Fatalf("[%d] Expected abs url: %s, got: %s", i, expected, u)
 		}
 
 		u = p.RelPermalink()
 
 		expected = test.expectedRel
 		if u != expected {
-			t.Errorf("Test %d: Expected rel url: %s, got: %s", i, expected, u)
+			t.Errorf("[%d] Expected rel url: %s, got: %s", i, expected, u)
 		}
 	}
 }
