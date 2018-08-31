@@ -2,19 +2,18 @@
 # Twitter:      https://twitter.com/gohugoio
 # Website:      https://gohugo.io/
 
-FROM golang:1.10.3-alpine3.7 AS build
+FROM golang:1.11-alpine3.7 AS build
 
 ENV CGO_ENABLED=0
 ENV GOOS=linux
+ENV GO111MODULE=on
 
 WORKDIR /go/src/github.com/gohugoio/hugo
 RUN apk add --no-cache \
     git \
-    musl-dev && \
-  go get github.com/golang/dep/cmd/dep
+    musl-dev
 COPY . /go/src/github.com/gohugoio/hugo/
-RUN dep ensure -vendor-only && \
-  go install -ldflags '-s -w'
+RUN go install -ldflags '-s -w'
 
 # ---
 
