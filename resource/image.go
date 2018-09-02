@@ -24,6 +24,7 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/helpers"
 
 	// Importing image codecs for image.DecodeConfig
@@ -410,7 +411,7 @@ func (i *Image) initConfig() error {
 		}
 
 		var (
-			f      ReadSeekCloser
+			f      hugio.ReadSeekCloser
 			config image.Config
 		)
 

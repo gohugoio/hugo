@@ -20,6 +20,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/errors"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/mitchellh/hashstructure"
 	"github.com/spf13/afero"
@@ -188,11 +189,11 @@ type transformedResource struct {
 	Resource
 }
 
-func (r *transformedResource) ReadSeekCloser() (ReadSeekCloser, error) {
+func (r *transformedResource) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 	if err := r.initContent(); err != nil {
 		return nil, err
 	}
-	return NewReadSeekerNoOpCloserFromString(r.content), nil
+	return hugio.NewReadSeekerNoOpCloserFromString(r.content), nil
 }
 
 func (r *transformedResource) transferTransformedValues(another *transformedResource) {
@@ -478,7 +479,7 @@ func (r *transformedResource) initTransform(setContent bool) error {
 }
 
 // contentReadSeekerCloser returns a ReadSeekerCloser if possible for a given Resource.
-func contentReadSeekerCloser(r Resource) (ReadSeekCloser, error) {
+func contentReadSeekerCloser(r Resource) (hugio.ReadSeekCloser, error) {
 	switch rr := r.(type) {
 	case ReadSeekCloserResource:
 		rc, err := rr.ReadSeekCloser()

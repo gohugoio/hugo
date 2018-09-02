@@ -28,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/tpl"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
 
 	jww "github.com/spf13/jwalterweatherman"
@@ -137,12 +138,12 @@ type ContentResource interface {
 
 // OpenReadSeekeCloser allows setting some other way (than reading from a filesystem)
 // to open or create a ReadSeekCloser.
-type OpenReadSeekCloser func() (ReadSeekCloser, error)
+type OpenReadSeekCloser func() (hugio.ReadSeekCloser, error)
 
 // ReadSeekCloserResource is a Resource that supports loading its content.
 type ReadSeekCloserResource interface {
 	Resource
-	ReadSeekCloser() (ReadSeekCloser, error)
+	ReadSeekCloser() (hugio.ReadSeekCloser, error)
 }
 
 // Resources represents a slice of resources, which can be a mix of different types.
@@ -596,7 +597,7 @@ func (l *genericResource) Content() (interface{}, error) {
 	return l.content, nil
 }
 
-func (l *genericResource) ReadSeekCloser() (ReadSeekCloser, error) {
+func (l *genericResource) ReadSeekCloser() (hugio.ReadSeekCloser, error) {
 	if l.openReadSeekerCloser != nil {
 		return l.openReadSeekerCloser()
 	}
@@ -623,7 +624,7 @@ func (l *genericResource) initHash() error {
 	var err error
 	l.hashInit.Do(func() {
 		var hash string
-		var f ReadSeekCloser
+		var f hugio.ReadSeekCloser
 		f, err = l.ReadSeekCloser()
 		if err != nil {
 			err = fmt.Errorf("failed to open source file: %s", err)
@@ -645,7 +646,7 @@ func (l *genericResource) initHash() error {
 func (l *genericResource) initContent() error {
 	var err error
 	l.contentInit.Do(func() {
-		var r ReadSeekCloser
+		var r hugio.ReadSeekCloser
 		r, err = l.ReadSeekCloser()
 		if err != nil {
 			return
