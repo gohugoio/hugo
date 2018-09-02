@@ -6,7 +6,6 @@ init:
   - go env
 
 environment:
-  GOPATH: C:\GOPATH\
   HUGO_BUILD_TAGS: extended
 
 # clones and cd's to path
@@ -15,7 +14,7 @@ clone_folder: C:\hugo
 install:
 #  - gem install asciidoctor
   - pip install docutils
-  - env GO111MODULE=off go get github.com/magefile/mage
+  - go get github.com/magefile/mage
 
 build_script:
   - mage hugoRace
