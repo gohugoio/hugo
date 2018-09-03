@@ -19,6 +19,7 @@ import (
 	"io"
 	"path/filepath"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resource"
 )
@@ -36,7 +37,7 @@ func New(rs *resource.Spec) *Client {
 
 type multiReadSeekCloser struct {
 	mr      io.Reader
-	sources []resource.ReadSeekCloser
+	sources []hugio.ReadSeekCloser
 }
 
 func (r *multiReadSeekCloser) Read(p []byte) (n int, err error) {
@@ -75,8 +76,8 @@ func (c *Client) Concat(targetPath string, resources resource.Resources) (resour
 			resolvedm = r.MediaType()
 		}
 
-		concatr := func() (resource.ReadSeekCloser, error) {
-			var rcsources []resource.ReadSeekCloser
+		concatr := func() (hugio.ReadSeekCloser, error) {
+			var rcsources []hugio.ReadSeekCloser
 			for _, s := range resources {
 				rcr, ok := s.(resource.ReadSeekCloserResource)
 				if !ok {
