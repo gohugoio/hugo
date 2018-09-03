@@ -20,6 +20,7 @@ import (
 
 	"github.com/spf13/afero"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/resource"
 )
 
@@ -53,8 +54,8 @@ func (c *Client) FromString(targetPath, content string) (resource.Resource, erro
 			c.rs.BaseFs.Resources.Fs,
 			resource.ResourceSourceDescriptor{
 				LazyPublish: true,
-				OpenReadSeekCloser: func() (resource.ReadSeekCloser, error) {
-					return resource.NewReadSeekerNoOpCloserFromString(content), nil
+				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
+					return hugio.NewReadSeekerNoOpCloserFromString(content), nil
 				},
 				RelTargetFilename: filepath.Clean(targetPath)})
 
