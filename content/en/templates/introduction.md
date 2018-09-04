@@ -513,7 +513,7 @@ You can provide variables to be used by templates in individual content's [front
 
 An example of this is used in the Hugo docs. Most of the pages benefit from having the table of contents provided, but sometimes the table of contents doesn't make a lot of sense. We've defined a `notoc` variable in our front matter that will prevent a table of contents from rendering when specifically set to `true`.
 
-Here is the example front matter:
+Here is the example front matter (YAML):
 
 ```
 ---
@@ -578,7 +578,7 @@ An alternative way of writing the "`if`" and then referencing the same value is 
 
 Finally, you can pull "magic constants" out of your layouts as well. The following uses the [`first`][first] function, as well as the [`.RelPermalink`][relpermalink] page variable and the [`.Site.Pages`][sitevars] site variable.
 
-```
+```go-html-template
 <nav>
   <h1>Recent Posts</h1>
   <ul>
