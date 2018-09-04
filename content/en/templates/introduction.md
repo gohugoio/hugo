@@ -613,7 +613,7 @@ Go allows you to do more than what's shown here. Using Hugo's [`where` function]
 <h4>Upcoming Events</h4>
 <ul class="upcoming-events">
 {{ range where .Pages.ByDate "Section" "events" }}
-    {{ if ge .Date.Unix .Now.Unix }}
+    {{ if ge .Date.Unix now.Unix }}
         <li>
         <!-- add span for event type -->
           <span>{{ .Type | title }} —</span>
