@@ -15,7 +15,7 @@ toc: true
 ---
 
 
-Hugo uses a set factors to identify a page's related content based on Front Matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content). 
+Hugo uses a set of factors to identify a page's related content based on Front Matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content). 
 
 ## List Related Content
 
