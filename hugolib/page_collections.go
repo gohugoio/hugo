@@ -206,40 +206,57 @@ func (c *PageCollections) getPage(typ string, sections ...string) *Page {
 // Ref is either unix-style paths (i.e. callers responsible for
 // calling filepath.ToSlash as necessary) or shorthand refs.
 func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
+	var anError error
 
 	// Absolute (content root relative) reference.
 	if strings.HasPrefix(ref, "/") {
-		if p, err := c.getFromCache(ref); err == nil && p != nil {
+		p, err := c.getFromCache(ref)
+		if err == nil && p != nil {
 			return p, nil
 		}
+		if err != nil {
+			anError = err
+		}
+
 	} else if context != nil {
 		// Try the page-relative path.
 		ppath := path.Join("/", strings.Join(context.sections, "/"), ref)
-		if p, err := c.getFromCache(ppath); err == nil && p != nil {
+		p, err := c.getFromCache(ppath)
+		if err == nil && p != nil {
 			return p, nil
+		}
+		if err != nil {
+			anError = err
 		}
 	}
 
 	if !strings.HasPrefix(ref, "/") {
 		// Many people will have "post/foo.md" in their content files.
-		if p, err := c.getFromCache("/" + ref); err == nil && p != nil {
+		p, err := c.getFromCache("/" + ref)
+		if err == nil && p != nil {
 			if context != nil {
 				// TODO(bep) remove this case and the message below when the storm has passed
 				helpers.DistinctFeedbackLog.Printf(`WARNING: make non-relative ref/relref page reference(s) in page %q absolute, e.g. {{< ref "/blog/my-post.md" >}}`, context.absoluteSourceRef())
 			}
 			return p, nil
 		}
+		if err != nil {
+			anError = err
+		}
 	}
 
 	// Last try.
 	ref = strings.TrimPrefix(ref, "/")
 	p, err := c.getFromCache(ref)
-
 	if err != nil {
+		anError = err
+	}
+
+	if p == nil && anError != nil {
 		if context != nil {
-			return nil, fmt.Errorf("failed to resolve path from page %q: %s", context.absoluteSourceRef(), err)
+			return nil, fmt.Errorf("failed to resolve path from page %q: %s", context.absoluteSourceRef(), anError)
 		}
-		return nil, fmt.Errorf("failed to resolve page: %s", err)
+		return nil, fmt.Errorf("failed to resolve page: %s", anError)
 	}
 
 	return p, nil
