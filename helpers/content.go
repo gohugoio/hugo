@@ -664,21 +664,9 @@ func getRstExecPath() string {
 	return path
 }
 
-func getPythonExecPath() string {
-	path, err := exec.LookPath("python")
-	if err != nil {
-		path, err = exec.LookPath("python.exe")
-		if err != nil {
-			return ""
-		}
-	}
-	return path
-}
-
 // getRstContent calls the Python script rst2html as an external helper
 // to convert reStructuredText content to HTML.
 func getRstContent(ctx *RenderingContext) []byte {
-	python := getPythonExecPath()
 	path := getRstExecPath()
 
 	if path == "" {
@@ -688,8 +676,8 @@ func getRstContent(ctx *RenderingContext) []byte {
 
 	}
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	args := []string{path, "--leave-comments", "--initial-header-level=2"}
-	result := externallyRenderContent(ctx, python, args)
+	args := []string{"--leave-comments", "--initial-header-level=2"}
+	result := externallyRenderContent(ctx, path, args)
 	// TODO(bep) check if rst2html has a body only option.
 	bodyStart := bytes.Index(result, []byte("<body>\n"))
 	if bodyStart < 0 {
