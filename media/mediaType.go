@@ -120,9 +120,9 @@ func (m Type) Suffix() string {
 	return ""
 }
 
+// Definitions from https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types etc.
+// Note that from Hugo 0.44 we only set Suffix if it is part of the MIME type.
 var (
-	// Definitions from https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types etc.
-	// Note that from Hugo 0.44 we only set Suffix if it is part of the MIME type.
 	CalendarType   = Type{MainType: "text", SubType: "calendar", Suffixes: []string{"ics"}, Delimiter: defaultDelimiter}
 	CSSType        = Type{MainType: "text", SubType: "css", Suffixes: []string{"css"}, Delimiter: defaultDelimiter}
 	SCSSType       = Type{MainType: "text", SubType: "x-scss", Suffixes: []string{"scss"}, Delimiter: defaultDelimiter}
@@ -139,6 +139,7 @@ var (
 	OctetType = Type{MainType: "application", SubType: "octet-stream"}
 )
 
+// DefaultTypes is the default media types supported by Hugo.
 var DefaultTypes = Types{
 	CalendarType,
 	CSSType,
@@ -159,12 +160,14 @@ func init() {
 	sort.Sort(DefaultTypes)
 }
 
+// Types is a slice of media types.
 type Types []Type
 
 func (t Types) Len() int           { return len(t) }
 func (t Types) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
 func (t Types) Less(i, j int) bool { return t[i].Type() < t[j].Type() }
 
+// GetByType returns a media type for tp.
 func (t Types) GetByType(tp string) (Type, bool) {
 	for _, tt := range t {
 		if strings.EqualFold(tt.Type(), tp) {
@@ -225,8 +228,8 @@ func (t Types) GetBySuffix(suffix string) (tp Type, found bool) {
 	return
 }
 
-func (t Type) matchSuffix(suffix string) string {
-	for _, s := range t.Suffixes {
+func (m Type) matchSuffix(suffix string) string {
+	for _, s := range m.Suffixes {
 		if strings.EqualFold(suffix, s) {
 			return s
 		}
@@ -235,7 +238,7 @@ func (t Type) matchSuffix(suffix string) string {
 	return ""
 }
 
-// GetMainSubType gets a media type given a main and a sub type e.g. "text" and "plain".
+// GetByMainSubType gets a media type given a main and a sub type e.g. "text" and "plain".
 // It will return false if no format could be found, or if the combination given
 // is ambiguous.
 // The lookup is case insensitive.
@@ -342,6 +345,7 @@ func DecodeTypes(mms ...map[string]interface{}) (Types, error) {
 	return m, nil
 }
 
+// MarshalJSON returns the JSON encoding of m.
 func (m Type) MarshalJSON() ([]byte, error) {
 	type Alias Type
 	return json.Marshal(&struct {
