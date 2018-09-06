@@ -39,27 +39,29 @@ var (
 	_ compare.Comparer = (*HugoVersionString)(nil)
 )
 
-type HugoVersionString string
-
 func (v HugoVersion) String() string {
 	return hugoVersion(v.Number, v.PatchLevel, v.Suffix)
 }
 
+// Version returns the Hugo version.
 func (v HugoVersion) Version() HugoVersionString {
 	return HugoVersionString(v.String())
 }
+
+// HugoVersionString represents a Hugo version string.
+type HugoVersionString string
 
 func (h HugoVersionString) String() string {
 	return string(h)
 }
 
-// Implements compare.Comparer
+// Compare implements the compare.Comparer interface.
 func (h HugoVersionString) Compare(other interface{}) int {
 	v := MustParseHugoVersion(h.String())
 	return compareVersionsWithSuffix(v.Number, v.PatchLevel, v.Suffix, other)
 }
 
-// Implements compare.Eqer
+// Eq implements the compare.Eqer interface.
 func (h HugoVersionString) Eq(other interface{}) bool {
 	s, err := cast.ToStringE(other)
 	if err != nil {

@@ -21,6 +21,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
+// ProcessingStats represents statistics about a site build.
 type ProcessingStats struct {
 	Name string
 
@@ -52,18 +53,23 @@ func (s *ProcessingStats) toVals() []processingStatsTitleVal {
 	}
 }
 
+// NewProcessingStats returns a new ProcessingStats instance.
 func NewProcessingStats(name string) *ProcessingStats {
 	return &ProcessingStats{Name: name}
 }
 
+// Incr increments a given counter.
 func (s *ProcessingStats) Incr(counter *uint64) {
 	atomic.AddUint64(counter, 1)
 }
 
+// Add adds an amount to a given counter.
 func (s *ProcessingStats) Add(counter *uint64, amount int) {
 	atomic.AddUint64(counter, uint64(amount))
 }
 
+// Table writes a table-formatted representation of the stats in a
+// ProcessingStats instance to w.
 func (s *ProcessingStats) Table(w io.Writer) {
 	titleVals := s.toVals()
 	data := make([][]string, len(titleVals))
@@ -80,6 +86,7 @@ func (s *ProcessingStats) Table(w io.Writer) {
 
 }
 
+// ProcessingStatsTable writes a table-formatted representation of stats to w.
 func ProcessingStatsTable(w io.Writer, stats ...*ProcessingStats) {
 	names := make([]string, len(stats)+1)
 
