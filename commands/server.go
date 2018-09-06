@@ -122,27 +122,27 @@ func (f noDirFile) Readdir(count int) ([]os.FileInfo, error) {
 
 var serverPorts []int
 
-func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
+func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 	// If a Destination is provided via flag write to disk
 	destination, _ := cmd.Flags().GetString("destination")
 	if destination != "" {
-		s.renderToDisk = true
+		sc.renderToDisk = true
 	}
 
 	var serverCfgInit sync.Once
 
 	cfgInit := func(c *commandeer) error {
-		c.Set("renderToMemory", !s.renderToDisk)
+		c.Set("renderToMemory", !sc.renderToDisk)
 		if cmd.Flags().Changed("navigateToChanged") {
-			c.Set("navigateToChanged", s.navigateToChanged)
+			c.Set("navigateToChanged", sc.navigateToChanged)
 		}
 		if cmd.Flags().Changed("disableLiveReload") {
-			c.Set("disableLiveReload", s.disableLiveReload)
+			c.Set("disableLiveReload", sc.disableLiveReload)
 		}
 		if cmd.Flags().Changed("disableFastRender") {
-			c.Set("disableFastRender", s.disableFastRender)
+			c.Set("disableFastRender", sc.disableFastRender)
 		}
-		if s.serverWatch {
+		if sc.serverWatch {
 			c.Set("watch", true)
 		}
 
@@ -158,25 +158,25 @@ func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
 			serverPorts = make([]int, 1)
 
 			if c.languages.IsMultihost() {
-				if !s.serverAppend {
+				if !sc.serverAppend {
 					err = newSystemError("--appendPort=false not supported when in multihost mode")
 				}
 				serverPorts = make([]int, len(c.languages))
 			}
 
-			currentServerPort := s.serverPort
+			currentServerPort := sc.serverPort
 
 			for i := 0; i < len(serverPorts); i++ {
-				l, err := net.Listen("tcp", net.JoinHostPort(s.serverInterface, strconv.Itoa(currentServerPort)))
+				l, err := net.Listen("tcp", net.JoinHostPort(sc.serverInterface, strconv.Itoa(currentServerPort)))
 				if err == nil {
 					l.Close()
 					serverPorts[i] = currentServerPort
 				} else {
-					if i == 0 && s.cmd.Flags().Changed("port") {
+					if i == 0 && sc.cmd.Flags().Changed("port") {
 						// port set explicitly by user -- he/she probably meant it!
 						err = newSystemErrorF("Server startup failed: %s", err)
 					}
-					jww.ERROR.Println("port", s.serverPort, "already in use, attempting to use an available port")
+					jww.ERROR.Println("port", sc.serverPort, "already in use, attempting to use an available port")
 					sp, err := helpers.FindAvailablePort()
 					if err != nil {
 						err = newSystemError("Unable to find alternative port to use:", err)
@@ -190,9 +190,9 @@ func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
 
 		c.serverPorts = serverPorts
 
-		c.Set("port", s.serverPort)
-		if s.liveReloadPort != -1 {
-			c.Set("liveReloadPort", s.liveReloadPort)
+		c.Set("port", sc.serverPort)
+		if sc.liveReloadPort != -1 {
+			c.Set("liveReloadPort", sc.liveReloadPort)
 		} else {
 			c.Set("liveReloadPort", serverPorts[0])
 		}
@@ -206,7 +206,7 @@ func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
 				serverPort = serverPorts[0]
 			}
 
-			baseURL, err := s.fixURL(language, s.baseURL, serverPort)
+			baseURL, err := sc.fixURL(language, sc.baseURL, serverPort)
 			if err != nil {
 				return nil
 			}
@@ -226,7 +226,7 @@ func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
 		jww.ERROR.Println("memstats error:", err)
 	}
 
-	c, err := initializeConfig(true, true, &s.hugoBuilderCommon, s, cfgInit)
+	c, err := initializeConfig(true, true, &sc.hugoBuilderCommon, sc, cfgInit)
 	if err != nil {
 		return err
 	}
@@ -240,7 +240,7 @@ func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
 	}
 
 	// Watch runs its own server as part of the routine
-	if s.serverWatch {
+	if sc.serverWatch {
 
 		watchDirs, err := c.getDirList()
 		if err != nil {
@@ -266,7 +266,7 @@ func (s *serverCmd) server(cmd *cobra.Command, args []string) error {
 
 	}
 
-	return c.serve(s)
+	return c.serve(sc)
 
 }
 

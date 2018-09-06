@@ -73,23 +73,23 @@ Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root
 func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 2 {
-		return newUserError(`Import from Jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
+		return newUserError(`import from jekyll requires two paths, e.g. ` + "`hugo import jekyll jekyll_root_path target_path`.")
 	}
 
 	jekyllRoot, err := filepath.Abs(filepath.Clean(args[0]))
 	if err != nil {
-		return newUserError("Path error:", args[0])
+		return newUserError("path error:", args[0])
 	}
 
 	targetDir, err := filepath.Abs(filepath.Clean(args[1]))
 	if err != nil {
-		return newUserError("Path error:", args[1])
+		return newUserError("path error:", args[1])
 	}
 
 	jww.INFO.Println("Import Jekyll from:", jekyllRoot, "to:", targetDir)
 
 	if strings.HasPrefix(filepath.Dir(targetDir), jekyllRoot) {
-		return newUserError("Target path should not be inside the Jekyll root, aborting.")
+		return newUserError("abort: target path should not be inside the Jekyll root")
 	}
 
 	forceImport, _ := cmd.Flags().GetBool("force")
@@ -97,7 +97,7 @@ func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 	fs := afero.NewOsFs()
 	jekyllPostDirs, hasAnyPost := i.getJekyllDirInfo(fs, jekyllRoot)
 	if !hasAnyPost {
-		return errors.New("Your Jekyll root contains neither posts nor drafts, aborting.")
+		return errors.New("abort: jekyll root contains neither posts nor drafts")
 	}
 
 	site, err := i.createSiteFromJekyll(jekyllRoot, targetDir, jekyllPostDirs, forceImport)
@@ -120,7 +120,7 @@ func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 
 		relPath, err := filepath.Rel(jekyllRoot, path)
 		if err != nil {
-			return newUserError("Get rel path error:", path)
+			return newUserError("get rel path error:", path)
 		}
 
 		relPath = filepath.ToSlash(relPath)
@@ -204,13 +204,13 @@ func (i *importCmd) createSiteFromJekyll(jekyllRoot, targetDir string, jekyllPos
 	fs := s.Fs.Source
 	if exists, _ := helpers.Exists(targetDir, fs); exists {
 		if isDir, _ := helpers.IsDir(targetDir, fs); !isDir {
-			return nil, errors.New("Target path \"" + targetDir + "\" already exists but not a directory")
+			return nil, errors.New("target path \"" + targetDir + "\" exists but is not a directory")
 		}
 
 		isEmpty, _ := helpers.IsEmpty(targetDir, fs)
 
 		if !isEmpty && !force {
-			return nil, errors.New("Target path \"" + targetDir + "\" already exists and is not empty")
+			return nil, errors.New("target path \"" + targetDir + "\" exists and is not empty")
 		}
 	}
 
