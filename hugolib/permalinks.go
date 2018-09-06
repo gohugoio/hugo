@@ -154,7 +154,7 @@ func pageToPermalinkDate(p *Page, dateField string) (string, error) {
 func pageToPermalinkTitle(p *Page, _ string) (string, error) {
 	// Page contains Node which has Title
 	// (also contains URLPath which has Slug, sometimes)
-	return p.s.PathSpec.URLize(p.title), nil
+	return p.s.PathSpec.MakeSegment(p.title), nil
 }
 
 // pageToPermalinkFilename returns the URL-safe form of the filename
@@ -166,7 +166,7 @@ func pageToPermalinkFilename(p *Page, _ string) (string, error) {
 		_, name = filepath.Split(dir)
 	}
 
-	return p.s.PathSpec.URLize(name), nil
+	return p.s.PathSpec.MakeSegment(name), nil
 }
 
 // if the page has a slug, return the slug, else return the title
@@ -181,20 +181,30 @@ func pageToPermalinkSlugElseTitle(p *Page, a string) (string, error) {
 		if strings.HasSuffix(p.Slug, "-") {
 			p.Slug = p.Slug[0 : len(p.Slug)-1]
 		}
-		return p.s.PathSpec.URLize(p.Slug), nil
+		return p.s.PathSpec.MakeSegment(p.Slug), nil
 	}
 	return pageToPermalinkTitle(p, a)
 }
 
 func pageToPermalinkSection(p *Page, _ string) (string, error) {
 	// Page contains Node contains URLPath which has Section
-	return p.Section(), nil
+	return p.s.PathSpec.MakeSegment(p.Section()), nil
 }
 
 func pageToPermalinkSections(p *Page, _ string) (string, error) {
 	// TODO(bep) we have some superflous URLize in this file, but let's
 	// deal with that later.
-	return path.Join(p.CurrentSection().sections...), nil
+
+	cs := p.CurrentSection()
+	if cs == nil {
+		return "", errors.New("\":sections\" attribute requires parent page but is nil")
+	}
+
+	sections := make([]string, len(cs.sections))
+	for i := range cs.sections {
+		sections[i] = p.s.PathSpec.MakeSegment(cs.sections[i])
+	}
+	return path.Join(sections...), nil
 }
 
 func init() {
