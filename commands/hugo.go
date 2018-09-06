@@ -62,6 +62,8 @@ type Response struct {
 	Cmd *cobra.Command
 }
 
+// IsUserError returns true is the Response error is a user error rather than a
+// system error.
 func (r Response) IsUserError() bool {
 	return r.Err != nil && isUserError(r.Err)
 }
