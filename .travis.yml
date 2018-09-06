@@ -16,13 +16,17 @@ matrix:
     - go: tip
   fast_finish: true
 install:
-  - env GO111MODULE=on go get github.com/magefile/mage
- script:
-  - mage -v test
-  - mage -v check
-  - mage -v hugo
-  - ./hugo -s docs/
-  - ./hugo --renderToMemory -s docs/
+  - mkdir -p $HOME/src
+  - mv $HOME/gopath/src/github.com/gohugoio/hugo $HOME/src
+  - export TRAVIS_BUILD_DIR=$HOME/src/hugo
+  - cd $HOME/src/hugo
+  - go get github.com/magefile/mage
+script:
+- mage -v test
+- mage -v check
+- mage -v hugo
+- ./hugo -s docs/
+- ./hugo --renderToMemory -s docs/
 before_install:
   - gem install asciidoctor
   - type asciidoctor
