@@ -28,14 +28,46 @@ func TestNew(t *testing.T) {
 	assert := require.New(t)
 	m := New(media.DefaultTypes, output.DefaultFormats)
 
-	var b bytes.Buffer
+	var rawJS string
+	var minJS string
+	rawJS = " var  foo =1 ;   foo ++  ;  "
+	minJS = "var foo=1;foo++;"
 
-	assert.NoError(m.Minify(media.CSSType, &b, strings.NewReader("body { color: blue; }")))
-	assert.Equal("body{color:blue}", b.String())
+	var rawJSON string
+	var minJSON string
+	rawJSON = "  { \"a\" : 123 , \"b\":2,  \"c\": 5 } "
+	minJSON = "{\"a\":123,\"b\":2,\"c\":5}"
 
-	b.Reset()
+	for _, test := range []struct {
+		tp                media.Type
+		rawString         string
+		expectedMinString string
+	}{
+		{media.CSSType, " body { color: blue; }  ", "body{color:blue}"},
+		{media.RSSType, " <hello>  Hugo!   </hello>  ", "<hello>Hugo!</hello>"}, // RSS should be handled as XML
+		{media.JSONType, rawJSON, minJSON},
+		{media.JavascriptType, rawJS, minJS},
+		// JS Regex minifiers
+		{media.Type{MainType: "application", SubType: "ecmascript"}, rawJS, minJS},
+		{media.Type{MainType: "application", SubType: "javascript"}, rawJS, minJS},
+		{media.Type{MainType: "application", SubType: "x-javascript"}, rawJS, minJS},
+		{media.Type{MainType: "application", SubType: "x-ecmascript"}, rawJS, minJS},
+		{media.Type{MainType: "text", SubType: "ecmascript"}, rawJS, minJS},
+		{media.Type{MainType: "text", SubType: "javascript"}, rawJS, minJS},
+		{media.Type{MainType: "text", SubType: "x-javascript"}, rawJS, minJS},
+		{media.Type{MainType: "text", SubType: "x-ecmascript"}, rawJS, minJS},
+		// JSON Regex minifiers
+		{media.Type{MainType: "application", SubType: "json"}, rawJSON, minJSON},
+		{media.Type{MainType: "application", SubType: "x-json"}, rawJSON, minJSON},
+		{media.Type{MainType: "application", SubType: "ld+json"}, rawJSON, minJSON},
+		{media.Type{MainType: "text", SubType: "json"}, rawJSON, minJSON},
+		{media.Type{MainType: "text", SubType: "x-json"}, rawJSON, minJSON},
+		{media.Type{MainType: "text", SubType: "ld+json"}, rawJSON, minJSON},
+	} {
+		var b bytes.Buffer
 
-	// RSS should be handled as XML
-	assert.NoError(m.Minify(media.RSSType, &b, strings.NewReader("<hello>  Hugo!   </hello>  ")))
-	assert.Equal("<hello>Hugo!</hello>", b.String())
+		assert.NoError(m.Minify(test.tp, &b, strings.NewReader(test.rawString)))
+		assert.Equal(test.expectedMinString, b.String())
+	}
+
 }
