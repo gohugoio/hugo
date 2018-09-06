@@ -24,6 +24,7 @@ import (
 	"golang.org/x/text/unicode/norm"
 )
 
+// Filesystem represents a source filesystem.
 type Filesystem struct {
 	files     []ReadableFile
 	filesInit sync.Once
@@ -33,14 +34,17 @@ type Filesystem struct {
 	SourceSpec
 }
 
+// Input describes a source input.
 type Input interface {
 	Files() []ReadableFile
 }
 
+// NewFilesystem returns a new filesytem for a given source spec.
 func (sp SourceSpec) NewFilesystem(base string) *Filesystem {
 	return &Filesystem{SourceSpec: sp, Base: base}
 }
 
+// Files returns a slice of readable files.
 func (f *Filesystem) Files() []ReadableFile {
 	f.filesInit.Do(func() {
 		f.captureFiles()
