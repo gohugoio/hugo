@@ -545,7 +545,7 @@ func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	return afero.WriteReader(fs, inpath, r)
 }
 
-// OpenFileForWriting opens all the given filenames for writing.
+// OpenFilesForWriting opens all the given filenames for writing.
 func OpenFilesForWriting(fs afero.Fs, filenames ...string) (io.WriteCloser, error) {
 	var writeClosers []io.WriteCloser
 	for _, filename := range filenames {
