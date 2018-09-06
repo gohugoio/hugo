@@ -162,7 +162,7 @@ func (l *Language) GetStringMapString(key string) map[string]string {
 	return cast.ToStringMapString(l.Get(key))
 }
 
-//  returns the value associated with the key as a slice of strings.
+// GetStringSlice returns the value associated with the key as a slice of strings.
 func (l *Language) GetStringSlice(key string) []string {
 	return cast.ToStringSlice(l.Get(key))
 }
