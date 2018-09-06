@@ -61,6 +61,7 @@ type Twitter struct {
 	DisableInlineCSS bool
 }
 
+// DecodeConfig creates a services Config from a given Hugo configuration.
 func DecodeConfig(cfg config.Provider) (c Config, err error) {
 	m := cfg.GetStringMap(servicesConfigKey)
 

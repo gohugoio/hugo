@@ -51,7 +51,6 @@ func GetStringSlicePreserveString(cfg Provider, key string) []string {
 	sd := cfg.Get(key)
 	if sds, ok := sd.(string); ok {
 		return []string{sds}
-	} else {
-		return cast.ToStringSlice(sd)
 	}
+	return cast.ToStringSlice(sd)
 }
