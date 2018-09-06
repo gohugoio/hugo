@@ -167,8 +167,8 @@ type countribCount struct {
 }
 
 func (c countribCount) AuthorLink() string {
-	if c.GitHubAuthor.HtmlURL != "" {
-		return fmt.Sprintf("[@%s](%s)", c.GitHubAuthor.Login, c.GitHubAuthor.HtmlURL)
+	if c.GitHubAuthor.HTMLURL != "" {
+		return fmt.Sprintf("[@%s](%s)", c.GitHubAuthor.Login, c.GitHubAuthor.HTMLURL)
 	}
 
 	if !strings.Contains(c.Author, "@") {

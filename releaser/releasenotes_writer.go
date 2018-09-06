@@ -125,16 +125,16 @@ var templateFuncs = template.FuncMap{
 		return fmt.Sprintf(issueLinkTemplate, id, id)
 	},
 	"commitURL": func(info gitInfo) string {
-		if info.GitHubCommit.HtmlURL == "" {
+		if info.GitHubCommit.HTMLURL == "" {
 			return ""
 		}
-		return fmt.Sprintf(linkTemplate, info.Hash, info.GitHubCommit.HtmlURL)
+		return fmt.Sprintf(linkTemplate, info.Hash, info.GitHubCommit.HTMLURL)
 	},
 	"authorURL": func(info gitInfo) string {
 		if info.GitHubCommit.Author.Login == "" {
 			return ""
 		}
-		return fmt.Sprintf(linkTemplate, "@"+info.GitHubCommit.Author.Login, info.GitHubCommit.Author.HtmlURL)
+		return fmt.Sprintf(linkTemplate, "@"+info.GitHubCommit.Author.Login, info.GitHubCommit.Author.HTMLURL)
 	},
 }
 
