@@ -129,27 +129,38 @@ permalinkeds:
 	}
 
 	// 1.
-	th.assertFileContent(pathFunc("public/categories/cat1/index.html"), "List", "Cat1")
 	if preserveTaxonomyNames {
-		// As of this writing, term titles are given a first upper.
-		// See hugolib.Site.newTaxonomyPage().
-		th.assertFileContent(pathFunc("public/categories/cat-dog/index.html"), "List", "CAt/dOg")
+		th.assertFileContent(pathFunc("public/categories/cat1/index.html"), "List", "cat1")
+		th.assertFileContent(pathFunc("public/categories/cat-dog/index.html"), "List", "cAt/dOg")
 	} else {
+		th.assertFileContent(pathFunc("public/categories/cat1/index.html"), "List", "Cat1")
 		th.assertFileContent(pathFunc("public/categories/cat-dog/index.html"), "List", "Cat/Dog")
 	}
 	th.assertFileContent(pathFunc("public/categories/index.html"), "Terms List", "Category Terms")
 
 	// 2.
-	th.assertFileContent(pathFunc("public/tags/tag2/index.html"), "List", "Tag2")
+	if preserveTaxonomyNames {
+		th.assertFileContent(pathFunc("public/tags/tag2/index.html"), "List", "tag2")
+	} else {
+		th.assertFileContent(pathFunc("public/tags/tag2/index.html"), "List", "Tag2")
+	}
 	th.assertFileContent(pathFunc("public/tags/tag1/index.html"), "List", "Tag1")
 	th.assertFileContent(pathFunc("public/tags/index.html"), "Terms List", "Tags")
 
 	// 3.
-	th.assertFileContent(pathFunc("public/others/o1/index.html"), "List", "O1")
+	if preserveTaxonomyNames {
+		th.assertFileContent(pathFunc("public/others/o1/index.html"), "List", "o1")
+	} else {
+		th.assertFileContent(pathFunc("public/others/o1/index.html"), "List", "O1")
+	}
 	th.assertFileContent(pathFunc("public/others/index.html"), "Terms List", "Others")
 
 	// 4.
-	th.assertFileContent(pathFunc("public/perma/pl1/index.html"), "List", "Pl1")
+	if preserveTaxonomyNames {
+		th.assertFileContent(pathFunc("public/perma/pl1/index.html"), "List", "pl1")
+	} else {
+		th.assertFileContent(pathFunc("public/perma/pl1/index.html"), "List", "Pl1")
+	}
 	// This looks kind of funky, but the taxonomy terms do not have a permalinks definition,
 	// for good reasons.
 	th.assertFileContent(pathFunc("public/permalinkeds/index.html"), "Terms List", "Permalinkeds")

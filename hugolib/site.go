@@ -1830,10 +1830,7 @@ func (s *Site) newTaxonomyPage(plural, key string) *Page {
 	p := s.newNodePage(KindTaxonomy, plural, key)
 
 	if s.Info.preserveTaxonomyNames {
-		// Keep (mostly) as is in the title
-		// We make the first character upper case, mostly because
-		// it is easier to reason about in the tests.
-		p.title = helpers.FirstUpper(key)
+		p.title = key
 	} else {
 		p.title = strings.Replace(s.titleFunc(key), "-", " ", -1)
 	}
