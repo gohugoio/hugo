@@ -36,7 +36,7 @@ type Namespace struct {
 	deps *deps.Deps
 }
 
-// Translate ...
+// Translate returns a translated string for id.
 func (ns *Namespace) Translate(id interface{}, args ...interface{}) (string, error) {
 	sid, err := cast.ToStringE(id)
 	if err != nil {
@@ -140,6 +140,7 @@ type pagesLanguageMerger interface {
 	MergeByLanguageInterface(other interface{}) (interface{}, error)
 }
 
+// Merge creates a union of pages from two languages.
 func (ns *Namespace) Merge(p2, p1 interface{}) (interface{}, error) {
 	merger, ok := p1.(pagesLanguageMerger)
 	if !ok {
