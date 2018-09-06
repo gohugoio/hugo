@@ -96,6 +96,7 @@ type YouTube struct {
 	PrivacyEnhanced bool
 }
 
+// DecodeConfig creates a privacy Config from a given Hugo configuration.
 func DecodeConfig(cfg config.Provider) (pc Config, err error) {
 	if !cfg.IsSet(privacyConfigKey) {
 		return
