@@ -26,5 +26,5 @@ func Supports() bool {
 }
 
 func (t *toCSSTransformation) Transform(ctx *resource.ResourceTransformationCtx) error {
-	return errors.FeatureNotAvailableErr
+	return errors.ErrFeatureNotAvailable
 }

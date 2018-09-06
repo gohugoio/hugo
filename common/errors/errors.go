@@ -18,6 +18,8 @@ import (
 	"errors"
 )
 
+// ErrFeatureNotAvailable denotes that a feature is unavailable.
+//
 // We will, at least to begin with, make some Hugo features (SCSS with libsass) optional,
 // and this error is used to signal those situations.
-var FeatureNotAvailableErr = errors.New("this feature is not available in your current Hugo version")
+var ErrFeatureNotAvailable = errors.New("this feature is not available in your current Hugo version")

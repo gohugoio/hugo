@@ -111,7 +111,7 @@ func (t *postcssTransformation) Transform(ctx *resource.ResourceTransformationCt
 		binary = binaryName
 		if _, err := exec.LookPath(binary); err != nil {
 			// This may be on a CI server etc. Will fall back to pre-built assets.
-			return errors.FeatureNotAvailableErr
+			return errors.ErrFeatureNotAvailable
 		}
 	}
 

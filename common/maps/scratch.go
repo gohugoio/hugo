@@ -73,7 +73,7 @@ func (c *Scratch) Set(key string, value interface{}) string {
 	return ""
 }
 
-// Reset deletes the given key
+// Delete deletes the given key.
 func (c *Scratch) Delete(key string) string {
 	c.mu.Lock()
 	delete(c.values, key)
@@ -81,7 +81,7 @@ func (c *Scratch) Delete(key string) string {
 	return ""
 }
 
-// Get returns a value previously set by Add or Set
+// Get returns a value previously set by Add or Set.
 func (c *Scratch) Get(key string) interface{} {
 	c.mu.RLock()
 	val := c.values[key]
@@ -104,7 +104,7 @@ func (c *Scratch) SetInMap(key string, mapKey string, value interface{}) string 
 	return ""
 }
 
-// GetSortedMapValues returns a sorted map previously filled with SetInMap
+// GetSortedMapValues returns a sorted map previously filled with SetInMap.
 func (c *Scratch) GetSortedMapValues(key string) interface{} {
 	c.mu.RLock()
 
@@ -130,6 +130,7 @@ func (c *Scratch) GetSortedMapValues(key string) interface{} {
 	return sortedArray
 }
 
+// NewScratch returns a new instance Scratch.
 func NewScratch() *Scratch {
 	return &Scratch{values: make(map[string]interface{})}
 }
