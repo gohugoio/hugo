@@ -72,6 +72,7 @@ type DestinationPublisher struct {
 	min    minifiers.Client
 }
 
+// NewDestinationPublisher creates a new DestinationPublisher.
 func NewDestinationPublisher(fs afero.Fs, outputFormats output.Formats, mediaTypes media.Types, minify bool) DestinationPublisher {
 	pub := DestinationPublisher{fs: fs}
 	if minify {
