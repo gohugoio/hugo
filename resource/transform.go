@@ -386,7 +386,7 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 		}
 
 		if err := tr.transformation.Transform(tctx); err != nil {
-			if err == errors.FeatureNotAvailableErr {
+			if err == errors.ErrFeatureNotAvailable {
 				// This transformation is not available in this
 				// Hugo installation (scss not compiled in, PostCSS not available etc.)
 				// If a prepared bundle for this transformation chain is available, use that.

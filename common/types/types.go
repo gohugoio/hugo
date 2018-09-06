@@ -41,6 +41,8 @@ func (k KeyValues) String() string {
 	return fmt.Sprintf("%v: %v", k.Key, k.Values)
 }
 
+// NewKeyValuesStrings takes a given key and slice of values and returns a new
+// KeyValues struct.
 func NewKeyValuesStrings(key string, values ...string) KeyValues {
 	iv := make([]interface{}, len(values))
 	for i := 0; i < len(values); i++ {
