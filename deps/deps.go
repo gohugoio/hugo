@@ -76,6 +76,7 @@ type Deps struct {
 	BuildStartListeners *Listeners
 }
 
+// Listeners represents an event listener.
 type Listeners struct {
 	sync.Mutex
 
@@ -83,12 +84,14 @@ type Listeners struct {
 	listeners []func()
 }
 
+// Add adds a function to a Listeners instance.
 func (b *Listeners) Add(f func()) {
 	b.Lock()
 	defer b.Unlock()
 	b.listeners = append(b.listeners, f)
 }
 
+// Notify executes all listener functions.
 func (b *Listeners) Notify() {
 	b.Lock()
 	defer b.Unlock()
