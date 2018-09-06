@@ -31,13 +31,13 @@ func newGitHubAPI(repo string) *gitHubAPI {
 
 type gitHubCommit struct {
 	Author  gitHubAuthor `json:"author"`
-	HtmlURL string       `json:"html_url"`
+	HTMLURL string       `json:"html_url"`
 }
 
 type gitHubAuthor struct {
 	ID        int    `json:"id"`
 	Login     string `json:"login"`
-	HtmlURL   string `json:"html_url"`
+	HTMLURL   string `json:"html_url"`
 	AvatarURL string `json:"avatar_url"`
 }
 
@@ -45,7 +45,7 @@ type gitHubRepo struct {
 	ID           int    `json:"id"`
 	Name         string `json:"name"`
 	Description  string `json:"description"`
-	HtmlURL      string `json:"html_url"`
+	HTMLURL      string `json:"html_url"`
 	Stars        int    `json:"stargazers_count"`
 	Contributors []gitHubContributor
 }
@@ -53,7 +53,7 @@ type gitHubRepo struct {
 type gitHubContributor struct {
 	ID            int    `json:"id"`
 	Login         string `json:"login"`
-	HtmlURL       string `json:"html_url"`
+	HTMLURL       string `json:"html_url"`
 	Contributions int    `json:"contributions"`
 }
 
