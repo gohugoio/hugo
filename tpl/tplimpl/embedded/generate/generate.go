@@ -81,6 +81,7 @@ func main() {
 // Package embedded defines the internal templates that Hugo provides.
 package embedded
 
+// EmbeddedTemplates represents all embedded templates.
 var EmbeddedTemplates = [][2]string{
 `)
 

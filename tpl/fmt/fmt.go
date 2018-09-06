@@ -15,6 +15,7 @@ package fmt
 
 import (
 	_fmt "fmt"
+
 	"github.com/gohugoio/hugo/helpers"
 )
 
@@ -44,6 +45,8 @@ func (ns *Namespace) Println(a ...interface{}) string {
 	return _fmt.Sprintln(a...)
 }
 
+// Errorf formats according to a format specifier and returns the string as a
+// value that satisfies error.
 func (ns *Namespace) Errorf(format string, a ...interface{}) string {
 	ns.errorLogger.Printf(format, a...)
 	return _fmt.Sprintf(format, a...)

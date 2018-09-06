@@ -34,12 +34,16 @@ import (
 	"github.com/gohugoio/hugo/deps"
 )
 
+// TemplateFuncsNamespaceRegistry describes a registry of functions that provide
+// namespaces.
 var TemplateFuncsNamespaceRegistry []func(d *deps.Deps) *TemplateFuncsNamespace
 
+// AddTemplateFuncsNamespace adds a given function to a registry.
 func AddTemplateFuncsNamespace(ns func(d *deps.Deps) *TemplateFuncsNamespace) {
 	TemplateFuncsNamespaceRegistry = append(TemplateFuncsNamespaceRegistry, ns)
 }
 
+// TemplateFuncsNamespace represents a template function namespace.
 type TemplateFuncsNamespace struct {
 	// The namespace name, "strings", "lang", etc.
 	Name string
@@ -51,8 +55,10 @@ type TemplateFuncsNamespace struct {
 	MethodMappings map[string]TemplateFuncMethodMapping
 }
 
+// TemplateFuncsNamespaces is a slice of TemplateFuncsNamespace.
 type TemplateFuncsNamespaces []*TemplateFuncsNamespace
 
+// AddMethodMapping adds a method to a template function namespace.
 func (t *TemplateFuncsNamespace) AddMethodMapping(m interface{}, aliases []string, examples [][2]string) {
 	if t.MethodMappings == nil {
 		t.MethodMappings = make(map[string]TemplateFuncMethodMapping)
@@ -80,6 +86,8 @@ func (t *TemplateFuncsNamespace) AddMethodMapping(m interface{}, aliases []strin
 
 }
 
+// TemplateFuncMethodMapping represents a mapping of functions to methods for a
+// given namespace.
 type TemplateFuncMethodMapping struct {
 	Method interface{}
 
@@ -134,6 +142,7 @@ func (t goDocFunc) toJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+// MarshalJSON returns the JSON encoding of namespaces.
 func (namespaces TemplateFuncsNamespaces) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 

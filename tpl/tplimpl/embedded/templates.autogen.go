@@ -16,6 +16,7 @@
 // Package embedded defines the internal templates that Hugo provides.
 package embedded
 
+// EmbeddedTemplates represents all embedded templates.
 var EmbeddedTemplates = [][2]string{
 	{`_default/robots.txt`, `User-agent: *`},
 	{`_default/rss.xml`, `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
