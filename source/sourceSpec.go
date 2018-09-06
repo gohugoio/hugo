@@ -76,6 +76,7 @@ func NewSourceSpec(ps *helpers.PathSpec, fs afero.Fs) *SourceSpec {
 
 }
 
+// IgnoreFile returns whether a given file should be ignored.
 func (s *SourceSpec) IgnoreFile(filename string) bool {
 	if filename == "" {
 		if _, ok := s.SourceFs.(*afero.OsFs); ok {
@@ -109,6 +110,8 @@ func (s *SourceSpec) IgnoreFile(filename string) bool {
 	return false
 }
 
+// IsRegularSourceFile returns whether filename represents a regular file in the
+// source filesystem.
 func (s *SourceSpec) IsRegularSourceFile(filename string) (bool, error) {
 	fi, err := helpers.LstatIfPossible(s.SourceFs, filename)
 	if err != nil {

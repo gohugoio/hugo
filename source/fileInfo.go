@@ -34,6 +34,7 @@ var (
 	_ ReadableFile = (*FileInfo)(nil)
 )
 
+// File represents a source file.
 type File interface {
 
 	// Filename gets the full path and filename to the file.
@@ -84,6 +85,7 @@ type ReadableFile interface {
 	Open() (io.ReadCloser, error)
 }
 
+// FileInfo describes a source file.
 type FileInfo struct {
 
 	// Absolute filename to the file on disk.
@@ -112,30 +114,55 @@ type FileInfo struct {
 	lazyInit sync.Once
 }
 
-func (fi *FileInfo) Filename() string            { return fi.filename }
-func (fi *FileInfo) Path() string                { return fi.relPath }
-func (fi *FileInfo) Dir() string                 { return fi.relDir }
-func (fi *FileInfo) Extension() string           { return fi.Ext() }
-func (fi *FileInfo) Ext() string                 { return fi.ext }
-func (fi *FileInfo) Lang() string                { return fi.lang }
-func (fi *FileInfo) LogicalName() string         { return fi.name }
-func (fi *FileInfo) BaseFileName() string        { return fi.baseName }
+// Filename returns a file's filename.
+func (fi *FileInfo) Filename() string { return fi.filename }
+
+// Path returns a file's relative path.
+func (fi *FileInfo) Path() string { return fi.relPath }
+
+// Dir returns a file's directory.
+func (fi *FileInfo) Dir() string { return fi.relDir }
+
+// Extension returns a file's extension.
+func (fi *FileInfo) Extension() string { return fi.Ext() }
+
+// Ext returns a file's extension without the leading period.
+func (fi *FileInfo) Ext() string { return fi.ext }
+
+// Lang returns a file's language.
+func (fi *FileInfo) Lang() string { return fi.lang }
+
+// LogicalName returns a file's name.
+func (fi *FileInfo) LogicalName() string { return fi.name }
+
+// BaseFileName returns a file's base name.
+func (fi *FileInfo) BaseFileName() string { return fi.baseName }
+
+// TranslationBaseName returns a file's translation base name.
 func (fi *FileInfo) TranslationBaseName() string { return fi.translationBaseName }
 
+// Section returns a file's section.
 func (fi *FileInfo) Section() string {
 	fi.init()
 	return fi.section
 }
 
+// UniqueID returns a file's unique identifier.
 func (fi *FileInfo) UniqueID() string {
 	fi.init()
 	return fi.uniqueID
 }
-func (fi *FileInfo) FileInfo() os.FileInfo {
-	return fi.fi
-}
+
+// FileInfo returns a file's underlying os.FileInfo.
+func (fi *FileInfo) FileInfo() os.FileInfo { return fi.fi }
 
 func (fi *FileInfo) String() string { return fi.BaseFileName() }
+
+// Open implements ReadableFile.
+func (fi *FileInfo) Open() (io.ReadCloser, error) {
+	f, err := fi.sp.SourceFs.Open(fi.Filename())
+	return f, err
+}
 
 // We create a lot of these FileInfo objects, but there are parts of it used only
 // in some cases that is slightly expensive to construct.
@@ -155,6 +182,7 @@ func (fi *FileInfo) init() {
 	})
 }
 
+// NewFileInfo returns a new FileInfo structure.
 func (sp *SourceSpec) NewFileInfo(baseDir, filename string, isLeafBundle bool, fi os.FileInfo) *FileInfo {
 
 	var lang, translationBaseName, relPath string
@@ -216,12 +244,6 @@ func (sp *SourceSpec) NewFileInfo(baseDir, filename string, isLeafBundle bool, f
 
 	return f
 
-}
-
-// Open implements ReadableFile.
-func (fi *FileInfo) Open() (io.ReadCloser, error) {
-	f, err := fi.sp.SourceFs.Open(fi.Filename())
-	return f, err
 }
 
 func printFs(fs afero.Fs, path string, w io.Writer) {
