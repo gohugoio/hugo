@@ -73,6 +73,7 @@ type Config struct {
 	Indices IndexConfigs
 }
 
+// Add adds a given index.
 func (c *Config) Add(index IndexConfig) {
 	if c.ToLower {
 		index.ToLower = true
@@ -252,6 +253,7 @@ func (idx *InvertedIndex) SearchDoc(doc Document, indices ...string) ([]Document
 	return idx.searchDate(doc.PubDate(), q...)
 }
 
+// ToKeywords returns a Keyword slice of the given input.
 func (cfg IndexConfig) ToKeywords(v interface{}) ([]Keyword, error) {
 	var (
 		keywords []Keyword
@@ -279,7 +281,7 @@ func (cfg IndexConfig) ToKeywords(v interface{}) ([]Keyword, error) {
 	case nil:
 		return keywords, nil
 	default:
-		return keywords, fmt.Errorf("indexing currently not supported for for index %q and type %T", cfg.Name, vv)
+		return keywords, fmt.Errorf("indexing currently not supported for index %q and type %T", cfg.Name, vv)
 	}
 
 	return keywords, nil
