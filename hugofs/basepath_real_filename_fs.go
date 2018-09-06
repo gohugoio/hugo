@@ -36,16 +36,20 @@ func (f *realFilenameInfo) RealFilename() string {
 	return f.realFilename
 }
 
+// NewBasePathRealFilenameFs returns a new NewBasePathRealFilenameFs instance
+// using base.
 func NewBasePathRealFilenameFs(base *afero.BasePathFs) *BasePathRealFilenameFs {
 	return &BasePathRealFilenameFs{BasePathFs: base}
 }
 
-// This is a thin wrapper around afero.BasePathFs that provides the real filename
-// in Stat and LstatIfPossible.
+// BasePathRealFilenameFs is a thin wrapper around afero.BasePathFs that
+// provides the real filename in Stat and LstatIfPossible.
 type BasePathRealFilenameFs struct {
 	*afero.BasePathFs
 }
 
+// Stat returns the os.FileInfo structure describing a given file.  If there is
+// an error, it will be of type *os.PathError.
 func (b *BasePathRealFilenameFs) Stat(name string) (os.FileInfo, error) {
 	fi, err := b.BasePathFs.Stat(name)
 	if err != nil {
@@ -64,6 +68,9 @@ func (b *BasePathRealFilenameFs) Stat(name string) (os.FileInfo, error) {
 	return &realFilenameInfo{FileInfo: fi, realFilename: filename}, nil
 }
 
+// LstatIfPossible returns the os.FileInfo structure describing a given file.
+// It attempts to use Lstat if supported or defers to the os.  In addition to
+// the FileInfo, a boolean is returned telling whether Lstat was called.
 func (b *BasePathRealFilenameFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 
 	fi, ok, err := b.BasePathFs.LstatIfPossible(name)
