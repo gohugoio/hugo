@@ -45,7 +45,7 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 
 	en := language.GetPluralSpec("en")
 	if en == nil {
-		return errors.New("The English language has vanished like an old oak table!")
+		return errors.New("the English language has vanished like an old oak table")
 	}
 	var newLangs []string
 
