@@ -29,12 +29,12 @@ var testdataPermalinks = []struct {
 	{"/:year-:month-:title", true, "/2012-04-spf13-vim-3.0-release-and-new-website"},
 
 	{"/:year/:yearday/:month/:monthname/:day/:weekday/:weekdayname/", true, "/2012/97/04/April/06/5/Friday/"}, // Dates
-	{"/:section/", true, "/blue/"},                                                                            // Section
-	{"/:title/", true, "/spf13-vim-3.0-release-and-new-website/"},                                             // Title
-	{"/:slug/", true, "/spf13-vim-3-0-release-and-new-website/"},                                              // Slug
-	{"/:filename/", true, "/test-page/"},                                                                      // Filename
+	{"/:section/", true, "/blue/"},                                // Section
+	{"/:title/", true, "/spf13-vim-3.0-release-and-new-website/"}, // Title
+	{"/:slug/", true, "/spf13-vim-3-0-release-and-new-website/"},  // Slug
+	{"/:filename/", true, "/test-page/"},                          // Filename
 	// TODO(moorereason): need test scaffolding for this.
-	//{"/:sections/", false, "/blue/"},                                                                          // Sections
+	//{"/:sections/", false, "/blue/"},                              // Sections
 
 	// Failures
 	{"/blog/:fred", false, ""},
