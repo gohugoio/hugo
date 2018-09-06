@@ -94,6 +94,8 @@ func NewRootMappingFs(fs afero.Fs, fromTo ...string) (*RootMappingFs, error) {
 		rootMapToReal: rootMapToReal.Commit().Root()}, nil
 }
 
+// Stat returns the os.FileInfo structure describing a given file.  If there is
+// an error, it will be of type *os.PathError.
 func (fs *RootMappingFs) Stat(name string) (os.FileInfo, error) {
 	if fs.isRoot(name) {
 		return newRootMappingDirFileInfo(name), nil
@@ -107,6 +109,7 @@ func (fs *RootMappingFs) isRoot(name string) bool {
 
 }
 
+// Open opens the named file for reading.
 func (fs *RootMappingFs) Open(name string) (afero.File, error) {
 	if fs.isRoot(name) {
 		return &rootMappingFile{name: name, fs: fs}, nil
@@ -119,6 +122,9 @@ func (fs *RootMappingFs) Open(name string) (afero.File, error) {
 	return &rootMappingFile{File: f, name: name, fs: fs}, nil
 }
 
+// LstatIfPossible returns the os.FileInfo structure describing a given file.
+// It attempts to use Lstat if supported or defers to the os.  In addition to
+// the FileInfo, a boolean is returned telling whether Lstat was called.
 func (fs *RootMappingFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
 	if fs.isRoot(name) {
 		return newRootMappingDirFileInfo(name), false, nil
