@@ -71,10 +71,8 @@ type Format struct {
 	NotAlternative bool `json:"notAlternative"`
 }
 
+// An ordered list of built-in output formats.
 var (
-	// An ordered list of built-in output formats
-	//
-	// See https://www.ampproject.org/learn/overview/
 	AMPFormat = Format{
 		Name:      "AMP",
 		MediaType: media.HTMLType,
@@ -82,6 +80,7 @@ var (
 		Path:      "amp",
 		Rel:       "amphtml",
 		IsHTML:    true,
+		// See https://www.ampproject.org/learn/overview/
 	}
 
 	CalendarFormat = Format{
@@ -150,6 +149,7 @@ var (
 	}
 )
 
+// DefaultFormats contains the default output formats supported by Hugo.
 var DefaultFormats = Formats{
 	AMPFormat,
 	CalendarFormat,
@@ -166,6 +166,7 @@ func init() {
 	sort.Sort(DefaultFormats)
 }
 
+// Formats is a slice of Format.
 type Formats []Format
 
 func (formats Formats) Len() int           { return len(formats) }
@@ -330,10 +331,12 @@ func decode(mediaTypes media.Types, input, output interface{}) error {
 	return decoder.Decode(input)
 }
 
+// BaseFilename returns the base filename of formats.
 func (formats Format) BaseFilename() string {
 	return formats.BaseName + formats.MediaType.FullSuffix()
 }
 
+// MarshalJSON returns the JSON encoding of formats.
 func (formats Format) MarshalJSON() ([]byte, error) {
 	type Alias Format
 	return json.Marshal(&struct {

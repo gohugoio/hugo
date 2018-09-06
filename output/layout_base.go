@@ -30,6 +30,7 @@ var (
 	goTemplateInnerMarkers  = [][]byte{[]byte("{{define"), []byte("{{ define"), []byte("{{- define"), []byte("{{-define")}
 )
 
+// TemplateNames represents a template naming scheme.
 type TemplateNames struct {
 	// The name used as key in the template map. Note that this will be
 	// prefixed with "_text/" if it should be parsed with text/template.
@@ -39,6 +40,7 @@ type TemplateNames struct {
 	MasterFilename  string
 }
 
+// TemplateLookupDescriptor describes the template lookup configuration.
 type TemplateLookupDescriptor struct {
 	// The full path to the site root.
 	WorkingDir string
@@ -62,6 +64,7 @@ func isShorthCodeOrPartial(name string) bool {
 	return strings.HasPrefix(name, "shortcodes/") || strings.HasPrefix(name, "partials/")
 }
 
+// CreateTemplateNames returns a TemplateNames object for a given template.
 func CreateTemplateNames(d TemplateLookupDescriptor) (TemplateNames, error) {
 
 	name := filepath.ToSlash(d.RelPath)
