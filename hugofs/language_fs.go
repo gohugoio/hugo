@@ -51,7 +51,8 @@ type FilePather interface {
 	BaseDir() string
 }
 
-// LanguageDirsMerger implements the afero.DirsMerger interface.
+// LanguageDirsMerger implements the afero.DirsMerger interface, which is used
+// to merge two directories.
 var LanguageDirsMerger = func(lofi, bofi []os.FileInfo) ([]os.FileInfo, error) {
 	m := make(map[string]*LanguageFileInfo)
 
@@ -102,39 +103,41 @@ type LanguageFileInfo struct {
 	weight int
 }
 
-// Filename returns a file's real filename.
+// Filename returns a file's real filename including the base (ie.
+// "/my/base/sect/page.md").
 func (fi *LanguageFileInfo) Filename() string {
 	return fi.realFilename
 }
 
-// Path returns a file's relative filename.
+// Path returns a file's filename relative to the base (ie. "sect/page.md").
 func (fi *LanguageFileInfo) Path() string {
 	return fi.relFilename
 }
 
-// RealName returns a file's real name.
+// RealName returns a file's real base name (ie. "page.md").
 func (fi *LanguageFileInfo) RealName() string {
 	return fi.realName
 }
 
-// BaseDir returns a file's base directory.
+// BaseDir returns a file's base directory (ie. "/my/base").
 func (fi *LanguageFileInfo) BaseDir() string {
 	return fi.baseDir
 }
 
-// Lang returns a file's language.
+// Lang returns a file's language (ie. "sv").
 func (fi *LanguageFileInfo) Lang() string {
 	return fi.lang
 }
 
 // TranslationBaseName returns the base filename without any extension or language
-// identificator.
+// identifiers (ie. "page").
 func (fi *LanguageFileInfo) TranslationBaseName() string {
 	return fi.translationBaseName
 }
 
 // Name is the name of the file within this filesystem without any path info.
-// It will be marked with language information so we can identify it as ours.
+// It will be marked with language information so we can identify it as ours
+// (ie. "__hugofs_sv_page.md").
 func (fi *LanguageFileInfo) Name() string {
 	return fi.name
 }
@@ -175,7 +178,7 @@ type LanguageFs struct {
 	afero.Fs
 }
 
-// NewLanguageFs creates a new LanguageFs.
+// NewLanguageFs creates a new language filesystem.
 func NewLanguageFs(lang string, languages map[string]bool, fs afero.Fs) *LanguageFs {
 	if lang == "" {
 		panic("no lang set for the language fs")
@@ -191,7 +194,7 @@ func NewLanguageFs(lang string, languages map[string]bool, fs afero.Fs) *Languag
 	return &LanguageFs{lang: lang, languages: languages, basePath: basePath, Fs: fs, nameMarker: marker}
 }
 
-// Lang returns a language filesystem's language.
+// Lang returns a language filesystem's language (ie. "sv").
 func (fs *LanguageFs) Lang() string {
 	return fs.lang
 }

@@ -331,19 +331,20 @@ func decode(mediaTypes media.Types, input, output interface{}) error {
 	return decoder.Decode(input)
 }
 
-// BaseFilename returns the base filename of formats.
-func (formats Format) BaseFilename() string {
-	return formats.BaseName + formats.MediaType.FullSuffix()
+// BaseFilename returns the base filename of f including an extension (ie.
+// "index.xml").
+func (f Format) BaseFilename() string {
+	return f.BaseName + f.MediaType.FullSuffix()
 }
 
-// MarshalJSON returns the JSON encoding of formats.
-func (formats Format) MarshalJSON() ([]byte, error) {
+// MarshalJSON returns the JSON encoding of f.
+func (f Format) MarshalJSON() ([]byte, error) {
 	type Alias Format
 	return json.Marshal(&struct {
 		MediaType string
 		Alias
 	}{
-		MediaType: formats.MediaType.String(),
-		Alias:     (Alias)(formats),
+		MediaType: f.MediaType.String(),
+		Alias:     (Alias)(f),
 	})
 }
