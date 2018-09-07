@@ -50,10 +50,9 @@ func TestLanguagFs(t *testing.T) {
 	assert.Equal("page.sv.md", lfi.virtualName)
 	assert.Equal("__hugofs_sv_page.md", lfi.Name())
 	assert.Equal("page.md", lfi.RealName())
-	assert.Equal("/my/base", lfi.BaseDir())
+	assert.Equal(filepath.FromSlash("/my/base"), lfi.BaseDir())
 	assert.Equal("sv", lfi.Lang())
 	assert.Equal("page", lfi.TranslationBaseName())
-
 }
 
 // Issue 4559
