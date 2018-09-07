@@ -155,6 +155,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.FirstUpper,
+			nil,
+			[][2]string{
+				{`{{ "hugo rocks!" | strings.FirstUpper }}`, `Hugo rocks!`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Truncate,
 			[]string{"truncate"},
 			[][2]string{

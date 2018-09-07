@@ -325,6 +325,16 @@ func (ns *Namespace) Title(s interface{}) (string, error) {
 	return ns.titleFunc(ss), nil
 }
 
+// FirstUpper returns a string with the first character as upper case.
+func (ns *Namespace) FirstUpper(s interface{}) (string, error) {
+	ss, err := cast.ToStringE(s)
+	if err != nil {
+		return "", err
+	}
+
+	return helpers.FirstUpper(ss), nil
+}
+
 // ToLower returns a copy of the input s with all Unicode letters mapped to their
 // lower case.
 func (ns *Namespace) ToLower(s interface{}) (string, error) {
