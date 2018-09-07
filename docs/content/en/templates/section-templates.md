@@ -35,8 +35,8 @@ Every `Page` in Hugo has a `.Kind` attribute.
 | `home`         | The home page                                                      | `/index.html`                                                                 |
 | `page`         | A page showing a _regular page_                                    | `my-post` page (`/posts/my-post/index.html`)                                  |
 | `section`      | A page listing _regular pages_ from a given [_section_][sections]  | `posts` section (`/posts/index.html`)                                         |
-| `taxonomy`     | A page listing _regular pages_ from a given _taxonomy term_        | page for the term `awesome` from `tags` taxonomy (`/tags/awesome/index.html`) |
-| `taxonomyTerm` | A page listing terms from a given _taxonomy_                       | page for the `tags` taxonomy (`/tags/index.html`)                             |
+| `taxonomy`     | A page listing terms from a given _taxonomy_                       | page for the `tags` taxonomy (`/tags/index.html`)                             |
+| `taxonomyTerm` | A page listing _regular pages_ from a given _taxonomy term_        | page for the term `awesome` from `tags` taxonomy (`/tags/awesome/index.html`) |
 
 ## `.Site.GetPage` with Sections
 
