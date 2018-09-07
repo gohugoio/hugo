@@ -150,9 +150,9 @@ Much like regular pages, taxonomy list [permalinks](/content-management/urls/) a
 {{% /note %}}
 
 {{% warning "`preserveTaxonomyNames` behaviour change" %}}
-Before 0.49, Hugo would title-ize the taxonomy values for titles even if `preserveTaxonomyNames` was active. This no longer the case, which (for instance) makes it possible to have fully lower-case values.
+Before 0.49, Hugo would make the first character upper case for the taxonomy values for titles even if `preserveTaxonomyNames` was active. This no longer the case, which (for instance) makes it possible to have fully lower-case values.
 
-If you actually need to title-ize these values, you can do so using the [`title` template function][].
+If you actually need to title-ize these values, you can do so using the `strings.FirstUpper` template function.
 {{% /warning %}}
 
 ## Add Taxonomies to Content
@@ -211,7 +211,6 @@ If you need to add custom metadata to your taxonomy terms, you will need to crea
 
 You can later use your custom metadata as shown in the [Taxonomy Terms Templates documentation](/templates/taxonomy-templates/#displaying-custom-metadata-in-taxonomy-terms-templates).
 
-[`title` template function]: /functions/title/
 [`urlize` template function]: /functions/urlize/
 [content section]: /content-management/sections/
 [content type]: /content-management/types/
