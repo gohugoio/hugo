@@ -36,7 +36,7 @@ func (f *realFilenameInfo) RealFilename() string {
 	return f.realFilename
 }
 
-// NewBasePathRealFilenameFs returns a new NewBasePathRealFilenameFs instance
+// NewBasePathRealFilenameFs returns a new BasePathRealFilenameFs instance
 // using base.
 func NewBasePathRealFilenameFs(base *afero.BasePathFs) *BasePathRealFilenameFs {
 	return &BasePathRealFilenameFs{BasePathFs: base}

@@ -114,31 +114,34 @@ type FileInfo struct {
 	lazyInit sync.Once
 }
 
-// Filename returns a file's filename.
+// Filename returns a file's absolute path and filename on disk.
 func (fi *FileInfo) Filename() string { return fi.filename }
 
-// Path returns a file's relative path.
+// Path gets the relative path including file name and extension.  The directory
+// is relative to the content root.
 func (fi *FileInfo) Path() string { return fi.relPath }
 
-// Dir returns a file's directory.
+// Dir gets the name of the directory that contains this file.  The directory is
+// relative to the content root.
 func (fi *FileInfo) Dir() string { return fi.relDir }
 
-// Extension returns a file's extension.
+// Extension is an alias to Ext().
 func (fi *FileInfo) Extension() string { return fi.Ext() }
 
-// Ext returns a file's extension without the leading period.
+// Ext returns a file's extension without the leading period (ie. "md").
 func (fi *FileInfo) Ext() string { return fi.ext }
 
-// Lang returns a file's language.
+// Lang returns a file's language (ie. "sv").
 func (fi *FileInfo) Lang() string { return fi.lang }
 
-// LogicalName returns a file's name.
+// LogicalName returns a file's name and extension (ie. "page.sv.md").
 func (fi *FileInfo) LogicalName() string { return fi.name }
 
-// BaseFileName returns a file's base name.
+// BaseFileName returns a file's name without extension (ie. "page.sv").
 func (fi *FileInfo) BaseFileName() string { return fi.baseName }
 
-// TranslationBaseName returns a file's translation base name.
+// TranslationBaseName returns a file's translation base name without the
+// language segement (ie. "page").
 func (fi *FileInfo) TranslationBaseName() string { return fi.translationBaseName }
 
 // Section returns a file's section.
@@ -147,7 +150,7 @@ func (fi *FileInfo) Section() string {
 	return fi.section
 }
 
-// UniqueID returns a file's unique identifier.
+// UniqueID returns a file's unique, MD5 hash identifier.
 func (fi *FileInfo) UniqueID() string {
 	fi.init()
 	return fi.uniqueID
