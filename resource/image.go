@@ -16,28 +16,26 @@ package resource
 import (
 	"errors"
 	"fmt"
+	"image"
 	"image/color"
+	"image/draw"
+	"image/jpeg"
 	"io"
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/mitchellh/mapstructure"
-
-	"github.com/gohugoio/hugo/common/hugio"
-	"github.com/gohugoio/hugo/helpers"
-
-	// Importing image codecs for image.DecodeConfig
-	"image"
-	"image/draw"
-	_ "image/gif"
-	"image/jpeg"
-	_ "image/png"
-
-	"github.com/disintegration/imaging"
-	// Import webp codec
 	"sync"
 
+	"github.com/disintegration/imaging"
+	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/mitchellh/mapstructure"
+
+	// Blind import for image.Decode
+	_ "image/gif"
+	_ "image/png"
+
+	// Blind import for image.Decode
 	_ "golang.org/x/image/webp"
 )
 
@@ -117,6 +115,7 @@ var imageFilters = map[string]imaging.ResampleFilter{
 	strings.ToLower("Cosine"):            imaging.Cosine,
 }
 
+// Image represents an image resource.
 type Image struct {
 	config       image.Config
 	configInit   sync.Once
@@ -134,17 +133,19 @@ type Image struct {
 	*genericResource
 }
 
+// Width returns i's width.
 func (i *Image) Width() int {
 	i.initConfig()
 	return i.config.Width
 }
 
+// Height returns i's height.
 func (i *Image) Height() int {
 	i.initConfig()
 	return i.config.Height
 }
 
-// Implement the Cloner interface.
+// WithNewBase implements the Cloner interface.
 func (i *Image) WithNewBase(base string) Resource {
 	return &Image{
 		imaging:         i.imaging,
@@ -535,9 +536,8 @@ func (i *Image) encodeToDestinations(img image.Image, conf imageConfig, resource
 		}
 		if rgba != nil {
 			return jpeg.Encode(w, rgba, &jpeg.Options{Quality: quality})
-		} else {
-			return jpeg.Encode(w, img, &jpeg.Options{Quality: quality})
 		}
+		return jpeg.Encode(w, img, &jpeg.Options{Quality: quality})
 	default:
 		return imaging.Encode(w, img, i.format)
 	}
