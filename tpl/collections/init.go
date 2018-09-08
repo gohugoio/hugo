@@ -138,6 +138,11 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.Group,
+			[]string{"group"},
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Seq,
 			[]string{"seq"},
 			[][2]string{

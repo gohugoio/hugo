@@ -75,6 +75,47 @@ func TestAfter(t *testing.T) {
 	}
 }
 
+type tstGrouper struct {
+}
+
+type tstGroupers []*tstGrouper
+
+func (g tstGrouper) Group(key interface{}, items interface{}) (interface{}, error) {
+	ilen := reflect.ValueOf(items).Len()
+	return fmt.Sprintf("%v(%d)", key, ilen), nil
+}
+
+func TestGroup(t *testing.T) {
+	t.Parallel()
+
+	ns := New(&deps.Deps{})
+
+	for i, test := range []struct {
+		key    interface{}
+		items  interface{}
+		expect interface{}
+	}{
+		{"a", []*tstGrouper{&tstGrouper{}, &tstGrouper{}}, "a(2)"},
+		{"b", tstGroupers{&tstGrouper{}, &tstGrouper{}}, "b(2)"},
+		{"a", []tstGrouper{tstGrouper{}, tstGrouper{}}, "a(2)"},
+		{"a", []*tstGrouper{}, "a(0)"},
+		{"a", []string{"a", "b"}, false},
+		{nil, []*tstGrouper{&tstGrouper{}, &tstGrouper{}}, false},
+	} {
+		errMsg := fmt.Sprintf("[%d] %v", i, test)
+
+		result, err := ns.Group(test.key, test.items)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			require.Error(t, err, errMsg)
+			continue
+		}
+
+		require.NoError(t, err, errMsg)
+		require.Equal(t, test.expect, result, errMsg)
+	}
+}
+
 func TestDelimit(t *testing.T) {
 	t.Parallel()
 
