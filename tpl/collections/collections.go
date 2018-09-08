@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
@@ -309,6 +310,30 @@ func (ns *Namespace) Intersect(l1, l2 interface{}) (interface{}, error) {
 	default:
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(l1).Type().String())
 	}
+}
+
+// Group groups a set of elements by the given key.
+// This is currently only supported for Pages.
+func (ns *Namespace) Group(key interface{}, items interface{}) (interface{}, error) {
+	if key == nil {
+		return nil, errors.New("nil is not a valid key to group by")
+	}
+
+	tp := reflect.TypeOf(items)
+	switch tp.Kind() {
+	case reflect.Array, reflect.Slice:
+		tp = tp.Elem()
+		if tp.Kind() == reflect.Ptr {
+			tp = tp.Elem()
+		}
+		in := reflect.Zero(tp).Interface()
+		switch vv := in.(type) {
+		case collections.Grouper:
+			return vv.Group(key, items)
+		}
+	}
+
+	return nil, fmt.Errorf("grouping not supported for type %T", items)
 }
 
 // IsSet returns whether a given array, channel, slice, or map has a key
