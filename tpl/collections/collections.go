@@ -326,7 +326,7 @@ func (ns *Namespace) Group(key interface{}, items interface{}) (interface{}, err
 		if tp.Kind() == reflect.Ptr {
 			tp = tp.Elem()
 		}
-		in := reflect.Zero(tp).Interface()
+		in := reflect.New(tp).Interface()
 		switch vv := in.(type) {
 		case collections.Grouper:
 			return vv.Group(key, items)

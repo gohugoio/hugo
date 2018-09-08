@@ -85,6 +85,14 @@ func (g tstGrouper) Group(key interface{}, items interface{}) (interface{}, erro
 	return fmt.Sprintf("%v(%d)", key, ilen), nil
 }
 
+type tstGrouper2 struct {
+}
+
+func (g *tstGrouper2) Group(key interface{}, items interface{}) (interface{}, error) {
+	ilen := reflect.ValueOf(items).Len()
+	return fmt.Sprintf("%v(%d)", key, ilen), nil
+}
+
 func TestGroup(t *testing.T) {
 	t.Parallel()
 
@@ -98,6 +106,8 @@ func TestGroup(t *testing.T) {
 		{"a", []*tstGrouper{&tstGrouper{}, &tstGrouper{}}, "a(2)"},
 		{"b", tstGroupers{&tstGrouper{}, &tstGrouper{}}, "b(2)"},
 		{"a", []tstGrouper{tstGrouper{}, tstGrouper{}}, "a(2)"},
+		{"a", []*tstGrouper2{&tstGrouper2{}, &tstGrouper2{}}, "a(2)"},
+		{"b", []tstGrouper2{tstGrouper2{}, tstGrouper2{}}, "b(2)"},
 		{"a", []*tstGrouper{}, "a(0)"},
 		{"a", []string{"a", "b"}, false},
 		{nil, []*tstGrouper{&tstGrouper{}, &tstGrouper{}}, false},
