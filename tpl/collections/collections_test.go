@@ -25,6 +25,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -110,6 +111,8 @@ func TestGroup(t *testing.T) {
 		{"b", []tstGrouper2{tstGrouper2{}, tstGrouper2{}}, "b(2)"},
 		{"a", []*tstGrouper{}, "a(0)"},
 		{"a", []string{"a", "b"}, false},
+		{"a", "asdf", false},
+		{"a", nil, false},
 		{nil, []*tstGrouper{&tstGrouper{}, &tstGrouper{}}, false},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
@@ -633,25 +636,47 @@ func TestShuffleRandomising(t *testing.T) {
 	}
 }
 
+var _ collections.Slicer = (*tstSlicer)(nil)
+
+type tstSlicer struct {
+	name string
+}
+
+func (p *tstSlicer) Slice(items []interface{}) (interface{}, error) {
+	result := make(tstSlicers, len(items))
+	for i, v := range items {
+		result[i] = v.(*tstSlicer)
+	}
+	return result, nil
+}
+
+type tstSlicers []*tstSlicer
+
 func TestSlice(t *testing.T) {
 	t.Parallel()
 
 	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
-		args []interface{}
+		args     []interface{}
+		expected interface{}
 	}{
-		{[]interface{}{"a", "b"}},
-		// errors
-		{[]interface{}{5, "b"}},
-		{[]interface{}{tstNoStringer{}}},
+		{[]interface{}{"a", "b"}, []interface{}{"a", "b"}},
+		{[]interface{}{&tstSlicer{"a"}, &tstSlicer{"b"}}, tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}}},
+		{[]interface{}{&tstSlicer{"a"}, "b"}, []interface{}{&tstSlicer{"a"}, "b"}},
+		{[]interface{}{}, []interface{}{}},
+		{[]interface{}{nil}, []interface{}{nil}},
+		{[]interface{}{5, "b"}, []interface{}{5, "b"}},
+		{[]interface{}{tstNoStringer{}}, []interface{}{tstNoStringer{}}},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test.args)
 
 		result := ns.Slice(test.args...)
 
-		assert.Equal(t, test.args, result, errMsg)
+		assert.Equal(t, test.expected, result, errMsg)
 	}
+
+	assert.Len(t, ns.Slice(), 0)
 }
 
 func TestUnion(t *testing.T) {

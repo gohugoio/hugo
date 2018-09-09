@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/spf13/cast"
-	"github.com/stretchr/testify/require"
 )
 
 type pageGroupTestObject struct {
@@ -455,29 +454,4 @@ func TestGroupByParamDateWithEmptyPages(t *testing.T) {
 	if groups != nil {
 		t.Errorf("PagesGroup isn't empty. It should be %#v, got %#v", nil, groups)
 	}
-}
-
-func TestGroupFunc(t *testing.T) {
-	assert := require.New(t)
-
-	pageContent := `
----
-title: "Page"
----
-
-`
-	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().
-		WithContent("page1.md", pageContent, "page2.md", pageContent).
-		WithTemplatesAdded("index.html", `
-{{ $cool := .Site.RegularPages | group "cool" }}
-{{ $cool.Key }}: {{ len $cool.Pages }}
-
-`)
-	b.CreateSites().Build(BuildCfg{})
-
-	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages, 2)
-
-	b.AssertFileContent("public/index.html", "cool: 2")
 }

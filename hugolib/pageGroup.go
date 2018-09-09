@@ -296,14 +296,3 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 	}
 	return p.groupByDateField(sorter, formatter, order...)
 }
-
-// Group creates a PageGroup from a key and a Pages object
-// This method is not meant for external use. It got its non-typed arguments to satisfy
-// a very generic interface in the tpl package.
-func (p Page) Group(key interface{}, in interface{}) (interface{}, error) {
-	pages, err := toPages(in)
-	if err != nil {
-		return nil, err
-	}
-	return PageGroup{Key: key, Pages: pages}, nil
-}
