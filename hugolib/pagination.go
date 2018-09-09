@@ -453,20 +453,34 @@ func toPages(seq interface{}) (Pages, error) {
 		return Pages{}, nil
 	}
 
-	switch seq.(type) {
+	switch v := seq.(type) {
 	case Pages:
-		return seq.(Pages), nil
+		return v, nil
 	case *Pages:
-		return *(seq.(*Pages)), nil
+		return *(v), nil
 	case []*Page:
-		return Pages(seq.([]*Page)), nil
+		return Pages(v), nil
 	case WeightedPages:
-		return (seq.(WeightedPages)).Pages(), nil
+		return v.Pages(), nil
 	case PageGroup:
-		return (seq.(PageGroup)).Pages, nil
-	default:
-		return nil, fmt.Errorf("unsupported type in paginate, got %T", seq)
+		return v.Pages, nil
+	case []interface{}:
+		pages := make(Pages, len(v))
+		success := true
+		for i, vv := range v {
+			p, ok := vv.(*Page)
+			if !ok {
+				success = false
+				break
+			}
+			pages[i] = p
+		}
+		if success {
+			return pages, nil
+		}
 	}
+
+	return nil, fmt.Errorf("cannot convert type %T to Pages", seq)
 }
 
 // probablyEqual checks page lists for probable equality.

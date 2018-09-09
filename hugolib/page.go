@@ -23,7 +23,6 @@ import (
 
 	"github.com/gohugoio/hugo/media"
 
-	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/langs"
@@ -71,8 +70,6 @@ var (
 
 	// Assert that it implements the interface needed for related searches.
 	_ related.Document = (*Page)(nil)
-
-	_ collections.Grouper = Page{}
 )
 
 const (

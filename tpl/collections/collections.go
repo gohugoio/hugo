@@ -319,18 +319,10 @@ func (ns *Namespace) Group(key interface{}, items interface{}) (interface{}, err
 		return nil, errors.New("nil is not a valid key to group by")
 	}
 
-	tp := reflect.TypeOf(items)
-	switch tp.Kind() {
-	case reflect.Array, reflect.Slice:
-		tp = tp.Elem()
-		if tp.Kind() == reflect.Ptr {
-			tp = tp.Elem()
-		}
-		in := reflect.New(tp).Interface()
-		switch vv := in.(type) {
-		case collections.Grouper:
-			return vv.Group(key, items)
-		}
+	in := newSliceElement(items)
+
+	if g, ok := in.(collections.Grouper); ok {
+		return g.Group(key, items)
 	}
 
 	return nil, fmt.Errorf("grouping not supported for type %T", items)
@@ -514,7 +506,33 @@ func (ns *Namespace) Shuffle(seq interface{}) (interface{}, error) {
 }
 
 // Slice returns a slice of all passed arguments.
-func (ns *Namespace) Slice(args ...interface{}) []interface{} {
+func (ns *Namespace) Slice(args ...interface{}) interface{} {
+	if len(args) == 0 {
+		return args
+	}
+
+	first := args[0]
+	allTheSame := true
+	if len(args) > 1 {
+		// This can be a mix of types.
+		firstType := reflect.TypeOf(first)
+		for i := 1; i < len(args); i++ {
+			if firstType != reflect.TypeOf(args[i]) {
+				allTheSame = false
+				break
+			}
+		}
+	}
+
+	if allTheSame {
+		if g, ok := first.(collections.Slicer); ok {
+			v, err := g.Slice(args)
+			if err == nil {
+				return v
+			}
+		}
+	}
+
 	return args
 }
 

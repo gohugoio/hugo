@@ -102,6 +102,23 @@ func convertNumber(v reflect.Value, to reflect.Kind) (reflect.Value, error) {
 
 }
 
+func newSliceElement(items interface{}) interface{} {
+	tp := reflect.TypeOf(items)
+	if tp == nil {
+		return nil
+	}
+	switch tp.Kind() {
+	case reflect.Array, reflect.Slice:
+		tp = tp.Elem()
+		if tp.Kind() == reflect.Ptr {
+			tp = tp.Elem()
+		}
+
+		return reflect.New(tp).Interface()
+	}
+	return nil
+}
+
 func isNumber(kind reflect.Kind) bool {
 	return isInt(kind) || isUint(kind) || isFloat(kind)
 }
