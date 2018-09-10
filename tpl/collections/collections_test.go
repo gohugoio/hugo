@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -647,7 +647,8 @@ type tstSlicer struct {
 	name string
 }
 
-func (p *tstSlicer) Slice(items []interface{}) (interface{}, error) {
+func (p *tstSlicer) Slice(in interface{}) (interface{}, error) {
+	items := in.([]interface{})
 	result := make(tstSlicers, len(items))
 	for i, v := range items {
 		result[i] = v.(*tstSlicer)
@@ -666,13 +667,13 @@ func TestSlice(t *testing.T) {
 		args     []interface{}
 		expected interface{}
 	}{
-		{[]interface{}{"a", "b"}, []interface{}{"a", "b"}},
+		{[]interface{}{"a", "b"}, []string{"a", "b"}},
 		{[]interface{}{&tstSlicer{"a"}, &tstSlicer{"b"}}, tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}}},
 		{[]interface{}{&tstSlicer{"a"}, "b"}, []interface{}{&tstSlicer{"a"}, "b"}},
 		{[]interface{}{}, []interface{}{}},
 		{[]interface{}{nil}, []interface{}{nil}},
 		{[]interface{}{5, "b"}, []interface{}{5, "b"}},
-		{[]interface{}{tstNoStringer{}}, []interface{}{tstNoStringer{}}},
+		{[]interface{}{tstNoStringer{}}, []tstNoStringer{tstNoStringer{}}},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test.args)
 

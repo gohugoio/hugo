@@ -28,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/tpl"
 
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
 
@@ -49,6 +50,7 @@ var (
 	_ Cloner                  = (*genericResource)(nil)
 	_ ResourcesLanguageMerger = (*Resources)(nil)
 	_ permalinker             = (*genericResource)(nil)
+	_ collections.Slicer      = (*genericResource)(nil)
 )
 
 var noData = make(map[string]interface{})
@@ -149,6 +151,11 @@ type ReadSeekCloserResource interface {
 // Resources represents a slice of resources, which can be a mix of different types.
 // I.e. both pages and images etc.
 type Resources []Resource
+
+// ResourcesConverter converts a given slice of Resource objects to Resources.
+type ResourcesConverter interface {
+	ToResources() Resources
+}
 
 // ByType returns resources of a given resource type (ie. "image").
 func (r Resources) ByType(tp string) Resources {
@@ -550,6 +557,7 @@ func (l *publishOnce) publish(s Source) error {
 
 // genericResource represents a generic linkable resource.
 type genericResource struct {
+	commonResource
 	resourcePathDescriptor
 
 	title  string
@@ -586,6 +594,9 @@ type genericResource struct {
 	*publishOnce
 }
 
+type commonResource struct {
+}
+
 func (l *genericResource) Data() interface{} {
 	return noData
 }
@@ -619,6 +630,27 @@ func (l genericResource) WithNewBase(base string) Resource {
 	l.baseOffset = base
 	l.resourceContent = &resourceContent{}
 	return &l
+}
+
+// Slice is not meant to be used externally. It's a bridge function
+// for the template functions. See collections.Slice.
+func (commonResource) Slice(in interface{}) (interface{}, error) {
+	switch items := in.(type) {
+	case Resources:
+		return items, nil
+	case []interface{}:
+		groups := make(Resources, len(items))
+		for i, v := range items {
+			g, ok := v.(Resource)
+			if !ok {
+				return nil, fmt.Errorf("type %T is not a Resource", v)
+			}
+			groups[i] = g
+		}
+		return groups, nil
+	default:
+		return nil, fmt.Errorf("invalid slice type %T", items)
+	}
 }
 
 func (l *genericResource) initHash() error {

@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/errors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/helpers"
@@ -37,6 +38,7 @@ import (
 var (
 	_ ContentResource        = (*transformedResource)(nil)
 	_ ReadSeekCloserResource = (*transformedResource)(nil)
+	_ collections.Slicer     = (*transformedResource)(nil)
 )
 
 func (s *Spec) Transform(r Resource, t ResourceTransformation) (Resource, error) {
@@ -166,6 +168,8 @@ type transformedResourceMetadata struct {
 }
 
 type transformedResource struct {
+	commonResource
+
 	cache *ResourceCache
 
 	// This is the filename inside resources/_gen/assets

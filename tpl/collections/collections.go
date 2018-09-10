@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -520,10 +520,11 @@ func (ns *Namespace) Slice(args ...interface{}) interface{} {
 	}
 
 	first := args[0]
-	allTheSame := true
-	if len(args) > 1 {
+	firstType := reflect.TypeOf(first)
+
+	allTheSame := firstType != nil
+	if allTheSame && len(args) > 1 {
 		// This can be a mix of types.
-		firstType := reflect.TypeOf(first)
 		for i := 1; i < len(args); i++ {
 			if firstType != reflect.TypeOf(args[i]) {
 				allTheSame = false
@@ -538,6 +539,12 @@ func (ns *Namespace) Slice(args ...interface{}) interface{} {
 			if err == nil {
 				return v
 			}
+		} else {
+			slice := reflect.MakeSlice(reflect.SliceOf(firstType), len(args), len(args))
+			for i, arg := range args {
+				slice.Index(i).Set(reflect.ValueOf(arg))
+			}
+			return slice.Interface()
 		}
 	}
 
