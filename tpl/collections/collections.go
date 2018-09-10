@@ -298,8 +298,16 @@ func (ns *Namespace) Intersect(l1, l2 interface{}) (interface{}, error) {
 		case reflect.Array, reflect.Slice:
 			for i := 0; i < l1v.Len(); i++ {
 				l1vv := l1v.Index(i)
+				if !l1vv.Type().Comparable() {
+					return make([]interface{}, 0), errors.New("intersect does not support slices or arrays of uncomparable types")
+				}
+
 				for j := 0; j < l2v.Len(); j++ {
 					l2vv := l2v.Index(j)
+					if !l2vv.Type().Comparable() {
+						return make([]interface{}, 0), errors.New("intersect does not support slices or arrays of uncomparable types")
+					}
+
 					ins.handleValuePair(l1vv, l2vv)
 				}
 			}
@@ -609,6 +617,11 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 
 			for i := 0; i < l1v.Len(); i++ {
 				l1vv, isNil = indirectInterface(l1v.Index(i))
+
+				if !l1vv.Type().Comparable() {
+					return []interface{}{}, errors.New("union does not support slices or arrays of uncomparable types")
+				}
+
 				if !isNil {
 					ins.appendIfNotSeen(l1vv)
 				}
