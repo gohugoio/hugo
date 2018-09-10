@@ -21,14 +21,14 @@ import (
 	"strings"
 	"testing"
 
+	jww "github.com/spf13/jwalterweatherman"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetCSV(t *testing.T) {
 	t.Parallel()
-
-	ns := newTestNs()
 
 	for i, test := range []struct {
 		sep     string
@@ -78,6 +78,8 @@ func TestGetCSV(t *testing.T) {
 	} {
 		msg := fmt.Sprintf("Test %d", i)
 
+		ns := newTestNs()
+
 		// Setup HTTP test server
 		var srv *httptest.Server
 		srv, ns.client = getTestServer(func(w http.ResponseWriter, r *http.Request) {
@@ -108,11 +110,14 @@ func TestGetCSV(t *testing.T) {
 		// Get on with it
 		got, err := ns.GetCSV(test.sep, test.url)
 
+		require.NoError(t, err, msg)
+
 		if _, ok := test.expect.(bool); ok {
-			assert.Error(t, err, msg)
+			require.Equal(t, 1, int(ns.deps.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)))
+			require.Nil(t, got)
 			continue
 		}
-		require.NoError(t, err, msg)
+		require.Equal(t, 0, int(ns.deps.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)))
 		require.NotNil(t, got, msg)
 
 		assert.EqualValues(t, test.expect, got, msg)
@@ -121,8 +126,6 @@ func TestGetCSV(t *testing.T) {
 
 func TestGetJSON(t *testing.T) {
 	t.Parallel()
-
-	ns := newTestNs()
 
 	for i, test := range []struct {
 		url     string
@@ -137,12 +140,12 @@ func TestGetJSON(t *testing.T) {
 		{
 			`http://malformed/`,
 			`{gomeetup:["Sydney","San Francisco","Stockholm"]}`,
-			false,
+			jww.LevelError,
 		},
 		{
 			`http://nofound/404`,
 			``,
-			false,
+			jww.LevelError,
 		},
 		// Locals
 		{
@@ -153,10 +156,12 @@ func TestGetJSON(t *testing.T) {
 		{
 			"fail/no-file",
 			"",
-			false,
+			jww.LevelError,
 		},
 	} {
+
 		msg := fmt.Sprintf("Test %d", i)
+		ns := newTestNs()
 
 		// Setup HTTP test server
 		var srv *httptest.Server
@@ -189,10 +194,18 @@ func TestGetJSON(t *testing.T) {
 		got, err := ns.GetJSON(test.url)
 
 		if _, ok := test.expect.(bool); ok {
-			assert.Error(t, err, msg)
+			require.Error(t, err, msg)
+			continue
+		}
+
+		if errLevel, ok := test.expect.(jww.Threshold); ok {
+			logCount := ns.deps.Log.LogCountForLevelsGreaterThanorEqualTo(errLevel)
+			require.True(t, logCount >= 1, fmt.Sprintf("got log count %d", logCount))
 			continue
 		}
 		require.NoError(t, err, msg)
+
+		require.Equal(t, 0, int(ns.deps.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)), msg)
 		require.NotNil(t, got, msg)
 
 		assert.EqualValues(t, test.expect, got, msg)
