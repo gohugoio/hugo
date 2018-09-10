@@ -121,6 +121,10 @@ func (ns *Namespace) Join(elements ...interface{}) (string, error) {
 	var pathElements []string
 	for _, elem := range elements {
 		switch v := elem.(type) {
+		case []string:
+			for _, e := range v {
+				pathElements = append(pathElements, filepath.ToSlash(e))
+			}
 		case []interface{}:
 			for _, e := range v {
 				elemStr, err := cast.ToStringE(e)

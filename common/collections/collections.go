@@ -24,5 +24,5 @@ type Grouper interface {
 // in collections.Slice template func to get types such as Pages, PageGroups etc.
 // instead of the less useful []interface{}.
 type Slicer interface {
-	Slice(items []interface{}) (interface{}, error)
+	Slice(items interface{}) (interface{}, error)
 }

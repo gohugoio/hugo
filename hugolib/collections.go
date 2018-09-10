@@ -16,14 +16,17 @@ package hugolib
 import (
 	"fmt"
 
+	"github.com/gohugoio/hugo/resource"
+
 	"github.com/gohugoio/hugo/common/collections"
 )
 
 var (
-	_ collections.Grouper = (*Page)(nil)
-	_ collections.Slicer  = (*Page)(nil)
-	_ collections.Slicer  = PageGroup{}
-	_ collections.Slicer  = WeightedPage{}
+	_ collections.Grouper         = (*Page)(nil)
+	_ collections.Slicer          = (*Page)(nil)
+	_ collections.Slicer          = PageGroup{}
+	_ collections.Slicer          = WeightedPage{}
+	_ resource.ResourcesConverter = Pages{}
 )
 
 // collections.Slicer implementations below. We keep these bridge implementations
@@ -32,36 +35,50 @@ var (
 
 // Slice is not meant to be used externally. It's a bridge function
 // for the template functions. See collections.Slice.
-func (p *Page) Slice(items []interface{}) (interface{}, error) {
+func (p *Page) Slice(items interface{}) (interface{}, error) {
 	return toPages(items)
 }
 
 // Slice is not meant to be used externally. It's a bridge function
 // for the template functions. See collections.Slice.
-func (p PageGroup) Slice(items []interface{}) (interface{}, error) {
-	groups := make(PagesGroup, len(items))
-	for i, v := range items {
-		g, ok := v.(PageGroup)
-		if !ok {
-			return nil, fmt.Errorf("type %T is not a PageGroup", v)
+func (p PageGroup) Slice(in interface{}) (interface{}, error) {
+	switch items := in.(type) {
+	case PageGroup:
+		return items, nil
+	case []interface{}:
+		groups := make(PagesGroup, len(items))
+		for i, v := range items {
+			g, ok := v.(PageGroup)
+			if !ok {
+				return nil, fmt.Errorf("type %T is not a PageGroup", v)
+			}
+			groups[i] = g
 		}
-		groups[i] = g
+		return groups, nil
+	default:
+		return nil, fmt.Errorf("invalid slice type %T", items)
 	}
-	return groups, nil
 }
 
 // Slice is not meant to be used externally. It's a bridge function
 // for the template functions. See collections.Slice.
-func (p WeightedPage) Slice(items []interface{}) (interface{}, error) {
-	weighted := make(WeightedPages, len(items))
-	for i, v := range items {
-		g, ok := v.(WeightedPage)
-		if !ok {
-			return nil, fmt.Errorf("type %T is not a WeightedPage", v)
+func (p WeightedPage) Slice(in interface{}) (interface{}, error) {
+	switch items := in.(type) {
+	case WeightedPages:
+		return items, nil
+	case []interface{}:
+		weighted := make(WeightedPages, len(items))
+		for i, v := range items {
+			g, ok := v.(WeightedPage)
+			if !ok {
+				return nil, fmt.Errorf("type %T is not a WeightedPage", v)
+			}
+			weighted[i] = g
 		}
-		weighted[i] = g
+		return weighted, nil
+	default:
+		return nil, fmt.Errorf("invalid slice type %T", items)
 	}
-	return weighted, nil
 }
 
 // collections.Grouper  implementations below
@@ -75,4 +92,13 @@ func (p *Page) Group(key interface{}, in interface{}) (interface{}, error) {
 		return nil, err
 	}
 	return PageGroup{Key: key, Pages: pages}, nil
+}
+
+// ToResources wraps resource.ResourcesConverter
+func (pages Pages) ToResources() resource.Resources {
+	r := make(resource.Resources, len(pages))
+	for i, p := range pages {
+		r[i] = p
+	}
+	return r
 }

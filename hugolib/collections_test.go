@@ -86,3 +86,57 @@ tags_weight: %d
 		"pageGroups:2:hugolib.PagesGroup:Page(/page1.md)/Page(/page2.md)",
 		`weightedPages:2::hugolib.WeightedPages:[WeightedPage(10,"Page") WeightedPage(20,"Page")]`)
 }
+
+func TestAppendFunc(t *testing.T) {
+	assert := require.New(t)
+
+	pageContent := `
+---
+title: "Page"
+tags: ["blue", "green"]
+tags_weight: %d
+---
+
+`
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().
+		WithContent("page1.md", fmt.Sprintf(pageContent, 10), "page2.md", fmt.Sprintf(pageContent, 20)).
+		WithTemplatesAdded("index.html", `
+
+{{ $p1 := index .Site.RegularPages 0 }}{{ $p2 := index .Site.RegularPages 1 }}
+
+{{ $pages := slice }}
+
+{{ if true }}
+	{{ $pages = $pages | append $p2 $p1 }}
+{{ end }}
+{{ $appendPages := .Site.Pages | append .Site.RegularPages }}
+{{ $appendStrings := slice "a" "b" | append "c" "d" "e" }}
+{{ $appendStringsSlice := slice "a" "b" "c" | append (slice "c" "d") }}
+
+{{ printf "pages:%d:%T:%v/%v" (len $pages) $pages (index $pages 0) (index $pages 1)  }}
+{{ printf "appendPages:%d:%T:%v/%v" (len $appendPages) $appendPages (index $appendPages 0).Kind (index $appendPages 8).Kind  }}
+{{ printf "appendStrings:%T:%v"  $appendStrings $appendStrings  }}
+{{ printf "appendStringsSlice:%T:%v"  $appendStringsSlice $appendStringsSlice }}
+
+{{/* add some slightly related funcs to check what types we get */}}
+{{ $u :=  $appendStrings | union $appendStringsSlice }}
+{{ $i :=  $appendStrings | intersect $appendStringsSlice }}
+{{ printf "union:%T:%v" $u $u  }}
+{{ printf "intersect:%T:%v" $i $i }}
+
+`)
+	b.CreateSites().Build(BuildCfg{})
+
+	assert.Equal(1, len(b.H.Sites))
+	require.Len(t, b.H.Sites[0].RegularPages, 2)
+
+	b.AssertFileContent("public/index.html",
+		"pages:2:hugolib.Pages:Page(/page2.md)/Page(/page1.md)",
+		"appendPages:9:hugolib.Pages:home/page",
+		"appendStrings:[]string:[a b c d e]",
+		"appendStringsSlice:[]string:[a b c c d]",
+		"union:[]string:[a b c d e]",
+		"intersect:[]string:[a b c d]",
+	)
+}

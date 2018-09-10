@@ -88,22 +88,11 @@ func (ns *Namespace) Concat(targetPathIn interface{}, r interface{}) (resource.R
 	var rr resource.Resources
 
 	switch v := r.(type) {
-	// This is what we get from the slice func.
-	case []interface{}:
-		rr = make([]resource.Resource, len(v))
-		for i := 0; i < len(v); i++ {
-			rv, ok := v[i].(resource.Resource)
-			if !ok {
-				return nil, fmt.Errorf("cannot concat type %T", v[i])
-			}
-			rr[i] = rv
-		}
-	// This is what we get from .Resources.Match etc.
 	case resource.Resources:
 		rr = v
+	case resource.ResourcesConverter:
+		rr = v.ToResources()
 	default:
-		// We may support Page collections at one point, but we need to think about ...
-		// what to acutually concatenate.
 		return nil, fmt.Errorf("slice %T not supported in concat", r)
 	}
 
