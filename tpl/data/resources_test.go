@@ -23,6 +23,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -171,10 +172,15 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	if err != nil {
 		panic(err)
 	}
+
+	logger := loggers.NewErrorLogger()
+
 	return &deps.Deps{
-		Cfg:         cfg,
-		Fs:          hugofs.NewMem(l),
-		ContentSpec: cs,
+		Cfg:              cfg,
+		Fs:               hugofs.NewMem(l),
+		ContentSpec:      cs,
+		Log:              logger,
+		DistinctErrorLog: helpers.NewDistinctLogger(logger.ERROR),
 	}
 }
 

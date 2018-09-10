@@ -18,12 +18,12 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gohugoio/hugo/deps"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 // New returns a new instance of the data-namespaced template functions.
@@ -50,7 +50,7 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 	url := strings.Join(urlParts, "")
 
 	var clearCacheSleep = func(i int, u string) {
-		jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
+		ns.deps.Log.WARN.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 		time.Sleep(resSleep)
 		deleteCache(url, ns.deps.Fs.Source, ns.deps.Cfg)
 	}
@@ -59,8 +59,7 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 		var req *http.Request
 		req, err = http.NewRequest("GET", url, nil)
 		if err != nil {
-			jww.ERROR.Printf("Failed to create request for getCSV: %s", err)
-			return nil, err
+			return nil, fmt.Errorf("Failed to create request for getCSV for resource %s: %s", url, err)
 		}
 
 		req.Header.Add("Accept", "text/csv")
@@ -69,22 +68,28 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 		var c []byte
 		c, err = ns.getResource(req)
 		if err != nil {
-			jww.ERROR.Printf("Failed to read csv resource %q with error message %s", url, err)
-			return nil, err
+			ns.deps.Log.ERROR.Printf("Failed to read CSV resource %q: %s", url, err)
+			return nil, nil
 		}
 
 		if !bytes.Contains(c, []byte(sep)) {
-			err = errors.New("Cannot find separator " + sep + " in CSV.")
-			return
+			ns.deps.Log.ERROR.Printf("Cannot find separator %s in CSV for %s", sep, url)
+			return nil, nil
 		}
 
 		if d, err = parseCSV(c, sep); err != nil {
-			jww.ERROR.Printf("Failed to parse csv file %s with error message %s", url, err)
+			ns.deps.Log.WARN.Printf("Failed to parse CSV file %s: %s", url, err)
 			clearCacheSleep(i, url)
 			continue
 		}
 		break
 	}
+
+	if err != nil {
+		ns.deps.Log.ERROR.Printf("Failed to read CSV resource %q: %s", url, err)
+		return nil, nil
+	}
+
 	return
 }
 
@@ -98,8 +103,7 @@ func (ns *Namespace) GetJSON(urlParts ...string) (v interface{}, err error) {
 		var req *http.Request
 		req, err = http.NewRequest("GET", url, nil)
 		if err != nil {
-			jww.ERROR.Printf("Failed to create request for getJSON: %s", err)
-			return nil, err
+			return nil, fmt.Errorf("Failed to create request for getJSON resource %s: %s", url, err)
 		}
 
 		req.Header.Add("Accept", "application/json")
@@ -107,19 +111,24 @@ func (ns *Namespace) GetJSON(urlParts ...string) (v interface{}, err error) {
 		var c []byte
 		c, err = ns.getResource(req)
 		if err != nil {
-			jww.ERROR.Printf("Failed to get json resource %s with error message %s", url, err)
-			return nil, err
+			ns.deps.Log.ERROR.Printf("Failed to get JSON resource %s: %s", url, err)
+			return nil, nil
 		}
 
 		err = json.Unmarshal(c, &v)
 		if err != nil {
-			jww.ERROR.Printf("Cannot read json from resource %s with error message %s", url, err)
-			jww.ERROR.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
+			ns.deps.Log.WARN.Printf("Cannot read JSON from resource %s: %s", url, err)
+			ns.deps.Log.WARN.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 			time.Sleep(resSleep)
 			deleteCache(url, ns.deps.Fs.Source, ns.deps.Cfg)
 			continue
 		}
 		break
+	}
+
+	if err != nil {
+		ns.deps.Log.ERROR.Printf("Failed to get JSON resource %s: %s", url, err)
+		return nil, nil
 	}
 	return
 }
