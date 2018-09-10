@@ -360,10 +360,6 @@ func TestIntersect(t *testing.T) {
 		{[]int{1, 2, 4}, []int{3, 6}, []int{}},
 		{[]float64{2.2, 4.4}, []float64{1.1, 2.2, 4.4}, []float64{2.2, 4.4}},
 
-		// errors
-		{"not array or slice", []string{"a"}, false},
-		{[]string{"a"}, "not array or slice", false},
-
 		// []interface{} ∩ []interface{}
 		{[]interface{}{"a", "b", "c"}, []interface{}{"a", "b", "b"}, []interface{}{"a", "b"}},
 		{[]interface{}{1, 2, 3}, []interface{}{1, 2, 2}, []interface{}{1, 2}},
@@ -404,9 +400,18 @@ func TestIntersect(t *testing.T) {
 		{pagesVals{}, pagesVals{p1v, p3v, p3v}, pagesVals{}},
 		{[]interface{}{p1, p4, p2, p3}, []interface{}{}, []interface{}{}},
 		{[]interface{}{}, []interface{}{p1v, p3v, p3v}, []interface{}{}},
+
+		// errors
+		{"not array or slice", []string{"a"}, false},
+		{[]string{"a"}, "not array or slice", false},
+
+		// uncomparable types - #3820
+		{[]map[int]int{{1: 1}, {2: 2}}, []map[int]int{{2: 2}, {3: 3}}, false},
+		{[][]int{{1, 1}, {1, 2}}, [][]int{{1, 2}, {1, 2}, {1, 3}}, false},
+		{[]int{1, 1}, [][]int{{1, 2}, {1, 2}, {1, 3}}, false},
 	} {
 
-		errMsg := fmt.Sprintf("[%d]", test)
+		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result, err := ns.Intersect(test.l1, test.l2)
 
@@ -759,6 +764,10 @@ func TestUnion(t *testing.T) {
 		// errors
 		{"not array or slice", []string{"a"}, false, true},
 		{[]string{"a"}, "not array or slice", false, true},
+
+		// uncomparable types - #3820
+		{[]map[string]int{{"K1": 1}}, []map[string]int{{"K2": 2}, {"K2": 2}}, false, true},
+		{[][]int{{1, 1}, {1, 2}}, [][]int{{2, 1}, {2, 2}}, false, true},
 	} {
 
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
