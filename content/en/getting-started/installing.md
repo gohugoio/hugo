@@ -343,7 +343,7 @@ You'll need a place to store the Hugo executable, your [content][], and the gene
 3. Find the Windows files near the bottom (they're in alphabetical order, so Windows is last) – download either the 32-bit or 64-bit file depending on whether you have 32-bit or 64-bit Windows. (If you don't know, [see here](https://esupport.trendmicro.com/en-us/home/pages/technical-support/1038680.aspx).)
 4. Move the ZIP file into your `C:\Hugo\bin` folder.
 5. Double-click on the ZIP file and extract its contents. Be sure to extract the contents into the same `C:\Hugo\bin` folder – Windows will do this by default unless you tell it to extract somewhere else.
-6. You should now have three new files: hugo executable (e.g. `hugo_0.18_windows_amd64.exe`), `license.md`, and `readme.md`. (You can delete the ZIP download now.) Rename that hugo executable (`hugo_hugo-version_platform_arch.exe`) to `hugo.exe` for ease of use.
+6. You should now have three new files: The hugo executable (`hugo.exe`), `LICENSE`, and `README.md`.
 
 Now you need to add Hugo to your Windows PATH settings:
 
