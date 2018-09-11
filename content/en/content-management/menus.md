@@ -90,7 +90,7 @@ Here’s an example snippet pulled from a configuration file:
 [[menu.main]]
     name = "getting started"
     pre = "<i class='fa fa-road'></i>"
-    post = "<span class="alert">New!</span>"
+    post = "<span class='alert'>New!</span>"
     weight = -100
     url = "/getting-started/"
 {{< /code-toggle >}}
