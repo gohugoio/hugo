@@ -80,7 +80,7 @@ You can also add entries to menus that aren’t attached to a piece of content. 
 
 Here’s an example snippet pulled from a configuration file:
 
-{{< code-toggle file="config.toml" >}}
+{{< code-toggle file="config" >}}
 [[menu.main]]
     name = "about hugo"
     pre = "<i class='fa fa-heart'></i>"
