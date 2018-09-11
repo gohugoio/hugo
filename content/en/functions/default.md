@@ -22,7 +22,7 @@ aliases: []
 needsexamples: false
 ---
 
-`default` checks whether a given value is set and returns a default value if it is not. *Set* in this context means different things depending on date type:
+`default` checks whether a given value is set and returns a default value if it is not. *Set* in this context means different things depending on the data type:
 
 * non-zero for numeric types and times
 * non-zero length for strings, arrays, slices, and maps
