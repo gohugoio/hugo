@@ -472,6 +472,14 @@ For the latest version, the Hugo package maintained by [@daftaupe](https://githu
 
 See the [related discussion in the Hugo forums][redhatforum].
 
+### Solus
+
+Solus includes Hugo in its package repository, it may be installed with:
+
+```
+sudo eopkg install hugo
+```
+
 ## OpenBSD
 
 OpenBSD provides a package for Hugo via `pkg_add`:
