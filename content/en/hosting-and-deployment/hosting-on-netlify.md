@@ -24,7 +24,7 @@ toc: true
 ## Assumptions
 
 * You have an account with GitHub, GitLab, or Bitbucket.
-* You have completed the [Quick Start][] or have Hugo website you are ready to deploy and share with the world.
+* You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
 * You do not already have a Netlify account.
 
 ## Create a Netlify account
@@ -59,7 +59,7 @@ Select the repo you want to use for continuous deployment. If you have a large n
 
 Once selected, you'll be brought to a screen for basic setup. Here you can select the branch you wanted published, your [build command][], and your publish (i.e. deploy) directory. The publish directory should mirror that of what you've set in your [site configuration][config], the default of which is `public`. The following steps assume you are publishing from the `master` branch.
 
-## Configure Hugo Version in Netlify 
+## Configure Hugo Version in Netlify
 
 You can [set Hugo version](https://www.netlify.com/blog/2017/04/11/netlify-plus-hugo-0.20-and-beyond/) for your environments in `netlify.toml` file or set `HUGO_VERSION` as a build environment variable in the Netlify console.
 
@@ -80,7 +80,7 @@ For testing:
 The Netlify configuration file can be a little hard to understand and get right for the different environment, and you may get some inspiration and tips from this site's `netlify.toml`:
 
 {{< code file="netlify.toml" nocode="true" >}}
-{{< readfile file="netlify.toml" highlight="toml" >}}   
+{{< readfile file="netlify.toml" highlight="toml" >}}
 {{< /code >}}
 
 ## Build and Deploy Site
