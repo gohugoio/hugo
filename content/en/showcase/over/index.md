@@ -1,7 +1,7 @@
 ---
 title: Over
-date: 2018-05-17
-description: "Showcase: Hugo allows for easy cross-functional collaboration"
+date: 2018-09-12
+description: "Showcase: \"People from all disciplines contribute to our website; Hugo’s single static binary makes that possible.\""
 siteURL: https://madewithover.com/
 
 ---
