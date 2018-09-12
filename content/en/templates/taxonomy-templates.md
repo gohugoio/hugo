@@ -234,10 +234,11 @@ Because we are leveraging the front matter system to define taxonomies for conte
 ### Example: List Tags in a Single Page Template
 
 ```go-html-template
-<ul id="tags">
-    {{ range .Params.tags }}
+{{ $taxo := "tags" }} <!-- Use the plural form here -->
+<ul id="{{ $taxo }}">
+    {{ range .Param $taxo }}
         {{ $name := . }}
-        {{ with $.Site.GetPage (printf "/tags/%s" $name) }}
+        {{ with $.Site.GetPage (printf "/%s/%s" $taxo $name) }}
             <li><a href="{{ .Permalink }}">{{ $name }}</a></li>
         {{ end }}
     {{ end }}
@@ -251,14 +252,15 @@ To list such taxonomies, use the following:
 ### Example: Comma-delimit Tags in a Single Page Template
 
 ```go-html-template
-{{ if .Params.directors }}
-    <strong>Director{{ if gt (len .Params.directors) 1 }}s{{ end }}:</strong>
-    {{ range $index, $director := .Params.directors }}
+{{ $taxo := "directors" }} <!-- Use the plural form here -->
+{{ with .Param $taxo }}
+    <strong>Director{{ if gt (len .) 1 }}s{{ end }}:</strong>
+    {{ range $index, $director := . }}
         {{- if gt $index 0 }}, {{ end -}}
-        {{ with $.Site.GetPage (printf "/directors/%s" $director) -}}
+        {{ with $.Site.GetPage (printf "/%s/%s" $taxo $director) -}}
             <a href="{{ .Permalink }}">{{ $director }}</a>
         {{- end -}}
-    {{ end -}}
+    {{- end -}}
 {{ end }}
 ```
 
@@ -307,7 +309,7 @@ This may take the form of a tag cloud, a menu, or simply a list.
 
 The following example displays all terms in a site's tags taxonomy:
 
-### Example: List All Site Tags
+### Example: List All Site Tags {#example-list-all-site-tags}
 
 ```go-html-template
 <ul id="all-tags">
@@ -326,9 +328,9 @@ This example will list all taxonomies and their terms, as well as all the conten
 {{< code file="layouts/partials/all-taxonomies.html" download="all-taxonomies.html" download="all-taxonomies.html" >}}
 <section>
     <ul id="all-taxonomies">
-        {{ range $taxonomyname, $taxonomy := .Site.Taxonomies }}
-            {{ with $.Site.GetPage (printf "/%s" $taxonomyname) }}
-                <li><a href="{{ .Permalink }}">{{ $taxonomyname }}</a>
+        {{ range $taxonomy_term, $taxonomy := .Site.Taxonomies }}
+            {{ with $.Site.GetPage (printf "/%s" $taxonomy_term) }}
+                <li><a href="{{ .Permalink }}">{{ $taxonomy_term }}</a>
                     <ul>
                         {{ range $key, $value := $taxonomy }}
                             <li>{{ $key }}</li>
@@ -350,19 +352,22 @@ This example will list all taxonomies and their terms, as well as all the conten
 
 ## `.Site.GetPage` for Taxonomies
 
-Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the "List All Site Tags" example above:
+Because taxonomies are lists, the [`.GetPage` function][getpage] can be used to get all the pages associated with a particular taxonomy term using a terse syntax. The following ranges over the full list of tags on your site and links to each of the individual taxonomy pages for each term without having to use the more fragile URL construction of the ["List All Site Tags" example above]({{< relref "#example-list-all-site-tags" >}}):
 
 {{< code file="links-to-all-tags.html" >}}
-<ul class="tags">
-    {{ range ($.Site.GetPage "taxonomyTerm" "tags").Pages }}
-        <li><a href="{{ .Permalink }}">{{ .Title}}</a></li>
+{{ $taxo := "tags" }}
+<ul class="{{ $taxo }}">
+    {{ with ($.Site.GetPage (printf "/%s" $taxo)) }}
+        {{ range .Pages }}
+            <li><a href="{{ .Permalink }}">{{ .Title}}</a></li>
+        {{ end }}
     {{ end }}
 </ul>
 {{< /code >}}
 
-<!--### `.Site.GetPage` Taxonomy List Example
+<!-- TODO: ### `.Site.GetPage` Taxonomy List Example -->
 
-### `.Site.GetPage` Taxonomy Terms Example -->
+<!-- TODO: ### `.Site.GetPage` Taxonomy Terms Example -->
 
 
 [delimit]: /functions/delimit/
