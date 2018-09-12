@@ -68,6 +68,7 @@ func New(mediaTypes media.Types, outputFormats output.Formats) Client {
 		KeepDocumentTags:        true,
 		KeepConditionalComments: true,
 		KeepEndTags:             true,
+		KeepDefaultAttrVals:     true,
 	}
 
 	// We use the Type definition of the media types defined in the site if found.
