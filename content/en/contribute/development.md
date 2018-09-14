@@ -15,7 +15,6 @@ menu:
 weight: 10
 sections_weight: 10
 draft: false
-aliases: [/contribute/development/]
 toc: true
 ---
 

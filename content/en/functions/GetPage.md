@@ -31,7 +31,7 @@ aliases: []
 
 This method wil return `nil` when no page could be found, so the above will not print anything if the blog section is not found.
 
-To fund a regular page in the blog section::
+To find a regular page in the blog section::
 
 ```go-html-template
 {{ with .Site.GetPage "/blog/my-post.md" }}{{ .Title }}{{ end }}

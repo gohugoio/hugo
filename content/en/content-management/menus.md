@@ -80,7 +80,7 @@ You can also add entries to menus that aren’t attached to a piece of content. 
 
 Here’s an example snippet pulled from a configuration file:
 
-{{< code-toggle file="config.toml" >}}
+{{< code-toggle file="config" >}}
 [[menu.main]]
     name = "about hugo"
     pre = "<i class='fa fa-heart'></i>"
@@ -90,6 +90,7 @@ Here’s an example snippet pulled from a configuration file:
 [[menu.main]]
     name = "getting started"
     pre = "<i class='fa fa-road'></i>"
+    post = "<span class='alert'>New!</span>"
     weight = -100
     url = "/getting-started/"
 {{< /code-toggle >}}

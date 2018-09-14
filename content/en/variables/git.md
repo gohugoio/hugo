@@ -53,6 +53,6 @@ The `GitInfo` object contains the following fields:
 
 ## `.Lastmod`
 
-If the `.GitInfo` feature is enabled, **and** if the `lastmod` field in the content's front matter is not set, `.Lastmod` (on `Page`) is fetched from Git i.e. `.GitInfo.AuthorDate`.
+If the `.GitInfo` feature is enabled, `.Lastmod` (on `Page`) is fetched from Git i.e. `.GitInfo.AuthorDate`. This behaviour can be changed by adding your own [front matter configuration for dates](/getting-started/configuration/#configure-front-matter).
 
 [configuration]: /getting-started/configuration/

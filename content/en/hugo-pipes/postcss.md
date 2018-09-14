@@ -27,7 +27,9 @@ The resource will be processed using the project's or theme's own `postcss.confi
 ```
 
 {{% note %}}
-Hugo Pipe's PostCSS requires `postcss-cli` javascript package to be installed on the environement along with any PostCSS plugin used.
+Hugo Pipe's PostCSS requires the `postcss-cli` JavaScript package to be installed in the environment (`npm install -g postcss-cli`) along with any PostCSS plugin(s) used (e.g., `npm install -g autoprefixer`).
+
+If you are using the Hugo Snap package, PostCSS and plugin(s) need to be installed locally within your Hugo site directory, e.g., `npm install postcss-cli` without the `-g` flag.
 {{% /note %}}
 ### Options
 
