@@ -2838,6 +2838,19 @@
         }
       },
       "os": {
+        "Stat": {
+          "Description": "Stat returns a file infomation under the given path.",
+          "Args": [
+            "i"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ (os.Stat \"foo.txt\").Name }}",
+              "foo.txt"
+            ]
+          ]
+        },
         "FileExists": {
           "Description": "FileExists checks whether a file exists under the given path.",
           "Args": [

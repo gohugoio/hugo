@@ -1,17 +1,17 @@
 
 ---
 date: 2018-08-29
-title: "0.48"
-description: "0.48"
+title: "This One Goes to 11!"
+description: "With Go 1.11, Hugo finally gets support for variable overwrites in templates!"
 categories: ["Releases"]
 ---
 
-	Hugo `0.48` is built with the brand new Go 1.11. On the technical side this means that Hugo now uses [Go Modules](https://github.com/golang/go/wiki/Modules) for the build. The big new functional thing in Go 1.11 for Hugo is added support for [variable overwrites](https://github.com/golang/go/issues/10608). This means that you can now do:
+Hugo `0.48` is built with the brand new Go 1.11. On the technical side this means that Hugo now uses [Go Modules](https://github.com/golang/go/wiki/Modules) for the build. The big new functional thing in Go 1.11 for Hugo is added support for [variable overwrites](https://github.com/golang/go/issues/10608). This means that you can now do this and get the expected result:
 
-```
+```go-html-template
 {{ $var := "Hugo Page" }}
 {{ if .IsHome }}
-{{ $var = "Hugo Home" }}
+	{{ $var = "Hugo Home" }}
 {{ end }}
 Var is {{ $var }}
 ```

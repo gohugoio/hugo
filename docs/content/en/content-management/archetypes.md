@@ -35,7 +35,7 @@ The above will create a new content file in `content/posts/my-first-post.md` usi
 3. `themes/my-theme/archetypes/posts.md`
 4. `themes/my-theme/archetypes/default.md`
 
-The last two list items is only applicable if you use a theme and it uses the `my-theme` theme name as an example.
+The last two list items are only applicable if you use a theme and it uses the `my-theme` theme name as an example.
 
 ## Create a New Archetype Template
 
