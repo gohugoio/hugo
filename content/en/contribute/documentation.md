@@ -94,15 +94,15 @@ Code blocks are crucial for providing examples of Hugo's new features to end use
 
 ### Standard Syntax
 
-Across all pages on the Hugo docs, the typical triple-back-tick markdown syntax is used. If you do not want to take the extra time to implement the following code block shortcodes, please use standard GitHub-flavored markdown. The Hugo docs use a version of [highlight.js](https://highlightjs.org/) with a specific set of languages.
+Across many pages on the Hugo docs, the typical triple-back-tick markdown syntax (```` ``` ````) is used. If you do not want to take the extra time to implement the following code block shortcodes, please use standard GitHub-flavored markdown. The Hugo docs use a version of [highlight.js](https://highlightjs.org/) with a specific set of languages.
 
 Your options for languages are `xml`/`html`, `go`/`golang`, `md`/`markdown`/`mkd`, `handlebars`, `apache`, `toml`, `yaml`, `json`, `css`, `asciidoc`, `ruby`, `powershell`/`ps`, `scss`, `sh`/`zsh`/`bash`/`git`, `http`/`https`, and `javascript`/`js`.
 
-```
+````
 ```
 <h1>Hello world!</h1>
 ```
-```
+````
 
 ### Code Block Shortcode
 
@@ -118,13 +118,12 @@ With the `code` shortcodes, *you must include triple back ticks and a language d
 
 ```
 {{%/* code file="smart/file/name/with/path.html" download="download.html" copy="true" */%}}
-```
 A whole bunch of coding going on up in here!
-```
 {{%/* /code */%}}
 ```
 
 The following are the arguments passed into `code`:
+
 
 ***`file`***
 : the only *required* argument. `file` is needed for styling but also plays an important role in helping users create a mental model around Hugo's directory structure. Visually, this will be displayed as text in the top left of the code block.
@@ -194,10 +193,8 @@ The `output` shortcode is almost identical to the `code` shortcode but only take
 
 ```
 {{%/* output file="post/my-first-post/index.html" */%}}
-```
 <h1>This is my First Hugo Blog Post</h1>
 <p>I am excited to be using Hugo.</p>
-```
 {{%/* /output */%}}
 ```
 

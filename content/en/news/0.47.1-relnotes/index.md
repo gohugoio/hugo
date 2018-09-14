@@ -1,8 +1,8 @@
 
 ---
 date: 2018-08-20
-title: "0.47.1"
-description: "0.47.1"
+title: "Two Bug Fixes"
+description: "Hugo 0.47.1: Two Bug Fixes"
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png

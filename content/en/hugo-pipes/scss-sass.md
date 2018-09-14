@@ -43,3 +43,7 @@ includePaths [string slice]
 {{ $options := (dict "targetPath" "style.css" "outputStyle" "compressed" "enableSourceMap" true "includePaths" (slice "node_modules/myscss")) }}
 {{ $style := resources.Get "sass/main.scss" | resources.ToCSS $options }}
 ```
+
+{{% note %}}
+Setting `outputStyle` to `compressed` will handle SASS/SCSS files minification better than the more generic [`resources.Minify`]({{< ref "minification">}}).
+{{% /note %}}

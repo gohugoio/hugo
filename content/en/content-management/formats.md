@@ -240,7 +240,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [mdcheatsheet]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
 [mdguide]: https://www.markdownguide.org/
 [mdtutorial]: http://www.markdowntutorial.com/
-[Miek Gieben's website]: https://miek.nl/2016/March/05/mmark-syntax-document/
+[Miek Gieben's website]: https://miek.nl/2016/march/05/mmark-syntax-document/
 [mmark]: https://github.com/miekg/mmark
 [mmarkgh]: https://github.com/miekg/mmark/wiki/Syntax
 [org]: http://orgmode.org/
