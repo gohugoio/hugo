@@ -57,3 +57,21 @@ func TestRSSOutput(t *testing.T) {
 		t.Errorf("incorrect RSS item count: expected %d, got %d", rssLimit, c)
 	}
 }
+
+// Before Hugo 0.49 we set the pseudo page kind RSS on the page when output to RSS.
+// This had some unintended side effects, esp. when the only output format for that page
+// was RSS.
+// For the page kinds that can have multiple output formats, the Kind should be one of the
+// standard home, page etc.
+// This test has this single purpose: Check that the Kind is that of the source page.
+// See https://github.com/gohugoio/hugo/issues/5138
+func TestRSSKind(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithTemplatesAdded("index.rss.xml", `RSS Kind: {{ .Kind }}`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.xml", "RSS Kind: home")
+}

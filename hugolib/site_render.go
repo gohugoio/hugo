@@ -248,8 +248,6 @@ func (s *Site) renderRSS(p *PageOutput) error {
 		return nil
 	}
 
-	p.Kind = kindRSS
-
 	limit := s.Cfg.GetInt("rssLimit")
 	if limit >= 0 && len(p.Pages) > limit {
 		p.Pages = p.Pages[:limit]
