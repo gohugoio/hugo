@@ -11,15 +11,14 @@ go:
 os:
   - linux
   - osx
+env:
+- GO111MODULE=on
 matrix:
   allow_failures:
     - go: tip
   fast_finish: true
 install:
-  - mkdir -p $HOME/src
-  - mv $HOME/gopath/src/github.com/gohugoio/hugo $HOME/src
-  - export TRAVIS_BUILD_DIR=$HOME/src/hugo
-  - cd $HOME/src/hugo
+  - go mod download
   - go get github.com/magefile/mage
 script:
 - mage -v test
