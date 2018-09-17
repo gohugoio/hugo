@@ -5,6 +5,7 @@ command = "hugo"
 [context.production.environment]
 HUGO_VERSION = "0.48"
 HUGO_ENV = "production"
+HUGO_BASEURL = "https://gohugoio.netlify.com/"
 HUGO_ENABLEGITINFO = "true"
 
 [context.split1]
