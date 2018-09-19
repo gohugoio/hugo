@@ -76,7 +76,7 @@ func newCapturer(
 	isBundleHeader := func(filename string) bool {
 		base := filepath.Base(filename)
 		name := helpers.Filename(base)
-		return isContentFile(base) && (name == "index" || name == "_index")
+		return IsContentFile(base) && (name == "index" || name == "_index")
 	}
 
 	// Make sure that any bundle header files are processed before the others. This makes
