@@ -35,8 +35,7 @@ import (
 )
 
 func TestNewContent(t *testing.T) {
-	v := viper.New()
-	initViper(v)
+	assert := require.New(t)
 
 	cases := []struct {
 		kind     string
@@ -49,6 +48,14 @@ func TestNewContent(t *testing.T) {
 		{"stump", "stump/sample-2.md", []string{`title: "Sample 2"`}},      // no archetype file
 		{"", "sample-3.md", []string{`title: "Sample 3"`}},                 // no archetype
 		{"product", "product/sample-4.md", []string{`title = "SAMPLE-4"`}}, // empty archetype front matter
+		{"lang", "post/lang-1.md", []string{`Site Lang: en|Name: Lang 1|i18n: Hugo Rocks!`}},
+		{"lang", "post/lang-2.en.md", []string{`Site Lang: en|Name: Lang 2|i18n: Hugo Rocks!`}},
+		{"lang", "post/lang-3.nn.md", []string{`Site Lang: nn|Name: Lang 3|i18n: Hugo Rokkar!`}},
+		{"lang", "content_nn/post/lang-4.md", []string{`Site Lang: nn|Name: Lang 4|i18n: Hugo Rokkar!`}},
+		{"lang", "content_nn/post/lang-5.en.md", []string{`Site Lang: en|Name: Lang 5|i18n: Hugo Rocks!`}},
+		{"lang", "post/my-bundle/index.md", []string{`Site Lang: en|Name: My Bundle|i18n: Hugo Rocks!`}},
+		{"lang", "post/my-bundle/index.en.md", []string{`Site Lang: en|Name: My Bundle|i18n: Hugo Rocks!`}},
+		{"lang", "post/my-bundle/index.nn.md", []string{`Site Lang: nn|Name: My Bundle|i18n: Hugo Rokkar!`}},
 		{"shortcodes", "shortcodes/go.md", []string{
 			`title = "GO"`,
 			"{{< myshortcode >}}",
@@ -56,21 +63,20 @@ func TestNewContent(t *testing.T) {
 			"{{</* comment */>}}\n{{%/* comment */%}}"}}, // shortcodes
 	}
 
-	for _, c := range cases {
-		cfg, fs := newTestCfg()
-		require.NoError(t, initFs(fs))
+	for i, c := range cases {
+		cfg, fs := newTestCfg(assert)
+		assert.NoError(initFs(fs))
 		h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
-		require.NoError(t, err)
+		assert.NoError(err)
 
-		siteFactory := func(filename string, siteUsed bool) (*hugolib.Site, error) {
-			return h.Sites[0], nil
+		assert.NoError(create.NewContent(h, c.kind, c.path))
+
+		fname := filepath.FromSlash(c.path)
+		if !strings.HasPrefix(fname, "content") {
+			fname = filepath.Join("content", fname)
 		}
-
-		require.NoError(t, create.NewContent(h.PathSpec, siteFactory, c.kind, c.path))
-
-		fname := filepath.Join("content", filepath.FromSlash(c.path))
 		content := readFileFromFs(t, fs.Source, fname)
-		for i, v := range c.expected {
+		for _, v := range c.expected {
 			found := strings.Contains(content, v)
 			if !found {
 				t.Fatalf("[%d] %q missing from output:\n%q", i, v, content)
@@ -79,17 +85,44 @@ func TestNewContent(t *testing.T) {
 	}
 }
 
-func initViper(v *viper.Viper) {
-	v.Set("metaDataFormat", "toml")
-	v.Set("archetypeDir", "archetypes")
-	v.Set("contentDir", "content")
-	v.Set("themesDir", "themes")
-	v.Set("layoutDir", "layouts")
-	v.Set("i18nDir", "i18n")
-	v.Set("theme", "sample")
-	v.Set("archetypeDir", "archetypes")
-	v.Set("resourceDir", "resources")
-	v.Set("publishDir", "public")
+func TestNewContentFromDir(t *testing.T) {
+	assert := require.New(t)
+	cfg, fs := newTestCfg(assert)
+	assert.NoError(initFs(fs))
+
+	archetypeDir := filepath.Join("archetypes", "my-bundle")
+	assert.NoError(fs.Source.Mkdir(archetypeDir, 0755))
+
+	contentFile := `
+File: %s
+Site Lang: {{ .Site.Language.Lang  }} 	
+Name: {{ replace .Name "-" " " | title }}
+i18n: {{ T "hugo" }}
+`
+
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "index.md"), []byte(fmt.Sprintf(contentFile, "index.md")), 0755))
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "index.nn.md"), []byte(fmt.Sprintf(contentFile, "index.nn.md")), 0755))
+
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "pages", "bio.md"), []byte(fmt.Sprintf(contentFile, "bio.md")), 0755))
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "resources", "hugo1.json"), []byte(`hugo1: {{ printf "no template handling in here" }}`), 0755))
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "resources", "hugo2.xml"), []byte(`hugo2: {{ printf "no template handling in here" }}`), 0755))
+
+	h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
+	assert.NoError(err)
+	assert.Equal(2, len(h.Sites))
+
+	assert.NoError(create.NewContent(h, "my-bundle", "post/my-post"))
+
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/resources/hugo1.json")), `hugo1: {{ printf "no template handling in here" }}`)
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/resources/hugo2.xml")), `hugo2: {{ printf "no template handling in here" }}`)
+
+	// Content files should get the correct site context.
+	// TODO(bep) archetype check i18n
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/index.md")), `File: index.md`, `Site Lang: en`, `Name: My Post`, `i18n: Hugo Rocks!`)
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/index.nn.md")), `File: index.nn.md`, `Site Lang: nn`, `Name: My Post`, `i18n: Hugo Rokkar!`)
+
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/pages/bio.md")), `File: bio.md`, `Site Lang: en`, `Name: My Post`)
+
 }
 
 func initFs(fs *hugofs.Fs) error {
@@ -132,6 +165,10 @@ title = "{{ .BaseFileName  | upper }}"
 			path:    filepath.Join("archetypes", "emptydate.md"),
 			content: "+++\ndate =\"\"\ntitle = \"Empty Date Arch title\"\ntest = \"test1\"\n+++\n",
 		},
+		{
+			path:    filepath.Join("archetypes", "lang.md"),
+			content: `Site Lang: {{ .Site.Language.Lang  }}|Name: {{ replace .Name "-" " " | title }}|i18n: {{ T "hugo" }}`,
+		},
 		// #3623x
 		{
 			path: filepath.Join("archetypes", "shortcodes.md"),
@@ -166,6 +203,12 @@ Some text.
 	return nil
 }
 
+func assertContains(assert *require.Assertions, v interface{}, matches ...string) {
+	for _, m := range matches {
+		assert.Contains(v, m)
+	}
+}
+
 // TODO(bep) extract common testing package with this and some others
 func readFileFromFs(t *testing.T, fs afero.Fs, filename string) string {
 	filename = filepath.FromSlash(filename)
@@ -185,22 +228,33 @@ func readFileFromFs(t *testing.T, fs afero.Fs, filename string) string {
 	return string(b)
 }
 
-func newTestCfg() (*viper.Viper, *hugofs.Fs) {
+func newTestCfg(assert *require.Assertions) (*viper.Viper, *hugofs.Fs) {
 
-	v := viper.New()
-	v.Set("contentDir", "content")
-	v.Set("dataDir", "data")
-	v.Set("i18nDir", "i18n")
-	v.Set("layoutDir", "layouts")
-	v.Set("archetypeDir", "archetypes")
-	v.Set("assetDir", "assets")
+	cfg := `
+	
+[languages]
+[languages.en]
+weight = 1
+languageName = "English"
+[languages.nn]
+weight = 2
+languageName = "Nynorsk"
+contentDir = "content_nn"
 
-	fs := hugofs.NewMem(v)
+`
 
-	v.SetFs(fs.Source)
+	mm := afero.NewMemMapFs()
 
-	initViper(v)
+	assert.NoError(afero.WriteFile(mm, filepath.Join("i18n", "en.toml"), []byte(`[hugo]
+other = "Hugo Rocks!"`), 0755))
+	assert.NoError(afero.WriteFile(mm, filepath.Join("i18n", "nn.toml"), []byte(`[hugo]
+other = "Hugo Rokkar!"`), 0755))
 
-	return v, fs
+	assert.NoError(afero.WriteFile(mm, "config.toml", []byte(cfg), 0755))
+
+	v, _, err := hugolib.LoadConfig(hugolib.ConfigSourceDescriptor{Fs: mm, Filename: "config.toml"})
+	assert.NoError(err)
+
+	return v, hugofs.NewFrom(mm, v)
 
 }

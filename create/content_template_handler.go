@@ -80,7 +80,7 @@ var (
 		"%}x}", "%}}")
 )
 
-func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFilename string) ([]byte, error) {
+func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archetypeFilename string) ([]byte, error) {
 
 	var (
 		archetypeContent  []byte
@@ -88,20 +88,16 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, kind, targetPath, archetypeFile
 		err               error
 	)
 
-	ps, err := helpers.NewPathSpec(s.Deps.Fs, s.Deps.Cfg)
-	if err != nil {
-		return nil, err
-	}
-	sp := source.NewSourceSpec(ps, ps.Fs.Source)
+	f := s.SourceSpec.NewFileInfo("", targetPath, false, nil)
 
-	f := sp.NewFileInfo("", targetPath, false, nil)
+	if name == "" {
+		name = f.TranslationBaseName()
 
-	name := f.TranslationBaseName()
-
-	if name == "index" || name == "_index" {
-		// Page bundles; the directory name will hopefully have a better name.
-		dir := strings.TrimSuffix(f.Dir(), helpers.FilePathSeparator)
-		_, name = filepath.Split(dir)
+		if name == "index" || name == "_index" {
+			// Page bundles; the directory name will hopefully have a better name.
+			dir := strings.TrimSuffix(f.Dir(), helpers.FilePathSeparator)
+			_, name = filepath.Split(dir)
+		}
 	}
 
 	data := ArchetypeFileData{

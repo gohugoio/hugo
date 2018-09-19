@@ -795,7 +795,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 				removed = true
 			}
 		}
-		if removed && isContentFile(ev.Name) {
+		if removed && IsContentFile(ev.Name) {
 			h.removePageByFilename(ev.Name)
 		}
 

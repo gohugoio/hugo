@@ -85,45 +85,13 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 
 	var kind string
 
-	createPath, kind = newContentPathSection(createPath)
+	createPath, kind = newContentPathSection(c.hugo, createPath)
 
 	if n.contentType != "" {
 		kind = n.contentType
 	}
 
-	cfg := c.DepsCfg
-
-	ps, err := helpers.NewPathSpec(cfg.Fs, cfg.Cfg)
-	if err != nil {
-		return err
-	}
-
-	// If a site isn't in use in the archetype template, we can skip the build.
-	siteFactory := func(filename string, siteUsed bool) (*hugolib.Site, error) {
-		if !siteUsed {
-			return hugolib.NewSite(*cfg)
-		}
-		var s *hugolib.Site
-
-		if err := c.hugo.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
-			return nil, err
-		}
-
-		s = c.hugo.Sites[0]
-
-		if len(c.hugo.Sites) > 1 {
-			// Find the best match.
-			for _, ss := range c.hugo.Sites {
-				if strings.Contains(createPath, "."+ss.Language.Lang) {
-					s = ss
-					break
-				}
-			}
-		}
-		return s, nil
-	}
-
-	return create.NewContent(ps, siteFactory, kind, createPath)
+	return create.NewContent(c.hugo, kind, createPath)
 }
 
 func mkdir(x ...string) {
@@ -144,10 +112,17 @@ func touchFile(fs afero.Fs, x ...string) {
 	}
 }
 
-func newContentPathSection(path string) (string, string) {
+func newContentPathSection(h *hugolib.HugoSites, path string) (string, string) {
 	// Forward slashes is used in all examples. Convert if needed.
 	// Issue #1133
 	createpath := filepath.FromSlash(path)
+
+	if h != nil {
+		for _, s := range h.Sites {
+			createpath = strings.TrimPrefix(createpath, s.PathSpec.ContentDir)
+		}
+	}
+
 	var section string
 	// assume the first directory is the section (kind)
 	if strings.Contains(createpath[1:], helpers.FilePathSeparator) {

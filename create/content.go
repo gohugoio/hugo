@@ -17,69 +17,74 @@ package create
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
+
+	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
 )
 
 // NewContent creates a new content file in the content directory based upon the
 // given kind, which is used to lookup an archetype.
 func NewContent(
-	ps *helpers.PathSpec,
-	siteFactory func(filename string, siteUsed bool) (*hugolib.Site, error), kind, targetPath string) error {
+	sites *hugolib.HugoSites, kind, targetPath string) error {
+	targetPath = filepath.Clean(targetPath)
 	ext := helpers.Ext(targetPath)
-	fs := ps.BaseFs.SourceFilesystems.Archetypes.Fs
+	ps := sites.PathSpec
+	archetypeFs := ps.BaseFs.SourceFilesystems.Archetypes.Fs
+	sourceFs := ps.Fs.Source
 
 	jww.INFO.Printf("attempting to create %q of %q of ext %q", targetPath, kind, ext)
 
-	archetypeFilename := findArchetype(ps, kind, ext)
+	archetypeFilename, isDir := findArchetype(ps, kind, ext)
+	contentPath, s := resolveContentPath(sites, sourceFs, targetPath)
+
+	if isDir {
+
+		langFs := hugofs.NewLanguageFs(s.Language.Lang, sites.LanguageSet(), archetypeFs)
+
+		cm, err := mapArcheTypeDir(ps, langFs, archetypeFilename)
+		if err != nil {
+			return err
+		}
+
+		if cm.siteUsed {
+			if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
+				return err
+			}
+		}
+
+		name := filepath.Base(targetPath)
+		return newContentFromDir(archetypeFilename, sites, archetypeFs, sourceFs, cm, name, contentPath)
+	}
 
 	// Building the sites can be expensive, so only do it if really needed.
 	siteUsed := false
 
 	if archetypeFilename != "" {
-		f, err := fs.Open(archetypeFilename)
+		var err error
+		siteUsed, err = usesSiteVar(archetypeFs, archetypeFilename)
 		if err != nil {
-			return fmt.Errorf("failed to open archetype file: %s", err)
-		}
-		defer f.Close()
-
-		if helpers.ReaderContains(f, []byte(".Site")) {
-			siteUsed = true
+			return err
 		}
 	}
 
-	s, err := siteFactory(targetPath, siteUsed)
+	if siteUsed {
+		if err := sites.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
+			return err
+		}
+	}
+
+	content, err := executeArcheTypeAsTemplate(s, "", kind, targetPath, archetypeFilename)
 	if err != nil {
 		return err
-	}
-
-	var content []byte
-
-	content, err = executeArcheTypeAsTemplate(s, kind, targetPath, archetypeFilename)
-	if err != nil {
-		return err
-	}
-
-	// The site may have multiple content dirs, and we currently do not know which contentDir the
-	// user wants to create this content in. We should improve on this, but we start by testing if the
-	// provided path points to an existing dir. If so, use it as is.
-	var contentPath string
-	var exists bool
-	targetDir := filepath.Dir(targetPath)
-
-	if targetDir != "" && targetDir != "." {
-		exists, _ = helpers.Exists(targetDir, fs)
-	}
-
-	if exists {
-		contentPath = targetPath
-	} else {
-		contentPath = s.PathSpec.AbsPathify(filepath.Join(s.Cfg.GetString("contentDir"), targetPath))
 	}
 
 	if err := helpers.SafeWriteToDisk(contentPath, bytes.NewReader(content), s.Fs.Source); err != nil {
@@ -103,29 +108,199 @@ func NewContent(
 	return nil
 }
 
+func targetSite(sites *hugolib.HugoSites, fi *hugofs.LanguageFileInfo) *hugolib.Site {
+	for _, s := range sites.Sites {
+		if fi.Lang() == s.Language.Lang {
+			return s
+		}
+	}
+	return sites.Sites[0]
+}
+
+func newContentFromDir(
+	archetypeDir string,
+	sites *hugolib.HugoSites,
+	sourceFs, targetFs afero.Fs,
+	cm archetypeMap, name, targetPath string) error {
+
+	for _, f := range cm.otherFiles {
+		filename := f.Filename()
+		// Just copy the file to destination.
+		in, err := sourceFs.Open(filename)
+		if err != nil {
+			return err
+		}
+
+		targetFilename := filepath.Join(targetPath, strings.TrimPrefix(filename, archetypeDir))
+
+		targetDir := filepath.Dir(targetFilename)
+		if err := targetFs.MkdirAll(targetDir, 0777); err != nil && !os.IsExist(err) {
+			return fmt.Errorf("failed to create target directory for %s: %s", targetDir, err)
+		}
+
+		out, err := targetFs.Create(targetFilename)
+
+		_, err = io.Copy(out, in)
+		if err != nil {
+			return err
+		}
+
+		in.Close()
+		out.Close()
+	}
+
+	for _, f := range cm.contentFiles {
+		filename := f.Filename()
+		s := targetSite(sites, f)
+		targetFilename := filepath.Join(targetPath, strings.TrimPrefix(filename, archetypeDir))
+
+		content, err := executeArcheTypeAsTemplate(s, name, archetypeDir, targetFilename, filename)
+		if err != nil {
+			return err
+		}
+
+		if err := helpers.SafeWriteToDisk(targetFilename, bytes.NewReader(content), targetFs); err != nil {
+			return err
+		}
+	}
+
+	jww.FEEDBACK.Println(targetPath, "created")
+
+	return nil
+}
+
+type archetypeMap struct {
+	// These needs to be parsed and executed as Go templates.
+	contentFiles []*hugofs.LanguageFileInfo
+	// These are just copied to destination.
+	otherFiles []*hugofs.LanguageFileInfo
+	// If the templates needs a fully built site. This can potentially be
+	// expensive, so only do when needed.
+	siteUsed bool
+}
+
+func mapArcheTypeDir(
+	ps *helpers.PathSpec,
+	fs afero.Fs,
+	archetypeDir string) (archetypeMap, error) {
+
+	var m archetypeMap
+
+	walkFn := func(filename string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if fi.IsDir() {
+			return nil
+		}
+
+		fil := fi.(*hugofs.LanguageFileInfo)
+
+		if hugolib.IsContentFile(filename) {
+			m.contentFiles = append(m.contentFiles, fil)
+			if !m.siteUsed {
+				m.siteUsed, err = usesSiteVar(fs, filename)
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+
+		m.otherFiles = append(m.otherFiles, fil)
+
+		return nil
+	}
+
+	if err := helpers.SymbolicWalk(fs, archetypeDir, walkFn); err != nil {
+		return m, err
+	}
+
+	return m, nil
+}
+
+func usesSiteVar(fs afero.Fs, filename string) (bool, error) {
+	f, err := fs.Open(filename)
+	if err != nil {
+		return false, fmt.Errorf("failed to open archetype file: %s", err)
+	}
+	defer f.Close()
+	return helpers.ReaderContains(f, []byte(".Site")), nil
+}
+
+// Resolve the target content path.
+func resolveContentPath(sites *hugolib.HugoSites, fs afero.Fs, targetPath string) (string, *hugolib.Site) {
+	targetDir := filepath.Dir(targetPath)
+	first := sites.Sites[0]
+
+	var (
+		s              *hugolib.Site
+		siteContentDir string
+	)
+
+	// Try the filename: my-post.en.md
+	for _, ss := range sites.Sites {
+		if strings.Contains(targetPath, "."+ss.Language.Lang+".") {
+			s = ss
+			break
+		}
+	}
+
+	for _, ss := range sites.Sites {
+		contentDir := ss.PathSpec.ContentDir
+		if !strings.HasSuffix(contentDir, helpers.FilePathSeparator) {
+			contentDir += helpers.FilePathSeparator
+		}
+		if strings.HasPrefix(targetPath, contentDir) {
+			siteContentDir = ss.PathSpec.ContentDir
+			if s == nil {
+				s = ss
+			}
+			break
+		}
+	}
+
+	if s == nil {
+		s = first
+	}
+
+	if targetDir != "" && targetDir != "." {
+		exists, _ := helpers.Exists(targetDir, fs)
+
+		if exists {
+			return targetPath, s
+		}
+	}
+
+	if siteContentDir != "" {
+		pp := filepath.Join(siteContentDir, strings.TrimPrefix(targetPath, siteContentDir))
+		return s.PathSpec.AbsPathify(pp), s
+
+	} else {
+		return s.PathSpec.AbsPathify(filepath.Join(first.PathSpec.ContentDir, targetPath)), s
+	}
+
+}
+
 // FindArchetype takes a given kind/archetype of content and returns the path
 // to the archetype in the archetype filesystem, blank if none found.
-func findArchetype(ps *helpers.PathSpec, kind, ext string) (outpath string) {
+func findArchetype(ps *helpers.PathSpec, kind, ext string) (outpath string, isDir bool) {
 	fs := ps.BaseFs.Archetypes.Fs
 
-	// If the new content isn't in a subdirectory, kind == "".
-	// Therefore it should be excluded otherwise `is a directory`
-	// error will occur. github.com/gohugoio/hugo/issues/411
-	var pathsToCheck = []string{"default"}
+	var pathsToCheck []string
 
-	if ext != "" {
-		if kind != "" {
-			pathsToCheck = append([]string{kind + ext, "default" + ext}, pathsToCheck...)
-		} else {
-			pathsToCheck = append([]string{"default" + ext}, pathsToCheck...)
-		}
+	if kind != "" {
+		pathsToCheck = append(pathsToCheck, kind+ext)
 	}
+	pathsToCheck = append(pathsToCheck, "default"+ext, "default")
 
 	for _, p := range pathsToCheck {
-		if exists, _ := helpers.Exists(p, fs); exists {
-			return p
+		fi, err := fs.Stat(p)
+		if err == nil {
+			return p, fi.IsDir()
 		}
 	}
 
-	return ""
+	return "", false
 }

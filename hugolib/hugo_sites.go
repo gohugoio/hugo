@@ -57,6 +57,14 @@ func (h *HugoSites) IsMultihost() bool {
 	return h != nil && h.multihost
 }
 
+func (h *HugoSites) LanguageSet() map[string]bool {
+	set := make(map[string]bool)
+	for _, s := range h.Sites {
+		set[s.Language.Lang] = true
+	}
+	return set
+}
+
 func (h *HugoSites) NumLogErrors() int {
 	if h == nil {
 		return 0
