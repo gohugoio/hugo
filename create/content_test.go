@@ -79,6 +79,40 @@ func TestNewContent(t *testing.T) {
 	}
 }
 
+func TestNewContentFromDir(t *testing.T) {
+	assert := require.New(t)
+	cfg, fs := newTestCfg()
+	assert.NoError(initFs(fs))
+
+	archetypeDir := filepath.Join("archetypes", "my-bundle")
+	assert.NoError(fs.Source.Mkdir(archetypeDir, 0755))
+
+	contentFile := `
+File: %s
+Site Lang: {{ .Site.Language.Lang  }} 	
+`
+
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "index.md"), []byte(fmt.Sprintf(contentFile, "index.md")), 0755))
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "pages", "bio.md"), []byte(fmt.Sprintf(contentFile, "bio.md")), 0755))
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "resources", "hugo1.json"), []byte(`hugo1: {{ printf "no template handling in here" }}`), 0755))
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "resources", "hugo2.xml"), []byte(`hugo2: {{ printf "no template handling in here" }}`), 0755))
+
+	h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
+	assert.NoError(err)
+
+	siteFactory := func(filename string, siteUsed bool) (*hugolib.Site, error) {
+		return h.Sites[0], nil
+	}
+
+	assert.NoError(create.NewContent(h.PathSpec, siteFactory, "my-bundle", "post/my-post"))
+
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/my-bundle/resources/hugo1.json")), `hugo1: {{ printf "no template handling in here" }}`)
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/my-bundle/resources/hugo2.xml")), `hugo2: {{ printf "no template handling in here" }}`)
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/my-bundle/index.md")), `File: index.md`, `Site Lang: en`)
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/my-bundle/pages/bio.md")), `File: bio.md`, `Site Lang: en`)
+
+}
+
 func initViper(v *viper.Viper) {
 	v.Set("metaDataFormat", "toml")
 	v.Set("archetypeDir", "archetypes")
@@ -164,6 +198,12 @@ Some text.
 	}
 
 	return nil
+}
+
+func assertContains(assert *require.Assertions, v interface{}, matches ...string) {
+	for _, m := range matches {
+		assert.Contains(v, m)
+	}
 }
 
 // TODO(bep) extract common testing package with this and some others
