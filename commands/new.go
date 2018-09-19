@@ -86,6 +86,26 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 	var kind string
 
 	createPath, kind = newContentPathSection(createPath)
+	hasDot := strings.Contains(createPath, ".")
+
+	langMatch := func(s *hugolib.Site) bool {
+		lang := s.Language.Lang
+
+		if hasDot {
+			// Most likely a file.
+			if strings.Contains(createPath, "."+lang) {
+				return true
+			}
+		}
+
+		// Check for language content dir
+		contentDir := filepath.ToSlash(s.PathSpec.ContentDir)
+		if strings.HasPrefix(createPath, contentDir) {
+			return true
+		}
+
+		return false
+	}
 
 	if n.contentType != "" {
 		kind = n.contentType
@@ -100,13 +120,12 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 
 	// If a site isn't in use in the archetype template, we can skip the build.
 	siteFactory := func(filename string, siteUsed bool) (*hugolib.Site, error) {
-		if !siteUsed {
-			return hugolib.NewSite(*cfg)
-		}
 		var s *hugolib.Site
 
-		if err := c.hugo.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
-			return nil, err
+		if siteUsed {
+			if err := c.hugo.Build(hugolib.BuildCfg{SkipRender: true}); err != nil {
+				return nil, err
+			}
 		}
 
 		s = c.hugo.Sites[0]
@@ -114,7 +133,7 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 		if len(c.hugo.Sites) > 1 {
 			// Find the best match.
 			for _, ss := range c.hugo.Sites {
-				if strings.Contains(createPath, "."+ss.Language.Lang) {
+				if langMatch(ss) {
 					s = ss
 					break
 				}

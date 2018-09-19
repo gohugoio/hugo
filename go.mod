@@ -15,6 +15,7 @@ require (
 	github.com/chaseadamsio/goorgeous v1.1.0
 	github.com/cpuguy83/go-md2man v1.0.8 // indirect
 	github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964 // indirect
+	github.com/derekparker/delve v1.1.0 // indirect
 	github.com/disintegration/imaging v1.5.0
 	github.com/dlclark/regexp2 v1.1.6 // indirect
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385
@@ -55,12 +56,15 @@ require (
 	github.com/tdewolff/minify v2.3.5+incompatible
 	github.com/tdewolff/parse v2.3.3+incompatible // indirect
 	github.com/tdewolff/test v0.0.0-20171106182207-265427085153 // indirect
+	github.com/visualfc/gocode v0.0.0-20180902020244-08a66b5525c8 // indirect
+	github.com/visualfc/gotools v0.0.0-20180902041808-77fd0f0b4437 // indirect
 	github.com/wellington/go-libsass v0.0.0-20180624165032-615eaa47ef79 // indirect
 	github.com/yosssi/ace v0.0.5
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd
 	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
 	golang.org/x/text v0.3.0
+	golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/yaml.v2 v2.2.1
 )
