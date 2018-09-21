@@ -72,7 +72,7 @@ func TestCommandsPersistentFlags(t *testing.T) {
 		"--port=1366",
 		"--renderToDisk",
 		"--source=mysource",
-		"--uglyURLs"}, func(commands []cmder) {
+	}, func(commands []cmder) {
 		var sc *serverCmd
 		for _, command := range commands {
 			if b, ok := command.(commandsBuilderGetter); ok {
@@ -105,7 +105,6 @@ func TestCommandsPersistentFlags(t *testing.T) {
 
 		assert.Equal([]string{"page", "home"}, cfg.Get("disableKinds"))
 
-		assert.True(cfg.GetBool("uglyURLs"))
 		assert.True(cfg.GetBool("gc"))
 
 		// The flag is named i18n-warnings

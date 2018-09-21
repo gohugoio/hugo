@@ -233,22 +233,9 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 
 }
 
-var deprecatedFlags = map[string]bool{
-	strings.ToLower("uglyURLs"):              true,
-	strings.ToLower("pluralizeListTitles"):   true,
-	strings.ToLower("preserveTaxonomyNames"): true,
-	strings.ToLower("canonifyURLs"):          true,
-}
-
 func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targetKey string, force bool) {
 	key = strings.TrimSpace(key)
 	if (force && flags.Lookup(key) != nil) || flags.Changed(key) {
-		if _, deprecated := deprecatedFlags[strings.ToLower(key)]; deprecated {
-			msg := fmt.Sprintf(`Set "%s = true" in your config.toml.
-If you need to set this configuration value from the command line, set it via an OS environment variable: "HUGO_%s=true hugo"`, key, strings.ToUpper(key))
-			// Remove in Hugo 0.38
-			helpers.Deprecated("hugo", "--"+key+" flag", msg, true)
-		}
 		f := flags.Lookup(key)
 		configKey := key
 		if targetKey != "" {
