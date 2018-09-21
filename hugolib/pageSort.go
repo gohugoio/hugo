@@ -115,7 +115,7 @@ func (p Pages) Limit(n int) Pages {
 //
 // This may safely be executed  in parallel.
 func (p Pages) ByWeight() Pages {
-	key := "pageSort.ByWeight"
+	const key = "pageSort.ByWeight"
 	pages, _ := spc.get(key, pageBy(defaultPageSort).Sort, p)
 	return pages
 }
@@ -127,7 +127,7 @@ func (p Pages) ByWeight() Pages {
 // This may safely be executed  in parallel.
 func (p Pages) ByTitle() Pages {
 
-	key := "pageSort.ByTitle"
+	const key = "pageSort.ByTitle"
 
 	title := func(p1, p2 *Page) bool {
 		return p1.title < p2.title
@@ -144,7 +144,7 @@ func (p Pages) ByTitle() Pages {
 // This may safely be executed  in parallel.
 func (p Pages) ByLinkTitle() Pages {
 
-	key := "pageSort.ByLinkTitle"
+	const key = "pageSort.ByLinkTitle"
 
 	linkTitle := func(p1, p2 *Page) bool {
 		return p1.linkTitle < p2.linkTitle
@@ -162,7 +162,7 @@ func (p Pages) ByLinkTitle() Pages {
 // This may safely be executed  in parallel.
 func (p Pages) ByDate() Pages {
 
-	key := "pageSort.ByDate"
+	const key = "pageSort.ByDate"
 
 	date := func(p1, p2 *Page) bool {
 		return p1.Date.Unix() < p2.Date.Unix()
@@ -180,7 +180,7 @@ func (p Pages) ByDate() Pages {
 // This may safely be executed  in parallel.
 func (p Pages) ByPublishDate() Pages {
 
-	key := "pageSort.ByPublishDate"
+	const key = "pageSort.ByPublishDate"
 
 	pubDate := func(p1, p2 *Page) bool {
 		return p1.PublishDate.Unix() < p2.PublishDate.Unix()
@@ -198,7 +198,7 @@ func (p Pages) ByPublishDate() Pages {
 // This may safely be executed  in parallel.
 func (p Pages) ByExpiryDate() Pages {
 
-	key := "pageSort.ByExpiryDate"
+	const key = "pageSort.ByExpiryDate"
 
 	expDate := func(p1, p2 *Page) bool {
 		return p1.ExpiryDate.Unix() < p2.ExpiryDate.Unix()
@@ -216,7 +216,7 @@ func (p Pages) ByExpiryDate() Pages {
 // This may safely be executed  in parallel.
 func (p Pages) ByLastmod() Pages {
 
-	key := "pageSort.ByLastmod"
+	const key = "pageSort.ByLastmod"
 
 	date := func(p1, p2 *Page) bool {
 		return p1.Lastmod.Unix() < p2.Lastmod.Unix()
@@ -234,7 +234,7 @@ func (p Pages) ByLastmod() Pages {
 // This may safely be executed  in parallel.
 func (p Pages) ByLength() Pages {
 
-	key := "pageSort.ByLength"
+	const key = "pageSort.ByLength"
 
 	length := func(p1, p2 *Page) bool {
 		return len(p1.content()) < len(p2.content())
@@ -252,7 +252,7 @@ func (p Pages) ByLength() Pages {
 // This may safely be executed  in parallel.
 func (p Pages) ByLanguage() Pages {
 
-	key := "pageSort.ByLanguage"
+	const key = "pageSort.ByLanguage"
 
 	pages, _ := spc.get(key, pageBy(languagePageSort).Sort, p)
 
@@ -265,7 +265,7 @@ func (p Pages) ByLanguage() Pages {
 //
 // This may safely be executed  in parallel.
 func (p Pages) Reverse() Pages {
-	key := "pageSort.Reverse"
+	const key = "pageSort.Reverse"
 
 	reverseFunc := func(pages Pages) {
 		for i, j := 0, len(pages)-1; i < j; i, j = i+1, j-1 {
@@ -277,6 +277,12 @@ func (p Pages) Reverse() Pages {
 
 	return pages
 }
+
+// ByParam sorts the pages according to the given page Params key.
+//
+// Adjacent invocations on the same receiver with the same paramsKey will return a cached result.
+//
+// This may safely be executed  in parallel.
 
 func (p Pages) ByParam(paramsKey interface{}) Pages {
 	paramsKeyStr := cast.ToString(paramsKey)
