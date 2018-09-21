@@ -60,7 +60,7 @@ type Deps struct {
 	FileCaches filecache.Caches
 
 	// The translation func to use
-	Translate func(translationID string, args ...interface{}) string `json:"-"`
+	Translate func(translationID string, templateData interface{}) string `json:"-"`
 
 	Language *langs.Language
 

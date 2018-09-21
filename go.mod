@@ -2,7 +2,7 @@ module github.com/gohugoio/hugo
 
 require (
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
-	github.com/BurntSushi/toml v0.0.0-20170626110600-a368813c5e64
+	github.com/BurntSushi/toml v0.3.0
 	github.com/PuerkitoBio/purell v1.1.0
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38
@@ -37,6 +37,7 @@ require (
 	github.com/muesli/smartcrop v0.0.0-20180228075044-f6ebaa786a12
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0
+	github.com/nicksnyder/go-i18n/v2 v2.0.0-beta.5.0.20180809142456-e786c8873251
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
 	github.com/pkg/errors v0.8.0
 	github.com/russross/blackfriday v0.0.0-20180804101149-46c73eb196ba

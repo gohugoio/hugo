@@ -37,13 +37,13 @@ type Namespace struct {
 }
 
 // Translate returns a translated string for id.
-func (ns *Namespace) Translate(id interface{}, args ...interface{}) (string, error) {
+func (ns *Namespace) Translate(id interface{}, templateData interface{}) (string, error) {
 	sid, err := cast.ToStringE(id)
 	if err != nil {
 		return "", nil
 	}
 
-	return ns.deps.Translate(sid, args...), nil
+	return ns.deps.Translate(sid, templateData), nil
 }
 
 // NumFmt formats a number with the given precision using the

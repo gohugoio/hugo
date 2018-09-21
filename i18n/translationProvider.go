@@ -14,16 +14,16 @@
 package i18n
 
 import (
-	"errors"
-
 	"github.com/gohugoio/hugo/common/herrors"
+	"golang.org/x/text/language"
+
+	"github.com/BurntSushi/toml"
+	"github.com/gohugoio/hugo/helpers"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/source"
-	"github.com/nicksnyder/go-i18n/i18n/bundle"
-	"github.com/nicksnyder/go-i18n/i18n/language"
 	_errors "github.com/pkg/errors"
 )
 
@@ -43,37 +43,20 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	sp := source.NewSourceSpec(d.PathSpec, d.BaseFs.SourceFilesystems.I18n.Fs)
 	src := sp.NewFilesystem("")
 
-	i18nBundle := bundle.New()
+	bundle := &i18n.Bundle{DefaultLanguage: language.English}
+	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 
-	en := language.GetPluralSpec("en")
-	if en == nil {
-		return errors.New("the English language has vanished like an old oak table")
-	}
-	var newLangs []string
-
-	for _, r := range src.Files() {
-		currentSpec := language.GetPluralSpec(r.BaseFileName())
-		if currentSpec == nil {
-			// This may is a language code not supported by go-i18n, it may be
-			// Klingon or ... not even a fake language. Make sure it works.
-			newLangs = append(newLangs, r.BaseFileName())
-		}
-	}
-
-	if len(newLangs) > 0 {
-		language.RegisterPluralSpec(newLangs, en)
-	}
-
+	//localizer := i18n.NewLocalizer(bundle, "en")
 	// The source files are ordered so the most important comes first. Since this is a
 	// last key win situation, we have to reverse the iteration order.
 	files := src.Files()
 	for i := len(files) - 1; i >= 0; i-- {
-		if err := addTranslationFile(i18nBundle, files[i]); err != nil {
+		if err := addTranslationFile(bundle, files[i]); err != nil {
 			return err
 		}
 	}
 
-	tp.t = NewTranslator(i18nBundle, d.Cfg, d.Log)
+	tp.t = NewTranslator(bundle, d.Cfg, d.Log)
 
 	d.Translate = tp.t.Func(d.Language.Lang)
 
@@ -81,13 +64,13 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 
 }
 
-func addTranslationFile(bundle *bundle.Bundle, r source.ReadableFile) error {
+func addTranslationFile(bundle *i18n.Bundle, r source.ReadableFile) error {
 	f, err := r.Open()
 	if err != nil {
 		return _errors.Wrapf(err, "failed to open translations file %q:", r.LogicalName())
 	}
-	err = bundle.ParseTranslationFileBytes(r.LogicalName(), helpers.ReaderToBytes(f))
-	f.Close()
+	defer f.Close()
+	_, err = bundle.ParseMessageFileBytes(helpers.ReaderToBytes(f), r.LogicalName())
 	if err != nil {
 		return errWithFileContext(_errors.Wrapf(err, "failed to load translations"), r)
 	}
