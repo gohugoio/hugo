@@ -44,6 +44,12 @@ func newPageCache() *pageCache {
 	return &pageCache{m: make(map[string][]pageCacheEntry)}
 }
 
+func (c *pageCache) clear() {
+	c.Lock()
+	defer c.Unlock()
+	c.m = make(map[string][]pageCacheEntry)
+}
+
 // get/getP gets a Pages slice from the cache matching the given key and
 // all the provided Pages slices.
 // If none found in cache, a copy of the first slice is created.
