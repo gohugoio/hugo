@@ -1012,6 +1012,8 @@ func (s *Site) setupSitePages() {
 }
 
 func (s *Site) render(config *BuildCfg, outFormatIdx int) (err error) {
+	// Clear the global page cache.
+	spc.clear()
 
 	if outFormatIdx == 0 {
 		if err = s.preparePages(); err != nil {
@@ -1513,8 +1515,6 @@ func (s *Site) resetBuildState() {
 	s.futureCount = 0
 
 	s.expiredCount = 0
-
-	spc = newPageCache()
 
 	for _, p := range s.rawAllPages {
 		p.subSections = Pages{}
