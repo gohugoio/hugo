@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
 package hugolib
 
 import (
+	"github.com/gohugoio/hugo/helpers"
+
 	"sort"
 
 	"github.com/spf13/cast"
@@ -98,6 +100,12 @@ func (ps *pageSorter) Less(i, j int) bool { return ps.by(ps.pages[i], ps.pages[j
 // Sort sorts the pages by the default sort order defined:
 // Order by Weight, Date, LinkTitle and then full file path.
 func (p Pages) Sort() {
+	// Remove in Hugo 0.51
+	helpers.Deprecated("Pages", "Sort", "Use .ByWeight", false)
+	p.sort()
+}
+
+func (p Pages) sort() {
 	pageBy(defaultPageSort).Sort(p)
 }
 

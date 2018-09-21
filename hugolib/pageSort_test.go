@@ -35,24 +35,24 @@ func TestDefaultSort(t *testing.T) {
 
 	// first by weight
 	setSortVals([4]time.Time{d1, d2, d3, d4}, [4]string{"b", "a", "c", "d"}, [4]int{4, 3, 2, 1}, p)
-	p.Sort()
+	p.sort()
 
 	assert.Equal(t, 1, p[0].Weight)
 
 	// Consider zero weight, issue #2673
 	setSortVals([4]time.Time{d1, d2, d3, d4}, [4]string{"b", "a", "d", "c"}, [4]int{0, 0, 0, 1}, p)
-	p.Sort()
+	p.sort()
 
 	assert.Equal(t, 1, p[0].Weight)
 
 	// next by date
 	setSortVals([4]time.Time{d3, d4, d1, d2}, [4]string{"a", "b", "c", "d"}, [4]int{1, 1, 1, 1}, p)
-	p.Sort()
+	p.sort()
 	assert.Equal(t, d1, p[0].Date)
 
 	// finally by link title
 	setSortVals([4]time.Time{d3, d3, d3, d3}, [4]string{"b", "c", "a", "d"}, [4]int{1, 1, 1, 1}, p)
-	p.Sort()
+	p.sort()
 	assert.Equal(t, "al", p[0].LinkTitle())
 	assert.Equal(t, "bl", p[1].LinkTitle())
 	assert.Equal(t, "cl", p[2].LinkTitle())

@@ -42,7 +42,7 @@ func (p1 Pages) MergeByLanguage(p2 Pages) Pages {
 			}
 		}
 
-		pages.Sort()
+		pages.sort()
 	}
 
 	out, _ := spc.getP("pages.MergeByLanguage", merge, p1, p2)

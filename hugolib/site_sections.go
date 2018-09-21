@@ -326,7 +326,7 @@ func (s *Site) assembleSections() Pages {
 
 	for _, sect := range sectionPages {
 		if sect.parent != nil {
-			sect.parent.subSections.Sort()
+			sect.parent.subSections.sort()
 		}
 
 		for i, p := range sect.Pages {
@@ -356,7 +356,7 @@ func (s *Site) assembleSections() Pages {
 }
 
 func (p *Page) setPagePages(pages Pages) {
-	pages.Sort()
+	pages.sort()
 	p.Pages = pages
 	p.data = make(map[string]interface{})
 	p.data["Pages"] = pages

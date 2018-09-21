@@ -192,7 +192,7 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 		return err
 	}
 
-	s.site.rawAllPages.Sort()
+	s.site.rawAllPages.sort()
 
 	return nil
 

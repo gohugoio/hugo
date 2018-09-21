@@ -525,10 +525,10 @@ func (h *HugoSites) createMissingPages() error {
 
 		first.AllPages = append(first.AllPages, newPages...)
 
-		first.AllPages.Sort()
+		first.AllPages.sort()
 
 		for _, s := range h.Sites {
-			s.Pages.Sort()
+			s.Pages.sort()
 		}
 
 		for i := 1; i < len(h.Sites); i++ {
@@ -574,7 +574,7 @@ func (h *HugoSites) setupTranslations() {
 		allPages = append(allPages, s.Pages...)
 	}
 
-	allPages.Sort()
+	allPages.sort()
 
 	for _, s := range h.Sites {
 		s.AllPages = allPages
