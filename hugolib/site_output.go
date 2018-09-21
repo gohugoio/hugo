@@ -15,11 +15,8 @@ package hugolib
 
 import (
 	"fmt"
-	"path"
-	"strings"
 
 	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/output"
 	"github.com/spf13/cast"
 )
@@ -29,20 +26,6 @@ func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) 
 	htmlOut, _ := allFormats.GetByName(output.HTMLFormat.Name)
 	robotsOut, _ := allFormats.GetByName(output.RobotsTxtFormat.Name)
 	sitemapOut, _ := allFormats.GetByName(output.SitemapFormat.Name)
-
-	// TODO(bep) this mumbo jumbo is deprecated and should be removed, but there are tests that
-	// depends on this, so that will have to wait.
-	rssBase := cfg.GetString("rssURI")
-	if rssBase == "" || rssBase == "index.xml" {
-		rssBase = rssOut.BaseName
-	} else {
-		// Remove in Hugo 0.36.
-		helpers.Deprecated("Site config", "rssURI", "Set baseName in outputFormats.RSS", true)
-		// RSS has now a well defined media type, so strip any suffix provided
-		rssBase = strings.TrimSuffix(rssBase, path.Ext(rssBase))
-	}
-
-	rssOut.BaseName = rssBase
 
 	return map[string]output.Formats{
 		KindPage:         output.Formats{htmlOut},

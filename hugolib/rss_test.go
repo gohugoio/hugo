@@ -30,10 +30,9 @@ func TestRSSOutput(t *testing.T) {
 
 	rssLimit := len(weightedSources) - 1
 
-	rssURI := "customrss.xml"
+	rssURI := "index.xml"
 
 	cfg.Set("baseURL", "http://auth/bub/")
-	cfg.Set("rssURI", rssURI)
 	cfg.Set("title", "RSSTest")
 	cfg.Set("rssLimit", rssLimit)
 

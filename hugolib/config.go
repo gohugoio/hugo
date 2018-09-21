@@ -471,7 +471,7 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("disableFastRender", false)
 	v.SetDefault("timeout", 10000) // 10 seconds
 
-	// Remove in Hugo 0.39
+	// Remove in Hugo 0.50
 
 	if v.GetBool("useModTimeAsFallback") {
 
@@ -480,7 +480,7 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 [frontmatter]
 date = [ "date",":fileModTime", ":default"]
 lastmod = ["lastmod" ,":fileModTime", ":default"]
-`, false)
+`, true)
 
 	}
 
