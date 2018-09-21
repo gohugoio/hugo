@@ -57,8 +57,8 @@ func TestPageCache(t *testing.T) {
 				l1.Unlock()
 				p2, c2 := c1.get("k1", nil, p)
 				assert.True(t, c2)
-				assert.True(t, fastEqualPages(p, p2))
-				assert.True(t, fastEqualPages(p, pages))
+				assert.True(t, pagesEqual(p, p2))
+				assert.True(t, pagesEqual(p, pages))
 				assert.NotNil(t, p)
 
 				l2.Lock()
