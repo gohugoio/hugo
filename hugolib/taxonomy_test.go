@@ -79,9 +79,11 @@ category = "categories"
 other = "others"
 empty = "empties"
 permalinked = "permalinkeds"
+subcats = "subcats"
 
 [permalinks]
 permalinkeds = "/perma/:slug/"
+subcats = "/subcats/:slug/"
 `
 
 	pageTemplate := `---
@@ -94,6 +96,8 @@ others:
 %s
 permalinkeds:
 %s
+subcats:
+%s
 ---
 # Doc
 `
@@ -105,10 +109,11 @@ permalinkeds:
 
 	fs := th.Fs
 
-	writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- Tag1", "- cat1\n- \"cAt/dOg\"", "- o1", "- pl1"))
-	writeSource(t, fs, "content/p2.md", fmt.Sprintf(pageTemplate, "t2/c1", "- tag2", "- cat1", "- o1", "- pl1"))
-	writeSource(t, fs, "content/p3.md", fmt.Sprintf(pageTemplate, "t2/c12", "- tag2", "- cat2", "- o1", "- pl1"))
-	writeSource(t, fs, "content/p4.md", fmt.Sprintf(pageTemplate, "Hello World", "", "", "- \"Hello Hugo world\"", "- pl1"))
+	writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- Tag1", "- cat1\n- \"cAt/dOg\"", "- o1", "- pl1", ""))
+	writeSource(t, fs, "content/p2.md", fmt.Sprintf(pageTemplate, "t2/c1", "- tag2", "- cat1", "- o1", "- pl1", ""))
+	writeSource(t, fs, "content/p3.md", fmt.Sprintf(pageTemplate, "t2/c12", "- tag2", "- cat2", "- o1", "- pl1", ""))
+	writeSource(t, fs, "content/p4.md", fmt.Sprintf(pageTemplate, "Hello World", "", "", "- \"Hello Hugo world\"", "- pl1", ""))
+	writeSource(t, fs, "content/p5.md", fmt.Sprintf(pageTemplate, "Sub/categories", "", "", "", "", "- \"sc0/sp1\""))
 
 	writeNewContentFile(t, fs.Source, "Category Terms", "2017-01-01", "content/categories/_index.md", 10)
 	writeNewContentFile(t, fs.Source, "Tag1 List", "2017-01-01", "content/tags/Tag1/_index.md", 10)
@@ -175,6 +180,7 @@ permalinkeds:
 		"others":       2,
 		"empties":      0,
 		"permalinkeds": 1,
+		"subcats":      1,
 	}
 
 	for taxonomy, count := range taxonomyTermPageCounts {
@@ -216,6 +222,11 @@ permalinkeds:
 	permalinkeds := s.getPage(KindTaxonomyTerm, "permalinkeds")
 	require.NotNil(t, permalinkeds)
 	require.Equal(t, fixURL("/blog/permalinkeds/"), permalinkeds.RelPermalink())
+
+	// Issue #5223
+	sp1 := s.getPage(KindTaxonomy, "subcats", "sc0/sp1")
+	require.NotNil(t, sp1)
+	require.Equal(t, fixURL("/blog/subcats/sc0/sp1/"), sp1.RelPermalink())
 
 	// Issue #3070 preserveTaxonomyNames
 	if preserveTaxonomyNames {
