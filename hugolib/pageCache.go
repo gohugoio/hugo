@@ -27,7 +27,7 @@ func (entry pageCacheEntry) matches(pageLists []Pages) bool {
 		return false
 	}
 	for i, p := range pageLists {
-		if !fastEqualPages(p, entry.in[i]) {
+		if !pagesEqual(p, entry.in[i]) {
 			return false
 		}
 	}
@@ -103,10 +103,8 @@ func (c *pageCache) getP(key string, apply func(p *Pages), pageLists ...Pages) (
 
 }
 
-// "fast" as in: we do not compare every element for big slices, but that is
-// good enough for our use cases.
-// TODO(bep) there is a similar method in pagination.go. DRY.
-func fastEqualPages(p1, p2 Pages) bool {
+// pagesEqual returns whether p1 and p2 are equal.
+func pagesEqual(p1, p2 Pages) bool {
 	if p1 == nil && p2 == nil {
 		return true
 	}
@@ -123,13 +121,7 @@ func fastEqualPages(p1, p2 Pages) bool {
 		return true
 	}
 
-	step := 1
-
-	if len(p1) >= 50 {
-		step = len(p1) / 10
-	}
-
-	for i := 0; i < len(p1); i += step {
+	for i := 0; i < len(p1); i++ {
 		if p1[i] != p2[i] {
 			return false
 		}

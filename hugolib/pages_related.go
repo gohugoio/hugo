@@ -154,7 +154,7 @@ func newSearchIndexHandler(cfg related.Config) *relatedDocsHandler {
 // This assumes that a lock has been acquired.
 func (s *relatedDocsHandler) getIndex(p Pages) *related.InvertedIndex {
 	for _, ci := range s.postingLists {
-		if fastEqualPages(p, ci.p) {
+		if pagesEqual(p, ci.p) {
 			return ci.postingList
 		}
 	}
