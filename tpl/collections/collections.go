@@ -215,8 +215,8 @@ func (ns *Namespace) First(limit interface{}, seq interface{}) (interface{}, err
 		return nil, err
 	}
 
-	if limitv < 1 {
-		return nil, errors.New("can't return negative/empty count of items from sequence")
+	if limitv < 0 {
+		return nil, errors.New("can't return negative count of items from sequence")
 	}
 
 	seqv := reflect.ValueOf(seq)
