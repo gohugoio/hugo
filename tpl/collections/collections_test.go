@@ -256,6 +256,7 @@ func TestFirst(t *testing.T) {
 		{int64(2), []int{100, 200, 300}, []int{100, 200}},
 		{100, []int{100, 200}, []int{100, 200}},
 		{"1", []int{100, 200, 300}, []int{100}},
+		{0, []string{"h", "u", "g", "o"}, []string{}},
 		{int64(-1), []int{100, 200, 300}, false},
 		{"noint", []int{100, 200, 300}, false},
 		{1, nil, false},
