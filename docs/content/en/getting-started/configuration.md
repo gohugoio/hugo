@@ -358,7 +358,7 @@ The above will try first to extract the value for `.Lastmod` starting with the `
 
 
 `:filename`
-: Fetches the date from the content file's filename. For example, `218-02-22-mypage.md` will extract the date `218-02-22`. Also, if `slug` is not set, `mypage` will be used as the value for `.Slug`.
+: Fetches the date from the content file's filename. For example, `2018-02-22-mypage.md` will extract the date `2018-02-22`. Also, if `slug` is not set, `mypage` will be used as the value for `.Slug`.
 
 An example:
 

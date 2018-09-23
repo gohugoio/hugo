@@ -128,7 +128,7 @@ git push -u origin master
 
 ## Set Up Wercker
 
-To sign up for a free Wercker account, go to <https://wercker.com> and click the **Sign Up** button on the top right of the home screen.
+To sign up for a free Wercker account, go to <https://www.wercker.com> and click the **Sign Up** button on the top right of the home screen.
 
 ![][3]
 
