@@ -718,6 +718,7 @@ func createThemesOverlayFs(p *paths.Paths) (afero.Fs, []string, error) {
 	}
 
 	fs, err := createOverlayFs(p.Fs.Source, absPaths)
+	fs = hugofs.NewNoLstatFs(fs)
 
 	return fs, absPaths, err
 

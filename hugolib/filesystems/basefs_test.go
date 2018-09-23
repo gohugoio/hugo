@@ -218,6 +218,12 @@ func TestRealDirs(t *testing.T) {
 
 	checkFileCount(bfs.Resources.Fs, "", assert, 3)
 
+	assert.NotNil(bfs.themeFs)
+	fi, b, err := bfs.themeFs.(afero.Lstater).LstatIfPossible(filepath.Join("resources", "t1.txt"))
+	assert.NoError(err)
+	assert.False(b)
+	assert.Equal("t1.txt", fi.Name())
+
 }
 
 func TestStaticFs(t *testing.T) {
