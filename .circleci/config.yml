@@ -1,9 +1,7 @@
 defaults: &defaults
-  working_directory: /go/src/github.com/gohugoio
   docker:
       - image: bepsays/ci-goreleaser:1.11-2
   environment:
-    GO111MODULE: "on"
     CGO_ENABLED: "0"
 
 version: 2
@@ -27,7 +25,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: /go/src/github.com/gohugoio
+          at: /root/project
       - run:
             command: |
                     cd hugo
