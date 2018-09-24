@@ -75,22 +75,18 @@ scoop install hugo
 #### Prerequisite Tools
 
 * [Git][installgit]
-* [Go (latest or previous version)][installgo]
-
-#### Vendored Dependencies
-
-Hugo uses [dep][] to vendor dependencies, but we don't commit the vendored packages themselves to the Hugo git repository. Therefore, a simple `go get` is *not* supported because the command is not vendor aware.
-
-The simplest way is to use [mage][] (a Make alternative for Go projects.)
+* [Go (at least Go 1.11)](https://golang.org/dl/)
 
 #### Fetch from GitHub
 
+Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest way to get started is to clone Hugo in a directory outside of the GOPATH, as in the following example:
+
 {{< code file="from-gh.sh" >}}
-go get github.com/magefile/mage
-go get -d github.com/gohugoio/hugo
-cd ${GOPATH:-$HOME/go}/src/github.com/gohugoio/hugo
-mage vendor
-HUGO_BUILD_TAGS=extended mage install
+mkdir $HOME/src
+cd $HOME/src
+git clone https://github.com/gohugoio/hugo.git
+cd hugo
+go install
 {{< /code >}}
 
 Remove `HUGO_BUILD_TAGS=extended` if you do not want Sass/SCSS support.
