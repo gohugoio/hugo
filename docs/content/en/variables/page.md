@@ -96,11 +96,14 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 .LinkTitle
 : access when creating links to the content. If set, Hugo will use the `linktitle` from the front matter before `title`.
 
-.Next
-: pointer to the following content (based on the `publishdate` field in front matter).
+.Next (deprecated)
+: In older Hugo versions this pointer went the wrong direction. Please use `.PrevPage` instead.
+
+.NextPage
+: Pointer to the next [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath)). Example: `{{if .NextPage}}{{.NextPage.Permalink}}{{end}}`.
 
 .NextInSection
-: pointer to the following content within the same section (based on `publishdate` field in front matter).
+: Pointer to the next [regular page](/variables/site/#site-pages) within the same section. Pages are sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath). Example: `{{if .NextInSection}}{{.NextInSection.Permalink}}{{end}}`.
 
 .OutputFormats
 : contains all formats, including the current format, for a given page. Can be combined the with [`.Get` function](/functions/get/) to grab a specific format. (See [Output Formats](/templates/output-formats/).)
@@ -118,11 +121,14 @@ See also `.ExpiryDate`, `.Date`, `.PublishDate`, and [`.GitInfo`][gitinfo].
 .PlainWords
 : the Page content stripped of HTML as a `[]string` using Go's [`strings.Fields`](https://golang.org/pkg/strings/#Fields) to split `.Plain` into a slice.
 
-.Prev
-: Pointer to the previous content (based on `publishdate` in front matter).
+.Prev (deprecated)
+: In older Hugo versions this pointer went the wrong direction. Please use `.NextPage` instead.
+
+.PrevPage
+: Pointer to the previous [regular page](/variables/site/#site-pages) (sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath)). Example: `{{if .PrevPage}}{{.PrevPage.Permalink}}{{end}}`.
 
 .PrevInSection
-: Pointer to the previous content within the same section (based on `publishdate` in front matter). For example, `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.
+: Pointer to the previous [regular page](/variables/site/#site-pages) within the same section. Pages are sorted by Hugo's [default sort](/templates/lists#default-weight-date-linktitle-filepath). Example: `{{if .PrevInSection}}{{.PrevInSection.Permalink}}{{end}}`.
 
 .PublishDate
 : the date on which the content was or will be published; `.Publishdate` pulls from the `publishdate` field in a content's front matter. See also `.ExpiryDate`, `.Date`, and `.Lastmod`.

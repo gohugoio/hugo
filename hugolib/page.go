@@ -505,8 +505,8 @@ type PageMeta struct {
 }
 
 type Position struct {
-	Prev          *Page
-	Next          *Page
+	PrevPage      *Page
+	NextPage      *Page
 	PrevInSection *Page
 	NextInSection *Page
 }
@@ -2307,4 +2307,16 @@ func (p *Page) pathOrTitle() string {
 		return p.Path()
 	}
 	return p.title
+}
+
+func (p *Page) Next() *Page {
+	// TODO Remove in Hugo 0.52
+	helpers.Deprecated("Page", ".Next", "Use .PrevPage (yes, not .NextPage).", false)
+	return p.PrevPage
+}
+
+func (p *Page) Prev() *Page {
+	// TODO Remove in Hugo 0.52
+	helpers.Deprecated("Page", ".Prev", "Use .NextPage (yes, not .PrevPage).", false)
+	return p.NextPage
 }
