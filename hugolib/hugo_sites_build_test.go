@@ -268,7 +268,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	require.Equal(t, "/superbob", doc3.URL(), "invalid url, was specified on doc3")
 	b.AssertFileContent("public/superbob/index.html", "doc3|Hello|en")
-	require.Equal(t, doc2.Next, doc3, "doc3 should follow doc2, in .Next")
+	require.Equal(t, doc2.PrevPage, doc3, "doc3 should follow doc2, in .PrevPage")
 
 	doc1fr := doc1en.Translations()[0]
 	permalink = doc1fr.Permalink()
@@ -398,16 +398,16 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, template.URL(""), enSite.RegularPages[0].RSSLink())
 
 	// Issue #3108
-	next := enSite.RegularPages[0].Next
-	require.NotNil(t, next)
-	require.Equal(t, KindPage, next.Kind)
+	prevPage := enSite.RegularPages[0].PrevPage
+	require.NotNil(t, prevPage)
+	require.Equal(t, KindPage, prevPage.Kind)
 
 	for {
-		if next == nil {
+		if prevPage == nil {
 			break
 		}
-		require.Equal(t, KindPage, next.Kind)
-		next = next.Next
+		require.Equal(t, KindPage, prevPage.Kind)
+		prevPage = prevPage.PrevPage
 	}
 
 	// Check bundles
