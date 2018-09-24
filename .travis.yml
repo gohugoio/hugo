@@ -22,6 +22,7 @@ install:
   - cd $HOME/src/hugo
   - go get github.com/magefile/mage
 script:
+- go mod download
 - mage -v test
 - mage -v check
 - mage -v hugo
