@@ -7,8 +7,6 @@ description: |
   with content and templates and renders them into a full HTML website.
 confinement: strict
 grade: stable # "devel" or "stable"
-environment:
-    GO111MODULE: on
 
 apps:
   hugo:
@@ -25,6 +23,7 @@ parts:
       - git
     override-build: |
       echo "\nStarting override-build:"
+      export GO111MODULE=on
       export GOPATH=$(dirname $SNAPCRAFT_PART_INSTALL)/go
       export PATH=$GOPATH/bin:$PATH
       cd $GOPATH/src/github.com/gohugoio/hugo
