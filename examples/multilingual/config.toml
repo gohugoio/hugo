@@ -3,7 +3,6 @@ baseURL = "http://example.com"
 defaultContentLanguage = "en"
 
 [taxonomies]
-group = "groups"
 
 [languages]
 [languages.en]
