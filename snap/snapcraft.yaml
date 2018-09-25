@@ -42,7 +42,8 @@ parts:
       export GO111MODULE=on
       mage -v test
 
-      echo " * Building hugo (build tag: none)..."
+      echo " * Building hugo (build tag: extended)..."
+      export HUGO_BUILD_TAGS="extended"
       [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage -v hugoNoGitInfo || mage -v hugo
       ./hugo version
       ldd hugo || :
