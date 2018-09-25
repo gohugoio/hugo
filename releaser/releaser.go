@@ -278,7 +278,7 @@ func (r *ReleaseHandler) bumpVersions(ver helpers.HugoVersion) error {
 	if ver.Suffix != "" {
 		snapcraftGrade = "devel"
 	}
-	if err := r.replaceInFile("snapcraft.yaml",
+	if err := r.replaceInFile("snap/snapcraft.yaml",
 		`version: "(.*)"`, fmt.Sprintf(`version: "%s"`, ver),
 		`grade: (.*) #`, fmt.Sprintf(`grade: %s #`, snapcraftGrade)); err != nil {
 		return err
