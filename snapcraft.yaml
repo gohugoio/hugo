@@ -57,8 +57,16 @@ parts:
 
   node:
     plugin: nodejs
+    node-packages: [postcss-cli]
+    filesets:
+      node:
+        - bin/node
+      postcss:
+        - bin/postcss
+        - lib/node_modules/postcss-cli/*
     prime:
-      - bin/node
+      - $node
+      - $postcss
 
   pygments:
     plugin: python
