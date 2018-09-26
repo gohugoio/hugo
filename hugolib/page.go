@@ -2310,13 +2310,13 @@ func (p *Page) pathOrTitle() string {
 }
 
 func (p *Page) Next() *Page {
-	// TODO Remove in Hugo 0.52
+	// TODO Remove the deprecation notice (but keep PrevPage as an alias) Hugo 0.52
 	helpers.Deprecated("Page", ".Next", "Use .PrevPage (yes, not .NextPage).", false)
 	return p.PrevPage
 }
 
 func (p *Page) Prev() *Page {
-	// TODO Remove in Hugo 0.52
+	// TODO Remove the deprecation notice (but keep NextPage as an alias) Hugo 0.52
 	helpers.Deprecated("Page", ".Prev", "Use .NextPage (yes, not .PrevPage).", false)
 	return p.NextPage
 }
