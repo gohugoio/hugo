@@ -79,6 +79,7 @@ type Sitemap struct {
 	ChangeFreq string
 	Priority   float64
 	Filename   string
+	Exclude    bool
 }
 
 func DecodeSitemap(prototype Sitemap, input map[string]interface{}) Sitemap {
@@ -91,6 +92,8 @@ func DecodeSitemap(prototype Sitemap, input map[string]interface{}) Sitemap {
 			prototype.Priority = cast.ToFloat64(value)
 		case "filename":
 			prototype.Filename = cast.ToString(value)
+		case "exclude":
+			prototype.Exclude = cast.ToBool(value)
 		default:
 			jww.WARN.Printf("Unknown Sitemap field: %s\n", key)
 		}
