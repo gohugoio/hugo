@@ -326,6 +326,7 @@ func (s *Site) renderSitemap() error {
 	page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
 	page.Sitemap.Priority = sitemapDefault.Priority
 	page.Sitemap.Filename = sitemapDefault.Filename
+	page.Sitemap.Exclude = sitemapDefault.Exclude
 
 	n.data["Pages"] = pages
 	n.Pages = pages
@@ -348,6 +349,7 @@ func (s *Site) renderSitemap() error {
 		if page.Sitemap.Filename == "" {
 			page.Sitemap.Filename = sitemapDefault.Filename
 		}
+		// Sitemap.Exclude isn't listed here because bools default to false, so it's done for us.
 	}
 
 	smLayouts := []string{"sitemap.xml", "_default/sitemap.xml", "_internal/_default/sitemap.xml"}

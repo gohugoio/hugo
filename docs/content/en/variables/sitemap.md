@@ -29,4 +29,7 @@ A sitemap is a `Page` and therefore has all the [page variables][pagevars] avail
 .Sitemap.Filename
 : the sitemap filename
 
+.Sitemap.Exclude
+: whether or not to exclude the page from the sitemap, defaults to false
+
 [pagevars]: /variables/page/

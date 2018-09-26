@@ -25,7 +25,7 @@ import (
 )
 
 const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  {{ range .Data.Pages }}
+  {{ range where .Pages ".Sitemap.Exclude" false }}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
     <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
@@ -86,11 +86,12 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 func TestParseSitemap(t *testing.T) {
 	t.Parallel()
-	expected := Sitemap{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
+	expected := Sitemap{ChangeFreq: "3", Priority: 3.0, Filename: "doo.xml", Exclude: true}
 	input := map[string]interface{}{
 		"changefreq": "3",
 		"priority":   3.0,
 		"filename":   "doo.xml",
+		"exclude":    true,
 		"unknown":    "ignore",
 	}
 	result := parseSitemap(input)

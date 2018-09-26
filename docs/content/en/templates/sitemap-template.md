@@ -33,11 +33,14 @@ A sitemap is a `Page` and therefore has all the [page variables][pagevars] avail
 `.Sitemap.Filename`
 : The sitemap filename
 
+.Sitemap.Exclude
+: Whether or not to exclude the page from the sitemap. A boolean that defaults to false.
+
 If provided, Hugo will use `/layouts/sitemap.xml` instead of the internal `sitemap.xml` template that ships with Hugo.
 
 ## Sitemap Templates
 
-Hugo has built-on Sitemap templates, but you can provide your own if needed, in either `layouts/sitemap.xml` or `layouts/_default/sitemap.xml`.
+Hugo has built-in Sitemap templates, but you can provide your own if needed, in either `layouts/sitemap.xml` or `layouts/_default/sitemap.xml`.
 
 For multilingual sites, we also create a Sitemap index. You can provide a custom layout for that in either `layouts/sitemapindex.xml` or `layouts/_default/sitemapindex.xml`.
 
@@ -48,7 +51,7 @@ This template respects the version 0.9 of the [Sitemap Protocol](http://www.site
 ```xml
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  {{ range .Data.Pages }}
+  {{ range where .Pages ".Sitemap.Exclude" false }}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
     <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
@@ -102,6 +105,7 @@ Defaults for `<changefreq>`, `<priority>` and `filename` values can be set in th
   changefreq = "monthly"
   priority = 0.5
   filename = "sitemap.xml"
+  exclude = true
 {{</ code-toggle >}}
 
 The same fields can be specified in an individual content file's front matter in order to override the value assigned to that piece of content at render time.

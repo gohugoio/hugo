@@ -47,7 +47,7 @@ var EmbeddedTemplates = [][2]string{
 </rss>`},
 	{`_default/sitemap.xml`, `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  {{ range .Data.Pages }}
+  {{ range where .Pages ".Sitemap.Exclude" false }}
   <url>
     <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
     <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
@@ -65,7 +65,8 @@ var EmbeddedTemplates = [][2]string{
                 />{{ end }}
   </url>
   {{ end }}
-</urlset>`},
+</urlset>
+`},
 	{`_default/sitemapindex.xml`, `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	{{ range . }}
 	<sitemap>
