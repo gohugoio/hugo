@@ -1104,7 +1104,7 @@ func TestWordCount(t *testing.T) {
 		}
 
 		if p.FuzzyWordCount() != 500 {
-			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 500, p.WordCount())
+			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 500, p.FuzzyWordCount())
 		}
 
 		if p.ReadingTime() != 3 {
