@@ -38,13 +38,8 @@ parts:
 
       echo ' * Running "go get -v github.com/magefile/mage"...'
       go get -v github.com/magefile/mage
-
-      # Skipping "mage -v test" because "go test ./... -tags none" fails with
-      # "use of internal package github.com/gohugoio/hugo/tpl/internal not allowed"
-      # on autobuilder on Launchpad, see
-      # https://launchpadlibrarian.net/390252700/buildlog_snap_ubuntu_xenial_amd64_hugo-dev_BUILDING.txt.gz
-      #echo ' * Running "mage -v test"...'
-      #mage -v test
+      echo ' * Running "mage -v test"...'
+      mage -v test
 
       echo " * Building hugo (build tag: none)..."
       [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage -v hugoNoGitInfo || mage -v hugo
