@@ -61,7 +61,7 @@ parts:
       ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
 
   node:
-    plugin: nodejs
+    plugin: x-nodejs
     node-packages: [postcss-cli]
     filesets:
       node:
