@@ -17,7 +17,7 @@ menu:
 ## Properties
 
 ResourceType
-: The main type of the resource. For example, a file of MIME type `image/jpg` has for ResourceType `image`.
+: The main type of the resource. For example, a file of MIME type `image/jpg` has the ResourceType `image`.
 
 Name
 : Default value is the filename (relative to the owning page). Can be set in front matter.
