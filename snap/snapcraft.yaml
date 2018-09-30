@@ -24,32 +24,18 @@ parts:
     prime:
       - bin/git
 
-  go:
-    # Hugo's go.mod would interfere with the build of Go 1.11 in the
-    # parts/go/build/ subdirectory.  Move go.mod out of the way
-    # as a workaround.  (Note: 'override-build' does not work here,
-    # hence the use of the deprecated 'prepare' keyword.)
-    # See https://forum.snapcraft.io/t/go-plugin-go1-11-fails-if-go-mod-exists-in-the-top-level-directory/7546
-    prepare: |
-      set -x
-      ( cd ../../.. && mv -v go.mod go.mod~ )
-    source-tag: go1.11
-
   hugo:
+    plugin: nil
+    build-snaps: [go/1.11/stable]
     source: .
-    after: [go]
-    plugin: go
-    go-importpath: github.com/gohugoio/hugo
     override-build: |
       set -ex
 
       echo "\nStarting override-build:"
-      ( cd ../../.. && mv -v go.mod~ go.mod || : )
       export GO111MODULE=on
-      export GOPATH=$(dirname $SNAPCRAFT_PART_INSTALL)/go
-      export PATH=$GOPATH/bin:$PATH
+      export GOPATH=$(realpath ../go)
+      export PATH=$GOPATH/bin:/snap/bin:$PATH
 
-      cd $GOPATH/src/github.com/gohugoio/hugo
       echo ' * Running "go get -v github.com/magefile/mage"...'
       go get -v github.com/magefile/mage
 
