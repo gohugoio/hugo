@@ -32,13 +32,14 @@ parts:
       set -ex
 
       echo "\nStarting override-build:"
-      export GO111MODULE=on
       export GOPATH=$(realpath ../go)
-      export PATH=$GOPATH/bin:/snap/bin:$PATH
+      export PATH=$GOPATH/bin:$PATH
 
       echo ' * Running "go get -v github.com/magefile/mage"...'
-      go get -v github.com/magefile/mage
+      GO111MODULE=off go get -v github.com/magefile/mage
+
       echo ' * Running "mage -v test"...'
+      export GO111MODULE=on
       mage -v test
 
       echo " * Building hugo (build tag: none)..."
