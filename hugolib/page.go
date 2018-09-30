@@ -1318,7 +1318,7 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		Params:        p.params,
 		Dates:         &p.PageDates,
 		PageURLs:      &p.URLPath,
-		BaseFilename:  p.BaseFileName(),
+		BaseFilename:  p.ContentBaseName(),
 		ModTime:       mtime,
 		GitAuthorDate: gitAuthorDate,
 	}
