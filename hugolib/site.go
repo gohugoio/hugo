@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"html/template"
@@ -43,7 +44,6 @@ import (
 	"github.com/gohugoio/hugo/media"
 
 	"github.com/markbates/inflect"
-	"golang.org/x/net/context"
 
 	"github.com/fsnotify/fsnotify"
 	bp "github.com/gohugoio/hugo/bufferpool"
