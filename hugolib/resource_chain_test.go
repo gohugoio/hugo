@@ -238,6 +238,10 @@ T1: Content: {{ $combined.Content }}|RelPermalink: {{ $combined.RelPermalink }}|
 {{ $combinedText := . | resources.Concat "bundle/concattxt.txt" }}
 T2: Content: {{ $combinedText.Content }}|{{ $combinedText.RelPermalink }}
 {{ end }}
+{{/* https://github.com/gohugoio/hugo/issues/5269 */}}
+{{ $css := "body { color: blue; }" | resources.FromString "styles.css" }}
+{{ $minified := resources.Get "css/styles1.css" | minify }}
+{{ slice $css $minified | resources.Concat "bundle/mixed.css" }} 
 `)
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `T1: Content: ABC|RelPermalink: /bundle/concat.txt|Permalink: http://example.com/bundle/concat.txt|MediaType: text/plain`)
