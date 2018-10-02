@@ -67,15 +67,27 @@ func (ns *Namespace) NumFmt(precision, number interface{}, options ...interface{
 	var neg, dec, grp string
 
 	if len(options) == 0 {
-		// TODO(moorereason): move to site config
+		// defaults
 		neg, dec, grp = "-", ".", ","
 	} else {
+		delim := " "
+
+		if len(options) == 2 {
+			// custom delimiter
+			s, err := cast.ToStringE(options[1])
+			if err != nil {
+				return "", nil
+			}
+
+			delim = s
+		}
+
 		s, err := cast.ToStringE(options[0])
 		if err != nil {
 			return "", nil
 		}
 
-		rs := strings.Fields(s)
+		rs := strings.Split(s, delim)
 		switch len(rs) {
 		case 0:
 		case 1:
