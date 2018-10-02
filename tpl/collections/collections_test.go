@@ -643,16 +643,76 @@ func TestShuffleRandomising(t *testing.T) {
 }
 
 var _ collections.Slicer = (*tstSlicer)(nil)
+var _ collections.Slicer = (*tstSlicerIn1)(nil)
+var _ collections.Slicer = (*tstSlicerIn2)(nil)
+var _ testSlicerInterface = (*tstSlicerIn1)(nil)
+var _ testSlicerInterface = (*tstSlicerIn1)(nil)
+
+type testSlicerInterface interface {
+	Name() string
+}
+
+type testSlicerInterfaces []testSlicerInterface
+
+type tstSlicerIn1 struct {
+	name string
+}
+
+type tstSlicerIn2 struct {
+	name string
+}
 
 type tstSlicer struct {
 	name string
+}
+
+func (p *tstSlicerIn1) Slice(in interface{}) (interface{}, error) {
+	items := in.([]interface{})
+	result := make(testSlicerInterfaces, len(items))
+	for i, v := range items {
+		switch vv := v.(type) {
+		case testSlicerInterface:
+			result[i] = vv
+		default:
+			return nil, errors.New("invalid type")
+		}
+
+	}
+	return result, nil
+}
+
+func (p *tstSlicerIn2) Slice(in interface{}) (interface{}, error) {
+	items := in.([]interface{})
+	result := make(testSlicerInterfaces, len(items))
+	for i, v := range items {
+		switch vv := v.(type) {
+		case testSlicerInterface:
+			result[i] = vv
+		default:
+			return nil, errors.New("invalid type")
+		}
+	}
+	return result, nil
+}
+
+func (p *tstSlicerIn1) Name() string {
+	return p.Name()
+}
+
+func (p *tstSlicerIn2) Name() string {
+	return p.Name()
 }
 
 func (p *tstSlicer) Slice(in interface{}) (interface{}, error) {
 	items := in.([]interface{})
 	result := make(tstSlicers, len(items))
 	for i, v := range items {
-		result[i] = v.(*tstSlicer)
+		switch vv := v.(type) {
+		case *tstSlicer:
+			result[i] = vv
+		default:
+			return nil, errors.New("invalid type")
+		}
 	}
 	return result, nil
 }
@@ -675,6 +735,8 @@ func TestSlice(t *testing.T) {
 		{[]interface{}{nil}, []interface{}{nil}},
 		{[]interface{}{5, "b"}, []interface{}{5, "b"}},
 		{[]interface{}{tstNoStringer{}}, []tstNoStringer{tstNoStringer{}}},
+		{[]interface{}{&tstSlicerIn1{"a"}, &tstSlicerIn2{"b"}}, testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn2{"b"}}},
+		{[]interface{}{&tstSlicerIn1{"a"}, &tstSlicer{"b"}}, []interface{}{&tstSlicerIn1{"a"}, &tstSlicer{"b"}}},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test.args)
 
