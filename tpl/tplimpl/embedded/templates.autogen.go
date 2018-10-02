@@ -315,7 +315,7 @@ if (!doNotTrack) {
     {{- end }}
     <img src="{{ .Get "src" }}"
          {{- if or (.Get "alt") (.Get "caption") }}
-         alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" }}{{ end }}"
+         alt="{{ with .Get "alt" }}{{ . }}{{ else }}{{ .Get "caption" | markdownify| plainify }}{{ end }}"
          {{- end -}}
          {{- with .Get "width" }} width="{{ . }}"{{ end -}}
          {{- with .Get "height" }} height="{{ . }}"{{ end -}}
@@ -327,11 +327,11 @@ if (!doNotTrack) {
                 <h4>{{ . }}</h4>
             {{- end -}}
             {{- if or (.Get "caption") (.Get "attr") -}}<p>
-                {{- .Get "caption" -}}
+                {{- .Get "caption" | markdownify -}}
                 {{- with .Get "attrlink" -}}
                     <a href="{{ . }}">
                 {{- end -}}
-                {{- .Get "attr" -}}
+                {{- .Get "attr" | markdownify -}}
                 {{- if .Get "attrlink" }}</a>{{ end }}</p>
             {{- end }}
         </figcaption>

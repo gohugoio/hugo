@@ -305,6 +305,12 @@ func TestFigureOnlySrc(t *testing.T) {
 	CheckShortCodeMatch(t, `{{< figure src="/found/here" >}}`, "<figure>\n    <img src=\"/found/here\"/> \n</figure>", nil)
 }
 
+func TestFigureCaptionAttrWithMarkdown(t *testing.T) {
+	t.Parallel()
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" caption="Something **bold** _italic_" >}}`, "<figure>\n    <img src=\"/found/here\"\n         alt=\"Something bold italic\"/> <figcaption>\n            <p>Something <strong>bold</strong> <em>italic</em></p>\n        </figcaption>\n</figure>", nil)
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" attr="Something **bold** _italic_" >}}`, "<figure>\n    <img src=\"/found/here\"/> <figcaption>\n            <p>Something <strong>bold</strong> <em>italic</em></p>\n        </figcaption>\n</figure>", nil)
+}
+
 func TestFigureImgWidth(t *testing.T) {
 	t.Parallel()
 	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "<figure class=\"bananas orange\">\n    <img src=\"/found/here\"\n         alt=\"apple\" width=\"100px\"/> \n</figure>", nil)
