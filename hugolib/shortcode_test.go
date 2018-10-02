@@ -255,8 +255,8 @@ This is **plain** text.
 
 func TestEmbeddedSC(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", nil)
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"This is a caption\" />\n    \n    \n    <figcaption>\n        <p>\n        This is a caption\n        \n            \n        \n        </p> \n    </figcaption>\n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" %}}`, "<figure class=\"bananas orange\">\n    <img src=\"/found/here\"/> \n</figure>", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" caption="This is a caption" %}}`, "<figure class=\"bananas orange\">\n    <img src=\"/found/here\"\n         alt=\"This is a caption\"/> <figcaption>\n            <p>This is a caption</p>\n        </figcaption>\n</figure>", nil)
 }
 
 func TestNestedSC(t *testing.T) {
@@ -302,37 +302,37 @@ func TestParentShortcode(t *testing.T) {
 
 func TestFigureOnlySrc(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="/found/here" >}}`, "\n<figure>\n    \n        <img src=\"/found/here\" />\n    \n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" >}}`, "<figure>\n    <img src=\"/found/here\"/> \n</figure>", nil)
 }
 
 func TestFigureImgWidth(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"100px\" />\n    \n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="100px" %}}`, "<figure class=\"bananas orange\">\n    <img src=\"/found/here\"\n         alt=\"apple\" width=\"100px\"/> \n</figure>", nil)
 }
 
 func TestFigureImgHeight(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" height="100px" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" height=\"100px\" />\n    \n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" height="100px" %}}`, "<figure class=\"bananas orange\">\n    <img src=\"/found/here\"\n         alt=\"apple\" height=\"100px\"/> \n</figure>", nil)
 }
 
 func TestFigureImgWidthAndHeight(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="50" height="100" %}}`, "\n<figure class=\"bananas orange\">\n    \n        <img src=\"/found/here\" alt=\"apple\" width=\"50\" height=\"100\" />\n    \n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{% figure src="/found/here" class="bananas orange" alt="apple" width="50" height="100" %}}`, "<figure class=\"bananas orange\">\n    <img src=\"/found/here\"\n         alt=\"apple\" width=\"50\" height=\"100\"/> \n</figure>", nil)
 }
 
 func TestFigureLinkNoTarget(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\">\n        <img src=\"/found/here\" />\n    </a>\n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" >}}`, "<figure><a href=\"/jump/here/on/clicking\">\n    <img src=\"/found/here\"/> </a>\n</figure>", nil)
 }
 
 func TestFigureLinkWithTarget(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_self" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\" target=\"_self\">\n        <img src=\"/found/here\" />\n    </a>\n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_self" >}}`, "<figure><a href=\"/jump/here/on/clicking\" target=\"_self\">\n    <img src=\"/found/here\"/> </a>\n</figure>", nil)
 }
 
 func TestFigureLinkWithTargetAndRel(t *testing.T) {
 	t.Parallel()
-	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_blank" rel="noopener" >}}`, "\n<figure>\n    <a href=\"/jump/here/on/clicking\" target=\"_blank\" rel=\"noopener\">\n        <img src=\"/found/here\" />\n    </a>\n    \n</figure>\n", nil)
+	CheckShortCodeMatch(t, `{{< figure src="/found/here" link="/jump/here/on/clicking" target="_blank" rel="noopener" >}}`, "<figure><a href=\"/jump/here/on/clicking\" target=\"_blank\" rel=\"noopener\">\n    <img src=\"/found/here\"/> </a>\n</figure>", nil)
 }
 
 // #1642
