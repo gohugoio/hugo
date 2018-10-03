@@ -438,22 +438,24 @@ func TestIsSet(t *testing.T) {
 		key    interface{}
 		expect bool
 		isErr  bool
-		errStr string
 	}{
-		{[]interface{}{1, 2, 3, 5}, 2, true, false, ""},
-		{[]interface{}{1, 2, 3, 5}, 22, false, false, ""},
+		{[]interface{}{1, 2, 3, 5}, 2, true, false},
+		{[]interface{}{1, 2, 3, 5}, "2", true, false},
+		{[]interface{}{1, 2, 3, 5}, 2.0, true, false},
 
-		{map[string]interface{}{"a": 1, "b": 2}, "b", true, false, ""},
-		{map[string]interface{}{"a": 1, "b": 2}, "bc", false, false, ""},
+		{[]interface{}{1, 2, 3, 5}, 22, false, false},
 
-		{time.Now(), "Day", false, false, ""},
-		{nil, "nil", false, false, ""},
+		{map[string]interface{}{"a": 1, "b": 2}, "b", true, false},
+		{map[string]interface{}{"a": 1, "b": 2}, "bc", false, false},
+
+		{time.Now(), "Day", false, false},
+		{nil, "nil", false, false},
+		{[]interface{}{1, 2, 3, 5}, TstX{}, false, true},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result, err := ns.IsSet(test.a, test.key)
 		if test.isErr {
-			assert.EqualError(t, err, test.errStr, errMsg)
 			continue
 		}
 
