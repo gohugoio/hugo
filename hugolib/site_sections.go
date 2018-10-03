@@ -152,6 +152,8 @@ func unwrapPage(in interface{}) (*Page, error) {
 		return v.Page, nil
 	case *PageWithoutContent:
 		return v.Page, nil
+	case nil:
+		return nil, nil
 	default:
 		return nil, fmt.Errorf("%T not supported", in)
 	}
