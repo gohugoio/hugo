@@ -823,7 +823,7 @@ tags = "a"
 tags_weight = 33
 title = "bar"
 categories = [ "d", "e" ]
-categories_weight = 11
+categories_weight = 11.0
 alias = "spf13"
 date = 1979-05-27T07:32:00Z
 +++
