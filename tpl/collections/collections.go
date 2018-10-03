@@ -344,7 +344,11 @@ func (ns *Namespace) IsSet(a interface{}, key interface{}) (bool, error) {
 
 	switch av.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Slice:
-		if int64(av.Len()) > kv.Int() {
+		k, err := cast.ToIntE(key)
+		if err != nil {
+			return false, fmt.Errorf("isset unable to use key of type %T as index", key)
+		}
+		if av.Len() > k {
 			return true, nil
 		}
 	case reflect.Map:
