@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"html/template"
 	"os/exec"
+	"runtime"
 	"unicode"
 	"unicode/utf8"
 
@@ -678,7 +679,6 @@ func getPythonExecPath() string {
 // getRstContent calls the Python script rst2html as an external helper
 // to convert reStructuredText content to HTML.
 func getRstContent(ctx *RenderingContext) []byte {
-	python := getPythonExecPath()
 	path := getRstExecPath()
 
 	if path == "" {
@@ -688,8 +688,19 @@ func getRstContent(ctx *RenderingContext) []byte {
 
 	}
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	args := []string{path, "--leave-comments", "--initial-header-level=2"}
-	result := externallyRenderContent(ctx, python, args)
+	var result []byte
+	// certain *nix based OSs wrap executables in scripted launchers
+	// invoking binaries on these OSs via python interpreter causes SyntaxError
+	// invoke directly so that shebangs work as expected
+	// handle Windows manually because it doesn't do shebangs
+	if runtime.GOOS == "windows" {
+		python := getPythonExecPath()
+		args := []string{path, "--leave-comments", "--initial-header-level=2"}
+		result = externallyRenderContent(ctx, python, args)
+	} else {
+		args := []string{"--leave-comments", "--initial-header-level=2"}
+		result = externallyRenderContent(ctx, path, args)
+	}
 	// TODO(bep) check if rst2html has a body only option.
 	bodyStart := bytes.Index(result, []byte("<body>\n"))
 	if bodyStart < 0 {
