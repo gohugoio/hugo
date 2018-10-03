@@ -126,6 +126,9 @@ languages
 languageCode ("")
 : The site's language code.
 
+languageName ("")
+: The site's language name.
+
 disableLanguages
 : See [Disable a Language](/content-management/multilingual/#disable-a-language)
 
