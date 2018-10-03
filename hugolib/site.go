@@ -1470,9 +1470,10 @@ func (s *Site) assembleTaxonomies() {
 		for _, p := range s.Pages {
 			vals := p.getParam(plural, !s.Info.preserveTaxonomyNames)
 
-			weight, err := cast.ToIntE(p.getParamToLower(plural + "_weight"))
+			w := p.getParamToLower(plural + "_weight")
+			weight, err := cast.ToIntE(w)
 			if err != nil {
-				s.Log.ERROR.Print("unable to convert taxonomy weight to int")
+				s.Log.ERROR.Printf("Unable to convert taxonomy weight %#v to int for %s", w, p.Source.File.Path())
 				// weight will equal zero, so let the flow continue
 			}
 
