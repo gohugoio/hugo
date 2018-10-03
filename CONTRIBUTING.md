@@ -18,11 +18,8 @@ The Hugo community and maintainers are [very active](https://github.com/gohugoio
 * [Submitting Patches](#submitting-patches)
   * [Code Contribution Guidelines](#code-contribution-guidelines)
   * [Git Commit Message Guidelines](#git-commit-message-guidelines)
-  * [Vendored Dependencies](#vendored-dependencies)
   * [Fetching the Sources From GitHub](#fetching-the-sources-from-github)
-  * [Using Git Remotes](#using-git-remotes)
-  * [Build Hugo with Your Changes](#build-hugo-with-your-changes)
-  * [Updating the Hugo Sources](#updating-the-hugo-sources)
+  * [Building Hugo with Your Changes](#building-hugo-with-your-changes)
 
 ## Asking Support Questions
 
@@ -106,7 +103,7 @@ Fixes #1949
 
 ###  Fetching the Sources From GitHub
 
-Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is is to clone Hugo in a directory outside of `GOPATH`, as in the following example:
+Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is to clone Hugo in a directory outside of `GOPATH`, as in the following example:
 
 ```bash
 mkdir $HOME/src
@@ -190,15 +187,4 @@ mage -l
 ```bash
 HUGO_BUILD_TAGS=extended mage install
 ````
-
-### Updating the Hugo Sources
-
-If you want to stay in sync with the Hugo repository, you can easily pull down
-the source changes, but you'll need to keep the vendored packages up-to-date as
-well.
-
-```bash
-git pull
-mage vendor
-```
 
