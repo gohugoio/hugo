@@ -152,10 +152,10 @@ func pageToPermalinkDate(p *Page, dateField string) (string, error) {
 
 // pageToPermalinkTitle returns the URL-safe form of the title
 func pageToPermalinkTitle(p *Page, _ string) (string, error) {
-	if p.Kind == "taxonomy" {
+	if p.Kind == KindTaxonomy {
 		// Taxonomies are allowed to have '/' characters, so don't normalize
 		// them with MakeSegment.
-		return p.s.PathSpec.URLize(p.title), nil
+		return p.s.PathSpec.MakePathSanitized(p.title), nil
 	}
 
 	return p.s.PathSpec.MakeSegment(p.title), nil

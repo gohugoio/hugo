@@ -81,26 +81,8 @@ var segmentReplacer = strings.NewReplacer("/", "-", "#", "-")
 // segment.  MakeSegment is similar to MakePath but disallows the '/' and
 // '#' characters because of their reserved meaning in URIs.
 func (p *PathSpec) MakeSegment(s string) string {
-	s = p.MakePathSanitized(strings.Trim(segmentReplacer.Replace(s), "- "))
+	return p.MakePathSanitized(segmentReplacer.Replace(s))
 
-	var pos int
-	var last byte
-	b := make([]byte, len(s))
-
-	for i := 0; i < len(s); i++ {
-		// consolidate dashes
-		if s[i] == '-' && last == '-' {
-			continue
-		}
-
-		b[pos], last = s[i], s[i]
-		pos++
-	}
-
-	if p.DisablePathToLower {
-		return string(b[:pos])
-	}
-	return strings.ToLower(string(b[:pos]))
 }
 
 // MakePath takes a string with any characters and replace it
@@ -109,7 +91,7 @@ func (p *PathSpec) MakeSegment(s string) string {
 // whilst preserving the original casing of the string.
 // E.g. Social Media -> Social-Media
 func (p *PathSpec) MakePath(s string) string {
-	return p.UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
+	return p.UnicodeSanitize(s)
 }
 
 // MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced
@@ -148,15 +130,25 @@ func ishex(c rune) bool {
 // a predefined set of special Unicode characters.
 // If RemovePathAccents configuration flag is enabled, Uniccode accents
 // are also removed.
+// Spaces will be replaced with a single hyphen, and sequential hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
 	source := []rune(s)
 	target := make([]rune, 0, len(source))
+	var prependHyphen bool
 
 	for i, r := range source {
-		if r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]) {
+		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~'
+		isAllowed = isAllowed || unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r)
+		isAllowed = isAllowed || (r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]))
+
+		if isAllowed {
+			if prependHyphen {
+				target = append(target, '-')
+				prependHyphen = false
+			}
 			target = append(target, r)
-		} else if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' || r == '+' || r == '~' {
-			target = append(target, r)
+		} else if len(target) > 0 && (r == '-' || unicode.IsSpace(r)) {
+			prependHyphen = true
 		}
 	}
 
