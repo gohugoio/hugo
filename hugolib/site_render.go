@@ -19,6 +19,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/pkg/errors"
+
 	"github.com/gohugoio/hugo/output"
 )
 
@@ -30,7 +32,7 @@ func (s *Site) renderPages(cfg *BuildCfg) error {
 	pages := make(chan *Page)
 	errs := make(chan error)
 
-	go errorCollator(results, errs)
+	go s.errorCollator(results, errs)
 
 	numWorkers := getGoMaxProcs() * 4
 
@@ -60,7 +62,7 @@ func (s *Site) renderPages(cfg *BuildCfg) error {
 
 	err := <-errs
 	if err != nil {
-		return fmt.Errorf("Error(s) rendering pages: %s", err)
+		return errors.Wrap(err, "failed to render pages")
 	}
 	return nil
 }
@@ -132,6 +134,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 
 			if shouldRender {
 				if err := pageOutput.renderResources(); err != nil {
+					// TODO(bep) 2errors
 					s.Log.ERROR.Printf("Failed to render resources for page %q: %s", page, err)
 					continue
 				}

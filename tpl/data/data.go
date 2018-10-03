@@ -18,12 +18,12 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gohugoio/hugo/deps"
+	_errors "github.com/pkg/errors"
 )
 
 // New returns a new instance of the data-namespaced template functions.
@@ -59,7 +59,7 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 		var req *http.Request
 		req, err = http.NewRequest("GET", url, nil)
 		if err != nil {
-			return nil, fmt.Errorf("Failed to create request for getCSV for resource %s: %s", url, err)
+			return nil, _errors.Wrapf(err, "Failed to create request for getCSV for resource %s:", url)
 		}
 
 		req.Header.Add("Accept", "text/csv")
@@ -103,7 +103,7 @@ func (ns *Namespace) GetJSON(urlParts ...string) (v interface{}, err error) {
 		var req *http.Request
 		req, err = http.NewRequest("GET", url, nil)
 		if err != nil {
-			return nil, fmt.Errorf("Failed to create request for getJSON resource %s: %s", url, err)
+			return nil, _errors.Wrapf(err, "Failed to create request for getJSON resource %s:", url)
 		}
 
 		req.Header.Add("Accept", "application/json")

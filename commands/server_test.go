@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -111,6 +112,18 @@ func TestFixURL(t *testing.T) {
 			t.Errorf("Test #%d %s: expected %q, got %q", i, test.TestName, test.Result, result)
 		}
 	}
+}
+
+func TestRemoveErrorPrefixFromLog(t *testing.T) {
+	assert := require.New(t)
+	content := `ERROR 2018/10/07 13:11:12 Error while rendering "home": template: _default/baseof.html:4:3: executing "main" at <partial "logo" .>: error calling partial: template: partials/logo.html:5:84: executing "partials/logo.html" at <$resized.AHeight>: can't evaluate field AHeight in type *resource.Image
+ERROR 2018/10/07 13:11:12 Rebuild failed: logged 1 error(s)
+`
+
+	withoutError := removeErrorPrefixFromLog(content)
+
+	assert.False(strings.Contains(withoutError, "ERROR"), withoutError)
+
 }
 
 func isWindowsCI() bool {

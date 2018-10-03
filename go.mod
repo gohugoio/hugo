@@ -38,7 +38,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
-	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/pkg/errors v0.8.0
 	github.com/russross/blackfriday v0.0.0-20180804101149-46c73eb196ba
 	github.com/sanity-io/litter v1.1.0
 	github.com/sergi/go-diff v1.0.0 // indirect
@@ -47,7 +47,7 @@ require (
 	github.com/spf13/cast v1.2.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/fsync v0.0.0-20170320142552-12a01e648f05
-	github.com/spf13/jwalterweatherman v1.0.0
+	github.com/spf13/jwalterweatherman v1.0.1-0.20181005085228-103a6da826d0
 	github.com/spf13/nitro v0.0.0-20131003134307-24d7ef30a12d
 	github.com/spf13/pflag v1.0.2
 	github.com/spf13/viper v1.2.0
@@ -60,6 +60,7 @@ require (
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd // indirect
 	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
+	golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e // indirect
 	golang.org/x/text v0.3.0
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/yaml.v2 v2.2.1

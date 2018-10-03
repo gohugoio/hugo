@@ -54,7 +54,7 @@ func TestRenderWithInvalidTemplate(t *testing.T) {
 
 	withTemplate := createWithTemplateFromNameValues("missing", templateMissingFunc)
 
-	buildSingleSiteExpected(t, true, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
+	buildSingleSiteExpected(t, true, false, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}, BuildCfg{})
 
 }
 

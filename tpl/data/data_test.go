@@ -113,11 +113,11 @@ func TestGetCSV(t *testing.T) {
 		require.NoError(t, err, msg)
 
 		if _, ok := test.expect.(bool); ok {
-			require.Equal(t, 1, int(ns.deps.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)))
+			require.Equal(t, 1, int(ns.deps.Log.ErrorCounter.Count()))
 			require.Nil(t, got)
 			continue
 		}
-		require.Equal(t, 0, int(ns.deps.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)))
+		require.Equal(t, 0, int(ns.deps.Log.ErrorCounter.Count()))
 		require.NotNil(t, got, msg)
 
 		assert.EqualValues(t, test.expect, got, msg)
@@ -198,14 +198,14 @@ func TestGetJSON(t *testing.T) {
 			continue
 		}
 
-		if errLevel, ok := test.expect.(jww.Threshold); ok {
-			logCount := ns.deps.Log.LogCountForLevelsGreaterThanorEqualTo(errLevel)
+		if errLevel, ok := test.expect.(jww.Threshold); ok && errLevel >= jww.LevelError {
+			logCount := ns.deps.Log.ErrorCounter.Count()
 			require.True(t, logCount >= 1, fmt.Sprintf("got log count %d", logCount))
 			continue
 		}
 		require.NoError(t, err, msg)
 
-		require.Equal(t, 0, int(ns.deps.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError)), msg)
+		require.Equal(t, 0, int(ns.deps.Log.ErrorCounter.Count()), msg)
 		require.NotNil(t, got, msg)
 
 		assert.EqualValues(t, test.expect, got, msg)

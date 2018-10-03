@@ -11,15 +11,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package errors contains common Hugo errors and error related utilities.
-package errors
+package tpl
 
 import (
-	"errors"
+	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-// ErrFeatureNotAvailable denotes that a feature is unavailable.
-//
-// We will, at least to begin with, make some Hugo features (SCSS with libsass) optional,
-// and this error is used to signal those situations.
-var ErrFeatureNotAvailable = errors.New("this feature is not available in your current Hugo version")
+func TestExtractBaseof(t *testing.T) {
+	assert := require.New(t)
+
+	replaced := extractBaseOf(`failed: template: _default/baseof.html:37:11: executing "_default/baseof.html" at <.Parents>: can't evaluate field Parents in type *hugolib.PageOutput`)
+
+	assert.Equal("_default/baseof.html", replaced)
+	assert.Equal("", extractBaseOf("not baseof for you"))
+	assert.Equal("blog/baseof.html", extractBaseOf("template: blog/baseof.html:23:11:"))
+	assert.Equal("blog/baseof.ace", extractBaseOf("template: blog/baseof.ace:23:11:"))
+}

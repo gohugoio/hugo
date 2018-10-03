@@ -21,6 +21,9 @@ import (
 	"reflect"
 	"regexp"
 	"sort"
+
+	_errors "github.com/pkg/errors"
+
 	"strings"
 	"sync"
 
@@ -278,7 +281,7 @@ func prepareShortcodeForPage(placeholder string, sc *shortcode, parent *Shortcod
 		// The most specific template will win.
 		key := newScKeyFromLangAndOutputFormat(lang, f, placeholder)
 		m[key] = func() (string, error) {
-			return renderShortcode(key, sc, nil, p), nil
+			return renderShortcode(key, sc, nil, p)
 		}
 	}
 
@@ -289,12 +292,12 @@ func renderShortcode(
 	tmplKey scKey,
 	sc *shortcode,
 	parent *ShortcodeWithPage,
-	p *PageWithoutContent) string {
+	p *PageWithoutContent) (string, error) {
 
 	tmpl := getShortcodeTemplateForTemplateKey(tmplKey, sc.name, p.s.Tmpl)
 	if tmpl == nil {
 		p.s.Log.ERROR.Printf("Unable to locate template for shortcode %q in page %q", sc.name, p.Path())
-		return ""
+		return "", nil
 	}
 
 	data := &ShortcodeWithPage{Ordinal: sc.ordinal, Params: sc.params, Page: p, Parent: parent}
@@ -309,11 +312,15 @@ func renderShortcode(
 			case string:
 				inner += innerData.(string)
 			case *shortcode:
-				inner += renderShortcode(tmplKey, innerData.(*shortcode), data, p)
+				s, err := renderShortcode(tmplKey, innerData.(*shortcode), data, p)
+				if err != nil {
+					return "", err
+				}
+				inner += s
 			default:
 				p.s.Log.ERROR.Printf("Illegal state on shortcode rendering of %q in page %q. Illegal type in inner data: %s ",
 					sc.name, p.Path(), reflect.TypeOf(innerData))
-				return ""
+				return "", nil
 			}
 		}
 
@@ -441,7 +448,7 @@ func (s *shortcodeHandler) executeShortcodesForDelta(p *PageWithoutContent) erro
 		render := s.contentShortcodesDelta.getShortcodeRenderer(k)
 		renderedShortcode, err := render()
 		if err != nil {
-			return fmt.Errorf("Failed to execute shortcode in page %q: %s", p.Path(), err)
+			return _errors.Wrapf(err, "Failed to execute shortcode in page %q:", p.Path())
 		}
 
 		s.renderedShortcodes[k.(scKey).ShortcodePlaceholder] = renderedShortcode
@@ -478,6 +485,16 @@ func (s *shortcodeHandler) extractShortcode(ordinal int, pt *pageTokens, p *Page
 	var currItem item
 	var cnt = 0
 	var nestedOrdinal = 0
+
+	// TODO(bep) 2errors revisit after https://github.com/gohugoio/hugo/issues/5324
+	msgf := func(i item, format string, args ...interface{}) string {
+		format = format + ":%d:"
+		c1 := strings.Count(pt.lexer.input[:i.pos], "\n") + 1
+		c2 := bytes.Count(p.frontmatter, []byte{'\n'})
+		args = append(args, c1+c2)
+		return fmt.Sprintf(format, args...)
+
+	}
 
 Loop:
 	for {
@@ -524,7 +541,7 @@ Loop:
 					// return that error, more specific
 					continue
 				}
-				return sc, fmt.Errorf("Shortcode '%s' in page '%s' has no .Inner, yet a closing tag was provided", next.val, p.FullFilePath())
+				return sc, errors.New(msgf(next, "shortcode %q has no .Inner, yet a closing tag was provided", next.val))
 			}
 			if next.typ == tRightDelimScWithMarkup || next.typ == tRightDelimScNoMarkup {
 				// self-closing
@@ -542,13 +559,13 @@ Loop:
 			// if more than one. It is "all inner or no inner".
 			tmpl := getShortcodeTemplateForTemplateKey(scKey{}, sc.name, p.s.Tmpl)
 			if tmpl == nil {
-				return sc, fmt.Errorf("Unable to locate template for shortcode %q in page %q", sc.name, p.Path())
+				return sc, errors.New(msgf(currItem, "unable to locate template for shortcode %q", sc.name))
 			}
 
 			var err error
 			isInner, err = isInnerShortcode(tmpl.(tpl.TemplateExecutor))
 			if err != nil {
-				return sc, fmt.Errorf("Failed to handle template for shortcode %q for page %q: %s", sc.name, p.Path(), err)
+				return sc, _errors.Wrap(err, msgf(currItem, "failed to handle template for shortcode %q", sc.name))
 			}
 
 		case tScParam:
@@ -651,8 +668,8 @@ Loop:
 		case tEOF:
 			break Loop
 		case tError:
-			err := fmt.Errorf("%s:%d: %s",
-				p.FullFilePath(), (p.lineNumRawContentStart() + pt.lexer.lineNum() - 1), currItem)
+			err := fmt.Errorf("%s:shortcode:%d: %s",
+				p.pathOrTitle(), (p.lineNumRawContentStart() + pt.lexer.lineNum() - 1), currItem)
 			currShortcode.err = err
 			return result.String(), err
 		}
@@ -750,7 +767,7 @@ func getShortcodeTemplateForTemplateKey(key scKey, shortcodeName string, t tpl.T
 	return nil
 }
 
-func renderShortcodeWithPage(tmpl tpl.Template, data *ShortcodeWithPage) string {
+func renderShortcodeWithPage(tmpl tpl.Template, data *ShortcodeWithPage) (string, error) {
 	buffer := bp.GetBuffer()
 	defer bp.PutBuffer(buffer)
 
@@ -758,7 +775,7 @@ func renderShortcodeWithPage(tmpl tpl.Template, data *ShortcodeWithPage) string 
 	err := tmpl.Execute(buffer, data)
 	isInnerShortcodeCache.RUnlock()
 	if err != nil {
-		data.Page.s.Log.ERROR.Printf("error processing shortcode %q for page %q: %s", tmpl.Name(), data.Page.Path(), err)
+		return "", data.Page.errorf(err, "failed to process shortcode")
 	}
-	return buffer.String()
+	return buffer.String(), nil
 }

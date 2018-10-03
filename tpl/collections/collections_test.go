@@ -17,20 +17,17 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"io/ioutil"
-	"log"
 	"math/rand"
-	"os"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -856,7 +853,7 @@ func newDeps(cfg config.Provider) *deps.Deps {
 		Cfg:         cfg,
 		Fs:          hugofs.NewMem(l),
 		ContentSpec: cs,
-		Log:         jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime),
+		Log:         loggers.NewErrorLogger(),
 	}
 }
 

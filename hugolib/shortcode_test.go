@@ -24,8 +24,6 @@ import (
 
 	"github.com/spf13/viper"
 
-	jww "github.com/spf13/jwalterweatherman"
-
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/output"
@@ -367,11 +365,11 @@ func TestExtractShortcodes(t *testing.T) {
 		expectErrorMsg   string
 	}{
 		{"text", "Some text.", "map[]", "Some text.", ""},
-		{"invalid right delim", "{{< tag }}", "", false, "simple.md:4:.*unrecognized character.*}"},
-		{"invalid close", "\n{{< /tag >}}", "", false, "simple.md:5:.*got closing shortcode, but none is open"},
-		{"invalid close2", "\n\n{{< tag >}}{{< /anotherTag >}}", "", false, "simple.md:6: closing tag for shortcode 'anotherTag' does not match start tag"},
-		{"unterminated quote 1", `{{< figure src="im caption="S" >}}`, "", false, "simple.md:4:.got pos.*"},
-		{"unterminated quote 1", `{{< figure src="im" caption="S >}}`, "", false, "simple.md:4:.*unterm.*}"},
+		{"invalid right delim", "{{< tag }}", "", false, ":4:.*unrecognized character.*}"},
+		{"invalid close", "\n{{< /tag >}}", "", false, ":5:.*got closing shortcode, but none is open"},
+		{"invalid close2", "\n\n{{< tag >}}{{< /anotherTag >}}", "", false, ":6: closing tag for shortcode 'anotherTag' does not match start tag"},
+		{"unterminated quote 1", `{{< figure src="im caption="S" >}}`, "", false, ":4:.got pos.*"},
+		{"unterminated quote 1", `{{< figure src="im" caption="S >}}`, "", false, ":4:.*unterm.*}"},
 		{"one shortcode, no markup", "{{< tag >}}", "", testScPlaceholderRegexp, ""},
 		{"one shortcode, markup", "{{% tag %}}", "", testScPlaceholderRegexp, ""},
 		{"one pos param", "{{% tag param1 %}}", `tag([\"param1\"], true){[]}"]`, testScPlaceholderRegexp, ""},
@@ -384,7 +382,7 @@ func TestExtractShortcodes(t *testing.T) {
 		// issue #934
 		{"inner self-closing", `Some text. {{< inner />}}. Some more text.`, `inner([], false){[]}`,
 			fmt.Sprintf("Some text. %s. Some more text.", testScPlaceholderRegexp), ""},
-		{"close, but not inner", "{{< tag >}}foo{{< /tag >}}", "", false, "Shortcode 'tag' in page 'simple.md' has no .Inner.*"},
+		{"close, but not inner", "{{< tag >}}foo{{< /tag >}}", "", false, `shortcode "tag" has no .Inner, yet a closing tag was provided`},
 		{"nested inner", `Inner->{{< inner >}}Inner Content->{{% inner2 param1 %}}inner2txt{{% /inner2 %}}Inner close->{{< / inner >}}<-done`,
 			`inner([], false){[Inner Content-> inner2([\"param1\"], true){[inner2txt]} Inner close->]}`,
 			fmt.Sprintf("Inner->%s<-done", testScPlaceholderRegexp), ""},
@@ -434,7 +432,7 @@ func TestExtractShortcodes(t *testing.T) {
 			} else {
 				r, _ := regexp.Compile(this.expectErrorMsg)
 				if !r.MatchString(err.Error()) {
-					t.Fatalf("[%d] %s: ExtractShortcodes didn't return an expected error message, got %s but expected %s",
+					t.Fatalf("[%d] %s: ExtractShortcodes didn't return an expected error message, got\n%s but expected\n%s",
 						i, this.name, err.Error(), this.expectErrorMsg)
 				}
 			}
@@ -777,7 +775,7 @@ NotFound: {{< thisDoesNotExist >}}
 		"thisDoesNotExist",
 	)
 
-	require.Equal(t, uint64(1), s.Log.LogCountForLevel(jww.LevelError))
+	require.Equal(t, uint64(1), s.Log.ErrorCounter.Count())
 
 }
 

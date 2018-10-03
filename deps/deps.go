@@ -16,7 +16,6 @@ import (
 	"github.com/gohugoio/hugo/resource"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 // Deps holds dependencies used by many.
@@ -25,7 +24,7 @@ import (
 type Deps struct {
 
 	// The logger to use.
-	Log *jww.Notepad `json:"-"`
+	Log *loggers.Logger `json:"-"`
 
 	// Used to log errors that may repeat itself many times.
 	DistinctErrorLog *helpers.DistinctLogger
@@ -120,10 +119,6 @@ func (d *Deps) LoadResources() error {
 
 	if err := d.templateProvider.Update(d); err != nil {
 		return err
-	}
-
-	if th, ok := d.Tmpl.(tpl.TemplateHandler); ok {
-		th.PrintErrors()
 	}
 
 	return nil
@@ -256,7 +251,7 @@ func (d Deps) ForLanguage(cfg DepsCfg) (*Deps, error) {
 type DepsCfg struct {
 
 	// The Logger to use.
-	Logger *jww.Notepad
+	Logger *loggers.Logger
 
 	// The file systems to use
 	Fs *hugofs.Fs

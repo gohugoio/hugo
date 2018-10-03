@@ -14,6 +14,7 @@
 package commands
 
 import (
+	"bytes"
 	"fmt"
 	"net"
 	"net/http"
@@ -21,6 +22,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strconv"
 	"strings"
@@ -28,7 +30,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/gohugoio/hugo/livereload"
+	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/config"
 
@@ -52,7 +57,8 @@ type serverCmd struct {
 	serverWatch       bool
 	noHTTPCache       bool
 
-	disableFastRender bool
+	disableFastRender   bool
+	disableBrowserError bool
 
 	*baseBuilderCmd
 }
@@ -93,6 +99,7 @@ of a second, you will be able to save and see your changes nearly instantly.`,
 	cc.cmd.Flags().BoolVar(&cc.navigateToChanged, "navigateToChanged", false, "navigate to changed content file on live browser reload")
 	cc.cmd.Flags().BoolVar(&cc.renderToDisk, "renderToDisk", false, "render to Destination path (default is render to memory & serve from there)")
 	cc.cmd.Flags().BoolVar(&cc.disableFastRender, "disableFastRender", false, "enables full re-renders on changes")
+	cc.cmd.Flags().BoolVar(&cc.disableBrowserError, "disableBrowserError", false, "do not show build errors in the browser")
 
 	cc.cmd.Flags().String("memstats", "", "log memory usage to this file")
 	cc.cmd.Flags().String("meminterval", "100ms", "interval to poll memory usage (requires --memstats), valid time units are \"ns\", \"us\" (or \"µs\"), \"ms\", \"s\", \"m\", \"h\".")
@@ -142,6 +149,9 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 		if cmd.Flags().Changed("disableFastRender") {
 			c.Set("disableFastRender", sc.disableFastRender)
 		}
+		if cmd.Flags().Changed("disableBrowserError") {
+			c.Set("disableBrowserError", sc.disableBrowserError)
+		}
 		if sc.serverWatch {
 			c.Set("watch", true)
 		}
@@ -176,7 +186,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 						// port set explicitly by user -- he/she probably meant it!
 						err = newSystemErrorF("Server startup failed: %s", err)
 					}
-					jww.ERROR.Println("port", sc.serverPort, "already in use, attempting to use an available port")
+					c.logger.FEEDBACK.Println("port", sc.serverPort, "already in use, attempting to use an available port")
 					sp, err := helpers.FindAvailablePort()
 					if err != nil {
 						err = newSystemError("Unable to find alternative port to use:", err)
@@ -223,7 +233,7 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := memStats(); err != nil {
-		jww.ERROR.Println("memstats error:", err)
+		jww.WARN.Println("memstats error:", err)
 	}
 
 	c, err := initializeConfig(true, true, &sc.hugoBuilderCommon, sc, cfgInit)
@@ -271,10 +281,11 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 }
 
 type fileServer struct {
-	baseURLs []string
-	roots    []string
-	c        *commandeer
-	s        *serverCmd
+	baseURLs      []string
+	roots         []string
+	errorTemplate tpl.Template
+	c             *commandeer
+	s             *serverCmd
 }
 
 func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, error) {
@@ -301,27 +312,40 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 	httpFs := afero.NewHttpFs(f.c.destinationFs)
 	fs := filesOnlyFs{httpFs.Dir(absPublishDir)}
 
-	doLiveReload := !f.s.buildWatch && !f.c.Cfg.GetBool("disableLiveReload")
-	fastRenderMode := doLiveReload && !f.c.Cfg.GetBool("disableFastRender")
-
-	if i == 0 && fastRenderMode {
+	if i == 0 && f.c.fastRenderMode {
 		jww.FEEDBACK.Println("Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender")
 	}
 
 	// We're only interested in the path
 	u, err := url.Parse(baseURL)
 	if err != nil {
-		return nil, "", "", fmt.Errorf("Invalid baseURL: %s", err)
+		return nil, "", "", errors.Wrap(err, "Invalid baseURL")
 	}
 
 	decorate := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if f.c.showErrorInBrowser {
+				// First check the error state
+				err := f.c.getErrorWithContext()
+				if err != nil {
+					w.WriteHeader(500)
+					var b bytes.Buffer
+					err := f.errorTemplate.Execute(&b, err)
+					if err != nil {
+						f.c.logger.ERROR.Println(err)
+					}
+					fmt.Fprint(w, injectLiveReloadScript(&b, f.c.Cfg.GetInt("liveReloadPort")))
+
+					return
+				}
+			}
+
 			if f.s.noHTTPCache {
 				w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
 				w.Header().Set("Pragma", "no-cache")
 			}
 
-			if fastRenderMode {
+			if f.c.fastRenderMode {
 				p := r.RequestURI
 				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
 					f.c.visitedURLs.Add(p)
@@ -345,6 +369,11 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 	return mu, u.String(), endpoint, nil
 }
 
+var logErrorRe = regexp.MustCompile("(?s)ERROR \\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2} ")
+
+func removeErrorPrefixFromLog(content string) string {
+	return logErrorRe.ReplaceAllLiteralString(content, "")
+}
 func (c *commandeer) serve(s *serverCmd) error {
 
 	isMultiHost := c.hugo.IsMultihost()
@@ -365,11 +394,17 @@ func (c *commandeer) serve(s *serverCmd) error {
 		roots = []string{""}
 	}
 
+	templ, err := c.hugo.TextTmpl.Parse("__default_server_error", buildErrorTemplate)
+	if err != nil {
+		return err
+	}
+
 	srv := &fileServer{
-		baseURLs: baseURLs,
-		roots:    roots,
-		c:        c,
-		s:        s,
+		baseURLs:      baseURLs,
+		roots:         roots,
+		c:             c,
+		s:             s,
+		errorTemplate: templ,
 	}
 
 	doLiveReload := !c.Cfg.GetBool("disableLiveReload")
@@ -392,7 +427,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 		go func() {
 			err = http.ListenAndServe(endpoint, mu)
 			if err != nil {
-				jww.ERROR.Printf("Error: %s\n", err.Error())
+				c.logger.ERROR.Printf("Error: %s\n", err.Error())
 				os.Exit(1)
 			}
 		}()
@@ -453,7 +488,7 @@ func (sc *serverCmd) fixURL(cfg config.Provider, s string, port int) (string, er
 		if strings.Contains(u.Host, ":") {
 			u.Host, _, err = net.SplitHostPort(u.Host)
 			if err != nil {
-				return "", fmt.Errorf("Failed to split baseURL hostpost: %s", err)
+				return "", errors.Wrap(err, "Failed to split baseURL hostpost")
 			}
 		}
 		u.Host += fmt.Sprintf(":%d", port)

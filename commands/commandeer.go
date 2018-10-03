@@ -14,6 +14,15 @@
 package commands
 
 import (
+	"bytes"
+	"errors"
+
+	"github.com/gohugoio/hugo/common/herrors"
+
+	"io/ioutil"
+
+	jww "github.com/spf13/jwalterweatherman"
+
 	"os"
 	"path/filepath"
 	"regexp"
@@ -21,13 +30,13 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/spf13/cobra"
 
-	"github.com/spf13/afero"
-
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/spf13/afero"
 
 	"github.com/bep/debounce"
 	"github.com/gohugoio/hugo/common/types"
@@ -45,6 +54,8 @@ type commandeerHugoState struct {
 
 type commandeer struct {
 	*commandeerHugoState
+
+	logger *loggers.Logger
 
 	// Currently only set when in "fast render mode". But it seems to
 	// be fast enough that we could maybe just add it for all server modes.
@@ -69,9 +80,45 @@ type commandeer struct {
 	serverPorts         []int
 	languagesConfigured bool
 	languages           langs.Languages
+	doLiveReload        bool
+	fastRenderMode      bool
+	showErrorInBrowser  bool
 
 	configured bool
 	paused     bool
+
+	// Any error from the last build.
+	buildErr error
+}
+
+func (c *commandeer) errCount() int {
+	return int(c.logger.ErrorCounter.Count())
+}
+
+func (c *commandeer) getErrorWithContext() interface{} {
+	errCount := c.errCount()
+
+	if errCount == 0 {
+		return nil
+	}
+
+	m := make(map[string]interface{})
+
+	m["Error"] = errors.New(removeErrorPrefixFromLog(c.logger.Errors.String()))
+	m["Version"] = hugoVersionString()
+
+	fe := herrors.UnwrapErrorWithFileContext(c.buildErr)
+	if fe != nil {
+		m["File"] = fe
+	}
+
+	if c.h.verbose {
+		var b bytes.Buffer
+		herrors.FprintStackTrace(&b, c.buildErr)
+		m["StackTrace"] = b.String()
+	}
+
+	return m
 }
 
 func (c *commandeer) Set(key string, value interface{}) {
@@ -105,6 +152,8 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 		doWithCommandeer:    doWithCommandeer,
 		visitedURLs:         types.NewEvictingStringQueue(10),
 		debounce:            rebuildDebouncer,
+		// This will be replaced later, but we need something to log to before the configuration is read.
+		logger: loggers.NewLogger(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, running),
 	}
 
 	return c, c.loadConfig(mustHaveConfigFile, running)
@@ -236,6 +285,11 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		c.languages = l
 	}
 
+	// Set some commonly used flags
+	c.doLiveReload = !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload")
+	c.fastRenderMode = c.doLiveReload && !c.Cfg.GetBool("disableFastRender")
+	c.showErrorInBrowser = c.doLiveReload && !c.Cfg.GetBool("disableBrowserError")
+
 	// This is potentially double work, but we need to do this one more time now
 	// that all the languages have been configured.
 	if c.doWithCommandeer != nil {
@@ -244,12 +298,13 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		}
 	}
 
-	logger, err := c.createLogger(config)
+	logger, err := c.createLogger(config, running)
 	if err != nil {
 		return err
 	}
 
 	cfg.Logger = logger
+	c.logger = logger
 
 	createMemFs := config.GetBool("renderToMemory")
 

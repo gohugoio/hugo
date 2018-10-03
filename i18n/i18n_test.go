@@ -19,24 +19,19 @@ import (
 
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/deps"
 
-	"io/ioutil"
-	"os"
-
-	"log"
-
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
-var logger = jww.NewNotepad(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+var logger = loggers.NewErrorLogger()
 
 type i18nTest struct {
 	data                             map[string][]byte

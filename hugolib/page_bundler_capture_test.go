@@ -22,8 +22,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/loggers"
 
-	jww "github.com/spf13/jwalterweatherman"
-
 	"runtime"
 	"strings"
 	"sync"
@@ -99,9 +97,6 @@ func TestPageBundlerCaptureSymlinks(t *testing.T) {
 	c := newCapturer(logger, sourceSpec, fileStore, nil)
 
 	assert.NoError(c.capture())
-
-	// Symlink back to content skipped to prevent infinite recursion.
-	assert.Equal(uint64(3), logger.LogCountForLevelsGreaterThanorEqualTo(jww.LevelWarn))
 
 	expected := `
 F:

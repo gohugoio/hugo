@@ -25,6 +25,7 @@ import (
 	"unicode"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	_errors "github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -493,11 +494,11 @@ func getRealFileInfo(fs afero.Fs, path string) (os.FileInfo, string, error) {
 	if fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink {
 		link, err := filepath.EvalSymlinks(path)
 		if err != nil {
-			return nil, "", fmt.Errorf("Cannot read symbolic link '%s', error was: %s", path, err)
+			return nil, "", _errors.Wrapf(err, "Cannot read symbolic link %q", path)
 		}
 		fileInfo, err = LstatIfPossible(fs, link)
 		if err != nil {
-			return nil, "", fmt.Errorf("Cannot stat '%s', error was: %s", link, err)
+			return nil, "", _errors.Wrapf(err, "Cannot stat %q", link)
 		}
 		realPath = link
 	}

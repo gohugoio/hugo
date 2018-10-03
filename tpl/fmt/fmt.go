@@ -16,12 +16,13 @@ package fmt
 import (
 	_fmt "fmt"
 
+	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 )
 
 // New returns a new instance of the fmt-namespaced template functions.
-func New() *Namespace {
-	return &Namespace{helpers.NewDistinctErrorLogger()}
+func New(d *deps.Deps) *Namespace {
+	return &Namespace{helpers.NewDistinctLogger(d.Log.ERROR)}
 }
 
 // Namespace provides template functions for the "fmt" namespace.

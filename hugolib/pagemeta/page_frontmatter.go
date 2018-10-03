@@ -14,17 +14,14 @@
 package pagemeta
 
 import (
-	"io/ioutil"
-	"log"
-	"os"
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/cast"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 // FrontMatterHandler maps front matter into Page fields and .Params.
@@ -40,7 +37,7 @@ type FrontMatterHandler struct {
 	// A map of all date keys configured, including any custom.
 	allDateKeys map[string]bool
 
-	logger *jww.Notepad
+	logger *loggers.Logger
 }
 
 // FrontMatterDescriptor describes how to handle front matter for a given Page.
@@ -263,10 +260,10 @@ func toLowerSlice(in interface{}) []string {
 
 // NewFrontmatterHandler creates a new FrontMatterHandler with the given logger and configuration.
 // If no logger is provided, one will be created.
-func NewFrontmatterHandler(logger *jww.Notepad, cfg config.Provider) (FrontMatterHandler, error) {
+func NewFrontmatterHandler(logger *loggers.Logger, cfg config.Provider) (FrontMatterHandler, error) {
 
 	if logger == nil {
-		logger = jww.NewNotepad(jww.LevelWarn, jww.LevelWarn, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+		logger = loggers.NewWarningLogger()
 	}
 
 	frontMatterConfig, err := newFrontmatterConfig(cfg)

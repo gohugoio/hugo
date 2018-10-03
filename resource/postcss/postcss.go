@@ -14,19 +14,18 @@
 package postcss
 
 import (
-	"fmt"
 	"io"
 	"path/filepath"
 
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/pkg/errors"
 
-	"github.com/mitchellh/mapstructure"
-	//	"io/ioutil"
 	"os"
 	"os/exec"
 
-	"github.com/gohugoio/hugo/common/errors"
+	"github.com/mitchellh/mapstructure"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/resource"
 )
 
@@ -111,7 +110,7 @@ func (t *postcssTransformation) Transform(ctx *resource.ResourceTransformationCt
 		binary = binaryName
 		if _, err := exec.LookPath(binary); err != nil {
 			// This may be on a CI server etc. Will fall back to pre-built assets.
-			return errors.ErrFeatureNotAvailable
+			return herrors.ErrFeatureNotAvailable
 		}
 	}
 
@@ -134,7 +133,7 @@ func (t *postcssTransformation) Transform(ctx *resource.ResourceTransformationCt
 		if err != nil {
 			if t.options.Config != "" {
 				// Only fail if the user specificed config file is not found.
-				return fmt.Errorf("postcss config %q not found: %s", configFile, err)
+				return errors.Wrapf(err, "postcss config %q not found:", configFile)
 			}
 			configFile = ""
 		} else {

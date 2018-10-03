@@ -347,7 +347,7 @@ func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKey
 		}
 	}()
 
-	s := buildSingleSiteExpected(t, expectBuildError, depsCfg, BuildCfg{SkipRender: true})
+	s := buildSingleSiteExpected(t, false, expectBuildError, depsCfg, BuildCfg{SkipRender: true})
 
 	if !expectBuildError && !reflect.DeepEqual(expected, s.Data) {
 		// This disabled code detects the situation described in the WARNING message below.

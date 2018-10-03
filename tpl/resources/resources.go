@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	_errors "github.com/pkg/errors"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resource"
 	"github.com/gohugoio/hugo/resource/bundler"
@@ -256,7 +258,7 @@ func (ns *Namespace) resolveArgs(args []interface{}) (resource.Resource, map[str
 
 	m, err := cast.ToStringMapE(args[0])
 	if err != nil {
-		return nil, nil, fmt.Errorf("invalid options type: %s", err)
+		return nil, nil, _errors.Wrap(err, "invalid options type")
 	}
 
 	return r, m, nil

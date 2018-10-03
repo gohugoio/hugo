@@ -14,7 +14,6 @@
 package resource
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -27,12 +26,11 @@ import (
 
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
-
-	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/spf13/afero"
 
@@ -273,7 +271,7 @@ type Spec struct {
 	MediaTypes    media.Types
 	OutputFormats output.Formats
 
-	Logger *jww.Notepad
+	Logger *loggers.Logger
 
 	TextTemplates tpl.TemplateParseFinder
 
@@ -287,7 +285,7 @@ type Spec struct {
 	GenAssetsPath string
 }
 
-func NewSpec(s *helpers.PathSpec, logger *jww.Notepad, outputFormats output.Formats, mimeTypes media.Types) (*Spec, error) {
+func NewSpec(s *helpers.PathSpec, logger *loggers.Logger, outputFormats output.Formats, mimeTypes media.Types) (*Spec, error) {
 
 	imaging, err := decodeImaging(s.Cfg.GetStringMap("imaging"))
 	if err != nil {
@@ -542,7 +540,7 @@ type resourceHash struct {
 type publishOnce struct {
 	publisherInit sync.Once
 	publisherErr  error
-	logger        *jww.Notepad
+	logger        *loggers.Logger
 }
 
 func (l *publishOnce) publish(s Source) error {
@@ -660,7 +658,7 @@ func (l *genericResource) initHash() error {
 		var f hugio.ReadSeekCloser
 		f, err = l.ReadSeekCloser()
 		if err != nil {
-			err = fmt.Errorf("failed to open source file: %s", err)
+			err = errors.Wrap(err, "failed to open source file")
 			return
 		}
 		defer f.Close()

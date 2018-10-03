@@ -16,7 +16,9 @@ package create
 
 import (
 	"bytes"
-	"fmt"
+
+	"github.com/pkg/errors"
+
 	"io"
 	"os"
 	"os/exec"
@@ -135,7 +137,7 @@ func newContentFromDir(
 
 		targetDir := filepath.Dir(targetFilename)
 		if err := targetFs.MkdirAll(targetDir, 0777); err != nil && !os.IsExist(err) {
-			return fmt.Errorf("failed to create target directory for %s: %s", targetDir, err)
+			return errors.Wrapf(err, "failed to create target directory for %s:", targetDir)
 		}
 
 		out, err := targetFs.Create(targetFilename)
@@ -223,7 +225,7 @@ func mapArcheTypeDir(
 func usesSiteVar(fs afero.Fs, filename string) (bool, error) {
 	f, err := fs.Open(filename)
 	if err != nil {
-		return false, fmt.Errorf("failed to open archetype file: %s", err)
+		return false, errors.Wrap(err, "failed to open archetype file")
 	}
 	defer f.Close()
 	return helpers.ReaderContains(f, []byte(".Site")), nil

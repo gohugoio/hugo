@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resource"
+	"github.com/pkg/errors"
 )
 
 // Used in tests. This feature requires Hugo to be built with the extended tag.
@@ -165,7 +166,7 @@ func (c *Client) toCSS(options scss.Options, dst io.Writer, src io.Reader) (tocs
 
 	res, err = transpiler.Execute(dst, src)
 	if err != nil {
-		return res, fmt.Errorf("SCSS processing failed: %s", err)
+		return res, errors.Wrap(err, "SCSS processing failed")
 	}
 
 	return res, nil

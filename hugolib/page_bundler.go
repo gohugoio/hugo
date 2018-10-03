@@ -19,6 +19,8 @@ import (
 	"math"
 	"runtime"
 
+	_errors "github.com/pkg/errors"
+
 	"golang.org/x/sync/errgroup"
 )
 
@@ -145,7 +147,7 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 					for _, file := range files {
 						f, err := s.site.BaseFs.Content.Fs.Open(file.Filename())
 						if err != nil {
-							return fmt.Errorf("failed to open assets file: %s", err)
+							return _errors.Wrap(err, "failed to open assets file")
 						}
 						err = s.site.publish(&s.site.PathSpec.ProcessingStats.Files, file.Path(), f)
 						f.Close()

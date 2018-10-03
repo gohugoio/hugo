@@ -21,10 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"io/ioutil"
-	"log"
-	"os"
-
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -35,13 +32,12 @@ import (
 	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/gohugoio/hugo/tpl/partials"
 	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
 var (
-	logger = jww.NewNotepad(jww.LevelFatal, jww.LevelFatal, os.Stdout, ioutil.Discard, "", log.Ldate|log.Ltime)
+	logger = loggers.NewErrorLogger()
 )
 
 func newTestConfig() config.Provider {

@@ -21,6 +21,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/langs"
@@ -29,7 +30,6 @@ import (
 	"github.com/gohugoio/hugo/i18n"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 // HugoSites represents the sites to build. Each site represents a language.
@@ -69,7 +69,7 @@ func (h *HugoSites) NumLogErrors() int {
 	if h == nil {
 		return 0
 	}
-	return int(h.Log.LogCountForLevelsGreaterThanorEqualTo(jww.LevelError))
+	return int(h.Log.ErrorCounter.Count())
 }
 
 func (h *HugoSites) PrintProcessingStats(w io.Writer) {
@@ -250,7 +250,9 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 
 func (s *Site) withSiteTemplates(withTemplates ...func(templ tpl.TemplateHandler) error) func(templ tpl.TemplateHandler) error {
 	return func(templ tpl.TemplateHandler) error {
-		templ.LoadTemplates("")
+		if err := templ.LoadTemplates(""); err != nil {
+			return err
+		}
 
 		for _, wt := range withTemplates {
 			if wt == nil {
@@ -301,7 +303,8 @@ func (h *HugoSites) reset() {
 
 // resetLogs resets the log counters etc. Used to do a new build on the same sites.
 func (h *HugoSites) resetLogs() {
-	h.Log.ResetLogCounters()
+	h.Log.Reset()
+	loggers.GlobalErrorCounter.Reset()
 	for _, s := range h.Sites {
 		s.Deps.DistinctErrorLog = helpers.NewDistinctLogger(h.Log.ERROR)
 	}

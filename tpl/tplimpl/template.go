@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ import (
 	"strings"
 	texttemplate "text/template"
 
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/tpl/tplimpl/embedded"
+	"github.com/pkg/errors"
 
 	"github.com/eknkc/amber"
 
@@ -64,7 +66,7 @@ type templateErr struct {
 }
 
 type templateLoader interface {
-	handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (string, error)) error
+	handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error
 	addTemplate(name, tpl string) error
 	addLateTemplate(name, tpl string) error
 }
@@ -114,20 +116,9 @@ func (t *templateHandler) NewTextTemplate() tpl.TemplateParseFinder {
 
 }
 
-func (t *templateHandler) addError(name string, err error) {
-	t.errors = append(t.errors, &templateErr{name, err})
-}
-
 func (t *templateHandler) Debug() {
 	fmt.Println("HTML templates:\n", t.html.t.DefinedTemplates())
 	fmt.Println("\n\nText templates:\n", t.text.t.DefinedTemplates())
-}
-
-// PrintErrors prints the accumulated errors as ERROR to the log.
-func (t *templateHandler) PrintErrors() {
-	for _, e := range t.errors {
-		t.Log.ERROR.Println(e.name, ":", e.err)
-	}
 }
 
 // Lookup tries to find a template with the given name in both template
@@ -156,8 +147,8 @@ func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
 	c := &templateHandler{
 		Deps:      d,
 		layoutsFs: d.BaseFs.Layouts.Fs,
-		html:      &htmlTemplates{t: template.Must(t.html.t.Clone()), overlays: make(map[string]*template.Template)},
-		text:      &textTemplates{textTemplate: &textTemplate{t: texttemplate.Must(t.text.t.Clone())}, overlays: make(map[string]*texttemplate.Template)},
+		html:      &htmlTemplates{t: template.Must(t.html.t.Clone()), overlays: make(map[string]*template.Template), templatesCommon: t.html.templatesCommon},
+		text:      &textTemplates{textTemplate: &textTemplate{t: texttemplate.Must(t.text.t.Clone())}, overlays: make(map[string]*texttemplate.Template), templatesCommon: t.text.templatesCommon},
 		errors:    make([]*templateErr, 0),
 	}
 
@@ -187,15 +178,21 @@ func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
 }
 
 func newTemplateAdapter(deps *deps.Deps) *templateHandler {
+	common := &templatesCommon{
+		nameBaseTemplateName: make(map[string]string),
+	}
+
 	htmlT := &htmlTemplates{
-		t:        template.New(""),
-		overlays: make(map[string]*template.Template),
+		t:               template.New(""),
+		overlays:        make(map[string]*template.Template),
+		templatesCommon: common,
 	}
 	textT := &textTemplates{
-		textTemplate: &textTemplate{t: texttemplate.New("")},
-		overlays:     make(map[string]*texttemplate.Template),
+		textTemplate:    &textTemplate{t: texttemplate.New("")},
+		overlays:        make(map[string]*texttemplate.Template),
+		templatesCommon: common,
 	}
-	return &templateHandler{
+	h := &templateHandler{
 		Deps:      deps,
 		layoutsFs: deps.BaseFs.Layouts.Fs,
 		html:      htmlT,
@@ -203,10 +200,22 @@ func newTemplateAdapter(deps *deps.Deps) *templateHandler {
 		errors:    make([]*templateErr, 0),
 	}
 
+	common.handler = h
+
+	return h
+
 }
 
-type htmlTemplates struct {
+// Shared by both HTML and text templates.
+type templatesCommon struct {
+	handler  *templateHandler
 	funcster *templateFuncster
+
+	// Used to get proper filenames in errors
+	nameBaseTemplateName map[string]string
+}
+type htmlTemplates struct {
+	*templatesCommon
 
 	t *template.Template
 
@@ -231,7 +240,8 @@ func (t *htmlTemplates) Lookup(name string) (tpl.Template, bool) {
 	if templ == nil {
 		return nil, false
 	}
-	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics}, true
+
+	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics, Fs: t.handler.layoutsFs, NameBaseTemplateName: t.nameBaseTemplateName}, true
 }
 
 func (t *htmlTemplates) lookup(name string) *template.Template {
@@ -259,8 +269,8 @@ func (t *textTemplates) setTemplateFuncster(f *templateFuncster) {
 }
 
 type textTemplates struct {
+	*templatesCommon
 	*textTemplate
-	funcster   *templateFuncster
 	clone      *texttemplate.Template
 	cloneClone *texttemplate.Template
 
@@ -272,7 +282,7 @@ func (t *textTemplates) Lookup(name string) (tpl.Template, bool) {
 	if templ == nil {
 		return nil, false
 	}
-	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics}, true
+	return &tpl.TemplateAdapter{Template: templ, Metrics: t.funcster.Deps.Metrics, Fs: t.handler.layoutsFs, NameBaseTemplateName: t.nameBaseTemplateName}, true
 }
 
 func (t *textTemplates) lookup(name string) *texttemplate.Template {
@@ -321,8 +331,8 @@ func (t *textTemplates) setFuncs(funcMap map[string]interface{}) {
 // LoadTemplates loads the templates from the layouts filesystem.
 // A prefix can be given to indicate a template namespace to load the templates
 // into, i.e. "_internal" etc.
-func (t *templateHandler) LoadTemplates(prefix string) {
-	t.loadTemplates(prefix)
+func (t *templateHandler) LoadTemplates(prefix string) error {
+	return t.loadTemplates(prefix)
 
 }
 
@@ -423,7 +433,6 @@ func (t *templateHandler) addLateTemplate(name, tpl string) error {
 func (t *templateHandler) AddLateTemplate(name, tpl string) error {
 	h := t.getTemplateHandler(name)
 	if err := h.addLateTemplate(name, tpl); err != nil {
-		t.addError(name, err)
 		return err
 	}
 	return nil
@@ -435,7 +444,6 @@ func (t *templateHandler) AddLateTemplate(name, tpl string) error {
 func (t *templateHandler) AddTemplate(name, tpl string) error {
 	h := t.getTemplateHandler(name)
 	if err := h.addTemplate(name, tpl); err != nil {
-		t.addError(name, err)
 		return err
 	}
 	return nil
@@ -458,14 +466,19 @@ func (t *templateHandler) MarkReady() {
 
 // RebuildClone rebuilds the cloned templates. Used for live-reloads.
 func (t *templateHandler) RebuildClone() {
-	t.html.clone = template.Must(t.html.cloneClone.Clone())
-	t.text.clone = texttemplate.Must(t.text.cloneClone.Clone())
+	if t.html != nil && t.html.cloneClone != nil {
+		t.html.clone = template.Must(t.html.cloneClone.Clone())
+	}
+	if t.text != nil && t.text.cloneClone != nil {
+		t.text.clone = texttemplate.Must(t.text.cloneClone.Clone())
+	}
 }
 
-func (t *templateHandler) loadTemplates(prefix string) {
+func (t *templateHandler) loadTemplates(prefix string) error {
+
 	walker := func(path string, fi os.FileInfo, err error) error {
 		if err != nil || fi.IsDir() {
-			return nil
+			return err
 		}
 
 		if isDotFile(path) || isBackupFile(path) || isBaseTemplate(path) {
@@ -490,20 +503,24 @@ func (t *templateHandler) loadTemplates(prefix string) {
 		tplID, err := output.CreateTemplateNames(descriptor)
 		if err != nil {
 			t.Log.ERROR.Printf("Failed to resolve template in path %q: %s", path, err)
-
 			return nil
 		}
 
 		if err := t.addTemplateFile(tplID.Name, tplID.MasterFilename, tplID.OverlayFilename); err != nil {
-			t.Log.ERROR.Printf("Failed to add template %q in path %q: %s", tplID.Name, path, err)
+			return err
 		}
 
 		return nil
 	}
 
 	if err := helpers.SymbolicWalk(t.Layouts.Fs, "", walker); err != nil {
-		t.Log.ERROR.Printf("Failed to load templates: %s", err)
+		if !os.IsNotExist(err) {
+			return err
+		}
+		return nil
 	}
+
+	return nil
 
 }
 
@@ -553,12 +570,12 @@ func (t *templateHandler) getTemplateHandler(name string) templateLoader {
 	return t.html
 }
 
-func (t *templateHandler) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (string, error)) error {
+func (t *templateHandler) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error {
 	h := t.getTemplateHandler(name)
 	return h.handleMaster(name, overlayFilename, masterFilename, onMissing)
 }
 
-func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (string, error)) error {
+func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error {
 
 	masterTpl := t.lookup(masterFilename)
 
@@ -568,9 +585,9 @@ func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename strin
 			return err
 		}
 
-		masterTpl, err = t.t.New(overlayFilename).Parse(templ)
+		masterTpl, err = t.t.New(overlayFilename).Parse(templ.template)
 		if err != nil {
-			return err
+			return templ.errWithFileContext("parse master failed", err)
 		}
 	}
 
@@ -579,9 +596,9 @@ func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename strin
 		return err
 	}
 
-	overlayTpl, err := template.Must(masterTpl.Clone()).Parse(templ)
+	overlayTpl, err := template.Must(masterTpl.Clone()).Parse(templ.template)
 	if err != nil {
-		return err
+		return templ.errWithFileContext("parse failed", err)
 	}
 
 	// The extra lookup is a workaround, see
@@ -593,12 +610,13 @@ func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename strin
 	}
 
 	t.overlays[name] = overlayTpl
+	t.nameBaseTemplateName[name] = masterFilename
 
 	return err
 
 }
 
-func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (string, error)) error {
+func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error {
 
 	name = strings.TrimPrefix(name, textTmplNamePrefix)
 	masterTpl := t.lookup(masterFilename)
@@ -609,10 +627,11 @@ func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename strin
 			return err
 		}
 
-		masterTpl, err = t.t.New(overlayFilename).Parse(templ)
+		masterTpl, err = t.t.New(masterFilename).Parse(templ.template)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "failed to parse %q:", templ.filename)
 		}
+		t.nameBaseTemplateName[masterFilename] = templ.filename
 	}
 
 	templ, err := onMissing(overlayFilename)
@@ -620,9 +639,9 @@ func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename strin
 		return err
 	}
 
-	overlayTpl, err := texttemplate.Must(masterTpl.Clone()).Parse(templ)
+	overlayTpl, err := texttemplate.Must(masterTpl.Clone()).Parse(templ.template)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "failed to parse %q:", templ.filename)
 	}
 
 	overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
@@ -630,6 +649,7 @@ func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename strin
 		return err
 	}
 	t.overlays[name] = overlayTpl
+	t.nameBaseTemplateName[name] = templ.filename
 
 	return err
 
@@ -640,14 +660,22 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 
 	t.Log.DEBUG.Printf("Add template file: name %q, baseTemplatePath %q, path %q", name, baseTemplatePath, path)
 
-	getTemplate := func(filename string) (string, error) {
-		b, err := afero.ReadFile(t.Layouts.Fs, filename)
+	getTemplate := func(filename string) (templateInfo, error) {
+		fs := t.Layouts.Fs
+		b, err := afero.ReadFile(fs, filename)
 		if err != nil {
-			return "", err
+			return templateInfo{filename: filename, fs: fs}, err
 		}
 		s := string(b)
 
-		return s, nil
+		realFilename := filename
+		if fi, err := fs.Stat(filename); err == nil {
+			if fir, ok := fi.(hugofs.RealFilenameInfo); ok {
+				realFilename = fir.RealFilename()
+			}
+		}
+
+		return templateInfo{template: s, filename: filename, realFilename: realFilename, fs: fs}, nil
 	}
 
 	// get the suffix and switch on that
@@ -712,7 +740,11 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 			return err
 		}
 
-		return t.AddTemplate(name, templ)
+		err = t.AddTemplate(name, templ.template)
+		if err != nil {
+			return templ.errWithFileContext("parse failed", err)
+		}
+		return nil
 	}
 }
 
@@ -720,18 +752,23 @@ var embeddedTemplatesAliases = map[string][]string{
 	"shortcodes/twitter.html": []string{"shortcodes/tweet.html"},
 }
 
-func (t *templateHandler) loadEmbedded() {
+func (t *templateHandler) loadEmbedded() error {
 	for _, kv := range embedded.EmbeddedTemplates {
-		// TODO(bep) error handling
 		name, templ := kv[0], kv[1]
-		t.addInternalTemplate(name, templ)
+		if err := t.addInternalTemplate(name, templ); err != nil {
+			return err
+		}
 		if aliases, found := embeddedTemplatesAliases[name]; found {
 			for _, alias := range aliases {
-				t.addInternalTemplate(alias, templ)
+				if err := t.addInternalTemplate(alias, templ); err != nil {
+					return err
+				}
 			}
 
 		}
 	}
+
+	return nil
 
 }
 

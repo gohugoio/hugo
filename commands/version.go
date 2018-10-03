@@ -14,14 +14,16 @@
 package commands
 
 import (
+	"fmt"
 	"runtime"
 	"strings"
+
+	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resource/tocss/scss"
 	"github.com/spf13/cobra"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var _ cmder = (*versionCmd)(nil)
@@ -45,6 +47,10 @@ func newVersionCmd() *versionCmd {
 }
 
 func printHugoVersion() {
+	jww.FEEDBACK.Println(hugoVersionString())
+}
+
+func hugoVersionString() string {
 	program := "Hugo Static Site Generator"
 
 	version := "v" + helpers.CurrentHugoVersion.String()
@@ -64,5 +70,6 @@ func printHugoVersion() {
 		buildDate = "unknown"
 	}
 
-	jww.FEEDBACK.Println(program, version, osArch, "BuildDate:", buildDate)
+	return fmt.Sprintf("%s %s %s BuildDate: %s", program, version, osArch, buildDate)
+
 }

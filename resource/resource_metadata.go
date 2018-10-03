@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 
 	"strings"
@@ -69,7 +70,7 @@ func AssignMetadata(metadata []map[string]interface{}, resources ...Resource) er
 
 			glob, err := getGlob(srcKey)
 			if err != nil {
-				return fmt.Errorf("failed to match resource with metadata: %s", err)
+				return errors.Wrap(err, "failed to match resource with metadata")
 			}
 
 			match := glob.Match(resourceSrcKey)

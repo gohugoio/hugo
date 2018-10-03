@@ -14,10 +14,10 @@
 package commands
 
 import (
-	"fmt"
 	"time"
 
 	src "github.com/gohugoio/hugo/source"
+	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/hugolib"
 
@@ -187,7 +187,7 @@ func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, ma
 	}
 
 	if err = newPage.SaveSourceAs(newFilename); err != nil {
-		return fmt.Errorf("Failed to save file %q: %s", newFilename, err)
+		return errors.Wrapf(err, "Failed to save file %q:", newFilename)
 	}
 
 	return nil

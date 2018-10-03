@@ -14,8 +14,10 @@
 package i18n
 
 import (
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
+
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -28,11 +30,11 @@ var (
 type Translator struct {
 	translateFuncs map[string]bundle.TranslateFunc
 	cfg            config.Provider
-	logger         *jww.Notepad
+	logger         *loggers.Logger
 }
 
 // NewTranslator creates a new Translator for the given language bundle and configuration.
-func NewTranslator(b *bundle.Bundle, cfg config.Provider, logger *jww.Notepad) Translator {
+func NewTranslator(b *bundle.Bundle, cfg config.Provider, logger *loggers.Logger) Translator {
 	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]bundle.TranslateFunc)}
 	t.initFuncs(b)
 	return t

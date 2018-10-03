@@ -16,7 +16,6 @@
 package releaser
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -25,6 +24,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/helpers"
 )
@@ -255,7 +256,7 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 	cmd.Stderr = os.Stderr
 	err := cmd.Run()
 	if err != nil {
-		return fmt.Errorf("goreleaser failed: %s", err)
+		return errors.Wrap(err, "goreleaser failed")
 	}
 	return nil
 }

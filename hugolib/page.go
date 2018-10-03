@@ -22,6 +22,7 @@ import (
 	"unicode"
 
 	"github.com/gohugoio/hugo/media"
+	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/maps"
 
@@ -307,13 +308,13 @@ func (p *Page) initContent() {
 
 			err = p.prepareForRender()
 			if err != nil {
-				p.s.Log.ERROR.Printf("Failed to prepare page %q for render: %s", p.Path(), err)
+				c <- err
 				return
 			}
 
 			if len(p.summary) == 0 {
 				if err = p.setAutoSummary(); err != nil {
-					err = fmt.Errorf("Failed to set user auto summary for page %q: %s", p.pathOrTitle(), err)
+					err = _errors.Wrapf(err, "Failed to set user auto summary for page %q:", p.pathOrTitle())
 				}
 			}
 			c <- err
@@ -324,11 +325,11 @@ func (p *Page) initContent() {
 			p.s.Log.WARN.Printf("WARNING: Timed out creating content for page %q (.Content will be empty). This is most likely a circular shortcode content loop that should be fixed. If this is just a shortcode calling a slow remote service, try to set \"timeout=20000\" (or higher, value is in milliseconds) in config.toml.\n", p.pathOrTitle())
 		case err := <-c:
 			if err != nil {
+				// TODO(bep) 2errors needs to be transported to the caller.
 				p.s.Log.ERROR.Println(err)
 			}
 		}
 	})
-
 }
 
 // This is sent to the shortcodes for this page. Not doing that will create an infinite regress. So,
@@ -989,11 +990,20 @@ func (s *Site) NewPage(name string) (*Page, error) {
 	return p, nil
 }
 
+func (p *Page) errorf(err error, format string, a ...interface{}) error {
+	args := append([]interface{}{p.Lang(), p.pathOrTitle()}, a...)
+	format = "[%s] Page %q: " + format
+	if err == nil {
+		return fmt.Errorf(format, args...)
+	}
+	return _errors.Wrapf(err, format, args...)
+}
+
 func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 	// Parse for metadata & body
 	if err := p.parse(buf); err != nil {
-		p.s.Log.ERROR.Printf("%s for %s", err, p.File.Path())
-		return 0, err
+		return 0, p.errorf(err, "parse failed")
+
 	}
 
 	return int64(len(p.rawContent)), nil
@@ -1205,7 +1215,7 @@ func (p *Page) initMainOutputFormat() error {
 	pageOutput, err := newPageOutput(p, false, false, outFormat)
 
 	if err != nil {
-		return fmt.Errorf("Failed to create output page for type %q for page %q: %s", outFormat.Name, p.pathOrTitle(), err)
+		return _errors.Wrapf(err, "Failed to create output page for type %q for page %q:", outFormat.Name, p.pathOrTitle())
 	}
 
 	p.mainPageOutput = pageOutput
@@ -1271,7 +1281,7 @@ func (p *Page) prepareForRender() error {
 	// Note: The shortcodes in a page cannot access the page content it lives in,
 	// hence the withoutContent().
 	if workContentCopy, err = handleShortcodes(p.withoutContent(), workContentCopy); err != nil {
-		s.Log.ERROR.Printf("Failed to handle shortcodes for page %s: %s", p.BaseFileName(), err)
+		return err
 	}
 
 	if p.Markup != "html" {
@@ -1293,8 +1303,6 @@ func (p *Page) prepareForRender() error {
 
 	return nil
 }
-
-var ErrHasDraftAndPublished = errors.New("both draft and published parameters were found in page's frontmatter")
 
 func (p *Page) update(frontmatter map[string]interface{}) error {
 	if frontmatter == nil {
@@ -1512,8 +1520,7 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 
 	if draft != nil && published != nil {
 		p.Draft = *draft
-		p.s.Log.ERROR.Printf("page %s has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
-		return ErrHasDraftAndPublished
+		p.s.Log.WARN.Printf("page %q has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
 	} else if draft != nil {
 		p.Draft = *draft
 	} else if published != nil {
@@ -1751,6 +1758,7 @@ func (p *Page) shouldRenderTo(f output.Format) bool {
 
 func (p *Page) parse(reader io.Reader) error {
 	psr, err := parser.ReadFrom(reader)
+
 	if err != nil {
 		return err
 	}
@@ -1762,7 +1770,7 @@ func (p *Page) parse(reader io.Reader) error {
 
 	meta, err := psr.Metadata()
 	if err != nil {
-		return fmt.Errorf("failed to parse page metadata for %q: %s", p.File.Path(), err)
+		return _errors.Wrap(err, "error in front matter")
 	}
 	if meta == nil {
 		// missing frontmatter equivalent to empty frontmatter
@@ -2079,7 +2087,7 @@ func (p *Page) decodeRefArgs(args map[string]interface{}) (refArgs, *SiteInfo, e
 func (p *Page) Ref(argsm map[string]interface{}) (string, error) {
 	args, s, err := p.decodeRefArgs(argsm)
 	if err != nil {
-		return "", fmt.Errorf("invalid arguments to Ref: %s", err)
+		return "", _errors.Wrap(err, "invalid arguments to Ref")
 	}
 
 	if s == nil {
@@ -2099,7 +2107,7 @@ func (p *Page) Ref(argsm map[string]interface{}) (string, error) {
 func (p *Page) RelRef(argsm map[string]interface{}) (string, error) {
 	args, s, err := p.decodeRefArgs(argsm)
 	if err != nil {
-		return "", fmt.Errorf("invalid arguments to Ref: %s", err)
+		return "", _errors.Wrap(err, "invalid arguments to Ref")
 	}
 
 	if s == nil {
@@ -2303,8 +2311,13 @@ func (p *Page) setValuesForKind(s *Site) {
 
 // Used in error logs.
 func (p *Page) pathOrTitle() string {
-	if p.Path() != "" {
-		return p.Path()
+	if p.Filename() != "" {
+		// Make a path relative to the working dir if possible.
+		filename := strings.TrimPrefix(p.Filename(), p.s.WorkingDir)
+		if filename != p.Filename() {
+			filename = strings.TrimPrefix(filename, helpers.FilePathSeparator)
+		}
+		return filename
 	}
 	return p.title
 }

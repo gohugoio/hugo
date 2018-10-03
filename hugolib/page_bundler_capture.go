@@ -20,6 +20,10 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+
+	"github.com/gohugoio/hugo/common/loggers"
+	_errors "github.com/pkg/errors"
+
 	"sort"
 	"strings"
 	"sync"
@@ -33,7 +37,6 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/gohugoio/hugo/source"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var errSkipCyclicDir = errors.New("skip potential cyclic dir")
@@ -47,7 +50,7 @@ type capturer struct {
 
 	sourceSpec *source.SourceSpec
 	fs         afero.Fs
-	logger     *jww.Notepad
+	logger     *loggers.Logger
 
 	// Filenames limits the content to process to a list of filenames/directories.
 	// This is used for partial building in server mode.
@@ -61,7 +64,7 @@ type capturer struct {
 }
 
 func newCapturer(
-	logger *jww.Notepad,
+	logger *loggers.Logger,
 	sourceSpec *source.SourceSpec,
 	handler captureResultHandler,
 	contentChanges *contentChangeMap,
@@ -701,13 +704,13 @@ func (c *capturer) resolveRealPathIn(fileInfo pathLangFileFi) error {
 	if fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink {
 		link, err := filepath.EvalSymlinks(path)
 		if err != nil {
-			return fmt.Errorf("Cannot read symbolic link %q, error was: %s", path, err)
+			return _errors.Wrapf(err, "Cannot read symbolic link %q, error was:", path)
 		}
 
 		// This is a file on the outside of any base fs, so we have to use the os package.
 		sfi, err := os.Stat(link)
 		if err != nil {
-			return fmt.Errorf("Cannot stat  %q, error was: %s", link, err)
+			return _errors.Wrapf(err, "Cannot stat  %q, error was:", link)
 		}
 
 		// TODO(bep) improve all of this.

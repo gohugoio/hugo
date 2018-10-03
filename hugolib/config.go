@@ -17,10 +17,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gohugoio/hugo/hugolib/paths"
-
 	"io"
 	"strings"
+
+	"github.com/gohugoio/hugo/hugolib/paths"
+	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/langs"
 
@@ -205,7 +206,7 @@ func loadLanguageSettings(cfg config.Provider, oldLangs langs.Languages) error {
 	} else {
 		languages2, err = toSortedLanguages(cfg, languages)
 		if err != nil {
-			return fmt.Errorf("Failed to parse multilingual config: %s", err)
+			return _errors.Wrap(err, "Failed to parse multilingual config")
 		}
 	}
 

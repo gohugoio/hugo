@@ -17,10 +17,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/russross/blackfriday"
-
 	"html/template"
 	"net/url"
+
+	_errors "github.com/pkg/errors"
+	"github.com/russross/blackfriday"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/cast"
@@ -55,7 +56,7 @@ func (ns *Namespace) AbsURL(a interface{}) (template.HTML, error) {
 func (ns *Namespace) Parse(rawurl interface{}) (*url.URL, error) {
 	s, err := cast.ToStringE(rawurl)
 	if err != nil {
-		return nil, fmt.Errorf("Error in Parse: %s", err)
+		return nil, _errors.Wrap(err, "Error in Parse")
 	}
 
 	return url.Parse(s)

@@ -26,6 +26,8 @@ import (
 	"strings"
 	"sync"
 
+	_errors "github.com/pkg/errors"
+
 	"github.com/disintegration/imaging"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/helpers"
@@ -430,7 +432,7 @@ func (i *Image) initConfig() error {
 	})
 
 	if err != nil {
-		return fmt.Errorf("failed to load image config: %s", err)
+		return _errors.Wrap(err, "failed to load image config")
 	}
 
 	return nil
@@ -439,7 +441,7 @@ func (i *Image) initConfig() error {
 func (i *Image) decodeSource() (image.Image, error) {
 	f, err := i.ReadSeekCloser()
 	if err != nil {
-		return nil, fmt.Errorf("failed to open image for decode: %s", err)
+		return nil, _errors.Wrap(err, "failed to open image for decode")
 	}
 	defer f.Close()
 	img, _, err := image.Decode(f)

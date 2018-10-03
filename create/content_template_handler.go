@@ -20,6 +20,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/source"
 
@@ -127,14 +129,14 @@ func executeArcheTypeAsTemplate(s *hugolib.Site, name, kind, targetPath, archety
 	templateHandler := s.Deps.Tmpl.(tpl.TemplateHandler)
 	templateName := "_text/" + helpers.Filename(archetypeFilename)
 	if err := templateHandler.AddTemplate(templateName, string(archetypeTemplate)); err != nil {
-		return nil, fmt.Errorf("Failed to parse archetype file %q: %s", archetypeFilename, err)
+		return nil, errors.Wrapf(err, "Failed to parse archetype file %q:", archetypeFilename)
 	}
 
 	templ, _ := templateHandler.Lookup(templateName)
 
 	var buff bytes.Buffer
 	if err := templ.Execute(&buff, data); err != nil {
-		return nil, fmt.Errorf("Failed to process archetype file %q: %s", archetypeFilename, err)
+		return nil, errors.Wrapf(err, "Failed to process archetype file %q:", archetypeFilename)
 	}
 
 	archetypeContent = []byte(archetypeShortcodeReplacementsPost.Replace(buff.String()))

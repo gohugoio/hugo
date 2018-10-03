@@ -20,6 +20,8 @@ import (
 	_strings "strings"
 	"unicode/utf8"
 
+	_errors "github.com/pkg/errors"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cast"
@@ -44,7 +46,7 @@ type Namespace struct {
 func (ns *Namespace) CountRunes(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert content to string: %s", err)
+		return 0, _errors.Wrap(err, "Failed to convert content to string")
 	}
 
 	counter := 0
@@ -61,7 +63,7 @@ func (ns *Namespace) CountRunes(s interface{}) (int, error) {
 func (ns *Namespace) RuneCount(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert content to string: %s", err)
+		return 0, _errors.Wrap(err, "Failed to convert content to string")
 	}
 	return utf8.RuneCountInString(ss), nil
 }
@@ -70,7 +72,7 @@ func (ns *Namespace) RuneCount(s interface{}) (int, error) {
 func (ns *Namespace) CountWords(s interface{}) (int, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
-		return 0, fmt.Errorf("Failed to convert content to string: %s", err)
+		return 0, _errors.Wrap(err, "Failed to convert content to string")
 	}
 
 	counter := 0

@@ -105,10 +105,10 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 					logger.Println("Syncing", relPath, "to", publishDir)
 
 					if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-						c.Logger.ERROR.Println(err)
+						c.logger.ERROR.Println(err)
 					}
 				} else {
-					c.Logger.ERROR.Println(err)
+					c.logger.ERROR.Println(err)
 				}
 
 				continue
@@ -117,7 +117,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			// For all other event operations Hugo will sync static.
 			logger.Println("Syncing", relPath, "to", publishDir)
 			if err := syncer.Sync(filepath.Join(publishDir, relPath), relPath); err != nil {
-				c.Logger.ERROR.Println(err)
+				c.logger.ERROR.Println(err)
 			}
 		}
 

@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/collections"
-	"github.com/gohugoio/hugo/common/errors"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/mitchellh/hashstructure"
@@ -390,7 +390,7 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 		}
 
 		if err := tr.transformation.Transform(tctx); err != nil {
-			if err == errors.ErrFeatureNotAvailable {
+			if err == herrors.ErrFeatureNotAvailable {
 				// This transformation is not available in this
 				// Hugo installation (scss not compiled in, PostCSS not available etc.)
 				// If a prepared bundle for this transformation chain is available, use that.

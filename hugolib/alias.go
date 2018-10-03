@@ -22,11 +22,11 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/tpl"
-
-	jww "github.com/spf13/jwalterweatherman"
 
 	"github.com/gohugoio/hugo/helpers"
 )
@@ -47,11 +47,11 @@ func init() {
 
 type aliasHandler struct {
 	t         tpl.TemplateFinder
-	log       *jww.Notepad
+	log       *loggers.Logger
 	allowRoot bool
 }
 
-func newAliasHandler(t tpl.TemplateFinder, l *jww.Notepad, allowRoot bool) aliasHandler {
+func newAliasHandler(t tpl.TemplateFinder, l *loggers.Logger, allowRoot bool) aliasHandler {
 	return aliasHandler{t, l, allowRoot}
 }
 

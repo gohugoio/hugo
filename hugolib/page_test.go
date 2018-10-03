@@ -1361,23 +1361,6 @@ func TestPagePaths(t *testing.T) {
 	}
 }
 
-var pageWithDraftAndPublished = `---
-title: broken
-published: false
-draft: true
----
-some content
-`
-
-func TestDraftAndPublishedFrontMatterError(t *testing.T) {
-	t.Parallel()
-	s := newTestSite(t)
-	_, err := s.NewPageFrom(strings.NewReader(pageWithDraftAndPublished), "content/post/broken.md")
-	if err != ErrHasDraftAndPublished {
-		t.Errorf("expected ErrHasDraftAndPublished, was %#v", err)
-	}
-}
-
 var pagesWithPublishedFalse = `---
 title: okay
 published: false
