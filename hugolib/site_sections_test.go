@@ -166,6 +166,11 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.Equal("empty3.md", b.Pages[0].File.LogicalName())
 
 		}},
+		{"empty3", func(p *Page) {
+			xxx := p.s.getPage(KindPage, "empty3", "nil")
+			assert.Nil(xxx)
+			assert.Equal(xxx.Eq(nil), true)
+		}},
 		{"top", func(p *Page) {
 			assert.Equal("Tops", p.title)
 			assert.Len(p.Pages, 2)
