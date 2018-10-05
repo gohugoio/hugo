@@ -31,6 +31,18 @@ Permalink
 RelPermalink
 : The relative URL to the resource. Resources of type `page` will have no value.
 
+MediaType
+: The MIME type of the resource, such as `image/jpg`.
+
+MediaType.MainType 
+: The main type of the resource's MIME type. For example, a file of MIME type `application/pdf` has for MainType `application`.
+
+MediaType.SubType 
+: The subtype of the resource's MIME type. For example, a file of MIME type `application/pdf` has for SubType `pdf`. Note that this is not the same as the file extension - PowerPoint files have a subtype of `vnd.mspowerpoint`.
+
+MediaType.Suffixes
+: A slice of possible suffixes for the resource's MIME type. 
+
 ## Methods
 ByType
 : Returns the page resources of the given type.
