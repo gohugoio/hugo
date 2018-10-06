@@ -77,7 +77,7 @@ echo 'theme = "ananke"' >> config.toml
 ## Step 4: Add Some Content
 
 ```
-hugo new posts/my-first-post.md
+hugo new post/my-first-post.md
 ```
 
 
