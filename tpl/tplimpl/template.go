@@ -568,7 +568,7 @@ func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename strin
 			return err
 		}
 
-		masterTpl, err = t.t.New(masterFilename).Parse(templ)
+		masterTpl, err = t.t.New(overlayFilename).Parse(templ)
 		if err != nil {
 			return err
 		}
@@ -609,7 +609,7 @@ func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename strin
 			return err
 		}
 
-		masterTpl, err = t.t.New(masterFilename).Parse(templ)
+		masterTpl, err = t.t.New(overlayFilename).Parse(templ)
 		if err != nil {
 			return err
 		}
