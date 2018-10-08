@@ -18,15 +18,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/gohugoio/hugo/deps"
 	"github.com/stretchr/testify/require"
 )
 
-// Also see tests in common/collection.
 func TestAppend(t *testing.T) {
 	t.Parallel()
-
-	ns := New(&deps.Deps{})
 
 	for i, test := range []struct {
 		start    interface{}
@@ -36,9 +32,19 @@ func TestAppend(t *testing.T) {
 		{[]string{"a", "b"}, []interface{}{"c"}, []string{"a", "b", "c"}},
 		{[]string{"a", "b"}, []interface{}{"c", "d", "e"}, []string{"a", "b", "c", "d", "e"}},
 		{[]string{"a", "b"}, []interface{}{[]string{"c", "d", "e"}}, []string{"a", "b", "c", "d", "e"}},
+		{nil, []interface{}{"a", "b"}, []string{"a", "b"}},
+		{nil, []interface{}{nil}, []interface{}{nil}},
+		{[]interface{}{}, []interface{}{[]string{"c", "d", "e"}}, []string{"c", "d", "e"}},
+		{tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}},
+			[]interface{}{&tstSlicer{"c"}},
+			tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}, &tstSlicer{"c"}}},
+		{&tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}},
+			[]interface{}{&tstSlicer{"c"}},
+			tstSlicers{&tstSlicer{"a"},
+				&tstSlicer{"b"},
+				&tstSlicer{"c"}}},
 		// Errors
 		{"", []interface{}{[]string{"a", "b"}}, false},
-		{[]string{"a", "b"}, []interface{}{}, false},
 		// No string concatenation.
 		{"ab",
 			[]interface{}{"c"},
@@ -47,9 +53,7 @@ func TestAppend(t *testing.T) {
 
 		errMsg := fmt.Sprintf("[%d]", i)
 
-		args := append(test.addend, test.start)
-
-		result, err := ns.Append(args...)
+		result, err := Append(test.start, test.addend...)
 
 		if b, ok := test.expected.(bool); ok && !b {
 			require.Error(t, err, errMsg)

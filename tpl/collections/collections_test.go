@@ -25,7 +25,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -644,83 +643,7 @@ func TestShuffleRandomising(t *testing.T) {
 	}
 }
 
-var _ collections.Slicer = (*tstSlicer)(nil)
-var _ collections.Slicer = (*tstSlicerIn1)(nil)
-var _ collections.Slicer = (*tstSlicerIn2)(nil)
-var _ testSlicerInterface = (*tstSlicerIn1)(nil)
-var _ testSlicerInterface = (*tstSlicerIn1)(nil)
-
-type testSlicerInterface interface {
-	Name() string
-}
-
-type testSlicerInterfaces []testSlicerInterface
-
-type tstSlicerIn1 struct {
-	name string
-}
-
-type tstSlicerIn2 struct {
-	name string
-}
-
-type tstSlicer struct {
-	name string
-}
-
-func (p *tstSlicerIn1) Slice(in interface{}) (interface{}, error) {
-	items := in.([]interface{})
-	result := make(testSlicerInterfaces, len(items))
-	for i, v := range items {
-		switch vv := v.(type) {
-		case testSlicerInterface:
-			result[i] = vv
-		default:
-			return nil, errors.New("invalid type")
-		}
-
-	}
-	return result, nil
-}
-
-func (p *tstSlicerIn2) Slice(in interface{}) (interface{}, error) {
-	items := in.([]interface{})
-	result := make(testSlicerInterfaces, len(items))
-	for i, v := range items {
-		switch vv := v.(type) {
-		case testSlicerInterface:
-			result[i] = vv
-		default:
-			return nil, errors.New("invalid type")
-		}
-	}
-	return result, nil
-}
-
-func (p *tstSlicerIn1) Name() string {
-	return p.Name()
-}
-
-func (p *tstSlicerIn2) Name() string {
-	return p.Name()
-}
-
-func (p *tstSlicer) Slice(in interface{}) (interface{}, error) {
-	items := in.([]interface{})
-	result := make(tstSlicers, len(items))
-	for i, v := range items {
-		switch vv := v.(type) {
-		case *tstSlicer:
-			result[i] = vv
-		default:
-			return nil, errors.New("invalid type")
-		}
-	}
-	return result, nil
-}
-
-type tstSlicers []*tstSlicer
-
+// Also see tests in commons/collection.
 func TestSlice(t *testing.T) {
 	t.Parallel()
 
@@ -731,14 +654,10 @@ func TestSlice(t *testing.T) {
 		expected interface{}
 	}{
 		{[]interface{}{"a", "b"}, []string{"a", "b"}},
-		{[]interface{}{&tstSlicer{"a"}, &tstSlicer{"b"}}, tstSlicers{&tstSlicer{"a"}, &tstSlicer{"b"}}},
-		{[]interface{}{&tstSlicer{"a"}, "b"}, []interface{}{&tstSlicer{"a"}, "b"}},
 		{[]interface{}{}, []interface{}{}},
 		{[]interface{}{nil}, []interface{}{nil}},
 		{[]interface{}{5, "b"}, []interface{}{5, "b"}},
 		{[]interface{}{tstNoStringer{}}, []tstNoStringer{tstNoStringer{}}},
-		{[]interface{}{&tstSlicerIn1{"a"}, &tstSlicerIn2{"b"}}, testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn2{"b"}}},
-		{[]interface{}{&tstSlicerIn1{"a"}, &tstSlicer{"b"}}, []interface{}{&tstSlicerIn1{"a"}, &tstSlicer{"b"}}},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test.args)
 
