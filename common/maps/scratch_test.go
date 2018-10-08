@@ -18,29 +18,31 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestScratchAdd(t *testing.T) {
 	t.Parallel()
+	assert := require.New(t)
+
 	scratch := NewScratch()
 	scratch.Add("int1", 10)
 	scratch.Add("int1", 20)
 	scratch.Add("int2", 20)
 
-	assert.Equal(t, int64(30), scratch.Get("int1"))
-	assert.Equal(t, 20, scratch.Get("int2"))
+	assert.Equal(int64(30), scratch.Get("int1"))
+	assert.Equal(20, scratch.Get("int2"))
 
 	scratch.Add("float1", float64(10.5))
 	scratch.Add("float1", float64(20.1))
 
-	assert.Equal(t, float64(30.6), scratch.Get("float1"))
+	assert.Equal(float64(30.6), scratch.Get("float1"))
 
 	scratch.Add("string1", "Hello ")
 	scratch.Add("string1", "big ")
 	scratch.Add("string1", "World!")
 
-	assert.Equal(t, "Hello big World!", scratch.Get("string1"))
+	assert.Equal("Hello big World!", scratch.Get("string1"))
 
 	scratch.Add("scratch", scratch)
 	_, err := scratch.Add("scratch", scratch)
@@ -53,12 +55,14 @@ func TestScratchAdd(t *testing.T) {
 
 func TestScratchAddSlice(t *testing.T) {
 	t.Parallel()
+	assert := require.New(t)
+
 	scratch := NewScratch()
 
 	_, err := scratch.Add("intSlice", []int{1, 2})
-	assert.Nil(t, err)
+	assert.NoError(err)
 	_, err = scratch.Add("intSlice", 3)
-	assert.Nil(t, err)
+	assert.NoError(err)
 
 	sl := scratch.Get("intSlice")
 	expected := []int{1, 2, 3}
@@ -66,10 +70,9 @@ func TestScratchAddSlice(t *testing.T) {
 	if !reflect.DeepEqual(expected, sl) {
 		t.Errorf("Slice difference, go %q expected %q", sl, expected)
 	}
-
 	_, err = scratch.Add("intSlice", []int{4, 5})
 
-	assert.Nil(t, err)
+	assert.NoError(err)
 
 	sl = scratch.Get("intSlice")
 	expected = []int{1, 2, 3, 4, 5}
@@ -77,29 +80,47 @@ func TestScratchAddSlice(t *testing.T) {
 	if !reflect.DeepEqual(expected, sl) {
 		t.Errorf("Slice difference, go %q expected %q", sl, expected)
 	}
+}
+
+// https://github.com/gohugoio/hugo/issues/5275
+func TestScratchAddTypedSliceToInterfaceSlice(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	scratch := NewScratch()
+	scratch.Set("slice", []interface{}{})
+
+	_, err := scratch.Add("slice", []int{1, 2})
+	assert.NoError(err)
+	assert.Equal([]int{1, 2}, scratch.Get("slice"))
 
 }
 
 func TestScratchSet(t *testing.T) {
 	t.Parallel()
+	assert := require.New(t)
+
 	scratch := NewScratch()
 	scratch.Set("key", "val")
-	assert.Equal(t, "val", scratch.Get("key"))
+	assert.Equal("val", scratch.Get("key"))
 }
 
 func TestScratchDelete(t *testing.T) {
 	t.Parallel()
+	assert := require.New(t)
+
 	scratch := NewScratch()
 	scratch.Set("key", "val")
 	scratch.Delete("key")
 	scratch.Add("key", "Lucy Parsons")
-	assert.Equal(t, "Lucy Parsons", scratch.Get("key"))
+	assert.Equal("Lucy Parsons", scratch.Get("key"))
 }
 
 // Issue #2005
 func TestScratchInParallel(t *testing.T) {
 	var wg sync.WaitGroup
 	scratch := NewScratch()
+
 	key := "counter"
 	scratch.Set(key, int64(1))
 	for i := 1; i <= 10; i++ {
@@ -142,13 +163,15 @@ func TestScratchGet(t *testing.T) {
 
 func TestScratchSetInMap(t *testing.T) {
 	t.Parallel()
+	assert := require.New(t)
+
 	scratch := NewScratch()
 	scratch.SetInMap("key", "lux", "Lux")
 	scratch.SetInMap("key", "abc", "Abc")
 	scratch.SetInMap("key", "zyx", "Zyx")
 	scratch.SetInMap("key", "abc", "Abc (updated)")
 	scratch.SetInMap("key", "def", "Def")
-	assert.Equal(t, []interface{}{0: "Abc (updated)", 1: "Def", 2: "Lux", 3: "Zyx"}, scratch.GetSortedMapValues("key"))
+	assert.Equal([]interface{}{0: "Abc (updated)", 1: "Def", 2: "Lux", 3: "Zyx"}, scratch.GetSortedMapValues("key"))
 }
 
 func TestScratchGetSortedMapValues(t *testing.T) {

@@ -15,8 +15,8 @@ package collections
 
 import (
 	"errors"
-	"fmt"
-	"reflect"
+
+	"github.com/gohugoio/hugo/common/collections"
 )
 
 // Append appends the arguments up to the last one to the slice in the last argument.
@@ -33,42 +33,6 @@ func (ns *Namespace) Append(args ...interface{}) (interface{}, error) {
 	to := args[len(args)-1]
 	from := args[:len(args)-1]
 
-	tov, toIsNil := indirect(reflect.ValueOf(to))
+	return collections.Append(to, from...)
 
-	toIsNil = toIsNil || to == nil
-	var tot reflect.Type
-
-	if !toIsNil {
-		if tov.Kind() != reflect.Slice {
-			return nil, fmt.Errorf("expected a slice, got %T", to)
-		}
-
-		tot = tov.Type().Elem()
-		toIsNil = tov.Len() == 0
-
-		if len(from) == 1 {
-			// If we get []string []string, we append the from slice to to
-			fromv := reflect.ValueOf(from[0])
-			if fromv.Kind() == reflect.Slice {
-				fromt := reflect.TypeOf(from[0]).Elem()
-				if tot == fromt {
-					return reflect.AppendSlice(tov, fromv).Interface(), nil
-				}
-			}
-		}
-	}
-
-	if toIsNil {
-		return ns.Slice(from...), nil
-	}
-
-	for _, f := range from {
-		fv := reflect.ValueOf(f)
-		if tot != fv.Type() {
-			return nil, fmt.Errorf("append element type mismatch: expected %v, got %v", tot, fv.Type())
-		}
-		tov = reflect.Append(tov, fv)
-	}
-
-	return tov.Interface(), nil
 }
