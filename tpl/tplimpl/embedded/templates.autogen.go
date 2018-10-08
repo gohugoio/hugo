@@ -48,7 +48,7 @@ var EmbeddedTemplates = [][2]string{
       <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
       {{ with .Site.Author.email }}<author>{{.}}{{ with $.Site.Author.name }} ({{.}}){{end}}</author>{{end}}
       <guid>{{ .Permalink }}</guid>
-      <description>{{ .Summary | html }}</description>
+      <description>{{ .Summary | xmlEscape }}</description>
     </item>
     {{ end }}
   </channel>

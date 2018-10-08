@@ -74,6 +74,14 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.XMLEscape,
+			[]string{"xmlEscape"},
+			[][2]string{
+				{"Bat&Man", "Bat&amplMan"},
+				{"\u000b", "\ufffd"},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Markdownify,
 			[]string{"markdownify"},
 			[][2]string{

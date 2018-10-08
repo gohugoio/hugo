@@ -149,6 +149,37 @@ func TestHTMLUnescape(t *testing.T) {
 	}
 }
 
+func TestXMLEscape(t *testing.T) {
+	t.Parallel()
+
+	v := viper.New()
+	v.Set("contentDir", "content")
+	ns := New(newDeps(v))
+
+	for i, test := range []struct {
+		s      interface{}
+		expect interface{}
+	}{
+		{`"Foo & Bar's Diner" <y@z>`, `&#34;Foo &amp; Bar&#39;s Diner&#34; &lt;y@z&gt;`},
+		{"Hugo & Caddy > Wordpress & Apache", "Hugo &amp; Caddy &gt; Wordpress &amp; Apache"},
+		{"\u000bhello there\u000b", "\ufffdhello there\ufffd"},
+		// errors
+		{tstNoStringer{}, false},
+	} {
+		errMsg := fmt.Sprintf("[%d] %s", i, test.s)
+
+		result, err := ns.XMLEscape(test.s)
+
+		if b, ok := test.expect.(bool); ok && !b {
+			require.Error(t, err, errMsg)
+			continue
+		}
+
+		require.NoError(t, err, errMsg)
+		assert.Equal(t, test.expect, result, errMsg)
+	}
+}
+
 func TestMarkdownify(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
