@@ -18,6 +18,7 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/math"
 )
 
@@ -40,14 +41,12 @@ func (c *Scratch) Add(key string, newAddend interface{}) (string, error) {
 	if found {
 		var err error
 
-		addendV := reflect.ValueOf(existingAddend)
+		addendV := reflect.TypeOf(existingAddend)
 
 		if addendV.Kind() == reflect.Slice || addendV.Kind() == reflect.Array {
-			nav := reflect.ValueOf(newAddend)
-			if nav.Kind() == reflect.Slice || nav.Kind() == reflect.Array {
-				newVal = reflect.AppendSlice(addendV, nav).Interface()
-			} else {
-				newVal = reflect.Append(addendV, nav).Interface()
+			newVal, err = collections.Append(existingAddend, newAddend)
+			if err != nil {
+				return "", err
 			}
 		} else {
 			newVal, err = math.DoArithmetic(existingAddend, newAddend, '+')
