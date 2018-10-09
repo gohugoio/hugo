@@ -5,8 +5,8 @@ A Fast and Flexible Static Site Generator built with love by [bep](https://githu
 [Website](https://gohugo.io) |
 [Forum](https://discourse.gohugo.io) |
 [Developer Chat (no support)](https://gitter.im/spf13/hugo) |
-[Documentation](https://gohugo.io/overview/introduction/) |
-[Installation Guide](https://gohugo.io/overview/installing/) |
+[Documentation](https://gohugo.io/getting-started/) |
+[Installation Guide](https://gohugo.io/getting-started/installing/) |
 [Contribution Guide](CONTRIBUTING.md) |
 [Twitter](https://twitter.com/gohugoio)
 
@@ -36,7 +36,7 @@ Currently, we provide pre-built Hugo binaries for Windows, Linux, FreeBSD, NetBS
 
 Hugo may also be compiled from source wherever the Go compiler tool chain can run, e.g. for other operating systems including DragonFly BSD, OpenBSD, Plan 9, and Solaris.
 
-**Complete documentation is available at [Hugo Documentation][].**
+**Complete documentation is available at [Hugo Documentation](https://gohugo.io/getting-started/).**
 
 ## Choose How to Install
 
@@ -50,7 +50,7 @@ Building the binaries is an easy task for an experienced `go` getter.
 
 ### Install Hugo as Your Site Generator (Binary Install)
 
-Use the [installation instructions in the Hugo documentation](https://gohugo.io/overview/installing/).
+Use the [installation instructions in the Hugo documentation](https://gohugo.io/getting-started/installing/).
 
 ### Build and Install the Binaries from Source (Advanced Install)
 
