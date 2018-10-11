@@ -43,7 +43,13 @@ func TestAppend(t *testing.T) {
 			tstSlicers{&tstSlicer{"a"},
 				&tstSlicer{"b"},
 				&tstSlicer{"c"}}},
+		{testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn1{"b"}},
+			[]interface{}{&tstSlicerIn1{"c"}},
+			testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn1{"b"}, &tstSlicerIn1{"c"}}},
 		// Errors
+		{testSlicerInterfaces{&tstSlicerIn1{"a"}, &tstSlicerIn1{"b"}},
+			[]interface{}{"c"},
+			false},
 		{"", []interface{}{[]string{"a", "b"}}, false},
 		// No string concatenation.
 		{"ab",

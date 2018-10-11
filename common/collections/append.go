@@ -59,7 +59,7 @@ func Append(to interface{}, from ...interface{}) (interface{}, error) {
 
 	for _, f := range from {
 		fv := reflect.ValueOf(f)
-		if tot != fv.Type() {
+		if !fv.Type().AssignableTo(tot) {
 			return nil, fmt.Errorf("append element type mismatch: expected %v, got %v", tot, fv.Type())
 		}
 		tov = reflect.Append(tov, fv)
