@@ -1,8 +1,8 @@
 
 ---
 date: 2018-10-11
-title: "0.49.2"
-description: "0.49.2"
+title: "Hugo 0.49.2: One Bug Fix"
+description: "Fixes a type issue in append and Scratch.Add"
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
