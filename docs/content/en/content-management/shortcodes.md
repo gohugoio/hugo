@@ -338,7 +338,7 @@ Using the preceding `vimeo` example, the following simulates the displayed exper
 
 ### `youtube`
 
-The `youtube` shortcode embeds a responsive video player for [YouTube videos][]. Only the ID of the video is required, e.g.:
+The `youtube` shortcode embeds a responsive video player for [YouTube videos][] and playlists. Only the ID of the video or playlist is required, e.g.:
 
 ```
 https://www.youtube.com/watch?v=w7Ft2ymGmfc
@@ -373,6 +373,12 @@ Using the preceding `youtube` example, the following HTML will be added to your 
 Using the preceding `youtube` example (without `autoplay="true"`), the following simulates the displayed experience for visitors to your website. Naturally, the final display will be contingent on your stylesheets and surrounding markup. The video is also include in the [Quick Start of the Hugo documentation][quickstart].
 
 {{< youtube w7Ft2ymGmfc >}}
+
+#### Example `youtube` playlist
+
+For playlists use the playlist ID from the URL, which begins with "PL".
+
+{{< youtube PLLAZ4kZ9dFpOnyRlyS-liKL5ReHDcj4G3 >}}
 
 ## Privacy Config
 
