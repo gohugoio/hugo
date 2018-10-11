@@ -42,7 +42,12 @@ parts:
       export GO111MODULE=on
       mage -v test
 
-      echo " * Building hugo (build tag: none)..."
+      echo " * SNAPCRAFT_IMAGE_INFO=$SNAPCRAFT_IMAGE_INFO"
+      # Example: SNAPCRAFT_IMAGE_INFO='{"build_url": "https://launchpad.net/~gohugoio/+snap/hugo-extended-dev/+build/344022"}'
+      if echo $SNAPCRAFT_IMAGE_INFO | grep -q '/+snap/hugo-extended'; then
+          export HUGO_BUILD_TAGS="extended"
+      fi
+      echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
       [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage -v hugoNoGitInfo || mage -v hugo
       ./hugo version
       ldd hugo || :
