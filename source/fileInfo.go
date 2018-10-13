@@ -191,11 +191,11 @@ func (fi *FileInfo) init() {
 		}
 		fi.section = section
 
-		var contentBaseName = fi.translationBaseName
 		if fi.isLeafBundle && len(parts) > 0 {
-			contentBaseName = parts[len(parts)-1]
+			fi.contentBaseName = parts[len(parts)-1]
+		} else {
+			fi.contentBaseName = fi.translationBaseName
 		}
-		fi.contentBaseName = contentBaseName
 
 		fi.uniqueID = helpers.MD5String(filepath.ToSlash(fi.relPath))
 	})
