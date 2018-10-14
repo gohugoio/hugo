@@ -59,6 +59,9 @@ There are a few predefined variables that Hugo is aware of. See [Page Variables]
 aliases
 : an array of one or more aliases (e.g., old published paths of renamed content) that will be created in the output directory structure . See [Aliases][aliases] for details.
 
+audio
+: an array of paths to audio files related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:audio`.
+
 date
 : the datetime at which the content was created; note this value is auto-populated according to Hugo's built-in [archetype][].
 
@@ -73,6 +76,9 @@ expiryDate
 
 headless
 : if `true`, sets a leaf bundle to be [headless][headless-bundle].
+
+images
+: an array of paths to images related to the page; used by [internal templates](/templates/internal) such as `_internal/twitter_cards.html`.
 
 isCJKLanguage
 : if `true`, Hugo will explicitly treat the content as a CJK language; both `.Summary` and `.WordCount` work properly in CJK languages.
@@ -101,6 +107,9 @@ publishDate
 resources
 : used for configuring page bundle resources. See [Page Resources][page-resources].
 
+series
+: an array of series this page belongs to, as a subset of the `series` [taxonomy](/content-management/taxonomies/); used by the `opengraph` [internal template](/templates/internal) to populate `og:see_also`.
+
 slug
 : appears as the tail of the output URL. A value specified in front matter will override the segment of the URL based on the filename.
 
@@ -113,6 +122,9 @@ type
 url
 : the full path to the content from the web root. It makes no assumptions about the path of the content file. It also ignores any language prefixes of
 the multilingual feature.
+
+videos
+: an array of paths to videos related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:video`.
 
 weight
 : used for [ordering your content in lists][ordering]. Lower weight gets higher precedence. So content with lower weight will come first.
