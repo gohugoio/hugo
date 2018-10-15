@@ -121,7 +121,7 @@ For some convenient build and test targets, you also will want to install Mage:
 go get github.com/magefile/mage
 ```
 
-Now, to make a change to Hugos's source:
+Now, to make a change to Hugo's source:
 
 1. Create a new branch for your changes (the branch name is arbitrary):
 
@@ -159,7 +159,7 @@ Hugo uses [mage](https://github.com/magefile/mage) to sync vendor dependencies, 
 cd $HOME/go/src/github.com/gohugoio/hugo
 ```
 
-To build Hugo: 
+To build Hugo:
 
 ```bash
 mage hugo
@@ -189,4 +189,3 @@ mage -l
 ```bash
 HUGO_BUILD_TAGS=extended mage install
 ````
-
