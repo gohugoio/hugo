@@ -16,6 +16,9 @@ matrix:
   allow_failures:
     - go: tip
   fast_finish: true
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install mingw -y; fi
+
 install:
   - mkdir -p $HOME/src
   - mv $HOME/gopath/src/github.com/gohugoio/hugo $HOME/src
