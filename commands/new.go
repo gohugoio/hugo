@@ -83,7 +83,6 @@ func (n *newCmd) newContent(cmd *cobra.Command, args []string) error {
 		return newUserError("path needs to be provided")
 	}
 
-
 	createPath := args[0]
 
 	var kind string
