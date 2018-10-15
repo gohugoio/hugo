@@ -839,6 +839,9 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 		if istemp {
 			continue
 		}
+		if c.hugo.Deps.SourceSpec.IgnoreFile(ev.Name) {
+			continue
+		}
 		// Sometimes during rm -rf operations a '"": REMOVE' is triggered. Just ignore these
 		if ev.Name == "" {
 			continue
