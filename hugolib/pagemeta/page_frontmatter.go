@@ -47,7 +47,8 @@ type FrontMatterDescriptor struct {
 	// This the Page's front matter.
 	Frontmatter map[string]interface{}
 
-	// This is the Page's base filename, e.g. page.md.
+	// This is the Page's base filename (BaseFilename), e.g. page.md., or
+	// if page is a leaf bundle, the bundle folder name (ContentBaseName).
 	BaseFilename string
 
 	// The content file's mod time.

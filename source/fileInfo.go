@@ -70,6 +70,10 @@ type File interface {
 	// not even the optional language extension part.
 	TranslationBaseName() string
 
+	// ContentBaseName is a either TranslationBaseName or name of containing folder
+	// if file is a leaf bundle.
+	ContentBaseName() string
+
 	// UniqueID is the MD5 hash of the file's path and is for most practical applications,
 	// Hugo content files being one of them, considered to be unique.
 	UniqueID() string
@@ -106,6 +110,7 @@ type FileInfo struct {
 	relPath             string
 	baseName            string
 	translationBaseName string
+	contentBaseName     string
 	section             string
 	isLeafBundle        bool
 
@@ -144,6 +149,13 @@ func (fi *FileInfo) BaseFileName() string { return fi.baseName }
 // language segement (ie. "page").
 func (fi *FileInfo) TranslationBaseName() string { return fi.translationBaseName }
 
+// ContentBaseName is a either TranslationBaseName or name of containing folder
+// if file is a leaf bundle.
+func (fi *FileInfo) ContentBaseName() string {
+	fi.init()
+	return fi.contentBaseName
+}
+
 // Section returns a file's section.
 func (fi *FileInfo) Section() string {
 	fi.init()
@@ -177,11 +189,15 @@ func (fi *FileInfo) init() {
 		if (!fi.isLeafBundle && len(parts) == 1) || len(parts) > 1 {
 			section = parts[0]
 		}
-
 		fi.section = section
 
-		fi.uniqueID = helpers.MD5String(filepath.ToSlash(fi.relPath))
+		if fi.isLeafBundle && len(parts) > 0 {
+			fi.contentBaseName = parts[len(parts)-1]
+		} else {
+			fi.contentBaseName = fi.translationBaseName
+		}
 
+		fi.uniqueID = helpers.MD5String(filepath.ToSlash(fi.relPath))
 	})
 }
 

@@ -94,4 +94,17 @@ func TestFileInfoLanguage(t *testing.T) {
 
 	assert.Equal("sv", fiSv.Lang())
 	assert.Equal("en", fiEn.Lang())
+
+	// test contentBaseName implementation
+	fi := s.NewFileInfo("", "2018-10-01-contentbasename.md", false, nil)
+	assert.Equal("2018-10-01-contentbasename", fi.ContentBaseName())
+
+	fi = s.NewFileInfo("", "2018-10-01-contentbasename.en.md", false, nil)
+	assert.Equal("2018-10-01-contentbasename", fi.ContentBaseName())
+
+	fi = s.NewFileInfo("", filepath.Join("2018-10-01-contentbasename", "index.en.md"), true, nil)
+	assert.Equal("2018-10-01-contentbasename", fi.ContentBaseName())
+
+	fi = s.NewFileInfo("", filepath.Join("2018-10-01-contentbasename", "_index.en.md"), false, nil)
+	assert.Equal("_index", fi.ContentBaseName())
 }
