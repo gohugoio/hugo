@@ -4,7 +4,7 @@
 
 {{if .IsPage}}{{ $ISO8601 := "2006-01-02T15:04:05-07:00" }}{{ if not .PublishDate.IsZero }}
 <meta itemprop="datePublished" content="{{ .PublishDate.Format $ISO8601 | safeHTML }}" />{{ end }}
-{{ if not .Date.IsZero }}<meta itemprop="dateModified" content="{{ .Date.Format $ISO8601 | safeHTML }}" />{{ end }}
+{{ if not .Lastmod.IsZero }}<meta itemprop="dateModified" content="{{ .Lastmod.Format $ISO8601 | safeHTML }}" />{{ end }}
 <meta itemprop="wordCount" content="{{ .WordCount }}">
 {{ with .Params.images }}{{ range first 6 . }}
   <meta itemprop="image" content="{{ . | absURL }}">
