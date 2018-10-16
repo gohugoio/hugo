@@ -97,6 +97,7 @@ func (n *newSiteCmd) doNewSite(fs *hugofs.Fs, basepath string, force bool) error
 	}
 
 	createConfig(fs, basepath, n.configFormat)
+	createGitignore(fs, basepath)
 
 	// Create a default archetype file.
 	helpers.SafeWriteToDisk(filepath.Join(archeTypePath, "default.md"),
@@ -139,6 +140,14 @@ func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {
 	}
 
 	return helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), &buf, fs.Source)
+}
+
+func createGitignore(fs *hugofs.Fs, inpath string) (err error) {
+	var gitignore bytes.Buffer
+
+	gitignore.WriteString("public/")
+
+	return helpers.WriteToDisk(filepath.Join(inpath, ".gitignore"), &gitignore, fs.Source)
 }
 
 func nextStepsText() string {
