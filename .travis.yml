@@ -16,8 +16,6 @@ matrix:
   allow_failures:
     - go: tip
   fast_finish: true
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install mingw -y; fi
 
 install:
   - mkdir -p $HOME/src
@@ -26,12 +24,17 @@ install:
   - cd $HOME/src/hugo
   - go get github.com/magefile/mage
 script:
-- go mod download
-- mage -v test
-- mage -v check
-- mage -v hugo
-- ./hugo -s docs/
-- ./hugo --renderToMemory -s docs/
+  - go mod download
+  - mage -v test
+  - mage -v check
+  - mage -v hugo
+  - ./hugo -s docs/
+  - ./hugo --renderToMemory -s docs/
+  - df -h
+
 before_install:
+  - df -h
+    # https://travis-ci.community/t/go-cant-find-gcc-with-go1-11-1-on-windows/293/5
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install mingw -y; export PATH=/c/tools/mingw64/bin:"$PATH"; fi
   - gem install asciidoctor
   - type asciidoctor
