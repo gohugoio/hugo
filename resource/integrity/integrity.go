@@ -96,7 +96,7 @@ func (c *Client) Fingerprint(res resource.Resource, algo string) (resource.Resou
 
 func integrity(algo string, sum []byte) template.HTMLAttr {
 	encoded := base64.StdEncoding.EncodeToString(sum)
-	return template.HTMLAttr(fmt.Sprintf("%s-%s", algo, encoded))
+	return template.HTMLAttr(algo + "-" + encoded)
 }
 
 func digest(h hash.Hash) ([]byte, error) {
