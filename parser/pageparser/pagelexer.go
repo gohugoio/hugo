@@ -44,13 +44,15 @@ type lexerShortcodeState struct {
 }
 
 type pageLexer struct {
-	name    string
-	input   string
-	state   stateFunc
-	pos     pos // input position
-	start   pos // item start position
-	width   pos // width of last element
-	lastPos pos // position of the last item returned by nextItem
+	input      string
+	stateStart stateFunc
+	state      stateFunc
+	pos        pos // input position
+	start      pos // item start position
+	width      pos // width of last element
+	lastPos    pos // position of the last item returned by nextItem
+
+	contentSections int
 
 	lexerShortcodeState
 
@@ -63,18 +65,18 @@ func Parse(s string) *Tokens {
 }
 
 func ParseFrom(s string, from int) *Tokens {
-	lexer := newPageLexer("default", s, pos(from))
+	lexer := newPageLexer(s, pos(from), lexMainSection) // TODO(bep) 2errors
 	lexer.run()
 	return &Tokens{lexer: lexer}
 }
 
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
-func newPageLexer(name, input string, inputPosition pos) *pageLexer {
+func newPageLexer(input string, inputPosition pos, stateStart stateFunc) *pageLexer {
 	lexer := &pageLexer{
-		name:  name,
-		input: input,
-		pos:   inputPosition,
+		input:      input,
+		pos:        inputPosition,
+		stateStart: stateStart,
 		lexerShortcodeState: lexerShortcodeState{
 			currLeftDelimItem:  tLeftDelimScNoMarkup,
 			currRightDelimItem: tRightDelimScNoMarkup,
@@ -88,14 +90,13 @@ func newPageLexer(name, input string, inputPosition pos) *pageLexer {
 
 // main loop
 func (l *pageLexer) run() *pageLexer {
-	for l.state = lexTextOutsideShortcodes; l.state != nil; {
+	for l.state = l.stateStart; l.state != nil; {
 		l.state = l.state(l)
 	}
 	return l
 }
 
-// state functions
-
+// Shortcode syntax
 const (
 	leftDelimScNoMarkup    = "{{<"
 	rightDelimScNoMarkup   = ">}}"
@@ -103,6 +104,12 @@ const (
 	rightDelimScWithMarkup = "%}}"
 	leftComment            = "/*" // comments in this context us used to to mark shortcodes as "not really a shortcode"
 	rightComment           = "*/"
+)
+
+// Page syntax
+const (
+	summaryDivider    = "<!--more-->"
+	summaryDividerOrg = "# more"
 )
 
 func (l *pageLexer) next() rune {
@@ -178,11 +185,21 @@ func (l *pageLexer) nextItem() Item {
 	return item
 }
 
-// scans until an opening shortcode opening bracket.
-// if no shortcodes, it will keep on scanning until EOF
-func lexTextOutsideShortcodes(l *pageLexer) stateFunc {
+func (l *pageLexer) consumeCRLF() bool {
+	var consumed bool
+	for _, r := range crLf {
+		if l.next() != r {
+			l.backup()
+		} else {
+			consumed = true
+		}
+	}
+	return consumed
+}
+
+func lexMainSection(l *pageLexer) stateFunc {
 	for {
-		if strings.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) || strings.HasPrefix(l.input[l.pos:], leftDelimScNoMarkup) {
+		if l.isShortCodeStart() {
 			if l.pos > l.start {
 				l.emit(tText)
 			}
@@ -194,18 +211,201 @@ func lexTextOutsideShortcodes(l *pageLexer) stateFunc {
 				l.currRightDelimItem = tRightDelimScNoMarkup
 			}
 			return lexShortcodeLeftDelim
-
 		}
-		if l.next() == eof {
+
+		if l.contentSections <= 1 {
+			if strings.HasPrefix(l.input[l.pos:], summaryDivider) {
+				if l.pos > l.start {
+					l.emit(tText)
+				}
+				l.contentSections++
+				l.pos += pos(len(summaryDivider))
+				l.emit(tSummaryDivider)
+			} else if strings.HasPrefix(l.input[l.pos:], summaryDividerOrg) {
+				if l.pos > l.start {
+					l.emit(tText)
+				}
+				l.contentSections++
+				l.pos += pos(len(summaryDividerOrg))
+				l.emit(tSummaryDividerOrg)
+			}
+		}
+
+		r := l.next()
+		if r == eof {
 			break
 		}
+
 	}
+
+	return lexDone
+
+}
+
+func (l *pageLexer) isShortCodeStart() bool {
+	return strings.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) || strings.HasPrefix(l.input[l.pos:], leftDelimScNoMarkup)
+}
+
+func lexIntroSection(l *pageLexer) stateFunc {
+LOOP:
+	for {
+		r := l.next()
+		if r == eof {
+			break
+		}
+
+		switch {
+		case r == '+':
+			return l.lexFrontMatterSection(tFrontMatterTOML, r, "TOML", "+++")
+		case r == '-':
+			return l.lexFrontMatterSection(tFrontMatterYAML, r, "YAML", "---")
+		case r == '{':
+			return lexFrontMatterJSON
+		case r == '#':
+			return lexFrontMatterOrgMode
+		case !isSpace(r) && !isEndOfLine(r):
+			if r == '<' {
+				l.emit(tHTMLLead)
+				// Not need to look further. Hugo treats this as plain HTML,
+				// no front matter, no shortcodes, no nothing.
+				l.pos = pos(len(l.input))
+				l.emit(tText)
+				break LOOP
+			}
+			return l.errorf("failed to detect front matter type; got unknown identifier %q", r)
+		}
+	}
+
+	l.contentSections = 1
+
+	// Now move on to the shortcodes.
+	return lexMainSection
+}
+
+func lexDone(l *pageLexer) stateFunc {
+
 	// Done!
 	if l.pos > l.start {
 		l.emit(tText)
 	}
 	l.emit(tEOF)
 	return nil
+}
+
+func lexFrontMatterJSON(l *pageLexer) stateFunc {
+	// Include the left delimiter
+	l.backup()
+
+	var (
+		inQuote bool
+		level   int
+	)
+
+	for {
+
+		r := l.next()
+
+		switch {
+		case r == eof:
+			return l.errorf("unexpected EOF parsing JSON front matter")
+		case r == '{':
+			if !inQuote {
+				level++
+			}
+		case r == '}':
+			if !inQuote {
+				level--
+			}
+		case r == '"':
+			inQuote = !inQuote
+		case r == '\\':
+			// This may be an escaped quote. Make sure it's not marked as a
+			// real one.
+			l.next()
+		}
+
+		if level == 0 {
+			break
+		}
+	}
+
+	l.consumeCRLF()
+	l.emit(tFrontMatterJSON)
+
+	return lexMainSection
+}
+
+func lexFrontMatterOrgMode(l *pageLexer) stateFunc {
+	/*
+		#+TITLE: Test File For chaseadamsio/goorgeous
+		#+AUTHOR: Chase Adams
+		#+DESCRIPTION: Just another golang parser for org content!
+	*/
+
+	const prefix = "#+"
+
+	l.backup()
+
+	if !strings.HasPrefix(l.input[l.pos:], prefix) {
+		// TODO(bep) consider error
+		return lexMainSection
+	}
+
+	// Read lines until we no longer see a #+ prefix
+LOOP:
+	for {
+
+		r := l.next()
+
+		switch {
+		case r == '\n':
+			if !strings.HasPrefix(l.input[l.pos:], prefix) {
+				break LOOP
+			}
+		case r == eof:
+			break LOOP
+
+		}
+	}
+
+	l.emit(tFrontMatterORG)
+
+	return lexMainSection
+
+}
+
+// Handle YAML or TOML front matter.
+func (l *pageLexer) lexFrontMatterSection(tp itemType, delimr rune, name, delim string) stateFunc {
+	for i := 0; i < 2; i++ {
+		if r := l.next(); r != delimr {
+			return l.errorf("invalid %s delimiter", name)
+		}
+	}
+
+	if !l.consumeCRLF() {
+		return l.errorf("invalid %s delimiter", name)
+	}
+
+	// We don't care about the delimiters.
+	l.ignore()
+
+	for {
+		r := l.next()
+		if r == eof {
+			return l.errorf("EOF looking for end %s front matter delimiter", name)
+		}
+		if isEndOfLine(r) {
+			if strings.HasPrefix(l.input[l.pos:], delim) {
+				l.emit(tp)
+				l.pos += 3
+				l.consumeCRLF()
+				l.ignore()
+				break
+			}
+		}
+	}
+
+	return lexMainSection
 }
 
 func lexShortcodeLeftDelim(l *pageLexer) stateFunc {
@@ -234,14 +434,14 @@ func lexShortcodeComment(l *pageLexer) stateFunc {
 	l.ignore()
 	l.pos += pos(len(l.currentRightShortcodeDelim()))
 	l.emit(tText)
-	return lexTextOutsideShortcodes
+	return lexMainSection
 }
 
 func lexShortcodeRightDelim(l *pageLexer) stateFunc {
 	l.closingState = 0
 	l.pos += pos(len(l.currentRightShortcodeDelim()))
 	l.emit(l.currentRightShortcodeDelimItem())
-	return lexTextOutsideShortcodes
+	return lexMainSection
 }
 
 // either:
@@ -484,6 +684,8 @@ func isAlphaNumericOrHyphen(r rune) bool {
 	// let unquoted YouTube ids as positional params slip through (they contain hyphens)
 	return isAlphaNumeric(r) || r == '-'
 }
+
+var crLf = []rune{'\r', '\n'}
 
 func isEndOfLine(r rune) bool {
 	return r == '\r' || r == '\n'

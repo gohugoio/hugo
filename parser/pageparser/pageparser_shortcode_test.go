@@ -13,15 +13,7 @@
 
 package pageparser
 
-import (
-	"testing"
-)
-
-type shortCodeLexerTest struct {
-	name  string
-	input string
-	items []Item
-}
+import "testing"
 
 var (
 	tstEOF       = Item{tEOF, 0, ""}
@@ -39,7 +31,7 @@ var (
 	tstVal       = Item{tScParamVal, 0, "Hello World"}
 )
 
-var shortCodeLexerTests = []shortCodeLexerTest{
+var shortCodeLexerTests = []lexerTest{
 	{"empty", "", []Item{tstEOF}},
 	{"spaces", " \t\n", []Item{{tText, 0, " \t\n"}, tstEOF}},
 	{"text", `to be or not`, []Item{{tText, 0, "to be or not"}, tstEOF}},
@@ -159,7 +151,7 @@ var shortCodeLexerTests = []shortCodeLexerTest{
 func TestShortcodeLexer(t *testing.T) {
 	t.Parallel()
 	for i, test := range shortCodeLexerTests {
-		items := collect(&test)
+		items := collect(test.name, test.input, true, lexMainSection)
 		if !equal(items, test.items) {
 			t.Errorf("[%d] %s: got\n\t%v\nexpected\n\t%v", i, test.name, items, test.items)
 		}
@@ -170,38 +162,10 @@ func BenchmarkShortcodeLexer(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for _, test := range shortCodeLexerTests {
-			items := collect(&test)
+			items := collect(test.name, test.input, true, lexMainSection)
 			if !equal(items, test.items) {
 				b.Errorf("%s: got\n\t%v\nexpected\n\t%v", test.name, items, test.items)
 			}
 		}
 	}
-}
-
-func collect(t *shortCodeLexerTest) (items []Item) {
-	l := newPageLexer(t.name, t.input, 0).run()
-	for {
-		item := l.nextItem()
-		items = append(items, item)
-		if item.typ == tEOF || item.typ == tError {
-			break
-		}
-	}
-	return
-}
-
-// no positional checking, for now ...
-func equal(i1, i2 []Item) bool {
-	if len(i1) != len(i2) {
-		return false
-	}
-	for k := range i1 {
-		if i1[k].typ != i2[k].typ {
-			return false
-		}
-		if i1[k].Val != i2[k].Val {
-			return false
-		}
-	}
-	return true
 }

@@ -73,10 +73,10 @@ func (i Item) String() string {
 		return i.Val
 	case i.typ > tKeywordMarker:
 		return fmt.Sprintf("<%s>", i.Val)
-	case len(i.Val) > 20:
-		return fmt.Sprintf("%.20q...", i.Val)
+	case len(i.Val) > 50:
+		return fmt.Sprintf("%v:%.20q...", i.typ, i.Val)
 	}
-	return fmt.Sprintf("[%s]", i.Val)
+	return fmt.Sprintf("%v:[%s]", i.typ, i.Val)
 }
 
 type itemType int
@@ -84,6 +84,15 @@ type itemType int
 const (
 	tError itemType = iota
 	tEOF
+
+	// page items
+	tHTMLLead          // <
+	tSummaryDivider    // <!--more-->
+	tSummaryDividerOrg // # more
+	tFrontMatterYAML
+	tFrontMatterTOML
+	tFrontMatterJSON
+	tFrontMatterORG
 
 	// shortcode items
 	tLeftDelimScNoMarkup
@@ -95,8 +104,7 @@ const (
 	tScParam
 	tScParamVal
 
-	//itemIdentifier
-	tText // plain text, used for everything outside the shortcodes
+	tText // plain text
 
 	// preserved for later - keywords come after this
 	tKeywordMarker
