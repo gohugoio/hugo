@@ -109,6 +109,18 @@ func TestSiteBuildErrors(t *testing.T) {
 					a.assertLineNumber(2, err)
 				},
 			},*/
+
+		{
+			name:     "Panic in template Execute",
+			fileType: single,
+			fileFixer: func(content string) string {
+				return strings.Replace(content, ".Title", ".Parent.Parent.Parent", 1)
+			},
+			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
+				assert.Error(err)
+				assert.Contains(err.Error(), "layouts/_default/single.html")
+			},
+		},
 	}
 
 	for _, test := range tests {

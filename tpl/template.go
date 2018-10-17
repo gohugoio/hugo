@@ -115,8 +115,9 @@ func extractBaseOf(err string) string {
 func (t *TemplateAdapter) Execute(w io.Writer, data interface{}) (execErr error) {
 	defer func() {
 		// Panics in templates are a little bit too common (nil pointers etc.)
+		// See https://github.com/gohugoio/hugo/issues/5327
 		if r := recover(); r != nil {
-			execErr = t.addFileContext(t.Name(), fmt.Errorf("panic in Execute: %s", r))
+			execErr = t.addFileContext(t.Name(), fmt.Errorf(`panic in Execute: %s. See "https://github.com/gohugoio/hugo/issues/5327" for the reason why we cannot provide a better error message for this.`, r))
 		}
 	}()
 
@@ -152,7 +153,7 @@ func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
 
 	master, hasMaster := t.NameBaseTemplateName[name]
 
-	ferr := errors.Wrapf(inerr, "execute of template %q failed", realFilename)
+	ferr1 := errors.Wrapf(inerr, "execute of template %q failed", realFilename)
 
 	// Since this can be a composite of multiple template files (single.html + baseof.html etc.)
 	// we potentially need to look in both -- and cannot rely on line number alone.
@@ -175,7 +176,7 @@ func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
 	}
 
 	// TODO(bep) 2errors text vs HTML
-	fe, ok := herrors.WithFileContext(ferr, f, "go-html-template", lineMatcher)
+	fe, ok := herrors.WithFileContext(ferr1, f, "go-html-template", lineMatcher)
 	if ok || !hasMaster {
 		return fe
 	}
@@ -187,8 +188,14 @@ func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
 	}
 	defer f.Close()
 
-	ferr = errors.Wrapf(inerr, "execute of template %q failed", realFilename)
-	fe, _ = herrors.WithFileContext(ferr, f, "go-html-template", lineMatcher)
+	ferr2 := errors.Wrapf(inerr, "execute of template %q failed", realFilename)
+	fe, ok = herrors.WithFileContext(ferr2, f, "go-html-template", lineMatcher)
+
+	if !ok {
+		// Return the most specific.
+		return ferr1
+
+	}
 	return fe
 
 }
