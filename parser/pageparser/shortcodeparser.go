@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package pageparser
 
 import (
 	"fmt"
@@ -26,13 +26,13 @@ import (
 
 // parsing
 
-type pageTokens struct {
+type Tokens struct {
 	lexer     *pagelexer
-	token     [3]item // 3-item look-ahead is what we currently need
+	token     [3]Item // 3-item look-ahead is what we currently need
 	peekCount int
 }
 
-func (t *pageTokens) next() item {
+func (t *Tokens) Next() Item {
 	if t.peekCount > 0 {
 		t.peekCount--
 	} else {
@@ -42,32 +42,32 @@ func (t *pageTokens) next() item {
 }
 
 // backs up one token.
-func (t *pageTokens) backup() {
+func (t *Tokens) Backup() {
 	t.peekCount++
 }
 
 // backs up two tokens.
-func (t *pageTokens) backup2(t1 item) {
+func (t *Tokens) Backup2(t1 Item) {
 	t.token[1] = t1
 	t.peekCount = 2
 }
 
 // backs up three tokens.
-func (t *pageTokens) backup3(t2, t1 item) {
+func (t *Tokens) Backup3(t2, t1 Item) {
 	t.token[1] = t1
 	t.token[2] = t2
 	t.peekCount = 3
 }
 
 // check for non-error and non-EOF types coming next
-func (t *pageTokens) isValueNext() bool {
-	i := t.peek()
+func (t *Tokens) IsValueNext() bool {
+	i := t.Peek()
 	return i.typ != tError && i.typ != tEOF
 }
 
 // look at, but do not consume, the next item
 // repeated, sequential calls will return the same item
-func (t *pageTokens) peek() item {
+func (t *Tokens) Peek() Item {
 	if t.peekCount > 0 {
 		return t.token[t.peekCount-1]
 	}
@@ -76,15 +76,21 @@ func (t *pageTokens) peek() item {
 	return t.token[0]
 }
 
-// convencience method to consume the next n tokens, but back off Errors and EOF
-func (t *pageTokens) consume(cnt int) {
+// Consume is a convencience method to consume the next n tokens,
+// but back off Errors and EOF.
+func (t *Tokens) Consume(cnt int) {
 	for i := 0; i < cnt; i++ {
-		token := t.next()
+		token := t.Next()
 		if token.typ == tError || token.typ == tEOF {
-			t.backup()
+			t.Backup()
 			break
 		}
 	}
+}
+
+// LineNumber returns the current line number. Used for logging.
+func (t *Tokens) LineNumber() int {
+	return t.lexer.lineNum()
 }
 
 // lexical scanning
@@ -92,24 +98,68 @@ func (t *pageTokens) consume(cnt int) {
 // position (in bytes)
 type pos int
 
-type item struct {
+type Item struct {
 	typ itemType
 	pos pos
-	val string
+	Val string
 }
 
-func (i item) String() string {
+func (i Item) IsText() bool {
+	return i.typ == tText
+}
+
+func (i Item) IsShortcodeName() bool {
+	return i.typ == tScName
+}
+
+func (i Item) IsLeftShortcodeDelim() bool {
+	return i.typ == tLeftDelimScWithMarkup || i.typ == tLeftDelimScNoMarkup
+}
+
+func (i Item) IsRightShortcodeDelim() bool {
+	return i.typ == tRightDelimScWithMarkup || i.typ == tRightDelimScNoMarkup
+}
+
+func (i Item) IsShortcodeClose() bool {
+	return i.typ == tScClose
+}
+
+func (i Item) IsShortcodeParam() bool {
+	return i.typ == tScParam
+}
+
+func (i Item) IsShortcodeParamVal() bool {
+	return i.typ == tScParamVal
+}
+
+func (i Item) IsShortcodeMarkupDelimiter() bool {
+	return i.typ == tLeftDelimScWithMarkup || i.typ == tRightDelimScWithMarkup
+}
+
+func (i Item) IsDone() bool {
+	return i.typ == tError || i.typ == tEOF
+}
+
+func (i Item) IsEOF() bool {
+	return i.typ == tEOF
+}
+
+func (i Item) IsError() bool {
+	return i.typ == tError
+}
+
+func (i Item) String() string {
 	switch {
 	case i.typ == tEOF:
 		return "EOF"
 	case i.typ == tError:
-		return i.val
+		return i.Val
 	case i.typ > tKeywordMarker:
-		return fmt.Sprintf("<%s>", i.val)
-	case len(i.val) > 20:
-		return fmt.Sprintf("%.20q...", i.val)
+		return fmt.Sprintf("<%s>", i.Val)
+	case len(i.Val) > 20:
+		return fmt.Sprintf("%.20q...", i.Val)
 	}
-	return fmt.Sprintf("[%s]", i.val)
+	return fmt.Sprintf("[%s]", i.Val)
 }
 
 type itemType int
@@ -159,7 +209,15 @@ type pagelexer struct {
 	openShortcodes     map[string]bool // set of shortcodes in open state
 
 	// items delivered to client
-	items []item
+	items []Item
+}
+
+func Parse(s string) *Tokens {
+	return ParseFrom(s, 0)
+}
+
+func ParseFrom(s string, from int) *Tokens {
+	return &Tokens{lexer: newShortcodeLexer("default", s, pos(from))}
 }
 
 // note: the input position here is normally 0 (start), but
@@ -172,7 +230,7 @@ func newShortcodeLexer(name, input string, inputPosition pos) *pagelexer {
 		currRightDelimItem: tRightDelimScNoMarkup,
 		pos:                inputPosition,
 		openShortcodes:     make(map[string]bool),
-		items:              make([]item, 0, 5),
+		items:              make([]Item, 0, 5),
 	}
 	lexer.runShortcodeLexer()
 	return lexer
@@ -225,7 +283,7 @@ func (l *pagelexer) backup() {
 
 // sends an item back to the client.
 func (l *pagelexer) emit(t itemType) {
-	l.items = append(l.items, item{t, l.start, l.input[l.start:l.pos]})
+	l.items = append(l.items, Item{t, l.start, l.input[l.start:l.pos]})
 	l.start = l.pos
 }
 
@@ -237,7 +295,7 @@ func (l *pagelexer) ignoreEscapesAndEmit(t itemType) {
 		}
 		return r
 	}, l.input[l.start:l.pos])
-	l.items = append(l.items, item{t, l.start, val})
+	l.items = append(l.items, Item{t, l.start, val})
 	l.start = l.pos
 }
 
@@ -258,12 +316,12 @@ func (l *pagelexer) lineNum() int {
 
 // nil terminates the parser
 func (l *pagelexer) errorf(format string, args ...interface{}) stateFunc {
-	l.items = append(l.items, item{tError, l.start, fmt.Sprintf(format, args...)})
+	l.items = append(l.items, Item{tError, l.start, fmt.Sprintf(format, args...)})
 	return nil
 }
 
 // consumes and returns the next item
-func (l *pagelexer) nextItem() item {
+func (l *pagelexer) nextItem() Item {
 	item := l.items[0]
 	l.items = l.items[1:]
 	l.lastPos = item.pos

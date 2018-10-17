@@ -22,6 +22,8 @@ import (
 	"regexp"
 	"sort"
 
+	"github.com/gohugoio/hugo/parser/pageparser"
+
 	_errors "github.com/pkg/errors"
 
 	"strings"
@@ -478,18 +480,18 @@ var errShortCodeIllegalState = errors.New("Illegal shortcode state")
 // pageTokens state:
 // - before: positioned just before the shortcode start
 // - after: shortcode(s) consumed (plural when they are nested)
-func (s *shortcodeHandler) extractShortcode(ordinal int, pt *pageTokens, p *PageWithoutContent) (*shortcode, error) {
+func (s *shortcodeHandler) extractShortcode(ordinal int, pt *pageparser.Tokens, p *PageWithoutContent) (*shortcode, error) {
 	sc := &shortcode{ordinal: ordinal}
 	var isInner = false
 
-	var currItem item
 	var cnt = 0
 	var nestedOrdinal = 0
 
 	// TODO(bep) 2errors revisit after https://github.com/gohugoio/hugo/issues/5324
-	msgf := func(i item, format string, args ...interface{}) string {
+	msgf := func(i pageparser.Item, format string, args ...interface{}) string {
 		format = format + ":%d:"
-		c1 := strings.Count(pt.lexer.input[:i.pos], "\n") + 1
+		// TODO(bep) 2errors
+		c1 := 32 // strings.Count(pt.lexer.input[:i.pos], "\n") + 1
 		c2 := bytes.Count(p.frontmatter, []byte{'\n'})
 		args = append(args, c1+c2)
 		return fmt.Sprintf(format, args...)
@@ -498,18 +500,17 @@ func (s *shortcodeHandler) extractShortcode(ordinal int, pt *pageTokens, p *Page
 
 Loop:
 	for {
-		currItem = pt.next()
-
-		switch currItem.typ {
-		case tLeftDelimScWithMarkup, tLeftDelimScNoMarkup:
-			next := pt.peek()
-			if next.typ == tScClose {
+		currItem := pt.Next()
+		switch {
+		case currItem.IsLeftShortcodeDelim():
+			next := pt.Peek()
+			if next.IsShortcodeClose() {
 				continue
 			}
 
 			if cnt > 0 {
 				// nested shortcode; append it to inner content
-				pt.backup3(currItem, next)
+				pt.Backup3(currItem, next)
 				nested, err := s.extractShortcode(nestedOrdinal, pt, p)
 				nestedOrdinal++
 				if nested.name != "" {
@@ -522,39 +523,39 @@ Loop:
 				}
 
 			} else {
-				sc.doMarkup = currItem.typ == tLeftDelimScWithMarkup
+				sc.doMarkup = currItem.IsShortcodeMarkupDelimiter()
 			}
 
 			cnt++
 
-		case tRightDelimScWithMarkup, tRightDelimScNoMarkup:
+		case currItem.IsRightShortcodeDelim():
 			// we trust the template on this:
 			// if there's no inner, we're done
 			if !isInner {
 				return sc, nil
 			}
 
-		case tScClose:
-			next := pt.peek()
+		case currItem.IsShortcodeClose():
+			next := pt.Peek()
 			if !isInner {
-				if next.typ == tError {
+				if next.IsError() {
 					// return that error, more specific
 					continue
 				}
-				return sc, errors.New(msgf(next, "shortcode %q has no .Inner, yet a closing tag was provided", next.val))
+				return sc, errors.New(msgf(next, "shortcode %q has no .Inner, yet a closing tag was provided", next.Val))
 			}
-			if next.typ == tRightDelimScWithMarkup || next.typ == tRightDelimScNoMarkup {
+			if next.IsRightShortcodeDelim() {
 				// self-closing
-				pt.consume(1)
+				pt.Consume(1)
 			} else {
-				pt.consume(2)
+				pt.Consume(2)
 			}
 
 			return sc, nil
-		case tText:
-			sc.inner = append(sc.inner, currItem.val)
-		case tScName:
-			sc.name = currItem.val
+		case currItem.IsText():
+			sc.inner = append(sc.inner, currItem.Val)
+		case currItem.IsShortcodeName():
+			sc.name = currItem.Val
 			// We pick the first template for an arbitrary output format
 			// if more than one. It is "all inner or no inner".
 			tmpl := getShortcodeTemplateForTemplateKey(scKey{}, sc.name, p.s.Tmpl)
@@ -568,18 +569,18 @@ Loop:
 				return sc, _errors.Wrap(err, msgf(currItem, "failed to handle template for shortcode %q", sc.name))
 			}
 
-		case tScParam:
-			if !pt.isValueNext() {
+		case currItem.IsShortcodeParam():
+			if !pt.IsValueNext() {
 				continue
-			} else if pt.peek().typ == tScParamVal {
+			} else if pt.Peek().IsShortcodeParamVal() {
 				// named params
 				if sc.params == nil {
 					params := make(map[string]string)
-					params[currItem.val] = pt.next().val
+					params[currItem.Val] = pt.Next().Val
 					sc.params = params
 				} else {
 					if params, ok := sc.params.(map[string]string); ok {
-						params[currItem.val] = pt.next().val
+						params[currItem.Val] = pt.Next().Val
 					} else {
 						return sc, errShortCodeIllegalState
 					}
@@ -589,11 +590,11 @@ Loop:
 				// positional params
 				if sc.params == nil {
 					var params []string
-					params = append(params, currItem.val)
+					params = append(params, currItem.Val)
 					sc.params = params
 				} else {
 					if params, ok := sc.params.([]string); ok {
-						params = append(params, currItem.val)
+						params = append(params, currItem.Val)
 						sc.params = params
 					} else {
 						return sc, errShortCodeIllegalState
@@ -602,9 +603,9 @@ Loop:
 				}
 			}
 
-		case tError, tEOF:
+		case currItem.IsDone():
 			// handled by caller
-			pt.backup()
+			pt.Backup()
 			break Loop
 
 		}
@@ -624,7 +625,7 @@ func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *PageWithou
 	// the parser takes a string;
 	// since this is an internal API, it could make sense to use the mutable []byte all the way, but
 	// it seems that the time isn't really spent in the byte copy operations, and the impl. gets a lot cleaner
-	pt := &pageTokens{lexer: newShortcodeLexer("parse-page", stringToParse, pos(startIdx))}
+	pt := pageparser.ParseFrom(stringToParse, startIdx)
 
 	result := bp.GetBuffer()
 	defer bp.PutBuffer(result)
@@ -632,20 +633,19 @@ func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *PageWithou
 
 	// the parser is guaranteed to return items in proper order or fail, so …
 	// … it's safe to keep some "global" state
-	var currItem item
 	var currShortcode shortcode
 	var ordinal int
 
 Loop:
 	for {
-		currItem = pt.next()
+		currItem := pt.Next()
 
-		switch currItem.typ {
-		case tText:
-			result.WriteString(currItem.val)
-		case tLeftDelimScWithMarkup, tLeftDelimScNoMarkup:
+		switch {
+		case currItem.IsText():
+			result.WriteString(currItem.Val)
+		case currItem.IsLeftShortcodeDelim():
 			// let extractShortcode handle left delim (will do so recursively)
-			pt.backup()
+			pt.Backup()
 
 			currShortcode, err := s.extractShortcode(ordinal, pt, p)
 
@@ -665,11 +665,11 @@ Loop:
 			result.WriteString(placeHolder)
 			ordinal++
 			s.shortcodes.Add(placeHolder, currShortcode)
-		case tEOF:
+		case currItem.IsEOF():
 			break Loop
-		case tError:
+		case currItem.IsError():
 			err := fmt.Errorf("%s:shortcode:%d: %s",
-				p.pathOrTitle(), (p.lineNumRawContentStart() + pt.lexer.lineNum() - 1), currItem)
+				p.pathOrTitle(), (p.lineNumRawContentStart() + pt.LineNumber() - 1), currItem)
 			currShortcode.err = err
 			return result.String(), err
 		}
