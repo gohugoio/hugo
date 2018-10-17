@@ -41,27 +41,29 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		conf.whatChanged = &whatChanged{source: true, other: true}
 	}
 
-	for _, s := range h.Sites {
-		s.Deps.BuildStartListeners.Notify()
-	}
+	if !config.PartialReRender {
+		for _, s := range h.Sites {
+			s.Deps.BuildStartListeners.Notify()
+		}
 
-	if len(events) > 0 {
-		// Rebuild
-		if err := h.initRebuild(conf); err != nil {
+		if len(events) > 0 {
+			// Rebuild
+			if err := h.initRebuild(conf); err != nil {
+				return err
+			}
+		} else {
+			if err := h.init(conf); err != nil {
+				return err
+			}
+		}
+
+		if err := h.process(conf, events...); err != nil {
 			return err
 		}
-	} else {
-		if err := h.init(conf); err != nil {
+
+		if err := h.assemble(conf); err != nil {
 			return err
 		}
-	}
-
-	if err := h.process(conf, events...); err != nil {
-		return err
-	}
-
-	if err := h.assemble(conf); err != nil {
-		return err
 	}
 
 	if err := h.render(conf); err != nil {
@@ -226,8 +228,10 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 }
 
 func (h *HugoSites) render(config *BuildCfg) error {
-	for _, s := range h.Sites {
-		s.initRenderFormats()
+	if !config.PartialReRender {
+		for _, s := range h.Sites {
+			s.initRenderFormats()
+		}
 	}
 
 	for _, s := range h.Sites {
@@ -240,15 +244,23 @@ func (h *HugoSites) render(config *BuildCfg) error {
 
 				isRenderingSite := s == s2
 
-				if err := s2.preparePagesForRender(isRenderingSite && i == 0); err != nil {
-					return err
+				if !config.PartialReRender {
+					if err := s2.preparePagesForRender(isRenderingSite && i == 0); err != nil {
+						return err
+					}
 				}
 
 			}
 
 			if !config.SkipRender {
-				if err := s.render(config, i); err != nil {
-					return err
+				if config.PartialReRender {
+					if err := s.renderPages(config); err != nil {
+						return err
+					}
+				} else {
+					if err := s.render(config, i); err != nil {
+						return err
+					}
 				}
 			}
 		}

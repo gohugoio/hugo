@@ -618,13 +618,20 @@ func (c *commandeer) buildSites() (err error) {
 	return c.hugo.Build(hugolib.BuildCfg{})
 }
 
+func (c *commandeer) handleBuildErr(err error, msg string) {
+	c.buildErr = err
+	c.logger.ERROR.Printf("%s: %s", msg, err)
+	if !c.h.quiet && c.h.verbose {
+		herrors.PrintStackTrace(err)
+	}
+}
+
 func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 	defer c.timeTrack(time.Now(), "Total")
 
 	c.buildErr = nil
 	visited := c.visitedURLs.PeekAllSet()
-	doLiveReload := !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload")
-	if doLiveReload && !c.Cfg.GetBool("disableFastRender") {
+	if c.fastRenderMode {
 
 		// Make sure we always render the home pages
 		for _, l := range c.languages {
@@ -638,6 +645,15 @@ func (c *commandeer) rebuildSites(events []fsnotify.Event) error {
 
 	}
 	return c.hugo.Build(hugolib.BuildCfg{RecentlyVisited: visited}, events...)
+}
+
+func (c *commandeer) partialReRender(urls ...string) error {
+	c.buildErr = nil
+	visited := make(map[string]bool)
+	for _, url := range urls {
+		visited[url] = true
+	}
+	return c.hugo.Build(hugolib.BuildCfg{RecentlyVisited: visited, PartialReRender: true})
 }
 
 func (c *commandeer) fullRebuild() {
@@ -907,15 +923,10 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 
 		c.changeDetector.PrepareNew()
 		if err := c.rebuildSites(dynamicEvents); err != nil {
-			c.buildErr = err
-			c.logger.ERROR.Printf("Rebuild failed: %s", err)
-			if !c.h.quiet && c.h.verbose {
-				herrors.PrintStackTrace(err)
-			}
+			c.handleBuildErr(err, "Rebuild failed")
 		}
 
 		if doLiveReload {
-
 			if len(partitionedEvents.ContentEvents) == 0 && len(partitionedEvents.AssetEvents) > 0 {
 				changed := c.changeDetector.changed()
 				if c.changeDetector != nil && len(changed) == 0 {

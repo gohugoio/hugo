@@ -36,6 +36,9 @@ func TestEvictingStringQueue(t *testing.T) {
 	queue.Add("a")
 	queue.Add("b")
 
+	assert.True(queue.Contains("a"))
+	assert.False(queue.Contains("foo"))
+
 	assert.Equal([]string{"b", "a"}, queue.PeekAll())
 	assert.Equal("b", queue.Peek())
 	queue.Add("c")

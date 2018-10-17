@@ -43,7 +43,7 @@ func (s *Site) renderPages(cfg *BuildCfg) error {
 		go pageRenderer(s, pages, results, wg)
 	}
 
-	if len(s.headlessPages) > 0 {
+	if !cfg.PartialReRender && len(s.headlessPages) > 0 {
 		wg.Add(1)
 		go headlessPagesPublisher(s, wg)
 	}

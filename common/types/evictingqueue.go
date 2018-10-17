@@ -52,6 +52,13 @@ func (q *EvictingStringQueue) Add(v string) {
 	q.mu.Unlock()
 }
 
+// Contains returns whether the queue contains v.
+func (q *EvictingStringQueue) Contains(v string) bool {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	return q.set[v]
+}
+
 // Peek looks at the last element added to the queue.
 func (q *EvictingStringQueue) Peek() string {
 	q.mu.Lock()
