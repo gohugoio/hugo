@@ -345,10 +345,22 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 				w.Header().Set("Pragma", "no-cache")
 			}
 
-			if f.c.fastRenderMode {
+			if f.c.fastRenderMode && f.c.buildErr == nil {
 				p := r.RequestURI
 				if strings.HasSuffix(p, "/") || strings.HasSuffix(p, "html") || strings.HasSuffix(p, "htm") {
+					if !f.c.visitedURLs.Contains(p) {
+						// If not already on stack, re-render that single page.
+						if err := f.c.partialReRender(p); err != nil {
+							f.c.handleBuildErr(err, fmt.Sprintf("Failed to render %q", p))
+							if f.c.showErrorInBrowser {
+								http.Redirect(w, r, p, 301)
+								return
+							}
+						}
+					}
+
 					f.c.visitedURLs.Add(p)
+
 				}
 			}
 			h.ServeHTTP(w, r)

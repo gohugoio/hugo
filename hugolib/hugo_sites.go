@@ -368,6 +368,11 @@ type BuildCfg struct {
 	SkipRender bool
 	// Use this to indicate what changed (for rebuilds).
 	whatChanged *whatChanged
+
+	// This is a partial re-render of some selected pages. This means
+	// we should skip most of the processing.
+	PartialReRender bool
+
 	// Recently visited URLs. This is used for partial re-rendering.
 	RecentlyVisited map[string]bool
 }

@@ -324,10 +324,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			fs.Destination = new(afero.MemMapFs)
 		}
 
-		doLiveReload := !c.h.buildWatch && !config.GetBool("disableLiveReload")
-		fastRenderMode := doLiveReload && !config.GetBool("disableFastRender")
-
-		if fastRenderMode {
+		if c.fastRenderMode {
 			// For now, fast render mode only. It should, however, be fast enough
 			// for the full variant, too.
 			changeDetector := &fileChangeDetector{
