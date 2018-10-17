@@ -118,7 +118,7 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				assert.Error(err)
-				assert.Contains(err.Error(), "layouts/_default/single.html")
+				assert.Contains(err.Error(), "single.html")
 			},
 		},
 	}
