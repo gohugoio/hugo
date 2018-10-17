@@ -11,6 +11,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package pageparser provides a parser for Hugo content files (Markdown, HTML etc.) in Hugo.
+// This implementation is highly inspired by the great talk given by Rob Pike called "Lexical Scanning in Go"
+// It's on YouTube, Google it!.
+// See slides here: http://cuddle.googlecode.com/hg/talk/lex.html
 package pageparser
 
 import (
@@ -20,177 +24,26 @@ import (
 	"unicode/utf8"
 )
 
-// The lexical scanning below is highly inspired by the great talk given by
-// Rob Pike called "Lexical Scanning in Go" (it's on YouTube, Google it!).
-// See slides here: http://cuddle.googlecode.com/hg/talk/lex.html
-
-// parsing
-
-type Tokens struct {
-	lexer     *pagelexer
-	token     [3]Item // 3-item look-ahead is what we currently need
-	peekCount int
-}
-
-func (t *Tokens) Next() Item {
-	if t.peekCount > 0 {
-		t.peekCount--
-	} else {
-		t.token[0] = t.lexer.nextItem()
-	}
-	return t.token[t.peekCount]
-}
-
-// backs up one token.
-func (t *Tokens) Backup() {
-	t.peekCount++
-}
-
-// backs up two tokens.
-func (t *Tokens) Backup2(t1 Item) {
-	t.token[1] = t1
-	t.peekCount = 2
-}
-
-// backs up three tokens.
-func (t *Tokens) Backup3(t2, t1 Item) {
-	t.token[1] = t1
-	t.token[2] = t2
-	t.peekCount = 3
-}
-
-// check for non-error and non-EOF types coming next
-func (t *Tokens) IsValueNext() bool {
-	i := t.Peek()
-	return i.typ != tError && i.typ != tEOF
-}
-
-// look at, but do not consume, the next item
-// repeated, sequential calls will return the same item
-func (t *Tokens) Peek() Item {
-	if t.peekCount > 0 {
-		return t.token[t.peekCount-1]
-	}
-	t.peekCount = 1
-	t.token[0] = t.lexer.nextItem()
-	return t.token[0]
-}
-
-// Consume is a convencience method to consume the next n tokens,
-// but back off Errors and EOF.
-func (t *Tokens) Consume(cnt int) {
-	for i := 0; i < cnt; i++ {
-		token := t.Next()
-		if token.typ == tError || token.typ == tEOF {
-			t.Backup()
-			break
-		}
-	}
-}
-
-// LineNumber returns the current line number. Used for logging.
-func (t *Tokens) LineNumber() int {
-	return t.lexer.lineNum()
-}
-
-// lexical scanning
-
 // position (in bytes)
 type pos int
-
-type Item struct {
-	typ itemType
-	pos pos
-	Val string
-}
-
-func (i Item) IsText() bool {
-	return i.typ == tText
-}
-
-func (i Item) IsShortcodeName() bool {
-	return i.typ == tScName
-}
-
-func (i Item) IsLeftShortcodeDelim() bool {
-	return i.typ == tLeftDelimScWithMarkup || i.typ == tLeftDelimScNoMarkup
-}
-
-func (i Item) IsRightShortcodeDelim() bool {
-	return i.typ == tRightDelimScWithMarkup || i.typ == tRightDelimScNoMarkup
-}
-
-func (i Item) IsShortcodeClose() bool {
-	return i.typ == tScClose
-}
-
-func (i Item) IsShortcodeParam() bool {
-	return i.typ == tScParam
-}
-
-func (i Item) IsShortcodeParamVal() bool {
-	return i.typ == tScParamVal
-}
-
-func (i Item) IsShortcodeMarkupDelimiter() bool {
-	return i.typ == tLeftDelimScWithMarkup || i.typ == tRightDelimScWithMarkup
-}
-
-func (i Item) IsDone() bool {
-	return i.typ == tError || i.typ == tEOF
-}
-
-func (i Item) IsEOF() bool {
-	return i.typ == tEOF
-}
-
-func (i Item) IsError() bool {
-	return i.typ == tError
-}
-
-func (i Item) String() string {
-	switch {
-	case i.typ == tEOF:
-		return "EOF"
-	case i.typ == tError:
-		return i.Val
-	case i.typ > tKeywordMarker:
-		return fmt.Sprintf("<%s>", i.Val)
-	case len(i.Val) > 20:
-		return fmt.Sprintf("%.20q...", i.Val)
-	}
-	return fmt.Sprintf("[%s]", i.Val)
-}
-
-type itemType int
-
-const (
-	tError itemType = iota
-	tEOF
-
-	// shortcode items
-	tLeftDelimScNoMarkup
-	tRightDelimScNoMarkup
-	tLeftDelimScWithMarkup
-	tRightDelimScWithMarkup
-	tScClose
-	tScName
-	tScParam
-	tScParamVal
-
-	//itemIdentifier
-	tText // plain text, used for everything outside the shortcodes
-
-	// preserved for later - keywords come after this
-	tKeywordMarker
-)
 
 const eof = -1
 
 // returns the next state in scanner.
-type stateFunc func(*pagelexer) stateFunc
+type stateFunc func(*pageLexer) stateFunc
 
-type pagelexer struct {
+type lexerShortcodeState struct {
+	currLeftDelimItem  itemType
+	currRightDelimItem itemType
+	currShortcodeName  string          // is only set when a shortcode is in opened state
+	closingState       int             // > 0 = on its way to be closed
+	elementStepNum     int             // step number in element
+	paramElements      int             // number of elements (name + value = 2) found first
+	openShortcodes     map[string]bool // set of shortcodes in open state
+
+}
+
+type pageLexer struct {
 	name    string
 	input   string
 	state   stateFunc
@@ -199,14 +52,7 @@ type pagelexer struct {
 	width   pos // width of last element
 	lastPos pos // position of the last item returned by nextItem
 
-	// shortcode state
-	currLeftDelimItem  itemType
-	currRightDelimItem itemType
-	currShortcodeName  string          // is only set when a shortcode is in opened state
-	closingState       int             // > 0 = on its way to be closed
-	elementStepNum     int             // step number in element
-	paramElements      int             // number of elements (name + value = 2) found first
-	openShortcodes     map[string]bool // set of shortcodes in open state
+	lexerShortcodeState
 
 	// items delivered to client
 	items []Item
@@ -217,31 +63,35 @@ func Parse(s string) *Tokens {
 }
 
 func ParseFrom(s string, from int) *Tokens {
-	return &Tokens{lexer: newShortcodeLexer("default", s, pos(from))}
+	lexer := newPageLexer("default", s, pos(from))
+	lexer.run()
+	return &Tokens{lexer: lexer}
 }
 
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
-func newShortcodeLexer(name, input string, inputPosition pos) *pagelexer {
-	lexer := &pagelexer{
-		name:               name,
-		input:              input,
-		currLeftDelimItem:  tLeftDelimScNoMarkup,
-		currRightDelimItem: tRightDelimScNoMarkup,
-		pos:                inputPosition,
-		openShortcodes:     make(map[string]bool),
-		items:              make([]Item, 0, 5),
+func newPageLexer(name, input string, inputPosition pos) *pageLexer {
+	lexer := &pageLexer{
+		name:  name,
+		input: input,
+		pos:   inputPosition,
+		lexerShortcodeState: lexerShortcodeState{
+			currLeftDelimItem:  tLeftDelimScNoMarkup,
+			currRightDelimItem: tRightDelimScNoMarkup,
+			openShortcodes:     make(map[string]bool),
+		},
+		items: make([]Item, 0, 5),
 	}
-	lexer.runShortcodeLexer()
+
 	return lexer
 }
 
 // main loop
-// this looks kind of funky, but it works
-func (l *pagelexer) runShortcodeLexer() {
+func (l *pageLexer) run() *pageLexer {
 	for l.state = lexTextOutsideShortcodes; l.state != nil; {
 		l.state = l.state(l)
 	}
+	return l
 }
 
 // state functions
@@ -255,7 +105,7 @@ const (
 	rightComment           = "*/"
 )
 
-func (l *pagelexer) next() rune {
+func (l *pageLexer) next() rune {
 	if int(l.pos) >= len(l.input) {
 		l.width = 0
 		return eof
@@ -270,25 +120,25 @@ func (l *pagelexer) next() rune {
 }
 
 // peek, but no consume
-func (l *pagelexer) peek() rune {
+func (l *pageLexer) peek() rune {
 	r := l.next()
 	l.backup()
 	return r
 }
 
 // steps back one
-func (l *pagelexer) backup() {
+func (l *pageLexer) backup() {
 	l.pos -= l.width
 }
 
 // sends an item back to the client.
-func (l *pagelexer) emit(t itemType) {
+func (l *pageLexer) emit(t itemType) {
 	l.items = append(l.items, Item{t, l.start, l.input[l.start:l.pos]})
 	l.start = l.pos
 }
 
 // special case, do not send '\\' back to client
-func (l *pagelexer) ignoreEscapesAndEmit(t itemType) {
+func (l *pageLexer) ignoreEscapesAndEmit(t itemType) {
 	val := strings.Map(func(r rune) rune {
 		if r == '\\' {
 			return -1
@@ -300,28 +150,28 @@ func (l *pagelexer) ignoreEscapesAndEmit(t itemType) {
 }
 
 // gets the current value (for debugging and error handling)
-func (l *pagelexer) current() string {
+func (l *pageLexer) current() string {
 	return l.input[l.start:l.pos]
 }
 
 // ignore current element
-func (l *pagelexer) ignore() {
+func (l *pageLexer) ignore() {
 	l.start = l.pos
 }
 
 // nice to have in error logs
-func (l *pagelexer) lineNum() int {
+func (l *pageLexer) lineNum() int {
 	return strings.Count(l.input[:l.lastPos], "\n") + 1
 }
 
 // nil terminates the parser
-func (l *pagelexer) errorf(format string, args ...interface{}) stateFunc {
+func (l *pageLexer) errorf(format string, args ...interface{}) stateFunc {
 	l.items = append(l.items, Item{tError, l.start, fmt.Sprintf(format, args...)})
 	return nil
 }
 
 // consumes and returns the next item
-func (l *pagelexer) nextItem() Item {
+func (l *pageLexer) nextItem() Item {
 	item := l.items[0]
 	l.items = l.items[1:]
 	l.lastPos = item.pos
@@ -330,7 +180,7 @@ func (l *pagelexer) nextItem() Item {
 
 // scans until an opening shortcode opening bracket.
 // if no shortcodes, it will keep on scanning until EOF
-func lexTextOutsideShortcodes(l *pagelexer) stateFunc {
+func lexTextOutsideShortcodes(l *pageLexer) stateFunc {
 	for {
 		if strings.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) || strings.HasPrefix(l.input[l.pos:], leftDelimScNoMarkup) {
 			if l.pos > l.start {
@@ -358,7 +208,7 @@ func lexTextOutsideShortcodes(l *pagelexer) stateFunc {
 	return nil
 }
 
-func lexShortcodeLeftDelim(l *pagelexer) stateFunc {
+func lexShortcodeLeftDelim(l *pageLexer) stateFunc {
 	l.pos += pos(len(l.currentLeftShortcodeDelim()))
 	if strings.HasPrefix(l.input[l.pos:], leftComment) {
 		return lexShortcodeComment
@@ -369,7 +219,7 @@ func lexShortcodeLeftDelim(l *pagelexer) stateFunc {
 	return lexInsideShortcode
 }
 
-func lexShortcodeComment(l *pagelexer) stateFunc {
+func lexShortcodeComment(l *pageLexer) stateFunc {
 	posRightComment := strings.Index(l.input[l.pos:], rightComment+l.currentRightShortcodeDelim())
 	if posRightComment <= 1 {
 		return l.errorf("comment must be closed")
@@ -387,7 +237,7 @@ func lexShortcodeComment(l *pagelexer) stateFunc {
 	return lexTextOutsideShortcodes
 }
 
-func lexShortcodeRightDelim(l *pagelexer) stateFunc {
+func lexShortcodeRightDelim(l *pageLexer) stateFunc {
 	l.closingState = 0
 	l.pos += pos(len(l.currentRightShortcodeDelim()))
 	l.emit(l.currentRightShortcodeDelimItem())
@@ -399,7 +249,7 @@ func lexShortcodeRightDelim(l *pagelexer) stateFunc {
 // 2. "param" or "param\"
 // 3. param="123" or param="123\"
 // 4. param="Some \"escaped\" text"
-func lexShortcodeParam(l *pagelexer, escapedQuoteStart bool) stateFunc {
+func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
 
 	first := true
 	nextEq := false
@@ -451,7 +301,7 @@ func lexShortcodeParam(l *pagelexer, escapedQuoteStart bool) stateFunc {
 
 }
 
-func lexShortcodeQuotedParamVal(l *pagelexer, escapedQuotedValuesAllowed bool, typ itemType) stateFunc {
+func lexShortcodeQuotedParamVal(l *pageLexer, escapedQuotedValuesAllowed bool, typ itemType) stateFunc {
 	openQuoteFound := false
 	escapedInnerQuoteFound := false
 	escapedQuoteState := 0
@@ -516,7 +366,7 @@ Loop:
 }
 
 // scans an alphanumeric inside shortcode
-func lexIdentifierInShortcode(l *pagelexer) stateFunc {
+func lexIdentifierInShortcode(l *pageLexer) stateFunc {
 	lookForEnd := false
 Loop:
 	for {
@@ -549,7 +399,7 @@ Loop:
 	return lexInsideShortcode
 }
 
-func lexEndOfShortcode(l *pagelexer) stateFunc {
+func lexEndOfShortcode(l *pageLexer) stateFunc {
 	if strings.HasPrefix(l.input[l.pos:], l.currentRightShortcodeDelim()) {
 		return lexShortcodeRightDelim
 	}
@@ -563,7 +413,7 @@ func lexEndOfShortcode(l *pagelexer) stateFunc {
 }
 
 // scans the elements inside shortcode tags
-func lexInsideShortcode(l *pagelexer) stateFunc {
+func lexInsideShortcode(l *pageLexer) stateFunc {
 	if strings.HasPrefix(l.input[l.pos:], l.currentRightShortcodeDelim()) {
 		return lexShortcodeRightDelim
 	}
@@ -601,15 +451,15 @@ func lexInsideShortcode(l *pagelexer) stateFunc {
 
 // state helpers
 
-func (l *pagelexer) currentLeftShortcodeDelimItem() itemType {
+func (l *pageLexer) currentLeftShortcodeDelimItem() itemType {
 	return l.currLeftDelimItem
 }
 
-func (l *pagelexer) currentRightShortcodeDelimItem() itemType {
+func (l *pageLexer) currentRightShortcodeDelimItem() itemType {
 	return l.currRightDelimItem
 }
 
-func (l *pagelexer) currentLeftShortcodeDelim() string {
+func (l *pageLexer) currentLeftShortcodeDelim() string {
 	if l.currLeftDelimItem == tLeftDelimScWithMarkup {
 		return leftDelimScWithMarkup
 	}
@@ -617,7 +467,7 @@ func (l *pagelexer) currentLeftShortcodeDelim() string {
 
 }
 
-func (l *pagelexer) currentRightShortcodeDelim() string {
+func (l *pageLexer) currentRightShortcodeDelim() string {
 	if l.currRightDelimItem == tRightDelimScWithMarkup {
 		return rightDelimScWithMarkup
 	}

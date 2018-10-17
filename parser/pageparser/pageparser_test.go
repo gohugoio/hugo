@@ -179,7 +179,7 @@ func BenchmarkShortcodeLexer(b *testing.B) {
 }
 
 func collect(t *shortCodeLexerTest) (items []Item) {
-	l := newShortcodeLexer(t.name, t.input, 0)
+	l := newPageLexer(t.name, t.input, 0).run()
 	for {
 		item := l.nextItem()
 		items = append(items, item)
