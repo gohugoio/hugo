@@ -29,6 +29,7 @@ The following is an example of a site configuration for a multilingual Hugo proj
 DefaultContentLanguage = "en"
 copyright = "Everything is mine"
 
+[params]
 [params.navigation]
 help  = "Help"
 
@@ -48,8 +49,7 @@ linkedin = "https://linkedin.com/fr/whoever"
 help  = "Aide"
 {{< /code-toggle >}}
 
-Anything not defined in a `[languages]` block will fall back to the global
-value for that key (e.g., `copyright` for the English [`en`] language).
+Anything not defined in a `[languages]` block will fall back to the global value for that key (e.g., `copyright` for the English [`en`] language). This also works for `params`, as demonstrated witgh `help` above: You will get the value `Aide` in French and `Help` in all the languages without this parameter set.
 
 With the configuration above, all content, sitemap, RSS feeds, paginations,
 and taxonomy pages will be rendered below `/` in English (your default content language) and then below `/fr` in French.
