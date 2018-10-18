@@ -151,6 +151,8 @@ type Site struct {
 
 	relatedDocsHandler *relatedDocsHandler
 	siteRefLinker
+	// Set in some tests
+	shortcodePlaceholderFunc func() string
 
 	publisher publisher.Publisher
 }

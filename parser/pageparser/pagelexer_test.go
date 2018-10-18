@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,28 +11,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package pageparser
 
 import (
-	"path/filepath"
-	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-var simplePageYAML = `---
-contenttype: ""
----
-Sample Text
-`
+func TestMinPositiveIndex(t *testing.T) {
+	assert := require.New(t)
+	assert.Equal(1, minPositiveIndex(4, 1, 2, 3))
+	assert.Equal(2, minPositiveIndex(4, 0, -2, 2, 5))
+	assert.Equal(-1, minPositiveIndex())
+	assert.Equal(-1, minPositiveIndex(-2, -3))
 
-func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
-	t.Parallel()
-	s := newTestSite(t)
-	p, err := s.newPageFrom(strings.NewReader(simplePageYAML), filepath.Join("foobar"))
-	if err != nil {
-		t.Fatalf("Error in NewPageFrom")
-	}
-	if p.Section() != "" {
-		t.Fatalf("No section should be set for a file path: foobar")
-	}
 }

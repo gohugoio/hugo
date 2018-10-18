@@ -222,20 +222,28 @@ func (s *shortcodeHandler) nextPlaceholderID() int {
 }
 
 func (s *shortcodeHandler) createShortcodePlaceholder() string {
-	if s.placeholderFunc != nil {
-		return s.placeholderFunc()
-	}
-	return fmt.Sprintf("HAHA%s-%p-%d-HBHB", shortcodePlaceholderPrefix, s.p.Page, s.nextPlaceholderID())
+	return s.placeholderFunc()
 }
 
 func newShortcodeHandler(p *Page) *shortcodeHandler {
-	return &shortcodeHandler{
+
+	s := &shortcodeHandler{
 		p:                  p.withoutContent(),
 		contentShortcodes:  newOrderedMap(),
 		shortcodes:         newOrderedMap(),
 		nameSet:            make(map[string]bool),
 		renderedShortcodes: make(map[string]string),
 	}
+
+	placeholderFunc := p.s.shortcodePlaceholderFunc
+	if placeholderFunc == nil {
+		placeholderFunc = func() string {
+			return fmt.Sprintf("HAHA%s-%p-%d-HBHB", shortcodePlaceholderPrefix, p, s.nextPlaceholderID())
+		}
+
+	}
+	s.placeholderFunc = placeholderFunc
+	return s
 }
 
 // TODO(bep) make it non-global
@@ -480,7 +488,7 @@ var errShortCodeIllegalState = errors.New("Illegal shortcode state")
 // pageTokens state:
 // - before: positioned just before the shortcode start
 // - after: shortcode(s) consumed (plural when they are nested)
-func (s *shortcodeHandler) extractShortcode(ordinal int, pt *pageparser.Tokens, p *PageWithoutContent) (*shortcode, error) {
+func (s *shortcodeHandler) extractShortcode(ordinal int, pt *pageparser.Iterator, p *Page) (*shortcode, error) {
 	sc := &shortcode{ordinal: ordinal}
 	var isInner = false
 
@@ -510,7 +518,7 @@ Loop:
 
 			if cnt > 0 {
 				// nested shortcode; append it to inner content
-				pt.Backup3(currItem, next)
+				pt.Backup()
 				nested, err := s.extractShortcode(nestedOrdinal, pt, p)
 				nestedOrdinal++
 				if nested.name != "" {
@@ -614,72 +622,6 @@ Loop:
 }
 
 var shortCodeStart = []byte("{{")
-
-func (s *shortcodeHandler) extractShortcodes(input []byte, p *PageWithoutContent) (string, error) {
-
-	startIdx := bytes.Index(input, shortCodeStart)
-
-	// short cut for docs with no shortcodes
-	if startIdx < 0 {
-		return string(input), nil
-	}
-
-	// the parser takes a string;
-	// since this is an internal API, it could make sense to use the mutable []byte all the way, but
-	// it seems that the time isn't really spent in the byte copy operations, and the impl. gets a lot cleaner
-	pt := pageparser.ParseFrom(input, startIdx)
-
-	result := bp.GetBuffer()
-	defer bp.PutBuffer(result)
-	//var result bytes.Buffer
-
-	// the parser is guaranteed to return items in proper order or fail, so …
-	// … it's safe to keep some "global" state
-	var currShortcode shortcode
-	var ordinal int
-
-Loop:
-	for {
-		currItem := pt.Next()
-
-		switch {
-		case currItem.IsText():
-			result.WriteString(currItem.ValStr())
-		case currItem.IsLeftShortcodeDelim():
-			// let extractShortcode handle left delim (will do so recursively)
-			pt.Backup()
-
-			currShortcode, err := s.extractShortcode(ordinal, pt, p)
-
-			if currShortcode.name != "" {
-				s.nameSet[currShortcode.name] = true
-			}
-
-			if err != nil {
-				return result.String(), err
-			}
-
-			if currShortcode.params == nil {
-				currShortcode.params = make([]string, 0)
-			}
-
-			placeHolder := s.createShortcodePlaceholder()
-			result.WriteString(placeHolder)
-			ordinal++
-			s.shortcodes.Add(placeHolder, currShortcode)
-		case currItem.IsEOF():
-			break Loop
-		case currItem.IsError():
-			err := fmt.Errorf("%s:shortcode:%d: %s",
-				p.pathOrTitle(), (p.lineNumRawContentStart() + pt.LineNumber() - 1), currItem)
-			currShortcode.err = err
-			return result.String(), err
-		}
-	}
-
-	return result.String(), nil
-
-}
 
 // Replace prefixed shortcode tokens (HUGOSHORTCODE-1, HUGOSHORTCODE-2) with the real content.
 // Note: This function will rewrite the input slice.

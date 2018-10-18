@@ -38,7 +38,7 @@ import (
 )
 
 // TODO(bep) remove
-func pageFromString(in, filename string, withTemplate ...func(templ tpl.TemplateHandler) error) (*Page, error) {
+func pageFromString(in, filename string, shortcodePlaceholderFn func() string, withTemplate ...func(templ tpl.TemplateHandler) error) (*Page, error) {
 	var err error
 	cfg, fs := newTestCfg()
 
@@ -49,7 +49,9 @@ func pageFromString(in, filename string, withTemplate ...func(templ tpl.Template
 		return nil, err
 	}
 
-	return s.NewPageFrom(strings.NewReader(in), filename)
+	s.shortcodePlaceholderFunc = shortcodePlaceholderFn
+
+	return s.newPageFrom(strings.NewReader(in), filename)
 }
 
 func CheckShortCodeMatch(t *testing.T, input, expected string, withTemplate func(templ tpl.TemplateHandler) error) {
@@ -357,6 +359,7 @@ const testScPlaceholderRegexp = "HAHAHUGOSHORTCODE-\\d+HBHB"
 
 func TestExtractShortcodes(t *testing.T) {
 	t.Parallel()
+
 	for i, this := range []struct {
 		name             string
 		input            string
@@ -365,11 +368,11 @@ func TestExtractShortcodes(t *testing.T) {
 		expectErrorMsg   string
 	}{
 		{"text", "Some text.", "map[]", "Some text.", ""},
-		{"invalid right delim", "{{< tag }}", "", false, ":4:.*unrecognized character.*}"},
-		{"invalid close", "\n{{< /tag >}}", "", false, ":5:.*got closing shortcode, but none is open"},
-		{"invalid close2", "\n\n{{< tag >}}{{< /anotherTag >}}", "", false, ":6: closing tag for shortcode 'anotherTag' does not match start tag"},
-		{"unterminated quote 1", `{{< figure src="im caption="S" >}}`, "", false, ":4:.got pos.*"},
-		{"unterminated quote 1", `{{< figure src="im" caption="S >}}`, "", false, ":4:.*unterm.*}"},
+		{"invalid right delim", "{{< tag }}", "", false, ":5:.*unrecognized character.*}"},
+		{"invalid close", "\n{{< /tag >}}", "", false, ":6:.*got closing shortcode, but none is open"},
+		{"invalid close2", "\n\n{{< tag >}}{{< /anotherTag >}}", "", false, ":7: closing tag for shortcode 'anotherTag' does not match start tag"},
+		{"unterminated quote 1", `{{< figure src="im caption="S" >}}`, "", false, ":5:.got pos.*"},
+		{"unterminated quote 1", `{{< figure src="im" caption="S >}}`, "", false, ":5:.*unterm.*}"},
 		{"one shortcode, no markup", "{{< tag >}}", "", testScPlaceholderRegexp, ""},
 		{"one shortcode, markup", "{{% tag %}}", "", testScPlaceholderRegexp, ""},
 		{"one pos param", "{{% tag param1 %}}", `tag([\"param1\"], true){[]}"]`, testScPlaceholderRegexp, ""},
@@ -405,7 +408,15 @@ func TestExtractShortcodes(t *testing.T) {
 			fmt.Sprintf("Hello %sworld%s. And that's it.", testScPlaceholderRegexp, testScPlaceholderRegexp), ""},
 	} {
 
-		p, _ := pageFromString(simplePage, "simple.md", func(templ tpl.TemplateHandler) error {
+		pageInput := simplePage + this.input
+
+		counter := 0
+		placeholderFunc := func() string {
+			counter++
+			return fmt.Sprintf("HAHA%s-%dHBHB", shortcodePlaceholderPrefix, counter)
+		}
+
+		p, err := pageFromString(pageInput, "simple.md", placeholderFunc, func(templ tpl.TemplateHandler) error {
 			templ.AddTemplate("_internal/shortcodes/tag.html", `tag`)
 			templ.AddTemplate("_internal/shortcodes/sc1.html", `sc1`)
 			templ.AddTemplate("_internal/shortcodes/sc2.html", `sc2`)
@@ -414,17 +425,6 @@ func TestExtractShortcodes(t *testing.T) {
 			templ.AddTemplate("_internal/shortcodes/inner3.html", `{{.Inner}}`)
 			return nil
 		})
-
-		counter := 0
-
-		s := newShortcodeHandler(p)
-
-		s.placeholderFunc = func() string {
-			counter++
-			return fmt.Sprintf("HAHA%s-%dHBHB", shortcodePlaceholderPrefix, counter)
-		}
-
-		content, err := s.extractShortcodes([]byte(this.input), p.withoutContent())
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {
@@ -443,7 +443,8 @@ func TestExtractShortcodes(t *testing.T) {
 			}
 		}
 
-		shortCodes := s.shortcodes
+		shortCodes := p.shortcodeState.shortcodes
+		contentReplaced := string(p.workContent)
 
 		var expected string
 		av := reflect.ValueOf(this.expect)
@@ -458,17 +459,17 @@ func TestExtractShortcodes(t *testing.T) {
 			t.Fatalf("[%d] %s: Failed to compile regexp %q: %q", i, this.name, expected, err)
 		}
 
-		if strings.Count(content, shortcodePlaceholderPrefix) != shortCodes.Len() {
+		if strings.Count(contentReplaced, shortcodePlaceholderPrefix) != shortCodes.Len() {
 			t.Fatalf("[%d] %s: Not enough placeholders, found %d", i, this.name, shortCodes.Len())
 		}
 
-		if !r.MatchString(content) {
-			t.Fatalf("[%d] %s: Shortcode extract didn't match. got %q but expected %q", i, this.name, content, expected)
+		if !r.MatchString(contentReplaced) {
+			t.Fatalf("[%d] %s: Shortcode extract didn't match. got %q but expected %q", i, this.name, contentReplaced, expected)
 		}
 
 		for _, placeHolder := range shortCodes.Keys() {
 			sc := shortCodes.getShortcode(placeHolder)
-			if !strings.Contains(content, placeHolder.(string)) {
+			if !strings.Contains(contentReplaced, placeHolder.(string)) {
 				t.Fatalf("[%d] %s: Output does not contain placeholder %q", i, this.name, placeHolder)
 			}
 
@@ -672,15 +673,6 @@ outputs: ["CSV"]
 CSV: {{< myShort >}}
 `
 
-	pageTemplateShortcodeNotFound := `---
-title: "%s"
-outputs: ["CSV"]
----
-# Doc
-
-NotFound: {{< thisDoesNotExist >}}
-`
-
 	mf := afero.NewMemMapFs()
 
 	th, h := newTestSitesFromConfig(t, mf, siteConfig,
@@ -705,10 +697,9 @@ NotFound: {{< thisDoesNotExist >}}
 	writeSource(t, fs, "content/_index.md", fmt.Sprintf(pageTemplate, "Home"))
 	writeSource(t, fs, "content/sect/mypage.md", fmt.Sprintf(pageTemplate, "Single"))
 	writeSource(t, fs, "content/sect/mycsvpage.md", fmt.Sprintf(pageTemplateCSVOnly, "Single CSV"))
-	writeSource(t, fs, "content/sect/notfound.md", fmt.Sprintf(pageTemplateShortcodeNotFound, "Single CSV"))
 
 	err := h.Build(BuildCfg{})
-	require.Equal(t, "logged 1 error(s)", err.Error())
+	require.NoError(t, err)
 	require.Len(t, h.Sites, 1)
 
 	s := h.Sites[0]
@@ -769,13 +760,6 @@ NotFound: {{< thisDoesNotExist >}}
 		"Single CSV",
 		"ShortCSV",
 	)
-
-	th.assertFileContent("public/sect/notfound/index.csv",
-		"NotFound:",
-		"thisDoesNotExist",
-	)
-
-	require.Equal(t, uint64(1), s.Log.ErrorCounter.Count())
 
 }
 

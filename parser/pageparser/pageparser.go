@@ -17,72 +17,90 @@
 // See slides here: http://cuddle.googlecode.com/hg/talk/lex.html
 package pageparser
 
-func Parse(input []byte) *Tokens {
-	return ParseFrom(input, 0)
+import (
+	"bytes"
+	"io"
+	"io/ioutil"
+
+	"github.com/pkg/errors"
+)
+
+// Result holds the parse result.
+type Result interface {
+	// Iterator returns a new Iterator positioned at the benning of the parse tree.
+	Iterator() *Iterator
+	// Input returns the input to Parse.
+	Input() []byte
 }
 
-func ParseFrom(input []byte, from int) *Tokens {
+var _ Result = (*pageLexer)(nil)
+
+// Parse parses the page in the given reader.
+func Parse(r io.Reader) (Result, error) {
+	b, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read page content")
+	}
+	lexer := newPageLexer(b, 0, lexIntroSection)
+	lexer.run()
+	return lexer, nil
+
+}
+
+func parseMainSection(input []byte, from int) Result {
 	lexer := newPageLexer(input, pos(from), lexMainSection) // TODO(bep) 2errors
 	lexer.run()
-	return &Tokens{lexer: lexer}
+	return lexer
 }
 
-type Tokens struct {
-	lexer     *pageLexer
-	token     [3]Item // 3-item look-ahead is what we currently need
-	peekCount int
+// An Iterator has methods to iterate a parsed page with support going back
+// if needed.
+type Iterator struct {
+	l       *pageLexer
+	lastPos pos // position of the last item returned by nextItem
 }
 
-func (t *Tokens) Next() Item {
-	if t.peekCount > 0 {
-		t.peekCount--
-	} else {
-		t.token[0] = t.lexer.nextItem()
+// consumes and returns the next item
+func (t *Iterator) Next() Item {
+	t.lastPos++
+	return t.current()
+}
+
+var errIndexOutOfBounds = Item{tError, 0, []byte("no more tokens")}
+
+func (t *Iterator) current() Item {
+	if t.lastPos >= pos(len(t.l.items)) {
+		return errIndexOutOfBounds
 	}
-	return t.token[t.peekCount]
+	return t.l.items[t.lastPos]
 }
 
 // backs up one token.
-func (t *Tokens) Backup() {
-	t.peekCount++
-}
-
-// backs up two tokens.
-func (t *Tokens) Backup2(t1 Item) {
-	t.token[1] = t1
-	t.peekCount = 2
-}
-
-// backs up three tokens.
-func (t *Tokens) Backup3(t2, t1 Item) {
-	t.token[1] = t1
-	t.token[2] = t2
-	t.peekCount = 3
+func (t *Iterator) Backup() {
+	if t.lastPos < 0 {
+		panic("need to go forward before going back")
+	}
+	t.lastPos--
 }
 
 // check for non-error and non-EOF types coming next
-func (t *Tokens) IsValueNext() bool {
+func (t *Iterator) IsValueNext() bool {
 	i := t.Peek()
-	return i.typ != tError && i.typ != tEOF
+	return i.Typ != tError && i.Typ != tEOF
 }
 
 // look at, but do not consume, the next item
 // repeated, sequential calls will return the same item
-func (t *Tokens) Peek() Item {
-	if t.peekCount > 0 {
-		return t.token[t.peekCount-1]
-	}
-	t.peekCount = 1
-	t.token[0] = t.lexer.nextItem()
-	return t.token[0]
+func (t *Iterator) Peek() Item {
+	return t.l.items[t.lastPos+1]
 }
 
 // Consume is a convencience method to consume the next n tokens,
 // but back off Errors and EOF.
-func (t *Tokens) Consume(cnt int) {
+func (t *Iterator) Consume(cnt int) {
 	for i := 0; i < cnt; i++ {
 		token := t.Next()
-		if token.typ == tError || token.typ == tEOF {
+		if token.Typ == tError || token.Typ == tEOF {
 			t.Backup()
 			break
 		}
@@ -90,6 +108,6 @@ func (t *Tokens) Consume(cnt int) {
 }
 
 // LineNumber returns the current line number. Used for logging.
-func (t *Tokens) LineNumber() int {
-	return t.lexer.lineNum()
+func (t *Iterator) LineNumber() int {
+	return bytes.Count(t.l.input[:t.current().pos], lf) + 1
 }

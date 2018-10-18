@@ -16,87 +16,95 @@ package pageparser
 import "fmt"
 
 type Item struct {
-	typ itemType
+	Typ ItemType
 	pos pos
 	Val []byte
 }
+
+type Items []Item
 
 func (i Item) ValStr() string {
 	return string(i.Val)
 }
 
 func (i Item) IsText() bool {
-	return i.typ == tText
+	return i.Typ == tText
 }
 
 func (i Item) IsShortcodeName() bool {
-	return i.typ == tScName
+	return i.Typ == tScName
 }
 
 func (i Item) IsLeftShortcodeDelim() bool {
-	return i.typ == tLeftDelimScWithMarkup || i.typ == tLeftDelimScNoMarkup
+	return i.Typ == tLeftDelimScWithMarkup || i.Typ == tLeftDelimScNoMarkup
 }
 
 func (i Item) IsRightShortcodeDelim() bool {
-	return i.typ == tRightDelimScWithMarkup || i.typ == tRightDelimScNoMarkup
+	return i.Typ == tRightDelimScWithMarkup || i.Typ == tRightDelimScNoMarkup
 }
 
 func (i Item) IsShortcodeClose() bool {
-	return i.typ == tScClose
+	return i.Typ == tScClose
 }
 
 func (i Item) IsShortcodeParam() bool {
-	return i.typ == tScParam
+	return i.Typ == tScParam
 }
 
 func (i Item) IsShortcodeParamVal() bool {
-	return i.typ == tScParamVal
+	return i.Typ == tScParamVal
 }
 
 func (i Item) IsShortcodeMarkupDelimiter() bool {
-	return i.typ == tLeftDelimScWithMarkup || i.typ == tRightDelimScWithMarkup
+	return i.Typ == tLeftDelimScWithMarkup || i.Typ == tRightDelimScWithMarkup
+}
+
+func (i Item) IsFrontMatter() bool {
+	return i.Typ >= TypeFrontMatterYAML && i.Typ <= TypeFrontMatterORG
 }
 
 func (i Item) IsDone() bool {
-	return i.typ == tError || i.typ == tEOF
+	return i.Typ == tError || i.Typ == tEOF
 }
 
 func (i Item) IsEOF() bool {
-	return i.typ == tEOF
+	return i.Typ == tEOF
 }
 
 func (i Item) IsError() bool {
-	return i.typ == tError
+	return i.Typ == tError
 }
 
 func (i Item) String() string {
 	switch {
-	case i.typ == tEOF:
+	case i.Typ == tEOF:
 		return "EOF"
-	case i.typ == tError:
+	case i.Typ == tError:
 		return string(i.Val)
-	case i.typ > tKeywordMarker:
+	case i.Typ > tKeywordMarker:
 		return fmt.Sprintf("<%s>", i.Val)
 	case len(i.Val) > 50:
-		return fmt.Sprintf("%v:%.20q...", i.typ, i.Val)
+		return fmt.Sprintf("%v:%.20q...", i.Typ, i.Val)
 	}
-	return fmt.Sprintf("%v:[%s]", i.typ, i.Val)
+	return fmt.Sprintf("%v:[%s]", i.Typ, i.Val)
 }
 
-type itemType int
+type ItemType int
 
 const (
-	tError itemType = iota
+	tError ItemType = iota
 	tEOF
 
 	// page items
-	tHTMLLead          // <
-	tSummaryDivider    // <!--more-->
-	tSummaryDividerOrg // # more
-	tFrontMatterYAML
-	tFrontMatterTOML
-	tFrontMatterJSON
-	tFrontMatterORG
+	TypeHTMLDocument       // document starting with < as first non-whitespace
+	TypeHTMLComment        // We ignore leading comments
+	TypeLeadSummaryDivider // <!--more-->
+	TypeSummaryDividerOrg  // # more
+	TypeFrontMatterYAML
+	TypeFrontMatterTOML
+	TypeFrontMatterJSON
+	TypeFrontMatterORG
+	TypeIgnore // // The BOM Unicode byte order marker and possibly others
 
 	// shortcode items
 	tLeftDelimScNoMarkup

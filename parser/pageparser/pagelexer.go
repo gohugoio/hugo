@@ -33,8 +33,8 @@ const eof = -1
 type stateFunc func(*pageLexer) stateFunc
 
 type lexerShortcodeState struct {
-	currLeftDelimItem  itemType
-	currRightDelimItem itemType
+	currLeftDelimItem  ItemType
+	currRightDelimItem ItemType
 	currShortcodeName  string          // is only set when a shortcode is in opened state
 	closingState       int             // > 0 = on its way to be closed
 	elementStepNum     int             // step number in element
@@ -50,14 +50,24 @@ type pageLexer struct {
 	pos        pos // input position
 	start      pos // item start position
 	width      pos // width of last element
-	lastPos    pos // position of the last item returned by nextItem
 
-	contentSections int
+	// Set when we have parsed any summary divider
+	summaryDividerChecked bool
 
 	lexerShortcodeState
 
 	// items delivered to client
-	items []Item
+	items Items
+}
+
+// Implement the Result interface
+func (l *pageLexer) Iterator() *Iterator {
+	return l.newIterator()
+}
+
+func (l *pageLexer) Input() []byte {
+	return l.input
+
 }
 
 // note: the input position here is normally 0 (start), but
@@ -79,6 +89,10 @@ func newPageLexer(input []byte, inputPosition pos, stateStart stateFunc) *pageLe
 	return lexer
 }
 
+func (l *pageLexer) newIterator() *Iterator {
+	return &Iterator{l: l, lastPos: -1}
+}
+
 // main loop
 func (l *pageLexer) run() *pageLexer {
 	for l.state = l.stateStart; l.state != nil; {
@@ -89,6 +103,7 @@ func (l *pageLexer) run() *pageLexer {
 
 // Shortcode syntax
 var (
+	leftDelimSc            = []byte("{{")
 	leftDelimScNoMarkup    = []byte("{{<")
 	rightDelimScNoMarkup   = []byte(">}}")
 	leftDelimScWithMarkup  = []byte("{{%")
@@ -99,11 +114,14 @@ var (
 
 // Page syntax
 var (
+	byteOrderMark     = '\ufeff'
 	summaryDivider    = []byte("<!--more-->")
 	summaryDividerOrg = []byte("# more")
 	delimTOML         = []byte("+++")
 	delimYAML         = []byte("---")
 	delimOrg          = []byte("#+")
+	htmlCOmmentStart  = []byte("<!--")
+	htmlCOmmentEnd    = []byte("-->")
 )
 
 func (l *pageLexer) next() rune {
@@ -131,13 +149,13 @@ func (l *pageLexer) backup() {
 }
 
 // sends an item back to the client.
-func (l *pageLexer) emit(t itemType) {
+func (l *pageLexer) emit(t ItemType) {
 	l.items = append(l.items, Item{t, l.start, l.input[l.start:l.pos]})
 	l.start = l.pos
 }
 
 // special case, do not send '\\' back to client
-func (l *pageLexer) ignoreEscapesAndEmit(t itemType) {
+func (l *pageLexer) ignoreEscapesAndEmit(t ItemType) {
 	val := bytes.Map(func(r rune) rune {
 		if r == '\\' {
 			return -1
@@ -160,23 +178,10 @@ func (l *pageLexer) ignore() {
 
 var lf = []byte("\n")
 
-// nice to have in error logs
-func (l *pageLexer) lineNum() int {
-	return bytes.Count(l.input[:l.lastPos], lf) + 1
-}
-
 // nil terminates the parser
 func (l *pageLexer) errorf(format string, args ...interface{}) stateFunc {
 	l.items = append(l.items, Item{tError, l.start, []byte(fmt.Sprintf(format, args...))})
 	return nil
-}
-
-// consumes and returns the next item
-func (l *pageLexer) nextItem() Item {
-	item := l.items[0]
-	l.items = l.items[1:]
-	l.lastPos = item.pos
-	return item
 }
 
 func (l *pageLexer) consumeCRLF() bool {
@@ -192,12 +197,28 @@ func (l *pageLexer) consumeCRLF() bool {
 }
 
 func lexMainSection(l *pageLexer) stateFunc {
+	// Fast forward as far as possible.
+	var l1, l2, l3 int
+	if !l.summaryDividerChecked {
+		// TODO(bep) 2errors make the summary divider per type
+		l1 = l.index(summaryDivider)
+		l2 = l.index(summaryDividerOrg)
+		if l1 == -1 && l2 == -1 {
+			l.summaryDividerChecked = true
+		}
+	}
+	l3 = l.index(leftDelimSc)
+	skip := minPositiveIndex(l1, l2, l3)
+	if skip > 0 {
+		l.pos += pos(skip)
+	}
+
 	for {
 		if l.isShortCodeStart() {
 			if l.pos > l.start {
 				l.emit(tText)
 			}
-			if bytes.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) {
+			if l.hasPrefix(leftDelimScWithMarkup) {
 				l.currLeftDelimItem = tLeftDelimScWithMarkup
 				l.currRightDelimItem = tRightDelimScWithMarkup
 			} else {
@@ -207,21 +228,21 @@ func lexMainSection(l *pageLexer) stateFunc {
 			return lexShortcodeLeftDelim
 		}
 
-		if l.contentSections <= 1 {
-			if bytes.HasPrefix(l.input[l.pos:], summaryDivider) {
+		if !l.summaryDividerChecked {
+			if l.hasPrefix(summaryDivider) {
 				if l.pos > l.start {
 					l.emit(tText)
 				}
-				l.contentSections++
+				l.summaryDividerChecked = true
 				l.pos += pos(len(summaryDivider))
-				l.emit(tSummaryDivider)
-			} else if bytes.HasPrefix(l.input[l.pos:], summaryDividerOrg) {
+				l.emit(TypeLeadSummaryDivider)
+			} else if l.hasPrefix(summaryDividerOrg) {
 				if l.pos > l.start {
 					l.emit(tText)
 				}
-				l.contentSections++
+				l.summaryDividerChecked = true
 				l.pos += pos(len(summaryDividerOrg))
-				l.emit(tSummaryDividerOrg)
+				l.emit(TypeSummaryDividerOrg)
 			}
 		}
 
@@ -237,7 +258,7 @@ func lexMainSection(l *pageLexer) stateFunc {
 }
 
 func (l *pageLexer) isShortCodeStart() bool {
-	return bytes.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) || bytes.HasPrefix(l.input[l.pos:], leftDelimScNoMarkup)
+	return l.hasPrefix(leftDelimScWithMarkup) || l.hasPrefix(leftDelimScNoMarkup)
 }
 
 func lexIntroSection(l *pageLexer) stateFunc {
@@ -250,27 +271,36 @@ LOOP:
 
 		switch {
 		case r == '+':
-			return l.lexFrontMatterSection(tFrontMatterTOML, r, "TOML", delimTOML)
+			return l.lexFrontMatterSection(TypeFrontMatterTOML, r, "TOML", delimTOML)
 		case r == '-':
-			return l.lexFrontMatterSection(tFrontMatterYAML, r, "YAML", delimYAML)
+			return l.lexFrontMatterSection(TypeFrontMatterYAML, r, "YAML", delimYAML)
 		case r == '{':
 			return lexFrontMatterJSON
 		case r == '#':
 			return lexFrontMatterOrgMode
+		case r == byteOrderMark:
+			l.emit(TypeIgnore)
 		case !isSpace(r) && !isEndOfLine(r):
+			// No front matter.
 			if r == '<' {
-				l.emit(tHTMLLead)
-				// Not need to look further. Hugo treats this as plain HTML,
-				// no front matter, no shortcodes, no nothing.
-				l.pos = pos(len(l.input))
-				l.emit(tText)
-				break LOOP
+				l.backup()
+				if l.hasPrefix(htmlCOmmentStart) {
+					right := l.index(htmlCOmmentEnd)
+					if right == -1 {
+						return l.errorf("starting HTML comment with no end")
+					}
+					l.pos += pos(right) + pos(len(htmlCOmmentEnd))
+					l.emit(TypeHTMLComment)
+				} else {
+					// Not need to look further. Hugo treats this as plain HTML,
+					// no front matter, no shortcodes, no nothing.
+					l.pos = pos(len(l.input))
+					l.emit(TypeHTMLDocument)
+				}
 			}
-			return l.errorf("failed to detect front matter type; got unknown identifier %q", r)
+			break LOOP
 		}
 	}
-
-	l.contentSections = 1
 
 	// Now move on to the shortcodes.
 	return lexMainSection
@@ -324,7 +354,7 @@ func lexFrontMatterJSON(l *pageLexer) stateFunc {
 	}
 
 	l.consumeCRLF()
-	l.emit(tFrontMatterJSON)
+	l.emit(TypeFrontMatterJSON)
 
 	return lexMainSection
 }
@@ -338,7 +368,7 @@ func lexFrontMatterOrgMode(l *pageLexer) stateFunc {
 
 	l.backup()
 
-	if !bytes.HasPrefix(l.input[l.pos:], delimOrg) {
+	if !l.hasPrefix(delimOrg) {
 		// TODO(bep) consider error
 		return lexMainSection
 	}
@@ -351,7 +381,7 @@ LOOP:
 
 		switch {
 		case r == '\n':
-			if !bytes.HasPrefix(l.input[l.pos:], delimOrg) {
+			if !l.hasPrefix(delimOrg) {
 				break LOOP
 			}
 		case r == eof:
@@ -360,22 +390,23 @@ LOOP:
 		}
 	}
 
-	l.emit(tFrontMatterORG)
+	l.emit(TypeFrontMatterORG)
 
 	return lexMainSection
 
 }
 
+func (l *pageLexer) printCurrentInput() {
+	fmt.Printf("input[%d:]: %q", l.pos, string(l.input[l.pos:]))
+}
+
 // Handle YAML or TOML front matter.
-func (l *pageLexer) lexFrontMatterSection(tp itemType, delimr rune, name string, delim []byte) stateFunc {
+func (l *pageLexer) lexFrontMatterSection(tp ItemType, delimr rune, name string, delim []byte) stateFunc {
+
 	for i := 0; i < 2; i++ {
 		if r := l.next(); r != delimr {
 			return l.errorf("invalid %s delimiter", name)
 		}
-	}
-
-	if !l.consumeCRLF() {
-		return l.errorf("invalid %s delimiter", name)
 	}
 
 	// We don't care about the delimiters.
@@ -387,7 +418,7 @@ func (l *pageLexer) lexFrontMatterSection(tp itemType, delimr rune, name string,
 			return l.errorf("EOF looking for end %s front matter delimiter", name)
 		}
 		if isEndOfLine(r) {
-			if bytes.HasPrefix(l.input[l.pos:], delim) {
+			if l.hasPrefix(delim) {
 				l.emit(tp)
 				l.pos += 3
 				l.consumeCRLF()
@@ -402,7 +433,7 @@ func (l *pageLexer) lexFrontMatterSection(tp itemType, delimr rune, name string,
 
 func lexShortcodeLeftDelim(l *pageLexer) stateFunc {
 	l.pos += pos(len(l.currentLeftShortcodeDelim()))
-	if bytes.HasPrefix(l.input[l.pos:], leftComment) {
+	if l.hasPrefix(leftComment) {
 		return lexShortcodeComment
 	}
 	l.emit(l.currentLeftShortcodeDelimItem())
@@ -412,7 +443,7 @@ func lexShortcodeLeftDelim(l *pageLexer) stateFunc {
 }
 
 func lexShortcodeComment(l *pageLexer) stateFunc {
-	posRightComment := bytes.Index(l.input[l.pos:], append(rightComment, l.currentRightShortcodeDelim()...))
+	posRightComment := l.index(append(rightComment, l.currentRightShortcodeDelim()...))
 	if posRightComment <= 1 {
 		return l.errorf("comment must be closed")
 	}
@@ -493,7 +524,7 @@ func lexShortcodeParam(l *pageLexer, escapedQuoteStart bool) stateFunc {
 
 }
 
-func lexShortcodeQuotedParamVal(l *pageLexer, escapedQuotedValuesAllowed bool, typ itemType) stateFunc {
+func lexShortcodeQuotedParamVal(l *pageLexer, escapedQuotedValuesAllowed bool, typ ItemType) stateFunc {
 	openQuoteFound := false
 	escapedInnerQuoteFound := false
 	escapedQuoteState := 0
@@ -592,7 +623,7 @@ Loop:
 }
 
 func lexEndOfShortcode(l *pageLexer) stateFunc {
-	if bytes.HasPrefix(l.input[l.pos:], l.currentRightShortcodeDelim()) {
+	if l.hasPrefix(l.currentRightShortcodeDelim()) {
 		return lexShortcodeRightDelim
 	}
 	switch r := l.next(); {
@@ -606,7 +637,7 @@ func lexEndOfShortcode(l *pageLexer) stateFunc {
 
 // scans the elements inside shortcode tags
 func lexInsideShortcode(l *pageLexer) stateFunc {
-	if bytes.HasPrefix(l.input[l.pos:], l.currentRightShortcodeDelim()) {
+	if l.hasPrefix(l.currentRightShortcodeDelim()) {
 		return lexShortcodeRightDelim
 	}
 	switch r := l.next(); {
@@ -643,11 +674,19 @@ func lexInsideShortcode(l *pageLexer) stateFunc {
 
 // state helpers
 
-func (l *pageLexer) currentLeftShortcodeDelimItem() itemType {
+func (l *pageLexer) index(sep []byte) int {
+	return bytes.Index(l.input[l.pos:], sep)
+}
+
+func (l *pageLexer) hasPrefix(prefix []byte) bool {
+	return bytes.HasPrefix(l.input[l.pos:], prefix)
+}
+
+func (l *pageLexer) currentLeftShortcodeDelimItem() ItemType {
 	return l.currLeftDelimItem
 }
 
-func (l *pageLexer) currentRightShortcodeDelimItem() itemType {
+func (l *pageLexer) currentRightShortcodeDelimItem() ItemType {
 	return l.currRightDelimItem
 }
 
@@ -667,6 +706,23 @@ func (l *pageLexer) currentRightShortcodeDelim() []byte {
 }
 
 // helper functions
+
+// returns the min index > 0
+func minPositiveIndex(indices ...int) int {
+	min := -1
+
+	for _, j := range indices {
+		if j <= 0 {
+			continue
+		}
+		if min == -1 {
+			min = j
+		} else if j < min {
+			min = j
+		}
+	}
+	return min
+}
 
 func isSpace(r rune) bool {
 	return r == ' ' || r == '\t'

@@ -272,17 +272,11 @@ func (c *contentHandlers) handlePageContent() contentHandler {
 
 		p := ctx.currentPage
 
-		// Work on a copy of the raw content from now on.
-		p.createWorkContentCopy()
-
-		if err := p.processShortcodes(); err != nil {
-			p.s.Log.ERROR.Println(err)
-		}
-
 		if c.s.Cfg.GetBool("enableEmoji") {
 			p.workContent = helpers.Emojify(p.workContent)
 		}
 
+		// TODO(bep) 2errors
 		p.workContent = p.replaceDivider(p.workContent)
 		p.workContent = p.renderContent(p.workContent)
 
@@ -305,12 +299,6 @@ func (c *contentHandlers) handleHTMLContent() contentHandler {
 		}
 
 		p := ctx.currentPage
-
-		p.createWorkContentCopy()
-
-		if err := p.processShortcodes(); err != nil {
-			p.s.Log.ERROR.Println(err)
-		}
 
 		if !ctx.doNotAddToSiteCollections {
 			ctx.pages <- p

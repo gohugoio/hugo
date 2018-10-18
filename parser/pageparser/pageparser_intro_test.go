@@ -26,27 +26,26 @@ type lexerTest struct {
 	items []Item
 }
 
-func nti(tp itemType, val string) Item {
+func nti(tp ItemType, val string) Item {
 	return Item{tp, 0, []byte(val)}
 }
 
 var (
 	tstJSON                = `{ "a": { "b": "\"Hugo\"}" } }`
-	tstHTMLLead            = nti(tHTMLLead, "  <")
-	tstFrontMatterTOML     = nti(tFrontMatterTOML, "foo = \"bar\"\n")
-	tstFrontMatterYAML     = nti(tFrontMatterYAML, "foo: \"bar\"\n")
-	tstFrontMatterYAMLCRLF = nti(tFrontMatterYAML, "foo: \"bar\"\r\n")
-	tstFrontMatterJSON     = nti(tFrontMatterJSON, tstJSON+"\r\n")
+	tstFrontMatterTOML     = nti(TypeFrontMatterTOML, "\nfoo = \"bar\"\n")
+	tstFrontMatterYAML     = nti(TypeFrontMatterYAML, "\nfoo: \"bar\"\n")
+	tstFrontMatterYAMLCRLF = nti(TypeFrontMatterYAML, "\r\nfoo: \"bar\"\r\n")
+	tstFrontMatterJSON     = nti(TypeFrontMatterJSON, tstJSON+"\r\n")
 	tstSomeText            = nti(tText, "\nSome text.\n")
-	tstSummaryDivider      = nti(tSummaryDivider, "<!--more-->")
-	tstSummaryDividerOrg   = nti(tSummaryDividerOrg, "# more")
+	tstSummaryDivider      = nti(TypeLeadSummaryDivider, "<!--more-->")
+	tstSummaryDividerOrg   = nti(TypeSummaryDividerOrg, "# more")
 
 	tstORG = `
 #+TITLE: T1
 #+AUTHOR: A1
 #+DESCRIPTION: D1
 `
-	tstFrontMatterORG = nti(tFrontMatterORG, tstORG)
+	tstFrontMatterORG = nti(TypeFrontMatterORG, tstORG)
 )
 
 var crLfReplacer = strings.NewReplacer("\r", "#", "\n", "$")
@@ -54,8 +53,15 @@ var crLfReplacer = strings.NewReplacer("\r", "#", "\n", "$")
 // TODO(bep) a way to toggle ORG mode vs the rest.
 var frontMatterTests = []lexerTest{
 	{"empty", "", []Item{tstEOF}},
-	{"HTML Document", `  <html>  `, []Item{tstHTMLLead, nti(tText, "html>  "), tstEOF}},
+	{"Byte order mark", "\ufeff\nSome text.\n", []Item{nti(TypeIgnore, "\ufeff"), tstSomeText, tstEOF}},
+	{"HTML Document", `  <html>  `, []Item{nti(TypeHTMLDocument, "  <html>  "), tstEOF}},
+	{"HTML Document 2", `<html><h1>Hugo Rocks</h1></html>`, []Item{nti(TypeHTMLDocument, "<html><h1>Hugo Rocks</h1></html>"), tstEOF}},
+	{"No front matter", "\nSome text.\n", []Item{tstSomeText, tstEOF}},
 	{"YAML front matter", "---\nfoo: \"bar\"\n---\n\nSome text.\n", []Item{tstFrontMatterYAML, tstSomeText, tstEOF}},
+	{"YAML empty front matter", "---\n---\n\nSome text.\n", []Item{nti(TypeFrontMatterYAML, "\n"), tstSomeText, tstEOF}},
+
+	{"YAML commented out front matter", "<!--\n---\nfoo: \"bar\"\n---\n-->\nSome text.\n", []Item{nti(TypeHTMLComment, "<!--\n---\nfoo: \"bar\"\n---\n-->"), tstSomeText, tstEOF}},
+
 	// Note that we keep all bytes as they are, but we need to handle CRLF
 	{"YAML front matter CRLF", "---\r\nfoo: \"bar\"\r\n---\n\nSome text.\n", []Item{tstFrontMatterYAMLCRLF, tstSomeText, tstEOF}},
 	{"TOML front matter", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n", []Item{tstFrontMatterTOML, tstSomeText, tstEOF}},
@@ -80,11 +86,12 @@ func TestFrontMatter(t *testing.T) {
 func collect(input []byte, skipFrontMatter bool, stateStart stateFunc) (items []Item) {
 	l := newPageLexer(input, 0, stateStart)
 	l.run()
+	t := l.newIterator()
 
 	for {
-		item := l.nextItem()
+		item := t.Next()
 		items = append(items, item)
-		if item.typ == tEOF || item.typ == tError {
+		if item.Typ == tEOF || item.Typ == tError {
 			break
 		}
 	}
@@ -97,7 +104,7 @@ func equal(i1, i2 []Item) bool {
 		return false
 	}
 	for k := range i1 {
-		if i1[k].typ != i2[k].typ {
+		if i1[k].Typ != i2[k].Typ {
 			return false
 		}
 		if !reflect.DeepEqual(i1[k].Val, i2[k].Val) {

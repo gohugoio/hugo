@@ -141,6 +141,7 @@ type Page struct {
 	contentv        template.HTML
 	summary         template.HTML
 	TableOfContents template.HTML
+
 	// Passed to the shortcodes
 	pageWithoutContent *PageWithoutContent
 
@@ -161,7 +162,6 @@ type Page struct {
 
 	extension   string
 	contentType string
-	renderable  bool
 
 	Layout string
 
@@ -171,18 +171,11 @@ type Page struct {
 
 	linkTitle string
 
-	frontmatter []byte
-
-	// rawContent is the raw content read from the content file.
-	rawContent []byte
-
-	// workContent is a copy of rawContent that may be mutated during site build.
-	workContent []byte
+	// Content items.
+	pageContent
 
 	// whether the content is in a CJK language.
 	isCJKLanguage bool
-
-	shortcodeState *shortcodeHandler
 
 	// the content stripped for HTML
 	plain      string // TODO should be []byte
@@ -967,12 +960,15 @@ func (p *Page) Section() string {
 	return p.Source.Section()
 }
 
-func (s *Site) NewPageFrom(buf io.Reader, name string) (*Page, error) {
+func (s *Site) newPageFrom(buf io.Reader, name string) (*Page, error) {
 	p, err := s.NewPage(name)
 	if err != nil {
 		return p, err
 	}
 	_, err = p.ReadFrom(buf)
+	if err != nil {
+		return nil, err
+	}
 
 	return p, err
 }
@@ -1004,6 +1000,14 @@ func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 	if err := p.parse(buf); err != nil {
 		return 0, p.errorf(err, "parse failed")
 
+	}
+
+	// Work on a copy of the raw content from now on.
+	// TODO(bep) 2errors
+	//p.createWorkContentCopy()
+
+	if err := p.mapContent(); err != nil {
+		return 0, err
 	}
 
 	return int64(len(p.rawContent)), nil
@@ -1304,7 +1308,7 @@ func (p *Page) prepareForRender() error {
 	return nil
 }
 
-func (p *Page) update(frontmatter map[string]interface{}) error {
+func (p *Page) updateMetaData(frontmatter map[string]interface{}) error {
 	if frontmatter == nil {
 		return errors.New("missing frontmatter data")
 	}
@@ -1756,39 +1760,6 @@ func (p *Page) shouldRenderTo(f output.Format) bool {
 	return found
 }
 
-func (p *Page) parse(reader io.Reader) error {
-	psr, err := parser.ReadFrom(reader)
-
-	if err != nil {
-		return err
-	}
-
-	p.renderable = psr.IsRenderable()
-	p.frontmatter = psr.FrontMatter()
-	p.rawContent = psr.Content()
-	p.lang = p.Source.File.Lang()
-
-	meta, err := psr.Metadata()
-	if err != nil {
-		return _errors.Wrap(err, "error in front matter")
-	}
-	if meta == nil {
-		// missing frontmatter equivalent to empty frontmatter
-		meta = map[string]interface{}{}
-	}
-
-	if p.s != nil && p.s.owner != nil {
-		gi, enabled := p.s.owner.gitInfo.forPage(p)
-		if gi != nil {
-			p.GitInfo = gi
-		} else if enabled {
-			p.s.Log.WARN.Printf("Failed to find GitInfo for page %q", p.Path())
-		}
-	}
-
-	return p.update(meta)
-}
-
 func (p *Page) RawContent() string {
 	return string(p.rawContent)
 }
@@ -1866,19 +1837,6 @@ func (p *Page) saveSource(by []byte, inpath string, safe bool) (err error) {
 
 func (p *Page) SaveSource() error {
 	return p.SaveSourceAs(p.FullFilePath())
-}
-
-// TODO(bep) lazy consolidate
-func (p *Page) processShortcodes() error {
-	p.shortcodeState = newShortcodeHandler(p)
-	tmpContent, err := p.shortcodeState.extractShortcodes(p.workContent, p.withoutContent())
-	if err != nil {
-		return err
-	}
-	p.workContent = []byte(tmpContent)
-
-	return nil
-
 }
 
 func (p *Page) FullFilePath() string {

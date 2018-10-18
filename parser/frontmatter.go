@@ -203,6 +203,7 @@ func removeTOMLIdentifier(datum []byte) []byte {
 
 // HandleYAMLMetaData unmarshals YAML-encoded datum and returns a Go interface
 // representing the encoded data structure.
+// TODO(bep) 2errors remove these handlers (and hopefully package)
 func HandleYAMLMetaData(datum []byte) (map[string]interface{}, error) {
 	m := map[string]interface{}{}
 	err := yaml.Unmarshal(datum, &m)

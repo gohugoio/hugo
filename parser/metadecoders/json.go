@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,28 +11,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package metadecoders
 
-import (
-	"path/filepath"
-	"strings"
-	"testing"
-)
+import "encoding/json"
 
-var simplePageYAML = `---
-contenttype: ""
----
-Sample Text
-`
-
-func TestDegenerateMissingFolderInPageFilename(t *testing.T) {
-	t.Parallel()
-	s := newTestSite(t)
-	p, err := s.newPageFrom(strings.NewReader(simplePageYAML), filepath.Join("foobar"))
-	if err != nil {
-		t.Fatalf("Error in NewPageFrom")
+// HandleJSONData unmarshals JSON-encoded datum and returns a Go interface
+// representing the encoded data structure.
+func HandleJSONData(datum []byte) (interface{}, error) {
+	if datum == nil {
+		// Package json returns on error on nil input.
+		// Return an empty map to be consistent with our other supported
+		// formats.
+		return make(map[string]interface{}), nil
 	}
-	if p.Section() != "" {
-		t.Fatalf("No section should be set for a file path: foobar")
-	}
+
+	var f interface{}
+	err := json.Unmarshal(datum, &f)
+	return f, err
 }
