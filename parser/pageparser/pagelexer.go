@@ -18,8 +18,8 @@
 package pageparser
 
 import (
+	"bytes"
 	"fmt"
-	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -44,7 +44,7 @@ type lexerShortcodeState struct {
 }
 
 type pageLexer struct {
-	input      string
+	input      []byte
 	stateStart stateFunc
 	state      stateFunc
 	pos        pos // input position
@@ -65,14 +65,16 @@ func Parse(s string) *Tokens {
 }
 
 func ParseFrom(s string, from int) *Tokens {
-	lexer := newPageLexer(s, pos(from), lexMainSection) // TODO(bep) 2errors
+	input := []byte(s)
+	lexer := newPageLexer(input, pos(from), lexMainSection) // TODO(bep) 2errors
 	lexer.run()
 	return &Tokens{lexer: lexer}
 }
 
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
-func newPageLexer(input string, inputPosition pos, stateStart stateFunc) *pageLexer {
+// TODO(bep) 2errors byte
+func newPageLexer(input []byte, inputPosition pos, stateStart stateFunc) *pageLexer {
 	lexer := &pageLexer{
 		input:      input,
 		pos:        inputPosition,
@@ -97,19 +99,22 @@ func (l *pageLexer) run() *pageLexer {
 }
 
 // Shortcode syntax
-const (
-	leftDelimScNoMarkup    = "{{<"
-	rightDelimScNoMarkup   = ">}}"
-	leftDelimScWithMarkup  = "{{%"
-	rightDelimScWithMarkup = "%}}"
-	leftComment            = "/*" // comments in this context us used to to mark shortcodes as "not really a shortcode"
-	rightComment           = "*/"
+var (
+	leftDelimScNoMarkup    = []byte("{{<")
+	rightDelimScNoMarkup   = []byte(">}}")
+	leftDelimScWithMarkup  = []byte("{{%")
+	rightDelimScWithMarkup = []byte("%}}")
+	leftComment            = []byte("/*") // comments in this context us used to to mark shortcodes as "not really a shortcode"
+	rightComment           = []byte("*/")
 )
 
 // Page syntax
-const (
-	summaryDivider    = "<!--more-->"
-	summaryDividerOrg = "# more"
+var (
+	summaryDivider    = []byte("<!--more-->")
+	summaryDividerOrg = []byte("# more")
+	delimTOML         = []byte("+++")
+	delimYAML         = []byte("---")
+	delimOrg          = []byte("#+")
 )
 
 func (l *pageLexer) next() rune {
@@ -118,9 +123,7 @@ func (l *pageLexer) next() rune {
 		return eof
 	}
 
-	// looks expensive, but should produce the same iteration sequence as the string range loop
-	// see: http://blog.golang.org/strings
-	runeValue, runeWidth := utf8.DecodeRuneInString(l.input[l.pos:])
+	runeValue, runeWidth := utf8.DecodeRune(l.input[l.pos:])
 	l.width = pos(runeWidth)
 	l.pos += l.width
 	return runeValue
@@ -146,7 +149,7 @@ func (l *pageLexer) emit(t itemType) {
 
 // special case, do not send '\\' back to client
 func (l *pageLexer) ignoreEscapesAndEmit(t itemType) {
-	val := strings.Map(func(r rune) rune {
+	val := bytes.Map(func(r rune) rune {
 		if r == '\\' {
 			return -1
 		}
@@ -157,7 +160,7 @@ func (l *pageLexer) ignoreEscapesAndEmit(t itemType) {
 }
 
 // gets the current value (for debugging and error handling)
-func (l *pageLexer) current() string {
+func (l *pageLexer) current() []byte {
 	return l.input[l.start:l.pos]
 }
 
@@ -166,14 +169,16 @@ func (l *pageLexer) ignore() {
 	l.start = l.pos
 }
 
+var lf = []byte("\n")
+
 // nice to have in error logs
 func (l *pageLexer) lineNum() int {
-	return strings.Count(l.input[:l.lastPos], "\n") + 1
+	return bytes.Count(l.input[:l.lastPos], lf) + 1
 }
 
 // nil terminates the parser
 func (l *pageLexer) errorf(format string, args ...interface{}) stateFunc {
-	l.items = append(l.items, Item{tError, l.start, fmt.Sprintf(format, args...)})
+	l.items = append(l.items, Item{tError, l.start, []byte(fmt.Sprintf(format, args...))})
 	return nil
 }
 
@@ -203,7 +208,7 @@ func lexMainSection(l *pageLexer) stateFunc {
 			if l.pos > l.start {
 				l.emit(tText)
 			}
-			if strings.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) {
+			if bytes.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) {
 				l.currLeftDelimItem = tLeftDelimScWithMarkup
 				l.currRightDelimItem = tRightDelimScWithMarkup
 			} else {
@@ -214,14 +219,14 @@ func lexMainSection(l *pageLexer) stateFunc {
 		}
 
 		if l.contentSections <= 1 {
-			if strings.HasPrefix(l.input[l.pos:], summaryDivider) {
+			if bytes.HasPrefix(l.input[l.pos:], summaryDivider) {
 				if l.pos > l.start {
 					l.emit(tText)
 				}
 				l.contentSections++
 				l.pos += pos(len(summaryDivider))
 				l.emit(tSummaryDivider)
-			} else if strings.HasPrefix(l.input[l.pos:], summaryDividerOrg) {
+			} else if bytes.HasPrefix(l.input[l.pos:], summaryDividerOrg) {
 				if l.pos > l.start {
 					l.emit(tText)
 				}
@@ -243,7 +248,7 @@ func lexMainSection(l *pageLexer) stateFunc {
 }
 
 func (l *pageLexer) isShortCodeStart() bool {
-	return strings.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) || strings.HasPrefix(l.input[l.pos:], leftDelimScNoMarkup)
+	return bytes.HasPrefix(l.input[l.pos:], leftDelimScWithMarkup) || bytes.HasPrefix(l.input[l.pos:], leftDelimScNoMarkup)
 }
 
 func lexIntroSection(l *pageLexer) stateFunc {
@@ -256,9 +261,9 @@ LOOP:
 
 		switch {
 		case r == '+':
-			return l.lexFrontMatterSection(tFrontMatterTOML, r, "TOML", "+++")
+			return l.lexFrontMatterSection(tFrontMatterTOML, r, "TOML", delimTOML)
 		case r == '-':
-			return l.lexFrontMatterSection(tFrontMatterYAML, r, "YAML", "---")
+			return l.lexFrontMatterSection(tFrontMatterYAML, r, "YAML", delimYAML)
 		case r == '{':
 			return lexFrontMatterJSON
 		case r == '#':
@@ -342,11 +347,9 @@ func lexFrontMatterOrgMode(l *pageLexer) stateFunc {
 		#+DESCRIPTION: Just another golang parser for org content!
 	*/
 
-	const prefix = "#+"
-
 	l.backup()
 
-	if !strings.HasPrefix(l.input[l.pos:], prefix) {
+	if !bytes.HasPrefix(l.input[l.pos:], delimOrg) {
 		// TODO(bep) consider error
 		return lexMainSection
 	}
@@ -359,7 +362,7 @@ LOOP:
 
 		switch {
 		case r == '\n':
-			if !strings.HasPrefix(l.input[l.pos:], prefix) {
+			if !bytes.HasPrefix(l.input[l.pos:], delimOrg) {
 				break LOOP
 			}
 		case r == eof:
@@ -375,7 +378,7 @@ LOOP:
 }
 
 // Handle YAML or TOML front matter.
-func (l *pageLexer) lexFrontMatterSection(tp itemType, delimr rune, name, delim string) stateFunc {
+func (l *pageLexer) lexFrontMatterSection(tp itemType, delimr rune, name string, delim []byte) stateFunc {
 	for i := 0; i < 2; i++ {
 		if r := l.next(); r != delimr {
 			return l.errorf("invalid %s delimiter", name)
@@ -395,7 +398,7 @@ func (l *pageLexer) lexFrontMatterSection(tp itemType, delimr rune, name, delim 
 			return l.errorf("EOF looking for end %s front matter delimiter", name)
 		}
 		if isEndOfLine(r) {
-			if strings.HasPrefix(l.input[l.pos:], delim) {
+			if bytes.HasPrefix(l.input[l.pos:], delim) {
 				l.emit(tp)
 				l.pos += 3
 				l.consumeCRLF()
@@ -410,7 +413,7 @@ func (l *pageLexer) lexFrontMatterSection(tp itemType, delimr rune, name, delim 
 
 func lexShortcodeLeftDelim(l *pageLexer) stateFunc {
 	l.pos += pos(len(l.currentLeftShortcodeDelim()))
-	if strings.HasPrefix(l.input[l.pos:], leftComment) {
+	if bytes.HasPrefix(l.input[l.pos:], leftComment) {
 		return lexShortcodeComment
 	}
 	l.emit(l.currentLeftShortcodeDelimItem())
@@ -420,7 +423,7 @@ func lexShortcodeLeftDelim(l *pageLexer) stateFunc {
 }
 
 func lexShortcodeComment(l *pageLexer) stateFunc {
-	posRightComment := strings.Index(l.input[l.pos:], rightComment+l.currentRightShortcodeDelim())
+	posRightComment := bytes.Index(l.input[l.pos:], append(rightComment, l.currentRightShortcodeDelim()...))
 	if posRightComment <= 1 {
 		return l.errorf("comment must be closed")
 	}
@@ -576,7 +579,7 @@ Loop:
 		case r == '/':
 		default:
 			l.backup()
-			word := l.input[l.start:l.pos]
+			word := string(l.input[l.start:l.pos])
 			if l.closingState > 0 && !l.openShortcodes[word] {
 				return l.errorf("closing tag for shortcode '%s' does not match start tag", word)
 			} else if l.closingState > 0 {
@@ -600,7 +603,7 @@ Loop:
 }
 
 func lexEndOfShortcode(l *pageLexer) stateFunc {
-	if strings.HasPrefix(l.input[l.pos:], l.currentRightShortcodeDelim()) {
+	if bytes.HasPrefix(l.input[l.pos:], l.currentRightShortcodeDelim()) {
 		return lexShortcodeRightDelim
 	}
 	switch r := l.next(); {
@@ -614,7 +617,7 @@ func lexEndOfShortcode(l *pageLexer) stateFunc {
 
 // scans the elements inside shortcode tags
 func lexInsideShortcode(l *pageLexer) stateFunc {
-	if strings.HasPrefix(l.input[l.pos:], l.currentRightShortcodeDelim()) {
+	if bytes.HasPrefix(l.input[l.pos:], l.currentRightShortcodeDelim()) {
 		return lexShortcodeRightDelim
 	}
 	switch r := l.next(); {
@@ -659,7 +662,7 @@ func (l *pageLexer) currentRightShortcodeDelimItem() itemType {
 	return l.currRightDelimItem
 }
 
-func (l *pageLexer) currentLeftShortcodeDelim() string {
+func (l *pageLexer) currentLeftShortcodeDelim() []byte {
 	if l.currLeftDelimItem == tLeftDelimScWithMarkup {
 		return leftDelimScWithMarkup
 	}
@@ -667,7 +670,7 @@ func (l *pageLexer) currentLeftShortcodeDelim() string {
 
 }
 
-func (l *pageLexer) currentRightShortcodeDelim() string {
+func (l *pageLexer) currentRightShortcodeDelim() []byte {
 	if l.currRightDelimItem == tRightDelimScWithMarkup {
 		return rightDelimScWithMarkup
 	}

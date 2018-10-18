@@ -18,7 +18,7 @@ import "fmt"
 type Item struct {
 	typ itemType
 	pos pos
-	Val string
+	Val []byte
 }
 
 func (i Item) IsText() bool {
@@ -70,7 +70,7 @@ func (i Item) String() string {
 	case i.typ == tEOF:
 		return "EOF"
 	case i.typ == tError:
-		return i.Val
+		return string(i.Val)
 	case i.typ > tKeywordMarker:
 		return fmt.Sprintf("<%s>", i.Val)
 	case len(i.Val) > 50:

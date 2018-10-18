@@ -15,6 +15,7 @@ package pageparser
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -25,23 +26,27 @@ type lexerTest struct {
 	items []Item
 }
 
+func nti(tp itemType, val string) Item {
+	return Item{tp, 0, []byte(val)}
+}
+
 var (
 	tstJSON                = `{ "a": { "b": "\"Hugo\"}" } }`
-	tstHTMLLead            = Item{tHTMLLead, 0, "  <"}
-	tstFrontMatterTOML     = Item{tFrontMatterTOML, 0, "foo = \"bar\"\n"}
-	tstFrontMatterYAML     = Item{tFrontMatterYAML, 0, "foo: \"bar\"\n"}
-	tstFrontMatterYAMLCRLF = Item{tFrontMatterYAML, 0, "foo: \"bar\"\r\n"}
-	tstFrontMatterJSON     = Item{tFrontMatterJSON, 0, tstJSON + "\r\n"}
-	tstSomeText            = Item{tText, 0, "\nSome text.\n"}
-	tstSummaryDivider      = Item{tSummaryDivider, 0, "<!--more-->"}
-	tstSummaryDividerOrg   = Item{tSummaryDividerOrg, 0, "# more"}
+	tstHTMLLead            = nti(tHTMLLead, "  <")
+	tstFrontMatterTOML     = nti(tFrontMatterTOML, "foo = \"bar\"\n")
+	tstFrontMatterYAML     = nti(tFrontMatterYAML, "foo: \"bar\"\n")
+	tstFrontMatterYAMLCRLF = nti(tFrontMatterYAML, "foo: \"bar\"\r\n")
+	tstFrontMatterJSON     = nti(tFrontMatterJSON, tstJSON+"\r\n")
+	tstSomeText            = nti(tText, "\nSome text.\n")
+	tstSummaryDivider      = nti(tSummaryDivider, "<!--more-->")
+	tstSummaryDividerOrg   = nti(tSummaryDividerOrg, "# more")
 
 	tstORG = `
 #+TITLE: T1
 #+AUTHOR: A1
 #+DESCRIPTION: D1
 `
-	tstFrontMatterORG = Item{tFrontMatterORG, 0, tstORG}
+	tstFrontMatterORG = nti(tFrontMatterORG, tstORG)
 )
 
 var crLfReplacer = strings.NewReplacer("\r", "#", "\n", "$")
@@ -49,7 +54,7 @@ var crLfReplacer = strings.NewReplacer("\r", "#", "\n", "$")
 // TODO(bep) a way to toggle ORG mode vs the rest.
 var frontMatterTests = []lexerTest{
 	{"empty", "", []Item{tstEOF}},
-	{"HTML Document", `  <html>  `, []Item{tstHTMLLead, Item{tText, 0, "html>  "}, tstEOF}},
+	{"HTML Document", `  <html>  `, []Item{tstHTMLLead, nti(tText, "html>  "), tstEOF}},
 	{"YAML front matter", "---\nfoo: \"bar\"\n---\n\nSome text.\n", []Item{tstFrontMatterYAML, tstSomeText, tstEOF}},
 	// Note that we keep all bytes as they are, but we need to handle CRLF
 	{"YAML front matter CRLF", "---\r\nfoo: \"bar\"\r\n---\n\nSome text.\n", []Item{tstFrontMatterYAMLCRLF, tstSomeText, tstEOF}},
@@ -63,7 +68,7 @@ var frontMatterTests = []lexerTest{
 func TestFrontMatter(t *testing.T) {
 	t.Parallel()
 	for i, test := range frontMatterTests {
-		items := collect(test.name, test.input, false, lexIntroSection)
+		items := collect([]byte(test.input), false, lexIntroSection)
 		if !equal(items, test.items) {
 			got := crLfReplacer.Replace(fmt.Sprint(items))
 			expected := crLfReplacer.Replace(fmt.Sprint(test.items))
@@ -72,7 +77,7 @@ func TestFrontMatter(t *testing.T) {
 	}
 }
 
-func collect(name, input string, skipFrontMatter bool, stateStart stateFunc) (items []Item) {
+func collect(input []byte, skipFrontMatter bool, stateStart stateFunc) (items []Item) {
 	l := newPageLexer(input, 0, stateStart)
 	l.run()
 
@@ -95,7 +100,7 @@ func equal(i1, i2 []Item) bool {
 		if i1[k].typ != i2[k].typ {
 			return false
 		}
-		if i1[k].Val != i2[k].Val {
+		if !reflect.DeepEqual(i1[k].Val, i2[k].Val) {
 			return false
 		}
 	}
