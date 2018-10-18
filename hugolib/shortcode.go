@@ -553,9 +553,9 @@ Loop:
 
 			return sc, nil
 		case currItem.IsText():
-			sc.inner = append(sc.inner, currItem.Val)
+			sc.inner = append(sc.inner, currItem.ValStr())
 		case currItem.IsShortcodeName():
-			sc.name = currItem.Val
+			sc.name = currItem.ValStr()
 			// We pick the first template for an arbitrary output format
 			// if more than one. It is "all inner or no inner".
 			tmpl := getShortcodeTemplateForTemplateKey(scKey{}, sc.name, p.s.Tmpl)
@@ -576,11 +576,11 @@ Loop:
 				// named params
 				if sc.params == nil {
 					params := make(map[string]string)
-					params[currItem.Val] = pt.Next().Val
+					params[currItem.ValStr()] = pt.Next().ValStr()
 					sc.params = params
 				} else {
 					if params, ok := sc.params.(map[string]string); ok {
-						params[currItem.Val] = pt.Next().Val
+						params[currItem.ValStr()] = pt.Next().ValStr()
 					} else {
 						return sc, errShortCodeIllegalState
 					}
@@ -590,11 +590,11 @@ Loop:
 				// positional params
 				if sc.params == nil {
 					var params []string
-					params = append(params, currItem.Val)
+					params = append(params, currItem.ValStr())
 					sc.params = params
 				} else {
 					if params, ok := sc.params.([]string); ok {
-						params = append(params, currItem.Val)
+						params = append(params, currItem.ValStr())
 						sc.params = params
 					} else {
 						return sc, errShortCodeIllegalState
@@ -613,19 +613,21 @@ Loop:
 	return sc, nil
 }
 
-func (s *shortcodeHandler) extractShortcodes(stringToParse string, p *PageWithoutContent) (string, error) {
+var shortCodeStart = []byte("{{")
 
-	startIdx := strings.Index(stringToParse, "{{")
+func (s *shortcodeHandler) extractShortcodes(input []byte, p *PageWithoutContent) (string, error) {
+
+	startIdx := bytes.Index(input, shortCodeStart)
 
 	// short cut for docs with no shortcodes
 	if startIdx < 0 {
-		return stringToParse, nil
+		return string(input), nil
 	}
 
 	// the parser takes a string;
 	// since this is an internal API, it could make sense to use the mutable []byte all the way, but
 	// it seems that the time isn't really spent in the byte copy operations, and the impl. gets a lot cleaner
-	pt := pageparser.ParseFrom(stringToParse, startIdx)
+	pt := pageparser.ParseFrom(input, startIdx)
 
 	result := bp.GetBuffer()
 	defer bp.PutBuffer(result)
@@ -642,7 +644,7 @@ Loop:
 
 		switch {
 		case currItem.IsText():
-			result.WriteString(currItem.Val)
+			result.WriteString(currItem.ValStr())
 		case currItem.IsLeftShortcodeDelim():
 			// let extractShortcode handle left delim (will do so recursively)
 			pt.Backup()

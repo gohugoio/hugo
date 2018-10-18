@@ -60,17 +60,6 @@ type pageLexer struct {
 	items []Item
 }
 
-func Parse(s string) *Tokens {
-	return ParseFrom(s, 0)
-}
-
-func ParseFrom(s string, from int) *Tokens {
-	input := []byte(s)
-	lexer := newPageLexer(input, pos(from), lexMainSection) // TODO(bep) 2errors
-	lexer.run()
-	return &Tokens{lexer: lexer}
-}
-
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
 // TODO(bep) 2errors byte

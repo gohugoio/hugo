@@ -21,6 +21,10 @@ type Item struct {
 	Val []byte
 }
 
+func (i Item) ValStr() string {
+	return string(i.Val)
+}
+
 func (i Item) IsText() bool {
 	return i.typ == tText
 }

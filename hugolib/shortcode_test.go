@@ -424,7 +424,7 @@ func TestExtractShortcodes(t *testing.T) {
 			return fmt.Sprintf("HAHA%s-%dHBHB", shortcodePlaceholderPrefix, counter)
 		}
 
-		content, err := s.extractShortcodes(this.input, p.withoutContent())
+		content, err := s.extractShortcodes([]byte(this.input), p.withoutContent())
 
 		if b, ok := this.expect.(bool); ok && !b {
 			if err == nil {

@@ -17,7 +17,15 @@
 // See slides here: http://cuddle.googlecode.com/hg/talk/lex.html
 package pageparser
 
-// The lexical scanning below
+func Parse(input []byte) *Tokens {
+	return ParseFrom(input, 0)
+}
+
+func ParseFrom(input []byte, from int) *Tokens {
+	lexer := newPageLexer(input, pos(from), lexMainSection) // TODO(bep) 2errors
+	lexer.run()
+	return &Tokens{lexer: lexer}
+}
 
 type Tokens struct {
 	lexer     *pageLexer

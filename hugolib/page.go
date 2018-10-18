@@ -1871,7 +1871,7 @@ func (p *Page) SaveSource() error {
 // TODO(bep) lazy consolidate
 func (p *Page) processShortcodes() error {
 	p.shortcodeState = newShortcodeHandler(p)
-	tmpContent, err := p.shortcodeState.extractShortcodes(string(p.workContent), p.withoutContent())
+	tmpContent, err := p.shortcodeState.extractShortcodes(p.workContent, p.withoutContent())
 	if err != nil {
 		return err
 	}
