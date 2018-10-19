@@ -1272,60 +1272,6 @@ func TestSliceToLower(t *testing.T) {
 	}
 }
 
-func TestReplaceDivider(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		content           string
-		from              string
-		to                string
-		expectedContent   string
-		expectedTruncated bool
-	}{
-		{"none", "a", "b", "none", false},
-		{"summary <!--more--> content", "<!--more-->", "HUGO", "summary HUGO content", true},
-		{"summary\n\ndivider", "divider", "HUGO", "summary\n\nHUGO", false},
-		{"summary\n\ndivider\n\r", "divider", "HUGO", "summary\n\nHUGO\n\r", false},
-	}
-
-	for i, test := range tests {
-		replaced, truncated := replaceDivider([]byte(test.content), []byte(test.from), []byte(test.to))
-
-		if truncated != test.expectedTruncated {
-			t.Fatalf("[%d] Expected truncated to be %t, was %t", i, test.expectedTruncated, truncated)
-		}
-
-		if string(replaced) != test.expectedContent {
-			t.Fatalf("[%d] Expected content to be %q, was %q", i, test.expectedContent, replaced)
-		}
-	}
-}
-
-func BenchmarkReplaceDivider(b *testing.B) {
-	divider := "HUGO_DIVIDER"
-	from, to := []byte(divider), []byte("HUGO_REPLACED")
-
-	withDivider := make([][]byte, b.N)
-	noDivider := make([][]byte, b.N)
-
-	for i := 0; i < b.N; i++ {
-		withDivider[i] = []byte(strings.Repeat("Summary ", 5) + "\n" + divider + "\n" + strings.Repeat("Word ", 300))
-		noDivider[i] = []byte(strings.Repeat("Word ", 300))
-	}
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		_, t1 := replaceDivider(withDivider[i], from, to)
-		_, t2 := replaceDivider(noDivider[i], from, to)
-		if !t1 {
-			b.Fatal("Should be truncated")
-		}
-		if t2 {
-			b.Fatal("Should not be truncated")
-		}
-	}
-}
-
 func TestPagePaths(t *testing.T) {
 	t.Parallel()
 

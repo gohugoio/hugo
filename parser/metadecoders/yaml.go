@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cast"
-	yaml "gopkg.in/yaml.v1"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // HandleYAMLData unmarshals YAML-encoded datum and returns a Go interface

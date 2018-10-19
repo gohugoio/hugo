@@ -91,7 +91,7 @@ func collect(input []byte, skipFrontMatter bool, stateStart stateFunc) (items []
 	for {
 		item := t.Next()
 		items = append(items, item)
-		if item.Typ == tEOF || item.Typ == tError {
+		if item.Type == tEOF || item.Type == tError {
 			break
 		}
 	}
@@ -104,7 +104,7 @@ func equal(i1, i2 []Item) bool {
 		return false
 	}
 	for k := range i1 {
-		if i1[k].Typ != i2[k].Typ {
+		if i1[k].Type != i2[k].Type {
 			return false
 		}
 		if !reflect.DeepEqual(i1[k].Val, i2[k].Val) {

@@ -86,7 +86,7 @@ func (t *Iterator) Backup() {
 // check for non-error and non-EOF types coming next
 func (t *Iterator) IsValueNext() bool {
 	i := t.Peek()
-	return i.Typ != tError && i.Typ != tEOF
+	return i.Type != tError && i.Type != tEOF
 }
 
 // look at, but do not consume, the next item
@@ -95,12 +95,23 @@ func (t *Iterator) Peek() Item {
 	return t.l.items[t.lastPos+1]
 }
 
+// PeekWalk will feed the next items in the iterator to walkFn
+// until it returns false.
+func (t *Iterator) PeekWalk(walkFn func(item Item) bool) {
+	for i := t.lastPos + 1; i < pos(len(t.l.items)); i++ {
+		item := t.l.items[i]
+		if !walkFn(item) {
+			break
+		}
+	}
+}
+
 // Consume is a convencience method to consume the next n tokens,
 // but back off Errors and EOF.
 func (t *Iterator) Consume(cnt int) {
 	for i := 0; i < cnt; i++ {
 		token := t.Next()
-		if token.Typ == tError || token.Typ == tEOF {
+		if token.Type == tError || token.Type == tEOF {
 			t.Backup()
 			break
 		}

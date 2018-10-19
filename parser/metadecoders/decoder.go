@@ -20,7 +20,7 @@ import (
 	"github.com/chaseadamsio/goorgeous"
 	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/pkg/errors"
-	yaml "gopkg.in/yaml.v1"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type Format string

@@ -23,6 +23,10 @@ import (
 	"github.com/gohugoio/hugo/parser/pageparser"
 )
 
+var (
+	internalSummaryDivider = []byte("HUGOMORE42")
+)
+
 // The content related items on a Page.
 type pageContent struct {
 	renderable bool
@@ -41,11 +45,12 @@ type pageContent struct {
 }
 
 type rawPageContent struct {
+	hasSummaryDivider bool
+
 	// The AST of the parsed page. Contains information about:
 	// shortcBackup3odes, front matter, summary indicators.
 	// TODO(bep) 2errors add this to a new rawPagecContent struct
 	// with frontMatterItem (pos) etc.
-	// * also Result.Iterator, Result.Source
 	// * RawContent, RawContentWithoutFrontMatter
 	parsed pageparser.Result
 }
@@ -71,16 +76,15 @@ Loop:
 		it := iter.Next()
 
 		switch {
-		case it.Typ == pageparser.TypeIgnore:
-		case it.Typ == pageparser.TypeHTMLComment:
+		case it.Type == pageparser.TypeIgnore:
+		case it.Type == pageparser.TypeHTMLComment:
 			// Ignore. This is only a leading Front matter comment.
-		case it.Typ == pageparser.TypeHTMLDocument:
+		case it.Type == pageparser.TypeHTMLDocument:
 			// This is HTML only. No shortcode, front matter etc.
 			p.renderable = false
 			result.Write(it.Val)
-			// TODO(bep) 2errors commented out frontmatter
 		case it.IsFrontMatter():
-			f := metadecoders.FormatFromFrontMatterType(it.Typ)
+			f := metadecoders.FormatFromFrontMatterType(it.Type)
 			m, err := metadecoders.UnmarshalToMap(it.Val, f)
 			if err != nil {
 				return err
@@ -92,11 +96,23 @@ Loop:
 			if !p.shouldBuild() {
 				// Nothing more to do.
 				return nil
-
 			}
 
-		//case it.Typ == pageparser.TypeLeadSummaryDivider, it.Typ == pageparser.TypeSummaryDividerOrg:
-		// TODO(bep) 2errors store if divider is there and use that to determine if replace or not
+		case it.Type == pageparser.TypeLeadSummaryDivider, it.Type == pageparser.TypeSummaryDividerOrg:
+			result.Write(internalSummaryDivider)
+			p.source.hasSummaryDivider = true
+			// Need to determine if the page is truncated.
+			f := func(item pageparser.Item) bool {
+				if item.IsNonWhitespace() {
+					p.truncated = true
+
+					// Done
+					return false
+				}
+				return true
+			}
+			iter.PeekWalk(f)
+
 		// Handle shortcode
 		case it.IsLeftShortcodeDelim():
 			// let extractShortcode handle left delim (will do so recursively)

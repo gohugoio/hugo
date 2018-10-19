@@ -276,8 +276,6 @@ func (c *contentHandlers) handlePageContent() contentHandler {
 			p.workContent = helpers.Emojify(p.workContent)
 		}
 
-		// TODO(bep) 2errors
-		p.workContent = p.replaceDivider(p.workContent)
 		p.workContent = p.renderContent(p.workContent)
 
 		tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.workContent)

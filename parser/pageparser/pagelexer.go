@@ -235,6 +235,7 @@ func lexMainSection(l *pageLexer) stateFunc {
 				}
 				l.summaryDividerChecked = true
 				l.pos += pos(len(summaryDivider))
+				//l.consumeCRLF()
 				l.emit(TypeLeadSummaryDivider)
 			} else if l.hasPrefix(summaryDividerOrg) {
 				if l.pos > l.start {
@@ -242,6 +243,7 @@ func lexMainSection(l *pageLexer) stateFunc {
 				}
 				l.summaryDividerChecked = true
 				l.pos += pos(len(summaryDividerOrg))
+				//l.consumeCRLF()
 				l.emit(TypeSummaryDividerOrg)
 			}
 		}

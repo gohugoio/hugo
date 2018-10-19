@@ -13,10 +13,13 @@
 
 package pageparser
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+)
 
 type Item struct {
-	Typ ItemType
+	Type ItemType
 	pos pos
 	Val []byte
 }
@@ -28,65 +31,69 @@ func (i Item) ValStr() string {
 }
 
 func (i Item) IsText() bool {
-	return i.Typ == tText
+	return i.Type == tText
+}
+
+func (i Item) IsNonWhitespace() bool {
+	return len(bytes.TrimSpace(i.Val)) > 0
 }
 
 func (i Item) IsShortcodeName() bool {
-	return i.Typ == tScName
+	return i.Type == tScName
 }
 
 func (i Item) IsLeftShortcodeDelim() bool {
-	return i.Typ == tLeftDelimScWithMarkup || i.Typ == tLeftDelimScNoMarkup
+	return i.Type == tLeftDelimScWithMarkup || i.Type == tLeftDelimScNoMarkup
 }
 
 func (i Item) IsRightShortcodeDelim() bool {
-	return i.Typ == tRightDelimScWithMarkup || i.Typ == tRightDelimScNoMarkup
+	return i.Type == tRightDelimScWithMarkup || i.Type == tRightDelimScNoMarkup
 }
 
 func (i Item) IsShortcodeClose() bool {
-	return i.Typ == tScClose
+	return i.Type == tScClose
 }
 
 func (i Item) IsShortcodeParam() bool {
-	return i.Typ == tScParam
+	return i.Type == tScParam
 }
 
 func (i Item) IsShortcodeParamVal() bool {
-	return i.Typ == tScParamVal
+	return i.Type == tScParamVal
 }
 
 func (i Item) IsShortcodeMarkupDelimiter() bool {
-	return i.Typ == tLeftDelimScWithMarkup || i.Typ == tRightDelimScWithMarkup
+	return i.Type == tLeftDelimScWithMarkup || i.Type == tRightDelimScWithMarkup
 }
 
 func (i Item) IsFrontMatter() bool {
-	return i.Typ >= TypeFrontMatterYAML && i.Typ <= TypeFrontMatterORG
+	return i.Type >= TypeFrontMatterYAML && i.Type <= TypeFrontMatterORG
 }
 
 func (i Item) IsDone() bool {
-	return i.Typ == tError || i.Typ == tEOF
+	return i.Type == tError || i.Type == tEOF
 }
 
 func (i Item) IsEOF() bool {
-	return i.Typ == tEOF
+	return i.Type == tEOF
 }
 
 func (i Item) IsError() bool {
-	return i.Typ == tError
+	return i.Type == tError
 }
 
 func (i Item) String() string {
 	switch {
-	case i.Typ == tEOF:
+	case i.Type == tEOF:
 		return "EOF"
-	case i.Typ == tError:
+	case i.Type == tError:
 		return string(i.Val)
-	case i.Typ > tKeywordMarker:
+	case i.Type > tKeywordMarker:
 		return fmt.Sprintf("<%s>", i.Val)
 	case len(i.Val) > 50:
-		return fmt.Sprintf("%v:%.20q...", i.Typ, i.Val)
+		return fmt.Sprintf("%v:%.20q...", i.Type, i.Val)
 	}
-	return fmt.Sprintf("%v:[%s]", i.Typ, i.Val)
+	return fmt.Sprintf("%v:[%s]", i.Type, i.Val)
 }
 
 type ItemType int

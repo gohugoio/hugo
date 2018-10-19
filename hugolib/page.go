@@ -19,7 +19,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"unicode"
 
 	"github.com/gohugoio/hugo/media"
 	_errors "github.com/pkg/errors"
@@ -706,55 +705,13 @@ func (p *Page) UniqueID() string {
 }
 
 // for logging
+// TODO(bep) 2errors remove
 func (p *Page) lineNumRawContentStart() int {
 	return bytes.Count(p.frontmatter, []byte("\n")) + 1
 }
 
-var (
-	internalSummaryDivider = []byte("HUGOMORE42")
-)
-
-// replaceDivider replaces the <!--more--> with an internal value and returns
-// whether the contentis truncated or not.
-// Note: The content slice will be modified if needed.
-func replaceDivider(content, from, to []byte) ([]byte, bool) {
-	dividerIdx := bytes.Index(content, from)
-	if dividerIdx == -1 {
-		return content, false
-	}
-
-	afterSummary := content[dividerIdx+len(from):]
-
-	// If the raw content has nothing but whitespace after the summary
-	// marker then the page shouldn't be marked as truncated.  This check
-	// is simplest against the raw content because different markup engines
-	// (rst and asciidoc in particular) add div and p elements after the
-	// summary marker.
-	truncated := bytes.IndexFunc(afterSummary, func(r rune) bool { return !unicode.IsSpace(r) }) != -1
-
-	content = append(content[:dividerIdx], append(to, afterSummary...)...)
-
-	return content, truncated
-
-}
-
-// We have to replace the <!--more--> with something that survives all the
-// rendering engines.
-func (p *Page) replaceDivider(content []byte) []byte {
-	summaryDivider := helpers.SummaryDivider
-	if p.Markup == "org" {
-		summaryDivider = []byte("# more")
-	}
-
-	replaced, truncated := replaceDivider(content, summaryDivider, internalSummaryDivider)
-
-	p.truncated = truncated
-
-	return replaced
-}
-
-// Returns the page as summary and main if a user defined split is provided.
-func (p *Page) setUserDefinedSummaryIfProvided(rawContentCopy []byte) (*summaryContent, error) {
+// Returns the page as summary and main.
+func (p *Page) setUserDefinedSummary(rawContentCopy []byte) (*summaryContent, error) {
 
 	sc, err := splitUserDefinedSummaryAndContent(p.Markup, rawContentCopy)
 
@@ -1288,10 +1245,10 @@ func (p *Page) prepareForRender() error {
 		return err
 	}
 
-	if p.Markup != "html" {
+	if p.Markup != "html" && p.source.hasSummaryDivider {
 
 		// Now we know enough to create a summary of the page and count some words
-		summaryContent, err := p.setUserDefinedSummaryIfProvided(workContentCopy)
+		summaryContent, err := p.setUserDefinedSummary(workContentCopy)
 
 		if err != nil {
 			s.Log.ERROR.Printf("Failed to set user defined summary for page %q: %s", p.Path(), err)
