@@ -36,7 +36,6 @@ import (
 	"github.com/gohugoio/hugo/resource"
 
 	"github.com/gohugoio/hugo/output"
-	"github.com/gohugoio/hugo/parser"
 	"github.com/mitchellh/mapstructure"
 
 	"html/template"
@@ -485,6 +484,7 @@ func (p *Page) MediaType() media.Type {
 	return media.OctetType
 }
 
+// TODO(bep) 2errors remove
 type Source struct {
 	Frontmatter []byte
 	Content     []byte
@@ -1723,36 +1723,6 @@ func (p *Page) RawContent() string {
 
 func (p *Page) SetSourceContent(content []byte) {
 	p.Source.Content = content
-}
-
-func (p *Page) SetSourceMetaData(in interface{}, mark rune) (err error) {
-	// See https://github.com/gohugoio/hugo/issues/2458
-	defer func() {
-		if r := recover(); r != nil {
-			var ok bool
-			err, ok = r.(error)
-			if !ok {
-				err = fmt.Errorf("error from marshal: %v", r)
-			}
-		}
-	}()
-
-	buf := bp.GetBuffer()
-	defer bp.PutBuffer(buf)
-
-	err = parser.InterfaceToFrontMatter(in, mark, buf)
-	if err != nil {
-		return
-	}
-
-	_, err = buf.WriteRune('\n')
-	if err != nil {
-		return
-	}
-
-	p.Source.Frontmatter = buf.Bytes()
-
-	return
 }
 
 func (p *Page) SafeSaveSourceAs(path string) error {

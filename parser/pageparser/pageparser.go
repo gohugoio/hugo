@@ -48,7 +48,7 @@ func Parse(r io.Reader) (Result, error) {
 }
 
 func parseMainSection(input []byte, from int) Result {
-	lexer := newPageLexer(input, Pos(from), lexMainSection) // TODO(bep) 2errors
+	lexer := newPageLexer(input, from, lexMainSection) // TODO(bep) 2errors
 	lexer.run()
 	return lexer
 }
@@ -57,7 +57,7 @@ func parseMainSection(input []byte, from int) Result {
 // if needed.
 type Iterator struct {
 	l       *pageLexer
-	lastPos Pos // position of the last item returned by nextItem
+	lastPos int // position of the last item returned by nextItem
 }
 
 // consumes and returns the next item
@@ -69,7 +69,7 @@ func (t *Iterator) Next() Item {
 var errIndexOutOfBounds = Item{tError, 0, []byte("no more tokens")}
 
 func (t *Iterator) current() Item {
-	if t.lastPos >= Pos(len(t.l.items)) {
+	if t.lastPos >= len(t.l.items) {
 		return errIndexOutOfBounds
 	}
 	return t.l.items[t.lastPos]
@@ -98,7 +98,7 @@ func (t *Iterator) Peek() Item {
 // PeekWalk will feed the next items in the iterator to walkFn
 // until it returns false.
 func (t *Iterator) PeekWalk(walkFn func(item Item) bool) {
-	for i := t.lastPos + 1; i < Pos(len(t.l.items)); i++ {
+	for i := t.lastPos + 1; i < len(t.l.items); i++ {
 		item := t.l.items[i]
 		if !walkFn(item) {
 			break

@@ -24,9 +24,6 @@ import (
 	"unicode/utf8"
 )
 
-// position (in bytes)
-type Pos int
-
 const eof = -1
 
 // returns the next state in scanner.
@@ -47,9 +44,9 @@ type pageLexer struct {
 	input      []byte
 	stateStart stateFunc
 	state      stateFunc
-	pos        Pos // input position
-	start      Pos // item start position
-	width      Pos // width of last element
+	pos        int // input position
+	start      int // item start position
+	width      int // width of last element
 
 	// Set when we have parsed any summary divider
 	summaryDividerChecked bool
@@ -73,7 +70,7 @@ func (l *pageLexer) Input() []byte {
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
 // TODO(bep) 2errors byte
-func newPageLexer(input []byte, inputPosition Pos, stateStart stateFunc) *pageLexer {
+func newPageLexer(input []byte, inputPosition int, stateStart stateFunc) *pageLexer {
 	lexer := &pageLexer{
 		input:      input,
 		pos:        inputPosition,
@@ -131,7 +128,7 @@ func (l *pageLexer) next() rune {
 	}
 
 	runeValue, runeWidth := utf8.DecodeRune(l.input[l.pos:])
-	l.width = Pos(runeWidth)
+	l.width = runeWidth
 	l.pos += l.width
 	return runeValue
 }
@@ -210,7 +207,7 @@ func lexMainSection(l *pageLexer) stateFunc {
 	l3 = l.index(leftDelimSc)
 	skip := minPositiveIndex(l1, l2, l3)
 	if skip > 0 {
-		l.pos += Pos(skip)
+		l.pos += skip
 	}
 
 	for {
@@ -234,7 +231,7 @@ func lexMainSection(l *pageLexer) stateFunc {
 					l.emit(tText)
 				}
 				l.summaryDividerChecked = true
-				l.pos += Pos(len(summaryDivider))
+				l.pos += len(summaryDivider)
 				//l.consumeCRLF()
 				l.emit(TypeLeadSummaryDivider)
 			} else if l.hasPrefix(summaryDividerOrg) {
@@ -242,7 +239,7 @@ func lexMainSection(l *pageLexer) stateFunc {
 					l.emit(tText)
 				}
 				l.summaryDividerChecked = true
-				l.pos += Pos(len(summaryDividerOrg))
+				l.pos += len(summaryDividerOrg)
 				//l.consumeCRLF()
 				l.emit(TypeSummaryDividerOrg)
 			}
@@ -291,12 +288,12 @@ LOOP:
 					if right == -1 {
 						return l.errorf("starting HTML comment with no end")
 					}
-					l.pos += Pos(right) + Pos(len(htmlCOmmentEnd))
+					l.pos += right + len(htmlCOmmentEnd)
 					l.emit(TypeHTMLComment)
 				} else {
 					// Not need to look further. Hugo treats this as plain HTML,
 					// no front matter, no shortcodes, no nothing.
-					l.pos = Pos(len(l.input))
+					l.pos = len(l.input)
 					l.emit(TypeHTMLDocument)
 				}
 			}
@@ -434,7 +431,7 @@ func (l *pageLexer) lexFrontMatterSection(tp ItemType, delimr rune, name string,
 }
 
 func lexShortcodeLeftDelim(l *pageLexer) stateFunc {
-	l.pos += Pos(len(l.currentLeftShortcodeDelim()))
+	l.pos += len(l.currentLeftShortcodeDelim())
 	if l.hasPrefix(leftComment) {
 		return lexShortcodeComment
 	}
@@ -451,20 +448,20 @@ func lexShortcodeComment(l *pageLexer) stateFunc {
 	}
 	// we emit all as text, except the comment markers
 	l.emit(tText)
-	l.pos += Pos(len(leftComment))
+	l.pos += len(leftComment)
 	l.ignore()
-	l.pos += Pos(posRightComment - len(leftComment))
+	l.pos += posRightComment - len(leftComment)
 	l.emit(tText)
-	l.pos += Pos(len(rightComment))
+	l.pos += len(rightComment)
 	l.ignore()
-	l.pos += Pos(len(l.currentRightShortcodeDelim()))
+	l.pos += len(l.currentRightShortcodeDelim())
 	l.emit(tText)
 	return lexMainSection
 }
 
 func lexShortcodeRightDelim(l *pageLexer) stateFunc {
 	l.closingState = 0
-	l.pos += Pos(len(l.currentRightShortcodeDelim()))
+	l.pos += len(l.currentRightShortcodeDelim())
 	l.emit(l.currentRightShortcodeDelimItem())
 	return lexMainSection
 }

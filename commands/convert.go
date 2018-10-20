@@ -16,6 +16,7 @@ package commands
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -34,7 +35,6 @@ import (
 
 	"path/filepath"
 
-	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 )
 
@@ -156,7 +156,7 @@ func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, ta
 		return nil
 	}
 
-	psr, err := pageparser.Parse(file)
+	pf, err := parseContentFile(file)
 	if err != nil {
 		site.Log.ERROR.Println(errMsg)
 		file.Close()
@@ -165,53 +165,24 @@ func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, ta
 
 	file.Close()
 
-	var sourceFormat, sourceContent []byte
-	var fromFormat metadecoders.Format
-
-	iter := psr.Iterator()
-
-	walkFn := func(item pageparser.Item) bool {
-		if sourceFormat != nil {
-			// The rest is content.
-			sourceContent = psr.Input()[item.Pos:]
-			// Done
-			return false
-		} else if item.IsFrontMatter() {
-			fromFormat = metadecoders.FormatFromFrontMatterType(item.Type)
-			sourceFormat = item.Val
-		}
-		return true
-
-	}
-
-	iter.PeekWalk(walkFn)
-
-	metadata, err := metadecoders.UnmarshalToMap(sourceFormat, fromFormat)
-	if err != nil {
-		site.Log.ERROR.Println(errMsg)
-		return err
-	}
-
 	// better handling of dates in formats that don't have support for them
-	if fromFormat == metadecoders.JSON || fromFormat == metadecoders.YAML || fromFormat == metadecoders.TOML {
-		newMetadata := cast.ToStringMap(metadata)
-		for k, v := range newMetadata {
+	if pf.frontMatterFormat == metadecoders.JSON || pf.frontMatterFormat == metadecoders.YAML || pf.frontMatterFormat == metadecoders.TOML {
+		for k, v := range pf.frontMatter {
 			switch vv := v.(type) {
 			case time.Time:
-				newMetadata[k] = vv.Format(time.RFC3339)
+				pf.frontMatter[k] = vv.Format(time.RFC3339)
 			}
 		}
-		metadata = newMetadata
 	}
 
 	var newContent bytes.Buffer
-	err = parser.InterfaceToFrontMatter2(metadata, targetFormat, &newContent)
+	err = parser.InterfaceToFrontMatter(pf.frontMatter, targetFormat, &newContent)
 	if err != nil {
 		site.Log.ERROR.Println(errMsg)
 		return err
 	}
 
-	newContent.Write(sourceContent)
+	newContent.Write(pf.content)
 
 	newFilename := p.Filename()
 
@@ -228,4 +199,49 @@ func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, ta
 	}
 
 	return nil
+}
+
+type parsedFile struct {
+	frontMatterFormat metadecoders.Format
+	frontMatterSource []byte
+	frontMatter       map[string]interface{}
+
+	// Everything after Front Matter
+	content []byte
+}
+
+func parseContentFile(r io.Reader) (parsedFile, error) {
+	var pf parsedFile
+
+	psr, err := pageparser.Parse(r)
+	if err != nil {
+		return pf, err
+	}
+
+	iter := psr.Iterator()
+
+	walkFn := func(item pageparser.Item) bool {
+		if pf.frontMatterSource != nil {
+			// The rest is content.
+			pf.content = psr.Input()[item.Pos:]
+			// Done
+			return false
+		} else if item.IsFrontMatter() {
+			pf.frontMatterFormat = metadecoders.FormatFromFrontMatterType(item.Type)
+			pf.frontMatterSource = item.Val
+		}
+		return true
+
+	}
+
+	iter.PeekWalk(walkFn)
+
+	metadata, err := metadecoders.UnmarshalToMap(pf.frontMatterSource, pf.frontMatterFormat)
+	if err != nil {
+		return pf, err
+	}
+	pf.frontMatter = metadata
+
+	return pf, nil
+
 }

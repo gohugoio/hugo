@@ -49,18 +49,12 @@ func (ns *Namespace) Remarshal(format string, data interface{}) (string, error) 
 	return result.String(), nil
 }
 
-func toFormatMark(format string) (rune, error) {
-	// TODO(bep) the parser package needs a cleaning.
-	switch format {
-	case "yaml":
-		return rune(parser.YAMLLead[0]), nil
-	case "toml":
-		return rune(parser.TOMLLead[0]), nil
-	case "json":
-		return rune(parser.JSONLead[0]), nil
+func toFormatMark(format string) (metadecoders.Format, error) {
+	if f := metadecoders.FormatFromString(format); f != "" {
+		return f, nil
 	}
 
-	return 0, errors.New("failed to detect target data serialization format")
+	return "", errors.New("failed to detect target data serialization format")
 }
 
 func detectFormat(data string) (metadecoders.Format, error) {

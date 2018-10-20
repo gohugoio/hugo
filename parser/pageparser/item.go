@@ -20,8 +20,8 @@ import (
 
 type Item struct {
 	Type ItemType
-	Pos Pos
-	Val []byte
+	Pos  int
+	Val  []byte
 }
 
 type Items []Item

@@ -19,6 +19,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/parser/metadecoders"
+
 	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/create"
@@ -131,10 +133,9 @@ func createConfig(fs *hugofs.Fs, inpath string, kind string) (err error) {
 		"title":        "My New Hugo Site",
 		"languageCode": "en-us",
 	}
-	kind = parser.FormatSanitize(kind)
 
 	var buf bytes.Buffer
-	err = parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind), &buf)
+	err = parser.InterfaceToConfig(in, metadecoders.FormatFromString(kind), &buf)
 	if err != nil {
 		return err
 	}

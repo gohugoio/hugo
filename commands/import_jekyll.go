@@ -16,6 +16,7 @@ package commands
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -264,7 +265,7 @@ func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]
 	return c
 }
 
-func (i *importCmd) createConfigFromJekyll(fs afero.Fs, inpath string, kind string, jekyllConfig map[string]interface{}) (err error) {
+func (i *importCmd) createConfigFromJekyll(fs afero.Fs, inpath string, kind metadecoders.Format, jekyllConfig map[string]interface{}) (err error) {
 	title := "My New Hugo Site"
 	baseURL := "http://example.org/"
 
@@ -290,15 +291,14 @@ func (i *importCmd) createConfigFromJekyll(fs afero.Fs, inpath string, kind stri
 		"languageCode":       "en-us",
 		"disablePathToLower": true,
 	}
-	kind = parser.FormatSanitize(kind)
 
 	var buf bytes.Buffer
-	err = parser.InterfaceToConfig(in, parser.FormatToLeadRune(kind), &buf)
+	err = parser.InterfaceToConfig(in, kind, &buf)
 	if err != nil {
 		return err
 	}
 
-	return helpers.WriteToDisk(filepath.Join(inpath, "config."+kind), &buf, fs)
+	return helpers.WriteToDisk(filepath.Join(inpath, "config."+string(kind)), &buf, fs)
 }
 
 func copyFile(source string, dest string) error {
@@ -447,38 +447,24 @@ func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft b
 		return err
 	}
 
-	psr, err := parser.ReadFrom(bytes.NewReader(contentBytes))
+	pf, err := parseContentFile(bytes.NewReader(contentBytes))
 	if err != nil {
 		jww.ERROR.Println("Parse file error:", path)
 		return err
 	}
 
-	metadata, err := psr.Metadata()
-	if err != nil {
-		jww.ERROR.Println("Processing file error:", path)
-		return err
-	}
-
-	newmetadata, err := convertJekyllMetaData(metadata, postName, postDate, draft)
+	newmetadata, err := convertJekyllMetaData(pf.frontMatter, postName, postDate, draft)
 	if err != nil {
 		jww.ERROR.Println("Convert metadata error:", path)
 		return err
 	}
 
-	jww.TRACE.Println(newmetadata)
-	content := convertJekyllContent(newmetadata, string(psr.Content()))
+	content := convertJekyllContent(newmetadata, string(pf.content))
 
-	page, err := s.NewPage(filename)
-	if err != nil {
-		jww.ERROR.Println("New page error", filename)
-		return err
+	fs := hugofs.Os
+	if err := helpers.WriteToDisk(targetFile, strings.NewReader(content), fs); err != nil {
+		return fmt.Errorf("Failed to save file %q:", filename)
 	}
-
-	page.SetSourceContent([]byte(content))
-	page.SetSourceMetaData(newmetadata, parser.FormatToLeadRune("yaml"))
-	page.SaveSourceAs(targetFile)
-
-	jww.TRACE.Println("Target file:", targetFile)
 
 	return nil
 }
