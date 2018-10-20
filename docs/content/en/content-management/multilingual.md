@@ -438,6 +438,10 @@ Hugo will generate your website with these missing translation placeholders. It 
 
 For merging of content from other languages (i.e. missing content translations), see [lang.Merge](/functions/lang.merge/).
 
+{{% note %}}
+Hugo will create default variants of the home page and any root section, meaning that the translation of a subpage will lead to the generation of language variants for the root section page, even without providing a root section translation file.
+{{% /note %}}
+
 ## Multilingual Themes support
 
 To support Multilingual mode in your themes, some considerations must be taken for the URLs in the templates. If there is more than one language, URLs must meet the following criteria:
