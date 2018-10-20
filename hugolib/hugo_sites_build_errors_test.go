@@ -98,17 +98,16 @@ func TestSiteBuildErrors(t *testing.T) {
 				a.assertLineNumber(2, err)
 			},
 		},
-		// TODO(bep) 2errors
-		/*		{
-				name:     "Shortode execute failed",
-				fileType: shortcode,
-				fileFixer: func(content string) string {
-					return strings.Replace(content, ".Title", ".Titles", 1)
-				},
-				assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
-					a.assertLineNumber(2, err)
-				},
-			},*/
+		{
+			name:     "Shortode execute failed",
+			fileType: shortcode,
+			fileFixer: func(content string) string {
+				return strings.Replace(content, ".Title", ".Titles", 1)
+			},
+			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
+				a.assertLineNumber(25, err)
+			},
+		},
 
 		{
 			name:     "Panic in template Execute",

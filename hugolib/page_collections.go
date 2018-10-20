@@ -101,9 +101,9 @@ func (c *PageCollections) refreshPageCaches() {
 				}
 
 				// Ref/Relref supports this potentially ambiguous lookup.
-				add(p.Source.LogicalName(), p)
+				add(p.LogicalName(), p)
 
-				translationBaseName := p.Source.TranslationBaseName()
+				translationBaseName := p.TranslationBaseName()
 
 				dir, _ := path.Split(sourceRef)
 				dir = strings.TrimSuffix(dir, "/")

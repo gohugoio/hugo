@@ -1467,7 +1467,7 @@ func (s *Site) assembleTaxonomies() {
 			w := p.getParamToLower(plural + "_weight")
 			weight, err := cast.ToIntE(w)
 			if err != nil {
-				s.Log.ERROR.Printf("Unable to convert taxonomy weight %#v to int for %s", w, p.Source.File.Path())
+				s.Log.ERROR.Printf("Unable to convert taxonomy weight %#v to int for %s", w, p.File.Path())
 				// weight will equal zero, so let the flow continue
 			}
 
@@ -1799,7 +1799,7 @@ func (s *Site) newNodePage(typ string, sections ...string) *Page {
 		pageInit:        &pageInit{},
 		pageContentInit: &pageContentInit{},
 		Kind:            typ,
-		Source:          Source{File: &source.FileInfo{}},
+		File:            &source.FileInfo{},
 		data:            make(map[string]interface{}),
 		Site:            &s.Info,
 		sections:        sections,

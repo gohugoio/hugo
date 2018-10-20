@@ -49,7 +49,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/source"
 	"github.com/spf13/cast"
@@ -185,7 +184,7 @@ type Page struct {
 	// menus
 	pageMenus PageMenus
 
-	Source
+	source.File
 
 	Position `json:"-"`
 
@@ -467,7 +466,7 @@ func (p *Page) BundleType() string {
 		return "branch"
 	}
 
-	var source interface{} = p.Source.File
+	var source interface{} = p.File
 	if fi, ok := source.(*fileInfo); ok {
 		switch fi.bundleTp {
 		case bundleBranch:
@@ -484,12 +483,6 @@ func (p *Page) MediaType() media.Type {
 	return media.OctetType
 }
 
-// TODO(bep) 2errors remove
-type Source struct {
-	Frontmatter []byte
-	Content     []byte
-	source.File
-}
 type PageMeta struct {
 	wordCount      int
 	fuzzyWordCount int
@@ -512,7 +505,7 @@ func (ps Pages) String() string {
 
 func (ps Pages) findPagePosByFilename(filename string) int {
 	for i, x := range ps {
-		if x.Source.Filename() == filename {
+		if x.Filename() == filename {
 			return i
 		}
 	}
@@ -545,8 +538,8 @@ func (ps Pages) findPagePosByFilnamePrefix(prefix string) int {
 
 	// Find the closest match
 	for i, x := range ps {
-		if strings.HasPrefix(x.Source.Filename(), prefix) {
-			diff := len(x.Source.Filename()) - prefixLen
+		if strings.HasPrefix(x.Filename(), prefix) {
+			diff := len(x.Filename()) - prefixLen
 			if lenDiff == -1 || diff < lenDiff {
 				lenDiff = diff
 				currPos = i
@@ -560,7 +553,7 @@ func (ps Pages) findPagePosByFilnamePrefix(prefix string) int {
 // will return -1 if not found
 func (ps Pages) findPagePos(page *Page) int {
 	for i, x := range ps {
-		if x.Source.Filename() == page.Source.Filename() {
+		if x.Filename() == page.Filename() {
 			return i
 		}
 	}
@@ -701,7 +694,7 @@ func (p *Page) Authors() AuthorList {
 }
 
 func (p *Page) UniqueID() string {
-	return p.Source.UniqueID()
+	return p.File.UniqueID()
 }
 
 // for logging
@@ -881,7 +874,7 @@ func (s *Site) newPageFromFile(fi *fileInfo) *Page {
 		pageContentInit: &pageContentInit{},
 		Kind:            kindFromFileInfo(fi),
 		contentType:     "",
-		Source:          Source{File: fi},
+		File:            fi,
 		Keywords:        []string{}, Sitemap: Sitemap{Priority: -1},
 		params:       make(map[string]interface{}),
 		translations: make(Pages, 0),
@@ -914,7 +907,7 @@ func (p *Page) Section() string {
 	if p.Kind == KindSection || p.Kind == KindTaxonomy || p.Kind == KindTaxonomyTerm {
 		return p.sections[0]
 	}
-	return p.Source.Section()
+	return p.File.Section()
 }
 
 func (s *Site) newPageFrom(buf io.Reader, name string) (*Page, error) {
@@ -1273,8 +1266,8 @@ func (p *Page) updateMetaData(frontmatter map[string]interface{}) error {
 	maps.ToLower(frontmatter)
 
 	var mtime time.Time
-	if p.Source.FileInfo() != nil {
-		mtime = p.Source.FileInfo().ModTime()
+	if p.FileInfo() != nil {
+		mtime = p.FileInfo().ModTime()
 	}
 
 	var gitAuthorDate time.Time
@@ -1476,7 +1469,7 @@ func (p *Page) updateMetaData(frontmatter map[string]interface{}) error {
 	p.Markup = helpers.GuessType(p.Markup)
 	if p.Markup == "unknown" {
 		// Fall back to file extension (might also return "unknown")
-		p.Markup = helpers.GuessType(p.Source.Ext())
+		p.Markup = helpers.GuessType(p.Ext())
 	}
 
 	if draft != nil && published != nil {
@@ -1721,51 +1714,6 @@ func (p *Page) RawContent() string {
 	return string(p.rawContent)
 }
 
-func (p *Page) SetSourceContent(content []byte) {
-	p.Source.Content = content
-}
-
-func (p *Page) SafeSaveSourceAs(path string) error {
-	return p.saveSourceAs(path, true)
-}
-
-func (p *Page) SaveSourceAs(path string) error {
-	return p.saveSourceAs(path, false)
-}
-
-func (p *Page) saveSourceAs(path string, safe bool) error {
-	b := bp.GetBuffer()
-	defer bp.PutBuffer(b)
-
-	b.Write(p.Source.Frontmatter)
-	b.Write(p.Source.Content)
-
-	bc := make([]byte, b.Len(), b.Len())
-	copy(bc, b.Bytes())
-
-	return p.saveSource(bc, path, safe)
-}
-
-func (p *Page) saveSource(by []byte, inpath string, safe bool) (err error) {
-	if !filepath.IsAbs(inpath) {
-		inpath = p.s.PathSpec.AbsPathify(inpath)
-	}
-	p.s.Log.INFO.Println("creating", inpath)
-	if safe {
-		err = helpers.SafeWriteToDisk(inpath, bytes.NewReader(by), p.s.Fs.Source)
-	} else {
-		err = helpers.WriteToDisk(inpath, bytes.NewReader(by), p.s.Fs.Source)
-	}
-	if err != nil {
-		return
-	}
-	return nil
-}
-
-func (p *Page) SaveSource() error {
-	return p.SaveSourceAs(p.FullFilePath())
-}
-
 func (p *Page) FullFilePath() string {
 	return filepath.Join(p.Dir(), p.LogicalName())
 }
@@ -1779,8 +1727,8 @@ func (p *Page) FullFilePath() string {
 // For pages that do not (sections witout content page etc.), it returns the
 // virtual path, consistent with where you would add a source file.
 func (p *Page) absoluteSourceRef() string {
-	if p.Source.File != nil {
-		sourcePath := p.Source.Path()
+	if p.File != nil {
+		sourcePath := p.Path()
 		if sourcePath != "" {
 			return "/" + filepath.ToSlash(sourcePath)
 		}

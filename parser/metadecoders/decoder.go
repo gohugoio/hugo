@@ -59,7 +59,7 @@ func unmarshal(data []byte, f Format, v interface{}) error {
 	case ORG:
 		vv, err := goorgeous.OrgHeaders(data)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to unmarshal ORG headers")
 		}
 		switch v.(type) {
 		case *map[string]interface{}:
@@ -73,6 +73,9 @@ func unmarshal(data []byte, f Format, v interface{}) error {
 		err = toml.Unmarshal(data, v)
 	case YAML:
 		err = yaml.Unmarshal(data, v)
+		if err != nil {
+			return errors.Wrap(err, "failed to unmarshal YAML")
+		}
 
 		// To support boolean keys, the YAML package unmarshals maps to
 		// map[interface{}]interface{}. Here we recurse through the result
@@ -100,7 +103,7 @@ func unmarshal(data []byte, f Format, v interface{}) error {
 		return errors.Errorf("unmarshal of format %q is not supported", f)
 	}
 
-	return err
+	return errors.Wrap(err, "unmarshal failed")
 
 }
 

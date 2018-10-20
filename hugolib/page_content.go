@@ -167,7 +167,7 @@ func (p *Page) parse(reader io.Reader) error {
 	}
 
 	// TODO(bep) 2errors
-	p.lang = p.Source.File.Lang()
+	p.lang = p.File.Lang()
 
 	if p.s != nil && p.s.owner != nil {
 		gi, enabled := p.s.owner.gitInfo.forPage(p)
