@@ -42,7 +42,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 
-	"github.com/gohugoio/hugo/parser"
+	"github.com/gohugoio/hugo/parser/metadecoders"
 	flag "github.com/spf13/pflag"
 
 	"github.com/fsnotify/fsnotify"
@@ -1017,7 +1017,7 @@ func (c *commandeer) isThemeVsHugoVersionMismatch(fs afero.Fs) (dir string, mism
 
 		b, err := afero.ReadFile(fs, path)
 
-		tomlMeta, err := parser.HandleTOMLMetaData(b)
+		tomlMeta, err := metadecoders.UnmarshalToMap(b, metadecoders.TOML)
 
 		if err != nil {
 			continue

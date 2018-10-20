@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/parser"
+	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/spf13/cast"
 )
 
@@ -38,21 +39,7 @@ func (ns *Namespace) Remarshal(format string, data interface{}) (string, error) 
 		return "", err
 	}
 
-	var metaHandler func(d []byte) (map[string]interface{}, error)
-
-	switch fromFormat {
-	case "yaml":
-		metaHandler = parser.HandleYAMLMetaData
-	case "toml":
-		metaHandler = parser.HandleTOMLMetaData
-	case "json":
-		metaHandler = parser.HandleJSONMetaData
-	}
-
-	meta, err := metaHandler([]byte(from))
-	if err != nil {
-		return "", err
-	}
+	meta, err := metadecoders.UnmarshalToMap([]byte(from), fromFormat)
 
 	var result bytes.Buffer
 	if err := parser.InterfaceToConfig(meta, mark, &result); err != nil {
@@ -76,21 +63,21 @@ func toFormatMark(format string) (rune, error) {
 	return 0, errors.New("failed to detect target data serialization format")
 }
 
-func detectFormat(data string) (string, error) {
+func detectFormat(data string) (metadecoders.Format, error) {
 	jsonIdx := strings.Index(data, "{")
 	yamlIdx := strings.Index(data, ":")
 	tomlIdx := strings.Index(data, "=")
 
 	if jsonIdx != -1 && (yamlIdx == -1 || jsonIdx < yamlIdx) && (tomlIdx == -1 || jsonIdx < tomlIdx) {
-		return "json", nil
+		return metadecoders.JSON, nil
 	}
 
 	if yamlIdx != -1 && (tomlIdx == -1 || yamlIdx < tomlIdx) {
-		return "yaml", nil
+		return metadecoders.YAML, nil
 	}
 
 	if tomlIdx != -1 {
-		return "toml", nil
+		return metadecoders.TOML, nil
 	}
 
 	return "", errors.New("failed to detect data serialization format")

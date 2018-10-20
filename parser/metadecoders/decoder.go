@@ -15,81 +15,139 @@ package metadecoders
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/BurntSushi/toml"
 	"github.com/chaseadamsio/goorgeous"
-	"github.com/gohugoio/hugo/parser/pageparser"
 	"github.com/pkg/errors"
+	"github.com/spf13/cast"
 	yaml "gopkg.in/yaml.v2"
 )
-
-type Format string
-
-const (
-	// These are the supported metdata  formats in Hugo. Most of these are also
-	// supported as /data formats.
-	ORG  Format = "org"
-	JSON Format = "json"
-	TOML Format = "toml"
-	YAML Format = "yaml"
-)
-
-// FormatFromFrontMatterType will return empty if not supported.
-func FormatFromFrontMatterType(typ pageparser.ItemType) Format {
-	switch typ {
-	case pageparser.TypeFrontMatterJSON:
-		return JSON
-	case pageparser.TypeFrontMatterORG:
-		return ORG
-	case pageparser.TypeFrontMatterTOML:
-		return TOML
-	case pageparser.TypeFrontMatterYAML:
-		return YAML
-	default:
-		return ""
-	}
-}
 
 // UnmarshalToMap will unmarshall data in format f into a new map. This is
 // what's needed for Hugo's front matter decoding.
 func UnmarshalToMap(data []byte, f Format) (map[string]interface{}, error) {
 	m := make(map[string]interface{})
-
 	if data == nil {
 		return m, nil
 	}
+
+	err := unmarshal(data, f, &m)
+
+	return m, err
+
+}
+
+// Unmarshal will unmarshall data in format f into an interface{}.
+// This is what's needed for Hugo's /data handling.
+func Unmarshal(data []byte, f Format) (interface{}, error) {
+	if data == nil {
+		return make(map[string]interface{}), nil
+	}
+	var v interface{}
+	err := unmarshal(data, f, &v)
+
+	return v, err
+}
+
+// unmarshal unmarshals data in format f into v.
+func unmarshal(data []byte, f Format, v interface{}) error {
 
 	var err error
 
 	switch f {
 	case ORG:
-		m, err = goorgeous.OrgHeaders(data)
+		vv, err := goorgeous.OrgHeaders(data)
+		if err != nil {
+			return err
+		}
+		switch v.(type) {
+		case *map[string]interface{}:
+			*v.(*map[string]interface{}) = vv
+		default:
+			*v.(*interface{}) = vv
+		}
 	case JSON:
-		err = json.Unmarshal(data, &m)
+		err = json.Unmarshal(data, v)
 	case TOML:
-		_, err = toml.Decode(string(data), &m)
+		err = toml.Unmarshal(data, v)
 	case YAML:
-		err = yaml.Unmarshal(data, &m)
+		err = yaml.Unmarshal(data, v)
 
-		// To support boolean keys, the `yaml` package unmarshals maps to
+		// To support boolean keys, the YAML package unmarshals maps to
 		// map[interface{}]interface{}. Here we recurse through the result
 		// and change all maps to map[string]interface{} like we would've
 		// gotten from `json`.
-		if err == nil {
-			for k, v := range m {
-				if vv, changed := stringifyMapKeys(v); changed {
-					m[k] = vv
-				}
+		var ptr interface{}
+		switch v.(type) {
+		case *map[string]interface{}:
+			ptr = *v.(*map[string]interface{})
+		case *interface{}:
+			ptr = *v.(*interface{})
+		default:
+			return errors.Errorf("unknown type %T in YAML unmarshal", v)
+		}
+
+		if mm, changed := stringifyMapKeys(ptr); changed {
+			switch v.(type) {
+			case *map[string]interface{}:
+				*v.(*map[string]interface{}) = mm.(map[string]interface{})
+			case *interface{}:
+				*v.(*interface{}) = mm
 			}
 		}
 	default:
-		return nil, errors.Errorf("unmarshal of format %q is not supported", f)
+		return errors.Errorf("unmarshal of format %q is not supported", f)
 	}
 
-	if err != nil {
-		return nil, errors.Wrapf(err, "unmarshal failed for format %q", f)
+	return err
+
+}
+
+// stringifyMapKeys recurses into in and changes all instances of
+// map[interface{}]interface{} to map[string]interface{}. This is useful to
+// work around the impedence mismatch between JSON and YAML unmarshaling that's
+// described here: https://github.com/go-yaml/yaml/issues/139
+//
+// Inspired by https://github.com/stripe/stripe-mock, MIT licensed
+func stringifyMapKeys(in interface{}) (interface{}, bool) {
+
+	switch in := in.(type) {
+	case []interface{}:
+		for i, v := range in {
+			if vv, replaced := stringifyMapKeys(v); replaced {
+				in[i] = vv
+			}
+		}
+	case map[string]interface{}:
+		for k, v := range in {
+			if vv, changed := stringifyMapKeys(v); changed {
+				in[k] = vv
+			}
+		}
+	case map[interface{}]interface{}:
+		res := make(map[string]interface{})
+		var (
+			ok  bool
+			err error
+		)
+		for k, v := range in {
+			var ks string
+
+			if ks, ok = k.(string); !ok {
+				ks, err = cast.ToStringE(k)
+				if err != nil {
+					ks = fmt.Sprintf("%v", k)
+				}
+			}
+			if vv, replaced := stringifyMapKeys(v); replaced {
+				res[ks] = vv
+			} else {
+				res[ks] = v
+			}
+		}
+		return res, true
 	}
 
-	return m, nil
-
+	return nil, false
 }

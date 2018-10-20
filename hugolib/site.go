@@ -44,6 +44,7 @@ import (
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/parser/metadecoders"
 
 	"github.com/markbates/inflect"
 
@@ -53,7 +54,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/pagemeta"
 	"github.com/gohugoio/hugo/output"
-	"github.com/gohugoio/hugo/parser"
 	"github.com/gohugoio/hugo/related"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
@@ -949,16 +949,8 @@ func (s *Site) readData(f source.ReadableFile) (interface{}, error) {
 	defer file.Close()
 	content := helpers.ReaderToBytes(file)
 
-	switch f.Extension() {
-	case "yaml", "yml":
-		return parser.HandleYAMLData(content)
-	case "json":
-		return parser.HandleJSONData(content)
-	case "toml":
-		return parser.HandleTOMLMetaData(content)
-	default:
-		return nil, fmt.Errorf("Data not supported for extension '%s'", f.Extension())
-	}
+	format := metadecoders.FormatFromString(f.Extension())
+	return metadecoders.Unmarshal(content, format)
 }
 
 func (s *Site) readDataFromSourceFS() error {

@@ -20,7 +20,7 @@ import (
 
 type Item struct {
 	Type ItemType
-	pos pos
+	Pos Pos
 	Val []byte
 }
 

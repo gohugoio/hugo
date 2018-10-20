@@ -19,16 +19,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"strings"
 
-	"github.com/gohugoio/hugo/helpers"
-
-	"github.com/spf13/cast"
+	"github.com/gohugoio/hugo/parser/metadecoders"
 
 	"github.com/BurntSushi/toml"
-	"github.com/chaseadamsio/goorgeous"
 
 	"gopkg.in/yaml.v2"
 )
@@ -76,6 +72,82 @@ func InterfaceToConfig(in interface{}, mark rune, w io.Writer) error {
 
 	default:
 		return errors.New("Unsupported Format provided")
+	}
+}
+
+func InterfaceToConfig2(in interface{}, format metadecoders.Format, w io.Writer) error {
+	if in == nil {
+		return errors.New("input was nil")
+	}
+
+	switch format {
+	case metadecoders.YAML:
+		b, err := yaml.Marshal(in)
+		if err != nil {
+			return err
+		}
+
+		_, err = w.Write(b)
+		return err
+
+	case metadecoders.TOML:
+		return toml.NewEncoder(w).Encode(in)
+	case metadecoders.JSON:
+		b, err := json.MarshalIndent(in, "", "   ")
+		if err != nil {
+			return err
+		}
+
+		_, err = w.Write(b)
+		if err != nil {
+			return err
+		}
+
+		_, err = w.Write([]byte{'\n'})
+		return err
+
+	default:
+		return errors.New("Unsupported Format provided")
+	}
+}
+
+func InterfaceToFrontMatter2(in interface{}, format metadecoders.Format, w io.Writer) error {
+	if in == nil {
+		return errors.New("input was nil")
+	}
+
+	switch format {
+	case metadecoders.YAML:
+		_, err := w.Write([]byte(YAMLDelimUnix))
+		if err != nil {
+			return err
+		}
+
+		err = InterfaceToConfig2(in, format, w)
+		if err != nil {
+			return err
+		}
+
+		_, err = w.Write([]byte(YAMLDelimUnix))
+		return err
+
+	case metadecoders.TOML:
+		_, err := w.Write([]byte(TOMLDelimUnix))
+		if err != nil {
+			return err
+		}
+
+		err = InterfaceToConfig2(in, format, w)
+
+		if err != nil {
+			return err
+		}
+
+		_, err = w.Write([]byte("\n" + TOMLDelimUnix))
+		return err
+
+	default:
+		return InterfaceToConfig2(in, format, w)
 	}
 }
 
@@ -155,34 +227,6 @@ func FormatSanitize(kind string) string {
 	}
 }
 
-// DetectFrontMatter detects the type of frontmatter analysing its first character.
-func DetectFrontMatter(mark rune) (f *FrontmatterType) {
-	switch mark {
-	case '-':
-		return &FrontmatterType{HandleYAMLMetaData, []byte(YAMLDelim), []byte(YAMLDelim), false}
-	case '+':
-		return &FrontmatterType{HandleTOMLMetaData, []byte(TOMLDelim), []byte(TOMLDelim), false}
-	case '{':
-		return &FrontmatterType{HandleJSONMetaData, []byte{'{'}, []byte{'}'}, true}
-	case '#':
-		return &FrontmatterType{HandleOrgMetaData, []byte("#+"), []byte("\n"), false}
-	default:
-		return nil
-	}
-}
-
-// HandleTOMLMetaData unmarshals TOML-encoded datum and returns a Go interface
-// representing the encoded data structure.
-func HandleTOMLMetaData(datum []byte) (map[string]interface{}, error) {
-	m := map[string]interface{}{}
-	datum = removeTOMLIdentifier(datum)
-
-	_, err := toml.Decode(string(datum), &m)
-
-	return m, err
-
-}
-
 // removeTOMLIdentifier removes, if necessary, beginning and ending TOML
 // frontmatter delimiters from a byte slice.
 func removeTOMLIdentifier(datum []byte) []byte {
@@ -199,126 +243,4 @@ func removeTOMLIdentifier(datum []byte) []byte {
 
 	b = bytes.Trim(b, "\r\n")
 	return bytes.TrimSuffix(b, []byte(TOMLDelim))
-}
-
-// HandleYAMLMetaData unmarshals YAML-encoded datum and returns a Go interface
-// representing the encoded data structure.
-// TODO(bep) 2errors remove these handlers (and hopefully package)
-func HandleYAMLMetaData(datum []byte) (map[string]interface{}, error) {
-	m := map[string]interface{}{}
-	err := yaml.Unmarshal(datum, &m)
-
-	// To support boolean keys, the `yaml` package unmarshals maps to
-	// map[interface{}]interface{}. Here we recurse through the result
-	// and change all maps to map[string]interface{} like we would've
-	// gotten from `json`.
-	if err == nil {
-		for k, v := range m {
-			if vv, changed := stringifyMapKeys(v); changed {
-				m[k] = vv
-			}
-		}
-	}
-
-	return m, err
-}
-
-// HandleYAMLData unmarshals YAML-encoded datum and returns a Go interface
-// representing the encoded data structure.
-func HandleYAMLData(datum []byte) (interface{}, error) {
-	var m interface{}
-	err := yaml.Unmarshal(datum, &m)
-	if err != nil {
-		return nil, err
-	}
-
-	// To support boolean keys, the `yaml` package unmarshals maps to
-	// map[interface{}]interface{}. Here we recurse through the result
-	// and change all maps to map[string]interface{} like we would've
-	// gotten from `json`.
-	if mm, changed := stringifyMapKeys(m); changed {
-		return mm, nil
-	}
-
-	return m, nil
-}
-
-// stringifyMapKeys recurses into in and changes all instances of
-// map[interface{}]interface{} to map[string]interface{}. This is useful to
-// work around the impedence mismatch between JSON and YAML unmarshaling that's
-// described here: https://github.com/go-yaml/yaml/issues/139
-//
-// Inspired by https://github.com/stripe/stripe-mock, MIT licensed
-func stringifyMapKeys(in interface{}) (interface{}, bool) {
-	switch in := in.(type) {
-	case []interface{}:
-		for i, v := range in {
-			if vv, replaced := stringifyMapKeys(v); replaced {
-				in[i] = vv
-			}
-		}
-	case map[interface{}]interface{}:
-		res := make(map[string]interface{})
-		var (
-			ok  bool
-			err error
-		)
-		for k, v := range in {
-			var ks string
-
-			if ks, ok = k.(string); !ok {
-				ks, err = cast.ToStringE(k)
-				if err != nil {
-					ks = fmt.Sprintf("%v", k)
-				}
-				// TODO(bep) added in Hugo 0.37, remove some time in the future.
-				helpers.DistinctFeedbackLog.Printf("WARNING: YAML data/frontmatter with keys of type %T is since Hugo 0.37 converted to strings", k)
-			}
-			if vv, replaced := stringifyMapKeys(v); replaced {
-				res[ks] = vv
-			} else {
-				res[ks] = v
-			}
-		}
-		return res, true
-	}
-
-	return nil, false
-}
-
-// HandleJSONMetaData unmarshals JSON-encoded datum and returns a Go interface
-// representing the encoded data structure.
-func HandleJSONMetaData(datum []byte) (map[string]interface{}, error) {
-	m := make(map[string]interface{})
-
-	if datum == nil {
-		// Package json returns on error on nil input.
-		// Return an empty map to be consistent with our other supported
-		// formats.
-		return m, nil
-	}
-
-	err := json.Unmarshal(datum, &m)
-	return m, err
-}
-
-// HandleJSONData unmarshals JSON-encoded datum and returns a Go interface
-// representing the encoded data structure.
-func HandleJSONData(datum []byte) (interface{}, error) {
-	if datum == nil {
-		// Package json returns on error on nil input.
-		// Return an empty map to be consistent with our other supported
-		// formats.
-		return make(map[string]interface{}), nil
-	}
-
-	var f interface{}
-	err := json.Unmarshal(datum, &f)
-	return f, err
-}
-
-// HandleOrgMetaData unmarshals org-mode encoded datum and returns a Go
-// interface representing the encoded data structure.
-func HandleOrgMetaData(datum []byte) (map[string]interface{}, error) {
-	return goorgeous.OrgHeaders(datum)
 }

@@ -14,7 +14,18 @@
 package commands
 
 import (
+	"bytes"
+	"fmt"
+	"strings"
 	"time"
+
+	"github.com/gohugoio/hugo/hugofs"
+
+	"github.com/gohugoio/hugo/helpers"
+
+	"github.com/gohugoio/hugo/parser"
+	"github.com/gohugoio/hugo/parser/metadecoders"
+	"github.com/gohugoio/hugo/parser/pageparser"
 
 	src "github.com/gohugoio/hugo/source"
 	"github.com/pkg/errors"
@@ -23,7 +34,6 @@ import (
 
 	"path/filepath"
 
-	"github.com/gohugoio/hugo/parser"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 )
@@ -60,7 +70,7 @@ See convert's subcommands toJSON, toTOML and toYAML for more information.`,
 			Long: `toJSON converts all front matter in the content directory
 to use JSON for the front matter.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				return cc.convertContents(rune([]byte(parser.JSONLead)[0]))
+				return cc.convertContents(metadecoders.JSON)
 			},
 		},
 		&cobra.Command{
@@ -69,7 +79,7 @@ to use JSON for the front matter.`,
 			Long: `toTOML converts all front matter in the content directory
 to use TOML for the front matter.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				return cc.convertContents(rune([]byte(parser.TOMLLead)[0]))
+				return cc.convertContents(metadecoders.TOML)
 			},
 		},
 		&cobra.Command{
@@ -78,7 +88,7 @@ to use TOML for the front matter.`,
 			Long: `toYAML converts all front matter in the content directory
 to use YAML for the front matter.`,
 			RunE: func(cmd *cobra.Command, args []string) error {
-				return cc.convertContents(rune([]byte(parser.YAMLLead)[0]))
+				return cc.convertContents(metadecoders.YAML)
 			},
 		},
 	)
@@ -91,7 +101,7 @@ to use YAML for the front matter.`,
 	return cc
 }
 
-func (cc *convertCmd) convertContents(mark rune) error {
+func (cc *convertCmd) convertContents(format metadecoders.Format) error {
 	if cc.outputDir == "" && !cc.unsafe {
 		return newUserError("Unsafe operation not allowed, use --unsafe or set a different output path")
 	}
@@ -114,17 +124,17 @@ func (cc *convertCmd) convertContents(mark rune) error {
 
 	site.Log.FEEDBACK.Println("processing", len(site.AllPages), "content files")
 	for _, p := range site.AllPages {
-		if err := cc.convertAndSavePage(p, site, mark); err != nil {
+		if err := cc.convertAndSavePage(p, site, format); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, mark rune) error {
+func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, targetFormat metadecoders.Format) error {
 	// The resources are not in .Site.AllPages.
 	for _, r := range p.Resources.ByType("page") {
-		if err := cc.convertAndSavePage(r.(*hugolib.Page), site, mark); err != nil {
+		if err := cc.convertAndSavePage(r.(*hugolib.Page), site, targetFormat); err != nil {
 			return err
 		}
 	}
@@ -134,37 +144,56 @@ func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, ma
 		return nil
 	}
 
+	errMsg := fmt.Errorf("Error processing file %q", p.Path())
+
 	site.Log.INFO.Println("Attempting to convert", p.LogicalName())
-	newPage, err := site.NewPage(p.LogicalName())
-	if err != nil {
-		return err
-	}
 
 	f, _ := p.File.(src.ReadableFile)
 	file, err := f.Open()
 	if err != nil {
-		site.Log.ERROR.Println("Error reading file:", p.Path())
+		site.Log.ERROR.Println(errMsg)
 		file.Close()
 		return nil
 	}
 
-	psr, err := parser.ReadFrom(file)
+	psr, err := pageparser.Parse(file)
 	if err != nil {
-		site.Log.ERROR.Println("Error processing file:", p.Path())
+		site.Log.ERROR.Println(errMsg)
 		file.Close()
 		return err
 	}
 
 	file.Close()
 
-	metadata, err := psr.Metadata()
+	var sourceFormat, sourceContent []byte
+	var fromFormat metadecoders.Format
+
+	iter := psr.Iterator()
+
+	walkFn := func(item pageparser.Item) bool {
+		if sourceFormat != nil {
+			// The rest is content.
+			sourceContent = psr.Input()[item.Pos:]
+			// Done
+			return false
+		} else if item.IsFrontMatter() {
+			fromFormat = metadecoders.FormatFromFrontMatterType(item.Type)
+			sourceFormat = item.Val
+		}
+		return true
+
+	}
+
+	iter.PeekWalk(walkFn)
+
+	metadata, err := metadecoders.UnmarshalToMap(sourceFormat, fromFormat)
 	if err != nil {
-		site.Log.ERROR.Println("Error processing file:", p.Path())
+		site.Log.ERROR.Println(errMsg)
 		return err
 	}
 
 	// better handling of dates in formats that don't have support for them
-	if mark == parser.FormatToLeadRune("json") || mark == parser.FormatToLeadRune("yaml") || mark == parser.FormatToLeadRune("toml") {
+	if fromFormat == metadecoders.JSON || fromFormat == metadecoders.YAML || fromFormat == metadecoders.TOML {
 		newMetadata := cast.ToStringMap(metadata)
 		for k, v := range newMetadata {
 			switch vv := v.(type) {
@@ -175,18 +204,26 @@ func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, ma
 		metadata = newMetadata
 	}
 
-	newPage.SetSourceContent(psr.Content())
-	if err = newPage.SetSourceMetaData(metadata, mark); err != nil {
-		site.Log.ERROR.Printf("Failed to set source metadata for file %q: %s. For more info see For more info see https://github.com/gohugoio/hugo/issues/2458", newPage.FullFilePath(), err)
-		return nil
+	var newContent bytes.Buffer
+	err = parser.InterfaceToFrontMatter2(metadata, targetFormat, &newContent)
+	if err != nil {
+		site.Log.ERROR.Println(errMsg)
+		return err
 	}
+
+	newContent.Write(sourceContent)
 
 	newFilename := p.Filename()
+
 	if cc.outputDir != "" {
-		newFilename = filepath.Join(cc.outputDir, p.Dir(), newPage.LogicalName())
+		contentDir := strings.TrimSuffix(newFilename, p.Path())
+		contentDir = filepath.Base(contentDir)
+
+		newFilename = filepath.Join(cc.outputDir, contentDir, p.Path())
 	}
 
-	if err = newPage.SaveSourceAs(newFilename); err != nil {
+	fs := hugofs.Os
+	if err := helpers.WriteToDisk(newFilename, &newContent, fs); err != nil {
 		return errors.Wrapf(err, "Failed to save file %q:", newFilename)
 	}
 

@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
@@ -179,12 +180,12 @@ func TestRemarshalDetectFormat(t *testing.T) {
 		data   string
 		expect interface{}
 	}{
-		{`foo = "bar"`, "toml"},
-		{`   foo = "bar"`, "toml"},
-		{`foo="bar"`, "toml"},
-		{`foo: "bar"`, "yaml"},
-		{`foo:"bar"`, "yaml"},
-		{`{ "foo": "bar"`, "json"},
+		{`foo = "bar"`, metadecoders.TOML},
+		{`   foo = "bar"`, metadecoders.TOML},
+		{`foo="bar"`, metadecoders.TOML},
+		{`foo: "bar"`, metadecoders.YAML},
+		{`foo:"bar"`, metadecoders.YAML},
+		{`{ "foo": "bar"`, metadecoders.JSON},
 		{`asdfasdf`, false},
 		{``, false},
 	} {
@@ -198,6 +199,6 @@ func TestRemarshalDetectFormat(t *testing.T) {
 		}
 
 		assert.NoError(err, errMsg)
-		assert.Equal(test.expect, result, errMsg)
+		assert.Equal(test.expect, result)
 	}
 }

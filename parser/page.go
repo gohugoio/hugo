@@ -101,15 +101,8 @@ func (p *page) IsRenderable() bool {
 
 // Metadata returns the unmarshalled frontmatter data.
 func (p *page) Metadata() (meta map[string]interface{}, err error) {
-	frontmatter := p.FrontMatter()
 
-	if len(frontmatter) != 0 {
-		fm := DetectFrontMatter(rune(frontmatter[0]))
-		if fm != nil {
-			meta, err = fm.Parse(frontmatter)
-		}
-	}
-	return
+	return nil, nil
 }
 
 // ReadFrom reads the content from an io.Reader and constructs a page.

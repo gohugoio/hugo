@@ -25,6 +25,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/parser/metadecoders"
+
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib"
@@ -253,7 +255,7 @@ func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]
 		return nil
 	}
 
-	c, err := parser.HandleYAMLMetaData(b)
+	c, err := metadecoders.UnmarshalToMap(b, metadecoders.YAML)
 
 	if err != nil {
 		return nil
