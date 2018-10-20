@@ -1321,14 +1321,19 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 		BaseFilename:  p.BaseFileName(),
 		ModTime:       mtime,
 		GitAuthorDate: gitAuthorDate,
+		TitleFunc:     p.s.titleFunc,
+		// Title not set as it will only be set if a title found in frontmatter.
 	}
 
 	// Handle the date separately
 	// TODO(bep) we need to "do more" in this area so this can be split up and
 	// more easily tested without the Page, but the coupling is strong.
-	err := p.s.frontmatterHandler.HandleDates(descriptor)
+	err := p.s.frontmatterHandler.HandleFrontMatter(descriptor)
 	if err != nil {
 		p.s.Log.ERROR.Printf("Failed to handle dates for page %q: %s", p.Path(), err)
+	}
+	if descriptor.Title != nil {
+		p.title = *descriptor.Title
 	}
 
 	var draft, published, isCJKLanguage *bool
@@ -1344,14 +1349,11 @@ func (p *Page) update(frontmatter map[string]interface{}) error {
 			continue
 		}
 
-		if p.s.frontmatterHandler.IsDateKey(loki) {
+		if p.s.frontmatterHandler.IsFrontMatterKey(loki) {
 			continue
 		}
 
 		switch loki {
-		case "title":
-			p.title = cast.ToString(v)
-			p.params[loki] = p.title
 		case "linktitle":
 			p.linkTitle = cast.ToString(v)
 			p.params[loki] = p.linkTitle

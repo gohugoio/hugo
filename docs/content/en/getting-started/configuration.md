@@ -373,6 +373,25 @@ The above will try first to extract the value for `.Date` from the filename, the
 `:git`
 : This is the Git author date for the last revision of this content file. This will only be set if `--enableGitInfo` is set or `enableGitInfo = true` is set in site config.
 
+## Configure Title
+
+It is possible to enable deriving title from the filename/slug. 
+
+`:filename`
+
+: Fetches the title from the content file's filename. For example, `my_page.md` will extract the title `My Page`. 
+If you use `:filename` for date too then `2018-02-22-my_page.md` will extract both date and title from the filename.
+
+An example:
+
+```toml
+[frontmatter]
+date  = [":default", ":filename"]
+title = [":default", ":filename]
+```
+
+Note: putting `:filename` at the end ensures you can still use `title` in frontmatter and it will be used over the filename.
+
 ## Configure Blackfriday
 
 [Blackfriday](https://github.com/russross/blackfriday) is Hugo's built-in Markdown rendering engine.
