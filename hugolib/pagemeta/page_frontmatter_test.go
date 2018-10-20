@@ -142,13 +142,13 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 			d.GitAuthorDate = d1
 		}
 		d.Frontmatter["date"] = d2
-		assert.NoError(handler.HandleDates(d))
+		assert.NoError(handler.HandleFrontMatter(d))
 		assert.Equal(d1, d.Dates.Date)
 		assert.Equal(d2, d.Params["date"])
 
 		d = newTestFd()
 		d.Frontmatter["date"] = d2
-		assert.NoError(handler.HandleDates(d))
+		assert.NoError(handler.HandleFrontMatter(d))
 		assert.Equal(d2, d.Dates.Date)
 		assert.Equal(d2, d.Params["date"])
 
@@ -184,7 +184,7 @@ func TestFrontMatterDatesCustomConfig(t *testing.T) {
 	testDate = testDate.Add(24 * time.Hour)
 	d.Frontmatter["expirydate"] = testDate
 
-	assert.NoError(handler.HandleDates(d))
+	assert.NoError(handler.HandleFrontMatter(d))
 
 	assert.Equal(1, d.Dates.Date.Day())
 	assert.Equal(4, d.Dates.Lastmod.Day())
@@ -196,10 +196,10 @@ func TestFrontMatterDatesCustomConfig(t *testing.T) {
 	assert.Equal(d.Dates.PublishDate, d.Params["publishdate"])
 	assert.Equal(d.Dates.ExpiryDate, d.Params["expirydate"])
 
-	assert.False(handler.IsDateKey("date")) // This looks odd, but is configured like this.
-	assert.True(handler.IsDateKey("mydate"))
-	assert.True(handler.IsDateKey("publishdate"))
-	assert.True(handler.IsDateKey("pubdate"))
+	assert.False(handler.IsFrontMatterKey("date")) // This looks odd, but is configured like this.
+	assert.True(handler.IsFrontMatterKey("mydate"))
+	assert.True(handler.IsFrontMatterKey("publishdate"))
+	assert.True(handler.IsFrontMatterKey("pubdate"))
 
 }
 
@@ -225,7 +225,7 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 	d.Frontmatter["mypubdate"] = testDate.Add(2 * 24 * time.Hour)
 	d.Frontmatter["publishdate"] = testDate.Add(3 * 24 * time.Hour)
 
-	assert.NoError(handler.HandleDates(d))
+	assert.NoError(handler.HandleFrontMatter(d))
 
 	assert.Equal(1, d.Dates.Date.Day())
 	assert.Equal(2, d.Dates.Lastmod.Day())
@@ -258,4 +258,62 @@ func TestFrontMatterDateFieldHandler(t *testing.T) {
 	assert.True(handled)
 	assert.NoError(err)
 	assert.Equal(d, fd.Dates.Date)
+}
+
+func TestFrontMatterTitleCustomConfig(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	cfg := viper.New()
+	cfg.Set("frontmatter", map[string]interface{}{
+		"title":        []string{"mytitle"},
+	})
+
+	handler, err := NewFrontmatterHandler(nil, cfg)
+	assert.NoError(err)
+
+	testTitle := "Right Title"
+
+	d := newTestFd()
+	d.Frontmatter["mytitle"] = testTitle
+	d.Frontmatter["title"] = "Wrong title"
+
+	assert.NoError(handler.HandleFrontMatter(d))
+
+
+	assert.NotNil(d.Title)
+	assert.Equal(testTitle, *d.Title)
+	assert.Equal(testTitle, d.Params["title"])
+	assert.Equal(testTitle, d.Params["mytitle"])
+	
+	assert.True(handler.IsFrontMatterKey("mytitle"))
+
+	assert.False(handler.IsFrontMatterKey("title"))
+
+}
+
+func TestFrontMatterTitleNoCustomConfig(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	cfg := viper.New()
+
+	handler, err := NewFrontmatterHandler(nil, cfg)
+	assert.NoError(err)
+
+	testTitle := "Right Title"
+
+	d := newTestFd()
+	d.Frontmatter["title"] = testTitle
+
+	assert.NoError(handler.HandleFrontMatter(d))
+
+	assert.NotNil(d.Title)
+	assert.Equal(testTitle, *d.Title)
+	assert.Equal(testTitle, d.Params["title"])
+	
+	assert.True(handler.IsFrontMatterKey("title"))
+
 }

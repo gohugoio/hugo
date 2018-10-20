@@ -28,7 +28,7 @@ import (
 )
 
 // FrontMatterHandler maps front matter into Page fields and .Params.
-// Note that we currently have only extracted the date logic.
+// Currently have extracted date and title logic.
 type FrontMatterHandler struct {
 	fmConfig frontmatterConfig
 
@@ -36,9 +36,11 @@ type FrontMatterHandler struct {
 	lastModHandler     frontMatterFieldHandler
 	publishDateHandler frontMatterFieldHandler
 	expiryDateHandler  frontMatterFieldHandler
+	titleHandler       frontMatterFieldHandler
 
-	// A map of all date keys configured, including any custom.
-	allDateKeys map[string]bool
+	// A map of all keys configured, including any custom.
+	// todo: rename to allConfigKeys or similar
+	allFrontMatterKeys map[string]bool
 
 	logger *jww.Notepad
 }
@@ -59,6 +61,16 @@ type FrontMatterDescriptor struct {
 	// May be set from the author date in Git.
 	GitAuthorDate time.Time
 
+	// This the titlefunc used by page site
+	// todo: would have preferred to point to Site to read other configuration
+	// but cannot use hugolib from nested package
+	TitleFunc func(s string) string
+
+	// Set if a title is found by handlers
+	// If have a value it will be set onto the Page title
+	Title *string
+
+	
 	// The below are pointers to values on Page and will be modified.
 
 	// This is the Page's params.
@@ -77,19 +89,24 @@ var (
 		fmLastmod:    []string{"modified"},
 		fmPubDate:    []string{"pubdate", "published"},
 		fmExpiryDate: []string{"unpublishdate"},
+		fmTitle:      []string{"title"},
 	}
 )
 
-// HandleDates updates all the dates given the current configuration and the
+// HandleFrontMatter updates all the fields that have front matter handlers given the current configuration and the
 // supplied front matter params. Note that this requires all lower-case keys
 // in the params map.
-func (f FrontMatterHandler) HandleDates(d *FrontMatterDescriptor) error {
+func (f FrontMatterHandler) HandleFrontMatter(d *FrontMatterDescriptor) error {
 	if d.Dates == nil {
 		panic("missing dates")
 	}
 
 	if f.dateHandler == nil {
 		panic("missing date handler")
+	}
+
+	if f.titleHandler == nil {
+		panic("missing title handler")
 	}
 
 	if _, err := f.dateHandler(d); err != nil {
@@ -108,13 +125,17 @@ func (f FrontMatterHandler) HandleDates(d *FrontMatterDescriptor) error {
 		return err
 	}
 
+	if _, err := f.titleHandler(d); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-// IsDateKey returns whether the given front matter key is considered a date by the current
+// IsFrontMatterKey returns whether the given front matter key is managed by frontmatter handlers by the current
 // configuration.
-func (f FrontMatterHandler) IsDateKey(key string) bool {
-	return f.allDateKeys[key]
+func (f FrontMatterHandler) IsFrontMatterKey(key string) bool {
+	return f.allFrontMatterKeys[key]
 }
 
 // A Zero date is a signal that the name can not be parsed.
@@ -163,17 +184,21 @@ type frontmatterConfig struct {
 	lastmod     []string
 	publishDate []string
 	expiryDate  []string
+	title       []string
 }
 
 const (
-	// These are all the date handler identifiers
+	// These are all the front matter config identifiers
 	// All identifiers not starting with a ":" maps to a front matter parameter.
 	fmDate       = "date"
 	fmPubDate    = "publishdate"
 	fmLastmod    = "lastmod"
 	fmExpiryDate = "expirydate"
+	fmTitle      = "title"
 
-	// Gets date from filename, e.g 218-02-22-mypage.md
+	// Gets date or title from filename, e.g 218-02-22-mypage.md
+	// in cas of date it will update slug to just have the non-date part
+	// in case of title it will take slug first if present, title second.
 	fmFilename = ":filename"
 
 	// Gets date from file OS mod time.
@@ -181,6 +206,7 @@ const (
 
 	// Gets date from Git
 	fmGitAuthorDate = ":git"
+
 )
 
 // This is the config you get when doing nothing.
@@ -190,6 +216,7 @@ func newDefaultFrontmatterConfig() frontmatterConfig {
 		lastmod:     []string{fmGitAuthorDate, fmLastmod, fmDate, fmPubDate},
 		publishDate: []string{fmPubDate, fmDate},
 		expiryDate:  []string{fmExpiryDate},
+		title:       []string{fmTitle},
 	}
 }
 
@@ -210,6 +237,8 @@ func newFrontmatterConfig(cfg config.Provider) (frontmatterConfig, error) {
 				c.lastmod = toLowerSlice(v)
 			case fmExpiryDate:
 				c.expiryDate = toLowerSlice(v)
+			case fmTitle:
+				c.title = toLowerSlice(v)
 			}
 		}
 	}
@@ -224,6 +253,7 @@ func newFrontmatterConfig(cfg config.Provider) (frontmatterConfig, error) {
 	c.publishDate = expander(c.publishDate, defaultConfig.publishDate)
 	c.lastmod = expander(c.lastmod, defaultConfig.lastmod)
 	c.expiryDate = expander(c.expiryDate, defaultConfig.expiryDate)
+	c.title = expander(c.title, defaultConfig.title)
 
 	return c, nil
 }
@@ -274,11 +304,11 @@ func NewFrontmatterHandler(logger *jww.Notepad, cfg config.Provider) (FrontMatte
 		return FrontMatterHandler{}, err
 	}
 
-	allDateKeys := make(map[string]bool)
+	allFrontMatterKeys := make(map[string]bool)
 	addKeys := func(vals []string) {
 		for _, k := range vals {
 			if !strings.HasPrefix(k, ":") {
-				allDateKeys[k] = true
+				allFrontMatterKeys[k] = true
 			}
 		}
 	}
@@ -287,8 +317,9 @@ func NewFrontmatterHandler(logger *jww.Notepad, cfg config.Provider) (FrontMatte
 	addKeys(frontMatterConfig.expiryDate)
 	addKeys(frontMatterConfig.lastmod)
 	addKeys(frontMatterConfig.publishDate)
+	addKeys(frontMatterConfig.title)
 
-	f := FrontMatterHandler{logger: logger, fmConfig: frontMatterConfig, allDateKeys: allDateKeys}
+	f := FrontMatterHandler{logger: logger, fmConfig: frontMatterConfig, allFrontMatterKeys: allFrontMatterKeys}
 
 	if err := f.createHandlers(); err != nil {
 		return f, err
@@ -328,6 +359,15 @@ func (f *FrontMatterHandler) createHandlers() error {
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmExpiryDate, t, d)
 			d.Dates.ExpiryDate = t
+		}); err != nil {
+		return err
+	}
+
+	if f.titleHandler, err = f.createTitleHandler(f.fmConfig.title,
+		func(d *FrontMatterDescriptor, t string) {
+			setParamIfNotSet(fmTitle, t, d)
+			d.Title = &t
+			// todo: should set some marker for title = t ? 
 		}); err != nil {
 		return err
 	}
@@ -426,3 +466,65 @@ func (f *frontmatterFieldHandlers) newDateGitAuthorDateHandler(setter func(d *Fr
 		return true, nil
 	}
 }
+
+func (f FrontMatterHandler) createTitleHandler(identifiers []string, setter func(d *FrontMatterDescriptor, t string)) (frontMatterFieldHandler, error) {
+	var h *frontmatterFieldHandlers
+	var handlers []frontMatterFieldHandler
+
+	for _, identifier := range identifiers {
+		switch identifier {
+		case fmFilename:
+			handlers = append(handlers, h.newTitleFilenameHandler(setter))
+		default:
+			handlers = append(handlers, h.newStringFieldHandler(identifier, setter))
+		}
+	}
+
+	return f.newChainedFrontMatterFieldHandler(handlers...), nil
+
+}
+
+func (f *frontmatterFieldHandlers) newStringFieldHandler(key string, setter func(d *FrontMatterDescriptor, t string)) frontMatterFieldHandler {
+	return func(d *FrontMatterDescriptor) (bool, error) {
+		v, found := d.Frontmatter[key]
+
+		if !found {
+			return false, nil
+		}
+
+		str := cast.ToString(v)
+		
+		setter(d, str)
+
+		// This is the params key as set in front matter.
+		d.Params[key] = str
+
+		return true, nil
+	}
+}
+
+func (f *frontmatterFieldHandlers) newTitleFilenameHandler(setter func(d *FrontMatterDescriptor, t string)) frontMatterFieldHandler {
+	return func(d *FrontMatterDescriptor) (bool, error) {
+		
+		// todo: be smarter (format slug to title, check for nil)
+		
+		var rawpath string
+
+		// we look at slug first to make it work well with date = :filename to avoid date being in header.
+		if (d.PageURLs.Slug != "") {
+			rawpath = d.PageURLs.Slug
+		} else {
+			rawpath = d.BaseFilename
+		}
+		
+		// replace common separators with space
+        rawpath = strings.Replace(rawpath, "-", " ", -1)
+        rawpath = strings.Replace(rawpath, "_", " ", -1)
+        rawpath = strings.Replace(rawpath, ".", " ", -1)
+
+		var derivedTitle = d.TitleFunc(rawpath)
+		setter(d, derivedTitle)
+		return true, nil
+	}
+}
+

@@ -88,6 +88,7 @@ Content of the file goes Here
 `
 
 	simplePageRFC3339Date  = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
+	simplePageNoTitleNoFrontMatter = "No title nor frontmatter"
 	simplePageJSONMultiple = `
 {
 	"title": "foobar",
@@ -765,6 +766,46 @@ Simple Page With Some Date`
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, pageContents...)
 }
+
+func TestTitleWhenNoTitle(t *testing.T) {
+	t.Parallel()
+	cfg, fs := newTestCfg()
+
+	cfg.Set("frontmatter", map[string]interface{}{
+		"title": []string{":filename"},
+	})
+
+	writeSource(t, fs, filepath.Join("content", "simple-is_sometimes-more.md"), simplePageNoTitleNoFrontMatter)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 1)
+
+	p := s.RegularPages[0]
+
+	checkPageTitle(t, p, "Simple Is Sometimes More")
+}
+
+func TestTitleWhenNoTitleFileDatestamp(t *testing.T) {
+	t.Parallel()
+	cfg, fs := newTestCfg()
+
+	cfg.Set("frontmatter", map[string]interface{}{
+		"title": []string{":filename"},
+		"date": []string{":filename"},
+	})
+
+	writeSource(t, fs, filepath.Join("content", "2017-01-31-simple.md"), simplePageNoTitleNoFrontMatter)
+
+	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+
+	require.Len(t, s.RegularPages, 1)
+
+	p := s.RegularPages[0]
+
+	checkPageTitle(t, p, "Simple")
+}
+
 
 // Issue #2601
 func TestPageRawContent(t *testing.T) {
@@ -1573,7 +1614,7 @@ func TestKind(t *testing.T) {
 	require.Equal(t, "home", KindHome)
 	require.Equal(t, "section", KindSection)
 	require.Equal(t, "taxonomy", KindTaxonomy)
-	require.Equal(t, "taxonomyTerm", KindTaxonomyTerm)
+	require.Equal(t, "taxonomyTerm", KindTaxonomyTerm)  
 
 }
 
