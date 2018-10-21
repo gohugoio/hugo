@@ -21,6 +21,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
@@ -51,6 +52,40 @@ type HugoSites struct {
 
 	// If enabled, keeps a revision map for all content.
 	gitInfo *gitInfo
+}
+
+func (h *HugoSites) pickOneAndLogTheRest(errors []error) error {
+	if len(errors) == 0 {
+		return nil
+	}
+
+	var i int
+
+	for j, err := range errors {
+		// If this is in server mode, we want to return an error to the client
+		// with a file context, if possible.
+		if herrors.UnwrapErrorWithFileContext(err) != nil {
+			i = j
+			break
+		}
+	}
+
+	// Log the rest, but add a threshold to avoid flooding the log.
+	const errLogThreshold = 5
+
+	for j, err := range errors {
+		if j == i || err == nil {
+			continue
+		}
+
+		if j >= errLogThreshold {
+			break
+		}
+
+		h.Log.ERROR.Println(err)
+	}
+
+	return errors[i]
 }
 
 func (h *HugoSites) IsMultihost() bool {
@@ -636,6 +671,7 @@ func handleShortcodes(p *PageWithoutContent, rawContentCopy []byte) ([]byte, err
 		err := p.shortcodeState.executeShortcodesForDelta(p)
 
 		if err != nil {
+
 			return rawContentCopy, err
 		}
 

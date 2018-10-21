@@ -20,10 +20,9 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/media"
 	_errors "github.com/pkg/errors"
-
-	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/gohugoio/hugo/langs"
 
@@ -304,7 +303,7 @@ func (p *Page) initContent() {
 
 			if len(p.summary) == 0 {
 				if err = p.setAutoSummary(); err != nil {
-					err = _errors.Wrapf(err, "Failed to set user auto summary for page %q:", p.pathOrTitle())
+					err = p.errorf(err, "failed to set auto summary")
 				}
 			}
 			c <- err
@@ -315,11 +314,11 @@ func (p *Page) initContent() {
 			p.s.Log.WARN.Printf("WARNING: Timed out creating content for page %q (.Content will be empty). This is most likely a circular shortcode content loop that should be fixed. If this is just a shortcode calling a slow remote service, try to set \"timeout=20000\" (or higher, value is in milliseconds) in config.toml.\n", p.pathOrTitle())
 		case err := <-c:
 			if err != nil {
-				// TODO(bep) 2errors needs to be transported to the caller.
-				p.s.Log.ERROR.Println(err)
+				p.s.SendError(err)
 			}
 		}
 	})
+
 }
 
 // This is sent to the shortcodes for this page. Not doing that will create an infinite regress. So,
@@ -560,11 +559,6 @@ func (ps Pages) findPagePos(page *Page) int {
 	return -1
 }
 
-func (p *Page) createWorkContentCopy() {
-	p.workContent = make([]byte, len(p.rawContent))
-	copy(p.workContent, p.rawContent)
-}
-
 func (p *Page) Plain() string {
 	p.initContent()
 	p.initPlain(true)
@@ -695,12 +689,6 @@ func (p *Page) Authors() AuthorList {
 
 func (p *Page) UniqueID() string {
 	return p.File.UniqueID()
-}
-
-// for logging
-// TODO(bep) 2errors remove
-func (p *Page) lineNumRawContentStart() int {
-	return bytes.Count(p.frontmatter, []byte("\n")) + 1
 }
 
 // Returns the page as summary and main.
@@ -936,31 +924,18 @@ func (s *Site) NewPage(name string) (*Page, error) {
 	return p, nil
 }
 
-func (p *Page) errorf(err error, format string, a ...interface{}) error {
-	args := append([]interface{}{p.Lang(), p.pathOrTitle()}, a...)
-	format = "[%s] Page %q: " + format
-	if err == nil {
-		return fmt.Errorf(format, args...)
-	}
-	return _errors.Wrapf(err, format, args...)
-}
-
 func (p *Page) ReadFrom(buf io.Reader) (int64, error) {
 	// Parse for metadata & body
 	if err := p.parse(buf); err != nil {
-		return 0, p.errorf(err, "parse failed")
+		return 0, p.errWithFileContext(err)
 
 	}
-
-	// Work on a copy of the raw content from now on.
-	// TODO(bep) 2errors
-	//p.createWorkContentCopy()
 
 	if err := p.mapContent(); err != nil {
-		return 0, err
+		return 0, p.errWithFileContext(err)
 	}
 
-	return int64(len(p.rawContent)), nil
+	return int64(len(p.source.parsed.Input())), nil
 }
 
 func (p *Page) WordCount() int {
@@ -1169,7 +1144,7 @@ func (p *Page) initMainOutputFormat() error {
 	pageOutput, err := newPageOutput(p, false, false, outFormat)
 
 	if err != nil {
-		return _errors.Wrapf(err, "Failed to create output page for type %q for page %q:", outFormat.Name, p.pathOrTitle())
+		return p.errorf(err, "failed to create output page for type %q", outFormat.Name)
 	}
 
 	p.mainPageOutput = pageOutput
@@ -1485,7 +1460,7 @@ func (p *Page) updateMetaData(frontmatter map[string]interface{}) error {
 	if isCJKLanguage != nil {
 		p.isCJKLanguage = *isCJKLanguage
 	} else if p.s.Cfg.GetBool("hasCJKLanguage") {
-		if cjk.Match(p.rawContent) {
+		if cjk.Match(p.source.parsed.Input()) {
 			p.isCJKLanguage = true
 		} else {
 			p.isCJKLanguage = false
@@ -1711,7 +1686,8 @@ func (p *Page) shouldRenderTo(f output.Format) bool {
 }
 
 func (p *Page) RawContent() string {
-	return string(p.rawContent)
+	// TODO(bep) 2errors
+	return string(p.source.parsed.Input())
 }
 
 func (p *Page) FullFilePath() string {
@@ -2145,12 +2121,7 @@ func (p *Page) setValuesForKind(s *Site) {
 // Used in error logs.
 func (p *Page) pathOrTitle() string {
 	if p.Filename() != "" {
-		// Make a path relative to the working dir if possible.
-		filename := strings.TrimPrefix(p.Filename(), p.s.WorkingDir)
-		if filename != p.Filename() {
-			filename = strings.TrimPrefix(filename, helpers.FilePathSeparator)
-		}
-		return filename
+		return p.Filename()
 	}
 	return p.title
 }

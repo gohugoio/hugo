@@ -28,16 +28,16 @@ func TestToLineNumberError(t *testing.T) {
 	assert := require.New(t)
 
 	for i, test := range []struct {
-		in         error
-		offset     int
-		lineNumber int
+		in           error
+		offset       int
+		lineNumber   int
+		columnNumber int
 	}{
-		{errors.New("no line number for you"), 0, -1},
-		{errors.New(`template: _default/single.html:2:15: executing "_default/single.html" at <.Titles>: can't evaluate field`), 0, 2},
-		{errors.New("parse failed: template: _default/bundle-resource-meta.html:11: unexpected in operand"), 0, 11},
-		{errors.New(`failed:: template: _default/bundle-resource-meta.html:2:7: executing "main" at <.Titles>`), 0, 2},
-		{errors.New("error in front matter: Near line 32 (last key parsed 'title')"), 0, 32},
-		{errors.New("error in front matter: Near line 32 (last key parsed 'title')"), 2, 34},
+		{errors.New("no line number for you"), 0, -1, 1},
+		{errors.New(`template: _default/single.html:4:15: executing "_default/single.html" at <.Titles>: can't evaluate field Titles in type *hugolib.PageOutput`), 0, 4, 15},
+		{errors.New("parse failed: template: _default/bundle-resource-meta.html:11: unexpected in operand"), 0, 11, 1},
+		{errors.New(`failed:: template: _default/bundle-resource-meta.html:2:7: executing "main" at <.Titles>`), 0, 2, 7},
+		{errors.New("error in front matter: Near line 32 (last key parsed 'title')"), 0, 32, 1},
 	} {
 
 		got := ToFileErrorWithOffset("template", test.in, test.offset)
@@ -48,6 +48,7 @@ func TestToLineNumberError(t *testing.T) {
 		if test.lineNumber > 0 {
 			assert.True(ok)
 			assert.Equal(test.lineNumber, le.LineNumber(), errMsg)
+			assert.Equal(test.columnNumber, le.ColumnNumber(), errMsg)
 			assert.Contains(got.Error(), strconv.Itoa(le.LineNumber()))
 		} else {
 			assert.False(ok)

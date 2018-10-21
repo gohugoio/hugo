@@ -11,35 +11,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package tplimpl
+package hugolib
 
 import (
+	"fmt"
+
 	"github.com/gohugoio/hugo/common/herrors"
-	"github.com/pkg/errors"
-	"github.com/spf13/afero"
+	errors "github.com/pkg/errors"
 )
 
-type templateInfo struct {
-	template string
-
-	// Used to create some error context in error situations
-	fs afero.Fs
-
-	// The filename relative to the fs above.
-	filename string
-
-	// The real filename (if possible). Used for logging.
-	realFilename string
+func (p *Page) errorf(err error, format string, a ...interface{}) error {
+	if herrors.UnwrapErrorWithFileContext(err) != nil {
+		// More isn't always better.
+		return err
+	}
+	args := append([]interface{}{p.Lang(), p.pathOrTitle()}, a...)
+	format = "[%s] page %q: " + format
+	if err == nil {
+		errors.Errorf(format, args...)
+		return fmt.Errorf(format, args...)
+	}
+	return errors.Wrapf(err, format, args...)
 }
 
-func (info templateInfo) errWithFileContext(what string, err error) error {
-	err = errors.Wrapf(err, what)
+func (p *Page) errWithFileContext(err error) error {
 
 	err, _ = herrors.WithFileContextForFile(
 		err,
-		info.realFilename,
-		info.filename,
-		info.fs,
+		p.Filename(),
+		p.Filename(),
+		p.s.SourceSpec.Fs.Source,
 		herrors.SimpleLineMatcher)
 
 	return err

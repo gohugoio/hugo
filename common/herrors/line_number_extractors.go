@@ -14,14 +14,13 @@
 package herrors
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 )
 
 var lineNumberExtractors = []lineNumberExtractor{
 	// Template/shortcode parse errors
-	newLineNumberErrHandlerFromRegexp("(.*?:)(\\d+)(:.*)"),
+	newLineNumberErrHandlerFromRegexp("(.*?:)(\\d+)(:)(\\d+)?(.*)"),
 
 	// TOML parse errors
 	newLineNumberErrHandlerFromRegexp("(.*Near line )(\\d+)(\\s.*)"),
@@ -30,7 +29,7 @@ var lineNumberExtractors = []lineNumberExtractor{
 	newLineNumberErrHandlerFromRegexp("(line )(\\d+)(:)"),
 }
 
-type lineNumberExtractor func(e error, offset int) (int, string)
+type lineNumberExtractor func(e error) (int, int)
 
 func newLineNumberErrHandlerFromRegexp(expression string) lineNumberExtractor {
 	re := regexp.MustCompile(expression)
@@ -38,22 +37,26 @@ func newLineNumberErrHandlerFromRegexp(expression string) lineNumberExtractor {
 }
 
 func extractLineNo(re *regexp.Regexp) lineNumberExtractor {
-	return func(e error, offset int) (int, string) {
+	return func(e error) (int, int) {
 		if e == nil {
 			panic("no error")
 		}
+		col := 1
 		s := e.Error()
 		m := re.FindStringSubmatch(s)
-		if len(m) == 4 {
-			i, _ := strconv.Atoi(m[2])
-			msg := e.Error()
-			if offset != 0 {
-				i = i + offset
-				msg = re.ReplaceAllString(s, fmt.Sprintf("${1}%d${3}", i))
+		if len(m) >= 4 {
+			lno, _ := strconv.Atoi(m[2])
+			if len(m) > 4 {
+				col, _ = strconv.Atoi(m[4])
 			}
-			return i, msg
+
+			if col <= 0 {
+				col = 1
+			}
+
+			return lno, col
 		}
 
-		return -1, ""
+		return -1, col
 	}
 }

@@ -66,6 +66,11 @@ func (t *Iterator) Next() Item {
 	return t.current()
 }
 
+// Input returns the input source.
+func (t *Iterator) Input() []byte {
+	return t.l.Input()
+}
+
 var errIndexOutOfBounds = Item{tError, 0, []byte("no more tokens")}
 
 func (t *Iterator) current() Item {

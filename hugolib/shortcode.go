@@ -18,7 +18,9 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+
 	"reflect"
+
 	"regexp"
 	"sort"
 
@@ -139,6 +141,7 @@ type shortcode struct {
 	ordinal  int
 	err      error
 	doMarkup bool
+	pos      int // the position in bytes in the source file
 }
 
 func (sc shortcode) String() string {
@@ -458,7 +461,13 @@ func (s *shortcodeHandler) executeShortcodesForDelta(p *PageWithoutContent) erro
 		render := s.contentShortcodesDelta.getShortcodeRenderer(k)
 		renderedShortcode, err := render()
 		if err != nil {
-			return _errors.Wrapf(err, "Failed to execute shortcode in page %q:", p.Path())
+			sc := s.shortcodes.getShortcode(k.(scKey).ShortcodePlaceholder)
+			if sc != nil {
+				err = p.errWithFileContext(parseError(_errors.Wrapf(err, "failed to render shortcode %q", sc.name), p.source.parsed.Input(), sc.pos))
+			}
+
+			p.s.SendError(err)
+			continue
 		}
 
 		s.renderedShortcodes[k.(scKey).ShortcodePlaceholder] = renderedShortcode
@@ -495,15 +504,8 @@ func (s *shortcodeHandler) extractShortcode(ordinal int, pt *pageparser.Iterator
 	var cnt = 0
 	var nestedOrdinal = 0
 
-	// TODO(bep) 2errors revisit after https://github.com/gohugoio/hugo/issues/5324
-	msgf := func(i pageparser.Item, format string, args ...interface{}) string {
-		format = format + ":%d:"
-		// TODO(bep) 2errors
-		c1 := 32 // strings.Count(pt.lexer.input[:i.pos], "\n") + 1
-		c2 := bytes.Count(p.frontmatter, []byte{'\n'})
-		args = append(args, c1+c2)
-		return fmt.Sprintf(format, args...)
-
+	fail := func(err error, i pageparser.Item) error {
+		return parseError(err, pt.Input(), i.Pos)
 	}
 
 Loop:
@@ -511,6 +513,7 @@ Loop:
 		currItem := pt.Next()
 		switch {
 		case currItem.IsLeftShortcodeDelim():
+			sc.pos = currItem.Pos
 			next := pt.Peek()
 			if next.IsShortcodeClose() {
 				continue
@@ -550,7 +553,8 @@ Loop:
 					// return that error, more specific
 					continue
 				}
-				return sc, errors.New(msgf(next, "shortcode %q has no .Inner, yet a closing tag was provided", next.Val))
+
+				return sc, fail(_errors.Errorf("shortcode %q has no .Inner, yet a closing tag was provided", next.Val), next)
 			}
 			if next.IsRightShortcodeDelim() {
 				// self-closing
@@ -568,13 +572,13 @@ Loop:
 			// if more than one. It is "all inner or no inner".
 			tmpl := getShortcodeTemplateForTemplateKey(scKey{}, sc.name, p.s.Tmpl)
 			if tmpl == nil {
-				return sc, errors.New(msgf(currItem, "unable to locate template for shortcode %q", sc.name))
+				return sc, fail(_errors.Errorf("template for shortcode %q not found", sc.name), currItem)
 			}
 
 			var err error
 			isInner, err = isInnerShortcode(tmpl.(tpl.TemplateExecutor))
 			if err != nil {
-				return sc, _errors.Wrap(err, msgf(currItem, "failed to handle template for shortcode %q", sc.name))
+				return sc, fail(_errors.Wrapf(err, "failed to handle template for shortcode %q", sc.name), currItem)
 			}
 
 		case currItem.IsShortcodeParam():

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/loggers"
-
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
@@ -16,6 +15,7 @@ import (
 	"github.com/gohugoio/hugo/resource"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
+	jww "github.com/spf13/jwalterweatherman"
 )
 
 // Deps holds dependencies used by many.
@@ -73,6 +73,33 @@ type Deps struct {
 
 	// BuildStartListeners will be notified before a build starts.
 	BuildStartListeners *Listeners
+
+	*globalErrHandler
+}
+
+type globalErrHandler struct {
+	// Channel for some "hard to get to" build errors
+	buildErrors chan error
+}
+
+// SendErr sends the error on a channel to be handled later.
+// This can be used in situations where returning and aborting the current
+// operation isn't practical.
+func (e *globalErrHandler) SendError(err error) {
+	if e.buildErrors != nil {
+		select {
+		case e.buildErrors <- err:
+		default:
+		}
+		return
+	}
+
+	jww.ERROR.Println(err)
+}
+
+func (e *globalErrHandler) StartErrorCollector() chan error {
+	e.buildErrors = make(chan error, 10)
+	return e.buildErrors
 }
 
 // Listeners represents an event listener.
@@ -194,6 +221,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		Language:            cfg.Language,
 		BuildStartListeners: &Listeners{},
 		Timeout:             time.Duration(timeoutms) * time.Millisecond,
+		globalErrHandler:    &globalErrHandler{},
 	}
 
 	if cfg.Cfg.GetBool("templateMetrics") {

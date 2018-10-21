@@ -14,11 +14,14 @@
 package hugolib
 
 import (
-	"fmt"
+	"bytes"
 	"io"
+
+	errors "github.com/pkg/errors"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/gohugoio/hugo/parser/pageparser"
 )
@@ -30,11 +33,6 @@ var (
 // The content related items on a Page.
 type pageContent struct {
 	renderable bool
-
-	frontmatter []byte
-
-	// rawContent is the raw content read from the content file.
-	rawContent []byte
 
 	// workContent is a copy of rawContent that may be mutated during site build.
 	workContent []byte
@@ -66,6 +64,10 @@ func (p *Page) mapContent() error {
 
 	iter := p.source.parsed.Iterator()
 
+	fail := func(err error, i pageparser.Item) error {
+		return parseError(err, iter.Input(), i.Pos)
+	}
+
 	// the parser is guaranteed to return items in proper order or fail, so …
 	// … it's safe to keep some "global" state
 	var currShortcode shortcode
@@ -87,7 +89,7 @@ Loop:
 			f := metadecoders.FormatFromFrontMatterType(it.Type)
 			m, err := metadecoders.UnmarshalToMap(it.Val, f)
 			if err != nil {
-				return err
+				return herrors.ToFileErrorWithOffset(string(f), err, iter.LineNumber()-1)
 			}
 			if err := p.updateMetaData(m); err != nil {
 				return err
@@ -125,7 +127,7 @@ Loop:
 			}
 
 			if err != nil {
-				return err
+				return fail(errors.Wrap(err, "failed to extract shortcode"), it)
 			}
 
 			if currShortcode.params == nil {
@@ -139,10 +141,10 @@ Loop:
 		case it.IsEOF():
 			break Loop
 		case it.IsError():
-			err := fmt.Errorf("%s:shortcode:%d: %s",
-				p.pathOrTitle(), iter.LineNumber(), it)
+			err := fail(errors.WithStack(errors.New(it.ValStr())), it)
 			currShortcode.err = err
 			return err
+
 		default:
 			result.Write(it.Val)
 		}
@@ -179,4 +181,17 @@ func (p *Page) parse(reader io.Reader) error {
 	}
 
 	return nil
+}
+
+func parseError(err error, input []byte, pos int) error {
+	if herrors.UnwrapFileError(err) != nil {
+		// Use the most specific location.
+		return err
+	}
+	lf := []byte("\n")
+	input = input[:pos]
+	lineNumber := bytes.Count(input, lf) + 1
+	endOfLastLine := bytes.LastIndex(input, lf)
+	return herrors.NewFileError("md", lineNumber, pos-endOfLastLine, err)
+
 }

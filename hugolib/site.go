@@ -30,7 +30,6 @@ import (
 
 	_errors "github.com/pkg/errors"
 
-	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/resource"
@@ -1552,7 +1551,7 @@ func (s *Site) preparePages() error {
 		}
 	}
 
-	return s.pickOneAndLogTheRest(errors)
+	return s.owner.pickOneAndLogTheRest(errors)
 }
 
 func (s *Site) errorCollator(results <-chan error, errs chan<- error) {
@@ -1561,43 +1560,9 @@ func (s *Site) errorCollator(results <-chan error, errs chan<- error) {
 		errors = append(errors, e)
 	}
 
-	errs <- s.pickOneAndLogTheRest(errors)
+	errs <- s.owner.pickOneAndLogTheRest(errors)
 
 	close(errs)
-}
-
-func (s *Site) pickOneAndLogTheRest(errors []error) error {
-	if len(errors) == 0 {
-		return nil
-	}
-
-	var i int
-
-	for j, err := range errors {
-		// If this is in server mode, we want to return an error to the client
-		// with a file context, if possible.
-		if herrors.UnwrapErrorWithFileContext(err) != nil {
-			i = j
-			break
-		}
-	}
-
-	// Log the rest, but add a threshold to avoid flooding the log.
-	const errLogThreshold = 5
-
-	for j, err := range errors {
-		if j == i {
-			continue
-		}
-
-		if j >= errLogThreshold {
-			break
-		}
-
-		s.Log.ERROR.Println(err)
-	}
-
-	return errors[i]
 }
 
 func (s *Site) appendThemeTemplates(in []string) []string {

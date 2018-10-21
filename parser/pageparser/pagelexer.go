@@ -408,15 +408,22 @@ func (l *pageLexer) lexFrontMatterSection(tp ItemType, delimr rune, name string,
 		}
 	}
 
+	// Let front matter start at line 1
+	wasEndOfLine := l.consumeCRLF()
 	// We don't care about the delimiters.
 	l.ignore()
 
+	var r rune
+
 	for {
-		r := l.next()
-		if r == eof {
-			return l.errorf("EOF looking for end %s front matter delimiter", name)
+		if !wasEndOfLine {
+			r = l.next()
+			if r == eof {
+				return l.errorf("EOF looking for end %s front matter delimiter", name)
+			}
 		}
-		if isEndOfLine(r) {
+
+		if wasEndOfLine || isEndOfLine(r) {
 			if l.hasPrefix(delim) {
 				l.emit(tp)
 				l.pos += 3
@@ -425,6 +432,8 @@ func (l *pageLexer) lexFrontMatterSection(tp ItemType, delimr rune, name string,
 				break
 			}
 		}
+
+		wasEndOfLine = false
 	}
 
 	return lexMainSection

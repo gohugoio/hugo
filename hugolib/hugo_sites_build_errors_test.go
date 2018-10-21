@@ -2,6 +2,7 @@ package hugolib
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -17,13 +18,20 @@ type testSiteBuildErrorAsserter struct {
 func (t testSiteBuildErrorAsserter) getFileError(err error) *herrors.ErrorWithFileContext {
 	t.assert.NotNil(err, t.name)
 	ferr := herrors.UnwrapErrorWithFileContext(err)
-	t.assert.NotNil(ferr, fmt.Sprintf("[%s] got %T: %+v", t.name, err, err))
+	t.assert.NotNil(ferr, fmt.Sprintf("[%s] got %T: %+v\n%s", t.name, err, err, trace()))
 	return ferr
 }
 
 func (t testSiteBuildErrorAsserter) assertLineNumber(lineNumber int, err error) {
 	fe := t.getFileError(err)
-	t.assert.Equal(lineNumber, fe.LineNumber, fmt.Sprintf("[%s]  got => %s", t.name, fe))
+	t.assert.Equal(lineNumber, fe.LineNumber, fmt.Sprintf("[%s]  got => %s\n%s", t.name, fe, trace()))
+}
+
+func (t testSiteBuildErrorAsserter) assertErrorMessage(e1, e2 string) {
+	// The error message will contain filenames with OS slashes. Normalize before compare.
+	e1, e2 = filepath.ToSlash(e1), filepath.ToSlash(e2)
+	t.assert.Equal(e1, e2, trace())
+
 }
 
 func TestSiteBuildErrors(t *testing.T) {
@@ -32,6 +40,7 @@ func TestSiteBuildErrors(t *testing.T) {
 
 	const (
 		yamlcontent = "yamlcontent"
+		tomlcontent = "tomlcontent"
 		shortcode   = "shortcode"
 		base        = "base"
 		single      = "single"
@@ -55,7 +64,7 @@ func TestSiteBuildErrors(t *testing.T) {
 				return strings.Replace(content, ".Title }}", ".Title }", 1)
 			},
 			assertCreateError: func(a testSiteBuildErrorAsserter, err error) {
-				a.assertLineNumber(2, err)
+				a.assertLineNumber(4, err)
 			},
 		},
 		{
@@ -65,7 +74,7 @@ func TestSiteBuildErrors(t *testing.T) {
 				return strings.Replace(content, ".Title", ".Titles", 1)
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
-				a.assertLineNumber(2, err)
+				a.assertLineNumber(4, err)
 			},
 		},
 		{
@@ -75,7 +84,12 @@ func TestSiteBuildErrors(t *testing.T) {
 				return strings.Replace(content, ".Title }}", ".Title }", 1)
 			},
 			assertCreateError: func(a testSiteBuildErrorAsserter, err error) {
-				a.assertLineNumber(3, err)
+				fe := a.getFileError(err)
+				assert.Equal(5, fe.LineNumber)
+				assert.Equal(1, fe.ColumnNumber)
+				assert.Equal("go-html-template", fe.ChromaLexer)
+				a.assertErrorMessage("\"layouts/_default/single.html:5:1\": parse failed: template: _default/single.html:5: unexpected \"}\" in operand", fe.Error())
+
 			},
 		},
 		{
@@ -85,7 +99,12 @@ func TestSiteBuildErrors(t *testing.T) {
 				return strings.Replace(content, ".Title", ".Titles", 1)
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
-				a.assertLineNumber(3, err)
+				fe := a.getFileError(err)
+				assert.Equal(5, fe.LineNumber)
+				assert.Equal(14, fe.ColumnNumber)
+				assert.Equal("md", fe.ChromaLexer)
+				a.assertErrorMessage("asdfadf", fe.Error())
+
 			},
 		},
 		{
@@ -95,7 +114,7 @@ func TestSiteBuildErrors(t *testing.T) {
 				return strings.Replace(content, ".Title }}", ".Title }", 1)
 			},
 			assertCreateError: func(a testSiteBuildErrorAsserter, err error) {
-				a.assertLineNumber(2, err)
+				a.assertLineNumber(4, err)
 			},
 		},
 		{
@@ -105,10 +124,47 @@ func TestSiteBuildErrors(t *testing.T) {
 				return strings.Replace(content, ".Title", ".Titles", 1)
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
-				a.assertLineNumber(25, err)
+				a.assertLineNumber(4, err)
 			},
 		},
+		{
+			name:     "Shortode does not exist",
+			fileType: yamlcontent,
+			fileFixer: func(content string) string {
+				return strings.Replace(content, "{{< sc >}}", "{{< nono >}}", 1)
+			},
+			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
+				fe := a.getFileError(err)
+				assert.Equal(7, fe.LineNumber)
+				assert.Equal(14, fe.ColumnNumber)
+				assert.Equal("md", fe.ChromaLexer)
+				a.assertErrorMessage("\"content/myyaml.md:7:14\": failed to extract shortcode: template for shortcode \"nono\" not found", fe.Error())
+			},
+		},
+		{
+			name:     "Invalid YAML front matter",
+			fileType: yamlcontent,
+			fileFixer: func(content string) string {
+				// TODO(bep) 2errors YAML line numbers seems to be off by one for > 1 line.
+				return strings.Replace(content, "title:", "title", 1)
+			},
+			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
+				a.assertLineNumber(2, err)
+			},
+		},
+		{
+			name:     "Invalid TOML front matter",
+			fileType: tomlcontent,
+			fileFixer: func(content string) string {
+				return strings.Replace(content, "description = ", "description &", 1)
+			},
+			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
+				fe := a.getFileError(err)
+				assert.Equal(6, fe.LineNumber)
+				assert.Equal("toml", fe.ErrorContext.ChromaLexer)
 
+			},
+		},
 		{
 			name:     "Panic in template Execute",
 			fileType: single,
@@ -166,11 +222,24 @@ title: "The YAML"
 
 Some content.
 
-{{< sc >}}
+         {{< sc >}}
 
 Some more text.
 
 The end.
+
+`))
+
+		b.WithContent("mytoml.md", f(tomlcontent, `+++
+title = "The TOML"
+p1 = "v"
+p2 = "v"
+p3 = "v"
+description = "Descriptioon"
++++
+
+Some content.
+
 
 `))
 

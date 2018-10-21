@@ -26,12 +26,28 @@ import (
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
 func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
+	errCollector := h.StartErrorCollector()
+	errs := make(chan error)
+
+	go func(from, to chan error) {
+		var errors []error
+		i := 0
+		for e := range from {
+			i++
+			if i > 50 {
+				break
+			}
+			errors = append(errors, e)
+		}
+		to <- h.pickOneAndLogTheRest(errors)
+
+		close(to)
+
+	}(errCollector, errs)
 
 	if h.Metrics != nil {
 		h.Metrics.Reset()
 	}
-
-	//t0 := time.Now()
 
 	// Need a pointer as this may be modified.
 	conf := &config
@@ -41,33 +57,46 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		conf.whatChanged = &whatChanged{source: true, other: true}
 	}
 
+	var prepareErr error
+
 	if !config.PartialReRender {
-		for _, s := range h.Sites {
-			s.Deps.BuildStartListeners.Notify()
-		}
+		prepare := func() error {
+			for _, s := range h.Sites {
+				s.Deps.BuildStartListeners.Notify()
+			}
 
-		if len(events) > 0 {
-			// Rebuild
-			if err := h.initRebuild(conf); err != nil {
+			if len(events) > 0 {
+				// Rebuild
+				if err := h.initRebuild(conf); err != nil {
+					return err
+				}
+			} else {
+				if err := h.init(conf); err != nil {
+					return err
+				}
+			}
+
+			if err := h.process(conf, events...); err != nil {
 				return err
 			}
-		} else {
-			if err := h.init(conf); err != nil {
+
+			if err := h.assemble(conf); err != nil {
 				return err
 			}
+			return nil
 		}
 
-		if err := h.process(conf, events...); err != nil {
-			return err
+		prepareErr = prepare()
+		if prepareErr != nil {
+			h.SendError(prepareErr)
 		}
 
-		if err := h.assemble(conf); err != nil {
-			return err
-		}
 	}
 
-	if err := h.render(conf); err != nil {
-		return err
+	if prepareErr == nil {
+		if err := h.render(conf); err != nil {
+			h.SendError(err)
+		}
 	}
 
 	if h.Metrics != nil {
@@ -77,6 +106,18 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 		h.Log.FEEDBACK.Printf("\nTemplate Metrics:\n\n")
 		h.Log.FEEDBACK.Print(b.String())
 		h.Log.FEEDBACK.Println()
+	}
+
+	select {
+	// Make sure the channel always gets something.
+	case errCollector <- nil:
+	default:
+	}
+	close(errCollector)
+
+	err := <-errs
+	if err != nil {
+		return err
 	}
 
 	errorCount := h.Log.ErrorCounter.Count()

@@ -21,8 +21,6 @@ import (
 	"strings"
 	"testing"
 
-	jww "github.com/spf13/jwalterweatherman"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -110,13 +108,13 @@ func TestGetCSV(t *testing.T) {
 		// Get on with it
 		got, err := ns.GetCSV(test.sep, test.url)
 
-		require.NoError(t, err, msg)
-
 		if _, ok := test.expect.(bool); ok {
-			require.Equal(t, 1, int(ns.deps.Log.ErrorCounter.Count()))
+			require.Error(t, err, msg)
 			require.Nil(t, got)
 			continue
 		}
+
+		require.NoError(t, err, msg)
 		require.Equal(t, 0, int(ns.deps.Log.ErrorCounter.Count()))
 		require.NotNil(t, got, msg)
 
@@ -140,12 +138,12 @@ func TestGetJSON(t *testing.T) {
 		{
 			`http://malformed/`,
 			`{gomeetup:["Sydney","San Francisco","Stockholm"]}`,
-			jww.LevelError,
+			false,
 		},
 		{
 			`http://nofound/404`,
 			``,
-			jww.LevelError,
+			false,
 		},
 		// Locals
 		{
@@ -156,7 +154,7 @@ func TestGetJSON(t *testing.T) {
 		{
 			"fail/no-file",
 			"",
-			jww.LevelError,
+			false,
 		},
 	} {
 
@@ -197,13 +195,6 @@ func TestGetJSON(t *testing.T) {
 			require.Error(t, err, msg)
 			continue
 		}
-
-		if errLevel, ok := test.expect.(jww.Threshold); ok && errLevel >= jww.LevelError {
-			logCount := ns.deps.Log.ErrorCounter.Count()
-			require.True(t, logCount >= 1, fmt.Sprintf("got log count %d", logCount))
-			continue
-		}
-		require.NoError(t, err, msg)
 
 		require.Equal(t, 0, int(ns.deps.Log.ErrorCounter.Count()), msg)
 		require.NotNil(t, got, msg)

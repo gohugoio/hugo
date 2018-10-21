@@ -32,9 +32,9 @@ func nti(tp ItemType, val string) Item {
 
 var (
 	tstJSON                = `{ "a": { "b": "\"Hugo\"}" } }`
-	tstFrontMatterTOML     = nti(TypeFrontMatterTOML, "\nfoo = \"bar\"\n")
-	tstFrontMatterYAML     = nti(TypeFrontMatterYAML, "\nfoo: \"bar\"\n")
-	tstFrontMatterYAMLCRLF = nti(TypeFrontMatterYAML, "\r\nfoo: \"bar\"\r\n")
+	tstFrontMatterTOML     = nti(TypeFrontMatterTOML, "foo = \"bar\"\n")
+	tstFrontMatterYAML     = nti(TypeFrontMatterYAML, "foo: \"bar\"\n")
+	tstFrontMatterYAMLCRLF = nti(TypeFrontMatterYAML, "foo: \"bar\"\r\n")
 	tstFrontMatterJSON     = nti(TypeFrontMatterJSON, tstJSON+"\r\n")
 	tstSomeText            = nti(tText, "\nSome text.\n")
 	tstSummaryDivider      = nti(TypeLeadSummaryDivider, "<!--more-->")
@@ -58,7 +58,7 @@ var frontMatterTests = []lexerTest{
 	{"HTML Document 2", `<html><h1>Hugo Rocks</h1></html>`, []Item{nti(TypeHTMLDocument, "<html><h1>Hugo Rocks</h1></html>"), tstEOF}},
 	{"No front matter", "\nSome text.\n", []Item{tstSomeText, tstEOF}},
 	{"YAML front matter", "---\nfoo: \"bar\"\n---\n\nSome text.\n", []Item{tstFrontMatterYAML, tstSomeText, tstEOF}},
-	{"YAML empty front matter", "---\n---\n\nSome text.\n", []Item{nti(TypeFrontMatterYAML, "\n"), tstSomeText, tstEOF}},
+	{"YAML empty front matter", "---\n---\n\nSome text.\n", []Item{nti(TypeFrontMatterYAML, ""), tstSomeText, tstEOF}},
 	{"YAML commented out front matter", "<!--\n---\nfoo: \"bar\"\n---\n-->\nSome text.\n", []Item{nti(TypeHTMLComment, "<!--\n---\nfoo: \"bar\"\n---\n-->"), tstSomeText, tstEOF}},
 	// Note that we keep all bytes as they are, but we need to handle CRLF
 	{"YAML front matter CRLF", "---\r\nfoo: \"bar\"\r\n---\n\nSome text.\n", []Item{tstFrontMatterYAMLCRLF, tstSomeText, tstEOF}},

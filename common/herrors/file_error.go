@@ -13,10 +13,6 @@
 
 package herrors
 
-import (
-	"fmt"
-)
-
 var _ causer = (*fileError)(nil)
 
 // FileError represents an error when handling a file: Parsing a config file,
@@ -27,6 +23,8 @@ type FileError interface {
 	// LineNumber gets the error location, starting at line 1.
 	LineNumber() int
 
+	ColumnNumber() int
+
 	// A string identifying the type of file, e.g. JSON, TOML, markdown etc.
 	Type() string
 }
@@ -34,9 +32,9 @@ type FileError interface {
 var _ FileError = (*fileError)(nil)
 
 type fileError struct {
-	lineNumber int
-	fileType   string
-	msg        string
+	lineNumber   int
+	columnNumber int
+	fileType     string
 
 	cause error
 }
@@ -45,32 +43,28 @@ func (e *fileError) LineNumber() int {
 	return e.lineNumber
 }
 
+func (e *fileError) ColumnNumber() int {
+	return e.columnNumber
+}
+
 func (e *fileError) Type() string {
 	return e.fileType
 }
 
 func (e *fileError) Error() string {
-	return e.msg
+	if e.cause == nil {
+		return ""
+	}
+	return e.cause.Error()
 }
 
 func (f *fileError) Cause() error {
 	return f.cause
 }
 
-func (e *fileError) Format(s fmt.State, verb rune) {
-	switch verb {
-	case 'v':
-		fallthrough
-	case 's':
-		fmt.Fprintf(s, "%s:%d: %s:%s", e.fileType, e.lineNumber, e.msg, e.cause)
-	case 'q':
-		fmt.Fprintf(s, "%q:%d: %q:%q", e.fileType, e.lineNumber, e.msg, e.cause)
-	}
-}
-
 // NewFileError creates a new FileError.
-func NewFileError(fileType string, lineNumber int, msg string, err error) FileError {
-	return &fileError{cause: err, fileType: fileType, lineNumber: lineNumber, msg: msg}
+func NewFileError(fileType string, lineNumber, columnNumber int, err error) FileError {
+	return &fileError{cause: err, fileType: fileType, lineNumber: lineNumber, columnNumber: columnNumber}
 }
 
 // UnwrapFileError tries to unwrap a FileError from err.
@@ -101,9 +95,10 @@ func ToFileError(fileType string, err error) error {
 // If will fall back to returning the original error if a line number cannot be extracted.
 func ToFileErrorWithOffset(fileType string, err error, offset int) error {
 	for _, handle := range lineNumberExtractors {
-		lno, msg := handle(err, offset)
+
+		lno, col := handle(err)
 		if lno > 0 {
-			return NewFileError(fileType, lno, msg, err)
+			return NewFileError(fileType, lno+offset, col, err)
 		}
 	}
 	// Fall back to the original.

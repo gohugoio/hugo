@@ -145,15 +145,20 @@ func (t *TemplateAdapter) extractIdentifiers(line string) []string {
 }
 
 func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
+	if strings.HasPrefix(t.Name(), "_internal") {
+		return inerr
+	}
+
 	f, realFilename, err := t.fileAndFilename(t.Name())
 	if err != nil {
-		return err
+		return inerr
+
 	}
 	defer f.Close()
 
 	master, hasMaster := t.NameBaseTemplateName[name]
 
-	ferr1 := errors.Wrapf(inerr, "execute of template %q failed", realFilename)
+	ferr := errors.Wrap(inerr, "execute of template failed")
 
 	// Since this can be a composite of multiple template files (single.html + baseof.html etc.)
 	// we potentially need to look in both -- and cannot rely on line number alone.
@@ -174,9 +179,8 @@ func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
 		}
 		return false
 	}
-
 	// TODO(bep) 2errors text vs HTML
-	fe, ok := herrors.WithFileContext(ferr1, f, "go-html-template", lineMatcher)
+	fe, ok := herrors.WithFileContext(ferr, realFilename, f, lineMatcher)
 	if ok || !hasMaster {
 		return fe
 	}
@@ -188,12 +192,11 @@ func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
 	}
 	defer f.Close()
 
-	ferr2 := errors.Wrapf(inerr, "execute of template %q failed", realFilename)
-	fe, ok = herrors.WithFileContext(ferr2, f, "go-html-template", lineMatcher)
+	fe, ok = herrors.WithFileContext(ferr, realFilename, f, lineMatcher)
 
 	if !ok {
 		// Return the most specific.
-		return ferr1
+		return ferr
 
 	}
 	return fe
@@ -206,7 +209,7 @@ func (t *TemplateAdapter) fileAndFilename(name string) (afero.File, string, erro
 
 	fi, err := fs.Stat(filename)
 	if err != nil {
-		return nil, "", errors.Wrapf(err, "failed to Stat %q", filename)
+		return nil, "", err
 	}
 	f, err := fs.Open(filename)
 	if err != nil {

@@ -59,7 +59,7 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 		var req *http.Request
 		req, err = http.NewRequest("GET", url, nil)
 		if err != nil {
-			return nil, _errors.Wrapf(err, "Failed to create request for getCSV for resource %s:", url)
+			return nil, _errors.Wrapf(err, "failed to create request for getCSV for resource %s", url)
 		}
 
 		req.Header.Add("Accept", "text/csv")
@@ -68,26 +68,20 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 		var c []byte
 		c, err = ns.getResource(req)
 		if err != nil {
-			ns.deps.Log.ERROR.Printf("Failed to read CSV resource %q: %s", url, err)
-			return nil, nil
+			return nil, _errors.Wrapf(err, "failed to read CSV resource %q", url)
 		}
 
 		if !bytes.Contains(c, []byte(sep)) {
-			ns.deps.Log.ERROR.Printf("Cannot find separator %s in CSV for %s", sep, url)
-			return nil, nil
+			return nil, _errors.Errorf("cannot find separator %s in CSV for %s", sep, url)
 		}
 
 		if d, err = parseCSV(c, sep); err != nil {
-			ns.deps.Log.WARN.Printf("Failed to parse CSV file %s: %s", url, err)
+			err = _errors.Wrapf(err, "failed to parse CSV file %s", url)
+
 			clearCacheSleep(i, url)
 			continue
 		}
 		break
-	}
-
-	if err != nil {
-		ns.deps.Log.ERROR.Printf("Failed to read CSV resource %q: %s", url, err)
-		return nil, nil
 	}
 
 	return
@@ -103,7 +97,7 @@ func (ns *Namespace) GetJSON(urlParts ...string) (v interface{}, err error) {
 		var req *http.Request
 		req, err = http.NewRequest("GET", url, nil)
 		if err != nil {
-			return nil, _errors.Wrapf(err, "Failed to create request for getJSON resource %s:", url)
+			return nil, _errors.Wrapf(err, "Failed to create request for getJSON resource %s", url)
 		}
 
 		req.Header.Add("Accept", "application/json")
@@ -111,10 +105,8 @@ func (ns *Namespace) GetJSON(urlParts ...string) (v interface{}, err error) {
 		var c []byte
 		c, err = ns.getResource(req)
 		if err != nil {
-			ns.deps.Log.ERROR.Printf("Failed to get JSON resource %s: %s", url, err)
-			return nil, nil
+			return nil, _errors.Wrapf(err, "failed to get getJSON resource %q", url)
 		}
-
 		err = json.Unmarshal(c, &v)
 		if err != nil {
 			ns.deps.Log.WARN.Printf("Cannot read JSON from resource %s: %s", url, err)
@@ -127,7 +119,7 @@ func (ns *Namespace) GetJSON(urlParts ...string) (v interface{}, err error) {
 	}
 
 	if err != nil {
-		ns.deps.Log.ERROR.Printf("Failed to get JSON resource %s: %s", url, err)
+		return nil, _errors.Wrapf(err, "failed to get getJSON resource %q", url)
 		return nil, nil
 	}
 	return

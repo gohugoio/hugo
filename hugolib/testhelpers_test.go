@@ -465,10 +465,14 @@ func (s *sitesBuilder) Fatalf(format string, args ...interface{}) {
 }
 
 func Fatalf(t testing.TB, format string, args ...interface{}) {
-	trace := strings.Join(assert.CallerInfo(), "\n\r\t\t\t")
+	trace := trace()
 	format = format + "\n%s"
 	args = append(args, trace)
 	t.Fatalf(format, args...)
+}
+
+func trace() string {
+	return strings.Join(assert.CallerInfo(), "\n\r\t\t\t")
 }
 
 func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
