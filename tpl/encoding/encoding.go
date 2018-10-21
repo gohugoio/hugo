@@ -50,9 +50,9 @@ func (ns *Namespace) Base64Encode(content interface{}) (string, error) {
 	return base64.StdEncoding.EncodeToString([]byte(conv)), nil
 }
 
-// Jsonify encodes a given object to JSON.
+// Jsonify encodes a given object to JSON, returning pretty printed output.
 func (ns *Namespace) Jsonify(v interface{}) (template.HTML, error) {
-	b, err := json.Marshal(v)
+	b, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
 		return "", err
 	}
