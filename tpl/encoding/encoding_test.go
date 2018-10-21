@@ -88,7 +88,7 @@ func TestJsonify(t *testing.T) {
 		v      interface{}
 		expect interface{}
 	}{
-		{[]string{"a", "b"}, template.HTML(`["a","b"]`)},
+		{[]string{"a", "b"}, template.HTML("[\n  \"a\",\n  \"b\"\n]")},
 		{tstNoStringer{}, template.HTML("{}")},
 		{nil, template.HTML("null")},
 		// errors
