@@ -101,7 +101,14 @@ func (fs *RootMappingFs) Stat(name string) (os.FileInfo, error) {
 		return newRootMappingDirFileInfo(name), nil
 	}
 	realName := fs.realName(name)
-	return fs.Fs.Stat(realName)
+
+	fi, err := fs.Fs.Stat(realName)
+	if rfi, ok := fi.(RealFilenameInfo); ok {
+		return rfi, err
+	}
+
+	return &realFilenameInfo{FileInfo: fi, realFilename: realName}, err
+
 }
 
 func (fs *RootMappingFs) isRoot(name string) bool {
@@ -126,12 +133,15 @@ func (fs *RootMappingFs) Open(name string) (afero.File, error) {
 // It attempts to use Lstat if supported or defers to the os.  In addition to
 // the FileInfo, a boolean is returned telling whether Lstat was called.
 func (fs *RootMappingFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
+
 	if fs.isRoot(name) {
 		return newRootMappingDirFileInfo(name), false, nil
 	}
 	name = fs.realName(name)
+
 	if ls, ok := fs.Fs.(afero.Lstater); ok {
-		return ls.LstatIfPossible(name)
+		fi, b, err := ls.LstatIfPossible(name)
+		return &realFilenameInfo{FileInfo: fi, realFilename: name}, b, err
 	}
 	fi, err := fs.Stat(name)
 	return fi, false, err

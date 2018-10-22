@@ -28,6 +28,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/hugofs"
+
+	"github.com/gohugoio/hugo/common/herrors"
+
 	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -776,7 +780,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 
 	if len(dataChanged) > 0 {
 		if err := s.readDataFromSourceFS(); err != nil {
-			s.Log.ERROR.Println(err)
+			return whatChanged{}, err
 		}
 	}
 
@@ -884,8 +888,14 @@ func (s *Site) handleDataFile(r source.ReadableFile) error {
 
 	data, err := s.readData(r)
 	if err != nil {
-		s.Log.ERROR.Printf("Failed to read data from %s: %s", filepath.Join(r.Path(), r.LogicalName()), err)
-		return nil
+		realFilename := r.FileInfo().(hugofs.RealFilenameInfo).RealFilename()
+		err, _ = herrors.WithFileContextForFile(
+			_errors.Wrapf(err, "failed to read data file"),
+			realFilename,
+			realFilename,
+			s.SourceSpec.Fs.Source,
+			herrors.SimpleLineMatcher)
+		return err
 	}
 
 	if data == nil {
