@@ -620,7 +620,9 @@ func (c *commandeer) buildSites() (err error) {
 
 func (c *commandeer) handleBuildErr(err error, msg string) {
 	c.buildErr = err
-	c.logger.ERROR.Printf("%s: %s", msg, err)
+
+	c.logger.ERROR.Print(msg + ":\n\n")
+	c.logger.ERROR.Println(helpers.FirstUpper(err.Error()))
 	if !c.h.quiet && c.h.verbose {
 		herrors.PrintStackTrace(err)
 	}

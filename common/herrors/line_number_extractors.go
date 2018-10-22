@@ -20,13 +20,17 @@ import (
 
 var lineNumberExtractors = []lineNumberExtractor{
 	// Template/shortcode parse errors
-	newLineNumberErrHandlerFromRegexp("(.*?:)(\\d+)(:)(\\d+)?(.*)"),
+	newLineNumberErrHandlerFromRegexp(".*:(\\d+):(\\d*):"),
+	newLineNumberErrHandlerFromRegexp(".*:(\\d+):"),
 
 	// TOML parse errors
-	newLineNumberErrHandlerFromRegexp("(.*Near line )(\\d+)(\\s.*)"),
+	newLineNumberErrHandlerFromRegexp(".*Near line (\\d+)(\\s.*)"),
 
 	// YAML parse errors
-	newLineNumberErrHandlerFromRegexp("(line )(\\d+)(:)"),
+	newLineNumberErrHandlerFromRegexp("line (\\d+):"),
+
+	// i18n bundle errors
+	newLineNumberErrHandlerFromRegexp("\\((\\d+),\\s(\\d*)"),
 }
 
 type lineNumberExtractor func(e error) (int, int)
@@ -44,10 +48,10 @@ func extractLineNo(re *regexp.Regexp) lineNumberExtractor {
 		col := 1
 		s := e.Error()
 		m := re.FindStringSubmatch(s)
-		if len(m) >= 4 {
-			lno, _ := strconv.Atoi(m[2])
-			if len(m) > 4 {
-				col, _ = strconv.Atoi(m[4])
+		if len(m) >= 2 {
+			lno, _ := strconv.Atoi(m[1])
+			if len(m) > 2 {
+				col, _ = strconv.Atoi(m[2])
 			}
 
 			if col <= 0 {

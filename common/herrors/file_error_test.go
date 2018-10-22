@@ -38,6 +38,7 @@ func TestToLineNumberError(t *testing.T) {
 		{errors.New("parse failed: template: _default/bundle-resource-meta.html:11: unexpected in operand"), 0, 11, 1},
 		{errors.New(`failed:: template: _default/bundle-resource-meta.html:2:7: executing "main" at <.Titles>`), 0, 2, 7},
 		{errors.New("error in front matter: Near line 32 (last key parsed 'title')"), 0, 32, 1},
+		{errors.New(`failed to load translations: (6, 7): was expecting token =, but got "g" instead`), 0, 6, 7},
 	} {
 
 		got := ToFileErrorWithOffset("template", test.in, test.offset)
@@ -46,7 +47,7 @@ func TestToLineNumberError(t *testing.T) {
 		le, ok := got.(FileError)
 
 		if test.lineNumber > 0 {
-			assert.True(ok)
+			assert.True(ok, errMsg)
 			assert.Equal(test.lineNumber, le.LineNumber(), errMsg)
 			assert.Equal(test.columnNumber, le.ColumnNumber(), errMsg)
 			assert.Contains(got.Error(), strconv.Itoa(le.LineNumber()))

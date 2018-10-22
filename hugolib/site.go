@@ -861,6 +861,24 @@ func (s *Site) loadData(fs afero.Fs) (err error) {
 	return
 }
 
+func (s *Site) errWithFileContext(err error, f source.File) error {
+	rfi, ok := f.FileInfo().(hugofs.RealFilenameInfo)
+	if !ok {
+		return err
+	}
+
+	realFilename := rfi.RealFilename()
+
+	err, _ = herrors.WithFileContextForFile(
+		err,
+		realFilename,
+		realFilename,
+		s.SourceSpec.Fs.Source,
+		herrors.SimpleLineMatcher)
+
+	return err
+}
+
 func (s *Site) handleDataFile(r source.ReadableFile) error {
 	var current map[string]interface{}
 
@@ -888,14 +906,7 @@ func (s *Site) handleDataFile(r source.ReadableFile) error {
 
 	data, err := s.readData(r)
 	if err != nil {
-		realFilename := r.FileInfo().(hugofs.RealFilenameInfo).RealFilename()
-		err, _ = herrors.WithFileContextForFile(
-			_errors.Wrapf(err, "failed to read data file"),
-			realFilename,
-			realFilename,
-			s.SourceSpec.Fs.Source,
-			herrors.SimpleLineMatcher)
-		return err
+		return s.errWithFileContext(err, r)
 	}
 
 	if data == nil {
