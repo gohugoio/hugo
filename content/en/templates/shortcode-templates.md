@@ -71,6 +71,12 @@ To access a parameter by position, use the `.Get` followed by a numeric position
 {{ .Get 0 }}
 ```
 
+For the second position, you would just use: 
+
+```
+{{ .Get 1 }}
+```
+
 `with` is great when the output depends on a parameter being set:
 
 ```
