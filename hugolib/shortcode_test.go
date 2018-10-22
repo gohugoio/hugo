@@ -368,11 +368,11 @@ func TestExtractShortcodes(t *testing.T) {
 		expectErrorMsg   string
 	}{
 		{"text", "Some text.", "map[]", "Some text.", ""},
-		{"invalid right delim", "{{< tag }}", "", false, ":5:.*unrecognized character.*}"},
-		{"invalid close", "\n{{< /tag >}}", "", false, ":6:.*got closing shortcode, but none is open"},
-		{"invalid close2", "\n\n{{< tag >}}{{< /anotherTag >}}", "", false, ":7: closing tag for shortcode 'anotherTag' does not match start tag"},
-		{"unterminated quote 1", `{{< figure src="im caption="S" >}}`, "", false, ":5:.got pos.*"},
-		{"unterminated quote 1", `{{< figure src="im" caption="S >}}`, "", false, ":5:.*unterm.*}"},
+		{"invalid right delim", "{{< tag }}", "", false, "unrecognized character"},
+		{"invalid close", "\n{{< /tag >}}", "", false, "got closing shortcode, but none is open"},
+		{"invalid close2", "\n\n{{< tag >}}{{< /anotherTag >}}", "", false, "closing tag for shortcode 'anotherTag' does not match start tag"},
+		{"unterminated quote 1", `{{< figure src="im caption="S" >}}`, "", false, "got pos"},
+		{"unterminated quote 1", `{{< figure src="im" caption="S >}}`, "", false, "unterm"},
 		{"one shortcode, no markup", "{{< tag >}}", "", testScPlaceholderRegexp, ""},
 		{"one shortcode, markup", "{{% tag %}}", "", testScPlaceholderRegexp, ""},
 		{"one pos param", "{{% tag param1 %}}", `tag([\"param1\"], true){[]}"]`, testScPlaceholderRegexp, ""},
@@ -430,7 +430,7 @@ func TestExtractShortcodes(t *testing.T) {
 			if err == nil {
 				t.Fatalf("[%d] %s: ExtractShortcodes didn't return an expected error", i, this.name)
 			} else {
-				r, _ := regexp.Compile(this.expectErrorMsg)
+				r := regexp.MustCompile(this.expectErrorMsg)
 				if !r.MatchString(err.Error()) {
 					t.Fatalf("[%d] %s: ExtractShortcodes didn't return an expected error message, got\n%s but expected\n%s",
 						i, this.name, err.Error(), this.expectErrorMsg)

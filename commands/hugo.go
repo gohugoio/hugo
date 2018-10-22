@@ -662,9 +662,10 @@ func (c *commandeer) fullRebuild() {
 	c.commandeerHugoState = &commandeerHugoState{}
 	err := c.loadConfig(true, true)
 	if err != nil {
-		c.logger.ERROR.Println("Failed to reload config:", err)
 		// Set the processing on pause until the state is recovered.
 		c.paused = true
+		c.handleBuildErr(err, "Failed to reload config")
+
 	} else {
 		c.paused = false
 	}

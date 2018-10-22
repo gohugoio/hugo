@@ -132,7 +132,7 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 				assert.Len(pageResources, 2)
 				firstPage := pageResources[0].(*Page)
 				secondPage := pageResources[1].(*Page)
-				assert.Equal(filepath.FromSlash("base/b/my-bundle/1.md"), firstPage.pathOrTitle(), secondPage.pathOrTitle())
+				assert.Equal(filepath.FromSlash("/work/base/b/my-bundle/1.md"), firstPage.pathOrTitle(), secondPage.pathOrTitle())
 				assert.Contains(firstPage.content(), "TheContent")
 				assert.Equal(6, len(leafBundle1.Resources))
 

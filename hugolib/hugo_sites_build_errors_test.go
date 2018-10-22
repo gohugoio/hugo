@@ -30,7 +30,7 @@ func (t testSiteBuildErrorAsserter) assertLineNumber(lineNumber int, err error) 
 func (t testSiteBuildErrorAsserter) assertErrorMessage(e1, e2 string) {
 	// The error message will contain filenames with OS slashes. Normalize before compare.
 	e1, e2 = filepath.ToSlash(e1), filepath.ToSlash(e2)
-	t.assert.Equal(e1, e2, trace())
+	t.assert.Contains(e2, e1, trace())
 
 }
 
@@ -102,8 +102,8 @@ func TestSiteBuildErrors(t *testing.T) {
 				fe := a.getFileError(err)
 				assert.Equal(5, fe.LineNumber)
 				assert.Equal(14, fe.ColumnNumber)
-				assert.Equal("md", fe.ChromaLexer)
-				a.assertErrorMessage("asdfadf", fe.Error())
+				assert.Equal("go-html-template", fe.ChromaLexer)
+				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
 
 			},
 		},
@@ -124,7 +124,12 @@ func TestSiteBuildErrors(t *testing.T) {
 				return strings.Replace(content, ".Title", ".Titles", 1)
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
-				a.assertLineNumber(4, err)
+				fe := a.getFileError(err)
+				assert.Equal(7, fe.LineNumber)
+				assert.Equal("md", fe.ChromaLexer)
+				// Make sure that it contains both the content file and template
+				a.assertErrorMessage(`content/myyaml.md:7:10": failed to render shortcode "sc"`, fe.Error())
+				a.assertErrorMessage(`shortcodes/sc.html:4:22: executing "shortcodes/sc.html" at <.Page.Titles>: can't evaluate`, fe.Error())
 			},
 		},
 		{
@@ -173,7 +178,7 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				assert.Error(err)
-				assert.Contains(err.Error(), "single.html")
+				assert.Contains(err.Error(), `"content/mytoml.md": render of "page" failed: execute of template failed: panic in Execute`)
 			},
 		},
 	}

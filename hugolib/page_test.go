@@ -1145,7 +1145,7 @@ func TestDegenerateInvalidFrontMatterShortDelim(t *testing.T) {
 		r   string
 		err string
 	}{
-		{invalidFrontmatterShortDelimEnding, ":2: EOF looking for end YAML front matter delimiter"},
+		{invalidFrontmatterShortDelimEnding, "EOF looking for end YAML front matter delimiter"},
 	}
 	for _, test := range tests {
 		s := newTestSite(t)

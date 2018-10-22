@@ -16,9 +16,10 @@ package hugolib
 import (
 	"errors"
 	"fmt"
-
 	"io"
 	"strings"
+
+	"github.com/gohugoio/hugo/common/herrors"
 
 	"github.com/gohugoio/hugo/hugolib/paths"
 	_errors "github.com/pkg/errors"
@@ -106,12 +107,23 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 	v.SetConfigFile(configFilenames[0])
 	v.AddConfigPath(d.Path)
 
+	applyFileContext := func(filename string, err error) error {
+		err, _ = herrors.WithFileContextForFile(
+			err,
+			filename,
+			filename,
+			fs,
+			herrors.SimpleLineMatcher)
+
+		return err
+	}
+
 	var configFileErr error
 
 	err := v.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigParseError); ok {
-			return nil, configFiles, err
+			return nil, configFiles, applyFileContext(v.ConfigFileUsed(), err)
 		}
 		configFileErr = ErrNoConfigFile
 	}
@@ -129,7 +141,7 @@ func LoadConfig(d ConfigSourceDescriptor, doWithConfig ...func(cfg config.Provid
 				return nil, configFiles, fmt.Errorf("Unable to open Config file.\n (%s)\n", err)
 			}
 			if err = v.MergeConfig(r); err != nil {
-				return nil, configFiles, fmt.Errorf("Unable to parse/merge Config file (%s).\n (%s)\n", configFile, err)
+				return nil, configFiles, applyFileContext(configFile, err)
 			}
 			configFiles = append(configFiles, configFile)
 		}
