@@ -48,6 +48,8 @@ type pageLexer struct {
 	start      int // item start position
 	width      int // width of last element
 
+	// The summary divider to look for.
+	summaryDivider []byte
 	// Set when we have parsed any summary divider
 	summaryDividerChecked bool
 
@@ -69,7 +71,6 @@ func (l *pageLexer) Input() []byte {
 
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
-// TODO(bep) 2errors byte
 func newPageLexer(input []byte, inputPosition int, stateStart stateFunc) *pageLexer {
 	lexer := &pageLexer{
 		input:      input,
@@ -117,7 +118,7 @@ var (
 	delimTOML         = []byte("+++")
 	delimYAML         = []byte("---")
 	delimOrg          = []byte("#+")
-	htmlCOmmentStart  = []byte("<!--")
+	htmlCommentStart  = []byte("<!--")
 	htmlCOmmentEnd    = []byte("-->")
 )
 
@@ -195,17 +196,18 @@ func (l *pageLexer) consumeCRLF() bool {
 
 func lexMainSection(l *pageLexer) stateFunc {
 	// Fast forward as far as possible.
-	var l1, l2, l3 int
-	if !l.summaryDividerChecked {
-		// TODO(bep) 2errors make the summary divider per type
-		l1 = l.index(summaryDivider)
-		l2 = l.index(summaryDividerOrg)
-		if l1 == -1 && l2 == -1 {
+	var l1, l2 int
+
+	if !l.summaryDividerChecked && l.summaryDivider != nil {
+		l1 = l.index(l.summaryDivider)
+		if l1 == -1 {
 			l.summaryDividerChecked = true
 		}
 	}
-	l3 = l.index(leftDelimSc)
-	skip := minPositiveIndex(l1, l2, l3)
+
+	l2 = l.index(leftDelimSc)
+	skip := minPositiveIndex(l1, l2)
+
 	if skip > 0 {
 		l.pos += skip
 	}
@@ -225,23 +227,14 @@ func lexMainSection(l *pageLexer) stateFunc {
 			return lexShortcodeLeftDelim
 		}
 
-		if !l.summaryDividerChecked {
-			if l.hasPrefix(summaryDivider) {
+		if !l.summaryDividerChecked && l.summaryDivider != nil {
+			if l.hasPrefix(l.summaryDivider) {
 				if l.pos > l.start {
 					l.emit(tText)
 				}
 				l.summaryDividerChecked = true
-				l.pos += len(summaryDivider)
-				//l.consumeCRLF()
+				l.pos += len(l.summaryDivider)
 				l.emit(TypeLeadSummaryDivider)
-			} else if l.hasPrefix(summaryDividerOrg) {
-				if l.pos > l.start {
-					l.emit(tText)
-				}
-				l.summaryDividerChecked = true
-				l.pos += len(summaryDividerOrg)
-				//l.consumeCRLF()
-				l.emit(TypeSummaryDividerOrg)
 			}
 		}
 
@@ -261,6 +254,8 @@ func (l *pageLexer) isShortCodeStart() bool {
 }
 
 func lexIntroSection(l *pageLexer) stateFunc {
+	l.summaryDivider = summaryDivider
+
 LOOP:
 	for {
 		r := l.next()
@@ -283,7 +278,7 @@ LOOP:
 			// No front matter.
 			if r == '<' {
 				l.backup()
-				if l.hasPrefix(htmlCOmmentStart) {
+				if l.hasPrefix(htmlCommentStart) {
 					right := l.index(htmlCOmmentEnd)
 					if right == -1 {
 						return l.errorf("starting HTML comment with no end")
@@ -291,10 +286,14 @@ LOOP:
 					l.pos += right + len(htmlCOmmentEnd)
 					l.emit(TypeHTMLComment)
 				} else {
-					// Not need to look further. Hugo treats this as plain HTML,
-					// no front matter, no shortcodes, no nothing.
-					l.pos = len(l.input)
-					l.emit(TypeHTMLDocument)
+					if l.pos > l.start {
+						l.emit(tText)
+					}
+					l.next()
+					// This is the start of a plain HTML document with no
+					// front matter. I still can contain shortcodes, so we
+					// have to keep looking.
+					l.emit(TypeHTMLStart)
 				}
 			}
 			break LOOP
@@ -365,10 +364,11 @@ func lexFrontMatterOrgMode(l *pageLexer) stateFunc {
 		#+DESCRIPTION: Just another golang parser for org content!
 	*/
 
+	l.summaryDivider = summaryDividerOrg
+
 	l.backup()
 
 	if !l.hasPrefix(delimOrg) {
-		// TODO(bep) consider error
 		return lexMainSection
 	}
 

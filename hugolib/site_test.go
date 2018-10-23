@@ -451,8 +451,7 @@ func doTestSectionNaming(t *testing.T, canonify, uglify, pluralize bool) {
 
 }
 
-// TODO(bep) 2errors
-func _TestSkipRender(t *testing.T) {
+func TestSkipRender(t *testing.T) {
 	t.Parallel()
 	sources := [][2]string{
 		{filepath.FromSlash("sect/doc1.html"), "---\nmarkup: markdown\n---\n# title\nsome *content*"},

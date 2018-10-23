@@ -191,7 +191,7 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				assert.Error(err)
-				assert.Contains(err.Error(), `"content/mytoml.md": render of "page" failed: execute of template failed: panic in Execute`)
+				assert.Contains(err.Error(), `execute of template failed: panic in Execute`)
 			},
 		},
 	}

@@ -38,7 +38,7 @@ var (
 	tstFrontMatterJSON     = nti(TypeFrontMatterJSON, tstJSON+"\r\n")
 	tstSomeText            = nti(tText, "\nSome text.\n")
 	tstSummaryDivider      = nti(TypeLeadSummaryDivider, "<!--more-->")
-	tstSummaryDividerOrg   = nti(TypeSummaryDividerOrg, "# more")
+	tstHtmlStart           = nti(TypeHTMLStart, "<")
 
 	tstORG = `
 #+TITLE: T1
@@ -54,8 +54,8 @@ var crLfReplacer = strings.NewReplacer("\r", "#", "\n", "$")
 var frontMatterTests = []lexerTest{
 	{"empty", "", []Item{tstEOF}},
 	{"Byte order mark", "\ufeff\nSome text.\n", []Item{nti(TypeIgnore, "\ufeff"), tstSomeText, tstEOF}},
-	{"HTML Document", `  <html>  `, []Item{nti(TypeHTMLDocument, "  <html>  "), tstEOF}},
-	{"HTML Document 2", `<html><h1>Hugo Rocks</h1></html>`, []Item{nti(TypeHTMLDocument, "<html><h1>Hugo Rocks</h1></html>"), tstEOF}},
+	{"HTML Document", `  <html>  `, []Item{nti(tText, "  "), tstHtmlStart, nti(tText, "html>  "), tstEOF}},
+	{"HTML Document with shortcode", `<html>{{< sc1 >}}</html>`, []Item{tstHtmlStart, nti(tText, "html>"), tstLeftNoMD, tstSC1, tstRightNoMD, nti(tText, "</html>"), tstEOF}},
 	{"No front matter", "\nSome text.\n", []Item{tstSomeText, tstEOF}},
 	{"YAML front matter", "---\nfoo: \"bar\"\n---\n\nSome text.\n", []Item{tstFrontMatterYAML, tstSomeText, tstEOF}},
 	{"YAML empty front matter", "---\n---\n\nSome text.\n", []Item{nti(TypeFrontMatterYAML, ""), tstSomeText, tstEOF}},
@@ -65,7 +65,7 @@ var frontMatterTests = []lexerTest{
 	{"TOML front matter", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n", []Item{tstFrontMatterTOML, tstSomeText, tstEOF}},
 	{"JSON front matter", tstJSON + "\r\n\nSome text.\n", []Item{tstFrontMatterJSON, tstSomeText, tstEOF}},
 	{"ORG front matter", tstORG + "\nSome text.\n", []Item{tstFrontMatterORG, tstSomeText, tstEOF}},
-	{"Summary divider ORG", tstORG + "\nSome text.\n# more\nSome text.\n", []Item{tstFrontMatterORG, tstSomeText, tstSummaryDividerOrg, tstSomeText, tstEOF}},
+	{"Summary divider ORG", tstORG + "\nSome text.\n# more\nSome text.\n", []Item{tstFrontMatterORG, tstSomeText, nti(TypeLeadSummaryDivider, "# more"), tstSomeText, tstEOF}},
 	{"Summary divider", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n<!--more-->\nSome text.\n", []Item{tstFrontMatterTOML, tstSomeText, tstSummaryDivider, tstSomeText, tstEOF}},
 }
 

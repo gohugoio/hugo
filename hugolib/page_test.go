@@ -767,8 +767,7 @@ Simple Page With Some Date`
 }
 
 // Issue #2601
-// TODO(bep) 2errors
-func _TestPageRawContent(t *testing.T) {
+func TestPageRawContent(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()
 
@@ -784,7 +783,7 @@ title: Raw
 	require.Len(t, s.RegularPages, 1)
 	p := s.RegularPages[0]
 
-	require.Contains(t, p.RawContent(), "**Raw**")
+	require.Equal(t, p.RawContent(), "**Raw**")
 
 }
 
@@ -1042,8 +1041,7 @@ func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithAllCJKRunes)
 }
 
-// TODO(bep) 2errors
-func _TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
+func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 	t.Parallel()
 	settings := map[string]interface{}{"hasCJKLanguage": true}
 
@@ -1056,8 +1054,7 @@ func _TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePageWithAllCJKRunes)
 }
 
-// TODO(bep) 2errors
-func _TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
+func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 	t.Parallel()
 	settings := map[string]interface{}{"hasCJKLanguage": true}
 
@@ -1164,7 +1161,6 @@ func TestShouldRenderContent(t *testing.T) {
 		render bool
 	}{
 		{contentNoFrontmatter, true},
-		// TODO(bep) 2errors {invalidFrontmatterShortDelim, true},
 		{renderNoFrontmatter, false},
 		{contentWithCommentedFrontmatter, true},
 		{contentWithCommentedTextFrontmatter, true},

@@ -179,7 +179,7 @@ func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
 		}
 		return false
 	}
-	// TODO(bep) 2errors text vs HTML
+
 	fe, ok := herrors.WithFileContext(ferr, realFilename, f, lineMatcher)
 	if ok || !hasMaster {
 		return fe

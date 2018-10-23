@@ -120,7 +120,6 @@ func (ns *Namespace) GetJSON(urlParts ...string) (v interface{}, err error) {
 
 	if err != nil {
 		return nil, _errors.Wrapf(err, "failed to get getJSON resource %q", url)
-		return nil, nil
 	}
 	return
 }

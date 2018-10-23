@@ -50,7 +50,7 @@ func TestRootMappingFsDirnames(t *testing.T) {
 	fif, err := rfs.Stat(filepath.Join("cf2", testfile))
 	assert.NoError(err)
 	assert.Equal("myfile.txt", fif.Name())
-	assert.Equal("f2t/myfile.txt", fif.(RealFilenameInfo).RealFilename())
+	assert.Equal(filepath.FromSlash("f2t/myfile.txt"), fif.(RealFilenameInfo).RealFilename())
 
 	root, err := rfs.Open(filepathSeparator)
 	assert.NoError(err)

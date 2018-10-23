@@ -631,12 +631,10 @@ func assertShouldNotBuild(t *testing.T, sites *HugoSites) {
 	for _, p := range s.rawAllPages {
 		// No HTML when not processed
 		require.Equal(t, p.shouldBuild(), bytes.Contains(p.workContent, []byte("</")), p.BaseFileName()+": "+string(p.workContent))
-		// TODO(bep) 2errors
-		/*
-			require.Equal(t, p.shouldBuild(), p.content() != "", fmt.Sprintf("%v:%v", p.content(), p.shouldBuild()))
 
-			require.Equal(t, p.shouldBuild(), p.content() != "", p.BaseFileName())
-		*/
+		require.Equal(t, p.shouldBuild(), p.content() != "", fmt.Sprintf("%v:%v", p.content(), p.shouldBuild()))
+
+		require.Equal(t, p.shouldBuild(), p.content() != "", p.BaseFileName())
 
 	}
 }

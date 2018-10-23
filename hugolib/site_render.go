@@ -134,8 +134,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 
 			if shouldRender {
 				if err := pageOutput.renderResources(); err != nil {
-					// TODO(bep) 2errors
-					s.Log.ERROR.Printf("Failed to render resources for page %q: %s", page, err)
+					s.SendError(page.errorf(err, "failed to render page resources"))
 					continue
 				}
 			}
@@ -147,7 +146,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 			} else {
 				layouts, err = s.layouts(pageOutput)
 				if err != nil {
-					s.Log.ERROR.Printf("Failed to resolve layout output %q for page %q: %s", outFormat.Name, page, err)
+					s.Log.ERROR.Printf("Failed to resolve layout for output %q for page %q: %s", outFormat.Name, page, err)
 					continue
 				}
 			}

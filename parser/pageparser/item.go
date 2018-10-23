@@ -103,10 +103,9 @@ const (
 	tEOF
 
 	// page items
-	TypeHTMLDocument       // document starting with < as first non-whitespace
+	TypeHTMLStart          // document starting with < as first non-whitespace
 	TypeHTMLComment        // We ignore leading comments
-	TypeLeadSummaryDivider // <!--more-->
-	TypeSummaryDividerOrg  // # more
+	TypeLeadSummaryDivider // <!--more-->,  # more
 	TypeFrontMatterYAML
 	TypeFrontMatterTOML
 	TypeFrontMatterJSON

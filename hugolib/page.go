@@ -1685,9 +1685,13 @@ func (p *Page) shouldRenderTo(f output.Format) bool {
 	return found
 }
 
+// RawContent returns the un-rendered source content without
+// any leading front matter.
 func (p *Page) RawContent() string {
-	// TODO(bep) 2errors
-	return string(p.source.parsed.Input())
+	if p.source.posMainContent == -1 {
+		return ""
+	}
+	return string(p.source.parsed.Input()[p.source.posMainContent:])
 }
 
 func (p *Page) FullFilePath() string {

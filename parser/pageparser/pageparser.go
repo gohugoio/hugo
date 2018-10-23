@@ -48,7 +48,7 @@ func Parse(r io.Reader) (Result, error) {
 }
 
 func parseMainSection(input []byte, from int) Result {
-	lexer := newPageLexer(input, from, lexMainSection) // TODO(bep) 2errors
+	lexer := newPageLexer(input, from, lexMainSection)
 	lexer.run()
 	return lexer
 }

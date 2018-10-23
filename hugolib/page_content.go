@@ -46,11 +46,11 @@ type rawPageContent struct {
 	hasSummaryDivider bool
 
 	// The AST of the parsed page. Contains information about:
-	// shortcBackup3odes, front matter, summary indicators.
-	// TODO(bep) 2errors add this to a new rawPagecContent struct
-	// with frontMatterItem (pos) etc.
-	// * RawContent, RawContentWithoutFrontMatter
+	// shortcodes, front matter, summary indicators.
 	parsed pageparser.Result
+
+	// Returns the position in bytes after any front matter.
+	posMainContent int
 }
 
 // TODO(bep) lazy consolidate
@@ -58,6 +58,7 @@ func (p *Page) mapContent() error {
 	p.shortcodeState = newShortcodeHandler(p)
 	s := p.shortcodeState
 	p.renderable = true
+	p.source.posMainContent = -1
 
 	result := bp.GetBuffer()
 	defer bp.PutBuffer(result)
@@ -81,8 +82,8 @@ Loop:
 		case it.Type == pageparser.TypeIgnore:
 		case it.Type == pageparser.TypeHTMLComment:
 			// Ignore. This is only a leading Front matter comment.
-		case it.Type == pageparser.TypeHTMLDocument:
-			// This is HTML only. No shortcode, front matter etc.
+		case it.Type == pageparser.TypeHTMLStart:
+			// This is HTML without front matter. It can still have shortcodes.
 			p.renderable = false
 			result.Write(it.Val)
 		case it.IsFrontMatter():
@@ -99,12 +100,17 @@ Loop:
 				return err
 			}
 
+			next := iter.Peek()
+			if !next.IsDone() {
+				p.source.posMainContent = next.Pos
+			}
+
 			if !p.shouldBuild() {
 				// Nothing more to do.
 				return nil
 			}
 
-		case it.Type == pageparser.TypeLeadSummaryDivider, it.Type == pageparser.TypeSummaryDividerOrg:
+		case it.Type == pageparser.TypeLeadSummaryDivider:
 			result.Write(internalSummaryDivider)
 			p.source.hasSummaryDivider = true
 			// Need to determine if the page is truncated.
@@ -172,7 +178,6 @@ func (p *Page) parse(reader io.Reader) error {
 		parsed: parseResult,
 	}
 
-	// TODO(bep) 2errors
 	p.lang = p.File.Lang()
 
 	if p.s != nil && p.s.owner != nil {
