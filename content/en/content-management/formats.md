@@ -1,7 +1,7 @@
 ---
 title: Supported Content Formats
 linktitle: Supported Content Formats
-description: Markdown and Emacs Org-Mode have native support, and additional formats (e.g. Asciidoc) come via external helpers.
+description: Both HTML and Markdown are supported content formats.
 date: 2017-01-10
 publishdate: 2017-01-10
 lastmod: 2017-04-06
@@ -19,7 +19,19 @@ toc: true
 
 **Markdown is the main content format** and comes in two flavours:  The excellent [Blackfriday project][blackfriday] (name your files `*.md` or set `markup = "markdown"` in front matter) or its fork [Mmark][mmark] (name your files `*.mmark` or set `markup = "mmark"` in front matter), both very fast markdown engines written in Go.
 
-For Emacs users, [goorgeous](https://github.com/chaseadamsio/goorgeous) provides built-in native support for Org-mode  (name your files `*.org` or set `markup = "org"` in front matter) 
+For Emacs users, [goorgeous](https://github.com/chaseadamsio/goorgeous) provides built-in native support for Org-mode  (name your files `*.org` or set `markup = "org"` in front matter)
+
+But in many situations, plain HTML is what you want. Just name your files with `.html` or `.htm` extension inside your content folder. Note that if you want your HTML files to have a layout, they need front matter. It can be empty, but it has to be there:
+
+```html
+---
+title: "This is a content file in HTML"
+---
+
+<div>
+  <h1>Hello, Hugo!</h1>
+</div>
+```
 
 {{% note "Deeply Nested Lists" %}}
 Before you begin writing your content in markdown, Blackfriday has a known issue [(#329)](https://github.com/russross/blackfriday/issues/329) with handling deeply nested lists. Luckily, there is an easy workaround. Use 4-spaces (i.e., <kbd>tab</kbd>) rather than 2-space indentations.
