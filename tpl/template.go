@@ -162,18 +162,18 @@ func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
 
 	// Since this can be a composite of multiple template files (single.html + baseof.html etc.)
 	// we potentially need to look in both -- and cannot rely on line number alone.
-	lineMatcher := func(le herrors.FileError, lineNumber int, line string) bool {
-		if le.LineNumber() != lineNumber {
+	lineMatcher := func(m herrors.LineMatcher) bool {
+		if m.FileError.LineNumber() != m.LineNumber {
 			return false
 		}
 		if !hasMaster {
 			return true
 		}
 
-		identifiers := t.extractIdentifiers(le.Error())
+		identifiers := t.extractIdentifiers(m.FileError.Error())
 
 		for _, id := range identifiers {
-			if strings.Contains(line, id) {
+			if strings.Contains(m.Line, id) {
 				return true
 			}
 		}

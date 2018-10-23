@@ -13,6 +13,12 @@
 
 package herrors
 
+import (
+	"encoding/json"
+
+	"github.com/pkg/errors"
+)
+
 var _ causer = (*fileError)(nil)
 
 // FileError represents an error when handling a file: Parsing a config file,
@@ -20,9 +26,14 @@ var _ causer = (*fileError)(nil)
 type FileError interface {
 	error
 
+	// Offset gets the error location offset in bytes, starting at 0.
+	// It will return -1 if not provided.
+	Offset() int
+
 	// LineNumber gets the error location, starting at line 1.
 	LineNumber() int
 
+	// Column number gets the column location, starting at 1.
 	ColumnNumber() int
 
 	// A string identifying the type of file, e.g. JSON, TOML, markdown etc.
@@ -32,6 +43,7 @@ type FileError interface {
 var _ FileError = (*fileError)(nil)
 
 type fileError struct {
+	offset       int
 	lineNumber   int
 	columnNumber int
 	fileType     string
@@ -39,8 +51,21 @@ type fileError struct {
 	cause error
 }
 
+type fileErrorWithLineOffset struct {
+	FileError
+	offset int
+}
+
+func (e *fileErrorWithLineOffset) LineNumber() int {
+	return e.FileError.LineNumber() + e.offset
+}
+
 func (e *fileError) LineNumber() int {
 	return e.lineNumber
+}
+
+func (e *fileError) Offset() int {
+	return e.offset
 }
 
 func (e *fileError) ColumnNumber() int {
@@ -63,8 +88,8 @@ func (f *fileError) Cause() error {
 }
 
 // NewFileError creates a new FileError.
-func NewFileError(fileType string, lineNumber, columnNumber int, err error) FileError {
-	return &fileError{cause: err, fileType: fileType, lineNumber: lineNumber, columnNumber: columnNumber}
+func NewFileError(fileType string, offset, lineNumber, columnNumber int, err error) FileError {
+	return &fileError{cause: err, fileType: fileType, offset: offset, lineNumber: lineNumber, columnNumber: columnNumber}
 }
 
 // UnwrapFileError tries to unwrap a FileError from err.
@@ -83,24 +108,37 @@ func UnwrapFileError(err error) FileError {
 	return nil
 }
 
-// ToFileError will try to convert the given error to an error supporting
-// the FileError interface.
-// If will fall back to returning the original error if a line number cannot be extracted.
-func ToFileError(fileType string, err error) error {
-	return ToFileErrorWithOffset(fileType, err, 0)
+// ToFileErrorWithOffset will return a new FileError with a line number
+// with the given offset from the original.
+func ToFileErrorWithOffset(fe FileError, offset int) FileError {
+	return &fileErrorWithLineOffset{FileError: fe, offset: offset}
 }
 
-// ToFileErrorWithOffset will try to convert the given error to an error supporting
-// the FileError interface. It will take any line number offset given into account.
-// If will fall back to returning the original error if a line number cannot be extracted.
-func ToFileErrorWithOffset(fileType string, err error, offset int) error {
+// ToFileError will convert the given error to an error supporting
+// the FileError interface.
+func ToFileError(fileType string, err error) FileError {
 	for _, handle := range lineNumberExtractors {
-
 		lno, col := handle(err)
-		if lno > 0 {
-			return NewFileError(fileType, lno+offset, col, err)
+		offset, typ := extractOffsetAndType(err)
+		if fileType == "" {
+			fileType = typ
+		}
+		if lno > 0 || offset != -1 {
+			return NewFileError(fileType, offset, lno, col, err)
 		}
 	}
-	// Fall back to the original.
-	return err
+	// Fall back to the pointing to line number 1.
+	return NewFileError(fileType, -1, 1, 1, err)
+}
+
+func extractOffsetAndType(e error) (int, string) {
+	e = errors.Cause(e)
+	switch v := e.(type) {
+	case *json.UnmarshalTypeError:
+		return int(v.Offset), "json"
+	case *json.SyntaxError:
+		return int(v.Offset), "json"
+	default:
+		return -1, ""
+	}
 }

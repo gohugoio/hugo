@@ -14,10 +14,10 @@
 package herrors
 
 import (
-	"errors"
 	"fmt"
-	"strconv"
 	"testing"
+
+	"github.com/pkg/errors"
 
 	"github.com/stretchr/testify/require"
 )
@@ -33,7 +33,7 @@ func TestToLineNumberError(t *testing.T) {
 		lineNumber   int
 		columnNumber int
 	}{
-		{errors.New("no line number for you"), 0, -1, 1},
+		{errors.New("no line number for you"), 0, 1, 1},
 		{errors.New(`template: _default/single.html:4:15: executing "_default/single.html" at <.Titles>: can't evaluate field Titles in type *hugolib.PageOutput`), 0, 4, 15},
 		{errors.New("parse failed: template: _default/bundle-resource-meta.html:11: unexpected in operand"), 0, 11, 1},
 		{errors.New(`failed:: template: _default/bundle-resource-meta.html:2:7: executing "main" at <.Titles>`), 0, 2, 7},
@@ -41,18 +41,19 @@ func TestToLineNumberError(t *testing.T) {
 		{errors.New(`failed to load translations: (6, 7): was expecting token =, but got "g" instead`), 0, 6, 7},
 	} {
 
-		got := ToFileErrorWithOffset("template", test.in, test.offset)
+		got := ToFileError("template", test.in)
+		if test.offset > 0 {
+			got = ToFileErrorWithOffset(got.(FileError), test.offset)
+		}
 
 		errMsg := fmt.Sprintf("[%d][%T]", i, got)
 		le, ok := got.(FileError)
+		assert.True(ok)
 
-		if test.lineNumber > 0 {
-			assert.True(ok, errMsg)
-			assert.Equal(test.lineNumber, le.LineNumber(), errMsg)
-			assert.Equal(test.columnNumber, le.ColumnNumber(), errMsg)
-			assert.Contains(got.Error(), strconv.Itoa(le.LineNumber()))
-		} else {
-			assert.False(ok)
-		}
+		assert.True(ok, errMsg)
+		assert.Equal(test.lineNumber, le.LineNumber(), errMsg)
+		assert.Equal(test.columnNumber, le.ColumnNumber(), errMsg)
+		assert.Error(errors.Cause(got))
 	}
+
 }

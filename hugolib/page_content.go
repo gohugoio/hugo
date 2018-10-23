@@ -89,7 +89,11 @@ Loop:
 			f := metadecoders.FormatFromFrontMatterType(it.Type)
 			m, err := metadecoders.UnmarshalToMap(it.Val, f)
 			if err != nil {
-				return herrors.ToFileErrorWithOffset(string(f), err, iter.LineNumber()-1)
+				if fe, ok := err.(herrors.FileError); ok {
+					return herrors.ToFileErrorWithOffset(fe, iter.LineNumber()-1)
+				} else {
+					return err
+				}
 			}
 			if err := p.updateMetaData(m); err != nil {
 				return err
@@ -192,6 +196,6 @@ func parseError(err error, input []byte, pos int) error {
 	input = input[:pos]
 	lineNumber := bytes.Count(input, lf) + 1
 	endOfLastLine := bytes.LastIndex(input, lf)
-	return herrors.NewFileError("md", lineNumber, pos-endOfLastLine, err)
+	return herrors.NewFileError("md", -1, lineNumber, pos-endOfLastLine, err)
 
 }

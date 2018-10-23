@@ -24,8 +24,8 @@ import (
 func TestErrorLocator(t *testing.T) {
 	assert := require.New(t)
 
-	lineMatcher := func(le FileError, lineno int, line string) bool {
-		return strings.Contains(line, "THEONE")
+	lineMatcher := func(m LineMatcher) bool {
+		return strings.Contains(m.Line, "THEONE")
 	}
 
 	lines := `LINE 1
@@ -38,49 +38,51 @@ LINE 7
 LINE 8
 `
 
-	location := locateErrorInString(nil, lines, lineMatcher)
+	location := locateErrorInString(lines, lineMatcher)
 	assert.Equal([]string{"LINE 3", "LINE 4", "This is THEONE", "LINE 6", "LINE 7"}, location.Lines)
 
 	assert.Equal(5, location.LineNumber)
 	assert.Equal(2, location.Pos)
 
-	assert.Equal([]string{"This is THEONE"}, locateErrorInString(nil, `This is THEONE`, lineMatcher).Lines)
+	assert.Equal([]string{"This is THEONE"}, locateErrorInString(`This is THEONE`, lineMatcher).Lines)
 
-	location = locateErrorInString(nil, `L1
+	location = locateErrorInString(`L1
 This is THEONE
 L2
 `, lineMatcher)
+	assert.Equal(2, location.LineNumber)
 	assert.Equal(1, location.Pos)
-	assert.Equal([]string{"L1", "This is THEONE", "L2"}, location.Lines)
+	assert.Equal([]string{"L1", "This is THEONE", "L2", ""}, location.Lines)
 
-	location = locateErrorInString(nil, `This is THEONE
+	location = locateErrorInString(`This is THEONE
 L2
 `, lineMatcher)
 	assert.Equal(0, location.Pos)
-	assert.Equal([]string{"This is THEONE", "L2"}, location.Lines)
+	assert.Equal([]string{"This is THEONE", "L2", ""}, location.Lines)
 
-	location = locateErrorInString(nil, `L1
+	location = locateErrorInString(`L1
 This THEONE
 `, lineMatcher)
-	assert.Equal([]string{"L1", "This THEONE"}, location.Lines)
+	assert.Equal([]string{"L1", "This THEONE", ""}, location.Lines)
 	assert.Equal(1, location.Pos)
 
-	location = locateErrorInString(nil, `L1
+	location = locateErrorInString(`L1
 L2
 This THEONE
 `, lineMatcher)
-	assert.Equal([]string{"L1", "L2", "This THEONE"}, location.Lines)
+	assert.Equal([]string{"L1", "L2", "This THEONE", ""}, location.Lines)
 	assert.Equal(2, location.Pos)
 
-	location = locateErrorInString(nil, "NO MATCH", lineMatcher)
+	location = locateErrorInString("NO MATCH", lineMatcher)
 	assert.Equal(-1, location.LineNumber)
 	assert.Equal(-1, location.Pos)
 	assert.Equal(0, len(location.Lines))
 
-	lineMatcher = func(le FileError, lineno int, line string) bool {
-		return lineno == 6
+	lineMatcher = func(m LineMatcher) bool {
+		return m.LineNumber == 6
 	}
-	location = locateErrorInString(nil, `A
+
+	location = locateErrorInString(`A
 B
 C
 D
@@ -96,11 +98,11 @@ J`, lineMatcher)
 	assert.Equal(2, location.Pos)
 
 	// Test match EOF
-	lineMatcher = func(le FileError, lineno int, line string) bool {
-		return lineno == 4
+	lineMatcher = func(m LineMatcher) bool {
+		return m.LineNumber == 4
 	}
 
-	location = locateErrorInString(nil, `A
+	location = locateErrorInString(`A
 B
 C
 `, lineMatcher)
@@ -108,5 +110,19 @@ C
 	assert.Equal([]string{"B", "C", ""}, location.Lines)
 	assert.Equal(4, location.LineNumber)
 	assert.Equal(2, location.Pos)
+
+	offsetMatcher := func(m LineMatcher) bool {
+		return m.Offset == 1
+	}
+
+	location = locateErrorInString(`A
+B
+C
+D
+E`, offsetMatcher)
+
+	assert.Equal([]string{"A", "B", "C", "D"}, location.Lines)
+	assert.Equal(2, location.LineNumber)
+	assert.Equal(1, location.Pos)
 
 }

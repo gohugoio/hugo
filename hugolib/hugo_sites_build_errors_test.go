@@ -150,8 +150,7 @@ func TestSiteBuildErrors(t *testing.T) {
 			name:     "Invalid YAML front matter",
 			fileType: yamlcontent,
 			fileFixer: func(content string) string {
-				// TODO(bep) 2errors YAML line numbers seems to be off by one for > 1 line.
-				return strings.Replace(content, "title:", "title", 1)
+				return strings.Replace(content, "title:", "title: %foo", 1)
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				a.assertLineNumber(2, err)
@@ -167,6 +166,20 @@ func TestSiteBuildErrors(t *testing.T) {
 				fe := a.getFileError(err)
 				assert.Equal(6, fe.LineNumber)
 				assert.Equal("toml", fe.ErrorContext.ChromaLexer)
+
+			},
+		},
+		{
+			name:     "Invalid JSON front matter",
+			fileType: tomlcontent,
+			fileFixer: func(content string) string {
+				return strings.Replace(content, "\"description\":", "\"description\"", 1)
+			},
+			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
+				fe := a.getFileError(err)
+
+				assert.Equal(3, fe.LineNumber)
+				assert.Equal("json", fe.ErrorContext.ChromaLexer)
 
 			},
 		},
@@ -242,6 +255,16 @@ p2 = "v"
 p3 = "v"
 description = "Descriptioon"
 +++
+
+Some content.
+
+
+`))
+
+		b.WithContent("myjson.md", f(tomlcontent, `{
+	"title": "This is a title",
+	"description": "This is a description."
+}
 
 Some content.
 

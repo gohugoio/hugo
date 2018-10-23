@@ -17,6 +17,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/gohugoio/hugo/common/herrors"
+
 	"github.com/BurntSushi/toml"
 	"github.com/chaseadamsio/goorgeous"
 	"github.com/pkg/errors"
@@ -59,7 +61,7 @@ func unmarshal(data []byte, f Format, v interface{}) error {
 	case ORG:
 		vv, err := goorgeous.OrgHeaders(data)
 		if err != nil {
-			return errors.Wrap(err, "failed to unmarshal ORG headers")
+			return toFileError(f, errors.Wrap(err, "failed to unmarshal ORG headers"))
 		}
 		switch v.(type) {
 		case *map[string]interface{}:
@@ -74,7 +76,7 @@ func unmarshal(data []byte, f Format, v interface{}) error {
 	case YAML:
 		err = yaml.Unmarshal(data, v)
 		if err != nil {
-			return errors.Wrap(err, "failed to unmarshal YAML")
+			return toFileError(f, errors.Wrap(err, "failed to unmarshal YAML"))
 		}
 
 		// To support boolean keys, the YAML package unmarshals maps to
@@ -103,8 +105,16 @@ func unmarshal(data []byte, f Format, v interface{}) error {
 		return errors.Errorf("unmarshal of format %q is not supported", f)
 	}
 
-	return errors.Wrap(err, "unmarshal failed")
+	if err == nil {
+		return nil
+	}
 
+	return toFileError(f, errors.Wrap(err, "unmarshal failed"))
+
+}
+
+func toFileError(f Format, err error) error {
+	return herrors.ToFileError(string(f), err)
 }
 
 // stringifyMapKeys recurses into in and changes all instances of

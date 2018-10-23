@@ -15,9 +15,9 @@
 package herrors
 
 import (
-	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -27,13 +27,20 @@ import (
 
 var fileErrorFormat = "\"%s:%d:%d\": %s"
 
-// LineMatcher is used to match a line with an error.
-type LineMatcher func(le FileError, lineNumber int, line string) bool
+// LineMatcher contains the elements used to match an error to a line
+type LineMatcher struct {
+	FileError  FileError
+	LineNumber int
+	Offset     int
+	Line       string
+}
 
-// SimpleLineMatcher matches if the current line number matches the line number
-// in the error.
-var SimpleLineMatcher = func(le FileError, lineNumber int, line string) bool {
-	return le.LineNumber() == lineNumber
+// LineMatcherFn is used to match a line with an error.
+type LineMatcherFn func(m LineMatcher) bool
+
+// SimpleLineMatcher simply matches by line number.
+var SimpleLineMatcher = func(m LineMatcher) bool {
+	return m.FileError.LineNumber() == m.LineNumber
 }
 
 // ErrorContext contains contextual information about an error. This will
@@ -79,7 +86,7 @@ func (e *ErrorWithFileContext) Cause() error {
 
 // WithFileContextForFile will try to add a file context with lines matching the given matcher.
 // If no match could be found, the original error is returned with false as the second return value.
-func WithFileContextForFile(e error, realFilename, filename string, fs afero.Fs, matcher LineMatcher) (error, bool) {
+func WithFileContextForFile(e error, realFilename, filename string, fs afero.Fs, matcher LineMatcherFn) (error, bool) {
 	f, err := fs.Open(filename)
 	if err != nil {
 		return e, false
@@ -90,11 +97,12 @@ func WithFileContextForFile(e error, realFilename, filename string, fs afero.Fs,
 
 // WithFileContextForFile will try to add a file context with lines matching the given matcher.
 // If no match could be found, the original error is returned with false as the second return value.
-func WithFileContext(e error, realFilename string, r io.Reader, matcher LineMatcher) (error, bool) {
+func WithFileContext(e error, realFilename string, r io.Reader, matcher LineMatcherFn) (error, bool) {
 	if e == nil {
 		panic("error missing")
 	}
 	le := UnwrapFileError(e)
+
 	if le == nil {
 		var ok bool
 		if le, ok = ToFileError("", e).(FileError); !ok {
@@ -102,12 +110,26 @@ func WithFileContext(e error, realFilename string, r io.Reader, matcher LineMatc
 		}
 	}
 
-	errCtx := locateError(r, le, matcher)
-	errCtx.Filename = realFilename
+	var errCtx ErrorContext
+
+	if le.Offset() != -1 {
+		errCtx = locateError(r, le, func(m LineMatcher) bool {
+			if le.Offset() >= m.Offset && le.Offset() < m.Offset+len(m.Line) {
+				fe := m.FileError
+				m.FileError = ToFileErrorWithOffset(fe, -fe.LineNumber()+m.LineNumber)
+			}
+			return matcher(m)
+		})
+
+	} else {
+		errCtx = locateError(r, le, matcher)
+	}
 
 	if errCtx.LineNumber == -1 {
 		return e, false
 	}
+
+	errCtx.Filename = realFilename
 
 	if le.Type() != "" {
 		errCtx.ChromaLexer = chromaLexerFromType(le.Type())
@@ -151,72 +173,66 @@ func chromaLexerFromFilename(filename string) string {
 	return chromaLexerFromType(ext)
 }
 
-func locateErrorInString(le FileError, src string, matcher LineMatcher) ErrorContext {
-	return locateError(strings.NewReader(src), nil, matcher)
+func locateErrorInString(src string, matcher LineMatcherFn) ErrorContext {
+	return locateError(strings.NewReader(src), &fileError{}, matcher)
 }
 
-func locateError(r io.Reader, le FileError, matches LineMatcher) ErrorContext {
-	var errCtx ErrorContext
-	s := bufio.NewScanner(r)
+func locateError(r io.Reader, le FileError, matches LineMatcherFn) ErrorContext {
+	if le == nil {
+		panic("must provide an error")
+	}
 
-	errCtx.ColumnNumber = 1
-	if le != nil {
+	errCtx := ErrorContext{LineNumber: -1, ColumnNumber: 1, Pos: -1}
+
+	b, err := ioutil.ReadAll(r)
+	if err != nil {
+		return errCtx
+	}
+
+	lines := strings.Split(string(b), "\n")
+
+	if le != nil && le.ColumnNumber() >= 0 {
 		errCtx.ColumnNumber = le.ColumnNumber()
 	}
 
 	lineNo := 0
+	posBytes := 0
 
-	var buff [6]string
-	i := 0
-	errCtx.Pos = -1
-
-	for s.Scan() {
-		lineNo++
-		txt := s.Text()
-		buff[i] = txt
-
-		if errCtx.Pos != -1 && i >= 5 {
+	for li, line := range lines {
+		lineNo = li + 1
+		m := LineMatcher{
+			FileError:  le,
+			LineNumber: lineNo,
+			Offset:     posBytes,
+			Line:       line,
+		}
+		if errCtx.Pos == -1 && matches(m) {
+			errCtx.LineNumber = lineNo
 			break
 		}
 
-		if errCtx.Pos == -1 && matches(le, lineNo, txt) {
-			errCtx.Pos = i
-			errCtx.LineNumber = lineNo
-		}
-
-		if errCtx.Pos == -1 && i == 2 {
-			// Shift left
-			buff[0], buff[1] = buff[i-1], buff[i]
-		} else {
-			i++
-		}
+		posBytes += len(line)
 	}
 
-	// Go's template parser will typically report "unexpected EOF" errors on the
-	// empty last line that is supressed by the scanner.
-	// Do an explicit check for that.
-	if errCtx.Pos == -1 {
-		lineNo++
-		if matches(le, lineNo, "") {
-			buff[i] = ""
-			errCtx.Pos = i
-			errCtx.LineNumber = lineNo
-
-			i++
-		}
-	}
-
-	if errCtx.Pos != -1 {
-		low := errCtx.Pos - 2
+	if errCtx.LineNumber != -1 {
+		low := errCtx.LineNumber - 3
 		if low < 0 {
 			low = 0
 		}
-		high := i
-		errCtx.Lines = buff[low:high]
 
-	} else {
-		errCtx.Pos = -1
-		errCtx.LineNumber = -1
+		if errCtx.LineNumber > 2 {
+			errCtx.Pos = 2
+		} else {
+			errCtx.Pos = errCtx.LineNumber - 1
+		}
+
+		high := errCtx.LineNumber + 2
+		if high > len(lines) {
+			high = len(lines)
+		}
+
+		errCtx.Lines = lines[low:high]
+
 	}
 
 	return errCtx
