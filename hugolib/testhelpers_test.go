@@ -31,8 +31,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const ()
-
 type sitesBuilder struct {
 	Cfg config.Provider
 	Fs  *hugofs.Fs
