@@ -100,16 +100,16 @@ func TestGroup(t *testing.T) {
 		items  interface{}
 		expect interface{}
 	}{
-		{"a", []*tstGrouper{&tstGrouper{}, &tstGrouper{}}, "a(2)"},
+		{"a", []*tstGrouper{{}, {}}, "a(2)"},
 		{"b", tstGroupers{&tstGrouper{}, &tstGrouper{}}, "b(2)"},
-		{"a", []tstGrouper{tstGrouper{}, tstGrouper{}}, "a(2)"},
-		{"a", []*tstGrouper2{&tstGrouper2{}, &tstGrouper2{}}, "a(2)"},
-		{"b", []tstGrouper2{tstGrouper2{}, tstGrouper2{}}, "b(2)"},
+		{"a", []tstGrouper{{}, {}}, "a(2)"},
+		{"a", []*tstGrouper2{{}, {}}, "a(2)"},
+		{"b", []tstGrouper2{{}, {}}, "b(2)"},
 		{"a", []*tstGrouper{}, "a(0)"},
 		{"a", []string{"a", "b"}, false},
 		{"a", "asdf", false},
 		{"a", nil, false},
-		{nil, []*tstGrouper{&tstGrouper{}, &tstGrouper{}}, false},
+		{nil, []*tstGrouper{{}, {}}, false},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
@@ -654,7 +654,7 @@ func TestSlice(t *testing.T) {
 		{[]interface{}{}, []interface{}{}},
 		{[]interface{}{nil}, []interface{}{nil}},
 		{[]interface{}{5, "b"}, []interface{}{5, "b"}},
-		{[]interface{}{tstNoStringer{}}, []tstNoStringer{tstNoStringer{}}},
+		{[]interface{}{tstNoStringer{}}, []tstNoStringer{{}}},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test.args)
 

@@ -346,12 +346,12 @@ func applyThemeConfig(v1 *viper.Viper, theme paths.ThemeConfig) error {
 	// Only add params and new menu entries, we do not add language definitions.
 	if v1.IsSet(languagesKey) && v2.IsSet(languagesKey) {
 		v1Langs := v1.GetStringMap(languagesKey)
-		for k, _ := range v1Langs {
+		for k := range v1Langs {
 			langParamsKey := languagesKey + "." + k + "." + paramsKey
 			mergeStringMapKeepLeft(paramsKey, langParamsKey, v1, v2)
 		}
 		v2Langs := v2.GetStringMap(languagesKey)
-		for k, _ := range v2Langs {
+		for k := range v2Langs {
 			if k == "" {
 				continue
 			}

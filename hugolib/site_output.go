@@ -28,16 +28,16 @@ func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) 
 	sitemapOut, _ := allFormats.GetByName(output.SitemapFormat.Name)
 
 	return map[string]output.Formats{
-		KindPage:         output.Formats{htmlOut},
-		KindHome:         output.Formats{htmlOut, rssOut},
-		KindSection:      output.Formats{htmlOut, rssOut},
-		KindTaxonomy:     output.Formats{htmlOut, rssOut},
-		KindTaxonomyTerm: output.Formats{htmlOut, rssOut},
+		KindPage:         {htmlOut},
+		KindHome:         {htmlOut, rssOut},
+		KindSection:      {htmlOut, rssOut},
+		KindTaxonomy:     {htmlOut, rssOut},
+		KindTaxonomyTerm: {htmlOut, rssOut},
 		// Below are for conistency. They are currently not used during rendering.
-		kindRSS:       output.Formats{rssOut},
-		kindSitemap:   output.Formats{sitemapOut},
-		kindRobotsTXT: output.Formats{robotsOut},
-		kind404:       output.Formats{htmlOut},
+		kindRSS:       {rssOut},
+		kindSitemap:   {sitemapOut},
+		kindRobotsTXT: {robotsOut},
+		kind404:       {htmlOut},
 	}
 
 }

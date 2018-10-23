@@ -749,7 +749,7 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 }
 
 var embeddedTemplatesAliases = map[string][]string{
-	"shortcodes/twitter.html": []string{"shortcodes/tweet.html"},
+	"shortcodes/twitter.html": {"shortcodes/tweet.html"},
 }
 
 func (t *templateHandler) loadEmbedded() error {

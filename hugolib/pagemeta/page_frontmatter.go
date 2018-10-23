@@ -71,10 +71,10 @@ type FrontMatterDescriptor struct {
 
 var (
 	dateFieldAliases = map[string][]string{
-		fmDate:       []string{},
-		fmLastmod:    []string{"modified"},
-		fmPubDate:    []string{"pubdate", "published"},
-		fmExpiryDate: []string{"unpublishdate"},
+		fmDate:       {},
+		fmLastmod:    {"modified"},
+		fmPubDate:    {"pubdate", "published"},
+		fmExpiryDate: {"unpublishdate"},
 	}
 )
 
