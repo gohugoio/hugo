@@ -219,7 +219,6 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 
 	// Will set a value even if it is the default.
 	flagKeysForced := []string{
-		"disableFastRender",
 		"minify",
 	}
 
