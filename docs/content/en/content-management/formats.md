@@ -42,7 +42,7 @@ tool on your machine to be able to use these formats.
 Hugo passes reasonable default arguments to these external helpers by default:
 
 - `asciidoctor`: `--no-header-footer -`
-- `rst2html`: `--leave-comments --initial-header-level=2`
+- `rst2html`: `--leave-comments --initial-header-level=2 --syntax-highlight=short`
 - `pandoc`: `--mathjax`
 
 {{% note %}}
