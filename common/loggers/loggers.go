@@ -80,7 +80,10 @@ func NewErrorLogger() *Logger {
 	return newBasicLogger(jww.LevelError)
 }
 
-var ansiColorRe = regexp.MustCompile("(?s)\\033\\[\\d*(;\\d*)*m")
+var (
+	ansiColorRe = regexp.MustCompile("(?s)\\033\\[\\d*(;\\d*)*m")
+	errorRe     = regexp.MustCompile("(ERROR|FATAL|WARN)")
+)
 
 type ansiCleaner struct {
 	w io.Writer
@@ -90,12 +93,40 @@ func (a ansiCleaner) Write(p []byte) (n int, err error) {
 	return a.w.Write(ansiColorRe.ReplaceAll(p, []byte("")))
 }
 
+type labelColorizer struct {
+	w io.Writer
+}
+
+func (a labelColorizer) Write(p []byte) (n int, err error) {
+	replaced := errorRe.ReplaceAllStringFunc(string(p), func(m string) string {
+		switch m {
+		case "ERROR", "FATAL":
+			return terminal.Error(m)
+		case "WARN":
+			return terminal.Warning(m)
+		default:
+			return m
+		}
+	})
+	// io.MultiWriter will abort if we return a bigger write count than input
+	// bytes, so we lie a little.
+	_, err = a.w.Write([]byte(replaced))
+	return len(p), err
+
+}
+
 func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle io.Writer, saveErrors bool) *Logger {
+	isTerm := terminal.IsTerminal(os.Stdout)
 	errorCounter := &jww.Counter{}
-	if logHandle != ioutil.Discard && terminal.IsTerminal(os.Stdout) {
+	if logHandle != ioutil.Discard && isTerm {
 		// Remove any Ansi coloring from log output
 		logHandle = ansiCleaner{w: logHandle}
 	}
+
+	if isTerm {
+		outHandle = labelColorizer{w: outHandle}
+	}
+
 	listeners := []jww.LogListener{jww.LogCounter(errorCounter, jww.LevelError)}
 	var errorBuff *bytes.Buffer
 	if saveErrors {

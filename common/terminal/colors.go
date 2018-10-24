@@ -23,7 +23,9 @@ import (
 )
 
 const (
-	noticeColor = "\033[1;36m%s\033[0m"
+	errorColor   = "\033[1;31m%s\033[0m"
+	warningColor = "\033[0;33m%s\033[0m"
+	noticeColor  = "\033[1;36m%s\033[0m"
 )
 
 // IsTerminal return true if the file descriptor is terminal and the TERM
@@ -36,6 +38,16 @@ func IsTerminal(f *os.File) bool {
 // Notice colorizes the string in a noticeable color.
 func Notice(s string) string {
 	return colorize(s, noticeColor)
+}
+
+// Error colorizes the string in a colour that grabs attention.
+func Error(s string) string {
+	return colorize(s, errorColor)
+}
+
+// Warning colorizes the string in a colour that warns.
+func Warning(s string) string {
+	return colorize(s, warningColor)
 }
 
 // colorize s in color.
