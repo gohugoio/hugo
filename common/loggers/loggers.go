@@ -42,14 +42,21 @@ type Logger struct {
 	ErrorCounter *jww.Counter
 
 	// This is only set in server mode.
-	Errors *bytes.Buffer
+	errors *bytes.Buffer
+}
+
+func (l *Logger) Errors() string {
+	if l.errors == nil {
+		return ""
+	}
+	return ansiColorRe.ReplaceAllString(l.errors.String(), "")
 }
 
 // Reset resets the logger's internal state.
 func (l *Logger) Reset() {
 	l.ErrorCounter.Reset()
-	if l.Errors != nil {
-		l.Errors.Reset()
+	if l.errors != nil {
+		l.errors.Reset()
 	}
 }
 
@@ -108,7 +115,7 @@ func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle
 	return &Logger{
 		Notepad:      jww.NewNotepad(stdoutThreshold, logThreshold, outHandle, logHandle, "", log.Ldate|log.Ltime, listeners...),
 		ErrorCounter: errorCounter,
-		Errors:       errorBuff,
+		errors:       errorBuff,
 	}
 }
 

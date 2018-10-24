@@ -104,7 +104,7 @@ func (c *commandeer) getErrorWithContext() interface{} {
 
 	m := make(map[string]interface{})
 
-	m["Error"] = errors.New(removeErrorPrefixFromLog(c.logger.Errors.String()))
+	m["Error"] = errors.New(removeErrorPrefixFromLog(c.logger.Errors()))
 	m["Version"] = hugoVersionString()
 
 	fe := herrors.UnwrapErrorWithFileContext(c.buildErr)
