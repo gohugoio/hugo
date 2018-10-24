@@ -18,14 +18,22 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/terminal"
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/spf13/afero"
 )
 
 var fileErrorFormat = "\"%s:%d:%d\": %s"
+
+func init() {
+	if terminal.IsTerminal(os.Stdout) {
+		fileErrorFormat = terminal.Notice("\"%s:%d:%d\"") + ": %s"
+	}
+}
 
 // LineMatcher contains the elements used to match an error to a line
 type LineMatcher struct {
