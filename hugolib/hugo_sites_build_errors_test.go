@@ -108,6 +108,21 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 		},
 		{
+			name:     "Single template execute failed, long keyword",
+			fileType: single,
+			fileFixer: func(content string) string {
+				return strings.Replace(content, ".Title", ".ThisIsAVeryLongTitle", 1)
+			},
+			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
+				fe := a.getFileError(err)
+				assert.Equal(5, fe.LineNumber)
+				assert.Equal(14, fe.ColumnNumber)
+				assert.Equal("go-html-template", fe.ChromaLexer)
+				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
+
+			},
+		},
+		{
 			name:     "Shortcode parse failed",
 			fileType: shortcode,
 			fileFixer: func(content string) string {
