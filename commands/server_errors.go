@@ -53,7 +53,7 @@ var buildErrorTemplate = `<!doctype html>
 			word-wrap: break-word;     
 		}
 		.highlight {
-			overflow-x: scroll;
+			overflow-x: auto;
 			padding: 0.75rem;
 			margin-bottom: 1rem;
 			background-color: #272822;
