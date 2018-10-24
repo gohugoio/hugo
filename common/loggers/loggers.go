@@ -19,6 +19,9 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"regexp"
+
+	"github.com/gohugoio/hugo/common/terminal"
 
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -70,8 +73,22 @@ func NewErrorLogger() *Logger {
 	return newBasicLogger(jww.LevelError)
 }
 
+var ansiColorRe = regexp.MustCompile("(?s)\\033\\[\\d*(;\\d*)*m")
+
+type ansiCleaner struct {
+	w io.Writer
+}
+
+func (a ansiCleaner) Write(p []byte) (n int, err error) {
+	return a.w.Write(ansiColorRe.ReplaceAll(p, []byte("")))
+}
+
 func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle io.Writer, saveErrors bool) *Logger {
 	errorCounter := &jww.Counter{}
+	if logHandle != ioutil.Discard && terminal.IsTerminal(os.Stdout) {
+		// Remove any Ansi coloring from log output
+		logHandle = ansiCleaner{w: logHandle}
+	}
 	listeners := []jww.LogListener{jww.LogCounter(errorCounter, jww.LevelError)}
 	var errorBuff *bytes.Buffer
 	if saveErrors {
