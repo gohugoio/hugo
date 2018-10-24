@@ -83,7 +83,7 @@ If you're going to contribute code, you'll need to have an account on GitHub. Go
 
 ## Install Git on Your System
 
-You will need to have Git installed on your computer to contribute to Hugo development. Teaching Git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book][gitbook] if you are not sure where to begin. We will include short explainations of the Git commands in this document.
+You will need to have Git installed on your computer to contribute to Hugo development. Teaching Git is outside the scope of the Hugo docs, but if you're looking for an excellent reference to learn the basics of Git, we recommend the [Git book][gitbook] if you are not sure where to begin. We will include short explanations of the Git commands in this document.
 
 Git is a [version control system](https://en.wikipedia.org/wiki/Version_control) to track the changes of source code. Hugo depends on smaller third-party packages that are used to extend the functionality. We use them because we don't want to reinvent the wheel.
 
@@ -242,7 +242,7 @@ Sometimes changes on the codebase can cause unintended side effects. Or they don
 Make sure the commands `go test ./...` passes, and `go build` completes.
 
 ### Formatting 
-The Go code styleguide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our addtions:
+The Go code styleguide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our additions:
 
 ```
 go fmt ./...
