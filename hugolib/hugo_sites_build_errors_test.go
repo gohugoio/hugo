@@ -3,6 +3,7 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -199,14 +200,23 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 		},
 		{
+			// See https://github.com/gohugoio/hugo/issues/5327
 			name:     "Panic in template Execute",
 			fileType: single,
 			fileFixer: func(content string) string {
 				return strings.Replace(content, ".Title", ".Parent.Parent.Parent", 1)
 			},
+
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				assert.Error(err)
-				assert.Contains(err.Error(), `execute of template failed: panic in Execute`)
+				// This is fixed in latest Go source
+				if strings.Contains(runtime.Version(), "devel") {
+					fe := a.getFileError(err)
+					assert.Equal(5, fe.LineNumber)
+					assert.Equal(21, fe.ColumnNumber)
+				} else {
+					assert.Contains(err.Error(), `execute of template failed: panic in Execute`)
+				}
 			},
 		},
 	}
