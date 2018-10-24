@@ -133,7 +133,9 @@ func (t *TemplateAdapter) Execute(w io.Writer, data interface{}) (execErr error)
 	return
 }
 
-var identifiersRe = regexp.MustCompile("at \\<(.*?)\\>:")
+// The identifiers may be truncated in the log, e.g.
+// "executing "main" at <$scaled.SRelPermalin...>: can't evaluate field SRelPermalink in type *resource.Image"
+var identifiersRe = regexp.MustCompile("at \\<(.*?)(\\.{3})?\\>:")
 
 func (t *TemplateAdapter) extractIdentifiers(line string) []string {
 	m := identifiersRe.FindAllStringSubmatch(line, -1)
