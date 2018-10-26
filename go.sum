@@ -125,8 +125,6 @@ github.com/stretchr/testify v1.2.3-0.20181002232621-f2347ac6c9c9 h1:kcVw9CGDqYBy
 github.com/stretchr/testify v1.2.3-0.20181002232621-f2347ac6c9c9/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/tdewolff/minify v2.3.5+incompatible h1:oFxBKxTIY1F/1DEJhLeh/T507W56JqZtWVrawFcdadI=
 github.com/tdewolff/minify v2.3.5+incompatible/go.mod h1:9Ov578KJUmAWpS6NeZwRZyT56Uf6o3Mcz9CEsg8USYs=
-github.com/tdewolff/minify v2.3.6+incompatible h1:2hw5/9ZvxhWLvBUnHE06gElGYz+Jv9R4Eys0XUzItYo=
-github.com/tdewolff/minify v2.3.6+incompatible/go.mod h1:9Ov578KJUmAWpS6NeZwRZyT56Uf6o3Mcz9CEsg8USYs=
 github.com/tdewolff/parse v2.3.3+incompatible h1:q6OSjvHtvBucLb34z24OH1xl5wGdw1mI9Vd38Qj9evs=
 github.com/tdewolff/parse v2.3.3+incompatible/go.mod h1:8oBwCsVmUkgHO8M5iCzSIDtpzXOT0WXX9cWhz+bIzJQ=
 github.com/tdewolff/test v0.0.0-20171106182207-265427085153 h1:B1Z2txQ2QI9nsWELeEvGBAdNhMylGMSCCypjsLJh/Mw=

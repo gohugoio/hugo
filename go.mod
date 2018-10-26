@@ -52,7 +52,7 @@ require (
 	github.com/spf13/pflag v1.0.2
 	github.com/spf13/viper v1.2.0
 	github.com/stretchr/testify v1.2.3-0.20181002232621-f2347ac6c9c9
-	github.com/tdewolff/minify v2.3.6+incompatible
+	github.com/tdewolff/minify v2.3.5+incompatible
 	github.com/tdewolff/parse v2.3.3+incompatible // indirect
 	github.com/tdewolff/test v0.0.0-20171106182207-265427085153 // indirect
 	github.com/wellington/go-libsass v0.0.0-20180624165032-615eaa47ef79 // indirect
