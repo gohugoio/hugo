@@ -107,7 +107,7 @@ twitter = "GoHugoIO"
 # Note that you can also set this per image processing.
 resampleFilter = "CatmullRom"
 
-# Defatult JPEG quality setting. Default is 75.
+# Default JPEG quality setting. Default is 75.
 quality = 75
 
 anchor = "smart"
