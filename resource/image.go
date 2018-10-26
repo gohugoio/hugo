@@ -212,6 +212,15 @@ func (i *Image) isJPEG() bool {
 	return strings.HasSuffix(name, ".jpg") || strings.HasSuffix(name, ".jpeg")
 }
 
+// Serialize image processing. The imaging library spins up its own set of Go routines,
+// so there is not much to gain from adding more load to the mix. That
+// can even have negative effect in low resource scenarios.
+// Note that this only effects the non-cached scenario. Once the processed
+// image is written to disk, everything is fast, fast fast.
+const imageProcWorkers = 1
+
+var imageProcSem = make(chan bool, imageProcWorkers)
+
 func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, conf imageConfig) (image.Image, error)) (*Image, error) {
 	conf, err := parseImageConfig(spec)
 	if err != nil {
@@ -237,6 +246,11 @@ func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, c
 	}
 
 	return i.spec.imageCache.getOrCreate(i, conf, func(resourceCacheFilename string) (*Image, error) {
+		imageProcSem <- true
+		defer func() {
+			<-imageProcSem
+		}()
+
 		ci := i.clone()
 
 		errOp := action
