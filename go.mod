@@ -44,7 +44,7 @@ require (
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95 // indirect
 	github.com/spf13/afero v1.1.2
-	github.com/spf13/cast v1.2.0
+	github.com/spf13/cast v1.3.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/fsync v0.0.0-20170320142552-12a01e648f05
 	github.com/spf13/jwalterweatherman v1.0.1-0.20181005085228-103a6da826d0
