@@ -71,6 +71,7 @@ func NewContent(
 	siteUsed := false
 
 	if archetypeFilename != "" {
+
 		var err error
 		siteUsed, err = usesSiteVar(archetypeFs, archetypeFilename)
 		if err != nil {
@@ -130,7 +131,7 @@ func newContentFromDir(
 		// Just copy the file to destination.
 		in, err := sourceFs.Open(filename)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to open non-content file")
 		}
 
 		targetFilename := filepath.Join(targetPath, strings.TrimPrefix(filename, archetypeDir))
@@ -158,11 +159,11 @@ func newContentFromDir(
 
 		content, err := executeArcheTypeAsTemplate(s, name, archetypeDir, targetFilename, filename)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to execute archetype template")
 		}
 
 		if err := helpers.SafeWriteToDisk(targetFilename, bytes.NewReader(content), targetFs); err != nil {
-			return err
+			return errors.Wrap(err, "failed to save results")
 		}
 	}
 
@@ -189,6 +190,7 @@ func mapArcheTypeDir(
 	var m archetypeMap
 
 	walkFn := func(filename string, fi os.FileInfo, err error) error {
+
 		if err != nil {
 			return err
 		}
@@ -216,7 +218,7 @@ func mapArcheTypeDir(
 	}
 
 	if err := helpers.SymbolicWalk(fs, archetypeDir, walkFn); err != nil {
-		return m, err
+		return m, errors.Wrapf(err, "failed to walk archetype dir %q", archetypeDir)
 	}
 
 	return m, nil

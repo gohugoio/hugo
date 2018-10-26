@@ -93,6 +93,9 @@ func TestNewContentFromDir(t *testing.T) {
 	archetypeDir := filepath.Join("archetypes", "my-bundle")
 	assert.NoError(fs.Source.Mkdir(archetypeDir, 0755))
 
+	archetypeThemeDir := filepath.Join("themes", "mytheme", "archetypes", "my-theme-bundle")
+	assert.NoError(fs.Source.Mkdir(archetypeThemeDir, 0755))
+
 	contentFile := `
 File: %s
 Site Lang: {{ .Site.Language.Lang  }} 	
@@ -106,6 +109,9 @@ i18n: {{ T "hugo" }}
 	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "pages", "bio.md"), []byte(fmt.Sprintf(contentFile, "bio.md")), 0755))
 	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "resources", "hugo1.json"), []byte(`hugo1: {{ printf "no template handling in here" }}`), 0755))
 	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeDir, "resources", "hugo2.xml"), []byte(`hugo2: {{ printf "no template handling in here" }}`), 0755))
+
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeThemeDir, "index.md"), []byte(fmt.Sprintf(contentFile, "index.md")), 0755))
+	assert.NoError(afero.WriteFile(fs.Source, filepath.Join(archetypeThemeDir, "resources", "hugo1.json"), []byte(`hugo1: {{ printf "no template handling in here" }}`), 0755))
 
 	h, err := hugolib.NewHugoSites(deps.DepsCfg{Cfg: cfg, Fs: fs})
 	assert.NoError(err)
@@ -122,6 +128,10 @@ i18n: {{ T "hugo" }}
 	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/index.nn.md")), `File: index.nn.md`, `Site Lang: nn`, `Name: My Post`, `i18n: Hugo Rokkar!`)
 
 	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-post/pages/bio.md")), `File: bio.md`, `Site Lang: en`, `Name: My Post`)
+
+	assert.NoError(create.NewContent(h, "my-theme-bundle", "post/my-theme-post"))
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-theme-post/index.md")), `File: index.md`, `Site Lang: en`, `Name: My Theme Post`, `i18n: Hugo Rocks!`)
+	assertContains(assert, readFileFromFs(t, fs.Source, filepath.Join("content", "post/my-theme-post/resources/hugo1.json")), `hugo1: {{ printf "no template handling in here" }}`)
 
 }
 
@@ -231,6 +241,8 @@ func readFileFromFs(t *testing.T, fs afero.Fs, filename string) string {
 func newTestCfg(assert *require.Assertions) (*viper.Viper, *hugofs.Fs) {
 
 	cfg := `
+
+theme = "mytheme"
 	
 [languages]
 [languages.en]
