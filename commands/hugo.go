@@ -27,6 +27,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/common/terminal"
 
 	"syscall"
 
@@ -264,6 +265,17 @@ func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targ
 	}
 }
 
+func isTerminal() bool {
+	return terminal.IsTerminal(os.Stdout)
+
+}
+func ifTerminal(s string) string {
+	if !isTerminal() {
+		return ""
+	}
+	return s
+}
+
 func (c *commandeer) fullBuild() error {
 	var (
 		g         errgroup.Group
@@ -271,10 +283,12 @@ func (c *commandeer) fullBuild() error {
 	)
 
 	if !c.h.quiet {
-		fmt.Print(hideCursor + "Building sites … ")
-		defer func() {
-			fmt.Print(showCursor + clearLine)
-		}()
+		fmt.Print(ifTerminal(hideCursor) + "Building sites … ")
+		if isTerminal() {
+			defer func() {
+				fmt.Print(showCursor + clearLine)
+			}()
+		}
 	}
 
 	copyStaticFunc := func() error {
