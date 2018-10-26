@@ -45,15 +45,16 @@ func TestNewBaseFs(t *testing.T) {
 
 	// Write some data to the themes
 	for _, theme := range themes {
-		for _, dir := range []string{"i18n", "data"} {
+		for _, dir := range []string{"i18n", "data", "archetypes", "layouts"} {
 			base := filepath.Join(workingDir, "themes", theme, dir)
+			filename := filepath.Join(base, fmt.Sprintf("theme-file-%s.txt", theme))
 			fs.Source.Mkdir(base, 0755)
-			afero.WriteFile(fs.Source, filepath.Join(base, fmt.Sprintf("theme-file-%s-%s.txt", theme, dir)), []byte(fmt.Sprintf("content:%s:%s", theme, dir)), 0755)
+			afero.WriteFile(fs.Source, filename, []byte(fmt.Sprintf("content:%s:%s", theme, dir)), 0755)
 		}
 		// Write some files to the root of the theme
 		base := filepath.Join(workingDir, "themes", theme)
 		afero.WriteFile(fs.Source, filepath.Join(base, fmt.Sprintf("theme-root-%s.txt", theme)), []byte(fmt.Sprintf("content:%s", theme)), 0755)
-		afero.WriteFile(fs.Source, filepath.Join(base, "file-root.txt"), []byte(fmt.Sprintf("content:%s", theme)), 0755)
+		afero.WriteFile(fs.Source, filepath.Join(base, "file-theme-root.txt"), []byte(fmt.Sprintf("content:%s", theme)), 0755)
 	}
 
 	afero.WriteFile(fs.Source, filepath.Join(workingDir, "file-root.txt"), []byte("content-project"), 0755)
@@ -102,13 +103,13 @@ theme = ["atheme"]
 
 	checkFileCount(bfs.Content.Fs, "", assert, 3)
 	checkFileCount(bfs.I18n.Fs, "", assert, 6) // 4 + 2 themes
-	checkFileCount(bfs.Layouts.Fs, "", assert, 5)
+	checkFileCount(bfs.Layouts.Fs, "", assert, 7)
 	checkFileCount(bfs.Static[""].Fs, "", assert, 6)
-	checkFileCount(bfs.Data.Fs, "", assert, 9) // 7 + 2 themes
-	checkFileCount(bfs.Archetypes.Fs, "", assert, 8)
+	checkFileCount(bfs.Data.Fs, "", assert, 9)        // 7 + 2 themes
+	checkFileCount(bfs.Archetypes.Fs, "", assert, 10) // 8 + 2 themes
 	checkFileCount(bfs.Assets.Fs, "", assert, 9)
 	checkFileCount(bfs.Resources.Fs, "", assert, 10)
-	checkFileCount(bfs.Work.Fs, "", assert, 69)
+	checkFileCount(bfs.Work.Fs, "", assert, 78)
 
 	assert.Equal([]string{filepath.FromSlash("/my/work/mydata"), filepath.FromSlash("/my/work/themes/btheme/data"), filepath.FromSlash("/my/work/themes/atheme/data")}, bfs.Data.Dirnames)
 
@@ -127,6 +128,18 @@ theme = ["atheme"]
 	checkFileContent(bfs.Work.Fs, "file-root.txt", assert, "content-project")
 	checkFileContent(bfs.Work.Fs, "theme-root-atheme.txt", assert, "content:atheme")
 
+	// https://github.com/gohugoio/hugo/issues/5318
+	// Check both project and theme.
+	for _, fs := range []afero.Fs{bfs.Archetypes.Fs, bfs.Layouts.Fs} {
+		for _, filename := range []string{"/file1.txt", "/theme-file-atheme.txt"} {
+			filename = filepath.FromSlash(filename)
+			f, err := fs.Open(filename)
+			assert.NoError(err)
+			name := f.Name()
+			f.Close()
+			assert.Equal(filename, name)
+		}
+	}
 }
 
 func createConfig() *viper.Viper {
@@ -344,6 +357,7 @@ func setConfigAndWriteSomeFilesTo(fs afero.Fs, v *viper.Viper, key, val string, 
 	v.Set(key, val)
 	fs.Mkdir(val, 0755)
 	for i := 0; i < num; i++ {
-		afero.WriteFile(fs, filepath.Join(workingDir, val, fmt.Sprintf("file%d.txt", i+1)), []byte(fmt.Sprintf("content:%s:%d", key, i+1)), 0755)
+		filename := filepath.Join(workingDir, val, fmt.Sprintf("file%d.txt", i+1))
+		afero.WriteFile(fs, filename, []byte(fmt.Sprintf("content:%s:%d", key, i+1)), 0755)
 	}
 }

@@ -433,6 +433,9 @@ func (b *sourceFilesystemsBuilder) createFs(
 	}
 
 	if b.hasTheme {
+		if !strings.HasPrefix(themeFolder, filePathSeparator) {
+			themeFolder = filePathSeparator + themeFolder
+		}
 		themeFolderFs := newRealBase(afero.NewBasePathFs(b.themeFs, themeFolder))
 		if fs == nil {
 			fs = themeFolderFs
