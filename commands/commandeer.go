@@ -227,6 +227,11 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		c.DepsCfg = &deps.DepsCfg{}
 	}
 
+	if c.logger != nil {
+		// Truncate the error log if this is a reload.
+		c.logger.Reset()
+	}
+
 	cfg := c.DepsCfg
 	c.configured = false
 	cfg.Running = running
