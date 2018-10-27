@@ -231,6 +231,9 @@ func (r *transformedResource) Content() (interface{}, error) {
 }
 
 func (r *transformedResource) Data() interface{} {
+	if err := r.initTransform(false); err != nil {
+		return noData
+	}
 	return r.MetaData
 }
 
