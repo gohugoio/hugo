@@ -27,12 +27,55 @@ import (
 	"github.com/spf13/afero"
 )
 
-var fileErrorFormat = "\"%s:%d:%d\": %s"
+var fileErrorFormatFunc func(e ErrorContext) string
+
+func createFileLogFormatter(formatStr string) func(e ErrorContext) string {
+
+	if formatStr == "" {
+		formatStr = "\":file::line::col\""
+	}
+
+	var identifiers = []string{":file", ":line", ":col"}
+	var identifiersFound []string
+
+	for i := range formatStr {
+		for _, id := range identifiers {
+			if strings.HasPrefix(formatStr[i:], id) {
+				identifiersFound = append(identifiersFound, id)
+			}
+		}
+	}
+
+	replacer := strings.NewReplacer(":file", "%s", ":line", "%d", ":col", "%d")
+	format := replacer.Replace(formatStr)
+
+	f := func(e ErrorContext) string {
+		args := make([]interface{}, len(identifiersFound))
+		for i, id := range identifiersFound {
+			switch id {
+			case ":file":
+				args[i] = e.Filename
+			case ":line":
+				args[i] = e.LineNumber
+			case ":col":
+				args[i] = e.ColumnNumber
+			}
+		}
+
+		msg := fmt.Sprintf(format, args...)
+
+		if terminal.IsTerminal(os.Stdout) {
+			return terminal.Notice(msg)
+		}
+
+		return msg
+	}
+
+	return f
+}
 
 func init() {
-	if terminal.IsTerminal(os.Stdout) {
-		fileErrorFormat = terminal.Notice("\"%s:%d:%d\"") + ": %s"
-	}
+	fileErrorFormatFunc = createFileLogFormatter(os.Getenv("HUGO_FILE_LOG_FORMAT"))
 }
 
 // LineMatcher contains the elements used to match an error to a line
@@ -85,7 +128,7 @@ type ErrorWithFileContext struct {
 }
 
 func (e *ErrorWithFileContext) Error() string {
-	return fmt.Sprintf(fileErrorFormat, e.Filename, e.LineNumber, e.ColumnNumber, e.cause.Error())
+	return fileErrorFormatFunc(e.ErrorContext) + ": " + e.cause.Error()
 }
 
 func (e *ErrorWithFileContext) Cause() error {
