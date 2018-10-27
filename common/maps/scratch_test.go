@@ -96,6 +96,20 @@ func TestScratchAddTypedSliceToInterfaceSlice(t *testing.T) {
 
 }
 
+// https://github.com/gohugoio/hugo/issues/5361
+func TestScratchAddDifferentTypedSliceToInterfaceSlice(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	scratch := NewScratch()
+	scratch.Set("slice", []string{"foo"})
+
+	_, err := scratch.Add("slice", []int{1, 2})
+	assert.NoError(err)
+	assert.Equal([]interface{}{"foo", 1, 2}, scratch.Get("slice"))
+
+}
+
 func TestScratchSet(t *testing.T) {
 	t.Parallel()
 	assert := require.New(t)
