@@ -48,6 +48,10 @@ func Append(to interface{}, from ...interface{}) (interface{}, error) {
 				// If we get []string []string, we append the from slice to to
 				if tot == fromt {
 					return reflect.AppendSlice(tov, fromv).Interface(), nil
+				} else if !fromt.AssignableTo(tot) {
+					// Fall back to a []interface{} slice.
+					return appendToInterfaceSliceFromValues(tov, fromv)
+
 				}
 			}
 		}
@@ -60,12 +64,39 @@ func Append(to interface{}, from ...interface{}) (interface{}, error) {
 	for _, f := range from {
 		fv := reflect.ValueOf(f)
 		if !fv.Type().AssignableTo(tot) {
-			return nil, fmt.Errorf("append element type mismatch: expected %v, got %v", tot, fv.Type())
+			// Fall back to a []interface{} slice.
+			return appendToInterfaceSlice(tov, from...)
 		}
 		tov = reflect.Append(tov, fv)
 	}
 
 	return tov.Interface(), nil
+}
+
+func appendToInterfaceSliceFromValues(slice1, slice2 reflect.Value) ([]interface{}, error) {
+	var tos []interface{}
+
+	for _, slice := range []reflect.Value{slice1, slice2} {
+		for i := 0; i < slice.Len(); i++ {
+			tos = append(tos, slice.Index(i).Interface())
+		}
+	}
+
+	return tos, nil
+}
+
+func appendToInterfaceSlice(tov reflect.Value, from ...interface{}) ([]interface{}, error) {
+	var tos []interface{}
+
+	for i := 0; i < tov.Len(); i++ {
+		tos = append(tos, tov.Index(i).Interface())
+	}
+
+	for _, v := range from {
+		tos = append(tos, v)
+	}
+
+	return tos, nil
 }
 
 // indirect is borrowed from the Go stdlib: 'text/template/exec.go'
