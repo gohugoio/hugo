@@ -21,6 +21,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestCreateFileLogFormatter(t *testing.T) {
+	assert := require.New(t)
+
+	ctx := ErrorContext{Filename: "/my/file.txt", LineNumber: 12, ColumnNumber: 13}
+
+	assert.Equal("/my/file.txt|13|12", createFileLogFormatter(":file|:col|:line")(ctx))
+	assert.Equal("13|/my/file.txt|12", createFileLogFormatter(":col|:file|:line")(ctx))
+	assert.Equal("好:13", createFileLogFormatter("好::col")(ctx))
+	assert.Equal("\"/my/file.txt:12:13\"", createFileLogFormatter("")(ctx))
+
+}
+
 func TestErrorLocator(t *testing.T) {
 	assert := require.New(t)
 
