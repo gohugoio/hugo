@@ -128,6 +128,12 @@ You can checkout a specific version as follows:
 git checkout tags/<version-name>
 ```
 
+You can update a theme to the latest version by executing the following command in the *root* directory of your project:
+
+```
+git submodule update --rebase --remote
+```
+
 ## Next Steps
 
 You now have a live website served over https, distributed through CDN, and configured for continuous deployment. Dig deeper into the Netlify documentation:
