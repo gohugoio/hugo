@@ -52,9 +52,8 @@ require (
 	github.com/spf13/pflag v1.0.2
 	github.com/spf13/viper v1.2.0
 	github.com/stretchr/testify v1.2.3-0.20181002232621-f2347ac6c9c9
-	github.com/tdewolff/minify v2.3.5+incompatible
+	github.com/tdewolff/minify v2.3.6+incompatible
 	github.com/tdewolff/parse v2.3.3+incompatible // indirect
-	github.com/tdewolff/test v0.0.0-20171106182207-265427085153 // indirect
 	github.com/wellington/go-libsass v0.0.0-20180624165032-615eaa47ef79 // indirect
 	github.com/yosssi/ace v0.0.5
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
@@ -67,5 +66,7 @@ require (
 )
 
 exclude github.com/chaseadamsio/goorgeous v2.0.0+incompatible
+
+replace github.com/tdewolff/parse => github.com/tdewolff/parse v0.0.0-20181024085210-fced451e0bed
 
 replace github.com/markbates/inflect => github.com/markbates/inflect v0.0.0-20171215194931-a12c3aec81a6
