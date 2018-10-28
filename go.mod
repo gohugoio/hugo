@@ -47,7 +47,7 @@ require (
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/fsync v0.0.0-20170320142552-12a01e648f05
-	github.com/spf13/jwalterweatherman v1.0.1-0.20181005085228-103a6da826d0
+	github.com/spf13/jwalterweatherman v1.0.1-0.20181028145347-94f6ae3ed3bc
 	github.com/spf13/nitro v0.0.0-20131003134307-24d7ef30a12d
 	github.com/spf13/pflag v1.0.2
 	github.com/spf13/viper v1.2.0

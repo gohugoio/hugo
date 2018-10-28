@@ -113,6 +113,8 @@ github.com/spf13/jwalterweatherman v1.0.0 h1:XHEdyB+EcvlqZamSM4ZOMGlc93t6AcsBEu9
 github.com/spf13/jwalterweatherman v1.0.0/go.mod h1:cQK4TGJAtQXfYWX+Ddv3mKDzgVb68N+wFjFa4jdeBTo=
 github.com/spf13/jwalterweatherman v1.0.1-0.20181005085228-103a6da826d0 h1:kPJPXmEs6V1YyXfHFbp1NCpdqhvFVssh2FGx7+OoJLM=
 github.com/spf13/jwalterweatherman v1.0.1-0.20181005085228-103a6da826d0/go.mod h1:aNWZUN0dPAAO/Ljvb5BEdw96iTZ0EXowPYD95IqWIGo=
+github.com/spf13/jwalterweatherman v1.0.1-0.20181028145347-94f6ae3ed3bc h1:IwxheNsBTTVRE87d8rhsO9BA4JU35tFxUNZzcFR7gdc=
+github.com/spf13/jwalterweatherman v1.0.1-0.20181028145347-94f6ae3ed3bc/go.mod h1:aNWZUN0dPAAO/Ljvb5BEdw96iTZ0EXowPYD95IqWIGo=
 github.com/spf13/nitro v0.0.0-20131003134307-24d7ef30a12d h1:ihvj2nmx8eqWjlgNgdW6h0DyGJuq5GiwHadJkG0wXtQ=
 github.com/spf13/nitro v0.0.0-20131003134307-24d7ef30a12d/go.mod h1:jU8A+8xL+6n1OX4XaZtCj4B3mIa64tULUsD6YegdpFo=
 github.com/spf13/pflag v1.0.2 h1:Fy0orTDgHdbnzHcsOgfCN4LtHf0ec3wwtiwJqwvf3Gc=

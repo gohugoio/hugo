@@ -162,10 +162,7 @@ func (c *commandeer) createLogger(cfg config.Provider, running bool) (*loggers.L
 		}
 	}
 
-	// The global logger is used in some few cases.
-	jww.SetLogOutput(logHandle)
-	jww.SetLogThreshold(logThreshold)
-	jww.SetStdoutThreshold(stdoutThreshold)
+	loggers.InitGlobalLogger(stdoutThreshold, logThreshold, outHandle, logHandle)
 	helpers.InitLoggers()
 
 	return loggers.NewLogger(stdoutThreshold, logThreshold, outHandle, logHandle, running), nil

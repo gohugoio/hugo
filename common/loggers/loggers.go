@@ -115,9 +115,19 @@ func (a labelColorizer) Write(p []byte) (n int, err error) {
 
 }
 
-func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle io.Writer, saveErrors bool) *Logger {
+// InitGlobalLogger initalizes the global logger, used in some rare cases.
+func InitGlobalLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle io.Writer) {
+	outHandle, logHandle = getLogWriters(outHandle, logHandle)
+
+	jww.SetStdoutOutput(outHandle)
+	jww.SetLogOutput(logHandle)
+	jww.SetLogThreshold(logThreshold)
+	jww.SetStdoutThreshold(stdoutThreshold)
+
+}
+
+func getLogWriters(outHandle, logHandle io.Writer) (io.Writer, io.Writer) {
 	isTerm := terminal.IsTerminal(os.Stdout)
-	errorCounter := &jww.Counter{}
 	if logHandle != ioutil.Discard && isTerm {
 		// Remove any Ansi coloring from log output
 		logHandle = ansiCleaner{w: logHandle}
@@ -126,6 +136,14 @@ func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle
 	if isTerm {
 		outHandle = labelColorizer{w: outHandle}
 	}
+
+	return outHandle, logHandle
+
+}
+
+func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle io.Writer, saveErrors bool) *Logger {
+	errorCounter := &jww.Counter{}
+	outHandle, logHandle = getLogWriters(outHandle, logHandle)
 
 	listeners := []jww.LogListener{jww.LogCounter(errorCounter, jww.LevelError)}
 	var errorBuff *bytes.Buffer
