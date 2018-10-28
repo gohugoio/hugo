@@ -19,7 +19,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var (
@@ -62,7 +61,7 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 
 	defaultT, err := bndl.Tfunc(defaultContentLanguage)
 	if err != nil {
-		jww.WARN.Printf("No translation bundle found for default language %q", defaultContentLanguage)
+		t.logger.WARN.Printf("No translation bundle found for default language %q", defaultContentLanguage)
 	}
 
 	enableMissingTranslationPlaceholders := t.cfg.GetBool("enableMissingTranslationPlaceholders")
@@ -72,7 +71,7 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 		t.translateFuncs[currentLang] = func(translationID string, args ...interface{}) string {
 			tFunc, err := bndl.Tfunc(currentLang)
 			if err != nil {
-				jww.WARN.Printf("could not load translations for language %q (%s), will use default content language.\n", lang, err)
+				t.logger.WARN.Printf("could not load translations for language %q (%s), will use default content language.\n", lang, err)
 			}
 
 			translated := tFunc(translationID, args...)
