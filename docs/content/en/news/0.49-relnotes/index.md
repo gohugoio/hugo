@@ -1,8 +1,8 @@
 
 ---
 date: 2018-09-24
-title: "0.49"
-description: "0.49"
+title: "Hugo 0.49: Directory Based Archetypes"
+description: "Hugo 0.49 brings archetype bundle support and collection goodness."
 categories: ["Releases"]
 ---
 

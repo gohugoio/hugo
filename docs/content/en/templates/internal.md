@@ -50,6 +50,8 @@ You can then include the Google Analytics internal template:
 {{ template "_internal/google_analytics_async.html" . }}
 ```
 
+A `.Site.GoogleAnalytics` variable is also exposed from the config.
+
 ## Disqus
 
 Hugo also ships with an internal template for [Disqus comments][disqus], a popular commenting system for both static and dynamic websites. In order to effectively use Disqus, you will need to secure a Disqus "shortname" by [signing up for the free service][disqussignup].
@@ -75,6 +77,8 @@ To add Disqus, include the following line in templates where you want your comme
 ```
 {{ template "_internal/disqus.html" . }}
 ```
+
+A `.Site.DisqusShortname` variable is also exposed from the config.
 
 ### Conditional Loading of Disqus Comments
 
@@ -108,6 +112,85 @@ You can then render your custom Disqus partial template as follows:
 
 ```
 {{ partial "disqus.html" . }}
+```
+
+## Open Graph
+An internal template for the [Open Graph protocol](http://ogp.me/), metadata that enables a page to become a rich object in a social graph.
+This format is used for Facebook and some other sites.
+
+### Configure Open Graph
+
+Hugo's Open Graph template is configured using a mix of configuration variables and [front-matter](/content-management/front-matter/) on individual pages.
+
+{{< code-toggle file="config" >}}
+[params]
+  title = "My cool site"
+  images = ["site-feature-image.jpg"]
+  description = "Text about my cool site"
+[taxonomies]
+  series = "series"
+{{</ code-toggle >}}
+
+{{< code-toggle file="content/blog/my-post" >}}
+title = "Post title"
+description = "Text about this post"
+date = "2006-01-02"
+images = ["post-cover.png"]
+audio = []
+video = []
+series = []
+tags = []
+{{</ code-toggle >}}
+
+Hugo uses the page title and description for the title and description metadata.
+The first 6 URLs from the `images` array are used for image metadata.
+
+Various optional metadata can also be set:
+- Date, published date, and last modified data are used to set the published time metadata if specified.
+- `audio` and `video` are URL arrays like `images` for the audio and video metadata tags, respectively.
+- The first 6 `tags` on the page are used for the tags metadata.
+- The `series` taxonomy is used to specify related "see also" pages by placing them in the same series.
+
+### Use the Open Graph Template
+
+To add Open Graph metadata, include the following line between the `<head>` tags in your templates:
+
+```
+{{ template "_internal/opengraph.html" . }}
+```
+
+## Twitter Cards
+An internal template for [Twitter Cards](https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/abouts-cards),
+metadata used to attach rich media to Tweets linking to your site.
+
+### Configure Twitter Cards
+
+Hugo's Twitter Card template is configured using a mix of configuration variables and [front-matter](/content-management/front-matter/) on individual pages.
+
+{{< code-toggle file="config" >}}
+[params]
+  images = ["site-feature-image.jpg"]
+  description = "Text about my cool site"
+{{</ code-toggle >}}
+
+{{< code-toggle file="content/blog/my-post" >}}
+title = "Post title"
+description = "Text about this post"
+images = ["post-cover.png"]
+{{</ code-toggle >}}
+
+If `images` aren't specified in the page front-matter, then hugo searches for [image page resources](/content-management/image-processing/) with `feature`, `cover`, or `thumbnail` in their name.
+If no image resources with those names are found, the images defined in the [site config](getting-started/configuration/) are used instead.
+If no images are found at all, then an image-less Twitter `summary` card is used instead of `summary_large_image`.
+
+Hugo uses the page title and description for the card's title and description fields. The page summary is used if no description is given.
+
+### Use the Twitter Cards Template
+
+To add Twitter card metadata, include the following line between the `<head>` tags in your templates:
+
+```
+{{ template "_internal/twitter_cards.html" . }}
 ```
 
 ## The Internal Templates
