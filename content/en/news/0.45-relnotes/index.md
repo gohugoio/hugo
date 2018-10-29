@@ -39,7 +39,7 @@ You can also use the `..` to refer to a page one level up etc.:
 We have now also added language support to `ref` and `relref`, so you can link to a page in another language:
 
 ```go-html-template
-{{</* relref path="document.md" lang="jp" */>}}
+{{</* relref path="document.md" lang="ja" */>}}
 ```
 
 To link to a given Output Format of a document, you can use this syntax:

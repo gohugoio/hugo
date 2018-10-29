@@ -42,7 +42,7 @@ You will get an error if you document could not be uniquely resolved. The error 
 Link to another language version of a document, you need to use this syntax:
 
 ```go-html-template
-{{</* relref path="document.md" lang="jp" */>}}
+{{</* relref path="document.md" lang="ja" */>}}
 ```
 
 ### Get another Output Format

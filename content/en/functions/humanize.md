@@ -14,7 +14,7 @@ keywords: [strings,casing]
 signature: ["humanize INPUT"]
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [anchorize]
 deprecated: false
 aliases: []
 ---
@@ -28,4 +28,3 @@ If the input is either an int64 value or the string representation of an integer
 {{humanize "52"}} → "52nd"
 {{humanize 103}} → "103rd"
 ```
-

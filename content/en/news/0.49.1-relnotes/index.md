@@ -1,17 +1,15 @@
 
 ---
 date: 2018-10-10
-title: "0.49.1"
-description: "0.49.1"
+title: "Hugo 0.49.1: Bug Fix"
+description: "This release fixes an issue where resources.Concat would sometimes fail."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
 
 ---
 
-	
-
-This is a bug-fix release with a 2 related fixed. This was introduced in Hugo 0.49. The most notable error situation was that `resources.Concat` could fail in some situations.
+This is a bug-fix release with 2 related fixes. This was introduced in Hugo 0.49. The most notable error situation was that `resources.Concat` could fail in some situations.
 
 
 * Fix handling of different interface types in Slice [e2201ef1](https://github.com/gohugoio/hugo/commit/e2201ef15fdefe257ad284b2df4ccc8f8c38fac2) [@bep](https://github.com/bep) [#5269](https://github.com/gohugoio/hugo/issues/5269)

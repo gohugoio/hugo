@@ -151,7 +151,7 @@ You can configure an `imaging` section in `config.toml` with default image proce
 # See https://github.com/disintegration/imaging
 resampleFilter = "box"
 
-# Defatult JPEG quality setting. Default is 75.
+# Default JPEG quality setting. Default is 75.
 quality = 75
 
 # Anchor used when cropping pictures.
