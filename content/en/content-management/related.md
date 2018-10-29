@@ -42,14 +42,14 @@ Here is the list of "Related" methods available on a page collection such `.Regu
 Returns a collection of pages related the given one.
 
 ```
-{{ $related := .RegularPages.Related . }}
+{{ $related := .Site.RegularPages.Related . }}
 ```
 
 #### .RelatedIndices PAGE INDICE1 [INDICE2 ...]
 Returns a collection of pages related to a given one restricted to a list of indices.
 
 ```
-{{ $related := .RegularPages.RelatedIndices . "tags" "date" }}
+{{ $related := .Site.RegularPages.RelatedIndices . "tags" "date" }}
 ```
 
 #### .RelatedTo KEYVALS [KEYVALS2 ...]
@@ -58,7 +58,7 @@ Returns a collection of pages related together by a set of indices and their mat
 In order to build those set and pass them as argument, one must use the `keyVals` function where the first agrument would be the `indice` and the consective ones its potential `matches`.
 
 ```
-{{ $related := .RegularPages.RelatedTo ( keyVals "tags" "hugo" "rocks")  ( keyVals "date" .Date ) }}
+{{ $related := .Site.RegularPages.RelatedTo ( keyVals "tags" "hugo" "rocks")  ( keyVals "date" .Date ) }}
 ```
 
 {{% note %}}

@@ -17,7 +17,7 @@ menu:
 ## Properties
 
 ResourceType
-: The main type of the resource. For example, a file of MIME type `image/jpg` has for ResourceType `image`.
+: The main type of the resource. For example, a file of MIME type `image/jpg` has the ResourceType `image`.
 
 Name
 : Default value is the filename (relative to the owning page). Can be set in front matter.
@@ -30,6 +30,21 @@ Permalink
 
 RelPermalink
 : The relative URL to the resource. Resources of type `page` will have no value.
+
+Content
+: The content of the resource itself. For most resources, this returns a string with the contents of the file. This can be used to inline some resources, such as `<script>{{ (.Resources.GetMatch "myscript.js").Content | safeJS }}</script>` or `<img src="{{ (.Resources.GetMatch "mylogo.png").Content | base64Encode }}">`.
+
+MediaType
+: The MIME type of the resource, such as `image/jpg`.
+
+MediaType.MainType
+: The main type of the resource's MIME type. For example, a file of MIME type `application/pdf` has for MainType `application`.
+
+MediaType.SubType
+: The subtype of the resource's MIME type. For example, a file of MIME type `application/pdf` has for SubType `pdf`. Note that this is not the same as the file extension - PowerPoint files have a subtype of `vnd.mspowerpoint`.
+
+MediaType.Suffixes
+: A slice of possible suffixes for the resource's MIME type.
 
 ## Methods
 ByType

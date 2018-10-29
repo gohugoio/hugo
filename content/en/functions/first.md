@@ -25,3 +25,5 @@ aliases: []
     {{ .Render "summary" }}
 {{ end }}
 ```
+
+*Note: Exclusive to `first`, LIMIT can be '0' to return an empty array.*

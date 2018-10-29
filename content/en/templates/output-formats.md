@@ -143,7 +143,7 @@ This can be changed by defining an `outputs` list of output formats in either
 the `Page` front matter or in the site configuration (either for all sites or
 per language).
 
-Example from site config file`:
+Example from site config file:
 
 {{< code-toggle file="config" >}}
 [outputs]

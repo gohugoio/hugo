@@ -34,6 +34,14 @@ Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, H
 
 To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization][]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}` depending on the type of parameters you choose.
 
+You can organize your shortcodes in subfolders, e.g. in `layouts/shortcodes/boxes`. These shortcodes would then be accessible with their relative path, e.g:
+
+```
+{{< boxes/square >}}
+```
+
+Note the forward slash.
+
 ### Shortcode Template Lookup Order
 
 Shortcode templates have a simple [lookup order][]:
@@ -69,6 +77,12 @@ To access a parameter by position, use the `.Get` followed by a numeric position
 
 ```
 {{ .Get 0 }}
+```
+
+For the second position, you would just use: 
+
+```
+{{ .Get 1 }}
 ```
 
 `with` is great when the output depends on a parameter being set:

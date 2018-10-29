@@ -86,10 +86,10 @@ mkdir $HOME/src
 cd $HOME/src
 git clone https://github.com/gohugoio/hugo.git
 cd hugo
-go install
+go install --tags extended
 {{< /code >}}
 
-Remove `HUGO_BUILD_TAGS=extended` if you do not want Sass/SCSS support.
+Remove `--tags extended` if you do not want/need Sass/SCSS support.
 
 {{% note %}}
 If you are a Windows user, substitute the `$HOME` environment variable above with `%USERPROFILE%`.

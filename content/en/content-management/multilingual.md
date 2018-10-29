@@ -29,6 +29,7 @@ The following is an example of a site configuration for a multilingual Hugo proj
 DefaultContentLanguage = "en"
 copyright = "Everything is mine"
 
+[params]
 [params.navigation]
 help  = "Help"
 
@@ -48,8 +49,7 @@ linkedin = "https://linkedin.com/fr/whoever"
 help  = "Aide"
 {{< /code-toggle >}}
 
-Anything not defined in a `[languages]` block will fall back to the global
-value for that key (e.g., `copyright` for the English [`en`] language).
+Anything not defined in a `[languages]` block will fall back to the global value for that key (e.g., `copyright` for the English [`en`] language). This also works for `params`, as demonstrated witgh `help` above: You will get the value `Aide` in French and `Help` in all the languages without this parameter set.
 
 With the configuration above, all content, sitemap, RSS feeds, paginations,
 and taxonomy pages will be rendered below `/` in English (your default content language) and then below `/fr` in French.
@@ -67,7 +67,7 @@ Only the obvious non-global options can be overridden per language. Examples of 
 You can disable one or more languages. This can be useful when working on a new translation.
 
 ```toml
-disableLanguages = ["fr", "jp"]
+disableLanguages = ["fr", "ja"]
 ```
 
 Note that you cannot disable the default content language.
@@ -75,7 +75,7 @@ Note that you cannot disable the default content language.
 We kept this as a standalone setting to make it easier to set via [OS environment](/getting-started/configuration/#configure-with-environment-variables):
 
 ```bash
-HUGO_DISABLELANGUAGES="fr jp" hugo
+HUGO_DISABLELANGUAGES="fr ja" hugo
 ```
 If you have already a list of disabled languages in `config.toml`, you can enable them in development like this:
 

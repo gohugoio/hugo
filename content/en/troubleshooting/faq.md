@@ -17,6 +17,10 @@ aliases: [/faq/]
 **Note:** The answers/solutions presented below are short, and may not be note be enough to solve your problem. Visit [Hugo Discourse](https://discourse.gohugo.io/) and use the search. It that does not help, start a new topic and ask your questions.
 {{% /note %}}
 
+## I can't see my content!
+
+Is your markdown file [in draft mode](https://gohugo.io/content-management/front-matter/#front-matter-variables)? When testing, run `hugo server` with the `-D` or `--buildDrafts` [switch](https://gohugo.io/getting-started/usage/#draft-future-and-expired-content). 
+
 ## Can I set configuration variables via OS environment?
 
 Yes you can! See [Configure with Environment Variables](/getting-started/configuration/#configure-with-environment-variables).
