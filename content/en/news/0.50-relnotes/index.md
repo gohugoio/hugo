@@ -34,7 +34,7 @@ Hugo now has:
 ## Notes
 
 * You should not get stale content in Fast Render Mode anymore.
-* Errors will no show up in the browser by default, turn it off by running `hugo server --disableBrowserError`
+* Errors will now show up in the browser by default, turn it off by running `hugo server --disableBrowserError`
 * `jsonify` will now produce pretty/indented output
 
 ## Enhancements
