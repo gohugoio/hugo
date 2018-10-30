@@ -27,7 +27,9 @@ import (
 )
 
 var (
-	internalSummaryDivider = []byte("HUGOMORE42")
+	internalSummaryDividerBase      = "HUGOMORE42"
+	internalSummaryDividerBaseBytes = []byte(internalSummaryDividerBase)
+	internalSummaryDividerPre       = []byte("\n\n" + internalSummaryDividerBase + "\n\n")
 )
 
 // The content related items on a Page.
@@ -111,7 +113,7 @@ Loop:
 			}
 
 		case it.Type == pageparser.TypeLeadSummaryDivider:
-			result.Write(internalSummaryDivider)
+			result.Write(internalSummaryDividerPre)
 			p.source.hasSummaryDivider = true
 			// Need to determine if the page is truncated.
 			f := func(item pageparser.Item) bool {

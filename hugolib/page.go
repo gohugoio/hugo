@@ -730,56 +730,48 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryCont
 		}
 	}()
 
-	c = bytes.TrimSpace(c)
-	startDivider := bytes.Index(c, internalSummaryDivider)
+	startDivider := bytes.Index(c, internalSummaryDividerBaseBytes)
 
 	if startDivider == -1 {
 		return
 	}
 
-	endDivider := startDivider + len(internalSummaryDivider)
-	endSummary := startDivider
+	startTag := "p"
+	switch markup {
+	case "asciidoc":
+		startTag = "div"
 
-	var (
-		startMarkup []byte
-		endMarkup   []byte
-		addDiv      bool
-	)
+	}
+
+	// Walk back and forward to the surrounding tags.
+	start := bytes.LastIndex(c[:startDivider], []byte("<"+startTag))
+	end := bytes.Index(c[startDivider:], []byte("</"+startTag))
+
+	if start == -1 {
+		start = startDivider
+	} else {
+		start = startDivider - (startDivider - start)
+	}
+
+	if end == -1 {
+		end = startDivider + len(internalSummaryDividerBase)
+	} else {
+		end = startDivider + end + len(startTag) + 3
+	}
+
+	var addDiv bool
 
 	switch markup {
-	default:
-		startMarkup = []byte("<p>")
-		endMarkup = []byte("</p>")
-	case "asciidoc":
-		startMarkup = []byte("<div class=\"paragraph\">")
-		endMarkup = []byte("</div>")
 	case "rst":
-		startMarkup = []byte("<p>")
-		endMarkup = []byte("</p>")
 		addDiv = true
 	}
 
-	// Find the closest end/start markup string to the divider
-	fromStart := -1
-	fromIdx := bytes.LastIndex(c[:startDivider], startMarkup)
-	if fromIdx != -1 {
-		fromStart = startDivider - fromIdx - len(startMarkup)
-	}
-	fromEnd := bytes.Index(c[endDivider:], endMarkup)
+	withoutDivider := append(c[:start], bytes.Trim(c[end:], "\n")...)
 
-	if fromEnd != -1 && fromEnd <= fromStart {
-		endSummary = startDivider + fromEnd + len(endMarkup)
-	} else if fromStart != -1 && fromEnd != -1 {
-		endSummary = startDivider - fromStart - len(startMarkup)
-	}
-
-	withoutDivider := bytes.TrimSpace(append(c[:startDivider], c[endDivider:]...))
-	var (
-		summary []byte
-	)
+	var summary []byte
 
 	if len(withoutDivider) > 0 {
-		summary = bytes.TrimSpace(withoutDivider[:endSummary])
+		summary = bytes.TrimSpace(withoutDivider[:start])
 	}
 
 	if addDiv {
@@ -793,7 +785,7 @@ func splitUserDefinedSummaryAndContent(markup string, c []byte) (sc *summaryCont
 
 	sc = &summaryContent{
 		summary: summary,
-		content: withoutDivider,
+		content: bytes.TrimSpace(withoutDivider),
 	}
 
 	return

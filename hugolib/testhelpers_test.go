@@ -4,7 +4,9 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"runtime"
+	"strconv"
 	"testing"
+	"unicode/utf8"
 
 	"bytes"
 	"fmt"
@@ -698,6 +700,26 @@ func dumpPages(pages ...*Page) {
 	}
 }
 
+func printStringIndexes(s string) {
+	lines := strings.Split(s, "\n")
+	i := 0
+
+	for _, line := range lines {
+
+		for _, r := range line {
+			fmt.Printf("%-3s", strconv.Itoa(i))
+			i += utf8.RuneLen(r)
+		}
+		i++
+		fmt.Println()
+		for _, r := range line {
+			fmt.Printf("%-3s", string(r))
+		}
+		fmt.Println()
+
+	}
+
+}
 func isCI() bool {
 	return os.Getenv("CI") != ""
 }

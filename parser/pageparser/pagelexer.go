@@ -194,6 +194,16 @@ func (l *pageLexer) consumeCRLF() bool {
 	return consumed
 }
 
+func (l *pageLexer) consumeSpace() {
+	for {
+		r := l.next()
+		if r == eof || !unicode.IsSpace(r) {
+			l.backup()
+			return
+		}
+	}
+}
+
 func lexMainSection(l *pageLexer) stateFunc {
 	// Fast forward as far as possible.
 	var l1, l2 int
@@ -234,6 +244,8 @@ func lexMainSection(l *pageLexer) stateFunc {
 				}
 				l.summaryDividerChecked = true
 				l.pos += len(l.summaryDivider)
+				// This makes it a little easier to reason about later.
+				l.consumeSpace()
 				l.emit(TypeLeadSummaryDivider)
 			}
 		}

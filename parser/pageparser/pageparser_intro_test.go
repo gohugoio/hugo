@@ -37,7 +37,7 @@ var (
 	tstFrontMatterYAMLCRLF = nti(TypeFrontMatterYAML, "foo: \"bar\"\r\n")
 	tstFrontMatterJSON     = nti(TypeFrontMatterJSON, tstJSON+"\r\n")
 	tstSomeText            = nti(tText, "\nSome text.\n")
-	tstSummaryDivider      = nti(TypeLeadSummaryDivider, "<!--more-->")
+	tstSummaryDivider      = nti(TypeLeadSummaryDivider, "<!--more-->\n")
 	tstHtmlStart           = nti(TypeHTMLStart, "<")
 
 	tstORG = `
@@ -65,8 +65,9 @@ var frontMatterTests = []lexerTest{
 	{"TOML front matter", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n", []Item{tstFrontMatterTOML, tstSomeText, tstEOF}},
 	{"JSON front matter", tstJSON + "\r\n\nSome text.\n", []Item{tstFrontMatterJSON, tstSomeText, tstEOF}},
 	{"ORG front matter", tstORG + "\nSome text.\n", []Item{tstFrontMatterORG, tstSomeText, tstEOF}},
-	{"Summary divider ORG", tstORG + "\nSome text.\n# more\nSome text.\n", []Item{tstFrontMatterORG, tstSomeText, nti(TypeLeadSummaryDivider, "# more"), tstSomeText, tstEOF}},
-	{"Summary divider", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n<!--more-->\nSome text.\n", []Item{tstFrontMatterTOML, tstSomeText, tstSummaryDivider, tstSomeText, tstEOF}},
+	{"Summary divider ORG", tstORG + "\nSome text.\n# more\nSome text.\n", []Item{tstFrontMatterORG, tstSomeText, nti(TypeLeadSummaryDivider, "# more\n"), nti(tText, "Some text.\n"), tstEOF}},
+	{"Summary divider", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n<!--more-->\nSome text.\n", []Item{tstFrontMatterTOML, tstSomeText, tstSummaryDivider, nti(tText, "Some text.\n"), tstEOF}},
+	{"Summary divider same line", "+++\nfoo = \"bar\"\n+++\n\nSome text.<!--more-->Some text.\n", []Item{tstFrontMatterTOML, nti(tText, "\nSome text."), nti(TypeLeadSummaryDivider, "<!--more-->"), nti(tText, "Some text.\n"), tstEOF}},
 }
 
 func TestFrontMatter(t *testing.T) {
