@@ -655,6 +655,22 @@ func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename strin
 
 }
 
+func removeLeadingBOM(s string) string {
+	const bom = '\ufeff'
+
+	for i, r := range s {
+		if i == 0 && r != bom {
+			return s
+		}
+		if i > 0 {
+			return s[i:]
+		}
+	}
+
+	return s
+
+}
+
 func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) error {
 	t.checkState()
 
@@ -666,7 +682,8 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 		if err != nil {
 			return templateInfo{filename: filename, fs: fs}, err
 		}
-		s := string(b)
+
+		s := removeLeadingBOM(string(b))
 
 		realFilename := filename
 		if fi, err := fs.Stat(filename); err == nil {
