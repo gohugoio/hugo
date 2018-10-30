@@ -313,3 +313,33 @@ Some content.
 		}
 	}
 }
+
+// https://github.com/gohugoio/hugo/issues/5375
+func TestSiteBuildTimeout(t *testing.T) {
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", `
+timeout = 5
+`)
+
+	b.WithTemplatesAdded("_default/single.html", `
+{{ .WordCount }}
+`, "shortcodes/c.html", `
+{{ range .Page.Site.RegularPages }}
+{{ .WordCount }}
+{{ end }}
+
+`)
+
+	for i := 1; i < 100; i++ {
+		b.WithContent(fmt.Sprintf("page%d.md", i), `---
+title: "A page"
+---
+
+{{< c >}}`)
+
+	}
+
+	b.CreateSites().Build(BuildCfg{})
+
+}

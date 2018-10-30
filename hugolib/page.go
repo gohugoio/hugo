@@ -290,15 +290,22 @@ func (p *Page) initContent() {
 		defer cancel()
 		c := make(chan error, 1)
 
+		p.contentInitMu.Lock()
+		defer p.contentInitMu.Unlock()
+
 		go func() {
 			var err error
-			p.contentInitMu.Lock()
-			defer p.contentInitMu.Unlock()
 
 			err = p.prepareForRender()
 			if err != nil {
 				c <- err
 				return
+			}
+
+			select {
+			case <-ctx.Done():
+				return
+			default:
 			}
 
 			if len(p.summary) == 0 {
