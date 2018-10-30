@@ -483,6 +483,7 @@ func checkPageContent(t *testing.T, page *Page, content string, msg ...interface
 	a := normalizeContent(content)
 	b := normalizeContent(string(page.content()))
 	if a != b {
+		t.Log(trace())
 		t.Fatalf("Page content is:\n%q\nExpected:\n%q (%q)", b, a, msg)
 	}
 }
@@ -553,6 +554,7 @@ func normalizeExpected(ext, str string) string {
 			}
 			expected += fmt.Sprintf("<div class=\"paragraph\">\n%s</p></div>\n", para)
 		}
+
 		return expected
 	case "rst":
 		return fmt.Sprintf("<div class=\"document\">\n\n\n%s</div>", str)
@@ -569,7 +571,6 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 		{"md", func() bool { return true }},
 		{"mmark", func() bool { return true }},
 		{"ad", func() bool { return helpers.HasAsciidoc() }},
-		// TODO(bep) figure a way to include this without too much work.{"html", func() bool { return true }},
 		{"rst", func() bool { return helpers.HasRst() }},
 	}
 
@@ -642,57 +643,6 @@ func TestCreateNewPage(t *testing.T) {
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePage)
 }
 
-func TestSplitSummaryAndContent(t *testing.T) {
-	t.Parallel()
-	for i, this := range []struct {
-		markup          string
-		content         string
-		expectedSummary string
-		expectedContent string
-	}{
-		{"markdown", `<p>Summary Same LineHUGOMORE42</p>
-
-<p>Some more text</p>`, "<p>Summary Same Line</p>", "<p>Summary Same Line</p>\n\n<p>Some more text</p>"},
-		{"asciidoc", `<div class="paragraph"><p>sn</p></div><div class="paragraph"><p>HUGOMORE42Some more text</p></div>`,
-			"<div class=\"paragraph\"><p>sn</p></div>",
-			"<div class=\"paragraph\"><p>sn</p></div><div class=\"paragraph\"><p>Some more text</p></div>"},
-		{"rst",
-			"<div class=\"document\"><p>Summary Next Line</p><p>HUGOMORE42Some more text</p></div>",
-			"<div class=\"document\"><p>Summary Next Line</p></div>",
-			"<div class=\"document\"><p>Summary Next Line</p><p>Some more text</p></div>"},
-		{"markdown", "<p>a</p><p>b</p><p>HUGOMORE42c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>"},
-		{"markdown", "<p>a</p><p>b</p><p>cHUGOMORE42</p>", "<p>a</p><p>b</p><p>c</p>", "<p>a</p><p>b</p><p>c</p>"},
-		{"markdown", "<p>a</p><p>bHUGOMORE42</p><p>c</p>", "<p>a</p><p>b</p>", "<p>a</p><p>b</p><p>c</p>"},
-		{"markdown", "<p>aHUGOMORE42</p><p>b</p><p>c</p>", "<p>a</p>", "<p>a</p><p>b</p><p>c</p>"},
-		{"markdown", "  HUGOMORE42 ", "", ""},
-		{"markdown", "HUGOMORE42", "", ""},
-		{"markdown", "<p>HUGOMORE42", "<p>", "<p>"},
-		{"markdown", "HUGOMORE42<p>", "", "<p>"},
-		{"markdown", "\n\n<p>HUGOMORE42</p>\n", "<p></p>", "<p></p>"},
-		// Issue #2586
-		// Note: Hugo will not split mid-sentence but will look for the closest
-		// paragraph end marker. This may be a change from Hugo 0.16, but it makes sense.
-		{"markdown", `<p>this is an example HUGOMORE42of the issue.</p>`,
-			"<p>this is an example of the issue.</p>",
-			"<p>this is an example of the issue.</p>"},
-		// Issue: #2538
-		{"markdown", fmt.Sprintf(` <p class="lead">%s</p>HUGOMORE42<p>%s</p>
-`,
-			strings.Repeat("A", 10), strings.Repeat("B", 31)),
-			fmt.Sprintf(`<p class="lead">%s</p>`, strings.Repeat("A", 10)),
-			fmt.Sprintf(`<p class="lead">%s</p><p>%s</p>`, strings.Repeat("A", 10), strings.Repeat("B", 31)),
-		},
-	} {
-
-		sc, err := splitUserDefinedSummaryAndContent(this.markup, []byte(this.content))
-
-		require.NoError(t, err)
-		require.NotNil(t, sc, fmt.Sprintf("[%d] Nil %s", i, this.markup))
-		require.Equal(t, this.expectedSummary, string(sc.summary), fmt.Sprintf("[%d] Summary markup %s", i, this.markup))
-		require.Equal(t, this.expectedContent, string(sc.content), fmt.Sprintf("[%d] Content markup %s", i, this.markup))
-	}
-}
-
 func TestPageWithDelimiter(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
@@ -720,11 +670,14 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 
 	p := s.RegularPages[0]
 
-	if p.Summary() != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>") {
+	if p.Summary() != template.HTML(
+		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup></p>") {
 		t.Fatalf("Got summary:\n%q", p.Summary())
 	}
 
-	if p.content() != template.HTML("<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup>\n</p>\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>") {
+	if p.content() != template.HTML(
+		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup></p>\n\n<div class=\"footnotes\">\n\n<hr />\n\n<ol>\n<li id=\"fn:1\">Many people say so.\n <a class=\"footnote-return\" href=\"#fnref:1\"><sup>[return]</sup></a></li>\n</ol>\n</div>") {
+
 		t.Fatalf("Got content:\n%q", p.content())
 	}
 }
@@ -1544,6 +1497,70 @@ func TestChompBOM(t *testing.T) {
 	checkPageTitle(t, p, "Simple")
 }
 
+// https://github.com/gohugoio/hugo/issues/5381
+func TestPageManualSummary(t *testing.T) {
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile()
+
+	b.WithContent("page-md-shortcode.md", `---
+title: "Hugo"
+---
+This is a {{< sc >}}.
+<!--more--> 
+Content.
+`)
+
+	b.WithContent("page-md-shortcode-same-line.md", `---
+title: "Hugo"
+---
+This is a {{< sc >}}.<!--more-->Same line.
+`)
+
+	b.WithContent("page-org-shortcode.org", `#+TITLE: T1
+#+AUTHOR: A1
+#+DESCRIPTION: D1
+This is a {{< sc >}}.
+# more
+Content.	
+`)
+
+	b.WithContent("page-org-variant1.org", `#+TITLE: T1
+Summary.
+
+# more
+
+Content.	
+`)
+
+	b.WithTemplatesAdded("layouts/shortcodes/sc.html", "a shortcode")
+	b.WithTemplatesAdded("layouts/_default/single.html", `
+SUMMARY:{{ .Summary }}:END
+--------------------------
+CONTENT:{{ .Content }}
+`)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/page-md-shortcode/index.html",
+		"SUMMARY:<p>This is a a shortcode.</p>:END",
+		"CONTENT:<p>This is a a shortcode.</p>\n\n<p>Content.</p>\n",
+	)
+
+	b.AssertFileContent("public/page-md-shortcode-same-line/index.html",
+		"SUMMARY:<p>This is a a shortcode.</p>:END",
+		"CONTENT:<p>This is a a shortcode.</p>\n\n<p>Same line.</p>\n",
+	)
+
+	b.AssertFileContent("public/page-org-shortcode/index.html",
+		"SUMMARY:<p>This is a a shortcode.</p>:END",
+		"CONTENT:<p>This is a a shortcode.</p>\n\n<p>Content.\t</p>\n",
+	)
+	b.AssertFileContent("public/page-org-variant1/index.html",
+		"SUMMARY:<p>Summary.</p>:END",
+		"CONTENT:<p>Summary.</p>\n\n<p>Content.\t</p>\n",
+	)
+}
+
 // TODO(bep) this may be useful for other tests.
 func compareObjects(a interface{}, b interface{}) bool {
 	aStr := strings.Split(fmt.Sprintf("%v", a), "")
@@ -1705,6 +1722,8 @@ Len PlainWords: {{ len .PlainWords }}
 Truncated: {{ .Truncated }}
 Len Summary: {{ len .Summary }}
 Len Content: {{ len .Content }}
+
+SUMMARY:{{ .Summary }}:{{ len .Summary }}:END
 `}
 
 	b := newTestSitesBuilder(t)
@@ -1776,10 +1795,10 @@ Summary: In Chinese, 好 means good.
 
 	b.AssertFileContent("public/p1/index.html", "WordCount: 510\nFuzzyWordCount: 600\nReadingTime: 3\nLen Plain: 2550\nLen PlainWords: 510\nTruncated: false\nLen Summary: 2549\nLen Content: 2557")
 
-	b.AssertFileContent("public/p2/index.html", "WordCount: 314\nFuzzyWordCount: 400\nReadingTime: 2\nLen Plain: 1570\nLen PlainWords: 314\nTruncated: true\nLen Summary: 34\nLen Content: 1592")
+	b.AssertFileContent("public/p2/index.html", "WordCount: 314\nFuzzyWordCount: 400\nReadingTime: 2\nLen Plain: 1569\nLen PlainWords: 314\nTruncated: true\nLen Summary: 25\nLen Content: 1583")
 
-	b.AssertFileContent("public/p3/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 639\nLen PlainWords: 7\nTruncated: true\nLen Summary: 52\nLen Content: 661")
-	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 639\nLen PlainWords: 7\nTruncated: true\nLen Summary: 52\nLen Content: 661")
+	b.AssertFileContent("public/p3/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 652")
+	b.AssertFileContent("public/p4/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 43\nLen Content: 652")
 	b.AssertFileContent("public/p5/index.html", "WordCount: 206\nFuzzyWordCount: 300\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: true\nLen Summary: 229\nLen Content: 653")
 	b.AssertFileContent("public/p6/index.html", "WordCount: 7\nFuzzyWordCount: 100\nReadingTime: 1\nLen Plain: 638\nLen PlainWords: 7\nTruncated: false\nLen Summary: 637\nLen Content: 653")
 
