@@ -212,3 +212,27 @@ Some content
 
 	}
 }
+
+// https://github.com/gohugoio/hugo/issues/4895
+func TestTemplateBOM(t *testing.T) {
+
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+	bom := "\ufeff"
+
+	b.WithTemplatesAdded(
+		"_default/baseof.html", bom+`
+		Base: {{ block "main" . }}base main{{ end }}`,
+		"_default/single.html", bom+`{{ define "main" }}Hi!?{{ end }}`)
+
+	b.WithContent("page.md", `---
+title: "Page"
+---
+
+Page Content
+`)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/page/index.html", "Base: Hi!?")
+
+}
