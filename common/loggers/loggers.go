@@ -82,7 +82,7 @@ func NewErrorLogger() *Logger {
 
 var (
 	ansiColorRe = regexp.MustCompile("(?s)\\033\\[\\d*(;\\d*)*m")
-	errorRe     = regexp.MustCompile("(ERROR|FATAL|WARN)")
+	errorRe     = regexp.MustCompile("^(ERROR|FATAL|WARN)")
 )
 
 type ansiCleaner struct {
