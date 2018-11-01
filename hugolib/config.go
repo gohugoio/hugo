@@ -473,7 +473,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("hasCJKLanguage", false)
 	v.SetDefault("enableEmoji", false)
 	v.SetDefault("pygmentsCodeFencesGuessSyntax", false)
-	v.SetDefault("useModTimeAsFallback", false)
 	v.SetDefault("defaultContentLanguage", "en")
 	v.SetDefault("defaultContentLanguageInSubdir", false)
 	v.SetDefault("enableMissingTranslationPlaceholders", false)
@@ -483,19 +482,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("debug", false)
 	v.SetDefault("disableFastRender", false)
 	v.SetDefault("timeout", 10000) // 10 seconds
-
-	// Remove in Hugo 0.50
-
-	if v.GetBool("useModTimeAsFallback") {
-
-		helpers.Deprecated("Site config", "useModTimeAsFallback", `Replace with this in your config.toml:
-    
-[frontmatter]
-date = [ "date",":fileModTime", ":default"]
-lastmod = ["lastmod" ,":fileModTime", ":default"]
-`, true)
-
-	}
 
 	return nil
 }
