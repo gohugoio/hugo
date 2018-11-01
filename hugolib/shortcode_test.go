@@ -1026,3 +1026,39 @@ ordinal: 2 scratch ordinal: 3 scratch get ordinal: 2
 ordinal: 4 scratch ordinal: 5 scratch get ordinal: 4`)
 
 }
+
+func TestShortcodePosition(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	builder := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	builder.WithContent("page.md", `---
+title: "Hugo Rocks!"
+---
+
+# doc
+
+   {{< s1 >}}
+
+`).WithTemplatesAdded("layouts/shortcodes/s1.html", `
+{{ with .Position }}
+File: {{ .Filename }}
+Offset: {{ .Offset }}
+Line: {{ .LineNumber }}
+Column: {{ .ColumnNumber }}
+String: {{ . | safeHTML }}
+{{ end }}
+
+`).CreateSites().Build(BuildCfg{})
+
+	s := builder.H.Sites[0]
+	assert.Equal(1, len(s.RegularPages))
+
+	builder.AssertFileContent("public/page/index.html",
+		"File: content/page.md",
+		"Line: 7", "Column: 4", "Offset: 40",
+		"String: content/page.md:7:4",
+	)
+
+}

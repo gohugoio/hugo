@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"html/template"
 
+	"github.com/gohugoio/hugo/source"
+
 	"reflect"
 
 	"regexp"
@@ -53,7 +55,21 @@ type ShortcodeWithPage struct {
 	// this ordinal will represent the position of this shortcode in the page content.
 	Ordinal int
 
+	// pos is the position in bytes in the source file. Used for error logging.
+	posInit   sync.Once
+	posOffset int
+	pos       source.Position
+
 	scratch *maps.Scratch
+}
+
+// Position returns this shortcode's detailed position. Note that this information
+// may be expensive to calculate, so only use this in error situations.
+func (scp *ShortcodeWithPage) Position() source.Position {
+	scp.posInit.Do(func() {
+		scp.pos = scp.Page.posFromPage(scp.posOffset)
+	})
+	return scp.pos
 }
 
 // Site returns information about the current site.
@@ -313,7 +329,7 @@ func renderShortcode(
 		return "", nil
 	}
 
-	data := &ShortcodeWithPage{Ordinal: sc.ordinal, Params: sc.params, Page: p, Parent: parent}
+	data := &ShortcodeWithPage{Ordinal: sc.ordinal, posOffset: sc.pos, Params: sc.params, Page: p, Parent: parent}
 	if sc.params != nil {
 		data.IsNamedParams = reflect.TypeOf(sc.params).Kind() == reflect.Map
 	}
@@ -463,7 +479,7 @@ func (s *shortcodeHandler) executeShortcodesForDelta(p *PageWithoutContent) erro
 		if err != nil {
 			sc := s.shortcodes.getShortcode(k.(scKey).ShortcodePlaceholder)
 			if sc != nil {
-				err = p.errWithFileContext(parseError(_errors.Wrapf(err, "failed to render shortcode %q", sc.name), p.source.parsed.Input(), sc.pos))
+				err = p.errWithFileContext(p.parseError(_errors.Wrapf(err, "failed to render shortcode %q", sc.name), p.source.parsed.Input(), sc.pos))
 			}
 
 			p.s.SendError(err)
@@ -505,7 +521,7 @@ func (s *shortcodeHandler) extractShortcode(ordinal int, pt *pageparser.Iterator
 	var nestedOrdinal = 0
 
 	fail := func(err error, i pageparser.Item) error {
-		return parseError(err, pt.Input(), i.Pos)
+		return p.parseError(err, pt.Input(), i.Pos)
 	}
 
 Loop:
