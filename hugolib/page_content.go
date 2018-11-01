@@ -17,13 +17,12 @@ import (
 	"bytes"
 	"io"
 
-	"github.com/gohugoio/hugo/source"
-
 	errors "github.com/pkg/errors"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/gohugoio/hugo/parser/pageparser"
 )
@@ -206,13 +205,13 @@ func (p *Page) parseError(err error, input []byte, offset int) error {
 
 }
 
-func (p *Page) posFromInput(input []byte, offset int) source.Position {
+func (p *Page) posFromInput(input []byte, offset int) text.Position {
 	lf := []byte("\n")
 	input = input[:offset]
 	lineNumber := bytes.Count(input, lf) + 1
 	endOfLastLine := bytes.LastIndex(input, lf)
 
-	return source.Position{
+	return text.Position{
 		Filename:     p.pathOrTitle(),
 		LineNumber:   lineNumber,
 		ColumnNumber: offset - endOfLastLine,
@@ -220,6 +219,6 @@ func (p *Page) posFromInput(input []byte, offset int) source.Position {
 	}
 }
 
-func (p *Page) posFromPage(offset int) source.Position {
+func (p *Page) posFromPage(offset int) text.Position {
 	return p.posFromInput(p.source.parsed.Input(), offset)
 }

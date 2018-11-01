@@ -19,8 +19,6 @@ import (
 	"fmt"
 	"html/template"
 
-	"github.com/gohugoio/hugo/source"
-
 	"reflect"
 
 	"regexp"
@@ -34,6 +32,8 @@ import (
 	"sync"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/text"
+	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/output"
 
 	"github.com/gohugoio/hugo/media"
@@ -41,6 +41,12 @@ import (
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
+)
+
+var (
+	_ urls.RefLinker  = (*ShortcodeWithPage)(nil)
+	_ pageContainer   = (*ShortcodeWithPage)(nil)
+	_ text.Positioner = (*ShortcodeWithPage)(nil)
 )
 
 // ShortcodeWithPage is the "." context in a shortcode template.
@@ -58,14 +64,14 @@ type ShortcodeWithPage struct {
 	// pos is the position in bytes in the source file. Used for error logging.
 	posInit   sync.Once
 	posOffset int
-	pos       source.Position
+	pos       text.Position
 
 	scratch *maps.Scratch
 }
 
 // Position returns this shortcode's detailed position. Note that this information
 // may be expensive to calculate, so only use this in error situations.
-func (scp *ShortcodeWithPage) Position() source.Position {
+func (scp *ShortcodeWithPage) Position() text.Position {
 	scp.posInit.Do(func() {
 		scp.pos = scp.Page.posFromPage(scp.posOffset)
 	})
@@ -77,14 +83,16 @@ func (scp *ShortcodeWithPage) Site() *SiteInfo {
 	return scp.Page.Site
 }
 
-// Ref is a shortcut to the Ref method on Page.
+// Ref is a shortcut to the Ref method on Page. It passes itself as a context
+// to get better error messages.
 func (scp *ShortcodeWithPage) Ref(args map[string]interface{}) (string, error) {
-	return scp.Page.Ref(args)
+	return scp.Page.ref(args, scp)
 }
 
-// RelRef is a shortcut to the RelRef method on Page.
+// RelRef is a shortcut to the RelRef method on Page. It passes itself as a context
+// to get better error messages.
 func (scp *ShortcodeWithPage) RelRef(args map[string]interface{}) (string, error) {
-	return scp.Page.RelRef(args)
+	return scp.Page.relRef(args, scp)
 }
 
 // Scratch returns a scratch-pad scoped for this shortcode. This can be used
@@ -145,6 +153,10 @@ func (scp *ShortcodeWithPage) Get(key interface{}) interface{} {
 		return x
 	}
 
+}
+
+func (scp *ShortcodeWithPage) page() *Page {
+	return scp.Page.Page
 }
 
 // Note - this value must not contain any markup syntax

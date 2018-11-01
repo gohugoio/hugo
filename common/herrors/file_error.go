@@ -16,25 +16,21 @@ package herrors
 import (
 	"encoding/json"
 
+	"github.com/gohugoio/hugo/common/text"
+
 	"github.com/pkg/errors"
 )
 
-var _ causer = (*fileError)(nil)
+var (
+	_ causer = (*fileError)(nil)
+)
 
 // FileError represents an error when handling a file: Parsing a config file,
 // execute a template etc.
 type FileError interface {
 	error
 
-	// Offset gets the error location offset in bytes, starting at 0.
-	// It will return -1 if not provided.
-	Offset() int
-
-	// LineNumber gets the error location, starting at line 1.
-	LineNumber() int
-
-	// Column number gets the column location, starting at 1.
-	ColumnNumber() int
+	text.Positioner
 
 	// A string identifying the type of file, e.g. JSON, TOML, markdown etc.
 	Type() string
@@ -43,33 +39,16 @@ type FileError interface {
 var _ FileError = (*fileError)(nil)
 
 type fileError struct {
-	offset       int
-	lineNumber   int
-	columnNumber int
-	fileType     string
+	position text.Position
+
+	fileType string
 
 	cause error
 }
 
-type fileErrorWithLineOffset struct {
-	FileError
-	offset int
-}
-
-func (e *fileErrorWithLineOffset) LineNumber() int {
-	return e.FileError.LineNumber() + e.offset
-}
-
-func (e *fileError) LineNumber() int {
-	return e.lineNumber
-}
-
-func (e *fileError) Offset() int {
-	return e.offset
-}
-
-func (e *fileError) ColumnNumber() int {
-	return e.columnNumber
+// Position returns the text position of this error.
+func (e fileError) Position() text.Position {
+	return e.position
 }
 
 func (e *fileError) Type() string {
@@ -89,7 +68,8 @@ func (f *fileError) Cause() error {
 
 // NewFileError creates a new FileError.
 func NewFileError(fileType string, offset, lineNumber, columnNumber int, err error) FileError {
-	return &fileError{cause: err, fileType: fileType, offset: offset, lineNumber: lineNumber, columnNumber: columnNumber}
+	pos := text.Position{Offset: offset, LineNumber: lineNumber, ColumnNumber: columnNumber}
+	return &fileError{cause: err, fileType: fileType, position: pos}
 }
 
 // UnwrapFileError tries to unwrap a FileError from err.
@@ -111,7 +91,9 @@ func UnwrapFileError(err error) FileError {
 // ToFileErrorWithOffset will return a new FileError with a line number
 // with the given offset from the original.
 func ToFileErrorWithOffset(fe FileError, offset int) FileError {
-	return &fileErrorWithLineOffset{FileError: fe, offset: offset}
+	pos := fe.Position()
+	pos.LineNumber = pos.LineNumber + offset
+	return &fileError{cause: fe, fileType: fe.Type(), position: pos}
 }
 
 // ToFileError will convert the given error to an error supporting
@@ -123,6 +105,7 @@ func ToFileError(fileType string, err error) FileError {
 		if fileType == "" {
 			fileType = typ
 		}
+
 		if lno > 0 || offset != -1 {
 			return NewFileError(fileType, offset, lno, col, err)
 		}

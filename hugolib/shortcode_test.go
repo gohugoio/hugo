@@ -1056,9 +1056,9 @@ String: {{ . | safeHTML }}
 	assert.Equal(1, len(s.RegularPages))
 
 	builder.AssertFileContent("public/page/index.html",
-		"File: content/page.md",
+		filepath.FromSlash("File: content/page.md"),
 		"Line: 7", "Column: 4", "Offset: 40",
-		"String: content/page.md:7:4",
+		filepath.FromSlash("String: \"content/page.md:7:4\""),
 	)
 
 }

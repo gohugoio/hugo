@@ -21,8 +21,8 @@ import (
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/maps"
+	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/media"
-	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/langs"
 
@@ -67,7 +67,15 @@ var (
 
 	// Assert that it implements the interface needed for related searches.
 	_ related.Document = (*Page)(nil)
+
+	// Page supports ref and relref
+	_ urls.RefLinker = (*Page)(nil)
 )
+
+// Wraps a Page.
+type pageContainer interface {
+	page() *Page
+}
 
 const (
 	KindPage = "page"
@@ -1861,79 +1869,6 @@ func (p *Page) Hugo() *HugoInfo {
 // an error if the ref is ambiguous.
 func (p *Page) GetPage(ref string) (*Page, error) {
 	return p.s.getPageNew(p, ref)
-}
-
-type refArgs struct {
-	Path         string
-	Lang         string
-	OutputFormat string
-}
-
-func (p *Page) decodeRefArgs(args map[string]interface{}) (refArgs, *SiteInfo, error) {
-	var ra refArgs
-	err := mapstructure.WeakDecode(args, &ra)
-	if err != nil {
-		return ra, nil, nil
-	}
-	s := p.Site
-
-	if ra.Lang != "" && ra.Lang != p.Lang() {
-		// Find correct site
-		found := false
-		for _, ss := range p.s.owner.Sites {
-			if ss.Lang() == ra.Lang {
-				found = true
-				s = &ss.Info
-			}
-		}
-
-		if !found {
-			p.s.siteRefLinker.logNotFound(ra.Path, fmt.Sprintf("no site found with lang %q", ra.Lang), p)
-			return ra, nil, nil
-		}
-	}
-
-	return ra, s, nil
-}
-
-func (p *Page) Ref(argsm map[string]interface{}) (string, error) {
-	args, s, err := p.decodeRefArgs(argsm)
-	if err != nil {
-		return "", _errors.Wrap(err, "invalid arguments to Ref")
-	}
-
-	if s == nil {
-		return p.s.siteRefLinker.notFoundURL, nil
-	}
-
-	if args.Path == "" {
-		return "", nil
-	}
-
-	if args.OutputFormat != "" {
-		return s.Ref(args.Path, p, args.OutputFormat)
-	}
-	return s.Ref(args.Path, p)
-}
-
-func (p *Page) RelRef(argsm map[string]interface{}) (string, error) {
-	args, s, err := p.decodeRefArgs(argsm)
-	if err != nil {
-		return "", _errors.Wrap(err, "invalid arguments to Ref")
-	}
-
-	if s == nil {
-		return p.s.siteRefLinker.notFoundURL, nil
-	}
-
-	if args.Path == "" {
-		return "", nil
-	}
-
-	if args.OutputFormat != "" {
-		return s.RelRef(args.Path, p, args.OutputFormat)
-	}
-	return s.RelRef(args.Path, p)
 }
 
 func (p *Page) String() string {
