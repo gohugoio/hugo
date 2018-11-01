@@ -17,6 +17,8 @@ import (
 	"bytes"
 	"io"
 
+	"github.com/gohugoio/hugo/source"
+
 	errors "github.com/pkg/errors"
 
 	bp "github.com/gohugoio/hugo/bufferpool"
@@ -68,7 +70,7 @@ func (p *Page) mapContent() error {
 	iter := p.source.parsed.Iterator()
 
 	fail := func(err error, i pageparser.Item) error {
-		return parseError(err, iter.Input(), i.Pos)
+		return p.parseError(err, iter.Input(), i.Pos)
 	}
 
 	// the parser is guaranteed to return items in proper order or fail, so …
@@ -194,15 +196,30 @@ func (p *Page) parse(reader io.Reader) error {
 	return nil
 }
 
-func parseError(err error, input []byte, pos int) error {
+func (p *Page) parseError(err error, input []byte, offset int) error {
 	if herrors.UnwrapFileError(err) != nil {
 		// Use the most specific location.
 		return err
 	}
+	pos := p.posFromInput(input, offset)
+	return herrors.NewFileError("md", -1, pos.LineNumber, pos.ColumnNumber, err)
+
+}
+
+func (p *Page) posFromInput(input []byte, offset int) source.Position {
 	lf := []byte("\n")
-	input = input[:pos]
+	input = input[:offset]
 	lineNumber := bytes.Count(input, lf) + 1
 	endOfLastLine := bytes.LastIndex(input, lf)
-	return herrors.NewFileError("md", -1, lineNumber, pos-endOfLastLine, err)
 
+	return source.Position{
+		Filename:     p.pathOrTitle(),
+		LineNumber:   lineNumber,
+		ColumnNumber: offset - endOfLastLine,
+		Offset:       offset,
+	}
+}
+
+func (p *Page) posFromPage(offset int) source.Position {
+	return p.posFromInput(p.source.parsed.Input(), offset)
 }
