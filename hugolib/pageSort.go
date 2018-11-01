@@ -101,7 +101,7 @@ func (ps *pageSorter) Less(i, j int) bool { return ps.by(ps.pages[i], ps.pages[j
 // Order by Weight, Date, LinkTitle and then full file path.
 func (p Pages) Sort() {
 	// Remove in Hugo 0.51
-	helpers.Deprecated("Pages", "Sort", "Use .ByWeight", false)
+	helpers.Deprecated("Pages", "Sort", "Use .ByWeight", true)
 	p.sort()
 }
 
