@@ -494,10 +494,10 @@ func newSiteRefLinker(cfg config.Provider, s *Site) (siteRefLinker, error) {
 }
 
 func (s siteRefLinker) logNotFound(ref, what string, p *Page) {
-	if p != nil {
+	if p == nil {
 		s.errorLogger.Printf("[%s] REF_NOT_FOUND: Ref %q: %s", s.s.Lang(), ref, what)
 	} else {
-		s.errorLogger.Printf("[%s] REF_NOT_FOUND: Ref %q from page %q: %s", s.s.Lang(), ref, p.absoluteSourceRef(), what)
+		s.errorLogger.Printf("[%s] REF_NOT_FOUND: Ref %q from page %q: %s", s.s.Lang(), ref, p.pathOrTitle(), what)
 	}
 
 }
