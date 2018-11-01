@@ -583,6 +583,8 @@ func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, o
 
 // Ref will give an absolute URL to ref in the given Page.
 func (s *SiteInfo) Ref(ref string, page *Page, options ...string) (string, error) {
+	// Remove in Hugo 0.53
+	helpers.Deprecated("Site", ".Ref", "Use .Site.GetPage", false)
 	outputFormat := ""
 	if len(options) > 0 {
 		outputFormat = options[0]
@@ -593,6 +595,8 @@ func (s *SiteInfo) Ref(ref string, page *Page, options ...string) (string, error
 
 // RelRef will give an relative URL to ref in the given Page.
 func (s *SiteInfo) RelRef(ref string, page *Page, options ...string) (string, error) {
+	// Remove in Hugo 0.53
+	helpers.Deprecated("Site", ".RelRef", "Use .Site.GetPage", false)
 	outputFormat := ""
 	if len(options) > 0 {
 		outputFormat = options[0]
