@@ -174,7 +174,7 @@ func (a aliasHandler) targetPathAlias(src string) (string, error) {
 			return "", fmt.Errorf("Cannot create \"%s\": Windows filename restriction", originalAlias)
 		}
 		for _, m := range msgs {
-			a.log.WARN.Println(m)
+			a.log.INFO.Println(m)
 		}
 	}
 

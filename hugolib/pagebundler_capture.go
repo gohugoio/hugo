@@ -679,7 +679,7 @@ func (c *capturer) isSeen(dirname string) bool {
 	seen := c.seen[dirname]
 	c.seen[dirname] = true
 	if seen {
-		c.logger.WARN.Printf("Content dir %q already processed; skipped to avoid infinite recursion.", dirname)
+		c.logger.INFO.Printf("Content dir %q already processed; skipped to avoid infinite recursion.", dirname)
 		return true
 
 	}
