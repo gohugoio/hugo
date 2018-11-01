@@ -188,7 +188,7 @@ func (p *Page) parse(reader io.Reader) error {
 		if gi != nil {
 			p.GitInfo = gi
 		} else if enabled {
-			p.s.Log.WARN.Printf("Failed to find GitInfo for page %q", p.Path())
+			p.s.Log.INFO.Printf("Failed to find GitInfo for page %q", p.Path())
 		}
 	}
 

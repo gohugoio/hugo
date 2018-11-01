@@ -131,7 +131,7 @@ func (c *commandeer) createLogger(cfg config.Provider, running bool) (*loggers.L
 		logThreshold    = jww.LevelWarn
 		logFile         = cfg.GetString("logFile")
 		outHandle       = os.Stdout
-		stdoutThreshold = jww.LevelError
+		stdoutThreshold = jww.LevelWarn
 	)
 
 	if c.h.verboseLog || c.h.logging || (c.h.logFile != "") {
@@ -294,7 +294,7 @@ func (c *commandeer) fullBuild() error {
 			if !os.IsNotExist(err) {
 				return errors.Wrap(err, "Error copying static files")
 			}
-			c.logger.WARN.Println("No Static directory found")
+			c.logger.INFO.Println("No Static directory found")
 		}
 		langCount = cnt
 		langCount = cnt
@@ -405,7 +405,7 @@ func (c *commandeer) doWithPublishDirs(f func(sourceFs *filesystems.SourceFilesy
 	staticFilesystems := c.hugo.BaseFs.SourceFilesystems.Static
 
 	if len(staticFilesystems) == 0 {
-		c.logger.WARN.Println("No static directories found to sync")
+		c.logger.INFO.Println("No static directories found to sync")
 		return langCount, nil
 	}
 

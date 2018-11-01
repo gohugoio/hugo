@@ -50,7 +50,7 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 	url := strings.Join(urlParts, "")
 
 	var clearCacheSleep = func(i int, u string) {
-		ns.deps.Log.WARN.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
+		ns.deps.Log.INFO.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 		time.Sleep(resSleep)
 		deleteCache(url, ns.deps.Fs.Source, ns.deps.Cfg)
 	}
@@ -109,8 +109,8 @@ func (ns *Namespace) GetJSON(urlParts ...string) (v interface{}, err error) {
 		}
 		err = json.Unmarshal(c, &v)
 		if err != nil {
-			ns.deps.Log.WARN.Printf("Cannot read JSON from resource %s: %s", url, err)
-			ns.deps.Log.WARN.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
+			ns.deps.Log.INFO.Printf("Cannot read JSON from resource %s: %s", url, err)
+			ns.deps.Log.INFO.Printf("Retry #%d for %s and sleeping for %s", i, url, resSleep)
 			time.Sleep(resSleep)
 			deleteCache(url, ns.deps.Fs.Source, ns.deps.Cfg)
 			continue

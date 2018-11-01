@@ -956,7 +956,7 @@ func (s *Site) handleDataFile(r source.ReadableFile) error {
 			higherPrecedentMap := higherPrecedentData.(map[string]interface{})
 			for key, value := range data.(map[string]interface{}) {
 				if _, exists := higherPrecedentMap[key]; exists {
-					s.Log.WARN.Printf("Data for key '%s' in path '%s' is overridden higher precedence data already in the data tree", key, r.Path())
+					s.Log.WARN.Printf("Data for key '%s' in path '%s' is overridden by higher precedence data already in the data tree", key, r.Path())
 				} else {
 					higherPrecedentMap[key] = value
 				}
@@ -1759,22 +1759,47 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath s
 	return s.publisher.Publish(pd)
 }
 
+var infoOnMissingLayout = map[string]bool{
+	// The 404 layout is very much optional in Hugo, but we do look for it.
+	"404": true,
+}
+
 func (s *Site) renderForLayouts(name string, d interface{}, w io.Writer, layouts ...string) (err error) {
 	var templ tpl.Template
 
 	templ = s.findFirstTemplate(layouts...)
 	if templ == nil {
-		s.Log.WARN.Printf("[%s] Unable to locate layout for %q: %s\n", s.Language.Lang, name, layouts)
+		log := s.Log.WARN
+		if infoOnMissingLayout[name] {
+			log = s.Log.INFO
+		}
+
+		if p, ok := d.(*PageOutput); ok {
+			log.Printf("Found no layout for %q, language %q, output format %q: create a template below /layouts with one of these filenames: %s\n", name, s.Language.Lang, p.outputFormat.Name, layoutsLogFormat(layouts))
+		} else {
+			log.Printf("Found no layout for %q, language %q: create a template below /layouts with one of these filenames: %s\n", name, s.Language.Lang, layoutsLogFormat(layouts))
+		}
 		return nil
 	}
 
 	if err = templ.Execute(w, d); err != nil {
-		if p, ok := d.(*PageOutput); ok {
-			return p.errorf(err, "render of %q failed", name)
-		}
 		return _errors.Wrapf(err, "render of %q failed", name)
 	}
 	return
+}
+
+func layoutsLogFormat(layouts []string) string {
+	var filtered []string
+	for _, l := range layouts {
+		// This is  a technical prefix of no interest to the user.
+		lt := strings.TrimPrefix(l, "_text/")
+		// We have this in the lookup path for historical reasons.
+		lt = strings.TrimPrefix(lt, "page/")
+		filtered = append(filtered, lt)
+	}
+
+	filtered = helpers.UniqueStrings(filtered)
+	return strings.Join(filtered, ", ")
 }
 
 func (s *Site) findFirstTemplate(layouts ...string) tpl.Template {

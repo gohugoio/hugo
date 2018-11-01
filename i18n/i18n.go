@@ -45,11 +45,11 @@ func (t Translator) Func(lang string) bundle.TranslateFunc {
 	if f, ok := t.translateFuncs[lang]; ok {
 		return f
 	}
-	t.logger.WARN.Printf("Translation func for language %v not found, use default.", lang)
+	t.logger.INFO.Printf("Translation func for language %v not found, use default.", lang)
 	if f, ok := t.translateFuncs[t.cfg.GetString("defaultContentLanguage")]; ok {
 		return f
 	}
-	t.logger.WARN.Println("i18n not initialized, check that you have language file (in i18n) that matches the site language or the default language.")
+	t.logger.INFO.Println("i18n not initialized; if you need string translations, check that you have a bundle in /i18n that matches the site language or the default language.")
 	return func(translationID string, args ...interface{}) string {
 		return ""
 	}
@@ -61,7 +61,7 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 
 	defaultT, err := bndl.Tfunc(defaultContentLanguage)
 	if err != nil {
-		t.logger.WARN.Printf("No translation bundle found for default language %q", defaultContentLanguage)
+		t.logger.INFO.Printf("No translation bundle found for default language %q", defaultContentLanguage)
 	}
 
 	enableMissingTranslationPlaceholders := t.cfg.GetBool("enableMissingTranslationPlaceholders")

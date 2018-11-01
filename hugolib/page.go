@@ -326,7 +326,7 @@ func (p *Page) initContent() {
 
 		select {
 		case <-ctx.Done():
-			p.s.Log.WARN.Printf("WARNING: Timed out creating content for page %q (.Content will be empty). This is most likely a circular shortcode content loop that should be fixed. If this is just a shortcode calling a slow remote service, try to set \"timeout=20000\" (or higher, value is in milliseconds) in config.toml.\n", p.pathOrTitle())
+			p.s.Log.WARN.Printf("Timed out creating content for page %q (.Content will be empty). This is most likely a circular shortcode content loop that should be fixed. If this is just a shortcode calling a slow remote service, try to set \"timeout=30000\" (or higher, value is in milliseconds) in config.toml.\n", p.pathOrTitle())
 		case err := <-c:
 			if err != nil {
 				p.s.SendError(err)
@@ -1456,7 +1456,7 @@ func (p *Page) updateMetaData(frontmatter map[string]interface{}) error {
 
 	if draft != nil && published != nil {
 		p.Draft = *draft
-		p.s.Log.WARN.Printf("page %q has both draft and published settings in its frontmatter. Using draft.", p.File.Path())
+		p.s.Log.WARN.Printf("page %q has both draft and published settings in its frontmatter. Using draft.", p.Filename())
 	} else if draft != nil {
 		p.Draft = *draft
 	} else if published != nil {
@@ -1973,8 +1973,6 @@ func (p *Page) initLanguage() {
 		language := ml.Language(p.lang)
 
 		if language == nil {
-			// It can be a file named stefano.chiodino.md.
-			p.s.Log.WARN.Printf("Page language (if it is that) not found in multilang setup: %s.", p.lang)
 			language = ml.DefaultLang
 		}
 
