@@ -11,23 +11,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package source
+package urls
 
-import "fmt"
-
-// Position holds a source position.
-type Position struct {
-	Filename     string // filename, if any
-	Offset       int    // byte offset, starting at 0
-	LineNumber   int    // line number, starting at 1
-	ColumnNumber int    // column number, starting at 1 (character count per line)
-}
-
-func (pos Position) String() string {
-	filename := pos.Filename
-	if filename == "" {
-		filename = "<stream>"
-	}
-	return fmt.Sprintf("%s:%d:%d", filename, pos.LineNumber, pos.ColumnNumber)
-
+// RefLinker is implemented by those who support reference linking.
+// args must contain a path, but can also point to the target
+// language or output format.
+type RefLinker interface {
+	Ref(args map[string]interface{}) (string, error)
+	RelRef(args map[string]interface{}) (string, error)
 }

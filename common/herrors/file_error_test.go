@@ -42,17 +42,15 @@ func TestToLineNumberError(t *testing.T) {
 	} {
 
 		got := ToFileError("template", test.in)
-		if test.offset > 0 {
-			got = ToFileErrorWithOffset(got.(FileError), test.offset)
-		}
 
 		errMsg := fmt.Sprintf("[%d][%T]", i, got)
 		le, ok := got.(FileError)
 		assert.True(ok)
 
 		assert.True(ok, errMsg)
-		assert.Equal(test.lineNumber, le.LineNumber(), errMsg)
-		assert.Equal(test.columnNumber, le.ColumnNumber(), errMsg)
+		pos := le.Position()
+		assert.Equal(test.lineNumber, pos.LineNumber, errMsg)
+		assert.Equal(test.columnNumber, pos.ColumnNumber, errMsg)
 		assert.Error(errors.Cause(got))
 	}
 

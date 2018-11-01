@@ -25,7 +25,7 @@ func (t testSiteBuildErrorAsserter) getFileError(err error) *herrors.ErrorWithFi
 
 func (t testSiteBuildErrorAsserter) assertLineNumber(lineNumber int, err error) {
 	fe := t.getFileError(err)
-	t.assert.Equal(lineNumber, fe.LineNumber, fmt.Sprintf("[%s]  got => %s\n%s", t.name, fe, trace()))
+	t.assert.Equal(lineNumber, fe.Position().LineNumber, fmt.Sprintf("[%s]  got => %s\n%s", t.name, fe, trace()))
 }
 
 func (t testSiteBuildErrorAsserter) assertErrorMessage(e1, e2 string) {
@@ -42,6 +42,7 @@ func TestSiteBuildErrors(t *testing.T) {
 	const (
 		yamlcontent = "yamlcontent"
 		tomlcontent = "tomlcontent"
+		jsoncontent = "jsoncontent"
 		shortcode   = "shortcode"
 		base        = "base"
 		single      = "single"
@@ -86,8 +87,8 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertCreateError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(5, fe.LineNumber)
-				assert.Equal(1, fe.ColumnNumber)
+				assert.Equal(5, fe.Position().LineNumber)
+				assert.Equal(1, fe.Position().ColumnNumber)
 				assert.Equal("go-html-template", fe.ChromaLexer)
 				a.assertErrorMessage("\"layouts/_default/single.html:5:1\": parse failed: template: _default/single.html:5: unexpected \"}\" in operand", fe.Error())
 
@@ -101,8 +102,8 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(5, fe.LineNumber)
-				assert.Equal(14, fe.ColumnNumber)
+				assert.Equal(5, fe.Position().LineNumber)
+				assert.Equal(14, fe.Position().ColumnNumber)
 				assert.Equal("go-html-template", fe.ChromaLexer)
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
 
@@ -116,8 +117,8 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(5, fe.LineNumber)
-				assert.Equal(14, fe.ColumnNumber)
+				assert.Equal(5, fe.Position().LineNumber)
+				assert.Equal(14, fe.Position().ColumnNumber)
 				assert.Equal("go-html-template", fe.ChromaLexer)
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
 
@@ -141,7 +142,7 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(7, fe.LineNumber)
+				assert.Equal(7, fe.Position().LineNumber)
 				assert.Equal("md", fe.ChromaLexer)
 				// Make sure that it contains both the content file and template
 				a.assertErrorMessage(`content/myyaml.md:7:10": failed to render shortcode "sc"`, fe.Error())
@@ -156,8 +157,8 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(7, fe.LineNumber)
-				assert.Equal(14, fe.ColumnNumber)
+				assert.Equal(7, fe.Position().LineNumber)
+				assert.Equal(14, fe.Position().ColumnNumber)
 				assert.Equal("md", fe.ChromaLexer)
 				a.assertErrorMessage("\"content/myyaml.md:7:14\": failed to extract shortcode: template for shortcode \"nono\" not found", fe.Error())
 			},
@@ -180,21 +181,21 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(6, fe.LineNumber)
+				assert.Equal(6, fe.Position().LineNumber)
 				assert.Equal("toml", fe.ErrorContext.ChromaLexer)
 
 			},
 		},
 		{
 			name:     "Invalid JSON front matter",
-			fileType: tomlcontent,
+			fileType: jsoncontent,
 			fileFixer: func(content string) string {
 				return strings.Replace(content, "\"description\":", "\"description\"", 1)
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
 
-				assert.Equal(3, fe.LineNumber)
+				assert.Equal(3, fe.Position().LineNumber)
 				assert.Equal("json", fe.ErrorContext.ChromaLexer)
 
 			},
@@ -212,8 +213,8 @@ func TestSiteBuildErrors(t *testing.T) {
 				// This is fixed in latest Go source
 				if strings.Contains(runtime.Version(), "devel") {
 					fe := a.getFileError(err)
-					assert.Equal(5, fe.LineNumber)
-					assert.Equal(21, fe.ColumnNumber)
+					assert.Equal(5, fe.Position().LineNumber)
+					assert.Equal(21, fe.Position().ColumnNumber)
 				} else {
 					assert.Contains(err.Error(), `execute of template failed: panic in Execute`)
 				}
@@ -286,7 +287,7 @@ Some content.
 
 `))
 
-		b.WithContent("myjson.md", f(tomlcontent, `{
+		b.WithContent("myjson.md", f(jsoncontent, `{
 	"title": "This is a title",
 	"description": "This is a description."
 }

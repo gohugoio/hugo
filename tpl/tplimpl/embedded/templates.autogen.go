@@ -398,8 +398,8 @@ if (!doNotTrack) {
 </style>
 {{ end }}
 {{ end }}`},
-	{`shortcodes/ref.html`, `{{ ref .Page .Params }}`},
-	{`shortcodes/relref.html`, `{{ relref .Page .Params }}`},
+	{`shortcodes/ref.html`, `{{ ref . .Params }}`},
+	{`shortcodes/relref.html`, `{{ relref . .Params }}`},
 	{`shortcodes/twitter.html`, `{{- $pc := .Page.Site.Config.Privacy.Twitter -}}
 {{- if not $pc.Disable -}}
 {{- if $pc.Simple -}}

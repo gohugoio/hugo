@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/text"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -493,16 +495,25 @@ func newSiteRefLinker(cfg config.Provider, s *Site) (siteRefLinker, error) {
 	return siteRefLinker{s: s, errorLogger: logger, notFoundURL: notFoundURL}, nil
 }
 
-func (s siteRefLinker) logNotFound(ref, what string, p *Page) {
-	if p == nil {
+func (s siteRefLinker) logNotFound(ref, what string, p *Page, position text.Position) {
+	if position.IsValid() {
+		s.errorLogger.Printf("[%s] REF_NOT_FOUND: Ref %q: %s: %s", s.s.Lang(), ref, position.String(), what)
+	} else if p == nil {
 		s.errorLogger.Printf("[%s] REF_NOT_FOUND: Ref %q: %s", s.s.Lang(), ref, what)
 	} else {
 		s.errorLogger.Printf("[%s] REF_NOT_FOUND: Ref %q from page %q: %s", s.s.Lang(), ref, p.pathOrTitle(), what)
 	}
-
 }
 
-func (s *siteRefLinker) refLink(ref string, page *Page, relative bool, outputFormat string) (string, error) {
+func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, outputFormat string) (string, error) {
+
+	var page *Page
+	switch v := source.(type) {
+	case *Page:
+		page = v
+	case pageContainer:
+		page = v.page()
+	}
 
 	var refURL *url.URL
 	var err error
@@ -520,14 +531,21 @@ func (s *siteRefLinker) refLink(ref string, page *Page, relative bool, outputFor
 
 	if refURL.Path != "" {
 		target, err := s.s.getPageNew(page, refURL.Path)
+		var pos text.Position
+		if err != nil || target == nil {
+			if p, ok := source.(text.Positioner); ok {
+				pos = p.Position()
+
+			}
+		}
 
 		if err != nil {
-			s.logNotFound(refURL.Path, err.Error(), page)
+			s.logNotFound(refURL.Path, err.Error(), page, pos)
 			return s.notFoundURL, nil
 		}
 
 		if target == nil {
-			s.logNotFound(refURL.Path, "page not found", page)
+			s.logNotFound(refURL.Path, "page not found", page, pos)
 			return s.notFoundURL, nil
 		}
 
@@ -537,7 +555,7 @@ func (s *siteRefLinker) refLink(ref string, page *Page, relative bool, outputFor
 			o := target.OutputFormats().Get(outputFormat)
 
 			if o == nil {
-				s.logNotFound(refURL.Path, fmt.Sprintf("output format %q", outputFormat), page)
+				s.logNotFound(refURL.Path, fmt.Sprintf("output format %q", outputFormat), page, pos)
 				return s.notFoundURL, nil
 			}
 			permalinker = o
