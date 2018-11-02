@@ -61,7 +61,7 @@ One of the most common mistakes with new Hugo users is failing to pass a context
 {{% /note %}}
 
 {{% note %}}
-`<PARTIAL>` starting with `baseof` is reserved. ([#5373](https://github.com/gohugoio/hugo/issues/5373))
+`<PARTIAL>` including `baseof` is reserved. ([#5373](https://github.com/gohugoio/hugo/issues/5373))
 {{% /note %}}
 
 As shown in the above example directory structure, you can nest your directories within `partials` for better source organization. You only need to call the nested partial's path relative to the `partials` directory:
