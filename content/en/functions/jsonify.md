@@ -1,7 +1,7 @@
 ---
 title: jsonify
 linktitle: jsonify
-description: Encodes a given object to JSON, returning pretty printed output.
+description: Encodes a given object to JSON.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
