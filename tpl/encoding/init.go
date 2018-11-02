@@ -47,7 +47,7 @@ func init() {
 		ns.AddMethodMapping(ctx.Jsonify,
 			[]string{"jsonify"},
 			[][2]string{
-				{`{{ (slice "A" "B" "C") | jsonify }}`, "[\n  \"A\",\n  \"B\",\n  \"C\"\n]"},
+				{`{{ (slice "A" "B" "C") | jsonify }}`, `["A","B","C"]`},
 			},
 		)
 
