@@ -57,10 +57,6 @@ func Warning(s string) string {
 
 // colorize s in color.
 func colorize(s, color string) string {
-	if runtime.GOOS == "windows" {
-		return s
-	}
-
 	s = fmt.Sprintf(color, doublePercent(s))
 	return singlePercent(s)
 }
