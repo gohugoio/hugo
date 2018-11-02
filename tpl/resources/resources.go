@@ -34,6 +34,10 @@ import (
 
 // New returns a new instance of the resources-namespaced template functions.
 func New(deps *deps.Deps) (*Namespace, error) {
+	if deps.ResourceSpec == nil {
+		return &Namespace{}, nil
+	}
+
 	scssClient, err := scss.New(deps.BaseFs.Assets, deps.ResourceSpec)
 	if err != nil {
 		return nil, err

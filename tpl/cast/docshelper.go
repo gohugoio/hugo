@@ -14,6 +14,7 @@
 package cast
 
 import (
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/docshelper"
 	"github.com/gohugoio/hugo/tpl/internal"
@@ -24,7 +25,11 @@ import (
 func init() {
 	docsProvider := func() map[string]interface{} {
 		docs := make(map[string]interface{})
-		d := &deps.Deps{Cfg: viper.New()}
+		d := &deps.Deps{
+			Cfg:                 viper.New(),
+			Log:                 loggers.NewErrorLogger(),
+			BuildStartListeners: &deps.Listeners{},
+		}
 
 		var namespaces internal.TemplateFuncsNamespaces
 
