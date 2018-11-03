@@ -19,7 +19,7 @@ import (
 )
 
 // Append appends from to a slice to and returns the resulting slice.
-// If lenght of from is one and the only element is a slice of same type as to,
+// If length of from is one and the only element is a slice of same type as to,
 // it will be appended.
 func Append(to interface{}, from ...interface{}) (interface{}, error) {
 	tov, toIsNil := indirect(reflect.ValueOf(to))
