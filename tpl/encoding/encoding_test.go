@@ -85,18 +85,21 @@ func TestJsonify(t *testing.T) {
 	ns := New()
 
 	for i, test := range []struct {
-		v      interface{}
-		expect interface{}
+		v       interface{}
+		spacing string
+		expect  interface{}
 	}{
-		{[]string{"a", "b"}, template.HTML(`["a","b"]`)},
-		{tstNoStringer{}, template.HTML("{}")},
-		{nil, template.HTML("null")},
+		{[]string{"a", "b"}, nil, template.HTML("[\n\"a\",\n\"b\"\n]")},
+		{[]string{"a", "b"}, "", template.HTML("[\n\"a\",\n\"b\"\n]")},
+		{[]string{"a", "b"}, "  ", template.HTML("[\n  \"a\",\n  \"b\"\n]")},
+		{tstNoStringer{}, "", template.HTML("{}")},
+		{nil, "", template.HTML("null")},
 		// errors
-		{math.NaN(), false},
+		{math.NaN(), "", false},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test.v)
 
-		result, err := ns.Jsonify(test.v)
+		result, err := ns.Jsonify(test.v, test.spacing)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			require.Error(t, err, errMsg)

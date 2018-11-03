@@ -1,7 +1,7 @@
 ---
 title: jsonify
 linktitle: jsonify
-description: Encodes a given object to JSON.
+description: Encodes a given object to JSON, accepting optional spacing to return pretty printed output.
 godocref:
 date: 2017-02-01
 publishdate: 2017-02-01
@@ -11,7 +11,7 @@ menu:
   docs:
     parent: "functions"
 keywords: [strings,json]
-signature: ["jsonify INPUT"]
+signature: ["jsonify INPUT SPACING"]
 workson: []
 hugoversion:
 relatedfuncs: [plainify]
