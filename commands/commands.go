@@ -175,7 +175,6 @@ Complete documentation is available at http://gohugo.io/.`,
 	cc.cmd.Flags().BoolVarP(&cc.buildWatch, "watch", "w", false, "watch filesystem for changes and recreate as needed")
 
 	cc.cmd.Flags().Bool("renderToMemory", false, "render to memory (only useful for benchmark testing)")
-	cc.cmd.Flags().Bool("minify", false, "minify any supported output format (HTML, XML etc.)")
 
 	// Set bash-completion
 	_ = cc.cmd.PersistentFlags().SetAnnotation("logFile", cobra.BashCompFilenameExt, []string{})
@@ -231,6 +230,8 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("i18n-warnings", "", false, "print missing translations")
 
 	cmd.Flags().StringSlice("disableKinds", []string{}, "disable different kind of pages (home, RSS etc.)")
+
+	cmd.Flags().Bool("minify", false, "minify any supported output format (HTML, XML etc.)")
 
 	// Set bash-completion.
 	// Each flag must first be defined before using the SetAnnotation() call.
