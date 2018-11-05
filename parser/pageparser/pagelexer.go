@@ -247,6 +247,9 @@ func lexMainSection(l *pageLexer) stateFunc {
 				// This makes it a little easier to reason about later.
 				l.consumeSpace()
 				l.emit(TypeLeadSummaryDivider)
+
+				// We have already moved to the next.
+				continue
 			}
 		}
 
