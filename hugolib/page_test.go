@@ -1513,7 +1513,13 @@ Content.
 	b.WithContent("page-md-shortcode-same-line.md", `---
 title: "Hugo"
 ---
-This is a {{< sc >}}.<!--more-->Same line.
+This is a {{< sc >}}<!--more-->Same line.
+`)
+
+	b.WithContent("page-md-shortcode-same-line-after.md", `---
+title: "Hugo"
+---
+Summary<!--more-->{{< sc >}}
 `)
 
 	b.WithContent("page-org-shortcode.org", `#+TITLE: T1
@@ -1547,8 +1553,13 @@ CONTENT:{{ .Content }}
 	)
 
 	b.AssertFileContent("public/page-md-shortcode-same-line/index.html",
-		"SUMMARY:<p>This is a a shortcode.</p>:END",
-		"CONTENT:<p>This is a a shortcode.</p>\n\n<p>Same line.</p>\n",
+		"SUMMARY:<p>This is a a shortcode</p>:END",
+		"CONTENT:<p>This is a a shortcode</p>\n\n<p>Same line.</p>\n",
+	)
+
+	b.AssertFileContent("public/page-md-shortcode-same-line-after/index.html",
+		"SUMMARY:<p>Summary</p>:END",
+		"CONTENT:<p>Summary</p>\n\na shortcode",
 	)
 
 	b.AssertFileContent("public/page-org-shortcode/index.html",
