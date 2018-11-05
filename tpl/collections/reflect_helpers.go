@@ -41,6 +41,24 @@ func numberToFloat(v reflect.Value) (float64, error) {
 	}
 }
 
+// normalizes different numeric types to make them comparable.
+// If not, any pointer will be unwrapped.
+func normalize(v reflect.Value) interface{} {
+	k := v.Kind()
+
+	switch {
+	case isNumber(k):
+		f, err := numberToFloat(v)
+		if err == nil {
+			return f
+		}
+	case k == reflect.Ptr:
+		v = v.Elem()
+	}
+
+	return v.Interface()
+}
+
 // There are potential overflows in this function, but the downconversion of
 // int64 etc. into int8 etc. is coming from the synthetic unit tests for Union etc.
 // TODO(bep) We should consider normalizing the slices to int64 etc.
