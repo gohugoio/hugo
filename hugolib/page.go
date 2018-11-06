@@ -304,7 +304,7 @@ func (p *Page) initContent() {
 		go func() {
 			var err error
 
-			err = p.prepareForRender()
+			err = p.prepareContent()
 			if err != nil {
 				c <- err
 				return
@@ -1142,11 +1142,17 @@ func (p *Page) subResourceTargetPathFactory(base string) string {
 	return path.Join(p.relTargetPathBase, base)
 }
 
-func (p *Page) initMainOutputFormat() error {
-	if p.mainPageOutput != nil {
-		return nil
+// Prepare this page for rendering for a new site. The flag start is set
+// for the first site and output format.
+func (p *Page) prepareForRender(start bool) error {
+	p.setContentInit(start)
+	if start {
+		return p.initMainOutputFormat()
 	}
+	return nil
+}
 
+func (p *Page) initMainOutputFormat() error {
 	outFormat := p.outputFormats[0]
 	pageOutput, err := newPageOutput(p, false, false, outFormat)
 
@@ -1193,7 +1199,7 @@ func (p *Page) setContentInit(start bool) error {
 
 }
 
-func (p *Page) prepareForRender() error {
+func (p *Page) prepareContent() error {
 	s := p.s
 
 	// If we got this far it means that this is either a new Page pointer

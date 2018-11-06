@@ -416,6 +416,7 @@ type BuildCfg struct {
 // a Page: If it is recently visited (the home pages will always be in this set) or changed.
 // Note that a page does not have to have a content page / file.
 // For regular builds, this will allways return true.
+// TODO(bep) rename/work this.
 func (cfg *BuildCfg) shouldRender(p *Page) bool {
 	if p.forceRender {
 		p.forceRender = false
@@ -427,6 +428,9 @@ func (cfg *BuildCfg) shouldRender(p *Page) bool {
 	}
 
 	if cfg.RecentlyVisited[p.RelPermalink()] {
+		if cfg.PartialReRender {
+			_ = p.initMainOutputFormat()
+		}
 		return true
 	}
 
@@ -644,15 +648,13 @@ func (h *HugoSites) setupTranslations() {
 
 func (s *Site) preparePagesForRender(start bool) error {
 	for _, p := range s.Pages {
-		p.setContentInit(start)
-		if err := p.initMainOutputFormat(); err != nil {
+		if err := p.prepareForRender(start); err != nil {
 			return err
 		}
 	}
 
 	for _, p := range s.headlessPages {
-		p.setContentInit(start)
-		if err := p.initMainOutputFormat(); err != nil {
+		if err := p.prepareForRender(start); err != nil {
 			return err
 		}
 	}
