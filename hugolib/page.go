@@ -1147,12 +1147,12 @@ func (p *Page) subResourceTargetPathFactory(base string) string {
 func (p *Page) prepareForRender(start bool) error {
 	p.setContentInit(start)
 	if start {
-		return p.initMainOutputFormat()
+		return p.initForRender()
 	}
 	return nil
 }
 
-func (p *Page) initMainOutputFormat() error {
+func (p *Page) initForRender() error {
 	outFormat := p.outputFormats[0]
 	pageOutput, err := newPageOutput(p, false, false, outFormat)
 
@@ -1161,6 +1161,7 @@ func (p *Page) initMainOutputFormat() error {
 	}
 
 	p.mainPageOutput = pageOutput
+	p.scratch = maps.NewScratch()
 
 	return nil
 

@@ -429,7 +429,7 @@ func (cfg *BuildCfg) shouldRender(p *Page) bool {
 
 	if cfg.RecentlyVisited[p.RelPermalink()] {
 		if cfg.PartialReRender {
-			_ = p.initMainOutputFormat()
+			_ = p.initForRender()
 		}
 		return true
 	}

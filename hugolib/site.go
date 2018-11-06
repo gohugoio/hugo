@@ -36,7 +36,6 @@ import (
 
 	_errors "github.com/pkg/errors"
 
-	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/resource"
 
@@ -1559,8 +1558,6 @@ func (s *Site) resetBuildState() {
 	for _, p := range s.rawAllPages {
 		p.subSections = Pages{}
 		p.parent = nil
-		p.scratch = maps.NewScratch()
-		p.mainPageOutput = nil
 	}
 }
 
