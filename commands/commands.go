@@ -80,14 +80,14 @@ var _ commandsBuilderGetter = (*baseBuilderCmd)(nil)
 
 // Used in tests.
 type commandsBuilderGetter interface {
-	getCmmandsBuilder() *commandsBuilder
+	getCommandsBuilder() *commandsBuilder
 }
 type baseBuilderCmd struct {
 	*baseCmd
 	*commandsBuilder
 }
 
-func (b *baseBuilderCmd) getCmmandsBuilder() *commandsBuilder {
+func (b *baseBuilderCmd) getCommandsBuilder() *commandsBuilder {
 	return b.commandsBuilder
 }
 
