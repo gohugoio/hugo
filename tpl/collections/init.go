@@ -46,6 +46,13 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.SymDiff,
+			[]string{"symdiff"},
+			[][2]string{
+				{`{{ slice 1 2 3 | symdiff (slice 3 4) }}`, `[1 2 4]`},
+			},
+		)
+
 		ns.AddMethodMapping(ctx.Delimit,
 			[]string{"delimit"},
 			[][2]string{

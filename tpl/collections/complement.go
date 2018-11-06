@@ -33,23 +33,9 @@ func (ns *Namespace) Complement(seqs ...interface{}) (interface{}, error) {
 	universe := seqs[len(seqs)-1]
 	as := seqs[:len(seqs)-1]
 
-	aset := make(map[interface{}]struct{})
-
-	for _, av := range as {
-		v := reflect.ValueOf(av)
-		switch v.Kind() {
-		case reflect.Array, reflect.Slice:
-			for i := 0; i < v.Len(); i++ {
-				ev, _ := indirectInterface(v.Index(i))
-				if !ev.Type().Comparable() {
-					return nil, errors.New("elements in complement must be comparable")
-				}
-
-				aset[normalize(ev)] = struct{}{}
-			}
-		default:
-			return nil, fmt.Errorf("arguments to complement must be slices or arrays")
-		}
+	aset, err := collectIdentities(as...)
+	if err != nil {
+		return nil, err
 	}
 
 	v := reflect.ValueOf(universe)
