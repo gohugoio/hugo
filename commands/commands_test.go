@@ -76,7 +76,7 @@ func TestCommandsPersistentFlags(t *testing.T) {
 		var sc *serverCmd
 		for _, command := range commands {
 			if b, ok := command.(commandsBuilderGetter); ok {
-				v := b.getCmmandsBuilder().hugoBuilderCommon
+				v := b.getCommandsBuilder().hugoBuilderCommon
 				assert.Equal("myconfig.toml", v.cfgFile)
 				assert.Equal("mysource", v.source)
 				assert.Equal("https://example.com/b/", v.baseURL)
