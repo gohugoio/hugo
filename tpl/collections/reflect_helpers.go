@@ -14,10 +14,11 @@
 package collections
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 var (
@@ -57,6 +58,47 @@ func normalize(v reflect.Value) interface{} {
 	}
 
 	return v.Interface()
+}
+
+// collects identities from the slices in seqs into a set. Numeric values are normalized,
+// pointers unwrapped.
+func collectIdentities(seqs ...interface{}) (map[interface{}]bool, error) {
+	seen := make(map[interface{}]bool)
+	for _, seq := range seqs {
+		v := reflect.ValueOf(seq)
+		switch v.Kind() {
+		case reflect.Array, reflect.Slice:
+			for i := 0; i < v.Len(); i++ {
+				ev, _ := indirectInterface(v.Index(i))
+				if !ev.Type().Comparable() {
+					return nil, errors.New("elements must be comparable")
+				}
+
+				seen[normalize(ev)] = true
+			}
+		default:
+			return nil, fmt.Errorf("arguments must be slices or arrays")
+		}
+	}
+
+	return seen, nil
+}
+
+// We have some different numeric and string types that we try to behave like
+// they were the same.
+func convertValue(v reflect.Value, to reflect.Type) (reflect.Value, error) {
+	if v.Type().AssignableTo(to) {
+		return v, nil
+	}
+	switch kind := to.Kind(); {
+	case kind == reflect.String:
+		s, err := toString(v)
+		return reflect.ValueOf(s), err
+	case isNumber(kind):
+		return convertNumber(v, kind)
+	default:
+		return reflect.Value{}, errors.Errorf("%s is not assignable to %s", v.Type(), to)
+	}
 }
 
 // There are potential overflows in this function, but the downconversion of
