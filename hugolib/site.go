@@ -28,6 +28,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/gohugoio/hugo/common/text"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -1438,7 +1440,7 @@ func (s *Site) assembleMenus() {
 	for _, p := range pages {
 		for name, me := range p.Menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
-				s.Log.ERROR.Printf("Two or more menu items have the same name/identifier in Menu %q: %q.\nRename or set an unique identifier.\n", name, me.KeyName())
+				s.SendError(p.errWithFileContext(errors.Errorf("duplicate menu entry with identifier %q in menu %q", me.KeyName(), name)))
 				continue
 			}
 			flat[twoD{name, me.KeyName()}] = me
