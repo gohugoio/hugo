@@ -346,6 +346,24 @@ This will output the following HTML. Note how the first two `img` shortcodes inh
 <img src="/images/three.jpg">
 ```
 
+
+## Error Handling in Shortcodes
+
+Use the [errorf](/functions/errorf) template func and [.Position](/variables/shortcodes/) variable to get useful error messages in shortcodes:
+
+```bash
+{{ with .Get "name" }}
+{{ else }}
+{{ errorf "missing value for param 'name': %s" .Position }}
+{{ end }}
+```
+
+When the above fails, you will see an `ERROR` log similar to the below:
+
+```bash
+ERROR 2018/11/07 10:05:55 missing value for param name: "/Users/bep/dev/go/gohugoio/hugo/docs/content/en/variables/shortcodes.md:32:1"
+```
+
 ## More Shortcode Examples
 
 More shortcode examples can be found in the [shortcodes directory for spf13.com][spfscs] and the [shortcodes directory for the Hugo docs][docsshortcodes].
