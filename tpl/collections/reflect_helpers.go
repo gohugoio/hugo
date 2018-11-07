@@ -43,7 +43,6 @@ func numberToFloat(v reflect.Value) (float64, error) {
 }
 
 // normalizes different numeric types to make them comparable.
-// If not, any pointer will be unwrapped.
 func normalize(v reflect.Value) interface{} {
 	k := v.Kind()
 
@@ -53,8 +52,6 @@ func normalize(v reflect.Value) interface{} {
 		if err == nil {
 			return f
 		}
-	case k == reflect.Ptr:
-		v = v.Elem()
 	}
 
 	return v.Interface()
@@ -70,6 +67,7 @@ func collectIdentities(seqs ...interface{}) (map[interface{}]bool, error) {
 		case reflect.Array, reflect.Slice:
 			for i := 0; i < v.Len(); i++ {
 				ev, _ := indirectInterface(v.Index(i))
+
 				if !ev.Type().Comparable() {
 					return nil, errors.New("elements must be comparable")
 				}

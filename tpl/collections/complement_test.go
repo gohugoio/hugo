@@ -23,6 +23,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type StructWithSlice struct {
+	A string
+	B []string
+}
+
+type StructWithSlicePointers []*StructWithSlice
+
 func TestComplement(t *testing.T) {
 	t.Parallel()
 
@@ -33,10 +40,13 @@ func TestComplement(t *testing.T) {
 	s1 := []TstX{TstX{A: "a"}, TstX{A: "b"}, TstX{A: "d"}, TstX{A: "e"}}
 	s2 := []TstX{TstX{A: "b"}, TstX{A: "e"}}
 
-	xa, xd := &TstX{A: "a"}, &TstX{A: "d"}
+	xa, xb, xd, xe := &StructWithSlice{A: "a"}, &StructWithSlice{A: "b"}, &StructWithSlice{A: "d"}, &StructWithSlice{A: "e"}
 
-	sp1 := []*TstX{xa, &TstX{A: "b"}, xd, &TstX{A: "e"}}
-	sp2 := []*TstX{&TstX{A: "b"}, &TstX{A: "e"}}
+	sp1 := []*StructWithSlice{xa, xb, xd, xe}
+	sp2 := []*StructWithSlice{xb, xe}
+
+	sp1_2 := StructWithSlicePointers{xa, xb, xd, xe}
+	sp2_2 := StructWithSlicePointers{xb, xe}
 
 	for i, test := range []struct {
 		s        interface{}
@@ -49,7 +59,8 @@ func TestComplement(t *testing.T) {
 		{[]int{1, 2, 3, 4, 5}, []interface{}{[]int{1, 3}, []string{"a", "b"}, []int{1, 2}}, []int{4, 5}},
 		{[]int{1, 2, 3, 4, 5}, []interface{}{[]int64{1, 3}}, []int{2, 4, 5}},
 		{s1, []interface{}{s2}, []TstX{TstX{A: "a"}, TstX{A: "d"}}},
-		{sp1, []interface{}{sp2}, []*TstX{xa, xd}},
+		{sp1, []interface{}{sp2}, []*StructWithSlice{xa, xd}},
+		{sp1_2, []interface{}{sp2_2}, StructWithSlicePointers{xa, xd}},
 
 		// Errors
 		{[]string{"a", "b", "c"}, []interface{}{"error"}, false},
