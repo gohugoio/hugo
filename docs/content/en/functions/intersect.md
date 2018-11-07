@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-keywords: []
+keywords: [collections,intersect,union,complement,symdiff]
 signature: ["intersect SET1 SET2"]
 workson: []
 hugoversion:
