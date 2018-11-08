@@ -24,6 +24,8 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/common/hugio"
 	_errors "github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -573,6 +575,59 @@ func OpenFileForWriting(fs afero.Fs, filename string) (afero.File, error) {
 	}
 
 	return f, err
+}
+
+// GetCacheDir returns a cache dir from the given filesystem and config.
+// The dir will be created if it does not exist.
+func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
+	cacheDir := getCacheDir(cfg)
+	if cacheDir != "" {
+		exists, err := DirExists(cacheDir, fs)
+		if err != nil {
+			return "", err
+		}
+		if !exists {
+			err := fs.MkdirAll(cacheDir, 0777) // Before umask
+			if err != nil {
+				return "", _errors.Wrap(err, "failed to create cache dir")
+			}
+		}
+		return cacheDir, nil
+	}
+
+	// Fall back to a cache in /tmp.
+	return GetTempDir("hugo_cache", fs), nil
+
+}
+
+func getCacheDir(cfg config.Provider) string {
+	// Always use the cacheDir config if set.
+	cacheDir := cfg.GetString("cacheDir")
+	if len(cacheDir) > 1 {
+		return addTrailingFileSeparator(cacheDir)
+	}
+
+	// Both of these are fairly distinctive OS env keys used by Netlify.
+	if os.Getenv("DEPLOY_PRIME_URL") != "" && os.Getenv("PULL_REQUEST") != "" {
+		// Netlify's cache behaviour is not documented, the currently best example
+		// is this project:
+		// https://github.com/philhawksworth/content-shards/blob/master/gulpfile.js
+		return "/opt/build/cache/hugo_cache/"
+
+	}
+
+	// This will fall back to an hugo_cache folder in the tmp dir, which should work fine for most CI
+	// providers. See this for a working CircleCI setup:
+	// https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml
+	// If not, they can set the HUGO_CACHEDIR environment variable or cacheDir config key.
+	return ""
+}
+
+func addTrailingFileSeparator(s string) string {
+	if !strings.HasSuffix(s, FilePathSeparator) {
+		s = s + FilePathSeparator
+	}
+	return s
 }
 
 // GetTempDir returns a temporary directory with the given sub path.

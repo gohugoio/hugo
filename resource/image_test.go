@@ -62,6 +62,7 @@ func TestImageTransformBasic(t *testing.T) {
 	assert := require.New(t)
 
 	image := fetchSunset(assert)
+	fileCache := image.spec.FileCaches.ImageCache().Fs
 
 	assert.Equal("/a/sunset.jpg", image.RelPermalink())
 	assert.Equal("image", image.ResourceType())
@@ -76,19 +77,20 @@ func TestImageTransformBasic(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(320, resized0x.Width())
 	assert.Equal(200, resized0x.Height())
-	assertFileCache(assert, image.spec.BaseFs.Resources.Fs, resized0x.RelPermalink(), 320, 200)
+
+	assertFileCache(assert, fileCache, resized0x.RelPermalink(), 320, 200)
 
 	resizedx0, err := image.Resize("200x")
 	assert.NoError(err)
 	assert.Equal(200, resizedx0.Width())
 	assert.Equal(125, resizedx0.Height())
-	assertFileCache(assert, image.spec.BaseFs.Resources.Fs, resizedx0.RelPermalink(), 200, 125)
+	assertFileCache(assert, fileCache, resizedx0.RelPermalink(), 200, 125)
 
 	resizedAndRotated, err := image.Resize("x200 r90")
 	assert.NoError(err)
 	assert.Equal(125, resizedAndRotated.Width())
 	assert.Equal(200, resizedAndRotated.Height())
-	assertFileCache(assert, image.spec.BaseFs.Resources.Fs, resizedAndRotated.RelPermalink(), 125, 200)
+	assertFileCache(assert, fileCache, resizedAndRotated.RelPermalink(), 125, 200)
 
 	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_300x200_resize_q68_linear.jpg", resized.RelPermalink())
 	assert.Equal(300, resized.Width())
@@ -113,21 +115,21 @@ func TestImageTransformBasic(t *testing.T) {
 	assert.Equal("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q68_linear_bottomleft.jpg", filled.RelPermalink())
 	assert.Equal(200, filled.Width())
 	assert.Equal(100, filled.Height())
-	assertFileCache(assert, image.spec.BaseFs.Resources.Fs, filled.RelPermalink(), 200, 100)
+	assertFileCache(assert, fileCache, filled.RelPermalink(), 200, 100)
 
 	smart, err := image.Fill("200x100 smart")
 	assert.NoError(err)
 	assert.Equal(fmt.Sprintf("/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_200x100_fill_q68_linear_smart%d.jpg", smartCropVersionNumber), smart.RelPermalink())
 	assert.Equal(200, smart.Width())
 	assert.Equal(100, smart.Height())
-	assertFileCache(assert, image.spec.BaseFs.Resources.Fs, smart.RelPermalink(), 200, 100)
+	assertFileCache(assert, fileCache, smart.RelPermalink(), 200, 100)
 
 	// Check cache
 	filledAgain, err := image.Fill("200x100 bottomLeft")
 	assert.NoError(err)
 	assert.True(filled == filledAgain)
 	assert.True(filled.sourceFilename == filledAgain.sourceFilename)
-	assertFileCache(assert, image.spec.BaseFs.Resources.Fs, filledAgain.RelPermalink(), 200, 100)
+	assertFileCache(assert, fileCache, filledAgain.RelPermalink(), 200, 100)
 
 }
 
@@ -286,6 +288,7 @@ func TestImageResizeInSubPath(t *testing.T) {
 	assert := require.New(t)
 
 	image := fetchImage(assert, "sub/gohugoio2.png")
+	fileCache := image.spec.FileCaches.ImageCache().Fs
 
 	assert.Equal(imaging.PNG, image.format)
 	assert.Equal("/a/sub/gohugoio2.png", image.RelPermalink())
@@ -297,7 +300,7 @@ func TestImageResizeInSubPath(t *testing.T) {
 	assert.Equal("/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_2.png", resized.RelPermalink())
 	assert.Equal(101, resized.Width())
 
-	assertFileCache(assert, image.spec.BaseFs.Resources.Fs, resized.RelPermalink(), 101, 101)
+	assertFileCache(assert, fileCache, resized.RelPermalink(), 101, 101)
 	publishedImageFilename := filepath.Clean(resized.RelPermalink())
 	assertImageFile(assert, image.spec.BaseFs.PublishFs, publishedImageFilename, 101, 101)
 	assert.NoError(image.spec.BaseFs.PublishFs.Remove(publishedImageFilename))
@@ -309,7 +312,7 @@ func TestImageResizeInSubPath(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal("/a/sub/gohugoio2_hu0e1b9e4a4be4d6f86c7b37b9ccce3fbc_73886_101x101_resize_linear_2.png", resizedAgain.RelPermalink())
 	assert.Equal(101, resizedAgain.Width())
-	assertFileCache(assert, image.spec.BaseFs.Resources.Fs, resizedAgain.RelPermalink(), 101, 101)
+	assertFileCache(assert, fileCache, resizedAgain.RelPermalink(), 101, 101)
 	assertImageFile(assert, image.spec.BaseFs.PublishFs, publishedImageFilename, 101, 101)
 
 }

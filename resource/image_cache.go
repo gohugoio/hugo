@@ -15,19 +15,25 @@ package resource
 
 import (
 	"fmt"
+	"image"
+	"io"
 	"path/filepath"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/gohugoio/hugo/common/hugio"
+
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/helpers"
 )
 
 type imageCache struct {
-	cacheDir string
 	pathSpec *helpers.PathSpec
-	mu       sync.RWMutex
 
+	fileCache *filecache.Cache
+
+	mu    sync.RWMutex
 	store map[string]*Image
 }
 
@@ -66,7 +72,7 @@ func (c *imageCache) clear() {
 }
 
 func (c *imageCache) getOrCreate(
-	parent *Image, conf imageConfig, create func(resourceCacheFilename string) (*Image, error)) (*Image, error) {
+	parent *Image, conf imageConfig, createImage func() (*Image, image.Image, error)) (*Image, error) {
 
 	relTarget := parent.relTargetPathFromConfig(conf)
 	key := parent.relTargetPathForRel(relTarget.path(), false, false)
@@ -80,58 +86,76 @@ func (c *imageCache) getOrCreate(
 		return img, nil
 	}
 
-	// Now look in the file cache.
-	// Multiple Go routines can invoke same operation on the same image, so
-	// we need to make sure this is serialized per source image.
-	parent.createMu.Lock()
-	defer parent.createMu.Unlock()
+	// These funcs are protected by a named lock.
+	// read clones the parent to its new name and copies
+	// the content to the destinations.
+	read := func(info filecache.ItemInfo, r io.Reader) error {
+		img = parent.clone()
+		img.relTargetDirFile.file = relTarget.file
+		img.sourceFilename = info.Name
 
-	cacheFilename := filepath.Join(c.cacheDir, key)
+		w, err := img.openDestinationsForWriting()
+		if err != nil {
+			return err
+		}
+
+		defer w.Close()
+		_, err = io.Copy(w, r)
+		return err
+	}
+
+	// create creates the image and encodes it to w (cache) and to its destinations.
+	create := func(info filecache.ItemInfo, w io.WriteCloser) (err error) {
+		var conv image.Image
+		img, conv, err = createImage()
+		if err != nil {
+			w.Close()
+			return
+		}
+		img.relTargetDirFile.file = relTarget.file
+		img.sourceFilename = info.Name
+
+		destinations, err := img.openDestinationsForWriting()
+		if err != nil {
+			w.Close()
+			return err
+		}
+
+		mw := hugio.NewMultiWriteCloser(w, destinations)
+		defer mw.Close()
+
+		return img.encodeTo(conf, conv, mw)
+	}
+
+	// Now look in the file cache.
 
 	// The definition of this counter is not that we have processed that amount
 	// (e.g. resized etc.), it can be fetched from file cache,
 	//  but the count of processed image variations for this site.
 	c.pathSpec.ProcessingStats.Incr(&c.pathSpec.ProcessingStats.ProcessedImages)
 
-	exists, err := helpers.Exists(cacheFilename, c.pathSpec.BaseFs.Resources.Fs)
+	_, err := c.fileCache.ReadOrCreate(key, read, create)
 	if err != nil {
 		return nil, err
 	}
 
-	if exists {
-		img = parent.clone()
-	} else {
-		img, err = create(cacheFilename)
-		if err != nil {
-			return nil, err
-		}
-	}
-	img.relTargetDirFile.file = relTarget.file
-	img.sourceFilename = cacheFilename
-	// We have to look in the resources file system for this.
-	img.overriddenSourceFs = img.spec.BaseFs.Resources.Fs
+	// The file is now stored in this cache.
+	img.overriddenSourceFs = c.fileCache.Fs
 
 	c.mu.Lock()
 	if img2, found := c.store[key]; found {
 		c.mu.Unlock()
 		return img2, nil
 	}
-
 	c.store[key] = img
-
 	c.mu.Unlock()
 
-	if !exists {
-		// File already written to destination
-		return img, nil
-	}
-
-	return img, img.copyToDestination(cacheFilename)
+	return img, nil
 
 }
 
-func newImageCache(ps *helpers.PathSpec, cacheDir string) *imageCache {
-	return &imageCache{pathSpec: ps, store: make(map[string]*Image), cacheDir: cacheDir}
+func newImageCache(fileCache *filecache.Cache, ps *helpers.PathSpec) *imageCache {
+	return &imageCache{fileCache: fileCache, pathSpec: ps, store: make(map[string]*Image)}
 }
 
 func timeTrack(start time.Time, name string) {

@@ -51,7 +51,7 @@ func (c *Client) Get(fs afero.Fs, filename string) (resource.Resource, error) {
 func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
 	return c.rs.ResourceCache.GetOrCreate(resource.CACHE_OTHER, targetPath, func() (resource.Resource, error) {
 		return c.rs.NewForFs(
-			c.rs.BaseFs.Resources.Fs,
+			c.rs.FileCaches.AssetsCache().Fs,
 			resource.ResourceSourceDescriptor{
 				LazyPublish: true,
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {

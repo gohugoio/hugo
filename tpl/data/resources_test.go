@@ -23,6 +23,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/hugolib/paths"
+
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
@@ -85,16 +88,16 @@ func getTestServer(handler func(w http.ResponseWriter, r *http.Request)) (*httpt
 func TestScpGetRemote(t *testing.T) {
 	t.Parallel()
 	fs := new(afero.MemMapFs)
+	cache := filecache.NewCache(fs, 100)
 
 	tests := []struct {
 		path    string
 		content []byte
-		ignore  bool
 	}{
-		{"http://Foo.Bar/foo_Bar-Foo", []byte(`T€st Content 123`), false},
-		{"http://Doppel.Gänger/foo_Bar-Foo", []byte(`T€st Cont€nt 123`), false},
-		{"http://Doppel.Gänger/Fizz_Bazz-Foo", []byte(`T€st Банковский кассир Cont€nt 123`), false},
-		{"http://Doppel.Gänger/Fizz_Bazz-Bar", []byte(`T€st Банковский кассир Cont€nt 456`), true},
+		{"http://Foo.Bar/foo_Bar-Foo", []byte(`T€st Content 123`)},
+		{"http://Doppel.Gänger/foo_Bar-Foo", []byte(`T€st Cont€nt 123`)},
+		{"http://Doppel.Gänger/Fizz_Bazz-Foo", []byte(`T€st Банковский кассир Cont€nt 123`)},
+		{"http://Doppel.Gänger/Fizz_Bazz-Bar", []byte(`T€st Банковский кассир Cont€nt 456`)},
 	}
 
 	for _, test := range tests {
@@ -108,53 +111,64 @@ func TestScpGetRemote(t *testing.T) {
 		})
 		defer func() { srv.Close() }()
 
-		cfg := viper.New()
+		ns := newTestNs()
+		ns.client = cl
 
-		c, err := getRemote(req, fs, cfg, cl)
+		var c []byte
+		f := func(b []byte) (error, bool) {
+			c = b
+			return nil, false
+		}
+
+		err = ns.getRemote(cache, f, req)
 		require.NoError(t, err, msg)
 		assert.Equal(t, string(test.content), string(c))
 
-		c, err = getCache(req.URL.String(), fs, cfg, test.ignore)
-		require.NoError(t, err, msg)
+		assert.Equal(t, string(test.content), string(c))
 
-		if test.ignore {
-			assert.Empty(t, c, msg)
-		} else {
-			assert.Equal(t, string(test.content), string(c))
-
-		}
 	}
 }
 
 func TestScpGetRemoteParallel(t *testing.T) {
 	t.Parallel()
 
-	ns := newTestNs()
-
 	content := []byte(`T€st Content 123`)
 	srv, cl := getTestServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Write(content)
 	})
+
 	defer func() { srv.Close() }()
 
 	url := "http://Foo.Bar/foo_Bar-Foo"
 	req, err := http.NewRequest("GET", url, nil)
 	require.NoError(t, err)
 
-	for _, ignoreCache := range []bool{false, true} {
+	for _, ignoreCache := range []bool{false} {
 		cfg := viper.New()
 		cfg.Set("ignoreCache", ignoreCache)
+		cfg.Set("contentDir", "content")
+
+		ns := New(newDeps(cfg))
+		ns.client = cl
 
 		var wg sync.WaitGroup
 
-		for i := 0; i < 50; i++ {
+		for i := 0; i < 1; i++ {
 			wg.Add(1)
 			go func(gor int) {
 				defer wg.Done()
 				for j := 0; j < 10; j++ {
-					c, err := getRemote(req, ns.deps.Fs.Source, ns.deps.Cfg, cl)
+					var c []byte
+					f := func(b []byte) (error, bool) {
+						c = b
+						return nil, false
+					}
+					err := ns.getRemote(ns.cacheGetJSON, f, req)
+
 					assert.NoError(t, err)
-					assert.Equal(t, string(content), string(c))
+					if string(content) != string(c) {
+						t.Fatalf("expected\n%q\ngot\n%q", content, c)
+					}
 
 					time.Sleep(23 * time.Millisecond)
 				}
@@ -173,11 +187,16 @@ func newDeps(cfg config.Provider) *deps.Deps {
 		panic(err)
 	}
 
+	fs := hugofs.NewMem(l)
 	logger := loggers.NewErrorLogger()
+	p, _ := paths.New(fs, cfg)
+
+	fileCaches, _ := filecache.NewCachesFromPaths(p)
 
 	return &deps.Deps{
 		Cfg:              cfg,
-		Fs:               hugofs.NewMem(l),
+		Fs:               fs,
+		FileCaches:       fileCaches,
 		ContentSpec:      cs,
 		Log:              logger,
 		DistinctErrorLog: helpers.NewDistinctLogger(logger.ERROR),

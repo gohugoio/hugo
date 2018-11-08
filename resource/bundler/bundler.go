@@ -105,7 +105,7 @@ func (c *Client) Concat(targetPath string, resources resource.Resources) (resour
 		}
 
 		composite, err := c.rs.NewForFs(
-			c.rs.BaseFs.Resources.Fs,
+			c.rs.FileCaches.AssetsCache().Fs,
 			resource.ResourceSourceDescriptor{
 				LazyPublish:        true,
 				OpenReadSeekCloser: concatr,

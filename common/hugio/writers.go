@@ -15,6 +15,7 @@ package hugio
 
 import (
 	"io"
+	"io/ioutil"
 )
 
 type multiWriteCloser struct {
@@ -40,4 +41,36 @@ func NewMultiWriteCloser(writeClosers ...io.WriteCloser) io.WriteCloser {
 		writers[i] = w
 	}
 	return multiWriteCloser{Writer: io.MultiWriter(writers...), closers: writeClosers}
+}
+
+// ToWriteCloser creates an io.WriteCloser from the given io.Writer.
+// If it's not already, one will be created with a Close method that does nothing.
+func ToWriteCloser(w io.Writer) io.WriteCloser {
+	if rw, ok := w.(io.WriteCloser); ok {
+		return rw
+	}
+
+	return struct {
+		io.Writer
+		io.Closer
+	}{
+		w,
+		ioutil.NopCloser(nil),
+	}
+}
+
+// ToReadCloser creates an io.ReadCloser from the given io.Reader.
+// If it's not already, one will be created with a Close method that does nothing.
+func ToReadCloser(r io.Reader) io.ReadCloser {
+	if rc, ok := r.(io.ReadCloser); ok {
+		return rc
+	}
+
+	return struct {
+		io.Reader
+		io.Closer
+	}{
+		r,
+		ioutil.NopCloser(nil),
+	}
 }

@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -27,21 +26,12 @@ import (
 // GC requires a build first.
 func (h *HugoSites) GC() (int, error) {
 	s := h.Sites[0]
-	fs := h.PathSpec.BaseFs.Resources.Fs
+	assetsCacheFs := h.Deps.FileCaches.AssetsCache().Fs
+	imageCacheFs := h.Deps.FileCaches.ImageCache().Fs
 
-	imageCacheDir := s.ResourceSpec.GenImagePath
-	if len(imageCacheDir) < 10 {
-		panic("invalid image cache")
-	}
-	assetsCacheDir := s.ResourceSpec.GenAssetsPath
-	if len(assetsCacheDir) < 10 {
-		panic("invalid assets cache")
-	}
-
-	isImageInUse := func(filename string) bool {
-		key := strings.TrimPrefix(filename, imageCacheDir)
+	isImageInUse := func(name string) bool {
 		for _, site := range h.Sites {
-			if site.ResourceSpec.IsInImageCache(key) {
+			if site.ResourceSpec.IsInImageCache(name) {
 				return true
 			}
 		}
@@ -49,10 +39,9 @@ func (h *HugoSites) GC() (int, error) {
 		return false
 	}
 
-	isAssetInUse := func(filename string) bool {
-		key := strings.TrimPrefix(filename, assetsCacheDir)
+	isAssetInUse := func(name string) bool {
 		// These assets are stored in tuplets with an added extension to the key.
-		key = strings.TrimSuffix(key, helpers.Ext(key))
+		key := strings.TrimSuffix(name, helpers.Ext(name))
 		for _, site := range h.Sites {
 			if site.ResourceSpec.ResourceCache.Contains(key) {
 				return true
@@ -62,15 +51,11 @@ func (h *HugoSites) GC() (int, error) {
 		return false
 	}
 
-	walker := func(dirname string, inUse func(filename string) bool) (int, error) {
+	walker := func(fs afero.Fs, dirname string, inUse func(filename string) bool) (int, error) {
 		counter := 0
 		err := afero.Walk(fs, dirname, func(path string, info os.FileInfo, err error) error {
 			if info == nil {
 				return nil
-			}
-
-			if !strings.HasPrefix(path, dirname) {
-				return fmt.Errorf("Invalid state, walk outside of resource dir: %q", path)
 			}
 
 			if info.IsDir() {
@@ -103,8 +88,8 @@ func (h *HugoSites) GC() (int, error) {
 		return counter, err
 	}
 
-	imageCounter, err1 := walker(imageCacheDir, isImageInUse)
-	assetsCounter, err2 := walker(assetsCacheDir, isAssetInUse)
+	imageCounter, err1 := walker(imageCacheFs, "", isImageInUse)
+	assetsCounter, err2 := walker(assetsCacheFs, "", isAssetInUse)
 	totalCount := imageCounter + assetsCounter
 
 	if err1 != nil {
