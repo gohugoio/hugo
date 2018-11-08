@@ -14,102 +14,81 @@
 package data
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
-	"sync"
 	"time"
+
+	"github.com/pkg/errors"
+
+	"github.com/gohugoio/hugo/cache/filecache"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
-	jww "github.com/spf13/jwalterweatherman"
 )
 
 var (
-	remoteURLLock = &remoteLock{m: make(map[string]*sync.Mutex)}
-	resSleep      = time.Second * 2 // if JSON decoding failed sleep for n seconds before retrying
-	resRetries    = 1               // number of retries to load the JSON from URL or local file system
+	resSleep   = time.Second * 2 // if JSON decoding failed sleep for n seconds before retrying
+	resRetries = 1               // number of retries to load the JSON from URL
 )
 
-type remoteLock struct {
-	sync.RWMutex
-	m map[string]*sync.Mutex
-}
-
-// URLLock locks an URL during download
-func (l *remoteLock) URLLock(url string) {
-	var (
-		lock *sync.Mutex
-		ok   bool
-	)
-	l.Lock()
-	if lock, ok = l.m[url]; !ok {
-		lock = &sync.Mutex{}
-		l.m[url] = lock
-	}
-	l.Unlock()
-	lock.Lock()
-}
-
-// URLUnlock unlocks an URL when the download has been finished. Use only in defer calls.
-func (l *remoteLock) URLUnlock(url string) {
-	l.RLock()
-	defer l.RUnlock()
-	if um, ok := l.m[url]; ok {
-		um.Unlock()
-	}
-}
-
 // getRemote loads the content of a remote file. This method is thread safe.
-func getRemote(req *http.Request, fs afero.Fs, cfg config.Provider, hc *http.Client) ([]byte, error) {
+func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (error, bool), req *http.Request) error {
 	url := req.URL.String()
+	id := helpers.MD5String(url)
+	var handled bool
+	var retry bool
 
-	c, err := getCache(url, fs, cfg, cfg.GetBool("ignoreCache"))
-	if err != nil {
+	_, b, err := cache.GetOrCreateBytes(id, func() ([]byte, error) {
+		var err error
+		handled = true
+		for i := 0; i <= resRetries; i++ {
+			ns.deps.Log.INFO.Printf("Downloading: %s ...", url)
+			var res *http.Response
+			res, err = ns.client.Do(req)
+			if err != nil {
+				return nil, err
+			}
+
+			if isHTTPError(res) {
+				return nil, errors.Errorf("Failed to retrieve remote file: %s", http.StatusText(res.StatusCode))
+			}
+
+			var b []byte
+			b, err = ioutil.ReadAll(res.Body)
+
+			if err != nil {
+				return nil, err
+			}
+			res.Body.Close()
+
+			err, retry = unmarshal(b)
+
+			if err == nil {
+				// Return it so it can be cached.
+				return b, nil
+			}
+
+			if !retry {
+				return nil, err
+			}
+
+			ns.deps.Log.INFO.Printf("Cannot read remote resource %s: %s", url, err)
+			ns.deps.Log.INFO.Printf("Retry #%d for %s and sleeping for %s", i+1, url, resSleep)
+			time.Sleep(resSleep)
+		}
+
 		return nil, err
-	}
-	if c != nil {
-		return c, nil
+
+	})
+
+	if !handled {
+		// This is cached content and should be correct.
+		err, _ = unmarshal(b)
 	}
 
-	// avoid race condition with locks, block other goroutines if the current url is processing
-	remoteURLLock.URLLock(url)
-	defer func() { remoteURLLock.URLUnlock(url) }()
-
-	// avoid multiple locks due to calling getCache twice
-	c, err = getCache(url, fs, cfg, cfg.GetBool("ignoreCache"))
-	if err != nil {
-		return nil, err
-	}
-	if c != nil {
-		return c, nil
-	}
-
-	jww.INFO.Printf("Downloading: %s ...", url)
-	res, err := hc.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	if res.StatusCode < 200 || res.StatusCode > 299 {
-		return nil, fmt.Errorf("Failed to retrieve remote file: %s", http.StatusText(res.StatusCode))
-	}
-
-	c, err = ioutil.ReadAll(res.Body)
-	res.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	err = writeCache(url, c, fs, cfg, cfg.GetBool("ignoreCache"))
-	if err != nil {
-		return nil, err
-	}
-
-	jww.INFO.Printf("... and cached to: %s", getCacheFileID(cfg, url))
-	return c, nil
+	return err
 }
 
 // getLocal loads the content of a local file
@@ -123,12 +102,22 @@ func getLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
 
 }
 
-// getResource loads the content of a local or remote file
-func (ns *Namespace) getResource(req *http.Request) ([]byte, error) {
+// getResource loads the content of a local or remote file and returns its content and the
+// cache ID used, if relevant.
+func (ns *Namespace) getResource(cache *filecache.Cache, unmarshal func(b []byte) (error, bool), req *http.Request) error {
 	switch req.URL.Scheme {
 	case "":
-		return getLocal(req.URL.String(), ns.deps.Fs.Source, ns.deps.Cfg)
+		b, err := getLocal(req.URL.String(), ns.deps.Fs.Source, ns.deps.Cfg)
+		if err != nil {
+			return err
+		}
+		err, _ = unmarshal(b)
+		return err
 	default:
-		return getRemote(req, ns.deps.Fs.Source, ns.deps.Cfg, ns.client)
+		return ns.getRemote(cache, unmarshal, req)
 	}
+}
+
+func isHTTPError(res *http.Response) bool {
+	return res.StatusCode < 200 || res.StatusCode > 299
 }

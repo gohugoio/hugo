@@ -4,6 +4,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
+
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
@@ -52,6 +55,9 @@ type Deps struct {
 
 	// The configuration to use
 	Cfg config.Provider `json:"-"`
+
+	// The file cache to use.
+	FileCaches filecache.Caches
 
 	// The translation func to use
 	Translate func(translationID string, args ...interface{}) string `json:"-"`
@@ -187,7 +193,12 @@ func New(cfg DepsCfg) (*Deps, error) {
 		return nil, err
 	}
 
-	resourceSpec, err := resource.NewSpec(ps, logger, cfg.OutputFormats, cfg.MediaTypes)
+	fileCaches, err := filecache.NewCachesFromPaths(ps.Paths)
+	if err != nil {
+		return nil, errors.WithMessage(err, "failed to create file caches from configuration")
+	}
+
+	resourceSpec, err := resource.NewSpec(ps, fileCaches, logger, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -219,6 +230,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		ResourceSpec:        resourceSpec,
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
+		FileCaches:          fileCaches,
 		BuildStartListeners: &Listeners{},
 		Timeout:             time.Duration(timeoutms) * time.Millisecond,
 		globalErrHandler:    &globalErrHandler{},
@@ -250,7 +262,7 @@ func (d Deps) ForLanguage(cfg DepsCfg) (*Deps, error) {
 	// The resource cache is global so reuse.
 	// TODO(bep) clean up these inits.
 	resourceCache := d.ResourceSpec.ResourceCache
-	d.ResourceSpec, err = resource.NewSpec(d.PathSpec, d.Log, cfg.OutputFormats, cfg.MediaTypes)
+	d.ResourceSpec, err = resource.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.Log, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}

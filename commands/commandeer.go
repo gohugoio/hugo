@@ -359,20 +359,11 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		return err
 	}
 
-	cacheDir := config.GetString("cacheDir")
-	if cacheDir != "" {
-		if helpers.FilePathSeparator != cacheDir[len(cacheDir)-1:] {
-			cacheDir = cacheDir + helpers.FilePathSeparator
-		}
-		isDir, err := helpers.DirExists(cacheDir, sourceFs)
-		checkErr(cfg.Logger, err)
-		if !isDir {
-			mkdir(cacheDir)
-		}
-		config.Set("cacheDir", cacheDir)
-	} else {
-		config.Set("cacheDir", helpers.GetTempDir("hugo_cache", sourceFs))
+	cacheDir, err := helpers.GetCacheDir(sourceFs, config)
+	if err != nil {
+		return err
 	}
+	config.Set("cacheDir", cacheDir)
 
 	cfg.Logger.INFO.Println("Using config file:", config.ConfigFileUsed())
 

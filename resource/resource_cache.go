@@ -15,14 +15,13 @@ package resource
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
 
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/spf13/afero"
+	"github.com/gohugoio/hugo/cache/filecache"
 
 	"github.com/BurntSushi/locker"
 )
@@ -35,8 +34,10 @@ const (
 type ResourceCache struct {
 	rs *Spec
 
-	cache map[string]Resource
 	sync.RWMutex
+	cache map[string]Resource
+
+	fileCache *filecache.Cache
 
 	// Provides named resource locks.
 	nlocker *locker.Locker
@@ -56,9 +57,10 @@ func ResourceKeyPartition(filename string) string {
 
 func newResourceCache(rs *Spec) *ResourceCache {
 	return &ResourceCache{
-		rs:      rs,
-		cache:   make(map[string]Resource),
-		nlocker: locker.NewLocker(),
+		rs:        rs,
+		fileCache: rs.FileCaches.AssetsCache(),
+		cache:     make(map[string]Resource),
+		nlocker:   locker.NewLocker(),
 	}
 }
 
@@ -118,65 +120,56 @@ func (c *ResourceCache) GetOrCreate(partition, key string, f func() (Resource, e
 }
 
 func (c *ResourceCache) getFilenames(key string) (string, string) {
-	filenameBase := filepath.Join(c.rs.GenAssetsPath, key)
-	filenameMeta := filenameBase + ".json"
-	filenameContent := filenameBase + ".content"
+	filenameMeta := key + ".json"
+	filenameContent := key + ".content"
 
 	return filenameMeta, filenameContent
 }
 
-func (c *ResourceCache) getFromFile(key string) (afero.File, transformedResourceMetadata, bool) {
+func (c *ResourceCache) getFromFile(key string) (filecache.ItemInfo, io.ReadCloser, transformedResourceMetadata, bool) {
 	c.RLock()
 	defer c.RUnlock()
 
 	var meta transformedResourceMetadata
 	filenameMeta, filenameContent := c.getFilenames(key)
-	fMeta, err := c.rs.Resources.Fs.Open(filenameMeta)
-	if err != nil {
-		return nil, meta, false
-	}
-	defer fMeta.Close()
 
-	jsonContent, err := ioutil.ReadAll(fMeta)
-	if err != nil {
-		return nil, meta, false
+	_, jsonContent, _ := c.fileCache.GetBytes(filenameMeta)
+	if jsonContent == nil {
+		return filecache.ItemInfo{}, nil, meta, false
 	}
 
 	if err := json.Unmarshal(jsonContent, &meta); err != nil {
-		return nil, meta, false
+		return filecache.ItemInfo{}, nil, meta, false
 	}
 
-	fContent, err := c.rs.Resources.Fs.Open(filenameContent)
-	if err != nil {
-		return nil, meta, false
-	}
+	fi, rc, _ := c.fileCache.Get(filenameContent)
 
-	return fContent, meta, true
+	return fi, rc, meta, rc != nil
+
 }
 
 // writeMeta writes the metadata to file and returns a writer for the content part.
-func (c *ResourceCache) writeMeta(key string, meta transformedResourceMetadata) (afero.File, error) {
+func (c *ResourceCache) writeMeta(key string, meta transformedResourceMetadata) (filecache.ItemInfo, io.WriteCloser, error) {
 	filenameMeta, filenameContent := c.getFilenames(key)
 	raw, err := json.Marshal(meta)
 	if err != nil {
-		return nil, err
+		return filecache.ItemInfo{}, nil, err
 	}
 
-	fm, err := c.openResourceFileForWriting(filenameMeta)
+	_, fm, err := c.fileCache.WriteCloser(filenameMeta)
 	if err != nil {
-		return nil, err
+		return filecache.ItemInfo{}, nil, err
 	}
+	defer fm.Close()
 
 	if _, err := fm.Write(raw); err != nil {
-		return nil, err
+		return filecache.ItemInfo{}, nil, err
 	}
 
-	return c.openResourceFileForWriting(filenameContent)
+	fi, fc, err := c.fileCache.WriteCloser(filenameContent)
 
-}
+	return fi, fc, err
 
-func (c *ResourceCache) openResourceFileForWriting(filename string) (afero.File, error) {
-	return helpers.OpenFileForWriting(c.rs.Resources.Fs, filename)
 }
 
 func (c *ResourceCache) set(key string, r Resource) {

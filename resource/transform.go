@@ -24,7 +24,6 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/mitchellh/hashstructure"
-	"github.com/spf13/afero"
 
 	"fmt"
 	"io"
@@ -210,12 +209,12 @@ func (r *transformedResource) transferTransformedValues(another *transformedReso
 }
 
 func (r *transformedResource) tryTransformedFileCache(key string) io.ReadCloser {
-	f, meta, found := r.cache.getFromFile(key)
+	fi, f, meta, found := r.cache.getFromFile(key)
 	if !found {
 		return nil
 	}
 	r.transformedResourceMetadata = meta
-	r.sourceFilename = f.Name()
+	r.sourceFilename = fi.Name
 
 	return f
 }
@@ -263,7 +262,7 @@ func (r *transformedResource) initContent() error {
 	var err error
 	r.contentInit.Do(func() {
 		var b []byte
-		b, err := afero.ReadFile(r.cache.rs.Resources.Fs, r.sourceFilename)
+		_, b, err = r.cache.fileCache.GetBytes(r.sourceFilename)
 		if err != nil {
 			return
 		}
@@ -434,16 +433,15 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 	}
 	defer publicw.Close()
 
-	publishwriters := []io.Writer{publicw}
+	publishwriters := []io.WriteCloser{publicw}
 
 	if transformedContentr == nil {
 		// Also write it to the cache
-		metaw, err := r.cache.writeMeta(key, r.transformedResourceMetadata)
+		fi, metaw, err := r.cache.writeMeta(key, r.transformedResourceMetadata)
 		if err != nil {
 			return err
 		}
-		r.sourceFilename = metaw.Name()
-		defer metaw.Close()
+		r.sourceFilename = fi.Name
 
 		publishwriters = append(publishwriters, metaw)
 
@@ -460,11 +458,12 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 	if setContent {
 		contentmemw = bp.GetBuffer()
 		defer bp.PutBuffer(contentmemw)
-		publishwriters = append(publishwriters, contentmemw)
+		publishwriters = append(publishwriters, hugio.ToWriteCloser(contentmemw))
 	}
 
-	publishw := io.MultiWriter(publishwriters...)
+	publishw := hugio.NewMultiWriteCloser(publishwriters...)
 	_, r.transformErr = io.Copy(publishw, transformedContentr)
+	publishw.Close()
 
 	if setContent {
 		r.contentInit.Do(func() {

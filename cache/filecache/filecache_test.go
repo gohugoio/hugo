@@ -1,0 +1,306 @@
+// Copyright 2018 The Hugo Authors. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package filecache
+
+import (
+	"fmt"
+	"io"
+	"io/ioutil"
+	"path/filepath"
+	"regexp"
+	"runtime"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	"github.com/gohugoio/hugo/common/hugio"
+
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib/paths"
+	"github.com/spf13/afero"
+	"github.com/spf13/viper"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestFileCache(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	for _, cacheDir := range []string{"mycache", ""} {
+
+		configStr := `
+cacheDir = "CACHEDIR"
+[caches]
+[caches.getJSON]
+maxAge = 111
+dir = ":cacheDir/c"
+
+`
+		configStr = strings.Replace(configStr, "CACHEDIR", cacheDir, 1)
+
+		cfg, err := config.FromConfigString(configStr, "toml")
+		assert.NoError(err)
+
+		fs := hugofs.NewMem(cfg)
+		p, err := paths.New(fs, cfg)
+		assert.NoError(err)
+
+		caches, err := NewCachesFromPaths(p)
+		assert.NoError(err)
+
+		c := caches.Get("GetJSON")
+		assert.NotNil(c)
+		assert.Equal(111, c.maxAge)
+
+		bfs, ok := c.Fs.(*afero.BasePathFs)
+		assert.True(ok)
+		filename, err := bfs.RealPath("key")
+		assert.NoError(err)
+		if cacheDir != "" {
+			assert.Equal(filepath.FromSlash(cacheDir+"/c/getjson/key"), filename)
+		} else {
+			// Temp dir.
+			assert.Regexp(regexp.MustCompile("hugo_cache.*key"), filename)
+		}
+
+		rf := func(s string) func() (io.ReadCloser, error) {
+			return func() (io.ReadCloser, error) {
+				return struct {
+					io.ReadSeeker
+					io.Closer
+				}{
+					strings.NewReader(s),
+					ioutil.NopCloser(nil),
+				}, nil
+			}
+		}
+
+		bf := func() ([]byte, error) {
+			return []byte("bcd"), nil
+		}
+
+		for i := 0; i < 2; i++ {
+			info, r, err := c.GetOrCreate("a", rf("abc"))
+			assert.NoError(err)
+			assert.NotNil(r)
+			assert.Equal("a", info.Name)
+			b, _ := ioutil.ReadAll(r)
+			r.Close()
+			assert.Equal("abc", string(b))
+
+			info, b, err = c.GetOrCreateBytes("b", bf)
+			assert.NoError(err)
+			assert.NotNil(r)
+			assert.Equal("b", info.Name)
+			assert.Equal("bcd", string(b))
+
+			_, b, err = c.GetOrCreateBytes("a", bf)
+			assert.NoError(err)
+			assert.Equal("abc", string(b))
+
+			_, r, err = c.GetOrCreate("a", rf("bcd"))
+			assert.NoError(err)
+			b, _ = ioutil.ReadAll(r)
+			r.Close()
+			assert.Equal("abc", string(b))
+		}
+
+		assert.NotNil(caches.Get("getJSON"))
+
+		info, w, err := caches.ImageCache().WriteCloser("mykey")
+		assert.NoError(err)
+		assert.Equal("mykey", info.Name)
+		io.WriteString(w, "Hugo is great!")
+		w.Close()
+		assert.Equal("Hugo is great!", caches.ImageCache().getString("mykey"))
+
+		info, r, err := caches.ImageCache().Get("mykey")
+		assert.NoError(err)
+		assert.NotNil(r)
+		assert.Equal("mykey", info.Name)
+		b, _ := ioutil.ReadAll(r)
+		r.Close()
+		assert.Equal("Hugo is great!", string(b))
+
+		info, b, err = caches.ImageCache().GetBytes("mykey")
+		assert.NoError(err)
+		assert.Equal("mykey", info.Name)
+		assert.Equal("Hugo is great!", string(b))
+
+	}
+
+}
+
+func TestFileCacheConcurrent(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	configStr := `
+[caches]
+[caches.getjson]
+maxAge = 1
+dir = "/cache/c"
+
+`
+
+	cfg, err := config.FromConfigString(configStr, "toml")
+	assert.NoError(err)
+	fs := hugofs.NewMem(cfg)
+	p, err := paths.New(fs, cfg)
+	assert.NoError(err)
+
+	caches, err := NewCachesFromPaths(p)
+	assert.NoError(err)
+
+	const cacheName = "getjson"
+
+	filenameData := func(i int) (string, string) {
+		data := fmt.Sprintf("data: %d", i)
+		filename := fmt.Sprintf("file%d", i)
+		return filename, data
+	}
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < 50; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			for j := 0; j < 20; j++ {
+				c := caches.Get(cacheName)
+				assert.NotNil(c)
+				filename, data := filenameData(i)
+				_, r, err := c.GetOrCreate(filename, func() (io.ReadCloser, error) {
+					return hugio.ToReadCloser(strings.NewReader(data)), nil
+				})
+				assert.NoError(err)
+				b, _ := ioutil.ReadAll(r)
+				r.Close()
+				assert.Equal(data, string(b))
+				// Trigger some expiration.
+				time.Sleep(50 * time.Millisecond)
+			}
+		}(i)
+
+	}
+	wg.Wait()
+}
+
+func TestDecodeConfig(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	configStr := `
+[caches]
+[caches.getJSON]
+maxAge = 1234
+dir = "/path/to/c1"
+[caches.getCSV]
+maxAge = 3456
+dir = "/path/to/c2"
+[caches.images]
+dir = "/path/to/c3"
+
+`
+
+	cfg, err := config.FromConfigString(configStr, "toml")
+	assert.NoError(err)
+	fs := hugofs.NewMem(cfg)
+	p, err := paths.New(fs, cfg)
+	assert.NoError(err)
+
+	decoded, err := decodeConfig(p)
+	assert.NoError(err)
+
+	assert.Equal(4, len(decoded))
+
+	c2 := decoded["getcsv"]
+	assert.Equal(3456, c2.MaxAge)
+	assert.Equal(filepath.FromSlash("/path/to/c2"), c2.Dir)
+
+	c3 := decoded["images"]
+	assert.Equal(-1, c3.MaxAge)
+	assert.Equal(filepath.FromSlash("/path/to/c3"), c3.Dir)
+
+}
+
+func TestDecodeConfigIgnoreCache(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	configStr := `
+ignoreCache = true
+[caches]
+[caches.getJSON]
+maxAge = 1234
+dir = "/path/to/c1"
+[caches.getCSV]
+maxAge = 3456
+dir = "/path/to/c2"
+[caches.images]
+dir = "/path/to/c3"
+
+`
+
+	cfg, err := config.FromConfigString(configStr, "toml")
+	assert.NoError(err)
+	fs := hugofs.NewMem(cfg)
+	p, err := paths.New(fs, cfg)
+	assert.NoError(err)
+
+	decoded, err := decodeConfig(p)
+	assert.NoError(err)
+
+	assert.Equal(4, len(decoded))
+
+	for _, v := range decoded {
+		assert.Equal(0, v.MaxAge)
+	}
+
+}
+
+func TestDecodeConfigDefault(t *testing.T) {
+	assert := require.New(t)
+	cfg := viper.New()
+	if runtime.GOOS == "windows" {
+		cfg.Set("resourceDir", "c:\\cache\\resources")
+		cfg.Set("cacheDir", "c:\\cache\\thecache")
+
+	} else {
+		cfg.Set("resourceDir", "/cache/resources")
+		cfg.Set("cacheDir", "/cache/thecache")
+	}
+
+	fs := hugofs.NewMem(cfg)
+	p, err := paths.New(fs, cfg)
+	assert.NoError(err)
+
+	decoded, err := decodeConfig(p)
+
+	assert.NoError(err)
+
+	assert.Equal(4, len(decoded))
+
+	if runtime.GOOS == "windows" {
+		assert.Equal("c:\\cache\\resources\\_gen", decoded[cacheKeyImages].Dir)
+	} else {
+		assert.Equal("/cache/resources/_gen", decoded[cacheKeyImages].Dir)
+	}
+}

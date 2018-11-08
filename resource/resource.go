@@ -28,6 +28,7 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/pkg/errors"
 
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -280,12 +281,15 @@ type Spec struct {
 
 	imageCache    *imageCache
 	ResourceCache *ResourceCache
-
-	GenImagePath  string
-	GenAssetsPath string
+	FileCaches    filecache.Caches
 }
 
-func NewSpec(s *helpers.PathSpec, logger *loggers.Logger, outputFormats output.Formats, mimeTypes media.Types) (*Spec, error) {
+func NewSpec(
+	s *helpers.PathSpec,
+	fileCaches filecache.Caches,
+	logger *loggers.Logger,
+	outputFormats output.Formats,
+	mimeTypes media.Types) (*Spec, error) {
 
 	imaging, err := decodeImaging(s.Cfg.GetStringMap("imaging"))
 	if err != nil {
@@ -296,24 +300,16 @@ func NewSpec(s *helpers.PathSpec, logger *loggers.Logger, outputFormats output.F
 		logger = loggers.NewErrorLogger()
 	}
 
-	genImagePath := filepath.FromSlash("_gen/images")
-	// The transformed assets (CSS etc.)
-	genAssetsPath := filepath.FromSlash("_gen/assets")
-
 	rs := &Spec{PathSpec: s,
 		Logger:        logger,
-		GenImagePath:  genImagePath,
-		GenAssetsPath: genAssetsPath,
 		imaging:       &imaging,
 		MediaTypes:    mimeTypes,
 		OutputFormats: outputFormats,
+		FileCaches:    fileCaches,
 		imageCache: newImageCache(
+			fileCaches.ImageCache(),
+
 			s,
-			// We're going to write a cache pruning routine later, so make it extremely
-			// unlikely that the user shoots him or herself in the foot
-			// and this is set to a value that represents data he/she
-			// cares about. This should be set in stone once released.
-			genImagePath,
 		)}
 
 	rs.ResourceCache = newResourceCache(rs)

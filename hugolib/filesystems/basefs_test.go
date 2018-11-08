@@ -108,7 +108,6 @@ theme = ["atheme"]
 	checkFileCount(bfs.Data.Fs, "", assert, 9)        // 7 + 2 themes
 	checkFileCount(bfs.Archetypes.Fs, "", assert, 10) // 8 + 2 themes
 	checkFileCount(bfs.Assets.Fs, "", assert, 9)
-	checkFileCount(bfs.Resources.Fs, "", assert, 10)
 	checkFileCount(bfs.Work.Fs, "", assert, 78)
 
 	assert.Equal([]string{filepath.FromSlash("/my/work/mydata"), filepath.FromSlash("/my/work/themes/btheme/data"), filepath.FromSlash("/my/work/themes/atheme/data")}, bfs.Data.Dirnames)
@@ -228,8 +227,6 @@ func TestRealDirs(t *testing.T) {
 	assert.Equal(2, len(realDirs))
 	assert.Equal(filepath.Join(root, "myassets/scss"), realDirs[0])
 	assert.Equal(filepath.Join(themesDir, "mytheme/assets/scss"), realDirs[len(realDirs)-1])
-
-	checkFileCount(bfs.Resources.Fs, "", assert, 3)
 
 	assert.NotNil(bfs.themeFs)
 	fi, b, err := bfs.themeFs.(afero.Lstater).LstatIfPossible(filepath.Join("resources", "t1.txt"))

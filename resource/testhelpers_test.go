@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
@@ -49,10 +50,12 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 	fs := hugofs.NewMem(cfg)
 
 	s, err := helpers.NewPathSpec(fs, cfg)
-
 	assert.NoError(err)
 
-	spec, err := NewSpec(s, nil, output.DefaultFormats, media.DefaultTypes)
+	filecaches, err := filecache.NewCachesFromPaths(s.Paths)
+	assert.NoError(err)
+
+	spec, err := NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)
 	assert.NoError(err)
 	return spec
 }
@@ -70,7 +73,7 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 	}
 
 	cfg.Set("workingDir", workDir)
-	cfg.Set("resourceDir", filepath.Join(workDir, "res"))
+	cfg.Set("resourceDir", "resources")
 	cfg.Set("contentDir", "content")
 	cfg.Set("dataDir", "data")
 	cfg.Set("i18nDir", "i18n")
@@ -83,10 +86,12 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 	fs.Destination = &afero.MemMapFs{}
 
 	s, err := helpers.NewPathSpec(fs, cfg)
-
 	assert.NoError(err)
 
-	spec, err := NewSpec(s, nil, output.DefaultFormats, media.DefaultTypes)
+	filecaches, err := filecache.NewCachesFromPaths(s.Paths)
+	assert.NoError(err)
+
+	spec, err := NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)
 	assert.NoError(err)
 	return spec
 
@@ -144,7 +149,7 @@ func assertImageFile(assert *require.Assertions, fs afero.Fs, filename string, w
 }
 
 func assertFileCache(assert *require.Assertions, fs afero.Fs, filename string, width, height int) {
-	assertImageFile(assert, fs, filepath.Join("_gen/images", filename), width, height)
+	assertImageFile(assert, fs, filepath.Clean(filename), width, height)
 }
 
 func writeSource(t testing.TB, fs *hugofs.Fs, filename, content string) {
