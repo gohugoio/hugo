@@ -31,7 +31,7 @@ func TestMethodToName(t *testing.T) {
 	test := &Test{}
 
 	if runtime.Compiler == "gccgo" {
-		require.Equal(t, "$thunk0", methodToName(test.MyTestMethod))
+		require.Contains(t, methodToName(test.MyTestMethod), "thunk")
 	} else {
 		require.Equal(t, "MyTestMethod", methodToName(test.MyTestMethod))
 	}
