@@ -62,6 +62,9 @@ buildExpired  (false)
 buildFuture (false)
 : Include content with publishdate in the future.
 
+caches
+: See [Configure File Caches](#configure-file-caches)
+
 canonifyURLs (false)
 : Enable to turn relative URLs into absolute.
 
@@ -402,6 +405,44 @@ However, if you have specific needs with respect to Markdown, Hugo exposes some 
 ## Configure Additional Output Formats
 
 Hugo v0.20 introduced the ability to render your content to multiple output formats (e.g., to JSON, AMP html, or CSV). See [Output Formats][] for information on how to add these values to your Hugo project's configuration file.
+
+## Configure File Caches
+
+Since Hugo 0.52 you can configure more than just the `cacheDir`. This is the default configuration:
+
+```toml
+[caches]
+[caches.getjson]
+dir = ":cacheDir"
+maxAge = -1
+[caches.getcsv]
+dir = ":cacheDir"
+maxAge = -1
+[caches.images]
+dir = ":resourceDir/_gen"
+maxAge = -1
+[caches.assets]
+dir = ":resourceDir/_gen"
+maxAge = -1
+```
+
+
+You can override any of these cache setting in your own `config.toml`. 
+
+### The keywords explained
+
+:cacheDir
+: This is the value of the `cacheDir` config option if set (can also be set via OS env variable `HUGO_CACHEDIR`). It will fall back to `/opt/build/cache/hugo_cache/` on Netlify, or a `hugo_cache` directory below the OS temp dir for the others. This means that if you run your builds on Netlify, all caches configured with `:cacheDir` will be saved and restored on the next build. For other CI vendors, please read their documentation. For an CircleCI example, see [this configuration](https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml).
+
+
+:resourceDir
+: This is the value of the `resourceDir` config option.
+
+maxAge
+: This is the time in seconds before a cache entry will be evicted, -1 means forever and 0 effectively turns that particular cache off.
+
+dir
+: The absolute path to where the files for this cache will be stored. Allowed starting placeholders are `:cacheDir` and `:resourceDir` (see above).
 
 ## Configuration Format Specs
 
