@@ -69,7 +69,7 @@ var defaultCacheConfigs = map[string]cacheConfig{
 type cachesConfig map[string]cacheConfig
 
 type cacheConfig struct {
-	// Maxe age of ache entries in this cache. Any items older than this will
+	// Max age of cache entries in this cache. Any items older than this will
 	// be removed and not returned from the cache.
 	// -1 means forever, 0 means cache is disabled.
 	MaxAge int

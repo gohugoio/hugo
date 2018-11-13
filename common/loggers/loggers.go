@@ -115,7 +115,7 @@ func (a labelColorizer) Write(p []byte) (n int, err error) {
 
 }
 
-// InitGlobalLogger initalizes the global logger, used in some rare cases.
+// InitGlobalLogger initializes the global logger, used in some rare cases.
 func InitGlobalLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle io.Writer) {
 	outHandle, logHandle = getLogWriters(outHandle, logHandle)
 
