@@ -115,7 +115,7 @@ func (l *lockedFile) Close() error {
 	return l.File.Close()
 }
 
-// GetWriteCloser returns a transactional writer into the cache.
+// WriteCloser returns a transactional writer into the cache.
 // It's important that it's closed when done.
 func (c *Cache) WriteCloser(id string) (ItemInfo, io.WriteCloser, error) {
 	id = cleanID(id)
@@ -260,7 +260,7 @@ func (c *Cache) Get(id string) (ItemInfo, io.ReadCloser, error) {
 	return info, r, nil
 }
 
-// get gets the file with the given id. If it's expired, it will
+// getOrRemove gets the file with the given id. If it's expired, it will
 // be removed.
 func (c *Cache) getOrRemove(id string) hugio.ReadSeekCloser {
 	if c.maxAge == 0 {
@@ -316,7 +316,7 @@ func (f Caches) Get(name string) *Cache {
 	return f[strings.ToLower(name)]
 }
 
-// GetJSOnCache gets the file cache for getJSON.
+// GetJSONCache gets the file cache for getJSON.
 func (f Caches) GetJSONCache() *Cache {
 	return f[cacheKeyGetJSON]
 }
