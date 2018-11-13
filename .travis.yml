@@ -2,7 +2,8 @@ language: go
 sudo: false
 dist: trusty
 env:
-  HUGO_BUILD_TAGS="extended"
+  global:
+  - HUGO_BUILD_TAGS="extended"
 git:
   depth: false
 go:
@@ -16,6 +17,9 @@ matrix:
   allow_failures:
     - go: tip
   fast_finish: true
+  exclude:
+  - os: windows
+    go: tip
 
 install:
   - mkdir -p $HOME/src
