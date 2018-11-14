@@ -36,8 +36,9 @@ import (
 type Cache struct {
 	Fs afero.Fs
 
-	// Max age in seconds.
-	maxAge int
+	// Max age for items in this cache. Negative duration means forever,
+	// 0 is effectively turning this cache off.
+	maxAge time.Duration
 
 	nlocker *locker.Locker
 }
@@ -49,7 +50,7 @@ type ItemInfo struct {
 }
 
 // NewCache creates a new file cache with the given filesystem and max age.
-func NewCache(fs afero.Fs, maxAge int) *Cache {
+func NewCache(fs afero.Fs, maxAge time.Duration) *Cache {
 	return &Cache{
 		Fs:      fs,
 		nlocker: locker.NewLocker(),
@@ -227,9 +228,7 @@ func (c *Cache) getOrRemove(id string) hugio.ReadSeekCloser {
 			return nil
 		}
 
-		expiry := time.Now().Add(-time.Duration(c.maxAge) * time.Second)
-		expired := fi.ModTime().Before(expiry)
-		if expired {
+		if time.Now().Sub(fi.ModTime()) > c.maxAge {
 			c.Fs.Remove(id)
 			return nil
 		}

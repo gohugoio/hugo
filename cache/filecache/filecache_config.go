@@ -17,6 +17,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/paths"
@@ -62,8 +63,8 @@ type cachesConfig map[string]cacheConfig
 type cacheConfig struct {
 	// Max age of cache entries in this cache. Any items older than this will
 	// be removed and not returned from the cache.
-	// -1 means forever, 0 means cache is disabled.
-	MaxAge int
+	// a negative value means forever, 0 means cache is disabled.
+	MaxAge time.Duration
 
 	// The directory where files are stored.
 	Dir string
@@ -107,7 +108,18 @@ func decodeConfig(p *paths.Paths) (cachesConfig, error) {
 	for k, v := range m {
 		cc := defaultCacheConfig
 
-		if err := mapstructure.WeakDecode(v, &cc); err != nil {
+		dc := &mapstructure.DecoderConfig{
+			Result:           &cc,
+			DecodeHook:       mapstructure.StringToTimeDurationHookFunc(),
+			WeaklyTypedInput: true,
+		}
+
+		decoder, err := mapstructure.NewDecoder(dc)
+		if err != nil {
+			return c, err
+		}
+
+		if err := decoder.Decode(v); err != nil {
 			return nil, err
 		}
 
