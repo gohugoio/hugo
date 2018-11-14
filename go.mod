@@ -11,7 +11,7 @@ require (
 	github.com/alecthomas/repr v0.0.0-20180818092828-117648cd9897 // indirect
 	github.com/bep/debounce v1.1.0
 	github.com/bep/gitmap v1.0.0
-	github.com/bep/go-tocss v0.5.0
+	github.com/bep/go-tocss v0.6.0
 	github.com/bep/mapstructure v0.0.0-20180511142126-bb74f1db0675
 	github.com/chaseadamsio/goorgeous v1.1.0
 	github.com/cpuguy83/go-md2man v1.0.8 // indirect
@@ -54,7 +54,6 @@ require (
 	github.com/spf13/viper v1.2.0
 	github.com/stretchr/testify v1.2.3-0.20181014000028-04af85275a5c
 	github.com/tdewolff/minify/v2 v2.3.7
-	github.com/wellington/go-libsass v0.0.0-20180624165032-615eaa47ef79 // indirect
 	github.com/yosssi/ace v0.0.5
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd // indirect
