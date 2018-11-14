@@ -563,12 +563,13 @@ func OpenFilesForWriting(fs afero.Fs, filenames ...string) (io.WriteCloser, erro
 func OpenFileForWriting(fs afero.Fs, filename string) (afero.File, error) {
 	filename = filepath.Clean(filename)
 	// Create will truncate if file already exists.
+	// os.Create will create any new files with mode 0666 (before umask).
 	f, err := fs.Create(filename)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return nil, err
 		}
-		if err = fs.MkdirAll(filepath.Dir(filename), 0777); err != nil { // rwx, rw, r before umask
+		if err = fs.MkdirAll(filepath.Dir(filename), 0777); err != nil { //  before umask
 			return nil, err
 		}
 		f, err = fs.Create(filename)
