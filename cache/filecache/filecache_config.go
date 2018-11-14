@@ -157,6 +157,10 @@ func decodeConfig(p *paths.Paths) (cachesConfig, error) {
 			return c, errors.Errorf("%q must either start with a placeholder (e.g. :cacheDir, :resourceDir) or be absolute", v.Dir)
 		}
 
+		if len(v.Dir) < 5 {
+			return c, errors.Errorf("%q is not a valid cache dir", v.Dir)
+		}
+
 		if disabled {
 			v.MaxAge = 0
 		}

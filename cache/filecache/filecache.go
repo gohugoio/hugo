@@ -31,6 +31,10 @@ import (
 	"github.com/spf13/afero"
 )
 
+const (
+	filecacheRootDirname = "filecache"
+)
+
 // Cache caches a set of files in a directory. This is usually a file on
 // disk, but since this is backed by an Afero file system, it can be anything.
 type Cache struct {
@@ -276,11 +280,24 @@ func NewCachesFromPaths(p *paths.Paths) (Caches, error) {
 		return nil, err
 	}
 
+	genDir := filepath.FromSlash("/_gen")
+
 	fs := p.Fs.Source
 
 	m := make(Caches)
 	for k, v := range dcfg {
-		baseDir := filepath.Join(v.Dir, k)
+		var baseDir string
+		if !strings.Contains(v.Dir, genDir) {
+			// We do cache eviction (file removes) and since the user can set
+			// his/hers own cache directory, we really want to make sure
+			// we do not delete any files that do not belong to this cache.
+			// We do add the cache name as the root, but this is an extra safe
+			// guard. We skip the files inside /resources/_gen/ because
+			// that would be breaking.
+			baseDir = filepath.Join(v.Dir, filecacheRootDirname, k)
+		} else {
+			baseDir = filepath.Join(v.Dir, k)
+		}
 		if err = fs.MkdirAll(baseDir, 0777); err != nil {
 			return nil, err
 		}

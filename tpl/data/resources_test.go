@@ -180,6 +180,7 @@ func TestScpGetRemoteParallel(t *testing.T) {
 }
 
 func newDeps(cfg config.Provider) *deps.Deps {
+	cfg.Set("resourceDir", "resources")
 	l := langs.NewLanguage("en", cfg)
 	l.Set("i18nDir", "i18n")
 	cs, err := helpers.NewContentSpec(l)

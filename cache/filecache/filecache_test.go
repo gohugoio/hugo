@@ -41,6 +41,8 @@ func TestFileCache(t *testing.T) {
 	for _, cacheDir := range []string{"mycache", ""} {
 
 		configStr := `
+workingDir = "/my/work"
+resourceDir = "resources"
 cacheDir = "CACHEDIR"
 [caches]
 [caches.getJSON]
@@ -69,11 +71,19 @@ dir = ":cacheDir/c"
 		filename, err := bfs.RealPath("key")
 		assert.NoError(err)
 		if cacheDir != "" {
-			assert.Equal(filepath.FromSlash(cacheDir+"/c/getjson/key"), filename)
+			assert.Equal(filepath.FromSlash(cacheDir+"/c/"+filecacheRootDirname+"/getjson/key"), filename)
 		} else {
 			// Temp dir.
-			assert.Regexp(regexp.MustCompile("hugo_cache.*key"), filename)
+			assert.Regexp(regexp.MustCompile(".*hugo_cache.*"+filecacheRootDirname+".*key"), filename)
 		}
+
+		c = caches.Get("images")
+		assert.NotNil(c)
+		assert.Equal(time.Duration(-1), c.maxAge)
+		bfs, ok = c.Fs.(*afero.BasePathFs)
+		assert.True(ok)
+		filename, _ = bfs.RealPath("key")
+		assert.Equal(filepath.FromSlash("/my/work/resources/_gen/images/key"), filename)
 
 		rf := func(s string) func() (io.ReadCloser, error) {
 			return func() (io.ReadCloser, error) {
@@ -149,6 +159,7 @@ func TestFileCacheConcurrent(t *testing.T) {
 	assert := require.New(t)
 
 	configStr := `
+resourceDir = "myresources"
 [caches]
 [caches.getjson]
 maxAge = "1s"
