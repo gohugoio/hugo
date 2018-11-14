@@ -35,7 +35,7 @@ const (
 
 var defaultCacheConfig = cacheConfig{
 	MaxAge: -1, // Never expire
-	Dir:    ":cacheDir",
+	Dir:    ":cacheDir/:project",
 }
 
 const (
@@ -139,26 +139,33 @@ func decodeConfig(p *paths.Paths) (cachesConfig, error) {
 	disabled := cfg.GetBool("ignoreCache")
 
 	for k, v := range c {
-		v.Dir = filepath.Clean(v.Dir)
-		dir := filepath.ToSlash(v.Dir)
+		dir := filepath.ToSlash(filepath.Clean(v.Dir))
+		hadSlash := strings.HasPrefix(dir, "/")
 		parts := strings.Split(dir, "/")
-		first := parts[0]
 
-		if strings.HasPrefix(first, ":") {
-			resolved, err := resolveDirPlaceholder(p, first)
-			if err != nil {
-				return c, err
+		for i, part := range parts {
+			if strings.HasPrefix(part, ":") {
+				resolved, err := resolveDirPlaceholder(p, part)
+				if err != nil {
+					return c, err
+				}
+				parts[i] = resolved
 			}
-			resolved = filepath.ToSlash(resolved)
-
-			v.Dir = filepath.FromSlash(path.Join((append([]string{resolved}, parts[1:]...))...))
-
-		} else if isOsFs && !path.IsAbs(dir) {
-			return c, errors.Errorf("%q must either start with a placeholder (e.g. :cacheDir, :resourceDir) or be absolute", v.Dir)
 		}
 
-		if len(v.Dir) < 5 {
-			return c, errors.Errorf("%q is not a valid cache dir", v.Dir)
+		dir = path.Join(parts...)
+		if hadSlash {
+			dir = "/" + dir
+		}
+		v.Dir = filepath.Clean(filepath.FromSlash(dir))
+
+		if isOsFs && !filepath.IsAbs(v.Dir) {
+			return c, errors.Errorf("%q must resolve to an absolute directory", v.Dir)
+		}
+
+		// Avoid cache in root, e.g. / (Unix) or c:\ (Windows)
+		if len(strings.TrimPrefix(v.Dir, filepath.VolumeName(v.Dir))) == 1 {
+			return c, errors.Errorf("%q is a root folder and not allowed as cache dir", v.Dir)
 		}
 
 		if disabled {
@@ -178,6 +185,8 @@ func resolveDirPlaceholder(p *paths.Paths, placeholder string) (string, error) {
 		return p.AbsResourcesDir, nil
 	case ":cachedir":
 		return helpers.GetCacheDir(p.Fs.Source, p.Cfg)
+	case ":project":
+		return filepath.Base(p.WorkingDir), nil
 	}
 
 	return "", errors.Errorf("%q is not a valid placeholder (valid values are :cacheDir or :resourceDir)", placeholder)

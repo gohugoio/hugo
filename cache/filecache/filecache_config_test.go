@@ -16,6 +16,7 @@ package filecache
 import (
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -107,6 +108,8 @@ dir = "/path/to/c3"
 func TestDecodeConfigDefault(t *testing.T) {
 	assert := require.New(t)
 	cfg := viper.New()
+	cfg.Set("workingDir", filepath.FromSlash("/my/cool/hugoproject"))
+
 	if runtime.GOOS == "windows" {
 		cfg.Set("resourceDir", "c:\\cache\\resources")
 		cfg.Set("cacheDir", "c:\\cache\\thecache")
@@ -130,5 +133,34 @@ func TestDecodeConfigDefault(t *testing.T) {
 		assert.Equal("c:\\cache\\resources\\_gen", decoded[cacheKeyImages].Dir)
 	} else {
 		assert.Equal("/cache/resources/_gen", decoded[cacheKeyImages].Dir)
+		assert.Equal("/cache/thecache/hugoproject", decoded[cacheKeyGetJSON].Dir)
 	}
+}
+
+func TestDecodeConfigInvalidDir(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	configStr := `
+resourceDir = "myresources"
+[caches]
+[caches.getJSON]
+maxAge = "10m"
+dir = "/"
+
+`
+	if runtime.GOOS == "windows" {
+		configStr = strings.Replace(configStr, "/", "c:\\\\", 1)
+	}
+
+	cfg, err := config.FromConfigString(configStr, "toml")
+	assert.NoError(err)
+	fs := hugofs.NewMem(cfg)
+	p, err := paths.New(fs, cfg)
+	assert.NoError(err)
+
+	_, err = decodeConfig(p)
+	assert.Error(err)
+
 }

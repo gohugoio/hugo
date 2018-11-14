@@ -15,7 +15,6 @@ package hugolib
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -25,7 +24,6 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/hugofs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -349,15 +347,6 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 		}
 	}
 
-}
-
-func TestNewSiteDefaultLang(t *testing.T) {
-	t.Parallel()
-	defer os.Remove("resources")
-	s, err := NewSiteDefaultLang()
-	require.NoError(t, err)
-	require.Equal(t, hugofs.Os, s.Fs.Source)
-	require.Equal(t, hugofs.Os, s.Fs.Destination)
 }
 
 // Issue #3355
