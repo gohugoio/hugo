@@ -19,6 +19,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gohugoio/hugo/common/hugio"
@@ -44,7 +45,30 @@ type Cache struct {
 	// 0 is effectively turning this cache off.
 	maxAge time.Duration
 
-	nlocker *locker.Locker
+	nlocker *lockTracker
+}
+
+type lockTracker struct {
+	seenMu sync.RWMutex
+	seen   map[string]struct{}
+
+	*locker.Locker
+}
+
+// Lock tracks the ids in use. We use this information to do garbage collection
+// after a Hugo build.
+func (l *lockTracker) Lock(id string) {
+	l.seenMu.RLock()
+	if _, seen := l.seen[id]; !seen {
+		l.seenMu.RUnlock()
+		l.seenMu.Lock()
+		l.seen[id] = struct{}{}
+		l.seenMu.Unlock()
+	} else {
+		l.seenMu.RUnlock()
+	}
+
+	l.Locker.Lock(id)
 }
 
 // ItemInfo contains info about a cached file.
@@ -57,7 +81,7 @@ type ItemInfo struct {
 func NewCache(fs afero.Fs, maxAge time.Duration) *Cache {
 	return &Cache{
 		Fs:      fs,
-		nlocker: locker.NewLocker(),
+		nlocker: &lockTracker{Locker: locker.NewLocker(), seen: make(map[string]struct{})},
 		maxAge:  maxAge,
 	}
 }
@@ -232,7 +256,7 @@ func (c *Cache) getOrRemove(id string) hugio.ReadSeekCloser {
 			return nil
 		}
 
-		if time.Now().Sub(fi.ModTime()) > c.maxAge {
+		if c.isExpired(fi.ModTime()) {
 			c.Fs.Remove(id)
 			return nil
 		}
@@ -247,6 +271,10 @@ func (c *Cache) getOrRemove(id string) hugio.ReadSeekCloser {
 	return f
 }
 
+func (c *Cache) isExpired(modTime time.Time) bool {
+	return c.maxAge >= 0 && time.Now().Sub(modTime) > c.maxAge
+}
+
 // For testing
 func (c *Cache) getString(id string) string {
 	id = cleanID(id)
@@ -254,13 +282,15 @@ func (c *Cache) getString(id string) string {
 	c.nlocker.Lock(id)
 	defer c.nlocker.Unlock(id)
 
-	if r := c.getOrRemove(id); r != nil {
-		defer r.Close()
-		b, _ := ioutil.ReadAll(r)
-		return string(b)
-	}
+	f, err := c.Fs.Open(id)
 
-	return ""
+	if err != nil {
+		return ""
+	}
+	defer f.Close()
+
+	b, _ := ioutil.ReadAll(f)
+	return string(b)
 
 }
 
@@ -309,5 +339,5 @@ func NewCachesFromPaths(p *paths.Paths) (Caches, error) {
 }
 
 func cleanID(name string) string {
-	return filepath.Clean(name)
+	return strings.TrimPrefix(filepath.Clean(name), helpers.FilePathSeparator)
 }

@@ -209,3 +209,9 @@ dir = "/cache/c"
 	}
 	wg.Wait()
 }
+
+func TestCleanID(t *testing.T) {
+	assert := require.New(t)
+	assert.Equal(filepath.FromSlash("a/b/c.txt"), cleanID(filepath.FromSlash("/a/b//c.txt")))
+	assert.Equal(filepath.FromSlash("a/b/c.txt"), cleanID(filepath.FromSlash("a/b//c.txt")))
+}
