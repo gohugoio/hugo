@@ -272,7 +272,10 @@ func (c *Cache) getOrRemove(id string) hugio.ReadSeekCloser {
 }
 
 func (c *Cache) isExpired(modTime time.Time) bool {
-	return c.maxAge >= 0 && time.Now().Sub(modTime) > c.maxAge
+	if c.maxAge < 0 {
+		return false
+	}
+	return c.maxAge == 0 || time.Now().Sub(modTime) > c.maxAge
 }
 
 // For testing
