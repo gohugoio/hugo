@@ -33,6 +33,7 @@ func TestDecodeConfig(t *testing.T) {
 	assert := require.New(t)
 
 	configStr := `
+resourceDir = "myresources"
 [caches]
 [caches.getJSON]
 maxAge = "10m"
@@ -72,6 +73,7 @@ func TestDecodeConfigIgnoreCache(t *testing.T) {
 	assert := require.New(t)
 
 	configStr := `
+resourceDir = "myresources"
 ignoreCache = true
 [caches]
 [caches.getJSON]
