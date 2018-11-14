@@ -17,6 +17,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+	"time"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
@@ -34,10 +35,10 @@ func TestDecodeConfig(t *testing.T) {
 	configStr := `
 [caches]
 [caches.getJSON]
-maxAge = 1234
+maxAge = "10m"
 dir = "/path/to/c1"
 [caches.getCSV]
-maxAge = 3456
+maxAge = "11h"
 dir = "/path/to/c2"
 [caches.images]
 dir = "/path/to/c3"
@@ -56,11 +57,11 @@ dir = "/path/to/c3"
 	assert.Equal(4, len(decoded))
 
 	c2 := decoded["getcsv"]
-	assert.Equal(3456, c2.MaxAge)
+	assert.Equal("11h0m0s", c2.MaxAge.String())
 	assert.Equal(filepath.FromSlash("/path/to/c2"), c2.Dir)
 
 	c3 := decoded["images"]
-	assert.Equal(-1, c3.MaxAge)
+	assert.Equal(time.Duration(-1), c3.MaxAge)
 	assert.Equal(filepath.FromSlash("/path/to/c3"), c3.Dir)
 
 }
@@ -96,7 +97,7 @@ dir = "/path/to/c3"
 	assert.Equal(4, len(decoded))
 
 	for _, v := range decoded {
-		assert.Equal(0, v.MaxAge)
+		assert.Equal(time.Duration(0), v.MaxAge)
 	}
 
 }

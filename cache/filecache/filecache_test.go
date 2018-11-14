@@ -44,7 +44,7 @@ func TestFileCache(t *testing.T) {
 cacheDir = "CACHEDIR"
 [caches]
 [caches.getJSON]
-maxAge = 111
+maxAge = "10h"
 dir = ":cacheDir/c"
 
 `
@@ -62,7 +62,7 @@ dir = ":cacheDir/c"
 
 		c := caches.Get("GetJSON")
 		assert.NotNil(c)
-		assert.Equal(111, c.maxAge)
+		assert.Equal("10h0m0s", c.maxAge.String())
 
 		bfs, ok := c.Fs.(*afero.BasePathFs)
 		assert.True(ok)
@@ -151,7 +151,7 @@ func TestFileCacheConcurrent(t *testing.T) {
 	configStr := `
 [caches]
 [caches.getjson]
-maxAge = 1
+maxAge = "1s"
 dir = "/cache/c"
 
 `
