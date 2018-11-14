@@ -192,7 +192,10 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	logger := loggers.NewErrorLogger()
 	p, _ := paths.New(fs, cfg)
 
-	fileCaches, _ := filecache.NewCachesFromPaths(p)
+	fileCaches, err := filecache.NewCachesFromPaths(p)
+	if err != nil {
+		panic(err)
+	}
 
 	return &deps.Deps{
 		Cfg:              cfg,
