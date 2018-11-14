@@ -35,6 +35,7 @@ Given two arrays (or slices) A and B, this function will return a new array that
 <!-- returns an error because both arrays/slices have to be of the same type -->
 ```
 
+## OR filter in where query
 
 This is also very useful to use as `OR` filters when combined with where:
 
