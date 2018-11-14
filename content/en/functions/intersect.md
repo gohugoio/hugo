@@ -18,8 +18,9 @@ relatedfuncs: []
 deprecated: false
 aliases: []
 ---
-
 An useful example is to use it as `AND` filters when combined with where:
+
+## AND filter in where query
 
 ```
 {{ $pages := where .Site.RegularPages "Type" "not in" (slice "page" "about") }}
