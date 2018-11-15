@@ -21,6 +21,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/publisher"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -361,14 +363,14 @@ func (h *HugoSites) resetLogs() {
 	}
 }
 
-func (h *HugoSites) createSitesFromConfig() error {
+func (h *HugoSites) createSitesFromConfig(cfg config.Provider) error {
 	oldLangs, _ := h.Cfg.Get("languagesSorted").(langs.Languages)
 
 	if err := loadLanguageSettings(h.Cfg, oldLangs); err != nil {
 		return err
 	}
 
-	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: h.Cfg}
+	depsCfg := deps.DepsCfg{Fs: h.Fs, Cfg: cfg}
 
 	sites, err := createSitesFromConfig(depsCfg)
 
@@ -412,9 +414,9 @@ func (h *HugoSites) toSiteInfos() []*SiteInfo {
 type BuildCfg struct {
 	// Reset site state before build. Use to force full rebuilds.
 	ResetState bool
-	// Re-creates the sites from configuration before a build.
+	// If set, we re-create the sites from the given configuration before a build.
 	// This is needed if new languages are added.
-	CreateSitesFromConfig bool
+	NewConfig config.Provider
 	// Skip rendering. Useful for testing.
 	SkipRender bool
 	// Use this to indicate what changed (for rebuilds).

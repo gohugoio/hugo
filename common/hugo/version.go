@@ -130,8 +130,8 @@ func BuildVersionString() string {
 	program := "Hugo Static Site Generator"
 
 	version := "v" + CurrentVersion.String()
-	if CommitHash != "" {
-		version += "-" + strings.ToUpper(CommitHash)
+	if commitHash != "" {
+		version += "-" + strings.ToUpper(commitHash)
 	}
 	if isExtended {
 		version += "/extended"
@@ -139,14 +139,12 @@ func BuildVersionString() string {
 
 	osArch := runtime.GOOS + "/" + runtime.GOARCH
 
-	var buildDate string
-	if BuildDate != "" {
-		buildDate = BuildDate
-	} else {
-		buildDate = "unknown"
+	date := buildDate
+	if date == "" {
+		date = "unknown"
 	}
 
-	return fmt.Sprintf("%s %s %s BuildDate: %s", program, version, osArch, buildDate)
+	return fmt.Sprintf("%s %s %s BuildDate: %s", program, version, osArch, date)
 
 }
 

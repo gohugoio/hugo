@@ -14,11 +14,7 @@
 package config
 
 import (
-	"strings"
-
 	"github.com/spf13/cast"
-
-	"github.com/spf13/viper"
 )
 
 // Provider provides the configuration settings for Hugo.
@@ -32,16 +28,6 @@ type Provider interface {
 	Get(key string) interface{}
 	Set(key string, value interface{})
 	IsSet(key string) bool
-}
-
-// FromConfigString creates a config from the given YAML, JSON or TOML config. This is useful in tests.
-func FromConfigString(config, configType string) (Provider, error) {
-	v := viper.New()
-	v.SetConfigType(configType)
-	if err := v.ReadConfig(strings.NewReader(config)); err != nil {
-		return nil, err
-	}
-	return v, nil
 }
 
 // GetStringSlicePreserveString returns a string slice from the given config and key.

@@ -14,6 +14,11 @@
 package commands
 
 import (
+	"os"
+
+	"github.com/gohugoio/hugo/hugolib/paths"
+
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
@@ -159,6 +164,7 @@ Complete documentation is available at http://gohugo.io/.`,
 	})
 
 	cc.cmd.PersistentFlags().StringVar(&cc.cfgFile, "config", "", "config file (default is path/config.yaml|json|toml)")
+	cc.cmd.PersistentFlags().StringVar(&cc.cfgDir, "configDir", "config", "config dir")
 	cc.cmd.PersistentFlags().BoolVar(&cc.quiet, "quiet", false, "build in quiet mode")
 
 	// Set bash-completion
@@ -185,8 +191,9 @@ Complete documentation is available at http://gohugo.io/.`,
 }
 
 type hugoBuilderCommon struct {
-	source  string
-	baseURL string
+	source      string
+	baseURL     string
+	environment string
 
 	buildWatch bool
 
@@ -200,7 +207,36 @@ type hugoBuilderCommon struct {
 	quiet      bool
 
 	cfgFile string
+	cfgDir  string
 	logFile string
+}
+
+func (cc *hugoBuilderCommon) getConfigDir(baseDir string) string {
+	if cc.cfgDir != "" {
+		return paths.AbsPathify(baseDir, cc.cfgDir)
+	}
+
+	if v, found := os.LookupEnv("HUGO_CONFIGDIR"); found {
+		return paths.AbsPathify(baseDir, v)
+	}
+
+	return paths.AbsPathify(baseDir, "config")
+}
+
+func (cc *hugoBuilderCommon) getEnvironment(isServer bool) string {
+	if cc.environment != "" {
+		return cc.environment
+	}
+
+	if v, found := os.LookupEnv("HUGO_ENVIRONMENT"); found {
+		return v
+	}
+
+	if isServer {
+		return hugo.EnvironmentDevelopment
+	}
+
+	return hugo.EnvironmentProduction
 }
 
 func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
@@ -209,6 +245,7 @@ func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
 	cmd.Flags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
+	cmd.Flags().StringVarP(&cc.environment, "environment", "e", "", "build environment")
 	cmd.Flags().StringP("contentDir", "c", "", "filesystem path to content directory")
 	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
 	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")

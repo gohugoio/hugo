@@ -1647,7 +1647,12 @@ func (p *Page) Menus() PageMenus {
 	p.pageMenusInit.Do(func() {
 		p.pageMenus = PageMenus{}
 
-		if ms, ok := p.params["menu"]; ok {
+		ms, ok := p.params["menus"]
+		if !ok {
+			ms, ok = p.params["menu"]
+		}
+
+		if ok {
 			link := p.RelPermalink()
 
 			me := MenuEntry{Page: p, Name: p.LinkTitle(), Weight: p.Weight, URL: link}

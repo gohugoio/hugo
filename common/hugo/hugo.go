@@ -18,28 +18,50 @@ import (
 	"html/template"
 )
 
-var (
-	// CommitHash contains the current Git revision. Use make to build to make
-	// sure this gets set.
-	CommitHash string
+const (
+	EnvironmentDevelopment = "development"
+	EnvironmentProduction  = "production"
+)
 
-	// BuildDate contains the date of the current build.
-	BuildDate string
+var (
+	// commitHash contains the current Git revision. Use make to build to make
+	// sure this gets set.
+	commitHash string
+
+	// buildDate contains the date of the current build.
+	buildDate string
 )
 
 // Info contains information about the current Hugo environment
 type Info struct {
-	Version    VersionString
-	Generator  template.HTML
 	CommitHash string
 	BuildDate  string
+
+	// The build environment.
+	// Defaults are "production" (hugo) and "development" (hugo server).
+	// This can also be set by the user.
+	// It can be any string, but it will be all lower case.
+	Environment string
 }
 
-func NewInfo() Info {
+// Version returns the current version as a comparable version string.
+func (i Info) Version() VersionString {
+	return CurrentVersion.Version()
+}
+
+// Generator a Hugo meta generator HTML tag.
+func (i Info) Generator() template.HTML {
+	return template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, CurrentVersion.String()))
+}
+
+// NewInfo creates a new Hugo Info object.
+func NewInfo(environment string) Info {
+	if environment == "" {
+		environment = EnvironmentProduction
+	}
 	return Info{
-		Version:    CurrentVersion.Version(),
-		CommitHash: CommitHash,
-		BuildDate:  BuildDate,
-		Generator:  template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, CurrentVersion.String())),
+		CommitHash:  commitHash,
+		BuildDate:   buildDate,
+		Environment: environment,
 	}
 }

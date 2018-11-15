@@ -144,8 +144,8 @@ func (h *HugoSites) init(config *BuildCfg) error {
 		h.reset()
 	}
 
-	if config.CreateSitesFromConfig {
-		if err := h.createSitesFromConfig(); err != nil {
+	if config.NewConfig != nil {
+		if err := h.createSitesFromConfig(config.NewConfig); err != nil {
 			return err
 		}
 	}
@@ -154,8 +154,8 @@ func (h *HugoSites) init(config *BuildCfg) error {
 }
 
 func (h *HugoSites) initRebuild(config *BuildCfg) error {
-	if config.CreateSitesFromConfig {
-		return errors.New("Rebuild does not support 'CreateSitesFromConfig'.")
+	if config.NewConfig != nil {
+		return errors.New("Rebuild does not support 'NewConfig'.")
 	}
 
 	if config.ResetState {

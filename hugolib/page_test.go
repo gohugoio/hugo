@@ -1436,7 +1436,7 @@ func TestIndexPageSimpleMethods(t *testing.T) {
 		{func(n *Page) bool { return n.IsNode() }},
 		{func(n *Page) bool { return !n.IsPage() }},
 		{func(n *Page) bool { return n.Scratch() != nil }},
-		{func(n *Page) bool { return n.Hugo().Version != "" }},
+		{func(n *Page) bool { return n.Hugo().Version() != "" }},
 	} {
 
 		n := s.newHomePage()

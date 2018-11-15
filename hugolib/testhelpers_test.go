@@ -322,6 +322,15 @@ func (s *sitesBuilder) CreateSites() *sitesBuilder {
 	return s
 }
 
+func (s *sitesBuilder) LoadConfig() error {
+	cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: s.Fs.Source, Filename: "config." + s.configFormat})
+	if err != nil {
+		return err
+	}
+	s.Cfg = cfg
+	return nil
+}
+
 func (s *sitesBuilder) CreateSitesE() error {
 	s.addDefaults()
 	s.writeFilePairs("content", s.contentFilePairs)
@@ -334,18 +343,9 @@ func (s *sitesBuilder) CreateSitesE() error {
 	s.writeFilePairs("i18n", s.i18nFilePairsAdded)
 
 	if s.Cfg == nil {
-		cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: s.Fs.Source, Filename: "config." + s.configFormat})
-		if err != nil {
+		if err := s.LoadConfig(); err != nil {
 			return err
 		}
-		// TODO(bep)
-		/*		expectedConfigs := 1
-				if s.theme != "" {
-					expectedConfigs = 2
-				}
-				require.Equal(s.T, expectedConfigs, len(configFiles), fmt.Sprintf("Configs: %v", configFiles))
-		*/
-		s.Cfg = cfg
 	}
 
 	sites, err := NewHugoSites(deps.DepsCfg{Fs: s.Fs, Cfg: s.Cfg, Logger: s.logger, Running: s.running})

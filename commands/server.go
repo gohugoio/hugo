@@ -36,7 +36,6 @@ import (
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/config"
-
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -300,6 +299,8 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 	}
 
 	absPublishDir := f.c.hugo.PathSpec.AbsPathify(publishDir)
+
+	jww.FEEDBACK.Printf("Environment: %q", f.c.hugo.Deps.Site.Hugo().Environment)
 
 	if i == 0 {
 		if f.s.renderToDisk {

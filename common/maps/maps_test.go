@@ -16,6 +16,8 @@ package maps
 import (
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestToLower(t *testing.T) {
@@ -69,4 +71,53 @@ func TestToLower(t *testing.T) {
 			t.Errorf("[%d] Expected\n%#v, got\n%#v\n", i, test.expected, test.input)
 		}
 	}
+}
+
+func TestRenameKeys(t *testing.T) {
+	assert := require.New(t)
+
+	m := map[string]interface{}{
+		"a":    32,
+		"ren1": "m1",
+		"ren2": "m1_2",
+		"sub": map[string]interface{}{
+			"subsub": map[string]interface{}{
+				"REN1": "m2",
+				"ren2": "m2_2",
+			},
+		},
+		"no": map[string]interface{}{
+			"ren1": "m2",
+			"ren2": "m2_2",
+		},
+	}
+
+	expected := map[string]interface{}{
+		"a":    32,
+		"new1": "m1",
+		"new2": "m1_2",
+		"sub": map[string]interface{}{
+			"subsub": map[string]interface{}{
+				"new1": "m2",
+				"ren2": "m2_2",
+			},
+		},
+		"no": map[string]interface{}{
+			"ren1": "m2",
+			"ren2": "m2_2",
+		},
+	}
+
+	renamer, err := NewKeyRenamer(
+		"{ren1,sub/*/ren1}", "new1",
+		"{Ren2,sub/ren2}", "new2",
+	)
+	assert.NoError(err)
+
+	renamer.Rename(m)
+
+	if !reflect.DeepEqual(expected, m) {
+		t.Errorf("Expected\n%#v, got\n%#v\n", expected, m)
+	}
+
 }

@@ -32,6 +32,7 @@ func TestFormatFromString(t *testing.T) {
 		{"yaml", YAML},
 		{"yml", YAML},
 		{"toml", TOML},
+		{"config.toml", TOML},
 		{"tOMl", TOML},
 		{"org", ORG},
 		{"foo", ""},

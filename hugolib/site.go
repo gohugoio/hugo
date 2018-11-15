@@ -1226,7 +1226,7 @@ func (s *Site) initializeSiteInfo() error {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		s:                              s,
-		hugoInfo:                       hugo.NewInfo(),
+		hugoInfo:                       hugo.NewInfo(s.Cfg.GetString("environment")),
 		// TODO(bep) make this Menu and similar into delegate methods on SiteInfo
 		Taxonomies: s.Taxonomies,
 	}
@@ -1370,7 +1370,7 @@ func (s *Site) getMenusFromConfig() Menus {
 
 	ret := Menus{}
 
-	if menus := s.Language.GetStringMap("menu"); menus != nil {
+	if menus := s.Language.GetStringMap("menus"); menus != nil {
 		for name, menu := range menus {
 			m, err := cast.ToSliceE(menu)
 			if err != nil {

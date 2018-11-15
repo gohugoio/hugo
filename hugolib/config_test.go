@@ -247,8 +247,8 @@ map[string]interface {}{
 	b.AssertObject(`map[string]interface {}{
   "en": map[string]interface {}{
     "languagename": "English",
-    "menu": map[string]interface {}{
-      "theme": []interface {}{
+    "menus": map[string]interface {}{
+      "theme": []map[string]interface {}{
         map[string]interface {}{
           "name": "menu-lang-en-theme",
         },
@@ -265,8 +265,8 @@ map[string]interface {}{
   },
   "nb": map[string]interface {}{
     "languagename": "Norsk",
-    "menu": map[string]interface {}{
-      "theme": []interface {}{
+    "menus": map[string]interface {}{
+      "theme": []map[string]interface {}{
         map[string]interface {}{
           "name": "menu-lang-nb-theme",
         },
@@ -287,23 +287,23 @@ map[string]interface {}{
 
 	b.AssertObject(`
 map[string]interface {}{
-  "main": []interface {}{
+  "main": []map[string]interface {}{
     map[string]interface {}{
       "name": "menu-main-main",
     },
   },
-  "thememenu": []interface {}{
+  "thememenu": []map[string]interface {}{
     map[string]interface {}{
       "name": "menu-theme",
     },
   },
-  "top": []interface {}{
+  "top": []map[string]interface {}{
     map[string]interface {}{
       "name": "menu-top-main",
     },
   },
 }
-`, got["menu"])
+`, got["menus"])
 
 	assert.Equal("https://example.com/", got["baseurl"])
 

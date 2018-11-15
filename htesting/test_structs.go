@@ -39,7 +39,7 @@ func (t testSite) Language() *langs.Language {
 // NewTestHugoSite creates a new minimal test site.
 func NewTestHugoSite() hugo.Site {
 	return testSite{
-		h: hugo.NewInfo(),
+		h: hugo.NewInfo(hugo.EnvironmentProduction),
 		l: langs.NewLanguage("en", newTestConfig()),
 	}
 }

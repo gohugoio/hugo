@@ -2,7 +2,7 @@ project_name: hugo_extended
 builds:
 - binary: hugo
   ldflags:
-    - -s -w -X github.com/gohugoio/hugo/common/hugo.BuildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.CommitHash={{ .ShortCommit }}
+    - -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
     - "-extldflags '-static'"
   env:
     - CGO_ENABLED=1

@@ -68,6 +68,7 @@ func TestServer(t *testing.T) {
 	homeContent := helpers.ReaderToString(resp.Body)
 
 	assert.Contains(homeContent, "List: Hugo Commands")
+	assert.Contains(homeContent, "Environment: development")
 
 	// Stop the server.
 	stop <- true

@@ -23,12 +23,13 @@ import (
 func TestHugoInfo(t *testing.T) {
 	assert := require.New(t)
 
-	hugoInfo := NewInfo()
+	hugoInfo := NewInfo("")
 
-	assert.Equal(CurrentVersion.Version(), hugoInfo.Version)
-	assert.IsType(VersionString(""), hugoInfo.Version)
-	assert.Equal(CommitHash, hugoInfo.CommitHash)
-	assert.Equal(BuildDate, hugoInfo.BuildDate)
-	assert.Contains(hugoInfo.Generator, fmt.Sprintf("Hugo %s", hugoInfo.Version))
+	assert.Equal(CurrentVersion.Version(), hugoInfo.Version())
+	assert.IsType(VersionString(""), hugoInfo.Version())
+	assert.Equal(commitHash, hugoInfo.CommitHash)
+	assert.Equal(buildDate, hugoInfo.BuildDate)
+	assert.Equal("production", hugoInfo.Environment)
+	assert.Contains(hugoInfo.Generator(), fmt.Sprintf("Hugo %s", hugoInfo.Version()))
 
 }

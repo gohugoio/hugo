@@ -249,6 +249,8 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		sourceFs = c.DepsCfg.Fs.Source
 	}
 
+	environment := c.h.getEnvironment(running)
+
 	doWithConfig := func(cfg config.Provider) error {
 
 		if c.ftch != nil {
@@ -256,7 +258,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		}
 
 		cfg.Set("workingDir", dir)
-
+		cfg.Set("environment", environment)
 		return nil
 	}
 
@@ -269,8 +271,18 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		return err
 	}
 
+	configPath := c.h.source
+	if configPath == "" {
+		configPath = dir
+	}
 	config, configFiles, err := hugolib.LoadConfig(
-		hugolib.ConfigSourceDescriptor{Fs: sourceFs, Path: c.h.source, WorkingDir: dir, Filename: c.h.cfgFile},
+		hugolib.ConfigSourceDescriptor{
+			Fs:           sourceFs,
+			Path:         configPath,
+			WorkingDir:   dir,
+			Filename:     c.h.cfgFile,
+			AbsConfigDir: c.h.getConfigDir(dir),
+			Environment:  environment},
 		doWithCommandeer,
 		doWithConfig)
 

@@ -718,8 +718,8 @@ func (c *commandeer) newWatcher(dirList ...string) (*watcher.Batcher, error) {
 	// Identifies changes to config (config.toml) files.
 	configSet := make(map[string]bool)
 
+	c.logger.FEEDBACK.Println("Watching for config changes in", strings.Join(c.configFiles, ", "))
 	for _, configFile := range c.configFiles {
-		c.logger.FEEDBACK.Println("Watching for config changes in", configFile)
 		watcher.Add(configFile)
 		configSet[configFile] = true
 	}
@@ -750,7 +750,17 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 	configSet map[string]bool) {
 
 	for _, ev := range evs {
-		if configSet[ev.Name] {
+		isConfig := configSet[ev.Name]
+		if !isConfig {
+			// It may be one of the /config folders
+			dirname := filepath.Dir(ev.Name)
+			if dirname != "." && configSet[dirname] {
+				isConfig = true
+			}
+
+		}
+
+		if isConfig {
 			if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
 				continue
 			}
@@ -766,7 +776,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 					}
 				}
 			}
-			// Config file changed. Need full rebuild.
+			// Config file(s) changed. Need full rebuild.
 			c.fullRebuild()
 			break
 		}

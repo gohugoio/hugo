@@ -22,6 +22,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/chaseadamsio/goorgeous"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -37,7 +38,21 @@ func UnmarshalToMap(data []byte, f Format) (map[string]interface{}, error) {
 	err := unmarshal(data, f, &m)
 
 	return m, err
+}
 
+// UnmarshalFileToMap is the same as UnmarshalToMap, but reads the data from
+// the given filename.
+func UnmarshalFileToMap(fs afero.Fs, filename string) (map[string]interface{}, error) {
+	format := FormatFromString(filename)
+	if format == "" {
+		return nil, errors.Errorf("%q is not a valid configuration format", filename)
+	}
+
+	data, err := afero.ReadFile(fs, filename)
+	if err != nil {
+		return nil, err
+	}
+	return UnmarshalToMap(data, format)
 }
 
 // Unmarshal will unmarshall data in format f into an interface{}.

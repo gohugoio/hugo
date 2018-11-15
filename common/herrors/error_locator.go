@@ -17,10 +17,10 @@ package herrors
 import (
 	"io"
 	"io/ioutil"
+	"path/filepath"
 	"strings"
 
 	"github.com/gohugoio/hugo/common/text"
-	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/spf13/afero"
 )
@@ -172,12 +172,16 @@ func chromaLexerFromType(fileType string) string {
 	return fileType
 }
 
+func extNoDelimiter(filename string) string {
+	return strings.TrimPrefix(".", filepath.Ext(filename))
+}
+
 func chromaLexerFromFilename(filename string) string {
 	if strings.Contains(filename, "layouts") {
 		return "go-html-template"
 	}
 
-	ext := helpers.ExtNoDelimiter(filename)
+	ext := extNoDelimiter(filename)
 	return chromaLexerFromType(ext)
 }
 

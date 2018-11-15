@@ -33,7 +33,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.3 // indirect
 	github.com/miekg/mmark v1.3.6
 	github.com/mitchellh/hashstructure v1.0.0
-	github.com/mitchellh/mapstructure v1.0.0
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/muesli/smartcrop v0.0.0-20180228075044-f6ebaa786a12
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0
@@ -50,16 +50,18 @@ require (
 	github.com/spf13/jwalterweatherman v1.0.1-0.20181028145347-94f6ae3ed3bc
 	github.com/spf13/nitro v0.0.0-20131003134307-24d7ef30a12d
 	github.com/spf13/pflag v1.0.3
-	github.com/spf13/viper v1.2.0
+	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.2.3-0.20181014000028-04af85275a5c
 	github.com/tdewolff/minify/v2 v2.3.7
+	github.com/ugorji/go/codec v0.0.0-20181206144755-e72634d4d386 // indirect
 	github.com/yosssi/ace v0.0.5
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd // indirect
 	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
+	golang.org/x/sys v0.0.0-20181206074257-70b957f3b65e // indirect
 	golang.org/x/text v0.3.0
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
-	gopkg.in/yaml.v2 v2.2.1
+	gopkg.in/yaml.v2 v2.2.2
 )
 
 exclude github.com/chaseadamsio/goorgeous v2.0.0+incompatible

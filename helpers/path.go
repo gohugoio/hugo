@@ -274,6 +274,13 @@ func FileAndExt(in string) (string, string) {
 	return fileAndExt(in, fpb)
 }
 
+// FileAndExtNoDelimiter takes a path and returns the file and extension separated,
+// the extension excluding the delmiter, e.g "md".
+func FileAndExtNoDelimiter(in string) (string, string) {
+	file, ext := fileAndExt(in, fpb)
+	return file, strings.TrimPrefix(ext, ".")
+}
+
 // Filename takes a path, strips out the extension,
 // and returns the name of the file.
 func Filename(in string) (name string) {
@@ -399,6 +406,8 @@ func ExtractRootPaths(paths []string) []string {
 	return r
 
 }
+
+var numInPathRe = regexp.MustCompile("\\.(\\d+)\\.")
 
 // FindCWD returns the current working directory from where the Hugo
 // executable is run.

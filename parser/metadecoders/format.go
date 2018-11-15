@@ -14,6 +14,7 @@
 package metadecoders
 
 import (
+	"path/filepath"
 	"strings"
 
 	"github.com/gohugoio/hugo/parser/pageparser"
@@ -34,6 +35,11 @@ const (
 // into a Format. It returns an empty string for unknown formats.
 func FormatFromString(formatStr string) Format {
 	formatStr = strings.ToLower(formatStr)
+	if strings.Contains(formatStr, ".") {
+		// Assume a filename
+		formatStr = strings.TrimPrefix(filepath.Ext(formatStr), ".")
+
+	}
 	switch formatStr {
 	case "yaml", "yml":
 		return YAML

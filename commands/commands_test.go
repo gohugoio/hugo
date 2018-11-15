@@ -56,8 +56,11 @@ func TestCommandsPersistentFlags(t *testing.T) {
 		check func(command []cmder)
 	}{{[]string{"server",
 		"--config=myconfig.toml",
+		"--configDir=myconfigdir",
 		"--contentDir=mycontent",
 		"--disableKinds=page,home",
+		"--environment=testing",
+		"--configDir=myconfigdir",
 		"--layoutDir=mylayouts",
 		"--theme=mytheme",
 		"--gc",
@@ -78,6 +81,7 @@ func TestCommandsPersistentFlags(t *testing.T) {
 			if b, ok := command.(commandsBuilderGetter); ok {
 				v := b.getCommandsBuilder().hugoBuilderCommon
 				assert.Equal("myconfig.toml", v.cfgFile)
+				assert.Equal("myconfigdir", v.cfgDir)
 				assert.Equal("mysource", v.source)
 				assert.Equal("https://example.com/b/", v.baseURL)
 			}
@@ -93,6 +97,7 @@ func TestCommandsPersistentFlags(t *testing.T) {
 		assert.True(sc.noHTTPCache)
 		assert.True(sc.renderToDisk)
 		assert.Equal(1366, sc.serverPort)
+		assert.Equal("testing", sc.environment)
 
 		cfg := viper.New()
 		sc.flagsToConfig(cfg)
@@ -233,6 +238,7 @@ Single: {{ .Title }}
 	writeFile(t, filepath.Join(d, "layouts", "_default", "list.html"), `
 
 List: {{ .Title }}
+Environment: {{ hugo.Environment }}
 
 `)
 
