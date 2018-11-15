@@ -144,7 +144,7 @@ func (p *Page) initURLs() error {
 		// Any language code in the path will be added later.
 		p.relTargetPathBase = strings.TrimPrefix(p.relTargetPathBase, prefix+"/")
 	}
-	p.relPermalink = p.s.PathSpec.PrependBasePath(rel)
+	p.relPermalink = p.s.PathSpec.PrependBasePath(rel, false)
 	p.layoutDescriptor = p.createLayoutDescriptor()
 	return nil
 }

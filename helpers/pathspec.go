@@ -69,11 +69,9 @@ func NewPathSpecWithBaseBaseFsProvided(fs *hugofs.Fs, cfg config.Provider, baseB
 		ProcessingStats: NewProcessingStats(p.Lang()),
 	}
 
-	if !ps.CanonifyURLs {
-		basePath := ps.BaseURL.Path()
-		if basePath != "" && basePath != "/" {
-			ps.BasePath = basePath
-		}
+	basePath := ps.BaseURL.Path()
+	if basePath != "" && basePath != "/" {
+		ps.BasePath = basePath
 	}
 
 	return ps, nil
