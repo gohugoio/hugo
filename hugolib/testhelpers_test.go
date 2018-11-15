@@ -181,10 +181,13 @@ privacyEnhanced = true
 `
 
 func (s *sitesBuilder) WithSimpleConfigFile() *sitesBuilder {
-	var config = `
-baseURL = "http://example.com/"
+	return s.WithSimpleConfigFileAndBaseURL("http://example.com/")
+}
 
-` + commonConfigSections
+func (s *sitesBuilder) WithSimpleConfigFileAndBaseURL(baseURL string) *sitesBuilder {
+	config := fmt.Sprintf("baseURL = %q", baseURL)
+
+	config = config + commonConfigSections
 	return s.WithConfigFile("toml", config)
 }
 
