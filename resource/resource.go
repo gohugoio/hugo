@@ -708,7 +708,7 @@ func (l *genericResource) publishIfNeeded() {
 
 func (l *genericResource) Permalink() string {
 	l.publishIfNeeded()
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetDirFile.path()), l.spec.BaseURL.HostURL())
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(l.relTargetDirFile.path(), true), l.spec.BaseURL.HostURL())
 }
 
 func (l *genericResource) RelPermalink() string {
@@ -717,11 +717,11 @@ func (l *genericResource) RelPermalink() string {
 }
 
 func (l *genericResource) relPermalinkFor(target string) string {
-	return l.relPermalinkForRel(target)
+	return l.relPermalinkForRel(target, false)
 
 }
 func (l *genericResource) permalinkFor(target string) string {
-	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target), l.spec.BaseURL.HostURL())
+	return l.spec.PermalinkForBaseURL(l.relPermalinkForRel(target, true), l.spec.BaseURL.HostURL())
 
 }
 func (l *genericResource) relTargetPathsFor(target string) []string {
@@ -766,23 +766,23 @@ func (l *genericResource) updateParams(params map[string]interface{}) {
 	}
 }
 
-func (l *genericResource) relPermalinkForRel(rel string) string {
-	return l.spec.PathSpec.URLizeFilename(l.relTargetPathForRel(rel, false, true))
+func (l *genericResource) relPermalinkForRel(rel string, isAbs bool) string {
+	return l.spec.PathSpec.URLizeFilename(l.relTargetPathForRel(rel, false, isAbs, true))
 }
 
 func (l *genericResource) relTargetPathsForRel(rel string) []string {
 	if len(l.baseTargetPathDirs) == 0 {
-		return []string{l.relTargetPathForRelAndBasePath(rel, "", false)}
+		return []string{l.relTargetPathForRelAndBasePath(rel, "", false, false)}
 	}
 
 	var targetPaths = make([]string, len(l.baseTargetPathDirs))
 	for i, dir := range l.baseTargetPathDirs {
-		targetPaths[i] = l.relTargetPathForRelAndBasePath(rel, dir, false)
+		targetPaths[i] = l.relTargetPathForRelAndBasePath(rel, dir, false, false)
 	}
 	return targetPaths
 }
 
-func (l *genericResource) relTargetPathForRel(rel string, addBaseTargetPath, isURL bool) string {
+func (l *genericResource) relTargetPathForRel(rel string, addBaseTargetPath, isAbs, isURL bool) string {
 	if addBaseTargetPath && len(l.baseTargetPathDirs) > 1 {
 		panic("multiple baseTargetPathDirs")
 	}
@@ -791,10 +791,10 @@ func (l *genericResource) relTargetPathForRel(rel string, addBaseTargetPath, isU
 		basePath = l.baseTargetPathDirs[0]
 	}
 
-	return l.relTargetPathForRelAndBasePath(rel, basePath, isURL)
+	return l.relTargetPathForRelAndBasePath(rel, basePath, isAbs, isURL)
 }
 
-func (l *genericResource) relTargetPathForRelAndBasePath(rel, basePath string, isURL bool) string {
+func (l *genericResource) relTargetPathForRelAndBasePath(rel, basePath string, isAbs, isURL bool) string {
 	if l.targetPathBuilder != nil {
 		rel = l.targetPathBuilder(rel)
 	}
@@ -811,8 +811,11 @@ func (l *genericResource) relTargetPathForRelAndBasePath(rel, basePath string, i
 		rel = path.Join(l.baseOffset, rel)
 	}
 
-	if isURL && l.spec.PathSpec.BasePath != "" {
-		rel = path.Join(l.spec.PathSpec.BasePath, rel)
+	if isURL {
+		bp := l.spec.PathSpec.GetBasePath(!isAbs)
+		if bp != "" {
+			rel = path.Join(bp, rel)
+		}
 	}
 
 	if len(rel) == 0 || rel[0] != '/' {

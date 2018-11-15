@@ -283,15 +283,13 @@ func AddContextRoot(baseURL, relativePath string) string {
 }
 
 // PrependBasePath prepends any baseURL sub-folder to the given resource
-// if canonifyURLs is disabled.
-// If canonifyURLs is set, we will globally prepend the absURL with any sub-folder,
-// so avoid doing anything here to avoid getting double paths.
-func (p *PathSpec) PrependBasePath(rel string) string {
-	if p.BasePath != "" {
+func (p *PathSpec) PrependBasePath(rel string, isAbs bool) string {
+	basePath := p.GetBasePath(!isAbs)
+	if basePath != "" {
 		rel = filepath.ToSlash(rel)
 		// Need to prepend any path from the baseURL
 		hadSlash := strings.HasSuffix(rel, "/")
-		rel = path.Join(p.BasePath, rel)
+		rel = path.Join(basePath, rel)
 		if hadSlash {
 			rel += "/"
 		}
