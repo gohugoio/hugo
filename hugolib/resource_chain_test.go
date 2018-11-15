@@ -301,6 +301,18 @@ T4: {{ $r2.Data.Integrity }}|
 			b.AssertFileContent("public/index.html", `T4: sha256-Hgu9bGhroFC46wP/7txk/cnYCUf86CGrvl1tyNJSxaw=|`)
 
 		}},
+		// https://github.com/gohugoio/hugo/issues/5226
+		{"baseurl-path", func() bool { return true }, func(b *sitesBuilder) {
+			b.WithSimpleConfigFileAndBaseURL("https://example.com/hugo/")
+			b.WithTemplates("home.html", `
+{{ $r1 := "ab" | resources.FromString "rocks/hugo.txt" }}
+T1: {{ $r1.Permalink }}|{{ $r1.RelPermalink }}
+`)
+		}, func(b *sitesBuilder) {
+			b.AssertFileContent("public/index.html", `T1: https://example.com/hugo/rocks/hugo.txt|/hugo/rocks/hugo.txt`)
+
+		}},
+
 		{"template", func() bool { return true }, func(b *sitesBuilder) {}, func(b *sitesBuilder) {
 		}},
 	}
