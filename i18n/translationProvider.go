@@ -14,8 +14,12 @@
 package i18n
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/gohugoio/hugo/common/herrors"
 	"golang.org/x/text/language"
+	yaml "gopkg.in/yaml.v2"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gohugoio/hugo/helpers"
@@ -45,8 +49,9 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 
 	bundle := &i18n.Bundle{DefaultLanguage: language.English}
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+	bundle.RegisterUnmarshalFunc("yaml", yaml.Unmarshal)
+	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
-	//localizer := i18n.NewLocalizer(bundle, "en")
 	// The source files are ordered so the most important comes first. Since this is a
 	// last key win situation, we have to reverse the iteration order.
 	files := src.Files()
@@ -70,10 +75,11 @@ func addTranslationFile(bundle *i18n.Bundle, r source.ReadableFile) error {
 		return _errors.Wrapf(err, "failed to open translations file %q:", r.LogicalName())
 	}
 	defer f.Close()
-	_, err = bundle.ParseMessageFileBytes(helpers.ReaderToBytes(f), r.LogicalName())
+	m, err := bundle.ParseMessageFileBytes(helpers.ReaderToBytes(f), r.LogicalName())
 	if err != nil {
 		return errWithFileContext(_errors.Wrapf(err, "failed to load translations"), r)
 	}
+	fmt.Println(">>>", m.Tag == language.Und)
 	return nil
 }
 

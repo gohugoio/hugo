@@ -18,6 +18,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/pkg/errors"
 )
 
@@ -29,11 +30,11 @@ var (
 
 func numberToFloat(v reflect.Value) (float64, error) {
 	switch kind := v.Kind(); {
-	case isFloat(kind):
+	case hreflect.IsFloat(kind):
 		return v.Float(), nil
-	case isInt(kind):
+	case hreflect.IsInt(kind):
 		return float64(v.Int()), nil
-	case isUint(kind):
+	case hreflect.IsUint(kind):
 		return float64(v.Uint()), nil
 	case kind == reflect.Interface:
 		return numberToFloat(v.Elem())
@@ -47,7 +48,7 @@ func normalize(v reflect.Value) interface{} {
 	k := v.Kind()
 
 	switch {
-	case isNumber(k):
+	case hreflect.IsNumber(k):
 		f, err := numberToFloat(v)
 		if err == nil {
 			return f
@@ -92,7 +93,7 @@ func convertValue(v reflect.Value, to reflect.Type) (reflect.Value, error) {
 	case kind == reflect.String:
 		s, err := toString(v)
 		return reflect.ValueOf(s), err
-	case isNumber(kind):
+	case hreflect.IsNumber(kind):
 		return convertNumber(v, kind)
 	default:
 		return reflect.Value{}, errors.Errorf("%s is not assignable to %s", v.Type(), to)
@@ -104,7 +105,7 @@ func convertValue(v reflect.Value, to reflect.Type) (reflect.Value, error) {
 // TODO(bep) We should consider normalizing the slices to int64 etc.
 func convertNumber(v reflect.Value, to reflect.Kind) (reflect.Value, error) {
 	var n reflect.Value
-	if isFloat(to) {
+	if hreflect.IsFloat(to) {
 		f, err := toFloat(v)
 		if err != nil {
 			return n, err
@@ -115,7 +116,7 @@ func convertNumber(v reflect.Value, to reflect.Kind) (reflect.Value, error) {
 		default:
 			n = reflect.ValueOf(float64(f))
 		}
-	} else if isInt(to) {
+	} else if hreflect.IsInt(to) {
 		i, err := toInt(v)
 		if err != nil {
 			return n, err
@@ -132,7 +133,7 @@ func convertNumber(v reflect.Value, to reflect.Kind) (reflect.Value, error) {
 		case reflect.Int64:
 			n = reflect.ValueOf(int64(i))
 		}
-	} else if isUint(to) {
+	} else if hreflect.IsUint(to) {
 		i, err := toUint(v)
 		if err != nil {
 			return n, err
@@ -175,35 +176,4 @@ func newSliceElement(items interface{}) interface{} {
 		return reflect.New(tp).Interface()
 	}
 	return nil
-}
-
-func isNumber(kind reflect.Kind) bool {
-	return isInt(kind) || isUint(kind) || isFloat(kind)
-}
-
-func isInt(kind reflect.Kind) bool {
-	switch kind {
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return true
-	default:
-		return false
-	}
-}
-
-func isUint(kind reflect.Kind) bool {
-	switch kind {
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return true
-	default:
-		return false
-	}
-}
-
-func isFloat(kind reflect.Kind) bool {
-	switch kind {
-	case reflect.Float32, reflect.Float64:
-		return true
-	default:
-		return false
-	}
 }

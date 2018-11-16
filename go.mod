@@ -36,8 +36,7 @@ require (
 	github.com/mitchellh/mapstructure v1.0.0
 	github.com/muesli/smartcrop v0.0.0-20180228075044-f6ebaa786a12
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
-	github.com/nicksnyder/go-i18n v1.10.0
-	github.com/nicksnyder/go-i18n/v2 v2.0.0-beta.5.0.20180809142456-e786c8873251
+	github.com/nicksnyder/go-i18n/v2 v2.0.0-beta.6
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
 	github.com/pkg/errors v0.8.0
 	github.com/russross/blackfriday v0.0.0-20180804101149-46c73eb196ba
@@ -60,6 +59,7 @@ require (
 	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
 	golang.org/x/text v0.3.0
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	gopkg.in/yaml.v1 v1.0.0-20140924161607-9f9df34309c0
 	gopkg.in/yaml.v2 v2.2.1
 )
 

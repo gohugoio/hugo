@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
@@ -262,7 +263,7 @@ func (ns *Namespace) In(l interface{}, v interface{}) bool {
 					return true
 				}
 			default:
-				if isNumber(vv.Kind()) && isNumber(lvv.Kind()) {
+				if hreflect.IsNumber(vv.Kind()) && hreflect.IsNumber(lvv.Kind()) {
 					f1, err1 := numberToFloat(vv)
 					f2, err2 := numberToFloat(lvv)
 					if err1 == nil && err2 == nil && f1 == f2 {
@@ -547,7 +548,7 @@ func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
 		if err == nil && l1vv.String() == l2t {
 			i.appendIfNotSeen(l1vv)
 		}
-	case isNumber(kind):
+	case hreflect.IsNumber(kind):
 		f1, err1 := numberToFloat(l1vv)
 		f2, err2 := numberToFloat(l2vv)
 		if err1 == nil && err2 == nil && f1 == f2 {
@@ -626,7 +627,7 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 					if err == nil {
 						ins.appendIfNotSeen(reflect.ValueOf(l2t))
 					}
-				case isNumber(kind):
+				case hreflect.IsNumber(kind):
 					var err error
 					l2vv, err = convertNumber(l2vv, kind)
 					if err == nil {

@@ -14,6 +14,7 @@
 package i18n
 
 import (
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -209,16 +210,17 @@ func TestI18nTranslate(t *testing.T) {
 		v.Set("enableMissingTranslationPlaceholders", enablePlaceholders)
 
 		for i, test := range i18nTests {
-			if i != 0 {
+			if i != 8 {
 				continue
 			}
+			msg := fmt.Sprintf("test: %d", i)
 			if enablePlaceholders {
 				expected = test.expectedFlag
 			} else {
 				expected = test.expected
 			}
 			actual = doTestI18nTranslate(t, test, v)
-			require.Equal(t, expected, actual)
+			require.Equal(t, expected, actual, msg)
 		}
 	}
 }
