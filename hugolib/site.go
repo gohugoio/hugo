@@ -1594,6 +1594,7 @@ func (s *Site) renderForLayouts(name, outputFormat string, d interface{}, w io.W
 		return nil
 	}
 
+	tpl.IncludeTemplateRef = s.Cfg.GetBool("renderToMemory")
 	if err = templ.Execute(w, d); err != nil {
 		return _errors.Wrapf(err, "render of %q failed", name)
 	}

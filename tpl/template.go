@@ -135,6 +135,7 @@ type TemplateAdapter struct {
 }
 
 var baseOfRe = regexp.MustCompile("template: (.*?):")
+var IncludeTemplateRef = false
 
 func extractBaseOf(err string) string {
 	m := baseOfRe.FindStringSubmatch(err)
@@ -160,9 +161,20 @@ func (t *TemplateAdapter) Execute(w io.Writer, data interface{}) (execErr error)
 		defer t.Metrics.MeasureSince(t.Name(), time.Now())
 	}
 
+	templatePath := ""
+	if IncludeTemplateRef {
+		if !strings.HasPrefix(t.Name(), "_internal") && t.Name() != "alias" {
+			templatePath, _ = t.RealFilename()
+		}
+		w.Write([]byte(fmt.Sprintf("\n<!-- template start: %s-->\n", templatePath)))
+	}
 	execErr = t.Template.Execute(w, data)
 	if execErr != nil {
 		execErr = t.addFileContext(t.Name(), execErr)
+	} else {
+		if IncludeTemplateRef {
+			w.Write([]byte(fmt.Sprintf("\n<!-- template end: %s-->", templatePath)))
+		}
 	}
 
 	return
@@ -242,6 +254,14 @@ func (t *TemplateAdapter) addFileContext(name string, inerr error) error {
 	}
 	return fe
 
+}
+
+func (t *TemplateAdapter) RealFilename() (string, error) {
+	_, realname, err := t.fileAndFilename(t.Name())
+	if err != nil {
+		return "", err
+	}
+	return realname, nil
 }
 
 func (t *TemplateAdapter) fileAndFilename(name string) (afero.File, string, error) {
