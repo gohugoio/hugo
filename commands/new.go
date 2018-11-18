@@ -30,16 +30,14 @@ import (
 var _ cmder = (*newCmd)(nil)
 
 type newCmd struct {
-	hugoBuilderCommon
 	contentEditor string
 	contentType   string
 
-	*baseCmd
+	*baseBuilderCmd
 }
 
-func newNewCmd() *newCmd {
-	cc := &newCmd{}
-	cc.baseCmd = newBaseCmd(&cobra.Command{
+func (b *commandsBuilder) newNewCmd() *newCmd {
+	cmd := &cobra.Command{
 		Use:   "new [path]",
 		Short: "Create new content for your site",
 		Long: `Create a new content file and automatically set the date and title.
@@ -50,17 +48,19 @@ You can also specify the kind with ` + "`-k KIND`" + `.
 If archetypes are provided in your theme or site, they will be used.
 
 Ensure you run this within the root directory of your site.`,
+	}
 
-		RunE: cc.newContent,
-	})
+	cc := &newCmd{baseBuilderCmd: b.newBuilderCmd(cmd)}
 
-	cc.cmd.Flags().StringVarP(&cc.contentType, "kind", "k", "", "content type to create")
-	cc.cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
-	cc.cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
-	cc.cmd.Flags().StringVar(&cc.contentEditor, "editor", "", "edit new content with this editor, if provided")
+	cmd.Flags().StringVarP(&cc.contentType, "kind", "k", "", "content type to create")
+	cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
+	cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
+	cmd.Flags().StringVar(&cc.contentEditor, "editor", "", "edit new content with this editor, if provided")
 
-	cc.cmd.AddCommand(newNewSiteCmd().getCommand())
-	cc.cmd.AddCommand(newNewThemeCmd().getCommand())
+	cmd.AddCommand(newNewSiteCmd().getCommand())
+	cmd.AddCommand(newNewThemeCmd().getCommand())
+
+	cmd.RunE = cc.newContent
 
 	return cc
 }
