@@ -18,7 +18,6 @@ import (
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/spf13/cobra"
-
 	"github.com/spf13/nitro"
 )
 
@@ -46,7 +45,7 @@ func (b *commandsBuilder) addAll() *commandsBuilder {
 		newCheckCmd(),
 		b.newBenchmarkCmd(),
 		newConvertCmd(),
-		newNewCmd(),
+		b.newNewCmd(),
 		newListCmd(),
 		newImportCmd(),
 		newGenCmd(),
