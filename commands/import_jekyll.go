@@ -25,6 +25,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
@@ -545,7 +546,6 @@ func convertJekyllContent(m interface{}, content string) string {
 	}{
 		{regexp.MustCompile("(?i)<!-- more -->"), "<!--more-->"},
 		{regexp.MustCompile(`\{%\s*raw\s*%\}\s*(.*?)\s*\{%\s*endraw\s*%\}`), "$1"},
-		{regexp.MustCompile(`{%\s*highlight\s*(.*?)\s*%}`), "{{< highlight $1 >}}"},
 		{regexp.MustCompile(`{%\s*endhighlight\s*%}`), "{{< / highlight >}}"},
 	}
 
@@ -559,6 +559,7 @@ func convertJekyllContent(m interface{}, content string) string {
 	}{
 		// Octopress image tag: http://octopress.org/docs/plugins/image-tag/
 		{regexp.MustCompile(`{%\s+img\s*(.*?)\s*%}`), replaceImageTag},
+		{regexp.MustCompile(`{%\s*highlight\s*(.*?)\s*%}`), replaceHighlightTag},
 	}
 
 	for _, replace := range replaceListFunc {
@@ -566,6 +567,50 @@ func convertJekyllContent(m interface{}, content string) string {
 	}
 
 	return content
+}
+
+func replaceHighlightTag(match string) string {
+	r := regexp.MustCompile(`{%\s*highlight\s*(.*?)\s*%}`)
+	parts := r.FindStringSubmatch(match)
+	lastQuote := rune(0)
+	f := func(c rune) bool {
+		switch {
+		case c == lastQuote:
+			lastQuote = rune(0)
+			return false
+		case lastQuote != rune(0):
+			return false
+		case unicode.In(c, unicode.Quotation_Mark):
+			lastQuote = c
+			return false
+		default:
+			return unicode.IsSpace(c)
+		}
+	}
+	// splitting string by space but considering quoted section
+	items := strings.FieldsFunc(parts[1], f)
+
+	result := bytes.NewBufferString("{{< highlight ")
+	result.WriteString(items[0]) // language
+	options := items[1:]
+	for i, opt := range options {
+		opt = strings.Replace(opt, "\"", "", -1)
+		if opt == "linenos" {
+			opt = "linenos=table"
+		}
+		if i == 0 {
+			opt = " \"" + opt
+		}
+		if i < len(options)-1 {
+			opt += ","
+		} else if i == len(options)-1 {
+			opt += "\""
+		}
+		result.WriteString(opt)
+	}
+
+	result.WriteString(" >}}")
+	return result.String()
 }
 
 func replaceImageTag(match string) string {

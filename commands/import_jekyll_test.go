@@ -97,6 +97,9 @@ func TestConvertJekyllContent(t *testing.T) {
 		{map[interface{}]interface{}{},
 			"{% highlight go %}\nvar s int\n{% endhighlight %}",
 			"{{< highlight go >}}\nvar s int\n{{< / highlight >}}"},
+		{map[interface{}]interface{}{},
+			"{% highlight go linenos hl_lines=\"1 2\" %}\nvar s string\nvar i int\n{% endhighlight %}",
+			"{{< highlight go \"linenos=table,hl_lines=1 2\" >}}\nvar s string\nvar i int\n{{< / highlight >}}"},
 
 		// Octopress image tag
 		{map[interface{}]interface{}{},
