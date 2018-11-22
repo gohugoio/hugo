@@ -1,6 +1,5 @@
 ---
-title: render
-# linktitle: Render
+title: .Render
 description: Takes a view to apply when rendering content.
 godocref:
 date: 2017-02-01
@@ -11,7 +10,7 @@ menu:
   docs:
     parent: "functions"
 keywords: [views]
-signature: ["render LAYOUT"]
+signature: [".Render LAYOUT"]
 workson: []
 hugoversion:
 relatedfuncs: []
