@@ -20,9 +20,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/helpers"
+
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugolib/paths"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -35,6 +36,13 @@ func TestDecodeConfig(t *testing.T) {
 
 	configStr := `
 resourceDir = "myresources"
+contentDir = "content"
+dataDir = "data"
+i18nDir = "i18n"
+layoutDir = "layouts"
+assetDir = "assets"
+archetypeDir = "archetypes"
+
 [caches]
 [caches.getJSON]
 maxAge = "10m"
@@ -50,7 +58,7 @@ dir = "/path/to/c3"
 	cfg, err := config.FromConfigString(configStr, "toml")
 	assert.NoError(err)
 	fs := hugofs.NewMem(cfg)
-	p, err := paths.New(fs, cfg)
+	p, err := helpers.NewPathSpec(fs, cfg)
 	assert.NoError(err)
 
 	decoded, err := decodeConfig(p)
@@ -75,6 +83,13 @@ func TestDecodeConfigIgnoreCache(t *testing.T) {
 
 	configStr := `
 resourceDir = "myresources"
+contentDir = "content"
+dataDir = "data"
+i18nDir = "i18n"
+layoutDir = "layouts"
+assetDir = "assets"
+archeTypedir = "archetypes"
+
 ignoreCache = true
 [caches]
 [caches.getJSON]
@@ -91,7 +106,7 @@ dir = "/path/to/c3"
 	cfg, err := config.FromConfigString(configStr, "toml")
 	assert.NoError(err)
 	fs := hugofs.NewMem(cfg)
-	p, err := paths.New(fs, cfg)
+	p, err := helpers.NewPathSpec(fs, cfg)
 	assert.NoError(err)
 
 	decoded, err := decodeConfig(p)
@@ -107,8 +122,7 @@ dir = "/path/to/c3"
 
 func TestDecodeConfigDefault(t *testing.T) {
 	assert := require.New(t)
-	cfg := viper.New()
-	cfg.Set("workingDir", filepath.FromSlash("/my/cool/hugoproject"))
+	cfg := newTestConfig()
 
 	if runtime.GOOS == "windows" {
 		cfg.Set("resourceDir", "c:\\cache\\resources")
@@ -120,7 +134,7 @@ func TestDecodeConfigDefault(t *testing.T) {
 	}
 
 	fs := hugofs.NewMem(cfg)
-	p, err := paths.New(fs, cfg)
+	p, err := helpers.NewPathSpec(fs, cfg)
 	assert.NoError(err)
 
 	decoded, err := decodeConfig(p)
@@ -129,12 +143,18 @@ func TestDecodeConfigDefault(t *testing.T) {
 
 	assert.Equal(4, len(decoded))
 
+	imgConfig := decoded[cacheKeyImages]
+	jsonConfig := decoded[cacheKeyGetJSON]
+
 	if runtime.GOOS == "windows" {
-		assert.Equal("c:\\cache\\resources\\_gen", decoded[cacheKeyImages].Dir)
+		assert.Equal("_gen", imgConfig.Dir)
 	} else {
-		assert.Equal("/cache/resources/_gen", decoded[cacheKeyImages].Dir)
-		assert.Equal("/cache/thecache/hugoproject", decoded[cacheKeyGetJSON].Dir)
+		assert.Equal("_gen", imgConfig.Dir)
+		assert.Equal("/cache/thecache/hugoproject", jsonConfig.Dir)
 	}
+
+	assert.True(imgConfig.isResourceDir)
+	assert.False(jsonConfig.isResourceDir)
 }
 
 func TestDecodeConfigInvalidDir(t *testing.T) {
@@ -144,6 +164,13 @@ func TestDecodeConfigInvalidDir(t *testing.T) {
 
 	configStr := `
 resourceDir = "myresources"
+contentDir = "content"
+dataDir = "data"
+i18nDir = "i18n"
+layoutDir = "layouts"
+assetDir = "assets"
+archeTypedir = "archetypes"
+
 [caches]
 [caches.getJSON]
 maxAge = "10m"
@@ -157,10 +184,24 @@ dir = "/"
 	cfg, err := config.FromConfigString(configStr, "toml")
 	assert.NoError(err)
 	fs := hugofs.NewMem(cfg)
-	p, err := paths.New(fs, cfg)
+	p, err := helpers.NewPathSpec(fs, cfg)
 	assert.NoError(err)
 
 	_, err = decodeConfig(p)
 	assert.Error(err)
 
+}
+
+func newTestConfig() *viper.Viper {
+	cfg := viper.New()
+	cfg.Set("workingDir", filepath.FromSlash("/my/cool/hugoproject"))
+	cfg.Set("contentDir", "content")
+	cfg.Set("dataDir", "data")
+	cfg.Set("resourceDir", "resources")
+	cfg.Set("i18nDir", "i18n")
+	cfg.Set("layoutDir", "layouts")
+	cfg.Set("archetypeDir", "archetypes")
+	cfg.Set("assetDir", "assets")
+
+	return cfg
 }

@@ -52,7 +52,7 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 	s, err := helpers.NewPathSpec(fs, cfg)
 	assert.NoError(err)
 
-	filecaches, err := filecache.NewCachesFromPaths(s.Paths)
+	filecaches, err := filecache.NewCaches(s)
 	assert.NoError(err)
 
 	spec, err := NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)
@@ -88,7 +88,7 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 	s, err := helpers.NewPathSpec(fs, cfg)
 	assert.NoError(err)
 
-	filecaches, err := filecache.NewCachesFromPaths(s.Paths)
+	filecaches, err := filecache.NewCaches(s)
 	assert.NoError(err)
 
 	spec, err := NewSpec(s, filecaches, nil, output.DefaultFormats, media.DefaultTypes)

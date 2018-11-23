@@ -193,7 +193,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		return nil, err
 	}
 
-	fileCaches, err := filecache.NewCachesFromPaths(ps.Paths)
+	fileCaches, err := filecache.NewCaches(ps)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to create file caches from configuration")
 	}

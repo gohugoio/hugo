@@ -23,13 +23,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/hugolib/paths"
+	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
@@ -181,6 +180,12 @@ func TestScpGetRemoteParallel(t *testing.T) {
 
 func newDeps(cfg config.Provider) *deps.Deps {
 	cfg.Set("resourceDir", "resources")
+	cfg.Set("dataDir", "resources")
+	cfg.Set("i18nDir", "i18n")
+	cfg.Set("assetDir", "assets")
+	cfg.Set("layoutDir", "layouts")
+	cfg.Set("archetypeDir", "archetypes")
+
 	l := langs.NewLanguage("en", cfg)
 	l.Set("i18nDir", "i18n")
 	cs, err := helpers.NewContentSpec(l)
@@ -190,9 +195,13 @@ func newDeps(cfg config.Provider) *deps.Deps {
 
 	fs := hugofs.NewMem(l)
 	logger := loggers.NewErrorLogger()
-	p, _ := paths.New(fs, cfg)
 
-	fileCaches, err := filecache.NewCachesFromPaths(p)
+	p, err := helpers.NewPathSpec(fs, cfg)
+	if err != nil {
+		panic(err)
+	}
+
+	fileCaches, err := filecache.NewCaches(p)
 	if err != nil {
 		panic(err)
 	}

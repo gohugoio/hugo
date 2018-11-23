@@ -25,10 +25,10 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/hugio"
-
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/helpers"
+
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/spf13/afero"
 
 	"github.com/stretchr/testify/require"
@@ -44,6 +44,13 @@ func TestFileCache(t *testing.T) {
 workingDir = "/my/work"
 resourceDir = "resources"
 cacheDir = "CACHEDIR"
+contentDir = "content"
+dataDir = "data"
+i18nDir = "i18n"
+layoutDir = "layouts"
+assetDir = "assets"
+archeTypedir = "archetypes"
+
 [caches]
 [caches.getJSON]
 maxAge = "10h"
@@ -56,10 +63,10 @@ dir = ":cacheDir/c"
 		assert.NoError(err)
 
 		fs := hugofs.NewMem(cfg)
-		p, err := paths.New(fs, cfg)
+		p, err := helpers.NewPathSpec(fs, cfg)
 		assert.NoError(err)
 
-		caches, err := NewCachesFromPaths(p)
+		caches, err := NewCaches(p)
 		assert.NoError(err)
 
 		c := caches.Get("GetJSON")
@@ -83,7 +90,7 @@ dir = ":cacheDir/c"
 		bfs, ok = c.Fs.(*afero.BasePathFs)
 		assert.True(ok)
 		filename, _ = bfs.RealPath("key")
-		assert.Equal(filepath.FromSlash("/my/work/resources/_gen/images/key"), filename)
+		assert.Equal(filepath.FromSlash("_gen/images/key"), filename)
 
 		rf := func(s string) func() (io.ReadCloser, error) {
 			return func() (io.ReadCloser, error) {
@@ -160,6 +167,13 @@ func TestFileCacheConcurrent(t *testing.T) {
 
 	configStr := `
 resourceDir = "myresources"
+contentDir = "content"
+dataDir = "data"
+i18nDir = "i18n"
+layoutDir = "layouts"
+assetDir = "assets"
+archeTypedir = "archetypes"
+
 [caches]
 [caches.getjson]
 maxAge = "1s"
@@ -170,10 +184,10 @@ dir = "/cache/c"
 	cfg, err := config.FromConfigString(configStr, "toml")
 	assert.NoError(err)
 	fs := hugofs.NewMem(cfg)
-	p, err := paths.New(fs, cfg)
+	p, err := helpers.NewPathSpec(fs, cfg)
 	assert.NoError(err)
 
-	caches, err := NewCachesFromPaths(p)
+	caches, err := NewCaches(p)
 	assert.NoError(err)
 
 	const cacheName = "getjson"

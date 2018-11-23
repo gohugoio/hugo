@@ -81,6 +81,7 @@ type SourceFilesystems struct {
 	Layouts    *SourceFilesystem
 	Archetypes *SourceFilesystem
 	Assets     *SourceFilesystem
+	Resources  *SourceFilesystem
 
 	// This is a unified read-only view of the project's and themes' workdir.
 	Work *SourceFilesystem
@@ -374,6 +375,13 @@ func (b *sourceFilesystemsBuilder) Build() (*SourceFilesystems, error) {
 		return nil, err
 	}
 	b.result.Assets = sfs
+
+	sfs, err = b.createFs(true, false, "resourceDir", "resources")
+	if err != nil {
+		return nil, err
+	}
+
+	b.result.Resources = sfs
 
 	sfs, err = b.createFs(false, true, "", "")
 	if err != nil {

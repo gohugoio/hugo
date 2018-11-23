@@ -143,6 +143,7 @@ github.com/tdewolff/test v1.0.0 h1:jOwzqCXr5ePXEPGJaq2ivoR6HOCi+D5TPfpoyg8yvmU=
 github.com/tdewolff/test v1.0.0/go.mod h1:DiQUlutnqlEvdvhSn2LPGy4TFwRauAaYDsL+683RNX4=
 github.com/wellington/go-libsass v0.0.0-20180624165032-615eaa47ef79 h1:ivqgxj/zO3UZuzX7ZnlcyX8cAbNqLl1oes4zPddAO5Q=
 github.com/wellington/go-libsass v0.0.0-20180624165032-615eaa47ef79/go.mod h1:mxgxgam0N0E+NAUMHLcu20Ccfc3mVpDkyrLDayqfiTs=
+github.com/wellington/go-libsass v0.9.3-0.20181113175235-c63644206701 h1:9vG9vvVNVupO4Y7uwFkRgIMNe9rdaJMCINDe8vhAhLo=
 github.com/wellington/go-libsass v0.9.3-0.20181113175235-c63644206701/go.mod h1:mxgxgam0N0E+NAUMHLcu20Ccfc3mVpDkyrLDayqfiTs=
 github.com/yosssi/ace v0.0.5 h1:tUkIP/BLdKqrlrPwcmH0shwEEhTRHoGnc1wFIWmaBUA=
 github.com/yosssi/ace v0.0.5/go.mod h1:ALfIzm2vT7t5ZE7uoIZqF3TQ7SAOyupFZnkrF5id+K0=
