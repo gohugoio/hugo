@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"io"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -25,8 +26,6 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/helpers"
-
-	"github.com/gohugoio/hugo/hugolib/paths"
 
 	"github.com/BurntSushi/locker"
 	"github.com/spf13/afero"
@@ -305,22 +304,28 @@ func (f Caches) Get(name string) *Cache {
 	return f[strings.ToLower(name)]
 }
 
-// NewCachesFromPaths creates a new set of file caches from the given
+// NewCaches creates a new set of file caches from the given
 // configuration.
-func NewCachesFromPaths(p *paths.Paths) (Caches, error) {
+func NewCaches(p *helpers.PathSpec) (Caches, error) {
 	dcfg, err := decodeConfig(p)
 	if err != nil {
 		return nil, err
 	}
 
-	genDir := filepath.FromSlash("/_gen")
-
 	fs := p.Fs.Source
 
 	m := make(Caches)
 	for k, v := range dcfg {
+		var cfs afero.Fs
+
+		if v.isResourceDir {
+			cfs = p.BaseFs.Resources.Fs
+		} else {
+			cfs = fs
+		}
+
 		var baseDir string
-		if !strings.Contains(v.Dir, genDir) {
+		if !strings.HasPrefix(v.Dir, "_gen") {
 			// We do cache eviction (file removes) and since the user can set
 			// his/hers own cache directory, we really want to make sure
 			// we do not delete any files that do not belong to this cache.
@@ -331,10 +336,12 @@ func NewCachesFromPaths(p *paths.Paths) (Caches, error) {
 		} else {
 			baseDir = filepath.Join(v.Dir, k)
 		}
-		if err = fs.MkdirAll(baseDir, 0777); err != nil {
+		if err = cfs.MkdirAll(baseDir, 0777); err != nil && !os.IsExist(err) {
 			return nil, err
 		}
-		bfs := afero.NewBasePathFs(fs, baseDir)
+
+		bfs := afero.NewBasePathFs(cfs, baseDir)
+
 		m[k] = NewCache(bfs, v.MaxAge)
 	}
 

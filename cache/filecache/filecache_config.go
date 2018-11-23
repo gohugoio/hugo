@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugolib/paths"
 
 	"github.com/bep/mapstructure"
 	"github.com/pkg/errors"
@@ -68,6 +67,10 @@ type cacheConfig struct {
 
 	// The directory where files are stored.
 	Dir string
+
+	// Will resources/_gen will get its own composite filesystem that
+	// also checks any theme.
+	isResourceDir bool
 }
 
 // GetJSONCache gets the file cache for getJSON.
@@ -90,7 +93,7 @@ func (f Caches) AssetsCache() *Cache {
 	return f[cacheKeyAssets]
 }
 
-func decodeConfig(p *paths.Paths) (cachesConfig, error) {
+func decodeConfig(p *helpers.PathSpec) (cachesConfig, error) {
 	c := make(cachesConfig)
 	valid := make(map[string]bool)
 	// Add defaults
@@ -145,9 +148,12 @@ func decodeConfig(p *paths.Paths) (cachesConfig, error) {
 
 		for i, part := range parts {
 			if strings.HasPrefix(part, ":") {
-				resolved, err := resolveDirPlaceholder(p, part)
+				resolved, isResource, err := resolveDirPlaceholder(p, part)
 				if err != nil {
 					return c, err
+				}
+				if isResource {
+					v.isResourceDir = true
 				}
 				parts[i] = resolved
 			}
@@ -159,13 +165,15 @@ func decodeConfig(p *paths.Paths) (cachesConfig, error) {
 		}
 		v.Dir = filepath.Clean(filepath.FromSlash(dir))
 
-		if isOsFs && !filepath.IsAbs(v.Dir) {
-			return c, errors.Errorf("%q must resolve to an absolute directory", v.Dir)
-		}
+		if !v.isResourceDir {
+			if isOsFs && !filepath.IsAbs(v.Dir) {
+				return c, errors.Errorf("%q must resolve to an absolute directory", v.Dir)
+			}
 
-		// Avoid cache in root, e.g. / (Unix) or c:\ (Windows)
-		if len(strings.TrimPrefix(v.Dir, filepath.VolumeName(v.Dir))) == 1 {
-			return c, errors.Errorf("%q is a root folder and not allowed as cache dir", v.Dir)
+			// Avoid cache in root, e.g. / (Unix) or c:\ (Windows)
+			if len(strings.TrimPrefix(v.Dir, filepath.VolumeName(v.Dir))) == 1 {
+				return c, errors.Errorf("%q is a root folder and not allowed as cache dir", v.Dir)
+			}
 		}
 
 		if disabled {
@@ -179,15 +187,16 @@ func decodeConfig(p *paths.Paths) (cachesConfig, error) {
 }
 
 // Resolves :resourceDir => /myproject/resources etc., :cacheDir => ...
-func resolveDirPlaceholder(p *paths.Paths, placeholder string) (string, error) {
+func resolveDirPlaceholder(p *helpers.PathSpec, placeholder string) (cacheDir string, isResource bool, err error) {
 	switch strings.ToLower(placeholder) {
 	case ":resourcedir":
-		return p.AbsResourcesDir, nil
+		return "", true, nil
 	case ":cachedir":
-		return helpers.GetCacheDir(p.Fs.Source, p.Cfg)
+		d, err := helpers.GetCacheDir(p.Fs.Source, p.Cfg)
+		return d, false, err
 	case ":project":
-		return filepath.Base(p.WorkingDir), nil
+		return filepath.Base(p.WorkingDir), false, nil
 	}
 
-	return "", errors.Errorf("%q is not a valid placeholder (valid values are :cacheDir or :resourceDir)", placeholder)
+	return "", false, errors.Errorf("%q is not a valid placeholder (valid values are :cacheDir or :resourceDir)", placeholder)
 }

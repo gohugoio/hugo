@@ -19,8 +19,8 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/gohugoio/hugo/hugolib/paths"
 
 	"github.com/stretchr/testify/require"
 )
@@ -32,69 +32,87 @@ func TestPrune(t *testing.T) {
 
 	configStr := `
 resourceDir = "myresources"
+contentDir = "content"
+dataDir = "data"
+i18nDir = "i18n"
+layoutDir = "layouts"
+assetDir = "assets"
+archeTypedir = "archetypes"
+
 [caches]
 [caches.getjson]
 maxAge = "200ms"
 dir = "/cache/c"
-
+[caches.getcsv]
+maxAge = "200ms"
+dir = "/cache/d"
+[caches.assets]
+maxAge = "200ms"
+dir = ":resourceDir/_gen"
+[caches.images]
+maxAge = "200ms"
+dir = ":resourceDir/_gen"
 `
 
 	cfg, err := config.FromConfigString(configStr, "toml")
 	assert.NoError(err)
-	fs := hugofs.NewMem(cfg)
-	p, err := paths.New(fs, cfg)
-	assert.NoError(err)
 
-	caches, err := NewCachesFromPaths(p)
-	assert.NoError(err)
+	for _, name := range []string{cacheKeyGetCSV, cacheKeyGetJSON, cacheKeyAssets, cacheKeyImages} {
+		msg := fmt.Sprintf("cache: %s", name)
+		fs := hugofs.NewMem(cfg)
+		p, err := helpers.NewPathSpec(fs, cfg)
+		assert.NoError(err)
+		caches, err := NewCaches(p)
+		assert.NoError(err)
+		cache := caches[name]
+		for i := 0; i < 10; i++ {
+			id := fmt.Sprintf("i%d", i)
+			cache.GetOrCreateBytes(id, func() ([]byte, error) {
+				return []byte("abc"), nil
+			})
+			if i == 4 {
+				// This will expire the first 5
+				time.Sleep(201 * time.Millisecond)
+			}
+		}
 
-	jsonCache := caches.GetJSONCache()
-	for i := 0; i < 10; i++ {
-		id := fmt.Sprintf("i%d", i)
-		jsonCache.GetOrCreateBytes(id, func() ([]byte, error) {
+		count, err := caches.Prune()
+		assert.NoError(err)
+		assert.Equal(5, count, msg)
+
+		for i := 0; i < 10; i++ {
+			id := fmt.Sprintf("i%d", i)
+			v := cache.getString(id)
+			if i < 5 {
+				assert.Equal("", v, id)
+			} else {
+				assert.Equal("abc", v, id)
+			}
+		}
+
+		caches, err = NewCaches(p)
+		assert.NoError(err)
+		cache = caches[name]
+		// Touch one and then prune.
+		cache.GetOrCreateBytes("i5", func() ([]byte, error) {
 			return []byte("abc"), nil
 		})
-		if i == 4 {
-			// This will expire the first 5
-			time.Sleep(201 * time.Millisecond)
+
+		count, err = caches.Prune()
+		assert.NoError(err)
+		assert.Equal(4, count)
+
+		// Now only the i5 should be left.
+		for i := 0; i < 10; i++ {
+			id := fmt.Sprintf("i%d", i)
+			v := cache.getString(id)
+			if i != 5 {
+				assert.Equal("", v, id)
+			} else {
+				assert.Equal("abc", v, id)
+			}
 		}
-	}
 
-	count, err := caches.Prune()
-	assert.NoError(err)
-	assert.Equal(5, count)
-
-	for i := 0; i < 10; i++ {
-		id := fmt.Sprintf("i%d", i)
-		v := jsonCache.getString(id)
-		if i < 5 {
-			assert.Equal("", v, id)
-		} else {
-			assert.Equal("abc", v, id)
-		}
-	}
-
-	caches, err = NewCachesFromPaths(p)
-	assert.NoError(err)
-	jsonCache = caches.GetJSONCache()
-	// Touch one and then prune.
-	jsonCache.GetOrCreateBytes("i5", func() ([]byte, error) {
-		return []byte("abc"), nil
-	})
-
-	count, err = caches.Prune()
-	assert.NoError(err)
-	assert.Equal(4, count)
-
-	// Now only the i5 should be left.
-	for i := 0; i < 10; i++ {
-		id := fmt.Sprintf("i%d", i)
-		v := jsonCache.getString(id)
-		if i != 5 {
-			assert.Equal("", v, id)
-		} else {
-			assert.Equal("abc", v, id)
-		}
 	}
 
 }
