@@ -216,7 +216,7 @@ func lexMainSection(l *pageLexer) stateFunc {
 	}
 
 	l2 = l.index(leftDelimSc)
-	skip := minPositiveIndex(l1, l2)
+	skip := minIndex(l1, l2)
 
 	if skip > 0 {
 		l.pos += skip
@@ -730,12 +730,12 @@ func (l *pageLexer) currentRightShortcodeDelim() []byte {
 
 // helper functions
 
-// returns the min index > 0
-func minPositiveIndex(indices ...int) int {
+// returns the min index >= 0
+func minIndex(indices ...int) int {
 	min := -1
 
 	for _, j := range indices {
-		if j <= 0 {
+		if j < 0 {
 			continue
 		}
 		if min == -1 {

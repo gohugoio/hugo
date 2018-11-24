@@ -39,6 +39,7 @@ var (
 	tstSomeText            = nti(tText, "\nSome text.\n")
 	tstSummaryDivider      = nti(TypeLeadSummaryDivider, "<!--more-->\n")
 	tstHtmlStart           = nti(TypeHTMLStart, "<")
+	tstNewline             = nti(tText, "\n")
 
 	tstORG = `
 #+TITLE: T1
@@ -70,6 +71,8 @@ var frontMatterTests = []lexerTest{
 	{"Summary divider same line", "+++\nfoo = \"bar\"\n+++\n\nSome text.<!--more-->Some text.\n", []Item{tstFrontMatterTOML, nti(tText, "\nSome text."), nti(TypeLeadSummaryDivider, "<!--more-->"), nti(tText, "Some text.\n"), tstEOF}},
 	// https://github.com/gohugoio/hugo/issues/5402
 	{"Summary and shortcode, no space", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n<!--more-->{{< sc1 >}}\nSome text.\n", []Item{tstFrontMatterTOML, tstSomeText, nti(TypeLeadSummaryDivider, "<!--more-->"), tstLeftNoMD, tstSC1, tstRightNoMD, tstSomeText, tstEOF}},
+	// https://github.com/gohugoio/hugo/issues/5464
+	{"Summary and shortcode only", "+++\nfoo = \"bar\"\n+++\n{{< sc1 >}}\n<!--more-->\n{{< sc2 >}}", []Item{tstFrontMatterTOML, tstLeftNoMD, tstSC1, tstRightNoMD, tstNewline, tstSummaryDivider, tstLeftNoMD, tstSC2, tstRightNoMD, tstEOF}},
 }
 
 func TestFrontMatter(t *testing.T) {

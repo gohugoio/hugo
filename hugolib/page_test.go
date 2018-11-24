@@ -1510,6 +1510,15 @@ This is a {{< sc >}}.
 Content.
 `)
 
+	// https://github.com/gohugoio/hugo/issues/5464
+	b.WithContent("page-md-only-shortcode.md", `---
+title: "Hugo"
+---
+{{< sc >}}
+<!--more--> 
+{{< sc >}}
+`)
+
 	b.WithContent("page-md-shortcode-same-line.md", `---
 title: "Hugo"
 ---
@@ -1569,6 +1578,11 @@ CONTENT:{{ .Content }}
 	b.AssertFileContent("public/page-org-variant1/index.html",
 		"SUMMARY:<p>Summary.</p>:END",
 		"CONTENT:<p>Summary.</p>\n\n<p>Content.\t</p>\n",
+	)
+
+	b.AssertFileContent("public/page-md-only-shortcode/index.html",
+		"SUMMARY:a shortcode:END",
+		"CONTENT:a shortcode\n\na shortcode\n",
 	)
 }
 
