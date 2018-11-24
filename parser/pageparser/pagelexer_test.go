@@ -19,11 +19,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMinPositiveIndex(t *testing.T) {
+func TestMinIndex(t *testing.T) {
 	assert := require.New(t)
-	assert.Equal(1, minPositiveIndex(4, 1, 2, 3))
-	assert.Equal(2, minPositiveIndex(4, 0, -2, 2, 5))
-	assert.Equal(-1, minPositiveIndex())
-	assert.Equal(-1, minPositiveIndex(-2, -3))
+	assert.Equal(1, minIndex(4, 1, 2, 3))
+	assert.Equal(0, minIndex(4, 0, -2, 2, 5))
+	assert.Equal(-1, minIndex())
+	assert.Equal(-1, minIndex(-2, -3))
 
 }
