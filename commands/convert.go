@@ -111,6 +111,8 @@ func (cc *convertCmd) convertContents(format metadecoders.Format) error {
 		return err
 	}
 
+	c.Cfg.Set("buildDrafts", true)
+
 	h, err := hugolib.NewHugoSites(*c.DepsCfg)
 	if err != nil {
 		return err
