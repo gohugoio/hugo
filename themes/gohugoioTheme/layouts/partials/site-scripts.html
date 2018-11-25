@@ -1,3 +1,10 @@
-<script src="{{ "dist/app.bundle.js" | relURL }}"></script>
+<!-- scripts -->
+{{ $scripts := resources.Get "output/js/app.js" | fingerprint }}
+{{ with $scripts }}    
+  <script type="text/javascript" src="{{ .Permalink | relURL }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous" defer></script>
+  {{ $.Scratch.Set "scripts" . }}    
+{{end}} 
+
+
 <!-- Place this tag in your head or just before your close body tag. -->
 <script async defer src="https://buttons.github.io/buttons.js"></script>
