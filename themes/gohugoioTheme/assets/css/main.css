@@ -1,10 +1,10 @@
 /*Base Styles*/
 @import '_tachyons';
 
+/* purgecss start ignore */
 @import '_anchorforid';
 @import '_animation';
 @import '_documentation-styles';
-
 @import '_algolia';
 @import '_carousel';
 @import '_code';
@@ -16,7 +16,6 @@
 @import '_definition-lists';
 @import '_fluid-type';
 @import '_font-family';
-/*@import '_hljs';*/
 @import '_hugo-internal-template-styling';
 @import '_no-js';
 @import '_social-icons';
@@ -36,3 +35,4 @@
 .mw-90 {
   max-width:90%;
 }
+/* purgecss end ignore */
