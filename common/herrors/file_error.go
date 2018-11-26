@@ -92,7 +92,13 @@ func UnwrapFileError(err error) FileError {
 // with the given offset from the original.
 func ToFileErrorWithOffset(fe FileError, offset int) FileError {
 	pos := fe.Position()
-	pos.LineNumber = pos.LineNumber + offset
+	return ToFileErrorWithLineNumber(fe, pos.LineNumber+offset)
+}
+
+// ToFileErrorWithOffset will return a new FileError with the given line number.
+func ToFileErrorWithLineNumber(fe FileError, lineNumber int) FileError {
+	pos := fe.Position()
+	pos.LineNumber = lineNumber
 	return &fileError{cause: fe, fileType: fe.Type(), position: pos}
 }
 

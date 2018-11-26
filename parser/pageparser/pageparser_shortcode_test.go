@@ -23,12 +23,14 @@ var (
 	tstRightMD   = nti(tRightDelimScWithMarkup, "%}}")
 	tstSCClose   = nti(tScClose, "/")
 	tstSC1       = nti(tScName, "sc1")
+	tstSC1Inline = nti(tScNameInline, "sc1.inline")
 	tstSC2       = nti(tScName, "sc2")
 	tstSC3       = nti(tScName, "sc3")
 	tstSCSlash   = nti(tScName, "sc/sub")
 	tstParam1    = nti(tScParam, "param1")
 	tstParam2    = nti(tScParam, "param2")
 	tstVal       = nti(tScParamVal, "Hello World")
+	tstText      = nti(tText, "Hello World")
 )
 
 var shortCodeLexerTests = []lexerTest{
@@ -146,6 +148,12 @@ var shortCodeLexerTests = []lexerTest{
 		nti(tError, "comment must be closed")}},
 	{"commented out, misplaced close", `{{</* sc1 >}}*/`, []Item{
 		nti(tError, "comment must be closed")}},
+	// Inline shortcodes
+	{"basic inline", `{{< sc1.inline >}}Hello World{{< /sc1.inline >}}`, []Item{tstLeftNoMD, tstSC1Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSCClose, tstSC1Inline, tstRightNoMD, tstEOF}},
+	{"basic inline with space", `{{< sc1.inline >}}Hello World{{< / sc1.inline >}}`, []Item{tstLeftNoMD, tstSC1Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSCClose, tstSC1Inline, tstRightNoMD, tstEOF}},
+	{"inline self closing", `{{< sc1.inline >}}Hello World{{< /sc1.inline >}}Hello World{{< sc1.inline />}}`, []Item{tstLeftNoMD, tstSC1Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSCClose, tstSC1Inline, tstRightNoMD, tstText, tstLeftNoMD, tstSC1Inline, tstSCClose, tstRightNoMD, tstEOF}},
+	{"inline with nested shortcode (not supported)", `{{< sc1.inline >}}Hello World{{< sc1 >}}{{< /sc1.inline >}}`, []Item{tstLeftNoMD, tstSC1Inline, tstRightNoMD, nti(tError, "inline shortcodes do not support nesting")}},
+	{"inline case mismatch", `{{< sc1.Inline >}}Hello World{{< /sc1.Inline >}}`, []Item{tstLeftNoMD, nti(tError, "period in shortcode name only allowed for inline identifiers")}},
 }
 
 func TestShortcodeLexer(t *testing.T) {

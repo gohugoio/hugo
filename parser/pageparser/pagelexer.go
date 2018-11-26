@@ -32,6 +32,7 @@ type stateFunc func(*pageLexer) stateFunc
 type lexerShortcodeState struct {
 	currLeftDelimItem  ItemType
 	currRightDelimItem ItemType
+	isInline           bool
 	currShortcodeName  string          // is only set when a shortcode is in opened state
 	closingState       int             // > 0 = on its way to be closed
 	elementStepNum     int             // step number in element
@@ -224,6 +225,19 @@ func lexMainSection(l *pageLexer) stateFunc {
 
 	for {
 		if l.isShortCodeStart() {
+			if l.isInline {
+				// If we're inside an inline shortcode, the only valid shortcode markup is
+				// the markup which closes it.
+				b := l.input[l.pos+3:]
+				end := indexNonWhiteSpace(b, '/')
+				if end != len(l.input)-1 {
+					b = bytes.TrimSpace(b[end+1:])
+					if end == -1 || !bytes.HasPrefix(b, []byte(l.currShortcodeName+" ")) {
+						return l.errorf("inline shortcodes do not support nesting")
+					}
+				}
+			}
+
 			if l.pos > l.start {
 				l.emit(tText)
 			}
@@ -266,6 +280,14 @@ func lexMainSection(l *pageLexer) stateFunc {
 
 func (l *pageLexer) isShortCodeStart() bool {
 	return l.hasPrefix(leftDelimScWithMarkup) || l.hasPrefix(leftDelimScNoMarkup)
+
+}
+
+func (l *pageLexer) posFirstNonWhiteSpace() int {
+	f := func(c rune) bool {
+		return !unicode.IsSpace(c)
+	}
+	return bytes.IndexFunc(l.input[l.pos:], f)
 }
 
 func lexIntroSection(l *pageLexer) stateFunc {
@@ -611,6 +633,9 @@ Loop:
 	return lexInsideShortcode
 }
 
+// Inline shortcodes has the form {{< myshortcode.inline >}}
+var inlineIdentifier = []byte("inline ")
+
 // scans an alphanumeric inside shortcode
 func lexIdentifierInShortcode(l *pageLexer) stateFunc {
 	lookForEnd := false
@@ -620,6 +645,11 @@ Loop:
 		case isAlphaNumericOrHyphen(r):
 		// Allow forward slash inside names to make it possible to create namespaces.
 		case r == '/':
+		case r == '.':
+			l.isInline = l.hasPrefix(inlineIdentifier)
+			if !l.isInline {
+				return l.errorf("period in shortcode name only allowed for inline identifiers")
+			}
 		default:
 			l.backup()
 			word := string(l.input[l.start:l.pos])
@@ -634,7 +664,11 @@ Loop:
 			l.currShortcodeName = word
 			l.openShortcodes[word] = true
 			l.elementStepNum++
-			l.emit(tScName)
+			if l.isInline {
+				l.emit(tScNameInline)
+			} else {
+				l.emit(tScName)
+			}
 			break Loop
 		}
 	}
@@ -646,6 +680,7 @@ Loop:
 }
 
 func lexEndOfShortcode(l *pageLexer) stateFunc {
+	l.isInline = false
 	if l.hasPrefix(l.currentRightShortcodeDelim()) {
 		return lexShortcodeRightDelim
 	}
@@ -745,6 +780,22 @@ func minIndex(indices ...int) int {
 		}
 	}
 	return min
+}
+
+func indexNonWhiteSpace(s []byte, in rune) int {
+	idx := bytes.IndexFunc(s, func(r rune) bool {
+		return !unicode.IsSpace(r)
+	})
+
+	if idx == -1 {
+		return -1
+	}
+
+	r, _ := utf8.DecodeRune(s[idx:])
+	if r == in {
+		return idx
+	}
+	return -1
 }
 
 func isSpace(r rune) bool {
