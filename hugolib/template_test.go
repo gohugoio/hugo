@@ -236,3 +236,21 @@ Page Content
 	b.AssertFileContent("public/page/index.html", "Base: Hi!?")
 
 }
+
+func TestTemplateFuncs(t *testing.T) {
+
+	b := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
+
+	homeTpl := `Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}`
+
+	b.WithTemplatesAdded(
+		"index.html", homeTpl,
+		"index.fr.html", homeTpl,
+	)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/en/index.html", "Site: en / en / http://example.com/blog")
+	b.AssertFileContent("public/fr/index.html", "Site: fr / fr / http://example.com/blog")
+
+}

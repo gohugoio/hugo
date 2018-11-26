@@ -39,6 +39,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/path"
 	_ "github.com/gohugoio/hugo/tpl/resources"
 	_ "github.com/gohugoio/hugo/tpl/safe"
+	_ "github.com/gohugoio/hugo/tpl/site"
 	_ "github.com/gohugoio/hugo/tpl/strings"
 	_ "github.com/gohugoio/hugo/tpl/templates"
 	_ "github.com/gohugoio/hugo/tpl/time"

@@ -405,11 +405,15 @@ type SiteInfo struct {
 	Data                           *map[string]interface{}
 	owner                          *HugoSites
 	s                              *Site
-	Language                       *langs.Language
+	language                       *langs.Language
 	LanguagePrefix                 string
 	Languages                      langs.Languages
 	defaultContentLanguageInSubdir bool
 	sectionPagesMenu               string
+}
+
+func (s *SiteInfo) Language() *langs.Language {
+	return s.language
 }
 
 func (s *SiteInfo) Config() SiteConfig {
@@ -797,7 +801,10 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 				MediaTypes:    site.mediaTypesConfig,
 				OutputFormats: site.outputFormatsConfig,
 			}
-			site.Deps, err = first.Deps.ForLanguage(depsCfg)
+			site.Deps, err = first.Deps.ForLanguage(depsCfg, func(d *deps.Deps) error {
+				d.Site = &site.Info
+				return nil
+			})
 			if err != nil {
 				return whatChanged{}, err
 			}
@@ -1122,7 +1129,7 @@ func (s *Site) initialize() (err error) {
 func (s *SiteInfo) HomeAbsURL() string {
 	base := ""
 	if s.IsMultiLingual() {
-		base = s.Language.Lang
+		base = s.Language().Lang
 	}
 	return s.owner.AbsURL(base, false)
 }
@@ -1194,7 +1201,7 @@ func (s *Site) initializeSiteInfo() error {
 		Social:                         lang.GetStringMapString("social"),
 		LanguageCode:                   lang.GetString("languageCode"),
 		Copyright:                      lang.GetString("copyright"),
-		Language:                       lang,
+		language:                       lang,
 		LanguagePrefix:                 languagePrefix,
 		Languages:                      languages,
 		defaultContentLanguageInSubdir: defaultContentInSubDir,

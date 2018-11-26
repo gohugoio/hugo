@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
@@ -62,7 +63,11 @@ type Deps struct {
 	// The translation func to use
 	Translate func(translationID string, args ...interface{}) string `json:"-"`
 
+	// The language in use. TODO(bep) consolidate with site
 	Language *langs.Language
+
+	// The site building.
+	Site hugo.Site
 
 	// All the output formats available for the current site.
 	OutputFormatsConfig output.Formats
@@ -245,7 +250,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 
 // ForLanguage creates a copy of the Deps with the language dependent
 // parts switched out.
-func (d Deps) ForLanguage(cfg DepsCfg) (*Deps, error) {
+func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, error) {
 	l := cfg.Language
 	var err error
 
@@ -270,6 +275,12 @@ func (d Deps) ForLanguage(cfg DepsCfg) (*Deps, error) {
 
 	d.Cfg = l
 	d.Language = l
+
+	if onCreated != nil {
+		if err = onCreated(&d); err != nil {
+			return nil, err
+		}
+	}
 
 	if err := d.translationProvider.Clone(&d); err != nil {
 		return nil, err
