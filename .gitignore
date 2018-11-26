@@ -1,4 +1,4 @@
-hugo
+/hugo
 docs/public*
 /.idea
 hugo.exe

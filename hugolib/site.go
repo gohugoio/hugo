@@ -36,11 +36,11 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 
-	_errors "github.com/pkg/errors"
-
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/resource"
+	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/langs"
 
@@ -388,7 +388,7 @@ type SiteInfo struct {
 	Social     SiteSocial
 	*PageCollections
 	Menus                          *Menus
-	Hugo                           *HugoInfo
+	hugoInfo                       hugo.Info
 	Title                          string
 	RSSLink                        string
 	Author                         map[string]interface{}
@@ -405,15 +405,23 @@ type SiteInfo struct {
 	Data                           *map[string]interface{}
 	owner                          *HugoSites
 	s                              *Site
-	Language                       *langs.Language
+	language                       *langs.Language
 	LanguagePrefix                 string
 	Languages                      langs.Languages
 	defaultContentLanguageInSubdir bool
 	sectionPagesMenu               string
 }
 
+func (s *SiteInfo) Language() *langs.Language {
+	return s.language
+}
+
 func (s *SiteInfo) Config() SiteConfig {
 	return s.s.siteConfig
+}
+
+func (s *SiteInfo) Hugo() hugo.Info {
+	return s.hugoInfo
 }
 
 func (s *SiteInfo) String() string {
@@ -797,7 +805,10 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 				MediaTypes:    site.mediaTypesConfig,
 				OutputFormats: site.outputFormatsConfig,
 			}
-			site.Deps, err = first.Deps.ForLanguage(depsCfg)
+			site.Deps, err = first.Deps.ForLanguage(depsCfg, func(d *deps.Deps) error {
+				d.Site = &site.Info
+				return nil
+			})
 			if err != nil {
 				return whatChanged{}, err
 			}
@@ -1122,7 +1133,7 @@ func (s *Site) initialize() (err error) {
 func (s *SiteInfo) HomeAbsURL() string {
 	base := ""
 	if s.IsMultiLingual() {
-		base = s.Language.Lang
+		base = s.Language().Lang
 	}
 	return s.owner.AbsURL(base, false)
 }
@@ -1194,7 +1205,7 @@ func (s *Site) initializeSiteInfo() error {
 		Social:                         lang.GetStringMapString("social"),
 		LanguageCode:                   lang.GetString("languageCode"),
 		Copyright:                      lang.GetString("copyright"),
-		Language:                       lang,
+		language:                       lang,
 		LanguagePrefix:                 languagePrefix,
 		Languages:                      languages,
 		defaultContentLanguageInSubdir: defaultContentInSubDir,
@@ -1211,6 +1222,7 @@ func (s *Site) initializeSiteInfo() error {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		s:                              s,
+		hugoInfo:                       hugo.NewInfo(),
 		// TODO(bep) make this Menu and similar into delegate methods on SiteInfo
 		Taxonomies: s.Taxonomies,
 	}

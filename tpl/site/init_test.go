@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2017 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,23 +11,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package site
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/stretchr/testify/require"
 )
 
-func TestHugoInfo(t *testing.T) {
-	assert := require.New(t)
+func TestInit(t *testing.T) {
+	var found bool
+	var ns *internal.TemplateFuncsNamespace
+	s := htesting.NewTestHugoSite()
 
-	assert.Equal(helpers.CurrentHugoVersion.Version(), hugoInfo.Version)
-	assert.IsType(helpers.HugoVersionString(""), hugoInfo.Version)
-	assert.Equal(CommitHash, hugoInfo.CommitHash)
-	assert.Equal(BuildDate, hugoInfo.BuildDate)
-	assert.Contains(hugoInfo.Generator, fmt.Sprintf("Hugo %s", hugoInfo.Version))
+	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
+		ns = nsf(&deps.Deps{Site: s})
+		if ns.Name == name {
+			found = true
+			break
+		}
+	}
 
+	require.True(t, found)
+	require.IsType(t, s, ns.Context())
 }

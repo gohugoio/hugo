@@ -21,12 +21,13 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/publisher"
+
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/langs"
-	"github.com/gohugoio/hugo/publisher"
 
 	"github.com/gohugoio/hugo/i18n"
 	"github.com/gohugoio/hugo/tpl"
@@ -224,6 +225,27 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 			continue
 		}
 
+		onCreated := func(d *deps.Deps) error {
+			s.Deps = d
+
+			// Set up the main publishing chain.
+			s.publisher = publisher.NewDestinationPublisher(d.PathSpec.BaseFs.PublishFs, s.outputFormatsConfig, s.mediaTypesConfig, cfg.Cfg.GetBool("minify"))
+
+			if err := s.initializeSiteInfo(); err != nil {
+				return err
+			}
+
+			d.Site = &s.Info
+
+			siteConfig, err := loadSiteConfig(s.Language)
+			if err != nil {
+				return err
+			}
+			s.siteConfig = siteConfig
+			s.siteRefLinker, err = newSiteRefLinker(s.Language, s)
+			return err
+		}
+
 		cfg.Language = s.Language
 		cfg.MediaTypes = s.mediaTypesConfig
 		cfg.OutputFormats = s.outputFormatsConfig
@@ -238,37 +260,23 @@ func applyDeps(cfg deps.DepsCfg, sites ...*Site) error {
 			}
 
 			d.OutputFormatsConfig = s.outputFormatsConfig
-			s.Deps = d
+
+			if err := onCreated(d); err != nil {
+				return err
+			}
 
 			if err = d.LoadResources(); err != nil {
 				return err
 			}
 
 		} else {
-			d, err = d.ForLanguage(cfg)
+			d, err = d.ForLanguage(cfg, onCreated)
 			if err != nil {
 				return err
 			}
 			d.OutputFormatsConfig = s.outputFormatsConfig
-			s.Deps = d
 		}
 
-		// Set up the main publishing chain.
-		s.publisher = publisher.NewDestinationPublisher(d.PathSpec.BaseFs.PublishFs, s.outputFormatsConfig, s.mediaTypesConfig, cfg.Cfg.GetBool("minify"))
-
-		if err := s.initializeSiteInfo(); err != nil {
-			return err
-		}
-
-		siteConfig, err := loadSiteConfig(s.Language)
-		if err != nil {
-			return err
-		}
-		s.siteConfig = siteConfig
-		s.siteRefLinker, err = newSiteRefLinker(s.Language, s)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil

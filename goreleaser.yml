@@ -2,7 +2,7 @@ project_name: hugo
 build:
   main: main.go
   binary: hugo
-  ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
+  ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.BuildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.CommitHash={{ .ShortCommit }}
   env:
     - CGO_ENABLED=0
   goos:
