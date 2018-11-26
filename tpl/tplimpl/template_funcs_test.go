@@ -21,10 +21,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/htesting"
+
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/i18n"
 	"github.com/gohugoio/hugo/langs"
@@ -57,6 +59,7 @@ func newDepsConfig(cfg config.Provider) deps.DepsCfg {
 	l := langs.NewLanguage("en", cfg)
 	return deps.DepsCfg{
 		Language:            l,
+		Site:                htesting.NewTestHugoSite(),
 		Cfg:                 cfg,
 		Fs:                  hugofs.NewMem(l),
 		Logger:              logger,
@@ -98,7 +101,7 @@ func TestTemplateFuncsExamples(t *testing.T) {
 	data.Title = "**BatMan**"
 	data.Section = "blog"
 	data.Params = map[string]interface{}{"langCode": "en"}
-	data.Hugo = map[string]interface{}{"Version": helpers.MustParseHugoVersion("0.36.1").Version()}
+	data.Hugo = map[string]interface{}{"Version": hugo.MustParseVersion("0.36.1").Version()}
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 		ns := nsf(d)

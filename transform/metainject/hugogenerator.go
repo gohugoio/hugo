@@ -18,12 +18,13 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/transform"
 )
 
 var metaTagsCheck = regexp.MustCompile(`(?i)<meta\s+name=['|"]?generator['|"]?`)
-var hugoGeneratorTag = fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, helpers.CurrentHugoVersion)
+var hugoGeneratorTag = fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, hugo.CurrentVersion)
 
 // HugoGenerator injects a meta generator tag for Hugo if none present.
 func HugoGenerator(ft transform.FromTo) error {

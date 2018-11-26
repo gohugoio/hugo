@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,18 +11,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package helpers
+package hugo
 
 import (
 	"fmt"
+
+	"runtime"
 	"strings"
 
 	"github.com/gohugoio/hugo/compare"
 	"github.com/spf13/cast"
 )
 
-// HugoVersion represents the Hugo build version.
-type HugoVersion struct {
+// Version represents the Hugo build version.
+type Version struct {
 	// Major and minor version.
 	Number float32
 
@@ -35,34 +37,34 @@ type HugoVersion struct {
 }
 
 var (
-	_ compare.Eqer     = (*HugoVersionString)(nil)
-	_ compare.Comparer = (*HugoVersionString)(nil)
+	_ compare.Eqer     = (*VersionString)(nil)
+	_ compare.Comparer = (*VersionString)(nil)
 )
 
-func (v HugoVersion) String() string {
-	return hugoVersion(v.Number, v.PatchLevel, v.Suffix)
+func (v Version) String() string {
+	return version(v.Number, v.PatchLevel, v.Suffix)
 }
 
 // Version returns the Hugo version.
-func (v HugoVersion) Version() HugoVersionString {
-	return HugoVersionString(v.String())
+func (v Version) Version() VersionString {
+	return VersionString(v.String())
 }
 
-// HugoVersionString represents a Hugo version string.
-type HugoVersionString string
+// VersionString represents a Hugo version string.
+type VersionString string
 
-func (h HugoVersionString) String() string {
+func (h VersionString) String() string {
 	return string(h)
 }
 
 // Compare implements the compare.Comparer interface.
-func (h HugoVersionString) Compare(other interface{}) int {
-	v := MustParseHugoVersion(h.String())
+func (h VersionString) Compare(other interface{}) int {
+	v := MustParseVersion(h.String())
 	return compareVersionsWithSuffix(v.Number, v.PatchLevel, v.Suffix, other)
 }
 
 // Eq implements the compare.Eqer interface.
-func (h HugoVersionString) Eq(other interface{}) bool {
+func (h VersionString) Eq(other interface{}) bool {
 	s, err := cast.ToStringE(other)
 	if err != nil {
 		return false
@@ -72,9 +74,9 @@ func (h HugoVersionString) Eq(other interface{}) bool {
 
 var versionSuffixes = []string{"-test", "-DEV"}
 
-// ParseHugoVersion parses a version string.
-func ParseHugoVersion(s string) (HugoVersion, error) {
-	var vv HugoVersion
+// ParseVersion parses a version string.
+func ParseVersion(s string) (Version, error) {
+	var vv Version
 	for _, suffix := range versionSuffixes {
 		if strings.HasSuffix(s, suffix) {
 			vv.Suffix = suffix
@@ -90,10 +92,10 @@ func ParseHugoVersion(s string) (HugoVersion, error) {
 	return vv, nil
 }
 
-// MustParseHugoVersion parses a version string
+// MustParseVersion parses a version string
 // and panics if any error occurs.
-func MustParseHugoVersion(s string) HugoVersion {
-	vv, err := ParseHugoVersion(s)
+func MustParseVersion(s string) Version {
+	vv, err := ParseVersion(s)
 	if err != nil {
 		panic(err)
 	}
@@ -101,36 +103,54 @@ func MustParseHugoVersion(s string) HugoVersion {
 }
 
 // ReleaseVersion represents the release version.
-func (v HugoVersion) ReleaseVersion() HugoVersion {
+func (v Version) ReleaseVersion() Version {
 	v.Suffix = ""
 	return v
 }
 
 // Next returns the next Hugo release version.
-func (v HugoVersion) Next() HugoVersion {
-	return HugoVersion{Number: v.Number + 0.01}
+func (v Version) Next() Version {
+	return Version{Number: v.Number + 0.01}
 }
 
 // Prev returns the previous Hugo release version.
-func (v HugoVersion) Prev() HugoVersion {
-	return HugoVersion{Number: v.Number - 0.01}
+func (v Version) Prev() Version {
+	return Version{Number: v.Number - 0.01}
 }
 
 // NextPatchLevel returns the next patch/bugfix Hugo version.
 // This will be a patch increment on the previous Hugo version.
-func (v HugoVersion) NextPatchLevel(level int) HugoVersion {
-	return HugoVersion{Number: v.Number - 0.01, PatchLevel: level}
+func (v Version) NextPatchLevel(level int) Version {
+	return Version{Number: v.Number - 0.01, PatchLevel: level}
 }
 
-// CurrentHugoVersion represents the current build version.
-// This should be the only one.
-var CurrentHugoVersion = HugoVersion{
-	Number:     0.53,
-	PatchLevel: 0,
-	Suffix:     "-DEV",
+// BuildVersionString creates a version string. This is what you see when
+// running "hugo version".
+func BuildVersionString() string {
+	program := "Hugo Static Site Generator"
+
+	version := "v" + CurrentVersion.String()
+	if CommitHash != "" {
+		version += "-" + strings.ToUpper(CommitHash)
+	}
+	if isExtended {
+		version += "/extended"
+	}
+
+	osArch := runtime.GOOS + "/" + runtime.GOARCH
+
+	var buildDate string
+	if BuildDate != "" {
+		buildDate = BuildDate
+	} else {
+		buildDate = "unknown"
+	}
+
+	return fmt.Sprintf("%s %s %s BuildDate: %s", program, version, osArch, buildDate)
+
 }
 
-func hugoVersion(version float32, patchVersion int, suffix string) string {
+func version(version float32, patchVersion int, suffix string) string {
 	if patchVersion > 0 {
 		return fmt.Sprintf("%.2f.%d%s", version, patchVersion, suffix)
 	}
@@ -142,7 +162,7 @@ func hugoVersion(version float32, patchVersion int, suffix string) string {
 // It returns -1 if the given version is less than, 0 if equal and 1 if greater than
 // the running version.
 func CompareVersion(version interface{}) int {
-	return compareVersionsWithSuffix(CurrentHugoVersion.Number, CurrentHugoVersion.PatchLevel, CurrentHugoVersion.Suffix, version)
+	return compareVersionsWithSuffix(CurrentVersion.Number, CurrentVersion.PatchLevel, CurrentVersion.Suffix, version)
 }
 
 func compareVersions(inVersion float32, inPatchVersion int, in interface{}) int {
@@ -168,7 +188,7 @@ func compareVersionsWithSuffix(inVersion float32, inPatchVersion int, suffix str
 			return -1
 		}
 
-		v, err := ParseHugoVersion(s)
+		v, err := ParseVersion(s)
 		if err != nil {
 			return -1
 		}

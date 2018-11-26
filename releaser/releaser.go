@@ -25,9 +25,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/pkg/errors"
-
-	"github.com/gohugoio/hugo/helpers"
 )
 
 const commitPrefix = "releaser:"
@@ -52,8 +51,8 @@ type ReleaseHandler struct {
 	git func(args ...string) (string, error)
 }
 
-func (r ReleaseHandler) calculateVersions() (helpers.HugoVersion, helpers.HugoVersion) {
-	newVersion := helpers.MustParseHugoVersion(r.cliVersion)
+func (r ReleaseHandler) calculateVersions() (hugo.Version, hugo.Version) {
+	newVersion := hugo.MustParseVersion(r.cliVersion)
 	finalVersion := newVersion.Next()
 	finalVersion.PatchLevel = 0
 
@@ -261,14 +260,14 @@ func (r *ReleaseHandler) release(releaseNotesFile string) error {
 	return nil
 }
 
-func (r *ReleaseHandler) bumpVersions(ver helpers.HugoVersion) error {
+func (r *ReleaseHandler) bumpVersions(ver hugo.Version) error {
 	toDev := ""
 
 	if ver.Suffix != "" {
 		toDev = ver.Suffix
 	}
 
-	if err := r.replaceInFile("helpers/hugo.go",
+	if err := r.replaceInFile("common/hugo/version_current.go",
 		`Number:(\s{4,})(.*),`, fmt.Sprintf(`Number:${1}%.2f,`, ver.Number),
 		`PatchLevel:(\s*)(.*),`, fmt.Sprintf(`PatchLevel:${1}%d,`, ver.PatchLevel),
 		`Suffix:(\s{4,})".*",`, fmt.Sprintf(`Suffix:${1}"%s",`, toDev)); err != nil {

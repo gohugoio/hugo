@@ -11,13 +11,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package hugo
 
 import (
 	"fmt"
 	"html/template"
-
-	"github.com/gohugoio/hugo/helpers"
 )
 
 var (
@@ -29,21 +27,19 @@ var (
 	BuildDate string
 )
 
-var hugoInfo *HugoInfo
-
-// HugoInfo contains information about the current Hugo environment
-type HugoInfo struct {
-	Version    helpers.HugoVersionString
+// Info contains information about the current Hugo environment
+type Info struct {
+	Version    VersionString
 	Generator  template.HTML
 	CommitHash string
 	BuildDate  string
 }
 
-func init() {
-	hugoInfo = &HugoInfo{
-		Version:    helpers.CurrentHugoVersion.Version(),
+func NewInfo() Info {
+	return Info{
+		Version:    CurrentVersion.Version(),
 		CommitHash: CommitHash,
 		BuildDate:  BuildDate,
-		Generator:  template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, helpers.CurrentHugoVersion.String())),
+		Generator:  template.HTML(fmt.Sprintf(`<meta name="generator" content="Hugo %s" />`, CurrentVersion.String())),
 	}
 }

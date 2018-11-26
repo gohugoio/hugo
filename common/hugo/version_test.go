@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package helpers
+package hugo
 
 import (
 	"testing"
@@ -21,10 +21,10 @@ import (
 )
 
 func TestHugoVersion(t *testing.T) {
-	assert.Equal(t, "0.15-DEV", hugoVersion(0.15, 0, "-DEV"))
-	assert.Equal(t, "0.15.2-DEV", hugoVersion(0.15, 2, "-DEV"))
+	assert.Equal(t, "0.15-DEV", version(0.15, 0, "-DEV"))
+	assert.Equal(t, "0.15.2-DEV", version(0.15, 2, "-DEV"))
 
-	v := HugoVersion{Number: 0.21, PatchLevel: 0, Suffix: "-DEV"}
+	v := Version{Number: 0.21, PatchLevel: 0, Suffix: "-DEV"}
 
 	require.Equal(t, v.ReleaseVersion().String(), "0.21")
 	require.Equal(t, "0.21-DEV", v.String())
@@ -62,9 +62,9 @@ func TestCompareVersions(t *testing.T) {
 }
 
 func TestParseHugoVersion(t *testing.T) {
-	require.Equal(t, "0.25", MustParseHugoVersion("0.25").String())
-	require.Equal(t, "0.25.2", MustParseHugoVersion("0.25.2").String())
-	require.Equal(t, "0.25-test", MustParseHugoVersion("0.25-test").String())
-	require.Equal(t, "0.25-DEV", MustParseHugoVersion("0.25-DEV").String())
+	require.Equal(t, "0.25", MustParseVersion("0.25").String())
+	require.Equal(t, "0.25.2", MustParseVersion("0.25.2").String())
+	require.Equal(t, "0.25-test", MustParseVersion("0.25-test").String())
+	require.Equal(t, "0.25-DEV", MustParseVersion("0.25-DEV").String())
 
 }
