@@ -1062,3 +1062,53 @@ String: {{ . | safeHTML }}
 	)
 
 }
+
+func TestInlineShortcodes(t *testing.T) {
+	for _, enableInlineShortcodes := range []bool{true, false} {
+		t.Run(fmt.Sprintf("enableInlineShortcodes=%t", enableInlineShortcodes),
+			func(t *testing.T) {
+				conf := fmt.Sprintf(`
+baseURL = "https://example.com"
+enableInlineShortcodes = %t
+`, enableInlineShortcodes)
+
+				b := newTestSitesBuilder(t)
+				b.WithConfigFile("toml", conf)
+				b.WithContent("page-md-shortcode.md", `---
+title: "Hugo"
+---
+
+FIRST:{{< myshort.inline "first" >}}
+Page: {{ .Page.Title }}
+Seq: {{ seq 3 }}
+Param: {{ .Get 0 }}
+{{< /myshort.inline >}}:END:
+
+SECOND:{{< myshort.inline "second" />}}:END
+
+`)
+
+				b.WithTemplatesAdded("layouts/_default/single.html", `
+CONTENT:{{ .Content }}
+`)
+
+				b.CreateSites().Build(BuildCfg{})
+
+				if enableInlineShortcodes {
+					b.AssertFileContent("public/page-md-shortcode/index.html",
+						"Page: Hugo",
+						"Seq: [1 2 3]",
+						"Param: first",
+						"Param: second",
+					)
+				} else {
+					b.AssertFileContent("public/page-md-shortcode/index.html",
+						"FIRST::END",
+						"SECOND::END",
+					)
+				}
+
+			})
+
+	}
+}

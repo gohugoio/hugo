@@ -124,6 +124,8 @@ type Site struct {
 
 	disabledKinds map[string]bool
 
+	enableInlineShortcodes bool
+
 	// Output formats defined in site config per Page Kind, or some defaults
 	// if not set.
 	// Output formats defined in Page front matter will override these.
@@ -194,21 +196,22 @@ func (s *Site) isEnabled(kind string) bool {
 // reset returns a new Site prepared for rebuild.
 func (s *Site) reset() *Site {
 	return &Site{Deps: s.Deps,
-		layoutHandler:       output.NewLayoutHandler(),
-		disabledKinds:       s.disabledKinds,
-		titleFunc:           s.titleFunc,
-		relatedDocsHandler:  newSearchIndexHandler(s.relatedDocsHandler.cfg),
-		siteRefLinker:       s.siteRefLinker,
-		outputFormats:       s.outputFormats,
-		rc:                  s.rc,
-		outputFormatsConfig: s.outputFormatsConfig,
-		frontmatterHandler:  s.frontmatterHandler,
-		mediaTypesConfig:    s.mediaTypesConfig,
-		Language:            s.Language,
-		owner:               s.owner,
-		publisher:           s.publisher,
-		siteConfig:          s.siteConfig,
-		PageCollections:     newPageCollections()}
+		layoutHandler:          output.NewLayoutHandler(),
+		disabledKinds:          s.disabledKinds,
+		titleFunc:              s.titleFunc,
+		relatedDocsHandler:     newSearchIndexHandler(s.relatedDocsHandler.cfg),
+		siteRefLinker:          s.siteRefLinker,
+		outputFormats:          s.outputFormats,
+		rc:                     s.rc,
+		outputFormatsConfig:    s.outputFormatsConfig,
+		frontmatterHandler:     s.frontmatterHandler,
+		mediaTypesConfig:       s.mediaTypesConfig,
+		Language:               s.Language,
+		owner:                  s.owner,
+		publisher:              s.publisher,
+		siteConfig:             s.siteConfig,
+		enableInlineShortcodes: s.enableInlineShortcodes,
+		PageCollections:        newPageCollections()}
 
 }
 
@@ -282,17 +285,18 @@ func newSite(cfg deps.DepsCfg) (*Site, error) {
 	}
 
 	s := &Site{
-		PageCollections:     c,
-		layoutHandler:       output.NewLayoutHandler(),
-		Language:            cfg.Language,
-		disabledKinds:       disabledKinds,
-		titleFunc:           titleFunc,
-		relatedDocsHandler:  newSearchIndexHandler(relatedContentConfig),
-		outputFormats:       outputFormats,
-		rc:                  &siteRenderingContext{output.HTMLFormat},
-		outputFormatsConfig: siteOutputFormatsConfig,
-		mediaTypesConfig:    siteMediaTypesConfig,
-		frontmatterHandler:  frontMatterHandler,
+		PageCollections:        c,
+		layoutHandler:          output.NewLayoutHandler(),
+		Language:               cfg.Language,
+		disabledKinds:          disabledKinds,
+		titleFunc:              titleFunc,
+		relatedDocsHandler:     newSearchIndexHandler(relatedContentConfig),
+		outputFormats:          outputFormats,
+		rc:                     &siteRenderingContext{output.HTMLFormat},
+		outputFormatsConfig:    siteOutputFormatsConfig,
+		mediaTypesConfig:       siteMediaTypesConfig,
+		frontmatterHandler:     frontMatterHandler,
+		enableInlineShortcodes: cfg.Language.GetBool("enableInlineShortcodes"),
 	}
 
 	return s, nil

@@ -482,6 +482,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("debug", false)
 	v.SetDefault("disableFastRender", false)
 	v.SetDefault("timeout", 10000) // 10 seconds
-
+	v.SetDefault("enableInlineShortcodes", false)
 	return nil
 }

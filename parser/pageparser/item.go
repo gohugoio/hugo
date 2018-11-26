@@ -42,6 +42,10 @@ func (i Item) IsShortcodeName() bool {
 	return i.Type == tScName
 }
 
+func (i Item) IsInlineShortcodeName() bool {
+	return i.Type == tScNameInline
+}
+
 func (i Item) IsLeftShortcodeDelim() bool {
 	return i.Type == tLeftDelimScWithMarkup || i.Type == tLeftDelimScNoMarkup
 }
@@ -119,6 +123,7 @@ const (
 	tRightDelimScWithMarkup
 	tScClose
 	tScName
+	tScNameInline
 	tScParam
 	tScParamVal
 
