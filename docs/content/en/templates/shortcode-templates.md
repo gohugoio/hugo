@@ -30,7 +30,7 @@ Hugo's built-in shortcodes cover many common, but not all, use cases. Luckily, H
 
 {{< youtube Eu4zSaKOY4A >}}
 
-### File Placement
+### File Location
 
 To create a shortcode, place an HTML template in the `layouts/shortcodes` directory of your [source organization][]. Consider the file name carefully since the shortcode name will mirror that of the file but without the `.html` extension. For example, `layouts/shortcodes/myshortcode.html` will be called with either `{{</* myshortcode /*/>}}` or `{{%/* myshortcode /*/%}}` depending on the type of parameters you choose.
 
@@ -367,6 +367,38 @@ ERROR 2018/11/07 10:05:55 missing value for param name: "/Users/bep/dev/go/gohug
 ## More Shortcode Examples
 
 More shortcode examples can be found in the [shortcodes directory for spf13.com][spfscs] and the [shortcodes directory for the Hugo docs][docsshortcodes].
+
+
+## Inline Shortcodes
+
+Since Hugo 0.52, you can implement your shortcodes inline -- e.g. where you use them in the content file. This can be useful for scripting that you only need in one place.
+
+This feature is disabled by default, but can be enabled in your site config:
+
+{{< code-toggle file="config">}}
+enableInlineShortcodes = true
+{{< /code-toggle >}}
+
+It is disabled by default for security reasons. The security model used by Hugo's template handling assumes that template authors are trusted, but that the content files are not, so the templates are injection-safe from malformed input data. But in most situations you have full control over the content, too, and then `enableInlineShortcodes = true` would be considered safe. But it's something to be aware of: It allows ad-hoc [Go Text templates](https://golang.org/pkg/text/template/) to be executed from the content files.
+
+And once enabled, you can do this in your content files:
+
+ ```go-text-template
+ {{</* time.inline */>}}{{ now }}{{</* /time.inline */>}}
+ ```
+
+The above will print the current date and time.
+
+ Note that an inline shortcode's inner content is parsed and executed as a Go text template with the same context as a regular shortcode template.
+
+This means that the current page can be accessed via `.Page.Title` etc. This also means that there are no concept of "nested inline shortcodes".
+
+The same inline shortcode can be reused later in the same content file, with different params if needed, using the self-closing syntax:
+
+ ```go-text-template
+{{</* time.inline /*/>}}
+```
+	
 
 [basic content files]: /content-management/formats/ "See how Hugo leverages markdown--and other supported formats--to create content for your website."
 [built-in shortcode]: /content-management/shortcodes/
