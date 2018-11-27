@@ -21,7 +21,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/bep/mapstructure"
+	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 )

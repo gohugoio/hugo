@@ -134,7 +134,6 @@ Hugo stands on the shoulder of many great open source libraries, in lexical orde
  | [github.com/bep/debounce](https://github.com/bep/debounce) |    MIT License |
  | [github.com/bep/gitmap](https://github.com/bep/gitmap) |  MIT License |
  | [github.com/bep/go-tocss](https://github.com/bep/go-tocss) | MIT License |
- | [github.com/bep/mapstructure](https://github.com/bep/mapstructure) |   MIT License |
  | [github.com/chaseadamsio/goorgeous](https://github.com/chaseadamsio/goorgeous) | MIT License |
  | [github.com/cpuguy83/go-md2man](https://github.com/cpuguy83/go-md2man) | MIT License |
  | [github.com/danwakefield/fnmatch](https://github.com/danwakefield/fnmatch) | BSD 2-Clause "Simplified" License |
