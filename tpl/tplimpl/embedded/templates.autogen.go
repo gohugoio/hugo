@@ -398,6 +398,10 @@ if (!doNotTrack) {
 </style>
 {{ end }}
 {{ end }}`},
+	{`shortcodes/param.html`, `{{- $name := (.Get 0) -}}
+{{- with $name -}}
+{{- with ($.Page.Param .) }}{{ . }}{{ else }}{{ errorf "Param %q not found: %s" $name $.Position }}{{ end -}}
+{{- else }}{{ errorf "Missing param key: %s" $.Position }}{{ end -}}`},
 	{`shortcodes/ref.html`, `{{ ref . .Params }}`},
 	{`shortcodes/relref.html`, `{{ relref . .Params }}`},
 	{`shortcodes/twitter.html`, `{{- $pc := .Page.Site.Config.Privacy.Twitter -}}
