@@ -98,6 +98,9 @@ enableEmoji (false)
 enableGitInfo (false)
 : Enable `.GitInfo` object for each page (if the Hugo site is versioned by Git). This will then update the `Lastmod` parameter for each page using the last git commit date for that content file.
 
+enableInlineShortcodes
+: Enable inline shortcode support. See [Inline Shortcodes](/templates/shortcode-templates/#inline-shortcodes).
+
 enableMissingTranslationPlaceholders (false)
 : Show a placeholder instead of the default value or an empty string if a translation is missing.
 
