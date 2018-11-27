@@ -79,9 +79,11 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 	}
 
 	var ivp, imvp *int64
+	var fvp, fmvp *float64
 	var svp, smvp *string
 	var slv, slmv interface{}
 	var ima []int64
+	var fma []float64
 	var sma []string
 	if mv.Type() == v.Type() {
 		switch v.Kind() {
@@ -95,6 +97,11 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			svp = &sv
 			smv := mv.String()
 			smvp = &smv
+		case reflect.Float64:
+			fv := v.Float()
+			fvp = &fv
+			fmv := mv.Float()
+			fmvp = &fmv
 		case reflect.Struct:
 			switch v.Type() {
 			case timeType:
@@ -136,6 +143,14 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 					sma = append(sma, aString)
 				}
 			}
+		case reflect.Float64:
+			fv := v.Float()
+			fvp = &fv
+			for i := 0; i < mv.Len(); i++ {
+				if aFloat, err := toFloat(mv.Index(i)); err == nil {
+					fma = append(fma, aFloat)
+				}
+			}
 		case reflect.Struct:
 			switch v.Type() {
 			case timeType:
@@ -153,52 +168,73 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 
 	switch op {
 	case "", "=", "==", "eq":
-		if ivp != nil && imvp != nil {
+		switch {
+		case ivp != nil && imvp != nil:
 			return *ivp == *imvp, nil
-		} else if svp != nil && smvp != nil {
+		case svp != nil && smvp != nil:
 			return *svp == *smvp, nil
+		case fvp != nil && fmvp != nil:
+			return *fvp == *fmvp, nil
 		}
 	case "!=", "<>", "ne":
-		if ivp != nil && imvp != nil {
+		switch {
+		case ivp != nil && imvp != nil:
 			return *ivp != *imvp, nil
-		} else if svp != nil && smvp != nil {
+		case svp != nil && smvp != nil:
 			return *svp != *smvp, nil
+		case fvp != nil && fmvp != nil:
+			return *fvp != *fmvp, nil
 		}
 	case ">=", "ge":
-		if ivp != nil && imvp != nil {
+		switch {
+		case ivp != nil && imvp != nil:
 			return *ivp >= *imvp, nil
-		} else if svp != nil && smvp != nil {
+		case svp != nil && smvp != nil:
 			return *svp >= *smvp, nil
+		case fvp != nil && fmvp != nil:
+			return *fvp >= *fmvp, nil
 		}
 	case ">", "gt":
-		if ivp != nil && imvp != nil {
+		switch {
+		case ivp != nil && imvp != nil:
 			return *ivp > *imvp, nil
-		} else if svp != nil && smvp != nil {
+		case svp != nil && smvp != nil:
 			return *svp > *smvp, nil
+		case fvp != nil && fmvp != nil:
+			return *fvp > *fmvp, nil
 		}
 	case "<=", "le":
-		if ivp != nil && imvp != nil {
+		switch {
+		case ivp != nil && imvp != nil:
 			return *ivp <= *imvp, nil
-		} else if svp != nil && smvp != nil {
+		case svp != nil && smvp != nil:
 			return *svp <= *smvp, nil
+		case fvp != nil && fmvp != nil:
+			return *fvp <= *fmvp, nil
 		}
 	case "<", "lt":
-		if ivp != nil && imvp != nil {
+		switch {
+		case ivp != nil && imvp != nil:
 			return *ivp < *imvp, nil
-		} else if svp != nil && smvp != nil {
+		case svp != nil && smvp != nil:
 			return *svp < *smvp, nil
+		case fvp != nil && fmvp != nil:
+			return *fvp < *fmvp, nil
 		}
 	case "in", "not in":
 		var r bool
-		if ivp != nil && len(ima) > 0 {
+		switch {
+		case ivp != nil && len(ima) > 0:
 			r = ns.In(ima, *ivp)
-		} else if svp != nil {
+		case fvp != nil && len(fma) > 0:
+			r = ns.In(fma, *fvp)
+		case svp != nil:
 			if len(sma) > 0 {
 				r = ns.In(sma, *svp)
 			} else if smvp != nil {
 				r = ns.In(*smvp, *svp)
 			}
-		} else {
+		default:
 			return false, nil
 		}
 		if op == "not in" {
