@@ -37,8 +37,6 @@ func TestBase(t *testing.T) {
 	}{
 		{filepath.FromSlash(`foo/bar.txt`), `bar.txt`},
 		{filepath.FromSlash(`foo/bar/txt `), `txt `},
-		{filepath.FromSlash(`foo\bar.txt`), filepath.FromSlash(`foo\bar.txt`)},
-		{filepath.FromSlash(`foo\bar\txt `), filepath.FromSlash(`foo\bar\txt `)},
 		{filepath.FromSlash(`foo/bar.t`), `bar.t`},
 		{`foo.bar.txt`, `foo.bar.txt`},
 		{`.x`, `.x`},
@@ -69,8 +67,6 @@ func TestDir(t *testing.T) {
 	}{
 		{filepath.FromSlash(`foo/bar.txt`), `foo`},
 		{filepath.FromSlash(`foo/bar/txt `), `foo/bar`},
-		{filepath.FromSlash(`foo\bar.txt`), `.`},
-		{filepath.FromSlash(`foo\bar\txt `), `.`},
 		{filepath.FromSlash(`foo/bar.t`), `foo`},
 		{`foo.bar.txt`, `.`},
 		{`.x`, `.`},
@@ -100,8 +96,6 @@ func TestExt(t *testing.T) {
 		expect interface{}
 	}{
 		{filepath.FromSlash(`foo/bar.json`), `.json`},
-		{filepath.FromSlash(`foo\bar.txt`), `.txt`},
-		{filepath.FromSlash(`foo\bar txt`), ``},
 		{`foo.bar.txt `, `.txt `},
 		{``, ``},
 		{`.x`, `.x`},
@@ -131,11 +125,11 @@ func TestJoin(t *testing.T) {
 	}{
 		{
 			[]string{"", "baz", filepath.FromSlash(`foo/bar.txt`)},
-			filepath.FromSlash(`baz/foo/bar.txt`),
+			`baz/foo/bar.txt`,
 		},
 		{
 			[]interface{}{"", "baz", DirFile{"big", "john"}, filepath.FromSlash(`foo/bar.txt`)},
-			filepath.FromSlash(`baz/big|john/foo/bar.txt`),
+			`baz/big|john/foo/bar.txt`,
 		},
 		{nil, ""},
 		// errors
@@ -163,8 +157,8 @@ func TestSplit(t *testing.T) {
 		path   interface{}
 		expect interface{}
 	}{
-		{filepath.FromSlash(`foo/bar.txt`), DirFile{filepath.FromSlash(`foo/`), `bar.txt`}},
-		{filepath.FromSlash(`foo/bar/txt `), DirFile{filepath.FromSlash(`foo/bar/`), `txt `}},
+		{filepath.FromSlash(`foo/bar.txt`), DirFile{`foo/`, `bar.txt`}},
+		{filepath.FromSlash(`foo/bar/txt `), DirFile{`foo/bar/`, `txt `}},
 		{`foo.bar.txt`, DirFile{``, `foo.bar.txt`}},
 		{``, DirFile{``, ``}},
 		// errors
