@@ -328,7 +328,7 @@ if (!doNotTrack) {
             {{- end -}}
             {{- if or (.Get "caption") (.Get "attr") -}}<p>
                 {{- .Get "caption" | markdownify -}}
-                {{- with .Get "attrlink" -}}
+                {{- with .Get "attrlink" }}
                     <a href="{{ . }}">
                 {{- end -}}
                 {{- .Get "attr" | markdownify -}}
