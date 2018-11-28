@@ -2,7 +2,7 @@
 ---
 date: 2018-11-28
 title: "And Now: Hugo 0.52"
-description: "Configurable file caches, inline shortcodes, and more .."
+description: "Configurable file caches, inline shortcodes, and more ..."
 categories: ["Releases"]
 ---
 
