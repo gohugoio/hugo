@@ -104,8 +104,11 @@ func (p *Page) InSection(other interface{}) (bool, error) {
 // IsDescendant returns whether the current page is a descendant of the given page.
 // Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
 func (p *Page) IsDescendant(other interface{}) (bool, error) {
+	if p == nil {
+		return false, nil
+	}
 	pp, err := unwrapPage(other)
-	if err != nil {
+	if err != nil || pp == nil {
 		return false, err
 	}
 
@@ -119,8 +122,12 @@ func (p *Page) IsDescendant(other interface{}) (bool, error) {
 // IsAncestor returns whether the current page is an ancestor of the given page.
 // Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
 func (p *Page) IsAncestor(other interface{}) (bool, error) {
+	if p == nil {
+		return false, nil
+	}
+
 	pp, err := unwrapPage(other)
-	if err != nil {
+	if err != nil || pp == nil {
 		return false, err
 	}
 

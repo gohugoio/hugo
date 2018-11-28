@@ -238,6 +238,8 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.Len(p.Sections(), 0)
 		}},
 		{"l1,l2,l3", func(p *Page) {
+			var nilp *Page
+
 			assert.Equal("T3_-1", p.title)
 			assert.Len(p.Pages, 2)
 			assert.Equal("T2_-1", p.Parent().title)
@@ -245,6 +247,12 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 
 			l1 := p.s.getPage(KindSection, "l1")
 			isDescendant, err := l1.IsDescendant(p)
+			assert.NoError(err)
+			assert.False(isDescendant)
+			isDescendant, err = l1.IsDescendant(nil)
+			assert.NoError(err)
+			assert.False(isDescendant)
+			isDescendant, err = nilp.IsDescendant(p)
 			assert.NoError(err)
 			assert.False(isDescendant)
 			isDescendant, err = p.IsDescendant(l1)
@@ -258,6 +266,12 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			assert.NoError(err)
 			assert.False(isAncestor)
 			assert.Equal(l1, p.FirstSection())
+			isAncestor, err = p.IsAncestor(nil)
+			assert.NoError(err)
+			assert.False(isAncestor)
+			isAncestor, err = nilp.IsAncestor(l1)
+			assert.NoError(err)
+			assert.False(isAncestor)
 
 		}},
 		{"perm a,link", func(p *Page) {
