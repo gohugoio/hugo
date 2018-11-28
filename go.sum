@@ -68,6 +68,7 @@ github.com/magefile/mage v1.4.0 h1:RI7B1CgnPAuu2O9lWszwya61RLmfL0KCdo+QyyI/Bhk=
 github.com/magefile/mage v1.4.0/go.mod h1:IUDi13rsHje59lecXokTfGX0QIzO45uVPlXnJYsXepA=
 github.com/magiconair/properties v1.8.0 h1:LLgXmsheXeRoUOBOjtwPQCWIYqM/LU1ayDtDePerRcY=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
+github.com/markbates/inflect v0.0.0-20171215194931-a12c3aec81a6 h1:LZhVjIISSbj8qLf2qDPP0D8z0uvOWAW5C85ly5mJW6c=
 github.com/markbates/inflect v0.0.0-20171215194931-a12c3aec81a6/go.mod h1:oTeZL2KHA7CUX6X+fovmK9OvIOFuqu0TwdQrZjLTh88=
 github.com/matryer/try v0.0.0-20161228173917-9ac251b645a2/go.mod h1:0KeJpeMD6o+O4hW7qJOT7vyQPKrWmj26uf5wMc/IiIs=
 github.com/mattn/go-isatty v0.0.4 h1:bnP0vzxcAdeI1zdubAl5PjU6zsERjGZb7raWodagDYs=

@@ -60,7 +60,8 @@ var frontMatterTests = []lexerTest{
 	{"No front matter", "\nSome text.\n", []Item{tstSomeText, tstEOF}},
 	{"YAML front matter", "---\nfoo: \"bar\"\n---\n\nSome text.\n", []Item{tstFrontMatterYAML, tstSomeText, tstEOF}},
 	{"YAML empty front matter", "---\n---\n\nSome text.\n", []Item{nti(TypeFrontMatterYAML, ""), tstSomeText, tstEOF}},
-	{"YAML commented out front matter", "<!--\n---\nfoo: \"bar\"\n---\n-->\nSome text.\n", []Item{nti(TypeHTMLComment, "<!--\n---\nfoo: \"bar\"\n---\n-->"), tstSomeText, tstEOF}},
+	{"YAML commented out front matter", "<!--\n---\nfoo: \"bar\"\n---\n-->\nSome text.\n", []Item{nti(TypeIgnore, "<!--\n"), tstFrontMatterYAML, nti(TypeIgnore, "-->"), tstSomeText, tstEOF}},
+	{"YAML commented out front matter, no end", "<!--\n---\nfoo: \"bar\"\n---\nSome text.\n", []Item{nti(TypeIgnore, "<!--\n"), tstFrontMatterYAML, nti(tError, "starting HTML comment with no end")}},
 	// Note that we keep all bytes as they are, but we need to handle CRLF
 	{"YAML front matter CRLF", "---\r\nfoo: \"bar\"\r\n---\n\nSome text.\n", []Item{tstFrontMatterYAMLCRLF, tstSomeText, tstEOF}},
 	{"TOML front matter", "+++\nfoo = \"bar\"\n+++\n\nSome text.\n", []Item{tstFrontMatterTOML, tstSomeText, tstEOF}},
@@ -78,7 +79,6 @@ var frontMatterTests = []lexerTest{
 func TestFrontMatter(t *testing.T) {
 	t.Parallel()
 	for i, test := range frontMatterTests {
-
 		items := collect([]byte(test.input), false, lexIntroSection)
 		if !equal(items, test.items) {
 			got := crLfReplacer.Replace(fmt.Sprint(items))

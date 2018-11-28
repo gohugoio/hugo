@@ -1586,6 +1586,33 @@ CONTENT:{{ .Content }}
 	)
 }
 
+// https://github.com/gohugoio/hugo/issues/5478
+func TestPageWithCommentedOutFrontMatter(t *testing.T) {
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile()
+
+	b.WithContent("page.md", `<!--
++++
+title = "hello"
++++
+-->
+This is the content.
+`)
+
+	b.WithTemplatesAdded("layouts/_default/single.html", `
+Title: {{ .Title }}
+Content:{{ .Content }}
+`)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/page/index.html",
+		"Title: hello",
+		"Content:<p>This is the content.</p>",
+	)
+
+}
+
 // TODO(bep) this may be useful for other tests.
 func compareObjects(a interface{}, b interface{}) bool {
 	aStr := strings.Split(fmt.Sprintf("%v", a), "")

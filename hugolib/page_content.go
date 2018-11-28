@@ -83,8 +83,6 @@ Loop:
 
 		switch {
 		case it.Type == pageparser.TypeIgnore:
-		case it.Type == pageparser.TypeHTMLComment:
-			// Ignore. This is only a leading Front matter comment.
 		case it.Type == pageparser.TypeHTMLStart:
 			// This is HTML without front matter. It can still have shortcodes.
 			p.renderable = false

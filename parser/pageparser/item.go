@@ -108,7 +108,6 @@ const (
 
 	// page items
 	TypeHTMLStart          // document starting with < as first non-whitespace
-	TypeHTMLComment        // We ignore leading comments
 	TypeLeadSummaryDivider // <!--more-->,  # more
 	TypeFrontMatterYAML
 	TypeFrontMatterTOML

@@ -53,6 +53,8 @@ type pageLexer struct {
 	summaryDivider []byte
 	// Set when we have parsed any summary divider
 	summaryDividerChecked bool
+	// Whether we're in a HTML comment.
+	isInHTMLComment bool
 
 	lexerShortcodeState
 
@@ -120,7 +122,7 @@ var (
 	delimYAML         = []byte("---")
 	delimOrg          = []byte("#+")
 	htmlCommentStart  = []byte("<!--")
-	htmlCOmmentEnd    = []byte("-->")
+	htmlCommentEnd    = []byte("-->")
 )
 
 func (l *pageLexer) next() rune {
@@ -195,6 +197,15 @@ func (l *pageLexer) consumeCRLF() bool {
 	return consumed
 }
 
+func (l *pageLexer) consumeToNextLine() {
+	for {
+		r := l.next()
+		if r == eof || isEndOfLine(r) {
+			return
+		}
+	}
+}
+
 func (l *pageLexer) consumeSpace() {
 	for {
 		r := l.next()
@@ -206,6 +217,10 @@ func (l *pageLexer) consumeSpace() {
 }
 
 func lexMainSection(l *pageLexer) stateFunc {
+	if l.isInHTMLComment {
+		return lexEndFromtMatterHTMLComment
+	}
+
 	// Fast forward as far as possible.
 	var l1, l2 int
 
@@ -312,16 +327,15 @@ LOOP:
 		case r == byteOrderMark:
 			l.emit(TypeIgnore)
 		case !isSpace(r) && !isEndOfLine(r):
-			// No front matter.
 			if r == '<' {
 				l.backup()
 				if l.hasPrefix(htmlCommentStart) {
-					right := l.index(htmlCOmmentEnd)
-					if right == -1 {
-						return l.errorf("starting HTML comment with no end")
-					}
-					l.pos += right + len(htmlCOmmentEnd)
-					l.emit(TypeHTMLComment)
+					// This may be commented out front mattter, which should
+					// still be read.
+					l.consumeToNextLine()
+					l.isInHTMLComment = true
+					l.emit(TypeIgnore)
+					continue LOOP
 				} else {
 					if l.pos > l.start {
 						l.emit(tText)
@@ -336,6 +350,19 @@ LOOP:
 			break LOOP
 		}
 	}
+
+	// Now move on to the shortcodes.
+	return lexMainSection
+}
+
+func lexEndFromtMatterHTMLComment(l *pageLexer) stateFunc {
+	l.isInHTMLComment = false
+	right := l.index(htmlCommentEnd)
+	if right == -1 {
+		return l.errorf("starting HTML comment with no end")
+	}
+	l.pos += right + len(htmlCommentEnd)
+	l.emit(TypeIgnore)
 
 	// Now move on to the shortcodes.
 	return lexMainSection
