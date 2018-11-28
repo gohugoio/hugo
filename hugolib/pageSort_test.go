@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDefaultSort(t *testing.T) {
@@ -56,6 +57,37 @@ func TestDefaultSort(t *testing.T) {
 	assert.Equal(t, "al", p[0].LinkTitle())
 	assert.Equal(t, "bl", p[1].LinkTitle())
 	assert.Equal(t, "cl", p[2].LinkTitle())
+}
+
+// https://github.com/gohugoio/hugo/issues/4953
+func TestSortByLinkTitle(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+	s := newTestSite(t)
+	pages := createSortTestPages(s, 6)
+
+	for i, p := range pages {
+		if i < 5 {
+			p.title = fmt.Sprintf("title%d", i)
+		}
+
+		if i > 2 {
+			p.linkTitle = fmt.Sprintf("linkTitle%d", i)
+		}
+	}
+
+	pages.shuffle()
+
+	bylt := pages.ByLinkTitle()
+
+	for i, p := range bylt {
+		msg := fmt.Sprintf("test: %d", i)
+		if i < 3 {
+			assert.Equal(fmt.Sprintf("linkTitle%d", i+3), p.LinkTitle(), msg)
+		} else {
+			assert.Equal(fmt.Sprintf("title%d", i-3), p.LinkTitle(), msg)
+		}
+	}
 }
 
 func TestSortByN(t *testing.T) {

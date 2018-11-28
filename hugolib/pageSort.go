@@ -155,7 +155,7 @@ func (p Pages) ByLinkTitle() Pages {
 	const key = "pageSort.ByLinkTitle"
 
 	linkTitle := func(p1, p2 *Page) bool {
-		return p1.linkTitle < p2.linkTitle
+		return p1.LinkTitle() < p2.LinkTitle()
 	}
 
 	pages, _ := spc.get(key, pageBy(linkTitle).Sort, p)

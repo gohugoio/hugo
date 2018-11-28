@@ -18,6 +18,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand"
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/maps"
@@ -515,6 +516,14 @@ type Pages []*Page
 
 func (ps Pages) String() string {
 	return fmt.Sprintf("Pages(%d)", len(ps))
+}
+
+// Used in tests.
+func (ps Pages) shuffle() {
+	for i := range ps {
+		j := rand.Intn(i + 1)
+		ps[i], ps[j] = ps[j], ps[i]
+	}
 }
 
 func (ps Pages) findPagePosByFilename(filename string) int {
