@@ -19,7 +19,12 @@ deprecated: false
 aliases: []
 ---
 
-The `partialCached` template function can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation. Here is the simplest usage:
+The `partialCached` template function can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation.
+
+
+**Note:** Each Site (or language) has its own `partialCached` cache, so each site will execute a partial once.
+
+Here is the simplest usage:
 
 ```
 {{ partialCached "footer.html" . }}
