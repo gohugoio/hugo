@@ -17,7 +17,7 @@ import (
 	"reflect"
 )
 
-// Slicer definse a very generic way to create a typed slice. This is used
+// Slicer defines a very generic way to create a typed slice. This is used
 // in collections.Slice template func to get types such as Pages, PageGroups etc.
 // instead of the less useful []interface{}.
 type Slicer interface {
