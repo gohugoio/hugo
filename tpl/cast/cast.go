@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package cast provides template functions for data type conversions.
 package cast
 
 import (

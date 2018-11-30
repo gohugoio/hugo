@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package inflect provides template functions for the inflection of words.
 package inflect
 
 import (

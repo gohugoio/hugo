@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package resources provides template functions for working with resources.
 package resources
 
 import (

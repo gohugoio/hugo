@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package safe provides template functions for escaping untrusted content or
+// encapsulating trusted content.
 package safe
 
 import (
