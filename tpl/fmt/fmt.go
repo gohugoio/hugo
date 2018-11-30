@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package fmt provides template functions for formatting strings.
 package fmt
 
 import (

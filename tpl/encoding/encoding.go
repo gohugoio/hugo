@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package encoding provides template functions for encoding content.
 package encoding
 
 import (

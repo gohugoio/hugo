@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package compare provides template functions for comparing values.
 package compare
 
 import (

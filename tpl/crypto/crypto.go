@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package crypto provides template functions for cryptographic operations.
 package crypto
 
 import (

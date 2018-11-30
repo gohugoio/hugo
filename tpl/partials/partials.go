@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package partials provides template functions for working with reusable
+// templates.
 package partials
 
 import (

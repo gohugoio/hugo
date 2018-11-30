@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package transform provides template functions for transforming content.
 package transform
 
 import (

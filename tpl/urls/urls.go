@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package urls provides template functions to deal with URLs.
 package urls
 
 import (

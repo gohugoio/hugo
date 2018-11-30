@@ -11,6 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package data provides template functions for working with external data
+// sources.
 package data
 
 import (
