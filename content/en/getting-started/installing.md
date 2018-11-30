@@ -62,7 +62,7 @@ If you are on Linux and using [Linuxbrew][linuxbrew], you can install Hugo with 
 brew install hugo
 {{< /code >}}
 
-Installation guides for Linuxbrew are avaliable on their [website][linuxbrew].
+Installation guides for Linuxbrew are available on their [website][linuxbrew].
 
 ### Chocolatey (Windows)
 

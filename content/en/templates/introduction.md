@@ -235,7 +235,7 @@ key.
 
 #### Example 5: Conditional on empty _map_, _array_, or _slice_.
 
-If the _map_, _array_, or _slice_ passed into the range is zero-length then the else statment is evaluated.
+If the _map_, _array_, or _slice_ passed into the range is zero-length then the else statement is evaluated.
 
 ```go-html-template
 {{ range $array }}

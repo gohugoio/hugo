@@ -13,7 +13,7 @@ Swiss [Arolla campsite](http://www.camping-arolla.com/) runs the highest campsit
 
 But they just launch a brand new offer (luxury tents with bed and fire oven), and we couldn't wait for the proper new website for having this promoted: we needed the website up and running within 24h!
 
-So we decided to quickly launch a dedicated [independant web site](https://www.cocoon-arolla.com) using all the powefull tools included with [gohugo.io](http://gohugo.io) and some things we already knew & used:
+So we decided to quickly launch a dedicated [independent web site](https://www.cocoon-arolla.com) using all the powefull tools included with [gohugo.io](http://gohugo.io) and some things we already knew & used:
 
 - Choose a spectacular landing theme in the rich [Hugo Themes](http://themes.gohugo.io/) collection : [Airspace Theme](https://themes.gohugo.io/airspace-hugo/) by Themefisher.
 - Replace the main images.
@@ -27,4 +27,4 @@ So we decided to quickly launch a dedicated [independant web site](https://www.c
 
 The first version was up in 4 hours, and the polished 2 languages version was published on Netlify the next day.
 
-This would have been impossible to do it in such a short time without all the powerfull Hugo tools and Netlify simplicity.
+This would have been impossible to do it in such a short time without all the powerful Hugo tools and Netlify simplicity.
