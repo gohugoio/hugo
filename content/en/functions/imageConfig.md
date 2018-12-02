@@ -1,4 +1,5 @@
 ---
+title: imageConfig
 linktitle: imageConfig
 description: Parses the image and returns the height, width, and color model.
 godocref:
