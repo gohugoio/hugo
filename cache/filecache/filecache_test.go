@@ -49,15 +49,13 @@ func TestFileCache(t *testing.T) {
 
 	osfs := afero.NewOsFs()
 
-	existingCacheDir := helpers.GetTempDir("hugo_filecache_test_cache_existing", osfs)
-	existingWorkingDir := helpers.GetTempDir("hugo_filecache_test_work_existing", osfs)
-
 	for _, test := range []struct {
 		cacheDir   string
 		workingDir string
 	}{
+		// Run with same dirs twice to make sure that works.
 		{tempCacheDir, tempWorkingDir},
-		{existingCacheDir, existingWorkingDir},
+		{tempCacheDir, tempWorkingDir},
 	} {
 
 		configStr := `
