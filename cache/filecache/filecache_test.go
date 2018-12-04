@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -38,10 +39,29 @@ func TestFileCache(t *testing.T) {
 	t.Parallel()
 	assert := require.New(t)
 
-	for _, cacheDir := range []string{"mycache", ""} {
+	tempWorkingDir, err := ioutil.TempDir("", "hugo_filecache_test_work")
+	assert.NoError(err)
+	defer os.Remove(tempWorkingDir)
+
+	tempCacheDir, err := ioutil.TempDir("", "hugo_filecache_test_cache")
+	assert.NoError(err)
+	defer os.Remove(tempCacheDir)
+
+	osfs := afero.NewOsFs()
+
+	existingCacheDir := helpers.GetTempDir("hugo_filecache_test_cache_existing", osfs)
+	existingWorkingDir := helpers.GetTempDir("hugo_filecache_test_work_existing", osfs)
+
+	for _, test := range []struct {
+		cacheDir   string
+		workingDir string
+	}{
+		{tempCacheDir, tempWorkingDir},
+		{existingCacheDir, existingWorkingDir},
+	} {
 
 		configStr := `
-workingDir = "/my/work"
+workingDir = "WORKING_DIR"
 resourceDir = "resources"
 cacheDir = "CACHEDIR"
 contentDir = "content"
@@ -57,37 +77,43 @@ maxAge = "10h"
 dir = ":cacheDir/c"
 
 `
-		configStr = strings.Replace(configStr, "CACHEDIR", cacheDir, 1)
+
+		winPathSep := "\\\\"
+
+		replacer := strings.NewReplacer("CACHEDIR", test.cacheDir, "WORKING_DIR", test.workingDir)
+
+		configStr = replacer.Replace(configStr)
+		configStr = strings.Replace(configStr, "\\", winPathSep, -1)
 
 		cfg, err := config.FromConfigString(configStr, "toml")
 		assert.NoError(err)
 
-		fs := hugofs.NewMem(cfg)
+		fs := hugofs.NewFrom(osfs, cfg)
 		p, err := helpers.NewPathSpec(fs, cfg)
 		assert.NoError(err)
 
 		caches, err := NewCaches(p)
 		assert.NoError(err)
 
-		c := caches.Get("GetJSON")
-		assert.NotNil(c)
-		assert.Equal("10h0m0s", c.maxAge.String())
+		cache := caches.Get("GetJSON")
+		assert.NotNil(cache)
+		assert.Equal("10h0m0s", cache.maxAge.String())
 
-		bfs, ok := c.Fs.(*afero.BasePathFs)
+		bfs, ok := cache.Fs.(*afero.BasePathFs)
 		assert.True(ok)
 		filename, err := bfs.RealPath("key")
 		assert.NoError(err)
-		if cacheDir != "" {
-			assert.Equal(filepath.FromSlash(cacheDir+"/c/"+filecacheRootDirname+"/getjson/key"), filename)
+		if test.cacheDir != "" {
+			assert.Equal(filepath.Join(test.cacheDir, "c/"+filecacheRootDirname+"/getjson/key"), filename)
 		} else {
 			// Temp dir.
 			assert.Regexp(regexp.MustCompile(".*hugo_cache.*"+filecacheRootDirname+".*key"), filename)
 		}
 
-		c = caches.Get("images")
-		assert.NotNil(c)
-		assert.Equal(time.Duration(-1), c.maxAge)
-		bfs, ok = c.Fs.(*afero.BasePathFs)
+		cache = caches.Get("Images")
+		assert.NotNil(cache)
+		assert.Equal(time.Duration(-1), cache.maxAge)
+		bfs, ok = cache.Fs.(*afero.BasePathFs)
 		assert.True(ok)
 		filename, _ = bfs.RealPath("key")
 		assert.Equal(filepath.FromSlash("_gen/images/key"), filename)
@@ -108,30 +134,32 @@ dir = ":cacheDir/c"
 			return []byte("bcd"), nil
 		}
 
-		for i := 0; i < 2; i++ {
-			info, r, err := c.GetOrCreate("a", rf("abc"))
-			assert.NoError(err)
-			assert.NotNil(r)
-			assert.Equal("a", info.Name)
-			b, _ := ioutil.ReadAll(r)
-			r.Close()
-			assert.Equal("abc", string(b))
+		for _, c := range []*Cache{caches.ImageCache(), caches.AssetsCache(), caches.GetJSONCache(), caches.GetCSVCache()} {
+			for i := 0; i < 2; i++ {
+				info, r, err := c.GetOrCreate("a", rf("abc"))
+				assert.NoError(err)
+				assert.NotNil(r)
+				assert.Equal("a", info.Name)
+				b, _ := ioutil.ReadAll(r)
+				r.Close()
+				assert.Equal("abc", string(b))
 
-			info, b, err = c.GetOrCreateBytes("b", bf)
-			assert.NoError(err)
-			assert.NotNil(r)
-			assert.Equal("b", info.Name)
-			assert.Equal("bcd", string(b))
+				info, b, err = c.GetOrCreateBytes("b", bf)
+				assert.NoError(err)
+				assert.NotNil(r)
+				assert.Equal("b", info.Name)
+				assert.Equal("bcd", string(b))
 
-			_, b, err = c.GetOrCreateBytes("a", bf)
-			assert.NoError(err)
-			assert.Equal("abc", string(b))
+				_, b, err = c.GetOrCreateBytes("a", bf)
+				assert.NoError(err)
+				assert.Equal("abc", string(b))
 
-			_, r, err = c.GetOrCreate("a", rf("bcd"))
-			assert.NoError(err)
-			b, _ = ioutil.ReadAll(r)
-			r.Close()
-			assert.Equal("abc", string(b))
+				_, r, err = c.GetOrCreate("a", rf("bcd"))
+				assert.NoError(err)
+				b, _ = ioutil.ReadAll(r)
+				r.Close()
+				assert.Equal("abc", string(b))
+			}
 		}
 
 		assert.NotNil(caches.Get("getJSON"))
