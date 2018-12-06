@@ -424,6 +424,10 @@ func (s *SiteInfo) Hugo() hugo.Info {
 	return s.hugoInfo
 }
 
+// Sites is a convenience method to get all the Hugo sites/languages configured.
+func (s *SiteInfo) Sites() SiteInfos {
+	return s.s.owner.siteInfos()
+}
 func (s *SiteInfo) String() string {
 	return fmt.Sprintf("Site(%q)", s.Title)
 }
