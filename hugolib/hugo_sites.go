@@ -55,6 +55,14 @@ type HugoSites struct {
 	gitInfo *gitInfo
 }
 
+func (h *HugoSites) siteInfos() SiteInfos {
+	infos := make(SiteInfos, len(h.Sites))
+	for i, site := range h.Sites {
+		infos[i] = &site.Info
+	}
+	return infos
+}
+
 func (h *HugoSites) pickOneAndLogTheRest(errors []error) error {
 	if len(errors) == 0 {
 		return nil
