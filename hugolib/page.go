@@ -369,12 +369,7 @@ func (p *Page) Summary() template.HTML {
 
 // Sites is a convenience method to get all the Hugo sites/languages configured.
 func (p *Page) Sites() SiteInfos {
-	infos := make(SiteInfos, len(p.s.owner.Sites))
-	for i, site := range p.s.owner.Sites {
-		infos[i] = &site.Info
-	}
-
-	return infos
+	return p.s.owner.siteInfos()
 }
 
 // SearchKeywords implements the related.Document interface needed for fast page searches.
