@@ -137,7 +137,7 @@ description = "Text about this post"
 date = "2006-01-02"
 images = ["post-cover.png"]
 audio = []
-video = []
+videos = []
 series = []
 tags = []
 {{</ code-toggle >}}
@@ -147,9 +147,11 @@ The first 6 URLs from the `images` array are used for image metadata.
 
 Various optional metadata can also be set:
 - Date, published date, and last modified data are used to set the published time metadata if specified.
-- `audio` and `video` are URL arrays like `images` for the audio and video metadata tags, respectively.
+- `audio` and `videos` are URL arrays like `images` for the audio and video metadata tags, respectively.
 - The first 6 `tags` on the page are used for the tags metadata.
 - The `series` taxonomy is used to specify related "see also" pages by placing them in the same series.
+
+If using youtube this will produce a og:video tag like <meta property="og:video" content="url">. If using a youtube link make sure this is in **https://www.youtube.com/v/NlXVWtgLNjY** not __https://www.youtube.com/watch?v=NlXVWtgLNjY__
 
 ### Use the Open Graph Template
 
