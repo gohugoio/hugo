@@ -17,6 +17,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/cobra"
@@ -45,7 +46,7 @@ in the "man" directory under the current directory.`,
 			header := &doc.GenManHeader{
 				Section: "1",
 				Manual:  "Hugo Manual",
-				Source:  fmt.Sprintf("Hugo %s", helpers.CurrentHugoVersion),
+				Source:  fmt.Sprintf("Hugo %s", hugo.CurrentVersion),
 			}
 			if !strings.HasSuffix(cc.genmandir, helpers.FilePathSeparator) {
 				cc.genmandir += helpers.FilePathSeparator

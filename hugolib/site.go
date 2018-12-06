@@ -36,11 +36,11 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 
-	_errors "github.com/pkg/errors"
-
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/resource"
+	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/langs"
 
@@ -388,7 +388,7 @@ type SiteInfo struct {
 	Social     SiteSocial
 	*PageCollections
 	Menus                          *Menus
-	Hugo                           *HugoInfo
+	hugoInfo                       hugo.Info
 	Title                          string
 	RSSLink                        string
 	Author                         map[string]interface{}
@@ -418,6 +418,10 @@ func (s *SiteInfo) Language() *langs.Language {
 
 func (s *SiteInfo) Config() SiteConfig {
 	return s.s.siteConfig
+}
+
+func (s *SiteInfo) Hugo() hugo.Info {
+	return s.hugoInfo
 }
 
 func (s *SiteInfo) String() string {
@@ -1218,6 +1222,7 @@ func (s *Site) initializeSiteInfo() error {
 		Data:                           &s.Data,
 		owner:                          s.owner,
 		s:                              s,
+		hugoInfo:                       hugo.NewInfo(),
 		// TODO(bep) make this Menu and similar into delegate methods on SiteInfo
 		Taxonomies: s.Taxonomies,
 	}

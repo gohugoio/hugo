@@ -11,23 +11,41 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package htesting
 
 import (
-	"fmt"
-	"testing"
-
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/stretchr/testify/require"
+	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/langs"
+	"github.com/spf13/viper"
 )
 
-func TestHugoInfo(t *testing.T) {
-	assert := require.New(t)
+type testSite struct {
+	h hugo.Info
+	l *langs.Language
+}
 
-	assert.Equal(helpers.CurrentHugoVersion.Version(), hugoInfo.Version)
-	assert.IsType(helpers.HugoVersionString(""), hugoInfo.Version)
-	assert.Equal(CommitHash, hugoInfo.CommitHash)
-	assert.Equal(BuildDate, hugoInfo.BuildDate)
-	assert.Contains(hugoInfo.Generator, fmt.Sprintf("Hugo %s", hugoInfo.Version))
+func (t testSite) Hugo() hugo.Info {
+	return t.h
+}
 
+func (t testSite) IsServer() bool {
+	return false
+}
+
+func (t testSite) Language() *langs.Language {
+	return t.l
+}
+
+// NewTestHugoSite creates a new minimal test site.
+func NewTestHugoSite() hugo.Site {
+	return testSite{
+		h: hugo.NewInfo(),
+		l: langs.NewLanguage("en", newTestConfig()),
+	}
+}
+
+func newTestConfig() *viper.Viper {
+	v := viper.New()
+	v.Set("contentDir", "content")
+	return v
 }

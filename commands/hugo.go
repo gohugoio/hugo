@@ -23,6 +23,7 @@ import (
 	"sort"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -1041,7 +1042,7 @@ func (c *commandeer) isThemeVsHugoVersionMismatch(fs afero.Fs) (dir string, mism
 		}
 
 		if minVersion, ok := tomlMeta["min_version"]; ok {
-			if helpers.CompareVersion(minVersion) > 0 {
+			if hugo.CompareVersion(minVersion) > 0 {
 				return absThemeDir, true, fmt.Sprint(minVersion)
 			}
 		}

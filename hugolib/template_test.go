@@ -241,7 +241,9 @@ func TestTemplateFuncs(t *testing.T) {
 
 	b := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
 
-	homeTpl := `Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}`
+	homeTpl := `Site: {{ site.Language.Lang }} / {{ .Site.Language.Lang }} / {{ site.BaseURL }}
+Hugo: {{ hugo.Generator }}
+`
 
 	b.WithTemplatesAdded(
 		"index.html", homeTpl,
@@ -250,7 +252,8 @@ func TestTemplateFuncs(t *testing.T) {
 
 	b.CreateSites().Build(BuildCfg{})
 
-	b.AssertFileContent("public/en/index.html", "Site: en / en / http://example.com/blog")
+	b.AssertFileContent("public/en/index.html", "Site: en / en / http://example.com/blog",
+		"Hugo: <meta name=\"generator\" content=\"Hugo")
 	b.AssertFileContent("public/fr/index.html", "Site: fr / fr / http://example.com/blog")
 
 }

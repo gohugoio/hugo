@@ -21,6 +21,8 @@ import (
 	"math/rand"
 	"reflect"
 
+	"github.com/gohugoio/hugo/common/hugo"
+
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/common/urls"
 	"github.com/gohugoio/hugo/media"
@@ -1873,8 +1875,8 @@ func (p *Page) copy(initContent bool) *Page {
 	return &c
 }
 
-func (p *Page) Hugo() *HugoInfo {
-	return hugoInfo
+func (p *Page) Hugo() hugo.Info {
+	return p.s.Info.hugoInfo
 }
 
 // GetPage looks up a page for the given ref.

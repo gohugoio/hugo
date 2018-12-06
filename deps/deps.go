@@ -235,6 +235,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		ResourceSpec:        resourceSpec,
 		Cfg:                 cfg.Language,
 		Language:            cfg.Language,
+		Site:                cfg.Site,
 		FileCaches:          fileCaches,
 		BuildStartListeners: &Listeners{},
 		Timeout:             time.Duration(timeoutms) * time.Millisecond,
@@ -263,6 +264,8 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	if err != nil {
 		return nil, err
 	}
+
+	d.Site = cfg.Site
 
 	// The resource cache is global so reuse.
 	// TODO(bep) clean up these inits.
@@ -309,6 +312,9 @@ type DepsCfg struct {
 
 	// The language to use.
 	Language *langs.Language
+
+	// The Site in use
+	Site hugo.Site
 
 	// The configuration to use.
 	Cfg config.Provider

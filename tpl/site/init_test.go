@@ -16,8 +16,8 @@ package site
 import (
 	"testing"
 
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/stretchr/testify/require"
 )
@@ -25,7 +25,7 @@ import (
 func TestInit(t *testing.T) {
 	var found bool
 	var ns *internal.TemplateFuncsNamespace
-	var s hugo.Site
+	s := htesting.NewTestHugoSite()
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 		ns = nsf(&deps.Deps{Site: s})

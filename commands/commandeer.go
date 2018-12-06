@@ -17,9 +17,10 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/gohugoio/hugo/common/herrors"
-
 	"io/ioutil"
+
+	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hugo"
 
 	jww "github.com/spf13/jwalterweatherman"
 
@@ -105,7 +106,7 @@ func (c *commandeer) getErrorWithContext() interface{} {
 	m := make(map[string]interface{})
 
 	m["Error"] = errors.New(removeErrorPrefixFromLog(c.logger.Errors()))
-	m["Version"] = hugoVersionString()
+	m["Version"] = hugo.BuildVersionString()
 
 	fe := herrors.UnwrapErrorWithFileContext(c.buildErr)
 	if fe != nil {
@@ -379,7 +380,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	if themeVersionMismatch {
 		name := filepath.Base(dir)
 		cfg.Logger.ERROR.Printf("%s theme does not support Hugo version %s. Minimum version required is %s\n",
-			strings.ToUpper(name), helpers.CurrentHugoVersion.ReleaseVersion(), minVersion)
+			strings.ToUpper(name), hugo.CurrentVersion.ReleaseVersion(), minVersion)
 	}
 
 	return nil

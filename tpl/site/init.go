@@ -15,6 +15,7 @@ package site
 
 import (
 	"github.com/gohugoio/hugo/deps"
+
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
