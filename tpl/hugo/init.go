@@ -15,7 +15,6 @@ package site
 
 import (
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/tpl/internal"
 )
 
@@ -24,7 +23,7 @@ const name = "hugo"
 func init() {
 	f := func(d *deps.Deps) *internal.TemplateFuncsNamespace {
 
-		h := htesting.NewTestHugoSite().Hugo()
+		h := d.Site.Hugo()
 
 		ns := &internal.TemplateFuncsNamespace{
 			Name:    name,
