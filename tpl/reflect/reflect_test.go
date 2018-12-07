@@ -30,14 +30,8 @@ func TestIsMap(t *testing.T) {
 		expect interface{}
 	}{
 		{map[int]int{1: 1}, true},
-		// failures
-		{nil, false},
 		{"foo", false},
-		{1.0, false},
-		{true, false},
-		{[]int{1, 2}, false},
-		{tstNoStringer{}, false},
-		{&tstNoStringer{}, false},
+		{nil, false},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 		result := ns.IsMap(test.v)
@@ -51,15 +45,8 @@ func TestIsSlice(t *testing.T) {
 		expect interface{}
 	}{
 		{[]int{1, 2}, true},
-		{[]tstNoStringer{{}, {}}, true},
-		// failures
-		{nil, false},
 		{"foo", false},
-		{1.0, false},
-		{true, false},
-		{map[int]int{1: 1}, false},
-		{tstNoStringer{}, false},
-		{&tstNoStringer{}, false},
+		{nil, false},
 	} {
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 		result := ns.IsSlice(test.v)
