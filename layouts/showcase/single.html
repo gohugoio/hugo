@@ -35,9 +35,16 @@ Showcase: {{ .Title }}
 {{define "sc-main-column"}}
   {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
   {{ with $img }}
-     {{ $big := .Fill "1024x512 top" }}
-     {{ $small := $big.Resize "512x" }}
-      <img srcset="{{ $small.RelPermalink }} 1x, {{ $big.RelPermalink }} 2x" alt="{{ $img.Title }}" width="{{ $big.Width }}"  class="mw-100 b--light-gray ba">
+    {{ $big := .Fill "1024x512 top" }}
+    {{ $small := $big.Resize "512x" }}
+    <img
+      alt="{{ $img.Title }}"
+      src="{{ $big.RelPermalink }}"
+      srcset="{{ $small.RelPermalink }} 512w, {{ $big.RelPermalink }} 1024w"
+      sizes="(min-width: 1570px) 822px, (max-width: 1569px) and (min-width: 960px) 50vw, 93vw"
+      width="{{ $big.Width }}"
+      class="mw-100 b--light-gray ba"
+    >
   {{ end }}
    <div class="mid-gray nested-copy-line-height nested-img nested-links">
   {{with .Params.byline }}
