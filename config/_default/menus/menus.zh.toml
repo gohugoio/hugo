@@ -1,0 +1,121 @@
+
+# Chinese menus
+
+[[docs]]
+  name = "关于 Hugo"
+  weight = 1
+  identifier = "about"
+  url = "/zh/about/"
+
+[[docs]]
+  name = "入门"
+  weight = 5
+  identifier = "getting-started"
+  url = "/zh/getting-started/"
+
+[[docs]]
+  name = "主题"
+  weight = 15
+  identifier = "themes"
+  post = "break"
+  url = "/zh/themes/"
+
+# Core languages.zh.menus
+
+[[docs]]
+  name = "内容管理"
+  weight = 20
+  identifier = "content-management"
+  post = "expanded"
+  url = "/zh/content-management/"
+
+[[docs]]
+  name = "模板"
+  weight = 25
+  identifier = "templates"
+  url = "/zh/templates/"
+
+[[docs]]
+  name = "函数"
+  weight = 30
+  identifier = "functions"
+  url = "/zh/functions/"
+
+[[docs]]
+  name = "变量"
+  weight = 35
+  identifier = "variables"
+  url = "/zh/variables/"
+
+[[docs]]
+  name = "CLI"
+  weight = 40
+  post = "break"
+  identifier = "commands"
+  url = "/commands/"
+
+# LOW LEVEL ITEMS
+[[docs]]
+  name = "故障排除"
+  weight = 60
+  identifier = "troubleshooting"
+  url = "/zh/troubleshooting/"
+
+[[docs]]
+  name = "工具"
+  weight = 70
+  identifier = "tools"
+  url = "/zh/tools/"
+
+[[docs]]
+  name = "托管与部署"
+  weight = 80
+  identifier = "hosting-and-deployment"
+  url = "/zh/hosting-and-deployment/"
+
+[[docs]]
+  name = "贡献"
+  weight = 100
+  post = "break"
+  identifier = "contribute"
+  url = "/zh/contribute/"
+
+[[global]]
+  name = "新闻"
+  weight = 1
+  identifier = "news"
+  url = "/zh/news/"
+
+[[global]]
+  name = "文档"
+  weight = 5
+  identifier = "docs"
+  url = "/zh/documentation/"
+
+[[global]]
+  name = "主题"
+  weight = 10
+  identifier = "themes"
+  url = "https://themes.gohugo.io/"
+
+[[global]]
+  name = "作品展示"
+  weight = 20
+  identifier = "showcase"
+  url = "/zh/showcase/"
+
+# Anything with a weight > 100 gets an external icon
+[[global]]
+  name = "社区"
+  weight = 150
+  icon = true
+  identifier = "community"
+  post = "external"
+  url = "https://discourse.gohugo.io/"
+
+[[global]]
+  name = "GitHub"
+  weight = 200
+  identifier = "github"
+  post = "external"
+  url = "https://github.com/gohugoio/hugo"
