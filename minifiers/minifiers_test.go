@@ -71,3 +71,23 @@ func TestNew(t *testing.T) {
 	}
 
 }
+
+func TestBugs(t *testing.T) {
+	assert := require.New(t)
+	m := New(media.DefaultTypes, output.DefaultFormats)
+
+	for _, test := range []struct {
+		tp                media.Type
+		rawString         string
+		expectedMinString string
+	}{
+		// https://github.com/gohugoio/hugo/issues/5506
+		{media.CSSType, " body { color: rgba(000, 000, 000, 0.7); }", "body{color:rgba(0,0,0,.7)}"},
+	} {
+		var b bytes.Buffer
+
+		assert.NoError(m.Minify(test.tp, &b, strings.NewReader(test.rawString)))
+		assert.Equal(test.expectedMinString, b.String())
+	}
+
+}

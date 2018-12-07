@@ -71,8 +71,13 @@ func New(mediaTypes media.Types, outputFormats output.Formats) Client {
 		KeepDefaultAttrVals:     true,
 	}
 
+	cssMin := &css.Minifier{
+		Decimals: -1,
+		KeepCSS2: true,
+	}
+
 	// We use the Type definition of the media types defined in the site if found.
-	addMinifierFunc(m, mediaTypes, "css", css.Minify)
+	addMinifier(m, mediaTypes, "css", cssMin)
 	addMinifierFunc(m, mediaTypes, "js", js.Minify)
 	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
 	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-|ld\\+)?json$"), json.Minify)
