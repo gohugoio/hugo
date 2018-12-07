@@ -20,7 +20,7 @@ aliases: []
 
 Given the string `"abba"`, leading `"a"`'s can be removed a follows:
 
-    {{ strings.TrimLeft "abba" "a" }} → "bba"
+    {{ strings.TrimLeft "a" "abba" }} → "bba"
 
 Numbers can be handled as well:
 
