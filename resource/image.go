@@ -376,7 +376,7 @@ func parseImageConfig(config string) (imageConfig, error) {
 			if err != nil {
 				return c, err
 			}
-			if c.Quality < 1 && c.Quality > 100 {
+			if c.Quality < 1 || c.Quality > 100 {
 				return c, errors.New("quality ranges from 1 to 100 inclusive")
 			}
 		} else if part[0] == 'r' {
