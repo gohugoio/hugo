@@ -17,7 +17,9 @@
               {{/* using ".Post" from the menu system to determine if we should show an icon for external links */}}
             {{ $post_status := printf "%s" .Post }}
             {{ if eq $post_status "external" }}
-              {{ partial "svg/link-ext.svg" (dict "size" "10") }}
+              <span class="pl1">
+                {{ partial "svg/link-ext.svg" (dict "size" "10") }}
+              </span>
             {{ end }}
           </a>
         </li>
