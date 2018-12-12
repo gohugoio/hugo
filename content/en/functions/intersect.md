@@ -10,7 +10,7 @@ categories: [functions]
 menu:
   docs:
     parent: "functions"
-keywords: []
+keywords: [collections,intersect,union,complement,symdiff]
 signature: ["intersect SET1 SET2"]
 workson: []
 hugoversion:
@@ -18,8 +18,9 @@ relatedfuncs: []
 deprecated: false
 aliases: []
 ---
-
 An useful example is to use it as `AND` filters when combined with where:
+
+## AND filter in where query
 
 ```
 {{ $pages := where .Site.RegularPages "Type" "not in" (slice "page" "about") }}

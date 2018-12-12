@@ -22,7 +22,7 @@ toc: true
 
 A collection of all themes created by the Hugo community, including screenshots and demos, can be found at <https://themes.gohugo.io>. Every theme in this list will automatically be added to the theme site. Theme updates aren't scheduled but usually happen at least once a week.
 
-## tl;dr
+## Adding a theme to the list
 
 1. Create your theme using `hugo new theme <THEMENAME>`;
 2. Test your theme against <https://github.com/gohugoio/hugoBasicExample> \*

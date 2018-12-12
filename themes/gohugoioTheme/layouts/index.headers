@@ -4,5 +4,25 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: origin-when-cross-origin
 */
-  Link: <{{ "dist/app.bundle.js" | relURL }}>; rel=preload; as=script
-  Link: <{{ "dist/main.css" | relURL }}>; rel=preload; as=style
+
+{{ $stylesheet := resources.Get "output/css/app.css" }}
+{{ $scripts := resources.Get "output/js/app.js" }}
+
+{{ with $stylesheet -}}Link: <{{ .Permalink | relURL }}>; rel=preload; as=style nopush{{- end}}  
+{{ with $scripts -}}Link: <{{ .Permalink | relURL }}>; rel=preload; as=script nopush{{- end}}
+{{ range (readDir "/static/fonts/") }}
+Link: </fonts/{{ .Name }}>; rel=preload; as=font nopush
+{{ end }}
+{{ range (readDir "./themes/gohugoioTheme/static/fonts") }}
+Link: </fonts/{{ .Name }}>; rel=preload; as=font nopush
+{{ end }}
+
+{{ with $stylesheet }}    
+{{ .Permalink | relURL }}
+Cache-Control: public, max-age=31556926,immutable
+{{end }}  
+{{ with $scripts }}
+{{ .Permalink | relURL }}
+Cache-Control: public, max-age=31556926,immutable
+{{end}}
+

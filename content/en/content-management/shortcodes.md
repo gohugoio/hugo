@@ -15,6 +15,7 @@ categories: [content management]
 keywords: [markdown,content,shortcodes]
 draft: false
 aliases: [/extras/shortcodes/]
+testparam: "Hugo Rocks!"
 toc: true
 ---
 
@@ -239,6 +240,24 @@ Using the preceding `instagram` with `hidecaption` example above, the following 
 
 {{< instagram BWNjjyYFxVx hidecaption >}}
 
+
+### `param`
+
+Gets a value from the current `Page's` params set in front matter, with a fall back to the site param value. If will log an `ERROR` if the param with the given key could not be found in either.
+
+```bash
+{{</* param testparam */>}}
+```
+
+Since `testparam` is a param defined in front matter of this page with the value `Hugo Rocks!`, the above will print:
+
+{{< param testparam >}}
+
+To access deeply nested params, use "dot syntax", e.g:
+
+```bash
+{{</* param "my.nested.param" */>}}
+```
 
 ### `ref` and `relref`
 

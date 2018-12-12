@@ -2,11 +2,7 @@
 <html class="no-js" lang="{{ with $.Site.LanguageCode }}{{ . }}{{ else }}en-us{{ end }}">
   <head>
     <meta charset="utf-8">
-    {{/* https://www.zachleat.com/web/preload/ */}}
-    <link rel="preload" href="{{ "files/muli-latin-200.woff2" | absURL }}" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="{{ "files/muli-latin-400.woff2" | absURL }}" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="{{ "files/muli-latin-800.woff2" | absURL }}" as="font" type="font/woff2" crossorigin>
-
+  
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
      {{/* NOTE: the Site's title, and if there is a page title, that is set too */}}
     <title>{{ block "title" . }}{{ with .Title }}{{ . }} | {{ end }}{{ .Site.Title }}{{ end }}</title>
@@ -25,8 +21,18 @@
     {{ range .AlternativeOutputFormats -}}
     <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}">
     {{ end -}}
+    
+    {{ $stylesheet := resources.Get "output/css/app.css" | minify | fingerprint }}
+    {{ with $stylesheet }}
+      <link rel="stylesheet" href="{{ .Permalink | relURL }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"> 
+      {{ $.Scratch.Set "stylesheet" . }}    
+    {{end}}
 
-     <link href='{{ "dist/main.css" | relURL }}' rel='stylesheet' type="text/css" />
+
+     {{ block "scripts" . }}
+      {{- partial "site-scripts.html" . -}}
+    {{ end }}
+      {{ partial "site-manifest.html" . }}
       {{- partial "head-additions.html" . -}}
       {{- template "_internal/opengraph.html" . -}}
       {{- template "_internal/google_news.html" . -}}
@@ -38,7 +44,7 @@
       {{ end }}
 
 
-
+          
 
   </head>
   <body class="ma0 sans-serif bg-primary-color-light{{ with getenv "HUGO_ENV" }} {{ . }}{{ end }}">
@@ -49,7 +55,7 @@
     </main>
 
     {{ block "footer" . }}{{ partialCached "site-footer.html" . }}{{ end }}
-    {{ block "scripts" . }}{{- partial "site-scripts.html" . -}}{{ end }}
+    
 
   </body>
 </html>

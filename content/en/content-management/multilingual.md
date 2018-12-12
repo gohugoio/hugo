@@ -349,12 +349,6 @@ And then in the template:
 ```
 {{ i18n "readingTime" .ReadingTime }}
 ```
-To track down missing translation strings, run Hugo with the `--i18n-warnings` flag:
-
-```
- hugo --i18n-warnings | grep i18n
-i18n|MISSING_TRANSLATION|en|wordCount
-```
 
 ## Customize Dates
 
@@ -437,6 +431,13 @@ Hugo will generate your website with these missing translation placeholders. It 
 {{% /note %}}
 
 For merging of content from other languages (i.e. missing content translations), see [lang.Merge](/functions/lang.merge/).
+
+To track down missing translation strings, run Hugo with the `--i18n-warnings` flag:
+
+```
+ hugo --i18n-warnings | grep i18n
+i18n|MISSING_TRANSLATION|en|wordCount
+```
 
 ## Multilingual Themes support
 
