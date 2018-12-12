@@ -1,12 +1,12 @@
 
 ---
 date: 2018-11-28
-title: "0.52"
-description: "0.52"
+title: "And Now: Hugo 0.52"
+description: "Configurable file caches, inline shortcodes, and more ..."
 categories: ["Releases"]
 ---
 
-	The two big new items in this release is [Inline Shortcodes](https://gohugo.io//templates/shortcode-templates/#inline-shortcodes) and [Consolidated File Caches](https://gohugo.io//templates/shortcode-templates/getting-started/configuration/#configure-file-caches). In Hugo we really care about build speed, and caching is important. With this release, you get much better control over your cache configuration, which is especially useful when building on a Continous Integration server (Netlify, CircleCI or similar). Inline Shortcodes was implemented to help the Bootstrap project [move their documentation](https://github.com/twbs/bootstrap/issues/24475#issuecomment-441238128) to Hugo. Note that this feature is disabled by default. To enable, set `enableInlineShortcodes = true` in your site config. Worth mentioning is also the new `param` shortcode, which looks up the param in page front matter with the site's parameter as a fall back.
+The two big new items in this release is [Inline Shortcodes](https://gohugo.io//templates/shortcode-templates/#inline-shortcodes) and [Consolidated File Caches](https://gohugo.io/getting-started/configuration/#configure-file-caches). In Hugo we really care about build speed, and caching is important. With this release, you get much better control over your cache configuration, which is especially useful when building on a Continous Integration server (Netlify, CircleCI or similar). Inline Shortcodes was implemented to help the Bootstrap project [move their documentation site](https://github.com/twbs/bootstrap/issues/24475#issuecomment-441238128) to Hugo. Note that this feature is disabled by default. To enable, set `enableInlineShortcodes = true` in your site config. Worth mentioning is also the new `param` shortcode, which looks up the param in page front matter with the site's parameter as a fall back.
 
 This release represents **33 contributions by 7 contributors** to the main Hugo code base.
 [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@moorereason](https://github.com/moorereason), [@emirb](https://github.com/emirb), and [@allizad](https://github.com/allizad) for their ongoing contributions.

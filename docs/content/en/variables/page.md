@@ -156,6 +156,12 @@ http://remarkjs.com)
 .Site
 : see [Site Variables](/variables/site/).
 
+.Sites
+: returns all sites (languages). A typical use case would be to link back to the main language: `<a href="{{ .Sites.First.Home.RelPermalink }}">...</a>`.
+
+.Sites.First
+: returns the site for the first language. If this is not a multilingual setup, it will return itself.
+
 .Summary
 : a generated summary of the content for easily showing a snippet in a summary view. The breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page. See [Content Summaries](/content-management/summaries/) for more details.
 

@@ -48,7 +48,7 @@ You can then call the shortcode as follows inside of your content's markup:
 
 The above shortcode [is part of the code for the Hugo docs][dirindex]. Here it lists this site's CSS files:
 
-{{< directoryindex path="/themes/gohugoioTheme/static/dist" pathURL="/css" >}}
+{{< directoryindex path="/themes/gohugoioTheme/static" pathURL="/css" >}}
 
 {{% note "Slashes are Important" %}}
 The initial slash `/` in `pathURL` is important in the `directoryindex` shortcode. Otherwise, `pathURL` becomes relative to the current web page.

@@ -1,12 +1,12 @@
 
 ---
 date: 2018-10-29
-title: "0.50"
-description: "0.50"
+title: "Hugo 0.50: Errors so Good, You’ll Want to Fail!"
+description: "Errors with full filename and line and column number, shown in browser. And improved Fast Render Mode …"
 categories: ["Releases"]
 ---
 
-	Hugo `0.50` brings **greatly improved error messages**, and we now also show them in the browser. Having error messages with filename, line- and column number greatly simplify troubleshooting. Many editors (like VS Code) even let you click and navigate directly to the problematic line. If your editor requires a different log format, you can set it via the `HUGO_FILE_LOG_FORMAT` OS environment variable:
+Hugo `0.50` brings **greatly improved error messages**, and we now also show them in the browser. Having error messages with filename, line- and column number greatly simplify troubleshooting. Many editors (like VS Code) even let you click and navigate directly to the problematic line. If your editor requires a different log format, you can set it via the `HUGO_FILE_LOG_FORMAT` OS environment variable:
 
 
 ```bash

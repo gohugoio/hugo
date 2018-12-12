@@ -249,7 +249,7 @@ Gets a value from the current `Page's` params set in front matter, with a fall b
 {{</* param testparam */>}}
 ```
 
-Since `testparam` is a param defined in front matter of this page wi the value `Hugo Rocks!`, the above will print:
+Since `testparam` is a param defined in front matter of this page with the value `Hugo Rocks!`, the above will print:
 
 {{< param testparam >}}
 

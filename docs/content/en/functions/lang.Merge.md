@@ -29,17 +29,13 @@ As an example:
 Will "fill in the gaps" in the current site with, from left to right, content from the French site, and lastly the English.
 
 
-A more practical example is to fill in the missing translations for the "minority languages" with content from the main language:
-
+A more practical example is to fill in the missing translations from the other languages:
 
 ```bash
- {{ $pages := .Site.RegularPages }}
- {{ .Scratch.Set "pages" $pages }}
- {{ $mainSite := .Sites.First }}
- {{ if ne $mainSite .Site }}
-    {{ .Scratch.Set "pages" ($pages | lang.Merge $mainSite.RegularPages) }}
- {{ end }}
- {{ $pages := .Scratch.Get "pages" }} 
+{{ $pages := .Site.RegularPages }}
+{{ range .Site.Home.Translations }}
+{{ $pages = $pages | lang.Merge .Site.RegularPages }}
+{{ end }}
  ```
 
 {{% note %}}
