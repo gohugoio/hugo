@@ -22,3 +22,6 @@ dist
 
 
 vendor
+
+# visual studio code settings files
+.vscode

@@ -38,6 +38,7 @@ import (
 	_ "github.com/gohugoio/hugo/tpl/os"
 	_ "github.com/gohugoio/hugo/tpl/partials"
 	_ "github.com/gohugoio/hugo/tpl/path"
+	_ "github.com/gohugoio/hugo/tpl/plugins"
 	_ "github.com/gohugoio/hugo/tpl/resources"
 	_ "github.com/gohugoio/hugo/tpl/safe"
 	_ "github.com/gohugoio/hugo/tpl/site"

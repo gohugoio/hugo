@@ -51,10 +51,12 @@ require (
 	github.com/spf13/nitro v0.0.0-20131003134307-24d7ef30a12d
 	github.com/spf13/pflag v1.0.3
 	github.com/spf13/viper v1.3.1
+	github.com/starlight-go/starlight v0.0.0-20181207205707-b06f321544f3
 	github.com/stretchr/testify v1.2.3-0.20181014000028-04af85275a5c
 	github.com/tdewolff/minify/v2 v2.3.7
 	github.com/ugorji/go/codec v0.0.0-20181206144755-e72634d4d386 // indirect
 	github.com/yosssi/ace v0.0.5
+	go.starlark.net v0.0.0-20181213015430-66ac3a2d309f // indirect
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd // indirect
 	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
