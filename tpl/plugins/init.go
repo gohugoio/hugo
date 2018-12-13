@@ -30,12 +30,7 @@ func init() {
 			Context: func(args ...interface{}) interface{} { return ctx },
 		}
 
-		ns.AddMethodMapping(ctx.Starlight,
-			[]string{"starlight"},
-			[][2]string{
-				{`{{plugins.starlight "uppercase.star" .Page.Title }}`, `Blockhead`},
-			},
-		)
+		ns.AddMethodMapping(ctx.Starlight, nil, nil)
 		return ns
 	}
 
