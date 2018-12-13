@@ -24,5 +24,4 @@ Given the string `"abba"`, leading `"a"`'s can be removed a follows:
 
 Numbers can be handled as well:
 
-    {{ strings.TrimLeft 1221 "12" }} → ""
-
+    {{ strings.TrimLeft 12 1221341221 }} → "341221"
