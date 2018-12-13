@@ -420,12 +420,15 @@ date: "2018-02-28"
 			"content/sect/doc1.nn.md", contentTemplate,
 		}
 
+		listTemplateCommon = "{{ $p := .Paginator }}{{ $p.PageNumber }}|{{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}|Pager: {{ template \"_internal/pagination.html\" . }}"
+
 		defaultTemplates = []string{
 			"_default/single.html", "Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Lang}}|{{ .Content }}",
-			"_default/list.html", "{{ $p := .Paginator }}List Page {{ $p.PageNumber }}: {{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}|Pager: {{ template \"_internal/pagination.html\" . }}",
+			"_default/list.html", "List Page " + listTemplateCommon,
 			"index.html", "{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").RelPermalink  }}",
 			"index.fr.html", "{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").RelPermalink  }}",
-
+			"_default/terms.html", "Taxonomy Term Page " + listTemplateCommon,
+			"_default/taxonomy.html", "Taxonomy List Page " + listTemplateCommon,
 			// Shortcodes
 			"shortcodes/shortcode.html", "Shortcode: {{ i18n \"hello\" }}",
 			// A shortcode in multiple languages

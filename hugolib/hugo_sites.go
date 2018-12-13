@@ -16,6 +16,7 @@ package hugolib
 import (
 	"errors"
 	"io"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -520,6 +521,15 @@ func (h *HugoSites) assignMissingTranslations() error {
 func (h *HugoSites) createMissingPages() error {
 	var newPages Pages
 
+	singularPlural := func(p *Page) (string, string) {
+		slen := len(p.sections)
+		singular := p.sections[slen-1]
+		singular = p.s.PathSpec.MakePathSanitized(singular)
+		plural := path.Join((p.sections[:slen-1])...)
+
+		return singular, plural
+	}
+
 	for _, s := range h.Sites {
 		if s.isEnabled(KindHome) {
 			// home pages
@@ -544,6 +554,7 @@ func (h *HugoSites) createMissingPages() error {
 		if len(taxonomies) > 0 {
 			taxonomyPages := s.findPagesByKind(KindTaxonomy)
 			taxonomyTermsPages := s.findPagesByKind(KindTaxonomyTerm)
+
 			for _, plural := range taxonomies {
 				if s.isEnabled(KindTaxonomyTerm) {
 					foundTaxonomyTermsPage := false
@@ -570,11 +581,10 @@ func (h *HugoSites) createMissingPages() error {
 							key = s.PathSpec.MakeSegment(key)
 						}
 						for _, p := range taxonomyPages {
-							// Some people may have /authors/MaxMustermann etc. as paths.
-							// p.sections contains the raw values from the file system.
-							// See https://github.com/gohugoio/hugo/issues/4238
-							singularKey := s.PathSpec.MakePathSanitized(p.sections[1])
-							if p.sections[0] == plural && singularKey == key {
+
+							singularKey, pluralKey := singularPlural(p)
+
+							if pluralKey == plural && singularKey == key {
 								foundTaxonomyPage = true
 								break
 							}
