@@ -156,6 +156,21 @@ func TestAbsURL(t *testing.T) {
 
 }
 
+func TestAbsURLUnqoted(t *testing.T) {
+	tr := transform.New(NewAbsURLTransformer(testBaseURL))
+
+	apply(t.Errorf, tr, []test{
+		test{
+			content:  `Link: <a href=/asdf>ASDF</a>`,
+			expected: `Link: <a href=http://base/asdf>ASDF</a>`,
+		},
+		test{
+			content:  `Link: <a href=/asdf   >ASDF</a>`,
+			expected: `Link: <a href=http://base/asdf   >ASDF</a>`,
+		},
+	})
+}
+
 func TestRelativeURL(t *testing.T) {
 	tr := transform.New(NewAbsURLTransformer(helpers.GetDottedRelativePath(filepath.FromSlash("/post/sub/"))))
 
@@ -176,7 +191,7 @@ func TestAbsXMLURLSrcSet(t *testing.T) {
 }
 
 func BenchmarkXMLAbsURL(b *testing.B) {
-	tr := transform.New(NewAbsURLInXMLTransformer(""))
+	tr := transform.New(NewAbsURLInXMLTransformer(testBaseURL))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
