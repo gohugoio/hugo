@@ -88,8 +88,8 @@ func TestFrontMatter(t *testing.T) {
 	}
 }
 
-func collect(input []byte, skipFrontMatter bool, stateStart stateFunc) (items []Item) {
-	l := newPageLexer(input, 0, stateStart)
+func collectWithConfig(input []byte, skipFrontMatter bool, stateStart stateFunc, cfg Config) (items []Item) {
+	l := newPageLexer(input, stateStart, cfg)
 	l.run()
 	t := l.newIterator()
 
@@ -101,6 +101,13 @@ func collect(input []byte, skipFrontMatter bool, stateStart stateFunc) (items []
 		}
 	}
 	return
+}
+
+func collect(input []byte, skipFrontMatter bool, stateStart stateFunc) (items []Item) {
+	var cfg Config
+
+	return collectWithConfig(input, skipFrontMatter, stateStart, cfg)
+
 }
 
 // no positional checking, for now ...

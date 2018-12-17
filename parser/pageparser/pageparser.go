@@ -27,7 +27,7 @@ import (
 
 // Result holds the parse result.
 type Result interface {
-	// Iterator returns a new Iterator positioned at the benning of the parse tree.
+	// Iterator returns a new Iterator positioned at the beginning of the parse tree.
 	Iterator() *Iterator
 	// Input returns the input to Parse.
 	Input() []byte
@@ -35,25 +35,19 @@ type Result interface {
 
 var _ Result = (*pageLexer)(nil)
 
-// Parse parses the page in the given reader.
-func Parse(r io.Reader) (Result, error) {
+// Parse parses the page in the given reader according to the given Config.
+func Parse(r io.Reader, cfg Config) (Result, error) {
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read page content")
 	}
-	return parseBytes(b)
+	return parseBytes(b, cfg)
 }
 
-func parseBytes(b []byte) (Result, error) {
-	lexer := newPageLexer(b, 0, lexIntroSection)
+func parseBytes(b []byte, cfg Config) (Result, error) {
+	lexer := newPageLexer(b, lexIntroSection, cfg)
 	lexer.run()
 	return lexer, nil
-}
-
-func parseMainSection(input []byte, from int) Result {
-	lexer := newPageLexer(input, from, lexMainSection)
-	lexer.run()
-	return lexer
 }
 
 // An Iterator has methods to iterate a parsed page with support going back

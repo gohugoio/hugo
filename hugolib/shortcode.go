@@ -177,6 +177,16 @@ type shortcode struct {
 	pos       int // the position in bytes in the source file
 }
 
+func (s shortcode) innerString() string {
+	var sb strings.Builder
+
+	for _, inner := range s.inner {
+		sb.WriteString(inner.(string))
+	}
+
+	return sb.String()
+}
+
 func (sc shortcode) String() string {
 	// for testing (mostly), so any change here will break tests!
 	var params interface{}
@@ -363,7 +373,7 @@ func renderShortcode(
 	if sc.isInline {
 		templName := path.Join("_inline_shortcode", p.Path(), sc.name)
 		if sc.isClosing {
-			templStr := sc.inner[0].(string)
+			templStr := sc.innerString()
 
 			var err error
 			tmpl, err = p.s.TextTmpl.Parse(templName, templStr)
