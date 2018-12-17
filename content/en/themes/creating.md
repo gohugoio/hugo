@@ -20,7 +20,11 @@ wip: true
 ---
 
 {{% warning "Use Absolute Links" %}}
-If you're creating a theme with plans to share it on the [Hugo Themes website](https://themes.gohugo.io/) please note that your theme's demo will be available in a sub-directory of website and for the theme's assets to load properly you will need to create absolute paths in the templates  by using either the [absURL](/functions/absurl) function or `.Permalink`. Also make sure not to use a forward slash `/` in the beginning of a `PATH`, because Hugo will turn it into a relative URL and the `absURL` function will have no effect.
+If you're creating a theme with plans to share it on the [Hugo Themes website](https://themes.gohugo.io/) please note the following: 
+- If you choose to use relative URLs in your template you need to quote them.
+- In style tags you will need to use absolute URLs, for the linked assets to be served properly.
+- Make sure not to use a forward slash `/` in the beginning of a `URL`, because it will point to the host root. Your theme's demo will be available in a subdirectory of the Hugo website and in this scenario Hugo will not generate the correct `URL` for theme assets.
+
 {{% /warning %}}
 
 Hugo can initialize a new blank theme directory within your existing `themes` using the `hugo new` command:
