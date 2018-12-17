@@ -215,7 +215,7 @@ type parsedFile struct {
 func parseContentFile(r io.Reader) (parsedFile, error) {
 	var pf parsedFile
 
-	psr, err := pageparser.Parse(r)
+	psr, err := pageparser.Parse(r, pageparser.Config{})
 	if err != nil {
 		return pf, err
 	}

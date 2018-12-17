@@ -37,6 +37,12 @@ type pageLexer struct {
 	start      int // item start position
 	width      int // width of last element
 
+	// Contains lexers for shortcodes and other main section
+	// elements.
+	sectionHandlers *sectionHandlers
+
+	cfg Config
+
 	// The summary divider to look for.
 	summaryDivider []byte
 	// Set when we have parsed any summary divider
@@ -60,13 +66,17 @@ func (l *pageLexer) Input() []byte {
 
 }
 
+type Config struct {
+	EnableEmoji bool
+}
+
 // note: the input position here is normally 0 (start), but
 // can be set if position of first shortcode is known
-func newPageLexer(input []byte, inputPosition int, stateStart stateFunc) *pageLexer {
+func newPageLexer(input []byte, stateStart stateFunc, cfg Config) *pageLexer {
 	lexer := &pageLexer{
 		input:      input,
-		pos:        inputPosition,
 		stateStart: stateStart,
+		cfg:        cfg,
 		lexerShortcodeState: lexerShortcodeState{
 			currLeftDelimItem:  tLeftDelimScNoMarkup,
 			currRightDelimItem: tRightDelimScNoMarkup,
@@ -74,6 +84,8 @@ func newPageLexer(input []byte, inputPosition int, stateStart stateFunc) *pageLe
 		},
 		items: make([]Item, 0, 5),
 	}
+
+	lexer.sectionHandlers = createSectionHandlers(lexer)
 
 	return lexer
 }
@@ -100,6 +112,8 @@ var (
 	delimOrg          = []byte("#+")
 	htmlCommentStart  = []byte("<!--")
 	htmlCommentEnd    = []byte("-->")
+
+	emojiDelim = byte(':')
 )
 
 func (l *pageLexer) next() rune {
@@ -130,6 +144,10 @@ func (l *pageLexer) backup() {
 func (l *pageLexer) emit(t ItemType) {
 	l.items = append(l.items, Item{t, l.start, l.input[l.start:l.pos]})
 	l.start = l.pos
+}
+
+func (l *pageLexer) isEOF() bool {
+	return l.pos >= len(l.input)
 }
 
 // special case, do not send '\\' back to client
@@ -193,30 +211,80 @@ func (l *pageLexer) consumeSpace() {
 	}
 }
 
-func lexMainSection(l *pageLexer) stateFunc {
-	if l.isInHTMLComment {
-		return lexEndFromtMatterHTMLComment
-	}
+// lex a string starting at ":"
+func lexEmoji(l *pageLexer) stateFunc {
+	pos := l.pos + 1
+	valid := false
 
-	// Fast forward as far as possible.
-	var l1, l2 int
-
-	if !l.summaryDividerChecked && l.summaryDivider != nil {
-		l1 = l.index(l.summaryDivider)
-		if l1 == -1 {
-			l.summaryDividerChecked = true
+	for i := pos; i < len(l.input); i++ {
+		if i > pos && l.input[i] == emojiDelim {
+			pos = i + 1
+			valid = true
+			break
+		}
+		r, _ := utf8.DecodeRune(l.input[i:])
+		if !isAlphaNumeric(r) {
+			break
 		}
 	}
 
-	l2 = l.index(leftDelimSc)
-	skip := minIndex(l1, l2)
-
-	if skip > 0 {
-		l.pos += skip
+	if valid {
+		l.pos = pos
+		l.emit(TypeEmoji)
+	} else {
+		l.pos++
+		l.emit(tText)
 	}
 
-	for {
-		if l.isShortCodeStart() {
+	return lexMainSection
+}
+
+type sectionHandlers struct {
+	l *pageLexer
+
+	// Set when none of the sections are found so we
+	// can safely stop looking and skip to the end.
+	skipAll bool
+
+	handlers    []*sectionHandler
+	skipIndexes []int
+}
+
+func (s *sectionHandlers) skip() int {
+	if s.skipAll {
+		return -1
+	}
+
+	s.skipIndexes = s.skipIndexes[:0]
+	var shouldSkip bool
+	for _, skipper := range s.handlers {
+		idx := skipper.skip()
+		if idx != -1 {
+			shouldSkip = true
+			s.skipIndexes = append(s.skipIndexes, idx)
+		}
+	}
+
+	if !shouldSkip {
+		s.skipAll = true
+		return -1
+	}
+
+	return minIndex(s.skipIndexes...)
+}
+
+func createSectionHandlers(l *pageLexer) *sectionHandlers {
+
+	shortCodeHandler := &sectionHandler{
+		l: l,
+		skipFunc: func(l *pageLexer) int {
+			return l.index(leftDelimSc)
+		},
+		lexFunc: func(origin stateFunc, l *pageLexer) (stateFunc, bool) {
+			if !l.isShortCodeStart() {
+				return origin, false
+			}
+
 			if l.isInline {
 				// If we're inside an inline shortcode, the only valid shortcode markup is
 				// the markup which closes it.
@@ -225,14 +293,11 @@ func lexMainSection(l *pageLexer) stateFunc {
 				if end != len(l.input)-1 {
 					b = bytes.TrimSpace(b[end+1:])
 					if end == -1 || !bytes.HasPrefix(b, []byte(l.currShortcodeName+" ")) {
-						return l.errorf("inline shortcodes do not support nesting")
+						return l.errorf("inline shortcodes do not support nesting"), true
 					}
 				}
 			}
 
-			if l.pos > l.start {
-				l.emit(tText)
-			}
 			if l.hasPrefix(leftDelimScWithMarkup) {
 				l.currLeftDelimItem = tLeftDelimScWithMarkup
 				l.currRightDelimItem = tRightDelimScWithMarkup
@@ -240,32 +305,139 @@ func lexMainSection(l *pageLexer) stateFunc {
 				l.currLeftDelimItem = tLeftDelimScNoMarkup
 				l.currRightDelimItem = tRightDelimScNoMarkup
 			}
-			return lexShortcodeLeftDelim
-		}
 
-		if !l.summaryDividerChecked && l.summaryDivider != nil {
-			if l.hasPrefix(l.summaryDivider) {
-				if l.pos > l.start {
-					l.emit(tText)
-				}
-				l.summaryDividerChecked = true
-				l.pos += len(l.summaryDivider)
-				// This makes it a little easier to reason about later.
-				l.consumeSpace()
-				l.emit(TypeLeadSummaryDivider)
-
-				// We have already moved to the next.
-				continue
-			}
-		}
-
-		r := l.next()
-		if r == eof {
-			break
-		}
-
+			return lexShortcodeLeftDelim, true
+		},
 	}
 
+	summaryDividerHandler := &sectionHandler{
+		l: l,
+		skipFunc: func(l *pageLexer) int {
+			if l.summaryDividerChecked || l.summaryDivider == nil {
+				return -1
+
+			}
+			return l.index(l.summaryDivider)
+		},
+		lexFunc: func(origin stateFunc, l *pageLexer) (stateFunc, bool) {
+			if !l.hasPrefix(l.summaryDivider) {
+				return origin, false
+			}
+
+			l.summaryDividerChecked = true
+			l.pos += len(l.summaryDivider)
+			// This makes it a little easier to reason about later.
+			l.consumeSpace()
+			l.emit(TypeLeadSummaryDivider)
+
+			return origin, true
+
+		},
+	}
+
+	handlers := []*sectionHandler{shortCodeHandler, summaryDividerHandler}
+
+	if l.cfg.EnableEmoji {
+		emojiHandler := &sectionHandler{
+			l: l,
+			skipFunc: func(l *pageLexer) int {
+				return l.indexByte(emojiDelim)
+			},
+			lexFunc: func(origin stateFunc, l *pageLexer) (stateFunc, bool) {
+				return lexEmoji, true
+			},
+		}
+
+		handlers = append(handlers, emojiHandler)
+	}
+
+	return &sectionHandlers{
+		l:           l,
+		handlers:    handlers,
+		skipIndexes: make([]int, len(handlers)),
+	}
+}
+
+func (s *sectionHandlers) lex(origin stateFunc) stateFunc {
+	if s.skipAll {
+		return nil
+	}
+
+	if s.l.pos > s.l.start {
+		s.l.emit(tText)
+	}
+
+	for _, handler := range s.handlers {
+		if handler.skipAll {
+			continue
+		}
+
+		next, handled := handler.lexFunc(origin, handler.l)
+		if next == nil || handled {
+			return next
+		}
+	}
+
+	// Not handled by the above.
+	s.l.pos++
+
+	return origin
+}
+
+type sectionHandler struct {
+	l *pageLexer
+
+	// No more sections of this type.
+	skipAll bool
+
+	// Returns the index of the next match, -1 if none found.
+	skipFunc func(l *pageLexer) int
+
+	// Lex lexes the current section and returns the next state func and
+	// a bool telling if this section was handled.
+	// Note that returning nil as the next state will terminate the
+	// lexer.
+	lexFunc func(origin stateFunc, l *pageLexer) (stateFunc, bool)
+}
+
+func (s *sectionHandler) skip() int {
+	if s.skipAll {
+		return -1
+	}
+
+	idx := s.skipFunc(s.l)
+	if idx == -1 {
+		s.skipAll = true
+	}
+	return idx
+}
+
+func lexMainSection(l *pageLexer) stateFunc {
+
+	if l.isEOF() {
+		return lexDone
+	}
+
+	if l.isInHTMLComment {
+		return lexEndFromtMatterHTMLComment
+	}
+
+	// Fast forward as far as possible.
+	skip := l.sectionHandlers.skip()
+
+	if skip == -1 {
+		l.pos = len(l.input)
+		return lexDone
+	} else if skip > 0 {
+		l.pos += skip
+	}
+
+	next := l.sectionHandlers.lex(lexMainSection)
+	if next != nil {
+		return next
+	}
+
+	l.pos = len(l.input)
 	return lexDone
 
 }
@@ -297,8 +469,20 @@ func (l *pageLexer) index(sep []byte) int {
 	return bytes.Index(l.input[l.pos:], sep)
 }
 
+func (l *pageLexer) indexByte(sep byte) int {
+	return bytes.IndexByte(l.input[l.pos:], sep)
+}
+
 func (l *pageLexer) hasPrefix(prefix []byte) bool {
 	return bytes.HasPrefix(l.input[l.pos:], prefix)
+}
+
+func (l *pageLexer) hasPrefixByte(prefix byte) bool {
+	b := l.input[l.pos:]
+	if len(b) == 0 {
+		return false
+	}
+	return b[0] == prefix
 }
 
 // helper functions

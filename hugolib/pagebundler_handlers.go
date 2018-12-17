@@ -272,10 +272,6 @@ func (c *contentHandlers) handlePageContent() contentHandler {
 
 		p := ctx.currentPage
 
-		if c.s.Cfg.GetBool("enableEmoji") {
-			p.workContent = helpers.Emojify(p.workContent)
-		}
-
 		p.workContent = p.renderContent(p.workContent)
 
 		tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.workContent)
