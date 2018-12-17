@@ -486,7 +486,7 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 	smLayouts := []string{"sitemapindex.xml", "_default/sitemapindex.xml", "_internal/_default/sitemapindex.xml"}
 
 	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemapindex",
-		sitemapDefault.Filename, h.toSiteInfos(), s.appendThemeTemplates(smLayouts)...)
+		sitemapDefault.Filename, h.toSiteInfos(), smLayouts...)
 }
 
 func (h *HugoSites) assignMissingTranslations() error {

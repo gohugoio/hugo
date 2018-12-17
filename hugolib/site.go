@@ -1648,36 +1648,6 @@ func (s *Site) errorCollator(results <-chan error, errs chan<- error) {
 	close(errs)
 }
 
-func (s *Site) appendThemeTemplates(in []string) []string {
-	if !s.PathSpec.ThemeSet() {
-		return in
-	}
-
-	out := []string{}
-	// First place all non internal templates
-	for _, t := range in {
-		if !strings.HasPrefix(t, "_internal/") {
-			out = append(out, t)
-		}
-	}
-
-	// Then place theme templates with the same names
-	for _, t := range in {
-		if !strings.HasPrefix(t, "_internal/") {
-			out = append(out, "theme/"+t)
-		}
-	}
-
-	// Lastly place internal templates
-	for _, t := range in {
-		if strings.HasPrefix(t, "_internal/") {
-			out = append(out, t)
-		}
-	}
-	return out
-
-}
-
 // GetPage looks up a page of a given type for the given ref.
 // In Hugo <= 0.44 you had to add Page Kind (section, home) etc. as the first
 // argument and then either a unix styled path (with or without a leading slash))
