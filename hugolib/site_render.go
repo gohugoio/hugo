@@ -303,7 +303,7 @@ func (s *Site) render404() error {
 		s.Log.ERROR.Printf("Failed to create target path for page %q: %s", p, err)
 	}
 
-	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "404 page", targetPath, pageOutput, s.appendThemeTemplates(nfLayouts)...)
+	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "404 page", targetPath, pageOutput, nfLayouts...)
 }
 
 func (s *Site) renderSitemap() error {
@@ -354,7 +354,7 @@ func (s *Site) renderSitemap() error {
 	addLanguagePrefix := n.Site.IsMultiLingual()
 
 	return s.renderAndWriteXML(&s.PathSpec.ProcessingStats.Sitemaps, "sitemap",
-		n.addLangPathPrefixIfFlagSet(page.Sitemap.Filename, addLanguagePrefix), n, s.appendThemeTemplates(smLayouts)...)
+		n.addLangPathPrefixIfFlagSet(page.Sitemap.Filename, addLanguagePrefix), n, smLayouts...)
 }
 
 func (s *Site) renderRobotsTXT() error {
@@ -385,7 +385,7 @@ func (s *Site) renderRobotsTXT() error {
 		s.Log.ERROR.Printf("Failed to create target path for page %q: %s", p, err)
 	}
 
-	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "Robots Txt", targetPath, pageOutput, s.appendThemeTemplates(rLayouts)...)
+	return s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "Robots Txt", targetPath, pageOutput, rLayouts...)
 
 }
 
