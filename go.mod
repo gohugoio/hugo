@@ -43,7 +43,7 @@ require (
 	github.com/sanity-io/litter v1.1.0
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95 // indirect
-	github.com/spf13/afero v1.1.2
+	github.com/spf13/afero v1.2.0
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/fsync v0.0.0-20170320142552-12a01e648f05
@@ -53,7 +53,6 @@ require (
 	github.com/spf13/viper v1.3.1
 	github.com/stretchr/testify v1.2.3-0.20181014000028-04af85275a5c
 	github.com/tdewolff/minify/v2 v2.3.7
-	github.com/ugorji/go/codec v0.0.0-20181206144755-e72634d4d386 // indirect
 	github.com/yosssi/ace v0.0.5
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd // indirect
