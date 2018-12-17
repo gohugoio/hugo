@@ -22,15 +22,6 @@ import (
 	"github.com/gohugoio/hugo/transform"
 )
 
-type matchState int
-
-const (
-	matchStateNone matchState = iota
-	matchStateWhitespace
-	matchStatePartial
-	matchStateFull
-)
-
 type absurllexer struct {
 	// the source to absurlify
 	content []byte
@@ -42,98 +33,29 @@ type absurllexer struct {
 
 	pos   int // input position
 	start int // item start position
-	width int // width of last element
 
 	quotes [][]byte
-
-	ms      matchState
-	matches [3]bool // track matches of the 3 prefixes
-	idx     int     // last index in matches checked
-
 }
 
 type stateFunc func(*absurllexer) stateFunc
 
-// prefix is how to identify and which func to handle the replacement.
 type prefix struct {
-	r []rune
-	f func(l *absurllexer)
+	disabled bool
+	b        []byte
+	f        func(l *absurllexer)
 }
 
-// new prefixes can be added below, but note:
-// - the matches array above must be expanded.
-// - the prefix must with the current logic end with '='
-var prefixes = []*prefix{
-	{r: []rune{'s', 'r', 'c', '='}, f: checkCandidateBase},
-	{r: []rune{'h', 'r', 'e', 'f', '='}, f: checkCandidateBase},
-	{r: []rune{'s', 'r', 'c', 's', 'e', 't', '='}, f: checkCandidateSrcset},
+func newPrefixState() []*prefix {
+	return []*prefix{
+		{b: []byte("src="), f: checkCandidateBase},
+		{b: []byte("href="), f: checkCandidateBase},
+		{b: []byte("srcset="), f: checkCandidateSrcset},
+	}
 }
 
 type absURLMatcher struct {
 	match []byte
 	quote []byte
-}
-
-// match check rune inside word. Will be != ' '.
-func (l *absurllexer) match(r rune) {
-
-	var found bool
-
-	// note, the prefixes can start off on the same foot, i.e.
-	// src and srcset.
-	if l.ms == matchStateWhitespace {
-		l.idx = 0
-		for j, p := range prefixes {
-			if r == p.r[l.idx] {
-				l.matches[j] = true
-				found = true
-				// checkMatchState will only return true when r=='=', so
-				// we can safely ignore the return value here.
-				l.checkMatchState(r, j)
-			}
-		}
-
-		if !found {
-			l.ms = matchStateNone
-		}
-
-		return
-	}
-
-	l.idx++
-	for j, m := range l.matches {
-		// still a match?
-		if m {
-			if prefixes[j].r[l.idx] == r {
-				found = true
-				if l.checkMatchState(r, j) {
-					return
-				}
-			} else {
-				l.matches[j] = false
-			}
-		}
-	}
-
-	if !found {
-		l.ms = matchStateNone
-	}
-}
-
-func (l *absurllexer) checkMatchState(r rune, idx int) bool {
-	if r == '=' {
-		l.ms = matchStateFull
-		for k := range l.matches {
-			if k != idx {
-				l.matches[k] = false
-			}
-		}
-		return true
-	}
-
-	l.ms = matchStatePartial
-
-	return false
 }
 
 func (l *absurllexer) emit() {
@@ -255,36 +177,40 @@ func checkCandidateSrcset(l *absurllexer) {
 // main loop
 func (l *absurllexer) replace() {
 	contentLength := len(l.content)
-	var r rune
+
+	prefixes := newPrefixState()
 
 	for {
 		if l.pos >= contentLength {
-			l.width = 0
 			break
 		}
 
-		var width = 1
-		r = rune(l.content[l.pos])
-		if r >= utf8.RuneSelf {
-			r, width = utf8.DecodeRune(l.content[l.pos:])
-		}
-		l.width = width
-		l.pos += l.width
-		if r == ' ' {
-			l.ms = matchStateWhitespace
-		} else if l.ms != matchStateNone {
-			l.match(r)
-			if l.ms == matchStateFull {
-				var p *prefix
-				for i, m := range l.matches {
-					if m {
-						p = prefixes[i]
-						l.matches[i] = false
-					}
-				}
-				l.ms = matchStateNone
-				p.f(l)
+		nextPos := -1
+
+		var match *prefix
+
+		for _, p := range prefixes {
+			if p.disabled {
+				continue
 			}
+			idx := bytes.Index(l.content[l.pos:], p.b)
+
+			if idx == -1 {
+				p.disabled = true
+				// Find the closest match
+			} else if nextPos == -1 || idx < nextPos {
+				nextPos = idx
+				match = p
+			}
+		}
+
+		if nextPos == -1 {
+			// Done!
+			l.pos = contentLength
+			break
+		} else {
+			l.pos += nextPos + len(match.b)
+			match.f(l)
 		}
 	}
 
