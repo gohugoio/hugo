@@ -25,7 +25,7 @@ Hugo's Git integrations should be fairly performant but *can* increase your buil
 
 ## `.GitInfo` Prerequisites
 
-1. The Hugo site must be in a Git-enabled directory.
+1. The global `contentDir` must be in a Git-enabled directory. Any language-specific `contentDir` must be in the same repo as the global `contentDir`.
 2. The Git executable must be installed and in your system `PATH`.
 3. The `.GitInfo` feature must be enabled in your Hugo project by passing `--enableGitInfo` flag on the command line or by setting `enableGitInfo` to `true` in your [site's configuration file][configuration].
 

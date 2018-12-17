@@ -36,9 +36,12 @@ func (g *gitInfo) forPage(p page.Page) *gitmap.GitInfo {
 }
 
 func newGitInfo(cfg config.Provider) (*gitInfo, error) {
-	workingDir := cfg.GetString("workingDir")
+	contentDir := cfg.GetString("contentDir")
+	if !filepath.IsAbs(contentDir) {
+		contentDir = filepath.Join(cfg.GetString("workingDir"), contentDir)
+	}
 
-	gitRepo, err := gitmap.Map(workingDir, "")
+	gitRepo, err := gitmap.Map(contentDir, "")
 	if err != nil {
 		return nil, err
 	}
