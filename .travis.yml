@@ -7,7 +7,7 @@ env:
 git:
   depth: false
 go:
-  - 1.11
+  - "1.11.4"
   - tip
 os:
   - linux
