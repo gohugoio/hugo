@@ -16,7 +16,7 @@ builds:
   goarch:
     - amd64
 - binary: hugo
-  ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
+  ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
   env:
     - CGO_ENABLED=1
     - CC=o64-clang
@@ -29,7 +29,7 @@ builds:
   goarch:
     - amd64
 - binary: hugo
-  ldflags: -s -w -X github.com/gohugoio/hugo/hugolib.BuildDate={{.Date}}
+  ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
   env:
     - CGO_ENABLED=1
   flags:
