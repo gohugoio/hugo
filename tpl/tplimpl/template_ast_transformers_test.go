@@ -19,13 +19,16 @@ import (
 
 	"html/template"
 
+	"github.com/spf13/cast"
+
 	"github.com/stretchr/testify/require"
 )
 
 var (
 	testFuncs = map[string]interface{}{
-		"First": func(v ...interface{}) interface{} { return v[0] },
-		"Echo":  func(v interface{}) interface{} { return v },
+		"ToTime": func(v interface{}) interface{} { return cast.ToTime(v) },
+		"First":  func(v ...interface{}) interface{} { return v[0] },
+		"Echo":   func(v interface{}) interface{} { return v },
 		"where": func(seq, key interface{}, args ...interface{}) (interface{}, error) {
 			return map[string]interface{}{
 				"ByWeight": fmt.Sprintf("%v:%v:%v", seq, key, args),
@@ -37,8 +40,9 @@ var (
 		"NotParam": "Hi There",
 		"Slice":    []int{1, 3},
 		"Params": map[string]interface{}{
-			"lower": "P1L",
-			"slice": []int{1, 3},
+			"lower":  "P1L",
+			"slice":  []int{1, 3},
+			"mydate": "1972-01-28",
 		},
 		"Pages": map[string]interface{}{
 			"ByWeight": []int{1, 3},
@@ -142,6 +146,14 @@ PARAMS STRING2: {{ with $pages }}{{ .ByWeight }}{{ end }}
 PARAMS STRING3: {{ $pages3.ByWeight }}
 {{ $first := First .Pages .Site.Params.LOWER }}
 PARAMS COMPOSITE: {{ $first.ByWeight }}
+
+
+{{ $time := $.Params.MyDate | ToTime }}
+{{ $time = $time.AddDate 0 1 0 }}
+PARAMS TIME: {{ $time.Format "2006-01-02" }}
+
+{{ $_x :=  $.Params.MyDate | ToTime }}
+PARAMS TIME2: {{ $_x.AddDate 0 1 0 }}
 `
 )
 
@@ -208,6 +220,10 @@ func TestParamsKeysToLower(t *testing.T) {
 
 	// Issue #5068
 	require.Contains(t, result, "PCurrentSection: pcurrentsection")
+
+	// Issue #5541
+	require.Contains(t, result, "PARAMS TIME: 1972-02-28")
+	require.Contains(t, result, "PARAMS TIME2: 1972-02-28")
 
 }
 
