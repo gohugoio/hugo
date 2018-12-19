@@ -112,11 +112,9 @@ func (c *templateContext) paramsKeysToLower(n parse.Node) {
 			c.paramsKeysToLowerForNodes(subTempl.Root)
 		}
 	case *parse.PipeNode:
-		for i, elem := range x.Decl {
-			if len(x.Cmds) > i {
-				// maps $site => .Site etc.
-				c.decl[elem.Ident[0]] = x.Cmds[i].String()
-			}
+		if len(x.Decl) == 1 && len(x.Cmds) == 1 {
+			// maps $site => .Site etc.
+			c.decl[x.Decl[0].Ident[0]] = x.Cmds[0].String()
 		}
 
 		for _, cmd := range x.Cmds {
