@@ -41,10 +41,13 @@ func Parse(r io.Reader) (Result, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read page content")
 	}
+	return parseBytes(b)
+}
+
+func parseBytes(b []byte) (Result, error) {
 	lexer := newPageLexer(b, 0, lexIntroSection)
 	lexer.run()
 	return lexer, nil
-
 }
 
 func parseMainSection(input []byte, from int) Result {
