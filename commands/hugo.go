@@ -204,17 +204,22 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"buildWatch",
 		"cacheDir",
 		"cfgFile",
+		"confirm",
 		"contentDir",
 		"debug",
 		"destination",
 		"disableKinds",
+		"dryRun",
+		"force",
 		"gc",
+		"i18n-warnings",
 		"layoutDir",
 		"logFile",
-		"i18n-warnings",
+		"maxDeletes",
 		"quiet",
 		"renderToMemory",
 		"source",
+		"target",
 		"theme",
 		"themesDir",
 		"verbose",
@@ -263,6 +268,9 @@ func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targ
 		case "stringSlice":
 			bv, _ := flags.GetStringSlice(key)
 			cfg.Set(configKey, bv)
+		case "int":
+			iv, _ := flags.GetInt(key)
+			cfg.Set(configKey, iv)
 		default:
 			panic(fmt.Sprintf("update switch with %s", f.Value.Type()))
 		}
