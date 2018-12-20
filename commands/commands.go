@@ -47,6 +47,7 @@ func (b *commandsBuilder) addAll() *commandsBuilder {
 		newEnvCmd(),
 		newConfigCmd(),
 		newCheckCmd(),
+		newDeployCmd(),
 		newConvertCmd(),
 		b.newNewCmd(),
 		newListCmd(),
