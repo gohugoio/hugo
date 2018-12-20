@@ -165,7 +165,6 @@ func TestCommandsExecute(t *testing.T) {
 		{nil, []string{sourceFlag}, ""},
 		{nil, []string{sourceFlag, "--renderToMemory"}, ""},
 		{[]string{"config"}, []string{sourceFlag}, ""},
-		{[]string{"benchmark"}, []string{sourceFlag, "-n=1"}, ""},
 		{[]string{"convert", "toTOML"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "toml")}, ""},
 		{[]string{"convert", "toYAML"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "yaml")}, ""},
 		{[]string{"convert", "toJSON"}, []string{sourceFlag, "-o=" + filepath.Join(dirOut, "json")}, ""},
