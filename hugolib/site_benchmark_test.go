@@ -166,7 +166,7 @@ look like:
   * the other one
 
 Note that --- not considering the asterisk --- the actual text
-content starts at 4-columns in.
+content starts at 4-columns in :smile:.
 
 > Block quotes are
 > written like so.
@@ -207,6 +207,7 @@ baseURL = "http://example.com/blog"
 
 paginate = 10
 defaultContentLanguage = "en"
+enableEmoji = true
 
 [outputs]
 home = [ "HTML" ]
