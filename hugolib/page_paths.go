@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 
 	"net/url"
@@ -310,7 +311,7 @@ func (p *Page) createRelativeTargetPathForOutputFormat(f output.Format) string {
 	}
 
 	// For /index.json etc. we must  use the full path.
-	if strings.HasSuffix(f.BaseFilename(), "html") {
+	if f.MediaType.FullSuffix() == ".html" && path.Base(tp) == "index.html" {
 		tp = strings.TrimSuffix(tp, f.BaseFilename())
 	}
 
