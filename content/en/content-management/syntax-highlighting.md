@@ -167,7 +167,7 @@ It is also possible to add syntax highlighting with GitHub flavored code fences.
 
 ## List of Chroma Highlighting Languages
 
-The full list of Chroma lexers and their aliases (which is the identifier used in the `hightlight` template func or when doing highlighting in code fences):
+The full list of Chroma lexers and their aliases (which is the identifier used in the `highlight` template func or when doing highlighting in code fences):
 
 {{< chroma-lexers >}}
 
