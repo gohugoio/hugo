@@ -34,7 +34,6 @@ func TestEmojify(t *testing.T) {
 	t.Parallel()
 
 	v := viper.New()
-	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 
 	for i, test := range []struct {
@@ -215,7 +214,6 @@ func TestPlainify(t *testing.T) {
 	t.Parallel()
 
 	v := viper.New()
-	v.Set("contentDir", "content")
 	ns := New(newDeps(v))
 
 	for i, test := range []struct {
@@ -241,8 +239,11 @@ func TestPlainify(t *testing.T) {
 }
 
 func newDeps(cfg config.Provider) *deps.Deps {
+	cfg.Set("contentDir", "content")
+	cfg.Set("i18nDir", "i18n")
+
 	l := langs.NewLanguage("en", cfg)
-	l.Set("i18nDir", "i18n")
+
 	cs, err := helpers.NewContentSpec(l)
 	if err != nil {
 		panic(err)

@@ -272,7 +272,7 @@ func TestFastMD5FromFile(t *testing.T) {
 	req.NoError(err)
 	req.NotEqual(m3, m4)
 
-	m5, err := MD5FromFile(bf2)
+	m5, err := MD5FromReader(bf2)
 	req.NoError(err)
 	req.NotEqual(m4, m5)
 }
@@ -293,7 +293,7 @@ func BenchmarkMD5FromFileFast(b *testing.B) {
 				}
 				b.StartTimer()
 				if full {
-					if _, err := MD5FromFile(f); err != nil {
+					if _, err := MD5FromReader(f); err != nil {
 						b.Fatal(err)
 					}
 				} else {

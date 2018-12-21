@@ -18,7 +18,6 @@ import (
 	"testing"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
@@ -170,35 +169,4 @@ func TestTestRemarshalError(t *testing.T) {
 	_, err = ns.Remarshal("json", "asdf")
 	assert.Error(err)
 
-}
-
-func TestRemarshalDetectFormat(t *testing.T) {
-	t.Parallel()
-	assert := require.New(t)
-
-	for i, test := range []struct {
-		data   string
-		expect interface{}
-	}{
-		{`foo = "bar"`, metadecoders.TOML},
-		{`   foo = "bar"`, metadecoders.TOML},
-		{`foo="bar"`, metadecoders.TOML},
-		{`foo: "bar"`, metadecoders.YAML},
-		{`foo:"bar"`, metadecoders.YAML},
-		{`{ "foo": "bar"`, metadecoders.JSON},
-		{`asdfasdf`, false},
-		{``, false},
-	} {
-		errMsg := fmt.Sprintf("[%d] %s", i, test.data)
-
-		result, err := detectFormat(test.data)
-
-		if b, ok := test.expect.(bool); ok && !b {
-			assert.Error(err, errMsg)
-			continue
-		}
-
-		assert.NoError(err, errMsg)
-		assert.Equal(test.expect, result)
-	}
 }

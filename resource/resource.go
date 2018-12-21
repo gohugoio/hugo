@@ -50,6 +50,7 @@ var (
 	_ ResourcesLanguageMerger = (*Resources)(nil)
 	_ permalinker             = (*genericResource)(nil)
 	_ collections.Slicer      = (*genericResource)(nil)
+	_ Identifier              = (*genericResource)(nil)
 )
 
 var noData = make(map[string]interface{})
@@ -76,6 +77,8 @@ type Cloner interface {
 
 // Resource represents a linkable resource, i.e. a content page, image etc.
 type Resource interface {
+	resourceBase
+
 	// Permalink represents the absolute link to this resource.
 	Permalink() string
 
@@ -86,9 +89,6 @@ type Resource interface {
 	// part of the MIME type, e.g. "image", "application", "text" etc.
 	// For content pages, this value is "page".
 	ResourceType() string
-
-	// MediaType is this resource's MIME type.
-	MediaType() media.Type
 
 	// Name is the logical name of this resource. This can be set in the front matter
 	// metadata for this resource. If not set, Hugo will assign a value.
@@ -109,6 +109,13 @@ type Resource interface {
 	Params() map[string]interface{}
 }
 
+// resourceBase pulls out the minimal set of operations to define a Resource,
+// to simplify testing etc.
+type resourceBase interface {
+	// MediaType is this resource's MIME type.
+	MediaType() media.Type
+}
+
 // ResourcesLanguageMerger describes an interface for merging resources from a
 // different language.
 type ResourcesLanguageMerger interface {
@@ -121,12 +128,17 @@ type translatedResource interface {
 	TranslationKey() string
 }
 
+// Identifier identifies a resource.
+type Identifier interface {
+	Key() string
+}
+
 // ContentResource represents a Resource that provides a way to get to its content.
 // Most Resource types in Hugo implements this interface, including Page.
 // This should be used with care, as it will read the file content into memory, but it
 // should be cached as effectively as possible by the implementation.
 type ContentResource interface {
-	Resource
+	resourceBase
 
 	// Content returns this resource's content. It will be equivalent to reading the content
 	// that RelPermalink points to in the published folder.
@@ -143,7 +155,7 @@ type OpenReadSeekCloser func() (hugio.ReadSeekCloser, error)
 
 // ReadSeekCloserResource is a Resource that supports loading its content.
 type ReadSeekCloserResource interface {
-	Resource
+	resourceBase
 	ReadSeekCloser() (hugio.ReadSeekCloser, error)
 }
 
@@ -714,6 +726,10 @@ func (l *genericResource) Permalink() string {
 func (l *genericResource) RelPermalink() string {
 	l.publishIfNeeded()
 	return l.relPermalinkFor(l.relTargetDirFile.path())
+}
+
+func (l *genericResource) Key() string {
+	return l.relTargetDirFile.path()
 }
 
 func (l *genericResource) relPermalinkFor(target string) string {

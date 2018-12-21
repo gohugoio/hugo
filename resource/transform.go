@@ -38,6 +38,7 @@ var (
 	_ ContentResource        = (*transformedResource)(nil)
 	_ ReadSeekCloserResource = (*transformedResource)(nil)
 	_ collections.Slicer     = (*transformedResource)(nil)
+	_ Identifier             = (*transformedResource)(nil)
 )
 
 func (s *Spec) Transform(r Resource, t ResourceTransformation) (Resource, error) {
@@ -247,6 +248,13 @@ func (r *transformedResource) MediaType() media.Type {
 	}
 	m, _ := r.cache.rs.MediaTypes.GetByType(r.MediaTypeV)
 	return m
+}
+
+func (r *transformedResource) Key() string {
+	if err := r.initTransform(false, false); err != nil {
+		return ""
+	}
+	return r.linker.relPermalinkFor(r.Target)
 }
 
 func (r *transformedResource) Permalink() string {
@@ -481,8 +489,8 @@ func (r *transformedResource) transform(setContent, publish bool) (err error) {
 	}
 
 	return nil
-
 }
+
 func (r *transformedResource) initTransform(setContent, publish bool) error {
 	r.transformInit.Do(func() {
 		r.published = publish

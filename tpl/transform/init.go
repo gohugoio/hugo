@@ -95,6 +95,14 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Unmarshal,
+			[]string{"unmarshal"},
+			[][2]string{
+				{`{{ "hello = \"Hello World\"" | transform.Unmarshal }}`, "map[hello:Hello World]"},
+				{`{{ "hello = \"Hello World\"" | resources.FromString "data/greetings.toml" | transform.Unmarshal }}`, "map[hello:Hello World]"},
+			},
+		)
+
 		return ns
 
 	}

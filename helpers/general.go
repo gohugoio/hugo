@@ -394,11 +394,10 @@ func MD5FromFileFast(r io.ReadSeeker) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// MD5FromFile creates a MD5 hash from the given file.
-// It will not close the file.
-func MD5FromFile(f afero.File) (string, error) {
+// MD5FromReader creates a MD5 hash from the given reader.
+func MD5FromReader(r io.Reader) (string, error) {
 	h := md5.New()
-	if _, err := io.Copy(h, f); err != nil {
+	if _, err := io.Copy(h, r); err != nil {
 		return "", nil
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil

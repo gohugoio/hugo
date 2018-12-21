@@ -339,6 +339,16 @@ Publish 2: {{ $cssPublish2.Permalink }}
 			assert.False(b.CheckExists("public/inline.min.css"), "Inline content should not be copied to /public")
 		}},
 
+		{"unmarshal", func() bool { return true }, func(b *sitesBuilder) {
+			b.WithTemplates("home.html", `
+{{ $toml := "slogan = \"Hugo Rocks!\"" | resources.FromString "slogan.toml" | transform.Unmarshal }}
+Slogan: {{ $toml.slogan }}
+
+`)
+		}, func(b *sitesBuilder) {
+			b.AssertFileContent("public/index.html", `Slogan: Hugo Rocks!`)
+		}},
+
 		{"template", func() bool { return true }, func(b *sitesBuilder) {}, func(b *sitesBuilder) {
 		}},
 	}

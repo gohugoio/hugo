@@ -39,6 +39,8 @@ func TestDefaultTypes(t *testing.T) {
 		{SVGType, "image", "svg", "svg", "image/svg+xml", "image/svg+xml"},
 		{TextType, "text", "plain", "txt", "text/plain", "text/plain"},
 		{XMLType, "application", "xml", "xml", "application/xml", "application/xml"},
+		{TOMLType, "application", "toml", "toml", "application/toml", "application/toml"},
+		{YAMLType, "application", "yaml", "yaml", "application/yaml", "application/yaml"},
 	} {
 		require.Equal(t, test.expectedMainType, test.tp.MainType)
 		require.Equal(t, test.expectedSubType, test.tp.SubType)
@@ -49,6 +51,8 @@ func TestDefaultTypes(t *testing.T) {
 		require.Equal(t, test.expectedString, test.tp.String())
 
 	}
+
+	require.Equal(t, 15, len(DefaultTypes))
 
 }
 

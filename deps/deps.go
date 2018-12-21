@@ -123,6 +123,9 @@ type Listeners struct {
 
 // Add adds a function to a Listeners instance.
 func (b *Listeners) Add(f func()) {
+	if b == nil {
+		return
+	}
 	b.Lock()
 	defer b.Unlock()
 	b.listeners = append(b.listeners, f)
@@ -190,6 +193,14 @@ func New(cfg DepsCfg) (*Deps, error) {
 	if fs == nil {
 		// Default to the production file system.
 		fs = hugofs.NewDefault(cfg.Language)
+	}
+
+	if cfg.MediaTypes == nil {
+		cfg.MediaTypes = media.DefaultTypes
+	}
+
+	if cfg.OutputFormats == nil {
+		cfg.OutputFormats = output.DefaultFormats
 	}
 
 	ps, err := helpers.NewPathSpec(fs, cfg.Language)
