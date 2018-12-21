@@ -20,9 +20,9 @@ aliases: []
 
 Given the string `"abba"`, trailing `"a"`'s can be removed a follows:
 
-    {{ strings.TrimRight "abba" "a" }} → "abb"
+    {{ strings.TrimRight "a" "abba" }} → "abb"
 
 Numbers can be handled as well:
 
-    {{ strings.TrimRight 1221 "12" }} → ""
+    {{ strings.TrimRight 12 1221341221 }} → "122134"
 
