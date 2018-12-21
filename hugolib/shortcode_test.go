@@ -1027,7 +1027,7 @@ ordinal: 4 scratch ordinal: 5 scratch get ordinal: 4`)
 
 }
 
-func TestShortcodePosition(t *testing.T) {
+func TestShortcodeVariables(t *testing.T) {
 	t.Parallel()
 	assert := require.New(t)
 
@@ -1042,6 +1042,7 @@ title: "Hugo Rocks!"
    {{< s1 >}}
 
 `).WithTemplatesAdded("layouts/shortcodes/s1.html", `
+Name: {{ .Name }}
 {{ with .Position }}
 File: {{ .Filename }}
 Offset: {{ .Offset }}
@@ -1059,6 +1060,7 @@ String: {{ . | safeHTML }}
 		filepath.FromSlash("File: content/page.md"),
 		"Line: 7", "Column: 4", "Offset: 40",
 		filepath.FromSlash("String: \"content/page.md:7:4\""),
+		"Name: s1",
 	)
 
 }

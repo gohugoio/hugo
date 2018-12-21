@@ -58,6 +58,7 @@ type ShortcodeWithPage struct {
 	Inner         template.HTML
 	Page          *PageWithoutContent
 	Parent        *ShortcodeWithPage
+	Name          string
 	IsNamedParams bool
 
 	// Zero-based ordinal in relation to its parent. If the parent is the page itself,
@@ -401,7 +402,7 @@ func renderShortcode(
 		return "", nil
 	}
 
-	data := &ShortcodeWithPage{Ordinal: sc.ordinal, posOffset: sc.pos, Params: sc.params, Page: p, Parent: parent}
+	data := &ShortcodeWithPage{Ordinal: sc.ordinal, posOffset: sc.pos, Params: sc.params, Page: p, Parent: parent, Name: sc.name}
 	if sc.params != nil {
 		data.IsNamedParams = reflect.TypeOf(sc.params).Kind() == reflect.Map
 	}
