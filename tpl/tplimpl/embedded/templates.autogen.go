@@ -339,7 +339,29 @@ if (!doNotTrack) {
 </figure>
 `},
 	{`shortcodes/gist.html`, `<script type="application/javascript" src="//gist.github.com/{{ index .Params 0 }}/{{ index .Params 1 }}.js{{if len .Params | eq 3 }}?file={{ index .Params 2 }}{{end}}"></script>`},
-	{`shortcodes/highlight.html`, `{{ if len .Params | eq 2 }}{{ highlight (trim .Inner "\n\r") (.Get 0) (.Get 1) }}{{ else }}{{ highlight (trim .Inner "\n\r") (.Get 0) "" }}{{ end }}`},
+	{`shortcodes/highlight.html`, `{{- $code := (trim .Inner "\n\r") -}}
+{{- $lang := .Get 0 -}}
+{{- $options := .Get 1 | default "" -}}
+{{- $code_ending_in_line_with_spaces := (findRE "[\\r\\n][[:blank:]]+$" $code) -}}
+{{/* Ref: https://github.com/gohugoio/hugo/issues/4717#issuecomment-449375012 */}}
+{{- with $code_ending_in_line_with_spaces -}}
+    {{- $code = (replace $code "\r" "") -}} {{/* Windows -> Unix style line endings for ease in further parsing */}}
+    {{- $offset := (trim (index . 0) "\n") -}}
+    {{- $lines := (split $code "\n") -}}
+    {{- $num_lines := (len $lines) -}}
+    {{- $scratch := newScratch -}}
+    {{- $scratch.Add "lines_minus_offset" (slice) -}}
+    {{- range $i, $line := $lines -}}
+        {{- $line_minus_offset := (strings.TrimPrefix $offset $line) -}}
+        {{- if (lt $i (sub $num_lines 1)) -}} {{/* Do not add the last blank line */}}
+            {{- $scratch.Add "lines_minus_offset" (slice $line_minus_offset) -}}
+        {{- end -}}
+    {{- end -}}
+    {{- $code = (delimit ($scratch.Get "lines_minus_offset") "\n") -}}
+    {{- $scratch.Delete "lines_minus_offset" -}}
+{{- end -}}
+{{- highlight $code $lang $options -}}
+`},
 	{`shortcodes/instagram.html`, `{{- $pc := .Page.Site.Config.Privacy.Instagram -}}
 {{- if not $pc.Disable -}}
 {{- if $pc.Simple -}}

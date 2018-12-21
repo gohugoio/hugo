@@ -87,6 +87,15 @@ void do();
 {{< /highlight >}}`,
 			`(?s)<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java"`,
 		},
+		{`    {{< highlight emacs-lisp >}}
+    (message "hello")
+
+    (message "hello again")
+    {{< /highlight >}}`,
+			`(?s)<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-emacs-lisp" data-lang="emacs-lisp">\(message <span style="font-style:italic">&#34;hello&#34;</span>\)
+
+\(message <span style="font-style:italic">&#34;hello again&#34;</span>\)</code></pre></div>`,
+		},
 		{`{{< highlight java "style=friendly" >}}
 void do();
 {{< /highlight >}}`,
