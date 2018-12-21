@@ -183,6 +183,11 @@ type transformedResource struct {
 	transformInit sync.Once
 	transformErr  error
 
+	// We delay publishing until either .RelPermalink or .Permalink
+	// is invoked.
+	publishInit sync.Once
+	published   bool
+
 	// The transformed values
 	content     string
 	contentInit sync.Once
@@ -220,7 +225,7 @@ func (r *transformedResource) tryTransformedFileCache(key string) io.ReadCloser 
 }
 
 func (r *transformedResource) Content() (interface{}, error) {
-	if err := r.initTransform(true); err != nil {
+	if err := r.initTransform(true, false); err != nil {
 		return nil, err
 	}
 	if err := r.initContent(); err != nil {
@@ -230,14 +235,14 @@ func (r *transformedResource) Content() (interface{}, error) {
 }
 
 func (r *transformedResource) Data() interface{} {
-	if err := r.initTransform(false); err != nil {
+	if err := r.initTransform(false, false); err != nil {
 		return noData
 	}
 	return r.MetaData
 }
 
 func (r *transformedResource) MediaType() media.Type {
-	if err := r.initTransform(false); err != nil {
+	if err := r.initTransform(false, false); err != nil {
 		return media.Type{}
 	}
 	m, _ := r.cache.rs.MediaTypes.GetByType(r.MediaTypeV)
@@ -245,14 +250,14 @@ func (r *transformedResource) MediaType() media.Type {
 }
 
 func (r *transformedResource) Permalink() string {
-	if err := r.initTransform(false); err != nil {
+	if err := r.initTransform(false, true); err != nil {
 		return ""
 	}
 	return r.linker.permalinkFor(r.Target)
 }
 
 func (r *transformedResource) RelPermalink() string {
-	if err := r.initTransform(false); err != nil {
+	if err := r.initTransform(false, true); err != nil {
 		return ""
 	}
 	return r.linker.relPermalinkFor(r.Target)
@@ -271,11 +276,11 @@ func (r *transformedResource) initContent() error {
 	return err
 }
 
-func (r *transformedResource) transform(setContent bool) (err error) {
+func (r *transformedResource) openPublishFileForWriting(relTargetPath string) (io.WriteCloser, error) {
+	return helpers.OpenFilesForWriting(r.cache.rs.PublishFs, r.linker.relTargetPathsFor(relTargetPath)...)
+}
 
-	openPublishFileForWriting := func(relTargetPath string) (io.WriteCloser, error) {
-		return helpers.OpenFilesForWriting(r.cache.rs.PublishFs, r.linker.relTargetPathsFor(relTargetPath)...)
-	}
+func (r *transformedResource) transform(setContent, publish bool) (err error) {
 
 	// This can be the last resource in a chain.
 	// Rewind and create a processing chain.
@@ -345,7 +350,7 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 
 	tctx := &ResourceTransformationCtx{
 		Data:                  r.transformedResourceMetadata.MetaData,
-		OpenResourcePublisher: openPublishFileForWriting,
+		OpenResourcePublisher: r.openPublishFileForWriting,
 	}
 
 	tctx.InMediaType = first.MediaType()
@@ -426,14 +431,18 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 		r.MediaTypeV = tctx.OutMediaType.Type()
 	}
 
-	publicw, err := openPublishFileForWriting(r.Target)
-	if err != nil {
-		r.transformErr = err
-		return
-	}
-	defer publicw.Close()
+	var publishwriters []io.WriteCloser
 
-	publishwriters := []io.WriteCloser{publicw}
+	if publish {
+		publicw, err := r.openPublishFileForWriting(r.Target)
+		if err != nil {
+			r.transformErr = err
+			return err
+		}
+		defer publicw.Close()
+
+		publishwriters = append(publishwriters, publicw)
+	}
 
 	if transformedContentr == nil {
 		// Also write it to the cache
@@ -474,13 +483,49 @@ func (r *transformedResource) transform(setContent bool) (err error) {
 	return nil
 
 }
-func (r *transformedResource) initTransform(setContent bool) error {
+func (r *transformedResource) initTransform(setContent, publish bool) error {
 	r.transformInit.Do(func() {
-		if err := r.transform(setContent); err != nil {
+		r.published = publish
+		if err := r.transform(setContent, publish); err != nil {
 			r.transformErr = err
 			r.cache.rs.Logger.ERROR.Println("error: failed to transform resource:", err)
 		}
+
 	})
+
+	if !publish {
+		return r.transformErr
+	}
+
+	r.publishInit.Do(func() {
+		if r.published {
+			return
+		}
+
+		r.published = true
+
+		// Copy the file from cache to /public
+		_, src, err := r.cache.fileCache.Get(r.sourceFilename)
+
+		if err == nil {
+			defer src.Close()
+
+			var dst io.WriteCloser
+			dst, err = r.openPublishFileForWriting(r.Target)
+			if err == nil {
+				defer dst.Close()
+				io.Copy(dst, src)
+			}
+		}
+
+		if err != nil {
+			r.transformErr = err
+			r.cache.rs.Logger.ERROR.Println("error: failed to publish resource:", err)
+			return
+		}
+
+	})
+
 	return r.transformErr
 }
 
