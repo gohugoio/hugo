@@ -23,6 +23,7 @@ wip: true
 If you're creating a theme with plans to share it on the [Hugo Themes website](https://themes.gohugo.io/) please note the following: 
 - If using inline styles you will need to use absolute URLs, for the linked assets to be served properly, e.g. `<div style="background: url('{{ "images/background.jpg" | absURL }}')">`
 - Make sure not to use a forward slash `/` in the beginning of a `URL`, because it will point to the host root. Your theme's demo will be available in a subdirectory of the Hugo website and in this scenario Hugo will not generate the correct `URL` for theme assets.
+- If using external CSS and JS from a CDN, make sure to load these assets over `https`. Please do not use relative protocol URLs in your theme's templates.
 {{% /warning %}}
 
 Hugo can initialize a new blank theme directory within your existing `themes` using the `hugo new` command:
