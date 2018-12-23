@@ -116,12 +116,12 @@ func decodeDecoder(m map[string]interface{}) (metadecoders.Decoder, error) {
 	// mapstructure does not support string to rune conversion, so do that manually.
 	// See https://github.com/mitchellh/mapstructure/issues/151
 	for k, v := range m {
-		if strings.EqualFold(k, "Comma") {
+		if strings.EqualFold(k, "Delimiter") {
 			r, err := stringToRune(v)
 			if err != nil {
 				return opts, err
 			}
-			opts.Comma = r
+			opts.Delimiter = r
 			delete(m, k)
 
 		} else if strings.EqualFold(k, "Comment") {

@@ -92,7 +92,7 @@ func FormatFromFrontMatterType(typ pageparser.ItemType) Format {
 // in the given string.
 // It return an empty string if no format could be detected.
 func (d Decoder) FormatFromContentString(data string) Format {
-	csvIdx := strings.IndexRune(data, d.Comma)
+	csvIdx := strings.IndexRune(data, d.Delimiter)
 	jsonIdx := strings.Index(data, "{")
 	yamlIdx := strings.Index(data, ":")
 	tomlIdx := strings.Index(data, "=")

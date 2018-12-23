@@ -118,7 +118,7 @@ func TestUnmarshal(t *testing.T) {
 			assert.Equal(5, len(first))
 			assert.Equal("Ford", first[1])
 		}},
-		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"comma": ";"}, func(r [][]string) {
+		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
 			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
 
 		}},
@@ -126,13 +126,13 @@ func TestUnmarshal(t *testing.T) {
 			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
 
 		}},
-		{"a;b;c", map[string]interface{}{"comma": ";"}, func(r [][]string) {
+		{"a;b;c", map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
 			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
 
 		}},
 		{testContentResource{key: "r1", content: `
 % This is a comment
-a;b;c`, mime: media.CSVType}, map[string]interface{}{"CommA": ";", "Comment": "%"}, func(r [][]string) {
+a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
 			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
 
 		}},

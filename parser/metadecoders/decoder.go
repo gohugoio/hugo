@@ -31,8 +31,8 @@ import (
 
 // Decoder provides some configuration options for the decoders.
 type Decoder struct {
-	// Comma is the field delimiter used in the CSV decoder. It defaults to ','.
-	Comma rune
+	// Delimiter is the field delimiter used in the CSV decoder. It defaults to ','.
+	Delimiter rune
 
 	// Comment, if not 0, is the comment character ued in the CSV decoder. Lines beginning with the
 	// Comment character without preceding whitespace are ignored.
@@ -41,7 +41,7 @@ type Decoder struct {
 
 // Default is a Decoder in its default configuration.
 var Default = Decoder{
-	Comma: ',',
+	Delimiter: ',',
 }
 
 // UnmarshalToMap will unmarshall data in format f into a new map. This is
@@ -156,7 +156,7 @@ func (d Decoder) unmarshal(data []byte, f Format, v interface{}) error {
 
 func (d Decoder) unmarshalCSV(data []byte, v interface{}) error {
 	r := csv.NewReader(bytes.NewReader(data))
-	r.Comma = d.Comma
+	r.Comma = d.Delimiter
 	r.Comment = d.Comment
 
 	records, err := r.ReadAll()

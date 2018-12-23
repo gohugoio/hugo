@@ -35,8 +35,8 @@ The above prints `Hello Hugo`.
 
 Unmarshal with CSV as input has some options you can set:
 
-comma
-: The delmiter used, default is `,`
+delimiter
+: The delimiter used, default is `,`
 
 comment
 : The comment character ued in the CSV. If set, lines beginning with the comment character without preceding whitespace are ignored.:

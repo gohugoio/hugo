@@ -343,12 +343,11 @@ Publish 2: {{ $cssPublish2.Permalink }}
 			b.WithTemplates("home.html", `
 {{ $toml := "slogan = \"Hugo Rocks!\"" | resources.FromString "slogan.toml" | transform.Unmarshal }}
 {{ $csv1 := "\"Hugo Rocks\",\"Hugo is Fast!\"" | resources.FromString "slogans.csv" | transform.Unmarshal }}
-{{ $csv2 := "a;b;c" | transform.Unmarshal (dict "comma" ";") }}
+{{ $csv2 := "a;b;c" | transform.Unmarshal (dict "delimiter" ";") }}
 
 Slogan: {{ $toml.slogan }}
 CSV1: {{ $csv1 }} {{ len (index $csv1 0)  }}
-CSV2: {{ $csv2 }}
-
+CSV2: {{ $csv2 }}		
 `)
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html",
