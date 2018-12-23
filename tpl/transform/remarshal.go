@@ -35,12 +35,12 @@ func (ns *Namespace) Remarshal(format string, data interface{}) (string, error) 
 		return "", err
 	}
 
-	fromFormat := metadecoders.FormatFromContentString(from)
+	fromFormat := metadecoders.Default.FormatFromContentString(from)
 	if fromFormat == "" {
 		return "", errors.New("failed to detect format from content")
 	}
 
-	meta, err := metadecoders.UnmarshalToMap([]byte(from), fromFormat)
+	meta, err := metadecoders.Default.UnmarshalToMap([]byte(from), fromFormat)
 
 	var result bytes.Buffer
 	if err := parser.InterfaceToConfig(meta, mark, &result); err != nil {

@@ -88,12 +88,13 @@ func TestFormatFromContentString(t *testing.T) {
 		{`foo: "bar"`, YAML},
 		{`foo:"bar"`, YAML},
 		{`{ "foo": "bar"`, JSON},
+		{`a,b,c"`, CSV},
 		{`asdfasdf`, Format("")},
 		{``, Format("")},
 	} {
 		errMsg := fmt.Sprintf("[%d] %s", i, test.data)
 
-		result := FormatFromContentString(test.data)
+		result := Default.FormatFromContentString(test.data)
 
 		assert.Equal(test.expect, result, errMsg)
 	}

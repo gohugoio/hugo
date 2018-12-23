@@ -26,6 +26,8 @@ func TestUnmarshalToMap(t *testing.T) {
 
 	expect := map[string]interface{}{"a": "b"}
 
+	d := Default
+
 	for i, test := range []struct {
 		data   string
 		format Format
@@ -40,9 +42,10 @@ func TestUnmarshalToMap(t *testing.T) {
 		{`#+a: b`, ORG, expect},
 		// errors
 		{`a = b`, TOML, false},
+		{`a,b,c`, CSV, false}, // Use Unmarshal for CSV
 	} {
 		msg := fmt.Sprintf("%d: %s", i, test.format)
-		m, err := UnmarshalToMap([]byte(test.data), test.format)
+		m, err := d.UnmarshalToMap([]byte(test.data), test.format)
 		if b, ok := test.expect.(bool); ok && !b {
 			assert.Error(err, msg)
 		} else {
@@ -57,6 +60,8 @@ func TestUnmarshalToInterface(t *testing.T) {
 
 	expect := map[string]interface{}{"a": "b"}
 
+	d := Default
+
 	for i, test := range []struct {
 		data   string
 		format Format
@@ -67,12 +72,13 @@ func TestUnmarshalToInterface(t *testing.T) {
 		{`#+a: b`, ORG, expect},
 		{`a = "b"`, TOML, expect},
 		{`a: "b"`, YAML, expect},
+		{`a,b,c`, CSV, [][]string{[]string{"a", "b", "c"}}},
 		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]interface{}{"a": "Easy!", "b": map[string]interface{}{"c": 2, "d": []interface{}{3, 4}}}},
 		// errors
 		{`a = "`, TOML, false},
 	} {
 		msg := fmt.Sprintf("%d: %s", i, test.format)
-		m, err := Unmarshal([]byte(test.data), test.format)
+		m, err := d.Unmarshal([]byte(test.data), test.format)
 		if b, ok := test.expect.(bool); ok && !b {
 			assert.Error(err, msg)
 		} else {

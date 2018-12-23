@@ -91,7 +91,7 @@ Loop:
 			result.Write(it.Val)
 		case it.IsFrontMatter():
 			f := metadecoders.FormatFromFrontMatterType(it.Type)
-			m, err := metadecoders.UnmarshalToMap(it.Val, f)
+			m, err := metadecoders.Default.UnmarshalToMap(it.Val, f)
 			if err != nil {
 				if fe, ok := err.(herrors.FileError); ok {
 					return herrors.ToFileErrorWithOffset(fe, iter.LineNumber()-1)

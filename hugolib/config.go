@@ -285,7 +285,7 @@ func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) 
 
 			name := helpers.Filename(filepath.Base(path))
 
-			item, err := metadecoders.UnmarshalFileToMap(sourceFs, path)
+			item, err := metadecoders.Default.UnmarshalFileToMap(sourceFs, path)
 			if err != nil {
 				return l.wrapFileError(err, path)
 			}

@@ -257,7 +257,7 @@ func (i *importCmd) loadJekyllConfig(fs afero.Fs, jekyllRoot string) map[string]
 		return nil
 	}
 
-	c, err := metadecoders.UnmarshalToMap(b, metadecoders.YAML)
+	c, err := metadecoders.Default.UnmarshalToMap(b, metadecoders.YAML)
 
 	if err != nil {
 		return nil

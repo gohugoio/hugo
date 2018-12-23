@@ -1014,7 +1014,7 @@ func (s *Site) readData(f source.ReadableFile) (interface{}, error) {
 	content := helpers.ReaderToBytes(file)
 
 	format := metadecoders.FormatFromString(f.Extension())
-	return metadecoders.Unmarshal(content, format)
+	return metadecoders.Default.Unmarshal(content, format)
 }
 
 func (s *Site) readDataFromSourceFS() error {

@@ -89,38 +89,74 @@ func TestUnmarshal(t *testing.T) {
 	}
 
 	for i, test := range []struct {
-		data   interface{}
-		expect interface{}
+		data    interface{}
+		options interface{}
+		expect  interface{}
 	}{
-		{`{ "slogan": "Hugo Rocks!" }`, func(m map[string]interface{}) {
+		{`{ "slogan": "Hugo Rocks!" }`, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
 		}},
-		{`slogan: "Hugo Rocks!"`, func(m map[string]interface{}) {
+		{`slogan: "Hugo Rocks!"`, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
 		}},
-		{`slogan = "Hugo Rocks!"`, func(m map[string]interface{}) {
+		{`slogan = "Hugo Rocks!"`, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
 		}},
-		{testContentResource{content: `slogan: "Hugo Rocks!"`, mime: media.YAMLType}, func(m map[string]interface{}) {
+		{testContentResource{content: `slogan: "Hugo Rocks!"`, mime: media.YAMLType}, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
 		}},
-		{testContentResource{content: `{ "slogan": "Hugo Rocks!" }`, mime: media.JSONType}, func(m map[string]interface{}) {
+		{testContentResource{content: `{ "slogan": "Hugo Rocks!" }`, mime: media.JSONType}, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
 		}},
-		{testContentResource{content: `slogan = "Hugo Rocks!"`, mime: media.TOMLType}, func(m map[string]interface{}) {
+		{testContentResource{content: `slogan = "Hugo Rocks!"`, mime: media.TOMLType}, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
+		}},
+		{testContentResource{content: `1997,Ford,E350,"ac, abs, moon",3000.00
+1999,Chevy,"Venture ""Extended Edition""","",4900.00`, mime: media.CSVType}, nil, func(r [][]string) {
+			assert.Equal(2, len(r))
+			first := r[0]
+			assert.Equal(5, len(first))
+			assert.Equal("Ford", first[1])
+		}},
+		{testContentResource{content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"comma": ";"}, func(r [][]string) {
+			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
+
+		}},
+		{"a,b,c", nil, func(r [][]string) {
+			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
+
+		}},
+		{"a;b;c", map[string]interface{}{"comma": ";"}, func(r [][]string) {
+			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
+
+		}},
+		{testContentResource{content: `
+% This is a comment
+a;b;c`, mime: media.CSVType}, map[string]interface{}{"CommA": ";", "Comment": "%"}, func(r [][]string) {
+			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
+
 		}},
 		// errors
-		{"thisisnotavaliddataformat", false},
-		{testContentResource{content: `invalid&toml"`, mime: media.TOMLType}, false},
-		{testContentResource{content: `unsupported: MIME"`, mime: media.CalendarType}, false},
-		{"thisisnotavaliddataformat", false},
-		{`{ notjson }`, false},
-		{tstNoStringer{}, false},
+		{"thisisnotavaliddataformat", nil, false},
+		{testContentResource{content: `invalid&toml"`, mime: media.TOMLType}, nil, false},
+		{testContentResource{content: `unsupported: MIME"`, mime: media.CalendarType}, nil, false},
+		{"thisisnotavaliddataformat", nil, false},
+		{`{ notjson }`, nil, false},
+		{tstNoStringer{}, nil, false},
 	} {
 		errMsg := fmt.Sprintf("[%d]", i)
 
-		result, err := ns.Unmarshal(test.data)
+		ns.cache.Clear()
+
+		var args []interface{}
+
+		if test.options != nil {
+			args = []interface{}{test.options, test.data}
+		} else {
+			args = []interface{}{test.data}
+		}
+
+		result, err := ns.Unmarshal(args...)
 
 		if b, ok := test.expect.(bool); ok && !b {
 			assert.Error(err, errMsg)
@@ -129,6 +165,11 @@ func TestUnmarshal(t *testing.T) {
 			m, ok := result.(map[string]interface{})
 			assert.True(ok, errMsg)
 			fn(m)
+		} else if fn, ok := test.expect.(func(r [][]string)); ok {
+			assert.NoError(err, errMsg)
+			r, ok := result.([][]string)
+			assert.True(ok, errMsg)
+			fn(r)
 		} else {
 			assert.NoError(err, errMsg)
 			assert.Equal(test.expect, result, errMsg)

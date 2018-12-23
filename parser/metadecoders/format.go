@@ -31,6 +31,7 @@ const (
 	JSON Format = "json"
 	TOML Format = "toml"
 	YAML Format = "yaml"
+	CSV  Format = "csv"
 )
 
 // FormatFromString turns formatStr, typically a file extension without any ".",
@@ -51,6 +52,8 @@ func FormatFromString(formatStr string) Format {
 		return TOML
 	case "org":
 		return ORG
+	case "csv":
+		return CSV
 	}
 
 	return ""
@@ -88,10 +91,15 @@ func FormatFromFrontMatterType(typ pageparser.ItemType) Format {
 // FormatFromContentString tries to detect the format (JSON, YAML or TOML)
 // in the given string.
 // It return an empty string if no format could be detected.
-func FormatFromContentString(data string) Format {
+func (d Decoder) FormatFromContentString(data string) Format {
+	csvIdx := strings.IndexRune(data, d.Comma)
 	jsonIdx := strings.Index(data, "{")
 	yamlIdx := strings.Index(data, ":")
 	tomlIdx := strings.Index(data, "=")
+
+	if isLowerIndexThan(csvIdx, jsonIdx, yamlIdx, tomlIdx) {
+		return CSV
+	}
 
 	if isLowerIndexThan(jsonIdx, yamlIdx, tomlIdx) {
 		return JSON

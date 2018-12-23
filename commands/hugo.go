@@ -1045,7 +1045,7 @@ func (c *commandeer) isThemeVsHugoVersionMismatch(fs afero.Fs) (dir string, mism
 
 		b, err := afero.ReadFile(fs, path)
 
-		tomlMeta, err := metadecoders.UnmarshalToMap(b, metadecoders.TOML)
+		tomlMeta, err := metadecoders.Default.UnmarshalToMap(b, metadecoders.TOML)
 
 		if err != nil {
 			continue

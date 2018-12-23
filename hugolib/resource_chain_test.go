@@ -342,11 +342,19 @@ Publish 2: {{ $cssPublish2.Permalink }}
 		{"unmarshal", func() bool { return true }, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", `
 {{ $toml := "slogan = \"Hugo Rocks!\"" | resources.FromString "slogan.toml" | transform.Unmarshal }}
+{{ $csv1 := "\"Hugo Rocks\",\"Hugo is Fast!\"" | resources.FromString "slogans.csv" | transform.Unmarshal }}
+{{ $csv2 := "a;b;c" | resources.FromString "abc.csv" | transform.Unmarshal (dict "csvComma" ";") }}
+
 Slogan: {{ $toml.slogan }}
+CSV1: {{ $csv1 }} {{ len (index $csv1 0)  }}
+CSV2: {{ $csv2 }}
 
 `)
 		}, func(b *sitesBuilder) {
-			b.AssertFileContent("public/index.html", `Slogan: Hugo Rocks!`)
+			b.AssertFileContent("public/index.html",
+				`Slogan: Hugo Rocks!`,
+				`[[Hugo Rocks Hugo is Fast!]] 2`,
+			)
 		}},
 
 		{"template", func() bool { return true }, func(b *sitesBuilder) {}, func(b *sitesBuilder) {

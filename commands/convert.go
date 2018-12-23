@@ -238,7 +238,7 @@ func parseContentFile(r io.Reader) (parsedFile, error) {
 
 	iter.PeekWalk(walkFn)
 
-	metadata, err := metadecoders.UnmarshalToMap(pf.frontMatterSource, pf.frontMatterFormat)
+	metadata, err := metadecoders.Default.UnmarshalToMap(pf.frontMatterSource, pf.frontMatterFormat)
 	if err != nil {
 		return pf, err
 	}

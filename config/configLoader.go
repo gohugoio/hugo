@@ -57,7 +57,7 @@ func FromFileToMap(fs afero.Fs, filename string) (map[string]interface{}, error)
 }
 
 func readConfig(format metadecoders.Format, data []byte) (map[string]interface{}, error) {
-	m, err := metadecoders.UnmarshalToMap(data, format)
+	m, err := metadecoders.Default.UnmarshalToMap(data, format)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func readConfig(format metadecoders.Format, data []byte) (map[string]interface{}
 }
 
 func loadConfigFromFile(fs afero.Fs, filename string) (map[string]interface{}, error) {
-	m, err := metadecoders.UnmarshalFileToMap(fs, filename)
+	m, err := metadecoders.Default.UnmarshalFileToMap(fs, filename)
 	if err != nil {
 		return nil, err
 	}
