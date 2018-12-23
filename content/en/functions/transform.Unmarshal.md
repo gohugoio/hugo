@@ -45,6 +45,6 @@ comment
 Example:
 
 ```go-html-template
-{{ $csv := "a;b;c" | transform.Unmarshal (dict "comma" ";") }}
+{{ $csv := "a;b;c" | transform.Unmarshal (dict "delimiter" ";") }}
 ```
 
