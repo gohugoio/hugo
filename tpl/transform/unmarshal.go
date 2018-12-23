@@ -62,6 +62,10 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 			return nil, errors.New("no Key set in Resource")
 		}
 
+		if decoder != metadecoders.Default {
+			key += decoder.OptionsKey()
+		}
+
 		return ns.cache.GetOrCreate(key, func() (interface{}, error) {
 			f := metadecoders.FormatFromMediaType(r.MediaType())
 			if f == "" {

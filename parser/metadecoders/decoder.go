@@ -18,6 +18,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
 
@@ -37,6 +38,14 @@ type Decoder struct {
 	// Comment, if not 0, is the comment character ued in the CSV decoder. Lines beginning with the
 	// Comment character without preceding whitespace are ignored.
 	Comment rune
+}
+
+// OptionsKey is used in cache keys.
+func (d Decoder) OptionsKey() string {
+	var sb strings.Builder
+	sb.WriteRune(d.Delimiter)
+	sb.WriteRune(d.Comment)
+	return sb.String()
 }
 
 // Default is a Decoder in its default configuration.
