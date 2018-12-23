@@ -102,23 +102,23 @@ func TestUnmarshal(t *testing.T) {
 		{`slogan = "Hugo Rocks!"`, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
 		}},
-		{testContentResource{content: `slogan: "Hugo Rocks!"`, mime: media.YAMLType}, nil, func(m map[string]interface{}) {
+		{testContentResource{key: "r1", content: `slogan: "Hugo Rocks!"`, mime: media.YAMLType}, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
 		}},
-		{testContentResource{content: `{ "slogan": "Hugo Rocks!" }`, mime: media.JSONType}, nil, func(m map[string]interface{}) {
+		{testContentResource{key: "r1", content: `{ "slogan": "Hugo Rocks!" }`, mime: media.JSONType}, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
 		}},
-		{testContentResource{content: `slogan = "Hugo Rocks!"`, mime: media.TOMLType}, nil, func(m map[string]interface{}) {
+		{testContentResource{key: "r1", content: `slogan = "Hugo Rocks!"`, mime: media.TOMLType}, nil, func(m map[string]interface{}) {
 			assertSlogan(m)
 		}},
-		{testContentResource{content: `1997,Ford,E350,"ac, abs, moon",3000.00
+		{testContentResource{key: "r1", content: `1997,Ford,E350,"ac, abs, moon",3000.00
 1999,Chevy,"Venture ""Extended Edition""","",4900.00`, mime: media.CSVType}, nil, func(r [][]string) {
 			assert.Equal(2, len(r))
 			first := r[0]
 			assert.Equal(5, len(first))
 			assert.Equal("Ford", first[1])
 		}},
-		{testContentResource{content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"comma": ";"}, func(r [][]string) {
+		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"comma": ";"}, func(r [][]string) {
 			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
 
 		}},
@@ -130,7 +130,7 @@ func TestUnmarshal(t *testing.T) {
 			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
 
 		}},
-		{testContentResource{content: `
+		{testContentResource{key: "r1", content: `
 % This is a comment
 a;b;c`, mime: media.CSVType}, map[string]interface{}{"CommA": ";", "Comment": "%"}, func(r [][]string) {
 			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
@@ -138,8 +138,8 @@ a;b;c`, mime: media.CSVType}, map[string]interface{}{"CommA": ";", "Comment": "%
 		}},
 		// errors
 		{"thisisnotavaliddataformat", nil, false},
-		{testContentResource{content: `invalid&toml"`, mime: media.TOMLType}, nil, false},
-		{testContentResource{content: `unsupported: MIME"`, mime: media.CalendarType}, nil, false},
+		{testContentResource{key: "r1", content: `invalid&toml"`, mime: media.TOMLType}, nil, false},
+		{testContentResource{key: "r1", content: `unsupported: MIME"`, mime: media.CalendarType}, nil, false},
 		{"thisisnotavaliddataformat", nil, false},
 		{`{ notjson }`, nil, false},
 		{tstNoStringer{}, nil, false},

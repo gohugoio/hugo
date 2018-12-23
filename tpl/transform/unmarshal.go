@@ -17,7 +17,6 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -30,7 +29,7 @@ import (
 
 // Unmarshal unmarshals the data given, which can be either a string
 // or a Resource. Supported formats are JSON, TOML, YAML, and CSV.
-// You can optional provide an Options object as the first argument.
+// You can optionally provide an options map as the first argument.
 func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 	if len(args) < 1 || len(args) > 2 {
 		return nil, errors.New("unmarshal takes 1 or 2 arguments")
@@ -54,32 +53,13 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 		if err != nil {
 			return nil, errors.WithMessage(err, "failed to decode options")
 		}
-
 	}
 
-	// All the relevant Resource types implements ReadSeekCloserResource,
-	// which should be the most effective way to get the content.
-	if r, ok := data.(resource.ReadSeekCloserResource); ok {
-		var key string
-		var reader hugio.ReadSeekCloser
-
-		if k, ok := r.(resource.Identifier); ok {
-			key = k.Key()
-		}
+	if r, ok := data.(unmarshableResource); ok {
+		key := r.Key()
 
 		if key == "" {
-			reader, err := r.ReadSeekCloser()
-			if err != nil {
-				return nil, err
-			}
-			defer reader.Close()
-
-			key, err = helpers.MD5FromReader(reader)
-			if err != nil {
-				return nil, err
-			}
-
-			reader.Seek(0, 0)
+			return nil, errors.New("no Key set in Resource")
 		}
 
 		return ns.cache.GetOrCreate(key, func() (interface{}, error) {
@@ -88,14 +68,11 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 				return nil, errors.Errorf("MIME %q not supported", r.MediaType())
 			}
 
-			if reader == nil {
-				var err error
-				reader, err = r.ReadSeekCloser()
-				if err != nil {
-					return nil, err
-				}
-				defer reader.Close()
+			reader, err := r.ReadSeekCloser()
+			if err != nil {
+				return nil, err
 			}
+			defer reader.Close()
 
 			b, err := ioutil.ReadAll(reader)
 			if err != nil {
@@ -104,7 +81,6 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 
 			return decoder.Unmarshal(b, f)
 		})
-
 	}
 
 	dataStr, err := cast.ToStringE(data)
@@ -122,6 +98,12 @@ func (ns *Namespace) Unmarshal(args ...interface{}) (interface{}, error) {
 
 		return decoder.Unmarshal([]byte(dataStr), f)
 	})
+}
+
+// All the relevant resources implements this interface.
+type unmarshableResource interface {
+	resource.ReadSeekCloserResource
+	resource.Identifier
 }
 
 func decodeDecoder(m map[string]interface{}) (metadecoders.Decoder, error) {
