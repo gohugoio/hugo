@@ -343,7 +343,7 @@ Publish 2: {{ $cssPublish2.Permalink }}
 			b.WithTemplates("home.html", `
 {{ $toml := "slogan = \"Hugo Rocks!\"" | resources.FromString "slogan.toml" | transform.Unmarshal }}
 {{ $csv1 := "\"Hugo Rocks\",\"Hugo is Fast!\"" | resources.FromString "slogans.csv" | transform.Unmarshal }}
-{{ $csv2 := "a;b;c" | resources.FromString "abc.csv" | transform.Unmarshal (dict "csvComma" ";") }}
+{{ $csv2 := "a;b;c" | transform.Unmarshal (dict "comma" ";") }}
 
 Slogan: {{ $toml.slogan }}
 CSV1: {{ $csv1 }} {{ len (index $csv1 0)  }}
@@ -354,6 +354,7 @@ CSV2: {{ $csv2 }}
 			b.AssertFileContent("public/index.html",
 				`Slogan: Hugo Rocks!`,
 				`[[Hugo Rocks Hugo is Fast!]] 2`,
+				`CSV2: [[a b c]]`,
 			)
 		}},
 
