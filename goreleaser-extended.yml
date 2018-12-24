@@ -2,7 +2,7 @@ project_name: hugo_extended
 builds:
 - binary: hugo
   ldflags:
-    - -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+    - -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .Commit }}
     - "-extldflags '-static'"
   env:
     - CGO_ENABLED=1
@@ -16,7 +16,7 @@ builds:
   goarch:
     - amd64
 - binary: hugo
-  ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+  ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .Commit }}
   env:
     - CGO_ENABLED=1
     - CC=o64-clang
@@ -29,7 +29,7 @@ builds:
   goarch:
     - amd64
 - binary: hugo
-  ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+  ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .Commit }}
   env:
     - CGO_ENABLED=1
   flags:
