@@ -12,7 +12,7 @@ The main new features in this release are:
 
 **Config Dir:** You can now split your configuration sections into directories per environment. Hugo did support multiple configuration files before this release, but it was hard to manage for bigger sites, especially those with multiple languages. With this we have also formalized the concept of an `environment`; the defaults are `production` (when running `hugo`) or `development` (when running `hugo server`) but you can create any environment you like.  We will update the documentation, but all the details are in [this issue](https://github.com/gohugoio/hugo/pull/5501#issue-236237630). Also, see [this PR](https://github.com/gohugoio/hugoDocs/pull/683) for how the refactored configuration for the Hugo website looks like.
 
-**JSON, TOML, YAML or CSV:** `transform.Unmarshal` (see the [documentation](https://gohugo.io//functions/transform.unmarshal/) is a new and powerful template function that can turn `Resource` objects or strings with JSON, TOML, YAML or CSV into maps/arrays.
+**Unmarshal JSON, TOML, YAML or CSV:** `transform.Unmarshal` (see the [documentation](https://gohugo.io//functions/transform.unmarshal/) is a new and powerful template function that can turn `Resource` objects or strings with JSON, TOML, YAML or CSV into maps/arrays.
 
 **Global site and hugo var:** Two new global variables in `site` and `hugo`. `hugo` gives you version info etc. (`{{ hugo.Version }}`, `{{ hugo.Environment }}`), but the `site` is probably more useful, as it allows you to access the current [site's variables](https://gohugo.io/variables/site/) (e.g. `{{ site.RegularPages }}`) without any context (or ".").
 
