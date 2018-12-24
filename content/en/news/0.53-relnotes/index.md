@@ -1,12 +1,12 @@
 
 ---
 date: 2018-12-24
-title: "0.53"
-description: "0.53"
+title: "Hugo Christmas Edition"
+description: "Hugo 0.53: Faster, config dir support, new unmarshal func, global site var, and more ..."
 categories: ["Releases"]
 ---
 
-	From all of us to all of you, a very Merry Christmas -- and Hugo `0.53`!
+From all of us to all of you, a very Merry Christmas -- and Hugo `0.53`!
 
 The main new features in this release are:
 
