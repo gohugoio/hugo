@@ -30,7 +30,7 @@ A Page Bundle can be one of:
 | Layout type                         | `single`                                                 | `list`                                                                                                                                                                                                             |
 | Nesting                             | Does not allow nesting of more bundles under it          | Allows nesting of leaf or branch bundles under it                                                                                                                                                                  |
 | Example                             | `content/posts/my-post/index.md`                         | `content/posts/_index.md`                                                                                                                                                                                          |
-| Content from non-index page files .. | Accessed only as page resources                          | Accessed only as regular pages                                                                                                                                                                                     |
+| Content from non-index page files... | Accessed only as page resources                          | Accessed only as regular pages                                                                                                                                                                                     |
 
 
 ## Leaf Bundles {#leaf-bundles}
@@ -51,7 +51,7 @@ content/
 │   │   ├── image1.jpg
 │   │   ├── image2.png
 │   │   └── index.md
-│   └── my-another-post
+│   └── my-other-post
 │       └── index.md
 │
 └── another-section
@@ -73,7 +73,7 @@ my-post
 : This leaf bundle has the `index.md`, two other content
     Markdown files and two image files.
 
-my-another-post
+my-other-post
 : This leaf bundle has only the `index.md`.
 
 another-leaf-bundle
