@@ -17,6 +17,7 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/docshelper"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/spf13/viper"
 )
@@ -29,6 +30,7 @@ func init() {
 			Cfg:                 viper.New(),
 			Log:                 loggers.NewErrorLogger(),
 			BuildStartListeners: &deps.Listeners{},
+			Site:                htesting.NewTestHugoSite(),
 		}
 
 		var namespaces internal.TemplateFuncsNamespaces
