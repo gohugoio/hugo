@@ -68,11 +68,6 @@ func (c *Cache) GetOrCreate(key string, create func() (interface{}, error)) (int
 	c.nlocker.Lock(key)
 	defer c.nlocker.Unlock(key)
 
-	// Double check
-	if entry, found := c.cache[key]; found {
-		return entry.value, entry.err
-	}
-
 	// Create it.
 	value, err := create()
 
