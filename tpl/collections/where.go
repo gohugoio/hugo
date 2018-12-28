@@ -278,18 +278,19 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 	}
 	mt, ok := objPtr.Type().MethodByName(elemName)
 	if ok {
-		if mt.PkgPath != "" {
+		switch {
+		case mt.PkgPath != "":
 			return zero, fmt.Errorf("%s is an unexported method of type %s", elemName, typ)
-		}
-		// struct pointer has one receiver argument and interface doesn't have an argument
-		if mt.Type.NumIn() > 1 || mt.Type.NumOut() == 0 || mt.Type.NumOut() > 2 {
-			return zero, fmt.Errorf("%s is a method of type %s but doesn't satisfy requirements", elemName, typ)
-		}
-		if mt.Type.NumOut() == 1 && mt.Type.Out(0).Implements(errorType) {
-			return zero, fmt.Errorf("%s is a method of type %s but doesn't satisfy requirements", elemName, typ)
-		}
-		if mt.Type.NumOut() == 2 && !mt.Type.Out(1).Implements(errorType) {
-			return zero, fmt.Errorf("%s is a method of type %s but doesn't satisfy requirements", elemName, typ)
+		case mt.Type.NumIn() > 1:
+			return zero, fmt.Errorf("%s is a method of type %s but requires more than 1 parameter", elemName, typ)
+		case mt.Type.NumOut() == 0:
+			return zero, fmt.Errorf("%s is a method of type %s but returns no output", elemName, typ)
+		case mt.Type.NumOut() > 2:
+			return zero, fmt.Errorf("%s is a method of type %s but returns more than 2 outputs", elemName, typ)
+		case mt.Type.NumOut() == 1 && mt.Type.Out(0).Implements(errorType):
+			return zero, fmt.Errorf("%s is a method of type %s but only returns an error type", elemName, typ)
+		case mt.Type.NumOut() == 2 && !mt.Type.Out(1).Implements(errorType):
+			return zero, fmt.Errorf("%s is a method of type %s returning two values but the second value is not an error type", elemName, typ)
 		}
 		res := objPtr.Method(mt.Index).Call([]reflect.Value{})
 		if len(res) == 2 && !res[1].IsNil() {
