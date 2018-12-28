@@ -11,6 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package reflect provides template functions for run-time object reflection.
 package reflect
 
 import (

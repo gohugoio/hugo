@@ -11,7 +11,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package site
+// Package hugo provides template functions for accessing the Site Hugo object.
+package hugo
 
 import (
 	"github.com/gohugoio/hugo/deps"
