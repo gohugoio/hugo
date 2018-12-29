@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -62,7 +63,7 @@ func TestPermalinkValidation(t *testing.T) {
 func TestPermalinkExpansion(t *testing.T) {
 	t.Parallel()
 	s := newTestSite(t)
-	page, err := s.newPageFrom(strings.NewReader(simplePageJSON), "blue/test-page.md")
+	page, err := s.newPageFrom(strings.NewReader(simplePageJSON), filepath.FromSlash("blue/test-page.md"))
 
 	if err != nil {
 		t.Fatalf("failed before we began, could not parse simplePageJSON: %s", err)

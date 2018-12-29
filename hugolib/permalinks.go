@@ -40,7 +40,7 @@ type PermalinkOverrides map[string]pathPattern
 // to be used to replace that tag.
 var knownPermalinkAttributes map[string]pageToPermaAttribute
 
-var attributeRegexp *regexp.Regexp
+var attributeRegexp = regexp.MustCompile(`:\w+`)
 
 // validate determines if a PathPattern is well-formed
 func (pp pathPattern) validate() bool {
@@ -187,8 +187,7 @@ func pageToPermalinkSlugElseTitle(p *Page, a string) (string, error) {
 }
 
 func pageToPermalinkSection(p *Page, _ string) (string, error) {
-	// Page contains Node contains URLPath which has Section
-	return p.s.PathSpec.URLize(p.Section()), nil
+	return p.Section(), nil
 }
 
 func pageToPermalinkSections(p *Page, _ string) (string, error) {
@@ -211,5 +210,4 @@ func init() {
 		"filename":    pageToPermalinkFilename,
 	}
 
-	attributeRegexp = regexp.MustCompile(`:\w+`)
 }
