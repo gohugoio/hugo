@@ -76,10 +76,8 @@ category = "categories"
 other = "others"
 empty = "empties"
 permalinked = "permalinkeds"
-subcats = "subcats"
 [permalinks]
 permalinkeds = "/perma/:slug/"
-subcats = "/subcats/:slug/"
 `
 
 	pageTemplate := `---
@@ -92,8 +90,6 @@ others:
 %s
 permalinkeds:
 %s
-subcats:
-%s
 ---
 # Doc
 `
@@ -105,16 +101,23 @@ subcats:
 
 	fs := th.Fs
 
-	writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- Tag1", "- cat1\n- \"cAt/dOg\"", "- o1", "- pl1", ""))
-	writeSource(t, fs, "content/p2.md", fmt.Sprintf(pageTemplate, "t2/c1", "- tag2", "- cat1", "- o1", "- pl1", ""))
-	writeSource(t, fs, "content/p3.md", fmt.Sprintf(pageTemplate, "t2/c12", "- tag2", "- cat2", "- o1", "- pl1", ""))
-	writeSource(t, fs, "content/p4.md", fmt.Sprintf(pageTemplate, "Hello World", "", "", "- \"Hello Hugo world\"", "- pl1", ""))
-	writeSource(t, fs, "content/p5.md", fmt.Sprintf(pageTemplate, "Sub/categories", "", "", "", "", "- \"sc0/sp1\""))
+	if preserveTaxonomyNames {
+		writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- tag1", "- cat1", "- o1", "- pl1"))
+	} else {
+		// Check lower-casing of tags
+		writeSource(t, fs, "content/p1.md", fmt.Sprintf(pageTemplate, "t1/c1", "- Tag1", "- cAt1", "- o1", "- pl1"))
+
+	}
+	writeSource(t, fs, "content/p2.md", fmt.Sprintf(pageTemplate, "t2/c1", "- tag2", "- cat1", "- o1", "- pl1"))
+	writeSource(t, fs, "content/p3.md", fmt.Sprintf(pageTemplate, "t2/c12", "- tag2", "- cat2", "- o1", "- pl1"))
+	writeSource(t, fs, "content/p4.md", fmt.Sprintf(pageTemplate, "Hello World", "", "", "- \"Hello Hugo world\"", "- pl1"))
 
 	writeNewContentFile(t, fs.Source, "Category Terms", "2017-01-01", "content/categories/_index.md", 10)
 	writeNewContentFile(t, fs.Source, "Tag1 List", "2017-01-01", "content/tags/Tag1/_index.md", 10)
 
-	require.NoError(t, h.Build(BuildCfg{}))
+	err := h.Build(BuildCfg{})
+
+	require.NoError(t, err)
 
 	// So what we have now is:
 	// 1. categories with terms content page, but no content page for the only c1 category
@@ -132,11 +135,10 @@ subcats:
 	// 1.
 	if preserveTaxonomyNames {
 		th.assertFileContent(pathFunc("public/categories/cat1/index.html"), "List", "cat1")
-		th.assertFileContent(pathFunc("public/categories/cat-dog/index.html"), "List", "cAt/dOg")
 	} else {
 		th.assertFileContent(pathFunc("public/categories/cat1/index.html"), "List", "Cat1")
-		th.assertFileContent(pathFunc("public/categories/cat-dog/index.html"), "List", "Cat/Dog")
 	}
+
 	th.assertFileContent(pathFunc("public/categories/index.html"), "Terms List", "Category Terms")
 
 	// 2.
@@ -172,57 +174,41 @@ subcats:
 	// of KindTaxonomy pages in its Pages slice.
 	taxonomyTermPageCounts := map[string]int{
 		"tags":         2,
-		"categories":   3,
+		"categories":   2,
 		"others":       2,
 		"empties":      0,
 		"permalinkeds": 1,
-		"subcats":      1,
 	}
 
 	for taxonomy, count := range taxonomyTermPageCounts {
 		term := s.getPage(KindTaxonomyTerm, taxonomy)
 		require.NotNil(t, term)
-		require.Len(t, term.Pages, count, taxonomy)
+		require.Len(t, term.Pages, count)
 
 		for _, page := range term.Pages {
 			require.Equal(t, KindTaxonomy, page.Kind)
 		}
 	}
 
-	fixTerm := func(s string) string {
-		if preserveTaxonomyNames {
-			return s
-		}
-		return strings.ToLower(s)
-	}
-
-	fixURL := func(s string) string {
-		if uglyURLs {
-			return strings.TrimRight(s, "/") + ".html"
-		}
-		return s
-	}
-
 	cat1 := s.getPage(KindTaxonomy, "categories", "cat1")
 	require.NotNil(t, cat1)
-	require.Equal(t, fixURL("/blog/categories/cat1/"), cat1.RelPermalink())
-
-	catdog := s.getPage(KindTaxonomy, "categories", fixTerm("cAt/dOg"))
-	require.NotNil(t, catdog)
-	require.Equal(t, fixURL("/blog/categories/cat-dog/"), catdog.RelPermalink())
+	if uglyURLs {
+		require.Equal(t, "/blog/categories/cat1.html", cat1.RelPermalink())
+	} else {
+		require.Equal(t, "/blog/categories/cat1/", cat1.RelPermalink())
+	}
 
 	pl1 := s.getPage(KindTaxonomy, "permalinkeds", "pl1")
-	require.NotNil(t, pl1)
-	require.Equal(t, fixURL("/blog/perma/pl1/"), pl1.RelPermalink())
-
 	permalinkeds := s.getPage(KindTaxonomyTerm, "permalinkeds")
+	require.NotNil(t, pl1)
 	require.NotNil(t, permalinkeds)
-	require.Equal(t, fixURL("/blog/permalinkeds/"), permalinkeds.RelPermalink())
-
-	// Issue #5223
-	sp1 := s.getPage(KindTaxonomy, "subcats", "sc0/sp1")
-	require.NotNil(t, sp1)
-	require.Equal(t, fixURL("/blog/subcats/sc0/sp1/"), sp1.RelPermalink())
+	if uglyURLs {
+		require.Equal(t, "/blog/perma/pl1.html", pl1.RelPermalink())
+		require.Equal(t, "/blog/permalinkeds.html", permalinkeds.RelPermalink())
+	} else {
+		require.Equal(t, "/blog/perma/pl1/", pl1.RelPermalink())
+		require.Equal(t, "/blog/permalinkeds/", permalinkeds.RelPermalink())
+	}
 
 	// Issue #3070 preserveTaxonomyNames
 	if preserveTaxonomyNames {
@@ -241,20 +227,26 @@ subcats:
 }
 
 // https://github.com/gohugoio/hugo/issues/5513
-func TestTaxonomyPathSeparation(t *testing.T) {
+// https://github.com/gohugoio/hugo/issues/5571
+func TestTaxonomiesPathSeparation(t *testing.T) {
 	t.Parallel()
+
+	assert := require.New(t)
 
 	config := `
 baseURL = "https://example.com"
 [taxonomies]
 "news/tag" = "news/tags"
 "news/category" = "news/categories"
+"t1/t2/t3" = "t1/t2/t3s"
+"s1/s2/s3" = "s1/s2/s3s"
 `
 
 	pageContent := `
 +++
 title = "foo"
-"news/categories" = ["a", "b", "c"]
+"news/categories" = ["a", "b", "c", "d/e", "f/g/h"]
+"t1/t2/t3s" = ["t4/t5", "t4/t5/t6"]
 +++
 Content.
 `
@@ -268,9 +260,43 @@ title: "This is B"
 ---
 `)
 
+	b.WithContent("news/categories/f/g/h/_index.md", `
+---
+title: "This is H"
+---
+`)
+
+	b.WithContent("t1/t2/t3s/t4/t5/_index.md", `
+---
+title: "This is T5"
+---
+`)
+
+	b.WithContent("s1/s2/s3s/_index.md", `
+---
+title: "This is S3s"
+---
+`)
+
 	b.CreateSites().Build(BuildCfg{})
 
-	b.AssertFileContent("public/news/categories/index.html", "Taxonomy Term Page 1|News/Categories|Hello|https://example.com/news/categories/|")
+	s := b.H.Sites[0]
+
+	ta := s.findPagesByKind(KindTaxonomy)
+	te := s.findPagesByKind(KindTaxonomyTerm)
+
+	assert.Equal(4, len(te))
+	assert.Equal(7, len(ta))
+
 	b.AssertFileContent("public/news/categories/a/index.html", "Taxonomy List Page 1|A|Hello|https://example.com/news/categories/a/|")
 	b.AssertFileContent("public/news/categories/b/index.html", "Taxonomy List Page 1|This is B|Hello|https://example.com/news/categories/b/|")
+	b.AssertFileContent("public/news/categories/d/e/index.html", "Taxonomy List Page 1|D/E|Hello|https://example.com/news/categories/d/e/|")
+	b.AssertFileContent("public/news/categories/f/g/h/index.html", "Taxonomy List Page 1|This is H|Hello|https://example.com/news/categories/f/g/h/|")
+	b.AssertFileContent("public/t1/t2/t3s/t4/t5/index.html", "Taxonomy List Page 1|This is T5|Hello|https://example.com/t1/t2/t3s/t4/t5/|")
+	b.AssertFileContent("public/t1/t2/t3s/t4/t5/t6/index.html", "Taxonomy List Page 1|T4/T5/T6|Hello|https://example.com/t1/t2/t3s/t4/t5/t6/|")
+
+	b.AssertFileContent("public/news/categories/index.html", "Taxonomy Term Page 1|News/Categories|Hello|https://example.com/news/categories/|")
+	b.AssertFileContent("public/t1/t2/t3s/index.html", "Taxonomy Term Page 1|T1/T2/T3s|Hello|https://example.com/t1/t2/t3s/|")
+	b.AssertFileContent("public/s1/s2/s3s/index.html", "Taxonomy Term Page 1|This is S3s|Hello|https://example.com/s1/s2/s3s/|")
+
 }

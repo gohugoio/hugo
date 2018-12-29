@@ -548,7 +548,7 @@ func (h *HugoSites) createMissingPages() error {
 				if s.isEnabled(KindTaxonomyTerm) {
 					foundTaxonomyTermsPage := false
 					for _, p := range taxonomyTermsPages {
-						if p.sections[0] == plural {
+						if p.sectionsPath() == plural {
 							foundTaxonomyTermsPage = true
 							break
 						}
@@ -570,11 +570,21 @@ func (h *HugoSites) createMissingPages() error {
 							key = s.PathSpec.MakePathSanitized(key)
 						}
 						for _, p := range taxonomyPages {
+							sectionsPath := p.sectionsPath()
+
+							if !strings.HasPrefix(sectionsPath, plural) {
+								continue
+							}
+
+							singularKey := strings.TrimPrefix(sectionsPath, plural)
+							singularKey = strings.TrimPrefix(singularKey, "/")
+
 							// Some people may have /authors/MaxMustermann etc. as paths.
 							// p.sections contains the raw values from the file system.
 							// See https://github.com/gohugoio/hugo/issues/4238
-							singularKey := s.PathSpec.MakePathSanitized(p.sections[1])
-							if p.sections[0] == plural && singularKey == key {
+							singularKey = s.PathSpec.MakePathSanitized(singularKey)
+
+							if singularKey == key {
 								foundTaxonomyPage = true
 								break
 							}
@@ -622,7 +632,7 @@ func (h *HugoSites) setupTranslations() {
 	for _, s := range h.Sites {
 		for _, p := range s.rawAllPages {
 			if p.Kind == kindUnknown {
-				p.Kind = p.s.kindFromSections(p.sections)
+				p.Kind = p.kindFromSections()
 			}
 
 			if !p.s.isEnabled(p.Kind) {

@@ -1586,20 +1586,6 @@ func (s *Site) resetBuildState() {
 	}
 }
 
-func (s *Site) kindFromSections(sections []string) string {
-	if len(sections) == 0 {
-		return KindSection
-	}
-
-	if _, isTaxonomy := s.Taxonomies[sections[0]]; isTaxonomy {
-		if len(sections) == 1 {
-			return KindTaxonomyTerm
-		}
-		return KindTaxonomy
-	}
-	return KindSection
-}
-
 func (s *Site) layouts(p *PageOutput) ([]string, error) {
 	return s.layoutHandler.For(p.layoutDescriptor, p.outputFormat)
 }

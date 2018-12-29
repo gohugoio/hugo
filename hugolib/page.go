@@ -2048,10 +2048,41 @@ func kindFromFileInfo(fi *fileInfo) string {
 	return KindPage
 }
 
+func (p *Page) sectionsPath() string {
+	if len(p.sections) == 0 {
+		return ""
+	}
+	if len(p.sections) == 1 {
+		return p.sections[0]
+	}
+
+	return path.Join(p.sections...)
+}
+
+func (p *Page) kindFromSections() string {
+	if len(p.sections) == 0 || len(p.s.Taxonomies) == 0 {
+		return KindSection
+	}
+
+	sectionPath := p.sectionsPath()
+
+	for k, _ := range p.s.Taxonomies {
+		if k == sectionPath {
+			return KindTaxonomyTerm
+		}
+
+		if strings.HasPrefix(sectionPath, k) {
+			return KindTaxonomy
+		}
+	}
+
+	return KindSection
+}
+
 func (p *Page) setValuesForKind(s *Site) {
 	if p.Kind == kindUnknown {
 		// This is either a taxonomy list, taxonomy term or a section
-		nodeType := s.kindFromSections(p.sections)
+		nodeType := p.kindFromSections()
 
 		if nodeType == kindUnknown {
 			panic(fmt.Sprintf("Unable to determine page kind from %q", p.sections))
