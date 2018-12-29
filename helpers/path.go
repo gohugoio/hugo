@@ -77,17 +77,6 @@ func (filepathBridge) Separator() string {
 
 var fpb filepathBridge
 
-// segmentReplacer replaces some URI-reserved characters in a path segments.
-var segmentReplacer = strings.NewReplacer("/", "-", "#", "-")
-
-// MakeSegment returns a copy of string s that is appropriate for a path
-// segment.  MakeSegment is similar to MakePath but disallows the '/' and
-// '#' characters because of their reserved meaning in URIs.
-func (p *PathSpec) MakeSegment(s string) string {
-	return p.MakePathSanitized(segmentReplacer.Replace(s))
-
-}
-
 // MakePath takes a string with any characters and replace it
 // so the string could be used in a path.
 // It does so by creating a Unicode-sanitized string, with the spaces replaced,

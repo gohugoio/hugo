@@ -45,9 +45,8 @@ func TestByCountOrderOfTaxonomies(t *testing.T) {
 		st = append(st, t.Name)
 	}
 
-	expect := []string{"a", "b", "c", "x/y"}
-	if !reflect.DeepEqual(st, expect) {
-		t.Fatalf("ordered taxonomies do not match %v.  Got: %s", expect, st)
+	if !reflect.DeepEqual(st, []string{"a", "b", "c"}) {
+		t.Fatalf("ordered taxonomies do not match [a, b, c].  Got: %s", st)
 	}
 }
 
@@ -69,10 +68,8 @@ func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, preserveTaxonomyNam
 baseURL = "http://example.com/blog"
 preserveTaxonomyNames = %t
 uglyURLs = %t
-
 paginate = 1
 defaultContentLanguage = "en"
-
 [Taxonomies]
 tag = "tags"
 category = "categories"
@@ -80,7 +77,6 @@ other = "others"
 empty = "empties"
 permalinked = "permalinkeds"
 subcats = "subcats"
-
 [permalinks]
 permalinkeds = "/perma/:slug/"
 subcats = "/subcats/:slug/"
@@ -242,4 +238,39 @@ subcats:
 	// Issue #2977
 	th.assertFileContent(pathFunc("public/empties/index.html"), "Terms List", "Empties")
 
+}
+
+// https://github.com/gohugoio/hugo/issues/5513
+func TestTaxonomyPathSeparation(t *testing.T) {
+	t.Parallel()
+
+	config := `
+baseURL = "https://example.com"
+[taxonomies]
+"news/tag" = "news/tags"
+"news/category" = "news/categories"
+`
+
+	pageContent := `
++++
+title = "foo"
+"news/categories" = ["a", "b", "c"]
++++
+Content.
+`
+
+	b := newTestSitesBuilder(t)
+	b.WithConfigFile("toml", config)
+	b.WithContent("page.md", pageContent)
+	b.WithContent("news/categories/b/_index.md", `
+---
+title: "This is B"
+---
+`)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/news/categories/index.html", "Taxonomy Term Page 1|News/Categories|Hello|https://example.com/news/categories/|")
+	b.AssertFileContent("public/news/categories/a/index.html", "Taxonomy List Page 1|A|Hello|https://example.com/news/categories/a/|")
+	b.AssertFileContent("public/news/categories/b/index.html", "Taxonomy List Page 1|This is B|Hello|https://example.com/news/categories/b/|")
 }

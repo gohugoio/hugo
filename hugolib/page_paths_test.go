@@ -151,13 +151,6 @@ func TestPageTargetPath(t *testing.T) {
 									BaseName: "mypage",
 									Addends:  "c/d/e",
 									Type:     output.HTMLFormat}, "/a/b/mypage/c/d/e/index.html"},
-							{
-								"Unclean Taxonomy Term", targetPathDescriptor{
-									Kind:     KindTaxonomy,
-									BaseName: "_index",
-									Sections: []string{"tags", "x/y"},
-									Type:     output.HTMLFormat,
-									Addends:  "page/3"}, "/tags/x-y/page/3/index.html"},
 						}
 
 						for i, test := range tests {
