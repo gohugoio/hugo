@@ -1774,8 +1774,8 @@ func (p *Page) prepareData(s *Site) error {
 		case KindHome:
 			pages = s.RegularPages
 		case KindTaxonomy:
-			plural := path.Join(p.sections[:len(p.sections)-1]...)
-			term := p.sections[len(p.sections)-1]
+			plural := p.sections[0]
+			term := p.sections[1]
 
 			if s.Info.preserveTaxonomyNames {
 				if v, ok := s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, term)]; ok {
@@ -1792,7 +1792,7 @@ func (p *Page) prepareData(s *Site) error {
 			p.data["Term"] = term
 			pages = taxonomy.Pages()
 		case KindTaxonomyTerm:
-			plural := path.Join(p.sections...)
+			plural := p.sections[0]
 			singular := s.taxonomiesPluralSingular[plural]
 
 			p.data["Singular"] = singular

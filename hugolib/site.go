@@ -22,7 +22,6 @@ import (
 	"mime"
 	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -1587,26 +1586,9 @@ func (s *Site) resetBuildState() {
 	}
 }
 
-func (s *Site) singularPluralAll(sections []string) (string, string, string) {
-	slen := len(sections)
-	singular := sections[slen-1]
-	plural := path.Join((sections[:slen-1])...)
-	all := path.Join(sections...)
-
-	return singular, plural, all
-}
-
 func (s *Site) kindFromSections(sections []string) string {
 	if len(sections) == 0 {
 		return KindSection
-	}
-
-	_, plural, all := s.singularPluralAll(sections)
-
-	if _, ok := s.Taxonomies[all]; ok {
-		return KindTaxonomyTerm
-	} else if _, ok := s.Taxonomies[plural]; ok {
-		return KindTaxonomy
 	}
 
 	if _, isTaxonomy := s.Taxonomies[sections[0]]; isTaxonomy {
@@ -1864,10 +1846,8 @@ func (s *Site) newHomePage() *Page {
 }
 
 func (s *Site) newTaxonomyPage(plural, key string) *Page {
-	sections := strings.Split(plural, "/")
-	sections = append(sections, key)
 
-	p := s.newNodePage(KindTaxonomy, sections...)
+	p := s.newNodePage(KindTaxonomy, plural, key)
 
 	if s.Info.preserveTaxonomyNames {
 		p.title = key
@@ -1891,7 +1871,7 @@ func (s *Site) newSectionPage(name string) *Page {
 }
 
 func (s *Site) newTaxonomyTermsPage(plural string) *Page {
-	p := s.newNodePage(KindTaxonomyTerm, strings.Split(plural, "/")...)
+	p := s.newNodePage(KindTaxonomyTerm, plural)
 	p.title = s.titleFunc(plural)
 	return p
 }

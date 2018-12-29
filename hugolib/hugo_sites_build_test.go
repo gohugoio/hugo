@@ -100,8 +100,8 @@ func doTestMultiSitesMainLangInRoot(t *testing.T, defaultInSubDir bool) {
 	// Check list pages
 	b.AssertFileContent(pathMod("public/fr/sect/index.html"), "List", "Bonjour")
 	b.AssertFileContent("public/en/sect/index.html", "List", "Hello")
-	b.AssertFileContent(pathMod("public/fr/plaques/frtag1/index.html"), "Taxonomy List", "Bonjour")
-	b.AssertFileContent("public/en/tags/tag1/index.html", "Taxonomy List", "Hello")
+	b.AssertFileContent(pathMod("public/fr/plaques/frtag1/index.html"), "List", "Bonjour")
+	b.AssertFileContent("public/en/tags/tag1/index.html", "List", "Hello")
 
 	// Check sitemaps
 	// Sitemaps behaves different: In a multilanguage setup there will always be a index file and
