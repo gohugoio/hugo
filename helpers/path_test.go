@@ -36,39 +36,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-func TestMakeSegment(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{"  FOO bar  ", "foo-bar"},
-		{"Foo.Bar/fOO_bAr-Foo", "foo.bar-foo_bar-foo"},
-		{"FOO,bar:FooBar", "foobarfoobar"},
-		{"foo/BAR.HTML", "foo-bar.html"},
-		{"трям/трям", "трям-трям"},
-		{"은행", "은행"},
-		{"Say What??", "say-what"},
-		{"Your #1 Fan", "your-1-fan"},
-		{"Red & Blue", "red-blue"},
-		{"double//slash", "double-slash"},
-		{"triple///slash", "triple-slash"},
-		{"-my/way-", "my-way"},
-	}
-
-	for _, test := range tests {
-		v := newTestCfg()
-
-		l := langs.NewDefaultLanguage(v)
-		p, err := NewPathSpec(hugofs.NewMem(v), l)
-		require.NoError(t, err)
-
-		output := p.MakeSegment(test.input)
-		if output != test.expected {
-			t.Errorf("Expected %#v, got %#v\n", test.expected, output)
-		}
-	}
-}
-
 func TestMakePath(t *testing.T) {
 	tests := []struct {
 		input         string

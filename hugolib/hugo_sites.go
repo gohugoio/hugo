@@ -567,7 +567,7 @@ func (h *HugoSites) createMissingPages() error {
 						origKey := key
 
 						if s.Info.preserveTaxonomyNames {
-							key = s.PathSpec.MakeSegment(key)
+							key = s.PathSpec.MakePathSanitized(key)
 						}
 						for _, p := range taxonomyPages {
 							// Some people may have /authors/MaxMustermann etc. as paths.
