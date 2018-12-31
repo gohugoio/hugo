@@ -35,7 +35,7 @@ The single parameter to `ref` is a string with a content `documentname` (e.g., `
 
 **Paths without a leading `/` will first  be tried resolved relative to the current page.**
 
-You will get an error if you document could not be uniquely resolved. The error behaviour can be configured, see below.
+You will get an error if your document could not be uniquely resolved. The error behaviour can be configured, see below.
 
 ### Link to another language version
 
