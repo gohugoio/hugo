@@ -23,13 +23,13 @@ import (
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/resource"
-	"github.com/gohugoio/hugo/resource/bundler"
-	"github.com/gohugoio/hugo/resource/create"
-	"github.com/gohugoio/hugo/resource/integrity"
-	"github.com/gohugoio/hugo/resource/minifier"
-	"github.com/gohugoio/hugo/resource/postcss"
-	"github.com/gohugoio/hugo/resource/templates"
-	"github.com/gohugoio/hugo/resource/tocss/scss"
+	"github.com/gohugoio/hugo/resource/resource_factories/bundler"
+	"github.com/gohugoio/hugo/resource/resource_factories/create"
+	"github.com/gohugoio/hugo/resource/resource_transformers/integrity"
+	"github.com/gohugoio/hugo/resource/resource_transformers/minifier"
+	"github.com/gohugoio/hugo/resource/resource_transformers/postcss"
+	"github.com/gohugoio/hugo/resource/resource_transformers/templates"
+	"github.com/gohugoio/hugo/resource/resource_transformers/tocss/scss"
 	"github.com/spf13/cast"
 )
 
