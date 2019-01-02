@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ import (
 
 	"reflect"
 
-	"github.com/stretchr/testify/require"
-
+	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/tpl"
+	"github.com/stretchr/testify/require"
 )
 
 const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -86,14 +86,14 @@ func doTestSitemapOutput(t *testing.T, internal bool) {
 
 func TestParseSitemap(t *testing.T) {
 	t.Parallel()
-	expected := Sitemap{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
+	expected := config.Sitemap{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
 	input := map[string]interface{}{
 		"changefreq": "3",
 		"priority":   3.0,
 		"filename":   "doo.xml",
 		"unknown":    "ignore",
 	}
-	result := parseSitemap(input)
+	result := config.DecodeSitemap(config.Sitemap{}, input)
 
 	if !reflect.DeepEqual(expected, result) {
 		t.Errorf("Got \n%v expected \n%v", result, expected)

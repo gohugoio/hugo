@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ func TestSCSSWithIncludePaths(t *testing.T) {
 
 	v := viper.New()
 	v.Set("workingDir", workDir)
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
 	b.WithViper(v)
 	b.WithWorkingDir(workDir)
 	// Need to use OS fs for this.
@@ -94,7 +94,7 @@ func TestSCSSWithThemeOverrides(t *testing.T) {
 	v := viper.New()
 	v.Set("workingDir", workDir)
 	v.Set("theme", theme)
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
 	b.WithViper(v)
 	b.WithWorkingDir(workDir)
 	// Need to use OS fs for this.
@@ -367,7 +367,7 @@ CSV2: {{ $csv2 }}
 			continue
 		}
 
-		b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+		b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
 		b.WithSimpleConfigFile()
 		b.WithContent("_index.md", `
 ---

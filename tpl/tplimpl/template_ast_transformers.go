@@ -14,11 +14,16 @@
 package tplimpl
 
 import (
-	"errors"
 	"html/template"
 	"strings"
 	texttemplate "text/template"
 	"text/template/parse"
+
+	"github.com/pkg/errors"
+
+	"github.com/gohugoio/hugo/tpl"
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cast"
 )
 
 // decl keeps track of the variable mappings, i.e. $mysite => .Site etc.
@@ -38,6 +43,18 @@ type templateContext struct {
 	decl     decl
 	visited  map[string]bool
 	lookupFn func(name string) *parse.Tree
+
+	// The last error encountered.
+	err error
+
+	// Only needed for shortcodes
+	isShortcode bool
+
+	// Set when we're done checking for config header.
+	configChecked bool
+
+	// Contains some info about the template
+	tpl.Info
 }
 
 func (c templateContext) getIfNotVisited(name string) *parse.Tree {
@@ -49,7 +66,11 @@ func (c templateContext) getIfNotVisited(name string) *parse.Tree {
 }
 
 func newTemplateContext(lookupFn func(name string) *parse.Tree) *templateContext {
-	return &templateContext{lookupFn: lookupFn, decl: make(map[string]string), visited: make(map[string]bool)}
+	return &templateContext{
+		Info:     tpl.Info{Config: tpl.DefaultConfig},
+		lookupFn: lookupFn,
+		decl:     make(map[string]string),
+		visited:  make(map[string]bool)}
 
 }
 
@@ -63,12 +84,12 @@ func createParseTreeLookup(templ *template.Template) func(nn string) *parse.Tree
 	}
 }
 
-func applyTemplateTransformersToHMLTTemplate(templ *template.Template) error {
-	return applyTemplateTransformers(templ.Tree, createParseTreeLookup(templ))
+func applyTemplateTransformersToHMLTTemplate(isShortcode bool, templ *template.Template) (tpl.Info, error) {
+	return applyTemplateTransformers(isShortcode, templ.Tree, createParseTreeLookup(templ))
 }
 
-func applyTemplateTransformersToTextTemplate(templ *texttemplate.Template) error {
-	return applyTemplateTransformers(templ.Tree,
+func applyTemplateTransformersToTextTemplate(isShortcode bool, templ *texttemplate.Template) (tpl.Info, error) {
+	return applyTemplateTransformers(isShortcode, templ.Tree,
 		func(nn string) *parse.Tree {
 			tt := templ.Lookup(nn)
 			if tt != nil {
@@ -78,16 +99,17 @@ func applyTemplateTransformersToTextTemplate(templ *texttemplate.Template) error
 		})
 }
 
-func applyTemplateTransformers(templ *parse.Tree, lookupFn func(name string) *parse.Tree) error {
+func applyTemplateTransformers(isShortcode bool, templ *parse.Tree, lookupFn func(name string) *parse.Tree) (tpl.Info, error) {
 	if templ == nil {
-		return errors.New("expected template, but none provided")
+		return tpl.Info{}, errors.New("expected template, but none provided")
 	}
 
 	c := newTemplateContext(lookupFn)
+	c.isShortcode = isShortcode
 
-	c.applyTransformations(templ.Root)
+	err := c.applyTransformations(templ.Root)
 
-	return nil
+	return c.Info, err
 }
 
 // The truth logic in Go's template package is broken for certain values
@@ -115,10 +137,11 @@ func (c *templateContext) wrapWithGetIf(p *parse.PipeNode) {
 
 }
 
-// applyTransformations do two things:
+// applyTransformations do 3 things:
 // 1) Make all .Params.CamelCase and similar into lowercase.
 // 2) Wraps every with and if pipe in getif
-func (c *templateContext) applyTransformations(n parse.Node) {
+// 3) Collects some information about the template content.
+func (c *templateContext) applyTransformations(n parse.Node) error {
 	switch x := n.(type) {
 	case *parse.ListNode:
 		if x != nil {
@@ -140,6 +163,7 @@ func (c *templateContext) applyTransformations(n parse.Node) {
 			c.applyTransformationsToNodes(subTempl.Root)
 		}
 	case *parse.PipeNode:
+		c.collectConfig(x)
 		if len(x.Decl) == 1 && len(x.Cmds) == 1 {
 			// maps $site => .Site etc.
 			c.decl[x.Decl[0].Ident[0]] = x.Cmds[0].String()
@@ -150,6 +174,8 @@ func (c *templateContext) applyTransformations(n parse.Node) {
 		}
 
 	case *parse.CommandNode:
+		c.collectInner(x)
+
 		for _, elem := range x.Args {
 			switch an := elem.(type) {
 			case *parse.FieldNode:
@@ -166,6 +192,8 @@ func (c *templateContext) applyTransformations(n parse.Node) {
 			}
 		}
 	}
+
+	return c.err
 }
 
 func (c *templateContext) applyTransformationsToNodes(nodes ...parse.Node) {
@@ -183,6 +211,86 @@ func (c *templateContext) updateIdentsIfNeeded(idents []string) {
 
 	for i := index; i < len(idents); i++ {
 		idents[i] = strings.ToLower(idents[i])
+	}
+
+}
+
+func (c *templateContext) hasIdent(idents []string, ident string) bool {
+	for _, id := range idents {
+		if id == ident {
+			return true
+		}
+	}
+	return false
+}
+
+// collectConfig collects and parses any leading template config variable declaration.
+// This will be the first PipeNode in the template, and will be a variable declaration
+// on the form:
+//    {{ $_hugo_config:= `{ "version": 1 }` }}
+func (c *templateContext) collectConfig(n *parse.PipeNode) {
+	if !c.isShortcode {
+		return
+	}
+	if c.configChecked {
+		return
+	}
+	c.configChecked = true
+
+	if len(n.Decl) != 1 || len(n.Cmds) != 1 {
+		// This cannot be a config declaration
+		return
+	}
+
+	v := n.Decl[0]
+
+	if len(v.Ident) == 0 || v.Ident[0] != "$_hugo_config" {
+		return
+	}
+
+	cmd := n.Cmds[0]
+
+	if len(cmd.Args) == 0 {
+		return
+	}
+
+	if s, ok := cmd.Args[0].(*parse.StringNode); ok {
+		errMsg := "failed to decode $_hugo_config in template"
+		m, err := cast.ToStringMapE(s.Text)
+		if err != nil {
+			c.err = errors.Wrap(err, errMsg)
+			return
+		}
+		if err := mapstructure.WeakDecode(m, &c.Info.Config); err != nil {
+			c.err = errors.Wrap(err, errMsg)
+		}
+	}
+
+}
+
+// collectInner determines if the given CommandNode represents a
+// shortcode call to its .Inner.
+func (c *templateContext) collectInner(n *parse.CommandNode) {
+	if !c.isShortcode {
+		return
+	}
+	if c.Info.IsInner || len(n.Args) == 0 {
+		return
+	}
+
+	for _, arg := range n.Args {
+		var idents []string
+		switch nt := arg.(type) {
+		case *parse.FieldNode:
+			idents = nt.Ident
+		case *parse.VariableNode:
+			idents = nt.Ident
+		}
+
+		if c.hasIdent(idents, "Inner") {
+			c.Info.IsInner = true
+			break
+		}
 	}
 
 }

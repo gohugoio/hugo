@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"path/filepath"
 	"runtime"
 
 	_errors "github.com/pkg/errors"
@@ -38,12 +39,12 @@ type siteContentProcessor struct {
 	fileSinglesChan chan *fileInfo
 
 	// These assets should be just copied to destination.
-	fileAssetsChan chan []pathLangFile
+	fileAssetsChan chan pathLangFile
 
 	numWorkers int
 
 	// The output Pages
-	pagesChan chan *Page
+	pagesChan chan *pageState
 
 	// Used for partial rebuilds (aka. live reload)
 	// Will signal replacement of pages in the site collection.
@@ -64,9 +65,9 @@ func (s *siteContentProcessor) processSingle(fi *fileInfo) {
 	}
 }
 
-func (s *siteContentProcessor) processAssets(assets []pathLangFile) {
+func (s *siteContentProcessor) processAsset(asset pathLangFile) {
 	select {
-	case s.fileAssetsChan <- assets:
+	case s.fileAssetsChan <- asset:
 	case <-s.ctx.Done():
 	}
 }
@@ -77,7 +78,7 @@ func newSiteContentProcessor(ctx context.Context, partialBuild bool, s *Site) *s
 		numWorkers = n
 	}
 
-	numWorkers = int(math.Ceil(float64(numWorkers) / float64(len(s.owner.Sites))))
+	numWorkers = int(math.Ceil(float64(numWorkers) / float64(len(s.h.Sites))))
 
 	return &siteContentProcessor{
 		ctx:             ctx,
@@ -86,9 +87,9 @@ func newSiteContentProcessor(ctx context.Context, partialBuild bool, s *Site) *s
 		handleContent:   newHandlerChain(s),
 		fileBundlesChan: make(chan *bundleDir, numWorkers),
 		fileSinglesChan: make(chan *fileInfo, numWorkers),
-		fileAssetsChan:  make(chan []pathLangFile, numWorkers),
+		fileAssetsChan:  make(chan pathLangFile, numWorkers),
 		numWorkers:      numWorkers,
-		pagesChan:       make(chan *Page, numWorkers),
+		pagesChan:       make(chan *pageState, numWorkers),
 	}
 }
 
@@ -127,6 +128,7 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 					if !ok {
 						return nil
 					}
+
 					err := s.readAndConvertContentFile(f)
 					if err != nil {
 						return err
@@ -140,22 +142,20 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 		g2.Go(func() error {
 			for {
 				select {
-				case files, ok := <-s.fileAssetsChan:
+				case file, ok := <-s.fileAssetsChan:
 					if !ok {
 						return nil
 					}
-					for _, file := range files {
-						f, err := s.site.BaseFs.Content.Fs.Open(file.Filename())
-						if err != nil {
-							return _errors.Wrap(err, "failed to open assets file")
-						}
-						err = s.site.publish(&s.site.PathSpec.ProcessingStats.Files, file.Path(), f)
-						f.Close()
-						if err != nil {
-							return err
-						}
+					f, err := s.site.BaseFs.Content.Fs.Open(file.Filename())
+					if err != nil {
+						return _errors.Wrap(err, "failed to open assets file")
 					}
-
+					filename := filepath.Join(s.site.GetTargetLanguageBasePath(), file.Path())
+					err = s.site.publish(&s.site.PathSpec.ProcessingStats.Files, filename, f)
+					f.Close()
+					if err != nil {
+						return err
+					}
 				case <-ctx.Done():
 					return ctx.Err()
 				}
@@ -191,8 +191,6 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 	if err := g1.Wait(); err != nil {
 		return err
 	}
-
-	s.site.rawAllPages.sort()
 
 	return nil
 

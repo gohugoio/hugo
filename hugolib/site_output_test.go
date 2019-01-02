@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@ package hugolib
 import (
 	"strings"
 	"testing"
+
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/spf13/afero"
 
@@ -148,15 +150,15 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	require.NoError(t, err)
 
 	s := h.Sites[0]
-	require.Equal(t, "en", s.Language.Lang)
+	require.Equal(t, "en", s.language.Lang)
 
-	home := s.getPage(KindHome)
+	home := s.getPage(page.KindHome)
 
 	require.NotNil(t, home)
 
 	lenOut := len(outputs)
 
-	require.Len(t, home.outputFormats, lenOut)
+	require.Len(t, home.OutputFormats(), lenOut)
 
 	// There is currently always a JSON output to make it simpler ...
 	altFormats := lenOut - 1
@@ -207,12 +209,8 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	}
 
 	of := home.OutputFormats()
-	require.Len(t, of, lenOut)
-	require.Nil(t, of.Get("Hugo"))
-	require.NotNil(t, of.Get("json"))
+
 	json := of.Get("JSON")
-	_, err = home.AlternativeOutputFormats()
-	require.Error(t, err)
 	require.NotNil(t, json)
 	require.Equal(t, "/blog/index.json", json.RelPermalink())
 	require.Equal(t, "http://example.com/blog/index.json", json.Permalink())
@@ -323,7 +321,7 @@ baseName = "customdelimbase"
 	th.assertFileContent("public/customdelimbase_del", "custom delim")
 
 	s := h.Sites[0]
-	home := s.getPage(KindHome)
+	home := s.getPage(page.KindHome)
 	require.NotNil(t, home)
 
 	outputs := home.OutputFormats()
@@ -339,8 +337,8 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 	assert := require.New(t)
 
 	outputsConfig := map[string]interface{}{
-		KindHome:    []string{"HTML", "JSON"},
-		KindSection: []string{"JSON"},
+		page.KindHome:    []string{"HTML", "JSON"},
+		page.KindSection: []string{"JSON"},
 	}
 
 	cfg := viper.New()
@@ -348,13 +346,13 @@ func TestCreateSiteOutputFormats(t *testing.T) {
 
 	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
 	assert.NoError(err)
-	assert.Equal(output.Formats{output.JSONFormat}, outputs[KindSection])
-	assert.Equal(output.Formats{output.HTMLFormat, output.JSONFormat}, outputs[KindHome])
+	assert.Equal(output.Formats{output.JSONFormat}, outputs[page.KindSection])
+	assert.Equal(output.Formats{output.HTMLFormat, output.JSONFormat}, outputs[page.KindHome])
 
 	// Defaults
-	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[KindTaxonomy])
-	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[KindTaxonomyTerm])
-	assert.Equal(output.Formats{output.HTMLFormat}, outputs[KindPage])
+	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[page.KindTaxonomy])
+	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[page.KindTaxonomyTerm])
+	assert.Equal(output.Formats{output.HTMLFormat}, outputs[page.KindPage])
 
 	// These aren't (currently) in use when rendering in Hugo,
 	// but the pages needs to be assigned an output format,
@@ -370,7 +368,7 @@ func TestCreateSiteOutputFormatsInvalidConfig(t *testing.T) {
 	assert := require.New(t)
 
 	outputsConfig := map[string]interface{}{
-		KindHome: []string{"FOO", "JSON"},
+		page.KindHome: []string{"FOO", "JSON"},
 	}
 
 	cfg := viper.New()
@@ -384,7 +382,7 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 	assert := require.New(t)
 
 	outputsConfig := map[string]interface{}{
-		KindHome: []string{},
+		page.KindHome: []string{},
 	}
 
 	cfg := viper.New()
@@ -392,14 +390,14 @@ func TestCreateSiteOutputFormatsEmptyConfig(t *testing.T) {
 
 	outputs, err := createSiteOutputFormats(output.DefaultFormats, cfg)
 	assert.NoError(err)
-	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[KindHome])
+	assert.Equal(output.Formats{output.HTMLFormat, output.RSSFormat}, outputs[page.KindHome])
 }
 
 func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 	assert := require.New(t)
 
 	outputsConfig := map[string]interface{}{
-		KindHome: []string{},
+		page.KindHome: []string{},
 	}
 
 	cfg := viper.New()
@@ -412,5 +410,5 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 
 	outputs, err := createSiteOutputFormats(output.Formats{customRSS, customHTML}, cfg)
 	assert.NoError(err)
-	assert.Equal(output.Formats{customHTML, customRSS}, outputs[KindHome])
+	assert.Equal(output.Formats{customHTML, customRSS}, outputs[page.KindHome])
 }

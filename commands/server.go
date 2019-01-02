@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -358,7 +358,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 						if err := f.c.partialReRender(p); err != nil {
 							f.c.handleBuildErr(err, fmt.Sprintf("Failed to render %q", p))
 							if f.c.showErrorInBrowser {
-								http.Redirect(w, r, p, 301)
+								http.Redirect(w, r, p, http.StatusMovedPermanently)
 								return
 							}
 						}
@@ -386,7 +386,7 @@ func (f *fileServer) createEndpoint(i int) (*http.ServeMux, string, string, erro
 	return mu, u.String(), endpoint, nil
 }
 
-var logErrorRe = regexp.MustCompile("(?s)ERROR \\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2} ")
+var logErrorRe = regexp.MustCompile(`(?s)ERROR \d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2} `)
 
 func removeErrorPrefixFromLog(content string) string {
 	return logErrorRe.ReplaceAllLiteralString(content, "")
@@ -403,7 +403,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 	if isMultiHost {
 		for _, s := range c.hugo.Sites {
 			baseURLs = append(baseURLs, s.BaseURL.String())
-			roots = append(roots, s.Language.Lang)
+			roots = append(roots, s.Language().Lang)
 		}
 	} else {
 		s := c.hugo.Sites[0]
@@ -430,7 +430,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 		livereload.Initialize()
 	}
 
-	var sigs = make(chan os.Signal)
+	var sigs = make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	for i := range baseURLs {

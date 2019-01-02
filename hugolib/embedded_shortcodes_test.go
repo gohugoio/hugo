@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import (
 	"html/template"
 	"strings"
 	"testing"
+
+	"github.com/spf13/cast"
 
 	"path/filepath"
 
@@ -67,9 +69,11 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	require.Len(t, s.RegularPages, 1)
+	require.Len(t, s.RegularPages(), 1)
 
-	output := string(s.RegularPages[0].content())
+	content, err := s.RegularPages()[0].Content()
+	require.NoError(t, err)
+	output := cast.ToString(content)
 
 	if !strings.Contains(output, expected) {
 		t.Errorf("Got\n%q\nExpected\n%q", output, expected)

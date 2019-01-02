@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/hugio"
+
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -35,14 +37,32 @@ var (
 )
 
 // File represents a source file.
+// This is a temporary construct until we resolve page.Page conflicts.
+// TODO(bep) remove this construct once we have resolved page deprecations
 type File interface {
+	fileOverlap
+	FileWithoutOverlap
+}
 
-	// Filename gets the full path and filename to the file.
-	Filename() string
-
+// Temporary to solve duplicate/deprecated names in page.Page
+type fileOverlap interface {
 	// Path gets the relative path including file name and extension.
 	// The directory is relative to the content root.
 	Path() string
+
+	// Section is first directory below the content root.
+	// For page bundles in root, the Section will be empty.
+	Section() string
+
+	// Lang is the language code for this page. It will be the
+	// same as the site's language code.
+	Lang() string
+}
+
+type FileWithoutOverlap interface {
+
+	// Filename gets the full path and filename to the file.
+	Filename() string
 
 	// Dir gets the name of the directory that contains this file.
 	// The directory is relative to the content root.
@@ -50,18 +70,12 @@ type File interface {
 
 	// Extension gets the file extension, i.e "myblogpost.md" will return "md".
 	Extension() string
+
 	// Ext is an alias for Extension.
 	Ext() string // Hmm... Deprecate Extension
 
-	// Lang for this page, if `Multilingual` is enabled on your site.
-	Lang() string
-
 	// LogicalName is filename and extension of the file.
 	LogicalName() string
-
-	// Section is first directory below the content root.
-	// For page bundles in root, the Section will be empty.
-	Section() string
 
 	// BaseFileName is a filename without extension.
 	BaseFileName() string
@@ -79,14 +93,12 @@ type File interface {
 	UniqueID() string
 
 	FileInfo() os.FileInfo
-
-	String() string
 }
 
 // A ReadableFile is a File that is readable.
 type ReadableFile interface {
 	File
-	Open() (io.ReadCloser, error)
+	Open() (hugio.ReadSeekCloser, error)
 }
 
 // FileInfo describes a source file.
@@ -174,7 +186,7 @@ func (fi *FileInfo) FileInfo() os.FileInfo { return fi.fi }
 func (fi *FileInfo) String() string { return fi.BaseFileName() }
 
 // Open implements ReadableFile.
-func (fi *FileInfo) Open() (io.ReadCloser, error) {
+func (fi *FileInfo) Open() (hugio.ReadSeekCloser, error) {
 	f, err := fi.sp.SourceFs.Open(fi.Filename())
 	return f, err
 }
@@ -199,6 +211,16 @@ func (fi *FileInfo) init() {
 
 		fi.uniqueID = helpers.MD5String(filepath.ToSlash(fi.relPath))
 	})
+}
+
+// NewTestFile creates a partially filled File used in unit tests.
+// TODO(bep) improve this package
+func NewTestFile(filename string) *FileInfo {
+	base := filepath.Base(filepath.Dir(filename))
+	return &FileInfo{
+		filename:            filename,
+		translationBaseName: base,
+	}
 }
 
 // NewFileInfo returns a new FileInfo structure.

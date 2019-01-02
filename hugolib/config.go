@@ -1,4 +1,4 @@
-// Copyright 2016-present The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hugo"
-	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/hugolib/paths"
 	"github.com/pkg/errors"
 	_errors "github.com/pkg/errors"
@@ -177,14 +176,6 @@ type configLoader struct {
 	ConfigSourceDescriptor
 }
 
-func (l configLoader) wrapFileInfoError(err error, fi os.FileInfo) error {
-	rfi, ok := fi.(hugofs.RealFilenameInfo)
-	if !ok {
-		return err
-	}
-	return l.wrapFileError(err, rfi.RealFilename())
-}
-
 func (l configLoader) loadConfig(configName string, v *viper.Viper) (string, error) {
 	baseDir := l.configFileDir()
 	var baseFilename string
@@ -240,11 +231,6 @@ func (l configLoader) wrapFileError(err error, filename string) error {
 	return err
 }
 
-func (l configLoader) newRealBaseFs(path string) afero.Fs {
-	return hugofs.NewBasePathRealFilenameFs(afero.NewBasePathFs(l.Fs, path).(*afero.BasePathFs))
-
-}
-
 func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) {
 	sourceFs := l.Fs
 	configDir := l.AbsConfigDir
@@ -274,7 +260,7 @@ func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) 
 
 	for _, configDir := range configDirs {
 		err := afero.Walk(sourceFs, configDir, func(path string, fi os.FileInfo, err error) error {
-			if fi == nil {
+			if fi == nil || err != nil {
 				return nil
 			}
 
@@ -616,8 +602,8 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("removePathAccents", false)
 	v.SetDefault("titleCaseStyle", "AP")
 	v.SetDefault("taxonomies", map[string]string{"tag": "tags", "category": "categories"})
-	v.SetDefault("permalinks", make(PermalinkOverrides, 0))
-	v.SetDefault("sitemap", Sitemap{Priority: -1, Filename: "sitemap.xml"})
+	v.SetDefault("permalinks", make(map[string]string))
+	v.SetDefault("sitemap", config.Sitemap{Priority: -1, Filename: "sitemap.xml"})
 	v.SetDefault("pygmentsStyle", "monokai")
 	v.SetDefault("pygmentsUseClasses", false)
 	v.SetDefault("pygmentsCodeFences", false)
@@ -625,7 +611,6 @@ func loadDefaultSettingsFor(v *viper.Viper) error {
 	v.SetDefault("pygmentsOptions", "")
 	v.SetDefault("disableLiveReload", false)
 	v.SetDefault("pluralizeListTitles", true)
-	v.SetDefault("preserveTaxonomyNames", false)
 	v.SetDefault("forceSyncStatic", false)
 	v.SetDefault("footnoteAnchorPrefix", "")
 	v.SetDefault("footnoteReturnLinkContents", "")

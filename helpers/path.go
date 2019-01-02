@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,6 +84,13 @@ var fpb filepathBridge
 // E.g. Social Media -> Social-Media
 func (p *PathSpec) MakePath(s string) string {
 	return p.UnicodeSanitize(s)
+}
+
+// MakePathsSanitized applies MakePathSanitized on every item in the slice
+func (p *PathSpec) MakePathsSanitized(paths []string) {
+	for i, path := range paths {
+		paths[i] = p.MakePathSanitized(path)
+	}
 }
 
 // MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced

@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ func NewContent(
 
 	if isDir {
 
-		langFs := hugofs.NewLanguageFs(s.Language.Lang, sites.LanguageSet(), archetypeFs)
+		langFs := hugofs.NewLanguageFs(s.Language().Lang, sites.LanguageSet(), archetypeFs)
 
 		cm, err := mapArcheTypeDir(ps, langFs, archetypeFilename)
 		if err != nil {
@@ -113,7 +113,7 @@ func NewContent(
 
 func targetSite(sites *hugolib.HugoSites, fi *hugofs.LanguageFileInfo) *hugolib.Site {
 	for _, s := range sites.Sites {
-		if fi.Lang() == s.Language.Lang {
+		if fi.Lang() == s.Language().Lang {
 			return s
 		}
 	}
@@ -245,7 +245,7 @@ func resolveContentPath(sites *hugolib.HugoSites, fs afero.Fs, targetPath string
 
 	// Try the filename: my-post.en.md
 	for _, ss := range sites.Sites {
-		if strings.Contains(targetPath, "."+ss.Language.Lang+".") {
+		if strings.Contains(targetPath, "."+ss.Language().Lang+".") {
 			s = ss
 			break
 		}

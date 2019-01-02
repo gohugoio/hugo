@@ -90,8 +90,8 @@ func TestAssignMetadata(t *testing.T) {
 			_, p1_2 := foo2.Params()["param1"]
 			_, p2_2 := logo2.Params()["param2"]
 
-			icon1, _ := logo2.Params()["icon"]
-			icon2, _ := foo2.Params()["icon"]
+			icon1 := logo2.Params()["icon"]
+			icon2 := foo2.Params()["icon"]
 
 			assert.True(p1)
 			assert.True(p2)

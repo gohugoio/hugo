@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/stretchr/testify/require"
 )
@@ -99,15 +101,19 @@ Content.
 	section := "sect"
 
 	var contentRoot = func(lang string) string {
-		contentRoot := "content/main"
-
 		switch lang {
 		case "nn":
-			contentRoot = "content/norsk"
+			return "content/norsk"
 		case "sv":
-			contentRoot = "content/svensk"
+			return "content/svensk"
+		default:
+			return "content/main"
 		}
-		return contentRoot + "/" + section
+
+	}
+
+	var contentSectionRoot = func(lang string) string {
+		return contentRoot(lang) + "/" + section
 	}
 
 	for _, lang := range []string{"en", "nn", "sv"} {
@@ -124,7 +130,7 @@ Content.
 			}
 
 			base := fmt.Sprintf("p-%s-%d", lang, j)
-			slug := fmt.Sprintf("%s", base)
+			slug := base
 			langID := ""
 
 			if lang == "sv" && j%4 == 0 {
@@ -139,7 +145,7 @@ Content.
 
 			slug += langID
 
-			contentRoot := contentRoot(lang)
+			contentRoot := contentSectionRoot(lang)
 
 			filename := filepath.Join(contentRoot, fmt.Sprintf("page%d%s.md", j, langID))
 			contentFiles = append(contentFiles, filename, fmt.Sprintf(pageTemplate, slug, slug, j))
@@ -148,7 +154,7 @@ Content.
 
 	// Put common translations in all of them
 	for i, lang := range []string{"en", "nn", "sv"} {
-		contentRoot := contentRoot(lang)
+		contentRoot := contentSectionRoot(lang)
 
 		slug := fmt.Sprintf("common_%s", lang)
 
@@ -173,7 +179,7 @@ Content.
 
 	// Add a bundle with some images
 	for i, lang := range []string{"en", "nn", "sv"} {
-		contentRoot := contentRoot(lang)
+		contentRoot := contentSectionRoot(lang)
 		slug := fmt.Sprintf("bundle_%s", lang)
 		filename := filepath.Join(contentRoot, "mybundle", "index.md")
 		contentFiles = append(contentFiles, filename, fmt.Sprintf(pageBundleTemplate, slug, 400+i))
@@ -190,11 +196,20 @@ Content.
 
 	}
 
+	// Add some static files inside the content dir
+	// https://github.com/gohugoio/hugo/issues/5759
+	for _, lang := range []string{"en", "nn", "sv"} {
+		contentRoot := contentRoot(lang)
+		for i := 0; i < 2; i++ {
+			filename := filepath.Join(contentRoot, "mystatic", fmt.Sprintf("file%d.yaml", i))
+			contentFiles = append(contentFiles, filename, lang)
+		}
+	}
+
 	b := newTestSitesBuilder(t)
 	b.WithWorkingDir("/my/project").WithConfigFile("toml", config).WithContent(contentFiles...).CreateSites()
 
 	_ = os.Stdout
-	//printFs(b.H.BaseFs.ContentFs, "/", os.Stdout)
 
 	b.Build(BuildCfg{})
 
@@ -204,11 +219,14 @@ Content.
 	nnSite := b.H.Sites[1]
 	svSite := b.H.Sites[2]
 
-	//dumpPages(nnSite.RegularPages...)
-	assert.Equal(12, len(nnSite.RegularPages))
-	assert.Equal(13, len(enSite.RegularPages))
+	b.AssertFileContent("/my/project/public/en/mystatic/file1.yaml", "en")
+	b.AssertFileContent("/my/project/public/nn/mystatic/file1.yaml", "nn")
 
-	assert.Equal(10, len(svSite.RegularPages))
+	//dumpPages(nnSite.RegularPages...)
+	assert.Equal(12, len(nnSite.RegularPages()))
+	assert.Equal(13, len(enSite.RegularPages()))
+
+	assert.Equal(10, len(svSite.RegularPages()))
 
 	svP2, err := svSite.getPageNew(nil, "/sect/page2.md")
 	assert.NoError(err)
@@ -217,9 +235,9 @@ Content.
 
 	enP2, err := enSite.getPageNew(nil, "/sect/page2.md")
 	assert.NoError(err)
-	assert.Equal("en", enP2.Lang())
-	assert.Equal("sv", svP2.Lang())
-	assert.Equal("nn", nnP2.Lang())
+	assert.Equal("en", enP2.Language().Lang)
+	assert.Equal("sv", svP2.Language().Lang)
+	assert.Equal("nn", nnP2.Language().Lang)
 
 	content, _ := nnP2.Content()
 	assert.Contains(content, "SVP3-REF: https://example.org/sv/sect/p-sv-3/")
@@ -241,10 +259,10 @@ Content.
 	assert.NoError(err)
 	assert.Equal("https://example.org/nn/sect/p-nn-3/", nnP3Ref)
 
-	for i, p := range enSite.RegularPages {
+	for i, p := range enSite.RegularPages() {
 		j := i + 1
 		msg := fmt.Sprintf("Test %d", j)
-		assert.Equal("en", p.Lang(), msg)
+		assert.Equal("en", p.Language().Lang, msg)
 		assert.Equal("sect", p.Section())
 		if j < 9 {
 			if j%4 == 0 {
@@ -256,20 +274,20 @@ Content.
 	}
 
 	// Check bundles
-	bundleEn := enSite.RegularPages[len(enSite.RegularPages)-1]
-	bundleNn := nnSite.RegularPages[len(nnSite.RegularPages)-1]
-	bundleSv := svSite.RegularPages[len(svSite.RegularPages)-1]
+	bundleEn := enSite.RegularPages()[len(enSite.RegularPages())-1]
+	bundleNn := nnSite.RegularPages()[len(nnSite.RegularPages())-1]
+	bundleSv := svSite.RegularPages()[len(svSite.RegularPages())-1]
 
 	assert.Equal("/en/sect/mybundle/", bundleEn.RelPermalink())
 	assert.Equal("/sv/sect/mybundle/", bundleSv.RelPermalink())
 
-	assert.Equal(4, len(bundleEn.Resources))
-	assert.Equal(4, len(bundleNn.Resources))
-	assert.Equal(4, len(bundleSv.Resources))
+	assert.Equal(4, len(bundleEn.Resources()))
+	assert.Equal(4, len(bundleNn.Resources()))
+	assert.Equal(4, len(bundleSv.Resources()))
 
-	assert.Equal("/en/sect/mybundle/logo.png", bundleEn.Resources.GetMatch("logo*").RelPermalink())
-	assert.Equal("/nn/sect/mybundle/logo.png", bundleNn.Resources.GetMatch("logo*").RelPermalink())
-	assert.Equal("/sv/sect/mybundle/logo.png", bundleSv.Resources.GetMatch("logo*").RelPermalink())
+	b.AssertFileContent("/my/project/public/en/sect/mybundle/index.html", "image/png: /en/sect/mybundle/logo.png")
+	b.AssertFileContent("/my/project/public/nn/sect/mybundle/index.html", "image/png: /nn/sect/mybundle/logo.png")
+	b.AssertFileContent("/my/project/public/sv/sect/mybundle/index.html", "image/png: /sv/sect/mybundle/logo.png")
 
 	b.AssertFileContent("/my/project/public/sv/sect/mybundle/featured.png", "PNG Data for sv")
 	b.AssertFileContent("/my/project/public/nn/sect/mybundle/featured.png", "PNG Data for nn")
@@ -278,9 +296,9 @@ Content.
 	b.AssertFileContent("/my/project/public/sv/sect/mybundle/logo.png", "PNG Data")
 	b.AssertFileContent("/my/project/public/nn/sect/mybundle/logo.png", "PNG Data")
 
-	nnSect := nnSite.getPage(KindSection, "sect")
+	nnSect := nnSite.getPage(page.KindSection, "sect")
 	assert.NotNil(nnSect)
-	assert.Equal(12, len(nnSect.Pages))
+	assert.Equal(12, len(nnSect.Pages()))
 	nnHome, _ := nnSite.Info.Home()
 	assert.Equal("/nn/", nnHome.RelPermalink())
 

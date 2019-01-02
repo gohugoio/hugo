@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ type highlighters struct {
 }
 
 func newHiglighters(cs *ContentSpec) highlighters {
-	return highlighters{cs: cs, ignoreCache: cs.cfg.GetBool("ignoreCache"), cacheDir: cs.cfg.GetString("cacheDir")}
+	return highlighters{cs: cs, ignoreCache: cs.Cfg.GetBool("ignoreCache"), cacheDir: cs.Cfg.GetString("cacheDir")}
 }
 
 func (h highlighters) chromaHighlight(code, lang, optsStr string) (string, error) {

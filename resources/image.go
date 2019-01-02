@@ -21,7 +21,6 @@ import (
 	"image/draw"
 	"image/jpeg"
 	"io"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -125,8 +124,6 @@ type Image struct {
 	config       image.Config
 	configInit   sync.Once
 	configLoaded bool
-
-	copyToDestinationInit sync.Once
 
 	imaging *Imaging
 
@@ -462,30 +459,23 @@ func (i *Image) decodeSource() (image.Image, error) {
 	return img, err
 }
 
+// returns an opened file or nil if nothing to write.
 func (i *Image) openDestinationsForWriting() (io.WriteCloser, error) {
 	targetFilenames := i.targetFilenames()
 	var changedFilenames []string
 
 	// Fast path:
-	// This is a processed version of the original.
-	// If it exists on destination with the same filename and file size, it is
-	// the same file, so no need to transfer it again.
+	// This is a processed version of the original;
+	// check if it already existis at the destination.
 	for _, targetFilename := range targetFilenames {
-		if fi, err := i.spec.BaseFs.PublishFs.Stat(targetFilename); err == nil && fi.Size() == i.osFileInfo.Size() {
+		if _, err := i.spec.BaseFs.PublishFs.Stat(targetFilename); err == nil {
 			continue
 		}
 		changedFilenames = append(changedFilenames, targetFilename)
 	}
 
 	if len(changedFilenames) == 0 {
-		return struct {
-			io.Writer
-			io.Closer
-		}{
-			ioutil.Discard,
-			ioutil.NopCloser(nil),
-		}, nil
-
+		return nil, nil
 	}
 
 	return helpers.OpenFilesForWriting(i.spec.BaseFs.PublishFs, changedFilenames...)

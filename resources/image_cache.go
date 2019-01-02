@@ -14,13 +14,11 @@
 package resources
 
 import (
-	"fmt"
 	"image"
 	"io"
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/gohugoio/hugo/common/hugio"
 
@@ -99,6 +97,11 @@ func (c *imageCache) getOrCreate(
 			return err
 		}
 
+		if w == nil {
+			// Nothing to write.
+			return nil
+		}
+
 		defer w.Close()
 		_, err = io.Copy(w, r)
 		return err
@@ -121,10 +124,12 @@ func (c *imageCache) getOrCreate(
 			return err
 		}
 
-		mw := hugio.NewMultiWriteCloser(w, destinations)
-		defer mw.Close()
+		if destinations != nil {
+			w = hugio.NewMultiWriteCloser(w, destinations)
+		}
+		defer w.Close()
 
-		return img.encodeTo(conf, conv, mw)
+		return img.encodeTo(conf, conv, w)
 	}
 
 	// Now look in the file cache.
@@ -156,9 +161,4 @@ func (c *imageCache) getOrCreate(
 
 func newImageCache(fileCache *filecache.Cache, ps *helpers.PathSpec) *imageCache {
 	return &imageCache{fileCache: fileCache, pathSpec: ps, store: make(map[string]*Image)}
-}
-
-func timeTrack(start time.Time, name string) {
-	elapsed := time.Since(start)
-	fmt.Printf("%s took %s\n", name, elapsed)
 }

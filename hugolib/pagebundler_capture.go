@@ -116,7 +116,7 @@ func newCapturer(
 // these channels.
 type captureResultHandler interface {
 	handleSingles(fis ...*fileInfo)
-	handleCopyFiles(fis ...pathLangFile)
+	handleCopyFile(fi pathLangFile)
 	captureBundlesHandler
 }
 
@@ -141,10 +141,10 @@ func (c *captureResultHandlerChain) handleBundles(b *bundleDirs) {
 	}
 }
 
-func (c *captureResultHandlerChain) handleCopyFiles(files ...pathLangFile) {
+func (c *captureResultHandlerChain) handleCopyFile(file pathLangFile) {
 	for _, h := range c.handlers {
 		if hh, ok := h.(captureResultHandler); ok {
-			hh.handleCopyFiles(files...)
+			hh.handleCopyFile(file)
 		}
 	}
 }
@@ -444,7 +444,7 @@ func (c *capturer) handleNonBundle(
 				}
 				c.handler.handleSingles(f)
 			} else {
-				c.handler.handleCopyFiles(fi)
+				c.handler.handleCopyFile(fi)
 			}
 		}
 	}
@@ -457,7 +457,7 @@ func (c *capturer) copyOrHandleSingle(fi *fileInfo) {
 		c.handler.handleSingles(fi)
 	} else {
 		// These do not currently need any further processing.
-		c.handler.handleCopyFiles(fi)
+		c.handler.handleCopyFile(fi)
 	}
 }
 

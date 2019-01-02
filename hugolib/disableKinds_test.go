@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ import (
 
 	"fmt"
 
+	"github.com/gohugoio/hugo/resources/page"
+
 	"github.com/gohugoio/hugo/deps"
 	"github.com/spf13/afero"
 
@@ -33,13 +35,13 @@ func TestDisableKindsNoneDisabled(t *testing.T) {
 
 func TestDisableKindsSomeDisabled(t *testing.T) {
 	t.Parallel()
-	doTestDisableKinds(t, KindSection, kind404)
+	doTestDisableKinds(t, page.KindSection, kind404)
 }
 
 func TestDisableKindsOneDisabled(t *testing.T) {
 	t.Parallel()
 	for _, kind := range allKinds {
-		if kind == KindPage {
+		if kind == page.KindPage {
 			// Turning off regular page generation have some side-effects
 			// not handled by the assertions below (no sections), so
 			// skip that for now.
@@ -124,64 +126,64 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
 			if isDisabled {
-				return len(s.RegularPages) == 0
+				return len(s.RegularPages()) == 0
 			}
-			return len(s.RegularPages) > 0
-		}, disabled, KindPage, "public/sect/p1/index.html", "Single|P1")
+			return len(s.RegularPages()) > 0
+		}, disabled, page.KindPage, "public/sect/p1/index.html", "Single|P1")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindHome)
+			p := s.getPage(page.KindHome)
 			if isDisabled {
 				return p == nil
 			}
 			return p != nil
-		}, disabled, KindHome, "public/index.html", "Home")
+		}, disabled, page.KindHome, "public/index.html", "Home")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindSection, "sect")
+			p := s.getPage(page.KindSection, "sect")
 			if isDisabled {
 				return p == nil
 			}
 			return p != nil
-		}, disabled, KindSection, "public/sect/index.html", "Sects")
+		}, disabled, page.KindSection, "public/sect/index.html", "Sects")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindTaxonomy, "tags", "tag1")
+			p := s.getPage(page.KindTaxonomy, "tags", "tag1")
 
 			if isDisabled {
 				return p == nil
 			}
 			return p != nil
 
-		}, disabled, KindTaxonomy, "public/tags/tag1/index.html", "Tag1")
+		}, disabled, page.KindTaxonomy, "public/tags/tag1/index.html", "Tag1")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindTaxonomyTerm, "tags")
+			p := s.getPage(page.KindTaxonomyTerm, "tags")
 			if isDisabled {
 				return p == nil
 			}
 			return p != nil
 
-		}, disabled, KindTaxonomyTerm, "public/tags/index.html", "Tags")
+		}, disabled, page.KindTaxonomyTerm, "public/tags/index.html", "Tags")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindTaxonomyTerm, "categories")
+			p := s.getPage(page.KindTaxonomyTerm, "categories")
 
 			if isDisabled {
 				return p == nil
 			}
 			return p != nil
 
-		}, disabled, KindTaxonomyTerm, "public/categories/index.html", "Category Terms")
+		}, disabled, page.KindTaxonomyTerm, "public/categories/index.html", "Category Terms")
 	assertDisabledKind(th,
 		func(isDisabled bool) bool {
-			p := s.getPage(KindTaxonomy, "categories", "hugo")
+			p := s.getPage(page.KindTaxonomy, "categories", "hugo")
 			if isDisabled {
 				return p == nil
 			}
 			return p != nil
 
-		}, disabled, KindTaxonomy, "public/categories/hugo/index.html", "Hugo")
+		}, disabled, page.KindTaxonomy, "public/categories/hugo/index.html", "Hugo")
 	// The below have no page in any collection.
 	assertDisabledKind(th, func(isDisabled bool) bool { return true }, disabled, kindRSS, "public/index.xml", "<link>")
 	assertDisabledKind(th, func(isDisabled bool) bool { return true }, disabled, kindSitemap, "public/sitemap.xml", "sitemap")
@@ -195,7 +197,7 @@ func assertDisabledKind(th testHelper, kindAssert func(bool) bool, disabled []st
 
 	if kind == kindRSS && !isDisabled {
 		// If the home page is also disabled, there is not RSS to look for.
-		if stringSliceContains(KindHome, disabled...) {
+		if stringSliceContains(page.KindHome, disabled...) {
 			isDisabled = true
 		}
 	}

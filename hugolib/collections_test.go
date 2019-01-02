@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ title: "Page"
 	b.CreateSites().Build(BuildCfg{})
 
 	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages, 2)
+	require.Len(t, b.H.Sites[0].RegularPages(), 2)
 
 	b.AssertFileContent("public/index.html", "cool: 2")
 }
@@ -79,12 +79,12 @@ tags_weight: %d
 	b.CreateSites().Build(BuildCfg{})
 
 	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages, 2)
+	require.Len(t, b.H.Sites[0].RegularPages(), 2)
 
 	b.AssertFileContent("public/index.html",
-		"pages:2:hugolib.Pages:Page(/page1.md)/Page(/page2.md)",
-		"pageGroups:2:hugolib.PagesGroup:Page(/page1.md)/Page(/page2.md)",
-		`weightedPages:2::hugolib.WeightedPages:[WeightedPage(10,"Page") WeightedPage(20,"Page")]`)
+		"pages:2:page.Pages:Page(/page1.md)/Page(/page2.md)",
+		"pageGroups:2:page.PagesGroup:Page(/page1.md)/Page(/page2.md)",
+		`weightedPages:2::page.WeightedPages:[WeightedPage(10,"Page") WeightedPage(20,"Page")]`)
 }
 
 func TestAppendFunc(t *testing.T) {
@@ -129,11 +129,11 @@ tags_weight: %d
 	b.CreateSites().Build(BuildCfg{})
 
 	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages, 2)
+	require.Len(t, b.H.Sites[0].RegularPages(), 2)
 
 	b.AssertFileContent("public/index.html",
-		"pages:2:hugolib.Pages:Page(/page2.md)/Page(/page1.md)",
-		"appendPages:9:hugolib.Pages:home/page",
+		"pages:2:page.Pages:Page(/page2.md)/Page(/page1.md)",
+		"appendPages:9:page.Pages:home/page",
 		"appendStrings:[]string:[a b c d e]",
 		"appendStringsSlice:[]string:[a b c c d]",
 		"union:[]string:[a b c d e]",

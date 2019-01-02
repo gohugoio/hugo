@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import (
 
 	"github.com/gohugoio/hugo/tpl"
 
-	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/hugofs"
-
 	"github.com/spf13/cast"
 
 	"github.com/stretchr/testify/require"
 )
+
+type handler interface {
+	addTemplate(name, tpl string) error
+}
 
 var (
 	testFuncs = map[string]interface{}{
@@ -179,7 +180,8 @@ PARAMS SITE GLOBAL3: {{ $site.Params.LOWER }}
 func TestParamsKeysToLower(t *testing.T) {
 	t.Parallel()
 
-	require.Error(t, applyTemplateTransformers(nil, nil))
+	_, err := applyTemplateTransformers(false, nil, nil)
+	require.Error(t, err)
 
 	templ, err := template.New("foo").Funcs(testFuncs).Parse(paramsTempl)
 
@@ -429,17 +431,7 @@ func TestInsertIsZeroFunc(t *testing.T) {
 `
 	)
 
-	v := newTestConfig()
-	fs := hugofs.NewMem(v)
-
-	depsCfg := newDepsConfig(v)
-	depsCfg.Fs = fs
-	d, err := deps.New(depsCfg)
-	assert.NoError(err)
-
-	provider := DefaultTemplateProvider
-	provider.Update(d)
-
+	d := newD(assert)
 	h := d.Tmpl.(handler)
 
 	assert.NoError(h.addTemplate("mytemplate.html", templ))
@@ -456,5 +448,47 @@ func TestInsertIsZeroFunc(t *testing.T) {
 	assert.Contains(result, "TimeZero1 with: FALSE")
 	assert.Contains(result, ".TimeZero1: mytemplate: FALSE")
 	assert.Contains(result, ".NonEmptyInterfaceTypedNil: FALSE")
+
+}
+
+func TestCollectInfo(t *testing.T) {
+
+	configStr := `{ "version": 42 }`
+
+	tests := []struct {
+		name      string
+		tplString string
+		expected  tpl.Info
+	}{
+		{"Basic Inner", `{{ .Inner }}`, tpl.Info{IsInner: true, Config: tpl.DefaultConfig}},
+		{"Basic config map", "{{ $_hugo_config := `" + configStr + "`  }}", tpl.Info{
+			Config: tpl.Config{
+				Version: 42,
+			},
+		}},
+	}
+
+	echo := func(in interface{}) interface{} {
+		return in
+	}
+
+	funcs := template.FuncMap{
+		"highlight": echo,
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert := require.New(t)
+
+			templ, err := template.New("foo").Funcs(funcs).Parse(test.tplString)
+			require.NoError(t, err)
+
+			c := newTemplateContext(createParseTreeLookup(templ))
+			c.isShortcode = true
+			c.applyTransformations(templ.Tree.Root)
+
+			assert.Equal(test.expected, c.Info)
+		})
+	}
 
 }

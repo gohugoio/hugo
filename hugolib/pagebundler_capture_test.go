@@ -64,12 +64,10 @@ func (s *storeFilenames) handleBundles(d *bundleDirs) {
 	s.dirKeys = append(s.dirKeys, keys...)
 }
 
-func (s *storeFilenames) handleCopyFiles(files ...pathLangFile) {
+func (s *storeFilenames) handleCopyFile(file pathLangFile) {
 	s.Lock()
 	defer s.Unlock()
-	for _, file := range files {
-		s.copyNames = append(s.copyNames, filepath.ToSlash(file.Filename()))
-	}
+	s.copyNames = append(s.copyNames, filepath.ToSlash(file.Filename()))
 }
 
 func (s *storeFilenames) sortedStr() string {
@@ -224,9 +222,9 @@ C:
 
 type noOpFileStore int
 
-func (noOpFileStore) handleSingles(fis ...*fileInfo)        {}
-func (noOpFileStore) handleBundles(b *bundleDirs)           {}
-func (noOpFileStore) handleCopyFiles(files ...pathLangFile) {}
+func (noOpFileStore) handleSingles(fis ...*fileInfo)   {}
+func (noOpFileStore) handleBundles(b *bundleDirs)      {}
+func (noOpFileStore) handleCopyFile(file pathLangFile) {}
 
 func BenchmarkPageBundlerCapture(b *testing.B) {
 	capturers := make([]*capturer, b.N)

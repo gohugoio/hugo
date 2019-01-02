@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,24 @@ import (
 type Scratch struct {
 	values map[string]interface{}
 	mu     sync.RWMutex
+}
+
+// Scratcher provides a scratching service.
+type Scratcher interface {
+	Scratch() *Scratch
+}
+
+type scratcher struct {
+	s *Scratch
+}
+
+func (s scratcher) Scratch() *Scratch {
+	return s.s
+}
+
+// NewScratcher creates a new Scratcher.
+func NewScratcher() Scratcher {
+	return scratcher{s: NewScratch()}
 }
 
 // Add will, for single values, add (using the + operator) the addend to the existing addend (if found).

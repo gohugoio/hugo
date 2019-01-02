@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import (
 
 // Renders a codeblock using Blackfriday
 func (c ContentSpec) render(input string) string {
-	ctx := &RenderingContext{Cfg: c.cfg, Config: c.BlackFriday}
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	render := c.getHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}
@@ -34,7 +34,7 @@ func (c ContentSpec) render(input string) string {
 
 // Renders a codeblock using Mmark
 func (c ContentSpec) renderWithMmark(input string) string {
-	ctx := &RenderingContext{Cfg: c.cfg, Config: c.BlackFriday}
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	render := c.getMmarkHTMLRenderer(0, ctx)
 
 	buf := &bytes.Buffer{}

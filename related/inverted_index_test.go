@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import (
 type testDoc struct {
 	keywords map[string][]Keyword
 	date     time.Time
+	name     string
 }
 
 func (d *testDoc) String() string {
@@ -39,11 +40,19 @@ func (d *testDoc) String() string {
 	return s
 }
 
+func (d *testDoc) Name() string {
+	return d.name
+}
+
 func newTestDoc(name string, keywords ...string) *testDoc {
+	time.Sleep(1 * time.Millisecond)
+	return newTestDocWithDate(name, time.Now(), keywords...)
+}
+
+func newTestDocWithDate(name string, date time.Time, keywords ...string) *testDoc {
 	km := make(map[string][]Keyword)
 
-	time.Sleep(1 * time.Millisecond)
-	kw := &testDoc{keywords: km, date: time.Now()}
+	kw := &testDoc{keywords: km, date: date}
 
 	kw.addKeywords(name, keywords...)
 	return kw
@@ -68,11 +77,11 @@ func createTestKeywords(name string, keywords ...string) map[string][]string {
 	}
 }
 
-func (d *testDoc) SearchKeywords(cfg IndexConfig) ([]Keyword, error) {
+func (d *testDoc) RelatedKeywords(cfg IndexConfig) ([]Keyword, error) {
 	return d.keywords[cfg.Name], nil
 }
 
-func (d *testDoc) PubDate() time.Time {
+func (d *testDoc) PublishDate() time.Time {
 	return d.date
 }
 
@@ -165,6 +174,29 @@ func TestSearch(t *testing.T) {
 		assert.NoError(err)
 		assert.Len(m, 2)
 		assert.Equal(docs[3], m[0])
+	})
+
+	t.Run("searchdoc-keywords-same-date", func(t *testing.T) {
+		assert := require.New(t)
+		idx := NewInvertedIndex(config)
+
+		date := time.Now()
+
+		doc := newTestDocWithDate("keywords", date, "a", "b")
+		doc.name = "thedoc"
+
+		for i := 0; i < 10; i++ {
+			docc := *doc
+			docc.name = fmt.Sprintf("doc%d", i)
+			idx.Add(&docc)
+		}
+
+		m, err := idx.SearchDoc(doc, "keywords")
+		assert.NoError(err)
+		assert.Len(m, 10)
+		for i := 0; i < 10; i++ {
+			assert.Equal(fmt.Sprintf("doc%d", i), m[i].Name())
+		}
 	})
 
 }

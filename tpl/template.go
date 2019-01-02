@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/output"
+
 	"github.com/gohugoio/hugo/common/herrors"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -37,7 +39,8 @@ import (
 )
 
 var (
-	_ TemplateExecutor = (*TemplateAdapter)(nil)
+	_ TemplateExecutor     = (*TemplateAdapter)(nil)
+	_ TemplateInfoProvider = (*TemplateAdapter)(nil)
 )
 
 // TemplateHandler manages the collection of templates.
@@ -53,15 +56,45 @@ type TemplateHandler interface {
 	RebuildClone()
 }
 
+// TemplateVariants describes the possible variants of a template.
+// All of these may be empty.
+type TemplateVariants struct {
+	Language     string
+	OutputFormat output.Format
+}
+
 // TemplateFinder finds templates.
 type TemplateFinder interface {
+	TemplateLookup
+	TemplateLookupVariant
+}
+
+type TemplateLookup interface {
 	Lookup(name string) (Template, bool)
+}
+
+type TemplateLookupVariant interface {
+	// TODO(bep) this currently only works for shortcodes.
+	// We may unify and expand this variant pattern to the
+	// other templates, but we need this now for the shortcodes to
+	// quickly determine if a shortcode has a template for a given
+	// output format.
+	// It returns the template, if it was found or not and if there are
+	// alternative representations (output format, language).
+	// We are currently only interested in output formats, so we should improve
+	// this for speed.
+	LookupVariant(name string, variants TemplateVariants) (Template, bool, bool)
 }
 
 // Template is the common interface between text/template and html/template.
 type Template interface {
 	Execute(wr io.Writer, data interface{}) error
 	Name() string
+}
+
+// TemplateInfoProvider provides some contextual information about a template.
+type TemplateInfoProvider interface {
+	TemplateInfo() Info
 }
 
 // TemplateParser is used to parse ad-hoc templates, e.g. in the Resource chain.
@@ -91,6 +124,8 @@ type TemplateDebugger interface {
 type TemplateAdapter struct {
 	Template
 	Metrics metrics.Provider
+
+	Info Info
 
 	// The filesystem where the templates are stored.
 	Fs afero.Fs
@@ -131,6 +166,10 @@ func (t *TemplateAdapter) Execute(w io.Writer, data interface{}) (execErr error)
 	}
 
 	return
+}
+
+func (t *TemplateAdapter) TemplateInfo() Info {
+	return t.Info
 }
 
 // The identifiers may be truncated in the log, e.g.

@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -219,22 +219,4 @@ func doBenchmarkPartial(b *testing.B, f func(ns *partials.Namespace) error) {
 			}
 		}
 	})
-}
-
-func newTestFuncster() *templateFuncster {
-	return newTestFuncsterWithViper(viper.New())
-}
-
-func newTestFuncsterWithViper(v *viper.Viper) *templateFuncster {
-	config := newDepsConfig(v)
-	d, err := deps.New(config)
-	if err != nil {
-		panic(err)
-	}
-
-	if err := d.LoadResources(); err != nil {
-		panic(err)
-	}
-
-	return d.Tmpl.(*templateHandler).html.funcster
 }

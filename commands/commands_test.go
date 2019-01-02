@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -41,7 +43,7 @@ func TestExecute(t *testing.T) {
 	assert.NoError(resp.Err)
 	result := resp.Result
 	assert.True(len(result.Sites) == 1)
-	assert.True(len(result.Sites[0].RegularPages) == 1)
+	assert.True(len(result.Sites[0].RegularPages()) == 1)
 }
 
 func TestCommandsPersistentFlags(t *testing.T) {
@@ -75,6 +77,7 @@ func TestCommandsPersistentFlags(t *testing.T) {
 		"--port=1366",
 		"--renderToDisk",
 		"--source=mysource",
+		"--path-warnings",
 	}, func(commands []cmder) {
 		var sc *serverCmd
 		for _, command := range commands {
@@ -111,6 +114,9 @@ func TestCommandsPersistentFlags(t *testing.T) {
 		assert.Equal([]string{"page", "home"}, cfg.Get("disableKinds"))
 
 		assert.True(cfg.GetBool("gc"))
+
+		// The flag is named path-warnings
+		assert.True(cfg.GetBool("logPathWarnings"))
 
 		// The flag is named i18n-warnings
 		assert.True(cfg.GetBool("logI18nWarnings"))
@@ -183,8 +189,8 @@ func TestCommandsExecute(t *testing.T) {
 	}
 
 	for _, test := range tests {
-
-		hugoCmd := newCommandsBuilder().addAll().build().getCommand()
+		b := newCommandsBuilder().addAll().build()
+		hugoCmd := b.getCommand()
 		test.flags = append(test.flags, "--quiet")
 		hugoCmd.SetArgs(append(test.commands, test.flags...))
 
@@ -198,6 +204,13 @@ func TestCommandsExecute(t *testing.T) {
 			assert.Contains(err.Error(), test.expectErrToContain)
 		} else {
 			assert.NoError(err, fmt.Sprintf("%v", test.commands))
+		}
+
+		// Assert that we have not left any development debug artifacts in
+		// the code.
+		if b.c != nil {
+			_, ok := b.c.destinationFs.(types.DevMarker)
+			assert.False(ok)
 		}
 
 	}

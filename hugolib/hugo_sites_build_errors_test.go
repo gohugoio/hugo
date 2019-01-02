@@ -7,6 +7,9 @@ import (
 	"runtime"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/fortytw2/leaktest"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/stretchr/testify/require"
@@ -20,25 +23,24 @@ type testSiteBuildErrorAsserter struct {
 func (t testSiteBuildErrorAsserter) getFileError(err error) *herrors.ErrorWithFileContext {
 	t.assert.NotNil(err, t.name)
 	ferr := herrors.UnwrapErrorWithFileContext(err)
-	t.assert.NotNil(ferr, fmt.Sprintf("[%s] got %T: %+v\n%s", t.name, err, err, trace()))
+	t.assert.NotNil(ferr, fmt.Sprintf("[%s] got %T: %+v\n%s", t.name, err, err, stackTrace()))
 	return ferr
 }
 
 func (t testSiteBuildErrorAsserter) assertLineNumber(lineNumber int, err error) {
 	fe := t.getFileError(err)
-	t.assert.Equal(lineNumber, fe.Position().LineNumber, fmt.Sprintf("[%s]  got => %s\n%s", t.name, fe, trace()))
+	t.assert.Equal(lineNumber, fe.Position().LineNumber, fmt.Sprintf("[%s]  got => %s\n%s", t.name, fe, stackTrace()))
 }
 
 func (t testSiteBuildErrorAsserter) assertErrorMessage(e1, e2 string) {
 	// The error message will contain filenames with OS slashes. Normalize before compare.
 	e1, e2 = filepath.ToSlash(e1), filepath.ToSlash(e2)
-	t.assert.Contains(e2, e1, trace())
+	t.assert.Contains(e2, e1, stackTrace())
 
 }
 
 func TestSiteBuildErrors(t *testing.T) {
 	t.Parallel()
-	assert := require.New(t)
 
 	const (
 		yamlcontent = "yamlcontent"
@@ -88,9 +90,9 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertCreateError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(5, fe.Position().LineNumber)
-				assert.Equal(1, fe.Position().ColumnNumber)
-				assert.Equal("go-html-template", fe.ChromaLexer)
+				a.assert.Equal(5, fe.Position().LineNumber)
+				a.assert.Equal(1, fe.Position().ColumnNumber)
+				a.assert.Equal("go-html-template", fe.ChromaLexer)
 				a.assertErrorMessage("\"layouts/_default/single.html:5:1\": parse failed: template: _default/single.html:5: unexpected \"}\" in operand", fe.Error())
 
 			},
@@ -103,9 +105,9 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(5, fe.Position().LineNumber)
-				assert.Equal(14, fe.Position().ColumnNumber)
-				assert.Equal("go-html-template", fe.ChromaLexer)
+				a.assert.Equal(5, fe.Position().LineNumber)
+				a.assert.Equal(14, fe.Position().ColumnNumber)
+				a.assert.Equal("go-html-template", fe.ChromaLexer)
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
 
 			},
@@ -118,9 +120,9 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(5, fe.Position().LineNumber)
-				assert.Equal(14, fe.Position().ColumnNumber)
-				assert.Equal("go-html-template", fe.ChromaLexer)
+				a.assert.Equal(5, fe.Position().LineNumber)
+				a.assert.Equal(14, fe.Position().ColumnNumber)
+				a.assert.Equal("go-html-template", fe.ChromaLexer)
 				a.assertErrorMessage("\"layouts/_default/single.html:5:14\": execute of template failed", fe.Error())
 
 			},
@@ -143,8 +145,8 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(7, fe.Position().LineNumber)
-				assert.Equal("md", fe.ChromaLexer)
+				a.assert.Equal(7, fe.Position().LineNumber)
+				a.assert.Equal("md", fe.ChromaLexer)
 				// Make sure that it contains both the content file and template
 				a.assertErrorMessage(`content/myyaml.md:7:10": failed to render shortcode "sc"`, fe.Error())
 				a.assertErrorMessage(`shortcodes/sc.html:4:22: executing "shortcodes/sc.html" at <.Page.Titles>: can't evaluate`, fe.Error())
@@ -158,10 +160,10 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(7, fe.Position().LineNumber)
-				assert.Equal(14, fe.Position().ColumnNumber)
-				assert.Equal("md", fe.ChromaLexer)
-				a.assertErrorMessage("\"content/myyaml.md:7:14\": failed to extract shortcode: template for shortcode \"nono\" not found", fe.Error())
+				a.assert.Equal(7, fe.Position().LineNumber)
+				a.assert.Equal(10, fe.Position().ColumnNumber)
+				a.assert.Equal("md", fe.ChromaLexer)
+				a.assertErrorMessage(`"content/myyaml.md:7:10": failed to extract shortcode: template for shortcode "nono" not found`, fe.Error())
 			},
 		},
 		{
@@ -182,8 +184,8 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
-				assert.Equal(6, fe.Position().LineNumber)
-				assert.Equal("toml", fe.ErrorContext.ChromaLexer)
+				a.assert.Equal(6, fe.Position().LineNumber)
+				a.assert.Equal("toml", fe.ErrorContext.ChromaLexer)
 
 			},
 		},
@@ -196,8 +198,8 @@ func TestSiteBuildErrors(t *testing.T) {
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				fe := a.getFileError(err)
 
-				assert.Equal(3, fe.Position().LineNumber)
-				assert.Equal("json", fe.ErrorContext.ChromaLexer)
+				a.assert.Equal(3, fe.Position().LineNumber)
+				a.assert.Equal("json", fe.ErrorContext.ChromaLexer)
 
 			},
 		},
@@ -210,42 +212,43 @@ func TestSiteBuildErrors(t *testing.T) {
 			},
 
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
-				assert.Error(err)
+				a.assert.Error(err)
 				// This is fixed in latest Go source
 				if regexp.MustCompile("devel|12").MatchString(runtime.Version()) {
 					fe := a.getFileError(err)
-					assert.Equal(5, fe.Position().LineNumber)
-					assert.Equal(21, fe.Position().ColumnNumber)
+					a.assert.Equal(5, fe.Position().LineNumber)
+					a.assert.Equal(21, fe.Position().ColumnNumber)
 				} else {
-					assert.Contains(err.Error(), `execute of template failed: panic in Execute`)
+					a.assert.Contains(err.Error(), `execute of template failed: panic in Execute`)
 				}
 			},
 		},
 	}
 
 	for _, test := range tests {
-
-		errorAsserter := testSiteBuildErrorAsserter{
-			assert: assert,
-			name:   test.name,
-		}
-
-		b := newTestSitesBuilder(t).WithSimpleConfigFile()
-
-		f := func(fileType, content string) string {
-			if fileType != test.fileType {
-				return content
+		t.Run(test.name, func(t *testing.T) {
+			assert := require.New(t)
+			errorAsserter := testSiteBuildErrorAsserter{
+				assert: assert,
+				name:   test.name,
 			}
-			return test.fileFixer(content)
 
-		}
+			b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
-		b.WithTemplatesAdded("layouts/shortcodes/sc.html", f(shortcode, `SHORTCODE L1
+			f := func(fileType, content string) string {
+				if fileType != test.fileType {
+					return content
+				}
+				return test.fileFixer(content)
+
+			}
+
+			b.WithTemplatesAdded("layouts/shortcodes/sc.html", f(shortcode, `SHORTCODE L1
 SHORTCODE L2
 SHORTCODE L3:
 SHORTCODE L4: {{ .Page.Title }}
 `))
-		b.WithTemplatesAdded("layouts/_default/baseof.html", f(base, `BASEOF L1
+			b.WithTemplatesAdded("layouts/_default/baseof.html", f(base, `BASEOF L1
 BASEOF L2
 BASEOF L3
 BASEOF L4{{ if .Title }}{{ end }}
@@ -253,7 +256,7 @@ BASEOF L4{{ if .Title }}{{ end }}
 BASEOF L6
 `))
 
-		b.WithTemplatesAdded("layouts/_default/single.html", f(single, `{{ define "main" }}
+			b.WithTemplatesAdded("layouts/_default/single.html", f(single, `{{ define "main" }}
 SINGLE L2:
 SINGLE L3:
 SINGLE L4:
@@ -261,7 +264,7 @@ SINGLE L5: {{ .Title }} {{ .Content }}
 {{ end }}
 `))
 
-		b.WithContent("myyaml.md", f(yamlcontent, `---
+			b.WithContent("myyaml.md", f(yamlcontent, `---
 title: "The YAML"
 ---
 
@@ -275,7 +278,7 @@ The end.
 
 `))
 
-		b.WithContent("mytoml.md", f(tomlcontent, `+++
+			b.WithContent("mytoml.md", f(tomlcontent, `+++
 title = "The TOML"
 p1 = "v"
 p2 = "v"
@@ -288,7 +291,7 @@ Some content.
 
 `))
 
-		b.WithContent("myjson.md", f(jsoncontent, `{
+			b.WithContent("myjson.md", f(jsoncontent, `{
 	"title": "This is a title",
 	"description": "This is a description."
 }
@@ -298,26 +301,30 @@ Some content.
 
 `))
 
-		createErr := b.CreateSitesE()
-		if test.assertCreateError != nil {
-			test.assertCreateError(errorAsserter, createErr)
-		} else {
-			assert.NoError(createErr)
-		}
-
-		if createErr == nil {
-			buildErr := b.BuildE(BuildCfg{})
-			if test.assertBuildError != nil {
-				test.assertBuildError(errorAsserter, buildErr)
+			createErr := b.CreateSitesE()
+			if test.assertCreateError != nil {
+				test.assertCreateError(errorAsserter, createErr)
 			} else {
-				assert.NoError(buildErr)
+				assert.NoError(createErr)
 			}
-		}
+
+			if createErr == nil {
+				buildErr := b.BuildE(BuildCfg{})
+				if test.assertBuildError != nil {
+					test.assertBuildError(errorAsserter, buildErr)
+				} else {
+					assert.NoError(buildErr)
+				}
+			}
+		})
 	}
 }
 
 // https://github.com/gohugoio/hugo/issues/5375
 func TestSiteBuildTimeout(t *testing.T) {
+	if !isCI() {
+		defer leaktest.CheckTimeout(t, 10*time.Second)()
+	}
 
 	b := newTestSitesBuilder(t)
 	b.WithConfigFile("toml", `
@@ -342,6 +349,6 @@ title: "A page"
 
 	}
 
-	b.CreateSites().Build(BuildCfg{})
+	b.CreateSites().BuildFail(BuildCfg{})
 
 }

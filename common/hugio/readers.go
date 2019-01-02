@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ type ReadSeekCloser interface {
 }
 
 // ReadSeekerNoOpCloser implements ReadSeekCloser by doing nothing in Close.
+// TODO(bep) rename this and simila to ReadSeekerNopCloser, naming used in stdlib, which kind of makes sense.
 type ReadSeekerNoOpCloser struct {
 	ReadSeeker
 }

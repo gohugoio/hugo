@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,7 @@
 package hugolib
 
 import (
-	"encoding/json"
 	"testing"
-
-	"path/filepath"
-
-	"github.com/gohugoio/hugo/deps"
 )
 
 // Issue #1123
@@ -27,27 +22,22 @@ import (
 // May be smart to run with: -timeout 4000ms
 func TestEncodePage(t *testing.T) {
 	t.Parallel()
-	cfg, fs := newTestCfg()
 
-	writeSource(t, fs, filepath.Join("content", "page.md"), `---
-title: Simple
+	templ := `{{ index .Site.RegularPages 0 | jsonify }}`
+
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithTemplatesAdded("index.html", templ)
+	b.WithContent("page.md", `---
+title: "Page"
+date: 2019-02-28
 ---
-Summary text
 
-<!--more-->
+Content.
+
 `)
 
-	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+	b.Build(BuildCfg{})
 
-	_, err := json.Marshal(s)
-	check(t, err)
+	b.AssertFileContent("public/index.html", `"Date":"2019-02-28T00:00:00Z"`)
 
-	_, err = json.Marshal(s.RegularPages[0])
-	check(t, err)
-}
-
-func check(t *testing.T, err error) {
-	if err != nil {
-		t.Fatalf("Failed %s", err)
-	}
 }

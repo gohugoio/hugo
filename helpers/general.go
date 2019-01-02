@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ func GuessType(in string) string {
 		return "org"
 	}
 
-	return "unknown"
+	return ""
 }
 
 // FirstUpper returns a string with the first character as upper case.
@@ -325,12 +325,15 @@ func InitLoggers() {
 // The idea is two remove an item in two Hugo releases to give users and theme authors
 // plenty of time to fix their templates.
 func Deprecated(object, item, alternative string, err bool) {
+	if !strings.HasSuffix(alternative, ".") {
+		alternative += "."
+	}
+
 	if err {
 		DistinctErrorLog.Printf("%s's %s is deprecated and will be removed in Hugo %s. %s", object, item, hugo.CurrentVersion.Next().ReleaseVersion(), alternative)
 
 	} else {
-		// Make sure the users see this while avoiding build breakage. This will not lead to an os.Exit(-1)
-		DistinctFeedbackLog.Printf("WARNING: %s's %s is deprecated and will be removed in a future release. %s", object, item, alternative)
+		DistinctWarnLog.Printf("%s's %s is deprecated and will be removed in a future release. %s", object, item, alternative)
 	}
 }
 

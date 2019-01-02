@@ -113,9 +113,19 @@ func NewLanguages(l ...*Language) Languages {
 	return languages
 }
 
-func (l Languages) Len() int           { return len(l) }
-func (l Languages) Less(i, j int) bool { return l[i].Weight < l[j].Weight }
-func (l Languages) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
+func (l Languages) Len() int { return len(l) }
+func (l Languages) Less(i, j int) bool {
+	wi, wj := l[i].Weight, l[j].Weight
+
+	if wi == wj {
+		return l[i].Lang < l[j].Lang
+	}
+
+	return wj == 0 || wi < wj
+
+}
+
+func (l Languages) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
 
 // Params retunrs language-specific params merged with the global params.
 func (l *Language) Params() map[string]interface{} {

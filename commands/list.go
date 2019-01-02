@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -70,7 +71,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 
 				for _, p := range sites.Pages() {
 					if p.IsDraft() {
-						jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+						jww.FEEDBACK.Println(filepath.Join(p.File().Dir(), p.File().LogicalName()))
 					}
 
 				}
@@ -108,8 +109,8 @@ posted in the future.`,
 				defer writer.Flush()
 
 				for _, p := range sites.Pages() {
-					if p.IsFuture() {
-						err := writer.Write([]string{filepath.Join(p.File.Dir(), p.File.LogicalName()), p.PublishDate.Format(time.RFC3339)})
+					if resource.IsFuture(p) {
+						err := writer.Write([]string{filepath.Join(p.File().Dir(), p.File().LogicalName()), p.PublishDate().Format(time.RFC3339)})
 						if err != nil {
 							return newSystemError("Error writing future posts to stdout", err)
 						}
@@ -149,11 +150,12 @@ expired.`,
 				defer writer.Flush()
 
 				for _, p := range sites.Pages() {
-					if p.IsExpired() {
-						err := writer.Write([]string{filepath.Join(p.File.Dir(), p.File.LogicalName()), p.ExpiryDate.Format(time.RFC3339)})
+					if resource.IsExpired(p) {
+						err := writer.Write([]string{filepath.Join(p.File().Dir(), p.File().LogicalName()), p.ExpiryDate().Format(time.RFC3339)})
 						if err != nil {
 							return newSystemError("Error writing expired posts to stdout", err)
 						}
+
 					}
 				}
 
