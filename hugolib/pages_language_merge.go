@@ -33,11 +33,13 @@ func (p1 Pages) MergeByLanguage(p2 Pages) Pages {
 	merge := func(pages *Pages) {
 		m := make(map[string]bool)
 		for _, p := range *pages {
-			m[p.TranslationKey()] = true
+			pp := p.(*Page)
+			m[pp.TranslationKey()] = true
 		}
 
 		for _, p := range p2 {
-			if _, found := m[p.TranslationKey()]; !found {
+			pp := p.(*Page)
+			if _, found := m[pp.TranslationKey()]; !found {
 				*pages = append(*pages, p)
 			}
 		}

@@ -48,7 +48,7 @@ func TestMergeLanguages(t *testing.T) {
 			if i == 2 || i%3 == 0 || i == 31 {
 				expectedLang = "nn"
 			}
-			p := mergedNN[i-1]
+			p := mergedNN[i-1].(*Page)
 			assert.Equal(expectedLang, p.Lang(), fmt.Sprintf("Test %d", i))
 		}
 	}
@@ -60,24 +60,24 @@ func TestMergeLanguages(t *testing.T) {
 		if i%5 == 0 {
 			expectedLang = "fr"
 		}
-		p := mergedFR[i-1]
+		p := mergedFR[i-1].(*Page)
 		assert.Equal(expectedLang, p.Lang(), fmt.Sprintf("Test %d", i))
 	}
 
-	firstNN := nnSite.RegularPages[0]
+	firstNN := nnSite.RegularPages[0].(*Page)
 	assert.Equal(4, len(firstNN.Sites()))
 	assert.Equal("en", firstNN.Sites().First().Language().Lang)
 
 	nnBundle := nnSite.getPage("page", "bundle")
 	enBundle := enSite.getPage("page", "bundle")
 
-	assert.Equal(6, len(enBundle.Resources))
-	assert.Equal(2, len(nnBundle.Resources))
+	assert.Equal(6, len(enBundle.Resources()))
+	assert.Equal(2, len(nnBundle.Resources()))
 
-	var ri interface{} = nnBundle.Resources
+	var ri interface{} = nnBundle.Resources()
 
 	// This looks less ugly in the templates ...
-	mergedNNResources := ri.(resource.ResourcesLanguageMerger).MergeByLanguage(enBundle.Resources)
+	mergedNNResources := ri.(resource.ResourcesLanguageMerger).MergeByLanguage(enBundle.Resources())
 	assert.Equal(6, len(mergedNNResources))
 
 	unchanged, err := nnSite.RegularPages.MergeByLanguageInterface(nil)

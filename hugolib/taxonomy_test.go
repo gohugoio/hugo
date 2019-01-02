@@ -186,7 +186,7 @@ permalinkeds:
 		require.Len(t, term.Pages, count)
 
 		for _, page := range term.Pages {
-			require.Equal(t, KindTaxonomy, page.Kind)
+			require.Equal(t, KindTaxonomy, page.Kind())
 		}
 	}
 

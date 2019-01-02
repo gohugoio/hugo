@@ -234,7 +234,7 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	gp1 := b.H.GetContentPage(filepath.FromSlash("content/sect/doc1.en.md"))
 	require.NotNil(t, gp1)
-	require.Equal(t, "doc1", gp1.title)
+	require.Equal(t, "doc1", gp1.Title())
 	gp2 := b.H.GetContentPage(filepath.FromSlash("content/dummysect/notfound.md"))
 	require.Nil(t, gp2)
 
@@ -247,12 +247,12 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	assert.Equal(5, len(enSite.RegularPages))
 	assert.Equal(32, len(enSite.AllPages))
 
-	doc1en := enSite.RegularPages[0]
+	doc1en := enSite.RegularPages[0].(*Page)
 	permalink := doc1en.Permalink()
 	require.Equal(t, "http://example.com/blog/en/sect/doc1-slug/", permalink, "invalid doc1.en permalink")
 	require.Len(t, doc1en.Translations(), 1, "doc1-en should have one translation, excluding itself")
 
-	doc2 := enSite.RegularPages[1]
+	doc2 := enSite.RegularPages[1].(*Page)
 	permalink = doc2.Permalink()
 	require.Equal(t, "http://example.com/blog/en/sect/doc2/", permalink, "invalid doc2 permalink")
 
@@ -263,11 +263,10 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	// and do no not do any language code prefixing.
 	require.Equal(t, "http://example.com/blog/superbob/", permalink, "invalid doc3 permalink")
 
-	require.Equal(t, "/superbob", doc3.URL(), "invalid url, was specified on doc3")
 	b.AssertFileContent("public/superbob/index.html", "doc3|Hello|en")
 	require.Equal(t, doc2.PrevPage, doc3, "doc3 should follow doc2, in .PrevPage")
 
-	doc1fr := doc1en.Translations()[0]
+	doc1fr := doc1en.Translations()[0].(*Page)
 	permalink = doc1fr.Permalink()
 	require.Equal(t, "http://example.com/blog/fr/sect/doc1/", permalink, "invalid doc1fr permalink")
 
@@ -275,10 +274,9 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, doc1fr.Translations()[0], doc1en, "doc1-fr should have doc1-en as translation")
 	require.Equal(t, "fr", doc1fr.Language().Lang)
 
-	doc4 := enSite.AllPages[4]
+	doc4 := enSite.AllPages[4].(*Page)
 	permalink = doc4.Permalink()
 	require.Equal(t, "http://example.com/blog/fr/sect/doc4/", permalink, "invalid doc4 permalink")
-	require.Equal(t, "/blog/fr/sect/doc4/", doc4.URL())
 
 	require.Len(t, doc4.Translations(), 0, "found translations for doc4")
 
@@ -299,7 +297,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Len(t, frSite.AllPages, 32, "should have 32 total pages (including translations and nodes)")
 
 	for _, frenchPage := range frSite.RegularPages {
-		require.Equal(t, "fr", frenchPage.Lang())
+		p := frenchPage.(*Page)
+		require.Equal(t, "fr", p.Lang())
 	}
 
 	// See https://github.com/gohugoio/hugo/issues/4285
@@ -331,11 +330,11 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	homeEn := enSite.getPage(KindHome)
 	require.NotNil(t, homeEn)
 	require.Len(t, homeEn.Translations(), 3)
-	require.Equal(t, "fr", homeEn.Translations()[0].Lang())
-	require.Equal(t, "nn", homeEn.Translations()[1].Lang())
-	require.Equal(t, "På nynorsk", homeEn.Translations()[1].title)
-	require.Equal(t, "nb", homeEn.Translations()[2].Lang())
-	require.Equal(t, "På bokmål", homeEn.Translations()[2].title, configSuffix)
+	require.Equal(t, "fr", homeEn.Translations()[0].Language().Lang)
+	require.Equal(t, "nn", homeEn.Translations()[1].Language().Lang)
+	require.Equal(t, "På nynorsk", homeEn.Translations()[1].Title())
+	require.Equal(t, "nb", homeEn.Translations()[2].Language().Lang)
+	require.Equal(t, "På bokmål", homeEn.Translations()[2].Title(), configSuffix)
 	require.Equal(t, "Bokmål", homeEn.Translations()[2].Language().LanguageName, configSuffix)
 
 	sectFr := frSite.getPage(KindSection, "sect")
@@ -343,20 +342,20 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	require.Equal(t, "fr", sectFr.Lang())
 	require.Len(t, sectFr.Translations(), 1)
-	require.Equal(t, "en", sectFr.Translations()[0].Lang())
-	require.Equal(t, "Sects", sectFr.Translations()[0].title)
+	require.Equal(t, "en", sectFr.Translations()[0].(*Page).Lang())
+	require.Equal(t, "Sects", sectFr.Translations()[0].Title())
 
 	nnSite := sites[2]
 	require.Equal(t, "nn", nnSite.Language.Lang)
 	taxNn := nnSite.getPage(KindTaxonomyTerm, "lag")
 	require.NotNil(t, taxNn)
 	require.Len(t, taxNn.Translations(), 1)
-	require.Equal(t, "nb", taxNn.Translations()[0].Lang())
+	require.Equal(t, "nb", taxNn.Translations()[0].(*Page).Lang())
 
 	taxTermNn := nnSite.getPage(KindTaxonomy, "lag", "sogndal")
 	require.NotNil(t, taxTermNn)
 	require.Len(t, taxTermNn.Translations(), 1)
-	require.Equal(t, "nb", taxTermNn.Translations()[0].Lang())
+	require.Equal(t, "nb", taxTermNn.Translations()[0].(*Page).Lang())
 
 	// Check sitemap(s)
 	b.AssertFileContent("public/sitemap.xml",
@@ -392,27 +391,27 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	require.Equal(t, "Heim", nnSite.Menus["main"].ByName()[0].Name)
 
 	// Issue #1302
-	require.Equal(t, template.URL(""), enSite.RegularPages[0].RSSLink())
+	require.Equal(t, template.URL(""), enSite.RegularPages[0].(*Page).RSSLink())
 
 	// Issue #3108
-	prevPage := enSite.RegularPages[0].PrevPage
+	prevPage := enSite.RegularPages[0].(*Page).PrevPage
 	require.NotNil(t, prevPage)
-	require.Equal(t, KindPage, prevPage.Kind)
+	require.Equal(t, KindPage, prevPage.Kind())
 
 	for {
 		if prevPage == nil {
 			break
 		}
-		require.Equal(t, KindPage, prevPage.Kind)
-		prevPage = prevPage.PrevPage
+		require.Equal(t, KindPage, prevPage.Kind())
+		prevPage = prevPage.(*Page).PrevPage
 	}
 
 	// Check bundles
 	bundleFr := frSite.getPage(KindPage, "bundles/b1/index.md")
 	require.NotNil(t, bundleFr)
 	require.Equal(t, "/blog/fr/bundles/b1/", bundleFr.RelPermalink())
-	require.Equal(t, 1, len(bundleFr.Resources))
-	logoFr := bundleFr.Resources.GetMatch("logo*")
+	require.Equal(t, 1, len(bundleFr.Resources()))
+	logoFr := bundleFr.Resources().GetMatch("logo*")
 	require.NotNil(t, logoFr)
 	require.Equal(t, "/blog/fr/bundles/b1/logo.png", logoFr.RelPermalink())
 	b.AssertFileContent("public/fr/bundles/b1/logo.png", "PNG Data")
@@ -420,8 +419,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 	bundleEn := enSite.getPage(KindPage, "bundles/b1/index.en.md")
 	require.NotNil(t, bundleEn)
 	require.Equal(t, "/blog/en/bundles/b1/", bundleEn.RelPermalink())
-	require.Equal(t, 1, len(bundleEn.Resources))
-	logoEn := bundleEn.Resources.GetMatch("logo*")
+	require.Equal(t, 1, len(bundleEn.Resources()))
+	logoEn := bundleEn.Resources().GetMatch("logo*")
 	require.NotNil(t, logoEn)
 	require.Equal(t, "/blog/en/bundles/b1/logo.png", logoEn.RelPermalink())
 	b.AssertFileContent("public/en/bundles/b1/logo.png", "PNG Data")
@@ -504,9 +503,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 				assert.Len(enSite.RegularPages, 6)
 				assert.Len(enSite.AllPages, 34)
 				assert.Len(frSite.RegularPages, 5)
-				require.Equal(t, "new_fr_1", frSite.RegularPages[3].title)
-				require.Equal(t, "new_en_2", enSite.RegularPages[0].title)
-				require.Equal(t, "new_en_1", enSite.RegularPages[1].title)
+				require.Equal(t, "new_fr_1", frSite.RegularPages[3].Title())
+				require.Equal(t, "new_en_2", enSite.RegularPages[0].Title())
+				require.Equal(t, "new_en_1", enSite.RegularPages[1].Title())
 
 				rendered := readDestination(t, fs, "public/en/new1/index.html")
 				require.True(t, strings.Contains(rendered, "new_en_1"), rendered)
@@ -540,7 +539,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 			},
 			func(t *testing.T) {
 				assert.Len(enSite.RegularPages, 6, "Rename")
-				require.Equal(t, "new_en_1", enSite.RegularPages[1].title)
+				require.Equal(t, "new_en_1", enSite.RegularPages[1].Title())
 				rendered := readDestination(t, fs, "public/en/new1renamed/index.html")
 				require.True(t, strings.Contains(rendered, "new_en_1"), rendered)
 			}},
@@ -582,7 +581,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 				homeEn := enSite.getPage(KindHome)
 				require.NotNil(t, homeEn)
 				assert.Len(homeEn.Translations(), 3)
-				require.Equal(t, "fr", homeEn.Translations()[0].Lang())
+				require.Equal(t, "fr", homeEn.Translations()[0].(*Page).Lang())
 
 			},
 		},
@@ -626,12 +625,13 @@ func assertShouldNotBuild(t *testing.T, sites *HugoSites) {
 	s := sites.Sites[0]
 
 	for _, p := range s.rawAllPages {
+		pp := p.(*Page)
 		// No HTML when not processed
-		require.Equal(t, p.shouldBuild(), bytes.Contains(p.workContent, []byte("</")), p.BaseFileName()+": "+string(p.workContent))
+		require.Equal(t, pp.shouldBuild(), bytes.Contains(pp.workContent, []byte("</")), pp.BaseFileName()+": "+string(pp.workContent))
 
-		require.Equal(t, p.shouldBuild(), p.content() != "", fmt.Sprintf("%v:%v", p.content(), p.shouldBuild()))
+		require.Equal(t, pp.shouldBuild(), pp.content() != "", fmt.Sprintf("%v:%v", pp.content(), pp.shouldBuild()))
 
-		require.Equal(t, p.shouldBuild(), p.content() != "", p.BaseFileName())
+		require.Equal(t, pp.shouldBuild(), pp.content() != "", pp.BaseFileName())
 
 	}
 }
@@ -678,20 +678,21 @@ title = "Svenska"
 	homeEn := enSite.getPage(KindHome)
 	require.NotNil(t, homeEn)
 	require.Len(t, homeEn.Translations(), 4)
-	require.Equal(t, "sv", homeEn.Translations()[0].Lang())
+
+	require.Equal(t, "sv", homeEn.Translations()[0].(*Page).Lang())
 
 	require.Len(t, enSite.RegularPages, 5)
 	require.Len(t, frSite.RegularPages, 4)
 
 	// Veriy Swedish site
 	require.Len(t, svSite.RegularPages, 1)
-	svPage := svSite.RegularPages[0]
+	svPage := svSite.RegularPages[0].(*Page)
 
-	require.Equal(t, "Swedish Contentfile", svPage.title)
+	require.Equal(t, "Swedish Contentfile", svPage.Title())
 	require.Equal(t, "sv", svPage.Lang())
 	require.Len(t, svPage.Translations(), 2)
 	require.Len(t, svPage.AllTranslations(), 3)
-	require.Equal(t, "en", svPage.Translations()[0].Lang())
+	require.Equal(t, "en", svPage.Translations()[0].(*Page).Lang())
 
 	// Regular pages have no children
 	require.Len(t, svPage.Pages, 0)

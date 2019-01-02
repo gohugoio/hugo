@@ -114,7 +114,7 @@ func (t *testCase) check(p *Page, err error, errorMsg string, assert *require.As
 	default:
 		assert.NoError(err, errorMsg)
 		assert.NotNil(p, errorMsg)
-		assert.Equal(t.kind, p.Kind, errorMsg)
+		assert.Equal(t.kind, p.Kind(), errorMsg)
 		assert.Equal(t.expectedTitle, p.title, errorMsg)
 	}
 }

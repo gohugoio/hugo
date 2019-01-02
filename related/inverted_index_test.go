@@ -72,7 +72,7 @@ func (d *testDoc) SearchKeywords(cfg IndexConfig) ([]Keyword, error) {
 	return d.keywords[cfg.Name], nil
 }
 
-func (d *testDoc) PubDate() time.Time {
+func (d *testDoc) PublishDate() time.Time {
 	return d.date
 }
 

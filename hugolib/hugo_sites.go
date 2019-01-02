@@ -32,6 +32,8 @@ import (
 	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/i18n"
+	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
 )
@@ -136,7 +138,7 @@ func (h *HugoSites) langSite() map[string]*Site {
 
 // GetContentPage finds a Page with content given the absolute filename.
 // Returns nil if none found.
-func (h *HugoSites) GetContentPage(filename string) *Page {
+func (h *HugoSites) GetContentPage(filename string) page.Page {
 	for _, s := range h.Sites {
 		pos := s.rawAllPages.findPagePosByFilename(filename)
 		if pos == -1 {
@@ -495,11 +497,14 @@ func (h *HugoSites) assignMissingTranslations() error {
 	for _, nodeType := range []string{KindHome, KindSection, KindTaxonomy, KindTaxonomyTerm} {
 		nodes := h.findPagesByKindIn(nodeType, allPages)
 
+		// TODO(bep) page
 		// Assign translations
 		for _, t1 := range nodes {
+			t1p := t1.(*Page)
 			for _, t2 := range nodes {
-				if t1.isNewTranslation(t2) {
-					t1.translations = append(t1.translations, t2)
+				t2p := t2.(*Page)
+				if t1p.isNewTranslation(t2p) {
+					t1p.translations = append(t1p.translations, t2p)
 				}
 			}
 		}
@@ -507,8 +512,10 @@ func (h *HugoSites) assignMissingTranslations() error {
 
 	// Now we can sort the translations.
 	for _, p := range allPages {
-		if len(p.translations) > 0 {
-			pageBy(languagePageSort).Sort(p.translations)
+		// TODO(bep) page
+		pp := p.(*Page)
+		if len(pp.translations) > 0 {
+			pageBy(languagePageSort).Sort(pp.translations)
 		}
 	}
 	return nil
@@ -548,7 +555,7 @@ func (h *HugoSites) createMissingPages() error {
 				if s.isEnabled(KindTaxonomyTerm) {
 					foundTaxonomyTermsPage := false
 					for _, p := range taxonomyTermsPages {
-						if p.sectionsPath() == plural {
+						if p.(*Page).sectionsPath() == plural {
 							foundTaxonomyTermsPage = true
 							break
 						}
@@ -570,7 +577,7 @@ func (h *HugoSites) createMissingPages() error {
 							key = s.PathSpec.MakePathSanitized(key)
 						}
 						for _, p := range taxonomyPages {
-							sectionsPath := p.sectionsPath()
+							sectionsPath := p.(*Page).sectionsPath()
 
 							if !strings.HasPrefix(sectionsPath, plural) {
 								continue
@@ -631,18 +638,20 @@ func (h *HugoSites) removePageByFilename(filename string) {
 func (h *HugoSites) setupTranslations() {
 	for _, s := range h.Sites {
 		for _, p := range s.rawAllPages {
-			if p.Kind == kindUnknown {
-				p.Kind = p.kindFromSections()
+			// TODO(bep) page .(*Page) and all others
+			pp := p.(*Page)
+			if p.Kind() == kindUnknown {
+				pp.kind = pp.kindFromSections()
 			}
 
-			if !p.s.isEnabled(p.Kind) {
+			if !pp.s.isEnabled(p.Kind()) {
 				continue
 			}
 
-			shouldBuild := p.shouldBuild()
-			s.updateBuildStats(p)
+			shouldBuild := pp.shouldBuild()
+			s.updateBuildStats(pp)
 			if shouldBuild {
-				if p.headless {
+				if pp.headless {
 					s.headlessPages = append(s.headlessPages, p)
 				} else {
 					s.Pages = append(s.Pages, p)
@@ -676,13 +685,13 @@ func (h *HugoSites) setupTranslations() {
 
 func (s *Site) preparePagesForRender(start bool) error {
 	for _, p := range s.Pages {
-		if err := p.prepareForRender(start); err != nil {
+		if err := p.(*Page).prepareForRender(start); err != nil {
 			return err
 		}
 	}
 
 	for _, p := range s.headlessPages {
-		if err := p.prepareForRender(start); err != nil {
+		if err := p.(*Page).prepareForRender(start); err != nil {
 			return err
 		}
 	}
@@ -720,11 +729,11 @@ func (s *Site) updateBuildStats(page *Page) {
 		s.draftCount++
 	}
 
-	if page.IsFuture() {
+	if resource.IsFuture(page) {
 		s.futureCount++
 	}
 
-	if page.IsExpired() {
+	if resource.IsExpired(page) {
 		s.expiredCount++
 	}
 }

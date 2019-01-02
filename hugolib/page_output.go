@@ -230,7 +230,7 @@ func (p *PageOutput) AlternativeOutputFormats() (OutputFormats, error) {
 // always be of the same length, but may contain different elements.
 func (p *PageOutput) deleteResource(i int) {
 	p.resources = append(p.resources[:i], p.resources[i+1:]...)
-	p.Page.Resources = append(p.Page.Resources[:i], p.Page.Resources[i+1:]...)
+	p.Page.resources = append(p.Page.resources[:i], p.Page.resources[i+1:]...)
 
 }
 
@@ -241,14 +241,14 @@ func (p *PageOutput) Resources() resource.Resources {
 		// base folder.
 		ff := p.outputFormats[0]
 		if p.outputFormat.Path == ff.Path {
-			p.resources = p.Page.Resources
+			p.resources = p.Page.resources
 			return
 		}
 
 		// Clone it with new base.
-		resources := make(resource.Resources, len(p.Page.Resources))
+		resources := make(resource.Resources, len(p.Page.Resources()))
 
-		for i, r := range p.Page.Resources {
+		for i, r := range p.Page.Resources() {
 			if c, ok := r.(resource.Cloner); ok {
 				// Clone the same resource with a new target.
 				resources[i] = c.WithNewBase(p.outputFormat.Path)

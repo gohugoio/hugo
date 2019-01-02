@@ -143,13 +143,13 @@ func TestFrontMatterDatesHandlers(t *testing.T) {
 		}
 		d.Frontmatter["date"] = d2
 		assert.NoError(handler.HandleDates(d))
-		assert.Equal(d1, d.Dates.Date)
+		assert.Equal(d1, d.Dates.DDate)
 		assert.Equal(d2, d.Params["date"])
 
 		d = newTestFd()
 		d.Frontmatter["date"] = d2
 		assert.NoError(handler.HandleDates(d))
-		assert.Equal(d2, d.Dates.Date)
+		assert.Equal(d2, d.Dates.DDate)
 		assert.Equal(d2, d.Params["date"])
 
 	}
@@ -186,15 +186,15 @@ func TestFrontMatterDatesCustomConfig(t *testing.T) {
 
 	assert.NoError(handler.HandleDates(d))
 
-	assert.Equal(1, d.Dates.Date.Day())
-	assert.Equal(4, d.Dates.Lastmod.Day())
-	assert.Equal(4, d.Dates.PublishDate.Day())
-	assert.Equal(5, d.Dates.ExpiryDate.Day())
+	assert.Equal(1, d.Dates.DDate.Day())
+	assert.Equal(4, d.Dates.DLastMod.Day())
+	assert.Equal(4, d.Dates.DPublishDate.Day())
+	assert.Equal(5, d.Dates.DExpiryDate.Day())
 
-	assert.Equal(d.Dates.Date, d.Params["date"])
-	assert.Equal(d.Dates.Date, d.Params["mydate"])
-	assert.Equal(d.Dates.PublishDate, d.Params["publishdate"])
-	assert.Equal(d.Dates.ExpiryDate, d.Params["expirydate"])
+	assert.Equal(d.Dates.DDate, d.Params["date"])
+	assert.Equal(d.Dates.DDate, d.Params["mydate"])
+	assert.Equal(d.Dates.DPublishDate, d.Params["publishdate"])
+	assert.Equal(d.Dates.DExpiryDate, d.Params["expirydate"])
 
 	assert.False(handler.IsDateKey("date")) // This looks odd, but is configured like this.
 	assert.True(handler.IsDateKey("mydate"))
@@ -227,10 +227,10 @@ func TestFrontMatterDatesDefaultKeyword(t *testing.T) {
 
 	assert.NoError(handler.HandleDates(d))
 
-	assert.Equal(1, d.Dates.Date.Day())
-	assert.Equal(2, d.Dates.Lastmod.Day())
-	assert.Equal(4, d.Dates.PublishDate.Day())
-	assert.True(d.Dates.ExpiryDate.IsZero())
+	assert.Equal(1, d.Dates.DDate.Day())
+	assert.Equal(2, d.Dates.DLastMod.Day())
+	assert.Equal(4, d.Dates.DPublishDate.Day())
+	assert.True(d.Dates.DExpiryDate.IsZero())
 
 }
 
@@ -252,10 +252,10 @@ func TestFrontMatterDateFieldHandler(t *testing.T) {
 	fd := newTestFd()
 	d, _ := time.Parse("2006-01-02", "2018-02-01")
 	fd.Frontmatter["date"] = d
-	h := handlers.newDateFieldHandler("date", func(d *FrontMatterDescriptor, t time.Time) { d.Dates.Date = t })
+	h := handlers.newDateFieldHandler("date", func(d *FrontMatterDescriptor, t time.Time) { d.Dates.DDate = t })
 
 	handled, err := h(fd)
 	assert.True(handled)
 	assert.NoError(err)
-	assert.Equal(d, fd.Dates.Date)
+	assert.Equal(d, fd.Dates.DDate)
 }

@@ -231,17 +231,17 @@ func (c *contentHandlers) parsePage(h contentHandler) contentHandler {
 						pageResource.resourcePath = filepath.ToSlash(childCtx.target)
 						pageResource.parent = p
 					}
-					p.Resources = append(p.Resources, res.resource)
+					p.resources = append(p.resources, res.resource)
 				}
 			}
 
-			sort.SliceStable(p.Resources, func(i, j int) bool {
-				if p.Resources[i].ResourceType() < p.Resources[j].ResourceType() {
+			sort.SliceStable(p.Resources(), func(i, j int) bool {
+				if p.resources[i].ResourceType() < p.resources[j].ResourceType() {
 					return true
 				}
 
-				p1, ok1 := p.Resources[i].(*Page)
-				p2, ok2 := p.Resources[j].(*Page)
+				p1, ok1 := p.resources[i].(*Page)
+				p2, ok2 := p.resources[j].(*Page)
 
 				if ok1 != ok2 {
 					return ok2
@@ -251,12 +251,12 @@ func (c *contentHandlers) parsePage(h contentHandler) contentHandler {
 					return defaultPageSort(p1, p2)
 				}
 
-				return p.Resources[i].RelPermalink() < p.Resources[j].RelPermalink()
+				return p.resources[i].RelPermalink() < p.resources[j].RelPermalink()
 			})
 
 			// Assign metadata from front matter if set
 			if len(p.resourcesMetadata) > 0 {
-				resources.AssignMetadata(p.resourcesMetadata, p.Resources...)
+				resources.AssignMetadata(p.resourcesMetadata, p.Resources()...)
 			}
 
 		}

@@ -14,6 +14,7 @@
 package resource
 
 import (
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
 
 	"github.com/gohugoio/hugo/common/hugio"
@@ -81,11 +82,15 @@ type Identifier interface {
 
 // ContentResource represents a Resource that provides a way to get to its content.
 // Most Resource types in Hugo implements this interface, including Page.
-// This should be used with care, as it will read the file content into memory, but it
-// should be cached as effectively as possible by the implementation.
 type ContentResource interface {
 	resourceBase
+	ContentProvider
+}
 
+// ContentProvider provides Content.
+// This should be used with care, as it will read the file content into memory, but it
+// should be cached as effectively as possible by the implementation.
+type ContentProvider interface {
 	// Content returns this resource's content. It will be equivalent to reading the content
 	// that RelPermalink points to in the published folder.
 	// The return type will be contextual, and should be what you would expect:
@@ -103,4 +108,15 @@ type OpenReadSeekCloser func() (hugio.ReadSeekCloser, error)
 type ReadSeekCloserResource interface {
 	resourceBase
 	ReadSeekCloser() (hugio.ReadSeekCloser, error)
+}
+
+// LengthProvider is a Resource that provides a length
+// (typically the length of the content).
+type LengthProvider interface {
+	Len() int
+}
+
+// LanguageProvider is a Resource in a language.
+type LanguageProvider interface {
+	Language() *langs.Language
 }

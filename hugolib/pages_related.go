@@ -110,7 +110,7 @@ func (p Pages) withInvertedIndex(search func(idx *related.InvertedIndex) ([]rela
 		return nil, nil
 	}
 
-	cache := p[0].s.relatedDocsHandler
+	cache := p[0].(*Page).s.relatedDocsHandler
 
 	searchIndex, err := cache.getOrCreateIndex(p)
 	if err != nil {

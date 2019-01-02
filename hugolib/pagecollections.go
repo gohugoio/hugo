@@ -21,6 +21,7 @@ import (
 
 	"github.com/gohugoio/hugo/cache"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/resources/page"
 )
 
 // PageCollections contains the page collections for a site.
@@ -71,7 +72,7 @@ func (c *PageCollections) getFromCache(ref string) (*Page, error) {
 	return nil, fmt.Errorf("page reference %q is ambiguous", ref)
 }
 
-var ambiguityFlag = &Page{Kind: kindUnknown, title: "ambiguity flag"}
+var ambiguityFlag = &Page{kind: kindUnknown, title: "ambiguity flag"}
 
 func (c *PageCollections) refreshPageCaches() {
 	c.indexPages = c.findPagesByKindNotIn(KindPage, c.Pages)
@@ -81,7 +82,7 @@ func (c *PageCollections) refreshPageCaches() {
 	indexLoader := func() (map[string]interface{}, error) {
 		index := make(map[string]interface{})
 
-		add := func(ref string, p *Page) {
+		add := func(ref string, p page.Page) {
 			existing := index[ref]
 			if existing == nil {
 				index[ref] = p
@@ -92,7 +93,8 @@ func (c *PageCollections) refreshPageCaches() {
 
 		for _, pageCollection := range []Pages{c.RegularPages, c.headlessPages} {
 			for _, p := range pageCollection {
-				sourceRef := p.absoluteSourceRef()
+				pp := p.(*Page)
+				sourceRef := pp.absoluteSourceRef()
 
 				if sourceRef != "" {
 					// index the canonical ref
@@ -101,9 +103,9 @@ func (c *PageCollections) refreshPageCaches() {
 				}
 
 				// Ref/Relref supports this potentially ambiguous lookup.
-				add(p.LogicalName(), p)
+				add(pp.LogicalName(), p)
 
-				translationBaseName := p.TranslationBaseName()
+				translationBaseName := pp.TranslationBaseName()
 
 				dir, _ := path.Split(sourceRef)
 				dir = strings.TrimSuffix(dir, "/")
@@ -124,12 +126,13 @@ func (c *PageCollections) refreshPageCaches() {
 		for _, p := range c.indexPages {
 			// index the canonical, unambiguous ref for any backing file
 			// e.g. /section/_index.md
-			sourceRef := p.absoluteSourceRef()
+			pp := p.(*Page)
+			sourceRef := pp.absoluteSourceRef()
 			if sourceRef != "" {
 				add(sourceRef, p)
 			}
 
-			ref := path.Join(p.sections...)
+			ref := path.Join(pp.sections...)
 
 			// index the canonical, unambiguous virtual ref
 			// e.g. /section
@@ -265,7 +268,7 @@ func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {
 	var pages Pages
 	for _, p := range inPages {
-		if p.Kind == kind {
+		if p.Kind() == kind {
 			pages = append(pages, p)
 		}
 	}
@@ -274,8 +277,8 @@ func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {
 
 func (*PageCollections) findFirstPageByKindIn(kind string, inPages Pages) *Page {
 	for _, p := range inPages {
-		if p.Kind == kind {
-			return p
+		if p.Kind() == kind {
+			return p.(*Page)
 		}
 	}
 	return nil
@@ -284,7 +287,7 @@ func (*PageCollections) findFirstPageByKindIn(kind string, inPages Pages) *Page 
 func (*PageCollections) findPagesByKindNotIn(kind string, inPages Pages) Pages {
 	var pages Pages
 	for _, p := range inPages {
-		if p.Kind != kind {
+		if p.Kind() != kind {
 			pages = append(pages, p)
 		}
 	}
@@ -301,7 +304,7 @@ func (c *PageCollections) addPage(page *Page) {
 
 func (c *PageCollections) removePageFilename(filename string) {
 	if i := c.rawAllPages.findPagePosByFilename(filename); i >= 0 {
-		c.clearResourceCacheForPage(c.rawAllPages[i])
+		c.clearResourceCacheForPage(c.rawAllPages[i].(*Page))
 		c.rawAllPages = append(c.rawAllPages[:i], c.rawAllPages[i+1:]...)
 	}
 
@@ -309,7 +312,7 @@ func (c *PageCollections) removePageFilename(filename string) {
 
 func (c *PageCollections) removePage(page *Page) {
 	if i := c.rawAllPages.findPagePos(page); i >= 0 {
-		c.clearResourceCacheForPage(c.rawAllPages[i])
+		c.clearResourceCacheForPage(c.rawAllPages[i].(*Page))
 		c.rawAllPages = append(c.rawAllPages[:i], c.rawAllPages[i+1:]...)
 	}
 
@@ -319,8 +322,9 @@ func (c *PageCollections) findPagesByShortcode(shortcode string) Pages {
 	var pages Pages
 
 	for _, p := range c.rawAllPages {
-		if p.shortcodeState != nil {
-			if _, ok := p.shortcodeState.nameSet[shortcode]; ok {
+		pp := p.(*Page)
+		if pp.shortcodeState != nil {
+			if _, ok := pp.shortcodeState.nameSet[shortcode]; ok {
 				pages = append(pages, p)
 			}
 		}
@@ -335,7 +339,7 @@ func (c *PageCollections) replacePage(page *Page) {
 }
 
 func (c *PageCollections) clearResourceCacheForPage(page *Page) {
-	if len(page.Resources) > 0 {
+	if len(page.Resources()) > 0 {
 		page.s.ResourceSpec.DeleteCacheByPrefix(page.relTargetPathBase)
 	}
 }

@@ -85,7 +85,7 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 
 	require.Len(t, s.Menus, 2)
 
-	p1 := s.RegularPages[0].Menus()
+	p1 := s.RegularPages[0].(*Page).Menus()
 
 	// There is only one menu in the page, but it is "member of" 2
 	require.Len(t, p1, 1)

@@ -74,7 +74,7 @@ type targetPathDescriptor struct {
 // and URLs for this Page.
 func (p *Page) createTargetPathDescriptor(t output.Format) (targetPathDescriptor, error) {
 	if p.targetPathDescriptorPrototype == nil {
-		panic(fmt.Sprintf("Must run initTargetPathDescriptor() for page %q, kind %q", p.title, p.Kind))
+		panic(fmt.Sprintf("Must run initTargetPathDescriptor() for page %q, kind %q", p.Title(), p.Kind()))
 	}
 	d := *p.targetPathDescriptorPrototype
 	d.Type = t
@@ -84,7 +84,7 @@ func (p *Page) createTargetPathDescriptor(t output.Format) (targetPathDescriptor
 func (p *Page) initTargetPathDescriptor() error {
 	d := &targetPathDescriptor{
 		PathSpec:    p.s.PathSpec,
-		Kind:        p.Kind,
+		Kind:        p.Kind(),
 		Sections:    p.sections,
 		UglyURLs:    p.s.Info.uglyURLs(p),
 		Dir:         filepath.ToSlash(p.Dir()),
@@ -107,7 +107,7 @@ func (p *Page) initTargetPathDescriptor() error {
 	// the permalink configuration values are likely to be redundant, e.g.
 	// naively expanding /category/:slug/ would give /category/categories/ for
 	// the "categories" KindTaxonomyTerm.
-	if p.Kind == KindPage || p.Kind == KindTaxonomy {
+	if p.Kind() == KindPage || p.Kind() == KindTaxonomy {
 		if override, ok := p.Site.Permalinks[p.Section()]; ok {
 			opath, err := override.Expand(p)
 			if err != nil {
@@ -127,7 +127,7 @@ func (p *Page) initTargetPathDescriptor() error {
 
 func (p *Page) initURLs() error {
 	if len(p.outputFormats) == 0 {
-		p.outputFormats = p.s.outputFormats[p.Kind]
+		p.outputFormats = p.s.outputFormats[p.Kind()]
 	}
 	target := filepath.ToSlash(p.createRelativeTargetPath())
 	rel := p.s.PathSpec.URLizeFilename(target)
@@ -278,7 +278,7 @@ func createTargetPath(d targetPathDescriptor) string {
 func (p *Page) createRelativeTargetPath() string {
 
 	if len(p.outputFormats) == 0 {
-		if p.Kind == kindUnknown {
+		if p.Kind() == kindUnknown {
 			panic(fmt.Sprintf("Page %q has unknown kind", p.title))
 		}
 		panic(fmt.Sprintf("Page %q missing output format(s)", p.title))

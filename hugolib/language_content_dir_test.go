@@ -244,8 +244,9 @@ Content.
 	for i, p := range enSite.RegularPages {
 		j := i + 1
 		msg := fmt.Sprintf("Test %d", j)
-		assert.Equal("en", p.Lang(), msg)
-		assert.Equal("sect", p.Section())
+		pp := p.(*Page)
+		assert.Equal("en", pp.Lang(), msg)
+		assert.Equal("sect", pp.Section())
 		if j < 9 {
 			if j%4 == 0 {
 				assert.Contains(p.Title(), fmt.Sprintf("p-sv-%d.en", i+1), msg)
@@ -263,13 +264,13 @@ Content.
 	assert.Equal("/en/sect/mybundle/", bundleEn.RelPermalink())
 	assert.Equal("/sv/sect/mybundle/", bundleSv.RelPermalink())
 
-	assert.Equal(4, len(bundleEn.Resources))
-	assert.Equal(4, len(bundleNn.Resources))
-	assert.Equal(4, len(bundleSv.Resources))
+	assert.Equal(4, len(bundleEn.Resources()))
+	assert.Equal(4, len(bundleNn.Resources()))
+	assert.Equal(4, len(bundleSv.Resources()))
 
-	assert.Equal("/en/sect/mybundle/logo.png", bundleEn.Resources.GetMatch("logo*").RelPermalink())
-	assert.Equal("/nn/sect/mybundle/logo.png", bundleNn.Resources.GetMatch("logo*").RelPermalink())
-	assert.Equal("/sv/sect/mybundle/logo.png", bundleSv.Resources.GetMatch("logo*").RelPermalink())
+	assert.Equal("/en/sect/mybundle/logo.png", bundleEn.Resources().GetMatch("logo*").RelPermalink())
+	assert.Equal("/nn/sect/mybundle/logo.png", bundleNn.Resources().GetMatch("logo*").RelPermalink())
+	assert.Equal("/sv/sect/mybundle/logo.png", bundleSv.Resources().GetMatch("logo*").RelPermalink())
 
 	b.AssertFileContent("/my/project/public/sv/sect/mybundle/featured.png", "PNG Data for sv")
 	b.AssertFileContent("/my/project/public/nn/sect/mybundle/featured.png", "PNG Data for nn")

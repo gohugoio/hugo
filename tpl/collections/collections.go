@@ -329,13 +329,18 @@ func (ns *Namespace) Group(key interface{}, items interface{}) (interface{}, err
 		return nil, errors.New("nil is not a valid key to group by")
 	}
 
+	if g, ok := items.(collections.Grouper); ok {
+		return g.Group(key, items)
+	}
+
+	// TODO(bep) page need below?
 	in := newSliceElement(items)
 
 	if g, ok := in.(collections.Grouper); ok {
 		return g.Group(key, items)
 	}
 
-	return nil, fmt.Errorf("grouping not supported for type %T", items)
+	return nil, fmt.Errorf("grouping not supported for type %T %T", items, in)
 }
 
 // IsSet returns whether a given array, channel, slice, or map has a key

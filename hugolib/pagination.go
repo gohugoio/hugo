@@ -21,6 +21,8 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/gohugoio/hugo/resources/page"
+
 	"github.com/gohugoio/hugo/config"
 
 	"github.com/spf13/cast"
@@ -120,7 +122,7 @@ func (p *Pager) element() paginatedElement {
 }
 
 // page returns the Page with the given index
-func (p *Pager) page(index int) (*Page, error) {
+func (p *Pager) page(index int) (page.Page, error) {
 
 	if pages, ok := p.element().(Pages); ok {
 		if pages != nil && len(pages) > index {
@@ -221,7 +223,7 @@ func splitPageGroups(pageGroups PagesGroup, size int) []paginatedElement {
 
 	type keyPage struct {
 		key  interface{}
-		page *Page
+		page page.Page
 	}
 
 	var (
@@ -270,7 +272,7 @@ func (p *Page) Paginator(options ...interface{}) (*Pager, error) {
 // If it's not, one will be created with all pages in Data["Pages"].
 func (p *PageOutput) Paginator(options ...interface{}) (*Pager, error) {
 	if !p.IsNode() {
-		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind, p.title)
+		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind(), p.Title())
 	}
 	pagerSize, err := resolvePagerSize(p.s.Cfg, options...)
 
@@ -321,7 +323,7 @@ func (p *Page) Paginate(seq interface{}, options ...interface{}) (*Pager, error)
 // Note that repeated calls will return the same result, even if the sequence is different.
 func (p *PageOutput) Paginate(seq interface{}, options ...interface{}) (*Pager, error) {
 	if !p.IsNode() {
-		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind, p.title)
+		return nil, fmt.Errorf("Paginators not supported for pages of type %q (%q)", p.Kind(), p.Title())
 	}
 
 	pagerSize, err := resolvePagerSize(p.s.Cfg, options...)
@@ -458,8 +460,6 @@ func toPages(seq interface{}) (Pages, error) {
 		return v, nil
 	case *Pages:
 		return *(v), nil
-	case []*Page:
-		return Pages(v), nil
 	case WeightedPages:
 		return v.Pages(), nil
 	case PageGroup:

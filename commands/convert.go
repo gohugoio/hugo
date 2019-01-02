@@ -126,7 +126,7 @@ func (cc *convertCmd) convertContents(format metadecoders.Format) error {
 
 	site.Log.FEEDBACK.Println("processing", len(site.AllPages), "content files")
 	for _, p := range site.AllPages {
-		if err := cc.convertAndSavePage(p, site, format); err != nil {
+		if err := cc.convertAndSavePage(p.(*hugolib.Page), site, format); err != nil {
 			return err
 		}
 	}
@@ -135,7 +135,7 @@ func (cc *convertCmd) convertContents(format metadecoders.Format) error {
 
 func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, targetFormat metadecoders.Format) error {
 	// The resources are not in .Site.AllPages.
-	for _, r := range p.Resources.ByType("page") {
+	for _, r := range p.Resources().ByType("page") {
 		if err := cc.convertAndSavePage(r.(*hugolib.Page), site, targetFormat); err != nil {
 			return err
 		}

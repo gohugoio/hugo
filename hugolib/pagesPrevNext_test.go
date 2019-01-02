@@ -59,10 +59,10 @@ func prepareWeightedPagesPrevNext(t *testing.T) WeightedPages {
 		if err != nil {
 			t.Fatalf("failed to prepare test page %s", src.path)
 		}
-		p.Weight = src.weight
-		p.Date = cast.ToTime(src.date)
-		p.PublishDate = cast.ToTime(src.date)
-		w = append(w, WeightedPage{p.Weight, p})
+		p.weight = src.weight
+		p.DDate = cast.ToTime(src.date)
+		p.DPublishDate = cast.ToTime(src.date)
+		w = append(w, WeightedPage{p.weight, p})
 	}
 
 	w.Sort()

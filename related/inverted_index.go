@@ -110,7 +110,7 @@ type Document interface {
 	SearchKeywords(cfg IndexConfig) ([]Keyword, error)
 
 	// When this document was or will be published.
-	PubDate() time.Time
+	PublishDate() time.Time
 }
 
 // InvertedIndex holds an inverted index, also sometimes named posting list, which
@@ -211,7 +211,7 @@ func (r ranks) Len() int      { return len(r) }
 func (r ranks) Swap(i, j int) { r[i], r[j] = r[j], r[i] }
 func (r ranks) Less(i, j int) bool {
 	if r[i].Weight == r[j].Weight {
-		return r[i].Doc.PubDate().After(r[j].Doc.PubDate())
+		return r[i].Doc.PublishDate().After(r[j].Doc.PublishDate())
 	}
 	return r[i].Weight > r[j].Weight
 }
@@ -250,7 +250,7 @@ func (idx *InvertedIndex) SearchDoc(doc Document, indices ...string) ([]Document
 
 	}
 
-	return idx.searchDate(doc.PubDate(), q...)
+	return idx.searchDate(doc.PublishDate(), q...)
 }
 
 // ToKeywords returns a Keyword slice of the given input.
@@ -344,7 +344,7 @@ func (idx *InvertedIndex) searchDate(upperDate time.Time, query ...queryElement)
 				for _, doc := range docs {
 					if applyDateFilter {
 						// Exclude newer than the limit given
-						if doc.PubDate().After(upperDate) {
+						if doc.PublishDate().After(upperDate) {
 							continue
 						}
 					}

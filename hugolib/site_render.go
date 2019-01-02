@@ -49,8 +49,9 @@ func (s *Site) renderPages(cfg *BuildCfg) error {
 	}
 
 	for _, page := range s.Pages {
-		if cfg.shouldRender(page) {
-			pages <- page
+		pagep := page.(*Page)
+		if cfg.shouldRender(pagep) {
+			pages <- pagep
 		}
 	}
 
@@ -70,14 +71,15 @@ func (s *Site) renderPages(cfg *BuildCfg) error {
 func headlessPagesPublisher(s *Site, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for _, page := range s.headlessPages {
-		outFormat := page.outputFormats[0] // There is only one
+		pagep := page.(*Page)
+		outFormat := pagep.outputFormats[0] // There is only one
 		if outFormat.Name != s.rc.Format.Name {
 			// Avoid double work.
 			continue
 		}
-		pageOutput, err := newPageOutput(page, false, false, outFormat)
+		pageOutput, err := newPageOutput(pagep, false, false, outFormat)
 		if err == nil {
-			page.mainPageOutput = pageOutput
+			page.(*Page).mainPageOutput = pageOutput
 			err = pageOutput.renderResources()
 		}
 
@@ -164,7 +166,7 @@ func pageRenderer(s *Site, pages <-chan *Page, results chan<- error, wg *sync.Wa
 					continue
 				}
 
-				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", pageOutput.Kind, targetPath, layouts)
+				s.Log.DEBUG.Printf("Render %s to %q with layouts %q", pageOutput.Kind(), targetPath, layouts)
 
 				if err := s.renderAndWritePage(&s.PathSpec.ProcessingStats.Pages, "page "+pageOutput.FullFilePath(), targetPath, pageOutput, layouts...); err != nil {
 					results <- err
@@ -219,8 +221,8 @@ func (s *Site) renderPaginator(p *PageOutput) error {
 			pagerNode.paginator = pager
 			if pager.TotalPages() > 0 {
 				first, _ := pager.page(0)
-				pagerNode.Date = first.Date
-				pagerNode.Lastmod = first.Lastmod
+				pagerNode.DDate = first.Date()
+				pagerNode.DLastMod = first.Lastmod()
 			}
 
 			pageNumber := i + 1
@@ -337,16 +339,17 @@ func (s *Site) renderSitemap() error {
 
 	// TODO(bep) this should be done somewhere else
 	for _, page := range pages {
-		if page.Sitemap.ChangeFreq == "" {
-			page.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
+		pagep := page.(*Page)
+		if pagep.Sitemap.ChangeFreq == "" {
+			pagep.Sitemap.ChangeFreq = sitemapDefault.ChangeFreq
 		}
 
-		if page.Sitemap.Priority == -1 {
-			page.Sitemap.Priority = sitemapDefault.Priority
+		if pagep.Sitemap.Priority == -1 {
+			pagep.Sitemap.Priority = sitemapDefault.Priority
 		}
 
-		if page.Sitemap.Filename == "" {
-			page.Sitemap.Filename = sitemapDefault.Filename
+		if pagep.Sitemap.Filename == "" {
+			pagep.Sitemap.Filename = sitemapDefault.Filename
 		}
 	}
 
@@ -392,32 +395,34 @@ func (s *Site) renderRobotsTXT() error {
 // renderAliases renders shell pages that simply have a redirect in the header.
 func (s *Site) renderAliases() error {
 	for _, p := range s.Pages {
-		if len(p.Aliases) == 0 {
+		pp := p.(*Page)
+
+		if len(pp.Aliases) == 0 {
 			continue
 		}
 
-		for _, f := range p.outputFormats {
+		for _, f := range pp.outputFormats {
 			if !f.IsHTML {
 				continue
 			}
 
-			o := newOutputFormat(p, f)
+			o := newOutputFormat(pp, f)
 			plink := o.Permalink()
 
-			for _, a := range p.Aliases {
+			for _, a := range pp.Aliases {
 				if f.Path != "" {
 					// Make sure AMP and similar doesn't clash with regular aliases.
 					a = path.Join(a, f.Path)
 				}
 
-				lang := p.Lang()
+				lang := pp.Lang()
 
 				if s.owner.multihost && !strings.HasPrefix(a, "/"+lang) {
 					// These need to be in its language root.
 					a = path.Join(lang, a)
 				}
 
-				if err := s.writeDestAlias(a, plink, f, p); err != nil {
+				if err := s.writeDestAlias(a, plink, f, pp); err != nil {
 					return err
 				}
 			}

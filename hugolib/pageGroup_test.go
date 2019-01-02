@@ -45,10 +45,10 @@ func preparePageGroupTestPages(t *testing.T) Pages {
 		if err != nil {
 			t.Fatalf("failed to prepare test page %s", src.path)
 		}
-		p.Weight = src.weight
-		p.Date = cast.ToTime(src.date)
-		p.PublishDate = cast.ToTime(src.date)
-		p.ExpiryDate = cast.ToTime(src.date)
+		p.weight = src.weight
+		p.DDate = cast.ToTime(src.date)
+		p.DPublishDate = cast.ToTime(src.date)
+		p.DExpiryDate = cast.ToTime(src.date)
 		p.params["custom_param"] = src.param
 		p.params["custom_date"] = cast.ToTime(src.date)
 		pages = append(pages, p)
@@ -268,9 +268,9 @@ func TestGroupByParamCalledWithCapitalLetterString(t *testing.T) {
 func TestGroupByParamCalledWithSomeUnavailableParams(t *testing.T) {
 	t.Parallel()
 	pages := preparePageGroupTestPages(t)
-	delete(pages[1].params, "custom_param")
-	delete(pages[3].params, "custom_param")
-	delete(pages[4].params, "custom_param")
+	delete(pages[1].(*Page).params, "custom_param")
+	delete(pages[3].(*Page).params, "custom_param")
+	delete(pages[4].(*Page).params, "custom_param")
 
 	expect := PagesGroup{
 		{Key: "foo", Pages: Pages{pages[0], pages[2]}},

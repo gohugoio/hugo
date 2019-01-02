@@ -35,6 +35,7 @@ import (
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugolib/pagemeta"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/output"
@@ -107,14 +108,14 @@ type Page struct {
 	*pageInit
 	*pageContentInit
 
-	// Kind is the discriminator that identifies the different page types
+	// kind is the discriminator that identifies the different page types
 	// in the different page collections. This can, as an example, be used
 	// to to filter regular pages, find sections etc.
 	// Kind will, for the pages available to the templates, be one of:
 	// page, home, section, taxonomy and taxonomyTerm.
 	// It is of string type to make it easy to reason about in
 	// the templates.
-	Kind string
+	kind string
 
 	// Since Hugo 0.18 we got rid of the Node type. So now all pages are ...
 	// pages (regular pages, home page, sections etc.).
@@ -127,7 +128,7 @@ type Page struct {
 	// with itself. The resource will typically be placed relative to the Page,
 	// but templates should use the links (Permalink and RelPermalink)
 	// provided by the Resource object.
-	Resources resource.Resources
+	resources resource.Resources
 
 	// This is the raw front matter metadata that is going to be assigned to
 	// the Resources above.
@@ -287,8 +288,16 @@ func stackTrace(length int) string {
 	return string(trace)
 }
 
+func (p *Page) Kind() string {
+	return p.kind
+}
+
 func (p *Page) Data() interface{} {
 	return p.data
+}
+
+func (p *Page) Resources() resource.Resources {
+	return p.resources
 }
 
 func (p *Page) initContent() {
@@ -357,6 +366,10 @@ func (p *Page) Truncated() bool {
 	return p.truncated
 }
 
+func (p *Page) Len() int {
+	return len(p.content())
+}
+
 func (p *Page) content() template.HTML {
 	p.initContent()
 	return p.contentv
@@ -383,17 +396,6 @@ func (p *Page) SearchKeywords(cfg related.IndexConfig) ([]related.Keyword, error
 	return cfg.ToKeywords(v)
 }
 
-// PubDate is when this page was or will be published.
-// NOTE: This is currently used for search only and is not meant to be used
-// directly in templates. We need to consolidate the dates in this struct.
-// TODO(bep) see https://github.com/gohugoio/hugo/issues/3854
-func (p *Page) PubDate() time.Time {
-	if !p.PublishDate.IsZero() {
-		return p.PublishDate
-	}
-	return p.Date
-}
-
 func (*Page) ResourceType() string {
 	return pageResourceType
 }
@@ -409,7 +411,7 @@ func (p *Page) RSSLink() template.URL {
 func (p *Page) createLayoutDescriptor() output.LayoutDescriptor {
 	var section string
 
-	switch p.Kind {
+	switch p.Kind() {
 	case KindSection:
 		// In Hugo 0.22 we introduce nested sections, but we still only
 		// use the first level to pick the correct template. This may change in
@@ -421,7 +423,7 @@ func (p *Page) createLayoutDescriptor() output.LayoutDescriptor {
 	}
 
 	return output.LayoutDescriptor{
-		Kind:    p.Kind,
+		Kind:    p.Kind(),
 		Type:    p.Type(),
 		Lang:    p.Lang(),
 		Layout:  p.Layout,
@@ -453,22 +455,22 @@ func (p *Page) resetContent() {
 // IsNode returns whether this is an item of one of the list types in Hugo,
 // i.e. not a regular content page.
 func (p *Page) IsNode() bool {
-	return p.Kind != KindPage
+	return p.Kind() != KindPage
 }
 
 // IsHome returns whether this is the home page.
 func (p *Page) IsHome() bool {
-	return p.Kind == KindHome
+	return p.Kind() == KindHome
 }
 
 // IsSection returns whether this is a section page.
 func (p *Page) IsSection() bool {
-	return p.Kind == KindSection
+	return p.Kind() == KindSection
 }
 
 // IsPage returns whether this is a regular content page.
 func (p *Page) IsPage() bool {
-	return p.Kind == KindPage
+	return p.Kind() == KindPage
 }
 
 // BundleType returns the bundle type: "leaf", "branch" or an empty string if it is none.
@@ -499,17 +501,22 @@ type PageMeta struct {
 	wordCount      int
 	fuzzyWordCount int
 	readingTime    int
-	Weight         int
+	weight         int
+}
+
+func (p PageMeta) Weight() int {
+	return p.weight
 }
 
 type Position struct {
-	PrevPage      *Page
-	NextPage      *Page
-	PrevInSection *Page
-	NextInSection *Page
+	PrevPage      page.Page
+	NextPage      page.Page
+	PrevInSection page.Page
+	NextInSection page.Page
 }
 
-type Pages []*Page
+// TODO(bep) page move
+type Pages []page.Page
 
 func (ps Pages) String() string {
 	return fmt.Sprintf("Pages(%d)", len(ps))
@@ -525,7 +532,7 @@ func (ps Pages) shuffle() {
 
 func (ps Pages) findPagePosByFilename(filename string) int {
 	for i, x := range ps {
-		if x.Filename() == filename {
+		if x.(*Page).Filename() == filename {
 			return i
 		}
 	}
@@ -558,8 +565,8 @@ func (ps Pages) findPagePosByFilnamePrefix(prefix string) int {
 
 	// Find the closest match
 	for i, x := range ps {
-		if strings.HasPrefix(x.Filename(), prefix) {
-			diff := len(x.Filename()) - prefixLen
+		if strings.HasPrefix(x.(*Page).Filename(), prefix) {
+			diff := len(x.(*Page).Filename()) - prefixLen
 			if lenDiff == -1 || diff < lenDiff {
 				lenDiff = diff
 				currPos = i
@@ -573,7 +580,7 @@ func (ps Pages) findPagePosByFilnamePrefix(prefix string) int {
 // will return -1 if not found
 func (ps Pages) findPagePos(page *Page) int {
 	for i, x := range ps {
-		if x.Filename() == page.Filename() {
+		if x.(*Page).Filename() == page.Filename() {
 			return i
 		}
 	}
@@ -873,7 +880,7 @@ func (s *Site) newPageFromFile(fi *fileInfo) *Page {
 	return &Page{
 		pageInit:        &pageInit{},
 		pageContentInit: &pageContentInit{},
-		Kind:            kindFromFileInfo(fi),
+		kind:            kindFromFileInfo(fi),
 		contentType:     "",
 		File:            fi,
 		Keywords:        []string{}, Sitemap: Sitemap{Priority: -1},
@@ -905,7 +912,7 @@ func (p *Page) Type() string {
 // since Hugo 0.22 we support nested sections, but this will always be the first
 // element of any nested path.
 func (p *Page) Section() string {
-	if p.Kind == KindSection || p.Kind == KindTaxonomy || p.Kind == KindTaxonomyTerm {
+	if p.Kind() == KindSection || p.Kind() == KindTaxonomy || p.Kind() == KindTaxonomyTerm {
 		return p.sections[0]
 	}
 	return p.File.Section()
@@ -1033,7 +1040,7 @@ func (p *Page) IsTranslated() bool {
 func (p *Page) Translations() Pages {
 	translations := make(Pages, 0)
 	for _, t := range p.translations {
-		if t.Lang() != p.Lang() {
+		if t.(*Page).Lang() != p.Lang() {
 			translations = append(translations, t)
 		}
 	}
@@ -1046,14 +1053,14 @@ func (p *Page) Translations() Pages {
 // The Page Kind is always prepended.
 func (p *Page) TranslationKey() string {
 	if p.translationKey != "" {
-		return p.Kind + "/" + p.translationKey
+		return p.Kind() + "/" + p.translationKey
 	}
 
 	if p.IsNode() {
-		return path.Join(p.Kind, path.Join(p.sections...), p.TranslationBaseName())
+		return path.Join(p.Kind(), path.Join(p.sections...), p.TranslationBaseName())
 	}
 
-	return path.Join(p.Kind, filepath.ToSlash(p.Dir()), p.TranslationBaseName())
+	return path.Join(p.Kind(), filepath.ToSlash(p.Dir()), p.TranslationBaseName())
 }
 
 func (p *Page) LinkTitle() string {
@@ -1065,7 +1072,7 @@ func (p *Page) LinkTitle() string {
 
 func (p *Page) shouldBuild() bool {
 	return shouldBuild(p.s.BuildFuture, p.s.BuildExpired,
-		p.s.BuildDrafts, p.Draft, p.PublishDate, p.ExpiryDate)
+		p.s.BuildDrafts, p.Draft, p.PublishDate(), p.ExpiryDate())
 }
 
 func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bool,
@@ -1084,20 +1091,6 @@ func shouldBuild(buildFuture bool, buildExpired bool, buildDrafts bool, Draft bo
 
 func (p *Page) IsDraft() bool {
 	return p.Draft
-}
-
-func (p *Page) IsFuture() bool {
-	if p.PublishDate.IsZero() {
-		return false
-	}
-	return p.PublishDate.After(time.Now())
-}
-
-func (p *Page) IsExpired() bool {
-	if p.ExpiryDate.IsZero() {
-		return false
-	}
-	return p.ExpiryDate.Before(time.Now())
 }
 
 func (p *Page) URL() string {
@@ -1187,7 +1180,7 @@ func (p *Page) setContentInit(start bool) error {
 		p.resetContent()
 	}
 
-	for _, r := range p.Resources.ByType(pageResourceType) {
+	for _, r := range p.Resources().ByType(pageResourceType) {
 		p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Pages)
 		bp := r.(*Page)
 		if start {
@@ -1364,8 +1357,8 @@ func (p *Page) updateMetaData(frontmatter map[string]interface{}) error {
 			p.Markup = cast.ToString(v)
 			p.params[loki] = p.Markup
 		case "weight":
-			p.Weight = cast.ToInt(v)
-			p.params[loki] = p.Weight
+			p.weight = cast.ToInt(v)
+			p.params[loki] = p.weight
 		case "aliases":
 			p.Aliases = cast.ToStringSlice(v)
 			for _, alias := range p.Aliases {
@@ -1655,7 +1648,7 @@ func (p *Page) Menus() PageMenus {
 		if ok {
 			link := p.RelPermalink()
 
-			me := MenuEntry{Page: p, Name: p.LinkTitle(), Weight: p.Weight, URL: link}
+			me := MenuEntry{Page: p, Name: p.LinkTitle(), Weight: p.weight, URL: link}
 
 			// Could be the name of the menu to attach it to
 			mname, err := cast.ToStringE(ms)
@@ -1685,7 +1678,7 @@ func (p *Page) Menus() PageMenus {
 			}
 
 			for name, menu := range menus {
-				menuEntry := MenuEntry{Page: p, Name: p.LinkTitle(), URL: link, Weight: p.Weight, Menu: name}
+				menuEntry := MenuEntry{Page: p, Name: p.LinkTitle(), URL: link, Weight: p.weight, Menu: name}
 				if menu != nil {
 					p.s.Log.DEBUG.Printf("found menu: %q, in %q\n", name, p.title)
 					ime, err := cast.ToStringMapE(menu)
@@ -1750,7 +1743,7 @@ func (p *Page) absoluteSourceRef() string {
 
 func (p *Page) prepareLayouts() error {
 	// TODO(bep): Check the IsRenderable logic.
-	if p.Kind == KindPage {
+	if p.Kind() == KindPage {
 		if !p.IsRenderable() {
 			self := "__" + p.UniqueID()
 			err := p.s.TemplateHandler().AddLateTemplate(self, string(p.content()))
@@ -1765,11 +1758,11 @@ func (p *Page) prepareLayouts() error {
 }
 
 func (p *Page) prepareData(s *Site) error {
-	if p.Kind != KindSection {
+	if p.Kind() != KindSection {
 		var pages Pages
 		p.data = make(map[string]interface{})
 
-		switch p.Kind {
+		switch p.Kind() {
 		case KindPage:
 		case KindHome:
 			pages = s.RegularPages
@@ -1804,7 +1797,7 @@ func (p *Page) prepareData(s *Site) error {
 
 			// A list of all KindTaxonomy pages with matching plural
 			for _, p := range s.findPagesByKind(KindTaxonomy) {
-				if p.sections[0] == plural {
+				if p.(*Page).sections[0] == plural {
 					pages = append(pages, p)
 				}
 			}
@@ -1828,35 +1821,39 @@ func (p *Page) updatePageDates() {
 		return
 	}
 
-	if !p.Date.IsZero() {
-		if p.Lastmod.IsZero() {
-			p.Lastmod = p.Date
-		}
-		return
-	} else if !p.Lastmod.IsZero() {
-		if p.Date.IsZero() {
-			p.Date = p.Lastmod
-		}
-		return
-	}
+	// TODO(bep) page
 
-	// Set it to the first non Zero date in children
-	var foundDate, foundLastMod bool
-
-	for _, child := range p.Pages {
-		if !child.Date.IsZero() {
-			p.Date = child.Date
-			foundDate = true
-		}
-		if !child.Lastmod.IsZero() {
-			p.Lastmod = child.Lastmod
-			foundLastMod = true
+	/*
+		if !p.Date.IsZero() {
+			if p.Lastmod.IsZero() {
+				p.Lastmod = p.Date
+			}
+			return
+		} else if !p.Lastmod().IsZero() {
+			if p.Date().IsZero() {
+				p.Date = p.Lastmod
+			}
+			return
 		}
 
-		if foundDate && foundLastMod {
-			break
-		}
-	}
+		// Set it to the first non Zero date in children
+		var foundDate, foundLastMod bool
+
+		for _, child := range p.Pages {
+			childp := child.(*Page)
+			if !childp.Date.IsZero() {
+				p.Date = childp.Date
+				foundDate = true
+			}
+			if !childp.Lastmod.IsZero() {
+				p.Lastmod = childp.Lastmod
+				foundLastMod = true
+			}
+
+			if foundDate && foundLastMod {
+				break
+			}
+		}*/
 }
 
 // copy creates a copy of this page with the lazy sync.Once vars reset
@@ -1920,11 +1917,11 @@ func (p *Page) Lang() string {
 
 func (p *Page) isNewTranslation(candidate *Page) bool {
 
-	if p.Kind != candidate.Kind {
+	if p.Kind() != candidate.Kind() {
 		return false
 	}
 
-	if p.Kind == KindPage || p.Kind == kindUnknown {
+	if p.Kind() == KindPage || p.Kind() == kindUnknown {
 		panic("Node type not currently supported for this op")
 	}
 
@@ -2080,7 +2077,7 @@ func (p *Page) kindFromSections() string {
 }
 
 func (p *Page) setValuesForKind(s *Site) {
-	if p.Kind == kindUnknown {
+	if p.Kind() == kindUnknown {
 		// This is either a taxonomy list, taxonomy term or a section
 		nodeType := p.kindFromSections()
 
@@ -2088,10 +2085,10 @@ func (p *Page) setValuesForKind(s *Site) {
 			panic(fmt.Sprintf("Unable to determine page kind from %q", p.sections))
 		}
 
-		p.Kind = nodeType
+		p.kind = nodeType
 	}
 
-	switch p.Kind {
+	switch p.Kind() {
 	case KindHome:
 		p.URLPath.URL = "/"
 	case KindPage:
@@ -2110,13 +2107,13 @@ func (p *Page) pathOrTitle() string {
 	return p.title
 }
 
-func (p *Page) Next() *Page {
+func (p *Page) Next() page.Page {
 	// TODO Remove the deprecation notice (but keep PrevPage as an alias) Hugo 0.52
 	helpers.Deprecated("Page", ".Next", "Use .PrevPage (yes, not .NextPage).", false)
 	return p.PrevPage
 }
 
-func (p *Page) Prev() *Page {
+func (p *Page) Prev() page.Page {
 	// TODO Remove the deprecation notice (but keep NextPage as an alias) Hugo 0.52
 	helpers.Deprecated("Page", ".Prev", "Use .NextPage (yes, not .PrevPage).", false)
 	return p.NextPage

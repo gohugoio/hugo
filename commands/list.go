@@ -17,6 +17,7 @@ import (
 	"path/filepath"
 
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/cobra"
 	jww "github.com/spf13/jwalterweatherman"
 )
@@ -66,8 +67,9 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 				}
 
 				for _, p := range sites.Pages() {
-					if p.IsDraft() {
-						jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+					pp := p.(*hugolib.Page)
+					if pp.IsDraft() {
+						jww.FEEDBACK.Println(filepath.Join(pp.File.Dir(), pp.File.LogicalName()))
 					}
 
 				}
@@ -102,8 +104,9 @@ posted in the future.`,
 				}
 
 				for _, p := range sites.Pages() {
-					if p.IsFuture() {
-						jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+					if resource.IsFuture(p) {
+						pp := p.(*hugolib.Page)
+						jww.FEEDBACK.Println(filepath.Join(pp.File.Dir(), pp.File.LogicalName()))
 					}
 
 				}
@@ -138,8 +141,9 @@ expired.`,
 				}
 
 				for _, p := range sites.Pages() {
-					if p.IsExpired() {
-						jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+					if resource.IsExpired(p) {
+						pp := p.(*hugolib.Page)
+						jww.FEEDBACK.Println(filepath.Join(pp.File.Dir(), pp.File.LogicalName()))
 					}
 
 				}

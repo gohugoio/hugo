@@ -102,3 +102,11 @@ func (pages Pages) ToResources() resource.Resources {
 	}
 	return r
 }
+
+func (p Pages) Group(key interface{}, in interface{}) (interface{}, error) {
+	pages, err := toPages(in)
+	if err != nil {
+		return nil, err
+	}
+	return PageGroup{Key: key, Pages: pages}, nil
+}

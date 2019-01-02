@@ -16,6 +16,8 @@ package hugolib
 import (
 	"fmt"
 	"sort"
+
+	"github.com/gohugoio/hugo/resources/page"
 )
 
 // The TaxonomyList is a list of all taxonomies and their values
@@ -39,11 +41,11 @@ type WeightedPages []WeightedPage
 // A WeightedPage is a Page with a weight.
 type WeightedPage struct {
 	Weight int
-	*Page
+	page.Page
 }
 
 func (w WeightedPage) String() string {
-	return fmt.Sprintf("WeightedPage(%d,%q)", w.Weight, w.Page.title)
+	return fmt.Sprintf("WeightedPage(%d,%q)", w.Weight, w.Page.Title())
 }
 
 // OrderedTaxonomy is another representation of an Taxonomy using an array rather than a map.
@@ -176,9 +178,9 @@ func (wp WeightedPages) Pages() Pages {
 
 // Prev returns the previous Page relative to the given Page in
 // this weighted page set.
-func (wp WeightedPages) Prev(cur *Page) *Page {
+func (wp WeightedPages) Prev(cur page.Page) page.Page {
 	for x, c := range wp {
-		if c.Page.UniqueID() == cur.UniqueID() {
+		if c.Page == cur {
 			if x == 0 {
 				return wp[len(wp)-1].Page
 			}
@@ -190,9 +192,9 @@ func (wp WeightedPages) Prev(cur *Page) *Page {
 
 // Next returns the next Page relative to the given Page in
 // this weighted page set.
-func (wp WeightedPages) Next(cur *Page) *Page {
+func (wp WeightedPages) Next(cur page.Page) page.Page {
 	for x, c := range wp {
-		if c.Page.UniqueID() == cur.UniqueID() {
+		if c.Page == cur {
 			if x < len(wp)-1 {
 				return wp[x+1].Page
 			}
@@ -213,10 +215,10 @@ func (wp WeightedPages) Count() int { return len(wp) }
 
 func (wp WeightedPages) Less(i, j int) bool {
 	if wp[i].Weight == wp[j].Weight {
-		if wp[i].Page.Date.Equal(wp[j].Page.Date) {
-			return wp[i].Page.title < wp[j].Page.title
+		if wp[i].Page.Date().Equal(wp[j].Page.Date()) {
+			return wp[i].Page.Title() < wp[j].Page.Title()
 		}
-		return wp[i].Page.Date.After(wp[i].Page.Date)
+		return wp[i].Page.Date().After(wp[i].Page.Date())
 	}
 	return wp[i].Weight < wp[j].Weight
 }

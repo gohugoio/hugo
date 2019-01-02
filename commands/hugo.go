@@ -977,7 +977,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 
 				if navigate {
 					if onePageName != "" {
-						p = c.hugo.GetContentPage(onePageName)
+						p = c.hugo.GetContentPage(onePageName).(*hugolib.Page)
 					}
 				}
 

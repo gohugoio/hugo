@@ -59,7 +59,7 @@ func TestSplitPageGroups(t *testing.T) {
 			// first group 10 in weight
 			require.Equal(t, 10, pg.Key)
 			for _, p := range pg.Pages {
-				require.True(t, p.fuzzyWordCount%2 == 0) // magic test
+				require.True(t, p.(*Page).fuzzyWordCount%2 == 0) // magic test
 			}
 		}
 	} else {
@@ -74,7 +74,7 @@ func TestSplitPageGroups(t *testing.T) {
 			// last should have 5 in weight
 			require.Equal(t, 5, pg.Key)
 			for _, p := range pg.Pages {
-				require.True(t, p.fuzzyWordCount%2 != 0) // magic test
+				require.True(t, p.(*Page).fuzzyWordCount%2 != 0) // magic test
 			}
 		}
 	} else {
@@ -553,10 +553,10 @@ func TestPage(t *testing.T) {
 	page21, _ := f2.page(1)
 	page2Nil, _ := f2.page(3)
 
-	require.Equal(t, 3, page11.fuzzyWordCount)
+	require.Equal(t, 3, page11.(*Page).fuzzyWordCount)
 	require.Nil(t, page1Nil)
 
-	require.Equal(t, 3, page21.fuzzyWordCount)
+	require.Equal(t, 3, page21.(*Page).fuzzyWordCount)
 	require.Nil(t, page2Nil)
 }
 
@@ -570,7 +570,7 @@ func createTestPages(s *Site, num int) Pages {
 			w = 10
 		}
 		p.fuzzyWordCount = i + 2
-		p.Weight = w
+		p.weight = w
 		pages[i] = p
 
 	}

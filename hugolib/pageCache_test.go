@@ -27,7 +27,7 @@ func TestPageCache(t *testing.T) {
 	c1 := newPageCache()
 
 	changeFirst := func(p Pages) {
-		p[0].Description = "changed"
+		p[0].(*Page).Description = "changed"
 	}
 
 	var o1 uint64
@@ -66,7 +66,7 @@ func TestPageCache(t *testing.T) {
 				assert.Equal(t, !atomic.CompareAndSwapUint64(&o2, uint64(k), uint64(k+1)), c3)
 				l2.Unlock()
 				assert.NotNil(t, p3)
-				assert.Equal(t, p3[0].Description, "changed")
+				assert.Equal(t, p3[0].(*Page).Description, "changed")
 			}
 		}()
 	}

@@ -131,19 +131,19 @@ func pageToPermalinkDate(p *Page, dateField string) (string, error) {
 	// a Page contains a Node which provides a field Date, time.Time
 	switch dateField {
 	case "year":
-		return strconv.Itoa(p.Date.Year()), nil
+		return strconv.Itoa(p.Date().Year()), nil
 	case "month":
-		return fmt.Sprintf("%02d", int(p.Date.Month())), nil
+		return fmt.Sprintf("%02d", int(p.Date().Month())), nil
 	case "monthname":
-		return p.Date.Month().String(), nil
+		return p.Date().Month().String(), nil
 	case "day":
-		return fmt.Sprintf("%02d", p.Date.Day()), nil
+		return fmt.Sprintf("%02d", p.Date().Day()), nil
 	case "weekday":
-		return strconv.Itoa(int(p.Date.Weekday())), nil
+		return strconv.Itoa(int(p.Date().Weekday())), nil
 	case "weekdayname":
-		return p.Date.Weekday().String(), nil
+		return p.Date().Weekday().String(), nil
 	case "yearday":
-		return strconv.Itoa(p.Date.YearDay()), nil
+		return strconv.Itoa(p.Date().YearDay()), nil
 	}
 	//TODO: support classic strftime escapes too
 	// (and pass those through despite not being in the map)

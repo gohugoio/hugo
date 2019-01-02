@@ -24,9 +24,26 @@ type URLPath struct {
 	Section   string
 }
 
+// TODO(bep) page
 type PageDates struct {
-	Date        time.Time
-	Lastmod     time.Time
-	PublishDate time.Time
-	ExpiryDate  time.Time
+	DDate        time.Time
+	DLastMod     time.Time
+	DPublishDate time.Time
+	DExpiryDate  time.Time
+}
+
+func (p PageDates) Date() time.Time {
+	return p.DDate
+}
+
+func (p PageDates) Lastmod() time.Time {
+	return p.DLastMod
+}
+
+func (p PageDates) PublishDate() time.Time {
+	return p.DPublishDate
+}
+
+func (p PageDates) ExpiryDate() time.Time {
+	return p.DExpiryDate
 }

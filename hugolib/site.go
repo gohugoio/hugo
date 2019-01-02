@@ -174,7 +174,8 @@ func (s *Site) initRenderFormats() {
 	formatSet := make(map[string]bool)
 	formats := output.Formats{}
 	for _, p := range s.Pages {
-		for _, f := range p.outputFormats {
+		pp := p.(*Page)
+		for _, f := range pp.outputFormats {
 			if !formatSet[f.Name] {
 				formats = append(formats, f)
 				formatSet[f.Name] = true
@@ -860,7 +861,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 		// pages that keeps a reference to the changed shortcode.
 		pagesWithShortcode := h.findPagesByShortcode(shortcode)
 		for _, p := range pagesWithShortcode {
-			contentFilesChanged = append(contentFilesChanged, p.File.Filename())
+			contentFilesChanged = append(contentFilesChanged, p.(*Page).File.Filename())
 		}
 	}
 
@@ -1047,12 +1048,13 @@ func (s *Site) setupSitePages() {
 	var siteLastChange time.Time
 
 	for i, page := range s.RegularPages {
+		pagep := page.(*Page)
 		if i > 0 {
-			page.NextPage = s.RegularPages[i-1]
+			pagep.NextPage = s.RegularPages[i-1]
 		}
 
 		if i < len(s.RegularPages)-1 {
-			page.PrevPage = s.RegularPages[i+1]
+			pagep.PrevPage = s.RegularPages[i+1]
 		}
 
 		// Determine Site.Info.LastChange
@@ -1060,8 +1062,8 @@ func (s *Site) setupSitePages() {
 		// is already applied, so this is *the* date to use.
 		// We cannot just pick the last page in the default sort, because
 		// that may not be ordered by date.
-		if page.Lastmod.After(siteLastChange) {
-			siteLastChange = page.Lastmod
+		if pagep.Lastmod().After(siteLastChange) {
+			siteLastChange = pagep.Lastmod()
 		}
 	}
 
@@ -1360,7 +1362,7 @@ func (s *Site) buildSiteMeta() (err error) {
 
 	for _, p := range s.AllPages {
 		// this depends on taxonomies
-		p.setValuesForKind(s)
+		p.(*Page).setValuesForKind(s)
 	}
 
 	return
@@ -1438,18 +1440,18 @@ func (s *Site) assembleMenus() {
 
 	if sectionPagesMenu != "" {
 		for _, p := range pages {
-			if p.Kind == KindSection {
+			if p.Kind() == KindSection {
 				// From Hugo 0.22 we have nested sections, but until we get a
 				// feel of how that would work in this setting, let us keep
 				// this menu for the top level only.
-				id := p.Section()
+				id := p.(*Page).Section()
 				if _, ok := flat[twoD{sectionPagesMenu, id}]; ok {
 					continue
 				}
 
 				me := MenuEntry{Identifier: id,
 					Name:   p.LinkTitle(),
-					Weight: p.Weight,
+					Weight: p.Weight(),
 					URL:    p.RelPermalink()}
 				flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
 			}
@@ -1458,9 +1460,10 @@ func (s *Site) assembleMenus() {
 
 	// Add menu entries provided by pages
 	for _, p := range pages {
-		for name, me := range p.Menus() {
+		pp := p.(*Page)
+		for name, me := range pp.Menus() {
 			if _, ok := flat[twoD{name, me.KeyName()}]; ok {
-				s.SendError(p.errWithFileContext(errors.Errorf("duplicate menu entry with identifier %q in menu %q", me.KeyName(), name)))
+				s.SendError(p.(*Page).errWithFileContext(errors.Errorf("duplicate menu entry with identifier %q in menu %q", me.KeyName(), name)))
 				continue
 			}
 			flat[twoD{name, me.KeyName()}] = me
@@ -1526,12 +1529,13 @@ func (s *Site) assembleTaxonomies() {
 		s.taxonomiesPluralSingular[plural] = singular
 
 		for _, p := range s.Pages {
-			vals := p.getParam(plural, !s.Info.preserveTaxonomyNames)
+			pp := p.(*Page)
+			vals := pp.getParam(plural, !s.Info.preserveTaxonomyNames)
 
-			w := p.getParamToLower(plural + "_weight")
+			w := pp.getParamToLower(plural + "_weight")
 			weight, err := cast.ToIntE(w)
 			if err != nil {
-				s.Log.ERROR.Printf("Unable to convert taxonomy weight %#v to int for %s", w, p.File.Path())
+				s.Log.ERROR.Printf("Unable to convert taxonomy weight %#v to int for %s", w, pp.File.Path())
 				// weight will equal zero, so let the flow continue
 			}
 
@@ -1553,7 +1557,7 @@ func (s *Site) assembleTaxonomies() {
 						s.taxonomiesOrigKey[fmt.Sprintf("%s-%s", plural, s.PathSpec.MakePathSanitized(v))] = v
 					}
 				} else {
-					s.Log.ERROR.Printf("Invalid %s in %s\n", plural, p.File.Path())
+					s.Log.ERROR.Printf("Invalid %s in %s\n", plural, pp.File.Path())
 				}
 			}
 		}
@@ -1579,10 +1583,11 @@ func (s *Site) resetBuildState() {
 	s.expiredCount = 0
 
 	for _, p := range s.rawAllPages {
-		p.subSections = Pages{}
-		p.parent = nil
-		p.scratch = maps.NewScratch()
-		p.mainPageOutput = nil
+		pp := p.(*Page)
+		pp.subSections = Pages{}
+		pp.parent = nil
+		pp.scratch = maps.NewScratch()
+		pp.mainPageOutput = nil
 	}
 }
 
@@ -1594,10 +1599,11 @@ func (s *Site) preparePages() error {
 	var errors []error
 
 	for _, p := range s.Pages {
-		if err := p.prepareLayouts(); err != nil {
+		pp := p.(*Page)
+		if err := pp.prepareLayouts(); err != nil {
 			errors = append(errors, err)
 		}
-		if err := p.prepareData(s); err != nil {
+		if err := pp.prepareData(s); err != nil {
 			errors = append(errors, err)
 		}
 	}
@@ -1688,7 +1694,7 @@ func (s *Site) renderAndWritePage(statCounter *uint64, name string, targetPath s
 	renderBuffer := bp.GetBuffer()
 	defer bp.PutBuffer(renderBuffer)
 
-	if err := s.renderForLayouts(p.Kind, p, renderBuffer, layouts...); err != nil {
+	if err := s.renderForLayouts(p.Kind(), p, renderBuffer, layouts...); err != nil {
 
 		return err
 	}
@@ -1809,14 +1815,14 @@ func (s *Site) newNodePage(typ string, sections ...string) *Page {
 		language:        s.Language,
 		pageInit:        &pageInit{},
 		pageContentInit: &pageContentInit{},
-		Kind:            typ,
+		kind:            typ,
 		File:            &source.FileInfo{},
 		data:            make(map[string]interface{}),
 		Site:            &s.Info,
 		sections:        sections,
 		s:               s}
 
-	p.outputFormats = p.s.outputFormats[p.Kind]
+	p.outputFormats = p.s.outputFormats[p.Kind()]
 
 	return p
 

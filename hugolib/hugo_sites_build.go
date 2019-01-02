@@ -237,19 +237,20 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 		for _, pages := range []Pages{s.Pages, s.headlessPages} {
 			for _, p := range pages {
 				// May have been set in front matter
-				if len(p.outputFormats) == 0 {
-					p.outputFormats = s.outputFormats[p.Kind]
+				pp := p.(*Page)
+				if len(pp.outputFormats) == 0 {
+					pp.outputFormats = s.outputFormats[p.Kind()]
 				}
 
-				if p.headless {
+				if pp.headless {
 					// headless = 1 output format only
-					p.outputFormats = p.outputFormats[:1]
+					pp.outputFormats = pp.outputFormats[:1]
 				}
-				for _, r := range p.Resources.ByType(pageResourceType) {
-					r.(*Page).outputFormats = p.outputFormats
+				for _, r := range p.Resources().ByType(pageResourceType) {
+					r.(*Page).outputFormats = pp.outputFormats
 				}
 
-				if err := p.initPaths(); err != nil {
+				if err := p.(*Page).initPaths(); err != nil {
 					return err
 				}
 

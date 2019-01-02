@@ -520,8 +520,8 @@ func checkPageType(t *testing.T, page *Page, pageType string) {
 }
 
 func checkPageDate(t *testing.T, page *Page, time time.Time) {
-	if page.Date != time {
-		t.Fatalf("Page date is: %s.  Expected: %s", page.Date, time)
+	if page.Date() != time {
+		t.Fatalf("Page date is: %s.  Expected: %s", page.Date(), time)
 	}
 }
 
@@ -624,7 +624,7 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 func TestCreateNewPage(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 
 		// issue #2290: Path is relative to the content dir and will continue to be so.
 		require.Equal(t, filepath.FromSlash(fmt.Sprintf("p0.%s", ext)), p.Path())
@@ -646,7 +646,7 @@ func TestCreateNewPage(t *testing.T) {
 func TestPageWithDelimiter(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>\n\n<p>Some more text</p>\n"), ext)
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Next Line</p>"), ext)
@@ -668,7 +668,7 @@ func TestPageWithDelimiterForMarkdownThatCrossesBorder(t *testing.T) {
 
 	require.Len(t, s.RegularPages, 1)
 
-	p := s.RegularPages[0]
+	p := s.RegularPages[0].(*Page)
 
 	if p.Summary() != template.HTML(
 		"<p>The <a href=\"http://gohugo.io/\">best static site generator</a>.<sup class=\"footnote-ref\" id=\"fnref:1\"><a href=\"#fn:1\">1</a></sup></p>") {
@@ -694,7 +694,7 @@ weight: %d
 Simple Page With Some Date`
 
 	hasDate := func(p *Page) bool {
-		return p.Date.Year() == 2017
+		return p.Date().Year() == 2017
 	}
 
 	datePage := func(field string, weight int) string {
@@ -705,7 +705,7 @@ Simple Page With Some Date`
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
 		assert.True(len(pages) > 0)
 		for _, p := range pages {
-			assert.True(hasDate(p))
+			assert.True(hasDate(p.(*Page)))
 		}
 
 	}
@@ -734,7 +734,7 @@ title: Raw
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
 	require.Len(t, s.RegularPages, 1)
-	p := s.RegularPages[0]
+	p := s.RegularPages[0].(*Page)
 
 	require.Equal(t, p.RawContent(), "**Raw**")
 
@@ -743,7 +743,7 @@ title: Raw
 func TestPageWithShortCodeInSummary(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Next Line. <figure> <img src=\"/not/real\"/> </figure> . More text here.</p><p>Some more text</p>"))
 		checkPageSummary(t, p, "Summary Next Line.  . More text here. Some more text")
@@ -756,7 +756,7 @@ func TestPageWithShortCodeInSummary(t *testing.T) {
 func TestPageWithEmbeddedScriptTag(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		if ext == "ad" || ext == "rst" {
 			// TOD(bep)
 			return
@@ -777,7 +777,7 @@ func TestPageWithAdditionalExtension(t *testing.T) {
 
 	require.Len(t, s.RegularPages, 1)
 
-	p := s.RegularPages[0]
+	p := s.RegularPages[0].(*Page)
 
 	checkPageContent(t, p, "<p>first line.<br />\nsecond line.</p>\n\n<p>fourth line.</p>\n")
 }
@@ -792,7 +792,7 @@ func TestTableOfContents(t *testing.T) {
 
 	require.Len(t, s.RegularPages, 1)
 
-	p := s.RegularPages[0]
+	p := s.RegularPages[0].(*Page)
 
 	checkPageContent(t, p, "\n\n<p>For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.</p>\n\n<h2 id=\"aa\">AA</h2>\n\n<p>I have no idea, of course, how long it took me to reach the limit of the plain,\nbut at last I entered the foothills, following a pretty little canyon upward\ntoward the mountains. Beside me frolicked a laughing brooklet, hurrying upon\nits noisy way down to the silent sea. In its quieter pools I discovered many\nsmall fish, of four-or five-pound weight I should imagine. In appearance,\nexcept as to size and color, they were not unlike the whale of our own seas. As\nI watched them playing about I discovered, not only that they suckled their\nyoung, but that at intervals they rose to the surface to breathe as well as to\nfeed upon certain grasses and a strange, scarlet lichen which grew upon the\nrocks just above the water line.</p>\n\n<h3 id=\"aaa\">AAA</h3>\n\n<p>I remember I felt an extraordinary persuasion that I was being played with,\nthat presently, when I was upon the very verge of safety, this mysterious\ndeath&ndash;as swift as the passage of light&ndash;would leap after me from the pit about\nthe cylinder and strike me down. ## BB</p>\n\n<h3 id=\"bbb\">BBB</h3>\n\n<p>&ldquo;You&rsquo;re a great Granser,&rdquo; he cried delightedly, &ldquo;always making believe them little marks mean something.&rdquo;</p>\n")
 	checkPageTOC(t, p, "<nav id=\"TableOfContents\">\n<ul>\n<li>\n<ul>\n<li><a href=\"#aa\">AA</a>\n<ul>\n<li><a href=\"#aaa\">AAA</a></li>\n<li><a href=\"#bbb\">BBB</a></li>\n</ul></li>\n</ul></li>\n</ul>\n</nav>")
@@ -801,7 +801,7 @@ func TestTableOfContents(t *testing.T) {
 func TestPageWithMoreTag(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		checkPageTitle(t, p, "Simple")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>\n\n<p>Some more text</p>\n"))
 		checkPageSummary(t, p, normalizeExpected(ext, "<p>Summary Same Line</p>"))
@@ -815,7 +815,7 @@ func TestPageWithMoreTag(t *testing.T) {
 func TestPageWithMoreTagOnlySummary(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		checkTruncation(t, p, false, "page with summary delimiter at end")
 	}
 
@@ -826,7 +826,7 @@ func TestPageWithMoreTagOnlySummary(t *testing.T) {
 func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		require.Contains(t, p.Summary(), "Happy new year everyone!")
 		require.NotContains(t, p.Summary(), "User interface")
 	}
@@ -855,7 +855,7 @@ func TestPageWithDate(t *testing.T) {
 
 	require.Len(t, s.RegularPages, 1)
 
-	p := s.RegularPages[0]
+	p := s.RegularPages[0].(*Page)
 	d, _ := time.Parse(time.RFC3339, "2013-05-17T16:59:30Z")
 
 	checkPageDate(t, p, d)
@@ -908,13 +908,13 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 	assrt.Len(enSite.RegularPages, 1)
 
 	// 2018-03-11 is the Git author date for testsite/content/first-post.md
-	assrt.Equal("2018-03-11", enSite.RegularPages[0].Lastmod.Format("2006-01-02"))
+	assrt.Equal("2018-03-11", enSite.RegularPages[0].Lastmod().Format("2006-01-02"))
 
 	nnSite := h.Sites[1]
 	assrt.Len(nnSite.RegularPages, 1)
 
 	// 2018-08-11 is the Git author date for testsite/content_nn/first-post.md
-	assrt.Equal("2018-08-11", nnSite.RegularPages[0].Lastmod.Format("2006-01-02"))
+	assrt.Equal("2018-08-11", nnSite.RegularPages[0].Lastmod().Format("2006-01-02"))
 
 }
 
@@ -955,22 +955,22 @@ Content
 
 			assrt.Len(s.RegularPages, 2)
 
-			noSlug := s.RegularPages[0]
-			slug := s.RegularPages[1]
+			noSlug := s.RegularPages[0].(*Page)
+			slug := s.RegularPages[1].(*Page)
 
-			assrt.Equal(28, noSlug.Lastmod.Day())
+			assrt.Equal(28, noSlug.Lastmod().Day())
 
 			switch strings.ToLower(dateHandler) {
 			case ":filename":
-				assrt.False(noSlug.Date.IsZero())
-				assrt.False(slug.Date.IsZero())
-				assrt.Equal(2012, noSlug.Date.Year())
-				assrt.Equal(2012, slug.Date.Year())
+				assrt.False(noSlug.Date().IsZero())
+				assrt.False(slug.Date().IsZero())
+				assrt.Equal(2012, noSlug.Date().Year())
+				assrt.Equal(2012, slug.Date().Year())
 				assrt.Equal("noslug", noSlug.Slug)
 				assrt.Equal("aslug", slug.Slug)
 			case ":filemodtime":
-				assrt.Equal(c1fi.ModTime().Year(), noSlug.Date.Year())
-				assrt.Equal(c2fi.ModTime().Year(), slug.Date.Year())
+				assrt.Equal(c1fi.ModTime().Year(), noSlug.Date().Year())
+				assrt.Equal(c2fi.ModTime().Year(), slug.Date().Year())
 				fallthrough
 			default:
 				assrt.Equal("", noSlug.Slug)
@@ -985,7 +985,7 @@ Content
 func TestWordCountWithAllCJKRunesWithoutHasCJKLanguage(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		if p.WordCount() != 8 {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 8, p.WordCount())
 		}
@@ -999,7 +999,7 @@ func TestWordCountWithAllCJKRunesHasCJKLanguage(t *testing.T) {
 	settings := map[string]interface{}{"hasCJKLanguage": true}
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		if p.WordCount() != 15 {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 15, p.WordCount())
 		}
@@ -1012,7 +1012,7 @@ func TestWordCountWithMainEnglishWithCJKRunes(t *testing.T) {
 	settings := map[string]interface{}{"hasCJKLanguage": true}
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		if p.WordCount() != 74 {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount())
 		}
@@ -1033,7 +1033,7 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 	}
 
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		if p.WordCount() != 75 {
 			t.Fatalf("[%s] incorrect word count for content '%s'. expected %v, got %v", ext, p.plain, 74, p.WordCount())
 		}
@@ -1051,7 +1051,7 @@ func TestWordCountWithIsCJKLanguageFalse(t *testing.T) {
 func TestWordCount(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages Pages) {
-		p := pages[0]
+		p := pages[0].(*Page)
 		if p.WordCount() != 483 {
 			t.Fatalf("[%s] incorrect word count. expected %v, got %v", ext, 483, p.WordCount())
 		}
@@ -1473,8 +1473,8 @@ func TestTranslationKey(t *testing.T) {
 	home, _ := s.Info.Home()
 	assert.NotNil(home)
 	assert.Equal("home", home.TranslationKey())
-	assert.Equal("page/k1", s.RegularPages[0].TranslationKey())
-	p2 := s.RegularPages[1]
+	assert.Equal("page/k1", s.RegularPages[0].(*Page).TranslationKey())
+	p2 := s.RegularPages[1].(*Page)
 
 	assert.Equal("page/sect/simple", p2.TranslationKey())
 
@@ -1492,7 +1492,7 @@ func TestChompBOM(t *testing.T) {
 
 	require.Len(t, s.RegularPages, 1)
 
-	p := s.RegularPages[0]
+	p := s.RegularPages[0].(*Page)
 
 	checkPageTitle(t, p, "Simple")
 }
@@ -1804,7 +1804,7 @@ tags:
 
 				}
 
-				p := s.RegularPages[0]
+				p := s.RegularPages[0].(*Page)
 				if uglyURLs {
 					require.Equal(t, "/post/test0.dot.html", p.RelPermalink())
 				} else {

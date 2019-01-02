@@ -20,6 +20,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/cast"
+
 	"path/filepath"
 
 	"github.com/gohugoio/hugo/deps"
@@ -69,7 +71,9 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 
 	require.Len(t, s.RegularPages, 1)
 
-	output := string(s.RegularPages[0].content())
+	content, err := s.RegularPages[0].Content()
+	require.NoError(t, err)
+	output := cast.ToString(content)
 
 	if !strings.Contains(output, expected) {
 		t.Errorf("Got\n%q\nExpected\n%q", output, expected)

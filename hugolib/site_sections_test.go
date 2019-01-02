@@ -126,13 +126,13 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		{"elsewhere", func(p *Page) {
 			assert.Len(p.Pages, 1)
 			for _, p := range p.Pages {
-				assert.Equal([]string{"elsewhere"}, p.sections)
+				assert.Equal([]string{"elsewhere"}, p.(*Page).sections)
 			}
 		}},
 		{"post", func(p *Page) {
 			assert.Len(p.Pages, 2)
 			for _, p := range p.Pages {
-				assert.Equal("post", p.Section())
+				assert.Equal("post", p.(*Page).Section())
 			}
 		}},
 		{"empty1", func(p *Page) {
@@ -163,7 +163,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 			b := p.s.getPage(KindSection, "empty3", "b")
 			assert.NotNil(b)
 			assert.Len(b.Pages, 1)
-			assert.Equal("empty3.md", b.Pages[0].File.LogicalName())
+			assert.Equal("empty3.md", b.Pages[0].(*Page).File.LogicalName())
 
 		}},
 		{"empty3", func(p *Page) {
@@ -174,8 +174,8 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		{"top", func(p *Page) {
 			assert.Equal("Tops", p.title)
 			assert.Len(p.Pages, 2)
-			assert.Equal("mypage2.md", p.Pages[0].LogicalName())
-			assert.Equal("mypage3.md", p.Pages[1].LogicalName())
+			assert.Equal("mypage2.md", p.Pages[0].(*Page).LogicalName())
+			assert.Equal("mypage3.md", p.Pages[1].(*Page).LogicalName())
 			home := p.Parent()
 			assert.True(home.IsHome())
 			assert.Len(p.Sections(), 0)
@@ -194,15 +194,16 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		{"l1,l2", func(p *Page) {
 			assert.Equal("T2_-1", p.title)
 			assert.Len(p.Pages, 3)
-			assert.Equal(p, p.Pages[0].Parent())
+			assert.Equal(p, p.Pages[0].(*Page).Parent())
 			assert.Equal("L1s", p.Parent().title)
 			assert.Equal("/l1/l2/", p.URLPath.URL)
 			assert.Equal("/l1/l2/", p.RelPermalink())
 			assert.Len(p.Sections(), 1)
 
 			for _, child := range p.Pages {
-				assert.Equal(p, child.CurrentSection())
-				active, err := child.InSection(p)
+				childp := child.(*Page)
+				assert.Equal(p, childp.CurrentSection())
+				active, err := childp.InSection(p)
 				assert.NoError(err)
 				assert.True(active)
 				active, err = p.InSection(child)
@@ -215,14 +216,14 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 				isAncestor, err := p.IsAncestor(child)
 				assert.NoError(err)
 				assert.True(isAncestor)
-				isAncestor, err = child.IsAncestor(p)
+				isAncestor, err = childp.IsAncestor(p)
 				assert.NoError(err)
 				assert.False(isAncestor)
 
 				isDescendant, err := p.IsDescendant(child)
 				assert.NoError(err)
 				assert.False(isDescendant)
-				isDescendant, err = child.IsDescendant(p)
+				isDescendant, err = childp.IsDescendant(p)
 				assert.NoError(err)
 				assert.True(isDescendant)
 			}
@@ -233,7 +234,7 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 		{"l1,l2_2", func(p *Page) {
 			assert.Equal("T22_-1", p.title)
 			assert.Len(p.Pages, 2)
-			assert.Equal(filepath.FromSlash("l1/l2_2/page_2_2_1.md"), p.Pages[0].Path())
+			assert.Equal(filepath.FromSlash("l1/l2_2/page_2_2_1.md"), p.Pages[0].(*Page).Path())
 			assert.Equal("L1s", p.Parent().title)
 			assert.Len(p.Sections(), 0)
 		}},

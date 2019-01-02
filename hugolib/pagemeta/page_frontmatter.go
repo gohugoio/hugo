@@ -300,7 +300,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 
 	if f.dateHandler, err = f.createDateHandler(f.fmConfig.date,
 		func(d *FrontMatterDescriptor, t time.Time) {
-			d.Dates.Date = t
+			d.Dates.DDate = t
 			setParamIfNotSet(fmDate, t, d)
 		}); err != nil {
 		return err
@@ -309,7 +309,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.lastModHandler, err = f.createDateHandler(f.fmConfig.lastmod,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmLastmod, t, d)
-			d.Dates.Lastmod = t
+			d.Dates.DLastMod = t
 		}); err != nil {
 		return err
 	}
@@ -317,7 +317,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.publishDateHandler, err = f.createDateHandler(f.fmConfig.publishDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmPubDate, t, d)
-			d.Dates.PublishDate = t
+			d.Dates.DPublishDate = t
 		}); err != nil {
 		return err
 	}
@@ -325,7 +325,7 @@ func (f *FrontMatterHandler) createHandlers() error {
 	if f.expiryDateHandler, err = f.createDateHandler(f.fmConfig.expiryDate,
 		func(d *FrontMatterDescriptor, t time.Time) {
 			setParamIfNotSet(fmExpiryDate, t, d)
-			d.Dates.ExpiryDate = t
+			d.Dates.DExpiryDate = t
 		}); err != nil {
 		return err
 	}

@@ -25,11 +25,6 @@ import (
 )
 
 const (
-	pageWithInvalidDate = `---
-date: 2010-05-02_15:29:31+08:00
----
-Page With Invalid Date (replace T with _ for RFC 3339)`
-
 	pageWithDateRFC3339 = `---
 date: 2010-05-02T15:29:31+08:00
 ---
@@ -91,15 +86,6 @@ date: 02 May 2010 15:29 PST
 Page With Date HugoLong`
 )
 
-func TestDegenerateDateFrontMatter(t *testing.T) {
-	t.Parallel()
-	s := newTestSite(t)
-	p, _ := s.newPageFrom(strings.NewReader(pageWithInvalidDate), "page/with/invalid/date")
-	if p.Date != *new(time.Time) {
-		t.Fatalf("Date should be set to time.Time zero value.  Got: %s", p.Date)
-	}
-}
-
 func TestParsingDateInFrontMatter(t *testing.T) {
 	t.Parallel()
 	s := newTestSite(t)
@@ -142,8 +128,8 @@ func TestParsingDateInFrontMatter(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Expected to be able to parse page.")
 		}
-		if !dt.Equal(p.Date) {
-			t.Errorf("Date does not equal frontmatter:\n%s\nExpecting: %s\n      Got: %s. Diff: %s\n internal: %#v\n           %#v", test.buf, dt, p.Date, dt.Sub(p.Date), dt, p.Date)
+		if !dt.Equal(p.Date()) {
+			t.Errorf("Date does not equal frontmatter:\n%s\nExpecting: %s\n      Got: %s. Diff: %s\n internal: %#v\n           %#v", test.buf, dt, p.Date(), dt.Sub(p.Date()), dt, p.Date())
 		}
 	}
 }

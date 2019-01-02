@@ -13,23 +13,28 @@
 
 package hugolib
 
+import (
+	"github.com/gohugoio/hugo/resources/page"
+)
+
 // Translations represent the other translations for a given page. The
 // string here is the language code, as affected by the `post.LANG.md`
 // filename.
-type Translations map[string]*Page
+type Translations map[string]page.Page
 
-func pagesToTranslationsMap(pages []*Page) map[string]Translations {
+func pagesToTranslationsMap(pages Pages) map[string]Translations {
 	out := make(map[string]Translations)
 
 	for _, page := range pages {
-		base := page.TranslationKey()
+		pagep := page.(*Page)
+		base := pagep.TranslationKey()
 
 		pageTranslation, present := out[base]
 		if !present {
 			pageTranslation = make(Translations)
 		}
 
-		pageLang := page.Lang()
+		pageLang := pagep.Lang()
 		if pageLang == "" {
 			continue
 		}
@@ -41,19 +46,20 @@ func pagesToTranslationsMap(pages []*Page) map[string]Translations {
 	return out
 }
 
-func assignTranslationsToPages(allTranslations map[string]Translations, pages []*Page) {
+func assignTranslationsToPages(allTranslations map[string]Translations, pages Pages) {
 	for _, page := range pages {
-		page.translations = page.translations[:0]
-		base := page.TranslationKey()
+		pagep := page.(*Page)
+		pagep.translations = pagep.translations[:0]
+		base := pagep.TranslationKey()
 		trans, exist := allTranslations[base]
 		if !exist {
 			continue
 		}
 
 		for _, translatedPage := range trans {
-			page.translations = append(page.translations, translatedPage)
+			pagep.translations = append(pagep.translations, translatedPage)
 		}
 
-		pageBy(languagePageSort).Sort(page.translations)
+		pageBy(languagePageSort).Sort(pagep.translations)
 	}
 }

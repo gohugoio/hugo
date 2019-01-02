@@ -14,10 +14,14 @@
 package hugolib
 
 import (
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
 var (
-	_ resource.Resource = (*Page)(nil)
-	_ resource.Resource = (*PageOutput)(nil)
+	_ resource.Resource       = (*Page)(nil)
+	_ page.Page               = (*Page)(nil)
+	_ resource.Resource       = (*PageOutput)(nil)
+	_ page.Page               = (*PageOutput)(nil)
+	_ resource.LengthProvider = (*Page)(nil)
 )

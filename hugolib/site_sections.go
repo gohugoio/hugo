@@ -19,6 +19,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gohugoio/hugo/resources/page"
+
 	"github.com/gohugoio/hugo/helpers"
 
 	radix "github.com/hashicorp/go-immutable-radix"
@@ -112,7 +114,7 @@ func (p *Page) IsDescendant(other interface{}) (bool, error) {
 		return false, err
 	}
 
-	if pp.Kind == KindPage && len(p.sections) == len(pp.sections) {
+	if pp.Kind() == KindPage && len(p.sections) == len(pp.sections) {
 		// A regular page is never its section's descendant.
 		return false, nil
 	}
@@ -131,7 +133,7 @@ func (p *Page) IsAncestor(other interface{}) (bool, error) {
 		return false, err
 	}
 
-	if p.Kind == KindPage && len(p.sections) == len(pp.sections) {
+	if p.Kind() == KindPage && len(p.sections) == len(pp.sections) {
 		// A regular page is never its section's ancestor.
 		return false, nil
 	}
@@ -180,11 +182,13 @@ func (s *Site) assembleSections() Pages {
 	}
 
 	// Maps section kind pages to their path, i.e. "my/section"
-	sectionPages := make(map[string]*Page)
+	sectionPages := make(map[string]page.Page)
 
 	// The sections with content files will already have been created.
 	for _, sect := range s.findPagesByKind(KindSection) {
-		sectionPages[path.Join(sect.sections...)] = sect
+		sectp := sect.(*Page)
+		sectionPages[path.Join(sectp.sections...)] = sect
+
 	}
 
 	const (
@@ -202,33 +206,35 @@ func (s *Site) assembleSections() Pages {
 	home := s.findFirstPageByKindIn(KindHome, s.Pages)
 
 	for i, p := range s.Pages {
-		if p.Kind != KindPage {
+		if p.Kind() != KindPage {
 			continue
 		}
 
-		if len(p.sections) == 0 {
+		pp := p.(*Page)
+
+		if len(pp.sections) == 0 {
 			// Root level pages. These will have the home page as their Parent.
-			p.parent = home
+			pp.parent = home
 			continue
 		}
 
-		sectionKey := path.Join(p.sections...)
+		sectionKey := path.Join(pp.sections...)
 		sect, found := sectionPages[sectionKey]
 
-		if !found && len(p.sections) == 1 {
+		if !found && len(pp.sections) == 1 {
 			// We only create content-file-less sections for the root sections.
-			sect = s.newSectionPage(p.sections[0])
+			sect = s.newSectionPage(pp.sections[0])
 			sectionPages[sectionKey] = sect
 			newPages = append(newPages, sect)
 			found = true
 		}
 
-		if len(p.sections) > 1 {
+		if len(pp.sections) > 1 {
 			// Create the root section if not found.
-			_, rootFound := sectionPages[p.sections[0]]
+			_, rootFound := sectionPages[pp.sections[0]]
 			if !rootFound {
-				sect = s.newSectionPage(p.sections[0])
-				sectionPages[p.sections[0]] = sect
+				sect = s.newSectionPage(pp.sections[0])
+				sectionPages[pp.sections[0]] = sect
 				newPages = append(newPages, sect)
 			}
 		}
@@ -246,15 +252,16 @@ func (s *Site) assembleSections() Pages {
 	// given a content file in /content/a/b/c/_index.md, we cannot create just
 	// the c section.
 	for _, sect := range sectionPages {
-		for i := len(sect.sections); i > 0; i-- {
-			sectionPath := sect.sections[:i]
+		sectp := sect.(*Page)
+		for i := len(sectp.sections); i > 0; i-- {
+			sectionPath := sectp.sections[:i]
 			sectionKey := path.Join(sectionPath...)
-			sect, found := sectionPages[sectionKey]
+			_, found := sectionPages[sectionKey]
 			if !found {
-				sect = s.newSectionPage(sectionPath[len(sectionPath)-1])
-				sect.sections = sectionPath
-				sectionPages[sectionKey] = sect
-				newPages = append(newPages, sect)
+				sectp = s.newSectionPage(sectionPath[len(sectionPath)-1])
+				sectp.sections = sectionPath
+				sectionPages[sectionKey] = sectp
+				newPages = append(newPages, sectp)
 			}
 		}
 	}
@@ -271,8 +278,10 @@ func (s *Site) assembleSections() Pages {
 	)
 
 	for i, p := range undecided {
+		pp := p.(*Page)
 		// Now we can decide where to put this page into the tree.
-		sectionKey := path.Join(p.sections...)
+		sectionKey := path.Join(pp.sections...)
+
 		_, v, _ := rootSections.LongestPrefix([]byte(sectionKey))
 		sect := v.(*Page)
 		pagePath := path.Join(path.Join(sect.sections...), sectSectKey, "u", strconv.Itoa(i))
@@ -284,7 +293,7 @@ func (s *Site) assembleSections() Pages {
 	rootPages.Walk(func(path []byte, v interface{}) bool {
 		p := v.(*Page)
 
-		if p.Kind == KindSection {
+		if p.Kind() == KindSection {
 			if currentSection != nil {
 				// A new section
 				currentSection.setPagePages(children)
@@ -309,17 +318,18 @@ func (s *Site) assembleSections() Pages {
 
 	// Build the sections hierarchy
 	for _, sect := range sectionPages {
-		if len(sect.sections) == 1 {
-			sect.parent = home
+		sectp := sect.(*Page)
+		if len(sectp.sections) == 1 {
+			sectp.parent = home
 		} else {
-			parentSearchKey := path.Join(sect.sections[:len(sect.sections)-1]...)
+			parentSearchKey := path.Join(sectp.sections[:len(sectp.sections)-1]...)
 			_, v, _ := rootSections.LongestPrefix([]byte(parentSearchKey))
 			p := v.(*Page)
-			sect.parent = p
+			sectp.parent = p
 		}
 
-		if sect.parent != nil {
-			sect.parent.subSections = append(sect.parent.subSections, sect)
+		if sectp.parent != nil {
+			sectp.parent.subSections = append(sectp.parent.subSections, sect)
 		}
 	}
 
@@ -334,23 +344,25 @@ func (s *Site) assembleSections() Pages {
 	mainSections, mainSectionsFound = s.Info.Params[sectionsParamIdLower]
 
 	for _, sect := range sectionPages {
-		if sect.parent != nil {
-			sect.parent.subSections.sort()
+		sectp := sect.(*Page)
+		if sectp.parent != nil {
+			sectp.parent.subSections.sort()
 		}
 
-		for i, p := range sect.Pages {
+		for i, p := range sectp.Pages {
+			pp := p.(*Page)
 			if i > 0 {
-				p.NextInSection = sect.Pages[i-1]
+				pp.NextInSection = sectp.Pages[i-1]
 			}
-			if i < len(sect.Pages)-1 {
-				p.PrevInSection = sect.Pages[i+1]
+			if i < len(sectp.Pages)-1 {
+				pp.PrevInSection = sectp.Pages[i+1]
 			}
 		}
 
 		if !mainSectionsFound {
-			weight := len(sect.Pages) + (len(sect.Sections()) * 5)
+			weight := len(sectp.Pages) + (len(sectp.Sections()) * 5)
 			if weight >= maxSectionWeight {
-				mainSections = []string{sect.Section()}
+				mainSections = []string{sectp.Section()}
 				maxSectionWeight = weight
 			}
 		}
