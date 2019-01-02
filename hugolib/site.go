@@ -39,7 +39,6 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/publisher"
-	"github.com/gohugoio/hugo/resource"
 	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/langs"
@@ -62,6 +61,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib/pagemeta"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/related"
+	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/afero"
@@ -760,7 +760,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 	cachePartitions := make([]string, len(events))
 
 	for i, ev := range events {
-		cachePartitions[i] = resource.ResourceKeyPartition(ev.Name)
+		cachePartitions[i] = resources.ResourceKeyPartition(ev.Name)
 
 		if s.isContentDirEvent(ev) {
 			logger.Println("Source changed", ev)

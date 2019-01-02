@@ -24,7 +24,7 @@ import (
 
 	"github.com/gohugoio/hugo/tpl"
 
-	"github.com/gohugoio/hugo/resource"
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/media"
 

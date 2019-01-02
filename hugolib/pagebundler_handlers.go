@@ -22,7 +22,8 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/resource"
+	"github.com/gohugoio/hugo/resources"
+	"github.com/gohugoio/hugo/resources/resource"
 )
 
 var (
@@ -255,7 +256,7 @@ func (c *contentHandlers) parsePage(h contentHandler) contentHandler {
 
 			// Assign metadata from front matter if set
 			if len(p.resourcesMetadata) > 0 {
-				resource.AssignMetadata(p.resourcesMetadata, p.Resources...)
+				resources.AssignMetadata(p.resourcesMetadata, p.Resources...)
 			}
 
 		}
@@ -309,7 +310,7 @@ func (c *contentHandlers) createResource() contentHandler {
 		}
 
 		resource, err := c.s.ResourceSpec.New(
-			resource.ResourceSourceDescriptor{
+			resources.ResourceSourceDescriptor{
 				TargetPathBuilder: ctx.parentPage.subResourceTargetPathFactory,
 				SourceFile:        ctx.source,
 				RelTargetFilename: ctx.target,

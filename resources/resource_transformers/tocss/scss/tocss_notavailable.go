@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2018 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,13 +11,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+// +build !extended
+
+package scss
 
 import (
-	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/resources"
 )
 
-var (
-	_ resource.Resource = (*Page)(nil)
-	_ resource.Resource = (*PageOutput)(nil)
-)
+// Used in tests.
+func Supports() bool {
+	return false
+}
+
+func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
+	return herrors.ErrFeatureNotAvailable
+}

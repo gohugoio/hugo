@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,13 +11,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugolib
+package internal
 
 import (
-	"github.com/gohugoio/hugo/resources/resource"
+	"strings"
+	"sync"
+
+	"github.com/gobwas/glob"
 )
 
 var (
-	_ resource.Resource = (*Page)(nil)
-	_ resource.Resource = (*PageOutput)(nil)
+	globCache = make(map[string]glob.Glob)
+	globMu    sync.RWMutex
 )
+
+func GetGlob(pattern string) (glob.Glob, error) {
+	var g glob.Glob
+
+	globMu.RLock()
+	g, found := globCache[pattern]
+	globMu.RUnlock()
+	if !found {
+		var err error
+		g, err = glob.Compile(strings.ToLower(pattern), '/')
+		if err != nil {
+			return nil, err
+		}
+
+		globMu.Lock()
+		globCache[pattern] = g
+		globMu.Unlock()
+	}
+
+	return g, nil
+
+}

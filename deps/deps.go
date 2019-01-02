@@ -16,7 +16,7 @@ import (
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
-	"github.com/gohugoio/hugo/resource"
+	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/source"
 	"github.com/gohugoio/hugo/tpl"
 	jww "github.com/spf13/jwalterweatherman"
@@ -52,7 +52,7 @@ type Deps struct {
 	SourceSpec *source.SourceSpec `json:"-"`
 
 	// The Resource Spec to use
-	ResourceSpec *resource.Spec
+	ResourceSpec *resources.Spec
 
 	// The configuration to use
 	Cfg config.Provider `json:"-"`
@@ -214,7 +214,7 @@ func New(cfg DepsCfg) (*Deps, error) {
 		return nil, errors.WithMessage(err, "failed to create file caches from configuration")
 	}
 
-	resourceSpec, err := resource.NewSpec(ps, fileCaches, logger, cfg.OutputFormats, cfg.MediaTypes)
+	resourceSpec, err := resources.NewSpec(ps, fileCaches, logger, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
@@ -281,7 +281,7 @@ func (d Deps) ForLanguage(cfg DepsCfg, onCreated func(d *Deps) error) (*Deps, er
 	// The resource cache is global so reuse.
 	// TODO(bep) clean up these inits.
 	resourceCache := d.ResourceSpec.ResourceCache
-	d.ResourceSpec, err = resource.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.Log, cfg.OutputFormats, cfg.MediaTypes)
+	d.ResourceSpec, err = resources.NewSpec(d.PathSpec, d.ResourceSpec.FileCaches, d.Log, cfg.OutputFormats, cfg.MediaTypes)
 	if err != nil {
 		return nil, err
 	}
