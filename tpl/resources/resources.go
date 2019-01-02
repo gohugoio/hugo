@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,14 +22,14 @@ import (
 	_errors "github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/deps"
-	"github.com/gohugoio/hugo/resource"
-	"github.com/gohugoio/hugo/resource/resource_factories/bundler"
-	"github.com/gohugoio/hugo/resource/resource_factories/create"
-	"github.com/gohugoio/hugo/resource/resource_transformers/integrity"
-	"github.com/gohugoio/hugo/resource/resource_transformers/minifier"
-	"github.com/gohugoio/hugo/resource/resource_transformers/postcss"
-	"github.com/gohugoio/hugo/resource/resource_transformers/templates"
-	"github.com/gohugoio/hugo/resource/resource_transformers/tocss/scss"
+	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/gohugoio/hugo/resources/resource_factories/bundler"
+	"github.com/gohugoio/hugo/resources/resource_factories/create"
+	"github.com/gohugoio/hugo/resources/resource_transformers/integrity"
+	"github.com/gohugoio/hugo/resources/resource_transformers/minifier"
+	"github.com/gohugoio/hugo/resources/resource_transformers/postcss"
+	"github.com/gohugoio/hugo/resources/resource_transformers/templates"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 	"github.com/spf13/cast"
 )
 

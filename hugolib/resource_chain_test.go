@@ -25,7 +25,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/common/loggers"
-	"github.com/gohugoio/hugo/resource/resource_transformers/tocss/scss"
+	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 )
 
 func TestSCSSWithIncludePaths(t *testing.T) {

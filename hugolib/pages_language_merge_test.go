@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/gohugoio/hugo/resource"
+	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/stretchr/testify/require"
 )
 

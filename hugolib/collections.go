@@ -16,7 +16,7 @@ package hugolib
 import (
 	"fmt"
 
-	"github.com/gohugoio/hugo/resource"
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/common/collections"
 )
