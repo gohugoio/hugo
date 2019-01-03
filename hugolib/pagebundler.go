@@ -43,7 +43,7 @@ type siteContentProcessor struct {
 	numWorkers int
 
 	// The output Pages
-	pagesChan chan *Page
+	pagesChan chan *pageState
 
 	// Used for partial rebuilds (aka. live reload)
 	// Will signal replacement of pages in the site collection.
@@ -77,7 +77,7 @@ func newSiteContentProcessor(ctx context.Context, partialBuild bool, s *Site) *s
 		numWorkers = n
 	}
 
-	numWorkers = int(math.Ceil(float64(numWorkers) / float64(len(s.owner.Sites))))
+	numWorkers = int(math.Ceil(float64(numWorkers) / float64(len(s.h.Sites))))
 
 	return &siteContentProcessor{
 		ctx:             ctx,
@@ -88,7 +88,7 @@ func newSiteContentProcessor(ctx context.Context, partialBuild bool, s *Site) *s
 		fileSinglesChan: make(chan *fileInfo, numWorkers),
 		fileAssetsChan:  make(chan []pathLangFile, numWorkers),
 		numWorkers:      numWorkers,
-		pagesChan:       make(chan *Page, numWorkers),
+		pagesChan:       make(chan *pageState, numWorkers),
 	}
 }
 
@@ -192,7 +192,9 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 		return err
 	}
 
-	s.site.rawAllPages.sort()
+	// Apply default sort order.
+	// TODO(bep) page remove this
+	//sort.Stable(s.site.rawAllPages)
 
 	return nil
 

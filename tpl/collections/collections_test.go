@@ -311,16 +311,16 @@ func TestIn(t *testing.T) {
 	}
 }
 
-type page struct {
+type testPage struct {
 	Title string
 }
 
-func (p page) String() string {
+func (p testPage) String() string {
 	return "p-" + p.Title
 }
 
-type pagesPtr []*page
-type pagesVals []page
+type pagesPtr []*testPage
+type pagesVals []testPage
 
 func TestIntersect(t *testing.T) {
 	t.Parallel()
@@ -328,15 +328,15 @@ func TestIntersect(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	var (
-		p1 = &page{"A"}
-		p2 = &page{"B"}
-		p3 = &page{"C"}
-		p4 = &page{"D"}
+		p1 = &testPage{"A"}
+		p2 = &testPage{"B"}
+		p3 = &testPage{"C"}
+		p4 = &testPage{"D"}
 
-		p1v = page{"A"}
-		p2v = page{"B"}
-		p3v = page{"C"}
-		p4v = page{"D"}
+		p1v = testPage{"A"}
+		p2v = testPage{"B"}
+		p3v = testPage{"C"}
+		p4v = testPage{"D"}
 	)
 
 	for i, test := range []struct {
@@ -672,14 +672,14 @@ func TestUnion(t *testing.T) {
 	ns := New(&deps.Deps{})
 
 	var (
-		p1 = &page{"A"}
-		p2 = &page{"B"}
+		p1 = &testPage{"A"}
+		p2 = &testPage{"B"}
 		//		p3 = &page{"C"}
-		p4 = &page{"D"}
+		p4 = &testPage{"D"}
 
-		p1v = page{"A"}
+		p1v = testPage{"A"}
 		//p2v = page{"B"}
-		p3v = page{"C"}
+		p3v = testPage{"C"}
 		//p4v = page{"D"}
 	)
 

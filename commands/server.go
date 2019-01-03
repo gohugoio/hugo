@@ -403,7 +403,7 @@ func (c *commandeer) serve(s *serverCmd) error {
 	if isMultiHost {
 		for _, s := range c.hugo.Sites {
 			baseURLs = append(baseURLs, s.BaseURL.String())
-			roots = append(roots, s.Language.Lang)
+			roots = append(roots, s.Language().Lang)
 		}
 	} else {
 		s := c.hugo.Sites[0]

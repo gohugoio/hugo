@@ -25,7 +25,7 @@ import (
 )
 
 func TestLoadConfigDir(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	assert := require.New(t)
 
@@ -127,7 +127,7 @@ p3 = "p3params_no_production"
 }
 
 func TestLoadConfigDirError(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	assert := require.New(t)
 

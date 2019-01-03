@@ -36,6 +36,9 @@ type Result interface {
 var _ Result = (*pageLexer)(nil)
 
 // Parse parses the page in the given reader according to the given Config.
+// TODO(bep) now that we have improved the "lazy order" init, it *may* be
+// some potential saving in doing a buffered approach where the first pass does
+// the frontmatter only.
 func Parse(r io.Reader, cfg Config) (Result, error) {
 	b, err := ioutil.ReadAll(r)
 	if err != nil {

@@ -32,6 +32,7 @@ type ReadSeekCloser interface {
 }
 
 // ReadSeekerNoOpCloser implements ReadSeekCloser by doing nothing in Close.
+// TODO(bep) rename this and simila to ReadSeekerNopCloser, naming used in stdlib, which kind of makes sense.
 type ReadSeekerNoOpCloser struct {
 	ReadSeeker
 }

@@ -92,7 +92,7 @@ func GuessType(in string) string {
 		return "org"
 	}
 
-	return "unknown"
+	return ""
 }
 
 // FirstUpper returns a string with the first character as upper case.

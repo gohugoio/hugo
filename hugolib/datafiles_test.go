@@ -30,7 +30,7 @@ import (
 )
 
 func TestDataDir(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	equivDataDirs := make([]dataDir, 3)
 	equivDataDirs[0].addSource("data/test/a.json", `{ "b" : { "c1": "red" , "c2": "blue" } }`)
 	equivDataDirs[1].addSource("data/test/a.yaml", "b:\n  c1: red\n  c2: blue")
@@ -53,7 +53,7 @@ func TestDataDir(t *testing.T) {
 // float64, int, int64 respectively. They all return
 // float64 for float values though:
 func TestDataDirNumeric(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	equivDataDirs := make([]dataDir, 3)
 	equivDataDirs[0].addSource("data/test/a.json", `{ "b" : { "c1": 1.7 , "c2": 2.9 } }`)
 	equivDataDirs[1].addSource("data/test/a.yaml", "b:\n  c1: 1.7\n  c2: 2.9")
@@ -72,7 +72,7 @@ func TestDataDirNumeric(t *testing.T) {
 }
 
 func TestDataDirBoolean(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	equivDataDirs := make([]dataDir, 3)
 	equivDataDirs[0].addSource("data/test/a.json", `{ "b" : { "c1": true , "c2": false } }`)
 	equivDataDirs[1].addSource("data/test/a.yaml", "b:\n  c1: true\n  c2: false")
@@ -91,7 +91,7 @@ func TestDataDirBoolean(t *testing.T) {
 }
 
 func TestDataDirTwoFiles(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	equivDataDirs := make([]dataDir, 3)
 
 	equivDataDirs[0].addSource("data/test/foo.json", `{ "bar": "foofoo"  }`)
@@ -120,7 +120,7 @@ func TestDataDirTwoFiles(t *testing.T) {
 }
 
 func TestDataDirOverriddenValue(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	equivDataDirs := make([]dataDir, 3)
 
 	// filepath.Walk walks the files in lexical order, '/' comes before '.'. Simulate this:
@@ -153,7 +153,7 @@ func TestDataDirOverriddenValue(t *testing.T) {
 
 // Issue #4361, #3890
 func TestDataDirArrayAtTopLevelOfFile(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	equivDataDirs := make([]dataDir, 2)
 
 	equivDataDirs[0].addSource("data/test.json", `[ { "hello": "world" }, { "what": "time" }, { "is": "lunch?" } ]`)
@@ -177,7 +177,7 @@ func TestDataDirArrayAtTopLevelOfFile(t *testing.T) {
 
 // Issue #892
 func TestDataDirMultipleSources(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	var dd dataDir
 	dd.addSource("data/test/first.yaml", "bar: 1")
@@ -204,7 +204,7 @@ func TestDataDirMultipleSources(t *testing.T) {
 // test (and show) the way values from four different sources,
 // including theme data, commingle and override
 func TestDataDirMultipleSourcesCommingled(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	var dd dataDir
 	dd.addSource("data/a.json", `{ "b1" : { "c1": "data/a" }, "b2": "data/a", "b3": ["x", "y", "z"] }`)
@@ -231,7 +231,7 @@ func TestDataDirMultipleSourcesCommingled(t *testing.T) {
 }
 
 func TestDataDirCollidingChildArrays(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	var dd dataDir
 	dd.addSource("themes/mytheme/data/a/b2.json", `["Q", "R", "S"]`)
@@ -253,7 +253,7 @@ func TestDataDirCollidingChildArrays(t *testing.T) {
 }
 
 func TestDataDirCollidingTopLevelArrays(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	var dd dataDir
 	dd.addSource("themes/mytheme/data/a/b1.json", `["x", "y", "z"]`)
@@ -270,7 +270,7 @@ func TestDataDirCollidingTopLevelArrays(t *testing.T) {
 }
 
 func TestDataDirCollidingMapsAndArrays(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	var dd dataDir
 	// on
@@ -349,7 +349,7 @@ func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKey
 
 	s := buildSingleSiteExpected(t, false, expectBuildError, depsCfg, BuildCfg{SkipRender: true})
 
-	if !expectBuildError && !reflect.DeepEqual(expected, s.Data) {
+	if !expectBuildError && !reflect.DeepEqual(expected, s.h.Data()) {
 		// This disabled code detects the situation described in the WARNING message below.
 		// The situation seems to only occur for TOML data with integer values.
 		// Perhaps the TOML parser returns ints in another type.
@@ -366,14 +366,14 @@ func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKey
 			}
 		*/
 
-		return fmt.Sprintf("Expected data:\n%v got\n%v\n\nExpected type structure:\n%#[1]v got\n%#[2]v", expected, s.Data)
+		return fmt.Sprintf("Expected data:\n%v got\n%v\n\nExpected type structure:\n%#[1]v got\n%#[2]v", expected, s.h.Data())
 	}
 
 	return
 }
 
 func TestDataFromShortcode(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	var (
 		cfg, fs = newTestCfg()

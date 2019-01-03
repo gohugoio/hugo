@@ -18,6 +18,7 @@ import (
 	"io"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
@@ -117,7 +118,13 @@ func (t *TemplateAdapter) Execute(w io.Writer, data interface{}) (execErr error)
 		// Panics in templates are a little bit too common (nil pointers etc.)
 		// See https://github.com/gohugoio/hugo/issues/5327
 		if r := recover(); r != nil {
+			// TODO(bep) page remove this stack
+			buf := make([]byte, 6000)
+			runtime.Stack(buf, false)
+			fmt.Println(string(buf))
+			//_, filename, _ := t.fileAndFilename(t.Name())
 			execErr = t.addFileContext(t.Name(), fmt.Errorf(`panic in Execute: %s. See "https://github.com/gohugoio/hugo/issues/5327" for the reason why we cannot provide a better error message for this.`, r))
+			//log.Fatal(string(buf) + "\n\n" + t.Tree() + "\n\n" + filename)
 		}
 	}()
 

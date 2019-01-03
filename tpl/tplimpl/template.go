@@ -215,6 +215,8 @@ type templatesCommon struct {
 	nameBaseTemplateName map[string]string
 }
 type htmlTemplates struct {
+	mu sync.RWMutex
+
 	*templatesCommon
 
 	t *template.Template
@@ -245,6 +247,8 @@ func (t *htmlTemplates) Lookup(name string) (tpl.Template, bool) {
 }
 
 func (t *htmlTemplates) lookup(name string) *template.Template {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
 
 	// Need to check in the overlay registry first as it will also be found below.
 	if t.overlays != nil {
@@ -337,6 +341,9 @@ func (t *templateHandler) LoadTemplates(prefix string) error {
 }
 
 func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	templ, err := tt.New(name).Parse(tpl)
 	if err != nil {
 		return err
@@ -361,6 +368,7 @@ func (t *htmlTemplates) addTemplate(name, tpl string) error {
 	return t.addTemplateIn(t.t, name, tpl)
 }
 
+// TODO(bep) page consider removing this late template construct
 func (t *htmlTemplates) addLateTemplate(name, tpl string) error {
 	return t.addTemplateIn(t.clone, name, tpl)
 }
@@ -371,7 +379,7 @@ type textTemplate struct {
 }
 
 func (t *textTemplate) Parse(name, tpl string) (tpl.Template, error) {
-	return t.parSeIn(t.t, name, tpl)
+	return t.parseIn(t.t, name, tpl)
 }
 
 func (t *textTemplate) Lookup(name string) (tpl.Template, bool) {
@@ -382,7 +390,7 @@ func (t *textTemplate) Lookup(name string) (tpl.Template, bool) {
 	return tpl, tpl != nil
 }
 
-func (t *textTemplate) parSeIn(tt *texttemplate.Template, name, tpl string) (*texttemplate.Template, error) {
+func (t *textTemplate) parseIn(tt *texttemplate.Template, name, tpl string) (*texttemplate.Template, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -399,7 +407,7 @@ func (t *textTemplate) parSeIn(tt *texttemplate.Template, name, tpl string) (*te
 
 func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl string) error {
 	name = strings.TrimPrefix(name, textTmplNamePrefix)
-	templ, err := t.parSeIn(tt, name, tpl)
+	templ, err := t.parseIn(tt, name, tpl)
 	if err != nil {
 		return err
 	}

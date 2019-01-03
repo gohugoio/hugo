@@ -17,49 +17,37 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 )
 
-// Translations represent the other translations for a given page. The
-// string here is the language code, as affected by the `post.LANG.md`
-// filename.
-type Translations map[string]page.Page
+func pagesToTranslationsMap(sites []*Site) map[string]page.Pages {
+	out := make(map[string]page.Pages)
 
-func pagesToTranslationsMap(pages Pages) map[string]Translations {
-	out := make(map[string]Translations)
+	for _, s := range sites {
+		for _, p := range s.workAllPages {
+			// TranslationKey is implemented for all page types.
+			base := p.TranslationKey()
 
-	for _, page := range pages {
-		pagep := page.(*Page)
-		base := pagep.TranslationKey()
+			pageTranslations, found := out[base]
+			if !found {
+				pageTranslations = make(page.Pages, 0)
+			}
 
-		pageTranslation, present := out[base]
-		if !present {
-			pageTranslation = make(Translations)
+			pageTranslations = append(pageTranslations, p)
+			out[base] = pageTranslations
 		}
-
-		pageLang := pagep.Lang()
-		if pageLang == "" {
-			continue
-		}
-
-		pageTranslation[pageLang] = page
-		out[base] = pageTranslation
 	}
 
 	return out
 }
 
-func assignTranslationsToPages(allTranslations map[string]Translations, pages Pages) {
-	for _, page := range pages {
-		pagep := page.(*Page)
-		pagep.translations = pagep.translations[:0]
-		base := pagep.TranslationKey()
-		trans, exist := allTranslations[base]
-		if !exist {
-			continue
-		}
+func assignTranslationsToPages(allTranslations map[string]page.Pages, sites []*Site) {
+	for _, s := range sites {
+		for _, p := range s.workAllPages {
+			base := p.TranslationKey()
+			translations, found := allTranslations[base]
+			if !found {
+				continue
+			}
 
-		for _, translatedPage := range trans {
-			pagep.translations = append(pagep.translations, translatedPage)
+			p.setTranslations(translations)
 		}
-
-		pageBy(languagePageSort).Sort(pagep.translations)
 	}
 }

@@ -18,6 +18,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/spf13/cast"
 )
 
@@ -28,11 +29,11 @@ func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) 
 	sitemapOut, _ := allFormats.GetByName(output.SitemapFormat.Name)
 
 	return map[string]output.Formats{
-		KindPage:         {htmlOut},
-		KindHome:         {htmlOut, rssOut},
-		KindSection:      {htmlOut, rssOut},
-		KindTaxonomy:     {htmlOut, rssOut},
-		KindTaxonomyTerm: {htmlOut, rssOut},
+		page.KindPage:         {htmlOut},
+		page.KindHome:         {htmlOut, rssOut},
+		page.KindSection:      {htmlOut, rssOut},
+		page.KindTaxonomy:     {htmlOut, rssOut},
+		page.KindTaxonomyTerm: {htmlOut, rssOut},
 		// Below are for conistency. They are currently not used during rendering.
 		kindRSS:       {rssOut},
 		kindSitemap:   {sitemapOut},

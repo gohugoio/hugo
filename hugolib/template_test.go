@@ -25,7 +25,7 @@ import (
 )
 
 func TestTemplateLookupOrder(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	var (
 		fs  *hugofs.Fs
 		cfg *viper.Viper

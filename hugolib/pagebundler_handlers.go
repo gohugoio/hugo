@@ -16,12 +16,13 @@ package hugolib
 import (
 	"errors"
 	"fmt"
+	"path"
 	"path/filepath"
-	"sort"
+
+	"github.com/gohugoio/hugo/common/hugio"
 
 	"strings"
 
-	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -93,12 +94,15 @@ func (c *contentHandlers) processFirstMatch(handlers ...contentHandler) func(ctx
 
 type handlerContext struct {
 	// These are the pages stored in Site.
-	pages chan<- *Page
+	pages chan<- *pageState
 
 	doNotAddToSiteCollections bool
 
-	currentPage *Page
-	parentPage  *Page
+	//currentPage *Page
+	//parentPage  *Page
+
+	currentPage *pageState
+	parentPage  *pageState
 
 	bundle *bundleDir
 
@@ -108,12 +112,26 @@ type handlerContext struct {
 	target string
 }
 
+// TODO(bep) page
+// .Markup or Ext
+// p := c.s.newPageFromFile(fi)
+//	_, err = p.ReadFrom(f)
+// OK c.s.shouldBuild(p)
+
+// pageResource.resourcePath = filepath.ToSlash(childCtx.target)
+// pageResource.parent = p
+
+// p.workContent = p.renderContent(p.workContent)
+// tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.workContent)
+// p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
+
+// sort.SliceStable(p.Resources(), func(i, j int) bool {
+// if len(p.resourcesMetadata) > 0 {
+// TargetPathBuilder: ctx.parentPage.subResourceTargetPathFactory,
+
 func (c *handlerContext) ext() string {
 	if c.currentPage != nil {
-		if c.currentPage.Markup != "" {
-			return c.currentPage.Markup
-		}
-		return c.currentPage.Ext()
+		return c.currentPage.contentMarkupType()
 	}
 
 	if c.bundle != nil {
@@ -175,9 +193,9 @@ func (c *handlerContext) isContentFile() bool {
 
 type (
 	handlerResult struct {
-		err      error
-		handled  bool
-		resource resource.Resource
+		err     error
+		handled bool
+		result  interface{}
 	}
 
 	contentHandler func(ctx *handlerContext) handlerResult
@@ -196,27 +214,27 @@ func (c *contentHandlers) parsePage(h contentHandler) contentHandler {
 		result := handlerResult{handled: true}
 		fi := ctx.file()
 
-		f, err := fi.Open()
-		if err != nil {
-			return handlerResult{err: fmt.Errorf("(%s) failed to open content file: %s", fi.Filename(), err)}
+		content := func() (hugio.ReadSeekCloser, error) {
+			f, err := fi.Open()
+			if err != nil {
+				return nil, fmt.Errorf("failed to open content file %q: %s", fi.Filename(), err)
+			}
+			return f, nil
 		}
-		defer f.Close()
 
-		p := c.s.newPageFromFile(fi)
-
-		_, err = p.ReadFrom(f)
+		ps, err := newBuildStatePageWithContent(fi, c.s, content)
 		if err != nil {
 			return handlerResult{err: err}
 		}
 
-		if !p.shouldBuild() {
+		if !c.s.shouldBuild(ps) {
 			if !ctx.doNotAddToSiteCollections {
-				ctx.pages <- p
+				ctx.pages <- ps
 			}
 			return result
 		}
 
-		ctx.currentPage = p
+		ctx.currentPage = ps
 
 		if ctx.bundle != nil {
 			// Add the bundled files
@@ -226,39 +244,20 @@ func (c *contentHandlers) parsePage(h contentHandler) contentHandler {
 				if res.err != nil {
 					return res
 				}
-				if res.resource != nil {
-					if pageResource, ok := res.resource.(*Page); ok {
-						pageResource.resourcePath = filepath.ToSlash(childCtx.target)
-						pageResource.parent = p
+				if res.result != nil {
+					switch resv := res.result.(type) {
+					case *pageState:
+						resv.m.resourcePath = filepath.ToSlash(childCtx.target)
+						resv.parent = ps
+						ps.addResources(resv)
+					case resource.Resource:
+						ps.addResources(resv)
+
+					default:
+						panic("Unknown type")
 					}
-					p.resources = append(p.resources, res.resource)
 				}
 			}
-
-			sort.SliceStable(p.Resources(), func(i, j int) bool {
-				if p.resources[i].ResourceType() < p.resources[j].ResourceType() {
-					return true
-				}
-
-				p1, ok1 := p.resources[i].(*Page)
-				p2, ok2 := p.resources[j].(*Page)
-
-				if ok1 != ok2 {
-					return ok2
-				}
-
-				if ok1 {
-					return defaultPageSort(p1, p2)
-				}
-
-				return p.resources[i].RelPermalink() < p.resources[j].RelPermalink()
-			})
-
-			// Assign metadata from front matter if set
-			if len(p.resourcesMetadata) > 0 {
-				resources.AssignMetadata(p.resourcesMetadata, p.Resources()...)
-			}
-
 		}
 
 		return h(ctx)
@@ -273,17 +272,11 @@ func (c *contentHandlers) handlePageContent() contentHandler {
 
 		p := ctx.currentPage
 
-		p.workContent = p.renderContent(p.workContent)
-
-		tmpContent, tmpTableOfContents := helpers.ExtractTOC(p.workContent)
-		p.TableOfContents = helpers.BytesToHTML(tmpTableOfContents)
-		p.workContent = tmpContent
-
 		if !ctx.doNotAddToSiteCollections {
 			ctx.pages <- p
 		}
 
-		return handlerResult{handled: true, resource: p}
+		return handlerResult{handled: true, result: p}
 	}
 }
 
@@ -299,7 +292,7 @@ func (c *contentHandlers) handleHTMLContent() contentHandler {
 			ctx.pages <- p
 		}
 
-		return handlerResult{handled: true, resource: p}
+		return handlerResult{handled: true, result: p}
 	}
 }
 
@@ -309,16 +302,37 @@ func (c *contentHandlers) createResource() contentHandler {
 			return notHandled
 		}
 
+		// TODO(bep) consolidate with multihost logic + clean up
+		outputFormats := ctx.parentPage.m.outputFormats()
+		languageBase := c.s.GetURLLanguageBasePath()
+		seen := make(map[string]bool)
+		var targetBasePaths []string
+		for _, f := range outputFormats {
+			if !seen[f.Path] {
+				targetBasePaths = append(targetBasePaths, f.Path)
+			}
+
+			var lf string
+			if f.Path == "" {
+				lf = languageBase
+			} else {
+				lf = path.Join(languageBase, f.Path)
+			}
+			if !seen[lf] {
+				targetBasePaths = append(targetBasePaths, lf)
+			}
+		}
+
 		resource, err := c.s.ResourceSpec.New(
 			resources.ResourceSourceDescriptor{
 				TargetPathBuilder: ctx.parentPage.subResourceTargetPathFactory,
 				SourceFile:        ctx.source,
 				RelTargetFilename: ctx.target,
 				URLBase:           c.s.GetURLLanguageBasePath(),
-				TargetBasePaths:   []string{c.s.GetTargetLanguageBasePath()},
+				TargetBasePaths:   targetBasePaths,
 			})
 
-		return handlerResult{err: err, handled: true, resource: resource}
+		return handlerResult{err: err, handled: true, result: resource}
 	}
 }
 

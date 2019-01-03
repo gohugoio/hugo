@@ -42,7 +42,7 @@ func TestGuessType(t *testing.T) {
 		{"html", "html"},
 		{"htm", "html"},
 		{"org", "org"},
-		{"excel", "unknown"},
+		{"excel", ""},
 	} {
 		result := GuessType(this.in)
 		if result != this.expect {

@@ -18,10 +18,11 @@ package commands
 import (
 	"fmt"
 	"io/ioutil"
-
 	"os/signal"
 	"sort"
 	"sync/atomic"
+
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/pkg/errors"
@@ -326,7 +327,7 @@ func (c *commandeer) fullBuild() error {
 	}
 
 	for _, s := range c.hugo.Sites {
-		s.ProcessingStats.Static = langCount[s.Language.Lang]
+		s.ProcessingStats.Static = langCount[s.Language().Lang]
 	}
 
 	if c.h.gc {
@@ -973,16 +974,17 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 				navigate := c.Cfg.GetBool("navigateToChanged")
 				// We have fetched the same page above, but it may have
 				// changed.
-				var p *hugolib.Page
+				var p page.Page
 
 				if navigate {
 					if onePageName != "" {
-						p = c.hugo.GetContentPage(onePageName).(*hugolib.Page)
+						p = c.hugo.GetContentPage(onePageName)
 					}
 				}
 
 				if p != nil {
-					livereload.NavigateToPathForPort(p.RelPermalink(), p.Site.ServerPort())
+					// TODO(bep) page
+					livereload.NavigateToPathForPort(p.RelPermalink(), 1313) // p.Site.ServerPort())
 				} else {
 					livereload.ForceRefresh()
 				}

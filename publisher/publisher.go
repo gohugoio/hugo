@@ -86,7 +86,7 @@ func NewDestinationPublisher(fs afero.Fs, outputFormats output.Formats, mediaTyp
 // to its destination, e.g. /public.
 func (p DestinationPublisher) Publish(d Descriptor) error {
 	if d.TargetPath == "" {
-		return errors.New("must provide a TargetPath")
+		return errors.New("Publish: must provide a TargetPath")
 	}
 
 	src := d.Src

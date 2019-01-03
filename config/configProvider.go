@@ -40,3 +40,15 @@ func GetStringSlicePreserveString(cfg Provider, key string) []string {
 	}
 	return cast.ToStringSlice(sd)
 }
+
+// SetBaseTestDefaults provides some common config defaults used in tests.
+func SetBaseTestDefaults(cfg Provider) {
+	cfg.Set("resourceDir", "resources")
+	cfg.Set("contentDir", "content")
+	cfg.Set("dataDir", "data")
+	cfg.Set("i18nDir", "i18n")
+	cfg.Set("layoutDir", "layouts")
+	cfg.Set("assetDir", "assets")
+	cfg.Set("archetypeDir", "archetypes")
+	cfg.Set("publishDir", "public")
+}

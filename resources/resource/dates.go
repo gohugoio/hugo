@@ -15,6 +15,8 @@ package resource
 
 import "time"
 
+var _ Dated = Dates{}
+
 // Dated wraps a "dated resource". These are the 4 dates that makes
 // the date logic in Hugo.
 type Dated interface {
@@ -22,6 +24,14 @@ type Dated interface {
 	Lastmod() time.Time
 	PublishDate() time.Time
 	ExpiryDate() time.Time
+}
+
+// Dates holds the 4 Hugo dates.
+type Dates struct {
+	FDate        time.Time
+	FLastmod     time.Time
+	FPublishDate time.Time
+	FExpiryDate  time.Time
 }
 
 // IsFuture returns whether the argument represents the future.
@@ -38,4 +48,20 @@ func IsExpired(d Dated) bool {
 		return false
 	}
 	return d.ExpiryDate().Before(time.Now())
+}
+
+func (p Dates) Date() time.Time {
+	return p.FDate
+}
+
+func (p Dates) Lastmod() time.Time {
+	return p.FLastmod
+}
+
+func (p Dates) PublishDate() time.Time {
+	return p.FPublishDate
+}
+
+func (p Dates) ExpiryDate() time.Time {
+	return p.FExpiryDate
 }

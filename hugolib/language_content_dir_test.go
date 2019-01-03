@@ -19,6 +19,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/resources/page"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -39,7 +41,7 @@ import (
 */
 
 func TestLanguageContentRoot(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	assert := require.New(t)
 
 	config := `
@@ -205,10 +207,10 @@ Content.
 	svSite := b.H.Sites[2]
 
 	//dumpPages(nnSite.RegularPages...)
-	assert.Equal(12, len(nnSite.RegularPages))
-	assert.Equal(13, len(enSite.RegularPages))
+	assert.Equal(12, len(nnSite.RegularPages()))
+	assert.Equal(13, len(enSite.RegularPages()))
 
-	assert.Equal(10, len(svSite.RegularPages))
+	assert.Equal(10, len(svSite.RegularPages()))
 
 	svP2, err := svSite.getPageNew(nil, "/sect/page2.md")
 	assert.NoError(err)
@@ -217,9 +219,9 @@ Content.
 
 	enP2, err := enSite.getPageNew(nil, "/sect/page2.md")
 	assert.NoError(err)
-	assert.Equal("en", enP2.Lang())
-	assert.Equal("sv", svP2.Lang())
-	assert.Equal("nn", nnP2.Lang())
+	assert.Equal("en", enP2.Language().Lang)
+	assert.Equal("sv", svP2.Language().Lang)
+	assert.Equal("nn", nnP2.Language().Lang)
 
 	content, _ := nnP2.Content()
 	assert.Contains(content, "SVP3-REF: https://example.org/sv/sect/p-sv-3/")
@@ -241,12 +243,11 @@ Content.
 	assert.NoError(err)
 	assert.Equal("https://example.org/nn/sect/p-nn-3/", nnP3Ref)
 
-	for i, p := range enSite.RegularPages {
+	for i, p := range enSite.RegularPages() {
 		j := i + 1
 		msg := fmt.Sprintf("Test %d", j)
-		pp := p.(*Page)
-		assert.Equal("en", pp.Lang(), msg)
-		assert.Equal("sect", pp.Section())
+		assert.Equal("en", p.Language().Lang, msg)
+		assert.Equal("sect", p.Section())
 		if j < 9 {
 			if j%4 == 0 {
 				assert.Contains(p.Title(), fmt.Sprintf("p-sv-%d.en", i+1), msg)
@@ -257,9 +258,9 @@ Content.
 	}
 
 	// Check bundles
-	bundleEn := enSite.RegularPages[len(enSite.RegularPages)-1]
-	bundleNn := nnSite.RegularPages[len(nnSite.RegularPages)-1]
-	bundleSv := svSite.RegularPages[len(svSite.RegularPages)-1]
+	bundleEn := enSite.RegularPages()[len(enSite.RegularPages())-1]
+	bundleNn := nnSite.RegularPages()[len(nnSite.RegularPages())-1]
+	bundleSv := svSite.RegularPages()[len(svSite.RegularPages())-1]
 
 	assert.Equal("/en/sect/mybundle/", bundleEn.RelPermalink())
 	assert.Equal("/sv/sect/mybundle/", bundleSv.RelPermalink())
@@ -279,9 +280,9 @@ Content.
 	b.AssertFileContent("/my/project/public/sv/sect/mybundle/logo.png", "PNG Data")
 	b.AssertFileContent("/my/project/public/nn/sect/mybundle/logo.png", "PNG Data")
 
-	nnSect := nnSite.getPage(KindSection, "sect")
+	nnSect := nnSite.getPage(page.KindSection, "sect")
 	assert.NotNil(nnSect)
-	assert.Equal(12, len(nnSect.Pages))
+	assert.Equal(12, len(nnSect.Pages()))
 	nnHome, _ := nnSite.Info.Home()
 	assert.Equal("/nn/", nnHome.RelPermalink())
 

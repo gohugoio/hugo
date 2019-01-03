@@ -57,7 +57,7 @@ type ContentSpec struct {
 	Highlight            func(code, lang, optsStr string) (string, error)
 	defatultPygmentsOpts map[string]string
 
-	cfg config.Provider
+	Cfg config.Provider
 }
 
 // NewContentSpec returns a ContentSpec initialized
@@ -73,7 +73,7 @@ func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 		BuildExpired:               cfg.GetBool("buildExpired"),
 		BuildDrafts:                cfg.GetBool("buildDrafts"),
 
-		cfg: cfg,
+		Cfg: cfg,
 	}
 
 	// Highlighting setup
@@ -376,7 +376,7 @@ func (c *ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingConte
 	return &HugoMmarkHTMLRenderer{
 		cs:       c,
 		Renderer: mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
-		Cfg:      c.cfg,
+		Cfg:      c.Cfg,
 	}
 }
 

@@ -16,6 +16,9 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
+
+	"github.com/gohugoio/hugo/resources/page"
+
 	"reflect"
 	"strings"
 	"testing"
@@ -25,8 +28,14 @@ import (
 	"github.com/gohugoio/hugo/deps"
 )
 
+var pageYamlWithTaxonomiesA = `---
+tags: ['a', 'B', 'c']
+categories: 'd'
+---
+YAML frontmatter with tags and categories taxonomy.`
+
 func TestByCountOrderOfTaxonomies(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	taxonomies := make(map[string]string)
 
 	taxonomies["tag"] = "tags"
@@ -62,7 +71,7 @@ func TestTaxonomiesWithAndWithoutContentFile(t *testing.T) {
 }
 
 func doTestTaxonomiesWithAndWithoutContentFile(t *testing.T, preserveTaxonomyNames, uglyURLs bool) {
-	t.Parallel()
+	parallel(t)
 
 	siteConfig := `
 baseURL = "http://example.com/blog"
@@ -170,8 +179,8 @@ permalinkeds:
 
 	s := h.Sites[0]
 
-	// Make sure that each KindTaxonomyTerm page has an appropriate number
-	// of KindTaxonomy pages in its Pages slice.
+	// Make sure that each page.KindTaxonomyTerm page has an appropriate number
+	// of page.KindTaxonomy pages in its Pages slice.
 	taxonomyTermPageCounts := map[string]int{
 		"tags":         2,
 		"categories":   2,
@@ -181,16 +190,16 @@ permalinkeds:
 	}
 
 	for taxonomy, count := range taxonomyTermPageCounts {
-		term := s.getPage(KindTaxonomyTerm, taxonomy)
+		term := s.getPage(page.KindTaxonomyTerm, taxonomy)
 		require.NotNil(t, term)
-		require.Len(t, term.Pages, count)
+		require.Len(t, term.Pages(), count)
 
-		for _, page := range term.Pages {
-			require.Equal(t, KindTaxonomy, page.Kind())
+		for _, p := range term.Pages() {
+			require.Equal(t, page.KindTaxonomy, p.Kind())
 		}
 	}
 
-	cat1 := s.getPage(KindTaxonomy, "categories", "cat1")
+	cat1 := s.getPage(page.KindTaxonomy, "categories", "cat1")
 	require.NotNil(t, cat1)
 	if uglyURLs {
 		require.Equal(t, "/blog/categories/cat1.html", cat1.RelPermalink())
@@ -198,8 +207,8 @@ permalinkeds:
 		require.Equal(t, "/blog/categories/cat1/", cat1.RelPermalink())
 	}
 
-	pl1 := s.getPage(KindTaxonomy, "permalinkeds", "pl1")
-	permalinkeds := s.getPage(KindTaxonomyTerm, "permalinkeds")
+	pl1 := s.getPage(page.KindTaxonomy, "permalinkeds", "pl1")
+	permalinkeds := s.getPage(page.KindTaxonomyTerm, "permalinkeds")
 	require.NotNil(t, pl1)
 	require.NotNil(t, permalinkeds)
 	if uglyURLs {
@@ -212,13 +221,13 @@ permalinkeds:
 
 	// Issue #3070 preserveTaxonomyNames
 	if preserveTaxonomyNames {
-		helloWorld := s.getPage(KindTaxonomy, "others", "Hello Hugo world")
+		helloWorld := s.getPage(page.KindTaxonomy, "others", "Hello Hugo world")
 		require.NotNil(t, helloWorld)
-		require.Equal(t, "Hello Hugo world", helloWorld.title)
+		require.Equal(t, "Hello Hugo world", helloWorld.Title())
 	} else {
-		helloWorld := s.getPage(KindTaxonomy, "others", "hello-hugo-world")
+		helloWorld := s.getPage(page.KindTaxonomy, "others", "hello-hugo-world")
 		require.NotNil(t, helloWorld)
-		require.Equal(t, "Hello Hugo World", helloWorld.title)
+		require.Equal(t, "Hello Hugo World", helloWorld.Title())
 	}
 
 	// Issue #2977
@@ -229,7 +238,7 @@ permalinkeds:
 // https://github.com/gohugoio/hugo/issues/5513
 // https://github.com/gohugoio/hugo/issues/5571
 func TestTaxonomiesPathSeparation(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	assert := require.New(t)
 
@@ -282,8 +291,8 @@ title: "This is S3s"
 
 	s := b.H.Sites[0]
 
-	ta := s.findPagesByKind(KindTaxonomy)
-	te := s.findPagesByKind(KindTaxonomyTerm)
+	ta := s.findPagesByKind(page.KindTaxonomy)
+	te := s.findPagesByKind(page.KindTaxonomyTerm)
 
 	assert.Equal(4, len(te))
 	assert.Equal(7, len(ta))

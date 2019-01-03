@@ -28,19 +28,32 @@ type Cloner interface {
 
 // Resource represents a linkable resource, i.e. a content page, image etc.
 type Resource interface {
-	resourceBase
+	ResourceTypesProvider
+	ResourcePathsProvider
+	ResourceMetaProvider
+	ResourceParamsProvider
+	ResourceDataProvider
+}
 
-	// Permalink represents the absolute link to this resource.
-	Permalink() string
-
-	// RelPermalink represents the host relative link to this resource.
-	RelPermalink() string
+type ResourceTypesProvider interface {
+	// MediaType is this resource's MIME type.
+	MediaType() media.Type
 
 	// ResourceType is the resource type. For most file types, this is the main
 	// part of the MIME type, e.g. "image", "application", "text" etc.
 	// For content pages, this value is "page".
 	ResourceType() string
+}
 
+type ResourcePathsProvider interface {
+	// Permalink represents the absolute link to this resource.
+	Permalink() string
+
+	// RelPermalink represents the host relative link to this resource.
+	RelPermalink() string
+}
+
+type ResourceMetaProvider interface {
 	// Name is the logical name of this resource. This can be set in the front matter
 	// metadata for this resource. If not set, Hugo will assign a value.
 	// This will in most cases be the base filename.
@@ -51,20 +64,17 @@ type Resource interface {
 
 	// Title returns the title if set in front matter. For content pages, this will be the expected value.
 	Title() string
+}
 
-	// Resource specific data set by Hugo.
-	// One example would be.Data.Digest for fingerprinted resources.
-	Data() interface{}
-
+type ResourceParamsProvider interface {
 	// Params set in front matter for this resource.
 	Params() map[string]interface{}
 }
 
-// resourceBase pulls out the minimal set of operations to define a Resource,
-// to simplify testing etc.
-type resourceBase interface {
-	// MediaType is this resource's MIME type.
-	MediaType() media.Type
+type ResourceDataProvider interface {
+	// Resource specific data set by Hugo.
+	// One example would be.Data.Digest for fingerprinted resources.
+	Data() interface{}
 }
 
 // ResourcesLanguageMerger describes an interface for merging resources from a
@@ -83,7 +93,7 @@ type Identifier interface {
 // ContentResource represents a Resource that provides a way to get to its content.
 // Most Resource types in Hugo implements this interface, including Page.
 type ContentResource interface {
-	resourceBase
+	MediaType() media.Type
 	ContentProvider
 }
 
@@ -106,7 +116,7 @@ type OpenReadSeekCloser func() (hugio.ReadSeekCloser, error)
 
 // ReadSeekCloserResource is a Resource that supports loading its content.
 type ReadSeekCloserResource interface {
-	resourceBase
+	MediaType() media.Type
 	ReadSeekCloser() (hugio.ReadSeekCloser, error)
 }
 
@@ -119,4 +129,38 @@ type LengthProvider interface {
 // LanguageProvider is a Resource in a language.
 type LanguageProvider interface {
 	Language() *langs.Language
+}
+
+// TranslationKeyProvider connects translations of the same Resource.
+type TranslationKeyProvider interface {
+	TranslationKey() string
+}
+
+type resourceTypesHolder struct {
+	mediaType    media.Type
+	resourceType string
+}
+
+func (r resourceTypesHolder) MediaType() media.Type {
+	return r.mediaType
+}
+
+func (r resourceTypesHolder) ResourceType() string {
+	return r.resourceType
+}
+
+func NewResourceTypesProvider(mediaType media.Type, resourceType string) ResourceTypesProvider {
+	return resourceTypesHolder{mediaType: mediaType, resourceType: resourceType}
+}
+
+type languageHolder struct {
+	lang *langs.Language
+}
+
+func (l languageHolder) Language() *langs.Language {
+	return l.lang
+}
+
+func NewLanguageProvider(lang *langs.Language) LanguageProvider {
+	return languageHolder{lang: lang}
 }

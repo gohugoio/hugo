@@ -18,6 +18,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gohugoio/hugo/resources/page"
+
 	"html/template"
 
 	"github.com/gohugoio/hugo/deps"
@@ -40,7 +42,7 @@ var urlFakeSource = [][2]string{
 
 // Issue #1105
 func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	for i, this := range []struct {
 		in       string
 		expected string
@@ -64,7 +66,7 @@ func TestShouldNotAddTrailingSlashToBaseURL(t *testing.T) {
 }
 
 func TestPageCount(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	cfg, fs := newTestCfg()
 	cfg.Set("uglyURLs", false)
 	cfg.Set("paginate", 10)
@@ -90,7 +92,7 @@ func TestPageCount(t *testing.T) {
 }
 
 func TestUglyURLsPerSection(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	assert := require.New(t)
 
@@ -115,21 +117,21 @@ Do not go gentle into that good night.
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
 
-	assert.Len(s.RegularPages, 2)
+	assert.Len(s.RegularPages(), 2)
 
-	notUgly := s.getPage(KindPage, "sect1/p1.md")
+	notUgly := s.getPage(page.KindPage, "sect1/p1.md")
 	assert.NotNil(notUgly)
 	assert.Equal("sect1", notUgly.Section())
 	assert.Equal("/sect1/p1/", notUgly.RelPermalink())
 
-	ugly := s.getPage(KindPage, "sect2/p2.md")
+	ugly := s.getPage(page.KindPage, "sect2/p2.md")
 	assert.NotNil(ugly)
 	assert.Equal("sect2", ugly.Section())
 	assert.Equal("/sect2/p2.html", ugly.RelPermalink())
 }
 
 func TestSectionWithURLInFrontMatter(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	assert := require.New(t)
 
@@ -173,9 +175,9 @@ Do not go gentle into that good night.
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	assert.Len(s.RegularPages, 10)
+	assert.Len(s.RegularPages(), 10)
 
-	sect1 := s.getPage(KindSection, "sect1")
+	sect1 := s.getPage(page.KindSection, "sect1")
 	assert.NotNil(sect1)
 	assert.Equal("/ss1/", sect1.RelPermalink())
 	th.assertFileContent(filepath.Join("public", "ss1", "index.html"), "P1|URL: /ss1/|Next: /ss1/page/2/")

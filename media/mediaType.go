@@ -45,6 +45,7 @@ type Type struct {
 
 	Delimiter string `json:"delimiter"` // e.g. "."
 
+	// TODO(bep) page make this a string to make it hashable + method
 	Suffixes []string `json:"suffixes"`
 
 	// Set when doing lookup by suffix.

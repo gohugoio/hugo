@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ menu:
 )
 
 func TestSectionPagesMenu(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	siteConfig := `
 baseurl = "http://example.com/"
@@ -83,9 +83,9 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 
 	s := h.Sites[0]
 
-	require.Len(t, s.Menus, 2)
+	require.Len(t, s.Menus(), 2)
 
-	p1 := s.RegularPages[0].(*Page).Menus()
+	p1 := s.RegularPages()[0].Menus()
 
 	// There is only one menu in the page, but it is "member of" 2
 	require.Len(t, p1, 1)

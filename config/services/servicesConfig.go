@@ -23,6 +23,7 @@ const (
 
 	disqusShortnameKey = "disqusshortname"
 	googleAnalyticsKey = "googleanalytics"
+	rssLimitKey        = "rssLimit"
 )
 
 // Config is a privacy configuration for all the relevant services in Hugo.
@@ -31,6 +32,7 @@ type Config struct {
 	GoogleAnalytics GoogleAnalytics
 	Instagram       Instagram
 	Twitter         Twitter
+	RSS             RSS
 }
 
 // Disqus holds the functional configuration settings related to the Disqus template.
@@ -61,6 +63,12 @@ type Twitter struct {
 	DisableInlineCSS bool
 }
 
+// RSS holds the functional configuration settings related to the RSS feeds.
+type RSS struct {
+	// Limit the number of pages.
+	Limit int
+}
+
 // DecodeConfig creates a services Config from a given Hugo configuration.
 func DecodeConfig(cfg config.Provider) (c Config, err error) {
 	m := cfg.GetStringMap(servicesConfigKey)
@@ -74,6 +82,10 @@ func DecodeConfig(cfg config.Provider) (c Config, err error) {
 	}
 	if c.Disqus.Shortname == "" {
 		c.Disqus.Shortname = cfg.GetString(disqusShortnameKey)
+	}
+
+	if c.RSS.Limit == 0 {
+		c.RSS.Limit = cfg.GetInt(rssLimitKey)
 	}
 
 	return

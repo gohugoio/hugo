@@ -71,7 +71,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 					return err
 				}
 			} else {
-				if err := h.init(conf); err != nil {
+				if err := h.initSites(conf); err != nil {
 					return err
 				}
 			}
@@ -132,7 +132,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 // Build lifecycle methods below.
 // The order listed matches the order of execution.
 
-func (h *HugoSites) init(config *BuildCfg) error {
+func (h *HugoSites) initSites(config *BuildCfg) error {
 
 	for _, s := range h.Sites {
 		if s.PageCollections == nil {
@@ -203,14 +203,6 @@ func (h *HugoSites) process(config *BuildCfg, events ...fsnotify.Event) error {
 }
 
 func (h *HugoSites) assemble(config *BuildCfg) error {
-	if config.whatChanged.source {
-		for _, s := range h.Sites {
-			s.createTaxonomiesEntries()
-		}
-	}
-
-	// TODO(bep) we could probably wait and do this in one go later
-	h.setupTranslations()
 
 	if len(h.Sites) > 1 {
 		// The first is initialized during process; initialize the rest
@@ -221,48 +213,46 @@ func (h *HugoSites) assemble(config *BuildCfg) error {
 		}
 	}
 
+	if err := h.createPageCollections(); err != nil {
+		return err
+	}
+
 	if config.whatChanged.source {
 		for _, s := range h.Sites {
-			if err := s.buildSiteMeta(); err != nil {
+			if err := s.assembleTaxonomies(); err != nil {
 				return err
 			}
 		}
 	}
 
+	// Create pages for the section pages etc. without content file.
 	if err := h.createMissingPages(); err != nil {
 		return err
 	}
 
 	for _, s := range h.Sites {
-		for _, pages := range []Pages{s.Pages, s.headlessPages} {
+		// TODO(bep) page
+		s.commit()
+	}
+
+	// TODO(bep) page
+
+	for _, s := range h.Sites {
+		for _, pages := range []pageStatePages{s.workAllPages, s.headlessPages} {
 			for _, p := range pages {
-				// May have been set in front matter
-				pp := p.(*Page)
-				if len(pp.outputFormats) == 0 {
-					pp.outputFormats = s.outputFormats[p.Kind()]
-				}
 
-				if pp.headless {
+				if p.m.headless {
 					// headless = 1 output format only
-					pp.outputFormats = pp.outputFormats[:1]
+					// TODO(bep) page
+					//p.m.outputFormats = p.m.outputFormats[:1]
 				}
-				for _, r := range p.Resources().ByType(pageResourceType) {
-					r.(*Page).outputFormats = pp.outputFormats
-				}
-
-				if err := p.(*Page).initPaths(); err != nil {
-					return err
-				}
+				/*for _, r := range p.Resources().ByType(pageResourceType) {
+					//r.(*pageState).m.outputFormats = p.m.outputFormats
+				}*/
 
 			}
 		}
-		s.assembleMenus()
-		s.refreshPageCaches()
 		s.setupSitePages()
-	}
-
-	if err := h.assignMissingTranslations(); err != nil {
-		return err
 	}
 
 	return nil
@@ -278,34 +268,42 @@ func (h *HugoSites) render(config *BuildCfg) error {
 
 	for _, s := range h.Sites {
 		for i, rf := range s.renderFormats {
-			for _, s2 := range h.Sites {
-				// We render site by site, but since the content is lazily rendered
-				// and a site can "borrow" content from other sites, every site
-				// needs this set.
-				s2.rc = &siteRenderingContext{Format: rf}
+			select {
+			case <-h.Done():
+				return nil
+			default:
 
-				isRenderingSite := s == s2
+				for _, s2 := range h.Sites {
+					// We render site by site, but since the content is lazily rendered
+					// and a site can "borrow" content from other sites, every site
+					// needs this set.
+					s2.rc = &siteRenderingContext{Format: rf}
 
-				if !config.PartialReRender {
-					if err := s2.preparePagesForRender(isRenderingSite && i == 0); err != nil {
-						return err
+					isRenderingSite := s == s2
+
+					if !config.PartialReRender {
+						if err := s2.preparePagesForRender(isRenderingSite && i == 0); err != nil {
+							return err
+						}
 					}
+
 				}
 
-			}
-
-			if !config.SkipRender {
-				if config.PartialReRender {
-					if err := s.renderPages(config); err != nil {
-						return err
-					}
-				} else {
-					if err := s.render(config, i); err != nil {
-						return err
+				if !config.SkipRender {
+					if config.PartialReRender {
+						if err := s.renderPages(config); err != nil {
+							return err
+						}
+					} else {
+						if err := s.render(config, i); err != nil {
+							return err
+						}
 					}
 				}
 			}
+
 		}
+
 	}
 
 	if !config.SkipRender {

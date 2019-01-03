@@ -26,7 +26,7 @@ import (
 )
 
 func TestSiteStats(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	assert := require.New(t)
 

@@ -41,7 +41,7 @@ func TestExecute(t *testing.T) {
 	assert.NoError(resp.Err)
 	result := resp.Result
 	assert.True(len(result.Sites) == 1)
-	assert.True(len(result.Sites[0].RegularPages) == 1)
+	assert.True(len(result.Sites[0].RegularPages()) == 1)
 }
 
 func TestCommandsPersistentFlags(t *testing.T) {

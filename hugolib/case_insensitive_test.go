@@ -133,7 +133,7 @@ Partial Site Global: {{ site.Params.COLOR }}|{{ site.Params.COLORS.YELLOW }}
 }
 
 func TestCaseInsensitiveConfigurationVariations(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	// See issues 2615, 1129, 2590 and maybe some others
 	// Also see 2598
@@ -227,7 +227,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 }
 
 func TestCaseInsensitiveConfigurationForAllTemplateEngines(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	noOp := func(s string) string {
 		return s

@@ -22,7 +22,7 @@ import (
 )
 
 func TestOrderedMap(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	assert := require.New(t)
 
 	m := newOrderedMap()
@@ -41,7 +41,7 @@ func TestOrderedMap(t *testing.T) {
 }
 
 func TestOrderedMapConcurrent(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	assert := require.New(t)
 
 	var wg sync.WaitGroup

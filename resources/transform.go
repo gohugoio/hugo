@@ -320,7 +320,7 @@ func (r *transformedResource) transform(setContent, publish bool) (err error) {
 			key = key + "_" + v.transformation.Key().key()
 		case permalinker:
 			r.linker = v
-			p := v.targetPath()
+			p := v.TargetPath()
 			if p == "" {
 				panic("target path needed for key creation")
 			}
@@ -375,7 +375,7 @@ func (r *transformedResource) transform(setContent, publish bool) (err error) {
 	tctx.To = b1
 
 	if r.linker != nil {
-		tctx.InPath = r.linker.targetPath()
+		tctx.InPath = r.linker.TargetPath()
 		tctx.SourcePath = tctx.InPath
 	}
 

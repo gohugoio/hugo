@@ -18,44 +18,86 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/gohugoio/hugo/cache"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources/page"
 )
 
+// Used in the page cache to mark more than one hit for a given key.
+var ambiguityFlag = &pageState{m: &pageMeta{kind: kindUnknown, title: "ambiguity flag"}}
+
 // PageCollections contains the page collections for a site.
 type PageCollections struct {
-	// Includes only pages of all types, and only pages in the current language.
-	Pages Pages
 
-	// Includes all pages in all languages, including the current one.
-	// Includes pages of all types.
-	AllPages Pages
-
-	// A convenience cache for the traditional index types, taxonomies, home page etc.
-	// This is for the current language only.
-	indexPages Pages
-
-	// A convenience cache for the regular pages.
-	// This is for the current language only.
-	RegularPages Pages
-
-	// A convenience cache for the all the regular pages.
-	AllRegularPages Pages
+	// Flag set once all pages have been added to
+	committed  bool
+	commitInit sync.Once
 
 	// Includes absolute all pages (of all types), including drafts etc.
-	rawAllPages Pages
+	rawAllPages pageStatePages
+
+	// rawAllPages plus additional pages created during the build process.
+	workAllPages pageStatePages
 
 	// Includes headless bundles, i.e. bundles that produce no output for its content page.
-	headlessPages Pages
+	// TODO(bep) page
+	headlessPages pageStatePages
 
+	// Lazy initialized page collections
+	pages           *lazyPagesFactory
+	regularPages    *lazyPagesFactory
+	allPages        *lazyPagesFactory
+	allRegularPages *lazyPagesFactory
+
+	// The index for .Site.GetPage etc.
 	pageIndex *cache.Lazy
+}
+
+func (c *PageCollections) commit() {
+	c.commitInit.Do(func() {
+		// No more changes to the raw page collection.
+		c.committed = true
+	})
+
+}
+
+func (c *PageCollections) checkState() {
+	if !c.committed {
+		panic("page collections not committed")
+	}
+}
+
+// Pages returns all pages.
+// This is for the current language only.
+func (c *PageCollections) Pages() page.Pages {
+	c.checkState()
+	return c.pages.get()
+}
+
+// RegularPages returns all the regular pages.
+// This is for the current language only.
+func (c *PageCollections) RegularPages() page.Pages {
+	c.checkState()
+	return c.regularPages.get()
+}
+
+// AllPages returns all pages for all languages.
+func (c *PageCollections) AllPages() page.Pages {
+	c.checkState()
+	return c.allPages.get()
+}
+
+// AllPages returns all regular pages for all languages.
+func (c *PageCollections) AllRegularPages() page.Pages {
+	c.checkState()
+	return c.allRegularPages.get()
 }
 
 // Get initializes the index if not already done so, then
 // looks up the given page ref, returns nil if no value found.
-func (c *PageCollections) getFromCache(ref string) (*Page, error) {
+func (c *PageCollections) getFromCache(ref string) (page.Page, error) {
 	v, found, err := c.pageIndex.Get(ref)
 	if err != nil {
 		return nil, err
@@ -64,7 +106,7 @@ func (c *PageCollections) getFromCache(ref string) (*Page, error) {
 		return nil, nil
 	}
 
-	p := v.(*Page)
+	p := v.(page.Page)
 
 	if p != ambiguityFlag {
 		return p, nil
@@ -72,14 +114,45 @@ func (c *PageCollections) getFromCache(ref string) (*Page, error) {
 	return nil, fmt.Errorf("page reference %q is ambiguous", ref)
 }
 
-var ambiguityFlag = &Page{kind: kindUnknown, title: "ambiguity flag"}
+type lazyPagesFactory struct {
+	pages page.Pages
 
-func (c *PageCollections) refreshPageCaches() {
-	c.indexPages = c.findPagesByKindNotIn(KindPage, c.Pages)
-	c.RegularPages = c.findPagesByKindIn(KindPage, c.Pages)
-	c.AllRegularPages = c.findPagesByKindIn(KindPage, c.AllPages)
+	init    sync.Once
+	factory page.PagesFactory
+}
 
-	indexLoader := func() (map[string]interface{}, error) {
+func (l *lazyPagesFactory) get() page.Pages {
+	l.init.Do(func() {
+		l.pages = l.factory()
+	})
+	return l.pages
+}
+
+func newLazyPagesFactory(factory page.PagesFactory) *lazyPagesFactory {
+	return &lazyPagesFactory{factory: factory}
+}
+
+func newPageCollections() *PageCollections {
+	return newPageCollectionsFromPages(nil)
+}
+
+func newPageCollectionsFromPages(pages pageStatePages) *PageCollections {
+
+	c := &PageCollections{rawAllPages: pages}
+
+	c.pages = newLazyPagesFactory(func() page.Pages {
+		pages := make(page.Pages, len(c.workAllPages))
+		for i, p := range c.workAllPages {
+			pages[i] = p
+		}
+		return pages
+	})
+
+	c.regularPages = newLazyPagesFactory(func() page.Pages {
+		return c.findPagesByKindInWorkPages(page.KindPage, c.workAllPages)
+	})
+
+	c.pageIndex = cache.NewLazy(func() (map[string]interface{}, error) {
 		index := make(map[string]interface{})
 
 		add := func(ref string, p page.Page) {
@@ -91,10 +164,9 @@ func (c *PageCollections) refreshPageCaches() {
 			}
 		}
 
-		for _, pageCollection := range []Pages{c.RegularPages, c.headlessPages} {
-			for _, p := range pageCollection {
-				pp := p.(*Page)
-				sourceRef := pp.absoluteSourceRef()
+		for _, p := range c.workAllPages {
+			if p.IsPage() {
+				sourceRef := p.sourceRef()
 
 				if sourceRef != "" {
 					// index the canonical ref
@@ -103,9 +175,9 @@ func (c *PageCollections) refreshPageCaches() {
 				}
 
 				// Ref/Relref supports this potentially ambiguous lookup.
-				add(pp.LogicalName(), p)
+				add(p.File().LogicalName(), p)
 
-				translationBaseName := pp.TranslationBaseName()
+				translationBaseName := p.File().TranslationBaseName()
 
 				dir, _ := path.Split(sourceRef)
 				dir = strings.TrimSuffix(dir, "/")
@@ -120,44 +192,33 @@ func (c *PageCollections) refreshPageCaches() {
 				// We need a way to get to the current language version.
 				pathWithNoExtensions := path.Join(dir, translationBaseName)
 				add(pathWithNoExtensions, p)
+			} else {
+				// index the canonical, unambiguous ref for any backing file
+				// e.g. /section/_index.md
+				sourceRef := p.sourceRef()
+				if sourceRef != "" {
+					add(sourceRef, p)
+				}
+
+				ref := p.SectionsPath()
+
+				// index the canonical, unambiguous virtual ref
+				// e.g. /section
+				// (this may already have been indexed above)
+				add("/"+ref, p)
 			}
-		}
-
-		for _, p := range c.indexPages {
-			// index the canonical, unambiguous ref for any backing file
-			// e.g. /section/_index.md
-			pp := p.(*Page)
-			sourceRef := pp.absoluteSourceRef()
-			if sourceRef != "" {
-				add(sourceRef, p)
-			}
-
-			ref := path.Join(pp.sections...)
-
-			// index the canonical, unambiguous virtual ref
-			// e.g. /section
-			// (this may already have been indexed above)
-			add("/"+ref, p)
 		}
 
 		return index, nil
-	}
+	})
 
-	c.pageIndex = cache.NewLazy(indexLoader)
-}
-
-func newPageCollections() *PageCollections {
-	return &PageCollections{}
-}
-
-func newPageCollectionsFromPages(pages Pages) *PageCollections {
-	return &PageCollections{rawAllPages: pages}
+	return c
 }
 
 // This is an adapter func for the old API with Kind as first argument.
 // This is invoked when you do .Site.GetPage. We drop the Kind and fails
 // if there are more than 2 arguments, which would be ambigous.
-func (c *PageCollections) getPageOldVersion(ref ...string) (*Page, error) {
+func (c *PageCollections) getPageOldVersion(ref ...string) (page.Page, error) {
 	var refs []string
 	for _, r := range ref {
 		// A common construct in the wild is
@@ -176,10 +237,10 @@ func (c *PageCollections) getPageOldVersion(ref ...string) (*Page, error) {
 		return nil, fmt.Errorf(`too many arguments to .Site.GetPage: %v. Use lookups on the form {{ .Site.GetPage "/posts/mypage-md" }}`, ref)
 	}
 
-	if len(refs) == 0 || refs[0] == KindHome {
+	if len(refs) == 0 || refs[0] == page.KindHome {
 		key = "/"
 	} else if len(refs) == 1 {
-		if len(ref) == 2 && refs[0] == KindSection {
+		if len(ref) == 2 && refs[0] == page.KindSection {
 			// This is an old style reference to the "Home Page section".
 			// Typically fetched via {{ .Site.GetPage "section" .Section }}
 			// See https://github.com/gohugoio/hugo/issues/4989
@@ -200,7 +261,7 @@ func (c *PageCollections) getPageOldVersion(ref ...string) (*Page, error) {
 }
 
 // 	Only used in tests.
-func (c *PageCollections) getPage(typ string, sections ...string) *Page {
+func (c *PageCollections) getPage(typ string, sections ...string) page.Page {
 	refs := append([]string{typ}, path.Join(sections...))
 	p, _ := c.getPageOldVersion(refs...)
 	return p
@@ -208,7 +269,7 @@ func (c *PageCollections) getPage(typ string, sections ...string) *Page {
 
 // Ref is either unix-style paths (i.e. callers responsible for
 // calling filepath.ToSlash as necessary) or shorthand refs.
-func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
+func (c *PageCollections) getPageNew(context page.Page, ref string) (page.Page, error) {
 	var anError error
 
 	// Absolute (content root relative) reference.
@@ -223,7 +284,7 @@ func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 
 	} else if context != nil {
 		// Try the page-relative path.
-		ppath := path.Join("/", strings.Join(context.sections, "/"), ref)
+		ppath := path.Join("/", context.SectionsPath(), ref)
 		p, err := c.getFromCache(ppath)
 		if err == nil && p != nil {
 			return p, nil
@@ -239,7 +300,7 @@ func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 		if err == nil && p != nil {
 			if context != nil {
 				// TODO(bep) remove this case and the message below when the storm has passed
-				helpers.DistinctFeedbackLog.Printf(`WARNING: make non-relative ref/relref page reference(s) in page %q absolute, e.g. {{< ref "/blog/my-post.md" >}}`, context.absoluteSourceRef())
+				helpers.DistinctFeedbackLog.Printf(`WARNING: make non-relative ref/relref page reference(s) in page %q absolute, e.g. {{< ref "/blog/my-post.md" >}}`, context.SourceRef())
 			}
 			return p, nil
 		}
@@ -257,7 +318,7 @@ func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 
 	if p == nil && anError != nil {
 		if context != nil {
-			return nil, fmt.Errorf("failed to resolve path from page %q: %s", context.absoluteSourceRef(), anError)
+			return nil, fmt.Errorf("failed to resolve path from page %q: %s", context.SourceRef(), anError)
 		}
 		return nil, fmt.Errorf("failed to resolve page: %s", anError)
 	}
@@ -265,8 +326,8 @@ func (c *PageCollections) getPageNew(context *Page, ref string) (*Page, error) {
 	return p, nil
 }
 
-func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {
-	var pages Pages
+func (*PageCollections) findPagesByKindIn(kind string, inPages page.Pages) page.Pages {
+	var pages page.Pages
 	for _, p := range inPages {
 		if p.Kind() == kind {
 			pages = append(pages, p)
@@ -275,17 +336,34 @@ func (*PageCollections) findPagesByKindIn(kind string, inPages Pages) Pages {
 	return pages
 }
 
-func (*PageCollections) findFirstPageByKindIn(kind string, inPages Pages) *Page {
-	for _, p := range inPages {
-		if p.Kind() == kind {
-			return p.(*Page)
-		}
-	}
-	return nil
+// TODO(bep) page check usage
+func (c *PageCollections) findPagesByKind(kind string) page.Pages {
+	return c.findPagesByKindIn(kind, c.Pages())
 }
 
-func (*PageCollections) findPagesByKindNotIn(kind string, inPages Pages) Pages {
-	var pages Pages
+func (c *PageCollections) findWorkPagesByKind(kind string) pageStatePages {
+	var pages pageStatePages
+	for _, p := range c.workAllPages {
+		if p.Kind() == kind {
+			pages = append(pages, p)
+		}
+	}
+	return pages
+}
+
+// TODO(bep) page clean up and remove dupes
+func (*PageCollections) findPagesByKindInWorkPages(kind string, inPages pageStatePages) page.Pages {
+	var pages page.Pages
+	for _, p := range inPages {
+		if p.Kind() == kind {
+			pages = append(pages, p)
+		}
+	}
+	return pages
+}
+
+func (*PageCollections) findPagesByKindNotInWorkPages(kind string, inPages pageStatePages) page.Pages {
+	var pages page.Pages
 	for _, p := range inPages {
 		if p.Kind() != kind {
 			pages = append(pages, p)
@@ -294,52 +372,49 @@ func (*PageCollections) findPagesByKindNotIn(kind string, inPages Pages) Pages {
 	return pages
 }
 
-func (c *PageCollections) findPagesByKind(kind string) Pages {
-	return c.findPagesByKindIn(kind, c.Pages)
+func (c *PageCollections) findFirstWorkPageByKindIn(kind string) *pageState {
+	for _, p := range c.workAllPages {
+		if p.Kind() == kind {
+			return p
+		}
+	}
+	return nil
 }
 
-func (c *PageCollections) addPage(page *Page) {
+func (c *PageCollections) addPage(page *pageState) {
 	c.rawAllPages = append(c.rawAllPages, page)
 }
 
 func (c *PageCollections) removePageFilename(filename string) {
 	if i := c.rawAllPages.findPagePosByFilename(filename); i >= 0 {
-		c.clearResourceCacheForPage(c.rawAllPages[i].(*Page))
 		c.rawAllPages = append(c.rawAllPages[:i], c.rawAllPages[i+1:]...)
 	}
 
 }
 
-func (c *PageCollections) removePage(page *Page) {
+func (c *PageCollections) removePage(page *pageState) {
 	if i := c.rawAllPages.findPagePos(page); i >= 0 {
-		c.clearResourceCacheForPage(c.rawAllPages[i].(*Page))
 		c.rawAllPages = append(c.rawAllPages[:i], c.rawAllPages[i+1:]...)
 	}
-
 }
 
-func (c *PageCollections) findPagesByShortcode(shortcode string) Pages {
-	var pages Pages
+// TODO(bep) page
+func (c *PageCollections) findPagesByShortcode(shortcode string) page.Pages {
+	var pages page.Pages
 
-	for _, p := range c.rawAllPages {
-		pp := p.(*Page)
+	/*for _, p := range c.rawAllPages {
+		pp := p.p
 		if pp.shortcodeState != nil {
 			if _, ok := pp.shortcodeState.nameSet[shortcode]; ok {
-				pages = append(pages, p)
+				pages = append(pages, p.p)
 			}
 		}
-	}
+	}*/
 	return pages
 }
 
-func (c *PageCollections) replacePage(page *Page) {
+func (c *PageCollections) replacePage(page *pageState) {
 	// will find existing page that matches filepath and remove it
 	c.removePage(page)
 	c.addPage(page)
-}
-
-func (c *PageCollections) clearResourceCacheForPage(page *Page) {
-	if len(page.Resources()) > 0 {
-		page.s.ResourceSpec.DeleteCacheByPrefix(page.relTargetPathBase)
-	}
 }

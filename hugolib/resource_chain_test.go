@@ -39,7 +39,7 @@ func TestSCSSWithIncludePaths(t *testing.T) {
 
 	v := viper.New()
 	v.Set("workingDir", workDir)
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
 	b.WithViper(v)
 	b.WithWorkingDir(workDir)
 	// Need to use OS fs for this.
@@ -94,7 +94,7 @@ func TestSCSSWithThemeOverrides(t *testing.T) {
 	v := viper.New()
 	v.Set("workingDir", workDir)
 	v.Set("theme", theme)
-	b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+	b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
 	b.WithViper(v)
 	b.WithWorkingDir(workDir)
 	// Need to use OS fs for this.
@@ -166,7 +166,7 @@ T1: {{ $r.Content }}
 }
 
 func TestResourceChain(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	assert := require.New(t)
 
@@ -367,7 +367,7 @@ CSV2: {{ $csv2 }}
 			continue
 		}
 
-		b := newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger())
+		b := newTestSitesBuilder(t).WithLogger(loggers.NewErrorLogger())
 		b.WithSimpleConfigFile()
 		b.WithContent("_index.md", `
 ---
@@ -461,7 +461,7 @@ $color: #333;
 }
 
 func TestMultiSiteResource(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	assert := require.New(t)
 
 	b := newMultiSiteTestDefaultBuilder(t)

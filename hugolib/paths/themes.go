@@ -75,7 +75,7 @@ func (c *themesCollector) add(name, configFilename string) (ThemeConfig, error) 
 		var err error
 		cfg, err = config.FromFile(c.fs, configFilename)
 		if err != nil {
-			return tc, nil
+			return tc, err
 		}
 	}
 

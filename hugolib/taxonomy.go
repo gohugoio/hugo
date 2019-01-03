@@ -30,44 +30,30 @@ func (tl TaxonomyList) String() string {
 
 // A Taxonomy is a map of keywords to a list of pages.
 // For example
-//    TagTaxonomy['technology'] = WeightedPages
-//    TagTaxonomy['go']  =  WeightedPages2
-type Taxonomy map[string]WeightedPages
-
-// WeightedPages is a list of Pages with their corresponding (and relative) weight
-// [{Weight: 30, Page: *1}, {Weight: 40, Page: *2}]
-type WeightedPages []WeightedPage
-
-// A WeightedPage is a Page with a weight.
-type WeightedPage struct {
-	Weight int
-	page.Page
-}
-
-func (w WeightedPage) String() string {
-	return fmt.Sprintf("WeightedPage(%d,%q)", w.Weight, w.Page.Title())
-}
+//    TagTaxonomy['technology'] = page.WeightedPages
+//    TagTaxonomy['go']  =  page.WeightedPages2
+type Taxonomy map[string]page.WeightedPages
 
 // OrderedTaxonomy is another representation of an Taxonomy using an array rather than a map.
 // Important because you can't order a map.
 type OrderedTaxonomy []OrderedTaxonomyEntry
 
 // OrderedTaxonomyEntry is similar to an element of a Taxonomy, but with the key embedded (as name)
-// e.g:  {Name: Technology, WeightedPages: Taxonomyedpages}
+// e.g:  {Name: Technology, page.WeightedPages: Taxonomyedpages}
 type OrderedTaxonomyEntry struct {
 	Name          string
-	WeightedPages WeightedPages
+	WeightedPages page.WeightedPages
 }
 
 // Get the weighted pages for the given key.
-func (i Taxonomy) Get(key string) WeightedPages {
+func (i Taxonomy) Get(key string) page.WeightedPages {
 	return i[key]
 }
 
 // Count the weighted pages for the given key.
 func (i Taxonomy) Count(key string) int { return len(i[key]) }
 
-func (i Taxonomy) add(key string, w WeightedPage) {
+func (i Taxonomy) add(key string, w page.WeightedPage) {
 	i[key] = append(i[key], w)
 }
 
@@ -112,7 +98,7 @@ func (i Taxonomy) ByCount() OrderedTaxonomy {
 }
 
 // Pages returns the Pages for this taxonomy.
-func (ie OrderedTaxonomyEntry) Pages() Pages {
+func (ie OrderedTaxonomyEntry) Pages() page.Pages {
 	return ie.WeightedPages.Pages()
 }
 
@@ -166,61 +152,3 @@ func (s *orderedTaxonomySorter) Swap(i, j int) {
 func (s *orderedTaxonomySorter) Less(i, j int) bool {
 	return s.by(&s.taxonomy[i], &s.taxonomy[j])
 }
-
-// Pages returns the Pages in this weighted page set.
-func (wp WeightedPages) Pages() Pages {
-	pages := make(Pages, len(wp))
-	for i := range wp {
-		pages[i] = wp[i].Page
-	}
-	return pages
-}
-
-// Prev returns the previous Page relative to the given Page in
-// this weighted page set.
-func (wp WeightedPages) Prev(cur page.Page) page.Page {
-	for x, c := range wp {
-		if c.Page == cur {
-			if x == 0 {
-				return wp[len(wp)-1].Page
-			}
-			return wp[x-1].Page
-		}
-	}
-	return nil
-}
-
-// Next returns the next Page relative to the given Page in
-// this weighted page set.
-func (wp WeightedPages) Next(cur page.Page) page.Page {
-	for x, c := range wp {
-		if c.Page == cur {
-			if x < len(wp)-1 {
-				return wp[x+1].Page
-			}
-			return wp[0].Page
-		}
-	}
-	return nil
-}
-
-func (wp WeightedPages) Len() int      { return len(wp) }
-func (wp WeightedPages) Swap(i, j int) { wp[i], wp[j] = wp[j], wp[i] }
-
-// Sort stable sorts this weighted page set.
-func (wp WeightedPages) Sort() { sort.Stable(wp) }
-
-// Count returns the number of pages in this weighted page set.
-func (wp WeightedPages) Count() int { return len(wp) }
-
-func (wp WeightedPages) Less(i, j int) bool {
-	if wp[i].Weight == wp[j].Weight {
-		if wp[i].Page.Date().Equal(wp[j].Page.Date()) {
-			return wp[i].Page.Title() < wp[j].Page.Title()
-		}
-		return wp[i].Page.Date().After(wp[i].Page.Date())
-	}
-	return wp[i].Weight < wp[j].Weight
-}
-
-// TODO mimic PagesSorter for WeightedPages

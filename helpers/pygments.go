@@ -56,7 +56,7 @@ type highlighters struct {
 }
 
 func newHiglighters(cs *ContentSpec) highlighters {
-	return highlighters{cs: cs, ignoreCache: cs.cfg.GetBool("ignoreCache"), cacheDir: cs.cfg.GetString("cacheDir")}
+	return highlighters{cs: cs, ignoreCache: cs.Cfg.GetBool("ignoreCache"), cacheDir: cs.Cfg.GetString("cacheDir")}
 }
 
 func (h highlighters) chromaHighlight(code, lang, optsStr string) (string, error) {

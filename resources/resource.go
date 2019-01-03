@@ -34,6 +34,7 @@ import (
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/spf13/afero"
@@ -61,7 +62,7 @@ type permalinker interface {
 	permalinkFor(target string) string
 	relTargetPathsFor(target string) []string
 	relTargetPaths() []string
-	targetPath() string
+	TargetPath() string
 }
 
 type Spec struct {
@@ -73,6 +74,8 @@ type Spec struct {
 	Logger *loggers.Logger
 
 	TextTemplates tpl.TemplateParseFinder
+
+	Permalinks page.PermalinkExpander
 
 	// Holds default filter settings etc.
 	imaging *Imaging
@@ -98,11 +101,17 @@ func NewSpec(
 		logger = loggers.NewErrorLogger()
 	}
 
+	permalinks, err := page.NewPermalinkExpander(s)
+	if err != nil {
+		return nil, err
+	}
+
 	rs := &Spec{PathSpec: s,
 		Logger:        logger,
 		imaging:       &imaging,
 		MediaTypes:    mimeTypes,
 		OutputFormats: outputFormats,
+		Permalinks:    permalinks,
 		FileCaches:    fileCaches,
 		imageCache: newImageCache(
 			fileCaches.ImageCache(),
@@ -262,10 +271,6 @@ func (r *Spec) IsInImageCache(key string) bool {
 	// This is used for cache pruning. We currently only have images, but we could
 	// imagine expanding on this.
 	return r.imageCache.isInCache(key)
-}
-
-func (r *Spec) DeleteCacheByPrefix(prefix string) {
-	r.imageCache.deleteByPrefix(prefix)
 }
 
 func (r *Spec) ClearCaches() {
@@ -531,7 +536,7 @@ func (l *genericResource) relTargetPathsFor(target string) []string {
 }
 
 func (l *genericResource) relTargetPaths() []string {
-	return l.relTargetPathsForRel(l.targetPath())
+	return l.relTargetPathsForRel(l.TargetPath())
 }
 
 func (l *genericResource) Name() string {
@@ -652,7 +657,8 @@ func (l *genericResource) Publish() error {
 }
 
 // Path is stored with Unix style slashes.
-func (l *genericResource) targetPath() string {
+// TODO(bep) page
+func (l *genericResource) TargetPath() string {
 	return l.relTargetDirFile.path()
 }
 

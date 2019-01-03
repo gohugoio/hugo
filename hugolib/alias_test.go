@@ -42,7 +42,7 @@ const basicTemplate = "<html><body>{{.Content}}</body></html>"
 const aliasTemplate = "<html><body>ALIASTEMPLATE</body></html>"
 
 func TestAlias(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	assert := require.New(t)
 
 	b := newTestSitesBuilder(t)
@@ -50,7 +50,7 @@ func TestAlias(t *testing.T) {
 	b.CreateSites().Build(BuildCfg{})
 
 	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages, 1)
+	require.Len(t, b.H.Sites[0].RegularPages(), 1)
 
 	// the real page
 	b.AssertFileContent("public/page/index.html", "For some moments the old man")
@@ -59,7 +59,7 @@ func TestAlias(t *testing.T) {
 }
 
 func TestAliasMultipleOutputFormats(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	assert := require.New(t)
 
@@ -85,7 +85,7 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 }
 
 func TestAliasTemplate(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile().WithContent("page.md", pageWithAlias).WithTemplatesAdded("alias.html", aliasTemplate)

@@ -22,7 +22,7 @@ import (
 )
 
 func TestRSSOutput(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	var (
 		cfg, fs = newTestCfg()
 		th      = testHelper{cfg, fs, t}
@@ -65,7 +65,7 @@ func TestRSSOutput(t *testing.T) {
 // This test has this single purpose: Check that the Kind is that of the source page.
 // See https://github.com/gohugoio/hugo/issues/5138
 func TestRSSKind(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile().WithTemplatesAdded("index.rss.xml", `RSS Kind: {{ .Kind }}`)

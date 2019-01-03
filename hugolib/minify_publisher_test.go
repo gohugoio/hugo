@@ -22,7 +22,7 @@ import (
 )
 
 func TestMinifyPublisher(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	assert := require.New(t)
 
 	v := viper.New()
@@ -43,7 +43,8 @@ func TestMinifyPublisher(t *testing.T) {
 
 <body id="home">
 
-	<h1>{{ .Page.Title }}</h1>
+	<h1>{{ .Title }}</h1>
+	<p>{{ .Permalink }}</p>
 
 </body>
 </html>
@@ -55,13 +56,13 @@ func TestMinifyPublisher(t *testing.T) {
 	b.CreateSites().Build(BuildCfg{})
 
 	assert.Equal(1, len(b.H.Sites))
-	require.Len(t, b.H.Sites[0].RegularPages, 1)
+	require.Len(t, b.H.Sites[0].RegularPages(), 1)
 
 	// Check minification
 	// HTML
-	b.AssertFileContent("public/page/index.html", "<!doctype html><html lang=en><head><meta charset=utf-8><title>HTML5 boilerplate – all you really need…</title><link rel=stylesheet href=css/style.css></head><body id=home><h1>Has Alias</h1></body></html>")
+	b.AssertFileContent("public/page/index.html", "<h1>Has Alias</h1>")
 	// HTML alias. Note the custom template which does no redirect.
-	b.AssertFileContent("public/foo/bar/index.html", "<!doctype html><html lang=en><head><meta charset=utf-8><title>HTML5 boilerplate ")
+	b.AssertFileContent("public/foo/bar/index.html", "<!doctype html>", "Has Alias", "https://example.org/page/")
 
 	// RSS
 	b.AssertFileContent("public/index.xml", "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?><rss version=\"2.0\" xmlns:atom=\"http://www.w3.org/2005/Atom\"><channel><title/><link>https://example.org/</link>")

@@ -35,7 +35,7 @@ const (
 )
 
 func TestShortcodeCrossrefs(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	for _, relative := range []bool{true, false} {
 		doTestShortcodeCrossrefs(t, relative)
@@ -69,9 +69,9 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 
 	s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
 
-	require.Len(t, s.RegularPages, 1)
+	require.Len(t, s.RegularPages(), 1)
 
-	content, err := s.RegularPages[0].Content()
+	content, err := s.RegularPages()[0].Content()
 	require.NoError(t, err)
 	output := cast.ToString(content)
 
@@ -81,7 +81,7 @@ func doTestShortcodeCrossrefs(t *testing.T, relative bool) {
 }
 
 func TestShortcodeHighlight(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	for _, this := range []struct {
 		in, expected string
@@ -120,7 +120,7 @@ title: Shorty
 }
 
 func TestShortcodeFigure(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	for _, this := range []struct {
 		in, expected string
@@ -165,7 +165,7 @@ title: Shorty
 }
 
 func TestShortcodeYoutube(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	for _, this := range []struct {
 		in, expected string
@@ -204,7 +204,7 @@ title: Shorty
 }
 
 func TestShortcodeVimeo(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	for _, this := range []struct {
 		in, expected string
@@ -243,7 +243,7 @@ title: Shorty
 }
 
 func TestShortcodeGist(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	for _, this := range []struct {
 		in, expected string
@@ -276,7 +276,7 @@ title: Shorty
 }
 
 func TestShortcodeTweet(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	for i, this := range []struct {
 		in, resp, expected string
@@ -324,7 +324,7 @@ title: Shorty
 }
 
 func TestShortcodeInstagram(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	for i, this := range []struct {
 		in, hidecaption, resp, expected string

@@ -14,54 +14,26 @@
 package hugolib
 
 import (
-	"html/template"
+	"github.com/gohugoio/hugo/resources/page"
 )
 
-// PageWithoutContent is sent to the shortcodes. They cannot access the content
+// This is sent to the shortcodes. They cannot access the content
 // they're a part of. It would cause an infinite regress.
 //
 // Go doesn't support virtual methods, so this careful dance is currently (I think)
 // the best we can do.
-type PageWithoutContent struct {
-	*Page
+type pageWithoutContent struct {
+	page.PageWithoutContent
+	page.ContentProvider
 }
 
-// Content returns an empty string.
-func (p *PageWithoutContent) Content() (interface{}, error) {
-	return "", nil
+func (p pageWithoutContent) page() page.Page {
+	return p.PageWithoutContent.(page.Page)
 }
 
-// Truncated always returns false.
-func (p *PageWithoutContent) Truncated() bool {
-	return false
-}
-
-// Summary returns an empty string.
-func (p *PageWithoutContent) Summary() template.HTML {
-	return ""
-}
-
-// WordCount always returns 0.
-func (p *PageWithoutContent) WordCount() int {
-	return 0
-}
-
-// ReadingTime always returns 0.
-func (p *PageWithoutContent) ReadingTime() int {
-	return 0
-}
-
-// FuzzyWordCount always returns 0.
-func (p *PageWithoutContent) FuzzyWordCount() int {
-	return 0
-}
-
-// Plain returns an empty string.
-func (p *PageWithoutContent) Plain() string {
-	return ""
-}
-
-// PlainWords returns an empty string slice.
-func (p *PageWithoutContent) PlainWords() []string {
-	return []string{}
+func newPageWithoutContent(p page.Page) page.Page {
+	return pageWithoutContent{
+		PageWithoutContent: p,
+		ContentProvider:    page.NopPage,
+	}
 }

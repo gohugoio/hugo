@@ -20,6 +20,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/resources/page"
+
 	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -124,33 +126,33 @@ func (cc *convertCmd) convertContents(format metadecoders.Format) error {
 
 	site := h.Sites[0]
 
-	site.Log.FEEDBACK.Println("processing", len(site.AllPages), "content files")
-	for _, p := range site.AllPages {
-		if err := cc.convertAndSavePage(p.(*hugolib.Page), site, format); err != nil {
+	site.Log.FEEDBACK.Println("processing", len(site.AllPages()), "content files")
+	for _, p := range site.AllPages() {
+		if err := cc.convertAndSavePage(p, site, format); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, targetFormat metadecoders.Format) error {
+func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, targetFormat metadecoders.Format) error {
 	// The resources are not in .Site.AllPages.
 	for _, r := range p.Resources().ByType("page") {
-		if err := cc.convertAndSavePage(r.(*hugolib.Page), site, targetFormat); err != nil {
+		if err := cc.convertAndSavePage(r.(page.Page), site, targetFormat); err != nil {
 			return err
 		}
 	}
 
-	if p.Filename() == "" {
+	if p.File().Filename() == "" {
 		// No content file.
 		return nil
 	}
 
 	errMsg := fmt.Errorf("Error processing file %q", p.Path())
 
-	site.Log.INFO.Println("Attempting to convert", p.LogicalName())
+	site.Log.INFO.Println("Attempting to convert", p.File().Filename())
 
-	f, _ := p.File.(src.ReadableFile)
+	f, _ := p.File().(src.ReadableFile)
 	file, err := f.Open()
 	if err != nil {
 		site.Log.ERROR.Println(errMsg)
@@ -186,7 +188,7 @@ func (cc *convertCmd) convertAndSavePage(p *hugolib.Page, site *hugolib.Site, ta
 
 	newContent.Write(pf.content)
 
-	newFilename := p.Filename()
+	newFilename := p.File().Filename()
 
 	if cc.outputDir != "" {
 		contentDir := strings.TrimSuffix(newFilename, p.Path())

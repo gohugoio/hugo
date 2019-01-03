@@ -14,8 +14,7 @@
 package hugolib
 
 var (
-	_ Permalinker = (*Page)(nil)
-	_ Permalinker = (*OutputFormat)(nil)
+	_ Permalinker = (*pageState)(nil)
 )
 
 // Permalinker provides permalinks of both the relative and absolute kind.

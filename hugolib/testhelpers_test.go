@@ -19,6 +19,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -418,10 +419,10 @@ date: "2018-02-28"
 			"content/sect/doc1.nn.md", contentTemplate,
 		}
 
-		listTemplateCommon = "{{ $p := .Paginator }}{{ $p.PageNumber }}|{{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}|Pager: {{ template \"_internal/pagination.html\" . }}"
+		listTemplateCommon = "{{ $p := .Paginator }}{{ $p.PageNumber }}|{{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}|Pager: {{ template \"_internal/pagination.html\" . }}|Kind: {{ .Kind }}"
 
 		defaultTemplates = []string{
-			"_default/single.html", "Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Lang}}|{{ .Content }}",
+			"_default/single.html", "Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Language.Lang}}|{{ .Content }}",
 			"_default/list.html", "List Page " + listTemplateCommon,
 			"index.html", "{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").RelPermalink  }}",
 			"index.fr.html", "{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").RelPermalink  }}",
@@ -480,12 +481,16 @@ func trace() string {
 }
 
 func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
-	content := readDestination(s.T, s.Fs, filename)
+	content := s.FileContent(filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
 			s.Fatalf("No match for %q in content for %s\n%s\n%q", match, filename, content, content)
 		}
 	}
+}
+
+func (s *sitesBuilder) FileContent(filename string) string {
+	return readDestination(s.T, s.Fs, filename)
 }
 
 func (s *sitesBuilder) AssertObject(expected string, object interface{}) {
@@ -696,11 +701,27 @@ func writeSourcesToSource(t *testing.T, base string, fs *hugofs.Fs, sources ...[
 	}
 }
 
-func dumpPages(pages ...*Page) {
+func getPage(in page.Page, ref string) page.Page {
+	p, err := in.GetPage(ref)
+	if err != nil {
+		panic(err)
+	}
+	return p
+}
+
+func dumpPages(pages ...page.Page) {
 	for i, p := range pages {
-		fmt.Printf("%d: Kind: %s Title: %-10s RelPermalink: %-10s Path: %-10s sections: %s Len Sections(): %d\n",
+		fmt.Printf("%d: Kind: %s Title: %-10s RelPermalink: %-10s Path: %-10s sections: %s\n",
 			i+1,
-			p.Kind(), p.title, p.RelPermalink(), p.Path(), p.sections, len(p.Sections()))
+			p.Kind(), p.Title(), p.RelPermalink(), p.Path(), p.SectionsPath())
+	}
+}
+
+func dumpSPages(pages ...*pageState) {
+	for i, p := range pages {
+		fmt.Printf("%d: Kind: %s Title: %-10s RelPermalink: %-10s Path: %-10s sections: %s\n",
+			i+1,
+			p.Kind(), p.Title(), p.RelPermalink(), p.Path(), p.SectionsPath())
 	}
 }
 
@@ -722,12 +743,21 @@ func printStringIndexes(s string) {
 		fmt.Println()
 
 	}
-
 }
+
 func isCI() bool {
 	return os.Getenv("CI") != ""
 }
 
 func isGo111() bool {
 	return strings.Contains(runtime.Version(), "1.11")
+}
+
+// See https://github.com/golang/go/issues/19280
+var parallelEnabled = true
+
+func parallel(t *testing.T) {
+	if parallelEnabled {
+		t.Parallel()
+	}
 }

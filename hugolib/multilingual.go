@@ -62,10 +62,10 @@ func newMultiLingualFromSites(cfg config.Provider, sites ...*Site) (*Multilingua
 	languages := make(langs.Languages, len(sites))
 
 	for i, s := range sites {
-		if s.Language == nil {
+		if s.language == nil {
 			return nil, errors.New("Missing language for site")
 		}
-		languages[i] = s.Language
+		languages[i] = s.language
 	}
 
 	defaultLang := cfg.GetString("defaultContentLanguage")
@@ -78,19 +78,15 @@ func newMultiLingualFromSites(cfg config.Provider, sites ...*Site) (*Multilingua
 
 }
 
-func newMultiLingualForLanguage(language *langs.Language) *Multilingual {
-	languages := langs.Languages{language}
-	return &Multilingual{Languages: languages, DefaultLang: language}
-}
 func (ml *Multilingual) enabled() bool {
 	return len(ml.Languages) > 1
 }
 
 func (s *Site) multilingualEnabled() bool {
-	if s.owner == nil {
+	if s.h == nil {
 		return false
 	}
-	return s.owner.multilingual != nil && s.owner.multilingual.enabled()
+	return s.h.multilingual != nil && s.h.multilingual.enabled()
 }
 
 func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (langs.Languages, error) {

@@ -26,6 +26,7 @@ import (
 
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/publisher"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -55,7 +56,13 @@ func newAliasHandler(t tpl.TemplateFinder, l *loggers.Logger, allowRoot bool) al
 	return aliasHandler{t, l, allowRoot}
 }
 
-func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (io.Reader, error) {
+type aliasPage struct {
+	Permalink string
+	page.Page
+}
+
+// TODO(bep) page isn't permalink == p.Permalink()?
+func (a aliasHandler) renderAlias(isXHTML bool, permalink string, p page.Page) (io.Reader, error) {
 	t := "alias"
 	if isXHTML {
 		t = "alias-xhtml"
@@ -75,12 +82,9 @@ func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (i
 		}
 
 	}
-	data := struct {
-		Permalink string
-		Page      *Page
-	}{
+	data := aliasPage{
 		permalink,
-		page,
+		p,
 	}
 
 	buffer := new(bytes.Buffer)
@@ -91,11 +95,11 @@ func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (i
 	return buffer, nil
 }
 
-func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format, p *Page) (err error) {
+func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format, p page.Page) (err error) {
 	return s.publishDestAlias(false, path, permalink, outputFormat, p)
 }
 
-func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p *Page) (err error) {
+func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p page.Page) (err error) {
 	handler := newAliasHandler(s.Tmpl, s.Log, allowRoot)
 
 	isXHTML := strings.HasSuffix(path, ".xhtml")

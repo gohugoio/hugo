@@ -269,7 +269,17 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 	typ := obj.Type()
 	obj, isNil := indirect(obj)
 
-	// first, check whether obj has a method. In this case, obj is
+	// We will typically get a page.Page interface value, which is a narrower
+	// interface than the what may be available, so unwrap to the concrete
+	// element.
+	// TODO(bep) page this works in the simple case, but is probably a bad
+	// idea on its own. This can be a composite. Probably need to fall back
+	// to the concrete element when the interface route fails.
+	if obj.Kind() == reflect.Interface {
+		obj = obj.Elem()
+	}
+
+	// check whether obj has a method. In this case, obj is
 	// an interface, a struct or its pointer. If obj is a struct,
 	// to check all T and *T method, use obj pointer type Value
 	objPtr := obj

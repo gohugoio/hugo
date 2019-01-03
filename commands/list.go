@@ -67,9 +67,8 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 				}
 
 				for _, p := range sites.Pages() {
-					pp := p.(*hugolib.Page)
-					if pp.IsDraft() {
-						jww.FEEDBACK.Println(filepath.Join(pp.File.Dir(), pp.File.LogicalName()))
+					if p.IsDraft() {
+						jww.FEEDBACK.Println(filepath.Join(p.File().Dir(), p.File().LogicalName()))
 					}
 
 				}
@@ -105,8 +104,7 @@ posted in the future.`,
 
 				for _, p := range sites.Pages() {
 					if resource.IsFuture(p) {
-						pp := p.(*hugolib.Page)
-						jww.FEEDBACK.Println(filepath.Join(pp.File.Dir(), pp.File.LogicalName()))
+						jww.FEEDBACK.Println(filepath.Join(p.File().Dir(), p.File().LogicalName()))
 					}
 
 				}
@@ -142,8 +140,7 @@ expired.`,
 
 				for _, p := range sites.Pages() {
 					if resource.IsExpired(p) {
-						pp := p.(*hugolib.Page)
-						jww.FEEDBACK.Println(filepath.Join(pp.File.Dir(), pp.File.LogicalName()))
+						jww.FEEDBACK.Println(filepath.Join(p.File().Dir(), p.File().LogicalName()))
 					}
 
 				}

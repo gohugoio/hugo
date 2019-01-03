@@ -23,7 +23,7 @@ import (
 )
 
 func TestThemesGraph(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	const (
 		themeStandalone = `

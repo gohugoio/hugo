@@ -124,7 +124,7 @@ C:
 }
 
 func TestPageBundlerCaptureBasic(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	assert := require.New(t)
 	fs, cfg := newTestBundleSources(t)
@@ -169,7 +169,7 @@ C:
 }
 
 func TestPageBundlerCaptureMultilingual(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 
 	assert := require.New(t)
 	fs, cfg := newTestBundleSourcesMultilingual(t)

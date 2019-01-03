@@ -24,7 +24,7 @@ import (
 )
 
 func TestAllTemplateEngines(t *testing.T) {
-	t.Parallel()
+	parallel(t)
 	noOp := func(s string) string {
 		return s
 	}

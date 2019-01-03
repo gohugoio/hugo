@@ -44,17 +44,6 @@ func (c *imageCache) isInCache(key string) bool {
 	return found
 }
 
-func (c *imageCache) deleteByPrefix(prefix string) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	prefix = c.normalizeKey(prefix)
-	for k := range c.store {
-		if strings.HasPrefix(k, prefix) {
-			delete(c.store, k)
-		}
-	}
-}
-
 func (c *imageCache) normalizeKey(key string) string {
 	// It is a path with Unix style slashes and it always starts with a leading slash.
 	key = filepath.ToSlash(key)

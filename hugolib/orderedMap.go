@@ -28,14 +28,6 @@ func newOrderedMap() *orderedMap {
 	return &orderedMap{m: make(map[interface{}]interface{})}
 }
 
-func newOrderedMapFromStringMapString(m map[string]string) *orderedMap {
-	om := newOrderedMap()
-	for k, v := range m {
-		om.Add(k, v)
-	}
-	return om
-}
-
 func (m *orderedMap) Add(k, v interface{}) {
 	m.Lock()
 	defer m.Unlock()
