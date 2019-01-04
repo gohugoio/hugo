@@ -180,9 +180,6 @@ http://remarkjs.com)
 .Type
 : the [content type](/content-management/types/) of the content (e.g., `post`).
 
-.URL
-: the URL for the page relative to the web root. Note that a `url` set directly in front matter overrides the default relative URL for the rendered page.
-
 .UniqueID
 : the MD5-checksum of the content file's path.
 
