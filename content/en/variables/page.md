@@ -78,9 +78,6 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .Kind
 : the page's *kind*. Possible return values are `page`, `home`, `section`, `taxonomy`, or `taxonomyTerm`. Note that there are also `RSS`, `sitemap`, `robotsTXT`, and `404` kinds, but these are only available during the rendering of each of these respective page's kind and therefore *not* available in any of the `Pages` collections.
 
-.Lang
-: language taken from the language extension notation.
-
 .Language
 : a language object that points to the language's definition in the site
 `config`.
