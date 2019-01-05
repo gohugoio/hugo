@@ -67,14 +67,14 @@ For production:
 
 ```
 [context.production.environment]
-  HUGO_VERSION = "0.36"
+  HUGO_VERSION = "0.53"
 ```
 
 For testing:
 
 ```
 [context.deploy-preview.environment]
-  HUGO_VERSION = "0.36"
+  HUGO_VERSION = "0.53"
 ```
 
 The Netlify configuration file can be a little hard to understand and get right for the different environment, and you may get some inspiration and tips from this site's `netlify.toml`:
