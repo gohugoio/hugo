@@ -97,21 +97,23 @@ func TestFixURL(t *testing.T) {
 		{"No config", "", "", true, 1313, "//localhost:1313/"},
 	}
 
-	for i, test := range tests {
-		b := newCommandsBuilder()
-		s := b.newServerCmd()
-		v := viper.New()
-		baseURL := test.CLIBaseURL
-		v.Set("baseURL", test.CfgBaseURL)
-		s.serverAppend = test.AppendPort
-		s.serverPort = test.Port
-		result, err := s.fixURL(v, baseURL, s.serverPort)
-		if err != nil {
-			t.Errorf("Test #%d %s: unexpected error %s", i, test.TestName, err)
-		}
-		if result != test.Result {
-			t.Errorf("Test #%d %s: expected %q, got %q", i, test.TestName, test.Result, result)
-		}
+	for _, test := range tests {
+		t.Run(test.TestName, func(t *testing.T) {
+			b := newCommandsBuilder()
+			s := b.newServerCmd()
+			v := viper.New()
+			baseURL := test.CLIBaseURL
+			v.Set("baseURL", test.CfgBaseURL)
+			s.serverAppend = test.AppendPort
+			s.serverPort = test.Port
+			result, err := s.fixURL(v, baseURL, s.serverPort)
+			if err != nil {
+				t.Errorf("Unexpected error %s", err)
+			}
+			if result != test.Result {
+				t.Errorf("Expected %q, got %q", test.Result, result)
+			}
+		})
 	}
 }
 
