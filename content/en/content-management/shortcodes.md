@@ -243,7 +243,7 @@ Using the preceding `instagram` with `hidecaption` example above, the following 
 
 ### `param`
 
-Gets a value from the current `Page's` params set in front matter, with a fall back to the site param value. If will log an `ERROR` if the param with the given key could not be found in either.
+Gets a value from the current `Page's` params set in front matter, with a fall back to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
 
 ```bash
 {{</* param testparam */>}}
