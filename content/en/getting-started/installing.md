@@ -447,7 +447,7 @@ To install the non-extended version without Sass/SCSS support:
 To switch between the two, use either `snap refresh hugo --channel=extended` or `snap refresh hugo --channel=stable`.
 
 {{% note %}}
-Hugo-as-a-snap can write only inside the user’s `$HOME` directory---and gvfs-mounted directories owned by the user---because of Snaps’ confinement and security model. More information is also available [in this related GitHub issue](https://github.com/gohugoio/hugo/issues/3143). Use ```sudo snap install hugo --classic``` to disable the default security model if you want hugo to be able to have write access in other paths besides the user’s `$HOME` directory.
+Hugo installed via Snap can write only inside the user’s `$HOME` directory---and gvfs-mounted directories owned by the user---because of Snaps’ confinement and security model. More information is also available [in this related GitHub issue](https://github.com/gohugoio/hugo/issues/3143).
 {{% /note %}}
 
 ### Debian and Ubuntu
