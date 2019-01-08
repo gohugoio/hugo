@@ -63,18 +63,16 @@ See [themes.gohugo.io](https://themes.gohugo.io/) for a list of themes to consid
 
 ```bash
 cd quickstart
-git init # optional, but recommended
 
 # Download the theme
+git init
 git submodule add https://github.com/budparr/gohugo-theme-ananke.git themes/ananke
-
 # Note for non-git users:
-#
-# - If you do not have git installed, you can download the archive of the latest version
-#   of this theme from https://github.com/budparr/gohugo-theme-ananke/archive/master.zip .
-# - Extract that .zip file to get a "gohugo-theme-ananke-master" directory.
-# - Rename that directory to "ananke", and move it into the "themes/" directory.
-#
+#   - If you do not have git installed, you can download the archive of the latest
+#     version of this theme from:
+#       https://github.com/budparr/gohugo-theme-ananke/archive/master.zip
+#   - Extract that .zip file to get a "gohugo-theme-ananke-master" directory.
+#   - Rename that directory to "ananke", and move it into the "themes/" directory.
 # End of note for non-git users.
 
 # Edit your config.toml configuration file
