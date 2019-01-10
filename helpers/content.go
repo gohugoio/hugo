@@ -192,6 +192,7 @@ var mmarkExtensionMap = map[string]int{
 	"noEmptyLineBeforeBlock": mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK,
 	"headerIds":              mmark.EXTENSION_HEADER_IDS,
 	"autoHeaderIds":          mmark.EXTENSION_AUTO_HEADER_IDS,
+	"definitionLists":        mmark.EXTENSION_DEFINITION_LISTS,
 }
 
 // StripHTML accepts a string, strips out all HTML tags and returns it.
@@ -395,6 +396,7 @@ func getMmarkExtensions(ctx *RenderingContext) int {
 	flags |= mmark.EXTENSION_SHORT_REF
 	flags |= mmark.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK
 	flags |= mmark.EXTENSION_INCLUDE
+	flags |= mmark.EXTENSION_DEFINITION_LISTS
 
 	if ctx.Config == nil {
 		panic(fmt.Sprintf("RenderingContext of %q doesn't have a config", ctx.DocumentID))
