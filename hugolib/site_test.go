@@ -291,7 +291,6 @@ func doTestShouldAlwaysHaveUglyURLs(t *testing.T, uglyURLs bool) {
 
 	cfg.Set("verbose", true)
 	cfg.Set("baseURL", "http://auth/bub")
-	cfg.Set("rssURI", "index.xml")
 	cfg.Set("blackfriday",
 		map[string]interface{}{
 			"plainIDAnchors": true})
