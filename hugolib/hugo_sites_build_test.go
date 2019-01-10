@@ -953,7 +953,6 @@ var tocPageWithShortcodesInHeadingsExpected = `<nav id="TableOfContents">
 
 var multiSiteTOMLConfigTemplate = `
 baseURL = "http://example.com/blog"
-rssURI = "index.xml"
 
 paginate = 1
 disablePathToLower = true
@@ -1011,7 +1010,6 @@ lag = "lag"
 
 var multiSiteYAMLConfigTemplate = `
 baseURL: "http://example.com/blog"
-rssURI: "index.xml"
 
 disablePathToLower: true
 paginate: 1
@@ -1071,7 +1069,6 @@ Languages:
 var multiSiteJSONConfigTemplate = `
 {
   "baseURL": "http://example.com/blog",
-  "rssURI": "index.xml",
   "paginate": 1,
   "disablePathToLower": true,
   "defaultContentLanguage": "{{ .DefaultContentLanguage }}",
