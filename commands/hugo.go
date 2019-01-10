@@ -764,7 +764,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 			if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
 				continue
 			}
-			if ev.Op&fsnotify.Remove == fsnotify.Remove {
+			if ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Rename == fsnotify.Rename {
 				for _, configFile := range c.configFiles {
 					counter := 0
 					for watcher.Add(configFile) != nil {
