@@ -104,7 +104,7 @@ func TestCommandsPersistentFlags(t *testing.T) {
 		assert.Equal("/tmp/mydestination", cfg.GetString("publishDir"))
 		assert.Equal("mycontent", cfg.GetString("contentDir"))
 		assert.Equal("mylayouts", cfg.GetString("layoutDir"))
-		assert.Equal("mytheme", cfg.GetString("theme"))
+		assert.Equal([]string{"mytheme"}, cfg.GetStringSlice("theme"))
 		assert.Equal("mythemes", cfg.GetString("themesDir"))
 		assert.Equal("https://example.com/b/", cfg.GetString("baseURL"))
 

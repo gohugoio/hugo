@@ -176,7 +176,7 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 		PaginatePath: cfg.GetString("paginatePath"),
 	}
 
-	if cfg.IsSet("allThemes") {
+	if !cfg.IsSet("theme") && cfg.IsSet("allThemes") {
 		p.AllThemes = cfg.Get("allThemes").([]ThemeConfig)
 	} else {
 		p.AllThemes, err = collectThemeNames(p)
