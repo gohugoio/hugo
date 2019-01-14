@@ -125,8 +125,8 @@ cours-versailles/index.html
 exercices/index.html
 exercices/index.xml
 exercices/barycentre-et-carres-des-distances/index.html
-post/
-post/index.html
+posts/
+posts/index.html
 sujets/index.html
 sujets/index.xml
 sujets/2016-09_supelec-jp/index.html

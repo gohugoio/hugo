@@ -63,7 +63,7 @@ The following is an example of a typical Hugo project directory's content:
 .
 ...
 ├── content
-|   ├── post
+|   ├── posts
 |   |   ├── _index.md
 |   |   ├── post-01.md
 |   |   └── post-02.md
@@ -73,9 +73,9 @@ The following is an example of a typical Hugo project directory's content:
 ...
 ```
 
-Using the above example, let's assume you have the following in `content/post/_index.md`:
+Using the above example, let's assume you have the following in `content/posts/_index.md`:
 
-{{< code file="content/post/_index.md" >}}
+{{< code file="content/posts/_index.md" >}}
 ---
 title: My Go Journey
 date: 2017-03-23
@@ -100,7 +100,7 @@ You can now access this `_index.md`'s' content in your list template:
         {{.Content}}
     </article>
     <ul>
-    <!-- Ranges through content/post/*.md -->
+    <!-- Ranges through content/posts/*.md -->
     {{ range .Pages }}
         <li>
             <a href="{{.Permalink}}">{{.Date.Format "2006-01-02"}} | {{.Title}}</a>
@@ -113,7 +113,7 @@ You can now access this `_index.md`'s' content in your list template:
 
 This above will output the following HTML:
 
-{{< code file="example.com/post/index.html" copy="false" >}}
+{{< code file="example.com/posts/index.html" copy="false" >}}
 <!--top of your baseof code-->
 <main>
     <article>
@@ -124,8 +124,8 @@ This above will output the following HTML:
         <p>Follow my journey through this new blog.</p>
     </article>
     <ul>
-        <li><a href="/post/post-01/">Post 1</a></li>
-        <li><a href="/post/post-02/">Post 2</a></li>
+        <li><a href="/posts/post-01/">Post 1</a></li>
+        <li><a href="/posts/post-02/">Post 2</a></li>
     </ul>
 </main>
 <!--bottom of your baseof-->
@@ -164,14 +164,14 @@ The default behavior of Hugo is to pluralize list titles; hence the inflection o
 
 This list template has been modified slightly from a template originally used in [spf13.com](http://spf13.com/). It makes use of [partial templates][partials] for the chrome of the rendered page rather than using a [base template][base] The examples that follow also use the [content view templates][views] `li.html` or `summary.html`.
 
-{{< code file="layouts/section/post.html" >}}
+{{< code file="layouts/section/posts.html" >}}
 {{ partial "header.html" . }}
 {{ partial "subheader.html" . }}
 <main>
   <div>
    <h1>{{ .Title }}</h1>
         <ul>
-        <!-- Renders the li.html content view for each content/post/*.md -->
+        <!-- Renders the li.html content view for each content/posts/*.md -->
             {{ range .Pages }}
                 {{ .Render "li"}}
             {{ end }}
@@ -524,49 +524,14 @@ Here is the ordering for the example that follows:
 {{ end }}
 {{< /code >}}
 
-## Filter and Limiting Lists
+## Filtering and Limiting Lists {#filtering-and-limiting-lists}
 
-Sometimes you only want to list a subset of the available content. A common is to only display “Posts” on blog's homepage. You can accomplish this with the `where` function.
+Sometimes you only want to list a subset of the available content. A
+common is to only display posts from [**main sections**][mainsections]
+on the blog's homepage.
 
-### `where`
-
-`where` works in a similar manner to the [`where` keyword in SQL][wherekeyword]. It selects all elements of the array or slice that match the provided field and value. `where` takes three arguments:
-
-1. `array` *or* `slice of maps or structs`
-2. `key` *or* `field name`
-3. `match value`
-
-{{< code file="layouts/_default/index.html" >}}
-{{ range where .Pages "Section" "post" }}
-   {{ .Content }}
-{{ end }}
-{{< /code >}}
-
-You can see more examples in the [functions documentation for `where`][wherefunction].
-
-### `first`
-
-`first` works in a similar manner to the [`limit` keyword in SQL][limitkeyword]. It reduces the array to only the `first N` elements. It takes the array and number of elements as input. `first` takes two arguments:
-
-1. `array` *or* `slice of maps or structs`
-2. `number of elements`
-
-{{< code file="layout/_default/section.html" >}}
-{{ range first 10 .Pages }}
-  {{ .Render "summary" }}
-{{ end }}
-{{< /code >}}
-
-### `first` and `where` Together
-
-Using `first` and `where` together can be very powerful:
-
-{{< code file="first-and-where-together.html" >}}
-<!-- Orders the content inside the "posts" section by the "title" field and then ranges through only the first 5 posts -->
-{{ range first 5 (where .Pages "Section" "post").ByTitle }}
-   {{ .Content }}
-{{ end }}
-{{< /code >}}
+See the documentation on [`where` function][wherefunction] and
+[`first` function][firstfunction] for further details.
 
 [base]: /templates/base/
 [bepsays]: http://bepsays.com/en/2016/12/19/hugo-018/
@@ -576,7 +541,6 @@ Using `first` and `where` together can be very powerful:
 [getpage]: /functions/getpage/
 [homepage]: /templates/homepage/
 [homepage]: /templates/homepage/
-[limitkeyword]: https://www.techonthenet.com/sql/select_limit.php
 [mentalmodel]: http://webstyleguide.com/wsg3/3-information-architecture/3-site-structure.html
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
@@ -590,4 +554,5 @@ Using `first` and `where` together can be very powerful:
 [taxvars]: /variables/taxonomy/
 [views]: /templates/views/
 [wherefunction]: /functions/where/
-[wherekeyword]: https://www.techonthenet.com/sql/where.php
+[firstfunction]: /functions/first/
+[mainsections]: /functions/where/#mainsections

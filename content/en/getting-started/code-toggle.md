@@ -12,7 +12,7 @@ toc: true
 
 ## The Config Toggler!
 
-This is an example for the Config Toggle shortcode. 
+This is an example for the Config Toggle shortcode.
 Its purpose is to let users choose a Config language by clicking on its corresponding tab. Upon doing so, every Code toggler on the page will be switched to the target language. Also, target language will be saved in user's `localStorage` so when they go to a different pages, Code Toggler display their last "toggled" config language.
 
 {{% note %}}
@@ -27,7 +27,7 @@ baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
 footnoteReturnLinkContents: "↩"
 permalinks:
-  post: /:year/:month/:title/
+  posts: /:year/:month/:title/
 params:
   Subtitle: "Hugo is Absurdly Fast!"
   AuthorName: "Jon Doe"

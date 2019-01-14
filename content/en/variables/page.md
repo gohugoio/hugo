@@ -175,7 +175,7 @@ http://remarkjs.com)
 : a boolean, `true` if the `.Summary` is truncated. Useful for showing a "Read more..." link only when necessary.  See [Summaries](/content-management/summaries/) for more information.
 
 .Type
-: the [content type](/content-management/types/) of the content (e.g., `post`).
+: the [content type](/content-management/types/) of the content (e.g., `posts`).
 
 .UniqueID
 : the MD5-checksum of the content file's path.

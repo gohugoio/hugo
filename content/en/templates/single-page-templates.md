@@ -26,11 +26,11 @@ See [Template Lookup](/templates/lookup-order/).
 
 Content pages are of the type `page` and will therefore have all the [page variables][pagevars] and [site variables][] available to use in their templates.
 
-### `post/single.html`
+### `posts/single.html`
 
 This single page template makes use of Hugo [base templates][], the [`.Format` function][] for dates, the [`.WordCount` page variable][pagevars], and ranges through the single content's specific [taxonomies][pagetaxonomy]. [`with`][] is also used to check whether the taxonomies are set in the front matter.
 
-{{< code file="layouts/post/single.html" download="single.html" >}}
+{{< code file="layouts/posts/single.html" download="single.html" >}}
 {{ define "main" }}
 <section id="main">
   <h1 id="title">{{ .Title }}</h1>

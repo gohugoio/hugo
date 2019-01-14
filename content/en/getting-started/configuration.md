@@ -195,7 +195,7 @@ related
 relativeURLs (false)
 : Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
 
-refLinksErrorLevel ("ERROR") 
+refLinksErrorLevel ("ERROR")
 : When using `ref` or `relref` to resolve page links and a link cannot resolved, it will be logged with this logg level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).
 
 refLinksNotFoundURL
@@ -280,7 +280,7 @@ baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
 footnoteReturnLinkContents: "↩"
 permalinks:
-  post: /:year/:month/:title/
+  posts: /:year/:month/:title/
 params:
   Subtitle: "Hugo is Absurdly Fast!"
   AuthorName: "Jon Doe"
@@ -430,7 +430,7 @@ maxAge = -1
 ```
 
 
-You can override any of these cache setting in your own `config.toml`. 
+You can override any of these cache setting in your own `config.toml`.
 
 ### The keywords explained
 
@@ -445,7 +445,7 @@ You can override any of these cache setting in your own `config.toml`.
 
 maxAge
 : This is the duration before a cache entry will be evicted, -1 means forever and 0 effectively turns that particular cache off. Uses Go's `time.Duration`, so valid values are `"10s"` (10 seconds), `"10m"` (10 minutes) and `"10h"` (10 hours).
- 
+
 dir
 : The absolute path to where the files for this cache will be stored. Allowed starting placeholders are `:cacheDir` and `:resourceDir` (see above).
 
