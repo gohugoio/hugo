@@ -23,7 +23,7 @@ Name
 : Default value is the filename (relative to the owning page). Can be set in front matter.
 
 Title
-: Default blank. Can be set in front matter.
+: Default value is the same as `.Name`. Can be set in front matter.
 
 Permalink
 : The absolute URL to the resource. Resources of type `page` will have no value.
