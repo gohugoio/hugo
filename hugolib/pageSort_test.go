@@ -179,6 +179,49 @@ func TestPageSortByParam(t *testing.T) {
 	assert.Equal(t, unsetValue, unsetSortedValue)
 }
 
+func TestPageSortByParamNumeric(t *testing.T) {
+	t.Parallel()
+	var k interface{} = "arbitrarily.nested"
+	s := newTestSite(t)
+
+	n := 10
+	unsorted := createSortTestPages(s, n)
+	for i := 0; i < n; i++ {
+		v := 100 - i
+		if i%2 == 0 {
+			v = 100.0 - i
+		}
+
+		unsorted[i].params = map[string]interface{}{
+			"arbitrarily": map[string]interface{}{
+				"nested": v,
+			},
+		}
+	}
+	delete(unsorted[9].params, "arbitrarily")
+
+	firstSetValue, _ := unsorted[0].Param(k)
+	secondSetValue, _ := unsorted[1].Param(k)
+	lastSetValue, _ := unsorted[8].Param(k)
+	unsetValue, _ := unsorted[9].Param(k)
+
+	assert.Equal(t, 100, firstSetValue)
+	assert.Equal(t, 99, secondSetValue)
+	assert.Equal(t, 92, lastSetValue)
+	assert.Equal(t, nil, unsetValue)
+
+	sorted := unsorted.ByParam("arbitrarily.nested")
+	firstSetSortedValue, _ := sorted[0].Param(k)
+	secondSetSortedValue, _ := sorted[1].Param(k)
+	lastSetSortedValue, _ := sorted[8].Param(k)
+	unsetSortedValue, _ := sorted[9].Param(k)
+
+	assert.Equal(t, 92, firstSetSortedValue)
+	assert.Equal(t, 93, secondSetSortedValue)
+	assert.Equal(t, 100, lastSetSortedValue)
+	assert.Equal(t, unsetValue, unsetSortedValue)
+}
+
 func BenchmarkSortByWeightAndReverse(b *testing.B) {
 	s := newTestSite(b)
 	p := createSortTestPages(s, 300)

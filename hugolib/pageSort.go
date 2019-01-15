@@ -291,7 +291,6 @@ func (p Pages) Reverse() Pages {
 // Adjacent invocations on the same receiver with the same paramsKey will return a cached result.
 //
 // This may safely be executed  in parallel.
-
 func (p Pages) ByParam(paramsKey interface{}) Pages {
 	paramsKeyStr := cast.ToString(paramsKey)
 	key := "pageSort.ByParam." + paramsKeyStr
@@ -299,15 +298,30 @@ func (p Pages) ByParam(paramsKey interface{}) Pages {
 	paramsKeyComparator := func(p1, p2 *Page) bool {
 		v1, _ := p1.Param(paramsKeyStr)
 		v2, _ := p2.Param(paramsKeyStr)
-		s1 := cast.ToString(v1)
-		s2 := cast.ToString(v2)
 
-		// Sort nils last.
-		if s1 == "" {
+		if v1 == nil {
 			return false
-		} else if s2 == "" {
+		}
+
+		if v2 == nil {
 			return true
 		}
+
+		isNumeric := func(v interface{}) bool {
+			switch v.(type) {
+			case uint8, uint16, uint32, uint64, int, int8, int16, int32, int64, float32, float64:
+				return true
+			default:
+				return false
+			}
+		}
+
+		if isNumeric(v1) && isNumeric(v2) {
+			return cast.ToFloat64(v1) < cast.ToFloat64(v2)
+		}
+
+		s1 := cast.ToString(v1)
+		s2 := cast.ToString(v2)
 
 		return s1 < s2
 	}
