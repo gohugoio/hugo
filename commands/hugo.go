@@ -214,33 +214,25 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"themesDir",
 		"verbose",
 		"verboseLog",
-	}
-
-	// Will set a value even if it is the default.
-	flagKeysForced := []string{
 		"minify",
 	}
 
 	for _, key := range persFlagKeys {
-		setValueFromFlag(cmd.PersistentFlags(), key, cfg, "", false)
+		setValueFromFlag(cmd.PersistentFlags(), key, cfg, "")
 	}
 	for _, key := range flagKeys {
-		setValueFromFlag(cmd.Flags(), key, cfg, "", false)
-	}
-
-	for _, key := range flagKeysForced {
-		setValueFromFlag(cmd.Flags(), key, cfg, "", true)
+		setValueFromFlag(cmd.Flags(), key, cfg, "")
 	}
 
 	// Set some "config aliases"
-	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir", false)
-	setValueFromFlag(cmd.Flags(), "i18n-warnings", cfg, "logI18nWarnings", false)
+	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir")
+	setValueFromFlag(cmd.Flags(), "i18n-warnings", cfg, "logI18nWarnings")
 
 }
 
-func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targetKey string, force bool) {
+func setValueFromFlag(flags *flag.FlagSet, key string, cfg config.Provider, targetKey string) {
 	key = strings.TrimSpace(key)
-	if (force && flags.Lookup(key) != nil) || flags.Changed(key) {
+	if flags.Changed(key) {
 		f := flags.Lookup(key)
 		configKey := key
 		if targetKey != "" {
