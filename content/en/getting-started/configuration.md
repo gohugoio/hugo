@@ -163,7 +163,7 @@ noTimes (false)
 : Don't sync modification time of files.
 
 paginate (10)
-: Default number of pages per page in [pagination](/templates/pagination/).
+: Default number of elements per page in [pagination](/templates/pagination/).
 
 paginatePath ("page")
 : The path element used during pagination (https://example.com/page/2).
