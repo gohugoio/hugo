@@ -177,7 +177,10 @@ if (!doNotTrack) {
 <meta property="og:url" content="{{ .Permalink }}" />
 {{- with .Params.images }}{{ range first 6 . }}
 <meta property="og:image" content="{{ . | absURL }}" />
-{{ end }}{{ end }}
+{{ end }}{{- else -}}
+{{- with $.Site.Params.images }}{{ range first 6 . }}
+<meta property="og:image" content="{{ . | absURL }}" />
+{{ end }}{{ end }}{{ end }}
 
 {{- if .IsPage }}
 {{- if not .PublishDate.IsZero }}<meta property="article:published_time" content="{{ .PublishDate.Format "2006-01-02T15:04:05-07:00" | safeHTMLAttr }}"/>
