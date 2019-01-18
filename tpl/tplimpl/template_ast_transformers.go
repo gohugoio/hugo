@@ -130,8 +130,12 @@ func (c *templateContext) paramsKeysToLower(n parse.Node) {
 				c.updateIdentsIfNeeded(an.Ident)
 			case *parse.PipeNode:
 				c.paramsKeysToLower(an)
+			case *parse.ChainNode:
+				// site.Params...
+				if len(an.Field) > 1 && an.Field[0] == paramsIdentifier {
+					c.updateIdentsIfNeeded(an.Field)
+				}
 			}
-
 		}
 	}
 }
