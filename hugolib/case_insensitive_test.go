@@ -125,6 +125,7 @@ Shortcode Site: {{ .Page.Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW  }}
 	writeToFs(t, fs, "layouts/partials/partial.html", `
 Partial Page: {{ .Params.COLOR }}|{{ .Params.Colors.Blue }}
 Partial Site: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
+Partial Site Global: {{ site.Params.COLOR }}|{{ site.Params.COLORS.YELLOW }}
 `)
 
 	writeToFs(t, fs, "config.toml", caseMixingSiteConfigTOML)
@@ -200,6 +201,7 @@ Site Colors: {{ .Site.Params.COLOR }}|{{ .Site.Params.COLORS.YELLOW }}
 		"Shortcode Site: green|yellow",
 		"Partial Page: red|heavenly",
 		"Partial Site: green|yellow",
+		"Partial Site Global: green|yellow",
 		"Page Title: Side 1",
 		"Site Title: Nynorsk title",
 		"&laquo;Hi&raquo;", // angled quotes

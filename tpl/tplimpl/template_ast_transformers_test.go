@@ -34,6 +34,13 @@ var (
 				"ByWeight": fmt.Sprintf("%v:%v:%v", seq, key, args),
 			}, nil
 		},
+		"site": func() interface{} {
+			return map[string]interface{}{
+				"Params": map[string]interface{}{
+					"lower": "global-site",
+				},
+			}
+		},
 	}
 
 	paramsData = map[string]interface{}{
@@ -154,6 +161,12 @@ PARAMS TIME: {{ $time.Format "2006-01-02" }}
 
 {{ $_x :=  $.Params.MyDate | ToTime }}
 PARAMS TIME2: {{ $_x.AddDate 0 1 0 }}
+
+PARAMS SITE GLOBAL1: {{ site.Params.LOwER }}
+{{ $lower := site.Params.LOwER }}
+{{ $site := site }}
+PARAMS SITE GLOBAL2: {{ $lower }}
+PARAMS SITE GLOBAL3: {{ $site.Params.LOWER }}
 `
 )
 
@@ -224,6 +237,11 @@ func TestParamsKeysToLower(t *testing.T) {
 	// Issue #5541
 	require.Contains(t, result, "PARAMS TIME: 1972-02-28")
 	require.Contains(t, result, "PARAMS TIME2: 1972-02-28")
+
+	// Issue ##5615
+	require.Contains(t, result, "PARAMS SITE GLOBAL1: global-site")
+	require.Contains(t, result, "PARAMS SITE GLOBAL2: global-site")
+	require.Contains(t, result, "PARAMS SITE GLOBAL3: global-site")
 
 }
 
