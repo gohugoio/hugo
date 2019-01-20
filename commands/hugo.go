@@ -981,11 +981,20 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 					}
 				}
 
-				if p != nil {
-					livereload.NavigateToPathForPort(p.RelPermalink(), p.Site.ServerPort())
-				} else {
+				if p == nil {
 					livereload.ForceRefresh()
+					return
 				}
+
+				if p.IsDraft() && !c.Cfg.GetBool("buildDrafts") {
+					return
+				}
+
+				if p.IsFuture() && !c.Cfg.GetBool("buildFuture") {
+					return
+				}
+
+				livereload.NavigateToPathForPort(p.RelPermalink(), p.Site.ServerPort())
 			}
 		}
 	}
