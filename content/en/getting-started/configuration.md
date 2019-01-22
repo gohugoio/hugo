@@ -18,6 +18,9 @@ aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
 
+
+## Configuration File
+
 Hugo uses the `config.toml`, `config.yaml`, or `config.json` (if found in the
 site root) as the default site config file.
 
@@ -35,6 +38,37 @@ hugo --config a.toml,b.toml,c.toml
 Multiple site config files can be specified as a comma-separated string to the `--config` switch.
 {{% /note %}}
 
+TODO: distinct config.toml and others (the root object files)
+
+## Configuration Directory
+
+In addition to using a single site config file, one can use the `configDir` directory (default to `config/`) to maintain easier organization and environment specific settings.
+
+- Each file represents a configuration root object, such as `Params`, `Menus`, `Languages` etc...
+- Each directory holds a group of files containing settings unique to an environment.
+- Files can be localized to become language specific.
+
+
+```
+config
+├── _default
+│   ├── config.toml
+│   ├── languages.toml
+│   ├── menus.en.toml
+│   ├── menus.zh.toml
+│   └── params.toml
+├── staging
+│   ├── config.toml
+│   └── params.toml
+└── production
+    ├── config.toml
+    └── params.toml
+```
+
+Considering the structure above, when running `hugo --environment staging`, Hugo will use every settings from `config/_default` and merge `staging`'s on top of those.
+{{% note %}}
+Default environments are __development__ with `hugo serve` and __production__ with `hugo`.
+{{%/ note %}}
 ## All Configuration Settings
 
 The following is the full list of Hugo-defined variables with their default
