@@ -22,21 +22,31 @@ import (
 var _ cmder = (*versionCmd)(nil)
 
 type versionCmd struct {
+	short bool
+
 	*baseCmd
 }
 
 func newVersionCmd() *versionCmd {
-	return &versionCmd{
-		newBaseCmd(&cobra.Command{
-			Use:   "version",
-			Short: "Print the version number of Hugo",
-			Long:  `All software has versions. This is Hugo's.`,
-			RunE: func(cmd *cobra.Command, args []string) error {
+	cmd := &cobra.Command{
+		Use:   "version",
+		Short: "Print the version number of Hugo",
+		Long:  `All software has versions. This is Hugo's.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if short, _ := cmd.Flags().GetBool("short"); short {
+				jww.FEEDBACK.Println(hugo.CurrentVersion.Number)
+			} else {
 				printHugoVersion()
-				return nil
-			},
-		}),
+			}
+			return nil
+		},
 	}
+
+	cc := &versionCmd{baseCmd: newBaseCmd(cmd)}
+
+	cmd.Flags().BoolVarP(&cc.short, "short", "s", false, "print the short version")
+
+	return cc
 }
 
 func printHugoVersion() {
