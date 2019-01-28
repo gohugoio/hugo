@@ -83,7 +83,8 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 
 	err = ns.getResource(cache, unmarshal, req)
 	if err != nil {
-		return nil, _errors.Wrapf(err, "failed to read CSV resource %q", url)
+		ns.deps.Log.ERROR.Printf("Failed to get CSV resource %q: %s", url, err)
+		return nil, nil
 	}
 
 	return
@@ -113,19 +114,18 @@ func (ns *Namespace) GetJSON(urlParts ...string) (interface{}, error) {
 	req.Header.Add("Accept", "application/json")
 
 	err = ns.getResource(cache, unmarshal, req)
-
 	if err != nil {
-		return nil, _errors.Wrapf(err, "failed to get getJSON resource %q", url)
+		ns.deps.Log.ERROR.Printf("Failed to get JSON resource %q: %s", url, err)
+		return nil, nil
 	}
 
 	return v, nil
-
 }
 
 // parseCSV parses bytes of CSV data into a slice slice string or an error
 func parseCSV(c []byte, sep string) ([][]string, error) {
 	if len(sep) != 1 {
-		return nil, errors.New("Incorrect length of csv separator: " + sep)
+		return nil, errors.New("Incorrect length of CSV separator: " + sep)
 	}
 	b := bytes.NewReader(c)
 	r := csv.NewReader(b)
