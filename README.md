@@ -1,3 +1,5 @@
+[![Netlify Status](https://api.netlify.com/api/v1/badges/e0dbbfc7-34f1-4393-a679-c16e80162705/deploy-status)](https://app.netlify.com/sites/gohugoio/deploys)
+
 # Hugo Docs
 
 Documentation site for [Hugo](https://github.com/gohugoio/hugo), the very fast and flexible static site generator built with love in Go.
