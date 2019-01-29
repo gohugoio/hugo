@@ -25,6 +25,7 @@ import (
 	"sync/atomic"
 
 	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/source"
 
 	"github.com/gohugoio/hugo/resources/page"
 
@@ -609,6 +610,59 @@ func chmodFilter(dst, src os.FileInfo) bool {
 	return src.IsDir()
 }
 
+// ignoreFile is an afero.File which hides files in hugo’s ignoreFiles config
+// setting.
+type ignoreFile struct {
+	afero.File
+	src    *source.SourceSpec
+	prefix string
+}
+
+func (f *ignoreFile) Readdir(count int) ([]os.FileInfo, error) {
+	tmp, err := f.File.Readdir(count)
+	fis := make([]os.FileInfo, 0, len(tmp))
+	for _, fi := range tmp {
+		if f.src.IgnoreFile(f.prefix + fi.Name()) {
+			continue
+		}
+		fis = append(fis, fi)
+	}
+	return fis, err
+}
+
+func (f *ignoreFile) Readdirnames(n int) ([]string, error) {
+	tmp, err := f.File.Readdirnames(n)
+	names := make([]string, 0, len(tmp))
+	for _, n := range tmp {
+		if f.src.IgnoreFile(f.prefix + n) {
+			continue
+		}
+		names = append(names, n)
+	}
+	return names, err
+}
+
+// ignoreFs is an afero.Fs which hides files in hugo’s ignoreFiles config
+// setting.
+type ignoreFs struct {
+	afero.Fs
+	src *source.SourceSpec
+}
+
+func (fs *ignoreFs) wrapIgnoreFile(name string, f afero.File) *ignoreFile {
+	return &ignoreFile{File: f, src: fs.src, prefix: filepath.Clean(name) + "/"}
+}
+
+func (fs *ignoreFs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, error) {
+	f, err := fs.Fs.OpenFile(name, flag, perm)
+	return fs.wrapIgnoreFile(name, f), err
+}
+
+func (fs *ignoreFs) Open(name string) (afero.File, error) {
+	f, err := fs.Fs.Open(name)
+	return fs.wrapIgnoreFile(name, f), err
+}
+
 func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint64, error) {
 	publishDir := c.hugo().PathSpec.PublishDir
 	// If root, remove the second '/'
@@ -620,7 +674,10 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 		publishDir = filepath.Join(publishDir, sourceFs.PublishFolder)
 	}
 
-	fs := &countingStatFs{Fs: sourceFs.Fs}
+	fs := &countingStatFs{Fs: &ignoreFs{
+		Fs:  sourceFs.Fs,
+		src: c.hugo().Deps.SourceSpec,
+	}}
 
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = c.Cfg.GetBool("noTimes")
