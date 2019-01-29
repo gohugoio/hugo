@@ -1512,8 +1512,16 @@ title: "Hugo Smile"
 This is a :smile:.
 <!--more--> 
 
-Another :smile: This is :not: an emoji.
+Another :smile: This is :not: :an: :emoji:.
 
+O :christmas_tree:
+
+Write me an :e-mail: or :email:?
+
+Too many colons: :: ::: :::: :?: :!: :.:
+
+If you dislike this video, you can hit that :-1: button :stuck_out_tongue_winking_eye:,
+but if you like it, hit :+1: and get subscribed!
 `)
 
 		b.CreateSites().Build(BuildCfg{})
@@ -1522,13 +1530,23 @@ Another :smile: This is :not: an emoji.
 			b.AssertFileContent("public/page-emoji/index.html",
 				"This is a 😄",
 				"Another 😄",
-				"This is :not: an emoji",
+				"This is :not: :an: :emoji:.",
+				"O 🎄",
+				"Write me an 📧 or ✉️?",
+				"Too many colons: :: ::: :::: :?: :!: :.:",
+				"you can hit that 👎 button 😜,",
+				"hit 👍 and get subscribed!",
 			)
 		} else {
 			b.AssertFileContent("public/page-emoji/index.html",
 				"This is a :smile:",
 				"Another :smile:",
-				"This is :not: an emoji",
+				"This is :not: :an: :emoji:.",
+				"O :christmas_tree:",
+				"Write me an :e-mail: or :email:?",
+				"Too many colons: :: ::: :::: :?: :!: :.:",
+				"you can hit that :-1: button :stuck_out_tongue_winking_eye:,",
+				"hit :+1: and get subscribed!",
 			)
 		}
 
