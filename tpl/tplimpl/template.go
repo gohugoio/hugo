@@ -366,7 +366,8 @@ func (t *htmlTemplates) addLateTemplate(name, tpl string) error {
 }
 
 type textTemplate struct {
-	t *texttemplate.Template
+	mu sync.RWMutex
+	t  *texttemplate.Template
 }
 
 func (t *textTemplate) Parse(name, tpl string) (tpl.Template, error) {
@@ -374,11 +375,17 @@ func (t *textTemplate) Parse(name, tpl string) (tpl.Template, error) {
 }
 
 func (t *textTemplate) Lookup(name string) (tpl.Template, bool) {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+
 	tpl := t.t.Lookup(name)
 	return tpl, tpl != nil
 }
 
 func (t *textTemplate) parSeIn(tt *texttemplate.Template, name, tpl string) (*texttemplate.Template, error) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	templ, err := tt.New(name).Parse(tpl)
 	if err != nil {
 		return nil, err

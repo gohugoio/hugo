@@ -1076,40 +1076,67 @@ enableInlineShortcodes = %t
 
 				b := newTestSitesBuilder(t)
 				b.WithConfigFile("toml", conf)
-				b.WithContent("page-md-shortcode.md", `---
-title: "Hugo"
----
 
-FIRST:{{< myshort.inline "first" >}}
+				shortcodeContent := `FIRST:{{< myshort.inline "first" >}}
 Page: {{ .Page.Title }}
 Seq: {{ seq 3 }}
 Param: {{ .Get 0 }}
 {{< /myshort.inline >}}:END:
 
 SECOND:{{< myshort.inline "second" />}}:END
+NEW INLINE:  {{< n1.inline "5" >}}W1: {{ seq (.Get 0) }}{{< /n1.inline >}}:END:
+INLINE IN INNER: {{< outer >}}{{< n2.inline >}}W2: {{ seq 4 }}{{< /n2.inline >}}{{< /outer >}}:END:
+REUSED INLINE IN INNER: {{< outer >}}{{< n1.inline "3" />}}{{< /outer >}}:END:
+`
 
-`)
+				b.WithContent("page-md-shortcode.md", `---
+title: "Hugo"
+---
+`+shortcodeContent)
+
+				b.WithContent("_index.md", `---
+title: "Hugo Home"
+---
+
+`+shortcodeContent)
 
 				b.WithTemplatesAdded("layouts/_default/single.html", `
 CONTENT:{{ .Content }}
 `)
 
+				b.WithTemplatesAdded("layouts/index.html", `
+CONTENT:{{ .Content }}
+`)
+
+				b.WithTemplatesAdded("layouts/shortcodes/outer.html", `Inner: {{ .Inner }}`)
+
 				b.CreateSites().Build(BuildCfg{})
+
+				shouldContain := []string{
+					"Seq: [1 2 3]",
+					"Param: first",
+					"Param: second",
+					"NEW INLINE:  W1: [1 2 3 4 5]",
+					"INLINE IN INNER: Inner: W2: [1 2 3 4]",
+					"REUSED INLINE IN INNER: Inner: W1: [1 2 3]",
+				}
 
 				if enableInlineShortcodes {
 					b.AssertFileContent("public/page-md-shortcode/index.html",
-						"Page: Hugo",
-						"Seq: [1 2 3]",
-						"Param: first",
-						"Param: second",
+						shouldContain...,
+					)
+					b.AssertFileContent("public/index.html",
+						shouldContain...,
 					)
 				} else {
 					b.AssertFileContent("public/page-md-shortcode/index.html",
 						"FIRST::END",
 						"SECOND::END",
+						"NEW INLINE:  :END",
+						"INLINE IN INNER: Inner: :END:",
+						"REUSED INLINE IN INNER: Inner: :END:",
 					)
 				}
-
 			})
 
 	}

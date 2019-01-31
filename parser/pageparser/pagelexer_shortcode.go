@@ -280,6 +280,7 @@ func lexInsideShortcode(l *pageLexer) stateFunc {
 			return l.errorf("got closing shortcode, but none is open")
 		}
 		l.closingState++
+		l.isInline = false
 		l.emit(tScClose)
 	case r == '\\':
 		l.ignore()

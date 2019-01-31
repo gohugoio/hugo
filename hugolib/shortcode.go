@@ -338,14 +338,9 @@ func (s *shortcodeHandler) prepareShortcodeForPage(placeholder string, sc *short
 
 	if sc.isInline {
 		key := newScKeyFromLangAndOutputFormat(lang, p.outputFormats[0], placeholder)
-		if !s.enableInlineShortcodes {
-			m[key] = func() (string, error) {
-				return "", nil
-			}
-		} else {
-			m[key] = func() (string, error) {
-				return renderShortcode(key, sc, nil, p)
-			}
+		m[key] = func() (string, error) {
+			return renderShortcode(key, sc, nil, p)
+
 		}
 
 		return m
@@ -372,6 +367,9 @@ func renderShortcode(
 	var tmpl tpl.Template
 
 	if sc.isInline {
+		if !p.s.enableInlineShortcodes {
+			return "", nil
+		}
 		templName := path.Join("_inline_shortcode", p.Path(), sc.name)
 		if sc.isClosing {
 			templStr := sc.innerString()
@@ -542,6 +540,10 @@ func (s *shortcodeHandler) contentShortcodesForOutputFormat(f output.Format) *or
 		if !found && key.Suffix != "html" {
 			key.Suffix = "html"
 			renderFn, found = s.contentShortcodes.Get(key)
+			if !found {
+				key.OutputFormat = "HTML"
+				renderFn, found = s.contentShortcodes.Get(key)
+			}
 		}
 
 		if !found {
