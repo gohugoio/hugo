@@ -283,11 +283,18 @@ func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) 
 				return nil
 			}
 
-			for _, filenamePart := range strings.Split(fi.Name(), ".") {
-				// Ignore .swp files
-				if filenamePart == "swp" {
-					return nil
+			// Verifies if the file extension is valid.
+			isValid := false
+			ext := strings.ToLower(filepath.Ext(fi.Name()))
+			for _, validExt := range []string{"toml", "yaml", "yml", "json"} {
+				if strings.Contains(ext, validExt) {
+					isValid = true
+					break
 				}
+			}
+
+			if !isValid {
+				return nil
 			}
 
 			name := helpers.Filename(filepath.Base(path))
