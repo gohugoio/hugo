@@ -28,3 +28,16 @@ AWS Amplify is a combination of client library, CLI toolchain, and a Console for
 * [Sign up for an AWS Account](https://portal.aws.amazon.com/billing/signup?redirect_url=https%3A%2F%2Faws.amazon.com%2Fregistration-confirmation). There are no upfront charges or any term commitments to create an AWS account and signing up gives you immediate access to the AWS Free Tier.
 * You have an account with GitHub, GitLab, or Bitbucket.
 * You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
+
+## Hosting
+
+1. Log in to the [AWS Amplify Console](https://console.aws.amazon.com/amplify/home) and choose Get Started under Deploy.
+   ![Hugo Amplify](/images/hosting-and-deployment/hosting-on-aws-amplify/amplify-gettingstarted.png)
+
+1. Connect a branch from your GitHub, Bitbucket, GitLab, or AWS CodeCommit repository. Connecting your repository allows Amplify to deploy updates on every code commit to a branch.
+   ![Hugo Amplify](/images/hosting-and-deployment/hosting-on-aws-amplify/amplify-connect-repo.gif)
+
+1.  Accept the default build settings. The Amplify Console automatically detects your Hugo build settings and output directory.
+   ![Hugo Amplify](/images/hosting-and-deployment/hosting-on-aws-amplify/amplify-build-settings.png)
+
+1. Review your changes and then choose **Save and deploy**. The Amplify Console will pull code from your repository, build changes to the backend and frontend, and deploy your build artifacts at `https://master.unique-id.amplifyapp.com`. Bonus: Screenshots of your app on different devices to find layout issues.
