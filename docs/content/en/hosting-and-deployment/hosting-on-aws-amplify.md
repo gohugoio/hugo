@@ -1,7 +1,7 @@
 ---
 title: Host on AWS Amplify
 linktitle: Host on AWS Amplify
-description: Netlify can host your Hugo site with CDN, continuous deployment, 1-click HTTPS, an admin GUI, and its own CLI.
+description: AWS Amplify provides the fastest way to develop and deploy a mobile or web app. 
 date: 2018-01-31
 publishdate: 2018-01-31
 lastmod: 2018-01-31
