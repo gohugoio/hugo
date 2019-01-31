@@ -20,6 +20,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	ValidConfigFileExtensions = []string{"toml", "yaml", "yml", "json"}
+)
+
 // FromConfigString creates a config from the given YAML, JSON or TOML config. This is useful in tests.
 func FromConfigString(config, configType string) (Provider, error) {
 	v := newViper()

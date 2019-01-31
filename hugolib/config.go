@@ -202,7 +202,7 @@ func (l configLoader) loadConfig(configName string, v *viper.Viper) (string, err
 			filename = baseFilename
 		}
 	} else {
-		for _, ext := range []string{"toml", "yaml", "yml", "json"} {
+		for _, ext := range config.ValidConfigFileExtensions {
 			filenameToCheck := baseFilename + "." + ext
 			exists, _ := helpers.Exists(filenameToCheck, l.Fs)
 			if exists {

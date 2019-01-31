@@ -120,7 +120,7 @@ func (c *themesCollector) getConfigFileIfProvided(theme string) string {
 	)
 
 	// Viper supports more, but this is the sub-set supported by Hugo.
-	for _, configFormats := range []string{"toml", "yaml", "yml", "json"} {
+	for _, configFormats := range config.ValidConfigFileExtensions {
 		configFilename = filepath.Join(configDir, "config."+configFormats)
 		exists, _ = afero.Exists(c.fs, configFilename)
 		if exists {
