@@ -283,8 +283,14 @@ func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) 
 				return nil
 			}
 
-			name := helpers.Filename(filepath.Base(path))
+			for _, filenamePart := range strings.Split(fi.Name(), ".") {
+				// Ignore .swp files
+				if filenamePart == "swp" {
+					return nil
+				}
+			}
 
+			name := helpers.Filename(filepath.Base(path))
 			item, err := metadecoders.Default.UnmarshalFileToMap(sourceFs, path)
 			if err != nil {
 				return l.wrapFileError(err, path)
