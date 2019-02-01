@@ -48,6 +48,21 @@ baseName = "_headers"
 isPlainText = true
 notAlternative = true
 
+[caches]
+[caches.getjson]
+dir = ":cacheDir/:project"
+maxAge = -1
+[caches.getcsv]
+dir = ":cacheDir/:project"
+maxAge = -1
+[caches.images]
+dir = ":resourceDir/_gen"
+maxAge = -1
+[caches.assets]
+dir = ":resourceDir/_gen"
+maxAge = -1
+
+
 [related]
 
 threshold = 80
