@@ -14,6 +14,9 @@
 package config
 
 import (
+	"path/filepath"
+	"strings"
+
 	"github.com/gohugoio/hugo/common/maps"
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/spf13/afero"
@@ -21,8 +24,22 @@ import (
 )
 
 var (
-	ValidConfigFileExtensions = []string{"toml", "yaml", "yml", "json"}
+	ValidConfigFileExtensions                    = []string{"toml", "yaml", "yml", "json"}
+	validConfigFileExtensionsMap map[string]bool = make(map[string]bool)
 )
+
+func init() {
+	for _, ext := range ValidConfigFileExtensions {
+		validConfigFileExtensionsMap[ext] = true
+	}
+}
+
+// IsValidConfigFilename returns whether filename is one of the supported
+// config formats in Hugo.
+func IsValidConfigFilename(filename string) bool {
+	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(filename), "."))
+	return validConfigFileExtensionsMap[ext]
+}
 
 // FromConfigString creates a config from the given YAML, JSON or TOML config. This is useful in tests.
 func FromConfigString(config, configType string) (Provider, error) {

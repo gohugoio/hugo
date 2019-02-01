@@ -283,6 +283,10 @@ func (l configLoader) loadConfigFromConfigDir(v *viper.Viper) ([]string, error) 
 				return nil
 			}
 
+			if !config.IsValidConfigFilename(path) {
+				return nil
+			}
+
 			name := helpers.Filename(filepath.Base(path))
 
 			item, err := metadecoders.Default.UnmarshalFileToMap(sourceFs, path)

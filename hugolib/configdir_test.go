@@ -97,7 +97,9 @@ p3 = "p3params_no_production"
 	fb = fb.WithWorkingDir("config/development")
 
 	// This is set in all the config.toml variants above, but this will win.
-	fb.Add("config.toml", `paginatePath = "pag_development"`)
+	fb.Add("config.TOML", `paginatePath = "pag_development"`)
+	// Issue #5646
+	fb.Add("config.toml.swp", `p3 = "paginatePath = "nono"`)
 
 	fb.Add("params.no.toml", `p3 = "p3params_no_development"`)
 	fb.Add("params.toml", `p3 = "p3params_development"`)
