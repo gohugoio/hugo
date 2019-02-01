@@ -14,7 +14,7 @@ toc: true
 ---
 
 By default, the `static/` directory in the site project is used for
-all **static files** (e.g. stylesheets, JavaScript, images).
+all **static files** (e.g. stylesheets, JavaScript, images). The static files are served on the site root path (eg. if you have the file `static/image.png` you can access it using `http://{server-url}/image.png`, to include it in a document you can use `![Example image](/image.png) )`.
 
 Hugo can be configured to look into a different directory, or even
 **multiple directories** for such static files by configuring the

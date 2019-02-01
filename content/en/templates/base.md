@@ -42,18 +42,18 @@ Variables are denoted by capitalized text set within `<>`. Note that Hugo's defa
 
 ### Example Base Template Lookup Order
 
-As an example, let's assume your site is using a theme called "mytheme" when rendering the section list for a `post` section. Hugo picks `layout/section/post.html` as the template for [rendering the section][]. The `{{define}}` block in this template tells Hugo that the template is an extension of a base template.
+As an example, let's assume your site is using a theme called "mytheme" when rendering the section list for a `posts` section. Hugo picks `layout/section/posts.html` as the template for [rendering the section][]. The `{{define}}` block in this template tells Hugo that the template is an extension of a base template.
 
-Here is the lookup order for the `post` base template:
+Here is the lookup order for the `posts` base template:
 
-1. `/layouts/section/post-baseof.html`
-2. `/themes/mytheme/layouts/section/post-baseof.html`
-3. `/layouts/post/baseof.html`
-4. `/themes/mytheme/layouts/post/baseof.html`
+1. `/layouts/section/posts-baseof.html`
+2. `/themes/mytheme/layouts/section/posts-baseof.html`
+3. `/layouts/posts/baseof.html`
+4. `/themes/mytheme/layouts/posts/baseof.html`
 5. `/layouts/section/baseof.html`
 6. `/themes/mytheme/layouts/section/baseof.html`
-7. `/layouts/_default/post-baseof.html`
-8. `/themes/mytheme/layouts/_default/post-baseof.html`
+7. `/layouts/_default/posts-baseof.html`
+8. `/themes/mytheme/layouts/_default/posts-baseof.html`
 9. `/layouts/_default/baseof.html`
 10. `/themes/mytheme/layouts/_default/baseof.html`
 

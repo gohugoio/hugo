@@ -21,7 +21,7 @@ toc: true
 {{% note %}}
 This quick start uses `macOS` in the examples. For instructions about how to install Hugo on other operating systems, see [install](/getting-started/installing).
 
-You also need [Git installed](https://git-scm.com/downloads) to run this tutorial.
+It is recommended to have [Git installed](https://git-scm.com/downloads) to run this tutorial.
 {{% /note %}}
 
 
@@ -62,9 +62,18 @@ The above will create a new Hugo site in a folder named `quickstart`.
 See [themes.gohugo.io](https://themes.gohugo.io/) for a list of themes to consider. This quickstart uses the beautiful [Ananke theme](https://themes.gohugo.io/gohugo-theme-ananke/).
 
 ```bash
-cd quickstart;\
-git init;\
-git submodule add https://github.com/budparr/gohugo-theme-ananke.git themes/ananke;\
+cd quickstart
+
+# Download the theme
+git init
+git submodule add https://github.com/budparr/gohugo-theme-ananke.git themes/ananke
+# Note for non-git users:
+#   - If you do not have git installed, you can download the archive of the latest
+#     version of this theme from:
+#       https://github.com/budparr/gohugo-theme-ananke/archive/master.zip
+#   - Extract that .zip file to get a "gohugo-theme-ananke-master" directory.
+#   - Rename that directory to "ananke", and move it into the "themes/" directory.
+# End of note for non-git users.
 
 # Edit your config.toml configuration file
 # and add the Ananke theme.
@@ -81,7 +90,12 @@ hugo new posts/my-first-post.md
 ```
 
 
-Edit the newly created content file if you want. Now, start the Hugo server with [drafts](/getting-started/usage/#draft-future-and-expired-content) enabled:
+Edit the newly created content file if you want.
+
+
+## Step 5: Start the Hugo server
+
+Now, start the Hugo server with [drafts](/getting-started/usage/#draft-future-and-expired-content) enabled:
 
 ```
 ▶ hugo server -D
@@ -108,8 +122,7 @@ Press Ctrl+C to stop
 **Navigate to your new site at [http://localhost:1313/](http://localhost:1313/).**
 
 
-
-## Step 5: Customize the Theme
+## Step 6: Customize the Theme
 
 Your new site already looks great, but you will want to tweak it a little before you release it to the public.
 
@@ -124,7 +137,7 @@ title = "My New Hugo Site"
 theme = "ananke"
 ```
 
-Replace the `title` above with something more personal. Also, if you already have a domain ready, set the `baseURL`. Note that this value is not needed when running the local development server. 
+Replace the `title` above with something more personal. Also, if you already have a domain ready, set the `baseURL`. Note that this value is not needed when running the local development server.
 
 {{% note %}}
 **Tip:** Make the changes to the site configuration or any other file in your site while the Hugo server is running, and you will see the changes in the browser right away, though you may need to [clear your cache](https://kb.iu.edu/d/ahic).

@@ -6,6 +6,7 @@ daysUntilClose: 30
 exemptLabels:
   - Keep
   - Security
+  - UndocumentedFeature
 # Label to use when marking an issue as stale
 staleLabel: Stale
 # Comment to post when marking an issue as stale. Set to `false` to disable

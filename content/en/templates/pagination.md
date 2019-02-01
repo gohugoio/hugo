@@ -50,7 +50,7 @@ For a given **Page**, it's one of the options above. The `.Paginator` is static 
 The global page size setting (`Paginate`) can be overridden by providing a positive integer as the last argument. The examples below will give five items per page:
 
 * `{{ range (.Paginator 5).Pages }}`
-* `{{ $paginator := .Paginate (where .Pages "Type" "post") 5 }}`
+* `{{ $paginator := .Paginate (where .Pages "Type" "posts") 5 }}`
 
 It is also possible to use the `GroupBy` functions in combination with pagination:
 
@@ -75,7 +75,7 @@ If you use any filters or ordering functions to create your `.Paginator` *and* y
 The following example shows how to create `.Paginator` before its used:
 
 ```
-{{ $paginator := .Paginate (where .Pages "Type" "post") }}
+{{ $paginator := .Paginate (where .Pages "Type" "posts") }}
 {{ template "_internal/pagination.html" . }}
 {{ range $paginator.Pages }}
    {{ .Title }}

@@ -88,14 +88,8 @@ The following is a list of site-level (aka "global") variables. Many of these va
 .Site.Pages
 : array of all content ordered by Date with the newest first. This array contains only the pages in the current language. See [`.Site.Pages`](#site-pages).
 
-.Site.Permalinks
-: a string to override the default [permalink](/content-management/urls/) format as defined in the site configuration.
-
 .Site.RegularPages
 : a shortcut to the *regular* page collection. `.Site.RegularPages` is equivalent to `where .Site.Pages "Kind" "page"`. See [`.Site.Pages`](#site-pages).
-
-.Site.RSSLink
-: the URL for the site RSS.
 
 .Site.Sections
 : top-level directories of the site.
