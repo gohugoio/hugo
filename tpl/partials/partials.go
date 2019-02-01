@@ -65,7 +65,7 @@ type Namespace struct {
 // Include executes the named partial and returns either a string,
 // when the partial is a text/template, or template.HTML when html/template.
 func (ns *Namespace) Include(name string, contextList ...interface{}) (interface{}, error) {
-	if strings.HasPrefix("partials/", name) {
+	if strings.HasPrefix(name, "partials/") {
 		name = name[8:]
 	}
 	var context interface{}
