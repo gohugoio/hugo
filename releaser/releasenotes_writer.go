@@ -119,7 +119,7 @@ Hugo now has:
 
 var templateFuncs = template.FuncMap{
 	"isPatch": func(c changeLog) bool {
-		return strings.Count(c.Version, ".") > 1
+		return !strings.HasSuffix(c.Version, "0")
 	},
 	"issue": func(id int) string {
 		return fmt.Sprintf(issueLinkTemplate, id, id)
