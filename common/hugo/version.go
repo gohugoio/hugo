@@ -149,7 +149,7 @@ func BuildVersionString() string {
 }
 
 func version(version float32, patchVersion int, suffix string) string {
-	if patchVersion > 0 {
+	if patchVersion > 0 || version > 0.53 {
 		return fmt.Sprintf("%.2f.%d%s", version, patchVersion, suffix)
 	}
 	return fmt.Sprintf("%.2f%s", version, suffix)

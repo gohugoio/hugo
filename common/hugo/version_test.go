@@ -35,6 +35,15 @@ func TestHugoVersion(t *testing.T) {
 	require.False(t, nextVersionString.Eq("0.21"))
 	require.True(t, nextVersionString.Eq(nextVersionString))
 	require.Equal(t, "0.20.3", v.NextPatchLevel(3).String())
+
+	// We started to use full semver versions even for main
+	// releases in v0.54.0
+	v = Version{Number: 0.53, PatchLevel: 0}
+	require.Equal(t, "0.53", v.String())
+	require.Equal(t, "0.54.0", v.Next().String())
+	require.Equal(t, "0.55.0", v.Next().Next().String())
+	v = Version{Number: 0.54, PatchLevel: 0, Suffix: "-DEV"}
+	require.Equal(t, "0.54.0-DEV", v.String())
 }
 
 func TestCompareVersions(t *testing.T) {
