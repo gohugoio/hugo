@@ -85,10 +85,10 @@ archetypes
 ```
 
 ```bash
-hugo new --kind post-bundle post/my-post
+hugo new --kind post-bundle posts/my-post
 ```
 
-Will create a new folder in `/content/post/my-post` with the same set of files as in the `post-bundle` archetypes folder. All content files (`index.md` etc.) can contain template logic, and will receive the correct `.Site` for the content's language.
+Will create a new folder in `/content/posts/my-post` with the same set of files as in the `post-bundle` archetypes folder. All content files (`index.md` etc.) can contain template logic, and will receive the correct `.Site` for the content's language.
 
 
 

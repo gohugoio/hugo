@@ -120,7 +120,7 @@ aero apikey
 ### Step 3: Edit and Commit Code
 
 ```
-hugo new post/good-to-great.md
+hugo new posts/good-to-great.md
 hugo server --buildDrafts -t liquorice #Check that all looks good
 
 # commit and push code to master branch

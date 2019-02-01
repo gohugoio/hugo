@@ -184,7 +184,7 @@ For `getCSV`, the one-character-long separator must be placed in the first posit
       </tr>
     </thead>
     <tbody>
-    {{ $url := "http://a-big-corp.com/finance/employee-salaries.csv" }}
+    {{ $url := "https://example.com/finance/employee-salaries.csv" }}
     {{ $sep := "," }}
     {{ range $i, $r := getCSV $sep $url }}
       <tr>

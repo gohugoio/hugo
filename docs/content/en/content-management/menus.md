@@ -111,7 +111,7 @@ The following order is used to determine an Identifier:
 
 This means that `.Title` will be used unless `.LinkTitle` is present, etc. In practice, `.Name` and `.Identifier` are only used to structure relationships and therefore never displayed.
 
-In this example, the top level of the menu is defined in your [site `config` file][config]). All content entries are attached to one of these entries via the `.Parent` field.
+In this example, the top level of the menu is defined in your [site `config` file][config]. All content entries are attached to one of these entries via the `.Parent` field.
 
 ## Render Menus
 

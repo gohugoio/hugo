@@ -19,7 +19,7 @@ toc: true
 
 ## Page Bundles
 
-Hugo `0.32` announced page-relative images and other resources packaged into `Page Bundles`. 
+Hugo `0.32` announced page-relative images and other resources packaged into `Page Bundles`.
 
 These terms are connected, and you also need to read about [Page Resources]({{< relref "/content-management/page-resources" >}}) and [Image Processing]({{< relref "/content-management/image-processing" >}}) to get the full picture.
 
@@ -38,7 +38,7 @@ The bundle documentation is **work in progress**. We will publish more comprehen
 
 In Hugo, your content should be organized in a manner that reflects the rendered website.
 
-While Hugo supports content nested at any level, the top levels (i.e. `content/<DIRECTORIES>`) are special in Hugo and are considered the content type used to determine layouts etc. To read more about sections, including how to nest them, see [sections][]. 
+While Hugo supports content nested at any level, the top levels (i.e. `content/<DIRECTORIES>`) are special in Hugo and are considered the content type used to determine layouts etc. To read more about sections, including how to nest them, see [sections][].
 
 Without any additional configuration, the following will just work:
 
@@ -47,11 +47,11 @@ Without any additional configuration, the following will just work:
 └── content
     └── about
     |   └── _index.md  // <- https://example.com/about/
-    ├── post
-    |   ├── firstpost.md   // <- https://example.com/post/firstpost/
+    ├── posts
+    |   ├── firstpost.md   // <- https://example.com/posts/firstpost/
     |   ├── happy
-    |   |   └── ness.md  // <- https://example.com/post/happy/ness/
-    |   └── secondpost.md  // <- https://example.com/post/secondpost/
+    |   |   └── ness.md  // <- https://example.com/posts/happy/ness/
+    |   └── secondpost.md  // <- https://example.com/posts/secondpost/
     └── quote
         ├── first.md       // <- https://example.com/quote/first/
         └── second.md      // <- https://example.com/quote/second/
@@ -64,7 +64,7 @@ The following demonstrates the relationships between your content organization a
 
 ### Index Pages: `_index.md`
 
-`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists]. These templates include those for [section templates][], [taxonomy templates][], [taxonomy terms templates][], and your [homepage template][]. 
+`_index.md` has a special role in Hugo. It allows you to add front matter and content to your [list templates][lists]. These templates include those for [section templates][], [taxonomy templates][], [taxonomy terms templates][], and your [homepage template][].
 
 {{% note %}}
 **Tip:** You can get a reference to the content and metadata in `_index.md` using the [`.Site.GetPage` function](/functions/getpage/).

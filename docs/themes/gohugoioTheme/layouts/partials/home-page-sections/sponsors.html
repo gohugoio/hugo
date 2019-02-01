@@ -3,8 +3,8 @@
 {{ with .cx.Site.Data.sponsors }}
   <section class="{{ $.classes_section | default "bg-primary-color-dark b--dark-gray bb bt ph5 pv4 w-100"}}">
     <div class="center mw9"> 
-      <f3 class="b f3 light-gray">Hugo Sponsors</f3>
-      <div class="flex-ns flex-wrap center justify-between  pt3">
+      <h3 class="b f3 mv0 light-gray">Hugo Sponsors</h3>
+      <div class="flex-ns flex-wrap center justify-between pt3">
         {{ range .banners }}
           {{ $banner := . }}
           {{if .logo}}

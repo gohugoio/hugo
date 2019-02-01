@@ -1325,6 +1325,16 @@
         ]
       },
       {
+        "type": "application/toml",
+        "string": "application/toml",
+        "mainType": "application",
+        "subType": "toml",
+        "delimiter": ".",
+        "suffixes": [
+          "toml"
+        ]
+      },
+      {
         "type": "application/xml",
         "string": "application/xml",
         "mainType": "application",
@@ -1332,6 +1342,17 @@
         "delimiter": ".",
         "suffixes": [
           "xml"
+        ]
+      },
+      {
+        "type": "application/yaml",
+        "string": "application/yaml",
+        "mainType": "application",
+        "subType": "yaml",
+        "delimiter": ".",
+        "suffixes": [
+          "yaml",
+          "yml"
         ]
       },
       {
@@ -2271,6 +2292,21 @@
           ],
           "Examples": []
         },
+        "Complement": {
+          "Description": "Complement gives the elements in the last element of seqs that are not in\nany of the others.\nAll elements of seqs must be slices or arrays of comparable types.\n\nThe reasoning behind this rather clumsy API is so we can do this in the templates:\n   {{ $c := .Pages | complement $last4 }}",
+          "Args": [
+            "seqs"
+          ],
+          "Aliases": [
+            "complement"
+          ],
+          "Examples": [
+            [
+              "{{ slice \"a\" \"b\" \"c\" \"d\" \"e\" \"f\" | complement (slice \"b\" \"c\") (slice \"d\" \"e\")  }}",
+              "[a f]"
+            ]
+          ]
+        },
         "Delimit": {
           "Description": "Delimit takes a given sequence and returns a delimited HTML string.\nIf last is passed to the function, it will be used as the final delimiter.",
           "Args": [
@@ -2496,6 +2532,22 @@
           ],
           "Examples": []
         },
+        "SymDiff": {
+          "Description": "SymDiff returns the symmetric difference of s1 and s2.\nArguments must be either a slice or an array of comparable types.",
+          "Args": [
+            "s2",
+            "s1"
+          ],
+          "Aliases": [
+            "symdiff"
+          ],
+          "Examples": [
+            [
+              "{{ slice 1 2 3 | symdiff (slice 3 4) }}",
+              "[1 2 4]"
+            ]
+          ]
+        },
         "Union": {
           "Description": "Union returns the union of the given sets, l1 and l2. l1 and\nl2 must be of the same type and may be either arrays or slices.\nIf l1 and l2 aren't of the same type then l1 will be returned.\nIf either l1 or l2 is nil then the non-nil list will be returned.",
           "Args": [
@@ -2650,7 +2702,7 @@
           ]
         },
         "Jsonify": {
-          "Description": "Jsonify encodes a given object to JSON, returning pretty printed output.",
+          "Description": "Jsonify encodes a given object to JSON.",
           "Args": [
             "v"
           ],
@@ -2660,7 +2712,7 @@
           "Examples": [
             [
               "{{ (slice \"A\" \"B\" \"C\") | jsonify }}",
-              "[\n  \"A\",\n  \"B\",\n  \"C\"\n]"
+              "[\"A\",\"B\",\"C\"]"
             ]
           ]
         }
@@ -2727,6 +2779,20 @@
               "works!\n"
             ]
           ]
+        }
+      },
+      "hugo": {
+        "Generator": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Version": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
         }
       },
       "images": {
@@ -3325,6 +3391,26 @@
           ]
         }
       },
+      "site": {
+        "Hugo": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "IsServer": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Language": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        }
+      },
       "strings": {
         "Chomp": {
           "Description": "Chomp returns a copy of s with all trailing newline characters removed.",
@@ -3887,6 +3973,25 @@
             [
               "{{ \"title = \\\"Hello World\\\"\" | transform.Remarshal \"json\" | safeHTML }}",
               "{\n   \"title\": \"Hello World\"\n}\n"
+            ]
+          ]
+        },
+        "Unmarshal": {
+          "Description": "Unmarshal unmarshals the data given, which can be either a string\nor a Resource. Supported formats are JSON, TOML, YAML, and CSV.\nYou can optionally provide an options map as the first argument.",
+          "Args": [
+            "args"
+          ],
+          "Aliases": [
+            "unmarshal"
+          ],
+          "Examples": [
+            [
+              "{{ \"hello = \\\"Hello World\\\"\" | transform.Unmarshal }}",
+              "map[hello:Hello World]"
+            ],
+            [
+              "{{ \"hello = \\\"Hello World\\\"\" | resources.FromString \"data/greetings.toml\" | transform.Unmarshal }}",
+              "map[hello:Hello World]"
             ]
           ]
         }

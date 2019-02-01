@@ -27,11 +27,16 @@ It contains the following fields:
 .Hugo.Version
 : the current version of the Hugo binary you are using e.g. `0.13-DEV`<br>
 
+.Hugo.Environment
+: the current running environment as defined through the `--environment` cli tag.
+
 .Hugo.CommitHash
 : the git commit hash of the current Hugo binary e.g. `0e8bed9ccffba0df554728b46c5bbf6d78ae5247`
 
 .Hugo.BuildDate
 : the compile date of the current Hugo binary formatted with RFC 3339 e.g. `2002-10-02T10:00:00-05:00`<br>
+
+
 
 {{% note "Use the Hugo Generator Tag" %}}
 We highly recommend using `.Hugo.Generator` in your website's `<head>`. `.Hugo.Generator` is included by default in all themes hosted on [themes.gohugo.io](http://themes.gohugo.io). The generator tag allows the Hugo team to track the usage and popularity of Hugo.
