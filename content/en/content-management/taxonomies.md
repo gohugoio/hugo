@@ -86,7 +86,7 @@ Moonrise Kingdom            <- Value
 
 Hugo natively supports taxonomies.
 
-Without adding a single line to your [site config][config] file, Hugo will automatically create taxonomies for `tags` and `categories`. That would be same as manually [configuring your taxonomies](#configuring-taxonomies) as below:
+Without adding a single line to your [site config][config] file, Hugo will automatically create taxonomies for `tags` and `categories`. That would be the same as manually [configuring your taxonomies](#configuring-taxonomies) as below:
 
 {{< code-toggle copy="false" >}}
 [taxonomies]

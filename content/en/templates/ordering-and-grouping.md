@@ -336,44 +336,9 @@ within each group is ordered alphabetically by title.
 
 ## Filter and Limiting Lists
 
-Sometimes you only want to list a subset of the available content. A common request is to only display “Posts” on the homepage. You can accomplish this with the `where` function.
-
-### `where`
-
-`where` works in a similar manner to the `where` keyword in SQL. It selects all elements of the array or slice that match the provided field and value. `where` takes three arguments:
-
-1. `array` or a `slice of maps or structs`
-2. `key` or `field name`
-3. `match value`
-
-{{< code file="layouts/_default/index.html" >}}
-{{ range where .Pages "Section" "post" }}
-   {{ .Content }}
-{{ end }}
-{{< /code >}}
-
-### `first`
-
-`first` works in a similar manner to the [`limit` keyword in SQL][limitkeyword]. It reduces the array to only the `first N` elements. It takes the array and number of elements as input. `first` takes two arguments:
-
-1. `array` or `slice of maps or structs`
-2. `number of elements`
-
-{{< code file="layout/_default/section.html" >}}
-{{ range first 10 .Pages }}
-  {{ .Render "summary" }}
-{{ end }}
-{{< /code >}}
-
-### `first` and `where` Together
-
-Using `first` and `where` together can be very powerful:
-
-{{< code file="first-and-where-together.html" >}}
-{{ range first 5 (where .Pages "Section" "post") }}
-   {{ .Content }}
-{{ end }}
-{{< /code >}}
+See the [_Lists/Filtering and Limiting Lists_
+section][filteringandlimitinglists] for details.
 
 
 [views]: /templates/views/
+[filteringandlimitinglists]: /templates/lists/#filtering-and-limiting-lists

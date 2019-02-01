@@ -28,7 +28,7 @@ Running the `hugo new site` generator from the command line will create a direct
 .
 ├── archetypes
 ├── assets
-├── config.toml
+├── config
 ├── content
 ├── data
 ├── layouts
@@ -48,8 +48,12 @@ By default, Hugo will create new content files with at least `date`, `title` (in
 [`assets`][]
 : Stores all the files which need be processed by [Hugo Pipes]({{< ref "/hugo-pipes" >}}). Only the files whose `.Permalink` or `.RelPermalink` are used will be published to the `public` directory.
 
-[`config.toml`](/getting-started/configuration/)
-: Every Hugo project should have a configuration file in TOML, YAML, or JSON format at the root. Many sites may need little to no configuration, but Hugo ships with a large number of [configuration directives][] for more granular directions on how you want Hugo to build your website.
+[`config`](/getting-started/configuration/)
+: Hugo ships with a large number of [configuration directives](https://gohugo.io/getting-started/configuration/#all-variables-yaml).
+The [config directory](/getting-started/configuration/#configuration-directory) is where those directives are stored as JSON, YAML, or TOML files. Every root setting object can stand as its own file and structured by environments.
+Projects with minimal settings and no need for environment awareness can use a single `config.toml` file at its root.
+
+Many sites may need little to no configuration, but Hugo ships with a large number of [configuration directives][] for more granular directions on how you want Hugo to build your website.
 
 [`content`][]
 : All content for your website will live inside this directory. Each top-level folder in Hugo is considered a [content section][]. For example, if your site has three main sections---`blog`, `articles`, and `tutorials`---you will have three directories at `content/blog`, `content/articles`, and `content/tutorials`. Hugo uses sections to assign default [content types][].

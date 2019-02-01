@@ -58,17 +58,17 @@ Template Metrics:
      ----------      --------      --------  -----  --------
      6.419663ms     583.605µs     994.374µs     11  _internal/_default/rss.xml
      4.718511ms    1.572837ms    3.880742ms      3  indexes/category.html
-     4.642666ms    2.321333ms    3.282842ms      2  post/single.html
+     4.642666ms    2.321333ms    3.282842ms      2  posts/single.html
      4.364445ms     396.767µs    2.451372ms     11  partials/header.html
      2.346069ms     586.517µs     903.343µs      4  indexes/tag.html
      2.330919ms     211.901µs    2.281342ms     11  partials/header.includes.html
-     1.238976ms     103.248µs     446.084µs     12  post/li.html
+     1.238976ms     103.248µs     446.084µs     12  posts/li.html
        972.16µs      972.16µs      972.16µs      1  _internal/_default/sitemap.xml
       953.597µs     953.597µs     953.597µs      1  index.html
       822.263µs     822.263µs     822.263µs      1  indexes/post.html
       567.498µs       51.59µs     112.205µs     11  partials/navbar.html
        348.22µs      31.656µs      88.249µs     11  partials/meta.html
-      346.782µs     173.391µs     276.176µs      2  post/summary.html
+      346.782µs     173.391µs     276.176µs      2  posts/summary.html
       235.184µs       21.38µs     124.383µs     11  partials/footer.copyright.html
       132.003µs          12µs     117.999µs     11  partials/menu.html
        72.547µs       6.595µs      63.764µs     11  partials/footer.html

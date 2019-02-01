@@ -238,7 +238,7 @@ Because we are leveraging the front matter system to define taxonomies for conte
 <ul id="{{ $taxo }}">
     {{ range .Param $taxo }}
         {{ $name := . }}
-        {{ with $.Site.GetPage (printf "/%s/%s" $taxo $name) }}
+        {{ with $.Site.GetPage (printf "/%s/%s" $taxo ($name | urlize)) }}
             <li><a href="{{ .Permalink }}">{{ $name }}</a></li>
         {{ end }}
     {{ end }}

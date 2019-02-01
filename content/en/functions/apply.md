@@ -59,25 +59,25 @@ However, it is not possible to provide the output of a range to the [`delimit` f
 
 If you have `post-tag-list.html` and `post-tag-link.html` as [partials][], you *could* use the following snippets, respectively:
 
-{{< code file="layouts/partial/post-tag-list.html" copy="false" >}}
+{{< code file="layouts/partials/post-tag-list.html" copy="false" >}}
 {{ with .Params.tags }}
 <div class="tags-list">
   Tags:
   {{ $len := len . }}
   {{ if eq $len 1 }}
-    {{ partial "post/tag/link" (index . 0) }}
+    {{ partial "post-tag-link" (index . 0) }}
   {{ else }}
     {{ $last := sub $len 1 }}
     {{ range first $last . }}
-      {{ partial "post/tag/link" . }},
+      {{ partial "post-tag-link" . }},
     {{ end }}
-    {{ partial "post/tag/link" (index . $last) }}
+    {{ partial "post-tag-link" (index . $last) }}
   {{ end }}
 </div>
 {{ end }}
 {{< /code >}}
 
-{{< code file="layouts/partial/post-tag-link.html" copy="false" >}}
+{{< code file="layouts/partials/post-tag-link.html" copy="false" >}}
 <a class="post-tag post-tag-{{ . | urlize }}" href="/tags/{{ . | urlize }}">{{ . }}</a>
 {{< /code >}}
 

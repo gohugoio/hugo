@@ -43,10 +43,11 @@ You may want to append a class to a heading according to the length of the strin
 
 ## `len` Example 2: Counting Pages with `where`
 
-The following templating uses [`where`][] in conjunction with `len` to figure out the total number of content pages in a `posts` [section][]:
+The following templating uses [`where`][] in conjunction with `len` to
+figure out the total number of content pages in a `posts` [section][]:
 
 {{< code file="how-many-posts.html" >}}
-{{ $posts := (where .Site.RegularPages "Section" "==" "post") }}
+{{ $posts := (where .Site.RegularPages "Section" "==" "posts") }}
 {{ $postCount := len $posts }}
 {{< /code >}}
 

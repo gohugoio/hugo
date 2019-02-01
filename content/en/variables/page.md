@@ -78,9 +78,6 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .Kind
 : the page's *kind*. Possible return values are `page`, `home`, `section`, `taxonomy`, or `taxonomyTerm`. Note that there are also `RSS`, `sitemap`, `robotsTXT`, and `404` kinds, but these are only available during the rendering of each of these respective page's kind and therefore *not* available in any of the `Pages` collections.
 
-.Lang
-: language taken from the language extension notation.
-
 .Language
 : a language object that points to the language's definition in the site
 `config`.
@@ -178,10 +175,7 @@ http://remarkjs.com)
 : a boolean, `true` if the `.Summary` is truncated. Useful for showing a "Read more..." link only when necessary.  See [Summaries](/content-management/summaries/) for more information.
 
 .Type
-: the [content type](/content-management/types/) of the content (e.g., `post`).
-
-.URL
-: the URL for the page relative to the web root. Note that a `url` set directly in front matter overrides the default relative URL for the rendered page.
+: the [content type](/content-management/types/) of the content (e.g., `posts`).
 
 .UniqueID
 : the MD5-checksum of the content file's path.

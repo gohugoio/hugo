@@ -18,6 +18,9 @@ aliases: [/overview/source-directory/,/overview/configuration/]
 toc: true
 ---
 
+
+## Configuration File
+
 Hugo uses the `config.toml`, `config.yaml`, or `config.json` (if found in the
 site root) as the default site config file.
 
@@ -35,6 +38,37 @@ hugo --config a.toml,b.toml,c.toml
 Multiple site config files can be specified as a comma-separated string to the `--config` switch.
 {{% /note %}}
 
+TODO: distinct config.toml and others (the root object files)
+
+## Configuration Directory
+
+In addition to using a single site config file, one can use the `configDir` directory (default to `config/`) to maintain easier organization and environment specific settings.
+
+- Each file represents a configuration root object, such as `Params`, `Menus`, `Languages` etc...
+- Each directory holds a group of files containing settings unique to an environment.
+- Files can be localized to become language specific.
+
+
+```
+config
+├── _default
+│   ├── config.toml
+│   ├── languages.toml
+│   ├── menus.en.toml
+│   ├── menus.zh.toml
+│   └── params.toml
+├── staging
+│   ├── config.toml
+│   └── params.toml
+└── production
+    ├── config.toml
+    └── params.toml
+```
+
+Considering the structure above, when running `hugo --environment staging`, Hugo will use every settings from `config/_default` and merge `staging`'s on top of those.
+{{% note %}}
+Default environments are __development__ with `hugo serve` and __production__ with `hugo`.
+{{%/ note %}}
 ## All Configuration Settings
 
 The following is the full list of Hugo-defined variables with their default
@@ -163,7 +197,7 @@ noTimes (false)
 : Don't sync modification time of files.
 
 paginate (10)
-: Default number of pages per page in [pagination](/templates/pagination/).
+: Default number of elements per page in [pagination](/templates/pagination/).
 
 paginatePath ("page")
 : The path element used during pagination (https://example.com/page/2).
@@ -195,7 +229,7 @@ related
 relativeURLs (false)
 : Enable this to make all relative URLs relative to content root. Note that this does not affect absolute URLs.
 
-refLinksErrorLevel ("ERROR") 
+refLinksErrorLevel ("ERROR")
 : When using `ref` or `relref` to resolve page links and a link cannot resolved, it will be logged with this logg level. Valid values are `ERROR` (default) or `WARNING`. Any `ERROR` will fail the build (`exit -1`).
 
 refLinksNotFoundURL
@@ -280,7 +314,7 @@ baseURL: "https://yoursite.example.com/"
 title: "My Hugo Site"
 footnoteReturnLinkContents: "↩"
 permalinks:
-  post: /:year/:month/:title/
+  posts: /:year/:month/:title/
 params:
   Subtitle: "Hugo is Absurdly Fast!"
   AuthorName: "Jon Doe"
@@ -430,23 +464,22 @@ maxAge = -1
 ```
 
 
-You can override any of these cache setting in your own `config.toml`. 
+You can override any of these cache setting in your own `config.toml`.
 
 ### The keywords explained
 
-:cacheDir
+`:cacheDir`
 : This is the value of the `cacheDir` config option if set (can also be set via OS env variable `HUGO_CACHEDIR`). It will fall back to `/opt/build/cache/hugo_cache/` on Netlify, or a `hugo_cache` directory below the OS temp dir for the others. This means that if you run your builds on Netlify, all caches configured with `:cacheDir` will be saved and restored on the next build. For other CI vendors, please read their documentation. For an CircleCI example, see [this configuration](https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml).
 
 `:project`
-
-The base directory name of the current Hugo project. This means that, in its default setting, every project will have separated file caches, which means that when you do `hugo --gc` you will not touch files related to other Hugo projects running on the same PC.
+: The base directory name of the current Hugo project. This means that, in its default setting, every project will have separated file caches, which means that when you do `hugo --gc` you will not touch files related to other Hugo projects running on the same PC.
 
 `:resourceDir`
 : This is the value of the `resourceDir` config option.
 
 maxAge
 : This is the duration before a cache entry will be evicted, -1 means forever and 0 effectively turns that particular cache off. Uses Go's `time.Duration`, so valid values are `"10s"` (10 seconds), `"10m"` (10 minutes) and `"10h"` (10 hours).
- 
+
 dir
 : The absolute path to where the files for this cache will be stored. Allowed starting placeholders are `:cacheDir` and `:resourceDir` (see above).
 
