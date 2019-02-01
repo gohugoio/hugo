@@ -34,7 +34,7 @@ func TestServer(t *testing.T) {
 		t.Skip("Skip server test on appveyor")
 	}
 	assert := require.New(t)
-	dir, err := createSimpleTestSite(t)
+	dir, err := createSimpleTestSite(t, testSiteConfig{})
 	assert.NoError(err)
 
 	// Let us hope that this port is available on all systems ...

@@ -30,7 +30,7 @@ func TestExecute(t *testing.T) {
 
 	assert := require.New(t)
 
-	dir, err := createSimpleTestSite(t)
+	dir, err := createSimpleTestSite(t, testSiteConfig{})
 	assert.NoError(err)
 
 	defer func() {
@@ -140,7 +140,7 @@ func TestCommandsExecute(t *testing.T) {
 
 	assert := require.New(t)
 
-	dir, err := createSimpleTestSite(t)
+	dir, err := createSimpleTestSite(t, testSiteConfig{})
 	assert.NoError(err)
 
 	dirOut, err := ioutil.TempDir("", "hugo-cli-out")
@@ -204,21 +204,37 @@ func TestCommandsExecute(t *testing.T) {
 
 }
 
-func createSimpleTestSite(t *testing.T) (string, error) {
+type testSiteConfig struct {
+	configTOML string
+	contentDir string
+}
+
+func createSimpleTestSite(t *testing.T, cfg testSiteConfig) (string, error) {
 	d, e := ioutil.TempDir("", "hugo-cli")
 	if e != nil {
 		return "", e
 	}
 
-	// Just the basic. These are for CLI tests, not site testing.
-	writeFile(t, filepath.Join(d, "config.toml"), `
+	cfgStr := `
 
 baseURL = "https://example.org"
 title = "Hugo Commands"
 
-`)
+`
 
-	writeFile(t, filepath.Join(d, "content", "p1.md"), `
+	contentDir := "content"
+
+	if cfg.configTOML != "" {
+		cfgStr = cfg.configTOML
+	}
+	if cfg.contentDir != "" {
+		contentDir = cfg.contentDir
+	}
+
+	// Just the basic. These are for CLI tests, not site testing.
+	writeFile(t, filepath.Join(d, "config.toml"), cfgStr)
+
+	writeFile(t, filepath.Join(d, contentDir, "p1.md"), `
 ---
 title: "P1"
 weight: 1
