@@ -143,7 +143,7 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 		// The time value used is tested with mass content replacements in a fairly big Hugo site.
 		// It is better to wait for some seconds in those cases rather than get flooded
 		// with rebuilds.
-		rebuildDebouncer, _, _ = debounce.New(4 * time.Second)
+		rebuildDebouncer = debounce.New(4 * time.Second)
 	}
 
 	c := &commandeer{
