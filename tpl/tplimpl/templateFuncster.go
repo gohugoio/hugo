@@ -39,7 +39,7 @@ func newTemplateFuncster(deps *deps.Deps) *templateFuncster {
 // Partial executes the named partial and returns either a string,
 // when called from text/template, for or a template.HTML.
 func (t *templateFuncster) partial(name string, contextList ...interface{}) (interface{}, error) {
-	if strings.HasPrefix("partials/", name) {
+	if strings.HasPrefix(name, "partials/") {
 		name = name[8:]
 	}
 	var context interface{}
