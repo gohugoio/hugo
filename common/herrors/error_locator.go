@@ -173,7 +173,7 @@ func chromaLexerFromType(fileType string) string {
 }
 
 func extNoDelimiter(filename string) string {
-	return strings.TrimPrefix(".", filepath.Ext(filename))
+	return strings.TrimPrefix(filepath.Ext(filename), ".")
 }
 
 func chromaLexerFromFilename(filename string) string {
