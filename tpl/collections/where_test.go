@@ -161,6 +161,15 @@ func TestWhere(t *testing.T) {
 		},
 		{
 			seq: []map[string]TstX{
+				{"baz": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}},
+			},
+			key: "foo.B", match: "d",
+			expect: []map[string]TstX{
+				{"foo": TstX{A: "c", B: "d"}},
+			},
+		},
+		{
+			seq: []map[string]TstX{
 				{"foo": TstX{A: "a", B: "b"}}, {"foo": TstX{A: "c", B: "d"}}, {"foo": TstX{A: "e", B: "f"}},
 			},
 			key: ".foo.B", match: "d",
@@ -450,9 +459,17 @@ func TestWhere(t *testing.T) {
 			key: "b", op: ">", match: false,
 			expect: []map[string]bool{},
 		},
+		{
+			seq: []map[string]bool{
+				{"a": true, "b": false}, {"c": true, "b": true}, {"d": true, "b": false},
+			},
+			key: "b.z", match: false,
+			expect: []map[string]bool{},
+		},
 		{seq: (*[]TstX)(nil), key: "A", match: "a", expect: false},
 		{seq: TstX{A: "a", B: "b"}, key: "A", match: "a", expect: false},
-		{seq: []map[string]*TstX{{"foo": nil}}, key: "foo.B", match: "d", expect: false},
+		{seq: []map[string]*TstX{{"foo": nil}}, key: "foo.B", match: "d", expect: []map[string]*TstX{}},
+		{seq: []map[string]*TstX{{"foo": nil}}, key: "foo.B.Z", match: "d", expect: []map[string]*TstX{}},
 		{
 			seq: []TstX{
 				{A: "a", B: "b"}, {A: "c", B: "d"}, {A: "e", B: "f"},
@@ -484,27 +501,28 @@ func TestWhere(t *testing.T) {
 			},
 		},
 	} {
-		var results interface{}
-		var err error
+		t.Run(fmt.Sprintf("test case %d for key %s", i, test.key), func(t *testing.T) {
+			var results interface{}
+			var err error
 
-		if len(test.op) > 0 {
-			results, err = ns.Where(test.seq, test.key, test.op, test.match)
-		} else {
-			results, err = ns.Where(test.seq, test.key, test.match)
-		}
-		if b, ok := test.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] Where didn't return an expected error", i)
+			if len(test.op) > 0 {
+				results, err = ns.Where(test.seq, test.key, test.op, test.match)
+			} else {
+				results, err = ns.Where(test.seq, test.key, test.match)
 			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
+			if b, ok := test.expect.(bool); ok && !b {
+				if err == nil {
+					t.Errorf("[%d] Where didn't return an expected error", i)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("[%d] failed: %s", i, err)
+				}
+				if !reflect.DeepEqual(results, test.expect) {
+					t.Errorf("[%d] Where clause matching %v with %v, got %v but expected %v", i, test.key, test.match, results, test.expect)
+				}
 			}
-			if !reflect.DeepEqual(results, test.expect) {
-				t.Errorf("[%d] Where clause matching %v with %v, got %v but expected %v", i, test.key, test.match, results, test.expect)
-			}
-		}
+		})
 	}
 
 	var err error
