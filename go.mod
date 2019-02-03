@@ -11,6 +11,7 @@ require (
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.0.0
 	github.com/bep/go-tocss v0.6.0
+	github.com/bytesparadise/libasciidoc v0.1.0
 	github.com/chaseadamsio/goorgeous v1.1.0
 	github.com/cpuguy83/go-md2man v1.0.8 // indirect
 	github.com/disintegration/imaging v1.5.0
@@ -35,10 +36,13 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
+	github.com/onsi/ginkgo v1.7.0 // indirect
+	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/pkg/errors v0.8.0
 	github.com/russross/blackfriday v0.0.0-20180804101149-46c73eb196ba
 	github.com/sanity-io/litter v1.1.0
 	github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95 // indirect
+	github.com/sirupsen/logrus v1.2.0 // indirect
 	github.com/spf13/afero v1.2.1
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/cobra v0.0.3

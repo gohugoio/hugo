@@ -19,6 +19,7 @@ package helpers
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"os/exec"
@@ -26,6 +27,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/bytesparadise/libasciidoc"
 	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/chaseadamsio/goorgeous"
@@ -626,6 +628,11 @@ func HasAsciidoc() bool {
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
 // to convert AsciiDoc content to HTML.
 func getAsciidocContent(ctx *RenderingContext) []byte {
+	if ctx.Cfg.GetBool("useLibasciidoc") {
+		jww.INFO.Println("Rendering", ctx.DocumentName, "with libasciidoc")
+		return embeddedAsciidocRenderContent(ctx)
+	}
+
 	var isAsciidoctor bool
 	path := getAsciidoctorExecPath()
 	if path == "" {
@@ -647,6 +654,19 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 	}
 	args = append(args, "-")
 	return externallyRenderContent(ctx, path, args)
+}
+
+// embeddedAsciidocRenderContent convert AsciiDoc content to HTML by using libasciidoc.
+func embeddedAsciidocRenderContent(ctx *RenderingContext) []byte {
+	buf := bytes.NewBuffer(nil)
+	content := ctx.Content
+	cleanContent := bytes.Replace(content, SummaryDivider, []byte(""), 1)
+	_, err := libasciidoc.ConvertToHTML(context.Background(), bytes.NewReader(cleanContent), buf)
+	if err != nil {
+		jww.ERROR.Printf("%s: %s", ctx.DocumentName, err)
+		return ctx.Content
+	}
+	return buf.Bytes()
 }
 
 // HasRst returns whether rst2html is installed on this computer.
