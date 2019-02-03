@@ -357,7 +357,7 @@ func (ns *Namespace) checkWhereArray(seqv, kv, mv reflect.Value, path []string, 
 				var err error
 				vvv, err = evaluateSubElem(vvv, elemName)
 				if err != nil {
-					return nil, err
+					continue
 				}
 			}
 		} else {
