@@ -115,7 +115,7 @@ With the above, the two sites will be generated into `public` with their own roo
 ```bash
 public
 ├── en
-└── no
+└── fr
 ```
 
 **All URLs (i.e `.Permalink` etc.) will be generated from that root. So the English home page above will have its `.Permalink` set to `https://example.com/`.**
