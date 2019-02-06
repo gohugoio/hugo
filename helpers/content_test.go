@@ -453,6 +453,29 @@ func TestExtractNoTOC(t *testing.T) {
 	}
 }
 
+func TestReplaceAsciidocTOC(t *testing.T) {
+	// rendered by asciidoctor.
+	content := []byte(`<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#sect1">sect1</a></li>
+</ul>
+</div>`)
+
+	// compatible TOC with blackfriday.
+	expected := []byte(`<nav>
+<ul>
+<li><a href="#sect1">sect1</a></li>
+</ul>
+</nav>`)
+
+	// replaces TOC for extraction by ExtractTOC()
+	actual := replaceAsciidocTOC(content)
+	if !bytes.Equal(actual, expected) {
+		t.Errorf("Actual (%s) did not equal expected (%s) content\n", actual, expected)
+	}
+}
+
 var totalWordsBenchmarkString = strings.Repeat("Hugo Rocks ", 200)
 
 func TestTotalWords(t *testing.T) {

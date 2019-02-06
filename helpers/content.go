@@ -640,13 +640,49 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 	}
 
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
-	args := []string{"--no-header-footer", "--safe"}
+	args := []string{"--no-header-footer", "--safe", "--attribute=toc"}
 	if isAsciidoctor {
 		// asciidoctor-specific arg to show stack traces on errors
 		args = append(args, "--trace")
 	}
 	args = append(args, "-")
-	return externallyRenderContent(ctx, path, args)
+	return replaceAsciidocTOC(externallyRenderContent(ctx, path, args))
+}
+
+// replaceAsciidocTOC replaces html tags for TOC for compatibility with blackfriday rendered TOC.
+func replaceAsciidocTOC(content []byte) []byte {
+	first := []byte(`<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">`)
+	last := []byte(`</ul>
+</div>`)
+	newFirst := []byte(`<nav>
+<ul>`)
+	newLast := []byte(`</ul>
+</nav>`)
+
+	startOfTOC := bytes.Index(content, first)
+	if startOfTOC < 0 {
+		return content
+	}
+
+	peekEnd := len(content)
+	if peekEnd > 70+startOfTOC+len(first) {
+		peekEnd = 70 + startOfTOC + len(first)
+	}
+
+	correctNav := bytes.Index(content[startOfTOC:peekEnd], []byte(`<li><a href="#`))
+	if correctNav < 0 { // no match found
+		return content
+	}
+	lengthOfTOC := bytes.Index(content[startOfTOC:], last)
+	endOfTOC := startOfTOC + lengthOfTOC + len(last)
+
+	newcontent := make([]byte, 0, len(content))
+	newcontent = append(content[:startOfTOC], newFirst...)
+	newcontent = append(newcontent, content[startOfTOC+len(first):lengthOfTOC]...)
+	newcontent = append(newcontent, newLast...)
+	return append(newcontent, content[endOfTOC:]...)
 }
 
 // HasRst returns whether rst2html is installed on this computer.
