@@ -17,7 +17,6 @@ package resources
 import (
 	"errors"
 	"fmt"
-	"path/filepath"
 
 	_errors "github.com/pkg/errors"
 
@@ -75,8 +74,6 @@ func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	filenamestr = filepath.Clean(filenamestr)
 
 	// Resource Get'ing is currently limited to /assets to make it simpler
 	// to control the behaviour of publishing and partial rebuilding.

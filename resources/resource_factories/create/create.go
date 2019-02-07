@@ -16,11 +16,16 @@
 package create
 
 import (
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 )
@@ -38,14 +43,48 @@ func New(rs *resources.Spec) *Client {
 
 // Get creates a new Resource by opening the given filename in the given filesystem.
 func (c *Client) Get(fs afero.Fs, filename string) (resource.Resource, error) {
-	filename = filepath.Clean(filename)
-	return c.rs.ResourceCache.GetOrCreate(resources.ResourceKeyPartition(filename), filename, func() (resource.Resource, error) {
-		return c.rs.NewForFs(fs,
-			resources.ResourceSourceDescriptor{
-				LazyPublish:    true,
-				SourceFilename: filename})
-	})
+	u, err := url.Parse(filename)
+	if err != nil {
+		return nil, err
+	}
 
+	isLocalResource := u.Scheme == ""
+	if isLocalResource {
+		filename = filepath.Clean(filename)
+		return c.rs.ResourceCache.GetOrCreate(resources.ResourceKeyPartition(filename), filename, func() (resource.Resource, error) {
+			return c.rs.NewForFs(fs,
+				resources.ResourceSourceDescriptor{
+					LazyPublish:    true,
+					SourceFilename: filename})
+		})
+
+	}
+
+	resourceID := helpers.MD5String(filename)
+	return c.rs.ResourceCache.GetOrCreate(resources.CACHE_OTHER, resourceID, func() (resource.Resource, error) {
+		res, err := http.Get(filename)
+		if err != nil {
+			return nil, err
+		}
+
+		if res.StatusCode < 200 || res.StatusCode > 299 {
+			return nil, errors.Errorf("Failed to retrieve remote file: %s", http.StatusText(res.StatusCode))
+		}
+
+		defer res.Body.Close()
+		bodyBuff, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		return c.rs.NewForFs(c.rs.FileCaches.AssetsCache().Fs,
+			resources.ResourceSourceDescriptor{
+				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
+					return hugio.NewReadSeekerNoOpCloserFromString(string(bodyBuff)), nil
+				},
+				LazyPublish:       true,
+				RelTargetFilename: resourceID})
+	})
 }
 
 // FromString creates a new Resource from a string with the given relative target path.
