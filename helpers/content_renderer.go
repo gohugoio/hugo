@@ -96,13 +96,32 @@ type HugoMmarkHTMLRenderer struct {
 }
 
 // BlockCode renders a given text as a block of code.
-// Pygments is used if it is setup to handle code fences.
+// Pygments is used if it is setup to handle code fences with support for captions.
 func (r *HugoMmarkHTMLRenderer) BlockCode(out *bytes.Buffer, text []byte, lang string, caption []byte, subfigure bool, callouts bool) {
-	if r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax")) {
-		str := strings.Trim(string(text), "\n\r")
-		highlighted, _ := r.cs.Highlight(str, lang, "")
-		out.WriteString(highlighted)
-	} else {
+	highlight := r.Cfg.GetBool("pygmentsCodeFences") && (lang != "" || r.Cfg.GetBool("pygmentsCodeFencesGuessSyntax"))
+	if !highlight {
 		r.Renderer.BlockCode(out, text, lang, caption, subfigure, callouts)
+		return
 	}
+
+	// If there is a caption wrap the whole thing in a figure
+	if len(caption) > 0 {
+		out.WriteString("<figure")
+		if subfigure {
+			out.WriteString(" role=\"group\"")
+		}
+		out.WriteString(">")
+	}
+
+	str := strings.Trim(string(text), "\n\r")
+	highlighted, _ := r.cs.Highlight(str, lang, "")
+	out.WriteString(highlighted)
+
+	if len(caption) > 0 {
+		out.WriteString("<figcaption>")
+		out.Write(caption)
+		out.WriteString("</figcaption>")
+		out.WriteString("</figure>")
+	}
+
 }

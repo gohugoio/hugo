@@ -89,6 +89,37 @@ func TestCodeFence(t *testing.T) {
 	}
 }
 
+func TestMmarkCodeFence(t *testing.T) {
+	assert := require.New(t)
+
+	python := `<div class="highlight">` +
+		`<pre class="chroma"><code class="language-python" data-lang="python">` +
+		`<span class="kn">import</span> <span class="nn">this</span></code></pre></div>`
+	for i, this := range []struct {
+		markdown string
+		expect   string
+	}{
+		{"~~~ python\nimport this\n~~~", python},
+		{"~~~ python\nimport this\n~~~\nFigure: fig",
+			`<figure>` + python + `<figcaption>fig</figcaption></figure>`},
+	} {
+		v := viper.New()
+		v.Set("pygmentsStyle", "monokai")
+		v.Set("pygmentsUseClasses", true)
+		v.Set("pygmentsCodeFences", true)
+		c, err := NewContentSpec(v)
+		assert.NoError(err)
+		ctx := &RenderingContext{Cfg: c.cfg, Config: c.BlackFriday}
+		ctx.Content = []byte(this.markdown)
+		actualRenderedMarkdown := c.mmarkRender(ctx)
+		expectedRenderedMarkdown := []byte(this.expect)
+		if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
+			t.Errorf("[%d] Actual rendered Markdown (%s) did not match expected markdown (%s)", i, actualRenderedMarkdown, expectedRenderedMarkdown)
+		}
+	}
+
+}
+
 func TestBlackfridayTaskList(t *testing.T) {
 	c := newTestContentSpec()
 
