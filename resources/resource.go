@@ -167,9 +167,9 @@ func (r *Spec) NewForFs(sourceFs afero.Fs, fd ResourceSourceDescriptor) (resourc
 func (r *Spec) newResourceForFs(sourceFs afero.Fs, fd ResourceSourceDescriptor) (resource.Resource, error) {
 	if fd.OpenReadSeekCloser == nil {
 		if fd.SourceFile != nil && fd.SourceFilename != "" {
-			return nil, errors.New("both SourceFile and AbsSourceFilename provided")
+			return nil, errors.New("both SourceFile and SourceFilename provided")
 		} else if fd.SourceFile == nil && fd.SourceFilename == "" {
-			return nil, errors.New("either SourceFile or AbsSourceFilename must be provided")
+			return nil, errors.New("either SourceFile or SourceFilename must be provided")
 		}
 	}
 
