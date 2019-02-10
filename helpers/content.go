@@ -659,6 +659,8 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 
 	var isAsciidoctor bool
 
+	path := getAsciidoctorExecPath()
+
 	if path == "" {
 		path = getAsciidocExecPath()
 		if path == "" {
@@ -674,8 +676,6 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 	args := []string{"--no-header-footer", "--safe"}
 
 	if isAsciidoctor {
-
-		path := getAsciidoctorExecPath()
 
 		// asciidoctor-specific arg to show stack traces on errors
 		args = append(args, "--trace")
