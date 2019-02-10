@@ -623,11 +623,42 @@ func HasAsciidoc() bool {
 		getAsciidocExecPath() != "")
 }
 
+// Define specific extensions which would make sense to be used in Hugo
+var asciiDoctorExtensionMap = map[string]bool {
+	"asciidoctor-bibtex" : false,
+	"asciidoctor-diagram" : false,
+	"asciidoctor-rouge" : false,
+}
+
+// Assuming AsciiDoctor; AsciiDoctorJ and AsciiDoctor.js not currently supported
+func getGemExecPath() string {
+	path, err := exec.LookPath("gem")
+	if err != nil {
+		return ""
+	}
+	return path
+}
+
+func lookForAsciiDoctorExtension(path string, args []string) bool {
+
+	cmd := exec.Command(path, args...)
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Run()
+
+	return len(strings.TrimSpace(strings.Split(string(out.Bytes()), "\n")[0])) > 0
+
+}
+
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
 // to convert AsciiDoc content to HTML.
 func getAsciidocContent(ctx *RenderingContext) []byte {
+
+	// summary divider as an AsciiDoc(tor) comment
+	SummaryDivider = []byte("// more")
+
 	var isAsciidoctor bool
-	path := getAsciidoctorExecPath()
+
 	if path == "" {
 		path = getAsciidocExecPath()
 		if path == "" {
@@ -641,12 +672,33 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 
 	jww.INFO.Println("Rendering", ctx.DocumentName, "with", path, "...")
 	args := []string{"--no-header-footer", "--safe"}
+
 	if isAsciidoctor {
+
+		path := getAsciidoctorExecPath()
+
 		// asciidoctor-specific arg to show stack traces on errors
 		args = append(args, "--trace")
+
+		// check which AsciiDoctor extensions are installed
+		gemPath := getGemExecPath()
+		for k := range asciiDoctorExtensionMap {
+			asciiDoctorExtensionMap[k] = lookForAsciiDoctorExtension(gemPath, []string{"list", "-q", k})
+		}
+
+		// enable asciidoctor extensions
+		for k, v := range asciiDoctorExtensionMap {
+			if v {
+				args = append(args, "-r", k)
+			}
+		}
+
 	}
+
 	args = append(args, "-")
+
 	return externallyRenderContent(ctx, path, args)
+
 }
 
 // HasRst returns whether rst2html is installed on this computer.
@@ -761,3 +813,4 @@ func externallyRenderContent(ctx *RenderingContext, path string, args []string) 
 
 	return normalizeExternalHelperLineFeeds(out.Bytes())
 }
+
