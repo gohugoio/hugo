@@ -623,11 +623,16 @@ func HasAsciidoc() bool {
 		getAsciidocExecPath() != "")
 }
 
+type asciidoctorExtCriteria struct {
+	IsPresentOnSystem bool
+	DocRequiresFunc func([]byte) bool
+}
+
 // Define specific extensions which would make sense to be used in Hugo
-var asciiDoctorExtensionMap = map[string]bool {
-	"asciidoctor-bibtex" : false,
-	"asciidoctor-diagram" : false,
-	"asciidoctor-rouge" : false,
+var asciiDoctorExtensionMap = map[string]*asciidoctorExtCriteria {
+	"asciidoctor-bibtex" : &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckBibtex},
+	"asciidoctor-diagram" : &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckAlwaysTrue},
+	"asciidoctor-rouge" : &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckAlwaysTrue},
 }
 
 // Assuming AsciiDoctor; AsciiDoctorJ and AsciiDoctor.js not currently supported
@@ -648,6 +653,14 @@ func lookForAsciiDoctorExtension(path string, args []string) bool {
 
 	return len(strings.TrimSpace(strings.Split(string(out.Bytes()), "\n")[0])) > 0
 
+}
+
+func asciidoctorExtensionRequirementCheckAlwaysTrue(content []byte) bool {
+	return true
+}
+
+func asciidoctorExtensionRequirementCheckBibtex(content []byte) bool {
+	return bytes.Contains(content, []byte("bibliography::["))
 }
 
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
@@ -683,12 +696,12 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 		// check which AsciiDoctor extensions are installed
 		gemPath := getGemExecPath()
 		for k := range asciiDoctorExtensionMap {
-			asciiDoctorExtensionMap[k] = lookForAsciiDoctorExtension(gemPath, []string{"list", "-q", k})
+			asciiDoctorExtensionMap[k].IsPresentOnSystem = lookForAsciiDoctorExtension(gemPath, []string{"list", "-q", k})
 		}
 
 		// enable asciidoctor extensions
 		for k, v := range asciiDoctorExtensionMap {
-			if v {
+			if v.IsPresentOnSystem && v.DocRequiresFunc(ctx.Content) {
 				args = append(args, "-r", k)
 			}
 		}
