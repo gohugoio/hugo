@@ -54,7 +54,7 @@ hugo new site quickstart
 
 The above will create a new Hugo site in a folder named `quickstart`.
 
-{{< asciicast 1PH9A2fs14Dnyarx5v8OMYQer >}}
+{{< asciicast 3mf1JGaN0AX0Z7j5kLGl3hSh8 >}}
 
 
 ## Step 3: Add a Theme
@@ -81,13 +81,15 @@ echo 'theme = "ananke"' >> config.toml
 ```
 
 
-{{< asciicast WJM2LEZQs8VRhNeuZ5NiGPp9I >}}
+{{< asciicast 7naKerRYUGVPj8kiDmdh5k5h9 >}}
 
 ## Step 4: Add Some Content
 
 ```
 hugo new posts/my-first-post.md
 ```
+
+{{< asciicast eUojYCfRTZvkEiqc52fUsJRBR >}}
 
 
 Edit the newly created content file if you want.
@@ -100,20 +102,23 @@ Now, start the Hugo server with [drafts](/getting-started/usage/#draft-future-an
 ```
 ▶ hugo server -D
 
-Started building sites ...
-Built site for language en:
-1 of 1 draft rendered
-0 future content
-0 expired content
-1 regular pages created
-8 other pages created
-0 non-page files copied
-1 paginator pages created
-0 categories created
-0 tags created
-total in 18 ms
-Watching for changes in /Users/bep/sites/quickstart/{data,content,layouts,static,themes}
+                   | EN
++------------------+----+
+  Pages            | 10
+  Paginator pages  |  0
+  Non-page files   |  0
+  Static files     |  3
+  Processed images |  0
+  Aliases          |  1
+  Sitemaps         |  1
+  Cleaned          |  0
+
+Total in 11 ms
+Watching for changes in /Users/bep/quickstart/{content,data,layouts,static,themes}
+Watching for config changes in /Users/bep/quickstart/config.toml
+Environment: "development"
 Serving pages from memory
+Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender
 Web Server is available at http://localhost:1313/ (bind address 127.0.0.1)
 Press Ctrl+C to stop
 ```
@@ -148,6 +153,3 @@ For theme specific configuration options, see the [theme site](https://github.co
 
 **For further theme customization, see [Customize a Theme](/themes/customizing/).**
 
-## Recapitulation
-
-{{< asciicast pWp4uvyAkdWgQllD9RCfeBL5k >}}
