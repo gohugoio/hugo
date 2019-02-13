@@ -17,6 +17,7 @@ package create
 
 import (
 	"io/ioutil"
+	"mime"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -76,6 +77,29 @@ func (c *Client) Get(fs afero.Fs, filename string) (resource.Resource, error) {
 		if err != nil {
 			return nil, err
 		}
+
+		contentType := ""
+		if arr, _ := mime.ExtensionsByType(res.Header.Get("Content-Type")); arr != nil {
+			contentType = arr[0]
+		}
+
+		if contentType == "" {
+			if ct := http.DetectContentType(bodyBuff); ct != "application/octet-stream" {
+				if arr, _ := mime.ExtensionsByType(ct); arr != nil {
+					contentType = arr[0]
+				}
+
+			}
+		}
+
+		if contentType == "" {
+			// maybe there's a useful suffix in the url path?
+			if ext := filepath.Ext(u.Path); ext != "" {
+				contentType = ext
+			}
+		}
+
+		resourceID = resourceID + contentType
 
 		return c.rs.NewForFs(c.rs.FileCaches.AssetsCache().Fs,
 			resources.ResourceSourceDescriptor{
