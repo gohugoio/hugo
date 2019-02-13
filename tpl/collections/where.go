@@ -114,6 +114,17 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			slv = v.Interface()
 			slmv = mv.Interface()
 		}
+	} else if isNumber(v.Kind()) && isNumber(mv.Kind()) {
+		fv, err := toFloat(v)
+		if err != nil {
+			return false, err
+		}
+		fvp = &fv
+		fmv, err := toFloat(mv)
+		if err != nil {
+			return false, err
+		}
+		fmvp = &fmv
 	} else {
 		if mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
 			return false, nil
@@ -425,6 +436,8 @@ func toFloat(v reflect.Value) (float64, error) {
 	switch v.Kind() {
 	case reflect.Float32, reflect.Float64:
 		return v.Float(), nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Convert(reflect.TypeOf(float64(0))).Float(), nil
 	case reflect.Interface:
 		return toFloat(v.Elem())
 	}
