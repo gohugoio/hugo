@@ -43,7 +43,7 @@ hugo version
 ```
 
 
-{{< asciicast HDlKrUrbfT7yiWsbd6QoxzRTN >}}
+{{< asciicast ItACREbFgvJ0HjnSNeTknxWy9 >}}
 
 
 ## Step 2: Create a New Site
