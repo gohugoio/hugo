@@ -17,6 +17,7 @@ package resources
 import (
 	"errors"
 	"fmt"
+	"net/url"
 
 	_errors "github.com/pkg/errors"
 
@@ -74,11 +75,18 @@ func (ns *Namespace) Get(filename interface{}) (resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
+	u, err := url.Parse(filenamestr)
+	if err != nil {
+		return nil, err
+	}
+
+	if u.Scheme != "" {
+		return ns.createClient.GetRemote(ns.deps.BaseFs.Assets.Fs, filenamestr)
+	}
 
 	// Resource Get'ing is currently limited to /assets to make it simpler
 	// to control the behaviour of publishing and partial rebuilding.
 	return ns.createClient.Get(ns.deps.BaseFs.Assets.Fs, filenamestr)
-
 }
 
 // Concat concatenates a slice of Resource objects. These resources must

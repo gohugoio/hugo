@@ -44,26 +44,20 @@ func New(rs *resources.Spec) *Client {
 
 // Get creates a new Resource by opening the given filename in the given filesystem.
 func (c *Client) Get(fs afero.Fs, filename string) (resource.Resource, error) {
-	u, err := url.Parse(filename)
-	if err != nil {
-		return nil, err
-	}
+	filename = filepath.Clean(filename)
+	return c.rs.ResourceCache.GetOrCreate(resources.ResourceKeyPartition(filename), filename, func() (resource.Resource, error) {
+		return c.rs.NewForFs(fs,
+			resources.ResourceSourceDescriptor{
+				LazyPublish:    true,
+				SourceFilename: filename})
+	})
 
-	isLocalResource := u.Scheme == ""
-	if isLocalResource {
-		filename = filepath.Clean(filename)
-		return c.rs.ResourceCache.GetOrCreate(resources.ResourceKeyPartition(filename), filename, func() (resource.Resource, error) {
-			return c.rs.NewForFs(fs,
-				resources.ResourceSourceDescriptor{
-					LazyPublish:    true,
-					SourceFilename: filename})
-		})
+}
 
-	}
-
-	resourceID := helpers.MD5String(filename)
+func (c *Client) GetRemote(fs afero.Fs, uri string) (resource.Resource, error) {
+	resourceID := helpers.MD5String(uri)
 	return c.rs.ResourceCache.GetOrCreate(resources.CACHE_OTHER, resourceID, func() (resource.Resource, error) {
-		res, err := http.Get(filename)
+		res, err := http.Get(uri)
 		if err != nil {
 			return nil, err
 		}
@@ -94,8 +88,10 @@ func (c *Client) Get(fs afero.Fs, filename string) (resource.Resource, error) {
 
 		if contentType == "" {
 			// maybe there's a useful suffix in the url path?
-			if ext := filepath.Ext(u.Path); ext != "" {
-				contentType = ext
+			if u, err := url.Parse(uri); err == nil {
+				if ext := filepath.Ext(u.Path); ext != "" {
+					contentType = ext
+				}
 			}
 		}
 
