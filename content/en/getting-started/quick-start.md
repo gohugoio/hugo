@@ -99,6 +99,10 @@ Edit the newly created content file if you want.
 
 Now, start the Hugo server with [drafts](/getting-started/usage/#draft-future-and-expired-content) enabled:
 
+{{< asciicast BvJBsF6egk9c163bMsObhuNXj >}}
+
+
+
 ```
 ▶ hugo server -D
 
