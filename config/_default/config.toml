@@ -1,5 +1,5 @@
 baseURL = "https://gohugo.io/"
-paginate =  100
+paginate = 100
 defaultContentLanguage = "en"
 enableEmoji = true
 # Set the unicode character used for the "return" link in page footnotes.
@@ -73,7 +73,7 @@ toLower = false
 name = "keywords"
 weight = 100
 [[related.indices]]
-name  = "date"
+name = "date"
 weight = 10
 pattern = "2006"
 
