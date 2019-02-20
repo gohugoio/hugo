@@ -3,6 +3,7 @@ package hugolib
 import (
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"testing"
@@ -211,7 +212,7 @@ func TestSiteBuildErrors(t *testing.T) {
 			assertBuildError: func(a testSiteBuildErrorAsserter, err error) {
 				assert.Error(err)
 				// This is fixed in latest Go source
-				if strings.Contains(runtime.Version(), "devel") {
+				if regexp.MustCompile("devel|12").MatchString(runtime.Version()) {
 					fe := a.getFileError(err)
 					assert.Equal(5, fe.Position().LineNumber)
 					assert.Equal(21, fe.Position().ColumnNumber)
