@@ -14,7 +14,10 @@
 package commands
 
 import (
+	"encoding/csv"
+	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/spf13/cobra"
@@ -101,11 +104,16 @@ posted in the future.`,
 					return newSystemError("Error Processing Source Content", err)
 				}
 
+				writer := csv.NewWriter(os.Stdout)
+				defer writer.Flush()
+
 				for _, p := range sites.Pages() {
 					if p.IsFuture() {
-						jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+						err := writer.Write([]string{filepath.Join(p.File.Dir(), p.File.LogicalName()), p.PublishDate.Format(time.RFC3339)})
+						if err != nil {
+							return newSystemError("Error writing future posts to stdout", err)
+						}
 					}
-
 				}
 
 				return nil
@@ -137,11 +145,16 @@ expired.`,
 					return newSystemError("Error Processing Source Content", err)
 				}
 
+				writer := csv.NewWriter(os.Stdout)
+				defer writer.Flush()
+
 				for _, p := range sites.Pages() {
 					if p.IsExpired() {
-						jww.FEEDBACK.Println(filepath.Join(p.File.Dir(), p.File.LogicalName()))
+						err := writer.Write([]string{filepath.Join(p.File.Dir(), p.File.LogicalName()), p.ExpiryDate.Format(time.RFC3339)})
+						if err != nil {
+							return newSystemError("Error writing expired posts to stdout", err)
+						}
 					}
-
 				}
 
 				return nil
