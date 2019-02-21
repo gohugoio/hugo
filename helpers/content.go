@@ -625,14 +625,14 @@ func HasAsciidoc() bool {
 
 type asciidoctorExtCriteria struct {
 	IsPresentOnSystem bool
-	DocRequiresFunc func([]byte) bool
+	DocRequiresFunc   func([]byte) bool
 }
 
 // Define specific extensions which would make sense to be used in Hugo
-var asciiDoctorExtensionMap = map[string]*asciidoctorExtCriteria {
-	"asciidoctor-bibtex" : &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckBibtex},
-	"asciidoctor-diagram" : &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckAlwaysTrue},
-	"asciidoctor-rouge" : &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckAlwaysTrue},
+var asciiDoctorExtensionMap = map[string]*asciidoctorExtCriteria{
+	"asciidoctor-bibtex":  &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckBibtex},
+	"asciidoctor-diagram": &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckAlwaysTrue},
+	"asciidoctor-rouge":   &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckAlwaysTrue},
 }
 
 // Assuming AsciiDoctor; AsciiDoctorJ and AsciiDoctor.js not currently supported
@@ -826,4 +826,3 @@ func externallyRenderContent(ctx *RenderingContext, path string, args []string) 
 
 	return normalizeExternalHelperLineFeeds(out.Bytes())
 }
-
