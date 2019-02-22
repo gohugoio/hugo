@@ -14,6 +14,9 @@
 package hugolib
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
@@ -169,6 +172,34 @@ func TestResourceChain(t *testing.T) {
 	t.Parallel()
 
 	assert := require.New(t)
+	// maybe we're spawning a huge amount of servers here with each test?
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/todos/1.json" {
+			s := `{"userId":1,"id":1,"title":"delectus aut autem","completed":false}`
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(s))
+			return
+		}
+		if r.URL.Path == "/somecool.css" {
+			s := `h1 { font-style: normal }`
+			w.Header().Set("Content-Type", "text/css")
+			w.Write([]byte(s))
+			return
+		}
+		if r.URL.Path == "/fancy.html" {
+			s := `
+			<h1>
+				Welcome to the fancy page
+			</h1>
+			`
+			w.Header().Set("Content-Type", "text/html")
+			w.Write([]byte(s))
+			return
+		}
+
+		http.Error(w, "can't resolve the requested path", 404)
+	}))
+	defer server.Close()
 
 	tests := []struct {
 		name      string
@@ -207,25 +238,31 @@ T6: {{ $bundle1.Permalink }}
 		}},
 
 		{"minify", func() bool { return true }, func(b *sitesBuilder) {
-			b.WithTemplates("home.html", `
+			b.WithTemplates("home.html", fmt.Sprintf(`
 Min CSS: {{ ( resources.Get "css/styles1.css" | minify ).Content }}
+Min CSS Remote: {{ ( resources.Get "%s/somecool.css" | minify ).Content }}
 Min JS: {{ ( resources.Get "js/script1.js" | resources.Minify ).Content | safeJS }}
 Min JSON: {{ ( resources.Get "mydata/json1.json" | resources.Minify ).Content | safeHTML }}
+Min JSON Remote: {{ ( resources.Get "%s/api/todos/1.json" | resources.Minify ).Content | safeHTML }}
 Min XML: {{ ( resources.Get "mydata/xml1.xml" | resources.Minify ).Content | safeHTML }}
 Min SVG: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min SVG again: {{ ( resources.Get "mydata/svg1.svg" | resources.Minify ).Content | safeHTML }}
 Min HTML: {{ ( resources.Get "mydata/html1.html" | resources.Minify ).Content | safeHTML }}
+Min HTML Remote: {{ ( resources.Get "%s/fancy.html" | resources.Minify ).Content | safeHTML }}
 
 
-`)
+`, server.URL, server.URL, server.URL))
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `Min CSS: h1{font-style:bold}`)
+			b.AssertFileContent("public/index.html", `Min CSS Remote: h1{font-style:normal}`)
 			b.AssertFileContent("public/index.html", `Min JS: var x;x=5;document.getElementById(&#34;demo&#34;).innerHTML=x*10;`)
 			b.AssertFileContent("public/index.html", `Min JSON: {"employees":[{"firstName":"John","lastName":"Doe"},{"firstName":"Anna","lastName":"Smith"},{"firstName":"Peter","lastName":"Jones"}]}`)
+			b.AssertFileContent("public/index.html", `Min JSON Remote: {"userId":1,"id":1,"title":"delectus aut autem","completed":false}`)
 			b.AssertFileContent("public/index.html", `Min XML: <hello><world>Hugo Rocks!</<world></hello>`)
 			b.AssertFileContent("public/index.html", `Min SVG: <svg height="100" width="100"><path d="M5 10 20 40z"/></svg>`)
 			b.AssertFileContent("public/index.html", `Min SVG again: <svg height="100" width="100"><path d="M5 10 20 40z"/></svg>`)
 			b.AssertFileContent("public/index.html", `Min HTML: <html><a href=#>Cool</a></html>`)
+			b.AssertFileContent("public/index.html", `Min HTML Remote: <h1>Welcome to the fancy page</h1>`)
 		}},
 
 		{"concat", func() bool { return true }, func(b *sitesBuilder) {
@@ -459,7 +496,6 @@ $color: #333;
 		test.verify(b)
 	}
 }
-
 func TestMultiSiteResource(t *testing.T) {
 	t.Parallel()
 	assert := require.New(t)
