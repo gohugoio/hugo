@@ -1127,8 +1127,8 @@ func (p *Page) RelPermalink() string {
 	return p.relPermalink
 }
 
+// Name value is used, by default, in Resources.ByPrefix etc.
 // See resource.Resource
-// This value is used, by default, in Resources.ByPrefix etc.
 func (p *Page) Name() string {
 	if p.resourcePath != "" {
 		return p.resourcePath
@@ -2066,7 +2066,7 @@ func (p *Page) kindFromSections() string {
 
 	sectionPath := p.sectionsPath()
 
-	for k, _ := range p.s.Taxonomies {
+	for k := range p.s.Taxonomies {
 		if k == sectionPath {
 			return KindTaxonomyTerm
 		}

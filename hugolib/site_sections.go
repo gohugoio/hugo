@@ -324,14 +324,14 @@ func (s *Site) assembleSections() Pages {
 	}
 
 	var (
-		sectionsParamId      = "mainSections"
-		sectionsParamIdLower = strings.ToLower(sectionsParamId)
+		sectionsParamID      = "mainSections"
+		sectionsParamIDLower = strings.ToLower(sectionsParamID)
 		mainSections         interface{}
 		mainSectionsFound    bool
 		maxSectionWeight     int
 	)
 
-	mainSections, mainSectionsFound = s.Info.Params[sectionsParamIdLower]
+	mainSections, mainSectionsFound = s.Info.Params[sectionsParamIDLower]
 
 	for _, sect := range sectionPages {
 		if sect.parent != nil {
@@ -357,8 +357,8 @@ func (s *Site) assembleSections() Pages {
 	}
 
 	// Try to make this as backwards compatible as possible.
-	s.Info.Params[sectionsParamId] = mainSections
-	s.Info.Params[sectionsParamIdLower] = mainSections
+	s.Info.Params[sectionsParamID] = mainSections
+	s.Info.Params[sectionsParamIDLower] = mainSections
 
 	return newPages
 

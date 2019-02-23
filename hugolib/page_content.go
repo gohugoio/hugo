@@ -95,9 +95,8 @@ Loop:
 			if err != nil {
 				if fe, ok := err.(herrors.FileError); ok {
 					return herrors.ToFileErrorWithOffset(fe, iter.LineNumber()-1)
-				} else {
-					return err
 				}
+				return err
 			}
 			if err := p.updateMetaData(m); err != nil {
 				return err

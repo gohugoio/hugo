@@ -155,11 +155,11 @@ func (h *HugoSites) init(config *BuildCfg) error {
 
 func (h *HugoSites) initRebuild(config *BuildCfg) error {
 	if config.NewConfig != nil {
-		return errors.New("Rebuild does not support 'NewConfig'.")
+		return errors.New("Rebuild does not support 'NewConfig'")
 	}
 
 	if config.ResetState {
-		return errors.New("Rebuild does not support 'ResetState'.")
+		return errors.New("Rebuild does not support 'ResetState'")
 	}
 
 	if !h.running {

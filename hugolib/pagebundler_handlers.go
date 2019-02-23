@@ -118,9 +118,8 @@ func (c *handlerContext) ext() string {
 
 	if c.bundle != nil {
 		return c.bundle.fi.Ext()
-	} else {
-		return c.source.Ext()
 	}
+	return c.source.Ext()
 }
 
 func (c *handlerContext) targetPath() string {

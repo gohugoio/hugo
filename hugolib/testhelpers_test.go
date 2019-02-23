@@ -673,9 +673,8 @@ func buildSingleSiteExpected(t testing.TB, expectSiteInitEror, expectBuildError 
 	if expectSiteInitEror {
 		require.Error(t, err)
 		return nil
-	} else {
-		require.NoError(t, err)
 	}
+	require.NoError(t, err)
 
 	require.Len(t, h.Sites, 1)
 

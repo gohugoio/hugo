@@ -188,10 +188,10 @@ func (s shortcode) innerString() string {
 	return sb.String()
 }
 
-func (sc shortcode) String() string {
+func (s shortcode) String() string {
 	// for testing (mostly), so any change here will break tests!
 	var params interface{}
-	switch v := sc.params.(type) {
+	switch v := s.params.(type) {
 	case map[string]string:
 		// sort the keys so test assertions won't fail
 		var keys []string
@@ -208,10 +208,10 @@ func (sc shortcode) String() string {
 
 	default:
 		// use it as is
-		params = sc.params
+		params = s.params
 	}
 
-	return fmt.Sprintf("%s(%q, %t){%s}", sc.name, params, sc.doMarkup, sc.inner)
+	return fmt.Sprintf("%s(%q, %t){%s}", s.name, params, s.doMarkup, s.inner)
 }
 
 // We may have special shortcode templates for AMP etc.
