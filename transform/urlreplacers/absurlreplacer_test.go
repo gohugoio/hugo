@@ -89,8 +89,8 @@ schemaless: &lt;img srcset=&#39;//img.jpg&#39; src=&#39;//basic.jpg&#39;&gt;
 schemaless2: &lt;img srcset=&quot;//img.jpg&quot; src=&quot;//basic.jpg2&gt; POST
 `
 
-	relPathVariations        = `PRE. a href="/img/small.jpg" POST.`
-	relPathVariationsCorrect = `PRE. a href="../../img/small.jpg" POST.`
+	relPathVariations        = `PRE. a href="/img/small.jpg" input action="/foo.html" POST.`
+	relPathVariationsCorrect = `PRE. a href="../../img/small.jpg" input action="../../foo.html" POST.`
 
 	testBaseURL = "http://base/"
 )
