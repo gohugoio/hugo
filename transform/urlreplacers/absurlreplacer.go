@@ -49,6 +49,7 @@ func newPrefixState() []*prefix {
 	return []*prefix{
 		{b: []byte("src="), f: checkCandidateBase},
 		{b: []byte("href="), f: checkCandidateBase},
+		{b: []byte("action="), f: checkCandidateBase},
 		{b: []byte("srcset="), f: checkCandidateSrcset},
 	}
 }
