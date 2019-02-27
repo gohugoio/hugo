@@ -186,18 +186,41 @@ func (i *Image) Fill(spec string) (*Image, error) {
 
 // Watermark image with a given image from static package.
 func (i *Image) Watermark(spec string ) (*Image, error) {
-	// TODO 1 - watermark custom image config 2 - load static 3 - output watermark 4 - chech gen image
-	return i.doWithImageConfig("watermark", spec, func(src image.Image, conf imageConfig) (image.Image, error) {
+	return i.doWithImageWatermarkConfig("watermark", spec, func(src image.Image, conf imageConfig) (image.Image, error) {
 		watermarkSrc, err := imaging.Open(conf.secondaryImagePath)
 		if err != nil {
 			return nil, err
 		}
 
-		offset := image.Pt(0, 0)
-		b := src.Bounds()
-		result := image.NewRGBA(b)
-		draw.Draw(result, b, src, image.ZP, draw.Src)
-		draw.Draw(result, watermarkSrc.Bounds().Add(offset), watermarkSrc, image.ZP, draw.Over)
+		originalBound := src.Bounds()
+		watermarkBound := watermarkSrc.Bounds()
+		// Compute position offset based on anchor
+		var offset image.Point
+		switch conf.Anchor {
+		case imaging.Center:
+			offset = image.Pt((originalBound.Max.X / 2) - (watermarkBound.Max.X / 2), (originalBound.Max.Y / 2) - (watermarkBound.Max.Y / 2))
+		case imaging.TopLeft:
+			offset = image.Pt(0, 0)
+		case imaging.Top:
+			offset = image.Pt((originalBound.Max.X / 2) - (watermarkBound.Max.X / 2), 0)
+		case imaging.TopRight:
+			offset = image.Pt((originalBound.Max.X) - (watermarkBound.Max.X), 0)
+		case imaging.Left:
+			offset = image.Pt(0, (originalBound.Max.Y / 2) - (watermarkBound.Max.Y / 2))
+		case imaging.Right:
+			offset = image.Pt((originalBound.Max.X) - (watermarkBound.Max.X), (originalBound.Max.Y / 2) - (watermarkBound.Max.Y / 2))
+		case imaging.BottomLeft:
+			offset = image.Pt(0, (originalBound.Max.Y) - (watermarkBound.Max.Y))
+		case imaging.Bottom:
+			offset = image.Pt((originalBound.Max.X / 2) - (watermarkBound.Max.X / 2), (originalBound.Max.Y) - (watermarkBound.Max.Y))
+		case imaging.BottomRight:
+			offset = image.Pt((originalBound.Max.X) - (watermarkBound.Max.X), (originalBound.Max.Y) - (watermarkBound.Max.Y))
+		default:
+			offset = image.Pt(0, 0)
+		}
+		result := image.NewRGBA(originalBound)
+		draw.Draw(result, originalBound, src, image.ZP, draw.Src)
+		draw.Draw(result, watermarkBound.Add(offset), watermarkSrc, image.ZP, draw.Over)
 		return result, nil
 	})
 }
@@ -243,8 +266,17 @@ const imageProcWorkers = 1
 
 var imageProcSem = make(chan bool, imageProcWorkers)
 
+func (i *Image) doWithImageWatermarkConfig(action, spec string, f func(src image.Image, conf imageConfig) (image.Image, error)) (*Image, error) {
+	return i.internalDoWithImageConfig(action, spec, f, parseImageWatermarkConfig)
+}
+
 func (i *Image) doWithImageConfig(action, spec string, f func(src image.Image, conf imageConfig) (image.Image, error)) (*Image, error) {
-	conf, err := parseImageConfig(spec)
+	return i.internalDoWithImageConfig(action, spec, f, parseImageConfig)
+}
+
+func (i *Image) internalDoWithImageConfig(action, spec string, f func(src image.Image, conf imageConfig) (image.Image, error),
+										configF func (config string) (imageConfig, error)) (*Image, error) {
+	conf, err := configF(spec)
 	if err != nil {
 		return nil, err
 	}
@@ -440,6 +472,54 @@ func parseImageConfig(config string) (imageConfig, error) {
 
 	if c.Width == 0 && c.Height == 0 {
 		return c, errors.New("must provide Width or Height")
+	}
+
+	return c, nil
+}
+
+
+func parseImageWatermarkConfig(config string) (imageConfig, error) {
+	var (
+		c   imageConfig
+		err error
+	)
+
+	if config == "" {
+		return c, errors.New("image watermark config cannot be empty")
+	}
+
+	parts := strings.Fields(config)
+	for _, part := range parts {
+		part = strings.ToLower(part)
+
+		if part == smartCropIdentifier {
+			c.AnchorStr = smartCropIdentifier
+		} else if pos, ok := anchorPositions[part]; ok {
+			c.Anchor = pos
+			c.AnchorStr = part
+		} else if filter, ok := imageFilters[part]; ok {
+			c.Filter = filter
+			c.FilterStr = part
+		} else if part[0] == 'q' {
+			c.Quality, err = strconv.Atoi(part[1:])
+			if err != nil {
+				return c, err
+			}
+			if c.Quality < 1 || c.Quality > 100 {
+				return c, errors.New("quality ranges from 1 to 100 inclusive")
+			}
+		} else if part[0] == 'r' {
+			c.Rotate, err = strconv.Atoi(part[1:])
+			if err != nil {
+				return c, err
+			}
+		} else if strings.HasPrefix(part, "static") {
+			c.secondaryImagePath = part;
+		}
+	}
+
+	if c.secondaryImagePath == "" {
+		return c, errors.New("must provide an image from static package as watermark")
 	}
 
 	return c, nil
