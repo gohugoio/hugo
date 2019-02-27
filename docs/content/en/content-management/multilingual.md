@@ -352,32 +352,37 @@ And then in the template:
 
 ## Customize Dates
 
-At the time of this writing, Go does not yet have support for internationalized locales, but if you do some work, you can simulate it. For example, if you want to use French month names, you can add a data file like ``data/mois.yaml`` with this content:
+At the time of this writing, Go does not yet have support for internationalized locales, but if you do some work, you can simulate it. For example, if you want to use French month names, you can add a data file like ``data/months/fr.yaml`` with this content:
 
 ~~~yaml
 1: "janvier"
 2: "février"
 3: "mars"
-4: "avril"
-5: "mai"
-6: "juin"
-7: "juillet"
-8: "août"
-9: "septembre"
-10: "octobre"
-11: "novembre"
+...
 12: "décembre"
 ~~~
 
 ... then index the non-English date names in your templates like so:
 
 ~~~html
-<time class="post-date" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" | safeHTML }}">
-  Article publié le {{ .Date.Day }} {{ index $.Site.Data.mois (printf "%d" .Date.Month) }} {{ .Date.Year }} (dernière modification le {{ .Lastmod.Day }} {{ index $.Site.Data.mois (printf "%d" .Lastmod.Month) }} {{ .Lastmod.Year }})
-</time>
+{{ i18n "postedOnDate" }} {{ .Date.Day }} {{ index (index .Site.Data.months .Lang) (printf "%d" .Date.Month) }} {{ .Date.Year }}
 ~~~
 
-This technique extracts the day, month and year by specifying ``.Date.Day``, ``.Date.Month``, and ``.Date.Year``, and uses the month number as a key, when indexing the month name data file.
+This technique extracts the day, month and year by specifying ``.Date.Day``, ``.Date.Month``, and ``.Date.Year``, uses ``.Lang`` as a key to retrieve the right data file and finally uses the month number as a key, when indexing the month name data file. 
+
+If you have multiple languages in your site, you must then create as many language files as necessary, even for english, for example in ``data/months/en.yaml``:
+
+~~~yaml
+1: January
+2: February
+3: March
+...
+12: December
+~~~
+
+An alternative technique using only i18n files instead of data files would be [zontarian's suggestion](https://discourse.gohugo.io/t/dates-only-in-english/1317/40).
+
+Please note both these techniques imply that the ``dateFormat`` specified in the configuration is not used at all.
 
 ## Menus
 
