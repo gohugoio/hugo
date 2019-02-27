@@ -184,6 +184,24 @@ func (i *Image) Fill(spec string) (*Image, error) {
 	})
 }
 
+// Watermark image with a given image from static package.
+func (i *Image) Watermark(spec string ) (*Image, error) {
+	// TODO 1 - watermark custom image config 2 - load static 3 - output watermark 4 - chech gen image
+	return i.doWithImageConfig("watermark", spec, func(src image.Image, conf imageConfig) (image.Image, error) {
+		watermarkSrc, err := imaging.Open(conf.secondaryImagePath)
+		if err != nil {
+			return nil, err
+		}
+
+		offset := image.Pt(0, 0)
+		b := src.Bounds()
+		result := image.NewRGBA(b)
+		draw.Draw(result, b, src, image.ZP, draw.Src)
+		draw.Draw(result, watermarkSrc.Bounds().Add(offset), watermarkSrc, image.ZP, draw.Over)
+		return result, nil
+	})
+}
+
 // Holds configuration to create a new image from an existing one, resize etc.
 type imageConfig struct {
 	Action string
@@ -205,6 +223,10 @@ type imageConfig struct {
 
 	Anchor    imaging.Anchor
 	AnchorStr string
+
+	// Image used in image transformation that required another image
+	// like watermarking. So far detected by a path starting by static...
+	secondaryImagePath string
 }
 
 func (i *Image) isJPEG() bool {
@@ -331,6 +353,7 @@ func newImageConfig(width, height, quality, rotate int, filter, anchor string) i
 	c.Height = height
 	c.Quality = quality
 	c.Rotate = rotate
+	c.secondaryImagePath = ""
 
 	if filter != "" {
 		filter = strings.ToLower(filter)
@@ -386,6 +409,8 @@ func parseImageConfig(config string) (imageConfig, error) {
 			if err != nil {
 				return c, err
 			}
+		} else if strings.HasPrefix(part, "static") {
+			c.secondaryImagePath = part;
 		} else if strings.Contains(part, "x") {
 			widthHeight := strings.Split(part, "x")
 			if len(widthHeight) <= 2 {
