@@ -71,6 +71,11 @@
     Example: Include `autoHeaderIds` as `false` in the list to disable Blackfriday's `EXTENSION_AUTO_HEADER_IDS`. <br>
     *See [Blackfriday extensions](#blackfriday-extensions) section for information on all extensions.*
 
+`skipHTML`
+: default: **`false`** <br>
+    Blackfriday flag: **`HTML_SKIP_HTML`** <br>
+    Purpose: `true` causes any HTML in the markdown files to be skipped.
+
 ## Blackfriday extensions
 
 `noIntraEmphasis`
