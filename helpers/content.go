@@ -119,6 +119,7 @@ type BlackFriday struct {
 	PlainIDAnchors        bool
 	Extensions            []string
 	ExtensionsMask        []string
+	SkipHTML              bool
 }
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
@@ -135,6 +136,7 @@ func newBlackfriday(config map[string]interface{}) *BlackFriday {
 		"latexDashes":           true,
 		"plainIDAnchors":        true,
 		"taskLists":             true,
+		"skipHTML":              false,
 	}
 
 	maps.ToLower(defaultParam)
@@ -298,6 +300,10 @@ func (c *ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) b
 
 	if ctx.Config.LatexDashes {
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+	}
+
+	if ctx.Config.SkipHTML {
+		htmlFlags |= blackfriday.HTML_SKIP_HTML
 	}
 
 	return &HugoHTMLRenderer{
