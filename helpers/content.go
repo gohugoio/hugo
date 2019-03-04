@@ -136,7 +136,7 @@ func newBlackfriday(config map[string]interface{}) *BlackFriday {
 		"latexDashes":           true,
 		"plainIDAnchors":        true,
 		"taskLists":             true,
-		"skipHTML":              true,
+		"skipHTML":              false,
 	}
 
 	maps.ToLower(defaultParam)
