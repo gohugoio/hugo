@@ -23,7 +23,7 @@ matrix:
 
 install:
   - mkdir -p $HOME/src
-  - mv $HOME/gopath/src/github.com/gohugoio/hugo $HOME/src
+  - mv $TRAVIS_BUILD_DIR $HOME/src
   - export TRAVIS_BUILD_DIR=$HOME/src/hugo
   - cd $HOME/src/hugo
   - go get github.com/magefile/mage
