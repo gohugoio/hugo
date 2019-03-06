@@ -15,9 +15,14 @@ package tplimpl
 import (
 	"bytes"
 	"fmt"
-	"testing"
-
 	"html/template"
+	"testing"
+	"time"
+
+	"github.com/gohugoio/hugo/tpl"
+
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/hugofs"
 
 	"github.com/spf13/cast"
 
@@ -26,6 +31,7 @@ import (
 
 var (
 	testFuncs = map[string]interface{}{
+		"getif":  func(v interface{}) interface{} { return v },
 		"ToTime": func(v interface{}) interface{} { return cast.ToTime(v) },
 		"First":  func(v ...interface{}) interface{} { return v[0] },
 		"Echo":   func(v interface{}) interface{} { return v },
@@ -183,7 +189,7 @@ func TestParamsKeysToLower(t *testing.T) {
 
 	require.Equal(t, -1, c.decl.indexOfReplacementStart([]string{}))
 
-	c.paramsKeysToLower(templ.Tree.Root)
+	c.applyTransformations(templ.Tree.Root)
 
 	var b bytes.Buffer
 
@@ -265,7 +271,7 @@ func BenchmarkTemplateParamsKeysToLower(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		c := newTemplateContext(createParseTreeLookup(templates[i]))
-		c.paramsKeysToLower(templ.Tree.Root)
+		c.applyTransformations(templ.Tree.Root)
 	}
 }
 
@@ -304,7 +310,7 @@ Pretty First3: {{ $__amber_4.COLORS.PRETTY.FIRST}}
 
 	c := newTemplateContext(createParseTreeLookup(templ))
 
-	c.paramsKeysToLower(templ.Tree.Root)
+	c.applyTransformations(templ.Tree.Root)
 
 	var b bytes.Buffer
 
@@ -348,7 +354,7 @@ P2: {{ .Params.LOWER }}
 
 	c := newTemplateContext(createParseTreeLookup(overlayTpl))
 
-	c.paramsKeysToLower(overlayTpl.Tree.Root)
+	c.applyTransformations(overlayTpl.Tree.Root)
 
 	var b bytes.Buffer
 
@@ -377,6 +383,78 @@ func TestTransformRecursiveTemplate(t *testing.T) {
 	require.NoError(t, err)
 
 	c := newTemplateContext(createParseTreeLookup(templ))
-	c.paramsKeysToLower(templ.Tree.Root)
+	c.applyTransformations(templ.Tree.Root)
+
+}
+
+type I interface {
+	Method0()
+}
+
+type T struct {
+	NonEmptyInterfaceTypedNil I
+}
+
+func (T) Method0() {
+}
+
+func TestInsertIsZeroFunc(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	var (
+		ctx = map[string]interface{}{
+			"True":     true,
+			"Now":      time.Now(),
+			"TimeZero": time.Time{},
+			"T":        &T{NonEmptyInterfaceTypedNil: (*T)(nil)},
+		}
+
+		templ = `
+{{ if .True }}.True: TRUE{{ else }}.True: FALSE{{ end }}
+{{ if .TimeZero }}.TimeZero1: TRUE{{ else }}.TimeZero1: FALSE{{ end }}
+{{ if (.TimeZero) }}.TimeZero2: TRUE{{ else }}.TimeZero2: FALSE{{ end }}
+{{ if not .TimeZero }}.TimeZero3: TRUE{{ else }}.TimeZero3: FALSE{{ end }}
+{{ if .Now }}.Now: TRUE{{ else }}.Now: FALSE{{ end }}
+{{ with .TimeZero }}.TimeZero1 with: {{ . }}{{ else }}.TimeZero1 with: FALSE{{ end }}
+{{ template "mytemplate" . }}
+{{ if .T.NonEmptyInterfaceTypedNil }}.NonEmptyInterfaceTypedNil: TRUE{{ else }}.NonEmptyInterfaceTypedNil: FALSE{{ end }}
+
+
+{{ define "mytemplate" }}
+{{ if .TimeZero }}.TimeZero1: mytemplate: TRUE{{ else }}.TimeZero1: mytemplate: FALSE{{ end }}
+{{ end }}
+
+`
+	)
+
+	v := newTestConfig()
+	fs := hugofs.NewMem(v)
+
+	depsCfg := newDepsConfig(v)
+	depsCfg.Fs = fs
+	d, err := deps.New(depsCfg)
+	assert.NoError(err)
+
+	provider := DefaultTemplateProvider
+	provider.Update(d)
+
+	h := d.Tmpl.(handler)
+
+	assert.NoError(h.addTemplate("mytemplate.html", templ))
+
+	tt, _ := d.Tmpl.Lookup("mytemplate.html")
+	result, err := tt.(tpl.TemplateExecutor).ExecuteToString(ctx)
+	assert.NoError(err)
+
+	assert.Contains(result, ".True: TRUE")
+	assert.Contains(result, ".TimeZero1: FALSE")
+	assert.Contains(result, ".TimeZero2: FALSE")
+	assert.Contains(result, ".TimeZero3: TRUE")
+	assert.Contains(result, ".Now: TRUE")
+	assert.Contains(result, "TimeZero1 with: FALSE")
+	assert.Contains(result, ".TimeZero1: mytemplate: FALSE")
+	assert.Contains(result, ".NonEmptyInterfaceTypedNil: FALSE")
 
 }

@@ -71,6 +71,27 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.And,
+			[]string{"and"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Or,
+			[]string{"or"},
+			[][2]string{},
+		)
+
+		// getif is used internally by Hugo. Do not document.
+		ns.AddMethodMapping(ctx.getIf,
+			[]string{"getif"},
+			[][2]string{},
+		)
+
+		ns.AddMethodMapping(ctx.Not,
+			[]string{"not"},
+			[][2]string{},
+		)
+
 		ns.AddMethodMapping(ctx.Conditional,
 			[]string{"cond"},
 			[][2]string{

@@ -85,31 +85,59 @@ func applyTemplateTransformers(templ *parse.Tree, lookupFn func(name string) *pa
 
 	c := newTemplateContext(lookupFn)
 
-	c.paramsKeysToLower(templ.Root)
+	c.applyTransformations(templ.Root)
 
 	return nil
 }
 
-// paramsKeysToLower is made purposely non-generic to make it not so tempting
-// to do more of these hard-to-maintain AST transformations.
-func (c *templateContext) paramsKeysToLower(n parse.Node) {
+// The truth logic in Go's template package is broken for certain values
+// for the if and with keywords. This works around that problem by wrapping
+// the node passed to if/with in a getif conditional.
+// getif works slightly different than the Go built-in in that it also
+// considers any IsZero methods on the values (as in time.Time).
+// See https://github.com/gohugoio/hugo/issues/5738
+func (c *templateContext) wrapWithGetIf(p *parse.PipeNode) {
+	if len(p.Cmds) == 0 {
+		return
+	}
+
+	// getif will return an empty string if not evaluated as truthful,
+	// which is when we need the value in the with clause.
+	firstArg := parse.NewIdentifier("getif")
+	secondArg := p.CopyPipe()
+	newCmd := p.Cmds[0].Copy().(*parse.CommandNode)
+
+	// secondArg is a PipeNode and will behave as it was wrapped in parens, e.g:
+	// {{ getif (len .Params | eq 2) }}
+	newCmd.Args = []parse.Node{firstArg, secondArg}
+
+	p.Cmds = []*parse.CommandNode{newCmd}
+
+}
+
+// applyTransformations do two things:
+// 1) Make all .Params.CamelCase and similar into lowercase.
+// 2) Wraps every with and if pipe in getif
+func (c *templateContext) applyTransformations(n parse.Node) {
 	switch x := n.(type) {
 	case *parse.ListNode:
 		if x != nil {
-			c.paramsKeysToLowerForNodes(x.Nodes...)
+			c.applyTransformationsToNodes(x.Nodes...)
 		}
 	case *parse.ActionNode:
-		c.paramsKeysToLowerForNodes(x.Pipe)
+		c.applyTransformationsToNodes(x.Pipe)
 	case *parse.IfNode:
-		c.paramsKeysToLowerForNodes(x.Pipe, x.List, x.ElseList)
+		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
+		c.wrapWithGetIf(x.Pipe)
 	case *parse.WithNode:
-		c.paramsKeysToLowerForNodes(x.Pipe, x.List, x.ElseList)
+		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
+		c.wrapWithGetIf(x.Pipe)
 	case *parse.RangeNode:
-		c.paramsKeysToLowerForNodes(x.Pipe, x.List, x.ElseList)
+		c.applyTransformationsToNodes(x.Pipe, x.List, x.ElseList)
 	case *parse.TemplateNode:
 		subTempl := c.getIfNotVisited(x.Name)
 		if subTempl != nil {
-			c.paramsKeysToLowerForNodes(subTempl.Root)
+			c.applyTransformationsToNodes(subTempl.Root)
 		}
 	case *parse.PipeNode:
 		if len(x.Decl) == 1 && len(x.Cmds) == 1 {
@@ -118,7 +146,7 @@ func (c *templateContext) paramsKeysToLower(n parse.Node) {
 		}
 
 		for _, cmd := range x.Cmds {
-			c.paramsKeysToLower(cmd)
+			c.applyTransformations(cmd)
 		}
 
 	case *parse.CommandNode:
@@ -129,7 +157,7 @@ func (c *templateContext) paramsKeysToLower(n parse.Node) {
 			case *parse.VariableNode:
 				c.updateIdentsIfNeeded(an.Ident)
 			case *parse.PipeNode:
-				c.paramsKeysToLower(an)
+				c.applyTransformations(an)
 			case *parse.ChainNode:
 				// site.Params...
 				if len(an.Field) > 1 && an.Field[0] == paramsIdentifier {
@@ -140,9 +168,9 @@ func (c *templateContext) paramsKeysToLower(n parse.Node) {
 	}
 }
 
-func (c *templateContext) paramsKeysToLowerForNodes(nodes ...parse.Node) {
+func (c *templateContext) applyTransformationsToNodes(nodes ...parse.Node) {
 	for _, node := range nodes {
-		c.paramsKeysToLower(node)
+		c.applyTransformations(node)
 	}
 }
 
