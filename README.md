@@ -4,7 +4,6 @@ A Fast and Flexible Static Site Generator built with love by [bep](https://githu
 
 [Website](https://gohugo.io) |
 [Forum](https://discourse.gohugo.io) |
-[Developer Chat (no support)](https://gitter.im/spf13/hugo) |
 [Documentation](https://gohugo.io/getting-started/) |
 [Installation Guide](https://gohugo.io/getting-started/installing/) |
 [Contribution Guide](CONTRIBUTING.md) |
@@ -12,7 +11,6 @@ A Fast and Flexible Static Site Generator built with love by [bep](https://githu
 
 [![GoDoc](https://godoc.org/github.com/gohugoio/hugo?status.svg)](https://godoc.org/github.com/gohugoio/hugo)
 [![Linux and macOS Build Status](https://api.travis-ci.org/gohugoio/hugo.svg?branch=master&label=Windows+and+Linux+and+macOS+build "Windows, Linux and macOS Build Status")](https://travis-ci.org/gohugoio/hugo)
-[![Dev chat at https://gitter.im/spf13/hugo](https://img.shields.io/badge/gitter-developer_chat-46bc99.svg)](https://gitter.im/spf13/hugo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Go Report Card](https://goreportcard.com/badge/github.com/gohugoio/hugo)](https://goreportcard.com/report/github.com/gohugoio/hugo)
 
 ## Overview
