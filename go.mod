@@ -43,17 +43,17 @@ require (
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/fsync v0.0.0-20170320142552-12a01e648f05
-	github.com/spf13/jwalterweatherman v1.0.1-0.20181028145347-94f6ae3ed3bc
+	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/nitro v0.0.0-20131003134307-24d7ef30a12d
 	github.com/spf13/pflag v1.0.3
-	github.com/spf13/viper v1.3.1
+	github.com/spf13/viper v1.3.2
 	github.com/stretchr/testify v1.3.0
 	github.com/tdewolff/minify/v2 v2.3.7
 	github.com/yosssi/ace v0.0.5
 	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd // indirect
 	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
-	golang.org/x/sys v0.0.0-20181221143128-b4a75ba826a6 // indirect
+	golang.org/x/sys v0.0.0-20190312061237-fead79001313 // indirect
 	golang.org/x/text v0.3.0
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/yaml.v2 v2.2.2
