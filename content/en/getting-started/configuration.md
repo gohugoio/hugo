@@ -254,7 +254,7 @@ stepAnalysis (false)
 : Display memory and timing of different steps of the program.
 
 summaryLength (70)
-: The length of text to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
+: The length of text in words to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
 
 taxonomies
 : See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).
