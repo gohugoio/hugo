@@ -184,43 +184,44 @@ func (i *Image) Fill(spec string) (*Image, error) {
 	})
 }
 
-// Watermark image with a given image from static package.
-func (i *Image) Watermark(spec string ) (*Image, error) {
-	return i.doWithImageWatermarkConfig("watermark", spec, func(src image.Image, conf imageConfig) (image.Image, error) {
-		watermarkSrc, err := imaging.Open(conf.secondaryImagePath)
+// Overlay image with a given image from static package.
+func (i *Image) Overlay(overlay *Image, spec string) (*Image, error) {
+	// Get overlay image.Image from cache
+	return i.doWithImageOverlayConfig("overlay", spec, func(src image.Image, conf imageConfig) (image.Image, error) {
+		// get overlay RGBA
+		overlaySrc, err := overlay.decodeSource()
 		if err != nil {
 			return nil, err
 		}
-
 		originalBound := src.Bounds()
-		watermarkBound := watermarkSrc.Bounds()
+		overlayBound := overlaySrc.Bounds()
 		// Compute position offset based on anchor
 		var offset image.Point
 		switch conf.Anchor {
 		case imaging.Center:
-			offset = image.Pt((originalBound.Max.X / 2) - (watermarkBound.Max.X / 2), (originalBound.Max.Y / 2) - (watermarkBound.Max.Y / 2))
+			offset = image.Pt((originalBound.Max.X / 2) - (overlayBound.Max.X / 2), (originalBound.Max.Y / 2) - (overlayBound.Max.Y / 2))
 		case imaging.TopLeft:
 			offset = image.Pt(0, 0)
 		case imaging.Top:
-			offset = image.Pt((originalBound.Max.X / 2) - (watermarkBound.Max.X / 2), 0)
+			offset = image.Pt((originalBound.Max.X / 2) - (overlayBound.Max.X / 2), 0)
 		case imaging.TopRight:
-			offset = image.Pt((originalBound.Max.X) - (watermarkBound.Max.X), 0)
+			offset = image.Pt((originalBound.Max.X) - (overlayBound.Max.X), 0)
 		case imaging.Left:
-			offset = image.Pt(0, (originalBound.Max.Y / 2) - (watermarkBound.Max.Y / 2))
+			offset = image.Pt(0, (originalBound.Max.Y / 2) - (overlayBound.Max.Y / 2))
 		case imaging.Right:
-			offset = image.Pt((originalBound.Max.X) - (watermarkBound.Max.X), (originalBound.Max.Y / 2) - (watermarkBound.Max.Y / 2))
+			offset = image.Pt((originalBound.Max.X) - (overlayBound.Max.X), (originalBound.Max.Y / 2) - (overlayBound.Max.Y / 2))
 		case imaging.BottomLeft:
-			offset = image.Pt(0, (originalBound.Max.Y) - (watermarkBound.Max.Y))
+			offset = image.Pt(0, (originalBound.Max.Y) - (overlayBound.Max.Y))
 		case imaging.Bottom:
-			offset = image.Pt((originalBound.Max.X / 2) - (watermarkBound.Max.X / 2), (originalBound.Max.Y) - (watermarkBound.Max.Y))
+			offset = image.Pt((originalBound.Max.X / 2) - (overlayBound.Max.X / 2), (originalBound.Max.Y) - (overlayBound.Max.Y))
 		case imaging.BottomRight:
-			offset = image.Pt((originalBound.Max.X) - (watermarkBound.Max.X), (originalBound.Max.Y) - (watermarkBound.Max.Y))
+			offset = image.Pt((originalBound.Max.X) - (overlayBound.Max.X), (originalBound.Max.Y) - (overlayBound.Max.Y))
 		default:
 			offset = image.Pt(0, 0)
 		}
 		result := image.NewRGBA(originalBound)
 		draw.Draw(result, originalBound, src, image.ZP, draw.Src)
-		draw.Draw(result, watermarkBound.Add(offset), watermarkSrc, image.ZP, draw.Over)
+		draw.Draw(result, overlayBound.Add(offset), overlaySrc, image.ZP, draw.Over)
 		return result, nil
 	})
 }
@@ -266,7 +267,7 @@ const imageProcWorkers = 1
 
 var imageProcSem = make(chan bool, imageProcWorkers)
 
-func (i *Image) doWithImageWatermarkConfig(action, spec string, f func(src image.Image, conf imageConfig) (image.Image, error)) (*Image, error) {
+func (i *Image) doWithImageOverlayConfig(action, spec string, f func(src image.Image, conf imageConfig) (image.Image, error)) (*Image, error) {
 	return i.internalDoWithImageConfig(action, spec, f, parseImageWatermarkConfig)
 }
 
@@ -513,15 +514,8 @@ func parseImageWatermarkConfig(config string) (imageConfig, error) {
 			if err != nil {
 				return c, err
 			}
-		} else if strings.HasPrefix(part, "static") {
-			c.secondaryImagePath = part;
 		}
 	}
-
-	if c.secondaryImagePath == "" {
-		return c, errors.New("must provide an image from static package as watermark")
-	}
-
 	return c, nil
 }
 
