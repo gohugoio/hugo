@@ -304,7 +304,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	}
 
 	// Set some commonly used flags
-	c.doLiveReload = !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload")
+	c.doLiveReload = running && !c.Cfg.GetBool("disableLiveReload")
 	c.fastRenderMode = c.doLiveReload && !c.Cfg.GetBool("disableFastRender")
 	c.showErrorInBrowser = c.doLiveReload && !c.Cfg.GetBool("disableBrowserError")
 
@@ -351,6 +351,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 				// to make that decision.
 				irrelevantRe: regexp.MustCompile(`\.map$`),
 			}
+
 			changeDetector.PrepareNew()
 			fs.Destination = hugofs.NewHashingFs(fs.Destination, changeDetector)
 			c.changeDetector = changeDetector
