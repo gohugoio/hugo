@@ -32,7 +32,7 @@ features:
     tagline: HTML not enough?
     copy: Hugo allows you to output your content in multiple formats, including JSON or AMP, and makes it easy to create your own.
 sections:
-  - heading: "100s of Themes"
+  - heading: "300s of Themes"
     cta: Check out the Hugo themes.
     link: http://themes.gohugo.io/
     color_classes: bg-accent-color white
