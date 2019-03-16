@@ -107,7 +107,7 @@ type templateHandler struct {
 // template funcs etc. built-in.
 func (t *templateHandler) NewTextTemplate() tpl.TemplateParseFinder {
 	t.mu.Lock()
-	t.mu.Unlock()
+	defer t.mu.Unlock()
 
 	tt := &textTemplate{t: texttemplate.New("")}
 	t.extTextTemplates = append(t.extTextTemplates, tt)
