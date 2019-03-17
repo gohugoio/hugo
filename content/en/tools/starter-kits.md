@@ -28,7 +28,7 @@ The following starter kits are developed by active members of the Hugo community
 * [GOHUGO AMP][]. GoHugo AMP is a starter theme that aims to make it easy to adopt [Google's AMP Project][amp]. The starter kit comes with 40+ shortcodes and partials plus automatic structured data. The project also includes a [separate site with extensive documentation][gohugodocs].
 * [Blaupause][]. Blaupause is a developer-friendly Hugo starter kit based on Gulp tasks. It comes ES6-ready with several helpers for SVG and fonts and basic structure for HTML, SCSS, and JavaScript.
 * [hugulp][]. hugulp is a tool to optimize the assets of a Hugo website. The main idea is to recreate the famous Ruby on Rails Asset Pipeline, which minifies, concatenates and fingerprints the assets used in your website.
-* [Atlas][]. Atlas is a Hugo boilerplate designed to speed up development with support for Netlify, Netlify CMS, Gulp, Linting, SCSS, ES6 & more. It's actively maintained and contributions are always welcome.
+* [Atlas][]. Atlas is a Hugo boilerplate designed to speed up development with support for Netlify, Hugo Pipes, SCSS & more. It's actively maintained and contributions are always welcome.
 
 
 [addkit]: https://github.com/gohugoio/hugo/edit/master/docs/content/en/tools/starter-kits.md
