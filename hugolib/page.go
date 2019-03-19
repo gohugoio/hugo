@@ -827,7 +827,9 @@ func (p *Page) setAutoSummary() error {
 
 func (p *Page) renderContent(content []byte) []byte {
 	return p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
-		Content: content, RenderTOC: true, PageFmt: p.Markup,
+		Frontmatter:    p.params,
+		FrontmatterRaw: p.frontmatter,
+		Content:        content, RenderTOC: true, PageFmt: p.Markup,
 		Cfg:        p.Language(),
 		DocumentID: p.UniqueID(), DocumentName: p.Path(),
 		Config: p.getRenderingConfig()})
