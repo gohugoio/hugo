@@ -67,16 +67,20 @@ parts:
 
   node:
     plugin: x-nodejs
-    node-packages: [postcss-cli]
+    node-packages: [postcss-cli, @babel/cli]
     filesets:
       node:
         - bin/node
       postcss:
         - bin/postcss
         - lib/node_modules/postcss-cli/*
+      babel:
+        - bin/babel.js
+        - lib/node_modules/@babel/cli/*
     prime:
       - $node
       - $postcss
+      - $babel
 
   pygments:
     plugin: python
