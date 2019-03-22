@@ -30,6 +30,7 @@ import (
 	"github.com/gohugoio/hugo/resources/resource_transformers/postcss"
 	"github.com/gohugoio/hugo/resources/resource_transformers/templates"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
+	"github.com/gohugoio/hugo/resources/resource_transformers/transpilejs"
 	"github.com/spf13/cast"
 )
 
@@ -44,14 +45,15 @@ func New(deps *deps.Deps) (*Namespace, error) {
 		return nil, err
 	}
 	return &Namespace{
-		deps:            deps,
-		scssClient:      scssClient,
-		createClient:    create.New(deps.ResourceSpec),
-		bundlerClient:   bundler.New(deps.ResourceSpec),
-		integrityClient: integrity.New(deps.ResourceSpec),
-		minifyClient:    minifier.New(deps.ResourceSpec),
-		postcssClient:   postcss.New(deps.ResourceSpec),
-		templatesClient: templates.New(deps.ResourceSpec, deps.TextTmpl),
+		deps:              deps,
+		scssClient:        scssClient,
+		createClient:      create.New(deps.ResourceSpec),
+		bundlerClient:     bundler.New(deps.ResourceSpec),
+		integrityClient:   integrity.New(deps.ResourceSpec),
+		minifyClient:      minifier.New(deps.ResourceSpec),
+		postcssClient:     postcss.New(deps.ResourceSpec),
+		transpileJSClient: transpilejs.New(deps.ResourceSpec),
+		templatesClient:   templates.New(deps.ResourceSpec, deps.TextTmpl),
 	}, nil
 }
 
@@ -59,13 +61,14 @@ func New(deps *deps.Deps) (*Namespace, error) {
 type Namespace struct {
 	deps *deps.Deps
 
-	createClient    *create.Client
-	bundlerClient   *bundler.Client
-	scssClient      *scss.Client
-	integrityClient *integrity.Client
-	minifyClient    *minifier.Client
-	postcssClient   *postcss.Client
-	templatesClient *templates.Client
+	createClient      *create.Client
+	bundlerClient     *bundler.Client
+	scssClient        *scss.Client
+	integrityClient   *integrity.Client
+	minifyClient      *minifier.Client
+	postcssClient     *postcss.Client
+	transpileJSClient *transpilejs.Client
+	templatesClient   *templates.Client
 }
 
 // Get locates the filename given in Hugo's filesystems: static, assets and content (in that order)
@@ -225,6 +228,24 @@ func (ns *Namespace) PostCSS(args ...interface{}) (resource.Resource, error) {
 	}
 
 	return ns.postcssClient.Process(r, options)
+}
+
+// TranspileJS processes the given Resource with Babel
+func (ns *Namespace) TranspileJS(args ...interface{}) (resource.Resource, error) {
+	r, m, err := ns.resolveArgs(args)
+	if err != nil {
+		return nil, err
+	}
+	var options transpilejs.Options
+	if m != nil {
+		options, err = transpilejs.DecodeOptions(m)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return ns.transpileJSClient.Process(r, options)
 }
 
 // We allow string or a map as the first argument in some cases.
