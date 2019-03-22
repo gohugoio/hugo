@@ -60,6 +60,11 @@ func init() {
 			[][2]string{},
 		)
 
+		ns.AddMethodMapping(ctx.TranspileJS,
+			[]string{"transpileJS"},
+			[][2]string{},
+		)
+
 		return ns
 
 	}
