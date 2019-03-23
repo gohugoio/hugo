@@ -30,8 +30,8 @@ func TestSymDiff(t *testing.T) {
 
 	ns := New(&deps.Deps{})
 
-	s1 := []TstX{TstX{A: "a"}, TstX{A: "b"}}
-	s2 := []TstX{TstX{A: "a"}, TstX{A: "e"}}
+	s1 := []TstX{{A: "a"}, {A: "b"}}
+	s2 := []TstX{{A: "a"}, {A: "e"}}
 
 	xa, xb, xd, xe := &StructWithSlice{A: "a"}, &StructWithSlice{A: "b"}, &StructWithSlice{A: "d"}, &StructWithSlice{A: "e"}
 
@@ -48,7 +48,7 @@ func TestSymDiff(t *testing.T) {
 		{[]interface{}{"a", "b", nil}, []interface{}{"a"}, []interface{}{"b", nil}},
 		{[]int{1, 2, 3}, []int{3, 4}, []int{1, 2, 4}},
 		{[]int{1, 2, 3}, []int64{3, 4}, []int{1, 2, 4}},
-		{s1, s2, []TstX{TstX{A: "b"}, TstX{A: "e"}}},
+		{s1, s2, []TstX{{A: "b"}, {A: "e"}}},
 		{sp1, sp2, []*StructWithSlice{xa, xd}},
 
 		// Errors

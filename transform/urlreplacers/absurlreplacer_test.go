@@ -160,11 +160,11 @@ func TestAbsURLUnqoted(t *testing.T) {
 	tr := transform.New(NewAbsURLTransformer(testBaseURL))
 
 	apply(t.Errorf, tr, []test{
-		test{
+		{
 			content:  `Link: <a href=/asdf>ASDF</a>`,
 			expected: `Link: <a href=http://base/asdf>ASDF</a>`,
 		},
-		test{
+		{
 			content:  `Link: <a href=/asdf   >ASDF</a>`,
 			expected: `Link: <a href=http://base/asdf   >ASDF</a>`,
 		},

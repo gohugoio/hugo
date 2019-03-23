@@ -74,8 +74,8 @@ func TestShortcodesTemplate(t *testing.T) {
 
 		s := &shortcodeTemplates{
 			variants: []shortcodeVariant{
-				shortcodeVariant{variants: []string{"a", "b", "c"}},
-				shortcodeVariant{variants: []string{"a", "b", "d"}},
+				{variants: []string{"a", "b", "c"}},
+				{variants: []string{"a", "b", "d"}},
 			},
 		}
 

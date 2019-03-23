@@ -72,7 +72,7 @@ func TestUnmarshalToInterface(t *testing.T) {
 		{`#+a: b`, ORG, expect},
 		{`a = "b"`, TOML, expect},
 		{`a: "b"`, YAML, expect},
-		{`a,b,c`, CSV, [][]string{[]string{"a", "b", "c"}}},
+		{`a,b,c`, CSV, [][]string{{"a", "b", "c"}}},
 		{"a: Easy!\nb:\n  c: 2\n  d: [3, 4]", YAML, map[string]interface{}{"a": "Easy!", "b": map[string]interface{}{"c": 2, "d": []interface{}{3, 4}}}},
 		// errors
 		{`a = "`, TOML, false},
