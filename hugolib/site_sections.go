@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
 package hugolib
 
 import (
-	"fmt"
 	"path"
 	"strconv"
 	"strings"
 
-	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/resource"
 
 	radix "github.com/hashicorp/go-immutable-radix"
 )
 
 // Sections returns the top level sections.
-func (s *SiteInfo) Sections() Pages {
+func (s *SiteInfo) Sections() page.Pages {
 	home, err := s.Home()
 	if err == nil {
 		return home.Sections()
@@ -34,157 +34,23 @@ func (s *SiteInfo) Sections() Pages {
 }
 
 // Home is a shortcut to the home page, equivalent to .Site.GetPage "home".
-func (s *SiteInfo) Home() (*Page, error) {
-	return s.GetPage(KindHome)
+func (s *SiteInfo) Home() (page.Page, error) {
+	return s.s.home, nil
 }
 
-// Parent returns a section's parent section or a page's section.
-// To get a section's subsections, see Page's Sections method.
-func (p *Page) Parent() *Page {
-	return p.parent
-}
+func (s *Site) assembleSections() pageStatePages {
+	var newPages pageStatePages
 
-// CurrentSection returns the page's current section or the page itself if home or a section.
-// Note that this will return nil for pages that is not regular, home or section pages.
-func (p *Page) CurrentSection() *Page {
-	v := p
-	if v.origOnCopy != nil {
-		v = v.origOnCopy
-	}
-	if v.IsHome() || v.IsSection() {
-		return v
-	}
-
-	return v.parent
-}
-
-// FirstSection returns the section on level 1 below home, e.g. "/docs".
-// For the home page, this will return itself.
-func (p *Page) FirstSection() *Page {
-	v := p
-	if v.origOnCopy != nil {
-		v = v.origOnCopy
-	}
-
-	if v.parent == nil || v.parent.IsHome() {
-		return v
-	}
-
-	parent := v.parent
-	for {
-		current := parent
-		parent = parent.parent
-		if parent == nil || parent.IsHome() {
-			return current
-		}
-	}
-
-}
-
-// InSection returns whether the given page is in the current section.
-// Note that this will always return false for pages that are
-// not either regular, home or section pages.
-func (p *Page) InSection(other interface{}) (bool, error) {
-	if p == nil || other == nil {
-		return false, nil
-	}
-
-	pp, err := unwrapPage(other)
-	if err != nil {
-		return false, err
-	}
-
-	if pp == nil {
-		return false, nil
-	}
-
-	return pp.CurrentSection() == p.CurrentSection(), nil
-}
-
-// IsDescendant returns whether the current page is a descendant of the given page.
-// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
-func (p *Page) IsDescendant(other interface{}) (bool, error) {
-	if p == nil {
-		return false, nil
-	}
-	pp, err := unwrapPage(other)
-	if err != nil || pp == nil {
-		return false, err
-	}
-
-	if pp.Kind == KindPage && len(p.sections) == len(pp.sections) {
-		// A regular page is never its section's descendant.
-		return false, nil
-	}
-	return helpers.HasStringsPrefix(p.sections, pp.sections), nil
-}
-
-// IsAncestor returns whether the current page is an ancestor of the given page.
-// Note that this method is not relevant for taxonomy lists and taxonomy terms pages.
-func (p *Page) IsAncestor(other interface{}) (bool, error) {
-	if p == nil {
-		return false, nil
-	}
-
-	pp, err := unwrapPage(other)
-	if err != nil || pp == nil {
-		return false, err
-	}
-
-	if p.Kind == KindPage && len(p.sections) == len(pp.sections) {
-		// A regular page is never its section's ancestor.
-		return false, nil
-	}
-
-	return helpers.HasStringsPrefix(pp.sections, p.sections), nil
-}
-
-// Eq returns whether the current page equals the given page.
-// Note that this is more accurate than doing `{{ if eq $page $otherPage }}`
-// since a Page can be embedded in another type.
-func (p *Page) Eq(other interface{}) bool {
-	pp, err := unwrapPage(other)
-	if err != nil {
-		return false
-	}
-
-	return p == pp
-}
-
-func unwrapPage(in interface{}) (*Page, error) {
-	switch v := in.(type) {
-	case *Page:
-		return v, nil
-	case *PageOutput:
-		return v.Page, nil
-	case *PageWithoutContent:
-		return v.Page, nil
-	case nil:
-		return nil, nil
-	default:
-		return nil, fmt.Errorf("%T not supported", in)
-	}
-}
-
-// Sections returns this section's subsections, if any.
-// Note that for non-sections, this method will always return an empty list.
-func (p *Page) Sections() Pages {
-	return p.subSections
-}
-
-func (s *Site) assembleSections() Pages {
-	var newPages Pages
-
-	if !s.isEnabled(KindSection) {
+	if !s.isEnabled(page.KindSection) {
 		return newPages
 	}
 
 	// Maps section kind pages to their path, i.e. "my/section"
-	sectionPages := make(map[string]*Page)
+	sectionPages := make(map[string]*pageState)
 
 	// The sections with content files will already have been created.
-	for _, sect := range s.findPagesByKind(KindSection) {
-		sectionPages[path.Join(sect.sections...)] = sect
+	for _, sect := range s.findWorkPagesByKind(page.KindSection) {
+		sectionPages[sect.SectionsPath()] = sect
 	}
 
 	const (
@@ -196,39 +62,44 @@ func (s *Site) assembleSections() Pages {
 	var (
 		inPages    = radix.New().Txn()
 		inSections = radix.New().Txn()
-		undecided  Pages
+		undecided  pageStatePages
 	)
 
-	home := s.findFirstPageByKindIn(KindHome, s.Pages)
+	home := s.findFirstWorkPageByKindIn(page.KindHome)
 
-	for i, p := range s.Pages {
-		if p.Kind != KindPage {
+	for i, p := range s.workAllPages {
+
+		if p.Kind() != page.KindPage {
 			continue
 		}
 
-		if len(p.sections) == 0 {
+		sections := p.SectionsEntries()
+
+		if len(sections) == 0 {
 			// Root level pages. These will have the home page as their Parent.
 			p.parent = home
 			continue
 		}
 
-		sectionKey := path.Join(p.sections...)
-		sect, found := sectionPages[sectionKey]
+		sectionKey := p.SectionsPath()
+		_, found := sectionPages[sectionKey]
 
-		if !found && len(p.sections) == 1 {
+		if !found && len(sections) == 1 {
+
 			// We only create content-file-less sections for the root sections.
-			sect = s.newSectionPage(p.sections[0])
-			sectionPages[sectionKey] = sect
-			newPages = append(newPages, sect)
+			n := s.newPage(page.KindSection, sections[0])
+
+			sectionPages[sectionKey] = n
+			newPages = append(newPages, n)
 			found = true
 		}
 
-		if len(p.sections) > 1 {
+		if len(sections) > 1 {
 			// Create the root section if not found.
-			_, rootFound := sectionPages[p.sections[0]]
+			_, rootFound := sectionPages[sections[0]]
 			if !rootFound {
-				sect = s.newSectionPage(p.sections[0])
-				sectionPages[p.sections[0]] = sect
+				sect := s.newPage(page.KindSection, sections[0])
+				sectionPages[sections[0]] = sect
 				newPages = append(newPages, sect)
 			}
 		}
@@ -246,13 +117,14 @@ func (s *Site) assembleSections() Pages {
 	// given a content file in /content/a/b/c/_index.md, we cannot create just
 	// the c section.
 	for _, sect := range sectionPages {
-		for i := len(sect.sections); i > 0; i-- {
-			sectionPath := sect.sections[:i]
+		sections := sect.SectionsEntries()
+		for i := len(sections); i > 0; i-- {
+			sectionPath := sections[:i]
 			sectionKey := path.Join(sectionPath...)
-			sect, found := sectionPages[sectionKey]
+			_, found := sectionPages[sectionKey]
 			if !found {
-				sect = s.newSectionPage(sectionPath[len(sectionPath)-1])
-				sect.sections = sectionPath
+				sect = s.newPage(page.KindSection, sectionPath[len(sectionPath)-1])
+				sect.m.sections = sectionPath
 				sectionPages[sectionKey] = sect
 				newPages = append(newPages, sect)
 			}
@@ -265,33 +137,36 @@ func (s *Site) assembleSections() Pages {
 	}
 
 	var (
-		currentSection *Page
-		children       Pages
+		currentSection *pageState
+		children       page.Pages
+		dates          *resource.Dates
 		rootSections   = inSections.Commit().Root()
 	)
 
 	for i, p := range undecided {
 		// Now we can decide where to put this page into the tree.
-		sectionKey := path.Join(p.sections...)
+		sectionKey := p.SectionsPath()
+
 		_, v, _ := rootSections.LongestPrefix([]byte(sectionKey))
-		sect := v.(*Page)
-		pagePath := path.Join(path.Join(sect.sections...), sectSectKey, "u", strconv.Itoa(i))
+		sect := v.(*pageState)
+		pagePath := path.Join(path.Join(sect.SectionsEntries()...), sectSectKey, "u", strconv.Itoa(i))
 		inPages.Insert([]byte(pagePath), p)
 	}
 
 	var rootPages = inPages.Commit().Root()
 
 	rootPages.Walk(func(path []byte, v interface{}) bool {
-		p := v.(*Page)
+		p := v.(*pageState)
 
-		if p.Kind == KindSection {
+		if p.Kind() == page.KindSection {
 			if currentSection != nil {
 				// A new section
-				currentSection.setPagePages(children)
+				currentSection.setPages(children)
 			}
 
 			currentSection = p
-			children = make(Pages, 0)
+			children = make(page.Pages, 0)
+			dates = &resource.Dates{}
 
 			return false
 
@@ -300,27 +175,31 @@ func (s *Site) assembleSections() Pages {
 		// Regular page
 		p.parent = currentSection
 		children = append(children, p)
+		dates.UpdateDateAndLastmodIfAfter(p)
 		return false
 	})
 
 	if currentSection != nil {
-		currentSection.setPagePages(children)
+		currentSection.setPages(children)
+		currentSection.m.Dates = *dates
+
 	}
 
 	// Build the sections hierarchy
 	for _, sect := range sectionPages {
-		if len(sect.sections) == 1 {
-			sect.parent = home
+		sections := sect.SectionsEntries()
+		if len(sections) == 1 {
+			if home != nil {
+				sect.parent = home
+			}
 		} else {
-			parentSearchKey := path.Join(sect.sections[:len(sect.sections)-1]...)
+			parentSearchKey := path.Join(sect.SectionsEntries()[:len(sections)-1]...)
 			_, v, _ := rootSections.LongestPrefix([]byte(parentSearchKey))
-			p := v.(*Page)
+			p := v.(*pageState)
 			sect.parent = p
 		}
 
-		if sect.parent != nil {
-			sect.parent.subSections = append(sect.parent.subSections, sect)
-		}
+		sect.addSectionToParent()
 	}
 
 	var (
@@ -331,24 +210,13 @@ func (s *Site) assembleSections() Pages {
 		maxSectionWeight     int
 	)
 
-	mainSections, mainSectionsFound = s.Info.Params[sectionsParamIdLower]
+	mainSections, mainSectionsFound = s.Info.Params()[sectionsParamIdLower]
 
 	for _, sect := range sectionPages {
-		if sect.parent != nil {
-			sect.parent.subSections.sort()
-		}
-
-		for i, p := range sect.Pages {
-			if i > 0 {
-				p.NextInSection = sect.Pages[i-1]
-			}
-			if i < len(sect.Pages)-1 {
-				p.PrevInSection = sect.Pages[i+1]
-			}
-		}
+		sect.sortParentSections()
 
 		if !mainSectionsFound {
-			weight := len(sect.Pages) + (len(sect.Sections()) * 5)
+			weight := len(sect.Pages()) + (len(sect.Sections()) * 5)
 			if weight >= maxSectionWeight {
 				mainSections = []string{sect.Section()}
 				maxSectionWeight = weight
@@ -357,16 +225,9 @@ func (s *Site) assembleSections() Pages {
 	}
 
 	// Try to make this as backwards compatible as possible.
-	s.Info.Params[sectionsParamId] = mainSections
-	s.Info.Params[sectionsParamIdLower] = mainSections
+	s.Info.Params()[sectionsParamId] = mainSections
+	s.Info.Params()[sectionsParamIdLower] = mainSections
 
 	return newPages
 
-}
-
-func (p *Page) setPagePages(pages Pages) {
-	pages.sort()
-	p.Pages = pages
-	p.data = make(map[string]interface{})
-	p.data["Pages"] = pages
 }

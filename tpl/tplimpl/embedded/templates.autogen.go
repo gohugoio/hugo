@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,13 @@ package embedded
 // EmbeddedTemplates represents all embedded templates.
 var EmbeddedTemplates = [][2]string{
 	{`_default/robots.txt`, `User-agent: *`},
-	{`_default/rss.xml`, `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	{`_default/rss.xml`, `{{- $pages := .Data.Pages -}}
+{{- $limit := .Site.Config.Services.RSS.Limit -}}
+{{- if ge $limit 1 -}}
+{{- $pages = $pages | first $limit -}}
+{{- end -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{{ if eq  .Title  .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}{{ end }}</title>
     <link>{{ .Permalink }}</link>
@@ -33,7 +39,7 @@ var EmbeddedTemplates = [][2]string{
     {{ with .OutputFormats.Get "RSS" }}
 	{{ printf "<atom:link href=%q rel=\"self\" type=%q />" .Permalink .MediaType | safeHTML }}
     {{ end }}
-    {{ range .Data.Pages }}
+    {{ range $pages }}
     <item>
       <title>{{ .Title }}</title>
       <link>{{ .Permalink }}</link>
@@ -45,7 +51,8 @@ var EmbeddedTemplates = [][2]string{
     {{ end }}
   </channel>
 </rss>`},
-	{`_default/sitemap.xml`, `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+	{`_default/sitemap.xml`, `{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   {{ range .Data.Pages }}
   <url>
@@ -55,18 +62,19 @@ var EmbeddedTemplates = [][2]string{
     <priority>{{ .Sitemap.Priority }}</priority>{{ end }}{{ if .IsTranslated }}{{ range .Translations }}
     <xhtml:link
                 rel="alternate"
-                hreflang="{{ .Lang }}"
+                hreflang="{{ .Language.Lang }}"
                 href="{{ .Permalink }}"
                 />{{ end }}
     <xhtml:link
                 rel="alternate"
-                hreflang="{{ .Lang }}"
+                hreflang="{{ .Language.Lang }}"
                 href="{{ .Permalink }}"
                 />{{ end }}
   </url>
   {{ end }}
 </urlset>`},
-	{`_default/sitemapindex.xml`, `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	{`_default/sitemapindex.xml`, `{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	{{ range . }}
 	<sitemap>
 	   	<loc>{{ .SitemapAbsURL }}</loc>
@@ -77,7 +85,7 @@ var EmbeddedTemplates = [][2]string{
 	{{ end }}
 </sitemapindex>
 `},
-	{`disqus.html`, `{{- $pc := .Page.Site.Config.Privacy.Disqus -}}
+	{`disqus.html`, `{{- $pc := .Site.Config.Privacy.Disqus -}}
 {{- if not $pc.Disable -}}
 {{ if .Site.DisqusShortname }}<div id="disqus_thread"></div>
 <script type="application/javascript">

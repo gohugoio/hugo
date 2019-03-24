@@ -259,7 +259,7 @@ weight = %d
 
 	if cfg.Shortcodes {
 		contentPagesContent = [3]string{
-			someMarkdownWithShortCode,
+			someMarkdown,
 			strings.Repeat(someMarkdownWithShortCode, 2),
 			strings.Repeat(someMarkdownWithShortCode, 3),
 		}

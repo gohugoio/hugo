@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,6 +39,9 @@ func main() {
 	var nameValues []string
 
 	err = filepath.Walk(temlatePath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 
 		if info.IsDir() {
 			return nil
@@ -63,7 +66,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Fprint(file, `// Copyright 2018 The Hugo Authors. All rights reserved.
+	fmt.Fprint(file, `// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -329,13 +329,17 @@ func (ns *Namespace) Group(key interface{}, items interface{}) (interface{}, err
 		return nil, errors.New("nil is not a valid key to group by")
 	}
 
+	if g, ok := items.(collections.Grouper); ok {
+		return g.Group(key, items)
+	}
+
 	in := newSliceElement(items)
 
 	if g, ok := in.(collections.Grouper); ok {
 		return g.Group(key, items)
 	}
 
-	return nil, fmt.Errorf("grouping not supported for type %T", items)
+	return nil, fmt.Errorf("grouping not supported for type %T %T", items, in)
 }
 
 // IsSet returns whether a given array, channel, slice, or map has a key

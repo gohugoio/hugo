@@ -47,7 +47,6 @@ const counterPlaceHolder = ":counter"
 // The `name` and `title` metadata field support shell-matched collection it got a match in.
 // See https://golang.org/pkg/path/#Match
 func AssignMetadata(metadata []map[string]interface{}, resources ...resource.Resource) error {
-
 	counters := make(map[string]int)
 
 	for _, r := range resources {

@@ -41,7 +41,6 @@ const (
 	replace1 = "No replacements."
 	replace2 = "ᚠᛇᚻ ᛒᛦᚦ ᚠᚱᚩᚠᚢᚱ\nᚠᛁᚱᚪ ᚷᛖᚻᚹᛦᛚᚳᚢᛗ"
 	replace3 = `End of file: src="/`
-	replace4 = `End of file: srcset="/`
 	replace5 = `Srcsett with no closing quote: srcset="/img/small.jpg do be do be do.`
 
 	// Issue: 816, schemaless links combined with others
@@ -89,8 +88,8 @@ schemaless: &lt;img srcset=&#39;//img.jpg&#39; src=&#39;//basic.jpg&#39;&gt;
 schemaless2: &lt;img srcset=&quot;//img.jpg&quot; src=&quot;//basic.jpg2&gt; POST
 `
 
-	relPathVariations        = `PRE. a href="/img/small.jpg" POST.`
-	relPathVariationsCorrect = `PRE. a href="../../img/small.jpg" POST.`
+	relPathVariations        = `PRE. a href="/img/small.jpg" input action="/foo.html" POST.`
+	relPathVariationsCorrect = `PRE. a href="../../img/small.jpg" input action="../../foo.html" POST.`
 
 	testBaseURL = "http://base/"
 )
@@ -160,11 +159,11 @@ func TestAbsURLUnqoted(t *testing.T) {
 	tr := transform.New(NewAbsURLTransformer(testBaseURL))
 
 	apply(t.Errorf, tr, []test{
-		test{
+		{
 			content:  `Link: <a href=/asdf>ASDF</a>`,
 			expected: `Link: <a href=http://base/asdf>ASDF</a>`,
 		},
-		test{
+		{
 			content:  `Link: <a href=/asdf   >ASDF</a>`,
 			expected: `Link: <a href=http://base/asdf   >ASDF</a>`,
 		},

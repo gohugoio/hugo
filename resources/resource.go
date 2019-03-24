@@ -34,6 +34,7 @@ import (
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/spf13/afero"
@@ -61,7 +62,7 @@ type permalinker interface {
 	permalinkFor(target string) string
 	relTargetPathsFor(target string) []string
 	relTargetPaths() []string
-	targetPath() string
+	TargetPath() string
 }
 
 type Spec struct {
@@ -73,6 +74,8 @@ type Spec struct {
 	Logger *loggers.Logger
 
 	TextTemplates tpl.TemplateParseFinder
+
+	Permalinks page.PermalinkExpander
 
 	// Holds default filter settings etc.
 	imaging *Imaging
@@ -98,11 +101,17 @@ func NewSpec(
 		logger = loggers.NewErrorLogger()
 	}
 
+	permalinks, err := page.NewPermalinkExpander(s)
+	if err != nil {
+		return nil, err
+	}
+
 	rs := &Spec{PathSpec: s,
 		Logger:        logger,
 		imaging:       &imaging,
 		MediaTypes:    mimeTypes,
 		OutputFormats: outputFormats,
+		Permalinks:    permalinks,
 		FileCaches:    fileCaches,
 		imageCache: newImageCache(
 			fileCaches.ImageCache(),
@@ -117,8 +126,8 @@ func NewSpec(
 }
 
 type ResourceSourceDescriptor struct {
-	// TargetPathBuilder is a callback to create target paths's relative to its owner.
-	TargetPathBuilder func(base string) string
+	// TargetPaths is a callback to fetch paths's relative to its owner.
+	TargetPaths func() page.TargetPaths
 
 	// Need one of these to load the resource content.
 	SourceFile         source.File
@@ -129,10 +138,6 @@ type ResourceSourceDescriptor struct {
 
 	// The relative target filename without any language code.
 	RelTargetFilename string
-
-	// Any base path prepeneded to the permalink.
-	// Typically the language code if this resource should be published to its sub-folder.
-	URLBase string
 
 	// Any base paths prepended to the target path. This will also typically be the
 	// language code, but setting it here means that it should not have any effect on
@@ -216,6 +221,9 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 	}
 
 	if !found {
+		// A fallback. Note that mime.TypeByExtension is slow by Hugo standards,
+		// so we should configure media types to avoid this lookup for most
+		// situations.
 		mimeStr := mime.TypeByExtension(ext)
 		if mimeStr != "" {
 			mimeType, _ = media.FromStringAndExt(mimeStr, ext)
@@ -226,9 +234,8 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 		sourceFs,
 		fd.LazyPublish,
 		fd.OpenReadSeekCloser,
-		fd.URLBase,
 		fd.TargetBasePaths,
-		fd.TargetPathBuilder,
+		fd.TargetPaths,
 		fi,
 		sourceFilename,
 		fd.RelTargetFilename,
@@ -307,11 +314,7 @@ type resourcePathDescriptor struct {
 	relTargetDirFile dirFile
 
 	// Callback used to construct a target path relative to its owner.
-	targetPathBuilder func(rel string) string
-
-	// baseURLDir is the fixed sub-folder for a resource in permalinks. This will typically
-	// be the language code if we publish to the language's sub-folder.
-	baseURLDir string
+	targetPathBuilder func() page.TargetPaths
 
 	// This will normally be the same as above, but this will only apply to publishing
 	// of resources. It may be mulltiple values when in multihost mode.
@@ -531,7 +534,7 @@ func (l *genericResource) relTargetPathsFor(target string) []string {
 }
 
 func (l *genericResource) relTargetPaths() []string {
-	return l.relTargetPathsForRel(l.targetPath())
+	return l.relTargetPathsForRel(l.TargetPath())
 }
 
 func (l *genericResource) Name() string {
@@ -596,14 +599,22 @@ func (l *genericResource) relTargetPathForRel(rel string, addBaseTargetPath, isA
 	return l.relTargetPathForRelAndBasePath(rel, basePath, isAbs, isURL)
 }
 
-func (l *genericResource) relTargetPathForRelAndBasePath(rel, basePath string, isAbs, isURL bool) string {
-	if l.targetPathBuilder != nil {
-		rel = l.targetPathBuilder(rel)
+func (l *genericResource) createBasePath(rel string, isURL bool) string {
+	if l.targetPathBuilder == nil {
+		return rel
+	}
+	tp := l.targetPathBuilder()
+
+	if isURL {
+		return path.Join(tp.SubResourceBaseLink, rel)
 	}
 
-	if isURL && l.baseURLDir != "" {
-		rel = path.Join(l.baseURLDir, rel)
-	}
+	// TODO(bep) path
+	return path.Join(filepath.ToSlash(tp.SubResourceBaseTarget), rel)
+}
+
+func (l *genericResource) relTargetPathForRelAndBasePath(rel, basePath string, isAbs, isURL bool) string {
+	rel = l.createBasePath(rel, isURL)
 
 	if basePath != "" {
 		rel = path.Join(basePath, rel)
@@ -641,6 +652,7 @@ func (l *genericResource) Publish() error {
 		return err
 	}
 	defer fr.Close()
+
 	fw, err := helpers.OpenFilesForWriting(l.spec.BaseFs.PublishFs, l.targetFilenames()...)
 	if err != nil {
 		return err
@@ -652,7 +664,7 @@ func (l *genericResource) Publish() error {
 }
 
 // Path is stored with Unix style slashes.
-func (l *genericResource) targetPath() string {
+func (l *genericResource) TargetPath() string {
 	return l.relTargetDirFile.path()
 }
 
@@ -666,7 +678,7 @@ func (l *genericResource) targetFilenames() []string {
 
 // TODO(bep) clean up below
 func (r *Spec) newGenericResource(sourceFs afero.Fs,
-	targetPathBuilder func(base string) string,
+	targetPathBuilder func() page.TargetPaths,
 	osFileInfo os.FileInfo,
 	sourceFilename,
 	baseFilename string,
@@ -675,7 +687,6 @@ func (r *Spec) newGenericResource(sourceFs afero.Fs,
 		sourceFs,
 		false,
 		nil,
-		"",
 		nil,
 		targetPathBuilder,
 		osFileInfo,
@@ -690,9 +701,8 @@ func (r *Spec) newGenericResourceWithBase(
 	sourceFs afero.Fs,
 	lazyPublish bool,
 	openReadSeekerCloser resource.OpenReadSeekCloser,
-	urlBaseDir string,
 	targetPathBaseDirs []string,
-	targetPathBuilder func(base string) string,
+	targetPathBuilder func() page.TargetPaths,
 	osFileInfo os.FileInfo,
 	sourceFilename,
 	baseFilename string,
@@ -711,8 +721,7 @@ func (r *Spec) newGenericResourceWithBase(
 	}
 
 	pathDescriptor := resourcePathDescriptor{
-		baseURLDir:         urlBaseDir,
-		baseTargetPathDirs: targetPathBaseDirs,
+		baseTargetPathDirs: helpers.UniqueStrings(targetPathBaseDirs),
 		targetPathBuilder:  targetPathBuilder,
 		relTargetDirFile:   dirFile{dir: fpath, file: fname},
 	}

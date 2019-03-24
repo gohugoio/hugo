@@ -9,7 +9,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path"
 	"runtime"
 	"strings"
 
@@ -18,6 +17,7 @@ import (
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
@@ -61,11 +61,20 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 	return spec
 }
 
+func newTargetPaths(link string) func() page.TargetPaths {
+	return func() page.TargetPaths {
+		return page.TargetPaths{
+			SubResourceBaseTarget: filepath.FromSlash(link),
+			SubResourceBaseLink:   link,
+		}
+	}
+}
+
 func newTestResourceOsFs(assert *require.Assertions) *Spec {
 	cfg := viper.New()
 	cfg.Set("baseURL", "https://example.com")
 
-	workDir, err := ioutil.TempDir("", "hugores")
+	workDir, _ := ioutil.TempDir("", "hugores")
 
 	if runtime.GOOS == "darwin" && !strings.HasPrefix(workDir, "/private") {
 		// To get the entry folder in line with the rest. This its a little bit
@@ -124,11 +133,9 @@ func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) r
 	src.Close()
 	assert.NoError(err)
 
-	factory := func(s string) string {
-		return path.Join("/a", s)
-	}
+	factory := newTargetPaths("/a")
 
-	r, err := spec.New(ResourceSourceDescriptor{TargetPathBuilder: factory, SourceFilename: name})
+	r, err := spec.New(ResourceSourceDescriptor{TargetPaths: factory, SourceFilename: name})
 	assert.NoError(err)
 
 	return r.(resource.ContentResource)

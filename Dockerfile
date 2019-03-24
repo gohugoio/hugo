@@ -2,25 +2,31 @@
 # Twitter:      https://twitter.com/gohugoio
 # Website:      https://gohugo.io/
 
-FROM golang:1.11-alpine3.7 AS build
+FROM golang:1.11-stretch AS build
 
-ENV CGO_ENABLED=0
-ENV GOOS=linux
-ENV GO111MODULE=on
 
 WORKDIR /go/src/github.com/gohugoio/hugo
-RUN apk add --no-cache \
-    git \
-    musl-dev
+RUN apt-get install \
+    git gcc g++ binutils
 COPY . /go/src/github.com/gohugoio/hugo/
-RUN go install -ldflags '-s -w'
+ENV GO111MODULE=on
+RUN go get -d .
+
+ARG CGO=0
+ENV CGO_ENABLED=${CGO}
+ENV GOOS=linux
+
+# default non-existent build tag so -tags always has an arg
+ARG BUILD_TAGS="99notag"
+RUN go install -ldflags '-w -extldflags "-static"' -tags ${BUILD_TAGS}
 
 # ---
 
 FROM scratch
 COPY --from=build /go/bin/hugo /hugo
-WORKDIR /site
-VOLUME  /site
+ARG  WORKDIR="/site"
+WORKDIR ${WORKDIR}
+VOLUME  ${WORKDIR}
 EXPOSE  1313
 ENTRYPOINT [ "/hugo" ]
 CMD [ "--help" ]

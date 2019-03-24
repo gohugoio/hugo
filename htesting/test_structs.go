@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,13 @@
 package htesting
 
 import (
+	"html/template"
+	"time"
+
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/navigation"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/spf13/viper"
 )
 
@@ -28,6 +33,22 @@ func (t testSite) Hugo() hugo.Info {
 	return t.h
 }
 
+func (t testSite) ServerPort() int {
+	return 1313
+}
+
+func (testSite) LastChange() (t time.Time) {
+	return
+}
+
+func (t testSite) Title() string {
+	return "foo"
+}
+
+func (t testSite) Sites() page.Sites {
+	return nil
+}
+
 func (t testSite) IsServer() bool {
 	return false
 }
@@ -36,8 +57,36 @@ func (t testSite) Language() *langs.Language {
 	return t.l
 }
 
+func (t testSite) Pages() page.Pages {
+	return nil
+}
+
+func (t testSite) RegularPages() page.Pages {
+	return nil
+}
+
+func (t testSite) Menus() navigation.Menus {
+	return nil
+}
+
+func (t testSite) Taxonomies() interface{} {
+	return nil
+}
+
+func (t testSite) BaseURL() template.URL {
+	return ""
+}
+
+func (t testSite) Params() map[string]interface{} {
+	return nil
+}
+
+func (t testSite) Data() map[string]interface{} {
+	return nil
+}
+
 // NewTestHugoSite creates a new minimal test site.
-func NewTestHugoSite() hugo.Site {
+func NewTestHugoSite() page.Site {
 	return testSite{
 		h: hugo.NewInfo(hugo.EnvironmentProduction),
 		l: langs.NewLanguage("en", newTestConfig()),

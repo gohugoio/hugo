@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ func TestDoNewSite_noerror_base_exists_but_empty(t *testing.T) {
 	_, fs := newTestCfg()
 	n := newNewSiteCmd()
 
-	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
+	require.NoError(t, fs.Source.MkdirAll(basepath, 0777))
 
 	require.NoError(t, n.doNewSite(fs, basepath, false))
 }
@@ -72,7 +72,7 @@ func TestDoNewSite_error_base_exists(t *testing.T) {
 	_, fs := newTestCfg()
 	n := newNewSiteCmd()
 
-	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
+	require.NoError(t, fs.Source.MkdirAll(basepath, 0777))
 	_, err := fs.Source.Create(filepath.Join(basepath, "foo"))
 	require.NoError(t, err)
 	// Since the directory already exists and isn't empty, expect an error
@@ -85,7 +85,7 @@ func TestDoNewSite_force_empty_dir(t *testing.T) {
 	_, fs := newTestCfg()
 	n := newNewSiteCmd()
 
-	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
+	require.NoError(t, fs.Source.MkdirAll(basepath, 0777))
 
 	require.NoError(t, n.doNewSite(fs, basepath, true))
 
@@ -99,7 +99,7 @@ func TestDoNewSite_error_force_dir_inside_exists(t *testing.T) {
 
 	contentPath := filepath.Join(basepath, "content")
 
-	require.NoError(t, fs.Source.MkdirAll(contentPath, 777))
+	require.NoError(t, fs.Source.MkdirAll(contentPath, 0777))
 	require.Error(t, n.doNewSite(fs, basepath, true))
 }
 
@@ -109,7 +109,7 @@ func TestDoNewSite_error_force_config_inside_exists(t *testing.T) {
 	n := newNewSiteCmd()
 
 	configPath := filepath.Join(basepath, "config.toml")
-	require.NoError(t, fs.Source.MkdirAll(basepath, 777))
+	require.NoError(t, fs.Source.MkdirAll(basepath, 0777))
 	_, err := fs.Source.Create(configPath)
 	require.NoError(t, err)
 

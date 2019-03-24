@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,40 +63,44 @@ func TestPermalink(t *testing.T) {
 	}
 
 	for i, test := range tests {
+		t.Run(fmt.Sprintf("%s-%d", test.file, i), func(t *testing.T) {
 
-		cfg, fs := newTestCfg()
+			cfg, fs := newTestCfg()
 
-		cfg.Set("uglyURLs", test.uglyURLs)
-		cfg.Set("canonifyURLs", test.canonifyURLs)
-		cfg.Set("baseURL", test.base)
+			cfg.Set("uglyURLs", test.uglyURLs)
+			cfg.Set("canonifyURLs", test.canonifyURLs)
+			cfg.Set("baseURL", test.base)
 
-		pageContent := fmt.Sprintf(`---
+			pageContent := fmt.Sprintf(`---
 title: Page
 slug: %q
 url: %q
+output: ["HTML"]
 ---
 Content
 `, test.slug, test.url)
 
-		writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.file)), pageContent)
+			writeSource(t, fs, filepath.Join("content", filepath.FromSlash(test.file)), pageContent)
 
-		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
-		require.Len(t, s.RegularPages, 1)
+			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+			require.Len(t, s.RegularPages(), 1)
 
-		p := s.RegularPages[0]
+			p := s.RegularPages()[0]
 
-		u := p.Permalink()
+			u := p.Permalink()
 
-		expected := test.expectedAbs
-		if u != expected {
-			t.Fatalf("[%d] Expected abs url: %s, got: %s", i, expected, u)
-		}
+			expected := test.expectedAbs
+			if u != expected {
+				t.Fatalf("[%d] Expected abs url: %s, got: %s", i, expected, u)
+			}
 
-		u = p.RelPermalink()
+			u = p.RelPermalink()
 
-		expected = test.expectedRel
-		if u != expected {
-			t.Errorf("[%d] Expected rel url: %s, got: %s", i, expected, u)
-		}
+			expected = test.expectedRel
+			if u != expected {
+				t.Errorf("[%d] Expected rel url: %s, got: %s", i, expected, u)
+			}
+		})
 	}
+
 }

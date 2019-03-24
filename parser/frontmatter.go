@@ -22,7 +22,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 const (
@@ -62,7 +62,7 @@ func InterfaceToConfig(in interface{}, format metadecoders.Format, w io.Writer) 
 		return err
 
 	default:
-		return errors.New("Unsupported Format provided")
+		return errors.New("unsupported Format provided")
 	}
 }
 

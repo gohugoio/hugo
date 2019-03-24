@@ -7,13 +7,14 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/cache/filecache"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
+	"github.com/gohugoio/hugo/resources/page"
+
 	"github.com/gohugoio/hugo/metrics"
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/resources"
@@ -67,7 +68,7 @@ type Deps struct {
 	Language *langs.Language
 
 	// The site building.
-	Site hugo.Site
+	Site page.Site
 
 	// All the output formats available for the current site.
 	OutputFormatsConfig output.Formats
@@ -325,7 +326,7 @@ type DepsCfg struct {
 	Language *langs.Language
 
 	// The Site in use
-	Site hugo.Site
+	Site page.Site
 
 	// The configuration to use.
 	Cfg config.Provider

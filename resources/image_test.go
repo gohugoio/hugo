@@ -171,21 +171,21 @@ func TestImageTransformConcurrent(t *testing.T) {
 				for k := 0; k < 2; k++ {
 					r1, err := img.Resize(fmt.Sprintf("%dx", id-k))
 					if err != nil {
-						t.Fatal(err)
+						t.Error(err)
 					}
 
 					if r1.Width() != id-k {
-						t.Fatalf("Width: %d:%d", r1.Width(), j)
+						t.Errorf("Width: %d:%d", r1.Width(), j)
 					}
 
 					r2, err := r1.Resize(fmt.Sprintf("%dx", id-k-1))
 					if err != nil {
-						t.Fatal(err)
+						t.Error(err)
 					}
 
 					_, err = r2.decodeSource()
 					if err != nil {
-						t.Fatal("Err decode:", err)
+						t.Error("Err decode:", err)
 					}
 
 					img = r1

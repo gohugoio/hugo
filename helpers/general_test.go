@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ func TestGuessType(t *testing.T) {
 		{"html", "html"},
 		{"htm", "html"},
 		{"org", "org"},
-		{"excel", "unknown"},
+		{"excel", ""},
 	} {
 		result := GuessType(this.in)
 		if result != this.expect {
@@ -164,6 +164,27 @@ var containsAdditionalTestData = []struct {
 	{"", []byte("a"), false},
 	{"a", []byte(""), false},
 	{"", []byte(""), false},
+}
+
+func TestSliceToLower(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		value    []string
+		expected []string
+	}{
+		{[]string{"a", "b", "c"}, []string{"a", "b", "c"}},
+		{[]string{"a", "B", "c"}, []string{"a", "b", "c"}},
+		{[]string{"A", "B", "C"}, []string{"a", "b", "c"}},
+	}
+
+	for _, test := range tests {
+		res := SliceToLower(test.value)
+		for i, val := range res {
+			if val != test.expected[i] {
+				t.Errorf("Case mismatch. Expected %s, got %s", test.expected[i], res[i])
+			}
+		}
+	}
 }
 
 func TestReaderContains(t *testing.T) {

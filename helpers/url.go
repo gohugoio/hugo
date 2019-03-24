@@ -142,7 +142,7 @@ func MakePermalink(host, plink string) *url.URL {
 	}
 
 	if p.Host != "" {
-		panic(fmt.Errorf("Can't make permalink from absolute link %q", plink))
+		panic(fmt.Errorf("can't make permalink from absolute link %q", plink))
 	}
 
 	base.Path = path.Join(base.Path, p.Path)

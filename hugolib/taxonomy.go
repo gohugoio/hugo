@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,11 @@ package hugolib
 
 import (
 	"fmt"
+	"path"
 	"sort"
+
+	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/resource"
 )
 
 // The TaxonomyList is a list of all taxonomies and their values
@@ -28,44 +32,30 @@ func (tl TaxonomyList) String() string {
 
 // A Taxonomy is a map of keywords to a list of pages.
 // For example
-//    TagTaxonomy['technology'] = WeightedPages
-//    TagTaxonomy['go']  =  WeightedPages2
-type Taxonomy map[string]WeightedPages
-
-// WeightedPages is a list of Pages with their corresponding (and relative) weight
-// [{Weight: 30, Page: *1}, {Weight: 40, Page: *2}]
-type WeightedPages []WeightedPage
-
-// A WeightedPage is a Page with a weight.
-type WeightedPage struct {
-	Weight int
-	*Page
-}
-
-func (w WeightedPage) String() string {
-	return fmt.Sprintf("WeightedPage(%d,%q)", w.Weight, w.Page.title)
-}
+//    TagTaxonomy['technology'] = page.WeightedPages
+//    TagTaxonomy['go']  =  page.WeightedPages
+type Taxonomy map[string]page.WeightedPages
 
 // OrderedTaxonomy is another representation of an Taxonomy using an array rather than a map.
 // Important because you can't order a map.
 type OrderedTaxonomy []OrderedTaxonomyEntry
 
 // OrderedTaxonomyEntry is similar to an element of a Taxonomy, but with the key embedded (as name)
-// e.g:  {Name: Technology, WeightedPages: Taxonomyedpages}
+// e.g:  {Name: Technology, page.WeightedPages: TaxonomyPages}
 type OrderedTaxonomyEntry struct {
-	Name          string
-	WeightedPages WeightedPages
+	Name string
+	page.WeightedPages
 }
 
 // Get the weighted pages for the given key.
-func (i Taxonomy) Get(key string) WeightedPages {
+func (i Taxonomy) Get(key string) page.WeightedPages {
 	return i[key]
 }
 
 // Count the weighted pages for the given key.
 func (i Taxonomy) Count(key string) int { return len(i[key]) }
 
-func (i Taxonomy) add(key string, w WeightedPage) {
+func (i Taxonomy) add(key string, w page.WeightedPage) {
 	i[key] = append(i[key], w)
 }
 
@@ -110,7 +100,7 @@ func (i Taxonomy) ByCount() OrderedTaxonomy {
 }
 
 // Pages returns the Pages for this taxonomy.
-func (ie OrderedTaxonomyEntry) Pages() Pages {
+func (ie OrderedTaxonomyEntry) Pages() page.Pages {
 	return ie.WeightedPages.Pages()
 }
 
@@ -165,60 +155,81 @@ func (s *orderedTaxonomySorter) Less(i, j int) bool {
 	return s.by(&s.taxonomy[i], &s.taxonomy[j])
 }
 
-// Pages returns the Pages in this weighted page set.
-func (wp WeightedPages) Pages() Pages {
-	pages := make(Pages, len(wp))
-	for i := range wp {
-		pages[i] = wp[i].Page
-	}
-	return pages
+// taxonomyNodeInfo stores additional metadata about a taxonomy.
+type taxonomyNodeInfo struct {
+	plural string
+
+	// Maps "tags" to "tag".
+	singular string
+
+	// The term key as used in the taxonomy map, e.g "tag1".
+	// The value is normalized for paths, but may or not be lowercased
+	// depending on the disablePathToLower setting.
+	termKey string
+
+	// The original, unedited term name. Useful for titles etc.
+	term string
+
+	dates resource.Dates
+
+	parent *taxonomyNodeInfo
+
+	// Either of Kind taxonomyTerm (parent) or taxonomy
+	owner page.Page
 }
 
-// Prev returns the previous Page relative to the given Page in
-// this weighted page set.
-func (wp WeightedPages) Prev(cur *Page) *Page {
-	for x, c := range wp {
-		if c.Page.UniqueID() == cur.UniqueID() {
-			if x == 0 {
-				return wp[len(wp)-1].Page
-			}
-			return wp[x-1].Page
-		}
+func (t *taxonomyNodeInfo) UpdateFromPage(p page.Page) {
+
+	// Select the latest dates
+	t.dates.UpdateDateAndLastmodIfAfter(p)
+}
+
+func (t *taxonomyNodeInfo) TransferValues(p *pageState) {
+	t.owner = p
+	if p.Lastmod().IsZero() && p.Date().IsZero() {
+		p.m.Dates.UpdateDateAndLastmodIfAfter(t.dates)
 	}
+}
+
+// callback sent to the child nodes.
+func (t *taxonomyNodeInfo) getOwner() page.Page {
+	return t.owner
+}
+
+// Maps either plural or plural/term to a taxonomy node.
+// TODO(bep) consolidate somehow with s.Taxonomies
+type taxonomyNodeInfos map[string]*taxonomyNodeInfo
+
+func (t taxonomyNodeInfos) key(parts ...string) string {
+	return path.Join(parts...)
+}
+
+func (t taxonomyNodeInfos) GetOrCreate(plural, termKey, term string) *taxonomyNodeInfo {
+	key := t.key(plural, termKey)
+
+	n, found := t[key]
+	if found {
+		return n
+	}
+
+	n = &taxonomyNodeInfo{
+		plural:  plural,
+		termKey: termKey,
+		term:    term,
+	}
+
+	t[key] = n
+
+	return n
+}
+
+func (t taxonomyNodeInfos) Get(sections ...string) *taxonomyNodeInfo {
+	key := t.key(sections...)
+
+	n, found := t[key]
+	if found {
+		return n
+	}
+
 	return nil
 }
-
-// Next returns the next Page relative to the given Page in
-// this weighted page set.
-func (wp WeightedPages) Next(cur *Page) *Page {
-	for x, c := range wp {
-		if c.Page.UniqueID() == cur.UniqueID() {
-			if x < len(wp)-1 {
-				return wp[x+1].Page
-			}
-			return wp[0].Page
-		}
-	}
-	return nil
-}
-
-func (wp WeightedPages) Len() int      { return len(wp) }
-func (wp WeightedPages) Swap(i, j int) { wp[i], wp[j] = wp[j], wp[i] }
-
-// Sort stable sorts this weighted page set.
-func (wp WeightedPages) Sort() { sort.Stable(wp) }
-
-// Count returns the number of pages in this weighted page set.
-func (wp WeightedPages) Count() int { return len(wp) }
-
-func (wp WeightedPages) Less(i, j int) bool {
-	if wp[i].Weight == wp[j].Weight {
-		if wp[i].Page.Date.Equal(wp[j].Page.Date) {
-			return wp[i].Page.title < wp[j].Page.title
-		}
-		return wp[i].Page.Date.After(wp[i].Page.Date)
-	}
-	return wp[i].Weight < wp[j].Weight
-}
-
-// TODO mimic PagesSorter for WeightedPages

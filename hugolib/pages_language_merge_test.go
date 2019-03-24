@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// TODO(bep) move and rewrite in resource/page.
+
 func TestMergeLanguages(t *testing.T) {
 	t.Parallel()
 	assert := require.New(t)
@@ -36,12 +38,12 @@ func TestMergeLanguages(t *testing.T) {
 	frSite := h.Sites[1]
 	nnSite := h.Sites[2]
 
-	assert.Equal(31, len(enSite.RegularPages))
-	assert.Equal(6, len(frSite.RegularPages))
-	assert.Equal(12, len(nnSite.RegularPages))
+	assert.Equal(31, len(enSite.RegularPages()))
+	assert.Equal(6, len(frSite.RegularPages()))
+	assert.Equal(12, len(nnSite.RegularPages()))
 
 	for i := 0; i < 2; i++ {
-		mergedNN := nnSite.RegularPages.MergeByLanguage(enSite.RegularPages)
+		mergedNN := nnSite.RegularPages().MergeByLanguage(enSite.RegularPages())
 		assert.Equal(31, len(mergedNN))
 		for i := 1; i <= 31; i++ {
 			expectedLang := "en"
@@ -49,11 +51,11 @@ func TestMergeLanguages(t *testing.T) {
 				expectedLang = "nn"
 			}
 			p := mergedNN[i-1]
-			assert.Equal(expectedLang, p.Lang(), fmt.Sprintf("Test %d", i))
+			assert.Equal(expectedLang, p.Language().Lang, fmt.Sprintf("Test %d", i))
 		}
 	}
 
-	mergedFR := frSite.RegularPages.MergeByLanguage(enSite.RegularPages)
+	mergedFR := frSite.RegularPages().MergeByLanguage(enSite.RegularPages())
 	assert.Equal(31, len(mergedFR))
 	for i := 1; i <= 31; i++ {
 		expectedLang := "en"
@@ -61,28 +63,28 @@ func TestMergeLanguages(t *testing.T) {
 			expectedLang = "fr"
 		}
 		p := mergedFR[i-1]
-		assert.Equal(expectedLang, p.Lang(), fmt.Sprintf("Test %d", i))
+		assert.Equal(expectedLang, p.Language().Lang, fmt.Sprintf("Test %d", i))
 	}
 
-	firstNN := nnSite.RegularPages[0]
+	firstNN := nnSite.RegularPages()[0]
 	assert.Equal(4, len(firstNN.Sites()))
 	assert.Equal("en", firstNN.Sites().First().Language().Lang)
 
 	nnBundle := nnSite.getPage("page", "bundle")
 	enBundle := enSite.getPage("page", "bundle")
 
-	assert.Equal(6, len(enBundle.Resources))
-	assert.Equal(2, len(nnBundle.Resources))
+	assert.Equal(6, len(enBundle.Resources()))
+	assert.Equal(2, len(nnBundle.Resources()))
 
-	var ri interface{} = nnBundle.Resources
+	var ri interface{} = nnBundle.Resources()
 
 	// This looks less ugly in the templates ...
-	mergedNNResources := ri.(resource.ResourcesLanguageMerger).MergeByLanguage(enBundle.Resources)
+	mergedNNResources := ri.(resource.ResourcesLanguageMerger).MergeByLanguage(enBundle.Resources())
 	assert.Equal(6, len(mergedNNResources))
 
-	unchanged, err := nnSite.RegularPages.MergeByLanguageInterface(nil)
+	unchanged, err := nnSite.RegularPages().MergeByLanguageInterface(nil)
 	assert.NoError(err)
-	assert.Equal(nnSite.RegularPages, unchanged)
+	assert.Equal(nnSite.RegularPages(), unchanged)
 
 }
 
@@ -93,7 +95,7 @@ func TestMergeLanguagesTemplate(t *testing.T) {
 	b.WithTemplates("home.html", `
 {{ $pages := .Site.RegularPages }}
 {{ .Scratch.Set "pages" $pages }}
-{{ if eq .Lang "nn" }}:
+{{ if eq .Language.Lang "nn" }}:
 {{ $enSite := index .Sites 0 }}
 {{ $frSite := index .Sites 1 }}
 {{ $nnBundle := .Site.GetPage "page" "bundle" }}
@@ -103,8 +105,8 @@ func TestMergeLanguagesTemplate(t *testing.T) {
 {{ end }}
 {{ $pages := .Scratch.Get "pages" }}
 {{ $pages2 := .Scratch.Get "pages2" }}
-Pages1: {{ range $i, $p := $pages }}{{ add $i 1 }}: {{ .Path }} {{ .Lang }} | {{ end }}
-Pages2: {{ range $i, $p := $pages2 }}{{ add $i 1 }}: {{ .Title }} {{ .Lang }} | {{ end }}
+Pages1: {{ range $i, $p := $pages }}{{ add $i 1 }}: {{ .File.Path }} {{ .Language.Lang }} | {{ end }}
+Pages2: {{ range $i, $p := $pages2 }}{{ add $i 1 }}: {{ .Title }} {{ .Language.Lang }} | {{ end }}
 
 `,
 		"shortcodes/shortcode.html", "MyShort",
@@ -178,7 +180,7 @@ func BenchmarkMergeByLanguage(b *testing.B) {
 	nnSite := h.Sites[2]
 
 	for i := 0; i < b.N; i++ {
-		merged := nnSite.RegularPages.MergeByLanguage(enSite.RegularPages)
+		merged := nnSite.RegularPages().MergeByLanguage(enSite.RegularPages())
 		if len(merged) != count {
 			b.Fatal("Count mismatch")
 		}

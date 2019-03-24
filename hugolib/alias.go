@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import (
 
 	"github.com/gohugoio/hugo/output"
 	"github.com/gohugoio/hugo/publisher"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -55,7 +56,12 @@ func newAliasHandler(t tpl.TemplateFinder, l *loggers.Logger, allowRoot bool) al
 	return aliasHandler{t, l, allowRoot}
 }
 
-func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (io.Reader, error) {
+type aliasPage struct {
+	Permalink string
+	page.Page
+}
+
+func (a aliasHandler) renderAlias(isXHTML bool, permalink string, p page.Page) (io.Reader, error) {
 	t := "alias"
 	if isXHTML {
 		t = "alias-xhtml"
@@ -75,12 +81,9 @@ func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (i
 		}
 
 	}
-	data := struct {
-		Permalink string
-		Page      *Page
-	}{
+	data := aliasPage{
 		permalink,
-		page,
+		p,
 	}
 
 	buffer := new(bytes.Buffer)
@@ -91,11 +94,11 @@ func (a aliasHandler) renderAlias(isXHTML bool, permalink string, page *Page) (i
 	return buffer, nil
 }
 
-func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format, p *Page) (err error) {
+func (s *Site) writeDestAlias(path, permalink string, outputFormat output.Format, p page.Page) (err error) {
 	return s.publishDestAlias(false, path, permalink, outputFormat, p)
 }
 
-func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p *Page) (err error) {
+func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFormat output.Format, p page.Page) (err error) {
 	handler := newAliasHandler(s.Tmpl, s.Log, allowRoot)
 
 	isXHTML := strings.HasSuffix(path, ".xhtml")
@@ -126,19 +129,19 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 func (a aliasHandler) targetPathAlias(src string) (string, error) {
 	originalAlias := src
 	if len(src) <= 0 {
-		return "", fmt.Errorf("Alias \"\" is an empty string")
+		return "", fmt.Errorf("alias \"\" is an empty string")
 	}
 
 	alias := filepath.Clean(src)
 	components := strings.Split(alias, helpers.FilePathSeparator)
 
 	if !a.allowRoot && alias == helpers.FilePathSeparator {
-		return "", fmt.Errorf("Alias \"%s\" resolves to website root directory", originalAlias)
+		return "", fmt.Errorf("alias \"%s\" resolves to website root directory", originalAlias)
 	}
 
 	// Validate against directory traversal
 	if components[0] == ".." {
-		return "", fmt.Errorf("Alias \"%s\" traverses outside the website root directory", originalAlias)
+		return "", fmt.Errorf("alias \"%s\" traverses outside the website root directory", originalAlias)
 	}
 
 	// Handle Windows file and directory naming restrictions
@@ -171,7 +174,7 @@ func (a aliasHandler) targetPathAlias(src string) (string, error) {
 			for _, m := range msgs {
 				a.log.ERROR.Println(m)
 			}
-			return "", fmt.Errorf("Cannot create \"%s\": Windows filename restriction", originalAlias)
+			return "", fmt.Errorf("cannot create \"%s\": Windows filename restriction", originalAlias)
 		}
 		for _, m := range msgs {
 			a.log.INFO.Println(m)

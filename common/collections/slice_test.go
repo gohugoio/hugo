@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -75,11 +75,11 @@ func (p *tstSlicerIn2) Slice(in interface{}) (interface{}, error) {
 }
 
 func (p *tstSlicerIn1) Name() string {
-	return p.Name()
+	return p.name
 }
 
 func (p *tstSlicerIn2) Name() string {
-	return p.Name()
+	return p.name
 }
 
 func (p *tstSlicer) Slice(in interface{}) (interface{}, error) {

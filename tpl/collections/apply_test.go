@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,10 @@ type templateFinder int
 
 func (templateFinder) Lookup(name string) (tpl.Template, bool) {
 	return nil, false
+}
+
+func (templateFinder) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
+	return nil, false, false
 }
 
 func (templateFinder) GetFuncs() map[string]interface{} {

@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -304,7 +304,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	}
 
 	// Set some commonly used flags
-	c.doLiveReload = !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload")
+	c.doLiveReload = running && !c.Cfg.GetBool("disableLiveReload")
 	c.fastRenderMode = c.doLiveReload && !c.Cfg.GetBool("disableFastRender")
 	c.showErrorInBrowser = c.doLiveReload && !c.Cfg.GetBool("disableBrowserError")
 
@@ -351,10 +351,18 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 				// to make that decision.
 				irrelevantRe: regexp.MustCompile(`\.map$`),
 			}
+
 			changeDetector.PrepareNew()
 			fs.Destination = hugofs.NewHashingFs(fs.Destination, changeDetector)
 			c.changeDetector = changeDetector
 		}
+
+		if c.Cfg.GetBool("logPathWarnings") {
+			fs.Destination = hugofs.NewCreateCountingFs(fs.Destination)
+		}
+
+		// To debug hard-to-find path issues.
+		//fs.Destination = hugofs.NewStacktracerFs(fs.Destination, `fr/fr`)
 
 		err = c.initFs(fs)
 		if err != nil {

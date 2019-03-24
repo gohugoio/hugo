@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -340,7 +340,7 @@ func copyDir(source string, dest string) error {
 	if err != nil {
 		return err
 	}
-	entries, err := ioutil.ReadDir(source)
+	entries, _ := ioutil.ReadDir(source)
 	for _, entry := range entries {
 		sfp := filepath.Join(source, entry.Name())
 		dfp := filepath.Join(dest, entry.Name())
@@ -373,6 +373,10 @@ func (i *importCmd) copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyllPos
 		return err
 	}
 	entries, err := ioutil.ReadDir(jekyllRoot)
+	if err != nil {
+		return err
+	}
+
 	for _, entry := range entries {
 		sfp := filepath.Join(jekyllRoot, entry.Name())
 		dfp := filepath.Join(dest, entry.Name())
@@ -464,7 +468,7 @@ func convertJekyllPost(s *hugolib.Site, path, relPath, targetDir string, draft b
 
 	fs := hugofs.Os
 	if err := helpers.WriteToDisk(targetFile, strings.NewReader(content), fs); err != nil {
-		return fmt.Errorf("Failed to save file %q:", filename)
+		return fmt.Errorf("failed to save file %q: %s", filename, err)
 	}
 
 	return nil

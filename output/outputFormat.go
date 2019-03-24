@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,17 +69,27 @@ type Format struct {
 	// Note that we use the term "alternative" and not "alternate" here, as it
 	// does not necessarily replace the other format, it is an alternative representation.
 	NotAlternative bool `json:"notAlternative"`
+
+	// Setting this will make this output format control the value of
+	// .Permalink and .RelPermalink for a rendered Page.
+	// If not set, these values will point to the main (first) output format
+	// configured. That is probably the behaviour you want in most situations,
+	// as you probably don't want to link back to the RSS version of a page, as an
+	// example. AMP would, however, be a good example of an output format where this
+	// behaviour is wanted.
+	Permalinkable bool
 }
 
 // An ordered list of built-in output formats.
 var (
 	AMPFormat = Format{
-		Name:      "AMP",
-		MediaType: media.HTMLType,
-		BaseName:  "index",
-		Path:      "amp",
-		Rel:       "amphtml",
-		IsHTML:    true,
+		Name:          "AMP",
+		MediaType:     media.HTMLType,
+		BaseName:      "index",
+		Path:          "amp",
+		Rel:           "amphtml",
+		IsHTML:        true,
+		Permalinkable: true,
 		// See https://www.ampproject.org/learn/overview/
 	}
 
@@ -109,11 +119,12 @@ var (
 	}
 
 	HTMLFormat = Format{
-		Name:      "HTML",
-		MediaType: media.HTMLType,
-		BaseName:  "index",
-		Rel:       "canonical",
-		IsHTML:    true,
+		Name:          "HTML",
+		MediaType:     media.HTMLType,
+		BaseName:      "index",
+		Rel:           "canonical",
+		IsHTML:        true,
+		Permalinkable: true,
 	}
 
 	JSONFormat = Format{

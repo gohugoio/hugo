@@ -274,7 +274,7 @@ func (c *Cache) isExpired(modTime time.Time) bool {
 	if c.maxAge < 0 {
 		return false
 	}
-	return c.maxAge == 0 || time.Now().Sub(modTime) > c.maxAge
+	return c.maxAge == 0 || time.Since(modTime) > c.maxAge
 }
 
 // For testing

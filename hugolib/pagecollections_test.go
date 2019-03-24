@@ -1,4 +1,4 @@
-// Copyright 2017 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/deps"
 	"github.com/stretchr/testify/require"
@@ -98,12 +100,12 @@ func BenchmarkGetPageRegular(b *testing.B) {
 
 type testCase struct {
 	kind          string
-	context       *Page
+	context       page.Page
 	path          []string
 	expectedTitle string
 }
 
-func (t *testCase) check(p *Page, err error, errorMsg string, assert *require.Assertions) {
+func (t *testCase) check(p page.Page, err error, errorMsg string, assert *require.Assertions) {
 	switch t.kind {
 	case "Ambiguous":
 		assert.Error(err)
@@ -114,8 +116,8 @@ func (t *testCase) check(p *Page, err error, errorMsg string, assert *require.As
 	default:
 		assert.NoError(err, errorMsg)
 		assert.NotNil(p, errorMsg)
-		assert.Equal(t.kind, p.Kind, errorMsg)
-		assert.Equal(t.expectedTitle, p.title, errorMsg)
+		assert.Equal(t.kind, p.Kind(), errorMsg)
+		assert.Equal(t.expectedTitle, p.Title(), errorMsg)
 	}
 }
 
@@ -159,62 +161,62 @@ func TestGetPage(t *testing.T) {
 
 	tests := []testCase{
 		// legacy content root relative paths
-		{KindHome, nil, []string{}, "home page"},
-		{KindPage, nil, []string{"about.md"}, "about page"},
-		{KindSection, nil, []string{"sect3"}, "section 3"},
-		{KindPage, nil, []string{"sect3/page1.md"}, "Title3_1"},
-		{KindPage, nil, []string{"sect4/page2.md"}, "Title4_2"},
-		{KindSection, nil, []string{"sect3/sect7"}, "another sect7"},
-		{KindPage, nil, []string{"sect3/subsect/deep.md"}, "deep page"},
-		{KindPage, nil, []string{filepath.FromSlash("sect5/page3.md")}, "Title5_3"}, //test OS-specific path
+		{page.KindHome, nil, []string{}, "home page"},
+		{page.KindPage, nil, []string{"about.md"}, "about page"},
+		{page.KindSection, nil, []string{"sect3"}, "section 3"},
+		{page.KindPage, nil, []string{"sect3/page1.md"}, "Title3_1"},
+		{page.KindPage, nil, []string{"sect4/page2.md"}, "Title4_2"},
+		{page.KindSection, nil, []string{"sect3/sect7"}, "another sect7"},
+		{page.KindPage, nil, []string{"sect3/subsect/deep.md"}, "deep page"},
+		{page.KindPage, nil, []string{filepath.FromSlash("sect5/page3.md")}, "Title5_3"}, //test OS-specific path
 
 		// shorthand refs (potentially ambiguous)
-		{KindPage, nil, []string{"unique.md"}, "UniqueBase"},
+		{page.KindPage, nil, []string{"unique.md"}, "UniqueBase"},
 		{"Ambiguous", nil, []string{"page1.md"}, ""},
 
 		// ISSUE: This is an ambiguous ref, but because we have to support the legacy
 		// content root relative paths without a leading slash, the lookup
 		// returns /sect7. This undermines ambiguity detection, but we have no choice.
 		//{"Ambiguous", nil, []string{"sect7"}, ""},
-		{KindSection, nil, []string{"sect7"}, "Sect7s"},
+		{page.KindSection, nil, []string{"sect7"}, "Sect7s"},
 
 		// absolute paths
-		{KindHome, nil, []string{"/"}, "home page"},
-		{KindPage, nil, []string{"/about.md"}, "about page"},
-		{KindSection, nil, []string{"/sect3"}, "section 3"},
-		{KindPage, nil, []string{"/sect3/page1.md"}, "Title3_1"},
-		{KindPage, nil, []string{"/sect4/page2.md"}, "Title4_2"},
-		{KindSection, nil, []string{"/sect3/sect7"}, "another sect7"},
-		{KindPage, nil, []string{"/sect3/subsect/deep.md"}, "deep page"},
-		{KindPage, nil, []string{filepath.FromSlash("/sect5/page3.md")}, "Title5_3"}, //test OS-specific path
-		{KindPage, nil, []string{"/sect3/unique.md"}, "UniqueBase"},                  //next test depends on this page existing
+		{page.KindHome, nil, []string{"/"}, "home page"},
+		{page.KindPage, nil, []string{"/about.md"}, "about page"},
+		{page.KindSection, nil, []string{"/sect3"}, "section 3"},
+		{page.KindPage, nil, []string{"/sect3/page1.md"}, "Title3_1"},
+		{page.KindPage, nil, []string{"/sect4/page2.md"}, "Title4_2"},
+		{page.KindSection, nil, []string{"/sect3/sect7"}, "another sect7"},
+		{page.KindPage, nil, []string{"/sect3/subsect/deep.md"}, "deep page"},
+		{page.KindPage, nil, []string{filepath.FromSlash("/sect5/page3.md")}, "Title5_3"}, //test OS-specific path
+		{page.KindPage, nil, []string{"/sect3/unique.md"}, "UniqueBase"},                  //next test depends on this page existing
 		// {"NoPage", nil, []string{"/unique.md"}, ""},  // ISSUE #4969: this is resolving to /sect3/unique.md
 		{"NoPage", nil, []string{"/missing-page.md"}, ""},
 		{"NoPage", nil, []string{"/missing-section"}, ""},
 
 		// relative paths
-		{KindHome, sec3, []string{".."}, "home page"},
-		{KindHome, sec3, []string{"../"}, "home page"},
-		{KindPage, sec3, []string{"../about.md"}, "about page"},
-		{KindSection, sec3, []string{"."}, "section 3"},
-		{KindSection, sec3, []string{"./"}, "section 3"},
-		{KindPage, sec3, []string{"page1.md"}, "Title3_1"},
-		{KindPage, sec3, []string{"./page1.md"}, "Title3_1"},
-		{KindPage, sec3, []string{"../sect4/page2.md"}, "Title4_2"},
-		{KindSection, sec3, []string{"sect7"}, "another sect7"},
-		{KindSection, sec3, []string{"./sect7"}, "another sect7"},
-		{KindPage, sec3, []string{"./subsect/deep.md"}, "deep page"},
-		{KindPage, sec3, []string{"./subsect/../../sect7/page9.md"}, "Title7_9"},
-		{KindPage, sec3, []string{filepath.FromSlash("../sect5/page3.md")}, "Title5_3"}, //test OS-specific path
-		{KindPage, sec3, []string{"./unique.md"}, "UniqueBase"},
+		{page.KindHome, sec3, []string{".."}, "home page"},
+		{page.KindHome, sec3, []string{"../"}, "home page"},
+		{page.KindPage, sec3, []string{"../about.md"}, "about page"},
+		{page.KindSection, sec3, []string{"."}, "section 3"},
+		{page.KindSection, sec3, []string{"./"}, "section 3"},
+		{page.KindPage, sec3, []string{"page1.md"}, "Title3_1"},
+		{page.KindPage, sec3, []string{"./page1.md"}, "Title3_1"},
+		{page.KindPage, sec3, []string{"../sect4/page2.md"}, "Title4_2"},
+		{page.KindSection, sec3, []string{"sect7"}, "another sect7"},
+		{page.KindSection, sec3, []string{"./sect7"}, "another sect7"},
+		{page.KindPage, sec3, []string{"./subsect/deep.md"}, "deep page"},
+		{page.KindPage, sec3, []string{"./subsect/../../sect7/page9.md"}, "Title7_9"},
+		{page.KindPage, sec3, []string{filepath.FromSlash("../sect5/page3.md")}, "Title5_3"}, //test OS-specific path
+		{page.KindPage, sec3, []string{"./unique.md"}, "UniqueBase"},
 		{"NoPage", sec3, []string{"./sect2"}, ""},
 		//{"NoPage", sec3, []string{"sect2"}, ""}, // ISSUE: /sect3 page relative query is resolving to /sect2
 
 		// absolute paths ignore context
-		{KindHome, sec3, []string{"/"}, "home page"},
-		{KindPage, sec3, []string{"/about.md"}, "about page"},
-		{KindPage, sec3, []string{"/sect4/page2.md"}, "Title4_2"},
-		{KindPage, sec3, []string{"/sect3/subsect/deep.md"}, "deep page"}, //next test depends on this page existing
+		{page.KindHome, sec3, []string{"/"}, "home page"},
+		{page.KindPage, sec3, []string{"/about.md"}, "about page"},
+		{page.KindPage, sec3, []string{"/sect4/page2.md"}, "Title4_2"},
+		{page.KindPage, sec3, []string{"/sect3/subsect/deep.md"}, "deep page"}, //next test depends on this page existing
 		{"NoPage", sec3, []string{"/subsect/deep.md"}, ""},
 	}
 

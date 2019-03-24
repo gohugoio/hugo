@@ -41,6 +41,9 @@ func (ns *Namespace) Remarshal(format string, data interface{}) (string, error) 
 	}
 
 	meta, err := metadecoders.Default.UnmarshalToMap([]byte(from), fromFormat)
+	if err != nil {
+		return "", err
+	}
 
 	var result bytes.Buffer
 	if err := parser.InterfaceToConfig(meta, mark, &result); err != nil {

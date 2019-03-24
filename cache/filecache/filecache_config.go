@@ -47,11 +47,11 @@ const (
 var defaultCacheConfigs = map[string]cacheConfig{
 	cacheKeyGetJSON: defaultCacheConfig,
 	cacheKeyGetCSV:  defaultCacheConfig,
-	cacheKeyImages: cacheConfig{
+	cacheKeyImages: {
 		MaxAge: -1,
 		Dir:    resourcesGenDir,
 	},
-	cacheKeyAssets: cacheConfig{
+	cacheKeyAssets: {
 		MaxAge: -1,
 		Dir:    resourcesGenDir,
 	},

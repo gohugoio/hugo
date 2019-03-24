@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -92,9 +92,7 @@ func appendToInterfaceSlice(tov reflect.Value, from ...interface{}) ([]interface
 		tos = append(tos, tov.Index(i).Interface())
 	}
 
-	for _, v := range from {
-		tos = append(tos, v)
-	}
+	tos = append(tos, from...)
 
 	return tos, nil
 }

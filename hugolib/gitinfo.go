@@ -1,4 +1,4 @@
-// Copyright 2016-present The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import (
 
 	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/resources/page"
 )
 
 type gitInfo struct {
@@ -26,15 +27,12 @@ type gitInfo struct {
 	repo       *gitmap.GitRepo
 }
 
-func (g *gitInfo) forPage(p *Page) (*gitmap.GitInfo, bool) {
-	if g == nil {
-		return nil, false
-	}
-
-	name := strings.TrimPrefix(filepath.ToSlash(p.Filename()), g.contentDir)
+func (g *gitInfo) forPage(p page.Page) *gitmap.GitInfo {
+	name := strings.TrimPrefix(filepath.ToSlash(p.File().Filename()), g.contentDir)
 	name = strings.TrimPrefix(name, "/")
 
-	return g.repo.Files[name], true
+	return g.repo.Files[name]
+
 }
 
 func newGitInfo(cfg config.Provider) (*gitInfo, error) {

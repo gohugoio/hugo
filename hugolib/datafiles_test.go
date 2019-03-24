@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -349,7 +349,7 @@ func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKey
 
 	s := buildSingleSiteExpected(t, false, expectBuildError, depsCfg, BuildCfg{SkipRender: true})
 
-	if !expectBuildError && !reflect.DeepEqual(expected, s.Data) {
+	if !expectBuildError && !reflect.DeepEqual(expected, s.h.Data()) {
 		// This disabled code detects the situation described in the WARNING message below.
 		// The situation seems to only occur for TOML data with integer values.
 		// Perhaps the TOML parser returns ints in another type.
@@ -366,7 +366,7 @@ func doTestDataDirImpl(t *testing.T, dd dataDir, expected interface{}, configKey
 			}
 		*/
 
-		return fmt.Sprintf("Expected data:\n%v got\n%v\n\nExpected type structure:\n%#[1]v got\n%#[2]v", expected, s.Data)
+		return fmt.Sprintf("Expected data:\n%v got\n%v\n\nExpected type structure:\n%#[1]v got\n%#[2]v", expected, s.h.Data())
 	}
 
 	return

@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,4 +39,16 @@ func GetStringSlicePreserveString(cfg Provider, key string) []string {
 		return []string{sds}
 	}
 	return cast.ToStringSlice(sd)
+}
+
+// SetBaseTestDefaults provides some common config defaults used in tests.
+func SetBaseTestDefaults(cfg Provider) {
+	cfg.Set("resourceDir", "resources")
+	cfg.Set("contentDir", "content")
+	cfg.Set("dataDir", "data")
+	cfg.Set("i18nDir", "i18n")
+	cfg.Set("layoutDir", "layouts")
+	cfg.Set("assetDir", "assets")
+	cfg.Set("archetypeDir", "archetypes")
+	cfg.Set("publishDir", "public")
 }

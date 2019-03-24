@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ This is some summary. This is some summary. This is some summary. This is some s
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err := parseBytes(input, cfg); err != nil {
+		if _, err := parseBytes(input, cfg, lexIntroSection); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -64,7 +64,7 @@ This is some summary. This is some summary. This is some summary. This is some s
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		if _, err := parseBytes(input, cfg); err != nil {
+		if _, err := parseBytes(input, cfg, lexIntroSection); err != nil {
 			b.Fatal(err)
 		}
 	}

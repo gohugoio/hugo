@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,10 +18,15 @@ package commands
 import (
 	"fmt"
 	"io/ioutil"
-
 	"os/signal"
+	"runtime/pprof"
+	"runtime/trace"
 	"sort"
 	"sync/atomic"
+
+	"github.com/gohugoio/hugo/hugofs"
+
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/pkg/errors"
@@ -214,6 +219,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"themesDir",
 		"verbose",
 		"verboseLog",
+		"duplicateTargetPaths",
 	}
 
 	// Will set a value even if it is the default.
@@ -235,6 +241,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 	// Set some "config aliases"
 	setValueFromFlag(cmd.Flags(), "destination", cfg, "publishDir", false)
 	setValueFromFlag(cmd.Flags(), "i18n-warnings", cfg, "logI18nWarnings", false)
+	setValueFromFlag(cmd.Flags(), "path-warnings", cfg, "logPathWarnings", false)
 
 }
 
@@ -290,6 +297,7 @@ func (c *commandeer) fullBuild() error {
 	}
 
 	copyStaticFunc := func() error {
+
 		cnt, err := c.copyStatic()
 		if err != nil {
 			if !os.IsNotExist(err) {
@@ -326,7 +334,7 @@ func (c *commandeer) fullBuild() error {
 	}
 
 	for _, s := range c.hugo.Sites {
-		s.ProcessingStats.Static = langCount[s.Language.Lang]
+		s.ProcessingStats.Static = langCount[s.Language().Lang]
 	}
 
 	if c.h.gc {
@@ -344,8 +352,124 @@ func (c *commandeer) fullBuild() error {
 
 }
 
+func (c *commandeer) initCPUProfile() (func(), error) {
+	if c.h.cpuprofile == "" {
+		return nil, nil
+	}
+
+	f, err := os.Create(c.h.cpuprofile)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create CPU profile")
+	}
+	if err := pprof.StartCPUProfile(f); err != nil {
+		return nil, errors.Wrap(err, "failed to start CPU profile")
+	}
+	return func() {
+		pprof.StopCPUProfile()
+		f.Close()
+	}, nil
+}
+
+func (c *commandeer) initMemProfile() {
+	if c.h.memprofile == "" {
+		return
+	}
+
+	f, err := os.Create(c.h.memprofile)
+	if err != nil {
+		c.logger.ERROR.Println("could not create memory profile: ", err)
+	}
+	defer f.Close()
+	runtime.GC() // get up-to-date statistics
+	if err := pprof.WriteHeapProfile(f); err != nil {
+		c.logger.ERROR.Println("could not write memory profile: ", err)
+	}
+}
+
+func (c *commandeer) initTraceProfile() (func(), error) {
+	if c.h.traceprofile == "" {
+		return nil, nil
+	}
+
+	f, err := os.Create(c.h.traceprofile)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create trace file")
+	}
+
+	if err := trace.Start(f); err != nil {
+		return nil, errors.Wrap(err, "failed to start trace")
+	}
+
+	return func() {
+		trace.Stop()
+		f.Close()
+	}, nil
+}
+
+func (c *commandeer) initMutexProfile() (func(), error) {
+	if c.h.mutexprofile == "" {
+		return nil, nil
+	}
+
+	f, err := os.Create(c.h.mutexprofile)
+	if err != nil {
+		return nil, err
+	}
+
+	runtime.SetMutexProfileFraction(1)
+
+	return func() {
+		pprof.Lookup("mutex").WriteTo(f, 0)
+		f.Close()
+	}, nil
+
+}
+
+func (c *commandeer) initProfiling() (func(), error) {
+	stopCPUProf, err := c.initCPUProfile()
+	if err != nil {
+		return nil, err
+	}
+
+	defer c.initMemProfile()
+
+	stopMutexProf, err := c.initMutexProfile()
+	if err != nil {
+		return nil, err
+	}
+
+	stopTraceProf, err := c.initTraceProfile()
+	if err != nil {
+		return nil, err
+	}
+
+	return func() {
+		if stopCPUProf != nil {
+			stopCPUProf()
+		}
+		if stopMutexProf != nil {
+			stopMutexProf()
+		}
+
+		if stopTraceProf != nil {
+			stopTraceProf()
+		}
+	}, nil
+}
+
 func (c *commandeer) build() error {
 	defer c.timeTrack(time.Now(), "Total")
+
+	stopProfiling, err := c.initProfiling()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if stopProfiling != nil {
+			stopProfiling()
+		}
+	}()
 
 	if err := c.fullBuild(); err != nil {
 		return err
@@ -356,6 +480,13 @@ func (c *commandeer) build() error {
 		fmt.Println()
 		c.hugo.PrintProcessingStats(os.Stdout)
 		fmt.Println()
+
+		if createCounter, ok := c.destinationFs.(hugofs.DuplicatesReporter); ok {
+			dupes := createCounter.ReportDuplicates()
+			if dupes != "" {
+				c.logger.WARN.Println("Duplicate target paths:", dupes)
+			}
+		}
 	}
 
 	if c.h.buildWatch {
@@ -369,7 +500,7 @@ func (c *commandeer) build() error {
 		checkErr(c.Logger, err)
 		defer watcher.Close()
 
-		var sigs = make(chan os.Signal)
+		var sigs = make(chan os.Signal, 1)
 		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 		<-sigs
@@ -380,6 +511,17 @@ func (c *commandeer) build() error {
 
 func (c *commandeer) serverBuild() error {
 	defer c.timeTrack(time.Now(), "Total")
+
+	stopProfiling, err := c.initProfiling()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if stopProfiling != nil {
+			stopProfiling()
+		}
+	}()
 
 	if err := c.fullBuild(); err != nil {
 		return err
@@ -474,11 +616,9 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 	}
 	c.logger.INFO.Println("syncing static files to", publishDir)
 
-	var err error
-
 	// because we are using a baseFs (to get the union right).
 	// set sync src to root
-	err = syncer.Sync(publishDir, helpers.FilePathSeparator)
+	err := syncer.Sync(publishDir, helpers.FilePathSeparator)
 	if err != nil {
 		return 0, err
 	}
@@ -617,13 +757,6 @@ func (c *commandeer) getDirList() ([]string, error) {
 	sort.Strings(a)
 
 	return a, nil
-}
-
-func (c *commandeer) resetAndBuildSites() (err error) {
-	if !c.h.quiet {
-		c.logger.FEEDBACK.Println("Started building sites ...")
-	}
-	return c.hugo.Build(hugolib.BuildCfg{ResetState: true})
 }
 
 func (c *commandeer) buildSites() (err error) {
@@ -973,7 +1106,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 				navigate := c.Cfg.GetBool("navigateToChanged")
 				// We have fetched the same page above, but it may have
 				// changed.
-				var p *hugolib.Page
+				var p page.Page
 
 				if navigate {
 					if onePageName != "" {
@@ -982,7 +1115,7 @@ func (c *commandeer) handleEvents(watcher *watcher.Batcher,
 				}
 
 				if p != nil {
-					livereload.NavigateToPathForPort(p.RelPermalink(), p.Site.ServerPort())
+					livereload.NavigateToPathForPort(p.RelPermalink(), p.Site().ServerPort())
 				} else {
 					livereload.ForceRefresh()
 				}
@@ -1044,9 +1177,11 @@ func (c *commandeer) isThemeVsHugoVersionMismatch(fs afero.Fs) (dir string, mism
 		}
 
 		b, err := afero.ReadFile(fs, path)
+		if err != nil {
+			continue
+		}
 
 		tomlMeta, err := metadecoders.Default.UnmarshalToMap(b, metadecoders.TOML)
-
 		if err != nil {
 			continue
 		}

@@ -16,7 +16,6 @@ package resources
 import (
 	"fmt"
 	"math/rand"
-	"path"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -45,9 +44,8 @@ func TestGenericResourceWithLinkFacory(t *testing.T) {
 	assert := require.New(t)
 	spec := newTestResourceSpec(assert)
 
-	factory := func(s string) string {
-		return path.Join("/foo", s)
-	}
+	factory := newTargetPaths("/foo")
+
 	r := spec.newGenericResource(nil, factory, nil, "/a/foo.css", "foo.css", media.CSSType)
 
 	assert.Equal("https://example.com/foo/foo.css", r.Permalink())

@@ -14,18 +14,21 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/gohugoio/hugo/langs"
-	"github.com/sanity-io/litter"
-
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/resources/page"
+	"github.com/sanity-io/litter"
 	"github.com/spf13/afero"
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/viper"
 
 	"os"
+
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugofs"
@@ -387,6 +390,7 @@ func (s *sitesBuilder) build(cfg BuildCfg, shouldFail bool) *sitesBuilder {
 		}
 	}
 	if err != nil && !shouldFail {
+		herrors.PrintStackTrace(err)
 		s.Fatalf("Build failed: %s", err)
 	} else if err == nil && shouldFail {
 		s.Fatalf("Expected error")
@@ -418,10 +422,10 @@ date: "2018-02-28"
 			"content/sect/doc1.nn.md", contentTemplate,
 		}
 
-		listTemplateCommon = "{{ $p := .Paginator }}{{ $p.PageNumber }}|{{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}|Pager: {{ template \"_internal/pagination.html\" . }}"
+		listTemplateCommon = "{{ $p := .Paginator }}{{ $p.PageNumber }}|{{ .Title }}|{{ i18n \"hello\" }}|{{ .Permalink }}|Pager: {{ template \"_internal/pagination.html\" . }}|Kind: {{ .Kind }}|Content: {{ .Content }}"
 
 		defaultTemplates = []string{
-			"_default/single.html", "Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Lang}}|{{ .Content }}",
+			"_default/single.html", "Single: {{ .Title }}|{{ i18n \"hello\" }}|{{.Language.Lang}}|RelPermalink: {{ .RelPermalink }}|Permalink: {{ .Permalink }}|{{ .Content }}|Resources: {{ range .Resources }}{{ .MediaType }}: {{ .RelPermalink}} -- {{ end }}|Summary: {{ .Summary }}|Truncated: {{ .Truncated }}",
 			"_default/list.html", "List Page " + listTemplateCommon,
 			"index.html", "{{ $p := .Paginator }}Default Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").RelPermalink  }}",
 			"index.fr.html", "{{ $p := .Paginator }}French Home Page {{ $p.PageNumber }}: {{ .Title }}|{{ .IsHome }}|{{ i18n \"hello\" }}|{{ .Permalink }}|{{  .Site.Data.hugo.slogan }}|String Resource: {{ ( \"Hugo Pipes\" | resources.FromString \"text/pipes.txt\").RelPermalink  }}",
@@ -432,6 +436,9 @@ date: "2018-02-28"
 			// A shortcode in multiple languages
 			"shortcodes/lingo.html", "LingoDefault",
 			"shortcodes/lingo.fr.html", "LingoFrench",
+			// Special templates
+			"404.html", "404|{{ .Lang }}|{{ .Title }}",
+			"robots.txt", "robots|{{ .Lang }}|{{ .Title }}",
 		}
 
 		defaultI18n = []string{
@@ -469,23 +476,34 @@ func (s *sitesBuilder) Fatalf(format string, args ...interface{}) {
 }
 
 func Fatalf(t testing.TB, format string, args ...interface{}) {
-	trace := trace()
+	trace := stackTrace()
 	format = format + "\n%s"
 	args = append(args, trace)
 	t.Fatalf(format, args...)
 }
 
-func trace() string {
+func stackTrace() string {
 	return strings.Join(assert.CallerInfo(), "\n\r\t\t\t")
 }
 
+func (s *sitesBuilder) AssertFileContentFn(filename string, f func(s string) bool) {
+	content := s.FileContent(filename)
+	if !f(content) {
+		s.Fatalf("Assert failed for %q", filename)
+	}
+}
+
 func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
-	content := readDestination(s.T, s.Fs, filename)
+	content := s.FileContent(filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
 			s.Fatalf("No match for %q in content for %s\n%s\n%q", match, filename, content, content)
 		}
 	}
+}
+
+func (s *sitesBuilder) FileContent(filename string) string {
+	return readDestination(s.T, s.Fs, filename)
 }
 
 func (s *sitesBuilder) AssertObject(expected string, object interface{}) {
@@ -502,7 +520,7 @@ func (s *sitesBuilder) AssertObject(expected string, object interface{}) {
 func (s *sitesBuilder) AssertFileContentRe(filename string, matches ...string) {
 	content := readDestination(s.T, s.Fs, filename)
 	for _, match := range matches {
-		r := regexp.MustCompile(match)
+		r := regexp.MustCompile("(?s)" + match)
 		if !r.MatchString(content) {
 			s.Fatalf("No match for %q in content for %s\n%q", match, filename, content)
 		}
@@ -555,32 +573,6 @@ func (th testHelper) replaceDefaultContentLanguageValue(value string) string {
 	return value
 }
 
-func newTestPathSpec(fs *hugofs.Fs, v *viper.Viper) *helpers.PathSpec {
-	l := langs.NewDefaultLanguage(v)
-	ps, _ := helpers.NewPathSpec(fs, l)
-	return ps
-}
-
-func newTestDefaultPathSpec(t *testing.T) *helpers.PathSpec {
-	v := viper.New()
-	// Easier to reason about in tests.
-	v.Set("disablePathToLower", true)
-	v.Set("contentDir", "content")
-	v.Set("dataDir", "data")
-	v.Set("i18nDir", "i18n")
-	v.Set("layoutDir", "layouts")
-	v.Set("archetypeDir", "archetypes")
-	v.Set("assetDir", "assets")
-	v.Set("resourceDir", "resources")
-	v.Set("publishDir", "public")
-	fs := hugofs.NewDefault(v)
-	ps, err := helpers.NewPathSpec(fs, v)
-	if err != nil {
-		t.Fatal(err)
-	}
-	return ps
-}
-
 func newTestCfg() (*viper.Viper, *hugofs.Fs) {
 
 	v := viper.New()
@@ -595,27 +587,6 @@ func newTestCfg() (*viper.Viper, *hugofs.Fs) {
 
 	return v, fs
 
-}
-
-// newTestSite creates a new site in the  English language with in-memory Fs.
-// The site will have a template system loaded and ready to use.
-// Note: This is only used in single site tests.
-func newTestSite(t testing.TB, configKeyValues ...interface{}) *Site {
-
-	cfg, fs := newTestCfg()
-
-	for i := 0; i < len(configKeyValues); i += 2 {
-		cfg.Set(configKeyValues[i].(string), configKeyValues[i+1])
-	}
-
-	d := deps.DepsCfg{Fs: fs, Cfg: cfg}
-
-	s, err := NewSiteForCfg(d)
-
-	if err != nil {
-		Fatalf(t, "Failed to create Site: %s", err)
-	}
-	return s
 }
 
 func newTestSitesFromConfig(t testing.TB, afs afero.Fs, tomlConfig string, layoutPathContentPairs ...string) (testHelper, *HugoSites) {
@@ -696,11 +667,41 @@ func writeSourcesToSource(t *testing.T, base string, fs *hugofs.Fs, sources ...[
 	}
 }
 
-func dumpPages(pages ...*Page) {
+func getPage(in page.Page, ref string) page.Page {
+	p, err := in.GetPage(ref)
+	if err != nil {
+		panic(err)
+	}
+	return p
+}
+
+func content(c resource.ContentProvider) string {
+	cc, err := c.Content()
+	if err != nil {
+		panic(err)
+	}
+
+	ccs, err := cast.ToStringE(cc)
+	if err != nil {
+		panic(err)
+	}
+	return ccs
+}
+
+func dumpPages(pages ...page.Page) {
+	fmt.Println("---------")
 	for i, p := range pages {
-		fmt.Printf("%d: Kind: %s Title: %-10s RelPermalink: %-10s Path: %-10s sections: %s Len Sections(): %d\n",
+		fmt.Printf("%d: Kind: %s Title: %-10s RelPermalink: %-10s Path: %-10s sections: %s\n",
 			i+1,
-			p.Kind, p.title, p.RelPermalink(), p.Path(), p.sections, len(p.Sections()))
+			p.Kind(), p.Title(), p.RelPermalink(), p.Path(), p.SectionsPath())
+	}
+}
+
+func dumpSPages(pages ...*pageState) {
+	for i, p := range pages {
+		fmt.Printf("%d: Kind: %s Title: %-10s RelPermalink: %-10s Path: %-10s sections: %s\n",
+			i+1,
+			p.Kind(), p.Title(), p.RelPermalink(), p.Path(), p.SectionsPath())
 	}
 }
 
@@ -722,12 +723,22 @@ func printStringIndexes(s string) {
 		fmt.Println()
 
 	}
-
 }
+
 func isCI() bool {
 	return os.Getenv("CI") != ""
 }
 
 func isGo111() bool {
 	return strings.Contains(runtime.Version(), "1.11")
+}
+
+// See https://github.com/golang/go/issues/19280
+// Not in use.
+var parallelEnabled = true
+
+func parallel(t *testing.T) {
+	if parallelEnabled {
+		t.Parallel()
+	}
 }

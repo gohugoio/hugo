@@ -1,4 +1,4 @@
-// Copyright 2017-present The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/output"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/spf13/cast"
 )
 
@@ -28,11 +29,11 @@ func createDefaultOutputFormats(allFormats output.Formats, cfg config.Provider) 
 	sitemapOut, _ := allFormats.GetByName(output.SitemapFormat.Name)
 
 	return map[string]output.Formats{
-		KindPage:         {htmlOut},
-		KindHome:         {htmlOut, rssOut},
-		KindSection:      {htmlOut, rssOut},
-		KindTaxonomy:     {htmlOut, rssOut},
-		KindTaxonomyTerm: {htmlOut, rssOut},
+		page.KindPage:         {htmlOut},
+		page.KindHome:         {htmlOut, rssOut},
+		page.KindSection:      {htmlOut, rssOut},
+		page.KindTaxonomy:     {htmlOut, rssOut},
+		page.KindTaxonomyTerm: {htmlOut, rssOut},
 		// Below are for conistency. They are currently not used during rendering.
 		kindRSS:       {rssOut},
 		kindSitemap:   {sitemapOut},
@@ -65,7 +66,7 @@ func createSiteOutputFormats(allFormats output.Formats, cfg config.Provider) (ma
 		for _, format := range vals {
 			f, found := allFormats.GetByName(format)
 			if !found {
-				return nil, fmt.Errorf("Failed to resolve output format %q from site config", format)
+				return nil, fmt.Errorf("failed to resolve output format %q from site config", format)
 			}
 			formats = append(formats, f)
 		}

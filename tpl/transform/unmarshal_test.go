@@ -119,21 +119,21 @@ func TestUnmarshal(t *testing.T) {
 			assert.Equal("Ford", first[1])
 		}},
 		{testContentResource{key: "r1", content: `a;b;c`, mime: media.CSVType}, map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
-			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
+			assert.Equal(r, [][]string{{"a", "b", "c"}})
 
 		}},
 		{"a,b,c", nil, func(r [][]string) {
-			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
+			assert.Equal(r, [][]string{{"a", "b", "c"}})
 
 		}},
 		{"a;b;c", map[string]interface{}{"delimiter": ";"}, func(r [][]string) {
-			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
+			assert.Equal(r, [][]string{{"a", "b", "c"}})
 
 		}},
 		{testContentResource{key: "r1", content: `
 % This is a comment
 a;b;c`, mime: media.CSVType}, map[string]interface{}{"DElimiter": ";", "Comment": "%"}, func(r [][]string) {
-			assert.Equal(r, [][]string{[]string{"a", "b", "c"}})
+			assert.Equal(r, [][]string{{"a", "b", "c"}})
 
 		}},
 		// errors

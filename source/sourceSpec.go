@@ -124,6 +124,10 @@ func (s *SourceSpec) IsRegularSourceFile(filename string) (bool, error) {
 
 	if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
 		link, err := filepath.EvalSymlinks(filename)
+		if err != nil {
+			return false, err
+		}
+
 		fi, err = helpers.LstatIfPossible(s.SourceFs, link)
 		if err != nil {
 			return false, err

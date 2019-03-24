@@ -17,7 +17,6 @@ package filesystems
 
 import (
 	"errors"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -758,23 +757,4 @@ func removeDuplicatesKeepRight(in []string) []string {
 	}
 
 	return out
-}
-
-func printFs(fs afero.Fs, path string, w io.Writer) {
-	if fs == nil {
-		return
-	}
-	afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
-		if info != nil && !info.IsDir() {
-			s := path
-			if lang, ok := info.(hugofs.LanguageAnnouncer); ok {
-				s = s + "\tLANG: " + lang.Lang()
-			}
-			if fp, ok := info.(hugofs.FilePather); ok {
-				s = s + "\tRF: " + fp.Filename() + "\tBP: " + fp.BaseDir()
-			}
-			fmt.Fprintln(w, "    ", s)
-		}
-		return nil
-	})
 }
