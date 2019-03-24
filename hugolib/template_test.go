@@ -264,3 +264,44 @@ Hugo: {{ hugo.Generator }}
 	)
 
 }
+
+func TestPartialWithReturn(t *testing.T) {
+
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	b.WithTemplatesAdded(
+		"index.html", `
+Test Partials With Return Values:
+
+add42: 50: {{ partial "add42.tpl" 8 }}
+dollarContext: 60: {{ partial "dollarContext.tpl" 18 }}
+adder: 70: {{ partial "dict.tpl" (dict "adder" 28) }}
+complex: 80: {{ partial "complex.tpl" 38 }}
+`,
+		"partials/add42.tpl", `
+		{{ $v := add . 42 }}
+		{{ return $v }}
+		`,
+		"partials/dollarContext.tpl", `
+{{ $v := add $ 42 }}
+{{ return $v }}
+`,
+		"partials/dict.tpl", `
+{{ $v := add $.adder 42 }}
+{{ return $v }}
+`,
+		"partials/complex.tpl", `
+{{ return add . 42 }}
+`,
+	)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html",
+		"add42: 50: 50",
+		"dollarContext: 60: 60",
+		"adder: 70: 70",
+		"complex: 80: 80",
+	)
+
+}

@@ -22,6 +22,8 @@ import (
 	"sync"
 	texttemplate "text/template"
 
+	"github.com/gohugoio/hugo/tpl"
+
 	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/deps"
 )
@@ -62,8 +64,22 @@ type Namespace struct {
 	cachedPartials *partialCache
 }
 
-// Include executes the named partial and returns either a string,
-// when the partial is a text/template, or template.HTML when html/template.
+// contextWrapper makes room for a return value in a partial invocation.
+type contextWrapper struct {
+	Arg    interface{}
+	Result interface{}
+}
+
+// Set sets the return value and returns an empty string.
+func (c *contextWrapper) Set(in interface{}) string {
+	c.Result = in
+	return ""
+}
+
+// Include executes the named partial.
+// If the partial contains a return statement, that value will be returned.
+// Else, the rendered output will be returned:
+// A string if the partial is a text/template, or template.HTML when html/template.
 func (ns *Namespace) Include(name string, contextList ...interface{}) (interface{}, error) {
 	if strings.HasPrefix(name, "partials/") {
 		name = name[8:]
@@ -83,6 +99,21 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		// For legacy reasons.
 		templ, found = ns.deps.Tmpl.Lookup(n + ".html")
 	}
+
+	var info tpl.Info
+	if ip, ok := templ.(tpl.TemplateInfoProvider); ok {
+		info = ip.TemplateInfo()
+	}
+
+	if info.HasReturn {
+		// Wrap the context sent to the template to capture the return value.
+		// Note that the template is rewritten to make sure that the dot (".")
+		// and the $ variable points to Arg.
+		context = &contextWrapper{
+			Arg: context,
+		}
+	}
+
 	if found {
 		b := bp.GetBuffer()
 		defer bp.PutBuffer(b)
@@ -91,19 +122,21 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 			return "", err
 		}
 
-		if _, ok := templ.(*texttemplate.Template); ok {
-			s := b.String()
-			if ns.deps.Metrics != nil {
-				ns.deps.Metrics.TrackValue(n, s)
-			}
-			return s, nil
+		var result interface{}
+
+		if ctx, ok := context.(*contextWrapper); ok {
+			result = ctx.Result
+		} else if _, ok := templ.(*texttemplate.Template); ok {
+			result = b.String()
+		} else {
+			result = template.HTML(b.String())
 		}
 
-		s := b.String()
 		if ns.deps.Metrics != nil {
-			ns.deps.Metrics.TrackValue(n, s)
+			ns.deps.Metrics.TrackValue(n, result)
 		}
-		return template.HTML(s), nil
+
+		return result, nil
 
 	}
 
