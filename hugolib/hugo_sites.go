@@ -613,7 +613,6 @@ func (h *HugoSites) renderCrossSitesArtifacts() error {
 // createMissingPages creates home page, taxonomies etc. that isnt't created as an
 // effect of having a content file.
 func (h *HugoSites) createMissingPages() error {
-	var newPages pageStatePages
 
 	for _, s := range h.Sites {
 		if s.isEnabled(page.KindHome) {
@@ -626,7 +625,6 @@ func (h *HugoSites) createMissingPages() error {
 			if len(homes) == 0 {
 				home = s.newPage(page.KindHome)
 				s.workAllPages = append(s.workAllPages, home)
-				newPages = append(newPages, home)
 			} else {
 				home = homes[0]
 			}
@@ -637,7 +635,6 @@ func (h *HugoSites) createMissingPages() error {
 		// Will create content-less root sections.
 		newSections := s.assembleSections()
 		s.workAllPages = append(s.workAllPages, newSections...)
-		newPages = append(newPages, newSections...)
 
 		taxonomyTermEnabled := s.isEnabled(page.KindTaxonomyTerm)
 		taxonomyEnabled := s.isEnabled(page.KindTaxonomy)
@@ -670,7 +667,6 @@ func (h *HugoSites) createMissingPages() error {
 						n := s.newPage(page.KindTaxonomyTerm, plural)
 						n.getTaxonomyNodeInfo().TransferValues(n)
 						s.workAllPages = append(s.workAllPages, n)
-						newPages = append(newPages, n)
 					}
 				}
 
@@ -704,7 +700,6 @@ func (h *HugoSites) createMissingPages() error {
 							n := s.newTaxonomyPage(info.term, info.plural, info.termKey)
 							info.TransferValues(n)
 							s.workAllPages = append(s.workAllPages, n)
-							newPages = append(newPages, n)
 						}
 					}
 				}
