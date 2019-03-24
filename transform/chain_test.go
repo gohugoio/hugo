@@ -58,8 +58,8 @@ func TestChaingMultipleTransformers(t *testing.T) {
 
 	expected := "Test: f4r f3r f1r f2r f1r The End."
 
-	if string(out.Bytes()) != expected {
-		t.Errorf("Expected %s got %s", expected, string(out.Bytes()))
+	if out.String() != expected {
+		t.Errorf("Expected %s got %s", expected, out.String())
 	}
 }
 

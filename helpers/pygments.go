@@ -153,7 +153,7 @@ func (h highlighters) pygmentsHighlight(code, lang, optsStr string) (string, err
 		return code, err
 	}
 
-	str := string(normalizeExternalHelperLineFeeds([]byte(out.String())))
+	str := string(normalizeExternalHelperLineFeeds(out.Bytes()))
 
 	str = h.injectCodeTag(str, lang)
 
@@ -235,10 +235,8 @@ func parseOptions(defaults map[string]string, in string) (map[string]string, err
 	in = strings.Trim(in, " ")
 	opts := make(map[string]string)
 
-	if defaults != nil {
-		for k, v := range defaults {
-			opts[k] = v
-		}
+	for k, v := range defaults {
+		opts[k] = v
 	}
 
 	if in == "" {

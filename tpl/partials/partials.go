@@ -107,7 +107,7 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 
 	}
 
-	return "", fmt.Errorf("Partial %q not found", name)
+	return "", fmt.Errorf("partial %q not found", name)
 }
 
 // IncludeCached executes and caches partial templates.  An optional variant

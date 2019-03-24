@@ -171,7 +171,7 @@ func TestGetRealPath(t *testing.T) {
 		t.Skip("Skip TestGetRealPath as os.Symlink needs administrator rights on Windows")
 	}
 
-	d1, err := ioutil.TempDir("", "d1")
+	d1, _ := ioutil.TempDir("", "d1")
 	defer os.Remove(d1)
 	fs := afero.NewOsFs()
 
@@ -418,6 +418,7 @@ func createNonZeroSizedFileInTempDir() (*os.File, error) {
 	f, err := createZeroSizedFileInTempDir()
 	if err != nil {
 		// no file ??
+		return nil, err
 	}
 	byteString := []byte("byteString")
 	err = ioutil.WriteFile(f.Name(), byteString, 0644)
@@ -430,10 +431,7 @@ func createNonZeroSizedFileInTempDir() (*os.File, error) {
 }
 
 func deleteFileInTempDir(f *os.File) {
-	err := os.Remove(f.Name())
-	if err != nil {
-		// now what?
-	}
+	_ = os.Remove(f.Name())
 }
 
 func createEmptyTempDir() (string, error) {
@@ -449,7 +447,7 @@ func createEmptyTempDir() (string, error) {
 func createTempDirWithZeroLengthFiles() (string, error) {
 	d, dirErr := createEmptyTempDir()
 	if dirErr != nil {
-		//now what?
+		return "", dirErr
 	}
 	filePrefix := "_path_test_"
 	_, fileErr := ioutil.TempFile(d, filePrefix) // dir is os.TempDir()
@@ -467,7 +465,7 @@ func createTempDirWithZeroLengthFiles() (string, error) {
 func createTempDirWithNonZeroLengthFiles() (string, error) {
 	d, dirErr := createEmptyTempDir()
 	if dirErr != nil {
-		//now what?
+		return "", dirErr
 	}
 	filePrefix := "_path_test_"
 	f, fileErr := ioutil.TempFile(d, filePrefix) // dir is os.TempDir()
@@ -494,10 +492,7 @@ func createTempDirWithNonZeroLengthFiles() (string, error) {
 }
 
 func deleteTempDir(d string) {
-	err := os.RemoveAll(d)
-	if err != nil {
-		// now what?
-	}
+	_ = os.RemoveAll(d)
 }
 
 func TestExists(t *testing.T) {

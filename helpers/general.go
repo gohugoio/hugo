@@ -57,7 +57,7 @@ func FindAvailablePort() (*net.TCPAddr, error) {
 		if a, ok := addr.(*net.TCPAddr); ok {
 			return a, nil
 		}
-		return nil, fmt.Errorf("Unable to obtain a valid tcp port. %v", addr)
+		return nil, fmt.Errorf("unable to obtain a valid tcp port: %v", addr)
 	}
 	return nil, err
 }
@@ -128,7 +128,7 @@ func ReaderToBytes(lines io.Reader) []byte {
 
 	b.ReadFrom(lines)
 
-	bc := make([]byte, b.Len(), b.Len())
+	bc := make([]byte, b.Len())
 	copy(bc, b.Bytes())
 	return bc
 }
@@ -417,10 +417,8 @@ func NormalizeHugoFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
 	switch name {
 	case "baseUrl":
 		name = "baseURL"
-		break
 	case "uglyUrls":
 		name = "uglyURLs"
-		break
 	}
 	return pflag.NormalizedName(name)
 }

@@ -70,6 +70,7 @@ func TestCompositeLanguagFsTest(t *testing.T) {
 	assert.NoError(err)
 	defer f.Close()
 	files, err := f.Readdir(-1)
+	assert.NoError(err)
 	assert.Equal(4, len(files))
 	expected := map[string]bool{
 		filepath.FromSlash("/content/en/f1.txt"):    true,

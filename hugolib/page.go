@@ -20,12 +20,10 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"runtime"
 	"sort"
 	"strings"
 
 	"github.com/bep/gitmap"
-	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/helpers"
 
@@ -831,19 +829,6 @@ func (ps pageStatePages) findPagePosByFilnamePrefix(prefix string) int {
 	return currPos
 }
 
-func content(c resource.ContentProvider) string {
-	cc, err := c.Content()
-	if err != nil {
-		panic(err)
-	}
-
-	ccs, err := cast.ToStringE(cc)
-	if err != nil {
-		panic(err)
-	}
-	return ccs
-}
-
 func (s *Site) sectionsFromFile(fi source.File) []string {
 	dirname := fi.Dir()
 	dirname = strings.Trim(dirname, helpers.FilePathSeparator)
@@ -860,10 +845,4 @@ func (s *Site) sectionsFromFile(fi source.File) []string {
 	}
 
 	return parts
-}
-
-func printStackTrace(length int) string {
-	trace := make([]byte, length)
-	runtime.Stack(trace, true)
-	return string(trace)
 }

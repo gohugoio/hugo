@@ -46,7 +46,7 @@ func DoArithmetic(a, b interface{}, op rune) (interface{}, error) {
 				bu = 0
 			}
 		default:
-			return nil, errors.New("Can't apply the operator to the values")
+			return nil, errors.New("can't apply the operator to the values")
 		}
 	case reflect.Float32, reflect.Float64:
 		af = av.Float()
@@ -58,7 +58,7 @@ func DoArithmetic(a, b interface{}, op rune) (interface{}, error) {
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			bf = float64(bv.Uint()) // may overflow
 		default:
-			return nil, errors.New("Can't apply the operator to the values")
+			return nil, errors.New("can't apply the operator to the values")
 		}
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		au = av.Uint()
@@ -79,7 +79,7 @@ func DoArithmetic(a, b interface{}, op rune) (interface{}, error) {
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			bu = bv.Uint()
 		default:
-			return nil, errors.New("Can't apply the operator to the values")
+			return nil, errors.New("can't apply the operator to the values")
 		}
 	case reflect.String:
 		as := av.String()
@@ -87,9 +87,9 @@ func DoArithmetic(a, b interface{}, op rune) (interface{}, error) {
 			bs := bv.String()
 			return as + bs, nil
 		}
-		return nil, errors.New("Can't apply the operator to the values")
+		return nil, errors.New("can't apply the operator to the values")
 	default:
-		return nil, errors.New("Can't apply the operator to the values")
+		return nil, errors.New("can't apply the operator to the values")
 	}
 
 	switch op {
@@ -128,8 +128,8 @@ func DoArithmetic(a, b interface{}, op rune) (interface{}, error) {
 		} else if bu != 0 {
 			return au / bu, nil
 		}
-		return nil, errors.New("Can't divide the value by 0")
+		return nil, errors.New("can't divide the value by 0")
 	default:
-		return nil, errors.New("There is no such an operation")
+		return nil, errors.New("there is no such an operation")
 	}
 }

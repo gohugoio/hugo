@@ -29,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/common/hugio"
 	_errors "github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 )
@@ -155,17 +156,13 @@ func (p *PathSpec) UnicodeSanitize(s string) string {
 
 	if p.RemovePathAccents {
 		// remove accents - see https://blog.golang.org/normalization
-		t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+		t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 		result, _, _ = transform.String(t, string(target))
 	} else {
 		result = string(target)
 	}
 
 	return result
-}
-
-func isMn(r rune) bool {
-	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
 // ReplaceExtension takes a path and an extension, strips the old extension
@@ -208,7 +205,7 @@ func makePathRelative(inPath string, possibleDirectories ...string) (string, err
 			return strings.TrimPrefix(inPath, currentPath), nil
 		}
 	}
-	return inPath, errors.New("Can't extract relative path, unknown prefix")
+	return inPath, errors.New("can't extract relative path, unknown prefix")
 }
 
 // Should be good enough for Hugo.
@@ -403,15 +400,13 @@ func ExtractRootPaths(paths []string) []string {
 
 }
 
-var numInPathRe = regexp.MustCompile("\\.(\\d+)\\.")
-
 // FindCWD returns the current working directory from where the Hugo
 // executable is run.
 func FindCWD() (string, error) {
 	serverFile, err := filepath.Abs(os.Args[0])
 
 	if err != nil {
-		return "", fmt.Errorf("Can't get absolute path for executable: %v", err)
+		return "", fmt.Errorf("can't get absolute path for executable: %v", err)
 	}
 
 	path := filepath.Dir(serverFile)
@@ -437,7 +432,7 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
 	// Sanity check
 	if root != "" && len(root) < 4 {
-		return errors.New("Path is too short")
+		return errors.New("path is too short")
 	}
 
 	// Handle the root first
@@ -448,7 +443,7 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 	}
 
 	if !fileInfo.IsDir() {
-		return fmt.Errorf("Cannot walk regular file %s", root)
+		return fmt.Errorf("cannot walk regular file %s", root)
 	}
 
 	if err := walker(realPath, fileInfo, err); err != nil && err != filepath.SkipDir {

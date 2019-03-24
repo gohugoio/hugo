@@ -38,7 +38,7 @@ func numberToFloat(v reflect.Value) (float64, error) {
 	case kind == reflect.Interface:
 		return numberToFloat(v.Elem())
 	default:
-		return 0, fmt.Errorf("Invalid kind %s in numberToFloat", kind)
+		return 0, fmt.Errorf("invalid kind %s in numberToFloat", kind)
 	}
 }
 

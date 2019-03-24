@@ -34,7 +34,7 @@ var (
 )
 
 // getRemote loads the content of a remote file. This method is thread safe.
-func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (error, bool), req *http.Request) error {
+func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (bool, error), req *http.Request) error {
 	url := req.URL.String()
 	id := helpers.MD5String(url)
 	var handled bool
@@ -63,7 +63,7 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (e
 			}
 			res.Body.Close()
 
-			err, retry = unmarshal(b)
+			retry, err = unmarshal(b)
 
 			if err == nil {
 				// Return it so it can be cached.
@@ -85,7 +85,7 @@ func (ns *Namespace) getRemote(cache *filecache.Cache, unmarshal func([]byte) (e
 
 	if !handled {
 		// This is cached content and should be correct.
-		err, _ = unmarshal(b)
+		_, err = unmarshal(b)
 	}
 
 	return err
@@ -104,14 +104,14 @@ func getLocal(url string, fs afero.Fs, cfg config.Provider) ([]byte, error) {
 
 // getResource loads the content of a local or remote file and returns its content and the
 // cache ID used, if relevant.
-func (ns *Namespace) getResource(cache *filecache.Cache, unmarshal func(b []byte) (error, bool), req *http.Request) error {
+func (ns *Namespace) getResource(cache *filecache.Cache, unmarshal func(b []byte) (bool, error), req *http.Request) error {
 	switch req.URL.Scheme {
 	case "":
 		b, err := getLocal(req.URL.String(), ns.deps.Fs.Source, ns.deps.Cfg)
 		if err != nil {
 			return err
 		}
-		err, _ = unmarshal(b)
+		_, err = unmarshal(b)
 		return err
 	default:
 		return ns.getRemote(cache, unmarshal, req)

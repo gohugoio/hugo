@@ -41,7 +41,6 @@ const (
 	replace1 = "No replacements."
 	replace2 = "ᚠᛇᚻ ᛒᛦᚦ ᚠᚱᚩᚠᚢᚱ\nᚠᛁᚱᚪ ᚷᛖᚻᚹᛦᛚᚳᚢᛗ"
 	replace3 = `End of file: src="/`
-	replace4 = `End of file: srcset="/`
 	replace5 = `Srcsett with no closing quote: srcset="/img/small.jpg do be do be do.`
 
 	// Issue: 816, schemaless links combined with others

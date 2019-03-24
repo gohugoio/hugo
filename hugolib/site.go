@@ -67,9 +67,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// used to indicate if run as a test.
-var testMode bool
-
 // Site contains all the information relevant for constructing a static
 // site.  The basic flow of information is as follows:
 //

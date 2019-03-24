@@ -58,18 +58,18 @@ func (ns *Namespace) GetCSV(sep string, urlParts ...string) (d [][]string, err e
 	url := strings.Join(urlParts, "")
 	cache := ns.cacheGetCSV
 
-	unmarshal := func(b []byte) (error, bool) {
+	unmarshal := func(b []byte) (bool, error) {
 		if !bytes.Contains(b, []byte(sep)) {
-			return _errors.Errorf("cannot find separator %s in CSV for %s", sep, url), false
+			return false, _errors.Errorf("cannot find separator %s in CSV for %s", sep, url)
 		}
 
 		if d, err = parseCSV(b, sep); err != nil {
 			err = _errors.Wrapf(err, "failed to parse CSV file %s", url)
 
-			return err, true
+			return true, err
 		}
 
-		return nil, false
+		return false, nil
 	}
 
 	var req *http.Request
@@ -103,12 +103,12 @@ func (ns *Namespace) GetJSON(urlParts ...string) (interface{}, error) {
 		return nil, _errors.Wrapf(err, "Failed to create request for getJSON resource %s", url)
 	}
 
-	unmarshal := func(b []byte) (error, bool) {
+	unmarshal := func(b []byte) (bool, error) {
 		err := json.Unmarshal(b, &v)
 		if err != nil {
-			return err, true
+			return true, err
 		}
-		return nil, false
+		return false, nil
 	}
 
 	req.Header.Add("Accept", "application/json")

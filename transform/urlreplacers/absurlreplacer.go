@@ -37,8 +37,6 @@ type absurllexer struct {
 	quotes [][]byte
 }
 
-type stateFunc func(*absurllexer) stateFunc
-
 type prefix struct {
 	disabled bool
 	b        []byte
@@ -52,11 +50,6 @@ func newPrefixState() []*prefix {
 		{b: []byte("action="), f: checkCandidateBase},
 		{b: []byte("srcset="), f: checkCandidateSrcset},
 	}
-}
-
-type absURLMatcher struct {
-	match []byte
-	quote []byte
 }
 
 func (l *absurllexer) emit() {

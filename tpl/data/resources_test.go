@@ -114,9 +114,9 @@ func TestScpGetRemote(t *testing.T) {
 		ns.client = cl
 
 		var c []byte
-		f := func(b []byte) (error, bool) {
+		f := func(b []byte) (bool, error) {
 			c = b
-			return nil, false
+			return false, nil
 		}
 
 		err = ns.getRemote(cache, f, req)
@@ -158,15 +158,15 @@ func TestScpGetRemoteParallel(t *testing.T) {
 				defer wg.Done()
 				for j := 0; j < 10; j++ {
 					var c []byte
-					f := func(b []byte) (error, bool) {
+					f := func(b []byte) (bool, error) {
 						c = b
-						return nil, false
+						return false, nil
 					}
 					err := ns.getRemote(ns.cacheGetJSON, f, req)
 
 					assert.NoError(t, err)
 					if string(content) != string(c) {
-						t.Fatalf("expected\n%q\ngot\n%q", content, c)
+						t.Errorf("expected\n%q\ngot\n%q", content, c)
 					}
 
 					time.Sleep(23 * time.Millisecond)

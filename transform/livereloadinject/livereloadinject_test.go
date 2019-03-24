@@ -35,7 +35,7 @@ func doTestLiveReloadInject(t *testing.T, bodyEndTag string) {
 	tr.Apply(out, in)
 
 	expected := fmt.Sprintf(`<script data-no-instant>document.write('<script src="/livereload.js?port=1313&mindelay=10"></' + 'script>')</script>%s`, bodyEndTag)
-	if string(out.Bytes()) != expected {
-		t.Errorf("Expected %s got %s", expected, string(out.Bytes()))
+	if out.String() != expected {
+		t.Errorf("Expected %s got %s", expected, out.String())
 	}
 }

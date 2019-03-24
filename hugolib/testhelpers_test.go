@@ -20,12 +20,15 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/sanity-io/litter"
 	"github.com/spf13/afero"
+	"github.com/spf13/cast"
 
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/spf13/viper"
 
 	"os"
+
+	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugofs"
@@ -672,6 +675,19 @@ func getPage(in page.Page, ref string) page.Page {
 	return p
 }
 
+func content(c resource.ContentProvider) string {
+	cc, err := c.Content()
+	if err != nil {
+		panic(err)
+	}
+
+	ccs, err := cast.ToStringE(cc)
+	if err != nil {
+		panic(err)
+	}
+	return ccs
+}
+
 func dumpPages(pages ...page.Page) {
 	fmt.Println("---------")
 	for i, p := range pages {
@@ -724,13 +740,5 @@ var parallelEnabled = true
 func parallel(t *testing.T) {
 	if parallelEnabled {
 		t.Parallel()
-	}
-}
-
-// Useful to debug nilpointers/panics in templates.
-// Put "defer recoverStack()" in top of the failing function.
-func recoverStack() {
-	if r := recover(); r != nil {
-		fmt.Println(printStackTrace(1000))
 	}
 }

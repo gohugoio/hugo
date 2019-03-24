@@ -147,10 +147,8 @@ func newBlackfriday(config map[string]interface{}) *BlackFriday {
 		siteConfig[k] = v
 	}
 
-	if config != nil {
-		for k, v := range config {
-			siteConfig[k] = v
-		}
+	for k, v := range config {
+		siteConfig[k] = v
 	}
 
 	combinedConfig := &BlackFriday{}
@@ -755,7 +753,7 @@ func externallyRenderContent(ctx *RenderingContext, path string, args []string) 
 	err := cmd.Run()
 	// Most external helpers exit w/ non-zero exit code only if severe, i.e.
 	// halting errors occurred. -> log stderr output regardless of state of err
-	for _, item := range strings.Split(string(cmderr.Bytes()), "\n") {
+	for _, item := range strings.Split(cmderr.String(), "\n") {
 		item := strings.TrimSpace(item)
 		if item != "" {
 			jww.ERROR.Printf("%s: %s", ctx.DocumentName, item)

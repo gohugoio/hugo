@@ -102,7 +102,7 @@ func (r *ReleaseHandler) Run() error {
 	}
 
 	if exists {
-		return fmt.Errorf("Tag %q already exists", tag)
+		return fmt.Errorf("tag %q already exists", tag)
 	}
 
 	var changeLogFromTag string

@@ -35,10 +35,6 @@ const (
 	templateWithURLAbs  = "<a href=\"/foobar.jpg\">Going</a>"
 )
 
-func init() {
-	testMode = true
-}
-
 func TestRenderWithInvalidTemplate(t *testing.T) {
 	t.Parallel()
 	cfg, fs := newTestCfg()

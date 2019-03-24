@@ -32,14 +32,6 @@ func TestEmptySourceFilesystem(t *testing.T) {
 	}
 }
 
-type TestPath struct {
-	filename string
-	logical  string
-	content  string
-	section  string
-	dir      string
-}
-
 func TestUnicodeNorm(t *testing.T) {
 	if runtime.GOOS != "darwin" {
 		// Normalization code is only for Mac OS, since it is not necessary for other OSes.
