@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,13 +57,16 @@ type ContentSpec struct {
 	Highlight            func(code, lang, optsStr string) (string, error)
 	defatultPygmentsOpts map[string]string
 
-	cfg config.Provider
+	Cfg config.Provider
+
+	AsciiDoctorConfig *AsciiDoctor
 }
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
 func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 	bf := newBlackfriday(cfg.GetStringMap("blackfriday"))
+	ad := newAsciiDoctor()
 	spec := &ContentSpec{
 		BlackFriday:                bf,
 		footnoteAnchorPrefix:       cfg.GetString("footnoteAnchorPrefix"),
@@ -73,7 +76,9 @@ func NewContentSpec(cfg config.Provider) (*ContentSpec, error) {
 		BuildExpired:               cfg.GetBool("buildExpired"),
 		BuildDrafts:                cfg.GetBool("buildDrafts"),
 
-		cfg: cfg,
+		Cfg: cfg,
+
+		AsciiDoctorConfig: ad,
 	}
 
 	// Highlighting setup
@@ -119,6 +124,26 @@ type BlackFriday struct {
 	PlainIDAnchors        bool
 	Extensions            []string
 	ExtensionsMask        []string
+	SkipHTML              bool
+}
+
+type asciidoctorExtCriteria struct {
+	IsPresentOnSystem bool
+	DocRequiresFunc   func([]byte) bool
+}
+
+type AsciiDoctor struct {
+	AsciiDoctorExtensionMap map[string]*asciidoctorExtCriteria
+	GemExecPath             string
+	//LockAsciiDoctorExtensionMap sync.Mutex
+}
+
+func newAsciiDoctor() *AsciiDoctor {
+	gemExecPath := getGemExecPath()
+	return &AsciiDoctor{
+		AsciiDoctorExtensionMap: getAsciiDoctorExtensionMap(gemExecPath),
+		GemExecPath:             gemExecPath,
+	}
 }
 
 // NewBlackfriday creates a new Blackfriday filled with site config or some sane defaults.
@@ -135,6 +160,7 @@ func newBlackfriday(config map[string]interface{}) *BlackFriday {
 		"latexDashes":           true,
 		"plainIDAnchors":        true,
 		"taskLists":             true,
+		"skipHTML":              false,
 	}
 
 	maps.ToLower(defaultParam)
@@ -145,10 +171,8 @@ func newBlackfriday(config map[string]interface{}) *BlackFriday {
 		siteConfig[k] = v
 	}
 
-	if config != nil {
-		for k, v := range config {
-			siteConfig[k] = v
-		}
+	for k, v := range config {
+		siteConfig[k] = v
 	}
 
 	combinedConfig := &BlackFriday{}
@@ -300,6 +324,10 @@ func (c *ContentSpec) getHTMLRenderer(defaultFlags int, ctx *RenderingContext) b
 		htmlFlags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
 	}
 
+	if ctx.Config.SkipHTML {
+		htmlFlags |= blackfriday.HTML_SKIP_HTML
+	}
+
 	return &HugoHTMLRenderer{
 		cs:               c,
 		RenderingContext: ctx,
@@ -376,7 +404,7 @@ func (c *ContentSpec) getMmarkHTMLRenderer(defaultFlags int, ctx *RenderingConte
 	return &HugoMmarkHTMLRenderer{
 		cs:       c,
 		Renderer: mmark.HtmlRendererWithParameters(htmlFlags, "", "", renderParameters),
-		Cfg:      c.cfg,
+		Cfg:      c.Cfg,
 	}
 }
 
@@ -473,7 +501,7 @@ func (c ContentSpec) RenderBytes(ctx *RenderingContext) []byte {
 	case "markdown":
 		return c.markdownRender(ctx)
 	case "asciidoc":
-		return getAsciidocContent(ctx)
+		return c.getAsciidocContent(ctx)
 	case "mmark":
 		return c.mmarkRender(ctx)
 	case "rst":
@@ -623,25 +651,29 @@ func HasAsciidoc() bool {
 		getAsciidocExecPath() != "")
 }
 
-type asciidoctorExtCriteria struct {
-	IsPresentOnSystem bool
-	DocRequiresFunc   func([]byte) bool
-}
-
 // Define specific extensions which would make sense to be used in Hugo
-var asciiDoctorExtensionMap = map[string]*asciidoctorExtCriteria{
-	"asciidoctor-bibtex":  &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckBibtex},
-	"asciidoctor-diagram": &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckAlwaysTrue},
-	"asciidoctor-rouge":   &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckAlwaysTrue},
+func getAsciiDoctorExtensionMap(gemExecPath string) map[string]*asciidoctorExtCriteria {
+
+	var asciiDoctorExtensionMap = map[string]*asciidoctorExtCriteria{
+		"asciidoctor-bibtex":  &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckBibtex},
+		"asciidoctor-diagram": &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckAlwaysTrue},
+		"asciidoctor-rouge":   &asciidoctorExtCriteria{false, asciidoctorExtensionRequirementCheckAlwaysTrue},
+	}
+
+	for k := range asciiDoctorExtensionMap {
+		asciiDoctorExtensionMap[k].IsPresentOnSystem = lookForAsciiDoctorExtension(gemExecPath, []string{"list", "-q", k})
+	}
+
+	return asciiDoctorExtensionMap
+
 }
 
-// Assuming AsciiDoctor; AsciiDoctorJ and AsciiDoctor.js not currently supported
 func getGemExecPath() string {
-	path, err := exec.LookPath("gem")
+	gemPath, err := exec.LookPath("gem")
 	if err != nil {
-		return ""
+		gemPath = ""
 	}
-	return path
+	return gemPath
 }
 
 func lookForAsciiDoctorExtension(path string, args []string) bool {
@@ -665,10 +697,9 @@ func asciidoctorExtensionRequirementCheckBibtex(content []byte) bool {
 
 // getAsciidocContent calls asciidoctor or asciidoc as an external helper
 // to convert AsciiDoc content to HTML.
-func getAsciidocContent(ctx *RenderingContext) []byte {
+func (c ContentSpec) getAsciidocContent(ctx *RenderingContext) []byte {
 
 	// summary divider as an AsciiDoc(tor) comment
-	SummaryDivider = []byte("// more")
 
 	var isAsciidoctor bool
 
@@ -693,14 +724,8 @@ func getAsciidocContent(ctx *RenderingContext) []byte {
 		// asciidoctor-specific arg to show stack traces on errors
 		args = append(args, "--trace")
 
-		// check which AsciiDoctor extensions are installed
-		gemPath := getGemExecPath()
-		for k := range asciiDoctorExtensionMap {
-			asciiDoctorExtensionMap[k].IsPresentOnSystem = lookForAsciiDoctorExtension(gemPath, []string{"list", "-q", k})
-		}
-
 		// enable asciidoctor extensions
-		for k, v := range asciiDoctorExtensionMap {
+		for k, v := range c.AsciiDoctorConfig.AsciiDoctorExtensionMap {
 			if v.IsPresentOnSystem && v.DocRequiresFunc(ctx.Content) {
 				args = append(args, "-r", k)
 			}
@@ -814,7 +839,7 @@ func externallyRenderContent(ctx *RenderingContext, path string, args []string) 
 	err := cmd.Run()
 	// Most external helpers exit w/ non-zero exit code only if severe, i.e.
 	// halting errors occurred. -> log stderr output regardless of state of err
-	for _, item := range strings.Split(string(cmderr.Bytes()), "\n") {
+	for _, item := range strings.Split(cmderr.String(), "\n") {
 		item := strings.TrimSpace(item)
 		if item != "" {
 			jww.ERROR.Printf("%s: %s", ctx.DocumentName, item)
