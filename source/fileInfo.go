@@ -14,16 +14,12 @@
 package source
 
 import (
-	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 
 	"github.com/gohugoio/hugo/common/hugio"
-
-	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/hugofs"
 
@@ -285,25 +281,4 @@ func (sp *SourceSpec) NewFileInfo(baseDir, filename string, isLeafBundle bool, f
 
 	return f
 
-}
-
-func printFs(fs afero.Fs, path string, w io.Writer) {
-	if fs == nil {
-		return
-	}
-	afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
-
-		if info != nil && !info.IsDir() {
-
-			s := path
-			if lang, ok := info.(hugofs.LanguageAnnouncer); ok {
-				s = s + "\t" + lang.Lang()
-			}
-			if fp, ok := info.(hugofs.FilePather); ok {
-				s = s + "\t" + fp.Filename()
-			}
-			fmt.Fprintln(w, "    ", s)
-		}
-		return nil
-	})
 }

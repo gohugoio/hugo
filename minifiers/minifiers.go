@@ -80,7 +80,7 @@ func New(mediaTypes media.Types, outputFormats output.Formats) Client {
 	addMinifier(m, mediaTypes, "css", cssMin)
 	addMinifierFunc(m, mediaTypes, "js", js.Minify)
 	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-)?(java|ecma)script$"), js.Minify)
-	m.AddFuncRegexp(regexp.MustCompile("^(application|text)/(x-|ld\\+)?json$"), json.Minify)
+	m.AddFuncRegexp(regexp.MustCompile(`^(application|text)/(x-|ld\+)?json$`), json.Minify)
 	addMinifierFunc(m, mediaTypes, "json", json.Minify)
 	addMinifierFunc(m, mediaTypes, "svg", svg.Minify)
 	addMinifierFunc(m, mediaTypes, "xml", xml.Minify)

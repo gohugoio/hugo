@@ -142,6 +142,9 @@ func newContentFromDir(
 		}
 
 		out, err := targetFs.Create(targetFilename)
+		if err != nil {
+			return err
+		}
 
 		_, err = io.Copy(out, in)
 		if err != nil {

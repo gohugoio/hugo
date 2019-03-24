@@ -78,11 +78,11 @@ func (ns *Namespace) Mod(a, b interface{}) (int64, error) {
 	bi, errb := cast.ToInt64E(b)
 
 	if erra != nil || errb != nil {
-		return 0, errors.New("Modulo operator can't be used with non integer value")
+		return 0, errors.New("modulo operator can't be used with non integer value")
 	}
 
 	if bi == 0 {
-		return 0, errors.New("The number can't be divided by zero at modulo operation")
+		return 0, errors.New("the number can't be divided by zero at modulo operation")
 	}
 
 	return ai % bi, nil

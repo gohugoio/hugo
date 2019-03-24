@@ -62,7 +62,7 @@ func (b BaseURL) WithProtocol(protocol string) (string, error) {
 	if isFullProtocol && u.Opaque != "" {
 		u.Opaque = "//" + u.Opaque
 	} else if isOpaqueProtocol && u.Opaque == "" {
-		return "", fmt.Errorf("Cannot determine BaseURL for protocol %q", protocol)
+		return "", fmt.Errorf("cannot determine BaseURL for protocol %q", protocol)
 	}
 
 	return u.String(), nil

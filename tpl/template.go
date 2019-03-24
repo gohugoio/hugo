@@ -152,7 +152,7 @@ func (t *TemplateAdapter) Execute(w io.Writer, data interface{}) (execErr error)
 		// Panics in templates are a little bit too common (nil pointers etc.)
 		// See https://github.com/gohugoio/hugo/issues/5327
 		if r := recover(); r != nil {
-			execErr = t.addFileContext(t.Name(), fmt.Errorf(`panic in Execute: %s. See "https://github.com/gohugoio/hugo/issues/5327" for the reason why we cannot provide a better error message for this.`, r))
+			execErr = t.addFileContext(t.Name(), fmt.Errorf(`panic in Execute: %s. See "https://github.com/gohugoio/hugo/issues/5327" for the reason why we cannot provide a better error message for this`, r))
 		}
 	}()
 
@@ -174,7 +174,7 @@ func (t *TemplateAdapter) TemplateInfo() Info {
 
 // The identifiers may be truncated in the log, e.g.
 // "executing "main" at <$scaled.SRelPermalin...>: can't evaluate field SRelPermalink in type *resource.Image"
-var identifiersRe = regexp.MustCompile("at \\<(.*?)(\\.{3})?\\>:")
+var identifiersRe = regexp.MustCompile(`at \<(.*?)(\.{3})?\>:`)
 
 func (t *TemplateAdapter) extractIdentifiers(line string) []string {
 	m := identifiersRe.FindAllStringSubmatch(line, -1)

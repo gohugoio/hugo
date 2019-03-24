@@ -73,7 +73,7 @@ func readFile(fs afero.Fs, filename string) (string, error) {
 
 	if info, err := fs.Stat(filename); err == nil {
 		if info.Size() > 1000000 {
-			return "", fmt.Errorf("File %q is too big", filename)
+			return "", fmt.Errorf("file %q is too big", filename)
 		}
 	} else {
 		return "", err
@@ -108,7 +108,7 @@ func (ns *Namespace) ReadDir(i interface{}) ([]_os.FileInfo, error) {
 
 	list, err := afero.ReadDir(ns.deps.Fs.WorkingDir, path)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to read Directory %s with error message %s", path, err)
+		return nil, fmt.Errorf("failed to read directory %q: %s", path, err)
 	}
 
 	return list, nil
