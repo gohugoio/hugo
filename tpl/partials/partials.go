@@ -18,6 +18,8 @@ package partials
 import (
 	"fmt"
 	"html/template"
+	"io"
+	"io/ioutil"
 	"strings"
 	"sync"
 	texttemplate "text/template"
@@ -100,10 +102,16 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		templ, found = ns.deps.Tmpl.Lookup(n + ".html")
 	}
 
+	if !found {
+		return "", fmt.Errorf("partial %q not found", name)
+	}
+
 	var info tpl.Info
 	if ip, ok := templ.(tpl.TemplateInfoProvider); ok {
 		info = ip.TemplateInfo()
 	}
+
+	var w io.Writer
 
 	if info.HasReturn {
 		// Wrap the context sent to the template to capture the return value.
@@ -112,35 +120,35 @@ func (ns *Namespace) Include(name string, contextList ...interface{}) (interface
 		context = &contextWrapper{
 			Arg: context,
 		}
-	}
 
-	if found {
+		// We don't care about any template output.
+		w = ioutil.Discard
+	} else {
 		b := bp.GetBuffer()
 		defer bp.PutBuffer(b)
-
-		if err := templ.Execute(b, context); err != nil {
-			return "", err
-		}
-
-		var result interface{}
-
-		if ctx, ok := context.(*contextWrapper); ok {
-			result = ctx.Result
-		} else if _, ok := templ.(*texttemplate.Template); ok {
-			result = b.String()
-		} else {
-			result = template.HTML(b.String())
-		}
-
-		if ns.deps.Metrics != nil {
-			ns.deps.Metrics.TrackValue(n, result)
-		}
-
-		return result, nil
-
+		w = b
 	}
 
-	return "", fmt.Errorf("partial %q not found", name)
+	if err := templ.Execute(w, context); err != nil {
+		return "", err
+	}
+
+	var result interface{}
+
+	if ctx, ok := context.(*contextWrapper); ok {
+		result = ctx.Result
+	} else if _, ok := templ.(*texttemplate.Template); ok {
+		result = w.(fmt.Stringer).String()
+	} else {
+		result = template.HTML(w.(fmt.Stringer).String())
+	}
+
+	if ns.deps.Metrics != nil {
+		ns.deps.Metrics.TrackValue(n, result)
+	}
+
+	return result, nil
+
 }
 
 // IncludeCached executes and caches partial templates.  An optional variant
