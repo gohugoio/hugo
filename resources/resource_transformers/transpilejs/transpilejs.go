@@ -31,8 +31,8 @@ import (
 // Options from https://babeljs.io/docs/en/options
 type Options struct {
 	Config     string //Custom path to config file
-	Plugins    string //Comma seperated string of plugins
-	Presets    string //Comma seperated string of presets
+	Plugins    string //Comma-seperated string of plugins
+	Presets    string //Comma-seperated string of presets
 	Minified   bool   //true/false
 	NoComments bool   //true/false
 	Compact    string //true/false/auto

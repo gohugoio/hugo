@@ -1,5 +1,5 @@
 ---
-title: TransformJS
+title: TranspileJS
 description: Hugo Pipes can process JS files with Babel.
 date: 2019-03-21
 publishdate: 2019-03-21
@@ -15,7 +15,7 @@ sections_weight: 75
 draft: false
 ---
 
-Any JavaScript resource file can be transpiled to another JavaScript version using `resources.TransformJS` which takes for argument the resource object and a slice of options listed below. TransformJS uses the [babel cli](https://babeljs.io/docs/en/babel-cli).
+Any JavaScript resource file can be transpiled to another JavaScript version using `resources.TranspileJS` which takes for argument the resource object and a slice of options listed below. TranspileJS uses the [babel cli](https://babeljs.io/docs/en/babel-cli).
 
 
 {{% note %}}
@@ -31,10 +31,10 @@ config [string]
 _If no configuration file is used:_
 
 plugins [string]
-: Comma seperated string of Babel plugins to use
+: Comma-seperated string of Babel plugins to use
 
 presets [string]
-: Comma seperated string of Babel presets to use
+: Comma-seperated string of Babel presets to use
 
 minified [bool]
 : Save as much bytes as possible when printing
