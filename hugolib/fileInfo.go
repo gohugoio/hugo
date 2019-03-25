@@ -60,6 +60,13 @@ func (fi *fileInfo) Filename() string {
 	return fi.basePather.Filename()
 }
 
+func (fi *fileInfo) String() string {
+	if fi == nil || fi.ReadableFile == nil {
+		return ""
+	}
+	return fi.Path()
+}
+
 func (fi *fileInfo) isOwner() bool {
 	return fi.bundleTp > bundleNot
 }
