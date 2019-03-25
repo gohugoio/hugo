@@ -288,6 +288,12 @@ func (m Method) Declaration(receiver string) string {
 	return fmt.Sprintf("func (%s %s) %s%s %s", receiverShort(receiver), receiver, m.Name, m.inStr(), m.outStr())
 }
 
+// DeclarationNamed creates a method declaration (without any body) for the given receiver
+// with named return values.
+func (m Method) DeclarationNamed(receiver string) string {
+	return fmt.Sprintf("func (%s %s) %s%s %s", receiverShort(receiver), receiver, m.Name, m.inStr(), m.outStrNamed())
+}
+
 // Delegate creates a delegate call string.
 func (m Method) Delegate(receiver, delegate string) string {
 	ret := ""
@@ -334,6 +340,19 @@ func (m Method) outStr() string {
 	}
 
 	return "(" + strings.Join(m.Out, ", ") + ")"
+}
+
+func (m Method) outStrNamed() string {
+	if len(m.Out) == 0 {
+		return ""
+	}
+
+	outs := make([]string, len(m.Out))
+	for i := 0; i < len(outs); i++ {
+		outs[i] = fmt.Sprintf("o%d %s", i, m.Out[i])
+	}
+
+	return "(" + strings.Join(outs, ", ") + ")"
 }
 
 // Methods represents a list of methods for one or more interfaces.

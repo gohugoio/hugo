@@ -95,6 +95,10 @@ func newPageBase(metaProvider *pageMeta) (*pageState, error) {
 }
 
 func newPageFromMeta(metaProvider *pageMeta) (*pageState, error) {
+	if metaProvider.f == nil {
+		metaProvider.f = page.NewZeroFile(metaProvider.s.DistinctWarningLog)
+	}
+
 	ps, err := newPageBase(metaProvider)
 	if err != nil {
 		return nil, err
