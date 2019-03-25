@@ -360,6 +360,10 @@ func (p *testPage) Params() map[string]interface{} {
 	return p.params
 }
 
+func (p *testPage) Page() Page {
+	return p
+}
+
 func (p *testPage) Parent() Page {
 	panic("not implemented")
 }

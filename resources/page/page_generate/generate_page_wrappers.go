@@ -107,7 +107,12 @@ func generateMarshalJSON(c *codegen.Inspector) error {
 		return errors.New("no methods found")
 	}
 
-	marshalJSON, pkgImports := methods.ToMarshalJSON("Page", "github.com/gohugoio/hugo/resources/page")
+	marshalJSON, pkgImports := methods.ToMarshalJSON(
+		"Page",
+		"github.com/gohugoio/hugo/resources/page",
+		// Exclusion regexps. Matches method names.
+		`\bPage\b`,
+	)
 
 	fmt.Fprintf(f, `%s
 

@@ -340,6 +340,10 @@ type TreeProvider interface {
 	// Sections returns this section's subsections, if any.
 	// Note that for non-sections, this method will always return an empty list.
 	Sections() Pages
+
+	// Page returns a reference to the Page itself, kept here mostly
+	// for legacy reasons.
+	Page() Page
 }
 
 // DeprecatedWarningPageMethods lists deprecated Page methods that will trigger

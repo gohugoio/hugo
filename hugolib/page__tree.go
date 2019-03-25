@@ -104,6 +104,10 @@ func (pt pageTree) InSection(other interface{}) (bool, error) {
 
 }
 
+func (pt pageTree) Page() page.Page {
+	return pt.p
+}
+
 func (pt pageTree) Parent() page.Page {
 	return pt.p.parent
 }
