@@ -53,6 +53,8 @@ type fileOverlap interface {
 	// Lang is the language code for this page. It will be the
 	// same as the site's language code.
 	Lang() string
+
+	IsZero() bool
 }
 
 type FileWithoutOverlap interface {
@@ -185,6 +187,10 @@ func (fi *FileInfo) String() string { return fi.BaseFileName() }
 func (fi *FileInfo) Open() (hugio.ReadSeekCloser, error) {
 	f, err := fi.sp.SourceFs.Open(fi.Filename())
 	return f, err
+}
+
+func (fi *FileInfo) IsZero() bool {
+	return fi == nil
 }
 
 // We create a lot of these FileInfo objects, but there are parts of it used only

@@ -63,6 +63,10 @@ func Generate(c *codegen.Inspector) error {
 		return errors.Wrap(err, "failed to generate deprecate wrappers")
 	}
 
+	if err := generateFileIsZeroWrappers(c); err != nil {
+		return errors.Wrap(err, "failed to generate file wrappers")
+	}
+
 	return nil
 }
 
@@ -190,6 +194,68 @@ func NewDeprecatedWarningPage(p DeprecatedWarningPageMethods) DeprecatedWarningP
 
 type pageDeprecated struct {
 	p DeprecatedWarningPageMethods
+}
+
+%s
+
+`, header, importsString(pkgImports), buff.String())
+
+	return nil
+}
+
+func generateFileIsZeroWrappers(c *codegen.Inspector) error {
+	filename := filepath.Join(c.ProjectRootDir, packageDir, "zero_file.autogen.go")
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	// Generate warnings for zero file access
+
+	warning := func(name string, tp reflect.Type) string {
+		msg := fmt.Sprintf(".File.%s on zero object. Wrap it in if or with: {{ with .File }}{{ .%s }}{{ end }}", name, name)
+
+		return fmt.Sprintf("z.log.Println(%q)", msg)
+	}
+
+	var buff bytes.Buffer
+
+	methods := c.MethodsFromTypes([]reflect.Type{reflect.TypeOf((*source.File)(nil)).Elem()}, nil)
+
+	for _, m := range methods {
+		if m.Name == "IsZero" {
+			continue
+		}
+		fmt.Fprint(&buff, m.DeclarationNamed("zeroFile"))
+		fmt.Fprintln(&buff, " {")
+		fmt.Fprintf(&buff, "\t%s\n", warning(m.Name, m.Owner))
+		if len(m.Out) > 0 {
+			fmt.Fprintln(&buff, "\treturn")
+		}
+		fmt.Fprintln(&buff, "}")
+
+	}
+
+	pkgImports := append(methods.Imports(), "github.com/gohugoio/hugo/helpers", "github.com/gohugoio/hugo/source")
+
+	fmt.Fprintf(f, `%s
+
+package page
+
+%s
+
+// ZeroFile represents a zero value of source.File with warnings if invoked.
+type zeroFile struct {	
+	log *helpers.DistinctLogger 
+}
+
+func NewZeroFile(log *helpers.DistinctLogger) source.File {
+	return zeroFile{log: log}
+}
+
+func (zeroFile) IsZero() bool {
+	return true
 }
 
 %s

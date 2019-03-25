@@ -99,7 +99,7 @@ func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.Target
 
 	d := s.Deps
 
-	if p.File() != nil {
+	if !p.File().IsZero() {
 		dir = p.File().Dir()
 		baseName = p.File().TranslationBaseName()
 	}

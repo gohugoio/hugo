@@ -143,7 +143,7 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 		}
 	}
 
-	if p.File() == nil {
+	if p.File().IsZero() {
 		// No content file.
 		return nil
 	}

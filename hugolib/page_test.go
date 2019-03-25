@@ -18,6 +18,8 @@ import (
 	"html/template"
 	"os"
 
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"path/filepath"
 	"strings"
 	"testing"
@@ -1164,6 +1166,12 @@ Content:{{ .Content }}
 		"Content:<p>This is the content.</p>",
 	)
 
+}
+
+// https://github.com/gohugoio/hugo/issues/5781
+func TestPageWithZeroFile(t *testing.T) {
+	newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger()).WithSimpleConfigFile().
+		WithTemplatesAdded("index.html", "{{ .File.Filename }}{{ with .File }}{{ .Dir }}{{ end }}").Build(BuildCfg{})
 }
 
 func TestShouldBuild(t *testing.T) {

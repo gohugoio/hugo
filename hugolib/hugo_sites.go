@@ -577,7 +577,7 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 		return true
 	}
 
-	if cfg.whatChanged != nil && p.File() != nil {
+	if cfg.whatChanged != nil && !p.File().IsZero() {
 		return cfg.whatChanged.files[p.File().Filename()]
 	}
 
