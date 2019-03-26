@@ -3,9 +3,9 @@
 
 name = "Hugo Theme"
 license = "MIT"
-licenselink = "https://github.com/budparr/gohugo.io/blob/master/LICENSE.md"
+licenselink = "https://github.com/gohugoio/gohugoioTheme/blob/master/license.md"
 description = ""
-homepage = "https://github.com/budparr/gohugo.io"
+homepage = "https://github.com/gohugoio/gohugoioTheme"
 tags = ["website"]
 features = ["", ""]
 min_version = 0.38

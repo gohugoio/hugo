@@ -162,7 +162,7 @@ The default behavior of Hugo is to pluralize list titles; hence the inflection o
 
 ### Section Template
 
-This list template has been modified slightly from a template originally used in [spf13.com](http://spf13.com/). It makes use of [partial templates][partials] for the chrome of the rendered page rather than using a [base template][base] The examples that follow also use the [content view templates][views] `li.html` or `summary.html`.
+This list template has been modified slightly from a template originally used in [spf13.com](http://spf13.com/). It makes use of [partial templates][partials] for the chrome of the rendered page rather than using a [base template][base]. The examples that follow also use the [content view templates][views] `li.html` or `summary.html`.
 
 {{< code file="layouts/section/posts.html" >}}
 {{ partial "header.html" . }}

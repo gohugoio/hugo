@@ -25,7 +25,7 @@ For information on creating shortcodes and templates that tap into Hugo's file-r
 The `.File` object contains the following fields:
 
 .File.Path
-: the original relative path of the page (e.g., `content/posts/foo.en.md`)
+: the original relative path of the page, relative to the content dir (e.g., `posts/foo.en.md`)
 
 .File.LogicalName
 : the name of the content file that represents a page (e.g., `foo.en.md`)

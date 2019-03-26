@@ -114,6 +114,9 @@ defaultContentLanguage ("en")
 defaultContentLanguageInSubdir (false)
 : Render the default content language in subdir, e.g. `content/en/`. The site root `/` will then redirect to `/en/`.
 
+disableAliases (false)
+: Will disable generation of alias redirects. Note that even if `disableAliases` is set, the aliases themselves are preserved on the page. The motivation with this is to be able to generate 301 redirects in an `.htacess`, a Netlify `_redirects` file or similar using a custom output format.
+
 disableHugoGeneratorInject (false)
 : Hugo will, by default, inject a generator meta tag in the HTML head on the _home page only_. You can turn it off, but we would really appreciate if you don't, as this is a good way to watch Hugo's popularity on the rise.
 
@@ -251,7 +254,7 @@ stepAnalysis (false)
 : Display memory and timing of different steps of the program.
 
 summaryLength (70)
-: The length of text to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
+: The length of text in words to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
 
 taxonomies
 : See [Configure Taxonomies](/content-management/taxonomies#configure-taxonomies).

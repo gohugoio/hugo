@@ -1,15 +1,12 @@
 
 ---
 date: 2019-02-01
-title: "0.54.0"
-description: "0.54.0"
+title: "0.54.0:  Mostly Bugfixes"
+description: "0.54.0 is mostly a bugfix-release, but also some nice improvements."
 categories: ["Releases"]
-images:
-- images/blog/hugo-bug-poster.png
 
 ---
 
-	
 This release represents **27 contributions by 7 contributors** to the main Hugo code base. [@bep](https://github.com/bep) leads the Hugo development with a significant amount of contributions, but also a big shoutout to [@tryzniak](https://github.com/tryzniak), [@anthonyfok](https://github.com/anthonyfok), and [@mywaiting](https://github.com/mywaiting) for their ongoing contributions. And a big thanks to [@digitalcraftsman](https://github.com/digitalcraftsman) and [@onedrawingperday](https://github.com/onedrawingperday) for their relentless work on keeping the themes site in pristine condition and to [@kaushalmodi](https://github.com/kaushalmodi) for his great work on the documentation site.
 
 Many have also been busy writing and fixing the documentation in [hugoDocs](https://github.com/gohugoio/hugoDocs), which has received **38 contributions by 17 contributors**. A special thanks to [@bep](https://github.com/bep), [@kaushalmodi](https://github.com/kaushalmodi), [@onedrawingperday](https://github.com/onedrawingperday), and [@peaceiris](https://github.com/peaceiris) for their work on the documentation site.

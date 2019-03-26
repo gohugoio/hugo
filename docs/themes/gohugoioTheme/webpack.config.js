@@ -89,33 +89,33 @@ module.exports = env => {
 	};
 
 	if (process.env.NODE_ENV == "production") {
-		console.log("now with purge");
 		CONFIG.plugins.push(
 			new CleanWebpackPlugin(["./assets/output"], {
 				root: __dirname,
 				verbose: true,
 				dry: false,
 				allowExternal: true
-			}),
-			new PurgecssPlugin({
-				paths: glob.sync([
-					path.join(__dirname, "layouts/**/*.html")
-				]),
-				extractors: [
-					{
-						extractor: TailwindExtractor,
-						extensions: ["html"]
-					}
-				],
-				fontFace: false,
-				whitelist: [
-					"pagination",
-					"#TableOfContents ul li",
-					"chroma",
-					"expand",
-					"hljs"
-				]
 			})
+			//, Temporarily moving purge to fix themes site.
+			// new PurgecssPlugin({
+			// 	paths: glob.sync([
+			// 		path.join(__dirname, "layouts/**/*.html")
+			// 	]),
+			// 	extractors: [
+			// 		{
+			// 			extractor: TailwindExtractor,
+			// 			extensions: ["html"]
+			// 		}
+			// 	],
+			// 	fontFace: false,
+			// 	whitelist: [
+			// 		"pagination",
+			// 		"#TableOfContents ul li",
+			// 		"chroma",
+			// 		"expand",
+			// 		"hljs"
+			// 	]
+			// })
 		);
 	}
 
