@@ -21,7 +21,6 @@
     "docsearch.js": "^2.3.3",
     "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^0.11.1",
-    "highlight.js": "^9.11.0",
     "lazysizes": "^3.0.0",
     "postcss": "^5.2.16",
     "postcss-cssnext": "^2.10.0",

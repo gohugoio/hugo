@@ -10,9 +10,11 @@ Convert your content to different formats
 
 ### Synopsis
 
-Convert your content (e.g. front matter) to different formats.
+Convert your content files (front matter) to different formats.
 
 See convert's subcommands toJSON, toTOML and toYAML for more information.
+
+**Please Note:** This will convert front matter only. It does not convert theme and configuration files (e.g. config.toml, theme.toml). Those files will need to be manually changed to your preference.
 
 ### Options
 

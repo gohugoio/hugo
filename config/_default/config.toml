@@ -1,5 +1,5 @@
 baseURL = "https://gohugo.io/"
-paginate =  100
+paginate = 100
 defaultContentLanguage = "en"
 enableEmoji = true
 # Set the unicode character used for the "return" link in page footnotes.
@@ -48,6 +48,21 @@ baseName = "_headers"
 isPlainText = true
 notAlternative = true
 
+[caches]
+[caches.getjson]
+dir = ":cacheDir/:project"
+maxAge = -1
+[caches.getcsv]
+dir = ":cacheDir/:project"
+maxAge = -1
+[caches.images]
+dir = ":resourceDir/_gen"
+maxAge = -1
+[caches.assets]
+dir = ":resourceDir/_gen"
+maxAge = -1
+
+
 [related]
 
 threshold = 80
@@ -58,7 +73,7 @@ toLower = false
 name = "keywords"
 weight = 100
 [[related.indices]]
-name  = "date"
+name = "date"
 weight = 10
 pattern = "2006"
 

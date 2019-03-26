@@ -30,7 +30,7 @@ A collection of all themes created by the Hugo community, including screenshots 
 4. Add a descriptive `README.md` to the root of the theme source
 5. Add `/images/screenshot.png` and `/images/tn.png`
 
-\* If your theme doesn't fit into the `Hugo Basic Example` site, we encourage theme authors to supply a self-contained Hugo site in `/exampleSite`.
+\* If your theme doesn't fit into the `Hugo Basic Example` site, we encourage theme authors to supply a self-contained Hugo site in `/exampleSite/`, but note that for security reasons the content directory on the Hugo showcase will still be published from the [`Hugo Basic Example`](https://github.com/gohugoio/hugoBasicExample/tree/master/content) repository.  
 
 {{% note %}}
 The folder name here---`exampleSite`---is important, as this folder will be picked up and used by the script that generates the Hugo Theme Site. It mirrors the root directory of a Hugo website and allows you to add custom content, assets, and a `config` file with preset values.
@@ -125,22 +125,7 @@ Additional media may be provided in the same directory.
 Your theme's README file should be written in markdown and saved at the root of your theme's directory structure. Your `README.md` serves as
 
 1. Content for your theme's details page at <https://themes.gohugo.io>
-2. General information about the theme in your GitHub repository (i.e., it's usual purpose)
-
-#### Example `README.md`
-
-You can download the following `README.md` as an outline:
-
-{{< code file="README.md" download="README.md" >}}
-
-# Theme Title
-
-**Need input from @digitalcraftsman on what could be added to this file.**
-
-
-
-
-{{< /code >}}
+2. General information about the theme in your GitHub repository (i.e., it's usual purpose, features and instructions)
 
 {{% note "Screenshots in your `README.md`"%}}
 If you add screenshots to the README, please make use of absolute file paths instead of relative ones like `/images/screenshot.png`. Relative paths work great on GitHub but they don't correspond to the directory structure of [themes.gohugo.io](http://themes.gohugo.io/). Therefore, browsers will not be able to display screenshots on the theme site under the given (relative) path.
