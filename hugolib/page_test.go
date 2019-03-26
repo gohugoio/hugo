@@ -1175,8 +1175,10 @@ func TestPageWithZeroFile(t *testing.T) {
 }
 
 func TestHomePageWithNoTitle(t *testing.T) {
-	b := newTestSitesBuilder(t).WithSimpleConfigFile().
-		WithTemplatesAdded("index.html", "Title|{{ with .Title }}{{ . }}{{ end }}|")
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+title = "Site Title"
+`)
+	b.WithTemplatesAdded("index.html", "Title|{{ with .Title }}{{ . }}{{ end }}|")
 	b.WithContent("_index.md", `---
 description: "No title for you!"
 ---

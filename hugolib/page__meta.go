@@ -545,7 +545,7 @@ func (p *pageMeta) applyDefaultValues() error {
 		}
 	}
 
-	if p.title == "" {
+	if p.title == "" && p.f.IsZero() {
 		switch p.Kind() {
 		case page.KindHome:
 			p.title = p.s.Info.title
