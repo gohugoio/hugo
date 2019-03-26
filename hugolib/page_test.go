@@ -1174,6 +1174,20 @@ func TestPageWithZeroFile(t *testing.T) {
 		WithTemplatesAdded("index.html", "{{ .File.Filename }}{{ with .File }}{{ .Dir }}{{ end }}").Build(BuildCfg{})
 }
 
+func TestHomePageWithNoTitle(t *testing.T) {
+	b := newTestSitesBuilder(t).WithSimpleConfigFile().
+		WithTemplatesAdded("index.html", "Title|{{ with .Title }}{{ . }}{{ end }}|")
+	b.WithContent("_index.md", `---
+description: "No title for you!"
+---
+
+Content.
+`)
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", "Title||")
+}
+
 func TestShouldBuild(t *testing.T) {
 	t.Parallel()
 	var past = time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC)
