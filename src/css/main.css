@@ -10,7 +10,7 @@
 @import '_animation';
 @import '_documentation-styles';
 
-@import '_algolia';
+@import 'docsearch.js/dist/cdn/docsearch.min';
 @import '_carousel';
 @import '_code';
 @import '_tabs';
@@ -21,7 +21,6 @@
 @import '_definition-lists';
 @import '_fluid-type';
 @import '_font-family';
-/*@import '_hljs';*/
 @import '_hugo-internal-template-styling';
 @import '_no-js';
 @import '_social-icons';
