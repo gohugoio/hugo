@@ -42,3 +42,15 @@ Also see this Twitter thread:
 ## Can I use the latest Hugo version on Netlify?
 
 Yes you can! Read [this](/hosting-and-deployment/hosting-on-netlify/#configure-hugo-version-in-netlify).
+
+## I get "this feature is not available in your current Hugo version"
+
+If you process `SCSS` or `SASS` to `CSS` in your Hugo project, you need the Hugo `extended` version, or else you may see this error message:
+
+```bash
+error: failed to transform resource: TOCSS: failed to transform "scss/main.scss" (text/x-scss): this feature is not available in your current Hugo version
+```
+
+We release two set of binaries for technical reasons. The extended is what you get by default, as an example, when you run `brew install hugo` on `macOS`. On the [release page](https://github.com/gohugoio/hugo/releases), look for archives with `extended` in the name.
+
+To confirm, run `hugo version` and look for the word `extended`.
