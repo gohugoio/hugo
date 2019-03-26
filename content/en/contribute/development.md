@@ -52,7 +52,7 @@ go version
 You should see something similar to the following written to the console. Note that the version here reflects the most recent version of Go as of the last update for this page:
 
 ```
-go version go1.8 darwin/amd64
+go version go1.12 darwin/amd64
 ```
 
 Next, make sure that you set up your `GOPATH` [as described in the installation guide][setupgopath].
@@ -116,8 +116,8 @@ echo "alias git='hub'" >> ~/.bash_profile
 Confirm the installation:
 
 ```
-git version 2.6.3
-hub version 2.2.2
+git version 2.21.0
+hub version 2.10.0
 ```
 
 ## Set up your working copy
@@ -132,16 +132,29 @@ We assume that you've set up your `GOPATH` (see the section above if you're unsu
 
 We're going to clone the [master Hugo repository](https://github.com/gohugoio/hugo). That seems counter-intuitive, since you won't have commit rights on it. But it's required for the Go workflow. You'll work on a copy of the master and push your changes to your own repository on GitHub.
 
-So, let's clone that master repository:
+So, let's make a new directory and clone that master repository:
 
 ```
-go get -v -u github.com/gohugoio/hugo
+mkdir $HOME/src
+cd $HOME/src
+git clone https://github.com/gohugoio/hugo.git
 ```
 
-Hugo relies on [Testify](https://github.com/stretchr/testify) for testing Go code. If you don't already have it, get the Testify testing tools:
+> Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. 
+> The easiest is to clone Hugo in a directory outside of GOPATH
+
+And then, install dependencies of Hugo by running the following in the cloned directory:
 
 ```
-go get github.com/stretchr/testify
+cd $HOME/src/hugo
+go install
+```
+
+
+Hugo relies on [mage](github.com/magefile/mage) for some convenient build and test targets. If you don't already have it, get it:
+
+```
+go get github.com/magefile/mage
 ```
 
 ### Fork the repository
@@ -163,7 +176,7 @@ Now open your fork repository on GitHub and copy the remote url of your fork. Yo
 Switch back to the terminal and move into the directory of the cloned master repository from the last step.
 
 ```
-cd $GOPATH/src/github.com/gohugoio/hugo
+cd $HOME/src/hugo
 ```
 
 Now Git needs to know that our fork exists by adding the copied remote url:
@@ -233,19 +246,33 @@ We have developed a [separate Hugo documentation contribution guide][docscontrib
 While making changes in the codebase it's a good idea to build the binary to test them:
 
 ```
-go build -o hugo main.go
+mage hugo
+```
+
+This command generates the binary file at the root of the repository.
+
+If you want to install the binary in `$GOPATH/bin`, run
+
+```
+mage install
 ```
 
 ### Test 
 Sometimes changes on the codebase can cause unintended side effects. Or they don't work as expected. Most functions have their own test cases. You can find them in files ending with `_test.go`.
 
-Make sure the commands `go test ./...` passes, and `go build` completes.
+Make sure the commands 
+
+```
+mage -v check
+```
+
+passes.
 
 ### Formatting 
 The Go code styleguide maybe is opinionated but it ensures that the codebase looks the same, regardless who wrote the code. Go comes with its own formatting tool. Let's apply the styleguide to our additions:
 
 ```
-go fmt ./...
+mage fmt
 ```
 
 Once you made your additions commit your changes. Make sure that you follow our [code contribution guidelines](https://github.com/gohugoio/hugo/blob/master/CONTRIBUTING.md):

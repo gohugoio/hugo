@@ -100,16 +100,13 @@ times decreased anywhere from 10% to 99%.
   `PygmentsCodeFencesGuessSyntax = true` {{<gh 2034>}}
 * Make `ByCount` sort consistently {{<gh 1930>}}
 * Add `Scratch` to shortcode {{<gh 2000>}}
-* Add support for symbolic links for content, layout, static, theme  {{<gh 1855
-  >}}
-* Add '+' as one of the valid characters in URLs specified in the front matter
-  {{<gh 1290 >}}
-* Make alias redirect output URLs relative when `RelativeURLs = true` {{<gh
-  2093 >}}
-* Hugo injects meta generator tag on homepage if missing {{<gh
-  2182 >}}
+* Add support for symbolic links for content, layout, static, theme  {{<gh 1855 >}}
+* Add '+' as one of the valid characters in URLs specified in the front matter {{<gh 1290 >}}
+* Make alias redirect output URLs relative when `RelativeURLs = true` {{<gh 2093 >}}
+* Hugo injects meta generator tag on homepage if missing {{<gh 2182 >}}
 
 ### Fixes
+
 * Fix file change watcher for TextMate 2 and friends on OS X {{<gh 1053 >}}
 * Make dynamic reloading of config file reliable on all platform {{<gh 1684 >}}
 * Hugo now works on Linux/arm64 {{<gh 1772 >}}
