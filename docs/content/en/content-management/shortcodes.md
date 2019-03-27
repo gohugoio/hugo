@@ -243,7 +243,7 @@ Using the preceding `instagram` with `hidecaption` example above, the following 
 
 ### `param`
 
-Gets a value from the current `Page's` params set in front matter, with a fall back to the site param value. If will log an `ERROR` if the param with the given key could not be found in either.
+Gets a value from the current `Page's` params set in front matter, with a fall back to the site param value. It will log an `ERROR` if the param with the given key could not be found in either.
 
 ```bash
 {{</* param testparam */>}}
@@ -372,7 +372,7 @@ Copy the YouTube video ID that follows `v=` in the video's URL and pass it to th
 {{</* youtube w7Ft2ymGmfc */>}}
 {{< /code >}}
 
-Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named an unnamed parameters, so you'll need to assign the yet unnamed video id to the parameter `id`:
+Furthermore, you can automatically start playback of the embedded video by setting the `autoplay` parameter to `true`. Remember that you can't mix named and unnamed parameters, so you'll need to assign the yet unnamed video id to the parameter `id`:
 
 
 {{< code file="example-youtube-input-with-autoplay.md" >}}

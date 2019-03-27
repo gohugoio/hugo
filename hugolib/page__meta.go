@@ -222,7 +222,7 @@ func (p *pageMeta) Params() map[string]interface{} {
 }
 
 func (p *pageMeta) Path() string {
-	if p.File() != nil {
+	if !p.File().IsZero() {
 		return p.File().Path()
 	}
 	return p.SectionsPath()
@@ -256,7 +256,7 @@ func (p *pageMeta) Section() string {
 		return p.sections[0]
 	}
 
-	if p.File() != nil {
+	if !p.File().IsZero() {
 		return p.File().Section()
 	}
 
@@ -536,8 +536,8 @@ func (pm *pageMeta) setMetadata(p *pageState, frontmatter map[string]interface{}
 
 func (p *pageMeta) applyDefaultValues() error {
 	if p.markup == "" {
-		if p.File() != nil {
-			// Fall back to {file extension
+		if !p.File().IsZero() {
+			// Fall back to file extension
 			p.markup = helpers.GuessType(p.File().Ext())
 		}
 		if p.markup == "" {
@@ -545,7 +545,7 @@ func (p *pageMeta) applyDefaultValues() error {
 		}
 	}
 
-	if p.title == "" {
+	if p.title == "" && p.f.IsZero() {
 		switch p.Kind() {
 		case page.KindHome:
 			p.title = p.s.Info.title

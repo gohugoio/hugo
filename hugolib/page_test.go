@@ -18,6 +18,8 @@ import (
 	"html/template"
 	"os"
 
+	"github.com/gohugoio/hugo/common/loggers"
+
 	"path/filepath"
 	"strings"
 	"testing"
@@ -1164,6 +1166,28 @@ Content:{{ .Content }}
 		"Content:<p>This is the content.</p>",
 	)
 
+}
+
+// https://github.com/gohugoio/hugo/issues/5781
+func TestPageWithZeroFile(t *testing.T) {
+	newTestSitesBuilder(t).WithLogger(loggers.NewWarningLogger()).WithSimpleConfigFile().
+		WithTemplatesAdded("index.html", "{{ .File.Filename }}{{ with .File }}{{ .Dir }}{{ end }}").Build(BuildCfg{})
+}
+
+func TestHomePageWithNoTitle(t *testing.T) {
+	b := newTestSitesBuilder(t).WithConfigFile("toml", `
+title = "Site Title"
+`)
+	b.WithTemplatesAdded("index.html", "Title|{{ with .Title }}{{ . }}{{ end }}|")
+	b.WithContent("_index.md", `---
+description: "No title for you!"
+---
+
+Content.
+`)
+
+	b.Build(BuildCfg{})
+	b.AssertFileContent("public/index.html", "Title||")
 }
 
 func TestShouldBuild(t *testing.T) {

@@ -236,7 +236,7 @@ func (p *pageState) TranslationKey() string {
 	p.translationKeyInit.Do(func() {
 		if p.m.translationKey != "" {
 			p.translationKey = p.Kind() + "/" + p.m.translationKey
-		} else if p.IsPage() && p.File() != nil {
+		} else if p.IsPage() && !p.File().IsZero() {
 			p.translationKey = path.Join(p.Kind(), filepath.ToSlash(p.File().Dir()), p.File().TranslationBaseName())
 		} else if p.IsNode() {
 			p.translationKey = path.Join(p.Kind(), p.SectionsPath())
@@ -462,7 +462,7 @@ func (p *pageState) Render(layout ...string) template.HTML {
 func (p *pageState) wrapError(err error) error {
 
 	var filename string
-	if p.File() != nil {
+	if !p.File().IsZero() {
 		filename = p.File().Filename()
 	}
 
@@ -665,7 +665,7 @@ func (p *pageState) parseError(err error, input []byte, offset int) error {
 }
 
 func (p *pageState) pathOrTitle() string {
-	if p.File() != nil {
+	if !p.File().IsZero() {
 		return p.File().Filename()
 	}
 
@@ -763,7 +763,7 @@ func (p *pageState) sortParentSections() {
 // For pages that do not (sections witout content page etc.), it returns the
 // virtual path, consistent with where you would add a source file.
 func (p *pageState) sourceRef() string {
-	if p.File() != nil {
+	if !p.File().IsZero() {
 		sourcePath := p.File().Path()
 		if sourcePath != "" {
 			return "/" + filepath.ToSlash(sourcePath)

@@ -89,7 +89,7 @@ With the preceding example, even pages with > 400 words *and* `toc` not set to `
 {{% /note %}}
 
 [conditionals]: /templates/introduction/#conditionals
-[front matter]: /content-management/table-of-contents/
+[front matter]: /content-management/front-matter/
 [pagevars]: /variables/page/
 [partials]: /templates/partials/
 [single page template]: /templates/single-page-templates/

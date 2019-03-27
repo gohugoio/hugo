@@ -34,6 +34,9 @@ type Deps struct {
 	// Used to log errors that may repeat itself many times.
 	DistinctErrorLog *helpers.DistinctLogger
 
+	// Used to log warnings that may repeat itself many times.
+	DistinctWarningLog *helpers.DistinctLogger
+
 	// The templates to use. This will usually implement the full tpl.TemplateHandler.
 	Tmpl tpl.TemplateFinder `json:"-"`
 
@@ -233,11 +236,13 @@ func New(cfg DepsCfg) (*Deps, error) {
 	}
 
 	distinctErrorLogger := helpers.NewDistinctLogger(logger.ERROR)
+	distinctWarnLogger := helpers.NewDistinctLogger(logger.WARN)
 
 	d := &Deps{
 		Fs:                  fs,
 		Log:                 logger,
 		DistinctErrorLog:    distinctErrorLogger,
+		DistinctWarningLog:  distinctWarnLogger,
 		templateProvider:    cfg.TemplateProvider,
 		translationProvider: cfg.TranslationProvider,
 		WithTemplate:        cfg.WithTemplate,

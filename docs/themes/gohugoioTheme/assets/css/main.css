@@ -5,7 +5,8 @@
 @import '_anchorforid';
 @import '_animation';
 @import '_documentation-styles';
-@import '_algolia';
+
+@import 'docsearch.js/dist/cdn/docsearch.min';
 @import '_carousel';
 @import '_code';
 @import '_tabs';

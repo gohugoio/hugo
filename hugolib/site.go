@@ -789,11 +789,11 @@ func (s *siteRefLinker) refLink(ref string, source interface{}, relative bool, o
 	if refURL.Fragment != "" {
 		_ = target
 		link = link + "#" + refURL.Fragment
-		if pctx, ok := target.(pageContext); ok && target.File() != nil && !pctx.getRenderingConfig().PlainIDAnchors {
+		if pctx, ok := target.(pageContext); ok && !target.File().IsZero() && !pctx.getRenderingConfig().PlainIDAnchors {
 			if refURL.Path != "" {
 				link = link + ":" + target.File().UniqueID()
 			}
-		} else if pctx, ok := p.(pageContext); ok && p.File() != nil && !pctx.getRenderingConfig().PlainIDAnchors {
+		} else if pctx, ok := p.(pageContext); ok && !p.File().IsZero() && !pctx.getRenderingConfig().PlainIDAnchors {
 			link = link + ":" + p.File().UniqueID()
 		}
 

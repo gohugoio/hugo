@@ -45,7 +45,7 @@ Also note that a component that is part of a theme can have its own configuratio
 The same rules apply here: The left-most param/menu etc. with the same ID will win. There are some hidden and experimental namespace support in the above, which we will work to improve in the future, but theme authors are encouraged to create their own namespaces to avoid naming conflicts.
 
 
-[^1]: Including theme components in the themes is currently not supported for themes hosted on [The Hugo Themes Site](https://themes.gohugo.io/), but can be really useful if you want to create your own theme based on a theme you find on that site.
+[^1]: For themes hosted on the [Hugo Themes Showcase](https://themes.gohugo.io/) components need to be added as git submodules that point to the directory `exampleSite/themes` 
 
 
 

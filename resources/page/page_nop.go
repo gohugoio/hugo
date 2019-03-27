@@ -299,6 +299,10 @@ func (p *nopPage) Params() map[string]interface{} {
 	return nil
 }
 
+func (p *nopPage) Page() Page {
+	return p
+}
+
 func (p *nopPage) Parent() Page {
 	return nil
 }
