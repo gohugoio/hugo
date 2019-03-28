@@ -1519,7 +1519,7 @@
         "isHTML": true,
         "noUgly": false,
         "notAlternative": false,
-        "Permalinkable": true
+        "permalinkable": true
       },
       {
         "MediaType": "text/css",
@@ -1542,7 +1542,7 @@
         "isHTML": false,
         "noUgly": false,
         "notAlternative": true,
-        "Permalinkable": false
+        "permalinkable": false
       },
       {
         "MediaType": "text/csv",
@@ -1565,7 +1565,7 @@
         "isHTML": false,
         "noUgly": false,
         "notAlternative": false,
-        "Permalinkable": false
+        "permalinkable": false
       },
       {
         "MediaType": "text/calendar",
@@ -1588,7 +1588,7 @@
         "isHTML": false,
         "noUgly": false,
         "notAlternative": false,
-        "Permalinkable": false
+        "permalinkable": false
       },
       {
         "MediaType": "text/html",
@@ -1611,7 +1611,7 @@
         "isHTML": true,
         "noUgly": false,
         "notAlternative": false,
-        "Permalinkable": true
+        "permalinkable": true
       },
       {
         "MediaType": "application/json",
@@ -1634,7 +1634,7 @@
         "isHTML": false,
         "noUgly": false,
         "notAlternative": false,
-        "Permalinkable": false
+        "permalinkable": false
       },
       {
         "MediaType": "text/plain",
@@ -1657,7 +1657,7 @@
         "isHTML": false,
         "noUgly": false,
         "notAlternative": false,
-        "Permalinkable": false
+        "permalinkable": false
       },
       {
         "MediaType": "application/rss+xml",
@@ -1680,7 +1680,7 @@
         "isHTML": false,
         "noUgly": true,
         "notAlternative": false,
-        "Permalinkable": false
+        "permalinkable": false
       },
       {
         "MediaType": "application/xml",
@@ -1703,7 +1703,7 @@
         "isHTML": false,
         "noUgly": true,
         "notAlternative": false,
-        "Permalinkable": false
+        "permalinkable": false
       }
     ],
     "layouts": [
