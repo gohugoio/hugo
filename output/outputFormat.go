@@ -77,7 +77,7 @@ type Format struct {
 	// as you probably don't want to link back to the RSS version of a page, as an
 	// example. AMP would, however, be a good example of an output format where this
 	// behaviour is wanted.
-	Permalinkable bool
+	Permalinkable bool `json:"permalinkable"`
 }
 
 // An ordered list of built-in output formats.
