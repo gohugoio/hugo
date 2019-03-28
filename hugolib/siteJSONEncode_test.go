@@ -23,7 +23,9 @@ import (
 func TestEncodePage(t *testing.T) {
 	t.Parallel()
 
-	templ := `{{ index .Site.RegularPages 0 | jsonify }}`
+	templ := `Page: |{{ index .Site.RegularPages 0 | jsonify }}|
+Site: {{ site | jsonify }}
+`
 
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile().WithTemplatesAdded("index.html", templ)
