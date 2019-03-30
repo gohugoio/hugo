@@ -303,7 +303,20 @@ func (s *Site) renderAliases() error {
 			f := of.Format
 
 			for _, a := range p.Aliases() {
-				if f.Path != "" {
+				isRelative := !strings.HasPrefix(a, "/")
+
+				if isRelative {
+					// Make alias relative, where "." will be on the
+					// same directory level as the current page.
+					// TODO(bep) ugly URLs doesn't seem to be supported in
+					// aliases, I'm not sure why not.
+					basePath := of.RelPermalink()
+					if strings.HasSuffix(basePath, "/") {
+						basePath = path.Join(basePath, "..")
+					}
+					a = path.Join(basePath, a)
+
+				} else if f.Path != "" {
 					// Make sure AMP and similar doesn't clash with regular aliases.
 					a = path.Join(f.Path, a)
 				}

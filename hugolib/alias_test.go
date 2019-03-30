@@ -25,14 +25,14 @@ import (
 
 const pageWithAlias = `---
 title: Has Alias
-aliases: ["foo/bar/"]
+aliases: ["/foo/bar/", "rel"]
 ---
 For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
 `
 
 const pageWithAliasMultipleOutputs = `---
 title: Has Alias for HTML and AMP
-aliases: ["foo/bar/"]
+aliases: ["/foo/bar/"]
 outputs: ["HTML", "AMP", "JSON"]
 ---
 For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
@@ -46,16 +46,17 @@ func TestAlias(t *testing.T) {
 	assert := require.New(t)
 
 	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithContent("page.md", pageWithAlias)
+	b.WithSimpleConfigFile().WithContent("blog/page.md", pageWithAlias)
 	b.CreateSites().Build(BuildCfg{})
 
 	assert.Equal(1, len(b.H.Sites))
 	require.Len(t, b.H.Sites[0].RegularPages(), 1)
 
 	// the real page
-	b.AssertFileContent("public/page/index.html", "For some moments the old man")
-	// the alias redirector
+	b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")
+	// the alias redirectors
 	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
+	b.AssertFileContent("public/blog/rel/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
 }
 
 func TestAliasMultipleOutputFormats(t *testing.T) {
@@ -64,7 +65,7 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 	assert := require.New(t)
 
 	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithContent("page.md", pageWithAliasMultipleOutputs)
+	b.WithSimpleConfigFile().WithContent("blog/page.md", pageWithAliasMultipleOutputs)
 
 	b.WithTemplates(
 		"_default/single.html", basicTemplate,
@@ -74,9 +75,9 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 	b.CreateSites().Build(BuildCfg{})
 
 	// the real pages
-	b.AssertFileContent("public/page/index.html", "For some moments the old man")
-	b.AssertFileContent("public/amp/page/index.html", "For some moments the old man")
-	b.AssertFileContent("public/page/index.json", "For some moments the old man")
+	b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")
+	b.AssertFileContent("public/amp/blog/page/index.html", "For some moments the old man")
+	b.AssertFileContent("public/blog/page/index.json", "For some moments the old man")
 
 	// the alias redirectors
 	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
@@ -135,7 +136,7 @@ func TestTargetPathHTMLRedirectAlias(t *testing.T) {
 			continue
 		}
 		if err == nil && path != test.expected {
-			t.Errorf("Expected: \"%s\", got: \"%s\"", test.expected, path)
+			t.Errorf("Expected: %q, got: %q", test.expected, path)
 		}
 	}
 }

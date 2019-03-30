@@ -55,7 +55,7 @@ tags:
 %s
 categories:
 %s
-aliases: [Ali%d]
+aliases: [/Ali%d]
 ---
 # Doc
 `

@@ -16,6 +16,7 @@ package hugolib
 import (
 	"fmt"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
@@ -414,10 +415,11 @@ func (pm *pageMeta) setMetadata(p *pageState, frontmatter map[string]interface{}
 			pm.params[loki] = pm.weight
 		case "aliases":
 			pm.aliases = cast.ToStringSlice(v)
-			for _, alias := range pm.aliases {
+			for i, alias := range pm.aliases {
 				if strings.HasPrefix(alias, "http://") || strings.HasPrefix(alias, "https://") {
-					return fmt.Errorf("only relative aliases are supported, %v provided", alias)
+					return fmt.Errorf("http* aliases not supported: %q", alias)
 				}
+				pm.aliases[i] = filepath.ToSlash(alias)
 			}
 			pm.params[loki] = pm.aliases
 		case "sitemap":
