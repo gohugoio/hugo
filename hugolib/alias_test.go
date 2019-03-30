@@ -80,7 +80,7 @@ func TestAliasMultipleOutputFormats(t *testing.T) {
 
 	// the alias redirectors
 	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
-	b.AssertFileContent("public/foo/bar/amp/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
+	b.AssertFileContent("public/amp/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
 	assert.False(b.CheckExists("public/foo/bar/index.json"))
 }
 

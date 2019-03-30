@@ -305,7 +305,7 @@ func (s *Site) renderAliases() error {
 			for _, a := range p.Aliases() {
 				if f.Path != "" {
 					// Make sure AMP and similar doesn't clash with regular aliases.
-					a = path.Join(a, f.Path)
+					a = path.Join(f.Path, a)
 				}
 
 				lang := p.Language().Lang
