@@ -152,6 +152,50 @@ func TestImageTransformLongFilename(t *testing.T) {
 	assert.Equal("/a/_hu59e56ffff1bc1d8d122b1403d34e039f_90587_c876768085288f41211f768147ba2647.jpg", resized.RelPermalink())
 }
 
+// https://github.com/gohugoio/hugo/issues/5730
+func TestImagePermalinkPublishOrder(t *testing.T) {
+	for _, checkOriginalFirst := range []bool{true, false} {
+		name := "OriginalFirst"
+		if !checkOriginalFirst {
+			name = "ResizedFirst"
+		}
+
+		t.Run(name, func(t *testing.T) {
+
+			assert := require.New(t)
+			spec := newTestResourceOsFs(assert)
+
+			check1 := func(img *Image) {
+				resizedLink := "/a/sunset_hu59e56ffff1bc1d8d122b1403d34e039f_90587_100x50_resize_q75_box.jpg"
+				assert.Equal(resizedLink, img.RelPermalink())
+				assertImageFile(assert, spec.PublishFs, resizedLink, 100, 50)
+			}
+
+			check2 := func(img *Image) {
+				assert.Equal("/a/sunset.jpg", img.RelPermalink())
+				assertImageFile(assert, spec.PublishFs, "a/sunset.jpg", 900, 562)
+			}
+
+			orignal := fetchImageForSpec(spec, assert, "sunset.jpg")
+			assert.NotNil(orignal)
+
+			if checkOriginalFirst {
+				check2(orignal)
+			}
+
+			resized, err := orignal.Resize("100x50")
+			assert.NoError(err)
+
+			check1(resized)
+
+			if !checkOriginalFirst {
+				check2(orignal)
+			}
+		})
+	}
+
+}
+
 func TestImageTransformConcurrent(t *testing.T) {
 
 	var wg sync.WaitGroup

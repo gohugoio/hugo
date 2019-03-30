@@ -135,13 +135,14 @@ func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) r
 
 	factory := newTargetPaths("/a")
 
-	r, err := spec.New(ResourceSourceDescriptor{TargetPaths: factory, SourceFilename: name})
+	r, err := spec.New(ResourceSourceDescriptor{TargetPaths: factory, LazyPublish: true, SourceFilename: name})
 	assert.NoError(err)
 
 	return r.(resource.ContentResource)
 }
 
 func assertImageFile(assert *require.Assertions, fs afero.Fs, filename string, width, height int) {
+	filename = filepath.Clean(filename)
 	f, err := fs.Open(filename)
 	if err != nil {
 		printFs(fs, "", os.Stdout)
