@@ -510,6 +510,9 @@ func (i *Image) encodeTo(conf imageConfig, img image.Image, w io.Writer) error {
 func (i *Image) clone() *Image {
 	g := *i.genericResource
 	g.resourceContent = &resourceContent{}
+	if g.publishOnce != nil {
+		g.publishOnce = &publishOnce{logger: g.publishOnce.logger}
+	}
 
 	return &Image{
 		imaging:         i.imaging,
