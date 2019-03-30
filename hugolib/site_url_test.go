@@ -26,7 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const slugDoc1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - sd1/foo/\n - sd2\n - sd3/\n - sd4.html\n---\nslug doc 1 content\n"
+const slugDoc1 = "---\ntitle: slug doc 1\nslug: slug-doc-1\naliases:\n - /sd1/foo/\n - /sd2\n - /sd3/\n - /sd4.html\n---\nslug doc 1 content\n"
 
 const slugDoc2 = `---
 title: slug doc 2

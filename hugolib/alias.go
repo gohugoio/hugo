@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -28,8 +29,6 @@ import (
 	"github.com/gohugoio/hugo/publisher"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl"
-
-	"github.com/gohugoio/hugo/helpers"
 )
 
 const (
@@ -132,12 +131,13 @@ func (a aliasHandler) targetPathAlias(src string) (string, error) {
 		return "", fmt.Errorf("alias \"\" is an empty string")
 	}
 
-	alias := filepath.Clean(src)
-	components := strings.Split(alias, helpers.FilePathSeparator)
+	alias := path.Clean(filepath.ToSlash(src))
 
-	if !a.allowRoot && alias == helpers.FilePathSeparator {
+	if !a.allowRoot && alias == "/" {
 		return "", fmt.Errorf("alias \"%s\" resolves to website root directory", originalAlias)
 	}
+
+	components := strings.Split(alias, "/")
 
 	// Validate against directory traversal
 	if components[0] == ".." {
@@ -182,15 +182,12 @@ func (a aliasHandler) targetPathAlias(src string) (string, error) {
 	}
 
 	// Add the final touch
-	alias = strings.TrimPrefix(alias, helpers.FilePathSeparator)
-	if strings.HasSuffix(alias, helpers.FilePathSeparator) {
+	alias = strings.TrimPrefix(alias, "/")
+	if strings.HasSuffix(alias, "/") {
 		alias = alias + "index.html"
 	} else if !strings.HasSuffix(alias, ".html") {
-		alias = alias + helpers.FilePathSeparator + "index.html"
-	}
-	if originalAlias != alias {
-		a.log.INFO.Printf("Alias \"%s\" translated to \"%s\"\n", originalAlias, alias)
+		alias = alias + "/" + "index.html"
 	}
 
-	return alias, nil
+	return filepath.FromSlash(alias), nil
 }
