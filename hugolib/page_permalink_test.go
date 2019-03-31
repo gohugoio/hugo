@@ -104,3 +104,43 @@ Content
 	}
 
 }
+
+func TestRelativeURLInFrontMatter(t *testing.T) {
+
+	config := `
+
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = false
+
+[Languages]
+[Languages.en]
+weight = 10
+contentDir = "content/en"
+[Languages.nn]
+weight = 20
+contentDir = "content/nn"
+
+`
+
+	pageTempl := `---
+title: "A page"
+url: %q
+---
+
+Some content.
+`
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
+	b.WithContent("content/en/blog/page1.md", fmt.Sprintf(pageTempl, "myblog/p1/"))
+	b.WithContent("content/en/blog/_index.md", fmt.Sprintf(pageTempl, "this-is-my-english-blog"))
+	b.WithContent("content/nn/blog/page1.md", fmt.Sprintf(pageTempl, "myblog/p1/"))
+	b.WithContent("content/nn/blog/_index.md", fmt.Sprintf(pageTempl, "this-is-my-blog"))
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/nn/myblog/p1/index.html", "Single: A page|Hello|nn|RelPermalink: /nn/myblog/p1/|")
+	b.AssertFileContent("public/nn/this-is-my-blog/index.html", "List Page 1|A page|Hello|/nn/this-is-my-blog/|")
+	b.AssertFileContent("public/this-is-my-english-blog/index.html", "List Page 1|A page|Hello|/this-is-my-english-blog/|")
+	b.AssertFileContent("public/myblog/p1/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p1/|Permalink: /myblog/p1/|")
+
+}
