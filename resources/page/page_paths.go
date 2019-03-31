@@ -124,6 +124,11 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 	}
 
+	if d.URL != "" && !strings.HasPrefix(d.URL, "/") {
+		// Treat this as a context relative URL
+		d.ForcePrefix = true
+	}
+
 	pagePath := slash
 
 	var (
