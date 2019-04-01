@@ -55,6 +55,9 @@ func TestRSSOutput(t *testing.T) {
 	if c != rssLimit {
 		t.Errorf("incorrect RSS item count: expected %d, got %d", rssLimit, c)
 	}
+
+	// Encoded summary
+	th.assertFileContent(filepath.Join("public", rssURI), "<?xml", "description", "A &lt;em&gt;custom&lt;/em&gt; summary")
 }
 
 // Before Hugo 0.49 we set the pseudo page kind RSS on the page when output to RSS.
