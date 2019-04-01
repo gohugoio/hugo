@@ -298,12 +298,6 @@ func (r *ReleaseHandler) bumpVersions(ver hugo.Version) error {
 		return err
 	}
 
-	// docs/config.toml
-	if err := r.replaceInFile("docs/config.toml",
-		`release = "(.*)"`, fmt.Sprintf(`release = "%s"`, ver)); err != nil {
-		return err
-	}
-
 	return nil
 }
 
