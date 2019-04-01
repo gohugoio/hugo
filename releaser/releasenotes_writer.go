@@ -286,7 +286,7 @@ func (r *ReleaseHandler) writeReleaseNotesToDocs(title, sourceFilename string) (
 	defer f.Close()
 
 	fmTail := ""
-	if strings.Count(title, ".") > 1 {
+	if !strings.HasSuffix(title, ".0") {
 		// Bug fix release
 		fmTail = `
 images:
