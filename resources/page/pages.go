@@ -17,11 +17,14 @@ import (
 	"fmt"
 	"math/rand"
 
+	"github.com/gohugoio/hugo/compare"
+
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
 var (
 	_ resource.ResourcesConverter = Pages{}
+	_ compare.ProbablyEqer        = Pages{}
 )
 
 // Pages is a slice of pages. This is the most common list type in Hugo.
@@ -93,6 +96,33 @@ func (p Pages) Group(key interface{}, in interface{}) (interface{}, error) {
 // Len returns the number of pages in the list.
 func (p Pages) Len() int {
 	return len(p)
+}
+
+// ProbablyEq wraps comare.ProbablyEqer
+func (pages Pages) ProbablyEq(other interface{}) bool {
+	otherPages, ok := other.(Pages)
+	if !ok {
+		return false
+	}
+
+	if len(pages) != len(otherPages) {
+		return false
+	}
+
+	step := 1
+
+	for i := 0; i < len(pages); i += step {
+		if !pages[i].Eq(otherPages[i]) {
+			return false
+		}
+
+		if i > 50 {
+			// This is most likely the same.
+			step = 50
+		}
+	}
+
+	return true
 }
 
 func (ps Pages) removeFirstIfFound(p Page) Pages {

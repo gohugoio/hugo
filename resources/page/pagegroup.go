@@ -22,12 +22,15 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/compare"
 
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
 var (
-	_ collections.Slicer = PageGroup{}
+	_ collections.Slicer   = PageGroup{}
+	_ compare.ProbablyEqer = PageGroup{}
+	_ compare.ProbablyEqer = PagesGroup{}
 )
 
 // PageGroup represents a group of pages, grouped by the key.
@@ -307,6 +310,21 @@ func (p Pages) GroupByParamDate(key string, format string, order ...string) (Pag
 	return p.groupByDateField(sorter, formatter, order...)
 }
 
+// ProbablyEq wraps comare.ProbablyEqer
+func (p PageGroup) ProbablyEq(other interface{}) bool {
+	otherP, ok := other.(PageGroup)
+	if !ok {
+		return false
+	}
+
+	if p.Key != otherP.Key {
+		return false
+	}
+
+	return p.Pages.ProbablyEq(otherP.Pages)
+
+}
+
 // Slice is not meant to be used externally. It's a bridge function
 // for the template functions. See collections.Slice.
 func (p PageGroup) Slice(in interface{}) (interface{}, error) {
@@ -335,6 +353,27 @@ func (psg PagesGroup) Len() int {
 		l += len(pg.Pages)
 	}
 	return l
+}
+
+// ProbablyEq wraps comare.ProbablyEqer
+func (psg PagesGroup) ProbablyEq(other interface{}) bool {
+	otherPsg, ok := other.(PagesGroup)
+	if !ok {
+		return false
+	}
+
+	if len(psg) != len(otherPsg) {
+		return false
+	}
+
+	for i := range psg {
+		if !psg[i].ProbablyEq(otherPsg[i]) {
+			return false
+		}
+	}
+
+	return true
+
 }
 
 // ToPagesGroup tries to convert seq into a PagesGroup.
