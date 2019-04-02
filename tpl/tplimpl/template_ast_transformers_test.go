@@ -180,7 +180,7 @@ PARAMS SITE GLOBAL3: {{ $site.Params.LOWER }}
 func TestParamsKeysToLower(t *testing.T) {
 	t.Parallel()
 
-	_, err := applyTemplateTransformers(false, nil, nil)
+	_, err := applyTemplateTransformers(templateUndefined, nil, nil)
 	require.Error(t, err)
 
 	templ, err := template.New("foo").Funcs(testFuncs).Parse(paramsTempl)
@@ -484,10 +484,53 @@ func TestCollectInfo(t *testing.T) {
 			require.NoError(t, err)
 
 			c := newTemplateContext(createParseTreeLookup(templ))
-			c.isShortcode = true
+			c.typ = templateShortcode
 			c.applyTransformations(templ.Tree.Root)
 
 			assert.Equal(test.expected, c.Info)
+		})
+	}
+
+}
+
+func TestPartialReturn(t *testing.T) {
+
+	tests := []struct {
+		name      string
+		tplString string
+		expected  bool
+	}{
+		{"Basic", `
+{{ $a := "Hugo Rocks!" }}
+{{ return $a }}
+`, true},
+		{"Expression", `
+{{ return add 32 }}
+`, true},
+	}
+
+	echo := func(in interface{}) interface{} {
+		return in
+	}
+
+	funcs := template.FuncMap{
+		"return": echo,
+		"add":    echo,
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			assert := require.New(t)
+
+			templ, err := template.New("foo").Funcs(funcs).Parse(test.tplString)
+			require.NoError(t, err)
+
+			_, err = applyTemplateTransformers(templatePartial, templ.Tree, createParseTreeLookup(templ))
+
+			// Just check that it doesn't fail in this test. We have functional tests
+			// in hugoblib.
+			assert.NoError(err)
+
 		})
 	}
 

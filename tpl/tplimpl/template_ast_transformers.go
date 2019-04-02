@@ -39,6 +39,14 @@ var reservedContainers = map[string]bool{
 	"Data": true,
 }
 
+type templateType int
+
+const (
+	templateUndefined templateType = iota
+	templateShortcode
+	templatePartial
+)
+
 type templateContext struct {
 	decl     decl
 	visited  map[string]bool
@@ -47,14 +55,16 @@ type templateContext struct {
 	// The last error encountered.
 	err error
 
-	// Only needed for shortcodes
-	isShortcode bool
+	typ templateType
 
 	// Set when we're done checking for config header.
 	configChecked bool
 
 	// Contains some info about the template
 	tpl.Info
+
+	// Store away the return node in partials.
+	returnNode *parse.CommandNode
 }
 
 func (c templateContext) getIfNotVisited(name string) *parse.Tree {
@@ -84,12 +94,12 @@ func createParseTreeLookup(templ *template.Template) func(nn string) *parse.Tree
 	}
 }
 
-func applyTemplateTransformersToHMLTTemplate(isShortcode bool, templ *template.Template) (tpl.Info, error) {
-	return applyTemplateTransformers(isShortcode, templ.Tree, createParseTreeLookup(templ))
+func applyTemplateTransformersToHMLTTemplate(typ templateType, templ *template.Template) (tpl.Info, error) {
+	return applyTemplateTransformers(typ, templ.Tree, createParseTreeLookup(templ))
 }
 
-func applyTemplateTransformersToTextTemplate(isShortcode bool, templ *texttemplate.Template) (tpl.Info, error) {
-	return applyTemplateTransformers(isShortcode, templ.Tree,
+func applyTemplateTransformersToTextTemplate(typ templateType, templ *texttemplate.Template) (tpl.Info, error) {
+	return applyTemplateTransformers(typ, templ.Tree,
 		func(nn string) *parse.Tree {
 			tt := templ.Lookup(nn)
 			if tt != nil {
@@ -99,17 +109,52 @@ func applyTemplateTransformersToTextTemplate(isShortcode bool, templ *texttempla
 		})
 }
 
-func applyTemplateTransformers(isShortcode bool, templ *parse.Tree, lookupFn func(name string) *parse.Tree) (tpl.Info, error) {
+func applyTemplateTransformers(typ templateType, templ *parse.Tree, lookupFn func(name string) *parse.Tree) (tpl.Info, error) {
 	if templ == nil {
 		return tpl.Info{}, errors.New("expected template, but none provided")
 	}
 
 	c := newTemplateContext(lookupFn)
-	c.isShortcode = isShortcode
+	c.typ = typ
 
-	err := c.applyTransformations(templ.Root)
+	_, err := c.applyTransformations(templ.Root)
+
+	if err == nil && c.returnNode != nil {
+		// This is a partial with a return statement.
+		c.Info.HasReturn = true
+		templ.Root = c.wrapInPartialReturnWrapper(templ.Root)
+	}
 
 	return c.Info, err
+}
+
+const (
+	partialReturnWrapperTempl = `{{ $_hugo_dot := $ }}{{ $ := .Arg }}{{ with .Arg }}{{ $_hugo_dot.Set ("PLACEHOLDER") }}{{ end }}`
+)
+
+var partialReturnWrapper *parse.ListNode
+
+func init() {
+	templ, err := texttemplate.New("").Parse(partialReturnWrapperTempl)
+	if err != nil {
+		panic(err)
+	}
+	partialReturnWrapper = templ.Tree.Root
+}
+
+func (c *templateContext) wrapInPartialReturnWrapper(n *parse.ListNode) *parse.ListNode {
+	wrapper := partialReturnWrapper.CopyList()
+	withNode := wrapper.Nodes[2].(*parse.WithNode)
+	retn := withNode.List.Nodes[0]
+	setCmd := retn.(*parse.ActionNode).Pipe.Cmds[0]
+	setPipe := setCmd.Args[1].(*parse.PipeNode)
+	// Replace PLACEHOLDER with the real return value.
+	// Note that this is a PipeNode, so it will be wrapped in parens.
+	setPipe.Cmds = []*parse.CommandNode{c.returnNode}
+	withNode.List.Nodes = append(n.Nodes, retn)
+
+	return wrapper
+
 }
 
 // The truth logic in Go's template package is broken for certain values
@@ -141,7 +186,7 @@ func (c *templateContext) wrapWithGetIf(p *parse.PipeNode) {
 // 1) Make all .Params.CamelCase and similar into lowercase.
 // 2) Wraps every with and if pipe in getif
 // 3) Collects some information about the template content.
-func (c *templateContext) applyTransformations(n parse.Node) error {
+func (c *templateContext) applyTransformations(n parse.Node) (bool, error) {
 	switch x := n.(type) {
 	case *parse.ListNode:
 		if x != nil {
@@ -169,12 +214,16 @@ func (c *templateContext) applyTransformations(n parse.Node) error {
 			c.decl[x.Decl[0].Ident[0]] = x.Cmds[0].String()
 		}
 
-		for _, cmd := range x.Cmds {
-			c.applyTransformations(cmd)
+		for i, cmd := range x.Cmds {
+			keep, _ := c.applyTransformations(cmd)
+			if !keep {
+				x.Cmds = append(x.Cmds[:i], x.Cmds[i+1:]...)
+			}
 		}
 
 	case *parse.CommandNode:
 		c.collectInner(x)
+		keep := c.collectReturnNode(x)
 
 		for _, elem := range x.Args {
 			switch an := elem.(type) {
@@ -191,9 +240,10 @@ func (c *templateContext) applyTransformations(n parse.Node) error {
 				}
 			}
 		}
+		return keep, c.err
 	}
 
-	return c.err
+	return true, c.err
 }
 
 func (c *templateContext) applyTransformationsToNodes(nodes ...parse.Node) {
@@ -229,7 +279,7 @@ func (c *templateContext) hasIdent(idents []string, ident string) bool {
 // on the form:
 //    {{ $_hugo_config:= `{ "version": 1 }` }}
 func (c *templateContext) collectConfig(n *parse.PipeNode) {
-	if !c.isShortcode {
+	if c.typ != templateShortcode {
 		return
 	}
 	if c.configChecked {
@@ -271,7 +321,7 @@ func (c *templateContext) collectConfig(n *parse.PipeNode) {
 // collectInner determines if the given CommandNode represents a
 // shortcode call to its .Inner.
 func (c *templateContext) collectInner(n *parse.CommandNode) {
-	if !c.isShortcode {
+	if c.typ != templateShortcode {
 		return
 	}
 	if c.Info.IsInner || len(n.Args) == 0 {
@@ -292,6 +342,28 @@ func (c *templateContext) collectInner(n *parse.CommandNode) {
 			break
 		}
 	}
+
+}
+
+func (c *templateContext) collectReturnNode(n *parse.CommandNode) bool {
+	if c.typ != templatePartial || c.returnNode != nil {
+		return true
+	}
+
+	if len(n.Args) < 2 {
+		return true
+	}
+
+	ident, ok := n.Args[0].(*parse.IdentifierNode)
+	if !ok || ident.Ident != "return" {
+		return true
+	}
+
+	c.returnNode = n
+	// Remove the "return" identifiers
+	c.returnNode.Args = c.returnNode.Args[1:]
+
+	return false
 
 }
 

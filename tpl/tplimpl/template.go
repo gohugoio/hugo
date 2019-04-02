@@ -90,6 +90,11 @@ type templateHandler struct {
 	// (language, output format etc.) of that shortcode.
 	shortcodes map[string]*shortcodeTemplates
 
+	// templateInfo maps template name to some additional information about that template.
+	// Note that for shortcodes that same information is embedded in the
+	// shortcodeTemplates type.
+	templateInfo map[string]tpl.Info
+
 	// text holds all the pure text templates.
 	text *textTemplates
 	html *htmlTemplates
@@ -172,16 +177,28 @@ func (t *templateHandler) Lookup(name string) (tpl.Template, bool) {
 		// The templates are stored without the prefix identificator.
 		name = strings.TrimPrefix(name, textTmplNamePrefix)
 
-		return t.text.Lookup(name)
+		return t.applyTemplateInfo(t.text.Lookup(name))
 	}
 
 	// Look in both
 	if te, found := t.html.Lookup(name); found {
-		return te, true
+		return t.applyTemplateInfo(te, true)
 	}
 
-	return t.text.Lookup(name)
+	return t.applyTemplateInfo(t.text.Lookup(name))
 
+}
+
+func (t *templateHandler) applyTemplateInfo(templ tpl.Template, found bool) (tpl.Template, bool) {
+	if adapter, ok := templ.(*tpl.TemplateAdapter); ok {
+		if adapter.Info.IsZero() {
+			if info, found := t.templateInfo[templ.Name()]; found {
+				adapter.Info = info
+			}
+		}
+	}
+
+	return templ, found
 }
 
 // This currently only applies to shortcodes and what we get here is the
@@ -243,12 +260,13 @@ func (t *templateHandler) setFuncMapInTemplate(in interface{}, funcs map[string]
 
 func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
 	c := &templateHandler{
-		Deps:       d,
-		layoutsFs:  d.BaseFs.Layouts.Fs,
-		shortcodes: make(map[string]*shortcodeTemplates),
-		html:       &htmlTemplates{t: template.Must(t.html.t.Clone()), overlays: make(map[string]*template.Template), templatesCommon: t.html.templatesCommon},
-		text:       &textTemplates{textTemplate: &textTemplate{t: texttemplate.Must(t.text.t.Clone())}, overlays: make(map[string]*texttemplate.Template), templatesCommon: t.text.templatesCommon},
-		errors:     make([]*templateErr, 0),
+		Deps:         d,
+		layoutsFs:    d.BaseFs.Layouts.Fs,
+		shortcodes:   make(map[string]*shortcodeTemplates),
+		templateInfo: t.templateInfo,
+		html:         &htmlTemplates{t: template.Must(t.html.t.Clone()), overlays: make(map[string]*template.Template), templatesCommon: t.html.templatesCommon},
+		text:         &textTemplates{textTemplate: &textTemplate{t: texttemplate.Must(t.text.t.Clone())}, overlays: make(map[string]*texttemplate.Template), templatesCommon: t.text.templatesCommon},
+		errors:       make([]*templateErr, 0),
 	}
 
 	for k, v := range t.shortcodes {
@@ -306,12 +324,13 @@ func newTemplateAdapter(deps *deps.Deps) *templateHandler {
 		templatesCommon: common,
 	}
 	h := &templateHandler{
-		Deps:       deps,
-		layoutsFs:  deps.BaseFs.Layouts.Fs,
-		shortcodes: make(map[string]*shortcodeTemplates),
-		html:       htmlT,
-		text:       textT,
-		errors:     make([]*templateErr, 0),
+		Deps:         deps,
+		layoutsFs:    deps.BaseFs.Layouts.Fs,
+		shortcodes:   make(map[string]*shortcodeTemplates),
+		templateInfo: make(map[string]tpl.Info),
+		html:         htmlT,
+		text:         textT,
+		errors:       make([]*templateErr, 0),
 	}
 
 	common.handler = h
@@ -463,15 +482,17 @@ func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) e
 		return err
 	}
 
-	isShort := isShortcode(name)
+	typ := resolveTemplateType(name)
 
-	info, err := applyTemplateTransformersToHMLTTemplate(isShort, templ)
+	info, err := applyTemplateTransformersToHMLTTemplate(typ, templ)
 	if err != nil {
 		return err
 	}
 
-	if isShort {
+	if typ == templateShortcode {
 		t.handler.addShortcodeVariant(name, info, templ)
+	} else {
+		t.handler.templateInfo[name] = info
 	}
 
 	return nil
@@ -511,7 +532,7 @@ func (t *textTemplate) parseIn(tt *texttemplate.Template, name, tpl string) (*te
 		return nil, err
 	}
 
-	if _, err := applyTemplateTransformersToTextTemplate(false, templ); err != nil {
+	if _, err := applyTemplateTransformersToTextTemplate(templateUndefined, templ); err != nil {
 		return nil, err
 	}
 	return templ, nil
@@ -524,15 +545,17 @@ func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl strin
 		return err
 	}
 
-	isShort := isShortcode(name)
+	typ := resolveTemplateType(name)
 
-	info, err := applyTemplateTransformersToTextTemplate(isShort, templ)
+	info, err := applyTemplateTransformersToTextTemplate(typ, templ)
 	if err != nil {
 		return err
 	}
 
-	if isShort {
+	if typ == templateShortcode {
 		t.handler.addShortcodeVariant(name, info, templ)
+	} else {
+		t.handler.templateInfo[name] = info
 	}
 
 	return nil
@@ -737,7 +760,7 @@ func (t *htmlTemplates) handleMaster(name, overlayFilename, masterFilename strin
 	// * https://github.com/golang/go/issues/16101
 	// * https://github.com/gohugoio/hugo/issues/2549
 	overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
-	if _, err := applyTemplateTransformersToHMLTTemplate(false, overlayTpl); err != nil {
+	if _, err := applyTemplateTransformersToHMLTTemplate(templateUndefined, overlayTpl); err != nil {
 		return err
 	}
 
@@ -777,7 +800,7 @@ func (t *textTemplates) handleMaster(name, overlayFilename, masterFilename strin
 	}
 
 	overlayTpl = overlayTpl.Lookup(overlayTpl.Name())
-	if _, err := applyTemplateTransformersToTextTemplate(false, overlayTpl); err != nil {
+	if _, err := applyTemplateTransformersToTextTemplate(templateUndefined, overlayTpl); err != nil {
 		return err
 	}
 	t.overlays[name] = overlayTpl
@@ -847,15 +870,17 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 			return err
 		}
 
-		isShort := isShortcode(name)
+		typ := resolveTemplateType(name)
 
-		info, err := applyTemplateTransformersToHMLTTemplate(isShort, templ)
+		info, err := applyTemplateTransformersToHMLTTemplate(typ, templ)
 		if err != nil {
 			return err
 		}
 
-		if isShort {
+		if typ == templateShortcode {
 			t.addShortcodeVariant(templateName, info, templ)
+		} else {
+			t.templateInfo[name] = info
 		}
 
 		return nil

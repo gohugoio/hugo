@@ -23,6 +23,12 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gohugoio/hugo/compare"
+
+	"github.com/gohugoio/hugo/common/hreflect"
+
+	"github.com/spf13/cast"
 )
 
 // The Provider interface defines an interface for measuring metrics.
@@ -35,20 +41,20 @@ type Provider interface {
 	WriteMetrics(w io.Writer)
 
 	// TrackValue tracks the value for diff calculations etc.
-	TrackValue(key, value string)
+	TrackValue(key string, value interface{})
 
 	// Reset clears the metric store.
 	Reset()
 }
 
 type diff struct {
-	baseline string
+	baseline interface{}
 	count    int
 	simSum   int
 }
 
-func (d *diff) add(v string) *diff {
-	if d.baseline == "" {
+func (d *diff) add(v interface{}) *diff {
+	if !hreflect.IsTruthful(v) {
 		d.baseline = v
 		d.count = 1
 		d.simSum = 100 // If we get only one it is very cache friendly.
@@ -90,7 +96,7 @@ func (s *Store) Reset() {
 }
 
 // TrackValue tracks the value for diff calculations etc.
-func (s *Store) TrackValue(key, value string) {
+func (s *Store) TrackValue(key string, value interface{}) {
 	if !s.calculateHints {
 		return
 	}
@@ -191,12 +197,42 @@ func (b bySum) Less(i, j int) bool { return b[i].sum > b[j].sum }
 
 // howSimilar is a naive diff implementation that returns
 // a number between 0-100 indicating how similar a and b are.
-// 100 is when all words in a also exists in b.
-func howSimilar(a, b string) int {
-
+func howSimilar(a, b interface{}) int {
 	if a == b {
 		return 100
 	}
+
+	as, err1 := cast.ToStringE(a)
+	bs, err2 := cast.ToStringE(b)
+
+	if err1 == nil && err2 == nil {
+		return howSimilarStrings(as, bs)
+	}
+
+	if err1 != err2 {
+		return 0
+	}
+
+	e1, ok1 := a.(compare.Eqer)
+	e2, ok2 := b.(compare.Eqer)
+	if ok1 && ok2 && e1.Eq(e2) {
+		return 100
+	}
+
+	// TODO(bep) implement ProbablyEq for Pages etc.
+	pe1, pok1 := a.(compare.ProbablyEqer)
+	pe2, pok2 := b.(compare.ProbablyEqer)
+	if pok1 && pok2 && pe1.ProbablyEq(pe2) {
+		return 90
+	}
+
+	return 0
+}
+
+// howSimilar is a naive diff implementation that returns
+// a number between 0-100 indicating how similar a and b are.
+// 100 is when all words in a also exists in b.
+func howSimilarStrings(a, b string) int {
 
 	// Give some weight to the word positions.
 	const partitionSize = 4
