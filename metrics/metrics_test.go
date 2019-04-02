@@ -17,6 +17,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/resources/page"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -38,6 +40,12 @@ func TestSimilarPercentage(t *testing.T) {
 	assert.Equal(0, howSimilar("Totally different", "Not Same"))
 	assert.Equal(14, howSimilar(sentence, sentenceReversed))
 
+}
+
+func TestSimilarPercentageNonString(t *testing.T) {
+	assert := require.New(t)
+	assert.Equal(100, howSimilar(page.NopPage, page.NopPage))
+	assert.Equal(90, howSimilar(page.Pages{}, page.Pages{}))
 }
 
 func BenchmarkHowSimilar(b *testing.B) {

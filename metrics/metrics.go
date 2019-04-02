@@ -27,8 +27,6 @@ import (
 	"github.com/gohugoio/hugo/compare"
 
 	"github.com/gohugoio/hugo/common/hreflect"
-
-	"github.com/spf13/cast"
 )
 
 // The Provider interface defines an interface for measuring metrics.
@@ -198,18 +196,17 @@ func (b bySum) Less(i, j int) bool { return b[i].sum > b[j].sum }
 // howSimilar is a naive diff implementation that returns
 // a number between 0-100 indicating how similar a and b are.
 func howSimilar(a, b interface{}) int {
-	if a == b {
-		return 100
-	}
+	// TODO(bep) object equality fast path, but remember that
+	// we can get anytning in here.
 
-	as, err1 := cast.ToStringE(a)
-	bs, err2 := cast.ToStringE(b)
+	as, ok1 := a.(string)
+	bs, ok2 := b.(string)
 
-	if err1 == nil && err2 == nil {
+	if ok1 && ok2 {
 		return howSimilarStrings(as, bs)
 	}
 
-	if err1 != err2 {
+	if ok1 != ok2 {
 		return 0
 	}
 
@@ -219,7 +216,6 @@ func howSimilar(a, b interface{}) int {
 		return 100
 	}
 
-	// TODO(bep) implement ProbablyEq for Pages etc.
 	pe1, pok1 := a.(compare.ProbablyEqer)
 	pe2, pok2 := b.(compare.ProbablyEqer)
 	if pok1 && pok2 && pe1.ProbablyEq(pe2) {
