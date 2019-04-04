@@ -55,13 +55,13 @@ func (s siteRenderContext) renderSingletonPages() bool {
 // TODO(bep np doc
 func (s *Site) renderPages(ctx *siteRenderContext) error {
 
+	numWorkers := getGoMaxProcs() * 4
+
 	results := make(chan error)
-	pages := make(chan *pageState)
+	pages := make(chan *pageState, numWorkers) // buffered for performance
 	errs := make(chan error)
 
 	go s.errorCollator(results, errs)
-
-	numWorkers := getGoMaxProcs() * 4
 
 	wg := &sync.WaitGroup{}
 
