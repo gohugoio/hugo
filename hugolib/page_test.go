@@ -516,8 +516,8 @@ func TestPageSummary(t *testing.T) {
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
 		p := pages[0]
 		checkPageTitle(t, p, "SimpleWithoutSummaryDelimiter")
-		// Source is not RST-compatibile so don't test for it
-		if ext != "rst" {
+		// Source is not Asciidoctor- or RST-compatibile so don't test them
+		if ext != "ad" && ext != "rst" {
 			checkPageContent(t, p, normalizeExpected(ext, "<p><a href=\"https://lipsum.com/\">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n\n<p>Additional text.</p>\n\n<p>Further text.</p>\n"), ext)
 			checkPageSummary(t, p, normalizeExpected(ext, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Additional text."), ext)
 		}
@@ -546,8 +546,8 @@ func TestPageWithSummaryParameter(t *testing.T) {
 		p := pages[0]
 		checkPageTitle(t, p, "SimpleWithSummaryParameter")
 		checkPageContent(t, p, normalizeExpected(ext, "<p>Some text.</p>\n\n<p>Some more text.</p>\n"), ext)
-		// Summary is not RST-compatibile so don't test for it
-		if ext != "rst" {
+		// Summary is not Asciidoctor- or RST-compatibile so don't test them
+		if ext != "ad" && ext != "rst" {
 			checkPageSummary(t, p, normalizeExpected(ext, "Page with summary parameter and <a href=\"http://www.example.com/\">a link</a>"), ext)
 		}
 		checkPageType(t, p, "page")
