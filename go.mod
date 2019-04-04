@@ -13,7 +13,7 @@ require (
 	github.com/bep/go-tocss v0.6.0
 	github.com/chaseadamsio/goorgeous v1.1.0
 	github.com/cpuguy83/go-md2man v1.0.8 // indirect
-	github.com/disintegration/imaging v1.5.0
+	github.com/disintegration/imaging v1.6.0
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385
 	github.com/fortytw2/leaktest v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7
@@ -49,7 +49,7 @@ require (
 	github.com/stretchr/testify v1.3.0
 	github.com/tdewolff/minify/v2 v2.3.7
 	github.com/yosssi/ace v0.0.5
-	golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81
+	golang.org/x/image v0.0.0-20190321063152-3fc05d484e9f
 	golang.org/x/net v0.0.0-20180906233101-161cd47e91fd // indirect
 	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f
 	golang.org/x/sys v0.0.0-20190322080309-f49334f85ddc // indirect
