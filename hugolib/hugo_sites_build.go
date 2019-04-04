@@ -288,10 +288,8 @@ func (h *HugoSites) render(config *BuildCfg) error {
 					// needs this set.
 					s2.rc = &siteRenderingContext{Format: renderFormat}
 
-					if !config.PartialReRender {
-						if err := s2.preparePagesForRender(siteRenderContext.sitesOutIdx); err != nil {
-							return err
-						}
+					if err := s2.preparePagesForRender(siteRenderContext.sitesOutIdx); err != nil {
+						return err
 					}
 				}
 

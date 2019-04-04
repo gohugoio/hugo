@@ -569,11 +569,14 @@ func (cfg *BuildCfg) shouldRender(p *pageState) bool {
 		return false
 	}
 	if p.forceRender {
-		p.forceRender = false
 		return true
 	}
 
 	if len(cfg.RecentlyVisited) == 0 {
+		return true
+	}
+
+	if cfg.RecentlyVisited[p.RelPermalink()] {
 		return true
 	}
 

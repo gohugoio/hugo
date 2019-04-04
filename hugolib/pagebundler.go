@@ -110,8 +110,9 @@ func (s *siteContentProcessor) process(ctx context.Context) error {
 				panic(fmt.Sprintf("invalid page site: %v vs %v", p.s, s))
 			}
 
-			if s.partialBuild {
-				p.forceRender = true
+			p.forceRender = s.partialBuild
+
+			if p.forceRender {
 				s.site.replacePage(p)
 			} else {
 				s.site.addPage(p)
