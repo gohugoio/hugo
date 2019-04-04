@@ -134,10 +134,7 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 						Cfg:        p.Language(),
 						DocumentID: p.File().UniqueID(), DocumentName: p.File().Path(),
 						Config: cp.p.getRenderingConfig()})
-					// Strip enclosing <p>
-					html = []byte(strings.TrimSpace(string(html)))
-					html = []byte(strings.TrimPrefix(string(html), "<p>"))
-					html = []byte(strings.TrimSuffix(string(html), "</p>"))
+					html = cp.p.s.ContentSpec.TrimShortHTML(html)
 					cp.summary = helpers.BytesToHTML(html)
 				}
 			}
