@@ -1883,7 +1883,7 @@ func (s *Site) newPage(kind string, sections ...string) *pageState {
 
 func getGoMaxProcs() int {
 	if gmp := os.Getenv("GOMAXPROCS"); gmp != "" {
-		if p, err := strconv.Atoi(gmp); err != nil {
+		if p, err := strconv.Atoi(gmp); err == nil {
 			return p
 		}
 	}
