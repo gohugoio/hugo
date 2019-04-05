@@ -209,6 +209,8 @@ type PageWithoutContent interface {
 	// For pages backed by a file.
 	FileProvider
 
+	GitInfoProvider
+
 	// Output formats
 	OutputFormatsProvider
 	AlternativeOutputFormatsProvider
