@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,23 +11,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package config
 
 import (
 	"os"
-
-	"github.com/gohugoio/hugo/commands"
+	"runtime"
+	"strconv"
 )
 
-func main() {
-	resp := commands.Execute(os.Args[1:])
-
-	if resp.Err != nil {
-		if resp.IsUserError() {
-			resp.Cmd.Println("")
-			resp.Cmd.Println(resp.Cmd.UsageString())
+// GetNumWorkerMultiplier returns the base value used to calculate the number
+// of workers to use for Hugo's parallel execution.
+// It returns the value in HUGO_NUMWORKERMULTIPLIER OS env variable if set to a
+// positive integer, else the number of logical CPUs.
+func GetNumWorkerMultiplier() int {
+	if gmp := os.Getenv("HUGO_NUMWORKERMULTIPLIER"); gmp != "" {
+		if p, err := strconv.Atoi(gmp); err == nil && p > 0 {
+			return p
 		}
-		os.Exit(-1)
 	}
-
+	return runtime.NumCPU()
 }

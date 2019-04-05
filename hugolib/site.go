@@ -1881,15 +1881,6 @@ func (s *Site) newPage(kind string, sections ...string) *pageState {
 	return p
 }
 
-func getGoMaxProcs() int {
-	if gmp := os.Getenv("GOMAXPROCS"); gmp != "" {
-		if p, err := strconv.Atoi(gmp); err == nil {
-			return p
-		}
-	}
-	return 1
-}
-
 func (s *Site) shouldBuild(p page.Page) bool {
 	return shouldBuild(s.BuildFuture, s.BuildExpired,
 		s.BuildDrafts, p.Draft(), p.PublishDate(), p.ExpiryDate())

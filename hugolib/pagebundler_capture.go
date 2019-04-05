@@ -19,7 +19,8 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"runtime"
+
+	"github.com/gohugoio/hugo/config"
 
 	"github.com/gohugoio/hugo/common/loggers"
 	_errors "github.com/pkg/errors"
@@ -70,10 +71,7 @@ func newCapturer(
 	contentChanges *contentChangeMap,
 	filenames ...string) *capturer {
 
-	numWorkers := 4
-	if n := runtime.NumCPU(); n > numWorkers {
-		numWorkers = n
-	}
+	numWorkers := config.GetNumWorkerMultiplier()
 
 	// TODO(bep) the "index" vs "_index" check/strings should be moved in one place.
 	isBundleHeader := func(filename string) bool {

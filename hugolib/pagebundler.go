@@ -18,7 +18,8 @@ import (
 	"fmt"
 	"math"
 	"path/filepath"
-	"runtime"
+
+	"github.com/gohugoio/hugo/config"
 
 	_errors "github.com/pkg/errors"
 
@@ -73,10 +74,7 @@ func (s *siteContentProcessor) processAsset(asset pathLangFile) {
 }
 
 func newSiteContentProcessor(ctx context.Context, partialBuild bool, s *Site) *siteContentProcessor {
-	numWorkers := 12
-	if n := runtime.NumCPU() * 3; n > numWorkers {
-		numWorkers = n
-	}
+	numWorkers := config.GetNumWorkerMultiplier() * 3
 
 	numWorkers = int(math.Ceil(float64(numWorkers) / float64(len(s.h.Sites))))
 

@@ -297,6 +297,11 @@ enableemoji: true
 ```
 {{% /note %}}
 
+## Configuration Environment Variables
+
+HUGO_NUMWORKERMULTIPLIER
+: Can be set to increase or reduce the number of workers used in parallel processing in Hugo. If not set, the number of logical CPUs will be used.
+
 ## Configuration Lookup Order
 
 Similar to the template [lookup order][], Hugo has a default set of rules for searching for a configuration file in the root of your website's source directory as a default behavior:

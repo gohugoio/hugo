@@ -19,6 +19,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/output"
 	"github.com/pkg/errors"
 
@@ -55,7 +57,7 @@ func (s siteRenderContext) renderSingletonPages() bool {
 // TODO(bep np doc
 func (s *Site) renderPages(ctx *siteRenderContext) error {
 
-	numWorkers := getGoMaxProcs() * 4
+	numWorkers := config.GetNumWorkerMultiplier()
 
 	results := make(chan error)
 	pages := make(chan *pageState, numWorkers) // buffered for performance
