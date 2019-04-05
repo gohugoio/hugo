@@ -17,6 +17,7 @@ package page
 
 import (
 	"encoding/json"
+	"github.com/bep/gitmap"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/media"
@@ -76,6 +77,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	weight := p.Weight()
 	language := p.Language()
 	file := p.File()
+	gitInfo := p.GitInfo()
 	outputFormats := p.OutputFormats()
 	alternativeOutputFormats := p.AlternativeOutputFormats()
 	menus := p.Menus()
@@ -131,6 +133,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Weight                   int
 		Language                 *langs.Language
 		File                     source.File
+		GitInfo                  *gitmap.GitInfo
 		OutputFormats            OutputFormats
 		AlternativeOutputFormats OutputFormats
 		Menus                    navigation.PageMenus
@@ -185,6 +188,7 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 		Weight:                   weight,
 		Language:                 language,
 		File:                     file,
+		GitInfo:                  gitInfo,
 		OutputFormats:            outputFormats,
 		AlternativeOutputFormats: alternativeOutputFormats,
 		Menus:                    menus,
