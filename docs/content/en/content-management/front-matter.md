@@ -111,6 +111,9 @@ series
 slug
 : appears as the tail of the output URL. A value specified in front matter will override the segment of the URL based on the filename.
 
+summary
+: text used when providing a summary of the article in the `.Summary` page variable; details available in the [content-summaries](/content-management/summaries/) section.
+
 title
 : the title for the content.
 
