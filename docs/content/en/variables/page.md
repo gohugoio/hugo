@@ -153,7 +153,7 @@ http://remarkjs.com)
 : returns the site for the first language. If this is not a multilingual setup, it will return itself.
 
 .Summary
-: a generated summary of the content for easily showing a snippet in a summary view. The breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page. See [Content Summaries](/content-management/summaries/) for more details.
+: a generated summary of the content for easily showing a snippet in a summary view. The breakpoint can be set manually by inserting <code>&lt;!&#x2d;&#x2d;more&#x2d;&#x2d;&gt;</code> at the appropriate place in the content page, or the summary can be written independent of the page text.  See [Content Summaries](/content-management/summaries/) for more details.
 
 .TableOfContents
 : the rendered [table of contents](/content-management/toc/) for the page.
