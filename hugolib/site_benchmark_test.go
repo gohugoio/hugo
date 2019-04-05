@@ -195,8 +195,7 @@ tags = %s
 
 	pageTemplateYAML := `---
 title: "%s"
-tags:
-%s
+tags: %s
 ---
 %s
 
@@ -255,8 +254,6 @@ weight = %d
 		tags[i] = fmt.Sprintf("Hugo %d", i+1)
 	}
 
-	var tagsStr string
-
 	if cfg.Shortcodes {
 		contentPagesContent = [3]string{
 			someMarkdown,
@@ -302,6 +299,8 @@ weight = %d
 						tagsSlice = tags[tagsStart : tagsStart+cfg.TagsPerPage]
 					}
 
+					var tagsStr string
+
 					if cfg.Frontmatter == "TOML" {
 						pageTemplate = pageTemplateTOML
 						tagsStr = "[]"
@@ -321,9 +320,11 @@ weight = %d
 					contentFilename := fmt.Sprintf("page%d%s.md", j, fileLangCodeID)
 
 					writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), contentFilename), content)
+
 				}
 
 				content := fmt.Sprintf(pageTemplate, fmt.Sprintf("Section %d", i), "[]", contentPagesContent[rand.Intn(3)])
+
 				indexContentFilename := fmt.Sprintf("_index%s.md", fileLangCodeID)
 				writeSource(b, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), indexContentFilename), content)
 			}
