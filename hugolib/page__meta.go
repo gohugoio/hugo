@@ -64,6 +64,8 @@ type pageMeta struct {
 	title     string
 	linkTitle string
 
+	summary string
+
 	resourcePath string
 
 	weight int
@@ -361,6 +363,9 @@ func (pm *pageMeta) setMetadata(p *pageState, frontmatter map[string]interface{}
 		case "linktitle":
 			pm.linkTitle = cast.ToString(v)
 			pm.params[loki] = pm.linkTitle
+		case "summary":
+			pm.summary = cast.ToString(v)
+			pm.params[loki] = pm.summary
 		case "description":
 			pm.description = cast.ToString(v)
 			pm.params[loki] = pm.description

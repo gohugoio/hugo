@@ -128,6 +128,14 @@ func newPageContentOutput(p *pageState) func(f output.Format) (*pageContentOutpu
 							cp.summary = helpers.BytesToHTML(summary)
 						}
 					}
+				} else if cp.p.m.summary != "" {
+					html := cp.p.s.ContentSpec.RenderBytes(&helpers.RenderingContext{
+						Content: []byte(cp.p.m.summary), RenderTOC: false, PageFmt: cp.p.m.markup,
+						Cfg:        p.Language(),
+						DocumentID: p.File().UniqueID(), DocumentName: p.File().Path(),
+						Config: cp.p.getRenderingConfig()})
+					html = cp.p.s.ContentSpec.TrimShortHTML(html)
+					cp.summary = helpers.BytesToHTML(html)
 				}
 			}
 
@@ -271,7 +279,7 @@ func (p *pageContentOutput) WordCount() int {
 }
 
 func (p *pageContentOutput) setAutoSummary() error {
-	if p.p.source.hasSummaryDivider {
+	if p.p.source.hasSummaryDivider || p.p.m.summary != "" {
 		return nil
 	}
 

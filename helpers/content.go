@@ -42,6 +42,12 @@ import (
 // SummaryDivider denotes where content summarization should end. The default is "<!--more-->".
 var SummaryDivider = []byte("<!--more-->")
 
+var (
+	openingPTag        = []byte("<p>")
+	closingPTag        = []byte("</p>")
+	paragraphIndicator = []byte("<p")
+)
+
 // ContentSpec provides functionality to render markdown content.
 type ContentSpec struct {
 	BlackFriday                *BlackFriday
@@ -578,6 +584,21 @@ func (c *ContentSpec) TruncateWordsToWholeSentence(s string) (string, bool) {
 	}
 
 	return strings.TrimSpace(s[:endIndex]), endIndex < len(s)
+}
+
+// TrimShortHTML removes the <p>/</p> tags from HTML input in the situation
+// where said tags are the only <p> tags in the input and enclose the content
+// of the input (whitespace excluded).
+func (c *ContentSpec) TrimShortHTML(input []byte) []byte {
+	first := bytes.Index(input, paragraphIndicator)
+	last := bytes.LastIndex(input, paragraphIndicator)
+	if first == last {
+		input = bytes.TrimSpace(input)
+		input = bytes.TrimPrefix(input, openingPTag)
+		input = bytes.TrimSuffix(input, closingPTag)
+		input = bytes.TrimSpace(input)
+	}
+	return input
 }
 
 func isEndOfSentence(r rune) bool {

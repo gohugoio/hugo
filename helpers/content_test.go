@@ -29,6 +29,28 @@ import (
 
 const tstHTMLContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p></body></html>"
 
+func TestTrimShortHTML(t *testing.T) {
+	tests := []struct {
+		input, output []byte
+	}{
+		{[]byte(""), []byte("")},
+		{[]byte("Plain text"), []byte("Plain text")},
+		{[]byte("  \t\n Whitespace text\n\n"), []byte("Whitespace text")},
+		{[]byte("<p>Simple paragraph</p>"), []byte("Simple paragraph")},
+		{[]byte("\n  \n \t  <p> \t Whitespace\nHTML  \n\t </p>\n\t"), []byte("Whitespace\nHTML")},
+		{[]byte("<p>Multiple</p><p>paragraphs</p>"), []byte("<p>Multiple</p><p>paragraphs</p>")},
+		{[]byte("<p>Nested<p>paragraphs</p></p>"), []byte("<p>Nested<p>paragraphs</p></p>")},
+	}
+
+	c := newTestContentSpec()
+	for i, test := range tests {
+		output := c.TrimShortHTML(test.input)
+		if bytes.Compare(test.output, output) != 0 {
+			t.Errorf("Test %d failed. Expected %q got %q", i, test.output, output)
+		}
+	}
+}
+
 func TestStripHTML(t *testing.T) {
 	type test struct {
 		input, expected string

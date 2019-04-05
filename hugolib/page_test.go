@@ -45,6 +45,16 @@ const (
 
 	simplePageRFC3339Date = "---\ntitle: RFC3339 Date\ndate: \"2013-05-17T16:59:30Z\"\n---\nrfc3339 content"
 
+	simplePageWithoutSummaryDelimiter = `---
+title: SimpleWithoutSummaryDelimiter
+---
+[Lorem ipsum](https://lipsum.com/) dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+Additional text.
+
+Further text.
+`
+
 	simplePageWithSummaryDelimiter = `---
 title: Simple
 ---
@@ -52,6 +62,16 @@ Summary Next Line
 
 <!--more-->
 Some more text
+`
+
+	simplePageWithSummaryParameter = `---
+title: SimpleWithSummaryParameter
+summary: "Page with summary parameter and [a link](http://www.example.com/)"
+---
+
+Some text.
+
+Some more text.
 `
 
 	simplePageWithSummaryDelimiterAndMarkdownThatCrossesBorder = `---
@@ -519,6 +539,22 @@ func TestCreateNewPage(t *testing.T) {
 	testAllMarkdownEnginesForPages(t, assertFunc, settings, simplePage)
 }
 
+func TestPageSummary(t *testing.T) {
+	t.Parallel()
+	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
+		p := pages[0]
+		checkPageTitle(t, p, "SimpleWithoutSummaryDelimiter")
+		// Source is not Asciidoctor- or RST-compatibile so don't test them
+		if ext != "ad" && ext != "rst" {
+			checkPageContent(t, p, normalizeExpected(ext, "<p><a href=\"https://lipsum.com/\">Lorem ipsum</a> dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>\n\n<p>Additional text.</p>\n\n<p>Further text.</p>\n"), ext)
+			checkPageSummary(t, p, normalizeExpected(ext, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Additional text."), ext)
+		}
+		checkPageType(t, p, "page")
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithoutSummaryDelimiter)
+}
+
 func TestPageWithDelimiter(t *testing.T) {
 	t.Parallel()
 	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
@@ -530,6 +566,22 @@ func TestPageWithDelimiter(t *testing.T) {
 	}
 
 	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryDelimiter)
+}
+
+func TestPageWithSummaryParameter(t *testing.T) {
+	t.Parallel()
+	assertFunc := func(t *testing.T, ext string, pages page.Pages) {
+		p := pages[0]
+		checkPageTitle(t, p, "SimpleWithSummaryParameter")
+		checkPageContent(t, p, normalizeExpected(ext, "<p>Some text.</p>\n\n<p>Some more text.</p>\n"), ext)
+		// Summary is not Asciidoctor- or RST-compatibile so don't test them
+		if ext != "ad" && ext != "rst" {
+			checkPageSummary(t, p, normalizeExpected(ext, "Page with summary parameter and <a href=\"http://www.example.com/\">a link</a>"), ext)
+		}
+		checkPageType(t, p, "page")
+	}
+
+	testAllMarkdownEnginesForPages(t, assertFunc, nil, simplePageWithSummaryParameter)
 }
 
 // Issue #3854
