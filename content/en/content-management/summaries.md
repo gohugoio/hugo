@@ -23,6 +23,7 @@ With the use of the `.Summary` [page variable][pagevariables], Hugo generates su
 
 * Automatic Summary Split
 * Manual Summary Split
+* Front Matter Summary
 
 It is natural to accompany the summary with links to the original content, and a common design pattern is to see this link in the form of a "Read More ..." button. See the `.RelPermalink`, `.Permalink`, and `.Truncated` [page variables][pagevariables].
 
@@ -58,6 +59,28 @@ Cons
 
 {{% warning "Be Precise with the Summary Divider" %}}
 Be careful to enter <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> exactly; i.e., all lowercase and with no whitespace.
+{{% /warning %}}
+
+### Front Matter Summary
+
+You might want your summary to be something other than the text that starts the article.  In this case you can provide a separate summary in the `summary` variable of the article front matter.
+
+Pros
+: Complete freedom of text independent of the content of the article.  Markup can be used within the summary.
+
+Cons
+: Extra work for content authors as they need to write an entirely separate piece of text as the summary of the article.
+
+## Summary Selection Order
+
+Because there are multiple ways in which a summary can be specified it is useful to understand the order of selection Hugo follows when deciding on the text to be returned by `.Summary`.  It is as follows:
+
+1. If there is a <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider present in the article the text up to the divider will be provided as per the manual summary split method
+2. If there is a `summary` variable in the article front matter the value of the variable will be provided as per the front matter summary method
+3. The text at the start of the article will be provided as per the automatic summary split method
+
+{{% warning "Competing selections" %}}
+Hugo uses the _first_ of the above steps that returns text.  So if, for example, your article has both `summary` variable in its front matter and a <code>&#60;&#33;&#45;&#45;more&#45;&#45;&#62;</code> summary divider Hugo will use the manual summary split method.
 {{% /warning %}}
 
 ## Example: First 10 Articles with Summaries
