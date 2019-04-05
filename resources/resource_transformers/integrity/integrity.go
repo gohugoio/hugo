@@ -19,10 +19,11 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/hex"
-	"fmt"
 	"hash"
 	"html/template"
 	"io"
+
+	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
@@ -52,19 +53,10 @@ func (t *fingerprintTransformation) Key() resources.ResourceTransformationKey {
 // Transform creates a MD5 hash of the Resource content and inserts that hash before
 // the extension in the filename.
 func (t *fingerprintTransformation) Transform(ctx *resources.ResourceTransformationCtx) error {
-	algo := t.algo
 
-	var h hash.Hash
-
-	switch algo {
-	case "md5":
-		h = md5.New()
-	case "sha256":
-		h = sha256.New()
-	case "sha512":
-		h = sha512.New()
-	default:
-		return fmt.Errorf("unsupported crypto algo: %q, use either md5, sha256 or sha512", algo)
+	h, err := newHash(t.algo)
+	if err != nil {
+		return err
 	}
 
 	io.Copy(io.MultiWriter(h, ctx.To), ctx.From)
@@ -73,9 +65,24 @@ func (t *fingerprintTransformation) Transform(ctx *resources.ResourceTransformat
 		return err
 	}
 
-	ctx.Data["Integrity"] = integrity(algo, d)
+	ctx.Data["Integrity"] = integrity(t.algo, d)
 	ctx.AddOutPathIdentifier("." + hex.EncodeToString(d[:]))
 	return nil
+}
+
+func newHash(algo string) (hash.Hash, error) {
+	switch algo {
+	case "md5":
+		return md5.New(), nil
+	case "sha256":
+		return sha256.New(), nil
+	case "sha384":
+		return sha512.New384(), nil
+	case "sha512":
+		return sha512.New(), nil
+	default:
+		return nil, errors.Errorf("unsupported crypto algo: %q, use either md5, sha256, sha384 or sha512", algo)
+	}
 }
 
 // Fingerprint applies fingerprinting of the given resource and hash algorithm.
