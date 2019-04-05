@@ -448,7 +448,7 @@ categories: ["cool stuff"]
 
 	b := newTestSitesBuilder(t)
 	b.WithSimpleConfigFile().WithContent("page.md", pageContent)
-	b.WithSimpleConfigFile().WithContent("blog/page.md", pageContent)
+	b.WithContent("blog/page.md", pageContent)
 
 	b.CreateSites().Build(BuildCfg{})
 
@@ -467,6 +467,34 @@ categories: ["cool stuff"]
 		checkDated(p, p.Kind())
 	}
 	checkDate(s.Info.LastChange(), "site")
+
+}
+
+func TestPageDatesSections(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithContent("no-index/page.md", `
+---
+title: Page
+date: 2017-01-15
+---
+`)
+	b.WithSimpleConfigFile().WithContent("with-index-no-date/_index.md", `---
+title: No Date
+---
+
+`)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	assert.Equal(1, len(b.H.Sites))
+	s := b.H.Sites[0]
+
+	assert.Equal(2017, s.getPage("/").Date().Year())
+	assert.Equal(2017, s.getPage("/no-index").Date().Year())
+	assert.True(s.getPage("/with-index-no-date").Date().IsZero())
 
 }
 

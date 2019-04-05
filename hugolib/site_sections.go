@@ -162,6 +162,7 @@ func (s *Site) assembleSections() pageStatePages {
 			if currentSection != nil {
 				// A new section
 				currentSection.setPages(children)
+				currentSection.m.Dates = *dates
 			}
 
 			currentSection = p
@@ -176,6 +177,7 @@ func (s *Site) assembleSections() pageStatePages {
 		p.parent = currentSection
 		children = append(children, p)
 		dates.UpdateDateAndLastmodIfAfter(p)
+
 		return false
 	})
 
