@@ -36,14 +36,17 @@ This is primarily to ensure that Hugo can watch enough files on some OSs`,
 			var rLimit syscall.Rlimit
 			err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 			if err != nil {
-				return newSystemError("Error Getting Rlimit ", err)
+				return newSystemError("Error Getting rlimit ", err)
 			}
 
 			jww.FEEDBACK.Println("Current rLimit:", rLimit)
 
+			if rLimit.Cur >= newRlimit {
+				return nil
+			}
+
 			jww.FEEDBACK.Println("Attempting to increase limit")
-			rLimit.Max = 999999
-			rLimit.Cur = 999999
+			rLimit.Cur = newRlimit
 			err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 			if err != nil {
 				return newSystemError("Error Setting rLimit ", err)
@@ -61,18 +64,21 @@ This is primarily to ensure that Hugo can watch enough files on some OSs`,
 	return &limitCmd{baseCmd: newBaseCmd(ccmd)}
 }
 
+const newRlimit = 10240
+
 func tweakLimit() {
 	var rLimit syscall.Rlimit
 	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 	if err != nil {
-		jww.ERROR.Println("Unable to obtain rLimit", err)
+		jww.WARN.Println("Unable to get rlimit:", err)
+		return
 	}
-	if rLimit.Cur < rLimit.Max {
-		rLimit.Max = 64000
-		rLimit.Cur = 64000
+	if rLimit.Cur < newRlimit {
+		rLimit.Cur = newRlimit
 		err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
 		if err != nil {
-			jww.WARN.Println("Unable to increase number of open files limit", err)
+			// This may not succeed, see https://github.com/golang/go/issues/30401
+			jww.INFO.Println("Unable to increase number of open files limit:", err)
 		}
 	}
 }
