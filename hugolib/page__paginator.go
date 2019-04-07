@@ -81,3 +81,7 @@ func (p *pagePaginator) Paginator(options ...interface{}) (*page.Pager, error) {
 
 	return p.current, nil
 }
+
+func (p *pagePaginator) rewind() {
+	p.current = p.current.First()
+}

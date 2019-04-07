@@ -9,21 +9,22 @@
     <li class="page-item{{ if not $pag.HasPrev }} disabled{{ end }}">
     <a href="{{ if $pag.HasPrev }}{{ $pag.Prev.URL }}{{ end }}" class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
     </li>
-    {{ $.Scratch.Set "__paginator.ellipsed" false }}
+    {{ $ellipsed := false }}
+    {{ $shouldEllipse := false }}
     {{ range $pag.Pagers }}
     {{ $right := sub .TotalPages .PageNumber }}
     {{ $showNumber := or (le .PageNumber 3) (eq $right 0) }}
     {{ $showNumber := or $showNumber (and (gt .PageNumber (sub $pag.PageNumber 2)) (lt .PageNumber (add $pag.PageNumber 2)))  }}
     {{ if $showNumber }}
-        {{ $.Scratch.Set "__paginator.ellipsed" false }}
-        {{ $.Scratch.Set "__paginator.shouldEllipse" false }}
+        {{ $ellipsed = false }}
+        {{ $shouldEllipse = false }}
     {{ else }}
-        {{ $.Scratch.Set "__paginator.shouldEllipse" (not ($.Scratch.Get "__paginator.ellipsed") ) }}
-        {{ $.Scratch.Set "__paginator.ellipsed" true }}
+        {{ $shouldEllipse = not $ellipsed }}
+        {{ $ellipsed = true }}
     {{ end }}
     {{ if $showNumber }}
     <li class="page-item{{ if eq . $pag }} active{{ end }}"><a class="page-link" href="{{ .URL }}">{{ .PageNumber }}</a></li>
-    {{ else if ($.Scratch.Get "__paginator.shouldEllipse") }}
+    {{ else if $shouldEllipse }}
     <li class="page-item disabled"><span aria-hidden="true">&nbsp;&hellip;&nbsp;</span></li>
     {{ end }}
     {{ end }}
