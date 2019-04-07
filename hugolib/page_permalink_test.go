@@ -108,7 +108,7 @@ Content
 func TestRelativeURLInFrontMatter(t *testing.T) {
 
 	config := `
-
+baseURL = "https://example.com"
 defaultContentLanguage = "en"
 defaultContentLanguageInSubdir = false
 
@@ -132,6 +132,8 @@ Some content.
 
 	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
 	b.WithContent("content/en/blog/page1.md", fmt.Sprintf(pageTempl, "myblog/p1/"))
+	b.WithContent("content/en/blog/page2.md", fmt.Sprintf(pageTempl, "../../../../../myblog/p2/"))
+	b.WithContent("content/en/blog/page3.md", fmt.Sprintf(pageTempl, "../myblog/../myblog/p3/"))
 	b.WithContent("content/en/blog/_index.md", fmt.Sprintf(pageTempl, "this-is-my-english-blog"))
 	b.WithContent("content/nn/blog/page1.md", fmt.Sprintf(pageTempl, "myblog/p1/"))
 	b.WithContent("content/nn/blog/_index.md", fmt.Sprintf(pageTempl, "this-is-my-blog"))
@@ -139,8 +141,10 @@ Some content.
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/nn/myblog/p1/index.html", "Single: A page|Hello|nn|RelPermalink: /nn/myblog/p1/|")
-	b.AssertFileContent("public/nn/this-is-my-blog/index.html", "List Page 1|A page|Hello|/nn/this-is-my-blog/|")
-	b.AssertFileContent("public/this-is-my-english-blog/index.html", "List Page 1|A page|Hello|/this-is-my-english-blog/|")
-	b.AssertFileContent("public/myblog/p1/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p1/|Permalink: /myblog/p1/|")
+	b.AssertFileContent("public/nn/this-is-my-blog/index.html", "List Page 1|A page|Hello|https://example.com/nn/this-is-my-blog/|")
+	b.AssertFileContent("public/this-is-my-english-blog/index.html", "List Page 1|A page|Hello|https://example.com/this-is-my-english-blog/|")
+	b.AssertFileContent("public/myblog/p1/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p1/|Permalink: https://example.com/myblog/p1/|")
+	b.AssertFileContent("public/myblog/p2/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p2/|Permalink: https://example.com/myblog/p2/|")
+	b.AssertFileContent("public/myblog/p3/index.html", "Single: A page|Hello|en|RelPermalink: /myblog/p3/|Permalink: https://example.com/myblog/p3/|")
 
 }

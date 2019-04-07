@@ -21,6 +21,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/common/hugo"
+
 	"github.com/gohugoio/hugo/related"
 
 	"github.com/gohugoio/hugo/source"
@@ -374,11 +376,22 @@ func (pm *pageMeta) setMetadata(p *pageState, frontmatter map[string]interface{}
 			pm.urlPaths.Slug = strings.Trim(cast.ToString(v), "-")
 			pm.params[loki] = pm.Slug()
 		case "url":
-			if url := cast.ToString(v); strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
-				return fmt.Errorf("only relative URLs are supported, %v provided", url)
+			url := cast.ToString(v)
+			if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
+				return fmt.Errorf("URLs with protocol (http*) not supported: %q. In page %q", url, p.pathOrTitle())
 			}
-			pm.urlPaths.URL = cast.ToString(v)
-			pm.params[loki] = pm.urlPaths.URL
+			lang := p.s.GetLanguagePrefix()
+			if lang != "" && !strings.HasPrefix(url, "/") && strings.HasPrefix(url, lang) {
+				if strings.HasPrefix(hugo.CurrentVersion.String(), "0.55") {
+					// We added support for page relative URLs in Hugo 0.55 and
+					// this may get its language path added twice.
+					// TODO(bep) eventually remove this.
+					p.s.Log.WARN.Printf(`Front matter in %q with the url %q with no leading / has what looks like the language prefix added. In Hugo 0.55 we added support for page relative URLs in front matter, no language prefix needed. Check the URL and consider to either add a leading / or remove the language prefix.`, p.pathOrTitle(), url)
+
+				}
+			}
+			pm.urlPaths.URL = url
+			pm.params[loki] = url
 		case "type":
 			pm.contentType = cast.ToString(v)
 			pm.params[loki] = pm.contentType
