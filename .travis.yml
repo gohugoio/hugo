@@ -1,14 +1,14 @@
 language: go
 sudo: false
-dist: trusty
+dist: xenial
 env:
   global:
   - HUGO_BUILD_TAGS="extended"
 git:
   depth: false
 go:
-  - "1.11.6"
-  - "1.12.1"
+  - "1.11.7"
+  - "1.12.2"
   - tip
 os:
   - linux
