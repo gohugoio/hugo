@@ -1,12 +1,12 @@
 
 ---
 date: 2019-04-08
-title: "0.55.0"
-description: "0.55.0"
+title: "Hugo 0.55.0: The early Easter Egg Edition!"
+description: "Faster, virtualized Output Formats, revised shortcodes, new return keyword, and much more …"
 categories: ["Releases"]
 ---
 
-	Hugo `0.55` is **the early Easter Egg Edition** with lots of great improvements and fixes. The original motivation for this release was to prepare for [Issue #5074](https://github.com/gohugoio/hugo/issues/5074), but the structural changes needed for that paved the way for lots of others. Please study the list of changes below, and especially the **Notes** section, but some headlines include:
+Hugo `0.55` is **the early Easter Egg Edition** with lots of great improvements and fixes. The original motivation for this release was to prepare for [Issue #5074](https://github.com/gohugoio/hugo/issues/5074), but the structural changes needed for that paved the way for lots of others. Please study the list of changes below, and especially the **Notes** section, but some headlines include:
 
 ## Virtualized Output Formats
 
@@ -20,7 +20,7 @@ We have now also added a new `Permalinkable` configuration attribute, which is e
 
 ## Shortcodes Revised
 
-Shortcodes using the `{{%` as the outer-most delimiter will now be fully rendered when sent to the content renderer (e.g. Blackfriday for Markdown), meaning they can be part of the generated table of contents, footnotes, etc.
+Shortcodes using the `{{/*% */%}}` as the outer-most delimiter will now be fully rendered when sent to the content renderer (e.g. Blackfriday for Markdown), meaning they can be part of the generated table of contents, footnotes, etc.
 
 If you want the old behavior, you can put the following line in the start of your shortcode template:
 
@@ -28,7 +28,7 @@ If you want the old behavior, you can put the following line in the start of you
 {{ $_hugo_config := `{ "version": 1 }` }}
 ```
 
-But using the `{{<` delimiter will, in most cases, be a better alternative, possibly in combination with the `markdownify` template func.
+But using the `{{</* */>}}` delimiter will, in most cases, be a better alternative, possibly in combination with the `markdownify` template func.
 
 See [#5763](https://github.com/gohugoio/hugo/issues/5763).
 
@@ -64,8 +64,6 @@ The taxonomy nodes now have a `.Page` accessor which makes it much simpler to ge
 ```
 
 See [#5719](https://github.com/gohugoio/hugo/issues/5719).
-
-
 
 ## And it's Faster!
 
