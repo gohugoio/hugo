@@ -67,6 +67,13 @@
         ]
       },
       {
+        "Name": "Arduino",
+        "Aliases": [
+          "arduino",
+          "ino"
+        ]
+      },
+      {
         "Name": "Awk",
         "Aliases": [
           "awk",
@@ -479,6 +486,14 @@
         ]
       },
       {
+        "Name": "GraphQL",
+        "Aliases": [
+          "gql",
+          "graphql",
+          "graphqls"
+        ]
+      },
+      {
         "Name": "Groovy",
         "Aliases": [
           "gradle",
@@ -651,6 +666,13 @@
           "mma",
           "nb",
           "nbp"
+        ]
+      },
+      {
+        "Name": "Matlab",
+        "Aliases": [
+          "m",
+          "matlab"
         ]
       },
       {
@@ -1140,6 +1162,13 @@
         ]
       },
       {
+        "Name": "Turing",
+        "Aliases": [
+          "tu",
+          "turing"
+        ]
+      },
+      {
         "Name": "Turtle",
         "Aliases": [
           "ttl",
@@ -1178,6 +1207,15 @@
         "Name": "TypoScriptHtmlData",
         "Aliases": [
           "typoscripthtmldata"
+        ]
+      },
+      {
+        "Name": "VB.net",
+        "Aliases": [
+          "bas",
+          "vb",
+          "vb.net",
+          "vbnet"
         ]
       },
       {
@@ -1356,6 +1394,27 @@
         ]
       },
       {
+        "type": "image/jpg",
+        "string": "image/jpg",
+        "mainType": "image",
+        "subType": "jpg",
+        "delimiter": ".",
+        "suffixes": [
+          "jpg",
+          "jpeg"
+        ]
+      },
+      {
+        "type": "image/png",
+        "string": "image/png",
+        "mainType": "image",
+        "subType": "png",
+        "delimiter": ".",
+        "suffixes": [
+          "png"
+        ]
+      },
+      {
         "type": "image/svg+xml",
         "string": "image/svg+xml",
         "mainType": "image",
@@ -1459,7 +1518,8 @@
         "isPlainText": false,
         "isHTML": true,
         "noUgly": false,
-        "notAlternative": false
+        "notAlternative": false,
+        "permalinkable": true
       },
       {
         "MediaType": "text/css",
@@ -1481,7 +1541,8 @@
         "isPlainText": true,
         "isHTML": false,
         "noUgly": false,
-        "notAlternative": true
+        "notAlternative": true,
+        "permalinkable": false
       },
       {
         "MediaType": "text/csv",
@@ -1503,7 +1564,8 @@
         "isPlainText": true,
         "isHTML": false,
         "noUgly": false,
-        "notAlternative": false
+        "notAlternative": false,
+        "permalinkable": false
       },
       {
         "MediaType": "text/calendar",
@@ -1525,7 +1587,8 @@
         "isPlainText": true,
         "isHTML": false,
         "noUgly": false,
-        "notAlternative": false
+        "notAlternative": false,
+        "permalinkable": false
       },
       {
         "MediaType": "text/html",
@@ -1547,7 +1610,8 @@
         "isPlainText": false,
         "isHTML": true,
         "noUgly": false,
-        "notAlternative": false
+        "notAlternative": false,
+        "permalinkable": true
       },
       {
         "MediaType": "application/json",
@@ -1569,7 +1633,8 @@
         "isPlainText": true,
         "isHTML": false,
         "noUgly": false,
-        "notAlternative": false
+        "notAlternative": false,
+        "permalinkable": false
       },
       {
         "MediaType": "text/plain",
@@ -1591,7 +1656,8 @@
         "isPlainText": true,
         "isHTML": false,
         "noUgly": false,
-        "notAlternative": false
+        "notAlternative": false,
+        "permalinkable": false
       },
       {
         "MediaType": "application/rss+xml",
@@ -1613,7 +1679,8 @@
         "isPlainText": false,
         "isHTML": false,
         "noUgly": true,
-        "notAlternative": false
+        "notAlternative": false,
+        "permalinkable": false
       },
       {
         "MediaType": "application/xml",
@@ -1635,7 +1702,8 @@
         "isPlainText": false,
         "isHTML": false,
         "noUgly": true,
-        "notAlternative": false
+        "notAlternative": false,
+        "permalinkable": false
       }
     ],
     "layouts": [
@@ -2144,6 +2212,17 @@
         }
       },
       "compare": {
+        "And": {
+          "Description": "And computes the Boolean AND of its arguments, returning\nthe first false argument it encounters, or the last argument.",
+          "Args": [
+            "arg0",
+            "args"
+          ],
+          "Aliases": [
+            "and"
+          ],
+          "Examples": []
+        },
         "Conditional": {
           "Description": "Conditional can be used as a ternary operator.\nIt returns a if condition, else b.",
           "Args": [
@@ -2254,6 +2333,27 @@
           ],
           "Aliases": [
             "ne"
+          ],
+          "Examples": []
+        },
+        "Not": {
+          "Description": "Not returns the Boolean negation of its argument.",
+          "Args": [
+            "arg"
+          ],
+          "Aliases": [
+            "not"
+          ],
+          "Examples": []
+        },
+        "Or": {
+          "Description": "Or computes the Boolean OR of its arguments, returning\nthe first true argument it encounters, or the last argument.",
+          "Args": [
+            "arg0",
+            "args"
+          ],
+          "Aliases": [
+            "or"
           ],
           "Examples": []
         }
@@ -3226,6 +3326,34 @@
           ]
         }
       },
+      "reflect": {
+        "IsMap": {
+          "Description": "IsMap reports whether v is a map.",
+          "Args": [
+            "v"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ if reflect.IsMap (dict \"a\" 1) }}Map{{ end }}",
+              "Map"
+            ]
+          ]
+        },
+        "IsSlice": {
+          "Description": "IsSlice reports whether v is a slice.",
+          "Args": [
+            "v"
+          ],
+          "Aliases": null,
+          "Examples": [
+            [
+              "{{ if reflect.IsSlice (slice 1 2 3) }}Slice{{ end }}",
+              "Slice"
+            ]
+          ]
+        }
+      },
       "resources": {
         "Concat": {
           "Description": "",
@@ -3392,6 +3520,18 @@
         }
       },
       "site": {
+        "BaseURL": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Data": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
         "Hugo": {
           "Description": "",
           "Args": null,
@@ -3405,6 +3545,60 @@
           "Examples": null
         },
         "Language": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "LastChange": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Menus": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Pages": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Params": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "RegularPages": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "ServerPort": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Sites": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Taxonomies": {
+          "Description": "",
+          "Args": null,
+          "Aliases": null,
+          "Examples": null
+        },
+        "Title": {
           "Description": "",
           "Args": null,
           "Aliases": null,
