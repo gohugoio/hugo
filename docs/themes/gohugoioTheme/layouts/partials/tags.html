@@ -1,4 +1,4 @@
-{{ $currentPageUrl := .URL }}
+{{ $currentPageUrl := .RelPermalink }}
 {{ if and .Params.tags .Site.Taxonomies.tags }}
   {{ $name := index .Params.tags 0 }}
   {{ $name := $name | urlize }}
@@ -24,9 +24,9 @@
             Related entries:
           </li>
         {{ end }}
-        {{ if ne .URL $currentPageUrl }}
+        {{ if ne .RelPermalink $currentPageUrl }}
           <li class="db dib-l mb2 mr3">
-            <a href="{{ .URL }}" class="link">
+            <a href="{{ .RelPermalink }}" class="link">
               {{ .LinkTitle }}
             </a>
           </li>

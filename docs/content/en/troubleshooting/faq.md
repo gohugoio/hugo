@@ -43,7 +43,7 @@ Also see this Twitter thread:
 
 Yes you can! Read [this](/hosting-and-deployment/hosting-on-netlify/#configure-hugo-version-in-netlify).
 
-## I get "this feature is not available in your current Hugo version"
+## I get "TOCSS ... this feature is not available in your current Hugo version"
 
 If you process `SCSS` or `SASS` to `CSS` in your Hugo project, you need the Hugo `extended` version, or else you may see this error message:
 
