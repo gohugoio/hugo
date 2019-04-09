@@ -8,7 +8,7 @@
     {{ end }}
 
     <h1 class="near-black f3">
-      <a href="{{ .context.URL }}" class="link primary-color dim">
+      <a href="{{ .context.RelPermalink }}" class="link primary-color dim">
       {{- if eq .context.Section "functions" -}}
         {{ .context.LinkTitle }}
       {{- else -}}

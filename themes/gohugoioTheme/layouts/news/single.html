@@ -1,5 +1,5 @@
 {{ define "main" }}
-  {{ $currentPageUrl := .URL }}
+  {{ $currentPageUrl := .RelPermalink }}
 
   <article class="cf ph4 pv3 pv5-ns">
       <!-- header spans the full width -->
@@ -13,7 +13,7 @@
       {{end}}
 
       <h1 class="lh-title fw9 mb7 mv0 pt3">
-        <a href="{{ .URL }}" class="link primary-color dim">
+        <a href="{{ .RelPermalink }}" class="link primary-color dim">
           {{ .Title }}
         </a>
       </h1>
@@ -66,9 +66,9 @@
             <ul class="list dib nested-links ml0 pl0">
               <li class="dib mb2 mr2">Related:</li>
               {{ range $tags.Pages }}
-                {{ if ne .URL $currentPageUrl }}
+                {{ if ne .RelPermalink $currentPageUrl }}
                   <li class="mb2 mr3">
-                     <a href="{{ .URL }}" class="link">
+                     <a href="{{ .RelPermalink }}" class="link">
                        {{ .LinkTitle }}
                      </a>
                    </li>
