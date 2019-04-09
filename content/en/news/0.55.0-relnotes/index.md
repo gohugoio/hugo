@@ -20,7 +20,7 @@ We have now also added a new `Permalinkable` configuration attribute, which is e
 
 ## Shortcodes Revised
 
-Shortcodes using the `{{/*% */%}}` as the outer-most delimiter will now be fully rendered when sent to the content renderer (e.g. Blackfriday for Markdown), meaning they can be part of the generated table of contents, footnotes, etc.
+Shortcodes using the `{{%/* */%}}` as the outer-most delimiter will now be fully rendered when sent to the content renderer (e.g. Blackfriday for Markdown), meaning they can be part of the generated table of contents, footnotes, etc.
 
 If you want the old behavior, you can put the following line in the start of your shortcode template:
 
