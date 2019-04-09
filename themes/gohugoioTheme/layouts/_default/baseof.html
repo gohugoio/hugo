@@ -12,7 +12,7 @@
     <title>{{ block "title" . }}{{ with .Title }}{{ . }} | {{ end }}{{ .Site.Title }}{{ end }}</title>
 
     <meta name="viewport" content="width=device-width,minimum-scale=1">
-     {{ .Hugo.Generator }}
+     {{ hugo.Generator }}
 
       {{ if eq (getenv "HUGO_ENV") "production" | or (eq .Site.Params.env "production")  }}
         <META NAME="ROBOTS" CONTENT="INDEX, FOLLOW">
