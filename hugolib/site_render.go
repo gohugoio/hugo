@@ -171,12 +171,9 @@ func (s *Site) renderPaginator(p *pageState, layouts []string) error {
 	f := p.s.rc.Format
 	d.Type = f
 
-	// Rewind
-	p.paginator.rewind()
-	defer func() {
-		// Prepare for any re-rendering in server mode.
-		p.paginator.rewind()
-	}()
+	if p.paginator.current == nil || p.paginator.current != p.paginator.current.First() {
+		panic(fmt.Sprintf("invalid paginator state for %q", p.pathOrTitle()))
+	}
 
 	// Write alias for page 1
 	d.Addends = fmt.Sprintf("/%s/%d", paginatePath, 1)

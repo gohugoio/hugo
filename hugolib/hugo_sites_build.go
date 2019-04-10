@@ -288,7 +288,7 @@ func (h *HugoSites) render(config *BuildCfg) error {
 					// needs this set.
 					s2.rc = &siteRenderingContext{Format: renderFormat}
 
-					if err := s2.preparePagesForRender(siteRenderContext.sitesOutIdx); err != nil {
+					if err := s2.preparePagesForRender(s == s2, siteRenderContext.sitesOutIdx); err != nil {
 						return err
 					}
 				}

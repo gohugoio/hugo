@@ -332,8 +332,8 @@ func (p *pageState) getLayouts(layouts ...string) ([]string, error) {
 }
 
 // This is serialized
-func (p *pageState) initOutputFormat(idx int) error {
-	if err := p.shiftToOutputFormat(idx); err != nil {
+func (p *pageState) initOutputFormat(isRenderingSite bool, idx int) error {
+	if err := p.shiftToOutputFormat(isRenderingSite, idx); err != nil {
 		return err
 	}
 
@@ -700,7 +700,7 @@ func (p *pageState) posOffset(offset int) text.Position {
 
 // shiftToOutputFormat is serialized. The output format idx refers to the
 // full set of output formats for all sites.
-func (p *pageState) shiftToOutputFormat(idx int) error {
+func (p *pageState) shiftToOutputFormat(isRenderingSite bool, idx int) error {
 	if err := p.initPage(); err != nil {
 		return err
 	}
@@ -713,6 +713,12 @@ func (p *pageState) shiftToOutputFormat(idx int) error {
 
 	if p.pageOutput == nil {
 		panic(fmt.Sprintf("pageOutput is nil for output idx %d", idx))
+	}
+
+	// Reset any built paginator. This will trigger when re-rendering pages in
+	// server mode.
+	if isRenderingSite && p.pageOutput.paginator != nil && p.pageOutput.paginator.current != nil {
+		p.pageOutput.paginator.reset()
 	}
 
 	if idx > 0 {
@@ -728,7 +734,7 @@ func (p *pageState) shiftToOutputFormat(idx int) error {
 
 	for _, r := range p.Resources().ByType(pageResourceType) {
 		rp := r.(*pageState)
-		if err := rp.shiftToOutputFormat(idx); err != nil {
+		if err := rp.shiftToOutputFormat(isRenderingSite, idx); err != nil {
 			return errors.Wrap(err, "failed to shift outputformat in Page resource")
 		}
 	}

@@ -41,7 +41,7 @@ func newPageOutput(
 	var pag *pagePaginator
 
 	if render && ps.IsNode() {
-		pag = &pagePaginator{source: ps}
+		pag = newPagePaginator(ps)
 		paginatorProvider = pag
 	}
 

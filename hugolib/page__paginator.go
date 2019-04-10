@@ -19,16 +19,31 @@ import (
 	"github.com/gohugoio/hugo/resources/page"
 )
 
-type pagePaginator struct {
-	paginatorInit sync.Once
-	current       *page.Pager
+func newPagePaginator(source *pageState) *pagePaginator {
+	return &pagePaginator{
+		source:            source,
+		pagePaginatorInit: &pagePaginatorInit{},
+	}
+}
 
+type pagePaginator struct {
+	*pagePaginatorInit
 	source *pageState
+}
+
+type pagePaginatorInit struct {
+	init    sync.Once
+	current *page.Pager
+}
+
+// reset resets the paginator to allow for a rebuild.
+func (p *pagePaginator) reset() {
+	p.pagePaginatorInit = &pagePaginatorInit{}
 }
 
 func (p *pagePaginator) Paginate(seq interface{}, options ...interface{}) (*page.Pager, error) {
 	var initErr error
-	p.paginatorInit.Do(func() {
+	p.init.Do(func() {
 		pagerSize, err := page.ResolvePagerSize(p.source.s.Cfg, options...)
 		if err != nil {
 			initErr = err
@@ -56,7 +71,7 @@ func (p *pagePaginator) Paginate(seq interface{}, options ...interface{}) (*page
 
 func (p *pagePaginator) Paginator(options ...interface{}) (*page.Pager, error) {
 	var initErr error
-	p.paginatorInit.Do(func() {
+	p.init.Do(func() {
 		pagerSize, err := page.ResolvePagerSize(p.source.s.Cfg, options...)
 		if err != nil {
 			initErr = err
@@ -80,8 +95,4 @@ func (p *pagePaginator) Paginator(options ...interface{}) (*page.Pager, error) {
 	}
 
 	return p.current, nil
-}
-
-func (p *pagePaginator) rewind() {
-	p.current = p.current.First()
 }

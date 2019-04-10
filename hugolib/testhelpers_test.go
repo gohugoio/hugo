@@ -14,6 +14,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/deps"
@@ -44,6 +45,9 @@ type sitesBuilder struct {
 	logger *loggers.Logger
 
 	dumper litter.Options
+
+	// Used to test partial rebuilds.
+	changedFiles []string
 
 	// Aka the Hugo server mode.
 	running bool
@@ -296,6 +300,19 @@ func (s *sitesBuilder) WithI18nAdded(filenameContent ...string) *sitesBuilder {
 	return s
 }
 
+func (s *sitesBuilder) EditFiles(filenameContent ...string) *sitesBuilder {
+	var changedFiles []string
+	for i := 0; i < len(filenameContent); i += 2 {
+		filename, content := filepath.FromSlash(filenameContent[i]), filenameContent[i+1]
+		changedFiles = append(changedFiles, filename)
+		writeSource(s.T, s.Fs, filename, content)
+
+	}
+	s.changedFiles = changedFiles
+
+	return s
+}
+
 func (s *sitesBuilder) writeFilePairs(folder string, filenameContent []string) *sitesBuilder {
 	if len(filenameContent)%2 != 0 {
 		s.Fatalf("expect filenameContent for %q in pairs (%d)", folder, len(filenameContent))
@@ -376,12 +393,33 @@ func (s *sitesBuilder) BuildFail(cfg BuildCfg) *sitesBuilder {
 	return s.build(cfg, true)
 }
 
+func (s *sitesBuilder) changeEvents() []fsnotify.Event {
+	if len(s.changedFiles) == 0 {
+		return nil
+	}
+
+	events := make([]fsnotify.Event, len(s.changedFiles))
+	// TODO(bep) remove?
+	for i, v := range s.changedFiles {
+		events[i] = fsnotify.Event{
+			Name: v,
+			Op:   fsnotify.Write,
+		}
+	}
+
+	return events
+}
+
 func (s *sitesBuilder) build(cfg BuildCfg, shouldFail bool) *sitesBuilder {
+	defer func() {
+		s.changedFiles = nil
+	}()
+
 	if s.H == nil {
 		s.CreateSites()
 	}
 
-	err := s.H.Build(cfg)
+	err := s.H.Build(cfg, s.changeEvents()...)
 
 	if err == nil {
 		logErrorCount := s.H.NumLogErrors()

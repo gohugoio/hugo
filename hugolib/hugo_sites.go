@@ -761,16 +761,16 @@ func (h *HugoSites) createPageCollections() error {
 	return nil
 }
 
-func (s *Site) preparePagesForRender(idx int) error {
+func (s *Site) preparePagesForRender(isRenderingSite bool, idx int) error {
 
 	for _, p := range s.workAllPages {
-		if err := p.initOutputFormat(idx); err != nil {
+		if err := p.initOutputFormat(isRenderingSite, idx); err != nil {
 			return err
 		}
 	}
 
 	for _, p := range s.headlessPages {
-		if err := p.initOutputFormat(idx); err != nil {
+		if err := p.initOutputFormat(isRenderingSite, idx); err != nil {
 			return err
 		}
 	}
