@@ -896,33 +896,57 @@ C-%s`
 }
 
 // https://github.com/gohugoio/hugo/issues/5833
-func TestShortcodeParentResources(t *testing.T) {
+func TestShortcodeParentResourcesOnRebuild(t *testing.T) {
 	t.Parallel()
 
-	b := newTestSitesBuilder(t).WithSimpleConfigFile()
-	b.WithTemplatesAdded("shortcodes/c.html", `
+	b := newTestSitesBuilder(t).Running().WithSimpleConfigFile()
+	b.WithTemplatesAdded(
+		"index.html", `
+{{ $b := .Site.GetPage "b1" }}
+{{$p := $b.Resources.GetMatch "p1*" }}
+Content: {{ $p.Content }}
+{{ $article := .Site.GetPage "blog/article" }}
+Article Content: {{ $article.Content }}
+`,
+		"shortcodes/c.html", `
 {{ range .Page.Parent.Resources }}
-* {{ .Name }}: {{ .RelPermalink }}
+* Parent resource: {{ .Name }}: {{ .RelPermalink }}
 {{ end }}
 `)
 
-	b.WithContent("b1/index.md", `
+	pageContent := `
 ---
 title: MyPage
 ---
 
-{{< c >}}
+SHORTCODE: {{< c >}}
 
-`,
+`
+
+	b.WithContent("b1/index.md", pageContent,
 		"b1/logo.png", "PNG logo",
+		"b1/p1.md", pageContent,
+		"blog/_index.md", pageContent,
+		"blog/logo-article.png", "PNG logo",
+		"blog/article.md", pageContent,
 	)
 
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html",
-		"List Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
-		"BP1:P1:|P2:docbp1/<p>C-bp1</p>",
-	)
+	assert := func() {
+		b.AssertFileContent("public/index.html",
+			"Parent resource: logo.png: /b1/logo.png",
+			"Article Content: <p>SHORTCODE: \n\n* Parent resource: logo-article.png: /blog/logo-article.png",
+		)
+	}
+
+	assert()
+
+	b.EditFiles("b1/index.md", pageContent+" Edit.")
+
+	b.Build(BuildCfg{})
+
+	assert()
 
 }
 
