@@ -60,7 +60,7 @@ func PageMenusFromPage(p Page) (PageMenus, error) {
 	if err == nil {
 		me.Menu = mname
 		pm[mname] = &me
-		return nil, nil
+		return pm, nil
 	}
 
 	// Could be a slice of strings
@@ -71,7 +71,7 @@ func PageMenusFromPage(p Page) (PageMenus, error) {
 			me.Menu = mname
 			pm[mname] = &me
 		}
-		return nil, nil
+		return pm, nil
 	}
 
 	// Could be a structured menu entry

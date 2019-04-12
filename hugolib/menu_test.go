@@ -112,3 +112,54 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 			"/sect3/|Sect3s||0|-|-|")
 
 }
+
+func TestMenuFrontMatter(t *testing.T) {
+
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	b.WithTemplatesAdded("index.html", `
+Main: {{ len .Site.Menus.main }}
+Other: {{ len .Site.Menus.other }}
+{{ range .Site.Menus.main }}
+* Main|{{ .Name }}: {{ .URL }}
+{{ end }}
+{{ range .Site.Menus.other }}
+* Other|{{ .Name }}: {{ .URL }}
+{{ end }}
+`)
+
+	// Issue #5828
+	b.WithContent("blog/page1.md", `
+---
+title: "P1"
+menu: main
+---
+
+`)
+
+	b.WithContent("blog/page2.md", `
+---
+title: "P2"
+menu: [main,other]
+---
+
+`)
+
+	b.WithContent("blog/page3.md", `
+---
+title: "P3"
+menu:
+  main:
+    weight: 30
+---
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html",
+		"Main: 3", "Other: 1",
+		"Main|P1: /blog/page1/",
+		"Other|P2: /blog/page2/",
+	)
+
+}
