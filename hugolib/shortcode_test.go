@@ -895,6 +895,37 @@ C-%s`
 
 }
 
+// https://github.com/gohugoio/hugo/issues/5833
+func TestShortcodeParentResources(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+	b.WithTemplatesAdded("shortcodes/c.html", `
+{{ range .Page.Parent.Resources }}
+* {{ .Name }}: {{ .RelPermalink }}
+{{ end }}
+`)
+
+	b.WithContent("b1/index.md", `
+---
+title: MyPage
+---
+
+{{< c >}}
+
+`,
+		"b1/logo.png", "PNG logo",
+	)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html",
+		"List Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
+		"BP1:P1:|P2:docbp1/<p>C-bp1</p>",
+	)
+
+}
+
 func TestShortcodePreserveOrder(t *testing.T) {
 	t.Parallel()
 	assert := require.New(t)
