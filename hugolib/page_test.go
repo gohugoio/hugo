@@ -507,6 +507,14 @@ title: No Date
 
 `)
 
+	// https://github.com/gohugoio/hugo/issues/5854
+	b.WithSimpleConfigFile().WithContent("with-index-date/_index.md", `---
+title: Date
+date: 2018-01-15
+---
+
+`)
+
 	b.CreateSites().Build(BuildCfg{})
 
 	assert.Equal(1, len(b.H.Sites))
@@ -515,6 +523,7 @@ title: No Date
 	assert.Equal(2017, s.getPage("/").Date().Year())
 	assert.Equal(2017, s.getPage("/no-index").Date().Year())
 	assert.True(s.getPage("/with-index-no-date").Date().IsZero())
+	assert.Equal(2018, s.getPage("/with-index-date").Date().Year())
 
 }
 
