@@ -162,12 +162,18 @@ func (s *Site) assembleSections() pageStatePages {
 			if currentSection != nil {
 				// A new section
 				currentSection.setPages(children)
-				currentSection.m.Dates = *dates
+				if dates != nil {
+					currentSection.m.Dates = *dates
+				}
 			}
 
 			currentSection = p
 			children = make(page.Pages, 0)
-			dates = &resource.Dates{}
+			dates = nil
+			// Use section's dates from front matter if set.
+			if resource.IsZeroDates(currentSection) {
+				dates = &resource.Dates{}
+			}
 
 			return false
 
@@ -176,15 +182,18 @@ func (s *Site) assembleSections() pageStatePages {
 		// Regular page
 		p.parent = currentSection
 		children = append(children, p)
-		dates.UpdateDateAndLastmodIfAfter(p)
+		if dates != nil {
+			dates.UpdateDateAndLastmodIfAfter(p)
+		}
 
 		return false
 	})
 
 	if currentSection != nil {
 		currentSection.setPages(children)
-		currentSection.m.Dates = *dates
-
+		if dates != nil {
+			currentSection.m.Dates = *dates
+		}
 	}
 
 	// Build the sections hierarchy
