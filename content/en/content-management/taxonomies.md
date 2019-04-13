@@ -142,7 +142,7 @@ Much like regular pages, taxonomy list [permalinks](/content-management/urls/) a
 {{% /note %}}
 
 {{% warning %}}
-The configuration option `preserveTaxonomyNames` was remoted in Hugo 0.55.
+The configuration option `preserveTaxonomyNames` was removed in Hugo 0.55.
 
 You can now use `.Page.Title` on the relevant taxonomy node to get the original value.
 {{% /warning %}}
