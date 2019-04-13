@@ -1584,7 +1584,7 @@ func (s *Site) assembleTaxonomies() error {
 			// last one will win, e.g. "hugo" vs "Hugo".
 			n.term = term
 
-			w := page.NewWeightedPage(weight, p, n.getOwner)
+			w := page.NewWeightedPage(weight, p, n.owner)
 
 			s.Taxonomies[plural].add(key, w)
 

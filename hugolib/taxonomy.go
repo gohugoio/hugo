@@ -175,7 +175,7 @@ type taxonomyNodeInfo struct {
 	parent *taxonomyNodeInfo
 
 	// Either of Kind taxonomyTerm (parent) or taxonomy
-	owner page.Page
+	owner *page.PageWrapper
 }
 
 func (t *taxonomyNodeInfo) UpdateFromPage(p page.Page) {
@@ -185,15 +185,10 @@ func (t *taxonomyNodeInfo) UpdateFromPage(p page.Page) {
 }
 
 func (t *taxonomyNodeInfo) TransferValues(p *pageState) {
-	t.owner = p
+	t.owner.Page = p
 	if p.Lastmod().IsZero() && p.Date().IsZero() {
 		p.m.Dates.UpdateDateAndLastmodIfAfter(t.dates)
 	}
-}
-
-// callback sent to the child nodes.
-func (t *taxonomyNodeInfo) getOwner() page.Page {
-	return t.owner
 }
 
 // Maps either plural or plural/term to a taxonomy node.
@@ -216,6 +211,7 @@ func (t taxonomyNodeInfos) GetOrCreate(plural, termKey, term string) *taxonomyNo
 		plural:  plural,
 		termKey: termKey,
 		term:    term,
+		owner:   &page.PageWrapper{}, // Page will be assigned later.
 	}
 
 	t[key] = n

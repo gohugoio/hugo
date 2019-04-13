@@ -38,11 +38,11 @@ func (p WeightedPages) Page() Page {
 	first := p[0]
 
 	// TODO(bep) fix tests
-	if first.getOwner == nil {
+	if first.owner == nil {
 		return nil
 	}
 
-	return first.getOwner()
+	return first.owner.Page
 }
 
 // A WeightedPage is a Page with a weight.
@@ -50,15 +50,20 @@ type WeightedPage struct {
 	Weight int
 	Page
 
-	// A callback used to fetch the owning Page. This avoids having to do
+	// Reference to the owning Page. This avoids having to do
 	// manual .Site.GetPage lookups. It is implemented in this roundabout way
 	// because we cannot add additional state to the WeightedPages slice
 	// without breaking lots of templates in the wild.
-	getOwner func() Page
+	owner *PageWrapper
 }
 
-func NewWeightedPage(weight int, p Page, getOwner func() Page) WeightedPage {
-	return WeightedPage{Weight: weight, Page: p, getOwner: getOwner}
+// PageWrapper wraps a Page.
+type PageWrapper struct {
+	Page
+}
+
+func NewWeightedPage(weight int, p Page, owner *PageWrapper) WeightedPage {
+	return WeightedPage{Weight: weight, Page: p, owner: owner}
 }
 
 func (w WeightedPage) String() string {
