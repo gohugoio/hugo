@@ -381,7 +381,7 @@ func (pm *pageMeta) setMetadata(p *pageState, frontmatter map[string]interface{}
 				return fmt.Errorf("URLs with protocol (http*) not supported: %q. In page %q", url, p.pathOrTitle())
 			}
 			lang := p.s.GetLanguagePrefix()
-			if lang != "" && !strings.HasPrefix(url, "/") && strings.HasPrefix(url, lang) {
+			if lang != "" && !strings.HasPrefix(url, "/") && strings.HasPrefix(url, lang+"/") {
 				if strings.HasPrefix(hugo.CurrentVersion.String(), "0.55") {
 					// We added support for page relative URLs in Hugo 0.55 and
 					// this may get its language path added twice.
