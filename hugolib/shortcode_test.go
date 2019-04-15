@@ -1126,3 +1126,32 @@ CONTENT:{{ .Content }}
 
 	}
 }
+
+// https://github.com/gohugoio/hugo/issues/5863
+func TestShortcodeNamespaced(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	builder := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	builder.WithContent("page.md", `---
+title: "Hugo Rocks!"
+---
+
+# doc
+
+   hello: {{< hello >}}
+   test/hello: {{< test/hello >}}
+
+`).WithTemplatesAdded(
+		"layouts/shortcodes/hello.html", `hello`,
+		"layouts/shortcodes/test/hello.html", `test/hello`).CreateSites().Build(BuildCfg{})
+
+	s := builder.H.Sites[0]
+	assert.Equal(1, len(s.RegularPages()))
+
+	builder.AssertFileContent("public/page/index.html",
+		"hello: hello",
+		"test/hello: test/hello",
+	)
+}

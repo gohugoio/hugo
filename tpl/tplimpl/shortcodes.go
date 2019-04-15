@@ -152,9 +152,9 @@ func resolveTemplateType(name string) templateType {
 }
 
 func isShortcode(name string) bool {
-	return strings.Contains(name, "shortcodes/")
+	return strings.Contains(name, shortcodesPathPrefix)
 }
 
 func isInternal(name string) bool {
-	return strings.HasPrefix(name, "_internal/")
+	return strings.HasPrefix(name, internalPathPrefix)
 }

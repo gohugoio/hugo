@@ -85,8 +85,12 @@ func TestShortcodesTemplate(t *testing.T) {
 
 	})
 
-	t.Run("Template", func(t *testing.T) {
+	t.Run("Name", func(t *testing.T) {
 		assert := require.New(t)
+
+		assert.Equal("foo.html", templateBaseName(templateShortcode, "shortcodes/foo.html"))
+		assert.Equal("foo.html", templateBaseName(templateShortcode, "_internal/shortcodes/foo.html"))
+		assert.Equal("test/foo.html", templateBaseName(templateShortcode, "shortcodes/test/foo.html"))
 
 		assert.True(true)
 

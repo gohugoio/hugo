@@ -16,7 +16,6 @@ package tplimpl
 import (
 	"fmt"
 	"html/template"
-	"path"
 	"strings"
 	texttemplate "text/template"
 
@@ -112,8 +111,27 @@ type templateHandler struct {
 	*deps.Deps
 }
 
+const (
+	shortcodesPathPrefix = "shortcodes/"
+	internalPathPrefix   = "_internal/"
+)
+
+// resolves _internal/shortcodes/param.html => param.html etc.
+func templateBaseName(typ templateType, name string) string {
+	name = strings.TrimPrefix(name, internalPathPrefix)
+	switch typ {
+	case templateShortcode:
+		return strings.TrimPrefix(name, shortcodesPathPrefix)
+	default:
+		panic("not implemented")
+	}
+
+}
+
 func (t *templateHandler) addShortcodeVariant(name string, info tpl.Info, templ tpl.Template) {
-	shortcodename, variants := templateNameAndVariants(path.Base(name))
+	base := templateBaseName(templateShortcode, name)
+
+	shortcodename, variants := templateNameAndVariants(base)
 
 	templs, found := t.shortcodes[shortcodename]
 	if !found {
@@ -204,7 +222,7 @@ func (t *templateHandler) applyTemplateInfo(templ tpl.Template, found bool) (tpl
 // This currently only applies to shortcodes and what we get here is the
 // shortcode name.
 func (t *templateHandler) LookupVariant(name string, variants tpl.TemplateVariants) (tpl.Template, bool, bool) {
-	name = path.Base(name)
+	name = templateBaseName(templateShortcode, name)
 	s, found := t.shortcodes[name]
 	if !found {
 		return nil, false, false
