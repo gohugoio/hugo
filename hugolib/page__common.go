@@ -91,8 +91,9 @@ type pageCommon struct {
 	pagesInit sync.Once
 
 	// Any bundled resources
-	resources     resource.Resources
-	resourcesInit sync.Once
+	resources            resource.Resources
+	resourcesInit        sync.Once
+	resourcesPublishInit sync.Once
 
 	translations    page.Pages
 	allTranslations page.Pages

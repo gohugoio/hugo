@@ -896,3 +896,37 @@ TheContent.
 
 	return ps, clean, workDir
 }
+
+// https://github.com/gohugoio/hugo/issues/5858
+func TestBundledResourcesWhenMultipleOutputFormats(t *testing.T) {
+	t.Parallel()
+
+	b := newTestSitesBuilder(t).Running().WithConfigFile("toml", `
+baseURL = "https://example.org"
+[outputs]
+  # This looks odd, but it triggers the behaviour in #5858
+  # The total output formats list gets sorted, so CSS before HTML.
+  home = [ "CSS" ]
+
+`)
+	b.WithContent("mybundle/index.md", `
+---
+title: Page
+date: 2017-01-15
+---
+`,
+		"mybundle/data.json", "MyData",
+	)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertFileContent("public/mybundle/data.json", "MyData")
+
+	// Change the bundled JSON file and make sure it gets republished.
+	b.EditFiles("content/mybundle/data.json", "My changed data")
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/mybundle/data.json", "My changed data")
+
+}

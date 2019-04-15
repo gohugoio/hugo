@@ -903,6 +903,7 @@ func TestShortcodeParentResourcesOnRebuild(t *testing.T) {
 	b.WithTemplatesAdded(
 		"index.html", `
 {{ $b := .Site.GetPage "b1" }}
+b1 Content: {{ $b.Content }}
 {{$p := $b.Resources.GetMatch "p1*" }}
 Content: {{ $p.Content }}
 {{ $article := .Site.GetPage "blog/article" }}
@@ -933,20 +934,23 @@ SHORTCODE: {{< c >}}
 
 	b.Build(BuildCfg{})
 
-	assert := func() {
-		b.AssertFileContent("public/index.html",
-			"Parent resource: logo.png: /b1/logo.png",
+	assert := func(matchers ...string) {
+		allMatchers := append(matchers, "Parent resource: logo.png: /b1/logo.png",
 			"Article Content: <p>SHORTCODE: \n\n* Parent resource: logo-article.png: /blog/logo-article.png",
+		)
+
+		b.AssertFileContent("public/index.html",
+			allMatchers...,
 		)
 	}
 
 	assert()
 
-	b.EditFiles("b1/index.md", pageContent+" Edit.")
+	b.EditFiles("content/b1/index.md", pageContent+" Edit.")
 
 	b.Build(BuildCfg{})
 
-	assert()
+	assert("Edit.")
 
 }
 

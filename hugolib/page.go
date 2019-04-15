@@ -360,40 +360,44 @@ func (p *pageState) setPages(pages page.Pages) {
 	p.pages = pages
 }
 
-func (p *pageState) renderResources() error {
-	var toBeDeleted []int
+func (p *pageState) renderResources() (err error) {
+	p.resourcesPublishInit.Do(func() {
+		var toBeDeleted []int
 
-	for i, r := range p.Resources() {
-		if _, ok := r.(page.Page); ok {
-			// Pages gets rendered with the owning page but we count them here.
-			p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Pages)
-			continue
-		}
-
-		src, ok := r.(resource.Source)
-		if !ok {
-			return errors.Errorf("Resource %T does not support resource.Source", src)
-		}
-
-		if err := src.Publish(); err != nil {
-			if os.IsNotExist(err) {
-				// The resource has been deleted from the file system.
-				// This should be extremely rare, but can happen on live reload in server
-				// mode when the same resource is member of different page bundles.
-				toBeDeleted = append(toBeDeleted, i)
-			} else {
-				p.s.Log.ERROR.Printf("Failed to publish Resource for page %q: %s", p.pathOrTitle(), err)
+		for i, r := range p.Resources() {
+			if _, ok := r.(page.Page); ok {
+				// Pages gets rendered with the owning page but we count them here.
+				p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Pages)
+				continue
 			}
-		} else {
-			p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Files)
+
+			src, ok := r.(resource.Source)
+			if !ok {
+				err = errors.Errorf("Resource %T does not support resource.Source", src)
+				return
+			}
+
+			if err := src.Publish(); err != nil {
+				if os.IsNotExist(err) {
+					// The resource has been deleted from the file system.
+					// This should be extremely rare, but can happen on live reload in server
+					// mode when the same resource is member of different page bundles.
+					toBeDeleted = append(toBeDeleted, i)
+				} else {
+					p.s.Log.ERROR.Printf("Failed to publish Resource for page %q: %s", p.pathOrTitle(), err)
+				}
+			} else {
+				p.s.PathSpec.ProcessingStats.Incr(&p.s.PathSpec.ProcessingStats.Files)
+			}
 		}
-	}
 
-	for _, i := range toBeDeleted {
-		p.deleteResource(i)
-	}
+		for _, i := range toBeDeleted {
+			p.deleteResource(i)
+		}
 
-	return nil
+	})
+
+	return
 }
 
 func (p *pageState) deleteResource(i int) {

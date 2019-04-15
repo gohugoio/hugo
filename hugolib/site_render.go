@@ -35,6 +35,7 @@ type siteRenderContext struct {
 	sitesOutIdx int
 
 	// Zero based index of the output formats configured within a Site.
+	// Note that these outputs are sorted, so CSS will come before HTML.
 	outIdx int
 
 	multihost bool
@@ -130,11 +131,9 @@ func pageRenderer(
 			continue
 		}
 
-		if ctx.outIdx == 0 {
-			if err := p.renderResources(); err != nil {
-				s.SendError(p.errorf(err, "failed to render page resources"))
-				continue
-			}
+		if err := p.renderResources(); err != nil {
+			s.SendError(p.errorf(err, "failed to render page resources"))
+			continue
 		}
 
 		layouts, err := p.getLayouts()
