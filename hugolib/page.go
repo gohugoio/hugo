@@ -746,8 +746,10 @@ func (p *pageState) getTaxonomyNodeInfo() *taxonomyNodeInfo {
 	info := p.s.taxonomyNodes.Get(p.SectionsEntries()...)
 
 	if info == nil {
-		// This should never happpen
-		panic(fmt.Sprintf("invalid taxonomy state for %q with sections %v", p.pathOrTitle(), p.SectionsEntries()))
+		// There can be unused content pages for taxonomies (e.g. author that
+		// has not written anything, yet), and these will not have a taxonomy
+		// node created in the assemble taxonomies step.
+		return nil
 	}
 
 	return info

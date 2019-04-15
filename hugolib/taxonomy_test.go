@@ -117,6 +117,9 @@ permalinkeds:
 	writeNewContentFile(t, fs.Source, "Category Terms", "2017-01-01", "content/categories/_index.md", 10)
 	writeNewContentFile(t, fs.Source, "Tag1 List", "2017-01-01", "content/tags/Tag1/_index.md", 10)
 
+	// https://github.com/gohugoio/hugo/issues/5847
+	writeNewContentFile(t, fs.Source, "Unused Tag List", "2018-01-01", "content/tags/not-used/_index.md", 10)
+
 	err := h.Build(BuildCfg{})
 
 	require.NoError(t, err)
@@ -159,7 +162,7 @@ permalinkeds:
 	// Make sure that each page.KindTaxonomyTerm page has an appropriate number
 	// of page.KindTaxonomy pages in its Pages slice.
 	taxonomyTermPageCounts := map[string]int{
-		"tags":         2,
+		"tags":         3,
 		"categories":   2,
 		"others":       2,
 		"empties":      0,

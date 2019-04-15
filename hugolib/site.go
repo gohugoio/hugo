@@ -94,7 +94,7 @@ type Site struct {
 
 	Taxonomies TaxonomyList
 
-	taxonomyNodes taxonomyNodeInfos
+	taxonomyNodes *taxonomyNodeInfos
 
 	Sections Taxonomy
 	Info     SiteInfo
@@ -1566,23 +1566,22 @@ func (s *Site) assembleTaxonomies() error {
 		s.Taxonomies[plural] = make(Taxonomy)
 	}
 
-	s.taxonomyNodes = make(taxonomyNodeInfos)
+	s.taxonomyNodes = &taxonomyNodeInfos{
+		m:      make(map[string]*taxonomyNodeInfo),
+		getKey: s.getTaxonomyKey,
+	}
 
 	s.Log.INFO.Printf("found taxonomies: %#v\n", taxonomies)
 
 	for singular, plural := range taxonomies {
-		parent := s.taxonomyNodes.GetOrCreate(plural, "", "")
+		parent := s.taxonomyNodes.GetOrCreate(plural, "")
 		parent.singular = singular
 
 		addTaxonomy := func(plural, term string, weight int, p page.Page) {
 			key := s.getTaxonomyKey(term)
 
-			n := s.taxonomyNodes.GetOrCreate(plural, key, term)
+			n := s.taxonomyNodes.GetOrCreate(plural, term)
 			n.parent = parent
-
-			// There may be different spellings before normalization, so the
-			// last one will win, e.g. "hugo" vs "Hugo".
-			n.term = term
 
 			w := page.NewWeightedPage(weight, p, n.owner)
 
