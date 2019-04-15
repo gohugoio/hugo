@@ -14,7 +14,9 @@
 package hugolib
 
 import (
+	"fmt"
 	"io"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -650,7 +652,19 @@ func (h *HugoSites) createMissingPages() error {
 
 			// Make them navigable from WeightedPage etc.
 			for _, p := range taxonomyPages {
-				p.getTaxonomyNodeInfo().TransferValues(p)
+				ni := p.getTaxonomyNodeInfo()
+				if ni == nil {
+					// This can be nil for taxonomies, e.g. an author,
+					// with a content file, but no actual usage.
+					// Create one.
+					sections := p.SectionsEntries()
+					if len(sections) < 2 {
+						// Invalid state
+						panic(fmt.Sprintf("invalid taxonomy state for %q with sections %v", p.pathOrTitle(), sections))
+					}
+					ni = p.s.taxonomyNodes.GetOrAdd(sections[0], path.Join(sections[1:]...))
+				}
+				ni.TransferValues(p)
 			}
 			for _, p := range taxonomyTermsPages {
 				p.getTaxonomyNodeInfo().TransferValues(p)

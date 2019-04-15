@@ -193,16 +193,33 @@ func (t *taxonomyNodeInfo) TransferValues(p *pageState) {
 
 // Maps either plural or plural/term to a taxonomy node.
 // TODO(bep) consolidate somehow with s.Taxonomies
-type taxonomyNodeInfos map[string]*taxonomyNodeInfo
+type taxonomyNodeInfos struct {
+	m      map[string]*taxonomyNodeInfo
+	getKey func(string) string
+}
 
+// map[string]*taxonomyNodeInfo
 func (t taxonomyNodeInfos) key(parts ...string) string {
 	return path.Join(parts...)
 }
 
-func (t taxonomyNodeInfos) GetOrCreate(plural, termKey, term string) *taxonomyNodeInfo {
+// GetOrAdd will get or create and add a new taxonomy node to the parent identified with plural.
+// It will panic if the parent does not exist.
+func (t taxonomyNodeInfos) GetOrAdd(plural, term string) *taxonomyNodeInfo {
+	parent := t.GetOrCreate(plural, "")
+	if parent == nil {
+		panic(fmt.Sprintf("no parent found with plural %q", plural))
+	}
+	child := t.GetOrCreate(plural, term)
+	child.parent = parent
+	return child
+}
+
+func (t taxonomyNodeInfos) GetOrCreate(plural, term string) *taxonomyNodeInfo {
+	termKey := t.getKey(term)
 	key := t.key(plural, termKey)
 
-	n, found := t[key]
+	n, found := t.m[key]
 	if found {
 		return n
 	}
@@ -214,7 +231,7 @@ func (t taxonomyNodeInfos) GetOrCreate(plural, termKey, term string) *taxonomyNo
 		owner:   &page.PageWrapper{}, // Page will be assigned later.
 	}
 
-	t[key] = n
+	t.m[key] = n
 
 	return n
 }
@@ -222,7 +239,7 @@ func (t taxonomyNodeInfos) GetOrCreate(plural, termKey, term string) *taxonomyNo
 func (t taxonomyNodeInfos) Get(sections ...string) *taxonomyNodeInfo {
 	key := t.key(sections...)
 
-	n, found := t[key]
+	n, found := t.m[key]
 	if found {
 		return n
 	}
