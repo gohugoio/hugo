@@ -52,7 +52,7 @@ type TemplateHandler interface {
 
 	NewTextTemplate() TemplateParseFinder
 
-	MarkReady()
+	MarkReady() error
 	RebuildClone()
 }
 

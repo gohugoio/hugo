@@ -26,10 +26,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type handler interface {
-	addTemplate(name, tpl string) error
-}
-
 var (
 	testFuncs = map[string]interface{}{
 		"getif":  func(v interface{}) interface{} { return v },
@@ -413,7 +409,7 @@ func TestInsertIsZeroFunc(t *testing.T) {
 			"T":        &T{NonEmptyInterfaceTypedNil: (*T)(nil)},
 		}
 
-		templ = `
+		templ1 = `
 {{ if .True }}.True: TRUE{{ else }}.True: FALSE{{ end }}
 {{ if .TimeZero }}.TimeZero1: TRUE{{ else }}.TimeZero1: FALSE{{ end }}
 {{ if (.TimeZero) }}.TimeZero2: TRUE{{ else }}.TimeZero2: FALSE{{ end }}
@@ -423,31 +419,49 @@ func TestInsertIsZeroFunc(t *testing.T) {
 {{ template "mytemplate" . }}
 {{ if .T.NonEmptyInterfaceTypedNil }}.NonEmptyInterfaceTypedNil: TRUE{{ else }}.NonEmptyInterfaceTypedNil: FALSE{{ end }}
 
+{{ template "other-file-template" . }}
 
 {{ define "mytemplate" }}
 {{ if .TimeZero }}.TimeZero1: mytemplate: TRUE{{ else }}.TimeZero1: mytemplate: FALSE{{ end }}
 {{ end }}
 
 `
+
+		// https://github.com/gohugoio/hugo/issues/5865
+		templ2 = `{{ define "other-file-template" }}
+{{ if .TimeZero }}.TimeZero1: other-file-template: TRUE{{ else }}.TimeZero1: other-file-template: FALSE{{ end }}
+{{ end }}		
+`
 	)
 
 	d := newD(assert)
-	h := d.Tmpl.(handler)
+	h := d.Tmpl.(tpl.TemplateHandler)
 
-	assert.NoError(h.addTemplate("mytemplate.html", templ))
+	// HTML templates
+	assert.NoError(h.AddTemplate("mytemplate.html", templ1))
+	assert.NoError(h.AddTemplate("othertemplate.html", templ2))
 
-	tt, _ := d.Tmpl.Lookup("mytemplate.html")
-	result, err := tt.(tpl.TemplateExecutor).ExecuteToString(ctx)
-	assert.NoError(err)
+	// Text templates
+	assert.NoError(h.AddTemplate("_text/mytexttemplate.txt", templ1))
+	assert.NoError(h.AddTemplate("_text/myothertexttemplate.txt", templ2))
 
-	assert.Contains(result, ".True: TRUE")
-	assert.Contains(result, ".TimeZero1: FALSE")
-	assert.Contains(result, ".TimeZero2: FALSE")
-	assert.Contains(result, ".TimeZero3: TRUE")
-	assert.Contains(result, ".Now: TRUE")
-	assert.Contains(result, "TimeZero1 with: FALSE")
-	assert.Contains(result, ".TimeZero1: mytemplate: FALSE")
-	assert.Contains(result, ".NonEmptyInterfaceTypedNil: FALSE")
+	assert.NoError(h.MarkReady())
+
+	for _, name := range []string{"mytemplate.html", "mytexttemplate.txt"} {
+		tt, _ := d.Tmpl.Lookup(name)
+		result, err := tt.(tpl.TemplateExecutor).ExecuteToString(ctx)
+		assert.NoError(err)
+
+		assert.Contains(result, ".True: TRUE")
+		assert.Contains(result, ".TimeZero1: FALSE")
+		assert.Contains(result, ".TimeZero2: FALSE")
+		assert.Contains(result, ".TimeZero3: TRUE")
+		assert.Contains(result, ".Now: TRUE")
+		assert.Contains(result, "TimeZero1 with: FALSE")
+		assert.Contains(result, ".TimeZero1: mytemplate: FALSE")
+		assert.Contains(result, ".TimeZero1: other-file-template: FALSE")
+		assert.Contains(result, ".NonEmptyInterfaceTypedNil: FALSE")
+	}
 
 }
 

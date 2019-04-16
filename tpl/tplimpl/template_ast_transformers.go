@@ -50,6 +50,7 @@ const (
 type templateContext struct {
 	decl     decl
 	visited  map[string]bool
+	notFound map[string]bool
 	lookupFn func(name string) *parse.Tree
 
 	// The last error encountered.
@@ -72,7 +73,15 @@ func (c templateContext) getIfNotVisited(name string) *parse.Tree {
 		return nil
 	}
 	c.visited[name] = true
-	return c.lookupFn(name)
+	templ := c.lookupFn(name)
+	if templ == nil {
+		// This may be a inline template defined outside of this file
+		// and not yet parsed. Unusual, but it happens.
+		// Store the name to try again later.
+		c.notFound[name] = true
+	}
+
+	return templ
 }
 
 func newTemplateContext(lookupFn func(name string) *parse.Tree) *templateContext {
@@ -80,8 +89,8 @@ func newTemplateContext(lookupFn func(name string) *parse.Tree) *templateContext
 		Info:     tpl.Info{Config: tpl.DefaultConfig},
 		lookupFn: lookupFn,
 		decl:     make(map[string]string),
-		visited:  make(map[string]bool)}
-
+		visited:  make(map[string]bool),
+		notFound: make(map[string]bool)}
 }
 
 func createParseTreeLookup(templ *template.Template) func(nn string) *parse.Tree {
@@ -94,11 +103,11 @@ func createParseTreeLookup(templ *template.Template) func(nn string) *parse.Tree
 	}
 }
 
-func applyTemplateTransformersToHMLTTemplate(typ templateType, templ *template.Template) (tpl.Info, error) {
+func applyTemplateTransformersToHMLTTemplate(typ templateType, templ *template.Template) (*templateContext, error) {
 	return applyTemplateTransformers(typ, templ.Tree, createParseTreeLookup(templ))
 }
 
-func applyTemplateTransformersToTextTemplate(typ templateType, templ *texttemplate.Template) (tpl.Info, error) {
+func applyTemplateTransformersToTextTemplate(typ templateType, templ *texttemplate.Template) (*templateContext, error) {
 	return applyTemplateTransformers(typ, templ.Tree,
 		func(nn string) *parse.Tree {
 			tt := templ.Lookup(nn)
@@ -109,9 +118,9 @@ func applyTemplateTransformersToTextTemplate(typ templateType, templ *texttempla
 		})
 }
 
-func applyTemplateTransformers(typ templateType, templ *parse.Tree, lookupFn func(name string) *parse.Tree) (tpl.Info, error) {
+func applyTemplateTransformers(typ templateType, templ *parse.Tree, lookupFn func(name string) *parse.Tree) (*templateContext, error) {
 	if templ == nil {
-		return tpl.Info{}, errors.New("expected template, but none provided")
+		return nil, errors.New("expected template, but none provided")
 	}
 
 	c := newTemplateContext(lookupFn)
@@ -125,7 +134,7 @@ func applyTemplateTransformers(typ templateType, templ *parse.Tree, lookupFn fun
 		templ.Root = c.wrapInPartialReturnWrapper(templ.Root)
 	}
 
-	return c.Info, err
+	return c, err
 }
 
 const (
