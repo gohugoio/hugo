@@ -18,6 +18,7 @@ import (
 	"html/template"
 	"strings"
 	texttemplate "text/template"
+	"text/template/parse"
 
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/tpl/tplimpl/embedded"
@@ -51,7 +52,6 @@ var (
 	_ tpl.TemplateFinder        = (*textTemplates)(nil)
 	_ templateLoader            = (*htmlTemplates)(nil)
 	_ templateLoader            = (*textTemplates)(nil)
-	_ templateLoader            = (*templateHandler)(nil)
 	_ templateFuncsterTemplater = (*htmlTemplates)(nil)
 	_ templateFuncsterTemplater = (*textTemplates)(nil)
 )
@@ -66,7 +66,7 @@ type templateErr struct {
 
 type templateLoader interface {
 	handleMaster(name, overlayFilename, masterFilename string, onMissing func(filename string) (templateInfo, error)) error
-	addTemplate(name, tpl string) error
+	addTemplate(name, tpl string) (*templateContext, error)
 	addLateTemplate(name, tpl string) error
 }
 
@@ -329,6 +329,7 @@ func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
 func newTemplateAdapter(deps *deps.Deps) *templateHandler {
 	common := &templatesCommon{
 		nameBaseTemplateName: make(map[string]string),
+		transformNotFound:    make(map[string]bool),
 	}
 
 	htmlT := &htmlTemplates{
@@ -364,6 +365,10 @@ type templatesCommon struct {
 
 	// Used to get proper filenames in errors
 	nameBaseTemplateName map[string]string
+
+	// Holds names of the templates not found during the first AST transformation
+	// pass.
+	transformNotFound map[string]bool
 }
 type htmlTemplates struct {
 	mu sync.RWMutex
@@ -491,37 +496,42 @@ func (t *templateHandler) LoadTemplates(prefix string) error {
 
 }
 
-func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) error {
+func (t *htmlTemplates) addTemplateIn(tt *template.Template, name, tpl string) (*templateContext, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
 	templ, err := tt.New(name).Parse(tpl)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	typ := resolveTemplateType(name)
 
-	info, err := applyTemplateTransformersToHMLTTemplate(typ, templ)
+	c, err := applyTemplateTransformersToHMLTTemplate(typ, templ)
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	for k, _ := range c.notFound {
+		t.transformNotFound[k] = true
 	}
 
 	if typ == templateShortcode {
-		t.handler.addShortcodeVariant(name, info, templ)
+		t.handler.addShortcodeVariant(name, c.Info, templ)
 	} else {
-		t.handler.templateInfo[name] = info
+		t.handler.templateInfo[name] = c.Info
 	}
 
-	return nil
+	return c, nil
 }
 
-func (t *htmlTemplates) addTemplate(name, tpl string) error {
+func (t *htmlTemplates) addTemplate(name, tpl string) (*templateContext, error) {
 	return t.addTemplateIn(t.t, name, tpl)
 }
 
 func (t *htmlTemplates) addLateTemplate(name, tpl string) error {
-	return t.addTemplateIn(t.clone, name, tpl)
+	_, err := t.addTemplateIn(t.clone, name, tpl)
+	return err
 }
 
 type textTemplate struct {
@@ -556,39 +566,89 @@ func (t *textTemplate) parseIn(tt *texttemplate.Template, name, tpl string) (*te
 	return templ, nil
 }
 
-func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl string) error {
+func (t *textTemplates) addTemplateIn(tt *texttemplate.Template, name, tpl string) (*templateContext, error) {
 	name = strings.TrimPrefix(name, textTmplNamePrefix)
 	templ, err := t.parseIn(tt, name, tpl)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	typ := resolveTemplateType(name)
 
-	info, err := applyTemplateTransformersToTextTemplate(typ, templ)
+	c, err := applyTemplateTransformersToTextTemplate(typ, templ)
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	for k, _ := range c.notFound {
+		t.transformNotFound[k] = true
 	}
 
 	if typ == templateShortcode {
-		t.handler.addShortcodeVariant(name, info, templ)
+		t.handler.addShortcodeVariant(name, c.Info, templ)
 	} else {
-		t.handler.templateInfo[name] = info
+		t.handler.templateInfo[name] = c.Info
 	}
 
-	return nil
+	return c, nil
 }
 
-func (t *textTemplates) addTemplate(name, tpl string) error {
+func (t *textTemplates) addTemplate(name, tpl string) (*templateContext, error) {
 	return t.addTemplateIn(t.t, name, tpl)
 }
 
 func (t *textTemplates) addLateTemplate(name, tpl string) error {
-	return t.addTemplateIn(t.clone, name, tpl)
+	_, err := t.addTemplateIn(t.clone, name, tpl)
+	return err
 }
 
 func (t *templateHandler) addTemplate(name, tpl string) error {
 	return t.AddTemplate(name, tpl)
+}
+
+func (t *templateHandler) postTransform() error {
+	if len(t.html.transformNotFound) == 0 && len(t.text.transformNotFound) == 0 {
+		return nil
+	}
+
+	defer func() {
+		t.text.transformNotFound = make(map[string]bool)
+		t.html.transformNotFound = make(map[string]bool)
+	}()
+
+	for _, s := range []struct {
+		lookup            func(name string) *parse.Tree
+		transformNotFound map[string]bool
+	}{
+		// html templates
+		{func(name string) *parse.Tree {
+			templ := t.html.lookup(name)
+			if templ == nil {
+				return nil
+			}
+			return templ.Tree
+		}, t.html.transformNotFound},
+		// text templates
+		{func(name string) *parse.Tree {
+			templT := t.text.lookup(name)
+			if templT == nil {
+				return nil
+			}
+			return templT.Tree
+		}, t.text.transformNotFound},
+	} {
+		for name, _ := range s.transformNotFound {
+			templ := s.lookup(name)
+			if templ != nil {
+				_, err := applyTemplateTransformers(templateUndefined, templ, s.lookup)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 func (t *templateHandler) addLateTemplate(name, tpl string) error {
@@ -608,9 +668,11 @@ func (t *templateHandler) AddLateTemplate(name, tpl string) error {
 // AddTemplate parses and adds a template to the collection.
 // Templates with name prefixed with "_text" will be handled as plain
 // text templates.
+// TODO(bep) clean up these addTemplate variants
 func (t *templateHandler) AddTemplate(name, tpl string) error {
 	h := t.getTemplateHandler(name)
-	if err := h.addTemplate(name, tpl); err != nil {
+	_, err := h.addTemplate(name, tpl)
+	if err != nil {
 		return err
 	}
 	return nil
@@ -620,7 +682,11 @@ func (t *templateHandler) AddTemplate(name, tpl string) error {
 // after this is set.
 // TODO(bep) if this proves to be resource heavy, we could detect
 // earlier if we really need this, or make it lazy.
-func (t *templateHandler) MarkReady() {
+func (t *templateHandler) MarkReady() error {
+	if err := t.postTransform(); err != nil {
+		return err
+	}
+
 	if t.html.clone == nil {
 		t.html.clone = template.Must(t.html.t.Clone())
 		t.html.cloneClone = template.Must(t.html.clone.Clone())
@@ -629,6 +695,8 @@ func (t *templateHandler) MarkReady() {
 		t.text.clone = texttemplate.Must(t.text.t.Clone())
 		t.text.cloneClone = texttemplate.Must(t.text.clone.Clone())
 	}
+
+	return nil
 }
 
 // RebuildClone rebuilds the cloned templates. Used for live-reloads.
@@ -890,15 +958,15 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 
 		typ := resolveTemplateType(name)
 
-		info, err := applyTemplateTransformersToHMLTTemplate(typ, templ)
+		c, err := applyTemplateTransformersToHMLTTemplate(typ, templ)
 		if err != nil {
 			return err
 		}
 
 		if typ == templateShortcode {
-			t.addShortcodeVariant(templateName, info, templ)
+			t.addShortcodeVariant(templateName, c.Info, templ)
 		} else {
-			t.templateInfo[name] = info
+			t.templateInfo[name] = c.Info
 		}
 
 		return nil

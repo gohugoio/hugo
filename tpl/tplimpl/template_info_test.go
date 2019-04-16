@@ -24,9 +24,9 @@ import (
 func TestTemplateInfoShortcode(t *testing.T) {
 	assert := require.New(t)
 	d := newD(assert)
-	h := d.Tmpl.(handler)
+	h := d.Tmpl.(tpl.TemplateHandler)
 
-	assert.NoError(h.addTemplate("shortcodes/mytemplate.html", `
+	assert.NoError(h.AddTemplate("shortcodes/mytemplate.html", `
 {{ .Inner }}
 `))
 	tt, found, _ := d.Tmpl.LookupVariant("mytemplate", tpl.TemplateVariants{})

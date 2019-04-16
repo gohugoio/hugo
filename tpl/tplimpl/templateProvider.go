@@ -46,9 +46,7 @@ func (*TemplateProvider) Update(deps *deps.Deps) error {
 
 	}
 
-	newTmpl.MarkReady()
-
-	return nil
+	return newTmpl.MarkReady()
 
 }
 
@@ -60,7 +58,6 @@ func (*TemplateProvider) Clone(d *deps.Deps) error {
 
 	d.Tmpl = clone
 
-	clone.MarkReady()
+	return clone.MarkReady()
 
-	return nil
 }

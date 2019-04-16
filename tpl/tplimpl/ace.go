@@ -53,15 +53,15 @@ func (t *templateHandler) addAceTemplate(name, basePath, innerPath string, baseC
 
 	typ := resolveTemplateType(name)
 
-	info, err := applyTemplateTransformersToHMLTTemplate(typ, templ)
+	c, err := applyTemplateTransformersToHMLTTemplate(typ, templ)
 	if err != nil {
 		return err
 	}
 
 	if typ == templateShortcode {
-		t.addShortcodeVariant(name, info, templ)
+		t.addShortcodeVariant(name, c.Info, templ)
 	} else {
-		t.templateInfo[name] = info
+		t.templateInfo[name] = c.Info
 	}
 
 	return nil
