@@ -77,11 +77,11 @@ The second argument in a partial call is the variable being passed down. The abo
 
 This means the partial will *only* be able to access those variables. The partial is isolated and *has no access to the outer scope*. From within the partial, `$.Var` is equivalent to `.Var`.
 
-### Returning a value
+## Returning a value from a Partial
 
 In addition to outputting markup, partials can be used to return a value of any type. In order to return a value, a partial must include a lone `return` statement.
 
-#### Example GetFeatured
+### Example GetFeatured
 ```go-html-template
 {{/* layouts/partials/GetFeatured.html */}}
 {{ return first . (where site.RegularPages ".Params.featured" true) }}
@@ -93,7 +93,7 @@ In addition to outputting markup, partials can be used to return a value of any 
   [...]
 {{ end }}
 ```
-#### Example GetImage
+### Example GetImage
 ```go-html-template
 {{/* layouts/partials/GetImage.html */}}
 {{ $image := false }}
@@ -117,7 +117,7 @@ In addition to outputting markup, partials can be used to return a value of any 
 Only one `return` statement is allowed per partial file.
 {{% /note %}}
 
-### Cached Partials
+## Cached Partials
 
 The [`partialCached` template function][partialcached] can offer significant performance gains for complex templates that don't need to be re-rendered on every invocation. The simplest usage is as follows:
 
