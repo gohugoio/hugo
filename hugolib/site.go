@@ -1630,6 +1630,7 @@ func (s *Site) resetBuildState() {
 	s.init.Reset()
 
 	for _, p := range s.rawAllPages {
+		p.pagePages = &pagePages{}
 		p.subSections = page.Pages{}
 		p.parent = nil
 		p.Scratcher = maps.NewScratcher()

@@ -52,13 +52,16 @@ Content.
 
 	b.WithTemplatesAdded("index.html", `
 {{ range (.Paginate .Site.RegularPages).Pages }}
-* Page: {{ .Title }}|Summary: {{ .Summary }}|Content: {{ .Content }}
+* Page Paginate: {{ .Title }}|Summary: {{ .Summary }}|Content: {{ .Content }}
+{{ end }}
+{{ range .Pages }}
+* Page Pages: {{ .Title }}|Summary: {{ .Summary }}|Content: {{ .Content }}
 {{ end }}
 `)
 
 	b.Running().Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html", "* Page: Page 1|Summary: Initial summary|Content: <p>Content.</p>")
+	b.AssertFileContent("public/index.html", "* Page Paginate: Page 1|Summary: Initial summary|Content: <p>Content.</p>")
 
 	b.EditFiles(contentFilename, `
 ---
@@ -72,6 +75,9 @@ Edited content.
 
 	b.Build(BuildCfg{})
 
-	b.AssertFileContent("public/index.html", "* Page: Page 1 edit|Summary: Edited summary|Content: <p>Edited content.</p>")
+	b.AssertFileContent("public/index.html", "* Page Paginate: Page 1 edit|Summary: Edited summary|Content: <p>Edited content.</p>")
+
+	// https://github.com/gohugoio/hugo/issues/5833
+	b.AssertFileContent("public/index.html", "* Page Pages: Page 1 edit|Summary: Edited summary|Content: <p>Edited content.</p>")
 
 }

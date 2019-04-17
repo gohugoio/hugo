@@ -87,8 +87,7 @@ type pageCommon struct {
 	page.InternalDependencies
 
 	// The children. Regular pages will have none.
-	pages     page.Pages
-	pagesInit sync.Once
+	*pagePages
 
 	// Any bundled resources
 	resources            resource.Resources
@@ -110,4 +109,9 @@ type pageCommon struct {
 
 	// Set in fast render mode to force render a given page.
 	forceRender bool
+}
+
+type pagePages struct {
+	pages     page.Pages
+	pagesInit sync.Once
 }
