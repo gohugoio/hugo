@@ -412,3 +412,70 @@ func TestCreateSiteOutputFormatsCustomFormats(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(output.Formats{customHTML, customRSS}, outputs[page.KindHome])
 }
+
+// https://github.com/gohugoio/hugo/issues/5849
+func TestOutputFormatPermalinkable(t *testing.T) {
+
+	config := `
+baseURL = "https://example.com"
+
+# DAMP is similar to AMP, but not permalinkable.
+[outputFormats]
+[outputFormats.damp]
+mediaType = "text/html"
+path = "damp"
+
+`
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
+	b.WithContent("_index.md", `
+---
+Title: Home Sweet Home
+outputs: [ "html", "amp", "damp" ]
+---
+
+`)
+
+	b.WithContent("blog/html-amp.md", `
+---
+Title: AMP and HTML
+outputs: [ "html", "amp" ]
+---
+
+`)
+
+	b.WithContent("blog/html-damp.md", `
+---
+Title: DAMP and HTML
+outputs: [ "html", "damp" ]
+---
+
+`)
+
+	b.WithContent("blog/html.md", `
+---
+Title: HTML only
+outputs: [ "html" ]
+---
+
+`)
+
+	b.WithContent("blog/amp.md", `
+---
+Title: AMP only
+outputs: [ "amp" ]
+---
+
+`)
+
+	b.WithTemplatesAdded("index.html", `{{ range .Site.RegularPages }}{{ .Title }}|{{ .RelPermalink }}|{{ end }}`)
+
+	b.Build(BuildCfg{})
+
+	htmlHomeOutput := "AMP and HTML|/blog/html-amp/|AMP only|/amp/blog/amp/|DAMP and HTML|/blog/html-damp/|HTML only|/blog/html/|"
+
+	b.AssertFileContent("public/index.html", htmlHomeOutput)
+	b.AssertFileContent("public/amp/index.html", "AMP and HTML|/amp/blog/html-amp/|AMP only|/amp/blog/amp/|DAMP and HTML|/blog/html-damp/|HTML only|/blog/html/|")
+	b.AssertFileContent("public/damp/index.html", htmlHomeOutput)
+
+}
