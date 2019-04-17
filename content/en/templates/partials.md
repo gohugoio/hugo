@@ -96,14 +96,14 @@ In addition to outputting markup, partials can be used to return a value of any 
 #### Example GetImage
 ```go-html-template
 {{/* layouts/partials/GetImage.html */}}
-{{ $return := false }}
+{{ $image := false }}
 {{ with .Params.gallery }}
-  {{ $return = index . 0 }}
+  {{ $image = index . 0 }}
 {{ end }}
 {{ with .Params.image }}
-  {{ $return = . }}
+  {{ $image = . }}
 {{ end }}
-{{ return $return }}
+{{ return $image }}
 ```
 
 ```go-html-template
