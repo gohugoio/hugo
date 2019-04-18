@@ -276,6 +276,7 @@ func TestFirst(t *testing.T) {
 
 func TestIn(t *testing.T) {
 	t.Parallel()
+	assert := require.New(t)
 
 	ns := New(&deps.Deps{})
 
@@ -302,12 +303,18 @@ func TestIn(t *testing.T) {
 		{"this substring should be found", "substring", true},
 		{"this substring should not be found", "subseastring", false},
 		{nil, "foo", false},
+		// Pointers
+		{pagesPtr{p1, p2, p3, p2}, p2, true},
+		{pagesPtr{p1, p2, p3, p2}, p4, false},
+		// Structs
+		{pagesVals{p3v, p2v, p3v, p2v}, p2v, true},
+		{pagesVals{p3v, p2v, p3v, p2v}, p4v, false},
 	} {
 
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
 		result := ns.In(test.l1, test.l2)
-		assert.Equal(t, test.expect, result, errMsg)
+		assert.Equal(test.expect, result, errMsg)
 	}
 }
 
