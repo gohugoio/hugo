@@ -70,7 +70,7 @@ List requires a subcommand, e.g. ` + "`hugo list drafts`.",
 				}
 
 				for _, p := range sites.Pages() {
-					if p.IsDraft() {
+					if p.Draft() {
 						jww.FEEDBACK.Println(filepath.Join(p.File().Dir(), p.File().LogicalName()))
 					}
 
