@@ -16,7 +16,6 @@
 package collections
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
 	"math/rand"
@@ -30,6 +29,7 @@ import (
 	"github.com/gohugoio/hugo/common/types"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/pkg/errors"
 	"github.com/spf13/cast"
 )
 
@@ -655,40 +655,38 @@ func (ns *Namespace) Union(l1, l2 interface{}) (interface{}, error) {
 
 // Uniq takes in a slice or array and returns a slice with subsequent
 // duplicate elements removed.
-func (ns *Namespace) Uniq(l interface{}) (interface{}, error) {
-	if l == nil {
+func (ns *Namespace) Uniq(seq interface{}) (interface{}, error) {
+	if seq == nil {
 		return make([]interface{}, 0), nil
 	}
 
-	lv := reflect.ValueOf(l)
-	lv, isNil := indirect(lv)
-	if isNil {
-		return nil, errors.New("invalid nil argument to Uniq")
-	}
+	v := reflect.ValueOf(seq)
+	var slice reflect.Value
 
-	var ret reflect.Value
-
-	switch lv.Kind() {
+	switch v.Kind() {
 	case reflect.Slice:
-		ret = reflect.MakeSlice(lv.Type(), 0, 0)
+		slice = reflect.MakeSlice(v.Type(), 0, 0)
 	case reflect.Array:
-		ret = reflect.MakeSlice(reflect.SliceOf(lv.Type().Elem()), 0, 0)
+		slice = reflect.MakeSlice(reflect.SliceOf(v.Type().Elem()), 0, 0)
 	default:
-		return nil, errors.New("Can't use Uniq on " + reflect.ValueOf(lv).Type().String())
+		return nil, errors.Errorf("type %T not supported", seq)
 	}
 
-	for i := 0; i != lv.Len(); i++ {
-		lvv := lv.Index(i)
-		lvv, isNil := indirect(lvv)
-		if isNil {
-			continue
+	seen := make(map[interface{}]bool)
+	for i := 0; i < v.Len(); i++ {
+		ev, _ := indirectInterface(v.Index(i))
+		if !ev.Type().Comparable() {
+			return nil, errors.New("elements must be comparable")
 		}
-
-		if !ns.In(ret.Interface(), lvv.Interface()) {
-			ret = reflect.Append(ret, lvv)
+		key := normalize(ev)
+		if _, found := seen[key]; !found {
+			slice = reflect.Append(slice, ev)
+			seen[key] = true
 		}
 	}
-	return ret.Interface(), nil
+
+	return slice.Interface(), nil
+
 }
 
 // KeyVals creates a key and values wrapper.

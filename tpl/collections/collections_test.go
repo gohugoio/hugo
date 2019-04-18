@@ -322,22 +322,22 @@ func (p testPage) String() string {
 type pagesPtr []*testPage
 type pagesVals []testPage
 
+var (
+	p1 = &testPage{"A"}
+	p2 = &testPage{"B"}
+	p3 = &testPage{"C"}
+	p4 = &testPage{"D"}
+
+	p1v = testPage{"A"}
+	p2v = testPage{"B"}
+	p3v = testPage{"C"}
+	p4v = testPage{"D"}
+)
+
 func TestIntersect(t *testing.T) {
 	t.Parallel()
 
 	ns := New(&deps.Deps{})
-
-	var (
-		p1 = &testPage{"A"}
-		p2 = &testPage{"B"}
-		p3 = &testPage{"C"}
-		p4 = &testPage{"D"}
-
-		p1v = testPage{"A"}
-		p2v = testPage{"B"}
-		p3v = testPage{"C"}
-		p4v = testPage{"D"}
-	)
 
 	for i, test := range []struct {
 		l1, l2 interface{}
@@ -671,18 +671,6 @@ func TestUnion(t *testing.T) {
 
 	ns := New(&deps.Deps{})
 
-	var (
-		p1 = &testPage{"A"}
-		p2 = &testPage{"B"}
-		//		p3 = &page{"C"}
-		p4 = &testPage{"D"}
-
-		p1v = testPage{"A"}
-		//p2v = page{"B"}
-		p3v = testPage{"C"}
-		//p4v = page{"D"}
-	)
-
 	for i, test := range []struct {
 		l1     interface{}
 		l2     interface{}
@@ -786,7 +774,15 @@ func TestUniq(t *testing.T) {
 		{[]int{1, 2, 3, 2}, []int{1, 2, 3}, false},
 		{[4]int{1, 2, 3, 2}, []int{1, 2, 3}, false},
 		{nil, make([]interface{}, 0), false},
-		// should-errors
+		// Pointers
+		{pagesPtr{p1, p2, p3, p2}, pagesPtr{p1, p2, p3}, false},
+		{pagesPtr{}, pagesPtr{}, false},
+		// Structs
+		{pagesVals{p3v, p2v, p3v, p2v}, pagesVals{p3v, p2v}, false},
+
+		// should fail
+		// uncomparable types
+		{[]map[string]int{{"K1": 1}}, []map[string]int{{"K2": 2}, {"K2": 2}}, true},
 		{1, 1, true},
 		{"foo", "fo", true},
 	} {
