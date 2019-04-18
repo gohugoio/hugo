@@ -120,6 +120,9 @@ The following is the full list of configuration options for output formats and t
 `notAlternative`
 : enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term *alternative* and not *alternate* here, as it does not necessarily replace the other format. **Default:** `false`.
 
+`permalinkable`
+: make `.Permalink` and `.RelPermalink` return the Output Format from the current template file rather than main ([see below](#link-to-output-formats)). **Default:** `false`.
+
 ## Output Formats for Pages
 
 A `Page` in Hugo can be rendered to multiple *output formats* on the file
@@ -173,7 +176,7 @@ outputs:
 ---
 ```
 
-## Link to Output Formats
+##  List Output formats
 
 Each `Page` has both an `.OutputFormats` (all formats, including the current) and an `.AlternativeOutputFormats` variable, the latter of which is useful for creating a `link rel` list in your site's `<head>`:
 
@@ -183,13 +186,26 @@ Each `Page` has both an `.OutputFormats` (all formats, including the current) an
 {{ end -}}
 ```
 
-Note that `.Permalink` and `.RelPermalink` on `Page` will return the first output format defined for that page (usually `HTML` if nothing else is defined).
+## Link to Output Formats
 
-This is how you link to a given output format:
+`.Permalink` and `.RelPermalink` on `Page` will return the first output format defined for that page (usually `HTML` if nothing else is defined). This is regardless of the template file they are being called from.
+
+__from `single.json.json`:__
+```go-html-template
+{{ .Permalink }} > /that-page/
+{{ with  .OutputFormats.Get "json" -}}
+{{ .Permalink }} > /that-page/index.json
+{{- end }}
+```
+
+In order for them to return the output format of the current template file instead, the given output format should have its `permalinkable` setting set to true.
+
+__Same template file as above with json output format's `permalinkable` set to true:__
 
 ```go-html-template
-{{ with  .OutputFormats.Get "json" -}}
-<a href="{{ .Permalink }}">{{ .Name }}</a>
+{{ .Permalink }} > /that-page/index.json
+{{ with  .OutputFormats.Get "html" -}}
+{{ .Permalink }} > /that-page/
 {{- end }}
 ```
 
