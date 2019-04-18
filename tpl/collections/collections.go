@@ -250,27 +250,26 @@ func (ns *Namespace) In(l interface{}, v interface{}) bool {
 	lv := reflect.ValueOf(l)
 	vv := reflect.ValueOf(v)
 
+	if !vv.Type().Comparable() {
+		// TODO(bep) consider adding error to the signature.
+		return false
+	}
+
+	// Normalize numeric types to float64 etc.
+	vvk := normalize(vv)
+
 	switch lv.Kind() {
 	case reflect.Array, reflect.Slice:
 		for i := 0; i < lv.Len(); i++ {
-			lvv := lv.Index(i)
-			lvv, isNil := indirect(lvv)
-			if isNil {
+			lvv, isNil := indirectInterface(lv.Index(i))
+			if isNil || !lvv.Type().Comparable() {
 				continue
 			}
-			switch lvv.Kind() {
-			case reflect.String:
-				if vv.Type() == lvv.Type() && vv.String() == lvv.String() {
-					return true
-				}
-			default:
-				if isNumber(vv.Kind()) && isNumber(lvv.Kind()) {
-					f1, err1 := numberToFloat(vv)
-					f2, err2 := numberToFloat(lvv)
-					if err1 == nil && err2 == nil && f1 == f2 {
-						return true
-					}
-				}
+
+			lvvk := normalize(lvv)
+
+			if lvvk == vvk {
+				return true
 			}
 		}
 	case reflect.String:
