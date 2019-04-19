@@ -118,6 +118,42 @@ tags_weight: %d
 		"unionWeightedPages: page.WeightedPages 6")
 }
 
+func TestCollectionsFuncs(t *testing.T) {
+	assert := require.New(t)
+
+	pageContent := `
+---
+title: "Page"
+tags: ["blue", "green"]
+tags_weight: %d
+---
+
+`
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().
+		WithContent("page1.md", fmt.Sprintf(pageContent, 10), "page2.md", fmt.Sprintf(pageContent, 20),
+			"page3.md", fmt.Sprintf(pageContent, 30)).
+		WithTemplatesAdded("index.html", `
+{{ $uniqPages := first 2 .Site.RegularPages | append .Site.RegularPages | uniq  }}
+{{ $inTrue := in .Site.RegularPages (index .Site.RegularPages 1)  }}
+{{ $inFalse := in .Site.RegularPages (.Site.Home)  }}
+
+{{ printf "uniqPages: %T %d" $uniqPages (len $uniqPages) }}
+{{ printf "inTrue: %t" $inTrue }}
+{{ printf "inFalse: %t" $inFalse  }}
+`)
+	b.CreateSites().Build(BuildCfg{})
+
+	assert.Equal(1, len(b.H.Sites))
+	require.Len(t, b.H.Sites[0].RegularPages(), 3)
+
+	b.AssertFileContent("public/index.html",
+		"uniqPages: page.Pages 3",
+		"inTrue: true",
+		"inFalse: false",
+	)
+}
+
 func TestAppendFunc(t *testing.T) {
 	assert := require.New(t)
 
