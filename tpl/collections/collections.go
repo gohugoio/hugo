@@ -242,17 +242,16 @@ func (ns *Namespace) First(limit interface{}, seq interface{}) (interface{}, err
 }
 
 // In returns whether v is in the set l.  l may be an array or slice.
-func (ns *Namespace) In(l interface{}, v interface{}) bool {
+func (ns *Namespace) In(l interface{}, v interface{}) (bool, error) {
 	if l == nil || v == nil {
-		return false
+		return false, nil
 	}
 
 	lv := reflect.ValueOf(l)
 	vv := reflect.ValueOf(v)
 
 	if !vv.Type().Comparable() {
-		// TODO(bep) consider adding error to the signature.
-		return false
+		return false, errors.Errorf("value to check must be comparable: %T", v)
 	}
 
 	// Normalize numeric types to float64 etc.
@@ -269,15 +268,15 @@ func (ns *Namespace) In(l interface{}, v interface{}) bool {
 			lvvk := normalize(lvv)
 
 			if lvvk == vvk {
-				return true
+				return true, nil
 			}
 		}
 	case reflect.String:
 		if vv.Type() == lv.Type() && strings.Contains(lv.String(), vv.String()) {
-			return true
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
 
 // Intersect returns the common elements in the given sets, l1 and l2.  l1 and

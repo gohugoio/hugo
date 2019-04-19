@@ -313,9 +313,14 @@ func TestIn(t *testing.T) {
 
 		errMsg := fmt.Sprintf("[%d] %v", i, test)
 
-		result := ns.In(test.l1, test.l2)
+		result, err := ns.In(test.l1, test.l2)
+		assert.NoError(err)
 		assert.Equal(test.expect, result, errMsg)
 	}
+
+	// Slices are not comparable
+	_, err := ns.In([]string{"a", "b"}, []string{"a", "b"})
+	assert.Error(err)
 }
 
 type testPage struct {

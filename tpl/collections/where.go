@@ -225,14 +225,14 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 		var r bool
 		switch {
 		case ivp != nil && len(ima) > 0:
-			r = ns.In(ima, *ivp)
+			r, _ = ns.In(ima, *ivp)
 		case fvp != nil && len(fma) > 0:
-			r = ns.In(fma, *fvp)
+			r, _ = ns.In(fma, *fvp)
 		case svp != nil:
 			if len(sma) > 0 {
-				r = ns.In(sma, *svp)
+				r, _ = ns.In(sma, *svp)
 			} else if smvp != nil {
-				r = ns.In(*smvp, *svp)
+				r, _ = ns.In(*smvp, *svp)
 			}
 		default:
 			return false, nil
