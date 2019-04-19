@@ -424,6 +424,10 @@ baseURL = "https://example.com"
 [outputFormats.damp]
 mediaType = "text/html"
 path = "damp"
+[outputFormats.ramp]
+mediaType = "text/html"
+path = "ramp"
+permalinkable = true
 
 `
 
@@ -452,6 +456,14 @@ outputs: [ "html", "damp" ]
 
 `)
 
+	b.WithContent("blog/html-ramp.md", `
+---
+Title: RAMP and HTML
+outputs: [ "html", "ramp" ]
+---
+
+`)
+
 	b.WithContent("blog/html.md", `
 ---
 Title: HTML only
@@ -468,14 +480,58 @@ outputs: [ "amp" ]
 
 `)
 
-	b.WithTemplatesAdded("index.html", `{{ range .Site.RegularPages }}{{ .Title }}|{{ .RelPermalink }}|{{ end }}`)
+	b.WithTemplatesAdded("index.html", `
+This RelPermalink: {{ .RelPermalink }}
+Regular Pages: {{ range .Site.RegularPages }}{{ .Title }}|{{ .RelPermalink }}|{{ end }}
+Get AMP:  {{ with .OutputFormats.Get "AMP" }}{{ .Permalink }}{{ end }}
+Get HTML:  {{ with .OutputFormats.Get "HTML" }}{{ .Permalink }}{{ end }}
+`)
+
+	b.WithTemplatesAdded("_default/single.html", `
+This RelPermalink: {{ .RelPermalink }}
+Get AMP:  {{ with .OutputFormats.Get "AMP" }}{{ .Permalink }}{{ end }}
+Get HTML:  {{ with .OutputFormats.Get "HTML" }}{{ .Permalink }}{{ end }}
+Get DAMP:  {{ with .OutputFormats.Get "DAMP" }}{{ .Permalink }}{{ end }}
+Get RAMP:  {{ with .OutputFormats.Get "RAMP" }}{{ .Permalink }}{{ end }}
+`)
 
 	b.Build(BuildCfg{})
 
-	htmlHomeOutput := "AMP and HTML|/blog/html-amp/|AMP only|/amp/blog/amp/|DAMP and HTML|/blog/html-damp/|HTML only|/blog/html/|"
+	htmlHomeOutput := "Regular Pages: AMP and HTML|/blog/html-amp/|AMP only|/amp/blog/amp/|DAMP and HTML|/blog/html-damp/|HTML only|/blog/html/|"
 
-	b.AssertFileContent("public/index.html", htmlHomeOutput)
-	b.AssertFileContent("public/amp/index.html", "AMP and HTML|/amp/blog/html-amp/|AMP only|/amp/blog/amp/|DAMP and HTML|/blog/html-damp/|HTML only|/blog/html/|")
+	b.AssertFileContent("public/index.html", htmlHomeOutput,
+		"This RelPermalink: /",
+		"Get AMP:  https://example.com/amp/",
+		"Get HTML:  https://example.com/")
+
+	b.AssertFileContent("public/amp/index.html",
+		"Regular Pages: AMP and HTML|/amp/blog/html-amp/|AMP only|/amp/blog/amp/|DAMP and HTML|/blog/html-damp/|HTML only|/blog/html/|")
 	b.AssertFileContent("public/damp/index.html", htmlHomeOutput)
+
+	// https://github.com/gohugoio/hugo/issues/5877
+	b.AssertFileContent("public/blog/html-amp/index.html",
+		"This RelPermalink: /blog/html-amp/",
+		"Get AMP:  https://example.com/amp/blog/html-amp/",
+		"Get HTML:  https://example.com/blog/html-amp/")
+
+	b.AssertFileContent("public/amp/blog/html-amp/index.html",
+		"This RelPermalink: /amp/blog/html-amp/",
+		"Get AMP:  https://example.com/amp/blog/html-amp/",
+		"Get HTML:  https://example.com/blog/html-amp/")
+
+	b.AssertFileContent("public/damp/blog/html-damp/index.html",
+		"This RelPermalink: /blog/html-damp/",
+		"Get HTML:  https://example.com/blog/html-damp/",
+		"Get DAMP:  https://example.com/damp/blog/html-damp/")
+
+	b.AssertFileContent("public/blog/html-ramp/index.html",
+		"This RelPermalink: /blog/html-ramp/",
+		"Get HTML:  https://example.com/blog/html-ramp/",
+		"Get RAMP:  https://example.com/ramp/blog/html-ramp/")
+
+	b.AssertFileContent("public/ramp/blog/html-ramp/index.html",
+		"This RelPermalink: /ramp/blog/html-ramp/",
+		"Get HTML:  https://example.com/blog/html-ramp/",
+		"Get RAMP:  https://example.com/ramp/blog/html-ramp/")
 
 }
