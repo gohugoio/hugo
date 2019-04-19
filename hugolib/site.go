@@ -1416,7 +1416,8 @@ func (s *Site) getMenusFromConfig() navigation.Menus {
 					}
 
 					menuEntry.MarshallMap(ime)
-					menuEntry.URL = s.Info.createNodeMenuEntryURL(menuEntry.URL)
+					// TODO(bep) clean up all of this
+					menuEntry.ConfiguredURL = s.Info.createNodeMenuEntryURL(menuEntry.ConfiguredURL)
 
 					if ret[name] == nil {
 						ret[name] = navigation.Menu{}
@@ -1477,7 +1478,7 @@ func (s *Site) assembleMenus() {
 				me := navigation.MenuEntry{Identifier: id,
 					Name:   p.LinkTitle(),
 					Weight: p.Weight(),
-					URL:    p.RelPermalink()}
+					Page:   p}
 				flat[twoD{sectionPagesMenu, me.KeyName()}] = &me
 			}
 		}
@@ -1506,7 +1507,7 @@ func (s *Site) assembleMenus() {
 		_, ok := flat[twoD{p.MenuName, p.EntryName}]
 		if !ok {
 			// if parent does not exist, create one without a URL
-			flat[twoD{p.MenuName, p.EntryName}] = &navigation.MenuEntry{Name: p.EntryName, URL: ""}
+			flat[twoD{p.MenuName, p.EntryName}] = &navigation.MenuEntry{Name: p.EntryName}
 		}
 		flat[twoD{p.MenuName, p.EntryName}].Children = childmenu
 	}

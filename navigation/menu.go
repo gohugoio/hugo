@@ -14,6 +14,8 @@
 package navigation
 
 import (
+	"github.com/gohugoio/hugo/common/types"
+
 	"html/template"
 	"sort"
 	"strings"
@@ -24,17 +26,29 @@ import (
 // MenuEntry represents a menu item defined in either Page front matter
 // or in the site config.
 type MenuEntry struct {
-	URL        string
-	Page       Page
-	Name       string
-	Menu       string
-	Identifier string
-	title      string
-	Pre        template.HTML
-	Post       template.HTML
-	Weight     int
-	Parent     string
-	Children   Menu
+	ConfiguredURL string // The URL value from front matter / config.
+	Page          Page
+	Name          string
+	Menu          string
+	Identifier    string
+	title         string
+	Pre           template.HTML
+	Post          template.HTML
+	Weight        int
+	Parent        string
+	Children      Menu
+}
+
+func (m *MenuEntry) URL() string {
+	if m.ConfiguredURL != "" {
+		return m.ConfiguredURL
+	}
+
+	if !types.IsNil(m.Page) {
+		return m.Page.RelPermalink()
+	}
+
+	return ""
 }
 
 // A narrow version of page.Page.
@@ -72,8 +86,8 @@ func (m *MenuEntry) KeyName() string {
 func (m *MenuEntry) hopefullyUniqueID() string {
 	if m.Identifier != "" {
 		return m.Identifier
-	} else if m.URL != "" {
-		return m.URL
+	} else if m.URL() != "" {
+		return m.URL()
 	} else {
 		return m.Name
 	}
@@ -87,7 +101,8 @@ func (m *MenuEntry) IsEqual(inme *MenuEntry) bool {
 // IsSameResource returns whether the two menu entries points to the same
 // resource (URL).
 func (m *MenuEntry) IsSameResource(inme *MenuEntry) bool {
-	return m.URL != "" && inme.URL != "" && m.URL == inme.URL
+	murl, inmeurl := m.URL(), inme.URL()
+	return murl != "" && inmeurl != "" && murl == inmeurl
 }
 
 func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
@@ -95,7 +110,7 @@ func (m *MenuEntry) MarshallMap(ime map[string]interface{}) {
 		loki := strings.ToLower(k)
 		switch loki {
 		case "url":
-			m.URL = cast.ToString(v)
+			m.ConfiguredURL = cast.ToString(v)
 		case "weight":
 			m.Weight = cast.ToInt(v)
 		case "name":

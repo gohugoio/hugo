@@ -92,10 +92,10 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 
 	th.assertFileContent("public/sect1/p1/index.html", "Single",
 		"Menu Sect:  "+
-			"/sect5/|Section Five||10|-|-|"+
-			"/sect1/|Section One||100|-|HasMenuCurrent|"+
-			"/sect2/|Sect2s||0|-|-|"+
-			"/sect3/|Sect3s||0|-|-|",
+			"/sect5/|Section Five|Section Five|10|-|-|"+
+			"/sect1/|Section One|Section One|100|-|HasMenuCurrent|"+
+			"/sect2/|Sect2s|Sect2s|0|-|-|"+
+			"/sect3/|Sect3s|Sect3s|0|-|-|",
 		"Menu Main:  "+
 			"/sect3/p5/|p5|atitle5|5|-|-|"+
 			"/sect2/p4/|p4|atitle4|10|-|-|"+
@@ -106,10 +106,10 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 
 	th.assertFileContent("public/sect2/p3/index.html", "Single",
 		"Menu Sect:  "+
-			"/sect5/|Section Five||10|-|-|"+
-			"/sect1/|Section One||100|-|-|"+
-			"/sect2/|Sect2s||0|-|HasMenuCurrent|"+
-			"/sect3/|Sect3s||0|-|-|")
+			"/sect5/|Section Five|Section Five|10|-|-|"+
+			"/sect1/|Section One|Section One|100|-|-|"+
+			"/sect2/|Sect2s|Sect2s|0|-|HasMenuCurrent|"+
+			"/sect3/|Sect3s|Sect3s|0|-|-|")
 
 }
 
@@ -162,4 +162,63 @@ menu:
 		"Other|P2: /blog/page2/",
 	)
 
+}
+
+// https://github.com/gohugoio/hugo/issues/5849
+func TestMenuPageMultipleOutputFormats(t *testing.T) {
+
+	config := `
+baseURL = "https://example.com"
+
+# DAMP is similar to AMP, but not permalinkable.
+[outputFormats]
+[outputFormats.damp]
+mediaType = "text/html"
+path = "damp"
+
+`
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", config)
+	b.WithContent("_index.md", `
+---
+Title: Home Sweet Home
+outputs: [ "html", "amp" ]
+menu: "main"
+---
+
+`)
+
+	b.WithContent("blog/html-amp.md", `
+---
+Title: AMP and HTML
+outputs: [ "html", "amp" ]
+menu: "main"
+---
+
+`)
+
+	b.WithContent("blog/html.md", `
+---
+Title: HTML only
+outputs: [ "html" ]
+menu: "main"
+---
+
+`)
+
+	b.WithContent("blog/amp.md", `
+---
+Title: AMP only
+outputs: [ "amp" ]
+menu: "main"
+---
+
+`)
+
+	b.WithTemplatesAdded("index.html", `{{ range .Site.Menus.main }}{{ .Title }}|{{ .URL }}|{{ end }}`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "AMP and HTML|/blog/html-amp/|AMP only|/amp/blog/amp/|HTML only|/blog/html/|Home Sweet Home|/|")
+	b.AssertFileContent("public/amp/index.html", "AMP and HTML|/amp/blog/html-amp/|AMP only|/amp/blog/amp/|HTML only|/blog/html/|Home Sweet Home|/amp/|")
 }
