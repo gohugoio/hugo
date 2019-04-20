@@ -1,8 +1,8 @@
 
 ---
 date: 2019-04-17
-title: "0.55.2"
-description: "0.55.2"
+title: "Hugo 0.55.2: Some Important Bug Fixes"
+description: "Fixes some more issues introduced in Hugo 0.55.0."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png

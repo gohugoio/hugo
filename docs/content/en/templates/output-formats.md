@@ -68,7 +68,7 @@ Given a media type and some additional configuration, you get an **Output Format
 
 This is the full set of Hugo's built-in output formats:
 
-{{< datatable "output" "formats" "name" "mediaType" "path" "baseName" "rel" "protocol" "isPlainText" "isHTML" "noUgly">}}
+{{< datatable "output" "formats" "name" "mediaType" "path" "baseName" "rel" "protocol" "isPlainText" "isHTML" "noUgly" "permalinkable" >}}
 
 * A page can be output in as many output formats as you want, and you can have an infinite amount of output formats defined **as long as they resolve to a unique path on the file system**. In the above table, the best example of this is `AMP` vs. `HTML`. `AMP` has the value `amp` for `Path` so it doesn't overwrite the `HTML` version; e.g. we can now have both `/index.html` and `/amp/index.html`.
 * The `MediaType` must match the `Type` of an already defined media type.
@@ -119,6 +119,9 @@ The following is the full list of configuration options for output formats and t
 
 `notAlternative`
 : enable if it doesn't make sense to include this format in an `AlternativeOutputFormats` format listing on `Page` (e.g., with `CSS`). Note that we use the term *alternative* and not *alternate* here, as it does not necessarily replace the other format. **Default:** `false`.
+
+`permalinkable`
+: make `.Permalink` and `.RelPermalink` return the rendering Output Format rather than main ([see below](#link-to-output-formats)). This is enabled by default for `HTML` and `AMP`. **Default:** `false`.
 
 ## Output Formats for Pages
 
@@ -173,7 +176,7 @@ outputs:
 ---
 ```
 
-## Link to Output Formats
+##  List Output formats
 
 Each `Page` has both an `.OutputFormats` (all formats, including the current) and an `.AlternativeOutputFormats` variable, the latter of which is useful for creating a `link rel` list in your site's `<head>`:
 
@@ -183,13 +186,26 @@ Each `Page` has both an `.OutputFormats` (all formats, including the current) an
 {{ end -}}
 ```
 
-Note that `.Permalink` and `.RelPermalink` on `Page` will return the first output format defined for that page (usually `HTML` if nothing else is defined).
+## Link to Output Formats
 
-This is how you link to a given output format:
+`.Permalink` and `.RelPermalink` on `Page` will return the first output format defined for that page (usually `HTML` if nothing else is defined). This is regardless of the template file they are being called from.
+
+__from `single.json.json`:__
+```go-html-template
+{{ .RelPermalink }} > /that-page/
+{{ with  .OutputFormats.Get "json" -}}
+{{ .RelPermalink }} > /that-page/index.json
+{{- end }}
+```
+
+In order for them to return the output format of the current template file instead, the given output format should have its `permalinkable` setting set to true.
+
+__Same template file as above with json output format's `permalinkable` set to true:__
 
 ```go-html-template
-{{ with  .OutputFormats.Get "json" -}}
-<a href="{{ .Permalink }}">{{ .Name }}</a>
+{{ .RelPermalink }} > /that-page/index.json
+{{ with  .OutputFormats.Get "html" -}}
+{{ .RelPermalink }} > /that-page/
 {{- end }}
 ```
 

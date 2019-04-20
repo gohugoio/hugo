@@ -211,9 +211,6 @@ permalinks
 pluralizeListTitles (true)
 : Pluralize titles in lists.
 
-preserveTaxonomyNames (false)
-: Preserve special characters in taxonomy names ("Gérard Depardieu" vs "Gerard Depardieu").
-
 publishDir ("public")
 : The directory to where Hugo will write the final static site (the HTML files etc.).
 

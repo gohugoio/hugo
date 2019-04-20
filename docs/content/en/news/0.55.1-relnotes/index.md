@@ -1,8 +1,8 @@
 
 ---
 date: 2019-04-12
-title: "0.55.1"
-description: "0.55.1"
+title: "0.55.1: 3 Bug Fixes"
+description: "Fixes 3 issues introduced in 0.55.0."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
