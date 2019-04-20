@@ -235,7 +235,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 			pagePath = pjoin(pagePath, d.Type.BaseName+d.Type.MediaType.FullSuffix())
 		}
 
-		if isUgly && !isHtmlIndex(pagePath) {
+		if !isHtmlIndex(pagePath) {
 			link = pagePath
 		}
 

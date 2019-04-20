@@ -419,6 +419,8 @@ func TestOutputFormatPermalinkable(t *testing.T) {
 	config := `
 baseURL = "https://example.com"
 
+
+
 # DAMP is similar to AMP, but not permalinkable.
 [outputFormats]
 [outputFormats.damp]
@@ -428,6 +430,14 @@ path = "damp"
 mediaType = "text/html"
 path = "ramp"
 permalinkable = true
+[outputFormats.base]
+mediaType = "text/html"
+isHTML = true
+baseName = "that"
+permalinkable = true
+[outputFormats.nobase]
+mediaType = "application/json"
+permalinkable = true
 
 `
 
@@ -435,7 +445,7 @@ permalinkable = true
 	b.WithContent("_index.md", `
 ---
 Title: Home Sweet Home
-outputs: [ "html", "amp", "damp" ]
+outputs: [ "html", "amp", "damp", "base" ]
 ---
 
 `)
@@ -480,58 +490,73 @@ outputs: [ "amp" ]
 
 `)
 
-	b.WithTemplatesAdded("index.html", `
-This RelPermalink: {{ .RelPermalink }}
-Regular Pages: {{ range .Site.RegularPages }}{{ .Title }}|{{ .RelPermalink }}|{{ end }}
-Get AMP:  {{ with .OutputFormats.Get "AMP" }}{{ .Permalink }}{{ end }}
-Get HTML:  {{ with .OutputFormats.Get "HTML" }}{{ .Permalink }}{{ end }}
+	b.WithContent("blog/html-base-nobase.md", `
+---
+Title: HTML, Base and Nobase
+outputs: [ "html", "base", "nobase" ]
+---
+
 `)
 
-	b.WithTemplatesAdded("_default/single.html", `
+	const commonTemplate = `
 This RelPermalink: {{ .RelPermalink }}
-Get AMP:  {{ with .OutputFormats.Get "AMP" }}{{ .Permalink }}{{ end }}
-Get HTML:  {{ with .OutputFormats.Get "HTML" }}{{ .Permalink }}{{ end }}
-Get DAMP:  {{ with .OutputFormats.Get "DAMP" }}{{ .Permalink }}{{ end }}
-Get RAMP:  {{ with .OutputFormats.Get "RAMP" }}{{ .Permalink }}{{ end }}
-`)
+Output Formats: {{ len .OutputFormats }};{{ range .OutputFormats }}{{ .Name }};{{ .RelPermalink }}|{{ end }}
+
+`
+
+	b.WithTemplatesAdded("index.html", commonTemplate)
+	b.WithTemplatesAdded("_default/single.html", commonTemplate)
+	b.WithTemplatesAdded("_default/single.json", commonTemplate)
 
 	b.Build(BuildCfg{})
 
-	htmlHomeOutput := "Regular Pages: AMP and HTML|/blog/html-amp/|AMP only|/amp/blog/amp/|DAMP and HTML|/blog/html-damp/|HTML only|/blog/html/|"
-
-	b.AssertFileContent("public/index.html", htmlHomeOutput,
+	b.AssertFileContent("public/index.html",
 		"This RelPermalink: /",
-		"Get AMP:  https://example.com/amp/",
-		"Get HTML:  https://example.com/")
+		"Output Formats: 4;HTML;/|AMP;/amp/|damp;/damp/|base;/that.html|",
+	)
 
 	b.AssertFileContent("public/amp/index.html",
-		"Regular Pages: AMP and HTML|/amp/blog/html-amp/|AMP only|/amp/blog/amp/|DAMP and HTML|/blog/html-damp/|HTML only|/blog/html/|")
-	b.AssertFileContent("public/damp/index.html", htmlHomeOutput)
+		"This RelPermalink: /amp/",
+		"Output Formats: 4;HTML;/|AMP;/amp/|damp;/damp/|base;/that.html|",
+	)
 
-	// https://github.com/gohugoio/hugo/issues/5877
 	b.AssertFileContent("public/blog/html-amp/index.html",
-		"This RelPermalink: /blog/html-amp/",
-		"Get AMP:  https://example.com/amp/blog/html-amp/",
-		"Get HTML:  https://example.com/blog/html-amp/")
+		"Output Formats: 2;HTML;/blog/html-amp/|AMP;/amp/blog/html-amp/|",
+		"This RelPermalink: /blog/html-amp/")
 
 	b.AssertFileContent("public/amp/blog/html-amp/index.html",
-		"This RelPermalink: /amp/blog/html-amp/",
-		"Get AMP:  https://example.com/amp/blog/html-amp/",
-		"Get HTML:  https://example.com/blog/html-amp/")
+		"Output Formats: 2;HTML;/blog/html-amp/|AMP;/amp/blog/html-amp/|",
+		"This RelPermalink: /amp/blog/html-amp/")
 
+	// Damp is not permalinkable
 	b.AssertFileContent("public/damp/blog/html-damp/index.html",
 		"This RelPermalink: /blog/html-damp/",
-		"Get HTML:  https://example.com/blog/html-damp/",
-		"Get DAMP:  https://example.com/damp/blog/html-damp/")
+		"Output Formats: 2;HTML;/blog/html-damp/|damp;/damp/blog/html-damp/|")
 
 	b.AssertFileContent("public/blog/html-ramp/index.html",
 		"This RelPermalink: /blog/html-ramp/",
-		"Get HTML:  https://example.com/blog/html-ramp/",
-		"Get RAMP:  https://example.com/ramp/blog/html-ramp/")
+		"Output Formats: 2;HTML;/blog/html-ramp/|ramp;/ramp/blog/html-ramp/|")
 
 	b.AssertFileContent("public/ramp/blog/html-ramp/index.html",
 		"This RelPermalink: /ramp/blog/html-ramp/",
-		"Get HTML:  https://example.com/blog/html-ramp/",
-		"Get RAMP:  https://example.com/ramp/blog/html-ramp/")
+		"Output Formats: 2;HTML;/blog/html-ramp/|ramp;/ramp/blog/html-ramp/|")
+
+	// https://github.com/gohugoio/hugo/issues/5877
+	outputFormats := "Output Formats: 3;HTML;/blog/html-base-nobase/|base;/blog/html-base-nobase/that.html|nobase;/blog/html-base-nobase/index.json|"
+
+	b.AssertFileContent("public/blog/html-base-nobase/index.json",
+		"This RelPermalink: /blog/html-base-nobase/index.json",
+		outputFormats,
+	)
+
+	b.AssertFileContent("public/blog/html-base-nobase/that.html",
+		"This RelPermalink: /blog/html-base-nobase/that.html",
+		outputFormats,
+	)
+
+	b.AssertFileContent("public/blog/html-base-nobase/index.html",
+		"This RelPermalink: /blog/html-base-nobase/",
+		outputFormats,
+	)
 
 }
