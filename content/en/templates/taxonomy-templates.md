@@ -124,6 +124,18 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 
 ### Order Alphabetically Example
 
+In Hugo 0.55 and later you can do:
+
+```go-html-template
+<ul>
+    {{ range .Data.Terms.Alphabetical }}
+            <li><a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a> {{ .Count }}</li>
+    {{ end }}
+</ul>
+```
+
+Before that you would have to do something like:
+
 ```go-html-template
 <ul>
     {{ $type := .Type }}
@@ -137,35 +149,6 @@ Taxonomies can be ordered by either alphabetical key or by the number of content
 </ul>
 ```
 
-### Order by Popularity Example
-
-```go-html-template
-<ul>
-    {{ $type := .Type }}
-    {{ range $key, $value := .Data.Terms.ByCount }}
-        {{ $name := .Name }}
-        {{ $count := .Count }}
-        {{ with $.Site.GetPage (printf "/%s/%s" $type $name) }}
-            <li><a href="{{ .Permalink }}">{{ $name }}</a> {{ $count }}</li>
-        {{ end }}
-    {{ end }}
-</ul>
-```
-
-### Order by Least Popular Example
-
-```go-html-template
-<ul>
-    {{ $type := .Type }}
-    {{ range $key, $value := .Data.Terms.ByCount.Reverse }}
-        {{ $name := .Name }}
-        {{ $count := .Count }}
-        {{ with $.Site.GetPage (printf "/%s/%s" $type $name) }}
-            <li><a href="{{ .Permalink }}">{{ $name }}</a> {{ $count }}</li>
-        {{ end }}
-    {{ end }}
-</ul>
-```
 
 <!-- [See Also Taxonomy Lists](/templates/list/) -->
 
@@ -310,6 +293,20 @@ This may take the form of a tag cloud, a menu, or simply a list.
 The following example displays all terms in a site's tags taxonomy:
 
 ### Example: List All Site Tags {#example-list-all-site-tags}
+
+In Hugo 0.55 and later you can simply do:
+
+```go-html-template
+<ul>
+    {{ range .Site.Taxonomies.tags }}
+            <li><a href="{{ .Page.Permalink }}">{{ .Page.Title }}</a> {{ .Count }}</li>
+    {{ end }}
+</ul>
+```
+
+Before that you would do something like this:
+
+{{< todo >}}Clean up rest of the taxonomy examples re Hugo 0.55.{{< /todo >}}
 
 ```go-html-template
 <ul id="all-tags">

@@ -100,7 +100,7 @@ Hugo supports GitHub-flavored markdown's use of triple back ticks, as well as pr
 
 ## Mmark
 
-Mmark is a [fork of BlackFriday][mmark] and markdown superset that is well suited for writing [IETF documentation][ietf]. You can see examples of the syntax in the [Mmark GitHub repository][mmarkgh] or the full syntax on [Miek Gieben's website][].
+Mmark is a [fork of BlackFriday][mmark] and markdown superset that is well suited for writing [IETF documentation][ietf]. You can see examples of the syntax in the [Mmark GitHub repository][mmark] or the full syntax on [Miek Gieben's website][].
 
 ### Use Mmark
 
@@ -253,8 +253,7 @@ Markdown syntax is simple enough to learn in a single sitting. The following are
 [mdguide]: https://www.markdownguide.org/
 [mdtutorial]: http://www.markdowntutorial.com/
 [Miek Gieben's website]: https://miek.nl/2016/march/05/mmark-syntax-document/
-[mmark]: https://github.com/miekg/mmark
-[mmarkgh]: https://github.com/miekg/mmark/wiki/Syntax
+[mmark]: https://github.com/mmarkdown/mmark
 [org]: http://orgmode.org/
 [pandoc]: http://www.pandoc.org/
 [Pygments]: http://pygments.org/

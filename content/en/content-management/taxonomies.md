@@ -135,24 +135,16 @@ If you want to have just the default `tags` taxonomy, and remove the `categories
 
 If you want to disable all taxonomies altogether, see the use of `disableKinds` in [Hugo Taxonomy Defaults](#default-taxonomies).
 
-### Preserve Taxonomy Values
-
-By default, taxonomy names are normalized.
-
-Therefore, if you want to have a taxonomy term with special characters such as `Gérard Depardieu` instead of `Gerard Depardieu`, set the value for `preserveTaxonomyNames` to `true` in your [site config][config]. Hugo will then preserve special characters in taxonomy values but will still normalize them in URLs.
-
-Note that if you use `preserveTaxonomyNames` and intend to manually construct URLs to the archive pages, you will need to pass the taxonomy values through the [`urlize` template function][].
-
 {{% note %}}
 You can add content and front matter to your taxonomy list and taxonomy terms pages. See [Content Organization](/content-management/organization/) for more information on how to add an `_index.md` for this purpose.
 
 Much like regular pages, taxonomy list [permalinks](/content-management/urls/) are configurable, but taxonomy term page permalinks are not.
 {{% /note %}}
 
-{{% warning "`preserveTaxonomyNames` behaviour change" %}}
-Before 0.49, Hugo would make the first character upper case for the taxonomy values for titles even if `preserveTaxonomyNames` was active. This no longer the case, which (for instance) makes it possible to have fully lower-case values.
+{{% warning %}}
+The configuration option `preserveTaxonomyNames` was removed in Hugo 0.55.
 
-If you actually need to title-ize these values, you can do so using the `strings.FirstUpper` template function.
+You can now use `.Page.Title` on the relevant taxonomy node to get the original value.
 {{% /warning %}}
 
 ## Add Taxonomies to Content
