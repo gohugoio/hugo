@@ -10,7 +10,7 @@
 {{ $secondClass := "s_video_simple" }}
 <div class="{{ $secondClass }} {{ $class }}">
 {{- with $item }}
-<a href="{{ .provider_url }}{{ .video_id | safeHTMLAttr }}" target="_blank">
+<a href="{{ .provider_url }}{{ .video_id }}" target="_blank">
 {{ $thumb := .thumbnail_url }}
 {{ $original := $thumb | replaceRE "(_.*\\.)" "." }}
 <img src="{{ $thumb }}" srcset="{{ $thumb }} 1x, {{ $original }} 2x" alt="{{ .title }}">
