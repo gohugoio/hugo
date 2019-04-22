@@ -98,6 +98,9 @@ type pageMeta struct {
 	// 3. But you can get it via .Site.GetPage
 	headless bool
 
+	// Set if this page is bundled inside another.
+	bundled bool
+
 	// A key that maps to translation(s) of this page. This value is fetched
 	// from the page front matter.
 	translationKey string

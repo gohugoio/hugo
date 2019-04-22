@@ -237,10 +237,17 @@ func TestPageBundlerSiteRegular(t *testing.T) {
 								"Short Thumb Width: 56",
 								"1: Image Title: Sunset Galore 1",
 								"1: Image Params: map[myparam:My Sunny Param]",
+								relPermalinker("1: Image RelPermalink: %s/2017/pageslug/sunset1.jpg"),
 								"2: Image Title: Sunset Galore 2",
 								"2: Image Params: map[myparam:My Sunny Param]",
 								"1: Image myParam: Lower: My Sunny Param Caps: My Sunny Param",
+								"0: Page Title: Bundle Galore",
 							)
+
+							// https://github.com/gohugoio/hugo/issues/5882
+							th.assertFileContent(
+								filepath.FromSlash("/work/public/2017/pageslug.html"), "0: Page RelPermalink: |")
+
 							th.assertFileContent(filepath.FromSlash("/work/public/cpath/2017/pageslug.html"), "TheContent")
 
 							// 은행
@@ -642,11 +649,16 @@ Thumb Name: {{ $thumb.Name }}
 Thumb Title: {{ $thumb.Title }}
 Thumb RelPermalink: {{ $thumb.RelPermalink }}
 {{ end }}
-{{ range $i, $e := .Resources.ByType "image" }}
-{{ $i }}: Image Title: {{ .Title }}
-{{ $i }}: Image Name: {{ .Name }}
-{{ $i }}: Image Params: {{ printf "%v" .Params }}
-{{ $i }}: Image myParam: Lower: {{ .Params.myparam }} Caps: {{ .Params.MYPARAM }}
+{{ $types := slice "image" "page" }}
+{{ range $types }}
+{{ $typeTitle := . | title }}
+{{ range $i, $e := $.Resources.ByType . }}
+{{ $i }}: {{ $typeTitle }} Title: {{ .Title }}
+{{ $i }}: {{ $typeTitle }} Name: {{ .Name }}
+{{ $i }}: {{ $typeTitle }} RelPermalink: {{ .RelPermalink }}|
+{{ $i }}: {{ $typeTitle }} Params: {{ printf "%v" .Params }}
+{{ $i }}: {{ $typeTitle }} myParam: Lower: {{ .Params.myparam }} Caps: {{ .Params.MYPARAM }}
+{{ end }}
 {{ end }}
 `
 

@@ -52,7 +52,9 @@ func newPagePaths(
 
 		var relPermalink, permalink string
 
-		if !pm.headless {
+		// If a page is headless or bundled in another, it will not get published
+		// on its own and it will have no links.
+		if !pm.headless && !pm.bundled {
 			relPermalink = paths.RelPermalink(s.PathSpec)
 			permalink = paths.PermalinkForOutputFormat(s.PathSpec, f)
 		}
