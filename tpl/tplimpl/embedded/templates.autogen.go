@@ -187,14 +187,15 @@ if (!doNotTrack) {
 <meta property="og:image" content="{{ . | absURL }}" />
 {{ end }}{{ end }}
 
+{{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
 {{- if .IsPage }}
-{{- if not .PublishDate.IsZero }}<meta property="article:published_time" content="{{ .PublishDate.Format "2006-01-02T15:04:05-07:00" | safeHTMLAttr }}"/>
-{{ else if not .Date.IsZero }}<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTMLAttr }}"/>
+{{- if not .PublishDate.IsZero }}<meta property="article:published_time" {{ .PublishDate.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />
+{{ else if not .Date.IsZero }}<meta property="article:published_time" {{ .Date.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />
 {{ end }}
-{{- if not .Lastmod.IsZero }}<meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05-07:00" | safeHTMLAttr }}"/>{{ end }}
+{{- if not .Lastmod.IsZero }}<meta property="article:modified_time" {{ .Lastmod.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />{{ end }}
 {{- else }}
 {{- if not .Date.IsZero }}
-<meta property="og:updated_time" content="{{ .Date.Format "2006-01-02T15:04:05-07:00" | safeHTMLAttr }}"/>
+<meta property="og:updated_time" {{ .Date.Format $iso8601 | printf "content=%q" | safeHTMLAttr }} />
 {{- end }}
 {{- end }}{{/* .IsPage */}}
 
@@ -482,7 +483,7 @@ if (!doNotTrack) {
 {{ $secondClass := "s_video_simple" }}
 <div class="{{ $secondClass }} {{ $class }}">
 {{- with $item }}
-<a href="{{ .provider_url }}{{ .video_id | safeHTMLAttr }}" target="_blank">
+<a href="{{ .provider_url }}{{ .video_id }}" target="_blank">
 {{ $thumb := .thumbnail_url }}
 {{ $original := $thumb | replaceRE "(_.*\\.)" "." }}
 <img src="{{ $thumb }}" srcset="{{ $thumb }} 1x, {{ $original }} 2x" alt="{{ .title }}">
