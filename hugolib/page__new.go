@@ -166,14 +166,14 @@ func newPageStandalone(m *pageMeta, f output.Format) (*pageState, error) {
 
 }
 
-func newPageWithContent(f *fileInfo, s *Site, content resource.OpenReadSeekCloser) (*pageState, error) {
+func newPageWithContent(f *fileInfo, s *Site, bundled bool, content resource.OpenReadSeekCloser) (*pageState, error) {
 	sections := s.sectionsFromFile(f)
 	kind := s.kindFromFileInfoOrSections(f, sections)
 	if kind == page.KindTaxonomy {
 		s.PathSpec.MakePathsSanitized(sections)
 	}
 
-	metaProvider := &pageMeta{kind: kind, sections: sections, s: s, f: f}
+	metaProvider := &pageMeta{kind: kind, sections: sections, bundled: bundled, s: s, f: f}
 
 	ps, err := newPageBase(metaProvider)
 	if err != nil {

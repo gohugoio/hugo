@@ -197,7 +197,7 @@ func (c *contentHandlers) parsePage(h contentHandler) contentHandler {
 			return f, nil
 		}
 
-		ps, err := newPageWithContent(fi, c.s, content)
+		ps, err := newPageWithContent(fi, c.s, ctx.parentPage != nil, content)
 		if err != nil {
 			return handlerResult{err: err}
 		}
