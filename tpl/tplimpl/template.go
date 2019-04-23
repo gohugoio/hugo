@@ -252,12 +252,12 @@ func (t *htmlTemplates) LookupVariant(name string, variants tpl.TemplateVariants
 	return t.handler.LookupVariant(name, variants)
 }
 
-func (t *templateHandler) cloneTemplate(in interface{}) tpl.Template {
+func (t *templateHandler) lookupTemplate(in interface{}) tpl.Template {
 	switch templ := in.(type) {
 	case *texttemplate.Template:
-		return texttemplate.Must(templ.Clone())
+		return t.text.lookup(templ.Name())
 	case *template.Template:
-		return template.Must(templ.Clone())
+		return t.html.lookup(templ.Name())
 	}
 
 	panic(fmt.Sprintf("%T is not a template", in))
@@ -294,7 +294,7 @@ func (t *templateHandler) clone(d *deps.Deps) *templateHandler {
 			variantsc[i] = shortcodeVariant{
 				info:     variant.info,
 				variants: variant.variants,
-				templ:    t.cloneTemplate(variant.templ),
+				templ:    c.lookupTemplate(variant.templ),
 			}
 		}
 		other.variants = variantsc

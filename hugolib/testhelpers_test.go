@@ -1,6 +1,7 @@
 package hugolib
 
 import (
+	"io"
 	"io/ioutil"
 	"path/filepath"
 	"runtime"
@@ -41,6 +42,8 @@ type sitesBuilder struct {
 	Cfg config.Provider
 	Fs  *hugofs.Fs
 	T   testing.TB
+
+	*require.Assertions
 
 	logger *loggers.Logger
 
@@ -88,7 +91,7 @@ func newTestSitesBuilder(t testing.TB) *sitesBuilder {
 		Separator:         " ",
 	}
 
-	return &sitesBuilder{T: t, Fs: fs, configFormat: "toml", dumper: litterOptions}
+	return &sitesBuilder{T: t, Assertions: require.New(t), Fs: fs, configFormat: "toml", dumper: litterOptions}
 }
 
 func createTempDir(prefix string) (string, func(), error) {
@@ -258,6 +261,21 @@ lag = "lag"
 
 	return s.WithConfigFile("toml", defaultMultiSiteConfig)
 
+}
+
+func (s *sitesBuilder) WithSunset(in string) {
+	// Write a real image into one of the bundle above.
+	src, err := os.Open(filepath.FromSlash("testdata/sunset.jpg"))
+	s.NoError(err)
+
+	out, err := s.Fs.Source.Create(filepath.FromSlash(in))
+	s.NoError(err)
+
+	_, err = io.Copy(out, src)
+	s.NoError(err)
+
+	out.Close()
+	src.Close()
 }
 
 func (s *sitesBuilder) WithContent(filenameContent ...string) *sitesBuilder {
