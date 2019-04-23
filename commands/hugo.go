@@ -431,8 +431,6 @@ func (c *commandeer) initProfiling() (func(), error) {
 		return nil, err
 	}
 
-	defer c.initMemProfile()
-
 	stopMutexProf, err := c.initMutexProfile()
 	if err != nil {
 		return nil, err
@@ -444,6 +442,8 @@ func (c *commandeer) initProfiling() (func(), error) {
 	}
 
 	return func() {
+		c.initMemProfile()
+
 		if stopCPUProf != nil {
 			stopCPUProf()
 		}
