@@ -23,18 +23,19 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 
 	"github.com/gohugoio/hugo/deps"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
 var logger = loggers.NewErrorLogger()
 
 type i18nTest struct {
+	name                             string
 	data                             map[string][]byte
 	args                             interface{}
 	lang, id, expected, expectedFlag string
@@ -43,6 +44,7 @@ type i18nTest struct {
 var i18nTests = []i18nTest{
 	// All translations present
 	{
+		name: "all-present",
 		data: map[string][]byte{
 			"en.toml": []byte("[hello]\nother = \"Hello, World!\""),
 			"es.toml": []byte("[hello]\nother = \"¡Hola, Mundo!\""),
@@ -55,6 +57,7 @@ var i18nTests = []i18nTest{
 	},
 	// Translation missing in current language but present in default
 	{
+		name: "present-in-default",
 		data: map[string][]byte{
 			"en.toml": []byte("[hello]\nother = \"Hello, World!\""),
 			"es.toml": []byte("[goodbye]\nother = \"¡Adiós, Mundo!\""),
@@ -67,6 +70,7 @@ var i18nTests = []i18nTest{
 	},
 	// Translation missing in default language but present in current
 	{
+		name: "present-in-current",
 		data: map[string][]byte{
 			"en.toml": []byte("[goodbye]\nother = \"Goodbye, World!\""),
 			"es.toml": []byte("[hello]\nother = \"¡Hola, Mundo!\""),
@@ -79,6 +83,7 @@ var i18nTests = []i18nTest{
 	},
 	// Translation missing in both default and current language
 	{
+		name: "missing",
 		data: map[string][]byte{
 			"en.toml": []byte("[goodbye]\nother = \"Goodbye, World!\""),
 			"es.toml": []byte("[goodbye]\nother = \"¡Adiós, Mundo!\""),
@@ -91,6 +96,7 @@ var i18nTests = []i18nTest{
 	},
 	// Default translation file missing or empty
 	{
+		name: "file-missing",
 		data: map[string][]byte{
 			"en.toml": []byte(""),
 		},
@@ -102,6 +108,7 @@ var i18nTests = []i18nTest{
 	},
 	// Context provided
 	{
+		name: "context-provided",
 		data: map[string][]byte{
 			"en.toml": []byte("[wordCount]\nother = \"Hello, {{.WordCount}} people!\""),
 			"es.toml": []byte("[wordCount]\nother = \"¡Hola, {{.WordCount}} gente!\""),
@@ -119,6 +126,7 @@ var i18nTests = []i18nTest{
 	// Same id and translation in current language
 	// https://github.com/gohugoio/hugo/issues/2607
 	{
+		name: "same-id-and-translation",
 		data: map[string][]byte{
 			"es.toml": []byte("[hello]\nother = \"hello\""),
 			"en.toml": []byte("[hello]\nother = \"hi\""),
@@ -131,6 +139,7 @@ var i18nTests = []i18nTest{
 	},
 	// Translation missing in current language, but same id and translation in default
 	{
+		name: "same-id-and-translation-default",
 		data: map[string][]byte{
 			"es.toml": []byte("[bye]\nother = \"bye\""),
 			"en.toml": []byte("[hello]\nother = \"hello\""),
@@ -143,6 +152,7 @@ var i18nTests = []i18nTest{
 	},
 	// Unknown language code should get its plural spec from en
 	{
+		name: "unknown-language-code",
 		data: map[string][]byte{
 			"en.toml": []byte(`[readingTime]
 one ="one minute read"
@@ -159,24 +169,29 @@ other = "{{ .Count }} minuttar lesing"`),
 	},
 }
 
-func doTestI18nTranslate(t *testing.T, test i18nTest, cfg config.Provider) string {
+func doTestI18nTranslate(t testing.TB, test i18nTest, cfg config.Provider) string {
+	tp := prepareTranslationProvider(t, test, cfg)
+	f := tp.t.Func(test.lang)
+	return f(test.id, test.args)
+
+}
+
+func prepareTranslationProvider(t testing.TB, test i18nTest, cfg config.Provider) *TranslationProvider {
 	assert := require.New(t)
 	fs := hugofs.NewMem(cfg)
-	tp := NewTranslationProvider()
 
 	for file, content := range test.data {
 		err := afero.WriteFile(fs.Source, filepath.Join("i18n", file), []byte(content), 0755)
 		assert.NoError(err)
 	}
 
+	tp := NewTranslationProvider()
 	depsCfg := newDepsConfig(tp, cfg, fs)
 	d, err := deps.New(depsCfg)
 	assert.NoError(err)
-
 	assert.NoError(d.LoadResources())
-	f := tp.t.Func(test.lang)
-	return f(test.id, test.args)
 
+	return tp
 }
 
 func newDepsConfig(tp *TranslationProvider, cfg config.Provider, fs *hugofs.Fs) deps.DepsCfg {
@@ -193,8 +208,7 @@ func newDepsConfig(tp *TranslationProvider, cfg config.Provider, fs *hugofs.Fs) 
 	}
 }
 
-func TestI18nTranslate(t *testing.T) {
-	var actual, expected string
+func getConfig() *viper.Viper {
 	v := viper.New()
 	v.SetDefault("defaultContentLanguage", "en")
 	v.Set("contentDir", "content")
@@ -205,6 +219,13 @@ func TestI18nTranslate(t *testing.T) {
 	v.Set("assetDir", "assets")
 	v.Set("resourceDir", "resources")
 	v.Set("publishDir", "public")
+	return v
+
+}
+
+func TestI18nTranslate(t *testing.T) {
+	var actual, expected string
+	v := getConfig()
 
 	// Test without and with placeholders
 	for _, enablePlaceholders := range []bool{false, true} {
@@ -220,4 +241,22 @@ func TestI18nTranslate(t *testing.T) {
 			require.Equal(t, expected, actual)
 		}
 	}
+}
+
+func BenchmarkI18nTranslate(b *testing.B) {
+	v := getConfig()
+	for _, test := range i18nTests {
+		b.Run(test.name, func(b *testing.B) {
+			tp := prepareTranslationProvider(b, test, v)
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				f := tp.t.Func(test.lang)
+				actual := f(test.id, test.args)
+				if actual != test.expected {
+					b.Fatalf("expected %v got %v", test.expected, actual)
+				}
+			}
+		})
+	}
+
 }

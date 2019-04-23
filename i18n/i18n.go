@@ -19,6 +19,7 @@ import (
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/nicksnyder/go-i18n/i18n/bundle"
+	"github.com/nicksnyder/go-i18n/i18n/translation"
 )
 
 var (
@@ -64,6 +65,8 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 		t.logger.INFO.Printf("No translation bundle found for default language %q", defaultContentLanguage)
 	}
 
+	translations := bndl.Translations()
+
 	enableMissingTranslationPlaceholders := t.cfg.GetBool("enableMissingTranslationPlaceholders")
 	for _, lang := range bndl.LanguageTags() {
 		currentLang := lang
@@ -82,7 +85,7 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 			// then Tfunc returns translationID itself.
 			// But if user set same translationID and translation, we should check
 			// if it really untranslated:
-			if isIDTranslated(currentLang, translationID, bndl) {
+			if isIDTranslated(translations, currentLang, translationID) {
 				return translated
 			}
 
@@ -97,7 +100,7 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 				if translated != translationID {
 					return translated
 				}
-				if isIDTranslated(defaultContentLanguage, translationID, bndl) {
+				if isIDTranslated(translations, defaultContentLanguage, translationID) {
 					return translated
 				}
 			}
@@ -106,9 +109,9 @@ func (t Translator) initFuncs(bndl *bundle.Bundle) {
 	}
 }
 
-// If bndl contains the translationID for specified currentLang,
+// If the translation map contains translationID for specified currentLang,
 // then the translationID is actually translated.
-func isIDTranslated(lang, id string, b *bundle.Bundle) bool {
-	_, contains := b.Translations()[lang][id]
+func isIDTranslated(translations map[string]map[string]translation.Translation, lang, id string) bool {
+	_, contains := translations[lang][id]
 	return contains
 }
