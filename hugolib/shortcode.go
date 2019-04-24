@@ -201,6 +201,10 @@ type shortcode struct {
 	length int // the length in bytes in the source file
 }
 
+func (s shortcode) insertPlaceholder() bool {
+	return !s.doMarkup || s.info.Config.Version == 1
+}
+
 func (s shortcode) innerString() string {
 	var sb strings.Builder
 

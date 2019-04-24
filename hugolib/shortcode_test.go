@@ -531,6 +531,13 @@ tags:
 **Tags:** {{< tags >}}`,
 			filepath.FromSlash("public/sect/doc11/index.html"),
 			"<p><strong>Tags:</strong> 2</p>\n"},
+		{"sect/doc12.md", `---
+title: "Foo"
+---
+
+{{% html-indented-v1 %}}`,
+			"public/sect/doc12/index.html",
+			"<h1>Hugo!</h1>"},
 	}
 
 	sources := make([][2]string, len(tests))
@@ -545,6 +552,9 @@ tags:
 		templ.AddTemplate("_internal/shortcodes/b.html", `b`)
 		templ.AddTemplate("_internal/shortcodes/c.html", `c`)
 		templ.AddTemplate("_internal/shortcodes/d.html", `d`)
+		templ.AddTemplate("_internal/shortcodes/html-indented-v1.html", "{{ $_hugo_config := `{ \"version\": 1 }` }}"+`
+    <h1>Hugo!</h1>
+`)
 		templ.AddTemplate("_internal/shortcodes/menu.html", `{{ len (index .Page.Menus "main").Children }}`)
 		templ.AddTemplate("_internal/shortcodes/tags.html", `{{ len .Page.Site.Taxonomies.tags }}`)
 
@@ -577,7 +587,7 @@ tags:
 			th := testHelper{s.Cfg, s.Fs, t}
 
 			expected := cast.ToStringSlice(test.expected)
-			th.assertFileContent(test.outFile, expected...)
+			th.assertFileContent(filepath.FromSlash(test.outFile), expected...)
 		})
 
 	}

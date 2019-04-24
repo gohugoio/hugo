@@ -53,7 +53,7 @@ func (p pageContent) contentToRender(renderedShortcodes map[string]string) []byt
 		case pageContentReplacement:
 			c = append(c, v.val...)
 		case *shortcode:
-			if v.doMarkup || !p.renderable {
+			if !p.renderable || !v.insertPlaceholder() {
 				// Insert the rendered shortcode.
 				renderedShortcode, found := renderedShortcodes[v.placeholder]
 				if !found {
@@ -127,9 +127,9 @@ func (p *pageContentMap) AddReplacement(val []byte, source pageparser.Item) {
 
 func (p *pageContentMap) AddShortcode(s *shortcode) {
 	p.items = append(p.items, s)
-	if s.doMarkup {
-		p.hasMarkdownShortcode = true
-	} else {
+	if s.insertPlaceholder() {
 		p.hasNonMarkdownShortcode = true
+	} else {
+		p.hasMarkdownShortcode = true
 	}
 }
