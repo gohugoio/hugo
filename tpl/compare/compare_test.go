@@ -27,6 +27,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type T struct {
+	NonEmptyInterfaceNil      I
+	NonEmptyInterfaceTypedNil I
+}
+
+type I interface {
+	Foo() string
+}
+
+func (t *T) Foo() string {
+	return "foo"
+}
+
+var testT = &T{
+	NonEmptyInterfaceTypedNil: (*T)(nil),
+}
+
 type tstEqerType1 string
 type tstEqerType2 string
 
@@ -183,7 +200,12 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 		{"0.37-DEV", hugo.MustParseVersion("0.37").Version(), -1},
 		{"0.36", hugo.MustParseVersion("0.37-DEV").Version(), -1},
 		{"0.37-DEV", hugo.MustParseVersion("0.37-DEV").Version(), 0},
+		// https://github.com/gohugoio/hugo/issues/5905
+		{nil, nil, 0},
+		{testT.NonEmptyInterfaceNil, nil, 0},
+		{testT.NonEmptyInterfaceTypedNil, nil, 0},
 	} {
+
 		result := funcUnderTest(test.left, test.right)
 		success := false
 
@@ -206,7 +228,7 @@ func doTestCompare(t *testing.T, tp tstCompareType, funcUnderTest func(a, b inte
 		}
 
 		if !success {
-			t.Errorf("[%d][%s] %v compared to %v: %t", i, path.Base(runtime.FuncForPC(reflect.ValueOf(funcUnderTest).Pointer()).Name()), test.left, test.right, result)
+			t.Fatalf("[%d][%s] %v compared to %v: %t", i, path.Base(runtime.FuncForPC(reflect.ValueOf(funcUnderTest).Pointer()).Name()), test.left, test.right, result)
 		}
 	}
 }
