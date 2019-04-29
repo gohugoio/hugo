@@ -25,32 +25,41 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var (
+	rnd        = rand.New(rand.NewSource(time.Now().UnixNano()))
+	bigOrSmall = func() int {
+		if rnd.Intn(10) < 5 {
+			return 10000 + rnd.Intn(100000)
+		}
+		return 1 + rnd.Intn(50)
+	}
+)
+
+func doWork() {
+	doWorkOfSize(bigOrSmall())
+}
+
+func doWorkOfSize(size int) {
+	_ = strings.Repeat("Hugo Rocks! ", size)
+}
+
 func TestInit(t *testing.T) {
 	assert := require.New(t)
 
 	var result string
 
-	bigOrSmall := func() int {
-		if rand.Intn(10) < 3 {
-			return 10000 + rand.Intn(100000)
-		}
-		return 1 + rand.Intn(50)
-	}
-
 	f1 := func(name string) func() (interface{}, error) {
 		return func() (interface{}, error) {
 			result += name + "|"
-			size := bigOrSmall()
-			_ = strings.Repeat("Hugo Rocks! ", size)
+			doWork()
 			return name, nil
 		}
 	}
 
 	f2 := func() func() (interface{}, error) {
 		return func() (interface{}, error) {
-			size := bigOrSmall()
-			_ = strings.Repeat("Hugo Rocks! ", size)
-			return size, nil
+			doWork()
+			return nil, nil
 		}
 	}
 
@@ -73,16 +82,15 @@ func TestInit(t *testing.T) {
 		go func(i int) {
 			defer wg.Done()
 			var err error
-			if rand.Intn(10) < 5 {
+			if rnd.Intn(10) < 5 {
 				_, err = root.Do()
 				assert.NoError(err)
 			}
 
 			// Add a new branch on the fly.
-			if rand.Intn(10) > 5 {
+			if rnd.Intn(10) > 5 {
 				branch := branch1_2.Branch(f2())
-				init := branch.Add(f2())
-				_, err = init.Do()
+				_, err = branch.Do()
 				assert.NoError(err)
 			} else {
 				_, err = branch1_2_1.Do()
@@ -147,4 +155,72 @@ func TestInitAddWithTimeoutError(t *testing.T) {
 	_, err := init.Do()
 
 	assert.Error(err)
+}
+
+type T struct {
+	sync.Mutex
+	V1 string
+	V2 string
+}
+
+func (t *T) Add1(v string) {
+	t.Lock()
+	t.V1 += v
+	t.Unlock()
+}
+
+func (t *T) Add2(v string) {
+	t.Lock()
+	t.V2 += v
+	t.Unlock()
+}
+
+// https://github.com/gohugoio/hugo/issues/5901
+func TestInitBranchOrder(t *testing.T) {
+	assert := require.New(t)
+
+	base := New()
+
+	work := func(size int, f func()) func() (interface{}, error) {
+		return func() (interface{}, error) {
+			doWorkOfSize(size)
+			if f != nil {
+				f()
+			}
+
+			return nil, nil
+		}
+	}
+
+	state := &T{}
+
+	base = base.Add(work(10000, func() {
+		state.Add1("A")
+	}))
+
+	inits := make([]*Init, 2)
+	for i := range inits {
+		inits[i] = base.Branch(work(i+1*100, func() {
+			// V1 is A
+			ab := state.V1 + "B"
+			state.Add2(ab)
+
+		}))
+	}
+
+	var wg sync.WaitGroup
+
+	for _, v := range inits {
+		v := v
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, err := v.Do()
+			assert.NoError(err)
+		}()
+	}
+
+	wg.Wait()
+
+	assert.Equal("ABAB", state.V2)
 }
