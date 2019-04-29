@@ -6,7 +6,7 @@ require (
 	github.com/PuerkitoBio/purell v1.1.0
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38
-	github.com/alecthomas/chroma v0.6.3
+	github.com/alecthomas/chroma v0.6.4-0.20190428191540-1327f9145ea6 // v0.6.3
 	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.0.0

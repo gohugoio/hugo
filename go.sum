@@ -10,6 +10,8 @@ github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38 h1:smF2tmSOzy2Mm
 github.com/alecthomas/assert v0.0.0-20170929043011-405dbfeb8e38/go.mod h1:r7bzyVFMNntcxPZXK3/+KdruV1H5KSlyVY0gc+NgInI=
 github.com/alecthomas/chroma v0.6.3 h1:8H1D0yddf0mvgvO4JDBKnzLd9ERmzzAijBxnZXGV/FA=
 github.com/alecthomas/chroma v0.6.3/go.mod h1:quT2EpvJNqkuPi6DmBHB+E33FXBgBBPzyH5++Dn1LPc=
+github.com/alecthomas/chroma v0.6.4-0.20190428191540-1327f9145ea6 h1:xFmOMj452Zo40S2ua3FZX/rzsBUiXsG5f0acVemKrvo=
+github.com/alecthomas/chroma v0.6.4-0.20190428191540-1327f9145ea6/go.mod h1:quT2EpvJNqkuPi6DmBHB+E33FXBgBBPzyH5++Dn1LPc=
 github.com/alecthomas/colour v0.0.0-20160524082231-60882d9e2721 h1:JHZL0hZKJ1VENNfmXvHbgYlbUOvpzYzvy2aZU5gXVeo=
 github.com/alecthomas/colour v0.0.0-20160524082231-60882d9e2721/go.mod h1:QO9JBoKquHd+jz9nshCh40fOfO+JzsoXy8qTHF68zU0=
 github.com/alecthomas/kong v0.1.15/go.mod h1:0m2VYms8rH0qbCqVB2gvGHk74bqLIq0HXjCs5bNbNQU=
