@@ -36,7 +36,7 @@ require (
 	github.com/nicksnyder/go-i18n v1.10.0
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
 	github.com/pkg/errors v0.8.0
-	github.com/russross/blackfriday v0.0.0-20180804101149-46c73eb196ba
+	github.com/russross/blackfriday v1.5.2
 	github.com/sanity-io/litter v1.1.0
 	github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95 // indirect
 	github.com/spf13/afero v1.2.2
