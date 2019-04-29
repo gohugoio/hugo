@@ -77,30 +77,19 @@ func (ini *Init) Do() (interface{}, error) {
 	}
 
 	ini.init.Do(func() {
-		var (
-			dependencies []*Init
-			children     []*Init
-		)
-
 		prev := ini.prev
-		for prev != nil {
+		if prev != nil {
+			// A branch. Initialize the ancestors.
 			if prev.shouldInitialize() {
-				dependencies = append(dependencies, prev)
-			}
-			prev = prev.prev
-		}
-
-		for _, child := range ini.children {
-			if child.shouldInitialize() {
-				children = append(children, child)
-			}
-		}
-
-		for _, dep := range dependencies {
-			_, err := dep.Do()
-			if err != nil {
-				ini.err = err
-				return
+				_, err := prev.Do()
+				if err != nil {
+					ini.err = err
+					return
+				}
+			} else if prev.inProgress() {
+				// Concurrent initialization. The following init func
+				// may depend on earlier state, so wait.
+				prev.wait()
 			}
 		}
 
@@ -108,16 +97,25 @@ func (ini *Init) Do() (interface{}, error) {
 			ini.out, ini.err = ini.f()
 		}
 
-		for _, dep := range children {
-			_, err := dep.Do()
-			if err != nil {
-				ini.err = err
-				return
+		for _, child := range ini.children {
+			if child.shouldInitialize() {
+				_, err := child.Do()
+				if err != nil {
+					ini.err = err
+					return
+				}
 			}
 		}
-
 	})
 
+	ini.wait()
+
+	return ini.out, ini.err
+
+}
+
+// TODO(bep) investigate if we can use sync.Cond for this.
+func (ini *Init) wait() {
 	var counter time.Duration
 	for !ini.init.Done() {
 		counter += 10
@@ -126,8 +124,10 @@ func (ini *Init) Do() (interface{}, error) {
 		}
 		time.Sleep(counter * time.Microsecond)
 	}
+}
 
-	return ini.out, ini.err
+func (ini *Init) inProgress() bool {
+	return ini != nil && ini.init.InProgress()
 }
 
 func (ini *Init) shouldInitialize() bool {
@@ -147,20 +147,19 @@ func (ini *Init) add(branch bool, initFn func() (interface{}, error)) *Init {
 	ini.mu.Lock()
 	defer ini.mu.Unlock()
 
-	if !branch {
-		ini.checkDone()
+	if branch {
+		return &Init{
+			f:    initFn,
+			prev: ini,
+		}
 	}
 
-	init := &Init{
-		f:    initFn,
-		prev: ini,
-	}
+	ini.checkDone()
+	ini.children = append(ini.children, &Init{
+		f: initFn,
+	})
 
-	if !branch {
-		ini.children = append(ini.children, init)
-	}
-
-	return init
+	return ini
 }
 
 func (ini *Init) checkDone() {
