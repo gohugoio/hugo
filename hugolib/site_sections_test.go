@@ -330,3 +330,48 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	th.assertFileContent("public/l1/l2/page/2/index.html", "L1/l2-IsActive: true", "PAG|T2_3|true")
 
 }
+
+func TestNextInSectionNested(t *testing.T) {
+	t.Parallel()
+
+	pageContent := `---
+title: "The Page"
+weight: %d
+---
+Some content.
+`
+	createPageContent := func(weight int) string {
+		return fmt.Sprintf(pageContent, weight)
+	}
+
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile()
+	b.WithTemplates("_default/single.html", `
+Prev: {{ with .PrevInSection }}{{ .RelPermalink }}{{ end }}|
+Next: {{ with .NextInSection }}{{ .RelPermalink }}{{ end }}|
+`)
+
+	b.WithContent("blog/page1.md", createPageContent(1))
+	b.WithContent("blog/page2.md", createPageContent(2))
+	b.WithContent("blog/cool/_index.md", createPageContent(1))
+	b.WithContent("blog/cool/cool1.md", createPageContent(1))
+	b.WithContent("blog/cool/cool2.md", createPageContent(2))
+	b.WithContent("root1.md", createPageContent(1))
+	b.WithContent("root2.md", createPageContent(2))
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/root1/index.html",
+		"Prev: /root2/|", "Next: |")
+	b.AssertFileContent("public/root2/index.html",
+		"Prev: |", "Next: /root1/|")
+	b.AssertFileContent("public/blog/page1/index.html",
+		"Prev: /blog/page2/|", "Next: |")
+	b.AssertFileContent("public/blog/page2/index.html",
+		"Prev: |", "Next: /blog/page1/|")
+	b.AssertFileContent("public/blog/cool/cool1/index.html",
+		"Prev: /blog/cool/cool2/|", "Next: |")
+	b.AssertFileContent("public/blog/cool/cool2/index.html",
+		"Prev: |", "Next: /blog/cool/cool1/|")
+
+}

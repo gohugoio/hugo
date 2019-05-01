@@ -220,7 +220,7 @@ func (s *Site) prepareInits() {
 			if p1.IsPage() && p1.Section() == "" {
 				rootSection = append(rootSection, i)
 			}
-			if p1.IsSection() && len(p1.SectionsEntries()) <= 1 {
+			if p1.IsSection() {
 				sectionPages := p1.Pages()
 				for i, p2 := range sectionPages {
 					p2s := p2.(*pageState)
