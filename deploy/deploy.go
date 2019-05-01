@@ -45,18 +45,19 @@ import (
 type Deployer struct {
 	localFs afero.Fs
 
-	targetURL  string     // the Go Cloud blob URL to deploy to
-	matchers   []*matcher // matchers to apply to uploaded files
-	quiet      bool       // true reduces STDOUT
-	confirm    bool       // true enables confirmation before making changes
-	dryRun     bool       // true skips conformations and prints changes instead of applying them
-	force      bool       // true forces upload of all files
-	maxDeletes int        // caps the # of files to delete; -1 to disable
+	target        *target    // the target to deploy to
+	matchers      []*matcher // matchers to apply to uploaded files
+	quiet         bool       // true reduces STDOUT
+	confirm       bool       // true enables confirmation before making changes
+	dryRun        bool       // true skips conformations and prints changes instead of applying them
+	force         bool       // true forces upload of all files
+	invalidateCDN bool       // true enables invalidate CDN cache (if possible)
+	maxDeletes    int        // caps the # of files to delete; -1 to disable
 }
 
 // New constructs a new *Deployer.
 func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
-	target := cfg.GetString("target")
+	targetName := cfg.GetString("target")
 
 	// Load the [deployment] section of the config.
 	dcfg, err := decodeConfig(cfg)
@@ -65,24 +66,25 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 	}
 
 	// Find the target to deploy to.
-	var targetURL string
+	var tgt *target
 	for _, t := range dcfg.Targets {
-		if t.Name == target {
-			targetURL = t.URL
+		if t.Name == targetName {
+			tgt = t
 		}
 	}
-	if targetURL == "" {
-		return nil, fmt.Errorf("deployment target %q not found", target)
+	if tgt == nil {
+		return nil, fmt.Errorf("deployment target %q not found", targetName)
 	}
 	return &Deployer{
-		localFs:    localFs,
-		targetURL:  targetURL,
-		matchers:   dcfg.Matchers,
-		quiet:      cfg.GetBool("quiet"),
-		confirm:    cfg.GetBool("confirm"),
-		dryRun:     cfg.GetBool("dryRun"),
-		force:      cfg.GetBool("force"),
-		maxDeletes: cfg.GetInt("maxDeletes"),
+		localFs:       localFs,
+		target:        tgt,
+		matchers:      dcfg.Matchers,
+		quiet:         cfg.GetBool("quiet"),
+		confirm:       cfg.GetBool("confirm"),
+		dryRun:        cfg.GetBool("dryRun"),
+		force:         cfg.GetBool("force"),
+		invalidateCDN: cfg.GetBool("invalidateCDN"),
+		maxDeletes:    cfg.GetInt("maxDeletes"),
 	}, nil
 }
 
@@ -90,7 +92,7 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 func (d *Deployer) Deploy(ctx context.Context) error {
 	// TODO: This opens the root path in the bucket/container.
 	// Consider adding support for targeting a subdirectory.
-	bucket, err := blob.OpenBucket(ctx, d.targetURL)
+	bucket, err := blob.OpenBucket(ctx, d.target.URL)
 	if err != nil {
 		return err
 	}
@@ -203,9 +205,14 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 		jww.FEEDBACK.Println("Success!")
 	}
 
-	// TODO: Add support for CloudFront invalidation similar to s3deploy,
-	// and possibly similar functionality for other providers.
-
+	if d.invalidateCDN && d.target.CloudFrontDistributionID != "" {
+		jww.FEEDBACK.Println("Invalidating CloudFront CDN...")
+		if err := InvalidateCloudFront(ctx, d.target.CloudFrontDistributionID); err != nil {
+			jww.FEEDBACK.Printf("Failed to invalidate CloudFront CDN: %v\n", err)
+			return err
+		}
+		jww.FEEDBACK.Println("Success!")
+	}
 	return nil
 }
 

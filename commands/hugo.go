@@ -213,6 +213,7 @@ func initializeFlags(cmd *cobra.Command, cfg config.Provider) {
 		"force",
 		"gc",
 		"i18n-warnings",
+		"invalidateCDN",
 		"layoutDir",
 		"logFile",
 		"maxDeletes",
