@@ -22,6 +22,7 @@ import (
 	"io"
 	"mime"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -36,7 +37,6 @@ import (
 
 	"gocloud.dev/blob"
 	_ "gocloud.dev/blob/azureblob" // import
-	_ "gocloud.dev/blob/fileblob"  // import
 	_ "gocloud.dev/blob/gcsblob"   // import
 	_ "gocloud.dev/blob/s3blob"    // import
 )
@@ -45,7 +45,7 @@ import (
 type Deployer struct {
 	localFs afero.Fs
 
-	targetURL  string     // the Go Cloud blob URL to deploy to
+	target     *target    // the target to deploy to
 	matchers   []*matcher // matchers to apply to uploaded files
 	quiet      bool       // true reduces STDOUT
 	confirm    bool       // true enables confirmation before making changes
@@ -56,7 +56,7 @@ type Deployer struct {
 
 // New constructs a new *Deployer.
 func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
-	target := cfg.GetString("target")
+	targetName := cfg.GetString("target")
 
 	// Load the [deployment] section of the config.
 	dcfg, err := decodeConfig(cfg)
@@ -65,18 +65,18 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 	}
 
 	// Find the target to deploy to.
-	var targetURL string
+	var tgt *target
 	for _, t := range dcfg.Targets {
-		if t.Name == target {
-			targetURL = t.URL
+		if t.Name == targetName {
+			tgt = t
 		}
 	}
-	if targetURL == "" {
-		return nil, fmt.Errorf("deployment target %q not found", target)
+	if tgt == nil {
+		return nil, fmt.Errorf("deployment target %q not found", targetName)
 	}
 	return &Deployer{
 		localFs:    localFs,
-		targetURL:  targetURL,
+		target:     tgt,
 		matchers:   dcfg.Matchers,
 		quiet:      cfg.GetBool("quiet"),
 		confirm:    cfg.GetBool("confirm"),
@@ -88,9 +88,7 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 
 // Deploy deploys the site to a target.
 func (d *Deployer) Deploy(ctx context.Context) error {
-	// TODO: This opens the root path in the bucket/container.
-	// Consider adding support for targeting a subdirectory.
-	bucket, err := blob.OpenBucket(ctx, d.targetURL)
+	bucket, err := blob.OpenBucket(ctx, d.target.URL)
 	if err != nil {
 		return err
 	}
@@ -103,7 +101,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 	jww.INFO.Printf("Found %d local files.\n", len(local))
 
 	// Load remote files from the target.
-	remote, err := walkRemote(ctx, bucket)
+	remote, err := walkRemote(ctx, bucket, d.target.BucketPath)
 	if err != nil {
 		return err
 	}
@@ -158,7 +156,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 
 		sem <- struct{}{}
 		go func(upload *fileToUpload) {
-			if err := doSingleUpload(ctx, bucket, upload); err != nil {
+			if err := doSingleUpload(ctx, bucket, d.target.BucketPath, upload); err != nil {
 				errMu.Lock()
 				defer errMu.Unlock()
 				errs = append(errs, err)
@@ -219,14 +217,19 @@ func summarizeChanges(uploads []*fileToUpload, deletes []string) string {
 }
 
 // doSingleUpload executes a single file upload.
-func doSingleUpload(ctx context.Context, bucket *blob.Bucket, upload *fileToUpload) error {
+func doSingleUpload(ctx context.Context, bucket *blob.Bucket, bucketPath string, upload *fileToUpload) error {
 	jww.INFO.Printf("Uploading %v...\n", upload)
 	opts := &blob.WriterOptions{
 		CacheControl:    upload.Local.CacheControl(),
 		ContentEncoding: upload.Local.ContentEncoding(),
 		ContentType:     upload.Local.ContentType(),
 	}
-	w, err := bucket.NewWriter(ctx, upload.Local.Path, opts)
+	// If a BucketPath was provided, add it.
+	remotePath := upload.Local.Path
+	if bucketPath != "" {
+		remotePath = path.Join(bucketPath, remotePath)
+	}
+	w, err := bucket.NewWriter(ctx, remotePath, opts)
 	if err != nil {
 		return err
 	}
@@ -407,9 +410,10 @@ func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) 
 }
 
 // walkRemote walks the target bucket and returns a flat list.
-func walkRemote(ctx context.Context, bucket *blob.Bucket) (map[string]*blob.ListObject, error) {
+// If bucketPath is non-empty, it is trimmed from the ListObject paths.
+func walkRemote(ctx context.Context, bucket *blob.Bucket, bucketPath string) (map[string]*blob.ListObject, error) {
 	retval := map[string]*blob.ListObject{}
-	iter := bucket.List(nil)
+	iter := bucket.List(&blob.ListOptions{Prefix: bucketPath})
 	for {
 		obj, err := iter.Next(ctx)
 		if err == io.EOF {
@@ -435,6 +439,10 @@ func walkRemote(ctx context.Context, bucket *blob.Bucket) (map[string]*blob.List
 				r.Close()
 			}
 		}
+		if bucketPath != "" {
+			obj.Key = strings.TrimPrefix(obj.Key, bucketPath)
+		}
+		jww.DEBUG.Printf("Found remote file: %s\n", obj.Key)
 		retval[obj.Key] = obj
 	}
 	return retval, nil

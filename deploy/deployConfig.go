@@ -16,6 +16,7 @@ package deploy
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/mitchellh/mapstructure"
@@ -32,6 +33,8 @@ type deployConfig struct {
 type target struct {
 	Name string
 	URL  string
+
+	BucketPath string
 }
 
 // matcher represents configuration to be applied to files whose paths match
@@ -76,6 +79,12 @@ func decodeConfig(cfg config.Provider) (deployConfig, error) {
 	}
 	if err := mapstructure.WeakDecode(cfg.GetStringMap(deploymentConfigKey), &dcfg); err != nil {
 		return dcfg, err
+	}
+	// Ensure BucketPath ends with a "/", as it is intended to represent a directory.
+	for _, tgt := range dcfg.Targets {
+		if tgt.BucketPath != "" && !strings.HasSuffix(tgt.BucketPath, "/") {
+			tgt.BucketPath += "/"
+		}
 	}
 	var err error
 	for _, m := range dcfg.Matchers {

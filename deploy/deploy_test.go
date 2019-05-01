@@ -28,7 +28,7 @@ import (
 	"gocloud.dev/blob"
 )
 
-func TestDeploy_FindDiffs(t *testing.T) {
+func TestFindDiffs(t *testing.T) {
 	hash1 := []byte("hash 1")
 	hash2 := []byte("hash 2")
 	makeLocal := func(path string, size int64, hash []byte) *localFile {
@@ -187,7 +187,7 @@ func TestDeploy_FindDiffs(t *testing.T) {
 	}
 }
 
-func TestDeploy_LocalFile(t *testing.T) {
+func TestNewLocalFile(t *testing.T) {
 	const (
 		content = "hello world!"
 	)
