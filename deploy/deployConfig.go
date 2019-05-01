@@ -32,6 +32,8 @@ type deployConfig struct {
 type target struct {
 	Name string
 	URL  string
+
+	CloudFrontDistributionID string
 }
 
 // matcher represents configuration to be applied to files whose paths match

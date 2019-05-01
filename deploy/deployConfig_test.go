@@ -32,9 +32,12 @@ someOtherValue = "foo"
 [[deployment.targets]]
 Name = "name1"
 URL = "url1"
+CloudFrontDistributionID = "cdn1"
+
 [[deployment.targets]]
 name = "name2"
 url = "url2"
+cloudfrontdistributionid = "cdn2"
 
 [[deployment.matchers]]
 Pattern = "^pattern1$"
@@ -59,8 +62,10 @@ content-type = "contenttype2"
 	assert.Equal(2, len(dcfg.Targets))
 	assert.Equal("name1", dcfg.Targets[0].Name)
 	assert.Equal("url1", dcfg.Targets[0].URL)
+	assert.Equal("cdn1", dcfg.Targets[0].CloudFrontDistributionID)
 	assert.Equal("name2", dcfg.Targets[1].Name)
 	assert.Equal("url2", dcfg.Targets[1].URL)
+	assert.Equal("cdn2", dcfg.Targets[1].CloudFrontDistributionID)
 
 	assert.Equal(2, len(dcfg.Matchers))
 	assert.Equal("^pattern1$", dcfg.Matchers[0].Pattern)
