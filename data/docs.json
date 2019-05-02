@@ -2667,7 +2667,7 @@
         "Uniq": {
           "Description": "Uniq takes in a slice or array and returns a slice with subsequent\nduplicate elements removed.",
           "Args": [
-            "l"
+            "seq"
           ],
           "Aliases": [
             "uniq"
@@ -3232,7 +3232,7 @@
       },
       "partials": {
         "Include": {
-          "Description": "Include executes the named partial and returns either a string,\nwhen the partial is a text/template, or template.HTML when html/template.",
+          "Description": "Include executes the named partial.\nIf the partial contains a return statement, that value will be returned.\nElse, the rendered output will be returned:\nA string if the partial is a text/template, or template.HTML when html/template.",
           "Args": [
             "name",
             "contextList"

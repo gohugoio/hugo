@@ -105,7 +105,7 @@ You can show content summaries with the following code. You could use the follow
 {{ end }}
 {{< /code >}}
 
-Note how the `.Truncated` boolean valuable may be used to hide the "Read More..." link when the content is not truncated; i.e., when the summary contains the entire article.
+Note how the `.Truncated` boolean variable value may be used to hide the "Read More..." link when the content is not truncated; i.e., when the summary contains the entire article.
 
 [org]: /content-management/formats/
 [pagevariables]: /variables/page/

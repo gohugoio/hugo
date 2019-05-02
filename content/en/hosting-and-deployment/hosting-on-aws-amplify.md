@@ -41,3 +41,5 @@ AWS Amplify is a combination of client library, CLI toolchain, and a Console for
    ![Hugo Amplify](/images/hosting-and-deployment/hosting-on-aws-amplify/amplify-build-settings.png)
 
 1. Review your changes and then choose **Save and deploy**. The Amplify Console will pull code from your repository, build changes to the backend and frontend, and deploy your build artifacts at `https://master.unique-id.amplifyapp.com`. Bonus: Screenshots of your app on different devices to find layout issues.
+
+[Quick Start]: /getting-started/quick-start/
