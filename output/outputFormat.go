@@ -78,6 +78,9 @@ type Format struct {
 	// example. AMP would, however, be a good example of an output format where this
 	// behaviour is wanted.
 	Permalinkable bool `json:"permalinkable"`
+
+	// Setting this to a non-zero value will be used as the first sort criteria.
+	Weight int `json:"weight"`
 }
 
 // An ordered list of built-in output formats.
@@ -125,6 +128,10 @@ var (
 		Rel:           "canonical",
 		IsHTML:        true,
 		Permalinkable: true,
+
+		// Weight will be used as first sort criteria. HTML will, by default,
+		// be rendered first, but set it to 10 so it's easy to put one above it.
+		Weight: 10,
 	}
 
 	JSONFormat = Format{
@@ -180,9 +187,21 @@ func init() {
 // Formats is a slice of Format.
 type Formats []Format
 
-func (formats Formats) Len() int           { return len(formats) }
-func (formats Formats) Swap(i, j int)      { formats[i], formats[j] = formats[j], formats[i] }
-func (formats Formats) Less(i, j int) bool { return formats[i].Name < formats[j].Name }
+func (formats Formats) Len() int      { return len(formats) }
+func (formats Formats) Swap(i, j int) { formats[i], formats[j] = formats[j], formats[i] }
+func (formats Formats) Less(i, j int) bool {
+	fi, fj := formats[i], formats[j]
+	if fi.Weight == fj.Weight {
+		return fi.Name < fj.Name
+	}
+
+	if fj.Weight == 0 {
+		return true
+	}
+
+	return fi.Weight > 0 && fi.Weight < fj.Weight
+
+}
 
 // GetBySuffix gets a output format given as suffix, e.g. "html".
 // It will return false if no format could be found, or if the suffix given
