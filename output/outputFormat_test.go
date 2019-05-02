@@ -15,6 +15,7 @@ package output
 
 import (
 	"fmt"
+	"sort"
 	"testing"
 
 	"github.com/gohugoio/hugo/media"
@@ -224,4 +225,26 @@ func TestDecodeFormats(t *testing.T) {
 			test.assert(t, test.name, result)
 		}
 	}
+}
+
+func TestSort(t *testing.T) {
+	assert := require.New(t)
+	assert.Equal("HTML", DefaultFormats[0].Name)
+	assert.Equal("AMP", DefaultFormats[1].Name)
+
+	json := JSONFormat
+	json.Weight = 1
+
+	formats := Formats{
+		AMPFormat,
+		HTMLFormat,
+		json,
+	}
+
+	sort.Sort(formats)
+
+	assert.Equal("JSON", formats[0].Name)
+	assert.Equal("HTML", formats[1].Name)
+	assert.Equal("AMP", formats[2].Name)
+
 }

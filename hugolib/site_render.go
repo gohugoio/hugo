@@ -35,7 +35,7 @@ type siteRenderContext struct {
 	sitesOutIdx int
 
 	// Zero based index of the output formats configured within a Site.
-	// Note that these outputs are sorted, so CSS will come before HTML.
+	// Note that these outputs are sorted.
 	outIdx int
 
 	multihost bool
