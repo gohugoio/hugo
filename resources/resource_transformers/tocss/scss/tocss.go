@@ -55,7 +55,11 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 
 	// Append any workDir relative include paths
 	for _, ip := range options.from.IncludePaths {
-		options.to.IncludePaths = append(options.to.IncludePaths, t.c.workFs.RealDirs(filepath.Clean(ip))...)
+		info, err := t.c.workFs.Stat(filepath.Clean(ip))
+		if err == nil {
+			filename := info.(hugofs.FileMetaInfo).Meta().Filename()
+			options.to.IncludePaths = append(options.to.IncludePaths, filename)
+		}
 	}
 
 	// To allow for overrides of SCSS files anywhere in the project/theme hierarchy, we need
@@ -74,6 +78,7 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			prevDir = baseDir
 		} else {
 			prevDir = t.c.sfs.MakePathRelative(filepath.Dir(prev))
+
 			if prevDir == "" {
 				// Not a member of this filesystem. Let LibSASS handle it.
 				return "", "", false
@@ -100,8 +105,8 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 			filenameToCheck := filepath.Join(basePath, fmt.Sprintf(namePattern, name))
 			fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
 			if err == nil {
-				if fir, ok := fi.(hugofs.RealFilenameInfo); ok {
-					return fir.RealFilename(), "", true
+				if fim, ok := fi.(hugofs.FileMetaInfo); ok {
+					return fim.Meta().Filename(), "", true
 				}
 			}
 		}

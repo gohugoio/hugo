@@ -71,7 +71,7 @@ func (l *LayoutHandler) For(d LayoutDescriptor, f Format) ([]string, error) {
 	layouts := resolvePageTemplate(d, f)
 
 	layouts = prependTextPrefixIfNeeded(f, layouts...)
-	layouts = helpers.UniqueStrings(layouts)
+	layouts = helpers.UniqueStringsReuse(layouts)
 
 	l.mu.Lock()
 	l.cache[key] = layouts

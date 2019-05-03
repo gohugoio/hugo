@@ -22,6 +22,7 @@ import (
 
 func TestFileInfo(t *testing.T) {
 	t.Run("String", func(t *testing.T) {
+		t.Parallel()
 		assert := require.New(t)
 		fi := &fileInfo{}
 		_, err := cast.ToStringE(fi)

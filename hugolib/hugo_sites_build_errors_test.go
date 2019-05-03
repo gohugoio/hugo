@@ -40,7 +40,6 @@ func (t testSiteBuildErrorAsserter) assertErrorMessage(e1, e2 string) {
 }
 
 func TestSiteBuildErrors(t *testing.T) {
-	t.Parallel()
 
 	const (
 		yamlcontent = "yamlcontent"
@@ -226,7 +225,9 @@ func TestSiteBuildErrors(t *testing.T) {
 	}
 
 	for _, test := range tests {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			assert := require.New(t)
 			errorAsserter := testSiteBuildErrorAsserter{
 				assert: assert,

@@ -36,8 +36,7 @@ func init() {
 				}
 			}
 
-			sort.Strings(aliases)
-			aliases = UniqueStrings(aliases)
+			aliases = UniqueStringsSorted(aliases)
 
 			lexerEntry := struct {
 				Name    string

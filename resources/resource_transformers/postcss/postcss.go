@@ -130,7 +130,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 	if !filepath.IsAbs(configFile) {
 		// We resolve this against the virtual Work filesystem, to allow
 		// this config file to live in one of the themes if needed.
-		fi, err := t.rs.BaseFs.Work.Fs.Stat(configFile)
+		fi, err := t.rs.BaseFs.Work.Stat(configFile)
 		if err != nil {
 			if t.options.Config != "" {
 				// Only fail if the user specificed config file is not found.
@@ -138,7 +138,7 @@ func (t *postcssTransformation) Transform(ctx *resources.ResourceTransformationC
 			}
 			configFile = ""
 		} else {
-			configFile = fi.(hugofs.RealFilenameInfo).RealFilename()
+			configFile = fi.(hugofs.FileMetaInfo).Meta().Filename()
 		}
 	}
 

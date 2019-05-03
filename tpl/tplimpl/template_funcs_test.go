@@ -21,7 +21,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/htesting"
+	"github.com/gohugoio/hugo/modules"
+
+	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
@@ -52,6 +54,14 @@ func newTestConfig() config.Provider {
 	v.Set("assetDir", "assets")
 	v.Set("resourceDir", "resources")
 	v.Set("publishDir", "public")
+
+	langs.LoadLanguageSettings(v, nil)
+	mod, err := modules.CreateProjectModule(v)
+	if err != nil {
+		panic(err)
+	}
+	v.Set("allModules", modules.Modules{mod})
+
 	return v
 }
 
@@ -59,7 +69,7 @@ func newDepsConfig(cfg config.Provider) deps.DepsCfg {
 	l := langs.NewLanguage("en", cfg)
 	return deps.DepsCfg{
 		Language:            l,
-		Site:                htesting.NewTestHugoSite(),
+		Site:                page.NewDummyHugoSite(cfg),
 		Cfg:                 cfg,
 		Fs:                  hugofs.NewMem(l),
 		Logger:              logger,

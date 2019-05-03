@@ -40,6 +40,7 @@ func init() {
 type Logger struct {
 	*jww.Notepad
 	ErrorCounter *jww.Counter
+	WarnCounter  *jww.Counter
 
 	// This is only set in server mode.
 	errors *bytes.Buffer
@@ -143,9 +144,10 @@ func getLogWriters(outHandle, logHandle io.Writer) (io.Writer, io.Writer) {
 
 func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle io.Writer, saveErrors bool) *Logger {
 	errorCounter := &jww.Counter{}
+	warnCounter := &jww.Counter{}
 	outHandle, logHandle = getLogWriters(outHandle, logHandle)
 
-	listeners := []jww.LogListener{jww.LogCounter(errorCounter, jww.LevelError)}
+	listeners := []jww.LogListener{jww.LogCounter(errorCounter, jww.LevelError), jww.LogCounter(warnCounter, jww.LevelWarn)}
 	var errorBuff *bytes.Buffer
 	if saveErrors {
 		errorBuff = new(bytes.Buffer)
@@ -164,6 +166,7 @@ func newLogger(stdoutThreshold, logThreshold jww.Threshold, outHandle, logHandle
 	return &Logger{
 		Notepad:      jww.NewNotepad(stdoutThreshold, logThreshold, outHandle, logHandle, "", log.Ldate|log.Ltime, listeners...),
 		ErrorCounter: errorCounter,
+		WarnCounter:  warnCounter,
 		errors:       errorBuff,
 	}
 }

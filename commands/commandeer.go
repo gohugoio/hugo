@@ -16,6 +16,11 @@ package commands
 import (
 	"bytes"
 	"errors"
+	"sync"
+
+	"golang.org/x/sync/semaphore"
+
+	"github.com/gohugoio/hugo/modules"
 
 	"io/ioutil"
 
@@ -27,8 +32,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
-	"sync"
 	"time"
 
 	"github.com/gohugoio/hugo/common/loggers"
@@ -87,6 +90,8 @@ type commandeer struct {
 
 	configured bool
 	paused     bool
+
+	fullRebuildSem *semaphore.Weighted
 
 	// Any error from the last build.
 	buildErr error
@@ -153,6 +158,7 @@ func newCommandeer(mustHaveConfigFile, running bool, h *hugoBuilderCommon, f fla
 		doWithCommandeer:    doWithCommandeer,
 		visitedURLs:         types.NewEvictingStringQueue(10),
 		debounce:            rebuildDebouncer,
+		fullRebuildSem:      semaphore.NewWeighted(1),
 		// This will be replaced later, but we need something to log to before the configuration is read.
 		logger: loggers.NewLogger(jww.LevelError, jww.LevelError, os.Stdout, ioutil.Discard, running),
 	}
@@ -282,6 +288,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 			WorkingDir:   dir,
 			Filename:     c.h.cfgFile,
 			AbsConfigDir: c.h.getConfigDir(dir),
+			Environ:      os.Environ(),
 			Environment:  environment},
 		doWithCommandeer,
 		doWithConfig)
@@ -290,7 +297,7 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 		if mustHaveConfigFile {
 			return err
 		}
-		if err != hugolib.ErrNoConfigFile {
+		if err != hugolib.ErrNoConfigFile && !modules.IsNotExist(err) {
 			return err
 		}
 
@@ -387,21 +394,6 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 	config.Set("cacheDir", cacheDir)
 
 	cfg.Logger.INFO.Println("Using config file:", config.ConfigFileUsed())
-
-	themeDir := c.hugo.PathSpec.GetFirstThemeDir()
-	if themeDir != "" {
-		if _, err := sourceFs.Stat(themeDir); os.IsNotExist(err) {
-			return newSystemError("Unable to find theme Directory:", themeDir)
-		}
-	}
-
-	dir, themeVersionMismatch, minVersion := c.isThemeVsHugoVersionMismatch(sourceFs)
-
-	if themeVersionMismatch {
-		name := filepath.Base(dir)
-		cfg.Logger.ERROR.Printf("%s theme does not support Hugo version %s. Minimum version required is %s\n",
-			strings.ToUpper(name), hugo.CurrentVersion.ReleaseVersion(), minVersion)
-	}
 
 	return nil
 

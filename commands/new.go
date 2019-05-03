@@ -53,8 +53,6 @@ Ensure you run this within the root directory of your site.`,
 	cc := &newCmd{baseBuilderCmd: b.newBuilderCmd(cmd)}
 
 	cmd.Flags().StringVarP(&cc.contentType, "kind", "k", "", "content type to create")
-	cmd.PersistentFlags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
-	cmd.PersistentFlags().SetAnnotation("source", cobra.BashCompSubdirsInDir, []string{})
 	cmd.Flags().StringVar(&cc.contentEditor, "editor", "", "edit new content with this editor, if provided")
 
 	cmd.AddCommand(newNewSiteCmd().getCommand())
@@ -120,8 +118,8 @@ func newContentPathSection(h *hugolib.HugoSites, path string) (string, string) {
 	createpath := filepath.FromSlash(path)
 
 	if h != nil {
-		for _, s := range h.Sites {
-			createpath = strings.TrimPrefix(createpath, s.PathSpec.ContentDir)
+		for _, dir := range h.BaseFs.Content.Dirs {
+			createpath = strings.TrimPrefix(createpath, dir.Meta().Filename())
 		}
 	}
 

@@ -16,17 +16,11 @@ package hugolib
 import (
 	"sync"
 
-	"github.com/gohugoio/hugo/common/maps"
-
-	"sort"
-
 	"errors"
-	"fmt"
 
 	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/config"
-	"github.com/spf13/cast"
 )
 
 // Multilingual manages the all languages used in a multilingual site.
@@ -87,54 +81,4 @@ func (s *Site) multilingualEnabled() bool {
 		return false
 	}
 	return s.h.multilingual != nil && s.h.multilingual.enabled()
-}
-
-func toSortedLanguages(cfg config.Provider, l map[string]interface{}) (langs.Languages, error) {
-	languages := make(langs.Languages, len(l))
-	i := 0
-
-	for lang, langConf := range l {
-		langsMap, err := cast.ToStringMapE(langConf)
-
-		if err != nil {
-			return nil, fmt.Errorf("Language config is not a map: %T", langConf)
-		}
-
-		language := langs.NewLanguage(lang, cfg)
-
-		for loki, v := range langsMap {
-			switch loki {
-			case "title":
-				language.Title = cast.ToString(v)
-			case "languagename":
-				language.LanguageName = cast.ToString(v)
-			case "weight":
-				language.Weight = cast.ToInt(v)
-			case "contentdir":
-				language.ContentDir = cast.ToString(v)
-			case "disabled":
-				language.Disabled = cast.ToBool(v)
-			case "params":
-				m := cast.ToStringMap(v)
-				// Needed for case insensitive fetching of params values
-				maps.ToLower(m)
-				for k, vv := range m {
-					language.SetParam(k, vv)
-				}
-			}
-
-			// Put all into the Params map
-			language.SetParam(loki, v)
-
-			// Also set it in the configuration map (for baseURL etc.)
-			language.Set(loki, v)
-		}
-
-		languages[i] = language
-		i++
-	}
-
-	sort.Sort(languages)
-
-	return languages, nil
 }

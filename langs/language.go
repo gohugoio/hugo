@@ -78,12 +78,7 @@ func NewLanguage(lang string, cfg config.Provider) *Language {
 	}
 	maps.ToLower(params)
 
-	defaultContentDir := cfg.GetString("contentDir")
-	if defaultContentDir == "" {
-		panic("contentDir not set")
-	}
-
-	l := &Language{Lang: lang, ContentDir: defaultContentDir, Cfg: cfg, params: params, settings: make(map[string]interface{})}
+	l := &Language{Lang: lang, ContentDir: cfg.GetString("contentDir"), Cfg: cfg, params: params, settings: make(map[string]interface{})}
 	return l
 }
 
@@ -130,6 +125,24 @@ func (l Languages) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
 // Params retunrs language-specific params merged with the global params.
 func (l *Language) Params() map[string]interface{} {
 	return l.params
+}
+
+func (l Languages) AsSet() map[string]bool {
+	m := make(map[string]bool)
+	for _, lang := range l {
+		m[lang.Lang] = true
+	}
+
+	return m
+}
+
+func (l Languages) AsOrdinalSet() map[string]int {
+	m := make(map[string]int)
+	for i, lang := range l {
+		m[lang.Lang] = i
+	}
+
+	return m
 }
 
 // IsMultihost returns whether there are more than one language and at least one of

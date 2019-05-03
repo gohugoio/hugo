@@ -25,6 +25,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/modules"
+
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
@@ -83,12 +86,7 @@ dir = ":cacheDir/c"
 		configStr = replacer.Replace(configStr)
 		configStr = strings.Replace(configStr, "\\", winPathSep, -1)
 
-		cfg, err := config.FromConfigString(configStr, "toml")
-		assert.NoError(err)
-
-		fs := hugofs.NewFrom(osfs, cfg)
-		p, err := helpers.NewPathSpec(fs, cfg)
-		assert.NoError(err)
+		p := newPathsSpec(t, osfs, configStr)
 
 		caches, err := NewCaches(p)
 		assert.NoError(err)
@@ -207,11 +205,7 @@ dir = "/cache/c"
 
 `
 
-	cfg, err := config.FromConfigString(configStr, "toml")
-	assert.NoError(err)
-	fs := hugofs.NewMem(cfg)
-	p, err := helpers.NewPathSpec(fs, cfg)
-	assert.NoError(err)
+	p := newPathsSpec(t, afero.NewMemMapFs(), configStr)
 
 	caches, err := NewCaches(p)
 	assert.NoError(err)
@@ -254,4 +248,52 @@ func TestCleanID(t *testing.T) {
 	assert := require.New(t)
 	assert.Equal(filepath.FromSlash("a/b/c.txt"), cleanID(filepath.FromSlash("/a/b//c.txt")))
 	assert.Equal(filepath.FromSlash("a/b/c.txt"), cleanID(filepath.FromSlash("a/b//c.txt")))
+}
+
+func initConfig(fs afero.Fs, cfg config.Provider) error {
+	if _, err := langs.LoadLanguageSettings(cfg, nil); err != nil {
+		return err
+	}
+
+	modConfig, err := modules.DecodeConfig(cfg)
+	if err != nil {
+		return err
+	}
+
+	workingDir := cfg.GetString("workingDir")
+	themesDir := cfg.GetString("themesDir")
+	if !filepath.IsAbs(themesDir) {
+		themesDir = filepath.Join(workingDir, themesDir)
+	}
+	modulesClient := modules.NewClient(modules.ClientConfig{
+		Fs:           fs,
+		WorkingDir:   workingDir,
+		ThemesDir:    themesDir,
+		ModuleConfig: modConfig,
+		IgnoreVendor: true,
+	})
+
+	moduleConfig, err := modulesClient.Collect()
+	if err != nil {
+		return err
+	}
+
+	if err := modules.ApplyProjectConfigDefaults(cfg, moduleConfig.ActiveModules[len(moduleConfig.ActiveModules)-1]); err != nil {
+		return err
+	}
+
+	cfg.Set("allModules", moduleConfig.ActiveModules)
+
+	return nil
+}
+
+func newPathsSpec(t *testing.T, fs afero.Fs, configStr string) *helpers.PathSpec {
+	assert := require.New(t)
+	cfg, err := config.FromConfigString(configStr, "toml")
+	assert.NoError(err)
+	initConfig(fs, cfg)
+	p, err := helpers.NewPathSpec(hugofs.NewFrom(fs, cfg), cfg)
+	assert.NoError(err)
+	return p
+
 }

@@ -18,8 +18,6 @@ import (
 
 	"fmt"
 
-	"github.com/spf13/afero"
-
 	"github.com/stretchr/testify/require"
 )
 
@@ -45,11 +43,10 @@ title = "Section Menu"
 sectionPagesMenu = "sect"
 `
 
-	th, h := newTestSitesFromConfig(
-		t,
-		afero.NewMemMapFs(),
-		siteConfig,
-		"layouts/partials/menu.html",
+	b := newTestSitesBuilder(t).WithConfigFile("toml", siteConfig)
+
+	b.WithTemplates(
+		"partials/menu.html",
 		`{{- $p := .page -}}
 {{- $m := .menu -}}
 {{ range (index $p.Site.Menus $m) -}}
@@ -58,28 +55,25 @@ sectionPagesMenu = "sect"
 {{- if $p.HasMenuCurrent $m . }}HasMenuCurrent{{ else }}-{{ end -}}|
 {{- end -}}
 `,
-		"layouts/_default/single.html",
+		"_default/single.html",
 		`Single|{{ .Title }}
 Menu Sect:  {{ partial "menu.html" (dict "page" . "menu" "sect") }}
 Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
-		"layouts/_default/list.html", "List|{{ .Title }}|{{ .Content }}",
+		"_default/list.html", "List|{{ .Title }}|{{ .Content }}",
 	)
-	require.Len(t, h.Sites, 1)
 
-	fs := th.Fs
+	b.WithContent(
+		"sect1/p1.md", fmt.Sprintf(menuPageTemplate, "p1", 1, "main", "atitle1", 40),
+		"sect1/p2.md", fmt.Sprintf(menuPageTemplate, "p2", 2, "main", "atitle2", 30),
+		"sect2/p3.md", fmt.Sprintf(menuPageTemplate, "p3", 3, "main", "atitle3", 20),
+		"sect2/p4.md", fmt.Sprintf(menuPageTemplate, "p4", 4, "main", "atitle4", 10),
+		"sect3/p5.md", fmt.Sprintf(menuPageTemplate, "p5", 5, "main", "atitle5", 5),
+		"sect1/_index.md", newTestPage("Section One", "2017-01-01", 100),
+		"sect5/_index.md", newTestPage("Section Five", "2017-01-01", 10),
+	)
 
-	writeSource(t, fs, "content/sect1/p1.md", fmt.Sprintf(menuPageTemplate, "p1", 1, "main", "atitle1", 40))
-	writeSource(t, fs, "content/sect1/p2.md", fmt.Sprintf(menuPageTemplate, "p2", 2, "main", "atitle2", 30))
-	writeSource(t, fs, "content/sect2/p3.md", fmt.Sprintf(menuPageTemplate, "p3", 3, "main", "atitle3", 20))
-	writeSource(t, fs, "content/sect2/p4.md", fmt.Sprintf(menuPageTemplate, "p4", 4, "main", "atitle4", 10))
-	writeSource(t, fs, "content/sect3/p5.md", fmt.Sprintf(menuPageTemplate, "p5", 5, "main", "atitle5", 5))
-
-	writeNewContentFile(t, fs.Source, "Section One", "2017-01-01", "content/sect1/_index.md", 100)
-	writeNewContentFile(t, fs.Source, "Section Five", "2017-01-01", "content/sect5/_index.md", 10)
-
-	err := h.Build(BuildCfg{})
-
-	require.NoError(t, err)
+	b.Build(BuildCfg{})
+	h := b.H
 
 	s := h.Sites[0]
 
@@ -90,7 +84,7 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 	// There is only one menu in the page, but it is "member of" 2
 	require.Len(t, p1, 1)
 
-	th.assertFileContent("public/sect1/p1/index.html", "Single",
+	b.AssertFileContent("public/sect1/p1/index.html", "Single",
 		"Menu Sect:  "+
 			"/sect5/|Section Five|Section Five|10|-|-|"+
 			"/sect1/|Section One|Section One|100|-|HasMenuCurrent|"+
@@ -104,7 +98,7 @@ Menu Main:  {{ partial "menu.html" (dict "page" . "menu" "main") }}`,
 			"/sect1/p1/|p1|atitle1|40|IsMenuCurrent|-|",
 	)
 
-	th.assertFileContent("public/sect2/p3/index.html", "Single",
+	b.AssertFileContent("public/sect2/p3/index.html", "Single",
 		"Menu Sect:  "+
 			"/sect5/|Section Five|Section Five|10|-|-|"+
 			"/sect1/|Section One|Section One|100|-|-|"+

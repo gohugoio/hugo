@@ -35,10 +35,14 @@ type Provider interface {
 // we do not attempt to split it into fields.
 func GetStringSlicePreserveString(cfg Provider, key string) []string {
 	sd := cfg.Get(key)
-	if sds, ok := sd.(string); ok {
+	return toStringSlicePreserveString(sd)
+}
+
+func toStringSlicePreserveString(v interface{}) []string {
+	if sds, ok := v.(string); ok {
 		return []string{sds}
 	}
-	return cast.ToStringSlice(sd)
+	return cast.ToStringSlice(v)
 }
 
 // SetBaseTestDefaults provides some common config defaults used in tests.

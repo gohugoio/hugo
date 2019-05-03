@@ -252,12 +252,15 @@ func (t *TemplateAdapter) fileAndFilename(name string) (afero.File, string, erro
 	if err != nil {
 		return nil, "", err
 	}
-	f, err := fs.Open(filename)
+	fim := fi.(hugofs.FileMetaInfo)
+	meta := fim.Meta()
+
+	f, err := meta.Open()
 	if err != nil {
 		return nil, "", errors.Wrapf(err, "failed to open template file %q:", filename)
 	}
 
-	return f, fi.(hugofs.RealFilenameInfo).RealFilename(), nil
+	return f, meta.Filename(), nil
 }
 
 // ExecuteToString executes the current template and returns the result as a

@@ -26,10 +26,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/spf13/viper"
-
-	"github.com/spf13/afero"
-
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/helpers"
 	"github.com/gohugoio/hugo/tpl"
@@ -54,12 +50,8 @@ title: "Title"
 
 	writeSource(t, fs, "content/simple.md", contentFile)
 
-	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate})
-
-	require.NoError(t, err)
-	require.Len(t, h.Sites, 1)
-
-	err = h.Build(BuildCfg{})
+	b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg, WithTemplate: withTemplate}).WithNothingAdded()
+	err := b.BuildE(BuildCfg{})
 
 	if err != nil && !expectError {
 		t.Fatalf("Shortcode rendered error %s.", err)
@@ -68,6 +60,9 @@ title: "Title"
 	if err == nil && expectError {
 		t.Fatalf("No error from shortcode")
 	}
+
+	h := b.H
+	require.Len(t, h.Sites, 1)
 
 	require.Len(t, h.Sites[0].RegularPages(), 1)
 
@@ -78,7 +73,7 @@ title: "Title"
 	expected = strings.TrimSpace(expected)
 
 	if output != expected {
-		Fatalf(t, "Shortcode render didn't match. got \n%q but expected \n%q", output, expected)
+		t.Fatalf("Shortcode render didn't match. got \n%q but expected \n%q", output, expected)
 	}
 }
 
@@ -341,7 +336,6 @@ func TestShortcodeWrappedInPIssue(t *testing.T) {
 }
 
 func TestExtractShortcodes(t *testing.T) {
-	t.Parallel()
 	b := newTestSitesBuilder(t).WithSimpleConfigFile()
 
 	b.WithTemplates(
@@ -413,7 +407,10 @@ title: "Shortcodes Galore!"
 		{"inline", `{{< my.inline >}}Hi{{< /my.inline >}}`, regexpCheck("my.inline;inline:true;closing:true;inner:{Hi};")},
 	} {
 
+		test := test
+
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
 			assert := require.New(t)
 
 			counter := 0
@@ -437,7 +434,6 @@ title: "Shortcodes Galore!"
 }
 
 func TestShortcodesInSite(t *testing.T) {
-	t.Parallel()
 	baseURL := "http://foo/bar"
 
 	tests := []struct {
@@ -577,7 +573,9 @@ title: "Foo"
 	s := buildSingleSite(t, deps.DepsCfg{WithTemplate: addTemplates, Fs: fs, Cfg: cfg}, BuildCfg{})
 
 	for i, test := range tests {
+		test := test
 		t.Run(fmt.Sprintf("test=%d;contentPath=%s", i, test.contentPath), func(t *testing.T) {
+			t.Parallel()
 			if strings.HasSuffix(test.contentPath, ".ad") && !helpers.HasAsciidoc() {
 				t.Skip("Skip Asciidoc test case as no Asciidoc present.")
 			} else if strings.HasSuffix(test.contentPath, ".rst") && !helpers.HasRst() {
@@ -632,9 +630,8 @@ outputs: ["CSV"]
 CSV: {{< myShort >}}
 `
 
-	mf := afero.NewMemMapFs()
-
-	th, h := newTestSitesFromConfig(t, mf, siteConfig,
+	b := newTestSitesBuilder(t).WithConfigFile("toml", siteConfig)
+	b.WithTemplates(
 		"layouts/_default/single.html", `Single HTML: {{ .Title }}|{{ .Content }}`,
 		"layouts/_default/single.json", `Single JSON: {{ .Title }}|{{ .Content }}`,
 		"layouts/_default/single.csv", `Single CSV: {{ .Title }}|{{ .Content }}`,
@@ -651,14 +648,13 @@ CSV: {{< myShort >}}
 		"layouts/shortcodes/myInner.html", `myInner:--{{- .Inner -}}--`,
 	)
 
-	fs := th.Fs
+	b.WithContent("_index.md", fmt.Sprintf(pageTemplate, "Home"),
+		"sect/mypage.md", fmt.Sprintf(pageTemplate, "Single"),
+		"sect/mycsvpage.md", fmt.Sprintf(pageTemplateCSVOnly, "Single CSV"),
+	)
 
-	writeSource(t, fs, "content/_index.md", fmt.Sprintf(pageTemplate, "Home"))
-	writeSource(t, fs, "content/sect/mypage.md", fmt.Sprintf(pageTemplate, "Single"))
-	writeSource(t, fs, "content/sect/mycsvpage.md", fmt.Sprintf(pageTemplateCSVOnly, "Single CSV"))
-
-	err := h.Build(BuildCfg{})
-	require.NoError(t, err)
+	b.Build(BuildCfg{})
+	h := b.H
 	require.Len(t, h.Sites, 1)
 
 	s := h.Sites[0]
@@ -666,7 +662,7 @@ CSV: {{< myShort >}}
 	require.NotNil(t, home)
 	require.Len(t, home.OutputFormats(), 3)
 
-	th.assertFileContent("public/index.html",
+	b.AssertFileContent("public/index.html",
 		"Home HTML",
 		"ShortHTML",
 		"ShortNoExt",
@@ -674,7 +670,7 @@ CSV: {{< myShort >}}
 		"myInner:--ShortHTML--",
 	)
 
-	th.assertFileContent("public/amp/index.html",
+	b.AssertFileContent("public/amp/index.html",
 		"Home AMP",
 		"ShortAMP",
 		"ShortNoExt",
@@ -682,7 +678,7 @@ CSV: {{< myShort >}}
 		"myInner:--ShortAMP--",
 	)
 
-	th.assertFileContent("public/index.ics",
+	b.AssertFileContent("public/index.ics",
 		"Home Calendar",
 		"ShortCalendar",
 		"ShortNoExt",
@@ -690,7 +686,7 @@ CSV: {{< myShort >}}
 		"myInner:--ShortCalendar--",
 	)
 
-	th.assertFileContent("public/sect/mypage/index.html",
+	b.AssertFileContent("public/sect/mypage/index.html",
 		"Single HTML",
 		"ShortHTML",
 		"ShortNoExt",
@@ -698,7 +694,7 @@ CSV: {{< myShort >}}
 		"myInner:--ShortHTML--",
 	)
 
-	th.assertFileContent("public/sect/mypage/index.json",
+	b.AssertFileContent("public/sect/mypage/index.json",
 		"Single JSON",
 		"ShortJSON",
 		"ShortNoExt",
@@ -706,7 +702,7 @@ CSV: {{< myShort >}}
 		"myInner:--ShortJSON--",
 	)
 
-	th.assertFileContent("public/amp/sect/mypage/index.html",
+	b.AssertFileContent("public/amp/sect/mypage/index.html",
 		// No special AMP template
 		"Single HTML",
 		"ShortAMP",
@@ -715,7 +711,7 @@ CSV: {{< myShort >}}
 		"myInner:--ShortAMP--",
 	)
 
-	th.assertFileContent("public/sect/mycsvpage/index.csv",
+	b.AssertFileContent("public/sect/mycsvpage/index.csv",
 		"Single CSV",
 		"ShortCSV",
 	)
@@ -864,10 +860,6 @@ weight: %d
 ---
 C-%s`
 
-	v := viper.New()
-
-	v.Set("timeout", 500)
-
 	templates = append(templates, []string{"shortcodes/c.html", contentShortcode}...)
 	templates = append(templates, []string{"_default/single.html", "Single Content: {{ .Content }}"}...)
 	templates = append(templates, []string{"_default/list.html", "List Content: {{ .Content }}"}...)
@@ -884,21 +876,21 @@ C-%s`
 
 	builder := newTestSitesBuilder(t).WithDefaultMultiSiteConfig()
 
-	builder.WithViper(v).WithContent(content...).WithTemplates(templates...).CreateSites().Build(BuildCfg{})
+	builder.WithContent(content...).WithTemplates(templates...).CreateSites().Build(BuildCfg{})
 	s := builder.H.Sites[0]
 	assert.Equal(3, len(s.RegularPages()))
 
-	builder.AssertFileContent("public/section1/index.html",
+	builder.AssertFileContent("public/en/section1/index.html",
 		"List Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
 		"BP1:P1:|P2:docbp1/<p>C-bp1</p>",
 	)
 
-	builder.AssertFileContent("public/b1/index.html",
+	builder.AssertFileContent("public/en/b1/index.html",
 		"Single Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
 		"P2:docbp1/<p>C-bp1</p>",
 	)
 
-	builder.AssertFileContent("public/section2/s2p1/index.html",
+	builder.AssertFileContent("public/en/section2/s2p1/index.html",
 		"Single Content: <p>Logo:P1:|P2:logo.png/PNG logo|:P1: P1:|P2:docs1p1/<p>C-s1p1</p>\n|",
 		"P2:docbp1/<p>C-bp1</p>",
 	)
@@ -1062,8 +1054,10 @@ String: {{ . | safeHTML }}
 
 func TestInlineShortcodes(t *testing.T) {
 	for _, enableInlineShortcodes := range []bool{true, false} {
+		enableInlineShortcodes := enableInlineShortcodes
 		t.Run(fmt.Sprintf("enableInlineShortcodes=%t", enableInlineShortcodes),
 			func(t *testing.T) {
+				t.Parallel()
 				conf := fmt.Sprintf(`
 baseURL = "https://example.com"
 enableInlineShortcodes = %t

@@ -17,6 +17,8 @@ import (
 	"html/template"
 	"time"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/navigation"
@@ -50,4 +52,73 @@ func (s Sites) First() Site {
 		return nil
 	}
 	return s[0]
+}
+
+type testSite struct {
+	h hugo.Info
+	l *langs.Language
+}
+
+func (t testSite) Hugo() hugo.Info {
+	return t.h
+}
+
+func (t testSite) ServerPort() int {
+	return 1313
+}
+
+func (testSite) LastChange() (t time.Time) {
+	return
+}
+
+func (t testSite) Title() string {
+	return "foo"
+}
+
+func (t testSite) Sites() Sites {
+	return nil
+}
+
+func (t testSite) IsServer() bool {
+	return false
+}
+
+func (t testSite) Language() *langs.Language {
+	return t.l
+}
+
+func (t testSite) Pages() Pages {
+	return nil
+}
+
+func (t testSite) RegularPages() Pages {
+	return nil
+}
+
+func (t testSite) Menus() navigation.Menus {
+	return nil
+}
+
+func (t testSite) Taxonomies() interface{} {
+	return nil
+}
+
+func (t testSite) BaseURL() template.URL {
+	return ""
+}
+
+func (t testSite) Params() map[string]interface{} {
+	return nil
+}
+
+func (t testSite) Data() map[string]interface{} {
+	return nil
+}
+
+// NewDummyHugoSite creates a new minimal test site.
+func NewDummyHugoSite(cfg config.Provider) Site {
+	return testSite{
+		h: hugo.NewInfo(hugo.EnvironmentProduction),
+		l: langs.NewLanguage("en", cfg),
+	}
 }

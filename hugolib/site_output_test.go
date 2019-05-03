@@ -32,14 +32,15 @@ import (
 
 func TestSiteWithPageOutputs(t *testing.T) {
 	for _, outputs := range [][]string{{"html", "json", "calendar"}, {"json"}} {
+		outputs := outputs
 		t.Run(fmt.Sprintf("%v", outputs), func(t *testing.T) {
+			t.Parallel()
 			doTestSiteWithPageOutputs(t, outputs)
 		})
 	}
 }
 
 func doTestSiteWithPageOutputs(t *testing.T, outputs []string) {
-	t.Parallel()
 
 	outputsStr := strings.Replace(fmt.Sprintf("%q", outputs), " ", ", ", -1)
 
@@ -84,19 +85,16 @@ outputs: %s
 
 `
 
-	mf := afero.NewMemMapFs()
-
-	writeToFs(t, mf, "i18n/en.toml", `
+	b := newTestSitesBuilder(t).WithConfigFile("toml", siteConfig)
+	b.WithI18n("en.toml", `
 [elbow]
 other = "Elbow"
-`)
-	writeToFs(t, mf, "i18n/nn.toml", `
+`, "nn.toml", `
 [elbow]
 other = "Olboge"
 `)
 
-	th, h := newTestSitesFromConfig(t, mf, siteConfig,
-
+	b.WithTemplates(
 		// Case issue partials #3333
 		"layouts/partials/GoHugo.html", `Go Hugo Partial`,
 		"layouts/_default/baseof.json", `START JSON:{{block "main" .}}default content{{ end }}:END JSON`,
@@ -133,23 +131,17 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 `,
 		"layouts/_default/single.html", `{{ define "main" }}{{ .Content }}{{ end }}`,
 	)
-	require.Len(t, h.Sites, 2)
 
-	fs := th.Fs
-
-	writeSource(t, fs, "content/_index.md", fmt.Sprintf(pageTemplate, "JSON Home", outputsStr))
-	writeSource(t, fs, "content/_index.nn.md", fmt.Sprintf(pageTemplate, "JSON Nynorsk Heim", outputsStr))
+	b.WithContent("_index.md", fmt.Sprintf(pageTemplate, "JSON Home", outputsStr))
+	b.WithContent("_index.nn.md", fmt.Sprintf(pageTemplate, "JSON Nynorsk Heim", outputsStr))
 
 	for i := 1; i <= 10; i++ {
-		writeSource(t, fs, fmt.Sprintf("content/p%d.md", i), fmt.Sprintf(pageTemplate, fmt.Sprintf("Page %d", i), outputsStr))
-
+		b.WithContent(fmt.Sprintf("p%d.md", i), fmt.Sprintf(pageTemplate, fmt.Sprintf("Page %d", i), outputsStr))
 	}
 
-	err := h.Build(BuildCfg{})
+	b.Build(BuildCfg{})
 
-	require.NoError(t, err)
-
-	s := h.Sites[0]
+	s := b.H.Sites[0]
 	require.Equal(t, "en", s.language.Lang)
 
 	home := s.getPage(page.KindHome)
@@ -163,13 +155,13 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 	// There is currently always a JSON output to make it simpler ...
 	altFormats := lenOut - 1
 	hasHTML := helpers.InStringArray(outputs, "html")
-	th.assertFileContent("public/index.json",
+	b.AssertFileContent("public/index.json",
 		"List JSON",
 		fmt.Sprintf("Alt formats: %d", altFormats),
 	)
 
 	if hasHTML {
-		th.assertFileContent("public/index.json",
+		b.AssertFileContent("public/index.json",
 			"Alt Output: HTML",
 			"Output/Rel: JSON/alternate|",
 			"Output/Rel: HTML/canonical|",
@@ -178,7 +170,7 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 			"OtherShort: <h1>Hi!</h1>",
 		)
 
-		th.assertFileContent("public/index.html",
+		b.AssertFileContent("public/index.html",
 			// The HTML entity is a deliberate part of this test: The HTML templates are
 			// parsed with html/template.
 			`List HTML|JSON Home|<atom:link href=http://example.com/blog/ rel="self" type="text/html" />`,
@@ -187,21 +179,22 @@ Len Pages: {{ .Kind }} {{ len .Site.RegularPages }} Page Number: {{ .Paginator.P
 			"OtherShort: <h1>Hi!</h1>",
 			"Len Pages: home 10",
 		)
-		th.assertFileContent("public/page/2/index.html", "Page Number: 2")
-		th.assertFileNotExist("public/page/2/index.json")
+		assert := require.New(t)
+		b.AssertFileContent("public/page/2/index.html", "Page Number: 2")
+		assert.False(b.CheckExists("public/page/2/index.json"))
 
-		th.assertFileContent("public/nn/index.html",
+		b.AssertFileContent("public/nn/index.html",
 			"List HTML|JSON Nynorsk Heim|",
 			"nn: Olboge")
 	} else {
-		th.assertFileContent("public/index.json",
+		b.AssertFileContent("public/index.json",
 			"Output/Rel: JSON/canonical|",
 			// JSON is plain text, so no need to safeHTML this and that
 			`<atom:link href=http://example.com/blog/index.json rel="self" type="application/json" />`,
 			"ShortJSON",
 			"OtherShort: <h1>Hi!</h1>",
 		)
-		th.assertFileContent("public/nn/index.json",
+		b.AssertFileContent("public/nn/index.json",
 			"List JSON|JSON Nynorsk Heim|",
 			"nn: Olboge",
 			"ShortJSON",

@@ -18,6 +18,8 @@ import (
 	"html/template"
 	"os"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/common/loggers"
 
 	"path/filepath"
@@ -29,7 +31,6 @@ import (
 
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/resource"
-
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 
@@ -301,6 +302,7 @@ func checkPageTitle(t *testing.T, page page.Page, title string) {
 }
 
 func checkPageContent(t *testing.T, page page.Page, expected string, msg ...interface{}) {
+	t.Helper()
 	a := normalizeContent(expected)
 	b := normalizeContent(content(page))
 	if a != b {
@@ -387,11 +389,13 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 			continue
 		}
 
-		cfg, fs := newTestCfg()
+		cfg, fs := newTestCfg(func(cfg config.Provider) error {
+			for k, v := range settings {
+				cfg.Set(k, v)
+			}
+			return nil
 
-		for k, v := range settings {
-			cfg.Set(k, v)
-		}
+		})
 
 		contentDir := "content"
 
@@ -413,7 +417,10 @@ func testAllMarkdownEnginesForPages(t *testing.T,
 		homePath := fmt.Sprintf("_index.%s", e.ext)
 		writeSource(t, fs, filepath.Join(contentDir, homePath), homePage)
 
-		s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+		b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
+		b.Build(BuildCfg{SkipRender: true})
+
+		s := b.H.Sites[0]
 
 		require.Len(t, s.RegularPages(), len(pageSources))
 
@@ -770,6 +777,9 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 	fs.Destination = &afero.MemMapFs{}
 
+	wd, err := os.Getwd()
+	assrt.NoError(err)
+
 	cfg.Set("frontmatter", map[string]interface{}{
 		"lastmod": []string{":git", "lastmod"},
 	})
@@ -791,19 +801,14 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 	cfg.Set("languages", langConfig)
 	cfg.Set("enableGitInfo", true)
 
-	assrt.NoError(loadDefaultSettingsFor(cfg))
-	assrt.NoError(loadLanguageSettings(cfg, nil))
-
-	wd, err := os.Getwd()
-	assrt.NoError(err)
 	cfg.Set("workingDir", filepath.Join(wd, "testsite"))
 
-	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
+	b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
 
-	assrt.NoError(err)
+	b.Build(BuildCfg{SkipRender: true})
+	h := b.H
+
 	assrt.Len(h.Sites, 2)
-
-	require.NoError(t, h.Build(BuildCfg{SkipRender: true}))
 
 	enSite := h.Sites[0]
 	assrt.Len(enSite.RegularPages(), 1)
@@ -820,10 +825,10 @@ func TestPageWithLastmodFromGitInfo(t *testing.T) {
 }
 
 func TestPageWithFrontMatterConfig(t *testing.T) {
-	t.Parallel()
-
 	for _, dateHandler := range []string{":filename", ":fileModTime"} {
+		dateHandler := dateHandler
 		t.Run(fmt.Sprintf("dateHandler=%q", dateHandler), func(t *testing.T) {
+			t.Parallel()
 			assrt := require.New(t)
 			cfg, fs := newTestCfg()
 
@@ -852,8 +857,10 @@ Content
 			c2fi, err := fs.Source.Stat(c2)
 			assrt.NoError(err)
 
-			s := buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{SkipRender: true})
+			b := newTestSitesBuilderFromDepsCfg(t, deps.DepsCfg{Fs: fs, Cfg: cfg}).WithNothingAdded()
+			b.Build(BuildCfg{SkipRender: true})
 
+			s := b.H.Sites[0]
 			assrt.Len(s.RegularPages(), 2)
 
 			noSlug := s.RegularPages()[0]
@@ -1051,10 +1058,8 @@ func TestPageWithEmoji(t *testing.T) {
 	for _, enableEmoji := range []bool{true, false} {
 		v := viper.New()
 		v.Set("enableEmoji", enableEmoji)
-		b := newTestSitesBuilder(t)
-		b.WithViper(v)
 
-		b.WithSimpleConfigFile()
+		b := newTestSitesBuilder(t).WithViper(v)
 
 		b.WithContent("page-emoji.md", `---
 title: "Hugo Smile"
@@ -1329,11 +1334,12 @@ func TestShouldBuild(t *testing.T) {
 // "dot" in path: #1885 and #2110
 // disablePathToLower regression: #3374
 func TestPathIssues(t *testing.T) {
-	t.Parallel()
 	for _, disablePathToLower := range []bool{false, true} {
 		for _, uglyURLs := range []bool{false, true} {
+			disablePathToLower := disablePathToLower
+			uglyURLs := uglyURLs
 			t.Run(fmt.Sprintf("disablePathToLower=%t,uglyURLs=%t", disablePathToLower, uglyURLs), func(t *testing.T) {
-
+				t.Parallel()
 				cfg, fs := newTestCfg()
 				th := testHelper{cfg, fs, t}
 

@@ -25,7 +25,6 @@ import (
 )
 
 func TestNestedSections(t *testing.T) {
-	t.Parallel()
 
 	var (
 		assert  = require.New(t)
@@ -294,7 +293,9 @@ PAG|{{ .Title }}|{{ $sect.InSection . }}
 	home := s.getPage(page.KindHome)
 
 	for _, test := range tests {
+		test := test
 		t.Run(fmt.Sprintf("sections %s", test.sections), func(t *testing.T) {
+			t.Parallel()
 			assert := require.New(t)
 			sections := strings.Split(test.sections, ",")
 			p := s.getPage(page.KindSection, sections...)

@@ -25,7 +25,6 @@ import (
 )
 
 func TestTemplateLookupOrder(t *testing.T) {
-	t.Parallel()
 	var (
 		fs  *hugofs.Fs
 		cfg *viper.Viper
@@ -193,22 +192,26 @@ func TestTemplateLookupOrder(t *testing.T) {
 		},
 	} {
 
-		cfg, fs = newTestCfg()
-		th = testHelper{cfg, fs, t}
+		this := this
+		t.Run(this.name, func(t *testing.T) {
+			// TODO(bep) there are some function vars need to pull down here to enable => t.Parallel()
+			cfg, fs = newTestCfg()
+			th = testHelper{cfg, fs, t}
 
-		for i := 1; i <= 3; i++ {
-			writeSource(t, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", i)), `---
+			for i := 1; i <= 3; i++ {
+				writeSource(t, fs, filepath.Join("content", fmt.Sprintf("sect%d", i), fmt.Sprintf("page%d.md", i)), `---
 title: Template test
 ---
 Some content
 `)
-		}
+			}
 
-		this.setup(t)
+			this.setup(t)
 
-		buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
-		t.Log(this.name)
-		this.assert(t)
+			buildSingleSite(t, deps.DepsCfg{Fs: fs, Cfg: cfg}, BuildCfg{})
+			//helpers.PrintFs(s.BaseFs.Layouts.Fs, "", os.Stdout)
+			this.assert(t)
+		})
 
 	}
 }

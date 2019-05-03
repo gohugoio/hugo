@@ -22,7 +22,7 @@ import (
 
 	"github.com/gohugoio/hugo/output"
 
-	"errors"
+	"github.com/pkg/errors"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gohugoio/hugo/helpers"
@@ -82,11 +82,11 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 			if len(events) > 0 {
 				// Rebuild
 				if err := h.initRebuild(conf); err != nil {
-					return err
+					return errors.Wrap(err, "initRebuild")
 				}
 			} else {
 				if err := h.initSites(conf); err != nil {
-					return err
+					return errors.Wrap(err, "initSites")
 				}
 			}
 
@@ -97,7 +97,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 			}
 			trace.WithRegion(ctx, "process", f)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "process")
 			}
 
 			f = func() {

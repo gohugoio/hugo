@@ -234,6 +234,24 @@ func TestUniqueStrings(t *testing.T) {
 	}
 }
 
+func TestUniqueStringsReuse(t *testing.T) {
+	in := []string{"a", "b", "a", "b", "c", "", "a", "", "d"}
+	output := UniqueStringsReuse(in)
+	expected := []string{"a", "b", "c", "", "d"}
+	if !reflect.DeepEqual(output, expected) {
+		t.Errorf("Expected %#v, got %#v\n", expected, output)
+	}
+}
+
+func TestUniqueStringsSorted(t *testing.T) {
+	assert := require.New(t)
+	in := []string{"a", "a", "b", "c", "b", "", "a", "", "d"}
+	output := UniqueStringsSorted(in)
+	expected := []string{"", "a", "b", "c", "d"}
+	assert.Equal(expected, output)
+	assert.Nil(UniqueStringsSorted(nil))
+}
+
 func TestFindAvailablePort(t *testing.T) {
 	addr, err := FindAvailablePort()
 	assert.Nil(t, err)
@@ -326,5 +344,57 @@ func BenchmarkMD5FromFileFast(b *testing.B) {
 			}
 		})
 	}
+
+}
+
+func BenchmarkUniqueStrings(b *testing.B) {
+	input := []string{"a", "b", "d", "e", "d", "h", "a", "i"}
+
+	b.Run("Safe", func(b *testing.B) {
+		for i := 0; i < b.N; i++ {
+			result := UniqueStrings(input)
+			if len(result) != 6 {
+				b.Fatal(fmt.Sprintf("invalid count: %d", len(result)))
+			}
+		}
+	})
+
+	b.Run("Reuse slice", func(b *testing.B) {
+		b.StopTimer()
+		inputs := make([][]string, b.N)
+		for i := 0; i < b.N; i++ {
+			inputc := make([]string, len(input))
+			copy(inputc, input)
+			inputs[i] = inputc
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			inputc := inputs[i]
+
+			result := UniqueStringsReuse(inputc)
+			if len(result) != 6 {
+				b.Fatal(fmt.Sprintf("invalid count: %d", len(result)))
+			}
+		}
+	})
+
+	b.Run("Reuse slice sorted", func(b *testing.B) {
+		b.StopTimer()
+		inputs := make([][]string, b.N)
+		for i := 0; i < b.N; i++ {
+			inputc := make([]string, len(input))
+			copy(inputc, input)
+			inputs[i] = inputc
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			inputc := inputs[i]
+
+			result := UniqueStringsSorted(inputc)
+			if len(result) != 6 {
+				b.Fatal(fmt.Sprintf("invalid count: %d", len(result)))
+			}
+		}
+	})
 
 }

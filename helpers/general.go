@@ -22,14 +22,15 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/gohugoio/hugo/common/hugo"
-
 	"github.com/gohugoio/hugo/hugofs"
+
+	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/spf13/afero"
 
@@ -106,7 +107,7 @@ func FirstUpper(s string) string {
 
 // UniqueStrings returns a new slice with any duplicates removed.
 func UniqueStrings(s []string) []string {
-	var unique []string
+	unique := make([]string, 0, len(s))
 	set := map[string]interface{}{}
 	for _, val := range s {
 		if _, ok := set[val]; !ok {
@@ -115,6 +116,40 @@ func UniqueStrings(s []string) []string {
 		}
 	}
 	return unique
+}
+
+// UniqueStringsReuse returns a slice with any duplicates removed.
+// It will modify the input slice.
+func UniqueStringsReuse(s []string) []string {
+	set := map[string]interface{}{}
+	result := s[:0]
+	for _, val := range s {
+		if _, ok := set[val]; !ok {
+			result = append(result, val)
+			set[val] = val
+		}
+	}
+	return result
+}
+
+// UniqueStringsReuse returns a sorted slice with any duplicates removed.
+// It will modify the input slice.
+func UniqueStringsSorted(s []string) []string {
+	if len(s) == 0 {
+		return nil
+	}
+	ss := sort.StringSlice(s)
+	ss.Sort()
+	i := 0
+	for j := 1; j < len(s); j++ {
+		if !ss.Less(i, j) {
+			continue
+		}
+		i++
+		s[i] = s[j]
+	}
+
+	return s[:i+1]
 }
 
 // ReaderToBytes takes an io.Reader argument, reads from it
@@ -459,17 +494,15 @@ func PrintFs(fs afero.Fs, path string, w io.Writer) {
 	if fs == nil {
 		return
 	}
+
 	afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
-		if info != nil && !info.IsDir() {
-			s := path
-			if lang, ok := info.(hugofs.LanguageAnnouncer); ok {
-				s = s + "\tLANG: " + lang.Lang()
-			}
-			if fp, ok := info.(hugofs.FilePather); ok {
-				s = s + "\tRF: " + fp.Filename() + "\tBP: " + fp.BaseDir()
-			}
-			fmt.Fprintln(w, "    ", s)
+		var filename string
+		var meta interface{}
+		if fim, ok := info.(hugofs.FileMetaInfo); ok {
+			filename = fim.Meta().Filename()
+			meta = fim.Meta()
 		}
+		fmt.Fprintf(w, "    %q %q\t\t%v\n", path, filename, meta)
 		return nil
 	})
 }

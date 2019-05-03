@@ -15,6 +15,7 @@ package page
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -90,7 +91,11 @@ func (l PermalinkExpander) parse(patterns map[string]string) (map[string]func(Pa
 
 	expanders := make(map[string]func(Page) (string, error))
 
+	// Allow " " and / to represent the root section.
+	const sectionCutSet = " /" + string(os.PathSeparator)
+
 	for k, pattern := range patterns {
+		k = strings.Trim(k, sectionCutSet)
 		if !l.validate(pattern) {
 			return nil, &permalinkExpandError{pattern: pattern, err: errPermalinkIllFormed}
 		}

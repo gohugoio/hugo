@@ -362,11 +362,14 @@ func TestShouldNotWriteZeroLengthFilesToDestination(t *testing.T) {
 
 // Issue #1176
 func TestSectionNaming(t *testing.T) {
-	t.Parallel()
 	for _, canonify := range []bool{true, false} {
 		for _, uglify := range []bool{true, false} {
 			for _, pluralize := range []bool{true, false} {
+				canonify := canonify
+				uglify := uglify
+				pluralize := pluralize
 				t.Run(fmt.Sprintf("canonify=%t,uglify=%t,pluralize=%t", canonify, uglify, pluralize), func(t *testing.T) {
+					t.Parallel()
 					doTestSectionNaming(t, canonify, uglify, pluralize)
 				})
 			}

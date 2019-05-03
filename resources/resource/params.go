@@ -14,7 +14,7 @@
 package resource
 
 import (
-	"strings"
+	"github.com/gohugoio/hugo/common/maps"
 
 	"github.com/spf13/cast"
 )
@@ -25,65 +25,6 @@ func Param(r ResourceParamsProvider, fallback map[string]interface{}, key interf
 		return nil, err
 	}
 
-	keyStr = strings.ToLower(keyStr)
-	result, _ := traverseDirectParams(r, fallback, keyStr)
-	if result != nil {
-		return result, nil
-	}
+	return maps.GetNestedParam(keyStr, ".", r.Params(), fallback)
 
-	keySegments := strings.Split(keyStr, ".")
-	if len(keySegments) == 1 {
-		return nil, nil
-	}
-
-	return traverseNestedParams(r, fallback, keySegments)
-}
-
-func traverseDirectParams(r ResourceParamsProvider, fallback map[string]interface{}, key string) (interface{}, error) {
-	keyStr := strings.ToLower(key)
-	if val, ok := r.Params()[keyStr]; ok {
-		return val, nil
-	}
-
-	if fallback == nil {
-		return nil, nil
-	}
-
-	return fallback[keyStr], nil
-}
-
-func traverseNestedParams(r ResourceParamsProvider, fallback map[string]interface{}, keySegments []string) (interface{}, error) {
-	result := traverseParams(keySegments, r.Params())
-	if result != nil {
-		return result, nil
-	}
-
-	if fallback != nil {
-		result = traverseParams(keySegments, fallback)
-		if result != nil {
-			return result, nil
-		}
-	}
-
-	// Didn't find anything, but also no problems.
-	return nil, nil
-}
-
-func traverseParams(keys []string, m map[string]interface{}) interface{} {
-	// Shift first element off.
-	firstKey, rest := keys[0], keys[1:]
-	result := m[firstKey]
-
-	// No point in continuing here.
-	if result == nil {
-		return result
-	}
-
-	if len(rest) == 0 {
-		// That was the last key.
-		return result
-	}
-
-	// That was not the last key.
-	return traverseParams(rest, cast.ToStringMap(result))
 }

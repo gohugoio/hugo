@@ -40,8 +40,7 @@ func NewTranslationProvider() *TranslationProvider {
 
 // Update updates the i18n func in the provided Deps.
 func (tp *TranslationProvider) Update(d *deps.Deps) error {
-	sp := source.NewSourceSpec(d.PathSpec, d.BaseFs.SourceFilesystems.I18n.Fs)
-	src := sp.NewFilesystem("")
+	spec := source.NewSourceSpec(d.PathSpec, nil)
 
 	i18nBundle := bundle.New()
 
@@ -51,25 +50,33 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 	}
 	var newLangs []string
 
-	for _, r := range src.Files() {
-		currentSpec := language.GetPluralSpec(r.BaseFileName())
-		if currentSpec == nil {
-			// This may is a language code not supported by go-i18n, it may be
-			// Klingon or ... not even a fake language. Make sure it works.
-			newLangs = append(newLangs, r.BaseFileName())
-		}
-	}
+	for _, dir := range d.BaseFs.I18n.Dirs {
+		src := spec.NewFilesystemFromFileMetaInfo(dir)
 
-	if len(newLangs) > 0 {
-		language.RegisterPluralSpec(newLangs, en)
-	}
-
-	// The source files are ordered so the most important comes first. Since this is a
-	// last key win situation, we have to reverse the iteration order.
-	files := src.Files()
-	for i := len(files) - 1; i >= 0; i-- {
-		if err := addTranslationFile(i18nBundle, files[i]); err != nil {
+		files, err := src.Files()
+		if err != nil {
 			return err
+		}
+
+		for _, r := range files {
+			currentSpec := language.GetPluralSpec(r.BaseFileName())
+			if currentSpec == nil {
+				// This may is a language code not supported by go-i18n, it may be
+				// Klingon or ... not even a fake language. Make sure it works.
+				newLangs = append(newLangs, r.BaseFileName())
+			}
+		}
+
+		if len(newLangs) > 0 {
+			language.RegisterPluralSpec(newLangs, en)
+		}
+
+		// The source files are ordered so the most important comes first. Since this is a
+		// last key win situation, we have to reverse the iteration order.
+		for i := len(files) - 1; i >= 0; i-- {
+			if err := addTranslationFile(i18nBundle, files[i]); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -81,8 +88,8 @@ func (tp *TranslationProvider) Update(d *deps.Deps) error {
 
 }
 
-func addTranslationFile(bundle *bundle.Bundle, r source.ReadableFile) error {
-	f, err := r.Open()
+func addTranslationFile(bundle *bundle.Bundle, r source.File) error {
+	f, err := r.FileInfo().Meta().Open()
 	if err != nil {
 		return _errors.Wrapf(err, "failed to open translations file %q:", r.LogicalName())
 	}
@@ -101,14 +108,15 @@ func (tp *TranslationProvider) Clone(d *deps.Deps) error {
 	return nil
 }
 
-func errWithFileContext(inerr error, r source.ReadableFile) error {
-	rfi, ok := r.FileInfo().(hugofs.RealFilenameInfo)
+func errWithFileContext(inerr error, r source.File) error {
+	fim, ok := r.FileInfo().(hugofs.FileMetaInfo)
 	if !ok {
 		return inerr
 	}
 
-	realFilename := rfi.RealFilename()
-	f, err := r.Open()
+	meta := fim.Meta()
+	realFilename := meta.Filename()
+	f, err := meta.Open()
 	if err != nil {
 		return inerr
 	}

@@ -44,6 +44,9 @@ type Cache struct {
 	// 0 is effectively turning this cache off.
 	maxAge time.Duration
 
+	// When set, we just remove this entire root directory on expiration.
+	pruneAllRootDir string
+
 	nlocker *lockTracker
 }
 
@@ -77,11 +80,12 @@ type ItemInfo struct {
 }
 
 // NewCache creates a new file cache with the given filesystem and max age.
-func NewCache(fs afero.Fs, maxAge time.Duration) *Cache {
+func NewCache(fs afero.Fs, maxAge time.Duration, pruneAllRootDir string) *Cache {
 	return &Cache{
-		Fs:      fs,
-		nlocker: &lockTracker{Locker: locker.NewLocker(), seen: make(map[string]struct{})},
-		maxAge:  maxAge,
+		Fs:              fs,
+		nlocker:         &lockTracker{Locker: locker.NewLocker(), seen: make(map[string]struct{})},
+		maxAge:          maxAge,
+		pruneAllRootDir: pruneAllRootDir,
 	}
 }
 
@@ -307,9 +311,15 @@ func (f Caches) Get(name string) *Cache {
 // NewCaches creates a new set of file caches from the given
 // configuration.
 func NewCaches(p *helpers.PathSpec) (Caches, error) {
-	dcfg, err := decodeConfig(p)
-	if err != nil {
-		return nil, err
+	var dcfg Configs
+	if c, ok := p.Cfg.Get("filecacheConfigs").(Configs); ok {
+		dcfg = c
+	} else {
+		var err error
+		dcfg, err = DecodeConfig(p.Fs.Source, p.Cfg)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	fs := p.Fs.Source
@@ -319,30 +329,25 @@ func NewCaches(p *helpers.PathSpec) (Caches, error) {
 		var cfs afero.Fs
 
 		if v.isResourceDir {
-			cfs = p.BaseFs.Resources.Fs
+			cfs = p.BaseFs.ResourcesCache
 		} else {
 			cfs = fs
 		}
 
-		var baseDir string
-		if !strings.HasPrefix(v.Dir, "_gen") {
-			// We do cache eviction (file removes) and since the user can set
-			// his/hers own cache directory, we really want to make sure
-			// we do not delete any files that do not belong to this cache.
-			// We do add the cache name as the root, but this is an extra safe
-			// guard. We skip the files inside /resources/_gen/ because
-			// that would be breaking.
-			baseDir = filepath.Join(v.Dir, filecacheRootDirname, k)
-		} else {
-			baseDir = filepath.Join(v.Dir, k)
-		}
-		if err = cfs.MkdirAll(baseDir, 0777); err != nil && !os.IsExist(err) {
+		baseDir := v.Dir
+
+		if err := cfs.MkdirAll(baseDir, 0777); err != nil && !os.IsExist(err) {
 			return nil, err
 		}
 
 		bfs := afero.NewBasePathFs(cfs, baseDir)
 
-		m[k] = NewCache(bfs, v.MaxAge)
+		var pruneAllRootDir string
+		if k == cacheKeyModules {
+			pruneAllRootDir = "pkg"
+		}
+
+		m[k] = NewCache(bfs, v.MaxAge, pruneAllRootDir)
 	}
 
 	return m, nil

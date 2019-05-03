@@ -236,7 +236,7 @@ func addDateFieldAliases(values []string) []string {
 			complete = append(complete, aliases...)
 		}
 	}
-	return helpers.UniqueStrings(complete)
+	return helpers.UniqueStringsReuse(complete)
 }
 
 func expandDefaultValues(values []string, defaults []string) []string {

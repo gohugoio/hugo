@@ -16,6 +16,8 @@ package paths
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/langs"
+
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -27,13 +29,18 @@ func TestNewPaths(t *testing.T) {
 	v := viper.New()
 	fs := hugofs.NewMem(v)
 
+	v.Set("languages", map[string]interface{}{
+		"no": map[string]interface{}{},
+		"en": map[string]interface{}{},
+	})
 	v.Set("defaultContentLanguageInSubdir", true)
 	v.Set("defaultContentLanguage", "no")
-	v.Set("multilingual", true)
 	v.Set("contentDir", "content")
 	v.Set("workingDir", "work")
 	v.Set("resourceDir", "resources")
 	v.Set("publishDir", "public")
+
+	langs.LoadLanguageSettings(v, nil)
 
 	p, err := New(fs, v)
 	assert.NoError(err)

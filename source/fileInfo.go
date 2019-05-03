@@ -14,10 +14,13 @@
 package source
 
 import (
-	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/gohugoio/hugo/hugofs/files"
+
+	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/common/hugio"
 
@@ -28,8 +31,7 @@ import (
 
 // fileInfo implements the File interface.
 var (
-	_ File         = (*FileInfo)(nil)
-	_ ReadableFile = (*FileInfo)(nil)
+	_ File = (*FileInfo)(nil)
 )
 
 // File represents a source file.
@@ -90,13 +92,7 @@ type FileWithoutOverlap interface {
 	// Hugo content files being one of them, considered to be unique.
 	UniqueID() string
 
-	FileInfo() os.FileInfo
-}
-
-// A ReadableFile is a File that is readable.
-type ReadableFile interface {
-	File
-	Open() (hugio.ReadSeekCloser, error)
+	FileInfo() hugofs.FileMetaInfo
 }
 
 // FileInfo describes a source file.
@@ -107,7 +103,7 @@ type FileInfo struct {
 
 	sp *SourceSpec
 
-	fi os.FileInfo
+	fi hugofs.FileMetaInfo
 
 	// Derived from filename
 	ext  string // Extension without any "."
@@ -179,13 +175,14 @@ func (fi *FileInfo) UniqueID() string {
 }
 
 // FileInfo returns a file's underlying os.FileInfo.
-func (fi *FileInfo) FileInfo() os.FileInfo { return fi.fi }
+func (fi *FileInfo) FileInfo() hugofs.FileMetaInfo { return fi.fi }
 
 func (fi *FileInfo) String() string { return fi.BaseFileName() }
 
 // Open implements ReadableFile.
 func (fi *FileInfo) Open() (hugio.ReadSeekCloser, error) {
-	f, err := fi.sp.SourceFs.Open(fi.Filename())
+	f, err := fi.fi.Meta().Open()
+
 	return f, err
 }
 
@@ -225,38 +222,45 @@ func NewTestFile(filename string) *FileInfo {
 	}
 }
 
-// NewFileInfo returns a new FileInfo structure.
-func (sp *SourceSpec) NewFileInfo(baseDir, filename string, isLeafBundle bool, fi os.FileInfo) *FileInfo {
-
-	var lang, translationBaseName, relPath string
-
-	if fp, ok := fi.(hugofs.FilePather); ok {
-		filename = fp.Filename()
-		baseDir = fp.BaseDir()
-		relPath = fp.Path()
+func (sp *SourceSpec) NewFileInfoFrom(path, filename string) (*FileInfo, error) {
+	meta := hugofs.FileMeta{
+		"filename": filename,
+		"path":     path,
 	}
 
-	if fl, ok := fi.(hugofs.LanguageAnnouncer); ok {
-		lang = fl.Lang()
-		translationBaseName = fl.TranslationBaseName()
+	return sp.NewFileInfo(hugofs.NewFileMetaInfo(nil, meta))
+}
+
+func (sp *SourceSpec) NewFileInfo(fi hugofs.FileMetaInfo) (*FileInfo, error) {
+
+	m := fi.Meta()
+
+	filename := m.Filename()
+	relPath := m.Path()
+	isLeafBundle := m.Classifier() == files.ContentClassLeaf
+
+	if relPath == "" || strings.Contains(relPath, "TODO") {
+		return nil, errors.Errorf("no Path provided by %v (%T)", m, m.Fs())
 	}
 
-	dir, name := filepath.Split(filename)
+	if filename == "" || strings.Contains(filename, "TODO") {
+		return nil, errors.Errorf("no Filename provided by %v (%T)", m, m.Fs())
+	}
+
+	relDir := filepath.Dir(relPath)
+	if relDir == "." {
+		relDir = ""
+	}
+	if !strings.HasSuffix(relDir, helpers.FilePathSeparator) {
+		relDir = relDir + helpers.FilePathSeparator
+	}
+
+	lang := m.Lang()
+	translationBaseName := m.GetString("translationBaseName")
+
+	dir, name := filepath.Split(relPath)
 	if !strings.HasSuffix(dir, helpers.FilePathSeparator) {
 		dir = dir + helpers.FilePathSeparator
-	}
-
-	baseDir = strings.TrimSuffix(baseDir, helpers.FilePathSeparator)
-
-	relDir := ""
-	if dir != baseDir {
-		relDir = strings.TrimPrefix(dir, baseDir)
-	}
-
-	relDir = strings.TrimPrefix(relDir, helpers.FilePathSeparator)
-
-	if relPath == "" {
-		relPath = filepath.Join(relDir, name)
 	}
 
 	ext := strings.ToLower(strings.TrimPrefix(filepath.Ext(name), "."))
@@ -277,14 +281,14 @@ func (sp *SourceSpec) NewFileInfo(baseDir, filename string, isLeafBundle bool, f
 		lang:                lang,
 		ext:                 ext,
 		dir:                 dir,
-		relDir:              relDir,
-		relPath:             relPath,
+		relDir:              relDir,  // Dir()
+		relPath:             relPath, // Path()
 		name:                name,
-		baseName:            baseName,
+		baseName:            baseName, // BaseFileName()
 		translationBaseName: translationBaseName,
 		isLeafBundle:        isLeafBundle,
 	}
 
-	return f
+	return f, nil
 
 }

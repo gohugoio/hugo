@@ -30,7 +30,6 @@ import (
 	"github.com/gohugoio/hugo/parser/metadecoders"
 	"github.com/gohugoio/hugo/parser/pageparser"
 
-	src "github.com/gohugoio/hugo/source"
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/hugolib"
@@ -152,8 +151,8 @@ func (cc *convertCmd) convertAndSavePage(p page.Page, site *hugolib.Site, target
 
 	site.Log.INFO.Println("Attempting to convert", p.File().Filename())
 
-	f, _ := p.File().(src.ReadableFile)
-	file, err := f.Open()
+	f := p.File()
+	file, err := f.FileInfo().Meta().Open()
 	if err != nil {
 		site.Log.ERROR.Println(errMsg)
 		file.Close()

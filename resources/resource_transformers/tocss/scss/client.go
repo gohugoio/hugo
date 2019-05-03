@@ -19,6 +19,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
+	"github.com/spf13/afero"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -26,7 +27,7 @@ import (
 type Client struct {
 	rs     *resources.Spec
 	sfs    *filesystems.SourceFilesystem
-	workFs *filesystems.SourceFilesystem
+	workFs afero.Fs
 }
 
 func New(fs *filesystems.SourceFilesystem, rs *resources.Spec) (*Client, error) {

@@ -20,11 +20,7 @@ import (
 
 	"github.com/gohugoio/hugo/resources/page"
 
-	"github.com/gohugoio/hugo/deps"
-	"github.com/spf13/afero"
-
 	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs"
 	"github.com/stretchr/testify/require"
 )
 
@@ -80,8 +76,6 @@ categories:
 # Doc
 `
 
-	mf := afero.NewMemMapFs()
-
 	disabledStr := "[]"
 
 	if len(disabled) > 0 {
@@ -90,47 +84,41 @@ categories:
 	}
 
 	siteConfig := fmt.Sprintf(siteConfigTemplate, disabledStr)
-	writeToFs(t, mf, "config.toml", siteConfig)
 
-	cfg, err := LoadConfigDefault(mf)
-	require.NoError(t, err)
+	b := newTestSitesBuilder(t).WithConfigFile("toml", siteConfig)
 
-	fs := hugofs.NewFrom(mf, cfg)
-	th := testHelper{cfg, fs, t}
+	b.WithTemplates(
+		"index.html", "Home|{{ .Title }}|{{ .Content }}",
+		"_default/single.html", "Single|{{ .Title }}|{{ .Content }}",
+		"_default/list.html", "List|{{ .Title }}|{{ .Content }}",
+		"_default/terms.html", "Terms List|{{ .Title }}|{{ .Content }}",
+		"layouts/404.html", "Page Not Found",
+	)
 
-	writeSource(t, fs, "layouts/index.html", "Home|{{ .Title }}|{{ .Content }}")
-	writeSource(t, fs, "layouts/_default/single.html", "Single|{{ .Title }}|{{ .Content }}")
-	writeSource(t, fs, "layouts/_default/list.html", "List|{{ .Title }}|{{ .Content }}")
-	writeSource(t, fs, "layouts/_default/terms.html", "Terms List|{{ .Title }}|{{ .Content }}")
-	writeSource(t, fs, "layouts/404.html", "Page Not Found")
+	b.WithContent(
+		"sect/p1.md", fmt.Sprintf(pageTemplate, "P1", "- tag1"),
+		"categories/_index.md", newTestPage("Category Terms", "2017-01-01", 10),
+		"tags/tag1/_index.md", newTestPage("Tag1 List", "2017-01-01", 10),
+	)
 
-	writeSource(t, fs, "content/sect/p1.md", fmt.Sprintf(pageTemplate, "P1", "- tag1"))
+	b.Build(BuildCfg{})
+	h := b.H
 
-	writeNewContentFile(t, fs.Source, "Category Terms", "2017-01-01", "content/categories/_index.md", 10)
-	writeNewContentFile(t, fs.Source, "Tag1 List", "2017-01-01", "content/tags/tag1/_index.md", 10)
-
-	h, err := NewHugoSites(deps.DepsCfg{Fs: fs, Cfg: cfg})
-
-	require.NoError(t, err)
 	require.Len(t, h.Sites, 1)
 
-	err = h.Build(BuildCfg{})
-
-	require.NoError(t, err)
-
-	assertDisabledKinds(th, h.Sites[0], disabled...)
+	assertDisabledKinds(b, h.Sites[0], disabled...)
 
 }
 
-func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
-	assertDisabledKind(th,
+func assertDisabledKinds(b *sitesBuilder, s *Site, disabled ...string) {
+	assertDisabledKind(b,
 		func(isDisabled bool) bool {
 			if isDisabled {
 				return len(s.RegularPages()) == 0
 			}
 			return len(s.RegularPages()) > 0
 		}, disabled, page.KindPage, "public/sect/p1/index.html", "Single|P1")
-	assertDisabledKind(th,
+	assertDisabledKind(b,
 		func(isDisabled bool) bool {
 			p := s.getPage(page.KindHome)
 			if isDisabled {
@@ -138,7 +126,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 			}
 			return p != nil
 		}, disabled, page.KindHome, "public/index.html", "Home")
-	assertDisabledKind(th,
+	assertDisabledKind(b,
 		func(isDisabled bool) bool {
 			p := s.getPage(page.KindSection, "sect")
 			if isDisabled {
@@ -146,7 +134,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 			}
 			return p != nil
 		}, disabled, page.KindSection, "public/sect/index.html", "Sects")
-	assertDisabledKind(th,
+	assertDisabledKind(b,
 		func(isDisabled bool) bool {
 			p := s.getPage(page.KindTaxonomy, "tags", "tag1")
 
@@ -156,7 +144,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 			return p != nil
 
 		}, disabled, page.KindTaxonomy, "public/tags/tag1/index.html", "Tag1")
-	assertDisabledKind(th,
+	assertDisabledKind(b,
 		func(isDisabled bool) bool {
 			p := s.getPage(page.KindTaxonomyTerm, "tags")
 			if isDisabled {
@@ -165,7 +153,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 			return p != nil
 
 		}, disabled, page.KindTaxonomyTerm, "public/tags/index.html", "Tags")
-	assertDisabledKind(th,
+	assertDisabledKind(b,
 		func(isDisabled bool) bool {
 			p := s.getPage(page.KindTaxonomyTerm, "categories")
 
@@ -175,7 +163,7 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 			return p != nil
 
 		}, disabled, page.KindTaxonomyTerm, "public/categories/index.html", "Category Terms")
-	assertDisabledKind(th,
+	assertDisabledKind(b,
 		func(isDisabled bool) bool {
 			p := s.getPage(page.KindTaxonomy, "categories", "hugo")
 			if isDisabled {
@@ -185,15 +173,15 @@ func assertDisabledKinds(th testHelper, s *Site, disabled ...string) {
 
 		}, disabled, page.KindTaxonomy, "public/categories/hugo/index.html", "Hugo")
 	// The below have no page in any collection.
-	assertDisabledKind(th, func(isDisabled bool) bool { return true }, disabled, kindRSS, "public/index.xml", "<link>")
-	assertDisabledKind(th, func(isDisabled bool) bool { return true }, disabled, kindSitemap, "public/sitemap.xml", "sitemap")
-	assertDisabledKind(th, func(isDisabled bool) bool { return true }, disabled, kindRobotsTXT, "public/robots.txt", "User-agent")
-	assertDisabledKind(th, func(isDisabled bool) bool { return true }, disabled, kind404, "public/404.html", "Page Not Found")
+	assertDisabledKind(b, func(isDisabled bool) bool { return true }, disabled, kindRSS, "public/index.xml", "<link>")
+	assertDisabledKind(b, func(isDisabled bool) bool { return true }, disabled, kindSitemap, "public/sitemap.xml", "sitemap")
+	assertDisabledKind(b, func(isDisabled bool) bool { return true }, disabled, kindRobotsTXT, "public/robots.txt", "User-agent")
+	assertDisabledKind(b, func(isDisabled bool) bool { return true }, disabled, kind404, "public/404.html", "Page Not Found")
 }
 
-func assertDisabledKind(th testHelper, kindAssert func(bool) bool, disabled []string, kind, path, matcher string) {
+func assertDisabledKind(b *sitesBuilder, kindAssert func(bool) bool, disabled []string, kind, path, matcher string) {
 	isDisabled := stringSliceContains(kind, disabled...)
-	require.True(th.T, kindAssert(isDisabled), fmt.Sprintf("%s: %t", kind, isDisabled))
+	require.True(b.T, kindAssert(isDisabled), fmt.Sprintf("%s: %t", kind, isDisabled))
 
 	if kind == kindRSS && !isDisabled {
 		// If the home page is also disabled, there is not RSS to look for.
@@ -204,20 +192,11 @@ func assertDisabledKind(th testHelper, kindAssert func(bool) bool, disabled []st
 
 	if isDisabled {
 		// Path should not exist
-		fileExists, err := helpers.Exists(path, th.Fs.Destination)
-		require.False(th.T, fileExists)
-		require.NoError(th.T, err)
+		fileExists, err := helpers.Exists(path, b.Fs.Destination)
+		require.False(b.T, fileExists)
+		require.NoError(b.T, err)
 
 	} else {
-		th.assertFileContent(path, matcher)
+		b.AssertFileContent(path, matcher)
 	}
-}
-
-func stringSliceContains(k string, values ...string) bool {
-	for _, v := range values {
-		if k == v {
-			return true
-		}
-	}
-	return false
 }

@@ -124,9 +124,9 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 			return &multiReadSeekCloser{mr: mr, sources: rcsources}, nil
 		}
 
-		composite, err := c.rs.NewForFs(
-			c.rs.FileCaches.AssetsCache().Fs,
+		composite, err := c.rs.New(
 			resources.ResourceSourceDescriptor{
+				Fs:                 c.rs.FileCaches.AssetsCache().Fs,
 				LazyPublish:        true,
 				OpenReadSeekCloser: concatr,
 				RelTargetFilename:  filepath.Clean(targetPath)})

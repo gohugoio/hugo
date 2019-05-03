@@ -90,6 +90,38 @@ func TestUnmarshalToInterface(t *testing.T) {
 
 }
 
+func TestUnmarshalStringTo(t *testing.T) {
+	assert := require.New(t)
+
+	d := Default
+
+	expectMap := map[string]interface{}{"a": "b"}
+
+	for i, test := range []struct {
+		data   string
+		to     interface{}
+		expect interface{}
+	}{
+		{"a string", "string", "a string"},
+		{`{ "a": "b" }`, make(map[string]interface{}), expectMap},
+		{"32", int64(1234), int64(32)},
+		{"32", int(1234), int(32)},
+		{"3.14159", float64(1), float64(3.14159)},
+		{"[3,7,9]", []interface{}{}, []interface{}{3, 7, 9}},
+		{"[3.1,7.2,9.3]", []interface{}{}, []interface{}{3.1, 7.2, 9.3}},
+	} {
+		msg := fmt.Sprintf("%d: %T", i, test.to)
+		m, err := d.UnmarshalStringTo(test.data, test.to)
+		if b, ok := test.expect.(bool); ok && !b {
+			assert.Error(err, msg)
+		} else {
+			assert.NoError(err, msg)
+			assert.Equal(test.expect, m, msg)
+		}
+
+	}
+}
+
 func TestStringifyYAMLMapKeys(t *testing.T) {
 	cases := []struct {
 		input    interface{}

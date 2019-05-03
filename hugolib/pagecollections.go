@@ -148,7 +148,6 @@ func newPageCollectionsFromPages(pages pageStatePages) *PageCollections {
 			for _, p := range pageCollection {
 				if p.IsPage() {
 					sourceRef := p.sourceRef()
-
 					if sourceRef != "" {
 						// index the canonical ref
 						// e.g. /section/article.md

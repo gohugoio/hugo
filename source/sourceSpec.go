@@ -17,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 
 	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/afero"
@@ -104,6 +105,18 @@ func (s *SourceSpec) IgnoreFile(filename string) bool {
 	for _, re := range s.ignoreFilesRe {
 		if re.MatchString(filename) {
 			return true
+		}
+	}
+
+	if runtime.GOOS == "windows" {
+		// Also check the forward slash variant if different.
+		unixFilename := filepath.ToSlash(filename)
+		if unixFilename != filename {
+			for _, re := range s.ignoreFilesRe {
+				if re.MatchString(unixFilename) {
+					return true
+				}
+			}
 		}
 	}
 

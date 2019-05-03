@@ -17,8 +17,8 @@ package page
 
 import (
 	"github.com/gohugoio/hugo/helpers"
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/gohugoio/hugo/source"
-	"os"
 )
 
 // ZeroFile represents a zero value of source.File with warnings if invoked.
@@ -82,7 +82,7 @@ func (z zeroFile) UniqueID() (o0 string) {
 	z.log.Println(".File.UniqueID on zero object. Wrap it in if or with: {{ with .File }}{{ .UniqueID }}{{ end }}")
 	return
 }
-func (z zeroFile) FileInfo() (o0 os.FileInfo) {
+func (z zeroFile) FileInfo() (o0 hugofs.FileMetaInfo) {
 	z.log.Println(".File.FileInfo on zero object. Wrap it in if or with: {{ with .File }}{{ .FileInfo }}{{ end }}")
 	return
 }

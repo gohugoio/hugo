@@ -77,3 +77,9 @@ func TestParseHugoVersion(t *testing.T) {
 	require.Equal(t, "0.25-DEV", MustParseVersion("0.25-DEV").String())
 
 }
+
+func TestGoMinorVersion(t *testing.T) {
+	assert := require.New(t)
+	assert.Equal(12, goMinorVersion("go1.12.5"))
+	assert.True(GoMinorVersion() >= 11)
+}

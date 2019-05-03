@@ -711,7 +711,7 @@ func (t *templateHandler) RebuildClone() {
 
 func (t *templateHandler) loadTemplates(prefix string) error {
 
-	walker := func(path string, fi os.FileInfo, err error) error {
+	walker := func(path string, fi hugofs.FileMetaInfo, err error) error {
 		if err != nil || fi.IsDir() {
 			return err
 		}
@@ -928,8 +928,8 @@ func (t *templateHandler) addTemplateFile(name, baseTemplatePath, path string) e
 
 		realFilename := filename
 		if fi, err := fs.Stat(filename); err == nil {
-			if fir, ok := fi.(hugofs.RealFilenameInfo); ok {
-				realFilename = fir.RealFilename()
+			if fim, ok := fi.(hugofs.FileMetaInfo); ok {
+				realFilename = fim.Meta().Filename()
 			}
 		}
 

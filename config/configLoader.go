@@ -120,8 +120,6 @@ func RenameKeys(m map[string]interface{}) {
 
 func newViper() *viper.Viper {
 	v := viper.New()
-	v.AutomaticEnv()
-	v.SetEnvPrefix("hugo")
 
 	return v
 }

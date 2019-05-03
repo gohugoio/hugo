@@ -14,29 +14,25 @@
 package source
 
 import (
-	"os"
 	"path/filepath"
-	"runtime"
 	"sync"
 
-	"github.com/gohugoio/hugo/helpers"
-	jww "github.com/spf13/jwalterweatherman"
-	"golang.org/x/text/unicode/norm"
+	"github.com/pkg/errors"
+
+	"github.com/gohugoio/hugo/hugofs"
 )
 
 // Filesystem represents a source filesystem.
 type Filesystem struct {
-	files     []ReadableFile
-	filesInit sync.Once
+	files        []File
+	filesInit    sync.Once
+	filesInitErr error
 
 	Base string
 
-	SourceSpec
-}
+	fi hugofs.FileMetaInfo
 
-// Input describes a source input.
-type Input interface {
-	Files() []ReadableFile
+	SourceSpec
 }
 
 // NewFilesystem returns a new filesytem for a given source spec.
@@ -44,76 +40,74 @@ func (sp SourceSpec) NewFilesystem(base string) *Filesystem {
 	return &Filesystem{SourceSpec: sp, Base: base}
 }
 
+func (sp SourceSpec) NewFilesystemFromFileMetaInfo(fi hugofs.FileMetaInfo) *Filesystem {
+	return &Filesystem{SourceSpec: sp, fi: fi}
+}
+
 // Files returns a slice of readable files.
-func (f *Filesystem) Files() []ReadableFile {
+func (f *Filesystem) Files() ([]File, error) {
 	f.filesInit.Do(func() {
-		f.captureFiles()
+		err := f.captureFiles()
+		if err != nil {
+			f.filesInitErr = errors.Wrap(err, "capture files")
+		}
 	})
-	return f.files
+	return f.files, f.filesInitErr
 }
 
 // add populates a file in the Filesystem.files
-func (f *Filesystem) add(name string, fi os.FileInfo) (err error) {
-	var file ReadableFile
+func (f *Filesystem) add(name string, fi hugofs.FileMetaInfo) (err error) {
+	var file File
 
-	if runtime.GOOS == "darwin" {
-		// When a file system is HFS+, its filepath is in NFD form.
-		name = norm.NFC.String(name)
+	file, err = f.SourceSpec.NewFileInfo(fi)
+	if err != nil {
+		return err
 	}
 
-	file = f.SourceSpec.NewFileInfo(f.Base, name, false, fi)
 	f.files = append(f.files, file)
 
 	return err
 }
 
-func (f *Filesystem) captureFiles() {
-	walker := func(filePath string, fi os.FileInfo, err error) error {
-		if err != nil {
-			return nil
-		}
-
-		b, err := f.shouldRead(filePath, fi)
+func (f *Filesystem) captureFiles() error {
+	walker := func(path string, fi hugofs.FileMetaInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if b {
-			f.add(filePath, fi)
+
+		if fi.IsDir() {
+			return nil
 		}
+
+		meta := fi.Meta()
+		filename := meta.Filename()
+
+		b, err := f.shouldRead(filename, fi)
+		if err != nil {
+			return err
+		}
+
+		if b {
+			err = f.add(filename, fi)
+		}
+
 		return err
 	}
 
-	if f.SourceFs == nil {
-		panic("Must have a fs")
-	}
-	err := helpers.SymbolicWalk(f.SourceFs, f.Base, walker)
+	w := hugofs.NewWalkway(hugofs.WalkwayConfig{
+		Fs:     f.SourceFs,
+		Info:   f.fi,
+		Root:   f.Base,
+		WalkFn: walker,
+	})
 
-	if err != nil {
-		jww.ERROR.Println(err)
-	}
+	return w.Walk()
 
 }
 
-func (f *Filesystem) shouldRead(filename string, fi os.FileInfo) (bool, error) {
-	if fi.Mode()&os.ModeSymlink == os.ModeSymlink {
-		link, err := filepath.EvalSymlinks(filename)
-		if err != nil {
-			jww.ERROR.Printf("Cannot read symbolic link '%s', error was: %s", filename, err)
-			return false, nil
-		}
-		linkfi, err := f.SourceFs.Stat(link)
-		if err != nil {
-			jww.ERROR.Printf("Cannot stat '%s', error was: %s", link, err)
-			return false, nil
-		}
+func (f *Filesystem) shouldRead(filename string, fi hugofs.FileMetaInfo) (bool, error) {
 
-		if !linkfi.Mode().IsRegular() {
-			jww.ERROR.Printf("Symbolic links for directories not supported, skipping '%s'", filename)
-		}
-		return false, nil
-	}
-
-	ignore := f.SourceSpec.IgnoreFile(filename)
+	ignore := f.SourceSpec.IgnoreFile(fi.Meta().Filename())
 
 	if fi.IsDir() {
 		if ignore {

@@ -14,6 +14,9 @@
 package hugofs
 
 import (
+	"os"
+	"path"
+
 	"github.com/spf13/afero"
 )
 
@@ -30,8 +33,8 @@ type languageCompositeFs struct {
 // This is a hybrid filesystem. To get a specific file in Open, Stat etc., use the full filename
 // to the target filesystem. This information is available in Readdir, Stat etc. via the
 // special LanguageFileInfo FileInfo implementation.
-func NewLanguageCompositeFs(base afero.Fs, overlay *LanguageFs) afero.Fs {
-	return afero.NewReadOnlyFs(&languageCompositeFs{afero.NewCopyOnWriteFs(base, overlay).(*afero.CopyOnWriteFs)})
+func NewLanguageCompositeFs(base, overlay afero.Fs) afero.Fs {
+	return &languageCompositeFs{afero.NewCopyOnWriteFs(base, overlay).(*afero.CopyOnWriteFs)}
 }
 
 // Open takes the full path to the file in the target filesystem. If it is a directory, it gets merged
@@ -48,4 +51,37 @@ func (fs *languageCompositeFs) Open(name string) (afero.File, error) {
 		fu.Merger = LanguageDirsMerger
 	}
 	return f, nil
+}
+
+// LanguageDirsMerger implements the afero.DirsMerger interface, which is used
+// to merge two directories.
+var LanguageDirsMerger = func(lofi, bofi []os.FileInfo) ([]os.FileInfo, error) {
+	m := make(map[string]FileMetaInfo)
+
+	getKey := func(fim FileMetaInfo) string {
+		return path.Join(fim.Meta().Lang(), fim.Name())
+	}
+
+	for _, fi := range lofi {
+		fim := fi.(FileMetaInfo)
+		m[getKey(fim)] = fim
+	}
+
+	for _, fi := range bofi {
+		fim := fi.(FileMetaInfo)
+		key := getKey(fim)
+		_, found := m[key]
+		if !found {
+			m[key] = fim
+		}
+	}
+
+	merged := make([]os.FileInfo, len(m))
+	i := 0
+	for _, v := range m {
+		merged[i] = v
+		i++
+	}
+
+	return merged, nil
 }

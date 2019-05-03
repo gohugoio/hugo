@@ -1,4 +1,4 @@
-// Copyright 2018 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,29 +11,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hugofs
+package config
 
 import (
-	"os"
+	"testing"
 
-	"github.com/spf13/afero"
+	"github.com/stretchr/testify/require"
 )
 
-var (
-	_ afero.Fs = (*noLstatFs)(nil)
-)
+func TestSetEnvVars(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+	vars := []string{"FOO=bar", "HUGO=cool", "BAR=foo"}
+	SetEnvVars(&vars, "HUGO", "rocking!", "NEW", "bar")
+	assert.Equal([]string{"FOO=bar", "HUGO=rocking!", "BAR=foo", "NEW=bar"}, vars)
 
-type noLstatFs struct {
-	afero.Fs
-}
-
-// NewNoLstatFs creates a new filesystem with no Lstat support.
-func NewNoLstatFs(fs afero.Fs) afero.Fs {
-	return &noLstatFs{Fs: fs}
-}
-
-// LstatIfPossible always delegates to Stat.
-func (fs *noLstatFs) LstatIfPossible(name string) (os.FileInfo, bool, error) {
-	fi, err := fs.Stat(name)
-	return fi, false, err
+	key, val := SplitEnvVar("HUGO=rocks")
+	assert.Equal("HUGO", key)
+	assert.Equal("rocks", val)
 }

@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/spf13/afero"
+
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/media"
@@ -61,7 +63,9 @@ func TestNewResourceFromFilename(t *testing.T) {
 	writeSource(t, spec.Fs, "content/a/b/logo.png", "image")
 	writeSource(t, spec.Fs, "content/a/b/data.json", "json")
 
-	r, err := spec.New(ResourceSourceDescriptor{SourceFilename: "a/b/logo.png"})
+	bfs := afero.NewBasePathFs(spec.Fs.Source, "content")
+
+	r, err := spec.New(ResourceSourceDescriptor{Fs: bfs, SourceFilename: "a/b/logo.png"})
 
 	assert.NoError(err)
 	assert.NotNil(r)
@@ -69,7 +73,7 @@ func TestNewResourceFromFilename(t *testing.T) {
 	assert.Equal("/a/b/logo.png", r.RelPermalink())
 	assert.Equal("https://example.com/a/b/logo.png", r.Permalink())
 
-	r, err = spec.New(ResourceSourceDescriptor{SourceFilename: "a/b/data.json"})
+	r, err = spec.New(ResourceSourceDescriptor{Fs: bfs, SourceFilename: "a/b/data.json"})
 
 	assert.NoError(err)
 	assert.NotNil(r)
@@ -85,8 +89,10 @@ func TestNewResourceFromFilenameSubPathInBaseURL(t *testing.T) {
 	spec := newTestResourceSpecForBaseURL(assert, "https://example.com/docs")
 
 	writeSource(t, spec.Fs, "content/a/b/logo.png", "image")
+	bfs := afero.NewBasePathFs(spec.Fs.Source, "content")
 
-	r, err := spec.New(ResourceSourceDescriptor{SourceFilename: filepath.FromSlash("a/b/logo.png")})
+	fmt.Println()
+	r, err := spec.New(ResourceSourceDescriptor{Fs: bfs, SourceFilename: filepath.FromSlash("a/b/logo.png")})
 
 	assert.NoError(err)
 	assert.NotNil(r)

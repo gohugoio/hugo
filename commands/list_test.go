@@ -62,6 +62,7 @@ func TestListAll(t *testing.T) {
 	}, header)
 
 	record, err := r.Read()
+	assert.NoError(err)
 	assert.Equal([]string{
 		filepath.Join("content", "p1.md"), "", "P1",
 		"0001-01-01T00:00:00Z", "0001-01-01T00:00:00Z", "0001-01-01T00:00:00Z",

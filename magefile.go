@@ -143,20 +143,31 @@ func Check() {
 	mg.Deps(TestRace)
 }
 
+func testGoFlags() string {
+	if isCI() {
+		return ""
+	}
+
+	return "-test.short"
+}
+
 // Run tests in 32-bit mode
 // Note that we don't run with the extended tag. Currently not supported in 32 bit.
 func Test386() error {
-	return sh.RunWith(map[string]string{"GOARCH": "386"}, goexe, "test", "./...")
+	env := map[string]string{"GOARCH": "386", "GOFLAGS": testGoFlags()}
+	return sh.RunWith(env, goexe, "test", "./...")
 }
 
 // Run tests
 func Test() error {
-	return sh.Run(goexe, "test", "./...", "-tags", buildTags())
+	env := map[string]string{"GOFLAGS": testGoFlags()}
+	return sh.RunWith(env, goexe, "test", "./...", "-tags", buildTags())
 }
 
 // Run tests with race detector
 func TestRace() error {
-	return sh.Run(goexe, "test", "-race", "./...", "-tags", buildTags())
+	env := map[string]string{"GOFLAGS": testGoFlags()}
+	return sh.RunWith(env, goexe, "test", "-race", "./...", "-tags", buildTags())
 }
 
 // Run gofmt linter
@@ -294,6 +305,10 @@ func TestCoverHTML() error {
 
 func isGoLatest() bool {
 	return strings.Contains(runtime.Version(), "1.11")
+}
+
+func isCI() bool {
+	return os.Getenv("CI") != ""
 }
 
 func buildTags() string {

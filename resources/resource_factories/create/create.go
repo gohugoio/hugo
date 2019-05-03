@@ -40,10 +40,10 @@ func New(rs *resources.Spec) *Client {
 func (c *Client) Get(fs afero.Fs, filename string) (resource.Resource, error) {
 	filename = filepath.Clean(filename)
 	return c.rs.ResourceCache.GetOrCreate(resources.ResourceKeyPartition(filename), filename, func() (resource.Resource, error) {
-		return c.rs.NewForFs(fs,
-			resources.ResourceSourceDescriptor{
-				LazyPublish:    true,
-				SourceFilename: filename})
+		return c.rs.New(resources.ResourceSourceDescriptor{
+			Fs:             fs,
+			LazyPublish:    true,
+			SourceFilename: filename})
 	})
 
 }
@@ -51,9 +51,9 @@ func (c *Client) Get(fs afero.Fs, filename string) (resource.Resource, error) {
 // FromString creates a new Resource from a string with the given relative target path.
 func (c *Client) FromString(targetPath, content string) (resource.Resource, error) {
 	return c.rs.ResourceCache.GetOrCreate(resources.CACHE_OTHER, targetPath, func() (resource.Resource, error) {
-		return c.rs.NewForFs(
-			c.rs.FileCaches.AssetsCache().Fs,
+		return c.rs.New(
 			resources.ResourceSourceDescriptor{
+				Fs:          c.rs.FileCaches.AssetsCache().Fs,
 				LazyPublish: true,
 				OpenReadSeekCloser: func() (hugio.ReadSeekCloser, error) {
 					return hugio.NewReadSeekerNoOpCloserFromString(content), nil

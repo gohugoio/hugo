@@ -15,4 +15,4 @@
 
 package hugo
 
-var isExtended = false
+var IsExtended = false

@@ -17,7 +17,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -26,6 +25,8 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/gohugoio/hugo/common/hugio"
 
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
@@ -113,7 +114,7 @@ func (i *importCmd) importFromJekyll(cmd *cobra.Command, args []string) error {
 	jww.FEEDBACK.Println("Importing...")
 
 	fileCount := 0
-	callback := func(path string, fi os.FileInfo, err error) error {
+	callback := func(path string, fi hugofs.FileMetaInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -302,66 +303,10 @@ func (i *importCmd) createConfigFromJekyll(fs afero.Fs, inpath string, kind meta
 	return helpers.WriteToDisk(filepath.Join(inpath, "config."+string(kind)), &buf, fs)
 }
 
-func copyFile(source string, dest string) error {
-	sf, err := os.Open(source)
-	if err != nil {
-		return err
-	}
-	defer sf.Close()
-	df, err := os.Create(dest)
-	if err != nil {
-		return err
-	}
-	defer df.Close()
-	_, err = io.Copy(df, sf)
-	if err == nil {
-		si, err := os.Stat(source)
-		if err != nil {
-			err = os.Chmod(dest, si.Mode())
-
-			if err != nil {
-				return err
-			}
-		}
-
-	}
-	return nil
-}
-
-func copyDir(source string, dest string) error {
-	fi, err := os.Stat(source)
-	if err != nil {
-		return err
-	}
-	if !fi.IsDir() {
-		return errors.New(source + " is not a directory")
-	}
-	err = os.MkdirAll(dest, fi.Mode())
-	if err != nil {
-		return err
-	}
-	entries, _ := ioutil.ReadDir(source)
-	for _, entry := range entries {
-		sfp := filepath.Join(source, entry.Name())
-		dfp := filepath.Join(dest, entry.Name())
-		if entry.IsDir() {
-			err = copyDir(sfp, dfp)
-			if err != nil {
-				jww.ERROR.Println(err)
-			}
-		} else {
-			err = copyFile(sfp, dfp)
-			if err != nil {
-				jww.ERROR.Println(err)
-			}
-		}
-
-	}
-	return nil
-}
-
 func (i *importCmd) copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyllPostDirs map[string]bool) (err error) {
-	fi, err := os.Stat(jekyllRoot)
+	fs := hugofs.Os
+
+	fi, err := fs.Stat(jekyllRoot)
 	if err != nil {
 		return err
 	}
@@ -383,7 +328,7 @@ func (i *importCmd) copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyllPos
 		if entry.IsDir() {
 			if entry.Name()[0] != '_' && entry.Name()[0] != '.' {
 				if _, ok := jekyllPostDirs[entry.Name()]; !ok {
-					err = copyDir(sfp, dfp)
+					err = hugio.CopyDir(fs, sfp, dfp, nil)
 					if err != nil {
 						jww.ERROR.Println(err)
 					}
@@ -402,7 +347,7 @@ func (i *importCmd) copyJekyllFilesAndFolders(jekyllRoot, dest string, jekyllPos
 			}
 
 			if !isExcept && entry.Name()[0] != '.' && entry.Name()[0] != '_' {
-				err = copyFile(sfp, dfp)
+				err = hugio.CopyFile(fs, sfp, dfp)
 				if err != nil {
 					jww.ERROR.Println(err)
 				}

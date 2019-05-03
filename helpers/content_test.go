@@ -506,13 +506,3 @@ func BenchmarkTotalWords(b *testing.B) {
 		}
 	}
 }
-
-func BenchmarkTotalWordsOld(b *testing.B) {
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		wordCount := totalWordsOld(totalWordsBenchmarkString)
-		if wordCount != 400 {
-			b.Fatal("Wordcount error")
-		}
-	}
-}

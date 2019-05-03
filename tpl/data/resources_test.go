@@ -23,6 +23,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/modules"
+
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/cache/filecache"
@@ -87,7 +89,7 @@ func getTestServer(handler func(w http.ResponseWriter, r *http.Request)) (*httpt
 func TestScpGetRemote(t *testing.T) {
 	t.Parallel()
 	fs := new(afero.MemMapFs)
-	cache := filecache.NewCache(fs, 100)
+	cache := filecache.NewCache(fs, 100, "")
 
 	tests := []struct {
 		path    string
@@ -186,14 +188,19 @@ func newDeps(cfg config.Provider) *deps.Deps {
 	cfg.Set("layoutDir", "layouts")
 	cfg.Set("archetypeDir", "archetypes")
 
-	l := langs.NewLanguage("en", cfg)
-	l.Set("i18nDir", "i18n")
-	cs, err := helpers.NewContentSpec(l)
+	langs.LoadLanguageSettings(cfg, nil)
+	mod, err := modules.CreateProjectModule(cfg)
+	if err != nil {
+		panic(err)
+	}
+	cfg.Set("allModules", modules.Modules{mod})
+
+	cs, err := helpers.NewContentSpec(cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	fs := hugofs.NewMem(l)
+	fs := hugofs.NewMem(cfg)
 	logger := loggers.NewErrorLogger()
 
 	p, err := helpers.NewPathSpec(fs, cfg)

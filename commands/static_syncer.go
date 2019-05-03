@@ -53,6 +53,7 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 		syncer := fsync.NewSyncer()
 		syncer.NoTimes = c.Cfg.GetBool("noTimes")
 		syncer.NoChmod = c.Cfg.GetBool("noChmod")
+		syncer.ChmodFilter = chmodFilter
 		syncer.SrcFs = sourceFs.Fs
 		syncer.DestFs = c.Fs.Destination
 

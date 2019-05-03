@@ -19,6 +19,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/config"
+
 	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/mitchellh/mapstructure"
@@ -32,7 +34,7 @@ const (
 	resourcesGenDir = ":resourceDir/_gen"
 )
 
-var defaultCacheConfig = cacheConfig{
+var defaultCacheConfig = Config{
 	MaxAge: -1, // Never expire
 	Dir:    ":cacheDir/:project",
 }
@@ -42,9 +44,20 @@ const (
 	cacheKeyGetCSV  = "getcsv"
 	cacheKeyImages  = "images"
 	cacheKeyAssets  = "assets"
+	cacheKeyModules = "modules"
 )
 
-var defaultCacheConfigs = map[string]cacheConfig{
+type Configs map[string]Config
+
+func (c Configs) CacheDirModules() string {
+	return c[cacheKeyModules].Dir
+}
+
+var defaultCacheConfigs = Configs{
+	cacheKeyModules: {
+		MaxAge: -1,
+		Dir:    ":cacheDir/modules",
+	},
 	cacheKeyGetJSON: defaultCacheConfig,
 	cacheKeyGetCSV:  defaultCacheConfig,
 	cacheKeyImages: {
@@ -57,9 +70,7 @@ var defaultCacheConfigs = map[string]cacheConfig{
 	},
 }
 
-type cachesConfig map[string]cacheConfig
-
-type cacheConfig struct {
+type Config struct {
 	// Max age of cache entries in this cache. Any items older than this will
 	// be removed and not returned from the cache.
 	// a negative value means forever, 0 means cache is disabled.
@@ -88,13 +99,18 @@ func (f Caches) ImageCache() *Cache {
 	return f[cacheKeyImages]
 }
 
+// ModulesCache gets the file cache for Hugo Modules.
+func (f Caches) ModulesCache() *Cache {
+	return f[cacheKeyModules]
+}
+
 // AssetsCache gets the file cache for assets (processed resources, SCSS etc.).
 func (f Caches) AssetsCache() *Cache {
 	return f[cacheKeyAssets]
 }
 
-func decodeConfig(p *helpers.PathSpec) (cachesConfig, error) {
-	c := make(cachesConfig)
+func DecodeConfig(fs afero.Fs, cfg config.Provider) (Configs, error) {
+	c := make(Configs)
 	valid := make(map[string]bool)
 	// Add defaults
 	for k, v := range defaultCacheConfigs {
@@ -102,11 +118,9 @@ func decodeConfig(p *helpers.PathSpec) (cachesConfig, error) {
 		valid[k] = true
 	}
 
-	cfg := p.Cfg
-
 	m := cfg.GetStringMap(cachesConfigKey)
 
-	_, isOsFs := p.Fs.Source.(*afero.OsFs)
+	_, isOsFs := fs.(*afero.OsFs)
 
 	for k, v := range m {
 		cc := defaultCacheConfig
@@ -148,7 +162,7 @@ func decodeConfig(p *helpers.PathSpec) (cachesConfig, error) {
 
 		for i, part := range parts {
 			if strings.HasPrefix(part, ":") {
-				resolved, isResource, err := resolveDirPlaceholder(p, part)
+				resolved, isResource, err := resolveDirPlaceholder(fs, cfg, part)
 				if err != nil {
 					return c, err
 				}
@@ -176,6 +190,18 @@ func decodeConfig(p *helpers.PathSpec) (cachesConfig, error) {
 			}
 		}
 
+		if !strings.HasPrefix(v.Dir, "_gen") {
+			// We do cache eviction (file removes) and since the user can set
+			// his/hers own cache directory, we really want to make sure
+			// we do not delete any files that do not belong to this cache.
+			// We do add the cache name as the root, but this is an extra safe
+			// guard. We skip the files inside /resources/_gen/ because
+			// that would be breaking.
+			v.Dir = filepath.Join(v.Dir, filecacheRootDirname, k)
+		} else {
+			v.Dir = filepath.Join(v.Dir, k)
+		}
+
 		if disabled {
 			v.MaxAge = 0
 		}
@@ -187,15 +213,17 @@ func decodeConfig(p *helpers.PathSpec) (cachesConfig, error) {
 }
 
 // Resolves :resourceDir => /myproject/resources etc., :cacheDir => ...
-func resolveDirPlaceholder(p *helpers.PathSpec, placeholder string) (cacheDir string, isResource bool, err error) {
+func resolveDirPlaceholder(fs afero.Fs, cfg config.Provider, placeholder string) (cacheDir string, isResource bool, err error) {
+	workingDir := cfg.GetString("workingDir")
+
 	switch strings.ToLower(placeholder) {
 	case ":resourcedir":
 		return "", true, nil
 	case ":cachedir":
-		d, err := helpers.GetCacheDir(p.Fs.Source, p.Cfg)
+		d, err := helpers.GetCacheDir(fs, cfg)
 		return d, false, err
 	case ":project":
-		return filepath.Base(p.WorkingDir), false, nil
+		return filepath.Base(workingDir), false, nil
 	}
 
 	return "", false, errors.Errorf("%q is not a valid placeholder (valid values are :cacheDir or :resourceDir)", placeholder)

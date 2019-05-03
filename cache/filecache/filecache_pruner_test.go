@@ -18,9 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gohugoio/hugo/config"
-	"github.com/gohugoio/hugo/helpers"
-	"github.com/gohugoio/hugo/hugofs"
+	"github.com/spf13/afero"
 
 	"github.com/stretchr/testify/require"
 )
@@ -54,14 +52,9 @@ maxAge = "200ms"
 dir = ":resourceDir/_gen"
 `
 
-	cfg, err := config.FromConfigString(configStr, "toml")
-	assert.NoError(err)
-
 	for _, name := range []string{cacheKeyGetCSV, cacheKeyGetJSON, cacheKeyAssets, cacheKeyImages} {
 		msg := fmt.Sprintf("cache: %s", name)
-		fs := hugofs.NewMem(cfg)
-		p, err := helpers.NewPathSpec(fs, cfg)
-		assert.NoError(err)
+		p := newPathsSpec(t, afero.NewMemMapFs(), configStr)
 		caches, err := NewCaches(p)
 		assert.NoError(err)
 		cache := caches[name]

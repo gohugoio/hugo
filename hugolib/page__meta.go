@@ -21,6 +21,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gohugoio/hugo/hugofs/files"
+
 	"github.com/gohugoio/hugo/common/hugo"
 
 	"github.com/gohugoio/hugo/related"
@@ -591,15 +593,14 @@ func (p *pageMeta) applyDefaultValues() error {
 	}
 
 	if p.IsNode() {
-		p.bundleType = "branch"
+		p.bundleType = files.ContentClassBranch
 	} else {
 		source := p.File()
 		if fi, ok := source.(*fileInfo); ok {
-			switch fi.bundleTp {
-			case bundleBranch:
-				p.bundleType = "branch"
-			case bundleLeaf:
-				p.bundleType = "leaf"
+			class := fi.FileInfo().Meta().Classifier()
+			switch class {
+			case files.ContentClassBranch, files.ContentClassLeaf:
+				p.bundleType = class
 			}
 		}
 	}

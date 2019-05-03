@@ -14,6 +14,9 @@
 package hugolib
 
 import (
+	"bytes"
+	"fmt"
+	"path/filepath"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -40,10 +43,7 @@ func TestLoadConfig(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal("side", cfg.GetString("paginatePath"))
-	// default
-	assert.Equal("layouts", cfg.GetString("layoutDir"))
-	// no themes
-	assert.False(cfg.IsSet("allThemes"))
+
 }
 
 func TestLoadMultiConfig(t *testing.T) {
@@ -188,11 +188,6 @@ map[string]interface {}{
   "p1": "p1 main",
   "p2": "p2 main",
   "p3": "p3 theme",
-  "test-theme": map[string]interface {}{
-    "p1": "p1 theme",
-    "p2": "p2 theme",
-    "p3": "p3 theme",
-  },
   "top": "top",
 }`, got["params"])
 
@@ -257,10 +252,6 @@ map[string]interface {}{
     "params": map[string]interface {}{
       "pl1": "p1-en-main",
       "pl2": "p2-en-theme",
-      "test-theme": map[string]interface {}{
-        "pl1": "p1-en-theme",
-        "pl2": "p2-en-theme",
-      },
     },
   },
   "nb": map[string]interface {}{
@@ -275,11 +266,6 @@ map[string]interface {}{
     "params": map[string]interface {}{
       "pl1": "p1-nb-main",
       "pl2": "p2-nb-theme",
-      "test-theme": map[string]interface {}{
-        "pl1": "p1-nb-theme",
-        "pl2": "p2-nb-theme",
-        "top": "top-nb-theme",
-      },
     },
   },
 }
@@ -395,5 +381,144 @@ privacyEnhanced = true
 	b.Build(BuildCfg{SkipRender: true})
 
 	assert.True(b.H.Sites[0].Info.Config().Privacy.YouTube.PrivacyEnhanced)
+
+}
+
+func TestLoadConfigModules(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	// https://github.com/gohugoio/hugoThemes#themetoml
+
+	const (
+		// Before Hugo 0.56 each theme/component could have its own theme.toml
+		// with some settings, mostly used on the Hugo themes site.
+		// To preserve combability we read these files into the new "modules"
+		// section in config.toml.
+		o1t = `
+name = "Component o1"
+license = "MIT"
+min_version = 0.38
+`
+		// This is the component's config.toml, using the old theme syntax.
+		o1c = `
+theme = ["n2"]
+`
+
+		n1 = `
+title = "Component n1"
+
+[module]
+description = "Component n1 description"
+[module.hugoVersion]
+min = "0.40.0"
+max = "0.50.0"
+extended = true
+[[module.imports]]
+path="o1"
+[[module.imports]]
+path="n3"
+
+
+`
+
+		n2 = `
+title = "Component n2"
+`
+
+		n3 = `
+title = "Component n3"
+`
+
+		n4 = `
+title = "Component n4"
+`
+	)
+
+	b := newTestSitesBuilder(t)
+
+	writeThemeFiles := func(name, configTOML, themeTOML string) {
+		b.WithSourceFile(filepath.Join("themes", name, "data", "module.toml"), fmt.Sprintf("name=%q", name))
+		if configTOML != "" {
+			b.WithSourceFile(filepath.Join("themes", name, "config.toml"), configTOML)
+		}
+		if themeTOML != "" {
+			b.WithSourceFile(filepath.Join("themes", name, "theme.toml"), themeTOML)
+		}
+	}
+
+	writeThemeFiles("n1", n1, "")
+	writeThemeFiles("n2", n2, "")
+	writeThemeFiles("n3", n3, "")
+	writeThemeFiles("n4", n4, "")
+	writeThemeFiles("o1", o1c, o1t)
+
+	b.WithConfigFile("toml", `
+[module]
+[[module.imports]]
+path="n1"
+[[module.imports]]
+path="n4"
+
+`)
+
+	b.Build(BuildCfg{})
+
+	modulesClient := b.H.Paths.ModulesClient
+	var graphb bytes.Buffer
+	modulesClient.Graph(&graphb)
+
+	assert.Equal(`project n1
+n1 o1
+o1 n2
+n1 n3
+project n4
+`, graphb.String())
+
+}
+
+func TestLoadConfigWithOsEnvOverrides(t *testing.T) {
+
+	assert := require.New(t)
+
+	baseConfig := `
+
+environment = "production"
+enableGitInfo = true
+intSlice = [5,7,9]
+floatSlice = [3.14, 5.19]
+stringSlice = ["a", "b"]
+
+[imaging]
+anchor = "smart"
+quality = 75 
+resamplefilter = "CatmullRom"
+`
+
+	b := newTestSitesBuilder(t).WithConfigFile("toml", baseConfig)
+
+	b.WithEnviron(
+		"HUGO_ENVIRONMENT", "test",
+		"HUGO_NEW", "new", // key not in config.toml
+		"HUGO_ENABLEGITINFO", "false",
+		"HUGO_IMAGING_ANCHOR", "top",
+		"HUGO_STRINGSLICE", `["c", "d"]`,
+		"HUGO_INTSLICE", `[5, 8, 9]`,
+		"HUGO_FLOATSLICE", `[5.32]`,
+	)
+
+	b.Build(BuildCfg{})
+
+	cfg := b.H.Cfg
+
+	assert.Equal("test", cfg.Get("environment"))
+	assert.Equal(false, cfg.GetBool("enablegitinfo"))
+	assert.Equal("new", cfg.Get("new"))
+	assert.Equal("top", cfg.Get("imaging.anchor"))
+	assert.Equal(int64(75), cfg.Get("imaging.quality"))
+	assert.Equal([]interface{}{"c", "d"}, cfg.Get("stringSlice"))
+	assert.Equal([]interface{}{5.32}, cfg.Get("floatSlice"))
+	assert.Equal([]interface{}{5, 8, 9}, cfg.Get("intSlice"))
 
 }

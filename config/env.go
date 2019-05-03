@@ -17,6 +17,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 )
 
 // GetNumWorkerMultiplier returns the base value used to calculate the number
@@ -30,4 +31,27 @@ func GetNumWorkerMultiplier() int {
 		}
 	}
 	return runtime.NumCPU()
+}
+
+// SetEnvVars sets vars on the form key=value in the oldVars slice.
+func SetEnvVars(oldVars *[]string, keyValues ...string) {
+	for i := 0; i < len(keyValues); i += 2 {
+		setEnvVar(oldVars, keyValues[i], keyValues[i+1])
+	}
+}
+
+func SplitEnvVar(v string) (string, string) {
+	parts := strings.Split(v, "=")
+	return parts[0], parts[1]
+}
+
+func setEnvVar(vars *[]string, key, value string) {
+	for i := range *vars {
+		if strings.HasPrefix((*vars)[i], key+"=") {
+			(*vars)[i] = key + "=" + value
+			return
+		}
+	}
+	// New var.
+	*vars = append(*vars, key+"="+value)
 }

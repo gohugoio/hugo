@@ -16,6 +16,7 @@ package data
 import (
 	"testing"
 
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/tpl/internal"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
@@ -27,6 +28,7 @@ func TestInit(t *testing.T) {
 
 	v := viper.New()
 	v.Set("contentDir", "content")
+	langs.LoadLanguageSettings(v, nil)
 
 	for _, nsf := range internal.TemplateFuncsNamespaceRegistry {
 		ns = nsf(newDeps(v))

@@ -256,15 +256,11 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		baseWatchDir := c.Cfg.GetString("workingDir")
-		relWatchDirs := make([]string, len(watchDirs))
-		for i, dir := range watchDirs {
-			relWatchDirs[i], _ = helpers.GetRelativePath(dir, baseWatchDir)
+		watchGroups := helpers.ExtractAndGroupRootPaths(watchDirs)
+
+		for _, group := range watchGroups {
+			jww.FEEDBACK.Printf("Watching for changes in %s\n", group)
 		}
-
-		rootWatchDirs := strings.Join(helpers.UniqueStrings(helpers.ExtractRootPaths(relWatchDirs)), ",")
-
-		jww.FEEDBACK.Printf("Watching for changes in %s%s{%s}\n", baseWatchDir, helpers.FilePathSeparator, rootWatchDirs)
 		watcher, err := c.newWatcher(watchDirs...)
 
 		if err != nil {
@@ -277,6 +273,15 @@ func (sc *serverCmd) server(cmd *cobra.Command, args []string) error {
 
 	return c.serve(sc)
 
+}
+
+func getRootWatchDirsStr(baseDir string, watchDirs []string) string {
+	relWatchDirs := make([]string, len(watchDirs))
+	for i, dir := range watchDirs {
+		relWatchDirs[i], _ = helpers.GetRelativePath(dir, baseDir)
+	}
+
+	return strings.Join(helpers.UniqueStringsSorted(helpers.ExtractRootPaths(relWatchDirs)), ",")
 }
 
 type fileServer struct {

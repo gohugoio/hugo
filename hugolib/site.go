@@ -14,7 +14,6 @@
 package hugolib
 
 import (
-	"context"
 	"fmt"
 	"html/template"
 	"io"
@@ -28,6 +27,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gohugoio/hugo/hugofs/files"
 
 	"github.com/gohugoio/hugo/common/maps"
 
@@ -45,7 +46,6 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/lazy"
-	"golang.org/x/sync/errgroup"
 
 	"github.com/gohugoio/hugo/media"
 
@@ -1028,7 +1028,8 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 				removed = true
 			}
 		}
-		if removed && IsContentFile(ev.Name) {
+
+		if removed && files.IsContentFile(ev.Name) {
 			h.removePageByFilename(ev.Name)
 		}
 
@@ -1058,7 +1059,7 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 			filenamesChanged = append(filenamesChanged, contentFilesChanged...)
 		}
 
-		filenamesChanged = helpers.UniqueStrings(filenamesChanged)
+		filenamesChanged = helpers.UniqueStringsReuse(filenamesChanged)
 
 		if err := s.readAndProcessContent(filenamesChanged...); err != nil {
 			return whatChanged{}, err
@@ -1078,10 +1079,12 @@ func (s *Site) processPartial(events []fsnotify.Event) (whatChanged, error) {
 
 func (s *Site) process(config BuildCfg) (err error) {
 	if err = s.initialize(); err != nil {
+		err = errors.Wrap(err, "initialize")
 		return
 	}
-	if err := s.readAndProcessContent(); err != nil {
-		return err
+	if err = s.readAndProcessContent(); err != nil {
+		err = errors.Wrap(err, "readAndProcessContent")
+		return
 	}
 	return err
 
@@ -1304,93 +1307,14 @@ func (s *Site) isContentDirEvent(e fsnotify.Event) bool {
 	return s.BaseFs.IsContent(e.Name)
 }
 
-type contentCaptureResultHandler struct {
-	defaultContentProcessor *siteContentProcessor
-	contentProcessors       map[string]*siteContentProcessor
-}
-
-func (c *contentCaptureResultHandler) getContentProcessor(lang string) *siteContentProcessor {
-	proc, found := c.contentProcessors[lang]
-	if found {
-		return proc
-	}
-	return c.defaultContentProcessor
-}
-
-func (c *contentCaptureResultHandler) handleSingles(fis ...*fileInfo) {
-	for _, fi := range fis {
-		proc := c.getContentProcessor(fi.Lang())
-		proc.processSingle(fi)
-	}
-}
-func (c *contentCaptureResultHandler) handleBundles(d *bundleDirs) {
-	for _, b := range d.bundles {
-		proc := c.getContentProcessor(b.fi.Lang())
-		proc.processBundle(b)
-	}
-}
-
-func (c *contentCaptureResultHandler) handleCopyFile(f pathLangFile) {
-	proc := c.getContentProcessor(f.Lang())
-	proc.processAsset(f)
-}
-
 func (s *Site) readAndProcessContent(filenames ...string) error {
-
-	ctx := context.Background()
-	g, ctx := errgroup.WithContext(ctx)
-
-	defaultContentLanguage := s.SourceSpec.DefaultContentLanguage
-
-	contentProcessors := make(map[string]*siteContentProcessor)
-	var defaultContentProcessor *siteContentProcessor
-	sites := s.h.langSite()
-	for k, v := range sites {
-		if v.language.Disabled {
-			continue
-		}
-		proc := newSiteContentProcessor(ctx, len(filenames) > 0, v)
-		contentProcessors[k] = proc
-		if k == defaultContentLanguage {
-			defaultContentProcessor = proc
-		}
-		g.Go(func() error {
-			return proc.process(ctx)
-		})
-	}
-
-	var (
-		handler   captureResultHandler
-		bundleMap *contentChangeMap
-	)
-
-	mainHandler := &contentCaptureResultHandler{contentProcessors: contentProcessors, defaultContentProcessor: defaultContentProcessor}
-
 	sourceSpec := source.NewSourceSpec(s.PathSpec, s.BaseFs.Content.Fs)
 
-	if s.running() {
-		// Need to track changes.
-		bundleMap = s.h.ContentChanges
-		handler = &captureResultHandlerChain{handlers: []captureBundlesHandler{mainHandler, bundleMap}}
+	proc := newPagesProcessor(s.h, sourceSpec, len(filenames) > 0)
 
-	} else {
-		handler = mainHandler
-	}
+	c := newPagesCollector(sourceSpec, s.Log, s.h.ContentChanges, proc, filenames...)
 
-	c := newCapturer(s.Log, sourceSpec, handler, bundleMap, filenames...)
-
-	err1 := c.capture()
-
-	for _, proc := range contentProcessors {
-		proc.closeInput()
-	}
-
-	err2 := g.Wait()
-
-	if err1 != nil {
-		return err1
-	}
-	return err2
+	return c.Collect()
 }
 
 func (s *Site) getMenusFromConfig() navigation.Menus {
@@ -1831,8 +1755,8 @@ func (s *Site) kindFromFileInfoOrSections(fi *fileInfo, sections []string) strin
 }
 
 func (s *Site) kindFromSections(sections []string) string {
-	if len(sections) == 0 || len(s.siteCfg.taxonomiesConfig) == 0 {
-		return page.KindSection
+	if len(sections) == 0 {
+		return page.KindHome
 	}
 
 	sectionPath := path.Join(sections...)

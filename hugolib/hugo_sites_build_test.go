@@ -2,10 +2,10 @@ package hugolib
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"testing"
 
-	"os"
 	"path/filepath"
 	"time"
 
@@ -246,6 +246,8 @@ func doTestMultiSitesBuild(t *testing.T, configTemplate, configSuffix string) {
 
 	require.Equal(t, "en", enSite.language.Lang)
 
+	//dumpPages(enSite.RegularPages()...)
+
 	assert.Equal(5, len(enSite.RegularPages()))
 	assert.Equal(32, len(enSite.AllPages()))
 
@@ -447,7 +449,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 	require.NotNil(t, homeEn)
 	assert.Len(homeEn.Translations(), 3)
 
-	contentFs := b.H.BaseFs.Content.Fs
+	contentFs := b.H.Fs.Source
 
 	for i, this := range []struct {
 		preFunc    func(t *testing.T)
@@ -480,9 +482,9 @@ func TestMultiSitesRebuild(t *testing.T) {
 		},
 		{
 			func(t *testing.T) {
-				writeNewContentFile(t, contentFs, "new_en_1", "2016-07-31", "new1.en.md", -5)
-				writeNewContentFile(t, contentFs, "new_en_2", "1989-07-30", "new2.en.md", -10)
-				writeNewContentFile(t, contentFs, "new_fr_1", "2016-07-30", "new1.fr.md", 10)
+				writeNewContentFile(t, contentFs, "new_en_1", "2016-07-31", "content/new1.en.md", -5)
+				writeNewContentFile(t, contentFs, "new_en_2", "1989-07-30", "content/new2.en.md", -10)
+				writeNewContentFile(t, contentFs, "new_fr_1", "2016-07-30", "content/new1.fr.md", 10)
 			},
 			[]fsnotify.Event{
 				{Name: filepath.FromSlash("content/new1.en.md"), Op: fsnotify.Create},
@@ -503,7 +505,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 		},
 		{
 			func(t *testing.T) {
-				p := "sect/doc1.en.md"
+				p := "content/sect/doc1.en.md"
 				doc1 := readFileFromFs(t, contentFs, p)
 				doc1 += "CHANGED"
 				writeToFs(t, contentFs, p, doc1)
@@ -519,7 +521,7 @@ func TestMultiSitesRebuild(t *testing.T) {
 		// Rename a file
 		{
 			func(t *testing.T) {
-				if err := contentFs.Rename("new1.en.md", "new1renamed.en.md"); err != nil {
+				if err := contentFs.Rename("content/new1.en.md", "content/new1renamed.en.md"); err != nil {
 					t.Fatalf("Rename failed: %s", err)
 				}
 			},
@@ -670,38 +672,6 @@ title = "Svenska"
 	require.Len(t, svPage.Pages(), 0)
 	require.Len(t, svPage.Data().(page.Data).Pages(), 0)
 
-}
-
-func TestChangeDefaultLanguage(t *testing.T) {
-	t.Parallel()
-
-	assert := require.New(t)
-
-	b := newMultiSiteTestBuilder(t, "", "", map[string]interface{}{
-		"DefaultContentLanguage":         "fr",
-		"DefaultContentLanguageInSubdir": false,
-	})
-	b.CreateSites().Build(BuildCfg{})
-
-	b.AssertFileContent("public/sect/doc1/index.html", "Single", "Bonjour")
-	b.AssertFileContent("public/en/sect/doc2/index.html", "Single", "Hello")
-
-	// Switch language
-	b.WithNewConfigData(map[string]interface{}{
-		"DefaultContentLanguage":         "en",
-		"DefaultContentLanguageInSubdir": false,
-	})
-
-	assert.NoError(b.LoadConfig())
-	err := b.H.Build(BuildCfg{NewConfig: b.Cfg})
-
-	if err != nil {
-		t.Fatalf("Failed to rebuild sites: %s", err)
-	}
-
-	// Default language is now en, so that should now be the "root" language
-	b.AssertFileContent("public/fr/sect/doc1/index.html", "Single", "Bonjour")
-	b.AssertFileContent("public/sect/doc2/index.html", "Single", "Hello")
 }
 
 // https://github.com/gohugoio/hugo/issues/4706
@@ -1261,16 +1231,19 @@ var multiSiteJSONConfigTemplate = `
 `
 
 func writeSource(t testing.TB, fs *hugofs.Fs, filename, content string) {
+	t.Helper()
 	writeToFs(t, fs.Source, filename, content)
 }
 
 func writeToFs(t testing.TB, fs afero.Fs, filename, content string) {
+	t.Helper()
 	if err := afero.WriteFile(fs, filepath.FromSlash(filename), []byte(content), 0755); err != nil {
 		t.Fatalf("Failed to write file: %s", err)
 	}
 }
 
 func readDestination(t testing.TB, fs *hugofs.Fs, filename string) string {
+	t.Helper()
 	return readFileFromFs(t, fs.Destination, filename)
 }
 
@@ -1287,6 +1260,7 @@ func readSource(t *testing.T, fs *hugofs.Fs, filename string) string {
 }
 
 func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
+	t.Helper()
 	filename = filepath.Clean(filename)
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
@@ -1309,7 +1283,7 @@ func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
 		}
 
 		helpers.PrintFs(fs, root, os.Stdout)
-		Fatalf(t, "Failed to read file: %s", err)
+		t.Fatalf("Failed to read file: %s", err)
 	}
 	return string(b)
 }

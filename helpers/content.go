@@ -511,12 +511,6 @@ func TotalWords(s string) int {
 	return n
 }
 
-// Old implementation only kept for benchmark comparison.
-// TODO(bep) remove
-func totalWordsOld(s string) int {
-	return len(strings.Fields(s))
-}
-
 // TruncateWordsByRune truncates words by runes.
 func (c *ContentSpec) TruncateWordsByRune(in []string) (string, bool) {
 	words := make([]string, len(in))

@@ -268,8 +268,7 @@ if (!doNotTrack) {
     </li>
     {{ end }}
 </ul>
-{{ end }}
-`},
+{{ end }}`},
 	{`schema.html`, `<meta itemprop="name" content="{{ .Title }}">
 <meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
 

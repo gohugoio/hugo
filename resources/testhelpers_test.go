@@ -4,13 +4,15 @@ import (
 	"path/filepath"
 	"testing"
 
-	"fmt"
 	"image"
 	"io"
 	"io/ioutil"
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/modules"
 
 	"github.com/gohugoio/hugo/cache/filecache"
 	"github.com/gohugoio/hugo/helpers"
@@ -28,9 +30,8 @@ func newTestResourceSpec(assert *require.Assertions) *Spec {
 	return newTestResourceSpecForBaseURL(assert, "https://example.com/")
 }
 
-func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *Spec {
+func createTestCfg() *viper.Viper {
 	cfg := viper.New()
-	cfg.Set("baseURL", baseURL)
 	cfg.Set("resourceDir", "resources")
 	cfg.Set("contentDir", "content")
 	cfg.Set("dataDir", "data")
@@ -39,6 +40,21 @@ func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *
 	cfg.Set("assetDir", "assets")
 	cfg.Set("archetypeDir", "archetypes")
 	cfg.Set("publishDir", "public")
+
+	langs.LoadLanguageSettings(cfg, nil)
+	mod, err := modules.CreateProjectModule(cfg)
+	if err != nil {
+		panic(err)
+	}
+	cfg.Set("allModules", modules.Modules{mod})
+
+	return cfg
+
+}
+
+func newTestResourceSpecForBaseURL(assert *require.Assertions, baseURL string) *Spec {
+	cfg := createTestCfg()
+	cfg.Set("baseURL", baseURL)
 
 	imagingCfg := map[string]interface{}{
 		"resampleFilter": "linear",
@@ -71,7 +87,7 @@ func newTargetPaths(link string) func() page.TargetPaths {
 }
 
 func newTestResourceOsFs(assert *require.Assertions) *Spec {
-	cfg := viper.New()
+	cfg := createTestCfg()
 	cfg.Set("baseURL", "https://example.com")
 
 	workDir, _ := ioutil.TempDir("", "hugores")
@@ -83,17 +99,10 @@ func newTestResourceOsFs(assert *require.Assertions) *Spec {
 	}
 
 	cfg.Set("workingDir", workDir)
-	cfg.Set("resourceDir", "resources")
-	cfg.Set("contentDir", "content")
-	cfg.Set("dataDir", "data")
-	cfg.Set("i18nDir", "i18n")
-	cfg.Set("layoutDir", "layouts")
-	cfg.Set("assetDir", "assets")
-	cfg.Set("archetypeDir", "archetypes")
-	cfg.Set("publishDir", "public")
 
 	fs := hugofs.NewFrom(hugofs.Os, cfg)
 	fs.Destination = &afero.MemMapFs{}
+	fs.Source = afero.NewBasePathFs(hugofs.Os, workDir)
 
 	s, err := helpers.NewPathSpec(fs, cfg)
 	assert.NoError(err)
@@ -126,7 +135,7 @@ func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) r
 	src, err := os.Open(filepath.FromSlash("testdata/" + name))
 	assert.NoError(err)
 
-	out, err := helpers.OpenFileForWriting(spec.BaseFs.Content.Fs, name)
+	out, err := helpers.OpenFileForWriting(spec.Fs.Source, name)
 	assert.NoError(err)
 	_, err = io.Copy(out, src)
 	out.Close()
@@ -135,7 +144,7 @@ func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) r
 
 	factory := newTargetPaths("/a")
 
-	r, err := spec.New(ResourceSourceDescriptor{TargetPaths: factory, LazyPublish: true, SourceFilename: name})
+	r, err := spec.New(ResourceSourceDescriptor{Fs: spec.Fs.Source, TargetPaths: factory, LazyPublish: true, SourceFilename: name})
 	assert.NoError(err)
 
 	return r.(resource.ContentResource)
@@ -144,9 +153,6 @@ func fetchResourceForSpec(spec *Spec, assert *require.Assertions, name string) r
 func assertImageFile(assert *require.Assertions, fs afero.Fs, filename string, width, height int) {
 	filename = filepath.Clean(filename)
 	f, err := fs.Open(filename)
-	if err != nil {
-		printFs(fs, "", os.Stdout)
-	}
 	assert.NoError(err)
 	defer f.Close()
 
@@ -169,23 +175,4 @@ func writeToFs(t testing.TB, fs afero.Fs, filename, content string) {
 	if err := afero.WriteFile(fs, filepath.FromSlash(filename), []byte(content), 0755); err != nil {
 		t.Fatalf("Failed to write file: %s", err)
 	}
-}
-
-func printFs(fs afero.Fs, path string, w io.Writer) {
-	if fs == nil {
-		return
-	}
-	afero.Walk(fs, path, func(path string, info os.FileInfo, err error) error {
-		if info != nil && !info.IsDir() {
-			s := path
-			if lang, ok := info.(hugofs.LanguageAnnouncer); ok {
-				s = s + "\t" + lang.Lang()
-			}
-			if fp, ok := info.(hugofs.FilePather); ok {
-				s += "\tFilename: " + fp.Filename() + "\tBase: " + fp.BaseDir()
-			}
-			fmt.Fprintln(w, "    ", s)
-		}
-		return nil
-	})
 }

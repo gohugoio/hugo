@@ -24,7 +24,6 @@ import (
 )
 
 func TestAllTemplateEngines(t *testing.T) {
-	t.Parallel()
 	noOp := func(s string) string {
 		return s
 	}
@@ -48,8 +47,10 @@ func TestAllTemplateEngines(t *testing.T) {
 		{"html", noOp},
 		{"ace", noOp},
 	} {
+		config := config
 		t.Run(config.suffix,
 			func(t *testing.T) {
+				t.Parallel()
 				doTestTemplateEngine(t, config.suffix, config.templateFixer)
 			})
 	}

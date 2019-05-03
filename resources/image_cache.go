@@ -145,7 +145,7 @@ func (c *imageCache) getOrCreate(
 	}
 
 	// The file is now stored in this cache.
-	img.overriddenSourceFs = c.fileCache.Fs
+	img.sourceFs = c.fileCache.Fs
 
 	c.mu.Lock()
 	if img2, found := c.store[key]; found {

@@ -15,6 +15,7 @@ package hugo
 
 import (
 	"fmt"
+	"strconv"
 
 	"runtime"
 	"strings"
@@ -133,7 +134,7 @@ func BuildVersionString() string {
 	if commitHash != "" {
 		version += "-" + strings.ToUpper(commitHash)
 	}
-	if isExtended {
+	if IsExtended {
 		version += "/extended"
 	}
 
@@ -234,4 +235,17 @@ func compareFloatVersions(version float32, v float32) int {
 		return -1
 	}
 	return 1
+}
+
+func GoMinorVersion() int {
+	return goMinorVersion(runtime.Version())
+}
+
+func goMinorVersion(version string) int {
+	if strings.HasPrefix(version, "devel") {
+		return 9999 // magic
+	}
+	i, _ := strconv.Atoi(strings.Split(version, ".")[1])
+	return i
+
 }

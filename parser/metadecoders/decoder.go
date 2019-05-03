@@ -82,6 +82,32 @@ func (d Decoder) UnmarshalFileToMap(fs afero.Fs, filename string) (map[string]in
 	return d.UnmarshalToMap(data, format)
 }
 
+// UnmarshalStringTo tries to unmarshal data to a new instance of type typ.
+func (d Decoder) UnmarshalStringTo(data string, typ interface{}) (interface{}, error) {
+	data = strings.TrimSpace(data)
+	// We only check for the possible types in YAML, JSON and TOML.
+	switch typ.(type) {
+	case string:
+		return data, nil
+	case map[string]interface{}:
+		format := d.FormatFromContentString(data)
+		return d.UnmarshalToMap([]byte(data), format)
+	case []interface{}:
+		// A standalone slice. Let YAML handle it.
+		return d.Unmarshal([]byte(data), YAML)
+	case bool:
+		return cast.ToBoolE(data)
+	case int:
+		return cast.ToIntE(data)
+	case int64:
+		return cast.ToInt64E(data)
+	case float64:
+		return cast.ToFloat64E(data)
+	default:
+		return nil, errors.Errorf("unmarshal: %T not supportedd", typ)
+	}
+}
+
 // Unmarshal will unmarshall data in format f into an interface{}.
 // This is what's needed for Hugo's /data handling.
 func (d Decoder) Unmarshal(data []byte, f Format) (interface{}, error) {
