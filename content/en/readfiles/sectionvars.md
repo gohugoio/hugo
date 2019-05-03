@@ -2,7 +2,6 @@
 : The page's current section. The value can be the page itself if it is a section or the homepage.
 
 .FirstSection
-
 : The page's first section below root, e.g. `/docs`, `/blog` etc.
 
 .InSection $anotherPage
