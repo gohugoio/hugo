@@ -19,6 +19,7 @@ import (
 	"crypto/md5"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"sort"
 	"testing"
 
@@ -174,11 +175,10 @@ func TestDeploy_FindDiffs(t *testing.T) {
 				remote[r.Key] = r
 			}
 			gotUpdates, gotDeletes := findDiffs(local, remote, tc.Force)
-			sort.Slice(gotUpdates, func(i, j int) bool { return gotUpdates[i].Local.Path < gotUpdates[j].Local.Path })
+			gotUpdates = applyOrdering(nil, gotUpdates)[0]
 			sort.Slice(gotDeletes, func(i, j int) bool { return gotDeletes[i] < gotDeletes[j] })
 			if diff := cmp.Diff(gotUpdates, tc.WantUpdates, cmpopts.IgnoreUnexported(localFile{})); diff != "" {
 				t.Errorf("updates differ:\n%s", diff)
-
 			}
 			if diff := cmp.Diff(gotDeletes, tc.WantDeletes); diff != "" {
 				t.Errorf("deletes differ:\n%s", diff)
@@ -302,6 +302,61 @@ func TestDeploy_LocalFile(t *testing.T) {
 			}
 			if !bytes.Equal(gotContent, tc.WantContent) {
 				t.Errorf("got content %q want %q", string(gotContent), string(tc.WantContent))
+			}
+		})
+	}
+}
+
+func TestOrdering(t *testing.T) {
+	tests := []struct {
+		Description string
+		Uploads     []string
+		Ordering    []*regexp.Regexp
+		Want        [][]string
+	}{
+		{
+			Description: "empty",
+			Want:        [][]string{nil},
+		},
+		{
+			Description: "no ordering",
+			Uploads:     []string{"c", "b", "a", "d"},
+			Want:        [][]string{{"a", "b", "c", "d"}},
+		},
+		{
+			Description: "one ordering",
+			Uploads:     []string{"db", "c", "b", "a", "da"},
+			Ordering:    []*regexp.Regexp{regexp.MustCompile("^d")},
+			Want:        [][]string{{"da", "db"}, {"a", "b", "c"}},
+		},
+		{
+			Description: "two orderings",
+			Uploads:     []string{"db", "c", "b", "a", "da"},
+			Ordering: []*regexp.Regexp{
+				regexp.MustCompile("^d"),
+				regexp.MustCompile("^b"),
+			},
+			Want: [][]string{{"da", "db"}, {"b"}, {"a", "c"}},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.Description, func(t *testing.T) {
+			uploads := make([]*fileToUpload, len(tc.Uploads))
+			for i, u := range tc.Uploads {
+				uploads[i] = &fileToUpload{Local: &localFile{Path: u}}
+			}
+			gotUploads := applyOrdering(tc.Ordering, uploads)
+			var got [][]string
+			for _, subslice := range gotUploads {
+				var gotsubslice []string
+				for _, u := range subslice {
+					gotsubslice = append(gotsubslice, u.Local.Path)
+				}
+				got = append(got, gotsubslice)
+			}
+			if diff := cmp.Diff(got, tc.Want); diff != "" {
+				t.Error(diff)
 			}
 		})
 	}

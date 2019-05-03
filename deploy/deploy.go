@@ -23,7 +23,9 @@ import (
 	"mime"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 	"sync"
 
@@ -45,14 +47,15 @@ import (
 type Deployer struct {
 	localFs afero.Fs
 
-	target        *target    // the target to deploy to
-	matchers      []*matcher // matchers to apply to uploaded files
-	quiet         bool       // true reduces STDOUT
-	confirm       bool       // true enables confirmation before making changes
-	dryRun        bool       // true skips conformations and prints changes instead of applying them
-	force         bool       // true forces upload of all files
-	invalidateCDN bool       // true enables invalidate CDN cache (if possible)
-	maxDeletes    int        // caps the # of files to delete; -1 to disable
+	target        *target          // the target to deploy to
+	matchers      []*matcher       // matchers to apply to uploaded files
+	ordering      []*regexp.Regexp // orders uploads
+	quiet         bool             // true reduces STDOUT
+	confirm       bool             // true enables confirmation before making changes
+	dryRun        bool             // true skips conformations and prints changes instead of applying them
+	force         bool             // true forces upload of all files
+	invalidateCDN bool             // true enables invalidate CDN cache (if possible)
+	maxDeletes    int              // caps the # of files to delete; -1 to disable
 }
 
 // New constructs a new *Deployer.
@@ -79,6 +82,7 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 		localFs:       localFs,
 		target:        tgt,
 		matchers:      dcfg.Matchers,
+		ordering:      dcfg.ordering,
 		quiet:         cfg.GetBool("quiet"),
 		confirm:       cfg.GetBool("confirm"),
 		dryRun:        cfg.GetBool("dryRun"),
@@ -138,40 +142,55 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 		}
 	}
 
+	// Order the uploads. They are organized in groups; all uploads in a group
+	// must be complete before moving on to the next group.
+	uploadGroups := applyOrdering(d.ordering, uploads)
+
 	// Apply the changes in parallel, using an inverted worker
 	// pool (https://www.youtube.com/watch?v=5zXAHh5tJqQ&t=26m58s).
 	// sem prevents more than nParallel concurrent goroutines.
 	const nParallel = 10
-	sem := make(chan struct{}, nParallel)
 	var errs []error
 	var errMu sync.Mutex // protects errs
 
-	for _, upload := range uploads {
-		if d.dryRun {
-			if !d.quiet {
-				jww.FEEDBACK.Printf("[DRY RUN] Would upload: %v\n", upload)
-			}
+	for _, uploads := range uploadGroups {
+		// Short-circuit for an empty group.
+		if len(uploads) == 0 {
 			continue
 		}
 
-		// TODO: Add a progress indicator, as this can take a while
-		// depending on the number of files, upload speed, and size of the
-		// site.
-
-		sem <- struct{}{}
-		go func(upload *fileToUpload) {
-			if err := doSingleUpload(ctx, bucket, upload); err != nil {
-				errMu.Lock()
-				defer errMu.Unlock()
-				errs = append(errs, err)
+		// Within the group, apply uploads in parallel.
+		sem := make(chan struct{}, nParallel)
+		for _, upload := range uploads {
+			if d.dryRun {
+				if !d.quiet {
+					jww.FEEDBACK.Printf("[DRY RUN] Would upload: %v\n", upload)
+				}
+				continue
 			}
-			<-sem
-		}(upload)
+
+			sem <- struct{}{}
+			go func(upload *fileToUpload) {
+				if err := doSingleUpload(ctx, bucket, upload); err != nil {
+					errMu.Lock()
+					defer errMu.Unlock()
+					errs = append(errs, err)
+				}
+				<-sem
+			}(upload)
+		}
+		// Wait for all uploads in the group to finish.
+		for n := nParallel; n > 0; n-- {
+			sem <- struct{}{}
+		}
 	}
 
 	if d.maxDeletes != -1 && len(deletes) > d.maxDeletes {
 		jww.WARN.Printf("Skipping %d deletes because it is more than --maxDeletes (%d). If this is expected, set --maxDeletes to a larger number, or -1 to disable this check.\n", len(deletes), d.maxDeletes)
 	} else {
+		// Apply deletes in parallel.
+		sort.Slice(deletes, func(i, j int) bool { return deletes[i] < deletes[j] })
+		sem := make(chan struct{}, nParallel)
 		for _, del := range deletes {
 			if d.dryRun {
 				if !d.quiet {
@@ -190,10 +209,10 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 				<-sem
 			}(del)
 		}
-	}
-	// Wait for all uploads/deletes to finish.
-	for n := nParallel; n > 0; n-- {
-		sem <- struct{}{}
+		// Wait for all deletes to finish.
+		for n := nParallel; n > 0; n-- {
+			sem <- struct{}{}
+		}
 	}
 	if len(errs) > 0 {
 		if !d.quiet {
@@ -550,4 +569,37 @@ func findDiffs(localFiles map[string]*localFile, remoteFiles map[string]*blob.Li
 		}
 	}
 	return uploads, deletes
+}
+
+// applyOrdering returns an ordered slice of slices of uploads.
+//
+// The returned slice will have length len(ordering)+1.
+//
+// The subslice at index i, for i = 0 ... len(ordering)-1, will have all of the
+// uploads whose Local.Path matched the regex at ordering[i] (but not any
+// previous ordering regex).
+// The subslice at index len(ordering) will have the remaining uploads that
+// didn't match any ordering regex.
+//
+// The subslices are sorted by Local.Path.
+func applyOrdering(ordering []*regexp.Regexp, uploads []*fileToUpload) [][]*fileToUpload {
+
+	// Sort the whole slice by Local.Path first.
+	sort.Slice(uploads, func(i, j int) bool { return uploads[i].Local.Path < uploads[j].Local.Path })
+
+	retval := make([][]*fileToUpload, len(ordering)+1)
+	for _, u := range uploads {
+		matched := false
+		for i, re := range ordering {
+			if re.MatchString(u.Local.Path) {
+				retval[i] = append(retval[i], u)
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			retval[len(ordering)] = append(retval[len(ordering)], u)
+		}
+	}
+	return retval
 }
