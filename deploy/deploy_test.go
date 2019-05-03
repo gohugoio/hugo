@@ -16,9 +16,14 @@ package deploy
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/md5"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
+	"path"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"testing"
@@ -27,13 +32,15 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/spf13/afero"
 	"gocloud.dev/blob"
+	"gocloud.dev/blob/fileblob"
+	"gocloud.dev/blob/memblob"
 )
 
-func TestDeploy_FindDiffs(t *testing.T) {
+func TestFindDiffs(t *testing.T) {
 	hash1 := []byte("hash 1")
 	hash2 := []byte("hash 2")
 	makeLocal := func(path string, size int64, hash []byte) *localFile {
-		return &localFile{Path: path, UploadSize: size, md5: hash}
+		return &localFile{NativePath: path, SlashPath: filepath.ToSlash(path), UploadSize: size, md5: hash}
 	}
 	makeRemote := func(path string, size int64, hash []byte) *blob.ListObject {
 		return &blob.ListObject{Key: path, Size: size, MD5: hash}
@@ -64,6 +71,19 @@ func TestDeploy_FindDiffs(t *testing.T) {
 			},
 		},
 		{
+			Description: "local w/ separators == remote -> no diffs",
+			Local: []*localFile{
+				makeLocal(filepath.Join("aaa", "aaa"), 1, hash1),
+				makeLocal(filepath.Join("bbb", "bbb"), 2, hash1),
+				makeLocal(filepath.Join("ccc", "ccc"), 3, hash2),
+			},
+			Remote: []*blob.ListObject{
+				makeRemote("aaa/aaa", 1, hash1),
+				makeRemote("bbb/bbb", 2, hash1),
+				makeRemote("ccc/ccc", 3, hash2),
+			},
+		},
+		{
 			Description: "local == remote with force flag true -> diffs",
 			Local: []*localFile{
 				makeLocal("aaa", 1, hash1),
@@ -85,7 +105,7 @@ func TestDeploy_FindDiffs(t *testing.T) {
 		{
 			Description: "local == remote with route.Force true -> diffs",
 			Local: []*localFile{
-				{Path: "aaa", UploadSize: 1, matcher: &matcher{Force: true}, md5: hash1},
+				{NativePath: "aaa", SlashPath: "aaa", UploadSize: 1, matcher: &matcher{Force: true}, md5: hash1},
 				makeLocal("bbb", 2, hash1),
 			},
 			Remote: []*blob.ListObject{
@@ -168,7 +188,7 @@ func TestDeploy_FindDiffs(t *testing.T) {
 		t.Run(tc.Description, func(t *testing.T) {
 			local := map[string]*localFile{}
 			for _, l := range tc.Local {
-				local[l.Path] = l
+				local[l.SlashPath] = l
 			}
 			remote := map[string]*blob.ListObject{}
 			for _, r := range tc.Remote {
@@ -187,7 +207,7 @@ func TestDeploy_FindDiffs(t *testing.T) {
 	}
 }
 
-func TestDeploy_LocalFile(t *testing.T) {
+func TestLocalFile(t *testing.T) {
 	const (
 		content = "hello world!"
 	)
@@ -273,7 +293,7 @@ func TestDeploy_LocalFile(t *testing.T) {
 			if err := afero.WriteFile(fs, tc.Path, []byte(content), os.ModePerm); err != nil {
 				t.Fatal(err)
 			}
-			lf, err := newLocalFile(fs, tc.Path, tc.Matcher)
+			lf, err := newLocalFile(fs, tc.Path, filepath.ToSlash(tc.Path), tc.Matcher)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -294,12 +314,30 @@ func TestDeploy_LocalFile(t *testing.T) {
 					t.Errorf("got ContentType %q want %q", got, tc.WantContentType)
 				}
 			}
-			// Verify the content reader last to ensure the
-			// previous operations don't interfere with it.
-			gotContent, err := ioutil.ReadAll(lf.UploadContentReader)
+			// Verify the reader last to ensure the previous operations don't
+			// interfere with it.
+			r, err := lf.Reader()
 			if err != nil {
 				t.Fatal(err)
 			}
+			gotContent, err := ioutil.ReadAll(r)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !bytes.Equal(gotContent, tc.WantContent) {
+				t.Errorf("got content %q want %q", string(gotContent), string(tc.WantContent))
+			}
+			r.Close()
+			// Verify we can read again.
+			r, err = lf.Reader()
+			if err != nil {
+				t.Fatal(err)
+			}
+			gotContent, err = ioutil.ReadAll(r)
+			if err != nil {
+				t.Fatal(err)
+			}
+			r.Close()
 			if !bytes.Equal(gotContent, tc.WantContent) {
 				t.Errorf("got content %q want %q", string(gotContent), string(tc.WantContent))
 			}
@@ -344,14 +382,14 @@ func TestOrdering(t *testing.T) {
 		t.Run(tc.Description, func(t *testing.T) {
 			uploads := make([]*fileToUpload, len(tc.Uploads))
 			for i, u := range tc.Uploads {
-				uploads[i] = &fileToUpload{Local: &localFile{Path: u}}
+				uploads[i] = &fileToUpload{Local: &localFile{SlashPath: u}}
 			}
 			gotUploads := applyOrdering(tc.Ordering, uploads)
 			var got [][]string
 			for _, subslice := range gotUploads {
 				var gotsubslice []string
 				for _, u := range subslice {
-					gotsubslice = append(gotsubslice, u.Local.Path)
+					gotsubslice = append(gotsubslice, u.Local.SlashPath)
 				}
 				got = append(got, gotsubslice)
 			}
@@ -360,4 +398,413 @@ func TestOrdering(t *testing.T) {
 			}
 		})
 	}
+}
+
+type fileData struct {
+	Name     string // name of the file
+	Contents string // contents of the file
+}
+
+// initLocalFs initializes fs with some test files.
+func initLocalFs(ctx context.Context, fs afero.Fs) ([]*fileData, error) {
+	// The initial local filesystem.
+	local := []*fileData{
+		{"aaa", "aaa"},
+		{"bbb", "bbb"},
+		{"subdir/aaa", "subdir-aaa"},
+		{"subdir/nested/aaa", "subdir-nested-aaa"},
+		{"subdir2/bbb", "subdir2-bbb"},
+	}
+	if err := writeFiles(fs, local); err != nil {
+		return nil, err
+	}
+	return local, nil
+}
+
+// fsTest represents an (afero.FS, Go CDK blob.Bucket) against which end-to-end
+// tests can be run.
+type fsTest struct {
+	name   string
+	fs     afero.Fs
+	bucket *blob.Bucket
+}
+
+// initFsTests initializes a pair of tests for end-to-end test:
+// 1. An in-memory afero.Fs paired with an in-memory Go CDK bucket.
+// 2. A filesystem-based afero.Fs paired with an filesystem-based Go CDK bucket.
+// It returns the pair of tests and a cleanup function.
+func initFsTests() ([]*fsTest, func(), error) {
+	tmpfsdir, err := ioutil.TempDir("", "fs")
+	if err != nil {
+		return nil, nil, err
+	}
+	tmpbucketdir, err := ioutil.TempDir("", "bucket")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	memfs := afero.NewMemMapFs()
+	membucket := memblob.OpenBucket(nil)
+
+	filefs := afero.NewBasePathFs(afero.NewOsFs(), tmpfsdir)
+	filebucket, err := fileblob.OpenBucket(tmpbucketdir, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	tests := []*fsTest{
+		{"mem", memfs, membucket},
+		{"file", filefs, filebucket},
+	}
+	cleanup := func() {
+		membucket.Close()
+		filebucket.Close()
+		os.RemoveAll(tmpfsdir)
+		os.RemoveAll(tmpbucketdir)
+	}
+	return tests, cleanup, nil
+}
+
+// TestEndToEndSync verifies that basic adds, updates, and deletes are working
+// correctly.
+func TestEndToEndSync(t *testing.T) {
+	ctx := context.Background()
+	tests, cleanup, err := initFsTests()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			local, err := initLocalFs(ctx, test.fs)
+			if err != nil {
+				t.Fatal(err)
+			}
+			deployer := &Deployer{
+				localFs:    test.fs,
+				maxDeletes: -1,
+				bucket:     test.bucket,
+			}
+
+			// Initial deployment should sync remote with local.
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("initial deploy: failed: %v", err)
+			}
+			wantSummary := deploySummary{NumLocal: 5, NumRemote: 0, NumUploads: 5, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("initial deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+			if diff, err := verifyRemote(ctx, deployer.bucket, local); err != nil {
+				t.Errorf("initial deploy: failed to verify remote: %v", err)
+			} else if diff != "" {
+				t.Errorf("initial deploy: remote snapshot doesn't match expected:\n%v", diff)
+			}
+
+			// A repeat deployment shouldn't change anything.
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("no-op deploy: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 5, NumRemote: 5, NumUploads: 0, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("no-op deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+
+			// Make some changes to the local filesystem:
+			// 1. Modify file [0].
+			// 2. Delete file [1].
+			// 3. Add a new file (sorted last).
+			updatefd := local[0]
+			updatefd.Contents = "new contents"
+			deletefd := local[1]
+			local = append(local[:1], local[2:]...) // removing deleted [1]
+			newfd := &fileData{"zzz", "zzz"}
+			local = append(local, newfd)
+			if err := writeFiles(test.fs, []*fileData{updatefd, newfd}); err != nil {
+				t.Fatal(err)
+			}
+			if err := test.fs.Remove(deletefd.Name); err != nil {
+				t.Fatal(err)
+			}
+
+			// A deployment should apply those 3 changes.
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("deploy after changes: failed: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 5, NumRemote: 5, NumUploads: 2, NumDeletes: 1}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("deploy after changes: got %v, want %v", deployer.summary, wantSummary)
+			}
+			if diff, err := verifyRemote(ctx, deployer.bucket, local); err != nil {
+				t.Errorf("deploy after changes: failed to verify remote: %v", err)
+			} else if diff != "" {
+				t.Errorf("deploy after changes: remote snapshot doesn't match expected:\n%v", diff)
+			}
+
+			// Again, a repeat deployment shouldn't change anything.
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("no-op deploy: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 5, NumRemote: 5, NumUploads: 0, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("no-op deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+		})
+	}
+}
+
+// TestMaxDeletes verifies that the "maxDeletes" flag is working correctly.
+func TestMaxDeletes(t *testing.T) {
+	ctx := context.Background()
+	tests, cleanup, err := initFsTests()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			local, err := initLocalFs(ctx, test.fs)
+			if err != nil {
+				t.Fatal(err)
+			}
+			deployer := &Deployer{
+				localFs:    test.fs,
+				maxDeletes: -1,
+				bucket:     test.bucket,
+			}
+
+			// Sync remote with local.
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("initial deploy: failed: %v", err)
+			}
+			wantSummary := deploySummary{NumLocal: 5, NumRemote: 0, NumUploads: 5, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("initial deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+
+			// Delete two files, [1] and [2].
+			if err := test.fs.Remove(local[1].Name); err != nil {
+				t.Fatal(err)
+			}
+			if err := test.fs.Remove(local[2].Name); err != nil {
+				t.Fatal(err)
+			}
+
+			// A deployment with maxDeletes=0 shouldn't change anything.
+			deployer.maxDeletes = 0
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("deploy failed: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 3, NumRemote: 5, NumUploads: 0, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+
+			// A deployment with maxDeletes=1 shouldn't change anything either.
+			deployer.maxDeletes = 1
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("deploy failed: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 3, NumRemote: 5, NumUploads: 0, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+
+			// A deployment with maxDeletes=2 should make the changes.
+			deployer.maxDeletes = 2
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("deploy failed: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 3, NumRemote: 5, NumUploads: 0, NumDeletes: 2}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+
+			// Delete two more files, [0] and [3].
+			if err := test.fs.Remove(local[0].Name); err != nil {
+				t.Fatal(err)
+			}
+			if err := test.fs.Remove(local[3].Name); err != nil {
+				t.Fatal(err)
+			}
+
+			// A deployment with maxDeletes=-1 should make the changes.
+			deployer.maxDeletes = -1
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("deploy failed: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 1, NumRemote: 3, NumUploads: 0, NumDeletes: 2}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+		})
+	}
+}
+
+// TestCompression verifies that gzip compression works correctly.
+// In particular, MD5 hashes must be of the compressed content.
+func TestCompression(t *testing.T) {
+	ctx := context.Background()
+	tests, cleanup, err := initFsTests()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			local, err := initLocalFs(ctx, test.fs)
+			if err != nil {
+				t.Fatal(err)
+			}
+			deployer := &Deployer{
+				localFs:  test.fs,
+				bucket:   test.bucket,
+				matchers: []*matcher{{Pattern: ".*", Gzip: true, re: regexp.MustCompile(".*")}},
+			}
+
+			// Initial deployment should sync remote with local.
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("initial deploy: failed: %v", err)
+			}
+			wantSummary := deploySummary{NumLocal: 5, NumRemote: 0, NumUploads: 5, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("initial deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+
+			// A repeat deployment shouldn't change anything.
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("no-op deploy: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 5, NumRemote: 5, NumUploads: 0, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("no-op deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+
+			// Make an update to the local filesystem, on [1].
+			updatefd := local[1]
+			updatefd.Contents = "new contents"
+			if err := writeFiles(test.fs, []*fileData{updatefd}); err != nil {
+				t.Fatal(err)
+			}
+
+			// A deployment should apply the changes.
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("deploy after changes: failed: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 5, NumRemote: 5, NumUploads: 1, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("deploy after changes: got %v, want %v", deployer.summary, wantSummary)
+			}
+		})
+	}
+}
+
+// TestMatching verifies that matchers match correctly, and that the Force
+// attribute for matcher works.
+func TestMatching(t *testing.T) {
+	ctx := context.Background()
+	tests, cleanup, err := initFsTests()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			_, err := initLocalFs(ctx, test.fs)
+			if err != nil {
+				t.Fatal(err)
+			}
+			deployer := &Deployer{
+				localFs:  test.fs,
+				bucket:   test.bucket,
+				matchers: []*matcher{{Pattern: "^subdir/aaa$", Force: true, re: regexp.MustCompile("^subdir/aaa$")}},
+			}
+
+			// Initial deployment to sync remote with local.
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("initial deploy: failed: %v", err)
+			}
+			wantSummary := deploySummary{NumLocal: 5, NumRemote: 0, NumUploads: 5, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("initial deploy: got %v, want %v", deployer.summary, wantSummary)
+			}
+
+			// A repeat deployment should upload a single file, the one that matched the Force matcher.
+			// Note that matching happens based on the ToSlash form, so this matches
+			// even on Windows.
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("no-op deploy with single force matcher: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 5, NumRemote: 5, NumUploads: 1, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("no-op deploy with single force matcher: got %v, want %v", deployer.summary, wantSummary)
+			}
+
+			// Repeat with a matcher that should now match 3 files.
+			deployer.matchers = []*matcher{{Pattern: "aaa", Force: true, re: regexp.MustCompile("aaa")}}
+			if err := deployer.Deploy(ctx); err != nil {
+				t.Errorf("no-op deploy with triple force matcher: %v", err)
+			}
+			wantSummary = deploySummary{NumLocal: 5, NumRemote: 5, NumUploads: 3, NumDeletes: 0}
+			if !cmp.Equal(deployer.summary, wantSummary) {
+				t.Errorf("no-op deploy with triple force matcher: got %v, want %v", deployer.summary, wantSummary)
+			}
+		})
+	}
+}
+
+// writeFiles writes the files in fds to fd.
+func writeFiles(fs afero.Fs, fds []*fileData) error {
+	for _, fd := range fds {
+		dir := path.Dir(fd.Name)
+		if dir != "." {
+			err := fs.MkdirAll(dir, os.ModePerm)
+			if err != nil {
+				return err
+			}
+		}
+		f, err := fs.Create(fd.Name)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		_, err = f.WriteString(fd.Contents)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// verifyRemote that the current contents of bucket matches local.
+// It returns an empty string if the contents matched, and a non-empty string
+// capturing the diff if they didn't.
+func verifyRemote(ctx context.Context, bucket *blob.Bucket, local []*fileData) (string, error) {
+	var cur []*fileData
+	iter := bucket.List(nil)
+	for {
+		obj, err := iter.Next(ctx)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return "", err
+		}
+		contents, err := bucket.ReadAll(ctx, obj.Key)
+		if err != nil {
+			return "", err
+		}
+		cur = append(cur, &fileData{obj.Key, string(contents)})
+	}
+	if cmp.Equal(cur, local) {
+		return "", nil
+	}
+	diff := "got: \n"
+	for _, f := range cur {
+		diff += fmt.Sprintf("  %s: %s\n", f.Name, f.Contents)
+	}
+	diff += "want: \n"
+	for _, f := range local {
+		diff += fmt.Sprintf("  %s: %s\n", f.Name, f.Contents)
+	}
+	return diff, nil
 }
