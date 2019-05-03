@@ -48,45 +48,6 @@ baseName = "_headers"
 isPlainText = true
 notAlternative = true
 
-# Sample deployments section.
-# Hugo docs site has been uploaded to AWS/GCS/Azure
-# using "hugo deploy" based on these:
-#   AWS: https://s3-hugo-testing.s3-us-west-1.amazonaws.com/index.html
-#   GCS: https://hugo-testing.storage.googleapis.com/index.html
-#   Azure: https://gocloudhugotesting.z19.web.core.windows.net/
-# TODO: Delete this before merging, after examples
-# are added to the documentation.
-[deployment]
-[[deployment.targets]]
-# https://godoc.org/gocloud.dev/blob/s3blob#hdr-Open_URLs
-name = "s3"
-url = "s3://your-s3-bucket?region=us-west-1"
-
-[[deployment.targets]]
-# https://godoc.org/gocloud.dev/blob/gcsblob#hdr-Open_URLs
-name = "gcs"
-url = "gs://your-gcs-bucket"
-
-[[deployment.targets]]
-# https://godoc.org/gocloud.dev/blob/azureblob#hdr-Open_URLs
-name = "azure"
-url = "azblob://$web"
-
-[[deployment.matchers]]
-#  cache static assets for 20 years
-Pattern = "^.+\\.(js|css|svg|ttf)$"
-Cache-Control = "max-age=630720000, no-transform, public"
-gzip = true
-
-[[deployment.matchers]]
-Pattern = "^.+\\.(png|jpg)$"
-Cache-Control = "max-age=630720000, no-transform, public"
-gzip = false
-
-[[deployment.matchers]]
-Pattern = "^.+\\.(html|xml|json)$"
-gzip = true
-
 [related]
 
 threshold = 80
