@@ -27,6 +27,9 @@ const deploymentConfigKey = "deployment"
 type deployConfig struct {
 	Targets  []*target
 	Matchers []*matcher
+	Order    []string
+
+	ordering []*regexp.Regexp // compiled Order
 }
 
 type target struct {
@@ -85,6 +88,13 @@ func decodeConfig(cfg config.Provider) (deployConfig, error) {
 		if err != nil {
 			return dcfg, fmt.Errorf("invalid deployment.matchers.pattern: %v", err)
 		}
+	}
+	for _, o := range dcfg.Order {
+		re, err := regexp.Compile(o)
+		if err != nil {
+			return dcfg, fmt.Errorf("invalid deployment.orderings.pattern: %v", err)
+		}
+		dcfg.ordering = append(dcfg.ordering, re)
 	}
 	return dcfg, nil
 }

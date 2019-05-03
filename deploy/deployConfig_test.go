@@ -29,6 +29,9 @@ func TestDecodeConfigFromTOML(t *testing.T) {
 someOtherValue = "foo"
 
 [deployment]
+
+order = ["o1", "o2"]
+
 [[deployment.targets]]
 Name = "name1"
 URL = "url1"
@@ -59,6 +62,11 @@ content-type = "contenttype2"
 	dcfg, err := decodeConfig(cfg)
 	assert.NoError(err)
 
+	assert.Equal(2, len(dcfg.Order))
+	assert.Equal("o1", dcfg.Order[0])
+	assert.Equal("o2", dcfg.Order[1])
+	assert.Equal(2, len(dcfg.ordering))
+
 	assert.Equal(2, len(dcfg.Targets))
 	assert.Equal("name1", dcfg.Targets[0].Name)
 	assert.Equal("url1", dcfg.Targets[0].URL)
@@ -69,11 +77,36 @@ content-type = "contenttype2"
 
 	assert.Equal(2, len(dcfg.Matchers))
 	assert.Equal("^pattern1$", dcfg.Matchers[0].Pattern)
+	assert.NotNil(dcfg.Matchers[0].re)
 	assert.Equal("cachecontrol1", dcfg.Matchers[0].CacheControl)
 	assert.Equal("contentencoding1", dcfg.Matchers[0].ContentEncoding)
 	assert.Equal("contenttype1", dcfg.Matchers[0].ContentType)
 	assert.True(dcfg.Matchers[0].Gzip)
 	assert.True(dcfg.Matchers[0].Force)
+	assert.Equal("^pattern2$", dcfg.Matchers[1].Pattern)
+	assert.NotNil(dcfg.Matchers[1].re)
+	assert.Equal("cachecontrol2", dcfg.Matchers[1].CacheControl)
+	assert.Equal("contentencoding2", dcfg.Matchers[1].ContentEncoding)
+	assert.Equal("contenttype2", dcfg.Matchers[1].ContentType)
+	assert.False(dcfg.Matchers[1].Gzip)
+	assert.False(dcfg.Matchers[1].Force)
+}
+
+func TestInvalidOrderingPattern(t *testing.T) {
+	assert := require.New(t)
+
+	tomlConfig := `
+
+someOtherValue = "foo"
+
+[deployment]
+order = ["["]  # invalid regular expression
+`
+	cfg, err := config.FromConfigString(tomlConfig, "toml")
+	assert.NoError(err)
+
+	_, err = decodeConfig(cfg)
+	assert.Error(err)
 }
 
 func TestInvalidMatcherPattern(t *testing.T) {
