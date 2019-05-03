@@ -19,7 +19,6 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
-	"golang.org/x/text/unicode/norm"
 	"io"
 	"mime"
 	"os"
@@ -33,6 +32,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	jww "github.com/spf13/jwalterweatherman"
+	"golang.org/x/text/unicode/norm"
 
 	"gocloud.dev/blob"
 	_ "gocloud.dev/blob/azureblob" // import
@@ -418,6 +418,23 @@ func walkRemote(ctx context.Context, bucket *blob.Bucket) (map[string]*blob.List
 		if err != nil {
 			return nil, err
 		}
+		// If the remote didn't give us an MD5, compute one.
+		// This can happen for some providers (e.g., fileblob, which uses the
+		// local filesystem), but not for the most common Cloud providers
+		// (S3, GCS, Azure). Although, it can happen for S3 if the blob was uploaded
+		// via a multi-part upload.
+		// Although it's unfortunate to have to read the file, it's likely better
+		// than assuming a delta and re-uploading it.
+		if len(obj.MD5) == 0 {
+			r, err := bucket.NewReader(ctx, obj.Key, nil)
+			if err == nil {
+				h := md5.New()
+				if _, err := io.Copy(h, r); err == nil {
+					obj.MD5 = h.Sum(nil)
+				}
+				r.Close()
+			}
+		}
 		retval[obj.Key] = obj
 	}
 	return retval, nil
@@ -494,15 +511,9 @@ func findDiffs(localFiles map[string]*localFile, remoteFiles map[string]*blob.Li
 				upload = true
 				reason = reasonSize
 			} else if len(remoteFile.MD5) == 0 {
-				// TODO: This can happen if the remote provider doesn't return an MD5
-				// hash for the blob from their "list" command. This is common for
-				// some providers (e.g., fileblob, which uses the local filesystem),
-				// but not for the biggest Cloud providers (S3, GCS, Azure). Although,
-				// it can happen for S3 if the blob was originally uploaded as a
-				// multi-part upload (shouldn't happen when using "hugo deploy").
-				// For now, we treat this as an MD5 mismatch and re-upload. An
-				// alternative would be to read entire the remote blob and compute the
-				// MD5 hash.
+				// This shouldn't happen unless the remote didn't give us an MD5 hash
+				// from List, AND we failed to compute one by reading the remote file.
+				// Default to considering the files different.
 				upload = true
 				reason = reasonMD5Missing
 			} else if !bytes.Equal(lf.MD5(), remoteFile.MD5) {
