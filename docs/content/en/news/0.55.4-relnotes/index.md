@@ -1,8 +1,8 @@
 
 ---
 date: 2019-04-25
-title: "0.55.4"
-description: "0.55.4"
+title: "Hugo 0.55.4: Some Bug Fixes"
+description: "A couple of more bug fixes."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png

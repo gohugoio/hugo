@@ -1,15 +1,13 @@
 
 ---
 date: 2019-04-20
-title: "0.55.3"
-description: "0.55.3"
+title: "Hugo 0.55.3: A Few More Bug Fixes!"
+description: "To wrap up this Eeaster, here is one more patch release with some important fixes."
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
 
 ---
-
-	
 
 This is a bug-fix release with a couple of important fixes.
 

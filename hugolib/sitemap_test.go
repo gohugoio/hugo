@@ -100,3 +100,22 @@ func TestParseSitemap(t *testing.T) {
 	}
 
 }
+
+// https://github.com/gohugoio/hugo/issues/5910
+func TestSitemapOutputFormats(t *testing.T) {
+
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	b.WithContent("blog/html-amp.md", `
+---
+Title: AMP and HTML
+outputs: [ "html", "amp" ]
+---
+
+`)
+
+	b.Build(BuildCfg{})
+
+	// Should link to the HTML version.
+	b.AssertFileContent("public/sitemap.xml", " <loc>http://example.com/blog/html-amp/</loc>")
+}
