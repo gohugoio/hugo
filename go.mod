@@ -19,6 +19,7 @@ require (
 	github.com/fortytw2/leaktest v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gobwas/glob v0.2.3
+	github.com/google/go-cmp v0.2.0
 	github.com/gorilla/websocket v1.4.0
 	github.com/hashicorp/go-immutable-radix v1.0.0
 	github.com/jdkato/prose v1.1.0
