@@ -20,6 +20,7 @@ import (
 
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/langs"
+	"github.com/gohugoio/hugo/modules"
 	"github.com/pkg/errors"
 
 	"github.com/gohugoio/hugo/hugofs"
@@ -75,7 +76,7 @@ type Paths struct {
 	multilingual                   bool
 
 	themes    []string
-	AllThemes []ThemeConfig
+	AllThemes []modules.ThemeConfig
 }
 
 func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
@@ -176,13 +177,17 @@ func New(fs *hugofs.Fs, cfg config.Provider) (*Paths, error) {
 		PaginatePath: cfg.GetString("paginatePath"),
 	}
 
-	if !cfg.IsSet("theme") && cfg.IsSet("allThemes") {
-		p.AllThemes = cfg.Get("allThemes").([]ThemeConfig)
+	if cfg.IsSet("allThemes") {
+		p.AllThemes = cfg.Get("allThemes").([]modules.ThemeConfig)
 	} else {
-		p.AllThemes, err = collectThemeNames(p)
+		// TODO(bep) mod
+		h := modules.New(p.Fs.Source, p.WorkingDir, p.AbsPathify(p.ThemesDir), p.Themes())
+		tc, err := h.Collect()
 		if err != nil {
 			return nil, err
 		}
+		p.AllThemes = tc.Themes
+
 	}
 
 	// TODO(bep) remove this, eventually

@@ -199,6 +199,10 @@ github.com/gocql/gocql v0.0.0-20181117210152-33c0e89ca93a/go.mod h1:4Fw1eo5iaEhD
 github.com/gocql/gocql v0.0.0-20190122205811-30de9a1866a8/go.mod h1:4Fw1eo5iaEhDUs8XyuhSVCVy52Jq3L+/3GJgYkwc+/0=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
+github.com/gohugoio/hugoTestHelpers v0.0.0-20190512171718-e78e355f938b h1:OHV95szp04pu5OSd4BRXqYh8dyDz02X0sc9SWT3+mFs=
+github.com/gohugoio/hugoTestHelpers/testmodBuilder v0.0.0-20190512171718-e78e355f938b h1:SHoUmhHvDjOkQugJo5e3CwcB6NHkf++wCRzzfdhkvcs=
+github.com/gohugoio/hugoTestHelpers/testmodBuilder/mods v0.0.0-20190513081324-4ece7d32a289 h1:EjaPJ1m2O6MMIwWDSubHfj2jecP0/BexVlrmXqZMtWY=
+github.com/gohugoio/hugoTestHelpers/testmodBuilder/mods v0.0.0-20190513081324-4ece7d32a289/go.mod h1:02pCCFh9qZreZ7KAHvfuvl/Udly83h/qK6PkFdvOFnY=
 github.com/golang/gddo v0.0.0-20181116215533-9bd4a3295021/go.mod h1:xEhNfoBDX1hzLm2Nf80qUvZ2sVwoMZ8d6IE2SrsQfh4=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20181024230925-c65c006176ff/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
@@ -681,6 +685,7 @@ google.golang.org/appengine v1.0.0/go.mod h1:EbEs0AVv82hx2wNQdGPgUI5lhzA/G0D9Ywl
 google.golang.org/appengine v1.1.0/go.mod h1:EbEs0AVv82hx2wNQdGPgUI5lhzA/G0D9YwlJXL52JkM=
 google.golang.org/appengine v1.2.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
 google.golang.org/appengine v1.3.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
+google.golang.org/appengine v1.4.0 h1:/wp5JvzpHIxhs/dumFmF7BXTf3Z+dd4uXta4kVyO508=
 google.golang.org/appengine v1.4.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=
 google.golang.org/genproto v0.0.0-20180601223552-81158efcc9f2/go.mod h1:JiN7NxoALGmiZfu7CAH4rXhgtRTLTxftemlI0sWmxmc=
 google.golang.org/genproto v0.0.0-20180817151627-c66870c02cf8/go.mod h1:JiN7NxoALGmiZfu7CAH4rXhgtRTLTxftemlI0sWmxmc=

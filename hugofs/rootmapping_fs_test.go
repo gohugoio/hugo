@@ -30,7 +30,8 @@ func TestRootMappingFsRealName(t *testing.T) {
 	rfs, err := NewRootMappingFs(fs, "f1", "f1t", "f2", "f2t")
 	assert.NoError(err)
 
-	assert.Equal(filepath.FromSlash("f1t/foo/file.txt"), rfs.realName(filepath.Join("f1", "foo", "file.txt")))
+	name, _ := rfs.realNameAndRoot(filepath.Join("f1", "foo", "file.txt"))
+	assert.Equal(filepath.FromSlash("f1t/foo/file.txt"), name)
 
 }
 

@@ -27,13 +27,23 @@ type RealFilenameInfo interface {
 	RealFilename() string
 }
 
+// TODO(bep) mod name + consider this vs base fs
+type VirtualFileInfo interface {
+	VirtualRoot() string
+}
+
 type realFilenameInfo struct {
 	os.FileInfo
 	realFilename string
+	virtualRoot  string
 }
 
 func (f *realFilenameInfo) RealFilename() string {
 	return f.realFilename
+}
+
+func (f *realFilenameInfo) VirtualRoot() string {
+	return f.virtualRoot
 }
 
 // NewBasePathRealFilenameFs returns a new BasePathRealFilenameFs instance

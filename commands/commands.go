@@ -54,6 +54,7 @@ func (b *commandsBuilder) addAll() *commandsBuilder {
 		newImportCmd(),
 		newGenCmd(),
 		createReleaser(),
+		newModCmd(),
 	)
 
 	return b
@@ -243,20 +244,26 @@ func (cc *hugoBuilderCommon) getEnvironment(isServer bool) string {
 	return hugo.EnvironmentProduction
 }
 
+// TODO(bep) mod
+func (cc *hugoBuilderCommon) handleCommonBuilderFlags(cmd *cobra.Command) {
+	cmd.Flags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
+	cmd.Flags().StringVarP(&cc.environment, "environment", "e", "", "build environment")
+	cmd.Flags().StringP("themesDir", "", "", "filesystem path to themes directory")
+
+}
+
 func (cc *hugoBuilderCommon) handleFlags(cmd *cobra.Command) {
+	cc.handleCommonBuilderFlags(cmd)
 	cmd.Flags().Bool("cleanDestinationDir", false, "remove files from destination not found in static directories")
 	cmd.Flags().BoolP("buildDrafts", "D", false, "include content marked as draft")
 	cmd.Flags().BoolP("buildFuture", "F", false, "include content with publishdate in the future")
 	cmd.Flags().BoolP("buildExpired", "E", false, "include expired content")
-	cmd.Flags().StringVarP(&cc.source, "source", "s", "", "filesystem path to read files relative from")
-	cmd.Flags().StringVarP(&cc.environment, "environment", "e", "", "build environment")
 	cmd.Flags().StringP("contentDir", "c", "", "filesystem path to content directory")
 	cmd.Flags().StringP("layoutDir", "l", "", "filesystem path to layout directory")
 	cmd.Flags().StringP("cacheDir", "", "", "filesystem path to cache directory. Defaults: $TMPDIR/hugo_cache/")
 	cmd.Flags().BoolP("ignoreCache", "", false, "ignores the cache directory")
 	cmd.Flags().StringP("destination", "d", "", "filesystem path to write files to")
 	cmd.Flags().StringSliceP("theme", "t", []string{}, "themes to use (located in /themes/THEMENAME/)")
-	cmd.Flags().StringP("themesDir", "", "", "filesystem path to themes directory")
 	cmd.Flags().StringVarP(&cc.baseURL, "baseURL", "b", "", "hostname (and path) to the root, e.g. http://spf13.com/")
 	cmd.Flags().Bool("enableGitInfo", false, "add Git revision, date and author info to the pages")
 	cmd.Flags().BoolVar(&cc.gc, "gc", false, "enable to run some cleanup tasks (remove unused cache files) after the build")

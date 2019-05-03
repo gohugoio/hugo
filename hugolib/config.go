@@ -20,6 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gohugoio/hugo/modules"
+
 	"github.com/gohugoio/hugo/parser/metadecoders"
 
 	"github.com/gohugoio/hugo/common/herrors"
@@ -447,19 +449,21 @@ func (l configLoader) loadThemeConfig(v1 *viper.Viper) ([]string, error) {
 	themesDir := paths.AbsPathify(l.WorkingDir, v1.GetString("themesDir"))
 	themes := config.GetStringSlicePreserveString(v1, "theme")
 
-	themeConfigs, err := paths.CollectThemes(l.Fs, themesDir, themes)
+	// TODO(bep) mod check that we do this once only
+	h := modules.New(l.Fs, l.WorkingDir, themesDir, themes)
+	themeConfig, err := h.Collect()
 	if err != nil {
 		return nil, err
 	}
 
-	if len(themeConfigs) == 0 {
+	if len(themeConfig.Themes) == 0 {
 		return nil, nil
 	}
 
-	v1.Set("allThemes", themeConfigs)
+	v1.Set("allThemes", themeConfig.Themes)
 
 	var configFilenames []string
-	for _, tc := range themeConfigs {
+	for _, tc := range themeConfig.Themes {
 		if tc.ConfigFilename != "" {
 			configFilenames = append(configFilenames, tc.ConfigFilename)
 			if err := l.applyThemeConfig(v1, tc); err != nil {
@@ -468,11 +472,17 @@ func (l configLoader) loadThemeConfig(v1 *viper.Viper) ([]string, error) {
 		}
 	}
 
+	if themeConfig.GoModulesFilename != "" {
+		// We want to watch this for changes and trigger rebuild on version
+		// changes etc.
+		configFilenames = append(configFilenames, themeConfig.GoModulesFilename)
+	}
+
 	return configFilenames, nil
 
 }
 
-func (l configLoader) applyThemeConfig(v1 *viper.Viper, theme paths.ThemeConfig) error {
+func (l configLoader) applyThemeConfig(v1 *viper.Viper, theme modules.ThemeConfig) error {
 
 	const (
 		paramsKey    = "params"

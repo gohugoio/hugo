@@ -1290,24 +1290,7 @@ func readFileFromFs(t testing.TB, fs afero.Fs, filename string) string {
 	filename = filepath.Clean(filename)
 	b, err := afero.ReadFile(fs, filename)
 	if err != nil {
-		// Print some debug info
-		hadSlash := strings.HasPrefix(filename, helpers.FilePathSeparator)
-		start := 0
-		if hadSlash {
-			start = 1
-		}
-		end := start + 1
-
-		parts := strings.Split(filename, helpers.FilePathSeparator)
-		if parts[start] == "work" {
-			end++
-		}
-
-		root := filepath.Join(parts[start:end]...)
-		if hadSlash {
-			root = helpers.FilePathSeparator + root
-		}
-
+		root := filepath.Dir(filename)
 		helpers.PrintFs(fs, root, os.Stdout)
 		Fatalf(t, "Failed to read file: %s", err)
 	}

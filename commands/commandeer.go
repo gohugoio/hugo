@@ -27,7 +27,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 
@@ -388,21 +387,23 @@ func (c *commandeer) loadConfig(mustHaveConfigFile, running bool) error {
 
 	cfg.Logger.INFO.Println("Using config file:", config.ConfigFileUsed())
 
-	themeDir := c.hugo.PathSpec.GetFirstThemeDir()
-	if themeDir != "" {
-		if _, err := sourceFs.Stat(themeDir); os.IsNotExist(err) {
-			return newSystemError("Unable to find theme Directory:", themeDir)
+	// TODO(bep) mod
+	/*
+		themeDir := c.hugo.PathSpec.GetFirstThemeDir()
+		if themeDir != "" {
+			if _, err := sourceFs.Stat(themeDir); os.IsNotExist(err) {
+				return newSystemError("Unable to find theme Directory:", themeDir)
+			}
 		}
-	}
 
-	dir, themeVersionMismatch, minVersion := c.isThemeVsHugoVersionMismatch(sourceFs)
+		dir, themeVersionMismatch, minVersion := c.isThemeVsHugoVersionMismatch(sourceFs)
 
-	if themeVersionMismatch {
-		name := filepath.Base(dir)
-		cfg.Logger.ERROR.Printf("%s theme does not support Hugo version %s. Minimum version required is %s\n",
-			strings.ToUpper(name), hugo.CurrentVersion.ReleaseVersion(), minVersion)
-	}
-
+		if themeVersionMismatch {
+			name := filepath.Base(dir)
+			cfg.Logger.ERROR.Printf("%s theme does not support Hugo version %s. Minimum version required is %s\n",
+				strings.ToUpper(name), hugo.CurrentVersion.ReleaseVersion(), minVersion)
+		}
+	*/
 	return nil
 
 }

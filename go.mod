@@ -20,6 +20,7 @@ require (
 	github.com/fortytw2/leaktest v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gobwas/glob v0.2.3
+	github.com/gohugoio/hugoTestHelpers/testmodBuilder/mods v0.0.0-20190513081324-4ece7d32a289
 	github.com/google/go-cmp v0.2.0
 	github.com/gorilla/websocket v1.4.0
 	github.com/hashicorp/go-immutable-radix v1.0.0
@@ -58,3 +59,5 @@ require (
 exclude github.com/chaseadamsio/goorgeous v2.0.0+incompatible
 
 replace github.com/markbates/inflect => github.com/markbates/inflect v0.0.0-20171215194931-a12c3aec81a6
+
+replace github.com/gohugoio/hugoTestHelpers/testmodBuilder/mods => /Users/bep/dev/go/gohugoio/hugoTestHelpers/testmodBuilder/mods

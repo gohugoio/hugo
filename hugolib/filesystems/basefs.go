@@ -16,7 +16,6 @@
 package filesystems
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -481,8 +480,10 @@ func (b *sourceFilesystemsBuilder) createRootMappingFs(dirKey, themeFolder strin
 		fromTo = []string{projectVirtualFolder, to}
 	}
 
+	// TODO(bep) mod clean up this Dir mess
 	for _, theme := range b.p.AllThemes {
-		to := b.p.AbsPathify(filepath.Join(b.p.ThemesDir, theme.Name, themeFolder))
+		//to := b.p.AbsPathify(filepath.Join(b.p.ThemesDir, theme.Name, themeFolder))
+		to := filepath.Join(theme.Dir, themeFolder)
 		if b.existsInSource(to) {
 			s.Dirnames = append(s.Dirnames, to)
 			from := theme
@@ -706,17 +707,13 @@ func createThemesOverlayFs(p *paths.Paths) (afero.Fs, []string, error) {
 		panic("AllThemes not set")
 	}
 
-	themesDir := p.AbsPathify(p.ThemesDir)
-	if themesDir == "" {
-		return nil, nil, errors.New("no themes dir set")
-	}
-
 	absPaths := make([]string, len(themes))
 
 	// The themes are ordered from left to right. We need to revert it to get the
 	// overlay logic below working as expected.
 	for i := 0; i < len(themes); i++ {
-		absPaths[i] = filepath.Join(themesDir, themes[len(themes)-1-i].Name)
+		theme := themes[len(themes)-1-i]
+		absPaths[i] = theme.Dir
 	}
 
 	fs, err := createOverlayFs(p.Fs.Source, absPaths)

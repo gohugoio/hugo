@@ -97,17 +97,22 @@ func NewRootMappingFs(fs afero.Fs, fromTo ...string) (*RootMappingFs, error) {
 // Stat returns the os.FileInfo structure describing a given file.  If there is
 // an error, it will be of type *os.PathError.
 func (fs *RootMappingFs) Stat(name string) (os.FileInfo, error) {
+
 	if fs.isRoot(name) {
 		return newRootMappingDirFileInfo(name), nil
 	}
-	realName := fs.realName(name)
+	realName, root := fs.realNameAndRoot(name)
 
 	fi, err := fs.Fs.Stat(realName)
 	if rfi, ok := fi.(RealFilenameInfo); ok {
 		return rfi, err
 	}
 
-	return &realFilenameInfo{FileInfo: fi, realFilename: realName}, err
+	return &realFilenameInfo{
+		FileInfo:     fi,
+		realFilename: realName,
+		virtualRoot:  root,
+	}, err
 
 }
 
@@ -121,7 +126,7 @@ func (fs *RootMappingFs) Open(name string) (afero.File, error) {
 	if fs.isRoot(name) {
 		return &rootMappingFile{name: name, fs: fs}, nil
 	}
-	realName := fs.realName(name)
+	realName, _ := fs.realNameAndRoot(name)
 	f, err := fs.Fs.Open(realName)
 	if err != nil {
 		return nil, err
@@ -137,24 +142,24 @@ func (fs *RootMappingFs) LstatIfPossible(name string) (os.FileInfo, bool, error)
 	if fs.isRoot(name) {
 		return newRootMappingDirFileInfo(name), false, nil
 	}
-	name = fs.realName(name)
+	name, root := fs.realNameAndRoot(name)
 
 	if ls, ok := fs.Fs.(afero.Lstater); ok {
 		fi, b, err := ls.LstatIfPossible(name)
-		return &realFilenameInfo{FileInfo: fi, realFilename: name}, b, err
+		return &realFilenameInfo{FileInfo: fi, realFilename: name, virtualRoot: root}, b, err
 	}
 	fi, err := fs.Stat(name)
 	return fi, false, err
 }
 
-func (fs *RootMappingFs) realName(name string) string {
+func (fs *RootMappingFs) realNameAndRoot(name string) (string, string) {
 	key, val, found := fs.rootMapToReal.LongestPrefix([]byte(filepath.Clean(name)))
 	if !found {
-		return name
+		return name, ""
 	}
 	keystr := string(key)
 
-	return filepath.Join(val.(string), strings.TrimPrefix(name, keystr))
+	return filepath.Join(val.(string), strings.TrimPrefix(name, keystr)), keystr
 }
 
 func (f *rootMappingFile) Readdir(count int) ([]os.FileInfo, error) {

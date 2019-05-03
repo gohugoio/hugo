@@ -19,6 +19,8 @@ import (
 	"runtime"
 	"sync"
 
+	"github.com/gohugoio/hugo/hugofs"
+
 	"github.com/gohugoio/hugo/helpers"
 	jww "github.com/spf13/jwalterweatherman"
 	"golang.org/x/text/unicode/norm"
@@ -61,7 +63,12 @@ func (f *Filesystem) add(name string, fi os.FileInfo) (err error) {
 		name = norm.NFC.String(name)
 	}
 
-	file = f.SourceSpec.NewFileInfo(f.Base, name, false, fi)
+	base := f.Base
+	if vr, ok := fi.(hugofs.VirtualFileInfo); ok {
+		base = vr.VirtualRoot()
+	}
+
+	file = f.SourceSpec.NewFileInfo(base, name, false, fi)
 	f.files = append(f.files, file)
 
 	return err

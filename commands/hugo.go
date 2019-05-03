@@ -309,12 +309,8 @@ func (c *commandeer) fullBuild() error {
 
 		cnt, err := c.copyStatic()
 		if err != nil {
-			if !os.IsNotExist(err) {
-				return errors.Wrap(err, "Error copying static files")
-			}
-			c.logger.INFO.Println("No Static directory found")
+			return errors.Wrap(err, "Error copying static files")
 		}
-		langCount = cnt
 		langCount = cnt
 		return nil
 	}
@@ -547,7 +543,11 @@ func (c *commandeer) serverBuild() error {
 }
 
 func (c *commandeer) copyStatic() (map[string]uint64, error) {
-	return c.doWithPublishDirs(c.copyStaticTo)
+	m, err := c.doWithPublishDirs(c.copyStaticTo)
+	if err == nil || os.IsNotExist(err) {
+		return m, nil
+	}
+	return m, err
 }
 
 func (c *commandeer) doWithPublishDirs(f func(sourceFs *filesystems.SourceFilesystem) (uint64, error)) (map[string]uint64, error) {
@@ -609,7 +609,8 @@ func (c *commandeer) copyStaticTo(sourceFs *filesystems.SourceFilesystem) (uint6
 
 	syncer := fsync.NewSyncer()
 	syncer.NoTimes = c.Cfg.GetBool("noTimes")
-	syncer.NoChmod = c.Cfg.GetBool("noChmod")
+	// TODO(bep) mod Go module cache has 0555 directories.
+	syncer.NoChmod = true // c.Cfg.GetBool("noChmod")
 	syncer.SrcFs = fs
 	syncer.DestFs = c.Fs.Destination
 	// Now that we are using a unionFs for the static directories
@@ -825,7 +826,13 @@ func (c *commandeer) fullRebuild() {
 	}
 
 	if !c.paused {
-		err := c.buildSites()
+		_, err := c.copyStatic()
+		if err != nil {
+			c.logger.ERROR.Println(err)
+			return
+		}
+
+		err = c.buildSites()
 		if err != nil {
 			c.logger.ERROR.Println(err)
 		} else if !c.h.buildWatch && !c.Cfg.GetBool("disableLiveReload") {

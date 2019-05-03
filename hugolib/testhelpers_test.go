@@ -119,7 +119,7 @@ func (s *sitesBuilder) WithLogger(logger *loggers.Logger) *sitesBuilder {
 }
 
 func (s *sitesBuilder) WithWorkingDir(dir string) *sitesBuilder {
-	s.workingDir = dir
+	s.workingDir = filepath.FromSlash(dir)
 	return s
 }
 
@@ -145,7 +145,8 @@ func (s *sitesBuilder) WithViper(v *viper.Viper) *sitesBuilder {
 }
 
 func (s *sitesBuilder) WithConfigFile(format, conf string) *sitesBuilder {
-	writeSource(s.T, s.Fs, "config."+format, conf)
+	filename := s.absFilename("config." + format)
+	writeSource(s.T, s.Fs, filename, conf)
 	s.configFormat = format
 	return s
 }
@@ -155,13 +156,21 @@ func (s *sitesBuilder) WithThemeConfigFile(format, conf string) *sitesBuilder {
 		s.theme = "test-theme"
 	}
 	filename := filepath.Join("themes", s.theme, "config."+format)
-	writeSource(s.T, s.Fs, filename, conf)
+	writeSource(s.T, s.Fs, s.absFilename(filename), conf)
 	return s
 }
 
 func (s *sitesBuilder) WithSourceFile(filename, content string) *sitesBuilder {
-	writeSource(s.T, s.Fs, filepath.FromSlash(filename), content)
+	writeSource(s.T, s.Fs, s.absFilename(filename), content)
 	return s
+}
+
+func (s *sitesBuilder) absFilename(filename string) string {
+	filename = filepath.FromSlash(filename)
+	if s.workingDir != "" && !strings.HasPrefix(filename, s.workingDir) {
+		filename = filepath.Join(s.workingDir, filename)
+	}
+	return filename
 }
 
 const commonConfigSections = `
@@ -323,7 +332,7 @@ func (s *sitesBuilder) EditFiles(filenameContent ...string) *sitesBuilder {
 	for i := 0; i < len(filenameContent); i += 2 {
 		filename, content := filepath.FromSlash(filenameContent[i]), filenameContent[i+1]
 		changedFiles = append(changedFiles, filename)
-		writeSource(s.T, s.Fs, filename, content)
+		writeSource(s.T, s.Fs, s.absFilename(filename), content)
 
 	}
 	s.changedFiles = changedFiles
@@ -361,7 +370,10 @@ func (s *sitesBuilder) CreateSites() *sitesBuilder {
 }
 
 func (s *sitesBuilder) LoadConfig() error {
-	cfg, _, err := LoadConfig(ConfigSourceDescriptor{Fs: s.Fs.Source, Filename: "config." + s.configFormat})
+	cfg, _, err := LoadConfig(ConfigSourceDescriptor{
+		WorkingDir: s.workingDir,
+		Fs:         s.Fs.Source,
+		Filename:   "config." + s.configFormat})
 	if err != nil {
 		return err
 	}
@@ -370,6 +382,20 @@ func (s *sitesBuilder) LoadConfig() error {
 }
 
 func (s *sitesBuilder) CreateSitesE() error {
+	if _, ok := s.Fs.Source.(*afero.OsFs); ok {
+		for _, dir := range []string{
+			"content/sect",
+			"layouts/_default",
+			"layouts/partials",
+			"layouts/shortcodes",
+			"data",
+			"i18n",
+		} {
+			if err := os.MkdirAll(filepath.Join(s.workingDir, dir), 0777); err != nil {
+				return err
+			}
+		}
+	}
 	s.addDefaults()
 	s.writeFilePairs("content", s.contentFilePairs)
 	s.writeFilePairs("content", s.contentFilePairsAdded)
@@ -550,6 +576,9 @@ func (s *sitesBuilder) AssertFileContentFn(filename string, f func(s string) boo
 }
 
 func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
+	if !strings.HasPrefix(filename, s.workingDir) {
+		filename = filepath.Join(s.workingDir, filename)
+	}
 	content := s.FileContent(filename)
 	for _, match := range matches {
 		if !strings.Contains(content, match) {
