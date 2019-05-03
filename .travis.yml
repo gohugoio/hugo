@@ -3,6 +3,7 @@ sudo: false
 dist: xenial
 env:
   global:
+  - GOPROXY="https://proxy.golang.org"
   - HUGO_BUILD_TAGS="extended"
 git:
   depth: false
