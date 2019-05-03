@@ -20,6 +20,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"mime"
 	"os"
 	"path/filepath"
@@ -46,6 +47,7 @@ import (
 // Deployer supports deploying the site to target cloud providers.
 type Deployer struct {
 	localFs afero.Fs
+	bucket  *blob.Bucket
 
 	target        *target          // the target to deploy to
 	matchers      []*matcher       // matchers to apply to uploaded files
@@ -56,6 +58,13 @@ type Deployer struct {
 	force         bool             // true forces upload of all files
 	invalidateCDN bool             // true enables invalidate CDN cache (if possible)
 	maxDeletes    int              // caps the # of files to delete; -1 to disable
+
+	// For tests...
+	summary deploySummary // summary of latest Deploy results
+}
+
+type deploySummary struct {
+	NumLocal, NumRemote, NumUploads, NumDeletes int
 }
 
 // New constructs a new *Deployer.
@@ -92,11 +101,18 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 	}, nil
 }
 
+func (d *Deployer) openBucket(ctx context.Context) (*blob.Bucket, error) {
+	if d.bucket != nil {
+		return d.bucket, nil
+	}
+	return blob.OpenBucket(ctx, d.target.URL)
+}
+
 // Deploy deploys the site to a target.
 func (d *Deployer) Deploy(ctx context.Context) error {
 	// TODO: This opens the root path in the bucket/container.
 	// Consider adding support for targeting a subdirectory.
-	bucket, err := blob.OpenBucket(ctx, d.target.URL)
+	bucket, err := d.openBucket(ctx)
 	if err != nil {
 		return err
 	}
@@ -107,6 +123,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 		return err
 	}
 	jww.INFO.Printf("Found %d local files.\n", len(local))
+	d.summary.NumLocal = len(local)
 
 	// Load remote files from the target.
 	remote, err := walkRemote(ctx, bucket)
@@ -114,12 +131,15 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 		return err
 	}
 	jww.INFO.Printf("Found %d remote files.\n", len(remote))
+	d.summary.NumRemote = len(remote)
 
 	// Diff local vs remote to see what changes need to be applied.
 	uploads, deletes := findDiffs(local, remote, d.force)
 	if err != nil {
 		return err
 	}
+	d.summary.NumUploads = len(uploads)
+	d.summary.NumDeletes = len(deletes)
 	if len(uploads)+len(deletes) == 0 {
 		if !d.quiet {
 			jww.FEEDBACK.Println("No changes required.")
@@ -187,6 +207,7 @@ func (d *Deployer) Deploy(ctx context.Context) error {
 
 	if d.maxDeletes != -1 && len(deletes) > d.maxDeletes {
 		jww.WARN.Printf("Skipping %d deletes because it is more than --maxDeletes (%d). If this is expected, set --maxDeletes to a larger number, or -1 to disable this check.\n", len(deletes), d.maxDeletes)
+		d.summary.NumDeletes = 0
 	} else {
 		// Apply deletes in parallel.
 		sort.Slice(deletes, func(i, j int) bool { return deletes[i] < deletes[j] })
@@ -252,11 +273,16 @@ func doSingleUpload(ctx context.Context, bucket *blob.Bucket, upload *fileToUplo
 		ContentEncoding: upload.Local.ContentEncoding(),
 		ContentType:     upload.Local.ContentType(),
 	}
-	w, err := bucket.NewWriter(ctx, upload.Local.Path, opts)
+	w, err := bucket.NewWriter(ctx, upload.Local.SlashPath, opts)
 	if err != nil {
 		return err
 	}
-	_, err = io.Copy(w, upload.Local.UploadContentReader)
+	r, err := upload.Local.Reader()
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+	_, err = io.Copy(w, r)
 	if err != nil {
 		return err
 	}
@@ -269,58 +295,70 @@ func doSingleUpload(ctx context.Context, bucket *blob.Bucket, upload *fileToUplo
 // localFile represents a local file from the source. Use newLocalFile to
 // construct one.
 type localFile struct {
-	// Path is the relative path to the file.
-	Path string
+	// NativePath is the native path to the file (using file.Separator).
+	NativePath string
+	// SlashPath is NativePath converted to use /.
+	SlashPath string
 	// UploadSize is the size of the content to be uploaded. It may not
 	// be the same as the local file size if the content will be
 	// gzipped before upload.
 	UploadSize int64
-	// UploadContentReader reads the content to be uploaded. Again,
-	// it may not be the same as the local file content due to gzipping.
-	UploadContentReader io.Reader
 
 	fs      afero.Fs
 	matcher *matcher
-	md5     []byte // cache
+	md5     []byte       // cache
+	gzipped bytes.Buffer // cached of gzipped contents if gzipping
 }
 
 // newLocalFile initializes a *localFile.
-func newLocalFile(fs afero.Fs, path string, m *matcher) (*localFile, error) {
-	r, size, err := contentToUpload(fs, path, m)
+func newLocalFile(fs afero.Fs, nativePath, slashpath string, m *matcher) (*localFile, error) {
+	f, err := fs.Open(nativePath)
 	if err != nil {
 		return nil, err
 	}
-	return &localFile{
-		Path:                path,
-		UploadSize:          size,
-		UploadContentReader: r,
-		fs:                  fs,
-		matcher:             m,
-	}, nil
+	defer f.Close()
+	lf := &localFile{
+		NativePath: nativePath,
+		SlashPath:  slashpath,
+		fs:         fs,
+		matcher:    m,
+	}
+	if m != nil && m.Gzip {
+		// We're going to gzip the content. Do it once now, and cache the result
+		// in gzipped. The UploadSize is the size of the gzipped content.
+		gz := gzip.NewWriter(&lf.gzipped)
+		if _, err := io.Copy(gz, f); err != nil {
+			return nil, err
+		}
+		if err := gz.Close(); err != nil {
+			return nil, err
+		}
+		lf.UploadSize = int64(lf.gzipped.Len())
+	} else {
+		// Raw content. Just get the UploadSize.
+		info, err := f.Stat()
+		if err != nil {
+			return nil, err
+		}
+		lf.UploadSize = info.Size()
+	}
+	return lf, nil
 }
 
-// contentToUpload returns an io.Reader and size for the content to be uploaded
-// from path. It applies gzip encoding if needed.
-func contentToUpload(fs afero.Fs, path string, m *matcher) (io.Reader, int64, error) {
-	f, err := fs.Open(path)
-	if err != nil {
-		return nil, 0, err
+// Reader returns an io.ReadCloser for reading the content to be uploaded.
+// The caller must call Close on the returned ReaderCloser.
+// The reader content may not be the same as the local file content due to
+// gzipping.
+func (lf *localFile) Reader() (io.ReadCloser, error) {
+	if lf.matcher != nil && lf.matcher.Gzip {
+		// We've got the gzipped contents cached in gzipped.
+		// Note: we can't use lf.gzipped directly as a Reader, since we it discards
+		// data after it is read, and we may read it more than once.
+		return ioutil.NopCloser(bytes.NewReader(lf.gzipped.Bytes())), nil
 	}
-	info, err := f.Stat()
-	if err != nil {
-		return nil, 0, err
-	}
-	r := io.Reader(f)
-	size := info.Size()
-	if m != nil && m.Gzip {
-		var b bytes.Buffer
-		gz := gzip.NewWriter(&b)
-		io.Copy(gz, f)
-		gz.Close()
-		r = &b
-		size = int64(b.Len())
-	}
-	return r, size, nil
+	// Not expected to fail since we did it successfully earlier in newLocalFile,
+	// but could happen due to changes in the underlying filesystem.
+	return lf.fs.Open(lf.NativePath)
 }
 
 // CacheControl returns the Cache-Control header to use for lf, based on the
@@ -357,7 +395,7 @@ func (lf *localFile) ContentType() string {
 	// TODO: Hugo has a MediaType and a MediaTypes list and also a concept
 	// of custom MIME types.
 	// Use 1) The matcher 2) Hugo's MIME types 3) TypeByExtension.
-	return mime.TypeByExtension(filepath.Ext(lf.Path))
+	return mime.TypeByExtension(filepath.Ext(lf.NativePath))
 }
 
 // Force returns true if the file should be forced to re-upload based on the
@@ -371,14 +409,12 @@ func (lf *localFile) MD5() []byte {
 	if len(lf.md5) > 0 {
 		return lf.md5
 	}
-	// We can't use lf.UploadContentReader directly because if there's a
-	// delta we'll want to read it again later, and we have no way of
-	// resetting the reader. So, create a new one.
-	r, _, err := contentToUpload(lf.fs, lf.Path, lf.matcher)
+	h := md5.New()
+	r, err := lf.Reader()
 	if err != nil {
 		return nil
 	}
-	h := md5.New()
+	defer r.Close()
 	if _, err := io.Copy(h, r); err != nil {
 		return nil
 	}
@@ -386,7 +422,8 @@ func (lf *localFile) MD5() []byte {
 	return lf.md5
 }
 
-// walkLocal walks the source directory and returns a flat list of files.
+// walkLocal walks the source directory and returns a flat list of files,
+// using localFile.SlashPath as the map keys.
 func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) {
 	retval := map[string]*localFile{}
 	err := afero.Walk(fs, "", func(path string, info os.FileInfo, err error) error {
@@ -412,18 +449,19 @@ func walkLocal(fs afero.Fs, matchers []*matcher) (map[string]*localFile, error) 
 		}
 
 		// Find the first matching matcher (if any).
+		slashpath := filepath.ToSlash(path)
 		var m *matcher
 		for _, cur := range matchers {
-			if cur.Matches(path) {
+			if cur.Matches(slashpath) {
 				m = cur
 				break
 			}
 		}
-		lf, err := newLocalFile(fs, path, m)
+		lf, err := newLocalFile(fs, path, slashpath, m)
 		if err != nil {
 			return err
 		}
-		retval[path] = lf
+		retval[lf.SlashPath] = lf
 		return nil
 	})
 	if err != nil {
@@ -496,7 +534,7 @@ func (u *fileToUpload) String() string {
 	if s := u.Local.ContentType(); s != "" {
 		details = append(details, fmt.Sprintf("Content-Type: %q", s))
 	}
-	return fmt.Sprintf("%s (%s): %v", u.Local.Path, strings.Join(details, ", "), u.Reason)
+	return fmt.Sprintf("%s (%s): %v", u.Local.SlashPath, strings.Join(details, ", "), u.Reason)
 }
 
 // findDiffs diffs localFiles vs remoteFiles to see what changes should be
@@ -505,8 +543,6 @@ func (u *fileToUpload) String() string {
 func findDiffs(localFiles map[string]*localFile, remoteFiles map[string]*blob.ListObject, force bool) ([]*fileToUpload, []string) {
 	var uploads []*fileToUpload
 	var deletes []string
-
-	// TODO: Do we need to remap file delimiters, e.g. on Windows?
 
 	found := map[string]bool{}
 	for path, lf := range localFiles {
@@ -576,22 +612,22 @@ func findDiffs(localFiles map[string]*localFile, remoteFiles map[string]*blob.Li
 // The returned slice will have length len(ordering)+1.
 //
 // The subslice at index i, for i = 0 ... len(ordering)-1, will have all of the
-// uploads whose Local.Path matched the regex at ordering[i] (but not any
+// uploads whose Local.SlashPath matched the regex at ordering[i] (but not any
 // previous ordering regex).
 // The subslice at index len(ordering) will have the remaining uploads that
 // didn't match any ordering regex.
 //
-// The subslices are sorted by Local.Path.
+// The subslices are sorted by Local.SlashPath.
 func applyOrdering(ordering []*regexp.Regexp, uploads []*fileToUpload) [][]*fileToUpload {
 
-	// Sort the whole slice by Local.Path first.
-	sort.Slice(uploads, func(i, j int) bool { return uploads[i].Local.Path < uploads[j].Local.Path })
+	// Sort the whole slice by Local.SlashPath first.
+	sort.Slice(uploads, func(i, j int) bool { return uploads[i].Local.SlashPath < uploads[j].Local.SlashPath })
 
 	retval := make([][]*fileToUpload, len(ordering)+1)
 	for _, u := range uploads {
 		matched := false
 		for i, re := range ordering {
-			if re.MatchString(u.Local.Path) {
+			if re.MatchString(u.Local.SlashPath) {
 				retval[i] = append(retval[i], u)
 				matched = true
 				break

@@ -43,6 +43,7 @@ type target struct {
 // a specified pattern.
 type matcher struct {
 	// Pattern is the string pattern to match against paths.
+	// Matching is done against paths converted to use / as the path separator.
 	Pattern string
 
 	// CacheControl specifies caching attributes to use when serving the blob.
