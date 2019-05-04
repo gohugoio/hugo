@@ -44,7 +44,7 @@ import (
 	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/lazy"
 
-	"github.com/gohugoio/hugo/i18n"
+	"github.com/gohugoio/hugo/langs/i18n"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl"
 	"github.com/gohugoio/hugo/tpl/tplimpl"
