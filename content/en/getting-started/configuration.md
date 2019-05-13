@@ -247,9 +247,6 @@ sitemap
 staticDir ("static")
 : A directory or a list of directories from where Hugo reads [static files][static-files].
 
-stepAnalysis (false)
-: Display memory and timing of different steps of the program.
-
 summaryLength (70)
 : The length of text in words to show in a [`.Summary`](/content-management/summaries/#hugo-defined-automatic-summary-splitting).
 
