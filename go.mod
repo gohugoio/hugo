@@ -60,4 +60,3 @@ exclude github.com/chaseadamsio/goorgeous v2.0.0+incompatible
 
 replace github.com/markbates/inflect => github.com/markbates/inflect v0.0.0-20171215194931-a12c3aec81a6
 
-replace github.com/gohugoio/hugoTestHelpers/testmodBuilder/mods => /Users/bep/dev/go/gohugoio/hugoTestHelpers/testmodBuilder/mods
