@@ -62,6 +62,9 @@ type HugoSites struct {
 	// If this is running in the dev server.
 	running bool
 
+	// Serializes rebuilds when server is running.
+	runningMu sync.Mutex
+
 	// Render output formats for all sites.
 	renderFormats output.Formats
 
