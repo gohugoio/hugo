@@ -28,7 +28,7 @@ func TestEmbeddedTemplates(t *testing.T) {
 	assert := require.New(t)
 	assert.True(true)
 
-	home := []string{"index.html", `
+	templateTemplate := `
 GA:
 {{ template "_internal/google_analytics.html" . }}
 
@@ -40,10 +40,14 @@ Disqus:
 
 {{ template "_internal/disqus.html" . }}
 
-`}
+`
 
 	b := newTestSitesBuilder(t)
-	b.WithSimpleConfigFile().WithTemplatesAdded(home...)
+	b.WithSimpleConfigFile().WithTemplatesAdded(
+		"index.html", templateTemplate,
+		"_default/single.html", templateTemplate,
+		"_default/list.html", templateTemplate,
+	)
 
 	b.Build(BuildCfg{})
 
