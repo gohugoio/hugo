@@ -8,13 +8,9 @@ env:
 git:
   depth: false
 go:
-  - "1.11.10"
   - "1.12.5"
-  - tip
 os:
   - linux
-  - osx
-  - windows
 matrix:
   allow_failures:
     - go: tip
@@ -30,13 +26,7 @@ install:
   - cd $HOME/src/hugo
   - go get github.com/magefile/mage
 script:
-  - go mod download
-  - mage -v test
-  - mage -v check
-  - mage -v hugo
-  - ./hugo -s docs/
-  - ./hugo --renderToMemory -s docs/
-  - df -h
+  - go test ./hugolib -run TestEmbeddedTemplates
 
 before_install:
   - df -h
