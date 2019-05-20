@@ -26,7 +26,7 @@ install:
   - cd $HOME/src/hugo
   - go get github.com/magefile/mage
 script:
-  - go test ./hugolib -run TestEmbeddedTemplates
+  - go test ./hugolib
 
 before_install:
   - df -h
