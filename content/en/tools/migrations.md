@@ -50,6 +50,10 @@ Alternatively, you can use the new [Jekyll import command](/commands/hugo_import
 - [exitwp-for-hugo](https://github.com/wooni005/exitwp-for-hugo) - A python script which works with the xml export from Wordpress and converts Wordpress pages and posts to Markdown and YAML for hugo.
 - [blog2md](https://github.com/palaniraja/blog2md) - Works with [exported xml](https://en.support.wordpress.com/export/) file of your free YOUR-TLD.wordpress.com website. It also saves approved comments to `YOUR-POST-NAME-comments.md` file along with posts.
 
+## Medium
+
+- [medium2md](https://github.com/gautamdhameja/medium-2-md) - A simple Medium to Hugo exporter able to import stories in one command, including Front Matter.
+
 ## Tumblr
 
 - [tumblr-importr](https://github.com/carlmjohnson/tumblr-importr) - An importer that uses the Tumblr API to create a Hugo static site.
