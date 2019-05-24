@@ -13,42 +13,76 @@
 
 package helpers
 
+import (
+	"strings"
+
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/hugofs"
+	"github.com/gohugoio/hugo/hugolib/filesystems"
+	"github.com/gohugoio/hugo/hugolib/paths"
+)
+
 // PathSpec holds methods that decides how paths in URLs and files in Hugo should look like.
 type PathSpec struct {
-	disablePathToLower bool
-	removePathAccents  bool
-	uglyURLs           bool
-	canonifyURLs       bool
+	*paths.Paths
+	*filesystems.BaseFs
 
-	currentContentLanguage *Language
+	ProcessingStats *ProcessingStats
 
-	// pagination path handling
-	paginatePath string
+	// The file systems to use
+	Fs *hugofs.Fs
 
-	// The PathSpec looks up its config settings in both the current language
-	// and then in the global Viper config.
-	// Some settings, the settings listed below, does not make sense to be set
-	// on per-language-basis. We have no good way of protecting against this
-	// other than a "white-list". See language.go.
-	defaultContentLanguageInSubdir bool
-	defaultContentLanguage         string
-	multilingual                   bool
+	// The config provider to use
+	Cfg config.Provider
 }
 
-func NewPathSpecFromConfig(config ConfigProvider) *PathSpec {
-	return &PathSpec{
-		disablePathToLower:             config.GetBool("disablePathToLower"),
-		removePathAccents:              config.GetBool("removePathAccents"),
-		uglyURLs:                       config.GetBool("uglyURLs"),
-		canonifyURLs:                   config.GetBool("canonifyURLs"),
-		multilingual:                   config.GetBool("multilingual"),
-		defaultContentLanguageInSubdir: config.GetBool("defaultContentLanguageInSubdir"),
-		defaultContentLanguage:         config.GetString("defaultContentLanguage"),
-		currentContentLanguage:         config.Get("currentContentLanguage").(*Language),
-		paginatePath:                   config.GetString("paginatePath"),
+// NewPathSpec creats a new PathSpec from the given filesystems and language.
+func NewPathSpec(fs *hugofs.Fs, cfg config.Provider) (*PathSpec, error) {
+	return NewPathSpecWithBaseBaseFsProvided(fs, cfg, nil)
+}
+
+// NewPathSpecWithBaseBaseFsProvided creats a new PathSpec from the given filesystems and language.
+// If an existing BaseFs is provided, parts of that is reused.
+func NewPathSpecWithBaseBaseFsProvided(fs *hugofs.Fs, cfg config.Provider, baseBaseFs *filesystems.BaseFs) (*PathSpec, error) {
+
+	p, err := paths.New(fs, cfg)
+	if err != nil {
+		return nil, err
 	}
+
+	var options []func(*filesystems.BaseFs) error
+	if baseBaseFs != nil {
+		options = []func(*filesystems.BaseFs) error{
+			filesystems.WithBaseFs(baseBaseFs),
+		}
+	}
+	bfs, err := filesystems.NewBase(p, options...)
+	if err != nil {
+		return nil, err
+	}
+
+	ps := &PathSpec{
+		Paths:           p,
+		BaseFs:          bfs,
+		Fs:              fs,
+		Cfg:             cfg,
+		ProcessingStats: NewProcessingStats(p.Lang()),
+	}
+
+	basePath := ps.BaseURL.Path()
+	if basePath != "" && basePath != "/" {
+		ps.BasePath = basePath
+	}
+
+	return ps, nil
 }
 
-func (p *PathSpec) PaginatePath() string {
-	return p.paginatePath
+// PermalinkForBaseURL creates a permalink from the given link and baseURL.
+func (p *PathSpec) PermalinkForBaseURL(link, baseURL string) string {
+	link = strings.TrimPrefix(link, "/")
+	if !strings.HasSuffix(baseURL, "/") {
+		baseURL += "/"
+	}
+	return baseURL + link
+
 }

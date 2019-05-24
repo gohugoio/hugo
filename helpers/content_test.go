@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,17 +16,40 @@ package helpers
 import (
 	"bytes"
 	"html/template"
-	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/spf13/viper"
+
 	"github.com/miekg/mmark"
 	"github.com/russross/blackfriday"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const tstHTMLContent = "<!DOCTYPE html><html><head><script src=\"http://two/foobar.js\"></script></head><body><nav><ul><li hugo-nav=\"section_0\"></li><li hugo-nav=\"section_1\"></li></ul></nav><article>content <a href=\"http://two/foobar\">foobar</a>. Follow up</article><p>This is some text.<br>And some more.</p></body></html>"
+
+func TestTrimShortHTML(t *testing.T) {
+	tests := []struct {
+		input, output []byte
+	}{
+		{[]byte(""), []byte("")},
+		{[]byte("Plain text"), []byte("Plain text")},
+		{[]byte("  \t\n Whitespace text\n\n"), []byte("Whitespace text")},
+		{[]byte("<p>Simple paragraph</p>"), []byte("Simple paragraph")},
+		{[]byte("\n  \n \t  <p> \t Whitespace\nHTML  \n\t </p>\n\t"), []byte("Whitespace\nHTML")},
+		{[]byte("<p>Multiple</p><p>paragraphs</p>"), []byte("<p>Multiple</p><p>paragraphs</p>")},
+		{[]byte("<p>Nested<p>paragraphs</p></p>"), []byte("<p>Nested<p>paragraphs</p></p>")},
+	}
+
+	c := newTestContentSpec()
+	for i, test := range tests {
+		output := c.TrimShortHTML(test.input)
+		if bytes.Compare(test.output, output) != 0 {
+			t.Errorf("Test %d failed. Expected %q got %q", i, test.output, output)
+		}
+	}
+}
 
 func TestStripHTML(t *testing.T) {
 	type test struct {
@@ -39,12 +62,12 @@ func TestStripHTML(t *testing.T) {
 		{"</br> strip br2<br />", " strip br2\n"},
 		{"This <strong>is</strong> a\nnewline", "This is a newline"},
 		{"No Tags", "No Tags"},
-		{`<p>Summary Next Line. 
+		{`<p>Summary Next Line.
 <figure >
-    
+
         <img src="/not/real" />
-    
-    
+
+
 </figure>
 .
 More text here.</p>
@@ -75,23 +98,45 @@ func TestBytesToHTML(t *testing.T) {
 	assert.Equal(t, template.HTML("dobedobedo"), BytesToHTML([]byte("dobedobedo")))
 }
 
+func TestNewContentSpec(t *testing.T) {
+	cfg := viper.New()
+	assert := require.New(t)
+
+	cfg.Set("summaryLength", 32)
+	cfg.Set("buildFuture", true)
+	cfg.Set("buildExpired", true)
+	cfg.Set("buildDrafts", true)
+
+	spec, err := NewContentSpec(cfg)
+
+	assert.NoError(err)
+	assert.Equal(32, spec.summaryLength)
+	assert.True(spec.BuildFuture)
+	assert.True(spec.BuildExpired)
+	assert.True(spec.BuildDrafts)
+
+}
+
 var benchmarkTruncateString = strings.Repeat("This is a sentence about nothing.", 20)
 
 func BenchmarkTestTruncateWordsToWholeSentence(b *testing.B) {
+	c := newTestContentSpec()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		TruncateWordsToWholeSentence(benchmarkTruncateString, SummaryLength)
+		c.TruncateWordsToWholeSentence(benchmarkTruncateString)
 	}
 }
 
 func BenchmarkTestTruncateWordsToWholeSentenceOld(b *testing.B) {
+	c := newTestContentSpec()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		truncateWordsToWholeSentenceOld(benchmarkTruncateString, SummaryLength)
+		c.truncateWordsToWholeSentenceOld(benchmarkTruncateString)
 	}
 }
 
 func TestTruncateWordsToWholeSentence(t *testing.T) {
+	c := newTestContentSpec()
 	type test struct {
 		input, expected string
 		max             int
@@ -106,9 +151,11 @@ func TestTruncateWordsToWholeSentence(t *testing.T) {
 		{"To be. Or not to be. That's the question.", "To be.", 1, true},
 		{" \nThis is not a sentence\nAnd this is another", "This is not a sentence", 4, true},
 		{"", "", 10, false},
+		{"This... is a more difficult test?", "This... is a more difficult test?", 1, false},
 	}
 	for i, d := range data {
-		output, truncated := TruncateWordsToWholeSentence(d.input, d.max)
+		c.summaryLength = d.max
+		output, truncated := c.TruncateWordsToWholeSentence(d.input)
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -120,6 +167,7 @@ func TestTruncateWordsToWholeSentence(t *testing.T) {
 }
 
 func TestTruncateWordsByRune(t *testing.T) {
+	c := newTestContentSpec()
 	type test struct {
 		input, expected string
 		max             int
@@ -141,7 +189,8 @@ func TestTruncateWordsByRune(t *testing.T) {
 		{" \nThis is    not a sentence\n ", "This is not", 3, true},
 	}
 	for i, d := range data {
-		output, truncated := TruncateWordsByRune(strings.Fields(d.input), d.max)
+		c.summaryLength = d.max
+		output, truncated := c.TruncateWordsByRune(strings.Fields(d.input))
 		if d.expected != output {
 			t.Errorf("Test %d failed. Expected %q got %q", i, d.expected, output)
 		}
@@ -153,8 +202,9 @@ func TestTruncateWordsByRune(t *testing.T) {
 }
 
 func TestGetHTMLRendererFlags(t *testing.T) {
-	ctx := newViperProvidedRenderingContext()
-	renderer := getHTMLRenderer(blackfriday.HTML_USE_XHTML, ctx)
+	c := newTestContentSpec()
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
+	renderer := c.getHTMLRenderer(blackfriday.HTML_USE_XHTML, ctx)
 	flags := renderer.GetFlags()
 	if flags&blackfriday.HTML_USE_XHTML != blackfriday.HTML_USE_XHTML {
 		t.Errorf("Test flag: %d was not found amongs set flags:%d; Result: %d", blackfriday.HTML_USE_XHTML, flags, flags&blackfriday.HTML_USE_XHTML)
@@ -162,6 +212,8 @@ func TestGetHTMLRendererFlags(t *testing.T) {
 }
 
 func TestGetHTMLRendererAllFlags(t *testing.T) {
+	c := newTestContentSpec()
+
 	type data struct {
 		testFlag int
 	}
@@ -170,24 +222,28 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 		{blackfriday.HTML_USE_XHTML},
 		{blackfriday.HTML_FOOTNOTE_RETURN_LINKS},
 		{blackfriday.HTML_USE_SMARTYPANTS},
+		{blackfriday.HTML_SMARTYPANTS_QUOTES_NBSP},
 		{blackfriday.HTML_SMARTYPANTS_ANGLED_QUOTES},
 		{blackfriday.HTML_SMARTYPANTS_FRACTIONS},
 		{blackfriday.HTML_HREF_TARGET_BLANK},
+		{blackfriday.HTML_NOFOLLOW_LINKS},
+		{blackfriday.HTML_NOREFERRER_LINKS},
 		{blackfriday.HTML_SMARTYPANTS_DASHES},
 		{blackfriday.HTML_SMARTYPANTS_LATEX_DASHES},
 	}
 	defaultFlags := blackfriday.HTML_USE_XHTML
-	ctx := newViperProvidedRenderingContext()
-	ctx.Config = ctx.getConfig()
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	ctx.Config.AngledQuotes = true
 	ctx.Config.Fractions = true
 	ctx.Config.HrefTargetBlank = true
+	ctx.Config.NofollowLinks = true
+	ctx.Config.NoreferrerLinks = true
 	ctx.Config.LatexDashes = true
 	ctx.Config.PlainIDAnchors = true
 	ctx.Config.SmartDashes = true
 	ctx.Config.Smartypants = true
-	ctx.Config.SourceRelativeLinksEval = true
-	renderer := getHTMLRenderer(defaultFlags, ctx)
+	ctx.Config.SmartypantsQuotesNBSP = true
+	renderer := c.getHTMLRenderer(defaultFlags, ctx)
 	actualFlags := renderer.GetFlags()
 	var expectedFlags int
 	//OR-ing flags together...
@@ -200,12 +256,12 @@ func TestGetHTMLRendererAllFlags(t *testing.T) {
 }
 
 func TestGetHTMLRendererAnchors(t *testing.T) {
-	ctx := newViperProvidedRenderingContext()
+	c := newTestContentSpec()
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	ctx.DocumentID = "testid"
-	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
 
-	actualRenderer := getHTMLRenderer(0, ctx)
+	actualRenderer := c.getHTMLRenderer(0, ctx)
 	headerBuffer := &bytes.Buffer{}
 	footnoteBuffer := &bytes.Buffer{}
 	expectedFootnoteHref := []byte("href=\"#fn:testid:href\"")
@@ -224,11 +280,11 @@ func TestGetHTMLRendererAnchors(t *testing.T) {
 }
 
 func TestGetMmarkHTMLRenderer(t *testing.T) {
-	ctx := newViperProvidedRenderingContext()
+	c := newTestContentSpec()
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	ctx.DocumentID = "testid"
-	ctx.Config = ctx.getConfig()
 	ctx.Config.PlainIDAnchors = false
-	actualRenderer := getMmarkHTMLRenderer(0, ctx)
+	actualRenderer := c.getMmarkHTMLRenderer(0, ctx)
 
 	headerBuffer := &bytes.Buffer{}
 	footnoteBuffer := &bytes.Buffer{}
@@ -248,8 +304,8 @@ func TestGetMmarkHTMLRenderer(t *testing.T) {
 }
 
 func TestGetMarkdownExtensionsMasksAreRemovedFromExtensions(t *testing.T) {
-	ctx := newViperProvidedRenderingContext()
-	ctx.Config = ctx.getConfig()
+	c := newTestContentSpec()
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	ctx.Config.Extensions = []string{"headerId"}
 	ctx.Config.ExtensionsMask = []string{"noIntraEmphasis"}
 
@@ -263,8 +319,8 @@ func TestGetMarkdownExtensionsByDefaultAllExtensionsAreEnabled(t *testing.T) {
 	type data struct {
 		testFlag int
 	}
-	ctx := newViperProvidedRenderingContext()
-	ctx.Config = ctx.getConfig()
+	c := newTestContentSpec()
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	ctx.Config.Extensions = []string{""}
 	ctx.Config.ExtensionsMask = []string{""}
 	allExtensions := []data{
@@ -295,8 +351,8 @@ func TestGetMarkdownExtensionsByDefaultAllExtensionsAreEnabled(t *testing.T) {
 }
 
 func TestGetMarkdownExtensionsAddingFlagsThroughRenderingContext(t *testing.T) {
-	ctx := newViperProvidedRenderingContext()
-	ctx.Config = ctx.getConfig()
+	c := newTestContentSpec()
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	ctx.Config.Extensions = []string{"definitionLists"}
 	ctx.Config.ExtensionsMask = []string{""}
 
@@ -307,10 +363,10 @@ func TestGetMarkdownExtensionsAddingFlagsThroughRenderingContext(t *testing.T) {
 }
 
 func TestGetMarkdownRenderer(t *testing.T) {
-	ctx := newViperProvidedRenderingContext()
+	c := newTestContentSpec()
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
-	actualRenderedMarkdown := markdownRender(ctx)
+	actualRenderedMarkdown := c.markdownRender(ctx)
 	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
@@ -318,10 +374,10 @@ func TestGetMarkdownRenderer(t *testing.T) {
 }
 
 func TestGetMarkdownRendererWithTOC(t *testing.T) {
-	ctx := &RenderingContext{RenderTOC: true, ConfigProvider: viper.GetViper()}
+	c := newTestContentSpec()
+	ctx := &RenderingContext{RenderTOC: true, Cfg: c.Cfg, Config: c.BlackFriday}
 	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
-	actualRenderedMarkdown := markdownRender(ctx)
+	actualRenderedMarkdown := c.markdownRender(ctx)
 	expectedRenderedMarkdown := []byte("<nav>\n</nav>\n\n<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
@@ -333,8 +389,8 @@ func TestGetMmarkExtensions(t *testing.T) {
 	type data struct {
 		testFlag int
 	}
-	ctx := newViperProvidedRenderingContext()
-	ctx.Config = ctx.getConfig()
+	c := newTestContentSpec()
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	ctx.Config.Extensions = []string{"tables"}
 	ctx.Config.ExtensionsMask = []string{""}
 	allExtensions := []data{
@@ -362,10 +418,10 @@ func TestGetMmarkExtensions(t *testing.T) {
 }
 
 func TestMmarkRender(t *testing.T) {
-	ctx := newViperProvidedRenderingContext()
+	c := newTestContentSpec()
+	ctx := &RenderingContext{Cfg: c.Cfg, Config: c.BlackFriday}
 	ctx.Content = []byte("testContent")
-	ctx.Config = ctx.getConfig()
-	actualRenderedMarkdown := mmarkRender(ctx)
+	actualRenderedMarkdown := c.mmarkRender(ctx)
 	expectedRenderedMarkdown := []byte("<p>testContent</p>\n")
 	if !bytes.Equal(actualRenderedMarkdown, expectedRenderedMarkdown) {
 		t.Errorf("Actual rendered Markdown (%s) did not match expected markdown (%s)", actualRenderedMarkdown, expectedRenderedMarkdown)
@@ -458,15 +514,5 @@ func BenchmarkTotalWordsOld(b *testing.B) {
 		if wordCount != 400 {
 			b.Fatal("Wordcount error")
 		}
-	}
-}
-
-func TestWordCount(t *testing.T) {
-	testString := "Two, Words!"
-	expectedMap := map[string]int{"Two,": 1, "Words!": 1}
-	actualMap := WordCount(testString)
-
-	if !reflect.DeepEqual(expectedMap, actualMap) {
-		t.Errorf("Actual Map (%v) does not equal expected (%v)", actualMap, expectedMap)
 	}
 }

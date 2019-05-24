@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,18 +17,18 @@ import (
 	"testing"
 
 	"reflect"
-	"strings"
 
-	"github.com/spf13/hugo/helpers"
-	"github.com/spf13/hugo/source"
-	"github.com/spf13/viper"
+	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/tpl"
+	"github.com/stretchr/testify/require"
 )
 
-const SITEMAP_TEMPLATE = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+const sitemapTemplate = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {{ range .Data.Pages }}
   <url>
-    <loc>{{ .Permalink }}</loc>
-    <lastmod>{{ safeHTML ( .Date.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ with .Sitemap.ChangeFreq }}
+    <loc>{{ .Permalink }}</loc>{{ if not .Lastmod.IsZero }}
+    <lastmod>{{ safeHTML ( .Lastmod.Format "2006-01-02T15:04:05-07:00" ) }}</lastmod>{{ end }}{{ with .Sitemap.ChangeFreq }}
     <changefreq>{{ . }}</changefreq>{{ end }}{{ if ge .Sitemap.Priority 0.0 }}
     <priority>{{ .Sitemap.Priority }}</priority>{{ end }}
   </url>
@@ -36,38 +36,86 @@ const SITEMAP_TEMPLATE = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap
 </urlset>`
 
 func TestSitemapOutput(t *testing.T) {
-	testCommonResetState()
-
-	viper.Set("baseURL", "http://auth/bub/")
-
-	s := &Site{
-		Source:   &source.InMemorySource{ByteSource: weightedSources},
-		Language: helpers.NewDefaultLanguage(),
-	}
-
-	if err := buildAndRenderSite(s, "sitemap.xml", SITEMAP_TEMPLATE); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
-
-	sitemapContent := readDestination(t, "public/sitemap.xml")
-
-	if !strings.HasPrefix(sitemapContent, "<?xml") {
-		t.Errorf("Sitemap file should start with <?xml. %s", sitemapContent)
+	t.Parallel()
+	for _, internal := range []bool{false, true} {
+		doTestSitemapOutput(t, internal)
 	}
 }
 
+func doTestSitemapOutput(t *testing.T, internal bool) {
+
+	cfg, fs := newTestCfg()
+	cfg.Set("baseURL", "http://auth/bub/")
+
+	depsCfg := deps.DepsCfg{Fs: fs, Cfg: cfg}
+
+	depsCfg.WithTemplate = func(templ tpl.TemplateHandler) error {
+		if !internal {
+			templ.AddTemplate("sitemap.xml", sitemapTemplate)
+		}
+
+		// We want to check that the 404 page is not included in the sitemap
+		// output. This template should have no effect either way, but include
+		// it for the clarity.
+		templ.AddTemplate("404.html", "Not found")
+		return nil
+	}
+
+	writeSourcesToSource(t, "content", fs, weightedSources...)
+	s := buildSingleSite(t, depsCfg, BuildCfg{})
+	th := testHelper{s.Cfg, s.Fs, t}
+	outputSitemap := "public/sitemap.xml"
+
+	th.assertFileContent(outputSitemap,
+		// Regular page
+		" <loc>http://auth/bub/sect/doc1/</loc>",
+		// Home page
+		"<loc>http://auth/bub/</loc>",
+		// Section
+		"<loc>http://auth/bub/sect/</loc>",
+		// Tax terms
+		"<loc>http://auth/bub/categories/</loc>",
+		// Tax list
+		"<loc>http://auth/bub/categories/hugo/</loc>",
+	)
+
+	content := readDestination(th.T, th.Fs, outputSitemap)
+	require.NotContains(t, content, "404")
+
+}
+
 func TestParseSitemap(t *testing.T) {
-	expected := Sitemap{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
+	t.Parallel()
+	expected := config.Sitemap{Priority: 3.0, Filename: "doo.xml", ChangeFreq: "3"}
 	input := map[string]interface{}{
 		"changefreq": "3",
 		"priority":   3.0,
 		"filename":   "doo.xml",
 		"unknown":    "ignore",
 	}
-	result := parseSitemap(input)
+	result := config.DecodeSitemap(config.Sitemap{}, input)
 
 	if !reflect.DeepEqual(expected, result) {
 		t.Errorf("Got \n%v expected \n%v", result, expected)
 	}
 
+}
+
+// https://github.com/gohugoio/hugo/issues/5910
+func TestSitemapOutputFormats(t *testing.T) {
+
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	b.WithContent("blog/html-amp.md", `
+---
+Title: AMP and HTML
+outputs: [ "html", "amp" ]
+---
+
+`)
+
+	b.Build(BuildCfg{})
+
+	// Should link to the HTML version.
+	b.AssertFileContent("public/sitemap.xml", " <loc>http://example.com/blog/html-amp/</loc>")
 }

@@ -17,7 +17,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var genCmd = &cobra.Command{
-	Use:   "gen",
-	Short: "A collection of several useful generators.",
+var _ cmder = (*genCmd)(nil)
+
+type genCmd struct {
+	*baseCmd
+}
+
+func newGenCmd() *genCmd {
+	cc := &genCmd{}
+	cc.baseCmd = newBaseCmd(&cobra.Command{
+		Use:   "gen",
+		Short: "A collection of several useful generators.",
+	})
+
+	cc.cmd.AddCommand(
+		newGenautocompleteCmd().getCommand(),
+		newGenDocCmd().getCommand(),
+		newGenManCmd().getCommand(),
+		createGenDocsHelper().getCommand(),
+		createGenChromaStyles().getCommand())
+
+	return cc
 }

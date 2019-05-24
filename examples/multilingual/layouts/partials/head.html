@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	{{ if .Title }}
-		<title>{{ (index .Site.Data.translations .Params.lang).head_title }} - {{ .Title }}</title>
+		<title>{{ i18n "head_title" }} - {{ .Title }}</title>
 	{{ end }}
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="/main.css">

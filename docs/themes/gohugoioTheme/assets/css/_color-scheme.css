@@ -1,0 +1,38 @@
+.primary-color                      {color: var(--primary-color)}
+.bg-primary-color                   {background-color: var(--primary-color)}
+.hover-bg-primary-color:hover       {background-color: var(--primary-color)}
+
+.primary-color-dark                  {color: var(--primary-color-dark)}
+.bg-primary-color-dark               {background-color: var(--primary-color-dark)}
+.hover-bg-primary-color-dark:hover   {background-color: var(--primary-color-dark)}
+
+.primary-color-light                  {color: var(--primary-color-light)}
+.bg-primary-color-light               {background-color: var(--primary-color-light)}
+.hover-bg-primary-color-light:hover   {background-color: var(--primary-color-light)}
+
+.accent-color                         {color: var(--accent-color)}
+.bg-accent-color                      {background-color: var(--accent-color)}
+.hover-bg-accent-color:hover          {background-color: var(--accent-color)}
+
+.accent-color-light                   {color: var(--accent-color-light)}
+.hover-accent-color-light:hover                   {color: var(--accent-color-light)}
+.bg-accent-color-light                {background-color: var(--accent-color-light)}
+.hover-bg-accent-color-light:hover    {background-color: var(--accent-color-light)}
+
+.accent-color-dark                    {color: var(--accent-color-dark)}
+.bg-accent-color-dark                 {background-color: var(--accent-color-dark)}
+.hover-bg-accent-color-dark:hover     {background-color: var(--accent-color-dark)}
+
+.text-color-primary    {color: var(--text-color-primary)}
+.text-on-primary-color {color: var(--text-on-primary-color)}
+.text-color-secondary  {color: var(--text-color-secondary)}
+.text-color-disabled   {color: var(--text-color-disabled)}
+.divider-color         {color: var(--divider-color)}
+.warn-color            {color: var(--warn-color)}
+
+
+.nested-links a {
+  color: var(--primary-color);
+  text-decoration: none;
+
+}

@@ -1,0 +1,31 @@
+{{ define "main" }}
+  <article class="w-100 ph4 pb5 pb6-ns pt1 pt5-ns">
+    <div class="flex-l">
+
+      <div class="order-2 w-100 w-20-l ph5-m ph0-l mb4 sticky">
+      {{- partial "toc.html" . -}}
+      </div>
+
+      <div class="order-1 w-60-l mw7 ph0 ph5-ns mid-gray nested-copy-line-height no-underline nested-links nested-img nested-copy-seperator nested-blockquote mt0-ns" style="flex-grow:1;">
+        <div class="documentation-copy center measure-wide-l">
+          <div id="readout" class="fixed right-0 bottom-0">
+          </div>
+          {{ .Render "page" }}
+          {{ partial "related.html" . }}
+        </div>
+      </div>
+      <div class="order-0 w-20 dn db-l">
+        {{ partial "nav-links-docs.html" . }}
+      </div>
+
+    </div>
+  </article>
+
+  <div class="w-100 bg-light-gray">
+    <div class="mw7 pa4 center nested-lh-copy lh-copy">
+      {{ partial "docs/page-meta-data.html" . }}
+      {{ partial "page-edit.html" . }}
+      {{ partial "tags.html" . }}
+    </div>
+  </div>
+{{ end }}

@@ -5,9 +5,11 @@ organization, tutorials, blog posts, bug reports, issues, feature requests,
 feature implementations, pull requests, answering questions on the forum,
 helping to manage issues, etc.
 
-The Hugo community and maintainers are very active and helpful, and the project benefits greatly from this activity. We created a [step by step guide](https://gohugo.io/tutorials/how-to-contribute-to-hugo/) if you're unfamiliar with GitHub or contributing to open source projects in general.
+The Hugo community and maintainers are [very active](https://github.com/gohugoio/hugo/pulse/monthly) and helpful, and the project benefits greatly from this activity. We created a [step by step guide](https://gohugo.io/tutorials/how-to-contribute-to-hugo/) if you're unfamiliar with GitHub or contributing to open source projects in general.
 
-[![Throughput Graph](https://graphs.waffle.io/spf13/hugo/throughput.svg)](https://waffle.io/spf13/hugo/metrics)
+*Note that this repository only contains the actual source code of Hugo. For **only** documentation-related pull requests / issues please refer to the [hugoDocs](https://github.com/gohugoio/hugoDocs) repository.*
+
+*Changes to the codebase **and** related documentation, e.g. for a new feature, should still use a single pull request.*
 
 ## Table of Contents
 
@@ -16,44 +18,59 @@ The Hugo community and maintainers are very active and helpful, and the project 
 * [Submitting Patches](#submitting-patches)
   * [Code Contribution Guidelines](#code-contribution-guidelines)
   * [Git Commit Message Guidelines](#git-commit-message-guidelines)
-  * [Using Git Remotes](#using-git-remotes)
-  * [Build Hugo with Your Changes](#build-hugo-with-your-changes)
-  * [Add Compile Information to Hugo](#add-compile-information-to-hugo)
+  * [Fetching the Sources From GitHub](#fetching-the-sources-from-github)
+  * [Building Hugo with Your Changes](#building-hugo-with-your-changes)
 
 ## Asking Support Questions
 
-We have an active [discussion forum](http://discuss.gohugo.io) where users and developers can ask questions.
-Please don't use the Github issue tracker to ask questions.
+We have an active [discussion forum](https://discourse.gohugo.io) where users and developers can ask questions.
+Please don't use the GitHub issue tracker to ask questions.
 
 ## Reporting Issues
 
 If you believe you have found a defect in Hugo or its documentation, use
-the Github [issue tracker](https://github.com/spf13/hugo/issues) to report the problem to the Hugo maintainers.
-If you're not sure if it's a bug or not, start by asking in the [discussion forum](http://discuss.gohugo.io).
-When reporting the issue, please provide the version of Hugo in use (`hugo version`) and your operating system.
+the GitHub [issue tracker](https://github.com/gohugoio/hugo/issues) to report
+the problem to the Hugo maintainers. If you're not sure if it's a bug or not,
+start by asking in the [discussion forum](https://discourse.gohugo.io).
+When reporting the issue, please provide the version of Hugo in use (`hugo
+version`) and your operating system.
+
+## Code Contribution
+
+Hugo has become a fully featured static site generator, so any new functionality must:
+
+* be useful to many.
+* fit naturally into _what Hugo does best._
+* strive not to break existing sites.
+* close or update an open [Hugo issue](https://github.com/gohugoio/hugo/issues)
+
+If it is of some complexity, the contributor is expected to maintain and support the new future (answer questions on the forum, fix any bugs etc.).
+
+It is recommended to open up a discussion on the [Hugo Forum](https://discourse.gohugo.io/) to get feedback on your idea before you begin. If you are submitting a complex feature, create a small design proposal on the [Hugo issue tracker](https://github.com/gohugoio/hugo/issues) before you start.
+
+
+**Bug fixes are, of course, always welcome.**
+
+
 
 ## Submitting Patches
 
-The Hugo project welcomes all contributors and contributions regardless of skill or experience level.
-If you are interested in helping with the project, we will help you with your contribution.
-Hugo is a very active project with many contributions happening daily.
-Because we want to create the best possible product for our users and the best contribution experience for our developers,
-we have a set of guidelines which ensure that all contributions are acceptable.
-The guidelines are not intended as a filter or barrier to participation.
-If you are unfamiliar with the contribution process, the Hugo team will help you and teach you how to bring your contribution in accordance with the guidelines.
+The Hugo project welcomes all contributors and contributions regardless of skill or experience level. If you are interested in helping with the project, we will help you with your contribution.
 
 ### Code Contribution Guidelines
+
+Because we want to create the best possible product for our users and the best contribution experience for our developers, we have a set of guidelines which ensure that all contributions are acceptable. The guidelines are not intended as a filter or barrier to participation. If you are unfamiliar with the contribution process, the Hugo team will help you and teach you how to bring your contribution in accordance with the guidelines.
 
 To make the contribution process as seamless as possible, we ask for the following:
 
 * Go ahead and fork the project and make your changes.  We encourage pull requests to allow for review and discussion of code changes.
 * When you’re ready to create a pull request, be sure to:
-    * Sign the [CLA](https://cla-assistant.io/spf13/hugo).
+    * Sign the [CLA](https://cla-assistant.io/gohugoio/hugo).
     * Have test cases for the new code. If you have questions about how to do this, please ask in your pull request.
     * Run `go fmt`.
     * Add documentation if you are adding new features or changing functionality.  The docs site lives in `/docs`.
     * Squash your commits into a single commit. `git rebase -i`. It’s okay to force update your pull request with `git push -f`.
-    * Make sure `go test ./...` passes, and `go build` completes. [Travis CI](https://travis-ci.org/spf13/hugo) (Linux and OS&nbsp;X) and [AppVeyor](https://ci.appveyor.com/project/spf13/hugo/branch/master) (Windows) will catch most things that are missing.
+    * Ensure that `mage check` succeeds. [Travis CI](https://travis-ci.org/gohugoio/hugo) (Windows, Linux and macOS) will fail the build if `mage check` fails.
     * Follow the **Git Commit Message Guidelines** below.
 
 ### Git Commit Message Guidelines
@@ -61,11 +78,15 @@ To make the contribution process as seamless as possible, we ask for the followi
 This [blog article](http://chris.beams.io/posts/git-commit/) is a good resource for learning how to write good commit messages,
 the most important part being that each commit message should have a title/subject in imperative mood starting with a capital letter and no trailing period:
 *"Return error on wrong use of the Paginator"*, **NOT** *"returning some error."*
+
 Also, if your commit references one or more GitHub issues, always end your commit message body with *See #1234* or *Fixes #1234*.
 Replace *1234* with the GitHub issue ID. The last example will close the issue when the commit is merged into *master*.
-Sometimes it makes sense to prefix the commit message with the packagename (or docs folder) all lowercased ending with a colon.
+
+Sometimes it makes sense to prefix the commit message with the package name (or docs folder) all lowercased ending with a colon.
 That is fine, but the rest of the rules above apply.
 So it is "tpl: Add emojify template func", not "tpl: add emojify template func.", and "docs: Document emoji", not "doc: document emoji."
+
+Please use a short and descriptive branch name, e.g. **NOT** "patch-1". It's very common but creates a naming conflict each time when a submission is pulled for a review.
 
 An example:
 
@@ -80,69 +101,91 @@ new default function more useful for Hugo users.
 Fixes #1949
 ```
 
-### Using Git Remotes
+###  Fetching the Sources From GitHub
 
-Due to the way Go handles package imports, the best approach for working on a
-Hugo fork is to use Git Remotes.  Here's a simple walk-through for getting
-started:
+Since Hugo 0.48, Hugo uses the Go Modules support built into Go 1.11 to build. The easiest is to clone Hugo in a directory outside of `GOPATH`, as in the following example:
 
-1. Get the latest Hugo sources:
+```bash
+mkdir $HOME/src
+cd $HOME/src
+git clone https://github.com/gohugoio/hugo.git
+cd hugo
+go install
+```
 
-    ```
-    go get -u -t github.com/spf13/hugo/...
-    ```
+>Note: Some Go tools may not be fully updated to support Go Modules yet. One example would be LiteIDE. Follow [this workaround](https://github.com/visualfc/liteide/issues/986#issuecomment-428117702) for how to continue to work with Hugo below `GOPATH`.
 
-1. Change to the Hugo source directory:
+For some convenient build and test targets, you also will want to install Mage:
 
-    ```
-    cd $GOPATH/src/github.com/spf13/hugo
-    ```
+```bash
+go get github.com/magefile/mage
+```
+
+Now, to make a change to Hugo's source:
 
 1. Create a new branch for your changes (the branch name is arbitrary):
 
-    ```
+    ```bash
     git checkout -b iss1234
     ```
 
 1. After making your changes, commit them to your new branch:
 
-    ```
+    ```bash
     git commit -a -v
     ```
 
-1. Fork Hugo in Github.
+1. Fork Hugo in GitHub.
 
 1. Add your fork as a new remote (the remote name, "fork" in this example, is arbitrary):
 
-    ```
+    ```bash
     git remote add fork git://github.com/USERNAME/hugo.git
     ```
 
 1. Push the changes to your new remote:
 
-    ```
+    ```bash
     git push --set-upstream fork iss1234
     ```
 
 1. You're now ready to submit a PR based upon the new branch in your forked repository.
 
-### Build Hugo with Your Changes
+### Building Hugo with Your Changes
+
+Hugo uses [mage](https://github.com/magefile/mage) to sync vendor dependencies, build Hugo, run the test suite and other things. You must run mage from the Hugo directory.
 
 ```bash
-cd $GOPATH/src/github.com/spf13/hugo
-go build
-mv hugo /usr/local/bin/
+cd $HOME/go/src/github.com/gohugoio/hugo
 ```
 
-### Add Compile Information to Hugo
+To build Hugo:
 
-To add compile information to Hugo, replace the `go build` command with the following *(replace `/path/to/hugo` with the actual path)*:
+```bash
+mage hugo
+```
 
-    go build -ldflags "-X /path/to/hugo/hugolib.CommitHash=`git rev-parse --short HEAD 2>/dev/null` -X github.com/spf13/hugo/hugolib.BuildDate=`date +%FT%T%z`"
+To install hugo in `$HOME/go/bin`:
 
-This will result in `hugo version` output that looks similar to:
+```bash
+mage install
+```
 
-    Hugo Static Site Generator v0.13-DEV-8042E77 buildDate: 2014-12-25T03:25:57-07:00
+To run the tests:
 
-Alternatively, just run `make` &mdash; all the “magic” above is already in the `Makefile`.  :wink:
+```bash
+mage hugoRace
+mage -v check
+```
 
+To list all available commands along with descriptions:
+
+```bash
+mage -l
+```
+
+**Note:** From Hugo 0.43 we have added a build tag, `extended` that adds **SCSS support**. This needs a C compiler installed to build. You can enable this when building by:
+
+```bash
+HUGO_BUILD_TAGS=extended mage install
+````

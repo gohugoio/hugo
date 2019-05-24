@@ -1,0 +1,95 @@
+name: hugo
+version: "0.56.0-DEV"
+summary: Fast and Flexible Static Site Generator
+description: |
+  Hugo is a static HTML and CSS website generator written in Go. It is
+  optimized for speed, easy use and configurability. Hugo takes a directory
+  with content and templates and renders them into a full HTML website.
+confinement: strict
+grade: devel # "devel" or "stable"
+
+apps:
+  hugo:
+    command: bin/hugo
+    completer: hugo-completion
+    plugs: [home, network-bind, removable-media]
+
+parts:
+  git:
+    plugin: nil
+    stage-packages:
+      - git
+    organize:
+      usr/bin/: bin/
+    prime:
+      - bin/git
+
+  hugo:
+    plugin: nil
+    build-snaps: [go/1.12/stable]
+    source: .
+    override-build: |
+      set -ex
+
+      echo "\nStarting override-build:"
+      export GOPATH=$(realpath ../go)
+      export PATH=$GOPATH/bin:$PATH
+
+      echo ' * Running "go get -v github.com/magefile/mage"...'
+      GO111MODULE=off go get -v github.com/magefile/mage
+
+      echo ' * Running "mage -v test"...'
+      export GO111MODULE=on
+      mage -v test
+
+      echo " * SNAPCRAFT_IMAGE_INFO=$SNAPCRAFT_IMAGE_INFO"
+      # Example: SNAPCRAFT_IMAGE_INFO='{"build_url": "https://launchpad.net/~gohugoio/+snap/hugo-extended-dev/+build/344022"}'
+      if echo $SNAPCRAFT_IMAGE_INFO | grep -q '/+snap/hugo-extended'; then
+          export HUGO_BUILD_TAGS="extended"
+      fi
+      echo " * Building hugo (HUGO_BUILD_TAGS=\"$HUGO_BUILD_TAGS\")..."
+      [ "$SNAPCRAFT_PROJECT_GRADE" = "stable" ] && mage -v hugoNoGitInfo || mage -v hugo
+      ./hugo version
+      ldd hugo || :
+
+      echo " * Building shell completion..."
+      ./hugo gen autocomplete --completionfile=hugo-completion
+
+      echo " * Installing to ${SNAPCRAFT_PART_INSTALL}..."
+      install -d $SNAPCRAFT_PART_INSTALL/bin
+      cp -av hugo $SNAPCRAFT_PART_INSTALL/bin/
+      mv -v hugo-completion $SNAPCRAFT_PART_INSTALL/
+
+      echo " * Stripping binary..."
+      ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
+      strip --remove-section=.comment --remove-section=.note $SNAPCRAFT_PART_INSTALL/bin/hugo
+      ls -l $SNAPCRAFT_PART_INSTALL/bin/hugo
+
+  node:
+    plugin: x-nodejs
+    node-packages: [postcss-cli]
+    filesets:
+      node:
+        - bin/node
+      postcss:
+        - bin/postcss
+        - lib/node_modules/postcss-cli/*
+    prime:
+      - $node
+      - $postcss
+
+  pygments:
+    plugin: python
+    python-packages: [Pygments]
+    prime:
+      - bin/pygmentize
+      - lib/python*/site-packages/Pygments-*.dist-info/*
+      - lib/python*/site-packages/pygments/*
+      - usr/bin/python*
+      - -usr/bin/python*m
+      - usr/lib/python*/*
+      - -usr/lib/python*/distutils/*
+      - -usr/lib/python*/email/*
+      - -usr/lib/python*/lib2to3/*
+      - -usr/lib/python*/tkinter/*
+      - -usr/lib/python*/unittest/*

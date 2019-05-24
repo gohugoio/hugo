@@ -1,0 +1,9 @@
+*.md
+*.log
+*.txt
+.git
+.github
+.circleci
+docs
+examples
+Dockerfile

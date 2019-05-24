@@ -1,0 +1,11 @@
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	{{ range . }}
+	<sitemap>
+	   	<loc>{{ .SitemapAbsURL }}</loc>
+		{{ if not .LastChange.IsZero }}
+	   	<lastmod>{{ .LastChange.Format "2006-01-02T15:04:05-07:00" | safeHTML }}</lastmod>
+		{{ end }}
+	</sitemap>
+	{{ end }}
+</sitemapindex>

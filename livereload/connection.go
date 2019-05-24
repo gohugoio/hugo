@@ -15,6 +15,7 @@ package livereload
 
 import (
 	"bytes"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -25,6 +26,16 @@ type connection struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	// There is a potential data race, especially visible with large files.
+	// This is protected by synchronisation of the send channel's close.
+	closer sync.Once
+}
+
+func (c *connection) close() {
+	c.closer.Do(func() {
+		close(c.send)
+	})
 }
 
 func (c *connection) reader() {

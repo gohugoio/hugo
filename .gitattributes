@@ -1,0 +1,8 @@
+# Text files have auto line endings
+* text=auto
+
+# Go source files always have LF line endings
+*.go text eol=lf
+
+# SVG files should not be modified
+*.svg -text

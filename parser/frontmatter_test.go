@@ -14,25 +14,65 @@
 package parser
 
 import (
+	"bytes"
+	"reflect"
 	"testing"
+
+	"github.com/gohugoio/hugo/parser/metadecoders"
 )
 
-func TestFormatToLeadRune(t *testing.T) {
-	for i, this := range []struct {
-		kind   string
-		expect rune
+func TestInterfaceToConfig(t *testing.T) {
+	cases := []struct {
+		input  interface{}
+		format metadecoders.Format
+		want   []byte
+		isErr  bool
 	}{
-		{"yaml", '-'},
-		{"yml", '-'},
-		{"toml", '+'},
-		{"json", '{'},
-		{"js", '{'},
-		{"unknown", '+'},
-	} {
-		result := FormatToLeadRune(this.kind)
+		// TOML
+		{map[string]interface{}{}, metadecoders.TOML, nil, false},
+		{
+			map[string]interface{}{"title": "test 1"},
+			metadecoders.TOML,
+			[]byte("title = \"test 1\"\n"),
+			false,
+		},
 
-		if result != this.expect {
-			t.Errorf("[%d] got %q but expected %q", i, result, this.expect)
+		// YAML
+		{map[string]interface{}{}, metadecoders.YAML, []byte("{}\n"), false},
+		{
+			map[string]interface{}{"title": "test 1"},
+			metadecoders.YAML,
+			[]byte("title: test 1\n"),
+			false,
+		},
+
+		// JSON
+		{map[string]interface{}{}, metadecoders.JSON, []byte("{}\n"), false},
+		{
+			map[string]interface{}{"title": "test 1"},
+			metadecoders.JSON,
+			[]byte("{\n   \"title\": \"test 1\"\n}\n"),
+			false,
+		},
+
+		// Errors
+		{nil, metadecoders.TOML, nil, true},
+		{map[string]interface{}{}, "foo", nil, true},
+	}
+
+	for i, c := range cases {
+		var buf bytes.Buffer
+
+		err := InterfaceToConfig(c.input, c.format, &buf)
+		if err != nil {
+			if c.isErr {
+				continue
+			}
+			t.Fatalf("[%d] unexpected error value: %v", i, err)
+		}
+
+		if !reflect.DeepEqual(buf.Bytes(), c.want) {
+			t.Errorf("[%d] not equal:\nwant %q,\n got %q", i, c.want, buf.Bytes())
 		}
 	}
 }

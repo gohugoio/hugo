@@ -4,11 +4,11 @@
 		<a href="/kodu">Eesti</a>
 	</nav>
 
-	<h1 id="title">{{ (index .Site.Data.translations .Params.lang).title }}</h1>
+	<h1 id="title">{{ .Site.Title }}</h1>
 
 	<nav id="main-menu">
-		{{ range (index .Site.Taxonomies.menu .Params.lang).Pages }}
-		<a href="{{ .Permalink  }}">{{ .LinkTitle }}</a>
+		{{ range .Site.Menus.main }}
+		<a href="{{ .URL  }}">{{ .Name }}</a>
 		{{ end }}
 		<div class="clear"></div>
 	</nav>

@@ -1,4 +1,4 @@
-// Copyright 2016 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,80 +15,74 @@
 package hugofs
 
 import (
+	"os"
+
+	"github.com/gohugoio/hugo/config"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
 )
 
-var (
-	sourceFs      afero.Fs
-	destinationFs afero.Fs
-	osFs          afero.Fs = &afero.OsFs{}
-	workingDirFs  *afero.BasePathFs
-)
+// Os points to an Os Afero file system.
+var Os = &afero.OsFs{}
 
-// Source returns Hugo's source file system.
-func Source() afero.Fs {
-	return sourceFs
+// Fs abstracts the file system to separate source and destination file systems
+// and allows both to be mocked for testing.
+type Fs struct {
+	// Source is Hugo's source file system.
+	Source afero.Fs
+
+	// Destination is Hugo's destination file system.
+	Destination afero.Fs
+
+	// Os is an OS file system.
+	// NOTE: Field is currently unused.
+	Os afero.Fs
+
+	// WorkingDir is a read-only file system
+	// restricted to the project working dir.
+	WorkingDir *afero.BasePathFs
 }
 
-// SetSource sets Hugo's source file system
-// and re-initializes dependent file systems.
-func SetSource(fs afero.Fs) {
-	sourceFs = fs
-	initSourceDependencies()
-}
-
-// Destination returns Hugo's destionation file system.
-func Destination() afero.Fs {
-	return destinationFs
-}
-
-// SetDestination sets Hugo's destionation file system
-func SetDestination(fs afero.Fs) {
-	destinationFs = fs
-}
-
-// Os returns an OS file system.
-func Os() afero.Fs {
-	return osFs
-}
-
-// WorkingDir returns a read-only file system
-// restricted to the project working dir.
-func WorkingDir() *afero.BasePathFs {
-	return workingDirFs
-}
-
-// InitDefaultFs initializes with the OS file system
+// NewDefault creates a new Fs with the OS file system
 // as source and destination file systems.
-func InitDefaultFs() {
-	InitFs(&afero.OsFs{})
+func NewDefault(cfg config.Provider) *Fs {
+	fs := &afero.OsFs{}
+	return newFs(fs, cfg)
 }
 
-// InitMemFs initializes with a MemMapFs as source and destination file systems.
+// NewMem creates a new Fs with the MemMapFs
+// as source and destination file systems.
 // Useful for testing.
-func InitMemFs() {
-	InitFs(&afero.MemMapFs{})
+func NewMem(cfg config.Provider) *Fs {
+	fs := &afero.MemMapFs{}
+	return newFs(fs, cfg)
 }
 
-// InitFs initializes with the given file system
+// NewFrom creates a new Fs based on the provided Afero Fs
 // as source and destination file systems.
-func InitFs(fs afero.Fs) {
-	sourceFs = fs
-	destinationFs = fs
-
-	initSourceDependencies()
+// Useful for testing.
+func NewFrom(fs afero.Fs, cfg config.Provider) *Fs {
+	return newFs(fs, cfg)
 }
 
-func initSourceDependencies() {
-	workingDir := viper.GetString("workingDir")
+func newFs(base afero.Fs, cfg config.Provider) *Fs {
+	return &Fs{
+		Source:      base,
+		Destination: base,
+		Os:          &afero.OsFs{},
+		WorkingDir:  getWorkingDirFs(base, cfg),
+	}
+}
+
+func getWorkingDirFs(base afero.Fs, cfg config.Provider) *afero.BasePathFs {
+	workingDir := cfg.GetString("workingDir")
 
 	if workingDir != "" {
-		workingDirFs = afero.NewBasePathFs(afero.NewReadOnlyFs(sourceFs), workingDir).(*afero.BasePathFs)
+		return afero.NewBasePathFs(afero.NewReadOnlyFs(base), workingDir).(*afero.BasePathFs)
 	}
 
+	return nil
 }
 
-func init() {
-	InitDefaultFs()
+func isWrite(flag int) bool {
+	return flag&os.O_RDWR != 0 || flag&os.O_WRONLY != 0
 }

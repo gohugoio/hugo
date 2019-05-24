@@ -1,0 +1,106 @@
+{{ define "title" }}
+Showcase: {{ .Title }}
+{{ end }}
+
+{{ define "main" }}
+  <article class="center ph3 ph4-ns pv3 pv5-ns mw9">
+
+    <!-- header spans the full width -->
+    <div class="flex flex-wrap">
+
+      <div class="w-100 w-20-l order-1 order-0-l">
+        {{template "sc-details" .}}
+      </div>
+
+      <div class="w-100 w-60-l order-0 order-1-l ph4-l">
+        {{template "sc-main-column" .}}
+      </div>
+
+      <aside class="dn mid-gray w-100 w-20-ns flex-l justify-center order-2">
+        {{template "sc-navigation" .}}
+      </aside>
+
+    </div>
+
+    <div class="f6 gray mv6">{{/* bottom row */}}
+      Last Update: {{ .Lastmod.Format "January 2, 2006" }} <br>
+      {{ partial "page-edit.html" . }}
+    </div>
+    <div class="b">The Showcase articles are copyright the content authors. Any open source license will be attached.</div>
+  </article>
+{{ end }}
+
+
+
+{{define "sc-main-column"}}
+  {{ $img := (.Resources.ByType "image").GetMatch "*featured*" }}
+  {{ with $img }}
+    {{ $big := .Fill "1024x512 top" }}
+    {{ $small := $big.Resize "512x" }}
+    <img
+      alt="{{ $img.Title }}"
+      src="{{ $big.RelPermalink }}"
+      srcset="{{ $small.RelPermalink }} 512w, {{ $big.RelPermalink }} 1024w"
+      sizes="(min-width: 1570px) 822px, (max-width: 1569px) and (min-width: 960px) 50vw, 93vw"
+      width="{{ $big.Width }}"
+      class="mw-100 b--light-gray ba"
+    >
+  {{ end }}
+   <div class="mid-gray nested-copy-line-height nested-img nested-links">
+  {{with .Params.byline }}
+     <div style="margin-top: 20px; font-style: italic;">By {{ . | markdownify -}}</div>
+  {{ end }}
+  {{with .Content}}
+      {{- . -}}
+  {{end}}
+  </div>
+
+{{end}}
+
+{{define "sc-details"}}
+  <div class="mt4 mt0-ns nested-links">
+    <div class="ba b--light-gray bg-white pa3">
+      <h1 class="f2-fluid mt0">{{.Title}}</h1>
+      {{ with .Params.siteURL }}
+      <a href="{{ . }}" class="db f5 mb1">{{ . | replaceRE "^https?://(www\\.)?([^/]+).*" "$2"}} {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
+      {{ end }}
+      {{ with .Params.siteSource }}
+      <a href="{{ . }}" class="db mb4">source {{ partial "svg/link-ext.svg" (dict "size" "10") }}</a>
+      {{ end }}
+      {{ $bio := (.Resources.ByType "page").GetMatch "bio*" }}
+      {{ with $bio }}
+        <div class="f6 mid-gray nested-copy-line-height nested-links">
+          {{- .Content -}}
+        </div>
+      {{ end }}
+    </div>
+    <div class="b--light-gray bt dn-l pt3">
+      <div class="f6 gray mb2">Previous/Next</div>
+      {{- partial "previous-next-links-in-section-with-title.html" . -}}
+    </div>
+  </div>
+{{end}}
+
+{{define "sc-navigation"}}
+  {{$section := where .Site.RegularPages "Section" .Section}}
+  {{$number_of_entries := $section | len}}
+  <ul class="pa0 list">
+  <li class="b f5 blTK b--light-gray pb2 pl2">
+      More Sites
+  </li>
+    {{range first 20 $section}}
+      <li class="bl b--light-gray pl2 f6 hover-bg-light-gray hover-accent-color-light {{if eq $ .}} bg-light-gray{{end}}">
+        <a href="{{.RelPermalink}}" class="db link w-100 pv1 ph1 {{ if eq $ . }} b  primary-color{{else}} mid-gray {{end}}">
+          {{- .Title -}}
+        </a>
+      </li>
+    {{end}}
+    {{if ge $number_of_entries 20}}
+      <li class="mt3">
+        <a href="/showcase/page/2/" class="link blue">
+          See More &raquo;
+        </a>
+      </li>
+    {{end}}
+  </ul>
+{{end}}

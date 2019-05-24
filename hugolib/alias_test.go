@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,12 +15,25 @@ package hugolib
 
 import (
 	"path/filepath"
+	"runtime"
 	"testing"
+
+	"github.com/gohugoio/hugo/common/loggers"
+
+	"github.com/stretchr/testify/require"
 )
 
 const pageWithAlias = `---
 title: Has Alias
-aliases: ["foo/bar/"]
+aliases: ["/foo/bar/", "rel"]
+---
+For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
+`
+
+const pageWithAliasMultipleOutputs = `---
+title: Has Alias for HTML and AMP
+aliases: ["/foo/bar/"]
+outputs: ["HTML", "AMP", "JSON"]
 ---
 For some moments the old man did not reply. He stood with bowed head, buried in deep thought. But at last he spoke.
 `
@@ -29,32 +42,101 @@ const basicTemplate = "<html><body>{{.Content}}</body></html>"
 const aliasTemplate = "<html><body>ALIASTEMPLATE</body></html>"
 
 func TestAlias(t *testing.T) {
-	testCommonResetState()
-	writeSource(t, filepath.Join("content", "page.md"), pageWithAlias)
-	writeSource(t, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
+	t.Parallel()
+	assert := require.New(t)
 
-	if err := buildAndRenderSite(newSiteDefaultLang()); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithContent("blog/page.md", pageWithAlias)
+	b.CreateSites().Build(BuildCfg{})
+
+	assert.Equal(1, len(b.H.Sites))
+	require.Len(t, b.H.Sites[0].RegularPages(), 1)
 
 	// the real page
-	assertFileContent(t, filepath.Join("public", "page", "index.html"), false, "For some moments the old man")
-	// the alias redirector
-	assertFileContent(t, filepath.Join("public", "foo", "bar", "index.html"), false, "<meta http-equiv=\"refresh\" content=\"0; ")
+	b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")
+	// the alias redirectors
+	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
+	b.AssertFileContent("public/blog/rel/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
+}
+
+func TestAliasMultipleOutputFormats(t *testing.T) {
+	t.Parallel()
+
+	assert := require.New(t)
+
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithContent("blog/page.md", pageWithAliasMultipleOutputs)
+
+	b.WithTemplates(
+		"_default/single.html", basicTemplate,
+		"_default/single.amp.html", basicTemplate,
+		"_default/single.json", basicTemplate)
+
+	b.CreateSites().Build(BuildCfg{})
+
+	// the real pages
+	b.AssertFileContent("public/blog/page/index.html", "For some moments the old man")
+	b.AssertFileContent("public/amp/blog/page/index.html", "For some moments the old man")
+	b.AssertFileContent("public/blog/page/index.json", "For some moments the old man")
+
+	// the alias redirectors
+	b.AssertFileContent("public/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
+	b.AssertFileContent("public/amp/foo/bar/index.html", "<meta http-equiv=\"refresh\" content=\"0; ")
+	assert.False(b.CheckExists("public/foo/bar/index.json"))
 }
 
 func TestAliasTemplate(t *testing.T) {
-	testCommonResetState()
-	writeSource(t, filepath.Join("content", "page.md"), pageWithAlias)
-	writeSource(t, filepath.Join("layouts", "_default", "single.html"), basicTemplate)
-	writeSource(t, filepath.Join("layouts", "alias.html"), aliasTemplate)
+	t.Parallel()
 
-	if err := buildAndRenderSite(newSiteDefaultLang()); err != nil {
-		t.Fatalf("Failed to build site: %s", err)
-	}
+	b := newTestSitesBuilder(t)
+	b.WithSimpleConfigFile().WithContent("page.md", pageWithAlias).WithTemplatesAdded("alias.html", aliasTemplate)
+
+	b.CreateSites().Build(BuildCfg{})
 
 	// the real page
-	assertFileContent(t, filepath.Join("public", "page", "index.html"), false, "For some moments the old man")
+	b.AssertFileContent("public/page/index.html", "For some moments the old man")
 	// the alias redirector
-	assertFileContent(t, filepath.Join("public", "foo", "bar", "index.html"), false, "ALIASTEMPLATE")
+	b.AssertFileContent("public/foo/bar/index.html", "ALIASTEMPLATE")
+}
+
+func TestTargetPathHTMLRedirectAlias(t *testing.T) {
+	h := newAliasHandler(nil, loggers.NewErrorLogger(), false)
+
+	errIsNilForThisOS := runtime.GOOS != "windows"
+
+	tests := []struct {
+		value    string
+		expected string
+		errIsNil bool
+	}{
+		{"", "", false},
+		{"s", filepath.FromSlash("s/index.html"), true},
+		{"/", "", false},
+		{"alias 1", filepath.FromSlash("alias 1/index.html"), true},
+		{"alias 2/", filepath.FromSlash("alias 2/index.html"), true},
+		{"alias 3.html", "alias 3.html", true},
+		{"alias4.html", "alias4.html", true},
+		{"/alias 5.html", "alias 5.html", true},
+		{"/трям.html", "трям.html", true},
+		{"../../../../tmp/passwd", "", false},
+		{"/foo/../../../../tmp/passwd", filepath.FromSlash("tmp/passwd/index.html"), true},
+		{"foo/../../../../tmp/passwd", "", false},
+		{"C:\\Windows", filepath.FromSlash("C:\\Windows/index.html"), errIsNilForThisOS},
+		{"/trailing-space /", filepath.FromSlash("trailing-space /index.html"), errIsNilForThisOS},
+		{"/trailing-period./", filepath.FromSlash("trailing-period./index.html"), errIsNilForThisOS},
+		{"/tab\tseparated/", filepath.FromSlash("tab\tseparated/index.html"), errIsNilForThisOS},
+		{"/chrome/?p=help&ctx=keyboard#topic=3227046", filepath.FromSlash("chrome/?p=help&ctx=keyboard#topic=3227046/index.html"), errIsNilForThisOS},
+		{"/LPT1/Printer/", filepath.FromSlash("LPT1/Printer/index.html"), errIsNilForThisOS},
+	}
+
+	for _, test := range tests {
+		path, err := h.targetPathAlias(test.value)
+		if (err == nil) != test.errIsNil {
+			t.Errorf("Expected err == nil => %t, got: %t. err: %s", test.errIsNil, err == nil, err)
+			continue
+		}
+		if err == nil && path != test.expected {
+			t.Errorf("Expected: %q, got: %q", test.expected, path)
+		}
+	}
 }

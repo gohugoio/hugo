@@ -1,0 +1,28 @@
+{{- $pc := .Site.Config.Privacy.GoogleAnalytics -}}
+{{- if not $pc.Disable -}}
+{{ with .Site.GoogleAnalytics }}
+<script type="application/javascript">
+{{ template "__ga_js_set_doNotTrack" $ }}
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	{{- if $pc.UseSessionStorage }}
+	if (window.sessionStorage) {
+		var GA_SESSION_STORAGE_KEY = 'ga:clientId';
+		ga('create', '{{ . }}', {
+	    'storage': 'none',
+	    'clientId': sessionStorage.getItem(GA_SESSION_STORAGE_KEY)
+	   });
+	   ga(function(tracker) {
+	    sessionStorage.setItem(GA_SESSION_STORAGE_KEY, tracker.get('clientId'));
+	   });
+   }
+	{{ else }}
+	ga('create', '{{ . }}', 'auto');
+	{{ end -}}
+	{{ if $pc.AnonymizeIP }}ga('set', 'anonymizeIp', true);{{ end }}
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+{{ end }}
+{{- end -}}

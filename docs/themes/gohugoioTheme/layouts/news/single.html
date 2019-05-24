@@ -1,0 +1,88 @@
+{{ define "main" }}
+  {{ $currentPageUrl := .RelPermalink }}
+
+  <article class="cf ph4 pv3 pv5-ns">
+      <!-- header spans the full width -->
+    <header class="flex-none w-100 pb3">
+      {{ if .Params.categories }}
+        {{ range .Params.categories }}
+          <a href="{{ "/categories/" | relLangURL }}{{ . | urlize }}" class="f6 fw8 mb0 link mid-gray dim mr3">
+            {{ humanize  . | upper }}
+          </a>
+        {{ end }}
+      {{end}}
+
+      <h1 class="lh-title fw9 mb7 mv0 pt3">
+        <a href="{{ .RelPermalink }}" class="link primary-color dim">
+          {{ .Title }}
+        </a>
+      </h1>
+    </header>
+
+    <div class="flex-l">
+      <aside class="mid-gray fn w-100 w-25-l">
+        {{ with .Params.description }}
+          <h2 class="f3 lh-title">
+            {{ . | markdownify }}
+          </h2>
+        {{ end }}
+        <time class="f6 mt2 db ttu tracked" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+          {{ .Date.Format "January 2, 2006" }}
+        </time>
+        {{ if in .Params.categories "Releases" }}
+        <p>
+        Go to <a href="https://github.com/gohugoio/hugo/releases" class="link primary-color dim">Hugo Releases</a> for the release downloads.
+        </p>
+        {{ end }}
+        <!--
+        NOTE: Removed to test builds without it.
+        partial "components/author-github-data" (dict "context" . "size" "110") -->
+
+        <div class="nested-links mt4">
+          {{- partial "previous-next-links-in-section.html" . -}}
+        </div>
+
+      </aside>
+
+      <div class="fn pl5-l pt3 mid-gray w-100 w-two-third-l sans-serif nested-copy-line-height no-underline nested-links nested-img nested-copy-seperator nested-blockquote measure-wide-l"><!-- TODO: Can the content top and the description top line up more precisely, or is just winging it with padding the best we've got? -->
+        {{ with .Params.featured_image_path }}
+          <img src="{{ . }}" alt="Featured Image for {{ $.Title }}" class="mw-100">
+        {{ else }}
+          {{ $featured := (.Resources.ByType "image").GetMatch "*featured*" }}
+          {{ with $featured }}
+          {{ $featured := .Resize "480x" }}
+          <img src="{{ $featured.RelPermalink }}" alt="Featured Image for {{ $.Title }}" class="mw-100">
+          {{ end }}
+          {{ end }}
+        {{ .Content }}
+      </div>
+    </div>
+    {{ if and .Params.tags .Site.Taxonomies.tags }}
+      <div class="mt5 f6 gray nested-lh-copy bg-light-gray ph3 pv2 measure-wide-l">
+          {{ $name := index .Params.tags 0 }}
+          {{ $name := $name | urlize }}
+          {{ $tags := index .Site.Taxonomies.tags $name }}
+
+            <ul class="list dib nested-links ml0 pl0">
+              <li class="dib mb2 mr2">Related:</li>
+              {{ range $tags.Pages }}
+                {{ if ne .RelPermalink $currentPageUrl }}
+                  <li class="mb2 mr3">
+                     <a href="{{ .RelPermalink }}" class="link">
+                       {{ .LinkTitle }}
+                     </a>
+                   </li>
+                {{ end }}
+              {{end}}
+            </ul>
+          </div>
+        {{end}}
+
+      <div class="gray f6 mv6">
+        Last Update: {{ .Lastmod.Format "January 2, 2006" }} <br>
+        {{ partial "page-edit.html" . }}
+      </div>
+
+  </article>
+
+{{ end }}

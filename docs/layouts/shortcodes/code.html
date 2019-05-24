@@ -1,0 +1,25 @@
+{{ $file := .Get "file" }}
+{{ $codeLang := "" }}
+{{ $suffix := findRE "(\\.[^.]+)$" $file 1 }}
+{{ with  $suffix }}
+{{ $codeLang = (index . 0 | strings.TrimPrefix ".") }}
+{{ end }}
+{{ with .Get "codeLang" }}{{ $codeLang = . }}{{ end }}
+{{ if eq $codeLang "html"}}
+{{ $codeLang = "go-html-template" }}
+{{ end }}
+<div class="code relative" id="{{ $file | urlize}}">
+	{{- with $file -}}
+		<div class="filename san-serif f6 dib lh-solid pl2 pv2">{{.}}</div>
+	{{- end -}}
+
+	{{ if ne (.Get "copy") "false" }}
+		<button class="needs-js copy bg-accent-color-dark f6 absolute top-0 right-0 lh-solid hover-bg-primary-color-dark bn white ph3 pv2" title="Copy this code to your clipboard." data-clipboard-action="copy" aria-label="copy button">
+		</button>
+		{{/* Functionality located within filesaver.js The copy here is located in the css with .copy class so it can be replaced with JS on success */}}
+	{{end}}
+	<div class="code-copy-content nt3" {{with .Get "download"}}id="{{.}}"{{end}}>
+	  	{{ if  .Get "nocode" }}{{ $.Inner }}{{ else }}{{ with $codeLang }}{{- highlight $.Inner . "" | -}}{{ else }}<pre><code>{{- .Inner | string -}}</code></pre>{{ end }}{{ end }}
+	</div>
+
+</div>

@@ -1,0 +1,37 @@
+{{ $currentPageUrl := .RelPermalink }}
+{{ if and .Params.tags .Site.Taxonomies.tags }}
+  {{ $name := index .Params.tags 0 }}
+  {{ $name := $name | urlize }}
+  {{ $tags := index .Site.Taxonomies.tags $name }}
+
+  <div class="nested-lh-copy">
+    <ul class="list dib nested-links ml0 pl0">
+      {{ with .Params.tags }}
+        <li class="db mb2 b">
+          Tags:
+        </li>
+        {{ range .}}
+          <li class="db dib-l mr3">
+            <a class="tag" href="/tags/{{ .|urlize }}">
+              {{ . }}
+            </a>
+          </li>
+        {{ end }}
+      {{ end }}        
+      {{ range $i, $e := $tags.Pages }}
+        {{ if eq $i 1 }}
+          <li class="db b mt4 mb2 mr2">
+            Related entries:
+          </li>
+        {{ end }}
+        {{ if ne .RelPermalink $currentPageUrl }}
+          <li class="db dib-l mb2 mr3">
+            <a href="{{ .RelPermalink }}" class="link">
+              {{ .LinkTitle }}
+            </a>
+          </li>
+        {{ end }}
+      {{end}}
+    </ul>
+  </div>
+{{end}}

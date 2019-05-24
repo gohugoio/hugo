@@ -18,8 +18,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/bufferpool"
 	"github.com/kyokomi/emoji"
-	"github.com/spf13/hugo/bufferpool"
 )
 
 func TestEmojiCustom(t *testing.T) {
@@ -80,7 +80,7 @@ func BenchmarkEmojiKyokomiFprint(b *testing.B) {
 		defer bufferpool.PutBuffer(buff)
 		emoji.Fprint(buff, string(in))
 
-		bc := make([]byte, buff.Len(), buff.Len())
+		bc := make([]byte, buff.Len())
 		copy(bc, buff.Bytes())
 		return bc
 	}

@@ -1,0 +1,38 @@
+{{$classes_box := "ba b--light-gray bg-light-gray br3 flex flex-column flex-wrap items-center justify-center ph3 pv4 mb4 w-100 w-30-l "}}
+{{$gtag := .gtag | default "unknown" }}
+{{ with .cx.Site.Data.sponsors }}
+  <section class="{{ $.classes_section | default "bg-primary-color-dark b--dark-gray bb bt ph5 pv4 w-100"}}">
+    <div class="center mw9"> 
+      <h3 class="b f3 mv0 light-gray">Hugo Sponsors</h3>
+      <div class="flex-ns flex-wrap center justify-between pt3">
+        {{ range .banners }}
+          {{ $banner := . }}
+          {{if .logo}}
+            <div class="{{$classes_box}} o-100">
+              {{with .link -}}
+                {{ $url := printf "%s?%s" . (querify "utm_source" "homepage" "utm_medium" "banner" "utm_campaign" "hugosponsor") | safeURL }}
+                {{ if eq (getenv "HUGO_ENV") "production" | or (eq $.cx.Site.Params.env "production")  }}
+                   {{ $gtagID := printf "Sponsor %s %s" $banner.name $gtag | title }}
+                   <a href="{{ $url }}" onclick="trackOutboundLink({{ printf "'%s', '%s'" $gtagID $url | safeJS }}); return false;" class="grow">
+                {{ else }}
+                   <a href="{{ $url }}" class="grow">
+                {{ end }}
+              {{- end}}
+              <img src="{{ .logo }}" alt="Logo for {{ .name }}" class="img h3 center" />
+              {{with .link}}</a>{{end}}
+              {{with .copy}}
+                <p class="center lh-copy gray mv1 tc {{$.classes_copy | default "f5 w-70-ns"}}">
+                  {{- . -}}
+                </p>
+              {{end}}
+            </div>
+          {{else}}
+            <div class="{{$classes_box}} o-10">
+              <p class="b black tc">Your Logo Here</p>
+            </div>
+          {{end}}
+        {{end}}
+      </div>
+    </div>
+  </section>
+{{end}}

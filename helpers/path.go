@@ -1,4 +1,4 @@
-// Copyright 2015 The Hugo Authors. All rights reserved.
+// Copyright 2019 The Hugo Authors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,15 +20,23 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode"
 
-	"github.com/spf13/hugo/hugofs"
+	"github.com/gohugoio/hugo/config"
 
+	"github.com/gohugoio/hugo/common/hugio"
+	_errors "github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"github.com/spf13/viper"
+	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
+)
+
+var (
+	// ErrThemeUndefined is returned when a theme has not be defined by the user.
+	ErrThemeUndefined = errors.New("no theme set")
 )
 
 // filepathPathBridge is a bridge for common functionality in filepath vs path
@@ -76,15 +84,27 @@ var fpb filepathBridge
 // whilst preserving the original casing of the string.
 // E.g. Social Media -> Social-Media
 func (p *PathSpec) MakePath(s string) string {
-	return p.UnicodeSanitize(strings.Replace(strings.TrimSpace(s), " ", "-", -1))
+	return p.UnicodeSanitize(s)
+}
+
+// MakePathsSanitized applies MakePathSanitized on every item in the slice
+func (p *PathSpec) MakePathsSanitized(paths []string) {
+	for i, path := range paths {
+		paths[i] = p.MakePathSanitized(path)
+	}
 }
 
 // MakePathSanitized creates a Unicode-sanitized string, with the spaces replaced
 func (p *PathSpec) MakePathSanitized(s string) string {
-	if p.disablePathToLower {
+	if p.DisablePathToLower {
 		return p.MakePath(s)
 	}
 	return strings.ToLower(p.MakePath(s))
+}
+
+// ToSlashTrimLeading is just a filepath.ToSlaas with an added / prefix trimmer.
+func ToSlashTrimLeading(s string) string {
+	return strings.TrimPrefix(filepath.ToSlash(s), "/")
 }
 
 // MakeTitle converts the path given to a suitable title, trimming whitespace
@@ -110,33 +130,39 @@ func ishex(c rune) bool {
 // a predefined set of special Unicode characters.
 // If RemovePathAccents configuration flag is enabled, Uniccode accents
 // are also removed.
+// Spaces will be replaced with a single hyphen, and sequential hyphens will be reduced to one.
 func (p *PathSpec) UnicodeSanitize(s string) string {
 	source := []rune(s)
 	target := make([]rune, 0, len(source))
+	var prependHyphen bool
 
 	for i, r := range source {
-		if r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]) {
+		isAllowed := r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~'
+		isAllowed = isAllowed || unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r)
+		isAllowed = isAllowed || (r == '%' && i+2 < len(source) && ishex(source[i+1]) && ishex(source[i+2]))
+
+		if isAllowed {
+			if prependHyphen {
+				target = append(target, '-')
+				prependHyphen = false
+			}
 			target = append(target, r)
-		} else if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsMark(r) || r == '.' || r == '/' || r == '\\' || r == '_' || r == '-' || r == '#' || r == '+' {
-			target = append(target, r)
+		} else if len(target) > 0 && (r == '-' || unicode.IsSpace(r)) {
+			prependHyphen = true
 		}
 	}
 
 	var result string
 
-	if p.removePathAccents {
+	if p.RemovePathAccents {
 		// remove accents - see https://blog.golang.org/normalization
-		t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+		t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 		result, _, _ = transform.String(t, string(target))
 	} else {
 		result = string(target)
 	}
 
 	return result
-}
-
-func isMn(r rune) bool {
-	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
 }
 
 // ReplaceExtension takes a path and an extension, strips the old extension
@@ -146,79 +172,30 @@ func ReplaceExtension(path string, newExt string) string {
 	return f + "." + newExt
 }
 
-// AbsPathify creates an absolute path if given a relative path. If already
-// absolute, the path is just cleaned.
-func AbsPathify(inPath string) string {
-	if filepath.IsAbs(inPath) {
-		return filepath.Clean(inPath)
-	}
-
-	// TODO(bep): Consider moving workingDir to argument list
-	return filepath.Clean(filepath.Join(viper.GetString("workingDir"), inPath))
-}
-
-// GetStaticDirPath returns the absolute path to the static file dir
-// for the current Hugo project.
-func GetStaticDirPath() string {
-	return AbsPathify(viper.GetString("staticDir"))
-}
-
-// GetThemeDir gets the root directory of the current theme, if there is one.
+// GetFirstThemeDir gets the root directory of the first theme, if there is one.
 // If there is no theme, returns the empty string.
-func GetThemeDir() string {
-	if ThemeSet() {
-		return AbsPathify(filepath.Join(viper.GetString("themesDir"), viper.GetString("theme")))
+func (p *PathSpec) GetFirstThemeDir() string {
+	if p.ThemeSet() {
+		return p.AbsPathify(filepath.Join(p.ThemesDir, p.Themes()[0]))
 	}
 	return ""
 }
 
-// GetThemeStaticDirPath returns the theme's static dir path if theme is set.
-// If theme is set and the static dir doesn't exist, an error is returned.
-func GetThemeStaticDirPath() (string, error) {
-	return getThemeDirPath("static")
-}
-
-// GetThemeDataDirPath returns the theme's data dir path if theme is set.
-// If theme is set and the data dir doesn't exist, an error is returned.
-func GetThemeDataDirPath() (string, error) {
-	return getThemeDirPath("data")
-}
-
-// GetThemeI18nDirPath returns the theme's i18n dir path if theme is set.
-// If theme is set and the i18n dir doesn't exist, an error is returned.
-func GetThemeI18nDirPath() (string, error) {
-	return getThemeDirPath("i18n")
-}
-
-func getThemeDirPath(path string) (string, error) {
-	if !ThemeSet() {
-		return "", errors.New("No theme set")
+// GetThemesDir gets the absolute root theme dir path.
+func (p *PathSpec) GetThemesDir() string {
+	if p.ThemeSet() {
+		return p.AbsPathify(p.ThemesDir)
 	}
+	return ""
+}
 
-	themeDir := filepath.Join(GetThemeDir(), path)
-	if _, err := hugofs.Source().Stat(themeDir); os.IsNotExist(err) {
-		return "", fmt.Errorf("Unable to find %s directory for theme %s in %s", path, viper.GetString("theme"), themeDir)
+// GetRelativeThemeDir gets the relative root directory of the current theme, if there is one.
+// If there is no theme, returns the empty string.
+func (p *PathSpec) GetRelativeThemeDir() string {
+	if p.ThemeSet() {
+		return strings.TrimPrefix(filepath.Join(p.ThemesDir, p.Themes()[0]), FilePathSeparator)
 	}
-
-	return themeDir, nil
-}
-
-// GetThemesDirPath gets the static files directory of the current theme, if there is one.
-// Ignores underlying errors.
-// TODO(bep) Candidate for deprecation?
-func GetThemesDirPath() string {
-	dir, _ := getThemeDirPath("static")
-	return dir
-}
-
-// MakeStaticPathRelative makes a relative path to the static files directory.
-// It does so by taking either the project's static path or the theme's static
-// path into consideration.
-func MakeStaticPathRelative(inPath string) (string, error) {
-	staticDir := GetStaticDirPath()
-	themeStaticDir := GetThemesDirPath()
-
-	return makePathRelative(inPath, staticDir, themeStaticDir)
+	return ""
 }
 
 func makePathRelative(inPath string, possibleDirectories ...string) (string, error) {
@@ -228,11 +205,11 @@ func makePathRelative(inPath string, possibleDirectories ...string) (string, err
 			return strings.TrimPrefix(inPath, currentPath), nil
 		}
 	}
-	return inPath, errors.New("Can't extract relative path, unknown prefix")
+	return inPath, errors.New("can't extract relative path, unknown prefix")
 }
 
 // Should be good enough for Hugo.
-var isFileRe = regexp.MustCompile(".*\\..{1,6}$")
+var isFileRe = regexp.MustCompile(`.*\..{1,6}$`)
 
 // GetDottedRelativePath expects a relative path starting after the content directory.
 // It returns a relative path with dots ("..") navigating up the path structure.
@@ -266,6 +243,35 @@ func GetDottedRelativePath(inPath string) string {
 	}
 
 	return dottedPath
+}
+
+// ExtNoDelimiter takes a path and returns the extension, excluding the delmiter, i.e. "md".
+func ExtNoDelimiter(in string) string {
+	return strings.TrimPrefix(Ext(in), ".")
+}
+
+// Ext takes a path and returns the extension, including the delmiter, i.e. ".md".
+func Ext(in string) string {
+	_, ext := fileAndExt(in, fpb)
+	return ext
+}
+
+// PathAndExt is the same as FileAndExt, but it uses the path package.
+func PathAndExt(in string) (string, string) {
+	return fileAndExt(in, pb)
+}
+
+// FileAndExt takes a path and returns the file and extension separated,
+// the extension including the delmiter, i.e. ".md".
+func FileAndExt(in string) (string, string) {
+	return fileAndExt(in, fpb)
+}
+
+// FileAndExtNoDelimiter takes a path and returns the file and extension separated,
+// the extension excluding the delmiter, e.g "md".
+func FileAndExtNoDelimiter(in string) (string, string) {
+	file, ext := fileAndExt(in, fpb)
+	return file, strings.TrimPrefix(ext, ".")
 }
 
 // Filename takes a path, strips out the extension,
@@ -339,57 +345,6 @@ func GetRelativePath(path, base string) (final string, err error) {
 	return name, nil
 }
 
-// PaginateAliasPath creates a path used to access the aliases in the paginator.
-func PaginateAliasPath(base string, page int) string {
-	paginatePath := Config().GetString("paginatePath")
-	uglify := viper.GetBool("uglyURLs")
-	var p string
-	if base != "" {
-		p = filepath.FromSlash(fmt.Sprintf("/%s/%s/%d", base, paginatePath, page))
-	} else {
-		p = filepath.FromSlash(fmt.Sprintf("/%s/%d", paginatePath, page))
-	}
-	if uglify {
-		p += ".html"
-	}
-
-	return p
-}
-
-// GuessSection returns the section given a source path.
-// A section is the part between the root slash and the second slash
-// or before the first slash.
-func GuessSection(in string) string {
-	parts := strings.Split(in, FilePathSeparator)
-	// This will include an empty entry before and after paths with leading and trailing slashes
-	// eg... /sect/one/ -> ["", "sect", "one", ""]
-
-	// Needs to have at least a value and a slash
-	if len(parts) < 2 {
-		return ""
-	}
-
-	// If it doesn't have a leading slash and value and file or trailing slash, then return ""
-	if parts[0] == "" && len(parts) < 3 {
-		return ""
-	}
-
-	// strip leading slash
-	if parts[0] == "" {
-		parts = parts[1:]
-	}
-
-	// if first directory is "content", return second directory
-	if parts[0] == "content" {
-		if len(parts) > 2 {
-			return parts[1]
-		}
-		return ""
-	}
-
-	return parts[0]
-}
-
 // PathPrep prepares the path using the uglify setting to create paths on
 // either the form /section/name/index.html or /section/name.html.
 func PathPrep(ugly bool, in string) string {
@@ -413,7 +368,7 @@ func prettifyPath(in string, b filepathPathBridge) string {
 		if len(in) < 2 {
 			return b.Separator()
 		}
-		return b.Join(b.Clean(in), "index.html")
+		return b.Join(in, "index.html")
 	}
 	name, ext := fileAndExt(in, b)
 	if name == "index" {
@@ -451,7 +406,7 @@ func FindCWD() (string, error) {
 	serverFile, err := filepath.Abs(os.Args[0])
 
 	if err != nil {
-		return "", fmt.Errorf("Can't get absolute path for executable: %v", err)
+		return "", fmt.Errorf("can't get absolute path for executable: %v", err)
 	}
 
 	path := filepath.Dir(serverFile)
@@ -470,16 +425,14 @@ func FindCWD() (string, error) {
 	return path, nil
 }
 
-var WalkRootTooShortError = errors.New("Path too short. Stop walking.")
-
 // SymbolicWalk is like filepath.Walk, but it supports the root being a
 // symbolic link. It will still not follow symbolic links deeper down in
-// the file structure
+// the file structure.
 func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
 	// Sanity check
-	if len(root) < 4 {
-		return WalkRootTooShortError
+	if root != "" && len(root) < 4 {
+		return errors.New("path is too short")
 	}
 
 	// Handle the root first
@@ -490,14 +443,17 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 	}
 
 	if !fileInfo.IsDir() {
-		return fmt.Errorf("Cannot walk regular file %s", root)
+		return fmt.Errorf("cannot walk regular file %s", root)
 	}
 
 	if err := walker(realPath, fileInfo, err); err != nil && err != filepath.SkipDir {
 		return err
 	}
 
-	rootContent, err := afero.ReadDir(fs, root)
+	// Some of Hugo's filesystems represents an ordered root folder, i.e. project first, then theme folders.
+	// Make sure that order is preserved. afero.Walk will sort the directories down in the file tree,
+	// but we don't care about that.
+	rootContent, err := readDir(fs, root, false)
 
 	if err != nil {
 		return walker(root, nil, err)
@@ -513,8 +469,24 @@ func SymbolicWalk(fs afero.Fs, root string, walker filepath.WalkFunc) error {
 
 }
 
+func readDir(fs afero.Fs, dirname string, doSort bool) ([]os.FileInfo, error) {
+	f, err := fs.Open(dirname)
+	if err != nil {
+		return nil, err
+	}
+	list, err := f.Readdir(-1)
+	f.Close()
+	if err != nil {
+		return nil, err
+	}
+	if doSort {
+		sort.Slice(list, func(i, j int) bool { return list[i].Name() < list[j].Name() })
+	}
+	return list, nil
+}
+
 func getRealFileInfo(fs afero.Fs, path string) (os.FileInfo, string, error) {
-	fileInfo, err := lstatIfOs(fs, path)
+	fileInfo, err := LstatIfPossible(fs, path)
 	realPath := path
 
 	if err != nil {
@@ -524,11 +496,11 @@ func getRealFileInfo(fs afero.Fs, path string) (os.FileInfo, string, error) {
 	if fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink {
 		link, err := filepath.EvalSymlinks(path)
 		if err != nil {
-			return nil, "", fmt.Errorf("Cannot read symbolic link '%s', error was: %s", path, err)
+			return nil, "", _errors.Wrapf(err, "Cannot read symbolic link %q", path)
 		}
-		fileInfo, err = lstatIfOs(fs, link)
+		fileInfo, err = LstatIfPossible(fs, link)
 		if err != nil {
-			return nil, "", fmt.Errorf("Cannot stat '%s', error was: %s", link, err)
+			return nil, "", _errors.Wrapf(err, "Cannot stat %q", link)
 		}
 		realPath = link
 	}
@@ -547,16 +519,14 @@ func GetRealPath(fs afero.Fs, path string) (string, error) {
 	return realPath, nil
 }
 
-// Code copied from Afero's path.go
-// if the filesystem is OsFs use Lstat, else use fs.Stat
-func lstatIfOs(fs afero.Fs, path string) (info os.FileInfo, err error) {
-	_, ok := fs.(*afero.OsFs)
-	if ok {
-		info, err = os.Lstat(path)
-	} else {
-		info, err = fs.Stat(path)
+// LstatIfPossible can be used to call Lstat if possible, else Stat.
+func LstatIfPossible(fs afero.Fs, path string) (os.FileInfo, error) {
+	if lstater, ok := fs.(afero.Lstater); ok {
+		fi, _, err := lstater.LstatIfPossible(path)
+		return fi, err
 	}
-	return
+
+	return fs.Stat(path)
 }
 
 // SafeWriteToDisk is the same as WriteToDisk
@@ -568,6 +538,97 @@ func SafeWriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 // WriteToDisk writes content to disk.
 func WriteToDisk(inpath string, r io.Reader, fs afero.Fs) (err error) {
 	return afero.WriteReader(fs, inpath, r)
+}
+
+// OpenFilesForWriting opens all the given filenames for writing.
+func OpenFilesForWriting(fs afero.Fs, filenames ...string) (io.WriteCloser, error) {
+	var writeClosers []io.WriteCloser
+	for _, filename := range filenames {
+		f, err := OpenFileForWriting(fs, filename)
+		if err != nil {
+			for _, wc := range writeClosers {
+				wc.Close()
+			}
+			return nil, err
+		}
+		writeClosers = append(writeClosers, f)
+	}
+
+	return hugio.NewMultiWriteCloser(writeClosers...), nil
+
+}
+
+// OpenFileForWriting opens or creates the given file. If the target directory
+// does not exist, it gets created.
+func OpenFileForWriting(fs afero.Fs, filename string) (afero.File, error) {
+	filename = filepath.Clean(filename)
+	// Create will truncate if file already exists.
+	// os.Create will create any new files with mode 0666 (before umask).
+	f, err := fs.Create(filename)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return nil, err
+		}
+		if err = fs.MkdirAll(filepath.Dir(filename), 0777); err != nil { //  before umask
+			return nil, err
+		}
+		f, err = fs.Create(filename)
+	}
+
+	return f, err
+}
+
+// GetCacheDir returns a cache dir from the given filesystem and config.
+// The dir will be created if it does not exist.
+func GetCacheDir(fs afero.Fs, cfg config.Provider) (string, error) {
+	cacheDir := getCacheDir(cfg)
+	if cacheDir != "" {
+		exists, err := DirExists(cacheDir, fs)
+		if err != nil {
+			return "", err
+		}
+		if !exists {
+			err := fs.MkdirAll(cacheDir, 0777) // Before umask
+			if err != nil {
+				return "", _errors.Wrap(err, "failed to create cache dir")
+			}
+		}
+		return cacheDir, nil
+	}
+
+	// Fall back to a cache in /tmp.
+	return GetTempDir("hugo_cache", fs), nil
+
+}
+
+func getCacheDir(cfg config.Provider) string {
+	// Always use the cacheDir config if set.
+	cacheDir := cfg.GetString("cacheDir")
+	if len(cacheDir) > 1 {
+		return addTrailingFileSeparator(cacheDir)
+	}
+
+	// Both of these are fairly distinctive OS env keys used by Netlify.
+	if os.Getenv("DEPLOY_PRIME_URL") != "" && os.Getenv("PULL_REQUEST") != "" {
+		// Netlify's cache behaviour is not documented, the currently best example
+		// is this project:
+		// https://github.com/philhawksworth/content-shards/blob/master/gulpfile.js
+		return "/opt/build/cache/hugo_cache/"
+
+	}
+
+	// This will fall back to an hugo_cache folder in the tmp dir, which should work fine for most CI
+	// providers. See this for a working CircleCI setup:
+	// https://github.com/bep/hugo-sass-test/blob/6c3960a8f4b90e8938228688bc49bdcdd6b2d99e/.circleci/config.yml
+	// If not, they can set the HUGO_CACHEDIR environment variable or cacheDir config key.
+	return ""
+}
+
+func addTrailingFileSeparator(s string) string {
+	if !strings.HasSuffix(s, FilePathSeparator) {
+		s = s + FilePathSeparator
+	}
+	return s
 }
 
 // GetTempDir returns a temporary directory with the given sub path.
