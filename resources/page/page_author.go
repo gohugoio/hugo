@@ -36,7 +36,6 @@ type Author struct {
 // - github
 // - facebook
 // - twitter
-// - googleplus
 // - pinterest
 // - instagram
 // - youtube
