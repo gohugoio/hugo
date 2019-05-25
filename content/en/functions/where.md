@@ -83,6 +83,15 @@ The following logical operators are available with `where`:
 `intersect`
 : `true` if a given field value that is a slice/array of strings or integers contains elements in common with the matching value; it follows the same rules as the [`intersect` function][intersect].
 
+## Use `where` with `Booleans`
+When using booleans you should not put quotation marks.
+```go-html-template
+{{range where .Pages ".Draft" true}}
+        <p>{{.Title}}</p>
+{{end}}
+```
+  
+
 ## Use `where` with `intersect`
 
 ```go-html-template
@@ -122,7 +131,7 @@ then ranges through only the first 5 posts in that list:
 You can also nest `where` clauses to drill down on lists of content by more than one parameter. The following first grabs all pages in the "blog" section and then ranges through the result of the first `where` clause and finds all pages that are *not* featured:
 
 ```go-html-template
-{{ range where (where .Pages "Section" "blog" ) ".Params.featured" "!=" "true" }}
+{{ range where (where .Pages "Section" "blog" ) ".Params.featured" "!=" true }}
 ```
 
 ## Unset Fields

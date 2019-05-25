@@ -14,7 +14,7 @@ keywords: []
 signature: ["md5 INPUT"]
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [sha]
 deprecated: false
 aliases: []
 ---

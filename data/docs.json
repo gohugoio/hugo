@@ -1500,6 +1500,30 @@
     "formats": [
       {
         "MediaType": "text/html",
+        "name": "HTML",
+        "mediaType": {
+          "type": "text/html",
+          "string": "text/html",
+          "mainType": "text",
+          "subType": "html",
+          "delimiter": ".",
+          "suffixes": [
+            "html"
+          ]
+        },
+        "path": "",
+        "baseName": "index",
+        "rel": "canonical",
+        "protocol": "",
+        "isPlainText": false,
+        "isHTML": true,
+        "noUgly": false,
+        "notAlternative": false,
+        "permalinkable": true,
+        "weight": 10
+      },
+      {
+        "MediaType": "text/html",
         "name": "AMP",
         "mediaType": {
           "type": "text/html",
@@ -1519,7 +1543,8 @@
         "isHTML": true,
         "noUgly": false,
         "notAlternative": false,
-        "permalinkable": true
+        "permalinkable": true,
+        "weight": 0
       },
       {
         "MediaType": "text/css",
@@ -1542,7 +1567,8 @@
         "isHTML": false,
         "noUgly": false,
         "notAlternative": true,
-        "permalinkable": false
+        "permalinkable": false,
+        "weight": 0
       },
       {
         "MediaType": "text/csv",
@@ -1565,7 +1591,8 @@
         "isHTML": false,
         "noUgly": false,
         "notAlternative": false,
-        "permalinkable": false
+        "permalinkable": false,
+        "weight": 0
       },
       {
         "MediaType": "text/calendar",
@@ -1588,30 +1615,8 @@
         "isHTML": false,
         "noUgly": false,
         "notAlternative": false,
-        "permalinkable": false
-      },
-      {
-        "MediaType": "text/html",
-        "name": "HTML",
-        "mediaType": {
-          "type": "text/html",
-          "string": "text/html",
-          "mainType": "text",
-          "subType": "html",
-          "delimiter": ".",
-          "suffixes": [
-            "html"
-          ]
-        },
-        "path": "",
-        "baseName": "index",
-        "rel": "canonical",
-        "protocol": "",
-        "isPlainText": false,
-        "isHTML": true,
-        "noUgly": false,
-        "notAlternative": false,
-        "permalinkable": true
+        "permalinkable": false,
+        "weight": 0
       },
       {
         "MediaType": "application/json",
@@ -1634,7 +1639,8 @@
         "isHTML": false,
         "noUgly": false,
         "notAlternative": false,
-        "permalinkable": false
+        "permalinkable": false,
+        "weight": 0
       },
       {
         "MediaType": "text/plain",
@@ -1657,7 +1663,8 @@
         "isHTML": false,
         "noUgly": false,
         "notAlternative": false,
-        "permalinkable": false
+        "permalinkable": false,
+        "weight": 0
       },
       {
         "MediaType": "application/rss+xml",
@@ -1680,7 +1687,8 @@
         "isHTML": false,
         "noUgly": true,
         "notAlternative": false,
-        "permalinkable": false
+        "permalinkable": false,
+        "weight": 0
       },
       {
         "MediaType": "application/xml",
@@ -1703,7 +1711,8 @@
         "isHTML": false,
         "noUgly": true,
         "notAlternative": false,
-        "permalinkable": false
+        "permalinkable": false,
+        "weight": 0
       }
     ],
     "layouts": [

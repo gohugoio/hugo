@@ -14,9 +14,9 @@ keywords: [sha,checksum]
 signature: ["sha1 INPUT", "sha256 INPUT"]
 workson: []
 hugoversion:
-relatedfuncs: []
+relatedfuncs: [md5]
 deprecated: false
-aliases: []
+aliases: [sha1, sha256]
 ---
 
 `sha1` hashes the given input and returns its SHA1 checksum.
