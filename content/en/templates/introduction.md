@@ -233,6 +233,18 @@ key.
 {{ end }}
 ```
 
+#### Example 5: Conditional on empty _map_, _array_, or _slice_.
+
+If the _map_, _array_, or _slice_ passed into the range is zero-length then the else statment is evaluated.
+
+```go-html-template
+{{ range $array }}
+    {{ . }}
+{{else}}
+    <!-- This is only evaluated if $array is empty -->
+{{ end }}
+```
+
 ### Conditionals
 
 `if`, `else`, `with`, `or`, and `and` provide the framework for handling conditional logic in Go Templates. Like `range`, each statement is closed with an `{{ end }}`.
