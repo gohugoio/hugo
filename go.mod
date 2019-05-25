@@ -10,7 +10,7 @@ require (
 	github.com/alecthomas/repr v0.0.0-20181024024818-d37bc2a10ba1 // indirect
 	github.com/aws/aws-sdk-go v1.16.23
 	github.com/bep/debounce v1.2.0
-	github.com/bep/gitmap v1.0.0
+	github.com/bep/gitmap v1.1.0
 	github.com/bep/go-tocss v0.6.0
 	github.com/chaseadamsio/goorgeous v1.1.0
 	github.com/cpuguy83/go-md2man v1.0.8 // indirect
