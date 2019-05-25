@@ -1,8 +1,8 @@
 
 ---
 date: 2019-05-02
-title: "0.55.5"
-description: "0.55.5"
+title: "Hugo 0.55.5: Take Five!"
+description: "We round up this 0.55 release with a final batch of bug fixes!"
 categories: ["Releases"]
 images:
 - images/blog/hugo-bug-poster.png
