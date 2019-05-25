@@ -98,14 +98,4 @@ parameters to `partialCached` beyond the initial context.  See the
 {{% /tip %}}
 
 
-## Step Analysis
-
-Hugo provides a means of seeing metrics about each step in the site build
-process.  We call that *Step Analysis*.  The *step analysis* output shows the
-total time per step, the cumulative time after each step (in parentheses),
-the memory usage per step, and the total memory allocations per step.
-
-To enable *step analysis*, use the `--stepAnalysis` option when running Hugo.
-
-
 [partialCached]:{{< ref "/functions/partialCached.md" >}}

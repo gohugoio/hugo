@@ -1,6 +1,9 @@
 .CurrentSection
 : The page's current section. The value can be the page itself if it is a section or the homepage.
 
+.FirstSection
+: The page's first section below root, e.g. `/docs`, `/blog` etc.
+
 .InSection $anotherPage
 : Whether the given page is in the current section. Note that this will always return false for pages that are not either regular, home or section pages.
 

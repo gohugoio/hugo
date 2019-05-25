@@ -51,6 +51,6 @@ If you process `SCSS` or `SASS` to `CSS` in your Hugo project, you need the Hugo
 error: failed to transform resource: TOCSS: failed to transform "scss/main.scss" (text/x-scss): this feature is not available in your current Hugo version
 ```
 
-We release two set of binaries for technical reasons. The extended is what you get by default, as an example, when you run `brew install hugo` on `macOS`. On the [release page](https://github.com/gohugoio/hugo/releases), look for archives with `extended` in the name.
+We release two set of binaries for technical reasons. The extended is not what you get by default, as an example, when you run `brew install hugo` on `macOS`. On the [release page](https://github.com/gohugoio/hugo/releases), look for archives with `extended` in the name. To build `hugo-extended`, use `go install --tags extended`
 
 To confirm, run `hugo version` and look for the word `extended`.

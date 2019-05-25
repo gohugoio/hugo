@@ -20,7 +20,7 @@ toc: true
 ---
 
 {{% note %}}
-The following is only a primer on Go Templates. For an in-depth look into Go Templates, check the official [Go docs](http://golang.org/pkg/html/template/).
+The following is only a primer on Go Templates. For an in-depth look into Go Templates, check the official [Go docs](https://golang.org/pkg/text/template/).
 {{% /note %}}
 
 Go Templates provide an extremely simple template language that adheres to the belief that only the most basic of logic belongs in the template or view layer.
@@ -230,6 +230,18 @@ key.
 ```go-html-template
 {{ range $elem_key, $elem_val := $map }}
    {{ $elem_key }} -- {{ $elem_val }}
+{{ end }}
+```
+
+#### Example 5: Conditional on empty _map_, _array_, or _slice_.
+
+If the _map_, _array_, or _slice_ passed into the range is zero-length then the else statment is evaluated.
+
+```go-html-template
+{{ range $array }}
+    {{ . }}
+{{else}}
+    <!-- This is only evaluated if $array is empty -->
 {{ end }}
 ```
 

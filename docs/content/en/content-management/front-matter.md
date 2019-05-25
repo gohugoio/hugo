@@ -61,7 +61,7 @@ audio
 : an array of paths to audio files related to the page; used by the `opengraph` [internal template](/templates/internal) to populate `og:audio`.
 
 date
-: the datetime at which the content was created; note this value is auto-populated according to Hugo's built-in [archetype][].
+: the datetime assigned to this page. This is usually fetched from the `date` field in front matter, but this behaviour is configurable.
 
 description
 : the description for the content.
