@@ -672,7 +672,6 @@ func (s *SiteInfo) DisqusShortname() string {
 // facebook_admin
 // twitter
 // twitter_domain
-// googleplus
 // pinterest
 // instagram
 // youtube

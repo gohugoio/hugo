@@ -269,7 +269,7 @@ if (!doNotTrack) {
     {{ end }}
 </ul>
 {{ end }}`},
-	{`schema.html`, `{{ with .Site.Social.GooglePlus }}<link rel="publisher" href="{{ . }}"/>{{ end }}
+	{`schema.html`, `
 <meta itemprop="name" content="{{ .Title }}">
 <meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
 
