@@ -222,3 +222,54 @@ menu: "main"
 	b.AssertFileContent("public/index.html", "AMP and HTML|/blog/html-amp/|AMP only|/amp/blog/amp/|HTML only|/blog/html/|Home Sweet Home|/|")
 	b.AssertFileContent("public/amp/index.html", "AMP and HTML|/amp/blog/html-amp/|AMP only|/amp/blog/amp/|HTML only|/blog/html/|Home Sweet Home|/amp/|")
 }
+
+// https://github.com/gohugoio/hugo/issues/5989
+func TestMenuPageSortByDate(t *testing.T) {
+
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+
+	b.WithContent("blog/a.md", `
+---
+Title: A
+date: 2019-01-01
+menu:
+  main:
+    identifier: "a"
+    weight: 1
+---
+
+`)
+
+	b.WithContent("blog/b.md", `
+---
+Title: B
+date: 2018-01-02
+menu:
+  main:
+    parent: "a"
+    weight: 100
+---
+
+`)
+
+	b.WithContent("blog/c.md", `
+---
+Title: C
+date: 2019-01-03
+menu:
+  main:
+    parent: "a"
+    weight: 10
+---
+
+`)
+
+	b.WithTemplatesAdded("index.html", `{{ range .Site.Menus.main }}{{ .Title }}|Children: 
+{{- $children := sort .Children ".Page.Date" "desc" }}{{ range $children }}{{ .Title }}|{{ end }}{{ end }}
+	
+`)
+
+	b.Build(BuildCfg{})
+
+	b.AssertFileContent("public/index.html", "A|Children:C|B|")
+}

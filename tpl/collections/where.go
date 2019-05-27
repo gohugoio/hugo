@@ -269,8 +269,16 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 	typ := obj.Type()
 	obj, isNil := indirect(obj)
 
+	if obj.Kind() == reflect.Interface {
+		// If obj is an interface, we need to inspect the value it contains
+		// to see the full set of methods and fields.
+		// Indirect returns the value that it points to, which is what's needed
+		// below to be able to reflect on its fields.
+		obj = reflect.Indirect(obj.Elem())
+	}
+
 	// first, check whether obj has a method. In this case, obj is
-	// an interface, a struct or its pointer. If obj is a struct,
+	// a struct or its pointer. If obj is a struct,
 	// to check all T and *T method, use obj pointer type Value
 	objPtr := obj
 	if objPtr.Kind() != reflect.Interface && objPtr.CanAddr() {
