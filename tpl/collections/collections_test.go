@@ -819,6 +819,10 @@ func (x TstX) TstRv() string {
 	return "r" + x.B
 }
 
+func (x TstX) TstRv2() string {
+	return "r" + x.B
+}
+
 func (x TstX) unexportedMethod() string {
 	return x.unexported
 }
@@ -848,6 +852,33 @@ func (x TstX) String() string {
 type TstX struct {
 	A, B       string
 	unexported string
+}
+
+type TstXIHolder struct {
+	XI TstXI
+}
+
+// Partially implemented by the TstX struct.
+type TstXI interface {
+	TstRv2() string
+}
+
+func ToTstXIs(slice interface{}) []TstXI {
+	s := reflect.ValueOf(slice)
+	if s.Kind() != reflect.Slice {
+		return nil
+	}
+	tis := make([]TstXI, s.Len())
+
+	for i := 0; i < s.Len(); i++ {
+		tsti, ok := s.Index(i).Interface().(TstXI)
+		if !ok {
+			return nil
+		}
+		tis[i] = tsti
+	}
+
+	return tis
 }
 
 func newDeps(cfg config.Provider) *deps.Deps {
