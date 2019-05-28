@@ -1,6 +1,7 @@
 module github.com/gohugoio/hugo
 
 require (
+	cloud.google.com/go v0.39.0 // indirect
 	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
 	github.com/BurntSushi/toml v0.3.1
 	github.com/PuerkitoBio/purell v1.1.0
@@ -20,12 +21,14 @@ require (
 	github.com/fortytw2/leaktest v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/gobwas/glob v0.2.3
-	github.com/google/go-cmp v0.2.0
+	github.com/google/go-cmp v0.3.0
 	github.com/gorilla/websocket v1.4.0
 	github.com/hashicorp/go-immutable-radix v1.0.0
+	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/jdkato/prose v1.1.0
 	github.com/kyokomi/emoji v1.5.1
 	github.com/magefile/mage v1.4.0
+	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/markbates/inflect v1.0.0
 	github.com/mattn/go-isatty v0.0.7
 	github.com/miekg/mmark v1.3.6
@@ -35,23 +38,29 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
+	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/russross/blackfriday v1.5.2
 	github.com/sanity-io/litter v1.1.0
+	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cast v1.3.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/fsync v0.0.0-20170320142552-12a01e648f05
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/pflag v1.0.3
-	github.com/spf13/viper v1.3.2
+	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.3.0
 	github.com/tdewolff/minify/v2 v2.3.7
 	github.com/yosssi/ace v0.0.5
 	gocloud.dev v0.13.0
-	golang.org/x/image v0.0.0-20190321063152-3fc05d484e9f
-	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
-	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2
+	golang.org/x/image v0.0.0-20190523035834-f03afa92d3ff
+	golang.org/x/oauth2 v0.0.0-20190523182746-aaccbc9213b0 // indirect
+	golang.org/x/sync v0.0.0-20190423024810-112230192c58
+	golang.org/x/sys v0.0.0-20190528012530-adf421d2caf4 // indirect
+	golang.org/x/text v0.3.2
+	google.golang.org/appengine v1.6.0 // indirect
+	google.golang.org/genproto v0.0.0-20190522204451-c2c4e71fbf69 // indirect
 	gopkg.in/yaml.v2 v2.2.2
 )
 
