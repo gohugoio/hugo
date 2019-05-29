@@ -200,6 +200,9 @@ func (r *Spec) newResource(sourceFs afero.Fs, fd ResourceSourceDescriptor) (reso
 		var err error
 		fi, err = sourceFs.Stat(fd.SourceFilename)
 		if err != nil {
+			if os.IsNotExist(err) {
+				return nil, nil
+			}
 			return nil, err
 		}
 		sourceFilename = fd.SourceFilename

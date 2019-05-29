@@ -356,6 +356,11 @@ CSV2: {{ $csv2 }}
 				`CSV2: [[a b c]]`,
 			)
 		}},
+		{"resources.Get", func() bool { return true }, func(b *sitesBuilder) {
+			b.WithTemplates("home.html", `NOT FOUND: {{ if (resources.Get "this-does-not-exist") }}FAILED{{ else }}OK{{ end }}`)
+		}, func(b *sitesBuilder) {
+			b.AssertFileContent("public/index.html", "NOT FOUND: OK")
+		}},
 
 		{"template", func() bool { return true }, func(b *sitesBuilder) {}, func(b *sitesBuilder) {
 		}},
