@@ -88,6 +88,27 @@ func TestWhere(t *testing.T) {
 			seq: []map[string]float64{
 				{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "x": 4},
 			},
+			key: "b", match: 4, op: "<",
+			expect: []map[string]float64{{"a": 1, "b": 2}},
+		},
+		{
+			seq: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "x": 4},
+			},
+			key: "b", match: 4.0, op: "<",
+			expect: []map[string]int{{"a": 1, "b": 2}},
+		},
+		{
+			seq: []map[string]int{
+				{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "x": 4},
+			},
+			key: "b", match: 4.2, op: "<",
+			expect: []map[string]int{{"a": 1, "b": 2}, {"a": 3, "b": 4}},
+		},
+		{
+			seq: []map[string]float64{
+				{"a": 1, "b": 2}, {"a": 3, "b": 4}, {"a": 5, "x": 4},
+			},
 			key: "b", match: 4.0, op: "<=",
 			expect: []map[string]float64{{"a": 1, "b": 2}, {"a": 3, "b": 4}},
 		},
