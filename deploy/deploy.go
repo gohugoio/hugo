@@ -110,8 +110,6 @@ func (d *Deployer) openBucket(ctx context.Context) (*blob.Bucket, error) {
 
 // Deploy deploys the site to a target.
 func (d *Deployer) Deploy(ctx context.Context) error {
-	// TODO: This opens the root path in the bucket/container.
-	// Consider adding support for targeting a subdirectory.
 	bucket, err := d.openBucket(ctx)
 	if err != nil {
 		return err
