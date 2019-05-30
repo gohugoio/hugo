@@ -498,5 +498,5 @@ dir
 [Output Formats]: /templates/output-formats/
 [templates]: /templates/
 [toml]: https://github.com/toml-lang/toml
-[yaml]: http://yaml.org/spec/
+[yaml]: https://yaml.org/spec/
 [static-files]: /content-management/static-files/
