@@ -460,7 +460,7 @@ HEADLESS {{< myShort >}}
 	assert.Equal(1, len(s.headlessPages))
 
 	regular := s.getPage(page.KindPage, "a/index")
-	assert.Equal("/a/s1/", regular.RelPermalink())
+	assert.Equal("/s1/", regular.RelPermalink())
 
 	headless := s.getPage(page.KindPage, "b/index")
 	assert.NotNil(headless)
@@ -481,12 +481,12 @@ HEADLESS {{< myShort >}}
 
 	th := testHelper{s.Cfg, s.Fs, t}
 
-	th.assertFileContent(filepath.FromSlash(workDir+"/public/a/s1/index.html"), "TheContent")
-	th.assertFileContent(filepath.FromSlash(workDir+"/public/a/s1/l1.png"), "PNG")
+	th.assertFileContent(filepath.FromSlash(workDir+"/public/s1/index.html"), "TheContent")
+	th.assertFileContent(filepath.FromSlash(workDir+"/public/s1/l1.png"), "PNG")
 
-	th.assertFileNotExist(workDir + "/public/b/s2/index.html")
+	th.assertFileNotExist(workDir + "/public/s2/index.html")
 	// But the bundled resources needs to be published
-	th.assertFileContent(filepath.FromSlash(workDir+"/public/b/s2/l1.png"), "PNG")
+	th.assertFileContent(filepath.FromSlash(workDir+"/public/s2/l1.png"), "PNG")
 
 }
 
@@ -940,5 +940,34 @@ date: 2017-01-15
 	b.Build(BuildCfg{})
 
 	b.AssertFileContent("public/mybundle/data.json", "My changed data")
+
+}
+
+// https://github.com/gohugoio/hugo/issues/4870
+func TestBundleSlug(t *testing.T) {
+	t.Parallel()
+	assert := require.New(t)
+
+	const pageTemplate = `---
+title: Title
+slug: %s
+---
+`
+
+	b := newTestSitesBuilder(t)
+
+	b.WithTemplatesAdded("index.html", `{{ range .Site.RegularPages }}|{{ .RelPermalink }}{{ end }}|`)
+	b.WithSimpleConfigFile().
+		WithContent("about/services1/misc.md", fmt.Sprintf(pageTemplate, "this-is-the-slug")).
+		WithContent("about/services2/misc/index.md", fmt.Sprintf(pageTemplate, "this-is-another-slug"))
+
+	b.CreateSites().Build(BuildCfg{})
+
+	b.AssertHome(
+		"|/about/services1/this-is-the-slug/|/",
+		"|/about/services2/this-is-another-slug/|")
+
+	assert.True(b.CheckExists("public/about/services1/this-is-the-slug/index.html"))
+	assert.True(b.CheckExists("public/about/services2/this-is-another-slug/index.html"))
 
 }

@@ -549,6 +549,10 @@ func (s *sitesBuilder) AssertFileContentFn(filename string, f func(s string) boo
 	}
 }
 
+func (s *sitesBuilder) AssertHome(matches ...string) {
+	s.AssertFileContent("public/index.html", matches...)
+}
+
 func (s *sitesBuilder) AssertFileContent(filename string, matches ...string) {
 	content := s.FileContent(filename)
 	for _, match := range matches {
