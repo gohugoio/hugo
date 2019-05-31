@@ -77,15 +77,24 @@ func New(cfg config.Provider, localFs afero.Fs) (*Deployer, error) {
 		return nil, err
 	}
 
+	if len(dcfg.Targets) == 0 {
+		return nil, errors.New("no deployment targets found")
+	}
+
 	// Find the target to deploy to.
 	var tgt *target
-	for _, t := range dcfg.Targets {
-		if t.Name == targetName {
-			tgt = t
+	if targetName == "" {
+		// Default to the first target.
+		tgt = dcfg.Targets[0]
+	} else {
+		for _, t := range dcfg.Targets {
+			if t.Name == targetName {
+				tgt = t
+			}
 		}
-	}
-	if tgt == nil {
-		return nil, fmt.Errorf("deployment target %q not found", targetName)
+		if tgt == nil {
+			return nil, fmt.Errorf("deployment target %q not found", targetName)
+		}
 	}
 	return &Deployer{
 		localFs:       localFs,
@@ -105,6 +114,7 @@ func (d *Deployer) openBucket(ctx context.Context) (*blob.Bucket, error) {
 	if d.bucket != nil {
 		return d.bucket, nil
 	}
+	jww.FEEDBACK.Printf("Deploying to target %q (%s)\n", d.target.Name, d.target.URL)
 	return blob.OpenBucket(ctx, d.target.URL)
 }
 

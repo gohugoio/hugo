@@ -66,7 +66,7 @@ documentation.
 		},
 	})
 
-	cc.cmd.Flags().String("target", "default", "target deployment from deployments section in config file")
+	cc.cmd.Flags().String("target", "", "target deployment from deployments section in config file; defaults to the first one")
 	cc.cmd.Flags().Bool("confirm", false, "ask for confirmation before making changes to the target")
 	cc.cmd.Flags().Bool("dryRun", false, "dry run")
 	cc.cmd.Flags().Bool("force", false, "force upload of all files")
