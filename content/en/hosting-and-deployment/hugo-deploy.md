@@ -100,7 +100,7 @@ gzip = true
 
 To deploy to a target:
 ```
-hugo deploy --target=<target name>
+hugo deploy [--target=<target name>, defaults to first target]
 ```
 
 Hugo will identify and apply any local changes that need to be reflected to the
