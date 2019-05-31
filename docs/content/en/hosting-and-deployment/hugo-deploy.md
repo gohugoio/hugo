@@ -58,12 +58,12 @@ a detailed example:
 # By default, files are uploaded in an arbitrary order.
 # Files that match the regular expressions in the "Order" list
 # will be uploaded first, in the listed order.
-Order = [".jpg$", ".gif$"]
+order = [".jpg$", ".gif$"]
 
 
 [[deployment.targets]]
 # An arbitrary name for this target.
-Name = "mydeployment"
+name = "mydeployment"
 # The Go Cloud Development Kit URL to deploy to. Examples:
   # URL = "gs://<Bucket Name>"  # For GCS; see https://gocloud.dev/howto/blob/open-bucket/#gcs.
   # URL = "s3://<Bucket Name>?region=<AWS region>"  # For S3; see https://gocloud.dev/howto/blob/open-bucket/#s3.
@@ -71,7 +71,7 @@ Name = "mydeployment"
 # You can use a "prefix=" query parameter to target a subfolder of the bucket:
   # URL = "gs://<Bucket Name>?prefix=a/subfolder/"
 # If you are using a CloudFront CDN, deploy will invalidate the cache as needed.
-CloudFrontDistributionID = <ID>
+cloudFrontDistributionID = <ID>
 
 
 # ... add more [[deployment.targets]] sections ...
@@ -82,17 +82,17 @@ CloudFrontDistributionID = <ID>
 
 [[deployment.matchers]]
 #  Cache static assets for 20 years.
-Pattern = "^.+\\.(js|css|svg|ttf)$"
-Cache-Control = "max-age=630720000, no-transform, public"
+pattern = "^.+\\.(js|css|svg|ttf)$"
+cacheControl = "max-age=630720000, no-transform, public"
 gzip = true
 
 [[deployment.matchers]]
-Pattern = "^.+\\.(png|jpg)$"
-Cache-Control = "max-age=630720000, no-transform, public"
+pattern = "^.+\\.(png|jpg)$"
+cacheControl = "max-age=630720000, no-transform, public"
 gzip = false
 
 [[deployment.matchers]]
-Pattern = "^.+\\.(html|xml|json)$"
+pattern = "^.+\\.(html|xml|json)$"
 gzip = true
 ```
 
@@ -100,11 +100,12 @@ gzip = true
 
 To deploy to a target:
 ```
-hugo deploy --target=<target>
+hugo deploy --target=<target name>
 ```
 
-Hugo will identify any local changes that need to be uploaded, and ask for
-confirmation before doing anything.
+Hugo will identify and apply any local changes that need to be reflected to the
+remote target. You can use `--dryRun` to see the changes without applying them,
+or `--confirm` to be prompted before making changes.
 
 See `hugo help deploy` for more command-line options.
 

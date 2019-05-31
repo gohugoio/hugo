@@ -48,15 +48,15 @@ type matcher struct {
 
 	// CacheControl specifies caching attributes to use when serving the blob.
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
-	CacheControl string `mapstructure:"Cache-Control"`
+	CacheControl string
 
 	// ContentEncoding specifies the encoding used for the blob's content, if any.
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
-	ContentEncoding string `mapstructure:"Content-Encoding"`
+	ContentEncoding string
 
 	// ContentType specifies the MIME type of the blob being written.
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-	ContentType string `mapstructure:"Content-Type"`
+	ContentType string
 
 	// Gzip determines whether the file should be gzipped before upload.
 	// If so, the ContentEncoding field will automatically be set to "gzip".
