@@ -44,9 +44,11 @@ func newDeployCmd() *deployCmd {
 	cc.baseCmd = newBaseCmd(&cobra.Command{
 		Use:   "deploy",
 		Short: "Deploy your site to a Cloud provider.",
-		// TODO: improve Long docstring.
-		// TODO: update real documentation. Is it in ../docs/ or in hugoDocs?
-		Long: `Deploy your site to a Cloud provider.`,
+		Long: `Deploy your site to a Cloud provider.
+
+See https://gohugo.io/hosting-and-deployment/hugo-deploy/ for detailed
+documentation.
+`,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfgInit := func(c *commandeer) error {
