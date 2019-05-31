@@ -15,6 +15,9 @@ package hugolib
 
 import (
 	"net/url"
+	"strings"
+
+	"github.com/gohugoio/hugo/helpers"
 
 	"github.com/gohugoio/hugo/resources/page"
 )
@@ -95,8 +98,9 @@ func (l pagePaths) OutputFormats() page.OutputFormats {
 
 func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.TargetPathDescriptor, error) {
 	var (
-		dir      string
-		baseName string
+		dir             string
+		baseName        string
+		contentBaseName string
 	)
 
 	d := s.Deps
@@ -104,6 +108,14 @@ func createTargetPathDescriptor(s *Site, p page.Page, pm *pageMeta) (page.Target
 	if !p.File().IsZero() {
 		dir = p.File().Dir()
 		baseName = p.File().TranslationBaseName()
+		contentBaseName = p.File().ContentBaseName()
+	}
+
+	if baseName != contentBaseName {
+		// See https://github.com/gohugoio/hugo/issues/4870
+		// A leaf bundle
+		dir = strings.TrimSuffix(dir, contentBaseName+helpers.FilePathSeparator)
+		baseName = contentBaseName
 	}
 
 	alwaysInSubDir := p.Kind() == kindSitemap
