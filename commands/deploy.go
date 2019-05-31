@@ -68,7 +68,7 @@ func newDeployCmd() *deployCmd {
 	cc.cmd.Flags().Bool("confirm", false, "ask for confirmation before making changes to the target")
 	cc.cmd.Flags().Bool("dryRun", false, "dry run")
 	cc.cmd.Flags().Bool("force", false, "force upload of all files")
-	cc.cmd.Flags().Bool("invalidateCDN", true, "invalidate the CDN cache via the CloudFrontDistributionID listed in the deployment target")
+	cc.cmd.Flags().Bool("invalidateCDN", true, "invalidate the CDN cache via the cloudFrontDistributionID listed in the deployment target")
 	cc.cmd.Flags().Int("maxDeletes", 256, "maximum # of files to delete, or -1 to disable")
 
 	return cc
