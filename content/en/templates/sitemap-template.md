@@ -70,13 +70,6 @@ This template respects the version 0.9 of the [Sitemap Protocol](http://www.site
 </urlset>
 ```
 
-{{% note %}}
-Hugo will automatically add the following header line to this file
-on render. Please don't include this in the template as it's not valid HTML.
-
-`<?xml version="1.0" encoding="utf-8" standalone="yes" ?>`
-{{% /note %}}
-
 ## Hugo's sitemapindex.xml
 
 This is used to create a Sitemap index in multilingual mode:
