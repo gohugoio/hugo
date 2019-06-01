@@ -58,6 +58,7 @@ copyright = "This work is licensed under a Creative Commons Attribution-ShareAli
 This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.0 Specification][RSS 2.0].
 
 ```xml
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{{ if eq  .Title  .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{.}} on {{ end }}{{ .Site.Title }}{{ end }}</title>
@@ -85,13 +86,6 @@ This is the default RSS template that ships with Hugo. It adheres to the [RSS 2.
   </channel>
 </rss>
 ```
-
-{{% warning "XML Header" %}}
-Hugo will automatically add the following header line to this file on render. Please do *not* include this in the template as it's not valid HTML.
-```
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-```
-{{% /warning %}}
 
 ## Reference your RSS Feed in `<head>`
 
