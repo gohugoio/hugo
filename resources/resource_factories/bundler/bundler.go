@@ -15,6 +15,7 @@
 package bundler
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -92,12 +93,30 @@ func (c *Client) Concat(targetPath string, r resource.Resources) (resource.Resou
 					}
 					return nil, err
 				}
+
 				rcsources = append(rcsources, rc)
 			}
 
-			readers := make([]io.Reader, len(rcsources))
-			for i := 0; i < len(rcsources); i++ {
-				readers[i] = rcsources[i]
+			var readers []io.Reader
+
+			// Arbitrary JavaScript files require a barrier between them to be safely concatenated together.
+			// Without this, the last line of one file can affect the first line of the next file and change how both files are interpreted.
+			if resolvedm.MainType == media.JavascriptType.MainType && resolvedm.SubType == media.JavascriptType.SubType {
+				readers = make([]io.Reader, 2*len(rcsources)-1)
+				j := 0
+				for i := 0; i < len(rcsources); i++ {
+					if i > 0 {
+						readers[j] = bytes.NewBufferString("\n;\n")
+						j++
+					}
+					readers[j] = rcsources[i]
+					j++
+				}
+			} else {
+				readers = make([]io.Reader, len(rcsources))
+				for i := 0; i < len(rcsources); i++ {
+					readers[i] = rcsources[i]
+				}
 			}
 
 			mr := io.MultiReader(readers...)
