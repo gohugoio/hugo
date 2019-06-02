@@ -14,13 +14,18 @@
 package i18n
 
 import (
+	"reflect"
+	"strings"
+
+	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/helpers"
 
-	"github.com/nicksnyder/go-i18n/i18n/bundle"
-	"github.com/nicksnyder/go-i18n/i18n/translation"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 )
+
+type translateFunc func(translationID string, templateData interface{}) string
 
 var (
 	i18nWarningLogger = helpers.NewDistinctFeedbackLogger()
@@ -28,21 +33,21 @@ var (
 
 // Translator handles i18n translations.
 type Translator struct {
-	translateFuncs map[string]bundle.TranslateFunc
+	translateFuncs map[string]translateFunc
 	cfg            config.Provider
 	logger         *loggers.Logger
 }
 
 // NewTranslator creates a new Translator for the given language bundle and configuration.
-func NewTranslator(b *bundle.Bundle, cfg config.Provider, logger *loggers.Logger) Translator {
-	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]bundle.TranslateFunc)}
+func NewTranslator(b *i18n.Bundle, cfg config.Provider, logger *loggers.Logger) Translator {
+	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]translateFunc)}
 	t.initFuncs(b)
 	return t
 }
 
 // Func gets the translate func for the given language, or for the default
 // configured language if not found.
-func (t Translator) Func(lang string) bundle.TranslateFunc {
+func (t Translator) Func(lang string) translateFunc {
 	if f, ok := t.translateFuncs[lang]; ok {
 		return f
 	}
@@ -50,68 +55,57 @@ func (t Translator) Func(lang string) bundle.TranslateFunc {
 	if f, ok := t.translateFuncs[t.cfg.GetString("defaultContentLanguage")]; ok {
 		return f
 	}
+
 	t.logger.INFO.Println("i18n not initialized; if you need string translations, check that you have a bundle in /i18n that matches the site language or the default language.")
-	return func(translationID string, args ...interface{}) string {
+	return func(translationID string, args interface{}) string {
 		return ""
 	}
 
 }
 
-func (t Translator) initFuncs(bndl *bundle.Bundle) {
-	defaultContentLanguage := t.cfg.GetString("defaultContentLanguage")
-
-	defaultT, err := bndl.Tfunc(defaultContentLanguage)
-	if err != nil {
-		t.logger.INFO.Printf("No translation bundle found for default language %q", defaultContentLanguage)
-	}
-
-	translations := bndl.Translations()
-
+func (t Translator) initFuncs(bndl *i18n.Bundle) {
 	enableMissingTranslationPlaceholders := t.cfg.GetBool("enableMissingTranslationPlaceholders")
 	for _, lang := range bndl.LanguageTags() {
+
 		currentLang := lang
+		currentLangStr := currentLang.String()
+		currentLangKey := strings.TrimPrefix(currentLangStr, artificialLangTagPrefix)
+		localizer := i18n.NewLocalizer(bndl, currentLangStr)
 
-		t.translateFuncs[currentLang] = func(translationID string, args ...interface{}) string {
-			tFunc, err := bndl.Tfunc(currentLang)
-			if err != nil {
-				t.logger.WARN.Printf("could not load translations for language %q (%s), will use default content language.\n", lang, err)
+		t.translateFuncs[currentLangKey] = func(translationID string, templateData interface{}) string {
+
+			if templateData != nil {
+				tp := reflect.TypeOf(templateData)
+				if hreflect.IsNumber(tp.Kind()) {
+					// This was how go-i18n worked in v1.
+					templateData = map[string]interface{}{
+						"Count": templateData,
+					}
+				}
 			}
 
-			translated := tFunc(translationID, args...)
-			if translated != translationID {
+			translated, translatedLang, err := localizer.LocalizeWithTag(&i18n.LocalizeConfig{
+				MessageID:    translationID,
+				TemplateData: templateData,
+			})
+
+			if err == nil && currentLang == translatedLang {
 				return translated
 			}
-			// If there is no translation for translationID,
-			// then Tfunc returns translationID itself.
-			// But if user set same translationID and translation, we should check
-			// if it really untranslated:
-			if isIDTranslated(translations, currentLang, translationID) {
-				return translated
+
+			if _, ok := err.(*i18n.MessageNotFoundErr); !ok {
+				t.logger.WARN.Printf("Failed to get translated string for language %q and ID %q: %s", currentLangStr, translationID, err)
 			}
 
 			if t.cfg.GetBool("logI18nWarnings") {
-				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLang, translationID)
+				i18nWarningLogger.Printf("i18n|MISSING_TRANSLATION|%s|%s", currentLangStr, translationID)
 			}
+
 			if enableMissingTranslationPlaceholders {
 				return "[i18n] " + translationID
 			}
-			if defaultT != nil {
-				translated := defaultT(translationID, args...)
-				if translated != translationID {
-					return translated
-				}
-				if isIDTranslated(translations, defaultContentLanguage, translationID) {
-					return translated
-				}
-			}
-			return ""
+
+			return translated
 		}
 	}
-}
-
-// If the translation map contains translationID for specified currentLang,
-// then the translationID is actually translated.
-func isIDTranslated(translations map[string]map[string]translation.Translation, lang, id string) bool {
-	_, contains := translations[lang][id]
-	return contains
 }
