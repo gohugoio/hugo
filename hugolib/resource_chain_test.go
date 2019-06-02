@@ -244,6 +244,13 @@ T2: Content: {{ $combinedText.Content }}|{{ $combinedText.RelPermalink }}
 {{ $css := "body { color: blue; }" | resources.FromString "styles.css" }}
 {{ $minified := resources.Get "css/styles1.css" | minify }}
 {{ slice $css $minified | resources.Concat "bundle/mixed.css" }} 
+{{/* https://github.com/gohugoio/hugo/issues/5403 */}}
+{{ $d := "function D {} // A comment" | resources.FromString "d.js"}}
+{{ $e := "(function E {})" | resources.FromString "e.js"}}
+{{ $f := "(function F {})()" | resources.FromString "f.js"}}
+{{ $jsResources := .Resources.Match "*.js" }}
+{{ $combinedJs := slice $d $e $f | resources.Concat "bundle/concatjs.js" }}
+T3: Content: {{ $combinedJs.Content }}|{{ $combinedJs.RelPermalink }}
 `)
 		}, func(b *sitesBuilder) {
 			b.AssertFileContent("public/index.html", `T1: Content: ABC|RelPermalink: /bundle/concat.txt|Permalink: http://example.com/bundle/concat.txt|MediaType: text/plain`)
@@ -251,6 +258,17 @@ T2: Content: {{ $combinedText.Content }}|{{ $combinedText.RelPermalink }}
 
 			b.AssertFileContent("public/index.html", `T2: Content: t1t|t2t|`)
 			b.AssertFileContent("public/bundle/concattxt.txt", "t1t|t2t|")
+
+			b.AssertFileContent("public/index.html", `T3: Content: function D {} // A comment
+;
+(function E {})
+;
+(function F {})()|`)
+			b.AssertFileContent("public/bundle/concatjs.js", `function D {} // A comment
+;
+(function E {})
+;
+(function F {})()`)
 		}},
 		{"fromstring", func() bool { return true }, func(b *sitesBuilder) {
 			b.WithTemplates("home.html", `
