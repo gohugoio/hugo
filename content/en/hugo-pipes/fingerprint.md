@@ -16,7 +16,7 @@ draft: false
 ---
 
 
-Fingerprinting and [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) can be applied to any asset file using `resources.Fingerpint` which takes two arguments, the resource object and a [hash function](https://en.wikipedia.org/wiki/Cryptographic_hash_function). 
+Fingerprinting and [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) can be applied to any asset file using `resources.Fingerprint` which takes two arguments, the resource object and a [hash function](https://en.wikipedia.org/wiki/Cryptographic_hash_function). 
 
 The default hash function is `sha256`. Other available functions are `sha384` (from Hugo `0.55`), `sha512` and `md5`.
 
