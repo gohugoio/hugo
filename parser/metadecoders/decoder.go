@@ -187,7 +187,10 @@ func (d Decoder) unmarshalORG(data []byte, v interface{}) error {
 	frontMatter := make(map[string]interface{}, len(document.BufferSettings))
 	for k, v := range document.BufferSettings {
 		k = strings.ToLower(k)
-		if k == "tags" || k == "categories" || k == "aliases" {
+		if strings.HasSuffix(k, "[]") {
+			frontMatter[k[:len(k)-2]] = strings.Fields(v)
+		} else if k == "tags" || k == "categories" || k == "aliases" {
+			jww.WARN.Printf("Please use '#+%s[]:' notation, automatic conversion is deprecated.", k)
 			frontMatter[k] = strings.Fields(v)
 		} else {
 			frontMatter[k] = v
