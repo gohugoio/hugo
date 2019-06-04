@@ -19,7 +19,7 @@ toc: true
 
 **Markdown is the main content format** and comes in two flavours:  The excellent [Blackfriday project][blackfriday] (name your files `*.md` or set `markup = "markdown"` in front matter) or its fork [Mmark][mmark] (name your files `*.mmark` or set `markup = "mmark"` in front matter), both very fast markdown engines written in Go.
 
-For Emacs users, [goorgeous](https://github.com/chaseadamsio/goorgeous) provides built-in native support for Org-mode  (name your files `*.org` or set `markup = "org"` in front matter)
+For Emacs users, [go-org](https://github.com/niklasfasching/go-org) provides built-in native support for Org-mode  (name your files `*.org` or set `markup = "org"` in front matter)
 
 But in many situations, plain HTML is what you want. Just name your files with `.html` or `.htm` extension inside your content folder. Note that if you want your HTML files to have a layout, they need front matter. It can be empty, but it has to be there:
 
