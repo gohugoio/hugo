@@ -21,12 +21,13 @@ import (
 	"strings"
 
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/niklasfasching/go-org/org"
 
 	"github.com/BurntSushi/toml"
-	"github.com/chaseadamsio/goorgeous"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/spf13/cast"
+	jww "github.com/spf13/jwalterweatherman"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -106,16 +107,7 @@ func (d Decoder) unmarshal(data []byte, f Format, v interface{}) error {
 
 	switch f {
 	case ORG:
-		vv, err := goorgeous.OrgHeaders(data)
-		if err != nil {
-			return toFileError(f, errors.Wrap(err, "failed to unmarshal ORG headers"))
-		}
-		switch v.(type) {
-		case *map[string]interface{}:
-			*v.(*map[string]interface{}) = vv
-		default:
-			*v.(*interface{}) = vv
-		}
+		err = d.unmarshalORG(data, v)
 	case JSON:
 		err = json.Unmarshal(data, v)
 	case TOML:
@@ -183,6 +175,31 @@ func (d Decoder) unmarshalCSV(data []byte, v interface{}) error {
 
 	return nil
 
+}
+
+func (d Decoder) unmarshalORG(data []byte, v interface{}) error {
+	config := org.New()
+	config.Log = jww.WARN
+	document := config.Parse(bytes.NewReader(data), "")
+	if document.Error != nil {
+		return document.Error
+	}
+	frontMatter := make(map[string]interface{}, len(document.BufferSettings))
+	for k, v := range document.BufferSettings {
+		k = strings.ToLower(k)
+		if k == "tags" || k == "categories" || k == "aliases" {
+			frontMatter[k] = strings.Fields(v)
+		} else {
+			frontMatter[k] = v
+		}
+	}
+	switch v.(type) {
+	case *map[string]interface{}:
+		*v.(*map[string]interface{}) = frontMatter
+	default:
+		*v.(*interface{}) = frontMatter
+	}
+	return nil
 }
 
 func toFileError(f Format, err error) error {

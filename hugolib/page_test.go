@@ -1216,12 +1216,12 @@ CONTENT:{{ .Content }}
 	)
 
 	b.AssertFileContent("public/page-org-shortcode/index.html",
-		"SUMMARY:<p>This is a a shortcode.</p>:END",
-		"CONTENT:<p>This is a a shortcode.</p>\n\n<p>Content.\t</p>\n",
+		"SUMMARY:<p>\nThis is a a shortcode.\n</p>:END",
+		"CONTENT:<p>\nThis is a a shortcode.\n</p>\n<p>\nContent.\t\n</p>\n",
 	)
 	b.AssertFileContent("public/page-org-variant1/index.html",
-		"SUMMARY:<p>Summary.</p>:END",
-		"CONTENT:<p>Summary.</p>\n\n<p>Content.\t</p>\n",
+		"SUMMARY:<p>\nSummary.\n</p>:END",
+		"CONTENT:<p>\nSummary.\n</p>\n<p>\nContent.\t\n</p>\n",
 	)
 
 	b.AssertFileContent("public/page-md-only-shortcode/index.html",

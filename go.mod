@@ -12,7 +12,6 @@ require (
 	github.com/bep/debounce v1.2.0
 	github.com/bep/gitmap v1.1.0
 	github.com/bep/go-tocss v0.6.0
-	github.com/chaseadamsio/goorgeous v1.1.0
 	github.com/cpuguy83/go-md2man v1.0.8 // indirect
 	github.com/disintegration/imaging v1.6.0
 	github.com/dustin/go-humanize v1.0.0
@@ -38,6 +37,7 @@ require (
 	github.com/muesli/smartcrop v0.0.0-20180228075044-f6ebaa786a12
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/nicksnyder/go-i18n v1.10.0
+	github.com/niklasfasching/go-org v0.0.0-20190112190817-da99094e202f
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.8.1
@@ -66,7 +66,5 @@ require (
 	google.golang.org/genproto v0.0.0-20190522204451-c2c4e71fbf69 // indirect
 	gopkg.in/yaml.v2 v2.2.2
 )
-
-exclude github.com/chaseadamsio/goorgeous v2.0.0+incompatible
 
 replace github.com/markbates/inflect => github.com/markbates/inflect v0.0.0-20171215194931-a12c3aec81a6
