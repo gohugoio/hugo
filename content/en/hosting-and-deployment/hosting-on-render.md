@@ -2,9 +2,9 @@
 title: Host on Render
 linktitle: Host on Render
 description: Host your Hugo site for free with Render's global CDN, fully-managed SSL and auto deploys from GitHub.
-date: 2019-03-21
-publishdate: 2019-03-21
-lastmod: 2019-03-21
+date: 2019-06-06
+publishdate: 2019-06-06
+lastmod: 2019-06-21
 categories: [hosting and deployment]
 keywords: [render,hosting,deployment]
 authors: [Anurag Goel]
@@ -23,10 +23,6 @@ toc: true
 
 [Render](https://render.com) is a fully-managed cloud platform where you can host static sites, backend APIs, databases, cron jobs, and all your other apps in one place.
 
-{{% note %}}
-Sign up for Render using invite code `hugo` or the [Hugo invite link](https://render.com/i/hugo).
-{{% /note %}}
-
 Static sites are **completely free** on Render and include the following:
 
 - Continuous, automatic builds & deploys from GitHub.
@@ -44,7 +40,7 @@ Static sites are **completely free** on Render and include the following:
 
 * You have an account with GitHub.
 * You have completed the [Quick Start][] or have a Hugo website you are ready to deploy and share with the world.
-* You have a Render account. You can sign up using invite code `hugo` or the [Hugo invite link](https://render.com/i/hugo).
+* You have a Render account. You can sign up at https://render.com/register.
 
 ## Deployment
 
