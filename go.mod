@@ -13,7 +13,6 @@ require (
 	github.com/bep/gitmap v1.1.0
 	github.com/bep/go-tocss v0.6.0
 	github.com/chaseadamsio/goorgeous v1.1.0
-	github.com/cpuguy83/go-md2man v1.0.8 // indirect
 	github.com/disintegration/imaging v1.6.0
 	github.com/dustin/go-humanize v1.0.0
 	github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385
@@ -24,7 +23,6 @@ require (
 	github.com/gorilla/websocket v1.4.0
 	github.com/hashicorp/go-immutable-radix v1.0.0
 	github.com/hashicorp/go-uuid v1.0.1 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jdkato/prose v1.1.0
 	github.com/kyokomi/emoji v1.5.1
 	github.com/magefile/mage v1.4.0
@@ -46,7 +44,7 @@ require (
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cast v1.3.0
-	github.com/spf13/cobra v0.0.3
+	github.com/spf13/cobra v0.0.5
 	github.com/spf13/fsync v0.0.0-20170320142552-12a01e648f05
 	github.com/spf13/jwalterweatherman v1.1.0
 	github.com/spf13/pflag v1.0.3
