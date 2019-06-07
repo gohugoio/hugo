@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -332,6 +333,20 @@ func evaluateSubElem(obj reflect.Value, elemName string) (reflect.Value, error) 
 			return obj.MapIndex(kv), nil
 		}
 		return zero, fmt.Errorf("%s isn't a key of map type %s", elemName, typ)
+	case reflect.Slice:
+		// If obj is a slice then access the elemName-index element
+		index, err := strconv.Atoi(elemName)
+		if err != nil {
+			return zero, fmt.Errorf("%s isn't a valid index of type int", elemName)
+		}
+
+		sl := obj.Interface().([]string)
+		if len(sl) <= index || index < 0 {
+			return zero, fmt.Errorf("index is out of bounds")
+		}
+
+		var val interface{} = sl[index]
+		return reflect.ValueOf(val), nil
 	}
 	return zero, fmt.Errorf("%s is neither a struct field, a method nor a map element of type %s", elemName, typ)
 }

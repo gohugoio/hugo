@@ -725,7 +725,10 @@ func TestEvaluateSubElem(t *testing.T) {
 		{reflect.ValueOf((*TstX)(nil)), "A", false},
 		{reflect.ValueOf(tstx), "C", false},
 		{reflect.ValueOf(map[int]string{1: "foo", 2: "bar"}), "1", false},
-		{reflect.ValueOf([]string{"foo", "bar"}), "1", false},
+		{reflect.ValueOf([]string{"foo", "bar"}), "0", "foo"},
+		{reflect.ValueOf([]string{"foo", "bar"}), "1", "bar"},
+		{reflect.ValueOf([]string{"foo", "bar"}), "-1", false},
+		{reflect.ValueOf([]string{"foo", "bar"}), "3", false},
 	} {
 		result, err := evaluateSubElem(test.value, test.key)
 		if b, ok := test.expect.(bool); ok && !b {
