@@ -1,66 +1,174 @@
 project_name: hugo
-build:
-  main: main.go
-  binary: hugo
-  ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
-  env:
-    - CGO_ENABLED=0
-  goos:
-    - darwin
-    - linux
-    - windows
-    - freebsd
-    - netbsd
-    - openbsd
-    - dragonfly
-  goarch:
-    - amd64
-    - 386
-    - arm
-    - arm64
-  goarm:
-    - 7
-nfpm:
-  formats:
-    - deb
-  vendor: "gohugo.io"
-  homepage: "https://gohugo.io/"
-  maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
-  description: "A Fast and Flexible Static Site Generator built with love in GoLang."
-  license: "Apache 2.0"
-  name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
-  replacements:
-    amd64: 64bit
-    386: 32bit
-    arm: ARM
-    arm64: ARM64
-    darwin: macOS
-    linux: Linux
-    windows: Windows
-    openbsd: OpenBSD
-    netbsd: NetBSD
-    freebsd: FreeBSD
-    dragonfly: DragonFlyBSD
-archive:
-  format: tar.gz
-  format_overrides:
-    - goos: windows
-      format: zip
-  name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
-  replacements:
-    amd64: 64bit
-    386: 32bit
-    arm: ARM
-    arm64: ARM64
-    darwin: macOS
-    linux: Linux
-    windows: Windows
-    openbsd: OpenBSD
-    netbsd: NetBSD
-    freebsd: FreeBSD
-    dragonfly: DragonFlyBSD
-  files:
-    - README.md
-    - LICENSE
+env:
+  - GO111MODULE=on
+  - GOPROXY=https://proxy.golang.org
+before:
+  hooks:
+    - go mod download
+builds:
+  -
+    binary: hugo
+    id: hugo
+    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+      - freebsd
+      - netbsd
+      - openbsd
+      - dragonfly
+    goarch:
+      - amd64
+      - 386
+      - arm
+      - arm64
+    goarm:
+      - 7
+
+  -
+    binary: hugo
+    id: hugo_extended_windows
+    ldflags:
+      - -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+      - "-extldflags '-static'"
+    env:
+      - CGO_ENABLED=1
+      - CC=x86_64-w64-mingw32-gcc
+      - CXX=x86_64-w64-mingw32-g++
+    flags:
+      - -tags
+      - extended
+    goos:
+      - windows
+    goarch:
+      - amd64
+  - binary: hugo
+    id: hugo_extended_darwin
+    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+    env:
+      - CGO_ENABLED=1
+      - CC=o64-clang
+      - CXX=o64-clang++
+    flags:
+      - -tags
+      - extended
+    goos:
+      - darwin
+    goarch:
+      - amd64
+  - binary: hugo
+    id: hugo_extended_linux
+    ldflags: -s -w -X github.com/gohugoio/hugo/common/hugo.buildDate={{.Date}} -X github.com/gohugoio/hugo/common/hugo.commitHash={{ .ShortCommit }}
+    env:
+      - CGO_ENABLED=1
+    flags:
+      - -tags
+      - extended
+    goos:
+      - linux
+    goarch:
+      - amd64
+
 release:
   draft: true
+
+archives:
+  -
+    id: "hugo"
+    builds: ['hugo']
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+    replacements:
+      amd64: 64bit
+      386: 32bit
+      arm: ARM
+      arm64: ARM64
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+      openbsd: OpenBSD
+      netbsd: NetBSD
+      freebsd: FreeBSD
+      dragonfly: DragonFlyBSD
+    files:
+      - README.md
+      - LICENSE
+  -
+    id: "hugo_extended"
+    builds: ['hugo_extended_windows', 'hugo_extended_linux', 'hugo_extended_darwin']
+    format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    name_template: "{{.ProjectName}}_extended_{{.Version}}_{{.Os}}-{{.Arch}}"
+    replacements:
+      amd64: 64bit
+      386: 32bit
+      arm: ARM
+      arm64: ARM64
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+      openbsd: OpenBSD
+      netbsd: NetBSD
+      freebsd: FreeBSD
+      dragonfly: DragonFlyBSD
+    files:
+      - README.md
+      - LICENSE
+
+nfpms:
+  -
+    id: "hugo"
+    builds: ['hugo']
+    formats:
+        - deb
+    vendor: "gohugo.io"
+    homepage: "https://gohugo.io/"
+    maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
+    description: "A Fast and Flexible Static Site Generator built with love in GoLang."
+    license: "Apache 2.0"
+    name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}-{{.Arch}}"
+    replacements:
+      amd64: 64bit
+      386: 32bit
+      arm: ARM
+      arm64: ARM64
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+      openbsd: OpenBSD
+      netbsd: NetBSD
+      freebsd: FreeBSD
+      dragonfly: DragonFlyBSD
+  -
+    id: "hugo_extended"
+    builds: ['hugo_extended_linux']
+    formats:
+        - deb
+    vendor: "gohugo.io"
+    homepage: "https://gohugo.io/"
+    maintainer: "Bjørn Erik Pedersen <bjorn.erik.pedersen@gmail.com>"
+    description: "A Fast and Flexible Static Site Generator built with love in GoLang."
+    license: "Apache 2.0"
+    name_template: "{{.ProjectName}}_extended_{{.Version}}_{{.Os}}-{{.Arch}}"
+    replacements:
+      amd64: 64bit
+      386: 32bit
+      arm: ARM
+      arm64: ARM64
+      darwin: macOS
+      linux: Linux
+      windows: Windows
+      openbsd: OpenBSD
+      netbsd: NetBSD
+      freebsd: FreeBSD
+      dragonfly: DragonFlyBSD
+
+      
