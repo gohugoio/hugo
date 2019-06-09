@@ -66,6 +66,12 @@ func ToPages(seq interface{}) (Pages, error) {
 		return v.Pages(), nil
 	case PageGroup:
 		return v.Pages, nil
+	case []Page:
+		pages := make(Pages, len(v))
+		for i, vv := range v {
+			pages[i] = vv
+		}
+		return pages, nil
 	case []interface{}:
 		pages := make(Pages, len(v))
 		success := true

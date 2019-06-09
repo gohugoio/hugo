@@ -15,6 +15,7 @@ package hugolib
 
 import (
 	"fmt"
+	"path/filepath"
 	"testing"
 )
 
@@ -95,4 +96,12 @@ URL: {{ $pag.URL }}
 		"Page Number: 1",
 		"0: 1/1  true")
 
+}
+
+// Issue 6023
+func TestPaginateWithSort(t *testing.T) {
+	b := newTestSitesBuilder(t).WithSimpleConfigFile()
+	b.WithTemplatesAdded("index.html", `{{ range (.Paginate (sort .Site.RegularPages ".File.Filename" "desc")).Pages }}|{{ .File.Filename }}{{ end }}`)
+	b.Build(BuildCfg{}).AssertFileContent("public/index.html",
+		filepath.FromSlash("|content/sect/doc1.nn.md|content/sect/doc1.nb.md|content/sect/doc1.fr.md|content/sect/doc1.en.md"))
 }

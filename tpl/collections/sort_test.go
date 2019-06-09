@@ -14,11 +14,14 @@
 package collections
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/gohugoio/hugo/deps"
 )
+
+type stringsSlice []string
 
 func TestSort(t *testing.T) {
 	t.Parallel()
@@ -42,6 +45,9 @@ func TestSort(t *testing.T) {
 	}{
 		{[]string{"class1", "class2", "class3"}, nil, "asc", []string{"class1", "class2", "class3"}},
 		{[]string{"class3", "class1", "class2"}, nil, "asc", []string{"class1", "class2", "class3"}},
+		// Issue 6023
+		{stringsSlice{"class3", "class1", "class2"}, nil, "asc", stringsSlice{"class1", "class2", "class3"}},
+
 		{[]int{1, 2, 3, 4, 5}, nil, "asc", []int{1, 2, 3, 4, 5}},
 		{[]int{5, 4, 3, 1, 2}, nil, "asc", []int{1, 2, 3, 4, 5}},
 		// test sort key parameter is focibly set empty
@@ -212,26 +218,29 @@ func TestSort(t *testing.T) {
 		},
 		{nil, nil, "asc", false},
 	} {
-		var result interface{}
-		var err error
-		if test.sortByField == nil {
-			result, err = ns.Sort(test.seq)
-		} else {
-			result, err = ns.Sort(test.seq, test.sortByField, test.sortAsc)
-		}
 
-		if b, ok := test.expect.(bool); ok && !b {
-			if err == nil {
-				t.Errorf("[%d] Sort didn't return an expected error", i)
+		t.Run(fmt.Sprintf("test%d", i), func(t *testing.T) {
+			var result interface{}
+			var err error
+			if test.sortByField == nil {
+				result, err = ns.Sort(test.seq)
+			} else {
+				result, err = ns.Sort(test.seq, test.sortByField, test.sortAsc)
 			}
-		} else {
-			if err != nil {
-				t.Errorf("[%d] failed: %s", i, err)
-				continue
+
+			if b, ok := test.expect.(bool); ok && !b {
+				if err == nil {
+					t.Fatal("Sort didn't return an expected error")
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("failed: %s", err)
+				}
+				if !reflect.DeepEqual(result, test.expect) {
+					t.Fatalf("Sort called on sequence: %#v | sortByField: `%v` | got\n%#v but expected\n%#v", test.seq, test.sortByField, result, test.expect)
+				}
 			}
-			if !reflect.DeepEqual(result, test.expect) {
-				t.Errorf("[%d] Sort called on sequence: %v | sortByField: `%v` | got %v but expected %v", i, test.seq, test.sortByField, result, test.expect)
-			}
-		}
+		})
+
 	}
 }
