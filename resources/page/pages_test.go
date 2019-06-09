@@ -53,3 +53,24 @@ func TestProbablyEq(t *testing.T) {
 	})
 
 }
+
+func TestToPages(t *testing.T) {
+	assert := require.New(t)
+
+	p1, p2 := &testPage{title: "p1"}, &testPage{title: "p2"}
+	pages12 := Pages{p1, p2}
+
+	mustToPages := func(in interface{}) Pages {
+		p, err := ToPages(in)
+		assert.NoError(err)
+		return p
+	}
+
+	assert.Equal(Pages{}, mustToPages(nil))
+	assert.Equal(pages12, mustToPages(pages12))
+	assert.Equal(pages12, mustToPages([]Page{p1, p2}))
+	assert.Equal(pages12, mustToPages([]interface{}{p1, p2}))
+
+	_, err := ToPages("not a page")
+	assert.Error(err)
+}
