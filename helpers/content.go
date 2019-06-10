@@ -21,8 +21,11 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"os/exec"
+	"path"
 	"runtime"
+	"sync"
 	"unicode"
 	"unicode/utf8"
 
@@ -751,8 +754,33 @@ func getPandocContent(ctx *RenderingContext) []byte {
 			"                 Leaving pandoc content unrendered.")
 		return ctx.Content
 	}
+
 	args := []string{"--mathjax"}
+	if ctx.RenderTOC {
+		if err := installPandocTemplate(ctx.Cfg); err != nil {
+			jww.ERROR.Println("Failed to create temporary pandoc template.")
+			return ctx.Content
+		}
+		args = append(args, "--toc", "--template", pandocTemplatePath)
+	}
+
 	return externallyRenderContent(ctx, path, args)
+}
+
+var (
+	pandocTemplateInstalled sync.Once // for IO reduction
+	pandocTemplateError     error     // cached error
+	pandocTemplatePath      string    // cached path (empty in case of error)
+)
+
+// installPandocTemplate writes pandoc template to pandocTemplatePath exactly once.
+func installPandocTemplate(cfg config.Provider) error {
+	pandocTemplateInstalled.Do(func() {
+		const content = "<nav>\n$table-of-contents$\n</nav>\n$body$"
+		pandocTemplatePath = path.Join(getCacheDir(cfg), "pandoc-template.html")
+		pandocTemplateError = ioutil.WriteFile(pandocTemplatePath, []byte(content), 0644)
+	})
+	return pandocTemplateError
 }
 
 func orgRender(ctx *RenderingContext, c ContentSpec) []byte {
