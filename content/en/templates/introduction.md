@@ -170,7 +170,7 @@ Example of including a `layouts/partials/header.html` partial:
 ### Template
 
 The `template` function was used to include *partial* templates
-in much older Hugo versions. Now it useful only for calling
+in much older Hugo versions. Now it's useful only for calling
 [*internal* templates][internal_templates]. The syntax is `{{ template
 "_internal/<TEMPLATE>.<EXTENSION>" . }}`.
 
