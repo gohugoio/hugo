@@ -306,6 +306,10 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 		link = slash + link
 	}
 
+	if isUgly && d.Type.NoSuffix {
+		link = strings.TrimSuffix(link, d.Type.MediaType.FullSuffix())
+	}
+
 	linkDir = strings.TrimSuffix(path.Join(slash, linkDir), slash)
 
 	// Note: MakePathSanitized will lower case the path if

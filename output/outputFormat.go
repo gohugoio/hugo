@@ -79,6 +79,12 @@ type Format struct {
 	// behaviour is wanted.
 	Permalinkable bool `json:"permalinkable"`
 
+	// Enable NoSuffix to omit the MediaType suffix of links to
+	// Pages rendered with this output format.  It is up to the
+	// server to map URIs to the correct file (for example, with
+	// Apache's MultiViews option).
+	NoSuffix bool `json:"noSuffix"`
+
 	// Setting this to a non-zero value will be used as the first sort criteria.
 	Weight int `json:"weight"`
 }
