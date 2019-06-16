@@ -41,7 +41,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.0-20180506121414-d4647c9c7a84
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.8.1
-	github.com/russross/blackfriday v1.5.2
+	github.com/russross/blackfriday v1.5.3-0.20190124082335-a477dd164691
 	github.com/sanity-io/litter v1.1.0
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/spf13/afero v1.2.2
