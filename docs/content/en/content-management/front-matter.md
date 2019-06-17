@@ -23,7 +23,7 @@ toc: true
 
 ## Front Matter Formats
 
-Hugo supports three formats for front matter, each with their own identifying tokens.
+Hugo supports four formats for front matter, each with their own identifying tokens.
 
 TOML
 : identified by opening and closing `+++`.
@@ -33,6 +33,10 @@ YAML
 
 JSON
 : a single JSON object surrounded by '`{`' and '`}`', followed by a new line.
+
+ORG
+: a group of Org mode keywords in the format '`#+KEY: VALUE`'. Any line that does not start with `#+` ends the front matter section.
+  Keyword values can be either strings (`#+KEY: VALUE`) or a whitespace separated list of strings (`#+KEY[]: VALUE_1 VALUE_2`).
 
 ### Example
 
