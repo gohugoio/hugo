@@ -868,7 +868,7 @@ func (h *HugoSites) handleDataFile(r source.ReadableFile) error {
 			higherPrecedentMap := higherPrecedentData.(map[string]interface{})
 			for key, value := range data.(map[string]interface{}) {
 				if _, exists := higherPrecedentMap[key]; exists {
-					h.Log.WARN.Printf("Data for key '%s' in path '%s' is overridden by higher precedence data already in the data tree", key, r.Path())
+					h.Log.INFO.Printf("Data for key '%s' in path '%s' is overridden by higher precedence data already in the data tree", key, r.Path())
 				} else {
 					higherPrecedentMap[key] = value
 				}
