@@ -7,7 +7,7 @@
     </li>
     {{ end }}
     <li class="page-item{{ if not $pag.HasPrev }} disabled{{ end }}">
-    <a href="{{ if $pag.HasPrev }}{{ $pag.Prev.URL }}{{ end }}" class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+    <a {{ if $pag.HasPrev }}href="{{ $pag.Prev.URL }}"{{ end }} class="page-link" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
     </li>
     {{ $ellipsed := false }}
     {{ $shouldEllipse := false }}
@@ -29,7 +29,7 @@
     {{ end }}
     {{ end }}
     <li class="page-item{{ if not $pag.HasNext }} disabled{{ end }}">
-    <a href="{{ if $pag.HasNext }}{{ $pag.Next.URL }}{{ end }}" class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+    <a {{ if $pag.HasNext }}href="{{ $pag.Next.URL }}"{{ end }} class="page-link" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
     </li>
     {{ with $pag.Last }}
     <li class="page-item">
