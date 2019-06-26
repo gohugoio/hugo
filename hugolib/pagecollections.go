@@ -283,7 +283,7 @@ func (c *PageCollections) getPageNew(context page.Page, ref string) (page.Page, 
 		if err == nil && p != nil {
 			if context != nil {
 				// TODO(bep) remove this case and the message below when the storm has passed
-				err := wrapErr(errors.New(`make non-relative ref/relref page reference(s) in page %q absolute, e.g. {{< ref "/blog/my-post.md" >}}`), context)
+				err := wrapErr(errors.Errorf(`make non-relative ref/relref page reference(s) in page %q absolute, e.g. {{< ref "/blog/my-post.md" >}}`, context.Path()), context)
 				helpers.DistinctWarnLog.Println(err)
 			}
 			return p, nil
