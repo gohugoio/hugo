@@ -20,7 +20,7 @@ import (
 
 type PageMenusProvider interface {
 	PageMenusGetter
-	MenyQueryProvider
+	MenuQueryProvider
 }
 
 type PageMenusGetter interface {
@@ -31,7 +31,7 @@ type MenusGetter interface {
 	Menus() Menus
 }
 
-type MenyQueryProvider interface {
+type MenuQueryProvider interface {
 	HasMenuCurrent(menuID string, me *MenuEntry) bool
 	IsMenuCurrent(menuID string, inme *MenuEntry) bool
 }
@@ -99,7 +99,7 @@ func NewMenuQueryProvider(
 	setionPagesMenu string,
 	pagem PageMenusGetter,
 	sitem MenusGetter,
-	p Page) MenyQueryProvider {
+	p Page) MenuQueryProvider {
 
 	return &pageMenus{
 		p:               p,

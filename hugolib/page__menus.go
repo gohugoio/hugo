@@ -22,7 +22,7 @@ import (
 type pageMenus struct {
 	p *pageState
 
-	q navigation.MenyQueryProvider
+	q navigation.MenuQueryProvider
 
 	pmInit sync.Once
 	pm     navigation.PageMenus
