@@ -183,6 +183,16 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Merge,
+			[]string{"merge"},
+			[][2]string{
+				{`{{ dict "title" "Hugo Rocks!" | collections.Merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") | sort }}`,
+					`[Yes, Hugo Rocks! Hugo Rocks!]`},
+				{`{{  merge (dict "title" "Default Title" "description" "Yes, Hugo Rocks!") (dict "title" "Hugo Rocks!") | sort }}`,
+					`[Yes, Hugo Rocks! Hugo Rocks!]`},
+			},
+		)
+
 		return ns
 
 	}
