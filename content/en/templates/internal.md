@@ -152,7 +152,7 @@ Various optional metadata can also be set:
 - The first 6 `tags` on the page are used for the tags metadata.
 - The `series` taxonomy is used to specify related "see also" pages by placing them in the same series.
 
-If using youtube this will produce a og:video tag like <meta property="og:video" content="url">. If using a youtube link make sure this is in **https://www.youtube.com/v/NlXVWtgLNjY** not __https://www.youtube.com/watch?v=NlXVWtgLNjY__
+If using YouTube this will produce a og:video tag like `<meta property="og:video" content="url">`. If using a YouTube link make sure this is in **https://www.youtube.com/v/NlXVWtgLNjY** not __https://www.youtube.com/watch?v=NlXVWtgLNjY__
 
 ### Use the Open Graph Template
 
@@ -163,6 +163,7 @@ To add Open Graph metadata, include the following line between the `<head>` tags
 ```
 
 ## Twitter Cards
+
 An internal template for [Twitter Cards](https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/abouts-cards),
 metadata used to attach rich media to Tweets linking to your site.
 
