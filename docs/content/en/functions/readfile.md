@@ -28,6 +28,8 @@ So, if you have a file with the name `README.txt` in the root of your project wi
 
 If you receive a "file doesn't exist" error with a path listed, do take note that the path is the last one checked by the function, and may not accurately reflect your target. You should generally double-check your path for mistakes.
 
+Note that there is a 1 MB file size limit.
+
 For more information on using `readDir` and `readFile` in your templates, see [Local File Templates][local].
 
 [local]: /templates/files/

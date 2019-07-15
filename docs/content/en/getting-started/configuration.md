@@ -115,7 +115,7 @@ defaultContentLanguageInSubdir (false)
 : Render the default content language in subdir, e.g. `content/en/`. The site root `/` will then redirect to `/en/`.
 
 disableAliases (false)
-: Will disable generation of alias redirects. Note that even if `disableAliases` is set, the aliases themselves are preserved on the page. The motivation with this is to be able to generate 301 redirects in an `.htacess`, a Netlify `_redirects` file or similar using a custom output format.
+: Will disable generation of alias redirects. Note that even if `disableAliases` is set, the aliases themselves are preserved on the page. The motivation with this is to be able to generate 301 redirects in an `.htaccess`, a Netlify `_redirects` file or similar using a custom output format.
 
 disableHugoGeneratorInject (false)
 : Hugo will, by default, inject a generator meta tag in the HTML head on the _home page only_. You can turn it off, but we would really appreciate if you don't, as this is a good way to watch Hugo's popularity on the rise.
@@ -265,6 +265,9 @@ timeout (10000)
 title ("")
 : Site title.
 
+titleCaseStyle ("AP")
+: See [Configure Title Case](#configure-title-case)
+
 uglyURLs (false)
 : When enabled, creates URL of the form `/filename.html` instead of `/filename/`.
 
@@ -290,6 +293,10 @@ which shows output like
 enableemoji: true
 ```
 {{% /note %}}
+
+## Configure Title Case
+
+Set `titleCaseStyle` to specify the title style used by the [title](/functions/title/) template function and the automatic section titles in Hugo. It defaults to [AP Stylebook](https://www.apstylebook.com/) for title casing, but you can also set it to `Chicago` or `Go` (every word starts with a capital letter).
 
 ## Configuration Environment Variables
 
@@ -498,5 +505,5 @@ dir
 [Output Formats]: /templates/output-formats/
 [templates]: /templates/
 [toml]: https://github.com/toml-lang/toml
-[yaml]: http://yaml.org/spec/
+[yaml]: https://yaml.org/spec/
 [static-files]: /content-management/static-files/

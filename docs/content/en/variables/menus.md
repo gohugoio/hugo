@@ -84,7 +84,7 @@ entries, if any, under the current menu entry.
 
 Menus also have the following functions available:
 
-[.HasChildren](/functions/haschildren/)
+.HasChildren
 : _boolean_ <br />
 Returns `true` if `.Children` is non-nil.
 

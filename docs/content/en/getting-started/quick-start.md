@@ -83,7 +83,10 @@ echo 'theme = "ananke"' >> config.toml
 
 {{< asciicast 7naKerRYUGVPj8kiDmdh5k5h9 >}}
 
+
 ## Step 4: Add Some Content
+
+You can manually create content files (for example as `content/<CATEGORY>/<FILE>.<FORMAT>`) and provide metadata in them, however you can use `new` commend to do few things for you (like add title and date):
 
 ```
 hugo new posts/my-first-post.md
@@ -91,8 +94,16 @@ hugo new posts/my-first-post.md
 
 {{< asciicast eUojYCfRTZvkEiqc52fUsJRBR >}}
 
+Edit the newly created content file if you want, it will start with something like this:
 
-Edit the newly created content file if you want.
+```markdown
+---
+title: "My First Post"
+date: 2019-03-26T08:47:11+01:00
+draft: true
+---
+
+```
 
 
 ## Step 5: Start the Hugo server
@@ -130,6 +141,8 @@ Press Ctrl+C to stop
 
 **Navigate to your new site at [http://localhost:1313/](http://localhost:1313/).**
 
+Feel free to edit or add new content and simply refresh in browser to see changes quickly (You might need to force refresh in webbrowser, something like Ctrl-R usually works).
+
 
 ## Step 6: Customize the Theme
 
@@ -157,3 +170,13 @@ For theme specific configuration options, see the [theme site](https://github.co
 
 **For further theme customization, see [Customize a Theme](/themes/customizing/).**
 
+
+### Step 7: Build static pages
+
+It is simple. Just call:
+
+```
+hugo
+```
+
+Output will be in `./public/` directory by default (`-d`/`--destination` flag to change it, or set `publishdir` in the config file).

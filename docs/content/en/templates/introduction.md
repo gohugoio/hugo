@@ -170,7 +170,7 @@ Example of including a `layouts/partials/header.html` partial:
 ### Template
 
 The `template` function was used to include *partial* templates
-in much older Hugo versions. Now it useful only for calling
+in much older Hugo versions. Now it's useful only for calling
 [*internal* templates][internal_templates]. The syntax is `{{ template
 "_internal/<TEMPLATE>.<EXTENSION>" . }}`.
 
@@ -235,7 +235,7 @@ key.
 
 #### Example 5: Conditional on empty _map_, _array_, or _slice_.
 
-If the _map_, _array_, or _slice_ passed into the range is zero-length then the else statment is evaluated.
+If the _map_, _array_, or _slice_ passed into the range is zero-length then the else statement is evaluated.
 
 ```go-html-template
 {{ range $array }}

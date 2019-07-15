@@ -15,12 +15,12 @@ toc: true
 ---
 
 
-Hugo uses a set of factors to identify a page's related content based on Front Matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content). 
+Hugo uses a set of factors to identify a page's related content based on Front Matter parameters. This can be tuned to the desired set of indices and parameters or left to Hugo's default [Related Content configuration](#configure-related-content).
 
 ## List Related Content
 
 
-To list up to 5 related pages (which share the same _date_ or _keyword_ parameters) is as simple as including something similar to this partial in your single page template: 
+To list up to 5 related pages (which share the same _date_ or _keyword_ parameters) is as simple as including something similar to this partial in your single page template:
 
 {{< code file="layouts/partials/related.html" >}}
 {{ $related := .Site.RegularPages.Related . | first 5 }}
@@ -53,9 +53,9 @@ Returns a collection of pages related to a given one restricted to a list of ind
 ```
 
 #### .RelatedTo KEYVALS [KEYVALS2 ...]
-Returns a collection of pages related together by a set of indices and their match. 
+Returns a collection of pages related together by a set of indices and their match.
 
-In order to build those set and pass them as argument, one must use the `keyVals` function where the first agrument would be the `indice` and the consective ones its potential `matches`.
+In order to build those set and pass them as argument, one must use the `keyVals` function where the first argument would be the `indice` and the consective ones its potential `matches`.
 
 ```
 {{ $related := .Site.RegularPages.RelatedTo ( keyVals "tags" "hugo" "rocks")  ( keyVals "date" .Date ) }}
@@ -104,7 +104,7 @@ toLower
 ### Config Options per Index
 
 name
-:  The index name. This value maps directly to a page param. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects. 
+:  The index name. This value maps directly to a page param. Hugo supports string values (`author` in the example) and lists (`tags`, `keywords` etc.) and time and date objects.
 
 weight
 : An integer weight that indicates _how important_ this parameter is relative to the other parameters.  It can be 0, which has the effect of turning this index off, or even negative. Test with different values to see what fits your content best.
@@ -117,13 +117,13 @@ toLower
 
 ## Performance Considerations
 
-**Fast is Hugo's middle name** and we would not have released this feature had it not been blistering fast. 
+**Fast is Hugo's middle name** and we would not have released this feature had it not been blistering fast.
 
 This feature has been in the back log and requested by many for a long time. The development got this recent kick start from this Twitter thread:
 
 {{< tweet 898398437527363585 >}}
 
-Scott S. Lowe removed the "Related Content" section built using the `intersect` template function on tags, and the build time dropped from 30 seconds to less than 2 seconds on his 1700 content page sized blog. 
+Scott S. Lowe removed the "Related Content" section built using the `intersect` template function on tags, and the build time dropped from 30 seconds to less than 2 seconds on his 1700 content page sized blog.
 
 He should now be able to add an improved version of that "Related Content" section without giving up the fast live-reloads. But it's worth noting that:
 

@@ -109,7 +109,7 @@ You can find a list of all template variables to access the profile information 
 
 As aforementioned, Hugo is able to generate links to profiles of the most popular social networks. The following social networks with their corrersponding identifiers are supported:  `github`, `facebook`, `twitter`, `pinterest`, `instagram`, `youtube` and `linkedin`.
 
-This is can be done with the `.Social.URL` function. Its only parameter is the name of the social network as they are defined in the profile (e.g. `facebook`). Custom variables like `website` remain as they are.
+This is can be done with the `.Social.URL` function. Its only parameter is the name of the social network as they are defined in the profile (e.g. `facebook`, `twitter`). Custom variables like `website` remain as they are.
 
 Most articles feature a small section with information about the author at the end. Let's create one containing the author's name, a thumbnail, a (summarized) biography and links to all social networks:
 
