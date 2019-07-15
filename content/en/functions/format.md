@@ -87,8 +87,10 @@ date: 2017-03-03T14:15:59-06:00
 `"Mon, 02 Jan 2006 15:04:05 MST"` (RFC1123)
 : **Returns**: `Fri, 03 Mar 2017 14:15:59 CST`
 
-`"Mon, 02 Jan 2006 15:04:05 -0700"` (RFC339)
+`"Mon, 02 Jan 2006 15:04:05 -0700"` (RFC1123Z)
 : **Returns**: `Fri, 03 Mar 2017 14:15:59 -0600`
+
+More examples can be found in Go's [documentation for the time package][timeconst].
 
 ### Cardinal Numbers and Ordinal Abbreviations
 
@@ -121,3 +123,4 @@ In conjunction with the [`dateFormat` function][dateFormat], you can also conver
 [gdex]: https://golang.org/pkg/time/#example_Time_Format
 [pagevars]: /variables/page/
 [time]: https://golang.org/pkg/time/
+[timeconst]: https://golang.org/pkg/time/#ANSIC

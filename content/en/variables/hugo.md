@@ -19,6 +19,11 @@ toc: false
 wip: false
 ---
 
+{{% warning "Deprecated" %}}
+Page's `.Hugo` is deprecated and will be removed in a future release. Use the global `hugo` function.  
+For example: `hugo.Generator`.
+{{% /warning %}}
+
 It contains the following fields:
 
 .Hugo.Generator

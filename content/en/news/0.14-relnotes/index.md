@@ -30,7 +30,7 @@ Hugo also depends on a lot of other great projects. A big thanks to all of our d
 - New template functions:
   - `getenv`
   - The string functions `substr` and `slicestr`
-    *`seq`, a sequence generator very similar to its Gnu countepart
+    *`seq`, a sequence generator very similar to its Gnu counterpart
   - `absURL` and `relURL`, both of which takes the `BaseURL` setting into account
 
 ## Improvements

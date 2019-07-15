@@ -132,4 +132,4 @@ If you add screenshots to the README, please make use of absolute file paths ins
 {{% /note %}}
 
 [artistexample]: https://github.com/digitalcraftsman/hugo-artists-theme/tree/master/exampleSite
-[themeissuenew]: https://github.com/gohugoio/hugoThemes/issues/new
+[themeissuenew]: https://github.com/gohugoio/hugoThemes/issues/new?template=theme-submission.md
