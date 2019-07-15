@@ -46,6 +46,7 @@ For multilingual sites, we also create a Sitemap index. You can provide a custom
 This template respects the version 0.9 of the [Sitemap Protocol](http://www.sitemaps.org/protocol.html).
 
 ```xml
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   {{ range .Data.Pages }}
@@ -69,18 +70,12 @@ This template respects the version 0.9 of the [Sitemap Protocol](http://www.site
 </urlset>
 ```
 
-{{% note %}}
-Hugo will automatically add the following header line to this file
-on render. Please don't include this in the template as it's not valid HTML.
-
-`<?xml version="1.0" encoding="utf-8" standalone="yes" ?>`
-{{% /note %}}
-
 ## Hugo's sitemapindex.xml
 
 This is used to create a Sitemap index in multilingual mode:
 
 ```xml
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>" | safeHTML }}
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	{{ range . }}
 	<sitemap>

@@ -31,3 +31,7 @@ Can be combined in pipes. In the following snippet, the link text is cleaned up 
     <li><a href="{{ printf "%s/%s" "categories" ($name | urlize | lower) | absURL }}">{{ $name | humanize | title }} ({{ len $items }})</a></li>
 {{ end }}
 ```
+
+## Configure Title Case
+
+The default is AP Stylebook, but you can [configure it](/getting-started/configuration/#configure-title-case).

@@ -60,7 +60,7 @@ Without any additional configuration, the following will just work:
 ## Path Breakdown in Hugo
 
 
-The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseurl = "https://example.com"` in your [site's configuration file][config].
+The following demonstrates the relationships between your content organization and the output URL structure for your Hugo website when it renders. These examples assume you are [using pretty URLs][pretty], which is the default behavior for Hugo. The examples also assume a key-value of `baseURL = "https://example.com"` in your [site's configuration file][config].
 
 ### Index Pages: `_index.md`
 

@@ -30,6 +30,9 @@ See [`.Scratch`](/functions/scratch/) for page-scoped, writable variables.
 .AlternativeOutputFormats
 : contains all alternative formats for a given page; this variable is especially useful `link rel` list in your site's `<head>`. (See [Output Formats](/templates/output-formats/).)
 
+.Aliases
+: aliases of this page
+
 .Content
 : the content itself, defined below the front matter.
 
@@ -133,6 +136,9 @@ http://remarkjs.com)
 .ReadingTime
 : the estimated time, in minutes, it takes to read the content.
 
+.Resources
+: resources such as images and CSS that are associated with this page
+
 .Ref
 : returns the permalink for a given reference (e.g., `.Ref "sample.md"`).  `.Ref` does *not* handle in-page fragments correctly. See [Cross References](/content-management/cross-references/).
 
@@ -163,6 +169,9 @@ http://remarkjs.com)
 
 .Translations
 : a list of translated versions of the current page. See [Multilingual Mode](/content-management/multilingual/) for more information.
+
+.TranslationKey
+: the key used to map language translations of the current page. See [Multilingual Mode](/content-management/multilingual/) for more information.
 
 .Truncated
 : a boolean, `true` if the `.Summary` is truncated. Useful for showing a "Read more..." link only when necessary.  See [Summaries](/content-management/summaries/) for more information.
