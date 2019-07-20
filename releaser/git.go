@@ -291,10 +291,6 @@ func gitVersionTagBefore(ref string) (string, error) {
 	return gitShort("describe", "--tags", "--abbrev=0", "--always", "--match", "v[0-9]*", ref+"^")
 }
 
-func gitLog() (string, error) {
-	return gitLogBefore("HEAD", "", "")
-}
-
 func gitShort(args ...string) (output string, err error) {
 	output, err = git(args...)
 	return strings.Replace(strings.Split(output, "\n")[0], "'", "", -1), err
