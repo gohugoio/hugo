@@ -151,17 +151,6 @@ func (c handlerContext) childCtx(fi *fileInfo) *handlerContext {
 	return &c
 }
 
-func (c *handlerContext) supports(exts ...string) bool {
-	ext := c.ext()
-	for _, s := range exts {
-		if s == ext {
-			return true
-		}
-	}
-
-	return false
-}
-
 func (c *handlerContext) isContentFile() bool {
 	return contentFileExtensionsSet[c.ext()]
 }
