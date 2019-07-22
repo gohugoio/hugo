@@ -28,7 +28,7 @@ func New(port int) transform.Transformer {
 		b := ft.From().Bytes()
 		endBodyTag := "</body>"
 		match := []byte(endBodyTag)
-		replaceTemplate := `<script data-no-instant>document.write('<script src="/livereload.js?port=%d&mindelay=10"></' + 'script>')</script>%s`
+		replaceTemplate := `<script data-no-instant>document.write('<script src="/livereload.js?port=%d&mindelay=10&v=2"></' + 'script>')</script>%s`
 		replace := []byte(fmt.Sprintf(replaceTemplate, port, endBodyTag))
 
 		newcontent := bytes.Replace(b, match, replace, 1)
