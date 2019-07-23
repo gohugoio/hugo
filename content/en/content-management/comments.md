@@ -62,6 +62,7 @@ There are a few alternatives to commenting on static sites for those who do not 
 * [Utterances](https://utteranc.es/) (Open source, Github comments widget built on Github issues)
 * [Remark](https://github.com/umputun/remark) (Open source, Golang, Easy to run docker)
 * [Commento](https://commento.io/) (Open Source, available as a service, local install, or docker image)
+* [JustComments](https://just-comments.com) (Open Source, available as a service, can be self-hosted)
 
 <!-- I don't think this is worth including in the documentation since it seems that Steve is no longer supporting or developing this project. rdwatters - 2017-02-29.-->
 <!-- * [Kaiju](https://github.com/spf13/kaiju) -->
